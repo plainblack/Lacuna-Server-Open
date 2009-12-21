@@ -13,6 +13,7 @@ __PACKAGE__->add_attributes({
     type            => { isa => 'Str' },
     is_gas_giant    => { isa => 'Str', default=>0 },
     is_asteroid     => { isa => 'Str', default=>0 },
+    last_updated    => { isa => 'DateTime' },
     happiness_per   => { isa => 'Int' },
     happiness       => { isa => 'Int' },
     waste_per       => { isa => 'Int' },
