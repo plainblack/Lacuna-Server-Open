@@ -1,9 +1,9 @@
 package Lacuna::DB::Planet;
 
 use Moose;
-extends 'SimpleDB::Class::Domain';
+extends 'SimpleDB::Class::Item';
 
-__PACKAGE__->set_name('planet');
+__PACKAGE__->set_domain_name('planet');
 __PACKAGE__->add_attributes({
     name            => { isa => 'Str' },
     date_created    => { isa => 'DateTime' },

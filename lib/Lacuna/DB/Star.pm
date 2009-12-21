@@ -1,9 +1,9 @@
 package Lacuna::DB::Star;
 
 use Moose;
-extends 'SimpleDB::Class::Domain';
+extends 'SimpleDB::Class::Star';
 
-__PACKAGE__->set_name('empire');
+__PACKAGE__->set_domain_name('star');
 __PACKAGE__->add_attributes({
     name            => { isa => 'Str' },
     is_named        => { isa => 'Str', default => 0 },

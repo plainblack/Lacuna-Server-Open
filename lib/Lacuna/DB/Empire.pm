@@ -1,9 +1,9 @@
 package Lacuna::DB::Empire;
 
 use Moose;
-extends 'SimpleDB::Class::Domain';
+extends 'SimpleDB::Class::Item';
 
-__PACKAGE__->set_name('empire');
+__PACKAGE__->set_domain_name('empire');
 __PACKAGE__->add_attributes({
     name            => { isa => 'Str' },
     date_created    => { isa => 'DateTime' },
