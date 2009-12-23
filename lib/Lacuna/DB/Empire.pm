@@ -4,7 +4,7 @@ use Moose;
 extends 'SimpleDB::Class::Item';
 
 __PACKAGE__->set_domain_name('empire');
-__PACKAGE__->add_attributes({
+__PACKAGE__->add_attributes(
     name            => { isa => 'Str' },
     date_created    => { isa => 'DateTime' },
     description     => { isa => 'Str' },
@@ -17,7 +17,7 @@ __PACKAGE__->add_attributes({
     essentia        => { isa => 'Int' },
     points          => { isa => 'Int' },
     rank            => { isa => 'Int' }, # just where it is stored, but will come out of date quickly
-});
+);
 
 # achievements
 # personal confederacies

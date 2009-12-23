@@ -4,7 +4,7 @@ use Moose;
 extends 'SimpleDB::Class::Item';
 
 __PACKAGE__->set_domain_name('species');
-__PACKAGE__->add_attributes({
+__PACKAGE__->add_attributes(
     name                    => { isa => 'Str' },
     date_created            => { isa => 'DateTime' },
     created_by              => { isa => 'Str' },
@@ -19,7 +19,7 @@ __PACKAGE__->add_attributes({
     environment_affinity    => { isa => 'Int' }, # waste
     political_affinity      => { isa => 'Int' }, # happiness
     trade_affinity          => { isa => 'Int' }, # speed of cargoships, and amount of cargo hauled
-});
+);
 
 # colonization affinity
 # water affinity
