@@ -9,11 +9,9 @@ has simpledb => (
 );
 
 sub get_stars {
-    my ($self, $proc) = @_;
-    my ($session_id, $x1, $y1, $x2, $y2, $z) = @{$proc->params};
+    my ($self, $session, $x1, $y1, $x2, $y2, $z) = @_;
     if ((abs($x2 - $x1) * abs($y2 - $y1)) > 100) {
-        $proc->invalid_params('Requested area too large.');
-        return undef;
+        die [1003, 'Requested area too large.'];
     }
     else {
         my $stars = $self->simpledb->domain('star')->search({z=>$z, y=>['between', $y1, $y2], x=>['between', $x1, $x2]});
@@ -33,7 +31,7 @@ sub get_stars {
     }
 }
 
-__PACKAGE__->register_advanced_rpc_method_names(qw(get_stars));
+__PACKAGE__->register_rpc_method_names(qw(get_stars));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

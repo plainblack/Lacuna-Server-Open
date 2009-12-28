@@ -1,0 +1,58 @@
+=head1 Empire Methods
+
+The following methods are available from C</empire>.
+
+=head2 is_name_available ( name ) 
+
+Returns a 1 if the name is available, or a 0 if it is not.
+
+=head3 name
+
+The name of the empire to search for.
+
+=head2 create ( params ) 
+
+Creates a new empire and then returns a hash reference with a session and an empire_id.
+
+ {
+    empire_id   => '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
+    session     => '6ba7b810-9dad-11d1-80b4-00c04fd430c8|2009-12-01 10:43:01 04939911 +0600'
+ }
+
+Throws 1000.
+
+=head3 params
+
+A hash reference of parameters.
+
+=head4 name
+
+The name of the empire to create. Required.
+
+=head4 password
+
+The password to log in to the empire. Required.
+
+=head4 species_id
+
+The id of the species that rules this empire. Required.
+
+
+
+=head1 Error Codes
+
+The following game error codes may be thrown by these methods.
+
+=head2 1000 Invalid empire name. 
+
+Perhaps it already exists, or it's blank, or it contains unusable characters.
+
+=head2 1001 Invalid password. 
+
+Passwords cannot be empty and they must be at least 6 characters long.
+
+=head2 1002 Invalid species.
+
+The species provided doesn't exist.
+
+=cut
