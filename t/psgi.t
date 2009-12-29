@@ -100,6 +100,17 @@ cmp_deeply(
 );
 my $borg_id = $result->{result};
 
+
+### EMPIRE
+
+$result = post('species', {method=>'is_name_available', params=>['The Federation']});
+is($result->{result}, 1, 'empire name is available');
+
+$result = post('species', {method=>'is_name_available', params=>['The Federation']});
+is($result->{result}, 0, 'empire name not available');
+
+
+
 ### MAP
 #{method=>"get_stars",params=>["xxx",-3,-3,2,2,0]}
 

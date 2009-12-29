@@ -16,7 +16,8 @@ sub is_name_available {
         return 0;
     }
     else {
-        my $count = $self->simpledb->domain('empire')->count({name=>$name});
+        $name =~ s{\s+}{_}xmsg;
+        my $count = $self->simpledb->domain('empire')->count({cname=>lc($name)});
         return ($count) ? 0 : 1;
     }
 }

@@ -5,7 +5,14 @@ extends 'SimpleDB::Class::Item';
 
 __PACKAGE__->set_domain_name('species');
 __PACKAGE__->add_attributes(
-    name                    => { isa => 'Str' },
+    name                    => { isa => 'Str', 
+        trigger => sub {
+            my ($self, $new, $old) = @_;
+            $new =~ s{\s+}{_}xmsg;
+            $self->cname(lc($new));
+        } 
+    },
+    cname                   => { isa => 'Str' },
     description             => { isa => 'Str' },
     habitable_orbits        => { isa => 'Int' },
     construction_affinity   => { isa => 'Int' }, # cost of building new stuff

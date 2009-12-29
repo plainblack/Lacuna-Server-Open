@@ -7,7 +7,14 @@ use DateTime;
 
 __PACKAGE__->set_domain_name('empire');
 __PACKAGE__->add_attributes(
-    name            => { isa => 'Str' },
+    name            => { isa => 'Str', 
+        trigger=>sub {
+            my ($self, $new, $old) = @_;
+            $new =~ s{\s+}{_}xmsg;
+            $self->cname(lc($new));
+        } 
+    },
+    cname           => { isa => 'Str' },
     date_created    => { isa => 'DateTime' },
     description     => { isa => 'Str' },
     status_message  => { isa => 'Str' },
