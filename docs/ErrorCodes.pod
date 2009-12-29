@@ -2,7 +2,7 @@
 
 The following game error codes may be thrown by the Lacuna game server.
 
-=head2 1000 Empire name not available.
+=head2 1000 Name not available.
 
 Perhaps it already exists, or it's blank, or it contains unusable characters.
 
@@ -10,9 +10,9 @@ Perhaps it already exists, or it's blank, or it contains unusable characters.
 
 Passwords cannot be empty and they must be at least 6 characters long.
 
-=head2 1002 Invalid species.
+=head2 1002 Object does not exist.
 
-The species provided doesn't exist.
+The object you've requested by id doesn't exist.
 
 =head2 1003 Too much information.
 
@@ -22,9 +22,21 @@ You've requested too much information from the server at once.
 
 The user mistyped the password, or doesn't know it.
 
-=head2 1005 Empire doesn't exist.
+=head2 1005 Contains invalid characters.
 
-The empire you're trying to access doesn't exist.
+Thrown when a text field contains invalid characters.
+
+=head2 1006 Authorization denied.
+
+A basic authorization denied error, because the session you're trying to connect with doesn't exist or has expired.
+
+=head2 1007 Overspend.
+
+You have tried to spend more resources than you have.
+
+=head2 1008 Underspend.
+
+You need to spend more resources than you have spent.
 
 =cut
 

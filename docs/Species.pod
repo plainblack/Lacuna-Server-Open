@@ -1,0 +1,83 @@
+=head1 Species Methods
+
+The following methods are available from C</species>.
+
+=head2 is_name_available ( name ) 
+
+Returns a 1 if the name is available, or a 0 if it is not.
+
+=head3 name
+
+The name of the species to search for.
+
+
+
+=head2 create ( params ) 
+
+Creates a species and then returns the id of the new species.
+
+Throws 1000, 1005, 1007, and 1008.
+
+=head3 params
+
+A hash of parameters. With the exception of name and description, the parameters are all integers. When added together they must equal 45. 
+
+=head4 name
+
+The name of the species to create. Limited to 30 characters, cannot be blank, and cannot contain @, &, <, >, or ;. Required. 
+
+=head4 description
+
+The password to log in to the empire. Limited to 1024 characters and cannot contain @, &, <, >, or ;.
+
+=head4 habitable_orbits
+
+Any array reference of integers. The integers must be between 1 and 7, inclusive, where 1 is closest to the star. The integers must be consecutive. At least one integer must be in the array. For this attribute, each of the elements in the array count as a point rather than the integers themselves.
+
+=head4 construction_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in constructing new buildings and destroying old buildings.
+
+=head4 deception_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in spying.
+
+=head4 research_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in upgrading existing buildings.
+
+=head4 management_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in the speed of building.
+
+=head4 farming_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in food production.
+
+=head4 mining_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in mineral production.
+
+=head4 science_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in energy, propultion, and other technologies.
+
+=head4 environmental_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in waste and water management.
+
+=head4 political_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in managing population happiness.
+
+=head4 trade_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in freight handling.
+
+=head4 growth_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in colonization.
+
+
+
+=cut

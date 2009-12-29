@@ -2,7 +2,7 @@
 
 These methods are accessible via the C</map> URL.
 
-=head2 get_stars ( session, x1, y1, x2, y2, z )
+=head2 get_stars ( session_id, x1, y1, x2, y2, z )
 
 Retrieves a chunk of the map and returns it as an array of hashes.
 
@@ -29,7 +29,7 @@ Retrieves a chunk of the map and returns it as an array of hashes.
 
 The requested area can be no larger than 100 stars. Throws 1003 when the area is too large.
 
-=head3 session
+=head3 session_id
 
 A session id.
 

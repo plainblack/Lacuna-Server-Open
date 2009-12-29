@@ -6,17 +6,30 @@ requires 'simpledb';
 
 sub is_session_valid {
     my ($self, $session_id) = @_;
-    my $session = $self->simpledb->domain('session')->find($session_id);
+    my $session = eval{$self->get_session($session_id)};
     return (defined $session);
+}
+
+sub get_session {
+    my ($self, $session_id) = @_;
+    my $session = $self->simpledb->domain('session')->find($session_id);
+    if (defined $session && !$session->has_expired) {
+        return $session;
+    }
+    else {
+        confess [1006, 'Authorization denied.', $session_id];
+    }
 }
 
 sub get_empire_by_session {
     my ($self, $session_id) = @_;
-    my $session = $self->simpledb->domain('session')->find($session_id);
-    if (defined $session) {
-        return $session->empire;
+    my $empire = $self->get_session($session_id)->empire;
+    if (defined $empire) {
+        return $empire;
     }
-    return undef;
+    else {
+        confess [1002, 'Empire does not exist.'];
+    }
 }
 
 
