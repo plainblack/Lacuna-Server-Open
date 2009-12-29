@@ -16,7 +16,7 @@ The name of the species to search for.
 
 Creates a species and then returns the id of the new species.
 
-Throws 1000, 1005, 1007, and 1008.
+Throws 1000, 1005, 1007, 1008, and 1009. The C<data> parameter will contain the field name that needs to be adjusted, if it can be attributed to a single field.
 
 =head3 params
 

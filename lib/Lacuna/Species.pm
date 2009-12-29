@@ -15,12 +15,13 @@ sub is_name_available {
     }
     else {
         my $count = $self->simpledb->domain('species')->count({name=>$name});
-        return !$count;
+        return ($count) ? 0 : 1;
     }
 }
 
-sub create_species {
+sub create {
     my ($self, %me) = @_;
+    $me{name} =~ s{^\s+(.*)\s+$}{$1}xms; # remove extra white space
     if ( $me{name} eq '' || length($me{name}) > 30 || $me{name} =~ m/[@&<>;]/ || !$self->is_name_available($me{name})) {
         confess [1000,'Species name not available.', 'name'];
     }
@@ -34,14 +35,33 @@ sub create_species {
     elsif ($points < 1) {
         confess [1008, 'Too few orbits.', 'habitable_orbits'];
     }
+    my $previous;
+    foreach my $orbit (sort @{$me{habitable_orbits}}) {
+        $orbit += 0; #ensure it's a number
+        if ($orbit < 1 || $orbit > 7) {
+            confess [1009, 'Not a valid orbit.', 'habitable_orbits'];
+        }
+        if ($previous) {
+            if ($orbit != $previous+1) {
+                confess [1009, 'Orbits must be consecutive.', 'habitable_orbits'];
+            }
+        }
+        $previous = $orbit;
+    }
     foreach my $attr (qw(construction_affinity deception_affinity research_affinity management_affinity farming_affinity mining_affinity science_affinity environmental_affinity political_affinity trade_affinity growth_affinity)) {
         $me{$attr} += 0; # ensure it's a number
+        if ($me{$attr} < 1) {
+            confess [1008, 'Too little to an affinity.', $attr];
+        }
+        elsif ($me{$attr} > 7) {
+            confess [1007, 'Too much to an affinity.', $attr];
+        }
         $points += $me{$attr};
     }
     if ($points > 45) {
         confess [1007, 'Overspend.'];
     }
-    else ($points < 45) {
+    elsif ($points < 45) {
         confess [1008, 'Underspend.'];
     }
     my $species = $self->simpledb->domain('species')->insert({ # specify each attribute to avaid data injection

@@ -3,12 +3,12 @@ package Lacuna::Empire;
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
 
-with 'Sessionable';
-
 has simpledb => (
     is      => 'ro',
     required=> 1,
 );
+
+with 'Lacuna::Role::Sessionable';
 
 sub is_name_available {
     my ($self, $name) = @_;
@@ -17,7 +17,7 @@ sub is_name_available {
     }
     else {
         my $count = $self->simpledb->domain('empire')->count({name=>$name});
-        return !$count;
+        return ($count) ? 0 : 1;
     }
 }
 

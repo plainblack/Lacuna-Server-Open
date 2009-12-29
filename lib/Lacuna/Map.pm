@@ -3,12 +3,12 @@ package Lacuna::Map;
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
 
-with 'Sessionable';
-
 has simpledb => (
     is      => 'ro',
     required=> 1,
 );
+
+with 'Lacuna::Role::Sessionable';
 
 sub get_stars {
     my ($self, $session_id, $x1, $y1, $x2, $y2, $z) = @_;
