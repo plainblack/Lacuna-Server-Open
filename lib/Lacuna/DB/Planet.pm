@@ -27,16 +27,16 @@ __PACKAGE__->add_attributes(
     water_stored    => { isa => 'Int' },
     water_storage   => { isa => 'Int' },
     mineral_storage => { isa => 'Int' },
-#    mineral_stored  => { isa => 'Serial' },
-#    mineral_per     => { isa => 'Serial' },
+    mineral_stored  => { isa => 'HashRef' },
+    mineral_per     => { isa => 'HashRef' },
     food_storage    => { isa => 'Int' },
-#    food_stored     => { isa => 'Serial' },
-#    food_per        => { isa => 'Serial' },
+    food_stored     => { isa => 'HashRef' },
+    food_per        => { isa => 'HashRef' },
 );
 
-#__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
 __PACKAGE__->belongs_to('star', 'Lacuna::DB::Star', 'star_id');
-#__PACKAGE__->has_many('slots', 'Lacuna::DB::Slot', 'planet_id');
+__PACKAGE__->has_many('slots', 'Lacuna::DB::Slot', 'planet_id');
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

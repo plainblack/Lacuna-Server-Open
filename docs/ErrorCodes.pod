@@ -1,0 +1,30 @@
+=head1 Error Codes
+
+The following game error codes may be thrown by the Lacuna game server.
+
+=head2 1000 Empire name not available.
+
+Perhaps it already exists, or it's blank, or it contains unusable characters.
+
+=head2 1001 Invalid password. 
+
+Passwords cannot be empty and they must be at least 6 characters long.
+
+=head2 1002 Invalid species.
+
+The species provided doesn't exist.
+
+=head2 1003 Too much information.
+
+You've requested too much information from the server at once.
+
+=head2 1004 Password incorrect.
+
+The user mistyped the password, or doesn't know it.
+
+=head2 1005 Empire doesn't exist.
+
+The empire you're trying to access doesn't exist.
+
+=cut
+

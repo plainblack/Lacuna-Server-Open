@@ -10,16 +10,30 @@ Returns a 1 if the name is available, or a 0 if it is not.
 
 The name of the empire to search for.
 
+=head2 login ( name, password )
+
+Returns a session id after confirming the password matches the empire.
+
+Throws 1004 and 1005.
+
+=head3 name
+
+The name of the empire.
+
+=head3 password
+
+The password to authenticate to the empire.
+
 =head2 create ( params ) 
 
 Creates a new empire and then returns a hash reference with a session and an empire_id.
 
  {
     empire_id   => '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
-    session     => '6ba7b810-9dad-11d1-80b4-00c04fd430c8|2009-12-01 10:43:01 04939911 +0600'
+    session_id  => '7ba7b80d-91d1-b0b3-1111-10c04fd430cd'
  }
 
-Throws 1000.
+Throws 1000, 1001, 1002.
 
 =head3 params
 
@@ -39,20 +53,5 @@ The id of the species that rules this empire. Required.
 
 
 
-=head1 Error Codes
-
-The following game error codes may be thrown by these methods.
-
-=head2 1000 Invalid empire name. 
-
-Perhaps it already exists, or it's blank, or it contains unusable characters.
-
-=head2 1001 Invalid password. 
-
-Passwords cannot be empty and they must be at least 6 characters long.
-
-=head2 1002 Invalid species.
-
-The species provided doesn't exist.
 
 =cut

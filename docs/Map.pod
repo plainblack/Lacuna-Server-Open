@@ -27,7 +27,7 @@ Retrieves a chunk of the map and returns it as an array of hashes.
     }
  ]
 
-The requested area can be no larger than 100 stars. Throws invalid params (-32602) when area is too large.
+The requested area can be no larger than 100 stars. Throws 1003 when the area is too large.
 
 =head3 session
 
