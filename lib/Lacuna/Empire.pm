@@ -3,6 +3,7 @@ package Lacuna::Empire;
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
 use Lacuna::Util qw(cname);
+use Digest::SHA;
 
 has simpledb => (
     is      => 'ro',
@@ -24,10 +25,7 @@ sub is_name_available {
 
 sub logout {
     my ($self, $session_id) = @_;
-    my $session = $self->get_session($session_id);
-    if (defined $session) {
-        $session->delete;
-    }
+    $self->get_session($session_id)->delete;
     return 1;
 }
 
@@ -35,7 +33,7 @@ sub login {
     my ($self, $name, $password) = @_;
     my $empire = $self->simpledb->domain('empire')->search({cname=>cname($name)})->next;
     if (defined $empire) {
-        if ($empire->authenticate_password($password)) {
+        if ($empire->password eq $self->encrypt_password($password)) {
             return $empire->start_session->id;
         }
         else {
@@ -53,7 +51,7 @@ sub create {
     if ( $account{name} eq '' || length($account{name}) > 30 || $account{name} =~ m/[@&<>;]/ || !$self->is_name_available($account{name})) {
         confess [1000,'Empire name not available.', $account{name}];
     }
-    elsif ($account{password} eq '' || length($account{password}) < 6 || $account{password} ne $account{password1})  {
+    elsif (length($account{password}) < 6 || $account{password} ne $account{password1})  {
         confess [1001,'Invalid password.', $account{password}];
     }
     elsif ($account{species_id} eq '' || !$self->simpledb->domain('species')->find($account{species_id}))  {
@@ -63,12 +61,18 @@ sub create {
         my $empire = $self->simpledb->domain('empire')->insert({
             name            => $account{name},
             date_created    => DateTime->now,
-            password        => $account{password},
+            password        => $self->encrypt_password($account{password}),
             species_id      => $account{species_id},
         });
-        return { empire_id => $empire->id, session => $empire->start_session->id };
+        return { empire_id => $empire->id, session_id => $empire->start_session->id };
     }
 }
+
+sub encrypt_password {
+    my ($self, $password) = @_;
+    return Digest::SHA::sha256_base64($password);
+}
+
 
 __PACKAGE__->register_rpc_method_names(qw(is_name_available create login logout));
 

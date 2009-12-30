@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 17;
+use Test::More tests => 18;
 use Test::Deep;
 use LWP::UserAgent;
 use JSON qw(to_json from_json);
@@ -9,12 +9,11 @@ use 5.010;
 
 my $result;
 
-### SPECIES
-$result = post('species', {method=>'is_name_available', params=>['Human']});
-is($result->{result}, 0, 'species name not available');
+$result = post('species', 'is_name_available', ['Human']);
+is($result->{result}, 0, 'species name Human not available');
 
-$result = post('species', {method=>'is_name_available', params=>['Borg']});
-is($result->{result}, 1, 'species name is available');
+$result = post('species', 'is_name_available', ['Borg']);
+is($result->{result}, 1, 'species name Borg is available');
 
 my $borg = {
         name=>'Human', 
@@ -33,66 +32,66 @@ my $borg = {
         growth_affinity         => 7,
         };
 
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 is($result->{error}{code}, 1000, 'create species with an existing name');
 
 $borg->{name} = 'Borg abcdefghijklmnopqrstuvwxyz 123456';
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 is($result->{error}{code}, 1000, 'create species with too long a name');
 
 $borg->{name} = 'Borg >';
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 is($result->{error}{code}, 1000, 'create species with invalid characters in the name');
 
 $borg->{name} = '';
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 is($result->{error}{code}, 1000, 'create species with no name');
 
 $borg->{name} = 'Borg';
 $borg->{description} = 'cyborg &';
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 is($result->{error}{code}, 1005, 'create species with junk in description');
 
 $borg->{description} = 'cyborg';
 push @{$borg->{habitable_orbits}}, 8;
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 is($result->{error}{code}, 1007, 'create species with too many orbits');
 
 $borg->{habitable_orbits} = [];
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 is($result->{error}{code}, 1008, 'create species with too few orbits');
 
 $borg->{habitable_orbits} = 'blah';
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 is($result->{error}{code}, -32603, 'create species with a non-array of orbits');
 
 $borg->{habitable_orbits} = [0];
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 is($result->{error}{code}, 1009, 'create species with invalid orbits');
 
 $borg->{habitable_orbits} = ['foo'];
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 is($result->{error}{code}, 1009, 'create species with invalid orbits 2');
 
 $borg->{habitable_orbits} = [1,2,3,4,5,6,7];
 $borg->{research_affinity} = 8;
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 is($result->{error}{code}, 1007, 'affinity too high');
 
 $borg->{research_affinity} = 0;
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 is($result->{error}{code}, 1008, 'affinity too low');
 
 $borg->{research_affinity} = 1;
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 is($result->{error}{code}, 1008, 'too few points spent');
 
 $borg->{research_affinity} = 5;
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 is($result->{error}{code}, 1007, 'too many points spent');
 
 $borg->{research_affinity} = 4;
-$result = post('species', {method=>'create', params=>$borg});
+$result = post('species', 'create', $borg);
 cmp_deeply(
     $result,
     {jsonrpc=>'2.0', id=>1, result=>ignore()},
@@ -100,27 +99,18 @@ cmp_deeply(
 );
 my $borg_id = $result->{result};
 
-
-### EMPIRE
-
-$result = post('species', {method=>'is_name_available', params=>['The Federation']});
-is($result->{result}, 1, 'empire name is available');
-
-$result = post('species', {method=>'is_name_available', params=>['The Federation']});
-is($result->{result}, 0, 'empire name not available');
-
-
-
-### MAP
-#{method=>"get_stars",params=>["xxx",-3,-3,2,2,0]}
-
+$result = post('species', 'is_name_available', ['Borg']);
+is($result->{result}, 0, 'species name Borg not available');
 
 
 sub post {
-    my $url = shift;
-    my $content = shift;
-    $content->{jsonrpc} = '2.0';
-    $content->{id} = 1;
+    my ($url, $method, $params) = @_;
+    my $content = {
+        jsonrpc     => '2.0',
+        id          => 1,
+        method      => $method,
+        params      => $params,
+    };
     my $ua = LWP::UserAgent->new;
     $ua->timeout(10);
     my $response = $ua->post('http://localhost:5000/'.$url,

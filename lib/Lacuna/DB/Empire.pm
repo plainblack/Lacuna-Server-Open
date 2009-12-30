@@ -2,17 +2,16 @@ package Lacuna::DB::Empire;
 
 use Moose;
 extends 'SimpleDB::Class::Item';
-use Digest::SHA;
 use DateTime;
-use Lacuna::Util qw(cname);
+use Lacuna::Util;
 
 __PACKAGE__->set_domain_name('empire');
 __PACKAGE__->add_attributes(
     name            => { isa => 'Str', 
-        trigger=>sub {
+        trigger => sub {
             my ($self, $new, $old) = @_;
-            $self->cname(cname($new));
-        } 
+            $self->cname(Lacuna::Util::cname($new));
+        },
     },
     cname           => { isa => 'Str' },
     date_created    => { isa => 'DateTime' },
@@ -36,16 +35,6 @@ __PACKAGE__->has_many('sessions', 'Lacuna::DB::Session', 'empire_id');
 __PACKAGE__->has_many('alliance', 'Lacuna::DB::AllianceMember', 'alliance_id');
 __PACKAGE__->has_many('planets', 'Lacuna::DB::Planet', 'empire_id');
 
-sub authenticate_password {
-    my ($self, $password) = @_;
-    return ($self->password eq $self->encrypt_password($password));
-}
-
-sub encrypt_password {
-    my ($self, $password) = @_;
-    return Digest::SHA::sha256_base64($password);
-}
-
 sub start_session {
     my $self = shift;
     my $session = $self->simpledb->domain('session')->insert({
@@ -53,6 +42,8 @@ sub start_session {
         date_created    => DateTime->now,
         expires         => DateTime->now->add(hours=>2),
     });
+    $self->last_login(DateTime->now);
+    $self->put;
     return $session;
 }
 

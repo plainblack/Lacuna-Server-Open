@@ -63,6 +63,10 @@ The name of the empire to create. Required.
 
 The password to log in to the empire. Required.
 
+=head4 password1
+
+Retyping the password again. This must match C<password> to succeed.
+
 =head4 species_id
 
 The id of the species that rules this empire. Defaults to 'human_species' (Human).
