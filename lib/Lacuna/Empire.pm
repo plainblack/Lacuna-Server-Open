@@ -2,6 +2,7 @@ package Lacuna::Empire;
 
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
+use Lacuna::Util qw(cname);
 
 has simpledb => (
     is      => 'ro',
@@ -16,8 +17,7 @@ sub is_name_available {
         return 0;
     }
     else {
-        $name =~ s{\s+}{_}xmsg;
-        my $count = $self->simpledb->domain('empire')->count({cname=>lc($name)});
+        my $count = $self->simpledb->domain('empire')->count({cname=>cname($name)});
         return ($count) ? 0 : 1;
     }
 }
@@ -33,7 +33,7 @@ sub logout {
 
 sub login {
     my ($self, $name, $password) = @_;
-    my $empire = $self->simpledb->domain('empire')->search({name=>$name})->next;
+    my $empire = $self->simpledb->domain('empire')->search({cname=>cname($name)})->next;
     if (defined $empire) {
         if ($empire->authenticate_password($password)) {
             return $empire->start_session->id;

@@ -4,14 +4,14 @@ use Moose;
 extends 'SimpleDB::Class::Item';
 use Digest::SHA;
 use DateTime;
+use Lacuna::Util qw(cname);
 
 __PACKAGE__->set_domain_name('empire');
 __PACKAGE__->add_attributes(
     name            => { isa => 'Str', 
         trigger=>sub {
             my ($self, $new, $old) = @_;
-            $new =~ s{\s+}{_}xmsg;
-            $self->cname(lc($new));
+            $self->cname(cname($new));
         } 
     },
     cname           => { isa => 'Str' },

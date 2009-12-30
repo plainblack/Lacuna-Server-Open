@@ -2,14 +2,14 @@ package Lacuna::DB::Species;
 
 use Moose;
 extends 'SimpleDB::Class::Item';
+use Lacuna::Util qw(cname);
 
 __PACKAGE__->set_domain_name('species');
 __PACKAGE__->add_attributes(
     name                    => { isa => 'Str', 
         trigger => sub {
             my ($self, $new, $old) = @_;
-            $new =~ s{\s+}{_}xmsg;
-            $self->cname(lc($new));
+            $self->cname(cname($new));
         } 
     },
     cname                   => { isa => 'Str' },

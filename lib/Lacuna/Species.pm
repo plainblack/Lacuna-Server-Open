@@ -2,6 +2,7 @@ package Lacuna::Species;
 
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
+use Lacuna::Util qw(cname);
 
 has simpledb => (
     is      => 'ro',
@@ -14,8 +15,7 @@ sub is_name_available {
         return 0;
     }
     else {
-        $name =~ s{\s+}{_}xmsg;
-        my $count = $self->simpledb->domain('species')->count({cname=>lc($name)});
+        my $count = $self->simpledb->domain('species')->count({cname=>cname($name)});
         return ($count) ? 0 : 1;
     }
 }
