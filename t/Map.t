@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 1;
+use Test::More tests => 2;
 use Test::Deep;
 use LWP::UserAgent;
 use JSON qw(to_json from_json);
@@ -19,7 +19,12 @@ $result = post('empire', 'create', $fed);
 my $fed_id = $result->{result}{empire_id};
 my $session_id = $result->{result}{session_id};
 
-#{method=>"get_stars",params=>["xxx",-3,-3,2,2,0]}
+$result = post('map','get_stars',[$session_id, -3,-3,2,2,0]);
+is(ref $result->{result}, 'ARRAY', 'get stars');
+
+$result = post('map','get_stars',[$session_id, -30,-30,30,30,0]);
+is($result->{error}{code}, 1003, 'get stars too big');
+
 
 
 
