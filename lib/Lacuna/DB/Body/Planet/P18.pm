@@ -14,7 +14,7 @@ has '+image' => (
 );
 
 has '+water' => (
-    default => 5;
+    default => 7600;
 );
 
 

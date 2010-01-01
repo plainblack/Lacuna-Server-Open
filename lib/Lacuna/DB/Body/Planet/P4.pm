@@ -5,7 +5,7 @@ extends 'Lacuna::DB::Body::Planet';
 
 has '+minerals' => (
     default => sub { {
-        gold    => 10,
+        gold    => 1410,
     }},
 );
 
@@ -14,7 +14,7 @@ has '+image' => (
 );
 
 has '+water' => (
-    default => 5;
+    default => 800;
 );
 
 
