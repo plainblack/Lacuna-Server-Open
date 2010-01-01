@@ -1,10 +1,10 @@
-package Lacuna::DB::Body::Planet::GasGiant::G1;
+package Lacuna::DB::Body::Planet::GasGiant::G4;
 
 use Moose;
 extends 'Lacuna::DB::Body::Planet::GasGiant';
 
 has '+image' => (
-    default => 'pg1';
+    default => 'pg4';
 );
 
 has '+minerals' => (

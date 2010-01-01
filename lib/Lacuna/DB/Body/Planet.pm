@@ -28,20 +28,5 @@ __PACKAGE__->add_attributes(
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
 __PACKAGE__->has_many('slots', 'Lacuna::DB::Slot', 'planet_id');
 
-has image => (
-    is      => 'ro',
-    default => undef;
-);
-
-has minerals => (
-    is      => 'ro',
-    default => sub { { } },
-);
-
-has water => (
-    is      => 'ro',
-    default => 0,
-);
-
 no Moose;
 __PACKAGE__->meta->make_immutable;

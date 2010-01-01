@@ -4,7 +4,7 @@ use Moose;
 extends 'Lacuna::DB::Body::Asteroid';
 
 has '+image' => (
-    default => 'a3.png';
+    default => 'a3';
 );
 
 
