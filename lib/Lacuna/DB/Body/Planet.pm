@@ -1,20 +1,11 @@
 package Lacuna::DB::Planet;
 
 use Moose;
-extends 'SimpleDB::Class::Item';
+extends 'Lacuna::DB::Body';
 
-__PACKAGE__->set_domain_name('planet');
 __PACKAGE__->add_attributes(
-    name            => { isa => 'Str' },
-    date_created    => { isa => 'DateTime' },
-    empire_id       => { isa => 'Str' },
-    star_id         => { isa => 'Str' },
-    orbit           => { isa => 'Int' },
     size            => { isa => 'Int' },
-    type            => { isa => 'Str' },
-    is_gas_giant    => { isa => 'Str', default=>0 },
-    is_asteroid     => { isa => 'Str', default=>0 },
-    last_updated    => { isa => 'DateTime' },
+    empire_id       => { isa => 'Str' },
     happiness_per   => { isa => 'Int' },
     happiness       => { isa => 'Int' },
     waste_per       => { isa => 'Int' },
@@ -35,8 +26,22 @@ __PACKAGE__->add_attributes(
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
-__PACKAGE__->belongs_to('star', 'Lacuna::DB::Star', 'star_id');
 __PACKAGE__->has_many('slots', 'Lacuna::DB::Slot', 'planet_id');
+
+has image => (
+    is      => 'ro',
+    default => undef;
+);
+
+has minerals => (
+    is      => 'ro',
+    default => sub { { } },
+);
+
+has water => (
+    is      => 'ro',
+    default => 0,
+);
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
