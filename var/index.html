@@ -30,21 +30,21 @@
 	</div>
 	<script id="noJsScript" type="text/javascript">
 		//remove noscript notice
-		var nojs = document.getElementById("nojavascript");
-		if(nojs) {
-			nojs.parentNode.removeChild(nojs);
+		window.nojs = document.getElementById("nojavascript");
+		if(window.nojs) {
+			window.nojs.parentNode.removeChild(nojs);
 		}
 		//for some reason with no javascript on any links with no hrefs get appended to the end of the page..weird. so waiting to put href on here
 		document.getElementById("users").href = "#";
 		document.getElementById("planets").href = "#";
 		//remove script node as well
-		var njs = document.getElementById("noJsScript");
-		njs.parentNode.removeChild(njs);
+		window.njs = document.getElementById("noJsScript");
+		window.njs.parentNode.removeChild(njs);
 		
-		nojs = null;
-		njs = null;
-		delete window.nojs;
-		delete window.njs;
+		window.nojs = null;
+		window.njs = null;
+		delete window["nojs"];
+		delete window["njs"];
 	</script>
 	<script type="text/javascript" src="http://yui.yahooapis.com/2.8.0r4/build/yuiloader/yuiloader.js"></script>
 	<script type="text/javascript" src="http://localhost/lacuna/load.js"></script>
