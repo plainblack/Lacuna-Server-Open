@@ -33,7 +33,7 @@ __PACKAGE__->add_attributes(
 __PACKAGE__->belongs_to('species', 'Lacuna::DB::Species', 'species_id');
 __PACKAGE__->has_many('sessions', 'Lacuna::DB::Session', 'empire_id');
 __PACKAGE__->has_many('alliance', 'Lacuna::DB::AllianceMember', 'alliance_id');
-__PACKAGE__->has_many('planets', 'Lacuna::DB::Planet', 'empire_id');
+__PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'empire_id');
 
 sub start_session {
     my $self = shift;
