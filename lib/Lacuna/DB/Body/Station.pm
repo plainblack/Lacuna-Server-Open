@@ -4,7 +4,7 @@ use Moose;
 extends 'Lacuna::DB::Body';
 
 has '+image' => (
-    default => 'station';
+    default => 'station',
 );
 
 
