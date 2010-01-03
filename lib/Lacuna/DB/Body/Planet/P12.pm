@@ -10,11 +10,11 @@ has '+minerals' => (
 );
 
 has '+image' => (
-    default => 'p12';
+    default => 'p12',
 );
 
 has '+water' => (
-    default => 5600;
+    default => 5600,
 );
 
 

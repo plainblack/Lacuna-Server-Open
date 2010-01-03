@@ -4,7 +4,7 @@ use Moose;
 extends 'Lacuna::DB::Body::Planet::GasGiant';
 
 has '+image' => (
-    default => 'pg2';
+    default => 'pg2',
 );
 
 has '+minerals' => (

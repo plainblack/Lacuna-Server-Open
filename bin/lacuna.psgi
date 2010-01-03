@@ -13,7 +13,12 @@ my $db = Lacuna::DB->new( access_key => $ENV{SIMPLEDB_ACCESS_KEY}, secret_key =>
 
 my $urlmap = Plack::App::URLMap->new;
 
-$urlmap->map("/" => sub { return [200, ['Content-Type' => 'text/html'], [q{<html><head><title>The Lacuna Expanse</title></head><body><h1>The Lacuna Expanse</h1>You appear to be snooping around where you're not wanted.</body></html>}]]});
+#$urlmap->map("/" => sub { return [200, ['Content-Type' => 'text/html'], [q{<html><head><title>The Lacuna Expanse</title></head><body><h1>The Lacuna Expanse</h1>You appear to be snooping around where you're not wanted.</body></html>}]]});
+open my $file, "<", "../var/index.html";
+my @lines = <$file>;
+close $file;
+$urlmap->map("/" => sub { return [200, ['Content-Type' => 'text/html'], [join("\n",@lines)]]});
+
 $urlmap->map("/api/" => Plack::App::Directory->new({ root => "/data/api" })->to_app);
 
 $urlmap->map("/map" => Lacuna::Map->new(simpledb=>$db)->to_app);

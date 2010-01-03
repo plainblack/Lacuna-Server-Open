@@ -16,7 +16,7 @@ __PACKAGE__->recast_using('class');
 
 has image => (
     is      => 'ro',
-    default => undef;
+    default => undef,
 );
 
 has minerals => (
