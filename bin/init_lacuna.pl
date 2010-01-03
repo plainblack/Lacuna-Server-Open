@@ -14,8 +14,8 @@ my $access = $ENV{SIMPLEDB_ACCESS_KEY};
 my $secret = $ENV{SIMPLEDB_SECRET_KEY};
 my $db = Lacuna::DB->new(access_key=>$access, secret_key=>$secret, cache_servers=>[{host=>127.0.0.1, port=>11211}]);
 
-create_species();
-create_empires();
+#create_species();
+#create_empires();
 create_star_map();
 
 
@@ -69,6 +69,7 @@ sub create_star_map {
     $bodies->create;
     say "Generating star names.";
     my @star_names = get_star_names($star_count);
+    say "Have ".scalar(@star_names)." star names";
 
     say "Adding stars.";
     for my $x ($start_x .. $end_x) {
@@ -78,7 +79,7 @@ sub create_star_map {
                     say "No star at $x, $y, $z!";
                 }
                 else {
-                    async {
+#                    async {
                         my $name = pop @star_names;
                         say "Creating star $name at $x, $y, $z.";
                         my $star = $stars->insert({
@@ -90,17 +91,18 @@ sub create_star_map {
                             z           => $z,
                         });
                         add_bodies($bodies, $star);
-                    }
-                    cede;
+ #                   	cede;
+   #                 }
                 }
             }
-            cede;
+  #          cede;
         }
     }
 }
 
 
 sub add_bodies {
+    my $bodies = shift;
     my $star = shift;
     my @body_types = ('habitable', 'asteroid', 'gas giant');
     my @body_type_weights = (qw(60 15 15));
@@ -120,7 +122,7 @@ sub add_bodies {
             say "\tNo body at $name!";
         } 
         else {
-            async {
+          #  async {
                 my $type = choose_weighted(\@body_types, \@body_type_weights);
                 say "\tAdding a $type at $name.";
                 my $class;
@@ -144,8 +146,8 @@ sub add_bodies {
                     size    => $size,
                     star_id => $star->id,
                 });
-                cede;
-            };
+           #     cede;
+           # };
         }
     }
 }
@@ -153,8 +155,12 @@ sub add_bodies {
 
 sub get_star_names {
     my $star_count = shift;
-    open my $file, "<", "../doc/starnames.txt";
-    my @contents = <$file>;
+    open my $file, "<", "../var/starnames.txt";
+    my @contents;
+    while (my $name = <$file>) {
+	chomp $name;
+        push @contents, $name;
+    }
     close $file;
 
     my $rs = String::Random->new;
@@ -165,7 +171,7 @@ sub get_star_names {
     $rs->{B} = [qw(B C D F G H J K L M N P Qu R S T V W X Y Z Ch Sh Fl Fr Bl Sl St Gr Th Xy Tr Tch Sch Sn Pl Pr Sph Ph Str Ly Gl Gh Ll Rh Kl Cl Vl Kn)];
     $rs->{' '} = [' '];
 
-    my $name_count = (($star_count - 637) / 10) + 1;
+    my $name_count = ($star_count / 10) + 1;
 
     for (1..$name_count) {
         push @contents, $rs->randpattern('Ebe');
