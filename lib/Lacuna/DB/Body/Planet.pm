@@ -1,4 +1,4 @@
-package Lacuna::DB::Planet;
+package Lacuna::DB::Body::Planet;
 
 use Moose;
 extends 'Lacuna::DB::Body';
