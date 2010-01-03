@@ -6,6 +6,9 @@ use JSON qw(to_json from_json);
 use Lacuna::DB;
 use Data::Dumper;
 use 5.010;
+$|=1;
+
+cleanup(); # in case there were failed runs previously
 
 my $result;
 
@@ -121,7 +124,29 @@ sub post {
     return from_json($response->content);
 }
 
-END {
+sub cleanup {
     my $db = Lacuna::DB->new(access_key => $ENV{SIMPLEDB_ACCESS_KEY}, secret_key => $ENV{SIMPLEDB_SECRET_KEY}, cache_servers => [{host=>'127.0.0.1', port=>11211}]);
-    $db->domain('species')->find($borg_id)->delete;
+    my $species = $db->domain('species');
+    if (defined $species) {
+        say "Locating borg";
+        my $borg = eval {$species->search({name=>'Borg'})};
+        if ($@) {
+            die "WTF: ".$@;
+        }
+        elsif (defined $borg) {
+            say "Deleting borg";
+            $borg->delete;
+            say "Borg deleted";
+        }
+        else {
+            say "No borg found.";
+        }
+    }
+    else {
+        say "Couldn't acquire species domain.";
+    }
+}
+
+END {
+    cleanup();
 }
