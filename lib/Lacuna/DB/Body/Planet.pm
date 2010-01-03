@@ -18,11 +18,11 @@ __PACKAGE__->add_attributes(
     water_stored    => { isa => 'Int' },
     water_storage   => { isa => 'Int' },
     mineral_storage => { isa => 'Int' },
-    mineral_stored  => { isa => 'HashRef' },
-    mineral_per     => { isa => 'HashRef' },
+#    mineral_stored  => { isa => 'HashRef' },
+#    mineral_per     => { isa => 'HashRef' },
     food_storage    => { isa => 'Int' },
-    food_stored     => { isa => 'HashRef' },
-    food_per        => { isa => 'HashRef' },
+#    food_stored     => { isa => 'HashRef' },
+#    food_per        => { isa => 'HashRef' },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
