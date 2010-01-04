@@ -8,7 +8,6 @@ __PACKAGE__->add_attributes(
     name            => { isa => 'Str' },
     is_named        => { isa => 'Str', default => 0 },
     date_created    => { isa => 'DateTime' },
-    probed_by       => { isa => 'Str' },
     color           => { isa => 'Str' },
     x               => { isa => 'Int' },
     y               => { isa => 'Int' },

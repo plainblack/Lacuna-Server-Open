@@ -29,5 +29,7 @@ has water => (
     default => 0,
 );
 
+sub recalc_stats { } # interface
+
 no Moose;
 __PACKAGE__->meta->make_immutable;

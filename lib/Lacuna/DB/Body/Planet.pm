@@ -5,7 +5,7 @@ extends 'Lacuna::DB::Body';
 
 __PACKAGE__->add_attributes(
     size            => { isa => 'Int' },
-    empire_id       => { isa => 'Str' },
+    empire_id       => { isa => 'Str', default=>'None' },
     happiness_per   => { isa => 'Int' },
     happiness       => { isa => 'Int' },
     waste_per       => { isa => 'Int' },

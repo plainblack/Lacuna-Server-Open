@@ -26,7 +26,12 @@ A session id.
 
 =head2 login ( name, password )
 
-Returns a session id after confirming the password matches the empire.
+Returns a hash like the following after confirming the password matches the empire.
+
+ {
+    "session_id" : "xxx",
+    "status" : {}
+ }
 
 Throws 1004 and 1005.
 
@@ -45,8 +50,9 @@ The password to authenticate to the empire.
 Creates a new empire and then returns a hash reference with a session and an empire_id.
 
  {
-    empire_id   => '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
-    session_id  => '7ba7b80d-91d1-b0b3-1111-10c04fd430cd'
+    "empire_id"  : "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "session_id" : "7ba7b80d-91d1-b0b3-1111-10c04fd430cd",
+    "status" : {}
  }
 
 Throws 1000, 1001, 1002.

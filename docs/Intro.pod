@@ -1,0 +1,154 @@
+=head1 Introduction
+
+This document can introduce you to interacting with the Lacuna Expanse game server. 
+
+=head1 JSON-RPC
+
+The Lacuna Expanse uses a JSON-RPC 2.0 based API. You can read more about JSON-RPC 2.0 at L<http://groups.google.com/group/json-rpc/web/json-rpc-1-2-proposal>.
+
+You can access these methods either as HTTP POSTs or GETs. 
+
+=head2 HTTP GET
+
+You can simply access any method using HTTP GET. Here's an example URL:
+
+ https://game.lacunaexpanse.com/species?jsonrpc=2.0&id=1&method=is_name_available&params=["Human"]
+
+The C<https://game.lacunaexpanse.com/> part gets you to the server.
+
+Then C</species> lets you interact with the L<Species> module. See below for a complete list.
+
+To make it JSON-RPC 2.0 compatible, you must include the C<jsonrpc=2.0&id=1> part.
+
+Then specify the method you wish to call with C<method=is_name_available>. 
+
+And finally pass in whatever parameters you need like C<params=["Human"]>. Parameters need to be encoded in JSON. By default all methods require an array of parameters. However, some will specifically request a hash reference of parameters; that would look like C<params={"this":"that","foo":"bar"}>
+
+=head2 HTTP POST
+
+Most programming languages will have a JSON-RPC 2.0 client you can either use directly, or download from the internet. These will use HTTP POST. If you need to manually create a POST, it would look like:
+
+ POST,https://game.lacunaexpanse.com/species
+ {
+    "jsonrpc":"2.0",
+    "id":1,
+    "method":"is_name_available",
+    "params":["Human"],
+ }
+
+=head3 Use Post When Possible
+
+HTTP POST is the preferred method of execution. The reasons for this are:
+
+=over
+
+=item *
+
+You can make multiple method calls in the same request, per the JSON-RPC 2.0 specification.
+
+=item *
+
+Depending upon the HTTP Client, you'll have somewhere between 512 and 2048 bytes to send the request on a GET, but it can be unlimited on a POST. 
+
+=item * 
+
+If you use an HTTP GET, you'll need to URL Encode the params, but with POST you don't need to do that.
+
+=back
+
+=head2 Response
+
+Either way you'll get a response back with either a result or an error message.
+
+=head3 Result
+
+If you make a successful request you'll get a response like:
+
+ { 
+    "jsonrpc" : "2.0", 
+    "id" : 1, 
+    "result" : 0 
+ }
+
+=head3 Error
+
+If an exception is thrown you'll get an error response. It's a hash containing a code, message, and data section.
+
+ { 
+    "jsonrpc" : "2.0", 
+    "id" : 1, 
+    "error" : {
+        "code" : 1000, 
+        "message" : "Name not available.", 
+        "data" : null
+    } 
+ }
+
+=head1 Status
+
+Most methods will provide a status block as part of the response. This is used to update the user interface and alert the user to things. The status block is a hash that looks like:
+
+ {
+    "server" : {
+        "time" : ""
+    },
+    "empire" : {
+        "id" : "xxxx",
+        "name" : "The Syndicate",
+        "current_planet_id" : "yyyy",
+        "essentia" : 0,
+        "happiness" : 119393
+        "planets" : {
+            "yyyy " : {
+                "name" : "Earth",
+                "image" : "p13",
+                "happiness" : 3939,
+                "food" : 33329
+                "energy" : 39931
+                "minerals" 28484,
+                "waste" : 99933,
+                "water" : 9929
+            },
+            "yyy1" : {
+                "name" : "Mars",
+                "image" : "p7"
+                "happiness" : 5939,
+                "food" : 53329
+                "energy" : 59931
+                "minerals" 48484,
+                "waste" : 89933,
+                "water" : 7929
+            }
+        }
+    }
+ }
+
+The C<server> section tells you about the status of the server. The C<empire> section tells you about the status of the logged in empire. 
+
+=head1 Modules
+
+=over
+
+=item L<ErrorCodes>
+
+A list of the error codes that might be returned by various modules.
+
+=item L<Empire>
+
+Methods for account and empire management.
+
+=item L<Stats>
+
+Methods for game server statistics.
+
+=item L<Map>
+
+Methods for interacting with the star and systems maps.
+
+=item L<Species>
+
+Methods for creating a species.
+
+=back
+
+=cut

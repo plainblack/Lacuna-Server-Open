@@ -30,9 +30,46 @@ sub get_stars {
                 can_rename  => 1,
             };
         }
-        return \@out;
+        return { stars=>\@out, status=>$empire->get_status };
     }
 }
+
+sub get_max_x_inhabited {
+    my ($self) = @_;
+    my $planet = $self->simpledb->domain('planet')->search({empire_id=>['!=','None']},['x'],1);
+    return (defined $planet)  ? $planet->x : 0;
+}
+
+sub get_min_x_inhabited {
+    my ($self) = @_;
+    my $planet = $self->simpledb->domain('planet')->search({empire_id=>['!=','None']},'x',1);
+    return (defined $planet)  ? $planet->x : 0;
+}
+
+sub get_max_y_inhabited {
+    my ($self) = @_;
+    my $planet = $self->simpledb->domain('planet')->search({empire_id=>['!=','None']},['y'],1);
+    return (defined $planet)  ? $planet->y : 0;
+}
+
+sub get_min_y_inhabited {
+    my ($self) = @_;
+    my $planet = $self->simpledb->domain('planet')->search({empire_id=>['!=','None']},'y',1);
+    return (defined $planet)  ? $planet->y : 0;
+}
+
+sub get_max_z_inhabited {
+    my ($self) = @_;
+    my $planet = $self->simpledb->domain('planet')->search({empire_id=>['!=','None']},['z'],1);
+    return (defined $planet)  ? $planet->z : 0;
+}
+
+sub get_min_z_inhabited {
+    my ($self) = @_;
+    my $planet = $self->simpledb->domain('planet')->search({empire_id=>['!=','None']},'z',1);
+    return (defined $planet)  ? $planet->z : 0;
+}
+
 
 __PACKAGE__->register_rpc_method_names(qw(get_stars));
 
