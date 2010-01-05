@@ -56,7 +56,7 @@ sub create {
         ->no_profanity
         ->ok($self->is_name_available($account{name}));
 
-    Lacuna::Verify->new(content=>\$account{password}), throws=>[1001,'Invalid password.', $account{password}])
+    Lacuna::Verify->new(content=>\$account{password}, throws=>[1001,'Invalid password.', $account{password}])
         ->length_gt(5)
         ->eq($account{password1});
 
@@ -75,8 +75,8 @@ sub create {
             y           => ['between', ($map->get_min_y_inhabited - 2), ($map->get_max_y_inhabited + 2)],
             z           => ['between', ($map->get_min_z_inhabited - 2), ($map->get_max_z_inhabited + 2)],
         });
-        my $home_planet = $planets->next;
-        my $empire = $self->simpledb->domain('empire')->insert({
+        my $home_planet = $possible_planets->next;
+        my $empire = $db->domain('empire')->insert({
             name                => $account{name},
             date_created        => DateTime->now,
             password            => $self->encrypt_password($account{password}),
@@ -85,14 +85,14 @@ sub create {
             home_planet_id      => $home_planet->id,
             probed_stars        => $home_planet->star->id,
         });
-        $home_planet->empire_id($empire->id)->put;
+        $home_planet->empire_id($empire->id);
+        $home_planet->put;
 # add planetary command building
 # add starting resources
         return { empire_id => $empire->id, session_id => $empire->start_session->id, status => $empire->get_status };
     }
 }
 
-}
 sub encrypt_password {
     my ($self, $password) = @_;
     return Digest::SHA::sha256_base64($password);
