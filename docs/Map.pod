@@ -30,7 +30,7 @@ Retrieves a chunk of the map and returns it as an array of hashes.
     "status" : {...}
  }
 
-The requested area can be no larger than 100 stars. Throws 1003 when the area is too large.
+The requested area can be no larger than 121 stars. Throws 1003 when the area is too large.
 
 =head3 session_id
 
@@ -56,11 +56,57 @@ The bottom right y coord.
 
 The z axis. There's no secondary z coordinate because you can only pull from one z axis at a time.
 
+
+
+=head2 get_stars_near_planet ( session_id, planet_id )
+
+Returns a list of 121 stars near a planet, on the same z axis as the planet. The list returned is the same as C<get_stars>
+
+Throws 1002 and anything C<get_stars> can throw.
+
+=head3 session_id
+
+A session id.
+
+=head3 planet_id
+
+The unique id of a planet.
+
+
+=head2 get_star_for_planet ( session_id, planet_id )
+
+Returns the details about a star.
+
+ {
+    "star" : {
+        "name" : "Earth",
+        "id" : "yyyy",
+        "x" : -3,
+        "y" : 4,
+        "z" : 77,
+        "can_rename" : 1
+    },
+    "status" : {...}
+ }
+
+Throws 1002.
+
+=head3 session_id
+
+A session id.
+
+=head3 planet_id
+
+The unique id for a planet.
+
+
+
+
 =head2 rename_star ( session_id, star_id, name )
 
-Renames a star, provided it hasn't already been named.
+Renames a star, provided it hasn't already been named. Returns a 1 on success.
 
-Throws 1002 and 1010.
+Throws 1000, 1002, and 1010.
 
 =head3 session_id
 

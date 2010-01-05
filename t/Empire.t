@@ -59,8 +59,8 @@ $result = post('empire', 'logout', [$session_id]);
 is($result->{result}, 1, 'logout');
 
 $result = post('empire', 'login', ['the Federation','123qwe']);
-ok(exists $result->{result}, 'login');
-$session_id = $result->{result};
+ok(exists $result->{result}{session_id}, 'login');
+$session_id = $result->{result}{session_id};
 
 
 

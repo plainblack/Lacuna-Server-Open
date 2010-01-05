@@ -18,9 +18,29 @@ my $fed = {
 $result = post('empire', 'create', $fed);
 my $fed_id = $result->{result}{empire_id};
 my $session_id = $result->{result}{session_id};
+my $current_planet = $result->{result}{status}{empire}{current_planet_id};
+
+$result = post('map','get_stars_near_planet', [$session_id, $current_planet]);
+is(ref $result->{result}{stars}, 'ARRAY', 'get_stars_near_planet');
+
+$result = post('map','get_star_for_planet', [ $session_id, $current_planet]);
+is($result->{result}{star}{can_rename}, 1, 'get_star_for_planet');
+my $star_id = $result->{result}{star}{id};
+
+$result = post('map','rename_star', [$session_id, $star_id, 'some rand '.rand(9999999)]);
+is($result->{result}, 1, 'rename_star');
+
+$result = post('map','rename_star', [$session_id, , 'new name']);
+is($result->{error}{code}, 1010, 'star has already been renamed');
 
 $result = post('map','get_stars',[$session_id, -3,-3,2,2,0]);
-is(ref $result->{result}, 'ARRAY', 'get stars');
+is(ref $result->{result}{stars}, 'ARRAY', 'get stars');
+
+$result = post('map','rename_star', [$session_id, $result->{result}{stars}[0]{id}, 'new name']);
+is($result->{error}{code}, 1010, 'no privilege to rename');
+
+$result = post('map','rename_star', [$session_id, 'aaa', 'new name']);
+is($result->{error}{code}, 1002, 'cannot rename non-existant star');
 
 $result = post('map','get_stars',[$session_id, -30,-30,30,30,0]);
 is($result->{error}{code}, 1003, 'get stars too big');
