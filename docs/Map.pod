@@ -15,7 +15,7 @@ Retrieves a chunk of the map and returns it as an array of hashes.
             "x"             : -41,
             "y"             : 27,
             "z"             : 14,
-            "alignments"    : [ "self", "ally" ]
+            "alignment"     : "self-ally"
         }.
         {
             "name"          : "X143S",
@@ -24,10 +24,10 @@ Retrieves a chunk of the map and returns it as an array of hashes.
             "x"             : -42,
             "y"             : 27,
             "z"             : 14,
-            "alignments"    : [ "unprobed" ]
+            "alignments"    : "unprobed"
         }
      ],
-    "status" : {}
+    "status" : {...}
  }
 
 The requested area can be no larger than 100 stars. Throws 1003 when the area is too large.
@@ -55,6 +55,24 @@ The bottom right y coord.
 =head3 z
 
 The z axis. There's no secondary z coordinate because you can only pull from one z axis at a time.
+
+=head2 rename_star ( session_id, star_id, name )
+
+Renames a star, provided it hasn't already been named.
+
+Throws 1002 and 1010.
+
+=head3 session_id
+
+A session id.
+
+=head3 star_id
+
+The id of the star you wish to rename.
+
+=head3 name
+
+The new name of the star.
 
 =cut
 

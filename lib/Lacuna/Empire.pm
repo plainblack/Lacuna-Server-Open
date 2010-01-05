@@ -5,6 +5,7 @@ extends 'JSON::RPC::Dispatcher::App';
 use Lacuna::Util qw(cname);
 use Lacuna::Map;
 use Digest::SHA;
+use Lacuna::Verify;
 
 has simpledb => (
     is      => 'ro',
@@ -48,16 +49,21 @@ sub login {
 
 sub create {
     my ($self, %account) = @_;
-    my $db = $self->simpledb;
+    Lacuna::Verify->new(content=>\$account{name}, throws=>[1000,'Empire name not available.', $account{name}])
+        ->length_lt(31)
+        ->length_gt(3)
+        ->no_restricted_chars
+        ->no_profanity
+        ->ok($self->is_name_available($account{name}));
+
+    Lacuna::Verify->new(content=>\$account{password}), throws=>[1001,'Invalid password.', $account{password}])
+        ->length_gt(5)
+        ->eq($account{password1});
+
     $account{species_id} ||= 'human_species';
+    my $db = $self->simpledb;
     my $species = $self->simpledb->domain('species')->find($account{species_id});
-    if ( $account{name} eq '' || length($account{name}) > 30 || $account{name} =~ m/[@&<>;]/ || !$self->is_name_available($account{name})) {
-        confess [1000,'Empire name not available.', $account{name}];
-    }
-    elsif (length($account{password}) < 6 || $account{password} ne $account{password1})  {
-        confess [1001,'Invalid password.', $account{password}];
-    }
-    elsif ($account{species_id} eq '' || !$species)  {
+    if ($account{species_id} eq '' || !$species)  {
         confess [1002, 'Invalid species.', $account{species_id}];
     }
     else {
