@@ -16,27 +16,22 @@ my $fed = {
     password1   => '123qwe',
 };
 $result = post('empire', 'create', $fed);
-say Dumper $result;
 my $fed_id = $result->{result}{empire_id};
 my $session_id = $result->{result}{session_id};
 my $current_planet = $result->{result}{status}{empire}{current_planet_id};
 
 $result = post('map','get_stars_near_planet', [$session_id, $current_planet]);
-say Dumper $result;
 is(ref $result->{result}{stars}, 'ARRAY', 'get_stars_near_planet');
 cmp_ok(scalar(@{$result->{result}{stars}}), '>', 0, 'get_stars_near_planet count');
 
 $result = post('map','get_star_for_planet', [ $session_id, $current_planet]);
-say Dumper $result;
 is($result->{result}{star}{can_rename}, 1, 'get_star_for_planet');
 my $star_id = $result->{result}{star}{id};
 
 $result = post('map','rename_star', [$session_id, $star_id, 'some rand '.rand(9999999)]);
-say Dumper $result;
 is($result->{result}, 1, 'rename_star');
 
 $result = post('map','rename_star', [$session_id, $star_id, 'new name']);
-say Dumper $result;
 is($result->{error}{code}, 1010, 'star has already been renamed');
 
 $result = post('map','get_stars',[$session_id, -3,-3,2,2,0]);
