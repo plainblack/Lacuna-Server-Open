@@ -14,8 +14,8 @@ my $access = $ENV{SIMPLEDB_ACCESS_KEY};
 my $secret = $ENV{SIMPLEDB_SECRET_KEY};
 my $db = Lacuna::DB->new(access_key=>$access, secret_key=>$secret, cache_servers=>[{host=>127.0.0.1, port=>11211}]);
 
-#create_species();
-#create_empires();
+create_species();
+create_empires();
 create_star_map();
 
 
@@ -25,6 +25,11 @@ sub create_empires {
     $empires->delete;
     say "Creating new empire domain.";
     $empires->create;
+    my $sessions = $db->domain('session');
+    say "Deleting existing session domain.";
+    $sessions->delete;
+    say "Creating new session domain.";
+    $sessions->create;
 }
 
 sub create_species {
@@ -37,7 +42,7 @@ sub create_species {
     $species->insert({
         name                    => 'Human',
         description             => 'A race of average intellect, and weak constitution.',
-        habitable_orbits        => [3],
+        habitable_orbits        => 3,
         construction_affinity   => 4, # cost of building new stuff
         deception_affinity      => 4, # spying ability
         research_affinity       => 4, # cost of upgrading
@@ -79,7 +84,7 @@ sub create_star_map {
                     say "No star at $x, $y, $z!";
                 }
                 else {
-#                    async {
+                    async {
                         my $name = pop @star_names;
                         say "Creating star $name at $x, $y, $z.";
                         my $star = $stars->insert({
@@ -91,11 +96,11 @@ sub create_star_map {
                             z           => $z,
                         });
                         add_bodies($bodies, $star);
- #                   	cede;
-   #                 }
+                    	cede;
+                    };
                 }
             }
-  #          cede;
+            cede;
         }
     }
 }
@@ -122,35 +127,34 @@ sub add_bodies {
             say "\tNo body at $name!";
         } 
         else {
-          #  async {
+            async {
                 my $type = choose_weighted(\@body_types, \@body_type_weights);
                 say "\tAdding a $type at $name.";
-                my $class;
-                my $size;
+                my $params = {
+                    name        => $name,
+                    orbit       => $orbit,
+                    x           => $star->x,
+                    y           => $star->y,
+                    z           => $star->x,
+                    star_id     => $star->id,
+                };
                 if ($type eq 'habitable') {
-                    $class = $planet_classes[rand(scalar(@planet_classes))];
-                    $size = rand(50) + 20;
+                    $params->{class} = $planet_classes[rand(scalar(@planet_classes))];
+                    $params->{empire_id} = 'None';
+                    $params->{size} = rand(50) + 20;
                 }
                 elsif ($type eq 'asteroid') {
-                    $class = $asteroid_classes[rand(scalar(@asteroid_classes))];
-                    $size = rand(10);
+                    $params->{class} = $asteroid_classes[rand(scalar(@asteroid_classes))];
+                    $params->{size} = rand(10);
                 }
                 else {
-                    $class = $gas_giant_classes[rand(scalar(@gas_giant_classes))];
-                    $size = rand(50)+70;
+                    $params->{class} = $gas_giant_classes[rand(scalar(@gas_giant_classes))];
+                    $params->{empire_id} = 'None';
+                    $params->{size} = rand(50)+70;
                 }
-                $bodies->insert({
-                    name    => $name,
-                    orbit   => $orbit,
-                    x       => $star->x,
-                    y       => $star->y,
-                    z       => $star->x,
-                    class   => $class,
-                    size    => $size,
-                    star_id => $star->id,
-                });
-           #     cede;
-           # };
+                $bodies->insert($params);
+                cede;
+            };
         }
     }
 }

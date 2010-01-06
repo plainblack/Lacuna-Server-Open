@@ -9,6 +9,8 @@ use 5.010;
 
 my $result;
 
+cleanup();
+
 $result = post('empire', 'is_name_available', ['The Federation']);
 is($result->{result}, 1, 'empire name is available');
 
@@ -47,7 +49,6 @@ is($result->{error}{code}, 1002, 'empire species does not exist');
 
 $fed->{species_id} = 'human_species';
 $result = post('empire', 'create', $fed);
-say Dumper($result);
 ok(exists $result->{result}{empire_id}, 'empire created');
 ok(exists $result->{result}{session_id}, 'empire logged in after creation');
 my $fed_id = $result->{result}{empire_id};
@@ -86,8 +87,18 @@ sub post {
     return from_json($response->content);
 }
 
-END {
+sub cleanup {
     my $db = Lacuna::DB->new(access_key => $ENV{SIMPLEDB_ACCESS_KEY}, secret_key => $ENV{SIMPLEDB_SECRET_KEY}, cache_servers => [{host=>'127.0.0.1', port=>11211}]);
-    $db->domain('empire')->find($fed_id)->delete;
-    $db->domain('session')->find($session_id)->delete;
+    my $empire = $db->domain('empire')->search({name=>'The Federation'})->next;
+    if (defined $empire) {
+        say "Found empire";
+        $empire->delete;
+    }
+    else {
+        say "Couldn't find empire.";
+    }
+}
+
+END {
+    cleanup();
 }

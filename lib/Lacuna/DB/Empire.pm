@@ -23,10 +23,10 @@ __PACKAGE__->add_attributes(
     password            => { isa => 'Str' },
     last_login          => { isa => 'DateTime' },
     species_id          => { isa => 'Str' },
-    happiness           => { isa => 'Int' },
-    essentia            => { isa => 'Int' },
-    points              => { isa => 'Int' },
-    rank                => { isa => 'Int' }, # just where it is stored, but will come out of date quickly
+    happiness           => { isa => 'Int', default=>0 },
+    essentia            => { isa => 'Int', default=>0 },
+    points              => { isa => 'Int', default=>0 },
+    rank                => { isa => 'Int', default=>0 }, # just where it is stored, but will come out of date quickly
     probed_stars        => { isa => 'Str' },
 );
 
@@ -58,14 +58,14 @@ sub get_status {
             name        => $planet->name,
             image       => $planet->image,
             water       => $planet->water_stored,
-            food        => $planet->food_stored,
-            minerals    => $planet->minerals_stored,
+       #     food        => $planet->food_stored,
+        #    minerals    => $planet->minerals_stored,
             waste       => $planet->waste_stored,
             happiness   => $planet->happiness,
         };
     }
-    $self = $self->domain->find($self->id); # refetch because it's likely changed
-    return {
+    $self = $self->simpledb->domain('empire')->find($self->id); # refetch because it's likely changed
+    my $status = {
         server  => {
             "time" => time(),
         },
@@ -76,9 +76,10 @@ sub get_status {
             essentia            => $self->essentia,
             has_new_messages    => 0,
             current_planet_id   => $self->current_planet_id,
-            planets  => \%planets,
+            planets             => \%planets,
         },
     };
+    return $status;
 }
 
 sub start_session {

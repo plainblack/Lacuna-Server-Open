@@ -74,7 +74,7 @@ sub create {
         }
         my $possible_planets = $db->domain('body')->search({
             empire_id   => 'None',
-            class       => 'Lacuna::DB::Body::Planet',
+            class       => ['like','Lacuna::DB::Body::Planet::P%'],
             orbit       => ['in',@{$orbits}],
             x           => ['between', ($map->get_min_x_inhabited - 2), ($map->get_max_x_inhabited + 2)],
             y           => ['between', ($map->get_min_y_inhabited - 2), ($map->get_max_y_inhabited + 2)],
@@ -97,7 +97,9 @@ sub create {
         $home_planet->put;
 # add planetary command building
 # add starting resources
-        return { empire_id => $empire->id, session_id => $empire->start_session->id, status => $empire->get_status };
+        my $status = $empire->get_status;
+        my $session_id = $empire->start_session->id;
+        return { empire_id => $empire->id, session_id => $session_id, status => $status };
     }
 }
 
