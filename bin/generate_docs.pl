@@ -10,7 +10,7 @@ opendir(my $dir, $poddir);
 my @docs = readdir($dir);
 closedir($dir);
 
-copy($poddir."api.css, $htmldir."api.css");
+copy($poddir."api.css", $htmldir."api.css");
 
 foreach my $doc (@docs) {
     next if $doc !~ m/\.pod$/;
