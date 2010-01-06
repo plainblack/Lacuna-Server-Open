@@ -84,7 +84,7 @@ sub create_star_map {
                     say "No star at $x, $y, $z!";
                 }
                 else {
-                    async {
+                    #async {
                         my $name = pop @star_names;
                         say "Creating star $name at $x, $y, $z.";
                         my $star = $stars->insert({
@@ -96,11 +96,11 @@ sub create_star_map {
                             z           => $z,
                         });
                         add_bodies($bodies, $star);
-                    	cede;
-                    };
+                    	#cede;
+                    #};
                 }
             }
-            cede;
+    #        cede;
         }
     }
 }
@@ -127,7 +127,7 @@ sub add_bodies {
             say "\tNo body at $name!";
         } 
         else {
-            async {
+      #      async {
                 my $type = choose_weighted(\@body_types, \@body_type_weights);
                 say "\tAdding a $type at $name.";
                 my $params = {
@@ -153,8 +153,8 @@ sub add_bodies {
                     $params->{size} = rand(50)+70;
                 }
                 $bodies->insert($params);
-                cede;
-            };
+     #           cede;
+    #        };
         }
     }
 }
