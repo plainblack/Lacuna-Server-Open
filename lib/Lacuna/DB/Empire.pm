@@ -40,12 +40,12 @@ __PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'empire_id');
 
 sub home_planet {
     my ($self) = @_;
-    $self->simpledb->domain('planet')->find($self->home_planet_id);
+    $self->simpledb->domain('body')->find($self->home_planet_id);
 }
 
 sub current_planet {
     my ($self) = @_;
-    $self->simpledb->domain('planet')->find($self->current_planet_id);
+    $self->simpledb->domain('body')->find($self->current_planet_id);
 }
 
 sub get_status {

@@ -47,6 +47,7 @@ is($result->{error}{code}, 1002, 'empire species does not exist');
 
 $fed->{species_id} = 'human_species';
 $result = post('empire', 'create', $fed);
+say Dumper($result);
 ok(exists $result->{result}{empire_id}, 'empire created');
 ok(exists $result->{result}{session_id}, 'empire logged in after creation');
 my $fed_id = $result->{result}{empire_id};

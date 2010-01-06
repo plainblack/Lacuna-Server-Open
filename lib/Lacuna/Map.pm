@@ -48,7 +48,7 @@ sub rename_star {
 sub get_stars_near_planet {
     my ($self, $session_id, $planet_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $planet = $self->simpledb->domain('planet')->find($planet_id);
+    my $planet = $self->simpledb->domain('body')->find($planet_id);
     if (defined $planet) {
         my $star = $planet->star;
         return $self->get_stars($empire, $star->x + 5, $star->y + 5, $star->x - 5, $star->y - 5, $star->z); 
@@ -61,7 +61,7 @@ sub get_stars_near_planet {
 sub get_star_for_planet {
     my ($self, $session_id, $planet_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $planet = $self->simpledb->domain('planet')->find($planet_id);
+    my $planet = $self->simpledb->domain('body')->find($planet_id);
     # we don't do any privilege checking because it's assumed if you know the planet id you can access the star,
     # plus, it's not like you couldn't get the info it sends back via the get_stars method anyway
     if (defined $planet) {
@@ -124,38 +124,32 @@ sub get_stars {
 
 sub get_max_x_inhabited {
     my ($self) = @_;
-    my $planet = $self->simpledb->domain('planet')->search({empire_id=>['!=','None']},['x'],1);
-    return (defined $planet)  ? $planet->x : 0;
+    return $self->simpledb->domain('body')->max('x', {empire_id=>['!=','None']});
 }
 
 sub get_min_x_inhabited {
     my ($self) = @_;
-    my $planet = $self->simpledb->domain('planet')->search({empire_id=>['!=','None']},'x',1);
-    return (defined $planet)  ? $planet->x : 0;
+    return $self->simpledb->domain('body')->min('x', {empire_id=>['!=','None']});
 }
 
 sub get_max_y_inhabited {
     my ($self) = @_;
-    my $planet = $self->simpledb->domain('planet')->search({empire_id=>['!=','None']},['y'],1);
-    return (defined $planet)  ? $planet->y : 0;
+    return $self->simpledb->domain('body')->max('y', {empire_id=>['!=','None']});
 }
 
 sub get_min_y_inhabited {
     my ($self) = @_;
-    my $planet = $self->simpledb->domain('planet')->search({empire_id=>['!=','None']},'y',1);
-    return (defined $planet)  ? $planet->y : 0;
+    return $self->simpledb->domain('body')->min('y', {empire_id=>['!=','None']});
 }
 
 sub get_max_z_inhabited {
     my ($self) = @_;
-    my $planet = $self->simpledb->domain('planet')->search({empire_id=>['!=','None']},['z'],1);
-    return (defined $planet)  ? $planet->z : 0;
+    return $self->simpledb->domain('body')->max('z', {empire_id=>['!=','None']});
 }
 
 sub get_min_z_inhabited {
     my ($self) = @_;
-    my $planet = $self->simpledb->domain('planet')->search({empire_id=>['!=','None']},'z',1);
-    return (defined $planet)  ? $planet->z : 0;
+    return $self->simpledb->domain('body')->min('z', {empire_id=>['!=','None']});
 }
 
 

@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 2;
+use Test::More tests => 8;
 use Test::Deep;
 use LWP::UserAgent;
 use JSON qw(to_json from_json);
@@ -63,6 +63,8 @@ sub post {
         Content         => to_json($content),
         Accept          => 'application/json',
         );
+    say $method;
+    say $response->content;
     return from_json($response->content);
 }
 

@@ -142,6 +142,9 @@ sub add_bodies {
                 $bodies->insert({
                     name    => $name,
                     orbit   => $orbit,
+                    x       => $star->x,
+                    y       => $star->y,
+                    z       => $star->x,
                     class   => $class,
                     size    => $size,
                     star_id => $star->id,

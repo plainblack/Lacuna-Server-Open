@@ -8,6 +8,9 @@ __PACKAGE__->add_attributes(
     name            => { isa => 'Str' },
     star_id         => { isa => 'Str' },
     orbit           => { isa => 'Int' },
+    x               => { isa => 'Int' }, # indexed here to speed up
+    y               => { isa => 'Int' }, # searching of planets based
+    z               => { isa => 'Int' }, # on stor location
     class           => { isa => 'Str' },
 );
 

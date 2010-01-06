@@ -68,14 +68,22 @@ sub create {
     }
     else {
         my $map = Lacuna::Map->new(simpledb=>$db);
-        my $possible_planets = $db->domain('planet')->search({
+        my $orbits = $species->habitable_orbits;
+        unless (ref $orbits eq 'ARRAY') {
+            $orbits = [$orbits];
+        }
+        my $possible_planets = $db->domain('body')->search({
             empire_id   => 'None',
-            orbit       => ['in',@{$species->habitable_orbits}],
+            class       => 'Lacuna::DB::Body::Planet',
+            orbit       => ['in',@{$orbits}],
             x           => ['between', ($map->get_min_x_inhabited - 2), ($map->get_max_x_inhabited + 2)],
             y           => ['between', ($map->get_min_y_inhabited - 2), ($map->get_max_y_inhabited + 2)],
             z           => ['between', ($map->get_min_z_inhabited - 2), ($map->get_max_z_inhabited + 2)],
         });
         my $home_planet = $possible_planets->next;
+        unless (defined $home_planet) {
+            confess [1002, 'Could not find a home planet.'];
+        }
         my $empire = $db->domain('empire')->insert({
             name                => $account{name},
             date_created        => DateTime->now,
