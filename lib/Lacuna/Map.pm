@@ -14,7 +14,7 @@ with 'Lacuna::Role::Sessionable';
 
 sub rename_star {
     my ($self, $session_id, $star_id, $name) = @_;
-    Lacuna::Verify->new(content=>$name, throws=>[1000,'Name not available.'])
+    Lacuna::Verify->new(content=>\$name, throws=>[1000,'Name not available.',$name])
         ->length_gt(2)
         ->length_lt(31)
         ->no_restricted_chars
@@ -51,7 +51,7 @@ sub get_stars_near_planet {
     my $planet = $self->simpledb->domain('body')->find($planet_id);
     if (defined $planet) {
         my $star = $planet->star;
-        return $self->get_stars($empire, $star->x + 5, $star->y + 5, $star->x - 5, $star->y - 5, $star->z); 
+        return $self->get_stars($empire, $star->x - 5, $star->y - 5, $star->x + 5, $star->y + 5, $star->z); 
     }
     else {
         confess [1002, 'Planet does not exist.'];
@@ -92,7 +92,11 @@ sub get_stars {
     else {
         my $stars = $self->simpledb->domain('star')->search({z=>$z, y=>['between', $y1, $y2], x=>['between', $x1, $x2]});
         my @out;
-        my @probed = @{$empire->probed_stars};
+        my $probed_stars = $empire->probed_stars;
+        unless (ref $probed_stars eq 'ARRAY') {
+            $probed_stars = [$probed_stars];
+        }
+        my @probed = @{$probed_stars};
         while (my $star = $stars->next) {
             my $alignment = 'unprobed';
             if (any { $_ = $star->id } @probed) {
@@ -153,7 +157,7 @@ sub get_min_z_inhabited {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_stars rename_star get_stars_near_planet));
+__PACKAGE__->register_rpc_method_names(qw(get_stars rename_star get_stars_near_planet get_star_for_planet));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
