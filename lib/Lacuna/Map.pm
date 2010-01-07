@@ -2,7 +2,7 @@ package Lacuna::Map;
 
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
-use List::MoreUtils qw(any);
+use Lacuna::Util qw(in);
 use Lacuna::Verify;
 
 has simpledb => (
@@ -58,7 +58,7 @@ sub get_stars_near_body {
     }
 }
 
-sub get_star_for_body {
+sub get_star_by_body {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->simpledb->domain('body')->find($body_id);
@@ -79,7 +79,96 @@ sub get_star_for_body {
         };
     }
     else {
-        confess [1002, 'Body does not exist.'];
+        confess [1002, 'Body does not exist.', $body_id];
+    }
+}
+
+sub load_star {
+    my ($self, $star_id) = @_;
+    my $star;
+    if (ref $star_id eq 'Lacuna::DB::Star') { 
+        $star = $star_id;
+    }
+    else {
+        $star = $self->simpledb->domain('star')->find($star_id);
+    }
+    return $star;
+}
+
+sub get_star_system {
+    my ($self, $session, $star_id) = @_;
+    my $empire = $self->get_empire_by_session($session);
+
+    # get the star in question
+    my $star = $self->load_star($star_id);
+
+    # get to work
+    if (defined $star) {
+        my $bodies = $star->bodies;
+        my $member = 0;
+        my %out;
+        while (my $body = $bodies->next) {
+            my $owner = {};
+            if ($body->isa('Lacuna::DB::Body::Planet') && $body->empire_id ne 'None') {
+                my $owner_empire = $body->empire;
+                if (defined $owner_empire) {
+                    if ($body->empire_id eq $empire->id) {
+                        $member = 1;
+                    }
+                    $owner = {
+                        id      => $body->empire_id,
+                        name    => $owner_empire->name,
+                    };
+                }
+                else {
+                    warn "Deleted vestigial relationship between empire ".$body->empire_id." and body ".$body->id;
+                    $body->empire_id('None');
+                    $body->put;
+                }
+            }
+            $out{$body->id} = {
+                name        => $body->name,
+                image       => $body->image,
+                empire      => $owner,
+                minerals    => $body->minerals,
+                water       => $body->water,
+                orbit       => $body->orbit,
+           };
+        }
+        if ($member || in($star->id, $empire->probed_stars)) {
+            return {
+                star    => {
+                    color       => $star->color,
+                    name        => $star->name,
+                    id          => $star->id,
+                    can_rename  => (($star->is_named) ? 0 : 1),
+                    x           => $star->x,
+                    y           => $star->y,
+                    z           => $star->z,
+                },
+                bodies  => \%out,
+                status  => $empire->get_status,
+            }
+        }
+        else {
+            confess [1010, 'Must have probed the star system to view it.'];
+        }
+    }
+    else {
+        confess [1002, 'Star does not exist.', $star_id];
+    }
+}
+
+sub get_star_system_by_body {
+    my ($self, $session_id, $body_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $self->simpledb->domain('body')->find($body_id);
+    if (defined $body) {
+        my $star = $body->star;
+        return $self->get_star_system($empire, $star);
+    }
+    else {
+        confess [1002, 'Body does not exist.', $body_id];
     }
 }
 
@@ -92,14 +181,9 @@ sub get_stars {
     else {
         my $stars = $self->simpledb->domain('star')->search({z=>$z, y=>['between', $y1, $y2], x=>['between', $x1, $x2]});
         my @out;
-        my $probed_stars = $empire->probed_stars;
-        unless (ref $probed_stars eq 'ARRAY') {
-            $probed_stars = [$probed_stars];
-        }
-        my @probed = @{$probed_stars};
         while (my $star = $stars->next) {
             my $alignment = 'unprobed';
-            if (any { $_ = $star->id } @probed) {
+            if (in($star->id, $empire->probed_stars)) {
                 $alignment = 'probed';
                 my $bodies = $star->bodies;
                 my %alignments;
@@ -157,7 +241,7 @@ sub get_min_z_inhabited {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_stars rename_star get_stars_near_body get_star_for_body));
+__PACKAGE__->register_rpc_method_names(qw(get_stars rename_star get_stars_near_body get_star_by_body get_star_system get_star_system_by_body));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

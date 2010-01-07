@@ -73,7 +73,7 @@ A session id.
 The unique id of a body.
 
 
-=head2 get_star_for_body ( session_id, body_id )
+=head2 get_star_by_body ( session_id, body_id )
 
 Returns the details about a star.
 
@@ -100,6 +100,64 @@ A session id.
 
 The unique id for a body.
 
+
+
+=head2 get_star_system ( session_id, star_id ) 
+
+Returns an array of bodies and a hash about the star itself. The data structure looks like:
+
+ {
+    "star" : {
+        "id" : "a0f7f6e5-c58e-4b9d-994b-5838c2feabe8",
+        "name" : "Sol",
+        "color" : "yellow",
+        "x" : -39
+        "y" : 44,
+        "z" : 12,
+        "can_rename" : 1
+    },
+    "bodies" : {
+       "f9fe8bd3-bd09-4dc2-ba20-cf4e3b69e63a" : {
+            "name" : "Mercury",
+            "orbit" : 1,
+            "image" : "p13",
+            "minerals" : {
+                "Gold" : 9239,
+                "Bauxite" : 1223
+            },
+            "water" : 100,
+            "empire" : {
+                "id" : "4d9553ab-e9e6-425d-a5e5-100428fb248c",
+                "name" : "The Martians"
+            }
+        }
+    },
+    "status" : {...}
+ }
+
+Throws 1002 and 1010.
+
+=head3 session_id
+
+A session id.
+
+=head3 star_id
+
+The unique id of the star you wish to retrieve system information for.
+
+
+
+=head2 get_star_system_by_body ( session_id, body_id )
+
+Returns the same output and throws the same errors as C<get_star_system>, but locates the system based upon a body_id rather than a star_id.
+
+=head3 session_id
+
+A session id.
+
+=head3 body_id
+
+The unique id of a body.
 
 
 

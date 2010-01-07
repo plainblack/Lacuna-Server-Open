@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 10;
+use Test::More tests => 15;
 use Test::Deep;
 use LWP::UserAgent;
 use JSON qw(to_json from_json);
@@ -24,8 +24,8 @@ $result = post('map','get_stars_near_body', [$session_id, $current_planet]);
 is(ref $result->{result}{stars}, 'ARRAY', 'get_stars_near_body');
 cmp_ok(scalar(@{$result->{result}{stars}}), '>', 0, 'get_stars_near_body count');
 
-$result = post('map','get_star_for_body', [ $session_id, $current_planet]);
-is($result->{result}{star}{can_rename}, 1, 'get_star_for_body');
+$result = post('map','get_star_by_body', [ $session_id, $current_planet]);
+is($result->{result}{star}{can_rename}, 1, 'get_star_by_body');
 my $star_id = $result->{result}{star}{id};
 
 $result = post('map','rename_star', [$session_id, $star_id, 'some rand '.rand(9999999)]);
@@ -37,8 +37,9 @@ is($result->{error}{code}, 1010, 'star has already been renamed');
 $result = post('map','get_stars',[$session_id, -3,-3,2,2,0]);
 is(ref $result->{result}{stars}, 'ARRAY', 'get stars');
 cmp_ok(scalar(@{$result->{result}{stars}}), '>', 0, 'get stars count');
+my $other_star = $result->{result}{stars}[0]{id};
 
-$result = post('map','rename_star', [$session_id, $result->{result}{stars}[0]{id}, 'new name']);
+$result = post('map','rename_star', [$session_id, $other_star, 'new name']);
 is($result->{error}{code}, 1010, 'no privilege to rename');
 
 $result = post('map','rename_star', [$session_id, 'aaa', 'new name']);
@@ -46,6 +47,22 @@ is($result->{error}{code}, 1002, 'cannot rename non-existant star');
 
 $result = post('map','get_stars',[$session_id, -30,-30,30,30,0]);
 is($result->{error}{code}, 1003, 'get stars too big');
+
+$result = post('map','get_star_system', [$session_id, 'aaa']);
+is($result->{error}{code}, 1002, 'get star system non-existant star');
+
+$result = post('map','get_star_system', [$session_id, $other_star]);
+is($result->{error}{code}, 1010, 'get star system no privilege');
+
+$result = post('map','get_star_system', [$session_id, $star_id]);
+is($result->{result}{star}{id},$star_id, 'get star system');
+
+$result = post('map','get_star_system_by_body', [$session_id, $current_planet]);
+is($result->{result}{star}{id},$star_id, 'get star system by body');
+
+$result = post('map','get_star_system_by_body', [$session_id, 'aaa']);
+is($result->{error}{code}, 1002, 'get star system by body non-existant body');
+
 
 
 
