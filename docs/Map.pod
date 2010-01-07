@@ -58,9 +58,9 @@ The z axis. There's no secondary z coordinate because you can only pull from one
 
 
 
-=head2 get_stars_near_planet ( session_id, planet_id )
+=head2 get_stars_near_body ( session_id, body_id )
 
-Returns a list of 121 stars near a planet, on the same z axis as the planet. The list returned is the same as C<get_stars>
+Returns a list of 121 stars near a body, on the same z axis as the body. The list returned is the same as C<get_stars>
 
 Throws 1002 and anything C<get_stars> can throw.
 
@@ -68,12 +68,12 @@ Throws 1002 and anything C<get_stars> can throw.
 
 A session id.
 
-=head3 planet_id
+=head3 body_id
 
-The unique id of a planet.
+The unique id of a body.
 
 
-=head2 get_star_for_planet ( session_id, planet_id )
+=head2 get_star_for_body ( session_id, body_id )
 
 Returns the details about a star.
 
@@ -96,9 +96,9 @@ Throws 1002.
 
 A session id.
 
-=head3 planet_id
+=head3 body_id
 
-The unique id for a planet.
+The unique id for a body.
 
 
 
@@ -120,6 +120,14 @@ The id of the star you wish to rename.
 =head3 name
 
 The new name of the star.
+
+=head1 FAQ
+
+These are common questions about this API.
+
+=head2 What is a body?
+
+A body is any object that orbits a star. In Lacuna terms this means a body is a habitable planet, gas giant planet, space station, or asteroid.
 
 =cut
 

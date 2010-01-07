@@ -20,12 +20,12 @@ my $fed_id = $result->{result}{empire_id};
 my $session_id = $result->{result}{session_id};
 my $current_planet = $result->{result}{status}{empire}{current_planet_id};
 
-$result = post('map','get_stars_near_planet', [$session_id, $current_planet]);
-is(ref $result->{result}{stars}, 'ARRAY', 'get_stars_near_planet');
-cmp_ok(scalar(@{$result->{result}{stars}}), '>', 0, 'get_stars_near_planet count');
+$result = post('map','get_stars_near_body', [$session_id, $current_planet]);
+is(ref $result->{result}{stars}, 'ARRAY', 'get_stars_near_body');
+cmp_ok(scalar(@{$result->{result}{stars}}), '>', 0, 'get_stars_near_body count');
 
-$result = post('map','get_star_for_planet', [ $session_id, $current_planet]);
-is($result->{result}{star}{can_rename}, 1, 'get_star_for_planet');
+$result = post('map','get_star_for_body', [ $session_id, $current_planet]);
+is($result->{result}{star}{can_rename}, 1, 'get_star_for_body');
 my $star_id = $result->{result}{star}{id};
 
 $result = post('map','rename_star', [$session_id, $star_id, 'some rand '.rand(9999999)]);
@@ -49,7 +49,6 @@ is($result->{error}{code}, 1003, 'get stars too big');
 
 
 
-
 sub post {
     my ($url, $method, $params) = @_;
     my $content = {
@@ -59,7 +58,7 @@ sub post {
         params      => $params,
     };
     my $ua = LWP::UserAgent->new;
-    $ua->timeout(10);
+    $ua->timeout(30);
     my $response = $ua->post('http://localhost:5000/'.$url,
         Content_Type    => 'application/json',
         Content         => to_json($content),

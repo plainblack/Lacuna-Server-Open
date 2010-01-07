@@ -41,16 +41,16 @@ sub rename_star {
         }
     }
     else {
-        confess [1002, 'Star does not exist.'];
+        confess [1002, 'Star does not exist.', $star_id];
     }
 }
 
-sub get_stars_near_planet {
-    my ($self, $session_id, $planet_id) = @_;
+sub get_stars_near_body {
+    my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $planet = $self->simpledb->domain('body')->find($planet_id);
-    if (defined $planet) {
-        my $star = $planet->star;
+    my $body = $self->simpledb->domain('body')->find($body_id);
+    if (defined $body) {
+        my $star = $body->star;
         return $self->get_stars($empire, $star->x - 5, $star->y - 5, $star->x + 5, $star->y + 5, $star->z); 
     }
     else {
@@ -58,14 +58,14 @@ sub get_stars_near_planet {
     }
 }
 
-sub get_star_for_planet {
-    my ($self, $session_id, $planet_id) = @_;
+sub get_star_for_body {
+    my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $planet = $self->simpledb->domain('body')->find($planet_id);
-    # we don't do any privilege checking because it's assumed if you know the planet id you can access the star,
+    my $body = $self->simpledb->domain('body')->find($body_id);
+    # we don't do any privilege checking because it's assumed if you know the body id you can access the star,
     # plus, it's not like you couldn't get the info it sends back via the get_stars method anyway
-    if (defined $planet) {
-        my $star = $planet->star;
+    if (defined $body) {
+        my $star = $body->star;
         return {
             star    => {
                 x           => $star->x,
@@ -79,7 +79,7 @@ sub get_star_for_planet {
         };
     }
     else {
-        confess [1002, 'Planet does not exist.'];
+        confess [1002, 'Body does not exist.'];
     }
 }
 
@@ -157,7 +157,7 @@ sub get_min_z_inhabited {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_stars rename_star get_stars_near_planet get_star_for_planet));
+__PACKAGE__->register_rpc_method_names(qw(get_stars rename_star get_stars_near_body get_star_for_body));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
