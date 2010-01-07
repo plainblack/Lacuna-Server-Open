@@ -67,7 +67,7 @@ sub get_status {
     $self = $self->simpledb->domain('empire')->find($self->id); # refetch because it's likely changed
     my $status = {
         server  => {
-            "time" => time(),
+            "time" => DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',DateTime->now),
         },
         empire  => {
             happiness           => $self->happiness,
