@@ -175,11 +175,14 @@ sub get_star_system_by_body {
 sub get_stars {
     my ($self, $session_id, $x1, $y1, $x2, $y2, $z) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    if ((abs($x2 - $x1) * abs($y2 - $y1)) > 121) {
+    my ($startx,$starty,$endx,$endy);
+    if ($x1 > $x2) { $startx = $x2; $endx = $x1; } else { $startx = $x1; $endx = $x2; } # organize x
+    if ($y1 > $y2) { $starty = $y2; $endy = $y1; } else { $starty = $y1; $endy = $y2; } # organize y
+    if ((abs($endx - $startx) * abs($endy - $starty)) > 121) {
         confess [1003, 'Requested area too large.'];
     }
     else {
-        my $stars = $self->simpledb->domain('star')->search({z=>$z, y=>['between', $y1, $y2], x=>['between', $x1, $x2]});
+        my $stars = $self->simpledb->domain('star')->search({z=>$z, y=>['between', $starty, $endy], x=>['between', $startx, $endx]});
         my @out;
         while (my $star = $stars->next) {
             my $alignment = 'unprobed';
