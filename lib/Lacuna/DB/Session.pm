@@ -13,10 +13,15 @@ __PACKAGE__->add_attributes(
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
 
+sub extend {
+    my $self = shift;
+    $self->expires(DateTime->now->add(hours=>2));
+    $self->put;
+}
 
 sub has_expired {
     my $self = shift;
-    return (DateTime->compare($self->expires, DateTime->now) == -1);
+    return (DateTime->now > $self->expires);
 }
 
 no Moose;
