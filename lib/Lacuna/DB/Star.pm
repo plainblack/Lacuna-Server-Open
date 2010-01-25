@@ -2,10 +2,17 @@ package Lacuna::DB::Star;
 
 use Moose;
 extends 'SimpleDB::Class::Item';
+use Lacuna::Util;
 
 __PACKAGE__->set_domain_name('star');
 __PACKAGE__->add_attributes(
-    name            => { isa => 'Str' },
+    name            => { isa => 'Str', 
+        trigger => sub {
+            my ($self, $new, $old) = @_;
+            $self->cname(Lacuna::Util::cname($new));
+        },
+    },
+    cname           => { isa => 'Str' },
     is_named        => { isa => 'Str', default => 0 },
     date_created    => { isa => 'DateTime' },
     color           => { isa => 'Str' },

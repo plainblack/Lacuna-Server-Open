@@ -2,10 +2,17 @@ package Lacuna::DB::Body;
 
 use Moose;
 extends 'SimpleDB::Class::Item';
+use Lacuna::Util;
 
 __PACKAGE__->set_domain_name('body');
 __PACKAGE__->add_attributes(
-    name            => { isa => 'Str' },
+    name            => { isa => 'Str', 
+        trigger => sub {
+            my ($self, $new, $old) = @_;
+            $self->cname(Lacuna::Util::cname($new));
+        },
+    },
+    cname           => { isa => 'Str' },
     star_id         => { isa => 'Str' },
     orbit           => { isa => 'Int' },
     x               => { isa => 'Int' }, # indexed here to speed up

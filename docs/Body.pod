@@ -1,0 +1,63 @@
+=head1 Body Methods
+
+These methods are accessible via the C</body> URL.
+
+
+=head2 get_buildings ( session_id, body_id )
+
+Retrieves a list of the buildings on a planet. 
+
+ {
+    "buildings" : {
+        "id-goes-here" : {
+            "name" : "Apple Orchard",
+            "x" : 1,
+            "y" : -1,
+            "url" : "/building/apple",
+            "level" : 3,
+            "image" : "apple",
+        },
+        "id-goes-here2" : {
+            "name" : "Command Center",
+            "x" : 0,
+            "y" : 0,
+            "url" : "/building/command",
+            "level" : 1,
+            "image" : "command",
+        }
+    },
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 body_id
+
+The id of the body you wish to retrieve the buildings on.
+
+
+
+
+
+=head2 rename_body ( session_id, body_id, name )
+
+Renames a body, provided the empire attached to the session owns the body. Returns a 1 on success.
+
+Throws 1002 and 1010.
+
+=head3 session_id
+
+A session id.
+
+=head3 body_id
+
+The id of the body you wish to rename.
+
+=head3 name
+
+The new name of the body.
+
+=cut
+

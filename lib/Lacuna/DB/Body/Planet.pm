@@ -26,7 +26,6 @@ __PACKAGE__->add_attributes(
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
-__PACKAGE__->has_many('slots', 'Lacuna::DB::Slot', 'planet_id');
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -19,7 +19,7 @@ sub rename_star {
         ->length_lt(31)
         ->no_restricted_chars
         ->no_profanity
-        ->not_ok($self->simpledb->domain('star')->count({name=>$name})); # name available
+        ->not_ok($self->simpledb->domain('star')->count({cname=>Lacuna::Util::cname($name), id=>['!=',$star_id]})); # name available
     my $empire = $self->get_empire_by_session($session_id);
     my $star = $self->simpledb->domain('star')->find($star_id);
     if (defined $star) {

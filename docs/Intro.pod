@@ -145,6 +145,10 @@ Methods for game server statistics.
 
 Methods for interacting with the star and systems maps.
 
+=item L<Body>
+
+Methods for interacting with planets and other stellar bodies.
+
 =item L<Species>
 
 Methods for creating a species.

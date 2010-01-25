@@ -9,9 +9,11 @@ __PACKAGE__->add_attributes(
     x               => { isa => 'Int' },
     y               => { isa => 'Int' },
     level           => { isa => 'Int' },
+    class           => { isa => 'Str' },
 );
 
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Body', 'body_id');
+__PACKAGE__->recast_using('class');
 
 has name => (
     is      => 'ro',
@@ -21,6 +23,11 @@ has name => (
 has image => (
     is      => 'ro',
     default => undef,
+);
+
+has time_to_build => (
+    is      => 'ro',
+    default => '60',
 );
 
 has energy_to_build => (
