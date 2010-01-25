@@ -87,7 +87,7 @@ sub start_session {
     my $session = $self->simpledb->domain('session')->insert({
         empire_id       => $self->id,
         date_created    => DateTime->now,
-        expires         => DateTime->now->add(hours=>2),
+        expires         => DateTime->now->add(hours=>2), 
     });
     $self->last_login(DateTime->now);
     $self->put;
