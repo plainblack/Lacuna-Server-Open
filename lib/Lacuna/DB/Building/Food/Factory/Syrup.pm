@@ -1,18 +1,22 @@
-package Lacuna::DB::Building::Farm::Algae;
+package Lacuna::DB::Building::Food::Factory::Syrup;
 
 use Moose;
-extends 'Lacuna::DB::Building::Farm';
+extends 'Lacuna::DB::Building::Food::Factory';
 
 has '+food_produced' => ( 
-    default => 'Algae', 
+    default => 'Syrup',
 );
 
 has '+image' => ( 
-    default => 'algae0', 
+    default => 'syrup0',
 );
 
 has '+name' => (
-    default => 'Algae Cropper',
+    default => 'Algae Syrup Bottler',
+);
+
+has '+converts_food' = (
+    default => 'Algae',
 );
 
 has '+energy_to_build' => (
@@ -27,7 +31,7 @@ has '+water_to_build' => (
     default => -100,
 );
 
-has '+minerals_to_build' => (
+has '+ore_to_build' => (
     default => -100,
 );
 
@@ -43,7 +47,7 @@ has '+energy_production' => (
     default => 3,
 );
 
-has '+mineral_production' => (
+has '+ore_production' => (
     default => -1,
 );
 
@@ -54,8 +58,6 @@ has '+water_production' => (
 has '+waste_production' => (
     default => 1,
 );
-
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

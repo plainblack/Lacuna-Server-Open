@@ -1,9 +1,7 @@
-package Lacuna::DB::Building::Factory;
+package Lacuna::DB::Building::Food::Factory;
 
 use Moose;
-extends 'Lacuna::DB::Building';
-
-__PACKAGE__->set_domain_name('factory');
+extends 'Lacuna::DB::Building::Food';
 
 has converts_food => (
     is      => 'ro',

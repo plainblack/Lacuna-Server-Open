@@ -1,9 +1,9 @@
-package Lacuna::DB::Building::Farm;
+package Lacuna::DB::Building::Food;
 
 use Moose;
 extends 'Lacuna::DB::Building';
 
-__PACKAGE__->set_domain_name('farm');
+__PACKAGE__->set_domain_name('food');
 
 
 no Moose;

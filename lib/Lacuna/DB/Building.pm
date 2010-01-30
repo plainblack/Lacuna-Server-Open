@@ -40,7 +40,7 @@ has food_to_build => (
     default => 0,
 );
 
-has minerals_to_build => (
+has ore_to_build => (
     is      => 'ro',
     default => 0,
 );
@@ -85,7 +85,7 @@ has food_prodced => (
     default => undef,
 );
 
-has mineral_production => (
+has ore_production => (
     is      => 'ro',
     default => 0,
 );
@@ -105,7 +105,7 @@ has food_storage => (
     default => 0,
 );
 
-has mineral_storage => (
+has ore_storage => (
     is      => 'ro',
     default => 0,
 );

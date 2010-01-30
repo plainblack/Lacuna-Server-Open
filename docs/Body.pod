@@ -29,6 +29,8 @@ Retrieves a list of the buildings on a planet.
     "status" : { ... }
  }
 
+Throws 1002 and 1010.
+
 =head3 session_id
 
 A session id.
@@ -45,7 +47,7 @@ The id of the body you wish to retrieve the buildings on.
 
 Renames a body, provided the empire attached to the session owns the body. Returns a 1 on success.
 
-Throws 1002 and 1010.
+Throws 1000, 1002 and 1010.
 
 =head3 session_id
 
