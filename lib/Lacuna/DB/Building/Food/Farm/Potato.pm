@@ -1,18 +1,18 @@
-package Lacuna::DB::Building::Food::Farm::Algae;
+package Lacuna::DB::Building::Food::Farm::Potato;
 
 use Moose;
 extends 'Lacuna::DB::Building::Food::Farm';
 
 has '+image' => ( 
-    default => 'algae', 
+    default => 'potato', 
 );
 
 has '+name' => (
-    default => 'Algae Cropper',
+    default => 'Potato Patch',
 );
 
 has '+food_produced' (
-    default => 'Algae',
+    default => 'Potatos',
 );
 
 has '+food_to_build' => (
@@ -28,11 +28,11 @@ has '+ore_to_build' => (
 );
 
 has '+water_to_build' => (
-    default => -30,
+    default => -10,
 );
 
 has '+waste_to_build' => (
-    default => 20,
+    default => 10,
 );
 
 has '+time_to_build' => (
@@ -40,23 +40,23 @@ has '+time_to_build' => (
 );
 
 has '+food_production' => (
-    default => 5,
+    default => 57,
 );
 
 has '+energy_production' => (
-    default => 3,
-);
-
-has '+ore_production' => (
     default => -1,
 );
 
-has '+water_production' => (
+has '+ore_production' => (
     default => -2,
 );
 
+has '+water_production' => (
+    default => -10,
+);
+
 has '+waste_production' => (
-    default => 1,
+    default => 8,
 );
 
 

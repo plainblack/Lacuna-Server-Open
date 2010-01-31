@@ -1,18 +1,18 @@
-package Lacuna::DB::Building::Food::Farm::Algae;
+package Lacuna::DB::Building::Food::Farm::Malcud;
 
 use Moose;
 extends 'Lacuna::DB::Building::Food::Farm';
 
 has '+image' => ( 
-    default => 'algae', 
+    default => 'malcud', 
 );
 
 has '+name' => (
-    default => 'Algae Cropper',
+    default => 'Malcud Fungus Farm',
 );
 
 has '+food_produced' (
-    default => 'Algae',
+    default => 'Malcud Fungus',
 );
 
 has '+food_to_build' => (
@@ -40,23 +40,23 @@ has '+time_to_build' => (
 );
 
 has '+food_production' => (
-    default => 5,
+    default => 26,
 );
 
 has '+energy_production' => (
-    default => 3,
-);
-
-has '+ore_production' => (
     default => -1,
 );
 
+has '+ore_production' => (
+    default => 4,
+);
+
 has '+water_production' => (
-    default => -2,
+    default => -4,
 );
 
 has '+waste_production' => (
-    default => 1,
+    default => -1,
 );
 
 

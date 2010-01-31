@@ -1,26 +1,18 @@
-package Lacuna::DB::Building::Food::Factory::Syrup;
+package Lacuna::DB::Building::Food::Farm::Beeldeban;
 
 use Moose;
-extends 'Lacuna::DB::Building::Food::Factory';
+extends 'Lacuna::DB::Building::Food::Farm';
 
 has '+image' => ( 
-    default => 'syrup', 
+    default => 'beeldeban', 
 );
 
 has '+name' => (
-    default => 'Algae Syrup Bottler',
+    default => 'Beeldeban Herder',
 );
 
 has '+food_produced' (
-    default => 'Algae Syrup',
-);
-
-has '+converts_food' = (
-    default => 'Algae',
-);
-
-has '+conversion_ratio' = (
-    default => sub { [100, 150] },
+    default => 'Beeldeban Beetles',
 );
 
 has '+food_to_build' => (
@@ -32,39 +24,39 @@ has '+energy_to_build' => (
 );
 
 has '+ore_to_build' => (
-    default => -100,
+    default => -125,
 );
 
 has '+water_to_build' => (
-    default => -100,
+    default => -50,
 );
 
 has '+waste_to_build' => (
-    default => 100,
+    default => 35,
 );
 
 has '+time_to_build' => (
-    default => 200,
+    default => 80,
 );
 
 has '+food_production' => (
-    default => 150,
+    default => 22,
 );
 
 has '+energy_production' => (
-    default => -75,
+    default => -2,
 );
 
 has '+ore_production' => (
-    default => 0,
+    default => -4,
 );
 
 has '+water_production' => (
-    default => -25,
+    default => -3,
 );
 
 has '+waste_production' => (
-    default => 75,
+    default => 23,
 );
 
 

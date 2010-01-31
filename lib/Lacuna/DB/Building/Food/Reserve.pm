@@ -1,62 +1,62 @@
-package Lacuna::DB::Building::Food::Farm::Algae;
+package Lacuna::DB::Building::Food::Reserve;
 
 use Moose;
-extends 'Lacuna::DB::Building::Food::Farm';
+extends 'Lacuna::DB::Building::Food::Reserve';
 
 has '+image' => ( 
-    default => 'algae', 
+    default => 'food-reserve', 
 );
 
 has '+name' => (
-    default => 'Algae Cropper',
-);
-
-has '+food_produced' (
-    default => 'Algae',
+    default => 'Food Reserve',
 );
 
 has '+food_to_build' => (
-    default => -10,
+    default => -25,
 );
 
 has '+energy_to_build' => (
-    default => -100,
+    default => -25,
 );
 
 has '+ore_to_build' => (
-    default => -55,
+    default => -25,
 );
 
 has '+water_to_build' => (
-    default => -30,
+    default => -25,
 );
 
 has '+waste_to_build' => (
-    default => 20,
+    default => 25,
 );
 
 has '+time_to_build' => (
-    default => 60,
+    default => 100,
 );
 
 has '+food_production' => (
-    default => 5,
-);
-
-has '+energy_production' => (
-    default => 3,
-);
-
-has '+ore_production' => (
     default => -1,
 );
 
+has '+energy_production' => (
+    default => -10,
+);
+
+has '+ore_production' => (
+    default => 0,
+);
+
 has '+water_production' => (
-    default => -2,
+    default => -1,
 );
 
 has '+waste_production' => (
     default => 1,
+);
+
+has '+food_storage' => (
+    default => 1500,
 );
 
 

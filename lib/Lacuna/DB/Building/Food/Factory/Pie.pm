@@ -1,22 +1,22 @@
-package Lacuna::DB::Building::Food::Factory::Syrup;
+package Lacuna::DB::Building::Food::Factory::Pie;
 
 use Moose;
 extends 'Lacuna::DB::Building::Food::Factory';
 
 has '+image' => ( 
-    default => 'syrup', 
+    default => 'pie', 
 );
 
 has '+name' => (
-    default => 'Algae Syrup Bottler',
+    default => 'Lapis Pie Bakery',
 );
 
 has '+food_produced' (
-    default => 'Algae Syrup',
+    default => 'Lapis Pies',
 );
 
 has '+converts_food' = (
-    default => 'Algae',
+    default => 'Lapis',
 );
 
 has '+conversion_ratio' = (
@@ -52,7 +52,7 @@ has '+food_production' => (
 );
 
 has '+energy_production' => (
-    default => -75,
+    default => -50,
 );
 
 has '+ore_production' => (
@@ -64,7 +64,7 @@ has '+water_production' => (
 );
 
 has '+waste_production' => (
-    default => 75,
+    default => 50,
 );
 
 

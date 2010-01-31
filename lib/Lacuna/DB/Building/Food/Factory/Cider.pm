@@ -1,26 +1,26 @@
-package Lacuna::DB::Building::Food::Factory::Syrup;
+package Lacuna::DB::Building::Food::Factory::Cider;
 
 use Moose;
 extends 'Lacuna::DB::Building::Food::Factory';
 
 has '+image' => ( 
-    default => 'syrup', 
+    default => 'cider', 
 );
 
 has '+name' => (
-    default => 'Algae Syrup Bottler',
+    default => 'Apple Cider Bottler',
 );
 
 has '+food_produced' (
-    default => 'Algae Syrup',
+    default => 'Apple Cider',
 );
 
 has '+converts_food' = (
-    default => 'Algae',
+    default => 'Apples',
 );
 
 has '+conversion_ratio' = (
-    default => sub { [100, 150] },
+    default => sub { [75, 150] },
 );
 
 has '+food_to_build' => (
@@ -52,7 +52,7 @@ has '+food_production' => (
 );
 
 has '+energy_production' => (
-    default => -75,
+    default => -50,
 );
 
 has '+ore_production' => (
@@ -60,11 +60,11 @@ has '+ore_production' => (
 );
 
 has '+water_production' => (
-    default => -25,
+    default => -50,
 );
 
 has '+waste_production' => (
-    default => 75,
+    default => 100,
 );
 
 
