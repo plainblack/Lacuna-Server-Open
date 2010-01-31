@@ -84,23 +84,19 @@ sub create_star_map {
                     say "No star at $x, $y, $z!";
                 }
                 else {
-                    #async {
-                        my $name = pop @star_names;
-                        say "Creating star $name at $x, $y, $z.";
-                        my $star = $stars->insert({
-                            name        => $name,
-                            date_created=> DateTime->now,
-                            color       => $star_colors[rand(scalar(@star_colors))],
-                            x           => $x,
-                            y           => $y,
-                            z           => $z,
-                        });
-                        add_bodies($bodies, $star);
-                    	#cede;
-                    #};
+                    my $name = pop @star_names;
+                    say "Creating star $name at $x, $y, $z.";
+                    my $star = $stars->insert({
+                        name        => $name,
+                        date_created=> DateTime->now,
+                        color       => $star_colors[rand(scalar(@star_colors))],
+                        x           => $x,
+                        y           => $y,
+                        z           => $z,
+                    });
+                    add_bodies($bodies, $star);
                 }
             }
-    #        cede;
         }
     }
 }
@@ -127,34 +123,31 @@ sub add_bodies {
             say "\tNo body at $name!";
         } 
         else {
-      #      async {
-                my $type = choose_weighted(\@body_types, \@body_type_weights);
-                say "\tAdding a $type at $name.";
-                my $params = {
-                    name        => $name,
-                    orbit       => $orbit,
-                    x           => $star->x,
-                    y           => $star->y,
-                    z           => $star->x,
-                    star_id     => $star->id,
-                };
-                if ($type eq 'habitable') {
-                    $params->{class} = $planet_classes[rand(scalar(@planet_classes))];
-                    $params->{empire_id} = 'None';
-                    $params->{size} = rand(50) + 20;
-                }
-                elsif ($type eq 'asteroid') {
-                    $params->{class} = $asteroid_classes[rand(scalar(@asteroid_classes))];
-                    $params->{size} = rand(10);
-                }
-                else {
-                    $params->{class} = $gas_giant_classes[rand(scalar(@gas_giant_classes))];
-                    $params->{empire_id} = 'None';
-                    $params->{size} = rand(50)+70;
-                }
-                $bodies->insert($params);
-     #           cede;
-    #        };
+            my $type = choose_weighted(\@body_types, \@body_type_weights);
+            say "\tAdding a $type at $name (".$star->x.",".$star->y.",".$star->z.").";
+            my $params = {
+                name        => $name,
+                orbit       => $orbit,
+                x           => $star->x,
+                y           => $star->y,
+                z           => $star->z,
+                star_id     => $star->id,
+            };
+            if ($type eq 'habitable') {
+                $params->{class} = $planet_classes[rand(scalar(@planet_classes))];
+                $params->{empire_id} = 'None';
+                $params->{size} = rand(50) + 20;
+            }
+            elsif ($type eq 'asteroid') {
+                $params->{class} = $asteroid_classes[rand(scalar(@asteroid_classes))];
+                $params->{size} = rand(10);
+            }
+            else {
+                $params->{class} = $gas_giant_classes[rand(scalar(@gas_giant_classes))];
+                $params->{empire_id} = 'None';
+                $params->{size} = rand(50)+70;
+            }
+            $bodies->insert($params);
         }
     }
 }
