@@ -189,7 +189,6 @@ sub get_stars {
             if (in($star->id, $empire->probed_stars)) {
                 $alignment = 'probed';
                 my $bodies = $star->bodies;
-                my %alignments;
                 while (my $body = $bodies->next) {
                     if ($body->isa('Lacuna::DB::Body::Planet')) {
                         if ($body->empire_id eq $empire->id) {
