@@ -1,58 +1,58 @@
-package Lacuna::DB::Building::Ore::Mine;
+package Lacuna::DB::Building::Energy::Singularity;
 
 use Moose;
-extends 'Lacuna::DB::Building::Ore';
+extends 'Lacuna::DB::Building::Energy';
 
 has '+image' => ( 
-    default => 'mine', 
+    default => 'singularity', 
 );
 
 has '+name' => (
-    default => 'Mine',
+    default => 'Singularity Energy Plant',
 );
 
 has '+food_to_build' => (
-    default => -100,
+    default => -1100,
 );
 
 has '+energy_to_build' => (
-    default => -100,
+    default => -1205,
 );
 
 has '+ore_to_build' => (
-    default => -10,
+    default => -2350,
 );
 
 has '+water_to_build' => (
-    default => -100,
+    default => -1190,
 );
 
 has '+waste_to_build' => (
-    default => 85,
+    default => 1475,
 );
 
 has '+time_to_build' => (
-    default => 100,
+    default => 1300,
 );
 
 has '+food_production' => (
-    default => -1,
+    default => -27,
 );
 
 has '+energy_production' => (
-    default => -10,
+    default => 449,
 );
 
 has '+ore_production' => (
-    default => 10,
+    default => -23,
 );
 
 has '+water_production' => (
-    default => -10,
+    default => -25,
 );
 
 has '+waste_production' => (
-    default => 3,
+    default => 1,
 );
 
 

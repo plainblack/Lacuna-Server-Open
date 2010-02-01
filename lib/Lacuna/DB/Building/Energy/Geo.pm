@@ -1,14 +1,14 @@
-package Lacuna::DB::Building::Ore::Mine;
+package Lacuna::DB::Building::Energy::Geo;
 
 use Moose;
-extends 'Lacuna::DB::Building::Ore';
+extends 'Lacuna::DB::Building::Energy';
 
 has '+image' => ( 
-    default => 'mine', 
+    default => 'geo', 
 );
 
 has '+name' => (
-    default => 'Mine',
+    default => 'Geo Energy Plant',
 );
 
 has '+food_to_build' => (
@@ -16,11 +16,11 @@ has '+food_to_build' => (
 );
 
 has '+energy_to_build' => (
-    default => -100,
+    default => -10,
 );
 
 has '+ore_to_build' => (
-    default => -10,
+    default => -100,
 );
 
 has '+water_to_build' => (
@@ -28,31 +28,31 @@ has '+water_to_build' => (
 );
 
 has '+waste_to_build' => (
-    default => 85,
+    default => 20,
 );
 
 has '+time_to_build' => (
-    default => 100,
+    default => 130,
 );
 
 has '+food_production' => (
-    default => -1,
+    default => -2,
 );
 
 has '+energy_production' => (
-    default => -10,
+    default => 101,
 );
 
 has '+ore_production' => (
-    default => 10,
+    default => -12,
 );
 
 has '+water_production' => (
-    default => -10,
+    default => -7,
 );
 
 has '+waste_production' => (
-    default => 3,
+    default => 4,
 );
 
 

@@ -1,58 +1,58 @@
-package Lacuna::DB::Building::Ore::Mine;
+package Lacuna::DB::Building::Energy::Fusion;
 
 use Moose;
-extends 'Lacuna::DB::Building::Ore';
+extends 'Lacuna::DB::Building::Energy';
 
 has '+image' => ( 
-    default => 'mine', 
+    default => 'fusion', 
 );
 
 has '+name' => (
-    default => 'Mine',
+    default => 'Fusion Energy Plant',
 );
 
 has '+food_to_build' => (
-    default => -100,
+    default => -500,
 );
 
 has '+energy_to_build' => (
-    default => -100,
+    default => -650,
 );
 
 has '+ore_to_build' => (
-    default => -10,
+    default => -575,
 );
 
 has '+water_to_build' => (
-    default => -100,
+    default => -480,
 );
 
 has '+waste_to_build' => (
-    default => 85,
+    default => 200,
 );
 
 has '+time_to_build' => (
-    default => 100,
+    default => 790,
 );
 
 has '+food_production' => (
-    default => -1,
+    default => -5,
 );
 
 has '+energy_production' => (
-    default => -10,
+    default => 467,
 );
 
 has '+ore_production' => (
-    default => 10,
+    default => -30,
 );
 
 has '+water_production' => (
-    default => -10,
+    default => -60,
 );
 
 has '+waste_production' => (
-    default => 3,
+    default => 8,
 );
 
 
