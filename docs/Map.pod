@@ -4,7 +4,7 @@ These methods are accessible via the C</map> URL.
 
 =head2 get_stars ( session_id, x1, y1, x2, y2, z )
 
-Retrieves a chunk of the map and returns it as an array of hashes.
+Retrieves a chunk of the map and returns it as an array of hashes. B<Note:> Coordinates without a star will not be returned in the results.
 
  { 
     "stars" : [
@@ -30,7 +30,26 @@ Retrieves a chunk of the map and returns it as an array of hashes.
     "status" : {...}
  }
 
-The requested area can be no larger than 121 stars. Throws 1003 when the area is too large.
+The data you retrieve will allow you to draw a standard cartesian plane like the following. 
+
+              y
+              
+              |
+              |
+     (-3,3)   |  (3,3)
+              |
+ -x ----------+---------- x
+              |
+     (-3,-3)  |  (3,-3)
+              |
+              |
+
+             -y
+
+What you're viewing is a slice of a 3D environment, much as if you cut an apple in half. 
+
+The requested area can be no larger than 121 stars. Throws 1003 when the area is too large. 
+
 
 =head3 session_id
 

@@ -107,7 +107,11 @@ Most methods will provide a status block as part of the response. This is used t
                 "energy" : 39931
                 "minerals" 28484,
                 "waste" : 99933,
-                "water" : 9929
+                "water" : 9929,
+		"x" : -4,
+		"y" : 10,
+		"z" : 6,
+		"orbit" : 3
             },
             "yyy1" : {
                 "name" : "Mars",
@@ -117,7 +121,11 @@ Most methods will provide a status block as part of the response. This is used t
                 "energy" : 59931
                 "minerals" 48484,
                 "waste" : 89933,
-                "water" : 7929
+                "water" : 7929,
+		"x" : -4,
+		"y" : 10,
+		"z" : 6,
+		"orbit" : 4
             }
         }
     }

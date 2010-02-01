@@ -62,6 +62,10 @@ sub get_status {
         #    minerals    => $planet->minerals_stored,
             waste       => $planet->waste_stored,
             happiness   => $planet->happiness,
+            x           => $planet->x,
+            y           => $planet->y,
+            z           => $planet->z,
+            orbit       => $planet->orbit,
         };
     }
     $self = $self->simpledb->domain('empire')->find($self->id); # refetch because it's likely changed
