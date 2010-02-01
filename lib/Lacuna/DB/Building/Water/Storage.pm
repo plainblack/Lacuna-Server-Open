@@ -1,30 +1,30 @@
-package Lacuna::DB::Building::Waste::Sequestration;
+package Lacuna::DB::Building::Water::Storage;
 
 use Moose;
-extends 'Lacuna::DB::Building::Waste';
+extends 'Lacuna::DB::Building::Water';
 
 has '+image' => ( 
-    default => 'sequestration', 
+    default => 'water-storage', 
 );
 
 has '+name' => (
-    default => 'Waste Sequestration Well',
+    default => 'Water Storage',
 );
 
 has '+food_to_build' => (
-    default => -10,
+    default => -25,
 );
 
 has '+energy_to_build' => (
-    default => -10,
+    default => -25,
 );
 
 has '+ore_to_build' => (
-    default => -10,
+    default => -25,
 );
 
 has '+water_to_build' => (
-    default => -10,
+    default => -25,
 );
 
 has '+waste_to_build' => (
@@ -36,26 +36,26 @@ has '+time_to_build' => (
 );
 
 has '+food_production' => (
-    default => 0,
+    default => -2,
 );
 
 has '+energy_production' => (
-    default => 0,
+    default => -5,
 );
 
 has '+ore_production' => (
-    default => 0,
+    default => -5,
 );
 
 has '+water_production' => (
-    default => 0,
+    default => -1,
 );
 
 has '+waste_production' => (
-    default => 0,
+    default => 1,
 );
 
-has '+waste_storage' => (
+has '+water_storage' => (
     default => 1500,
 );
 
