@@ -2,12 +2,7 @@ package Lacuna::DB::Building;
 
 use Moose;
 extends 'SimpleDB::Class::Item';
-
-use constant INFLATION => 1.8847;
-use constant GROWTH => 1.292;
-use constant FOOD_TYPES => (qw(lapis potato apple root corn cider wheat bread soup chip pie pancake milk meal algae syrup fungus burger shake beetle));
-use constant ORE_TYPES => (qw(rutile chromite chalcopyrite galena gold uraninite bauxite limonite halite gypsum trona kerogen petroleum anthracite sulfate zircon monazite fluorite beryl magnetite));
-
+use Lacuna::Constants ':all';
 
 
 __PACKAGE__->add_attributes(
@@ -243,66 +238,415 @@ has waste_storage => (
     default => 0,
 );
 
+# BASE FORMULAS
 
-sub food_per_tick {
-    my ($self) = @_;
-    return $self->food_production;
+sub production_hour {
+    return (GROWTH ** ( $_[0]->level - 1));
 }
 
-sub energy_per_tick {
-    my ($self) = @_;
-    return $self->energy_production;
+sub upgrade_cost {
+    return (INFLATION ** $_[0]->level);
 }
 
-sub ore_per_tick {
-    my ($self) = @_;
-    return $self->ore_production;
+sub consumption_hour {
+    $_[0]->production_hour;
 }
 
-sub water_per_tick {
+# PRODUCTION
+
+sub lapis_production_hour {
     my ($self) = @_;
-    return $self->water_production;
+    return $self->lapis_production * $self->production_hour;
 }
 
-sub waste_per_tick {
+sub potato_production_hour {
     my ($self) = @_;
-    return $self->waste_production;
+    return $self->potato_production * $self->production_hour;
 }
+
+sub apple_production_hour {
+    my ($self) = @_;
+    return $self->apple_production * $self->production_hour;
+}
+
+sub root_production_hour {
+    my ($self) = @_;
+    return $self->root_production * $self->production_hour;
+}
+
+sub corn_production_hour {
+    my ($self) = @_;
+    return $self->corn_production * $self->production_hour;
+}
+
+sub cider_production_hour {
+    my ($self) = @_;
+    return $self->cider_production * $self->production_hour;
+}
+
+sub wheat_production_hour {
+    my ($self) = @_;
+    return $self->wheat_production * $self->production_hour;
+}
+
+sub bread_production_hour {
+    my ($self) = @_;
+    return $self->bread_production * $self->production_hour;
+}
+
+sub soup_production_hour {
+    my ($self) = @_;
+    return $self->soup_production * $self->production_hour;
+}
+
+sub chip_production_hour {
+    my ($self) = @_;
+    return $self->chip_production * $self->production_hour;
+}
+
+sub pie_production_hour {
+    my ($self) = @_;
+    return $self->pie_production * $self->production_hour;
+}
+
+sub pancake_production_hour {
+    my ($self) = @_;
+    return $self->pancake_production * $self->production_hour;
+}
+
+sub milk_production_hour {
+    my ($self) = @_;
+    return $self->milk_production * $self->production_hour;
+}
+
+sub meal_production_hour {
+    my ($self) = @_;
+    return $self->meal_production * $self->production_hour;
+}
+
+sub algae_production_hour {
+    my ($self) = @_;
+    return $self->algae_production * $self->production_hour;
+}
+
+sub syrup_production_hour {
+    my ($self) = @_;
+    return $self->syrup_production * $self->production_hour;
+}
+
+sub fungus_production_hour {
+    my ($self) = @_;
+    return $self->fungus_production * $self->production_hour;
+}
+
+sub burger_production_hour {
+    my ($self) = @_;
+    return $self->burger_production * $self->production_hour;
+}
+
+sub shake_production_hour {
+    my ($self) = @_;
+    return $self->shake_production * $self->production_hour;
+}
+
+sub beetle_production_hour {
+    my ($self) = @_;
+    return $self->beetle_production * $self->production_hour;
+}
+
+sub food_production_hour {
+    my ($self) = @_;
+    my $tally = 0;
+    foreach my $food (FOOD_TYPES) {
+        my $method = $food."_production_hour";
+        $tally += $self->$method;
+    }
+    return $tally;
+}
+
+sub food_consumption_hour {
+    my ($self) = @_;
+    return $self->energy_consumption * $self->consumption_hour;
+}
+
+sub food_hour {
+    my ($self) = @_;
+    return $self->food_production_hour - $self->food_consumption_hour;
+}
+
+sub energy_production_hour {
+    my ($self) = @_;
+    return $self->energy_production * $self->production_hour;
+}
+
+sub energy_consumption_hour {
+    my ($self) = @_;
+    return $self->energy_consumption * $self->consumption_hour;
+}
+
+sub energy_hour {
+    my ($self) = @_;
+    return $self->energy_production_hour - $self->energy_consumption_hour;
+}
+
+sub rutile_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->rutile / 100);
+}
+
+sub chromite_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->chromite / 100);
+}
+
+sub chalcopyrite_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->chalcopyrite / 100);
+}
+
+sub galena_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->galena / 100);
+}
+
+sub gold_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->gold / 100);
+}
+
+sub uraninite_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->uraninite / 100);
+}
+
+sub bauxite_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->bauxite / 100);
+}
+
+sub limonite_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->limonite / 100);
+}
+
+sub halite_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->halite / 100);
+}
+
+sub gypsum_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->gypsum / 100);
+}
+
+sub trona_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->trona / 100);
+}
+
+sub kerogen_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->kerogen / 100);
+}
+
+sub petroleum_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->petroleum / 100);
+}
+
+sub anthracite_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->anthracite / 100);
+}
+
+sub sulfate_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->sulfate / 100);
+}
+
+sub zircon_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->zircon / 100);
+}
+
+sub monazite_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->monazite / 100);
+}
+
+sub fluorite_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->fluorite / 100);
+}
+
+sub beryl_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->beryl / 100);
+}
+
+sub magnetite_production_hour {
+    my ($self, $body) = @_;
+    $body ||= $self->body;
+    return $self->ore_production * $self->production_hour / ($body->magnetite / 100);
+}
+
+sub ore_production_hour {
+    my ($self) = @_;
+    my $tally = 0;
+    my $body = $self->body;
+    foreach my $ore (ORE_TYPES) {
+        my $method = $ore."_production_hour";
+        $tally += $self->$method($body);
+    }
+    return $tally;
+}
+
+sub ore_consumption_hour {
+    my ($self) = @_;
+    return $self->ore_consumption * $self->consumption_hour;
+}
+
+sub ore_hour {
+    my ($self) = @_;
+    return $self->ore_production_hour - $self->ore_consumption_hour;
+}
+
+sub water_production_hour {
+    my ($self) = @_;
+    my $body = $self->body;
+    return $self->water_production * $self->production_hour / ($body->water / 100);
+}
+
+sub water_consumption_hour {
+    my ($self) = @_;
+    return $self->water_consumption * $self->consumption_hour;
+}
+
+sub water_hour {
+    my ($self) = @_;
+    return $self->water_production_hour - $self->water_consumption_hour;
+}
+
+sub waste_production_hour {
+    my ($self) = @_;
+    return $self->waste_production * $self->production_hour;
+}
+
+sub waste_consumption_hour {
+    my ($self) = @_;
+    return $self->waste_consumption * $self->consumption_hour;
+}
+
+sub waste_hour {
+    my ($self) = @_;
+    return $self->waste_production_hour - $self->energy_consumption_hour;
+}
+
+sub happiness_production_hour {
+    my ($self) = @_;
+    return $self->happiness_production * $self->production_hour;
+}
+
+sub happiness_consumption_hour {
+    my ($self) = @_;
+    return $self->happiness_consumption * $self->consumption_hour;
+}
+
+sub happiness_hour {
+    my ($self) = @_;
+    return $self->happiness_production_hour - $self->energy_consumption_hour;
+}
+
+# STORAGE
+
+sub food_storage_capacity {
+    my ($self) = @_;
+    return $self->food_storage * $self->production_hour;
+}
+
+sub energy_storage_capacity {
+    my ($self) = @_;
+    return $self->energy_storage * $self->production_hour;
+}
+
+sub ore_storage_capacity {
+    my ($self) = @_;
+    return $self->ore_storage * $self->production_hour;
+}
+
+sub water_storage_capacity {
+    my ($self) = @_;
+    return $self->water_storage * $self->production_hour;
+}
+
+sub waste_storage_capacity {
+    my ($self) = @_;
+    return $self->waste_storage * $self->production_hour;
+}
+
+# UPGRADES
 
 sub food_to_upgrade {
     my ($self) = @_;
-    my $next_level = $self->level + 1;
-    return $self->food_to_build * (INFLATION ** ($next_level - 1));
+    return $self->food_to_build * $self->upgrade_cost;
 }
 
 sub energy_to_upgrade {
     my ($self) = @_;
-    my $next_level = $self->level + 1;
-    return $self->energy_to_build * $next_level;
+    return $self->energy_to_build * $self->upgrade_cost;
 }
 
 sub ore_to_upgrade {
     my ($self) = @_;
-    my $next_level = $self->level + 1;
-    return $self->ore_to_build * $next_level;
+    return $self->ore_to_build * $self->upgrade_cost;
 }
 
 sub water_to_upgrade {
     my ($self) = @_;
     my $next_level = $self->level + 1;
-    return $self->water_to_build * $next_level;
+    return $self->water_to_build * $self->upgrade_cost;
 }
 
 sub waste_to_upgrade {
     my ($self) = @_;
     my $next_level = $self->level + 1;
-    return $self->waste_to_build * $next_level;
+    return $self->waste_to_build * $self->upgrade_cost;
 }
 
-sub food_production_delta_after_upgrade {
+# DELTAS
+
+sub stats_after_upgrade {
     my ($self) = @_;
-    my $next_level = $self->level + 1;
-    return $self->waste_to_build * $next_level;
+    my $current_level = $self->level;
+    $self->level($current_level + 1);
+    my %stats;
+    $stats{food_hour} = $self->food_hour;
+    $stats{energy_hour} = $self->energy_hour;
+    $stats{ore_hour} = $self->ore_hour;
+    $stats{water_hour} = $self->water_hour;
+    $stats{waste_hour} = $self->waste_hour;
+    $stats{happiness_hour} = $self->happiness_hour;
+    $self->level($current_level);
+    return \%stats;
 }
 
 no Moose;
