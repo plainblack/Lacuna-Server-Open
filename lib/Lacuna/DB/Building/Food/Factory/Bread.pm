@@ -11,18 +11,6 @@ has '+name' => (
     default => 'Bread Bakery',
 );
 
-has '+food_produced' (
-    default => 'Bread',
-);
-
-has '+converts_food' = (
-    default => 'Wheat',
-);
-
-has '+conversion_ratio' = (
-    default => sub { [75, 150] },
-);
-
 has '+food_to_build' => (
     default => -100,
 );
@@ -47,20 +35,20 @@ has '+time_to_build' => (
     default => 200,
 );
 
-has '+food_production' => (
+has '+food_consumption' => (
     default => 150,
 );
 
-has '+energy_production' => (
-    default => -50,
+has '+bread_production' => (
+    default => 75,
 );
 
-has '+ore_production' => (
-    default => 0,
+has '+energy_consumption' => (
+    default => 50,
 );
 
-has '+water_production' => (
-    default => -25,
+has '+water_consumption' => (
+    default => 25,
 );
 
 has '+waste_production' => (

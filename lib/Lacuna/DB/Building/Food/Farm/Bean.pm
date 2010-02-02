@@ -11,10 +11,6 @@ has '+name' => (
     default => 'Amalgus Bean Plantation',
 );
 
-has '+food_produced' (
-    default => 'Amalgus Beans',
-);
-
 has '+food_to_build' => (
     default => -10,
 );
@@ -39,20 +35,24 @@ has '+time_to_build' => (
     default => 60,
 );
 
-has '+food_production' => (
-    default => 45,
+has '+food_consumption' => (
+    default => 5,
 );
 
-has '+energy_production' => (
-    default => -1,
+has '+bean_production' => (
+    default => 60,
 );
 
-has '+ore_production' => (
-    default => -3,
+has '+energy_consumption' => (
+    default => 1,
 );
 
-has '+water_production' => (
-    default => -7,
+has '+ore_consumption' => (
+    default => 10,
+);
+
+has '+water_consumption' => (
+    default => 7,
 );
 
 has '+waste_production' => (

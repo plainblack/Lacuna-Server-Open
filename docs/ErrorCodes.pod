@@ -46,5 +46,17 @@ The items in the range don't fit the rules for the range. For example, habitable
 
 The authenticated empire doesn't have the privileges to complete the requested action.
 
+=head2 1011 Not enough resources in storage.
+
+The empire/planet/station doesn't have enough resources in storage to complete the requested action. Build more wealth to fix the problem.
+
+=head2 1012 Not enough resources in production.
+
+The empire/planet/station isn't producing enough resources to keep up with the demands of this action. If the action were allowed to complete it would bankrupt the empire.
+
+=head2 1013 Missing prerequisites.
+
+The empire/planet/station hasn't completed building the prerequisite buildings in order to build something new.
+
 =cut
 

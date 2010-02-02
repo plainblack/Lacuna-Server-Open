@@ -11,18 +11,6 @@ has '+name' => (
     default => 'Malcud Burger Packer',
 );
 
-has '+food_produced' (
-    default => 'Malcud Burgers',
-);
-
-has '+converts_food' = (
-    default => 'Malcud Fungus',
-);
-
-has '+conversion_ratio' = (
-    default => sub { [100, 150] },
-);
-
 has '+food_to_build' => (
     default => -100,
 );
@@ -47,20 +35,24 @@ has '+time_to_build' => (
     default => 200,
 );
 
-has '+food_production' => (
+has '+food_consumption' => (
     default => 150,
 );
 
-has '+energy_production' => (
-    default => -40,
+has '+burger_production' => (
+    default => 100,
 );
 
-has '+ore_production' => (
-    default => 0,
+has '+energy_consumption' => (
+    default => 40,
 );
 
-has '+water_production' => (
-    default => -10,
+has '+ore_consumption' => (
+    default => 1,
+);
+
+has '+water_consumption' => (
+    default => 10,
 );
 
 has '+waste_production' => (

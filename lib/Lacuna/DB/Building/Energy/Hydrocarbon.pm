@@ -35,20 +35,24 @@ has '+time_to_build' => (
     default => 70,
 );
 
-has '+food_production' => (
-    default => -15,
+has '+food_consumption' => (
+    default => 15,
+);
+
+has '+energy_consumption' => (
+    default => 120,
 );
 
 has '+energy_production' => (
-    default => 370,
+    default => 490,
 );
 
-has '+ore_production' => (
-    default => -90,
+has '+ore_consumption' => (
+    default => 90,
 );
 
-has '+water_production' => (
-    default => -15,
+has '+water_consumption' => (
+    default => 15,
 );
 
 has '+waste_production' => (

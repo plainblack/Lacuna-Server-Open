@@ -11,18 +11,6 @@ has '+name' => (
     default => 'Corn Meal Grinder',
 );
 
-has '+food_produced' (
-    default => 'Corn Meal',
-);
-
-has '+converts_food' = (
-    default => 'Corn',
-);
-
-has '+conversion_ratio' = (
-    default => sub { [100, 150] },
-);
-
 has '+food_to_build' => (
     default => -100,
 );
@@ -47,20 +35,20 @@ has '+time_to_build' => (
     default => 200,
 );
 
-has '+food_production' => (
+has '+food_consumption' => (
     default => 150,
 );
 
-has '+energy_production' => (
-    default => -50,
+has '+food_production' => (
+    default => 125,
 );
 
-has '+ore_production' => (
-    default => 0,
+has '+energy_consumption' => (
+    default => 50,
 );
 
-has '+water_production' => (
-    default => -25,
+has '+water_consumption' => (
+    default => 25,
 );
 
 has '+waste_production' => (

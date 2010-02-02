@@ -11,18 +11,6 @@ has '+name' => (
     default => 'Cheese Maker',
 );
 
-has '+food_produced' (
-    default => 'Cheese',
-);
-
-has '+converts_food' = (
-    default => 'Milk',
-);
-
-has '+conversion_ratio' = (
-    default => sub { [100, 150] },
-);
-
 has '+food_to_build' => (
     default => -100,
 );
@@ -47,20 +35,24 @@ has '+time_to_build' => (
     default => 200,
 );
 
-has '+food_production' => (
+has '+food_consumption' => (
     default => 150,
 );
 
-has '+energy_production' => (
-    default => -75,
+has '+cheese_production' => (
+    default => 100,
 );
 
-has '+ore_production' => (
-    default => 0,
+has '+energy_consumption' => (
+    default => 75,
 );
 
-has '+water_production' => (
-    default => -75,
+has '+ore_consumption' => (
+    default => 2,
+);
+
+has '+water_consumption' => (
+    default => 75,
 );
 
 has '+waste_production' => (

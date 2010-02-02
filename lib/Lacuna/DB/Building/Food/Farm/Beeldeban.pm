@@ -11,10 +11,6 @@ has '+name' => (
     default => 'Beeldeban Herder',
 );
 
-has '+food_produced' (
-    default => 'Beeldeban Beetles',
-);
-
 has '+food_to_build' => (
     default => -100,
 );
@@ -39,24 +35,32 @@ has '+time_to_build' => (
     default => 80,
 );
 
-has '+food_production' => (
-    default => 22,
+has '+food_consumption' => (
+    default => 5,
 );
 
-has '+energy_production' => (
-    default => -2,
+has '+beetle_production' => (
+    default => 35,
 );
 
-has '+ore_production' => (
-    default => -4,
+has '+energy_consumption' => (
+    default => 2,
 );
 
-has '+water_production' => (
-    default => -3,
+has '+ore_consumption' => (
+    default => 4,
+);
+
+has '+water_consumption' => (
+    default => 3,
 );
 
 has '+waste_production' => (
     default => 23,
+);
+
+has '+waste_consumption' => (
+    default => 15,
 );
 
 

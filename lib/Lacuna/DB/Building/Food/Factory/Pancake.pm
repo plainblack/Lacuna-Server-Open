@@ -11,18 +11,6 @@ has '+name' => (
     default => 'Potato Pancake Factory',
 );
 
-has '+food_produced' (
-    default => 'Potato Pancakes',
-);
-
-has '+converts_food' = (
-    default => 'Potatos',
-);
-
-has '+conversion_ratio' = (
-    default => sub { [100, 150] },
-);
-
 has '+food_to_build' => (
     default => -100,
 );
@@ -47,20 +35,20 @@ has '+time_to_build' => (
     default => 200,
 );
 
-has '+food_production' => (
+has '+food_consumption' => (
     default => 150,
 );
 
-has '+energy_production' => (
-    default => -25,
+has '+pancake_production' => (
+    default => 90,
 );
 
-has '+ore_production' => (
-    default => 0,
+has '+energy_consumption' => (
+    default => 25,
 );
 
-has '+water_production' => (
-    default => -25,
+has '+water_consumption' => (
+    default => 25,
 );
 
 has '+waste_production' => (

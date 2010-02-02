@@ -11,10 +11,6 @@ has '+name' => (
     default => 'Wheat Farm',
 );
 
-has '+food_produced' (
-    default => 'Wheat',
-);
-
 has '+food_to_build' => (
     default => -10,
 );
@@ -39,20 +35,24 @@ has '+time_to_build' => (
     default => 60,
 );
 
-has '+food_production' => (
-    default => 33,
+has '+food_consumption' => (
+    default => 5,
 );
 
-has '+energy_production' => (
-    default => -1,
+has '+wheat_production' => (
+    default => 38,
 );
 
-has '+ore_production' => (
-    default => -1,
+has '+energy_consumption' => (
+    default => 1,
 );
 
-has '+water_production' => (
-    default => -10,
+has '+ore_consumption' => (
+    default => 1,
+);
+
+has '+water_consumption' => (
+    default => 10,
 );
 
 has '+waste_production' => (

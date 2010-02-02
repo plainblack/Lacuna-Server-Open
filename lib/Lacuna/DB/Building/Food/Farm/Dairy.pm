@@ -11,10 +11,6 @@ has '+name' => (
     default => 'Dairy Farm',
 );
 
-has '+food_produced' (
-    default => 'Milk',
-);
-
 has '+food_to_build' => (
     default => -200,
 );
@@ -39,20 +35,24 @@ has '+time_to_build' => (
     default => 80,
 );
 
-has '+food_production' => (
-    default => 32,
+has '+food_consumption' => (
+    default => 5,
 );
 
-has '+energy_production' => (
-    default => -3,
+has '+milk_production' => (
+    default => 47,
 );
 
-has '+ore_production' => (
-    default => -3,
+has '+energy_consumption' => (
+    default => 8,
 );
 
-has '+water_production' => (
-    default => -10,
+has '+ore_consumption' => (
+    default => 3,
+);
+
+has '+water_consumption' => (
+    default => 15,
 );
 
 has '+waste_production' => (

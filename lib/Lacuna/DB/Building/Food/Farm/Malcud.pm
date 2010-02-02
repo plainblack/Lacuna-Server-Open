@@ -11,10 +11,6 @@ has '+name' => (
     default => 'Malcud Fungus Farm',
 );
 
-has '+food_produced' (
-    default => 'Malcud Fungus',
-);
-
 has '+food_to_build' => (
     default => -10,
 );
@@ -39,24 +35,28 @@ has '+time_to_build' => (
     default => 60,
 );
 
-has '+food_production' => (
-    default => 26,
+has '+food_consumption' => (
+    default => 5,
 );
 
-has '+energy_production' => (
-    default => -1,
+has '+fungus_production' => (
+    default => 31,
+);
+
+has '+energy_consumption' => (
+    default => 1,
 );
 
 has '+ore_production' => (
     default => 4,
 );
 
-has '+water_production' => (
-    default => -4,
+has '+water_consumption' => (
+    default => 4,
 );
 
-has '+waste_production' => (
-    default => -1,
+has '+waste_consumption' => (
+    default => 1,
 );
 
 

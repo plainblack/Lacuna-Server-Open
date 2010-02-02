@@ -11,10 +11,6 @@ has '+name' => (
     default => 'Denton Root Patch',
 );
 
-has '+food_produced' (
-    default => 'Denton Roots',
-);
-
 has '+food_to_build' => (
     default => -10,
 );
@@ -39,20 +35,24 @@ has '+time_to_build' => (
     default => 60,
 );
 
-has '+food_production' => (
-    default => 43,
+has '+food_consumption' => (
+    default => 5,
 );
 
-has '+energy_production' => (
-    default => -1,
+has '+root_production' => (
+    default => 48,
 );
 
-has '+ore_production' => (
-    default => -1,
+has '+energy_consumption' => (
+    default => 1,
 );
 
-has '+water_production' => (
-    default => -8,
+has '+ore_consumption' => (
+    default => 1,
+);
+
+has '+water_consumption' => (
+    default => 8,
 );
 
 has '+waste_production' => (

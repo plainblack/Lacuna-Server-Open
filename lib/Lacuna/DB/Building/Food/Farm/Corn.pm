@@ -11,10 +11,6 @@ has '+name' => (
     default => 'Corn Plantation',
 );
 
-has '+food_produced' (
-    default => 'Corn',
-);
-
 has '+food_to_build' => (
     default => -10,
 );
@@ -39,19 +35,23 @@ has '+time_to_build' => (
     default => 60,
 );
 
-has '+food_production' => (
-    default => 28,
+has '+food_consumption' => (
+    default => 5,
 );
 
-has '+energy_production' => (
-    default => -1,
+has '+corn_production' => (
+    default => 44,
 );
 
-has '+ore_production' => (
-    default => 0,
+has '+energy_consumption' => (
+    default => 1,
 );
 
-has '+water_production' => (
+has '+ore_consumption' => (
+    default => 11,
+);
+
+has '+water_consumption' => (
     default => -10,
 );
 

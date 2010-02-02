@@ -35,27 +35,27 @@ has '+time_to_build' => (
     default => 500,
 );
 
-has '+food_production' => (
-    default => -5,
-);
-
-has '+energy_production' => (
-    default => -50,
-);
-
-has '+ore_production' => (
+has '+food_consumption' => (
     default => 10,
 );
 
-has '+water_production' => (
-    default => -50,
+has '+energy_consumption' => (
+    default => 50,
+);
+
+has '+ore_production' => (
+    default => 280,
+);
+
+has '+water_consumption' => (
+    default => 50,
 );
 
 has '+waste_production' => (
-    default => 15,
+    default => 50,
 );
-
 
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
+

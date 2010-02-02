@@ -11,10 +11,6 @@ has '+name' => (
     default => 'Apple Orchard',
 );
 
-has '+food_produced' (
-    default => 'Apples',
-);
-
 has '+food_to_build' => (
     default => -10,
 );
@@ -39,24 +35,32 @@ has '+time_to_build' => (
     default => 60,
 );
 
-has '+food_production' => (
-    default => 41,
+has '+food_consumption' => (
+    default => 5,
 );
 
-has '+energy_production' => (
-    default => -1,
+has '+apple_production' => (
+    default => 46,
 );
 
-has '+ore_production' => (
-    default => -1,
+has '+energy_consumption' => (
+    default => 1,
 );
 
-has '+water_production' => (
-    default => -9,
+has '+ore_consumption' => (
+    default => 1,
+);
+
+has '+water_consumption' => (
+    default => 9,
 );
 
 has '+waste_production' => (
-    default => 13,
+    default => 16,
+);
+
+has '+waste_consumption' => (
+    default => 3,
 );
 
 

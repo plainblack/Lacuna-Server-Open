@@ -11,10 +11,6 @@ has '+name' => (
     default => 'Potato Patch',
 );
 
-has '+food_produced' (
-    default => 'Potatos',
-);
-
 has '+food_to_build' => (
     default => -10,
 );
@@ -39,20 +35,24 @@ has '+time_to_build' => (
     default => 60,
 );
 
-has '+food_production' => (
-    default => 57,
+has '+food_consumption' => (
+    default => 5,
 );
 
-has '+energy_production' => (
-    default => -1,
+has '+potato_production' => (
+    default => 62,
 );
 
-has '+ore_production' => (
-    default => -2,
+has '+energy_consumption' => (
+    default => 1,
 );
 
-has '+water_production' => (
-    default => -10,
+has '+ore_consumption' => (
+    default => 2,
+);
+
+has '+water_consumption' => (
+    default => 10,
 );
 
 has '+waste_production' => (

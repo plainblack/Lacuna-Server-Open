@@ -11,18 +11,6 @@ has '+name' => (
     default => 'Denton Root Chip Frier',
 );
 
-has '+food_produced' (
-    default => 'Denton Chips',
-);
-
-has '+converts_food' = (
-    default => 'Denton Roots',
-);
-
-has '+conversion_ratio' = (
-    default => sub { [100, 150] },
-);
-
 has '+food_to_build' => (
     default => -100,
 );
@@ -47,20 +35,24 @@ has '+time_to_build' => (
     default => 200,
 );
 
-has '+food_production' => (
+has '+food_consumption' => (
     default => 150,
 );
 
-has '+energy_production' => (
-    default => -25,
+has '+chip_production' => (
+    default => 100,
 );
 
-has '+ore_production' => (
-    default => -25,
+has '+energy_consumption' => (
+    default => 25,
 );
 
-has '+water_production' => (
-    default => -25,
+has '+ore_consumption' => (
+    default => 25,
+);
+
+has '+water_consumption' => (
+    default => 25,
 );
 
 has '+waste_production' => (

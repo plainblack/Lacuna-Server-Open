@@ -11,18 +11,6 @@ has '+name' => (
     default => 'Amalgus Bean Soup Cannery',
 );
 
-has '+food_produced' (
-    default => 'Amalgus Bean Soup',
-);
-
-has '+converts_food' = (
-    default => 'Amalgus Beans',
-);
-
-has '+conversion_ratio' = (
-    default => sub { [100, 150] },
-);
-
 has '+food_to_build' => (
     default => -100,
 );
@@ -47,20 +35,24 @@ has '+time_to_build' => (
     default => 200,
 );
 
-has '+food_production' => (
+has '+food_consumption' => (
     default => 150,
 );
 
-has '+energy_production' => (
-    default => -20,
+has '+soup_produced' => (
+    default => 110,
 );
 
-has '+ore_production' => (
-    default => 0,
+has '+energy_consumption' => (
+    default => 20,
 );
 
-has '+water_production' => (
-    default => -30,
+has '+ore_consumption' => (
+    default => 3,
+);
+
+has '+water_consumption' => (
+    default => 30,
 );
 
 has '+waste_production' => (

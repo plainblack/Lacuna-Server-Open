@@ -11,10 +11,6 @@ has '+name' => (
     default => 'Algae Cropper',
 );
 
-has '+food_produced' (
-    default => 'Algae',
-);
-
 has '+food_to_build' => (
     default => -10,
 );
@@ -39,24 +35,32 @@ has '+time_to_build' => (
     default => 60,
 );
 
-has '+food_production' => (
+has '+food_consumption' => (
     default => 5,
+);
+
+has '+algae_production' => (
+    default => 10,
 );
 
 has '+energy_production' => (
     default => 3,
 );
 
-has '+ore_production' => (
-    default => -1,
+has '+ore_consumption' => (
+    default => 1,
 );
 
-has '+water_production' => (
-    default => -2,
+has '+water_consumption' => (
+    default => 2,
+);
+
+has '+waste_consumption' => (
+    default => 5,
 );
 
 has '+waste_production' => (
-    default => 1,
+    default => 6,
 );
 
 
