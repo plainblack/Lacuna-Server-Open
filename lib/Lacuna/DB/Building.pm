@@ -605,29 +605,16 @@ sub waste_storage_capacity {
 
 # UPGRADES
 
-sub food_to_upgrade {
+sub cost_to_upgrade {
     my ($self) = @_;
-    return $self->food_to_build * $self->upgrade_cost;
-}
-
-sub energy_to_upgrade {
-    my ($self) = @_;
-    return $self->energy_to_build * $self->upgrade_cost;
-}
-
-sub ore_to_upgrade {
-    my ($self) = @_;
-    return $self->ore_to_build * $self->upgrade_cost;
-}
-
-sub water_to_upgrade {
-    my ($self) = @_;
-    return $self->water_to_build * $self->upgrade_cost;
-}
-
-sub waste_to_upgrade {
-    my ($self) = @_;
-    return $self->waste_to_build * $self->upgrade_cost;
+    my $upgrade_cost = $self->upgrade_cost;
+    return {
+        food    => $self->food_to_build * $upgrade_cost,
+        energy  => $self->energy_to_build * $upgrade_cost,
+        ore     => $self->ore_to_build * $upgrade_cost,
+        water   => $self->water_to_build * $upgrade_cost,
+        waste   => $self->waste_to_build * $upgrade_cost,
+    };
 }
 
 # DELTAS
@@ -636,13 +623,14 @@ sub stats_after_upgrade {
     my ($self) = @_;
     my $current_level = $self->level;
     $self->level($current_level + 1);
-    my %stats;
-    $stats{food_hour} = $self->food_hour;
-    $stats{energy_hour} = $self->energy_hour;
-    $stats{ore_hour} = $self->ore_hour;
-    $stats{water_hour} = $self->water_hour;
-    $stats{waste_hour} = $self->waste_hour;
-    $stats{happiness_hour} = $self->happiness_hour;
+    my %stats = (
+        food_hour       => $self->food_hour,
+        energy_hour     => $self->energy_hour,
+        ore_hour        => $self->ore_hour,
+        water_hour      => $self->water_hour,
+        waste_hour      => $self->waste_hour,
+        happiness_hour  => $self->happiness_hour,
+        );
     $self->level($current_level);
     return \%stats;
 }
