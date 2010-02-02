@@ -366,7 +366,7 @@ sub food_production_hour {
 
 sub food_consumption_hour {
     my ($self) = @_;
-    return $self->energy_consumption * $self->consumption_hour;
+    return $self->food_consumption * $self->consumption_hour;
 }
 
 sub food_hour {
@@ -622,13 +622,11 @@ sub ore_to_upgrade {
 
 sub water_to_upgrade {
     my ($self) = @_;
-    my $next_level = $self->level + 1;
     return $self->water_to_build * $self->upgrade_cost;
 }
 
 sub waste_to_upgrade {
     my ($self) = @_;
-    my $next_level = $self->level + 1;
     return $self->waste_to_build * $self->upgrade_cost;
 }
 
