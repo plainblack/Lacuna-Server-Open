@@ -614,6 +614,7 @@ sub cost_to_upgrade {
         ore     => $self->ore_to_build * $upgrade_cost,
         water   => $self->water_to_build * $upgrade_cost,
         waste   => $self->waste_to_build * $upgrade_cost,
+        'time'  => $self->time_to_build * $upgrade_cost,
     };
 }
 

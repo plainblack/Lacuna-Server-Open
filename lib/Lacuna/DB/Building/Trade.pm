@@ -12,19 +12,19 @@ has '+name' => (
 );
 
 has '+food_to_build' => (
-    default => -70,
+    default => 70,
 );
 
 has '+energy_to_build' => (
-    default => -70,
+    default => 70,
 );
 
 has '+ore_to_build' => (
-    default => -70,
+    default => 70,
 );
 
 has '+water_to_build' => (
-    default => -70,
+    default => 70,
 );
 
 has '+waste_to_build' => (

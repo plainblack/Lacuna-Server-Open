@@ -23,7 +23,31 @@ Retrieves the properties of the building.
         "level" : 6,
         "can_upgrade" : 0,
         "x" : 0,
-        "y", 0
+        "y", 0,
+        "food_hour" : 500,
+        "energy_hour" : -44,
+        "ore_hour" : -310,
+        "water_hour" : -100,
+        "waste_hour" : 33,
+        "happiness_hour" : 0,
+        "upgrade" : {
+            "can" : 1,
+            "cost" : {
+                "food" : 500,
+                "water" : 500,
+                "energy" : 500,
+                "waste" : 500,
+                "ore" : 1000,
+                "time" : 1200,
+            },
+            "production" : {
+                "food_hour" : 1500,
+                "energy_hour" : -144,
+                "ore_hour" : -1310,
+                "water_hour" : -1100,
+                "waste_hour" : 133,
+                "happiness_hour" : 0,
+            }
     },
     "status" : { ... }
  }

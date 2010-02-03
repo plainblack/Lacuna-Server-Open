@@ -114,15 +114,26 @@ sub view {
     my $building = $self->get_building($building_id);
     my $empire = $self->get_empire_by_session($session_id);
     if ($building->empire_id eq $empire->id) {
+        my $cost = $building->cost_to_upgrade;
         return { 
             building    => {
-                name        => $building->name,
-                image       => $building->image,
-                x           => $building->x,
-                y           => $building->y,
-                level       => $building->level,
-                can_upgrade => (eval{$self->can_upgrade} ? 1 : 0),
-            }
+                name            => $building->name,
+                image           => $building->image,
+                x               => $building->x,
+                y               => $building->y,
+                level           => $building->level,
+                food_hour       => $building->food_hour,
+                ore_hour        => $building->ore_hour,
+                water_hour      => $building->water_hour,
+                waste_hour      => $building->waste_hour,
+                energy_hour     => $building->energy_hour,
+                happiness_hour  => $building->happiness_hour,
+                upgrade         => {
+                    can         => (eval{$self->can_upgrade($building, undef, $cost} ? 1 : 0),
+                    cost        => $cost,
+                    production  => $building->stats_after_upgrade,
+                },
+            },
             status      => $empire->get_status,
         };
     }

@@ -1,30 +1,30 @@
-package Lacuna::DB::Building::GasGiantPlatform;
+package Lacuna::DB::Building::Permanent::TerraformingPlatform;
 
 use Moose;
-extends 'Lacuna::DB::Building';
+extends 'Lacuna::DB::Building::Permanent';
 
 has '+image' => ( 
-    default => 'gas-giant-platform', 
+    default => 'terraforming-platform', 
 );
 
 has '+name' => (
-    default => 'Gas Giant Settlement Platform',
+    default => 'Terraforming Platform',
 );
 
 has '+food_to_build' => (
-    default => -1000,
+    default => 1000,
 );
 
 has '+energy_to_build' => (
-    default => -1000,
+    default => 1000,
 );
 
 has '+ore_to_build' => (
-    default => -1000,
+    default => 1000,
 );
 
 has '+water_to_build' => (
-    default => -1000,
+    default => 1000,
 );
 
 has '+waste_to_build' => (
