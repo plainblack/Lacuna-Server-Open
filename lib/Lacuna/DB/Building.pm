@@ -617,8 +617,6 @@ sub cost_to_upgrade {
     };
 }
 
-# DELTAS
-
 sub stats_after_upgrade {
     my ($self) = @_;
     my $current_level = $self->level;

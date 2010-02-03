@@ -157,6 +157,10 @@ Methods for interacting with the star and systems maps.
 
 Methods for interacting with planets and other stellar bodies.
 
+=item L<Buildings>
+
+Methods for interacting with the buildings on a body.
+
 =item L<Species>
 
 Methods for creating a species.

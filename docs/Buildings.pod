@@ -1,0 +1,62 @@
+=head1 Buildings
+
+This is a list of the buildings that are accessible via this API:
+
+=over
+
+=item L<PlanetaryCommand>
+
+=back
+
+=head1 Building Methods
+
+All buildings have some methods in common. This is a description of the methods available from each building.
+
+=head2 view ( session_id, building_id )
+
+Retrieves the properties of the building.
+
+ {
+    "building" : {
+        "name" : "Planetary Command",
+        "image" : "planetary-command",
+        "level" : 6,
+        "can_upgrade" : 0,
+        "x" : 0,
+        "y", 0
+    },
+    "status" : { ... }
+ }
+
+Throws 1002 and 1010.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The id of the building you wish to retrieve.
+
+
+
+=head2 upgrade ( session_id, building_id )
+
+Adds the requested upgrade to the build queue.
+
+ { 
+    "success" : 1,
+    "status" : { ... }
+ } 
+
+Throws 1002, 1010, 1011, and 1012.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The id of the building you wish to retrieve.
+
+=cut
