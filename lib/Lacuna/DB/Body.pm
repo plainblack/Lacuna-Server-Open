@@ -111,7 +111,9 @@ sub spend_food {
 
 sub add_energy {
     my ($self, $value) = @_;
-    $self->energy_stored( $self->energy_stored + $value );
+    my $store = $self->energy_stored + $value;
+    my $storage = $self->energy_storage;
+    $self->energy_stored( ($store < $storage) ? $store : $storage );
 }
 
 sub spend_energy {
@@ -121,7 +123,9 @@ sub spend_energy {
 
 sub add_water {
     my ($self, $value) = @_;
-    $self->water_stored( $self->water_stored + $value );
+    my $store = $self->water_stored + $value;
+    my $storage = $self->water_storage;
+    $self->water_stored( ($store < $storage) ? $store : $storage );
 }
 
 sub spend_water {
@@ -129,9 +133,21 @@ sub spend_water {
     $self->water_stored( $self->water_stored - $value );
 }
 
+sub add_happiness {
+    my ($self, $value) = @_;
+    $self->happiness( $self->happiness + $value );
+}
+
+sub spend_happiness {
+    my ($self, $value) = @_;
+    $self->happiness( $self->happiness - $value );
+}
+
 sub add_waste {
     my ($self, $value) = @_;
-    $self->waste_stored( $self->waste_stored + $value );
+    my $store = $self->waste_stored + $value;
+    my $storage = $self->waste_storage;
+    $self->waste_stored( ($store < $storage) ? $store : $storage );
 }
 
 sub spend_waste {

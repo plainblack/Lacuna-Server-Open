@@ -31,8 +31,8 @@ sub has_resources_to_operate {
 }
 
 sub has_resources_to_build {
-    my ($self, $building, $body) = @_;
-    my $cost = $building->cost_to_upgrade;
+    my ($self, $building, $body, $cost) = @_;
+    $cost ||= $building->cost_to_upgrade;
     foreach my $resource (qw(food energy ore water)) {
         my $stored = $resource.'_stored';
         if ($body->$stored >= $cost->{$resource}) {
@@ -42,10 +42,19 @@ sub has_resources_to_build {
     return 1;
 }
 
+sub has_met_upgrade_prereqs {
+    return 1;
+}
+
+sub has_met_build_prereqs {
+    return 1;
+}
+
 sub can_upgrade {
-    my ($self, $building, $body) = @_;
-    return $self->has_resources_to_build($building, $body)
-        && $self->has_resources_to_operate($building);
+    my ($self, $building, $body, $cost) = @_;
+    return $self->has_resources_to_build($building, $body, $cost)
+        && $self->has_resources_to_operate($building)
+        && $self->has_met_upgrade_prereqs($building, $body);
 }
 
 sub get_body {
@@ -78,17 +87,26 @@ sub upgrade {
     my ($self, $session_id, $building_id) = @_;
     my $building = $self->get_building($building_id);
     my $empire = $self->get_empire_by_session($session_id);
-    if ($building->empire_id eq $empire->id) {
-        my $body = $building->body;
-        $body->recalc_stats;
-        $self->can_upgrade($building);
-        # spend resources
-        # add upgrade to queue
-        return { success=>1, status=>$empire->get_status};
-    }
-    else {
+    unless ($building->empire_id eq $empire->id) {
         confess [1010, "Can't upgrade a building that you don't own.", $building_id];
     }
+    my $body = $building->body;
+
+    # can upgrade?
+    my $cost = $building->cost_to_upgrade;
+    $body->recalc_stats;
+    $self->can_upgrade($building, $body, $cost);
+
+    # spend resources
+    $body->spend_water($cost->{water});
+    $body->spend_energy($cost->{energy});
+    $body->spend_food($cost->{food});
+    $body->spend_ore($cost->{ore});
+    $body->add_waste($cost->{waste});
+
+    # add upgrade to queue
+
+    return { success=>1, status=>$empire->get_status};
 }
 
 sub view {
@@ -113,7 +131,7 @@ sub view {
     }
 }
 
-sub create {
+sub build {
     my ($self, $session_id, $body_id, $x, $y) = @_;
 
     # have to build on the grid
@@ -154,6 +172,7 @@ sub create {
     );
 
     # check available resources
+    $body->recalc_stats;
     $self->has_resources_to_build($building, $body);
 
     # adjust resources
@@ -163,8 +182,11 @@ sub create {
     $body->spend_ore($building->ore_to_build);
     $body->spend_energy($building->energy_to_build);
 
-    # add to build queue
+    # add building placeholder to planet
     $building->put;
+
+    # add to build queue
+
     return { success=>1, status=>$empire->get_status};
 }
 
