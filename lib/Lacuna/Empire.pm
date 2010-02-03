@@ -108,8 +108,13 @@ sub encrypt_password {
     return Digest::SHA::sha256_base64($password);
 }
 
+sub get_status {
+    my ($self, $session_id) = @_;
+    return $self->get_empire_by_session($session_id)->get_status;
+}
 
-__PACKAGE__->register_rpc_method_names(qw(is_name_available create login logout));
+
+__PACKAGE__->register_rpc_method_names(qw(is_name_available create login logout get_status));
 
 
 no Moose;

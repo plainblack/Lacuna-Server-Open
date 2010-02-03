@@ -86,52 +86,7 @@ If an exception is thrown you'll get an error response. It's a hash containing a
 
 =head1 Status
 
-Most methods will provide a status block as part of the response. This is used to update the user interface and alert the user to things. The status block is a hash that looks like:
-
- {
-    "server" : {
-        "time" : ""
-    },
-    "empire" : {
-        "id" : "xxxx",
-        "name" : "The Syndicate",
-        "current_planet_id" : "yyyy",
-        "essentia" : 0,
-        "happiness" : 119393
-        "planets" : {
-            "yyyy " : {
-                "name" : "Earth",
-                "image" : "p13",
-                "happiness" : 3939,
-                "food" : 33329
-                "energy" : 39931
-                "minerals" 28484,
-                "waste" : 99933,
-                "water" : 9929,
-		"x" : -4,
-		"y" : 10,
-		"z" : 6,
-		"orbit" : 3
-            },
-            "yyy1" : {
-                "name" : "Mars",
-                "image" : "p7"
-                "happiness" : 5939,
-                "food" : 53329
-                "energy" : 59931
-                "minerals" 48484,
-                "waste" : 89933,
-                "water" : 7929,
-		"x" : -4,
-		"y" : 10,
-		"z" : 6,
-		"orbit" : 4
-            }
-        }
-    }
- }
-
-The C<server> section tells you about the status of the server. The C<empire> section tells you about the status of the logged in empire. 
+Most methods will provide a status block as part of the response. This is used to update the user interface and alert the user to things. See L<Empire/"get_status"> for details on the hash that is returned in the status block. The L<Empire/"get_status"> returns the same thing, just without doing anything else first.
 
 =head1 Modules
 

@@ -78,6 +78,55 @@ Retyping the password again. This must match C<password> to succeed.
 The id of the species that rules this empire. Defaults to 'human_species' (Human).
 
 
+=head2 get_status ( session_id )
 
+Fetches the empire's status hash that is returned with many methods, but performs no other operations than to get the status.
+
+ {
+    "server" : {
+        "time" : "01 31 2010 13:09:05 +0600"
+    },
+    "empire" : {
+        "id" : "xxxx",
+        "name" : "The Syndicate",
+        "current_planet_id" : "yyyy",
+        "essentia" : 0,
+        "happiness" : 119393
+        "planets" : {
+            "yyyy " : {
+                "name" : "Earth",
+                "image" : "p13",
+                "happiness" : 3939,
+                "food" : 33329
+                "energy" : 39931
+                "minerals" 28484,
+                "waste" : 99933,
+                "water" : 9929,
+                "x" : -4,
+                "y" : 10,
+                "z" : 6,
+                "orbit" : 3
+            },
+            "yyy1" : {
+                "name" : "Mars",
+                "image" : "p7"
+                "happiness" : 5939,
+                "food" : 53329
+                "energy" : 59931
+                "minerals" 48484,
+                "waste" : 89933,
+                "water" : 7929,
+                "x" : -4,
+                "y" : 10,
+                "z" : 6,
+                "orbit" : 4
+            }
+        }
+    }
+ }
+
+The C<server> section tells you about the status of the server. The C<empire> section tells you about the status of the logged in empire.
+
+Throws 1002.
 
 =cut
