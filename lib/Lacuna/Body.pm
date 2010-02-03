@@ -46,8 +46,7 @@ sub get_buildings {
         if ($body->empire_id eq $empire->id) {
             my $db = $self->simpledb;
             my %out;
-            foreach my $domain (qw(farm factory)) {
-                my $buildings = $db->domain($domain);
+            foreach my $buildings ($body->buildings) {
                 while (my $building = $buildings->next) {
                     $out{$building->id} = (
                         url     => $building->url,
