@@ -1,0 +1,37 @@
+package Lacuna::Stats;
+
+use Moose;
+extends 'JSON::RPC::Dispatcher::App';
+
+has simpledb => (
+    is      => 'ro',
+    required=> 1,
+);
+
+with 'Lacuna::Role::Sessionable';
+
+sub server {
+        my $empire = $self->get_empire_by_session($session_id);
+}
+
+sub credits {
+    my $self = shift;
+    return [
+            { 'Game Design'         => ['JT Smith']},
+            { 'Web Client'          => ['John Rozeske']},
+            { 'iPhone Client'       => ['Kevin Runde']},
+            { 'Game Server'         => ['JT Smith']},
+            { 'Art'                 => ['Ryan Knope','JT Smith']},
+            { 'Geology Consultant'  => ['Geo Fuels, LLC']},
+            { 'Playtesters'         => ['John Ottinger','Jamie Vrbsky']},
+            { 'Game Support'        => ['Plain Black Corporation']},
+            ];
+}
+
+
+
+__PACKAGE__->register_rpc_method_names(qw(credits));
+
+no Moose;
+__PACKAGE__->meta->make_immutable;
+

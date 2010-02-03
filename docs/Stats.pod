@@ -1,0 +1,19 @@
+=head1 Stats Methods
+
+These methods are accessible via the C</stats> URL.
+
+
+=head2 credits ( )
+
+Retrieves a list of the game credits. It is an array of hashes of arrays.
+
+ [
+    { "Game Server" : ["JT Smith"]},
+    { "iPhone Client" : ["Kevin Runde"]},
+    { "Web Client" : ["John Rozeske"]},
+    { "Play Testers" : ["John Ottinger","Jamie Vrbsky"]},
+ ]
+
+
+=cut
+
