@@ -35,7 +35,7 @@ sub has_resources_to_build {
     $cost ||= $building->cost_to_upgrade;
     foreach my $resource (qw(food energy ore water)) {
         my $stored = $resource.'_stored';
-        if ($body->$stored >= $cost->{$resource}) {
+        unless ($body->$stored >= $cost->{$resource}) {
             confess [1011, "Not enough resources in storage to build this.", $resource];
         }
     }
@@ -91,10 +91,10 @@ sub upgrade {
         confess [1010, "Can't upgrade a building that you don't own.", $building_id];
     }
     my $body = $building->body;
+    $body->recalc_stats;
 
     # can upgrade?
     my $cost = $building->cost_to_upgrade;
-    $body->recalc_stats;
     $self->can_upgrade($building, $body, $cost);
 
     # spend resources
