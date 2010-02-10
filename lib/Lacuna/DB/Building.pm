@@ -13,8 +13,10 @@ __PACKAGE__->add_attributes(
     y               => { isa => 'Int' },
     level           => { isa => 'Int' },
     class           => { isa => 'Str' },
+    build_queue_id  => { isa => 'Str' },
 );
 
+__PACKAGE__->belongs_to('build_queue', 'Lacuna::DB::BuildQueue', 'build_queue_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Body', 'body_id');
 __PACKAGE__->recast_using('class');
 
@@ -632,6 +634,14 @@ sub stats_after_upgrade {
         );
     $self->level($current_level);
     return \%stats;
+}
+
+sub finish_upgrade {
+    my ($self) = @_;
+    $self->level($self->level + 1);
+    $self->build_queue_id('');
+    $self->put;
+    $self->body->recalc_stats;
 }
 
 no Moose;

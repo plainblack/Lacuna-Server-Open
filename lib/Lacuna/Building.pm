@@ -11,7 +11,7 @@ has simpledb => (
 with 'Lacuna::Role::Sessionable';
 
 sub model_domain {
-    return 'building';
+    return $self->model_class->domain_name;
 }
 
 sub model_class {
@@ -50,11 +50,18 @@ sub has_met_build_prereqs {
     return 1;
 }
 
+sub has_pending_build {
+    my ($self, $building) = @_;
+    my $queue = $self->build_queue;
+    return (defined $queue && $queue->is_complete($building)) ? 1 : 0;
+}
+
 sub can_upgrade {
     my ($self, $building, $body, $cost) = @_;
     return $self->has_resources_to_build($building, $body, $cost)
         && $self->has_resources_to_operate($building)
-        && $self->has_met_upgrade_prereqs($building, $body);
+        && $self->has_met_upgrade_prereqs($building, $body)
+        && ! $self->has_pending_build($building);
 }
 
 sub get_body {
@@ -105,6 +112,13 @@ sub upgrade {
     $body->add_waste($cost->{waste});
 
     # add upgrade to queue
+    $self->simpledb->domain('build_queue')->insert({
+        date_created        => DateTime->now,
+        date_complete       => DateTime->now->add(seconds=>$cost->{time}),
+        building_id         => $building->id,
+        empire_id           => $empire->id,
+        building_class      => ref($building),
+    });
 
     return { success=>1, status=>$empire->get_status};
 }
@@ -115,23 +129,29 @@ sub view {
     my $empire = $self->get_empire_by_session($session_id);
     if ($building->empire_id eq $empire->id) {
         my $cost = $building->cost_to_upgrade;
+        my $queue = $building->build_queue;
+        my $time_left = 0;
+        if (defined $queue) {
+            $time_left = $queue->is_complete($building);
+        }
         return { 
             building    => {
-                name            => $building->name,
-                image           => $building->image,
-                x               => $building->x,
-                y               => $building->y,
-                level           => $building->level,
-                food_hour       => $building->food_hour,
-                ore_hour        => $building->ore_hour,
-                water_hour      => $building->water_hour,
-                waste_hour      => $building->waste_hour,
-                energy_hour     => $building->energy_hour,
-                happiness_hour  => $building->happiness_hour,
-                upgrade         => {
-                    can         => (eval{$self->can_upgrade($building, undef, $cost} ? 1 : 0),
-                    cost        => $cost,
-                    production  => $building->stats_after_upgrade,
+                name                => $building->name,
+                image               => $building->image,
+                x                   => $building->x,
+                y                   => $building->y,
+                level               => $building->level,
+                food_hour           => $building->food_hour,
+                ore_hour            => $building->ore_hour,
+                water_hour          => $building->water_hour,
+                waste_hour          => $building->waste_hour,
+                energy_hour         => $building->energy_hour,
+                happiness_hour      => $building->happiness_hour,
+                time_left_on_build  => $time_left,
+                upgrade             => {
+                    can             => (eval{$self->can_upgrade($building, undef, $cost} ? 1 : 0),
+                    cost            => $cost,
+                    production      => $building->stats_after_upgrade,
                 },
             },
             status      => $empire->get_status,
@@ -197,12 +217,19 @@ sub build {
     $building->put;
 
     # add to build queue
+    $self->simpledb->domain('build_queue')->insert({
+        date_created        => DateTime->now,
+        date_complete       => DateTime->now->add(seconds=>$building->time_to_build),
+        building_id         => $building->id,
+        empire_id           => $empire->id,
+        building_class      => ref($building),
+    });
 
-    return { success=>1, status=>$empire->get_status};
+    return $self->view($empire, $building);
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(upgrade));
+__PACKAGE__->register_rpc_method_names(qw(upgrade view build));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

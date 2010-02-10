@@ -30,6 +30,7 @@ Retrieves the properties of the building.
         "water_hour" : -100,
         "waste_hour" : 33,
         "happiness_hour" : 0,
+        "time_left_on_build" : 0,
         "upgrade" : {
             "can" : 1,
             "cost" : {
