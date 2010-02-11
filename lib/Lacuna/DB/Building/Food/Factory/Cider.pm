@@ -39,7 +39,7 @@ has '+food_consumption' => (
     default => 150,
 );
 
-has '+cider_consumption' => (
+has '+cider_production' => (
     default => 75,
 );
 

@@ -44,7 +44,6 @@ sub get_buildings {
     if (defined $body) {
         my $empire = $self->get_empire_by_session($session_id);
         if ($body->empire_id eq $empire->id) {
-            my $db = $self->simpledb;
             my %out;
             foreach my $buildings ($body->buildings) {
                 while (my $building = $buildings->next) {

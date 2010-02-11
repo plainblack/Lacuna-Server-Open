@@ -1,7 +1,7 @@
 package Lacuna::DB::Building::Ore::Refinery;
 
 use Moose;
-extends 'Lacuna::DB::Building::Refinery';
+extends 'Lacuna::DB::Building::Ore';
 
 has '+image' => ( 
     default => 'refinery', 

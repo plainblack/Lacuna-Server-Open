@@ -3,6 +3,10 @@ package Lacuna::Building::WaterProduction;
 use Moose;
 extends 'Lacuna::Building';
 
+sub app_url {
+    return '/waterproduction';
+}
+
 sub model_class {
     return 'Lacuna::DB::Building::Water::Production';
 }

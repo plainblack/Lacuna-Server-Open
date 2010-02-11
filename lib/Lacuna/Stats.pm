@@ -11,11 +11,11 @@ has simpledb => (
 with 'Lacuna::Role::Sessionable';
 
 sub server {
+        my ($self, $session_id) = @_;
         my $empire = $self->get_empire_by_session($session_id);
 }
 
 sub credits {
-    my $self = shift;
     return [
             { 'Game Design'         => ['JT Smith']},
             { 'Web Client'          => ['John Rozeske']},

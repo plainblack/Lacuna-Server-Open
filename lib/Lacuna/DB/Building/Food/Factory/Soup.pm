@@ -39,7 +39,7 @@ has '+food_consumption' => (
     default => 150,
 );
 
-has '+soup_produced' => (
+has '+soup_production' => (
     default => 110,
 );
 

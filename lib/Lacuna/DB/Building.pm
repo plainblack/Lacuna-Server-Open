@@ -195,6 +195,16 @@ has root_production => (
     default => 0,
 );
 
+has bean_production => (
+    is      => 'ro',
+    default => 0,
+);
+
+has cheese_production => (
+    is      => 'ro',
+    default => 0,
+);
+
 has apple_production => (
     is      => 'ro',
     default => 0,
@@ -264,6 +274,16 @@ sub lapis_production_hour {
 sub potato_production_hour {
     my ($self) = @_;
     return $self->potato_production * $self->production_hour;
+}
+
+sub bean_production_hour {
+    my ($self) = @_;
+    return $self->bean_production * $self->production_hour;
+}
+
+sub cheese_production_hour {
+    my ($self) = @_;
+    return $self->cheese_production * $self->production_hour;
 }
 
 sub apple_production_hour {

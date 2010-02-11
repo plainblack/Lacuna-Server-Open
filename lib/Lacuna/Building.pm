@@ -11,11 +11,20 @@ has simpledb => (
 with 'Lacuna::Role::Sessionable';
 
 sub model_domain {
-    return $self->model_class->domain_name;
+    return $_[0]->model_class->domain_name;
 }
 
 sub model_class {
     confess "you need to override me";
+}
+
+sub app_url {
+    confess "you need to override me";
+}
+
+sub to_app_with_url {
+    my $self = shift;
+    return ($self->app_url => $self->to_app);
 }
 
 sub has_resources_to_operate {
@@ -149,7 +158,7 @@ sub view {
                 happiness_hour      => $building->happiness_hour,
                 time_left_on_build  => $time_left,
                 upgrade             => {
-                    can             => (eval{$self->can_upgrade($building, undef, $cost} ? 1 : 0),
+                    can             => (eval{$self->can_upgrade($building, undef, $cost)} ? 1 : 0),
                     cost            => $cost,
                     production      => $building->stats_after_upgrade,
                 },

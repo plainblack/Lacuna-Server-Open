@@ -3,6 +3,10 @@ package Lacuna::Building::Bread;
 use Moose;
 extends 'Lacuna::Building';
 
+sub app_url {
+    return '/bread';
+}
+
 sub model_class {
     return 'Lacuna::DB::Building::Food::Factory::Bread';
 }

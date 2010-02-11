@@ -35,7 +35,7 @@ has '+time_to_build' => (
     default => 600,
 );
 
-has '+food_production' => (
+has '+algae_production' => (
     default => 100,
 );
 

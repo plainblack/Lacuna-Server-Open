@@ -3,6 +3,10 @@ package Lacuna::Building::GasGiantLab;
 use Moose;
 extends 'Lacuna::Building';
 
+sub app_url {
+    return '/gasgiantlab';
+}
+
 sub model_class {
     return 'Lacuna::DB::Building::GasGiantLab';
 }

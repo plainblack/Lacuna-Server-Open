@@ -1,7 +1,7 @@
 package Lacuna::DB::Building::Food::Reserve;
 
 use Moose;
-extends 'Lacuna::DB::Building::Food::Reserve';
+extends 'Lacuna::DB::Building::Food';
 
 has '+image' => ( 
     default => 'food-reserve', 
