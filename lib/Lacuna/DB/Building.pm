@@ -4,7 +4,7 @@ use Moose;
 extends 'SimpleDB::Class::Item';
 use Lacuna::Constants ':all';
 
-
+__PACKAGE__->set_domain_name('building');
 __PACKAGE__->add_attributes(
     date_created    => { isa => 'DateTime' },
     body_id         => { isa => 'Str' },

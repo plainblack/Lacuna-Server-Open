@@ -3,13 +3,11 @@ use strict;
 use 5.010;
 use List::Util::WeightedChoice qw( choose_weighted );
 use List::Util qw(shuffle);
+use Lacuna;
 use Lacuna::Util qw(randint);
 use List::MoreUtils qw(uniq);
 use String::Random;
-use Lacuna::DB;
 use DateTime;
-use Coro;
-use AnyEvent;
 
 my $access = $ENV{SIMPLEDB_ACCESS_KEY};
 my $secret = $ENV{SIMPLEDB_SECRET_KEY};
@@ -55,7 +53,7 @@ sub create_species {
 }
 
 sub create_star_map {
-    my $start_x = my $start_y = my $start_z = 5;
+    my $start_x = my $start_y = my $start_z = -5;
     my $end_x = my $end_y = my $end_z = 5;
     my $star_count = abs($end_x - $start_x) * abs($end_y - $start_y) * abs($end_z - $start_z);
     my @star_colors = (qw(magenta red green blue yellow white));
@@ -73,16 +71,18 @@ sub create_star_map {
 
     say "Adding stars.";
     for my $x ($start_x .. $end_x) {
+        say "Start X $x";
         for my $y ($start_y .. $end_y) {
+            say "Start Y $y";
             for my $z ($start_z .. $end_z) {
+                say "Start Z $z";
                 if (rand(100) <= 15) { # 15% chance of no star
                     say "No star at $x, $y, $z!";
                 }
                 else {
-                    #async {
                         my $name = pop @star_names;
                         say "Creating star $name at $x, $y, $z.";
-                        my $star = $domain{star}->insert({
+                        my $star = $domains{star}->insert({
                             name        => $name,
                             date_created=> DateTime->now,
                             color       => $star_colors[rand(scalar(@star_colors))],
@@ -91,12 +91,12 @@ sub create_star_map {
                             z           => $z,
                         });
                         add_bodies(\%domains, $star);
-                    	#cede;
-                    #};
                 }
+                say "End Z $z";
             }
-    #        cede;
+            say "End Y $y";
         }
+        say "End X $x";
     }
 }
 
@@ -122,7 +122,6 @@ sub add_bodies {
             say "\tNo body at $name!";
         } 
         else {
-      #      async {
                 my $type = choose_weighted(\@body_types, \@body_type_weights);
                 say "\tAdding a $type at $name.";
                 my $params = {
@@ -130,7 +129,7 @@ sub add_bodies {
                     orbit       => $orbit,
                     x           => $star->x,
                     y           => $star->y,
-                    z           => $star->x,
+                    z           => $star->z,
                     star_id     => $star->id,
                 };
                 if ($type eq 'habitable') {
@@ -150,11 +149,12 @@ sub add_bodies {
                 my $body = $domains->{body}->insert($params);
                 my $now = DateTime->now;
                 if ($body->isa('Lacuna::DB::Body::Planet') && !$body->isa('Lacuna::DB::Body::Planet::GasGiant')) {
-                    say "Adding features to body.";
+                    say "\t\tAdding features to body.";
                     foreach  my $x (-3, -1, 2, 4, 1) {
                         my $chance = randint(1,100);
                         my $y = randint(-5,5);
                         if ($chance <= 5) {
+                            say "\t\t\tAdding lake.";
                             $domains->{permanent}->insert({
                                 date_created    => $now,
                                 level           => 1,
@@ -165,6 +165,7 @@ sub add_bodies {
                             });
                         }
                         elsif ($chance > 45 && $chance <= 50) {
+                            say "\t\t\tAdding rocky outcropping.";
                             $domains->{permanent}->insert({
                                 date_created    => $now,
                                 level           => 1,
@@ -174,7 +175,8 @@ sub add_bodies {
                                 body_id         => $body->id,
                             });
                         }
-                        elsif ($chance => 96) {
+                        elsif ($chance > 95) {
+                            say "\t\t\tAdding crater.";
                             $domains->{permanent}->insert({
                                 date_created    => $now,
                                 level           => 1,
@@ -187,8 +189,6 @@ sub add_bodies {
                     }
                 }
 
-     #           cede;
-    #        };
         }
     }
 }
