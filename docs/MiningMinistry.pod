@@ -1,6 +1,6 @@
-=head1 Planetary Command Methods
+=head1 Mining Ministry Methods
 
-Planetary Command is accessible via the URL C</planetarycommand>.
+Mining Ministry is accessible via the URL C</miningministry>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 

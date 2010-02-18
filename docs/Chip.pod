@@ -1,6 +1,6 @@
-=head1 Planetary Command Methods
+=head1 Chip Methods
 
-Planetary Command is accessible via the URL C</planetarycommand>.
+Chip is accessible via the URL C</chip>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 

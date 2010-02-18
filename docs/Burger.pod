@@ -1,6 +1,6 @@
-=head1 Planetary Command Methods
+=head1 Burger Methods
 
-Planetary Command is accessible via the URL C</planetarycommand>.
+Burger is accessible via the URL C</burger>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 

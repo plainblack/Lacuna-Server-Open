@@ -1,6 +1,6 @@
-=head1 Planetary Command Methods
+=head1 Corn Meal Methods
 
-Planetary Command is accessible via the URL C</planetarycommand>.
+Corn Meal is accessible via the URL C</cornmeal>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 

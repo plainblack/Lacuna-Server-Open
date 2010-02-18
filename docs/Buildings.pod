@@ -84,4 +84,144 @@ A session id.
 
 The id of the building you wish to retrieve.
 
+=head1 Building Types
+
+Below is a list of the different types of structures that can be built on planets in Lacuna. They all share the above methods, but many have additional methods available.
+
+=over
+
+=item L<Algae>
+
+=item L<Apple>
+
+=item L<Bean>
+
+=item L<Beeldeban>
+
+=item L<Bread>
+
+=item L<Burger>
+
+=item L<Cheese>
+
+=item L<Chip>
+
+=item L<Cider>
+
+=item L<Corn>
+
+=item L<CornMeal>
+
+=item L<Crater>
+
+=item L<Dairy>
+
+=item L<Denton>
+
+=item L<Development>
+
+=item L<Embassy>
+
+=item L<EnergyReserve>
+
+=item L<Entertainment>
+
+=item L<Espionage>
+
+=item L<Fission>
+
+=item L<FoodReserve>
+
+=item L<Fusion>
+
+=item L<GasGiantLab>
+
+=item L<GasGiantPlatform>
+
+=item L<Geo>
+
+=item L<Hydrocarbon>
+
+=item L<Intelligence>
+
+=item L<Lake>
+
+=item L<Lapis>
+
+=item L<Malcud>
+
+=item L<Mine>
+
+=item L<MiningMinistry>
+
+=item L<MiningPlatform>
+
+=item L<Network19>
+
+=item L<Observatory>
+
+=item L<OreRefinery>
+
+=item L<OreStorage>
+
+=item L<Pancake>
+
+=item L<Park>
+
+=item L<Pie>
+
+=item L<PlanetaryCommand>
+
+=item L<Potato>
+
+=item L<Propulsion>
+
+=item L<RND>
+
+=item L<RockyOutcrop>
+
+=item L<Security>
+
+=item L<Shake>
+
+=item L<Shipyard>
+
+=item L<Singularity>
+
+=item L<Soup>
+
+=item L<SpacePort>
+
+=item L<Syrup>
+
+=item L<TerraformingLab>
+
+=item L<TerraformingPlatform>
+
+=item L<Trade>
+
+=item L<Transporter>
+
+=item L<University>
+
+=item L<WasteEnergy>
+
+=item L<WasteRecycling>
+
+=item L<WasteSequestration>
+
+=item L<WasteTreatment>
+
+=item L<WaterProduction>
+
+=item L<WaterPurification>
+
+=item L<WaterReclamation>
+
+=item L<WaterStorage>
+
+=item L<Wheat>
+
+=back
+
 =cut

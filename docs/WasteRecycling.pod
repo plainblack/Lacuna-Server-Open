@@ -1,6 +1,6 @@
-=head1 Planetary Command Methods
+=head1 Waste Recycling Methods
 
-Planetary Command is accessible via the URL C</planetarycommand>.
+Waste Recycling is accessible via the URL C</wasterecycling>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
