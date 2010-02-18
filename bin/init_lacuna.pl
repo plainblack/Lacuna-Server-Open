@@ -55,12 +55,12 @@ sub create_species {
 }
 
 sub create_star_map {
-    my $start_x = my $start_y = my $start_z = -15;
-    my $end_x = my $end_y = my $end_z = 15;
+    my $start_x = my $start_y = my $start_z = 5;
+    my $end_x = my $end_y = my $end_z = 5;
     my $star_count = abs($end_x - $start_x) * abs($end_y - $start_y) * abs($end_z - $start_z);
     my @star_colors = (qw(magenta red green blue yellow white));
     my %domains;
-    foreach my $domain (qw(start body ore water building waste energy food permanent)) {
+    foreach my $domain (qw(star body ore water building waste energy food permanent)) {
         $domains{$domain} = $db->domain($domain);
         say "Deleting existing $domain domain.";
         $domains{$domain}->delete;

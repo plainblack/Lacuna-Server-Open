@@ -112,7 +112,7 @@ sub create {
                 empire_id       => $empire->id,
                 level           => $species->growth_affinity - 1,
             }
-        )
+        );
         $home_planet->build_building($command);
         $command->finish_upgrade;
         
