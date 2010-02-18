@@ -84,19 +84,45 @@ sub create {
         unless (defined $home_planet) {
             confess [1002, 'Could not find a home planet.'];
         }
+        
+        # create empire
         my $empire = $db->domain('empire')->insert({
             name                => $account{name},
             date_created        => DateTime->now,
             password            => $self->encrypt_password($account{password}),
-            species_id          => $account{species_id},
+            species_id          => $species->id,
             current_planet_id   => $home_planet->id,
             home_planet_id      => $home_planet->id,
             probed_stars        => $home_planet->star->id,
         });
+        
+        # set home planet
         $home_planet->empire_id($empire->id);
         $home_planet->put;
-# add planetary command building
-# add starting resources
+        
+        # add command building
+        my $command = Lacuna::DB::Building::PlanetaryCommand->new(
+            simpledb    => $empire->simpledb,
+            attributes  => {
+                x       => 0,
+                y       => 0,
+                class   => 'Lacuna::DB::Building::PlanetaryCommand',
+                date_created    => DateTime->now,
+                body_id         => $home_planet->id,
+                empire_id       => $empire->id,
+                level           => $species->growth_affinity - 1,
+            }
+        )
+        $home_planet->build_building($command);
+        $command->finish_upgrade;
+        
+        # add starting resources
+        $home_planet->add_algae(5000);
+        $home_planet->add_energy(5000);
+        $home_planet->add_water(5000);
+        $home_planet->add_magnetite(5000);
+        
+        # return status
         my $status = $empire->get_status;
         my $session_id = $empire->start_session->id;
         return { empire_id => $empire->id, session_id => $session_id, status => $status };

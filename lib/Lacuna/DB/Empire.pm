@@ -28,6 +28,7 @@ __PACKAGE__->add_attributes(
     points              => { isa => 'Int', default=>0 },
     rank                => { isa => 'Int', default=>0 }, # just where it is stored, but will come out of date quickly
     probed_stars        => { isa => 'Str' },
+    university_level    => { isa => 'Int', default=>0 },
 );
 
 # achievements

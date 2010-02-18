@@ -4,6 +4,8 @@ use Moose;
 extends 'JSON::RPC::Dispatcher::App';
 use Lacuna::Util qw(in);
 use Lacuna::Verify;
+use Lacuna::Constants qw(BUILDABLE_CLASSES);
+use DateTime;
 
 has simpledb => (
     is      => 'ro',
@@ -41,36 +43,73 @@ sub rename {
 sub get_buildings {
     my ($self, $session_id, $body_id) = @_;
     my $body = $self->simpledb->domain('body')->find($body_id);
-    if (defined $body) {
-        my $empire = $self->get_empire_by_session($session_id);
-        if ($body->empire_id eq $empire->id) {
-            my %out;
-            foreach my $buildings ($body->buildings) {
-                while (my $building = $buildings->next) {
-                    $out{$building->id} = (
-                        url     => $building->url,
-                        image   => $building->image,
-                        name    => $building->name,
-                        x       => $building->x,
-                        y       => $building->y,
-                        level   => $building->level,
-                    );
-                }
-            }
-            return {buildings=>\%out, status=>$empire->get_status};
-        }
-        else {
-            confess [1010, "Can't view a planet you don't inhabit."];
-        }
-    }
-    else {
+    unless (defined $body) {
         confess [1002, 'Body does not exist.', $body_id];
     }
+    
+    my $empire = $self->get_empire_by_session($session_id);
+    unless ($body->empire_id eq $empire->id) {
+        confess [1010, "Can't view a planet you don't inhabit."];
+            
+    }
+    
+    my %out;
+    foreach my $buildings ($body->buildings) {
+        while (my $building = $buildings->next) {
+            $out{$building->id} = {
+                url     => $building->url,
+                image   => $building->image,
+                name    => $building->name,
+                x       => $building->x,
+                y       => $building->y,
+                level   => $building->level,
+            };
+        }
+    }
+    
+    return {buildings=>\%out, status=>$empire->get_status};
+}
+
+sub get_buildable {
+    my ($self, $session_id, $body_id, $x, $y) = @_;
+    my $body = $self->simpledb->domain('body')->find($body_id);
+    unless (defined $body) {
+        confess [1002, 'Body does not exist.', $body_id];
+    }
+    
+    my $empire = $self->get_empire_by_session($session_id);
+    unless ($body->empire_id eq $empire->id) {
+        confess [1010, "Can't view a planet you don't inhabit."];
+            
+    }
+
+    # dummy building properties
+    my %properties = (
+        simpledb    => $self->simpledb,
+        attributes  => {
+            x               => $x,
+            y               => $y,
+            level           => 0,
+            body_id         => $body->id,
+            empire_id       => $empire->id,
+            date_created    => DateTime->now,
+        },
+    );
+
+    my %out;
+    foreach my $class (BUILDABLE_CLASSES) {
+        $properties{attributes}{class} = $class->model_class;
+        my $building = $class->model_class(\%properties);
+        my $can_build = eval{$body->can_build_building($building)};
+        next unless $can_build;
+        $out{$building->name} = $class->app_url;
+    }
+
+    return {buildable=>\%out, status=>$empire->get_status};
 }
 
 
-
-__PACKAGE__->register_rpc_method_names(qw(rename get_buildings));
+__PACKAGE__->register_rpc_method_names(qw(rename get_buildings get_buildable));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

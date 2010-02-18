@@ -8,6 +8,7 @@ use List::Util qw(shuffle);
 __PACKAGE__->add_attributes(
     size                    => { isa => 'Int' },
     empire_id               => { isa => 'Str', default=>'None' },
+    building_count          => { isa => 'Int', default=>0 },
     happiness_per           => { isa => 'Int', default=>0 },
     happiness               => { isa => 'Int', default=>0 },
     waste_per               => { isa => 'Int', default=>0 },
@@ -40,47 +41,47 @@ __PACKAGE__->add_attributes(
     fluorite_stored         => { isa => 'Int', default=>0 },
     beryl_stored            => { isa => 'Int', default=>0 },
     magnetite_stored        => { isa => 'Int', default=>0 },
-    rutile_per_hour         => { isa => 'Int', default=>0 },
-    chromite_per_hour       => { isa => 'Int', default=>0 },
-    chalcopyrite_per_hour   => { isa => 'Int', default=>0 },
-    galena_per_hour         => { isa => 'Int', default=>0 },
-    gold_per_hour           => { isa => 'Int', default=>0 },
-    uraninite_per_hour      => { isa => 'Int', default=>0 },
-    bauxite_per_hour        => { isa => 'Int', default=>0 },
-    limonite_per_hour       => { isa => 'Int', default=>0 },
-    halite_per_hour         => { isa => 'Int', default=>0 },
-    gypsum_per_hour         => { isa => 'Int', default=>0 },
-    trona_per_hour          => { isa => 'Int', default=>0 },
-    kerogen_per_hour        => { isa => 'Int', default=>0 },
-    petroleum_per_hour      => { isa => 'Int', default=>0 },
-    anthracite_per_hour     => { isa => 'Int', default=>0 },
-    sulfate_per_hour        => { isa => 'Int', default=>0 },
-    zircon_per_hour         => { isa => 'Int', default=>0 },
-    monazite_per_hour       => { isa => 'Int', default=>0 },
-    fluorite_per_hour       => { isa => 'Int', default=>0 },
-    beryl_per_hour          => { isa => 'Int', default=>0 },
-    magnetite_per_hour      => { isa => 'Int', default=>0 },
+    rutile_hour         => { isa => 'Int', default=>0 },
+    chromite_hour       => { isa => 'Int', default=>0 },
+    chalcopyrite_hour   => { isa => 'Int', default=>0 },
+    galena_hour         => { isa => 'Int', default=>0 },
+    gold_hour           => { isa => 'Int', default=>0 },
+    uraninite_hour      => { isa => 'Int', default=>0 },
+    bauxite_hour        => { isa => 'Int', default=>0 },
+    limonite_hour       => { isa => 'Int', default=>0 },
+    halite_hour         => { isa => 'Int', default=>0 },
+    gypsum_hour         => { isa => 'Int', default=>0 },
+    trona_hour          => { isa => 'Int', default=>0 },
+    kerogen_hour        => { isa => 'Int', default=>0 },
+    petroleum_hour      => { isa => 'Int', default=>0 },
+    anthracite_hour     => { isa => 'Int', default=>0 },
+    sulfate_hour        => { isa => 'Int', default=>0 },
+    zircon_hour         => { isa => 'Int', default=>0 },
+    monazite_hour       => { isa => 'Int', default=>0 },
+    fluorite_hour       => { isa => 'Int', default=>0 },
+    beryl_hour          => { isa => 'Int', default=>0 },
+    magnetite_hour      => { isa => 'Int', default=>0 },
     food_storage            => { isa => 'Int', default=>0 },
-    lapis_per_hour          => { isa => 'Int', default=>0 },
-    potato_per_hour         => { isa => 'Int', default=>0 },
-    apple_per_hour          => { isa => 'Int', default=>0 },
-    root_per_hour           => { isa => 'Int', default=>0 },
-    corn_per_hour           => { isa => 'Int', default=>0 },
-    cider_per_hour          => { isa => 'Int', default=>0 },
-    wheat_per_hour          => { isa => 'Int', default=>0 },
-    bread_per_hour          => { isa => 'Int', default=>0 },
-    soup_per_hour           => { isa => 'Int', default=>0 },
-    chip_per_hour           => { isa => 'Int', default=>0 },
-    pie_per_hour            => { isa => 'Int', default=>0 },
-    pancake_per_hour        => { isa => 'Int', default=>0 },
-    milk_per_hour           => { isa => 'Int', default=>0 },
-    meal_per_hour           => { isa => 'Int', default=>0 },
-    algae_per_hour          => { isa => 'Int', default=>0 },
-    syrup_per_hour          => { isa => 'Int', default=>0 },
-    fungus_per_hour         => { isa => 'Int', default=>0 },
-    burger_per_hour         => { isa => 'Int', default=>0 },
-    shake_per_hour          => { isa => 'Int', default=>0 },
-    beetle_per_hour         => { isa => 'Int', default=>0 },
+    lapis_hour          => { isa => 'Int', default=>0 },
+    potato_hour         => { isa => 'Int', default=>0 },
+    apple_hour          => { isa => 'Int', default=>0 },
+    root_hour           => { isa => 'Int', default=>0 },
+    corn_hour           => { isa => 'Int', default=>0 },
+    cider_hour          => { isa => 'Int', default=>0 },
+    wheat_hour          => { isa => 'Int', default=>0 },
+    bread_hour          => { isa => 'Int', default=>0 },
+    soup_hour           => { isa => 'Int', default=>0 },
+    chip_hour           => { isa => 'Int', default=>0 },
+    pie_hour            => { isa => 'Int', default=>0 },
+    pancake_hour        => { isa => 'Int', default=>0 },
+    milk_hour           => { isa => 'Int', default=>0 },
+    meal_hour           => { isa => 'Int', default=>0 },
+    algae_hour          => { isa => 'Int', default=>0 },
+    syrup_hour          => { isa => 'Int', default=>0 },
+    fungus_hour         => { isa => 'Int', default=>0 },
+    burger_hour         => { isa => 'Int', default=>0 },
+    shake_hour          => { isa => 'Int', default=>0 },
+    beetle_hour         => { isa => 'Int', default=>0 },
     lapis_stored            => { isa => 'Int', default=>0 },
     potato_stored           => { isa => 'Int', default=>0 },
     apple_stored            => { isa => 'Int', default=>0 },
@@ -113,6 +114,8 @@ __PACKAGE__->has_many('energy_buildings','Lacuna::DB::Building::Energy','body_id
 __PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','body_id');
 
 
+# BUILDINGS
+
 sub buildings {
     my $self = shift;
     return (
@@ -139,6 +142,89 @@ sub is_space_free {
     }
     return 1;
 }
+
+sub can_build_building {
+    my ($self, $building) = @_;
+
+    # check for space
+    if ($building->x < 5 || $building->x > -5 || $building->y > 5 || $building->y < -5) {
+        confess [1009, "That's not a valid space for a building.", [$building->x, $building->y]];
+    }
+    if (self->building_count >= $self->size) {
+        confess [1009, "You've already reached the maximum number of buildings for this planet.", $self->size];
+    }
+    unless ($self->is_space_free($building->x, $building->y)) {
+        confess [1009, "That space is already occupied.", [$building->x,$building->y]]; 
+    }
+    
+    # has building prereqs
+    if ($building->university_prereq < $self->empire->university_level) {
+        confess [1013, "University research too low.",$building->university_prereq];
+    }
+    $building->check_build_prereqs($self);
+
+    # check available resources
+    $self->recalc_stats;
+    $self->has_resources_to_build($building);
+    $self->has_resources_to_operate($building);
+    
+    return 1;
+}
+
+sub has_resources_to_operate {
+    my ($self, $building) = @_;
+    my $after = $building->stats_after_upgrade;
+    foreach my $resource (qw(food energy ore water)) {
+        my $method = $resource.'_hour';
+        if ($self->$method  - ($after->{$method} - $building->$method) < 0) {
+            confess [1012, "Unsustainable. Not enough resources being produced to build this.", $resource];
+        }
+    }
+    return 1;
+}
+
+sub build_building {
+    my ($self, $building) = @_;
+    
+    $self->building_count($self->building_count + 1);
+    $self->put;
+
+    # add to build queue
+    my $queue = $self->simpledb->domain('build_queue')->insert({
+        date_created        => DateTime->now,
+        date_complete       => DateTime->now->add(seconds=>$building->time_to_build),
+        building_id         => $building->id,
+        empire_id           => $self->empire_id,
+        building_class      => $building->class,
+    });
+
+    # add building placeholder to planet
+    $building->build_queue_id($queue->id);
+    $building->put;
+    
+}
+
+sub has_resources_to_build {
+    my ($self, $building, $cost) = @_;
+    $cost ||= $building->cost_to_upgrade;
+    foreach my $resource (qw(food energy ore water)) {
+        my $stored = $resource.'_stored';
+        unless ($self->$stored >= $cost->{$resource}) {
+            confess [1011, "Not enough resources in storage to build this.", $resource];
+        }
+    }
+    return 1;
+}
+
+sub has_max_instances_of_building {
+    my ($self, $building) = @_;
+    return 0 if $building->max_instances_per_planet == 9999999;
+    my $count = $self->simpledb->domain($building->class)->count({body_id=>$self->id, class=>$building->class});
+    return ($building->max_instances_per_planet > $count) ? 1 : 0;
+}
+
+
+# RESOURCE MANGEMENT
 
 sub add_magnetite {
     my ($self, $value) = @_;

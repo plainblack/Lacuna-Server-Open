@@ -17,8 +17,25 @@ __PACKAGE__->add_attributes(
 );
 
 __PACKAGE__->belongs_to('build_queue', 'Lacuna::DB::BuildQueue', 'build_queue_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Body', 'body_id');
 __PACKAGE__->recast_using('class');
+
+has max_instances_per_planet => (
+    is      => 'ro',
+    default => 9999999,
+);
+
+has university_prereq => (
+    is      => 'ro',
+    default => 0,
+);
+
+has building_prereq => (
+    is      => 'ro',
+    default => sub {{}},
+    lazy    => 1,
+);
 
 has name => (
     is      => 'ro',
@@ -625,7 +642,44 @@ sub waste_storage_capacity {
     return $self->waste_storage * $self->production_hour;
 }
 
+# BUILD
+
+sub check_build_prereqs {
+    my ($self, $body) = @_;
+    my $db = $self->simpledb;
+    my $prereqs = $self->building_prereq;
+    foreach my $key (keys %{$prereqs}) {
+        my $count = $db->domain($key)->count({body_id=>$body->id, level=>['>=',$prereqs->{$key}]});
+        if ($count < 1) {
+            confess [1013, "You don't have the necessary prerequisite buildings.",[$key, $prereqs->{$key}]];
+        }
+    }
+    return 1;
+}
+
+
+
 # UPGRADES
+
+sub has_met_upgrade_prereqs {
+    return 1;
+}
+
+sub has_pending_build {
+    my ($self) = @_;
+    my $queue = $self->build_queue;
+    return (defined $queue && $queue->is_complete($self)) ? 1 : 0;
+}
+
+sub can_upgrade {
+    my ($self, $cost) = @_;
+    my $body = $self->body;
+    $body->recalc_stats;
+    return $body->has_resources_to_build($cost)
+        && $body->has_resources_to_operate()
+        && $self->has_met_upgrade_prereqs()
+        && ! $self->has_pending_build();    
+}
 
 sub cost_to_upgrade {
     my ($self) = @_;
@@ -654,6 +708,23 @@ sub stats_after_upgrade {
         );
     $self->level($current_level);
     return \%stats;
+}
+
+sub start_upgrade {
+    my ($self, $cost) = @_;  
+    $cost ||= $self->cost_to_upgrade;
+    
+    # add to queue
+    my $queue = $self->simpledb->domain('build_queue')->insert({
+        date_created        => DateTime->now,
+        date_complete       => DateTime->now->add(seconds=>$cost->{time}),
+        building_id         => $self->id,
+        empire_id           => $self->empire->id,
+        building_class      => $self->class,
+    });
+    $self->build_queue_id($queue->id);
+    $self->put;
+
 }
 
 sub finish_upgrade {
