@@ -135,18 +135,15 @@ sub build {
     }
 
     # create dummy building
-    my $building = $self->model_class->new(
-        simpledb    => $self->simpledb,
-        attributes  => {
-            x               => $x,
-            y               => $y,
-            level           => 0,
-            body_id         => $body->id,
-            empire_id       => $empire->id,
-            date_created    => DateTime->now,
-            class           => $self->model_class,
-        },
-    );
+    my $building = $self->model_class->new( simpledb => $self->simpledb)->update({
+        x               => $x,
+        y               => $y,
+        level           => 0,
+        body_id         => $body->id,
+        empire_id       => $empire->id,
+        date_created    => DateTime->now,
+        class           => $self->model_class,
+    });
 
     # make sure the planet can handle it
     $body->can_build_building($building);

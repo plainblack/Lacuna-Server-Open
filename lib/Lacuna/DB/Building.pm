@@ -730,6 +730,7 @@ sub start_upgrade {
 sub finish_upgrade {
     my ($self) = @_;
     $self->level($self->level + 1);
+    $self->build_queue->delete;
     $self->build_queue_id('');
     $self->put;
     $self->body->recalc_stats;

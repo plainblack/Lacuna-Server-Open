@@ -34,7 +34,7 @@ is($result->{error}{code}, 1002, 'cannot fetch buildings on non-existant planet'
 
 $result = post('body','get_buildings', [$session_id, $current_planet]);
 is(ref $result->{result}{buildings}, 'HASH', 'fetch building list');
-my $id = keys(%{$result->{result}{buildings}})[0];
+my $id = (keys(%{$result->{result}{buildings}}))[0];
 ok($result->{result}{buildings}{$id}{name} ne '', 'building has a name');
 
 

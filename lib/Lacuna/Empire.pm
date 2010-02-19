@@ -101,18 +101,15 @@ sub create {
         $home_planet->put;
         
         # add command building
-        my $command = Lacuna::DB::Building::PlanetaryCommand->new(
-            simpledb    => $empire->simpledb,
-            attributes  => {
-                x       => 0,
-                y       => 0,
-                class   => 'Lacuna::DB::Building::PlanetaryCommand',
-                date_created    => DateTime->now,
-                body_id         => $home_planet->id,
-                empire_id       => $empire->id,
-                level           => $species->growth_affinity - 1,
-            }
-        );
+        my $command = Lacuna::DB::Building::PlanetaryCommand->new(simpledb => $empire->simpledb)->update({
+            x               => 0,
+            y               => 0,
+            class           => 'Lacuna::DB::Building::PlanetaryCommand',
+            date_created    => DateTime->now,
+            body_id         => $home_planet->id,
+            empire_id       => $empire->id,
+            level           => $species->growth_affinity - 1,
+        });
         $home_planet->build_building($command);
         $command->finish_upgrade;
         
@@ -121,6 +118,7 @@ sub create {
         $home_planet->add_energy(5000);
         $home_planet->add_water(5000);
         $home_planet->add_magnetite(5000);
+        $home_planet->put;
         
         # return status
         my $status = $empire->get_status;
