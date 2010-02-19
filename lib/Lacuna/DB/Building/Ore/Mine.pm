@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Ore::Mine;
 use Moose;
 extends 'Lacuna::DB::Building::Ore';
 
+sub controller_class {
+        return 'Lacuna::Building::Mine';
+}
+
 has '+image' => ( 
     default => 'mine', 
 );

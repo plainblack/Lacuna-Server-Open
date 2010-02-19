@@ -49,11 +49,13 @@ sub post {
     };
     my $ua = LWP::UserAgent->new;
     $ua->timeout(30);
+    #say "REQUEST: ".to_json($content);
     my $response = $ua->post('http://localhost:5000/'.$url,
         Content_Type    => 'application/json',
         Content         => to_json($content),
         Accept          => 'application/json',
         );
+    #say "RESPONSE: ".$response->content;
     return from_json($response->content);
 }
 

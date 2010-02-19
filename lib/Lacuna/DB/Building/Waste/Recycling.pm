@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Waste::Recycling;
 use Moose;
 extends 'Lacuna::DB::Building::Waste';
 
+sub controller_class {
+        return 'Lacuna::Building::WasteRecycling';
+}
+
 has '+image' => ( 
     default => 'recycling', 
 );

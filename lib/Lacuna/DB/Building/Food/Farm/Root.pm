@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Food::Farm::Root;
 use Moose;
 extends 'Lacuna::DB::Building::Food::Farm';
 
+sub controller_class {
+        return 'Lacuna::Building::Denton';
+}
+
 has '+image' => ( 
     default => 'root', 
 );

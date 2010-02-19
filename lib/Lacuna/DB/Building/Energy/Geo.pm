@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Energy::Geo;
 use Moose;
 extends 'Lacuna::DB::Building::Energy';
 
+sub controller_class {
+        return 'Lacuna::Building::Geo';
+}
+
 has '+image' => ( 
     default => 'geo', 
 );

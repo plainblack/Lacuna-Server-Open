@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Permanent::TerraformingPlatform;
 use Moose;
 extends 'Lacuna::DB::Building::Permanent';
 
+sub controller_class {
+        return 'Lacuna::Building::TerraformingPlatform';
+}
+
 has '+image' => ( 
     default => 'terraforming-platform', 
 );

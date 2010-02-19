@@ -3,6 +3,10 @@ package Lacuna::DB::Building::PlanetaryCommand;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+sub controller_class {
+        return 'Lacuna::Building::PlanetaryCommand';
+}
+
 has '+image' => ( 
     default => 'planetary-command', 
 );

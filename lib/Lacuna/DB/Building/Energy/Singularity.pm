@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Energy::Singularity;
 use Moose;
 extends 'Lacuna::DB::Building::Energy';
 
+sub controller_class {
+        return 'Lacuna::Building::Singularity';
+}
+
 has '+image' => ( 
     default => 'singularity', 
 );

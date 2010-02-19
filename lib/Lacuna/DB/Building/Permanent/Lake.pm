@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Permanent::Lake;
 use Moose;
 extends 'Lacuna::DB::Building::Permanent';
 
+sub controller_class {
+        return 'Lacuna::Building::Lake';
+}
+
 has '+image' => ( 
     default => 'lake', 
 );

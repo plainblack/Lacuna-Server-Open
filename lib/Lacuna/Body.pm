@@ -57,7 +57,7 @@ sub get_buildings {
     foreach my $buildings ($body->buildings) {
         while (my $building = $buildings->next) {
             $out{$building->id} = {
-                url     => $building->url,
+                url     => $building->controller_class->app_url,
                 image   => $building->image,
                 name    => $building->name,
                 x       => $building->x,

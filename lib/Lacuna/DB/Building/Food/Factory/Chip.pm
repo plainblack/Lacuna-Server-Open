@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Food::Factory::Chip;
 use Moose;
 extends 'Lacuna::DB::Building::Food::Factory';
 
+sub controller_class {
+        return 'Lacuna::Building::Chip';
+}
+
 has '+image' => ( 
     default => 'chip', 
 );

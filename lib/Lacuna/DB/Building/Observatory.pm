@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Observatory;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+sub controller_class {
+        return 'Lacuna::Building::Observatory';
+}
+
 has '+image' => ( 
     default => 'observatory', 
 );

@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Ore::Storage;
 use Moose;
 extends 'Lacuna::DB::Building::Ore';
 
+sub controller_class {
+        return 'Lacuna::Building::OreStorage';
+}
+
 has '+image' => ( 
     default => 'storage-tanks', 
 );

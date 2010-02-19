@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Energy::Reserve;
 use Moose;
 extends 'Lacuna::DB::Building::Energy';
 
+sub controller_class {
+        return 'Lacuna::Building::EnergyReserve';
+}
+
 has '+image' => ( 
     default => 'energy-reserve', 
 );

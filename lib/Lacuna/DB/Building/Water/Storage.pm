@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Water::Storage;
 use Moose;
 extends 'Lacuna::DB::Building::Water';
 
+sub controller_class {
+        return 'Lacuna::Building::WaterStorage';
+}
+
 has '+image' => ( 
     default => 'water-storage', 
 );

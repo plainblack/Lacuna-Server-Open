@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Energy::Waste;
 use Moose;
 extends 'Lacuna::DB::Building::Energy';
 
+sub controller_class {
+        return 'Lacuna::Building::WasteEnergy';
+}
+
 has '+image' => ( 
     default => 'waste', 
 );

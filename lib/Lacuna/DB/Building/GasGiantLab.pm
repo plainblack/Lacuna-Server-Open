@@ -3,6 +3,10 @@ package Lacuna::DB::Building::GasGiantLab;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+sub controller_class {
+        return 'Lacuna::Building::GasGiantLab';
+}
+
 has '+image' => ( 
     default => 'gas-giant-lab', 
 );

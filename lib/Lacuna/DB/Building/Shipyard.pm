@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Shipyard;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+sub controller_class {
+        return 'Lacuna::Building::Shipyard';
+}
+
 has '+image' => ( 
     default => 'shipyard', 
 );

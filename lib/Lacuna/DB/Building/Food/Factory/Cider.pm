@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Food::Factory::Cider;
 use Moose;
 extends 'Lacuna::DB::Building::Food::Factory';
 
+sub controller_class {
+        return 'Lacuna::Building::Cider';
+}
+
 has '+image' => ( 
     default => 'cider', 
 );

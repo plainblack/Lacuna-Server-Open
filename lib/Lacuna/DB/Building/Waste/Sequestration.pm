@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Waste::Sequestration;
 use Moose;
 extends 'Lacuna::DB::Building::Waste';
 
+sub controller_class {
+        return 'Lacuna::Building::WasteSequestration';
+}
+
 has '+image' => ( 
     default => 'sequestration', 
 );

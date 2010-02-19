@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Intelligence;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+sub controller_class {
+        return 'Lacuna::Building::Intelligence';
+}
+
 has '+image' => ( 
     default => 'intelligence', 
 );

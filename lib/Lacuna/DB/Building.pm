@@ -21,6 +21,10 @@ __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Body', 'body_id');
 __PACKAGE__->recast_using('class');
 
+sub controller_class {
+    confess "you need to override me";
+}
+
 has max_instances_per_planet => (
     is      => 'ro',
     default => 9999999,

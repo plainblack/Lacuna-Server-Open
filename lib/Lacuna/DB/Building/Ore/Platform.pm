@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Ore::Platform;
 use Moose;
 extends 'Lacuna::DB::Building::Ore';
 
+sub controller_class {
+        return 'Lacuna::Building::MiningPlatform';
+}
+
 has '+image' => ( 
     default => 'mining-platform', 
 );

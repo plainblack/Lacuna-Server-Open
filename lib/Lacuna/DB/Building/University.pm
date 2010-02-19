@@ -3,6 +3,10 @@ package Lacuna::DB::Building::University;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+sub controller_class {
+        return 'Lacuna::Building::University';
+}
+
 has '+image' => ( 
     default => 'university', 
 );

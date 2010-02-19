@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Transporter;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+sub controller_class {
+        return 'Lacuna::Building::Transporter';
+}
+
 has '+image' => ( 
     default => 'transporter', 
 );

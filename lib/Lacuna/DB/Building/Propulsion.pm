@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Propulsion;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+sub controller_class {
+        return 'Lacuna::Building::Propulsion';
+}
+
 has '+image' => ( 
     default => 'propulsion', 
 );

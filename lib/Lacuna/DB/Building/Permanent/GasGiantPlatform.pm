@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Permanent::GasGiantPlatform;
 use Moose;
 extends 'Lacuna::DB::Building::Permanent';
 
+sub controller_class {
+        return 'Lacuna::Building::GasGiantPlatform';
+}
+
 has '+image' => ( 
     default => 'gas-giant-platform', 
 );

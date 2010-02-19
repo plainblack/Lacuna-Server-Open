@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Network19;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+sub controller_class {
+        return 'Lacuna::Building::Network19';
+}
+
 has '+image' => ( 
     default => 'network19', 
 );

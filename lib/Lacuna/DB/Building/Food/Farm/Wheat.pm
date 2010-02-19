@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Food::Farm::Wheat;
 use Moose;
 extends 'Lacuna::DB::Building::Food::Farm';
 
+sub controller_class {
+        return 'Lacuna::Building::Wheat';
+}
+
 has '+image' => ( 
     default => 'wheat', 
 );

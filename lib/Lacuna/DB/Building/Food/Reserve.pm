@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Food::Reserve;
 use Moose;
 extends 'Lacuna::DB::Building::Food';
 
+sub controller_class {
+        return 'Lacuna::Building::FoodReserve';
+}
+
 has '+image' => ( 
     default => 'food-reserve', 
 );

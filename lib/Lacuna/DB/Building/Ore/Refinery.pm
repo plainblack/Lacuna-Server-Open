@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Ore::Refinery;
 use Moose;
 extends 'Lacuna::DB::Building::Ore';
 
+sub controller_class {
+        return 'Lacuna::Building::OreRefinery';
+}
+
 has '+image' => ( 
     default => 'refinery', 
 );

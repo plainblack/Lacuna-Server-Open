@@ -3,6 +3,10 @@ package Lacuna::DB::Building::RND;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+sub controller_class {
+        return 'Lacuna::Building::RND';
+}
+
 has '+image' => ( 
     default => 'rnd', 
 );

@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Ore::Minestry;
 use Moose;
 extends 'Lacuna::DB::Building::Ore';
 
+sub controller_class {
+        return 'Lacuna::Building::MiningMinistry';
+}
+
 has '+image' => ( 
     default => 'mining-ministry', 
 );

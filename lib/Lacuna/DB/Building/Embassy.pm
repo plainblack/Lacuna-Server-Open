@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Embassy;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+sub controller_class {
+    return 'Lacuna::Building::Embassy';
+}
+
 has '+image' => ( 
     default => 'embassy', 
 );

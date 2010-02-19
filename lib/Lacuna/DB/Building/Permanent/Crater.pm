@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Permanent::Crater;
 use Moose;
 extends 'Lacuna::DB::Building::Permanent';
 
+sub controller_class {
+        return 'Lacuna::Building::Crater';
+}
+
 has '+image' => ( 
     default => 'crater', 
 );

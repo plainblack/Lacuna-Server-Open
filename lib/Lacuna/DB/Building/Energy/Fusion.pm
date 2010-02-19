@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Energy::Fusion;
 use Moose;
 extends 'Lacuna::DB::Building::Energy';
 
+sub controller_class {
+        return 'Lacuna::Building::Fusion';
+}
+
 has '+image' => ( 
     default => 'fusion', 
 );

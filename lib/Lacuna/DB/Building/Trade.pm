@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Trade;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+sub controller_class {
+        return 'Lacuna::Building::Trade';
+}
+
 has '+image' => ( 
     default => 'trade', 
 );

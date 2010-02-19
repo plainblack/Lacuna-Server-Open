@@ -3,6 +3,10 @@ package Lacuna::DB::Building::Energy::Fission;
 use Moose;
 extends 'Lacuna::DB::Building::Energy';
 
+sub controller_class {
+        return 'Lacuna::Building::Fission';
+}
+
 has '+image' => ( 
     default => 'fission', 
 );
