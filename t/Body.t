@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Test::Deep;
 use LWP::UserAgent;
 use JSON qw(to_json from_json);
@@ -41,13 +41,13 @@ foreach my $key (keys %{$result->{result}{buildings}}) {
         last;
     }
 }
-#= (keys(%{$result->{result}{buildings}}))[0];
-my $url = $result->{result}{buildings}{$id}{url};
-$url =~ s/\///;
 ok($result->{result}{buildings}{$id}{name} ne '', 'building has a name');
 
+my $url = $result->{result}{buildings}{$id}{url};
+$url =~ s/\///;
 $result = post($url, 'view', [$session_id, $id]);
-say $result->{error}{data};
+ok($result->{result}{building}{energy_hour} > 0, 'command center is functional');
+
 
 sub post {
     my ($url, $method, $params) = @_;
@@ -59,13 +59,13 @@ sub post {
     };
     my $ua = LWP::UserAgent->new;
     $ua->timeout(30);
-    say "REQUEST: ".to_json($content);
+#    say "REQUEST: ".to_json($content);
     my $response = $ua->post('http://localhost:5000/'.$url,
         Content_Type    => 'application/json',
         Content         => to_json($content),
         Accept          => 'application/json',
         );
-    say "RESPONSE: ".$response->content;
+#    say "RESPONSE: ".$response->content;
     return from_json($response->content);
 }
 

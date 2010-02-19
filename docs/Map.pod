@@ -140,9 +140,9 @@ Returns an array of bodies and a hash about the star itself. The data structure 
             "name" : "Mercury",
             "orbit" : 1,
             "image" : "p13",
-            "minerals" : {
-                "Gold" : 9239,
-                "Bauxite" : 1223
+            "ore" : {
+                "gold" : 9239,
+                "bauxite" : 1223
             },
             "water" : 100,
             "empire" : {
