@@ -43,9 +43,9 @@ sub food_consumption {
     return 5;
 }
 
-has '+energy_consumption' => (
-    default => -50,
-);
+sub energy_consumption {
+    return 50;
+}
 
 sub ore_consumption {
     return 5;

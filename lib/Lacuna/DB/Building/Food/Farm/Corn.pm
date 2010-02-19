@@ -55,9 +55,9 @@ sub ore_consumption {
     return 11;
 }
 
-has '+water_consumption' => (
-    default => -10,
-);
+sub water_consumption {
+    return 10;
+}
 
 sub waste_production {
     return 22;
