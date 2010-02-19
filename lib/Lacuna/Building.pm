@@ -45,7 +45,7 @@ sub get_body {
 
 sub get_building {
     my ($self, $building_id) = @_;
-    if ($building_id->isa('Lacuna::DB::Building')) {
+    if (ref $building_id && $building_id->isa('Lacuna::DB::Building')) {
         return $building_id;
     }
     else {
@@ -89,13 +89,13 @@ sub view {
     my ($self, $session_id, $building_id) = @_;
     my $building = $self->get_building($building_id);
     my $empire = $self->get_empire_by_session($session_id);
-    if ($building->empire_id eq $empire->id) {
+    if ($building->body->empire_id eq $empire->id) { # do body, because permanents aren't owned by anybody
         my $cost = $building->cost_to_upgrade;
-        my $queue = $building->build_queue;
+      #  my $queue = $building->build_queue if ($building->build_queue_id);
         my $time_left = 0;
-        if (defined $queue) {
-            $time_left = $queue->is_complete($building);
-        }
+    #    if (defined $queue) {
+     #       $time_left = $queue->is_complete($building);
+      #  }
         return { 
             building    => {
                 name                => $building->name,

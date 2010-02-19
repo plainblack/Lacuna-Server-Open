@@ -4,6 +4,7 @@ use Moose;
 extends 'JSON::RPC::Dispatcher::App';
 use Lacuna::Util qw(in);
 use Lacuna::Verify;
+use Lacuna::Constants qw(ORE_TYPES);
 
 has simpledb => (
     is      => 'ro',
@@ -126,11 +127,15 @@ sub get_star_system {
                     $body->put;
                 }
             }
+            my %ores;
+            foreach my $type (ORE_TYPES) {
+                $ores{$type} = $body->$type();
+            }
             $out{$body->id} = {
                 name        => $body->name,
                 image       => $body->image,
                 empire      => $owner,
-                minerals    => $body->minerals,
+                ore         => \%ores,
                 water       => $body->water,
                 orbit       => $body->orbit,
            };

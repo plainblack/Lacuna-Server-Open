@@ -59,7 +59,5 @@ sub waste_production {
     return 25;
 }
 
-
-
 no Moose;
 __PACKAGE__->meta->make_immutable;

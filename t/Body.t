@@ -34,10 +34,20 @@ is($result->{error}{code}, 1002, 'cannot fetch buildings on non-existant planet'
 
 $result = post('body','get_buildings', [$session_id, $current_planet]);
 is(ref $result->{result}{buildings}, 'HASH', 'fetch building list');
-my $id = (keys(%{$result->{result}{buildings}}))[0];
+my $id;
+foreach my $key (keys %{$result->{result}{buildings}}) {
+    if ($result->{result}{buildings}{$key}{name} eq 'Planetary Command') {
+        $id = $key;
+        last;
+    }
+}
+#= (keys(%{$result->{result}{buildings}}))[0];
+my $url = $result->{result}{buildings}{$id}{url};
+$url =~ s/\///;
 ok($result->{result}{buildings}{$id}{name} ne '', 'building has a name');
 
-
+$result = post($url, 'view', [$session_id, $id]);
+say $result->{error}{data};
 
 sub post {
     my ($url, $method, $params) = @_;
@@ -49,13 +59,13 @@ sub post {
     };
     my $ua = LWP::UserAgent->new;
     $ua->timeout(30);
-    #say "REQUEST: ".to_json($content);
+    say "REQUEST: ".to_json($content);
     my $response = $ua->post('http://localhost:5000/'.$url,
         Content_Type    => 'application/json',
         Content         => to_json($content),
         Accept          => 'application/json',
         );
-    #say "RESPONSE: ".$response->content;
+    say "RESPONSE: ".$response->content;
     return from_json($response->content);
 }
 

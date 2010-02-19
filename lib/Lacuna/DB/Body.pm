@@ -24,20 +24,94 @@ __PACKAGE__->add_attributes(
 __PACKAGE__->belongs_to('star', 'Lacuna::DB::Star', 'star_id');
 __PACKAGE__->recast_using('class');
 
-has image => (
-    is      => 'ro',
-    default => undef,
-);
+sub image {
+    confess "override me";
+}
 
-has minerals => (
-    is      => 'ro',
-    default => sub { { } },
-);
+sub water {
+    return 1;
+}
 
-has water => (
-    is      => 'ro',
-    default => 0,
-);
+# resource concentrations
+sub rutile {
+    return 1;
+}
+
+sub chromite {
+    return 1;
+}
+
+sub chalcopyrite {
+    return 1;
+}
+
+sub galena {
+    return 1;
+}
+
+sub bauxite {
+    return 1;
+}
+
+sub goethite {
+    return 1;
+}
+
+sub halite {
+    return 1;
+}
+
+sub gypsum {
+    return 1;
+}
+
+sub sulfur {
+    return 1;
+}
+
+sub magnetite {
+    return 1;
+}
+
+sub trona {
+    return 1;
+}
+
+sub uraninite {
+    return 1;
+}
+
+sub methane {
+    return 1;
+}
+
+sub kerogen {
+    return 1;
+}
+
+sub anthracite {
+    return 1;
+}
+
+sub fluorite {
+    return 1;
+}
+
+sub beryl {
+    return 1;
+}
+
+sub zircon {
+    return 1;
+}
+
+sub monazite {
+    return 1;
+}
+
+sub gold {
+    return 1;
+}
 
 
 

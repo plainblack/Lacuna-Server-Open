@@ -55,6 +55,11 @@ sub water_production {
     return 100;
 }
 
+sub water_production_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->body->water * $self->water_production * $self->production_hour / 10000);
+}
+
 sub waste_production {
     return 10;
 }

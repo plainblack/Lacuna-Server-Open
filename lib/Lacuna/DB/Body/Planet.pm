@@ -28,14 +28,14 @@ __PACKAGE__->add_attributes(
     gold_stored             => { isa => 'Int', default=>0 },
     uraninite_stored        => { isa => 'Int', default=>0 },
     bauxite_stored          => { isa => 'Int', default=>0 },
-    limonite_stored         => { isa => 'Int', default=>0 },
+    goethite_stored         => { isa => 'Int', default=>0 },
     halite_stored           => { isa => 'Int', default=>0 },
     gypsum_stored           => { isa => 'Int', default=>0 },
     trona_stored            => { isa => 'Int', default=>0 },
     kerogen_stored          => { isa => 'Int', default=>0 },
-    petroleum_stored        => { isa => 'Int', default=>0 },
+    methane_stored        => { isa => 'Int', default=>0 },
     anthracite_stored       => { isa => 'Int', default=>0 },
-    sulfate_stored          => { isa => 'Int', default=>0 },
+    sulfur_stored          => { isa => 'Int', default=>0 },
     zircon_stored           => { isa => 'Int', default=>0 },
     monazite_stored         => { isa => 'Int', default=>0 },
     fluorite_stored         => { isa => 'Int', default=>0 },
@@ -48,14 +48,14 @@ __PACKAGE__->add_attributes(
     gold_hour           => { isa => 'Int', default=>0 },
     uraninite_hour      => { isa => 'Int', default=>0 },
     bauxite_hour        => { isa => 'Int', default=>0 },
-    limonite_hour       => { isa => 'Int', default=>0 },
+    goethite_hour       => { isa => 'Int', default=>0 },
     halite_hour         => { isa => 'Int', default=>0 },
     gypsum_hour         => { isa => 'Int', default=>0 },
     trona_hour          => { isa => 'Int', default=>0 },
     kerogen_hour        => { isa => 'Int', default=>0 },
-    petroleum_hour      => { isa => 'Int', default=>0 },
+    methane_hour      => { isa => 'Int', default=>0 },
     anthracite_hour     => { isa => 'Int', default=>0 },
-    sulfate_hour        => { isa => 'Int', default=>0 },
+    sulfur_hour        => { isa => 'Int', default=>0 },
     zircon_hour         => { isa => 'Int', default=>0 },
     monazite_hour       => { isa => 'Int', default=>0 },
     fluorite_hour       => { isa => 'Int', default=>0 },
@@ -112,6 +112,88 @@ __PACKAGE__->has_many('waste_buildings','Lacuna::DB::Building::Waste','body_id')
 __PACKAGE__->has_many('ore_buildings','Lacuna::DB::Building::Ore','body_id');
 __PACKAGE__->has_many('energy_buildings','Lacuna::DB::Building::Energy','body_id');
 __PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','body_id');
+
+# resource concentrations
+sub rutile {
+    return 1;
+}
+
+sub chromite {
+    return 1;
+}
+
+sub chalcopyrite {
+    return 1;
+}
+
+sub galena {
+    return 1;
+}
+
+sub gold {
+    return 1;
+}
+
+sub uraninite {
+    return 1;
+}
+
+sub bauxite {
+    return 1;
+}
+
+sub goethite {
+    return 1;
+}
+
+sub halite {
+    return 1;
+}
+
+sub gypsum {
+    return 1;
+}
+
+sub trona {
+    return 1;
+}
+
+sub kerogen {
+    return 1;
+}
+
+sub methane {
+    return 1;
+}
+
+sub anthracite {
+    return 1;
+}
+
+sub sulfur {
+    return 1;
+}
+
+sub zircon {
+    return 1;
+}
+
+sub monazite {
+    return 1;
+}
+
+sub fluorite {
+    return 1;
+}
+
+sub beryl {
+    return 1;
+}
+
+sub magnetite {
+    return 1;
+}
+
 
 
 # BUILDINGS
@@ -262,11 +344,11 @@ sub add_zircon {
     $self->zircon_stored( ($store < $storage) ? $store : $storage );
 }
 
-sub add_sulfate {
+sub add_sulfur {
     my ($self, $value) = @_;
-    my $store = $self->sulfate_stored + $value;
+    my $store = $self->sulfur_stored + $value;
     my $storage = $self->ore_storage;
-    $self->sulfate_stored( ($store < $storage) ? $store : $storage );
+    $self->sulfur_stored( ($store < $storage) ? $store : $storage );
 }
 
 sub add_anthracite {
@@ -276,11 +358,11 @@ sub add_anthracite {
     $self->anthracite_stored( ($store < $storage) ? $store : $storage );
 }
 
-sub add_petroleum {
+sub add_methane {
     my ($self, $value) = @_;
-    my $store = $self->petroleum_stored + $value;
+    my $store = $self->methane_stored + $value;
     my $storage = $self->ore_storage;
-    $self->petroleum_stored( ($store < $storage) ? $store : $storage );
+    $self->methane_stored( ($store < $storage) ? $store : $storage );
 }
 
 sub add_kerogen {
@@ -311,11 +393,11 @@ sub add_halite {
     $self->halite_stored( ($store < $storage) ? $store : $storage );
 }
 
-sub add_limonite {
+sub add_goethite {
     my ($self, $value) = @_;
-    my $store = $self->limonite_stored + $value;
+    my $store = $self->goethite_stored + $value;
     my $storage = $self->ore_storage;
-    $self->limonite_stored( ($store < $storage) ? $store : $storage );
+    $self->goethite_stored( ($store < $storage) ? $store : $storage );
 }
 
 sub add_bauxite {
