@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Corn';
 }
 
-has '+image' => ( 
-    default => 'corn', 
-);
+sub image {
+    return 'corn';
+}
 
-has '+name' => (
-    default => 'Corn Plantation',
-);
+sub name {
+    return 'Corn Plantation';
+}
 
-has '+food_to_build' => (
-    default => 10,
-);
+sub food_to_build {
+    return 10;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 55,
-);
+sub ore_to_build {
+    return 55;
+}
 
-has '+water_to_build' => (
-    default => 10,
-);
+sub water_to_build {
+    return 10;
+}
 
-has '+waste_to_build' => (
-    default => 10,
-);
+sub waste_to_build {
+    return 10;
+}
 
-has '+time_to_build' => (
-    default => 60,
-);
+sub time_to_build {
+    return 60;
+}
 
-has '+food_consumption' => (
-    default => 5,
-);
+sub food_consumption {
+    return 5;
+}
 
-has '+corn_production' => (
-    default => 44,
-);
+sub corn_production {
+    return 44;
+}
 
-has '+energy_consumption' => (
-    default => 1,
-);
+sub energy_consumption {
+    return 1;
+}
 
-has '+ore_consumption' => (
-    default => 11,
-);
+sub ore_consumption {
+    return 11;
+}
 
 has '+water_consumption' => (
     default => -10,
 );
 
-has '+waste_production' => (
-    default => 22,
-);
+sub waste_production {
+    return 22;
+}
 
 
 

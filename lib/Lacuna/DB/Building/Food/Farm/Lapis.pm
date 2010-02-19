@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Lapis';
 }
 
-has '+image' => ( 
-    default => 'lapis', 
-);
+sub image {
+    return 'lapis';
+}
 
-has '+name' => (
-    default => 'Lapis Orchard',
-);
+sub name {
+    return 'Lapis Orchard';
+}
 
-has '+food_to_build' => (
-    default => 10,
-);
+sub food_to_build {
+    return 10;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 55,
-);
+sub ore_to_build {
+    return 55;
+}
 
-has '+water_to_build' => (
-    default => 10,
-);
+sub water_to_build {
+    return 10;
+}
 
-has '+waste_to_build' => (
-    default => 5,
-);
+sub waste_to_build {
+    return 5;
+}
 
-has '+time_to_build' => (
-    default => 60,
-);
+sub time_to_build {
+    return 60;
+}
 
-has '+food_consumption' => (
-    default => 5,
-);
+sub food_consumption {
+    return 5;
+}
 
-has '+lapis_production' => (
-    default => 75,
-);
+sub lapis_production {
+    return 75;
+}
 
-has '+energy_consumption' => (
-    default => 2,
-);
+sub energy_consumption {
+    return 2;
+}
 
-has '+ore_consumption' => (
-    default => 10,
-);
+sub ore_consumption {
+    return 10;
+}
 
-has '+water_consumption' => (
-    default => 10,
-);
+sub water_consumption {
+    return 10;
+}
 
-has '+waste_production' => (
-    default => 50,
-);
+sub waste_production {
+    return 50;
+}
 
 
 

@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Entertainment';
 }
 
-has '+image' => ( 
-    default => 'entertainment', 
-);
+sub image {
+    return 'entertainment';
+}
 
-has '+name' => (
-    default => 'Entertainment District',
-);
+sub name {
+    return 'Entertainment District';
+}
 
-has '+food_to_build' => (
-    default => 500,
-);
+sub food_to_build {
+    return 500;
+}
 
-has '+energy_to_build' => (
-    default => 500,
-);
+sub energy_to_build {
+    return 500;
+}
 
-has '+ore_to_build' => (
-    default => 800,
-);
+sub ore_to_build {
+    return 800;
+}
 
-has '+water_to_build' => (
-    default => 500,
-);
+sub water_to_build {
+    return 500;
+}
 
-has '+waste_to_build' => (
-    default => 500,
-);
+sub waste_to_build {
+    return 500;
+}
 
-has '+time_to_build' => (
-    default => 250,
-);
+sub time_to_build {
+    return 250;
+}
 
-has '+food_consumption' => (
-    default => 100,
-);
+sub food_consumption {
+    return 100;
+}
 
-has '+energy_consumption' => (
-    default => 100,
-);
+sub energy_consumption {
+    return 100;
+}
 
-has '+ore_consumption' => (
-    default => 10,
-);
+sub ore_consumption {
+    return 10;
+}
 
-has '+water_consumption' => (
-    default => 100,
-);
+sub water_consumption {
+    return 100;
+}
 
-has '+waste_production' => (
-    default => 300,
-);
+sub waste_production {
+    return 300;
+}
 
-has '+happiness_production' => (
-    default => 200,
-);
+sub happiness_production {
+    return 200;
+}
 
 
 

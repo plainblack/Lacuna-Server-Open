@@ -7,57 +7,57 @@ sub controller_class {
         return 'Lacuna::Building::OreRefinery';
 }
 
-has '+image' => ( 
-    default => 'refinery', 
-);
+sub image {
+    return 'refinery';
+}
 
-has '+name' => (
-    default => 'Ore Refinery',
-);
+sub name {
+    return 'Ore Refinery';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 100,
-);
+sub ore_to_build {
+    return 100;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 100,
-);
+sub waste_to_build {
+    return 100;
+}
 
-has '+time_to_build' => (
-    default => 200,
-);
+sub time_to_build {
+    return 200;
+}
 
-has '+food_consumption' => (
-    default => 15,
-);
+sub food_consumption {
+    return 15;
+}
 
-has '+energy_consumption' => (
-    default => 80,
-);
+sub energy_consumption {
+    return 80;
+}
 
-has '+ore_consumption' => (
-    default => 100,
-);
+sub ore_consumption {
+    return 100;
+}
 
-has '+water_consumption' => (
-    default => 100,
-);
+sub water_consumption {
+    return 100;
+}
 
-has '+waste_production' => (
-    default => 70,
-);
+sub waste_production {
+    return 70;
+}
 
 
 

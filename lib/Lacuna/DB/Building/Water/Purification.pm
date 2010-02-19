@@ -7,57 +7,57 @@ sub controller_class {
         return 'Lacuna::Building::WaterPurification';
 }
 
-has '+image' => ( 
-    default => 'purification', 
-);
+sub image {
+    return 'purification';
+}
 
-has '+name' => (
-    default => 'Water Purification Plant',
-);
+sub name {
+    return 'Water Purification Plant';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 100,
-);
+sub ore_to_build {
+    return 100;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 20,
-);
+sub waste_to_build {
+    return 20;
+}
 
-has '+time_to_build' => (
-    default => 95,
-);
+sub time_to_build {
+    return 95;
+}
 
-has '+food_consumption' => (
-    default => 5,
-);
+sub food_consumption {
+    return 5;
+}
 
-has '+energy_consumption' => (
-    default => 15,
-);
+sub energy_consumption {
+    return 15;
+}
 
-has '+ore_consumption' => (
-    default => 15,
-);
+sub ore_consumption {
+    return 15;
+}
 
-has '+water_production' => (
-    default => 100,
-);
+sub water_production {
+    return 100;
+}
 
-has '+waste_production' => (
-    default => 10,
-);
+sub waste_production {
+    return 10;
+}
 
 
 

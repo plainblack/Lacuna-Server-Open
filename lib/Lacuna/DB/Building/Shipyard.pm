@@ -7,57 +7,57 @@ sub controller_class {
         return 'Lacuna::Building::Shipyard';
 }
 
-has '+image' => ( 
-    default => 'shipyard', 
-);
+sub image {
+    return 'shipyard';
+}
 
-has '+name' => (
-    default => 'Shipyard',
-);
+sub name {
+    return 'Shipyard';
+}
 
-has '+food_to_build' => (
-    default => 150,
-);
+sub food_to_build {
+    return 150;
+}
 
-has '+energy_to_build' => (
-    default => 150,
-);
+sub energy_to_build {
+    return 150;
+}
 
-has '+ore_to_build' => (
-    default => 150,
-);
+sub ore_to_build {
+    return 150;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 100,
-);
+sub waste_to_build {
+    return 100;
+}
 
-has '+time_to_build' => (
-    default => 120,
-);
+sub time_to_build {
+    return 120;
+}
 
-has '+food_consumption' => (
-    default => 5,
-);
+sub food_consumption {
+    return 5;
+}
 
-has '+energy_consumption' => (
-    default => 10,
-);
+sub energy_consumption {
+    return 10;
+}
 
-has '+ore_consumption' => (
-    default => 5,
-);
+sub ore_consumption {
+    return 5;
+}
 
-has '+water_consumption' => (
-    default => 7,
-);
+sub water_consumption {
+    return 7;
+}
 
-has '+waste_production' => (
-    default => 2,
-);
+sub waste_production {
+    return 2;
+}
 
 
 no Moose;

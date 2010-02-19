@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::EnergyReserve';
 }
 
-has '+image' => ( 
-    default => 'energy-reserve', 
-);
+sub image {
+    return 'energy-reserve';
+}
 
-has '+name' => (
-    default => 'Energy Reserve',
-);
+sub name {
+    return 'Energy Reserve';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 100,
-);
+sub ore_to_build {
+    return 100;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 200,
-);
+sub waste_to_build {
+    return 200;
+}
 
-has '+time_to_build' => (
-    default => 200,
-);
+sub time_to_build {
+    return 200;
+}
 
-has '+food_consumption' => (
-    default => 2,
-);
+sub food_consumption {
+    return 2;
+}
 
-has '+energy_consumption' => (
-    default => 10,
-);
+sub energy_consumption {
+    return 10;
+}
 
-has '+ore_consumption' => (
-    default => 3,
-);
+sub ore_consumption {
+    return 3;
+}
 
-has '+water_consumption' => (
-    default => 1,
-);
+sub water_consumption {
+    return 1;
+}
 
-has '+waste_production' => (
-    default => 1,
-);
+sub waste_production {
+    return 1;
+}
 
-has '+energy_storage' => (
-    default => 1500,
-);
+sub energy_storage {
+    return 1500;
+}
 
 
 

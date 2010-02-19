@@ -7,57 +7,57 @@ sub controller_class {
     return 'Lacuna::Building::Development';
 }
 
-has '+image' => ( 
-    default => 'development', 
-);
+sub image {
+    return 'development';
+}
 
-has '+name' => (
-    default => 'Development Ministry',
-);
+sub name {
+    return 'Development Ministry';
+}
 
-has '+food_to_build' => (
-    default => 70,
-);
+sub food_to_build {
+    return 70;
+}
 
-has '+energy_to_build' => (
-    default => 70,
-);
+sub energy_to_build {
+    return 70;
+}
 
-has '+ore_to_build' => (
-    default => 70,
-);
+sub ore_to_build {
+    return 70;
+}
 
-has '+water_to_build' => (
-    default => 70,
-);
+sub water_to_build {
+    return 70;
+}
 
-has '+waste_to_build' => (
-    default => 70,
-);
+sub waste_to_build {
+    return 70;
+}
 
-has '+time_to_build' => (
-    default => 60,
-);
+sub time_to_build {
+    return 60;
+}
 
-has '+food_consumption' => (
-    default => 25,
-);
+sub food_consumption {
+    return 25;
+}
 
-has '+energy_consumption' => (
-    default => 50,
-);
+sub energy_consumption {
+    return 50;
+}
 
-has '+ore_consumption' => (
-    default => 10,
-);
+sub ore_consumption {
+    return 10;
+}
 
-has '+water_consumption' => (
-    default => 25,
-);
+sub water_consumption {
+    return 25;
+}
 
-has '+waste_production' => (
-    default => 5,
-);
+sub waste_production {
+    return 5;
+}
 
 
 no Moose;

@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Malcud';
 }
 
-has '+image' => ( 
-    default => 'malcud', 
-);
+sub image {
+    return 'malcud';
+}
 
-has '+name' => (
-    default => 'Malcud Fungus Farm',
-);
+sub name {
+    return 'Malcud Fungus Farm';
+}
 
-has '+food_to_build' => (
-    default => 10,
-);
+sub food_to_build {
+    return 10;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 55,
-);
+sub ore_to_build {
+    return 55;
+}
 
-has '+water_to_build' => (
-    default => 30,
-);
+sub water_to_build {
+    return 30;
+}
 
-has '+waste_to_build' => (
-    default => 20,
-);
+sub waste_to_build {
+    return 20;
+}
 
-has '+time_to_build' => (
-    default => 60,
-);
+sub time_to_build {
+    return 60;
+}
 
-has '+food_consumption' => (
-    default => 5,
-);
+sub food_consumption {
+    return 5;
+}
 
-has '+fungus_production' => (
-    default => 31,
-);
+sub fungus_production {
+    return 31;
+}
 
-has '+energy_consumption' => (
-    default => 1,
-);
+sub energy_consumption {
+    return 1;
+}
 
-has '+ore_production' => (
-    default => 4,
-);
+sub ore_production {
+    return 4;
+}
 
-has '+water_consumption' => (
-    default => 4,
-);
+sub water_consumption {
+    return 4;
+}
 
-has '+waste_consumption' => (
-    default => 1,
-);
+sub waste_consumption {
+    return 1;
+}
 
 
 

@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Wheat';
 }
 
-has '+image' => ( 
-    default => 'wheat', 
-);
+sub image {
+    return 'wheat';
+}
 
-has '+name' => (
-    default => 'Wheat Farm',
-);
+sub name {
+    return 'Wheat Farm';
+}
 
-has '+food_to_build' => (
-    default => 10,
-);
+sub food_to_build {
+    return 10;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 55,
-);
+sub ore_to_build {
+    return 55;
+}
 
-has '+water_to_build' => (
-    default => 10,
-);
+sub water_to_build {
+    return 10;
+}
 
-has '+waste_to_build' => (
-    default => 10,
-);
+sub waste_to_build {
+    return 10;
+}
 
-has '+time_to_build' => (
-    default => 60,
-);
+sub time_to_build {
+    return 60;
+}
 
-has '+food_consumption' => (
-    default => 5,
-);
+sub food_consumption {
+    return 5;
+}
 
-has '+wheat_production' => (
-    default => 38,
-);
+sub wheat_production {
+    return 38;
+}
 
-has '+energy_consumption' => (
-    default => 1,
-);
+sub energy_consumption {
+    return 1;
+}
 
-has '+ore_consumption' => (
-    default => 1,
-);
+sub ore_consumption {
+    return 1;
+}
 
-has '+water_consumption' => (
-    default => 10,
-);
+sub water_consumption {
+    return 10;
+}
 
-has '+waste_production' => (
-    default => 28,
-);
+sub waste_production {
+    return 28;
+}
 
 
 

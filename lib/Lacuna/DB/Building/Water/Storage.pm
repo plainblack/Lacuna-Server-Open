@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::WaterStorage';
 }
 
-has '+image' => ( 
-    default => 'water-storage', 
-);
+sub image {
+    return 'water-storage';
+}
 
-has '+name' => (
-    default => 'Water Storage',
-);
+sub name {
+    return 'Water Storage';
+}
 
-has '+food_to_build' => (
-    default => 25,
-);
+sub food_to_build {
+    return 25;
+}
 
-has '+energy_to_build' => (
-    default => 25,
-);
+sub energy_to_build {
+    return 25;
+}
 
-has '+ore_to_build' => (
-    default => 25,
-);
+sub ore_to_build {
+    return 25;
+}
 
-has '+water_to_build' => (
-    default => 25,
-);
+sub water_to_build {
+    return 25;
+}
 
-has '+waste_to_build' => (
-    default => 25,
-);
+sub waste_to_build {
+    return 25;
+}
 
-has '+time_to_build' => (
-    default => 100,
-);
+sub time_to_build {
+    return 100;
+}
 
-has '+food_consumption' => (
-    default => 2,
-);
+sub food_consumption {
+    return 2;
+}
 
-has '+energy_consumption' => (
-    default => 5,
-);
+sub energy_consumption {
+    return 5;
+}
 
-has '+ore_consumption' => (
-    default => 5,
-);
+sub ore_consumption {
+    return 5;
+}
 
-has '+water_consumption' => (
-    default => 1,
-);
+sub water_consumption {
+    return 1;
+}
 
-has '+waste_production' => (
-    default => 1,
-);
+sub waste_production {
+    return 1;
+}
 
-has '+water_storage' => (
-    default => 1500,
-);
+sub water_storage {
+    return 1500;
+}
 
 
 

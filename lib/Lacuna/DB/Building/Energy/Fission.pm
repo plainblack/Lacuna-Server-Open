@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Fission';
 }
 
-has '+image' => ( 
-    default => 'fission', 
-);
+sub image {
+    return 'fission';
+}
 
-has '+name' => (
-    default => 'Fission Energy Plant',
-);
+sub name {
+    return 'Fission Energy Plant';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 200,
-);
+sub energy_to_build {
+    return 200;
+}
 
-has '+ore_to_build' => (
-    default => 200,
-);
+sub ore_to_build {
+    return 200;
+}
 
-has '+water_to_build' => (
-    default => 150,
-);
+sub water_to_build {
+    return 150;
+}
 
-has '+waste_to_build' => (
-    default => 75,
-);
+sub waste_to_build {
+    return 75;
+}
 
-has '+time_to_build' => (
-    default => 155,
-);
+sub time_to_build {
+    return 155;
+}
 
-has '+food_consumption' => (
-    default => 5,
-);
+sub food_consumption {
+    return 5;
+}
 
-has '+energy_consumption' => (
-    default => 70,
-);
+sub energy_consumption {
+    return 70;
+}
 
-has '+energy_production' => (
-    default => 450,
-);
+sub energy_production {
+    return 450;
+}
 
-has '+ore_consumption' => (
-    default => 35,
-);
+sub ore_consumption {
+    return 35;
+}
 
-has '+water_consumption' => (
-    default => 50,
-);
+sub water_consumption {
+    return 50;
+}
 
-has '+waste_production' => (
-    default => 70,
-);
+sub waste_production {
+    return 70;
+}
 
 
 

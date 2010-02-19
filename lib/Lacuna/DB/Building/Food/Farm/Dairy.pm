@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Dairy';
 }
 
-has '+image' => ( 
-    default => 'dairy', 
-);
+sub image {
+    return 'dairy';
+}
 
-has '+name' => (
-    default => 'Dairy Farm',
-);
+sub name {
+    return 'Dairy Farm';
+}
 
-has '+food_to_build' => (
-    default => 200,
-);
+sub food_to_build {
+    return 200;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 150,
-);
+sub ore_to_build {
+    return 150;
+}
 
-has '+water_to_build' => (
-    default => 60,
-);
+sub water_to_build {
+    return 60;
+}
 
-has '+waste_to_build' => (
-    default => 50,
-);
+sub waste_to_build {
+    return 50;
+}
 
-has '+time_to_build' => (
-    default => 80,
-);
+sub time_to_build {
+    return 80;
+}
 
-has '+food_consumption' => (
-    default => 5,
-);
+sub food_consumption {
+    return 5;
+}
 
-has '+milk_production' => (
-    default => 47,
-);
+sub milk_production {
+    return 47;
+}
 
-has '+energy_consumption' => (
-    default => 8,
-);
+sub energy_consumption {
+    return 8;
+}
 
-has '+ore_consumption' => (
-    default => 3,
-);
+sub ore_consumption {
+    return 3;
+}
 
-has '+water_consumption' => (
-    default => 15,
-);
+sub water_consumption {
+    return 15;
+}
 
-has '+waste_production' => (
-    default => 48,
-);
+sub waste_production {
+    return 48;
+}
 
 
 

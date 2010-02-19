@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Cheese';
 }
 
-has '+image' => ( 
-    default => 'cheese', 
-);
+sub image {
+    return 'cheese';
+}
 
-has '+name' => (
-    default => 'Cheese Maker',
-);
+sub name {
+    return 'Cheese Maker';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 100,
-);
+sub ore_to_build {
+    return 100;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 100,
-);
+sub waste_to_build {
+    return 100;
+}
 
-has '+time_to_build' => (
-    default => 200,
-);
+sub time_to_build {
+    return 200;
+}
 
-has '+food_consumption' => (
-    default => 150,
-);
+sub food_consumption {
+    return 150;
+}
 
-has '+cheese_production' => (
-    default => 100,
-);
+sub cheese_production {
+    return 100;
+}
 
-has '+energy_consumption' => (
-    default => 75,
-);
+sub energy_consumption {
+    return 75;
+}
 
-has '+ore_consumption' => (
-    default => 2,
-);
+sub ore_consumption {
+    return 2;
+}
 
-has '+water_consumption' => (
-    default => 75,
-);
+sub water_consumption {
+    return 75;
+}
 
-has '+waste_production' => (
-    default => 125,
-);
+sub waste_production {
+    return 125;
+}
 
 
 

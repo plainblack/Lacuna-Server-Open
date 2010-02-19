@@ -25,251 +25,201 @@ sub controller_class {
     confess "you need to override me";
 }
 
-has max_instances_per_planet => (
-    is      => 'ro',
-    default => 9999999,
-);
+sub max_instances_per_planet {
+    return 9999999;
+}
 
-has university_prereq => (
-    is      => 'ro',
-    default => 0,
-);
+sub university_prereq {
+    return 0;
+}
 
-has building_prereq => (
-    is      => 'ro',
-    default => sub {{}},
-    lazy    => 1,
-);
+sub building_prereq {
+    return {};
+}
 
-has name => (
-    is      => 'ro',
-    default => 'Building',
-);
+sub name {
+    return 'Building';
+}
 
-has image => (
-    is      => 'ro',
-    default => undef,
-);
+sub image {
+    confess 'override me';
+}
 
-has time_to_build => (
-    is      => 'ro',
-    default => '60',
-);
+sub time_to_build {
+    return 60;
+}
 
-has energy_to_build => (
-    is      => 'ro',
-    default => 0,
-);
+sub energy_to_build {
+    return 0;
+}
 
-has food_to_build => (
-    is      => 'ro',
-    default => 0,
-);
+sub food_to_build {
+    return 0;
+}
 
-has ore_to_build => (
-    is      => 'ro',
-    default => 0,
-);
+sub ore_to_build {
+    return 0;
+}
 
-has water_to_build => (
-    is      => 'ro',
-    default => 0,
-);
+sub water_to_build {
+    return 0;
+}
 
-has waste_to_build => (
-    is      => 'ro',
-    default => 0,
-);
+sub waste_to_build {
+    return 0;
+}
 
-has happiness_consumption => (
-    is      => 'ro',
-    default => 0,
-);
+sub happiness_consumption {
+    return 0;
+}
 
-has energy_consumption => (
-    is      => 'ro',
-    default => 0,
-);
+sub energy_consumption {
+    return 0;
+}
 
-has water_consumption => (
-    is      => 'ro',
-    default => 0,
-);
+sub water_consumption {
+    return 0;
+}
 
-has waste_consumption => (
-    is      => 'ro',
-    default => 0,
-);
+sub waste_consumption {
+    return 0;
+}
 
-has food_consumption => (
-    is      => 'ro',
-    default => 0,
-);
+sub food_consumption {
+    return 0;
+}
 
-has ore_consumption => (
-    is      => 'ro',
-    default => 0,
-);
+sub ore_consumption {
+    return 0;
+}
 
-has happiness_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub happiness_production {
+    return 0;
+}
 
-has energy_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub energy_production {
+    return 0;
+}
 
-has water_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub water_production {
+    return 0;
+}
 
-has waste_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub waste_production {
+    return 0;
+}
 
-has beetle_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub beetle_production {
+    return 0;
+}
 
-has shake_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub shake_production {
+    return 0;
+}
 
-has burger_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub burger_production {
+    return 0;
+}
 
-has fungus_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub fungus_production {
+    return 0;
+}
 
-has syrup_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub syrup_production {
+    return 0;
+}
 
-has algae_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub algae_production {
+    return 0;
+}
 
-has meal_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub meal_production {
+    return 0;
+}
 
-has milk_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub milk_production {
+    return 0;
+}
 
-has pancake_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub pancake_production {
+    return 0;
+}
 
-has pie_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub pie_production {
+    return 0;
+}
 
-has chip_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub chip_production {
+    return 0;
+}
 
-has soup_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub soup_production {
+    return 0;
+}
 
-has bread_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub bread_production {
+    return 0;
+}
 
-has wheat_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub wheat_production {
+    return 0;
+}
 
-has cider_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub cider_production {
+    return 0;
+}
 
-has corn_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub corn_production {
+    return 0;
+}
 
-has root_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub root_production {
+    return 0;
+}
 
-has bean_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub bean_production {
+    return 0;
+}
 
-has cheese_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub cheese_production {
+    return 0;
+}
 
-has apple_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub apple_production {
+    return 0;
+}
 
-has lapis_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub lapis_production {
+    return 0;
+}
 
-has potato_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub potato_production {
+    return 0;
+}
 
-has ore_production => (
-    is      => 'ro',
-    default => 0,
-);
+sub ore_production {
+    return 0;
+}
 
-has water_storage => (
-    is      => 'ro',
-    default => 0,
-);
+sub water_storage {
+    return 0;
+}
 
-has energy_storage => (
-    is      => 'ro',
-    default => 0,
-);
+sub energy_storage {
+    return 0;
+}
 
-has food_storage => (
-    is      => 'ro',
-    default => 0,
-);
+sub food_storage {
+    return 0;
+}
 
-has ore_storage => (
-    is      => 'ro',
-    default => 0,
-);
+sub ore_storage {
+    return 0;
+}
 
-has waste_storage => (
-    is      => 'ro',
-    default => 0,
-);
+sub waste_storage {
+    return 0;
+}
 
 # BASE FORMULAS
 

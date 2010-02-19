@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Network19';
 }
 
-has '+image' => ( 
-    default => 'network19', 
-);
+sub image {
+    return 'network19';
+}
 
-has '+name' => (
-    default => 'Network 19 Affliate',
-);
+sub name {
+    return 'Network 19 Affliate';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 100,
-);
+sub ore_to_build {
+    return 100;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 100,
-);
+sub waste_to_build {
+    return 100;
+}
 
-has '+time_to_build' => (
-    default => 200,
-);
+sub time_to_build {
+    return 200;
+}
 
-has '+food_consumption' => (
-    default => 30,
-);
+sub food_consumption {
+    return 30;
+}
 
-has '+energy_consumption' => (
-    default => 95,
-);
+sub energy_consumption {
+    return 95;
+}
 
-has '+ore_consumption' => (
-    default => 2,
-);
+sub ore_consumption {
+    return 2;
+}
 
-has '+water_consumption' => (
-    default => 45,
-);
+sub water_consumption {
+    return 45;
+}
 
-has '+waste_production' => (
-    default => 15,
-);
+sub waste_production {
+    return 15;
+}
 
-has '+happiness_production' => (
-    default => 60,
-);
+sub happiness_production {
+    return 60;
+}
 
 
 

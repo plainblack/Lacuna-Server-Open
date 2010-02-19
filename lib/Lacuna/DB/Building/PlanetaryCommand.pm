@@ -7,77 +7,77 @@ sub controller_class {
         return 'Lacuna::Building::PlanetaryCommand';
 }
 
-has '+image' => ( 
-    default => 'planetary-command', 
-);
+sub image {
+    return 'planetary-command';
+}
 
-has '+name' => (
-    default => 'Planetary Command',
-);
+sub name {
+    return 'Planetary Command';
+}
 
-has '+food_to_build' => (
-    default => 1000,
-);
+sub food_to_build {
+    return 1000;
+}
 
-has '+energy_to_build' => (
-    default => 1000,
-);
+sub energy_to_build {
+    return 1000;
+}
 
-has '+ore_to_build' => (
-    default => 1000,
-);
+sub ore_to_build {
+    return 1000;
+}
 
-has '+water_to_build' => (
-    default => 1000,
-);
+sub water_to_build {
+    return 1000;
+}
 
-has '+waste_to_build' => (
-    default => 1000,
-);
+sub waste_to_build {
+    return 1000;
+}
 
-has '+time_to_build' => (
-    default => 600,
-);
+sub time_to_build {
+    return 600;
+}
 
-has '+algae_production' => (
-    default => 100,
-);
+sub algae_production {
+    return 100;
+}
 
-has '+energy_production' => (
-    default => 100,
-);
+sub energy_production {
+    return 100;
+}
 
-has '+ore_production' => (
-    default => 100,
-);
+sub ore_production {
+    return 100;
+}
 
-has '+water_production' => (
-    default => 100,
-);
+sub water_production {
+    return 100;
+}
 
-has '+waste_production' => (
-    default => 10,
-);
+sub waste_production {
+    return 10;
+}
 
-has '+food_storage' => (
-    default => 300,
-);
+sub food_storage {
+    return 300;
+}
 
-has '+energy_storage' => (
-    default => 300,
-);
+sub energy_storage {
+    return 300;
+}
 
-has '+ore_storage' => (
-    default => 300,
-);
+sub ore_storage {
+    return 300;
+}
 
-has '+water_storage' => (
-    default => 300,
-);
+sub water_storage {
+    return 300;
+}
 
-has '+waste_storage' => (
-    default => 300,
-);
+sub waste_storage {
+    return 300;
+}
 
 
 

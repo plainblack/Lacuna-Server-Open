@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Burger';
 }
 
-has '+image' => ( 
-    default => 'burger', 
-);
+sub image {
+    return 'burger';
+}
 
-has '+name' => (
-    default => 'Malcud Burger Packer',
-);
+sub name {
+    return 'Malcud Burger Packer';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 100,
-);
+sub ore_to_build {
+    return 100;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 100,
-);
+sub waste_to_build {
+    return 100;
+}
 
-has '+time_to_build' => (
-    default => 200,
-);
+sub time_to_build {
+    return 200;
+}
 
-has '+food_consumption' => (
-    default => 150,
-);
+sub food_consumption {
+    return 150;
+}
 
-has '+burger_production' => (
-    default => 100,
-);
+sub burger_production {
+    return 100;
+}
 
-has '+energy_consumption' => (
-    default => 40,
-);
+sub energy_consumption {
+    return 40;
+}
 
-has '+ore_consumption' => (
-    default => 1,
-);
+sub ore_consumption {
+    return 1;
+}
 
-has '+water_consumption' => (
-    default => 10,
-);
+sub water_consumption {
+    return 10;
+}
 
-has '+waste_production' => (
-    default => 25,
-);
+sub waste_production {
+    return 25;
+}
 
 
 

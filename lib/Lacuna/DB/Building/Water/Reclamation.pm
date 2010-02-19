@@ -7,57 +7,57 @@ sub controller_class {
         return 'Lacuna::Building::Reclamation';
 }
 
-has '+image' => ( 
-    default => 'water-reclamation', 
-);
+sub image {
+    return 'water-reclamation';
+}
 
-has '+name' => (
-    default => 'Water Reclamation Facility',
-);
+sub name {
+    return 'Water Reclamation Facility';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 100,
-);
+sub ore_to_build {
+    return 100;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 20,
-);
+sub waste_to_build {
+    return 20;
+}
 
-has '+time_to_build' => (
-    default => 95,
-);
+sub time_to_build {
+    return 95;
+}
 
-has '+food_consumption' => (
-    default => 5,
-);
+sub food_consumption {
+    return 5;
+}
 
-has '+energy_consumption' => (
-    default => 5,
-);
+sub energy_consumption {
+    return 5;
+}
 
-has '+ore_consumption' => (
-    default => 5,
-);
+sub ore_consumption {
+    return 5;
+}
 
-has '+water_production' => (
-    default => 200,
-);
+sub water_production {
+    return 200;
+}
 
-has '+waste_consumption' => (
-    default => 100,
-);
+sub waste_consumption {
+    return 100;
+}
 
 
 

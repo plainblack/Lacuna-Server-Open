@@ -7,57 +7,57 @@ sub controller_class {
         return 'Lacuna::Building::TerraformingPlatform';
 }
 
-has '+image' => ( 
-    default => 'terraforming-platform', 
-);
+sub image {
+    return 'terraforming-platform';
+}
 
-has '+name' => (
-    default => 'Terraforming Platform',
-);
+sub name {
+    return 'Terraforming Platform';
+}
 
-has '+food_to_build' => (
-    default => 1000,
-);
+sub food_to_build {
+    return 1000;
+}
 
-has '+energy_to_build' => (
-    default => 1000,
-);
+sub energy_to_build {
+    return 1000;
+}
 
-has '+ore_to_build' => (
-    default => 1000,
-);
+sub ore_to_build {
+    return 1000;
+}
 
-has '+water_to_build' => (
-    default => 1000,
-);
+sub water_to_build {
+    return 1000;
+}
 
-has '+waste_to_build' => (
-    default => 1000,
-);
+sub waste_to_build {
+    return 1000;
+}
 
-has '+time_to_build' => (
-    default => 600,
-);
+sub time_to_build {
+    return 600;
+}
 
-has '+food_consumption' => (
-    default => 45,
-);
+sub food_consumption {
+    return 45;
+}
 
-has '+energy_consumption' => (
-    default => 45,
-);
+sub energy_consumption {
+    return 45;
+}
 
-has '+ore_consumption' => (
-    default => 45,
-);
+sub ore_consumption {
+    return 45;
+}
 
-has '+water_consumption' => (
-    default => 45,
-);
+sub water_consumption {
+    return 45;
+}
 
-has '+waste_production' => (
-    default => 100,
-);
+sub waste_production {
+    return 100;
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

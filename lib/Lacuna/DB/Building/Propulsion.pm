@@ -7,57 +7,57 @@ sub controller_class {
         return 'Lacuna::Building::Propulsion';
 }
 
-has '+image' => ( 
-    default => 'propulsion', 
-);
+sub image {
+    return 'propulsion';
+}
 
-has '+name' => (
-    default => 'Propulsion System Factory',
-);
+sub name {
+    return 'Propulsion System Factory';
+}
 
-has '+food_to_build' => (
-    default => 150,
-);
+sub food_to_build {
+    return 150;
+}
 
-has '+energy_to_build' => (
-    default => 225,
-);
+sub energy_to_build {
+    return 225;
+}
 
-has '+ore_to_build' => (
-    default => 225,
-);
+sub ore_to_build {
+    return 225;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 150,
-);
+sub waste_to_build {
+    return 150;
+}
 
-has '+time_to_build' => (
-    default => 125,
-);
+sub time_to_build {
+    return 125;
+}
 
-has '+food_consumption' => (
-    default => 10,
-);
+sub food_consumption {
+    return 10;
+}
 
-has '+energy_consumption' => (
-    default => 100,
-);
+sub energy_consumption {
+    return 100;
+}
 
-has '+ore_consumption' => (
-    default => 100,
-);
+sub ore_consumption {
+    return 100;
+}
 
-has '+water_consumption' => (
-    default => 50,
-);
+sub water_consumption {
+    return 50;
+}
 
-has '+waste_production' => (
-    default => 75,
-);
+sub waste_production {
+    return 75;
+}
 
 
 no Moose;

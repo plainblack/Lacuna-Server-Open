@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Fusion';
 }
 
-has '+image' => ( 
-    default => 'fusion', 
-);
+sub image {
+    return 'fusion';
+}
 
-has '+name' => (
-    default => 'Fusion Energy Plant',
-);
+sub name {
+    return 'Fusion Energy Plant';
+}
 
-has '+food_to_build' => (
-    default => 500,
-);
+sub food_to_build {
+    return 500;
+}
 
-has '+energy_to_build' => (
-    default => 650,
-);
+sub energy_to_build {
+    return 650;
+}
 
-has '+ore_to_build' => (
-    default => 575,
-);
+sub ore_to_build {
+    return 575;
+}
 
-has '+water_to_build' => (
-    default => 480,
-);
+sub water_to_build {
+    return 480;
+}
 
-has '+waste_to_build' => (
-    default => 200,
-);
+sub waste_to_build {
+    return 200;
+}
 
-has '+time_to_build' => (
-    default => 790,
-);
+sub time_to_build {
+    return 790;
+}
 
-has '+food_consumption' => (
-    default => 5,
-);
+sub food_consumption {
+    return 5;
+}
 
-has '+energy_consumption' => (
-    default => 50,
-);
+sub energy_consumption {
+    return 50;
+}
 
-has '+energy_production' => (
-    default => 517,
-);
+sub energy_production {
+    return 517;
+}
 
-has '+ore_consumption' => (
-    default => 30,
-);
+sub ore_consumption {
+    return 30;
+}
 
-has '+water_consumption' => (
-    default => 60,
-);
+sub water_consumption {
+    return 60;
+}
 
-has '+waste_production' => (
-    default => 8,
-);
+sub waste_production {
+    return 8;
+}
 
 
 no Moose;

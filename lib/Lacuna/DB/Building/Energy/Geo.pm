@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Geo';
 }
 
-has '+image' => ( 
-    default => 'geo', 
-);
+sub image {
+    return 'geo';
+}
 
-has '+name' => (
-    default => 'Geo Energy Plant',
-);
+sub name {
+    return 'Geo Energy Plant';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 10,
-);
+sub energy_to_build {
+    return 10;
+}
 
-has '+ore_to_build' => (
-    default => 100,
-);
+sub ore_to_build {
+    return 100;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 20,
-);
+sub waste_to_build {
+    return 20;
+}
 
-has '+time_to_build' => (
-    default => 130,
-);
+sub time_to_build {
+    return 130;
+}
 
-has '+food_consumption' => (
-    default => 2,
-);
+sub food_consumption {
+    return 2;
+}
 
-has '+energy_consumption' => (
-    default => 40,
-);
+sub energy_consumption {
+    return 40;
+}
 
-has '+energy_production' => (
-    default => 141,
-);
+sub energy_production {
+    return 141;
+}
 
-has '+ore_consumption' => (
-    default => 12,
-);
+sub ore_consumption {
+    return 12;
+}
 
-has '+water_consumption' => (
-    default => 7,
-);
+sub water_consumption {
+    return 7;
+}
 
-has '+waste_production' => (
-    default => 4,
-);
+sub waste_production {
+    return 4;
+}
 
 
 

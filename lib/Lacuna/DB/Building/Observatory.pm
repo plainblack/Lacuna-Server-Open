@@ -7,57 +7,57 @@ sub controller_class {
         return 'Lacuna::Building::Observatory';
 }
 
-has '+image' => ( 
-    default => 'observatory', 
-);
+sub image {
+    return 'observatory';
+}
 
-has '+name' => (
-    default => 'Observatory',
-);
+sub name {
+    return 'Observatory';
+}
 
-has '+food_to_build' => (
-    default => 150,
-);
+sub food_to_build {
+    return 150;
+}
 
-has '+energy_to_build' => (
-    default => 150,
-);
+sub energy_to_build {
+    return 150;
+}
 
-has '+ore_to_build' => (
-    default => 150,
-);
+sub ore_to_build {
+    return 150;
+}
 
-has '+water_to_build' => (
-    default => 150,
-);
+sub water_to_build {
+    return 150;
+}
 
-has '+waste_to_build' => (
-    default => 150,
-);
+sub waste_to_build {
+    return 150;
+}
 
-has '+time_to_build' => (
-    default => 250,
-);
+sub time_to_build {
+    return 250;
+}
 
-has '+food_consumption' => (
-    default => 5,
-);
+sub food_consumption {
+    return 5;
+}
 
 has '+energy_consumption' => (
     default => -50,
 );
 
-has '+ore_consumption' => (
-    default => 5,
-);
+sub ore_consumption {
+    return 5;
+}
 
-has '+water_consumption' => (
-    default => 15,
-);
+sub water_consumption {
+    return 15;
+}
 
-has '+waste_production' => (
-    default => 2,
-);
+sub waste_production {
+    return 2;
+}
 
 
 no Moose;

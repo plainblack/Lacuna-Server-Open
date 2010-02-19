@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Park';
 }
 
-has '+image' => ( 
-    default => 'park', 
-);
+sub image {
+    return 'park';
+}
 
-has '+name' => (
-    default => 'Park',
-);
+sub name {
+    return 'Park';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 100,
-);
+sub ore_to_build {
+    return 100;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 100,
-);
+sub waste_to_build {
+    return 100;
+}
 
-has '+time_to_build' => (
-    default => 100,
-);
+sub time_to_build {
+    return 100;
+}
 
-has '+food_consumption' => (
-    default => 10,
-);
+sub food_consumption {
+    return 10;
+}
 
-has '+energy_consumption' => (
-    default => 10,
-);
+sub energy_consumption {
+    return 10;
+}
 
-has '+ore_consumption' => (
-    default => 20,
-);
+sub ore_consumption {
+    return 20;
+}
 
-has '+water_consumption' => (
-    default => 60,
-);
+sub water_consumption {
+    return 60;
+}
 
-has '+waste_production' => (
-    default => 75,
-);
+sub waste_production {
+    return 75;
+}
 
-has '+happiness_production' => (
-    default => 75,
-);
+sub happiness_production {
+    return 75;
+}
 
 
 

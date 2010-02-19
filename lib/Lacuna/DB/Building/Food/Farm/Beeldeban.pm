@@ -7,65 +7,65 @@ sub controller_class {
         return 'Lacuna::Building::Beeldeban';
 }
 
-has '+image' => ( 
-    default => 'beeldeban', 
-);
+sub image {
+    return 'beeldeban';
+}
 
-has '+name' => (
-    default => 'Beeldeban Herder',
-);
+sub name {
+    return 'Beeldeban Herder';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 125,
-);
+sub ore_to_build {
+    return 125;
+}
 
-has '+water_to_build' => (
-    default => 50,
-);
+sub water_to_build {
+    return 50;
+}
 
-has '+waste_to_build' => (
-    default => 35,
-);
+sub waste_to_build {
+    return 35;
+}
 
-has '+time_to_build' => (
-    default => 80,
-);
+sub time_to_build {
+    return 80;
+}
 
-has '+food_consumption' => (
-    default => 5,
-);
+sub food_consumption {
+    return 5;
+}
 
-has '+beetle_production' => (
-    default => 35,
-);
+sub beetle_production {
+    return 35;
+}
 
-has '+energy_consumption' => (
-    default => 2,
-);
+sub energy_consumption {
+    return 2;
+}
 
-has '+ore_consumption' => (
-    default => 4,
-);
+sub ore_consumption {
+    return 4;
+}
 
-has '+water_consumption' => (
-    default => 3,
-);
+sub water_consumption {
+    return 3;
+}
 
-has '+waste_production' => (
-    default => 23,
-);
+sub waste_production {
+    return 23;
+}
 
-has '+waste_consumption' => (
-    default => 15,
-);
+sub waste_consumption {
+    return 15;
+}
 
 
 

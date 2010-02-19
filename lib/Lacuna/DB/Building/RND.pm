@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::RND';
 }
 
-has '+image' => ( 
-    default => 'rnd', 
-);
+sub image {
+    return 'rnd';
+}
 
-has '+name' => (
-    default => 'Research and Development Lab',
-);
+sub name {
+    return 'Research and Development Lab';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 100,
-);
+sub ore_to_build {
+    return 100;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 100,
-);
+sub waste_to_build {
+    return 100;
+}
 
-has '+time_to_build' => (
-    default => 120,
-);
+sub time_to_build {
+    return 120;
+}
 
-has '+food_consumption' => (
-    default => 10,
-);
+sub food_consumption {
+    return 10;
+}
 
-has '+energy_consumption' => (
-    default => 25,
-);
+sub energy_consumption {
+    return 25;
+}
 
-has '+ore_consumption' => (
-    default => 25,
-);
+sub ore_consumption {
+    return 25;
+}
 
-has '+water_consumption' => (
-    default => 10,
-);
+sub water_consumption {
+    return 10;
+}
 
-has '+waste_production' => (
-    default => 15,
-);
+sub waste_production {
+    return 15;
+}
 
-has '+happiness_production' => (
-    default => 50,
-);
+sub happiness_production {
+    return 50;
+}
 
 
 

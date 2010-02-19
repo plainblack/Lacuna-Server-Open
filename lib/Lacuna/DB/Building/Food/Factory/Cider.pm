@@ -7,57 +7,57 @@ sub controller_class {
         return 'Lacuna::Building::Cider';
 }
 
-has '+image' => ( 
-    default => 'cider', 
-);
+sub image {
+    return 'cider';
+}
 
-has '+name' => (
-    default => 'Apple Cider Bottler',
-);
+sub name {
+    return 'Apple Cider Bottler';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 100,
-);
+sub ore_to_build {
+    return 100;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 100,
-);
+sub waste_to_build {
+    return 100;
+}
 
-has '+time_to_build' => (
-    default => 200,
-);
+sub time_to_build {
+    return 200;
+}
 
-has '+food_consumption' => (
-    default => 150,
-);
+sub food_consumption {
+    return 150;
+}
 
-has '+cider_production' => (
-    default => 75,
-);
+sub cider_production {
+    return 75;
+}
 
-has '+energy_consumption' => (
-    default => 50,
-);
+sub energy_consumption {
+    return 50;
+}
 
-has '+water_consumption' => (
-    default => 50,
-);
+sub water_consumption {
+    return 50;
+}
 
-has '+waste_production' => (
-    default => 100,
-);
+sub waste_production {
+    return 100;
+}
 
 
 

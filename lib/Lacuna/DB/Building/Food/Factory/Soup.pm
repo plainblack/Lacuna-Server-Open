@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Soup';
 }
 
-has '+image' => ( 
-    default => 'soup', 
-);
+sub image {
+    return 'soup';
+}
 
-has '+name' => (
-    default => 'Amalgus Bean Soup Cannery',
-);
+sub name {
+    return 'Amalgus Bean Soup Cannery';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 100,
-);
+sub ore_to_build {
+    return 100;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 100,
-);
+sub waste_to_build {
+    return 100;
+}
 
-has '+time_to_build' => (
-    default => 200,
-);
+sub time_to_build {
+    return 200;
+}
 
-has '+food_consumption' => (
-    default => 150,
-);
+sub food_consumption {
+    return 150;
+}
 
-has '+soup_production' => (
-    default => 110,
-);
+sub soup_production {
+    return 110;
+}
 
-has '+energy_consumption' => (
-    default => 20,
-);
+sub energy_consumption {
+    return 20;
+}
 
-has '+ore_consumption' => (
-    default => 3,
-);
+sub ore_consumption {
+    return 3;
+}
 
-has '+water_consumption' => (
-    default => 30,
-);
+sub water_consumption {
+    return 30;
+}
 
-has '+waste_production' => (
-    default => 25,
-);
+sub waste_production {
+    return 25;
+}
 
 
 

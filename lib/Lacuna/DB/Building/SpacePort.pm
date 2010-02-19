@@ -7,57 +7,57 @@ sub controller_class {
         return 'Lacuna::Building::SpacePort';
 }
 
-has '+image' => ( 
-    default => 'space-port', 
-);
+sub image {
+    return 'space-port';
+}
 
-has '+name' => (
-    default => 'Space Port',
-);
+sub name {
+    return 'Space Port';
+}
 
-has '+food_to_build' => (
-    default => 800,
-);
+sub food_to_build {
+    return 800;
+}
 
-has '+energy_to_build' => (
-    default => 900,
-);
+sub energy_to_build {
+    return 900;
+}
 
-has '+ore_to_build' => (
-    default => 500,
-);
+sub ore_to_build {
+    return 500;
+}
 
-has '+water_to_build' => (
-    default => 500,
-);
+sub water_to_build {
+    return 500;
+}
 
-has '+waste_to_build' => (
-    default => 400,
-);
+sub waste_to_build {
+    return 400;
+}
 
-has '+time_to_build' => (
-    default => 850,
-);
+sub time_to_build {
+    return 850;
+}
 
-has '+food_consumption' => (
-    default => 100,
-);
+sub food_consumption {
+    return 100;
+}
 
-has '+energy_consumption' => (
-    default => 100,
-);
+sub energy_consumption {
+    return 100;
+}
 
-has '+ore_consumption' => (
-    default => 120,
-);
+sub ore_consumption {
+    return 120;
+}
 
-has '+water_consumption' => (
-    default => 150,
-);
+sub water_consumption {
+    return 150;
+}
 
-has '+waste_production' => (
-    default => 100,
-);
+sub waste_production {
+    return 100;
+}
 
 
 no Moose;

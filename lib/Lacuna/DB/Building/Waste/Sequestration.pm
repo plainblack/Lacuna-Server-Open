@@ -7,41 +7,41 @@ sub controller_class {
         return 'Lacuna::Building::WasteSequestration';
 }
 
-has '+image' => ( 
-    default => 'sequestration', 
-);
+sub image {
+    return 'sequestration';
+}
 
-has '+name' => (
-    default => 'Waste Sequestration Well',
-);
+sub name {
+    return 'Waste Sequestration Well';
+}
 
-has '+food_to_build' => (
-    default => 10,
-);
+sub food_to_build {
+    return 10;
+}
 
-has '+energy_to_build' => (
-    default => 10,
-);
+sub energy_to_build {
+    return 10;
+}
 
-has '+ore_to_build' => (
-    default => 10,
-);
+sub ore_to_build {
+    return 10;
+}
 
-has '+water_to_build' => (
-    default => 10,
-);
+sub water_to_build {
+    return 10;
+}
 
-has '+waste_to_build' => (
-    default => 25,
-);
+sub waste_to_build {
+    return 25;
+}
 
-has '+time_to_build' => (
-    default => 100,
-);
+sub time_to_build {
+    return 100;
+}
 
-has '+waste_storage' => (
-    default => 1500,
-);
+sub waste_storage {
+    return 1500;
+}
 
 
 

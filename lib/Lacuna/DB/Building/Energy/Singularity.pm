@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Singularity';
 }
 
-has '+image' => ( 
-    default => 'singularity', 
-);
+sub image {
+    return 'singularity';
+}
 
-has '+name' => (
-    default => 'Singularity Energy Plant',
-);
+sub name {
+    return 'Singularity Energy Plant';
+}
 
-has '+food_to_build' => (
-    default => 1100,
-);
+sub food_to_build {
+    return 1100;
+}
 
-has '+energy_to_build' => (
-    default => 1205,
-);
+sub energy_to_build {
+    return 1205;
+}
 
-has '+ore_to_build' => (
-    default => 2350,
-);
+sub ore_to_build {
+    return 2350;
+}
 
-has '+water_to_build' => (
-    default => 1190,
-);
+sub water_to_build {
+    return 1190;
+}
 
-has '+waste_to_build' => (
-    default => 1475,
-);
+sub waste_to_build {
+    return 1475;
+}
 
-has '+time_to_build' => (
-    default => 1300,
-);
+sub time_to_build {
+    return 1300;
+}
 
-has '+food_consumption' => (
-    default => 27,
-);
+sub food_consumption {
+    return 27;
+}
 
-has '+energy_consumption' => (
-    default => 350,
-);
+sub energy_consumption {
+    return 350;
+}
 
-has '+energy_production' => (
-    default => 799,
-);
+sub energy_production {
+    return 799;
+}
 
-has '+ore_consumption' => (
-    default => 23,
-);
+sub ore_consumption {
+    return 23;
+}
 
-has '+water_consumption' => (
-    default => 25,
-);
+sub water_consumption {
+    return 25;
+}
 
-has '+waste_production' => (
-    default => 1,
-);
+sub waste_production {
+    return 1;
+}
 
 
 

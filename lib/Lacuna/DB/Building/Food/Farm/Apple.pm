@@ -7,65 +7,65 @@ sub controller_class {
         return 'Lacuna::Building::Apple';
 }
 
-has '+image' => ( 
-    default => 'apple', 
-);
+sub image {
+    return 'apple';
+}
 
-has '+name' => (
-    default => 'Apple Orchard',
-);
+sub name {
+    return 'Apple Orchard';
+}
 
-has '+food_to_build' => (
-    default => 10,
-);
+sub food_to_build {
+    return 10;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 55,
-);
+sub ore_to_build {
+    return 55;
+}
 
-has '+water_to_build' => (
-    default => 10,
-);
+sub water_to_build {
+    return 10;
+}
 
-has '+waste_to_build' => (
-    default => 5,
-);
+sub waste_to_build {
+    return 5;
+}
 
-has '+time_to_build' => (
-    default => 60,
-);
+sub time_to_build {
+    return 60;
+}
 
-has '+food_consumption' => (
-    default => 5,
-);
+sub food_consumption {
+    return 5;
+}
 
-has '+apple_production' => (
-    default => 46,
-);
+sub apple_production {
+    return 46;
+}
 
-has '+energy_consumption' => (
-    default => 1,
-);
+sub energy_consumption {
+    return 1;
+}
 
-has '+ore_consumption' => (
-    default => 1,
-);
+sub ore_consumption {
+    return 1;
+}
 
-has '+water_consumption' => (
-    default => 9,
-);
+sub water_consumption {
+    return 9;
+}
 
-has '+waste_production' => (
-    default => 16,
-);
+sub waste_production {
+    return 16;
+}
 
-has '+waste_consumption' => (
-    default => 3,
-);
+sub waste_consumption {
+    return 3;
+}
 
 
 

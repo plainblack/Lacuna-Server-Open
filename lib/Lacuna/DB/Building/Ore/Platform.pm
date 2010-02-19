@@ -7,57 +7,57 @@ sub controller_class {
         return 'Lacuna::Building::MiningPlatform';
 }
 
-has '+image' => ( 
-    default => 'mining-platform', 
-);
+sub image {
+    return 'mining-platform';
+}
 
-has '+name' => (
-    default => 'Mining Platform',
-);
+sub name {
+    return 'Mining Platform';
+}
 
-has '+food_to_build' => (
-    default => 500,
-);
+sub food_to_build {
+    return 500;
+}
 
-has '+energy_to_build' => (
-    default => 500,
-);
+sub energy_to_build {
+    return 500;
+}
 
-has '+ore_to_build' => (
-    default => 50,
-);
+sub ore_to_build {
+    return 50;
+}
 
-has '+water_to_build' => (
-    default => 500,
-);
+sub water_to_build {
+    return 500;
+}
 
-has '+waste_to_build' => (
-    default => 425,
-);
+sub waste_to_build {
+    return 425;
+}
 
-has '+time_to_build' => (
-    default => 500,
-);
+sub time_to_build {
+    return 500;
+}
 
-has '+food_consumption' => (
-    default => 10,
-);
+sub food_consumption {
+    return 10;
+}
 
-has '+energy_consumption' => (
-    default => 50,
-);
+sub energy_consumption {
+    return 50;
+}
 
-has '+ore_production' => (
-    default => 280,
-);
+sub ore_production {
+    return 280;
+}
 
-has '+water_consumption' => (
-    default => 50,
-);
+sub water_consumption {
+    return 50;
+}
 
-has '+waste_production' => (
-    default => 50,
-);
+sub waste_production {
+    return 50;
+}
 
 
 no Moose;

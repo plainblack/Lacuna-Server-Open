@@ -7,57 +7,57 @@ sub controller_class {
         return 'Lacuna::Building::TerraformingLab';
 }
 
-has '+image' => ( 
-    default => 'terraforming-lab', 
-);
+sub image {
+    return 'terraforming-lab';
+}
 
-has '+name' => (
-    default => 'Terraforming Lab',
-);
+sub name {
+    return 'Terraforming Lab';
+}
 
-has '+food_to_build' => (
-    default => 250,
-);
+sub food_to_build {
+    return 250;
+}
 
-has '+energy_to_build' => (
-    default => 250,
-);
+sub energy_to_build {
+    return 250;
+}
 
-has '+ore_to_build' => (
-    default => 500,
-);
+sub ore_to_build {
+    return 500;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 250,
-);
+sub waste_to_build {
+    return 250;
+}
 
-has '+time_to_build' => (
-    default => 900,
-);
+sub time_to_build {
+    return 900;
+}
 
-has '+food_consumption' => (
-    default => 50,
-);
+sub food_consumption {
+    return 50;
+}
 
-has '+energy_consumption' => (
-    default => 50,
-);
+sub energy_consumption {
+    return 50;
+}
 
-has '+ore_consumption' => (
-    default => 50,
-);
+sub ore_consumption {
+    return 50;
+}
 
-has '+water_consumption' => (
-    default => 50,
-);
+sub water_consumption {
+    return 50;
+}
 
-has '+waste_production' => (
-    default => 100,
-);
+sub waste_production {
+    return 100;
+}
 
 
 no Moose;

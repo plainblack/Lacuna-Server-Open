@@ -7,13 +7,13 @@ sub controller_class {
         return 'Lacuna::Building::Lake';
 }
 
-has '+image' => ( 
-    default => 'lake', 
-);
+sub image {
+    return 'lake';
+}
 
-has '+name' => (
-    default => 'Lake',
-);
+sub name {
+    return 'Lake';
+}
 
 
 no Moose;

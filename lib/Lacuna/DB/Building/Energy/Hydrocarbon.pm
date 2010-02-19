@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::Hydrocarbon';
 }
 
-has '+image' => ( 
-    default => 'hydrocarbon', 
-);
+sub image {
+    return 'hydrocarbon';
+}
 
-has '+name' => (
-    default => 'Hydrocarbon Energy Plant',
-);
+sub name {
+    return 'Hydrocarbon Energy Plant';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 10,
-);
+sub energy_to_build {
+    return 10;
+}
 
-has '+ore_to_build' => (
-    default => 100,
-);
+sub ore_to_build {
+    return 100;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 20,
-);
+sub waste_to_build {
+    return 20;
+}
 
-has '+time_to_build' => (
-    default => 70,
-);
+sub time_to_build {
+    return 70;
+}
 
-has '+food_consumption' => (
-    default => 15,
-);
+sub food_consumption {
+    return 15;
+}
 
-has '+energy_consumption' => (
-    default => 120,
-);
+sub energy_consumption {
+    return 120;
+}
 
-has '+energy_production' => (
-    default => 490,
-);
+sub energy_production {
+    return 490;
+}
 
-has '+ore_consumption' => (
-    default => 90,
-);
+sub ore_consumption {
+    return 90;
+}
 
-has '+water_consumption' => (
-    default => 15,
-);
+sub water_consumption {
+    return 15;
+}
 
-has '+waste_production' => (
-    default => 230,
-);
+sub waste_production {
+    return 230;
+}
 
 
 

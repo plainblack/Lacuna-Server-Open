@@ -7,61 +7,61 @@ sub controller_class {
         return 'Lacuna::Building::University';
 }
 
-has '+image' => ( 
-    default => 'university', 
-);
+sub image {
+    return 'university';
+}
 
-has '+name' => (
-    default => 'University',
-);
+sub name {
+    return 'University';
+}
 
-has '+food_to_build' => (
-    default => 250,
-);
+sub food_to_build {
+    return 250;
+}
 
-has '+energy_to_build' => (
-    default => 500,
-);
+sub energy_to_build {
+    return 500;
+}
 
-has '+ore_to_build' => (
-    default => 500,
-);
+sub ore_to_build {
+    return 500;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 250,
-);
+sub waste_to_build {
+    return 250;
+}
 
-has '+time_to_build' => (
-    default => 130,
-);
+sub time_to_build {
+    return 130;
+}
 
-has '+food_consumption' => (
-    default => 50,
-);
+sub food_consumption {
+    return 50;
+}
 
-has '+energy_consumption' => (
-    default => 50,
-);
+sub energy_consumption {
+    return 50;
+}
 
-has '+ore_consumption' => (
-    default => 10,
-);
+sub ore_consumption {
+    return 10;
+}
 
-has '+water_consumption' => (
-    default => 50,
-);
+sub water_consumption {
+    return 50;
+}
 
-has '+waste_production' => (
-    default => 50,
-);
+sub waste_production {
+    return 50;
+}
 
-has '+happiness_production' => (
-    default => 50,
-);
+sub happiness_production {
+    return 50;
+}
 
 
 

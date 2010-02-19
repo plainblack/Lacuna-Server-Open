@@ -7,13 +7,13 @@ sub controller_class {
         return 'Lacuna::Building::RockyOutcrop';
 }
 
-has '+image' => ( 
-    default => 'rocky-outcrop', 
-);
+sub image {
+    return 'rocky-outcrop';
+}
 
-has '+name' => (
-    default => 'Rocky Outcropping',
-);
+sub name {
+    return 'Rocky Outcropping';
+}
 
 
 no Moose;

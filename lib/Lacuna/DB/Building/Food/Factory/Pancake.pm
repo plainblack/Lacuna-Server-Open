@@ -7,57 +7,57 @@ sub controller_class {
         return 'Lacuna::Building::Pancake';
 }
 
-has '+image' => ( 
-    default => 'pancake', 
-);
+sub image {
+    return 'pancake';
+}
 
-has '+name' => (
-    default => 'Potato Pancake Factory',
-);
+sub name {
+    return 'Potato Pancake Factory';
+}
 
-has '+food_to_build' => (
-    default => 100,
-);
+sub food_to_build {
+    return 100;
+}
 
-has '+energy_to_build' => (
-    default => 100,
-);
+sub energy_to_build {
+    return 100;
+}
 
-has '+ore_to_build' => (
-    default => 100,
-);
+sub ore_to_build {
+    return 100;
+}
 
-has '+water_to_build' => (
-    default => 100,
-);
+sub water_to_build {
+    return 100;
+}
 
-has '+waste_to_build' => (
-    default => 100,
-);
+sub waste_to_build {
+    return 100;
+}
 
-has '+time_to_build' => (
-    default => 200,
-);
+sub time_to_build {
+    return 200;
+}
 
-has '+food_consumption' => (
-    default => 150,
-);
+sub food_consumption {
+    return 150;
+}
 
-has '+pancake_production' => (
-    default => 90,
-);
+sub pancake_production {
+    return 90;
+}
 
-has '+energy_consumption' => (
-    default => 25,
-);
+sub energy_consumption {
+    return 25;
+}
 
-has '+water_consumption' => (
-    default => 25,
-);
+sub water_consumption {
+    return 25;
+}
 
-has '+waste_production' => (
-    default => 25,
-);
+sub waste_production {
+    return 25;
+}
 
 
 

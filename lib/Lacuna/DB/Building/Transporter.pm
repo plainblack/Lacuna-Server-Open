@@ -7,57 +7,57 @@ sub controller_class {
         return 'Lacuna::Building::Transporter';
 }
 
-has '+image' => ( 
-    default => 'transporter', 
-);
+sub image {
+    return 'transporter';
+}
 
-has '+name' => (
-    default => 'Subspace Transporter',
-);
+sub name {
+    return 'Subspace Transporter';
+}
 
-has '+food_to_build' => (
-    default => 1200,
-);
+sub food_to_build {
+    return 1200;
+}
 
-has '+energy_to_build' => (
-    default => 1400,
-);
+sub energy_to_build {
+    return 1400;
+}
 
-has '+ore_to_build' => (
-    default => 1500,
-);
+sub ore_to_build {
+    return 1500;
+}
 
-has '+water_to_build' => (
-    default => 1200,
-);
+sub water_to_build {
+    return 1200;
+}
 
-has '+waste_to_build' => (
-    default => 900,
-);
+sub waste_to_build {
+    return 900;
+}
 
-has '+time_to_build' => (
-    default => 1150,
-);
+sub time_to_build {
+    return 1150;
+}
 
-has '+food_consumption' => (
-    default => 5,
-);
+sub food_consumption {
+    return 5;
+}
 
-has '+energy_consumption' => (
-    default => 20,
-);
+sub energy_consumption {
+    return 20;
+}
 
-has '+ore_consumption' => (
-    default => 13,
-);
+sub ore_consumption {
+    return 13;
+}
 
-has '+water_consumption' => (
-    default => 20,
-);
+sub water_consumption {
+    return 20;
+}
 
-has '+waste_production' => (
-    default => 2,
-);
+sub waste_production {
+    return 2;
+}
 
 
 no Moose;
