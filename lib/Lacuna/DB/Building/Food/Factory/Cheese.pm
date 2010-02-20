@@ -11,6 +11,18 @@ sub image {
     return 'cheese';
 }
 
+sub min_orbit {
+    return 3;
+}
+
+sub max_orbit {
+    return 3;
+}
+
+sub building_prereq {
+    return {'Lacuna::DB::Food::Farm::Dairy'=>1};
+}
+
 sub name {
     return 'Cheese Maker';
 }

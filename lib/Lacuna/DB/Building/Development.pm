@@ -7,6 +7,14 @@ sub controller_class {
     return 'Lacuna::Building::Development';
 }
 
+sub max_instances_per_planet {
+    return 1;
+}
+
+sub building_prereq {
+    return {'Lacuna::DB::Building::PlanetaryCommand'=>5};
+}
+
 sub image {
     return 'development';
 }

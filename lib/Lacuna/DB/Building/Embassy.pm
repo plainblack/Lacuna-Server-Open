@@ -7,6 +7,14 @@ sub controller_class {
     return 'Lacuna::Building::Embassy';
 }
 
+sub max_instances_per_planet {
+    return 1;
+}
+
+sub building_prereq {
+    return {'Lacuna::DB::Building::PlanetaryCommand'=>5,'Lacuna::DB::Building:SpacePort'=>1};
+}
+
 sub image {
     return 'embassy';
 }

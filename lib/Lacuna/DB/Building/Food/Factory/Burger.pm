@@ -11,6 +11,10 @@ sub image {
     return 'burger';
 }
 
+sub building_prereq {
+    return {'Lacuna::DB::Food::Farm::Malcud'=>1};
+}
+
 sub name {
     return 'Malcud Burger Packer';
 }

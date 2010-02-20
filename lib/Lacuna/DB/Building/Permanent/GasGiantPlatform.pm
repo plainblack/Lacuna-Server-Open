@@ -11,6 +11,10 @@ sub image {
     return 'gas-giant-platform';
 }
 
+sub check_build_prereqs {
+    confess [1013,"You can't directly build a Gas Giant Platform. You need a gas giant platform ship."];
+}
+
 sub name {
     return 'Gas Giant Settlement Platform';
 }

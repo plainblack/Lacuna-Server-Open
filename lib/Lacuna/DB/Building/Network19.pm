@@ -4,7 +4,11 @@ use Moose;
 extends 'Lacuna::DB::Building';
 
 sub controller_class {
-        return 'Lacuna::Building::Network19';
+    return 'Lacuna::Building::Network19';
+}
+
+sub university_prereq {
+    return 2;
 }
 
 sub image {

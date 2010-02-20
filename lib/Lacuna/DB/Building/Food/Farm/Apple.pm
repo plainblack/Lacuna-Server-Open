@@ -7,6 +7,14 @@ sub controller_class {
         return 'Lacuna::Building::Apple';
 }
 
+sub min_orbit {
+    return 3;
+}
+
+sub max_orbit {
+    return 3;
+}
+
 sub image {
     return 'apple';
 }

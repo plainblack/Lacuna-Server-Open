@@ -323,12 +323,10 @@ sub check_for_available_build_space {
 
 sub has_met_building_prereqs {
     my ($self, $building) = @_;
-    if ($building->university_prereq < $self->empire->university_level) {
-        confess [1013, "University research too low.",$building->university_prereq];
-    }
     $building->check_build_prereqs($self);
     $self->has_resources_to_build($building);
     $self->has_resources_to_operate($building);
+    $self->has_max_instances_of_building($building);
     return 1;
 }
 

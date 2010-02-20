@@ -4,7 +4,7 @@ use Moose;
 extends 'Lacuna::DB::Building::Food::Farm';
 
 sub controller_class {
-        return 'Lacuna::Building::Malcud';
+    return 'Lacuna::Building::Malcud';
 }
 
 sub image {

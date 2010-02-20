@@ -7,6 +7,14 @@ sub controller_class {
         return 'Lacuna::Building::Trade';
 }
 
+sub max_instances_per_planet {
+    return 1;
+}
+
+sub building_prereq {
+    return {'Lacuna::DB::Building::Shipyard'=>1};
+}
+
 sub image {
     return 'trade';
 }

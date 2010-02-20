@@ -4,7 +4,19 @@ use Moose;
 extends 'Lacuna::DB::Building::Food::Factory';
 
 sub controller_class {
-        return 'Lacuna::Building::Shake';
+    return 'Lacuna::Building::Shake';
+}
+
+sub min_orbit {
+    return 2;
+}
+
+sub max_orbit {
+    return 4;
+}
+
+sub building_prereq {
+    return {'Lacuna::DB::Food::Farm::Beeldeban'=>1};
 }
 
 sub image {

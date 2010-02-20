@@ -7,6 +7,18 @@ sub controller_class {
         return 'Lacuna::Building::OreRefinery';
 }
 
+sub building_prereq {
+    return {'Lacuna::DB::Building::Ore::Mine' => 5};
+}
+
+sub max_instances_per_planet {
+    return 1;
+}
+
+sub university_prereq {
+    return 5;
+}
+
 sub image {
     return 'refinery';
 }

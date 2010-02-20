@@ -7,6 +7,10 @@ sub controller_class {
         return 'Lacuna::Building::Reclamation';
 }
 
+sub university_prereq {
+    return 3;
+}
+
 sub image {
     return 'water-reclamation';
 }

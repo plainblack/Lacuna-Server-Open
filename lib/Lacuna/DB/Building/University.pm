@@ -63,7 +63,14 @@ sub happiness_production {
     return 50;
 }
 
-
+after finish_upgrade => sub {
+    my $self = shift;
+    my $empire = $self->empire;
+    if ($empire->university_level < $self->level) {
+        $empire->university_level($self->level);
+        $empire->put;
+    }
+};
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

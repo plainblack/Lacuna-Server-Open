@@ -11,6 +11,10 @@ sub image {
     return 'recycling';
 }
 
+sub university_prereq {
+    return 3;
+}
+
 sub name {
     return 'Waste Recycling Center';
 }

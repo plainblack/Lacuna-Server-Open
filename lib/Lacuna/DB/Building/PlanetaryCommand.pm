@@ -7,6 +7,10 @@ sub controller_class {
         return 'Lacuna::Building::PlanetaryCommand';
 }
 
+sub check_build_prereqs {
+    confess [1013,"You can't directly build a Planetary Command. You need a colony ship."];
+}
+
 sub image {
     return 'planetary-command';
 }

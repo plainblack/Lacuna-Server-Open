@@ -4,7 +4,11 @@ use Moose;
 extends 'Lacuna::DB::Building';
 
 sub controller_class {
-        return 'Lacuna::Building::Observatory';
+    return 'Lacuna::Building::Observatory';
+}
+
+sub building_prereq {
+    return {'Lacuna::DB::Building:Shipyard'=>1};
 }
 
 sub image {

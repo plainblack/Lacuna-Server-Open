@@ -7,6 +7,10 @@ sub controller_class {
         return 'Lacuna::Building::Shipyard';
 }
 
+sub building_prereq {
+    return {'Lacuna::DB::Building::SpacePort'=>1};
+}
+
 sub image {
     return 'shipyard';
 }

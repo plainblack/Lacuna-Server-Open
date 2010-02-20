@@ -11,6 +11,10 @@ sub image {
     return 'syrup';
 }
 
+sub building_prereq {
+    return {'Lacuna::DB::Food::Farm::Algae'=>1};
+}
+
 sub name {
     return 'Algae Syrup Bottler';
 }

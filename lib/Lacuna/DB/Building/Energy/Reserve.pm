@@ -7,6 +7,10 @@ sub controller_class {
         return 'Lacuna::Building::EnergyReserve';
 }
 
+sub university_prereq {
+    return 2;
+}
+
 sub image {
     return 'energy-reserve';
 }

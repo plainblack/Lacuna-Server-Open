@@ -4,7 +4,7 @@ use Moose;
 extends 'Lacuna::DB::Building::Ore';
 
 sub controller_class {
-        return 'Lacuna::Building::Mine';
+    return 'Lacuna::Building::Mine';
 }
 
 sub image {

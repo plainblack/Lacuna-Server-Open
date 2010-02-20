@@ -7,6 +7,10 @@ sub controller_class {
         return 'Lacuna::Building::TerraformingLab';
 }
 
+sub university_prereq {
+    return 9;
+}
+
 sub image {
     return 'terraforming-lab';
 }

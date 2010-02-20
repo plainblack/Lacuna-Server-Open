@@ -11,6 +11,18 @@ sub image {
     return 'chip';
 }
 
+sub min_orbit {
+    return 5;
+}
+
+sub max_orbit {
+    return 5;
+}
+
+sub building_prereq {
+    return {'Lacuna::DB::Food::Farm::Root'=>1};
+}
+
 sub name {
     return 'Denton Root Chip Frier';
 }

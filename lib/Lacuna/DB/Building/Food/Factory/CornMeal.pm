@@ -11,6 +11,18 @@ sub image {
     return 'cornmeal';
 }
 
+sub min_orbit {
+    return 2;
+}
+
+sub max_orbit {
+    return 3;
+}
+
+sub building_prereq {
+    return {'Lacuna::DB::Food::Farm::Corn'=>1};
+}
+
 sub name {
     return 'Corn Meal Grinder';
 }

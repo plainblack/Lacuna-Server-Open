@@ -4,7 +4,11 @@ use Moose;
 extends 'Lacuna::DB::Building::Ore';
 
 sub controller_class {
-        return 'Lacuna::Building::MiningPlatform';
+    return 'Lacuna::Building::MiningPlatform';
+}
+
+sub check_build_prereqs {
+    confess [1013,"You can't directly build a Mining Platform. You need a mining platform ship."];
 }
 
 sub image {

@@ -11,6 +11,18 @@ sub image {
     return 'pie';
 }
 
+sub min_orbit {
+    return 2;
+}
+
+sub max_orbit {
+    return 2;
+}
+
+sub building_prereq {
+    return {'Lacuna::DB::Food::Farm::Lapis'=>1};
+}
+
 sub name {
     return 'Lapis Pie Bakery';
 }

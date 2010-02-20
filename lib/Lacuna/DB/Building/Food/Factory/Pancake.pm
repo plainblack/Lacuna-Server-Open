@@ -7,6 +7,18 @@ sub controller_class {
         return 'Lacuna::Building::Pancake';
 }
 
+sub min_orbit {
+    return 3;
+}
+
+sub max_orbit {
+    return 4;
+}
+
+sub building_prereq {
+    return {'Lacuna::DB::Food::Farm::Potato'=>1};
+}
+
 sub image {
     return 'pancake';
 }

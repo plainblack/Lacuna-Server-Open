@@ -7,6 +7,14 @@ sub controller_class {
         return 'Lacuna::Building::Wheat';
 }
 
+sub min_orbit {
+    return 2;
+}
+
+sub max_orbit {
+    return 4;
+}
+
 sub image {
     return 'wheat';
 }

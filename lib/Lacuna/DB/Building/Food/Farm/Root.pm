@@ -4,7 +4,15 @@ use Moose;
 extends 'Lacuna::DB::Building::Food::Farm';
 
 sub controller_class {
-        return 'Lacuna::Building::Denton';
+    return 'Lacuna::Building::Denton';
+}
+
+sub min_orbit {
+    return 5;
+}
+
+sub max_orbit {
+    return 5;
 }
 
 sub image {

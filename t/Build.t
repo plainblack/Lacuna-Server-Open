@@ -21,6 +21,7 @@ my $fed_id = $result->{result}{empire_id};
 my $session_id = $result->{result}{session_id};
 my $current_planet = $result->{result}{status}{empire}{current_planet_id};
 my $last_energy = $result->{result}{status}{empire}{planets}{$current_planet}{energy_stored};
+my $empire_id = $result->{result}{status}{empire}{id};
 
 $result = post('/wheat', 'build', [$session_id, $current_planet, 3, 3]);
 is($result->{result}{building}{name}, 'Wheat Farm', 'Can build buildings');
@@ -35,6 +36,10 @@ $result = post('/wheat', 'view', [$session_id, $building->id]);
 is($result->{result}{building}{level}, 1, 'New building is built');
 is($result->{result}{building}{time_left_on_build}, 0, 'Building is no longer in build queue');
 $last_energy = $result->{result}{status}{empire}{planets}{$current_planet}{energy_stored};
+
+my $empire = $db->domain('empire')->find($empire_id);
+$empire->university_level(5);
+$empire->put;
 
 $result = post('/wheat', 'upgrade', [$session_id, $building->id]);
 is($result->{result}{building}{level}, 1, 'Upgrading building is still level 1');
@@ -52,13 +57,13 @@ sub post {
     };
     my $ua = LWP::UserAgent->new;
     $ua->timeout(30);
-    #say "REQUEST: ".to_json($content);
+ #   say "REQUEST: ".to_json($content);
     my $response = $ua->post('http://localhost:5000/'.$url,
         Content_Type    => 'application/json',
         Content         => to_json($content),
         Accept          => 'application/json',
         );
-    #say "RESPONSE: ".$response->content;
+#    say "RESPONSE: ".$response->content;
     return from_json($response->content);
 }
 

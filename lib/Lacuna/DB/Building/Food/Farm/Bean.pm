@@ -7,6 +7,14 @@ sub controller_class {
         return 'Lacuna::Building::Bean';
 }
 
+sub min_orbit {
+    return 4;
+}
+
+sub max_orbit {
+    return 4;
+}
+
 sub image {
     return 'bean';
 }

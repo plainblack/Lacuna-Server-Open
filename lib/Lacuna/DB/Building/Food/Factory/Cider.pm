@@ -11,6 +11,18 @@ sub image {
     return 'cider';
 }
 
+sub min_orbit {
+    return 3;
+}
+
+sub max_orbit {
+    return 3;
+}
+
+sub building_prereq {
+    return {'Lacuna::DB::Food::Farm::Apple'=>1};
+}
+
 sub name {
     return 'Apple Cider Bottler';
 }

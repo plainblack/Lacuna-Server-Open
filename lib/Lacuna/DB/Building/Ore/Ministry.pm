@@ -4,7 +4,15 @@ use Moose;
 extends 'Lacuna::DB::Building::Ore';
 
 sub controller_class {
-        return 'Lacuna::Building::MiningMinistry';
+    return 'Lacuna::Building::MiningMinistry';
+}
+
+sub building_prereq {
+    return {'Lacuna::DB::Building::SpacePort' => 1};
+}
+
+sub max_instances_per_planet {
+    return 1;
 }
 
 sub image {

@@ -7,6 +7,10 @@ sub controller_class {
         return 'Lacuna::Building::TerraformingPlatform';
 }
 
+sub check_build_prereqs {
+    confess [1013,"You can't directly build a Terraforming Platform. You need a terraforming platform ship."];
+}
+
 sub image {
     return 'terraforming-platform';
 }

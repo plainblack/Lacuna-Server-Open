@@ -33,6 +33,14 @@ sub university_prereq {
     return 0;
 }
 
+sub min_orbit {
+    return 1;
+}
+
+sub max_orbit {
+    return 7;
+}
+
 sub building_prereq {
     return {};
 }
@@ -473,6 +481,18 @@ sub waste_capacity {
 
 sub check_build_prereqs {
     my ($self, $body) = @_;
+    
+    # check goldilox zone
+    if ($body->orbit < $self->min_orbit || $body->orbit > $self->max_orbit) {
+        confess [1013, "Can't build a building outside of it's Goldilox zone."];
+    }
+    
+    # check university level
+    if ($self->university_prereq < $body->empire->university_level) {
+        confess [1013, "University research too low.",$self->university_prereq];
+    }
+
+    # check building prereqs
     my $db = $self->simpledb;
     my $prereqs = $self->building_prereq;
     foreach my $key (keys %{$prereqs}) {
@@ -481,6 +501,7 @@ sub check_build_prereqs {
             confess [1013, "You don't have the necessary prerequisite buildings.",[$key, $prereqs->{$key}]];
         }
     }
+    
     return 1;
 }
 
@@ -489,7 +510,10 @@ sub check_build_prereqs {
 # UPGRADES
 
 sub has_met_upgrade_prereqs {
-    return 1;
+    my ($self) = @_;
+    if (ref $self ne 'Lacuna::DB::Building::University' && $self->level >= $self->empire->university_level) {
+        confess [1013, "You cannot upgrade a building past your university level."];
+    }
 }
 
 sub has_pending_build {

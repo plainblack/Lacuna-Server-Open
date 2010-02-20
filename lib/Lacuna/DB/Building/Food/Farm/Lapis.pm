@@ -7,6 +7,14 @@ sub controller_class {
         return 'Lacuna::Building::Lapis';
 }
 
+sub min_orbit {
+    return 2;
+}
+
+sub max_orbit {
+    return 2;
+}
+
 sub image {
     return 'lapis';
 }

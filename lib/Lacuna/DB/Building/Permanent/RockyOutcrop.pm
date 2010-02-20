@@ -7,6 +7,10 @@ sub controller_class {
         return 'Lacuna::Building::RockyOutcrop';
 }
 
+sub check_build_prereqs {
+    confess [1013,"You can't build a rocky outcropping. It forms naturally."];
+}
+
 sub image {
     return 'rocky-outcrop';
 }

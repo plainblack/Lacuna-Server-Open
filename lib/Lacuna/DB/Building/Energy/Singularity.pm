@@ -11,6 +11,10 @@ sub image {
     return 'singularity';
 }
 
+sub university_prereq {
+    return 17;
+}
+
 sub name {
     return 'Singularity Energy Plant';
 }

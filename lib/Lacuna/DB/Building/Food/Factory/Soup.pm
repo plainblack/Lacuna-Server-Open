@@ -11,6 +11,18 @@ sub image {
     return 'soup';
 }
 
+sub min_orbit {
+    return 4;
+}
+
+sub max_orbit {
+    return 4;
+}
+
+sub building_prereq {
+    return {'Lacuna::DB::Food::Farm::Bean'=>1};
+}
+
 sub name {
     return 'Amalgus Bean Soup Cannery';
 }

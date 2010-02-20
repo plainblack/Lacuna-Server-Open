@@ -7,6 +7,10 @@ sub controller_class {
         return 'Lacuna::Building::Fission';
 }
 
+sub university_prereq {
+    return 5;
+}
+
 sub image {
     return 'fission';
 }
