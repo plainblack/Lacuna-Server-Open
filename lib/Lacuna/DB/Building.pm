@@ -569,27 +569,27 @@ sub happiness_hour {
 
 # STORAGE
 
-sub food_storage_capacity {
+sub food_capacity {
     my ($self) = @_;
     return sprintf('%.0f',$self->food_storage * $self->production_hour);
 }
 
-sub energy_storage_capacity {
+sub energy_capacity {
     my ($self) = @_;
     return sprintf('%.0f',$self->energy_storage * $self->production_hour);
 }
 
-sub ore_storage_capacity {
+sub ore_capacity {
     my ($self) = @_;
     return sprintf('%.0f',$self->ore_storage * $self->production_hour);
 }
 
-sub water_storage_capacity {
+sub water_capacity {
     my ($self) = @_;
     return sprintf('%.0f',$self->water_storage * $self->production_hour);
 }
 
-sub waste_storage_capacity {
+sub waste_capacity {
     my ($self) = @_;
     return sprintf('%.0f',$self->waste_storage * $self->production_hour);
 }
@@ -626,7 +626,7 @@ sub has_pending_build {
 sub can_upgrade {
     my ($self, $cost) = @_;
     my $body = $self->body;
-    $body->recalc_stats;
+    $body->tick;
     return $body->has_resources_to_build($cost)
         && $body->has_resources_to_operate()
         && $self->has_met_upgrade_prereqs()

@@ -8,19 +8,20 @@ use List::Util qw(shuffle);
 __PACKAGE__->add_attributes(
     size                    => { isa => 'Int' },
     empire_id               => { isa => 'Str', default=>'None' },
+    last_tick               => { isa => 'DateTime'},
     building_count          => { isa => 'Int', default=>0 },
-    happiness_per           => { isa => 'Int', default=>0 },
+    happiness_hour           => { isa => 'Int', default=>0 },
     happiness               => { isa => 'Int', default=>0 },
-    waste_per               => { isa => 'Int', default=>0 },
+    waste_hour               => { isa => 'Int', default=>0 },
     waste_stored            => { isa => 'Int', default=>0 },
-    waste_storage           => { isa => 'Int', default=>0 },
-    energy_per              => { isa => 'Int', default=>0 },
+    waste_capacity           => { isa => 'Int', default=>0 },
+    energy_hour              => { isa => 'Int', default=>0 },
     energy_stored           => { isa => 'Int', default=>0 },
-    energy_storage          => { isa => 'Int', default=>0 },
-    water_per               => { isa => 'Int', default=>0 },
+    energy_capacity          => { isa => 'Int', default=>0 },
+    water_hour               => { isa => 'Int', default=>0 },
     water_stored            => { isa => 'Int', default=>0 },
-    water_storage           => { isa => 'Int', default=>0 },
-    ore_storage             => { isa => 'Int', default=>0 },
+    water_capacity           => { isa => 'Int', default=>0 },
+    ore_capacity             => { isa => 'Int', default=>0 },
     rutile_stored           => { isa => 'Int', default=>0 },
     chromite_stored         => { isa => 'Int', default=>0 },
     chalcopyrite_stored     => { isa => 'Int', default=>0 },
@@ -61,7 +62,7 @@ __PACKAGE__->add_attributes(
     fluorite_hour       => { isa => 'Int', default=>0 },
     beryl_hour          => { isa => 'Int', default=>0 },
     magnetite_hour      => { isa => 'Int', default=>0 },
-    food_storage            => { isa => 'Int', default=>0 },
+    food_capacity            => { isa => 'Int', default=>0 },
     lapis_hour          => { isa => 'Int', default=>0 },
     potato_hour         => { isa => 'Int', default=>0 },
     apple_hour          => { isa => 'Int', default=>0 },
@@ -246,7 +247,7 @@ sub can_build_building {
     $building->check_build_prereqs($self);
 
     # check available resources
-    $self->recalc_stats;
+    $self->tick;
     $self->has_resources_to_build($building);
     $self->has_resources_to_operate($building);
     
@@ -305,148 +306,239 @@ sub has_max_instances_of_building {
     return ($building->max_instances_per_planet > $count) ? 1 : 0;
 }
 
-sub recalc_stats { } # interface
+sub recalc_stats {
+    my ($self) = @_;
+    $self->tick; # absorb any resources before any changes occur
+    my %stats;
+    foreach my $buildings ($self->buildings) {
+        while (my $building = $buildings->next) {
+            $stats{waste_capacity} += $building->waste_capacity;
+            $stats{water_capacity} += $building->water_capacity;
+            $stats{energy_capacity} += $building->energy_capacity;
+            $stats{food_capacity} += $building->food_capacity;
+            $stats{ore_capacity} += $building->ore_capacity;
+            $stats{happiness_hour} += $building->happiness_hour;
+            $stats{waste_hour} += $building->waste_hour;               
+            $stats{energy_hour} += $building->energy_hour;
+            $stats{water_hour} += $building->water_hour;
+            foreach my $type (ORE_TYPES) {
+                my $method = $type.'_hour';
+                $stats{$method} += $building->$method();
+            }
+            foreach my $type (FOOD_TYPES) {
+                my $method = $type.'_hour';
+                $stats{$method} += $building->$method();
+            }
+         }
+    }
+    $self->update(\%stats);
+    $self->put;
+} 
 
 # RESOURCE MANGEMENT
 
+sub tick {
+    my ($self) = @_;
+    my $now = DateTime->now;
+    my $interval = $now - $self->last_tick;
+    my $seconds = $interval->in_units('seconds');
+    my $tick_rate = $seconds / 3600;
+    $self->last_tick($now);
+    $self->add_happiness(sprintf('%.0f', $self->happiness_hour * $tick_rate));
+    $self->add_waste(sprintf('%.0f', $self->waste_hour * $tick_rate));
+    $self->add_energy(sprintf('%.0f', $self->energy_hour * $tick_rate));
+    $self->add_water(sprintf('%.0f', $self->water_hour * $tick_rate));
+    foreach my $type (ORE_TYPES) {
+        my $hour_method = $type.'_hour';
+        my $add_method = 'add_'.$type;
+        $self->$add_method(sprintf('%.0f', $self->$hour_method() * $tick_rate));
+    }
+    foreach my $type (FOOD_TYPES) {
+        my $hour_method = $type.'_hour';
+        my $add_method = 'add_'.$type;
+        $self->$add_method(sprintf('%.0f', $self->$hour_method() * $tick_rate));
+    }
+    $self->put;
+}
+
+sub food_hour {
+    my ($self) = @_;
+    my $tally = 0;
+    foreach my $food (FOOD_TYPES) {
+        my $method = $food."_hour";
+        $tally += $self->$method;
+    }
+    return $tally;
+}
+
+sub food_stored {
+    my ($self) = @_;
+    my $tally = 0;
+    foreach my $food (FOOD_TYPES) {
+        my $method = $food."_stored";
+        $tally += $self->$method;
+    }
+    return $tally;
+}
+
+sub ore_hour {
+    my ($self) = @_;
+    my $tally = 0;
+    foreach my $ore (ORE_TYPES) {
+        my $method = $ore."_hour";
+        $tally += $self->$method;
+    }
+    return $tally;
+}
+
+sub ore_stored {
+    my ($self) = @_;
+    my $tally = 0;
+    foreach my $ore (ORE_TYPES) {
+        my $method = $ore."_stored";
+        $tally += $self->$method;
+    }
+    return $tally;
+}
+
 sub add_magnetite {
     my ($self, $value) = @_;
-    my $store = $self->magnetite_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->magnetite_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->magnetite_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->magnetite_stored;
+    $self->magnetite_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_beryl {
     my ($self, $value) = @_;
-    my $store = $self->beryl_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->beryl_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->beryl_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->beryl_stored;
+    $self->beryl_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_fluorite {
     my ($self, $value) = @_;
-    my $store = $self->fluorite_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->fluorite_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->fluorite_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->fluorite_stored;
+    $self->fluorite_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_monazite {
     my ($self, $value) = @_;
-    my $store = $self->monazite_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->monazite_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->monazite_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->monazite_stored;
+    $self->monazite_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_zircon {
     my ($self, $value) = @_;
-    my $store = $self->zircon_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->zircon_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->zircon_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->zircon_stored;
+    $self->zircon_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_sulfur {
     my ($self, $value) = @_;
-    my $store = $self->sulfur_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->sulfur_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->sulfur_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->sulfur_stored;
+    $self->sulfur_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_anthracite {
     my ($self, $value) = @_;
-    my $store = $self->anthracite_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->anthracite_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->anthracite_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->anthracite_stored;
+    $self->anthracite_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_methane {
     my ($self, $value) = @_;
-    my $store = $self->methane_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->methane_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->methane_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->methane_stored;
+    $self->methane_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_kerogen {
     my ($self, $value) = @_;
-    my $store = $self->kerogen_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->kerogen_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->kerogen_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->kerogen_stored;
+    $self->kerogen_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_trona {
     my ($self, $value) = @_;
-    my $store = $self->trona_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->trona_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->trona_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->trona_stored;
+    $self->trona_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_gypsum {
     my ($self, $value) = @_;
-    my $store = $self->gypsum_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->gypsum_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->gypsum_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->gypsum_stored;
+    $self->gypsum_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_halite {
     my ($self, $value) = @_;
-    my $store = $self->halite_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->halite_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->halite_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->halite_stored;
+    $self->halite_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_goethite {
     my ($self, $value) = @_;
-    my $store = $self->goethite_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->goethite_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->goethite_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->goethite_stored;
+    $self->goethite_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_bauxite {
     my ($self, $value) = @_;
-    my $store = $self->bauxite_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->bauxite_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->bauxite_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->bauxite_stored;
+    $self->bauxite_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_uraninite {
     my ($self, $value) = @_;
-    my $store = $self->uraninite_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->uraninite_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->uraninite_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->uraninite_stored;
+    $self->uraninite_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_gold {
     my ($self, $value) = @_;
-    my $store = $self->gold_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->gold_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->gold_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->gold_stored;
+    $self->gold_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_galena {
     my ($self, $value) = @_;
-    my $store = $self->galena_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->galena_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->galena_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->galena_stored;
+    $self->galena_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_chalcopyrite {
     my ($self, $value) = @_;
-    my $store = $self->chalcopyrite_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->chalcopyrite_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->chalcopyrite_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->chalcopyrite_stored;
+    $self->chalcopyrite_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_chromite {
     my ($self, $value) = @_;
-    my $store = $self->chromite_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->chromite_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->chromite_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->chromite_stored;
+    $self->chromite_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_rutile {
     my ($self, $value) = @_;
-    my $store = $self->rutile_stored + $value;
-    my $storage = $self->ore_storage;
-    $self->rutile_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->rutile_stored + $value;
+    my $available_storage = $self->ore_capacity - $self->ore_stored + $self->rutile_stored;
+    $self->rutile_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub spend_ore {
@@ -467,142 +559,142 @@ sub spend_ore {
 
 sub add_beetle {
     my ($self, $value) = @_;
-    my $store = $self->beetle_stored + $value;
-    my $storage = $self->food_storage;
-    $self->beetle_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->beetle_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->beetle_stored;
+    $self->beetle_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_shake {
     my ($self, $value) = @_;
-    my $store = $self->shake_stored + $value;
-    my $storage = $self->food_storage;
-    $self->shake_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->shake_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->shake_stored;
+    $self->shake_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_burger {
     my ($self, $value) = @_;
-    my $store = $self->burger_stored + $value;
-    my $storage = $self->food_storage;
-    $self->burger_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->burger_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->burger_stored;
+    $self->burger_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_fungus {
     my ($self, $value) = @_;
-    my $store = $self->fungus_stored + $value;
-    my $storage = $self->food_storage;
-    $self->fungus_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->fungus_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->fungus_stored;
+    $self->fungus_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_syrup {
     my ($self, $value) = @_;
-    my $store = $self->syrup_stored + $value;
-    my $storage = $self->food_storage;
-    $self->syrup_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->syrup_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->syrup_stored;
+    $self->syrup_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_algae {
     my ($self, $value) = @_;
-    my $store = $self->algae_stored + $value;
-    my $storage = $self->food_storage;
-    $self->algae_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->algae_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->algae_stored;
+    $self->algae_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_meal {
     my ($self, $value) = @_;
-    my $store = $self->meal_stored + $value;
-    my $storage = $self->food_storage;
-    $self->meal_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->meal_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->meal_stored;
+    $self->meal_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_milk {
     my ($self, $value) = @_;
-    my $store = $self->milk_stored + $value;
-    my $storage = $self->food_storage;
-    $self->milk_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->milk_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->milk_stored;
+    $self->milk_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_pancake {
     my ($self, $value) = @_;
-    my $store = $self->pancake_stored + $value;
-    my $storage = $self->food_storage;
-    $self->pancake_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->pancake_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->pancake_stored;
+    $self->pancake_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_pie {
     my ($self, $value) = @_;
-    my $store = $self->pie_stored + $value;
-    my $storage = $self->food_storage;
-    $self->pie_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->pie_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->pie_stored;
+    $self->pie_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_chip {
     my ($self, $value) = @_;
-    my $store = $self->chip_stored + $value;
-    my $storage = $self->food_storage;
-    $self->chip_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->chip_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->chip_stored;
+    $self->chip_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_soup {
     my ($self, $value) = @_;
-    my $store = $self->soup_stored + $value;
-    my $storage = $self->food_storage;
-    $self->soup_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->soup_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->soup_stored;
+    $self->soup_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_bread {
     my ($self, $value) = @_;
-    my $store = $self->bread_stored + $value;
-    my $storage = $self->food_storage;
-    $self->bread_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->bread_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->bread_stored;
+    $self->bread_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_wheat {
     my ($self, $value) = @_;
-    my $store = $self->wheat_stored + $value;
-    my $storage = $self->food_storage;
-    $self->wheat_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->wheat_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->wheat_stored;
+    $self->wheat_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_cider {
     my ($self, $value) = @_;
-    my $store = $self->cider_stored + $value;
-    my $storage = $self->food_storage;
-    $self->cider_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->cider_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->cider_stored;
+    $self->cider_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_corn {
     my ($self, $value) = @_;
-    my $store = $self->corn_stored + $value;
-    my $storage = $self->food_storage;
-    $self->corn_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->corn_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->corn_stored;
+    $self->corn_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_root {
     my ($self, $value) = @_;
-    my $store = $self->root_stored + $value;
-    my $storage = $self->food_storage;
-    $self->root_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->root_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->root_stored;
+    $self->root_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_apple {
     my ($self, $value) = @_;
-    my $store = $self->apple_stored + $value;
-    my $storage = $self->food_storage;
-    $self->apple_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->apple_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->apple_stored;
+    $self->apple_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_potato {
     my ($self, $value) = @_;
-    my $store = $self->potato_stored + $value;
-    my $storage = $self->food_storage;
-    $self->potato_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->potato_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->potato_stored;
+    $self->potato_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_lapis {
     my ($self, $value) = @_;
-    my $store = $self->lapis_stored + $value;
-    my $storage = $self->food_storage;
-    $self->lapis_stored( ($store < $storage) ? $store : $storage );
+    my $amount_to_store = $self->lapis_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->lapis_stored;
+    $self->lapis_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub spend_food {
@@ -624,7 +716,7 @@ sub spend_food {
 sub add_energy {
     my ($self, $value) = @_;
     my $store = $self->energy_stored + $value;
-    my $storage = $self->energy_storage;
+    my $storage = $self->energy_capacity;
     $self->energy_stored( ($store < $storage) ? $store : $storage );
 }
 
@@ -636,7 +728,7 @@ sub spend_energy {
 sub add_water {
     my ($self, $value) = @_;
     my $store = $self->water_stored + $value;
-    my $storage = $self->water_storage;
+    my $storage = $self->water_capacity;
     $self->water_stored( ($store < $storage) ? $store : $storage );
 }
 
@@ -658,7 +750,7 @@ sub spend_happiness {
 sub add_waste {
     my ($self, $value) = @_;
     my $store = $self->waste_stored + $value;
-    my $storage = $self->waste_storage;
+    my $storage = $self->waste_capacity;
     $self->waste_stored( ($store < $storage) ? $store : $storage );
 }
 

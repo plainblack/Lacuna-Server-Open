@@ -98,6 +98,7 @@ sub create {
         
         # set home planet
         $home_planet->empire_id($empire->id);
+        $home_planet->last_tick(DateTime->now);
         $home_planet->put;
         
         # add command building

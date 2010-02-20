@@ -54,20 +54,34 @@ sub get_status {
     my $planet_rs = $self->planets;
     my %planets;
     while (my $planet = $planet_rs->next) {
-        $planet->recalc_stats;
         $planets{$planet->id} = {
-            name        => $planet->name,
-            image       => $planet->image,
-            water       => $planet->water_stored,
-       #     food        => $planet->food_stored,
-        #    minerals    => $planet->minerals_stored,
-            waste       => $planet->waste_stored,
-            happiness   => $planet->happiness,
-            x           => $planet->x,
-            y           => $planet->y,
-            z           => $planet->z,
-            orbit       => $planet->orbit,
+            name            => $planet->name,
+            image           => $planet->image,
+            x               => $planet->x,
+            y               => $planet->y,
+            z               => $planet->z,
+            orbit           => $planet->orbit,
         };
+        if ($self->current_planet_id eq $planet->id) { # is current planet
+            $planet->tick;
+            
+            ## add capacity
+            
+            my $current = $planets{$planet->id};
+            $current->{water_stored}    = $planet->water_stored;
+            $current->{water_hour}      = $planet->water_hour;
+            $current->{energy_stored}   = $planet->energy_stored;
+            $current->{energy_hour}     = $planet->energy_hour;
+            $current->{food_stored}     = $planet->food_stored;
+            $current->{food_hour}       = $planet->food_stored;
+            $current->{ore_stored}      = $planet->ore_stored;
+            $current->{ore_hour}        = $planet->ore_hour;
+            $current->{waste_stored}    = $planet->waste_stored;
+            $current->{waste_hour}      = $planet->waste_hour;
+            $current->{happiness}       = $planet->happiness;
+            $current->{happiness_hour}  = $planet->happiness_hour;
+            
+        }
     }
     $self = $self->simpledb->domain('empire')->find($self->id); # refetch because it's likely changed
     my $status = {
