@@ -83,24 +83,27 @@ sub get_buildable {
             
     }
 
+    $body->check_for_available_build_space($x, $y);
+
     # dummy building properties
     my %properties = (
-        simpledb    => $self->simpledb,
-        attributes  => {
             x               => $x,
             y               => $y,
             level           => 0,
             body_id         => $body->id,
             empire_id       => $empire->id,
             date_created    => DateTime->now,
-        },
     );
 
+
     my %out;
+    $body->tick;
+    use Data::Dumper;
     foreach my $class (BUILDABLE_CLASSES) {
-        $properties{attributes}{class} = $class->model_class;
-        my $building = $class->model_class(\%properties);
-        my $can_build = eval{$body->can_build_building($building)};
+        $properties{class} = $class->model_class;
+        my $building = $class->model_class->new(simpledb=>$self->simpledb)->update(\%properties);
+        my $can_build = eval{$body->has_met_building_prereqs($building)};
+        warn Dumper($@) if $@;
         next unless $can_build;
         $out{$building->name} = $class->app_url;
     }

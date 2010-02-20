@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Test::Deep;
 use LWP::UserAgent;
 use JSON qw(to_json from_json);
@@ -48,6 +48,8 @@ $url =~ s/\///;
 $result = post($url, 'view', [$session_id, $id]);
 ok($result->{result}{building}{energy_hour} > 0, 'command center is functional');
 
+$result = post('body', 'get_buildable', [$session_id, $current_planet, 3, 3]);
+is($result->{result}{buildable}{'Wheat Farm'}, '/wheat', 'Can build buildings');
 
 sub post {
     my ($url, $method, $params) = @_;

@@ -1,4 +1,4 @@
-package Lacuna::DB::Building::Ore::Minestry;
+package Lacuna::DB::Building::Ore::Ministry;
 
 use Moose;
 extends 'Lacuna::DB::Building::Ore';
