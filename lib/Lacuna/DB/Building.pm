@@ -424,7 +424,7 @@ sub waste_consumption_hour {
 
 sub waste_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->waste_production_hour - $self->energy_consumption_hour);
+    return sprintf('%.0f',$self->waste_production_hour - $self->waste_consumption_hour);
 }
 
 sub happiness_production_hour {
@@ -439,7 +439,7 @@ sub happiness_consumption_hour {
 
 sub happiness_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->happiness_production_hour - $self->energy_consumption_hour);
+    return sprintf('%.0f',$self->happiness_production_hour - $self->waste_consumption_hour);
 }
 
 # STORAGE

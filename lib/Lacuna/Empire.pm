@@ -113,6 +113,7 @@ sub create {
         });
         $home_planet->build_building($command);
         $command->finish_upgrade;
+        $home_planet = $command->body; # our current reference is out of date
         
         # add starting resources
         $home_planet->add_algae(5000);

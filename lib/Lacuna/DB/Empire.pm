@@ -54,6 +54,7 @@ sub get_status {
     my $planet_rs = $self->planets;
     my %planets;
     while (my $planet = $planet_rs->next) {
+        $planet->tick;
         $planets{$planet->id} = {
             name            => $planet->name,
             image           => $planet->image,
@@ -61,27 +62,24 @@ sub get_status {
             y               => $planet->y,
             z               => $planet->z,
             orbit           => $planet->orbit,
+            water_capacity  => $planet->water_capacity,
+            water_stored    => $planet->water_stored,
+            water_hour      => $planet->water_hour,
+            energy_capacity => $planet->energy_capacity,
+            energy_stored   => $planet->energy_stored,
+            energy_hour     => $planet->energy_hour,
+            food_capacity   => $planet->food_capacity,
+            food_stored     => $planet->food_stored,
+            food_hour       => $planet->food_stored,
+            ore_capacity    => $planet->ore_capacity,
+            ore_stored      => $planet->ore_stored,
+            ore_hour        => $planet->ore_hour,
+            waste_capacity  => $planet->waste_capacity,
+            waste_stored    => $planet->waste_stored,
+            waste_hour      => $planet->waste_hour,
+            happiness       => $planet->happiness,
+            happiness_hour  => $planet->happiness_hour,
         };
-        if ($self->current_planet_id eq $planet->id) { # is current planet
-            $planet->tick;
-            
-            ## add capacity
-            
-            my $current = $planets{$planet->id};
-            $current->{water_stored}    = $planet->water_stored;
-            $current->{water_hour}      = $planet->water_hour;
-            $current->{energy_stored}   = $planet->energy_stored;
-            $current->{energy_hour}     = $planet->energy_hour;
-            $current->{food_stored}     = $planet->food_stored;
-            $current->{food_hour}       = $planet->food_stored;
-            $current->{ore_stored}      = $planet->ore_stored;
-            $current->{ore_hour}        = $planet->ore_hour;
-            $current->{waste_stored}    = $planet->waste_stored;
-            $current->{waste_hour}      = $planet->waste_hour;
-            $current->{happiness}       = $planet->happiness;
-            $current->{happiness_hour}  = $planet->happiness_hour;
-            
-        }
     }
     $self = $self->simpledb->domain('empire')->find($self->id); # refetch because it's likely changed
     my $status = {

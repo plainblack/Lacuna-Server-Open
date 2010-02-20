@@ -4,6 +4,7 @@ use Moose;
 extends 'Lacuna::DB::Body';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use List::Util qw(shuffle);
+no warnings 'uninitialized';
 
 __PACKAGE__->add_attributes(
     size                    => { isa => 'Int' },
@@ -431,12 +432,20 @@ sub tick {
         my $add_method = 'add_'.$type;
         $self->$add_method(sprintf('%.0f', $self->$hour_method() * $tick_rate));
     }
-    foreach my $type (FOOD_TYPES) {
+    my $food_consumed = sprintf('%.0f', $self->food_consumption_hour * $tick_rate);
+    foreach my $type (shuffle FOOD_TYPES) {
         my $hour_method = $type.'_production_hour';
         my $add_method = 'add_'.$type;
-        $self->$add_method(sprintf('%.0f', $self->$hour_method() * $tick_rate));
+        my $food_produced = sprintf('%.0f', $self->$hour_method() * $tick_rate);
+        if ($food_produced > $food_consumed) {
+            $food_produced -= $food_consumed;
+            $food_consumed = 0;
+            $self->$add_method($food_produced);
+        }
+        else {
+            $food_consumed -= $food_produced;
+        }
     }
-    $self->spend_food(sprintf('%.0f', $self->food_consumption_hour * $tick_rate));
     $self->put;
 }
 
