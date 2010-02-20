@@ -42,47 +42,29 @@ __PACKAGE__->add_attributes(
     fluorite_stored         => { isa => 'Int', default=>0 },
     beryl_stored            => { isa => 'Int', default=>0 },
     magnetite_stored        => { isa => 'Int', default=>0 },
-    rutile_hour         => { isa => 'Int', default=>0 },
-    chromite_hour       => { isa => 'Int', default=>0 },
-    chalcopyrite_hour   => { isa => 'Int', default=>0 },
-    galena_hour         => { isa => 'Int', default=>0 },
-    gold_hour           => { isa => 'Int', default=>0 },
-    uraninite_hour      => { isa => 'Int', default=>0 },
-    bauxite_hour        => { isa => 'Int', default=>0 },
-    goethite_hour       => { isa => 'Int', default=>0 },
-    halite_hour         => { isa => 'Int', default=>0 },
-    gypsum_hour         => { isa => 'Int', default=>0 },
-    trona_hour          => { isa => 'Int', default=>0 },
-    kerogen_hour        => { isa => 'Int', default=>0 },
-    methane_hour      => { isa => 'Int', default=>0 },
-    anthracite_hour     => { isa => 'Int', default=>0 },
-    sulfur_hour        => { isa => 'Int', default=>0 },
-    zircon_hour         => { isa => 'Int', default=>0 },
-    monazite_hour       => { isa => 'Int', default=>0 },
-    fluorite_hour       => { isa => 'Int', default=>0 },
-    beryl_hour          => { isa => 'Int', default=>0 },
-    magnetite_hour      => { isa => 'Int', default=>0 },
+    ore_hour         => { isa => 'Int', default=>0 },
     food_capacity            => { isa => 'Int', default=>0 },
-    lapis_hour          => { isa => 'Int', default=>0 },
-    potato_hour         => { isa => 'Int', default=>0 },
-    apple_hour          => { isa => 'Int', default=>0 },
-    root_hour           => { isa => 'Int', default=>0 },
-    corn_hour           => { isa => 'Int', default=>0 },
-    cider_hour          => { isa => 'Int', default=>0 },
-    wheat_hour          => { isa => 'Int', default=>0 },
-    bread_hour          => { isa => 'Int', default=>0 },
-    soup_hour           => { isa => 'Int', default=>0 },
-    chip_hour           => { isa => 'Int', default=>0 },
-    pie_hour            => { isa => 'Int', default=>0 },
-    pancake_hour        => { isa => 'Int', default=>0 },
-    milk_hour           => { isa => 'Int', default=>0 },
-    meal_hour           => { isa => 'Int', default=>0 },
-    algae_hour          => { isa => 'Int', default=>0 },
-    syrup_hour          => { isa => 'Int', default=>0 },
-    fungus_hour         => { isa => 'Int', default=>0 },
-    burger_hour         => { isa => 'Int', default=>0 },
-    shake_hour          => { isa => 'Int', default=>0 },
-    beetle_hour         => { isa => 'Int', default=>0 },
+    food_consumption_hour          => { isa => 'Int', default=>0 },
+    lapis_production_hour          => { isa => 'Int', default=>0 },
+    potato_production_hour         => { isa => 'Int', default=>0 },
+    apple_production_hour          => { isa => 'Int', default=>0 },
+    root_production_hour           => { isa => 'Int', default=>0 },
+    corn_production_hour           => { isa => 'Int', default=>0 },
+    cider_production_hour          => { isa => 'Int', default=>0 },
+    wheat_production_hour          => { isa => 'Int', default=>0 },
+    bread_production_hour          => { isa => 'Int', default=>0 },
+    soup_production_hour           => { isa => 'Int', default=>0 },
+    chip_production_hour           => { isa => 'Int', default=>0 },
+    pie_production_hour            => { isa => 'Int', default=>0 },
+    pancake_production_hour        => { isa => 'Int', default=>0 },
+    milk_production_hour           => { isa => 'Int', default=>0 },
+    meal_production_hour           => { isa => 'Int', default=>0 },
+    algae_production_hour          => { isa => 'Int', default=>0 },
+    syrup_production_hour          => { isa => 'Int', default=>0 },
+    fungus_production_hour         => { isa => 'Int', default=>0 },
+    burger_production_hour         => { isa => 'Int', default=>0 },
+    shake_production_hour          => { isa => 'Int', default=>0 },
+    beetle_production_hour         => { isa => 'Int', default=>0 },
     lapis_stored            => { isa => 'Int', default=>0 },
     potato_stored           => { isa => 'Int', default=>0 },
     apple_stored            => { isa => 'Int', default=>0 },
@@ -195,7 +177,105 @@ sub magnetite {
     return 1;
 }
 
+sub rutile_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->rutile * $self->ore_hour / 10000);
+}
+ 
+sub chromite_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->chromite * $self->ore_hour / 10000);
+}
 
+sub chalcopyrite_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->chalcopyrite * $self->ore_hour / 10000);
+}
+
+sub galena_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->galena * $self->ore_hour / 10000);
+}
+
+sub gold_hour {
+    my ($self) = @_;
+    return sprintf('%.0f', $self->gold * $self->ore_hour / 10000);
+}
+
+sub uraninite_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->uraninite * $self->ore_hour / 10000);
+}
+
+sub bauxite_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->bauxite * $self->ore_hour / 10000);
+}
+
+sub goethite_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->goethite * $self->ore_hour / 10000);
+}
+
+sub halite_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->halite * $self->ore_hour / 10000);
+}
+
+sub gypsum_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->gypsum * $self->ore_hour / 10000);
+}
+
+sub trona_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->trona * $self->ore_hour / 10000);
+}
+
+sub kerogen_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->kerogen * $self->ore_hour / 10000);
+}
+
+sub methane_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->methane * $self->ore_hour / 10000);
+}
+
+sub anthracite_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->anthracite * $self->ore_hour / 10000);
+}
+
+sub sulfur_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->sulfur * $self->ore_hour / 10000);
+}
+
+sub zircon_hour {
+    my ($self) = @_;
+    return sprintf('%.0f', $self->zircon * $self->ore_hour / 10000);
+}
+
+sub monazite_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->monazite * $self->ore_hour / 10000);
+}
+
+sub fluorite_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->fluorite * $self->ore_hour / 10000);
+}
+
+sub beryl_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->beryl * $self->ore_hour / 10000);
+}
+
+sub magnetite_hour {
+    my ($self) = @_;
+    return sprintf('%.0f',$self->magnetite * $self->ore_hour / 10000);
+}
 
 # BUILDINGS
 
@@ -321,12 +401,10 @@ sub recalc_stats {
             $stats{waste_hour} += $building->waste_hour;               
             $stats{energy_hour} += $building->energy_hour;
             $stats{water_hour} += $building->water_hour;
-            foreach my $type (ORE_TYPES) {
-                my $method = $type.'_hour';
-                $stats{$method} += $building->$method();
-            }
+            $stats{ore_hour} += $building->ore_hour;
+            $stats{food_consumption_hour} += $building->food_consumption_hour;
             foreach my $type (FOOD_TYPES) {
-                my $method = $type.'_hour';
+                my $method = $type.'_production_hour';
                 $stats{$method} += $building->$method();
             }
          }
@@ -354,10 +432,11 @@ sub tick {
         $self->$add_method(sprintf('%.0f', $self->$hour_method() * $tick_rate));
     }
     foreach my $type (FOOD_TYPES) {
-        my $hour_method = $type.'_hour';
+        my $hour_method = $type.'_production_hour';
         my $add_method = 'add_'.$type;
         $self->$add_method(sprintf('%.0f', $self->$hour_method() * $tick_rate));
     }
+    $self->spend_food(sprintf('%.0f', $self->food_consumption_hour * $tick_rate));
     $self->put;
 }
 
@@ -365,9 +444,10 @@ sub food_hour {
     my ($self) = @_;
     my $tally = 0;
     foreach my $food (FOOD_TYPES) {
-        my $method = $food."_hour";
+        my $method = $food."_production_hour";
         $tally += $self->$method;
     }
+    $tally -= $self->food_consumption_hour;
     return $tally;
 }
 
@@ -376,16 +456,6 @@ sub food_stored {
     my $tally = 0;
     foreach my $food (FOOD_TYPES) {
         my $method = $food."_stored";
-        $tally += $self->$method;
-    }
-    return $tally;
-}
-
-sub ore_hour {
-    my ($self) = @_;
-    my $tally = 0;
-    foreach my $ore (ORE_TYPES) {
-        my $method = $ore."_hour";
         $tally += $self->$method;
     }
     return $tally;
@@ -545,14 +615,14 @@ sub spend_ore {
     my ($self, $value) = @_;
     foreach my $type (shuffle ORE_TYPES) {
         my $method = $type."_stored";
-        my $stored = $self->method;
+        my $stored = $self->$method;
         if ($stored > $value) {
-            $self->method($stored - $value);
+            $self->$method($stored - $value);
             last;
         }
         else {
             $value -= $stored;
-            $self->method(0);
+            $self->$method(0);
         }
     }
 }
@@ -701,14 +771,14 @@ sub spend_food {
     my ($self, $value) = @_;
     foreach my $type (shuffle FOOD_TYPES) {
         my $method = $type."_stored";
-        my $stored = $self->method;
+        my $stored = $self->$method;
         if ($stored > $value) {
-            $self->method($stored - $value);
+            $self->$method($stored - $value);
             last;
         }
         else {
             $value -= $stored;
-            $self->method(0);
+            $self->$method(0);
         }
     }
 }
