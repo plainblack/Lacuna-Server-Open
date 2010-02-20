@@ -32,17 +32,6 @@ sub has_met_upgrade_prereqs {
 }
 
 
-
-sub get_body {
-    my ($self, $building, $body) = @_;
-    if ($body) {
-        return $body;
-    }
-    else {
-        return $building->body;
-    }
-}
-
 sub get_building {
     my ($self, $building_id) = @_;
     if (ref $building_id && $building_id->isa('Lacuna::DB::Building')) {
@@ -68,8 +57,8 @@ sub upgrade {
     }
 
     # verify upgrade
-    my $cost = $self->cost_to_upgrade;
-    $self->can_upgrade($cost);
+    my $cost = $building->cost_to_upgrade;
+    $building->can_upgrade($cost);
 
     # spend resources
     my $body = $building->body;
@@ -91,13 +80,14 @@ sub view {
     my $empire = $self->get_empire_by_session($session_id);
     if ($building->body->empire_id eq $empire->id) { # do body, because permanents aren't owned by anybody
         my $cost = $building->cost_to_upgrade;
-      #  my $queue = $building->build_queue if ($building->build_queue_id);
+        my $queue = $building->build_queue if ($building->build_queue_id);
         my $time_left = 0;
-    #    if (defined $queue) {
-     #       $time_left = $queue->is_complete($building);
-      #  }
+        if (defined $queue) {
+            $time_left = $queue->is_complete($building);
+        }
         return { 
             building    => {
+                id                  => $building->id,
                 name                => $building->name,
                 image               => $building->image,
                 x                   => $building->x,
@@ -126,7 +116,7 @@ sub view {
 
 sub build {
     my ($self, $session_id, $body_id, $x, $y) = @_;
-    my $body = $self->get_body($body_id);
+    my $body = $self->simpledb->domain('body')->find($body_id);
     my $empire = $self->get_empire_by_session($session_id);
 
     # make sure is owner

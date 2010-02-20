@@ -494,7 +494,7 @@ sub has_met_upgrade_prereqs {
 
 sub has_pending_build {
     my ($self) = @_;
-    my $queue = $self->build_queue;
+    my $queue = $self->build_queue if ($self->build_queue_id);
     return (defined $queue && $queue->is_complete($self)) ? 1 : 0;
 }
 
@@ -502,8 +502,8 @@ sub can_upgrade {
     my ($self, $cost) = @_;
     my $body = $self->body;
     $body->tick;
-    return $body->has_resources_to_build($cost)
-        && $body->has_resources_to_operate()
+    return $body->has_resources_to_build($self,$cost)
+        && $body->has_resources_to_operate($self)
         && $self->has_met_upgrade_prereqs()
         && ! $self->has_pending_build();    
 }

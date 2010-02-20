@@ -98,12 +98,10 @@ sub get_buildable {
 
     my %out;
     $body->tick;
-    use Data::Dumper;
     foreach my $class (BUILDABLE_CLASSES) {
         $properties{class} = $class->model_class;
         my $building = $class->model_class->new(simpledb=>$self->simpledb)->update(\%properties);
         my $can_build = eval{$body->has_met_building_prereqs($building)};
-        warn Dumper($@) if $@;
         next unless $can_build;
         $out{$building->name} = $class->app_url;
     }
