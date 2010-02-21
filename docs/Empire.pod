@@ -30,7 +30,7 @@ Returns a hash like the following after confirming the password matches the empi
 
  {
     "session_id" : "xxx",
-    "status" : {...}
+    "status" : { get_full_status() }
  }
 
 Throws 1004 and 1005.
@@ -52,7 +52,7 @@ Creates a new empire and then returns a hash reference with a session and an emp
  {
     "empire_id"  : "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
     "session_id" : "7ba7b80d-91d1-b0b3-1111-10c04fd430cd",
-    "status" : {...}
+    "status" : { get_full_status() }
  }
 
 Throws 1000, 1001, 1002.

@@ -12,12 +12,38 @@ This is a list of the buildings that are accessible via this API:
 
 All buildings have some methods in common. This is a description of the methods available from each building.
 
+=head2 build ( session_id, body_id, x, y )
+
+Adds this building to the planet's build queue.
+
+Throws 1002, 1010, 1011, and 1012, and 1013.
+
+=head3 session_id
+
+A session id.
+
+=head3 planet_id
+
+The id of the planet you wish to build on.
+
+=head3 x
+
+The x axis of the area on the planet you wish to place the building. Valid values are between -5 and 5 inclusive.
+
+=head3 y
+
+The y axis of the area on the planet you wish to place the building. Valid values are between -5 and 5 inclusive.
+
+
+
+
 =head2 view ( session_id, building_id )
 
 Retrieves the properties of the building.
 
  {
     "building" : {
+        "id" : "id-goes-here",
         "name" : "Planetary Command",
         "image" : "planetary-command",
         "level" : 6,
@@ -50,7 +76,7 @@ Retrieves the properties of the building.
                 "happiness_hour" : 0,
             }
     },
-    "status" : { ... }
+    "status" : { get_full_status() }
  }
 
 Throws 1002 and 1010.
@@ -67,14 +93,9 @@ The id of the building you wish to retrieve.
 
 =head2 upgrade ( session_id, building_id )
 
-Adds the requested upgrade to the build queue.
+Adds the requested upgrade to the build queue. On success returns the view() method.
 
- { 
-    "success" : 1,
-    "status" : { ... }
- } 
-
-Throws 1002, 1010, 1011, and 1012.
+Throws 1002, 1010, 1011, and 1012, and 1013.
 
 =head3 session_id
 
@@ -83,6 +104,9 @@ A session id.
 =head3 building_id
 
 The id of the building you wish to retrieve.
+
+
+
 
 =head1 Building Types
 

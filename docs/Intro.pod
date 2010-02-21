@@ -95,7 +95,7 @@ Most methods will provide a status block as part of the response. This is used t
     "empire" : {
         "id" : "xxxx",
         "name" : "The Syndicate",
-        "current_planet_id" : "yyyy",
+        "home_planet_id" : "yyyy",
         "essentia" : 0,
         "happiness" : 119393
         "planets" : {

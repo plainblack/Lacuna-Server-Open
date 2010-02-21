@@ -26,7 +26,7 @@ Retrieves a list of the buildings on a planet.
             "image" : "command",
         }
     },
-    "status" : { ... }
+    "status" : { get_status() }
  }
 
 Throws 1002 and 1010.
@@ -38,6 +38,40 @@ A session id.
 =head3 body_id
 
 The id of the body you wish to retrieve the buildings on.
+
+
+
+=head2 get_buildable ( session_id, body_id, x, y ) 
+
+Provides a list of all the building types that are available to be built on a given space on a planet.
+
+ {
+    "buildable" : {
+        "Wheat Farm" : "/wheat",
+        "Apple Orchard" : "/apple"
+    },
+    "status" : { get_status() }
+ }
+
+
+Throws 1002, 1010, 1011, and 1012, and 1013.
+
+=head3 session_id
+
+A session id.
+
+=head3 body_id
+
+The id of the body you wish to retrieve the buildings on.
+
+=head3 x
+
+The x axis of the area on the planet you wish to place the building. Valid values are between -5 and 5 inclusive.
+
+=head3 y
+
+The y axis of the area on the planet you wish to place the building. Valid values are between -5 and 5 inclusive.
+
 
 
 
