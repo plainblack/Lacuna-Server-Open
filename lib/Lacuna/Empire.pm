@@ -91,7 +91,6 @@ sub create {
             date_created        => DateTime->now,
             password            => $self->encrypt_password($account{password}),
             species_id          => $species->id,
-            current_planet_id   => $home_planet->id,
             home_planet_id      => $home_planet->id,
             probed_stars        => $home_planet->star->id,
         });
@@ -119,7 +118,7 @@ sub create {
         $home_planet->add_algae(5000);
         $home_planet->add_energy(5000);
         $home_planet->add_water(5000);
-        $home_planet->add_magnetite(5000);
+        $home_planet->add_ore(5000);
         $home_planet->put;
         
         # return status

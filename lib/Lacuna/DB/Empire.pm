@@ -17,13 +17,11 @@ __PACKAGE__->add_attributes(
     date_created        => { isa => 'DateTime' },
     description         => { isa => 'Str' },
     home_planet_id      => { isa => 'Str' },
-    current_planet_id   => { isa => 'Str' },
     status_message      => { isa => 'Str' },
     friends_and_foes    => { isa => 'Str' },
     password            => { isa => 'Str' },
     last_login          => { isa => 'DateTime' },
     species_id          => { isa => 'Str' },
-    happiness           => { isa => 'Int', default=>0 },
     essentia            => { isa => 'Int', default=>0 },
     points              => { isa => 'Int', default=>0 },
     rank                => { isa => 'Int', default=>0 }, # just where it is stored, but will come out of date quickly
@@ -44,15 +42,17 @@ sub home_planet {
     $self->simpledb->domain('body')->find($self->home_planet_id);
 }
 
-sub current_planet {
+sub get_status {
     my ($self) = @_;
-    $self->simpledb->domain('body')->find($self->current_planet_id);
+    return $self->get_full_status;
 }
 
-sub get_status {
+sub get_full_status {
     my ($self) = @_;
     my $planet_rs = $self->planets;
     my %planets;
+    my $happiness = 0;
+    my $happiness_hour = 0;
     while (my $planet = $planet_rs->next) {
         $planet->tick;
         $planets{$planet->id} = {
@@ -80,6 +80,8 @@ sub get_status {
             happiness       => $planet->happiness,
             happiness_hour  => $planet->happiness_hour,
         };
+        $happiness += $planet->happiness;
+        $happiness_hour += $planet->happiness_hour;
     }
     $self = $self->simpledb->domain('empire')->find($self->id); # refetch because it's likely changed
     my $status = {
@@ -87,12 +89,13 @@ sub get_status {
             "time" => DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',DateTime->now),
         },
         empire  => {
-            happiness           => $self->happiness,
+            happiness           => $happiness,
+            happiness_hour      => $happiness_hour,
             name                => $self->name,
             id                  => $self->id,
             essentia            => $self->essentia,
             has_new_messages    => 0,
-            current_planet_id   => $self->current_planet_id,
+            home_planet_id      => $self->home_planet_id,
             planets             => \%planets,
         },
     };

@@ -19,15 +19,15 @@ my $fed = {
 $result = post('empire', 'create', $fed);
 my $fed_id = $result->{result}{empire_id};
 my $session_id = $result->{result}{session_id};
-my $current_planet = $result->{result}{status}{empire}{current_planet_id};
-my $last_energy = $result->{result}{status}{empire}{planets}{$current_planet}{energy_stored};
+my $home_planet = $result->{result}{status}{empire}{home_planet_id};
+my $last_energy = $result->{result}{status}{empire}{planets}{$home_planet}{energy_stored};
 my $empire_id = $result->{result}{status}{empire}{id};
 
-$result = post('/wheat', 'build', [$session_id, $current_planet, 3, 3]);
+$result = post('/wheat', 'build', [$session_id, $home_planet, 3, 3]);
 is($result->{result}{building}{name}, 'Wheat Farm', 'Can build buildings');
 is($result->{result}{building}{level}, 0, 'New building is level 0');
 cmp_ok($result->{result}{building}{time_left_on_build}, '>', 0, 'Building has time in queue');
-cmp_ok($last_energy, '>', $result->{result}{status}{empire}{planets}{$current_planet}{energy_stored}, 'Resources are being spent.');
+cmp_ok($last_energy, '>', $result->{result}{status}{empire}{planets}{$home_planet}{energy_stored}, 'Resources are being spent.');
 
 my $building = $db->domain('food')->find($result->{result}{building}{id});
 $building->finish_upgrade;
@@ -35,7 +35,7 @@ $building->finish_upgrade;
 $result = post('/wheat', 'view', [$session_id, $building->id]);
 is($result->{result}{building}{level}, 1, 'New building is built');
 is($result->{result}{building}{time_left_on_build}, 0, 'Building is no longer in build queue');
-$last_energy = $result->{result}{status}{empire}{planets}{$current_planet}{energy_stored};
+$last_energy = $result->{result}{status}{empire}{planets}{$home_planet}{energy_stored};
 
 my $empire = $db->domain('empire')->find($empire_id);
 $empire->university_level(5);
@@ -44,7 +44,7 @@ $empire->put;
 $result = post('/wheat', 'upgrade', [$session_id, $building->id]);
 is($result->{result}{building}{level}, 1, 'Upgrading building is still level 1');
 cmp_ok($result->{result}{building}{time_left_on_build}, '>', 0, 'Upgrade has time in queue');
-cmp_ok($last_energy, '>', $result->{result}{status}{empire}{planets}{$current_planet}{energy_stored}, 'Resources are being spent for upgrade.');
+cmp_ok($last_energy, '>', $result->{result}{status}{empire}{planets}{$home_planet}{energy_stored}, 'Resources are being spent for upgrade.');
 
 
 sub post {

@@ -18,12 +18,12 @@ my $fed = {
 $result = post('empire', 'create', $fed);
 my $fed_id = $result->{result}{empire_id};
 my $session_id = $result->{result}{session_id};
-my $current_planet = $result->{result}{status}{empire}{current_planet_id};
+my $home_planet = $result->{result}{status}{empire}{home_planet_id};
 
-$result = post('body','rename', [$session_id, $current_planet, 'some rand '.rand(9999999)]);
+$result = post('body','rename', [$session_id, $home_planet, 'some rand '.rand(9999999)]);
 is($result->{result}, 1, 'rename');
 
-$result = post('body','rename', [$session_id, $current_planet, 'way too fricken long to be a valid name']);
+$result = post('body','rename', [$session_id, $home_planet, 'way too fricken long to be a valid name']);
 is($result->{error}{code}, 1000, 'bad name');
 
 $result = post('body','rename', [$session_id, 'aaa', 'new name']);
@@ -32,7 +32,7 @@ is($result->{error}{code}, 1002, 'cannot rename non-existant planet');
 $result = post('body','get_buildings', [$session_id, 'aaa']);
 is($result->{error}{code}, 1002, 'cannot fetch buildings on non-existant planet');
 
-$result = post('body','get_buildings', [$session_id, $current_planet]);
+$result = post('body','get_buildings', [$session_id, $home_planet]);
 is(ref $result->{result}{buildings}, 'HASH', 'fetch building list');
 my $id;
 foreach my $key (keys %{$result->{result}{buildings}}) {
@@ -48,7 +48,7 @@ $url =~ s/\///;
 $result = post($url, 'view', [$session_id, $id]);
 ok($result->{result}{building}{energy_hour} > 0, 'command center is functional');
 
-$result = post('body', 'get_buildable', [$session_id, $current_planet, 3, 3]);
+$result = post('body', 'get_buildable', [$session_id, $home_planet, 3, 3]);
 is($result->{result}{buildable}{'Wheat Farm'}, '/wheat', 'Can build buildings');
 
 sub post {

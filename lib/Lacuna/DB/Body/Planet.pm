@@ -97,6 +97,12 @@ __PACKAGE__->has_many('ore_buildings','Lacuna::DB::Building::Ore','body_id');
 __PACKAGE__->has_many('energy_buildings','Lacuna::DB::Building::Energy','body_id');
 __PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','body_id');
 
+sub builds {
+    my ($self, $where) = @_;
+    $where->{body_id} = $self->id;
+    $self->simpledb->domain('Lacuna::DB::BuildQueue')->search($where, 'date_complete');
+}
+
 # resource concentrations
 sub rutile {
     return 1;
@@ -363,6 +369,7 @@ sub build_building {
         building_id         => $building->id,
         empire_id           => $self->empire_id,
         building_class      => $building->class,
+        body_id             => $self->id,
     });
 
     # add building placeholder to planet
@@ -422,6 +429,17 @@ sub recalc_stats {
 sub tick {
     my ($self) = @_;
     my $now = DateTime->now;
+    my $builds = $self->builds({date_complete => ['<=', $now]});
+    while (my $build = $builds->next) {
+        $self->tick_to($build->date_complete);
+        $build->is_complete;
+        $self = $self->simpledb->domain('body')->find($self->id); # refetch cuz we're out of date
+    }
+    $self->tick_to($now);
+}
+
+sub tick_to {
+    my ($self, $now) = @_;
     my $interval = $now - $self->last_tick;
     my $seconds = $interval->in_units('seconds');
     my $tick_rate = $seconds / 3600;
@@ -481,6 +499,16 @@ sub ore_stored {
         $tally += $self->$method;
     }
     return $tally;
+}
+
+sub add_ore {
+    my ($self, $value) = @_;
+    foreach my $type (shuffle ORE_TYPES) {
+        next unless $self->$type >= 100; 
+        my $add_method = 'add_'.$type;
+        $self->$add_method($value);
+        last;
+    }
 }
 
 sub add_magnetite {

@@ -572,6 +572,7 @@ sub start_upgrade {
         building_id         => $self->id,
         empire_id           => $self->empire->id,
         building_class      => $self->class,
+        body_id             => $self->body_id,
     });
     $self->build_queue_id($queue->id);
     $self->put;

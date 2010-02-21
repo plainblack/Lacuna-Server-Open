@@ -11,9 +11,11 @@ __PACKAGE__->add_attributes(
     empire_id           => { isa => 'Str' },
     building_class      => { isa => 'Str' },
     building_id         => { isa => 'Str' },
+    body_id             => { isa => 'Str' },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Body', 'body_id');
 
 sub building {
     my ($self) = @_;
