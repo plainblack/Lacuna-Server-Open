@@ -82,7 +82,7 @@ sub create_star_map {
                 else {
                     my $name = pop @star_names;
                     say "Creating star $name at $x, $y, $z.";
-                    my $star = $stars->insert({
+                    my $star = $domains{star}->insert({
                         name        => $name,
                         date_created=> DateTime->now,
                         color       => $star_colors[rand(scalar(@star_colors))],
@@ -90,7 +90,7 @@ sub create_star_map {
                         y           => $y,
                         z           => $z,
                     });
-                    add_bodies($bodies, $star);
+                    add_bodies(\%domains, $star);
                 }
                 say "End Z $z";
             }
