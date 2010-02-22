@@ -1,0 +1,7 @@
+=head1 Waste Recycling Methods
+
+Waste Recycling is accessible via the URL C</wasterecycling>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

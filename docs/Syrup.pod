@@ -1,0 +1,7 @@
+=head1 Syrup Methods
+
+Syrup is accessible via the URL C</syrup>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

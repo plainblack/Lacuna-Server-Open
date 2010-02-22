@@ -1,0 +1,7 @@
+=head1 Dairy Methods
+
+Dairy is accessible via the URL C</dairy>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

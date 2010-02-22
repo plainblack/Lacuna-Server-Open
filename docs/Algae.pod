@@ -1,0 +1,7 @@
+=head1 Algae Methods
+
+Algae is accessible via the URL C</algae>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

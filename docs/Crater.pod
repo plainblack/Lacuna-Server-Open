@@ -1,0 +1,7 @@
+=head1 Crater Methods
+
+Crater is accessible via the URL C</crater>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

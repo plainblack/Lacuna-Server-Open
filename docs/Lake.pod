@@ -1,0 +1,7 @@
+=head1 Lake Methods
+
+Lake is accessible via the URL C</lake>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

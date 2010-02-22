@@ -1,0 +1,7 @@
+=head1 Terraforming Lab Methods
+
+Terraforming Lab is accessible via the URL C</terraforminglab>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

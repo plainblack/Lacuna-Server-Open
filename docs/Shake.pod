@@ -1,0 +1,7 @@
+=head1 Shake Methods
+
+Shake is accessible via the URL C</shake>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

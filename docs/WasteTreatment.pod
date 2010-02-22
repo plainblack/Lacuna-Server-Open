@@ -1,0 +1,7 @@
+=head1 Waste Treatment Methods
+
+Waste Treatment is accessible via the URL C</wastetreatment>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

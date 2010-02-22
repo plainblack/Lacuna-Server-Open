@@ -1,0 +1,7 @@
+=head1 Mining Ministry Methods
+
+Mining Ministry is accessible via the URL C</miningministry>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

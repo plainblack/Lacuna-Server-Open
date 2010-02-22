@@ -1,0 +1,7 @@
+=head1 Trade Methods
+
+Trade is accessible via the URL C</trade>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

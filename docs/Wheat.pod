@@ -1,0 +1,7 @@
+=head1 Wheat Methods
+
+Wheat is accessible via the URL C</wheat>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

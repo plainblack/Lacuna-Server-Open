@@ -3,33 +3,28 @@ use strict;
 use 5.010;
 use List::Util::WeightedChoice qw( choose_weighted );
 use List::Util qw(shuffle);
+use Lacuna;
+use Lacuna::Util qw(randint);
 use List::MoreUtils qw(uniq);
 use String::Random;
-use Lacuna::DB;
 use DateTime;
-use Coro;
-use AnyEvent;
 
 my $access = $ENV{SIMPLEDB_ACCESS_KEY};
 my $secret = $ENV{SIMPLEDB_SECRET_KEY};
 my $db = Lacuna::DB->new(access_key=>$access, secret_key=>$secret, cache_servers=>[{host=>127.0.0.1, port=>11211}]);
 
 create_species();
-create_empires();
+create_aux_domains();
 create_star_map();
 
-
-sub create_empires {
-    my $empires = $db->domain('empire');
-    say "Deleting existing empire domain.";
-    $empires->delete;
-    say "Creating new empire domain.";
-    $empires->create;
-    my $sessions = $db->domain('session');
-    say "Deleting existing session domain.";
-    $sessions->delete;
-    say "Creating new session domain.";
-    $sessions->create;
+sub create_aux_domains {
+    foreach my $name (qw(empire session build_queue)) {
+        my $domain = $db->domain($name);
+        say "Deleting existing $name domain.";
+        $domain->delete;
+        say "Creating new $name domain.";
+        $domain->create;
+    }
 }
 
 sub create_species {
@@ -58,28 +53,29 @@ sub create_species {
 }
 
 sub create_star_map {
-    my $start_x = my $start_y = my $start_z = -15;
-    my $end_x = my $end_y = my $end_z = 15;
+    my $start_x = my $start_y = my $start_z = -5;
+    my $end_x = my $end_y = my $end_z = 5;
     my $star_count = abs($end_x - $start_x) * abs($end_y - $start_y) * abs($end_z - $start_z);
     my @star_colors = (qw(magenta red green blue yellow white));
-    my $stars = $db->domain('star');
-    say "Deleting existing stars domain.";
-    $stars->delete;
-    say "Creating new stars domain.";
-    $stars->create;
-    my $bodies = $db->domain('body');
-    say "Deleting existing bodies domain.";
-    $bodies->delete;
-    say "Creating new bodies domain.";
-    $bodies->create;
+    my %domains;
+    foreach my $domain (qw(star body ore water building waste energy food permanent)) {
+        $domains{$domain} = $db->domain($domain);
+        say "Deleting existing $domain domain.";
+        $domains{$domain}->delete;
+        say "Create new $domain domain.";
+        $domains{$domain}->create;
+    }
     say "Generating star names.";
     my @star_names = get_star_names($star_count);
     say "Have ".scalar(@star_names)." star names";
 
     say "Adding stars.";
     for my $x ($start_x .. $end_x) {
+        say "Start X $x";
         for my $y ($start_y .. $end_y) {
+            say "Start Y $y";
             for my $z ($start_z .. $end_z) {
+                say "Start Z $z";
                 if (rand(100) <= 15) { # 15% chance of no star
                     say "No star at $x, $y, $z!";
                 }
@@ -96,14 +92,17 @@ sub create_star_map {
                     });
                     add_bodies($bodies, $star);
                 }
+                say "End Z $z";
             }
+            say "End Y $y";
         }
+        say "End X $x";
     }
 }
 
 
 sub add_bodies {
-    my $bodies = shift;
+    my $domains = shift;
     my $star = shift;
     my @body_types = ('habitable', 'asteroid', 'gas giant');
     my @body_type_weights = (qw(60 15 15));
@@ -119,10 +118,11 @@ sub add_bodies {
     say "\tAdding bodies.";
     for my $orbit (1..7) {
         my $name = $star->name."-".$orbit;
-        if (rand(100) <= 10) { # 10% chance of no body in an orbit
+        if (randint(1,100) <= 10) { # 10% chance of no body in an orbit
             say "\tNo body at $name!";
         } 
         else {
+<<<<<<< HEAD:bin/init_lacuna.pl
             my $type = choose_weighted(\@body_types, \@body_type_weights);
             say "\tAdding a $type at $name (".$star->x.",".$star->y.",".$star->z.").";
             my $params = {
@@ -136,18 +136,59 @@ sub add_bodies {
             if ($type eq 'habitable') {
                 $params->{class} = $planet_classes[rand(scalar(@planet_classes))];
                 $params->{empire_id} = 'None';
-                $params->{size} = rand(50) + 20;
+                $params->{size} = randint(25,100);
             }
             elsif ($type eq 'asteroid') {
                 $params->{class} = $asteroid_classes[rand(scalar(@asteroid_classes))];
-                $params->{size} = rand(10);
+                $params->{size} = randint(1,10);
             }
             else {
                 $params->{class} = $gas_giant_classes[rand(scalar(@gas_giant_classes))];
                 $params->{empire_id} = 'None';
-                $params->{size} = rand(50)+70;
+                $params->{size} = randint(70,121);
             }
-            $bodies->insert($params);
+            my $body = $domains->{body}->insert($params);
+            my $now = DateTime->now;
+            if ($body->isa('Lacuna::DB::Body::Planet') && !$body->isa('Lacuna::DB::Body::Planet::GasGiant')) {
+                say "\t\tAdding features to body.";
+                foreach  my $x (-3, -1, 2, 4, 1) {
+                    my $chance = randint(1,100);
+                    my $y = randint(-5,5);
+                    if ($chance <= 5) {
+                        say "\t\t\tAdding lake.";
+                        $domains->{permanent}->insert({
+                            date_created    => $now,
+                            level           => 1,
+                            x               => $x,
+                            y               => $y,
+                            class           => 'Lacuna::DB::Building::Permanent::Lake',
+                            body_id         => $body->id,
+                        });
+                    }
+                    elsif ($chance > 45 && $chance <= 50) {
+                        say "\t\t\tAdding rocky outcropping.";
+                        $domains->{permanent}->insert({
+                            date_created    => $now,
+                            level           => 1,
+                            x               => $x,
+                            y               => $y,
+                            class           => 'Lacuna::DB::Building::Permanent::RockyOutcrop',
+                            body_id         => $body->id,
+                        });
+                    }
+                    elsif ($chance > 95) {
+                        say "\t\t\tAdding crater.";
+                        $domains->{permanent}->insert({
+                            date_created    => $now,
+                            level           => 1,
+                            x               => $x,
+                            y               => $y,
+                            class           => 'Lacuna::DB::Building::Permanent::Crater',
+                            body_id         => $body->id,
+                        });
+                    }
+                }
+            }
         }
     }
 }

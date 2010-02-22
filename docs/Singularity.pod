@@ -1,0 +1,7 @@
+=head1 Singularity Methods
+
+Singularity is accessible via the URL C</singularity>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

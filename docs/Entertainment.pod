@@ -1,0 +1,7 @@
+=head1 Entertainment Methods
+
+Entertainment is accessible via the URL C</entertainment>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

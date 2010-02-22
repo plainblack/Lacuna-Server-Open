@@ -1,0 +1,7 @@
+=head1 Rocky Outcrop Methods
+
+Rocky Outcrop is accessible via the URL C</rockyoutcrop>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

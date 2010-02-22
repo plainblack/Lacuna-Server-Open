@@ -1,0 +1,7 @@
+=head1 Ore Storage Methods
+
+Ore Storage is accessible via the URL C</orestorage>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

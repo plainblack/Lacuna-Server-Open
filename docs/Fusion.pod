@@ -1,0 +1,7 @@
+=head1 Fusion Methods
+
+Fusion is accessible via the URL C</fusion>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

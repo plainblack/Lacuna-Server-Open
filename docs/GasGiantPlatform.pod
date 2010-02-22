@@ -1,0 +1,7 @@
+=head1 Gas GiantPlatform Methods
+
+Gas GiantPlatform is accessible via the URL C</gasgiantplatform>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

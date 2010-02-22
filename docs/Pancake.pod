@@ -1,0 +1,7 @@
+=head1 Pancake Methods
+
+Pancake is accessible via the URL C</pancake>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

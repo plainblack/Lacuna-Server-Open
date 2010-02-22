@@ -1,0 +1,7 @@
+=head1 Network19 Methods
+
+Network19 is accessible via the URL C</network19>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

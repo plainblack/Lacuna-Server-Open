@@ -1,0 +1,7 @@
+=head1 Apple Methods
+
+Apple is accessible via the URL C</apple>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

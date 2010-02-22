@@ -1,0 +1,7 @@
+=head1 Geo Methods
+
+Geo is accessible via the URL C</geo>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

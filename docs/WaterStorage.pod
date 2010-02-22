@@ -1,0 +1,7 @@
+=head1 Water Storage Methods
+
+Water Storage is accessible via the URL C</waterstorage>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

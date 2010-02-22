@@ -1,0 +1,7 @@
+=head1 Park Methods
+
+Park is accessible via the URL C</park>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

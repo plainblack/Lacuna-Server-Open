@@ -1,6 +1,8 @@
 package Lacuna::Role::Sessionable;
 
 use Moose::Role;
+use DateTime;
+use DateTime::Format::Strptime;
 
 requires 'simpledb';
 
@@ -21,10 +23,8 @@ sub get_session {
             confess [1006, 'Session not found.', $session_id];
         }
         elsif ($session->has_expired) {
-use DateTime;
-use DateTime::Format::Strptime;
-		my $now = DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',DateTime->now);
-		my $expires = DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',$session->expires);
+		    my $now = DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',DateTime->now);
+		    my $expires = DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',$session->expires);
             confess [1006, 'Session expired.', {session_id=>$session_id, now=>$now, expired=>$expires}];
         }
         else {

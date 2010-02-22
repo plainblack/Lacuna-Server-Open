@@ -18,13 +18,13 @@ my $fed = {
 $result = post('empire', 'create', $fed);
 my $fed_id = $result->{result}{empire_id};
 my $session_id = $result->{result}{session_id};
-my $current_planet = $result->{result}{status}{empire}{current_planet_id};
+my $home_planet = $result->{result}{status}{empire}{home_planet_id};
 
-$result = post('map','get_stars_near_body', [$session_id, $current_planet]);
+$result = post('map','get_stars_near_body', [$session_id, $home_planet]);
 is(ref $result->{result}{stars}, 'ARRAY', 'get_stars_near_body');
 cmp_ok(scalar(@{$result->{result}{stars}}), '>', 0, 'get_stars_near_body count');
 
-$result = post('map','get_star_by_body', [ $session_id, $current_planet]);
+$result = post('map','get_star_by_body', [ $session_id, $home_planet]);
 is($result->{result}{star}{can_rename}, 1, 'get_star_by_body');
 my $star_id = $result->{result}{star}{id};
 
@@ -57,7 +57,7 @@ is($result->{error}{code}, 1010, 'get star system no privilege');
 $result = post('map','get_star_system', [$session_id, $star_id]);
 is($result->{result}{star}{id},$star_id, 'get star system');
 
-$result = post('map','get_star_system_by_body', [$session_id, $current_planet]);
+$result = post('map','get_star_system_by_body', [$session_id, $home_planet]);
 is($result->{result}{star}{id},$star_id, 'get star system by body');
 
 $result = post('map','get_star_system_by_body', [$session_id, 'aaa']);

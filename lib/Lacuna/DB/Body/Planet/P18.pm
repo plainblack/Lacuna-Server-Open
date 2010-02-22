@@ -3,19 +3,28 @@ package Lacuna::DB::Body::Planet::P18;
 use Moose;
 extends 'Lacuna::DB::Body::Planet';
 
-has '+minerals' => (
-    default => sub { {
-        gold    => 10,
-    }},
-);
 
-has '+image' => (
-    default => 'p18',
-);
+sub image {
+    return 'p18';
+}
 
-has '+water' => (
-    default => 7600,
-);
+sub water {
+    return 7600;
+}
+
+# resource concentrations
+
+sub chromite {
+    return 3200;
+}
+
+sub uraninite {
+    return 2600;
+}
+
+sub bauxite {
+    return 4200;
+}
 
 
 no Moose;

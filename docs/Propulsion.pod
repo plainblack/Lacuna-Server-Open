@@ -1,0 +1,7 @@
+=head1 Propulsion Methods
+
+Propulsion is accessible via the URL C</propulsion>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

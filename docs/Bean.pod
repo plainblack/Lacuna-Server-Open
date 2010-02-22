@@ -1,0 +1,7 @@
+=head1 Bean Methods
+
+Bean is accessible via the URL C</bean>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

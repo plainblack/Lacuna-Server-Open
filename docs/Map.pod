@@ -27,7 +27,7 @@ Retrieves a chunk of the map and returns it as an array of hashes. B<Note:> Coor
             "alignments"    : "unprobed"
         }
      ],
-    "status" : {...}
+    "status" : { get_status() }
  }
 
 The data you retrieve will allow you to draw a standard cartesian plane like the following. 
@@ -106,7 +106,7 @@ Returns the details about a star.
         "color" : "yellow",
         "can_rename" : 1
     },
-    "status" : {...}
+    "status" : { get_status() }
  }
 
 Throws 1002.
@@ -140,9 +140,9 @@ Returns an array of bodies and a hash about the star itself. The data structure 
             "name" : "Mercury",
             "orbit" : 1,
             "image" : "p13",
-            "minerals" : {
-                "Gold" : 9239,
-                "Bauxite" : 1223
+            "ore" : {
+                "gold" : 9239,
+                "bauxite" : 1223
             },
             "water" : 100,
             "empire" : {
@@ -151,7 +151,7 @@ Returns an array of bodies and a hash about the star itself. The data structure 
             }
         }
     },
-    "status" : {...}
+    "status" : { get_status() }
  }
 
 Throws 1002 and 1010.
