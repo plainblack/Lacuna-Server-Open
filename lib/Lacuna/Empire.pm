@@ -138,8 +138,13 @@ sub get_status {
     return $self->get_empire_by_session($session_id)->get_status;
 }
 
+sub get_full_status {
+    my ($self, $session_id) = @_;
+    return $self->get_empire_by_session($session_id)->get_full_status;
+}
 
-__PACKAGE__->register_rpc_method_names(qw(is_name_available create login logout get_status));
+
+__PACKAGE__->register_rpc_method_names(qw(is_name_available create login logout get_full_status get_status));
 
 
 no Moose;
