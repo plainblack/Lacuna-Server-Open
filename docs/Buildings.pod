@@ -1,13 +1,3 @@
-=head1 Buildings
-
-This is a list of the buildings that are accessible via this API:
-
-=over
-
-=item L<PlanetaryCommand>
-
-=back
-
 =head1 Building Methods
 
 All buildings have some methods in common. This is a description of the methods available from each building.

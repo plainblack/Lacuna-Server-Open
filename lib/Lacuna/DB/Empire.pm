@@ -58,10 +58,11 @@ sub get_status {
             "time" => DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',DateTime->now),
         },
         empire  => {
-            happiness           => $happiness,
-            happiness_hour      => $happiness_hour,
-            essentia            => $self->essentia,
-            has_new_messages    => 0,
+            full_status_update_required => 0,
+            happiness                   => $happiness,
+            happiness_hour              => $happiness_hour,
+            essentia                    => $self->essentia,
+            has_new_messages            => 0,
         },
     };
     return $status;

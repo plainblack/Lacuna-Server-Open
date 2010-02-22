@@ -89,6 +89,7 @@ Fetches the empire's status hash that is returned with many methods, but perform
     },
     "empire" : {
         "has_new_messages" : 3,
+	"full_status_update_required" : 1,
         "essentia" : 0,
         "happiness_hour" : 450,
         "happiness" : 119393
@@ -96,6 +97,8 @@ Fetches the empire's status hash that is returned with many methods, but perform
  }
 
 The C<server> section tells you about the status of the server. The C<empire> section tells you about the status of the logged in empire.
+
+The C<full_status_update_required> element lets you know that the client data is out of date, and need to be fetched again with a call to C<get_full_status>.
 
 Throws 1002.
 
@@ -124,11 +127,22 @@ Fetches the empire's status hash that is returned with many methods, but perform
                 "name" : "Earth",
                 "image" : "p13",
                 "happiness" : 3939,
-                "food" : 33329
-                "energy" : 39931
-                "minerals" 28484,
-                "waste" : 99933,
-                "water" : 9929,
+                "happiness_hour" : 25,
+                "food_stored" : 33329,
+                "food_capacity" : 40000,
+                "food_hour" : 229,
+                "energy_stored" : 39931,
+                "energy_capacity" : 43000,
+                "energy_hour" : 391,
+                "ore_hour" 284,
+                "ore_capacity" 35000,
+                "ore_stored" 1901,
+                "waste_hour" : 933,
+                "waste_stored" : 9933,
+                "waste_capacity" : 13000,
+                "water_stored" : 9929,
+                "water_hour" : 295,
+                "water_capacity" : 51050,
                 "x" : -4,
                 "y" : 10,
                 "z" : 6,
@@ -137,14 +151,25 @@ Fetches the empire's status hash that is returned with many methods, but perform
             "yyy1" : {
                 "name" : "Mars",
                 "image" : "p7"
-                "happiness" : 5939,
-                "food" : 53329
-                "energy" : 59931
-                "minerals" 48484,
-                "waste" : 89933,
-                "water" : 7929,
                 "x" : -4,
                 "y" : 10,
+                "happiness" : 3939,
+                "happiness_hour" : 25,
+                "food_stored" : 33329,
+                "food_capacity" : 40000,
+                "food_hour" : 229,
+                "energy_stored" : 39931,
+                "energy_capacity" : 43000,
+                "energy_hour" : 391,
+                "ore_hour" 284,
+                "ore_capacity" 35000,
+                "ore_stored" 1901,
+                "waste_hour" : 933,
+                "waste_stored" : 9933,
+                "waste_capacity" : 13000,
+                "water_stored" : 9929,
+                "water_hour" : 295,
+                "water_capacity" : 51050,
                 "z" : 6,
                 "orbit" : 4
             }
@@ -153,6 +178,8 @@ Fetches the empire's status hash that is returned with many methods, but perform
  }
 
 The C<server> section tells you about the status of the server. The C<empire> section tells you about the status of the logged in empire.
+
+In the C<empire> section there is a list of the empires planets, and the resources they are producing. Each resource has a C<_hour>, C<_stored>, and C<_capacity> except for happiness, which is missing C<_stored> because you can have an infinite amount of happiness. The C<_hour> elements refer the the amount of that resource that is produced by this planet per hour. The C<_stored> element refers to how much of the resource the planet has available right now. The C<_capacity> element refers to how much of the resource the planet can store at maximum. 
 
 Throws 1002.
 
