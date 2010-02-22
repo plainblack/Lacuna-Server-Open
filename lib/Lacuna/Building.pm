@@ -106,7 +106,7 @@ sub view {
                     production      => $building->stats_after_upgrade,
                 },
             },
-            status      => $empire->get_status,
+            status      => $empire->get_full_status,
         };
     }
     else {

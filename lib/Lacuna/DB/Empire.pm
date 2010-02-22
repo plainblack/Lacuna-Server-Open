@@ -44,7 +44,27 @@ sub home_planet {
 
 sub get_status {
     my ($self) = @_;
-    return $self->get_full_status;
+    my $planet_rs = $self->planets;
+    my %planets;
+    my $happiness = 0;
+    my $happiness_hour = 0;
+    while (my $planet = $planet_rs->next) {
+        $happiness += $planet->happiness;
+        $happiness_hour += $planet->happiness_hour;
+    }
+    $self = $self->simpledb->domain('empire')->find($self->id); # refetch because it's likely changed
+    my $status = {
+        server  => {
+            "time" => DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',DateTime->now),
+        },
+        empire  => {
+            happiness           => $happiness,
+            happiness_hour      => $happiness_hour,
+            essentia            => $self->essentia,
+            has_new_messages    => 0,
+        },
+    };
+    return $status;
 }
 
 sub get_full_status {
@@ -83,7 +103,6 @@ sub get_full_status {
         $happiness += $planet->happiness;
         $happiness_hour += $planet->happiness_hour;
     }
-    $self = $self->simpledb->domain('empire')->find($self->id); # refetch because it's likely changed
     my $status = {
         server  => {
             "time" => DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',DateTime->now),

@@ -36,7 +36,7 @@ sub login {
     my $empire = $self->simpledb->domain('empire')->search({cname=>cname($name)})->next;
     if (defined $empire) {
         if ($empire->password eq $self->encrypt_password($password)) {
-            return { session_id => $empire->start_session->id, status => $empire->get_status };
+            return { session_id => $empire->start_session->id, status => $empire->get_full_status };
         }
         else {
             confess [1004, 'Password incorrect.', $password];
@@ -122,7 +122,7 @@ sub create {
         $home_planet->put;
         
         # return status
-        my $status = $empire->get_status;
+        my $status = $empire->get_full_status;
         my $session_id = $empire->start_session->id;
         return { empire_id => $empire->id, session_id => $session_id, status => $status };
     }
