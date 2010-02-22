@@ -102,6 +102,7 @@ cmp_deeply(
 );
 my $borg_id = $result->{result};
 
+sleep 2; # give it a chance to populate
 $result = post('species', 'is_name_available', ['Borg']);
 is($result->{result}, 0, 'species name Borg not available');
 
@@ -116,11 +117,13 @@ sub post {
     };
     my $ua = LWP::UserAgent->new;
     $ua->timeout(10);
+#    say "REQUEST: ".to_json($content);
     my $response = $ua->post('http://localhost:5000/'.$url,
         Content_Type    => 'application/json',
         Content         => to_json($content),
         Accept          => 'application/json',
         );
+#    say "RESPONSE: ".$response->content;
     return from_json($response->content);
 }
 

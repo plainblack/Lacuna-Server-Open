@@ -128,15 +128,17 @@ sub get_star_system {
                 }
             }
             my %ores;
-            foreach my $type (ORE_TYPES) {
-                $ores{$type} = $body->$type();
+            if ($body->isa('Lacuna::DB::Planet')) {
+                foreach my $type (ORE_TYPES) {
+                    $ores{$type} = $body->$type();
+                }
             }
             $out{$body->id} = {
                 name        => $body->name,
                 image       => $body->image,
                 empire      => $owner,
                 ore         => \%ores,
-                water       => $body->water,
+                water       => ($body->isa('Lacuna::DB::Planet')) ? $body->water : 0,
                 orbit       => $body->orbit,
            };
         }
