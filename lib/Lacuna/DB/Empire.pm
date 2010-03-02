@@ -62,10 +62,15 @@ sub get_status {
             happiness                   => $happiness,
             happiness_hour              => $happiness_hour,
             essentia                    => $self->essentia,
-            has_new_messages            => 0,
+            has_new_messages            => $self->get_new_message_count,
         },
     };
     return $status;
+}
+
+sub get_new_message_count {
+    my $self = shift;
+    return $self->simpledb->domain('message')->count(where => { has_read => ['!=', 1]});
 }
 
 sub get_full_status {
@@ -114,7 +119,7 @@ sub get_full_status {
             name                => $self->name,
             id                  => $self->id,
             essentia            => $self->essentia,
-            has_new_messages    => 0,
+            has_new_messages    => $self->get_new_message_count,
             home_planet_id      => $self->home_planet_id,
             planets             => \%planets,
         },

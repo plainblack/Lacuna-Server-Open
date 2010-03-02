@@ -1,0 +1,124 @@
+=head1 Inbox Methods
+
+These methods are accessible via the C</inbox> URL.
+
+
+=head2 view_inbox ( session_id, [ page_number ] )
+
+Displays a list of the messages in the empire's inbox.
+
+ {
+    "messages" : [
+        {
+            "id" : "id-goes-here",
+            "subject" : "Vaxaslim",
+            "date" : "01 31 2010 13:09:05 +0600",
+            "from" : "Dr. Stephen T. Colbert DFA",
+            "has_read" : 1,
+            "has_replied" : 0,
+        }
+    ],
+    "status" : { get_status() }
+ }
+ 
+Throws 1002, 1006.
+
+=head3 session_id
+
+A session id.
+
+=head3 page_number
+
+An integer representing which page of the inbox you'd like to view. Defaults to C<1>.
+
+
+=head2 view_archived ( session_id, [ page_number ])
+
+Exactly the same as C<view_inbox> except that it shows archived messages instead.
+
+
+=head2 view_sent ( session_id, [page_number] )
+
+Exactly the same as C<view_inbox> except that it shows sent messages instead.
+
+
+=head2 read_message ( session_id, message_id )
+
+Retrieves a message. Marks it read if it hasn't been already.
+
+ {
+    "message" : {
+        "id" : "id-goes-here",
+        "from" : "Dr. Stephen T. Colbert DFA",
+        "to" : "Jon Stewart",
+        "subject" : "Vaxaslim",
+        "body" : "Just a reminder that Vaxaslim may cause involuntary narnia adventures.",
+        "date" : "01 31 2010 13:09:05 +0600",
+        "has_read" : 1,
+        "has_replied" : 0,
+        "has_archived" : 0,
+        "in_reply_to" : "",
+        "recipients" : ["John Stewart"]
+    },
+    status  => { get_status() }
+ }
+ 
+C<recipients> is the complete list of users who received the message, whereas C<to> is the user that owns this particular copy of the message.
+ 
+Throws 1002, 1006, 1010.
+
+=head3 session_id
+
+A session id.
+
+=head3 message_id
+
+A message_id that was returned using C<view_inbox> or one of the other view_ methods.
+
+
+=head2 archive_messages ( session_id, message_ids )
+ 
+Archives a list of messages. Returns C<view_inbox>.
+
+B<NOTE:> You cannot archive sent messages.
+
+=head3 session_id
+
+A session id.
+
+=head3 message_ids
+
+An array reference of message ids.
+
+
+=head2 send_message ( session_id, recipients, subject, body, [ options ] )
+
+Sends a message to other players. 
+
+Throws 1002, 1005, 1006.
+
+=head3 session_id
+
+A session id.
+
+=head3 recipients
+
+A comma separated string of empire names.
+
+=head3 subject
+
+A subject for the message. It cannot contain any special characters, and must be less than 100 characters in length.
+
+=head3 body
+
+The body of the message. It cannot contain any special characters, and must be less than 200,000 characters in length.
+
+=head3 options
+
+A hash reference of extra options.
+
+=head4 in_reply_to
+
+If this message is in reply to another message, then set this option to the message id of the original message.
+ 
+=cut

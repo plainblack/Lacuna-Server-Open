@@ -100,6 +100,10 @@ A list of the error codes that might be returned by various modules.
 
 Methods for account and empire management.
 
+=item L<Inbox>
+
+Methods for message management.
+
 =item L<Stats>
 
 Methods for game server statistics.
