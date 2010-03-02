@@ -154,6 +154,10 @@ Returns an array of bodies and a hash about the star itself. The data structure 
     "status" : { get_status() }
  }
 
+The C<bodies> listing here shows public information about the body. For information about a planet that an empire owner can view, see L<Empire/"get_full_status">.
+
+The C<ore> and C<water> parts of each body gives you an indication of how good the body is at producing those resources. The number is out of 10,000 possible. So a body that produces 9,000 bauxite would produce about 90% of capacity of bauxite. 
+
 Throws 1002 and 1010.
 
 =head3 session_id
