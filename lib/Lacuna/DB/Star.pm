@@ -13,7 +13,7 @@ __PACKAGE__->add_attributes(
         },
     },
     cname           => { isa => 'Str' },
-    is_named        => { isa => 'Str', default => 0 },
+    is_named        => { isa => 'Str', default => '0' },
     date_created    => { isa => 'DateTime' },
     color           => { isa => 'Str' },
     x               => { isa => 'Int' },
@@ -22,6 +22,7 @@ __PACKAGE__->add_attributes(
 );
 
 __PACKAGE__->has_many('bodies', 'Lacuna::DB::Body', 'star_id');
+__PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'star_id');
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

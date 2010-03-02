@@ -100,7 +100,7 @@ __PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','b
 sub builds {
     my ($self, $where) = @_;
     $where->{body_id} = $self->id;
-    $self->simpledb->domain('Lacuna::DB::BuildQueue')->search($where, 'date_complete');
+    $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(where=>$where, order_by=>'date_complete');
 }
 
 # resource concentrations
@@ -303,7 +303,7 @@ sub is_space_free {
     my ($self, $x, $y) = @_;
     my $db = $self->simpledb;
     foreach my $domain (qw(building energy water food waste ore permanent)) {
-        my $count = $db->domain($domain)->count({
+        my $count = $db->domain($domain)->count(where => {
             body_id => $self->id,
             x       => $x,
             y       => $y,
@@ -393,7 +393,7 @@ sub has_resources_to_build {
 sub has_max_instances_of_building {
     my ($self, $building) = @_;
     return 0 if $building->max_instances_per_planet == 9999999;
-    my $count = $self->simpledb->domain($building->class)->count({body_id=>$self->id, class=>$building->class});
+    my $count = $self->simpledb->domain($building->class)->count(where=>{body_id=>$self->id, class=>$building->class});
     return ($building->max_instances_per_planet > $count) ? 1 : 0;
 }
 

@@ -49,12 +49,12 @@ sub create_species {
         political_affinity      => 4, # happiness
         trade_affinity          => 4, # speed of cargoships, and amount of cargo hauled
         growth_affinity         => 4, # price and speed of colony ships, and planetary command center start level
-    }, 'human_species');
+    }, id=>'human_species');
 }
 
 sub create_star_map {
-    my $start_x = my $start_y = my $start_z = -15;
-    my $end_x = my $end_y = my $end_z = 15;
+    my $start_x = my $start_y = my $start_z = -5;
+    my $end_x = my $end_y = my $end_z = 5;
     my $star_count = abs($end_x - $start_x) * abs($end_y - $start_y) * abs($end_z - $start_z);
     my @star_colors = (qw(magenta red green blue yellow white));
     my %domains;

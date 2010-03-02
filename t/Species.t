@@ -132,7 +132,7 @@ sub cleanup {
     my $species = $db->domain('species');
     if (defined $species) {
         say "Locating borg";
-        my $borg = eval {$species->search({name=>'Borg'})};
+        my $borg = eval {$species->search(where=>{name=>'Borg'})};
         if ($@) {
             die "WTF: ".$@;
         }

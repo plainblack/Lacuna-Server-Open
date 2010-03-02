@@ -15,7 +15,7 @@ sub is_name_available {
         return 0;
     }
     else {
-        my $count = $self->simpledb->domain('species')->count({cname=>cname($name)});
+        my $count = $self->simpledb->domain('species')->count(where=>{cname=>cname($name)}, consistent=>1);
         warn $name . " = ". $count;
         return ($count) ? 0 : 1;
     }

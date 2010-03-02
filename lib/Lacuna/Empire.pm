@@ -20,7 +20,7 @@ sub is_name_available {
         return 0;
     }
     else {
-        my $count = $self->simpledb->domain('empire')->count({cname=>cname($name)});
+        my $count = $self->simpledb->domain('empire')->count(where=>{cname=>cname($name)}, consistent=>1);
         return ($count) ? 0 : 1;
     }
 }
@@ -33,7 +33,7 @@ sub logout {
 
 sub login {
     my ($self, $name, $password) = @_;
-    my $empire = $self->simpledb->domain('empire')->search({cname=>cname($name)})->next;
+    my $empire = $self->simpledb->domain('empire')->search(where=>{cname=>cname($name)})->next;
     if (defined $empire) {
         if ($empire->password eq $self->encrypt_password($password)) {
             return { session_id => $empire->start_session->id, status => $empire->get_full_status };
@@ -72,14 +72,18 @@ sub create {
         unless (ref $orbits eq 'ARRAY') {
             $orbits = [$orbits];
         }
-        my $possible_planets = $db->domain('body')->search({
-            empire_id   => 'None',
-            class       => ['like','Lacuna::DB::Body::Planet::P%'],
-            orbit       => ['in',@{$orbits}],
-            x           => ['between', ($map->get_min_x_inhabited - 2), ($map->get_max_x_inhabited + 2)],
-            y           => ['between', ($map->get_min_y_inhabited - 2), ($map->get_max_y_inhabited + 2)],
-            z           => ['between', ($map->get_min_z_inhabited - 2), ($map->get_max_z_inhabited + 2)],
-        });
+        my $possible_planets = $db->domain('Lacuna::DB::Body::Planet')->search(
+            where       => {
+                empire_id   => 'None',
+                class       => ['like','Lacuna::DB::Body::Planet::P%'],
+                orbit       => ['in',@{$orbits}],
+                x           => ['between', ($map->get_min_x_inhabited - 2), ($map->get_max_x_inhabited + 2)],
+                y           => ['between', ($map->get_min_y_inhabited - 2), ($map->get_max_y_inhabited + 2)],
+                z           => ['between', ($map->get_min_z_inhabited - 2), ($map->get_max_z_inhabited + 2)],
+            },
+            order_by    => 'itemName()',
+            limit       => 1,
+            );
         my $home_planet = $possible_planets->next;
         unless (defined $home_planet) {
             confess [1002, 'Could not find a home planet.'];

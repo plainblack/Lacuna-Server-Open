@@ -20,7 +20,7 @@ sub rename_star {
         ->length_lt(31)
         ->no_restricted_chars
         ->no_profanity
-        ->not_ok($self->simpledb->domain('star')->count({cname=>Lacuna::Util::cname($name), id=>['!=',$star_id]})); # name available
+        ->not_ok($self->simpledb->domain('star')->count(where=>{cname=>Lacuna::Util::cname($name), 'itemName()'=>['!=',$star_id]})); # name available
     my $empire = $self->get_empire_by_session($session_id);
     my $star = $self->simpledb->domain('star')->find($star_id);
     if (defined $star) {
@@ -28,7 +28,7 @@ sub rename_star {
             confess [1010, "Can't rename a star that's already named."];
         }
         else {
-            my $bodies = $star->bodies->count({empire_id=>$empire->id});
+            my $bodies = $star->planets->count(where=>{empire_id=>$empire->id});
             if ($bodies) {
                 $star->update({
                     name        => $name,
@@ -189,7 +189,7 @@ sub get_stars {
         confess [1003, 'Requested area too large.'];
     }
     else {
-        my $stars = $self->simpledb->domain('star')->search({z=>$z, y=>['between', $starty, $endy], x=>['between', $startx, $endx]});
+        my $stars = $self->simpledb->domain('star')->search(where => {z=>$z, y=>['between', $starty, $endy], x=>['between', $startx, $endx]});
         my @out;
         while (my $star = $stars->next) {
             my $alignment = 'unprobed';
@@ -221,32 +221,32 @@ sub get_stars {
 
 sub get_max_x_inhabited {
     my ($self) = @_;
-    return $self->simpledb->domain('body')->max('x', {empire_id=>['!=','None']});
+    return $self->simpledb->domain('Lacuna::DB::Body::Planet')->max('x', where=>{empire_id=>['!=','None']});
 }
 
 sub get_min_x_inhabited {
     my ($self) = @_;
-    return $self->simpledb->domain('body')->min('x', {empire_id=>['!=','None']});
+    return $self->simpledb->domain('Lacuna::DB::Body::Planet')->min('x', where=>{empire_id=>['!=','None']});
 }
 
 sub get_max_y_inhabited {
     my ($self) = @_;
-    return $self->simpledb->domain('body')->max('y', {empire_id=>['!=','None']});
+    return $self->simpledb->domain('Lacuna::DB::Body::Planet')->max('y', where=>{empire_id=>['!=','None']});
 }
 
 sub get_min_y_inhabited {
     my ($self) = @_;
-    return $self->simpledb->domain('body')->min('y', {empire_id=>['!=','None']});
+    return $self->simpledb->domain('Lacuna::DB::Body::Planet')->min('y', where=>{empire_id=>['!=','None']});
 }
 
 sub get_max_z_inhabited {
     my ($self) = @_;
-    return $self->simpledb->domain('body')->max('z', {empire_id=>['!=','None']});
+    return $self->simpledb->domain('Lacuna::DB::Body::Planet')->max('z', where=>{empire_id=>['!=','None']});
 }
 
 sub get_min_z_inhabited {
     my ($self) = @_;
-    return $self->simpledb->domain('body')->min('z', {empire_id=>['!=','None']});
+    return $self->simpledb->domain('Lacuna::DB::Body::Planet')->min('z', where=>{empire_id=>['!=','None']});
 }
 
 

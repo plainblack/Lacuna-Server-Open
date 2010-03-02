@@ -79,19 +79,19 @@ sub post {
     };
     my $ua = LWP::UserAgent->new;
     $ua->timeout(10);
-    #say "REQUEST: " .to_json($content);
+#    say "REQUEST: " .to_json($content);
     my $response = $ua->post('http://localhost:5000/'.$url,
         Content_Type    => 'application/json',
         Content         => to_json($content),
         Accept          => 'application/json',
         );
-    #say "RESPONSE: ".$response->content;
+#    say "RESPONSE: ".$response->content;
     return from_json($response->content);
 }
 
 sub cleanup {
     my $db = Lacuna::DB->new(access_key => $ENV{SIMPLEDB_ACCESS_KEY}, secret_key => $ENV{SIMPLEDB_SECRET_KEY}, cache_servers => [{host=>'127.0.0.1', port=>11211}]);
-    my $empire = $db->domain('empire')->search({name=>'The Federation'})->next;
+    my $empire = $db->domain('empire')->search(where=>{name=>'The Federation'})->next;
     if (defined $empire) {
         say "Found empire";
         $empire->delete;
