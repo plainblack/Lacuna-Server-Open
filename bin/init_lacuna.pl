@@ -18,7 +18,7 @@ create_aux_domains();
 create_star_map();
 
 sub create_aux_domains {
-    foreach my $name (qw(empire session build_queue)) {
+    foreach my $name (qw(empire session build_queue message)) {
         my $domain = $db->domain($name);
         say "Deleting existing $name domain.";
         $domain->delete;

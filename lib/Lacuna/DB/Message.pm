@@ -15,6 +15,7 @@ __PACKAGE__->add_attributes(
     from_name       => { isa => 'Str' },
     to_id           => { isa => 'Str' },
     to_name         => { isa => 'Str' },
+    recipients      => { isa => 'ArrayRefOfStr' },
     has_read        => { isa => 'Str', default=>0 },
     has_replied     => { isa => 'Str', default=>0 },
     has_archived    => { isa => 'Str', default=>0 },
@@ -33,8 +34,8 @@ sub date_sent_formatted {
 sub send {
     my ($class, %params) = @_;
     my $recipients = $params{recipients};
-    unless (@{$recipients}) {
-        $recipients->[0] = $params{to}->name;
+    unless (ref $recipients eq 'ARRAY' && @{$recipients}) {
+        push @{$recipients}, $params{to}->name;
     }
     my $self = $class->new(
         simpledb    => $params{simpledb},

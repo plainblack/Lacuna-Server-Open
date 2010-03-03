@@ -90,10 +90,10 @@ sub send_message {
             simpledb    => $self->simpledb,
             from        => $empire,
             subject     => $subject,
-            message     => $body,
+            body        => $body,
             to          => $to,
             in_reply_to => $options->{in_reply_to},
-            recipients  => @sent,
+            recipients  => \@sent,
         );
     }
     return {
@@ -111,6 +111,7 @@ sub view_inbox {
     my $empire = $self->get_empire_by_session($session_id);
     my $where = {
         has_archived    => ['!=', 1],
+        date_sent       => ['>',DateTime->new(year=>2008)],
         to_id           => $empire->id,
     };
     return $self->view_messages($where, $empire, @_);
@@ -122,6 +123,7 @@ sub view_archived {
     my $empire = $self->get_empire_by_session($session_id);
     my $where = {
         has_archived    => 1,
+        date_sent       => ['>',DateTime->new(year=>2008)],
         to_id           => $empire->id,
     };
     return $self->view_messages($where, $empire, @_);
@@ -132,7 +134,7 @@ sub view_sent {
     my $session_id = shift;
     my $empire = $self->get_empire_by_session($session_id);
     my $where = {
-        has_archived    => 1,
+        date_sent       => ['>',DateTime->new(year=>2008)],
         from_id         => $empire->id,
     };
     return $self->view_messages($where, $empire, @_);
@@ -150,7 +152,7 @@ sub view_messages {
         push @box, {
             id          => $message->id,
             subject     => $message->subject,
-            date        => $message->date_sent_formated,
+            date        => $message->date_sent_formatted,
             from        => $message->from_name,
             has_read    => $message->has_read,
             has_replied => $message->has_replied,
