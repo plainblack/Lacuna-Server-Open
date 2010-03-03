@@ -1,1 +1,1 @@
-plackup --env prod --server Plack::Server::Standalone lacuna.psgi
+plackup --env prod --server Plack::Handler::Standalone lacuna.psgi

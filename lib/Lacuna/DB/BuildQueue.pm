@@ -3,6 +3,7 @@ package Lacuna::DB::BuildQueue;
 use Moose;
 extends 'SimpleDB::Class::Item';
 use DateTime;
+use Lacuna::Util qw(to_seconds);
 
 __PACKAGE__->set_domain_name('build_queue');
 __PACKAGE__->add_attributes(
@@ -33,8 +34,7 @@ sub is_complete {
         return 0;
     }
     else {
-        my $delta = $complete - $now;
-        return $delta->in_units('seconds');
+        return to_seconds($complete - $now);
     }
 }
 
