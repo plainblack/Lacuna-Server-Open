@@ -2,6 +2,37 @@
 
 Planetary Command is accessible via the URL C</planetarycommand>.
 
+The Planetary Command, or just Command, is the hub of your empire on a planet. It gives you the resources and storage you need to get a foothold on a planet.
+
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=head2 view ( session_id, building_id )
+
+Command extends the view method to include a C<planet> section.
+
+ {
+    "building" : { ... },
+    "status" : { ... },
+    "planet" : {
+        "ore" : {
+            "gold" : 443,
+            "bauxite" : 1009,
+            ...
+        },
+        "water" : 5000,
+        "x" : -5,
+        "y" : 4,
+        "z" : 20,
+        "name" : "Venus",
+        "star_id" : "id-goes-here",
+        "id" : "id-goes-here",
+        "building_count" : 13,
+        "size" : 25,
+        "orbit" : 2,
+        "image" : "p12"
+    }
+ }
+
+Some of the data you can get from other methods, and is included here simply for ease of use. However, the C<building_count> vs the C<size> is particular import to the Command. You cannot build more buildings than a planet's size. After you've hit the building count, you have to build up, because you can no longer build out.
 
 =cut

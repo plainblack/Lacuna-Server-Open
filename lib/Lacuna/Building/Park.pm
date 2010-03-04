@@ -21,7 +21,7 @@ around 'view' => sub {
         $out->{party}{seconds_remaining} = $building->party_seconds_remaining;
     }
     else {
-        $out->{party}{can_throw} = eval { $building->can_throw_a_party } ? 1 : 0;
+        $out->{party}{can_throw} = (eval { $building->can_throw_a_party }) ? 1 : 0;
     }
     return $out;
 };
