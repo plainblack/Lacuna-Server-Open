@@ -27,6 +27,8 @@ sub create_aux_domains {
     }
 }
 
+my $lacunans;
+
 sub create_species {
     my $species = $db->domain('species');
     say "Deleting existing species domain.";
@@ -37,7 +39,7 @@ sub create_species {
     $species->insert({
         name                    => 'Human',
         description             => 'A race of average intellect, and weak constitution.',
-        habitable_orbits        => 3,
+        habitable_orbits        => [3],
         construction_affinity   => 4, # cost of building new stuff
         deception_affinity      => 4, # spying ability
         research_affinity       => 4, # cost of upgrading
@@ -50,11 +52,30 @@ sub create_species {
         trade_affinity          => 4, # speed of cargoships, and amount of cargo hauled
         growth_affinity         => 4, # price and speed of colony ships, and planetary command center start level
     }, id=>'human_species');
+    say "Adding Lacunans.";
+    $lacunans = $species->insert({
+        name                    => 'Lacunan',
+        description             => 'The economic dieties that control the Lacuna Expanse.',
+        habitable_orbits        => [1,2,3,4,5,6,7],
+        construction_affinity   => 1, # cost of building new stuff
+        deception_affinity      => 7, # spying ability
+        research_affinity       => 1, # cost of upgrading
+        management_affinity     => 4, # speed to build
+        farming_affinity        => 1, # food
+        mining_affinity         => 1, # minerals
+        science_affinity        => 4, # energy, propultion, and other tech
+        environmental_affinity  => 4, # waste and water
+        political_affinity      => 7, # happiness
+        trade_affinity          => 7, # speed of cargoships, and amount of cargo hauled
+        growth_affinity         => 1, # price and speed of colony ships, and planetary command center start level
+    }, id=>'lacunan_species');
 }
 
+my $lacunans_have_been_placed = 0;
+
 sub create_star_map {
-    my $start_x = my $start_y = my $start_z = -5;
-    my $end_x = my $end_y = my $end_z = 5;
+    my $start_x = my $start_y = my $start_z = -1;
+    my $end_x = my $end_y = my $end_z = 1;
     my $star_count = abs($end_x - $start_x) * abs($end_y - $start_y) * abs($end_z - $start_z);
     my @star_colors = (qw(magenta red green blue yellow white));
     my %domains;
@@ -117,7 +138,7 @@ sub add_bodies {
         Lacuna::DB::Body::Asteroid::A4 Lacuna::DB::Body::Asteroid::A5);
     say "\tAdding bodies.";
     for my $orbit (1..7) {
-        my $name = $star->name."-".$orbit;
+        my $name = $star->name." ".$orbit;
         if (randint(1,100) <= 10) { # 10% chance of no body in an orbit
             say "\tNo body at $name!";
         } 
@@ -149,6 +170,11 @@ sub add_bodies {
             my $body = $domains->{body}->insert($params);
             my $now = DateTime->now;
             if ($body->isa('Lacuna::DB::Body::Planet') && !$body->isa('Lacuna::DB::Body::Planet::GasGiant')) {
+                if ($star->x >= 0 && $star->y >= 0 && $star->z >= 0 && !$lacunans_have_been_placed) {
+                    #create_lacuna_corp($body, $domains);
+                    $lacunans_have_been_placed = 1;
+                    next;
+                }
                 say "\t\tAdding features to body.";
                 foreach  my $x (-3, -1, 2, 4, 1) {
                     my $chance = randint(1,100);
@@ -192,6 +218,17 @@ sub add_bodies {
     }
 }
 
+sub create_lacuna_corp {
+    my ($body, $domains) = @_;
+    say "\t\t\tMaking this the Lacunans home world.";
+    my $empire = Lacuna::DB::Empire->found(
+        $db,
+        $body,
+        $lacunans,
+        {username=>'Lacuna Expanse Corp', password=>rand(9999999)},
+        'lacuna_expanse_corp'
+        );
+}
 
 sub get_star_names {
     my $star_count = shift;

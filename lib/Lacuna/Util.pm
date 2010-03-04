@@ -18,18 +18,6 @@ sub to_seconds {
     return DateTime::Format::Duration->new(pattern=>'%s')->format_duration($duration);
 }
 
-sub in {
-    my $value = shift;
-    my @list;
-    if (ref @_ eq 'ARRAY') {
-        @list = @{$_[0]};
-    }
-    else {
-        @list = @_;
-    }
-    return any { $_ eq $value } @list;
-}
-
 sub randint {
 	my ($low, $high) = @_;
 	$low = 0 unless defined $low;

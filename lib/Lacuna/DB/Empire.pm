@@ -4,6 +4,8 @@ use Moose;
 extends 'SimpleDB::Class::Item';
 use DateTime;
 use Lacuna::Util;
+use Digest::SHA;
+use Lacuna::DB::Building::PlanetaryCommand;
 
 __PACKAGE__->set_domain_name('empire');
 __PACKAGE__->add_attributes(
@@ -25,7 +27,7 @@ __PACKAGE__->add_attributes(
     essentia            => { isa => 'Int', default=>0 },
     points              => { isa => 'Int', default=>0 },
     rank                => { isa => 'Int', default=>0 }, # just where it is stored, but will come out of date quickly
-    probed_stars        => { isa => 'Str' },
+    probed_stars        => { isa => 'ArrayRefOfStr' },
     university_level    => { isa => 'Int', default=>0 },
 );
 
@@ -137,6 +139,61 @@ sub start_session {
     $self->last_login(DateTime->now);
     $self->put;
     return $session;
+}
+
+sub is_password_valid {
+    my ($self, $password) = @_;
+    return ($self->password eq $self->encrypt_password($password)) ? 1 : 0;
+}
+sub encrypt_password {
+    my ($self, $password) = @_;
+    return Digest::SHA::sha256_base64($password);
+}
+
+
+sub found {
+    my ($class, $simpledb, $home_planet, $species, $account, $empire_id) = @_;
+    
+    my %options;
+    if ($empire_id) {
+        $options{id} = $empire_id;
+    }
+    my $self = $simpledb->domain('empire')->insert({
+        name                => $account->{name},
+        date_created        => DateTime->now,
+        password            => $class->encrypt_password($account->{password}),
+        species_id          => $species->id,
+        home_planet_id      => $home_planet->id,
+        probed_stars        => [$home_planet->star->id],
+    }, %options);
+    
+    # set home planet
+    $home_planet->empire_id($self->id);
+    $home_planet->last_tick(DateTime->now);
+    $home_planet->put;
+    
+    # add command building
+    my $command = Lacuna::DB::Building::PlanetaryCommand->new(simpledb => $simpledb)->update({
+        x               => 0,
+        y               => 0,
+        class           => 'Lacuna::DB::Building::PlanetaryCommand',
+        date_created    => DateTime->now,
+        body_id         => $home_planet->id,
+        empire_id       => $self->id,
+        level           => $species->growth_affinity - 1,
+    });
+    $home_planet->build_building($command);
+    $command->finish_upgrade;
+    $home_planet = $command->body; # our current reference is out of date
+    
+    # add starting resources
+    $home_planet->add_algae(5000);
+    $home_planet->add_energy(5000);
+    $home_planet->add_water(5000);
+    $home_planet->add_ore(5000);
+    $home_planet->put;
+    
+    return $self;
 }
 
 no Moose;

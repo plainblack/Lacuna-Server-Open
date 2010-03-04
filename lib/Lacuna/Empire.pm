@@ -4,8 +4,8 @@ use Moose;
 extends 'JSON::RPC::Dispatcher::App';
 use Lacuna::Util qw(cname);
 use Lacuna::Map;
-use Digest::SHA;
 use Lacuna::Verify;
+use Lacuna::DB::Empire;
 
 has simpledb => (
     is      => 'ro',
@@ -35,7 +35,7 @@ sub login {
     my ($self, $name, $password) = @_;
     my $empire = $self->simpledb->domain('empire')->search(where=>{name_cname=>cname($name)})->next;
     if (defined $empire) {
-        if ($empire->password eq $self->encrypt_password($password)) {
+        if ($empire->is_password_valid($password)) {
             return { session_id => $empire->start_session->id, status => $empire->get_full_status };
         }
         else {
@@ -63,15 +63,12 @@ sub create {
     $account{species_id} ||= 'human_species';
     my $db = $self->simpledb;
     my $species = $self->simpledb->domain('species')->find($account{species_id});
-    if ($account{species_id} eq '' || !$species)  {
+    if ($account{species_id} eq '' || !$species || $account{species_id} eq 'lacunan_species')  {
         confess [1002, 'Invalid species.', $account{species_id}];
     }
     else {
         my $map = Lacuna::Map->new(simpledb=>$db);
         my $orbits = $species->habitable_orbits;
-        unless (ref $orbits eq 'ARRAY') {
-            $orbits = [$orbits];
-        }
         my $possible_planets = $db->domain('Lacuna::DB::Body::Planet')->search(
             where       => {
                 empire_id       => 'None',
@@ -90,52 +87,13 @@ sub create {
             confess [1002, 'Could not find a home planet.'];
         }
         
-        # create empire
-        my $empire = $db->domain('empire')->insert({
-            name                => $account{name},
-            date_created        => DateTime->now,
-            password            => $self->encrypt_password($account{password}),
-            species_id          => $species->id,
-            home_planet_id      => $home_planet->id,
-            probed_stars        => $home_planet->star->id,
-        });
-        
-        # set home planet
-        $home_planet->empire_id($empire->id);
-        $home_planet->last_tick(DateTime->now);
-        $home_planet->put;
-        
-        # add command building
-        my $command = Lacuna::DB::Building::PlanetaryCommand->new(simpledb => $empire->simpledb)->update({
-            x               => 0,
-            y               => 0,
-            class           => 'Lacuna::DB::Building::PlanetaryCommand',
-            date_created    => DateTime->now,
-            body_id         => $home_planet->id,
-            empire_id       => $empire->id,
-            level           => $species->growth_affinity - 1,
-        });
-        $home_planet->build_building($command);
-        $command->finish_upgrade;
-        $home_planet = $command->body; # our current reference is out of date
-        
-        # add starting resources
-        $home_planet->add_algae(5000);
-        $home_planet->add_energy(5000);
-        $home_planet->add_water(5000);
-        $home_planet->add_ore(5000);
-        $home_planet->put;
+        my $empire = Lacuna::DB::Empire->found($self->simpledb, $home_planet, $species, \%account);
         
         # return status
         my $status = $empire->get_full_status;
         my $session_id = $empire->start_session->id;
         return { empire_id => $empire->id, session_id => $session_id, status => $status };
     }
-}
-
-sub encrypt_password {
-    my ($self, $password) = @_;
-    return Digest::SHA::sha256_base64($password);
 }
 
 sub get_status {

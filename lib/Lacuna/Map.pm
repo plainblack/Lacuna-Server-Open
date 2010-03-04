@@ -142,7 +142,7 @@ sub get_star_system {
                 orbit       => $body->orbit,
            };
         }
-        if ($member || in($star->id, $empire->probed_stars)) {
+        if ($member || $star->id ~~ $empire->probed_stars) {
             return {
                 star    => {
                     color       => $star->color,
@@ -193,7 +193,7 @@ sub get_stars {
         my @out;
         while (my $star = $stars->next) {
             my $alignment = 'unprobed';
-            if (in($star->id, $empire->probed_stars)) {
+            if ($star->id ~~ $empire->probed_stars) {
                 $alignment = 'probed';
                 my $bodies = $star->bodies;
                 while (my $body = $bodies->next) {
