@@ -21,7 +21,7 @@ sub rename {
         ->length_lt(31)
         ->no_restricted_chars
         ->no_profanity
-        ->not_ok($self->simpledb->domain('body')->count(where => {cname=>Lacuna::Util::cname($name), 'itemName()'=>['!=',$body_id]}, consistent=>1)); # name available
+        ->not_ok($self->simpledb->domain('body')->count(where => {name_cname=>Lacuna::Util::cname($name), 'itemName()'=>['!=',$body_id]}, consistent=>1)); # name available
     my $body = $self->simpledb->domain('body')->find($body_id);
     if (defined $body) {
         my $empire = $self->get_empire_by_session($session_id);

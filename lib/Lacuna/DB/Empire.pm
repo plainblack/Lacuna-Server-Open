@@ -10,10 +10,10 @@ __PACKAGE__->add_attributes(
     name            => { isa => 'Str', 
         trigger => sub {
             my ($self, $new, $old) = @_;
-            $self->cname(Lacuna::Util::cname($new));
+            $self->name_cname(Lacuna::Util::cname($new));
         },
     },
-    cname               => { isa => 'Str' },
+    name_cname          => { isa => 'Str' },
     date_created        => { isa => 'DateTime' },
     description         => { isa => 'Str' },
     home_planet_id      => { isa => 'Str' },

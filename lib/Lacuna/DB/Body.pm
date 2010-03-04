@@ -9,10 +9,10 @@ __PACKAGE__->add_attributes(
     name            => { isa => 'Str', 
         trigger => sub {
             my ($self, $new, $old) = @_;
-            $self->cname(Lacuna::Util::cname($new));
+            $self->name_cname(Lacuna::Util::cname($new));
         },
     },
-    cname           => { isa => 'Str' },
+    name_cname      => { isa => 'Str' },
     star_id         => { isa => 'Str' },
     orbit           => { isa => 'Int' },
     x               => { isa => 'Int' }, # indexed here to speed up

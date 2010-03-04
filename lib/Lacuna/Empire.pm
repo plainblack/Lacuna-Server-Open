@@ -20,7 +20,7 @@ sub is_name_available {
         return 0;
     }
     else {
-        my $count = $self->simpledb->domain('empire')->count(where=>{cname=>cname($name)}, consistent=>1);
+        my $count = $self->simpledb->domain('empire')->count(where=>{name_cname=>cname($name)}, consistent=>1);
         return ($count) ? 0 : 1;
     }
 }
@@ -33,7 +33,7 @@ sub logout {
 
 sub login {
     my ($self, $name, $password) = @_;
-    my $empire = $self->simpledb->domain('empire')->search(where=>{cname=>cname($name)})->next;
+    my $empire = $self->simpledb->domain('empire')->search(where=>{name_cname=>cname($name)})->next;
     if (defined $empire) {
         if ($empire->password eq $self->encrypt_password($password)) {
             return { session_id => $empire->start_session->id, status => $empire->get_full_status };

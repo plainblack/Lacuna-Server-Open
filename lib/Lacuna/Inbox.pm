@@ -76,7 +76,7 @@ sub send_message {
     my @to;
     foreach my $name (split /\s*,\s*/, $recipients) {
         next if $name eq '';
-        my $user = $self->simpledb->domain('empire')->search(where=>{cname => cname($name)})->next;
+        my $user = $self->simpledb->domain('empire')->search(where=>{name_cname => cname($name)})->next;
         if (defined $user) {
             push @sent, $user->name;
             push @to, $user;

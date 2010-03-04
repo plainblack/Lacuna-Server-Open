@@ -9,10 +9,10 @@ __PACKAGE__->add_attributes(
     name                    => { isa => 'Str', 
         trigger => sub {
             my ($self, $new, $old) = @_;
-            $self->cname(Lacuna::Util::cname($new));
+            $self->name_cname(Lacuna::Util::cname($new));
         } ,
     },
-    cname                   => { isa => 'Str' },
+    name_cname              => { isa => 'Str' },
     description             => { isa => 'Str' },
     habitable_orbits        => { isa => 'Int' },
     construction_affinity   => { isa => 'Int' }, # cost of building new stuff

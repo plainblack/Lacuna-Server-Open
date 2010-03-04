@@ -9,10 +9,10 @@ __PACKAGE__->add_attributes(
     name            => { isa => 'Str', 
         trigger => sub {
             my ($self, $new, $old) = @_;
-            $self->cname(Lacuna::Util::cname($new));
+            $self->name_cname(Lacuna::Util::cname($new));
         },
     },
-    cname           => { isa => 'Str' },
+    name_cname           => { isa => 'Str' },
     is_named        => { isa => 'Str', default => '0' },
     date_created    => { isa => 'DateTime' },
     color           => { isa => 'Str' },
