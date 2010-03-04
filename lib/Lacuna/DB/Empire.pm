@@ -153,24 +153,28 @@ sub encrypt_password {
 
 sub found {
     my ($class, $simpledb, $home_planet, $species, $account, $empire_id) = @_;
-    
+ 
+ warn 'A';   
     my %options;
     if ($empire_id) {
         $options{id} = $empire_id;
     }
+ warn 'B';   
     my $self = $simpledb->domain('empire')->insert({
         name                => $account->{name},
         date_created        => DateTime->now,
         password            => $class->encrypt_password($account->{password}),
         species_id          => $species->id,
         home_planet_id      => $home_planet->id,
-        probed_stars        => [$home_planet->star->id],
+        probed_stars        => [$home_planet->star_id],
     }, %options);
+ warn 'C';   
     
     # set home planet
     $home_planet->empire_id($self->id);
     $home_planet->last_tick(DateTime->now);
     $home_planet->put;
+ warn 'D';   
     
     # add command building
     my $command = Lacuna::DB::Building::PlanetaryCommand->new(simpledb => $simpledb)->update({
@@ -182,8 +186,11 @@ sub found {
         empire_id       => $self->id,
         level           => $species->growth_affinity - 1,
     });
+ warn 'E';   
     $home_planet->build_building($command);
+ warn 'F';   
     $command->finish_upgrade;
+ warn 'G';   
     $home_planet = $command->body; # our current reference is out of date
     
     # add starting resources
@@ -192,6 +199,7 @@ sub found {
     $home_planet->add_water(5000);
     $home_planet->add_ore(5000);
     $home_planet->put;
+ warn 'H';   
     
     return $self;
 }

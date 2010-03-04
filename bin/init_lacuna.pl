@@ -2,20 +2,22 @@ use lib '../lib';
 use strict;
 use 5.010;
 use List::Util::WeightedChoice qw( choose_weighted );
-use List::Util qw(shuffle);
 use Lacuna;
 use Lacuna::Util qw(randint);
-use List::MoreUtils qw(uniq);
-use String::Random;
 use DateTime;
 
 my $access = $ENV{SIMPLEDB_ACCESS_KEY};
 my $secret = $ENV{SIMPLEDB_SECRET_KEY};
-my $db = Lacuna::DB->new(access_key=>$access, secret_key=>$secret, cache_servers=>[{host=>127.0.0.1, port=>11211}]);
+my $db = Lacuna::DB->new(access_key=>$access, secret_key=>$secret, cache_servers=>[{host=>'127.0.0.1', port=>11211}]);
+my $lacunans;
+my $lacunans_have_been_placed = 0;
+
 
 create_species();
 create_aux_domains();
+open my $star_names, "<", "../var/starnames.txt";
 create_star_map();
+close $star_names;
 
 sub create_aux_domains {
     foreach my $name (qw(empire session build_queue message)) {
@@ -26,8 +28,6 @@ sub create_aux_domains {
         $domain->create;
     }
 }
-
-my $lacunans;
 
 sub create_species {
     my $species = $db->domain('species');
@@ -71,7 +71,6 @@ sub create_species {
     }, id=>'lacunan_species');
 }
 
-my $lacunans_have_been_placed = 0;
 
 sub create_star_map {
     my $start_x = my $start_y = my $start_z = -1;
@@ -86,9 +85,6 @@ sub create_star_map {
         say "Create new $domain domain.";
         $domains{$domain}->create;
     }
-    say "Generating star names.";
-    my @star_names = get_star_names($star_count);
-    say "Have ".scalar(@star_names)." star names";
 
     say "Adding stars.";
     for my $x ($start_x .. $end_x) {
@@ -101,7 +97,7 @@ sub create_star_map {
                     say "No star at $x, $y, $z!";
                 }
                 else {
-                    my $name = pop @star_names;
+                    my $name = get_star_name();
                     say "Creating star $name at $x, $y, $z.";
                     my $star = $domains{star}->insert({
                         name        => $name,
@@ -171,7 +167,7 @@ sub add_bodies {
             my $now = DateTime->now;
             if ($body->isa('Lacuna::DB::Body::Planet') && !$body->isa('Lacuna::DB::Body::Planet::GasGiant')) {
                 if ($star->x >= 0 && $star->y >= 0 && $star->z >= 0 && !$lacunans_have_been_placed) {
-                    #create_lacuna_corp($body, $domains);
+                    create_lacuna_corp($body, $domains);
                     $lacunans_have_been_placed = 1;
                     next;
                 }
@@ -230,39 +226,9 @@ sub create_lacuna_corp {
         );
 }
 
-sub get_star_names {
-    my $star_count = shift;
-    open my $file, "<", "../var/starnames.txt";
-    my @contents;
-    while (my $name = <$file>) {
-	chomp $name;
-        push @contents, $name;
-    }
-    close $file;
-
-    my $rs = String::Random->new;
-
-    $rs->{e} = [qw(a e i o u ea ee oa oo io ia ae ou ie oe ai ui eu ow)];
-    $rs->{E} = [qw(A E I O U Ea Ee Oa Oo Io Ia Ae Ou)];
-    $rs->{b} = [qw(b c d f g h j k l m n p qu r s t v w x y z ch sh fl fr bl sl st gr th xy tr tch sch sn pl pr sph ph str ly gl gh ll nd rv gg mb ck hl ckl pp ss mp nt nd rn ng tt ss dd cc ndl zz rn)];
-    $rs->{B} = [qw(B C D F G H J K L M N P Qu R S T V W X Y Z Ch Sh Fl Fr Bl Sl St Gr Th Xy Tr Tch Sch Sn Pl Pr Sph Ph Str Ly Gl Gh Ll Rh Kl Cl Vl Kn)];
-    $rs->{' '} = [' '];
-
-    my $name_count = ($star_count / 10) + 1;
-
-    for (1..$name_count) {
-        push @contents, $rs->randpattern('Ebe');
-        push @contents, $rs->randpattern('Beb');
-        push @contents, $rs->randpattern('Bebe');
-        push @contents, $rs->randpattern('Ebeb');
-        push @contents, $rs->randpattern('Ebebe');
-        push @contents, $rs->randpattern('Ebebeb');
-        push @contents, $rs->randpattern('Eb Beb');
-        push @contents, $rs->randpattern('Be Ebe');
-        push @contents, $rs->randpattern('Eb Bebe');
-        push @contents, $rs->randpattern('Be Ebeb');
-    }
-
-    return shuffle( uniq( @contents ));
+sub get_star_name {
+    my $name = <$star_names>;
+    chomp $name;
+    return $name;
 }
 
