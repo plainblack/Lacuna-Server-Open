@@ -2,6 +2,51 @@
 
 Development is accessible via the URL C</development>.
 
+The higher the development ministry, the more builds you can put in your build queue.
+
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+=head2 view ( session, building_id )
+
+This method is extended to include details about what's in your build queue.
+
+ {
+    "building" : { ... },
+    "status" : { ... },
+    "build_queue" : [
+        {
+            "build_queue_id" : "build-queue-id-goes-here",
+            "building_id" : "building-id-goes-here",
+            "name" : "Planetary Commmand",
+            "to_level" : 9,
+            "seconds_remaining" : 537,
+        },
+        {
+            "build_queue_id" : "build-queue-id-goes-here",
+            "id" : "building-id-goes-here",
+            "name" : "Wheat Farm",
+            "to_level" : 15,
+            "seconds_remaining" : 9748,
+        }
+    ]
+ }
+ 
+=head2 subsidize_build_queue ( session_id, building_id, amount )
+
+Allows a player to speed up the build process, by spending essentia.
+
+Returns C<view> method.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The id of the development ministry.
+
+=head3 amount
+
+The amount of essentia to spend. One essentia is worth 10 minutes of build time.
+ 
 =cut

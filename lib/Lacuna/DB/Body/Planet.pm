@@ -97,10 +97,15 @@ __PACKAGE__->has_many('ore_buildings','Lacuna::DB::Building::Ore','body_id');
 __PACKAGE__->has_many('energy_buildings','Lacuna::DB::Building::Energy','body_id');
 __PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','body_id');
 
-sub builds {
-    my ($self, $where) = @_;
+sub builds { 
+    my ($self, $where, $reverse) = @_;
+    my $order = 'date_complete';
+    if ($reverse) {
+        $order = [$order];
+    }
     $where->{body_id} = $self->id;
-    $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(where=>$where, order_by=>'date_complete');
+    $where->{date_complete} = ['>',0] unless exists $where->{date_complete};
+    $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(where=>$where, order_by=>$order);
 }
 
 
@@ -369,8 +374,23 @@ sub can_build_building {
     my ($self, $building) = @_;
     $self->check_for_available_build_space($building->x, $building->y);
     $self->tick;
+    $self->has_room_in_build_queue;
     $self->has_met_building_prereqs($building);
     return 1;
+}
+
+sub has_room_in_build_queue {
+    my ($self) = shift;
+    my $max = 1;
+    my $dev_ministry = $self->simpledb->domain('Lacuna::DB::Building::Development')->search(where=>{body_id=>$self->id})->next;
+    if (defined $dev_ministry) {
+        $max += $dev_ministry->level;
+    }
+    my $count = $self->simpledb->domain('build_queue')->count(where=>{body_id=>$self->id});
+    if ($count >= $max) {
+        confess [1009, "There's no room left in the build queue.", $max];
+    }
+    return 1; 
 }
 
 sub has_resources_to_operate {
@@ -390,11 +410,18 @@ sub build_building {
     
     $self->building_count($self->building_count + 1);
     $self->put;
-
+    
+    # set time to build, plus what's in the queue
+    my $time_to_build = DateTime->now;
+    my $last_in_queue = $self->builds(undef, 1)->next;
+    if (defined $last_in_queue) {
+        $time_to_build = $last_in_queue->date_complete;    
+    }
+    
     # add to build queue
     my $queue = $self->simpledb->domain('build_queue')->insert({
         date_created        => DateTime->now,
-        date_complete       => DateTime->now->add(seconds=>$building->time_to_build),
+        date_complete       => $time_to_build->add(seconds=>$building->time_to_build),
         building_id         => $building->id,
         empire_id           => $self->empire_id,
         building_class      => $building->class,

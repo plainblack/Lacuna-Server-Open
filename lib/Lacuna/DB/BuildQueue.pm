@@ -23,6 +23,11 @@ sub building {
     return $self->simpledb->domain($self->building_class)->find($self->building_id);
 }
 
+sub seconds_remaining {
+    my $self = shift;
+    return to_seconds(DateTime->now - $self->date_complete);
+}
+
 sub is_complete {
     my ($self, $building) = @_;
     my $now = DateTime->now;

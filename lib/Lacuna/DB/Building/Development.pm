@@ -3,6 +3,16 @@ package Lacuna::DB::Building::Development;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+sub subsidize_build_queue {
+    my ($self, $amount) = @_;
+    $self->empire->spend_essentia($amount);
+    my $builds = $self->simpledb->domain('build_queue')->search(where=>{body_id=>$self->body_id});
+    while (my $build = $builds->next) {
+        $build->date_complete->subtract(seconds=>($amount * 600));
+        $build->put;
+    }
+}
+
 sub controller_class {
     return 'Lacuna::Building::Development';
 }
@@ -44,7 +54,7 @@ sub waste_to_build {
 }
 
 sub time_to_build {
-    return 60;
+    return 600;
 }
 
 sub food_consumption {
