@@ -103,6 +103,35 @@ sub builds {
     $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(where=>$where, order_by=>'date_complete');
 }
 
+
+sub sanitize {
+    my ($self) = @_;
+    foreach my $type (qw(food regular water waste ore energy)) {
+        my $method = $type.'_buildings';
+        $self->$method->delete;
+    }
+    my @attributes = qw(    building_count happiness_hour happiness waste_hour waste_stored waste_capacity
+        energy_hour energy_stored energy_capacity water_hour water_stored water_capacity ore_capacity
+        rutile_stored chromite_stored chalcopyrite_stored galena_stored gold_stored uraninite_stored bauxite_stored
+        goethite_stored halite_stored gypsum_stored trona_stored kerogen_stored methane_stored anthracite_stored
+        sulfur_stored zircon_stored monazite_stored fluorite_stored beryl_stored magnetite_stored ore_hour
+        food_capacity food_consumption_hour lapis_production_hour potato_production_hour apple_production_hour
+        root_production_hour corn_production_hour cider_production_hour wheat_production_hour bread_production_hour
+        soup_production_hour chip_production_hour pie_production_hour pancake_production_hour milk_production_hour
+        meal_production_hour algae_production_hour syrup_production_hour fungus_production_hour burger_production_hour
+        shake_production_hour beetle_production_hour lapis_stored potato_stored apple_stored root_stored corn_stored
+        cider_stored wheat_stored bread_stored soup_stored chip_stored pie_stored pancake_stored milk_stored meal_stored
+        algae_stored syrup_stored fungus_stored burger_stored shake_stored beetle_stored 
+    );
+    foreach my $attribute (@attributes) {
+        $self->$attribute(0);
+    }
+    $self->empire_id('None');
+    $self->put;
+}
+
+
+
 # resource concentrations
 sub rutile {
     return 1;

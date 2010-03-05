@@ -38,6 +38,9 @@ __PACKAGE__->belongs_to('species', 'Lacuna::DB::Species', 'species_id');
 __PACKAGE__->has_many('sessions', 'Lacuna::DB::Session', 'empire_id');
 __PACKAGE__->has_many('alliance', 'Lacuna::DB::AllianceMember', 'alliance_id');
 __PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'empire_id');
+__PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Message', 'from_id');
+__PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id');
+__PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id');
 
 sub home_planet {
     my ($self) = @_;
@@ -197,6 +200,23 @@ sub lacuna_expanse_corp {
     my $self = shift;
     return $self->simpledb->domain('empire')->find('lacuna_expanse_corp');
 }
+
+before 'delete' => sub {
+    my ($self) = @_;
+    my $db = $self->simpledb;
+    $self->sent_messages->delete;
+    $self->received_messages->delete;
+    $self->build_queues->delete;
+    my $planets = $self->planets;
+    while ( my $planet = $planets->next ) {
+        $planet->sanitize;
+    }
+    #$self->alliance->remove($self);
+    if ($self->species_id ne 'human_species') {
+        $self->species->delete;
+    }
+    $self->sessions->delete;
+};
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

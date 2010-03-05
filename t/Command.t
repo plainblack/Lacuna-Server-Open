@@ -53,5 +53,4 @@ sub post {
 
 END {
     $db->domain('empire')->find($fed_id)->delete;
-    $db->domain('session')->find($session_id)->delete;
 }

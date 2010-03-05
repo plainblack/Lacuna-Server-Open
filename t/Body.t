@@ -74,5 +74,4 @@ sub post {
 END {
     my $db = Lacuna::DB->new(access_key => $ENV{SIMPLEDB_ACCESS_KEY}, secret_key => $ENV{SIMPLEDB_SECRET_KEY}, cache_servers => [{host=>'127.0.0.1', port=>11211}]);
     $db->domain('empire')->find($fed_id)->delete;
-    $db->domain('session')->find($session_id)->delete;
 }
