@@ -2,6 +2,7 @@ package Lacuna::Building::OreStorage;
 
 use Moose;
 extends 'Lacuna::Building';
+use Lacuna::Constants qw(ORE_TYPES);
 
 sub app_url {
     return '/orestorage';
@@ -10,6 +11,21 @@ sub app_url {
 sub model_class {
     return 'Lacuna::DB::Building::Ore::Storage';
 }
+
+around 'view' => sub {
+    my ($orig, $self, $session_id, $building_id) = @_;
+    my $building = $self->get_building($building_id);
+    my $empire = $self->get_empire_by_session($session_id);
+    my $out = $orig->($self, $empire, $building);
+    my %ores;
+    my $body = $building->body;
+    foreach my $ore (ORE_TYPES) {
+        my $method = $ore.'_stored';
+        $ores{$ore} = $body->$method();
+    }
+    $out->{ore_stored} = \%ores;
+    return $out;
+};
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
