@@ -42,6 +42,11 @@ __PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Message', 'from_id');
 __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id');
 __PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id');
 
+sub spend_essentia {
+    my ($self, $value) = @_;
+    $self->essentia( $self->essentia - $value );
+}
+
 sub home_planet {
     my ($self) = @_;
     $self->simpledb->domain('Lacuna::DB::Body::Planet')->find($self->home_planet_id);
