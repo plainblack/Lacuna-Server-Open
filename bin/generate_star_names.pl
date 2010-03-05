@@ -25,7 +25,7 @@ $rs->{B} = [qw(B C D F G H J K L M N P Qu R S T V W X Y Z Ch Sh Fl Fr Bl Sl St G
 $rs->{' '} = [' '];
 
 my @generated;
-for my $i (1..120_000) {
+for my $i (1..60_000) {
     push @generated, $rs->randpattern('Ebe');
     push @generated, $rs->randpattern('Beb');
     push @generated, $rs->randpattern('Bebe');
