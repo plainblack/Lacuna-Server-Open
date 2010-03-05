@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 8;
+use Test::More tests => 1;
 use Test::Deep;
 use LWP::UserAgent;
 use JSON qw(to_json from_json);
@@ -20,31 +20,12 @@ $result = post('empire', 'create', $fed);
 my $fed_id = $result->{result}{empire_id};
 my $session_id = $result->{result}{session_id};
 my $home_planet = $result->{result}{status}{empire}{home_planet_id};
+my $empire_id = $result->{result}{status}{empire}{id};
 
-$result = post('inbox','send_message', [$session_id, $fed->{name}.', Some Guy', 'my subject', 'my body']);
-is($result->{result}{message}{sent}[0], $fed->{name}, 'send message works');
-is($result->{result}{message}{unknown}[0], 'Some Guy', 'detecting unknown recipients works');
+$result = post('foodreserve', 'build', [$session_id, $home_planet, 3, 3]);
+my $building_id = $result->{result}{building}{id};
 
-sleep 2;
-
-$result = post('inbox','view_inbox', [$session_id]);
-is($result->{result}{messages}[1]{subject}, 'my subject', 'view inbox works');
-is($result->{result}{status}{empire}{has_new_messages}, 2, 'new message count works');
-my $message_id = $result->{result}{messages}[1]{id};
-
-$result = post('inbox', 'read_message', [$session_id, $message_id]);
-is($result->{result}{message}{body}, 'my body', 'can view a message');
-
-$result = post('inbox','view_sent', [$session_id]);
-is($result->{result}{messages}[0]{subject}, 'my subject', 'view sent works');
-
-$result = post('inbox', 'archive_messages', [$session_id, [$message_id]]);
-is($result->{result}{success}, 1, 'archiving works');
-
-sleep 1;
-
-$result = post('inbox','view_archived', [$session_id]);
-is($result->{result}{messages}[0]{subject}, 'my subject', 'view archived works');
+cmp_ok($result->{result}{food_stored}{algae}, '>', 0, "got food storage");
 
 sub post {
     my ($url, $method, $params) = @_;

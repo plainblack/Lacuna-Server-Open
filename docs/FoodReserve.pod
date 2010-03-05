@@ -2,6 +2,23 @@
 
 Food Reserve is accessible via the URL C</foodreserve>.
 
+The food reserve stores the excess food you produce.
+
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=head2 view ( session_id, building_id )
+
+This method is extended to include details about what kind of food is stored.
+
+ {
+    "building" : { ... },
+    "status" : { ... },
+    "food_stored" : {
+        "apple" : 0,
+        "bread" : 47,
+        "algae" : 301,
+        ...
+    }
+ }
 
 =cut

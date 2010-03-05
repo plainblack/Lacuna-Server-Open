@@ -24,12 +24,17 @@ my $empire_id = $result->{result}{status}{empire}{id};
 
 $result = post('body','get_buildings', [$session_id, $home_planet]);
 
-my $id = (keys %{$result->{result}{buildings}})[0];
+my $id;
+foreach my $bid (keys %{$result->{result}{buildings}}) {
+    if ($result->{result}{buildings}{$bid}{name} eq 'Planetary Command') {
+        $id = $bid;
+        last;
+    }
+}
 
 $result = post('planetarycommand', 'view', [$session_id, $id]);
 
 is($result->{result}{planet}{building_count}, 1, "got building count");
-
 
 sub post {
     my ($url, $method, $params) = @_;

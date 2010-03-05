@@ -75,7 +75,7 @@ sub get_status {
 
 sub get_new_message_count {
     my $self = shift;
-    return $self->simpledb->domain('message')->count(where => { to_id=>$self->id, has_archived=>1, has_read => ['!=', 1]});
+    return $self->simpledb->domain('message')->count(where => { to_id=>$self->id, has_archived => ['!=', 1], has_read => ['!=', 1]});
 }
 
 sub get_full_status {
