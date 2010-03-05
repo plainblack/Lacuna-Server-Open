@@ -63,11 +63,11 @@ sub create_species {
         management_affinity     => 4, # speed to build
         farming_affinity        => 1, # food
         mining_affinity         => 1, # minerals
-        science_affinity        => 4, # energy, propultion, and other tech
-        environmental_affinity  => 4, # waste and water
+        science_affinity        => 1, # energy, propultion, and other tech
+        environmental_affinity  => 1, # waste and water
         political_affinity      => 7, # happiness
         trade_affinity          => 7, # speed of cargoships, and amount of cargo hauled
-        growth_affinity         => 1, # price and speed of colony ships, and planetary command center start level
+        growth_affinity         => 7, # price and speed of colony ships, and planetary command center start level
     }, id=>'lacunan_species');
 }
 
