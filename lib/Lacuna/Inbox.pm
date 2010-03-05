@@ -56,7 +56,7 @@ sub archive_messages {
             $message->put;
         }
     }
-    return $self->view_inbox($empire);
+    return { success=>1, status=>$empire->get_status };
 }
 
 sub send_message {

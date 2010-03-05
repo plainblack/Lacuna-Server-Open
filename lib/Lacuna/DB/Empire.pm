@@ -72,7 +72,7 @@ sub get_status {
 
 sub get_new_message_count {
     my $self = shift;
-    return $self->simpledb->domain('message')->count(where => { has_read => ['!=', 1]});
+    return $self->simpledb->domain('message')->count(where => { to_id=>$self->id, has_archived=>1, has_read => ['!=', 1]});
 }
 
 sub get_full_status {
@@ -154,12 +154,10 @@ sub encrypt_password {
 sub found {
     my ($class, $simpledb, $home_planet, $species, $account, $empire_id) = @_;
  
- warn 'A';   
     my %options;
     if ($empire_id) {
         $options{id} = $empire_id;
     }
- warn 'B';   
     my $self = $simpledb->domain('empire')->insert({
         name                => $account->{name},
         date_created        => DateTime->now,
@@ -168,40 +166,36 @@ sub found {
         home_planet_id      => $home_planet->id,
         probed_stars        => [$home_planet->star_id],
     }, %options);
- warn 'C';   
+
+    $self->send_welcome_message;
     
-    # set home planet
-    $home_planet->empire_id($self->id);
-    $home_planet->last_tick(DateTime->now);
-    $home_planet->put;
- warn 'D';   
-    
-    # add command building
-    my $command = Lacuna::DB::Building::PlanetaryCommand->new(simpledb => $simpledb)->update({
-        x               => 0,
-        y               => 0,
-        class           => 'Lacuna::DB::Building::PlanetaryCommand',
-        date_created    => DateTime->now,
-        body_id         => $home_planet->id,
-        empire_id       => $self->id,
-        level           => $species->growth_affinity - 1,
-    });
- warn 'E';   
-    $home_planet->build_building($command);
- warn 'F';   
-    $command->finish_upgrade;
- warn 'G';   
-    $home_planet = $command->body; # our current reference is out of date
-    
-    # add starting resources
-    $home_planet->add_algae(5000);
-    $home_planet->add_energy(5000);
-    $home_planet->add_water(5000);
-    $home_planet->add_ore(5000);
-    $home_planet->put;
- warn 'H';   
+    # found colony
+    $home_planet->found_colony($self->id);
     
     return $self;
+}
+
+sub send_welcome_message {
+    my ($self) = @_;
+    open my $file, "<", '/data/Lacuna-Server/var/messages/welcome.txt';
+    my $message;
+    {
+        local $/;
+        $message = <$file>;
+    }
+    close $file;
+    Lacuna::DB::Message->send(
+        simpledb    => $self->simpledb,
+        from        => $self->lacuna_expanse_corp,
+        to          => $self,
+        subject     => 'Welcome',
+        body        => sprintf($message, $self->name),
+    );
+}
+
+sub lacuna_expanse_corp {
+    my $self = shift;
+    return $self->simpledb->domain('empire')->find('lacuna_expanse_corp');
 }
 
 no Moose;

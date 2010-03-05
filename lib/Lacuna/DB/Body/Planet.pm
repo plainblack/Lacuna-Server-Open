@@ -378,6 +378,36 @@ sub build_building {
     
 }
 
+sub found_colony {
+    my ($self, $empire_id) = @_;
+    $self->empire_id($empire_id);
+    $self->last_tick(DateTime->now);
+    $self->put;    
+
+    # add command building
+    my $command = Lacuna::DB::Building::PlanetaryCommand->new(simpledb => $self->simpledb)->update({
+        x               => 0,
+        y               => 0,
+        class           => 'Lacuna::DB::Building::PlanetaryCommand',
+        date_created    => DateTime->now,
+        body_id         => $self->id,
+        empire_id       => $empire_id,
+        level           => $self->empire->species->growth_affinity - 1,
+    });
+    $self->build_building($command);
+    $command->finish_upgrade;
+    $self = $command->body; # we're stale
+    
+    # add starting resources
+    $self->add_algae(5000);
+    $self->add_energy(5000);
+    $self->add_water(5000);
+    $self->add_ore(5000);
+    $self->put;
+    
+    return $self;
+}
+
 sub has_resources_to_build {
     my ($self, $building, $cost) = @_;
     $cost ||= $building->cost_to_upgrade;

@@ -88,7 +88,7 @@ sub create {
         }
         
         my $empire = Lacuna::DB::Empire->found($self->simpledb, $home_planet, $species, \%account);
-        
+
         # return status
         my $status = $empire->get_full_status;
         my $session_id = $empire->start_session->id;

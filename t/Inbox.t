@@ -8,6 +8,7 @@ use Data::Dumper;
 use 5.010;
 
 my $result;
+my $db = Lacuna::DB->new(access_key => $ENV{SIMPLEDB_ACCESS_KEY}, secret_key => $ENV{SIMPLEDB_SECRET_KEY}, cache_servers => [{host=>'127.0.0.1', port=>11211}]);
 
 my $fed = {
     name        => 'some rand'.rand(9999999),
@@ -27,8 +28,8 @@ is($result->{result}{message}{unknown}[0], 'Some Guy', 'detecting unknown recipi
 sleep 2;
 
 $result = post('inbox','view_inbox', [$session_id]);
-is($result->{result}{messages}[0]{subject}, 'my subject', 'view inbox works');
-my $message_id = $result->{result}{messages}[0]{id};
+is($result->{result}{messages}[1]{subject}, 'my subject', 'view inbox works');
+my $message_id = $result->{result}{messages}[1]{id};
 
 $result = post('inbox', 'read_message', [$session_id, $message_id]);
 is($result->{result}{message}{body}, 'my body', 'can view a message');
@@ -37,7 +38,7 @@ $result = post('inbox','view_sent', [$session_id]);
 is($result->{result}{messages}[0]{subject}, 'my subject', 'view sent works');
 
 $result = post('inbox', 'archive_messages', [$session_id, [$message_id]]);
-is(@{$result->{result}{message}{messages}}, 0, 'archiving works');
+is($result->{result}{success}, 1, 'archiving works');
 
 sleep 1;
 
@@ -54,13 +55,13 @@ sub post {
     };
     my $ua = LWP::UserAgent->new;
     $ua->timeout(30);
- #   say "REQUEST: ".to_json($content);
+    say "REQUEST: ".to_json($content);
     my $response = $ua->post('http://localhost:5000/'.$url,
         Content_Type    => 'application/json',
         Content         => to_json($content),
         Accept          => 'application/json',
         );
-#    say "RESPONSE: ".$response->content;
+    say "RESPONSE: ".$response->content;
     return from_json($response->content);
 }
 

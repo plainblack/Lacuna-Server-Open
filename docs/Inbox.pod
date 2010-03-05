@@ -78,7 +78,12 @@ A message_id that was returned using C<view_inbox> or one of the other view_ met
 
 =head2 archive_messages ( session_id, message_ids )
  
-Archives a list of messages. Returns C<view_inbox>.
+Archives a list of messages. Returns:
+
+ {
+    "success" : 1,
+    "status" : { get_status() }
+ }
 
 B<NOTE:> You cannot archive sent messages.
 

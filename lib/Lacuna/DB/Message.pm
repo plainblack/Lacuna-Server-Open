@@ -50,7 +50,7 @@ sub send {
         in_reply_to => $params{in_reply_to},
     );
     $self->put;
-    if ($params{in_reply_to} ne '') {
+    if (exists $params{in_reply_to} && defined $params{in_reply_to} && $params{in_reply_to} ne '') {
         my $original = $params{simpledb}->dommain($class)->find($params{in_reply_to});
         if (defined $original && !$original->has_replied) {
             $original->has_replied(1);

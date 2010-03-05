@@ -221,9 +221,9 @@ sub create_lacuna_corp {
         $db,
         $body,
         $lacunans,
-        {username=>'Lacuna Expanse Corp', password=>rand(9999999)},
+        {name=>'Lacuna Expanse Corp', password=>rand(9999999)},
         'lacuna_expanse_corp'
-        );
+        );    
 }
 
 sub get_star_name {
