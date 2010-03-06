@@ -40,7 +40,7 @@ sub waste_to_build {
 }
 
 sub time_to_build {
-    return 600;
+    return 6000;
 }
 
 sub algae_production {

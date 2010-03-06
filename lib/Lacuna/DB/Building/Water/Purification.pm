@@ -36,7 +36,7 @@ sub waste_to_build {
 }
 
 sub time_to_build {
-    return 95;
+    return 850;
 }
 
 sub food_consumption {
