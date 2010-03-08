@@ -15,6 +15,11 @@ my @lines = <$file>;
 close $file;
 $urlmap->map("/" => sub { return [200, ['Content-Type' => 'text/html'], [join("\n",@lines)]]});
 
+open my $file, "<", "../var/crossdomain.xml";
+my @lines = <$file>;
+close $file;
+$urlmap->map("/crossdomain.xml" => sub { return [200, ['Content-Type' => 'text/xml'], [join("\n",@lines)]]});
+
 $urlmap->map("/api/" => Plack::App::Directory->new({ root => "/data/api" })->to_app);
 
 $urlmap->map("/map" => Lacuna::Map->new(simpledb=>$db)->to_app);
