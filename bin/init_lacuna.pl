@@ -73,8 +73,8 @@ sub create_species {
 
 
 sub create_star_map {
-    my $start_x = my $start_y = my $start_z = -1;
-    my $end_x = my $end_y = my $end_z = 1;
+    my $start_x = my $start_y = my $start_z = -15;
+    my $end_x = my $end_y = my $end_z = 15;
     my $star_count = abs($end_x - $start_x) * abs($end_y - $start_y) * abs($end_z - $start_z);
     my @star_colors = (qw(magenta red green blue yellow white));
     my %domains;
