@@ -176,6 +176,8 @@ sub found {
     }, %options);
 
     $self->send_welcome_message;
+
+    $self->add_essentia(100); # REMOVE BEFORE LAUNCH
     
     # found colony
     $home_planet->found_colony($self->id);
