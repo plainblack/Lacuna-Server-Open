@@ -88,6 +88,8 @@ If an exception is thrown you'll get an error response. It's a hash containing a
     } 
  }
 
+B<NOTE:> If you get a JSON-RPC error, then the web server will also give you a 500 HTTP error code. 
+
 =head1 Status
 
 Most methods will provide a status block as part of the response. This is used to update the user interface and alert the user to things. See L<Empire/"get_status"> and L<Empire/"get_full_status"> for details on the hash that is returned in the status block. The documentation tells you whether the output from C<get_status> or C<get_full_status> will be returned. 
