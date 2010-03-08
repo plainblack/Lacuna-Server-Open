@@ -16,7 +16,7 @@ sub max_orbit {
 }
 
 sub image {
-    return 'apple';
+    return 'apples';
 }
 
 sub name {

@@ -8,11 +8,11 @@ sub controller_class {
 }
 
 sub image {
-    return 'storage-tanks';
+    return 'orestorage';
 }
 
 sub name {
-    return 'Storage Tanks';
+    return 'Ore Storage Tanks';
 }
 
 sub food_to_build {

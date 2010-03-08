@@ -12,7 +12,7 @@ sub check_build_prereqs {
 }
 
 sub image {
-    return 'mining-platform';
+    return 'miningplatform';
 }
 
 sub name {

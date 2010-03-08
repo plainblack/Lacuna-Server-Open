@@ -20,7 +20,7 @@ sub university_prereq {
 }
 
 sub image {
-    return 'refinery';
+    return 'orerefinery';
 }
 
 sub name {

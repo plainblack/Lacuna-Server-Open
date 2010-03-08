@@ -16,7 +16,7 @@ sub max_orbit {
 }
 
 sub image {
-    return 'root';
+    return 'roots';
 }
 
 sub name {

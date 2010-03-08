@@ -12,7 +12,7 @@ sub university_prereq {
 }
 
 sub image {
-    return 'water-reclamation';
+    return 'waterreclamation';
 }
 
 sub name {

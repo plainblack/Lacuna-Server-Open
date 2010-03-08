@@ -12,7 +12,7 @@ sub university_prereq {
 }
 
 sub image {
-    return 'terraforming-lab';
+    return 'terraforminglab';
 }
 
 sub name {

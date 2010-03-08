@@ -8,7 +8,7 @@ sub controller_class {
 }
 
 sub image {
-    return 'sequestration';
+    return 'wastesequestration';
 }
 
 sub name {

@@ -8,7 +8,7 @@ sub controller_class {
 }
 
 sub image {
-    return 'cornmeal';
+    return 'meal';
 }
 
 sub min_orbit {

@@ -16,7 +16,7 @@ sub max_instances_per_planet {
 }
 
 sub image {
-    return 'mining-ministry';
+    return 'miningministry';
 }
 
 sub name {

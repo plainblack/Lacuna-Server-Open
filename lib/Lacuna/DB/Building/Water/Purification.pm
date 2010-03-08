@@ -8,7 +8,7 @@ sub controller_class {
 }
 
 sub image {
-    return 'purification';
+    return 'waterpurification';
 }
 
 sub name {

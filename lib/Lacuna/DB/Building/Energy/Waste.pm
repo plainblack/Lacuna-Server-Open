@@ -8,7 +8,7 @@ sub controller_class {
 }
 
 sub image {
-    return 'waste';
+    return 'wasteenergy';
 }
 
 sub university_prereq {

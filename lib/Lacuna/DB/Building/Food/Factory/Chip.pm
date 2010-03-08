@@ -8,7 +8,7 @@ sub controller_class {
 }
 
 sub image {
-    return 'chip';
+    return 'chips';
 }
 
 sub min_orbit {

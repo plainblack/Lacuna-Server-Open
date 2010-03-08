@@ -12,7 +12,7 @@ sub university_prereq {
 }
 
 sub image {
-    return 'space-port';
+    return 'spaceport';
 }
 
 sub name {

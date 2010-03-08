@@ -26,7 +26,7 @@ sub building_prereq {
 }
 
 sub image {
-    return 'development';
+    return 'devel';
 }
 
 sub name {
