@@ -2,9 +2,15 @@ use strict;
 use lib ('/data/Lacuna-Server/lib');
 use Plack::App::URLMap;
 use Plack::App::Directory;
+use Log::Log4perl;
+use Log::Any::Adapter;
 use Lacuna;
 
 $|=1;
+
+use Log::Log4perl;
+Log::Log4perl::init('/data/Lacuna-Server/etc/log4perl.conf');
+Log::Any::Adapter->set('Log::Log4perl');
 
 my $db = Lacuna::DB->new( access_key => $ENV{SIMPLEDB_ACCESS_KEY}, secret_key => $ENV{SIMPLEDB_SECRET_KEY}, cache_servers => [{host=>'127.0.0.1', port=>11211}]);
 
