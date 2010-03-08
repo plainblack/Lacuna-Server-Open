@@ -35,7 +35,7 @@ Most programming languages will have a JSON-RPC 2.0 client you can either use di
     "jsonrpc":"2.0",
     "id":1,
     "method":"is_name_available",
-    "params":["Human"],
+    "params":["Human"]
  }
 
 B<NOTE:> It's important to make the distinction here that when you're sending a POST, you're not sending URL parameters. You're sending a full POST body. If you format it with parameters like a GET request you'll get a parse error in response.
