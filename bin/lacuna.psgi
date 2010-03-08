@@ -1,5 +1,5 @@
 use strict;
-use lib ('../lib');
+use lib ('/data/Lacuna-Server/lib');
 use Plack::App::URLMap;
 use Plack::App::Directory;
 use Lacuna;
