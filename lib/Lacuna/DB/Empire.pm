@@ -47,6 +47,11 @@ sub spend_essentia {
     $self->essentia( $self->essentia - $value );
 }
 
+sub add_essentia {
+    my ($self, $value) = @_;
+    $self->essentia( $self->essentia + $value );
+}
+
 sub home_planet {
     my ($self) = @_;
     $self->simpledb->domain('Lacuna::DB::Body::Planet')->find($self->home_planet_id);
@@ -91,31 +96,7 @@ sub get_full_status {
     my $happiness_hour = 0;
     while (my $planet = $planet_rs->next) {
         $planet->tick;
-        $planets{$planet->id} = {
-            name            => $planet->name,
-            image           => $planet->image,
-            x               => $planet->x,
-            y               => $planet->y,
-            z               => $planet->z,
-            orbit           => $planet->orbit,
-            water_capacity  => $planet->water_capacity,
-            water_stored    => $planet->water_stored,
-            water_hour      => $planet->water_hour,
-            energy_capacity => $planet->energy_capacity,
-            energy_stored   => $planet->energy_stored,
-            energy_hour     => $planet->energy_hour,
-            food_capacity   => $planet->food_capacity,
-            food_stored     => $planet->food_stored,
-            food_hour       => $planet->food_stored,
-            ore_capacity    => $planet->ore_capacity,
-            ore_stored      => $planet->ore_stored,
-            ore_hour        => $planet->ore_hour,
-            waste_capacity  => $planet->waste_capacity,
-            waste_stored    => $planet->waste_stored,
-            waste_hour      => $planet->waste_hour,
-            happiness       => $planet->happiness,
-            happiness_hour  => $planet->happiness_hour,
-        };
+        $planets{$planet->id} = $planet->get_extended_status;
         $happiness += $planet->happiness;
         $happiness_hour += $planet->happiness_hour;
     }

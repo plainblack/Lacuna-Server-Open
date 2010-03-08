@@ -28,6 +28,31 @@ sub image {
     confess "override me";
 }
 
+sub get_status {
+    my ($self) = @_;
+    my $type = 'habitable planet';
+    if ($self->isa('Lacuna::DB::Body::Planet::GasGiant')) {
+        $type = 'gas giant';
+    }
+    elsif ($self->isa('Lacuna::DB::Body::Asteroid')) {
+        $type = 'asteroid';
+    }
+    elsif ($self->isa('Lacuna::DB::Body::Station')) {
+        $type = 'space station';
+    }
+    my %out = (
+        name            => $self->name,
+        image           => $self->image,
+        x               => $self->x,
+        y               => $self->y,
+        z               => $self->z,
+        orbit           => $self->orbit,
+        type            => $type,
+        star_id         => $self->star_id,
+        id              => $self->id,
+    );
+    return \%out;
+}
 
 
 no Moose;

@@ -14,6 +14,31 @@ has simpledb => (
 
 with 'Lacuna::Role::Sessionable';
 
+sub get_body {
+    my ($self, $session_id, $body_id) = @_;
+    my $body = $self->simpledb->domain('body')->find($body_id);
+    unless (defined $body) {
+        confess [1002, 'Body does not exist.', $body_id];
+    }
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body_status;
+    if ($body->isa('Lacuna::DB::Body::Planet')) {
+        if ($empire->id eq $body->empire_id) {
+            $body_status = $body->get_extended_status;
+        }
+        else {
+            $body_status = $body->get_status;
+        }
+    }
+    else {
+        $body_status = $body->get_status;
+    }
+    return {
+        status  => $empire->get_status,
+        body    => $body_status,
+    }
+}
+
 sub rename {
     my ($self, $session_id, $body_id, $name) = @_;
     Lacuna::Verify->new(content=>\$name, throws=>[1000,'Name not available.',$name])

@@ -123,9 +123,24 @@ Fetches the empire's status hash that is returned with many methods, but perform
         "essentia" : 0,
         "happiness" : 119393
         "planets" : {
-            "yyyy " : {
+            "id-goes-here" : {
+                "id" : "id-goes-here",
+                "x" : -4,
+                "y" : 10,
+                "z" : 6,
+                "star_id" : "id-goes-here",
+                "orbit" : 3,
+                "type" : "habitable planet",
                 "name" : "Earth",
                 "image" : "p13",
+                "size" : 67,
+                "water" : 900,
+                "ore" : {
+                    "gold" : 3399,
+                    "bauxite" : 4000,
+                    ...
+                },
+                "building_count" : 7,
                 "happiness" : 3939,
                 "happiness_hour" : 25,
                 "food_stored" : 33329,
@@ -143,35 +158,9 @@ Fetches the empire's status hash that is returned with many methods, but perform
                 "water_stored" : 9929,
                 "water_hour" : 295,
                 "water_capacity" : 51050,
-                "x" : -4,
-                "y" : 10,
-                "z" : 6,
-                "orbit" : 3
             },
-            "yyy1" : {
-                "name" : "Mars",
-                "image" : "p7"
-                "x" : -4,
-                "y" : 10,
-                "happiness" : 3939,
-                "happiness_hour" : 25,
-                "food_stored" : 33329,
-                "food_capacity" : 40000,
-                "food_hour" : 229,
-                "energy_stored" : 39931,
-                "energy_capacity" : 43000,
-                "energy_hour" : 391,
-                "ore_hour" 284,
-                "ore_capacity" 35000,
-                "ore_stored" 1901,
-                "waste_hour" : 933,
-                "waste_stored" : 9933,
-                "waste_capacity" : 13000,
-                "water_stored" : 9929,
-                "water_hour" : 295,
-                "water_capacity" : 51050,
-                "z" : 6,
-                "orbit" : 4
+            "another-id-goes-here" : {
+                ...
             }
         }
     }

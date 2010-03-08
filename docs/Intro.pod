@@ -24,6 +24,8 @@ Then specify the method you wish to call with C<method=is_name_available>.
 
 And finally pass in whatever parameters you need like C<params=["Human"]>. Parameters need to be encoded in JSON. By default all methods require an array of parameters. However, some will specifically request a hash reference of parameters; that would look like C<params={"this":"that","foo":"bar"}>
 
+B<NOTE:> You must URL encode the params. If you don't, you'll get a parse error from the server.
+
 =head2 HTTP POST
 
 Most programming languages will have a JSON-RPC 2.0 client you can either use directly, or download from the internet. These will use HTTP POST. If you need to manually create a POST, it would look like:
