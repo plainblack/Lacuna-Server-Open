@@ -66,15 +66,15 @@ Retrieves a list of the buildings on a planet.
             "name" : "Apple Orchard",
             "x" : 1,
             "y" : -1,
-            "url" : "/building/apple",
+            "url" : "/apple",
             "level" : 3,
             "image" : "apple",
         },
         "id-goes-here2" : {
-            "name" : "Command Center",
+            "name" : "Planetary Command",
             "x" : 0,
             "y" : 0,
-            "url" : "/building/command",
+            "url" : "/command",
             "level" : 1,
             "image" : "command",
         }
