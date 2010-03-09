@@ -73,9 +73,9 @@ sub create {
             where       => {
                 usable_as_starter   => ['!=', 'No'],
                 orbit               => ['in',@{$orbits}],
-                x                   => ['between', ($map->get_min_x_inhabited - 2), ($map->get_max_x_inhabited + 2)],
-                y                   => ['between', ($map->get_min_y_inhabited - 2), ($map->get_max_y_inhabited + 2)],
-                z                   => ['between', ($map->get_min_z_inhabited - 2), ($map->get_max_z_inhabited + 2)],
+                x               => ['between', ($map->get_min_x_inhabited - 1), ($map->get_max_x_inhabited + 1)],
+                y               => ['between', ($map->get_min_y_inhabited - 1), ($map->get_max_y_inhabited + 1)],
+                z               => ['between', ($map->get_min_z_inhabited - 1), ($map->get_max_z_inhabited + 1)],
             },
             order_by    => 'usable_as_starter',
             limit       => 1,
