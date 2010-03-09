@@ -28,7 +28,7 @@ sub image {
     confess "override me";
 }
 
-sub get_status {
+sub get_type {
     my ($self) = @_;
     my $type = 'habitable planet';
     if ($self->isa('Lacuna::DB::Body::Planet::GasGiant')) {
@@ -40,6 +40,11 @@ sub get_status {
     elsif ($self->isa('Lacuna::DB::Body::Station')) {
         $type = 'space station';
     }
+    return $type;
+}
+
+sub get_status {
+    my ($self) = @_;
     my %out = (
         name            => $self->name,
         image           => $self->image,
@@ -47,7 +52,7 @@ sub get_status {
         y               => $self->y,
         z               => $self->z,
         orbit           => $self->orbit,
-        type            => $type,
+        type            => $self->get_type,
         star_id         => $self->star_id,
         id              => $self->id,
     );

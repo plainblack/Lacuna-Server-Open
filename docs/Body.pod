@@ -5,7 +5,7 @@ These methods are accessible via the C</body> URL.
 
 =head2 get_body ( session_id, body_id )
 
-Returns detailed statistics about an empire.
+Returns detailed statistics about an empire. 
 
  {
     "id" : "id-goes-here",
@@ -58,7 +58,11 @@ The id of the body you wish to retrieve.
 
 =head2 get_buildings ( session_id, body_id )
 
-Retrieves a list of the buildings on a planet. 
+Retrieves a list of the buildings on a planet. The surface of all planet's is made up of an 11x11 tile grid stretching from -5 to 5 in both an x and y axis. The planetary command building is always built at 0,0. 
+
+The C<get_body> method (among others) will give you C<size> and C<building_count>. A planet's size is the number of buildings that can be built on it. The building count is the number of buildings you have built so far. The maximum size of any planet is 121 (11x11=121), however just because there are spots remaining doesn't mean you can fill them. Also, sometimes permanent structures such as lakes will occupy a tile space, and can artificially lower the number of buildings you can place on a planet.
+
+The list of building's retreived by this method should be placed on the 11x11 grid, and the extra space should be filled in by blank ground tiles. 
 
  {
     "buildings" : {

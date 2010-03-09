@@ -9,6 +9,7 @@ no warnings 'uninitialized';
 __PACKAGE__->add_attributes(
     size                    => { isa => 'Int' },
     empire_id               => { isa => 'Str', default=>'None' },
+    usable_as_starter       => { isa => 'Str', default=>'No'},
     last_tick               => { isa => 'DateTime'},
     building_count          => { isa => 'Int', default=>0 },
     happiness_hour           => { isa => 'Int', default=>0 },
@@ -131,6 +132,9 @@ sub sanitize {
         $self->$attribute(0);
     }
     $self->empire_id('None');
+    if ($self->get_type eq 'habitable planet') {
+        $self->usable_as_starter(rand(99999));
+    }
     $self->put;
 }
 
@@ -476,6 +480,7 @@ sub build_building {
 sub found_colony {
     my ($self, $empire_id) = @_;
     $self->empire_id($empire_id);
+    $self->usable_as_starter('No');
     $self->last_tick(DateTime->now);
     $self->put;    
 

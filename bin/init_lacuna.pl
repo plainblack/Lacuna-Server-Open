@@ -139,20 +139,22 @@ sub add_bodies {
             say "\tNo body at $name!";
         } 
         else {
-            my $type = choose_weighted(\@body_types, \@body_type_weights);
+            my $type = ($orbit == 3) ? 'habitable' : choose_weighted(\@body_types, \@body_type_weights); # orbit 3 should always be habitable
             say "\tAdding a $type at $name (".$star->x.",".$star->y.",".$star->z.").";
             my $params = {
-                name        => $name,
-                orbit       => $orbit,
-                x           => $star->x,
-                y           => $star->y,
-                z           => $star->z,
-                star_id     => $star->id,
+                name                => $name,
+                orbit               => $orbit,
+                x                   => $star->x,
+                y                   => $star->y,
+                z                   => $star->z,
+                star_id             => $star->id,
+                usable_as_starter   => 'No',
             };
             if ($type eq 'habitable') {
                 $params->{class} = $planet_classes[rand(scalar(@planet_classes))];
                 $params->{empire_id} = 'None';
                 $params->{size} = randint(25,100);
+                $params->{usable_as_starter} = rand(99999);
             }
             elsif ($type eq 'asteroid') {
                 $params->{class} = $asteroid_classes[rand(scalar(@asteroid_classes))];

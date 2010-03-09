@@ -71,15 +71,13 @@ sub create {
         my $orbits = $species->habitable_orbits;
         my $possible_planets = $db->domain('Lacuna::DB::Body::Planet')->search(
             where       => {
-                empire_id       => 'None',
-                'itemName()'    => ['!=','xxx'],
-                class           => ['like','Lacuna::DB::Body::Planet::P%'],
-                orbit           => ['in',@{$orbits}],
-                x               => ['between', ($map->get_min_x_inhabited - 2), ($map->get_max_x_inhabited + 2)],
-                y               => ['between', ($map->get_min_y_inhabited - 2), ($map->get_max_y_inhabited + 2)],
-                z               => ['between', ($map->get_min_z_inhabited - 2), ($map->get_max_z_inhabited + 2)],
+                usable_as_starter   => ['!=', 'No'],
+                orbit               => ['in',@{$orbits}],
+                x                   => ['between', ($map->get_min_x_inhabited - 2), ($map->get_max_x_inhabited + 2)],
+                y                   => ['between', ($map->get_min_y_inhabited - 2), ($map->get_max_y_inhabited + 2)],
+                z                   => ['between', ($map->get_min_z_inhabited - 2), ($map->get_max_z_inhabited + 2)],
             },
-            order_by    => 'itemName()',
+            order_by    => 'usable_as_starter',
             limit       => 1,
             );
         my $home_planet = $possible_planets->next;
