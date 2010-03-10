@@ -9,7 +9,6 @@ no warnings 'uninitialized';
 __PACKAGE__->add_attributes(
     size                    => { isa => 'Int' },
     empire_id               => { isa => 'Str', default=>'None' },
-    usable_as_starter       => { isa => 'Str', default=>'No'},
     last_tick               => { isa => 'DateTime'},
     building_count          => { isa => 'Int', default=>0 },
     happiness_hour           => { isa => 'Int', default=>0 },

@@ -7,6 +7,10 @@ sub controller_class {
         return 'Lacuna::Building::Algae';
 }
 
+sub university_prereq {
+    return 3;
+}
+
 sub image {
     return 'algae';
 }

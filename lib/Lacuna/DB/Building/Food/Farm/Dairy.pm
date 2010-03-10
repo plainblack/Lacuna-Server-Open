@@ -7,6 +7,11 @@ sub controller_class {
     return 'Lacuna::Building::Dairy';
 }
 
+sub building_prereq {
+    return {'Lacuna::DB::Building::Food::Farm::Corn'=>5};
+}
+
+
 sub min_orbit {
     return 3;
 }

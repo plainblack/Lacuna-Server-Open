@@ -12,7 +12,7 @@ sub max_instances_per_planet {
 }
 
 sub building_prereq {
-    return {'Lacuna::DB::Building::PlanetaryCommand'=>5,'Lacuna::DB::Building::Shipyard'=>1};
+    return {'Lacuna::DB::Building::Shipyard'=>1};
 }
 
 sub image {

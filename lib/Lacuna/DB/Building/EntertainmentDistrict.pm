@@ -7,6 +7,10 @@ sub controller_class {
         return 'Lacuna::Building::Entertainment';
 }
 
+sub building_prereq {
+    return {'Lacuna::DB::Building::PlanetaryCommand'=>5};
+}
+
 sub image {
     return 'entertainment';
 }

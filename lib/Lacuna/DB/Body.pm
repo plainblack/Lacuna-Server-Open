@@ -12,13 +12,14 @@ __PACKAGE__->add_attributes(
             $self->name_cname(Lacuna::Util::cname($new));
         },
     },
-    name_cname      => { isa => 'Str' },
-    star_id         => { isa => 'Str' },
-    orbit           => { isa => 'Int' },
-    x               => { isa => 'Int' }, # indexed here to speed up
-    y               => { isa => 'Int' }, # searching of planets based
-    z               => { isa => 'Int' }, # on stor location
-    class           => { isa => 'Str' },
+    name_cname              => { isa => 'Str' },
+    star_id                 => { isa => 'Str' },
+    usable_as_starter       => { isa => 'Str', default=>'No'},
+    orbit                   => { isa => 'Int' },
+    x                       => { isa => 'Int' }, # indexed here to speed up
+    y                       => { isa => 'Int' }, # searching of planets based
+    z                       => { isa => 'Int' }, # on stor location
+    class                   => { isa => 'Str' },
 );
 
 __PACKAGE__->belongs_to('star', 'Lacuna::DB::Star', 'star_id');

@@ -7,6 +7,10 @@ sub controller_class {
         return 'Lacuna::Building::Beeldeban';
 }
 
+sub building_prereq {
+    return {'Lacuna::DB::Building::Food::Farm::Wheat'=>5};
+}
+
 sub image {
     return 'beeldeban';
 }
