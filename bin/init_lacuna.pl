@@ -73,8 +73,8 @@ sub create_species {
 
 
 sub create_star_map {
-    my $start_x = my $start_y = my $start_z = -15;
-    my $end_x = my $end_y = my $end_z = 15;
+    my $start_x = my $start_y = my $start_z = -1;
+    my $end_x = my $end_y = my $end_z = 1;
     my $star_count = abs($end_x - $start_x) * abs($end_y - $start_y) * abs($end_z - $start_z);
     my @star_colors = (qw(magenta red green blue yellow white));
     my %domains;
@@ -148,7 +148,6 @@ sub add_bodies {
                 y                   => $star->y,
                 z                   => $star->z,
                 star_id             => $star->id,
-                usable_as_starter   => 'No',
             };
             if ($type eq 'habitable') {
                 $params->{class} = $planet_classes[rand(scalar(@planet_classes))];
@@ -162,6 +161,7 @@ sub add_bodies {
             }
             else {
                 $params->{class} = $gas_giant_classes[rand(scalar(@gas_giant_classes))];
+                $params->{usable_as_starter} = 'No';
                 $params->{empire_id} = 'None';
                 $params->{size} = randint(70,121);
             }
