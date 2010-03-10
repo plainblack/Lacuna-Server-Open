@@ -8,7 +8,8 @@ use Data::Dumper;
 use 5.010;
 
 my $result;
-my $db = Lacuna::DB->new(access_key => $ENV{SIMPLEDB_ACCESS_KEY}, secret_key => $ENV{SIMPLEDB_SECRET_KEY}, cache_servers => [{host=>'127.0.0.1', port=>11211}]);
+my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
+my $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key => $config->get('secret_key'), cache_servers => $config->get('memcached'));
 
 my $fed = {
     name        => 'some rand'.rand(9999999),
@@ -38,7 +39,7 @@ sub post {
     my $ua = LWP::UserAgent->new;
     $ua->timeout(30);
     say "REQUEST: ".to_json($content);
-    my $response = $ua->post('http://localhost:5000/'.$url,
+    my $response = $ua->post($config->get('server_url').$url,
         Content_Type    => 'application/json',
         Content         => to_json($content),
         Accept          => 'application/json',

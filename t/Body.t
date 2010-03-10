@@ -51,6 +51,7 @@ ok($result->{result}{building}{energy_hour} > 0, 'command center is functional')
 $result = post('body', 'get_buildable', [$session_id, $home_planet, 3, 3]);
 is($result->{result}{buildable}{'Wheat Farm'}, '/wheat', 'Can build buildings');
 
+my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
 sub post {
     my ($url, $method, $params) = @_;
     my $content = {
@@ -62,7 +63,7 @@ sub post {
     my $ua = LWP::UserAgent->new;
     $ua->timeout(30);
     say "REQUEST: ".to_json($content);
-    my $response = $ua->post('http://localhost:5000/'.$url,
+    my $response = $ua->post($config->get('server_url').$url,
         Content_Type    => 'application/json',
         Content         => to_json($content),
         Accept          => 'application/json',
@@ -72,6 +73,7 @@ sub post {
 }
 
 END {
-    my $db = Lacuna::DB->new(access_key => $ENV{SIMPLEDB_ACCESS_KEY}, secret_key => $ENV{SIMPLEDB_SECRET_KEY}, cache_servers => [{host=>'127.0.0.1', port=>11211}]);
+
+    my $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key => $config->get('secret_key'), cache_servers => $config->get('memcached'));
     $db->domain('empire')->find($fed_id)->delete;
 }

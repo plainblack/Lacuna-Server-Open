@@ -11,6 +11,8 @@ my $result;
 
 cleanup();
 
+my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
+
 $result = post('empire', 'is_name_available', ['The Federation']);
 is($result->{result}, 1, 'empire name is available');
 
@@ -80,7 +82,7 @@ sub post {
     my $ua = LWP::UserAgent->new;
     $ua->timeout(10);
     say "REQUEST: " .to_json($content);
-    my $response = $ua->post('http://localhost:5000/'.$url,
+    my $response = $ua->post($config->get('server_url').$url,
         Content_Type    => 'application/json',
         Content         => to_json($content),
         Accept          => 'application/json',
@@ -90,7 +92,7 @@ sub post {
 }
 
 sub cleanup {
-    my $db = Lacuna::DB->new(access_key => $ENV{SIMPLEDB_ACCESS_KEY}, secret_key => $ENV{SIMPLEDB_SECRET_KEY}, cache_servers => [{host=>'127.0.0.1', port=>11211}]);
+    my $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key => $config->get('secret_key'), cache_servers => $config->get('memcached'));
     my $empire = $db->domain('empire')->search(where=>{name=>'The Federation'})->next;
     if (defined $empire) {
         say "Found empire";

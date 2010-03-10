@@ -5,10 +5,10 @@ use List::Util::WeightedChoice qw( choose_weighted );
 use Lacuna;
 use Lacuna::Util qw(randint);
 use DateTime;
+use Config::JSON;
 
-my $access = $ENV{SIMPLEDB_ACCESS_KEY};
-my $secret = $ENV{SIMPLEDB_SECRET_KEY};
-my $db = Lacuna::DB->new(access_key=>$access, secret_key=>$secret, cache_servers=>[{host=>'127.0.0.1', port=>11211}]);
+my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
+my $db = Lacuna::DB->new(access_key=>$config->get('access_key'), secret_key=>$config->get('secret_key'), cache_servers=>$config->get('memcached'));
 my $lacunans;
 my $lacunans_have_been_placed = 0;
 
