@@ -214,35 +214,6 @@ sub get_stars {
     }
 }
 
-sub get_max_x_inhabited {
-    my ($self) = @_;
-    return $self->simpledb->domain('Lacuna::DB::Body::Planet')->max('x', where=>{empire_id=>['!=','None']});
-}
-
-sub get_min_x_inhabited {
-    my ($self) = @_;
-    return $self->simpledb->domain('Lacuna::DB::Body::Planet')->min('x', where=>{empire_id=>['!=','None']});
-}
-
-sub get_max_y_inhabited {
-    my ($self) = @_;
-    return $self->simpledb->domain('Lacuna::DB::Body::Planet')->max('y', where=>{empire_id=>['!=','None']});
-}
-
-sub get_min_y_inhabited {
-    my ($self) = @_;
-    return $self->simpledb->domain('Lacuna::DB::Body::Planet')->min('y', where=>{empire_id=>['!=','None']});
-}
-
-sub get_max_z_inhabited {
-    my ($self) = @_;
-    return $self->simpledb->domain('Lacuna::DB::Body::Planet')->max('z', where=>{empire_id=>['!=','None']});
-}
-
-sub get_min_z_inhabited {
-    my ($self) = @_;
-    return $self->simpledb->domain('Lacuna::DB::Body::Planet')->min('z', where=>{empire_id=>['!=','None']});
-}
 
 
 __PACKAGE__->register_rpc_method_names(qw(get_stars rename_star get_stars_near_body get_star_by_body get_star_system get_star_system_by_body));

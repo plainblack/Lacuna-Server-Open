@@ -67,24 +67,7 @@ sub create {
         confess [1002, 'Invalid species.', $account{species_id}];
     }
     else {
-        my $map = Lacuna::Map->new(simpledb=>$db);
-        my $orbits = $species->habitable_orbits;
-        my $possible_planets = $db->domain('Lacuna::DB::Body::Planet')->search(
-            where       => {
-                usable_as_starter   => ['!=', 'No'],
-                orbit               => ['in',@{$orbits}],
-                x               => ['between', ($map->get_min_x_inhabited - 1), ($map->get_max_x_inhabited + 1)],
-                y               => ['between', ($map->get_min_y_inhabited - 1), ($map->get_max_y_inhabited + 1)],
-                z               => ['between', ($map->get_min_z_inhabited - 1), ($map->get_max_z_inhabited + 1)],
-            },
-            order_by    => 'usable_as_starter',
-            limit       => 1,
-            );
-        my $home_planet = $possible_planets->next;
-        unless (defined $home_planet) {
-            confess [1002, 'Could not find a home planet.'];
-        }
-        
+        my $home_planet = $species->find_home_planet;
         my $empire = Lacuna::DB::Empire->found($self->simpledb, $home_planet, $species, \%account);
 
         # return status
