@@ -232,7 +232,9 @@ sub waste_storage {
 # BASE FORMULAS
 
 sub production_hour {
-    return (GROWTH ** ( $_[0]->level - 1));
+    my $level = $_[0]->level;
+    return 0 unless $level;
+    return (GROWTH ** ( $level - 1));
 }
 
 sub upgrade_cost {

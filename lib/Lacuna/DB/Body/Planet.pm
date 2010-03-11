@@ -163,7 +163,7 @@ sub get_extended_status {
     $out->{energy_hour}     = $self->energy_hour;
     $out->{food_capacity}   = $self->food_capacity;
     $out->{food_stored}     = $self->food_stored;
-    $out->{food_hour}       = $self->food_stored;
+    $out->{food_hour}       = $self->food_hour;
     $out->{ore_capacity}    = $self->ore_capacity;
     $out->{ore_stored}      = $self->ore_stored;
     $out->{ore_hour}        = $self->ore_hour;
@@ -404,9 +404,9 @@ sub check_for_available_build_space {
 }
 
 sub has_met_building_prereqs {
-    my ($self, $building, $cost) = @_;
+    my ($self, $building) = @_;
     $building->check_build_prereqs($self);
-    $self->has_resources_to_build($building, $cost);
+    $self->has_resources_to_build($building);
     $self->has_resources_to_operate($building);
     $self->has_max_instances_of_building($building);
     return 1;
