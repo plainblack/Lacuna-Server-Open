@@ -28,11 +28,6 @@ sub to_app_with_url {
     return ($self->app_url => $self->to_app);
 }
 
-sub has_met_upgrade_prereqs {
-    return 1;
-}
-
-
 sub get_building {
     my ($self, $building_id) = @_;
     if (ref $building_id && $building_id->isa('Lacuna::DB::Building')) {
