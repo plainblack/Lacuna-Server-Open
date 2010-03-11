@@ -2,6 +2,7 @@ package Lacuna::Building;
 
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
+use DateTime::Format::Strptime;
 
 has simpledb => (
     is      => 'ro',
@@ -81,11 +82,11 @@ sub view {
     if ($building->body->empire_id eq $empire->id) { # do body, because permanents aren't owned by anybody
         my $cost = $building->cost_to_upgrade;
         my $queue = $building->build_queue if ($building->build_queue_id);
-        my $time_left = 0;
+        my $time_left;
         if (defined $queue) {
             $time_left = $queue->is_complete($building);
         }
-        return { 
+        my %out = ( 
             building    => {
                 id                  => $building->id,
                 name                => $building->name,
@@ -99,7 +100,6 @@ sub view {
                 waste_hour          => $building->waste_hour,
                 energy_hour         => $building->energy_hour,
                 happiness_hour      => $building->happiness_hour,
-                time_left_on_build  => $time_left,
                 upgrade             => {
                     can             => (eval{$building->can_upgrade($cost)} ? 1 : 0),
                     cost            => $cost,
@@ -107,7 +107,13 @@ sub view {
                 },
             },
             status      => $empire->get_full_status,
-        };
+        );
+        if (defined $time_left) {
+            $out{pending_build}{seconds_remaining} = $time_left;
+            $out{pending_build}{start} = DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',$queue->date_created);
+            $out{pending_build}{end} = DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',$queue->date_complete);
+        }
+        return \%out;
     }
     else {
         confess [1010, "Can't view a building that you don't own.", $building_id];

@@ -46,9 +46,14 @@ Retrieves the properties of the building.
         "water_hour" : -100,
         "waste_hour" : 33,
         "happiness_hour" : 0,
+        "pending_build" : {
+            "seconds_remaining" : 430,
+            "start" : "01 31 2010 13:09:05 +0600",
+            "end" : "01 31 2010 18:09:05 +0600"
+        },
         "time_left_on_build" : 0,
         "upgrade" : {
-            "can" : 1,
+            "can" : 0,
             "cost" : {
                 "food" : 500,
                 "water" : 500,
