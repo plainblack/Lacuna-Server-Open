@@ -10,9 +10,9 @@ use 5.010;
 
 my $result;
 
+my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
 cleanup();
 
-my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
 
 $result = post('empire', 'is_name_available', ['The Federation']);
 is($result->{result}, 1, 'empire name is available');

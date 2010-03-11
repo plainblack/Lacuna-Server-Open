@@ -9,6 +9,7 @@ use Data::Dumper;
 use 5.010;
 
 my $result;
+my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
 
 my $fed = {
     name        => 'some rand'.rand(9999999),
@@ -67,7 +68,6 @@ is($result->{error}{code}, 1002, 'get star system by body non-existant body');
 
 
 
-my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
 sub post {
     my ($url, $method, $params) = @_;
     my $content = {

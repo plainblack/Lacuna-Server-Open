@@ -8,6 +8,7 @@ use Lacuna::DB;
 use Data::Dumper;
 use 5.010;
 $|=1;
+my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
 
 cleanup(); # in case there were failed runs previously
 
@@ -108,7 +109,6 @@ $result = post('species', 'is_name_available', ['Borg']);
 is($result->{result}, 0, 'species name Borg not available');
 
 
-my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
 sub post {
     my ($url, $method, $params) = @_;
     my $content = {

@@ -9,6 +9,7 @@ use Config::JSON;
 use 5.010;
 
 my $result;
+my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
 
 my $fed = {
     name        => 'some rand'.rand(9999999),
@@ -52,7 +53,6 @@ ok($result->{result}{building}{energy_hour} > 0, 'command center is functional')
 $result = post('body', 'get_buildable', [$session_id, $home_planet, 3, 3]);
 is($result->{result}{buildable}{'Wheat Farm'}, '/wheat', 'Can build buildings');
 
-my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
 sub post {
     my ($url, $method, $params) = @_;
     my $content = {
