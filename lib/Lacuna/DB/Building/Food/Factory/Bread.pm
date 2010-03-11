@@ -16,7 +16,7 @@ sub max_orbit {
 }
 
 sub building_prereq {
-    return {'Lacuna::DB::Food::Farm::Wheat'=>1};
+    return {'Lacuna::DB::Building::Food::Farm::Wheat'=>1};
 }
 
 sub image {

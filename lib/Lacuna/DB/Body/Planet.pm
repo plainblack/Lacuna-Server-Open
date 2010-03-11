@@ -153,7 +153,7 @@ around 'get_status' => sub {
 sub get_extended_status {
     my ($self) = @_;
     my $out = $self->get_status;
-    $self->tick;
+    $self = $self->tick;
     $out->{building_count}  = $self->building_count;
     $out->{water_capacity}  = $self->water_capacity;
     $out->{water_stored}    = $self->water_stored;
@@ -415,10 +415,10 @@ sub has_met_building_prereqs {
 sub can_build_building {
     my ($self, $building) = @_;
     $self->check_for_available_build_space($building->x, $building->y);
-    $self->tick;
+    $self = $self->tick;
     $self->has_room_in_build_queue;
     $self->has_met_building_prereqs($building);
-    return 1;
+    return $self;
 }
 
 sub has_room_in_build_queue {
@@ -528,7 +528,7 @@ sub has_max_instances_of_building {
 
 sub recalc_stats {
     my ($self) = @_;
-    $self->tick; # absorb any resources before any changes occur
+    $self = $self->tick; # absorb any resources before any changes occur
     my %stats;
     foreach my $buildings ($self->buildings) {
         while (my $building = $buildings->next) {
@@ -551,6 +551,7 @@ sub recalc_stats {
     }
     $self->update(\%stats);
     $self->put;
+    return $self;
 } 
 
 # RESOURCE MANGEMENT
@@ -565,6 +566,7 @@ sub tick {
         $self = $self->simpledb->domain('body')->find($self->id); # refetch cuz we're out of date
     }
     $self->tick_to($now);
+    return $self;
 }
 
 sub tick_to {

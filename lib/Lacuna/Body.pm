@@ -122,7 +122,7 @@ sub get_buildable {
 
 
     my %out;
-    $body->tick;
+    $body = $body->tick;
     foreach my $class (BUILDABLE_CLASSES) {
         $properties{class} = $class->model_class;
         my $building = $class->model_class->new(simpledb=>$self->simpledb)->update(\%properties);

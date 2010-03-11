@@ -142,7 +142,7 @@ sub build {
     });
 
     # make sure the planet can handle it
-    $body->can_build_building($building);
+    $body = $body->can_build_building($building);
 
     # adjust resources
     $body->spend_food($building->food_to_build);
