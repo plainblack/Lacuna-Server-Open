@@ -126,9 +126,17 @@ sub get_buildable {
     foreach my $class (BUILDABLE_CLASSES) {
         $properties{class} = $class->model_class;
         my $building = $class->model_class->new(simpledb=>$self->simpledb)->update(\%properties);
-        my $can_build = eval{$body->has_met_building_prereqs($building)};
-        next unless $can_build;
-        $out{$building->name} = $class->app_url;
+        my $cost = $building->cost_to_upgrade;
+        my $can_build = eval{$body->has_met_building_prereqs($building, $cost)};
+        $out{$building->name} = {
+            url         => $class->app_url,
+            build       => {
+                can         => ($can_build) ? 1 : 0,                
+                cost        => $cost,
+                reason      => $@,
+            },
+            production  => $building->stats_after_upgrade
+        };
     }
 
     return {buildable=>\%out, status=>$empire->get_status};

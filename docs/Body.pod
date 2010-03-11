@@ -104,12 +104,35 @@ Provides a list of all the building types that are available to be built on a gi
 
  {
     "buildable" : {
-        "Wheat Farm" : "/wheat",
-        "Apple Orchard" : "/apple"
+        "Wheat Farm" : {
+            "url" :"/wheat",
+            "build" : {
+                "can" : 1,
+                "cost" : {
+                    "food" : 500,
+                    "water" : 500,
+                    "energy" : 500,
+                    "waste" : 500,
+                    "ore" : 1000,
+                    "time" : 1200,
+                },
+                "reason" : null
+            },
+            "production" : {
+                "food_hour" : 1500,
+                "energy_hour" : -144,
+                "ore_hour" : -1310,
+                "water_hour" : -1100,
+                "waste_hour" : 133,
+                "happiness_hour" : 0,
+            }
+        },
+        ...
     },
     "status" : { get_status() }
  }
 
+The C<reason> section provides a little detail about why a building can or cannot be built. It is formatted the same way an exception would be formatted (an array ref of error code, error message, and error data).
 
 Throws 1002, 1010, 1011, and 1012, and 1013.
 
