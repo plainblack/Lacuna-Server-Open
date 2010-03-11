@@ -5,6 +5,7 @@ use LWP::UserAgent;
 use JSON qw(to_json from_json);
 use Lacuna::DB;
 use Data::Dumper;
+use Config::JSON;
 use 5.010;
 
 my $result;

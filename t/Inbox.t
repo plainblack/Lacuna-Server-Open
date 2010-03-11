@@ -3,6 +3,7 @@ use Test::More tests => 8;
 use Test::Deep;
 use LWP::UserAgent;
 use JSON qw(to_json from_json);
+use Config::JSON;
 use Lacuna::DB;
 use Data::Dumper;
 use 5.010;

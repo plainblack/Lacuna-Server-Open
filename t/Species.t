@@ -2,6 +2,7 @@ use lib '../lib';
 use Test::More tests => 18;
 use Test::Deep;
 use LWP::UserAgent;
+use Config::JSON;
 use JSON qw(to_json from_json);
 use Lacuna::DB;
 use Data::Dumper;
