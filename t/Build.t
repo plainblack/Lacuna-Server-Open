@@ -28,7 +28,7 @@ my $empire_id = $result->{result}{status}{empire}{id};
 $result = post('/wheat', 'build', [$session_id, $home_planet, 3, 3]);
 is($result->{result}{building}{name}, 'Wheat Farm', 'Can build buildings');
 is($result->{result}{building}{level}, 0, 'New building is level 0');
-cmp_ok($result->{result}{building}{time_left_on_build}, '>', 0, 'Building has time in queue');
+cmp_ok($result->{result}{building}{pending_build}{seconds_remaining}, '>', 0, 'Building has time in queue');
 cmp_ok($last_energy, '>', $result->{result}{status}{empire}{planets}{$home_planet}{energy_stored}, 'Resources are being spent.');
 
 my $building = $db->domain('food')->find($result->{result}{building}{id});
@@ -36,7 +36,7 @@ $building->finish_upgrade;
 
 $result = post('/wheat', 'view', [$session_id, $building->id]);
 is($result->{result}{building}{level}, 1, 'New building is built');
-is($result->{result}{building}{time_left_on_build}, 0, 'Building is no longer in build queue');
+ok(! exists $result->{result}{building}{pending_build}, 'Building is no longer in build queue');
 $last_energy = $result->{result}{status}{empire}{planets}{$home_planet}{energy_stored};
 
 my $empire = $db->domain('empire')->find($empire_id);
@@ -45,7 +45,7 @@ $empire->put;
 
 $result = post('/wheat', 'upgrade', [$session_id, $building->id]);
 is($result->{result}{building}{level}, 1, 'Upgrading building is still level 1');
-cmp_ok($result->{result}{building}{time_left_on_build}, '>', 0, 'Upgrade has time in queue');
+cmp_ok($result->{result}{building}{pending_build}{seconds_remaining}, '>', 0, 'Upgrade has time in queue');
 cmp_ok($last_energy, '>', $result->{result}{status}{empire}{planets}{$home_planet}{energy_stored}, 'Resources are being spent for upgrade.');
 
 
@@ -59,13 +59,13 @@ sub post {
     };
     my $ua = LWP::UserAgent->new;
     $ua->timeout(30);
- #   say "REQUEST: ".to_json($content);
+    say "REQUEST: ".to_json($content);
     my $response = $ua->post($config->get('server_url').$url,
         Content_Type    => 'application/json',
         Content         => to_json($content),
         Accept          => 'application/json',
         );
-#    say "RESPONSE: ".$response->content;
+    say "RESPONSE: ".$response->content;
     return from_json($response->content);
 }
 

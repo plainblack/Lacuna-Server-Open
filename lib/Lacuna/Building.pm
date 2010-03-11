@@ -108,10 +108,10 @@ sub view {
             },
             status      => $empire->get_full_status,
         );
-        if (defined $time_left) {
-            $out{pending_build}{seconds_remaining} = $time_left;
-            $out{pending_build}{start} = DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',$queue->date_created);
-            $out{pending_build}{end} = DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',$queue->date_complete);
+        if ($time_left) {
+            $out{building}{pending_build}{seconds_remaining} = $time_left;
+            $out{building}{pending_build}{start} = DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',$queue->date_created);
+            $out{building}{pending_build}{end} = DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',$queue->date_complete);
         }
         return \%out;
     }
