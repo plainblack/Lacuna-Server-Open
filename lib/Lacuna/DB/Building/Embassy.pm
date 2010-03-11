@@ -12,7 +12,7 @@ sub max_instances_per_planet {
 }
 
 sub building_prereq {
-    return {'Lacuna::DB::Building:SpacePort'=>1};
+    return {'Lacuna::DB::Building::SpacePort'=>1};
 }
 
 sub image {
