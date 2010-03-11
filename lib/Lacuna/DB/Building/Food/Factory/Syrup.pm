@@ -12,7 +12,7 @@ sub image {
 }
 
 sub building_prereq {
-    return {'Lacuna::DB::Food::Farm::Algae'=>1};
+    return {'Lacuna::DB::Building::Food::Farm::Algae'=>1};
 }
 
 sub name {

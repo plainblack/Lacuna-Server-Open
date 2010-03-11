@@ -20,7 +20,7 @@ sub max_orbit {
 }
 
 sub building_prereq {
-    return {'Lacuna::DB::Food::Farm::Corn'=>1};
+    return {'Lacuna::DB::Building::Food::Farm::Corn'=>1};
 }
 
 sub name {
