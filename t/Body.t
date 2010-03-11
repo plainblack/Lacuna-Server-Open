@@ -51,7 +51,7 @@ $result = post($url, 'view', [$session_id, $id]);
 ok($result->{result}{building}{energy_hour} > 0, 'command center is functional');
 
 $result = post('body', 'get_buildable', [$session_id, $home_planet, 3, 3]);
-is($result->{result}{buildable}{'Wheat Farm'}, '/wheat', 'Can build buildings');
+is($result->{result}{buildable}{'Wheat Farm'}{url}, '/wheat', 'Can build buildings');
 
 sub post {
     my ($url, $method, $params) = @_;
