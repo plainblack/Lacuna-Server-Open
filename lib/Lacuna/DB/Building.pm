@@ -53,6 +53,12 @@ sub image {
     confess 'override me';
 }
 
+sub image_level {
+    my ($self) = @_;
+    my $level = ($self->level > 9) ? 9 : $self->level;
+    return $self->image.$level;
+}
+
 sub time_to_build {
     return 60;
 }

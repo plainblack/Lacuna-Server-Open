@@ -424,7 +424,12 @@ sub can_build_building {
 sub has_room_in_build_queue {
     my ($self) = shift;
     my $max = 1;
-    my $dev_ministry = $self->simpledb->domain('Lacuna::DB::Building::Development')->search(where=>{body_id=>$self->id})->next;
+    my $dev_ministry = $self->simpledb->domain('Lacuna::DB::Building::Development')->search(
+        where   => {
+            body_id => $self->id,
+            class   => 'Lacuna::DB::Building::Development'
+        }
+        )->next;
     if (defined $dev_ministry) {
         $max += $dev_ministry->level;
     }

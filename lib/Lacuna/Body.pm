@@ -83,7 +83,7 @@ sub get_buildings {
         while (my $building = $buildings->next) {
             $out{$building->id} = {
                 url     => $building->controller_class->app_url,
-                image   => $building->image,
+                image   => $building->image_level,
                 name    => $building->name,
                 x       => $building->x,
                 y       => $building->y,
@@ -130,12 +130,13 @@ sub get_buildable {
         my $can_build = eval{$body->has_met_building_prereqs($building, $cost)};
         $out{$building->name} = {
             url         => $class->app_url,
+            image       => $building->image_level,
             build       => {
                 can         => ($can_build) ? 1 : 0,                
                 cost        => $cost,
                 reason      => $@,
             },
-            production  => $building->stats_after_upgrade
+            production  => $building->stats_after_upgrade,
         };
     }
 
