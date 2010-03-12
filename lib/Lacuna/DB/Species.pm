@@ -12,6 +12,7 @@ __PACKAGE__->add_attributes(
             $self->name_cname(Lacuna::Util::cname($new));
         } ,
     },
+    empire_id               => { isa => 'Str' },
     name_cname              => { isa => 'Str' },
     description             => { isa => 'Str' },
     habitable_orbits        => { isa => 'ArrayRefOfInt' },
@@ -29,6 +30,7 @@ __PACKAGE__->add_attributes(
 );
 
 __PACKAGE__->has_many('empires', 'Lacuna::DB::Empire', 'species_id');
+__PACKAGE__->belongs_to('creator', 'Lacuna::DB::Empire', 'empire_id');
 
 sub find_home_planet {
     my ($self) = @_;
@@ -42,6 +44,7 @@ sub find_home_planet {
         },
         order_by    => 'usable_as_starter',
         limit       => 1,
+        consistent  => 1,
         );
     my $home_planet = $possible_planets->next;
     unless (defined $home_planet) {

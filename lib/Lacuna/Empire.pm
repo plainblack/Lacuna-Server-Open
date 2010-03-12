@@ -49,33 +49,33 @@ sub login {
 
 sub create {
     my ($self, %account) = @_;
-    Lacuna::Verify->new(content=>\$account{name}, throws=>[1000,'Empire name not available.', $account{name}])
-        ->length_lt(31)
-        ->length_gt(3)
-        ->no_restricted_chars
-        ->no_profanity
-        ->ok($self->is_name_available($account{name}));
-
     Lacuna::Verify->new(content=>\$account{password}, throws=>[1001,'Invalid password.', $account{password}])
         ->length_gt(5)
         ->eq($account{password1});
 
-    $account{species_id} ||= 'human_species';
-    my $db = $self->simpledb;
-    my $species = $self->simpledb->domain('species')->find($account{species_id});
-    if ($account{species_id} eq '' || !$species || $account{species_id} eq 'lacunan_species')  {
-        confess [1002, 'Invalid species.', $account{species_id}];
-    }
-    else {
-        my $home_planet = $species->find_home_planet;
-        my $empire = Lacuna::DB::Empire->found($self->simpledb, $home_planet, $species, \%account);
+    Lacuna::Verify->new(content=>\$account{name}, throws=>[1000,'Empire name not available.', $account{name}])
+        ->length_lt(31)
+        ->length_gt(2)
+        ->no_restricted_chars
+        ->no_profanity
+        ->ok($self->is_name_available($account{name}));
 
-        # return status
-        my $status = $empire->get_full_status;
-        my $session_id = $empire->start_session->id;
-        return { empire_id => $empire->id, session_id => $session_id, status => $status };
-    }
+    my $empire = Lacuna::DB::Empire->create($self->simpledb, \%account);
+    return $empire->id;
 }
+
+
+sub found {
+    my ($self, $empire_id) = @_;
+    my $empire = $self->simpledb->domain('empire')->find($empire_id);
+    unless (defined $empire) {
+        confess [1002, "Invalid empire."];
+    }
+    $empire->found;
+
+    return { session_id => $empire->start_session->id, status => $empire->get_full_status };
+}
+
 
 sub get_status {
     my ($self, $session_id) = @_;
@@ -88,7 +88,7 @@ sub get_full_status {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(is_name_available create login logout get_full_status get_status));
+__PACKAGE__->register_rpc_method_names(qw(is_name_available create found login logout get_full_status get_status));
 
 
 no Moose;

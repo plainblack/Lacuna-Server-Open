@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 12;
+use Test::More tests => 11;
 use Test::Deep;
 use LWP::UserAgent;
 use JSON qw(to_json from_json);
@@ -19,7 +19,6 @@ is($result->{result}, 1, 'empire name is available');
 
 my $fed = {
     name        => 'The Federation',
-    species_id  => 'human_species',
     password    => '123qwe',
     password1   => '123qwe',
 };
@@ -46,19 +45,16 @@ $result = post('empire', 'create', $fed);
 is($result->{error}{code}, 1001, 'empire passwords do not match');
 
 $fed->{password} = '123qwe';
-$fed->{species_id} = 'xxx';
 $result = post('empire', 'create', $fed);
-is($result->{error}{code}, 1002, 'empire species does not exist');
-
-$fed->{species_id} = 'human_species';
-$result = post('empire', 'create', $fed);
-ok(exists $result->{result}{empire_id}, 'empire created');
-ok(exists $result->{result}{session_id}, 'empire logged in after creation');
-my $fed_id = $result->{result}{empire_id};
-my $session_id = $result->{result}{session_id};
+my $fed_id = $result->{result};
+ok(defined $fed_id, 'empire created');
 
 $result = post('empire', 'is_name_available', ['The Federation']);
 is($result->{result}, 0, 'empire name not available');
+
+$result = post('empire', 'found', [$fed_id]);
+my $session_id = $result->{result}{session_id};
+ok(defined $session_id, 'empire logged in after foundation');
 
 $result = post('empire', 'logout', [$session_id]);
 is($result->{result}, 1, 'logout');
@@ -98,6 +94,7 @@ sub cleanup {
     if (defined $empire) {
         say "Found empire";
         $empire->delete;
+        say "Deleted empire.";
     }
     else {
         say "Couldn't find empire.";

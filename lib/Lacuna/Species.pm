@@ -9,6 +9,7 @@ has simpledb => (
     required=> 1,
 );
 
+
 sub is_name_available {
     my ($self, $name) = @_;
     if ( $name eq '' ) {
@@ -21,14 +22,12 @@ sub is_name_available {
 }
 
 sub create {
-    my ($self, %me) = @_;
-    $me{name} =~ s{^\s+(.*)\s+$}{$1}xms; # remove extra white space
-    if ( $me{name} eq '' || length($me{name}) > 30 || $me{name} =~ m/[@&<>;]/ || !$self->is_name_available($me{name})) {
-        confess [1000,'Species name not available.', 'name'];
-    }
+    my ($self, $empire_id, %me) = @_;
     if ($me{description} =~ m/[@&<>;]/) {
         confess [1005, 'Description contains invalid characters.','description'];
     }
+    
+    # deal with point allocation
     my $points = scalar(@{$me{habitable_orbits}});
     if ($points > 7) {
         confess [1007, 'Too many orbits.', 'habitable_orbits'];
@@ -65,6 +64,16 @@ sub create {
     elsif ($points < 45) {
         confess [1008, 'Underspend.'];
     }
+
+    # make sure it's a valid empire
+    my $empire = $self->validate_empire($empire_id);
+    
+    # make sure the name is unique
+    $me{name} =~ s{^\s+(.*)\s+$}{$1}xms; # remove extra white space
+    if ( $me{name} eq '' || length($me{name}) > 30 || $me{name} =~ m/[@&<>;]/ || !$self->is_name_available($me{name})) {
+        confess [1000,'Species name not available.', 'name'];
+    }
+
     my $species = $self->simpledb->domain('species')->insert({ # specify each attribute to avaid data injection
         name                    => $me{name},
         description             => $me{description},
@@ -81,10 +90,43 @@ sub create {
         trade_affinity          => $me{trade_affinity},
         growth_affinity         => $me{growth_affinity},
     });
+    
+    $empire->species($species->id);
+    $empire->put;
+    
     return $species->id;
 }
 
-__PACKAGE__->register_rpc_method_names(qw(is_name_available create));
+sub validate_empire {
+    my ($self, $empire_id) = @_;
+    # make sure it's a valid empire
+    my $empire = $self->simpledb->domain('empire')->find($empire_id);
+    unless (defined $empire) {
+        confess [1002, "Not a valid empire.",'empire_id'];
+    }
+
+    # deal with an empire in motion
+    if ($empire->stage ne 'new') {
+        confess [1010, "You can't establish a new species for an empire that's already founded.",'empire_id'];
+    }
+
+    # deal with previously created species
+    my $old_species = $self->simpledb->domain('species')->search(where=>{empire_id=>$empire->id});
+    while (my $species = $old_species->next) {
+        $species->delete;
+    }
+    return $empire;
+}
+
+sub set_human {
+    my ($self, $empire_id) = @_;
+    my $empire = $self->validate_empire($empire_id);
+    $empire->species('human_species');
+    $empire->put;
+    return 1;    
+}
+
+__PACKAGE__->register_rpc_method_names(qw(is_name_available create set_human));
 
 
 no Moose;

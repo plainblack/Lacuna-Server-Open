@@ -12,11 +12,15 @@ The name of the species to search for.
 
 
 
-=head2 create ( params ) 
+=head2 create ( empire_id, params ) 
 
-Creates a species and then returns the id of the new species.
+Creates a species and then returns the id of the new species. The species will also be attached to the empire. If you call this method again before founding the empire, then the old species will be deleted and the new one will be attached to this empire.
 
-Throws 1000, 1005, 1007, 1008, and 1009. The C<data> parameter will contain the field name that needs to be adjusted, if it can be attributed to a single field.
+Throws 1000, 1002, 1005, 1007, 1008, 1009, and 1010. The C<data> parameter will contain the field name that needs to be adjusted, if it can be attributed to a single field.
+
+=head3 empire_id
+
+The id of the empire you wish to create a species for.
 
 =head3 params
 
@@ -79,5 +83,15 @@ An integer between 1 and 7 inclusive, where 7 is best. Determines species advant
 An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in colonization.
 
 
+
+=head2 set_human ( empire_id )
+
+Returns 1 on success. Sets an empire's species to human. You only need to call this method if the user has already created a custom species, and then decides to switch back to human as human is the default species assigned to an empire when it is created.
+
+Throws 1002 and 1010.
+
+=head3 empire_id
+
+The empire to set the species.
 
 =cut

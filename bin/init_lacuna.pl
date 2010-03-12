@@ -219,13 +219,14 @@ sub add_bodies {
 sub create_lacuna_corp {
     my ($body, $domains) = @_;
     say "\t\t\tMaking this the Lacunans home world.";
-    my $empire = Lacuna::DB::Empire->found(
+    my $empire = Lacuna::DB::Empire->create(
         $db,
-        $body,
-        $lacunans,
         {name=>'Lacuna Expanse Corp', password=>rand(9999999)},
         'lacuna_expanse_corp'
-        );    
+        );
+    $empire->species_id($lacunans->id);
+    $empire->put;
+    $empire->found($body)
 }
 
 sub get_star_name {

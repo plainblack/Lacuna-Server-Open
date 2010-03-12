@@ -5,7 +5,6 @@ extends 'SimpleDB::Class::Item';
 use DateTime;
 use Lacuna::Util;
 use Digest::SHA;
-use Lacuna::DB::Building::PlanetaryCommand;
 
 __PACKAGE__->set_domain_name('empire');
 __PACKAGE__->add_attributes(
@@ -15,6 +14,7 @@ __PACKAGE__->add_attributes(
             $self->name_cname(Lacuna::Util::cname($new));
         },
     },
+    stage               => { isa => 'Str', default=>'new'},
     name_cname          => { isa => 'Str' },
     date_created        => { isa => 'DateTime' },
     description         => { isa => 'Str' },
@@ -139,26 +139,35 @@ sub encrypt_password {
     return Digest::SHA::sha256_base64($password);
 }
 
-
-sub found {
-    my ($class, $simpledb, $home_planet, $species, $account, $empire_id) = @_;
- 
+sub create {
+    my ($class, $simpledb, $account, $empire_id) = @_;
     my %options;
     if ($empire_id) {
         $options{id} = $empire_id;
     }
-    my $self = $simpledb->domain('empire')->insert({
+    return $simpledb->domain('empire')->insert({
         name                => $account->{name},
         date_created        => DateTime->now,
+        species_id          => 'human_species',
         password            => $class->encrypt_password($account->{password}),
-        species_id          => $species->id,
-        home_planet_id      => $home_planet->id,
-        probed_stars        => [$home_planet->star_id],
     }, %options);
+}
 
-    $self->send_welcome_message;
+sub found {
+    my ($self, $home_planet) = @_;
 
+    # found empire
+    unless ($home_planet) {
+        $home_planet = $self->species->find_home_planet;
+    }
     $self->add_essentia(100); # REMOVE BEFORE LAUNCH
+    $self->home_planet_id($home_planet->id);
+    $self->probed_stars([$home_planet->star_id]);
+    $self->stage('founded');
+    $self->put;
+
+    # send welcome
+    $self->send_welcome_message;
     
     # found colony
     $home_planet->found_colony($self->id);

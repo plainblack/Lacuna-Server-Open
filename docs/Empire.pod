@@ -1,6 +1,15 @@
+
+=head1 Founding an empire.
+
+When founding an empire the order of operations is first to C<create> the empire. Then optionally create a new L<Species> (default is human). Then finally call the C<found> method to set up the empire on it's new home planet.
+
+
 =head1 Empire Methods
 
 The following methods are available from C</empire>.
+
+
+
 
 =head2 is_name_available ( name ) 
 
@@ -47,13 +56,11 @@ The password to authenticate to the empire.
 
 =head2 create ( params ) 
 
-Creates a new empire and then returns a hash reference with a session and an empire_id.
+Creates a new empire and then returns an empire_id.
 
- {
-    "empire_id"  : "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
-    "session_id" : "7ba7b80d-91d1-b0b3-1111-10c04fd430cd",
-    "status" : { get_full_status() }
- }
+ "nva7b810-9gna-11d1-80b4-h0a0p0p0e8n"
+ 
+This is not the end of the story though. Now you must either create a L<Species> for this empire and then C<found> it, or just skip the species part and C<found> the empire.
 
 Throws 1000, 1001, 1002.
 
@@ -73,9 +80,19 @@ The password to log in to the empire. Required.
 
 Retyping the password again. This must match C<password> to succeed.
 
-=head4 species_id
 
-The id of the species that rules this empire. Defaults to 'human_species' (Human).
+=head2 found ( empire_id )
+
+Set up an empire on it's new home world. Once this method is called, the species can no longer be modified. Returns a hash reference containing the session_id and the output from the C<get_full_status> method.
+
+ {
+    "session_id" : "7ba7b80d-91d1-b0b3-1111-10c04fd430cd",
+    "status" : { get_full_status() }
+ }
+
+=head3 empire_id
+
+The empire to found.
 
 
 
