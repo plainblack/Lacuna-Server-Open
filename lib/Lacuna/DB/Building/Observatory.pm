@@ -8,7 +8,7 @@ sub controller_class {
 }
 
 sub building_prereq {
-    return {'Lacuna::DB::Building:Shipyard'=>1};
+    return {'Lacuna::DB::Building::Shipyard'=>1};
 }
 
 sub image {
