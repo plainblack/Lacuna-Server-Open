@@ -498,7 +498,7 @@ sub check_build_prereqs {
     my $db = $self->simpledb;
     my $prereqs = $self->building_prereq;
     foreach my $key (keys %{$prereqs}) {
-        my $count = $db->domain($key)->count(where=>{body_id=>$body->id, level=>['>=',$prereqs->{$key}]});
+        my $count = $db->domain($key)->count(where=>{body_id=>$body->id, class=>$key, level=>['>=',$prereqs->{$key}]});
         if ($count < 1) {
             confess [1013, "You don't have the necessary prerequisite buildings.",[$key, $prereqs->{$key}]];
         }
