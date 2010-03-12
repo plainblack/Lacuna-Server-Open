@@ -35,7 +35,7 @@ Retrieves the properties of the building.
     "building" : {
         "id" : "id-goes-here",
         "name" : "Planetary Command",
-        "image" : "planetary-command",
+        "image" : "command6",
         "level" : 6,
         "can_upgrade" : 0,
         "x" : 0,

@@ -85,7 +85,7 @@ sub view {
             building    => {
                 id                  => $building->id,
                 name                => $building->name,
-                image               => $building->image,
+                image               => $building->image_level,
                 x                   => $building->x,
                 y                   => $building->y,
                 level               => $building->level,

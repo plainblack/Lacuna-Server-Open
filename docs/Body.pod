@@ -72,7 +72,7 @@ The list of building's retreived by this method should be placed on the 11x11 gr
             "y" : -1,
             "url" : "/apple",
             "level" : 3,
-            "image" : "apple",
+            "image" : "apples3",
         },
         "id-goes-here2" : {
             "name" : "Planetary Command",
@@ -80,7 +80,7 @@ The list of building's retreived by this method should be placed on the 11x11 gr
             "y" : 0,
             "url" : "/command",
             "level" : 1,
-            "image" : "command",
+            "image" : "command1",
         }
     },
     "status" : { get_status() }
@@ -118,6 +118,7 @@ Provides a list of all the building types that are available to be built on a gi
                 },
                 "reason" : null
             },
+            "image" : "wheat1",
             "production" : {
                 "food_hour" : 1500,
                 "energy_hour" : -144,
