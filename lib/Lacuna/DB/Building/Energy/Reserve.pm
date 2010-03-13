@@ -8,7 +8,7 @@ sub controller_class {
 }
 
 sub university_prereq {
-    return 2;
+    return 1;
 }
 
 sub image {
