@@ -518,6 +518,11 @@ sub found_colony {
     $self->add_ore(5000);
     $self->put;
     
+    # award medal
+    my $type = ref $self;
+    $type =~ s/^.*::(\w\d+)$/$1/;
+    $self->empire->add_medal($type);
+    
     return $self;
 }
 

@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 11;
+use Test::More tests => 12;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;

@@ -6,6 +6,7 @@ use DateTime;
 use DateTime::Format::Strptime;
 use Lacuna::Util;
 use Digest::SHA;
+use Lacuna::Constants qw(MEDALS);
 
 __PACKAGE__->set_domain_name('empire');
 __PACKAGE__->add_attributes(
@@ -44,14 +45,17 @@ __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id');
 __PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id');
 
 sub add_medal {
-    my ($self, $name, $notes) = @_;
+    my ($self, $id, $notes) = @_;
     my $medals = $self->medals;
-    unless (exists $medals->{$name}) {
-        $medals->{$name} = {
+    unless (exists $medals->{$id}) {
+        $medals->{$id} = {
             date    => DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',DateTime->now),
             notes   => $notes, 
             };
         $self->medals($medals);
+        $self->put;
+        my $name = MEDALS->{$id};
+        $self->send_message($name,sprintf('You were just awarded a "%s" medal.', $name));
     }
 }
 
@@ -188,6 +192,17 @@ sub found {
     return $self;
 }
 
+sub send_message {
+    my ($self, $subject, $body, $options) = @_;
+    my %params = (
+        simpledb=> $self->simpledb,
+        subject => $subject,
+        body    => $body,
+        from    => $options->{from} || $self,
+    );    
+    Lacuna::DB::Message->send(\%params);
+}
+
 sub send_welcome_message {
     my ($self) = @_;
     open my $file, "<", '/data/Lacuna-Server/var/messages/welcome.txt';
@@ -197,13 +212,7 @@ sub send_welcome_message {
         $message = <$file>;
     }
     close $file;
-    Lacuna::DB::Message->send(
-        simpledb    => $self->simpledb,
-        from        => $self->lacuna_expanse_corp,
-        to          => $self,
-        subject     => 'Welcome',
-        body        => sprintf($message, $self->name),
-    );
+    $self->send_mesage('Welcome', sprintf($message, $self->name), { from => $self->lacuna_expanse_corp } );
 }
 
 sub lacuna_expanse_corp {
