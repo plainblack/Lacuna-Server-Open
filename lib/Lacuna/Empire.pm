@@ -34,17 +34,16 @@ sub logout {
 sub login {
     my ($self, $name, $password) = @_;
     my $empire = $self->simpledb->domain('empire')->search(where=>{name_cname=>cname($name)})->next;
-    if (defined $empire) {
-        if ($empire->is_password_valid($password)) {
-            return { session_id => $empire->start_session->id, status => $empire->get_full_status };
-        }
-        else {
-            confess [1004, 'Password incorrect.', $password];
-        }
-    }
-    else {
+    unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
     }
+    if ($empire->stage eq 'new') {
+        confess [1010, "You can't log in to an empire tha has not been founded."];
+    }
+    unless ($empire->is_password_valid($password)) {
+        confess [1004, 'Password incorrect.', $password];
+    }
+    return { session_id => $empire->start_session->id, status => $empire->get_full_status };
 }
 
 sub create {
