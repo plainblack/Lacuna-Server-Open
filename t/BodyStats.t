@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 15;
+use Test::More tests => 26;
 use Test::Deep;
 use Data::Dumper;
 use DateTime;
@@ -85,6 +85,26 @@ cmp_ok($after_water->{ore_hour}, '>', $after_we->{ore_hour}, "ore_hour lowered")
 cmp_ok($after_water->{energy_hour}, '<', $after_we->{energy_hour}, "energy_hour raised");
 cmp_ok($after_water->{water_hour}, '>', $after_we->{water_hour}, "water_hour lowered");
 cmp_ok($after_water->{waste_hour}, '>', $after_we->{waste_hour}, "waste_hour lowered");
+
+
+my $ws = Lacuna::DB::Building::Waste::Sequestration->new(
+    simpledb        => $db,
+    x               => 0,
+    y               => 3,
+    class           => 'Lacuna::DB::Building::Waste::Sequestration',
+    date_created    => DateTime->now,
+    body_id         => $home->id,
+    empire_id       => $empire->id,
+    level           => 0,
+);
+$we->body->build_building($ws);
+$ws->finish_upgrade;
+
+my $after_ws = $ws->body->get_extended_status;
+
+say Dumper($after_ws);
+
+cmp_ok($after_we->{waste_capacity}, '<', $after_ws->{waste_capacity}, "waste_capacity raised");
 
 
 END {
