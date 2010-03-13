@@ -993,7 +993,11 @@ sub spend_water {
 
 sub add_happiness {
     my ($self, $value) = @_;
-    $self->happiness( $self->happiness + $value );
+    my $new = $self->happiness + $value;
+    if ($new < 0 ) {
+        $new = 0;
+    }
+    $self->happiness( $new );
 }
 
 sub spend_happiness {
