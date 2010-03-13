@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 26;
+use Test::More tests => 16;
 use Test::Deep;
 use Data::Dumper;
 use DateTime;
