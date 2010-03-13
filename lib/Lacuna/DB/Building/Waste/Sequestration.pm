@@ -39,7 +39,7 @@ sub time_to_build {
     return 1000;
 }
 
-sub waste_capacity {
+sub waste_storage {
     return 1500;
 }
 
