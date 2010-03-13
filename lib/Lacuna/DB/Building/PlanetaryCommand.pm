@@ -16,7 +16,7 @@ sub image {
 }
 
 sub name {
-    return 'Planetary Command';
+    return 'Planetary Command Center';
 }
 
 sub food_to_build {

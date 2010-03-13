@@ -12,7 +12,7 @@ sub image {
 }
 
 sub name {
-    return 'Water Storage';
+    return 'Water Storage Tank';
 }
 
 sub food_to_build {

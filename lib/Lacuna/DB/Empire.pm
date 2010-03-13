@@ -3,6 +3,7 @@ package Lacuna::DB::Empire;
 use Moose;
 extends 'SimpleDB::Class::Item';
 use DateTime;
+use DateTime::Format::Strptime;
 use Lacuna::Util;
 use Digest::SHA;
 
@@ -29,9 +30,9 @@ __PACKAGE__->add_attributes(
     rank                => { isa => 'Int', default=>0 }, # just where it is stored, but will come out of date quickly
     probed_stars        => { isa => 'ArrayRefOfStr' },
     university_level    => { isa => 'Int', default=>0 },
+    medals              => { isa => 'HashRef' },
 );
 
-# achievements
 # personal confederacies
 
 __PACKAGE__->belongs_to('species', 'Lacuna::DB::Species', 'species_id');
@@ -41,6 +42,18 @@ __PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'empire_id');
 __PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Message', 'from_id');
 __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id');
 __PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id');
+
+sub add_medal {
+    my ($self, $name, $notes) = @_;
+    my $medals = $self->medals;
+    unless (exists $medals->{$name}) {
+        $medals->{$name} = {
+            date    => DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',DateTime->now),
+            notes   => $notes, 
+            };
+        $self->medals($medals);
+    }
+}
 
 sub spend_essentia {
     my ($self, $value) = @_;
