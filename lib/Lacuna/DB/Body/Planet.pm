@@ -4,6 +4,7 @@ use Moose;
 extends 'Lacuna::DB::Body';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use List::Util qw(shuffle);
+use Lacuna::Util qw(to_seconds);
 no warnings 'uninitialized';
 
 __PACKAGE__->add_attributes(
@@ -585,7 +586,7 @@ sub tick {
 sub tick_to {
     my ($self, $now) = @_;
     my $interval = $now - $self->last_tick;
-    my $seconds = $interval->in_units('seconds');
+    my $seconds = to_seconds($interval);
     my $tick_rate = $seconds / 3600;
     $self->last_tick($now);
     $self->add_happiness(sprintf('%.0f', $self->happiness_hour * $tick_rate));
