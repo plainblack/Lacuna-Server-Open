@@ -1,106 +1,65 @@
 use lib '../lib';
 use Test::More tests => 11;
 use Test::Deep;
-use LWP::UserAgent;
-use JSON qw(to_json from_json);
-use Lacuna::DB;
 use Data::Dumper;
-use Config::JSON;
 use 5.010;
 
 my $result;
 
-my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
-cleanup();
+use TestHelper;
+my $tester = TestHelper->new;
+$tester->cleanup;
 
 
-$result = post('empire', 'is_name_available', ['The Federation']);
+$result = $tester->post('empire', 'is_name_available', [$tester->empire_name]);
 is($result->{result}, 1, 'empire name is available');
 
-my $fed = {
-    name        => 'The Federation',
-    password    => '123qwe',
-    password1   => '123qwe',
+my $empire = {
+    name        => $tester->empire_name,
+    password    => $tester->empire_password,
+    password1   => $tester->empire_password,
 };
 
-$fed->{name} = 'XX>';
-$result = post('empire', 'create', $fed);
+$empire->{name} = 'XX>';
+$result = $tester->post('empire', 'create', $empire);
 is($result->{error}{code}, 1000, 'empire name has funky chars');
 
-$fed->{name} = '';
-$result = post('empire', 'create', $fed);
+$empire->{name} = '';
+$result = $tester->post('empire', 'create', $empire);
 is($result->{error}{code}, 1000, 'empire name too short');
 
-$fed->{name} = 'abc def ghi jkl mno pqr stu vwx yz 0123456789';
-$result = post('empire', 'create', $fed);
+$empire->{name} = 'abc def ghi jkl mno pqr stu vwx yz 0123456789';
+$result = $tester->post('empire', 'create', $empire);
 is($result->{error}{code}, 1000, 'empire name too long');
 
-$fed->{name} = 'The Federation';
-$fed->{password} = 'abc';
-$result = post('empire', 'create', $fed);
+$empire->{name} = $tester->empire_name;
+$empire->{password} = 'abc';
+$result = $tester->post('empire', 'create', $empire);
 is($result->{error}{code}, 1001, 'empire password too short');
 
-$fed->{password} = 'abc123';
-$result = post('empire', 'create', $fed);
+$empire->{password} = 'abc123';
+$result = $tester->post('empire', 'create', $empire);
 is($result->{error}{code}, 1001, 'empire passwords do not match');
 
-$fed->{password} = '123qwe';
-$result = post('empire', 'create', $fed);
-my $fed_id = $result->{result};
-ok(defined $fed_id, 'empire created');
+$empire->{password} = $tester->empire_password;
+$result = $tester->post('empire', 'create', $empire);
+my $empire_id = $result->{result};
+ok(defined $empire_id, 'empire created');
 
-$result = post('empire', 'is_name_available', ['The Federation']);
+$result = $tester->post('empire', 'is_name_available', [$tester->empire_name]);
 is($result->{result}, 0, 'empire name not available');
 
-$result = post('empire', 'found', [$fed_id]);
+$result = $tester->post('empire', 'found', [$empire_id]);
 my $session_id = $result->{result}{session_id};
 ok(defined $session_id, 'empire logged in after foundation');
 
-$result = post('empire', 'logout', [$session_id]);
+$result = $tester->post('empire', 'logout', [$session_id]);
 is($result->{result}, 1, 'logout');
 
-$result = post('empire', 'login', ['the Federation','123qwe']);
+$result = $tester->post('empire', 'login', [$tester->empire_name,$tester->empire_password]);
 ok(exists $result->{result}{session_id}, 'login');
-$session_id = $result->{result}{session_id};
 
-
-
-
-
-
-sub post {
-    my ($url, $method, $params) = @_;
-    my $content = {
-        jsonrpc     => '2.0',
-        id          => 1,
-        method      => $method,
-        params      => $params,
-    };
-    my $ua = LWP::UserAgent->new;
-    $ua->timeout(10);
-    say "REQUEST: " .to_json($content);
-    my $response = $ua->post($config->get('server_url').$url,
-        Content_Type    => 'application/json',
-        Content         => to_json($content),
-        Accept          => 'application/json',
-        );
-    say "RESPONSE: ".$response->content;
-    return from_json($response->content);
-}
-
-sub cleanup {
-    my $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key => $config->get('secret_key'), cache_servers => $config->get('memcached'));
-    my $empire = $db->domain('empire')->search(where=>{name=>'The Federation'})->next;
-    if (defined $empire) {
-        say "Found empire";
-        $empire->delete;
-        say "Deleted empire.";
-    }
-    else {
-        say "Couldn't find empire.";
-    }
-}
 
 END {
-    cleanup();
+    $tester->cleanup;
 }

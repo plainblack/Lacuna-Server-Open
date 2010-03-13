@@ -24,7 +24,7 @@ The id of the empire you wish to create a species for.
 
 =head3 params
 
-A hash of parameters. With the exception of name and description, the parameters are all integers. When added together they must equal 45. 
+A hash reference of parameters. With the exception of name and description, the parameters are all integers. When added together they must equal 45. 
 
 =head4 name
 

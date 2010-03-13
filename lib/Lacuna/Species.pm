@@ -22,13 +22,13 @@ sub is_name_available {
 }
 
 sub create {
-    my ($self, $empire_id, %me) = @_;
-    if ($me{description} =~ m/[@&<>;]/) {
+    my ($self, $empire_id, $me) = @_;
+    if ($me->{description} =~ m/[@&<>;]/) {
         confess [1005, 'Description contains invalid characters.','description'];
     }
     
     # deal with point allocation
-    my $points = scalar(@{$me{habitable_orbits}});
+    my $points = scalar(@{$me->{habitable_orbits}});
     if ($points > 7) {
         confess [1007, 'Too many orbits.', 'habitable_orbits'];
     }
@@ -36,7 +36,7 @@ sub create {
         confess [1008, 'Too few orbits.', 'habitable_orbits'];
     }
     my $previous;
-    foreach my $orbit (sort @{$me{habitable_orbits}}) {
+    foreach my $orbit (sort @{$me->{habitable_orbits}}) {
         $orbit += 0; #ensure it's a number
         if ($orbit < 1 || $orbit > 7) {
             confess [1009, 'Not a valid orbit.', 'habitable_orbits'];
@@ -49,14 +49,14 @@ sub create {
         $previous = $orbit;
     }
     foreach my $attr (qw(construction_affinity deception_affinity research_affinity management_affinity farming_affinity mining_affinity science_affinity environmental_affinity political_affinity trade_affinity growth_affinity)) {
-        $me{$attr} += 0; # ensure it's a number
-        if ($me{$attr} < 1) {
+        $me->{$attr} += 0; # ensure it's a number
+        if ($me->{$attr} < 1) {
             confess [1008, 'Too little to an affinity.', $attr];
         }
-        elsif ($me{$attr} > 7) {
+        elsif ($me->{$attr} > 7) {
             confess [1007, 'Too much to an affinity.', $attr];
         }
-        $points += $me{$attr};
+        $points += $me->{$attr};
     }
     if ($points > 45) {
         confess [1007, 'Overspend.'];
@@ -69,26 +69,26 @@ sub create {
     my $empire = $self->validate_empire($empire_id);
     
     # make sure the name is unique
-    $me{name} =~ s{^\s+(.*)\s+$}{$1}xms; # remove extra white space
-    if ( $me{name} eq '' || length($me{name}) > 30 || $me{name} =~ m/[@&<>;]/ || !$self->is_name_available($me{name})) {
+    $me->{name} =~ s{^\s+(.*)\s+$}{$1}xms; # remove extra white space
+    if ( $me->{name} eq '' || length($me->{name}) > 30 || $me->{name} =~ m/[@&<>;]/ || !$self->is_name_available($me->{name})) {
         confess [1000,'Species name not available.', 'name'];
     }
 
     my $species = $self->simpledb->domain('species')->insert({ # specify each attribute to avaid data injection
-        name                    => $me{name},
-        description             => $me{description},
-        habitable_orbits        => $me{habitable_orbits},
-        construction_affinity   => $me{construction_affinity},
-        deception_affinity      => $me{deception_affinity},
-        research_affinity       => $me{research_affinity},
-        management_affinity     => $me{management_affinity},
-        farming_affinity        => $me{farming_affinity},
-        mining_affinity         => $me{mining_affinity},
-        science_affinity        => $me{science_affinity},
-        environmental_affinity  => $me{environmental_affinity},
-        political_affinity      => $me{political_affinity},
-        trade_affinity          => $me{trade_affinity},
-        growth_affinity         => $me{growth_affinity},
+        name                    => $me->{name},
+        description             => $me->{description},
+        habitable_orbits        => $me->{habitable_orbits},
+        construction_affinity   => $me->{construction_affinity},
+        deception_affinity      => $me->{deception_affinity},
+        research_affinity       => $me->{research_affinity},
+        management_affinity     => $me->{management_affinity},
+        farming_affinity        => $me->{farming_affinity},
+        mining_affinity         => $me->{mining_affinity},
+        science_affinity        => $me->{science_affinity},
+        environmental_affinity  => $me->{environmental_affinity},
+        political_affinity      => $me->{political_affinity},
+        trade_affinity          => $me->{trade_affinity},
+        growth_affinity         => $me->{growth_affinity},
     });
     
     $empire->species($species->id);

@@ -1,26 +1,18 @@
 use lib '../lib';
 use Test::More tests => 15;
 use Test::Deep;
-use Lacuna::DB;
-use Config::JSON;
 use Data::Dumper;
 use DateTime;
 use 5.010;
 
-my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
-my $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key => $config->get('secret_key'), cache_servers => $config->get('memcached'));
+use TestHelper;
+my $tester = TestHelper->new->generate_test_empire;
+my $session_id = $tester->session->id;
 
-my $human = $db->domain('species')->find('human_species');
-my $home = $human->find_home_planet;
-my $empire = Lacuna::DB::Empire->found(
-    $db,
-    $home,
-    $human,
-    {
-        name        => 'The Big Stats Tester',
-        password    => Lacuna::DB::Empire->encrypt_password('123qwe'),
-    }
-    );
+my $empire = $tester->empire;
+my $home = $empire->home_planet;
+my $db = $tester->db;
+
 my $initial_status = $empire->home_planet->get_extended_status;
 
 my $wheat = Lacuna::DB::Building::Food::Farm::Wheat->new(
@@ -95,5 +87,7 @@ cmp_ok($after_water->{water_hour}, '>', $after_we->{water_hour}, "water_hour low
 cmp_ok($after_water->{waste_hour}, '>', $after_we->{waste_hour}, "waste_hour lowered");
 
 
-$empire->delete;
+END {
+    $tester->cleanup;
+}
 

@@ -362,6 +362,14 @@ sub magnetite_hour {
 
 # BUILDINGS
 
+sub command {
+    my $self = shift;
+    return $self->simpledb->domain('Lacuna::DB::Building::PlanetaryCommand')->search(where=>{
+        body_id => $self->id,
+        class   => 'Lacuna::DB::Building::PlanetaryCommand',
+    })->next;
+}
+
 sub buildings {
     my $self = shift;
     return (
