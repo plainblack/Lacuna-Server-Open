@@ -87,8 +87,8 @@ sub view_profile {
     my $medals = $empire->medals;
     my %my_medals;
     foreach my $key (keys %{$medals}) {
-        $my_medals{MEDALS->{$key}} = {
-            id      => $key,
+        $my_medals{$key} = {
+            name    => MEDALS->{$key},
             image   => $key,
             date    => $medals->{$key}{date},
             note    => $medals->{$key}{note},
@@ -145,8 +145,9 @@ sub view_public_profile {
     my %public_medals;
     foreach my $key (keys %{$medals}) {
         next unless $medals->{$key}{public};
-        $public_medals{MEDALS->{$key}} = {
+        $public_medals{$key} = {
             image   => $key,
+            name    => MEDALS->{$key},
             date    => $medals->{$key}{date},
             note    => $medals->{$key}{note},
         };

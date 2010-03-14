@@ -58,14 +58,12 @@ is($result->{result}, 1, 'logout');
 
 $result = $tester->post('empire', 'login', [$tester->empire_name,$tester->empire_password]);
 ok(exists $result->{result}{session_id}, 'login');
-my $session_id = $result->{result}{session_id};
+$session_id = $result->{result}{session_id};
 
 $result = $tester->post('empire', 'view_profile', [$session_id]);
 ok(exists $result->{result}{profile}, 'view profile');
-my @medal_names = keys %{$result->{result}{profile}{medals}};
-my @medal_ids = map { $result->{result}{profile}{medals}{$_}{id} } @medal_names;
+my @medal_ids = keys %{$result->{result}{profile}{medals}};
 my $private_medal_id = pop @medal_ids;
-my $private_medal_name = pop @medal_names;
 
 my %profile = (
     status_message  => 'Whoopie!',
@@ -75,7 +73,7 @@ my %profile = (
 $result = $tester->post('empire', 'edit_profile', [$session_id, \%profile]);
 is($result->{result}{profile}{description}, 'test', 'description set in profile');
 is($result->{result}{profile}{status_message}, 'Whoopie!', 'status message set in profile');
-is($result->{result}{profile}{medals}{$private_medal_name}{public}, 0, 'medal set private');
+is($result->{result}{profile}{medals}{$private_medal_id}{public}, 0, 'medal set private');
 
 $result = $tester->post('empire', 'view_public_profile', [$session_id, $empire_id]);
 is($result->{result}{profile}{status_message}, 'Whoopie!', 'public profile works');
