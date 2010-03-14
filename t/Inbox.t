@@ -18,15 +18,15 @@ is($result->{result}{message}{unknown}[0], 'Some Guy', 'detecting unknown recipi
 sleep 2;
 
 $result = $tester->post('inbox','view_inbox', [$session_id]);
-is($result->{result}{messages}[1]{subject}, 'my subject', 'view inbox works');
-is($result->{result}{status}{empire}{has_new_messages}, 2, 'new message count works');
-my $message_id = $result->{result}{messages}[1]{id};
+is($result->{result}{messages}[4]{subject}, 'my subject', 'view inbox works');
+is($result->{result}{status}{empire}{has_new_messages}, 5, 'new message count works');
+my $message_id = $result->{result}{messages}[4]{id};
 
 $result = $tester->post('inbox', 'read_message', [$session_id, $message_id]);
 is($result->{result}{message}{body}, 'my body', 'can view a message');
 
 $result = $tester->post('inbox','view_sent', [$session_id]);
-is($result->{result}{messages}[0]{subject}, 'my subject', 'view sent works');
+is($result->{result}{messages}[3]{subject}, 'my subject', 'view sent works');
 
 $result = $tester->post('inbox', 'archive_messages', [$session_id, [$message_id]]);
 is($result->{result}{success}, 1, 'archiving works');
