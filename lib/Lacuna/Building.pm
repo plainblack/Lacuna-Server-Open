@@ -51,6 +51,7 @@ sub upgrade {
     unless ($building->empire_id eq $empire->id) {
         confess [1010, "Can't upgrade a building that you don't own.", $building_id];
     }
+    $building->empire($empire);
 
     # verify upgrade
     my $cost = $building->cost_to_upgrade;
@@ -58,6 +59,7 @@ sub upgrade {
 
     # spend resources
     my $body = $building->body;
+    $body->empire($empire);
     $body->spend_water($cost->{water});
     $body->spend_energy($cost->{energy});
     $body->spend_food($cost->{food});
@@ -74,45 +76,46 @@ sub view {
     my ($self, $session_id, $building_id) = @_;
     my $building = $self->get_building($building_id);
     my $empire = $self->get_empire_by_session($session_id);
-    if ($building->body->empire_id eq $empire->id) { # do body, because permanents aren't owned by anybody
-        my $cost = $building->cost_to_upgrade;
-        my $queue = $building->build_queue if ($building->build_queue_id);
-        my $time_left;
-        if (defined $queue) {
-            $time_left = $queue->is_complete($building);
-        }
-        my %out = ( 
-            building    => {
-                id                  => $building->id,
-                name                => $building->name,
-                image               => $building->image_level,
-                x                   => $building->x,
-                y                   => $building->y,
-                level               => $building->level,
-                food_hour           => $building->food_hour,
-                ore_hour            => $building->ore_hour,
-                water_hour          => $building->water_hour,
-                waste_hour          => $building->waste_hour,
-                energy_hour         => $building->energy_hour,
-                happiness_hour      => $building->happiness_hour,
-                upgrade             => {
-                    can             => (eval{$building->can_upgrade($cost)} ? 1 : 0),
-                    cost            => $cost,
-                    production      => $building->stats_after_upgrade,
-                },
-            },
-            status      => $empire->get_full_status,
-        );
-        if ($time_left) {
-            $out{building}{pending_build}{seconds_remaining} = $time_left;
-            $out{building}{pending_build}{start} = format_date($queue->date_created);
-            $out{building}{pending_build}{end} = format_date($queue->date_complete);
-        }
-        return \%out;
-    }
-    else {
+    unless ($building->body->empire_id eq $empire->id) { # do body, because permanents aren't owned by anybody
         confess [1010, "Can't view a building that you don't own.", $building_id];
     }
+    $building->body->empire($empire); # prevent staleness
+    $building->empire($empire);
+
+    my $cost = $building->cost_to_upgrade;
+    my $queue = $building->build_queue if ($building->build_queue_id);
+    my $time_left;
+    if (defined $queue) {
+        $time_left = $queue->is_complete($building);
+    }
+    my %out = ( 
+        building    => {
+            id                  => $building->id,
+            name                => $building->name,
+            image               => $building->image_level,
+            x                   => $building->x,
+            y                   => $building->y,
+            level               => $building->level,
+            food_hour           => $building->food_hour,
+            ore_hour            => $building->ore_hour,
+            water_hour          => $building->water_hour,
+            waste_hour          => $building->waste_hour,
+            energy_hour         => $building->energy_hour,
+            happiness_hour      => $building->happiness_hour,
+            upgrade             => {
+                can             => (eval{$building->can_upgrade($cost)} ? 1 : 0),
+                cost            => $cost,
+                production      => $building->stats_after_upgrade,
+            },
+        },
+        status      => $empire->get_full_status,
+    );
+    if ($time_left) {
+        $out{building}{pending_build}{seconds_remaining} = $time_left;
+        $out{building}{pending_build}{start} = format_date($queue->date_created);
+        $out{building}{pending_build}{end} = format_date($queue->date_complete);
+    }
+    return \%out;
 }
 
 sub build {
@@ -124,17 +127,21 @@ sub build {
     unless ($body->empire_id eq $empire->id) {
         confess [1010, "Can't add a building to a planet that you don't occupy.", $body_id];
     }
+    $body->empire($empire);
 
     # create dummy building
-    my $building = $self->model_class->new( simpledb => $self->simpledb)->update({
+    my $building = $self->model_class->new(
+        simpledb        => $self->simpledb,
         x               => $x,
         y               => $y,
         level           => 0,
         body_id         => $body->id,
+        body            => $body,
         empire_id       => $empire->id,
+        empire          => $empire,
         date_created    => DateTime->now,
         class           => $self->model_class,
-    });
+    );
 
     # make sure the planet can handle it
     $body = $body->can_build_building($building);

@@ -66,8 +66,7 @@ sub found {
     unless (defined $empire) {
         confess [1002, "Invalid empire.", $empire_id];
     }
-    $empire->found;
-
+    $empire = $empire->found;
     return { session_id => $empire->start_session->id, status => $empire->get_full_status };
 }
 
@@ -85,10 +84,9 @@ sub get_full_status {
 sub view_profile {
     my ($self, $session_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $medals;
+    my $medals = $empire->medals;
     my %my_medals;
     foreach my $key (keys %{$medals}) {
-        next unless $medals->{$key}{public};
         $my_medals{MEDALS->{$key}} = {
             id      => $key,
             image   => $key,

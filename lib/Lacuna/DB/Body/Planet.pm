@@ -497,19 +497,26 @@ sub found_colony {
     $self->last_tick(DateTime->now);
     $self->put;    
 
+    # award medal
+    my $type = ref $self;
+    $type =~ s/^.*::(\w\d+)$/$1/;
+    $self->empire->add_medal($type);
+
     # add command building
-    my $command = Lacuna::DB::Building::PlanetaryCommand->new(simpledb => $self->simpledb)->update({
+    my $command = Lacuna::DB::Building::PlanetaryCommand->new(
+        simpledb        => $self->simpledb,
         x               => 0,
         y               => 0,
         class           => 'Lacuna::DB::Building::PlanetaryCommand',
         date_created    => DateTime->now,
         body_id         => $self->id,
+        body            => $self,
         empire_id       => $empire_id,
+        empire          => $self->empire,
         level           => $self->empire->species->growth_affinity - 1,
-    });
+    );
     $self->build_building($command);
     $command->finish_upgrade;
-    $self = $command->body; # we're stale
     
     # add starting resources
     $self->add_algae(5000);
@@ -517,12 +524,7 @@ sub found_colony {
     $self->add_water(5000);
     $self->add_ore(5000);
     $self->put;
-    
-    # award medal
-    my $type = ref $self;
-    $type =~ s/^.*::(\w\d+)$/$1/;
-    $self->empire->add_medal($type);
-    
+        
     return $self;
 }
 
