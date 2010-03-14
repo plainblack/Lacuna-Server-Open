@@ -6,7 +6,7 @@ The following methods are available from C</species>.
 
 Returns a 1 if the name is available, or throws an exception if it is not.
 
-Throws 1005.
+Throws 1000.
 
 =head3 name
 
