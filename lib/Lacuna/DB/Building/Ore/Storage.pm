@@ -39,6 +39,10 @@ sub time_to_build {
     return 300;
 }
 
+sub ore_storage {
+    return 1500;
+}
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 16;
+use Test::More tests => 17;
 use Test::Deep;
 use Data::Dumper;
 use DateTime;
@@ -22,14 +22,16 @@ my $wheat = Lacuna::DB::Building::Food::Farm::Wheat->new(
     class           => 'Lacuna::DB::Building::Food::Farm::Wheat',
     date_created    => DateTime->now,
     body_id         => $home->id,
+    body            => $home,
     empire_id       => $empire->id,
+    empire          => $empire,
     level           => 0,
 );
-$empire->home_planet->build_building($wheat);
+$home->build_building($wheat);
 $wheat->finish_upgrade;
 
 
-my $after_wheat = $wheat->body->get_extended_status;
+my $after_wheat = $home->get_extended_status;
 
 say Dumper($after_wheat);
 
@@ -47,13 +49,15 @@ my $water = Lacuna::DB::Building::Water::Purification->new(
     class           => 'Lacuna::DB::Building::Water::Purification',
     date_created    => DateTime->now,
     body_id         => $home->id,
+    body            => $home,
     empire_id       => $empire->id,
+    empire          => $empire,
     level           => 0,
 );
-$wheat->body->build_building($water);
+$home->build_building($water);
 $water->finish_upgrade;
 
-my $after_water = $water->body->get_extended_status;
+my $after_water = $home->get_extended_status;
 
 say Dumper($after_water);
 
@@ -70,13 +74,15 @@ my $we = Lacuna::DB::Building::Energy::Waste->new(
     class           => 'Lacuna::DB::Building::Energy::Waste',
     date_created    => DateTime->now,
     body_id         => $home->id,
+    body            => $home,
     empire_id       => $empire->id,
+    empire          => $empire,
     level           => 0,
 );
-$water->body->build_building($we);
+$home->build_building($we);
 $we->finish_upgrade;
 
-my $after_we = $we->body->get_extended_status;
+my $after_we = $home->get_extended_status;
 
 say Dumper($after_we);
 
@@ -90,21 +96,48 @@ cmp_ok($after_water->{waste_hour}, '>', $after_we->{waste_hour}, "waste_hour low
 my $ws = Lacuna::DB::Building::Waste::Sequestration->new(
     simpledb        => $db,
     x               => 0,
-    y               => 3,
+    y               => 4,
     class           => 'Lacuna::DB::Building::Waste::Sequestration',
     date_created    => DateTime->now,
     body_id         => $home->id,
+    body            => $home,
     empire_id       => $empire->id,
+    empire          => $empire,
     level           => 0,
 );
-$we->body->build_building($ws);
+$home->build_building($ws);
+
 $ws->finish_upgrade;
 
-my $after_ws = $ws->body->get_extended_status;
+my $after_ws = $home->get_extended_status;
 
 say Dumper($after_ws);
 
 cmp_ok($after_we->{waste_capacity}, '<', $after_ws->{waste_capacity}, "waste_capacity raised");
+
+
+my $os = Lacuna::DB::Building::Ore::Storage->new(
+    simpledb        => $db,
+    x               => 0,
+    y               => 5,
+    class           => 'Lacuna::DB::Building::Ore::Storage',
+    date_created    => DateTime->now,
+    body_id         => $home->id,
+    body            => $home,
+    empire_id       => $empire->id,
+    empire          => $empire,
+    level           => 0,
+);
+$home->build_building($os);
+
+$os->finish_upgrade;
+
+my $after_os = $home->get_extended_status;
+
+say Dumper($after_os);
+
+cmp_ok($after_ws->{ore_capacity}, '<', $after_os->{ore_capacity}, "ore_capacity raised");
+
 
 
 END {
