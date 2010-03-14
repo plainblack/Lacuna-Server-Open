@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 16;
+use Test::More tests => 18;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -60,8 +60,11 @@ $result = $tester->post('empire', 'login', [$tester->empire_name,$tester->empire
 ok(exists $result->{result}{session_id}, 'login');
 $session_id = $result->{result}{session_id};
 
+$result = $tester->post('empire', 'set_status_message', [$session_id,'woot!']);
+
 $result = $tester->post('empire', 'view_profile', [$session_id]);
 ok(exists $result->{result}{profile}, 'view profile');
+ok(exists $result->{result}{profile}{status_message}, 'can set status message');
 my @medal_ids = keys %{$result->{result}{profile}{medals}};
 my $private_medal_id = pop @medal_ids;
 
@@ -77,6 +80,9 @@ is($result->{result}{profile}{medals}{$private_medal_id}{public}, 0, 'medal set 
 
 $result = $tester->post('empire', 'view_public_profile', [$session_id, $empire_id]);
 is($result->{result}{profile}{status_message}, 'Whoopie!', 'public profile works');
+
+$result = $tester->post('empire', 'find', [$session_id, 'Test']);
+ok(exists $result->{result}{empires}{$empire_id}, 'empire search works');
 
 
 END {

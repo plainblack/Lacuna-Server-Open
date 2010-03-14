@@ -111,7 +111,8 @@ Fetches the empire's status hash that is returned with many methods, but perform
 	"full_status_update_required" : 1,
         "essentia" : 0,
         "happiness_hour" : 450,
-        "happiness" : 119393
+        "happiness" : 119393,
+        "status_message" : "A spy's work is never done."
     }
  }
 
@@ -138,7 +139,8 @@ Fetches the empire's status hash that is returned with many methods, but perform
     "empire" : {
         "id" : "xxxx",
         "name" : "The Syndicate",
-        "home_planet_id" : "yyyy",
+        "status_message" : "A spy's work is never done.",
+        "home_planet_id" : "id-goes-here",
         "essentia" : 0,
         "happiness" : 119393
         "planets" : {
@@ -243,7 +245,7 @@ A hash reference of properties to be edited.
 
 A description of the empire. Limited to 1024 characters and cannot contain < or >.
 
-=head4 message_status
+=head4 status_message
 
 A message to indicate what you're doing, how you're feeling, or other status indicator. Limited to 100 characters, cannot be blank, and cannot contain @, &, <, >, or ;.
 
@@ -291,11 +293,41 @@ The id of the empire for which you'd like to retrieve the public profile.
 
 
 
+=head2 find ( session_id, name )
+
+Find an empire by name. Returns a hash reference containing empire ids and empire names. So if you searched for "Lacuna" you might get back a result set that looks like this:
+
+ {
+    "empires" : {
+        "id-goes-here" : "Lacuna Expanse Corp",
+        "id-goes-here2" : "Lacuna Pirates",
+    },
+    "status" : { get_status() }
+ }
+ 
+=head3 session_id
+
+A session id.
+
+=head3 name
+
+The name your searching for. It's case insensitive, and partial names work fine.
+
+
+
+=head2 set_status_message ( session_id, message )
+
+Sets the empire status message. Similar to what you might put on your Facebook wall, or in a tweet, but about your empire.
+
+=head3 session_id
+
+A session id.
+
+=head3 message
+
+A message to indicate what you're doing, how you're feeling, or other status indicator. Limited to 100 characters, cannot be blank, and cannot contain @, &, <, >, or ;.
+
+
+
 
 =cut
-
-
-
-
-
-

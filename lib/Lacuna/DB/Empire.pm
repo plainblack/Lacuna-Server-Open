@@ -98,6 +98,7 @@ sub get_status {
             happiness_hour              => $happiness_hour,
             essentia                    => $self->essentia,
             has_new_messages            => $self->get_new_message_count,
+            status_message              => $self->status_message,
         },
     };
     return $status;
@@ -125,6 +126,7 @@ sub get_full_status {
             "time" => format_date(DateTime->now),
         },
         empire  => {
+            status_message      => $self->status_message,
             happiness           => $happiness,
             happiness_hour      => $happiness_hour,
             name                => $self->name,

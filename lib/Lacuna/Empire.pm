@@ -14,6 +14,21 @@ has simpledb => (
 
 with 'Lacuna::Role::Sessionable';
 
+
+sub find {
+    my ($self, $session_id, $name) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $empires = $self->simpledb->domain('empire')->search(where=>{name_cname => ['like', '%'.cname($name).'%']}, limit=>100);
+    my %list_of_empires;
+    my $limit = 100;
+    while (my $empire = $empires->next) {
+        $list_of_empires{$empire->id} = $empire->name;
+        $limit--;
+        last unless $limit;
+    }
+    return { empires => \%list_of_empires, status => $empire->get_status };
+}
+
 sub is_name_available {
     my ($self, $name) = @_;
     Lacuna::Verify->new(content=>\$name, throws=>[1000,'Empire name not available.', 'name'])
@@ -134,6 +149,19 @@ sub edit_profile {
     return $self->view_profile($empire);
 }
 
+sub set_status_message {
+    my ($self, $session_id, $message) = @_;
+    Lacuna::Verify->new(content=>\$message, throws=>[1005,'Status message invalid.', 'status_message'])
+        ->length_lt(101)
+        ->not_empty
+        ->no_restricted_chars
+        ->no_profanity;
+    my $empire = $self->get_empire_by_session($session_id);
+    $empire->status_message($message);
+    $empire->put;
+    return $self->get_status;
+}
+
 sub view_public_profile {
     my ($self, $session_id, $empire_id) = @_;
     my $viewer_empire = $self->get_empire_by_session($session_id);
@@ -166,7 +194,7 @@ sub view_public_profile {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(view_profile edit_profile view_public_profile is_name_available create found login logout get_full_status get_status));
+__PACKAGE__->register_rpc_method_names(qw(set_status_message find view_profile edit_profile view_public_profile is_name_available create found login logout get_full_status get_status));
 
 
 no Moose;

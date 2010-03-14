@@ -108,7 +108,7 @@ A session id.
 
 =head3 recipients
 
-A comma separated string of empire names.
+A comma separated string of empire names. B<NOTE:> You may want to expose a search option here using L<Empire/"find">.
 
 =head3 subject
 
