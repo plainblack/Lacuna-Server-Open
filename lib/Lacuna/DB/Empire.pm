@@ -3,8 +3,7 @@ package Lacuna::DB::Empire;
 use Moose;
 extends 'SimpleDB::Class::Item';
 use DateTime;
-use DateTime::Format::Strptime;
-use Lacuna::Util;
+use Lacuna::Util qw(format_date);
 use Digest::SHA;
 use Lacuna::Constants qw(MEDALS);
 
@@ -49,13 +48,17 @@ sub add_medal {
     my $medals = $self->medals;
     unless (exists $medals->{$id}) {
         $medals->{$id} = {
-            date    => DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',DateTime->now),
-            notes   => $notes, 
+            date    => format_date(DateTime->now),
+            note    => $notes,
+            public  => 1,
             };
         $self->medals($medals);
         $self->put;
         my $name = MEDALS->{$id};
-        $self->send_message($name,sprintf('You were just awarded a "%s" medal.', $name));
+        $self->send_message(
+            subject => $name,
+            body    => sprintf('You were just awarded a "%s" medal.', $name),
+            );
     }
 }
 
@@ -87,7 +90,7 @@ sub get_status {
     $self = $self->simpledb->domain('empire')->find($self->id); # refetch because it's likely changed
     my $status = {
         server  => {
-            "time" => DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',DateTime->now),
+            "time" => format_date(DateTime->now),
         },
         empire  => {
             full_status_update_required => 0,
@@ -119,7 +122,7 @@ sub get_full_status {
     }
     my $status = {
         server  => {
-            "time" => DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',DateTime->now),
+            "time" => format_date(DateTime->now),
         },
         empire  => {
             happiness           => $happiness,
@@ -166,6 +169,7 @@ sub create {
         name                => $account->{name},
         date_created        => DateTime->now,
         species_id          => 'human_species',
+        status_message      => 'Making Lacuna a better Expanse.',
         password            => $class->encrypt_password($account->{password}),
     }, %options);
 }
@@ -193,14 +197,11 @@ sub found {
 }
 
 sub send_message {
-    my ($self, $subject, $body, $options) = @_;
-    my %params = (
-        simpledb=> $self->simpledb,
-        subject => $subject,
-        body    => $body,
-        from    => $options->{from} || $self,
-    );    
-    Lacuna::DB::Message->send(\%params);
+    my ($self, %params) = @_;
+    $params{simpledb} = $self->simpledb;
+    $params{from}   = $params{from} || $self;
+    $params{to}     = $self;
+    Lacuna::DB::Message->send(%params);
 }
 
 sub send_welcome_message {
@@ -212,7 +213,11 @@ sub send_welcome_message {
         $message = <$file>;
     }
     close $file;
-    $self->send_mesage('Welcome', sprintf($message, $self->name), { from => $self->lacuna_expanse_corp } );
+    $self->send_message(
+        subject => 'Welcome',
+        body    => sprintf($message, $self->name),
+        from    => $self->lacuna_expanse_corp,
+        );
 }
 
 sub lacuna_expanse_corp {

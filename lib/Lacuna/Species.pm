@@ -12,20 +12,22 @@ has simpledb => (
 
 sub is_name_available {
     my ($self, $name) = @_;
-    if ( $name eq '' ) {
-        return 0;
-    }
-    else {
-        my $count = $self->simpledb->domain('species')->count(where=>{name_cname=>cname($name)}, consistent=>1);
-        return ($count) ? 0 : 1;
-    }
+    Lacuna::Verify->new(content=>\$name, throws=>[1005,'Species name not available.', 'name'])
+        ->length_lt(31)
+        ->length_gt(2)
+        ->not_empty
+        ->no_restricted_chars
+        ->no_profanity
+        ->ok( !$self->simpledb->domain('species')->count(where=>{name_cname=>cname($name)}, consistent=>1) );
+    return 1;
 }
 
 sub create {
     my ($self, $empire_id, $me) = @_;
-    if ($me->{description} =~ m/[@&<>;]/) {
-        confess [1005, 'Description contains invalid characters.','description'];
-    }
+    Lacuna::Verify->new(content=>\$me->{description}, throws=>[1005,'Description invalid.', 'description'])
+        ->length_lt(1025)
+        ->no_restricted_chars
+        ->no_profanity;  
     
     # deal with point allocation
     my $points = scalar(@{$me->{habitable_orbits}});
@@ -70,9 +72,7 @@ sub create {
     
     # make sure the name is unique
     $me->{name} =~ s{^\s+(.*)\s+$}{$1}xms; # remove extra white space
-    if ( $me->{name} eq '' || length($me->{name}) > 30 || $me->{name} =~ m/[@&<>;]/ || !$self->is_name_available($me->{name})) {
-        confess [1000,'Species name not available.', 'name'];
-    }
+    $self->is_name_available($me->{name});
 
     my $species = $self->simpledb->domain('species')->insert({ # specify each attribute to avaid data injection
         name                    => $me->{name},

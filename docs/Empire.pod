@@ -13,7 +13,9 @@ The following methods are available from C</empire>.
 
 =head2 is_name_available ( name ) 
 
-Returns a 1 if the name is available, or a 0 if it is not.
+Returns a 1 if the name is available, or a throws an exception if it is not.
+
+Throws 1005.
 
 =head3 name
 
@@ -193,4 +195,106 @@ Throws 1002.
 
 A session id.
 
+
+=head2 view_profile ( session_id )
+
+Provides a list of the editable properties of the current empire's profile. See also the C<edit_profile> and C<view_public_profile> methods.
+
+ {
+    "profile" : {
+       "description" : "description goes here",
+       "status_message" : "status message goes here",
+       "medals" : {
+           "Built Level 1 Building" : {
+               "id" : "building1",
+               "image" : "building1",
+               "note" : "note about how this was achieved, if any, goes here",
+               "date" : "01 31 2010 13:09:05 +0600",
+               "public" : 1
+           },
+           ...
+       }
+    },
+    "status" : { get_status() }
+ }
+
+=head3 session_id
+
+A session id.
+
+
+
+
+=head2 edit_profile ( session_id, profile )
+
+Edits properties of an empire. Returns the C<view_profile> method. See also the C<view_profile> and C<view_public_profile> methods.
+
+Throws 1005, 1009.
+
+=head3 session_id
+
+A session id.
+
+=head3 profile
+
+A hash reference of properties to be edited.
+
+=head4 description
+
+A description of the empire. Limited to 1024 characters and cannot contain < or >.
+
+=head4 message_status
+
+A message to indicate what you're doing, how you're feeling, or other status indicator. Limited to 100 characters, cannot be blank, and cannot contain @, &, <, >, or ;.
+
+=head4 public_medals
+
+An array reference of medal ids that the user wishes to display in the public profile.
+
+
+
+=head2 view_public_profile (session_id, empire_id)
+
+Provides a list of the data that's publicly known about this empire.
+
+ {
+    "profile" : {
+        "id" : "empire-id-goes-here",
+        "name" : "Lacuna Expanse Corp",
+        "planet_count" : 1,
+        "status_message" : "Looking for Essentia."
+        "description" : "We are the original inhabitants of the Lacuna Expanse.",
+        "medals" : {
+            "Built Level 1 Building" : {
+                "image" : "building1",
+                "date" : "01 31 2010 13:09:05 +0600",
+                "note" : null
+            },
+            ...
+        },
+        "date_founded" : "01 31 2010 13:09:05 +0600",
+        "Species" : "Lacunan"
+    },
+    "status" : { get_status() }
+ }
+ 
+Throws 1002.
+
+=head3 session_id
+
+A session id.
+
+=head3 empire_id
+
+The id of the empire for which you'd like to retrieve the public profile.
+
+
+
+
 =cut
+
+
+
+
+
+

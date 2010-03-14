@@ -594,10 +594,10 @@ sub finish_upgrade {
     $self->build_queue_id('');
     $self->put;
     $self->body($self->body->recalc_stats);
-    $self->empire->add_metal('building'.$self->level);
+    $self->empire->add_medal('building'.$self->level);
     my $type = $self->controller_class;
     $type =~ s/^Lacuna::Building::(\w+)$/$1/;
-    $self->empire->add_metal($type);
+    $self->empire->add_medal($type);
 }
 
 no Moose;

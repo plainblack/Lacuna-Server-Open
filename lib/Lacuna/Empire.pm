@@ -2,10 +2,10 @@ package Lacuna::Empire;
 
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
-use Lacuna::Util qw(cname);
+use Lacuna::Util qw(cname format_date);
 use Lacuna::Map;
 use Lacuna::Verify;
-use Lacuna::DB::Empire;
+use Lacuna::Constants qw(MEDALS);
 
 has simpledb => (
     is      => 'ro',
@@ -16,13 +16,14 @@ with 'Lacuna::Role::Sessionable';
 
 sub is_name_available {
     my ($self, $name) = @_;
-    if ( $name eq '' ) {
-        return 0;
-    }
-    else {
-        my $count = $self->simpledb->domain('empire')->count(where=>{name_cname=>cname($name)}, consistent=>1);
-        return ($count) ? 0 : 1;
-    }
+    Lacuna::Verify->new(content=>\$name, throws=>[1000,'Empire name not available.', 'name'])
+        ->length_lt(31)
+        ->length_gt(2)
+        ->not_empty
+        ->no_restricted_chars
+        ->no_profanity
+        ->ok( !$self->simpledb->domain('empire')->count(where=>{name_cname=>cname($name)}, consistent=>1) );
+    return 1; 
 }
 
 sub logout {
@@ -52,12 +53,7 @@ sub create {
         ->length_gt(5)
         ->eq($account{password1});
 
-    Lacuna::Verify->new(content=>\$account{name}, throws=>[1000,'Empire name not available.', $account{name}])
-        ->length_lt(31)
-        ->length_gt(2)
-        ->no_restricted_chars
-        ->no_profanity
-        ->ok($self->is_name_available($account{name}));
+    $self->is_name_available($account{name});
 
     my $empire = Lacuna::DB::Empire->create($self->simpledb, \%account);
     return $empire->id;
@@ -68,7 +64,7 @@ sub found {
     my ($self, $empire_id) = @_;
     my $empire = $self->simpledb->domain('empire')->find($empire_id);
     unless (defined $empire) {
-        confess [1002, "Invalid empire."];
+        confess [1002, "Invalid empire.", $empire_id];
     }
     $empire->found;
 
@@ -86,8 +82,92 @@ sub get_full_status {
     return $self->get_empire_by_session($session_id)->get_full_status;
 }
 
+sub view_profile {
+    my ($self, $session_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $medals;
+    my %my_medals;
+    foreach my $key (keys %{$medals}) {
+        next unless $medals->{$key}{public};
+        $my_medals{MEDALS->{$key}} = {
+            id      => $key,
+            image   => $key,
+            date    => $medals->{$key}{date},
+            note    => $medals->{$key}{note},
+            public  => $medals->{$key}{public}
+        };
+    }
+    my %out = (
+        description     => $empire->description,
+        status_message  => $empire->status_message,
+        medals          => \%my_medals,
+    );
+    return { profile => \%out, status => $empire->get_status };    
+}
 
-__PACKAGE__->register_rpc_method_names(qw(is_name_available create found login logout get_full_status get_status));
+sub edit_profile {
+    my ($self, $session_id, $profile) = @_;
+    Lacuna::Verify->new(content=>\$profile->{description}, throws=>[1005,'Description invalid.', 'description'])
+        ->length_lt(1025)
+        ->no_restricted_chars
+        ->no_profanity;  
+    Lacuna::Verify->new(content=>\$profile->{status_message}, throws=>[1005,'Status message invalid.', 'status_message'])
+        ->length_lt(101)
+        ->not_empty
+        ->no_restricted_chars
+        ->no_profanity;
+    unless (ref $profile->{public_medals} eq  'ARRAY') {
+        confess [1009, 'Medals list needs to be an array reference.', 'public_medals'];
+    }
+    my $empire = $self->get_empire_by_session($session_id);
+    $empire->description($profile->{description});
+    $empire->status_message($profile->{status_message});
+    my $medals = $empire->medals;
+    foreach my $key (keys %{$medals}) {
+        if ($key ~~ $profile->{public_medals}) {
+            $medals->{$key}{public} = 1;
+        }
+        else {
+            $medals->{$key}{public} = 0;
+        }
+    }
+    $empire->medals($medals);
+    $empire->put;
+    return $self->view_profile($empire);
+}
+
+sub view_public_profile {
+    my ($self, $session_id, $empire_id) = @_;
+    my $viewer_empire = $self->get_empire_by_session($session_id);
+    my $viewed_empire = $self->simpledb->domain('empire')->find($empire_id);
+    unless (defined $viewed_empire) {
+        confess [1002, 'The empire you wish to view does not exist.', $empire_id];
+    }
+    my $medals;
+    my %public_medals;
+    foreach my $key (keys %{$medals}) {
+        next unless $medals->{$key}{public};
+        $public_medals{MEDALS->{$key}} = {
+            image   => $key,
+            date    => $medals->{$key}{date},
+            note    => $medals->{$key}{note},
+        };
+    }
+    my %out = (
+        id              => $viewed_empire->id,
+        name            => $viewed_empire->name,
+        description     => $viewed_empire->description,
+        status_message  => $viewed_empire->status_message,
+        species         => $viewed_empire->species->name,
+        date_founded    => format_date($viewed_empire->date_created),
+        planet_count    => $self->simpledb->domain('Lacuna::DB::Body::Planet')->count(where=>{empire_id=>$viewed_empire->id}),
+        medals          => \%public_medals,
+    );
+    return { profile => \%out, status => $viewer_empire->get_status };
+}
+
+
+__PACKAGE__->register_rpc_method_names(qw(view_profile edit_profile view_public_profile is_name_available create found login logout get_full_status get_status));
 
 
 no Moose;

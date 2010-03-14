@@ -2,7 +2,7 @@ package Lacuna::Building;
 
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
-use DateTime::Format::Strptime;
+use Lacuna::Util qw(format_date);
 
 has simpledb => (
     is      => 'ro',
@@ -105,8 +105,8 @@ sub view {
         );
         if ($time_left) {
             $out{building}{pending_build}{seconds_remaining} = $time_left;
-            $out{building}{pending_build}{start} = DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',$queue->date_created);
-            $out{building}{pending_build}{end} = DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',$queue->date_complete);
+            $out{building}{pending_build}{start} = format_date($queue->date_created);
+            $out{building}{pending_build}{end} = format_date($queue->date_complete);
         }
         return \%out;
     }

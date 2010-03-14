@@ -43,7 +43,7 @@ sub empty {
 
 sub not_empty {
     my $self = shift;
-    return $self->ok(${$self->content} ne '');
+    return $self->ok(${$self->content} ne '' && ${$self->content} !~ m/^\s*$/xms);
 }
 
 sub no_profanity {
@@ -54,6 +54,11 @@ sub no_profanity {
 sub no_restricted_chars {
     my $self = shift;
     return $self->ok(${$self->content} !~ m/[@&<>;]/);
+}
+
+sub no_tags {
+    my $self = shift;
+    return $self->ok(${$self->content} !~ m/[<>]/);
 }
 
 sub length_gt {

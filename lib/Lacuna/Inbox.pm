@@ -68,7 +68,7 @@ sub send_message {
         ->no_profanity;
     Lacuna::Verify->new(content=>\$body, throws=>[1005,'Invalid message.',$body])
         ->not_empty
-        ->no_restricted_chars
+        ->no_tags
         ->no_profanity;
     my $empire = $self->get_empire_by_session($session_id);
     my @sent;

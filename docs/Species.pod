@@ -4,7 +4,9 @@ The following methods are available from C</species>.
 
 =head2 is_name_available ( name ) 
 
-Returns a 1 if the name is available, or a 0 if it is not.
+Returns a 1 if the name is available, or throws an exception if it is not.
+
+Throws 1005.
 
 =head3 name
 
@@ -32,7 +34,7 @@ The name of the species to create. Limited to 30 characters, cannot be blank, an
 
 =head4 description
 
-The password to log in to the empire. Limited to 1024 characters and cannot contain @, &, <, >, or ;.
+The password to log in to the empire. Limited to 1024 characters and cannot contain < or >.
 
 =head4 habitable_orbits
 

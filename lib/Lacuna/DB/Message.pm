@@ -3,7 +3,7 @@ package Lacuna::DB::Message;
 use Moose;
 extends 'SimpleDB::Class::Item';
 use DateTime;
-use DateTime::Format::Strptime;
+use Lacuna::Util qw(format_date);
 
 __PACKAGE__->set_domain_name('message');
 __PACKAGE__->add_attributes(
@@ -27,7 +27,7 @@ __PACKAGE__->belongs_to('receiver', 'Lacuna::DB::Empire', 'to_id');
 
 sub date_sent_formatted {
     my ($self) = @_;
-    return DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',$self->date_sent);
+    return format_date($self->date_sent);
 }
 
 

@@ -3,6 +3,7 @@ package Lacuna::DB::Species;
 use Moose;
 extends 'SimpleDB::Class::Item';
 use Lacuna::Util;
+use Lacuna::Verify;
 
 __PACKAGE__->set_domain_name('species');
 __PACKAGE__->add_attributes(

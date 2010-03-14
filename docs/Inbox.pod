@@ -112,11 +112,11 @@ A comma separated string of empire names.
 
 =head3 subject
 
-A subject for the message. It cannot contain any special characters, and must be less than 100 characters in length.
+A subject for the message. It cannot contain any special characters, and must be less than 100 characters in length, and cannot contain &, @, ;, <, or >.
 
 =head3 body
 
-The body of the message. It cannot contain any special characters, and must be less than 200,000 characters in length.
+The body of the message. It cannot contain any special characters, and must be less than 200,000 characters in length, and cannot contain < or >.
 
 =head3 options
 
