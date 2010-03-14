@@ -18,7 +18,7 @@ my $empire_id = $empire->id;
 my $result;
 
 $result = $tester->post('species', 'is_name_available', ['Human']);
-is($result->{result}, 0, 'species name Human not available');
+is($result->{error}{code}, 1000, 'species name Human not available');
 
 $result = $tester->post('species', 'is_name_available', ['Borg']);
 is($result->{result}, 1, 'species name Borg is available');
@@ -109,7 +109,7 @@ my $borg_id = $result->{result};
 
 sleep 2; # give it a chance to populate
 $result = $tester->post('species', 'is_name_available', ['Borg']);
-is($result->{result}, 0, 'species name Borg not available');
+is($result->{error}{code}, 1000, 'species name Borg not available');
 
 
 sub cleanup {

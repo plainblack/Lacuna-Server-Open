@@ -12,7 +12,7 @@ has simpledb => (
 
 sub is_name_available {
     my ($self, $name) = @_;
-    Lacuna::Verify->new(content=>\$name, throws=>[1005,'Species name not available.', 'name'])
+    Lacuna::Verify->new(content=>\$name, throws=>[1000,'Species name not available.', 'name'])
         ->length_lt(31)
         ->length_gt(2)
         ->not_empty
