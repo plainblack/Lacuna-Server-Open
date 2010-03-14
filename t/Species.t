@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 18;
+use Test::More tests => 19;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -111,6 +111,8 @@ sleep 2; # give it a chance to populate
 $result = $tester->post('species', 'is_name_available', ['Borg']);
 is($result->{error}{code}, 1000, 'species name Borg not available');
 
+$result = $tester->post('species', 'create', [$empire_id, $borg]);
+ok(exists $result->{result}, 're-create works');
 
 sub cleanup {
     my $db = $tester->db;

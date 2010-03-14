@@ -75,6 +75,7 @@ sub create {
     $self->is_name_available($me->{name});
 
     my $species = $self->simpledb->domain('species')->insert({ # specify each attribute to avaid data injection
+        empire_id               => $empire_id,
         name                    => $me->{name},
         description             => $me->{description},
         habitable_orbits        => $me->{habitable_orbits},
@@ -111,10 +112,8 @@ sub validate_empire {
     }
 
     # deal with previously created species
-    my $old_species = $self->simpledb->domain('species')->search(where=>{empire_id=>$empire->id});
-    while (my $species = $old_species->next) {
-        $species->delete;
-    }
+    my $old_species = $self->simpledb->domain('species')->search(where=>{empire_id=>$empire->id}, consistent=>1)->delete;
+    
     return $empire;
 }
 
