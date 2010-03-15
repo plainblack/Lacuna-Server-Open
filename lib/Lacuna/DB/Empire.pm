@@ -36,11 +36,11 @@ __PACKAGE__->add_attributes(
 # personal confederacies
 
 __PACKAGE__->belongs_to('species', 'Lacuna::DB::Species', 'species_id');
-__PACKAGE__->has_many('sessions', 'Lacuna::DB::Session', 'empire_id', 'empire');
-__PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'empire_id', 'empire');
-__PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Message', 'from_id', 'sender');
-__PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id', 'receiver');
-__PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id', 'empire');
+__PACKAGE__->has_many('sessions', 'Lacuna::DB::Session', 'empire_id', mate => 'empire');
+__PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'empire_id', mate => 'empire');
+__PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Message', 'from_id', mate => 'sender');
+__PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id', 'mate => receiver');
+__PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id', mate => 'empire');
 
 
 has home_planet => (
