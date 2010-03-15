@@ -154,7 +154,7 @@ around 'get_status' => sub {
 sub get_extended_status {
     my ($self) = @_;
     my $out = $self->get_status;
-    $self = $self->tick;
+    $self->tick;
     $out->{building_count}  = $self->building_count;
     $out->{water_capacity}  = $self->water_capacity;
     $out->{water_stored}    = $self->water_stored;
@@ -424,7 +424,7 @@ sub has_met_building_prereqs {
 sub can_build_building {
     my ($self, $building) = @_;
     $self->check_for_available_build_space($building->x, $building->y);
-    $self = $self->tick;
+    $self->tick;
     $self->has_room_in_build_queue;
     $self->has_met_building_prereqs($building);
     return $self;
@@ -549,7 +549,7 @@ sub has_max_instances_of_building {
 
 sub recalc_stats {
     my ($self) = @_;
-    $self = $self->tick; # absorb any resources before any changes occur
+    $self->tick; # absorb any resources before any changes occur
     my %stats;
     foreach my $buildings ($self->buildings) {
         while (my $building = $buildings->next) {
@@ -584,10 +584,8 @@ sub tick {
     while (my $build = $builds->next) {
         $self->tick_to($build->date_complete);
         $build->is_complete;
-        $self = $self->simpledb->domain('body')->find($self->id, set=> { empire => $self->empire } ); # stale
     }
     $self->tick_to($now);
-    return $self;
 }
 
 sub tick_to {
