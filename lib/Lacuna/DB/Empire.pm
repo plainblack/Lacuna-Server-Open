@@ -130,7 +130,6 @@ sub get_status {
         $happiness += $planet->happiness;
         $happiness_hour += $planet->happiness_hour;
     }
-    $self = $self->simpledb->domain('empire')->find($self->id); # likely stale
     my $status = {
         server  => {
             "time" => format_date(DateTime->now),
