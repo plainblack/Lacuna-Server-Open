@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 17;
+use Test::More tests => 19;
 use Test::Deep;
 use Data::Dumper;
 use DateTime;
@@ -33,8 +33,6 @@ $wheat->finish_upgrade;
 
 my $after_wheat = $home->get_extended_status;
 
-say Dumper($after_wheat);
-
 cmp_ok($initial_status->{food_hour}, '<', $after_wheat->{food_hour}, "food_hour raised");
 cmp_ok($initial_status->{ore_hour}, '>', $after_wheat->{ore_hour}, "ore_hour lowered");
 cmp_ok($initial_status->{energy_hour}, '>', $after_wheat->{energy_hour}, "energy_hour lowered");
@@ -59,8 +57,6 @@ $water->finish_upgrade;
 
 my $after_water = $home->get_extended_status;
 
-say Dumper($after_water);
-
 cmp_ok($after_wheat->{food_hour}, '>', $after_water->{food_hour}, "food_hour lowered");
 cmp_ok($after_wheat->{ore_hour}, '>', $after_water->{ore_hour}, "ore_hour lowered");
 cmp_ok($after_wheat->{energy_hour}, '>', $after_water->{energy_hour}, "energy_hour lowered");
@@ -83,8 +79,6 @@ $home->build_building($we);
 $we->finish_upgrade;
 
 my $after_we = $home->get_extended_status;
-
-say Dumper($after_we);
 
 cmp_ok($after_water->{food_hour}, '>', $after_we->{food_hour}, "food_hour lowered");
 cmp_ok($after_water->{ore_hour}, '>', $after_we->{ore_hour}, "ore_hour lowered");
@@ -110,9 +104,6 @@ $home->build_building($ws);
 $ws->finish_upgrade;
 
 my $after_ws = $home->get_extended_status;
-
-say Dumper($after_ws);
-
 cmp_ok($after_we->{waste_capacity}, '<', $after_ws->{waste_capacity}, "waste_capacity raised");
 
 
@@ -133,10 +124,26 @@ $home->build_building($os);
 $os->finish_upgrade;
 
 my $after_os = $home->get_extended_status;
-
-say Dumper($after_os);
-
 cmp_ok($after_ws->{ore_capacity}, '<', $after_os->{ore_capacity}, "ore_capacity raised");
+
+is($empire->university_level, 0, 'university is 0');
+my $uni = Lacuna::DB::Building::University->new(
+    simpledb        => $db,
+    x               => 0,
+    y               => -1,
+    class           => 'Lacuna::DB::Building::University',
+    date_created    => DateTime->now,
+    body_id         => $home->id,
+    body            => $home,
+    empire_id       => $empire->id,
+    empire          => $empire,
+    level           => 0,
+);
+$home->build_building($uni);
+
+$uni->finish_upgrade;
+
+is($empire->university_level, 1, 'university is 1');
 
 
 
