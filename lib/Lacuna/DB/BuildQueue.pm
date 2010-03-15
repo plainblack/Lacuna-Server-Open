@@ -23,7 +23,11 @@ has building => (
     lazy    => 1,
     default => sub {
         my ($self) = @_;
-        return $self->empire->get_building($self->building_class, $self->building_id);
+        my $building = $self->empire->get_building($self->building_class, $self->building_id);
+        if ($self->has_body) { # avoid stale body on tick
+            $building->body($self->body);
+        }
+        return $building;
     },
 );
 

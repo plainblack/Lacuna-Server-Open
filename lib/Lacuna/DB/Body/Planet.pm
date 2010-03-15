@@ -106,7 +106,7 @@ sub builds {
     }
     $where->{body_id} = $self->id;
     $where->{date_complete} = ['>',0] unless exists $where->{date_complete};
-    return $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(where=>$where, order_by=>$order);
+    return $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(where=>$where, order_by=>$order, set=>{body=>$self});
 }
 
 sub sanitize {

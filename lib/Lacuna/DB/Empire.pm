@@ -36,24 +36,13 @@ __PACKAGE__->add_attributes(
 # personal confederacies
 
 __PACKAGE__->belongs_to('species', 'Lacuna::DB::Species', 'species_id');
+__PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Body::Planet', 'home_planet_id', mate=>'empire');
 __PACKAGE__->has_many('sessions', 'Lacuna::DB::Session', 'empire_id', mate => 'empire');
 __PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'empire_id', mate => 'empire');
 __PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Message', 'from_id', mate => 'sender');
 __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id', mate => 'receiver');
 __PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id', mate => 'empire');
 
-
-has home_planet => (
-    is          => 'rw',
-    lazy        => 1,
-    predicate   => 'has_home_planet',
-    default     => sub {
-        my ($self) = @_;
-        my $home = $self->simpledb->domain('Lacuna::DB::Body::Planet')->find($self->home_planet_id);
-        $home->empire($self);
-        return $home;
-    },
-);
 
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $body_id) = @_;
