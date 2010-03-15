@@ -28,30 +28,10 @@ sub to_app_with_url {
     return ($self->app_url => $self->to_app);
 }
 
-sub get_building {
-    my ($self, $building_id) = @_;
-    if (ref $building_id && $building_id->isa('Lacuna::DB::Building')) {
-        return $building_id;
-    }
-    else {
-        my $building = $self->simpledb->domain($self->model_domain)->find($building_id);
-        if (defined $building) {
-            return $building;
-        }
-        else {
-            confess [1002, 'Building does not exist.', $building_id];
-        }
-    }
-}
-
 sub upgrade {
     my ($self, $session_id, $building_id) = @_;
-    my $building = $self->get_building($building_id);
     my $empire = $self->get_empire_by_session($session_id);
-    unless ($building->empire_id eq $empire->id) {
-        confess [1010, "Can't upgrade a building that you don't own.", $building_id];
-    }
-    $building->empire($empire);
+    my $building = $empire->get_building($self->model_domain, $building_id);
 
     # verify upgrade
     my $cost = $building->cost_to_upgrade;
@@ -74,13 +54,8 @@ sub upgrade {
 
 sub view {
     my ($self, $session_id, $building_id) = @_;
-    my $building = $self->get_building($building_id);
     my $empire = $self->get_empire_by_session($session_id);
-    unless ($building->body->empire_id eq $empire->id) { # do body, because permanents aren't owned by anybody
-        confess [1010, "Can't view a building that you don't own.", $building_id];
-    }
-    $building->body->empire($empire); # prevent staleness
-    $building->empire($empire);
+    my $building = $empire->get_building($self->model_domain, $building_id);
 
     my $cost = $building->cost_to_upgrade;
     my $queue = $building->build_queue if ($building->build_queue_id);
@@ -120,14 +95,8 @@ sub view {
 
 sub build {
     my ($self, $session_id, $body_id, $x, $y) = @_;
-    my $body = $self->simpledb->domain('body')->find($body_id);
     my $empire = $self->get_empire_by_session($session_id);
-
-    # make sure is owner
-    unless ($body->empire_id eq $empire->id) {
-        confess [1010, "Can't add a building to a planet that you don't occupy.", $body_id];
-    }
-    $body->empire($empire);
+    my $body = $empire->get_body($body_id);
 
     # create dummy building
     my $building = $self->model_class->new(

@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 40;
+use Test::More tests => 46;
 
 use_ok('Lacuna::Verify');
 
@@ -45,6 +45,13 @@ my $semi = Lacuna::Verify->new(content=>\'foo;bar', throws=>'NO');
 is(eval{$semi->no_restricted_chars}, undef, 'no_restricted_chars - ;');
 like($@, qr/^NO/, 'rc ; exception');
 
+my $gt = Lacuna::Verify->new(content=>\'foo>bar', throws=>'NO');
+is(eval{$gt->no_tags}, undef, 'no_tags - >');
+like($@, qr/^NO/, 'rc >  exception');
+my $lt = Lacuna::Verify->new(content=>\'foo<bar', throws=>'NO');
+is(eval{$lt->no_tags}, undef, 'no_tags - <');
+like($@, qr/^NO/, 'rc < exception');
+
 my $empty = Lacuna::Verify->new(content=>\'', throws=>'NO');
 ok($empty->empty, 'empty');
 is(eval{$foo->empty}, undef, 'empty - fail');
@@ -52,6 +59,9 @@ like($@, qr/^NO/, 'empty exception');
 ok($foo->not_empty, 'not_empty');
 is(eval{$empty->not_empty}, undef, 'not_empty - fail');
 like($@, qr/^NO/, 'not empty exception');
+my $empty = Lacuna::Verify->new(content=>\" \t", throws=>'NO');
+is(eval{$empty->not_empty}, undef, 'not_empty whitespace - fail');
+like($@, qr/^NO/, 'not empty whitespace exception');
 
 my $shit = Lacuna::Verify->new(content=>\'shit', throws=>'NO');
 ok($foo->no_profanity, 'no_profanity');

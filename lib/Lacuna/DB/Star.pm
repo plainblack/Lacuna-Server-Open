@@ -21,8 +21,8 @@ __PACKAGE__->add_attributes(
     z               => { isa => 'Int' },
 );
 
-__PACKAGE__->has_many('bodies', 'Lacuna::DB::Body', 'star_id');
-__PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'star_id');
+__PACKAGE__->has_many('bodies', 'Lacuna::DB::Body', 'star_id', 'star');
+__PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'star_id', 'star');
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

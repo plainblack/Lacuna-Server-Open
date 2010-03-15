@@ -30,7 +30,7 @@ __PACKAGE__->add_attributes(
     growth_affinity         => { isa => 'Int' }, # price and speed of colony ships, and planetary command center start level
 );
 
-__PACKAGE__->has_many('empires', 'Lacuna::DB::Empire', 'species_id');
+__PACKAGE__->has_many('empires', 'Lacuna::DB::Empire', 'species_id','species');
 __PACKAGE__->belongs_to('creator', 'Lacuna::DB::Empire', 'empire_id');
 
 sub find_home_planet {

@@ -13,8 +13,8 @@ sub model_class {
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $building = $self->get_building($building_id);
     my $empire = $self->get_empire_by_session($session_id);
+    my $building = $empire->get_building($self->model_domain, $building_id);
     my $out = $orig->($self, $empire, $building);
     my $body = $building->body;
     my $builds = $body->builds;
@@ -42,7 +42,7 @@ sub subsidize_build_queue {
     if ($empire->essentia < $amount) {
         confess [1011, "You don't have enough essentia."];
     }
-    my $building = $self->get_building($building_id);
+    my $building = $empire->get_building($self->model_domain, $building_id);
     $building->subsidize_build_queue($amount);
     return $self->view($empire, $building);
 }

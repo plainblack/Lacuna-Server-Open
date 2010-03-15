@@ -36,12 +36,60 @@ __PACKAGE__->add_attributes(
 # personal confederacies
 
 __PACKAGE__->belongs_to('species', 'Lacuna::DB::Species', 'species_id');
-__PACKAGE__->has_many('sessions', 'Lacuna::DB::Session', 'empire_id');
-__PACKAGE__->has_many('alliance', 'Lacuna::DB::AllianceMember', 'alliance_id');
-__PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'empire_id');
-__PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Message', 'from_id');
-__PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id');
-__PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id');
+__PACKAGE__->has_many('sessions', 'Lacuna::DB::Session', 'empire_id', 'empire');
+__PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'empire_id', 'empire');
+__PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Message', 'from_id', 'sender');
+__PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id', 'receiver');
+__PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id', 'empire');
+
+
+has home_planet => (
+    is          => 'rw',
+    lazy        => 1,
+    predicate   => 'has_home_planet',
+    default     => sub {
+        my ($self) = @_;
+        my $home = $self->simpledb->domain('Lacuna::DB::Body::Planet')->find($self->home_planet_id);
+        $home->empire($self);
+        return $home;
+    },
+);
+
+sub get_body { # makes for uniform error handling, and prevents staleness
+    my ($self, $body_id) = @_;
+    my $body = $self->simpledb->domain('body')->find($body_id);
+    unless (defined $body) {
+        confess [1002, 'Body does not exist.', $body_id];
+    }
+    unless ($body->empire_id eq $self->id) {
+        confess [1010, "Can't manipulate a planet you don't inhabit."];
+    }
+    $body->empire($self);
+    if (!$self->has_home_planet && $body->id eq $self->home_planet_id) {
+        $self->home_planet($body);
+    }
+    return $body;
+}
+
+sub get_building { # makes for uniform error handling, and prevents staleness
+    my ($self, $model_domain, $building_id) = @_;
+    if (ref $building_id && $building_id->isa('Lacuna::DB::Building')) {
+        return $building_id;
+    }
+    else {
+        my $building = $self->simpledb->domain($model_domain)->find($building_id);
+        unless (defined $building) {
+            confess [1002, 'Building does not exist.', $building_id];
+        }
+        my $body = $self->get_body($building->body_id);        
+        unless ($body->empire_id eq $self->id) { # do body, because permanents aren't owned by anybody
+            confess [1010, "Can't manipulate a building that you don't own.", $building_id];
+        }
+        $building->empire($self);
+        $building->body($body);
+        return $building;
+    }
+}
 
 sub add_medal {
     my ($self, $id, $notes) = @_;
@@ -72,11 +120,6 @@ sub add_essentia {
     $self->essentia( $self->essentia + $value );
 }
 
-sub home_planet {
-    my ($self) = @_;
-    $self->simpledb->domain('Lacuna::DB::Body::Planet')->find($self->home_planet_id);
-}
-
 sub get_status {
     my ($self) = @_;
     my $planet_rs = $self->planets;
@@ -87,7 +130,7 @@ sub get_status {
         $happiness += $planet->happiness;
         $happiness_hour += $planet->happiness_hour;
     }
-    $self = $self->simpledb->domain('empire')->find($self->id); # refetch because it's likely changed
+    $self = $self->simpledb->domain('empire')->find($self->id); # likely stale
     my $status = {
         server  => {
             "time" => format_date(DateTime->now),

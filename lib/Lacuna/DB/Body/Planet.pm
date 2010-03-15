@@ -90,13 +90,13 @@ __PACKAGE__->add_attributes(
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
-__PACKAGE__->has_many('regular_buildings','Lacuna::DB::Building','body_id');
-__PACKAGE__->has_many('food_buildings','Lacuna::DB::Building::Food','body_id');
-__PACKAGE__->has_many('water_buildings','Lacuna::DB::Building::Water','body_id');
-__PACKAGE__->has_many('waste_buildings','Lacuna::DB::Building::Waste','body_id');
-__PACKAGE__->has_many('ore_buildings','Lacuna::DB::Building::Ore','body_id');
-__PACKAGE__->has_many('energy_buildings','Lacuna::DB::Building::Energy','body_id');
-__PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','body_id');
+__PACKAGE__->has_many('regular_buildings','Lacuna::DB::Building','body_id', 'body');
+__PACKAGE__->has_many('food_buildings','Lacuna::DB::Building::Food','body_id', 'body');
+__PACKAGE__->has_many('water_buildings','Lacuna::DB::Building::Water','body_id', 'body');
+__PACKAGE__->has_many('waste_buildings','Lacuna::DB::Building::Waste','body_id', 'body');
+__PACKAGE__->has_many('ore_buildings','Lacuna::DB::Building::Ore','body_id', 'body');
+__PACKAGE__->has_many('energy_buildings','Lacuna::DB::Building::Energy','body_id', 'body');
+__PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','body_id', 'body');
 
 sub builds { 
     my ($self, $where, $reverse) = @_;
@@ -106,7 +106,7 @@ sub builds {
     }
     $where->{body_id} = $self->id;
     $where->{date_complete} = ['>',0] unless exists $where->{date_complete};
-    $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(where=>$where, order_by=>$order);
+    return $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(where=>$where, order_by=>$order);
 }
 
 sub sanitize {
@@ -584,7 +584,7 @@ sub tick {
     while (my $build = $builds->next) {
         $self->tick_to($build->date_complete);
         $build->is_complete;
-        $self = $self->simpledb->domain('body')->find($self->id); # refetch cuz we're out of date
+        $self = $self->simpledb->domain('body')->find($self->id, set=> { empire => $self->empire } ); # stale
     }
     $self->tick_to($now);
     return $self;

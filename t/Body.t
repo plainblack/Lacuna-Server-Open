@@ -27,7 +27,7 @@ $result = $tester->post('body','get_buildings', [$session_id, $home_planet]);
 is(ref $result->{result}{buildings}, 'HASH', 'fetch building list');
 my $id;
 foreach my $key (keys %{$result->{result}{buildings}}) {
-    if ($result->{result}{buildings}{$key}{name} eq 'Planetary Command') {
+    if ($result->{result}{buildings}{$key}{name} eq 'Planetary Command Center') {
         $id = $key;
         last;
     }

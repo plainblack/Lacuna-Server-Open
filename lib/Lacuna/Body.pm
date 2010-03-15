@@ -24,6 +24,7 @@ sub get_body {
     my $body_status;
     if ($body->isa('Lacuna::DB::Body::Planet')) {
         if ($empire->id eq $body->empire_id) {
+            $body->empire($empire);
             $body_status = $body->get_extended_status;
         }
         else {
@@ -47,37 +48,16 @@ sub rename {
         ->no_restricted_chars
         ->no_profanity
         ->not_ok($self->simpledb->domain('body')->count(where => {name_cname=>Lacuna::Util::cname($name), 'itemName()'=>['!=',$body_id]}, consistent=>1)); # name available
-    my $body = $self->simpledb->domain('body')->find($body_id);
-    if (defined $body) {
-        my $empire = $self->get_empire_by_session($session_id);
-        if ($body->empire_id eq $empire->id) {
-            $body->update({
-                name        => $name,
-            })->put;
-            return 1;
-        }
-        else {
-            confess [1010, "Can't rename a body that you don't inhabit."];
-        }
-    }
-    else {
-        confess [1002, 'Body does not exist.', $body_id];
-    }
+    
+    my $empire = $self->get_empire_by_session($session_id);
+    $empire->get_body($body_id)->update({name => $name})->put;
+    return 1;
 }
 
 sub get_buildings {
     my ($self, $session_id, $body_id) = @_;
-    my $body = $self->simpledb->domain('body')->find($body_id);
-    unless (defined $body) {
-        confess [1002, 'Body does not exist.', $body_id];
-    }
-    
     my $empire = $self->get_empire_by_session($session_id);
-    unless ($body->empire_id eq $empire->id) {
-        confess [1010, "Can't view a planet you don't inhabit."];
-            
-    }
-    
+    my $body = $empire->get_body($body_id);    
     my %out;
     foreach my $buildings ($body->buildings) {
         while (my $building = $buildings->next) {
@@ -97,16 +77,8 @@ sub get_buildings {
 
 sub get_buildable {
     my ($self, $session_id, $body_id, $x, $y) = @_;
-    my $body = $self->simpledb->domain('body')->find($body_id);
-    unless (defined $body) {
-        confess [1002, 'Body does not exist.', $body_id];
-    }
-    
     my $empire = $self->get_empire_by_session($session_id);
-    unless ($body->empire_id eq $empire->id) {
-        confess [1010, "Can't view a planet you don't inhabit."];
-            
-    }
+    my $body = $empire->get_body($body_id);
 
     $body->check_for_available_build_space($x, $y);
 
@@ -116,7 +88,9 @@ sub get_buildable {
             y               => $y,
             level           => 0,
             body_id         => $body->id,
+            body            => $body,
             empire_id       => $empire->id,
+            empire          => $empire,
             date_created    => DateTime->now,
     );
 

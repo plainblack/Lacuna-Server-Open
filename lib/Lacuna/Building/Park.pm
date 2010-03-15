@@ -13,8 +13,8 @@ sub model_class {
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $building = $self->get_building($building_id);
     my $empire = $self->get_empire_by_session($session_id);
+    my $building = $empire->get_building($self->model_domain, $building_id);
     $building->check_party_over;
     my $out = $orig->($self, $empire, $building);
     if ($building->party_in_progress) {
@@ -28,11 +28,8 @@ around 'view' => sub {
 
 sub throw_a_party {
     my ($self, $session_id, $building_id) = @_;
-    my $building = $self->get_building($building_id);
     my $empire = $self->get_empire_by_session($session_id);
-    if ($building->empire_id ne $empire->id) {
-        confess [1010, "Can't throw a party at a park you don't own.", $building_id];
-    }
+    my $building = $empire->get_building($self->model_domain, $building_id);
     $building->throw_a_party;
     return $self->view($empire, $building);
 }

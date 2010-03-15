@@ -18,10 +18,14 @@ __PACKAGE__->add_attributes(
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Body', 'body_id');
 
-sub building {
-    my ($self) = @_;
-    return $self->simpledb->domain($self->building_class)->find($self->building_id);
-}
+has building => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my ($self) = @_;
+        return $self->empire->get_building($self->building_class, $self->building_id);
+    },
+);
 
 sub seconds_remaining {
     my $self = shift;

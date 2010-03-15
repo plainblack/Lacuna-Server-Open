@@ -16,7 +16,7 @@ my $result;
 $result = $tester->post('orestorage', 'build', [$session_id, $empire->home_planet_id, 3, 3]);
 my $building_id = $result->{result}{building}{id};
 
-cmp_ok($result->{result}{ore_stored}{bauxite}, '>', 0, "got ore storage");
+ok(exists $result->{result}{ore_stored}{bauxite}, "got ore storage");
 
 END {
     $tester->cleanup;

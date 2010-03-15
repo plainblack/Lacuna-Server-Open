@@ -15,7 +15,7 @@ $result = $tester->post('body','get_buildings', [$session_id, $tester->empire->h
 
 my $id;
 foreach my $bid (keys %{$result->{result}{buildings}}) {
-    if ($result->{result}{buildings}{$bid}{name} eq 'Planetary Command') {
+    if ($result->{result}{buildings}{$bid}{name} eq 'Planetary Command Center') {
         $id = $bid;
         last;
     }
