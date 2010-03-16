@@ -139,15 +139,7 @@ sub get_star_system {
         }
         if ($member || $star->id ~~ $empire->probed_stars) {
             return {
-                star    => {
-                    color       => $star->color,
-                    name        => $star->name,
-                    id          => $star->id,
-                    can_rename  => (($star->is_named) ? 0 : 1),
-                    x           => $star->x,
-                    y           => $star->y,
-                    z           => $star->z,
-                },
+                star    => $star->get_status,
                 bodies  => \%out,
                 status  => $empire->get_status,
             }
@@ -187,28 +179,7 @@ sub get_stars {
         my $stars = $self->simpledb->domain('star')->search(where => {z=>$z, y=>['between', $starty, $endy], x=>['between', $startx, $endx]});
         my @out;
         while (my $star = $stars->next) {
-            my $alignment = 'unprobed';
-            if ($star->id ~~ $empire->probed_stars) {
-                $alignment = 'probed';
-                my $bodies = $star->bodies;
-                while (my $body = $bodies->next) {
-                    if ($body->isa('Lacuna::DB::Body::Planet')) {
-                        if ($body->empire_id eq $empire->id) {
-                            $alignment = 'self';
-                        }
-                    }
-                }
-            }
-            push @out, {
-                id          => $star->id,
-                name        => $star->name,
-                x           => $star->x,
-                y           => $star->y,
-                z           => $star->z,
-                color       => $star->color,
-                alignments  => $alignment,
-                can_rename  => ( !$star->is_named && $alignment =~ m/self/ ) ? 1 : 0,
-            };
+            push @out, $star->get_status($empire);
         }
         return { stars=>\@out, status=>$empire->get_status };
     }
@@ -216,7 +187,7 @@ sub get_stars {
 
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_stars rename_star get_stars_near_body get_star_by_body get_star_system get_star_system_by_body));
+__PACKAGE__->register_rpc_method_names(qw(get_stars get_stars_near_body get_star_by_body get_star_system get_star_system_by_body));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

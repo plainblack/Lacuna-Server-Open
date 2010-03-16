@@ -5,7 +5,7 @@ These methods are accessible via the C</inbox> URL.
 
 =head2 view_inbox ( session_id, [ page_number ] )
 
-Displays a list of the messages in the empire's inbox.
+Displays a list of the messages in the empire's inbox. Displays 25 messages per page.
 
  {
     "messages" : [

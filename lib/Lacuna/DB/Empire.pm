@@ -61,12 +61,12 @@ sub get_body { # makes for uniform error handling, and prevents staleness
 }
 
 sub get_building { # makes for uniform error handling, and prevents staleness
-    my ($self, $model_domain, $building_id) = @_;
+    my ($self, $moniker, $building_id) = @_;
     if (ref $building_id && $building_id->isa('Lacuna::DB::Building')) {
         return $building_id;
     }
     else {
-        my $building = $self->simpledb->domain($model_domain)->find($building_id);
+        my $building = $self->simpledb->domain($moniker)->find($building_id);
         unless (defined $building) {
             confess [1002, 'Building does not exist.', $building_id];
         }
@@ -221,7 +221,11 @@ sub found {
     $self->put;
 
     # send welcome
-    $self->send_welcome_message;
+    $self->send_predefined_message(
+        filename    => 'welcome.txt',
+        from        => $self->lacuna_expanse_corp,
+        params      => [$self->name],
+    );
     
     # found colony
     $home_planet->found_colony($self->id);
@@ -239,19 +243,21 @@ sub send_message {
     Lacuna::DB::Message->send(%params);
 }
 
-sub send_welcome_message {
-    my ($self) = @_;
-    open my $file, "<", '/data/Lacuna-Server/var/messages/welcome.txt';
+sub send_predefined_message {
+    my ($self, %options) = @_;
+    open my $file, "<", '/data/Lacuna-Server/var/messages/'.$options{filename};
+    my $subject = <$file>;
+    chomp $subject;
     my $message;
     {
         local $/;
         $message = <$file>;
     }
     close $file;
-    $self->send_message(
-        subject => 'Welcome',
-        body    => sprintf($message, $self->name),
-        from    => $self->lacuna_expanse_corp,
+    return $self->send_message(
+        subject => $subject,
+        body    => sprintf($message, @{$options{params}}),
+        from    => $options{from},
         );
 }
 

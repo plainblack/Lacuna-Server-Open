@@ -2,6 +2,28 @@
 
 Space Port is accessible via the URL C</spaceport>.
 
+The Space Port is where all the ships you build will be docked once they have been built from the L<Shipyard>. You can dock twice as many ships as the level of the Space Port.
+
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=head2 view ( session_id, building_id )
+
+This method is extended to include a list of docked ships.
+
+ {
+    "building" : { ... },
+    "status" : { ... },
+    "docked_ships" : {
+        "probe" : 3,
+        "cargo_ship" : 0,
+        "spy_pod" : 1,
+        "colony_ship" : 0,
+        "terraforming_platform_ship": 0,
+        "gas_giant_settlement_platform_ship" : 0,
+        "mining_platform_ship" : 0,
+        "smuggler_ship" : 1,
+        "space_station" : 0,
+    }
+ }
 
 =cut
