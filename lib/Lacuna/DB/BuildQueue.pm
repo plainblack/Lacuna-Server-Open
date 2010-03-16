@@ -24,6 +24,7 @@ has building => (
     default => sub {
         my ($self) = @_;
         my $building = $self->empire->get_building($self->building_class, $self->building_id);
+        $building->build_queue($self); # avoid stale build queue
         if ($self->has_body) { # avoid stale body on tick
             $building->body($self->body);
         }
@@ -43,7 +44,6 @@ sub is_complete {
     if ($now > $complete) {
         $building ||= $self->building;
         $building->finish_upgrade;
-        $self->delete;
         return 0;
     }
     else {

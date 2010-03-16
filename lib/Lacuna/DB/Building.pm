@@ -16,7 +16,7 @@ __PACKAGE__->add_attributes(
     build_queue_id  => { isa => 'Str' },
 );
 
-__PACKAGE__->belongs_to('build_queue', 'Lacuna::DB::BuildQueue', 'build_queue_id');
+__PACKAGE__->belongs_to('build_queue', 'Lacuna::DB::BuildQueue', 'build_queue_id', mate=>'building');
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Body', 'body_id');
 __PACKAGE__->recast_using('class');
