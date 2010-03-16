@@ -16,27 +16,27 @@ sub name {
 }
 
 sub food_to_build {
-    return 25;
+    return 45;
 }
 
 sub energy_to_build {
-    return 25;
+    return 45;
 }
 
 sub ore_to_build {
-    return 25;
+    return 45;
 }
 
 sub water_to_build {
-    return 25;
+    return 45;
 }
 
 sub waste_to_build {
-    return 25;
+    return 45;
 }
 
 sub time_to_build {
-    return 100;
+    return 1000;
 }
 
 sub food_consumption {

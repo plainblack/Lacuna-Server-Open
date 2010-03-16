@@ -40,7 +40,7 @@ sub time_to_build {
 }
 
 sub ore_storage {
-    return 1500;
+    return 500;
 }
 
 

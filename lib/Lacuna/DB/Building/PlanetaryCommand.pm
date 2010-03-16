@@ -64,23 +64,23 @@ sub waste_production {
 }
 
 sub food_storage {
-    return 300;
+    return 525;
 }
 
 sub energy_storage {
-    return 300;
+    return 525;
 }
 
 sub ore_storage {
-    return 300;
+    return 525;
 }
 
 sub water_storage {
-    return 300;
+    return 525;
 }
 
 sub waste_storage {
-    return 300;
+    return 100;
 }
 
 
