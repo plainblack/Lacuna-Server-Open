@@ -4,27 +4,17 @@ use Moose;
 extends 'Lacuna::DB::Body::Planet';
 
 
-sub image {
-    return 'p17';
-}
+use constant image => 'p17';
 
-sub water {
-    return 10000;
-}
+use constant water => 10000;
 
 # resource concentrations
 
-sub trona {
-    return 3900;
-}
+use constant trona => 3900;
 
-sub methane {
-    return 1900;
-}
+use constant methane => 1900;
 
-sub magnetite {
-    return 4200;
-}
+use constant magnetite => 4200;
 
 
 no Moose;

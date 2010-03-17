@@ -4,66 +4,36 @@ use Moose;
 extends 'Lacuna::DB::Body::Planet';
 
 
-sub image {
-    return 'p14';
-}
+use constant image => 'p14';
 
-sub water {
-    return 1410;
-}
+use constant water => 1410;
 
 # resource concentrations
-sub rutile {
-    return 100;
-}
+use constant rutile => 100;
 
-sub chromite {
-    return 100;
-}
+use constant chromite => 100;
 
-sub chalcopyrite {
-    return 100;
-}
+use constant chalcopyrite => 100;
 
-sub galena {
-    return 100;
-}
+use constant galena => 100;
 
-sub uraninite {
-    return 100;
-}
+use constant uraninite => 100;
 
-sub bauxite {
-    return 100;
-}
+use constant bauxite => 100;
 
-sub goethite {
-    return 100;
-}
+use constant goethite => 100;
 
-sub halite {
-    return 100;
-}
+use constant halite => 100;
 
-sub gypsum {
-    return 100;
-}
+use constant gypsum => 100;
 
-sub trona {
-    return 4000;
-}
+use constant trona => 4000;
 
-sub sulfur {
-    return 2300;
-}
+use constant sulfur => 2300;
 
-sub methane {
-    return 2700;
-}
+use constant methane => 2700;
 
-sub magnetite {
-    return 100;
-}
+use constant magnetite => 100;
 
 
 no Moose;

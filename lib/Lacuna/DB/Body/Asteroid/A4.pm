@@ -3,17 +3,11 @@ package Lacuna::DB::Body::Asteroid::A4;
 use Moose;
 extends 'Lacuna::DB::Body::Asteroid';
 
-sub image {
-    return 'a4';
-}
+use constant image => 'a4';
 
-sub monazite {
-    return 9000;
-}
+use constant monazite => 9000;
 
-sub gold {
-    return 1000;
-}
+use constant gold => 1000;
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

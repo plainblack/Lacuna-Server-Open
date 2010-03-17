@@ -4,31 +4,19 @@ use Moose;
 extends 'Lacuna::DB::Body::Planet';
 
 
-sub image {
-    return 'p3';
-}
+use constant image => 'p3';
 
-sub water {
-    return 555;
-}
+use constant water => 555;
 
 # resource concentrations
 
-sub uraninite {
-    return 3000;
-}
+use constant uraninite => 3000;
 
-sub methane {
-    return 2900;
-}
+use constant methane => 2900;
 
-sub kerogen {
-    return 1400;
-}
+use constant kerogen => 1400;
 
-sub anthracite {
-    return 2700;
-}
+use constant anthracite => 2700;
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

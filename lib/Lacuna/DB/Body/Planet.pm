@@ -177,89 +177,47 @@ sub get_extended_status {
 }
 
 # resource concentrations
-sub rutile {
-    return 1;
-}
+use constant rutile => 1;
 
-sub chromite {
-    return 1;
-}
+use constant chromite => 1;
 
-sub chalcopyrite {
-    return 1;
-}
+use constant chalcopyrite => 1;
 
-sub galena {
-    return 1;
-}
+use constant galena => 1;
 
-sub gold {
-    return 1;
-}
+use constant gold => 1;
 
-sub uraninite {
-    return 1;
-}
+use constant uraninite => 1;
 
-sub bauxite {
-    return 1;
-}
+use constant bauxite => 1;
 
-sub goethite {
-    return 1;
-}
+use constant goethite => 1;
 
-sub halite {
-    return 1;
-}
+use constant halite => 1;
 
-sub gypsum {
-    return 1;
-}
+use constant gypsum => 1;
 
-sub trona {
-    return 1;
-}
+use constant trona => 1;
 
-sub kerogen {
-    return 1;
-}
+use constant kerogen => 1;
 
-sub methane {
-    return 1;
-}
+use constant methane => 1;
 
-sub anthracite {
-    return 1;
-}
+use constant anthracite => 1;
 
-sub sulfur {
-    return 1;
-}
+use constant sulfur => 1;
 
-sub zircon {
-    return 1;
-}
+use constant zircon => 1;
 
-sub monazite {
-    return 1;
-}
+use constant monazite => 1;
 
-sub fluorite {
-    return 1;
-}
+use constant fluorite => 1;
 
-sub beryl {
-    return 1;
-}
+use constant beryl => 1;
 
-sub magnetite {
-    return 1;
-}
+use constant magnetite => 1;
 
-sub water {
-    return 0;
-}
+use constant water => 0;
 
 sub rutile_hour {
     my ($self) = @_;
