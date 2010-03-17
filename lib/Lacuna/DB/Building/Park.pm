@@ -52,7 +52,7 @@ sub throw_a_party {
     
     $self->party_ends(DateTime->now->add(days=>1));
     $self->party_in_progress(1);
-    $self->happiness_from_party(3_000 * $food_multiplier);
+    $self->happiness_from_party(3_000 * $food_multiplier * $self->happiness_production_bonus);
     $self->put;
 }
 

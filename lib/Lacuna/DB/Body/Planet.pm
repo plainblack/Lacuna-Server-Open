@@ -449,8 +449,8 @@ sub build_building {
 }
 
 sub found_colony {
-    my ($self, $empire_id) = @_;
-    $self->empire_id($empire_id);
+    my ($self, $empire) = @_;
+    $self->empire_id($empire->id);
     $self->usable_as_starter('No');
     $self->last_tick(DateTime->now);
     $self->put;    
@@ -458,7 +458,7 @@ sub found_colony {
     # award medal
     my $type = ref $self;
     $type =~ s/^.*::(\w\d+)$/$1/;
-    $self->empire->add_medal($type);
+    $empire->add_medal($type);
 
     # add command building
     my $command = Lacuna::DB::Building::PlanetaryCommand->new(
@@ -469,9 +469,9 @@ sub found_colony {
         date_created    => DateTime->now,
         body_id         => $self->id,
         body            => $self,
-        empire_id       => $empire_id,
-        empire          => $self->empire,
-        level           => $self->empire->species->growth_affinity - 1,
+        empire_id       => $empire->id,
+        empire          => $empire,
+        level           => $empire->species->growth_affinity - 1,
     );
     $self->build_building($command);
     $command->finish_upgrade;

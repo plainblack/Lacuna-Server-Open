@@ -118,10 +118,10 @@ sub get_ship_costs {
     my $manufacturing_affinity = $species->manufacturing_affinity;
     foreach my $cost (keys %{$costs}) {
         if ($cost eq 'time') {
-            $costs->{$cost} = sprintf('%0.f', $costs->{$cost} * (100 - $self->level + $species->management_affinity) / 100);
+            $costs->{$cost} = sprintf('%0.f', $costs->{$cost} * $self->time_cost_reduction_bonus($self->level));
         }
         else {
-            $costs->{$cost} = sprintf('%0.f', $costs->{$cost} * (100 - $manufacturing_affinity) / 100);
+            $costs->{$cost} = sprintf('%0.f', $costs->{$cost} * $self->manufacturing_cost_reduction_bonus);
         }
     }
     return $costs;

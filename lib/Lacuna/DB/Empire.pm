@@ -214,9 +214,11 @@ sub found {
     unless ($home_planet) {
         $home_planet = $self->species->find_home_planet;
     }
-    $self->add_essentia(100); # REMOVE BEFORE LAUNCH
+    $home_planet->empire($self);
+    $self->home_planet($home_planet);
     $self->home_planet_id($home_planet->id);
     $self->probed_stars([$home_planet->star_id]);
+    $self->add_essentia(100); # REMOVE BEFORE LAUNCH
     $self->stage('founded');
     $self->put;
 
@@ -228,7 +230,7 @@ sub found {
     );
     
     # found colony
-    $home_planet->found_colony($self->id);
+    $home_planet->found_colony($self);
     
     $self = $home_planet->empire; # we're stale
     

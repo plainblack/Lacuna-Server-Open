@@ -153,19 +153,24 @@ sub consumption_hour {
 
 # PRODUCTION
 
+sub farming_production_bonus {
+    my ($self) = @_;
+    return (100 + $self->empire->species->farming_affinity) / 100;
+}
+
 sub lapis_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->lapis_production * $self->production_hour);
+    return sprintf('%.0f',$self->lapis_production * $self->production_hour * $self->farming_production_bonus);
 }
 
 sub potato_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->potato_production * $self->production_hour);
+    return sprintf('%.0f',$self->potato_production * $self->production_hour * $self->farming_production_bonus);
 }
 
 sub bean_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->bean_production * $self->production_hour);
+    return sprintf('%.0f',$self->bean_production * $self->production_hour * $self->farming_production_bonus);
 }
 
 sub cheese_production_hour {
@@ -175,17 +180,17 @@ sub cheese_production_hour {
 
 sub apple_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->apple_production * $self->production_hour);
+    return sprintf('%.0f',$self->apple_production * $self->production_hour * $self->farming_production_bonus);
 }
 
 sub root_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->root_production * $self->production_hour);
+    return sprintf('%.0f',$self->root_production * $self->production_hour * $self->farming_production_bonus);
 }
 
 sub corn_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->corn_production * $self->production_hour);
+    return sprintf('%.0f',$self->corn_production * $self->production_hour * $self->farming_production_bonus);
 }
 
 sub cider_production_hour {
@@ -195,7 +200,7 @@ sub cider_production_hour {
 
 sub wheat_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->wheat_production * $self->production_hour);
+    return sprintf('%.0f',$self->wheat_production * $self->production_hour * $self->farming_production_bonus);
 }
 
 sub bread_production_hour {
@@ -225,7 +230,7 @@ sub pancake_production_hour {
 
 sub milk_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->milk_production * $self->production_hour);
+    return sprintf('%.0f',$self->milk_production * $self->production_hour * $self->farming_production_bonus);
 }
 
 sub meal_production_hour {
@@ -235,7 +240,7 @@ sub meal_production_hour {
 
 sub algae_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->algae_production * $self->production_hour);
+    return sprintf('%.0f',$self->algae_production * $self->production_hour * $self->farming_production_bonus);
 }
 
 sub syrup_production_hour {
@@ -245,7 +250,7 @@ sub syrup_production_hour {
 
 sub fungus_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->fungus_production * $self->production_hour);
+    return sprintf('%.0f',$self->fungus_production * $self->production_hour * $self->farming_production_bonus);
 }
 
 sub burger_production_hour {
@@ -260,7 +265,7 @@ sub shake_production_hour {
 
 sub beetle_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->beetle_production * $self->production_hour);
+    return sprintf('%.0f',$self->beetle_production * $self->production_hour * $self->farming_production_bonus);
 }
 
 sub food_production_hour {
@@ -283,9 +288,14 @@ sub food_hour {
     return sprintf('%.0f',$self->food_production_hour - $self->food_consumption_hour);
 }
 
+sub energy_production_bonus {
+    my ($self) = @_;
+    return (100 + $self->empire->species->science_affinity) / 100;
+}
+
 sub energy_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->energy_production * $self->production_hour);
+    return sprintf('%.0f',$self->energy_production * $self->production_hour * $self->energy_production_bonus);
 }
 
 sub energy_consumption_hour {
@@ -298,9 +308,14 @@ sub energy_hour {
     return sprintf('%.0f',$self->energy_production_hour - $self->energy_consumption_hour);
 }
 
+sub mining_production_bonus {
+    my ($self) = @_;
+    return (100 + $self->empire->species->mining_affinity) / 100;
+}
+
 sub ore_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->ore_production * $self->production_hour);
+    return sprintf('%.0f',$self->ore_production * $self->production_hour * $self->mining_production_bonus);
 }
 
 sub ore_consumption_hour {
@@ -313,9 +328,14 @@ sub ore_hour {
     return sprintf('%.0f',$self->ore_production_hour - $self->ore_consumption_hour);
 }
 
+sub water_production_bonus {
+    my ($self) = @_;
+    return (100 + $self->empire->species->environmental_affinity) / 100;
+}
+
 sub water_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f', $self->water_production * $self->production_hour);
+    return sprintf('%.0f', $self->water_production * $self->production_hour * $self->water_production_bonus);
 }
 
 sub water_consumption_hour {
@@ -328,6 +348,11 @@ sub water_hour {
     return sprintf('%.0f',$self->water_production_hour - $self->water_consumption_hour);
 }
 
+sub waste_consumption_bonus {
+    my ($self) = @_;
+    return (100 + $self->empire->species->environmental_affinity) / 100;
+}
+
 sub waste_production_hour {
     my ($self) = @_;
     return sprintf('%.0f',$self->waste_production * $self->production_hour);
@@ -335,7 +360,7 @@ sub waste_production_hour {
 
 sub waste_consumption_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->waste_consumption * $self->consumption_hour);
+    return sprintf('%.0f',$self->waste_consumption * $self->consumption_hour * $self->waste_consumption_bonus);
 }
 
 sub waste_hour {
@@ -343,9 +368,14 @@ sub waste_hour {
     return sprintf('%.0f',$self->waste_production_hour - $self->waste_consumption_hour);
 }
 
+sub happiness_production_bonus {
+    my ($self) = @_;
+    return (100 + ($self->empire->species->political_affinity * 2)) / 100;
+}
+
 sub happiness_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->happiness_production * $self->production_hour);
+    return sprintf('%.0f',$self->happiness_production * $self->production_hour * $self->happiness_production_bonus);
 }
 
 sub happiness_consumption_hour {
@@ -440,16 +470,33 @@ sub can_upgrade {
         && ! $self->has_pending_build();    
 }
 
+sub construction_cost_reduction_bonus {
+    my $self = shift;
+    return (100 - $self->empire->species->research_affinity) / 100
+}
+
+sub manufacturing_cost_reduction_bonus {
+    my $self = shift;
+    return (100 - $self->empire->species->construction_affinity) / 100
+}
+
+sub time_cost_reduction_bonus {
+    my ($self, $extra) = @_;
+    $extra ||= 0;
+    return (100 - $extra - $self->empire->species->management_affinity) / 100
+}
+
 sub cost_to_upgrade {
     my ($self) = @_;
     my $upgrade_cost = $self->upgrade_cost;
+    my $upgrade_cost_reduction = $self->construction_cost_reduction_bonus;
     return {
-        food    => sprintf('%.0f',$self->food_to_build * $upgrade_cost),
-        energy  => sprintf('%.0f',$self->energy_to_build * $upgrade_cost),
-        ore     => sprintf('%.0f',$self->ore_to_build * $upgrade_cost),
-        water   => sprintf('%.0f',$self->water_to_build * $upgrade_cost),
-        waste   => sprintf('%.0f',$self->waste_to_build * $upgrade_cost),
-        time    => sprintf('%.0f',$self->time_to_build * $upgrade_cost),
+        food    => sprintf('%.0f',$self->food_to_build * $upgrade_cost * $upgrade_cost_reduction),
+        energy  => sprintf('%.0f',$self->energy_to_build * $upgrade_cost * $upgrade_cost_reduction),
+        ore     => sprintf('%.0f',$self->ore_to_build * $upgrade_cost * $upgrade_cost_reduction),
+        water   => sprintf('%.0f',$self->water_to_build * $upgrade_cost * $upgrade_cost_reduction),
+        waste   => sprintf('%.0f',$self->waste_to_build * $upgrade_cost * $upgrade_cost_reduction),
+        time    => sprintf('%.0f',$self->time_to_build * $upgrade_cost * $self->time_cost_reduction_bonus),
     };
 }
 
@@ -488,8 +535,8 @@ sub start_upgrade {
 
 sub finish_upgrade {
     my ($self) = @_;
-    $self->level($self->level + 1);
     $self->build_queue->delete;
+    $self->level($self->level + 1);
     $self->build_queue_id('');
     $self->put;
     $self->body($self->body->recalc_stats);
