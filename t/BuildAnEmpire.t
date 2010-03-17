@@ -19,43 +19,43 @@ my $result;
 
 $result = $tester->post('waterpurification', 'build', [$session_id, $home->id, 0, -5]);
 ok($result->{result}{building}{id}, "built water purification");
-sleep 853;
-
-$result = $tester->post('mine', 'build', [$session_id, $home->id, 0, -4]);
-ok($result->{result}{building}{id}, "built mine");
-sleep 1003;
+sleep $result->{result}{pending_build}{seconds_remaining} + 3;
 
 $result = $tester->post('hydrocarbon', 'build', [$session_id, $home->id, 0, -3]);
 ok($result->{result}{building}{id}, "built hydrocarbon power plant");
-sleep 703;
+sleep $result->{result}{pending_build}{seconds_remaining} + 3;
+
+$result = $tester->post('mine', 'build', [$session_id, $home->id, 0, -4]);
+ok($result->{result}{building}{id}, "built mine");
+sleep $result->{result}{pending_build}{seconds_remaining} + 3;
 
 $result = $tester->post('corn', 'build', [$session_id, $home->id, 0, -2]);
 ok($result->{result}{building}{id}, "built corn farm");
-sleep 603;
+sleep $result->{result}{pending_build}{seconds_remaining} + 3;
 
 $result = $tester->post('university', 'build', [$session_id, $home->id, 0, -1]);
 ok($result->{result}{building}{id}, "built university");
-sleep 1303;
+sleep $result->{result}{pending_build}{seconds_remaining} + 3;
 
 $result = $tester->post('orestorage', 'build', [$session_id, $home->id, 0, 1]);
 ok($result->{result}{building}{id}, "built ore storage tanks");
-sleep 303;
+sleep $result->{result}{pending_build}{seconds_remaining} + 3;
 
 $result = $tester->post('energyreserve', 'build', [$session_id, $home->id, 0, 2]);
 ok($result->{result}{building}{id}, "built energy reserve");
-sleep 1203;
+sleep $result->{result}{pending_build}{seconds_remaining} + 3;
 
 $result = $tester->post('waterproduction', 'build', [$session_id, $home->id, 0, 3]);
 ok($result->{result}{building}{id}, "built water production");
-sleep 1153;
+sleep $result->{result}{pending_build}{seconds_remaining} + 3;
 
 $result = $tester->post('waterstorage', 'build', [$session_id, $home->id, 0, 4]);
 ok($result->{result}{building}{id}, "built water storage");
-sleep 1003;
+sleep $result->{result}{pending_build}{seconds_remaining} + 3;
 
 $result = $tester->post('foodreserve', 'build', [$session_id, $home->id, 0, 5]);
 ok($result->{result}{building}{id}, "built food reserve");
-sleep 1003;
+sleep $result->{result}{pending_build}{seconds_remaining} + 3;
 
 
 END {

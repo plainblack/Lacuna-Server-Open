@@ -17,7 +17,7 @@ __PACKAGE__->add_attributes(
     name_cname              => { isa => 'Str' },
     description             => { isa => 'Str' },
     habitable_orbits        => { isa => 'ArrayRefOfInt' },
-    construction_affinity   => { isa => 'Int' }, # cost of building new stuff
+    manufacturing_affinity  => { isa => 'Int' }, # cost of building new stuff
     deception_affinity      => { isa => 'Int' }, # spying ability
     research_affinity       => { isa => 'Int' }, # cost of upgrading
     management_affinity     => { isa => 'Int' }, # speed to build

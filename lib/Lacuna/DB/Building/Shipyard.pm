@@ -115,13 +115,13 @@ sub get_ship_costs {
     my ($self, $type) = @_;
     my $costs = ship_costs->{$type};
     my $species = $self->empire->species;
-    my $construction_affinity = $species->construction_affinity;
+    my $manufacturing_affinity = $species->manufacturing_affinity;
     foreach my $cost (keys %{$costs}) {
         if ($cost eq 'time') {
             $costs->{$cost} = sprintf('%0.f', $costs->{$cost} * (100 - $self->level + $species->management_affinity) / 100);
         }
         else {
-            $costs->{$cost} = sprintf('%0.f', $costs->{$cost} * (100 - $construction_affinity) / 100);
+            $costs->{$cost} = sprintf('%0.f', $costs->{$cost} * (100 - $manufacturing_affinity) / 100);
         }
     }
     return $costs;

@@ -549,7 +549,7 @@ sub cost_to_upgrade {
         ore     => sprintf('%.0f',$self->ore_to_build * $upgrade_cost),
         water   => sprintf('%.0f',$self->water_to_build * $upgrade_cost),
         waste   => sprintf('%.0f',$self->waste_to_build * $upgrade_cost),
-        'time'  => sprintf('%.0f',$self->time_to_build * $upgrade_cost),
+        time    => sprintf('%.0f',$self->time_to_build * $upgrade_cost),
     };
 }
 

@@ -454,7 +454,7 @@ sub has_resources_to_operate {
     my $after = $building->stats_after_upgrade;
     foreach my $resource (qw(food energy ore water)) {
         my $method = $resource.'_hour';
-        if ($self->$method  - ($after->{$method} - $building->$method) < 0) {
+        if ($self->$method - $building->$method + $after->{$method} < 0) {
             confess [1012, "Unsustainable. Not enough resources being produced to build this.", $resource];
         }
     }
@@ -1008,14 +1008,24 @@ sub add_happiness {
 
 sub spend_happiness {
     my ($self, $value) = @_;
-    $self->happiness( $self->happiness - $value );
+    my $new = $self->happiness - $value;
+    if ($new < 0 ) {
+        $new = 0;
+    }
+    $self->happiness( $new );
 }
 
 sub add_waste {
     my ($self, $value) = @_;
     my $store = $self->waste_stored + $value;
     my $storage = $self->waste_capacity;
-    $self->waste_stored( ($store < $storage) ? $store : $storage );
+    if ($store < $storage) {
+        $self->waste_stored( $store );
+    }
+    else {
+        $self->waste_stored( $storage );
+        $self->spend_happiness( $store - $storage ); # pollution
+    }
 }
 
 sub spend_waste {
