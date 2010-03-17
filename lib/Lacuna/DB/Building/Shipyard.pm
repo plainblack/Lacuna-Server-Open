@@ -233,65 +233,35 @@ sub check_for_completed_ships {
 }
 
 
-sub controller_class {
-    return 'Lacuna::Building::Shipyard';
-}
+use constant controller_class => 'Lacuna::Building::Shipyard';
 
-sub building_prereq {
-    return {'Lacuna::DB::Building::SpacePort'=>1};
-}
+use constant building_prereq => {'Lacuna::DB::Building::SpacePort'=>1};
 
-sub image {
-    return 'shipyard';
-}
+use constant image => 'shipyard';
 
-sub name {
-    return 'Shipyard';
-}
+use constant name => 'Shipyard';
 
-sub food_to_build {
-    return 150;
-}
+use constant food_to_build => 150;
 
-sub energy_to_build {
-    return 150;
-}
+use constant energy_to_build => 150;
 
-sub ore_to_build {
-    return 150;
-}
+use constant ore_to_build => 150;
 
-sub water_to_build {
-    return 100;
-}
+use constant water_to_build => 100;
 
-sub waste_to_build {
-    return 100;
-}
+use constant waste_to_build => 100;
 
-sub time_to_build {
-    return 1200;
-}
+use constant time_to_build => 1200;
 
-sub food_consumption {
-    return 5;
-}
+use constant food_consumption => 5;
 
-sub energy_consumption {
-    return 10;
-}
+use constant energy_consumption => 10;
 
-sub ore_consumption {
-    return 5;
-}
+use constant ore_consumption => 5;
 
-sub water_consumption {
-    return 7;
-}
+use constant water_consumption => 7;
 
-sub waste_production {
-    return 2;
-}
+use constant waste_production => 2;
 
 
 

@@ -3,69 +3,37 @@ package Lacuna::DB::Building::Energy::Fission;
 use Moose;
 extends 'Lacuna::DB::Building::Energy';
 
-sub controller_class {
-        return 'Lacuna::Building::Fission';
-}
+use constant controller_class => 'Lacuna::Building::Fission';
 
-sub university_prereq {
-    return 5;
-}
+use constant university_prereq => 5;
 
-sub image {
-    return 'fission';
-}
+use constant image => 'fission';
 
-sub name {
-    return 'Fission Energy Plant';
-}
+use constant name => 'Fission Energy Plant';
 
-sub food_to_build {
-    return 100;
-}
+use constant food_to_build => 100;
 
-sub energy_to_build {
-    return 200;
-}
+use constant energy_to_build => 200;
 
-sub ore_to_build {
-    return 200;
-}
+use constant ore_to_build => 200;
 
-sub water_to_build {
-    return 150;
-}
+use constant water_to_build => 150;
 
-sub waste_to_build {
-    return 75;
-}
+use constant waste_to_build => 75;
 
-sub time_to_build {
-    return 1550;
-}
+use constant time_to_build => 1550;
 
-sub food_consumption {
-    return 5;
-}
+use constant food_consumption => 5;
 
-sub energy_consumption {
-    return 70;
-}
+use constant energy_consumption => 70;
 
-sub energy_production {
-    return 450;
-}
+use constant energy_production => 450;
 
-sub ore_consumption {
-    return 35;
-}
+use constant ore_consumption => 35;
 
-sub water_consumption {
-    return 50;
-}
+use constant water_consumption => 50;
 
-sub waste_production {
-    return 70;
-}
+use constant waste_production => 70;
 
 
 

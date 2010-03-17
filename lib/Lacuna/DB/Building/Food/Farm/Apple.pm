@@ -3,81 +3,43 @@ package Lacuna::DB::Building::Food::Farm::Apple;
 use Moose;
 extends 'Lacuna::DB::Building::Food::Farm';
 
-sub controller_class {
-        return 'Lacuna::Building::Apple';
-}
+use constant controller_class => 'Lacuna::Building::Apple';
 
-sub building_prereq {
-    return {'Lacuna::DB::Building::PlanetaryCommand'=>5};
-}
+use constant building_prereq => {'Lacuna::DB::Building::PlanetaryCommand'=>5};
 
-sub min_orbit {
-    return 3;
-}
+use constant min_orbit => 3;
 
-sub max_orbit {
-    return 3;
-}
+use constant max_orbit => 3;
 
-sub image {
-    return 'apples';
-}
+use constant image => 'apples';
 
-sub name {
-    return 'Apple Orchard';
-}
+use constant name => 'Apple Orchard';
 
-sub food_to_build {
-    return 10;
-}
+use constant food_to_build => 10;
 
-sub energy_to_build {
-    return 100;
-}
+use constant energy_to_build => 100;
 
-sub ore_to_build {
-    return 55;
-}
+use constant ore_to_build => 55;
 
-sub water_to_build {
-    return 10;
-}
+use constant water_to_build => 10;
 
-sub waste_to_build {
-    return 5;
-}
+use constant waste_to_build => 5;
 
-sub time_to_build {
-    return 600;
-}
+use constant time_to_build => 600;
 
-sub food_consumption {
-    return 5;
-}
+use constant food_consumption => 5;
 
-sub apple_production {
-    return 46;
-}
+use constant apple_production => 46;
 
-sub energy_consumption {
-    return 1;
-}
+use constant energy_consumption => 1;
 
-sub ore_consumption {
-    return 1;
-}
+use constant ore_consumption => 1;
 
-sub water_consumption {
-    return 9;
-}
+use constant water_consumption => 9;
 
-sub waste_production {
-    return 16;
-}
+use constant waste_production => 16;
 
-sub waste_consumption {
-    return 3;
-}
+use constant waste_consumption => 3;
 
 
 

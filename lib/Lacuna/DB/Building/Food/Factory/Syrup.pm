@@ -3,65 +3,35 @@ package Lacuna::DB::Building::Food::Factory::Syrup;
 use Moose;
 extends 'Lacuna::DB::Building::Food::Factory';
 
-sub controller_class {
-        return 'Lacuna::Building::Syrup';
-}
+use constant controller_class => 'Lacuna::Building::Syrup';
 
-sub image {
-    return 'syrup';
-}
+use constant image => 'syrup';
 
-sub building_prereq {
-    return {'Lacuna::DB::Building::Food::Farm::Algae'=>1};
-}
+use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Algae'=>1};
 
-sub name {
-    return 'Algae Syrup Bottler';
-}
+use constant name => 'Algae Syrup Bottler';
 
-sub food_to_build {
-    return 100;
-}
+use constant food_to_build => 100;
 
-sub energy_to_build {
-    return 100;
-}
+use constant energy_to_build => 100;
 
-sub ore_to_build {
-    return 100;
-}
+use constant ore_to_build => 100;
 
-sub water_to_build {
-    return 100;
-}
+use constant water_to_build => 100;
 
-sub waste_to_build {
-    return 100;
-}
+use constant waste_to_build => 100;
 
-sub time_to_build {
-    return 2000;
-}
+use constant time_to_build => 2000;
 
-sub food_consumption {
-    return 150;
-}
+use constant food_consumption => 150;
 
-sub syrup_production {
-    return 100;
-}
+use constant syrup_production => 100;
 
-sub energy_consumption {
-    return 75;
-}
+use constant energy_consumption => 75;
 
-sub water_consumption {
-    return 25;
-}
+use constant water_consumption => 25;
 
-sub waste_production {
-    return 75;
-}
+use constant waste_production => 75;
 
 
 

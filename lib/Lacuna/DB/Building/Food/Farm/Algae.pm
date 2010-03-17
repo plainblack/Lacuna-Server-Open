@@ -3,73 +3,39 @@ package Lacuna::DB::Building::Food::Farm::Algae;
 use Moose;
 extends 'Lacuna::DB::Building::Food::Farm';
 
-sub controller_class {
-        return 'Lacuna::Building::Algae';
-}
+use constant controller_class => 'Lacuna::Building::Algae';
 
-sub university_prereq {
-    return 3;
-}
+use constant university_prereq => 3;
 
-sub image {
-    return 'algae';
-}
+use constant image => 'algae';
 
-sub name {
-    return 'Algae Cropper';
-}
+use constant name => 'Algae Cropper';
 
-sub food_to_build {
-    return 10;
-}
+use constant food_to_build => 10;
 
-sub energy_to_build {
-    return 100;
-}
+use constant energy_to_build => 100;
 
-sub ore_to_build {
-    return 55;
-}
+use constant ore_to_build => 55;
 
-sub water_to_build {
-    return 30;
-}
+use constant water_to_build => 30;
 
-sub waste_to_build {
-    return 20;
-}
+use constant waste_to_build => 20;
 
-sub time_to_build {
-    return 600;
-}
+use constant time_to_build => 600;
 
-sub food_consumption {
-    return 5;
-}
+use constant food_consumption => 5;
 
-sub algae_production {
-    return 10;
-}
+use constant algae_production => 10;
 
-sub energy_production {
-    return 3;
-}
+use constant energy_production => 3;
 
-sub ore_consumption {
-    return 1;
-}
+use constant ore_consumption => 1;
 
-sub water_consumption {
-    return 2;
-}
+use constant water_consumption => 2;
 
-sub waste_consumption {
-    return 5;
-}
+use constant waste_consumption => 5;
 
-sub waste_production {
-    return 6;
-}
+use constant waste_production => 6;
 
 
 

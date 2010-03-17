@@ -25,29 +25,17 @@ sub controller_class {
     confess "you need to override me";
 }
 
-sub max_instances_per_planet {
-    return 9999999;
-}
+use constant max_instances_per_planet => 9999999;
 
-sub university_prereq {
-    return 0;
-}
+use constant university_prereq => 0;
 
-sub min_orbit {
-    return 1;
-}
+use constant min_orbit => 1;
 
-sub max_orbit {
-    return 7;
-}
+use constant max_orbit => 7;
 
-sub building_prereq {
-    return {};
-}
+use constant building_prereq => {};
 
-sub name {
-    return 'Building';
-}
+use constant name => 'Building';
 
 sub image {
     confess 'override me';
@@ -59,181 +47,93 @@ sub image_level {
     return $self->image.$level;
 }
 
-sub time_to_build {
-    return 60;
-}
+use constant time_to_build => 60;
 
-sub energy_to_build {
-    return 0;
-}
+use constant energy_to_build => 0;
 
-sub food_to_build {
-    return 0;
-}
+use constant food_to_build => 0;
 
-sub ore_to_build {
-    return 0;
-}
+use constant ore_to_build => 0;
 
-sub water_to_build {
-    return 0;
-}
+use constant water_to_build => 0;
 
-sub waste_to_build {
-    return 0;
-}
+use constant waste_to_build => 0;
 
-sub happiness_consumption {
-    return 0;
-}
+use constant happiness_consumption => 0;
 
-sub energy_consumption {
-    return 0;
-}
+use constant energy_consumption => 0;
 
-sub water_consumption {
-    return 0;
-}
+use constant water_consumption => 0;
 
-sub waste_consumption {
-    return 0;
-}
+use constant waste_consumption => 0;
 
-sub food_consumption {
-    return 0;
-}
+use constant food_consumption => 0;
 
-sub ore_consumption {
-    return 0;
-}
+use constant ore_consumption => 0;
 
-sub happiness_production {
-    return 0;
-}
+use constant happiness_production => 0;
 
-sub energy_production {
-    return 0;
-}
+use constant energy_production => 0;
 
-sub water_production {
-    return 0;
-}
+use constant water_production => 0;
 
-sub waste_production {
-    return 0;
-}
+use constant waste_production => 0;
 
-sub beetle_production {
-    return 0;
-}
+use constant beetle_production => 0;
 
-sub shake_production {
-    return 0;
-}
+use constant shake_production => 0;
 
-sub burger_production {
-    return 0;
-}
+use constant burger_production => 0;
 
-sub fungus_production {
-    return 0;
-}
+use constant fungus_production => 0;
 
-sub syrup_production {
-    return 0;
-}
+use constant syrup_production => 0;
 
-sub algae_production {
-    return 0;
-}
+use constant algae_production => 0;
 
-sub meal_production {
-    return 0;
-}
+use constant meal_production => 0;
 
-sub milk_production {
-    return 0;
-}
+use constant milk_production => 0;
 
-sub pancake_production {
-    return 0;
-}
+use constant pancake_production => 0;
 
-sub pie_production {
-    return 0;
-}
+use constant pie_production => 0;
 
-sub chip_production {
-    return 0;
-}
+use constant chip_production => 0;
 
-sub soup_production {
-    return 0;
-}
+use constant soup_production => 0;
 
-sub bread_production {
-    return 0;
-}
+use constant bread_production => 0;
 
-sub wheat_production {
-    return 0;
-}
+use constant wheat_production => 0;
 
-sub cider_production {
-    return 0;
-}
+use constant cider_production => 0;
 
-sub corn_production {
-    return 0;
-}
+use constant corn_production => 0;
 
-sub root_production {
-    return 0;
-}
+use constant root_production => 0;
 
-sub bean_production {
-    return 0;
-}
+use constant bean_production => 0;
 
-sub cheese_production {
-    return 0;
-}
+use constant cheese_production => 0;
 
-sub apple_production {
-    return 0;
-}
+use constant apple_production => 0;
 
-sub lapis_production {
-    return 0;
-}
+use constant lapis_production => 0;
 
-sub potato_production {
-    return 0;
-}
+use constant potato_production => 0;
 
-sub ore_production {
-    return 0;
-}
+use constant ore_production => 0;
 
-sub water_storage {
-    return 0;
-}
+use constant water_storage => 0;
 
-sub energy_storage {
-    return 0;
-}
+use constant energy_storage => 0;
 
-sub food_storage {
-    return 0;
-}
+use constant food_storage => 0;
 
-sub ore_storage {
-    return 0;
-}
+use constant ore_storage => 0;
 
-sub waste_storage {
-    return 0;
-}
+use constant waste_storage => 0;
 
 # BASE FORMULAS
 
@@ -584,7 +484,6 @@ sub start_upgrade {
     });
     $self->build_queue_id($queue->id);
     $self->put;
-
 }
 
 sub finish_upgrade {

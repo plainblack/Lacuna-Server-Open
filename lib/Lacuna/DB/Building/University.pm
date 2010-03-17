@@ -3,65 +3,35 @@ package Lacuna::DB::Building::University;
 use Moose;
 extends 'Lacuna::DB::Building';
 
-sub controller_class {
-        return 'Lacuna::Building::University';
-}
+use constant controller_class => 'Lacuna::Building::University';
 
-sub image {
-    return 'university';
-}
+use constant image => 'university';
 
-sub name {
-    return 'University';
-}
+use constant name => 'University';
 
-sub food_to_build {
-    return 250;
-}
+use constant food_to_build => 250;
 
-sub energy_to_build {
-    return 500;
-}
+use constant energy_to_build => 500;
 
-sub ore_to_build {
-    return 500;
-}
+use constant ore_to_build => 500;
 
-sub water_to_build {
-    return 100;
-}
+use constant water_to_build => 100;
 
-sub waste_to_build {
-    return 250;
-}
+use constant waste_to_build => 250;
 
-sub time_to_build {
-    return 1300;
-}
+use constant time_to_build => 1300;
 
-sub food_consumption {
-    return 50;
-}
+use constant food_consumption => 50;
 
-sub energy_consumption {
-    return 50;
-}
+use constant energy_consumption => 50;
 
-sub ore_consumption {
-    return 10;
-}
+use constant ore_consumption => 10;
 
-sub water_consumption {
-    return 50;
-}
+use constant water_consumption => 50;
 
-sub waste_production {
-    return 50;
-}
+use constant waste_production => 50;
 
-sub happiness_production {
-    return 50;
-}
+use constant happiness_production => 50;
 
 after finish_upgrade => sub {
     my $self = shift;

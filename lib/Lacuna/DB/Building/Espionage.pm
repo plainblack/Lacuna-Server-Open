@@ -3,69 +3,37 @@ package Lacuna::DB::Building::Espionage;
 use Moose;
 extends 'Lacuna::DB::Building';
 
-sub controller_class {
-        return 'Lacuna::Building::Espionage';
-}
+use constant controller_class => 'Lacuna::Building::Espionage';
 
-sub max_instances_per_planet {
-    return 1;
-}
+use constant max_instances_per_planet => 1;
 
-sub building_prereq {
-    return {'Lacuna::DB::Building::Intelligence'=>1};
-}
+use constant building_prereq => {'Lacuna::DB::Building::Intelligence'=>1};
 
-sub image {
-    return 'espionage';
-}
+use constant image => 'espionage';
 
-sub name {
-    return 'Espionage Ministry';
-}
+use constant name => 'Espionage Ministry';
 
-sub food_to_build {
-    return 70;
-}
+use constant food_to_build => 70;
 
-sub energy_to_build {
-    return 70;
-}
+use constant energy_to_build => 70;
 
-sub ore_to_build {
-    return 70;
-}
+use constant ore_to_build => 70;
 
-sub water_to_build {
-    return 70;
-}
+use constant water_to_build => 70;
 
-sub waste_to_build {
-    return 70;
-}
+use constant waste_to_build => 70;
 
-sub time_to_build {
-    return 600;
-}
+use constant time_to_build => 600;
 
-sub food_consumption {
-    return 25;
-}
+use constant food_consumption => 25;
 
-sub energy_consumption {
-    return 50;
-}
+use constant energy_consumption => 50;
 
-sub ore_consumption {
-    return 10;
-}
+use constant ore_consumption => 10;
 
-sub water_consumption {
-    return 25;
-}
+use constant water_consumption => 25;
 
-sub waste_production {
-    return 5;
-}
+use constant waste_production => 5;
 
 
 no Moose;

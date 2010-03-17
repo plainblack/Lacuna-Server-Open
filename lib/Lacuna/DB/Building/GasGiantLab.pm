@@ -3,65 +3,35 @@ package Lacuna::DB::Building::GasGiantLab;
 use Moose;
 extends 'Lacuna::DB::Building';
 
-sub controller_class {
-    return 'Lacuna::Building::GasGiantLab';
-}
+use constant controller_class => 'Lacuna::Building::GasGiantLab';
 
-sub university_prereq {
-    return 17;
-}
+use constant university_prereq => 17;
 
-sub image {
-    return 'gas-giant-lab';
-}
+use constant image => 'gas-giant-lab';
 
-sub name {
-    return 'Gas Giant Lab';
-}
+use constant name => 'Gas Giant Lab';
 
-sub food_to_build {
-    return 250;
-}
+use constant food_to_build => 250;
 
-sub energy_to_build {
-    return 500;
-}
+use constant energy_to_build => 500;
 
-sub ore_to_build {
-    return 500;
-}
+use constant ore_to_build => 500;
 
-sub water_to_build {
-    return 100;
-}
+use constant water_to_build => 100;
 
-sub waste_to_build {
-    return 250;
-}
+use constant waste_to_build => 250;
 
-sub time_to_build {
-    return 9000;
-}
+use constant time_to_build => 9000;
 
-sub food_consumption {
-    return 50;
-}
+use constant food_consumption => 50;
 
-sub energy_consumption {
-    return 50;
-}
+use constant energy_consumption => 50;
 
-sub ore_consumption {
-    return 50;
-}
+use constant ore_consumption => 50;
 
-sub water_consumption {
-    return 50;
-}
+use constant water_consumption => 50;
 
-sub waste_production {
-    return 100;
-}
+use constant waste_production => 100;
 
 
 no Moose;

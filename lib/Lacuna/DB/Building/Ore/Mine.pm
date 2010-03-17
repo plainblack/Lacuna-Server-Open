@@ -3,61 +3,33 @@ package Lacuna::DB::Building::Ore::Mine;
 use Moose;
 extends 'Lacuna::DB::Building::Ore';
 
-sub controller_class {
-    return 'Lacuna::Building::Mine';
-}
+use constant controller_class => 'Lacuna::Building::Mine';
 
-sub image {
-    return 'mine';
-}
+use constant image => 'mine';
 
-sub name {
-    return 'Mine';
-}
+use constant name => 'Mine';
 
-sub food_to_build {
-    return 100;
-}
+use constant food_to_build => 100;
 
-sub energy_to_build {
-    return 100;
-}
+use constant energy_to_build => 100;
 
-sub ore_to_build {
-    return 10;
-}
+use constant ore_to_build => 10;
 
-sub water_to_build {
-    return 100;
-}
+use constant water_to_build => 100;
 
-sub waste_to_build {
-    return 85;
-}
+use constant waste_to_build => 85;
 
-sub time_to_build {
-    return 1000;
-}
+use constant time_to_build => 1000;
 
-sub food_consumption {
-    return 10;
-}
+use constant food_consumption => 10;
 
-sub energy_consumption {
-    return 10;
-}
+use constant energy_consumption => 10;
 
-sub ore_production {
-    return 125;
-}
+use constant ore_production => 125;
 
-sub water_consumption {
-    return 10;
-}
+use constant water_consumption => 10;
 
-sub waste_production {
-    return 25;
-}
+use constant waste_production => 25;
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

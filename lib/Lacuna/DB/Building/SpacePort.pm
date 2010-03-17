@@ -59,65 +59,35 @@ sub add_ship {
 }
 
 
-sub controller_class {
-    return 'Lacuna::Building::SpacePort';
-}
+use constant controller_class => 'Lacuna::Building::SpacePort';
 
-sub university_prereq {
-    return 3;
-}
+use constant university_prereq => 3;
 
-sub image {
-    return 'spaceport';
-}
+use constant image => 'spaceport';
 
-sub name {
-    return 'Space Port';
-}
+use constant name => 'Space Port';
 
-sub food_to_build {
-    return 800;
-}
+use constant food_to_build => 800;
 
-sub energy_to_build {
-    return 900;
-}
+use constant energy_to_build => 900;
 
-sub ore_to_build {
-    return 500;
-}
+use constant ore_to_build => 500;
 
-sub water_to_build {
-    return 500;
-}
+use constant water_to_build => 500;
 
-sub waste_to_build {
-    return 400;
-}
+use constant waste_to_build => 400;
 
-sub time_to_build {
-    return 8500;
-}
+use constant time_to_build => 8500;
 
-sub food_consumption {
-    return 100;
-}
+use constant food_consumption => 100;
 
-sub energy_consumption {
-    return 100;
-}
+use constant energy_consumption => 100;
 
-sub ore_consumption {
-    return 120;
-}
+use constant ore_consumption => 120;
 
-sub water_consumption {
-    return 150;
-}
+use constant water_consumption => 150;
 
-sub waste_production {
-    return 100;
-}
+use constant waste_production => 100;
 
 
 no Moose;

@@ -3,69 +3,37 @@ package Lacuna::DB::Building::Propulsion;
 use Moose;
 extends 'Lacuna::DB::Building';
 
-sub controller_class {
-        return 'Lacuna::Building::Propulsion';
-}
+use constant controller_class => 'Lacuna::Building::Propulsion';
 
-sub building_prereq {
-    return {'Lacuna::DB::Building::Shipyard'=>1};
-}
+use constant building_prereq => {'Lacuna::DB::Building::Shipyard'=>1};
 
-sub max_instances_per_planet {
-    return 1;
-}
+use constant max_instances_per_planet => 1;
 
-sub image {
-    return 'propulsion';
-}
+use constant image => 'propulsion';
 
-sub name {
-    return 'Propulsion System Factory';
-}
+use constant name => 'Propulsion System Factory';
 
-sub food_to_build {
-    return 150;
-}
+use constant food_to_build => 150;
 
-sub energy_to_build {
-    return 225;
-}
+use constant energy_to_build => 225;
 
-sub ore_to_build {
-    return 225;
-}
+use constant ore_to_build => 225;
 
-sub water_to_build {
-    return 100;
-}
+use constant water_to_build => 100;
 
-sub waste_to_build {
-    return 150;
-}
+use constant waste_to_build => 150;
 
-sub time_to_build {
-    return 1250;
-}
+use constant time_to_build => 1250;
 
-sub food_consumption {
-    return 10;
-}
+use constant food_consumption => 10;
 
-sub energy_consumption {
-    return 100;
-}
+use constant energy_consumption => 100;
 
-sub ore_consumption {
-    return 100;
-}
+use constant ore_consumption => 100;
 
-sub water_consumption {
-    return 50;
-}
+use constant water_consumption => 50;
 
-sub waste_production {
-    return 75;
-}
+use constant waste_production => 75;
 
 
 no Moose;

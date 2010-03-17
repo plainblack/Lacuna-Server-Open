@@ -3,73 +3,39 @@ package Lacuna::DB::Building::Food::Farm::Root;
 use Moose;
 extends 'Lacuna::DB::Building::Food::Farm';
 
-sub controller_class {
-    return 'Lacuna::Building::Denton';
-}
+use constant controller_class => 'Lacuna::Building::Denton';
 
-sub min_orbit {
-    return 5;
-}
+use constant min_orbit => 5;
 
-sub max_orbit {
-    return 5;
-}
+use constant max_orbit => 5;
 
-sub image {
-    return 'roots';
-}
+use constant image => 'roots';
 
-sub name {
-    return 'Denton Root Patch';
-}
+use constant name => 'Denton Root Patch';
 
-sub food_to_build {
-    return 10;
-}
+use constant food_to_build => 10;
 
-sub energy_to_build {
-    return 100;
-}
+use constant energy_to_build => 100;
 
-sub ore_to_build {
-    return 55;
-}
+use constant ore_to_build => 55;
 
-sub water_to_build {
-    return 10;
-}
+use constant water_to_build => 10;
 
-sub waste_to_build {
-    return 10;
-}
+use constant waste_to_build => 10;
 
-sub time_to_build {
-    return 600;
-}
+use constant time_to_build => 600;
 
-sub food_consumption {
-    return 5;
-}
+use constant food_consumption => 5;
 
-sub root_production {
-    return 48;
-}
+use constant root_production => 48;
 
-sub energy_consumption {
-    return 1;
-}
+use constant energy_consumption => 1;
 
-sub ore_consumption {
-    return 1;
-}
+use constant ore_consumption => 1;
 
-sub water_consumption {
-    return 8;
-}
+use constant water_consumption => 8;
 
-sub waste_production {
-    return 7;
-}
+use constant waste_production => 7;
 
 
 

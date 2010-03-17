@@ -3,69 +3,37 @@ package Lacuna::DB::Building::EntertainmentDistrict;
 use Moose;
 extends 'Lacuna::DB::Building';
 
-sub controller_class {
-        return 'Lacuna::Building::Entertainment';
-}
+use constant controller_class => 'Lacuna::Building::Entertainment';
 
-sub building_prereq {
-    return {'Lacuna::DB::Building::PlanetaryCommand'=>5};
-}
+use constant building_prereq => {'Lacuna::DB::Building::PlanetaryCommand'=>5};
 
-sub image {
-    return 'entertainment';
-}
+use constant image => 'entertainment';
 
-sub name {
-    return 'Entertainment District';
-}
+use constant name => 'Entertainment District';
 
-sub food_to_build {
-    return 500;
-}
+use constant food_to_build => 500;
 
-sub energy_to_build {
-    return 500;
-}
+use constant energy_to_build => 500;
 
-sub ore_to_build {
-    return 800;
-}
+use constant ore_to_build => 800;
 
-sub water_to_build {
-    return 500;
-}
+use constant water_to_build => 500;
 
-sub waste_to_build {
-    return 500;
-}
+use constant waste_to_build => 500;
 
-sub time_to_build {
-    return 2500;
-}
+use constant time_to_build => 2500;
 
-sub food_consumption {
-    return 100;
-}
+use constant food_consumption => 100;
 
-sub energy_consumption {
-    return 100;
-}
+use constant energy_consumption => 100;
 
-sub ore_consumption {
-    return 10;
-}
+use constant ore_consumption => 10;
 
-sub water_consumption {
-    return 100;
-}
+use constant water_consumption => 100;
 
-sub waste_production {
-    return 300;
-}
+use constant waste_production => 300;
 
-sub happiness_production {
-    return 200;
-}
+use constant happiness_production => 200;
 
 
 

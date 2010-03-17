@@ -3,85 +3,47 @@ package Lacuna::DB::Building::PlanetaryCommand;
 use Moose;
 extends 'Lacuna::DB::Building';
 
-sub controller_class {
-        return 'Lacuna::Building::PlanetaryCommand';
-}
+use constant controller_class => 'Lacuna::Building::PlanetaryCommand';
 
 sub check_build_prereqs {
     confess [1013,"You can't directly build a Planetary Command. You need a colony ship."];
 }
 
-sub image {
-    return 'command';
-}
+use constant image => 'command';
 
-sub name {
-    return 'Planetary Command Center';
-}
+use constant name => 'Planetary Command Center';
 
-sub food_to_build {
-    return 1000;
-}
+use constant food_to_build => 1000;
 
-sub energy_to_build {
-    return 1000;
-}
+use constant energy_to_build => 1000;
 
-sub ore_to_build {
-    return 1000;
-}
+use constant ore_to_build => 1000;
 
-sub water_to_build {
-    return 1000;
-}
+use constant water_to_build => 1000;
 
-sub waste_to_build {
-    return 1000;
-}
+use constant waste_to_build => 1000;
 
-sub time_to_build {
-    return 6000;
-}
+use constant time_to_build => 6000;
 
-sub algae_production {
-    return 100;
-}
+use constant algae_production => 100;
 
-sub energy_production {
-    return 100;
-}
+use constant energy_production => 100;
 
-sub ore_production {
-    return 100;
-}
+use constant ore_production => 100;
 
-sub water_production {
-    return 100;
-}
+use constant water_production => 100;
 
-sub waste_production {
-    return 10;
-}
+use constant waste_production => 10;
 
-sub food_storage {
-    return 525;
-}
+use constant food_storage => 525;
 
-sub energy_storage {
-    return 525;
-}
+use constant energy_storage => 525;
 
-sub ore_storage {
-    return 525;
-}
+use constant ore_storage => 525;
 
-sub water_storage {
-    return 525;
-}
+use constant water_storage => 525;
 
-sub waste_storage {
-    return 100;
-}
+use constant waste_storage => 100;
 
 
 

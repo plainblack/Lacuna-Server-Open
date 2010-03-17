@@ -3,65 +3,35 @@ package Lacuna::DB::Building::Transporter;
 use Moose;
 extends 'Lacuna::DB::Building';
 
-sub controller_class {
-    return 'Lacuna::Building::Transporter';
-}
+use constant controller_class => 'Lacuna::Building::Transporter';
 
-sub university_prereq {
-    return 12;
-}
+use constant university_prereq => 12;
 
-sub image {
-    return 'transporter';
-}
+use constant image => 'transporter';
 
-sub name {
-    return 'Subspace Transporter';
-}
+use constant name => 'Subspace Transporter';
 
-sub food_to_build {
-    return 1200;
-}
+use constant food_to_build => 1200;
 
-sub energy_to_build {
-    return 1400;
-}
+use constant energy_to_build => 1400;
 
-sub ore_to_build {
-    return 1500;
-}
+use constant ore_to_build => 1500;
 
-sub water_to_build {
-    return 1200;
-}
+use constant water_to_build => 1200;
 
-sub waste_to_build {
-    return 900;
-}
+use constant waste_to_build => 900;
 
-sub time_to_build {
-    return 11500;
-}
+use constant time_to_build => 11500;
 
-sub food_consumption {
-    return 5;
-}
+use constant food_consumption => 5;
 
-sub energy_consumption {
-    return 20;
-}
+use constant energy_consumption => 20;
 
-sub ore_consumption {
-    return 13;
-}
+use constant ore_consumption => 13;
 
-sub water_consumption {
-    return 20;
-}
+use constant water_consumption => 20;
 
-sub waste_production {
-    return 2;
-}
+use constant waste_production => 2;
 
 
 no Moose;
