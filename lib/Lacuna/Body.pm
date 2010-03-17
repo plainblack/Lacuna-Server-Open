@@ -57,7 +57,8 @@ sub rename {
 sub get_buildings {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $empire->get_body($body_id);    
+    my $body = $empire->get_body($body_id);
+    $body->tick;
     my %out;
     foreach my $buildings ($body->buildings) {
         while (my $building = $buildings->next) {
