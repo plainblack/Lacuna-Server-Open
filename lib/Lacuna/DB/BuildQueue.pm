@@ -3,7 +3,7 @@ package Lacuna::DB::BuildQueue;
 use Moose;
 extends 'SimpleDB::Class::Item';
 use DateTime;
-use Lacuna::Util qw(to_seconds);
+use Lacuna::Util qw(to_seconds format_date);
 
 __PACKAGE__->set_domain_name('build_queue');
 __PACKAGE__->add_attributes(
@@ -44,10 +44,14 @@ sub is_complete {
     if ($now > $complete) {
         $building ||= $self->building;
         $building->finish_upgrade;
-        return 0;
+        return undef;
     }
     else {
-        return to_seconds($complete - $now);
+        return {
+            seconds_remaining   => to_seconds($complete - $now),
+            start               => format_date($self->date_created),
+            end                 => format_date($self->date_complete),
+        };
     }
 }
 

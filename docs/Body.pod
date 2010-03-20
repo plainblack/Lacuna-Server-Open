@@ -155,6 +155,31 @@ The y axis of the area on the planet you wish to place the building. Valid value
 
 
 
+=head2 get_build_queue ( session_id, body_id )
+
+Returns a list of the buildings being constructed or upgraded.
+
+ {
+    "build_queue" : {
+        "building-id-goes-here" : {
+            "seconds_remaining" : 60,
+            "start" : "01 31 2010 11:08:03 +0600",
+            "end" : "01 31 2010 13:09:05 +0600",
+        },
+        ...
+    },
+    "status" : "get_status",
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 body_id
+
+The unique id of the body for which you want the list of buildings being constructed/upgraded.
+
+
 
 
 

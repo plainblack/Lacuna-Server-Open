@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -21,8 +21,12 @@ is($result->{result}{building}{name}, 'Wheat Farm', 'Can build buildings');
 is($result->{result}{building}{level}, 0, 'New building is level 0');
 cmp_ok($result->{result}{building}{pending_build}{seconds_remaining}, '>', 0, 'Building has time in queue');
 cmp_ok($last_energy, '>', $result->{result}{status}{empire}{planets}{$home_planet}{energy_stored}, 'Resources are being spent.');
+my $wheat_id = $result->{result}{building}{id};
 
-my $building = $db->domain('food')->find($result->{result}{building}{id});
+$result = $tester->post('body', 'get_build_queue', [$session_id, $home_planet]);
+cmp_ok($result->{result}{build_queue}{$wheat_id}, '>', 0, "get_build_queue");
+
+my $building = $db->domain('food')->find($wheat_id);
 $building->finish_upgrade;
 
 $result = $tester->post('wheat', 'view', [$session_id, $building->id]);

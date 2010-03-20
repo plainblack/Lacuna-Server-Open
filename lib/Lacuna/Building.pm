@@ -2,7 +2,6 @@ package Lacuna::Building;
 
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
-use Lacuna::Util qw(format_date);
 
 has simpledb => (
     is      => 'ro',
@@ -86,9 +85,7 @@ sub view {
         status      => $empire->get_full_status,
     );
     if ($time_left) {
-        $out{building}{pending_build}{seconds_remaining} = $time_left;
-        $out{building}{pending_build}{start} = format_date($queue->date_created);
-        $out{building}{pending_build}{end} = format_date($queue->date_complete);
+        $out{building}{pending_build} = $time_left;
     }
     return \%out;
 }

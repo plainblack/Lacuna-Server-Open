@@ -76,6 +76,21 @@ sub get_buildings {
     return {buildings=>\%out, status=>$empire->get_status};
 }
 
+sub get_build_queue {
+    my ($self, $session_id, $body_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $empire->get_body($body_id);
+    my $builds = $body->builds;
+    my %queue;
+    while (my $build = $builds->next) {
+        my $status = $build->is_complete;
+        if ($status) {
+            $queue{$build->building_id} = $status;
+        }
+    }
+    return { build_queue => \%queue, status => $empire->get_status };
+}
+
 sub get_buildable {
     my ($self, $session_id, $body_id, $x, $y) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -119,7 +134,7 @@ sub get_buildable {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(rename get_buildings get_buildable));
+__PACKAGE__->register_rpc_method_names(qw(rename get_build_queue get_buildings get_buildable));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
