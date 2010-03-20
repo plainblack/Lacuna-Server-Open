@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 11;
+use Test::More tests => 14;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -17,7 +17,7 @@ my $home_planet = $tester->empire->home_planet_id;
 my $db = $tester->db;
 
 $result = $tester->post('wheat', 'build', [$session_id, $home_planet, 3, 3]);
-is($result->{result}{building}{name}, 'Wheat Farm', 'Can build buildings');
+ok($result->{result}{building}{id}, 'Can build buildings');
 is($result->{result}{building}{level}, 0, 'New building is level 0');
 cmp_ok($result->{result}{building}{pending_build}{seconds_remaining}, '>', 0, 'Building has time in queue');
 cmp_ok($last_energy, '>', $result->{result}{status}{empire}{planets}{$home_planet}{energy_stored}, 'Resources are being spent.');
@@ -85,6 +85,16 @@ $result = $tester->post('wheat', 'upgrade', [$session_id, $building->id]);
 is($result->{result}{building}{level}, 1, 'Upgrading building is still level 1');
 cmp_ok($result->{result}{building}{pending_build}{seconds_remaining}, '>', 0, 'Upgrade has time in queue');
 cmp_ok($last_energy, '>', $result->{result}{status}{empire}{planets}{$home_planet}{energy_stored}, 'Resources are being spent for upgrade.');
+
+
+# simulate upgrade attack
+$result = $tester->post('wheat', 'upgrade', [$session_id, $building->id]);
+ok(exists $result->{error}, 'attack failed!');
+$result = $tester->post('wheat', 'upgrade', [$session_id, $building->id]);
+ok(exists $result->{error}, 'attack failed!!');
+$result = $tester->post('wheat', 'upgrade', [$session_id, $building->id]);
+ok(exists $result->{error}, 'attack failed!!!');
+
 
 
 END {

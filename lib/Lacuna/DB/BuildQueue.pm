@@ -34,7 +34,7 @@ has building => (
 
 sub seconds_remaining {
     my $self = shift;
-    return to_seconds(DateTime->now - $self->date_complete);
+    return to_seconds($self->date_complete - DateTime->now);
 }
 
 sub check_status {

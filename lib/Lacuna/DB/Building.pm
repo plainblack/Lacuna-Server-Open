@@ -452,17 +452,16 @@ sub has_met_upgrade_prereqs {
     if (ref $self ne 'Lacuna::DB::Building::University' && $self->level >= $self->empire->university_level) {
         confess [1013, "You cannot upgrade a building past your university level."];
     }
+    return 1;
 }
 
 sub has_no_pending_build {
     my ($self) = @_;
     my $queue = $self->build_queue if ($self->build_queue_id);
-    if (defined $queue && $queue->seconds_remaining($self) > 0) {
+    if (defined $queue && $queue->seconds_remaining > 0) {
         confess [1010, "You must complete the pending build first."];
     }
-    else {
-        return 1;
-    }
+    return 1;
 }
 
 sub can_upgrade {

@@ -48,7 +48,7 @@ sub upgrade {
 
     $building->start_upgrade($cost);
 
-    return $self->view($empire, $building);
+    return {status=>$empire->get_status, building=>{ id => $building->id, level=>$building->level, pending_build => $building->build_queue->check_status }};
 }
 
 sub view {
@@ -125,9 +125,9 @@ sub build {
 
     # build it
     $body->build_building($building);
-
+    
     # show the user
-    return $self->view($empire, $building);
+    return {status=>$empire->get_status, building=>{ id => $building->id, level=>$building->level, pending_build => $building->build_queue->check_status }};
 }
 
 

@@ -4,7 +4,19 @@ All buildings have some methods in common. This is a description of the methods 
 
 =head2 build ( session_id, body_id, x, y )
 
-Adds this building to the planet's build queue.
+Adds this building to the planet's build queue. Returns:
+
+ {
+    "building" : {
+        "id" : "id-goes-here",
+        "pending_build" : {
+            "seconds_remaining" : 430,
+            "start" : "01 31 2010 13:09:05 +0600",
+            "end" : "01 31 2010 18:09:05 +0600"
+        },
+        "level" : 0,
+    "status" : { get_status() }
+ }
 
 Throws 1002, 1010, 1011, and 1012, and 1013.
 
@@ -51,7 +63,6 @@ Retrieves the properties of the building.
             "start" : "01 31 2010 13:09:05 +0600",
             "end" : "01 31 2010 18:09:05 +0600"
         },
-        "time_left_on_build" : 0,
         "upgrade" : {
             "can" : 0,
             "cost" : {
@@ -71,7 +82,7 @@ Retrieves the properties of the building.
                 "happiness_hour" : 0,
             }
     },
-    "status" : { get_full_status() }
+    "status" : { get_status() }
  }
 
 Throws 1002 and 1010.
@@ -88,7 +99,19 @@ The id of the building you wish to retrieve.
 
 =head2 upgrade ( session_id, building_id )
 
-Adds the requested upgrade to the build queue. On success returns the view() method.
+Adds the requested upgrade to the build queue. Returns:
+
+ {
+    "building" : {
+        "id" : "id-goes-here",
+        "pending_build" : {
+            "seconds_remaining" : 430,
+            "start" : "01 31 2010 13:09:05 +0600",
+            "end" : "01 31 2010 18:09:05 +0600"
+        },
+        "level" : 1,
+    "status" : { get_status() }
+ }
 
 Throws 1002, 1010, 1011, and 1012, and 1013.
 
