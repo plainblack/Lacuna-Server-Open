@@ -388,11 +388,14 @@ sub is_space_free {
     my ($self, $x, $y) = @_;
     my $db = $self->simpledb;
     foreach my $domain (qw(building energy water food waste ore permanent)) {
-        my $count = $db->domain($domain)->count(where => {
-            body_id => $self->id,
-            x       => $x,
-            y       => $y,
-        });
+        my $count = $db->domain($domain)->count(
+            where => {
+                body_id => $self->id,
+                x       => $x,
+                y       => $y,
+            },
+            consistent => 1, # prevents stacking attack
+        );
         return 0 if $count > 0;
     }
     return 1;
