@@ -37,7 +37,7 @@ sub seconds_remaining {
     return to_seconds(DateTime->now - $self->date_complete);
 }
 
-sub is_complete {
+sub check_status {
     my ($self, $building) = @_;
     my $now = DateTime->now;
     my $complete = $self->date_complete;

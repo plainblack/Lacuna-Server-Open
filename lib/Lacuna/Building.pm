@@ -60,8 +60,10 @@ sub view {
     my $queue = $building->build_queue if ($building->build_queue_id);
     my $time_left;
     if (defined $queue) {
-        $time_left = $queue->is_complete($building);
+        $time_left = $queue->check_status($building);
     }
+    my $can_upgrade = eval{$building->can_upgrade($cost)};
+    my $reason = $@;
     my %out = ( 
         building    => {
             id                  => $building->id,
@@ -77,7 +79,8 @@ sub view {
             energy_hour         => $building->energy_hour,
             happiness_hour      => $building->happiness_hour,
             upgrade             => {
-                can             => (eval{$building->can_upgrade($cost)} ? 1 : 0),
+                can             => ($can_upgrade ? 1 : 0),
+                reason          => $reason,
                 cost            => $cost,
                 production      => $building->stats_after_upgrade,
             },

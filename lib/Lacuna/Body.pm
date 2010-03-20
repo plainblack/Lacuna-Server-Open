@@ -83,7 +83,7 @@ sub get_build_queue {
     my $builds = $body->builds;
     my %queue;
     while (my $build = $builds->next) {
-        my $status = $build->is_complete;
+        my $status = $build->check_status;
         if ($status) {
             $queue{$build->building_id} = $status;
         }

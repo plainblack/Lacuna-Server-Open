@@ -588,7 +588,7 @@ sub tick {
         if (defined $ship && defined $build ) {
             if ( $ship->date_arrives > $build->date_complete ) {
                 $self->tick_to($build->date_complete);
-                $build->is_complete;
+                $build->check_status;
                 $build = $builds->next;
             }
             else {
@@ -599,7 +599,7 @@ sub tick {
         }
         elsif (defined $build) {
             $self->tick_to($build->date_complete);
-            $build->is_complete;
+            $build->check_status;
             $build = $builds->next;
         }
         elsif (defined $ship) {
