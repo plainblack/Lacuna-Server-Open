@@ -17,6 +17,9 @@ with 'Lacuna::Role::Sessionable';
 
 sub find {
     my ($self, $session_id, $name) = @_;
+    unless (length($name) >= 3) {
+        confess [1009, 'Empire name too short. Your search must be at least 3 characters.'];
+    }
     my $empire = $self->get_empire_by_session($session_id);
     my $empires = $self->simpledb->domain('empire')->search(where=>{name_cname => ['like', '%'.cname($name).'%']}, limit=>100);
     my %list_of_empires;

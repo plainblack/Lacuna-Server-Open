@@ -311,7 +311,7 @@ A session id.
 
 =head3 name
 
-The name your searching for. It's case insensitive, and partial names work fine.
+The name your searching for. It's case insensitive, and partial names work fine. Must be at least 3 characters.
 
 
 
