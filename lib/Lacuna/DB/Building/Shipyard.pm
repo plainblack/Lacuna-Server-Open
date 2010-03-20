@@ -19,7 +19,7 @@ use constant ship_prereqs => {
     smuggler_ship                 => 'Lacuna::DB::Building::Espionage',
     mining_platform_ship          => 'Lacuna::DB::Building::Ore::Ministry',
     terraforming_platform_ship    => 'Lacuna::DB::Building::TerraformingLab',
-    gas_giant_settlement_ship     => 'Lacuna::DB::Building::GasGiantLab',
+    gas_giant_settlement_platform_ship     => 'Lacuna::DB::Building::GasGiantLab',
 };
 
 use constant ship_costs => {
@@ -87,7 +87,7 @@ use constant ship_costs => {
         seconds => 1000,
         waste   => 100,
     },  
-    gas_giant_settlement_ship => {
+    gas_giant_settlement_platform_ship => {
         food    => 1000,
         water   => 1000,
         energy  => 1000,
@@ -106,9 +106,7 @@ sub format_ship_builds {
 
 sub spaceports {
     my $self = shift;
-    return $self->simpledb->domain('Lacuna::DB::Building::SpacePort')->search(
-        where => { body_id => $self->body_id, class => 'Lacuna::DB::Building::SpacePort' }
-        );
+    return $self->body->get_buildings_of_class('Lacuna::DB::Building::SpacePort');
 }
 
 sub get_ship_costs {
@@ -182,56 +180,96 @@ sub build_ship {
     $self->put;
 }
 
-sub check_for_completed_ships {
-    my ($self, $caller_spaceport) = @_;
+sub get_next_completed {
+    my $self = shift;
     my $builds = $self->ship_builds;
+    
+    # no ships in queue
+    return undef unless exists $builds->{next_completed};
+    
+    # there are ships in the queue
     my $now = DateTime->now;
-    my $date_completed = DateTime->from_epoch(epoch=>$builds->{next_completed});
-    if ($now > $date_completed) {
-        my $difference = to_seconds($now - $date_completed);
-        delete $builds->{next_completed};
-        my $spaceports = $self->spaceports;
-        my $spaceport = $spaceports->next;
-        if (defined $caller_spaceport && $caller_spaceport->id eq $spaceport->id) {
-            $spaceport = $caller_spaceport;   
-        }
-        SHIP: while (1) { # keep building ships while we have time
-            my $completed_ship = shift @{$builds->{queue}};
-            PORT: while (1) {
-                if ($spaceport->has_room) { # there's room, so let's add it
-                    $spaceport->add_ship($completed_ship->{type});
-                }
-                else { # we need ourselves a new space port, this one's full
-                    $spaceport->put;
-                    $spaceport = $spaceports->next;
-                    unless (defined $spaceport) { # this ship's gonna go kablooey cuz no spaceports have any room
-                        return $self->empire->send_predefined_message(
-                            filename    => 'ship_blew_up_at_port.txt',
-                            params      => [$completed_ship->{type}, $self->body->name],
-                        );
-                        last SHIP;
-                    }
-                    if (defined $caller_spaceport && $caller_spaceport->id eq $spaceport->id) {
-                        $spaceport = $caller_spaceport;   
-                    }
-                    last PORT;
-                }
-            }
-            last SHIP unless (scalar @{$builds->{queue}}); # end, we have no more ships in queue
-            my $time_for_next_ship = $builds->{queue}[0];
-            if ($time_for_next_ship > $difference) { # end, still time left on next ship
-                $builds->{next_completed} = DateTime->now->add(seconds=> ($time_for_next_ship - $difference))->epoch;
-                last SHIP;
-            }
-            else { # whew, another ship completed!
-                $difference -= $time_for_next_ship;
-            }
-        }
-        $spaceport->put;
-        $self->put;
+    my $completed_date = DateTime->from_epoch(epoch=>$builds->{next_completed});
+
+    # check if any are completed
+    unless ($completed_date < $now) {
+        return undef;
     }
+
+    # get the next completed ship
+    my $next_ship;
+    if ($builds->{queue}[0]{quantity} == 1) {
+        $next_ship = shift @{$builds->{queue}};
+    }
+    else {
+        $next_ship = $builds->{queue}[0];
+        $builds->{queue}[0]{quantity}--;
+    }
+
+    # reset next completed date
+    if (scalar @{$builds->{queue}}) {
+        my $time_for_next_ship = $builds->{queue}[0]{seconds_each};
+        $builds->{next_completed} = $completed_date->clone->add(seconds=> $time_for_next_ship)->epoch;
+    }
+    else {
+        delete $builds->{next_completed};
+    }
+    $self->ship_builds($builds);
+    
+    return $next_ship;
 }
 
+sub check_for_completed_ships {
+    my ($self, $caller_spaceport) = @_;
+    my $spaceports = $self->spaceports;
+    my $spaceport;
+    my $spaceport_changed = 0;
+    my $shipyard_changed = 0;
+    
+    # keep building ships while we have time
+    SHIP: while (my $completed_ship = $self->get_next_completed) {
+        $shipyard_changed = 1;
+        
+        # find a port to put the space ship, we don't invert this to save a db call
+        PORT: while (1) {
+            
+            # first time running, haven't fetched spaceport yet, so let's get one
+            $spaceport = $spaceports->next unless (defined $spaceport);
+
+            # always want to use the preloaded caller spaceport if possible to avoid staleness
+            if (defined $caller_spaceport && $caller_spaceport->id eq $spaceport->id) {
+                $spaceport = $caller_spaceport;   
+            }
+            
+            # there's room, so let's add a ship
+            if (!$spaceport->is_full) { 
+                $spaceport->add_ship($completed_ship->{type});
+                $spaceport_changed = 1;
+                last PORT;
+            }
+            
+            # we need ourselves a new space port, this one's full
+            else { 
+                $spaceport->put if ($spaceport_changed); # save the current one
+                $spaceport_changed = 0;
+                $spaceport = $spaceports->next; # get a new one
+                
+                # this ship's gonna go kablooey cuz no room at any port
+                unless (defined $spaceport) { 
+                    $self->empire->send_predefined_message(
+                        filename    => 'ship_blew_up_at_port.txt',
+                        params      => [$completed_ship->{type}, $self->body->name],
+                    );
+                    last SHIP;
+                }
+            }
+        }
+    }
+    
+    # save changes
+    $spaceport->put if ($spaceport_changed);
+    $self->put if ($shipyard_changed);
+}
 
 use constant controller_class => 'Lacuna::Building::Shipyard';
 

@@ -3,6 +3,7 @@ package Lacuna::DB::Building::Observatory;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+
 use constant controller_class => 'Lacuna::Building::Observatory';
 
 use constant building_prereq => {'Lacuna::DB::Building::Shipyard'=>1};

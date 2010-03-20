@@ -6,6 +6,7 @@ use DateTime;
 use Lacuna::Util qw(format_date);
 use Digest::SHA;
 use Lacuna::Constants qw(MEDALS);
+use List::MoreUtils qw(uniq);
 
 __PACKAGE__->set_domain_name('empire');
 __PACKAGE__->add_attributes(
@@ -102,11 +103,13 @@ sub add_medal {
 sub spend_essentia {
     my ($self, $value) = @_;
     $self->essentia( $self->essentia - $value );
+    return $self;
 }
 
 sub add_essentia {
     my ($self, $value) = @_;
     $self->essentia( $self->essentia + $value );
+    return $self;
 }
 
 sub get_status {
@@ -247,25 +250,39 @@ sub send_message {
 
 sub send_predefined_message {
     my ($self, %options) = @_;
-    open my $file, "<", '/data/Lacuna-Server/var/messages/'.$options{filename};
-    my $subject = <$file>;
-    chomp $subject;
-    my $message;
-    {
-        local $/;
-        $message = <$file>;
+    my $path = '/data/Lacuna-Server/var/messages/'.$options{filename};
+    if (open my $file, "<", $path) {
+        my $subject = <$file>;
+        chomp $subject;
+        my $message;
+        {
+            local $/;
+            $message = <$file>;
+        }
+        close $file;
+        return $self->send_message(
+            subject => $subject,
+            body    => sprintf($message, @{$options{params}}),
+            from    => $options{from},
+            );
     }
-    close $file;
-    return $self->send_message(
-        subject => $subject,
-        body    => sprintf($message, @{$options{params}}),
-        from    => $options{from},
-        );
+    else {
+        warn "Couldn't send message using $path";
+    }
 }
 
 sub lacuna_expanse_corp {
     my $self = shift;
     return $self->simpledb->domain('empire')->find('lacuna_expanse_corp');
+}
+
+sub add_probe {
+    my ($self, $star_id) = @_;
+    my @probes = @{$self->probed_stars};
+    push @probes, $star_id;
+    my @unique = uniq @probes;
+    $self->probed_stars(\@unique);
+    return $self;
 }
 
 before 'delete' => sub {
@@ -278,7 +295,6 @@ before 'delete' => sub {
     while ( my $planet = $planets->next ) {
         $planet->sanitize;
     }
-    #$self->alliance->remove($self);
     if ($self->species_id ne 'human_species') {
         $self->species->delete;
     }

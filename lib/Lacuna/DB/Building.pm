@@ -477,7 +477,7 @@ sub construction_cost_reduction_bonus {
 
 sub manufacturing_cost_reduction_bonus {
     my $self = shift;
-    return (100 - $self->empire->species->construction_affinity) / 100
+    return (100 - $self->empire->species->manufacturing_affinity) / 100
 }
 
 sub time_cost_reduction_bonus {

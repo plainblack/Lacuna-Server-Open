@@ -26,4 +26,49 @@ This method is extended to include a list of docked ships.
     }
  }
 
+=head2 send_probe ( session_id, from_body_id, to_star )
+
+Dispatches a probe from one of the space ports on a planet to a star. It will automatically detect which space ports on the planet have probes, if any, and pick one of them to dispatch the probe.
+
+Returns status:
+
+ {
+    "probe" : {
+        "date_arrives" : 
+    },
+    "status" : { get_status() }
+ }
+
+Throws 1002.
+
+=head3 session_id
+
+A session id.
+
+=head3 from_body_id
+
+The unique id of the planet that should send the probe.
+
+=head3 to_star
+
+A hash reference that can contain one of three items to identify a star.
+
+ { "star_name" : "Sol" }
+ 
+ { "star_id" : "id-goes-here" }
+ 
+ { "x" : 4, "y" : -3, "z" : 5 }
+
+=head4 star_name
+
+A string with the star's name. Case insensitive, but will throw an exception for misspelling.
+
+=head4 star_id
+
+The unique id of the star.
+
+=head4 x | y | z
+
+A set of x,y,z coordinates to locate the star.
+
 =cut

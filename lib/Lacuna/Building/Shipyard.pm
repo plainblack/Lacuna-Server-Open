@@ -40,18 +40,23 @@ sub get_buildable {
     my $building = $empire->get_building($self->model_class, $building_id);
     my %buildable;
     my $status = $empire->get_full_status;
+    my $docks;
+    my $ports = $building->spaceports;
+    my $port_cached;
+    while (my $port = $ports->next) {
+        $docks += $port->docks_available;
+        $port_cached = $port;
+    }
     foreach my $type (SHIP_TYPES) {
         my $can = eval{$building->can_build_ship($type, 1)};
         $buildable{$type} = {
-            cost    => $building->get_ship_costs($type),
-            can     => ($can) ? 1 : 0,
-            reason  => $@,
+            attributes  => {
+                speed   =>  $port_cached->get_ship_speed($type),
+            },
+            cost        => $building->get_ship_costs($type),
+            can         => ($can) ? 1 : 0,
+            reason      => $@,
         };
-    }
-    my $docks;
-    my $ports = $building->spaceports;
-    while (my $port = $ports->next) {
-        $docks += $port->docks_available;
     }
     return { buildable=>\%buildable, docks_available=>$docks, status=>$status};
 }

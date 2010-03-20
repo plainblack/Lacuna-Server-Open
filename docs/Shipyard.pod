@@ -35,7 +35,8 @@ Returns a list of buildable ships and their costs, and if they're not buildable,
  {
     "buildable" : {
         "probe" : {
-            "can" : 1,
+            "can" : 1,             # can it be built or not
+            "reason" : null,       # if it can't an array ref will be here with the exception for why not
             "cost" : {
                 "seconds" : 900,
                 "food" : 1100,
@@ -44,11 +45,13 @@ Returns a list of buildable ships and their costs, and if they're not buildable,
                 "ore" : 1200,
                 "waste" : 100,
             },
-            "reason" : null,
+            attributes : {
+                "speed" : 1000,    # 100 roughly equals 1 star in 1 hour
+            }
         },
         ...
     },
-    "docks_available" : 7,
+    "docks_available" : 7,         # you can only build ships up to the number of docks you have available
     "status" : { get_full_status() },
  }
 

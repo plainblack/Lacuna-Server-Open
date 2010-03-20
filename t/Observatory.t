@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 4;
+use Test::More tests => 9;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -14,7 +14,6 @@ my $command = $home->command;
 
 
 my $result;
-
 
 my $uni = Lacuna::DB::Building::University->new(
     simpledb        => $tester->db,
@@ -39,6 +38,10 @@ $home->bauxite_stored(500000);
 $home->algae_stored(500000);
 $home->energy_stored(500000);
 $home->water_stored(500000);
+$home->energy_hour(500000);
+$home->algae_production_hour(500000);
+$home->water_hour(500000);
+$home->ore_hour(500000);
 $home->put;
 
 
@@ -80,10 +83,30 @@ $home->energy_stored(500000);
 $home->water_stored(500000);
 $home->put;
 
-$result = $tester->post('shipyard', 'build_ship', [$session_id, $shipyard->id, 'probe']);
+$result = $tester->post('shipyard', 'build_ship', [$session_id, $shipyard->id, 'probe', 3]);
 ok(exists $result->{result}{ship_build_queue}{next_completed}, "got a date of completion");
 is($result->{result}{ship_build_queue}{queue}[0]{type}, 'probe', "probe building");
 
+$shipyard = $tester->db->domain(ref $shipyard)->find($shipyard->id);
+my $builds = $shipyard->ship_builds;
+$builds->{next_completed} = 0;
+$shipyard->ship_builds($builds);
+$shipyard->put;
+
+$result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
+is($result->{result}{docked_ships}{probe}, 2, "we have 2 probes built");
+
+$result = $tester->post('spaceport', 'send_probe', [$session_id, $home->id, {star_name=>'Rozeske'}]);
+is($result->{result}{status}{empire}{has_new_messages}, 11, "one probe went kablooey");
+ok($result->{result}{probe}{date_arrives}, "probe sent");
+
+my $ship = $tester->db->domain('travel_queue')->search(where => {body_id => $home->id}, consistent=>1)->next;
+$ship->arrive;
+$empire = $tester->empire($tester->db->domain('empire')->find($empire->id));
+is(scalar(@{$empire->probed_stars}), 2, "2 stars probed!");
+
+$result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
+is($result->{result}{docked_ships}{probe}, 1, "we have one probe left");
 
 END {
     $tester->cleanup;

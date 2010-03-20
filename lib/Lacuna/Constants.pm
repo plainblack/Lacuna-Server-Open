@@ -195,7 +195,7 @@ use constant MEDALS => {
     Wheat               => 'Built Wheat Farm',
 };
 
-use constant SHIP_TYPES => ('probe','colony_ship','spy_pod','cargo_ship','space_station','smuggler_ship','mining_platform_ship','terraforming_platform_ship','gas_giant_settlement_ship');
+use constant SHIP_TYPES => ('probe','colony_ship','spy_pod','cargo_ship','space_station','smuggler_ship','mining_platform_ship','terraforming_platform_ship','gas_giant_settlement_platform_ship');
 
 
 our @EXPORT_OK = qw(

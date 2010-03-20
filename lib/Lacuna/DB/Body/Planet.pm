@@ -105,8 +105,33 @@ sub builds {
         $order = [$order];
     }
     $where->{body_id} = $self->id;
-    $where->{date_complete} = ['>',0] unless exists $where->{date_complete};
-    return $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(where=>$where, order_by=>$order, consistent=>1, set=>{body=>$self});
+    $where->{date_complete} = ['>',DateTime->now->subtract(years=>100)] unless exists $where->{date_complete};
+    return $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(
+        where       => $where,
+        order_by    => $order,
+        consistent  => 1,
+        set         => {
+            body  => $self,
+        },
+    );
+}
+
+sub ships_travelling { 
+    my ($self, $where, $reverse) = @_;
+    my $order = 'date_arrives';
+    if ($reverse) {
+        $order = [$order];
+    }
+    $where->{body_id} = $self->id;
+    $where->{date_arrives} = ['>',DateTime->now->subtract(years=>100)] unless exists $where->{date_arrives};
+    return $self->simpledb->domain('Lacuna::DB::TravelQueue')->search(
+        where       => $where,
+        order_by    => $order,
+        consistent  => 1,
+        set         => {
+            body    => $self,
+        },
+    );
 }
 
 sub sanitize {
@@ -128,6 +153,8 @@ sub sanitize {
         cider_stored wheat_stored bread_stored soup_stored chip_stored pie_stored pancake_stored milk_stored meal_stored
         algae_stored syrup_stored fungus_stored burger_stored shake_stored beetle_stored 
     );
+    $self->ships_travelling->delete;
+    $self->simpledb->domain('travel_queue')->search(where=>{foreign_body_id => $self->id})->delete;
     foreach my $attribute (@attributes) {
         $self->$attribute(0);
     }
@@ -321,13 +348,28 @@ sub magnetite_hour {
 
 # BUILDINGS
 
-sub command {
-    my $self = shift;
-    return $self->simpledb->domain('Lacuna::DB::Building::PlanetaryCommand')->search(where=>{
-        body_id => $self->id,
-        class   => 'Lacuna::DB::Building::PlanetaryCommand',
-    })->next;
+sub get_buildings_of_class {
+    my ($self, $class) = @_;
+    return $self->simpledb->domain($class)->search(
+        where   => {
+            body_id => $self->id,
+            class   => $class,
+        },
+        set     => {
+            body    => $self,
+            empire  => $self->empire,
+        },
+    );
 }
+
+has command => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->get_buildings_of_class('Lacuna::DB::Building::PlanetaryCommand')->next;
+    },
+);
 
 sub buildings {
     my $self = shift;
@@ -539,9 +581,35 @@ sub tick {
     my ($self) = @_;
     my $now = DateTime->now;
     my $builds = $self->builds({date_complete => ['<=', $now]});
-    while (my $build = $builds->next) {
-        $self->tick_to($build->date_complete);
-        $build->is_complete;
+    my $ships_travelling = $self->ships_travelling({date_arrives => ['<=', $now]});
+    my $ship = $ships_travelling->next;
+    my $build = $builds->next;
+    while (1) {
+        if (defined $ship && defined $build ) {
+            if ( $ship->date_arrives > $build->date_complete ) {
+                $self->tick_to($build->date_complete);
+                $build->is_complete;
+                $build = $builds->next;
+            }
+            else {
+                $self->tick_to($ship->date_arrives);
+                $ship->check_seconds_remaining;
+                $ship = $ships_travelling->next; 
+            }
+        }
+        elsif (defined $build) {
+            $self->tick_to($build->date_complete);
+            $build->is_complete;
+            $build = $builds->next;
+        }
+        elsif (defined $ship) {
+            $self->tick_to($ship->date_arrives);
+            $ship->check_seconds_remaining;
+            $ship = $ships_travelling->next; 
+        }
+        else {
+            last;
+        }
     }
     $self->tick_to($now);
 }
