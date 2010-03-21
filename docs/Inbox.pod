@@ -83,11 +83,12 @@ A message_id that was returned using C<view_inbox> or one of the other view_ met
 Archives a list of messages. Returns:
 
  {
-    "success" : 1,
+    "success" : ["id-goes-here","id-goes-here"],
+    "failure" : ["id-goes-here","id-goes-here"],
     "status" : { get_status() }
  }
 
-B<NOTE:> You cannot archive sent messages.
+B<NOTE:> You cannot archive sent messages. You'll get a failure if the message is either already archived, or it's a message that cannot be archived, like a message in your sent folder.
 
 =head3 session_id
 

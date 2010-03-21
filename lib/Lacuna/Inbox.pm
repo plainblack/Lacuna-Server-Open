@@ -49,14 +49,20 @@ sub archive_messages {
     my ($self, $session_id, $message_ids) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $messages = $self->simpledb->domain('message');
+    my @failure;
+    my @success;
     foreach my $id (@{$message_ids}) {
         my $message = $messages->find($id);
-        if ($empire->id eq $message->to_id && !$message->has_archived) {
+        if (defined $message && $empire->id eq $message->to_id && !$message->has_archived) {
             $message->has_archived(1);
             $message->put;
+            push @success, $id;
+        }
+        else {
+            push @failure, $id;
         }
     }
-    return { success=>1, status=>$empire->get_status };
+    return { success=>\@success, failure=>\@failure, status=>$empire->get_status };
 }
 
 sub send_message {

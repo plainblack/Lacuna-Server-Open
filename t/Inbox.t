@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 9;
+use Test::More tests => 12;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -30,12 +30,20 @@ $result = $tester->post('inbox','view_sent', [$session_id]);
 is($result->{result}{messages}[0]{subject}, 'my subject', 'view sent works');
 
 $result = $tester->post('inbox', 'archive_messages', [$session_id, [$message_id]]);
-is($result->{result}{success}, 1, 'archiving works');
+is($result->{result}{success}[0], $message_id, 'archiving works');
 
 sleep 1;
 
 $result = $tester->post('inbox','view_archived', [$session_id]);
 is($result->{result}{messages}[0]{subject}, 'my subject', 'view archived works');
+
+$result = $tester->post('inbox', 'archive_messages', [$session_id, [$message_id,'adsfafdsfads']]);
+is($result->{result}{failure}[0], $message_id, 'archived messages cannot be archived again');
+is($result->{result}{failure}[1], 'adsfafdsfads', 'unknown messages cannot be archived');
+
+$result = $tester->post('inbox','send_message', [$session_id, $tester->empire_name, 'my subject', "foo\n\nbar"]);
+is($result->{result}{message}{sent}[0], $tester->empire_name, 'you can send a message with double carriage return');
+
 
 
 END {
