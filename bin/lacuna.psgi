@@ -24,6 +24,11 @@ my @lines = <$file>;
 close $file;
 $urlmap->map("/" => sub { return [200, ['Content-Type' => 'text/html'], [join("\n",@lines)]]});
 
+open my $file, "<", "../var/local.html";
+my @lines = <$file>;
+close $file;
+$urlmap->map("/local" => sub { return [200, ['Content-Type' => 'text/html'], [join("\n",@lines)]]});
+
 open my $file, "<", "../var/crossdomain.xml";
 my @lines = <$file>;
 close $file;
