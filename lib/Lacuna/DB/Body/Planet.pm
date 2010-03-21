@@ -166,7 +166,7 @@ sub sanitize {
 }
 
 around 'get_status' => sub {
-    my ($orig, $self) = @_;
+    my ($orig, $self, $empire) = @_;
     my $out = $orig->($self);
     my %ore;
     foreach my $type (ORE_TYPES) {
@@ -175,33 +175,29 @@ around 'get_status' => sub {
     $out->{size}            = $self->size;
     $out->{ore}             = \%ore;
     $out->{water}           = $self->water;
+    if (defined $empire && $empire->id eq $self->empire_id) {
+        $self->tick;
+        $out->{building_count}  = $self->building_count;
+        $out->{water_capacity}  = $self->water_capacity;
+        $out->{water_stored}    = $self->water_stored;
+        $out->{water_hour}      = $self->water_hour;
+        $out->{energy_capacity} = $self->energy_capacity;
+        $out->{energy_stored}   = $self->energy_stored;
+        $out->{energy_hour}     = $self->energy_hour;
+        $out->{food_capacity}   = $self->food_capacity;
+        $out->{food_stored}     = $self->food_stored;
+        $out->{food_hour}       = $self->food_hour;
+        $out->{ore_capacity}    = $self->ore_capacity;
+        $out->{ore_stored}      = $self->ore_stored;
+        $out->{ore_hour}        = $self->ore_hour;
+        $out->{waste_capacity}  = $self->waste_capacity;
+        $out->{waste_stored}    = $self->waste_stored;
+        $out->{waste_hour}      = $self->waste_hour;
+        $out->{happiness}       = $self->happiness;
+        $out->{happiness_hour}  = $self->happiness_hour;
+    }
     return $out;
 };
-
-sub get_extended_status {
-    my ($self) = @_;
-    my $out = $self->get_status;
-    $self->tick;
-    $out->{building_count}  = $self->building_count;
-    $out->{water_capacity}  = $self->water_capacity;
-    $out->{water_stored}    = $self->water_stored;
-    $out->{water_hour}      = $self->water_hour;
-    $out->{energy_capacity} = $self->energy_capacity;
-    $out->{energy_stored}   = $self->energy_stored;
-    $out->{energy_hour}     = $self->energy_hour;
-    $out->{food_capacity}   = $self->food_capacity;
-    $out->{food_stored}     = $self->food_stored;
-    $out->{food_hour}       = $self->food_hour;
-    $out->{ore_capacity}    = $self->ore_capacity;
-    $out->{ore_stored}      = $self->ore_stored;
-    $out->{ore_hour}        = $self->ore_hour;
-    $out->{waste_capacity}  = $self->waste_capacity;
-    $out->{waste_stored}    = $self->waste_stored;
-    $out->{waste_hour}      = $self->waste_hour;
-    $out->{happiness}       = $self->happiness;
-    $out->{happiness_hour}  = $self->happiness_hour;
-    return $out;
-}
 
 # resource concentrations
 use constant rutile => 1;

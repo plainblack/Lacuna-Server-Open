@@ -21,22 +21,9 @@ sub get_body {
         confess [1002, 'Body does not exist.', $body_id];
     }
     my $empire = $self->get_empire_by_session($session_id);
-    my $body_status;
-    if ($body->isa('Lacuna::DB::Body::Planet')) {
-        if ($empire->id eq $body->empire_id) {
-            $body->empire($empire);
-            $body_status = $body->get_extended_status;
-        }
-        else {
-            $body_status = $body->get_status;
-        }
-    }
-    else {
-        $body_status = $body->get_status;
-    }
     return {
         status  => $empire->get_status,
-        body    => $body_status,
+        body    => $body->get_status($empire),
     }
 }
 

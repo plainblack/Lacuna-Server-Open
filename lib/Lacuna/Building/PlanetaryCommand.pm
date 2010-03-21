@@ -16,7 +16,7 @@ around 'view' => sub {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
     my $out = $orig->($self, $empire, $building);
-    $out->{planet} = $building->body->get_extended_status;
+    $out->{planet} = $building->body->get_status($empire);
     return $out;
 };
 

@@ -141,7 +141,7 @@ sub get_full_status {
     my $happiness_hour = 0;
     while (my $planet = $planet_rs->next) {
         $planet->tick;
-        $planets{$planet->id} = $planet->get_extended_status;
+        $planets{$planet->id} = $planet->get_status($self);
         $happiness += $planet->happiness;
         $happiness_hour += $planet->happiness_hour;
     }

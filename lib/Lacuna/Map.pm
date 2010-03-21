@@ -103,53 +103,38 @@ sub get_star_system {
     # get the star in question
     my $star = $self->load_star($star_id);
 
+    # exceptions
+    unless (defined $star) {
+        confess [1002, 'Star does not exist.', $star_id];
+    }
+    unless ($star->id ~~ $empire->probed_stars) {
+        confess [1010, 'Must have probed the star system to view it.'];
+    }
+
     # get to work
-    if (defined $star) {
-        my $bodies = $star->bodies;
-        my $member = 0;
-        my %out;
-        while (my $body = $bodies->next) {
-            my $owner = {};
-            if ($body->isa('Lacuna::DB::Body::Planet') && $body->empire_id ne 'None') {
-                my $owner_empire = $body->empire;
-                if (defined $owner_empire) {
-                    if ($body->empire_id eq $empire->id) {
-                        $member = 1;
-                    }
-                    $owner = {
-                        id      => $body->empire_id,
-                        name    => $owner_empire->name,
-                    };
-                }
-                else {
-                    warn "Deleted vestigial relationship between empire ".$body->empire_id." and body ".$body->id;
-                    $body->empire_id('None');
-                    $body->put;
-                }
+    my $bodies = $star->bodies;
+    my %out;
+    while (my $body = $bodies->next) {
+        $out{$body->id} = $body->get_status($empire);
+        if ($body->isa('Lacuna::DB::Body::Planet') && $body->empire_id ne 'None') {
+            my $owner_empire = $body->empire;
+            if (defined $owner_empire) {
+                $out{$body->id}{empire} = {
+                    id      => $body->empire_id,
+                    name    => $owner_empire->name,
+                };
             }
-            if ($body->isa('Lacuna::DB::Body::Planet')) {
-                if ($empire->id eq $body->empire_id) {
-                    $out{$body->id} = $body->get_extended_status;
-                }
-                else {
-                    $out{$body->id} = $body->get_status;
-                }
+            else {
+                warn "Deleted vestigial relationship between empire ".$body->empire_id." and body ".$body->id;
+                $body->empire_id('None');
+                $body->put;
             }
-            $out{$body->id}{empire} = $owner;
-        }
-        if ($member || $star->id ~~ $empire->probed_stars) {
-            return {
-                star    => $star->get_status,
-                bodies  => \%out,
-                status  => $empire->get_status,
-            }
-        }
-        else {
-            confess [1010, 'Must have probed the star system to view it.'];
         }
     }
-    else {
-        confess [1002, 'Star does not exist.', $star_id];
+    return {
+        star    => $star->get_status,
+        bodies  => \%out,
+        status  => $empire->get_status,
     }
 }
 
