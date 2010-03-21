@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 46;
+use Test::More tests => 49;
 
 use_ok('Lacuna::Verify');
 
@@ -68,4 +68,7 @@ ok($foo->no_profanity, 'no_profanity');
 is(eval{$shit->no_profanity}, undef, 'no_profanity - fail');
 like($@, qr/^NO/, 'np exception');
 
-
+my $double_carriage_returns = Lacuna::Verify->new(content=>\"foo\n\nbar", throws=>'NO');
+ok($double_carriage_returns->no_tags, '\n\n no_tags');
+ok($double_carriage_returns->no_profanity, '\n\n no_profanity');
+ok($double_carriage_returns->not_empty, '\n\n not_empty');
