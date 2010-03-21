@@ -145,7 +145,7 @@ sub view_messages {
     $page_number ||= 1;
     my $messages = $self->simpledb->domain('message')->search(
         where       => $where,
-        order_by    => 'date_sent',
+        order_by    => ['date_sent'],
     )->paginate(25, $page_number);
     my @box;
     while (my $message = $messages->next) {
