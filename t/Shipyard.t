@@ -39,6 +39,10 @@ $home->bauxite_stored(500000);
 $home->algae_stored(500000);
 $home->energy_stored(500000);
 $home->water_stored(500000);
+$home->energy_hour(500000);
+$home->algae_production_hour(500000);
+$home->water_hour(500000);
+$home->ore_hour(500000);
 $home->put;
 
 

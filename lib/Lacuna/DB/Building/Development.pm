@@ -13,6 +13,22 @@ sub subsidize_build_queue {
     }
 }
 
+sub format_build_queue {
+    my ($self) = @_;
+    my @queue;
+    my $builds = $self->body->builds;
+    while (my $build = $builds->next) {
+        my $target = $build->building;
+        push @queue, {
+            building_id         => $target->id,
+            name                => $target->name,
+            to_level            => ($target->level + 1),
+            seconds_remaining   => $build->seconds_remaining,
+        };
+    }
+    return \@queue;
+}
+
 use constant controller_class => 'Lacuna::Building::Development';
 
 use constant max_instances_per_planet => 1;

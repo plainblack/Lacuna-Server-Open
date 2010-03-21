@@ -31,7 +31,10 @@ sub throw_a_party {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
     $building->throw_a_party;
-    return $self->view($empire, $building);
+    return {
+        seconds_remaining   => $building->party_seconds_remaining,
+        status              => $empire->get_status,
+    };
 }
 
 __PACKAGE__->register_rpc_method_names(qw(throw_a_party build));

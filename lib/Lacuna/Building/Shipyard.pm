@@ -31,7 +31,10 @@ sub build_ship {
     my $costs = $building->get_ship_costs($type);
     $building->can_build_ship($type, $quantity, $costs);
     $building->build_ship($type, $quantity, $costs);
-    return $self->view($empire, $building);
+    return {
+        ship_build_queue    => $building->format_ship_builds,
+        status              => $empire->get_status,
+    };
 }
 
 sub get_buildable {

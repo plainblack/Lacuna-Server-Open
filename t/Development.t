@@ -15,10 +15,10 @@ $command->level(5);
 $command->put;
 
 $result = $tester->post('development', 'build', [$session_id, $tester->empire->home_planet_id, 3, 3]);
-my $building_id = $result->{result}{building}{id};
+
+$result = $tester->post('development', 'view', [$session_id, $result->{result}{building}{id}]);
 
 is($result->{result}{build_queue}[0]{name}, 'Development Ministry', "got build queue");
-
 
 END {
     $tester->cleanup;
