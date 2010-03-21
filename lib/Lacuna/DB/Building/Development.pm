@@ -5,12 +5,14 @@ extends 'Lacuna::DB::Building';
 
 sub subsidize_build_queue {
     my ($self, $amount) = @_;
-    $self->empire->spend_essentia($amount);
     my $builds = $self->simpledb->domain('build_queue')->search(where=>{body_id=>$self->body_id});
     while (my $build = $builds->next) {
         $build->date_complete->subtract(seconds=>($amount * 600));
         $build->put;
     }
+    my $empire = $self->empire;
+    $empire->spend_essentia($amount);
+    $empire->trigger_full_update;
 }
 
 sub format_build_queue {

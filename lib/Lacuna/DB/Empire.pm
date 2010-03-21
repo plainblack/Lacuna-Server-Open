@@ -32,6 +32,7 @@ __PACKAGE__->add_attributes(
     probed_stars        => { isa => 'ArrayRefOfStr' },
     university_level    => { isa => 'Int', default=>0 },
     medals              => { isa => 'HashRef' },
+    needs_full_update   => { isa => 'Str', default=>0 },
 );
 
 # personal confederacies
@@ -82,22 +83,23 @@ sub get_building { # makes for uniform error handling, and prevents staleness
 }
 
 sub add_medal {
-    my ($self, $id, $notes) = @_;
+    my ($self, $id, %options) = @_;
     my $medals = $self->medals;
     unless (exists $medals->{$id}) {
         $medals->{$id} = {
             date    => format_date(DateTime->now),
-            note    => $notes,
+            note    => $options{notes},
             public  => 1,
             };
         $self->medals($medals);
-        $self->put;
+        $self->put unless $options{skip_put};
         my $name = MEDALS->{$id};
         $self->send_message(
             subject => $name,
             body    => sprintf('You were just awarded a "%s" medal.', $name),
             );
     }
+    return $self;
 }
 
 sub spend_essentia {
@@ -112,35 +114,23 @@ sub add_essentia {
     return $self;
 }
 
+sub get_new_message_count {
+    my $self = shift;
+    return $self->simpledb->domain('message')->count(where => { to_id=>$self->id, has_archived => ['!=', 1], has_read => ['!=', 1]});
+}
+
 sub get_status {
     my ($self) = @_;
-    my $planet_rs = $self->planets;
-    my %planets;
-    my $happiness = 0;
-    my $happiness_hour = 0;
-    while (my $planet = $planet_rs->next) {
-        $happiness += $planet->happiness;
-        $happiness_hour += $planet->happiness_hour;
-    }
     my $status = {
         server  => {
             "time" => format_date(DateTime->now),
         },
         empire  => {
-            full_status_update_required => 0,
-            happiness                   => $happiness,
-            happiness_hour              => $happiness_hour,
-            essentia                    => $self->essentia,
+            full_status_update_required => $self->needs_full_update,
             has_new_messages            => $self->get_new_message_count,
-            status_message              => $self->status_message,
         },
     };
     return $status;
-}
-
-sub get_new_message_count {
-    my $self = shift;
-    return $self->simpledb->domain('message')->count(where => { to_id=>$self->id, has_archived => ['!=', 1], has_read => ['!=', 1]});
 }
 
 sub get_full_status {
@@ -171,6 +161,8 @@ sub get_full_status {
             planets             => \%planets,
         },
     };
+    $self->needs_full_update(0);
+    $self->put;
     return $status;
 }
 
@@ -300,6 +292,15 @@ before 'delete' => sub {
     }
     $self->sessions->delete;
 };
+
+sub trigger_full_update {
+    my ($self, %options) = @_;
+    if ($self->needs_full_update) {
+        $self->needs_full_update(1);
+        $self->put unless $options{skip_put};
+    }
+    return $self;
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

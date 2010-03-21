@@ -55,23 +55,13 @@ sub seconds_remaining {
     return to_seconds(DateTime->now - $self->date_arrives);
 }
 
-sub check_seconds_remaining {
-    my ($self, $building) = @_;
-    my $now = DateTime->now;
-    my $seconds = $self->seconds_remaining;
-    if ($seconds > 0) {
-        return $seconds;
-    }
-    else {
-        $self->arrive;
-        return 0;
-    }
-}
-
 sub arrive {
     my ($self) = @_;
+    my $empire = $self->body->empire;
     if ($self->ship_type eq 'probe') {
-        $self->body->empire->add_probe($self->foreign_star_id)->put;
+        $empire->add_probe($self->foreign_star_id);
+        $empire->trigger_full_update(skip_put=>1);
+        $empire->put
     }
     $self->delete;
 }

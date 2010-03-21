@@ -48,7 +48,16 @@ sub upgrade {
 
     $building->start_upgrade($cost);
 
-    return {status=>$empire->get_status, building=>{ id => $building->id, level=>$building->level, pending_build => $building->build_queue->check_status }};
+    $empire->trigger_full_update;
+    
+    return {
+        status      => $empire->get_status,
+        building    => {
+            id              => $building->id,
+            level           => $building->level,
+            pending_build   => $building->build_queue->get_status,
+        },
+    };
 }
 
 sub view {
@@ -57,11 +66,6 @@ sub view {
     my $building = $empire->get_building($self->model_domain, $building_id);
 
     my $cost = $building->cost_to_upgrade;
-    my $queue = $building->build_queue if ($building->build_queue_id);
-    my $time_left;
-    if (defined $queue) {
-        $time_left = $queue->check_status($building);
-    }
     my $can_upgrade = eval{$building->can_upgrade($cost)};
     my $reason = $@;
     my %out = ( 
@@ -85,10 +89,11 @@ sub view {
                 production      => $building->stats_after_upgrade,
             },
         },
-        status      => $empire->get_full_status,
+        status      => $empire->get_status,
     );
-    if ($time_left) {
-        $out{building}{pending_build} = $time_left;
+    my $queue = $building->build_queue if ($building->build_queue_id);
+    if (defined $queue) {
+        $out{building}{pending_build} = $queue->get_status;
     }
     return \%out;
 }
@@ -127,7 +132,14 @@ sub build {
     $body->build_building($building);
     
     # show the user
-    return {status=>$empire->get_status, building=>{ id => $building->id, level=>$building->level, pending_build => $building->build_queue->check_status }};
+    return {
+        status      => $empire->get_status,
+        building    => {
+            id              => $building->id,
+            level           => $building->level,
+            pending_build   => $building->build_queue->get_status,
+        },
+    };
 }
 
 

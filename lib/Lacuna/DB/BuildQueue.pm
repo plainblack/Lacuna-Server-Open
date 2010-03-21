@@ -37,13 +37,11 @@ sub seconds_remaining {
     return to_seconds($self->date_complete - DateTime->now);
 }
 
-sub check_status {
+sub get_status {
     my ($self, $building) = @_;
     my $now = DateTime->now;
     my $complete = $self->date_complete;
     if ($now > $complete) {
-        $building ||= $self->building;
-        $building->finish_upgrade;
         return undef;
     }
     else {
@@ -53,6 +51,11 @@ sub check_status {
             end                 => format_date($self->date_complete),
         };
     }
+}
+
+sub finish_build {
+    my $self = shift;
+    $self->building->finish_upgrade;
 }
 
 no Moose;

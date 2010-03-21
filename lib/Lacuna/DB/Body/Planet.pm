@@ -490,7 +490,8 @@ sub build_building {
     # add building placeholder to planet
     $building->build_queue_id($queue->id);
     $building->put;
-    
+
+    $self->empire->trigger_full_update;
 }
 
 sub found_colony {
@@ -552,7 +553,6 @@ sub has_max_instances_of_building {
 
 sub recalc_stats {
     my ($self) = @_;
-    $self->tick; # absorb any resources before any changes occur
     my %stats;
     foreach my $buildings ($self->buildings) {
         while (my $building = $buildings->next) {
@@ -587,27 +587,29 @@ sub tick {
     my $ships_travelling = $self->ships_travelling({date_arrives => ['<=', $now]});
     my $ship = $ships_travelling->next;
     my $build = $builds->next;
+    
+    # deal with events that may have occurred
     while (1) {
         if (defined $ship && defined $build ) {
             if ( $ship->date_arrives > $build->date_complete ) {
                 $self->tick_to($build->date_complete);
-                $build->check_status;
+                $build->finish_build;
                 $build = $builds->next;
             }
             else {
                 $self->tick_to($ship->date_arrives);
-                $ship->check_seconds_remaining;
+                $ship->arrive;
                 $ship = $ships_travelling->next; 
             }
         }
         elsif (defined $build) {
             $self->tick_to($build->date_complete);
-            $build->check_status;
+            $build->finish_build;
             $build = $builds->next;
         }
         elsif (defined $ship) {
             $self->tick_to($ship->date_arrives);
-            $ship->check_seconds_remaining;
+            $ship->arrive;
             $ship = $ships_travelling->next; 
         }
         else {

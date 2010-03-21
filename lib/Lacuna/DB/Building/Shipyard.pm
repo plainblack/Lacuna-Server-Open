@@ -167,6 +167,7 @@ sub build_ship {
         }
     }
     $body->put;
+    $self->empire->trigger_full_update;
     my $builds = $self->ship_builds->{queue};
     push @{$builds->{queue}}, {
         type            => $type,

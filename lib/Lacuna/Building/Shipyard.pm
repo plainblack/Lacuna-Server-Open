@@ -42,7 +42,7 @@ sub get_buildable {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
     my %buildable;
-    my $status = $empire->get_full_status;
+    $building->body->tick;
     my $docks;
     my $ports = $building->spaceports;
     my $port_cached;
@@ -61,7 +61,7 @@ sub get_buildable {
             reason      => $@,
         };
     }
-    return { buildable=>\%buildable, docks_available=>$docks, status=>$status};
+    return { buildable=>\%buildable, docks_available=>$docks, status=>$empire->get_status};
 }
 
 

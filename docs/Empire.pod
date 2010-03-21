@@ -108,11 +108,7 @@ Fetches the empire's status hash that is returned with many methods, but perform
     },
     "empire" : {
         "has_new_messages" : 3,
-	"full_status_update_required" : 1,
-        "essentia" : 0,
-        "happiness_hour" : 450,
-        "happiness" : 119393,
-        "status_message" : "A spy's work is never done."
+        "full_status_update_required" : 1
     }
  }
 

@@ -536,6 +536,8 @@ sub start_upgrade {
     });
     $self->build_queue_id($queue->id);
     $self->put;
+
+    $self->empire->trigger_full_update;
 }
 
 sub finish_upgrade {
@@ -544,11 +546,14 @@ sub finish_upgrade {
     $self->level($self->level + 1);
     $self->build_queue_id('');
     $self->put;
-    $self->body($self->body->recalc_stats);
-    $self->empire->add_medal('building'.$self->level);
+    $self->body->recalc_stats;
+    my $empire = $self->empire;
+    $empire->trigger_full_update(skip_put=>1);
+    $empire->add_medal('building'.$self->level, skip_put=>1);
     my $type = $self->controller_class;
     $type =~ s/^Lacuna::Building::(\w+)$/$1/;
-    $self->empire->add_medal($type);
+    $empire->add_medal($type, skip_put=>1);
+    $empire->put;
 }
 
 no Moose;

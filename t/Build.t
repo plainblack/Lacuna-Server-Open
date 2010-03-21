@@ -32,7 +32,8 @@ $building->finish_upgrade;
 $result = $tester->post('wheat', 'view', [$session_id, $building->id]);
 is($result->{result}{building}{level}, 1, 'New building is built');
 ok(! exists $result->{result}{building}{pending_build}, 'Building is no longer in build queue');
-$last_energy = $result->{result}{status}{empire}{planets}{$home_planet}{energy_stored};
+$result = $tester->post('empire', 'get_full_status', [$session_id]);
+$last_energy = $result->{result}{empire}{planets}{$home_planet}{energy_stored};
 
 
 
@@ -84,16 +85,17 @@ $uni->finish_upgrade;
 $result = $tester->post('wheat', 'upgrade', [$session_id, $building->id]);
 is($result->{result}{building}{level}, 1, 'Upgrading building is still level 1');
 cmp_ok($result->{result}{building}{pending_build}{seconds_remaining}, '>', 0, 'Upgrade has time in queue');
-cmp_ok($last_energy, '>', $result->{result}{status}{empire}{planets}{$home_planet}{energy_stored}, 'Resources are being spent for upgrade.');
+$result = $tester->post('empire', 'get_full_status', [$session_id]);
+cmp_ok($last_energy, '>', $result->{result}{empire}{planets}{$home_planet}{energy_stored}, 'Resources are being spent for upgrade.');
 
 
 # simulate upgrade attack
 $result = $tester->post('wheat', 'upgrade', [$session_id, $building->id]);
-ok(exists $result->{error}, 'attack failed!');
+ok(exists $result->{error}, 'attack thwarted!');
 $result = $tester->post('wheat', 'upgrade', [$session_id, $building->id]);
-ok(exists $result->{error}, 'attack failed!!');
+ok(exists $result->{error}, 'attack thwarted!!');
 $result = $tester->post('wheat', 'upgrade', [$session_id, $building->id]);
-ok(exists $result->{error}, 'attack failed!!!');
+ok(exists $result->{error}, 'attack thwarted!!!');
 
 
 

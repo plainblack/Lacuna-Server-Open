@@ -54,6 +54,7 @@ sub throw_a_party {
     $self->party_in_progress(1);
     $self->happiness_from_party(3_000 * $food_multiplier * $self->happiness_production_bonus);
     $self->put;
+    $self->empire->trigger_full_update;
 }
 
 sub end_the_party {
@@ -61,6 +62,7 @@ sub end_the_party {
     $self->party_in_progress(0);
     $self->put;
     my $planet = $self->body;
+    $self->empire->trigger_full_update;
     $planet->add_happiness($self->happiness_from_party);
     $planet->put;
 }

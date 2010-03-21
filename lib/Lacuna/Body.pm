@@ -82,8 +82,9 @@ sub get_build_queue {
     my $body = $empire->get_body($body_id);
     my $builds = $body->builds;
     my %queue;
+    $body->tick;
     while (my $build = $builds->next) {
-        my $status = $build->check_status;
+        my $status = $build->get_status;
         if ($status) {
             $queue{$build->building_id} = $status;
         }
