@@ -294,10 +294,16 @@ The id of the empire for which you'd like to retrieve the public profile.
 Find an empire by name. Returns a hash reference containing empire ids and empire names. So if you searched for "Lacuna" you might get back a result set that looks like this:
 
  {
-    "empires" : {
-        "id-goes-here" : "Lacuna Expanse Corp",
-        "id-goes-here2" : "Lacuna Pirates",
-    },
+    "empires" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "Lacuna Expanse Corp"
+        },
+        {    
+            "id" : "id-goes-here2",
+            "name" : "Lacuna Pirates"
+        }
+    ],
     "status" : { get_status() }
  }
  

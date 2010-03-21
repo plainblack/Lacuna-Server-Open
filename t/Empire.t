@@ -82,7 +82,7 @@ $result = $tester->post('empire', 'view_public_profile', [$session_id, $empire_i
 is($result->{result}{profile}{status_message}, 'Whoopie!', 'public profile works');
 
 $result = $tester->post('empire', 'find', [$session_id, 'Test']);
-ok(exists $result->{result}{empires}{$empire_id}, 'empire search works');
+is($result->{result}{empires}[0]{id}, $empire_id, 'empire search works');
 
 
 END {
