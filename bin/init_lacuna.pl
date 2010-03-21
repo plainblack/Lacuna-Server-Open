@@ -86,6 +86,7 @@ sub create_star_map {
         $domains{$domain}->create;
     }
 
+    my $made_lacuna = 0;
     say "Adding stars.";
     for my $x ($start_x .. $end_x) {
         say "Start X $x";
@@ -98,6 +99,10 @@ sub create_star_map {
                 }
                 else {
                     my $name = get_star_name();
+                    if (!$made_lacuna && $x >= 0 && $y >= 0 && $z >= 0) {
+                        $made_lacuna = 1;
+                        $name = 'Lacuna';
+                    }
                     say "Creating star $name at $x, $y, $z.";
                     my $star = $domains{star}->insert({
                         name        => $name,
@@ -168,7 +173,9 @@ sub add_bodies {
             my $body = $domains->{body}->insert($params);
             my $now = DateTime->now;
             if ($body->isa('Lacuna::DB::Body::Planet') && !$body->isa('Lacuna::DB::Body::Planet::GasGiant')) {
-                if ($star->x >= 0 && $star->y >= 0 && $star->z >= 0 && !$lacunans_have_been_placed) {
+                if ($star->name eq 'Lacuna' && !$lacunans_have_been_placed) {
+                    $body->name('Lacuna');
+                    $body->put;
                     create_lacuna_corp($body, $domains);
                     $lacunans_have_been_placed = 1;
                     next;
