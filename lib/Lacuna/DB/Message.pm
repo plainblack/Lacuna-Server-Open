@@ -51,7 +51,7 @@ sub send {
     );
     $self->put;
     if (exists $params{in_reply_to} && defined $params{in_reply_to} && $params{in_reply_to} ne '') {
-        my $original = $params{simpledb}->dommain($class)->find($params{in_reply_to});
+        my $original = $params{simpledb}->domain($class)->find($params{in_reply_to});
         if (defined $original && !$original->has_replied) {
             $original->has_replied(1);
             $original->put;
