@@ -183,7 +183,7 @@ The unique id of the body for which you want the list of buildings being constru
 
 
 
-=head2 rename_body ( session_id, body_id, name )
+=head2 rename ( session_id, body_id, name )
 
 Renames a body, provided the empire attached to the session owns the body. Returns a 1 on success.
 
