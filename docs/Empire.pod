@@ -134,7 +134,12 @@ Fetches the empire's status hash that is returned with many methods, but perform
  {
     "server" : {
         "time" : "01 31 2010 13:09:05 +0600",
-        "version" : 2.0604
+        "version" : 2.0604,
+        "star_map_size" : {
+            "x" : [ -15, 15 ],
+            "y" : [ -15, 15 ],
+            "z" : [ -15, 15 ]
+        }
     },
     "empire" : {
         "id" : "xxxx",

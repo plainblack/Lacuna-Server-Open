@@ -1,8 +1,8 @@
 package TestHelper;
 
 use Moose;
-use Config::JSON;
 use Lacuna::DB;
+use Lacuna;
 use LWP::UserAgent;
 use JSON qw(to_json from_json);
 use Data::Dumper;
@@ -13,7 +13,7 @@ use 5.010;
 has config => (
     is  => 'ro',
     lazy => 1,
-    default => sub { Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf")},
+    default => sub { Lacuna->config },
 );
 
 has ua => (

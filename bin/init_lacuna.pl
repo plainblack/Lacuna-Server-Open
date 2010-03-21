@@ -5,9 +5,8 @@ use List::Util::WeightedChoice qw( choose_weighted );
 use Lacuna;
 use Lacuna::Util qw(randint);
 use DateTime;
-use Config::JSON;
 
-my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
+my $config = Lacuna->config;
 my $db = Lacuna::DB->new(access_key=>$config->get('access_key'), secret_key=>$config->get('secret_key'), cache_servers=>$config->get('memcached'));
 my $lacunans;
 my $lacunans_have_been_placed = 0;
@@ -73,8 +72,10 @@ sub create_species {
 
 
 sub create_star_map {
-    my $start_x = my $start_y = my $start_z = -1;
-    my $end_x = my $end_y = my $end_z = 1;
+    my $map_size = $config->get('map_size');
+    my ($start_x, $end_x) = @{$map_size->{x}};
+    my ($start_y, $end_y) = @{$map_size->{y}};
+    my ($start_z, $end_z) = @{$map_size->{z}};
     my $star_count = abs($end_x - $start_x) * abs($end_y - $start_y) * abs($end_z - $start_z);
     my @star_colors = (qw(magenta red green blue yellow white));
     my %domains;
