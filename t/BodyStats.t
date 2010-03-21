@@ -13,7 +13,7 @@ my $empire = $tester->empire;
 my $home = $empire->home_planet;
 my $db = $tester->db;
 
-my $initial_status = $empire->home_planet->get_extended_status;
+my $initial_status = $empire->home_planet->get_status;
 
 my $wheat = Lacuna::DB::Building::Food::Farm::Wheat->new(
     simpledb        => $db,
@@ -31,7 +31,7 @@ $home->build_building($wheat);
 $wheat->finish_upgrade;
 
 
-my $after_wheat = $home->get_extended_status;
+my $after_wheat = $home->get_status;
 
 cmp_ok($initial_status->{food_hour}, '<', $after_wheat->{food_hour}, "food_hour raised");
 cmp_ok($initial_status->{ore_hour}, '>', $after_wheat->{ore_hour}, "ore_hour lowered");
@@ -55,7 +55,7 @@ my $water = Lacuna::DB::Building::Water::Purification->new(
 $home->build_building($water);
 $water->finish_upgrade;
 
-my $after_water = $home->get_extended_status;
+my $after_water = $home->get_status;
 
 cmp_ok($after_wheat->{food_hour}, '>', $after_water->{food_hour}, "food_hour lowered");
 cmp_ok($after_wheat->{ore_hour}, '>', $after_water->{ore_hour}, "ore_hour lowered");
@@ -78,7 +78,7 @@ my $we = Lacuna::DB::Building::Energy::Waste->new(
 $home->build_building($we);
 $we->finish_upgrade;
 
-my $after_we = $home->get_extended_status;
+my $after_we = $home->get_status;
 
 cmp_ok($after_water->{food_hour}, '>', $after_we->{food_hour}, "food_hour lowered");
 cmp_ok($after_water->{ore_hour}, '>', $after_we->{ore_hour}, "ore_hour lowered");
@@ -103,7 +103,7 @@ $home->build_building($ws);
 
 $ws->finish_upgrade;
 
-my $after_ws = $home->get_extended_status;
+my $after_ws = $home->get_status;
 cmp_ok($after_we->{waste_capacity}, '<', $after_ws->{waste_capacity}, "waste_capacity raised");
 
 
@@ -123,7 +123,7 @@ $home->build_building($os);
 
 $os->finish_upgrade;
 
-my $after_os = $home->get_extended_status;
+my $after_os = $home->get_status;
 cmp_ok($after_ws->{ore_capacity}, '<', $after_os->{ore_capacity}, "ore_capacity raised");
 
 is($empire->university_level, 0, 'university is 0');

@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 19;
+use Test::More tests => 21;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -107,34 +107,22 @@ cmp_deeply(
 );
 my $borg_id = $result->{result};
 
-sleep 2; # give it a chance to populate
 $result = $tester->post('species', 'is_name_available', ['Borg']);
 is($result->{error}{code}, 1000, 'species name Borg not available');
 
 $result = $tester->post('species', 'create', [$empire_id, $borg]);
 ok(exists $result->{result}, 're-create works');
 
+$result = $tester->post('empire', 'found', [$empire_id]);
+
+$empire = $tester->db->domain('empire')->find($empire_id);
+is($empire->species->name, 'Borg', 'species getting set properly');
+is($empire->home_planet->command->level, 7, 'growth affinity works');
+
+
+
+
 sub cleanup {
-    my $db = $tester->db;
-    my $species = $db->domain('species');
-    if (defined $species) {
-        say "Locating borg";
-        my $borg = eval {$species->search(where=>{name=>'Borg'})};
-        if ($@) {
-            die "WTF: ".$@;
-        }
-        elsif (defined $borg) {
-            say "Deleting borg";
-            $borg->delete;
-            say "Borg deleted";
-        }
-        else {
-            say "No borg found.";
-        }
-    }
-    else {
-        say "Couldn't acquire species domain.";
-    }
     $tester->cleanup;
 }
 

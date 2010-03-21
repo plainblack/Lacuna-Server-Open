@@ -288,7 +288,7 @@ before 'delete' => sub {
         $planet->sanitize;
     }
     if ($self->species_id ne 'human_species') {
-        $self->species->delete;
+        $self->species->delete if defined $self->species;
     }
     $self->sessions->delete;
 };

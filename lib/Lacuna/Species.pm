@@ -92,7 +92,7 @@ sub create {
         growth_affinity         => $me->{growth_affinity},
     });
     
-    $empire->species($species->id);
+    $empire->species_id($species->id);
     $empire->put;
     
     return $species->id;
