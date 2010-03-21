@@ -5,7 +5,7 @@ These methods are accessible via the C</inbox> URL.
 
 =head2 view_inbox ( session_id, [ page_number ] )
 
-Displays a list of the messages in the empire's inbox. Displays 25 messages per page.
+Displays a list of the messages in the empire's inbox. Displays 25 messages per page, sorted newest to oldest.
 
  {
     "messages" : [
@@ -14,6 +14,7 @@ Displays a list of the messages in the empire's inbox. Displays 25 messages per 
             "subject" : "Vaxaslim",
             "date" : "01 31 2010 13:09:05 +0600",
             "from" : "Dr. Stephen T. Colbert DFA",
+            "to" : "Jon Stewart",
             "has_read" : 1,
             "has_replied" : 0,
         }

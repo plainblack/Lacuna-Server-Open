@@ -20,8 +20,8 @@ sub read_message {
         confess [1002, 'Message does not exist.', $message_id];
     }
     my $empire = $self->get_empire_by_session($session_id);
-    unless ($empire->id ~~ ($message->from_id, $message->to_id)) {
-        confess [1010, "You can't view a message that isn't yours.", $message_id];
+    unless ($empire->id ~~ [$message->from_id, $message->to_id]) {
+        confess [1010, "You can't read a message that isn't yours.", $message_id];
     }
     if ($empire->id eq $message->to_id && !$message->has_read) {
         $message->has_read(1);
@@ -150,12 +150,13 @@ sub view_messages {
     my @box;
     while (my $message = $messages->next) {
         push @box, {
-            id          => $message->id,
-            subject     => $message->subject,
-            date        => $message->date_sent_formatted,
-            from        => $message->from_name,
-            has_read    => $message->has_read,
-            has_replied => $message->has_replied,
+            id              => $message->id,
+            subject         => $message->subject,
+            date            => $message->date_sent_formatted,
+            from            => $message->from_name,
+            to              => $message->to_name,
+            has_read        => $message->has_read,
+            has_replied     => $message->has_replied,
         };
     }
     return {
