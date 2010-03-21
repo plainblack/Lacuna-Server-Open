@@ -77,14 +77,11 @@ sub post {
 
 sub cleanup {
     my $self = shift;
-    my $empire = $self->empire;
-    if (defined $empire) {
-        say "Found the test empire.";
+    my $empires = $self->db->domain('empire')->search(where=>{name=>$self->empire_name}, consistent=>1);
+    while (my $empire = $empires->next) {
+        say "Found a test empire.";
         $empire->delete;
         say "Deleted it.";
-    }
-    else {
-        say "Couldn't find empire.";
     }
 }
 
