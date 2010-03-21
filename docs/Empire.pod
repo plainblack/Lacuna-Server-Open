@@ -104,7 +104,8 @@ Fetches the empire's status hash that is returned with many methods, but perform
 
  {
     "server" : {
-        "time" : "01 31 2010 13:09:05 +0600"
+        "time" : "01 31 2010 13:09:05 +0600",
+        "version" : 2.0604
     },
     "empire" : {
         "has_new_messages" : 3,
@@ -114,7 +115,9 @@ Fetches the empire's status hash that is returned with many methods, but perform
 
 The C<server> section tells you about the status of the server. The C<empire> section tells you about the status of the logged in empire.
 
-The C<full_status_update_required> element lets you know that the client data is out of date, and need to be fetched again with a call to C<get_full_status>.
+In the C<server> section, the C<version> is of particular importance. The version number takes the format of B<M.FFBB>. The B<M> part is the most important and stands for major version. The major version only changes if the API is changed in an incompatible way (no longer backwards compatible). The B<FF> part is the feature set version number. We've added features to the API, but not in an incompatible manner. The feature set version number is reset to C<00> if the major version number changes. The B<BB> part is the bug fix version number. It changes when we've fixed bugs within a release but haven't added any new features. The bug fix version number will be reset to C<00> if the feature set version number changes.
+
+In the C<empire> section, the C<full_status_update_required> element lets you know that the client data is out of date, and need to be fetched again with a call to C<get_full_status>.
 
 Throws 1002.
 
@@ -130,7 +133,8 @@ Fetches the empire's status hash that is returned with many methods, but perform
 
  {
     "server" : {
-        "time" : "01 31 2010 13:09:05 +0600"
+        "time" : "01 31 2010 13:09:05 +0600",
+        "version" : 2.0604
     },
     "empire" : {
         "id" : "xxxx",

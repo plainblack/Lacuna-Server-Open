@@ -6,4 +6,6 @@ use Lacuna::DB;
 
 useall __PACKAGE__;
 
+our $VERSION = 1.0000;
+
 1;

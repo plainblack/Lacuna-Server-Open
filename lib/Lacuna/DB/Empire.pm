@@ -123,7 +123,8 @@ sub get_status {
     my ($self) = @_;
     my $status = {
         server  => {
-            "time" => format_date(DateTime->now),
+            'time' => format_date(DateTime->now),
+            version => $Lacuna::VERSION,
         },
         empire  => {
             full_status_update_required => $self->needs_full_update,
@@ -147,7 +148,8 @@ sub get_full_status {
     }
     my $status = {
         server  => {
-            "time" => format_date(DateTime->now),
+            'time' => format_date(DateTime->now),
+            version => $Lacuna::VERSION,
         },
         empire  => {
             status_message      => $self->status_message,

@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 18;
+use Test::More tests => 19;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -83,6 +83,7 @@ is($result->{result}{profile}{status_message}, 'Whoopie!', 'public profile works
 
 $result = $tester->post('empire', 'find', [$session_id, 'Test']);
 is($result->{result}{empires}[0]{id}, $empire_id, 'empire search works');
+cmp_ok($result->{result}{status}{server}{version}, '>=', 1, 'version number');
 
 
 END {
