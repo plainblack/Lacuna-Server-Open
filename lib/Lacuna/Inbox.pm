@@ -157,6 +157,7 @@ sub view_messages {
             to              => $message->to_name,
             has_read        => $message->has_read,
             has_replied     => $message->has_replied,
+            body_preview    => substr($message->body,0,30),
         };
     }
     return {

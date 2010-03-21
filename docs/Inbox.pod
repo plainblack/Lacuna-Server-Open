@@ -17,6 +17,7 @@ Displays a list of the messages in the empire's inbox. Displays 25 messages per 
             "to" : "Jon Stewart",
             "has_read" : 1,
             "has_replied" : 0,
+            "body_preview" : "Just a reminder that Vaxaslim "
         }
     ],
     "status" : { get_status() }
