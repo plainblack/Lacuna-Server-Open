@@ -3,65 +3,37 @@ package Lacuna::DB::Building::Ore::Platform;
 use Moose;
 extends 'Lacuna::DB::Building::Ore';
 
-sub controller_class {
-    return 'Lacuna::Building::MiningPlatform';
-}
+use constant controller_class => 'Lacuna::Building::MiningPlatform';
 
 sub check_build_prereqs {
     confess [1013,"You can't directly build a Mining Platform. You need a mining platform ship."];
 }
 
-sub image {
-    return 'miningplatform';
-}
+use constant image => 'miningplatform';
 
-sub name {
-    return 'Mining Platform';
-}
+use constant name => 'Mining Platform';
 
-sub food_to_build {
-    return 500;
-}
+use constant food_to_build => 500;
 
-sub energy_to_build {
-    return 500;
-}
+use constant energy_to_build => 500;
 
-sub ore_to_build {
-    return 50;
-}
+use constant ore_to_build => 50;
 
-sub water_to_build {
-    return 500;
-}
+use constant water_to_build => 500;
 
-sub waste_to_build {
-    return 425;
-}
+use constant waste_to_build => 425;
 
-sub time_to_build {
-    return 5000;
-}
+use constant time_to_build => 5000;
 
-sub food_consumption {
-    return 10;
-}
+use constant food_consumption => 10;
 
-sub energy_consumption {
-    return 50;
-}
+use constant energy_consumption => 50;
 
-sub ore_production {
-    return 280;
-}
+use constant ore_production => 280;
 
-sub water_consumption {
-    return 50;
-}
+use constant water_consumption => 50;
 
-sub waste_production {
-    return 50;
-}
+use constant waste_production => 50;
 
 
 no Moose;

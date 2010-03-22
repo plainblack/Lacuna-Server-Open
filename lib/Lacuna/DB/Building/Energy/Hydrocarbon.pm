@@ -3,65 +3,35 @@ package Lacuna::DB::Building::Energy::Hydrocarbon;
 use Moose;
 extends 'Lacuna::DB::Building::Energy';
 
-sub controller_class {
-        return 'Lacuna::Building::Hydrocarbon';
-}
+use constant controller_class => 'Lacuna::Building::Hydrocarbon';
 
-sub image {
-    return 'hydrocarbon';
-}
+use constant image => 'hydrocarbon';
 
-sub name {
-    return 'Hydrocarbon Energy Plant';
-}
+use constant name => 'Hydrocarbon Energy Plant';
 
-sub food_to_build {
-    return 100;
-}
+use constant food_to_build => 100;
 
-sub energy_to_build {
-    return 10;
-}
+use constant energy_to_build => 10;
 
-sub ore_to_build {
-    return 100;
-}
+use constant ore_to_build => 100;
 
-sub water_to_build {
-    return 100;
-}
+use constant water_to_build => 100;
 
-sub waste_to_build {
-    return 20;
-}
+use constant waste_to_build => 20;
 
-sub time_to_build {
-    return 700;
-}
+use constant time_to_build => 700;
 
-sub food_consumption {
-    return 15;
-}
+use constant food_consumption => 15;
 
-sub energy_consumption {
-    return 120;
-}
+use constant energy_consumption => 120;
 
-sub energy_production {
-    return 490;
-}
+use constant energy_production => 490;
 
-sub ore_consumption {
-    return 90;
-}
+use constant ore_consumption => 90;
 
-sub water_consumption {
-    return 15;
-}
+use constant water_consumption => 15;
 
-sub waste_production {
-    return 230;
-}
+use constant waste_production => 230;
 
 
 

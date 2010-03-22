@@ -10,12 +10,11 @@ Retrieves a chunk of the map and returns it as an array of hashes. B<Note:> Coor
     "stars" : [
         {
             "name"          : "Sol",
-            "can_name"      : 1,
             "color"         : "yellow",
             "x"             : -41,
             "y"             : 27,
             "z"             : 14,
-            "alignment"     : "self-ally"
+            "alignments"     : "self-ally"
         }.
         {
             "name"          : "X143S",
@@ -77,21 +76,6 @@ The z axis. There's no secondary z coordinate because you can only pull from one
 
 
 
-=head2 get_stars_near_body ( session_id, body_id )
-
-Returns a list of 121 stars near a body, on the same z axis as the body. The list returned is the same as C<get_stars>
-
-Throws 1002 and anything C<get_stars> can throw.
-
-=head3 session_id
-
-A session id.
-
-=head3 body_id
-
-The unique id of a body.
-
-
 =head2 get_star_by_body ( session_id, body_id )
 
 Returns the details about a star.
@@ -104,7 +88,7 @@ Returns the details about a star.
         "y" : 4,
         "z" : 77,
         "color" : "yellow",
-        "can_rename" : 1
+        "alignments"     : "self-ally"
     },
     "status" : { get_status() }
  }
@@ -132,8 +116,7 @@ Returns an array of bodies and a hash about the star itself. The data structure 
         "color" : "yellow",
         "x" : -39
         "y" : 44,
-        "z" : 12,
-        "can_rename" : 1
+        "z" : 12
     },
     "bodies" : {
        "f9fe8bd3-bd09-4dc2-ba20-cf4e3b69e63a" : {
@@ -209,23 +192,7 @@ The unique id of a body.
 
 
 
-=head2 rename_star ( session_id, star_id, name )
 
-Renames a star, provided it hasn't already been named. Returns a 1 on success.
-
-Throws 1000, 1002, and 1010.
-
-=head3 session_id
-
-A session id.
-
-=head3 star_id
-
-The id of the star you wish to rename.
-
-=head3 name
-
-The new name of the star.
 
 =head1 FAQ
 

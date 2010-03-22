@@ -3,21 +3,13 @@ package Lacuna::DB::Body::Planet::GasGiant::G3;
 use Moose;
 extends 'Lacuna::DB::Body::Planet::GasGiant';
 
-sub image {
-    return 'pg3';
-}
+use constant image => 'pg3';
 
-sub halite {
-    return 7000;
-}
+use constant halite => 7000;
 
-sub gypsum {
-    return 2000;
-}
+use constant gypsum => 2000;
 
-sub sulfur {
-    return 1000;
-}
+use constant sulfur => 1000;
 
 
 no Moose;

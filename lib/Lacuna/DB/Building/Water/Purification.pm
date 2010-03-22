@@ -3,66 +3,38 @@ package Lacuna::DB::Building::Water::Purification;
 use Moose;
 extends 'Lacuna::DB::Building::Water';
 
-sub controller_class {
-    return 'Lacuna::Building::WaterPurification';
-}
+use constant controller_class => 'Lacuna::Building::WaterPurification';
 
-sub image {
-    return 'waterpurification';
-}
+use constant image => 'waterpurification';
 
-sub name {
-    return 'Water Purification Plant';
-}
+use constant name => 'Water Purification Plant';
 
-sub food_to_build {
-    return 100;
-}
+use constant food_to_build => 100;
 
-sub energy_to_build {
-    return 100;
-}
+use constant energy_to_build => 100;
 
-sub ore_to_build {
-    return 100;
-}
+use constant ore_to_build => 100;
 
-sub water_to_build {
-    return 100;
-}
+use constant water_to_build => 100;
 
-sub waste_to_build {
-    return 20;
-}
+use constant waste_to_build => 20;
 
-sub time_to_build {
-    return 850;
-}
+use constant time_to_build => 850;
 
-sub food_consumption {
-    return 5;
-}
+use constant food_consumption => 5;
 
-sub energy_consumption {
-    return 15;
-}
+use constant energy_consumption => 15;
 
-sub ore_consumption {
-    return 15;
-}
+use constant ore_consumption => 15;
 
-sub water_production {
-    return 100;
-}
+use constant water_production => 100;
 
 sub water_production_hour {
     my ($self) = @_;
     return sprintf('%.0f',$self->body->water * $self->water_production * $self->production_hour / 10000);
 }
 
-sub waste_production {
-    return 10;
-}
+use constant waste_production => 10;
 
 
 

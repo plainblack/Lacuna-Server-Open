@@ -21,22 +21,9 @@ sub get_body {
         confess [1002, 'Body does not exist.', $body_id];
     }
     my $empire = $self->get_empire_by_session($session_id);
-    my $body_status;
-    if ($body->isa('Lacuna::DB::Body::Planet')) {
-        if ($empire->id eq $body->empire_id) {
-            $body->empire($empire);
-            $body_status = $body->get_extended_status;
-        }
-        else {
-            $body_status = $body->get_status;
-        }
-    }
-    else {
-        $body_status = $body->get_status;
-    }
     return {
         status  => $empire->get_status,
-        body    => $body_status,
+        body    => $body->get_status($empire),
     }
 }
 
@@ -57,7 +44,8 @@ sub rename {
 sub get_buildings {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $empire->get_body($body_id);    
+    my $body = $empire->get_body($body_id);
+    $body->tick;
     my %out;
     foreach my $buildings ($body->buildings) {
         while (my $building = $buildings->next) {
@@ -73,6 +61,22 @@ sub get_buildings {
     }
     
     return {buildings=>\%out, status=>$empire->get_status};
+}
+
+sub get_build_queue {
+    my ($self, $session_id, $body_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $empire->get_body($body_id);
+    my $builds = $body->builds;
+    my %queue;
+    $body->tick;
+    while (my $build = $builds->next) {
+        my $status = $build->get_status;
+        if ($status) {
+            $queue{$build->building_id} = $status;
+        }
+    }
+    return { build_queue => \%queue, status => $empire->get_status };
 }
 
 sub get_buildable {
@@ -118,7 +122,7 @@ sub get_buildable {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(rename get_buildings get_buildable));
+__PACKAGE__->register_rpc_method_names(qw(rename get_build_queue get_buildings get_buildable));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

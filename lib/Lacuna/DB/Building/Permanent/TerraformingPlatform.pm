@@ -3,65 +3,37 @@ package Lacuna::DB::Building::Permanent::TerraformingPlatform;
 use Moose;
 extends 'Lacuna::DB::Building::Permanent';
 
-sub controller_class {
-        return 'Lacuna::Building::TerraformingPlatform';
-}
+use constant controller_class => 'Lacuna::Building::TerraformingPlatform';
 
 sub check_build_prereqs {
     confess [1013,"You can't directly build a Terraforming Platform. You need a terraforming platform ship."];
 }
 
-sub image {
-    return 'terraformingplatform';
-}
+use constant image => 'terraformingplatform';
 
-sub name {
-    return 'Terraforming Platform';
-}
+use constant name => 'Terraforming Platform';
 
-sub food_to_build {
-    return 1000;
-}
+use constant food_to_build => 1000;
 
-sub energy_to_build {
-    return 1000;
-}
+use constant energy_to_build => 1000;
 
-sub ore_to_build {
-    return 1000;
-}
+use constant ore_to_build => 1000;
 
-sub water_to_build {
-    return 1000;
-}
+use constant water_to_build => 1000;
 
-sub waste_to_build {
-    return 1000;
-}
+use constant waste_to_build => 1000;
 
-sub time_to_build {
-    return 6000;
-}
+use constant time_to_build => 6000;
 
-sub food_consumption {
-    return 45;
-}
+use constant food_consumption => 45;
 
-sub energy_consumption {
-    return 45;
-}
+use constant energy_consumption => 45;
 
-sub ore_consumption {
-    return 45;
-}
+use constant ore_consumption => 45;
 
-sub water_consumption {
-    return 45;
-}
+use constant water_consumption => 45;
 
-sub waste_production {
-    return 100;
-}
+use constant waste_production => 100;
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

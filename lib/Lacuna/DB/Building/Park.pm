@@ -52,8 +52,9 @@ sub throw_a_party {
     
     $self->party_ends(DateTime->now->add(days=>1));
     $self->party_in_progress(1);
-    $self->happiness_from_party(3_000 * $food_multiplier);
+    $self->happiness_from_party(3_000 * $food_multiplier * $self->happiness_production_bonus);
     $self->put;
+    $self->empire->trigger_full_update;
 }
 
 sub end_the_party {
@@ -61,6 +62,7 @@ sub end_the_party {
     $self->party_in_progress(0);
     $self->put;
     my $planet = $self->body;
+    $self->empire->trigger_full_update;
     $planet->add_happiness($self->happiness_from_party);
     $planet->put;
 }
@@ -74,69 +76,37 @@ sub check_party_over {
     }
 }
 
-sub controller_class {
-        return 'Lacuna::Building::Park';
-}
+use constant controller_class => 'Lacuna::Building::Park';
 
-sub building_prereq {
-    return {'Lacuna::DB::Building::PlanetaryCommand'=>5};
-}
+use constant building_prereq => {'Lacuna::DB::Building::PlanetaryCommand'=>5};
 
-sub image {
-    return 'park';
-}
+use constant image => 'park';
 
-sub name {
-    return 'Park';
-}
+use constant name => 'Park';
 
-sub food_to_build {
-    return 100;
-}
+use constant food_to_build => 100;
 
-sub energy_to_build {
-    return 100;
-}
+use constant energy_to_build => 100;
 
-sub ore_to_build {
-    return 100;
-}
+use constant ore_to_build => 100;
 
-sub water_to_build {
-    return 100;
-}
+use constant water_to_build => 100;
 
-sub waste_to_build {
-    return 100;
-}
+use constant waste_to_build => 100;
 
-sub time_to_build {
-    return 500;
-}
+use constant time_to_build => 500;
 
-sub food_consumption {
-    return 10;
-}
+use constant food_consumption => 10;
 
-sub energy_consumption {
-    return 10;
-}
+use constant energy_consumption => 10;
 
-sub ore_consumption {
-    return 20;
-}
+use constant ore_consumption => 20;
 
-sub water_consumption {
-    return 60;
-}
+use constant water_consumption => 60;
 
-sub waste_production {
-    return 75;
-}
+use constant waste_production => 75;
 
-sub happiness_production {
-    return 75;
-}
+use constant happiness_production => 75;
 
 
 

@@ -3,63 +3,35 @@ package Lacuna::DB::Body::Planet::P10;
 use Moose;
 extends 'Lacuna::DB::Body::Planet';
 
-sub image {
-    return 'p10';
-}
+use constant image => 'p10';
 
-sub water {
-    return 1800;
-}
+use constant water => 1800;
 
 # resource concentrations
 
-sub goethite {
-    return 1000;
-}
+use constant goethite => 1000;
 
-sub gypsum {
-    return 500;
-}
+use constant gypsum => 500;
 
-sub trona {
-    return 500;
-}
+use constant trona => 500;
 
-sub kerogen {
-    return 500;
-}
+use constant kerogen => 500;
 
-sub methane {
-    return 500;
-}
+use constant methane => 500;
 
-sub anthracite {
-    return 500;
-}
+use constant anthracite => 500;
 
-sub sulfur {
-    return 500;
-}
+use constant sulfur => 500;
 
-sub zircon {
-    return 250;
-}
+use constant zircon => 250;
 
-sub monazite {
-    return 250;
-}
+use constant monazite => 250;
 
-sub fluorite {
-    return 250;
-}
+use constant fluorite => 250;
 
-sub beryl {
-    return 250;
-}
+use constant beryl => 250;
 
-sub magnetite {
-    return 5000;
-}
+use constant magnetite => 5000;
 
 
 no Moose;

@@ -2,7 +2,6 @@ package Lacuna::Building;
 
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
-use Lacuna::Util qw(format_date);
 
 has simpledb => (
     is      => 'ro',
@@ -49,7 +48,16 @@ sub upgrade {
 
     $building->start_upgrade($cost);
 
-    return $self->view($empire, $building);
+    $empire->trigger_full_update;
+    
+    return {
+        status      => $empire->get_status,
+        building    => {
+            id              => $building->id,
+            level           => $building->level,
+            pending_build   => $building->build_queue->get_status,
+        },
+    };
 }
 
 sub view {
@@ -58,11 +66,8 @@ sub view {
     my $building = $empire->get_building($self->model_domain, $building_id);
 
     my $cost = $building->cost_to_upgrade;
-    my $queue = $building->build_queue if ($building->build_queue_id);
-    my $time_left;
-    if (defined $queue) {
-        $time_left = $queue->is_complete($building);
-    }
+    my $can_upgrade = eval{$building->can_upgrade($cost)};
+    my $reason = $@;
     my %out = ( 
         building    => {
             id                  => $building->id,
@@ -78,17 +83,17 @@ sub view {
             energy_hour         => $building->energy_hour,
             happiness_hour      => $building->happiness_hour,
             upgrade             => {
-                can             => (eval{$building->can_upgrade($cost)} ? 1 : 0),
+                can             => ($can_upgrade ? 1 : 0),
+                reason          => $reason,
                 cost            => $cost,
                 production      => $building->stats_after_upgrade,
             },
         },
-        status      => $empire->get_full_status,
+        status      => $empire->get_status,
     );
-    if ($time_left) {
-        $out{building}{pending_build}{seconds_remaining} = $time_left;
-        $out{building}{pending_build}{start} = format_date($queue->date_created);
-        $out{building}{pending_build}{end} = format_date($queue->date_complete);
+    my $queue = $building->build_queue if ($building->build_queue_id);
+    if (defined $queue) {
+        $out{building}{pending_build} = $queue->get_status;
     }
     return \%out;
 }
@@ -125,9 +130,16 @@ sub build {
 
     # build it
     $body->build_building($building);
-
+    
     # show the user
-    return $self->view($empire, $building);
+    return {
+        status      => $empire->get_status,
+        building    => {
+            id              => $building->id,
+            level           => $building->level,
+            pending_build   => $building->build_queue->get_status,
+        },
+    };
 }
 
 

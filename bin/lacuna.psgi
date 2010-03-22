@@ -24,6 +24,11 @@ my @lines = <$file>;
 close $file;
 $urlmap->map("/" => sub { return [200, ['Content-Type' => 'text/html'], [join("\n",@lines)]]});
 
+open my $file, "<", "../var/local.html";
+my @lines = <$file>;
+close $file;
+$urlmap->map("/local" => sub { return [200, ['Content-Type' => 'text/html'], [join("\n",@lines)]]});
+
 open my $file, "<", "../var/crossdomain.xml";
 my @lines = <$file>;
 close $file;
@@ -36,6 +41,7 @@ $urlmap->map("/body" => Lacuna::Body->new(simpledb=>$db)->to_app);
 $urlmap->map("/empire" => Lacuna::Empire->new(simpledb=>$db)->to_app);
 $urlmap->map("/inbox" => Lacuna::Inbox->new(simpledb=>$db)->to_app);
 $urlmap->map("/species" => Lacuna::Species->new(simpledb=>$db)->to_app);
+$urlmap->map("/stats" => Lacuna::Stats->new(simpledb=>$db)->to_app);
 
 # buildings
 $urlmap->map(Lacuna::Building::Algae->new(simpledb=>$db)->to_app_with_url);

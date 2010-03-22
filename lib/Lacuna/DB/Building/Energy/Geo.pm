@@ -3,65 +3,35 @@ package Lacuna::DB::Building::Energy::Geo;
 use Moose;
 extends 'Lacuna::DB::Building::Energy';
 
-sub controller_class {
-        return 'Lacuna::Building::Geo';
-}
+use constant controller_class => 'Lacuna::Building::Geo';
 
-sub image {
-    return 'geo';
-}
+use constant image => 'geo';
 
-sub name {
-    return 'Geo Energy Plant';
-}
+use constant name => 'Geo Energy Plant';
 
-sub food_to_build {
-    return 100;
-}
+use constant food_to_build => 100;
 
-sub energy_to_build {
-    return 10;
-}
+use constant energy_to_build => 10;
 
-sub ore_to_build {
-    return 100;
-}
+use constant ore_to_build => 100;
 
-sub water_to_build {
-    return 100;
-}
+use constant water_to_build => 100;
 
-sub waste_to_build {
-    return 20;
-}
+use constant waste_to_build => 20;
 
-sub time_to_build {
-    return 1300;
-}
+use constant time_to_build => 1300;
 
-sub food_consumption {
-    return 2;
-}
+use constant food_consumption => 2;
 
-sub energy_consumption {
-    return 40;
-}
+use constant energy_consumption => 40;
 
-sub energy_production {
-    return 141;
-}
+use constant energy_production => 141;
 
-sub ore_consumption {
-    return 12;
-}
+use constant ore_consumption => 12;
 
-sub water_consumption {
-    return 7;
-}
+use constant water_consumption => 7;
 
-sub waste_production {
-    return 4;
-}
+use constant waste_production => 4;
 
 
 

@@ -2,6 +2,106 @@
 
 Shipyard is accessible via the URL C</shipyard>.
 
+The shipyard is where you build ships. However, you'll need other building types to enable the different kinds of ships that are available. The higher the level of the shipyard, faster your ships will be built.
+
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+
+=head2 view ( session_id, building_id )
+
+Extends the view hash to include a C<ship_build_queue> section.
+
+ {
+    "building" : { ... },
+    "status" : { ... },
+    "ship_build_queue" : {
+        "next_completed" : "01 31 2010 13:09:05 +0600",
+        "queue" : [
+            {
+               "type" : "probe",
+               "seconds_each" : 120,
+               "quantity" : 12
+            },
+            ...
+        ]
+    }
+ }
+ 
+ 
+=head2 get_buildable ( session_id, building_id )
+
+Returns a list of buildable ships and their costs, and if they're not buildable, gives a reason why not in the form of an exception.
+
+ {
+    "buildable" : {
+        "probe" : {
+            "can" : 1,             # can it be built or not
+            "reason" : null,       # if it can't an array ref will be here with the exception for why not
+            "cost" : {
+                "seconds" : 900,
+                "food" : 1100,
+                "water" : 1000,
+                "energy" : 1200,
+                "ore" : 1200,
+                "waste" : 100,
+            },
+            attributes : {
+                "speed" : 1000,    # 100 roughly equals 1 star in 1 hour
+            }
+        },
+        ...
+    },
+    "docks_available" : 7,         # you can only build ships up to the number of docks you have available
+    "status" : { get_status() },
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the shipyard.
+
+
+ 
+ 
+=head2 build_ship ( session_id, building_id, type, [ quantity ] )
+
+Adds a ship to the build queue. Returns
+
+ {
+    "ship_build_queue" : {
+        "next_completed" : "01 31 2010 13:09:05 +0600",
+        "queue" : [
+            {
+               "type" : "probe",
+               "seconds_each" : 120,
+               "quantity" : 12
+            },
+            ...
+        ]
+    },
+    "status" : { get_status() }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the shipyard.
+
+=head3 type
+
+A ship type. Choose from: 'probe','colony_ship','spy_pod','cargo_ship','space_station','smuggler_ship','mining_platform_ship','terraforming_platform_ship', or 'gas_giant_settlement_ship'
+
+=head3 quantity
+
+An integer representing how many ships of that type you want to build. Defaults to 1.
+
+=cut
+
 
 =cut

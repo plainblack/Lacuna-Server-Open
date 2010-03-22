@@ -5,7 +5,7 @@ These methods are accessible via the C</inbox> URL.
 
 =head2 view_inbox ( session_id, [ page_number ] )
 
-Displays a list of the messages in the empire's inbox.
+Displays a list of the messages in the empire's inbox. Displays 25 messages per page, sorted newest to oldest.
 
  {
     "messages" : [
@@ -14,8 +14,10 @@ Displays a list of the messages in the empire's inbox.
             "subject" : "Vaxaslim",
             "date" : "01 31 2010 13:09:05 +0600",
             "from" : "Dr. Stephen T. Colbert DFA",
+            "to" : "Jon Stewart",
             "has_read" : 1,
             "has_replied" : 0,
+            "body_preview" : "Just a reminder that Vaxaslim "
         }
     ],
     "status" : { get_status() }
@@ -81,11 +83,12 @@ A message_id that was returned using C<view_inbox> or one of the other view_ met
 Archives a list of messages. Returns:
 
  {
-    "success" : 1,
+    "success" : ["id-goes-here","id-goes-here"],
+    "failure" : ["id-goes-here","id-goes-here"],
     "status" : { get_status() }
  }
 
-B<NOTE:> You cannot archive sent messages.
+B<NOTE:> You cannot archive sent messages. You'll get a failure if the message is either already archived, or it's a message that cannot be archived, like a message in your sent folder.
 
 =head3 session_id
 

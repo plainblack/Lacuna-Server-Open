@@ -15,15 +15,13 @@ This method is extended to include details about what's in your build queue.
     "status" : { ... },
     "build_queue" : [
         {
-            "build_queue_id" : "build-queue-id-goes-here",
             "building_id" : "building-id-goes-here",
             "name" : "Planetary Commmand",
             "to_level" : 9,
             "seconds_remaining" : 537,
         },
         {
-            "build_queue_id" : "build-queue-id-goes-here",
-            "id" : "building-id-goes-here",
+            "building_id" : "building-id-goes-here",
             "name" : "Wheat Farm",
             "to_level" : 15,
             "seconds_remaining" : 9748,
@@ -33,9 +31,25 @@ This method is extended to include details about what's in your build queue.
  
 =head2 subsidize_build_queue ( session_id, building_id, amount )
 
-Allows a player to speed up the build process, by spending essentia.
+Allows a player to speed up the build process, by spending essentia. Returns:
 
-Returns C<view> method.
+ {
+    "status" : { get_status() },
+    "build_queue" : [
+        {
+            "building_id" : "building-id-goes-here",
+            "name" : "Planetary Commmand",
+            "to_level" : 9,
+            "seconds_remaining" : 537,
+        },
+        {
+            "building_id" : "building-id-goes-here",
+            "name" : "Wheat Farm",
+            "to_level" : 15,
+            "seconds_remaining" : 9748,
+        }
+    ]
+ }
 
 =head3 session_id
 

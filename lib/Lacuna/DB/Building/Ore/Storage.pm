@@ -3,45 +3,25 @@ package Lacuna::DB::Building::Ore::Storage;
 use Moose;
 extends 'Lacuna::DB::Building::Ore';
 
-sub controller_class {
-        return 'Lacuna::Building::OreStorage';
-}
+use constant controller_class => 'Lacuna::Building::OreStorage';
 
-sub image {
-    return 'orestorage';
-}
+use constant image => 'orestorage';
 
-sub name {
-    return 'Ore Storage Tanks';
-}
+use constant name => 'Ore Storage Tanks';
 
-sub food_to_build {
-    return 10;
-}
+use constant food_to_build => 10;
 
-sub energy_to_build {
-    return 10;
-}
+use constant energy_to_build => 10;
 
-sub ore_to_build {
-    return 10;
-}
+use constant ore_to_build => 10;
 
-sub water_to_build {
-    return 10;
-}
+use constant water_to_build => 10;
 
-sub waste_to_build {
-    return 25;
-}
+use constant waste_to_build => 25;
 
-sub time_to_build {
-    return 300;
-}
+use constant time_to_build => 300;
 
-sub ore_storage {
-    return 1500;
-}
+use constant ore_storage => 1500;
 
 
 no Moose;

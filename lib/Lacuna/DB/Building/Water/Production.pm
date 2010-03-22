@@ -3,65 +3,35 @@ package Lacuna::DB::Building::Water::Production;
 use Moose;
 extends 'Lacuna::DB::Building::Water';
 
-sub controller_class {
-    return 'Lacuna::Building::WaterProduction';
-}
+use constant controller_class => 'Lacuna::Building::WaterProduction';
 
-sub university_prereq {
-    return 1;
-}
+use constant university_prereq => 1;
 
-sub image {
-    return 'waterproduction';
-}
+use constant image => 'waterproduction';
 
-sub name {
-    return 'Water Production Plant';
-}
+use constant name => 'Water Production Plant';
 
-sub food_to_build {
-    return 100;
-}
+use constant food_to_build => 100;
 
-sub energy_to_build {
-    return 100;
-}
+use constant energy_to_build => 100;
 
-sub ore_to_build {
-    return 100;
-}
+use constant ore_to_build => 100;
 
-sub water_to_build {
-    return 100;
-}
+use constant water_to_build => 100;
 
-sub waste_to_build {
-    return 20;
-}
+use constant waste_to_build => 20;
 
-sub time_to_build {
-    return 950;
-}
+use constant time_to_build => 1150;
 
-sub food_consumption {
-    return 10;
-}
+use constant food_consumption => 10;
 
-sub energy_consumption {
-    return 100;
-}
+use constant energy_consumption => 100;
 
-sub ore_consumption {
-    return 100;
-}
+use constant ore_consumption => 100;
 
-sub water_production {
-    return 170;
-}
+use constant water_production => 170;
 
-sub waste_production {
-    return 20;
-}
+use constant waste_production => 20;
 
 
 

@@ -5,77 +5,63 @@ extends 'Lacuna::DB::Building';
 
 sub subsidize_build_queue {
     my ($self, $amount) = @_;
-    $self->empire->spend_essentia($amount);
     my $builds = $self->simpledb->domain('build_queue')->search(where=>{body_id=>$self->body_id});
     while (my $build = $builds->next) {
         $build->date_complete->subtract(seconds=>($amount * 600));
         $build->put;
     }
+    my $empire = $self->empire;
+    $empire->spend_essentia($amount);
+    $empire->trigger_full_update;
 }
 
-sub controller_class {
-    return 'Lacuna::Building::Development';
+sub format_build_queue {
+    my ($self) = @_;
+    my @queue;
+    my $builds = $self->body->builds;
+    while (my $build = $builds->next) {
+        my $target = $build->building;
+        push @queue, {
+            building_id         => $target->id,
+            name                => $target->name,
+            to_level            => ($target->level + 1),
+            seconds_remaining   => $build->seconds_remaining,
+        };
+    }
+    return \@queue;
 }
 
-sub max_instances_per_planet {
-    return 1;
-}
+use constant controller_class => 'Lacuna::Building::Development';
 
-sub building_prereq {
-    return {'Lacuna::DB::Building::PlanetaryCommand'=>5};
-}
+use constant max_instances_per_planet => 1;
 
-sub image {
-    return 'devel';
-}
+use constant building_prereq => {'Lacuna::DB::Building::PlanetaryCommand'=>5};
 
-sub name {
-    return 'Development Ministry';
-}
+use constant image => 'devel';
 
-sub food_to_build {
-    return 70;
-}
+use constant name => 'Development Ministry';
 
-sub energy_to_build {
-    return 70;
-}
+use constant food_to_build => 70;
 
-sub ore_to_build {
-    return 70;
-}
+use constant energy_to_build => 70;
 
-sub water_to_build {
-    return 70;
-}
+use constant ore_to_build => 70;
 
-sub waste_to_build {
-    return 70;
-}
+use constant water_to_build => 70;
 
-sub time_to_build {
-    return 600;
-}
+use constant waste_to_build => 70;
 
-sub food_consumption {
-    return 25;
-}
+use constant time_to_build => 600;
 
-sub energy_consumption {
-    return 50;
-}
+use constant food_consumption => 25;
 
-sub ore_consumption {
-    return 10;
-}
+use constant energy_consumption => 50;
 
-sub water_consumption {
-    return 25;
-}
+use constant ore_consumption => 10;
 
-sub waste_production {
-    return 5;
-}
+use constant water_consumption => 25;
+
+use constant waste_production => 5;
 
 
 no Moose;

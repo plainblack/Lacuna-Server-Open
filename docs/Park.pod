@@ -26,7 +26,13 @@ If there's an ongoing party you'll be able to see how long it has left. And if t
 
 Initiates a party. It will cost you 10,000 food, and the party will last for a day. For 10,000 food you'll get 3,000 happiness. For each type of food available in quantities of 500 or more, you'll get a multiplier added to that. So if you have 4 types of food, you'll get 12,000 happiness.
 
-Returns the C<view> method.
+Returns
+
+ {
+    "seconds_remaining" : 3933,
+    "status" : { get_status() },
+ }
+
 
 Throws 1002, 1006, 1010, and 1011.
 

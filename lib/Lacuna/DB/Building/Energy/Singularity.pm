@@ -3,69 +3,37 @@ package Lacuna::DB::Building::Energy::Singularity;
 use Moose;
 extends 'Lacuna::DB::Building::Energy';
 
-sub controller_class {
-        return 'Lacuna::Building::Singularity';
-}
+use constant controller_class => 'Lacuna::Building::Singularity';
 
-sub image {
-    return 'singularity';
-}
+use constant image => 'singularity';
 
-sub university_prereq {
-    return 17;
-}
+use constant university_prereq => 17;
 
-sub name {
-    return 'Singularity Energy Plant';
-}
+use constant name => 'Singularity Energy Plant';
 
-sub food_to_build {
-    return 1100;
-}
+use constant food_to_build => 1100;
 
-sub energy_to_build {
-    return 1205;
-}
+use constant energy_to_build => 1205;
 
-sub ore_to_build {
-    return 2350;
-}
+use constant ore_to_build => 2350;
 
-sub water_to_build {
-    return 1190;
-}
+use constant water_to_build => 1190;
 
-sub waste_to_build {
-    return 1475;
-}
+use constant waste_to_build => 1475;
 
-sub time_to_build {
-    return 13000;
-}
+use constant time_to_build => 13000;
 
-sub food_consumption {
-    return 27;
-}
+use constant food_consumption => 27;
 
-sub energy_consumption {
-    return 350;
-}
+use constant energy_consumption => 350;
 
-sub energy_production {
-    return 799;
-}
+use constant energy_production => 799;
 
-sub ore_consumption {
-    return 23;
-}
+use constant ore_consumption => 23;
 
-sub water_consumption {
-    return 25;
-}
+use constant water_consumption => 25;
 
-sub waste_production {
-    return 1;
-}
+use constant waste_production => 1;
 
 
 

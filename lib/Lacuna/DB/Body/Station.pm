@@ -3,9 +3,7 @@ package Lacuna::DB::Body::Station;
 use Moose;
 extends 'Lacuna::DB::Body';
 
-sub image {
-    return 'station';
-}
+use constant image => 'station';
 
 
 no Moose;

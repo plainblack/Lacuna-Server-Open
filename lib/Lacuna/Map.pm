@@ -13,51 +13,6 @@ has simpledb => (
 
 with 'Lacuna::Role::Sessionable';
 
-sub rename_star {
-    my ($self, $session_id, $star_id, $name) = @_;
-    Lacuna::Verify->new(content=>\$name, throws=>[1000,'Name not available.',$name])
-        ->length_gt(2)
-        ->length_lt(31)
-        ->no_restricted_chars
-        ->no_profanity
-        ->not_ok($self->simpledb->domain('star')->count(where=>{name_cname=>Lacuna::Util::cname($name), 'itemName()'=>['!=',$star_id]})); # name available
-    my $empire = $self->get_empire_by_session($session_id);
-    my $star = $self->simpledb->domain('star')->find($star_id);
-    if (defined $star) {
-        if ($star->is_named) {
-            confess [1010, "Can't rename a star that's already named."];
-        }
-        else {
-            my $bodies = $star->planets->count(where=>{empire_id=>$empire->id});
-            if ($bodies) {
-                $star->update({
-                    name        => $name,
-                    is_named    => 1,
-                })->put;
-                return 1;
-            }
-            else {
-                confess [1010, "Can't renamed a star that you don't inhabit."];
-            }
-        }
-    }
-    else {
-        confess [1002, 'Star does not exist.', $star_id];
-    }
-}
-
-sub get_stars_near_body {
-    my ($self, $session_id, $body_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $body = $self->simpledb->domain('body')->find($body_id);
-    if (defined $body) {
-        my $star = $body->star;
-        return $self->get_stars($empire, $star->x - 5, $star->y - 5, $star->x + 5, $star->y + 5, $star->z); 
-    }
-    else {
-        confess [1002, 'Planet does not exist.'];
-    }
-}
 
 sub get_star_by_body {
     my ($self, $session_id, $body_id) = @_;
@@ -103,61 +58,38 @@ sub get_star_system {
     # get the star in question
     my $star = $self->load_star($star_id);
 
+    # exceptions
+    unless (defined $star) {
+        confess [1002, 'Star does not exist.', $star_id];
+    }
+    unless ($star->id ~~ $empire->probed_stars) {
+        confess [1010, 'Must have probed the star system to view it.'];
+    }
+
     # get to work
-    if (defined $star) {
-        my $bodies = $star->bodies;
-        my $member = 0;
-        my %out;
-        while (my $body = $bodies->next) {
-            my $owner = {};
-            if ($body->isa('Lacuna::DB::Body::Planet') && $body->empire_id ne 'None') {
-                my $owner_empire = $body->empire;
-                if (defined $owner_empire) {
-                    if ($body->empire_id eq $empire->id) {
-                        $member = 1;
-                    }
-                    $owner = {
-                        id      => $body->empire_id,
-                        name    => $owner_empire->name,
-                    };
-                }
-                else {
-                    warn "Deleted vestigial relationship between empire ".$body->empire_id." and body ".$body->id;
-                    $body->empire_id('None');
-                    $body->put;
-                }
+    my $bodies = $star->bodies;
+    my %out;
+    while (my $body = $bodies->next) {
+        $out{$body->id} = $body->get_status($empire);
+        if ($body->isa('Lacuna::DB::Body::Planet') && $body->empire_id ne 'None') {
+            my $owner_empire = $body->empire;
+            if (defined $owner_empire) {
+                $out{$body->id}{empire} = {
+                    id      => $body->empire_id,
+                    name    => $owner_empire->name,
+                };
             }
-            if ($body->isa('Lacuna::DB::Body::Planet')) {
-                if ($empire->id eq $body->empire_id) {
-                    $out{$body->id} = $body->get_extended_status;
-                }
-                else {
-                    $out{$body->id} = $body->get_status;
-                }
+            else {
+                warn "Deleted vestigial relationship between empire ".$body->empire_id." and body ".$body->id;
+                $body->empire_id('None');
+                $body->put;
             }
-            $out{$body->id}{empire} = $owner;
-        }
-        if ($member || $star->id ~~ $empire->probed_stars) {
-            return {
-                star    => {
-                    color       => $star->color,
-                    name        => $star->name,
-                    id          => $star->id,
-                    can_rename  => (($star->is_named) ? 0 : 1),
-                    x           => $star->x,
-                    y           => $star->y,
-                    z           => $star->z,
-                },
-                bodies  => \%out,
-                status  => $empire->get_status,
-            }
-        }
-        else {
-            confess [1010, 'Must have probed the star system to view it.'];
         }
     }
-    else {
-        confess [1002, 'Star does not exist.', $star_id];
+    return {
+        star    => $star->get_status,
+        bodies  => \%out,
+        status  => $empire->get_status,
     }
 }
 
@@ -187,28 +119,7 @@ sub get_stars {
         my $stars = $self->simpledb->domain('star')->search(where => {z=>$z, y=>['between', $starty, $endy], x=>['between', $startx, $endx]});
         my @out;
         while (my $star = $stars->next) {
-            my $alignment = 'unprobed';
-            if ($star->id ~~ $empire->probed_stars) {
-                $alignment = 'probed';
-                my $bodies = $star->bodies;
-                while (my $body = $bodies->next) {
-                    if ($body->isa('Lacuna::DB::Body::Planet')) {
-                        if ($body->empire_id eq $empire->id) {
-                            $alignment = 'self';
-                        }
-                    }
-                }
-            }
-            push @out, {
-                id          => $star->id,
-                name        => $star->name,
-                x           => $star->x,
-                y           => $star->y,
-                z           => $star->z,
-                color       => $star->color,
-                alignments  => $alignment,
-                can_rename  => ( !$star->is_named && $alignment =~ m/self/ ) ? 1 : 0,
-            };
+            push @out, $star->get_status($empire);
         }
         return { stars=>\@out, status=>$empire->get_status };
     }
@@ -216,7 +127,7 @@ sub get_stars {
 
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_stars rename_star get_stars_near_body get_star_by_body get_star_system get_star_system_by_body));
+__PACKAGE__->register_rpc_method_names(qw(get_stars get_star_by_body get_star_system get_star_system_by_body));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -3,65 +3,37 @@ package Lacuna::DB::Building::Permanent::GasGiantPlatform;
 use Moose;
 extends 'Lacuna::DB::Building::Permanent';
 
-sub controller_class {
-        return 'Lacuna::Building::GasGiantPlatform';
-}
+use constant controller_class => 'Lacuna::Building::GasGiantPlatform';
 
-sub image {
-    return 'gas-giant-platform';
-}
+use constant image => 'gas-giant-platform';
 
 sub check_build_prereqs {
     confess [1013,"You can't directly build a Gas Giant Platform. You need a gas giant platform ship."];
 }
 
-sub name {
-    return 'Gas Giant Settlement Platform';
-}
+use constant name => 'Gas Giant Settlement Platform';
 
-sub food_to_build {
-    return 1000;
-}
+use constant food_to_build => 1000;
 
-sub energy_to_build {
-    return 1000;
-}
+use constant energy_to_build => 1000;
 
-sub ore_to_build {
-    return 1000;
-}
+use constant ore_to_build => 1000;
 
-sub water_to_build {
-    return 1000;
-}
+use constant water_to_build => 1000;
 
-sub waste_to_build {
-    return 1000;
-}
+use constant waste_to_build => 1000;
 
-sub time_to_build {
-    return 6000;
-}
+use constant time_to_build => 6000;
 
-sub food_consumption {
-    return 45;
-}
+use constant food_consumption => 45;
 
-sub energy_consumption {
-    return 45;
-}
+use constant energy_consumption => 45;
 
-sub ore_consumption {
-    return 45;
-}
+use constant ore_consumption => 45;
 
-sub water_consumption {
-    return 45;
-}
+use constant water_consumption => 45;
 
-sub waste_production {
-    return 100;
-}
+use constant waste_production => 100;
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

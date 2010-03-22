@@ -90,13 +90,13 @@ __PACKAGE__->add_attributes(
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
-__PACKAGE__->has_many('regular_buildings','Lacuna::DB::Building','body_id', 'body');
-__PACKAGE__->has_many('food_buildings','Lacuna::DB::Building::Food','body_id', 'body');
-__PACKAGE__->has_many('water_buildings','Lacuna::DB::Building::Water','body_id', 'body');
-__PACKAGE__->has_many('waste_buildings','Lacuna::DB::Building::Waste','body_id', 'body');
-__PACKAGE__->has_many('ore_buildings','Lacuna::DB::Building::Ore','body_id', 'body');
-__PACKAGE__->has_many('energy_buildings','Lacuna::DB::Building::Energy','body_id', 'body');
-__PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','body_id', 'body');
+__PACKAGE__->has_many('regular_buildings','Lacuna::DB::Building','body_id', mate => 'body');
+__PACKAGE__->has_many('food_buildings','Lacuna::DB::Building::Food','body_id', mate => 'body');
+__PACKAGE__->has_many('water_buildings','Lacuna::DB::Building::Water','body_id', mate => 'body');
+__PACKAGE__->has_many('waste_buildings','Lacuna::DB::Building::Waste','body_id', mate => 'body');
+__PACKAGE__->has_many('ore_buildings','Lacuna::DB::Building::Ore','body_id', mate => 'body');
+__PACKAGE__->has_many('energy_buildings','Lacuna::DB::Building::Energy','body_id', mate => 'body');
+__PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','body_id', mate => 'body');
 
 sub builds { 
     my ($self, $where, $reverse) = @_;
@@ -105,8 +105,33 @@ sub builds {
         $order = [$order];
     }
     $where->{body_id} = $self->id;
-    $where->{date_complete} = ['>',0] unless exists $where->{date_complete};
-    return $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(where=>$where, order_by=>$order);
+    $where->{date_complete} = ['>',DateTime->now->subtract(years=>100)] unless exists $where->{date_complete};
+    return $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(
+        where       => $where,
+        order_by    => $order,
+        consistent  => 1,
+        set         => {
+            body  => $self,
+        },
+    );
+}
+
+sub ships_travelling { 
+    my ($self, $where, $reverse) = @_;
+    my $order = 'date_arrives';
+    if ($reverse) {
+        $order = [$order];
+    }
+    $where->{body_id} = $self->id;
+    $where->{date_arrives} = ['>',DateTime->now->subtract(years=>100)] unless exists $where->{date_arrives};
+    return $self->simpledb->domain('Lacuna::DB::TravelQueue')->search(
+        where       => $where,
+        order_by    => $order,
+        consistent  => 1,
+        set         => {
+            body    => $self,
+        },
+    );
 }
 
 sub sanitize {
@@ -128,6 +153,8 @@ sub sanitize {
         cider_stored wheat_stored bread_stored soup_stored chip_stored pie_stored pancake_stored milk_stored meal_stored
         algae_stored syrup_stored fungus_stored burger_stored shake_stored beetle_stored 
     );
+    $self->ships_travelling->delete;
+    $self->simpledb->domain('travel_queue')->search(where=>{foreign_body_id => $self->id})->delete;
     foreach my $attribute (@attributes) {
         $self->$attribute(0);
     }
@@ -139,7 +166,7 @@ sub sanitize {
 }
 
 around 'get_status' => sub {
-    my ($orig, $self) = @_;
+    my ($orig, $self, $empire) = @_;
     my $out = $orig->($self);
     my %ore;
     foreach my $type (ORE_TYPES) {
@@ -148,118 +175,72 @@ around 'get_status' => sub {
     $out->{size}            = $self->size;
     $out->{ore}             = \%ore;
     $out->{water}           = $self->water;
+    if (defined $empire && $empire->id eq $self->empire_id) {
+        $self->tick;
+        $out->{building_count}  = $self->building_count;
+        $out->{water_capacity}  = $self->water_capacity;
+        $out->{water_stored}    = $self->water_stored;
+        $out->{water_hour}      = $self->water_hour;
+        $out->{energy_capacity} = $self->energy_capacity;
+        $out->{energy_stored}   = $self->energy_stored;
+        $out->{energy_hour}     = $self->energy_hour;
+        $out->{food_capacity}   = $self->food_capacity;
+        $out->{food_stored}     = $self->food_stored;
+        $out->{food_hour}       = $self->food_hour;
+        $out->{ore_capacity}    = $self->ore_capacity;
+        $out->{ore_stored}      = $self->ore_stored;
+        $out->{ore_hour}        = $self->ore_hour;
+        $out->{waste_capacity}  = $self->waste_capacity;
+        $out->{waste_stored}    = $self->waste_stored;
+        $out->{waste_hour}      = $self->waste_hour;
+        $out->{happiness}       = $self->happiness;
+        $out->{happiness_hour}  = $self->happiness_hour;
+    }
     return $out;
 };
 
-sub get_extended_status {
-    my ($self) = @_;
-    my $out = $self->get_status;
-    $self->tick;
-    $out->{building_count}  = $self->building_count;
-    $out->{water_capacity}  = $self->water_capacity;
-    $out->{water_stored}    = $self->water_stored;
-    $out->{water_hour}      = $self->water_hour;
-    $out->{energy_capacity} = $self->energy_capacity;
-    $out->{energy_stored}   = $self->energy_stored;
-    $out->{energy_hour}     = $self->energy_hour;
-    $out->{food_capacity}   = $self->food_capacity;
-    $out->{food_stored}     = $self->food_stored;
-    $out->{food_hour}       = $self->food_hour;
-    $out->{ore_capacity}    = $self->ore_capacity;
-    $out->{ore_stored}      = $self->ore_stored;
-    $out->{ore_hour}        = $self->ore_hour;
-    $out->{waste_capacity}  = $self->waste_capacity;
-    $out->{waste_stored}    = $self->waste_stored;
-    $out->{waste_hour}      = $self->waste_hour;
-    $out->{happiness}       = $self->happiness;
-    $out->{happiness_hour}  = $self->happiness_hour;
-    return $out;
-}
-
 # resource concentrations
-sub rutile {
-    return 1;
-}
+use constant rutile => 1;
 
-sub chromite {
-    return 1;
-}
+use constant chromite => 1;
 
-sub chalcopyrite {
-    return 1;
-}
+use constant chalcopyrite => 1;
 
-sub galena {
-    return 1;
-}
+use constant galena => 1;
 
-sub gold {
-    return 1;
-}
+use constant gold => 1;
 
-sub uraninite {
-    return 1;
-}
+use constant uraninite => 1;
 
-sub bauxite {
-    return 1;
-}
+use constant bauxite => 1;
 
-sub goethite {
-    return 1;
-}
+use constant goethite => 1;
 
-sub halite {
-    return 1;
-}
+use constant halite => 1;
 
-sub gypsum {
-    return 1;
-}
+use constant gypsum => 1;
 
-sub trona {
-    return 1;
-}
+use constant trona => 1;
 
-sub kerogen {
-    return 1;
-}
+use constant kerogen => 1;
 
-sub methane {
-    return 1;
-}
+use constant methane => 1;
 
-sub anthracite {
-    return 1;
-}
+use constant anthracite => 1;
 
-sub sulfur {
-    return 1;
-}
+use constant sulfur => 1;
 
-sub zircon {
-    return 1;
-}
+use constant zircon => 1;
 
-sub monazite {
-    return 1;
-}
+use constant monazite => 1;
 
-sub fluorite {
-    return 1;
-}
+use constant fluorite => 1;
 
-sub beryl {
-    return 1;
-}
+use constant beryl => 1;
 
-sub magnetite {
-    return 1;
-}
+use constant magnetite => 1;
 
-sub water {
-    return 0;
-}
+use constant water => 0;
 
 sub rutile_hour {
     my ($self) = @_;
@@ -363,24 +344,46 @@ sub magnetite_hour {
 
 # BUILDINGS
 
-sub command {
-    my $self = shift;
-    return $self->simpledb->domain('Lacuna::DB::Building::PlanetaryCommand')->search(where=>{
-        body_id => $self->id,
-        class   => 'Lacuna::DB::Building::PlanetaryCommand',
-    })->next;
+sub get_buildings_of_class {
+    my ($self, $class) = @_;
+    return $self->simpledb->domain($class)->search(
+        where   => {
+            body_id => $self->id,
+            class   => $class,
+        },
+        set     => {
+            body    => $self,
+            empire  => $self->empire,
+        },
+    );
 }
+
+has command => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->get_buildings_of_class('Lacuna::DB::Building::PlanetaryCommand')->next;
+    },
+);
 
 sub buildings {
     my $self = shift;
+    my $buildings = sub {
+        my $class = shift;
+        return $self->simpledb->domain($class)->search(
+		where	=> { body_id => $self->id },
+		set	=> { body => $self, empire => $self->empire },
+	);
+    };
     return (
-        $self->regular_buildings,
-        $self->food_buildings,
-        $self->water_buildings,
-        $self->energy_buildings,
-        $self->ore_buildings,
-        $self->waste_buildings,
-        $self->permanent_buildings,
+	$buildings->('Lacuna::DB::Building'),
+        $buildings->('Lacuna::DB::Building::Food'),
+        $buildings->('Lacuna::DB::Building::Water'),
+        $buildings->('Lacuna::DB::Building::Waste'),
+        $buildings->('Lacuna::DB::Building::Ore'),
+        $buildings->('Lacuna::DB::Building::Energy'),
+        $buildings->('Lacuna::DB::Building::Permanent'),
         );
 }
 
@@ -388,11 +391,14 @@ sub is_space_free {
     my ($self, $x, $y) = @_;
     my $db = $self->simpledb;
     foreach my $domain (qw(building energy water food waste ore permanent)) {
-        my $count = $db->domain($domain)->count(where => {
-            body_id => $self->id,
-            x       => $x,
-            y       => $y,
-        });
+        my $count = $db->domain($domain)->count(
+            where => {
+                body_id => $self->id,
+                x       => $x,
+                y       => $y,
+            },
+            consistent => 1, # prevents stacking attack
+        );
         return 0 if $count > 0;
     }
     return 1;
@@ -454,7 +460,7 @@ sub has_resources_to_operate {
     my $after = $building->stats_after_upgrade;
     foreach my $resource (qw(food energy ore water)) {
         my $method = $resource.'_hour';
-        if ($self->$method  - ($after->{$method} - $building->$method) < 0) {
+        if ($self->$method - $building->$method + $after->{$method} < 0) {
             confess [1012, "Unsustainable. Not enough resources being produced to build this.", $resource];
         }
     }
@@ -487,12 +493,13 @@ sub build_building {
     # add building placeholder to planet
     $building->build_queue_id($queue->id);
     $building->put;
-    
+
+    $self->empire->trigger_full_update;
 }
 
 sub found_colony {
-    my ($self, $empire_id) = @_;
-    $self->empire_id($empire_id);
+    my ($self, $empire) = @_;
+    $self->empire_id($empire->id);
     $self->usable_as_starter('No');
     $self->last_tick(DateTime->now);
     $self->put;    
@@ -500,7 +507,7 @@ sub found_colony {
     # award medal
     my $type = ref $self;
     $type =~ s/^.*::(\w\d+)$/$1/;
-    $self->empire->add_medal($type);
+    $empire->add_medal($type);
 
     # add command building
     my $command = Lacuna::DB::Building::PlanetaryCommand->new(
@@ -511,9 +518,9 @@ sub found_colony {
         date_created    => DateTime->now,
         body_id         => $self->id,
         body            => $self,
-        empire_id       => $empire_id,
-        empire          => $self->empire,
-        level           => $self->empire->species->growth_affinity - 1,
+        empire_id       => $empire->id,
+        empire          => $empire,
+        level           => $empire->species->growth_affinity - 1,
     );
     $self->build_building($command);
     $command->finish_upgrade;
@@ -549,7 +556,6 @@ sub has_max_instances_of_building {
 
 sub recalc_stats {
     my ($self) = @_;
-    $self->tick; # absorb any resources before any changes occur
     my %stats;
     foreach my $buildings ($self->buildings) {
         while (my $building = $buildings->next) {
@@ -581,9 +587,37 @@ sub tick {
     my ($self) = @_;
     my $now = DateTime->now;
     my $builds = $self->builds({date_complete => ['<=', $now]});
-    while (my $build = $builds->next) {
-        $self->tick_to($build->date_complete);
-        $build->is_complete;
+    my $ships_travelling = $self->ships_travelling({date_arrives => ['<=', $now]});
+    my $ship = $ships_travelling->next;
+    my $build = $builds->next;
+    
+    # deal with events that may have occurred
+    while (1) {
+        if (defined $ship && defined $build ) {
+            if ( $ship->date_arrives > $build->date_complete ) {
+                $self->tick_to($build->date_complete);
+                $build->finish_build;
+                $build = $builds->next;
+            }
+            else {
+                $self->tick_to($ship->date_arrives);
+                $ship->arrive;
+                $ship = $ships_travelling->next; 
+            }
+        }
+        elsif (defined $build) {
+            $self->tick_to($build->date_complete);
+            $build->finish_build;
+            $build = $builds->next;
+        }
+        elsif (defined $ship) {
+            $self->tick_to($ship->date_arrives);
+            $ship->arrive;
+            $ship = $ships_travelling->next; 
+        }
+        else {
+            last;
+        }
     }
     $self->tick_to($now);
 }
@@ -1008,14 +1042,24 @@ sub add_happiness {
 
 sub spend_happiness {
     my ($self, $value) = @_;
-    $self->happiness( $self->happiness - $value );
+    my $new = $self->happiness - $value;
+    if ($new < 0 ) {
+        $new = 0;
+    }
+    $self->happiness( $new );
 }
 
 sub add_waste {
     my ($self, $value) = @_;
     my $store = $self->waste_stored + $value;
     my $storage = $self->waste_capacity;
-    $self->waste_stored( ($store < $storage) ? $store : $storage );
+    if ($store < $storage) {
+        $self->waste_stored( $store );
+    }
+    else {
+        $self->waste_stored( $storage );
+        $self->spend_happiness( $store - $storage ); # pollution
+    }
 }
 
 sub spend_waste {

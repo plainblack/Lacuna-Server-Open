@@ -3,7 +3,7 @@ package Lacuna::DB::BuildQueue;
 use Moose;
 extends 'SimpleDB::Class::Item';
 use DateTime;
-use Lacuna::Util qw(to_seconds);
+use Lacuna::Util qw(to_seconds format_date);
 
 __PACKAGE__->set_domain_name('build_queue');
 __PACKAGE__->add_attributes(
@@ -23,28 +23,39 @@ has building => (
     lazy    => 1,
     default => sub {
         my ($self) = @_;
-        return $self->empire->get_building($self->building_class, $self->building_id);
+        my $building = $self->empire->get_building($self->building_class, $self->building_id);
+        $building->build_queue($self); # avoid stale build queue
+        if ($self->has_body) { # avoid stale body on tick
+            $building->body($self->body);
+        }
+        return $building;
     },
 );
 
 sub seconds_remaining {
     my $self = shift;
-    return to_seconds(DateTime->now - $self->date_complete);
+    return to_seconds($self->date_complete - DateTime->now);
 }
 
-sub is_complete {
+sub get_status {
     my ($self, $building) = @_;
     my $now = DateTime->now;
     my $complete = $self->date_complete;
     if ($now > $complete) {
-        $building ||= $self->building;
-        $building->finish_upgrade;
-        $self->delete;
-        return 0;
+        return undef;
     }
     else {
-        return to_seconds($complete - $now);
+        return {
+            seconds_remaining   => to_seconds($complete - $now),
+            start               => format_date($self->date_created),
+            end                 => format_date($self->date_complete),
+        };
     }
+}
+
+sub finish_build {
+    my $self = shift;
+    $self->building->finish_upgrade;
 }
 
 no Moose;

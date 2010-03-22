@@ -3,31 +3,19 @@ package Lacuna::DB::Body::Planet::P7;
 use Moose;
 extends 'Lacuna::DB::Body::Planet';
 
-sub image {
-    return 'p7';
-}
+use constant image => 'p7';
 
-sub water {
-    return 4700;
-}
+use constant water => 4700;
 
 # resource concentrations
 
-sub chalcopyrite {
-    return 2800;
-}
+use constant chalcopyrite => 2800;
 
-sub bauxite {
-    return 2700;
-}
+use constant bauxite => 2700;
 
-sub goethite {
-    return 2400;
-}
+use constant goethite => 2400;
 
-sub gypsum {
-    return 2100;
-}
+use constant gypsum => 2100;
 
 
 

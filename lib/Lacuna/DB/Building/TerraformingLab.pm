@@ -3,65 +3,35 @@ package Lacuna::DB::Building::TerraformingLab;
 use Moose;
 extends 'Lacuna::DB::Building';
 
-sub controller_class {
-        return 'Lacuna::Building::TerraformingLab';
-}
+use constant controller_class => 'Lacuna::Building::TerraformingLab';
 
-sub university_prereq {
-    return 9;
-}
+use constant university_prereq => 9;
 
-sub image {
-    return 'terraforminglab';
-}
+use constant image => 'terraforminglab';
 
-sub name {
-    return 'Terraforming Lab';
-}
+use constant name => 'Terraforming Lab';
 
-sub food_to_build {
-    return 250;
-}
+use constant food_to_build => 250;
 
-sub energy_to_build {
-    return 250;
-}
+use constant energy_to_build => 250;
 
-sub ore_to_build {
-    return 500;
-}
+use constant ore_to_build => 500;
 
-sub water_to_build {
-    return 100;
-}
+use constant water_to_build => 100;
 
-sub waste_to_build {
-    return 250;
-}
+use constant waste_to_build => 250;
 
-sub time_to_build {
-    return 9000;
-}
+use constant time_to_build => 9000;
 
-sub food_consumption {
-    return 50;
-}
+use constant food_consumption => 50;
 
-sub energy_consumption {
-    return 50;
-}
+use constant energy_consumption => 50;
 
-sub ore_consumption {
-    return 50;
-}
+use constant ore_consumption => 50;
 
-sub water_consumption {
-    return 50;
-}
+use constant water_consumption => 50;
 
-sub waste_production {
-    return 100;
-}
+use constant waste_production => 100;
 
 
 no Moose;

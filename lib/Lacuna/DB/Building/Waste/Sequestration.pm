@@ -3,45 +3,25 @@ package Lacuna::DB::Building::Waste::Sequestration;
 use Moose;
 extends 'Lacuna::DB::Building::Waste';
 
-sub controller_class {
-        return 'Lacuna::Building::WasteSequestration';
-}
+use constant controller_class => 'Lacuna::Building::WasteSequestration';
 
-sub image {
-    return 'wastesequestration';
-}
+use constant image => 'wastesequestration';
 
-sub name {
-    return 'Waste Sequestration Well';
-}
+use constant name => 'Waste Sequestration Well';
 
-sub food_to_build {
-    return 10;
-}
+use constant food_to_build => 10;
 
-sub energy_to_build {
-    return 10;
-}
+use constant energy_to_build => 10;
 
-sub ore_to_build {
-    return 10;
-}
+use constant ore_to_build => 10;
 
-sub water_to_build {
-    return 10;
-}
+use constant water_to_build => 10;
 
-sub waste_to_build {
-    return 25;
-}
+use constant waste_to_build => 25;
 
-sub time_to_build {
-    return 1000;
-}
+use constant time_to_build => 1000;
 
-sub waste_storage {
-    return 1500;
-}
+use constant waste_storage => 1500;
 
 
 

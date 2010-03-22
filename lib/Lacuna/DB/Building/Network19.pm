@@ -3,69 +3,37 @@ package Lacuna::DB::Building::Network19;
 use Moose;
 extends 'Lacuna::DB::Building';
 
-sub controller_class {
-    return 'Lacuna::Building::Network19';
-}
+use constant controller_class => 'Lacuna::Building::Network19';
 
-sub university_prereq {
-    return 2;
-}
+use constant university_prereq => 2;
 
-sub image {
-    return 'network19';
-}
+use constant image => 'network19';
 
-sub name {
-    return 'Network 19 Affliate';
-}
+use constant name => 'Network 19 Affliate';
 
-sub food_to_build {
-    return 100;
-}
+use constant food_to_build => 100;
 
-sub energy_to_build {
-    return 100;
-}
+use constant energy_to_build => 100;
 
-sub ore_to_build {
-    return 100;
-}
+use constant ore_to_build => 100;
 
-sub water_to_build {
-    return 100;
-}
+use constant water_to_build => 100;
 
-sub waste_to_build {
-    return 100;
-}
+use constant waste_to_build => 100;
 
-sub time_to_build {
-    return 2000;
-}
+use constant time_to_build => 2000;
 
-sub food_consumption {
-    return 30;
-}
+use constant food_consumption => 30;
 
-sub energy_consumption {
-    return 95;
-}
+use constant energy_consumption => 95;
 
-sub ore_consumption {
-    return 2;
-}
+use constant ore_consumption => 2;
 
-sub water_consumption {
-    return 45;
-}
+use constant water_consumption => 45;
 
-sub waste_production {
-    return 15;
-}
+use constant waste_production => 15;
 
-sub happiness_production {
-    return 60;
-}
+use constant happiness_production => 60;
 
 
 

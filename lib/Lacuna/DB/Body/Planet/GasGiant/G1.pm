@@ -3,22 +3,14 @@ package Lacuna::DB::Body::Planet::GasGiant::G1;
 use Moose;
 extends 'Lacuna::DB::Body::Planet::GasGiant';
 
-sub image {
-    return 'pg1';
-}
+use constant image => 'pg1';
 
 
-sub rutile {
-    return 7000;
-}
+use constant rutile => 7000;
 
-sub chromite {
-    return 2000;
-}
+use constant chromite => 2000;
 
-sub chalcopyrite {
-    return 1000;
-}
+use constant chalcopyrite => 1000;
 
 
 no Moose;

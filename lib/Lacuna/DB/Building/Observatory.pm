@@ -3,65 +3,36 @@ package Lacuna::DB::Building::Observatory;
 use Moose;
 extends 'Lacuna::DB::Building';
 
-sub controller_class {
-    return 'Lacuna::Building::Observatory';
-}
 
-sub building_prereq {
-    return {'Lacuna::DB::Building::Shipyard'=>1};
-}
+use constant controller_class => 'Lacuna::Building::Observatory';
 
-sub image {
-    return 'observatory';
-}
+use constant building_prereq => {'Lacuna::DB::Building::Shipyard'=>1};
 
-sub name {
-    return 'Observatory';
-}
+use constant image => 'observatory';
 
-sub food_to_build {
-    return 150;
-}
+use constant name => 'Observatory';
 
-sub energy_to_build {
-    return 150;
-}
+use constant food_to_build => 150;
 
-sub ore_to_build {
-    return 150;
-}
+use constant energy_to_build => 150;
 
-sub water_to_build {
-    return 150;
-}
+use constant ore_to_build => 150;
 
-sub waste_to_build {
-    return 150;
-}
+use constant water_to_build => 150;
 
-sub time_to_build {
-    return 2500;
-}
+use constant waste_to_build => 150;
 
-sub food_consumption {
-    return 5;
-}
+use constant time_to_build => 2500;
 
-sub energy_consumption {
-    return 50;
-}
+use constant food_consumption => 5;
 
-sub ore_consumption {
-    return 5;
-}
+use constant energy_consumption => 50;
 
-sub water_consumption {
-    return 15;
-}
+use constant ore_consumption => 5;
 
-sub waste_production {
-    return 2;
-}
+use constant water_consumption => 15;
+
+use constant waste_production => 2;
 
 
 no Moose;

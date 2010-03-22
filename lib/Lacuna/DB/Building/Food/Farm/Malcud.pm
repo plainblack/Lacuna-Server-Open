@@ -3,65 +3,35 @@ package Lacuna::DB::Building::Food::Farm::Malcud;
 use Moose;
 extends 'Lacuna::DB::Building::Food::Farm';
 
-sub controller_class {
-    return 'Lacuna::Building::Malcud';
-}
+use constant controller_class => 'Lacuna::Building::Malcud';
 
-sub image {
-    return 'malcud';
-}
+use constant image => 'malcud';
 
-sub name {
-    return 'Malcud Fungus Farm';
-}
+use constant name => 'Malcud Fungus Farm';
 
-sub food_to_build {
-    return 10;
-}
+use constant food_to_build => 10;
 
-sub energy_to_build {
-    return 100;
-}
+use constant energy_to_build => 100;
 
-sub ore_to_build {
-    return 55;
-}
+use constant ore_to_build => 55;
 
-sub water_to_build {
-    return 30;
-}
+use constant water_to_build => 30;
 
-sub waste_to_build {
-    return 20;
-}
+use constant waste_to_build => 20;
 
-sub time_to_build {
-    return 600;
-}
+use constant time_to_build => 600;
 
-sub food_consumption {
-    return 5;
-}
+use constant food_consumption => 5;
 
-sub fungus_production {
-    return 31;
-}
+use constant fungus_production => 31;
 
-sub energy_consumption {
-    return 1;
-}
+use constant energy_consumption => 1;
 
-sub ore_production {
-    return 4;
-}
+use constant ore_production => 4;
 
-sub water_consumption {
-    return 4;
-}
+use constant water_consumption => 4;
 
-sub waste_consumption {
-    return 1;
-}
+use constant waste_consumption => 1;
 
 
 

@@ -5,9 +5,8 @@ use List::Util::WeightedChoice qw( choose_weighted );
 use Lacuna;
 use Lacuna::Util qw(randint);
 use DateTime;
-use Config::JSON;
 
-my $config = Config::JSON->new("/data/Lacuna-Server/etc/lacuna.conf");
+my $config = Lacuna->config;
 my $db = Lacuna::DB->new(access_key=>$config->get('access_key'), secret_key=>$config->get('secret_key'), cache_servers=>$config->get('memcached'));
 my $lacunans;
 my $lacunans_have_been_placed = 0;
@@ -20,7 +19,7 @@ create_star_map();
 close $star_names;
 
 sub create_aux_domains {
-    foreach my $name (qw(empire session build_queue message)) {
+    foreach my $name (qw(empire session build_queue message travel_queue)) {
         my $domain = $db->domain($name);
         say "Deleting existing $name domain.";
         $domain->delete;
@@ -73,8 +72,10 @@ sub create_species {
 
 
 sub create_star_map {
-    my $start_x = my $start_y = my $start_z = -1;
-    my $end_x = my $end_y = my $end_z = 1;
+    my $map_size = $config->get('map_size');
+    my ($start_x, $end_x) = @{$map_size->{x}};
+    my ($start_y, $end_y) = @{$map_size->{y}};
+    my ($start_z, $end_z) = @{$map_size->{z}};
     my $star_count = abs($end_x - $start_x) * abs($end_y - $start_y) * abs($end_z - $start_z);
     my @star_colors = (qw(magenta red green blue yellow white));
     my %domains;
@@ -86,6 +87,7 @@ sub create_star_map {
         $domains{$domain}->create;
     }
 
+    my $made_lacuna = 0;
     say "Adding stars.";
     for my $x ($start_x .. $end_x) {
         say "Start X $x";
@@ -98,6 +100,10 @@ sub create_star_map {
                 }
                 else {
                     my $name = get_star_name();
+                    if (!$made_lacuna && $x >= 0 && $y >= 0 && $z >= 0) {
+                        $made_lacuna = 1;
+                        $name = 'Lacuna';
+                    }
                     say "Creating star $name at $x, $y, $z.";
                     my $star = $domains{star}->insert({
                         name        => $name,
@@ -153,7 +159,7 @@ sub add_bodies {
             if ($type eq 'habitable') {
                 $params->{class} = $planet_classes[rand(scalar(@planet_classes))];
                 $params->{empire_id} = 'None';
-                $params->{size} = randint(25,100);
+                $params->{size} = ($params->{orbit} == 3) ? randint(40,55) : randint(25,100);
                 $params->{usable_as_starter} = rand(99999);
             }
             elsif ($type eq 'asteroid') {
@@ -168,7 +174,9 @@ sub add_bodies {
             my $body = $domains->{body}->insert($params);
             my $now = DateTime->now;
             if ($body->isa('Lacuna::DB::Body::Planet') && !$body->isa('Lacuna::DB::Body::Planet::GasGiant')) {
-                if ($star->x >= 0 && $star->y >= 0 && $star->z >= 0 && !$lacunans_have_been_placed) {
+                if ($star->name eq 'Lacuna' && !$lacunans_have_been_placed) {
+                    $body->name('Lacuna');
+                    $body->put;
                     create_lacuna_corp($body, $domains);
                     $lacunans_have_been_placed = 1;
                     next;

@@ -3,69 +3,37 @@ package Lacuna::DB::Building::Embassy;
 use Moose;
 extends 'Lacuna::DB::Building';
 
-sub controller_class {
-    return 'Lacuna::Building::Embassy';
-}
+use constant controller_class => 'Lacuna::Building::Embassy';
 
-sub max_instances_per_planet {
-    return 1;
-}
+use constant max_instances_per_planet => 1;
 
-sub building_prereq {
-    return {'Lacuna::DB::Building::SpacePort'=>1};
-}
+use constant building_prereq => {'Lacuna::DB::Building::SpacePort'=>1};
 
-sub image {
-    return 'embassy';
-}
+use constant image => 'embassy';
 
-sub name {
-    return 'Embassy';
-}
+use constant name => 'Embassy';
 
-sub food_to_build {
-    return 70;
-}
+use constant food_to_build => 70;
 
-sub energy_to_build {
-    return 70;
-}
+use constant energy_to_build => 70;
 
-sub ore_to_build {
-    return 70;
-}
+use constant ore_to_build => 70;
 
-sub water_to_build {
-    return 70;
-}
+use constant water_to_build => 70;
 
-sub waste_to_build {
-    return 70;
-}
+use constant waste_to_build => 70;
 
-sub time_to_build {
-    return 600;
-}
+use constant time_to_build => 600;
 
-sub food_consumption {
-    return 25;
-}
+use constant food_consumption => 25;
 
-sub energy_consumption {
-    return 30;
-}
+use constant energy_consumption => 30;
 
-sub ore_consumption {
-    return 5;
-}
+use constant ore_consumption => 5;
 
-sub water_consumption {
-    return 25;
-}
+use constant water_consumption => 25;
 
-sub waste_production {
-    return 5;
-}
+use constant waste_production => 5;
 
 
 no Moose;

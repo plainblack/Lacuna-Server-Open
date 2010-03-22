@@ -50,7 +50,7 @@ sub create {
         }
         $previous = $orbit;
     }
-    foreach my $attr (qw(construction_affinity deception_affinity research_affinity management_affinity farming_affinity mining_affinity science_affinity environmental_affinity political_affinity trade_affinity growth_affinity)) {
+    foreach my $attr (qw(manufacturing_affinity deception_affinity research_affinity management_affinity farming_affinity mining_affinity science_affinity environmental_affinity political_affinity trade_affinity growth_affinity)) {
         $me->{$attr} += 0; # ensure it's a number
         if ($me->{$attr} < 1) {
             confess [1008, 'Too little to an affinity.', $attr];
@@ -79,7 +79,7 @@ sub create {
         name                    => $me->{name},
         description             => $me->{description},
         habitable_orbits        => $me->{habitable_orbits},
-        construction_affinity   => $me->{construction_affinity},
+        manufacturing_affinity   => $me->{manufacturing_affinity},
         deception_affinity      => $me->{deception_affinity},
         research_affinity       => $me->{research_affinity},
         management_affinity     => $me->{management_affinity},
@@ -92,7 +92,7 @@ sub create {
         growth_affinity         => $me->{growth_affinity},
     });
     
-    $empire->species($species->id);
+    $empire->species_id($species->id);
     $empire->put;
     
     return $species->id;

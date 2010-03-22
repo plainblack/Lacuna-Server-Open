@@ -3,65 +3,35 @@ package Lacuna::DB::Building::Water::Storage;
 use Moose;
 extends 'Lacuna::DB::Building::Water';
 
-sub controller_class {
-        return 'Lacuna::Building::WaterStorage';
-}
+use constant controller_class => 'Lacuna::Building::WaterStorage';
 
-sub image {
-    return 'waterstorage';
-}
+use constant image => 'waterstorage';
 
-sub name {
-    return 'Water Storage Tank';
-}
+use constant name => 'Water Storage Tank';
 
-sub food_to_build {
-    return 25;
-}
+use constant food_to_build => 35;
 
-sub energy_to_build {
-    return 25;
-}
+use constant energy_to_build => 35;
 
-sub ore_to_build {
-    return 25;
-}
+use constant ore_to_build => 35;
 
-sub water_to_build {
-    return 25;
-}
+use constant water_to_build => 35;
 
-sub waste_to_build {
-    return 25;
-}
+use constant waste_to_build => 35;
 
-sub time_to_build {
-    return 600;
-}
+use constant time_to_build => 1000;
 
-sub food_consumption {
-    return 2;
-}
+use constant food_consumption => 2;
 
-sub energy_consumption {
-    return 5;
-}
+use constant energy_consumption => 5;
 
-sub ore_consumption {
-    return 5;
-}
+use constant ore_consumption => 5;
 
-sub water_consumption {
-    return 1;
-}
+use constant water_consumption => 1;
 
-sub waste_production {
-    return 1;
-}
+use constant waste_production => 1;
 
-sub water_storage {
-    return 1500;
-}
+use constant water_storage => 1500;
 
 
 

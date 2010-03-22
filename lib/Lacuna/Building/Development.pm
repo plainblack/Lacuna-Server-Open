@@ -16,20 +16,7 @@ around 'view' => sub {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_domain, $building_id);
     my $out = $orig->($self, $empire, $building);
-    my $body = $building->body;
-    my $builds = $body->builds;
-    my @queue;
-    while (my $build = $builds->next) {
-        my $target = $build->building;
-        push @queue, {
-            build_queue_id      => $build->id,
-            building_id         => $target->id,
-            name                => $target->name,
-            to_level            => ($target->level + 1),
-            seconds_remaining   => $build->seconds_remaining,
-        };
-    }
-    $out->{build_queue} = \@queue;
+    $out->{build_queue} = $building->format_build_queue;
     return $out;
 };
 
@@ -44,7 +31,10 @@ sub subsidize_build_queue {
     }
     my $building = $empire->get_building($self->model_domain, $building_id);
     $building->subsidize_build_queue($amount);
-    return $self->view($empire, $building);
+    return {
+        build_queue => $building->format_build_queue,
+        status      => $empire->get_status,
+    };
 }
 
 no Moose;

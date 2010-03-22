@@ -3,69 +3,37 @@ package Lacuna::DB::Building::Energy::Reserve;
 use Moose;
 extends 'Lacuna::DB::Building::Energy';
 
-sub controller_class {
-        return 'Lacuna::Building::EnergyReserve';
-}
+use constant controller_class => 'Lacuna::Building::EnergyReserve';
 
-sub university_prereq {
-    return 1;
-}
+use constant university_prereq => 1;
 
-sub image {
-    return 'energy-reserve';
-}
+use constant image => 'energy-reserve';
 
-sub name {
-    return 'Energy Reserve';
-}
+use constant name => 'Energy Reserve';
 
-sub food_to_build {
-    return 100;
-}
+use constant food_to_build => 100;
 
-sub energy_to_build {
-    return 100;
-}
+use constant energy_to_build => 100;
 
-sub ore_to_build {
-    return 100;
-}
+use constant ore_to_build => 100;
 
-sub water_to_build {
-    return 100;
-}
+use constant water_to_build => 100;
 
-sub waste_to_build {
-    return 200;
-}
+use constant waste_to_build => 200;
 
-sub time_to_build {
-    return 1200;
-}
+use constant time_to_build => 1200;
 
-sub food_consumption {
-    return 2;
-}
+use constant food_consumption => 2;
 
-sub energy_consumption {
-    return 10;
-}
+use constant energy_consumption => 10;
 
-sub ore_consumption {
-    return 3;
-}
+use constant ore_consumption => 3;
 
-sub water_consumption {
-    return 1;
-}
+use constant water_consumption => 1;
 
-sub waste_production {
-    return 1;
-}
+use constant waste_production => 1;
 
-sub energy_storage {
-    return 1500;
-}
+use constant energy_storage => 1500;
 
 
 

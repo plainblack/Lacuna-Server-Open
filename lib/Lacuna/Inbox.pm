@@ -20,8 +20,8 @@ sub read_message {
         confess [1002, 'Message does not exist.', $message_id];
     }
     my $empire = $self->get_empire_by_session($session_id);
-    unless ($empire->id ~~ ($message->from_id, $message->to_id)) {
-        confess [1010, "You can't view a message that isn't yours.", $message_id];
+    unless ($empire->id ~~ [$message->from_id, $message->to_id]) {
+        confess [1010, "You can't read a message that isn't yours.", $message_id];
     }
     if ($empire->id eq $message->to_id && !$message->has_read) {
         $message->has_read(1);
@@ -49,14 +49,20 @@ sub archive_messages {
     my ($self, $session_id, $message_ids) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $messages = $self->simpledb->domain('message');
+    my @failure;
+    my @success;
     foreach my $id (@{$message_ids}) {
         my $message = $messages->find($id);
-        if ($empire->id eq $message->to_id && !$message->has_archived) {
+        if (defined $message && $empire->id eq $message->to_id && !$message->has_archived) {
             $message->has_archived(1);
             $message->put;
+            push @success, $id;
+        }
+        else {
+            push @failure, $id;
         }
     }
-    return { success=>1, status=>$empire->get_status };
+    return { success=>\@success, failure=>\@failure, status=>$empire->get_status };
 }
 
 sub send_message {
@@ -145,17 +151,19 @@ sub view_messages {
     $page_number ||= 1;
     my $messages = $self->simpledb->domain('message')->search(
         where       => $where,
-        order_by    => 'date_sent',
+        order_by    => ['date_sent'],
     )->paginate(25, $page_number);
     my @box;
     while (my $message = $messages->next) {
         push @box, {
-            id          => $message->id,
-            subject     => $message->subject,
-            date        => $message->date_sent_formatted,
-            from        => $message->from_name,
-            has_read    => $message->has_read,
-            has_replied => $message->has_replied,
+            id              => $message->id,
+            subject         => $message->subject,
+            date            => $message->date_sent_formatted,
+            from            => $message->from_name,
+            to              => $message->to_name,
+            has_read        => $message->has_read,
+            has_replied     => $message->has_replied,
+            body_preview    => substr($message->body,0,30),
         };
     }
     return {

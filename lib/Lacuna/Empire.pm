@@ -17,16 +17,22 @@ with 'Lacuna::Role::Sessionable';
 
 sub find {
     my ($self, $session_id, $name) = @_;
+    unless (length($name) >= 3) {
+        confess [1009, 'Empire name too short. Your search must be at least 3 characters.'];
+    }
     my $empire = $self->get_empire_by_session($session_id);
     my $empires = $self->simpledb->domain('empire')->search(where=>{name_cname => ['like', '%'.cname($name).'%']}, limit=>100);
-    my %list_of_empires;
+    my @list_of_empires;
     my $limit = 100;
     while (my $empire = $empires->next) {
-        $list_of_empires{$empire->id} = $empire->name;
+        push @list_of_empires, {
+            id      => $empire->id,
+            name    => $empire->name,
+            };
         $limit--;
         last unless $limit;
     }
-    return { empires => \%list_of_empires, status => $empire->get_status };
+    return { empires => \@list_of_empires, status => $empire->get_status };
 }
 
 sub is_name_available {

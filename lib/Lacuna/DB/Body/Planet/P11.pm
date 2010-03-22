@@ -5,56 +5,32 @@ extends 'Lacuna::DB::Body::Planet';
 
 
 
-sub image {
-    return 'p11';
-}
+use constant image => 'p11';
 
-sub water {
-    return 3800;
-}
+use constant water => 3800;
 
 
 # resource concentrations
 
-sub chromite {
-    return 1000;
-}
+use constant chromite => 1000;
 
-sub galena {
-    return 1000;
-}
+use constant galena => 1000;
 
-sub uraninite {
-    return 1000;
-}
+use constant uraninite => 1000;
 
-sub goethite {
-    return 1000;
-}
+use constant goethite => 1000;
 
-sub gypsum {
-    return 1000;
-}
+use constant gypsum => 1000;
 
-sub kerogen {
-    return 1000;
-}
+use constant kerogen => 1000;
 
-sub anthracite {
-    return 1000;
-}
+use constant anthracite => 1000;
 
-sub zircon {
-    return 1000;
-}
+use constant zircon => 1000;
 
-sub fluorite {
-    return 1000;
-}
+use constant fluorite => 1000;
 
-sub magnetite {
-    return 1000;
-}
+use constant magnetite => 1000;
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

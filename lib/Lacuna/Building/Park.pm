@@ -14,7 +14,7 @@ sub model_class {
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_domain, $building_id);
+    my $building = $empire->get_building($self->model_class, $building_id);
     $building->check_party_over;
     my $out = $orig->($self, $empire, $building);
     if ($building->party_in_progress) {
@@ -29,9 +29,12 @@ around 'view' => sub {
 sub throw_a_party {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_domain, $building_id);
+    my $building = $empire->get_building($self->model_class, $building_id);
     $building->throw_a_party;
-    return $self->view($empire, $building);
+    return {
+        seconds_remaining   => $building->party_seconds_remaining,
+        status              => $empire->get_status,
+    };
 }
 
 __PACKAGE__->register_rpc_method_names(qw(throw_a_party build));

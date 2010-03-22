@@ -40,9 +40,9 @@ The password to log in to the empire. Limited to 1024 characters and cannot cont
 
 Any array reference of integers. The integers must be between 1 and 7, inclusive, where 1 is closest to the star. The integers must be consecutive. At least one integer must be in the array. For this attribute, each of the elements in the array count as a point rather than the integers themselves.
 
-=head4 construction_affinity
+=head4 manufacturing_affinity
 
-An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in constructing new buildings and destroying old buildings.
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages manufactured goods, such as ships.
 
 =head4 deception_affinity
 
@@ -50,7 +50,7 @@ An integer between 1 and 7 inclusive, where 7 is best. Determines species advant
 
 =head4 research_affinity
 
-An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in upgrading existing buildings.
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in upgrading buildings.
 
 =head4 management_affinity
 

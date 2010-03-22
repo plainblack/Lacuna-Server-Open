@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 18;
+use Test::More tests => 20;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -58,6 +58,8 @@ is($result->{result}, 1, 'logout');
 
 $result = $tester->post('empire', 'login', [$tester->empire_name,$tester->empire_password]);
 ok(exists $result->{result}{session_id}, 'login');
+cmp_ok($result->{result}{status}{server}{version}, '>=', 1, 'version number');
+cmp_ok($result->{result}{status}{server}{star_map_size}{x}[1], '>=', 1, 'map size');
 $session_id = $result->{result}{session_id};
 
 $result = $tester->post('empire', 'set_status_message', [$session_id,'woot!']);
@@ -82,7 +84,7 @@ $result = $tester->post('empire', 'view_public_profile', [$session_id, $empire_i
 is($result->{result}{profile}{status_message}, 'Whoopie!', 'public profile works');
 
 $result = $tester->post('empire', 'find', [$session_id, 'Test']);
-ok(exists $result->{result}{empires}{$empire_id}, 'empire search works');
+is($result->{result}{empires}[0]{id}, $empire_id, 'empire search works');
 
 
 END {

@@ -104,21 +104,20 @@ Fetches the empire's status hash that is returned with many methods, but perform
 
  {
     "server" : {
-        "time" : "01 31 2010 13:09:05 +0600"
+        "time" : "01 31 2010 13:09:05 +0600",
+        "version" : 2.0604
     },
     "empire" : {
         "has_new_messages" : 3,
-	"full_status_update_required" : 1,
-        "essentia" : 0,
-        "happiness_hour" : 450,
-        "happiness" : 119393,
-        "status_message" : "A spy's work is never done."
+        "full_status_update_required" : 1
     }
  }
 
 The C<server> section tells you about the status of the server. The C<empire> section tells you about the status of the logged in empire.
 
-The C<full_status_update_required> element lets you know that the client data is out of date, and need to be fetched again with a call to C<get_full_status>.
+In the C<server> section, the C<version> is of particular importance. The version number takes the format of B<M.FFBB>. The B<M> part is the most important and stands for major version. The major version only changes if the API is changed in an incompatible way (no longer backwards compatible). The B<FF> part is the feature set version number. We've added features to the API, but not in an incompatible manner. The feature set version number is reset to C<00> if the major version number changes. The B<BB> part is the bug fix version number. It changes when we've fixed bugs within a release but haven't added any new features. The bug fix version number will be reset to C<00> if the feature set version number changes.
+
+In the C<empire> section, the C<full_status_update_required> element lets you know that the client data is out of date, and need to be fetched again with a call to C<get_full_status>.
 
 Throws 1002.
 
@@ -134,7 +133,13 @@ Fetches the empire's status hash that is returned with many methods, but perform
 
  {
     "server" : {
-        "time" : "01 31 2010 13:09:05 +0600"
+        "time" : "01 31 2010 13:09:05 +0600",
+        "version" : 2.0604,
+        "star_map_size" : {
+            "x" : [ -15, 15 ],
+            "y" : [ -15, 15 ],
+            "z" : [ -15, 15 ]
+        }
     },
     "empire" : {
         "id" : "xxxx",
@@ -298,10 +303,16 @@ The id of the empire for which you'd like to retrieve the public profile.
 Find an empire by name. Returns a hash reference containing empire ids and empire names. So if you searched for "Lacuna" you might get back a result set that looks like this:
 
  {
-    "empires" : {
-        "id-goes-here" : "Lacuna Expanse Corp",
-        "id-goes-here2" : "Lacuna Pirates",
-    },
+    "empires" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "Lacuna Expanse Corp"
+        },
+        {    
+            "id" : "id-goes-here2",
+            "name" : "Lacuna Pirates"
+        }
+    ],
     "status" : { get_status() }
  }
  
@@ -311,7 +322,7 @@ A session id.
 
 =head3 name
 
-The name your searching for. It's case insensitive, and partial names work fine.
+The name your searching for. It's case insensitive, and partial names work fine. Must be at least 3 characters.
 
 
 
