@@ -3,7 +3,7 @@ package Lacuna::DB::Building::Water::Reclamation;
 use Moose;
 extends 'Lacuna::DB::Building::Water';
 
-use constant controller_class => 'Lacuna::Building::Reclamation';
+use constant controller_class => 'Lacuna::Building::WaterReclamation';
 
 use constant university_prereq => 3;
 
