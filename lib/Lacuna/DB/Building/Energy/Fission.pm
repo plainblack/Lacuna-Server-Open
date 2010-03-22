@@ -21,7 +21,7 @@ use constant water_to_build => 150;
 
 use constant waste_to_build => 75;
 
-use constant time_to_build => 1550;
+use constant time_to_build => 400;
 
 use constant food_consumption => 5;
 
