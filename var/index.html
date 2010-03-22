@@ -4,14 +4,18 @@
 <head>
 	<title>Lacuna Expanse</title>
 	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.0r4/build/reset-fonts-grids/reset-fonts-grids.css" /> 
-	<link rel="stylesheet" type="text/css" href="http://localhost/lacuna/styles.css" /> 
+	<link rel="stylesheet" type="text/css" href="http://webclient.lacunaexpanse.com/styles.css" /> 
 </head>
 <body id="body" class="yui-skin-sam">
 	<div id="header" class="yui-gb hidden">
+		<div id="headerShine"></div>
 		<div id="usersLeft" class="yui-u first">&nbsp;</div>
-		<div class="yui-u">
-			<a id="users">Users Menu</a>
-			<div id="userMenu"></div>
+		<div class="yui-u">&nbsp;
+			<div id="usersCenter">
+				<a id="users">Users Menu</a>
+				<div id="userMenu"></div>
+			</div>
+			<div id="userCenterShine"></div>
 		</div>
 		<div id="usersRight" class="yui-u">&nbsp;</div>
 	</div>
@@ -21,10 +25,14 @@
 		</div>
 	</div>
 	<div id="footer" class="yui-gb hidden">
+		<div id="footerShine"></div>
 		<div id="planetsLeft" class="yui-u first">&nbsp;</div>
-		<div class="yui-u">
-			<a id="planets">Planet Menu</a>
-			<div id="planetMenu"></div>
+		<div class="yui-u">&nbsp;
+			<div id="planetsCenter">
+				<a id="planets">Planet Menu</a>
+				<div id="planetMenu"></div>
+			</div>
+			<div id="planetsCenterShine"></div>
 		</div>
 		<div id="planetsRight" class="yui-u">&nbsp;</div>
 	</div>
@@ -47,6 +55,6 @@
 		delete window["njs"];
 	</script>
 	<script type="text/javascript" src="http://yui.yahooapis.com/2.8.0r4/build/yuiloader/yuiloader.js"></script>
-	<script type="text/javascript" src="http://localhost/lacuna/load.js"></script>
+	<script type="text/javascript" src="http://webclient.lacunaexpanse.com/load.js"></script>
 </body>
 </html>
