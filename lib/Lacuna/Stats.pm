@@ -21,7 +21,7 @@ sub credits {
             { 'Web Client'          => ['John Rozeske']},
             { 'iPhone Client'       => ['Kevin Runde']},
             { 'Game Server'         => ['JT Smith']},
-            { 'Art'                 => ['Ryan Knope','JT Smith']},
+            { 'Art and Icons'       => ['Ryan Knope','JT Smith','Joseph Wain']},
             { 'Geology Consultant'  => ['Geo Fuels, LLC']},
             { 'Playtesters'         => ['John Oettinger','Jamie Vrbsky']},
             { 'Game Support'        => ['Plain Black Corporation']},
