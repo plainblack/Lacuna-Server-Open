@@ -369,14 +369,21 @@ has command => (
 
 sub buildings {
     my $self = shift;
+    my $buildings = sub {
+        my $class = shift;
+        return $self->simpledb->domain($class)->search(
+		where	=> { body_id => $self->id },
+		set	=> { body => $self, empire => $self->empire },
+	);
+    };
     return (
-        $self->regular_buildings,
-        $self->food_buildings,
-        $self->water_buildings,
-        $self->energy_buildings,
-        $self->ore_buildings,
-        $self->waste_buildings,
-        $self->permanent_buildings,
+	$buildings->('Lacuna::DB::Building'),
+        $buildings->('Lacuna::DB::Building::Food'),
+        $buildings->('Lacuna::DB::Building::Water'),
+        $buildings->('Lacuna::DB::Building::Waste'),
+        $buildings->('Lacuna::DB::Building::Ore'),
+        $buildings->('Lacuna::DB::Building::Energy'),
+        $buildings->('Lacuna::DB::Building::Permanent'),
         );
 }
 
