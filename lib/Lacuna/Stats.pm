@@ -23,7 +23,7 @@ sub credits {
             { 'Game Server'         => ['JT Smith']},
             { 'Art'                 => ['Ryan Knope','JT Smith']},
             { 'Geology Consultant'  => ['Geo Fuels, LLC']},
-            { 'Playtesters'         => ['John Ottinger','Jamie Vrbsky']},
+            { 'Playtesters'         => ['John Oettinger','Jamie Vrbsky']},
             { 'Game Support'        => ['Plain Black Corporation']},
             ];
 }
