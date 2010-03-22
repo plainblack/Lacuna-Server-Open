@@ -13,51 +13,6 @@ has simpledb => (
 
 with 'Lacuna::Role::Sessionable';
 
-sub rename_star {
-    my ($self, $session_id, $star_id, $name) = @_;
-    Lacuna::Verify->new(content=>\$name, throws=>[1000,'Name not available.',$name])
-        ->length_gt(2)
-        ->length_lt(31)
-        ->no_restricted_chars
-        ->no_profanity
-        ->not_ok($self->simpledb->domain('star')->count(where=>{name_cname=>Lacuna::Util::cname($name), 'itemName()'=>['!=',$star_id]})); # name available
-    my $empire = $self->get_empire_by_session($session_id);
-    my $star = $self->simpledb->domain('star')->find($star_id);
-    if (defined $star) {
-        if ($star->is_named) {
-            confess [1010, "Can't rename a star that's already named."];
-        }
-        else {
-            my $bodies = $star->planets->count(where=>{empire_id=>$empire->id});
-            if ($bodies) {
-                $star->update({
-                    name        => $name,
-                    is_named    => 1,
-                })->put;
-                return 1;
-            }
-            else {
-                confess [1010, "Can't renamed a star that you don't inhabit."];
-            }
-        }
-    }
-    else {
-        confess [1002, 'Star does not exist.', $star_id];
-    }
-}
-
-sub get_stars_near_body {
-    my ($self, $session_id, $body_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $body = $self->simpledb->domain('body')->find($body_id);
-    if (defined $body) {
-        my $star = $body->star;
-        return $self->get_stars($empire, $star->x - 5, $star->y - 5, $star->x + 5, $star->y + 5, $star->z); 
-    }
-    else {
-        confess [1002, 'Planet does not exist.'];
-    }
-}
 
 sub get_star_by_body {
     my ($self, $session_id, $body_id) = @_;
@@ -172,7 +127,7 @@ sub get_stars {
 
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_stars get_stars_near_body get_star_by_body get_star_system get_star_system_by_body));
+__PACKAGE__->register_rpc_method_names(qw(get_stars get_star_by_body get_star_system get_star_system_by_body));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

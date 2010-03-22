@@ -76,21 +76,6 @@ The z axis. There's no secondary z coordinate because you can only pull from one
 
 
 
-=head2 get_stars_near_body ( session_id, body_id )
-
-Returns a list of 121 stars near a body, on the same z axis as the body. The list returned is the same as C<get_stars>
-
-Throws 1002 and anything C<get_stars> can throw.
-
-=head3 session_id
-
-A session id.
-
-=head3 body_id
-
-The unique id of a body.
-
-
 =head2 get_star_by_body ( session_id, body_id )
 
 Returns the details about a star.

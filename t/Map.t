@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 11;
+use Test::More tests => 9;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -12,10 +12,6 @@ my $home_planet = $tester->empire->home_planet_id;
 
 my $result;
 
-
-$result = $tester->post('map','get_stars_near_body', [$session_id, $home_planet]);
-is(ref $result->{result}{stars}, 'ARRAY', 'get_stars_near_body');
-cmp_ok(scalar(@{$result->{result}{stars}}), '>', 0, 'get_stars_near_body count');
 
 $result = $tester->post('map','get_star_by_body', [ $session_id, $home_planet]);
 ok(exists $result->{result}{star}, 'get_star_by_body');
