@@ -5,7 +5,7 @@ extends 'Lacuna::DB::Body::Planet';
 
 use constant image => 'p6';
 
-use constant water => 2905;
+use constant water => 6905;
 
 # resource concentrations
 
