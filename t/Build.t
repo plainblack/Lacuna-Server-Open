@@ -78,8 +78,9 @@ ok($result->{result}{building}{upgrade}{can}, 'university can be upgraded');
 # get it over with already
 $uni->start_upgrade;
 $uni->finish_upgrade;
-#$empire->university_level(5);
-#$empire->put;
+
+$result = $tester->post('empire', 'get_full_status', [$session_id]);
+$last_energy = $result->{result}{empire}{planets}{$home_planet}{energy_stored};
 
 # now let's make sure that other buildings can be upgraded too
 $result = $tester->post('wheat', 'upgrade', [$session_id, $building->id]);
