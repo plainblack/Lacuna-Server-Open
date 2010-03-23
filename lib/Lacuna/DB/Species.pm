@@ -43,7 +43,7 @@ sub find_home_planet {
             y               => ['between', ($self->get_min_inhabited('y') - 1), ($self->get_max_inhabited('y') + 1)],
             z               => ['between', ($self->get_min_inhabited('z') - 1), ($self->get_max_inhabited('z') + 1)],
         },
-        order_by    => 'usable_as_starter',
+  #      order_by    => 'usable_as_starter',
         limit       => 1,
         consistent  => 1,
         );
