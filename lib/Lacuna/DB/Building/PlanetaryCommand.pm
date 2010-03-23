@@ -23,7 +23,7 @@ use constant water_to_build => 1000;
 
 use constant waste_to_build => 1000;
 
-use constant time_to_build => 6000;
+use constant time_to_build => 600;
 
 use constant algae_production => 100;
 

@@ -19,7 +19,7 @@ use constant water_to_build => 10;
 
 use constant waste_to_build => 25;
 
-use constant time_to_build => 1000;
+use constant time_to_build => 90;
 
 use constant waste_storage => 1500;
 
