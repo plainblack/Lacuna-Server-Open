@@ -33,7 +33,7 @@ use constant water_consumption => 1;
 
 use constant waste_production => 1;
 
-use constant energy_storage => 1500;
+use constant energy_storage => 1000;
 
 
 

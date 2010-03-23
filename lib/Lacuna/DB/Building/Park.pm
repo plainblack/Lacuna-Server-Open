@@ -78,7 +78,7 @@ sub check_party_over {
 
 use constant controller_class => 'Lacuna::Building::Park';
 
-use constant building_prereq => {'Lacuna::DB::Building::PlanetaryCommand'=>5};
+use constant university_prereq => 2;
 
 use constant image => 'park';
 

@@ -5,7 +5,7 @@ extends 'Lacuna::DB::Building';
 
 use constant controller_class => 'Lacuna::Building::Entertainment';
 
-use constant building_prereq => {'Lacuna::DB::Building::PlanetaryCommand'=>5};
+use constant university_prereq => 2;
 
 use constant image => 'entertainment';
 

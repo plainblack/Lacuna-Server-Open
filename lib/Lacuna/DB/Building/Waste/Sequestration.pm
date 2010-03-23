@@ -21,7 +21,7 @@ use constant waste_to_build => 25;
 
 use constant time_to_build => 90;
 
-use constant waste_storage => 1500;
+use constant waste_storage => 1000;
 
 
 

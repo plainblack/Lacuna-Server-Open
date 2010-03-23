@@ -21,7 +21,7 @@ use constant waste_to_build => 25;
 
 use constant time_to_build => 60;
 
-use constant ore_storage => 1500;
+use constant ore_storage => 1000;
 
 
 no Moose;

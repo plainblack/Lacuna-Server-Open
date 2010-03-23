@@ -35,7 +35,7 @@ use constant controller_class => 'Lacuna::Building::Development';
 
 use constant max_instances_per_planet => 1;
 
-use constant building_prereq => {'Lacuna::DB::Building::PlanetaryCommand'=>5};
+use constant university_prereq => 1;
 
 use constant image => 'devel';
 
