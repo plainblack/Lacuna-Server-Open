@@ -1,2 +1,9 @@
 Explosion at Space Port
-Oh no! One of our %ss just exploded on the pad at the Space Port on %s.
+~~~
+Oh no Sir!
+
+I'm afraid I have terrible news. One of our %ss just exploded on the pad at the Space Port on %s.
+
+Regards,
+
+Your Humble Assistant

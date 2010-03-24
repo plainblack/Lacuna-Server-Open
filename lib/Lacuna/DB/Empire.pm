@@ -94,11 +94,11 @@ sub add_medal {
         $self->medals($medals);
         $self->put unless $options{skip_put};
         my $name = MEDALS->{$id};
-        $self->send_message(
-            tags    => ['Medal'],
-            subject => $name,
-            body    => sprintf('You were just awarded a "%s" medal.', $name),
-            );
+        $self->send_predefined_message(
+            tags        => ['Medal'],
+            filename    => 'medal.txt',
+            params      => [$name, $name, $self->name],
+        );
     }
     return $self;
 }
@@ -249,17 +249,17 @@ sub send_predefined_message {
     my ($self, %options) = @_;
     my $path = '/data/Lacuna-Server/var/messages/'.$options{filename};
     if (open my $file, "<", $path) {
-        my $subject = <$file>;
-        chomp $subject;
         my $message;
         {
             local $/;
             $message = <$file>;
         }
         close $file;
+        my ($subject, $body) = split("~~~\n",sprintf($message, @{$options{params}}));
+        chomp $subject;
         return $self->send_message(
             subject => $subject,
-            body    => sprintf($message, @{$options{params}}),
+            body    => $body,
             from    => $options{from},
             tags    => $options{tags},
             );

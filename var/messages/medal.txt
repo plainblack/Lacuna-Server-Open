@@ -1,8 +1,9 @@
 %s
-Greetings Sir,
+~~~
+Congratulations Sir,
 
-We were just awarded a "%s" medal. Our empire has much to be proud of this day.
+We were just awarded a "%s" medal. The people of %s have much to be proud of this day.
 
 Regards,
 
-The People of %s
+Your Humble Assistant

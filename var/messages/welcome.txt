@@ -1,4 +1,5 @@
 Welcome
+~~~
 Allow us to introduce ourselves. We are Lacuna Expanse Corp and we welcome %s to The Lacuna Expanse! We are the original inhabitants of the Expanse, but we are so happy to see it growing. 
 
 We'll leave you to get your colony started, but we'll be in touch soon. I think there is much we can offer each other.
