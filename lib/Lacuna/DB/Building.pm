@@ -427,7 +427,7 @@ sub check_build_prereqs {
     }
     
     # check university level
-    if ($self->university_prereq > $body->empire->university_level) {
+    if ($self->university_prereq > $body->empire->university_level + 1) {
         confess [1013, "University research too low.",$self->university_prereq];
     }
 
@@ -450,7 +450,7 @@ sub check_build_prereqs {
 
 sub has_met_upgrade_prereqs {
     my ($self) = @_;
-    if (ref $self ne 'Lacuna::DB::Building::University' && $self->level >= $self->empire->university_level) {
+    if (ref $self ne 'Lacuna::DB::Building::University' && $self->level >= $self->empire->university_level + 1) {
         confess [1013, "You cannot upgrade a building past your university level."];
     }
     return 1;
