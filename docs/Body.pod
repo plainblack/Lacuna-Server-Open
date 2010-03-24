@@ -116,7 +116,8 @@ Provides a list of all the building types that are available to be built on a gi
                     "ore" : 1000,
                     "time" : 1200,
                 },
-                "reason" : null
+                "tags" : ["Now","Resources","Food"],
+                "reason" : ""
             },
             "image" : "wheat1",
             "production" : {
@@ -134,6 +135,76 @@ Provides a list of all the building types that are available to be built on a gi
  }
 
 The C<reason> section provides a little detail about why a building can or cannot be built. It is formatted the same way an exception would be formatted (an array ref of error code, error message, and error data).
+
+The C<tags> section can be used to display the buildable buildings in a way that makes sense to the end user. The tags available are as follows:
+
+=over
+
+=item Now
+
+Can be built right now.
+
+=item Soon
+
+Could be built right now if only there were enough resources in storage.
+
+=item Later
+
+Will eventually become available once you've completed the necessary prerequisites.
+
+=item Infrastructure
+
+Everything that is not a resource building.
+
+=over
+
+=item Intelligence
+
+This building helps you gain information.
+
+=item Happiness
+
+This building helps you gain favor with your citizens.
+
+=item Ships
+
+This building helps you build ships.
+
+=item Colonization
+
+This building helps you colonize other worlds.
+
+=back
+
+=item Resources
+
+Everything that is not infrastructure.
+
+=over
+
+=item Food
+
+This building either produces or stores food.
+
+=item Ore
+
+This building either produces or stores ore.
+
+=item Water
+
+This building either produces or stores water.
+
+=item Energy
+
+This building either produces or stores energy.
+
+=item Waste
+
+This building either consumes or stores waste.
+
+=back
+
+=back
 
 Throws 1002, 1010, 1011, and 1012, and 1013.
 

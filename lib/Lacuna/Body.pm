@@ -110,9 +110,6 @@ sub get_buildable {
         if ($can_build) {
             push @extra_tags, 'Now';          
         }
-        elsif ($reason->[1] =~ /Goldilox/i) {
-            push @extra_tags, 'Never';
-        }
         elsif ($reason->[0] == 1011) {
             push @extra_tags, 'Soon';
         }
