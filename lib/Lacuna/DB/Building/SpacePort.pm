@@ -16,6 +16,11 @@ __PACKAGE__->add_attributes(
     gas_giant_settlement_platform_ship_count     => { isa => 'Int', default => 0 },
 );
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure Ships));
+};
+
 sub shipyards {
     my $self = shift;
     return $self->body->get_buildings_of_class('Lacuna::DB::Building::Shipyard');

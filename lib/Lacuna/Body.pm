@@ -98,7 +98,6 @@ sub get_buildable {
             date_created    => DateTime->now,
     );
 
-
     my %out;
     $body->tick;
     foreach my $class (BUILDABLE_CLASSES) {
@@ -106,13 +105,28 @@ sub get_buildable {
         my $building = $class->model_class->new(simpledb=>$self->simpledb)->update(\%properties);
         my $cost = $building->cost_to_upgrade;
         my $can_build = eval{$body->has_met_building_prereqs($building, $cost)};
+        my $reason = $@;
+        my @extra_tags;
+        if ($can_build) {
+            push @extra_tags, 'Now';          
+        }
+        elsif ($reason->[1] =~ /Goldilox/i) {
+            push @extra_tags, 'Never';
+        }
+        elsif ($reason->[0] == 1011) {
+            push @extra_tags, 'Soon';
+        }
+        else {
+            push @extra_tags, 'Later';
+        }
         $out{$building->name} = {
             url         => $class->app_url,
             image       => $building->image_level,
             build       => {
                 can         => ($can_build) ? 1 : 0,                
                 cost        => $cost,
-                reason      => $@,
+                reason      => $reason,
+                tags        => [$building->build_tags, @extra_tags],
             },
             production  => $building->stats_after_upgrade,
         };

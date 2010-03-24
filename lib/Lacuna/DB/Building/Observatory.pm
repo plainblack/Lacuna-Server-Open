@@ -4,6 +4,11 @@ use Moose;
 extends 'Lacuna::DB::Building';
 
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure Ships Intelligence Colonization));
+};
+
 use constant controller_class => 'Lacuna::Building::Observatory';
 
 use constant building_prereq => {'Lacuna::DB::Building::Shipyard'=>1};

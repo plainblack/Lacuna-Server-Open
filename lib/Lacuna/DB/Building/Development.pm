@@ -31,6 +31,11 @@ sub format_build_queue {
     return \@queue;
 }
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure));
+};
+
 use constant controller_class => 'Lacuna::Building::Development';
 
 use constant max_instances_per_planet => 1;

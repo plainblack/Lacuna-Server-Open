@@ -3,6 +3,11 @@ package Lacuna::DB::Building::Waste::Treatment;
 use Moose;
 extends 'Lacuna::DB::Building::Waste';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Energy Ore Water));
+};
+
 use constant controller_class => 'Lacuna::Building::WasteTreatment';
 
 use constant image => 'wastetreatment';

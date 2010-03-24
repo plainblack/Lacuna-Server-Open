@@ -3,6 +3,11 @@ package Lacuna::DB::Building::Permanent::GasGiantPlatform;
 use Moose;
 extends 'Lacuna::DB::Building::Permanent';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure Colonization));
+};
+
 use constant controller_class => 'Lacuna::Building::GasGiantPlatform';
 
 use constant image => 'gas-giant-platform';

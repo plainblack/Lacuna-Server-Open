@@ -3,6 +3,11 @@ package Lacuna::DB::Building::Intelligence;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure Intelligence));
+};
+
 use constant controller_class => 'Lacuna::Building::Intelligence';
 
 use constant max_instances_per_planet => 1;

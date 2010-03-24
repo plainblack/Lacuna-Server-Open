@@ -3,6 +3,11 @@ package Lacuna::DB::Building::EntertainmentDistrict;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure Happiness));
+};
+
 use constant controller_class => 'Lacuna::Building::Entertainment';
 
 use constant university_prereq => 2;

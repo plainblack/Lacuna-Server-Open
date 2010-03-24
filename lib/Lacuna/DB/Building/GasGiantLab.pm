@@ -3,6 +3,11 @@ package Lacuna::DB::Building::GasGiantLab;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure Colonization Ships));
+};
+
 use constant controller_class => 'Lacuna::Building::GasGiantLab';
 
 use constant university_prereq => 17;

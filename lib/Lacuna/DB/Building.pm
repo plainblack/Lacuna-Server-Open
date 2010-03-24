@@ -29,6 +29,10 @@ use constant max_instances_per_planet => 9999999;
 
 use constant university_prereq => 0;
 
+sub build_tags {
+    return ();  
+};
+
 use constant min_orbit => 1;
 
 use constant max_orbit => 7;

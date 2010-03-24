@@ -3,6 +3,11 @@ package Lacuna::DB::Building::Permanent::TerraformingPlatform;
 use Moose;
 extends 'Lacuna::DB::Building::Permanent';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure Colonization));
+};
+
 use constant controller_class => 'Lacuna::Building::TerraformingPlatform';
 
 sub check_build_prereqs {

@@ -3,6 +3,11 @@ package Lacuna::DB::Building::Water::Reclamation;
 use Moose;
 extends 'Lacuna::DB::Building::Water';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Waste));
+};
+
 use constant controller_class => 'Lacuna::Building::WaterReclamation';
 
 use constant university_prereq => 3;

@@ -3,6 +3,11 @@ package Lacuna::DB::Building::TerraformingLab;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure Colonization Ships));
+};
+
 use constant controller_class => 'Lacuna::Building::TerraformingLab';
 
 use constant university_prereq => 9;

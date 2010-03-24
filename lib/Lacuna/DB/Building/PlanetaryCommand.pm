@@ -3,6 +3,11 @@ package Lacuna::DB::Building::PlanetaryCommand;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure Resources Ore Water Waste Energy Food Colonization));
+};
+
 use constant controller_class => 'Lacuna::Building::PlanetaryCommand';
 
 sub check_build_prereqs {

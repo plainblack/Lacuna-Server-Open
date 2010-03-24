@@ -6,6 +6,11 @@ use DateTime;
 use Lacuna::Constants qw(FOOD_TYPES);
 use Lacuna::Util qw(to_seconds);
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure Happiness));
+};
+
 __PACKAGE__->add_attributes(
     party_ends              => { isa => 'DateTime' },
     party_in_progress       => { isa => 'Str', default => 0 },

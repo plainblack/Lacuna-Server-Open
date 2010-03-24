@@ -9,6 +9,10 @@ __PACKAGE__->add_attributes(
     ship_builds  => { isa=>'HashRef' },  
 );
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure Ships));
+};
 
 use constant ship_prereqs => {
     probe                         => 'Lacuna::DB::Building::Observatory',

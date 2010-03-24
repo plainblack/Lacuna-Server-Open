@@ -3,6 +3,11 @@ package Lacuna::DB::Building::Embassy;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure));
+};
+
 use constant controller_class => 'Lacuna::Building::Embassy';
 
 use constant max_instances_per_planet => 1;

@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 8;
+use Test::More tests => 14;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -41,7 +41,12 @@ ok($result->{result}{building}{energy_hour} > 0, 'command center is functional')
 
 $result = $tester->post('body', 'get_buildable', [$session_id, $home_planet, 3, 3]);
 is($result->{result}{buildable}{'Wheat Farm'}{url}, '/wheat', 'Can build buildings');
-
+ok('Food' ~~ $result->{result}{buildable}{'Wheat Farm'}{build}{tags}, 'Food');
+ok('Resources' ~~ $result->{result}{buildable}{'Wheat Farm'}{build}{tags}, 'Resources');
+ok('Now' ~~ $result->{result}{buildable}{'Wheat Farm'}{build}{tags}, 'Now');
+ok('Happiness' ~~ $result->{result}{buildable}{'University'}{build}{tags}, 'Happiness');
+ok('Infrastructure' ~~ $result->{result}{buildable}{'University'}{build}{tags}, 'Infrastructure');
+ok('Later' ~~ $result->{result}{buildable}{'Subspace Transporter'}{build}{tags}, 'Later');
 
 
 END {

@@ -3,6 +3,11 @@ package Lacuna::DB::Building::Food::Farm::Malcud;
 use Moose;
 extends 'Lacuna::DB::Building::Food::Farm';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Waste));
+};
+
 use constant controller_class => 'Lacuna::Building::Malcud';
 
 use constant image => 'malcud';

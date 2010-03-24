@@ -3,6 +3,11 @@ package Lacuna::DB::Building::Espionage;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure Intelligence Ships));
+};
+
 use constant controller_class => 'Lacuna::Building::Espionage';
 
 use constant max_instances_per_planet => 1;

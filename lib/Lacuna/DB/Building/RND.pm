@@ -3,6 +3,11 @@ package Lacuna::DB::Building::RND;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure Happiness));
+};
+
 use constant controller_class => 'Lacuna::Building::RND';
 
 use constant university_prereq => 5;

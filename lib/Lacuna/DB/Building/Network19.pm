@@ -3,6 +3,11 @@ package Lacuna::DB::Building::Network19;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure Happiness Intelligence));
+};
+
 use constant controller_class => 'Lacuna::Building::Network19';
 
 use constant university_prereq => 2;

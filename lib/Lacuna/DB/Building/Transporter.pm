@@ -3,6 +3,11 @@ package Lacuna::DB::Building::Transporter;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Infrastructure));
+};
+
 use constant controller_class => 'Lacuna::Building::Transporter';
 
 use constant university_prereq => 12;

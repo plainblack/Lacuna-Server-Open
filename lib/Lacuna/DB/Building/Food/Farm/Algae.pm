@@ -3,6 +3,11 @@ package Lacuna::DB::Building::Food::Farm::Algae;
 use Moose;
 extends 'Lacuna::DB::Building::Food::Farm';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Energy));
+};
+
 use constant controller_class => 'Lacuna::Building::Algae';
 
 use constant university_prereq => 3;
@@ -25,13 +30,13 @@ use constant time_to_build => 110;
 
 use constant food_consumption => 5;
 
-use constant algae_production => 10;
+use constant algae_production => 44;
 
-use constant energy_production => 3;
+use constant energy_production => 30;
 
 use constant ore_consumption => 1;
 
-use constant water_consumption => 2;
+use constant water_consumption => 5;
 
 use constant waste_consumption => 5;
 
