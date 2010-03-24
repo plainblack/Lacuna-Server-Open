@@ -31,6 +31,8 @@ sub upgrade {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_domain, $building_id);
+    $building->body->tick;
+    $building = $empire->get_building($self->model_domain, $building_id); # reload stale building after tick
 
     # verify upgrade
     my $cost = $building->cost_to_upgrade;
@@ -64,7 +66,8 @@ sub view {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_domain, $building_id);
-
+    $building->body->tick;
+    $building = $empire->get_building($self->model_domain, $building_id); # reload stale building after tick
     my $cost = $building->cost_to_upgrade;
     my $can_upgrade = eval{$building->can_upgrade($cost)};
     my $reason = $@;
@@ -102,6 +105,7 @@ sub build {
     my ($self, $session_id, $body_id, $x, $y) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $empire->get_body($body_id);
+    $body->tick;
 
     # create dummy building
     my $building = $self->model_class->new(
