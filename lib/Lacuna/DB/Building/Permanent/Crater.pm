@@ -9,6 +9,10 @@ sub check_build_prereqs {
     confess [1013,"You can't build a crater. It forms naturally."];
 }
 
+sub can_upgrade {
+    confess [1013, "You can't upgrade a crater. It forms naturally."];
+}
+
 use constant image => 'crater';
 
 use constant name => 'Crater';
