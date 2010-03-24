@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 10;
+use Test::More tests => 11;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -20,6 +20,9 @@ my $result;
 $result = $tester->post('waterpurification', 'build', [$session_id, $home->id, 0, -5]);
 ok($result->{result}{building}{id}, "built water purification");
 sleep $result->{result}{building}{pending_build}{seconds_remaining} + 3;
+
+$result = $tester->post('waterpurification', 'view', [$session_id, $result->{result}{building}{id}]);
+is($result->{result}{building}{level}, 1, 'building completed without error');
 
 $result = $tester->post('body', 'get_buildings', [$session_id, $home->id]);
 say Dumper $result->{result}{buildings};
