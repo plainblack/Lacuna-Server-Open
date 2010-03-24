@@ -7,7 +7,7 @@ use Config::JSON;
 
 useall __PACKAGE__;
 
-our $VERSION = 1.0001;
+our $VERSION = 1.0002;
 
 our $config = Config::JSON->new('/data/Lacuna-Server/etc/lacuna.conf');
 
