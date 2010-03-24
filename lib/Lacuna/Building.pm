@@ -71,6 +71,8 @@ sub view {
     my $cost = $building->cost_to_upgrade;
     my $can_upgrade = eval{$building->can_upgrade($cost)};
     my $reason = $@;
+    my $image_after_upgrade = $building->image_level($building->level + 1);
+
     my %out = ( 
         building    => {
             id                  => $building->id,
@@ -90,6 +92,7 @@ sub view {
                 reason          => $reason,
                 cost            => $cost,
                 production      => $building->stats_after_upgrade,
+                image           => $image_after_upgrade,
             },
         },
         status      => $empire->get_status,

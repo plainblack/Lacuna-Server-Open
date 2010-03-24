@@ -80,7 +80,8 @@ Retrieves the properties of the building.
                 "water_hour" : -1100,
                 "waste_hour" : 133,
                 "happiness_hour" : 0,
-            }
+            },
+            "image" : "command7"
     },
     "status" : { get_status() }
  }

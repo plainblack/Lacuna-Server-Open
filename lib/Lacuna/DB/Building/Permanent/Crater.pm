@@ -15,6 +15,11 @@ sub can_upgrade {
 
 use constant image => 'crater';
 
+sub image_level {
+    my ($self) = @_;
+    return $self->image.'1';
+}
+
 use constant name => 'Crater';
 
 

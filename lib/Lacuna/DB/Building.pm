@@ -42,8 +42,9 @@ sub image {
 }
 
 sub image_level {
-    my ($self) = @_;
-    my $level = ($self->level > 9) ? 9 : $self->level;
+    my ($self, $level) = @_;
+    $level ||= $self->level;
+    $level = ($level > 9) ? 9 : $level;
     return $self->image.$level;
 }
 
