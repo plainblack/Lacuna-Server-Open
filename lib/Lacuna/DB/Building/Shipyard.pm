@@ -262,6 +262,7 @@ sub check_for_completed_ships {
                 # this ship's gonna go kablooey cuz no room at any port
                 unless (defined $spaceport) { 
                     $self->empire->send_predefined_message(
+                        tags        => ['Alert'],
                         filename    => 'ship_blew_up_at_port.txt',
                         params      => [$completed_ship->{type}, $self->body->name],
                     );

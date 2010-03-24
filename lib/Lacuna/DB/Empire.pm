@@ -95,6 +95,7 @@ sub add_medal {
         $self->put unless $options{skip_put};
         my $name = MEDALS->{$id};
         $self->send_message(
+            tags    => ['Medal'],
             subject => $name,
             body    => sprintf('You were just awarded a "%s" medal.', $name),
             );
@@ -225,6 +226,7 @@ sub found {
         filename    => 'welcome.txt',
         from        => $self->lacuna_expanse_corp,
         params      => [$self->name],
+        tags        => ['Tutorial','Correspondence'],
     );
     
     # found colony
@@ -259,6 +261,7 @@ sub send_predefined_message {
             subject => $subject,
             body    => sprintf($message, @{$options{params}}),
             from    => $options{from},
+            tags    => $options{tags},
             );
     }
     else {

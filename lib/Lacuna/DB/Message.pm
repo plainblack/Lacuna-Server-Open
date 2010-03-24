@@ -16,6 +16,7 @@ __PACKAGE__->add_attributes(
     to_id           => { isa => 'Str' },
     to_name         => { isa => 'Str' },
     recipients      => { isa => 'ArrayRefOfStr' },
+    tags            => { isa => 'ArrayRefOfStr' },
     has_read        => { isa => 'Str', default=>0 },
     has_replied     => { isa => 'Str', default=>0 },
     has_archived    => { isa => 'Str', default=>0 },
@@ -30,7 +31,6 @@ sub date_sent_formatted {
     return format_date($self->date_sent);
 }
 
-
 sub send {
     my ($class, %params) = @_;
     my $recipients = $params{recipients};
@@ -42,6 +42,7 @@ sub send {
         date_sent   => DateTime->now,
         subject     => $params{subject},
         body        => $params{body},
+        tags        => $params{tags},
         from_id     => $params{from}->id,
         from_name   => $params{from}->name,
         to_id       => $params{to}->id,

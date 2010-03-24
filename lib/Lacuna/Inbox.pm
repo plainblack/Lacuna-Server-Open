@@ -41,6 +41,7 @@ sub read_message {
             has_archived=> $message->has_archived,
             in_reply_to => $message->in_reply_to,
             recipients  => $message->recipients,
+            tags        => $message->tags,
         },
     };
 }
@@ -100,6 +101,7 @@ sub send_message {
             to          => $to,
             in_reply_to => $options->{in_reply_to},
             recipients  => \@sent,
+            tags        => ['Correspondence'],
         );
     }
     return {
@@ -117,7 +119,6 @@ sub view_inbox {
     my $empire = $self->get_empire_by_session($session_id);
     my $where = {
         has_archived    => ['!=', 1],
-        date_sent       => ['>',DateTime->new(year=>2008)],
         to_id           => $empire->id,
     };
     return $self->view_messages($where, $empire, @_);
@@ -129,7 +130,6 @@ sub view_archived {
     my $empire = $self->get_empire_by_session($session_id);
     my $where = {
         has_archived    => 1,
-        date_sent       => ['>',DateTime->new(year=>2008)],
         to_id           => $empire->id,
     };
     return $self->view_messages($where, $empire, @_);
@@ -140,19 +140,22 @@ sub view_sent {
     my $session_id = shift;
     my $empire = $self->get_empire_by_session($session_id);
     my $where = {
-        date_sent       => ['>',DateTime->new(year=>2008)],
         from_id         => $empire->id,
     };
     return $self->view_messages($where, $empire, @_);
 }
 
 sub view_messages {
-    my ($self, $where, $empire, $page_number) = @_;
-    $page_number ||= 1;
+    my ($self, $where, $empire, $options) = @_;
+    $options->{page_number} ||= 1;
+    $where->{date_sent} = ['>',DateTime->new(year=>2008)];
+    if ($options->{tags}) {
+        $where->{tags} = ['in',$options->{tags}];
+    }
     my $messages = $self->simpledb->domain('message')->search(
         where       => $where,
         order_by    => ['date_sent'],
-    )->paginate(25, $page_number);
+    )->paginate(25, $options->{page_number});
     my @box;
     while (my $message = $messages->next) {
         push @box, {
@@ -164,6 +167,7 @@ sub view_messages {
             has_read        => $message->has_read,
             has_replied     => $message->has_replied,
             body_preview    => substr($message->body,0,30),
+            tags            => $message->tags,
         };
     }
     return {

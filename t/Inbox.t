@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 12;
+use Test::More tests => 14;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -17,8 +17,12 @@ is($result->{result}{message}{unknown}[0], 'Some Guy', 'detecting unknown recipi
 
 sleep 3;
 
+$result = $tester->post('inbox','view_inbox', [$session_id, { tags=>['Tutorial'] }]);
+is(scalar(@{$result->{result}{messages}}), 1, 'fetching back by tag works');
+
 $result = $tester->post('inbox','view_inbox', [$session_id]);
 is($result->{result}{messages}[0]{subject}, 'my subject', 'view inbox works');
+is($result->{result}{messages}[0]{tags}->[0], 'Correspondence', 'view inbox works');
 is($result->{result}{status}{empire}{has_new_messages}, 5, 'new message count works');
 is($result->{result}{messages}[0]{body_preview}, 'this is my message body, it ju', 'body preview');
 my $message_id = $result->{result}{messages}[0]{id};
