@@ -470,8 +470,9 @@ sub can_upgrade {
     $body->tick;
     $body->has_resources_to_build($self,$cost);
     $body->has_resources_to_operate($self);
-    $self->has_met_upgrade_prereqs();
-    $self->has_no_pending_build();
+    $self->has_met_upgrade_prereqs;
+    $self->has_no_pending_build;
+    $body->has_room_in_build_queue;
     return 1;
 }
 
