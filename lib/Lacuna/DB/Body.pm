@@ -55,6 +55,7 @@ sub get_status {
         orbit           => $self->orbit,
         type            => $self->get_type,
         star_id         => $self->star_id,
+        star_name       => $self->star->name,
         id              => $self->id,
     );
     return \%out;
