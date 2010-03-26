@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -47,7 +47,7 @@ ok('Now' ~~ $result->{result}{buildable}{'Wheat Farm'}{build}{tags}, 'Now');
 ok('Happiness' ~~ $result->{result}{buildable}{'University'}{build}{tags}, 'Happiness');
 ok('Infrastructure' ~~ $result->{result}{buildable}{'University'}{build}{tags}, 'Infrastructure');
 ok('Later' ~~ $result->{result}{buildable}{'Subspace Transporter'}{build}{tags}, 'Later');
-
+cmp_ok($result->{result}{buildable}{'Waste Energy Plant'}{production}{happiness_hour}, '>=', 0, 'no negative happiness from waste buildings');
 
 END {
     $tester->cleanup;
