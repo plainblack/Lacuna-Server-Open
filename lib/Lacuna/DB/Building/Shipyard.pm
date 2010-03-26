@@ -104,6 +104,7 @@ use constant ship_costs => {
 sub format_ship_builds {
     my $self = shift;
     my $builds = $self->ship_builds;
+    return {} unless $builds->{next_completed};
     $builds->{next_completed} = format_date(DateTime->from_epoch(epoch=>$builds->{next_completed}));
     return $builds;
 }
