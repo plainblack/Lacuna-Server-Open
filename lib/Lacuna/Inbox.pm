@@ -146,14 +146,7 @@ sub view_sent {
 }
 
 sub view_messages {
-    my ($self, $where, $empire, $temp) = @_;
-    my $options = {};
-    if (ref $temp ne 'HASH') {
-	$options->{page_number} = $temp;
-    }
-    else {
-        $options = $temp;
-    }
+    my ($self, $where, $empire, $options) = @_;
     $options->{page_number} ||= 1;
     $where->{date_sent} = ['>',DateTime->new(year=>2008)];
     if ($options->{tags}) {

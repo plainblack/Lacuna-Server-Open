@@ -13,6 +13,7 @@ Returns detailed statistics about an empire.
     "y" : 10,
     "z" : 6,
     "star_id" : "id-goes-here",
+    "star_name" : "Sol",
     "orbit" : 3,
     "type" : "habitable planet",
     "name" : "Earth",
