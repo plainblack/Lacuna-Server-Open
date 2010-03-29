@@ -36,9 +36,9 @@ use constant ore_consumption => 10;
 
 use constant water_consumption => 100;
 
-use constant waste_production => 300;
+use constant waste_production => 250;
 
-use constant happiness_production => 200;
+use constant happiness_production => 680;
 
 
 
