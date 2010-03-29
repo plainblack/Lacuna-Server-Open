@@ -9,6 +9,8 @@ use constant image => 'wastesequestration';
 
 use constant name => 'Waste Sequestration Well';
 
+use constant university_prereq => 3;
+
 use constant food_to_build => 10;
 
 use constant energy_to_build => 10;

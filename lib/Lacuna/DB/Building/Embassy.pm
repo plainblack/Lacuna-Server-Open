@@ -12,7 +12,7 @@ use constant controller_class => 'Lacuna::Building::Embassy';
 
 use constant max_instances_per_planet => 1;
 
-use constant building_prereq => {'Lacuna::DB::Building::SpacePort'=>1};
+use constant university_prereq => 5;
 
 use constant image => 'embassy';
 

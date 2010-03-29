@@ -10,11 +10,11 @@ around 'build_tags' => sub {
 
 use constant controller_class => 'Lacuna::Building::RND';
 
-use constant university_prereq => 5;
+use constant university_prereq => 2;
 
 use constant image => 'rnd';
 
-use constant name => 'Research and Development Lab';
+use constant name => 'Research Lab';
 
 use constant food_to_build => 100;
 

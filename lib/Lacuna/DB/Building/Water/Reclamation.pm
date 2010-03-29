@@ -10,7 +10,7 @@ around 'build_tags' => sub {
 
 use constant controller_class => 'Lacuna::Building::WaterReclamation';
 
-use constant university_prereq => 3;
+use constant university_prereq => 7;
 
 use constant image => 'waterreclamation';
 

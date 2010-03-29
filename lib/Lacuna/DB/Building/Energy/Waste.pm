@@ -12,7 +12,7 @@ use constant controller_class => 'Lacuna::Building::WasteEnergy';
 
 use constant image => 'wasteenergy';
 
-use constant university_prereq => 3;
+use constant university_prereq => 4;
 
 use constant name => 'Waste Energy Plant';
 

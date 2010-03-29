@@ -5,7 +5,7 @@ extends 'Lacuna::DB::Building::Energy';
 
 use constant controller_class => 'Lacuna::Building::Fusion';
 
-use constant university_prereq => 10;
+use constant university_prereq => 9;
 
 use constant image => 'fusion';
 

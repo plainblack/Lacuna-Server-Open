@@ -10,7 +10,7 @@ around 'build_tags' => sub {
 
 use constant controller_class => 'Lacuna::Building::Entertainment';
 
-use constant university_prereq => 2;
+use constant university_prereq => 4;
 
 use constant image => 'entertainment';
 

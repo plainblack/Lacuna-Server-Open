@@ -9,6 +9,8 @@ use constant image => 'hydrocarbon';
 
 use constant name => 'Hydrocarbon Energy Plant';
 
+use constant university_prereq => 1;
+
 use constant food_to_build => 100;
 
 use constant energy_to_build => 10;

@@ -12,7 +12,7 @@ use constant controller_class => 'Lacuna::Building::Intelligence';
 
 use constant max_instances_per_planet => 1;
 
-use constant building_prereq => {'Lacuna::DB::Building::Shipyard'=>1};
+use constant university_prereq => 2;
 
 use constant image => 'intelligence';
 

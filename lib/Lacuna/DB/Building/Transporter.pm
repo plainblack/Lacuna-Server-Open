@@ -16,13 +16,13 @@ use constant image => 'transporter';
 
 use constant name => 'Subspace Transporter';
 
-use constant food_to_build => 1000;
+use constant food_to_build => 700;
 
-use constant energy_to_build => 1200;
+use constant energy_to_build => 800;
 
-use constant ore_to_build => 1300;
+use constant ore_to_build => 900;
 
-use constant water_to_build => 1000;
+use constant water_to_build => 700;
 
 use constant waste_to_build => 700;
 

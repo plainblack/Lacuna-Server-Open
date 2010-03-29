@@ -5,7 +5,7 @@ extends 'Lacuna::DB::Building::Ore';
 
 use constant controller_class => 'Lacuna::Building::MiningMinistry';
 
-use constant building_prereq => {'Lacuna::DB::Building::SpacePort' => 1};
+use constant university_prereq => 8;
 
 use constant max_instances_per_planet => 1;
 

@@ -7,7 +7,7 @@ use constant controller_class => 'Lacuna::Building::Singularity';
 
 use constant image => 'singularity';
 
-use constant university_prereq => 17;
+use constant university_prereq => 15;
 
 use constant name => 'Singularity Energy Plant';
 

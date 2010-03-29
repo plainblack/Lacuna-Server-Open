@@ -5,8 +5,6 @@ extends 'Lacuna::DB::Building::Food::Farm';
 
 use constant controller_class => 'Lacuna::Building::Apple';
 
-use constant building_prereq => {'Lacuna::DB::Building::Water::Storage'=>1};
-
 use constant min_orbit => 3;
 
 use constant max_orbit => 3;

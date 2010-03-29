@@ -10,7 +10,7 @@ around 'build_tags' => sub {
 
 use constant controller_class => 'Lacuna::Building::Propulsion';
 
-use constant building_prereq => {'Lacuna::DB::Building::Shipyard'=>1};
+use constant university_prereq => 3;
 
 use constant max_instances_per_planet => 1;
 
