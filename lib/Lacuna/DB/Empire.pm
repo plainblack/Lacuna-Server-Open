@@ -232,8 +232,6 @@ sub found {
     # found colony
     $home_planet->found_colony($self);
     
-    $self = $home_planet->empire; # we're stale
-    
     return $self;
 }
 

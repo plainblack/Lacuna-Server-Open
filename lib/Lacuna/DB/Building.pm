@@ -556,7 +556,7 @@ sub finish_upgrade {
     $self->build_queue_id('');
     $self->put;
     $self->body->recalc_stats;
-    # we're stale, but it doesn't matter. this comment is just a reminder for future changes
+    # we're probably stale, but it doesn't matter. this comment is just a reminder for future changes
     my $empire = $self->body->empire; # fetching from body because we're stale
     $empire->trigger_full_update(skip_put=>1);
     $empire->add_medal('building'.$self->level, skip_put=>1);
