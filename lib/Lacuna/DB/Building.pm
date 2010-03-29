@@ -531,10 +531,13 @@ sub start_upgrade {
     my ($self, $cost) = @_;  
     $cost ||= $self->cost_to_upgrade;
     
+    # set time to build, plus what's in the queue
+    my $time_to_build = $self->body->get_existing_build_queue_time->add(seconds=>$cost->{time});
+    
     # add to queue
     my $queue = $self->simpledb->domain('build_queue')->insert({
         date_created        => DateTime->now,
-        date_complete       => DateTime->now->add(seconds=>$cost->{time}),
+        date_complete       => $time_to_build,
         building_id         => $self->id,
         empire_id           => $self->empire->id,
         building_class      => $self->class,

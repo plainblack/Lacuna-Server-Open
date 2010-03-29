@@ -467,6 +467,16 @@ sub has_resources_to_operate {
     return 1;
 }
 
+sub get_existing_build_queue_time {
+    my $self = shift;
+    my $time_to_build = DateTime->now;
+    my $last_in_queue = $self->builds(undef, 1)->next;
+    if (defined $last_in_queue) {
+        $time_to_build = $last_in_queue->date_complete;    
+    }
+    return $time_to_build;
+}
+    
 sub build_building {
     my ($self, $building) = @_;
     
@@ -474,16 +484,12 @@ sub build_building {
     $self->put;
     
     # set time to build, plus what's in the queue
-    my $time_to_build = DateTime->now;
-    my $last_in_queue = $self->builds(undef, 1)->next;
-    if (defined $last_in_queue) {
-        $time_to_build = $last_in_queue->date_complete;    
-    }
+    my $time_to_build = $self->get_existing_build_queue_time->add(seconds=>$building->time_to_build);
     
     # add to build queue
     my $queue = $self->simpledb->domain('build_queue')->insert({
         date_created        => DateTime->now,
-        date_complete       => $time_to_build->add(seconds=>$building->time_to_build),
+        date_complete       => $time_to_build,
         building_id         => $building->id,
         empire_id           => $self->empire_id,
         building_class      => $building->class,
