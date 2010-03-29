@@ -209,10 +209,12 @@ sub create {
 sub found {
     my ($self, $home_planet) = @_;
 
-    # found empire
-    unless ($home_planet) {
-        $home_planet = $self->species->find_home_planet;
-    }
+    # lock empire
+    $self->stage('finding home planet');
+    $self->put;
+
+    # found home planet
+    $home_planet = $self->find_home_planet;
     $home_planet->empire($self);
     $self->home_planet($home_planet);
     $self->home_planet_id($home_planet->id);
@@ -233,6 +235,46 @@ sub found {
     $home_planet->found_colony($self);
     
     return $self;
+}
+
+sub find_home_planet {
+    my ($self) = @_;
+    my $planets = $self->simpledb->domain('Lacuna::DB::Body::Planet');
+    
+    # define sub searches
+    my $min_inhabited = sub {
+        my $axis = shift;
+        return $planets->min($axis, where=>{empire_id=>['!=','None']});
+    };
+    my $max_inhabited = sub {
+        my $axis = shift;
+        return $planets->max($axis, where=>{empire_id=>['!=','None']});
+    };
+
+    # search
+    my $possible_planets = $planets->search(
+        where       => {
+            usable_as_starter   => ['!=', 'No'],
+            orbit               => ['in',@{$self->species->habitable_orbits}],
+            x                   => ['between', ($min_inhabited->('x') - 1), ($max_inhabited->('x') + 1)],
+            y                   => ['between', ($min_inhabited->('y') - 1), ($max_inhabited->('y') + 1)],
+            z                   => ['between', ($min_inhabited->('z') - 1), ($max_inhabited->('z') + 1)],
+        },
+  #      order_by    => 'usable_as_starter',
+        limit       => 1,
+        consistent  => 1,
+    );
+    my $home_planet = $possible_planets->next;
+
+    # didn't find one
+    unless (defined $home_planet) {
+        # unlock
+        $self->stage('new');
+        $self->put;
+        confess [1002, 'Could not find a home planet.'];
+    }
+    
+    return $home_planet;
 }
 
 sub send_message {

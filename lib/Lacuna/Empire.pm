@@ -87,10 +87,12 @@ sub found {
     unless (defined $empire) {
         confess [1002, "Invalid empire.", $empire_id];
     }
+    unless ($empire->stage eq 'new') {
+        confess [1010, "This empire cannot be founded again.", $empire_id];
+    }
     $empire = $empire->found;
     return { session_id => $empire->start_session->id, status => $empire->get_full_status };
 }
-
 
 sub get_status {
     my ($self, $session_id) = @_;
