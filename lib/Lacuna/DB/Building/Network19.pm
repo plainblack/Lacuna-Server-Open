@@ -38,7 +38,7 @@ use constant water_consumption => 45;
 
 use constant waste_production => 15;
 
-use constant happiness_production => 60;
+use constant happiness_production => 501;
 
 
 
