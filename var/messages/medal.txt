@@ -1,6 +1,6 @@
 %s
 ~~~
-Congratulations Sir,
+Congratulations,
 
 We were just awarded a "%s" medal. The people of %s have much to be proud of this day.
 
