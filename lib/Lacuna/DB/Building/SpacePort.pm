@@ -158,9 +158,9 @@ use constant image => 'spaceport';
 
 use constant name => 'Space Port';
 
-use constant food_to_build => 800;
+use constant food_to_build => 500;
 
-use constant energy_to_build => 900;
+use constant energy_to_build => 500;
 
 use constant ore_to_build => 500;
 

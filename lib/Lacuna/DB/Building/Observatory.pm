@@ -17,15 +17,15 @@ use constant image => 'observatory';
 
 use constant name => 'Observatory';
 
-use constant food_to_build => 150;
+use constant food_to_build => 250;
 
-use constant energy_to_build => 150;
+use constant energy_to_build => 250;
 
-use constant ore_to_build => 150;
+use constant ore_to_build => 250;
 
-use constant water_to_build => 150;
+use constant water_to_build => 250;
 
-use constant waste_to_build => 150;
+use constant waste_to_build => 250;
 
 use constant time_to_build => 300;
 

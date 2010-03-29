@@ -27,17 +27,17 @@ use constant waste_to_build => 35;
 
 use constant time_to_build => 200;
 
-use constant food_consumption => 5;
+use constant food_consumption => 15;
 
-use constant beetle_production => 35;
+use constant beetle_production => 200;
 
-use constant energy_consumption => 2;
+use constant energy_consumption => 6;
 
-use constant ore_consumption => 4;
+use constant ore_consumption => 8;
 
-use constant water_consumption => 3;
+use constant water_consumption => 17;
 
-use constant waste_production => 23;
+use constant waste_production => 44;
 
 use constant waste_consumption => 15;
 

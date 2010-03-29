@@ -29,13 +29,13 @@ use constant time_to_build => 130;
 
 use constant food_consumption => 5;
 
-use constant lapis_production => 75;
+use constant lapis_production => 174;
 
-use constant energy_consumption => 2;
+use constant energy_consumption => 11;
 
-use constant ore_consumption => 10;
+use constant ore_consumption => 20;
 
-use constant water_consumption => 10;
+use constant water_consumption => 20;
 
 use constant waste_production => 50;
 

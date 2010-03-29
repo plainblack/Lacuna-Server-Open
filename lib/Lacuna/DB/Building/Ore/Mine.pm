@@ -25,11 +25,13 @@ use constant food_consumption => 10;
 
 use constant energy_consumption => 10;
 
-use constant ore_production => 125;
+use constant ore_production => 120;
+
+use constant ore_consumption => 5;
 
 use constant water_consumption => 10;
 
-use constant waste_production => 25;
+use constant waste_production => 20;
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

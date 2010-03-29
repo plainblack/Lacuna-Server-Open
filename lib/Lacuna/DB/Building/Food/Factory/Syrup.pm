@@ -7,7 +7,7 @@ use constant controller_class => 'Lacuna::Building::Syrup';
 
 use constant image => 'syrup';
 
-use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Algae'=>1};
+use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Algae'=>5};
 
 use constant name => 'Algae Syrup Bottler';
 

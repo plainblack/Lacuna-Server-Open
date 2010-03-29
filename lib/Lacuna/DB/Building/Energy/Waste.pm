@@ -32,7 +32,7 @@ use constant food_consumption => 10;
 
 use constant energy_consumption => 110;
 
-use constant energy_production => 255;
+use constant energy_production => 450;
 
 use constant ore_consumption => 5;
 

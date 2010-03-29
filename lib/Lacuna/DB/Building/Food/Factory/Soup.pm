@@ -11,7 +11,7 @@ use constant min_orbit => 4;
 
 use constant max_orbit => 4;
 
-use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Bean'=>1};
+use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Bean'=>5};
 
 use constant name => 'Amalgus Bean Soup Cannery';
 

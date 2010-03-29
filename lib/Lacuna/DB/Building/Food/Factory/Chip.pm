@@ -11,7 +11,7 @@ use constant min_orbit => 5;
 
 use constant max_orbit => 5;
 
-use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Root'=>1};
+use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Root'=>5};
 
 use constant name => 'Denton Root Chip Frier';
 

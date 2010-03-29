@@ -27,11 +27,11 @@ use constant time_to_build => 120;
 
 use constant food_consumption => 5;
 
-use constant potato_production => 62;
+use constant potato_production => 96;
 
-use constant energy_consumption => 1;
+use constant energy_consumption => 5;
 
-use constant ore_consumption => 2;
+use constant ore_consumption => 6;
 
 use constant water_consumption => 10;
 

@@ -28,17 +28,17 @@ use constant waste_to_build => 50;
 
 use constant time_to_build => 220;
 
-use constant food_consumption => 5;
+use constant food_consumption => 30;
 
-use constant milk_production => 47;
+use constant milk_production => 250;
 
-use constant energy_consumption => 8;
+use constant energy_consumption => 28;
 
-use constant ore_consumption => 3;
+use constant ore_consumption => 7;
 
-use constant water_consumption => 15;
+use constant water_consumption => 35;
 
-use constant waste_production => 48;
+use constant waste_production => 150;
 
 
 

@@ -16,9 +16,9 @@ use constant name => 'University';
 
 use constant food_to_build => 250;
 
-use constant energy_to_build => 500;
+use constant energy_to_build => 450;
 
-use constant ore_to_build => 500;
+use constant ore_to_build => 450;
 
 use constant water_to_build => 100;
 

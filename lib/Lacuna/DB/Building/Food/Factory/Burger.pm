@@ -7,7 +7,7 @@ use constant controller_class => 'Lacuna::Building::Burger';
 
 use constant image => 'burger';
 
-use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Malcud'=>1};
+use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Malcud'=>5};
 
 use constant name => 'Malcud Burger Packer';
 

@@ -27,14 +27,17 @@ use constant energy_consumption => 15;
 
 use constant ore_consumption => 15;
 
-use constant water_production => 100;
+use constant water_consumption => 10;
+
+use constant water_production => 160;
+
+use constant waste_production => 20;
 
 sub water_production_hour {
     my ($self) = @_;
     return sprintf('%.0f',$self->body->water * $self->water_production * $self->production_hour / 10000);
 }
 
-use constant waste_production => 10;
 
 
 

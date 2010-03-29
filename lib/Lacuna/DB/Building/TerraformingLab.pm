@@ -16,15 +16,15 @@ use constant image => 'terraforminglab';
 
 use constant name => 'Terraforming Lab';
 
-use constant food_to_build => 250;
+use constant food_to_build => 450;
 
-use constant energy_to_build => 250;
+use constant energy_to_build => 450;
 
 use constant ore_to_build => 500;
 
-use constant water_to_build => 100;
+use constant water_to_build => 300;
 
-use constant waste_to_build => 250;
+use constant waste_to_build => 350;
 
 use constant time_to_build => 1200;
 

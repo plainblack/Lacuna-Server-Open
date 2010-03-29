@@ -15,29 +15,29 @@ use constant image => 'apples';
 
 use constant name => 'Apple Orchard';
 
-use constant food_to_build => 10;
+use constant food_to_build => 25;
 
 use constant energy_to_build => 100;
 
 use constant ore_to_build => 55;
 
-use constant water_to_build => 10;
+use constant water_to_build => 50;
 
 use constant waste_to_build => 5;
 
 use constant time_to_build => 130;
 
-use constant food_consumption => 5;
+use constant food_consumption => 8;
 
-use constant apple_production => 46;
+use constant apple_production => 170;
 
-use constant energy_consumption => 1;
+use constant energy_consumption => 10;
 
-use constant ore_consumption => 1;
+use constant ore_consumption => 10;
 
-use constant water_consumption => 9;
+use constant water_consumption => 19;
 
-use constant waste_production => 16;
+use constant waste_production => 30;
 
 use constant waste_consumption => 3;
 

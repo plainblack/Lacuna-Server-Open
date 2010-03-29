@@ -16,15 +16,15 @@ use constant image => 'entertainment';
 
 use constant name => 'Entertainment District';
 
-use constant food_to_build => 500;
+use constant food_to_build => 200;
 
-use constant energy_to_build => 500;
+use constant energy_to_build => 200;
 
-use constant ore_to_build => 800;
+use constant ore_to_build => 300;
 
-use constant water_to_build => 500;
+use constant water_to_build => 300;
 
-use constant waste_to_build => 500;
+use constant waste_to_build => 200;
 
 use constant time_to_build => 300;
 

@@ -11,7 +11,7 @@ use constant min_orbit => 2;
 
 use constant max_orbit => 2;
 
-use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Lapis'=>1};
+use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Lapis'=>5};
 
 use constant name => 'Lapis Pie Bakery';
 

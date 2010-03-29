@@ -9,7 +9,7 @@ use constant min_orbit => 3;
 
 use constant max_orbit => 4;
 
-use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Potato'=>1};
+use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Potato'=>5};
 
 use constant image => 'pancake';
 

@@ -16,15 +16,15 @@ use constant image => 'gas-giant-lab';
 
 use constant name => 'Gas Giant Lab';
 
-use constant food_to_build => 250;
+use constant food_to_build => 550;
 
 use constant energy_to_build => 500;
 
 use constant ore_to_build => 500;
 
-use constant water_to_build => 100;
+use constant water_to_build => 500;
 
-use constant waste_to_build => 250;
+use constant waste_to_build => 550;
 
 use constant time_to_build => 1200;
 
