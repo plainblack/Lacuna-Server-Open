@@ -261,17 +261,27 @@ sub find_home_planet {
             z                   => ['between', ($min_inhabited->('z') - 1), ($max_inhabited->('z') + 1)],
         },
   #      order_by    => 'usable_as_starter',
-        limit       => 1,
+        limit       => 10,
         consistent  => 1,
     );
-    my $home_planet = $possible_planets->next;
+
+    # find an uncontested planet in the possible planets
+    my $home_planet;
+    my $cache = $self->simpledb->cache;
+    while (my $planet = $possible_planets->next) {
+        unless ($planet->is_locked) {
+            $planet->lock;
+            $home_planet = $planet;
+            last;
+        }
+    }
 
     # didn't find one
     unless (defined $home_planet) {
         # unlock
         $self->stage('new');
         $self->put;
-        confess [1002, 'Could not find a home planet.'];
+        confess [1002, 'Could not find a home planet. Try again in a few moments.'];
     }
     
     return $home_planet;

@@ -25,6 +25,17 @@ __PACKAGE__->add_attributes(
 __PACKAGE__->belongs_to('star', 'Lacuna::DB::Star', 'star_id');
 __PACKAGE__->recast_using('class');
 
+
+sub lock {
+    my $self = shift;
+    return $self->simpledb->cache->set('planet_contention_lock',$self->id,{locked=>1},60); # lock it
+}
+
+sub is_locked {
+    my $self = shift;
+    return eval{$self->simpledb->cache->get('planet_contention_lock',$self->id)->{locked}};
+}
+
 sub image {
     confess "override me";
 }
