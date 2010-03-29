@@ -458,7 +458,7 @@ sub has_room_in_build_queue {
 sub has_resources_to_operate {
     my ($self, $building) = @_;
     my $after = $building->stats_after_upgrade;
-    foreach my $resource (qw(food energy ore water)) {
+    foreach my $resource (qw(food energy ore water waste)) {
         my $method = $resource.'_hour';
         if ($self->$method - $building->$method + $after->{$method} < 0) {
             confess [1012, "Unsustainable. Not enough resources being produced to build this.", $resource];
