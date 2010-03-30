@@ -40,7 +40,7 @@ use constant water_consumption => 35;
 
 use constant waste_production => 5;
 
-use constant happiness_consumption => 10;
+use constant happiness_consumption => 50;
 
 
 no Moose;
