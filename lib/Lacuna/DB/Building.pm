@@ -521,12 +521,17 @@ sub stats_after_upgrade {
     my $current_level = $self->level;
     $self->level($current_level + 1);
     my %stats = (
-        food_hour       => $self->food_hour,
-        energy_hour     => $self->energy_hour,
-        ore_hour        => $self->ore_hour,
-        water_hour      => $self->water_hour,
-        waste_hour      => $self->waste_hour,
-        happiness_hour  => $self->happiness_hour,
+        food_hour           => $self->food_hour,
+        food_capacity       => $self->food_capacity,
+        ore_hour            => $self->ore_hour,
+        ore_capacity        => $self->ore_capacity,
+        water_hour          => $self->water_hour,
+        water_capacity      => $self->water_capacity,
+        waste_hour          => $self->waste_hour,
+        waste_capacity      => $self->waste_capacity,
+        energy_hour         => $self->energy_hour,
+        energy_capacity     => $self->energy_capacity,
+        happiness_hour      => $self->happiness_hour,
         );
     $self->level($current_level);
     return \%stats;
