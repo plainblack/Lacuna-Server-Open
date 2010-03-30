@@ -100,7 +100,11 @@ sub create {
 
 sub validate_empire {
     my ($self, $empire_id) = @_;
+    
     # make sure it's a valid empire
+    unless ($empire_id ne '') {
+        confess [1002, "You must specify an empire id."];
+    }
     my $empire = $self->simpledb->domain('empire')->find($empire_id);
     unless (defined $empire) {
         confess [1002, "Not a valid empire.",'empire_id'];
