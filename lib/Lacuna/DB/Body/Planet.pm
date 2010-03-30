@@ -175,6 +175,14 @@ around 'get_status' => sub {
     $out->{size}            = $self->size;
     $out->{ore}             = \%ore;
     $out->{water}           = $self->water;
+    if (defined $empire) {
+        if ($self->empire_id eq $empire->id) {
+            $out->{alignment} = 'self';
+        }
+        elsif ($self->empire_id ne 'None') {
+            $out->{alignment} = 'hostile';
+        }
+    }
     if (defined $empire && $empire->id eq $self->empire_id) {
         $self->tick;
         $out->{building_count}  = $self->building_count;

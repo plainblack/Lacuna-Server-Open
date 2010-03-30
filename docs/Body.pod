@@ -25,6 +25,7 @@ Returns detailed statistics about an empire.
         "bauxite" : 4000,
         ...
     },
+    "alignment" : "none",   # can be 'none', 'ally','self', or 'hostile'
     
     --------- if you own the planet the data below will be included ---------
     

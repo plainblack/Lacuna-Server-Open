@@ -136,6 +136,7 @@ Returns an array of bodies and a hash about the star itself. The data structure 
                 "bauxite" : 4000,
                 ...
             },
+            "alignment" : "none",   # can be 'none', 'ally','self', or 'hostile'
             
             --------- if you own the planet the data below will be included ---------
             
