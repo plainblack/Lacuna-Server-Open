@@ -315,7 +315,12 @@ sub energy_hour {
 
 sub mining_production_bonus {
     my ($self) = @_;
-    return (100 + $self->empire->species->mining_affinity) / 100;
+    my $percent_increase = $self->empire->species->mining_affinity;
+    my $refinery = $self->body->refinery;
+    if (defined $refinery) {
+        $percent_increase += $refinery->level * 5;
+    }
+    return (100 + $percent_increase) / 100;
 }
 
 sub ore_production_hour {

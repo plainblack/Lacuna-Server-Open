@@ -367,6 +367,15 @@ has command => (
     },
 );
 
+has refinery => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->get_buildings_of_class('Lacuna::DB::Building::Ore::Refinery')->next;
+    },
+);
+
 sub buildings {
     my $self = shift;
     my $buildings = sub {
