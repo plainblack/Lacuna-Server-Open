@@ -17,13 +17,13 @@ sub server {
 
 sub credits {
     return [
-            { 'Game Design'         => ['JT Smith']},
+            { 'Game Design'         => ['JT Smith','Jamie Vrbsky']},
             { 'Web Client'          => ['John Rozeske']},
             { 'iPhone Client'       => ['Kevin Runde']},
             { 'Game Server'         => ['JT Smith']},
-            { 'Art and Icons'       => ['Ryan Knope','JT Smith','Joseph Wain / glyphish.com']},
+            { 'Art and Icons'       => ['Ryan Knope','JT Smith','Joseph Wain / glyphish.com','Keegan Runde']},
             { 'Geology Consultant'  => ['Geo Fuels, LLC / geofuelsllc.com']},
-            { 'Playtesters'         => ['John Oettinger','Jamie Vrbsky']},
+            { 'Playtesters'         => ['John Oettinger','Jamie Vrbsky','Mike Kastern','Chris Burr','Eric Patterson']},
             { 'Game Support'        => ['Plain Black Corporation / plainblack.com']},
             ];
 }
