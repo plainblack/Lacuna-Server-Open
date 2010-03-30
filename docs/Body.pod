@@ -113,7 +113,7 @@ Provides a list of all the building types that are available to be built on a gi
                     "food" : 500,
                     "water" : 500,
                     "energy" : 500,
-                    "waste" : 500,
+                    "waste" : 500,  # is added to your storage, not spent like the other resources
                     "ore" : 1000,
                     "time" : 1200,
                 },
