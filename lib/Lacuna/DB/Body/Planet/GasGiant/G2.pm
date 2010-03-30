@@ -7,11 +7,11 @@ use constant image => 'pg2';
 
 
 
-use constant galena => 7000;
+use constant galena => 14000;
 
-use constant bauxite => 2000;
+use constant bauxite => 4000;
 
-use constant goethite => 1000;
+use constant goethite => 2000;
 
 
 no Moose;

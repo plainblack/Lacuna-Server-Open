@@ -6,11 +6,11 @@ extends 'Lacuna::DB::Body::Planet::GasGiant';
 use constant image => 'pg1';
 
 
-use constant rutile => 7000;
+use constant rutile => 14000;
 
-use constant chromite => 2000;
+use constant chromite => 4000;
 
-use constant chalcopyrite => 1000;
+use constant chalcopyrite => 2000;
 
 
 no Moose;

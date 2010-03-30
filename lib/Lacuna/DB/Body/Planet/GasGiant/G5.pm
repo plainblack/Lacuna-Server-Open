@@ -5,11 +5,11 @@ extends 'Lacuna::DB::Body::Planet::GasGiant';
 
 use constant image => 'pg5';
 
-use constant goethite => 7000;
+use constant goethite => 14000;
 
-use constant sulfur => 2000;
+use constant sulfur => 4000;
 
-use constant magnetite => 1000;
+use constant magnetite => 2000;
 
 
 no Moose;

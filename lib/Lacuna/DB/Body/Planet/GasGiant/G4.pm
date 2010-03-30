@@ -5,11 +5,11 @@ extends 'Lacuna::DB::Body::Planet::GasGiant';
 
 use constant image => 'pg4';
 
-use constant chalcopyrite => 1000;
+use constant chalcopyrite => 2000;
 
-use constant sulfur => 2000;
+use constant sulfur => 4000;
 
-use constant magnetite => 7000;
+use constant magnetite => 14000;
 
 
 
