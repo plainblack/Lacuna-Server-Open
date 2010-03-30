@@ -83,6 +83,9 @@ sub create {
 
 sub found {
     my ($self, $empire_id) = @_;
+    if ($empire_id eq '') {
+        confess [1002, "You must specify an empire id."];
+    }
     my $empire = $self->simpledb->domain('empire')->find($empire_id);
     unless (defined $empire) {
         confess [1002, "Invalid empire.", $empire_id];
