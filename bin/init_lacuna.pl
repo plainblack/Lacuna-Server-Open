@@ -105,14 +105,17 @@ sub create_star_map {
                         $name = 'Lacuna';
                     }
                     say "Creating star $name at $x, $y, $z.";
-                    my $star = $domains{star}->insert({
+                    my $star = Lacuna::DB::Star->new(
+                        simpledb    => $db,
                         name        => $name,
                         date_created=> DateTime->now,
                         color       => $star_colors[rand(scalar(@star_colors))],
                         x           => $x,
                         y           => $y,
                         z           => $z,
-                    });
+                    );
+                    $star->set_zone_from_xyz;
+                    $star->put;
                     add_bodies(\%domains, $star);
                 }
                 say "End Z $z";
@@ -155,11 +158,12 @@ sub add_bodies {
                 z                   => $star->z,
                 star_id             => $star->id,
                 usable_as_starter   => 'No',
+                zone                => $star->zone,
             };
             if ($type eq 'habitable') {
                 $params->{class} = $planet_classes[rand(scalar(@planet_classes))];
                 $params->{empire_id} = 'None';
-                $params->{size} = ($params->{orbit} == 3) ? randint(45,60) : randint(30,100);
+                $params->{size} = ($params->{orbit} == 3) ? randint(45,60) : randint(25,85);
                 $params->{usable_as_starter} = ($params->{size} < 45) ? 'No' : rand(99999);
             }
             elsif ($type eq 'asteroid') {

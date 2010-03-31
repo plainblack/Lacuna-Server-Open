@@ -19,8 +19,11 @@ __PACKAGE__->add_attributes(
     x                       => { isa => 'Int' }, # indexed here to speed up
     y                       => { isa => 'Int' }, # searching of planets based
     z                       => { isa => 'Int' }, # on stor location
+    zone                    => { isa => 'Str' }, # fast index for where we are
     class                   => { isa => 'Str' },
 );
+
+with 'Lacuna::Role::Zoned';
 
 __PACKAGE__->belongs_to('star', 'Lacuna::DB::Star', 'star_id');
 __PACKAGE__->recast_using('class');

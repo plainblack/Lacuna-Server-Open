@@ -29,7 +29,6 @@ sub get_star_by_body {
                 z           => $star->z,
                 name        => $star->name,
                 id          => $star->id,
-                can_rename  => ($star->is_named) ? 0 : 1,
             },
             status  => $empire->get_status,
         };

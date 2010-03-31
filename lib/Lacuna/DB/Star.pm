@@ -12,14 +12,16 @@ __PACKAGE__->add_attributes(
             $self->name_cname(Lacuna::Util::cname($new));
         },
     },
-    name_cname           => { isa => 'Str' },
-    is_named        => { isa => 'Str', default => '0' },
+    name_cname      => { isa => 'Str' },
     date_created    => { isa => 'DateTime' },
     color           => { isa => 'Str' },
     x               => { isa => 'Int' },
     y               => { isa => 'Int' },
     z               => { isa => 'Int' },
+    zone            => { isa => 'Str' },
 );
+
+with 'Lacuna::Role::Zoned';
 
 __PACKAGE__->has_many('bodies', 'Lacuna::DB::Body', 'star_id', mate => 'star');
 __PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'star_id', mate => 'star');
