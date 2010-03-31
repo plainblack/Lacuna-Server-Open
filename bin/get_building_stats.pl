@@ -1,13 +1,18 @@
 use 5.010;
-use lib '../lib';
+use lib ('../lib', '../t');
 use Lacuna::DB;
 use Module::Find;
+use TestHelper;
+
+my $tester = TestHelper->new->generate_test_empire;
+my $db = $tester->db;
+my $empire = $tester->empire;
 
 open my $file, '>', '/tmp/stats.csv';
 print {$file} 'Name,Energy Hour,Food Hour,Ore Hour,Water Hour,Waste Hour,Happiness Hour,Energy Cost,Food Cost,Ore Cost,Water Cost,Waste Cost,Time Cost,Energy Storage,Food Storage,Ore Storage,Water Storage,Waste Storage'."\n";
 foreach my $module (findallmod Lacuna::DB::Building) {
     my @row;
-    my $object = $module->new(simpledb=>'xxx');
+    my $object = $module->new(simpledb=>$db, empire=>$empire, body=>$empire->home_planet);
     $object->level(1);
     next if $object->name eq 'Building';
     push @row, $object->name;
@@ -31,3 +36,4 @@ foreach my $module (findallmod Lacuna::DB::Building) {
     print {$file} join(",", @row)."\n";
 }
 close $file;
+$tester->cleanup;
