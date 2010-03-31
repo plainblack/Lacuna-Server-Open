@@ -258,17 +258,20 @@ sub find_home_planet {
     };
 
     # search
+    use Time::HiRes;
+    my $t = [Time::HiRes::gettimeofday];
     my $possible_planets = $planets->search(
         where       => {
             usable_as_starter   => ['!=', 'No'],
             orbit               => ['in',@{$self->species->habitable_orbits}],
-            x                   => ['between', ($min_inhabited->('x') - 1), ($max_inhabited->('x') + 1)],
-            y                   => ['between', ($min_inhabited->('y') - 1), ($max_inhabited->('y') + 1)],
-            z                   => ['between', ($min_inhabited->('z') - 1), ($max_inhabited->('z') + 1)],
+            zone                => '0|0|0',
+#            x                   => ['between', ($min_inhabited->('x') - 1), ($max_inhabited->('x') + 1)],
+#            y                   => ['between', ($min_inhabited->('y') - 1), ($max_inhabited->('y') + 1)],
+#            z                   => ['between', ($min_inhabited->('z') - 1), ($max_inhabited->('z') + 1)],
         },
-  #      order_by    => 'usable_as_starter',
+        order_by    => 'usable_as_starter',
         limit       => 10,
-        consistent  => 1,
+#        consistent  => 1,
     );
 
     # find an uncontested planet in the possible planets
@@ -281,6 +284,7 @@ sub find_home_planet {
             last;
         }
     }
+    print "\n\n".Time::HiRes::tv_interval($t)."\n\n";
 
     # didn't find one
     unless (defined $home_planet) {
