@@ -3,6 +3,14 @@ package Lacuna::DB::Building::Energy::Hydrocarbon;
 use Moose;
 extends 'Lacuna::DB::Building::Energy';
 
+before check_build_prereqs => sub {
+    my $self = shift;
+    my $planet = $self->body;
+    if ($planet->kerogen + $planet->methane + $planet->anthracite < 500) {
+        confess [1012,"This planet does not have a sufficient amount of hydrocarbons to operate this plant."];
+    }
+};
+
 use constant controller_class => 'Lacuna::Building::Hydrocarbon';
 
 use constant image => 'hydrocarbon';

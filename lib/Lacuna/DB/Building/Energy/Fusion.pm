@@ -3,6 +3,14 @@ package Lacuna::DB::Building::Energy::Fusion;
 use Moose;
 extends 'Lacuna::DB::Building::Energy';
 
+before check_build_prereqs => sub {
+    my $self = shift;
+    my $planet = $self->body;
+    if ($planet->uraninite + $planet->monazite < 500) {
+        confess [1012,"This planet does not have a sufficient amount of radioactive minerals to operate this plant."];
+    }
+};
+
 use constant controller_class => 'Lacuna::Building::Fusion';
 
 use constant university_prereq => 9;
