@@ -103,6 +103,11 @@ sub add_medal {
     return $self;
 }
 
+sub is_noob {
+    my $self = shift;
+    return (scalar(@{$self->probed_stars}) > 1) ? 0 : 1;
+}
+
 sub spend_essentia {
     my ($self, $value) = @_;
     $self->essentia( $self->essentia - $value );
@@ -186,6 +191,7 @@ sub is_password_valid {
     my ($self, $password) = @_;
     return ($self->password eq $self->encrypt_password($password)) ? 1 : 0;
 }
+
 sub encrypt_password {
     my ($self, $password) = @_;
     return Digest::SHA::sha256_base64($password);
