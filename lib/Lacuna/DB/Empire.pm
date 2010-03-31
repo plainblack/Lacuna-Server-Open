@@ -258,8 +258,6 @@ sub find_home_planet {
     };
 
     # search
-    use Time::HiRes;
-    my $t = [Time::HiRes::gettimeofday];
     my $possible_planets = $planets->search(
         where       => {
             usable_as_starter   => ['!=', 'No'],
@@ -284,7 +282,6 @@ sub find_home_planet {
             last;
         }
     }
-    print "\n\n".Time::HiRes::tv_interval($t)."\n\n";
 
     # didn't find one
     unless (defined $home_planet) {
