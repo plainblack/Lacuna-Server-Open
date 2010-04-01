@@ -9,7 +9,7 @@ use constant image => 'mine';
 
 use constant name => 'Mine';
 
-use constant food_to_build => 100;
+use constant food_to_build => 85;
 
 use constant energy_to_build => 100;
 
