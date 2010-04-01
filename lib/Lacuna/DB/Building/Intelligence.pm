@@ -3,6 +3,11 @@ package Lacuna::DB::Building::Intelligence;
 use Moose;
 extends 'Lacuna::DB::Building';
 
+#__PACKAGE__->add_attributes(
+#    spies           => { isa => 'Int' },
+#    counter_spies   => { isa => 'Int' },
+#);
+
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
     return ($orig->($class), qw(Infrastructure Intelligence));
@@ -39,6 +44,16 @@ use constant ore_consumption => 10;
 use constant water_consumption => 35;
 
 use constant waste_production => 5;
+
+sub add_counter_spy {
+    my ($self, $count) = @_;
+    # do this later
+    return $self;
+}
+
+sub count_counter_spies {
+    return 0;
+}
 
 
 no Moose;

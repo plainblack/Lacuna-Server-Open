@@ -93,16 +93,21 @@ sub send_message {
         }
     }
     foreach my $to (@to) {
-        Lacuna::DB::Message->send(
-            simpledb    => $self->simpledb,
-            from        => $empire,
-            subject     => $subject,
-            body        => $body,
-            to          => $to,
-            in_reply_to => $options->{in_reply_to},
-            recipients  => \@sent,
-            tags        => ['Correspondence'],
-        );
+        if ($to->id eq 'lacuna_expanse_corp') {
+            Lacuna::Tutorial->new(empire=>$empire)->finish;
+        }
+        else {
+            Lacuna::DB::Message->send(
+                simpledb    => $self->simpledb,
+                from        => $empire,
+                subject     => $subject,
+                body        => $body,
+                to          => $to,
+                in_reply_to => $options->{in_reply_to},
+                recipients  => \@sent,
+                tags        => ['Correspondence'],
+            );
+        }
     }
     return {
         message => {

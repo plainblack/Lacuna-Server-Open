@@ -8,85 +8,86 @@ use Lacuna::Util qw(to_seconds);
 no warnings 'uninitialized';
 
 __PACKAGE__->add_attributes(
-    size                    => { isa => 'Int' },
-    empire_id               => { isa => 'Str', default=>'None' },
-    last_tick               => { isa => 'DateTime'},
-    building_count          => { isa => 'Int', default=>0 },
-    happiness_hour           => { isa => 'Int', default=>0 },
-    happiness               => { isa => 'Int', default=>0 },
-    waste_hour               => { isa => 'Int', default=>0 },
-    waste_stored            => { isa => 'Int', default=>0 },
-    waste_capacity           => { isa => 'Int', default=>0 },
-    energy_hour              => { isa => 'Int', default=>0 },
-    energy_stored           => { isa => 'Int', default=>0 },
-    energy_capacity          => { isa => 'Int', default=>0 },
-    water_hour               => { isa => 'Int', default=>0 },
-    water_stored            => { isa => 'Int', default=>0 },
-    water_capacity           => { isa => 'Int', default=>0 },
-    ore_capacity             => { isa => 'Int', default=>0 },
-    rutile_stored           => { isa => 'Int', default=>0 },
-    chromite_stored         => { isa => 'Int', default=>0 },
-    chalcopyrite_stored     => { isa => 'Int', default=>0 },
-    galena_stored           => { isa => 'Int', default=>0 },
-    gold_stored             => { isa => 'Int', default=>0 },
-    uraninite_stored        => { isa => 'Int', default=>0 },
-    bauxite_stored          => { isa => 'Int', default=>0 },
-    goethite_stored         => { isa => 'Int', default=>0 },
-    halite_stored           => { isa => 'Int', default=>0 },
-    gypsum_stored           => { isa => 'Int', default=>0 },
-    trona_stored            => { isa => 'Int', default=>0 },
-    kerogen_stored          => { isa => 'Int', default=>0 },
-    methane_stored        => { isa => 'Int', default=>0 },
-    anthracite_stored       => { isa => 'Int', default=>0 },
-    sulfur_stored          => { isa => 'Int', default=>0 },
-    zircon_stored           => { isa => 'Int', default=>0 },
-    monazite_stored         => { isa => 'Int', default=>0 },
-    fluorite_stored         => { isa => 'Int', default=>0 },
-    beryl_stored            => { isa => 'Int', default=>0 },
-    magnetite_stored        => { isa => 'Int', default=>0 },
-    ore_hour         => { isa => 'Int', default=>0 },
-    food_capacity            => { isa => 'Int', default=>0 },
-    food_consumption_hour          => { isa => 'Int', default=>0 },
-    lapis_production_hour          => { isa => 'Int', default=>0 },
-    potato_production_hour         => { isa => 'Int', default=>0 },
-    apple_production_hour          => { isa => 'Int', default=>0 },
-    root_production_hour           => { isa => 'Int', default=>0 },
-    corn_production_hour           => { isa => 'Int', default=>0 },
-    cider_production_hour          => { isa => 'Int', default=>0 },
-    wheat_production_hour          => { isa => 'Int', default=>0 },
-    bread_production_hour          => { isa => 'Int', default=>0 },
-    soup_production_hour           => { isa => 'Int', default=>0 },
-    chip_production_hour           => { isa => 'Int', default=>0 },
-    pie_production_hour            => { isa => 'Int', default=>0 },
-    pancake_production_hour        => { isa => 'Int', default=>0 },
-    milk_production_hour           => { isa => 'Int', default=>0 },
-    meal_production_hour           => { isa => 'Int', default=>0 },
-    algae_production_hour          => { isa => 'Int', default=>0 },
-    syrup_production_hour          => { isa => 'Int', default=>0 },
-    fungus_production_hour         => { isa => 'Int', default=>0 },
-    burger_production_hour         => { isa => 'Int', default=>0 },
-    shake_production_hour          => { isa => 'Int', default=>0 },
-    beetle_production_hour         => { isa => 'Int', default=>0 },
-    lapis_stored            => { isa => 'Int', default=>0 },
-    potato_stored           => { isa => 'Int', default=>0 },
-    apple_stored            => { isa => 'Int', default=>0 },
-    root_stored             => { isa => 'Int', default=>0 },
-    corn_stored             => { isa => 'Int', default=>0 },
-    cider_stored            => { isa => 'Int', default=>0 },
-    wheat_stored            => { isa => 'Int', default=>0 },
-    bread_stored            => { isa => 'Int', default=>0 },
-    soup_stored             => { isa => 'Int', default=>0 },
-    chip_stored             => { isa => 'Int', default=>0 },
-    pie_stored              => { isa => 'Int', default=>0 },
-    pancake_stored          => { isa => 'Int', default=>0 },
-    milk_stored             => { isa => 'Int', default=>0 },
-    meal_stored             => { isa => 'Int', default=>0 },
-    algae_stored            => { isa => 'Int', default=>0 },
-    syrup_stored            => { isa => 'Int', default=>0 },
-    fungus_stored           => { isa => 'Int', default=>0 },
-    burger_stored           => { isa => 'Int', default=>0 },
-    shake_stored            => { isa => 'Int', default=>0 },
-    beetle_stored           => { isa => 'Int', default=>0 },
+    size                            => { isa => 'Int' },
+    empire_id                       => { isa => 'Str', default=>'None' },
+    last_tick                       => { isa => 'DateTime'},
+    building_count                  => { isa => 'Int', default=>0 },
+    happiness_hour                  => { isa => 'Int', default=>0 },
+    happiness                       => { isa => 'Int', default=>0 },
+    waste_hour                      => { isa => 'Int', default=>0 },
+    waste_stored                    => { isa => 'Int', default=>0 },
+    waste_capacity                  => { isa => 'Int', default=>0 },
+    energy_hour                     => { isa => 'Int', default=>0 },
+    energy_stored                   => { isa => 'Int', default=>0 },
+    energy_capacity                 => { isa => 'Int', default=>0 },
+    water_hour                      => { isa => 'Int', default=>0 },
+    water_stored                    => { isa => 'Int', default=>0 },
+    water_capacity                  => { isa => 'Int', default=>0 },
+    ore_capacity                    => { isa => 'Int', default=>0 },
+    rutile_stored                   => { isa => 'Int', default=>0 },
+    chromite_stored                 => { isa => 'Int', default=>0 },
+    chalcopyrite_stored             => { isa => 'Int', default=>0 },
+    galena_stored                   => { isa => 'Int', default=>0 },
+    gold_stored                     => { isa => 'Int', default=>0 },
+    uraninite_stored                => { isa => 'Int', default=>0 },
+    bauxite_stored                  => { isa => 'Int', default=>0 },
+    goethite_stored                 => { isa => 'Int', default=>0 },
+    halite_stored                   => { isa => 'Int', default=>0 },
+    gypsum_stored                   => { isa => 'Int', default=>0 },
+    trona_stored                    => { isa => 'Int', default=>0 },
+    kerogen_stored                  => { isa => 'Int', default=>0 },
+    methane_stored                  => { isa => 'Int', default=>0 },
+    anthracite_stored               => { isa => 'Int', default=>0 },
+    sulfur_stored                   => { isa => 'Int', default=>0 },
+    zircon_stored                   => { isa => 'Int', default=>0 },
+    monazite_stored                 => { isa => 'Int', default=>0 },
+    fluorite_stored                 => { isa => 'Int', default=>0 },
+    beryl_stored                    => { isa => 'Int', default=>0 },
+    magnetite_stored                => { isa => 'Int', default=>0 },
+    ore_hour                        => { isa => 'Int', default=>0 },
+    food_capacity                   => { isa => 'Int', default=>0 },
+    food_consumption_hour           => { isa => 'Int', default=>0 },
+    lapis_production_hour           => { isa => 'Int', default=>0 },
+    potato_production_hour          => { isa => 'Int', default=>0 },
+    apple_production_hour           => { isa => 'Int', default=>0 },
+    root_production_hour            => { isa => 'Int', default=>0 },
+    corn_production_hour            => { isa => 'Int', default=>0 },
+    cider_production_hour           => { isa => 'Int', default=>0 },
+    wheat_production_hour           => { isa => 'Int', default=>0 },
+    bread_production_hour           => { isa => 'Int', default=>0 },
+    soup_production_hour            => { isa => 'Int', default=>0 },
+    chip_production_hour            => { isa => 'Int', default=>0 },
+    pie_production_hour             => { isa => 'Int', default=>0 },
+    pancake_production_hour         => { isa => 'Int', default=>0 },
+    milk_production_hour            => { isa => 'Int', default=>0 },
+    meal_production_hour            => { isa => 'Int', default=>0 },
+    algae_production_hour           => { isa => 'Int', default=>0 },
+    syrup_production_hour           => { isa => 'Int', default=>0 },
+    fungus_production_hour          => { isa => 'Int', default=>0 },
+    burger_production_hour          => { isa => 'Int', default=>0 },
+    shake_production_hour           => { isa => 'Int', default=>0 },
+    beetle_production_hour          => { isa => 'Int', default=>0 },
+    lapis_stored                    => { isa => 'Int', default=>0 },
+    potato_stored                   => { isa => 'Int', default=>0 },
+    apple_stored                    => { isa => 'Int', default=>0 },
+    root_stored                     => { isa => 'Int', default=>0 },
+    corn_stored                     => { isa => 'Int', default=>0 },
+    cider_stored                    => { isa => 'Int', default=>0 },
+    wheat_stored                    => { isa => 'Int', default=>0 },
+    bread_stored                    => { isa => 'Int', default=>0 },
+    soup_stored                     => { isa => 'Int', default=>0 },
+    chip_stored                     => { isa => 'Int', default=>0 },
+    pie_stored                      => { isa => 'Int', default=>0 },
+    pancake_stored                  => { isa => 'Int', default=>0 },
+    milk_stored                     => { isa => 'Int', default=>0 },
+    meal_stored                     => { isa => 'Int', default=>0 },
+    algae_stored                    => { isa => 'Int', default=>0 },
+    syrup_stored                    => { isa => 'Int', default=>0 },
+    fungus_stored                   => { isa => 'Int', default=>0 },
+    burger_stored                   => { isa => 'Int', default=>0 },
+    shake_stored                    => { isa => 'Int', default=>0 },
+    beetle_stored                   => { isa => 'Int', default=>0 },
+    freebies                        => { isa => 'HashRef' },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
@@ -97,6 +98,48 @@ __PACKAGE__->has_many('waste_buildings','Lacuna::DB::Building::Waste','body_id',
 __PACKAGE__->has_many('ore_buildings','Lacuna::DB::Building::Ore','body_id', mate => 'body');
 __PACKAGE__->has_many('energy_buildings','Lacuna::DB::Building::Energy','body_id', mate => 'body');
 __PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','body_id', mate => 'body');
+
+sub get_free_upgrade {
+    my ($self, $class) = @_;
+    return $self->freebies->{upgrades}{$class};
+}
+
+sub add_free_upgrade {
+    my ($self, $class, $level) = @_;
+    my $freebies = $self->freebies;
+    $freebies->{upgrades}{$class} = $level;
+    $self->freebies($freebies);
+    return $self;
+}
+
+sub spend_free_upgrade {
+    my ($self, $class) = @_;
+    my $freebies = $self->freebies;
+    delete $freebies->{upgrades}{$class};
+    $self->freebies($freebies);
+    return $self;
+}
+
+sub get_free_build {
+    my ($self, $class) = @_;
+    return $self->freebies->{builds}{$class};
+}
+
+sub add_free_build {
+    my ($self, $class, $level) = @_;
+    my $freebies = $self->freebies;
+    $freebies->{builds}{$class} = $level;
+    $self->freebies($freebies);
+    return $self;
+}
+
+sub spend_free_build {
+    my ($self, $class) = @_;
+    my $freebies = $self->freebies;
+    delete $freebies->{builds}{$class};
+    $self->freebies($freebies);
+    return $self;
+}
 
 sub builds { 
     my ($self, $where, $reverse) = @_;
