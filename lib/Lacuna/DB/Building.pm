@@ -435,18 +435,20 @@ sub check_build_prereqs {
         confess [1013, "Can't build a building outside of it's Goldilox zone."];
     }
     
-    # check university level
-    if ($self->university_prereq > $body->empire->university_level + 1) {
-        confess [1013, "University research too low.",$self->university_prereq];
-    }
-
-    # check building prereqs
-    my $db = $self->simpledb;
-    my $prereqs = $self->building_prereq;
-    foreach my $key (keys %{$prereqs}) {
-        my $count = $db->domain($key)->count(where=>{body_id=>$body->id, class=>$key, level=>['>=',$prereqs->{$key}]});
-        if ($count < 1) {
-            confess [1013, "You don't have the necessary prerequisite buildings.",[$key->name, $prereqs->{$key}]];
+    unless ($self->has_free_build) {
+        # check university level
+        if ($self->university_prereq > $body->empire->university_level + 1) {
+            confess [1013, "University research too low.",$self->university_prereq];
+        }
+    
+        # check building prereqs
+        my $db = $self->simpledb;
+        my $prereqs = $self->building_prereq;
+        foreach my $key (keys %{$prereqs}) {
+            my $count = $db->domain($key)->count(where=>{body_id=>$body->id, class=>$key, level=>['>=',$prereqs->{$key}]});
+            if ($count < 1) {
+                confess [1013, "You don't have the necessary prerequisite buildings.",[$key->name, $prereqs->{$key}]];
+            }
         }
     }
     
@@ -502,10 +504,26 @@ sub time_cost_reduction_bonus {
     return (100 - $extra - $self->empire->species->management_affinity) / 100
 }
 
+sub has_free_build {
+    my $self = shift;
+    return ($self->level == 0 && exists $self->empire->freebies->{builds}{$self->class}) ? 1 : 0;
+}
+
+sub has_free_upgrade {
+    my $self = shift;
+    return ($self->empire->freebies->{upgrades}{$self->class} == $self->level + 1) ? 1 : 0;
+}
+
 sub cost_to_upgrade {
     my ($self) = @_;
     my $upgrade_cost = $self->upgrade_cost;
     my $upgrade_cost_reduction = $self->construction_cost_reduction_bonus;
+    if ($self->has_free_build) { # gets a free building
+        $upgrade_cost_reduction = 0;
+    }
+    elsif ($self->has_free_upgrade) { # gets a free upgrade
+        $upgrade_cost_reduction = 0;
+    }
     return {
         food    => sprintf('%.0f',$self->food_to_build * $upgrade_cost * $upgrade_cost_reduction),
         energy  => sprintf('%.0f',$self->energy_to_build * $upgrade_cost * $upgrade_cost_reduction),

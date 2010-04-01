@@ -70,6 +70,8 @@ use constant BUILDABLE_CLASSES => (qw(
     ));
 
 use constant MEDALS => {
+    hoarder             => 'Completed Four Storage Buildings',
+    pleased_to_meet_you => 'Meeting the Lacunans',
     P1                  => 'Settled P1 Type Planet',  
     P2                  => 'Settled P2 Type Planet',  
     P3                  => 'Settled P3 Type Planet',  

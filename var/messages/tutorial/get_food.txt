@@ -1,0 +1,12 @@
+You Need Food
+~~~
+Excellent. As I mentioned before resources are going to be the key to your survival and growth. You'll want to gather more food right away. Not every planet has the right climate to create every type of food. You'll have to use what's available to you.
+
+To build a new building click or tap the 'build' button in an empty space. Then choose one of the various food production buildings available to you. Get yourself up to at least %s food per hour.
+
+Let me know when you have %s food per hour by replying to this message. The more we work together the more I think we can help each other. As a reward for completing this task I'll send you a power cell with 100 units of energy stored in it. That should help you complete future tasks.
+
+Regards,
+
+Tou Re Ell
+Lacuna Expanse Corp

@@ -355,11 +355,13 @@ sub magnetite_hour {
 sub get_buildings_of_class {
     my ($self, $class) = @_;
     return $self->simpledb->domain($class)->search(
-        where   => {
+        where       => {
             body_id => $self->id,
             class   => $class,
+            level   => ['>=', 0],
         },
-        set     => {
+        order_by    => ['level'],
+        set         => {
             body    => $self,
             empire  => $self->empire,
         },

@@ -33,6 +33,9 @@ __PACKAGE__->add_attributes(
     university_level    => { isa => 'Int', default=>0 },
     medals              => { isa => 'HashRef' },
     needs_full_update   => { isa => 'Str', default=>0 },
+    tutorial_stage      => { isa => 'Str', default=>'explore_the_ui' },
+    tutorial_scratch    => { isa => 'Str' },
+    freebies            => { isa => 'HashRef' },
 );
 
 # personal confederacies
@@ -45,6 +48,38 @@ __PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Message', 'from_id', mate =>
 __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id', mate => 'receiver');
 __PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id', mate => 'empire');
 
+
+sub add_free_upgrade {
+    my ($self, $class, $level) = @_;
+    my $freebies = $self->freebies;
+    $freebies->{upgrades}{$class} = $level;
+    $self->freebies($freebies);
+    return $self;
+}
+
+sub spend_free_upgrade {
+    my ($self, $class) = @_;
+    my $freebies = $self->freebies;
+    delete $freebies->{upgrades}{$class};
+    $self->freebies($freebies);
+    return $self;
+}
+
+sub add_free_build {
+    my ($self, $class, $level) = @_;
+    my $freebies = $self->freebies;
+    $freebies->{builds}{$class} = $level;
+    $self->freebies($freebies);
+    return $self;
+}
+
+sub spend_free_build {
+    my ($self, $class) = @_;
+    my $freebies = $self->freebies;
+    delete $freebies->{builds}{$class};
+    $self->freebies($freebies);
+    return $self;
+}
 
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $body_id) = @_;
@@ -312,8 +347,14 @@ sub send_predefined_message {
             $message = <$file>;
         }
         close $file;
+        unless (ref $options{params} eq 'ARRAY') {
+            $options{params} = [];
+        }
         my ($subject, $body) = split("~~~\n",sprintf($message, @{$options{params}}));
         chomp $subject;
+        if ($options{body_prefix}) {
+            $body = $options{body_prefix}.$body;
+        }
         return $self->send_message(
             subject => $subject,
             body    => $body,

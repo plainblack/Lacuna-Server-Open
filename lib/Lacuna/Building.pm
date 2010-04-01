@@ -41,12 +41,17 @@ sub upgrade {
     # spend resources
     my $body = $building->body;
     $body->empire($empire);
-    $body->spend_water($cost->{water});
-    $body->spend_energy($cost->{energy});
-    $body->spend_food($cost->{food});
-    $body->spend_ore($cost->{ore});
-    $body->add_waste($cost->{waste});
-    $body->put;
+    if ($self->has_free_upgrade) {
+        $empire->spend_free_upgrade($self->class)->put;
+    }
+    else {
+        $body->spend_water($cost->{water});
+        $body->spend_energy($cost->{energy});
+        $body->spend_food($cost->{food});
+        $body->spend_ore($cost->{ore});
+        $body->add_waste($cost->{waste});
+        $body->put;
+    }
 
     $building->start_upgrade($cost);
 
@@ -133,12 +138,18 @@ sub build {
     $body = $body->can_build_building($building);
 
     # adjust resources
-    $body->spend_food($building->food_to_build);
-    $body->spend_water($building->water_to_build);
-    $body->add_waste($building->waste_to_build);
-    $body->spend_ore($building->ore_to_build);
-    $body->spend_energy($building->energy_to_build);
-    $body->put;
+    if ($self->has_free_build) {
+        $building->level($empire->freebie->{builds}{$self->class} - 1);
+        $empire->spend_free_build($self->class)->put;
+    }
+    else {
+        $body->spend_food($building->food_to_build);
+        $body->spend_water($building->water_to_build);
+        $body->add_waste($building->waste_to_build);
+        $body->spend_ore($building->ore_to_build);
+        $body->spend_energy($building->energy_to_build);
+        $body->put;
+    }
 
     # build it
     $body->build_building($building);
