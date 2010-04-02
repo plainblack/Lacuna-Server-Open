@@ -72,3 +72,8 @@ my $double_carriage_returns = Lacuna::Verify->new(content=>\"foo\n\nbar", throws
 ok($double_carriage_returns->no_tags, '\n\n no_tags');
 ok($double_carriage_returns->no_profanity, '\n\n no_profanity');
 ok($double_carriage_returns->not_empty, '\n\n not_empty');
+
+my $double_carriage_returns = Lacuna::Verify->new(content=>\"foo\n\n", throws=>'NO');
+ok($double_carriage_returns->no_tags, '\n\n no_tags');
+ok($double_carriage_returns->no_profanity, '\n\n no_profanity');
+ok($double_carriage_returns->not_empty, '\n\n not_empty');

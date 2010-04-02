@@ -139,7 +139,7 @@ sub build {
 
     # adjust resources
     if ($building->has_free_build) {
-        $building->level($empire->freebie->{builds}{$self->class} - 1);
+        $building->level($body->freebie->{builds}{$self->class} - 1);
         $empire->spend_free_build($self->class)->put;
     }
     else {
