@@ -42,7 +42,7 @@ sub upgrade {
     my $body = $building->body;
     $body->empire($empire);
     if ($building->has_free_upgrade) {
-        $empire->spend_free_upgrade($self->class)->put;
+        $body->spend_free_upgrade($building->class)->put;
     }
     else {
         $body->spend_water($cost->{water});
@@ -139,8 +139,8 @@ sub build {
 
     # adjust resources
     if ($building->has_free_build) {
-        $building->level($body->freebie->{builds}{$self->class} - 1);
-        $empire->spend_free_build($self->class)->put;
+        $building->level($body->get_free_build($building->class) - 1);
+        $body->spend_free_build($building->class)->put;
     }
     else {
         $body->spend_food($building->food_to_build);
