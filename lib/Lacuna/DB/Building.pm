@@ -437,7 +437,7 @@ sub check_build_prereqs {
     
     unless ($self->has_free_build) {
         # check university level
-        if ($self->university_prereq > $body->empire->university_level + 1) {
+        if ($self->university_prereq > $body->empire->university_level) {
             confess [1013, "University research too low.",$self->university_prereq];
         }
     
