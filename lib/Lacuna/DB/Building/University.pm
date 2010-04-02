@@ -14,29 +14,29 @@ use constant image => 'university';
 
 use constant name => 'University';
 
-use constant food_to_build => 250;
+use constant food_to_build => 190;
 
-use constant energy_to_build => 450;
+use constant energy_to_build => 190;
 
-use constant ore_to_build => 450;
+use constant ore_to_build => 190;
 
-use constant water_to_build => 100;
+use constant water_to_build => 190;
 
-use constant waste_to_build => 250;
+use constant waste_to_build => 100;
 
 use constant time_to_build => 600;
 
-use constant food_consumption => 50;
+use constant food_consumption => 100;
 
-use constant energy_consumption => 50;
+use constant energy_consumption => 100;
 
-use constant ore_consumption => 10;
+use constant ore_consumption => 20;
 
-use constant water_consumption => 50;
+use constant water_consumption => 110;
 
-use constant waste_production => 70;
+use constant waste_production => 130;
 
-use constant happiness_production => 90;
+use constant happiness_production => 200;
 
 after finish_upgrade => sub {
     my $self = shift;

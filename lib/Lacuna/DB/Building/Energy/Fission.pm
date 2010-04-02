@@ -19,15 +19,15 @@ use constant image => 'fission';
 
 use constant name => 'Fission Energy Plant';
 
-use constant food_to_build => 100;
+use constant food_to_build => 250;
 
-use constant energy_to_build => 200;
+use constant energy_to_build => 365;
 
-use constant ore_to_build => 200;
+use constant ore_to_build => 365;
 
-use constant water_to_build => 150;
+use constant water_to_build => 330;
 
-use constant waste_to_build => 75;
+use constant waste_to_build => 150;
 
 use constant time_to_build => 400;
 

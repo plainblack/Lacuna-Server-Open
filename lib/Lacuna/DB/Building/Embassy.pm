@@ -18,25 +18,25 @@ use constant image => 'embassy';
 
 use constant name => 'Embassy';
 
-use constant food_to_build => 70;
+use constant food_to_build => 65;
 
-use constant energy_to_build => 70;
+use constant energy_to_build => 65;
 
-use constant ore_to_build => 70;
+use constant ore_to_build => 65;
 
-use constant water_to_build => 70;
+use constant water_to_build => 65;
 
 use constant waste_to_build => 70;
 
 use constant time_to_build => 300;
 
-use constant food_consumption => 25;
+use constant food_consumption => 30;
 
 use constant energy_consumption => 30;
 
 use constant ore_consumption => 5;
 
-use constant water_consumption => 25;
+use constant water_consumption => 30;
 
 use constant waste_production => 5;
 

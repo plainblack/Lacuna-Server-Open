@@ -286,27 +286,27 @@ use constant image => 'shipyard';
 
 use constant name => 'Shipyard';
 
-use constant food_to_build => 250;
+use constant food_to_build => 75;
 
-use constant energy_to_build => 250;
+use constant energy_to_build => 75;
 
-use constant ore_to_build => 250;
+use constant ore_to_build => 75;
 
-use constant water_to_build => 200;
+use constant water_to_build => 75;
 
-use constant waste_to_build => 150;
+use constant waste_to_build => 100;
 
 use constant time_to_build => 300;
 
-use constant food_consumption => 5;
+use constant food_consumption => 20;
 
-use constant energy_consumption => 10;
+use constant energy_consumption => 30;
 
-use constant ore_consumption => 5;
+use constant ore_consumption => 30;
 
-use constant water_consumption => 7;
+use constant water_consumption => 20;
 
-use constant waste_production => 2;
+use constant waste_production => 10;
 
 
 

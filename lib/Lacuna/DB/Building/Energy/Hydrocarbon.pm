@@ -19,13 +19,13 @@ use constant name => 'Hydrocarbon Energy Plant';
 
 use constant university_prereq => 1;
 
-use constant food_to_build => 100;
+use constant food_to_build => 300;
 
-use constant energy_to_build => 10;
+use constant energy_to_build => 260;
 
-use constant ore_to_build => 100;
+use constant ore_to_build => 330;
 
-use constant water_to_build => 100;
+use constant water_to_build => 300;
 
 use constant waste_to_build => 20;
 
@@ -35,13 +35,13 @@ use constant food_consumption => 15;
 
 use constant energy_consumption => 120;
 
-use constant energy_production => 560;
+use constant energy_production => 660;
 
 use constant ore_consumption => 90;
 
 use constant water_consumption => 15;
 
-use constant waste_production => 400;
+use constant waste_production => 300;
 
 
 

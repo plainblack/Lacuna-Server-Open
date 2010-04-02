@@ -15,27 +15,25 @@ use constant image => 'orerefinery';
 
 use constant name => 'Ore Refinery';
 
-use constant food_to_build => 100;
+use constant food_to_build => 147;
 
-use constant energy_to_build => 100;
+use constant energy_to_build => 148;
 
-use constant ore_to_build => 100;
+use constant ore_to_build => 147;
 
-use constant water_to_build => 100;
+use constant water_to_build => 148;
 
 use constant waste_to_build => 100;
 
 use constant time_to_build => 250;
 
-use constant food_consumption => 15;
+use constant food_consumption => 25;
 
-use constant energy_consumption => 80;
+use constant energy_consumption => 150;
 
-use constant ore_consumption => 100;
+use constant water_consumption => 70;
 
-use constant water_consumption => 100;
-
-use constant waste_production => 70;
+use constant waste_production => 80;
 
 
 

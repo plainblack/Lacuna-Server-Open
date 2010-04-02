@@ -11,15 +11,15 @@ use constant image => 'fusion';
 
 use constant name => 'Fusion Energy Plant';
 
-use constant food_to_build => 500;
+use constant food_to_build => 270;
 
-use constant energy_to_build => 650;
+use constant energy_to_build => 340;
 
-use constant ore_to_build => 575;
+use constant ore_to_build => 320;
 
-use constant water_to_build => 480;
+use constant water_to_build => 240;
 
-use constant waste_to_build => 2000;
+use constant waste_to_build => 300;
 
 use constant time_to_build => 350;
 

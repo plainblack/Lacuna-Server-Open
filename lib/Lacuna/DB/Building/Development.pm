@@ -46,25 +46,25 @@ use constant image => 'devel';
 
 use constant name => 'Development Ministry';
 
-use constant food_to_build => 70;
+use constant food_to_build => 78;
 
-use constant energy_to_build => 70;
+use constant energy_to_build => 77;
 
-use constant ore_to_build => 70;
+use constant ore_to_build => 77;
 
-use constant water_to_build => 70;
+use constant water_to_build => 78;
 
 use constant waste_to_build => 70;
 
 use constant time_to_build => 300;
 
-use constant food_consumption => 25;
+use constant food_consumption => 50;
 
 use constant energy_consumption => 50;
 
-use constant ore_consumption => 10;
+use constant ore_consumption => 20;
 
-use constant water_consumption => 25;
+use constant water_consumption => 50;
 
 use constant waste_production => 5;
 

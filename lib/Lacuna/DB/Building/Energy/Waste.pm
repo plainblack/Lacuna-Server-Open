@@ -16,13 +16,13 @@ use constant university_prereq => 4;
 
 use constant name => 'Waste Energy Plant';
 
-use constant food_to_build => 100;
+use constant food_to_build => 180;
 
-use constant energy_to_build => 10;
+use constant energy_to_build => 170;
 
-use constant ore_to_build => 100;
+use constant ore_to_build => 150;
 
-use constant water_to_build => 100;
+use constant water_to_build => 190;
 
 use constant waste_to_build => 20;
 
@@ -32,13 +32,13 @@ use constant food_consumption => 10;
 
 use constant energy_consumption => 110;
 
-use constant energy_production => 450;
+use constant energy_production => 325;
 
 use constant ore_consumption => 5;
 
 use constant water_consumption => 10;
 
-use constant waste_consumption => 100;
+use constant waste_consumption => 200;
 
 use constant waste_production => 10;
 

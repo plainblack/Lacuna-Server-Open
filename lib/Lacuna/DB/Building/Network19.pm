@@ -16,15 +16,15 @@ use constant image => 'network19';
 
 use constant name => 'Network 19 Affliate';
 
-use constant food_to_build => 100;
+use constant food_to_build => 98;
 
-use constant energy_to_build => 100;
+use constant energy_to_build => 98;
 
 use constant ore_to_build => 100;
 
-use constant water_to_build => 100;
+use constant water_to_build => 98;
 
-use constant waste_to_build => 100;
+use constant waste_to_build => 60;
 
 use constant time_to_build => 300;
 
@@ -34,11 +34,11 @@ use constant energy_consumption => 95;
 
 use constant ore_consumption => 2;
 
-use constant water_consumption => 45;
+use constant water_consumption => 40;
 
 use constant waste_production => 15;
 
-use constant happiness_production => 157;
+use constant happiness_production => 152;
 
 
 

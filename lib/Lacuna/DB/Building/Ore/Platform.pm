@@ -13,17 +13,6 @@ use constant image => 'miningplatform';
 
 use constant name => 'Mining Platform';
 
-use constant food_to_build => 500;
-
-use constant energy_to_build => 500;
-
-use constant ore_to_build => 50;
-
-use constant water_to_build => 500;
-
-use constant waste_to_build => 425;
-
-use constant time_to_build => 300;
 
 
 no Moose;

@@ -18,15 +18,15 @@ use constant image => 'trade';
 
 use constant name => 'Trade Ministry';
 
-use constant food_to_build => 70;
+use constant food_to_build => 75;
 
-use constant energy_to_build => 70;
+use constant energy_to_build => 75;
 
-use constant ore_to_build => 70;
+use constant ore_to_build => 75;
 
-use constant water_to_build => 70;
+use constant water_to_build => 75;
 
-use constant waste_to_build => 70;
+use constant waste_to_build => 80;
 
 use constant time_to_build => 300;
 

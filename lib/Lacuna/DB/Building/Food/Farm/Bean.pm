@@ -15,11 +15,11 @@ use constant name => 'Amalgus Bean Plantation';
 
 use constant food_to_build => 10;
 
-use constant energy_to_build => 100;
+use constant energy_to_build => 61;
 
 use constant ore_to_build => 55;
 
-use constant water_to_build => 10;
+use constant water_to_build => 40;
 
 use constant waste_to_build => 10;
 

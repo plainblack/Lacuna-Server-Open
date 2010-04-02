@@ -9,11 +9,11 @@ use constant image => 'geo';
 
 use constant name => 'Geo Energy Plant';
 
-use constant food_to_build => 100;
+use constant food_to_build => 140;
 
-use constant energy_to_build => 10;
+use constant energy_to_build => 18;
 
-use constant ore_to_build => 100;
+use constant ore_to_build => 140;
 
 use constant water_to_build => 100;
 

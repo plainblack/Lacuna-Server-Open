@@ -158,25 +158,25 @@ use constant image => 'spaceport';
 
 use constant name => 'Space Port';
 
-use constant food_to_build => 500;
+use constant food_to_build => 160;
 
-use constant energy_to_build => 500;
+use constant energy_to_build => 180;
 
-use constant ore_to_build => 500;
+use constant ore_to_build => 220;
 
-use constant water_to_build => 500;
+use constant water_to_build => 160;
 
-use constant waste_to_build => 400;
+use constant waste_to_build => 100;
 
 use constant time_to_build => 300;
 
-use constant food_consumption => 100;
+use constant food_consumption => 50;
 
 use constant energy_consumption => 100;
 
-use constant ore_consumption => 120;
+use constant ore_consumption => 100;
 
-use constant water_consumption => 150;
+use constant water_consumption => 60;
 
 use constant waste_production => 100;
 

@@ -16,33 +16,33 @@ use constant university_prereq => 5;
 
 use constant name => 'Waste Treatment Center';
 
-use constant food_to_build => 100;
+use constant food_to_build => 75;
 
-use constant energy_to_build => 100;
+use constant energy_to_build => 95;
 
-use constant ore_to_build => 100;
+use constant ore_to_build => 83;
 
-use constant water_to_build => 100;
+use constant water_to_build => 95;
 
 use constant waste_to_build => 20;
 
 use constant time_to_build => 300;
 
-use constant food_consumption => 5;
+use constant food_consumption => 6;
 
 use constant energy_consumption => 10;
 
-use constant energy_production => 93;
+use constant energy_production => 71;
 
 use constant ore_consumption => 10;
 
-use constant ore_production => 93;
+use constant ore_production => 71;
 
 use constant water_consumption => 10;
 
-use constant water_production => 93;
+use constant water_production => 71;
 
-use constant waste_consumption => 110;
+use constant waste_consumption => 200;
 
 use constant waste_production => 10;
 

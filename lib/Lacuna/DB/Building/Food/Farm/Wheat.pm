@@ -13,13 +13,13 @@ use constant image => 'wheat';
 
 use constant name => 'Wheat Farm';
 
-use constant food_to_build => 10;
+use constant food_to_build => 15;
 
 use constant energy_to_build => 100;
 
-use constant ore_to_build => 55;
+use constant ore_to_build => 75;
 
-use constant water_to_build => 10;
+use constant water_to_build => 20;
 
 use constant waste_to_build => 10;
 

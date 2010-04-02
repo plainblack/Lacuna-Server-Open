@@ -18,13 +18,13 @@ use constant image => 'security';
 
 use constant name => 'Security Ministry';
 
-use constant food_to_build => 70;
+use constant food_to_build => 90;
 
-use constant energy_to_build => 70;
+use constant energy_to_build => 100;
 
-use constant ore_to_build => 70;
+use constant ore_to_build => 120;
 
-use constant water_to_build => 70;
+use constant water_to_build => 90;
 
 use constant waste_to_build => 70;
 
@@ -38,7 +38,7 @@ use constant ore_consumption => 10;
 
 use constant water_consumption => 35;
 
-use constant waste_production => 5;
+use constant waste_production => 25;
 
 use constant happiness_consumption => 50;
 

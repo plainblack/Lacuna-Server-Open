@@ -15,9 +15,9 @@ use constant name => 'Potato Patch';
 
 use constant food_to_build => 10;
 
-use constant energy_to_build => 100;
+use constant energy_to_build => 90;
 
-use constant ore_to_build => 55;
+use constant ore_to_build => 56;
 
 use constant water_to_build => 10;
 

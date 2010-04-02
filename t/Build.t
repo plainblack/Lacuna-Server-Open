@@ -79,6 +79,20 @@ ok($result->{result}{building}{upgrade}{can}, 'university can be upgraded');
 $uni->start_upgrade;
 $uni->finish_upgrade;
 
+$home->ore_capacity(5000);
+$home->energy_capacity(5000);
+$home->food_capacity(5000);
+$home->water_capacity(5000);
+$home->bauxite_stored(5000);
+$home->algae_stored(5000);
+$home->energy_stored(5000);
+$home->water_stored(5000);
+$home->energy_hour(5000);
+$home->algae_production_hour(5000);
+$home->water_hour(5000);
+$home->ore_hour(5000);
+$home->put;
+
 $result = $tester->post('empire', 'get_full_status', [$session_id]);
 $last_energy = $result->{result}{empire}{planets}{$home_planet}{energy_stored};
 

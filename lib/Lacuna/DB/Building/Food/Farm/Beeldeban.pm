@@ -21,7 +21,7 @@ use constant energy_to_build => 100;
 
 use constant ore_to_build => 125;
 
-use constant water_to_build => 50;
+use constant water_to_build => 76;
 
 use constant waste_to_build => 35;
 

@@ -18,11 +18,11 @@ use constant name => 'Algae Cropper';
 
 use constant food_to_build => 10;
 
-use constant energy_to_build => 100;
+use constant energy_to_build => 115;
 
-use constant ore_to_build => 55;
+use constant ore_to_build => 105;
 
-use constant water_to_build => 50;
+use constant water_to_build => 100;
 
 use constant waste_to_build => 20;
 

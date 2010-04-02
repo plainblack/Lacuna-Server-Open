@@ -15,11 +15,11 @@ use constant name => 'Corn Plantation';
 
 use constant food_to_build => 10;
 
-use constant energy_to_build => 100;
+use constant energy_to_build => 70;
 
 use constant ore_to_build => 55;
 
-use constant water_to_build => 10;
+use constant water_to_build => 83;
 
 use constant waste_to_build => 10;
 

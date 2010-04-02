@@ -18,13 +18,13 @@ use constant image => 'command';
 
 use constant name => 'Planetary Command Center';
 
-use constant food_to_build => 500;
+use constant food_to_build => 320;
 
-use constant energy_to_build => 500;
+use constant energy_to_build => 320;
 
-use constant ore_to_build => 500;
+use constant ore_to_build => 320;
 
-use constant water_to_build => 500;
+use constant water_to_build => 320;
 
 use constant waste_to_build => 500;
 

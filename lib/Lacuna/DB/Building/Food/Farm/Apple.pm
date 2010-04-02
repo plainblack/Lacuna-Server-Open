@@ -15,11 +15,11 @@ use constant name => 'Apple Orchard';
 
 use constant food_to_build => 25;
 
-use constant energy_to_build => 100;
+use constant energy_to_build => 50;
 
 use constant ore_to_build => 55;
 
-use constant water_to_build => 50;
+use constant water_to_build => 175;
 
 use constant waste_to_build => 5;
 

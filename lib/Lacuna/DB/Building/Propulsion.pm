@@ -18,25 +18,25 @@ use constant image => 'propulsion';
 
 use constant name => 'Propulsion System Factory';
 
-use constant food_to_build => 250;
+use constant food_to_build => 220;
 
-use constant energy_to_build => 325;
+use constant energy_to_build => 220;
 
-use constant ore_to_build => 325;
+use constant ore_to_build => 220;
 
-use constant water_to_build => 300;
+use constant water_to_build => 220;
 
-use constant waste_to_build => 250;
+use constant waste_to_build => 100;
 
 use constant time_to_build => 600;
 
-use constant food_consumption => 10;
+use constant food_consumption => 70;
 
 use constant energy_consumption => 100;
 
 use constant ore_consumption => 100;
 
-use constant water_consumption => 50;
+use constant water_consumption => 100;
 
 use constant waste_production => 75;
 

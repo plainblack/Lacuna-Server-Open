@@ -11,13 +11,13 @@ use constant university_prereq => 15;
 
 use constant name => 'Singularity Energy Plant';
 
-use constant food_to_build => 1100;
+use constant food_to_build => 1000;
 
-use constant energy_to_build => 1205;
+use constant energy_to_build => 1105;
 
-use constant ore_to_build => 2350;
+use constant ore_to_build => 1400;
 
-use constant water_to_build => 1190;
+use constant water_to_build => 1100;
 
 use constant waste_to_build => 1475;
 

@@ -101,7 +101,7 @@ __PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','b
 
 sub get_free_upgrade {
     my ($self, $class) = @_;
-    return $self->freebies->{upgrades}{$class};
+    return $self->freebies->{upgrades}{$class} || 0;
 }
 
 sub add_free_upgrade {
@@ -122,7 +122,7 @@ sub spend_free_upgrade {
 
 sub get_free_build {
     my ($self, $class) = @_;
-    return $self->freebies->{builds}{$class};
+    return $self->freebies->{builds}{$class} || 0;
 }
 
 sub add_free_build {
