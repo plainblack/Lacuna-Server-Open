@@ -43,7 +43,7 @@ sub empty {
 
 sub not_empty {
     my $self = shift;
-    return $self->ok(${$self->content} ne '' && ${$self->content} !~ m/^\s+$/xms);
+    return $self->ok(${$self->content} ne '' && ${$self->content} =~ m/\S+/xms);
 }
 
 sub no_profanity {

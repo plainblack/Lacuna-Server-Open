@@ -74,7 +74,7 @@ ok($double_carriage_returns->no_profanity, '\n\n no_profanity');
 ok($double_carriage_returns->not_empty, '\n\n not_empty');
 
 my $double_carriage_returns = Lacuna::Verify->new(content=>\"foo\n\n", throws=>'NO');
-ok($double_carriage_returns->not_empty, '\n\n not_empty');
+ok($double_carriage_returns->not_empty, 'after \n\n not_empty');
 
 my $double_carriage_returns = Lacuna::Verify->new(content=>\"\n\nfoo", throws=>'NO');
-ok($double_carriage_returns->not_empty, '\n\n not_empty');
+ok($double_carriage_returns->not_empty, 'before \n\n not_empty');
