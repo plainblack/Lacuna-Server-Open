@@ -23,7 +23,7 @@ sub credits {
             { 'Game Server'         => ['JT Smith']},
             { 'Art and Icons'       => ['Ryan Knope','JT Smith','Joseph Wain / glyphish.com','Keegan Runde']},
             { 'Geology Consultant'  => ['Geo Fuels, LLC / geofuelsllc.com']},
-            { 'Playtesters'         => ['John Oettinger','Jamie Vrbsky','Mike Kastern','Chris Burr','Eric Patterson']},
+            { 'Playtesters'         => ['John Oettinger','Jamie Vrbsky','Mike Kastern','Chris Burr','Eric Patterson','Frank Dillon']},
             { 'Game Support'        => ['Plain Black Corporation / plainblack.com']},
             ];
 }

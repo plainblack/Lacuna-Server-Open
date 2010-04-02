@@ -191,7 +191,7 @@ sub drinking_water {
         }
     }
     return {
-        params      => [sprintf '%.1f', $home->water],
+        params      => [sprintf '%.1f', ($home->water/100)],
         filename    => 'tutorial/drinking_water.txt',  
     };
 }
