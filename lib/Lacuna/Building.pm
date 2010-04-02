@@ -42,19 +42,15 @@ sub upgrade {
     my $body = $building->body;
     $body->empire($empire);
     if ($building->has_free_upgrade) {
-        warn "BING BANG BOOM";
         $empire->spend_free_upgrade($self->class)->put;
     }
     else {
-        warn "ENERGY: ".$cost->{energy};
-        warn "EBEFORE:".$body->energy_stored;
         $body->spend_water($cost->{water});
         $body->spend_energy($cost->{energy});
         $body->spend_food($cost->{food});
         $body->spend_ore($cost->{ore});
         $body->add_waste($cost->{waste});
         $body->put;
-        warn "EAFTER:".$body->energy_stored;
     }
 
     $building->start_upgrade($cost);
