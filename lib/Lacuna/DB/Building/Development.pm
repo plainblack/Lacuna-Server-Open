@@ -58,15 +58,15 @@ use constant waste_to_build => 70;
 
 use constant time_to_build => 300;
 
-use constant food_consumption => 50;
+use constant food_consumption => 10;
 
-use constant energy_consumption => 50;
+use constant energy_consumption => 10;
 
-use constant ore_consumption => 20;
+use constant ore_consumption => 4;
 
-use constant water_consumption => 50;
+use constant water_consumption => 10;
 
-use constant waste_production => 5;
+use constant waste_production => 1;
 
 
 no Moose;

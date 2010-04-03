@@ -27,17 +27,17 @@ use constant waste_to_build => 50;
 
 use constant time_to_build => 200;
 
-use constant food_consumption => 150;
+use constant food_consumption => 30;
 
-use constant cider_production => 150;
+use constant cider_production => 30;
 
-use constant energy_consumption => 50;
+use constant energy_consumption => 10;
 
-use constant ore_consumption => 10;
+use constant ore_consumption => 2;
 
-use constant water_consumption => 140;
+use constant water_consumption => 28;
 
-use constant waste_production => 200;
+use constant waste_production => 40;
 
 
 

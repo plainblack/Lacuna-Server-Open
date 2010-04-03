@@ -35,15 +35,15 @@ use constant waste_to_build => 70;
 
 use constant time_to_build => 300;
 
-use constant food_consumption => 35;
+use constant food_consumption => 7;
 
-use constant energy_consumption => 50;
+use constant energy_consumption => 10;
 
-use constant ore_consumption => 10;
+use constant ore_consumption => 2;
 
-use constant water_consumption => 35;
+use constant water_consumption => 7;
 
-use constant waste_production => 5;
+use constant waste_production => 1;
 
 sub add_counter_spy {
     my ($self, $count) = @_;

@@ -31,15 +31,15 @@ use constant food_consumption => 15;
 
 use constant beetle_production => 200;
 
-use constant energy_consumption => 6;
+use constant energy_consumption => 1;
 
-use constant ore_consumption => 8;
+use constant ore_consumption => 2;
 
-use constant water_consumption => 17;
+use constant water_consumption => 3;
 
-use constant waste_production => 44;
+use constant waste_production => 9;
 
-use constant waste_consumption => 15;
+use constant waste_consumption => 3;
 
 
 
