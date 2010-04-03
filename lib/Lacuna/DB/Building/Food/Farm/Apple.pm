@@ -33,7 +33,7 @@ use constant energy_consumption => 2;
 
 use constant ore_consumption => 2;
 
-use constant water_consumption => 20;
+use constant water_consumption => 4;
 
 use constant waste_production => 6;
 
