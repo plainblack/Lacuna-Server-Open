@@ -26,17 +26,17 @@ use constant waste_to_build => 100;
 
 use constant time_to_build => 600;
 
-use constant food_consumption => 100;
+use constant food_consumption => 20;
 
-use constant energy_consumption => 100;
+use constant energy_consumption => 20;
 
-use constant ore_consumption => 20;
+use constant ore_consumption => 4;
 
-use constant water_consumption => 110;
+use constant water_consumption => 22;
 
-use constant waste_production => 130;
+use constant waste_production => 26;
 
-use constant happiness_production => 200;
+use constant happiness_production => 40;
 
 after finish_upgrade => sub {
     my $self = shift;

@@ -365,7 +365,7 @@ before 'delete' => sub {
 
 sub trigger_full_update {
     my ($self, %options) = @_;
-    if ($self->needs_full_update) {
+    unless ($self->needs_full_update) {
         $self->needs_full_update(1);
         $self->put unless $options{skip_put};
     }

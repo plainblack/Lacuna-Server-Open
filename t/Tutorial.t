@@ -281,6 +281,7 @@ $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'intelligence');
 
+sleep 30;
 
 END {
     $tester->cleanup;

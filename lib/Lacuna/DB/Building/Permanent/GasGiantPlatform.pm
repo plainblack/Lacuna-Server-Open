@@ -30,7 +30,7 @@ use constant waste_to_build => 1500;
 
 use constant time_to_build => 600;
 
-use constant waste_production => 150;
+use constant waste_production => 30;
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

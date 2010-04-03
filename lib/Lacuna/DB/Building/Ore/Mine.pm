@@ -21,17 +21,17 @@ use constant waste_to_build => 85;
 
 use constant time_to_build => 120;
 
-use constant food_consumption => 10;
+use constant food_consumption => 2;
 
-use constant energy_consumption => 10;
+use constant energy_consumption => 2;
 
-use constant ore_production => 120;
+use constant ore_production => 24;
 
-use constant ore_consumption => 5;
+use constant ore_consumption => 1;
 
-use constant water_consumption => 10;
+use constant water_consumption => 2;
 
-use constant waste_production => 20;
+use constant waste_production => 4;
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
