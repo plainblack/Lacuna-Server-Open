@@ -65,7 +65,7 @@ sub get_food {
     }
     my $food_hour = $empire->tutorial_scratch;
     if ($food_hour eq '') {
-        $food_hour = $empire->tutorial_scratch($home->food_hour + 50);
+        $food_hour = $empire->tutorial_scratch($home->food_hour + 5);
         $empire->put;
     }
     return {
@@ -277,10 +277,7 @@ sub fool {
     }
     my $food_hour = $empire->tutorial_scratch;
     if ($food_hour eq '') {
-        $food_hour = $empire->tutorial_scratch($home->food_hour + 50);
-        if ($food_hour < 300) {
-            $food_hour = 300;
-        }
+        $food_hour = $empire->tutorial_scratch($home->food_hour + 10);
         $empire->put;
     }
     return {
@@ -302,10 +299,7 @@ sub energy {
     }
     my $energy_hour = $empire->tutorial_scratch;
     if ($energy_hour eq '') {
-        $energy_hour = $empire->tutorial_scratch($home->energy_hour + 50);
-        if ($energy_hour < 500) {
-            $energy_hour = 500;
-        }
+        $energy_hour = $empire->tutorial_scratch($home->energy_hour + 10);
         $empire->put;
     }
     return {
@@ -319,7 +313,7 @@ sub the_300 {
     my $empire = $self->empire;
     my $home = $empire->home_planet;
     if ($finish) {
-        if ($home->ore_hour >= 300 && $home->water_hour >= 300) {
+        if ($home->ore_hour >= 60 && $home->water_hour >= 60) {
             $home->add_free_upgrade('Lacuna::DB::Building::Ore::Storage', 2)
                 ->add_free_upgrade('Lacuna::DB::Building::Water::Storage', 2)
                 ->put;
