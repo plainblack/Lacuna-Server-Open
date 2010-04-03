@@ -9,13 +9,13 @@ use constant image => 'waterpurification';
 
 use constant name => 'Water Purification Plant';
 
-use constant food_to_build => 50;
+use constant food_to_build => 90;
 
-use constant energy_to_build => 70;
+use constant energy_to_build => 80;
 
 use constant ore_to_build => 110;
 
-use constant water_to_build => 60;
+use constant water_to_build => 10;
 
 use constant waste_to_build => 20;
 
