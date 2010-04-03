@@ -313,7 +313,7 @@ sub the_300 {
     my $empire = $self->empire;
     my $home = $empire->home_planet;
     if ($finish) {
-        if ($home->ore_hour >= 60 && $home->water_hour >= 60) {
+        if ($home->ore_hour >= 50 && $home->water_hour >= 50) {
             $home->add_free_upgrade('Lacuna::DB::Building::Ore::Storage', 2)
                 ->add_free_upgrade('Lacuna::DB::Building::Water::Storage', 2)
                 ->put;
