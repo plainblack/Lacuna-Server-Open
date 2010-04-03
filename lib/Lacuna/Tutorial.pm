@@ -58,6 +58,7 @@ sub get_food {
         if ($home->food_hour >= $empire->tutorial_scratch) {
             $home->add_energy(100);
             $home->put;
+            $empire->trigger_full_update;
             $self->start('keep_the_lights_on');
             return undef;
         }
@@ -75,12 +76,14 @@ sub get_food {
 
 sub keep_the_lights_on {
     my ($self, $finish) = @_;
-    my $home = $self->empire->home_planet;
+    my $empire = $self->empire;
+    my $home = $empire->home_planet;
     if ($finish) {
         my $geo = $home->get_buildings_of_class('Lacuna::DB::Building::Energy::Geo')->next;
         if (defined $geo && $geo->level >= 1) {
             $home->add_pie(100);
             $home->put;
+            $empire->trigger_full_update;
             $self->start('drinking_water');
             return undef;
         }
@@ -92,7 +95,8 @@ sub keep_the_lights_on {
 
 sub mine {
     my ($self, $finish) = @_;
-    my $home = $self->empire->home_planet;
+    my $empire = $self->empire;
+    my $home = $empire->home_planet;
     if ($finish) {
         my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Ore::Mine')->next;
         if (defined $building && $building->level >= 1) {
@@ -101,6 +105,7 @@ sub mine {
             $home->add_energy(200);
             $home->add_water(200);
             $home->put;
+            $empire->trigger_full_update;
             $self->start('university');
             return undef;
         }
@@ -112,7 +117,8 @@ sub mine {
 
 sub spaceport {
     my ($self, $finish) = @_;
-    my $home = $self->empire->home_planet;
+    my $empire = $self->empire;
+    my $home = $empire->home_planet;
     if ($finish) {
         my $building = $home->get_buildings_of_class('Lacuna::DB::Building::SpacePort')->next;
         if (defined $building && $building->level >= 1) {
@@ -120,6 +126,7 @@ sub spaceport {
             $home->add_apple(500);
             $home->add_water(300);
             $home->put;
+            $empire->trigger_full_update;
             $self->start('shipyard');
             return undef;
         }
@@ -131,12 +138,14 @@ sub spaceport {
 
 sub shipyard {
     my ($self, $finish) = @_;
-    my $home = $self->empire->home_planet;
+    my $empire = $self->empire;
+    my $home = $empire->home_planet;
     if ($finish) {
         my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Shipyard')->next;
         if (defined $building && $building->level >= 1) {
             $home->add_galena(500);
             $home->put;
+            $empire->trigger_full_update;
             $self->start('pawn');
             return undef;
         }
@@ -180,12 +189,14 @@ sub counter_spy {
 
 sub drinking_water {
     my ($self, $finish) = @_;
-    my $home = $self->empire->home_planet;
+    my $empire = $self->empire;
+    my $home = $empire->home_planet;
     if ($finish) {
         my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Water::Purification')->next;
         if (defined $building && $building->level >= 1) {
             $home->add_rutile(100);
             $home->put;
+            $empire->trigger_full_update;
             $self->start('mine');
             return undef;
         }
