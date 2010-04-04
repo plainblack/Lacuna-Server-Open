@@ -522,7 +522,8 @@ sub has_resources_to_operate {
     my $after = $building->stats_after_upgrade;
     foreach my $resource (qw(food energy ore water waste)) {
         my $method = $resource.'_hour';
-        if ($self->$method - $building->$method + $after->{$method} < 0) {
+        # don't allow it if it sucks resources && its sucking more than we're producing
+        if ($after->{$method} < 0 && $self->$method - $building->$method + $after->{$method} < 0) {
             confess [1012, "Unsustainable. Not enough resources being produced to build this.", $resource];
         }
     }
