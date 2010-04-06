@@ -146,7 +146,7 @@ sub view_sent {
     my $empire = $self->get_empire_by_session($session_id);
     my $where = {
         from_id         => $empire->id,
-        has_archived    => ['!=',1],
+        to_id           => ['!=',$empire->id],
     };
     return $self->view_messages($where, $empire, @_);
 }

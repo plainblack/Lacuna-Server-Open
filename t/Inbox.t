@@ -32,7 +32,7 @@ $result = $tester->post('inbox', 'read_message', [$session_id, $message_id]);
 is($result->{result}{message}{body}, $message_body, 'can view a message');
 
 $result = $tester->post('inbox','view_sent', [$session_id]);
-is($result->{result}{messages}[0]{subject}, 'my subject', 'view sent works');
+is(scalar(@{$result->{result}{messages}}), 0, 'should not see messages i sent myself in sent');
 
 $result = $tester->post('inbox', 'archive_messages', [$session_id, [$message_id]]);
 is($result->{result}{success}[0], $message_id, 'archiving works');
