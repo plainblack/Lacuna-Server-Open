@@ -595,10 +595,10 @@ sub found_colony {
     $command->finish_upgrade;
     
     # add starting resources
-    $self->add_algae(500);
-    $self->add_energy(500);
-    $self->add_water(500);
-    $self->add_ore(500);
+    $self->add_algae(700);
+    $self->add_energy(700);
+    $self->add_water(700);
+    $self->add_ore(700);
     $self->put;
         
     return $self;

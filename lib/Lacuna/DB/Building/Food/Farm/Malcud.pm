@@ -28,7 +28,7 @@ use constant time_to_build => 115;
 
 use constant food_consumption => 1;
 
-use constant fungus_production => 16;
+use constant fungus_production => 20;
 
 use constant energy_consumption => 1;
 

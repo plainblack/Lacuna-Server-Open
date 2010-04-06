@@ -7,7 +7,7 @@ use constant controller_class => 'Lacuna::Building::Denton';
 
 use constant min_orbit => 5;
 
-use constant max_orbit => 5;
+use constant max_orbit => 6;
 
 use constant image => 'roots';
 
@@ -27,7 +27,7 @@ use constant time_to_build => 120;
 
 use constant food_consumption => 1;
 
-use constant root_production => 20;
+use constant root_production => 25;
 
 use constant energy_consumption => 1;
 

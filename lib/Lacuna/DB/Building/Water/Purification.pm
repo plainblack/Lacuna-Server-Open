@@ -29,9 +29,9 @@ use constant ore_consumption => 3;
 
 use constant water_consumption => 2;
 
-use constant water_production => 32;
+use constant water_production => 40;
 
-use constant waste_production => 4;
+use constant waste_production => 5;
 
 sub water_production_hour {
     my ($self) = @_;

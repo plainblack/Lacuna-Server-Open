@@ -30,15 +30,15 @@ use constant time_to_build => 110;
 
 use constant food_consumption => 1;
 
-use constant algae_production => 18;
+use constant algae_production => 23;
 
-use constant energy_production => 9;
+use constant energy_production => 11;
 
 use constant energy_consumption => 2;
 
 use constant ore_consumption => 1;
 
-use constant water_consumption => 2;
+use constant water_consumption => 3;
 
 use constant waste_consumption => 1;
 
