@@ -538,19 +538,11 @@ sub stats_after_upgrade {
     my ($self) = @_;
     my $current_level = $self->level;
     $self->level($current_level + 1);
-    my %stats = (
-        food_hour           => $self->food_hour,
-        food_capacity       => $self->food_capacity,
-        ore_hour            => $self->ore_hour,
-        ore_capacity        => $self->ore_capacity,
-        water_hour          => $self->water_hour,
-        water_capacity      => $self->water_capacity,
-        waste_hour          => $self->waste_hour,
-        waste_capacity      => $self->waste_capacity,
-        energy_hour         => $self->energy_hour,
-        energy_capacity     => $self->energy_capacity,
-        happiness_hour      => $self->happiness_hour,
-        );
+    my %stats;
+    my @list = qw(food_hour food_capacity ore_hour ore_capacity water_hour water_capacity waste_hour energy_hour energy_capacity happiness_hour);
+    foreach my $resource (@list) {
+        $stats{$resource} = $self->$resource;
+    }
     $self->level($current_level);
     return \%stats;
 }
@@ -573,6 +565,9 @@ sub start_upgrade {
     });
     $self->build_queue_id($queue->id);
     $self->put;
+    
+    # clear cache
+    $self->body->clear_last_in_build_queue;
 
     $self->empire->trigger_full_update;
 }
@@ -583,6 +578,7 @@ sub finish_upgrade {
     $self->level($self->level + 1);
     $self->build_queue_id('');
     $self->put;
+    $self->body->clear_last_in_build_queue;
     $self->body->recalc_stats;
     # we're probably stale, but it doesn't matter. this comment is just a reminder for future changes
     my $empire = $self->body->empire; # fetching from body because we're stale

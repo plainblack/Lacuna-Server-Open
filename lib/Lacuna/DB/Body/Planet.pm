@@ -481,9 +481,9 @@ sub check_for_available_build_space {
 }
 
 sub has_met_building_prereqs {
-    my ($self, $building) = @_;
+    my ($self, $building, $cost) = @_;
     $building->check_build_prereqs($self);
-    $self->has_resources_to_build($building);
+    $self->has_resources_to_build($building, $cost);
     $self->has_resources_to_operate($building);
     $self->has_max_instances_of_building($building);
     return 1;
@@ -504,7 +504,7 @@ sub has_room_in_build_queue {
     my $dev_ministry = $self->simpledb->domain('Lacuna::DB::Building::Development')->search(
         where   => {
             body_id => $self->id,
-            class   => 'Lacuna::DB::Building::Development'
+            class   => 'Lacuna::DB::Building::Development',
         }
         )->next;
     if (defined $dev_ministry) {
@@ -517,23 +517,91 @@ sub has_room_in_build_queue {
     return 1; 
 }
 
+use constant operating_resource_names => qw(food_hour energy_hour ore_hour water_hour waste_hour);
+
+has future_operating_resources => (
+    is      => 'rw',
+    clearer => 'clear_future_operating_resources',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        
+        # get current
+        my %current;
+        my %future;
+        foreach my $method ($self->operating_resource_names) {
+            $future{$method} = $current{$method} = $self->$method;
+        }
+        
+        # adjust for what's already in build queue
+        my $queued_builds = $self->builds;
+        while (my $build = $queued_builds->next) {
+            my $other = $build->building->stats_after_upgrade;
+            foreach my $method ($self->operating_resource_names) {
+                $future{$method} += $other->{$method} - $current{$method};
+            }
+        }
+        return \%future;
+    },
+);
+
 sub has_resources_to_operate {
-    my ($self, $building) = @_;
+    my ($self, $building, $queued_builds) = @_;
+    
+    # get future
+    my $future = $self->future_operating_resources;
+    
+    # get change for this building
     my $after = $building->stats_after_upgrade;
-    foreach my $resource (qw(food energy ore water waste)) {
-        my $method = $resource.'_hour';
+
+    # check our ability to sustain ourselves
+    foreach my $method ($self->operating_resource_names) {
+        my $delta = $after->{$method} - $building->$method;
         # don't allow it if it sucks resources && its sucking more than we're producing
-        if ($after->{$method} < 0 && $self->$method - $building->$method + $after->{$method} < 0) {
+        if ($delta < 0 && $future->{$method} + $delta < 0) {
+            my $resource = $method;
+            $resource =~ s/(\w+)_hour/$1/;
             confess [1012, "Unsustainable. Not enough resources being produced to build this.", $resource];
         }
     }
     return 1;
 }
 
+sub has_resources_to_build {
+    my ($self, $building, $cost) = @_;
+    $cost ||= $building->cost_to_upgrade;
+    foreach my $resource (qw(food energy ore water)) {
+        my $stored = $resource.'_stored';
+        unless ($self->$stored >= $cost->{$resource}) {
+            confess [1011, "Not enough resources in storage to build this.", $resource];
+        }
+    }
+    return 1;
+}
+
+sub has_max_instances_of_building {
+    my ($self, $building) = @_;
+    return 0 if $building->max_instances_per_planet == 9999999;
+    my $count = $self->simpledb->domain($building->class)->count(where=>{body_id=>$self->id, class=>$building->class});
+    if ($count >= $building->max_instances_per_planet) {
+        confess [1009, sprintf("You are only allowed %s of these buildings per planet.",$building->max_instances_per_planet), [$building->max_instances_per_planet, $count]];
+    }
+}
+
+has last_in_build_queue => (
+    is      => 'ro',
+    clearer => 'clear_last_in_build_queue',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->builds(undef, 1)->next;
+    }
+);
+
 sub get_existing_build_queue_time {
     my $self = shift;
     my $time_to_build = DateTime->now;
-    my $last_in_queue = $self->builds(undef, 1)->next;
+    my $last_in_queue = $self->last_in_build_queue;
     if (defined $last_in_queue) {
         $time_to_build = $last_in_queue->date_complete;    
     }
@@ -604,27 +672,6 @@ sub found_colony {
     return $self;
 }
 
-sub has_resources_to_build {
-    my ($self, $building, $cost) = @_;
-    $cost ||= $building->cost_to_upgrade;
-    foreach my $resource (qw(food energy ore water)) {
-        my $stored = $resource.'_stored';
-        unless ($self->$stored >= $cost->{$resource}) {
-            confess [1011, "Not enough resources in storage to build this.", $resource];
-        }
-    }
-    return 1;
-}
-
-sub has_max_instances_of_building {
-    my ($self, $building) = @_;
-    return 0 if $building->max_instances_per_planet == 9999999;
-    my $count = $self->simpledb->domain($building->class)->count(where=>{body_id=>$self->id, class=>$building->class});
-    if ($count >= $building->max_instances_per_planet) {
-        confess [1009, sprintf("You are only allowed %s of these buildings per planet.",$building->max_instances_per_planet), [$building->max_instances_per_planet, $count]];
-    }
-}
-
 sub recalc_stats {
     my ($self) = @_;
     my %stats;
@@ -691,6 +738,10 @@ sub tick {
         }
     }
     $self->tick_to($now);
+
+    # clear caches
+    $self->clear_future_operating_resources;
+    
 }
 
 sub tick_to {
