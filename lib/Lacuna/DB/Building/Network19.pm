@@ -14,7 +14,7 @@ use constant university_prereq => 2;
 
 use constant image => 'network19';
 
-use constant name => 'Network 19 Affliate';
+use constant name => 'Network 19 Affiliate';
 
 use constant food_to_build => 98;
 
