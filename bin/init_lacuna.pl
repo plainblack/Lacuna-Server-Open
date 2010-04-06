@@ -164,7 +164,7 @@ sub add_bodies {
                 $params->{class} = $planet_classes[rand(scalar(@planet_classes))];
                 $params->{empire_id} = 'None';
                 $params->{size} = ($params->{orbit} == 3) ? randint(45,60) : randint(25,85);
-                $params->{usable_as_starter} = ($params->{size} < 45) ? 'No' : rand(99999);
+                $params->{usable_as_starter} = ($params->{size} >= 47 && $params->{size} <= 56) ? rand(99999) : 'No';
             }
             elsif ($type eq 'asteroid') {
                 $params->{class} = $asteroid_classes[rand(scalar(@asteroid_classes))];
