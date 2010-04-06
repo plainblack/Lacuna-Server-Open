@@ -607,7 +607,17 @@ sub get_existing_build_queue_time {
     }
     return $time_to_build;
 }
-    
+
+sub lock_plot {
+    my ($self, $x, $y) = @_;
+    return $self->simpledb->cache->set('plot_contention_lock', $self->id.'|'.$x.'|'.$y,{locked=>1}, 30); # lock it
+}
+
+sub is_plot_locked {
+    my ($self, $x, $y) = @_;
+    return eval{$self->simpledb->cache->get('plot_contention_lock', $self->id.'|'.$x.'|'.$y)->{locked}};
+}
+
 sub build_building {
     my ($self, $building) = @_;
     

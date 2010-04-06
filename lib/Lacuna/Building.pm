@@ -118,6 +118,16 @@ sub build {
     my ($self, $session_id, $body_id, $x, $y) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $empire->get_body($body_id);
+
+    # check the plot lock
+    if ($body->is_plot_locked($x, $y)) {
+        confess [1013, "That plot is reserved for another building.", [$x,$y]];
+    }
+    else {
+        $body->lock_plot($x,$y);
+    }
+    
+    # prepare the body for the building
     $body->tick;
 
     # create dummy building
