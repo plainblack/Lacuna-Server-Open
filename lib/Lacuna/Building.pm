@@ -31,6 +31,16 @@ sub upgrade {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_domain, $building_id);
+
+    # check the upgrade lock
+    if ($building->is_upgrade_locked) {
+        confess [1013, "An upgrade request is already being processed on this building."];
+    }
+    else {
+        $building->lock_upgrade;
+    }
+
+    # prepare planet
     $building->body->tick;
     $building = $empire->get_building($self->model_domain, $building_id); # reload stale building after tick
 

@@ -547,6 +547,16 @@ sub stats_after_upgrade {
     return \%stats;
 }
 
+sub lock_upgrade {
+    my ($self, $x, $y) = @_;
+    return $self->simpledb->cache->set('upgrade_contention_lock', $self->id,{locked=>$self->level + 1}, 30); # lock it
+}
+
+sub is_upgrade_locked {
+    my ($self, $x, $y) = @_;
+    return eval{$self->simpledb->cache->get('upgrade_contention_lock', $self->id)->{locked}};
+}
+
 sub start_upgrade {
     my ($self, $cost) = @_;  
     $cost ||= $self->cost_to_upgrade;
