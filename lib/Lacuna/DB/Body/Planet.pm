@@ -620,7 +620,7 @@ sub has_max_instances_of_building {
     my ($self, $building) = @_;
     return 0 if $building->max_instances_per_planet == 9999999;
     my $count = $self->simpledb->domain($building->class)->count(where=>{body_id=>$self->id, class=>$building->class});
-    return ($building->max_instances_per_planet > $count) ? 1 : 0;
+    return ($building->max_instances_per_planet >= $count) ? 1 : 0;
 }
 
 sub recalc_stats {
