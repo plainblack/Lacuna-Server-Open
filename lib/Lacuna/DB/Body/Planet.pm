@@ -620,7 +620,9 @@ sub has_max_instances_of_building {
     my ($self, $building) = @_;
     return 0 if $building->max_instances_per_planet == 9999999;
     my $count = $self->simpledb->domain($building->class)->count(where=>{body_id=>$self->id, class=>$building->class});
-    return ($building->max_instances_per_planet >= $count) ? 1 : 0;
+    if ($count >= $building->max_instances_per_planet) {
+        confess [1009, sprintf("You are only allowed %s of these buildings per planet.",$building->max_instances_per_planet), [$building->max_instances_per_planet, $count]];
+    }
 }
 
 sub recalc_stats {
