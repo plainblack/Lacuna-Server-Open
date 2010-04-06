@@ -157,7 +157,8 @@ sub view_messages {
     if ($options->{tags}) {
         $where->{tags} = ['in',$options->{tags}];
     }
-    my $messages = $self->simpledb->domain('message')->search(
+    my $message_domain = $self->simpledb->domain('message');
+    my $messages = $message_domain->search(
         where       => $where,
         order_by    => ['date_sent'],
     )->paginate(25, $options->{page_number});
@@ -176,8 +177,9 @@ sub view_messages {
         };
     }
     return {
-        messages    => \@box,
-        status      => $empire->get_status,
+        messages        => \@box,
+        message_count   => $message_domain->count(where=>$where),
+        status          => $empire->get_status,
     };
 }
 

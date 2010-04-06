@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -21,6 +21,7 @@ $result = $tester->post('inbox','view_inbox', [$session_id, { tags=>['Tutorial']
 is(scalar(@{$result->{result}{messages}}), 1, 'fetching back by tag works');
 
 $result = $tester->post('inbox','view_inbox', [$session_id]);
+is($result->{result}{message_count}, 5, 'message_count works');
 is($result->{result}{messages}[0]{subject}, 'my subject', 'view inbox works');
 is($result->{result}{messages}[0]{tags}->[0], 'Correspondence', 'view inbox works');
 is($result->{result}{status}{empire}{has_new_messages}, 5, 'new message count works');
