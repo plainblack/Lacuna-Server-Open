@@ -67,6 +67,8 @@ __PACKAGE__->add_attributes(
     burger_production_hour          => { isa => 'Int', default=>0 },
     shake_production_hour           => { isa => 'Int', default=>0 },
     beetle_production_hour          => { isa => 'Int', default=>0 },
+    bean_production_hour            => { isa => 'Int', default=>0 },
+    bean_stored                     => { isa => 'Int', default=>0 },
     lapis_stored                    => { isa => 'Int', default=>0 },
     potato_stored                   => { isa => 'Int', default=>0 },
     apple_stored                    => { isa => 'Int', default=>0 },
@@ -194,7 +196,7 @@ sub sanitize {
         meal_production_hour algae_production_hour syrup_production_hour fungus_production_hour burger_production_hour
         shake_production_hour beetle_production_hour lapis_stored potato_stored apple_stored root_stored corn_stored
         cider_stored wheat_stored bread_stored soup_stored chip_stored pie_stored pancake_stored milk_stored meal_stored
-        algae_stored syrup_stored fungus_stored burger_stored shake_stored beetle_stored 
+        algae_stored syrup_stored fungus_stored burger_stored shake_stored beetle_stored bean_production_hour bean_stored
     );
     $self->ships_travelling->delete;
     $self->simpledb->domain('travel_queue')->search(where=>{foreign_body_id => $self->id})->delete;
@@ -1100,6 +1102,13 @@ sub add_root {
     my $amount_to_store = $self->root_stored + $value;
     my $available_storage = $self->food_capacity - $self->food_stored + $self->root_stored;
     $self->root_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
+}
+
+sub add_bean {
+    my ($self, $value) = @_;
+    my $amount_to_store = $self->bean_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->bean_stored;
+    $self->bean_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_apple {
