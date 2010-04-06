@@ -10,6 +10,8 @@ around 'build_tags' => sub {
 
 use constant controller_class => 'Lacuna::Building::University';
 
+use constant max_instances_per_planet => 1;
+
 use constant image => 'university';
 
 use constant name => 'University';
