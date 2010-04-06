@@ -484,8 +484,8 @@ sub has_met_building_prereqs {
     my ($self, $building, $cost) = @_;
     $building->check_build_prereqs($self);
     $self->has_resources_to_build($building, $cost);
-    $self->has_resources_to_operate($building);
     $self->has_max_instances_of_building($building);
+    $self->has_resources_to_operate($building);
     return 1;
 }
 
@@ -527,18 +527,18 @@ has future_operating_resources => (
         my $self = shift;
         
         # get current
-        my %current;
         my %future;
         foreach my $method ($self->operating_resource_names) {
-            $future{$method} = $current{$method} = $self->$method;
+            $future{$method} = $self->$method;
         }
         
         # adjust for what's already in build queue
         my $queued_builds = $self->builds;
         while (my $build = $queued_builds->next) {
-            my $other = $build->building->stats_after_upgrade;
+            my $building = $build->building;
+            my $other = $building->stats_after_upgrade;
             foreach my $method ($self->operating_resource_names) {
-                $future{$method} += $other->{$method} - $current{$method};
+                $future{$method} += $other->{$method} - $building->$method;
             }
         }
         return \%future;
