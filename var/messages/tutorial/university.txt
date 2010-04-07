@@ -2,7 +2,6 @@ Higher Learning
 ~~~
 Excellent work! Now you're collecting all the precious resources we need to keep you moving in the right direction. Lacuna Expanse Corp is impressed with your growth and has generously donated a supply of resources to assist you with your next task.
 
-
 The University is key for your continued expansion. Without it you won't be able to gain the knowledge necessary to expand your empire. Build a University so your scholars have a place to study. No building in your empire can ever be more than one level higher than your University, so make sure you keep upgrading it as needed.
 
 Once you've done that let me know. You're doing well so far, keep up the good work. Before long %s will be a powerful empire.
