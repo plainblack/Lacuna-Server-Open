@@ -322,7 +322,7 @@ sub energy {
         $empire->put;
     }
     return {
-        params      => [$energy_hour],
+        params      => [$energy_hour,$energy_hour],
         filename    => 'tutorial/energy.txt',  
     };
 }

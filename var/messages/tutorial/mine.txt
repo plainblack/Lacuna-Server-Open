@@ -1,6 +1,6 @@
 Mines
 ~~~
-While you are busy collecting food and power let's talk a little bit about waste. As your planet grows, it will produce waste which must be stored. If you exceed your available waste storage it will adversely affect the happiness of your citizens which is important if you wish to expanding your empire.
+While you are busy collecting food and power let's talk a little bit about waste. As your planet grows, it will produce waste which must be stored. If you exceed your available waste storage it will adversely affect the happiness of your citizens which is important if you wish to keep expanding your empire.
 
 As long as your empire remains limited to this planet your citizens will never be unhappy. Once you start reaching to the stars you will have to closely monitor your waste production as well as the happiness of your citizens. There are many ways to balance these. I will leave it to you to figure out how, but don't worry about that for now.
 
