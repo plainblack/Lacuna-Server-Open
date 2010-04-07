@@ -2,9 +2,14 @@ Space Port
 ~~~
 It's time you started exploring something other than your own planet. If you're going to have the greatest empire in the Expanse you'll need to be able to see what else is out there. You should start by building a Space Port. From the Space Port you can launch exploratory probes and other ships you build.
 
-There's more to do after this, so let us know when this is done and we'll get you the next step. Also, after you're done, I will send you some more resources to help you keep up your pace.
+This task will not be as easy as the other ones I've given you so far. To assist you I've restored some of your depleted resources, but you'll likely need to build some more resource infrastructure before you attempt to build a Space Port.
+
+There is much to do after this, so move as quickly as you can so we can proceed.
 
 Regards,
 
 Tou Re Ell
 Lacuna Expanse Corp
+
+Task: Build a Space Port.
+Reward: Free resources.

@@ -1,10 +1,17 @@
 Need More Storage
 ~~~
-You've done well to this point. As a reward we'd like to offer to build you Ore Storage Tanks. Just build it as you normally would, but this one's on us. We would suggest building storage for the remaining 3 resources. Those buildings would be a Food Reserve, Energy Reserve and Water Storage Tanks. 
+You've done well to this point. It's important to understand a bit more about resources and storage now that your production is ramping up. We wouldn't want your recent efforts to be in vain during these crucial stages of development.
 
-Once you've done that let me know. You're doing well so far, keep up the good work. Before long you'll have an powerful empire.
+Click or tap your Planetary Command Center. You should see how many of each resource type you are currently capable of storing. Now compare that to the number of resources you have and the rate at which you gather new resources. It should be clear that you will fill up your storage if you do not increase it. Once you have filled the available storage for any resource, additional resources collected will be lost forever so it is vital that you manage this properly.
+
+In order to prevent resource loss, build Ore Storage Tanks, a Food Reserve, an Energy Reserve, and Water Storage Tanks. 
+
+Let me know when you're done. I've got a gift for you.
+
 Regards,
 
 Tou Re Ell
 Lacuna Expanse Corp
 
+Task:  Build Ore Storage Tank, Food Reserve, Energy Reserve, and Water Storage Tanks.
+Reward:  100 of each resource.

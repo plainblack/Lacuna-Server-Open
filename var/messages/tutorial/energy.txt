@@ -9,3 +9,5 @@ Regards,
 Tou Re Ell (if he only knew what mailing lists I've signed him up for)
 Lacuna Expanse Corp
 
+Task: Build energy to %s per hour.
+Reward: Free upgrade for Energy Reserve.

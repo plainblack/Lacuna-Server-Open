@@ -231,12 +231,7 @@ sub found {
     $self->put;
 
     # send welcome
-    $self->send_predefined_message(
-        filename    => 'welcome.txt',
-        from        => $self->lacuna_expanse_corp,
-        params      => [$self->name],
-        tags        => ['Tutorial','Correspondence'],
-    );
+    Lacuna::Tutorial->new(empire=>$self)->start('explore_the_ui');
     
     # found colony
     $home_planet->found_colony($self);
