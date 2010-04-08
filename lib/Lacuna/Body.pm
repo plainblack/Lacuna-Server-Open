@@ -38,7 +38,7 @@ sub rename {
     
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $empire->get_body($body_id);
-    $body->add_news(200,'In a bold move to show its growing power, %s renamed %s to %s.',$empire->name, $body->name, $name);
+    $body->add_news(200,"In a bold move to show it's growing power, %s renamed %s to %s.",$empire->name, $body->name, $name);
     $body->update({name => $name})->put;
     return 1;
 }
