@@ -2,6 +2,18 @@ package Lacuna::DB::Building::Network19;
 
 use Moose;
 extends 'Lacuna::DB::Building';
+use Lacuna::Util qw(to_seconds);
+use DateTime;
+
+__PACKAGE__->add_attributes(
+    restrict_coverage           => { isa=>'Str', default => 0 },  
+    restrict_coverage_delta     => { isa=>'DateTime' },  
+);
+
+sub restrict_coverage_delta_in_seconds {
+    my $self = shift;
+    return to_seconds(DateTime->now - $self->restrict_coverage_delta);
+}
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
@@ -11,6 +23,8 @@ around 'build_tags' => sub {
 use constant controller_class => 'Lacuna::Building::Network19';
 
 use constant university_prereq => 2;
+
+use constant max_instances_per_planet => 1;
 
 use constant image => 'network19';
 
@@ -40,7 +54,10 @@ use constant waste_production => 3;
 
 use constant happiness_production => 30;
 
-
+sub happiness_consumption {
+    my ($self) = @_;
+    return ($self->restrict_coverage) ? 20 : 0;
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

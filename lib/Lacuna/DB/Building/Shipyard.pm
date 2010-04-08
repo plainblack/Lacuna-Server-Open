@@ -261,12 +261,15 @@ sub check_for_completed_ships {
                 $spaceport = $spaceports->next; # get a new one
                 
                 # this ship's gonna go kablooey cuz no room at any port
-                unless (defined $spaceport) { 
+                unless (defined $spaceport) {
+                    my $type = $completed_ship->{type};
+                    $type =~ s/_/ /g;
                     $self->empire->send_predefined_message(
                         tags        => ['Alert'],
                         filename    => 'ship_blew_up_at_port.txt',
                         params      => [$completed_ship->{type}, $self->body->name],
                     );
+                    $self->body->add_news(100,'A %s exploded on %s controlled planet %s.', $type, $self->empire->name, $self->body->name);
                     last SHIP;
                 }
             }

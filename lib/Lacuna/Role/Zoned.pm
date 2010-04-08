@@ -1,8 +1,8 @@
 package Lacuna::Role::Zoned;
 
 use Moose::Role;
-
 requires 'zone';
+
 
 use constant zone_size => 10;
 
@@ -21,7 +21,7 @@ sub adjacent_zones {
 
 sub parse_zone_into_zone_coords {
     my ($self) = @_;
-    return split '|', $self->zone;
+    return split('\|', $self->zone);
 }
 
 sub format_zone_coords_into_zone {

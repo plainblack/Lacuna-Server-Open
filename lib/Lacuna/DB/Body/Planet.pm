@@ -4,7 +4,9 @@ use Moose;
 extends 'Lacuna::DB::Body';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use List::Util qw(shuffle);
-use Lacuna::Util qw(to_seconds);
+use Lacuna::Util qw(to_seconds randint);
+use DateTime;
+use Lacuna::DB::News;
 no warnings 'uninitialized';
 
 __PACKAGE__->add_attributes(
@@ -422,6 +424,15 @@ has command => (
     },
 );
 
+has network19 => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->get_buildings_of_class('Lacuna::DB::Building::Network19')->next;
+    },
+);
+
 has refinery => (
     is      => 'rw',
     lazy    => 1,
@@ -648,6 +659,7 @@ sub build_building {
 
 sub found_colony {
     my ($self, $empire) = @_;
+    $self->empire($empire);
     $self->empire_id($empire->id);
     $self->usable_as_starter('No');
     $self->last_tick(DateTime->now);
@@ -680,6 +692,9 @@ sub found_colony {
     $self->add_water(700);
     $self->add_ore(700);
     $self->put;
+    
+    # newsworthy
+    $self->add_news(75,'%s founded a new colony on %s.', $empire->name, $self->name);
         
     return $self;
 }
@@ -709,7 +724,31 @@ sub recalc_stats {
     $self->update(\%stats);
     $self->put;
     return $self;
-} 
+}
+
+
+sub add_news {
+    my $self = shift;
+    my $chance = shift;
+    my $headline = shift;
+    my $network19 = $self->network19;
+    if (defined $network19) {
+        $chance += $network19->level;
+        if ($network19->restrict_coverage) {
+            $chance = $chance / $self->command->level; 
+        }
+    }
+    if (randint(1,100) <= $chance) {
+        $headline = sprintf $headline, @_;
+        return Lacuna::DB::News->new(
+            simpledb    => $self->simpledb,
+            date_posted => DateTime->now,
+            zone        => $self->zone,
+            headline    => $headline,
+        )->put;
+    }
+}
+
 
 # RESOURCE MANGEMENT
 

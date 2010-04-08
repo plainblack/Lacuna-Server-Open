@@ -598,6 +598,10 @@ sub finish_upgrade {
     $type =~ s/^Lacuna::Building::(\w+)$/$1/;
     $empire->add_medal($type, skip_put=>1);
     $empire->put;
+    if ($self->level % 5 == 0) {
+        my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'an epic',35=>'a miraculous',40=>'a magical');
+        $self->body->add_news($self->level*5,"In %s ceremony, %s unveiled it's newly augmentented %s.", $levels{$self->level}, $empire->name, $self->name);
+    }
 }
 
 no Moose;
