@@ -29,7 +29,7 @@ sub subsidize_build_queue {
     if ($empire->essentia < $amount) {
         confess [1011, "You don't have enough essentia."];
     }
-    my $building = $empire->get_building($self->model_domain, $building_id);
+    my $building = $empire->get_building($self->model_class, $building_id);
     $building->subsidize_build_queue($amount);
     return {
         build_queue => $building->format_build_queue,
