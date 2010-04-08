@@ -40,7 +40,7 @@ A boolean indicating whether or not you have enacted a policy to restrict covera
 
 =head2 view_news ( session_id, building_id )
 
-Get the top 100 headlines from your region of space.
+Get the top 100 headlines from your region of space. It also returns a list of RSS feeds that can be used outside the game to see the same news in a given region.
 
 {
     "news" : [
@@ -49,6 +49,9 @@ Get the top 100 headlines from your region of space.
             "date" : "01 31 2010 13:09:05 +0600"
         },
         ...
+    ],
+    "feeds" : [
+        'http://feeds.game.lacunaexpanse.com/78d5e7b2-b8d7-317c-b244-3f774264be57.rss'
     ],
     "status" : { get_status() }
 }

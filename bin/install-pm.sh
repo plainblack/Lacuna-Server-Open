@@ -1,1 +1,1 @@
-cpan Config::JSON SimpleDB::Class JSON::RPC::Dispatcher String::Random List::Util::WeightedChoice List::Util List::MoreUtils DateTime Coro AnyEvent Regexp::Common Pod::Simple::HTML File::Copy DateTime::Format::Duration
+cpan Config::JSON SimpleDB::Class JSON::RPC::Dispatcher String::Random List::Util::WeightedChoice List::Util List::MoreUtils DateTime Coro AnyEvent Regexp::Common Pod::Simple::HTML File::Copy DateTime::Format::Duration XML::FeedPP SOAP::Amazon::S3
