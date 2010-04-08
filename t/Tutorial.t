@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 15;
+use Test::More tests => 16;
 use Test::Deep;
 use Data::Dumper;
 use DateTime;
@@ -226,6 +226,23 @@ $building = Lacuna::DB::Building::Ore::Mine->new(
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'the 300');
+
+
+$building = Lacuna::DB::Building::Network19->new(
+    simpledb        => $db,
+    x               => -5,
+    y               => -5,
+    class           => 'Lacuna::DB::Building::Network19',
+    date_created    => DateTime->now,
+    body_id         => $home->id,
+    body            => $home,
+    empire_id       => $empire->id,
+    empire          => $empire,
+    level           => 0,
+);
+$home->build_building($building);
+$building->finish_upgrade;
+is($tutorial->finish, 1, 'news');
 
 
 $empire->description('i rule');

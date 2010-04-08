@@ -262,6 +262,28 @@ sub storage {
     };
 }
 
+sub news {
+    my ($self, $finish) = @_;
+    my $empire = $self->empire;
+    my $home = $empire->home_planet;
+    if ($finish) {
+        my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Network19')->next;
+        if (defined $building && $building->level >= 1) {
+            $home->add_algae(120);
+            $home->add_rutile(120);
+            $home->add_energy(120);
+            $home->add_water(120);
+            $home->put;
+            $empire->trigger_full_update;
+            $self->start('rogue');
+            return undef;
+        }
+    }
+    return {
+        filename    => 'tutorial/news.txt',  
+    };
+}
+
 sub rogue {
     my ($self, $finish) = @_;
     my $empire = $self->empire;
@@ -336,7 +358,7 @@ sub the_300 {
             $home->add_free_upgrade('Lacuna::DB::Building::Ore::Storage', 2)
                 ->add_free_upgrade('Lacuna::DB::Building::Water::Storage', 2)
                 ->put;
-            $self->start('rogue');
+            $self->start('news');
             return undef;
         }
     }
