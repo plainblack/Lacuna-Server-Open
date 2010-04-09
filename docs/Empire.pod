@@ -340,5 +340,107 @@ A message to indicate what you're doing, how you're feeling, or other status ind
 
 
 
+=head2 view_boost ( session_id )
+
+Shows the dates at which boosts have expired or will expire. Boosts are subsidies applied to various resources using essentia.
+
+ {
+    "status" : { get_status() },
+    "boosts" : {
+        "food" : "01 31 2010 13:09:05 +0600",
+        "ore" : "01 31 2010 13:09:05 +0600",
+        "energy" : "01 31 2010 13:09:05 +0600",
+        "happiness" : "01 31 2010 13:09:05 +0600",
+        "water" : "01 31 2010 13:09:05 +0600",
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+
+
+=head2 boost_food ( session_id )
+
+Spends 5 essentia, and boosts food production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
+
+ {
+    "status" : { get_status() },
+    "food_boost" : "01 31 2010 13:09:05 +0600",
+ }
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+
+=head2 boost_water ( session_id )
+
+Spends 5 essentia, and boosts water production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
+
+ {
+    "status" : { get_status() },
+    "water_boost" : "01 31 2010 13:09:05 +0600",
+ }
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+
+=head2 boost_energy ( session_id )
+
+Spends 5 essentia, and boosts energy production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
+
+ {
+    "status" : { get_status() },
+    "energy_boost" : "01 31 2010 13:09:05 +0600",
+ }
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+
+=head2 boost_ore ( session_id )
+
+Spends 5 essentia, and boosts ore production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
+
+ {
+    "status" : { get_status() },
+    "ore_boost" : "01 31 2010 13:09:05 +0600",
+ }
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+
+=head2 boost_happiness ( session_id )
+
+Spends 5 essentia, and boosts happiness production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
+
+ {
+    "status" : { get_status() },
+    "happiness_boost" : "01 31 2010 13:09:05 +0600",
+ }
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+
+
 
 =cut

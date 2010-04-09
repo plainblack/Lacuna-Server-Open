@@ -6,6 +6,7 @@ use Lacuna::Util qw(cname format_date);
 use Lacuna::Map;
 use Lacuna::Verify;
 use Lacuna::Constants qw(MEDALS);
+use DateTime;
 
 has simpledb => (
     is      => 'ro',
@@ -170,7 +171,7 @@ sub set_status_message {
     my $empire = $self->get_empire_by_session($session_id);
     $empire->status_message($message);
     $empire->put;
-    return $self->get_status;
+    return $empire->get_status;
 }
 
 sub view_public_profile {
@@ -204,8 +205,67 @@ sub view_public_profile {
     return { profile => \%out, status => $viewer_empire->get_status };
 }
 
+sub boost_ore {
+    my ($self, $session_id) = @_;
+    return $self->boost($session_id, 'ore_boost');
+}
 
-__PACKAGE__->register_rpc_method_names(qw(set_status_message find view_profile edit_profile view_public_profile is_name_available create found login logout get_full_status get_status));
+sub boost_water {
+    my ($self, $session_id) = @_;
+    return $self->boost($session_id, 'water_boost');
+}
+
+sub boost_energy {
+    my ($self, $session_id) = @_;
+    return $self->boost($session_id, 'energy_boost');
+}
+
+sub boost_food {
+    my ($self, $session_id) = @_;
+    return $self->boost($session_id, 'food_boost');
+}
+
+sub boost_happiness {
+    my ($self, $session_id) = @_;
+    return $self->boost($session_id, 'happiness_boost');
+}
+
+sub boost {
+    my ($self, $session_id, $type) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    unless ($empire->essentia >= 5) {
+        confess [1011, 'Not enough essentia.'];
+    }
+    $empire->spend_essentia(5);
+    my $start = DateTime->now;
+    $start = $empire->$type if ($empire->$type > $start);
+    $start->add(days=>7);
+    $empire->$type($start);
+    $empire->trigger_full_update(skip_put=>1);
+    $empire->put;
+    return {
+        status => $empire->get_status,
+        $type => format_date($empire->$type),
+    };
+}
+
+sub view_boosts {
+    my ($self, $session_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    return {
+        status  => $empire->get_status,
+        boosts  => {
+            food        => format_date($empire->food_boost),
+            happiness   => format_date($empire->happiness_boost),
+            water       => format_date($empire->water_boost),
+            ore         => format_date($empire->ore_boost),
+            energy      => format_date($empire->energy_boost),
+        }
+    };
+}
+
+
+__PACKAGE__->register_rpc_method_names(qw(set_status_message find view_profile edit_profile view_public_profile is_name_available create found login logout get_full_status get_status boost_water boost_energy boost_ore boost_food boost_happiness view_boosts));
 
 
 no Moose;

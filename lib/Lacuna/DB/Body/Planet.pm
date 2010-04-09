@@ -6,7 +6,6 @@ use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use List::Util qw(shuffle);
 use Lacuna::Util qw(to_seconds randint);
 use DateTime;
-use Lacuna::DB::News;
 no warnings 'uninitialized';
 
 __PACKAGE__->add_attributes(
@@ -92,7 +91,10 @@ __PACKAGE__->add_attributes(
     shake_stored                    => { isa => 'Int', default=>0 },
     beetle_stored                   => { isa => 'Int', default=>0 },
     freebies                        => { isa => 'HashRef' },
+    boost_enabled                   => { isa => 'Str' },
 );
+
+# RELATIONSHIPS
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
 __PACKAGE__->has_many('regular_buildings','Lacuna::DB::Building','body_id', mate => 'body');
@@ -103,6 +105,8 @@ __PACKAGE__->has_many('ore_buildings','Lacuna::DB::Building::Ore','body_id', mat
 __PACKAGE__->has_many('energy_buildings','Lacuna::DB::Building::Energy','body_id', mate => 'body');
 __PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','body_id', mate => 'body');
 
+
+# FREEBIES
 sub get_free_upgrade {
     my ($self, $class) = @_;
     return $self->freebies->{upgrades}{$class} || 0;
@@ -722,6 +726,23 @@ sub recalc_stats {
             }
          }
     }
+    my $now = DateTime->now;
+    my $empire = $self->empire;
+    foreach my $resource (qw(energy water ore happiness)) {
+        my $boost = $resource.'_boost';
+        if ($now < $empire->$boost) {
+            my $hour = $resource.'_hour';
+            $stats{$hour} = sprintf '%.0f', $stats{$hour} * 1.25;
+            $stats{boost_enabled} = 1;
+        }
+    }
+    if ($now < $empire->food_boost) {
+        foreach my $type (FOOD_TYPES) {
+            my $method = $type.'_production_hour';
+            $stats{$method} = sprintf '%.0f', $stats{$method} * 1.25;
+            $stats{boost_enabled} = 1;
+        }
+    }
     $self->update(\%stats);
     $self->put;
     return $self;
@@ -791,6 +812,35 @@ sub tick {
             last;
         }
     }
+
+    # check / clear boosts
+    if ($self->boost_enabled) {
+        my $empire = $self->empire;
+        my $still_enabled = 0;
+        foreach my $resource (qw(energy water ore happiness)) {
+            my $boost = $resource.'_boost';
+            if ($now > $empire->$boost) {
+                my $hour = $resource.'_hour';
+                $self->$hour(sprintf '%.0f', $self->$hour / 1.25);
+            }
+            else {
+                $still_enabled = 1;
+            }
+        }
+        if ($now > $empire->food_boost) {
+            foreach my $type (FOOD_TYPES) {
+                my $method = $type.'_production_hour';
+                $self->$method(sprintf '%.0f', $self->$method / 1.25);
+            }
+        }
+        else {
+            $still_enabled = 1;
+        }
+        unless ($still_enabled) {
+            $self->boost_enabled(0);
+        }
+    }
+
     $self->tick_to($now);
 
     # clear caches
