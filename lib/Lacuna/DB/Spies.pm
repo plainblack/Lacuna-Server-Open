@@ -41,7 +41,8 @@ use constant assignments => (
 
 sub assign {
     my ($self, $assignment) = @_;
-    unless ($assignment ~~ $self->assignments) {
+    my @assignments = $self->assignments;
+    unless ($assignment ~~ @assignments) {
         confess [1009, "You can't assign a spy a task that he's not trained for."];
     }
     unless ($self->is_available) {

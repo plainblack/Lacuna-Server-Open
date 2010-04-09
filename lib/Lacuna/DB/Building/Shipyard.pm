@@ -120,7 +120,7 @@ sub get_ship_costs {
     my $species = $self->empire->species;
     my $manufacturing_affinity = $species->manufacturing_affinity;
     foreach my $cost (keys %{$costs}) {
-        if ($cost eq 'time') {
+        if ($cost eq 'seconds') {
             $costs->{$cost} = sprintf('%0.f', $costs->{$cost} * $self->time_cost_reduction_bonus($self->level));
         }
         else {
@@ -157,34 +157,22 @@ sub can_build_ship {
 
 
 sub build_ship {
-    my ($self, $type, $quantity, $costs) = @_;
+    my ($self, $type, $quantity, $time) = @_;
     $quantity ||= 1;
-    $costs ||= $self->get_ship_costs($type, $quantity);
-    my $body = $self->body;
-    foreach my $key (keys %{ $costs }) {
-        next if $key eq 'seconds';
-        if ($key eq 'waste') {
-            $body->add_waste($costs->{waste});
-        }
-        else {
-            my $spend = 'spend_'.$key;
-            $body->$spend($costs->{$key} * $quantity);
-        }
-    }
-    $body->put;
-    $self->empire->trigger_full_update;
+    $time ||= $self->get_ship_costs($type)->{seconds};
     my $builds = $self->ship_builds->{queue};
     push @{$builds->{queue}}, {
         type            => $type,
-        seconds_each    => $costs->{seconds},
+        seconds_each    => $time,
         quantity        => $quantity,
     };
     unless (exists $builds->{next_completed}) {
-        $builds->{next_completed} = DateTime->now->add(seconds => $costs->{seconds})->epoch;
+        $builds->{next_completed} = DateTime->now->add(seconds => $time)->epoch;
     }
     $self->ship_builds($builds);
     $self->put;
 }
+
 
 sub get_next_completed {
     my $self = shift;

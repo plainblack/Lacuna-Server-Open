@@ -181,13 +181,67 @@ sub counter_spy {
     my $home = $self->empire->home_planet;
     if ($finish) {
         my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Intelligence')->next;
-        if (defined $building && $building->count_counter_spies >= 2) {
-            $self->start('');
+        if (defined $building && $building->counter_intelligence >= 1 && $building->sting >= 1) {
+            $self->start('observatory');
             return undef;
         }
     }
     return {
         filename    => 'tutorial/counter_spy.txt',  
+    };
+}
+
+sub observatory {
+    my ($self, $finish) = @_;
+    my $home = $self->empire->home_planet;
+    if ($finish) {
+        my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Observatory')->next;
+        if (defined $building && $building->level >= 1) {
+            my $shipyard = $home->get_buildings_of_class('Lacuna::DB::Building::Shipyard')->next;
+            $shipyard->build_ship('probe',1);
+            $self->start('explore');
+            return undef;
+        }
+    }
+    return {
+        filename    => 'tutorial/observatory.txt',  
+    };
+}
+
+sub explore {
+    my ($self, $finish) = @_;
+    my $empire = $self->empire;
+    if ($finish) {
+        if (scalar(@{$empire->probed_stars}) > 1) {
+            $empire->home_planet->add_free_build('Lacuna::DB::Building::Food::Transporter', 1)->put;
+            $self->start('the_end');
+            return undef;
+        }
+    }
+    return {
+        filename    => 'tutorial/explore.txt',  
+    };
+}
+
+sub the_end {
+    my ($self, $finish) = @_;
+    if ($finish) {
+        $self->start('turing');
+        return undef;
+    }
+    return {
+        filename    => 'tutorial/the_end.txt',  
+    };
+}
+
+sub turing {
+    my ($self, $finish) = @_;
+    if ($finish) {
+        $self->start('turing');
+        return undef;
+    }
+    return {
+        filename    => 'tutorial/turing.txt',  
     };
 }
 
