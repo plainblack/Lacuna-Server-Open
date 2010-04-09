@@ -366,7 +366,7 @@ sub fool {
     if ($finish) {
         if ($home->food_hour >= $empire->tutorial_scratch) {
             $home->add_free_upgrade('Lacuna::DB::Building::Food::Reserve', 2)->put;
-            $self->start('energy');
+            $self->start('essentia');
             return undef;
         }
     }
@@ -378,6 +378,21 @@ sub fool {
     return {
         params      => [$food_hour,$food_hour],
         filename    => 'tutorial/fool.txt',  
+    };
+}
+
+sub essentia {
+    my ($self, $finish) = @_;
+    my $empire = $self->empire;
+    if ($finish) {
+        my $now = DateTime->now;
+        if ($empire->food_boost >= $now && $empire->water_boost >= $now && $empire->ore_boost >= $now && $empire->energy_boost >= $now) {
+            $self->start('energy');
+            return undef;
+        }
+    }
+    return {
+        filename    => 'tutorial/essentia.txt',  
     };
 }
 

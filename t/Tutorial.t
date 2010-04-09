@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 23;
+use Test::More tests => 24;
 use Test::Deep;
 use Data::Dumper;
 use DateTime;
@@ -178,6 +178,13 @@ $building = Lacuna::DB::Building::Food::Farm::Wheat->new(
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'fool');
+
+my $future = DateTime->now->add(hours=>1);
+$empire->food_boost($future);
+$empire->water_boost($future);
+$empire->energy_boost($future);
+$empire->ore_boost($future);
+is($tutorial->finish, 1, 'essentia');
 
 
 $building = Lacuna::DB::Building::Energy::Geo->new(
