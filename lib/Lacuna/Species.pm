@@ -9,6 +9,7 @@ has simpledb => (
     required=> 1,
 );
 
+with 'Lacuna::Role::Sessionable';
 
 sub is_name_available {
     my ($self, $name) = @_;
@@ -79,7 +80,7 @@ sub create {
         name                    => $me->{name},
         description             => $me->{description},
         habitable_orbits        => $me->{habitable_orbits},
-        manufacturing_affinity   => $me->{manufacturing_affinity},
+        manufacturing_affinity  => $me->{manufacturing_affinity},
         deception_affinity      => $me->{deception_affinity},
         research_affinity       => $me->{research_affinity},
         management_affinity     => $me->{management_affinity},
@@ -96,6 +97,31 @@ sub create {
     $empire->put;
     
     return $species->id;
+}
+
+sub view_stats {
+    my ($self, $session_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $species = $empire->species;
+    return {
+        species => {
+            name                    => $species->name,
+            description             => $species->description,
+            habitable_orbits        => $species->habitable_orbits,
+            manufacturing_affinity  => $species->manufacturing_affinity,
+            deception_affinity      => $species->deception_affinity,
+            research_affinity       => $species->research_affinity,
+            management_affinity     => $species->management_affinity,
+            farming_affinity        => $species->farming_affinity,
+            mining_affinity         => $species->mining_affinity,
+            science_affinity        => $species->science_affinity,
+            environmental_affinity  => $species->environmental_affinity,
+            political_affinity      => $species->political_affinity,
+            trade_affinity          => $species->trade_affinity,
+            growth_affinity         => $species->growth_affinity,
+        },
+        status  => $empire->get_status,
+    };
 }
 
 sub validate_empire {
@@ -129,7 +155,7 @@ sub set_human {
     return 1;    
 }
 
-__PACKAGE__->register_rpc_method_names(qw(is_name_available create set_human));
+__PACKAGE__->register_rpc_method_names(qw(is_name_available create set_human view_stats));
 
 
 no Moose;

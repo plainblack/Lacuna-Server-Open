@@ -3,9 +3,9 @@ package Lacuna::Constants;
 use strict;
 use base 'Exporter';
 
-use constant INFLATION => 2.1;
-use constant GROWTH => 2.0;
-use constant FOOD_TYPES => (qw(lapis potato apple root corn cider wheat bread soup chip pie pancake milk meal algae syrup fungus burger shake beetle));
+use constant INFLATION => 1.75;
+use constant GROWTH => 1.55;
+use constant FOOD_TYPES => (qw(bean lapis potato apple root corn cider wheat bread soup chip pie pancake milk meal algae syrup fungus burger shake beetle));
 use constant ORE_TYPES => (qw(rutile chromite chalcopyrite galena gold uraninite bauxite goethite halite gypsum trona kerogen methane anthracite sulfur zircon monazite fluorite beryl magnetite));
 use constant BUILDABLE_CLASSES => (qw(
     Lacuna::Building::Algae

@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 15;
+use Test::More tests => 16;
 use Test::Deep;
 use Data::Dumper;
 use DateTime;
@@ -14,15 +14,16 @@ my $home = $empire->home_planet;
 my $db = $tester->db;
 my $tutorial = Lacuna::Tutorial->new(empire=>$empire);
 
+is($tutorial->finish, 0, 'look at ui - not yet complete');
+$home->name(rand(1000000));
 is($tutorial->finish, 1, 'look at ui');
-is($tutorial->finish, 0, 'get food - not yet complete');
 
 
-my $building = Lacuna::DB::Building::Food::Farm::Wheat->new(
+my $building = Lacuna::DB::Building::Food::Farm::Malcud->new(
     simpledb        => $db,
     x               => 0,
     y               => 1,
-    class           => 'Lacuna::DB::Building::Food::Farm::Wheat',
+    class           => 'Lacuna::DB::Building::Food::Farm::Malcud',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,
@@ -33,23 +34,6 @@ my $building = Lacuna::DB::Building::Food::Farm::Wheat->new(
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'get food');
-
-
-$building = Lacuna::DB::Building::Energy::Geo->new(
-    simpledb        => $db,
-    x               => 0,
-    y               => 2,
-    class           => 'Lacuna::DB::Building::Energy::Geo',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
-    level           => 0,
-);
-$home->build_building($building);
-$building->finish_upgrade;
-is($tutorial->finish, 1, 'keep the lights on');
 
 
 $building = Lacuna::DB::Building::Water::Purification->new(
@@ -67,6 +51,23 @@ $building = Lacuna::DB::Building::Water::Purification->new(
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'drinking water');
+
+
+$building = Lacuna::DB::Building::Energy::Geo->new(
+    simpledb        => $db,
+    x               => 0,
+    y               => 2,
+    class           => 'Lacuna::DB::Building::Energy::Geo',
+    date_created    => DateTime->now,
+    body_id         => $home->id,
+    body            => $home,
+    empire_id       => $empire->id,
+    empire          => $empire,
+    level           => 0,
+);
+$home->build_building($building);
+$building->finish_upgrade;
+is($tutorial->finish, 1, 'keep the lights on');
 
 
 $building = Lacuna::DB::Building::Ore::Mine->new(
@@ -225,6 +226,23 @@ $building = Lacuna::DB::Building::Ore::Mine->new(
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'the 300');
+
+
+$building = Lacuna::DB::Building::Network19->new(
+    simpledb        => $db,
+    x               => -5,
+    y               => -5,
+    class           => 'Lacuna::DB::Building::Network19',
+    date_created    => DateTime->now,
+    body_id         => $home->id,
+    body            => $home,
+    empire_id       => $empire->id,
+    empire          => $empire,
+    level           => 0,
+);
+$home->build_building($building);
+$building->finish_upgrade;
+is($tutorial->finish, 1, 'news');
 
 
 $empire->description('i rule');

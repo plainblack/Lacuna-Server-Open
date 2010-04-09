@@ -432,7 +432,7 @@ sub check_build_prereqs {
     
     # check goldilox zone
     if ($body->orbit < $self->min_orbit || $body->orbit > $self->max_orbit) {
-        confess [1013, "Can't build a building outside of it's Goldilox zone."];
+        confess [1013, "Can't build a building outside of it's Goldilox zone.", [$self->min_orbit, $self->max_orbit]];
     }
     
     unless ($self->has_free_build) {
@@ -538,21 +538,23 @@ sub stats_after_upgrade {
     my ($self) = @_;
     my $current_level = $self->level;
     $self->level($current_level + 1);
-    my %stats = (
-        food_hour           => $self->food_hour,
-        food_capacity       => $self->food_capacity,
-        ore_hour            => $self->ore_hour,
-        ore_capacity        => $self->ore_capacity,
-        water_hour          => $self->water_hour,
-        water_capacity      => $self->water_capacity,
-        waste_hour          => $self->waste_hour,
-        waste_capacity      => $self->waste_capacity,
-        energy_hour         => $self->energy_hour,
-        energy_capacity     => $self->energy_capacity,
-        happiness_hour      => $self->happiness_hour,
-        );
+    my %stats;
+    my @list = qw(food_hour food_capacity ore_hour ore_capacity water_hour water_capacity waste_hour energy_hour energy_capacity happiness_hour);
+    foreach my $resource (@list) {
+        $stats{$resource} = $self->$resource;
+    }
     $self->level($current_level);
     return \%stats;
+}
+
+sub lock_upgrade {
+    my ($self, $x, $y) = @_;
+    return $self->simpledb->cache->set('upgrade_contention_lock', $self->id,{locked=>$self->level + 1}, 30); # lock it
+}
+
+sub is_upgrade_locked {
+    my ($self, $x, $y) = @_;
+    return eval{$self->simpledb->cache->get('upgrade_contention_lock', $self->id)->{locked}};
 }
 
 sub start_upgrade {
@@ -573,6 +575,9 @@ sub start_upgrade {
     });
     $self->build_queue_id($queue->id);
     $self->put;
+    
+    # clear cache
+    $self->body->clear_last_in_build_queue;
 
     $self->empire->trigger_full_update;
 }
@@ -583,6 +588,7 @@ sub finish_upgrade {
     $self->level($self->level + 1);
     $self->build_queue_id('');
     $self->put;
+    $self->body->clear_last_in_build_queue;
     $self->body->recalc_stats;
     # we're probably stale, but it doesn't matter. this comment is just a reminder for future changes
     my $empire = $self->body->empire; # fetching from body because we're stale
@@ -592,6 +598,10 @@ sub finish_upgrade {
     $type =~ s/^Lacuna::Building::(\w+)$/$1/;
     $empire->add_medal($type, skip_put=>1);
     $empire->put;
+    if ($self->level % 5 == 0) {
+        my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'an epic',35=>'a miraculous',40=>'a magical');
+        $self->body->add_news($self->level*5,"In %s ceremony, %s unveiled it's newly augmentented %s.", $levels{$self->level}, $empire->name, $self->name);
+    }
 }
 
 no Moose;

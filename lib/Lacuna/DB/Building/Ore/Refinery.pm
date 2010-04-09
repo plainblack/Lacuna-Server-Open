@@ -9,8 +9,6 @@ use constant building_prereq => {'Lacuna::DB::Building::Ore::Mine' => 5};
 
 use constant max_instances_per_planet => 1;
 
-use constant university_prereq => 5;
-
 use constant image => 'orerefinery';
 
 use constant name => 'Ore Refinery';

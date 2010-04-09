@@ -4,7 +4,9 @@ use Moose;
 extends 'Lacuna::DB::Body';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use List::Util qw(shuffle);
-use Lacuna::Util qw(to_seconds);
+use Lacuna::Util qw(to_seconds randint);
+use DateTime;
+use Lacuna::DB::News;
 no warnings 'uninitialized';
 
 __PACKAGE__->add_attributes(
@@ -67,6 +69,8 @@ __PACKAGE__->add_attributes(
     burger_production_hour          => { isa => 'Int', default=>0 },
     shake_production_hour           => { isa => 'Int', default=>0 },
     beetle_production_hour          => { isa => 'Int', default=>0 },
+    bean_production_hour            => { isa => 'Int', default=>0 },
+    bean_stored                     => { isa => 'Int', default=>0 },
     lapis_stored                    => { isa => 'Int', default=>0 },
     potato_stored                   => { isa => 'Int', default=>0 },
     apple_stored                    => { isa => 'Int', default=>0 },
@@ -194,7 +198,7 @@ sub sanitize {
         meal_production_hour algae_production_hour syrup_production_hour fungus_production_hour burger_production_hour
         shake_production_hour beetle_production_hour lapis_stored potato_stored apple_stored root_stored corn_stored
         cider_stored wheat_stored bread_stored soup_stored chip_stored pie_stored pancake_stored milk_stored meal_stored
-        algae_stored syrup_stored fungus_stored burger_stored shake_stored beetle_stored 
+        algae_stored syrup_stored fungus_stored burger_stored shake_stored beetle_stored bean_production_hour bean_stored
     );
     $self->ships_travelling->delete;
     $self->simpledb->domain('travel_queue')->search(where=>{foreign_body_id => $self->id})->delete;
@@ -420,6 +424,15 @@ has command => (
     },
 );
 
+has network19 => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->get_buildings_of_class('Lacuna::DB::Building::Network19')->next;
+    },
+);
+
 has refinery => (
     is      => 'rw',
     lazy    => 1,
@@ -481,11 +494,11 @@ sub check_for_available_build_space {
 }
 
 sub has_met_building_prereqs {
-    my ($self, $building) = @_;
+    my ($self, $building, $cost) = @_;
     $building->check_build_prereqs($self);
-    $self->has_resources_to_build($building);
-    $self->has_resources_to_operate($building);
+    $self->has_resources_to_build($building, $cost);
     $self->has_max_instances_of_building($building);
+    $self->has_resources_to_operate($building);
     return 1;
 }
 
@@ -504,7 +517,7 @@ sub has_room_in_build_queue {
     my $dev_ministry = $self->simpledb->domain('Lacuna::DB::Building::Development')->search(
         where   => {
             body_id => $self->id,
-            class   => 'Lacuna::DB::Building::Development'
+            class   => 'Lacuna::DB::Building::Development',
         }
         )->next;
     if (defined $dev_ministry) {
@@ -517,28 +530,107 @@ sub has_room_in_build_queue {
     return 1; 
 }
 
+use constant operating_resource_names => qw(food_hour energy_hour ore_hour water_hour waste_hour);
+
+has future_operating_resources => (
+    is      => 'rw',
+    clearer => 'clear_future_operating_resources',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        
+        # get current
+        my %future;
+        foreach my $method ($self->operating_resource_names) {
+            $future{$method} = $self->$method;
+        }
+        
+        # adjust for what's already in build queue
+        my $queued_builds = $self->builds;
+        while (my $build = $queued_builds->next) {
+            my $building = $build->building;
+            my $other = $building->stats_after_upgrade;
+            foreach my $method ($self->operating_resource_names) {
+                $future{$method} += $other->{$method} - $building->$method;
+            }
+        }
+        return \%future;
+    },
+);
+
 sub has_resources_to_operate {
-    my ($self, $building) = @_;
+    my ($self, $building, $queued_builds) = @_;
+    
+    # get future
+    my $future = $self->future_operating_resources;
+    
+    # get change for this building
     my $after = $building->stats_after_upgrade;
-    foreach my $resource (qw(food energy ore water waste)) {
-        my $method = $resource.'_hour';
-        if ($self->$method - $building->$method + $after->{$method} < 0) {
+
+    # check our ability to sustain ourselves
+    foreach my $method ($self->operating_resource_names) {
+        my $delta = $after->{$method} - $building->$method;
+        # don't allow it if it sucks resources && its sucking more than we're producing
+        if ($delta < 0 && $future->{$method} + $delta < 0) {
+            my $resource = $method;
+            $resource =~ s/(\w+)_hour/$1/;
             confess [1012, "Unsustainable. Not enough resources being produced to build this.", $resource];
         }
     }
     return 1;
 }
 
+sub has_resources_to_build {
+    my ($self, $building, $cost) = @_;
+    $cost ||= $building->cost_to_upgrade;
+    foreach my $resource (qw(food energy ore water)) {
+        my $stored = $resource.'_stored';
+        unless ($self->$stored >= $cost->{$resource}) {
+            confess [1011, "Not enough resources in storage to build this.", $resource];
+        }
+    }
+    return 1;
+}
+
+sub has_max_instances_of_building {
+    my ($self, $building) = @_;
+    return 0 if $building->max_instances_per_planet == 9999999;
+    my $count = $self->simpledb->domain($building->class)->count(where=>{body_id=>$self->id, class=>$building->class});
+    if ($count >= $building->max_instances_per_planet) {
+        confess [1009, sprintf("You are only allowed %s of these buildings per planet.",$building->max_instances_per_planet), [$building->max_instances_per_planet, $count]];
+    }
+}
+
+has last_in_build_queue => (
+    is      => 'ro',
+    clearer => 'clear_last_in_build_queue',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->builds(undef, 1)->next;
+    }
+);
+
 sub get_existing_build_queue_time {
     my $self = shift;
     my $time_to_build = DateTime->now;
-    my $last_in_queue = $self->builds(undef, 1)->next;
+    my $last_in_queue = $self->last_in_build_queue;
     if (defined $last_in_queue) {
         $time_to_build = $last_in_queue->date_complete;    
     }
     return $time_to_build;
 }
-    
+
+sub lock_plot {
+    my ($self, $x, $y) = @_;
+    return $self->simpledb->cache->set('plot_contention_lock', $self->id.'|'.$x.'|'.$y,{locked=>1}, 30); # lock it
+}
+
+sub is_plot_locked {
+    my ($self, $x, $y) = @_;
+    return eval{$self->simpledb->cache->get('plot_contention_lock', $self->id.'|'.$x.'|'.$y)->{locked}};
+}
+
 sub build_building {
     my ($self, $building) = @_;
     
@@ -567,6 +659,7 @@ sub build_building {
 
 sub found_colony {
     my ($self, $empire) = @_;
+    $self->empire($empire);
     $self->empire_id($empire->id);
     $self->usable_as_starter('No');
     $self->last_tick(DateTime->now);
@@ -594,32 +687,16 @@ sub found_colony {
     $command->finish_upgrade;
     
     # add starting resources
-    $self->add_algae(500);
-    $self->add_energy(500);
-    $self->add_water(500);
-    $self->add_ore(500);
+    $self->add_algae(700);
+    $self->add_energy(700);
+    $self->add_water(700);
+    $self->add_ore(700);
     $self->put;
+    
+    # newsworthy
+    $self->add_news(75,'%s founded a new colony on %s.', $empire->name, $self->name);
         
     return $self;
-}
-
-sub has_resources_to_build {
-    my ($self, $building, $cost) = @_;
-    $cost ||= $building->cost_to_upgrade;
-    foreach my $resource (qw(food energy ore water)) {
-        my $stored = $resource.'_stored';
-        unless ($self->$stored >= $cost->{$resource}) {
-            confess [1011, "Not enough resources in storage to build this.", $resource];
-        }
-    }
-    return 1;
-}
-
-sub has_max_instances_of_building {
-    my ($self, $building) = @_;
-    return 0 if $building->max_instances_per_planet == 9999999;
-    my $count = $self->simpledb->domain($building->class)->count(where=>{body_id=>$self->id, class=>$building->class});
-    return ($building->max_instances_per_planet > $count) ? 1 : 0;
 }
 
 sub recalc_stats {
@@ -647,7 +724,31 @@ sub recalc_stats {
     $self->update(\%stats);
     $self->put;
     return $self;
-} 
+}
+
+
+sub add_news {
+    my $self = shift;
+    my $chance = shift;
+    my $headline = shift;
+    my $network19 = $self->network19;
+    if (defined $network19) {
+        $chance += $network19->level;
+        if ($network19->restrict_coverage) {
+            $chance = $chance / $self->command->level; 
+        }
+    }
+    if (randint(1,100) <= $chance) {
+        $headline = sprintf $headline, @_;
+        return Lacuna::DB::News->new(
+            simpledb    => $self->simpledb,
+            date_posted => DateTime->now,
+            zone        => $self->zone,
+            headline    => $headline,
+        )->put;
+    }
+}
+
 
 # RESOURCE MANGEMENT
 
@@ -688,6 +789,10 @@ sub tick {
         }
     }
     $self->tick_to($now);
+
+    # clear caches
+    $self->clear_future_operating_resources;
+    
 }
 
 sub tick_to {
@@ -1036,6 +1141,13 @@ sub add_root {
     my $amount_to_store = $self->root_stored + $value;
     my $available_storage = $self->food_capacity - $self->food_stored + $self->root_stored;
     $self->root_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
+}
+
+sub add_bean {
+    my ($self, $value) = @_;
+    my $amount_to_store = $self->bean_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->bean_stored;
+    $self->bean_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
 }
 
 sub add_apple {

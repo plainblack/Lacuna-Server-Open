@@ -1,7 +1,69 @@
 =head1 Network19 Methods
 
-Network19 is accessible via the URL C</network19>.
+Network 19 Affiliate is accessible via the URL C</network19>.
+
+Network 19 is the news network covering the Expanse. Here you can learn all kinds of things about what's happening around you, without even leaving your planet.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=head2 view (session_id, building_id)
+
+ {
+    "status" : { ... },
+    "building" : { ... },
+    "restrict_coverage" : 1 # see restrict_coverage()
+ }
+ 
+
+=head2 restrict_coverage ( session_id, building_id,  onoff )
+
+You can enact or disband a policy to restrict what Network 19 covers about your planet. Restricting coverage does make your citizens unhappy.
+
+ {
+    "status" : { get_status() }
+ }
+
+Throws 1009.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this Network 19 Affiliate.
+
+=head3 onoff
+
+A boolean indicating whether or not you have enacted a policy to restrict coverage. 1 to restrict, 0 to not restrict.
+
+
+=head2 view_news ( session_id, building_id )
+
+Get the top 100 headlines from your region of space. It also returns a list of RSS feeds that can be used outside the game to see the same news in a given region.
+
+{
+    "news" : [
+        {
+            "headline" : "HCorp founded a new colony on Rigel 4.",
+            "date" : "01 31 2010 13:09:05 +0600"
+        },
+        ...
+    ],
+    "feeds" : [
+        'http://feeds.game.lacunaexpanse.com/78d5e7b2-b8d7-317c-b244-3f774264be57.rss'
+    ],
+    "status" : { get_status() }
+}
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Network 19 Affiliate.
+
+
 
 =cut

@@ -222,7 +222,6 @@ sub found {
 
     # found home planet
     $home_planet = $self->find_home_planet;
-    $home_planet->empire($self);
     $self->home_planet($home_planet);
     $self->home_planet_id($home_planet->id);
     $self->probed_stars([$home_planet->star_id]);
@@ -230,16 +229,11 @@ sub found {
     $self->stage('founded');
     $self->put;
 
-    # send welcome
-    $self->send_predefined_message(
-        filename    => 'welcome.txt',
-        from        => $self->lacuna_expanse_corp,
-        params      => [$self->name],
-        tags        => ['Tutorial','Correspondence'],
-    );
-    
     # found colony
     $home_planet->found_colony($self);
+    
+    # send welcome
+    Lacuna::Tutorial->new(empire=>$self)->start('explore_the_ui');
     
     return $self;
 }

@@ -1,11 +1,13 @@
 Keep The Lights On
 ~~~
-You're doing well. Next we need to make sure we can "keep the lights on". You should build a Geo Energy Plant. This will provide you with some energy to power your economy. There are several types of energy plants that will be available to you as your knowledge. Each type has some drawbacks and benefits, but for a fledgling empire like yours, it's good just to get the juice moving.
+You're doing well. Next we need to make sure we can "keep the lights on". I've sent some resources to you so you can build a Geo Energy Plant. This will provide you with some energy to power your economy. There are several types of energy plants that will be available to you as your knowledge grows. Each type has some drawbacks and benefits, but for a fledgling empire like yours, it's good just to get the juice moving.
 
-Let me know when you've got that built, and I'll give you some Lapis Fruit Pies. They are a delicious pastry from our home world. I'm certain your people will enjoy them.
+Let me know when you've got that built, and don't worry if you've already built one. You can always use more power.
 
 Regards,
 
 Tou Re Ell
 Lacuna Expanse Corp
 
+Task:  Build a Geo Energy Plant.
+Reward:  None.

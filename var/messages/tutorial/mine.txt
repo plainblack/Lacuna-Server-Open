@@ -1,11 +1,17 @@
 Mines
 ~~~
-That's three of the four main resources. Now we need to get you gathering some of the precious minerals on your planet. Once that's completed you'll be harvesting all the main resources you need to expand your empire to the farthest reaches of the Expanse. Build yourself a Mine so that you can begin harvesting the ore that this planet has to offer.
+While you are busy collecting food and power let's talk a little bit about waste. As your planet grows, it will produce waste which must be stored. If you exceed your available waste storage it will adversely affect the happiness of your citizens which is important if you wish to keep expanding your empire.
 
-As always let me know when you're done. This time I'll give you 200 units of each resource so you can get a jump start on your next construction project.
+As long as your empire remains limited to this planet your citizens will never be unhappy. Once you start reaching to the stars you will have to closely monitor your waste production as well as the happiness of your citizens. There are many ways to balance these. I will leave it to you to figure out how, but don't worry about that for now.
+
+Now we need to get you gathering some of the precious minerals on your planet. Once that's completed you'll be harvesting all the main resources you need to expand your empire to the farthest reaches of the Expanse. Build yourself a Mine so that you can begin harvesting the ore that this planet has to offer.
+
+As always let me know when you're done. 
 
 Regards,
 
 Tou Re Ell
 Lacuna Expanse Corp
 
+Task: Build a Mine.
+Reward: Free resources.

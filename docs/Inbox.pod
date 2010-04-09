@@ -21,6 +21,7 @@ Displays a list of the messages in the empire's inbox. Displays 25 messages per 
             "tags" : "Correspondence" 
         }
     ],
+    "message_count" : 14,
     "status" : { get_status() }
  }
 

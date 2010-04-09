@@ -30,23 +30,23 @@ use constant waste_to_build => 500;
 
 use constant time_to_build => 600;
 
-use constant algae_production => 20;
+use constant algae_production => 10;
 
-use constant energy_production => 20;
+use constant energy_production => 10;
 
-use constant ore_production => 20;
+use constant ore_production => 10;
 
-use constant water_production => 20;
+use constant water_production => 10;
 
-use constant waste_production => 2;
+use constant waste_production => 1;
 
-use constant food_storage => 525;
+use constant food_storage => 700;
 
-use constant energy_storage => 525;
+use constant energy_storage => 700;
 
-use constant ore_storage => 525;
+use constant ore_storage => 700;
 
-use constant water_storage => 525;
+use constant water_storage => 700;
 
 use constant waste_storage => 100;
 

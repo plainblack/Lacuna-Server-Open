@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 21;
+use Test::More tests => 23;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -119,8 +119,10 @@ $empire = $tester->db->domain('empire')->find($empire_id);
 is($empire->species->name, 'Borg', 'species getting set properly');
 is($empire->home_planet->command->level, 7, 'growth affinity works');
 
-
-
+$tester->session($empire->start_session);
+$result = $tester->post('species','view_stats',[$tester->session->id]);
+is($result->{result}{species}{name}, 'Borg', 'get species name');
+is($result->{result}{species}{research_affinity}, 4, 'get affinity');
 
 sub cleanup {
     $tester->cleanup;

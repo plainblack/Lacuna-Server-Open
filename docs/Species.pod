@@ -96,4 +96,26 @@ Throws 1002 and 1010.
 
 The empire to set the species.
 
+
+=head2 view_stats ( session_id )
+
+Returns a list of the stats associated with an empire's species as it was originally created. An empire can only view it's own species stats throught his method.
+
+ {
+    "name" : "Human",
+    "description" : "The descendants of Earth.",
+    "habitable_orbits" : [3],
+    "manufacturing_affinity" : 4,
+    "deception_affinity" : 4,
+    "research_affinity" : 4,
+    "management_affinity" : 4,
+    "farming_affinity" : 4,
+    "mining_affinity" : 4,
+    "science_affinity" : 4,
+    "environmental_affinity" : 4,
+    "political_affinity" : 4,
+    "trade_affinity" : 4,
+    "growth_affinity" : 4
+ }
+
 =cut

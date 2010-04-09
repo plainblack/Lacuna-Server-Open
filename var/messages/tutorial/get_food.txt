@@ -1,12 +1,19 @@
 You Need Food
 ~~~
-Excellent. As I mentioned before resources are going to be the key to your survival and growth. You'll want to gather more food right away. Not every planet has the right climate to create every type of food. You'll have to use what's available to you.
+I am delighted that you've chosen to use my vast knowledge of the Expanse to your advantage. As I promised, I will begin your training by introducing you to the most vital component to your growth and survial: resources.  
 
-To build a new building click or tap the 'build' button in an empty space. Then choose one of the various food production buildings available to you. Get yourself up to at least %s food per hour.
+Resources are the key to expanding your empire. Without them, your species will perish. The most vital of all the resources is food. You'll want to gather more food right away. Not every planet has the right climate to create every type of food so you'll have to use what's available to you.  
 
-Let me know when you have %s food per hour by replying to this message. The more we work together the more I think we can help each other. As a reward for completing this task I'll send you a power cell with 100 units of energy stored in it. That should help you complete future tasks.
+As a token of our lasting friendship, the Lacuna Expanse Corp has sent emissaries to your world to build a free Malcud Fungus Farm for your people. This particular source of food is one of our favorites as it is cheap to build and does not promote waste. Don't worry if you have already have one of these, you can always benefit from more of them.
+
+To build, click or tap the 'build' icon in an empty space. Then choose the Malcud Fungus Farm from the available list.
+
+Let me know when you have completed the building. 
 
 Regards,
 
 Tou Re Ell
 Lacuna Expanse Corp
+
+Task:  Build the free Malcud Fungus Farm.
+Reward:  None.

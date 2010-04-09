@@ -27,7 +27,7 @@ use constant time_to_build => 120;
 
 use constant food_consumption => 1;
 
-use constant corn_production => 22;
+use constant corn_production => 28;
 
 use constant energy_consumption => 1;
 
@@ -35,7 +35,7 @@ use constant ore_consumption => 2;
 
 use constant water_consumption => 2;
 
-use constant waste_production => 4;
+use constant waste_production => 5;
 
 
 

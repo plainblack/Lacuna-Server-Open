@@ -37,6 +37,9 @@ sub subsidize_build_queue {
     };
 }
 
+__PACKAGE__->register_rpc_method_names(qw(subsidize_build_queue));
+
+
 no Moose;
 __PACKAGE__->meta->make_immutable;
 
