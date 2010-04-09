@@ -202,6 +202,7 @@ sub sanitize {
     );
     $self->ships_travelling->delete;
     $self->simpledb->domain('travel_queue')->search(where=>{foreign_body_id => $self->id})->delete;
+    $self->simpledb->domain('spies')->search(where=>{from_body_id => $self->id})->delete;
     foreach my $attribute (@attributes) {
         $self->$attribute(0);
     }
@@ -733,20 +734,22 @@ sub add_news {
     my $headline = shift;
     my $network19 = $self->network19;
     if (defined $network19) {
-        $chance += $network19->level;
+        $chance += $network19->level * 2;
         if ($network19->restrict_coverage) {
             $chance = $chance / $self->command->level; 
         }
     }
     if (randint(1,100) <= $chance) {
         $headline = sprintf $headline, @_;
-        return Lacuna::DB::News->new(
+        Lacuna::DB::News->new(
             simpledb    => $self->simpledb,
             date_posted => DateTime->now,
             zone        => $self->zone,
             headline    => $headline,
         )->put;
+        return 1;
     }
+    return 0;
 }
 
 

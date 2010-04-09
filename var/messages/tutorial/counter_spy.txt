@@ -1,11 +1,11 @@
 Counter Spies
 ~~~
-Well done. I've been able to get you the plans to upgrade your Intelligence Ministry to level two and I've trained one of your counter spies personally. That should help keep some of your information and resources protected. You should train another counter spy so you have two. The more the merrier when it comes to keeping the bad guys out.
+Well done. I've been able to get you the plans to upgrade your Intelligence Ministry to level two and I've trained one of your spies personally. That should help keep some of your information and resources protected. You should train another spy so you have two. Then set one on sting duty and one on counter intelligence. The more the merrier when it comes to keeping the bad guys out.
 
 Regards,
 
 Tou Re Ell (I'm evil, you just don't know it yet!)
 Lacuna Expanse Corp
 
-Task: Build a Counter Spy.
+Task: Build another spy and assign them duties.
 Reward: None.

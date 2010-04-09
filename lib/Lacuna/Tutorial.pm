@@ -166,7 +166,7 @@ sub pawn {
         my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Intelligence')->next;
         if (defined $building && $building->level >= 1) {
             $home->add_free_upgrade('Lacuna::DB::Building::Intelligence', 2)->put;
-            $building->add_counter_spy(1)->put;
+            $building->train_spy;
             $self->start('counter_spy');
             return undef;
         }
