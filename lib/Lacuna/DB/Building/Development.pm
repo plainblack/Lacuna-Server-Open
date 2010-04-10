@@ -4,15 +4,25 @@ use Moose;
 extends 'Lacuna::DB::Building';
 
 sub subsidize_build_queue {
-    my ($self, $amount) = @_;
+    my ($self) = @_;
+    $self->body->tick;
     my $builds = $self->simpledb->domain('build_queue')->search(where=>{body_id=>$self->body_id});
     while (my $build = $builds->next) {
-        $build->date_complete->subtract(seconds=>($amount * 600));
-        $build->put;
+        $build->finish_build;
     }
-    my $empire = $self->empire;
-    $empire->spend_essentia($amount);
-    $empire->trigger_full_update;
+}
+
+
+sub calculate_subsidy {
+    my ($self) = @_;
+    my $levels = 0;
+    my $builds = $self->simpledb->domain('build_queue')->search(where=>{body_id=>$self->body_id});
+    while (my $build = $builds->next) {
+        $levels += $build->building->level;
+    }
+    my $cost = int($levels / 3);
+    $cost = 1 if $cost < 1;
+    return $cost;
 }
 
 sub format_build_queue {
@@ -26,6 +36,8 @@ sub format_build_queue {
             name                => $target->name,
             to_level            => ($target->level + 1),
             seconds_remaining   => $build->seconds_remaining,
+            x                   => $target->x,
+            y                   => $target->y,
         };
     }
     return \@queue;

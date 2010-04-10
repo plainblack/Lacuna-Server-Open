@@ -1,16 +1,19 @@
 use lib '../lib';
-use Test::More tests => 2;
+use Test::More tests => 6;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
+use DateTime;
 
 use TestHelper;
 my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
+
+
 my $result;
-$empire->add_essentia(10)->put;
+
 
 my $uni = Lacuna::DB::Building::University->new(
     simpledb        => $tester->db,
@@ -41,14 +44,25 @@ $home->algae_production_hour(5000);
 $home->water_hour(5000);
 $home->put;
 
-$result = $tester->post('development', 'build', [$session_id, $tester->empire->home_planet_id, 3, 3]);
-my $id =  $result->{result}{building}{id};
-$result = $tester->post('development', 'view', [$session_id, $id]);
+$result = $tester->post('intelligence', 'build', [$session_id, $home->id, 0, 1]);
+ok($result->{result}{building}{id}, "built an intelligence ministry");
+my $intelligence = $empire->get_building('Lacuna::DB::Building::Intelligence',$result->{result}{building}{id});
+$intelligence->finish_upgrade;
 
-is($result->{result}{build_queue}[0]{name}, 'Development Ministry', "got build queue");
+$result = $tester->post('intelligence', 'view', [$session_id, $intelligence->id]);
+is($result->{result}{spies}{maximum}, 5, "get spy data");
 
-$result = $tester->post('development', 'subsidize_build_queue', [$session_id, $id]);
-ok($result->{result}{essentia_spent}, 'subsidy worked');
+$result = $tester->post('intelligence', 'train_spy', [$session_id, $intelligence->id, 3]);
+is($result->{result}{trained}, 3, "train a spy");
+
+$result = $tester->post('intelligence', 'view_spies', [$session_id, $intelligence->id]);
+my ($spy_id) = keys %{$result->{result}{spies}};
+is($result->{result}{spies}{$spy_id}{is_available}, 0, "spy training");
+is($result->{result}{possible_assignments}[0], 'Idle', "possible assignments");
+
+$result = $tester->post('intelligence', 'burn_spy', [$session_id, $intelligence->id, $spy_id]);
+ok(exists$result->{result}, "burn a spy");
+
 
 END {
     $tester->cleanup;

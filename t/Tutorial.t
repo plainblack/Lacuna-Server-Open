@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 16;
+use Test::More tests => 24;
 use Test::Deep;
 use Data::Dumper;
 use DateTime;
@@ -179,6 +179,13 @@ $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'fool');
 
+my $future = DateTime->now->add(hours=>1);
+$empire->food_boost($future);
+$empire->water_boost($future);
+$empire->energy_boost($future);
+$empire->ore_boost($future);
+is($tutorial->finish, 1, 'essentia');
+
 
 $building = Lacuna::DB::Building::Energy::Geo->new(
     simpledb        => $db,
@@ -259,7 +266,7 @@ $building = Lacuna::DB::Building::SpacePort->new(
     body            => $home,
     empire_id       => $empire->id,
     empire          => $empire,
-    level           => 1,
+    level           => 0,
 );
 $home->build_building($building);
 $building->finish_upgrade;
@@ -276,7 +283,7 @@ $building = Lacuna::DB::Building::Shipyard->new(
     body            => $home,
     empire_id       => $empire->id,
     empire          => $empire,
-    level           => 1,
+    level           => 0,
 );
 $home->build_building($building);
 $building->finish_upgrade;
@@ -293,13 +300,46 @@ $building = Lacuna::DB::Building::Intelligence->new(
     body            => $home,
     empire_id       => $empire->id,
     empire          => $empire,
-    level           => 1,
+    level           => 0,
 );
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'intelligence');
 
-sleep 30;
+$building->train_spy;
+
+say "Waiting for spies to finish...";
+sleep 216;
+
+my $spies = $building->get_spies;
+$spies->next->assign('Sting')->put;
+$spies->next->assign('Counter Intelligence')->put;
+sleep 3;
+is($tutorial->finish, 1, 'counter spy');
+
+$building = Lacuna::DB::Building::Observatory->new(
+    simpledb        => $db,
+    x               => 1,
+    y               => 1,
+    class           => 'Lacuna::DB::Building::Observatory',
+    date_created    => DateTime->now,
+    body_id         => $home->id,
+    body            => $home,
+    empire_id       => $empire->id,
+    empire          => $empire,
+    level           => 0,
+);
+$home->build_building($building);
+$building->finish_upgrade;
+is($tutorial->finish, 1, 'observatory');
+
+$empire->add_probe('xxxxx');
+is($tutorial->finish, 1, 'explore');
+is($tutorial->finish, 1, 'the_end');
+is($tutorial->finish, 1, 'turing');
+is($tutorial->finish, 1, 'turing');
+is($tutorial->finish, 1, 'turing');
+
 
 END {
     $tester->cleanup;

@@ -23,7 +23,7 @@ foreach my $doc (@docs) {
     $parser->{perldoc_url_prefix} = '/api/';
     $parser->{perldoc_url_postfix} = '.html';
     $parser->{title_prefix} = 'The Lacuna Expanse API - ';
-    $parser->{html_footer} = '&copy; 2010 lacunaexpanse.com';
+    $parser->{html_footer} = '&copy; 2010 Lacuna Expanse Corp';
 
     open my $in, '<', $poddir.$doc;
     my $name = $doc;

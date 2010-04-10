@@ -28,9 +28,25 @@ sub build_ship {
     my ($self, $session_id, $building_id, $type, $quantity) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
+    my $body = $building->body;
+    $body->tick;
+    $building = $empire->get_building($self->model_class, $building_id); #might be stale
+    $building->body($body);
     my $costs = $building->get_ship_costs($type);
     $building->can_build_ship($type, $quantity, $costs);
-    $building->build_ship($type, $quantity, $costs);
+    foreach my $key (keys %{ $costs }) {
+        next if $key eq 'seconds';
+        if ($key eq 'waste') {
+            $body->add_waste($costs->{waste} * $quantity);
+        }
+        else {
+            my $spend = 'spend_'.$key;
+            $body->$spend($costs->{$key} * $quantity);
+        }
+    }
+    $body->put;
+    $self->empire->trigger_full_update;
+    $building->build_ship($type, $quantity, $costs->{seconds});
     return {
         ship_build_queue    => $building->format_ship_builds,
         status              => $empire->get_status,
