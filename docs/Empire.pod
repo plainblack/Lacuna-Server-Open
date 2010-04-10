@@ -340,7 +340,7 @@ A message to indicate what you're doing, how you're feeling, or other status ind
 
 
 
-=head2 view_boost ( session_id )
+=head2 view_boosts ( session_id )
 
 Shows the dates at which boosts have expired or will expire. Boosts are subsidies applied to various resources using essentia.
 
