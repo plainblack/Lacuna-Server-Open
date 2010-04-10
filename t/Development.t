@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 1;
+use Test::More tests => 2;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -7,18 +7,48 @@ use 5.010;
 use TestHelper;
 my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
-
+my $empire = $tester->empire;
+my $home = $empire->home_planet;
 my $result;
+$empire->add_essentia(10)->put;
 
-my $command = $tester->empire->home_planet->command;
-$command->level(5);
-$command->put;
+my $uni = Lacuna::DB::Building::University->new(
+    simpledb        => $tester->db,
+    x               => 0,
+    y               => -1,
+    class           => 'Lacuna::DB::Building::University',
+    date_created    => DateTime->now,
+    body_id         => $home->id,
+    body            => $home,
+    empire_id       => $empire->id,
+    empire          => $empire,
+    level           => 2,
+);
+$home->build_building($uni);
+$uni->finish_upgrade;
+
+$home->ore_capacity(5000);
+$home->energy_capacity(5000);
+$home->food_capacity(5000);
+$home->water_capacity(5000);
+$home->bauxite_stored(5000);
+$home->algae_stored(5000);
+$home->energy_stored(5000);
+$home->water_stored(5000);
+$home->ore_hour(5000);
+$home->energy_hour(5000);
+$home->algae_production_hour(5000);
+$home->water_hour(5000);
+$home->put;
 
 $result = $tester->post('development', 'build', [$session_id, $tester->empire->home_planet_id, 3, 3]);
-
-$result = $tester->post('development', 'view', [$session_id, $result->{result}{building}{id}]);
+my $id =  $result->{result}{building}{id};
+$result = $tester->post('development', 'view', [$session_id, $id]);
 
 is($result->{result}{build_queue}[0]{name}, 'Development Ministry', "got build queue");
+
+$result = $tester->post('development', 'subsidize_build_queue', [$session_id, $id]);
+ok($result->{result}{essentia_spent}, 'subsidy worked');
 
 END {
     $tester->cleanup;
