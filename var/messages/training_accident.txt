@@ -1,0 +1,7 @@
+Training Accident
+~~~
+Sadly, one of our brave spies died in a training accident today on %s. We are investigating the matter to improve the odds it doesn't happen again.
+
+Regards,
+
+Your Humble Assistant

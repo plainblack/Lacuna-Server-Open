@@ -19,36 +19,28 @@ This method is extended to include details about what's in your build queue.
             "name" : "Planetary Commmand",
             "to_level" : 9,
             "seconds_remaining" : 537,
+            "x" : 0,
+            "y" : 0
         },
         {
             "building_id" : "building-id-goes-here",
             "name" : "Wheat Farm",
             "to_level" : 15,
             "seconds_remaining" : 9748,
+            "x" : -1,
+            "y" : 4
         }
-    ]
+    ],
+    "subsidy_cost" : 8 # the essentia cost to subsidize the build queue
  }
  
-=head2 subsidize_build_queue ( session_id, building_id, amount )
+=head2 subsidize_build_queue ( session_id, building_id )
 
-Allows a player to speed up the build process, by spending essentia. Returns:
+Allows a player to instantly finish any buildings in their build queue. The cost is returned by the C<view> method. Returns:
 
  {
     "status" : { get_status() },
-    "build_queue" : [
-        {
-            "building_id" : "building-id-goes-here",
-            "name" : "Planetary Commmand",
-            "to_level" : 9,
-            "seconds_remaining" : 537,
-        },
-        {
-            "building_id" : "building-id-goes-here",
-            "name" : "Wheat Farm",
-            "to_level" : 15,
-            "seconds_remaining" : 9748,
-        }
-    ]
+    "essentia_spent" : 8
  }
 
 =head3 session_id
@@ -58,9 +50,5 @@ A session id.
 =head3 building_id
 
 The id of the development ministry.
-
-=head3 amount
-
-The amount of essentia to spend. One essentia is worth 10 minutes of build time.
  
 =cut

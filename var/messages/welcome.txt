@@ -11,5 +11,5 @@ Regards,
 Tou Re Ell
 Lacuna Expanse Corp
 
-Task: Rename your planet.
+Task: Rename your planet and reply to this message.
 Reward: A free building.

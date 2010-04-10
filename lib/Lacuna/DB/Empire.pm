@@ -35,6 +35,11 @@ __PACKAGE__->add_attributes(
     needs_full_update   => { isa => 'Str', default=>0 },
     tutorial_stage      => { isa => 'Str', default=>'explore_the_ui' },
     tutorial_scratch    => { isa => 'Str' },
+    food_boost          => { isa => 'DateTime' },
+    water_boost         => { isa => 'DateTime' },
+    ore_boost           => { isa => 'DateTime' },
+    energy_boost        => { isa => 'DateTime' },
+    happiness_boost     => { isa => 'DateTime' },
 );
 
 # personal confederacies

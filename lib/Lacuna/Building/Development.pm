@@ -17,23 +17,25 @@ around 'view' => sub {
     my $building = $empire->get_building($self->model_domain, $building_id);
     my $out = $orig->($self, $empire, $building);
     $out->{build_queue} = $building->format_build_queue;
+    $out->{subsidy_cost} = $building->calculate_subsidy;
     return $out;
 };
 
 sub subsidize_build_queue {
-    my ($self, $session_id, $building_id, $amount) = @_;
-    if ($amount < 0) {
-        confess [1009, "You can't subsidize that little.", $amount];
-    }
+    my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    if ($empire->essentia < $amount) {
+    my $building = $empire->get_building($self->model_class, $building_id);
+    my $subsidy = $building->calculate_subsidy;
+    if ($empire->essentia < $subsidy) {
         confess [1011, "You don't have enough essentia."];
     }
-    my $building = $empire->get_building($self->model_domain, $building_id);
-    $building->subsidize_build_queue($amount);
+    $empire->spend_essentia($subsidy);
+    $empire->trigger_full_update(skip_put=>1);
+    $empire->put;
+    $building->subsidize_build_queue;
     return {
-        build_queue => $building->format_build_queue,
-        status      => $empire->get_status,
+        status          => $empire->get_status,
+        essentia_spent  => $subsidy,
     };
 }
 

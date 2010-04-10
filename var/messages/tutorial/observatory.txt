@@ -1,0 +1,12 @@
+Observatory
+~~~
+For some reason we seem to be lacking the detail in the reports that we normally receive. You wouldn't know anything about that would you?
+
+By the way, we finally caught the traitor who has been interrupting our conversations. It was no less than my personal assistant! Don't worry, he won't bother us again.
+
+Now where were we? Oh yes, now I remember. There's very little left for me to teach you, but before I leave you to tend to your empire, there is one more thing that you should know. In order to explore the Expanse you need to start producing probes, and in order to do that you'll need to build an Observatory. This shouldn't be too difficult a task for you given your rate of expansion, but it's a necessary step. 
+
+As usual reply when you've completed this.
+
+Task: Build an Observatory.
+Reward: A probe.

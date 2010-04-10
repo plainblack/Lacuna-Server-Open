@@ -37,7 +37,9 @@ sub rename {
         ->not_ok($self->simpledb->domain('body')->count(where => {name_cname=>Lacuna::Util::cname($name), 'itemName()'=>['!=',$body_id]}, consistent=>1)); # name available
     
     my $empire = $self->get_empire_by_session($session_id);
-    $empire->get_body($body_id)->update({name => $name})->put;
+    my $body = $empire->get_body($body_id);
+    $body->add_news(200,"In a bold move to show its growing power, %s renamed %s to %s.",$empire->name, $body->name, $name);
+    $body->update({name => $name})->put;
     return 1;
 }
 

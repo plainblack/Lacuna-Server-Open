@@ -166,7 +166,7 @@ sub pawn {
         my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Intelligence')->next;
         if (defined $building && $building->level >= 1) {
             $home->add_free_upgrade('Lacuna::DB::Building::Intelligence', 2)->put;
-            $building->add_counter_spy(1)->put;
+            $building->train_spy;
             $self->start('counter_spy');
             return undef;
         }
@@ -181,13 +181,67 @@ sub counter_spy {
     my $home = $self->empire->home_planet;
     if ($finish) {
         my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Intelligence')->next;
-        if (defined $building && $building->count_counter_spies >= 2) {
-            $self->start('');
+        if (defined $building && $building->counter_intelligence >= 1 && $building->sting >= 1) {
+            $self->start('observatory');
             return undef;
         }
     }
     return {
         filename    => 'tutorial/counter_spy.txt',  
+    };
+}
+
+sub observatory {
+    my ($self, $finish) = @_;
+    my $home = $self->empire->home_planet;
+    if ($finish) {
+        my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Observatory')->next;
+        if (defined $building && $building->level >= 1) {
+            my $shipyard = $home->get_buildings_of_class('Lacuna::DB::Building::Shipyard')->next;
+            $shipyard->build_ship('probe',1);
+            $self->start('explore');
+            return undef;
+        }
+    }
+    return {
+        filename    => 'tutorial/observatory.txt',  
+    };
+}
+
+sub explore {
+    my ($self, $finish) = @_;
+    my $empire = $self->empire;
+    if ($finish) {
+        if (scalar(@{$empire->probed_stars}) > 1) {
+            $empire->home_planet->add_free_build('Lacuna::DB::Building::Food::Transporter', 1)->put;
+            $self->start('the_end');
+            return undef;
+        }
+    }
+    return {
+        filename    => 'tutorial/explore.txt',  
+    };
+}
+
+sub the_end {
+    my ($self, $finish) = @_;
+    if ($finish) {
+        $self->start('turing');
+        return undef;
+    }
+    return {
+        filename    => 'tutorial/the_end.txt',  
+    };
+}
+
+sub turing {
+    my ($self, $finish) = @_;
+    if ($finish) {
+        $self->start('turing');
+        return undef;
+    }
+    return {
+        filename    => 'tutorial/turing.txt',  
     };
 }
 
@@ -312,7 +366,7 @@ sub fool {
     if ($finish) {
         if ($home->food_hour >= $empire->tutorial_scratch) {
             $home->add_free_upgrade('Lacuna::DB::Building::Food::Reserve', 2)->put;
-            $self->start('energy');
+            $self->start('essentia');
             return undef;
         }
     }
@@ -324,6 +378,21 @@ sub fool {
     return {
         params      => [$food_hour,$food_hour],
         filename    => 'tutorial/fool.txt',  
+    };
+}
+
+sub essentia {
+    my ($self, $finish) = @_;
+    my $empire = $self->empire;
+    if ($finish) {
+        my $now = DateTime->now;
+        if ($empire->food_boost >= $now && $empire->water_boost >= $now && $empire->ore_boost >= $now && $empire->energy_boost >= $now) {
+            $self->start('energy');
+            return undef;
+        }
+    }
+    return {
+        filename    => 'tutorial/essentia.txt',  
     };
 }
 

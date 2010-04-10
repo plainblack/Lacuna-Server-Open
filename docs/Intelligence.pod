@@ -1,7 +1,148 @@
 =head1 Intelligence Methods
 
-Intelligence is accessible via the URL C</intelligence>.
+Intelligence Ministry is accessible via the URL C</intelligence>.
+
+The Intelligence Ministry is where you build and control your spies.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=head2 view ( session_id, building_id )
+
+ {
+    "status" : { ... },
+    "building" : { ... },
+    "spies" : {
+        "maximum" : 5,
+        "current" : 1,
+        "training_costs" : {
+            "food" : 100,
+            "water" : 120,
+            "energy" : 20,
+            "ore" : 5,
+            "waste" : 10,
+            "time" : 60,
+        }
+    },
+ }
+ 
+
+=head2 train_spy ( session_id, building_id, [ quantity ])
+
+Allows you to train more spies.
+
+ {
+    "status" : { get_status() },
+    "trained" : 3,
+    "not_trained" : 2
+ }
+ 
+The only reason C<not_trained> might be over 0 is if you specify training more spies than you have resources to spend.
+
+Throws 1013, 1009.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of your Intelligence Ministry.
+
+=head3 quantity
+
+An integer between 1 and 5. Defaults to 1.
+
+
+=head2 view_spies ( session_id, building_id )
+
+Returns the list of spies you have on your roster.
+
+ {
+    "status" : { get_status() },
+    "spies" : {
+        "id-goes-here" : {
+            "assignment" : "Idle",
+            "assigned_to" : {
+                "body_id" : "id-goes-here",
+                "name" : "Earth",
+            },
+            "is_available" : 1, # can be reassigned
+            "available_on" : "01 31 2010 13:09:05 +0600" # if can't be reassigned, this is when will be available
+        },
+        ...
+    }
+ }
+
+Take a look at the C<assign_spy> method below for assignment descriptions.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of your Intelligence Ministry.
+
+
+
+=head2 burn_spy ( session_id, building_id, spy_id )
+
+Allows you to eliminate one of your spies from your payroll.
+
+ {
+    "status" : { get_status() }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of your Intelligence Ministry.
+
+=head3 spy_id
+
+The unique id of the spy you wish to burn.
+
+
+
+=head2 assign_spy ( session_id, building_id, spy_id, assignment )
+
+Set a spy on a new task.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of your Intelligence Ministry.
+
+=head3 spy_id
+
+The unique id of the spy you wish to assign.
+
+=head3 assignment
+
+A string containing the new assignment name. These are the possible assignments:
+
+=over
+
+=item Idle
+
+Don't do anything.
+
+=item Counter Intelligence
+
+Gathering information about what foreign spies are on this planet.
+
+=item Sting
+
+Attempt to disrupt the plots of foreign spies on this planet.
+
+=back
+
+B<NOTE:> You can do good things to enemies, and bad things to allies using these assignments.
 
 =cut
