@@ -2,7 +2,7 @@
 
 Network 19 Affiliate is accessible via the URL C</network19>.
 
-Network 19 is the news network covering the Expanse. Here you can learn all kinds of things about what's happening around you, without even leaving your planet.
+Network 19 is the news network covering the Expanse. Here you can learn all kinds of things about what's happening around you, without even leaving your planet. Every two levels you'll receive news from additional zones around you, up to 7 total zones.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
@@ -40,7 +40,7 @@ A boolean indicating whether or not you have enacted a policy to restrict covera
 
 =head2 view_news ( session_id, building_id )
 
-Get the top 100 headlines from your region of space. It also returns a list of RSS feeds that can be used outside the game to see the same news in a given region.
+Get the top 100 headlines from your region of space (called a zone). It also returns a list of RSS feeds that can be used outside the game to see the same news in a given zone.
 
  {
     "news" : [
