@@ -10,15 +10,15 @@
 		var ehHost = (("https:" == document.location.protocol) ? "https://" : "http://");
 		document.write(unescape("%3Cscript src='" + ehHost + "js.exceptionhub.com/javascripts/eh.js' type='text/javascript'%3E%3C/script%3E"));
 	</script>
-	<script>
-		ExceptionHub.setup("532ac1d443365a62ab0680c23787cabc", 179, 'local');
+	<script type="text/javascript">
+		ExceptionHub.setup("532ac1d443365a62ab0680c23787cabc", 179, 'prod');
 	</script>
 	<!-- Exception Hub end -->
 </head>
 <body id="body" class="yui-skin-sam">
 	<div id="pulsing" class="nofooter yui-panel">
 		<div class="bd">
-			<img src="http://webclient.lacunaexpanse.com/assets/ui/pulse-indicator.gif" alt="Pulse Indicator">
+			<img src="https://s3.amazonaws.com/webclient.lacunaexpanse.com/assets/ui/pulse-indicator.gif" alt="Pulse Indicator" />
 		</div>
 	</div>
 	<div id="header" class="yui-gb hidden">
