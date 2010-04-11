@@ -50,9 +50,9 @@ Get the top 100 headlines from your region of space (called a zone). It also ret
         },
         ...
     ],
-    "feeds" : [
-        'http://feeds.game.lacunaexpanse.com/78d5e7b2-b8d7-317c-b244-3f774264be57.rss'
-    ],
+    "feeds" : {
+        "0|0|0" : 'http://feeds.game.lacunaexpanse.com/78d5e7b2-b8d7-317c-b244-3f774264be57.rss'
+    },
     "status" : { get_status() }
  }
 

@@ -40,13 +40,13 @@ sub view_news {
             date        => $story->date_posted_formatted,
         };
     }
-    my @feeds;
+    my %feeds;
     foreach my $zone (@zones) {
-        push @feeds, Lacuna::DB::News->feed_url($zone);
+        $feeds{$zone} = Lacuna::DB::News->feed_url($zone);
     }
     return {
         news    => \@stories,
-        feeds   => \@feeds,
+        feeds   => \%feeds,
         status  => $empire->get_status,
     };
 }
