@@ -45,7 +45,7 @@ sub build_ship {
         }
     }
     $body->put;
-    $self->empire->trigger_full_update;
+    $empire->trigger_full_update;
     $building->build_ship($type, $quantity, $costs->{seconds});
     return {
         ship_build_queue    => $building->format_ship_builds,
