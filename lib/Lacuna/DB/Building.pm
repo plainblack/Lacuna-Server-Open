@@ -160,7 +160,9 @@ sub consumption_hour {
 
 sub farming_production_bonus {
     my ($self) = @_;
-    return (100 + $self->empire->species->farming_affinity) / 100;
+    my $empire = $self->empire;
+    my $boost = (DateTime->now < $empire->food_boost) ? 25 : 0;
+    return (100 + $boost + $empire->species->farming_affinity) / 100;
 }
 
 sub lapis_production_hour {
@@ -295,7 +297,9 @@ sub food_hour {
 
 sub energy_production_bonus {
     my ($self) = @_;
-    return (100 + $self->empire->species->science_affinity) / 100;
+    my $empire = $self->empire;
+    my $boost = (DateTime->now < $empire->energy_boost) ? 25 : 0;
+    return (100 + $boost + $empire->species->science_affinity) / 100;
 }
 
 sub energy_production_hour {
@@ -315,12 +319,11 @@ sub energy_hour {
 
 sub mining_production_bonus {
     my ($self) = @_;
-    my $percent_increase = $self->empire->species->mining_affinity;
     my $refinery = $self->body->refinery;
-    if (defined $refinery) {
-        $percent_increase += $refinery->level * 5;
-    }
-    return (100 + $percent_increase) / 100;
+    my $refinery_bonus = (defined $refinery) ? $refinery->level * 5 : 0;
+    my $empire = $self->empire;
+    my $boost = (DateTime->now < $empire->energy_boost) ? 25 : 0;
+    return (100 + $boost + $refinery_bonus + $empire->species->mining_affinity) / 100;
 }
 
 sub ore_production_hour {
@@ -340,7 +343,9 @@ sub ore_hour {
 
 sub water_production_bonus {
     my ($self) = @_;
-    return (100 + $self->empire->species->environmental_affinity) / 100;
+    my $empire = $self->empire;
+    my $boost = (DateTime->now < $empire->water_boost) ? 25 : 0;
+    return (100 + $boost + $empire->species->environmental_affinity) / 100;
 }
 
 sub water_production_hour {
@@ -380,7 +385,9 @@ sub waste_hour {
 
 sub happiness_production_bonus {
     my ($self) = @_;
-    return (100 + ($self->empire->species->political_affinity * 2)) / 100;
+    my $empire = $self->empire;
+    my $boost = (DateTime->now < $empire->happiness_boost) ? 25 : 0;
+    return (100 + $boost + ($empire->species->political_affinity * 2)) / 100;
 }
 
 sub happiness_production_hour {
@@ -588,10 +595,11 @@ sub finish_upgrade {
     $self->level($self->level + 1);
     $self->build_queue_id('');
     $self->put;
-    $self->body->clear_last_in_build_queue;
-    $self->body->recalc_stats;
-    # we're probably stale, but it doesn't matter. this comment is just a reminder for future changes
-    my $empire = $self->body->empire; # fetching from body because we're stale
+    my $body = $self->body;
+    $body->clear_last_in_build_queue;
+    $body->needs_recalc(1);
+    $body->put;
+    my $empire = $body->empire; 
     $empire->trigger_full_update(skip_put=>1);
     $empire->add_medal('building'.$self->level, skip_put=>1);
     my $type = $self->controller_class;

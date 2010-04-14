@@ -240,6 +240,7 @@ sub boost {
     my $start = DateTime->now;
     $start = $empire->$type if ($empire->$type > $start);
     $start->add(days=>7);
+    $empire->planets->update({needs_recalc=>1});
     $empire->$type($start);
     $empire->trigger_full_update(skip_put=>1);
     $empire->put;

@@ -91,7 +91,8 @@ __PACKAGE__->add_attributes(
     shake_stored                    => { isa => 'Int', default=>0 },
     beetle_stored                   => { isa => 'Int', default=>0 },
     freebies                        => { isa => 'HashRef' },
-    boost_enabled                   => { isa => 'Str' },
+    boost_enabled                   => { isa => 'Str', default=>0 },
+    needs_recalc                    => { isa => 'Str', default=>0 },
 );
 
 # RELATIONSHIPS
@@ -692,6 +693,7 @@ sub found_colony {
     $command->finish_upgrade;
     
     # add starting resources
+    $self->tick;
     $self->add_algae(700);
     $self->add_energy(700);
     $self->add_water(700);
@@ -706,7 +708,7 @@ sub found_colony {
 
 sub recalc_stats {
     my ($self) = @_;
-    my %stats;
+    my %stats = ( needs_recalc => 0 );
     foreach my $buildings ($self->buildings) {
         while (my $building = $buildings->next) {
             $stats{waste_capacity} += $building->waste_capacity;
@@ -725,23 +727,6 @@ sub recalc_stats {
                 $stats{$method} += $building->$method();
             }
          }
-    }
-    my $now = DateTime->now;
-    my $empire = $self->empire;
-    foreach my $resource (qw(energy water ore happiness)) {
-        my $boost = $resource.'_boost';
-        if ($now < $empire->$boost) {
-            my $hour = $resource.'_hour';
-            $stats{$hour} = sprintf '%.0f', $stats{$hour} * 1.25;
-            $stats{boost_enabled} = 1;
-        }
-    }
-    if ($now < $empire->food_boost) {
-        foreach my $type (FOOD_TYPES) {
-            my $method = $type.'_production_hour';
-            $stats{$method} = sprintf '%.0f', $stats{$method} * 1.25;
-            $stats{boost_enabled} = 1;
-        }
     }
     $self->update(\%stats);
     $self->put;
@@ -817,24 +802,14 @@ sub tick {
     if ($self->boost_enabled) {
         my $empire = $self->empire;
         my $still_enabled = 0;
-        foreach my $resource (qw(energy water ore happiness)) {
+        foreach my $resource (qw(energy water ore happiness food)) {
             my $boost = $resource.'_boost';
             if ($now > $empire->$boost) {
-                my $hour = $resource.'_hour';
-                $self->$hour(sprintf '%.0f', $self->$hour / 1.25);
+                $self->needs_recalc(1);
             }
             else {
                 $still_enabled = 1;
             }
-        }
-        if ($now > $empire->food_boost) {
-            foreach my $type (FOOD_TYPES) {
-                my $method = $type.'_production_hour';
-                $self->$method(sprintf '%.0f', $self->$method / 1.25);
-            }
-        }
-        else {
-            $still_enabled = 1;
         }
         unless ($still_enabled) {
             $self->boost_enabled(0);
@@ -854,6 +829,9 @@ sub tick_to {
     my $seconds = to_seconds($interval);
     my $tick_rate = $seconds / 3600;
     $self->last_tick($now);
+    if ($self->needs_recalc) {
+        $self->recalc_stats;    
+    }
     $self->add_happiness(sprintf('%.0f', $self->happiness_hour * $tick_rate));
     $self->add_waste(sprintf('%.0f', $self->waste_hour * $tick_rate));
     $self->add_energy(sprintf('%.0f', $self->energy_hour * $tick_rate));
