@@ -5,7 +5,6 @@ extends 'JSON::RPC::Dispatcher::App';
 use Lacuna::Util qw(cname format_date);
 use Lacuna::Map;
 use Lacuna::Verify;
-use Lacuna::Constants qw(MEDALS);
 use DateTime;
 
 has simpledb => (
@@ -113,13 +112,12 @@ sub view_profile {
     my $empire = $self->get_empire_by_session($session_id);
     my $medals = $empire->medals;
     my %my_medals;
-    foreach my $key (keys %{$medals}) {
-        $my_medals{$key} = {
-            name    => MEDALS->{$key},
-            image   => $key,
-            date    => $medals->{$key}{date},
-            note    => $medals->{$key}{note},
-            public  => $medals->{$key}{public}
+    while (my $medal = $medals->next) {
+        $my_medals{$medal->id} = {
+            name    => $medal->name,
+            image   => $medal->image,
+            date    => $medal->format_datestamp,
+            public  => $medal->public,
         };
     }
     my %out = (
@@ -144,20 +142,26 @@ sub edit_profile {
     unless (ref $profile->{public_medals} eq  'ARRAY') {
         confess [1009, 'Medals list needs to be an array reference.', 'public_medals'];
     }
+    
+    # preferences
     my $empire = $self->get_empire_by_session($session_id);
     $empire->description($profile->{description});
     $empire->status_message($profile->{status_message});
+    $empire->put;
+
+    # medals
     my $medals = $empire->medals;
-    foreach my $key (keys %{$medals}) {
-        if ($key ~~ $profile->{public_medals}) {
-            $medals->{$key}{public} = 1;
+    while (my $medal = $medals->next) {
+        if ($medal->id ~~ $profile->{public_medals}) {
+            $medal->public(1);
+            $medal->put;
         }
         else {
-            $medals->{$key}{public} = 0;
+            $medal->public(0);
+            $medal->put;
         }
     }
-    $empire->medals($medals);
-    $empire->put;
+    
     return $self->view_profile($empire);
 }
 
@@ -181,15 +185,13 @@ sub view_public_profile {
     unless (defined $viewed_empire) {
         confess [1002, 'The empire you wish to view does not exist.', $empire_id];
     }
-    my $medals;
+    my $medals = $self->simpledb->domain('medals')->search( where => { empire_id => $viewed_empire->id, public => 1 } );
     my %public_medals;
-    foreach my $key (keys %{$medals}) {
-        next unless $medals->{$key}{public};
-        $public_medals{$key} = {
-            image   => $key,
-            name    => MEDALS->{$key},
-            date    => $medals->{$key}{date},
-            note    => $medals->{$key}{note},
+    while (my $medal = $medals->next) {
+        $public_medals{$medal->id} = {
+            image   => $medal->image,
+            name    => $medal->name,
+            date    => $medal->format_datestamp,
         };
     }
     my %out = (

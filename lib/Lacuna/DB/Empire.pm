@@ -5,7 +5,6 @@ extends 'SimpleDB::Class::Item';
 use DateTime;
 use Lacuna::Util qw(format_date);
 use Digest::SHA;
-use Lacuna::Constants qw(MEDALS);
 use List::MoreUtils qw(uniq);
 
 __PACKAGE__->set_domain_name('empire');
@@ -31,7 +30,6 @@ __PACKAGE__->add_attributes(
     rank                => { isa => 'Int', default=>0 }, # just where it is stored, but will come out of date quickly
     probed_stars        => { isa => 'ArrayRefOfStr' },
     university_level    => { isa => 'Int', default=>0 },
-    medals              => { isa => 'HashRef' },
     needs_full_update   => { isa => 'Str', default=>0 },
     tutorial_stage      => { isa => 'Str', default=>'explore_the_ui' },
     tutorial_scratch    => { isa => 'Str' },
@@ -51,6 +49,7 @@ __PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'empire_id', mate =
 __PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Message', 'from_id', mate => 'sender');
 __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id', mate => 'receiver');
 __PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id', mate => 'empire');
+__PACKAGE__->has_many('medals', 'Lacuna::DB::Medals', 'empire_id', mate => 'empire');
 
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $body_id) = @_;
@@ -88,18 +87,21 @@ sub get_building { # makes for uniform error handling, and prevents staleness
     }
 }
 
+sub has_medal {
+    my ($self, $type) = @_;
+    return $self->simpledb->domain('medals')->count(where=>{empire_id => $self->id, type => $type});
+}
+
 sub add_medal {
-    my ($self, $id, %options) = @_;
-    my $medals = $self->medals;
-    unless (exists $medals->{$id}) {
-        $medals->{$id} = {
-            date    => format_date(DateTime->now),
-            note    => $options{notes},
-            public  => 1,
-            };
-        $self->medals($medals);
-        $self->put unless $options{skip_put};
-        my $name = MEDALS->{$id};
+    my ($self, $type) = @_;
+    unless ($self->has_medal($type)) {
+        my $medal = $self->simpledb->domain('medals')->insert({
+            datestamp   => DateTime->now,
+            public      => 1,
+            empire_id   => $self->id,
+            type        => $type,
+        });
+        my $name = $medal->name;
         $self->send_predefined_message(
             tags        => ['Medal'],
             filename    => 'medal.txt',
@@ -352,6 +354,7 @@ before 'delete' => sub {
     $self->sent_messages->delete;
     $self->received_messages->delete;
     $self->build_queues->delete;
+    $self->medals->delete;
     my $planets = $self->planets;
     while ( my $planet = $planets->next ) {
         $planet->sanitize;
