@@ -212,10 +212,9 @@ Provides a list of the editable properties of the current empire's profile. See 
        "description" : "description goes here",
        "status_message" : "status message goes here",
        "medals" : {
-           "building1" : {
+           "id-goes-here" : {
                "name" : "Built Level 1 Building",
                "image" : "building1",
-               "note" : "note about how this was achieved, if any, goes here",
                "date" : "01 31 2010 13:09:05 +0600",
                "public" : 1
            },
@@ -272,11 +271,10 @@ Provides a list of the data that's publicly known about this empire.
         "status_message" : "Looking for Essentia."
         "description" : "We are the original inhabitants of the Lacuna Expanse.",
         "medals" : {
-            "building1" : {
+            "id-goes-here" : {
                 "name" : "Built Level 1 Building",
                 "image" : "building1",
-                "date" : "01 31 2010 13:09:05 +0600",
-                "note" : null
+                "date" : "01 31 2010 13:09:05 +0600"
             },
             ...
         },

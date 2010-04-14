@@ -600,12 +600,11 @@ sub finish_upgrade {
     $body->needs_recalc(1);
     $body->put;
     my $empire = $body->empire; 
-    $empire->trigger_full_update(skip_put=>1);
-    $empire->add_medal('building'.$self->level, skip_put=>1);
+    $empire->trigger_full_update;
+    $empire->add_medal('building'.$self->level);
     my $type = $self->controller_class;
     $type =~ s/^Lacuna::Building::(\w+)$/$1/;
-    $empire->add_medal($type, skip_put=>1);
-    $empire->put;
+    $empire->add_medal($type);
     if ($self->level % 5 == 0) {
         my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'an epic',35=>'a miraculous',40=>'a magical');
         $self->body->add_news($self->level*5,"In %s ceremony, %s unveiled it's newly augmentented %s.", $levels{$self->level}, $empire->name, $self->name);

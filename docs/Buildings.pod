@@ -49,7 +49,6 @@ Retrieves the properties of the building.
         "name" : "Planetary Command",
         "image" : "command6",
         "level" : 6,
-        "can_upgrade" : 0,
         "x" : 0,
         "y", 0,
         "food_hour" : 500,
@@ -70,6 +69,7 @@ Retrieves the properties of the building.
         },
         "upgrade" : {
             "can" : 0,
+            "reason" : [1011, "Note enough resources.", "food"],
             "cost" : {
                 "food" : 500,
                 "water" : 500,
@@ -134,6 +134,68 @@ A session id.
 
 The id of the building you wish to retrieve.
 
+
+=head2 get_stats_for_level ( session_id, building_id, level )
+
+This method is for power users and script writers. It will return the projected stats of a building at a certain level. The building must already exist on the planet, because where it exists and who it is owned by affects the stats of the building. It returns
+
+ {
+    "building" : {
+        "id" : "id-goes-here",
+        "name" : "Planetary Command",
+        "image" : "command6",
+        "level" : 6,
+        "food_hour" : 500,
+        "food_capacity" : 500,
+        "energy_hour" : -44,
+        "energy_capacity" : 500,
+        "ore_hour" : -310,
+        "ore_capacity" : 500,
+        "water_hour" : -100,
+        "water_capacity" : 500,
+        "waste_hour" : 33,
+        "waste_capacity" : 500,
+        "happiness_hour" : 0,
+        "upgrade" : {
+            "cost" : {
+                "food" : 500,
+                "water" : 500,
+                "energy" : 500,
+                "waste" : 500,
+                "ore" : 1000,
+                "time" : 1200,
+            },
+            "production" : {
+                "food_hour" : 1500,
+                "food_capacity" : 500,
+                "energy_hour" : -144,
+                "energy_capacity" : 500,
+                "ore_hour" : -1310,
+                "ore_capacity" : 500,
+                "water_hour" : -1100,
+                "water_capacity" : 500,
+                "waste_hour" : 133,
+                "waste_capacity" : 500,
+                "happiness_hour" : 0,
+            },
+            "image" : "command7"
+    },
+    "status" : { get_status() }
+ }
+
+Throws 1009.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the building you want to get the stats for.
+
+=head3 level
+
+An integer between 1 and 100. This represents the stats that you want to see for the building.
 
 
 
