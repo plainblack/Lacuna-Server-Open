@@ -185,8 +185,44 @@ sub build {
     };
 }
 
+sub get_stats_for_level {
+    my ($self, $session_id, $building_id, $level) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $empire->get_building($self->model_domain, $building_id);
+    if ($level < 0 || $level > 100) {
+        confess [1009, 'Level must be an integer between 1 and 100.'];
+    }
+    $building->level($level);
+    my $image_after_upgrade = $building->image_level($building->level + 1);
+    return {
+        building    => {
+            id                  => $building->id,
+            name                => $building->name,
+            image               => $building->image_level,
+            level               => $building->level,
+            food_hour           => $building->food_hour,
+            food_capacity       => $building->food_capacity,
+            ore_hour            => $building->ore_hour,
+            ore_capacity        => $building->ore_capacity,
+            water_hour          => $building->water_hour,
+            water_capacity      => $building->water_capacity,
+            waste_hour          => $building->waste_hour,
+            waste_capacity      => $building->waste_capacity,
+            energy_hour         => $building->energy_hour,
+            energy_capacity     => $building->energy_capacity,
+            happiness_hour      => $building->happiness_hour,
+            upgrade             => {
+                cost            => $building->cost_to_upgrade,
+                production      => $building->stats_after_upgrade,
+                image           => $image_after_upgrade,
+            },
+        },
+        status      => $empire->get_status,
+    };
+}
 
-__PACKAGE__->register_rpc_method_names(qw(upgrade view build));
+
+__PACKAGE__->register_rpc_method_names(qw(upgrade view build get_stats_for_level));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -114,7 +114,8 @@ ok(exists $result->{error}, 'attack thwarted!!');
 $result = $tester->post('wheat', 'upgrade', [$session_id, $building->id]);
 ok(exists $result->{error}, 'attack thwarted!!!');
 
-
+$result = $tester->post('wheat', 'get_stats_for_level', [$session_id, $building->id, 15]);
+ok(exists $result->{result}, 'get_stats_for_level works');
 
 END {
     $tester->cleanup;
