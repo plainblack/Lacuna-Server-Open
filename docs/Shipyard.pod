@@ -101,7 +101,6 @@ A ship type. Choose from: 'probe','colony_ship','spy_pod','cargo_ship','space_st
 
 An integer representing how many ships of that type you want to build. Defaults to 1.
 
-=cut
 
 
 =cut

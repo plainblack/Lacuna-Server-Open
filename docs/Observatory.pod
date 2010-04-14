@@ -2,7 +2,7 @@
 
 Observatory is accessible via the URL C</observatory>.
 
-The observatory controls stellar probes. Each L<Empire> can have only 254 probes at one time.
+The observatory controls stellar probes.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
@@ -10,7 +10,20 @@ The list of methods below represents changes and additions to the methods that a
 
 =head2 get_probed_stars ( session_id, building_id, [ page_number ] )
 
-Returns a list of the stars that have been probed by this 
+Returns a list of the stars that have been probed by this planet.
+
+ {
+	"status" : { get_status() },
+        "stars" : [
+		"color" : "yellow",
+		"name" : "Sol",
+		"x" : 17,
+		"y" : 4,
+		"z" : -3,
+		"alignments" : "self-hostile"
+	]	
+ }
+
 
 =head3 session_id
 
@@ -29,6 +42,10 @@ An integer representing which set of probes to return. Defaults to 1. Each page 
 =head2 abandon_probe ( session_id, building_id, star_id )
 
 The probe is deactivated, and allowed to burn up in the star.
+
+ {
+	"status" : { get_status() }
+ }
 
 Throws 1002, 1010.
 

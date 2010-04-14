@@ -546,7 +546,7 @@ sub stats_after_upgrade {
     my $current_level = $self->level;
     $self->level($current_level + 1);
     my %stats;
-    my @list = qw(food_hour food_capacity ore_hour ore_capacity water_hour water_capacity waste_hour energy_hour energy_capacity happiness_hour);
+    my @list = qw(food_hour food_capacity ore_hour ore_capacity water_hour water_capacity waste_hour waste_capacity energy_hour energy_capacity happiness_hour);
     foreach my $resource (@list) {
         $stats{$resource} = $self->$resource;
     }

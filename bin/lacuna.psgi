@@ -19,22 +19,22 @@ my $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key =
 
 my $urlmap = Plack::App::URLMap->new;
 
-open my $file, "<", "../var/index.html";
-my @lines = <$file>;
-close $file;
-$urlmap->map("/" => sub { return [200, ['Content-Type' => 'text/html'], [join("\n",@lines)]]});
+#open my $file, "<", "../var/index.html";
+#my @lines = <$file>;
+#close $file;
+#$urlmap->map("/" => sub { return [200, ['Content-Type' => 'text/html'], [join("\n",@lines)]]});
 
-open my $file, "<", "../var/local.html";
-my @lines = <$file>;
-close $file;
-$urlmap->map("/local" => sub { return [200, ['Content-Type' => 'text/html'], [join("\n",@lines)]]});
+#open my $file, "<", "../var/local.html";
+#my @lines = <$file>;
+#close $file;
+#$urlmap->map("/local" => sub { return [200, ['Content-Type' => 'text/html'], [join("\n",@lines)]]});
 
-open my $file, "<", "../var/crossdomain.xml";
-my @lines = <$file>;
-close $file;
-$urlmap->map("/crossdomain.xml" => sub { return [200, ['Content-Type' => 'text/xml'], [join("\n",@lines)]]});
+#open my $file, "<", "../var/crossdomain.xml";
+#my @lines = <$file>;
+#close $file;
+#$urlmap->map("/crossdomain.xml" => sub { return [200, ['Content-Type' => 'text/xml'], [join("\n",@lines)]]});
 
-$urlmap->map("/api/" => Plack::App::Directory->new({ root => "/data/api" })->to_app);
+#$urlmap->map("/api/" => Plack::App::Directory->new({ root => "/data/api" })->to_app);
 
 $urlmap->map("/map" => Lacuna::Map->new(simpledb=>$db)->to_app);
 $urlmap->map("/body" => Lacuna::Body->new(simpledb=>$db)->to_app);
