@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 20;
+use Test::More tests => 21;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -86,6 +86,9 @@ is($result->{result}{profile}{status_message}, 'Whoopie!', 'public profile works
 $result = $tester->post('empire', 'find', [$session_id, 'Test']);
 is($result->{result}{empires}[0]{id}, $empire_id, 'empire search works');
 
+$result = $tester->post('empire', 'get_full_status', [$session_id]);
+my ($home_id) = keys %{$result->{result}{empire}{planets}};
+is($result->{result}{empire}{planets}{$home_id}{water_stored}, 700, 'got starting resources');
 
 END {
     $tester->cleanup;

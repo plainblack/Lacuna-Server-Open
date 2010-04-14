@@ -57,18 +57,19 @@ $home->build_building($uni);
 $uni->finish_upgrade;
 
 # provide the resources to upgrade the university
-$home->ore_capacity(500000);
-$home->energy_capacity(500000);
-$home->food_capacity(500000);
-$home->water_capacity(500000);
-$home->bauxite_stored(500000);
-$home->algae_stored(500000);
-$home->energy_stored(500000);
-$home->water_stored(500000);
-$home->energy_hour(500000);
-$home->algae_production_hour(500000);
-$home->water_hour(500000);
-$home->ore_hour(500000);
+$home->ore_capacity(5000);
+$home->energy_capacity(5000);
+$home->food_capacity(5000);
+$home->water_capacity(5000);
+$home->bauxite_stored(5000);
+$home->algae_stored(5000);
+$home->energy_stored(5000);
+$home->water_stored(5000);
+$home->energy_hour(5000);
+$home->algae_production_hour(5000);
+$home->water_hour(5000);
+$home->ore_hour(5000);
+$home->needs_recalc(0);
 $home->put;
 
 # see if the university is upgradable to level 2
@@ -91,6 +92,7 @@ $home->energy_hour(5000);
 $home->algae_production_hour(5000);
 $home->water_hour(5000);
 $home->ore_hour(5000);
+$home->needs_recalc(0);
 $home->put;
 
 $result = $tester->post('empire', 'get_full_status', [$session_id]);

@@ -42,7 +42,9 @@ $home->ore_hour(5000);
 $home->energy_hour(5000);
 $home->algae_production_hour(5000);
 $home->water_hour(5000);
+$home->needs_recalc(0);
 $home->put;
+
 
 $result = $tester->post('intelligence', 'build', [$session_id, $home->id, 0, 1]);
 ok($result->{result}{building}{id}, "built an intelligence ministry");
