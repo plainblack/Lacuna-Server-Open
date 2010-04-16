@@ -9,5 +9,9 @@ my $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key =
 my $empires = $db->domain('empire')->search;
 
 while (my $empire = $empires->next) {
-    $empire->add_probe($empire->home_planet->star_id);
+    next if $empire->count_probed_stars;
+    my $home = $empire->home_planet;
+    if (defined $home) {
+    	$empire->add_probe($home->star_id);
+    }
 }
