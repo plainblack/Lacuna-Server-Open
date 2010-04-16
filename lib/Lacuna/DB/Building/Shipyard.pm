@@ -160,7 +160,7 @@ sub build_ship {
     my ($self, $type, $quantity, $time) = @_;
     $quantity ||= 1;
     $time ||= $self->get_ship_costs($type)->{seconds};
-    my $builds = $self->ship_builds->{queue};
+    my $builds = $self->ship_builds;
     push @{$builds->{queue}}, {
         type            => $type,
         seconds_each    => $time,
