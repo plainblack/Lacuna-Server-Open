@@ -60,8 +60,7 @@ sub arrive {
     my $empire = $self->body->empire;
     if ($self->ship_type eq 'probe') {
         $empire->add_probe($self->foreign_star_id);
-        $empire->trigger_full_update(skip_put=>1);
-        $empire->put
+        $empire->trigger_full_update;
     }
     $self->delete;
 }

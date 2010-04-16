@@ -177,6 +177,7 @@ $building = Lacuna::DB::Building::Food::Farm::Wheat->new(
 );
 $home->build_building($building);
 $building->finish_upgrade;
+$home->tick;
 is($tutorial->finish, 1, 'fool');
 
 my $future = DateTime->now->add(hours=>1);
@@ -184,6 +185,7 @@ $empire->food_boost($future);
 $empire->water_boost($future);
 $empire->energy_boost($future);
 $empire->ore_boost($future);
+$home->tick;
 is($tutorial->finish, 1, 'essentia');
 
 
@@ -201,6 +203,7 @@ $building = Lacuna::DB::Building::Energy::Geo->new(
 );
 $home->build_building($building);
 $building->finish_upgrade;
+$home->tick;
 is($tutorial->finish, 1, 'energy');
 
 
@@ -232,6 +235,7 @@ $building = Lacuna::DB::Building::Ore::Mine->new(
 );
 $home->build_building($building);
 $building->finish_upgrade;
+$home->tick;
 is($tutorial->finish, 1, 'the 300');
 
 
