@@ -39,6 +39,7 @@ $home->ore_hour(5000);
 $home->energy_hour(5000);
 $home->algae_production_hour(5000);
 $home->water_hour(5000);
+$home->needs_recalc(0);
 $home->put;
 
 $result = $tester->post('development', 'build', [$session_id, $tester->empire->home_planet_id, 3, 3]);

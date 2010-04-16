@@ -28,11 +28,11 @@ __PACKAGE__->add_attributes(
     essentia            => { isa => 'Int', default=>0 },
     points              => { isa => 'Int', default=>0 },
     rank                => { isa => 'Int', default=>0 }, # just where it is stored, but will come out of date quickly
-    probed_stars        => { isa => 'ArrayRefOfStr' },
     university_level    => { isa => 'Int', default=>0 },
     needs_full_update   => { isa => 'Str', default=>0 },
     tutorial_stage      => { isa => 'Str', default=>'explore_the_ui' },
     tutorial_scratch    => { isa => 'Str' },
+    is_noob             => { isa => 'Str', default => 1 },
     food_boost          => { isa => 'DateTime' },
     water_boost         => { isa => 'DateTime' },
     ore_boost           => { isa => 'DateTime' },
@@ -50,6 +50,7 @@ __PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Message', 'from_id', mate =>
 __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id', mate => 'receiver');
 __PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id', mate => 'empire');
 __PACKAGE__->has_many('medals', 'Lacuna::DB::Medals', 'empire_id', mate => 'empire');
+__PACKAGE__->has_many('probes', 'Lacuna::DB::Probes', 'empire_id', mate => 'empire');
 
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $body_id) = @_;
@@ -109,11 +110,6 @@ sub add_medal {
         );
     }
     return $self;
-}
-
-sub is_noob {
-    my $self = shift;
-    return (scalar(@{$self->probed_stars}) > 1) ? 0 : 1;
 }
 
 sub spend_essentia {
@@ -231,7 +227,7 @@ sub found {
     $home_planet = $self->find_home_planet;
     $self->home_planet($home_planet);
     $self->home_planet_id($home_planet->id);
-    $self->probed_stars([$home_planet->star_id]);
+    $self->add_probe($home_planet->star_id);
     $self->add_essentia(100); # REMOVE BEFORE LAUNCH
     $self->stage('founded');
     $self->put;
@@ -341,12 +337,41 @@ sub lacuna_expanse_corp {
 
 sub add_probe {
     my ($self, $star_id) = @_;
-    my @probes = @{$self->probed_stars};
-    push @probes, $star_id;
-    my @unique = uniq @probes;
-    $self->probed_stars(\@unique);
+    $self->simpledb->domain('probes')->insert({
+        empire_id   => $self->id,
+        star_id     => $star_id,
+    });
+    if ($self->is_noob && $star_id ne $self->home_planet->star_id) {
+        $self->is_noob(0);
+        $self->put;
+    }
+    $self->clear_probed_stars;
     return $self;
 }
+
+has probed_stars => (
+    is          => 'rw',
+    clearer     => 'clear_probed_stars',
+    lazy        => 1,
+    default     => sub {
+        my $self = shift;
+        my $probes = $self->probes;
+        my @stars;
+        while ( my $probe = $probes->next ) {
+            push @stars, $probe->star_id;
+        }
+        return \@stars;
+    },
+);
+
+has count_probed_stars => (
+    is          => 'rw',
+    lazy        => 1,
+    default     => sub {    
+        my $self = shift;
+        return $self->simpledb->domain('probes')->count(where=>{empire_id=>$self->id},consistent=>1);
+    },
+);
 
 before 'delete' => sub {
     my ($self) = @_;

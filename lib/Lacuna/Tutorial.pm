@@ -212,7 +212,7 @@ sub explore {
     my ($self, $finish) = @_;
     my $empire = $self->empire;
     if ($finish) {
-        if (scalar(@{$empire->probed_stars}) > 1) {
+        if ($empire->count_probed_stars > 1) {
             $empire->home_planet->add_free_build('Lacuna::DB::Building::Transporter', 1)->put;
             $self->start('the_end');
             return undef;
@@ -366,6 +366,7 @@ sub fool {
     if ($finish) {
         if ($home->food_hour >= $empire->tutorial_scratch) {
             $home->add_free_upgrade('Lacuna::DB::Building::Food::Reserve', 2)->put;
+            $empire->add_essentia(35)->put;
             $self->start('essentia');
             return undef;
         }

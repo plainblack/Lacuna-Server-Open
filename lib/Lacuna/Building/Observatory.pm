@@ -20,18 +20,16 @@ sub abandon_probe {
         confess [ 1002, 'Star does not exist.', $star_id];
     }
     my $bodies = $star->bodies(where => { class => ['like', 'Lacuna::DB::Body::Planet%'] });
-    while (my $body = $star) {
+    while (my $body = $bodies->next) {
         if ($empire->id eq $body->empire_id) {
             confess [ 1010, "You can't remove a probe from a system you inhabit.", $body->id ];
         }
     }
-    my @new;
-    foreach my $id (@{$empire->probed_stars}) {
-        next if $id eq $star_id;
-        push @new, $id;
-    }
-    $empire->probed_stars(\@new);
-    $empire->put;
+    $self->simpledb->domain('probes')->search( where => {
+        empire_id   => $empire->id,
+        star_id     => $star->id,
+    })->delete;
+    $empire->clear_probed_stars;
     return {status => $empire->get_status};
 }
 
@@ -41,15 +39,9 @@ sub get_probed_stars {
     my $building = $empire->get_building($self->model_class, $building_id);
     my @stars;
     $page_number ||= 1;
-    my $end = $page_number * 25;
-    my $start = $end - 24;
-    my $count = 0;
-    foreach my $star_id (sort @{$empire->probed_stars}) {
-        $count++;
-        next if ($start < $count);
-        my $star = $self->simpledb->domain('star')->find($star_id);
-        push @stars, $star->get_status($empire);
-        last if ($count >= $end);
+    my $probes = $self->simpledb->search( where => { empire_id => $empire->id })->paginate(25, $page_number);
+    while (my $probe = $probes->next) {
+        push @stars, $probe->star->get_status($empire);
     }
     return {
         stars   => \@stars,

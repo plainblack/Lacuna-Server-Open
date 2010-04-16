@@ -42,6 +42,7 @@ $home->energy_hour(500000);
 $home->algae_production_hour(500000);
 $home->water_hour(500000);
 $home->ore_hour(500000);
+$home->needs_recalc(0);
 $home->put;
 
 
@@ -53,6 +54,7 @@ $home->energy_hour(500000);
 $home->algae_production_hour(500000);
 $home->water_hour(500000);
 $home->ore_hour(500000);
+$home->needs_recalc(0);
 $home->put;
 
 $result = $tester->post('shipyard', 'build', [$session_id, $home->id, 0, 2]);
@@ -63,6 +65,7 @@ $home->energy_hour(500000);
 $home->algae_production_hour(500000);
 $home->water_hour(500000);
 $home->ore_hour(500000);
+$home->needs_recalc(0);
 $home->put;
 
 $result = $tester->post('observatory', 'build', [$session_id, $home->id, 0, 3]);
@@ -81,6 +84,7 @@ $home->bauxite_stored(500000);
 $home->algae_stored(500000);
 $home->energy_stored(500000);
 $home->water_stored(500000);
+$home->needs_recalc(0);
 $home->put;
 
 $result = $tester->post('shipyard', 'build_ship', [$session_id, $shipyard->id, 'probe', 3]);
@@ -103,7 +107,7 @@ ok($result->{result}{probe}{date_arrives}, "probe sent");
 my $ship = $tester->db->domain('travel_queue')->search(where => {body_id => $home->id}, consistent=>1)->next;
 $ship->arrive;
 $empire = $tester->empire($tester->db->domain('empire')->find($empire->id));
-is(scalar(@{$empire->probed_stars}), 2, "2 stars probed!");
+is($empire->count_probed_stars, 2, "2 stars probed!");
 
 $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
 is($result->{result}{docked_ships}{probe}, 1, "we have one probe left");
