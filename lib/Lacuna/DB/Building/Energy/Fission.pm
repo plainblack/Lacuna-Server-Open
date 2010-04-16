@@ -17,7 +17,7 @@ use constant university_prereq => 6;
 
 use constant image => 'fission';
 
-use constant name => 'Fission Energy Plant';
+use constant name => 'Fission Reactor';
 
 use constant food_to_build => 250;
 

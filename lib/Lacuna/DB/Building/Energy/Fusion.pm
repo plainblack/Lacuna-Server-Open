@@ -9,7 +9,7 @@ use constant university_prereq => 9;
 
 use constant image => 'fusion';
 
-use constant name => 'Fusion Energy Plant';
+use constant name => 'Fusion Reactor';
 
 use constant food_to_build => 270;
 
