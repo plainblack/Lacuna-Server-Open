@@ -213,7 +213,7 @@ sub explore {
     my $empire = $self->empire;
     if ($finish) {
         if (scalar(@{$empire->probed_stars}) > 1) {
-            $empire->home_planet->add_free_build('Lacuna::DB::Building::Food::Transporter', 1)->put;
+            $empire->home_planet->add_free_build('Lacuna::DB::Building::Transporter', 1)->put;
             $self->start('the_end');
             return undef;
         }
