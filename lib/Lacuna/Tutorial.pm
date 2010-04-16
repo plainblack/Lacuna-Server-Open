@@ -366,6 +366,7 @@ sub fool {
     if ($finish) {
         if ($home->food_hour >= $empire->tutorial_scratch) {
             $home->add_free_upgrade('Lacuna::DB::Building::Food::Reserve', 2)->put;
+            $empire->add_essentia(35)->put;
             $self->start('essentia');
             return undef;
         }
