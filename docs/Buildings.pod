@@ -2,6 +2,8 @@
 
 All buildings have some methods in common. This is a description of the methods available from each building.
 
+B<NOTE:> To use these methods, you must use the URL of the individual building types. You can find the list of building types at the bottom of this page.
+
 =head2 build ( session_id, body_id, x, y )
 
 Adds this building to the planet's build queue. Returns:
