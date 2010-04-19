@@ -27,7 +27,7 @@ use constant time_to_build => 300;
 
 use constant food_consumption => 11;
 
-use constant energy_consumption => 16;
+use constant energy_consumption => 56;
 
 use constant ore_consumption => 8;
 
