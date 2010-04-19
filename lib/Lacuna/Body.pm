@@ -62,7 +62,7 @@ sub get_buildings {
         }
     }
     
-    return {buildings=>\%out, status=>$empire->get_status};
+    return {buildings=>\%out, body=>{surface_image => $body->surface}, status=>$empire->get_status};
 }
 
 sub get_build_queue {

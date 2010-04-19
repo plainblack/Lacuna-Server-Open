@@ -5,6 +5,7 @@ extends 'Lacuna::DB::Body::Planet';
 
 
 use constant image => 'p15';
+use constant surface => 'surface-c';
 
 use constant water => 9018;
 
