@@ -15,16 +15,20 @@ sub model_class {
 
 sub spaceports {
     my ($self, $body) = @_;
-    return $self->simpledb->domain($self->model_class)->search(
-        where   => { body_id => $body->id, class => $self->model_class },
-        set     => { body => $body, empire => $body->empire }
-    );
+    return $body->get_buildings_of_class($self->model_class);
+}
+
+sub observatory {
+    my ($self, $body) = @_;
+    return $body->get_buildings_of_class('Lacuna::DB::Building::Observatory')->next;
 }
 
 sub send_probe {
     my ($self, $session_id, $body_id, $target) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $empire->get_body($body_id);
+    
+    # find the star
     my $star;
     if (exists $target->{star_id}) {
         $star = $self->simpledb->domain('star')->find($target->{star_id});
@@ -42,6 +46,15 @@ sub send_probe {
     unless (defined $star) {
         confess [ 1002, 'No such star.', $target];
     }
+
+    # check the observatory probe count
+    my $count = $self->simpledb->domain('probes')->count(where => { body_id => $body->id });
+    $count += $self->simpledb->domain('travel_queue')->count(where => { body_id => $body->id, ship_type=>'probe' });
+    if ($count > $self->observatory($body)->level * 3) {
+        confess [ 1009, 'You are already controlling the maximum amount of probes for your Observatory level.'];
+    }
+
+    # send the probe
     my $ports = $self->spaceports($body);
     my $sent;
     while (my $port = $ports->next) {

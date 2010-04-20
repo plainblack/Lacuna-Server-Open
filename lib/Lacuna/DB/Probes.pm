@@ -9,10 +9,12 @@ __PACKAGE__->set_domain_name('probes');
 __PACKAGE__->add_attributes(
     empire_id               => { isa => 'Str' },
     star_id                 => { isa => 'Str' },
+    body_id                 => { isa => 'Str' },
 );
 
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Body::Planet', 'empire_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
 __PACKAGE__->belongs_to('star', 'Lacuna::DB::Star', 'star_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Body::Planet', 'body_id');
 
 
 no Moose;

@@ -227,7 +227,7 @@ sub found {
     $home_planet = $self->find_home_planet;
     $self->home_planet_id($home_planet->id);
     $self->home_planet($home_planet);
-    $self->add_probe($home_planet->star_id);
+    $self->add_probe($home_planet->star_id, $home_planet->id);
     $self->add_essentia(100); # REMOVE BEFORE LAUNCH
     $self->stage('founded');
     $self->put;
@@ -336,10 +336,11 @@ sub lacuna_expanse_corp {
 }
 
 sub add_probe {
-    my ($self, $star_id) = @_;
+    my ($self, $star_id, $body_id) = @_;
     $self->simpledb->domain('probes')->insert({
         empire_id   => $self->id,
         star_id     => $star_id,
+        body_id     => $body_id,
     });
     if ($self->is_noob && $star_id ne $self->home_planet->star_id) {
         $self->is_noob(0);

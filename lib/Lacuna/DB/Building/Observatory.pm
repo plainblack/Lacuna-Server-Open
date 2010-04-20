@@ -13,6 +13,8 @@ use constant controller_class => 'Lacuna::Building::Observatory';
 
 use constant university_prereq => 3;
 
+use constant max_instances_per_planet => 1;
+
 use constant image => 'observatory';
 
 use constant name => 'Observatory';
