@@ -1,7 +1,57 @@
 =head1 Waste Recycling Methods
 
-Waste Recycling is accessible via the URL C</wasterecycling>.
+Waste Recycling Center is accessible via the URL C</wasterecycling>.
+
+The Waste Recycling Center can be used to convert waste in storage into usable resources.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=head2 view ( session_id, building_id )
+
+ {
+    "status" : { ... },
+    "building" : { ... },
+    "recycle" : {
+        "seconds_remaining" : 0,
+        "can" : 1
+    }
+ }
+
+
+=head2 recycle ( session_id, building_id, water, ore, energy, use_essentia )
+
+Converts waste into water, ore, and energy. You can choose which amounts of each you want, so long as their total does not go over the amount of waste you have on hand. For each unit of waste converted, the recycling center will take 1 second to complete the recycling process. However, the amount of time is reduced a bit by the level of the Recycling Center.
+
+ {
+    "status" : { get_status() },
+    "seconds_remaining" : 3932
+ }
+
+Throws 1010 and 1011.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Waste Recycling Center.
+
+=head3 water
+
+An integer representing the amount of water you want.
+
+=head3 ore
+
+An integer representing the amount of ore you want.
+
+=head3 energy
+
+An integer representing the amount of energy you want.
+
+=head3 use_essentia.
+
+Defaults to 0. A boolean indicating that you wish to spend 2 essentia, to have the recycling operation completed immediately.
+
 
 =cut
