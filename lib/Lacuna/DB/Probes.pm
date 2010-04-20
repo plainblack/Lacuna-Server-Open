@@ -12,7 +12,7 @@ __PACKAGE__->add_attributes(
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Body::Planet', 'empire_id');
-__PACKAGE__->belongs_to('star', 'Lacuna::DB::Body::Planet', 'star_id');
+__PACKAGE__->belongs_to('star', 'Lacuna::DB::Star', 'star_id');
 
 
 no Moose;
