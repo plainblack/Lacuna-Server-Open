@@ -162,7 +162,13 @@ sub farming_production_bonus {
     my ($self) = @_;
     my $empire = $self->empire;
     my $boost = (DateTime->now < $empire->food_boost) ? 25 : 0;
-    return (100 + $boost + $empire->species->farming_affinity) / 100;
+    return (100 + $boost + $empire->species->farming_affinity * 3) / 100;
+}
+
+sub manufacturing_production_bonus {
+    my ($self) = @_;
+    my $empire = $self->empire;
+    return (100 + $empire->species->manufacturing_affinity * 3) / 100;
 }
 
 sub lapis_production_hour {
@@ -182,7 +188,7 @@ sub bean_production_hour {
 
 sub cheese_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->cheese_production * $self->production_hour);
+    return sprintf('%.0f',$self->cheese_production * $self->production_hour * $self->manufacturing_production_bonus);
 }
 
 sub apple_production_hour {
@@ -202,7 +208,7 @@ sub corn_production_hour {
 
 sub cider_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->cider_production * $self->production_hour);
+    return sprintf('%.0f',$self->cider_production * $self->production_hour * $self->manufacturing_production_bonus);
 }
 
 sub wheat_production_hour {
@@ -212,27 +218,27 @@ sub wheat_production_hour {
 
 sub bread_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->bread_production * $self->production_hour);
+    return sprintf('%.0f',$self->bread_production * $self->production_hour * $self->manufacturing_production_bonus);
 }
 
 sub soup_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->soup_production * $self->production_hour);
+    return sprintf('%.0f',$self->soup_production * $self->production_hour * $self->manufacturing_production_bonus);
 }
 
 sub chip_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->chip_production * $self->production_hour);
+    return sprintf('%.0f',$self->chip_production * $self->production_hour * $self->manufacturing_production_bonus);
 }
 
 sub pie_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->pie_production * $self->production_hour);
+    return sprintf('%.0f',$self->pie_production * $self->production_hour * $self->manufacturing_production_bonus);
 }
 
 sub pancake_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->pancake_production * $self->production_hour);
+    return sprintf('%.0f',$self->pancake_production * $self->production_hour * $self->manufacturing_production_bonus);
 }
 
 sub milk_production_hour {
@@ -242,7 +248,7 @@ sub milk_production_hour {
 
 sub meal_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->meal_production * $self->production_hour);
+    return sprintf('%.0f',$self->meal_production * $self->production_hour * $self->manufacturing_production_bonus);
 }
 
 sub algae_production_hour {
@@ -252,7 +258,7 @@ sub algae_production_hour {
 
 sub syrup_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->syrup_production * $self->production_hour);
+    return sprintf('%.0f',$self->syrup_production * $self->production_hour * $self->manufacturing_production_bonus);
 }
 
 sub fungus_production_hour {
@@ -262,12 +268,12 @@ sub fungus_production_hour {
 
 sub burger_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->burger_production * $self->production_hour);
+    return sprintf('%.0f',$self->burger_production * $self->production_hour * $self->manufacturing_production_bonus);
 }
 
 sub shake_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->shake_production * $self->production_hour);
+    return sprintf('%.0f',$self->shake_production * $self->production_hour * $self->manufacturing_production_bonus);
 }
 
 sub beetle_production_hour {
@@ -299,7 +305,7 @@ sub energy_production_bonus {
     my ($self) = @_;
     my $empire = $self->empire;
     my $boost = (DateTime->now < $empire->energy_boost) ? 25 : 0;
-    return (100 + $boost + $empire->species->science_affinity) / 100;
+    return (100 + $boost + $empire->species->science_affinity * 3) / 100;
 }
 
 sub energy_production_hour {
@@ -323,7 +329,7 @@ sub mining_production_bonus {
     my $refinery_bonus = (defined $refinery) ? $refinery->level * 5 : 0;
     my $empire = $self->empire;
     my $boost = (DateTime->now < $empire->energy_boost) ? 25 : 0;
-    return (100 + $boost + $refinery_bonus + $empire->species->mining_affinity) / 100;
+    return (100 + $boost + $refinery_bonus + $empire->species->mining_affinity * 3) / 100;
 }
 
 sub ore_production_hour {
@@ -345,7 +351,7 @@ sub water_production_bonus {
     my ($self) = @_;
     my $empire = $self->empire;
     my $boost = (DateTime->now < $empire->water_boost) ? 25 : 0;
-    return (100 + $boost + $empire->species->environmental_affinity) / 100;
+    return (100 + $boost + $empire->species->environmental_affinity * 3) / 100;
 }
 
 sub water_production_hour {
@@ -387,7 +393,7 @@ sub happiness_production_bonus {
     my ($self) = @_;
     my $empire = $self->empire;
     my $boost = (DateTime->now < $empire->happiness_boost) ? 25 : 0;
-    return (100 + $boost + ($empire->species->political_affinity * 2)) / 100;
+    return (100 + $boost + ($empire->species->political_affinity * 6)) / 100;
 }
 
 sub happiness_production_hour {

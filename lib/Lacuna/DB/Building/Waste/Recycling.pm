@@ -45,7 +45,7 @@ sub recycle {
     my $total = $water + $ore + $energy;
     
     # start
-    my $seconds = $total * (100 - (($empire->species->management_affinity + $self->level) / 100));
+    my $seconds = $total * $self->time_cost_reduction_bonus($self->level);
     $self->recycling_ends(DateTime->now->add(seconds=>$seconds));
     $self->water_from_recycling($water);
     $self->ore_from_recycling($ore);
