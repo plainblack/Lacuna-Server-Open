@@ -255,7 +255,7 @@ sub check_for_completed_ships {
                     $self->empire->send_predefined_message(
                         tags        => ['Alert'],
                         filename    => 'ship_blew_up_at_port.txt',
-                        params      => [$completed_ship->{type}, $self->body->name],
+                        params      => [$type, $self->body->name],
                     );
                     $self->body->add_news(100,'%s was rocked today as a %s exploded at the space port.', $self->body->name, $type);
                     last SHIP;
