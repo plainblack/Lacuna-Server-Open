@@ -1,0 +1,27 @@
+use 5.010;
+use lib '/data/Lacuna-Server/lib';
+use Lacuna::DB;
+use Lacuna;
+use Getopt::Long;
+use Lacuna::Util qw(cname);
+
+my $config = Lacuna->config;
+my $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key => $config->get('secret_key'), cache_servers => $config->get('memcached')); 
+
+my $name;
+my $amount = 10;
+GetOptions(
+	'name=s' => \$name,
+	'amount=i' => \$amount,
+);	
+
+
+
+$db
+	->domain('empire')
+	->search(where => {name_cname => cname($name)})
+	->next
+	->add_essentia($amount)
+	->put;
+
+
