@@ -76,6 +76,48 @@ sub send_probe {
     return { probe => { date_arrives => format_date($sent->date_arrives)}, status => $empire->get_status };
 }
 
+sub view_ships_travelling {
+    my ($self, $session_id, $building_id, $page_number) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $empire->get_building($self->model_class, $building_id);
+    $page_number ||= 1;
+    my $body = $building->body;
+    $body->tick;
+    my $count = $self->simpledb->domain('Lacuna::DB::TravelQueue')->count(where=>{body_id=>$body->id});
+    my @travelling;
+    my $ships = $body->ships_travelling->paginate(25, $page_number);
+    while (my $ship = $ships->next) {
+        my $target = ($ship->foreign_body_id) ? $ship->foreign_body : $ship->foreign_star;
+        my $from = {
+            id      => $body->id,
+            name    => $body->name,
+            type    => 'body',
+        };
+        my $to = {
+            id      => $target->id,
+            name    => $target->name,
+            type    => (ref $target eq 'Lacuna::DB::Star') ? 'star' : 'body',
+        };
+        if ($ship->direction ne 'outgoing') {
+            my $temp = $from;
+            $from = $to;
+            $to = $temp;
+        }
+        push @travelling, {
+            id              => $ship->id,
+            ship_type       => $ship->ship_type,
+            to              => $to,
+            from            => $from,
+            date_arrives    => $ship->date_arrives_formatted,
+        };
+    }
+    return {
+        status                      => $empire->get_status,
+        number_of_ships_travelling  => $count,
+        ships_travelling            => \@travelling,
+    };
+}
+
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -92,7 +134,7 @@ around 'view' => sub {
     return $out;
 };
 
-__PACKAGE__->register_rpc_method_names(qw(send_probe));
+__PACKAGE__->register_rpc_method_names(qw(send_probe view_ships_travelling));
 
 
 no Moose;

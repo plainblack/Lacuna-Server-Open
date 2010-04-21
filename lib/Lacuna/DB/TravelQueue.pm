@@ -3,7 +3,7 @@ package Lacuna::DB::TravelQueue;
 use Moose;
 extends 'SimpleDB::Class::Item';
 use DateTime;
-use Lacuna::Util qw(to_seconds);
+use Lacuna::Util qw(to_seconds format_date);
 
 __PACKAGE__->set_domain_name('travel_queue');
 __PACKAGE__->add_attributes(
@@ -22,6 +22,11 @@ __PACKAGE__->belongs_to('body', 'Lacuna::DB::Body', 'body_id');
 __PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Star', 'foreign_star_id');
 __PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Body', 'foreign_body_id');
 
+
+sub date_arrives_formatted {
+    my $self = shift;
+    return format_date($self->date_arrives);
+}
 
 sub send {
     my ($class, %options ) = @_;

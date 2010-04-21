@@ -39,6 +39,8 @@ A session id.
 
 Returns a hash like the following after confirming the password matches the empire.
 
+B<NOTE:> Once established, this session will stick around for up to 2 hours of inactivity. Therefore, you need not login again if you still have a valid session.
+
  {
     "session_id" : "xxx",
     "status" : { get_full_status() }

@@ -106,6 +106,43 @@ __PACKAGE__->has_many('ore_buildings','Lacuna::DB::Building::Ore','body_id', mat
 __PACKAGE__->has_many('energy_buildings','Lacuna::DB::Building::Energy','body_id', mate => 'body');
 __PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','body_id', mate => 'body');
 
+sub builds { 
+    my ($self, $where, $reverse) = @_;
+    my $order = 'date_complete';
+    if ($reverse) {
+        $order = [$order];
+    }
+    $where->{body_id} = $self->id;
+    $where->{date_complete} = ['>',DateTime->now->subtract(years=>100)] unless exists $where->{date_complete};
+    return $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(
+        where       => $where,
+        order_by    => $order,
+        consistent  => 1,
+        set         => {
+            body  => $self,
+        },
+    );
+}
+
+sub ships_travelling { 
+    my ($self, $where, $reverse) = @_;
+    my $order = 'date_arrives';
+    if ($reverse) {
+        $order = [$order];
+    }
+    $where->{body_id} = $self->id;
+    $where->{date_arrives} = ['>',DateTime->now->subtract(years=>100)] unless exists $where->{date_arrives};
+    return $self->simpledb->domain('Lacuna::DB::TravelQueue')->search(
+        where       => $where,
+        order_by    => $order,
+        consistent  => 1,
+        set         => {
+            body    => $self,
+        },
+    );
+}
+
+
 
 # FREEBIES
 sub get_free_upgrade {
@@ -148,42 +185,6 @@ sub spend_free_build {
     delete $freebies->{builds}{$class};
     $self->freebies($freebies);
     return $self;
-}
-
-sub builds { 
-    my ($self, $where, $reverse) = @_;
-    my $order = 'date_complete';
-    if ($reverse) {
-        $order = [$order];
-    }
-    $where->{body_id} = $self->id;
-    $where->{date_complete} = ['>',DateTime->now->subtract(years=>100)] unless exists $where->{date_complete};
-    return $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(
-        where       => $where,
-        order_by    => $order,
-        consistent  => 1,
-        set         => {
-            body  => $self,
-        },
-    );
-}
-
-sub ships_travelling { 
-    my ($self, $where, $reverse) = @_;
-    my $order = 'date_arrives';
-    if ($reverse) {
-        $order = [$order];
-    }
-    $where->{body_id} = $self->id;
-    $where->{date_arrives} = ['>',DateTime->now->subtract(years=>100)] unless exists $where->{date_arrives};
-    return $self->simpledb->domain('Lacuna::DB::TravelQueue')->search(
-        where       => $where,
-        order_by    => $order,
-        consistent  => 1,
-        set         => {
-            body    => $self,
-        },
-    );
 }
 
 sub sanitize {
