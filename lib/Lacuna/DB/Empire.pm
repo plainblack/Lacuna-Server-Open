@@ -260,10 +260,10 @@ sub find_home_planet {
         where       => {
             usable_as_starter   => ['!=', 'No'],
             orbit               => ['in',@{$self->species->habitable_orbits}],
-            zone                => '0|0|0',
-#            x                   => ['between', ($min_inhabited->('x') - 1), ($max_inhabited->('x') + 1)],
-#            y                   => ['between', ($min_inhabited->('y') - 1), ($max_inhabited->('y') + 1)],
-#            z                   => ['between', ($min_inhabited->('z') - 1), ($max_inhabited->('z') + 1)],
+#            zone                => '0|0|0',
+            x                   => ['between', ($min_inhabited->('x') - 1), ($max_inhabited->('x') + 1)],
+            y                   => ['between', ($min_inhabited->('y') - 1), ($max_inhabited->('y') + 1)],
+            z                   => ['between', ($min_inhabited->('z') - 1), ($max_inhabited->('z') + 1)],
         },
         order_by    => 'usable_as_starter',
         limit       => 10,
@@ -337,15 +337,35 @@ sub lacuna_expanse_corp {
 
 sub add_probe {
     my ($self, $star_id, $body_id) = @_;
+
+    # add probe
     $self->simpledb->domain('probes')->insert({
         empire_id   => $self->id,
         star_id     => $star_id,
         body_id     => $body_id,
     });
+    
+    # no longer an isolationist
     if ($self->is_isolationist && $star_id ne $self->home_planet->star_id) {
         $self->is_isolationist(0);
         $self->put;
     }
+    
+    # send notifications
+    # this could be a performance problem in the future depending upon the number of probes in a star system
+    my $star_name = $self->simpledb->domain('star')->find($star_id)->name;
+    my $probes = $self->simpledb->domain('probes')->search(where => { star_id => $star_id, empire_id => ['!=', $self->id ] });
+    while (my $probe = $probes->next) {
+        my $that_empire = $probe->empire;
+        next unless defined $that_empire;
+        $that_empire->send_predefined_message(
+            filename    => 'probe_detected.txt',
+            tags        => ['Alert'],
+            from        => $that_empire,
+            params      => [$star_name, $that_empire->name],
+        );
+    }
+    
     $self->clear_probed_stars;
     return $self;
 }
@@ -381,6 +401,7 @@ before 'delete' => sub {
     $self->received_messages->delete;
     $self->build_queues->delete;
     $self->medals->delete;
+    $self->probes->delete;
     my $planets = $self->planets;
     while ( my $planet = $planets->next ) {
         $planet->sanitize;
