@@ -18,7 +18,7 @@ sub calculate_subsidy {
     my $levels = 0;
     my $builds = $self->simpledb->domain('build_queue')->search(where=>{body_id=>$self->body_id});
     while (my $build = $builds->next) {
-        $levels += $build->building->level;
+        $levels += $build->building->level + 1;
     }
     my $cost = int($levels / 3);
     $cost = 1 if $cost < 1;
