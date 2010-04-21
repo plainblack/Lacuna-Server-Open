@@ -21,11 +21,6 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Ships));
 };
 
-sub shipyards {
-    my $self = shift;
-    return $self->body->get_buildings_of_class('Lacuna::DB::Building::Shipyard');
-}
-
 has propulsion_factory => (
     is      => 'rw',
     lazy    => 1,
@@ -99,14 +94,6 @@ sub calculate_seconds_from_body_to_body {
     my $hours = $distance / $ship_speed;
     my $seconds = 60 * 60 * $hours;
     return sprintf('%.0f', $seconds);
-}
-
-sub check_for_completed_ships {
-    my $self = shift;
-    my $shipyards = $self->shipyards;
-    while (my $shipyard = $shipyards->next) {
-        $shipyard->check_for_completed_ships($self);
-    }
 }
 
 sub ships_docked {

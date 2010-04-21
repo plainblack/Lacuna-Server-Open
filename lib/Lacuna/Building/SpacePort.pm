@@ -18,9 +18,12 @@ sub spaceports {
     return $body->get_buildings_of_class($self->model_class);
 }
 
-sub observatory {
-    my ($self, $body) = @_;
-    return $body->get_buildings_of_class('Lacuna::DB::Building::Observatory')->next;
+sub check_for_completed_ships {
+    my ($self, $body, $spaceport) = @_;
+    my $shipyards = $body->get_buildings_of_class('Lacuna::DB::Building::Shipyard');
+    while (my $shipyard = $shipyards->next) {
+        $shipyard->check_for_completed_ships($spaceport);
+    }
 }
 
 sub send_probe {
@@ -50,9 +53,13 @@ sub send_probe {
     # check the observatory probe count
     my $count = $self->simpledb->domain('probes')->count(where => { body_id => $body->id });
     $count += $self->simpledb->domain('travel_queue')->count(where => { body_id => $body->id, ship_type=>'probe' });
-    if ($count >= $self->observatory($body)->level * 3) {
+    my $observatory_level = $body->get_buildings_of_class('Lacuna::DB::Building::Observatory')->next->level;
+    if ($count >= $observatory_level * 3) {
         confess [ 1009, 'You are already controlling the maximum amount of probes for your Observatory level.'];
     }
+    
+    # finish building any ships in queue
+    $self->check_for_completed_ships($body);
 
     # send the probe
     my $ports = $self->spaceports($body);
@@ -75,7 +82,7 @@ around 'view' => sub {
     my $building = $empire->get_building($self->model_class, $building_id);
     my $out = $orig->($self, $empire, $building);
     return $out unless $building->level > 0;
-    $building->check_for_completed_ships($building);
+    $self->check_for_completed_ships($building->body, $building);
     my %ships;
     foreach my $type (SHIP_TYPES) {
         my $count = $type.'_count';
