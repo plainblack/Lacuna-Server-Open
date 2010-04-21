@@ -75,6 +75,24 @@ The bottom right y coord.
 The z axis. There's no secondary z coordinate because you can only pull from one z axis at a time.
 
 
+=head2 check_star_for_incoming_probe ( session_id, star_id )
+
+If the star has a status of "unprobed", call this method to find out if there is an incoming probe from this empire. 
+
+ {
+    "status" : { get_status() },
+    "incoming_probe" : "01 31 2010 13:09:05 +0600" # date of arrival will be present if there is an incoming probe
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 star_id
+
+The unique id for a star.
+
+
 
 =head2 get_star_by_body ( session_id, body_id )
 

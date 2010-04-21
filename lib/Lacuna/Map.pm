@@ -14,6 +14,28 @@ has simpledb => (
 with 'Lacuna::Role::Sessionable';
 
 
+sub check_star_for_incoming_probe {
+    my ($self, $session_id, $star_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $date = 0;
+    my $our_bodies = $self->simpledb->domain('Lacuna::DB::Body::Planet')->search(where=>{empire_id=>$empire->id});
+    my @bodies;
+    while (my $body = $our_bodies->next) {
+        push @bodies, $body->id;
+    }
+    my $incoming = $self->simpledb->domain('travel_queue')->search(where => {foreign_star_id=>$star_id, ship_type=>'probe'});
+    while (my $probe = $incoming->next) {
+        if ($probe->body_id ~~ @bodies) {
+            $date = $incoming->date_arrives_formatted;
+        }
+    }
+    return {
+        status  => $empire->get_status,
+        incoming_probe  => $date,
+    };
+}
+
+
 sub get_star_by_body {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -126,7 +148,7 @@ sub get_stars {
 
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_stars get_star_by_body get_star_system get_star_system_by_body));
+__PACKAGE__->register_rpc_method_names(qw(get_stars get_star_by_body get_star_system get_star_system_by_body check_star_for_incoming_probe));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

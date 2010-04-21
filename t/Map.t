@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -33,6 +33,9 @@ is($result->{error}{code}, 1010, 'get star system no privilege');
 
 $result = $tester->post('map','get_star_system', [$session_id, $star_id]);
 is($result->{result}{star}{id},$star_id, 'get star system');
+
+$result = $tester->post('map','check_star_for_incoming_probe', [$session_id, $star_id]);
+is($result->{result}{incoming_probe}, 0, 'gcheck_star_for_incoming_probe');
 
 $result = $tester->post('map','get_star_system_by_body', [$session_id, $home_planet]);
 is($result->{result}{star}{id},$star_id, 'get star system by body');
