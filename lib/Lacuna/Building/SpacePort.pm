@@ -50,7 +50,7 @@ sub send_probe {
     # check the observatory probe count
     my $count = $self->simpledb->domain('probes')->count(where => { body_id => $body->id });
     $count += $self->simpledb->domain('travel_queue')->count(where => { body_id => $body->id, ship_type=>'probe' });
-    if ($count > $self->observatory($body)->level * 3) {
+    if ($count >= $self->observatory($body)->level * 3) {
         confess [ 1009, 'You are already controlling the maximum amount of probes for your Observatory level.'];
     }
 
