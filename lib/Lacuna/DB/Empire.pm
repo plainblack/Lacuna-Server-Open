@@ -370,6 +370,16 @@ sub add_probe {
     return $self;
 }
 
+has body_ids => (
+    is          => 'rw',
+    clearer     => 'clear_body_ids',
+    lazy        => 1,
+    default     => sub {
+        my $self = shift;
+        return $self->simpledb->domain('Lacuna::DB::Body::Planet')->fetch_ids(where=>{empire_id=>$self->id});
+    },
+);
+
 has probed_stars => (
     is          => 'rw',
     clearer     => 'clear_probed_stars',
