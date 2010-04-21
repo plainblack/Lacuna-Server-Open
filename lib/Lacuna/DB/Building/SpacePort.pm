@@ -75,7 +75,7 @@ sub get_ship_speed {
     my $base_speed = $self->ship_speed->{$type};
     my $propulsion_level = (defined $self->propulsion_factory) ? $self->propulsion_factory->level : 0;
     my $speed_improvement = $propulsion_level * ((100 + $self->empire->species->science_affinity) / 100);
-    return $base_speed * ((100 + $speed_improvement) / 100);
+    return sprintf('%.0f', $base_speed * ((100 + $speed_improvement) / 100));
 }
 
 sub calculate_seconds_from_body_to_star {
