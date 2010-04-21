@@ -39,7 +39,7 @@ sub get_probed_stars {
     my $building = $empire->get_building($self->model_class, $building_id);
     my @stars;
     $page_number ||= 1;
-    my $probes = $self->simpledb->search( where => { empire_id => $empire->id })->paginate(25, $page_number);
+    my $probes = $self->simpledb->domain('probes')->search( where => { empire_id => $empire->id })->paginate(25, $page_number);
     while (my $probe = $probes->next) {
         push @stars, $probe->star->get_status($empire);
     }
