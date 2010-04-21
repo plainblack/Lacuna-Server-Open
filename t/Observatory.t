@@ -11,9 +11,6 @@ my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
 
-$empire = $tester->db->domain('empire')->find($empire->id);
-say $empire->university_level;
-
 my $result;
 
 my $uni = Lacuna::DB::Building::University->new(
@@ -31,9 +28,6 @@ my $uni = Lacuna::DB::Building::University->new(
 $home->build_building($uni);
 $uni->finish_upgrade;
 
-$empire = $tester->db->domain('empire')->find($empire->id);
-say $empire->university_level;
-
 $home->ore_capacity(500000);
 $home->energy_capacity(500000);
 $home->food_capacity(500000);
@@ -49,9 +43,6 @@ $home->ore_hour(500000);
 $home->needs_recalc(0);
 $home->put;
 
-$empire = $tester->db->domain('empire')->find($empire->id);
-say $empire->university_level;
-
 $result = $tester->post('spaceport', 'build', [$session_id, $home->id, 0, 1]);
 my $spaceport = $empire->get_building('Lacuna::DB::Building::SpacePort',$result->{result}{building}{id});
 $spaceport->finish_upgrade;
@@ -63,15 +54,9 @@ $home->ore_hour(500000);
 $home->needs_recalc(0);
 $home->put;
 
-$empire = $tester->db->domain('empire')->find($empire->id);
-say $empire->university_level;
-
 $result = $tester->post('shipyard', 'build', [$session_id, $home->id, 0, 2]);
 my $shipyard = $empire->get_building('Lacuna::DB::Building::Shipyard',$result->{result}{building}{id});
 $shipyard->finish_upgrade;
-
-$empire = $tester->db->domain('empire')->find($empire->id);
-say $empire->university_level;
 
 $home->energy_hour(500000);
 $home->algae_production_hour(500000);
@@ -80,9 +65,6 @@ $home->ore_hour(500000);
 $home->needs_recalc(0);
 $home->put;
 
-
-$empire = $tester->db->domain('empire')->find($empire->id);
-say $empire->university_level;
 
 $result = $tester->post('observatory', 'build', [$session_id, $home->id, 0, 3]);
 ok($result->{result}{building}{id}, "built an observatory");
