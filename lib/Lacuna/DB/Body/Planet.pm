@@ -1245,7 +1245,7 @@ sub spend_water {
 sub add_happiness {
     my ($self, $value) = @_;
     my $new = $self->happiness + $value;
-    if ($new < 0 && $self->empire->is_noob) {
+    if ($new < 0 && $self->empire->is_isolationist) {
         $new = 0;
     }
     $self->happiness( $new );
@@ -1254,7 +1254,7 @@ sub add_happiness {
 sub spend_happiness {
     my ($self, $value) = @_;
     my $new = $self->happiness - $value;
-    if ($new < 0 && $self->empire->is_noob) {
+    if ($new < 0 && $self->empire->is_isolationist) {
         $new = 0;
     }
     $self->happiness( $new );

@@ -32,7 +32,7 @@ __PACKAGE__->add_attributes(
     needs_full_update   => { isa => 'Str', default=>0 },
     tutorial_stage      => { isa => 'Str', default=>'explore_the_ui' },
     tutorial_scratch    => { isa => 'Str' },
-    is_noob             => { isa => 'Str', default => 1 },
+    is_isolationist     => { isa => 'Str', default => 1 },
     food_boost          => { isa => 'DateTime' },
     water_boost         => { isa => 'DateTime' },
     ore_boost           => { isa => 'DateTime' },
@@ -342,8 +342,8 @@ sub add_probe {
         star_id     => $star_id,
         body_id     => $body_id,
     });
-    if ($self->is_noob && $star_id ne $self->home_planet->star_id) {
-        $self->is_noob(0);
+    if ($self->is_isolationist && $star_id ne $self->home_planet->star_id) {
+        $self->is_isolationist(0);
         $self->put;
     }
     $self->clear_probed_stars;
