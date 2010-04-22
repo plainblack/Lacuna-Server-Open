@@ -163,6 +163,7 @@ sub get_full_status {
             star_map_size   => Lacuna->config->get('map_size'),
         },
         empire  => {
+            is_isolationist     => $self->is_isolationist,
             status_message      => $self->status_message,
             happiness           => $happiness,
             happiness_hour      => $happiness_hour,

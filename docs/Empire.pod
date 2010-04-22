@@ -145,6 +145,7 @@ Fetches the empire's status hash that is returned with many methods, but perform
     },
     "empire" : {
         "id" : "xxxx",
+        "is_isolationist" : 1, # hasn't sent out probes or colony ships
         "name" : "The Syndicate",
         "status_message" : "A spy's work is never done.",
         "home_planet_id" : "id-goes-here",
