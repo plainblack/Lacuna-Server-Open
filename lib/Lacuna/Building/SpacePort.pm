@@ -115,6 +115,9 @@ sub send_spy_pod {
     elsif ($target_body->empire_id eq 'None') {
         confess [ 1009, 'Cannot send a spy to an unoccupied planet.'];
     }
+    elsif ($target_body->isa('Lacuna::DB::Body::Planet') && $target_body->empire->is_isolationist) {
+        confess [ 1013, sprintf('%s is an isolationist, and must be left alone.',$target_body->empire->name)];
+    }
     
     # get a spy
     my $spy;
