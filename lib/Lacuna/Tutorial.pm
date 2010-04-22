@@ -178,10 +178,12 @@ sub pawn {
 
 sub counter_spy {
     my ($self, $finish) = @_;
-    my $home = $self->empire->home_planet;
+    my $empire = $self->empire;
     if ($finish) {
-        my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Intelligence')->next;
-        if (defined $building && $building->counter_intelligence >= 1 && $building->sting >= 1) {
+        my $spies = $empire->simpledb->domain('spies');
+        my $counter = $spies->count(where=>{empire_id => $empire->id, task=>'Gather Counter Intelligence'});
+        my $sting = $spies->count(where=>{empire_id => $empire->id, task=>'Capture Spies'});
+        if ($counter && $sting) {
             $self->start('observatory');
             return undef;
         }

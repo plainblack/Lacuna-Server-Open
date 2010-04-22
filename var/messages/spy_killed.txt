@@ -1,0 +1,7 @@
+Killed In Action
+~~~
+%s was killed in the line of duty today on %s.
+
+Condolences,
+
+Your Humble Assistant

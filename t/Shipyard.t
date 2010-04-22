@@ -43,6 +43,7 @@ $home->energy_hour(500000);
 $home->algae_production_hour(500000);
 $home->water_hour(500000);
 $home->ore_hour(500000);
+$home->needs_recalc(0);
 $home->put;
 
 
@@ -54,6 +55,7 @@ $home->energy_hour(500000);
 $home->algae_production_hour(500000);
 $home->water_hour(500000);
 $home->ore_hour(500000);
+$home->needs_recalc(0);
 $home->put;
 
 $result = $tester->post('shipyard', 'build', [$session_id, $home->id, 0, 2]);

@@ -58,24 +58,6 @@ has spy_count => (
     },
 );
 
-has counter_intelligence => (
-    is          => 'rw',
-    lazy        => 1,
-    default     => sub {
-        my $self = shift;
-        return $self->simpledb->domain('spies')->count(where=>{on_body_id => $self->body_id, task=>'Counter Intelligence'});
-    },
-);
-
-has sting => (
-    is          => 'rw',
-    lazy        => 1,
-    default     => sub {
-        my $self = shift;
-        return $self->simpledb->domain('spies')->count(where=>{on_body_id => $self->body_id, task=>'Sting'});
-    },
-);
-
 has latest_spy => (
     is          => 'rw',
     lazy        => 1,

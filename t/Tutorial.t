@@ -316,8 +316,8 @@ say "Waiting for spies to finish...";
 sleep 216;
 
 my $spies = $building->get_spies;
-$spies->next->assign('Sting')->put;
-$spies->next->assign('Counter Intelligence')->put;
+$spies->next->assign('Capture Spies')->put;
+$spies->next->assign('Gather Counter Intelligence')->put;
 sleep 3;
 is($tutorial->finish, 1, 'counter spy');
 
@@ -337,7 +337,7 @@ $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'observatory');
 
-$empire->add_probe('xxxxx');
+$empire->add_probe($home->star_id);
 is($tutorial->finish, 1, 'explore');
 is($tutorial->finish, 1, 'the_end');
 is($tutorial->finish, 1, 'turing');

@@ -1,0 +1,7 @@
+Narrow Escape
+~~~
+I don't know how, but %s is on to me. I narrowly escaped capture today. Perhaps a change in assignment is in order?
+
+Regards,
+
+%s

@@ -142,6 +142,154 @@ sub ships_travelling {
     );
 }
 
+# SPIES
+
+has determine_espionage => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $hijack = 0;
+        my $sabotage = 0;
+        my @hijackers;
+        my @saboteurs;
+        my @interceptors;
+        my $spies = $self->simpledb->domain('spies')->search(
+            where => {
+                on_body_id  => $self->body_id,
+                task        => ['in', 'Hijack Ships', 'Sabotage','Capture Spies','Gather Intelligence', 'Gather Counter Intelligence'],
+            }
+        );
+        while (my $spy = $spies->next) {
+            if ($spy->task eq 'Sabotage') {
+                $sabotage += $spy->offense;
+                push @saboteurs, $spy;
+            }
+            elsif ($spy->tax eq 'Hijack Ships') {
+                $hijack += $spy->offense;
+                push @hijackers, $spy;
+            }
+            elsif ($spy->task eq 'Capture Spies') {
+                $hijack -= $spy->defense;
+                $sabotage -= $spy->defense;
+            }
+        }
+        $self->hijackers(\@hijackers);
+        $self->saboteurs(\@saboteurs);
+        $self->interceptors(\@interceptors);
+        $self->chance_of_hijack(($hijack > 90) ? 90 : $hijack );
+        $self->chance_of_sabotage(($sabotage > 90) ? 90 : $sabotage );
+        return 1;
+    },
+);
+
+sub kill_a_spy {
+    my ($self, $spy, $interceptor) = @_;
+    $spy->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'spy_killed.txt',
+        params      => [$spy->name, $self->name],
+    );
+    $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'we_killed_a_spy.txt',
+        params      => [$self->name, $interceptor->name],
+        from        => $interceptor->empire,
+    );
+    $spy->delete;
+}
+
+sub capture_a_spy {
+    my ($self, $spy, $interceptor) = @_;
+    $spy->available_on(DateTime->now->add(months=>1));
+    $spy->task('Captured');
+    $spy->put;
+    $spy->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'spy_captured.txt',
+        params      => [$self->name, $spy->name],
+    );
+    $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'we_captured_a_spy.txt',
+        params      => [$self->name, $interceptor->name],
+        from        => $interceptor->empire,
+    );
+}
+
+sub miss_a_spy {
+    my ($self, $spy, $interceptor) = @_;
+    $spy->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'narrow_escape.txt',
+        params      => [$self->empire->name, $spy->name],
+    );
+    $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'we_missed_a_spy.txt',
+        params      => [$self->name, $interceptor->name],
+        from        => $interceptor->empire,
+    );
+}
+
+sub defeat_sabotage {
+    my ($self) = @_;
+    if ($self->chance_of_sabotage > 0) {
+        my $event = randint(1,100);
+        my $spy = $self->saboteurs->[0];
+        my $interceptor = $self->interceptors->[0];
+        if ($event < 10) {
+            $self->chance_of_sabotage( $self->chance_of_sabotage - $spy->offense );
+            $self->kill_a_spy($spy, $interceptor);
+            delete $self->saboteurs->[0];
+        }
+        elsif ($event < 50) {
+            $self->chance_of_sabotage( $self->chance_of_sabotage - $spy->offense );
+            $self->capture_a_spy($spy, $interceptor);
+            delete $self->saboteurs->[0];
+        }
+        else {
+            $self->miss_a_spy($spy, $interceptor);
+        }
+    }
+}
+
+sub pick_a_spy_per_empire {
+    my ($self, $spies) = @_;
+    my %empires;
+    foreach my $spy (@{$spies}) {
+        unless (exists $empires{$spy->empire_id}) {
+            $empires{$spy->empire_id} = $spy;
+        }
+    }
+    return values %empires;
+}
+
+has chance_of_hijack => (
+    is      => 'rw',
+    default => 0,
+);
+
+has hijackers => (
+    is      => 'rw',
+    default => sub { [] },
+);
+
+has saboteurs => (
+    is      => 'rw',
+    default => sub { [] },
+);
+
+has chance_of_sabotage => (
+    is      => 'rw',
+    default => 0,
+);
+
+has interceptors => (
+    is      => 'rw',
+    default => sub { [] },
+);
+
 
 
 # FREEBIES

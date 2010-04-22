@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 7;
+use Test::More tests => 9;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -58,9 +58,15 @@ $result = $tester->post('intelligence', 'train_spy', [$session_id, $intelligence
 is($result->{result}{trained}, 3, "train a spy");
 
 $result = $tester->post('intelligence', 'view_spies', [$session_id, $intelligence->id]);
-my ($spy_id) = keys %{$result->{result}{spies}};
-is($result->{result}{spies}{$spy_id}{is_available}, 0, "spy training");
+is($result->{result}{spies}[0]{is_available}, 0, "spy training");
 is($result->{result}{possible_assignments}[0], 'Idle', "possible assignments");
+my $spy_id = $result->{result}{spies}[0]{id};
+
+$result = $tester->post('intelligence', 'name_spy', [$session_id, $intelligence->id, $spy_id, 'Waldo']);
+ok(exists $result->{result}, 'name spy seems to work');
+
+$result = $tester->post('intelligence', 'view_spies', [$session_id, $intelligence->id]);
+is($result->{result}{spies}[0]{name}, 'Waldo', "spy naming works");
 
 $result = $tester->post('intelligence', 'burn_spy', [$session_id, $intelligence->id, $spy_id]);
 ok(exists$result->{result}, "burn a spy");

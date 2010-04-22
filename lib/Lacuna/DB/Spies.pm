@@ -29,7 +29,7 @@ sub format_available_on {
 sub is_available {
     my ($self) = @_;
     if (DateTime->now > $self->available_on) {
-        if ($self->task eq 'Travelling' || $self->task eq 'Training') {
+        if ($self->task eq 'Travelling' || $self->task eq 'Training' || $self->task eq 'Captured') {
             $self->task('Idle');
             $self->put;
         }
@@ -40,8 +40,11 @@ sub is_available {
 
 use constant assignments => (
     'Idle',
-    'Counter Intelligence',
-    'Sting',
+    'Gather Counter Intelligence',
+    'Gather Intelligence',
+    'Capture Spies',
+    'Sabotage',
+    'Hijack Ships',
 );
 
 sub assign {

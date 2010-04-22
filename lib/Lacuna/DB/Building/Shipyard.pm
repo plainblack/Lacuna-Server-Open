@@ -2,7 +2,7 @@ package Lacuna::DB::Building::Shipyard;
 
 use Moose;
 extends 'Lacuna::DB::Building';
-use Lacuna::Util qw(to_seconds format_date);
+use Lacuna::Util qw(to_seconds format_date randint);
 use DateTime;
 
 __PACKAGE__->add_attributes(
@@ -217,6 +217,7 @@ sub check_for_completed_ships {
     my ($self, $caller_spaceport) = @_;
     my $spaceports = $self->spaceports;
     my $spaceport;
+    my $body = $self->body;
     my $spaceport_changed = 0;
     my $shipyard_changed = 0;
     
@@ -236,9 +237,23 @@ sub check_for_completed_ships {
             }
             
             # there's room, so let's add a ship
-            if (!$spaceport->is_full) { 
-                $spaceport->add_ship($completed_ship->{type});
-                $spaceport_changed = 1;
+            if (!$spaceport->is_full) {
+                $body->determine_espionage;
+                #deal with saboteurs    
+                if ($body->chance_of_sabotage > randint(1,100)) {
+                    $self->send_blow_up_a_ship($completed_ship->{type});
+                    my $spies = $body->pick_a_spy_per_empire($body->saboteurs);
+                    foreach my $spy (@{$spies}) {
+                        $self->send_sabotage_a_ship($spy, $completed_ship->{type});
+                    }
+                    $body->chance_of_sabotage( $body->chance_of_sabotage - 10);
+                }
+                # add the ship
+                else {
+                    $spaceport->add_ship($completed_ship->{type});
+                    $spaceport_changed = 1;
+                    $body->defeat_sabotage;
+                }
                 last PORT;
             }
             
@@ -250,14 +265,7 @@ sub check_for_completed_ships {
                 
                 # this ship's gonna go kablooey cuz no room at any port
                 unless (defined $spaceport) {
-                    my $type = $completed_ship->{type};
-                    $type =~ s/_/ /g;
-                    $self->empire->send_predefined_message(
-                        tags        => ['Alert'],
-                        filename    => 'ship_blew_up_at_port.txt',
-                        params      => [$type, $self->body->name],
-                    );
-                    $self->body->add_news(100,'%s was rocked today as a %s exploded at the space port.', $self->body->name, $type);
+                    $self->send_blow_up_a_ship($completed_ship->{type});
                     last SHIP;
                 }
             }
@@ -267,6 +275,28 @@ sub check_for_completed_ships {
     # save changes
     $spaceport->put if ($spaceport_changed);
     $self->put if ($shipyard_changed);
+}
+
+
+sub send_sabotage_a_ship {
+    my ($self, $spy, $type) = @_;
+    $type =~ s/_/ /g;
+    $spy->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'sabotage_report.txt',
+        params      => [$type, $self->body->name, $spy->name],
+    );
+}
+
+sub send_blow_up_a_ship {
+    my ($self, $type) = @_;
+    $type =~ s/_/ /g;
+    $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'ship_blew_up_at_port.txt',
+        params      => [$type, $self->body->name],
+    );
+    $self->body->add_news(100,'%s was rocked today as a %s exploded at the space port.', $self->body->name, $type);
 }
 
 use constant controller_class => 'Lacuna::Building::Shipyard';

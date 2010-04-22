@@ -1,0 +1,7 @@
+They Got Me
+~~~
+I bribed a guard to send this message out for me. I was captured today on %s, and was given a 1 month prison sentence.
+
+With Regret,
+
+%s

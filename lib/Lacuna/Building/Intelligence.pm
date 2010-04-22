@@ -12,10 +12,10 @@ sub model_class {
 }
 
 sub view_spies {
-    my ($self, $session_id, $building_id) = @_;
+    my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
-    my %spies;
+    my @spies;
     my $body = $building->body;
     my %planets = ( $body->id => $body->name );
     my $spy_list = $building->get_spies(consistent=>1);
@@ -25,7 +25,9 @@ sub view_spies {
         }
         my $available = $spy->is_available;
         my $available_on = $spy->format_available_on;
-        $spies{$spy->id} = {
+        push @spies, {
+            id          => $spy->id,
+            name        => $spy->name,
             assignment  => $spy->task,
             assigned_to => {
                 body_id => $spy->on_body_id,
@@ -38,8 +40,9 @@ sub view_spies {
     my @assignments = Lacuna::DB::Spies->assignments;
     return {
         status                  => $empire->get_status,
-        spies                   => \%spies,
+        spies                   => \@spies,
         possible_assignments    => \@assignments,
+        spy_count               => $building->spy_count,
     };
 }
 
@@ -141,7 +144,30 @@ around 'view' => sub {
     return $out;
 };
 
-__PACKAGE__->register_rpc_method_names(qw(view_spies assign_spy train_spy burn_spy));
+sub name_spy {
+    my ($self, $session_id, $building_id, $spy_id, $name) = @_;
+    Lacuna::Verify->new(content=>\$name, throws=>[1005, 'Invalid name for a spy.'])
+        ->not_empty
+        ->no_profanity
+        ->no_restricted_chars;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $empire->get_building($self->model_class, $building_id);
+    my $spy = $self->simpledb->domain('spies')->find($spy_id);
+    unless (defined $spy) {
+        confess [1002, 'No such spy.'];
+    }
+    if ($spy->from_body_id ne $building->body_id) {
+        confess [1013, "You don't control that spy."];
+    }
+    $spy->name($name);
+    $spy->put;
+    return {
+        status  => $empire->get_status,
+    };
+    
+}
+
+__PACKAGE__->register_rpc_method_names(qw(view_spies assign_spy train_spy burn_spy name_spy));
 
 
 no Moose;

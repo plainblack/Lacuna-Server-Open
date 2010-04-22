@@ -53,14 +53,16 @@ The unique id of your Intelligence Ministry.
 An integer between 1 and 5. Defaults to 1.
 
 
-=head2 view_spies ( session_id, building_id )
+=head2 view_spies ( session_id, building_id, [ page_number ] )
 
 Returns the list of spies you have on your roster.
 
  {
     "status" : { get_status() },
-    "spies" : {
-        "id-goes-here" : {
+    "spies" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "Jason Bourne",
             "assignment" : "Idle",
             "assigned_to" : {
                 "body_id" : "id-goes-here",
@@ -70,7 +72,13 @@ Returns the list of spies you have on your roster.
             "available_on" : "01 31 2010 13:09:05 +0600" # if can't be reassigned, this is when will be available
         },
         ...
-    }
+    ],
+    "spy_count" : 12,
+    "possible_assignments" : [
+        'Idle',
+        'Gather Intelligence',
+        ...
+    ]
  }
 
 Take a look at the C<assign_spy> method below for assignment descriptions.
@@ -82,6 +90,10 @@ A session id.
 =head3 building_id
 
 The unique id of your Intelligence Ministry.
+
+=head3 page_number
+
+Defaults to 1. An integer representing which page to view. Shows 25 spies per page.
 
 
 
@@ -104,6 +116,33 @@ The unique id of your Intelligence Ministry.
 =head3 spy_id
 
 The unique id of the spy you wish to burn.
+
+
+=head2 name_spy ( session_id, building_id, spy_id, name )
+
+Set the name of the spy. Returns:
+
+ {
+    "status" : { get_status() }
+ }
+ 
+Throws 1002, 1005, 1013.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the intelligence building.
+
+=head3 spy_id
+
+The unique id of the spy you wish to train.
+
+=head3 name
+
+The name you'd like to set for the spy. The name cannot contain @, <, #, &, ; or profanity, and must be at least 1 character long.
 
 
 
@@ -133,13 +172,25 @@ A string containing the new assignment name. These are the possible assignments:
 
 Don't do anything.
 
-=item Counter Intelligence
+=item Gather Intelligence
 
-Gathering information about what foreign spies are on this planet.
+Gather information about what is happening on this planet.
 
-=item Sting
+=item Gather Counter Intelligence
+
+Gathering information about what foreign spies are on this planet, and will also interrogate captured spies.
+
+=item Capture Spies
 
 Attempt to disrupt the plots of foreign spies on this planet.
+
+=item Sabotage
+
+Attempt to destroy things on the planet.
+
+=item Hijack Ships
+
+Attempt to steal ships.
 
 =back
 
