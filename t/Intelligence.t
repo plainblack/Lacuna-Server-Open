@@ -104,7 +104,7 @@ $tester->db->domain('spies')->insert({
     available_on    => DateTime->now,
     empire_id       => $empire->id,    
 });
-
+sleep 2;
 
 $result = $tester->post('spaceport', 'send_spy_pod', [$session_id, $home->id, {body_name=>'Lacuna'}]);
 ok($result->{result}{spy_pod}{date_arrives}, "send a spy");

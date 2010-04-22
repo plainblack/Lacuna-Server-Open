@@ -42,6 +42,10 @@ use constant waste_production => 5;
 
 use constant happiness_consumption => 10;
 
+after finish_upgrade => sub {
+    my $self = shift;
+    $self->simpledb->domain('spies')->search(where => {from_body_id => $self->body_id})->update({defense=>$self->level});
+};
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

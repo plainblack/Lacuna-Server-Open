@@ -13,6 +13,8 @@ __PACKAGE__->add_attributes(
     on_body_id              => { isa => 'Str' },
     task                    => { isa => 'Str' },
     available_on            => { isa => 'DateTime' },
+    offense                 => { isa => 'Int', default => 1 },
+    defense                 => { isa => 'Int', default => 1 },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');

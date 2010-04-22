@@ -113,21 +113,23 @@ sub get_spies {
     return $self->simpledb->domain('spies')->search(%params);
 }
 
-has espionage => (
+has espionage_level => (
     is      => 'rw',
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->body->get_buildings_of_class('Lacuna::DB::Building::Espionage')->next;   
+        my $building = $self->body->get_buildings_of_class('Lacuna::DB::Building::Espionage')->next;
+        return (defined $building) ? $self->level : 0;
     },
 );
 
-has security => (
+has security_level => (
     is      => 'rw',
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->body->get_buildings_of_class('Lacuna::DB::Building::Security')->next;   
+        my $building = $self->body->get_buildings_of_class('Lacuna::DB::Building::Security')->next;   
+        return (defined $building) ? $self->level : 0;
     },
 );
 
@@ -137,12 +139,8 @@ has training_multiplier => (
     default => sub {
         my $self = shift;
         my $multiplier = $self->level - $self->empire->species->deception_affinity;
-        if (defined $self->espionage) {
-            $multiplier += $self->espionage->level;
-        }
-        if (defined $self->security) {
-            $multiplier += $self->security->level;
-        }
+        $multiplier += $self->espionage_level;
+        $multiplier += $self->security_level;
         $multiplier = 1 if $multiplier < 1;
         return $multiplier;
     }
@@ -177,6 +175,8 @@ sub train_spy {
             task            => 'Training',
             available_on    => $available_on,
             empire_id       => $self->empire_id,
+            offense         => $self->espionage_level,
+            defense         => $self->security_level,
         });
         my $count = $self->spy_count($self->spy_count + 1);
         if ($count < $self->level) {

@@ -40,6 +40,12 @@ use constant water_consumption => 7;
 
 use constant waste_production => 1;
 
+after finish_upgrade => sub {
+    my $self = shift;
+    $self->simpledb->domain('spies')->search(where => {from_body_id => $self->body_id})->update({offense=>$self->level});
+};
+
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
