@@ -40,11 +40,12 @@ sub is_available {
 
 use constant assignments => (
     'Idle',
-    'Gather Counter Intelligence',
     'Gather Intelligence',
     'Capture Spies',
-    'Sabotage',
-    'Hijack Ships',
+    'Sabotage Infrastructure',
+    'Appropriate Technology',
+    'Incite Rebellion',
+    'Hack Networks'
 );
 
 sub assign {

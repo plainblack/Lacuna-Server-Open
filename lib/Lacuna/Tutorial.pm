@@ -181,7 +181,7 @@ sub counter_spy {
     my $empire = $self->empire;
     if ($finish) {
         my $spies = $empire->simpledb->domain('spies');
-        my $counter = $spies->count(where=>{empire_id => $empire->id, task=>'Gather Counter Intelligence'});
+        my $counter = $spies->count(where=>{empire_id => $empire->id, task=>'Gather Intelligence'});
         my $sting = $spies->count(where=>{empire_id => $empire->id, task=>'Capture Spies'});
         if ($counter && $sting) {
             $self->start('observatory');

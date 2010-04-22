@@ -157,7 +157,7 @@ has determine_espionage => (
         my $spies = $self->simpledb->domain('spies')->search(
             where => {
                 on_body_id  => $self->body_id,
-                task        => ['in', 'Hijack Ships', 'Sabotage','Capture Spies','Gather Intelligence', 'Gather Counter Intelligence'],
+                task        => ['in', 'Incite Rebellion', 'Hack Networks', 'Appropriate Technology', 'Sabotage Infrastructure','Capture Spies','Gather Intelligence'],
             }
         );
         while (my $spy = $spies->next) {

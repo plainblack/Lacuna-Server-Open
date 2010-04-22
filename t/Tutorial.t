@@ -317,7 +317,7 @@ sleep 216;
 
 my $spies = $building->get_spies;
 $spies->next->assign('Capture Spies')->put;
-$spies->next->assign('Gather Counter Intelligence')->put;
+$spies->next->assign('Gather Intelligence')->put;
 sleep 3;
 is($tutorial->finish, 1, 'counter spy');
 

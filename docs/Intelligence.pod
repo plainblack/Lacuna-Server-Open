@@ -174,23 +174,27 @@ Don't do anything.
 
 =item Gather Intelligence
 
-Gather information about what is happening on this planet.
-
-=item Gather Counter Intelligence
-
-Gathering information about what foreign spies are on this planet, and will also interrogate captured spies.
+Gather information about what is happening on this planet. On your own planets it will help you find out who's spying on you and what they're doing. On foreign planets it will give you information about the economy, infrastructure, and strength of that planet.
 
 =item Capture Spies
 
 Attempt to disrupt the plots of foreign spies on this planet.
 
-=item Sabotage
+=item Sabotage Infrastructure
 
 Attempt to destroy things on the planet.
 
-=item Hijack Ships
+=item Appropriate Technology
 
-Attempt to steal ships.
+Attempt to steal ships, buildings, and possibly resources.
+
+=item Incite Rebellion
+
+Attempt to deplete happiness, turn spies, and otherwise cause chaos amongst the population.
+
+=item Hack Networks
+
+Attempt to destroy or control probes, and spread misinformation through Network 19.
 
 =back
 
