@@ -70,6 +70,8 @@ The unique id of the space port.
 Defaults to 1. An integer representing which page of ships travelling to view. Each page shows 25 ships.
 
 
+
+
 =head2 send_probe ( session_id, from_body_id, to_star )
 
 Dispatches a probe from one of the space ports on a planet to a star. It will automatically detect which space ports on the planet have probes, if any, and pick one of them to dispatch the probe.
@@ -78,7 +80,7 @@ Returns status:
 
  {
     "probe" : {
-        "date_arrives" : 
+        "date_arrives" : "01 31 2010 13:09:05 +0600"
     },
     "status" : { get_status() }
  }
@@ -114,5 +116,60 @@ The unique id of the star.
 =head4 x | y | z
 
 A set of x,y,z coordinates to locate the star.
+
+
+
+
+=head2 send_spy_pod ( session_id, from_body_id, to_body )
+
+Dispatches a spy pod from one of the space ports on a planet to another body. It will automatically detect which space ports on the planet have spy pods, if any, and pick one of them to dispatch the spy pod. In order to send a spy pod you must also have an idle spy available. 
+
+Returns status:
+
+ {
+    "spy_pod" : {
+        "date_arrives" : "01 31 2010 13:09:05 +0600",
+        "carrying_spy" : {
+           "id" : "id-goes-here",
+           "name" : "Jason Bourne",
+        }
+    },
+    "status" : { get_status() }
+ }
+
+Throws 1002.
+
+=head3 session_id
+
+A session id.
+
+=head3 from_body_id
+
+The unique id of the planet that should send the ship.
+
+=head3 to_body
+
+A hash reference that can contain one of three items to identify a planet.
+
+ { "body_name" : "Earth" }
+ 
+ { "body_id" : "id-goes-here" }
+ 
+ { "x" : 4, "y" : -3, "z" : 5, "orbit" : 3 }
+
+=head4 body_name
+
+A string with the body's name. Case insensitive, but will throw an exception for misspelling.
+
+=head4 body_id
+
+The unique id of the body.
+
+=head4 x | y | z | orbit
+
+A set of x,y,z coordinates and an orbit to locate the body.
+
+
+
 
 =cut

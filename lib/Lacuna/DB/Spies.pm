@@ -7,12 +7,15 @@ use DateTime;
 
 __PACKAGE__->set_domain_name('spies');
 __PACKAGE__->add_attributes(
+    empire_id               => { isa => 'Str' },
+    name                    => { isa => 'Str', default => 'Agent Null' },
     from_body_id            => { isa => 'Str' },
     on_body_id              => { isa => 'Str' },
     task                    => { isa => 'Str' },
     available_on            => { isa => 'DateTime' },
 );
 
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
 __PACKAGE__->belongs_to('from_body', 'Lacuna::DB::Body::Planet', 'from_body_id');
 __PACKAGE__->belongs_to('on_body', 'Lacuna::DB::Body::Planet', 'on_body_id');
 

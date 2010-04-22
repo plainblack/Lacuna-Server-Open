@@ -45,6 +45,27 @@ sub send_probe {
     );
 }
 
+sub send_spy_pod {
+    my ($self, $body, $spy) = @_;
+    $self->spy_pod_count($self->spy_pod_count - 1);
+    $self->put;
+    my $duration = $self->calculate_seconds_from_body_to_body('spy_pod', $self->body, $body);
+    my $date = DateTime->now->add(seconds=>$duration);
+    $spy->available_on($date->clone);
+    $spy->on_body_id($body->id);
+    $spy->task('Travelling');
+    $spy->put;
+    return Lacuna::DB::TravelQueue->send(
+        simpledb        => $self->simpledb,
+        body            => $self->body,
+        foreign_body    => $body,
+        payload         => { spy_id => $spy->id },
+        ship_type       => 'spy_pod',
+        direction       => 'outgoing',
+        date_arrives    => $date,
+    );
+}
+
 sub calculate_distance_from_star_to_star {
     my ($self, $star1, $star2) = @_;
     return sqrt(abs($star1->x - $star2->x)**2 + abs($star1->y - $star2->y)**2 + abs($star1->z - $star2->z)**2) + $self->star_to_body_distance_ratio;

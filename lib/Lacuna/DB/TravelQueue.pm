@@ -10,7 +10,7 @@ __PACKAGE__->add_attributes(
     date_started        => { isa => 'DateTime' },
     date_arrives        => { isa => 'DateTime' },
     ship_type           => { isa => 'Str' },
-#    payload             => { isa => 'HashRef' },
+    payload             => { isa => 'HashRef' },
 #    roundtrip           => { isa => 'Int' },
     body_id             => { isa => 'Str' },
     direction           => { isa => 'Str' },
@@ -35,7 +35,7 @@ sub send {
         body_id             => $options{body}->id,
         date_arrives        => $options{date_arrives},
         ship_type           => $options{ship_type},
-#        payload             => $options{payload},
+        payload             => $options{payload},
 #        roundtrip           => $options{roundtrip},
         direction           => $options{direction},
     );
@@ -66,6 +66,9 @@ sub arrive {
     if ($self->ship_type eq 'probe') {
         $empire->add_probe($self->foreign_star_id, $self->body_id);
         $empire->trigger_full_update;
+    }
+    elsif ($self->ship_type eq 'spy_pod') {
+        # trigger spy event on remote world
     }
     $self->delete;
 }

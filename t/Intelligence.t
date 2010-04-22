@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -64,6 +64,50 @@ is($result->{result}{possible_assignments}[0], 'Idle', "possible assignments");
 
 $result = $tester->post('intelligence', 'burn_spy', [$session_id, $intelligence->id, $spy_id]);
 ok(exists$result->{result}, "burn a spy");
+
+my $shipyard = Lacuna::DB::Building::Shipyard->new(
+    simpledb        => $tester->db,
+    x               => 1,
+    y               => 1,
+    class           => 'Lacuna::DB::Building::Shipyard',
+    date_created    => DateTime->now,
+    body_id         => $home->id,
+    body            => $home,
+    empire_id       => $empire->id,
+    empire          => $empire,
+    level           => 5,
+);
+$home->build_building($shipyard);
+$shipyard->finish_upgrade;
+
+my $spaceport = Lacuna::DB::Building::SpacePort->new(
+    simpledb        => $tester->db,
+    x               => 1,
+    y               => 2,
+    class           => 'Lacuna::DB::Building::SpacePort',
+    date_created    => DateTime->now,
+    body_id         => $home->id,
+    body            => $home,
+    empire_id       => $empire->id,
+    empire          => $empire,
+    level           => 5,
+    spy_pod_count   => 5,
+);
+$home->build_building($spaceport);
+$spaceport->finish_upgrade;
+
+# need a spy done right now
+$tester->db->domain('spies')->insert({
+    from_body_id    => $home->id,
+    on_body_id      => $home->id,
+    task            => 'Idle',
+    available_on    => DateTime->now,
+    empire_id       => $empire->id,    
+});
+
+
+$result = $tester->post('spaceport', 'send_spy_pod', [$session_id, $home->id, {body_name=>'Lacuna'}]);
+ok($result->{result}{spy_pod}{date_arrives}, "send a spy");
 
 
 END {

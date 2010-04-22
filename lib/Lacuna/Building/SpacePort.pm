@@ -13,11 +13,6 @@ sub model_class {
     return 'Lacuna::DB::Building::SpacePort';
 }
 
-sub spaceports {
-    my ($self, $body) = @_;
-    return $body->get_buildings_of_class($self->model_class);
-}
-
 sub check_for_completed_ships {
     my ($self, $body, $spaceport) = @_;
     my $shipyards = $body->get_buildings_of_class('Lacuna::DB::Building::Shipyard');
@@ -26,12 +21,24 @@ sub check_for_completed_ships {
     }
 }
 
-sub send_probe {
-    my ($self, $session_id, $body_id, $target) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $body = $empire->get_body($body_id);
-    
-    # find the star
+sub find_port {
+    my ($self, $body, $type) = @_;
+    # finish building any ships in queue
+    $self->check_for_completed_ships($body);
+
+    # send the probe
+    my $ports = $body->get_buildings_of_class($self->model_class);
+    my $ship_count = $type.'_count';
+    while (my $port = $ports->next) {
+        if ($port->$ship_count) {
+            return $port;
+        }
+    }
+    confess [ 1002, 'You have no ships to send.', $type];
+}
+
+sub find_star {
+    my ($self, $target) = @_;
     my $star;
     if (exists $target->{star_id}) {
         $star = $self->simpledb->domain('star')->find($target->{star_id});
@@ -47,8 +54,38 @@ sub send_probe {
         )->next;
     }
     unless (defined $star) {
-        confess [ 1002, 'No such star.', $target];
+        confess [ 1002, 'Could not find the target star.', $target];
     }
+    return $star;
+}
+
+sub find_body {
+    my ($self, $target) = @_;
+    my $target_body;
+    if (exists $target->{body_id}) {
+        $target_body = $self->simpledb->domain('body')->find($target->{body_id});
+    }
+    elsif (exists $target->{body_name}) {
+        $target_body = $self->simpledb->domain('body')->search(
+            where   => { name_cname => cname($target->{body_name}) },
+        )->next;
+    }
+    elsif (exists $target->{x}) {
+        $target_body = $self->simpledb->domain('body')->search(
+            where   => { x => $target->{x}, y => $target->{y}, z => $target->{z}, orbit => $target->{orbit} },
+        )->next;
+    }
+    unless (defined $target_body) {
+        confess [ 1002, 'Could not find the target body.', $target];
+    }
+    return $target_body;
+}
+
+sub send_probe {
+    my ($self, $session_id, $body_id, $target) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $empire->get_body($body_id);
+    my $star = $self->find_star($target);
 
     # check the observatory probe count
     my $count = $self->simpledb->domain('probes')->count(where => { body_id => $body->id });
@@ -58,22 +95,48 @@ sub send_probe {
         confess [ 1009, 'You are already controlling the maximum amount of probes for your Observatory level.'];
     }
     
-    # finish building any ships in queue
-    $self->check_for_completed_ships($body);
-
     # send the probe
-    my $ports = $self->spaceports($body);
-    my $sent;
-    while (my $port = $ports->next) {
-        if ($port->probe_count) {
-            $sent = $port->send_probe($star);
+    my $port = $self->find_port($body, 'probe');
+    my $sent = $port->send_probe($star);
+
+    return { probe => { date_arrives => format_date($sent->date_arrives)}, status => $empire->get_status };
+}
+
+sub send_spy_pod {
+    my ($self, $session_id, $body_id, $target) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $empire->get_body($body_id);
+    my $target_body = $self->find_body($target);
+    
+    # make sure it's a valid target
+    if ($target_body->isa('Lacuna::DB::Body::Asteroid')) {
+        confess [ 1009, 'Cannot send a spy to an asteroid.'];
+    }
+    elsif ($target_body->empire_id eq 'None') {
+        confess [ 1009, 'Cannot send a spy to an unoccupied planet.'];
+    }
+    
+    # get a spy
+    my $spy;
+    my $spies = $self->simpledb->domain('spies')->search(
+        where       => {task => ['in','Idle','Training'], on_body_id=>$body->id, empire_id=>$empire->id},
+        consistent  => 1,
+        );
+    while (my $possible_spy = $spies->next) {
+        if ($possible_spy->is_available) {
+            $spy = $possible_spy;
             last;
         }
     }
-    unless ($sent) {
-        confess [ 1002, 'You have no probes to send.'];
+    unless (defined $spy) {
+        confess [ 1002, 'You have no idle spies to send.'];
     }
-    return { probe => { date_arrives => format_date($sent->date_arrives)}, status => $empire->get_status };
+
+    # send the pod
+    my $port = $self->find_port($body, 'spy_pod');
+    my $sent = $port->send_spy_pod($target_body, $spy);
+
+    return { spy_pod => { date_arrives => format_date($sent->date_arrives), carrying_spy => { id => $spy->id, name => $spy->name }}, status => $empire->get_status };
 }
 
 sub view_ships_travelling {
@@ -134,7 +197,7 @@ around 'view' => sub {
     return $out;
 };
 
-__PACKAGE__->register_rpc_method_names(qw(send_probe view_ships_travelling));
+__PACKAGE__->register_rpc_method_names(qw(send_probe send_spy_pod view_ships_travelling));
 
 
 no Moose;

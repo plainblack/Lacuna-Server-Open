@@ -176,6 +176,7 @@ sub train_spy {
             on_body_id      => $self->body_id,
             task            => 'Training',
             available_on    => $available_on,
+            empire_id       => $self->empire_id,
         });
         my $count = $self->spy_count($self->spy_count + 1);
         if ($count < $self->level) {
