@@ -362,7 +362,7 @@ sub add_probe {
             filename    => 'probe_detected.txt',
             tags        => ['Alert'],
             from        => $that_empire,
-            params      => [$star_name, $that_empire->name],
+            params      => [$star_name, $self->name],
         );
     }
     
