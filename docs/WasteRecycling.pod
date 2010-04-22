@@ -13,7 +13,8 @@ The list of methods below represents changes and additions to the methods that a
     "building" : { ... },
     "recycle" : {
         "seconds_remaining" : 0,
-        "can" : 1
+        "can" : 1,
+        "seconds_per_resource" # to precalculate the time recycling will take
     }
  }
 
@@ -53,5 +54,25 @@ An integer representing the amount of energy you want.
 
 Defaults to 0. A boolean indicating that you wish to spend 2 essentia, to have the recycling operation completed immediately.
 
+
+
+
+=head2 subsidize_recycling ( session_id, building_id )
+
+Will spend 2 essentia to complete the current recycling job immediately.
+
+ {
+    "status" : { get_status() }
+ }
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the waste recycling building.
 
 =cut

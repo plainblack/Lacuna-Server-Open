@@ -22,6 +22,7 @@ around 'view' => sub {
     }
     else {
         $out->{recycle}{can} = (eval { $building->can_recycle }) ? 1 : 0;
+        $out->{recycle}{seconds_per_resource} = $building->time_cost_reduction_bonus($self->level);
     }
     return $out;
 };
@@ -44,7 +45,24 @@ sub recycle {
     };    
 }
 
-__PACKAGE__->register_rpc_method_names(qw(recycle));
+sub subsidize_recycling {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $empire->get_building($self->model_class, $building_id);
+
+    unless ($empire->essentia >= 2) {
+        confess [1011, "Not enough essentia."];    
+    }
+
+    $empire->spend_essentia(2)->put;    
+    $building->finish_recycling;
+
+    return {
+        status              => $empire->get_status,
+    };    
+}
+
+__PACKAGE__->register_rpc_method_names(qw(recycle subsidize_recycling));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
