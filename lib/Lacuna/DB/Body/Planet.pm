@@ -242,14 +242,17 @@ sub defeat_sabotage {
             $self->chance_of_sabotage( $self->chance_of_sabotage - $spy->offense );
             $self->kill_a_spy($spy, $interceptor);
             delete $self->saboteurs->[0];
+            $self->add_news(70,'%s told us that a lone saboteur was killed on %s before he could carry out his plot.', $self->empire->name, $self->name);
         }
         elsif ($event < 50) {
             $self->chance_of_sabotage( $self->chance_of_sabotage - $spy->offense );
             $self->capture_a_spy($spy, $interceptor);
             delete $self->saboteurs->[0];
+            $self->add_news(40,'A saboteur was aprehended on %s today by %s authorities.', $self->empire->name, $self->name);
         }
         else {
             $self->miss_a_spy($spy, $interceptor);
+            $self->add_news(20,'%s authorities on %s are conducting a manhunt for a suspected saboteur.', $self->empire->name, $self->name);
         }
     }
 }
