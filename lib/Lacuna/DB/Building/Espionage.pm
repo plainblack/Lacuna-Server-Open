@@ -42,7 +42,8 @@ use constant waste_production => 1;
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->simpledb->domain('spies')->search(where => {from_body_id => $self->body_id})->update({offense=>$self->level});
+    my $offense = $self->level + $self->empire->species->deception_affinity;
+    $self->simpledb->domain('spies')->search(where => {from_body_id => $self->body_id})->update({offense=>$offense});
 };
 
 

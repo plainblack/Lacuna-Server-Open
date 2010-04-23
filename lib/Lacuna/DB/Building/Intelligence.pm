@@ -151,14 +151,15 @@ sub train_spy {
         my $latest = $self->latest_spy;
         my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
         $available_on->add(seconds => $time_to_train );
+        my $deception = $self->empire->species->deception_affinity;
         $self->simpledb->domain('spies')->insert({
             from_body_id    => $self->body_id,
             on_body_id      => $self->body_id,
             task            => 'Training',
             available_on    => $available_on,
             empire_id       => $self->empire_id,
-            offense         => $self->espionage_level,
-            defense         => $self->security_level,
+            offense         => $self->espionage_level + $deception,
+            defense         => $self->security_level + $deception,
         });
         my $count = $self->spy_count($self->spy_count + 1);
         if ($count < $self->level) {
