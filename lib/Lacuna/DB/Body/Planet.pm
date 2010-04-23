@@ -1369,6 +1369,7 @@ sub spend_food {
             last SPEND if ($value <= 0);
             $subtract = $value if ($subtract > $value);
         }
+        last SPEND if ($subtract <= 0); # prevent an infinite loop scenario
     }
     return $self;
 }
