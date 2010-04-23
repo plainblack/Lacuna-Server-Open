@@ -296,7 +296,7 @@ sub send_blow_up_a_ship {
         filename    => 'ship_blew_up_at_port.txt',
         params      => [$type, $self->body->name],
     );
-    $self->body->add_news(100,'%s was rocked today as a %s exploded at the space port.', $self->body->name, $type);
+    $self->body->add_news(100,'Officials in %s today are investigating the explosion of a %s at the Space Port.', $self->body->name, $type);
 }
 
 use constant controller_class => 'Lacuna::Building::Shipyard';
