@@ -165,7 +165,7 @@ has determine_espionage => (
                 $sabotage += $spy->offense;
                 push @saboteurs, $spy;
             }
-            elsif ($spy->tax eq 'Hijack Ships') {
+            elsif ($spy->task eq 'Hijack Ships') {
                 $hijack += $spy->offense;
                 push @hijackers, $spy;
             }
