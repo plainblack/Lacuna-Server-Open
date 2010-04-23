@@ -1353,18 +1353,24 @@ sub add_lapis {
 
 sub spend_food {
     my ($self, $value) = @_;
-    foreach my $type (shuffle FOOD_TYPES) {
-        my $method = $type."_stored";
-        my $stored = $self->$method;
-        if ($stored > $value) {
-            $self->$method($stored - $value);
-            last;
-        }
-        else {
-            $value -= $stored;
-            $self->$method(0);
+    my $subtract = sprintf('%.0f', $value / 5);
+    SPEND: while (1) {
+        foreach my $type (shuffle FOOD_TYPES) {
+            my $method = $type."_stored";
+            my $stored = $self->$method;
+            if ($stored > $subtract) {
+                $self->$method($stored - $subtract);
+                $value -= $subtract;
+            }
+            else {
+                $value -= $stored;
+                $self->$method(0);
+            }
+            last SPEND if ($value <= 0);
+            $subtract = $value if ($subtract > $value);
         }
     }
+    return $self;
 }
 
 sub add_energy {
