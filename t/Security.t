@@ -66,7 +66,7 @@ ok($result->{result}{building}{id}, "built a security ministry");
 my $security = $empire->get_building('Lacuna::DB::Building::Security',$result->{result}{building}{id});
 $security->finish_upgrade;
 
-$result = $tester->post('security', 'view_spies', [$session_id, $security->id]);
+$result = $tester->post('security', 'view_prisoners', [$session_id, $security->id]);
 is(ref $result->{result}{prisoners}, 'ARRAY', "view prisoners");
 
 
