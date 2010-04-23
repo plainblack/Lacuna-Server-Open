@@ -1,7 +1,38 @@
 =head1 Security Methods
 
-Security is accessible via the URL C</security>.
+Security Ministry is accessible via the URL C</security>.
+
+Captured spies are detained at the security ministry.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+
+=head2 view_prisoners ( session_id, building_id, [ page_number ])
+
+Displays a list of the spies that have been captured.
+
+ {
+    "status" : { get_status() },
+    "prisoners" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "James Bond",
+            "sentence_expires" : "01 31 2010 13:09:05 +0600"
+        },
+        ...
+    ]
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the security ministry.
+
+=head3 page_number
+
+Defaults to 1. Each page contains 25 spies.
 
 =cut
