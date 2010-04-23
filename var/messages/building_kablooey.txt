@@ -1,0 +1,7 @@
+Upgrade Destroyed
+~~~
+Just as we were about to unveil the latest upgrade to our %s on %s, it was bombed. No one so far is claiming responsibility.
+
+With Much Sadness,
+
+Your Humble Assistant
