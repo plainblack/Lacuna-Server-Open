@@ -149,11 +149,8 @@ has determine_espionage => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $steal = 0;
-        my $sabotage = 0;
-        my @thieves;
-        my @saboteurs;
-        my @interceptors;
+        my $steal = my $sabotage = my $interception = my $rebel = my $hack = my $intel = 0;
+        my (@thieves, @saboteurs, @interceptors, @spies, @hackers, @rebels);
         my $spies = $self->simpledb->domain('spies')->search(
             where => {
                 on_body_id  => $self->id,
@@ -169,34 +166,48 @@ has determine_espionage => (
                 $steal += $spy->offense;
                 push @thieves, $spy;
             }
+            elsif ($spy->task eq 'Gather Intelligence') {
+                $intel += $spy->offense;
+                push @spies, $spy;
+            }
+            elsif ($spy->task eq 'Incite Rebellion') {
+                $rebel += $spy->offense;
+                push @rebels, $spy;
+            }
+            elsif ($spy->task eq 'Hack Networks') {
+                $hack += $spy->offense;
+                push @hackers, $spy;
+            }
             elsif ($spy->task eq 'Capture Spies') {
-                $steal -= $spy->defense;
-                $sabotage -= $spy->defense;
+                $interception += $spy->defense;
+                push @interceptors, $spy;
             }
         }
         $self->thieves(\@thieves);
-        $self->saboteurs(\@saboteurs);
-        $self->interceptors(\@interceptors);
         $self->theft_score( $steal );
+        $self->hackers(\@hackers);
+        $self->hack_score( $hack );
+        $self->rebels(\@rebels);
+        $self->rebel_score( $rebel );
+        $self->investigators(\@spies);
+        $self->intel_score( $intel );
+        $self->saboteurs(\@saboteurs);
         $self->sabotage_score( $sabotage );
+        $self->interceptors(\@interceptors);
+        $self->interception_score( $interception );
         return 1;
     },
 );
 
 sub kill_a_spy {
     my ($self, $spy, $interceptor) = @_;
-    $spy->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'spy_killed.txt',
-        params      => [$spy->name, $self->name],
-    );
     $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'we_killed_a_spy.txt',
         params      => [$self->name, $interceptor->name],
         from        => $interceptor->empire,
     );
-    $spy->delete;
+    $spy->kill($self);
 }
 
 sub capture_a_spy {
@@ -282,6 +293,81 @@ sub defeat_sabotage {
     }
 }
 
+sub defeat_rebellion {
+    my ($self) = @_;
+    if ($self->chance_of_rebellion > 0) {
+        my $event = randint(1,100);
+        my $spy = $self->rebels->[0];
+        my $interceptor = $self->interceptors->[0];
+        if ($event < 10) {
+            $self->rebel_score( $self->rebel_score - $spy->offense );
+            $self->kill_a_spy($spy, $interceptor);
+            $self->add_news(80,'The leader of the rebellion to overthrow %s was killed in a firefight today on %s.', $self->empire->name, $self->name);
+            delete $self->rebels->[0];
+        }
+        elsif ($event < 35) {
+            $self->rebel_score( $self->rebel_score - $spy->offense );
+            $self->capture_a_spy($spy, $interceptor);
+            $self->add_news(50,'Police say they have crushed the rebellion on %s by apprehending %s.', $self->name, $spy->name);
+            delete $self->rebels->[0];
+        }
+        else {
+            $self->miss_a_spy($spy, $interceptor);
+            $self->add_news(20,'The rebel leader, known as %s, is still eluding authorities on %s at this hour.', $spy->name, $self->name);
+        }
+    }
+}
+
+sub defeat_hack {
+    my ($self) = @_;
+    if ($self->chance_of_hack > 0) {
+        my $event = randint(1,100);
+        my $spy = $self->hackers->[0];
+        my $interceptor = $self->interceptors->[0];
+        if ($event < 5) {
+            $self->hack_score( $self->hack_score - $spy->offense );
+            $self->kill_a_spy($spy, $interceptor);
+            $self->add_news(60,'A suspected hacker, age '.randint(16,60).', was found dead in his home today on %s.', $self->name);
+            delete $self->hackers->[0];
+        }
+        elsif ($event < 30) {
+            $self->hack_score( $self->hack_score - $spy->offense );
+            $self->capture_a_spy($spy, $interceptor);
+            $self->add_news(30,'Alleged hacker %s is awaiting arraignment on %s today.', $spy->name, $self->name);
+            delete $self->hackers->[0];
+        }
+        else {
+            $self->miss_a_spy($spy, $interceptor);
+            $self->add_news(10,'Identity theft has become a real problem on %s.', $self->name);
+        }
+    }
+}
+
+sub defeat_intel {
+    my ($self) = @_;
+    if ($self->chance_of_intel > 0) {
+        my $event = randint(1,100);
+        my $spy = $self->investigators->[0];
+        my $interceptor = $self->interceptors->[0];
+        if ($event < 5) {
+            $self->intel_score( $self->intel_score - $spy->offense );
+            $self->kill_a_spy($spy, $interceptor);
+            $self->add_news(60,'A suspected spy known only as %s was killed in a struggle with police on %s today.', $spy->name, $self->name);
+            delete $self->investigators->[0];
+        }
+        elsif ($event < 15) {
+            $self->intel_score( $self->intel_score - $spy->offense );
+            $self->capture_a_spy($spy, $interceptor);
+            $self->add_news(30,'An individual is behing held for questioning on %s at this hour for looking suspicious.', $self->name);
+            delete $self->investigators->[0];
+        }
+        else {
+            $self->miss_a_spy($spy, $interceptor);
+            $self->add_news(10,'Corporate espionage has become a real problem on %s.', $self->name);
+        }
+    }
+}
+
 sub pick_a_spy_per_empire {
     my ($self, $spies) = @_;
     my %empires;
@@ -319,7 +405,7 @@ sub chance_of_sabotage {
     my $self = shift;
     $self->determine_espionage;
     my $chance = $self->sabotage_score - $self->interception_score;
-    return ($chance > 90) ? 90 : $chance;
+    return ($chance > 80) ? 80 : $chance;
 }
 
 sub check_sabotage {
@@ -333,6 +419,72 @@ has saboteurs => (
 );
 
 has sabotage_score => (
+    is      => 'rw',
+    default => 0,
+);
+
+sub chance_of_hack {
+    my $self = shift;
+    $self->determine_espionage;
+    my $chance = $self->hack_score - $self->interception_score;
+    return ($chance > 70) ? 70 : $chance;
+}
+
+sub check_hack {
+    my $self = shift;
+    return ($self->chance_of_hack > randint(1,100));
+}
+
+has hackers => (
+    is      => 'rw',
+    default => sub { [] },
+);
+
+has hack_score => (
+    is      => 'rw',
+    default => 0,
+);
+
+sub chance_of_rebellion {
+    my $self = shift;
+    $self->determine_espionage;
+    my $chance = $self->rebel_score - $self->interception_score;
+    return ($chance > 50) ? 50 : $chance;
+}
+
+sub check_rebellion {
+    my $self = shift;
+    return ($self->chance_of_rebellion > randint(1,100));
+}
+
+has rebels => (
+    is      => 'rw',
+    default => sub { [] },
+);
+
+has rebel_score => (
+    is      => 'rw',
+    default => 0,
+);
+
+sub chance_of_intel {
+    my $self = shift;
+    $self->determine_espionage;
+    my $chance = $self->intel_score - $self->interception_score;
+    return ($chance > 90) ? 90 : $chance;
+}
+
+sub check_intel {
+    my $self = shift;
+    return ($self->chance_of_intel > randint(1,100));
+}
+
+has investigators => (
+    is      => 'rw',
+    default => sub { [] },
+);
+
+has intel_score => (
     is      => 'rw',
     default => 0,
 );

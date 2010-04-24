@@ -61,6 +61,35 @@ sub assign {
     return $self;
 }
 
+sub kill {
+    my ($self, $body);
+    $body ||= $self->on_body;
+    $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'spy_killed.txt',
+        params      => [$self->name, $body->name],
+    );
+    $self->delete;
+}
+
+sub escape {
+    my ($self, $body);
+    $self->available_on(DateTime->now);
+    $self->task('Idle');
+    $self->put;
+    my $evil_empire = $self->on_body->empire;
+    $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'i_have_escaped.txt',
+        params      => [$evil_empire->name, $self->name],
+    );
+    $evil_empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'you_cant_hold_me.txt',
+        params      => [$self->name],
+    );
+}
+
 sub steal_a_building {
     my ($self, $building) = @_;
     my $body = $building->body;

@@ -1,0 +1,5 @@
+I'm Back!
+~~~
+I managed to break out of the %s prison. I'm ready for duty, put me to work.
+
+%s
