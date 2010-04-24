@@ -150,6 +150,7 @@ sub name_spy {
     Lacuna::Verify->new(content=>\$name, throws=>[1005, 'Invalid name for a spy.'])
         ->not_empty
         ->no_profanity
+        ->length_lt(31)
         ->no_restricted_chars;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
