@@ -61,5 +61,43 @@ sub assign {
     return $self;
 }
 
+sub steal_a_building {
+    my ($self, $building) = @_;
+    if ($building->level == 0) {
+        $self->from_body->add_free_build($building->class, 1);
+    }
+    else {
+        $self->from_body->add_free_upgrade($building->class, $building->level + 1);
+    }
+    $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'stole_a_building.txt',
+        params      => [$building->level + 1, $building->name, $self->name],
+    );
+}
+
+sub sabotage_a_building {
+    my ($self, $building) = @_;
+    $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'sabotage_report.txt',
+        params      => [$building->name, $building->body->name, $self->name],
+    );
+}
+
+sub sabotage_a_ship {
+    my ($self, $building, $type) = @_;
+    $type =~ s/_/ /g;
+    $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'sabotage_report.txt',
+        params      => [$type, $building->body->name, $self->name],
+    );
+}
+
+
+
+
+
 no Moose;
 __PACKAGE__->meta->make_immutable;

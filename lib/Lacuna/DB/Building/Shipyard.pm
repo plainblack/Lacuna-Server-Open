@@ -244,7 +244,7 @@ sub check_for_completed_ships {
                     $self->send_blow_up_a_ship($completed_ship->{type});
                     my $spies = $body->pick_a_spy_per_empire($body->saboteurs);
                     foreach my $spy (@{$spies}) {
-                        $self->send_sabotage_a_ship($spy, $completed_ship->{type});
+                        $spy->sabotage_a_ship($self, $completed_ship->{type});
                     }
                     $body->chance_of_sabotage( $body->chance_of_sabotage - 10);
                 }
@@ -277,16 +277,6 @@ sub check_for_completed_ships {
     $self->put if ($shipyard_changed);
 }
 
-
-sub send_sabotage_a_ship {
-    my ($self, $spy, $type) = @_;
-    $type =~ s/_/ /g;
-    $spy->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'sabotage_report.txt',
-        params      => [$type, $self->body->name, $spy->name],
-    );
-}
 
 sub send_blow_up_a_ship {
     my ($self, $type) = @_;

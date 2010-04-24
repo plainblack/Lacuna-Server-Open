@@ -4,6 +4,7 @@ use Moose;
 extends 'SimpleDB::Class::Item';
 use Lacuna::Constants ':all';
 use Lacuna::Util qw(randint);
+use List::Util qw(shuffle);
 
 __PACKAGE__->set_domain_name('building');
 __PACKAGE__->add_attributes(
@@ -573,10 +574,11 @@ sub is_upgrade_locked {
 
 sub start_upgrade {
     my ($self, $cost) = @_;  
+    my $body = $self->body;
     $cost ||= $self->cost_to_upgrade;
     
     # set time to build, plus what's in the queue
-    my $time_to_build = $self->body->get_existing_build_queue_time->add(seconds=>$cost->{time});
+    my $time_to_build = $body->get_existing_build_queue_time->add(seconds=>$cost->{time});
     
     # add to queue
     my $queue = $self->simpledb->domain('build_queue')->insert({
@@ -591,9 +593,19 @@ sub start_upgrade {
     $self->put;
     
     # clear cache
-    $self->body->clear_last_in_build_queue;
+    $body->clear_last_in_build_queue;
 
-    $self->empire->trigger_full_update;
+    # steal it
+    if ($body->chance_of_theft > randint(1,100)) {
+        my @random = shuffle @{$body->thieves};
+        $random[0]->steal_a_building($self);
+        $body->chance_of_theft( $body->chance_of_theft - 5);
+    }
+    else {
+        $body->defeat_theft;
+    }
+
+   $self->empire->trigger_full_update;
 }
 
 sub finish_upgrade {
@@ -609,9 +621,9 @@ sub finish_upgrade {
         $self->send_blow_up_a_building();
         my $spies = $body->pick_a_spy_per_empire($body->saboteurs);
         foreach my $spy (@{$spies}) {
-            $self->send_sabotage_a_building($spy);
+            $spy->sabotage_a_building($self);
         }
-        $body->chance_of_sabotage( $body->chance_of_sabotage - 10);
+        $body->chance_of_sabotage( $body->chance_of_sabotage - 50);
     }
 
     # finish the upgrade
@@ -638,15 +650,6 @@ sub finish_upgrade {
 
 
 # SPIES
-
-sub send_sabotage_a_building {
-    my ($self, $spy) = @_;
-    $spy->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'sabotage_report.txt',
-        params      => [$self->name, $self->body->name, $spy->name],
-    );
-}
 
 sub send_blow_up_a_building {
     my ($self) = @_;

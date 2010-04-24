@@ -149,9 +149,9 @@ has determine_espionage => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $hijack = 0;
+        my $steal = 0;
         my $sabotage = 0;
-        my @hijackers;
+        my @thieves;
         my @saboteurs;
         my @interceptors;
         my $spies = $self->simpledb->domain('spies')->search(
@@ -161,23 +161,23 @@ has determine_espionage => (
             }
         );
         while (my $spy = $spies->next) {
-            if ($spy->task eq 'Sabotage') {
+            if ($spy->task eq 'Sabotage Infrastructure') {
                 $sabotage += $spy->offense;
                 push @saboteurs, $spy;
             }
-            elsif ($spy->task eq 'Hijack Ships') {
-                $hijack += $spy->offense;
-                push @hijackers, $spy;
+            elsif ($spy->task eq 'Appropriate Technology') {
+                $steal += $spy->offense;
+                push @thieves, $spy;
             }
             elsif ($spy->task eq 'Capture Spies') {
-                $hijack -= $spy->defense;
+                $steal -= $spy->defense;
                 $sabotage -= $spy->defense;
             }
         }
-        $self->hijackers(\@hijackers);
+        $self->thieves(\@thieves);
         $self->saboteurs(\@saboteurs);
         $self->interceptors(\@interceptors);
-        $self->chance_of_hijack(($hijack > 90) ? 90 : $hijack );
+        $self->chance_of_theft(($steal > 90) ? 90 : $steal );
         $self->chance_of_sabotage(($sabotage > 90) ? 90 : $sabotage );
         return 1;
     },
@@ -232,6 +232,31 @@ sub miss_a_spy {
     );
 }
 
+sub defeat_theft {
+    my ($self) = @_;
+    if ($self->chance_of_theft > 0) {
+        my $event = randint(1,100);
+        my $spy = $self->thieves->[0];
+        my $interceptor = $self->interceptors->[0];
+        if ($event < 5) {
+            $self->chance_of_theft( $self->chance_of_theft - $spy->offense );
+            $self->kill_a_spy($spy, $interceptor);
+            delete $self->thieves->[0];
+            $self->add_news(70,'%s police caught and killed a thief on %s during the commission of the crime.', $self->empire->name, $self->name);
+        }
+        elsif ($event < 40) {
+            $self->chance_of_theft( $self->chance_of_theft - $spy->offense );
+            $self->capture_a_spy($spy, $interceptor);
+            delete $self->thieves->[0];
+            $self->add_news(40,'%s announced the incarceration of a thief on %s today.', $self->empire->name, $self->name);
+        }
+        else {
+            $self->miss_a_spy($spy, $interceptor);
+            $self->add_news(20,'A thief evaded %s authorities on %s. Citizens are warned to lock their doors.', $self->empire->name, $self->name);
+        }
+    }
+}
+
 sub defeat_sabotage {
     my ($self) = @_;
     if ($self->chance_of_sabotage > 0) {
@@ -248,7 +273,7 @@ sub defeat_sabotage {
             $self->chance_of_sabotage( $self->chance_of_sabotage - $spy->offense );
             $self->capture_a_spy($spy, $interceptor);
             delete $self->saboteurs->[0];
-            $self->add_news(40,'A saboteur was aprehended on %s today by %s authorities.', $self->empire->name, $self->name);
+            $self->add_news(40,'A saboteur was apprehended on %s today by %s authorities.', $self->name, $self->empire->name);
         }
         else {
             $self->miss_a_spy($spy, $interceptor);
@@ -268,12 +293,12 @@ sub pick_a_spy_per_empire {
     return values %empires;
 }
 
-has chance_of_hijack => (
+has chance_of_theft => (
     is      => 'rw',
     default => 0,
 );
 
-has hijackers => (
+has thieves => (
     is      => 'rw',
     default => sub { [] },
 );
