@@ -167,7 +167,7 @@ has determine_espionage => (
                 push @thieves, $spy;
             }
             elsif ($spy->task eq 'Gather Intelligence') {
-                $intel += $spy->offense;
+                $intel += $spy->offense unless ($spy->empire_id eq $self->empire_id);
                 push @spies, $spy;
             }
             elsif ($spy->task eq 'Incite Rebellion') {
@@ -175,7 +175,7 @@ has determine_espionage => (
                 push @rebels, $spy;
             }
             elsif ($spy->task eq 'Hack Networks') {
-                $hack += $spy->offense;
+                $hack += $spy->offense unless ($spy->empire_id eq $self->empire_id);
                 push @hackers, $spy;
             }
             elsif ($spy->task eq 'Capture Spies') {
@@ -321,9 +321,10 @@ sub defeat_rebellion {
 sub defeat_hack {
     my ($self) = @_;
     if ($self->chance_of_hack > 0) {
-        my $event = randint(1,100);
         my $spy = $self->hackers->[0];
+        return undef if ($spy->empire_id eq $self->empire_id); # don't catch ourselves
         my $interceptor = $self->interceptors->[0];
+        my $event = randint(1,100);
         if ($event < 5) {
             $self->hack_score( $self->hack_score - $spy->offense );
             $self->kill_a_spy($spy, $interceptor);
@@ -346,9 +347,10 @@ sub defeat_hack {
 sub defeat_intel {
     my ($self) = @_;
     if ($self->chance_of_intel > 0) {
-        my $event = randint(1,100);
         my $spy = $self->investigators->[0];
+        return undef if ($spy->empire_id eq $self->empire_id); # don't catch ourselves
         my $interceptor = $self->interceptors->[0];
+        my $event = randint(1,100);
         if ($event < 5) {
             $self->intel_score( $self->intel_score - $spy->offense );
             $self->kill_a_spy($spy, $interceptor);

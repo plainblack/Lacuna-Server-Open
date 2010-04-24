@@ -3,6 +3,7 @@ use lib '/data/Lacuna-Server/lib';
 use Lacuna::DB;
 use Lacuna;
 use List::Util qw(shuffle);
+use Lacuna::Util qw(randint);
 
 my $config = Lacuna->config;
 my $age = DateTime->now->subtract(hours=>24);
@@ -15,6 +16,7 @@ my $planets = $db->domain('Lacuna::DB::Body::Planet')->search(
 );
 
 while (my $planet = $planets->next) {
+    $planet->determine_espionage;
     ship_report($planet);
     travel_report($planet);
     economic_report($planet);
@@ -33,6 +35,59 @@ sub random_spy {
     my $spies = shift;
     my @random = shuffle @{$spies};
     return $random[0];
+}
+
+sub hack_local_probes {
+    my $planet = shift;
+    my $hacker = random_spy($planet->hackers);
+    return undef unless defined $hacker;
+    my $probe = $db->domain('probes')->search(where=>{star_id => $planet->star_id, empire_id => ['!=', $hacker->empire_id] }, limit=>1)->next;
+    return undef unless defined $probe;
+    if ($hacker->empire_id eq $planet->empire_id) {
+        if ($hacker->defense > randint(1,100)) {
+            $probe->destroy;
+            $hacker->empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'we_destroyed_a_probe.txt',
+                params      => [$probe->star->name, $hacker->name],
+            );
+        }
+    }
+    else {
+        if ($planet->check_hack) {
+            $probe->destroy;
+            $hacker->empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'we_destroyed_a_probe.txt',
+                params      => [$probe->star->name, $probe->empire->name, $hacker->name],
+            );
+            $planet->interception_score( $planet->interception_score + 5);
+        }
+        else {
+            $planet->defeat_hack;
+        }
+    }
+}
+
+sub hack_observatory_probes {
+    my $planet = shift;
+    my $hacker = random_spy($planet->hackers);
+    return undef unless defined $hacker;
+    return undef if ($hacker->empire_id eq $planet->empire_id);
+    my $probe = $db->domain('probes')->search(where=>{body_id => $planet->id }, limit=>1)->next;
+    return undef unless defined $probe;
+    if ($planet->check_hack) {
+        $probe->destroy;
+        $hacker->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'we_destroyed_a_probe.txt',
+            params      => [$probe->star->name, $hacker->name],
+        );
+        $planet->interception_score( $planet->interception_score + 5);
+    }
+    else {
+        $planet->defeat_hack;
+    }
 }
 
 sub travel_report {
@@ -168,7 +223,7 @@ sub interrogation_report {
     my $planet = shift;
     my $interrogator = random_spy($planet->investigator);
     return undef unless (defined $interrogator && $interrogator->empire_id eq $planet->empire_id);
-    my $suspect = $db->domain('spies')->search(where=>{on_body_id=>$planet->id, task=>'Captured', 'itemName()' => ['!=','None']}, order_by=>'itemName()')->next;
+    my $suspect = $db->domain('spies')->search(where=>{on_body_id=>$planet->id, task=>'Captured', 'itemName()' => ['!=','None']}, order_by=>'itemName()', limit=>1)->next;
     return undef unless (defined $suspect);
     if ($interrogator->offense > $suspect->defense) {
         my $suspect_home = $suspect->from_body;

@@ -1,0 +1,7 @@
+Lost Contact With Probe
+~~~
+We have just lost contact with the probe tasked to the %s system. We have to assume it has been destroyed by enemy forces.
+
+Regards,
+
+Your Humble Assistant
