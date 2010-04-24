@@ -63,6 +63,7 @@ sub assign {
 
 sub steal_a_building {
     my ($self, $building) = @_;
+    my $body = $building->body;
     if ($building->level == 0) {
         $self->from_body->add_free_build($building->class, 1);
     }
@@ -74,7 +75,7 @@ sub steal_a_building {
         filename    => 'building_theft_report.txt',
         params      => [$building->level + 1, $building->name, $self->name],
     );
-    $building->body->chance_of_theft( $building->body->chance_of_theft - 5);
+    $body->interception_score ( $body->interception_score + 5);
 }
 
 sub steal_a_ship {
@@ -108,7 +109,8 @@ sub steal_a_ship {
         params      => [$type, $body->name],
     );
     $body->add_news(60,'In a daring escape a thief absconded with a %s from %s today.', $type, $body->name);
-    $body->chance_of_theft( $body->chance_of_theft - $self->offense - 10);
+    $body->theft_score( $body->theft_score - $self->offense);
+    $body->interception_score ( $body->interception_score + 10);
 }
 
 sub sabotage_a_building {
@@ -119,7 +121,7 @@ sub sabotage_a_building {
         filename    => 'sabotage_report.txt',
         params      => [$building->name, $body->name, $self->name],
     );
-    $body->chance_of_sabotage( $body->chance_of_sabotage - 20);
+    $body->interception_score( $body->interception_score + 20);
 }
 
 sub sabotage_a_ship {
@@ -131,7 +133,7 @@ sub sabotage_a_ship {
         filename    => 'sabotage_report.txt',
         params      => [$type, $body->name, $self->name],
     );
-    $body->chance_of_sabotage( $body->chance_of_sabotage - 10);
+    $body->interception_score( $body->interception_score + 10);
 }
 
 

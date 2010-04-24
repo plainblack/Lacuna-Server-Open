@@ -177,8 +177,8 @@ has determine_espionage => (
         $self->thieves(\@thieves);
         $self->saboteurs(\@saboteurs);
         $self->interceptors(\@interceptors);
-        $self->chance_of_theft(($steal > 90) ? 90 : $steal );
-        $self->chance_of_sabotage(($sabotage > 90) ? 90 : $sabotage );
+        $self->theft_score( $steal );
+        $self->sabotage_score( $sabotage );
         return 1;
     },
 );
@@ -239,13 +239,13 @@ sub defeat_theft {
         my $spy = $self->thieves->[0];
         my $interceptor = $self->interceptors->[0];
         if ($event < 5) {
-            $self->chance_of_theft( $self->chance_of_theft - $spy->offense );
+            $self->theft_score( $self->theft_score - $spy->offense );
             $self->kill_a_spy($spy, $interceptor);
             delete $self->thieves->[0];
             $self->add_news(70,'%s police caught and killed a thief on %s during the commission of the crime.', $self->empire->name, $self->name);
         }
         elsif ($event < 40) {
-            $self->chance_of_theft( $self->chance_of_theft - $spy->offense );
+            $self->theft_score( $self->theft_score - $spy->offense );
             $self->capture_a_spy($spy, $interceptor);
             delete $self->thieves->[0];
             $self->add_news(40,'%s announced the incarceration of a thief on %s today.', $self->empire->name, $self->name);
@@ -264,13 +264,13 @@ sub defeat_sabotage {
         my $spy = $self->saboteurs->[0];
         my $interceptor = $self->interceptors->[0];
         if ($event < 10) {
-            $self->chance_of_sabotage( $self->chance_of_sabotage - $spy->offense );
+            $self->sabotage_score( $self->sabotage_score - $spy->offense );
             $self->kill_a_spy($spy, $interceptor);
             delete $self->saboteurs->[0];
             $self->add_news(70,'%s told us that a lone saboteur was killed on %s before he could carry out his plot.', $self->empire->name, $self->name);
         }
         elsif ($event < 50) {
-            $self->chance_of_sabotage( $self->chance_of_sabotage - $spy->offense );
+            $self->sabotage_score( $self->sabotage_score - $spy->offense );
             $self->capture_a_spy($spy, $interceptor);
             delete $self->saboteurs->[0];
             $self->add_news(40,'A saboteur was apprehended on %s today by %s authorities.', $self->name, $self->empire->name);
@@ -293,7 +293,19 @@ sub pick_a_spy_per_empire {
     return values %empires;
 }
 
-has chance_of_theft => (
+sub chance_of_theft {
+    my $self = shift;
+    $self->determine_espionage;
+    my $chance = $self->theft_score - $self->interception_score;
+    return ($chance > 90) ? 90 : $chance;
+}
+
+sub check_theft {
+    my $self = shift;
+    return ($self->chance_of_theft > randint(1,100));
+}
+
+has theft_score => (
     is      => 'rw',
     default => 0,
 );
@@ -303,12 +315,29 @@ has thieves => (
     default => sub { [] },
 );
 
+sub chance_of_sabotage {
+    my $self = shift;
+    $self->determine_espionage;
+    my $chance = $self->sabotage_score - $self->interception_score;
+    return ($chance > 90) ? 90 : $chance;
+}
+
+sub check_sabotage {
+    my $self = shift;
+    return ($self->chance_of_sabotage > randint(1,100));
+}
+
 has saboteurs => (
     is      => 'rw',
     default => sub { [] },
 );
 
-has chance_of_sabotage => (
+has sabotage_score => (
+    is      => 'rw',
+    default => 0,
+);
+
+has interception_score => (
     is      => 'rw',
     default => 0,
 );

@@ -54,7 +54,7 @@ sub send_spy_pod {
     $self->put;
 
     # steal it
-    if ($body->chance_of_theft > randint(1,100)) {
+    if ($body->check_theft) {
         my @random = shuffle @{$body->thieves};
         $spy = pop @random;
         $body->thieves(\@random);

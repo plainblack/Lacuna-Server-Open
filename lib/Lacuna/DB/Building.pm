@@ -3,7 +3,6 @@ package Lacuna::DB::Building;
 use Moose;
 extends 'SimpleDB::Class::Item';
 use Lacuna::Constants ':all';
-use Lacuna::Util qw(randint);
 use List::Util qw(shuffle);
 
 __PACKAGE__->set_domain_name('building');
@@ -597,7 +596,7 @@ sub start_upgrade {
     $body->clear_last_in_build_queue;
 
     # steal it
-    if ($body->chance_of_theft > randint(1,100)) {
+    if ($body->checkt_theft) {
         my @random = shuffle @{$body->thieves};
         $random[0]->steal_a_building($self);
     }
@@ -612,10 +611,9 @@ sub finish_upgrade {
     my ($self) = @_;
     $self->build_queue->delete;
     my $body = $self->body;
-    $body->determine_espionage;
     
     # blow it up
-    if ($self->level > 0 && $body->chance_of_sabotage > randint(1,100)) {
+    if ($self->level > 0 && $body->check_sabotage) {
         $self->build_queue_id('');
         $self->put;
         $self->send_blow_up_a_building();

@@ -2,7 +2,7 @@ package Lacuna::DB::Building::Shipyard;
 
 use Moose;
 extends 'Lacuna::DB::Building';
-use Lacuna::Util qw(to_seconds format_date randint);
+use Lacuna::Util qw(to_seconds format_date);
 use DateTime;
 
 __PACKAGE__->add_attributes(
@@ -240,7 +240,7 @@ sub check_for_completed_ships {
             if (!$spaceport->is_full) {
                 $body->determine_espionage;
                 #deal with saboteurs    
-                if ($body->chance_of_sabotage > randint(1,100)) {
+                if ($body->check_sabotage) {
                     $self->send_blow_up_a_ship($completed_ship->{type});
                     my $spies = $body->pick_a_spy_per_empire($body->saboteurs);
                     foreach my $spy (@{$spies}) {
