@@ -246,7 +246,6 @@ sub check_for_completed_ships {
                     foreach my $spy (@{$spies}) {
                         $spy->sabotage_a_ship($self, $completed_ship->{type});
                     }
-                    $body->chance_of_sabotage( $body->chance_of_sabotage - 10);
                 }
                 # add the ship
                 else {
@@ -281,12 +280,13 @@ sub check_for_completed_ships {
 sub send_blow_up_a_ship {
     my ($self, $type) = @_;
     $type =~ s/_/ /g;
+    my $body = $self->body;
     $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'ship_blew_up_at_port.txt',
-        params      => [$type, $self->body->name],
+        params      => [$type, $body->name],
     );
-    $self->body->add_news(100,'Officials in %s today are investigating the explosion of a %s at the Space Port.', $self->body->name, $type);
+    $body->add_news(100,'Officials in %s today are investigating the explosion of a %s at the Space Port.', $body->name, $type);
 }
 
 use constant controller_class => 'Lacuna::Building::Shipyard';

@@ -575,6 +575,7 @@ sub is_upgrade_locked {
 sub start_upgrade {
     my ($self, $cost) = @_;  
     my $body = $self->body;
+    $body->determine_espionage;
     $cost ||= $self->cost_to_upgrade;
     
     # set time to build, plus what's in the queue
@@ -599,7 +600,6 @@ sub start_upgrade {
     if ($body->chance_of_theft > randint(1,100)) {
         my @random = shuffle @{$body->thieves};
         $random[0]->steal_a_building($self);
-        $body->chance_of_theft( $body->chance_of_theft - 5);
     }
     else {
         $body->defeat_theft;
@@ -623,7 +623,6 @@ sub finish_upgrade {
         foreach my $spy (@{$spies}) {
             $spy->sabotage_a_building($self);
         }
-        $body->chance_of_sabotage( $body->chance_of_sabotage - 50);
     }
 
     # finish the upgrade

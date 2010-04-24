@@ -3,6 +3,7 @@ package Lacuna::DB::Building::SpacePort;
 use Moose;
 extends 'Lacuna::DB::Building';
 use Lacuna::Constants qw(SHIP_TYPES);
+use List::Util qw(shuffle);
 
 __PACKAGE__->add_attributes(
     probe_count                         => { isa => 'Int', default => 0 },
@@ -46,24 +47,38 @@ sub send_probe {
 }
 
 sub send_spy_pod {
-    my ($self, $body, $spy) = @_;
+    my ($self, $target_body, $spy) = @_;
+    my $body = $self->body;
+    $body->determine_espionage;
     $self->spy_pod_count($self->spy_pod_count - 1);
     $self->put;
-    my $duration = $self->calculate_seconds_from_body_to_body('spy_pod', $self->body, $body);
-    my $date = DateTime->now->add(seconds=>$duration);
-    $spy->available_on($date->clone);
-    $spy->on_body_id($body->id);
-    $spy->task('Travelling');
-    $spy->put;
-    return Lacuna::DB::TravelQueue->send(
-        simpledb        => $self->simpledb,
-        body            => $self->body,
-        foreign_body    => $body,
-        payload         => { spy_id => $spy->id },
-        ship_type       => 'spy_pod',
-        direction       => 'outgoing',
-        date_arrives    => $date,
-    );
+
+    # steal it
+    if ($body->chance_of_theft > randint(1,100)) {
+        my @random = shuffle @{$body->thieves};
+        $spy = pop @random;
+        $body->thieves(\@random);
+        $spy->steal_a_ship($body,'spy_pod');
+    }
+    else {
+        my $duration = $self->calculate_seconds_from_body_to_body('spy_pod', $body, $target_body);
+        my $date = DateTime->now->add(seconds=>$duration);
+        $spy->available_on($date->clone);
+        $spy->on_body_id($target_body->id);
+        $spy->task('Travelling');
+        $spy->put;
+        return Lacuna::DB::TravelQueue->send(
+            simpledb        => $self->simpledb,
+            body            => $body,
+            foreign_body    => $target_body,
+            payload         => { spies => [$spy->id] },
+            ship_type       => 'spy_pod',
+            direction       => 'outgoing',
+            date_arrives    => $date,
+        );
+        $body->defeat_theft;
+    }
+
 }
 
 sub calculate_distance_from_star_to_star {

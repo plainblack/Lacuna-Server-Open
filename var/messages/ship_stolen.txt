@@ -1,0 +1,7 @@
+Ship Stolen
+~~~
+A %s was at the Space Port, ready to go, but sometime before the launch the pilot was replaced by a foreign agent. Unfortunately he got away with the ship.
+
+Regards,
+
+%s
