@@ -520,12 +520,12 @@ sub time_cost_reduction_bonus {
 
 sub has_free_build {
     my $self = shift;
-    return ($self->level == 0 && $self->body->get_free_build($self->class)) ? 1 : 0;
+    return ($self->level == 0 && $self->body->get_freebie($self->class) == 1) ? 1 : 0;
 }
 
 sub has_free_upgrade {
     my $self = shift;
-    return ($self->body->get_free_upgrade($self->class) == $self->level + 1) ? 1 : 0;
+    return ($self->body->get_freebie($self->class) == $self->level + 1) ? 1 : 0;
 }
 
 sub cost_to_upgrade {

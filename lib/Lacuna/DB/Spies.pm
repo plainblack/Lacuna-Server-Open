@@ -64,12 +64,7 @@ sub assign {
 sub steal_a_building {
     my ($self, $building) = @_;
     my $body = $building->body;
-    if ($building->level == 0) {
-        $self->from_body->add_free_build($building->class, 1);
-    }
-    else {
-        $self->from_body->add_free_upgrade($building->class, $building->level + 1);
-    }
+    $self->from_body->add_freebie($building->class, $building->level + 1);
     $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'building_theft_report.txt',

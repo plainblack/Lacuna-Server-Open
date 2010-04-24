@@ -1,8 +1,8 @@
 =head1 Planetary Command Methods
 
-Planetary Command is accessible via the URL C</planetarycommand>.
+Planetary Command Center is accessible via the URL C</planetarycommand>.
 
-The Planetary Command, or just Command, is the hub of your empire on a planet. It gives you the resources and storage you need to get a foothold on a planet.
+The Planetary Command Center (PCC), or just Command, is the hub of your empire on a planet. It gives you the resources and storage you need to get a foothold on a planet.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
@@ -50,5 +50,27 @@ Command extends the view method to include a C<planet> section.
         "water_capacity" : 51050
     }
  }
+
+
+=head2 view_freebies ( session_id, building_id )
+
+Freebies are buildings you can build for free. You can get them from contests, tutorials, and from spy missions. You can only have one freebie of each building type at once. And you can only have 10 freebies queued up at once. You must either spend them, or lose them.
+
+ {
+    "freebies" : {
+        "Subspace Transporter" : 1,
+        "Wheat Farm" : 4,
+    },
+    "status" : { get_status() }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the PCC.
+
 
 =cut

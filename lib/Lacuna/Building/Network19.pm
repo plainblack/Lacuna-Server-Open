@@ -16,9 +16,6 @@ sub view_news {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
-    if ($building->class ne 'Lacuna::DB::Building::Network19') {
-        confess [1002, 'Building is not a Network 19 Affilliate.'];
-    }
     my $body = $building->body;
     my @all = ($body->zone, $body->adjacent_zones);
     my @zones;

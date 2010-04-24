@@ -350,44 +350,23 @@ has interceptors => (
 
 
 # FREEBIES
-sub get_free_upgrade {
+sub get_freebie {
     my ($self, $class) = @_;
-    return $self->freebies->{upgrades}{$class} || 0;
+    return $self->freebies->{$class} || 0;
 }
 
-sub add_free_upgrade {
+sub add_freebie {
     my ($self, $class, $level) = @_;
     my $freebies = $self->freebies;
-    $freebies->{upgrades}{$class} = $level;
+    $freebies->{$class} = $level;
     $self->freebies($freebies);
     return $self;
 }
 
-sub spend_free_upgrade {
+sub spend_freebie {
     my ($self, $class) = @_;
     my $freebies = $self->freebies;
-    delete $freebies->{upgrades}{$class};
-    $self->freebies($freebies);
-    return $self;
-}
-
-sub get_free_build {
-    my ($self, $class) = @_;
-    return $self->freebies->{builds}{$class} || 0;
-}
-
-sub add_free_build {
-    my ($self, $class, $level) = @_;
-    my $freebies = $self->freebies;
-    $freebies->{builds}{$class} = $level;
-    $self->freebies($freebies);
-    return $self;
-}
-
-sub spend_free_build {
-    my ($self, $class) = @_;
-    my $freebies = $self->freebies;
-    delete $freebies->{builds}{$class};
+    delete $freebies->{$class};
     $self->freebies($freebies);
     return $self;
 }

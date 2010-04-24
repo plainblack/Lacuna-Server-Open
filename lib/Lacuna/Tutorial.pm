@@ -48,7 +48,7 @@ sub explore_the_ui {
     if ($finish) {
         if ($home->name ne $empire->tutorial_scratch) {
             $empire->add_medal('pleased_to_meet_you');
-            $home->add_free_build('Lacuna::DB::Building::Food::Farm::Malcud', 1)->put;
+            $home->add_freebie('Lacuna::DB::Building::Food::Farm::Malcud', 1)->put;
             $self->start('get_food');
             return undef;
         }
@@ -165,7 +165,7 @@ sub pawn {
     if ($finish) {
         my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Intelligence')->next;
         if (defined $building && $building->level >= 1) {
-            $home->add_free_upgrade('Lacuna::DB::Building::Intelligence', 2)->put;
+            $home->add_freebie('Lacuna::DB::Building::Intelligence', 2)->put;
             $building->train_spy;
             $self->start('counter_spy');
             return undef;
@@ -215,7 +215,7 @@ sub explore {
     my $empire = $self->empire;
     if ($finish) {
         if ($empire->count_probed_stars > 1) {
-            $empire->home_planet->add_free_build('Lacuna::DB::Building::Transporter', 1)->put;
+            $empire->home_planet->add_freebie('Lacuna::DB::Building::Transporter', 1)->put;
             $self->start('the_end');
             return undef;
         }
@@ -367,7 +367,7 @@ sub fool {
     my $home = $empire->home_planet;
     if ($finish) {
         if ($home->food_hour >= $empire->tutorial_scratch) {
-            $home->add_free_upgrade('Lacuna::DB::Building::Food::Reserve', 2)->put;
+            $home->add_freebie('Lacuna::DB::Building::Food::Reserve', 2)->put;
             $empire->add_essentia(35)->put;
             $self->start('essentia');
             return undef;
@@ -405,7 +405,7 @@ sub energy {
     my $home = $empire->home_planet;
     if ($finish) {
         if ($home->energy_hour >= $empire->tutorial_scratch) {
-            $home->add_free_upgrade('Lacuna::DB::Building::Energy::Reserve', 2)->put;
+            $home->add_freebie('Lacuna::DB::Building::Energy::Reserve', 2)->put;
             $self->start('the_300');
             return undef;
         }
@@ -427,8 +427,8 @@ sub the_300 {
     my $home = $empire->home_planet;
     if ($finish) {
         if ($home->ore_hour >= 50 && $home->water_hour >= 50) {
-            $home->add_free_upgrade('Lacuna::DB::Building::Ore::Storage', 2)
-                ->add_free_upgrade('Lacuna::DB::Building::Water::Storage', 2)
+            $home->add_freebie('Lacuna::DB::Building::Ore::Storage', 2)
+                ->add_freebie('Lacuna::DB::Building::Water::Storage', 2)
                 ->put;
             $self->start('news');
             return undef;
