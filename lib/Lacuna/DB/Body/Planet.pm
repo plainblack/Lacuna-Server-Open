@@ -1247,18 +1247,25 @@ sub add_rutile {
 
 sub spend_ore {
     my ($self, $value) = @_;
-    foreach my $type (shuffle ORE_TYPES) {
-        my $method = $type."_stored";
-        my $stored = $self->$method;
-        if ($stored > $value) {
-            $self->$method($stored - $value);
-            last;
+    my $subtract = sprintf('%.0f', $value / 5);
+    SPEND: while (1) {
+        foreach my $type (shuffle ORE_TYPES) {
+            my $method = $type."_stored";
+            my $stored = $self->$method;
+            if ($stored > $subtract) {
+                $self->$method($stored - $subtract);
+                $value -= $subtract;
+            }
+            else {
+                $value -= $stored;
+                $self->$method(0);
+            }
+            last SPEND if ($value <= 0);
+            $subtract = $value if ($subtract > $value);
         }
-        else {
-            $value -= $stored;
-            $self->$method(0);
-        }
+        last SPEND if ($subtract <= 0); # prevent an infinite loop scenario
     }
+    return $self;
 }
 
 sub add_beetle {
