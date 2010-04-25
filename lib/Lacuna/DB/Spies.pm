@@ -103,6 +103,7 @@ sub turn {
         filename    => 'new_recruit.txt',
         params      => [$self->empire->name, $self->name, $rebel->name],
     );
+    # could be abused to get lots of extra spies, may have to add a check for that.
     $self->task('Idle');
     $self->empire_id($rebel->empire_id);
     $self->from_body_id($rebel->from_body_id);
