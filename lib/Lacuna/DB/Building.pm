@@ -329,7 +329,7 @@ sub mining_production_bonus {
     my $refinery = $self->body->refinery;
     my $refinery_bonus = (defined $refinery) ? $refinery->level * 5 : 0;
     my $empire = $self->empire;
-    my $boost = (DateTime->now < $empire->energy_boost) ? 25 : 0;
+    my $boost = (DateTime->now < $empire->ore_boost) ? 25 : 0;
     return (100 + $boost + $refinery_bonus + $empire->species->mining_affinity * 3) / 100;
 }
 

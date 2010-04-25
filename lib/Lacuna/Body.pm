@@ -135,7 +135,7 @@ sub get_buildable {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(rename get_build_queue get_buildings get_buildable));
+__PACKAGE__->register_rpc_method_names(qw(rename get_build_queue get_buildings get_buildable get_body));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
