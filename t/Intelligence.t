@@ -113,7 +113,7 @@ $tester->db->domain('spies')->insert({
 sleep 2;
 
 $result = $tester->post('spaceport', 'send_spy_pod', [$session_id, $home->id, {body_name=>'Lacuna'}]);
-ok($result->{result}{spy_pod}{date_arrives}, "send a spy");
+is($result->{error}{code}, 1013, "leave isolationsts alone");
 
 
 END {
