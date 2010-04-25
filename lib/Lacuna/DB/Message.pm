@@ -20,6 +20,7 @@ __PACKAGE__->add_attributes(
     has_read        => { isa => 'Str', default=>0 },
     has_replied     => { isa => 'Str', default=>0 },
     has_archived    => { isa => 'Str', default=>0 },
+    attachments     => { isa => 'HashRef' },
 );
 
 __PACKAGE__->belongs_to('original_message', 'Lacuna::DB::Message', 'in_reply_to');
@@ -49,6 +50,7 @@ sub send {
         to_name     => $params{to}->name,
         recipients  => $recipients,
         in_reply_to => $params{in_reply_to},
+        attachments => $params{attachments},
     );
     $self->put;
     if (exists $params{in_reply_to} && defined $params{in_reply_to} && $params{in_reply_to} ne '') {

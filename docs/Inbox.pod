@@ -98,6 +98,32 @@ Retrieves a message. Marks it read if it hasn't been already.
         "in_reply_to" : "",
         "recipients" : ["John Stewart"],
         "tags" : ["Correspondence"],
+        "attachments" : { # no more than one of each type per email
+            "image" : {
+                "url" : "http://www.example.com/path/image.jpg",
+                "title" : "Some Title",
+                "link" : "http://www.lacunaexpanse.com/", # optional link to somewhere
+            "link" : {
+                "url" : "http://www.lacunaexpanse.com/",
+                "label" : "The Lacuna Expanse Website"
+            }
+            "table" : [
+                [ "Hostname", "IP Address" ], # first row is always a header
+                [ "example.lacunaexpanse.com", "192.168.1.24" ],
+                ...
+            ],
+            "map" : {
+                "surface" : "surface-6",
+                "buildings" : [
+                    {
+                        "x" : -3,
+                        "y" : 4,
+                        "image" : "apples4"
+                    }
+                    ...
+                ]
+            }
+        }
     },
     status  => { get_status() }
  }

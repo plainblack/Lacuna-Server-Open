@@ -42,6 +42,7 @@ sub read_message {
             in_reply_to => $message->in_reply_to,
             recipients  => $message->recipients,
             tags        => $message->tags,
+            attachments => $message->attachments,
         },
     };
 }
