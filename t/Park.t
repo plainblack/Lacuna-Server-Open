@@ -6,15 +6,41 @@ use 5.010;
 
 use TestHelper;
 my $tester = TestHelper->new->generate_test_empire;
-my $db = $tester->db;
-my $empire = $tester->empire;
 my $session_id = $tester->session->id;
-
-my $command = $empire->home_planet->command;
-$command->level(5);
-$command->put;
+my $empire = $tester->empire;
+my $home = $empire->home_planet;
+my $db = $tester->db;
 
 my $result;
+
+my $uni = Lacuna::DB::Building::University->new(
+    simpledb        => $tester->db,
+    x               => 0,
+    y               => -1,
+    class           => 'Lacuna::DB::Building::University',
+    date_created    => DateTime->now,
+    body_id         => $home->id,
+    body            => $home,
+    empire_id       => $empire->id,
+    empire          => $empire,
+    level           => 5,
+);
+$home->build_building($uni);
+$uni->finish_upgrade;
+
+$home->ore_capacity(500000);
+$home->energy_capacity(500000);
+$home->food_capacity(500000);
+$home->water_capacity(500000);
+$home->bauxite_stored(500000);
+$home->energy_stored(500000);
+$home->water_stored(500000);
+$home->energy_hour(500000);
+$home->algae_production_hour(500000);
+$home->water_hour(500000);
+$home->ore_hour(500000);
+$home->needs_recalc(0);
+$home->put;
 
 $result = $tester->post('park', 'build', [$session_id, $empire->home_planet_id, 3, 3]);
 
