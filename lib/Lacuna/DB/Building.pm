@@ -596,7 +596,7 @@ sub start_upgrade {
     $body->clear_last_in_build_queue;
 
     # steal it
-    if ($body->checkt_theft) {
+    if ($body->check_theft) {
         my @random = shuffle @{$body->thieves};
         $random[0]->steal_a_building($self);
     }
