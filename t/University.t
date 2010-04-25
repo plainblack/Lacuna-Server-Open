@@ -37,16 +37,17 @@ for my $level (2..10) {
     $home->algae_production_hour(50000000);
     $home->water_hour(50000000);
     $home->ore_hour(50000000);
+    $home->needs_recalc(0);
     $home->put;
 
     $result = $tester->post('university', 'upgrade', [$session_id, $uid]);    
     $db->domain('Lacuna::DB::Building::University')->find($uid)->finish_upgrade;
+    $db->cache->delete('upgrade_contention_lock', $uid);
     
     $result = $tester->post('university', 'view', [$session_id, $uid]);
     is($result->{result}{building}{level}, $level, "made it to level ".$level);
     $empire = $db->domain('empire')->find($empire_id);
     is($empire->university_level, $level, 'empire university level was upgraded');    
-    
 }
 
 
