@@ -25,6 +25,7 @@ $home->waste_hour(1000);
 $home->waste_capacity(5000);
 $home->algae_production_hour(1000);
 $home->food_capacity(5000);
+$home->needs_recalc(0);
 $home->put;
 
 my $original_ore = $home->ore_stored;
@@ -36,7 +37,7 @@ my $original_food = $home->food_stored;
 say "Please wait 60 seconds.";
 sleep 60; # wait 60 seconds to tick again.
 
-$home = $home->tick;
+$home->tick;
 
 my $ore_now = $home->ore_stored;
 my $energy_now = $home->energy_stored;
