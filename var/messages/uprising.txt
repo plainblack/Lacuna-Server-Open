@@ -1,0 +1,7 @@
+Uprising
+~~~
+An individual known as %s has started an uprising on %s, which has cost us %s happiness.
+
+Regards,
+
+Your Humble Assistant

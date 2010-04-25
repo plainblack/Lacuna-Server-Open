@@ -90,6 +90,25 @@ sub escape {
     );
 }
 
+sub turn {
+    my ($self, $rebel);
+    my $evil_empire = $self->on_body->empire;
+    $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'goodbye.txt',
+        params      => [$self->name],
+    );
+    $rebel->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'new_recruit.txt',
+        params      => [$self->empire->name, $self->name, $rebel->name],
+    );
+    $self->task('Idle');
+    $self->empire_id($rebel->empire_id);
+    $self->from_body_id($rebel->from_body_id);
+    $self->put;
+}
+
 sub steal_a_building {
     my ($self, $building) = @_;
     my $body = $building->body;

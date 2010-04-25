@@ -27,6 +27,7 @@ while (my $planet = $planets->next) {
     hack_local_probes($planet);
     hack_network19($planet);
     hack_observatory_probes($planet);
+    $planet->tick; # do explosions and theft
     incite_rebellion($planet);
     turn_spy($planet);
 }
@@ -35,6 +36,68 @@ sub random_spy {
     my $spies = shift;
     my @random = shuffle @{$spies};
     return $random[0];
+}
+
+sub turn_spy {
+    my $planet = shift;
+    my $spy = random_spy($planet->interceptors);
+    return undef unless defined $spy;
+    return undef if ($spy->empire_id eq $planet->empire_id);
+    if ($planet->check_rebellion) {
+        my $rebel = random_spy($planet->rebels);
+        $spy->turn($rebel);
+        $planet->interception_score( $planet->interception_score + 50);
+    }
+    else {
+        $planet->defeat_rebellion;
+    }
+}
+
+sub incite_rebellion {
+    my $planet = shift;
+    my $spy = random_spy($planet->rebels);
+    return undef unless defined $spy;
+    return undef if ($spy->empire_id eq $planet->empire_id);
+    if ($planet->check_rebellion) {
+        my $loss = sprintf('%.0f', $planet->happiness * 0.10 );
+        $loss = 10_000 if ($loss < 10_000);
+        $planet->spend_happiness( $loss )->put;
+        $spy->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'we_incited_a_rebellion.txt',
+            params      => [$planet->empire->name, $planet->name, $loss, $spy->name],
+        );
+        $spy->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'uprising.txt',
+            params      => [$spy->name,$planet->name,$loss],
+        );
+        $planet->add_news(100,'Led by %s, the citizens of %s are rebelling against %s.', $spy->name, $planet->name, $planet->empire->name);
+        $planet->interception_score( $planet->interception_score + 20);
+    }
+    else {
+        $planet->defeat_rebellion;
+    }
+}
+
+sub hack_network19 {
+    my $planet = shift;
+    my $hacker = random_spy($planet->hackers);
+    return undef unless defined $hacker;
+    my $network19 = $db->domain('Lacuna::DB::Building::Network19')->search(where=>{body_id => $planet->body_id }, limit=>1)->next;
+    return undef unless defined $network19;
+    my $chance = $hacker->offense - $network19->level;
+    my $empire = $planet->empire;
+    if ($hacker->empire_id eq $planet->empire_id) {
+        $planet->add_news($chance,'%s is the greatest, best, most free empire in the Expanse, ever.', $empire->name);
+        $planet->add_news($chance,'If %s had not inhabited %s, the planet would likely have reverted to a barren rock.', $empire->name, $planet->name);
+        $planet->add_news($chance,'%s is the ultimate power in the Expanse right now. It is unlikely to be challenged any time soon.', $empire->name);
+    }
+    else {
+        $planet->add_news($chance,'%s is the smallest, worst, least free empire in the Expanse, ever.', $empire->name);
+        $planet->add_news($chance,'%s is unable to keep its economy strong. Sources inside say it will likely fold in a few days.', $empire->name);
+        $planet->add_news($chance,'An inside source has revealed that the leader of %s has lost all mental faculty.', $empire->name);
+    }
 }
 
 sub hack_local_probes {
@@ -93,6 +156,7 @@ sub hack_observatory_probes {
 sub travel_report {
     my $planet = shift;
     my $spy = random_spy($planet->investigators);
+    return undef unless defined $spy;
     return undef if ($spy->empire_id eq $planet->empire_id);
     if ($planet->check_intel) {
         my @travelling = (['From','To','Type']);
@@ -100,7 +164,7 @@ sub travel_report {
         my $got;
         while (my $ship = $ships->next) {
             my $target = ($ship->foreign_body_id) ? $ship->foreign_body : $ship->foreign_star;
-            my $from = $body->name;
+            my $from = $planet->name;
             my $to = $target->name;
             if ($ship->direction ne 'outgoing') {
                 my $temp = $from;
@@ -110,7 +174,7 @@ sub travel_report {
             my $type = $ship->ship_type;
             $type =~ s/_/ /g;
             push @travelling, [
-                $body->name,
+                $planet->name,
                 $target->name,
             ];
             $got = 1;
@@ -132,6 +196,7 @@ sub travel_report {
 sub colony_report {
     my $planet = shift;
     my $spy = random_spy($planet->investigators);
+    return undef unless defined $spy;
     return undef if ($spy->empire_id eq $planet->empire_id);
     if ($planet->check_intel) {
         my @colonies = (['Name','X','Y','Z','Orbit']);
@@ -160,6 +225,7 @@ sub colony_report {
 sub ship_report {
     my $planet = shift;
     my $spy = random_spy($planet->investigators);
+    return undef unless defined $spy;
     return undef if ($spy->empire_id eq $planet->empire_id);
     if ($planet->check_intel) {
         my $ports = $planet->get_buildings_of_class('Lacuna::DB::Building::SpacePort');
@@ -199,6 +265,7 @@ sub ship_report {
 sub economic_report {
     my $planet = shift;
     my $spy = random_spy($planet->investigators);
+    return undef unless defined $spy;
     return undef if ($spy->empire_id eq $planet->empire_id);
     if ($planet->check_intel) {
         my @resources = (['Resource', 'Per Hour', 'Stored']);
@@ -262,12 +329,15 @@ sub interrogation_report {
         if ($event < 10) {
             $interrogator->kill($planet);
             $suspect->escape;
+            $planet->add_news(70,'An inmate killed his interrogator, and escaped the prison on %s today.', $planet->name);
         }
         elsif ($event < 20) {
             $suspect->escape;
+            $planet->add_news(50,'At this hour police on %s are flabbergasted as to how an inmate escaped earlier in the day.', $planet->name);
         }
         elsif ($event < 30) {
             $suspect->kill($planet);
+            $planet->add_news(50,'Allegations of police brutality are being made on %s after an inmate was killed in custody today.', $planet->name);
         }
     }
 }
@@ -275,6 +345,7 @@ sub interrogation_report {
 sub surface_report {
     my $planet = shift;
     my $spy = random_spy($planet->investigators);
+    return undef unless defined $spy;
     return undef if ($spy->empire_id eq $planet->empire_id);
     if ($planet->check_intel) {
         my @map;
@@ -305,6 +376,7 @@ sub surface_report {
 sub spy_report {
     my $planet = shift;
     my $spy = random_spy($planet->investigators);
+    return undef unless defined $spy;
     my @peeps = (['From','Assignment']);
     my %planets = ( $planet->id => $planet->name );
     my $spy_list = $db->domain('spies')->search(where=>{ on_body_id => $planet->id, empire_id => ['!=', $spy->empire_id] });

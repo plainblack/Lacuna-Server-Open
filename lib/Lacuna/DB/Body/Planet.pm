@@ -1611,6 +1611,7 @@ sub spend_happiness {
         $new = 0;
     }
     $self->happiness( $new );
+    return $self;
 }
 
 sub add_waste {
