@@ -7,9 +7,8 @@ $|=1;
 
 
 use TestHelper;
-use Lacuna::Constants qw(MEDALS);
 
-my @medals = keys %{MEDALS()};
+my @medals = keys %{Lacuna::DB::Medals::MEDALS()};
 plan tests => scalar @medals;
 
 my $assets = '/Users/jtsmith/Dropbox/lacuna/assets/medal/';
