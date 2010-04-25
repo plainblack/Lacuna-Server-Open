@@ -288,7 +288,7 @@ sub economic_report {
 
 sub interrogation_report {
     my $planet = shift;
-    my $interrogator = random_spy($planet->investigator);
+    my $interrogator = random_spy($planet->investigators);
     return undef unless (defined $interrogator && $interrogator->empire_id eq $planet->empire_id);
     my $suspect = $db->domain('spies')->search(where=>{on_body_id=>$planet->id, task=>'Captured', 'itemName()' => ['!=','None']}, order_by=>'itemName()', limit=>1)->next;
     return undef unless (defined $suspect);
