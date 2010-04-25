@@ -27,6 +27,7 @@ sub view_freebies {
     my $free_stuff = $building->body->freebies;
     my %freebies;
     foreach my $class (keys %{$free_stuff}) {
+        next if ($class eq 'upgrades' || $class eq 'builds'); # deal with legacy REMOVE BEFORE LAUNCH
         $freebies{$class->name} = $free_stuff->{$class};
     }
     return {

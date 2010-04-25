@@ -512,6 +512,10 @@ sub get_freebie {
 sub add_freebie {
     my ($self, $class, $level) = @_;
     my $freebies = $self->freebies;
+    if (scalar(keys %{$freebies}) >= 10 && ! exists $freebies->{$class}) {
+        my ($key) = keys %{$freebies};
+        delete $freebies->{key};
+    }
     $freebies->{$class} = $level;
     $self->freebies($freebies);
     return $self;

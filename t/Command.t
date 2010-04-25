@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 1;
+use Test::More tests => 2;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -22,9 +22,13 @@ foreach my $bid (keys %{$result->{result}{buildings}}) {
 }
 
 $result = $tester->post('planetarycommand', 'view', [$session_id, $id]);
-
 is($result->{result}{planet}{building_count}, 1, "got building count");
 
+$tester->empire->home_planet->add_freebie('Lacuna::DB::Building::SpacePort', 5)->put;
+
+sleep 3;
+$result = $tester->post('planetarycommand', 'view_freebies', [$session_id, $id]);
+is($result->{result}{freebies}{'Space Port'}, 5, 'got freebies list');
 
 END {
     $tester->cleanup;
