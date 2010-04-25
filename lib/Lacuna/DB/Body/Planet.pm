@@ -1004,8 +1004,8 @@ sub build_building {
 
 sub found_colony {
     my ($self, $empire) = @_;
-    $self->empire($empire);
     $self->empire_id($empire->id);
+    $self->empire($empire);
     $self->usable_as_starter('No');
     $self->last_tick(DateTime->now);
     $self->put;    
