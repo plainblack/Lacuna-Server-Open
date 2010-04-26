@@ -62,7 +62,7 @@ sub assign {
 }
 
 sub kill {
-    my ($self, $body);
+    my ($self, $body) = @_;
     $body ||= $self->on_body;
     $self->empire->send_predefined_message(
         tags        => ['Alert'],
