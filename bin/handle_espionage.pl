@@ -63,11 +63,11 @@ sub incite_rebellion {
         $loss = 10_000 if ($loss < 10_000);
         $planet->spend_happiness( $loss )->put;
         my $spies = $planet->pick_a_spy_per_empire($planet->rebels);
-        foreach my $spy (@{$spies}) {
-            $spy->empire->send_predefined_message(
+        foreach my $rebel (@{$spies}) {
+            $rebel->empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'we_incited_a_rebellion.txt',
-                params      => [$planet->empire->name, $planet->name, $loss, $spy->name],
+                params      => [$planet->empire->name, $planet->name, $loss, $rebel->name],
             );
         }
         $spy->empire->send_predefined_message(
