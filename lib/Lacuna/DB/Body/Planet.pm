@@ -248,16 +248,16 @@ sub defeat_theft {
     if ($self->chance_of_theft > 0) {
         my $event = randint(1,100);
         my $spy = $self->thieves->[0];
-	return undef unless defined $spy;
+        return undef unless defined $spy;
         my $interceptor = $self->interceptors->[0];
-	return undef unless defined $interceptor;
+        return undef unless defined $interceptor;
         if ($event < 5) {
             $self->theft_score( $self->theft_score - $spy->offense );
             $self->kill_a_spy($spy, $interceptor);
             delete $self->thieves->[0];
             $self->add_news(70,'%s police caught and killed a thief on %s during the commission of the crime.', $self->empire->name, $self->name);
         }
-        elsif ($event < 40) {
+        elsif ($event < 10) {
             $self->theft_score( $self->theft_score - $spy->offense );
             $self->capture_a_spy($spy, $interceptor);
             delete $self->thieves->[0];
@@ -275,16 +275,16 @@ sub defeat_sabotage {
     if ($self->chance_of_sabotage > 0) {
         my $event = randint(1,100);
         my $spy = $self->saboteurs->[0];
-	return undef unless defined $spy;
+        return undef unless defined $spy;
         my $interceptor = $self->interceptors->[0];
-	return undef unless defined $interceptor;
-        if ($event < 10) {
+        return undef unless defined $interceptor;
+            if ($event < 5) {
             $self->sabotage_score( $self->sabotage_score - $spy->offense );
             $self->kill_a_spy($spy, $interceptor);
             delete $self->saboteurs->[0];
             $self->add_news(70,'%s told us that a lone saboteur was killed on %s before he could carry out his plot.', $self->empire->name, $self->name);
         }
-        elsif ($event < 50) {
+        elsif ($event < 20) {
             $self->sabotage_score( $self->sabotage_score - $spy->offense );
             $self->capture_a_spy($spy, $interceptor);
             delete $self->saboteurs->[0];
@@ -302,16 +302,16 @@ sub defeat_rebellion {
     if ($self->chance_of_rebellion > 0) {
         my $event = randint(1,100);
         my $spy = $self->rebels->[0];
-	return undef unless defined $spy;
+        return undef unless defined $spy;
         my $interceptor = $self->interceptors->[0];
-	return undef unless defined $interceptor;
+        return undef unless defined $interceptor;
         if ($event < 10) {
             $self->rebel_score( $self->rebel_score - $spy->offense );
             $self->kill_a_spy($spy, $interceptor);
             $self->add_news(80,'The leader of the rebellion to overthrow %s was killed in a firefight today on %s.', $self->empire->name, $self->name);
             delete $self->rebels->[0];
         }
-        elsif ($event < 35) {
+        elsif ($event < 15) {
             $self->rebel_score( $self->rebel_score - $spy->offense );
             $self->capture_a_spy($spy, $interceptor);
             $self->add_news(50,'Police say they have crushed the rebellion on %s by apprehending %s.', $self->name, $spy->name);
@@ -328,18 +328,18 @@ sub defeat_hack {
     my ($self) = @_;
     if ($self->chance_of_hack > 0) {
         my $spy = $self->hackers->[0];
-	return undef unless defined $spy;
+        return undef unless defined $spy;
         return undef if ($spy->empire_id eq $self->empire_id); # don't catch ourselves
         my $interceptor = $self->interceptors->[0];
-	return undef unless defined $interceptor;
+        return undef unless defined $interceptor;
         my $event = randint(1,100);
-        if ($event < 5) {
+        if ($event < 3) {
             $self->hack_score( $self->hack_score - $spy->offense );
             $self->kill_a_spy($spy, $interceptor);
             $self->add_news(60,'A suspected hacker, age '.randint(16,60).', was found dead in his home today on %s.', $self->name);
             delete $self->hackers->[0];
         }
-        elsif ($event < 30) {
+        elsif ($event < 20) {
             $self->hack_score( $self->hack_score - $spy->offense );
             $self->capture_a_spy($spy, $interceptor);
             $self->add_news(30,'Alleged hacker %s is awaiting arraignment on %s today.', $spy->name, $self->name);
@@ -356,10 +356,10 @@ sub defeat_intel {
     my ($self) = @_;
     if ($self->chance_of_intel > 0) {
         my $spy = $self->investigators->[0];
-	return undef unless defined $spy;
+        return undef unless defined $spy;
         return undef if ($spy->empire_id eq $self->empire_id); # don't catch ourselves
         my $interceptor = $self->interceptors->[0];
-	return undef unless defined $interceptor;
+        return undef unless defined $interceptor;
         my $event = randint(1,100);
         if ($event < 5) {
             $self->intel_score( $self->intel_score - $spy->offense );
@@ -367,7 +367,7 @@ sub defeat_intel {
             $self->add_news(60,'A suspected spy known only as %s was killed in a struggle with police on %s today.', $spy->name, $self->name);
             delete $self->investigators->[0];
         }
-        elsif ($event < 15) {
+        elsif ($event < 10) {
             $self->intel_score( $self->intel_score - $spy->offense );
             $self->capture_a_spy($spy, $interceptor);
             $self->add_news(30,'An individual is behing held for questioning on %s at this hour for looking suspicious.', $self->name);
