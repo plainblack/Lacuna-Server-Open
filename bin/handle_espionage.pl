@@ -84,7 +84,7 @@ sub hack_network19 {
     my $planet = shift;
     my $hacker = random_spy($planet->hackers);
     return undef unless defined $hacker;
-    my $network19 = $db->domain('Lacuna::DB::Building::Network19')->search(where=>{body_id => $planet->body_id }, limit=>1)->next;
+    my $network19 = $db->domain('Lacuna::DB::Building::Network19')->search(where=>{body_id => $planet->id }, limit=>1)->next;
     return undef unless defined $network19;
     my $chance = $hacker->offense - $network19->level;
     my $empire = $planet->empire;

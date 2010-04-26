@@ -248,7 +248,9 @@ sub defeat_theft {
     if ($self->chance_of_theft > 0) {
         my $event = randint(1,100);
         my $spy = $self->thieves->[0];
+	return undef unless defined $spy;
         my $interceptor = $self->interceptors->[0];
+	return undef unless defined $interceptor;
         if ($event < 5) {
             $self->theft_score( $self->theft_score - $spy->offense );
             $self->kill_a_spy($spy, $interceptor);
@@ -273,7 +275,9 @@ sub defeat_sabotage {
     if ($self->chance_of_sabotage > 0) {
         my $event = randint(1,100);
         my $spy = $self->saboteurs->[0];
+	return undef unless defined $spy;
         my $interceptor = $self->interceptors->[0];
+	return undef unless defined $interceptor;
         if ($event < 10) {
             $self->sabotage_score( $self->sabotage_score - $spy->offense );
             $self->kill_a_spy($spy, $interceptor);
@@ -298,7 +302,9 @@ sub defeat_rebellion {
     if ($self->chance_of_rebellion > 0) {
         my $event = randint(1,100);
         my $spy = $self->rebels->[0];
+	return undef unless defined $spy;
         my $interceptor = $self->interceptors->[0];
+	return undef unless defined $interceptor;
         if ($event < 10) {
             $self->rebel_score( $self->rebel_score - $spy->offense );
             $self->kill_a_spy($spy, $interceptor);
@@ -322,8 +328,10 @@ sub defeat_hack {
     my ($self) = @_;
     if ($self->chance_of_hack > 0) {
         my $spy = $self->hackers->[0];
+	return undef unless defined $spy;
         return undef if ($spy->empire_id eq $self->empire_id); # don't catch ourselves
         my $interceptor = $self->interceptors->[0];
+	return undef unless defined $interceptor;
         my $event = randint(1,100);
         if ($event < 5) {
             $self->hack_score( $self->hack_score - $spy->offense );
@@ -348,8 +356,10 @@ sub defeat_intel {
     my ($self) = @_;
     if ($self->chance_of_intel > 0) {
         my $spy = $self->investigators->[0];
+	return undef unless defined $spy;
         return undef if ($spy->empire_id eq $self->empire_id); # don't catch ourselves
         my $interceptor = $self->interceptors->[0];
+	return undef unless defined $interceptor;
         my $event = randint(1,100);
         if ($event < 5) {
             $self->intel_score( $self->intel_score - $spy->offense );
