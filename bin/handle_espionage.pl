@@ -62,11 +62,14 @@ sub incite_rebellion {
         my $loss = sprintf('%.0f', $planet->happiness * 0.10 );
         $loss = 10_000 if ($loss < 10_000);
         $planet->spend_happiness( $loss )->put;
-        $spy->empire->send_predefined_message(
-            tags        => ['Alert'],
-            filename    => 'we_incited_a_rebellion.txt',
-            params      => [$planet->empire->name, $planet->name, $loss, $spy->name],
-        );
+        my $spies = $planet->pick_a_spy_per_empire($planet->rebels);
+        foreach my $spy (@{$spies}) {
+            $spy->empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'we_incited_a_rebellion.txt',
+                params      => [$planet->empire->name, $planet->name, $loss, $spy->name],
+            );
+        }
         $spy->empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'uprising.txt',
@@ -119,11 +122,14 @@ sub hack_local_probes {
     else {
         if ($planet->check_hack) {
             $probe->destroy;
-            $hacker->empire->send_predefined_message(
-                tags        => ['Alert'],
-                filename    => 'we_destroyed_a_probe.txt',
-                params      => [$probe->star->name, $probe->empire->name, $hacker->name],
-            );
+            my $spies = $planet->pick_a_spy_per_empire($planet->hackers);
+            foreach my $spy (@{$spies}) {
+                $spy->empire->send_predefined_message(
+                    tags        => ['Alert'],
+                    filename    => 'we_destroyed_a_probe.txt',
+                    params      => [$probe->star->name, $probe->empire->name, $spy->name],
+                );
+            }
             $planet->interception_score( $planet->interception_score + 5);
         }
         else {
@@ -141,11 +147,14 @@ sub hack_observatory_probes {
     return undef unless defined $probe;
     if ($planet->check_hack) {
         $probe->destroy;
-        $hacker->empire->send_predefined_message(
-            tags        => ['Alert'],
-            filename    => 'we_destroyed_a_probe.txt',
-            params      => [$probe->star->name, $hacker->name],
-        );
+        my $spies = $planet->pick_a_spy_per_empire($planet->hackers);
+        foreach my $spy (@{$spies}) {
+            $spy->empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'we_destroyed_a_probe.txt',
+                params      => [$probe->star->name, $probe->empire->name, $spy->name],
+            );
+        }
         $planet->interception_score( $planet->interception_score + 5);
     }
     else {
