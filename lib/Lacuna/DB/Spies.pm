@@ -73,7 +73,7 @@ sub kill {
 }
 
 sub escape {
-    my ($self, $body);
+    my ($self, $body) = @_;
     $self->available_on(DateTime->now);
     $self->task('Idle');
     $self->put;
@@ -91,7 +91,7 @@ sub escape {
 }
 
 sub turn {
-    my ($self, $rebel);
+    my ($self, $rebel) = @_;
     my $evil_empire = $self->on_body->empire;
     $self->empire->send_predefined_message(
         tags        => ['Alert'],
