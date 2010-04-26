@@ -20,6 +20,9 @@ sub recycling_seconds_remaining {
 
 sub can_recycle {
     my ($self, $water, $ore, $energy, $use_essentia) = @_;
+    $water ||= 0;
+    $ore ||= 0;
+    $energy ||= 0;
     if ($self->level < 1) {
         confess [1010, "You can't recycle until the Recycling Center is built."];
     }
