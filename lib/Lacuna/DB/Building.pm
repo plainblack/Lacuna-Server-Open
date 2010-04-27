@@ -617,8 +617,8 @@ sub finish_upgrade {
         $self->build_queue_id('');
         $self->put;
         $self->send_blow_up_a_building();
-        my $spies = $body->pick_a_spy_per_empire($body->saboteurs);
-        foreach my $spy (@{$spies}) {
+        my @spies = $body->pick_a_spy_per_empire($body->saboteurs);
+        foreach my $spy (@spies) {
             $spy->sabotage_a_building($self);
         }
     }
@@ -655,7 +655,7 @@ sub send_blow_up_a_building {
         filename    => 'building_kablooey.txt',
         params      => [$self->name, $self->body->name],
     );
-    $self->body->add_news(100,'%s was rocked today when the %s exploded, sending people scrambling for their lives.', $self->name, $self->body->name);
+    $self->body->add_news(100,'%s was rocked today when the %s exploded, sending people scrambling for their lives.', $self->body->name, $self->name);
 }
 
 no Moose;

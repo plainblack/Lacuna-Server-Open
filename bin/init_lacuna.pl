@@ -39,7 +39,7 @@ sub create_species {
         name                    => 'Human',
         description             => 'A race of average intellect, and weak constitution.',
         habitable_orbits        => [3],
-        construction_affinity   => 4, # cost of building new stuff
+        manufacturing_affinity   => 4, # cost of building new stuff
         deception_affinity      => 4, # spying ability
         research_affinity       => 4, # cost of upgrading
         management_affinity     => 4, # speed to build
@@ -56,7 +56,7 @@ sub create_species {
         name                    => 'Lacunan',
         description             => 'The economic dieties that control the Lacuna Expanse.',
         habitable_orbits        => [1,2,3,4,5,6,7],
-        construction_affinity   => 1, # cost of building new stuff
+        manufacturing_affinity   => 1, # cost of building new stuff
         deception_affinity      => 7, # spying ability
         research_affinity       => 1, # cost of upgrading
         management_affinity     => 4, # speed to build

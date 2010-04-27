@@ -60,17 +60,16 @@ sub incite_rebellion {
     return undef if ($spy->empire_id eq $planet->empire_id);
     if ($planet->check_rebellion) {
         my $loss = sprintf('%.0f', $planet->happiness * 0.10 );
-        $loss = 10_000 if ($loss < 10_000);
         $planet->spend_happiness( $loss )->put;
-        my $spies = $planet->pick_a_spy_per_empire($planet->rebels);
-        foreach my $spy (@{$spies}) {
-            $spy->empire->send_predefined_message(
+        my @spies = $planet->pick_a_spy_per_empire($planet->rebels);
+        foreach my $rebel (@spies) {
+            $rebel->empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'we_incited_a_rebellion.txt',
-                params      => [$planet->empire->name, $planet->name, $loss, $spy->name],
+                params      => [$planet->empire->name, $planet->name, $loss, $rebel->name],
             );
         }
-        $spy->empire->send_predefined_message(
+        $planet->empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'uprising.txt',
             params      => [$spy->name,$planet->name,$loss],
@@ -122,8 +121,8 @@ sub hack_local_probes {
     else {
         if ($planet->check_hack) {
             $probe->destroy;
-            my $spies = $planet->pick_a_spy_per_empire($planet->hackers);
-            foreach my $spy (@{$spies}) {
+            my @spies = $planet->pick_a_spy_per_empire($planet->hackers);
+            foreach my $spy (@spies) {
                 $spy->empire->send_predefined_message(
                     tags        => ['Alert'],
                     filename    => 'we_destroyed_a_probe.txt',
@@ -147,8 +146,8 @@ sub hack_observatory_probes {
     return undef unless defined $probe;
     if ($planet->check_hack) {
         $probe->destroy;
-        my $spies = $planet->pick_a_spy_per_empire($planet->hackers);
-        foreach my $spy (@{$spies}) {
+        my @spies = $planet->pick_a_spy_per_empire($planet->hackers);
+        foreach my $spy (@spies) {
             $spy->empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'we_destroyed_a_probe.txt',
