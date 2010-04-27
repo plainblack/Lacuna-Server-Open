@@ -69,7 +69,7 @@ sub incite_rebellion {
                 params      => [$planet->empire->name, $planet->name, $loss, $rebel->name],
             );
         }
-        $spy->empire->send_predefined_message(
+        $planet->empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'uprising.txt',
             params      => [$spy->name,$planet->name,$loss],
