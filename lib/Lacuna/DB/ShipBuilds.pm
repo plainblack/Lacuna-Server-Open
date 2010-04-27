@@ -18,6 +18,10 @@ __PACKAGE__->belongs_to('body', 'Lacuna::DB::Body::Planet', 'body_id');
 
 
 
+sub date_completed_formatted {
+    my $self = shift;
+    return format_date($self->date_completed);
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

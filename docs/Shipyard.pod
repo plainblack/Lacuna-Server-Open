@@ -6,26 +6,34 @@ The shipyard is where you build ships. However, you'll need other building types
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+ 
+=head2 view_build_queue ( session_id, building_id, [page_number])
 
-=head2 view ( session_id, building_id )
-
-Extends the view hash to include a C<ship_build_queue> section.
+Retrieves what is already being built at this shipyard.
 
  {
-    "building" : { ... },
-    "status" : { ... },
-    "ship_build_queue" : {
-        "next_completed" : "01 31 2010 13:09:05 +0600",
-        "queue" : [
-            {
-               "type" : "probe",
-               "seconds_each" : 120,
-               "quantity" : 12
-            },
-            ...
-        ]
-    }
+     "status" : { get_status() },
+     "number_of_ships_building" : 30,
+     "ships_building" : [
+         {
+             "type" : "spy_pod",
+             "date_completed" : "01 31 2010 13:09:05 +0600"
+         }
+         ...
+     ]
  }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this shipyard.
+
+=head3 page_number.
+
+Defaults to 1. An integer representing the page of data to view. There are 25 items per page.
  
  
 =head2 get_buildable ( session_id, building_id )

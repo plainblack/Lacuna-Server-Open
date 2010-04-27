@@ -12,19 +12,33 @@ sub model_class {
     return 'Lacuna::DB::Building::Shipyard';
 }
 
-
-around 'view' => sub {
-    my ($orig, $self, $session_id, $building_id) = @_;
+sub view_build_queue {
+    my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
-    my $out = $orig->($self, $empire, $building);
-    return $out unless $building->level > 0;
-    my $spaceport = $building->body->spaceport;
+    my $body = $building->body;
+    my $spaceport = $body->spaceport;
     $spaceport->check_for_completed_ships;
     $spaceport->save_changed_ports;
-    $out->{ship_build_queue} = $building->format_ship_builds;
-    return $out;
-};
+    $page_number ||= 1;
+    my $count = $self->simpledb->domain('Lacuna::DB::ShipBuilds')->count(where=>{shipyard_id=>$self->id});
+    my @building;
+    my $ships = $self->simpledb->domain('Lacuna::DB::ShipBuilds')->search(
+        where       => { shipyard_id => $self->id, date_completed => ['>', DateTime->now ] },
+        order_by    => ['date_completed'],
+        )->paginate(25, $page_number);
+    while (my $ship = $ships->next) {
+        push @building, {
+            type            => $ship->type,
+            date_completed  => $ship->date_completed_formatted,
+        }
+    }
+    return {
+        status                      => $empire->get_status,
+        number_of_ships_building    => $count,
+        ships_building              => \@building,
+    };
+}
 
 sub build_ship {
     my ($self, $session_id, $building_id, $type, $quantity) = @_;
