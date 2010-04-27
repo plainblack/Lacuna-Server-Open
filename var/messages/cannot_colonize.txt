@@ -1,0 +1,5 @@
+Coming Home
+~~~
+We arrived at %s and found that it had already been colonized. We were forced to turn around and come home. We're on our way now.
+
+%s Colony Mission Commander

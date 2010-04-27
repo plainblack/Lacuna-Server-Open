@@ -5,10 +5,6 @@ extends 'Lacuna::DB::Building';
 use Lacuna::Util qw(to_seconds format_date);
 use DateTime;
 
-__PACKAGE__->add_attributes(
-    ship_builds  => { isa=>'HashRef' },  
-);
-
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
     return ($orig->($class), qw(Infrastructure Ships));
@@ -101,19 +97,6 @@ use constant ship_costs => {
     },  
 };
 
-sub format_ship_builds {
-    my $self = shift;
-    my $builds = $self->ship_builds;
-    return {} unless $builds->{next_completed};
-    $builds->{next_completed} = format_date(DateTime->from_epoch(epoch=>$builds->{next_completed}));
-    return $builds;
-}
-
-sub spaceports {
-    my $self = shift;
-    return $self->body->get_buildings_of_class('Lacuna::DB::Building::SpacePort');
-}
-
 sub get_ship_costs {
     my ($self, $type) = @_;
     my $costs = ship_costs->{$type};
@@ -160,133 +143,22 @@ sub build_ship {
     my ($self, $type, $quantity, $time) = @_;
     $quantity ||= 1;
     $time ||= $self->get_ship_costs($type)->{seconds};
-    my $builds = $self->ship_builds;
-    push @{$builds->{queue}}, {
-        type            => $type,
-        seconds_each    => $time,
-        quantity        => $quantity,
-    };
-    unless (exists $builds->{next_completed}) {
-        $builds->{next_completed} = DateTime->now->add(seconds => $time)->epoch;
+    my $builds = $self->simpledb->domain('ship_builds');
+    my $latest = $builds->search(
+        where       => { shipyard_id => $self->id, date_completed => ['>=', DateTime->now->subtract(days=>1)]},
+        limit       => 1,
+        order_by    => ['date_completed'],
+        );
+    my $date_completed = $latest->date_completed->clone;
+    foreach (1..$quantity) {
+        $date_completed->add(seconds=>$time);
+        $builds->insert({
+            shipyard_id     => $self->id,
+            body_id         => $self->body_id,
+            type            => $type,
+            date_completed  => $date_completed,
+        });
     }
-    $self->ship_builds($builds);
-    $self->put;
-}
-
-
-sub get_next_completed {
-    my $self = shift;
-    my $builds = $self->ship_builds;
-    
-    # no ships in queue
-    return undef unless exists $builds->{next_completed};
-    
-    # there are ships in the queue
-    my $now = DateTime->now;
-    my $completed_date = DateTime->from_epoch(epoch=>$builds->{next_completed});
-
-    # check if any are completed
-    unless ($completed_date < $now) {
-        return undef;
-    }
-
-    # get the next completed ship
-    my $next_ship;
-    if ($builds->{queue}[0]{quantity} == 1) {
-        $next_ship = shift @{$builds->{queue}};
-    }
-    else {
-        $next_ship = $builds->{queue}[0];
-        $builds->{queue}[0]{quantity}--;
-    }
-
-    # reset next completed date
-    if (scalar @{$builds->{queue}}) {
-        my $time_for_next_ship = $builds->{queue}[0]{seconds_each};
-        $builds->{next_completed} = $completed_date->clone->add(seconds=> $time_for_next_ship)->epoch;
-    }
-    else {
-        delete $builds->{next_completed};
-    }
-    $self->ship_builds($builds);
-    
-    return $next_ship;
-}
-
-sub check_for_completed_ships {
-    my ($self, $caller_spaceport) = @_;
-    my $spaceports = $self->spaceports;
-    my $spaceport;
-    my $body = $self->body;
-    my $spaceport_changed = 0;
-    my $shipyard_changed = 0;
-    
-    # keep building ships while we have time
-    SHIP: while (my $completed_ship = $self->get_next_completed) {
-        $shipyard_changed = 1;
-        
-        # find a port to put the space ship, we don't invert this to save a db call
-        PORT: while (1) {
-            
-            # first time running, haven't fetched spaceport yet, so let's get one
-            $spaceport = $spaceports->next unless (defined $spaceport);
-
-            # always want to use the preloaded caller spaceport if possible to avoid staleness
-            if (defined $caller_spaceport && $caller_spaceport->id eq $spaceport->id) {
-                $spaceport = $caller_spaceport;   
-            }
-            
-            # there's room, so let's add a ship
-            if (!$spaceport->is_full) {
-                $body->determine_espionage;
-                #deal with saboteurs    
-                if ($body->check_sabotage) {
-                    $self->send_blow_up_a_ship($completed_ship->{type});
-                    my $spies = $body->pick_a_spy_per_empire($body->saboteurs);
-                    foreach my $spy (@{$spies}) {
-                        $spy->sabotage_a_ship($self, $completed_ship->{type});
-                    }
-                }
-                # add the ship
-                else {
-                    $spaceport->add_ship($completed_ship->{type});
-                    $spaceport_changed = 1;
-                    $body->defeat_sabotage;
-                }
-                last PORT;
-            }
-            
-            # we need ourselves a new space port, this one's full
-            else { 
-                $spaceport->put if ($spaceport_changed); # save the current one
-                $spaceport_changed = 0;
-                $spaceport = $spaceports->next; # get a new one
-                
-                # this ship's gonna go kablooey cuz no room at any port
-                unless (defined $spaceport) {
-                    $self->send_blow_up_a_ship($completed_ship->{type});
-                    last SHIP;
-                }
-            }
-        }
-    }
-    
-    # save changes
-    $spaceport->put if ($spaceport_changed);
-    $self->put if ($shipyard_changed);
-}
-
-
-sub send_blow_up_a_ship {
-    my ($self, $type) = @_;
-    $type =~ s/_/ /g;
-    my $body = $self->body;
-    $self->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'ship_blew_up_at_port.txt',
-        params      => [$type, $body->name],
-    );
-    $body->add_news(100,'Officials in %s today are investigating the explosion of a %s at the Space Port.', $body->name, $type);
 }
 
 use constant controller_class => 'Lacuna::Building::Shipyard';

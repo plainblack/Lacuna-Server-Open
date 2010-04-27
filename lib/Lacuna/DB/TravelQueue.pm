@@ -13,7 +13,7 @@ __PACKAGE__->add_attributes(
     payload             => { isa => 'HashRef' },
 #    roundtrip           => { isa => 'Int' },
     body_id             => { isa => 'Str' },
-    direction           => { isa => 'Str' },
+    direction           => { isa => 'Str' }, # outgoing || incoming
     foreign_body_id     => { isa => 'Str' },
     foreign_star_id     => { isa => 'Str' },
 );
@@ -60,6 +60,14 @@ sub seconds_remaining {
     return to_seconds(DateTime->now - $self->date_arrives);
 }
 
+sub turn_around {
+    my $self = shift;
+    $self->direction( ($self->direction eq 'outgoing') ? 'incoming' : 'outgoing' );
+    $self->date_arrives->add_duration( $self->date_arrives - $self->date_started );
+    $self->date_started(DateTime->now);
+    $self->put;
+}
+
 sub arrive {
     my ($self) = @_;
     my $empire = $self->body->empire;
@@ -69,6 +77,38 @@ sub arrive {
     }
     elsif ($self->ship_type eq 'spy_pod') {
         # trigger spy event on remote world
+    }
+    elsif ($self->ship_type eq 'colony_ship') {
+        if ($self->direction eq 'outgoing') {
+            my $planet = $self->foreign_body;
+            if ($planet->is_locked) {
+                $self->turn_around;
+                $empire->send_predefined_message(
+                    tags        => ['Alert'],
+                    filename    => 'cannot_colonize.txt',
+                    params      => [$planet->name, $planet->name],
+                );
+            }
+            else {
+                $planet->lock;
+                $planet->found_colony($empire);
+            }
+        }
+        else {
+            $self->body->spaceport->add_ship($self->ship_type)->put;
+        }
+    }
+    elsif ($self->ship_type eq 'terraforming_platform_ship') {
+    }
+    elsif ($self->ship_type eq 'gas_giant_settlement_platform_ship') {
+    }
+    elsif ($self->ship_type eq 'mining_platform_ship') {
+    }
+    elsif ($self->ship_type eq 'cargo_ship') {
+    }
+    elsif ($self->ship_type eq 'smuggler_ship') {
+    }
+    elsif ($self->ship_type eq 'space_station') {
     }
     $self->delete;
 }

@@ -19,7 +19,9 @@ around 'view' => sub {
     my $building = $empire->get_building($self->model_class, $building_id);
     my $out = $orig->($self, $empire, $building);
     return $out unless $building->level > 0;
-    $building->check_for_completed_ships;
+    my $spaceport = $building->body->spaceport;
+    $spaceport->check_for_completed_ships;
+    $spaceport->save_changed_ports;
     $out->{ship_build_queue} = $building->format_ship_builds;
     return $out;
 };

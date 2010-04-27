@@ -13,30 +13,6 @@ sub model_class {
     return 'Lacuna::DB::Building::SpacePort';
 }
 
-sub check_for_completed_ships {
-    my ($self, $body, $spaceport) = @_;
-    my $shipyards = $body->get_buildings_of_class('Lacuna::DB::Building::Shipyard');
-    while (my $shipyard = $shipyards->next) {
-        $shipyard->check_for_completed_ships($spaceport);
-    }
-}
-
-sub find_port {
-    my ($self, $body, $type) = @_;
-    # finish building any ships in queue
-    $self->check_for_completed_ships($body);
-
-    # send the probe
-    my $ports = $body->get_buildings_of_class($self->model_class);
-    my $ship_count = $type.'_count';
-    while (my $port = $ports->next) {
-        if ($port->$ship_count) {
-            return $port;
-        }
-    }
-    confess [ 1002, 'You have no ships to send.', $type];
-}
-
 sub find_star {
     my ($self, $target) = @_;
     my $star;
@@ -96,8 +72,7 @@ sub send_probe {
     }
     
     # send the probe
-    my $port = $self->find_port($body, 'probe');
-    my $sent = $port->send_probe($star);
+    my $sent = $body->spaceport->send_probe($star);
 
     return { probe => { date_arrives => format_date($sent->date_arrives)}, status => $empire->get_status };
 }
@@ -136,10 +111,85 @@ sub send_spy_pod {
     }
 
     # send the pod
-    my $port = $self->find_port($body, 'spy_pod');
-    my $sent = $port->send_spy_pod($target_body, $spy);
+    my $sent = $body->spaceport->send_spy_pod($target_body, $spy);
 
     return { spy_pod => { date_arrives => format_date($sent->date_arrives), carrying_spy => { id => $spy->id, name => $spy->name }}, status => $empire->get_status };
+}
+
+sub send_mining_platform_ship {
+    my ($self, $session_id, $body_id, $target) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $empire->get_body($body_id);
+    my $target_body = $self->find_body($target);
+    
+    # make sure it's a valid target
+    unless ($target_body->isa('Lacuna::DB::Body::Asteroid')) {
+        confess [ 1009, 'Can only send a mining platform ship to an asteroid.'];
+    }
+    
+    # send the ship
+    my $sent = $body->spaceport->send_mining_platform_ship($target_body);
+
+    return { mining_platform_ship => { date_arrives => format_date($sent->date_arrives) }, status => $empire->get_status };
+}
+
+sub send_gas_giant_settlement_platform_ship {
+    my ($self, $session_id, $body_id, $target) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $empire->get_body($body_id);
+    my $target_body = $self->find_body($target);
+    
+    # make sure it's a valid target
+    unless ($target_body->isa('Lacuna::DB::Body::Planet::GasGiant')) {
+        confess [ 1009, 'Can only send a gas giant settlement platform ship to a gas giant.'];
+    }
+    
+    # send the ship
+    my $sent = $body->spaceport->send_gas_giant_settlement_platform_ship($target_body);
+
+    return { gas_giant_settlement_platform_ship => { date_arrives => format_date($sent->date_arrives) }, status => $empire->get_status };
+}
+
+sub send_terraforming_platform_ship {
+    my ($self, $session_id, $body_id, $target) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $empire->get_body($body_id);
+    my $target_body = $self->find_body($target);
+    
+    # make sure it's a valid target
+    unless ($target_body->isa('Lacuna::DB::Body::Planet')) {
+        confess [ 1009, 'Can only send a terraforming platfom ship to a planet.'];
+    }
+    
+    # send the ship
+    my $sent = $body->spaceport->send_terraforming_platform_ship($target_body);
+
+    return { terraforming_platform_ship => { date_arrives => format_date($sent->date_arrives) }, status => $empire->get_status };
+}
+
+sub send_colony_ship {
+    my ($self, $session_id, $body_id, $target) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $empire->get_body($body_id);
+    my $target_body = $self->find_body($target);
+    
+    # make sure it's a valid target
+    unless ($target_body->isa('Lacuna::DB::Body::Planet')) {
+        confess [ 1009, 'Can only send a colony ship to a planet.'];
+    }
+    if ($target_body->empire_id ne 'None') {
+        confess [ 1013, 'That planet is already inhabited.'];
+    }
+    
+    # make sure you have enough happiness
+    if ( $empire->happiness < $empire->next_planet_cost) {
+        confess [ 1011, 'You do not have enough happiness to colonize another planet.', [$empire->next_planet_cost]];
+    }
+        
+    # send the ship
+    my $sent = $body->spaceport->send_colony_ship($target_body);
+
+    return { colony_ship => { date_arrives => format_date($sent->date_arrives) }, status => $empire->get_status };
 }
 
 sub view_ships_travelling {
@@ -190,7 +240,8 @@ around 'view' => sub {
     my $building = $empire->get_building($self->model_class, $building_id);
     my $out = $orig->($self, $empire, $building);
     return $out unless $building->level > 0;
-    $self->check_for_completed_ships($building->body, $building);
+    $building->check_for_completed_ships;
+    $building->save_changed_ports;
     my %ships;
     foreach my $type (SHIP_TYPES) {
         my $count = $type.'_count';

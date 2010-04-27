@@ -774,12 +774,29 @@ sub get_buildings_of_class {
     );
 }
 
+sub get_building_of_class {
+    my ($self, $class) = @_;
+    return $self->simpledb->domain($class)->search(
+        where       => {
+            body_id => $self->id,
+            class   => $class,
+            level   => ['>=', 0],
+        },
+        order_by    => ['level'],
+        set         => {
+            body    => $self,
+            empire  => $self->empire,
+        },
+        limit       => 1, 
+    )->next;
+}
+
 has command => (
     is      => 'rw',
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get_buildings_of_class('Lacuna::DB::Building::PlanetaryCommand')->next;
+        return $self->get_building_of_class('Lacuna::DB::Building::PlanetaryCommand');
     },
 );
 
@@ -788,7 +805,7 @@ has network19 => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get_buildings_of_class('Lacuna::DB::Building::Network19')->next;
+        return $self->get_building_of_class('Lacuna::DB::Building::Network19');
     },
 );
 
@@ -797,9 +814,18 @@ has refinery => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get_buildings_of_class('Lacuna::DB::Building::Ore::Refinery')->next;
+        return $self->get_building_of_class('Lacuna::DB::Building::Ore::Refinery');
     },
 );
+
+has spaceport => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->get_building_of_class('Lacuna::DB::Building::SpacePort');
+    },
+);    
 
 sub buildings {
     my $self = shift;
