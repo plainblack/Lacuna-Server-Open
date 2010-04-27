@@ -242,8 +242,8 @@ sub check_for_completed_ships {
                 #deal with saboteurs    
                 if ($body->check_sabotage) {
                     $self->send_blow_up_a_ship($completed_ship->{type});
-                    my $spies = $body->pick_a_spy_per_empire($body->saboteurs);
-                    foreach my $spy (@{$spies}) {
+                    my @spies = $body->pick_a_spy_per_empire($body->saboteurs);
+                    foreach my $spy (@spies) {
                         $spy->sabotage_a_ship($self, $completed_ship->{type});
                     }
                 }

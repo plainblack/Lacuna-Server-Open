@@ -617,8 +617,8 @@ sub finish_upgrade {
         $self->build_queue_id('');
         $self->put;
         $self->send_blow_up_a_building();
-        my $spies = $body->pick_a_spy_per_empire($body->saboteurs);
-        foreach my $spy (@{$spies}) {
+        my @spies = $body->pick_a_spy_per_empire($body->saboteurs);
+        foreach my $spy (@spies) {
             $spy->sabotage_a_building($self);
         }
     }
