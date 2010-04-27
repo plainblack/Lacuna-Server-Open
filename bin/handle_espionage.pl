@@ -64,7 +64,7 @@ sub incite_rebellion {
         my @spies = $planet->pick_a_spy_per_empire($planet->rebels);
         foreach my $rebel (@spies) {
             $rebel->empire->send_predefined_message(
-                tags        => ['Alert'],
+                tags        => ['Intelligence'],
                 filename    => 'we_incited_a_rebellion.txt',
                 params      => [$planet->empire->name, $planet->name, $loss, $rebel->name],
             );
@@ -112,7 +112,7 @@ sub hack_local_probes {
         if ($hacker->defense > randint(1,100)) {
             $probe->destroy;
             $hacker->empire->send_predefined_message(
-                tags        => ['Alert'],
+                tags        => ['Intelligence'],
                 filename    => 'we_destroyed_a_probe.txt',
                 params      => [$probe->star->name, $hacker->name],
             );
@@ -124,7 +124,7 @@ sub hack_local_probes {
             my @spies = $planet->pick_a_spy_per_empire($planet->hackers);
             foreach my $spy (@spies) {
                 $spy->empire->send_predefined_message(
-                    tags        => ['Alert'],
+                    tags        => ['Intelligence'],
                     filename    => 'we_destroyed_a_probe.txt',
                     params      => [$probe->star->name, $probe->empire->name, $spy->name],
                 );
@@ -149,7 +149,7 @@ sub hack_observatory_probes {
         my @spies = $planet->pick_a_spy_per_empire($planet->hackers);
         foreach my $spy (@spies) {
             $spy->empire->send_predefined_message(
-                tags        => ['Alert'],
+                tags        => ['Intelligence'],
                 filename    => 'we_destroyed_a_probe.txt',
                 params      => [$probe->star->name, $probe->empire->name, $spy->name],
             );
@@ -189,7 +189,7 @@ sub travel_report {
         }
         if ($got) {
             $spy->empire->send_predefined_message(
-                tags        => ['Alert'],
+                tags        => ['Intelligence'],
                 filename    => 'intel_report.txt',
                 params      => ['Travel Report', $spy->name],
                 attach_table=> \@travelling,
@@ -219,7 +219,7 @@ sub colony_report {
             ];
         }
         $spy->empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Intelligence'],
             filename    => 'intel_report.txt',
             params      => ['Colony Report', $spy->name],
             attach_table=> \@colonies,
@@ -257,7 +257,7 @@ sub ship_report {
                 push @ships, [$ship, $tally{$ship}];
             }
             $spy->empire->send_predefined_message(
-                tags        => ['Alert'],
+                tags        => ['Intelligence'],
                 filename    => 'intel_report.txt',
                 params      => ['Ship Report', $spy->name],
                 attach_table=> \@ships,
@@ -283,7 +283,7 @@ sub economic_report {
         push @resources, [ 'Ore', $planet->ore_hour, $planet->ore_stored ];
         push @resources, [ 'Waste', $planet->waste_hour, $planet->waste_stored ];
         $spy->empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Intelligence'],
             filename    => 'intel_report.txt',
             params      => ['Economic Report', $spy->name],
             attach_table=> \@resources,
@@ -305,7 +305,7 @@ sub interrogation_report {
         my $suspect_empire = $suspect->empire;
         my $suspect_species = $suspect_empire->species;
         $interrogator->empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Intelligence'],
             filename    => 'intel_report.txt',
             params      => ['Interrogation Report', $interrogator->name],
             attach_table=> [
@@ -367,7 +367,7 @@ sub surface_report {
             }
         }
         $spy->empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Intelligence'],
             filename    => 'intel_report.txt',
             params      => ['Surface Report', $spy->name],
             attach_map  => {
@@ -395,7 +395,7 @@ sub spy_report {
         push @peeps, [$planets{$spy->from_body_id}, $spy->task];
     }
     $spy->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
         params      => ['Counter Intelligence Report', $spy->name],
         attach_table=> \@peeps,
