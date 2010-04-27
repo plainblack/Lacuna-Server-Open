@@ -117,8 +117,6 @@ sub spaceports {
 sub get_ship_costs {
     my ($self, $type) = @_;
     my $costs = ship_costs->{$type};
-    my $species = $self->empire->species;
-    my $manufacturing_affinity = $species->manufacturing_affinity;
     foreach my $cost (keys %{$costs}) {
         if ($cost eq 'seconds') {
             $costs->{$cost} = sprintf('%0.f', $costs->{$cost} * $self->time_cost_reduction_bonus($self->level));
