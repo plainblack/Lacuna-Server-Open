@@ -150,12 +150,14 @@ sub get_full_status {
     my %planets;
     my $happiness = 0;
     my $happiness_hour = 0;
+    my @planet_ids;
     while (my $planet = $planet_rs->next) {
-        $planet->tick;
         $planets{$planet->id} = $planet->get_status($self);
         $happiness += $planet->happiness;
         $happiness_hour += $planet->happiness_hour;
+        push @planet_ids, $planet->id;
     }
+    $self->body_ids(\@planet_ids);
     my $status = {
         server  => {
             'time'          => format_date(DateTime->now),
@@ -173,6 +175,7 @@ sub get_full_status {
             has_new_messages    => $self->get_new_message_count,
             home_planet_id      => $self->home_planet_id,
             planets             => \%planets,
+            next_planet_cost    => $self->next_planet_cost,
         },
     };
     $self->needs_full_update(0);
@@ -378,6 +381,38 @@ sub add_probe {
     $self->clear_probed_stars;
     return $self;
 }
+
+has next_planet_cost => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $inflation = (101 - $self->species->political_affinity) / 100;
+        my $count = scalar(@{$self->body_ids});
+        my $tally = 100_000;
+        for (2..$count) {
+            $tally += $tally * 0.96;
+        }
+        return $tally;
+    },
+);
+
+has happiness => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $happiness = 0;
+        my @planet_ids;
+        my $planet_rs = $self->planets;
+        while (my $planet = $planet_rs->next) {
+            $planet->tick;
+            $happiness += $planet->happiness;
+            push @planet_ids, $planet->id;
+        }
+        $self->body_ids(\@planet_ids);
+    },
+);
 
 has body_ids => (
     is          => 'rw',
