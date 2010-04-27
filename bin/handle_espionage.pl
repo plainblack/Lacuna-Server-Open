@@ -74,7 +74,7 @@ sub incite_rebellion {
             filename    => 'uprising.txt',
             params      => [$spy->name,$planet->name,$loss],
         );
-        $planet->add_news(100,'Led by %s, the citizens of %s are rebelling against %s.', $spy->name, $planet->name, $planet->empire->name);
+        $planet->add_news(90,'Led by %s, the citizens of %s are rebelling against %s.', $spy->name, $planet->name, $planet->empire->name);
         $planet->interception_score( $planet->interception_score + 20);
     }
     else {

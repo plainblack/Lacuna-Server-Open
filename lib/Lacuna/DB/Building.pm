@@ -655,7 +655,7 @@ sub send_blow_up_a_building {
         filename    => 'building_kablooey.txt',
         params      => [$self->name, $self->body->name],
     );
-    $self->body->add_news(100,'%s was rocked today when the %s exploded, sending people scrambling for their lives.', $self->body->name, $self->name);
+    $self->body->add_news(90,'%s was rocked today when the %s exploded, sending people scrambling for their lives.', $self->body->name, $self->name);
 }
 
 no Moose;
