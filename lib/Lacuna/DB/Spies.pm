@@ -113,7 +113,7 @@ sub turn {
 sub steal_a_building {
     my ($self, $building) = @_;
     my $body = $building->body;
-    $self->from_body->add_freebie($building->class, $building->level + 1);
+    $self->from_body->add_freebie($building->class, $building->level + 1)->put;
     $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'building_theft_report.txt',
