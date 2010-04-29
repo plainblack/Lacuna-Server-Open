@@ -222,7 +222,7 @@ has determine_espionage => (
 sub kill_a_spy {
     my ($self, $spy, $interceptor) = @_;
     $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Intelligence'],
         filename    => 'we_killed_a_spy.txt',
         params      => [$self->name, $interceptor->name],
         from        => $interceptor->empire,
@@ -241,7 +241,7 @@ sub capture_a_spy {
         params      => [$self->name, $spy->name],
     );
     $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Intelligence'],
         filename    => 'we_captured_a_spy.txt',
         params      => [$self->name, $interceptor->name],
         from        => $interceptor->empire,
@@ -251,12 +251,12 @@ sub capture_a_spy {
 sub miss_a_spy {
     my ($self, $spy, $interceptor) = @_;
     $spy->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Intelligence'],
         filename    => 'narrow_escape.txt',
         params      => [$self->empire->name, $spy->name],
     );
     $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Intelligence'],
         filename    => 'we_missed_a_spy.txt',
         params      => [$self->name, $interceptor->name],
         from        => $interceptor->empire,
@@ -277,7 +277,7 @@ sub defeat_theft {
             delete $self->thieves->[0];
             $self->add_news(70,'%s police caught and killed a thief on %s during the commission of the crime.', $self->empire->name, $self->name);
         }
-        elsif ($event < 10) {
+        elsif ($event < 20) {
             $self->theft_score( $self->theft_score - $spy->offense );
             $self->capture_a_spy($spy, $interceptor);
             delete $self->thieves->[0];
@@ -304,7 +304,7 @@ sub defeat_sabotage {
             delete $self->saboteurs->[0];
             $self->add_news(70,'%s told us that a lone saboteur was killed on %s before he could carry out his plot.', $self->empire->name, $self->name);
         }
-        elsif ($event < 20) {
+        elsif ($event < 30) {
             $self->sabotage_score( $self->sabotage_score - $spy->offense );
             $self->capture_a_spy($spy, $interceptor);
             delete $self->saboteurs->[0];
@@ -331,7 +331,7 @@ sub defeat_rebellion {
             $self->add_news(80,'The leader of the rebellion to overthrow %s was killed in a firefight today on %s.', $self->empire->name, $self->name);
             delete $self->rebels->[0];
         }
-        elsif ($event < 15) {
+        elsif ($event < 25) {
             $self->rebel_score( $self->rebel_score - $spy->offense );
             $self->capture_a_spy($spy, $interceptor);
             $self->add_news(50,'Police say they have crushed the rebellion on %s by apprehending %s.', $self->name, $spy->name);
@@ -359,7 +359,7 @@ sub defeat_hack {
             $self->add_news(60,'A suspected hacker, age '.randint(16,60).', was found dead in his home today on %s.', $self->name);
             delete $self->hackers->[0];
         }
-        elsif ($event < 20) {
+        elsif ($event < 30) {
             $self->hack_score( $self->hack_score - $spy->offense );
             $self->capture_a_spy($spy, $interceptor);
             $self->add_news(30,'Alleged hacker %s is awaiting arraignment on %s today.', $spy->name, $self->name);
@@ -387,7 +387,7 @@ sub defeat_intel {
             $self->add_news(60,'A suspected spy known only as %s was killed in a struggle with police on %s today.', $spy->name, $self->name);
             delete $self->investigators->[0];
         }
-        elsif ($event < 10) {
+        elsif ($event < 20) {
             $self->intel_score( $self->intel_score - $spy->offense );
             $self->capture_a_spy($spy, $interceptor);
             $self->add_news(30,'An individual is behing held for questioning on %s at this hour for looking suspicious.', $self->name);
