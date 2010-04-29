@@ -2,6 +2,186 @@ package Lacuna::DB::Building::Ore::Ministry;
 
 use Moose;
 extends 'Lacuna::DB::Building::Ore';
+use Lacuna::Constants qw(ORE_TYPES);
+
+__PACKAGE__->add_attributes(
+    asteroid_ids                    => { isa => 'ArrayRefOfStr' },
+    ship_count                      => { isa => 'Int', default=>0 },
+    rutile_hour                     => { isa => 'Int', default=>0 },
+    chromite_hour                   => { isa => 'Int', default=>0 },
+    chalcopyrite_hour               => { isa => 'Int', default=>0 },
+    galena_hour                     => { isa => 'Int', default=>0 },
+    gold_hour                       => { isa => 'Int', default=>0 },
+    uraninite_hour                  => { isa => 'Int', default=>0 },
+    bauxite_hour                    => { isa => 'Int', default=>0 },
+    goethite_hour                   => { isa => 'Int', default=>0 },
+    halite_hour                     => { isa => 'Int', default=>0 },
+    gypsum_hour                     => { isa => 'Int', default=>0 },
+    trona_hour                      => { isa => 'Int', default=>0 },
+    kerogen_hour                    => { isa => 'Int', default=>0 },
+    methane_hour                    => { isa => 'Int', default=>0 },
+    anthracite_hour                 => { isa => 'Int', default=>0 },
+    sulfur_hour                     => { isa => 'Int', default=>0 },
+    zircon_hour                     => { isa => 'Int', default=>0 },
+    monazite_hour                   => { isa => 'Int', default=>0 },
+    fluorite_hour                   => { isa => 'Int', default=>0 },
+    beryl_hour                      => { isa => 'Int', default=>0 },
+    magnetite_hour                  => { isa => 'Int', default=>0 },
+    percent_ship_capacity           => { isa => 'Int', default=>100 },
+    percent_platform_capacity       => { isa => 'Int', default=>100 },
+);
+
+with 'Lacuna::Role::Distanced';
+with 'Lacuna::Role::Shippable';
+
+has platform_count => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return scalar @{$self->asteroid_ids};
+    }
+);
+
+has max_ships => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->platform_count * $self->level;
+    }
+);
+
+sub max_platforms {
+    my $self = shift;
+    return $self->level;
+}
+
+has platform_production_hour => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return sprintf('%.0f', 70 * $self->production_hour * $self->mining_production_bonus);
+    }
+);
+
+sub can_add_ships {
+    my ($self, $count) = @_;
+    if ($self->ship_count + $count > $self->max_ships) {
+        confess [1009, 'That would put you over your fleet size limit.'];
+    }
+    return 1;
+}
+
+sub add_ships {
+    my ($self, $count) = @_;
+    $count ||= 1;
+    my $spaceport = $self->body->spaceport;
+    foreach (1..$count) {
+        $spaceport->remove_ship('cargo_ship');
+    }
+    $spaceport->save_changed_ports;
+    $self->ship_count($self->ship_count + $count);
+    $self->recalc_ore_production;
+    return $self;
+}
+
+sub can_remove_ships {
+    my ($self, $count) = @_;
+    if ($self->ship_count + $count < 0) {
+        confess [1009, 'You do not have that many ships to remove.'];
+    }
+    return 1;
+}
+
+sub send_ships_home {
+    my ($self, $asteroid, $count) = @_;
+    if ($count >= 0) {
+        $self->ship_count($self->ship_count - $count);
+        my $date = DateTime->now->add(seconds => $self->calculate_seconds_from_body_to_body('cargo_ship',$asteroid, $self->body));
+        foreach (1..$count) {
+            Lacuna::DB::TravelQueue->send(
+                simpledb    => $self->simpledb,
+                date_arrives=> $date,
+                body        => $self->body,
+                direction   => 'incoming',
+                foreign_body=> $asteroid,
+            );
+        }
+        $self->recalc_ore_production;
+    }
+    return $self;
+}
+
+sub can_add_platform {
+    my ($self) = @_;
+    if ($self->asteroid_count >= $self->max_platforms) {
+        confess [1009, 'You already have the maximum number of platforms allowed at this Ministry level.'];
+    }
+    return 1;
+}
+
+sub add_platform {
+    my ($self, $asteroid) = @_;
+    my $asteroid_ids = $self->asteroid_ids;
+    push @{$asteroid_ids}, $asteroid->id;
+    $self->asteroid_ids($asteroid_ids);
+    $self->recalc_ore_production;
+    return $self;
+}
+
+sub remove_platform {
+    my ($self, $asteroid) = @_;
+    my $asteroid_ids = $self->asteroid_ids;
+    for (my $i = 0; $i < scalar(@{$asteroid_ids}); $i++) {
+        if ($asteroid_ids->[$i] eq $asteroid->id) {
+            splice(@{$asteroid_ids}, $i, 1); 
+            last;
+        }   
+    }   
+    $self->asteroid_ids($asteroid_ids);
+    $self->send_ships_home($asteroid, $self->ship_count - $self->max_ships);
+    return $self;
+}
+
+sub recalc_ore_production {
+    my $self = shift;
+    my %asteroids;
+    my %production;
+    my $ships_per_platform          = $self->ship_count / $self->platform_count;
+    my $cargo_space_per_platform    = $ships_per_platform * $self->cargo_ship_hold_size;
+    my $cargo_capacity;
+    my $cargo_hauled;
+    my $production_capacity;
+    foreach my $id (@{$self->asteroid_ids}) {
+        unless (exists $asteroids{$id}) {
+            my $asteroid                    = $self->simpledb->domain('Lacuna::DB::Body::Asteroid')->find($id);
+            my $round_trip_time             =  $self->calculate_seconds_from_body_to_body('cargo_ship', $asteroid, $self->body) * 2;
+            my $trips_per_hour              = (3600 / $round_trip_time );
+            my $max_cargo_hauled_per_hour   = $trips_per_hour * $cargo_space_per_platform;
+            my $cargo_hauled_per_hour       = ($self->platform_production_hour > $max_cargo_hauled_per_hour) ? $max_cargo_hauled_per_hour : $self->platform_production_hour;
+            $asteroids{$id} = {
+                object                      => $asteroid,
+                cargo_hauled_per_hour       => $cargo_hauled_per_hour,
+                max_cargo_hauled_per_hour   => $max_cargo_hauled_per_hour,
+                };
+        }
+        $cargo_capacity += $asteroids{$id}{max_cargo_hauled_per_hour};
+        $cargo_hauled += $asteroids{$id}{cargo_hauled_per_hour};
+        $production_capacity += $self->platform_production_hour;
+        foreach my $type (ORE_TYPES) {
+            my $hour_method = $type.'_hour';
+            $production{$hour_method} += sprintf('%.0f', $asteroids{$id}{object}->$type * $asteroids{$id}{cargo_hauled_per_hour} / 10_000); 
+        }
+    }
+    $production{percent_ship_capacity} = sprintf('%.0f', $cargo_hauled / $cargo_capacity * 100);
+    $production{percent_platform_capacity} = sprintf('%.0f', $cargo_hauled / $production_capacity * 100);
+    $self->update(\%production);
+    $self->body->needs_recalc(1);
+    $self->body->put;
+    return $self;
+}
 
 use constant controller_class => 'Lacuna::Building::MiningMinistry';
 

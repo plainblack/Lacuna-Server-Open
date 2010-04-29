@@ -75,9 +75,11 @@ sub arrive {
         $empire->add_probe($self->foreign_star_id, $self->body_id);
         $empire->trigger_full_update;
     }
+    
     elsif ($self->ship_type eq 'spy_pod') {
         # trigger spy event on remote world
     }
+    
     elsif ($self->ship_type eq 'colony_ship') {
         if ($self->direction eq 'outgoing') {
             my $planet = $self->foreign_body;
@@ -92,26 +94,72 @@ sub arrive {
             else {
                 $planet->lock;
                 $planet->found_colony($empire);
+                $empire->send_predefined_message(
+                    tags        => ['Alert'],
+                    filename    => 'colony_founded.txt',
+                    params      => [$planet->name, $planet->name],
+                );
+                $empire->is_isolationist(0);
+                $empire->trigger_full_update(skip_put=>1);
+                $empire->put;
             }
         }
         else {
             $self->body->spaceport->add_ship($self->ship_type)->put;
         }
     }
+    
     elsif ($self->ship_type eq 'terraforming_platform_ship') {
+        if ($self->direction eq 'outgoing') {
+            my $lab = $self->body->get_building_of_class('Lacuna::DB::Building::TerraformingLab');
+            if (defined $lab) {
+                $self->foreign_body->add_freebie('Lacuna::DB::Building::Permanent::TerraformingPlatform', $lab->level)->put;
+            }
+        }
+        else {
+            $self->body->spaceport->add_ship($self->ship_type)->put;
+        }
     }
+    
     elsif ($self->ship_type eq 'gas_giant_settlement_platform_ship') {
+        if ($self->direction eq 'outgoing') {
+            my $lab = $self->body->get_building_of_class('Lacuna::DB::Building::GasGiantLab');
+            if (defined $lab) {
+                $self->foreign_body->add_freebie('Lacuna::DB::Building::Permanent::GasGiantPlatform', $lab->level)->put;
+            }
+        }
+        else {
+            $self->body->spaceport->add_ship($self->ship_type)->put;
+        }
     }
+    
     elsif ($self->ship_type eq 'mining_platform_ship') {
+        if ($self->direction eq 'outgoing') {
+            my $ministry = $self->body->mining_ministry;
+            if (eval{$ministry->can_add_platform} && !$@) {
+                $ministry->add_platform($self->foreign_body)->put;
+            }
+            else {
+                $self->turn_around;
+            }
+        }
+        else {
+            $self->body->spaceport->add_ship($self->ship_type)->put;
+        }
     }
+    
     elsif ($self->ship_type eq 'cargo_ship') {
     }
+    
     elsif ($self->ship_type eq 'smuggler_ship') {
     }
+    
     elsif ($self->ship_type eq 'space_station') {
     }
     $self->delete;
 }
+
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -45,6 +45,26 @@ __PACKAGE__->add_attributes(
     fluorite_stored                 => { isa => 'Int', default=>0 },
     beryl_stored                    => { isa => 'Int', default=>0 },
     magnetite_stored                => { isa => 'Int', default=>0 },
+    rutile_hour                     => { isa => 'Int', default=>0 },
+    chromite_hour                   => { isa => 'Int', default=>0 },
+    chalcopyrite_hour               => { isa => 'Int', default=>0 },
+    galena_hour                     => { isa => 'Int', default=>0 },
+    gold_hour                       => { isa => 'Int', default=>0 },
+    uraninite_hour                  => { isa => 'Int', default=>0 },
+    bauxite_hour                    => { isa => 'Int', default=>0 },
+    goethite_hour                   => { isa => 'Int', default=>0 },
+    halite_hour                     => { isa => 'Int', default=>0 },
+    gypsum_hour                     => { isa => 'Int', default=>0 },
+    trona_hour                      => { isa => 'Int', default=>0 },
+    kerogen_hour                    => { isa => 'Int', default=>0 },
+    methane_hour                    => { isa => 'Int', default=>0 },
+    anthracite_hour                 => { isa => 'Int', default=>0 },
+    sulfur_hour                     => { isa => 'Int', default=>0 },
+    zircon_hour                     => { isa => 'Int', default=>0 },
+    monazite_hour                   => { isa => 'Int', default=>0 },
+    fluorite_hour                   => { isa => 'Int', default=>0 },
+    beryl_hour                      => { isa => 'Int', default=>0 },
+    magnetite_hour                  => { isa => 'Int', default=>0 },
     ore_hour                        => { isa => 'Int', default=>0 },
     food_capacity                   => { isa => 'Int', default=>0 },
     food_consumption_hour           => { isa => 'Int', default=>0 },
@@ -656,105 +676,6 @@ use constant magnetite => 1;
 
 use constant water => 0;
 
-sub rutile_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->rutile * $self->ore_hour / 10000);
-}
- 
-sub chromite_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->chromite * $self->ore_hour / 10000);
-}
-
-sub chalcopyrite_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->chalcopyrite * $self->ore_hour / 10000);
-}
-
-sub galena_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->galena * $self->ore_hour / 10000);
-}
-
-sub gold_hour {
-    my ($self) = @_;
-    return sprintf('%.0f', $self->gold * $self->ore_hour / 10000);
-}
-
-sub uraninite_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->uraninite * $self->ore_hour / 10000);
-}
-
-sub bauxite_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->bauxite * $self->ore_hour / 10000);
-}
-
-sub goethite_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->goethite * $self->ore_hour / 10000);
-}
-
-sub halite_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->halite * $self->ore_hour / 10000);
-}
-
-sub gypsum_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->gypsum * $self->ore_hour / 10000);
-}
-
-sub trona_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->trona * $self->ore_hour / 10000);
-}
-
-sub kerogen_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->kerogen * $self->ore_hour / 10000);
-}
-
-sub methane_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->methane * $self->ore_hour / 10000);
-}
-
-sub anthracite_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->anthracite * $self->ore_hour / 10000);
-}
-
-sub sulfur_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->sulfur * $self->ore_hour / 10000);
-}
-
-sub zircon_hour {
-    my ($self) = @_;
-    return sprintf('%.0f', $self->zircon * $self->ore_hour / 10000);
-}
-
-sub monazite_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->monazite * $self->ore_hour / 10000);
-}
-
-sub fluorite_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->fluorite * $self->ore_hour / 10000);
-}
-
-sub beryl_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->beryl * $self->ore_hour / 10000);
-}
-
-sub magnetite_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->magnetite * $self->ore_hour / 10000);
-}
 
 # BUILDINGS
 
@@ -797,6 +718,15 @@ has command => (
     default => sub {
         my $self = shift;
         return $self->get_building_of_class('Lacuna::DB::Building::PlanetaryCommand');
+    },
+);
+
+has mining_ministry => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->get_building_of_class('Lacuna::DB::Building::Ore::Ministry');
     },
 );
 
@@ -1105,7 +1035,17 @@ sub recalc_stats {
                 my $method = $type.'_production_hour';
                 $stats{$method} += $building->$method();
             }
+            if ($building->isa('Lacuna::DB::Building::Ore::Ministry')) {
+                foreach my $type (ORE_TYPES) {
+                    my $method = $type.'_hour';
+                    $stats{$method} += $building->$method();
+                }
+            }
          }
+    }
+    foreach my $type (ORE_TYPES) {
+        my $method = $type.'_hour';
+        $stats{$method} += sprintf('%.0f',$self->$type * $stats{ore_hour} / 10000);
     }
     $self->update(\%stats);
     $self->put;
