@@ -15,6 +15,7 @@ sub view_spies {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
+    $building->is_offline;
     $page_number ||= 1;
     my @spies;
     my $body = $building->body;
@@ -51,6 +52,7 @@ sub assign_spy {
     my ($self, $session_id, $building_id, $spy_id, $assignment) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
+    $building->is_offline;
     my $spy = $self->simpledb->domain('spies')->find($spy_id);
     unless (defined $spy) {
         confess [1002, 'No such spy.'];
@@ -68,6 +70,7 @@ sub burn_spy {
     my ($self, $session_id, $building_id, $spy_id, $assignment) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
+    $building->is_offline;
     my $spy = $self->simpledb->domain('spies')->find($spy_id);
     unless (defined $spy) {
         confess [1002, 'No such spy.'];
@@ -91,6 +94,7 @@ sub train_spy {
     my ($self, $session_id, $building_id, $quantity) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
+    $building->is_offline;
     $quantity ||= 1;
     if ($quantity > 5) {
         confess [1009, "You can only train 5 spies at a time."];
@@ -154,6 +158,7 @@ sub name_spy {
         ->no_restricted_chars;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
+    $building->is_offline;
     my $spy = $self->simpledb->domain('spies')->find($spy_id);
     unless (defined $spy) {
         confess [1002, 'No such spy.'];

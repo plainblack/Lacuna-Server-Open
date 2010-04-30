@@ -1,0 +1,7 @@
+Probe Seized
+~~~
+We have taken control of a probe in the %s system, from %s. 
+
+More to come,
+
+%s

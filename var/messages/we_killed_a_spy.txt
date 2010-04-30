@@ -1,6 +1,6 @@
 Enemy Killed
 ~~~
-We killed an enemy agent on %s. Unfortunately, with the suspect dead no other information could be gathered.
+We killed an enemy agent on %s. Unfortunately, with the agent dead no other information could be gathered.
 
 Regards,
 

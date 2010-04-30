@@ -1,0 +1,7 @@
+Mining Platform Disabled
+~~~
+We have shut down a mining platform on %s, which was controlled by %s.
+
+More to come,
+
+%s

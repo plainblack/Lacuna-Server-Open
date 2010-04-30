@@ -1,6 +1,6 @@
-We Destroyed A Probe
+We Disabled A Probe
 ~~~
-We just knocked out a probe tasked to the %s system. It was under the control of %s.
+We just disabled a probe tasked to the %s system. It was under the control of %s.
 
 More to come,
 

@@ -18,6 +18,11 @@ __PACKAGE__->add_attributes(
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Body', 'body_id');
 
+sub date_complete_formatted {
+    my $self = shift;
+    return format_date($self->date_complete);
+}
+
 has building => (
     is      => 'rw',
     lazy    => 1,

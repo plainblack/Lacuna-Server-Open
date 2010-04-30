@@ -15,6 +15,7 @@ __PACKAGE__->add_attributes(
     level           => { isa => 'Int' },
     class           => { isa => 'Str' },
     build_queue_id  => { isa => 'Str' },
+    offline         => { isa => 'DateTime' },
 );
 
 __PACKAGE__->belongs_to('build_queue', 'Lacuna::DB::BuildQueue', 'build_queue_id', mate=>'building');
@@ -24,6 +25,13 @@ __PACKAGE__->recast_using('class');
 
 sub controller_class {
     confess "you need to override me";
+}
+
+sub is_offline {
+    my $self = shift;
+    if ($self->offline > DateTime->now) {
+        confess [1013, $self->name.' is currently offline.'];
+    }
 }
 
 use constant max_instances_per_planet => 9999999;

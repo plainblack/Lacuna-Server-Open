@@ -24,6 +24,7 @@ sub view_freebies {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
+    $building->is_offline;
     my $free_stuff = $building->body->freebies;
     my %freebies;
     foreach my $class (keys %{$free_stuff}) {

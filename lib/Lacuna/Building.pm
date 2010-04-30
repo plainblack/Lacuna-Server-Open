@@ -31,6 +31,7 @@ sub upgrade {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_domain, $building_id);
+    $building->is_offline;
 
     # check the upgrade lock
     if ($building->is_upgrade_locked) {
@@ -81,6 +82,7 @@ sub view {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_domain, $building_id);
+    $building->is_offline;
     $building->body->tick;
     $building = $empire->get_building($self->model_domain, $building_id); # reload stale building after tick
     my $cost = $building->cost_to_upgrade;

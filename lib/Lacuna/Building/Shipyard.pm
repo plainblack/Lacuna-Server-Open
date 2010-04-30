@@ -16,6 +16,7 @@ sub view_build_queue {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
+    $building->is_offline;
     my $body = $building->body;
     my $spaceport = $body->spaceport;
     $spaceport->check_for_completed_ships;
@@ -44,6 +45,7 @@ sub build_ship {
     my ($self, $session_id, $building_id, $type, $quantity) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
+    $building->is_offline;
     my $body = $building->body;
     $body->tick;
     $building = $empire->get_building($self->model_class, $building_id); #might be stale
@@ -73,6 +75,7 @@ sub get_buildable {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
+    $building->is_offline;
     my %buildable;
     $building->body->tick;
     my $docks;
