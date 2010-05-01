@@ -603,16 +603,7 @@ sub start_upgrade {
     # clear cache
     $body->clear_last_in_build_queue;
 
-    # steal it
-    if ($body->check_theft) {
-        my @random = shuffle @{$body->thieves};
-        $random[0]->steal_a_building($self);
-    }
-    else {
-        $body->defeat_theft;
-    }
-
-   $self->empire->trigger_full_update;
+    $self->empire->trigger_full_update;
 }
 
 sub finish_upgrade {

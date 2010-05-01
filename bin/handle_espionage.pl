@@ -243,22 +243,22 @@ sub steal {
         # nothing
     }
     elsif ($mission < 10) {
-        steal_building($planet, $espionage,3);
+        steal_building($planet, $espionage, randint(1,3));
     }
     elsif ($mission < 15) {
-        steal_building($planet, $espionage,6);
+        steal_building($planet, $espionage, randint(4,6));
     }
     elsif ($mission < 20) {
         steal_ships($planet, $espionage, 1);
     }
     elsif ($mission < 25) {
-        steal_building($planet, $espionage,10);
+        steal_building($planet, $espionage, randint(7,10));
     }
     elsif ($mission < 30) {
         steal_resources($planet, $espionage,1);
     }
     elsif ($mission < 35) {
-        steal_building($planet, $espionage,20);
+        steal_building($planet, $espionage, randint(11,15));
     }
     elsif ($mission < 40) {
         steal_ships($planet, $espionage, 3);
@@ -267,7 +267,7 @@ sub steal {
         steal_resources($planet, $espionage,2);
     }
     elsif ($mission < 50) {
-        steal_building($planet, $espionage,100);
+        steal_building($planet, $espionage, randint(16,100));
     }
     else {
         kill_cop($planet, $espionage, 'theft')
@@ -294,7 +294,7 @@ sub sabotage {
         capture_saboteurs($planet, $espionage,2);
     }
     elsif ($mission < -25) {
-        capture_saboteur($planet, $espionage);
+        capture_saboteurs($planet, $espionage,1);
     }
     elsif ($mission < -20) {
         kill_saboteurs($planet, $espionage, 3);
@@ -303,7 +303,7 @@ sub sabotage {
         kill_saboteurs($planet, $espionage, 2);
     }
     elsif ($mission < -10) {
-        kill_saboteur($planet, $espionage);
+        kill_saboteurs($planet, $espionage,1);
     }
     elsif ($mission < -5) {
         thwart_saboteur($planet, $espionage);
@@ -416,6 +416,229 @@ sub rebel {
 
 # OUTCOMES
 
+sub capture_saboteurs {
+    my ($planet, $espionage, $quantity) = @_;
+    out('Capture Saboteurs');
+    my $cop = random_spy($espionage->{police}{spies});
+    return undef unless defined $cop;
+    my $got;
+    for (1..$quantity) {
+        my $saboteur = shift @{$espionage->{sabotage}{spies}};
+        last unless defined $saboteur;
+        $espionage->{sabotage}{score} -= $saboteur->offense;
+        capture_a_spy($planet, $saboteur, $cop);
+        $got = 1;
+    }
+    if ($got) {
+        $planet->add_news(40,'A saboteur was apprehended on %s today by %s authorities.', $planet->name, $planet->empire->name);
+    }
+}
+
+sub kill_saboteurs {
+    my ($planet, $espionage, $quantity) = @_;
+    out('Kill Saboteurs');
+    my $cop = random_spy($espionage->{police}{spies});
+    return undef unless defined $cop;
+    my $got;
+    for (1..$quantity) {
+        my $saboteur = shift @{$espionage->{sabotage}{spies}};
+        last unless defined $saboteur;
+        $espionage->{sabotage}{score} -= $saboteur->offense;
+        kill_a_spy($planet, $saboteur, $cop);
+        $got = 1;
+    }
+    if ($got) {
+        $planet->add_news(70,'%s told us that a lone saboteur was killed on %s before he could carry out his plot.', $planet->empire->name, $planet->name);
+    }
+}
+
+sub thwart_saboteur {
+    my ($planet, $espionage, $quantity) = @_;
+    out('Thwart Saboteurs');
+    my $cop = random_spy($espionage->{police}{spies});
+    return undef unless defined $cop;
+    my $saboteur = random_spy($espionage->{sabotage}{spies});
+    return undef unless defined $saboteur;
+    $espionage->{police}{score} += 5;
+    miss_a_spy($planet, $saboteur, $cop);
+    $planet->add_news(20,'%s authorities on %s are conducting a manhunt for a suspected saboteur.', $planet->empire->name, $planet->name);
+}
+
+sub steal_resources {
+    my ($planet, $espionage, $quantity) = @_;
+    out('Steal Resources');
+    my $spaceport = $planet->spaceport;
+    return undef unless defined $spaceport;
+    my @ships = ('cargo_ship','smuggler_ship');
+    for (1..$quantity) {
+        my $thief = shift @{$espionage->{theft}{spies}};
+        last unless defined $thief;
+        my $type = $ships[randint(0,1)];
+        eval{$spaceport->remove_ship($type)};
+        if ($@) {
+            push @{$espionage->{theft}{spies}}, $thief;
+            next;
+        }
+        $espionage->{theft}{score} -= $thief->offense;
+        $espionage->{police}{score} += $thief->offense + 10;
+        my $cargo_size_method = $type.'_hold_size';
+        my $cargo_size = $spaceport->$cargo_size_method;
+        my $payload = {
+            spies => [ $thief->id ],
+            resources   => {},
+            # FINISH THIS AFTER CARGO SHIPS ARE IMPLEMENTED
+        };
+        my $home = $thief->from_body;
+        my $duration = $spaceport->calculate_seconds_from_body_to_body($type, $planet, $home);
+        my $date = DateTime->now->add(seconds=>$duration);
+        $thief->available_on($date->clone);
+        $thief->on_body_id($home->id);
+        $thief->task('Travelling');
+        $thief->put;
+        Lacuna::DB::TravelQueue->send(
+            simpledb        => $db,
+            body            => $home,
+            foreign_body    => $planet,
+            payload         => $payload,
+            ship_type       => $type,
+            direction       => 'incoming',
+            date_arrives    => $date,
+        );
+        $type =~ s/_/ /g;
+        $thief->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'ship_theft_report.txt',
+            params      => [$type, $thief->name],
+            ## ATTACH RESOURCE TABLE
+        );
+        $planet->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'ship_stolen.txt',
+            params      => [$type, $planet->name],
+        );
+        $planet->add_news(50,'In a daring robbery a thief absconded with a %s from %s today.', $type, $planet->name);
+    }
+    $spaceport->save_changed_ports;
+}
+
+sub steal_ships {
+    my ($planet, $espionage, $quantity) = @_;
+    out('Steal Ships');
+    my $spaceport = $planet->spaceport;
+    return undef unless defined $spaceport;
+    my @ships = ('colony_ship','spy_pod','cargo_ship','space_station','smuggler_ship','mining_platform_ship');
+    for (1..$quantity) {
+        my $thief = shift @{$espionage->{theft}{spies}};
+        last unless defined $thief;
+        my $type = $ships[randint(0,5)];
+        eval{$spaceport->remove_ship($type)};
+        if ($@) {
+            push @{$espionage->{theft}{spies}}, $thief;
+            next;
+        }
+        $espionage->{theft}{score} -= $thief->offense;
+        $espionage->{police}{score} += $thief->offense;
+        my $home = $thief->from_body;
+        my $duration = $spaceport->calculate_seconds_from_body_to_body($type, $planet, $home);
+        my $date = DateTime->now->add(seconds=>$duration);
+        $thief->available_on($date->clone);
+        $thief->on_body_id($home->id);
+        $thief->task('Travelling');
+        $thief->put;
+        Lacuna::DB::TravelQueue->send(
+            simpledb        => $db,
+            body            => $home,
+            foreign_body    => $planet,
+            payload         => { spies => [ $thief->id ] },
+            ship_type       => $type,
+            direction       => 'incoming',
+            date_arrives    => $date,
+        );
+        $type =~ s/_/ /g;
+        $thief->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'ship_theft_report.txt',
+            params      => [$type, $thief->name],
+        );
+        $planet->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'ship_stolen.txt',
+            params      => [$type, $planet->name],
+        );
+        $planet->add_news(50,'In a daring robbery a thief absconded with a %s from %s today.', $type, $planet->name);
+    }
+    $spaceport->save_changed_ports;
+}
+
+sub steal_building {
+    my ($planet, $espionage, $level) = @_;
+    out('Steal Building');
+    my $thief = random_spy($espionage->{theft}{spies});
+    return undef unless defined $thief;
+    my @classes = (
+        'Lacuna::DB::Building',
+        'Lacuna::DB::Building::Food',
+        'Lacuna::DB::Building::Water',
+        'Lacuna::DB::Building::Waste',
+        'Lacuna::DB::Building::Ore',
+        'Lacuna::DB::Building::Energy',
+        );
+    my $building = $db->domain($classes[randint(0,5)])->search(
+        order_by    => 'itemName()',
+        where       => { body_id => $planet->id, level => ['>=', $level] },
+        limit       => 1,
+        )->next;
+    return undef unless defined $building;
+    $thief->from_body->add_freebie($building->class, $level)->put;
+    $thief->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'building_theft_report.txt',
+        params      => [$level, $building->name, $thief->name],
+    );
+}
+
+sub kill_thief {
+    my ($planet, $espionage) = @_;
+    out('Kill Thief');
+    my $cop = random_spy($espionage->{police}{spies});
+    return undef unless defined $cop;
+    my $thief = shift @{$espionage->{theft}{spies}};
+    return undef unless defined $thief;
+    $espionage->{theft}{score} -= $thief->offense;
+    kill_a_spy($planet, $thief, $cop);
+    $planet->add_news(70,'%s police caught and killed a thief on %s during the commission of the hiest.', $planet->empire->name, $planet->name);
+}
+
+sub capture_thief {
+    my ($planet, $espionage) = @_;
+    out('Capture Thief');
+    my $cop = random_spy($espionage->{police}{spies});
+    return undef unless defined $cop;
+    my $thief = shift @{$espionage->{theft}{spies}};
+    return undef unless defined $thief;
+    $espionage->{theft}{score} -= $thief->offense;
+    capture_a_spy($planet, $thief, $cop);
+    $planet->add_news(40,'%s announced the incarceration of a thief on %s today.', $planet->empire->name, $planet->name);
+}
+
+sub thwart_thief {
+    my ($planet, $espionage) = @_;
+    out('Thwart Thief');
+    my $cop = random_spy($espionage->{police}{spies});
+    return undef unless defined $cop;
+    my $thief = random_spy($espionage->{theft}{spies});
+    return undef unless defined $thief;
+    miss_a_spy($planet, $thief, $cop);
+    $planet->add_news(20,'A thief evaded %s authorities on %s. Citizens are warned to lock their doors.', $planet->empire->name, $planet->name);
+}
+
+sub increase_security {
+    my ($planet, $espionage, $amount) = @_;
+    out('Increase Security');
+    $espionage->{police}{score} += $amount;
+    $planet->add_news(15,'Officials on %s are ramping up security based on what they call "credible threats".', $planet->name);    
+}
+
 sub shut_down_building {
     my ($planet, $espionage) = @_;
     out('Shut Down Building');
@@ -446,6 +669,7 @@ sub shut_down_building {
             params      => [$building->name, $planet->name, $spy->name],
         );
     }
+    $espionage->{police}{score} += 5;
     $planet->add_news(25,'Employees at the %s on %s were left in the dark today during a power outage.', $building->name, $planet->name);    
 }
 
@@ -1275,59 +1499,6 @@ sub miss_a_spy {
     );
 }
 
-sub defeat_theft {
-    my ($self) = @_;
-    if ($self->chance_of_theft > 0) {
-        my $event = randint(1,100);
-        my $spy = $self->thieves->[0];
-        return undef unless defined $spy;
-        my $interceptor = $self->interceptors->[0];
-        return undef unless defined $interceptor;
-        if ($event < 5) {
-            $self->theft_score( $self->theft_score - $spy->offense );
-            $self->kill_a_spy($spy, $interceptor);
-            delete $self->thieves->[0];
-            $self->add_news(70,'%s police caught and killed a thief on %s during the commission of the crime.', $self->empire->name, $self->name);
-        }
-        elsif ($event < 20) {
-            $self->theft_score( $self->theft_score - $spy->offense );
-            $self->capture_a_spy($spy, $interceptor);
-            delete $self->thieves->[0];
-            $self->add_news(40,'%s announced the incarceration of a thief on %s today.', $self->empire->name, $self->name);
-        }
-        else {
-            $self->miss_a_spy($spy, $interceptor);
-            $self->add_news(20,'A thief evaded %s authorities on %s. Citizens are warned to lock their doors.', $self->empire->name, $self->name);
-        }
-    }
-}
-
-sub defeat_sabotage {
-    my ($self) = @_;
-    if ($self->chance_of_sabotage > 0) {
-        my $event = randint(1,100);
-        my $spy = $self->saboteurs->[0];
-        return undef unless defined $spy;
-        my $interceptor = $self->interceptors->[0];
-        return undef unless defined $interceptor;
-            if ($event < 5) {
-            $self->sabotage_score( $self->sabotage_score - $spy->offense );
-            $self->kill_a_spy($spy, $interceptor);
-            delete $self->saboteurs->[0];
-            $self->add_news(70,'%s told us that a lone saboteur was killed on %s before he could carry out his plot.', $self->empire->name, $self->name);
-        }
-        elsif ($event < 30) {
-            $self->sabotage_score( $self->sabotage_score - $spy->offense );
-            $self->capture_a_spy($spy, $interceptor);
-            delete $self->saboteurs->[0];
-            $self->add_news(40,'A saboteur was apprehended on %s today by %s authorities.', $self->name, $self->empire->name);
-        }
-        else {
-            $self->miss_a_spy($spy, $interceptor);
-            $self->add_news(20,'%s authorities on %s are conducting a manhunt for a suspected saboteur.', $self->empire->name, $self->name);
-        }
-    }
-}
 
 sub defeat_rebellion {
     my ($self) = @_;

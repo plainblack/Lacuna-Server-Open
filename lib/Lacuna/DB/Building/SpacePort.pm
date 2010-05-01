@@ -18,6 +18,7 @@ __PACKAGE__->add_attributes(
 );
 
 with 'Lacuna::Role::Distanced';
+with 'Lacuna::Role::Shippable';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
@@ -73,29 +74,16 @@ sub send_ship_to_body {
     my $body = $self->body;
     $self->remove_ship($type);
     $self->save_changed_ports;
-
-    # steal it
-    if ($body->check_theft) {
-        my @random = shuffle @{$body->thieves};
-        my $spy = pop @random;
-        $body->thieves(\@random);
-        $spy->steal_a_ship($body, $type);
-        $type =~ s/_//g;
-        confess [1014, 'The '.$type.' was stolen!'];
-    }
-    else {
-        $body->defeat_theft;
-        my $duration = $self->calculate_seconds_from_body_to_body($type, $body, $target_body);
-        return Lacuna::DB::TravelQueue->send(
-            simpledb        => $self->simpledb,
-            body            => $body,
-            foreign_body    => $target_body,
-            ship_type       => $type,
-            direction       => 'outgoing',
-            date_arrives    => DateTime->now->add(seconds=>$duration),
-            payload         => $payload,
-        );
-    }
+    my $duration = $self->calculate_seconds_from_body_to_body($type, $body, $target_body);
+    return Lacuna::DB::TravelQueue->send(
+        simpledb        => $self->simpledb,
+        body            => $body,
+        foreign_body    => $target_body,
+        ship_type       => $type,
+        direction       => 'outgoing',
+        date_arrives    => DateTime->now->add(seconds=>$duration),
+        payload         => $payload,
+    );
 }
 
 sub ships_docked {
