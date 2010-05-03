@@ -609,53 +609,25 @@ sub start_upgrade {
 sub finish_upgrade {
     my ($self) = @_;
     $self->build_queue->delete;
-    my $body = $self->body;
-    
-    # blow it up
-    if ($self->level > 0 && $body->check_sabotage) {
-        $self->build_queue_id('');
-        $self->put;
-        $self->send_blow_up_a_building();
-        my @spies = $body->pick_a_spy_per_empire($body->saboteurs);
-        foreach my $spy (@spies) {
-            $spy->sabotage_a_building($self);
-        }
-    }
-
-    # finish the upgrade
-    else {
-        $self->build_queue_id('');
-        $self->level($self->level + 1);
-        $self->put;
-        $body->clear_last_in_build_queue;
-        $body->needs_recalc(1);
-        $body->put;
-        my $empire = $body->empire; 
-        $empire->trigger_full_update;
-        $empire->add_medal('building'.$self->level);
-        my $type = $self->controller_class;
-        $type =~ s/^Lacuna::Building::(\w+)$/$1/;
-        $empire->add_medal($type);
-        if ($self->level % 5 == 0) {
-            my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'an epic',35=>'a miraculous',40=>'a magical');
-            $self->body->add_news($self->level*5,"In %s ceremony, %s unveiled it's newly augmentented %s.", $levels{$self->level}, $empire->name, $self->name);
-        }
-        $body->defeat_sabotage;
+    my $body = $self->body;    
+    $self->build_queue_id('');
+    $self->level($self->level + 1);
+    $self->put;
+    $body->clear_last_in_build_queue;
+    $body->needs_recalc(1);
+    $body->put;
+    my $empire = $body->empire; 
+    $empire->trigger_full_update;
+    $empire->add_medal('building'.$self->level);
+    my $type = $self->controller_class;
+    $type =~ s/^Lacuna::Building::(\w+)$/$1/;
+    $empire->add_medal($type);
+    if ($self->level % 5 == 0) {
+        my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'an epic',35=>'a miraculous',40=>'a magical');
+        $self->body->add_news($self->level*5,"In %s ceremony, %s unveiled it's newly augmentented %s.", $levels{$self->level}, $empire->name, $self->name);
     }
 }
 
-
-# SPIES
-
-sub send_blow_up_a_building {
-    my ($self) = @_;
-    $self->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'building_kablooey.txt',
-        params      => [$self->name, $self->body->name],
-    );
-    $self->body->add_news(90,'%s was rocked today when the %s exploded, sending people scrambling for their lives.', $self->body->name, $self->name);
-}
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

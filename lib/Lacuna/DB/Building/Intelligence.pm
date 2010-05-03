@@ -177,6 +177,10 @@ sub train_spy {
     return $self;
 }
 
+before delete => sub {
+    my ($self) = @_;
+    $self->db->domain('spies')->search(where=>{from_body_id=>$self->body_id})->delete;
+};
 
 
 no Moose;

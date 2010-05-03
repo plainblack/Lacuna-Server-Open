@@ -315,13 +315,13 @@ sub sabotage {
         destroy_mining_ship($planet, $espionage);
     }
     elsif ($mission < 15) {
-        destroy_ship($planet, $espionage);
+        destroy_ships($planet, $espionage, 1);
     }
     elsif ($mission < 20) {
         destroy_ships($planet, $espionage, 2);
     }
     elsif ($mission < 25) {
-        destroy_upgrade($planet, $espionage);
+        destroy_upgrades($planet, $espionage, 1);
     }
     elsif ($mission < 30) {
         destroy_ships($planet, $espionage,3);
@@ -415,6 +415,159 @@ sub rebel {
 
 
 # OUTCOMES
+
+sub destroy_infrastructure {
+    my ($planet, $espionage, $quantity) = @_;
+    out('Destroy Upgrades');
+    for (1..$quantity) {
+        my @classes = (
+            'Lacuna::DB::Building::Shipyard',
+            'Lacuna::DB::Building::SpacePort',
+            'Lacuna::DB::Building::Trade',
+            'Lacuna::DB::Building::Transporter',
+            'Lacuna::DB::Building::Waste::Recycling',
+            'Lacuna::DB::Building::EntertainmentDistrict',
+            'Lacuna::DB::Building::Development',
+            'Lacuna::DB::Building::Espionage',
+            'Lacuna::DB::Building::Network19',
+            'Lacuna::DB::Building::Intelligence',
+            'Lacuna::DB::Building::Observatory',
+            'Lacuna::DB::Building::Park',
+            'Lacuna::DB::Building::Propulsion',
+            'Lacuna::DB::Building::RND',
+            'Lacuna::DB::Building::Security',
+            'Lacuna::DB::Building::Waste::Sequestration',
+            );
+        my $building = $db->domain($classes[randint(0,length(@classes)-1)])->search(
+            order_by    => 'itemName()',
+            where       => { body_id => $planet->id },
+            limit       => 1,
+            )->next;
+        last unless defined $building;
+        $espionage->{police}{score} += 25;
+        $planet->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'building_kablooey.txt',
+            params      => [$building->level, $building->name, $planet->name],
+        );
+        my @spies = pick_a_spy_per_empire($espionage->{sabotage}{spies});
+        foreach my $spy (@spies) {
+            $spy->empire->send_predefined_message(
+                tags        => ['Intelligence'],
+                filename    => 'sabotage_report.txt',
+                params      => ['level '.($building->level).' '.$building->name, $planet->name, $spy->name],
+            );
+        }
+        $planet->add_news(90,'%s was rocked today when the %s exploded, sending people scrambling for their lives.', $planet->name, $building->name);
+        $got = 1;
+        if ($building->level <= 1) {
+            $building->delete;
+        }
+        else {
+            $building->level( $building->level - 1);
+            $building->put;
+        }
+    }
+    if ($got) {
+        $planet->needs_recalc(1);
+        $planet->put;
+    }
+}
+
+sub destroy_upgrades {
+    my ($planet, $espionage, $quantity) = @_;
+    out('Destroy Upgrades');
+    my $builds = $planet->builds({},1);
+    my $got;
+    for (1..$quantity) {
+        my $build = $builds->next;
+        last unless defined $build;
+        my $building = $build->building;
+        last unless defined $building;
+        $espionage->{police}{score} += 20;
+        $planet->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'building_kablooey.txt',
+            params      => [$building->level + 1, $building->name, $planet->name],
+        );
+        my @spies = pick_a_spy_per_empire($espionage->{sabotage}{spies});
+        foreach my $spy (@spies) {
+            $spy->empire->send_predefined_message(
+                tags        => ['Intelligence'],
+                filename    => 'sabotage_report.txt',
+                params      => ['level '.($building->level + 1).' '.$building->name, $planet->name, $spy->name],
+            );
+        }
+        $planet->add_news(90,'%s was rocked today when the %s exploded, sending people scrambling for their lives.', $planet->name, $building->name);
+        $build->delete;
+        if ($building->level == 0) {
+            $building->delete;
+            $got = 1;
+        }
+    }
+    if ($got) {
+        $planet->needs_recalc(1);
+        $planet->put;
+    }
+}
+
+sub destroy_ships {
+    my ($planet, $espionage, $quantity) = @_;
+    out('Destroy Ships');
+    my $spaceport = $planet->spaceport;
+    return undef unless defined $spaceport;
+    my @ships = ('probe','colony_ship','spy_pod','cargo_ship','space_station','smuggler_ship','mining_platform_ship');
+    for (1..$quantity) {
+        my $type = $ships[randint(0,6)];
+        eval{$spaceport->remove_ship($type)};
+        if ($@) {
+            next;
+        }
+        $espionage->{police}{score} += 10;
+        $type =~ s/_/ /g;
+        $planet->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'ship_blew_up_at_port.txt',
+            params      => [$type, $planet->name],
+        );
+        my @spies = pick_a_spy_per_empire($espionage->{sabotage}{spies});
+        foreach my $spy (@spies) {
+            $spy->empire->send_predefined_message(
+                tags        => ['Intelligence'],
+                filename    => 'sabotage_report.txt',
+                params      => [$type, $planet->name, $spy->name],
+            );
+        }
+        $planet->add_news(90,'Today, officials on %s are investigating the explosion of a %s at the Space Port.', $planet->name, $type);
+    }
+    $spaceport->save_changed_ports;
+}
+
+sub destroy_mining_ship {
+    my ($planet, $espionage) = @_;
+    out('Destroy Mining Cargo Ship');
+    my $ministry = $planet->mining_ministry;
+    return undef unless defined $ministry;
+    return undef unless $ministry->ship_count > 0;
+    $ministry->ship_count($ministry->ship_count - $count);
+    $ministry->recalc_ore_production;
+    $ministry->put;
+    $planet->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'ship_blew_up_at_port.txt',
+        params      => ['mining cargo ship',$planet->name],
+    );
+    my @spies = pick_a_spy_per_empire($espionage->{sabotage}{spies});
+    foreach my $spy (@spies) {
+        $spy->empire->send_predefined_message(
+            tags        => ['Intelligence'],
+            filename    => 'sabotage_report.txt',
+            params      => [$type, $planet->name, $spy->name],
+        );
+    }
+    $planet->add_news(90,'Today, officials on %s are investigating the explosion of a mining cargo ship at the Space Port.', $planet->name);
+    $espionage->{police}{score} += 5;
+}
 
 sub capture_saboteurs {
     my ($planet, $espionage, $quantity) = @_;

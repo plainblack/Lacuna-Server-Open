@@ -140,37 +140,12 @@ sub check_for_completed_ships {
     while (my $ship = $ships->next) {
         my $port = $self->add_ship($ship->type);
         if (defined $port) {
-            my $body = $self->body;
-            if ($body->check_sabotage) {
-                $self->remove_ship($ship->type);
-                $self->blow_up_ship($ship->type);
-                my @spies = $body->pick_a_spy_per_empire($body->saboteurs);
-                foreach my $spy (@spies) {
-                    $spy->sabotage_a_ship($self, $ship->type);
-                }
-            }
-            else {
-                $body->defeat_sabotage;
-            }
             $ship->delete;
         }
         else {
             last;
         }
     }
-}
-
-sub blow_up_ship {
-    my ($self, $type);
-    my $body = $self->body;
-    $type =~ s/_/ /g;
-    $self->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'ship_blew_up_at_port.txt',
-        params      => [$type, $body->name],
-    );
-    $body->add_news(100,'Today, officials on %s are investigating the explosion of a %s at the Space Port.', $body->name, $type);
-
 }
 
 sub add_ship {

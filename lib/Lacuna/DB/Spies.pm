@@ -40,8 +40,8 @@ sub is_available {
 
 use constant assignments => (
     'Idle',
+    'Counter Espionage',
     'Gather Intelligence',
-    'Capture Spies',
     'Sabotage Infrastructure',
     'Appropriate Technology',
     'Incite Rebellion',
@@ -109,32 +109,6 @@ sub turn {
     $self->from_body_id($rebel->from_body_id);
     $self->put;
 }
-
-sub sabotage_a_building {
-    my ($self, $building) = @_;
-    my $body = $building->body;
-    $self->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'sabotage_report.txt',
-        params      => [$building->name, $body->name, $self->name],
-    );
-    $body->interception_score( $body->interception_score + 20);
-}
-
-sub sabotage_a_ship {
-    my ($self, $building, $type) = @_;
-    my $body = $building->body;
-    $type =~ s/_/ /g;
-    $self->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'sabotage_report.txt',
-        params      => [$type, $body->name, $self->name],
-    );
-    $body->interception_score( $body->interception_score + 10);
-}
-
-
-
 
 
 no Moose;

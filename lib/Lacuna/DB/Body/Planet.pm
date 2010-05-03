@@ -209,7 +209,6 @@ sub sanitize {
     );
     $self->ships_travelling->delete;
     $self->simpledb->domain('travel_queue')->search(where=>{foreign_body_id => $self->id})->delete;
-    $self->simpledb->domain('spies')->search(where=>{from_body_id => $self->id})->delete;
     foreach my $attribute (@attributes) {
         $self->$attribute(0);
     }

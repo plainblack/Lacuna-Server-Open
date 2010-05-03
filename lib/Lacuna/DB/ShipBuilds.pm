@@ -16,8 +16,6 @@ __PACKAGE__->add_attributes(
 __PACKAGE__->belongs_to('shipyard', 'Lacuna::DB::Building::Shipyard', 'shipyard_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Body::Planet', 'body_id');
 
-
-
 sub date_completed_formatted {
     my $self = shift;
     return format_date($self->date_completed);

@@ -159,6 +159,11 @@ sub build_ship {
     }
 }
 
+before delete => sub {
+    my ($self) = @_;
+    $self->db->domain('ship_builds')->search(where=>{shipyard_id=>$self->id})->delete;
+};
+
 use constant controller_class => 'Lacuna::Building::Shipyard';
 
 use constant building_prereq => {'Lacuna::DB::Building::SpacePort'=>1};
