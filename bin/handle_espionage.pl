@@ -1219,8 +1219,8 @@ sub kill_guard_and_escape_prison {
     my $suspect = shift @{$espionage->{prison}{spies}};
     return undef unless defined $suspect;
     $espionage->{police}{score} -= $cop->offense;
-    $cop->kill($planet);
-    $suspect->escape;
+    kill_a_spy($planet, $cop, $suspect);
+    escape_a_spy($planet, $suspect);
     $planet->add_news(70,'An inmate killed his interrogator, and escaped the prison on %s today.', $planet->name);
 }
 
@@ -1229,7 +1229,7 @@ sub escape_prison {
     out('Escape Prison');
     my $suspect = shift @{$espionage->{prison}{spies}};
     return undef unless defined $suspect;
-    $suspect->escape;
+    escape_a_spy($planet, $suspect);
     $planet->add_news(50,'At this hour police on %s are flabbergasted as to how an inmate escaped earlier in the day.', $planet->name);    
 }
 
@@ -1238,7 +1238,9 @@ sub kill_suspect {
     out('Kill Suspect');
     my $suspect = shift @{$espionage->{prison}{spies}};
     return undef unless defined $suspect;
-    $suspect->kill($planet);
+    my $cop = random_spy($espionage->{police}{spies});
+    return undef unless defined $cop;
+    kill_a_spy($planet, $suspect, $cop);
     $planet->add_news(50,'Allegations of police brutality are being made on %s after an inmate was killed in custody today.', $planet->name);
 }
 
@@ -1319,7 +1321,7 @@ sub kill_cop {
     );
     $espionage->{police}{score} += 5 - $cop->defense;
     $planet->add_news(60,'An officer named %s was killed in the line of duty on %s.', $cop->name, $planet->name);
-    $cop->kill($planet);
+    kill_a_spy($planet, $cop, $spy);
 }
 
 capture_hacker {
@@ -1610,13 +1612,18 @@ sub determine_espionage {
 
 sub kill_a_spy {
     my ($planet, $spy, $interceptor) = @_;
-    $planet->empire->send_predefined_message(
+    $interceptor->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_killed_a_spy.txt',
         params      => [$planet->name, $interceptor->name],
         from        => $interceptor->empire,
     );
-    $spy->kill($planet);
+    $spy->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'spy_killed.txt',
+        params      => [$spy->name, $planet->name],
+    );
+    $spy->delete;
 }
 
 sub capture_a_spy {
@@ -1652,6 +1659,46 @@ sub miss_a_spy {
     );
 }
 
+sub escape_a_spy {
+    my ($planet, $spy) = @_;
+    $spy->available_on(DateTime->now);
+    $spy->task('Idle');
+    $spy->put;
+    my $evil_empire = $planet->empire;
+    $spy->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'i_have_escaped.txt',
+        params      => [$evil_empire->name, $self->name],
+    );
+    $evil_empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'you_cant_hold_me.txt',
+        params      => [$self->name],
+    );
+}
+
+
+sub turn_a_spy {
+    my ($planet, $spy, $rebel) = @_;
+    my $evil_empire = $planet->on_body->empire;
+    $spy->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'goodbye.txt',
+        params      => [$spy->name],
+    );
+    $rebel->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'new_recruit.txt',
+        params      => [$spy->empire->name, $spy->name, $rebel->name],
+    );
+    # could be abused to get lots of extra spies, may have to add a check for that.
+    $spy->task('Idle');
+    $spy->empire_id($rebel->empire_id);
+    $spy->from_body_id($rebel->from_body_id);
+    $spy->put;
+}
+
+
 
 sub defeat_rebellion {
     my ($self) = @_;
@@ -1663,7 +1710,7 @@ sub defeat_rebellion {
         return undef unless defined $interceptor;
         if ($event < 10) {
             $self->rebel_score( $self->rebel_score - $spy->offense );
-            $self->kill_a_spy($spy, $interceptor);
+            kill_a_spy($planet, $spy, $interceptor);
             $self->add_news(80,'The leader of the rebellion to overthrow %s was killed in a firefight today on %s.', $self->empire->name, $self->name);
             delete $self->rebels->[0];
         }

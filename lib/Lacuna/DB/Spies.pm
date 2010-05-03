@@ -61,55 +61,5 @@ sub assign {
     return $self;
 }
 
-sub kill {
-    my ($self, $body) = @_;
-    $body ||= $self->on_body;
-    $self->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'spy_killed.txt',
-        params      => [$self->name, $body->name],
-    );
-    $self->delete;
-}
-
-sub escape {
-    my ($self, $body) = @_;
-    $self->available_on(DateTime->now);
-    $self->task('Idle');
-    $self->put;
-    my $evil_empire = $self->on_body->empire;
-    $self->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'i_have_escaped.txt',
-        params      => [$evil_empire->name, $self->name],
-    );
-    $evil_empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'you_cant_hold_me.txt',
-        params      => [$self->name],
-    );
-}
-
-sub turn {
-    my ($self, $rebel) = @_;
-    my $evil_empire = $self->on_body->empire;
-    $self->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'goodbye.txt',
-        params      => [$self->name],
-    );
-    $rebel->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'new_recruit.txt',
-        params      => [$self->empire->name, $self->name, $rebel->name],
-    );
-    # could be abused to get lots of extra spies, may have to add a check for that.
-    $self->task('Idle');
-    $self->empire_id($rebel->empire_id);
-    $self->from_body_id($rebel->from_body_id);
-    $self->put;
-}
-
-
 no Moose;
 __PACKAGE__->meta->make_immutable;

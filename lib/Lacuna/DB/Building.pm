@@ -582,7 +582,6 @@ sub is_upgrade_locked {
 sub start_upgrade {
     my ($self, $cost) = @_;  
     my $body = $self->body;
-    $body->determine_espionage;
     $cost ||= $self->cost_to_upgrade;
     
     # set time to build, plus what's in the queue
