@@ -138,19 +138,19 @@ sub hack {
     out('Hacking Missions');
     my $mission = calculate_mission_score($espionage, 'hacking');
     if ($mission < -165) {
-        network19_prapaganda7($planet, $espionage);
+        network19_propaganda7($planet, $espionage);
     }
     elsif ($mission < -150) {
-        network19_prapaganda6($planet, $espionage);
+        network19_propaganda6($planet, $espionage);
     }
     elsif ($mission < -135) {
-        network19_prapaganda5($planet, $espionage);
+        network19_propaganda5($planet, $espionage);
     }
     elsif ($mission < -120) {
-        network19_prapaganda4($planet, $espionage);
+        network19_propaganda4($planet, $espionage);
     }
     elsif ($mission < -105) {
-        network19_prapaganda3($planet, $espionage);
+        network19_propaganda3($planet, $espionage);
     }
     elsif ($mission < -90) {
         hack_offending_probes($planet, $espionage);
@@ -159,7 +159,7 @@ sub hack {
         capture_hacker($planet, $espionage);
     }
     elsif ($mission < -60) {
-        network19_prapaganda2($planet, $espionage);
+        network19_propaganda2($planet, $espionage);
     }
     elsif ($mission < -45) {
         kill_hacker($planet, $espionage);
@@ -539,7 +539,7 @@ sub turn_rebels {
         $got = 1;
     }
     if ($got) {
-        $planet->add_news(70,'The Governor\'s call for peace appears to be working. Several rebels told this reporter they are going home.', $planet->name);
+        $planet->add_news(70,'The %s Governor\'s call for peace appears to be working. Several rebels told this reporter they are going home.', $planet->name);
     }
 }
 
@@ -1791,7 +1791,7 @@ sub escape_a_spy {
 
 sub turn_a_spy {
     my ($planet, $traitor, $spy) = @_;
-    my $evil_empire = $planet->on_body->empire;
+    my $evil_empire = $planet->empire;
     $traitor->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'goodbye.txt',
@@ -1826,6 +1826,8 @@ sub calculate_mission_score {
         out('Mission Score: 0');
         return 0;
     }
+    out('Offense Score: '.$espionage->{$type}{score});
+    out('Defense Score: '.$espionage->{police}{score});
     my $score = randint(0, $espionage->{$type}{score}) - randint(0, $espionage->{police}{score});
     out('Mission Score: '.$score);
     return $score;
