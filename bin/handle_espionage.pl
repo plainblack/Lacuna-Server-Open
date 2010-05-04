@@ -1126,7 +1126,7 @@ sub colony_report {
     $spy->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Colony Report', $spy->name],
+        params      => ['Colony Report', $planet->name, $spy->name],
         attach_table=> \@colonies,
     );
 }
@@ -1149,7 +1149,7 @@ sub surface_report {
     $spy->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Surface Report', $spy->name],
+        params      => ['Surface Report', $planet->name, $spy->name],
         attach_map  => {
                         surface_image   => $planet->surface,
                         buildings       => \@map
@@ -1180,7 +1180,7 @@ sub spy_report {
         $spook->empire->send_predefined_message(
             tags        => ['Intelligence'],
             filename    => 'intel_report.txt',
-            params      => ['Spy Report', $spook->name],
+            params      => ['Spy Report', $planet->name, $spook->name],
             attach_table=> \@peeps,
         );
     }
@@ -1200,7 +1200,7 @@ sub economic_report {
     $spy->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Economic Report', $spy->name],
+        params      => ['Economic Report', $planet->name, $spy->name],
         attach_table=> \@resources,
     );
 }
@@ -1234,7 +1234,7 @@ sub travel_report {
         $spy->empire->send_predefined_message(
             tags        => ['Intelligence'],
             filename    => 'intel_report.txt',
-            params      => ['Travel Report', $spy->name],
+            params      => ['Travel Report', $planet->name, $spy->name],
             attach_table=> \@travelling,
         );
     }
@@ -1268,7 +1268,7 @@ sub ship_report {
         $spy->empire->send_predefined_message(
             tags        => ['Intelligence'],
             filename    => 'intel_report.txt',
-            params      => ['Ship Report', $spy->name],
+            params      => ['Ship Report', $planet->name, $spy->name],
             attach_table=> \@ships,
         );
     }
@@ -1291,7 +1291,7 @@ sub build_queue_report {
     $spy->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Build Queue Report', $spy->name],
+        params      => ['Build Queue Report', $planet->name, $spy->name],
         attach_table=> \@report,
     );
 }
@@ -1309,7 +1309,7 @@ sub false_interrogation_report {
     $cop->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Interrogation Report', $cop->name],
+        params      => ['Interrogation Report', $planet->name, $cop->name],
         attach_table=> [
             ['Question', 'Response'],
             ['Name', $suspect->name],
@@ -1348,7 +1348,7 @@ sub interrogation_report {
     $cop->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Interrogation Report', $cop->name],
+        params      => ['Interrogation Report', $planet->name, $cop->name],
         attach_table=> [
             ['Question', 'Response'],
             ['Name', $suspect->name],
@@ -1464,7 +1464,7 @@ sub counter_intel_report {
         $cop->empire->send_predefined_message(
             tags        => ['Intelligence'],
             filename    => 'intel_report.txt',
-            params      => ['Counter Intelligence Report', $cop->name],
+            params      => ['Counter Intelligence Report', $planet->name, $cop->name],
             attach_table=> \@peeps,
         );
     }

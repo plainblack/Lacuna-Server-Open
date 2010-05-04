@@ -1,6 +1,6 @@
 %s
 ~~~
-Here's some information you may find interesting.
+Here's some information about %s you may find interesting.
 
 More to come,
 
