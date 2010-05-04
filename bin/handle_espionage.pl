@@ -40,6 +40,10 @@ while (my $planet = $planets->next) {
     out('Ticking '.$planet->name);
     $planet->tick;
     my $espionage = determine_espionage($planet);
+    unless ($espionage->{has_spies}) {
+       out('No Spies On Planet');
+       next;
+    }
     intel($planet, $espionage);
     hack($planet, $espionage);
     steal($planet, $espionage);
@@ -417,23 +421,9 @@ sub rebel {
 
 # OUTCOMES
 
-
-sub incite_rebellion {
-    my $planet = shift;
-    my $spy = random_spy($planet->rebels);
-    return undef unless defined $spy;
-    return undef if ($spy->empire_id eq $planet->empire_id);
-    if ($planet->check_rebellion) {
-    }
-    else {
-        $planet->defeat_rebellion;
-    }
-}
-
-
-
 sub uprising {
     my ($planet, $espionage) = @_;
+    out('Uprising');
     my $spy = random_spy($espionage->{rebellion}{spies});
     return undef unless defined $spy;
     my $loss = sprintf('%.0f', $planet->happiness * 0.10 );
@@ -475,54 +465,63 @@ sub turn_cops {
 
 sub small_rebellion {
     my ($planet, $espionage) = @_;
+    out('Small Rebellion');
     $planet->spend_happiness(randint(400,4000))->put;
     $planet->add_news(70,'Hundreds are dead at this hour after a protest turned into a small, but violent, rebellion on %s.', $planet->name);
 }
 
 sub march_on_capitol {
     my ($planet, $espionage) = @_;
+    out('March On Capitol');
     $planet->spend_happiness(randint(400,4000))->put;
     $planet->add_news(70,'Protesters now march on the %s Planetary Command Center, asking for the Governor\'s resignation.', $planet->name);
 }
 
 sub violent_protest {
     my ($planet, $espionage) = @_;
+    out('Violent Protest');
     $planet->spend_happiness(randint(300,3000))->put;
     $planet->add_news(70,'The protests at the %s Ministries have turned violent. An official was rushed to hospital in critical condition.', $planet->name);
 }
 
 sub protest {
     my ($planet, $espionage) = @_;
+    out('Protest');
     $planet->spend_happiness(randint(200,2000))->put;
     $planet->add_news(70,'Protesters can be seen jeering outside nearly every Ministry at this hour on %s.', $planet->name);
 }
 
 sub civil_unrest {
     my ($planet, $espionage) = @_;
+    out('Civil Unrest');
     $planet->spend_happiness(randint(100,1000))->put;
     $planet->add_news(70,'In recent weeks there have been rumblings of political discontent on %s.', $planet->name);
 }
 
 sub calm_the_rebels {
     my ($planet, $espionage) = @_;
+    out('Calm the Rebels');
     $planet->add_happiness(randint(250,2500))->put;
     $planet->add_news(70,'In an effort to bring an swift end to the rebellion, the %s Governor delivered an eloquent speech about hope.', $planet->name);
 }
 
 sub peace_talks {
     my ($planet, $espionage) = @_;
+    out('Peace Talks');
     $planet->add_happiness(randint(500,5000))->put;
     $planet->add_news(70,'Officials from both sides of the rebellion are at the Planetary Command Center on %s today to discuss peace.', $planet->name);
 }
 
 sub day_of_rest {
     my ($planet, $espionage) = @_;
+    out('Day of Rest');
     $planet->add_happiness(randint(2500,25000))->put;
     $planet->add_news(70,'The Governor of %s declares a day of rest and peace. Citizens rejoice.', $planet->name);
 }
 
 sub festival {
     my ($planet, $espionage) = @_;
+    out('Festival');
     $planet->add_happiness(randint(1000,10000))->put;
     $planet->add_news(70,'The %s Governor calls it the %s festival. Whatever you call it, people are happy.', $planet->name, $planet->star->name);
 }
@@ -903,7 +902,7 @@ sub steal_building {
         );
     my $building = $db->domain($classes[randint(0,5)])->search(
         order_by    => 'itemName()',
-        where       => { body_id => $planet->id, level => ['>=', $level] },
+        where       => { body_id => $planet->id, 'itemName()' => ['!=','xx'], level => ['>=', $level] },
         limit       => 1,
         )->next;
     return undef unless defined $building;
@@ -1640,7 +1639,9 @@ sub determine_espionage {
             on_body_id  => $planet->id,
         }
     );
+    my $has_spies = 0;
     while (my $spy = $spies->next) {
+        $has_spies = 1;
         if ($spy->task eq 'Counter Espionage') {
             $interception += $spy->defense;
             push @interceptors, $spy;
@@ -1682,6 +1683,7 @@ sub determine_espionage {
         }
     }
     return {
+        has_spies => $has_spies,
         idle => {
             spies => \@idle,
         },
