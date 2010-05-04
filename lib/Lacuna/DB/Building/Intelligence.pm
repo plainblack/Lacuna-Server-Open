@@ -179,7 +179,7 @@ sub train_spy {
 
 before delete => sub {
     my ($self) = @_;
-    $self->db->domain('spies')->search(where=>{from_body_id=>$self->body_id})->delete;
+    $self->simpledb->domain('spies')->search(where=>{from_body_id=>$self->body_id})->delete;
 };
 
 

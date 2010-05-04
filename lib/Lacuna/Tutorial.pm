@@ -180,10 +180,8 @@ sub counter_spy {
     my ($self, $finish) = @_;
     my $empire = $self->empire;
     if ($finish) {
-        my $spies = $empire->simpledb->domain('spies');
-        my $counter = $spies->count(where=>{empire_id => $empire->id, task=>'Gather Intelligence'});
-        my $sting = $spies->count(where=>{empire_id => $empire->id, task=>'Capture Spies'});
-        if ($counter && $sting) {
+        my $counter = $empire->simpledb->domain('spies')->count(where=>{empire_id => $empire->id, task=>'Counter Espionage'});
+        if ($counter >= 2) {
             $self->start('observatory');
             return undef;
         }
