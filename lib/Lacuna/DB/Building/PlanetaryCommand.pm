@@ -48,8 +48,6 @@ use constant ore_storage => 700;
 
 use constant water_storage => 700;
 
-use constant waste_storage => 100;
-
 
 
 no Moose;

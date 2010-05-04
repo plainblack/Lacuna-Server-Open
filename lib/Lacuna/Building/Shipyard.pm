@@ -97,7 +97,7 @@ sub get_buildable {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_buildable build_ship));
+__PACKAGE__->register_rpc_method_names(qw(get_buildable build_ship view_build_queue));
 
 
 no Moose;

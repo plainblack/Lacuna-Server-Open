@@ -42,10 +42,10 @@ use constant assignments => (
     'Idle',
     'Counter Espionage',
     'Gather Intelligence',
-    'Sabotage Infrastructure',
+    'Hack Networks',
     'Appropriate Technology',
+    'Sabotage Infrastructure',
     'Incite Rebellion',
-    'Hack Networks'
 );
 
 sub assign {

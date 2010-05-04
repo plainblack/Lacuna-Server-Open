@@ -14,14 +14,17 @@ The list of methods below represents changes and additions to the methods that a
     "recycle" : {
         "seconds_remaining" : 0,
         "can" : 1,
-        "seconds_per_resource" # to precalculate the time recycling will take
+        "seconds_per_resource", # to precalculate the time recycling will take
+        "water" : 0,
+        "energy" : 0,
+        "ore" : 0
     }
  }
 
 
 =head2 recycle ( session_id, building_id, water, ore, energy, use_essentia )
 
-Converts waste into water, ore, and energy. You can choose which amounts of each you want, so long as their total does not go over the amount of waste you have on hand. For each unit of waste converted, the recycling center will take 1 second to complete the recycling process. However, the amount of time is reduced a bit by the level of the Recycling Center.
+Converts waste into water, ore, and energy. You can choose which amounts of each you want, so long as their total does not go over the amount of waste you have on hand. For each unit of waste converted, the recycling center will take 10 seconds to complete the recycling process. However, the amount of time is reduced a bit by the level of the Recycling Center.
 
  {
     "status" : { get_status() },

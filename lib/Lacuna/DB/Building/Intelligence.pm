@@ -3,10 +3,6 @@ package Lacuna::DB::Building::Intelligence;
 use Moose;
 extends 'Lacuna::DB::Building';
 
-#__PACKAGE__->add_attributes(
-#    spy_count                   => { isa => 'Int' },
-#);
-
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
     return ($orig->($class), qw(Infrastructure Intelligence));

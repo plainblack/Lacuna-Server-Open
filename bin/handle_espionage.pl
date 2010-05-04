@@ -15,15 +15,14 @@ GetOptions(
     'quiet'         => \$quiet,  
 );
 
-
-my $start = DateTime->now;
-out('Started');
-
 unless ($skip_sleep) { # start at a random interval
     my $sleep = randint(1,1800);
     out("sleeping $sleep seconds to provide a random interval for espionage");
-    sleep(randint(1,1800));
+    sleep($sleep);
 }
+
+out('Started');
+my $start = DateTime->now;
 
 out('Loading config and DB');
 my $config = Lacuna->config;
@@ -66,67 +65,67 @@ sub intel {
     my ($planet, $espionage) = @_;
     out('Intellgence Missions');
     my $mission = calculate_mission_score($espionage, 'intel');
-    if ($mission < -50) {
+    if ($mission < -165) {
         counter_intel_report($planet, $espionage, 50);
     }
-    elsif ($mission < -45) {
+    elsif ($mission < -150) {
         counter_intel_report($planet, $espionage, 40);
     }
-    elsif ($mission < -40) {
+    elsif ($mission < -135) {
         counter_intel_report($planet, $espionage, 30);
     }
-    elsif ($mission < -35) {
+    elsif ($mission < -120) {
         counter_intel_report($planet, $espionage, 20);
     }
-    elsif ($mission < -30) {
+    elsif ($mission < -105) {
         capture_intelligence($planet, $espionage);
     }
-    elsif ($mission < -25) {
+    elsif ($mission < -90) {
         interrogation_report($planet, $espionage);
     }
-    elsif ($mission < -20) {
+    elsif ($mission < -75) {
         counter_intel_report($planet, $espionage, 10);
     }
-    elsif ($mission < -15) {
+    elsif ($mission < -60) {
         kill_intelligence($planet, $espionage);
     }
-    elsif ($mission < -10) {
+    elsif ($mission < -45) {
         thwart_intelligence($planet, $espionage);
     }
-    elsif ($mission < -5 ) {
+    elsif ($mission < -30 ) {
         kill_suspect($planet, $espionage);
     }
-    elsif ($mission < 5) {
+    elsif ($mission < 15) {
         out('Nothing Happens');
     }
-    elsif ($mission < 5 ) {
+    elsif ($mission < 15 ) {
         false_interrogation_report($planet, $espionage);
     }
-    elsif ($mission < 10 ) {
+    elsif ($mission < 30 ) {
         escape_prison($planet, $espionage);
     }
-    elsif ($mission < 15 ) {
+    elsif ($mission < 45 ) {
         kill_guard_and_escape_prison($planet, $espionage);
     }
-    elsif ($mission < 20 ) {
+    elsif ($mission < 60 ) {
         build_queue_report($planet, $espionage);
     }
-    elsif ($mission < 25 ) {
+    elsif ($mission < 75 ) {
         ship_report($planet, $espionage);
     }
-    elsif ($mission < 30 ) {
+    elsif ($mission < 90 ) {
         travel_report($planet, $espionage);
     }
-    elsif ($mission < 35 ) {
+    elsif ($mission < 105 ) {
         economic_report($planet, $espionage);
     }
-    elsif ($mission < 40 ) {
+    elsif ($mission < 120 ) {
         spy_report($planet, $espionage);
     }
-    elsif ($mission < 45 ) {
+    elsif ($mission < 135 ) {
         surface_report($planet, $espionage);
     }
-    elsif ($mission < 50 ) {
+    elsif ($mission < 150 ) {
         colony_report($planet, $espionage);
     }
     else {
@@ -138,70 +137,70 @@ sub hack {
     my ($planet, $espionage) = @_;
     out('Hacking Missions');
     my $mission = calculate_mission_score($espionage, 'hacking');
-    if ($mission < -55) {
+    if ($mission < -165) {
         network19_prapaganda7($planet, $espionage);
     }
-    elsif ($mission < -50) {
+    elsif ($mission < -150) {
         network19_prapaganda6($planet, $espionage);
     }
-    elsif ($mission < -45) {
+    elsif ($mission < -135) {
         network19_prapaganda5($planet, $espionage);
     }
-    elsif ($mission < -40) {
+    elsif ($mission < -120) {
         network19_prapaganda4($planet, $espionage);
     }
-    elsif ($mission < -35) {
+    elsif ($mission < -105) {
         network19_prapaganda3($planet, $espionage);
     }
-    elsif ($mission < -30) {
+    elsif ($mission < -90) {
         hack_offending_probes($planet, $espionage);
     }
-    elsif ($mission < -25) {
+    elsif ($mission < -75) {
         capture_hacker($planet, $espionage);
     }
-    elsif ($mission < -20) {
+    elsif ($mission < -60) {
         network19_prapaganda2($planet, $espionage);
     }
-    elsif ($mission < -15) {
+    elsif ($mission < -45) {
         kill_hacker($planet, $espionage);
     }
-    elsif ($mission < -10) {
+    elsif ($mission < -30) {
         network19_propaganda1($planet, $espionage);
     }
-    elsif ($mission < -5) {
+    elsif ($mission < -15) {
         thwart_hacker($planet, $espionage);
     }
-    elsif ($mission < 5) {
+    elsif ($mission < 15) {
         out('Nothing Happens');    
     }
-    elsif ($mission < 10) {
+    elsif ($mission < 30) {
         network19_defamation1($planet, $espionage);
     }
-    elsif ($mission < 15) {
+    elsif ($mission < 45) {
         hack_local_probes($planet);
     }
-    elsif ($mission < 20) {
+    elsif ($mission < 60) {
         network19_defamation2($planet, $espionage);
     }
-    elsif ($mission < 25) {
+    elsif ($mission < 75) {
         hack_observatory_probes($planet);
     }
-    elsif ($mission < 30) {
+    elsif ($mission < 90) {
         network19_defamation3($planet, $espionage);
     }
-    elsif ($mission < 35) {
+    elsif ($mission < 105) {
         network19_defamation4($planet, $espionage);
     }
-    elsif ($mission < 40) {
+    elsif ($mission < 120) {
         kill_contact_with_mining_platform($planet, $espionage);
     }
-    elsif ($mission < 45) {
+    elsif ($mission < 135) {
         take_control_of_probe($planet, $espionage);
     }
-    elsif ($mission < 50) {
+    elsif ($mission < 150) {
         network19_defamation5($planet, $espionage);
     }
-    elsif ($mission < 55) {
+    elsif ($mission < 165) {
         shut_down_building($planet, $espionage);
     }
     else {
@@ -213,64 +212,64 @@ sub steal {
     my ($planet, $espionage) = @_;
     out('Theft Missions');
     my $mission = calculate_mission_score($espionage, 'theft');
-    if ($mission < -50) {
+    if ($mission < -150) {
         increase_security($planet, $espionage, 50);
     }
-    elsif ($mission < -45) {
+    elsif ($mission < -135) {
         increase_security($planet, $espionage, 45);
     }
-    elsif ($mission < -40) {
+    elsif ($mission < -120) {
         increase_security($planet, $espionage, 40);
     }
-    elsif ($mission < -35) {
+    elsif ($mission < -105) {
         increase_security($planet, $espionage, 35);
     }
-    elsif ($mission < -30) {
+    elsif ($mission < -90) {
         capture_thief($planet, $espionage);
     }
-    elsif ($mission < -25) {
+    elsif ($mission < -75) {
         increase_security($planet, $espionage, 25);
     }
-    elsif ($mission < -20) {
+    elsif ($mission < -60) {
         increase_security($planet, $espionage, 20);
     }
-    elsif ($mission < -15) {
+    elsif ($mission < -45) {
         kill_thief($planet, $espionage);
     }
-    elsif ($mission < -10) {
+    elsif ($mission < -30) {
         increase_security($planet, $espionage, 10);
     }
-    elsif ($mission < -5) {
+    elsif ($mission < -15) {
         thwart_thief($planet, $espionage);
     }
-    elsif ($mission < 5) {
+    elsif ($mission < 15) {
         out('Nothing Happens');
     }
-    elsif ($mission < 10) {
+    elsif ($mission < 30) {
         steal_building($planet, $espionage, randint(1,3));
     }
-    elsif ($mission < 15) {
+    elsif ($mission < 45) {
         steal_building($planet, $espionage, randint(4,6));
     }
-    elsif ($mission < 20) {
+    elsif ($mission < 60) {
         steal_ships($planet, $espionage, 1);
     }
-    elsif ($mission < 25) {
+    elsif ($mission < 75) {
         steal_building($planet, $espionage, randint(7,10));
     }
-    elsif ($mission < 30) {
+    elsif ($mission < 90) {
         steal_resources($planet, $espionage,1);
     }
-    elsif ($mission < 35) {
+    elsif ($mission < 105) {
         steal_building($planet, $espionage, randint(11,15));
     }
-    elsif ($mission < 40) {
+    elsif ($mission < 120) {
         steal_ships($planet, $espionage, 3);
     }
-    elsif ($mission < 45) {
+    elsif ($mission < 135) {
         steal_resources($planet, $espionage,2);
     }
-    elsif ($mission < 50) {
+    elsif ($mission < 150) {
         steal_building($planet, $espionage, randint(16,100));
     }
     else {
@@ -282,64 +281,64 @@ sub sabotage {
     my ($planet, $espionage) = @_;
     out('Sabotage Missions');
     my $mission = calculate_mission_score($espionage, 'sabotage');
-    if ($mission < -50) {
+    if ($mission < -150) {
         capture_saboteurs($planet, $espionage,6);
     }
-    elsif ($mission < -45) {
+    elsif ($mission < -135) {
         capture_saboteurs($planet, $espionage,5);
     }
-    elsif ($mission < -40) {
+    elsif ($mission < -120) {
         capture_saboteurs($planet, $espionage,4);
     }
-    elsif ($mission < -35) {
+    elsif ($mission < -105) {
         capture_saboteurs($planet, $espionage,3);
     }
-    elsif ($mission < -30) {
+    elsif ($mission < -90) {
         capture_saboteurs($planet, $espionage,2);
     }
-    elsif ($mission < -25) {
+    elsif ($mission < -75) {
         capture_saboteurs($planet, $espionage,1);
     }
-    elsif ($mission < -20) {
+    elsif ($mission < -60) {
         kill_saboteurs($planet, $espionage, 3);
     }
-    elsif ($mission < -15) {
+    elsif ($mission < -45) {
         kill_saboteurs($planet, $espionage, 2);
     }
-    elsif ($mission < -10) {
+    elsif ($mission < -30) {
         kill_saboteurs($planet, $espionage,1);
     }
-    elsif ($mission < -5) {
+    elsif ($mission < -15) {
         thwart_saboteur($planet, $espionage);
     }
-    elsif ($mission < 5) {
+    elsif ($mission < 15) {
         out('Nothing Happens');
     }
-    elsif ($mission < 10) {
+    elsif ($mission < 30) {
         destroy_mining_ship($planet, $espionage);
     }
-    elsif ($mission < 15) {
+    elsif ($mission < 45) {
         destroy_ships($planet, $espionage, 1);
     }
-    elsif ($mission < 20) {
+    elsif ($mission < 60) {
         destroy_ships($planet, $espionage, 2);
     }
-    elsif ($mission < 25) {
+    elsif ($mission < 75) {
         destroy_upgrades($planet, $espionage, 1);
     }
-    elsif ($mission < 30) {
+    elsif ($mission < 90) {
         destroy_ships($planet, $espionage,3);
     }
-    elsif ($mission < 35) {
+    elsif ($mission < 105) {
         destroy_upgrades($planet, $espionage, 2);
     }
-    elsif ($mission < 40) {
+    elsif ($mission < 120) {
         destroy_infrastructure($planet, $espionage, 1);
     }
-    elsif ($mission < 45) {
+    elsif ($mission < 135) {
         destroy_infrastructure($planet, $espionage, 2);
     }
-    elsif ($mission < 50) {
+    elsif ($mission < 150) {
         destroy_infrastructure($planet, $espionage, 3);
     }
     else {
@@ -351,64 +350,64 @@ sub rebel {
     my ($planet, $espionage) = @_;
     out('Rebellion Missions');
     my $mission = calculate_mission_score($espionage, 'rebellion');
-    if ($mission < -50) {
+    if ($mission < -150) {
         turn_rebels($planet, $espionage,3);
     }
-    elsif ($mission < -45) {
+    elsif ($mission < -135) {
         turn_rebels($planet, $espionage,2);
     }
-    elsif ($mission < -40) {
+    elsif ($mission < -120) {
         turn_rebel($planet, $espionage,1);
     }
-    elsif ($mission < -35) {
+    elsif ($mission < -105) {
         day_of_rest($planet, $espionage);
     }
-    elsif ($mission < -30) {
+    elsif ($mission < -90) {
         festival($planet, $espionage);
     }
-    elsif ($mission < -25) {
+    elsif ($mission < -75) {
         capture_rebel($planet, $espionage);
     }
-    elsif ($mission < -20) {
+    elsif ($mission < -60) {
         kill_rebel($planet, $espionage);
     }
-    elsif ($mission < -15) {
+    elsif ($mission < -45) {
         peace_talks($planet, $espionage);
     }
-    elsif ($mission < -10) {
+    elsif ($mission < -30) {
         calm_the_rebels($planet, $espionage);
     }
-    elsif ($mission < -5) {
+    elsif ($mission < -15) {
         thwart_rebel($planet, $espionage);
     }
-    elsif ($mission < 5) {
+    elsif ($mission < 15) {
         out('Nothing Happens');
     }
-    elsif ($mission < 10) {
+    elsif ($mission < 30) {
         civil_unrest($planet, $espionage);
     }
-    elsif ($mission < 15) {
+    elsif ($mission < 45) {
         protest($planet, $espionage);
     }
-    elsif ($mission < 20) {
+    elsif ($mission < 60) {
         violent_protest($planet, $espionage);
     }
-    elsif ($mission < 25) {
+    elsif ($mission < 75) {
         march_on_capitol($planet, $espionage);
     }
-    elsif ($mission < 30) {
+    elsif ($mission < 90) {
         small_rebellion($planet, $espionage);
     }
-    elsif ($mission < 35) {
+    elsif ($mission < 105) {
         kill_cop($planet, $espionage, 'rebellion');
     }
-    elsif ($mission < 40) {
+    elsif ($mission < 120) {
         turn_cops($planet, $espionage,1);
     }
-    elsif ($mission < 45) {
+    elsif ($mission < 135) {
         turn_cops($planet, $espionage,2);
     }
-    elsif ($mission < 50) {
+    elsif ($mission < 150) {
         turn_cops($planet, $espionage,3);
     }
     else {

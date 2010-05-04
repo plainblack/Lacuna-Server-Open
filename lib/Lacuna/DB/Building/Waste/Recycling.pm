@@ -48,7 +48,7 @@ sub recycle {
     my $total = $water + $ore + $energy;
     
     # start
-    my $seconds = $total * $self->time_cost_reduction_bonus($self->level);
+    my $seconds = $total * 10 * $self->time_cost_reduction_bonus($self->level * 2);
     $self->recycling_ends(DateTime->now->add(seconds=>$seconds));
     $self->water_from_recycling($water);
     $self->ore_from_recycling($ore);

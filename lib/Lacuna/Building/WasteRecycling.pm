@@ -18,11 +18,16 @@ around 'view' => sub {
     $building->check_recycling_over;
     my $out = $orig->($self, $empire, $building);
     if ($building->recycling_in_progress) {
-        $out->{recycle}{seconds_remaining} = $building->recycling_seconds_remaining;
+        $out->{recycle} = {
+            seconds_remaining   => $building->recycling_seconds_remaining,
+            water               => $building->water_from_recycling,
+            ore                 => $building->ore_from_recycling,
+            energy              => $building->energy_from_recycling,
+        };
     }
     else {
         $out->{recycle}{can} = (eval { $building->can_recycle }) ? 1 : 0;
-        $out->{recycle}{seconds_per_resource} = $building->time_cost_reduction_bonus($building->level);
+        $out->{recycle}{seconds_per_resource} = 10 * $building->time_cost_reduction_bonus($building->level * 2);
     }
     return $out;
 };
