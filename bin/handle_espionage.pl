@@ -1718,7 +1718,7 @@ sub determine_espionage {
         },
         police => {
             spies => \@interceptors,
-            score => $interception,
+            score => $interception + 10, # there's always a chance of defense
         }
     };
 };
@@ -1823,8 +1823,13 @@ sub pick_a_spy_per_empire {
 
 sub calculate_mission_score {
     my ($espionage, $type) = @_;
-    return 0 if ($espionage->{$type}{score} == 0);
-    return randint(0, $espionage->{$type}{score}) - randint(0, $espionage->{police}{score});
+    if ($espionage->{$type}{score} == 0) {
+        out('Mission Score: 0');
+        return 0;
+    }
+    my $score = randint(0, $espionage->{$type}{score}) - randint(0, $espionage->{police}{score});
+    out('Mission Score: '.$score);
+    return $score;
 }
 
 sub get_full_spies_list {
