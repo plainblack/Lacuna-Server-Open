@@ -689,12 +689,6 @@ sub destroy_ships {
             next;
         }
         $espionage->{police}{score} += 10;
-        $type =~ s/_/ /g;
-        $planet->empire->send_predefined_message(
-            tags        => ['Alert'],
-            filename    => 'ship_blew_up_at_port.txt',
-            params      => [$type, $planet->name],
-        );
         my @spies = pick_a_spy_per_empire($espionage->{sabotage}{spies});
         foreach my $spy (@spies) {
             $spy->empire->send_predefined_message(
@@ -703,6 +697,12 @@ sub destroy_ships {
                 params      => [$type, $planet->name, $spy->name],
             );
         }
+        $type =~ s/_/ /g;
+        $planet->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'ship_blew_up_at_port.txt',
+            params      => [$type, $planet->name],
+        );
         $planet->add_news(90,'Today, officials on %s are investigating the explosion of a %s at the Space Port.', $planet->name, $type);
     }
     $spaceport->save_changed_ports;

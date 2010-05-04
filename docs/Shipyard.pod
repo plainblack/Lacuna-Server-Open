@@ -76,22 +76,7 @@ The unique id of the shipyard.
  
 =head2 build_ship ( session_id, building_id, type, [ quantity ] )
 
-Adds a ship to the build queue. Returns
-
- {
-    "ship_build_queue" : {
-        "next_completed" : "01 31 2010 13:09:05 +0600",
-        "queue" : [
-            {
-               "type" : "probe",
-               "seconds_each" : 120,
-               "quantity" : 12
-            },
-            ...
-        ]
-    },
-    "status" : { get_status() }
- }
+Adds a ship to the build queue. Returns the same thing as C<view_build_queue()>.
 
 =head3 session_id
 

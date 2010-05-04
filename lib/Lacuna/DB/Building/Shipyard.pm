@@ -146,8 +146,14 @@ sub build_ship {
         where       => { shipyard_id => $self->id, date_completed => ['>=', DateTime->now->subtract(days=>1)]},
         limit       => 1,
         order_by    => ['date_completed'],
-        );
-    my $date_completed = $latest->date_completed->clone;
+        )->next;
+    my $date_completed;
+    if (defined $latest) {
+        $date_completed = $latest->date_completed->clone;
+    }
+    else {
+        $date_completed = DateTime->now;
+    }
     foreach (1..$quantity) {
         $date_completed->add(seconds=>$time);
         $builds->insert({

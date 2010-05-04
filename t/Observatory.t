@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 9;
+use Test::More tests => 8;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -86,20 +86,17 @@ $home->needs_recalc(0);
 $home->put;
 
 $result = $tester->post('shipyard', 'build_ship', [$session_id, $shipyard->id, 'probe', 3]);
-ok(exists $result->{result}{ship_build_queue}{next_completed}, "got a date of completion");
-is($result->{result}{ship_build_queue}{queue}[0]{type}, 'probe', "probe building");
+ok(exists $result->{result}{ships_building}[0]{date_completed}, "got a date of completion");
+is($result->{result}{ships_building}[0]{type}, 'probe', "probe building");
 
-$shipyard = $tester->db->domain(ref $shipyard)->find($shipyard->id);
-my $builds = $shipyard->ship_builds;
-$builds->{next_completed} = 0;
-$shipyard->ship_builds($builds);
-$shipyard->put;
+my $finish = DateTime->now;
+$tester->db->domain('ship_builds')->search(where=>{shipyard_id=>$shipyard->id})->update({date_completed=>$finish});
+sleep 3;
 
 $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
 is($result->{result}{docked_ships}{probe}, 2, "we have 2 probes built");
 
 $result = $tester->post('spaceport', 'send_probe', [$session_id, $home->id, {star_name=>'Rozeske'}]);
-is($result->{result}{status}{empire}{has_new_messages}, 11, "one probe went kablooey");
 ok($result->{result}{probe}{date_arrives}, "probe sent");
 
 my $ship = $tester->db->domain('travel_queue')->search(where => {body_id => $home->id}, consistent=>1)->next;

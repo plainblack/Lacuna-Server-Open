@@ -22,10 +22,10 @@ sub view_build_queue {
     $spaceport->check_for_completed_ships;
     $spaceport->save_changed_ports;
     $page_number ||= 1;
-    my $count = $self->simpledb->domain('Lacuna::DB::ShipBuilds')->count(where=>{shipyard_id=>$self->id});
+    my $count = $self->simpledb->domain('Lacuna::DB::ShipBuilds')->count(where=>{shipyard_id=>$building->id});
     my @building;
     my $ships = $self->simpledb->domain('Lacuna::DB::ShipBuilds')->search(
-        where       => { shipyard_id => $self->id, date_completed => ['>', DateTime->now ] },
+        where       => { shipyard_id => $building->id, date_completed => ['>', DateTime->now ] },
         order_by    => ['date_completed'],
         )->paginate(25, $page_number);
     while (my $ship = $ships->next) {
@@ -65,10 +65,7 @@ sub build_ship {
     $body->put;
     $empire->trigger_full_update;
     $building->build_ship($type, $quantity, $costs->{seconds});
-    return {
-        ship_build_queue    => $building->format_ship_builds,
-        status              => $empire->get_status,
-    };
+    return $self->view_build_queue($empire, $building);
 }
 
 sub get_buildable {
@@ -79,7 +76,7 @@ sub get_buildable {
     my %buildable;
     $building->body->tick;
     my $docks;
-    my $ports = $building->spaceports;
+    my $ports = $building->body->get_buildings_of_class('Lacuna::DB::Building::SpacePort');
     my $port_cached;
     while (my $port = $ports->next) {
         $docks += $port->docks_available;

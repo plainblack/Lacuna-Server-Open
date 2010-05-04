@@ -129,7 +129,7 @@ has other_ports => (
     lazy => 1,
     default => sub {
         my $self = shift;
-        return $self->simpledb->domain($self->class)->search( where => { body_id => $self->body_id, itemName() => ['!=', $self->id ] } )->to_array_ref;
+        return $self->simpledb->domain($self->class)->search( where => { class => $self->class, body_id => $self->body_id, 'itemName()' => ['!=', $self->id ] } )->to_array_ref;
     },
 );
 
@@ -164,7 +164,14 @@ sub add_ship {
             }
             return $port;
         }
-        $self->blow_up_ship($type);
+        $type =~ s/_/ /g;
+        my $body = $self->body;
+        $self->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'ship_blew_up_at_port.txt',
+            params      => [$type, $body->name],
+        );
+        $body->add_news(90,'Today, officials on %s are investigating the explosion of a %s at the Space Port.', $body->name, $type);
     }
 }
 
@@ -172,7 +179,7 @@ sub remove_ship {
     my ($self, $type) = @_;
     $self->check_for_completed_ships;
     my $count = $type.'_count';
-    if ($self->count > 0) {
+    if ($self->$count > 0) {
         $self->$count( $self->$count - 1);
         $self->has_changed(1);
         return $self;
