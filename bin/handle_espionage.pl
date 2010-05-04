@@ -369,13 +369,13 @@ sub rebel {
         kill_rebel($planet, $espionage);
     }
     elsif ($mission < -15) {
-        thwart_rebellion($planet, $espionage);
-    }
-    elsif ($mission < -10) {
         peace_talks($planet, $espionage);
     }
-    elsif ($mission < -5) {
+    elsif ($mission < -10) {
         calm_the_rebels($planet, $espionage);
+    }
+    elsif ($mission < -5) {
+        thwart_rebel($planet, $espionage);
     }
     elsif ($mission < 5) {
         # nothing
@@ -387,10 +387,10 @@ sub rebel {
         protest($planet, $espionage);
     }
     elsif ($mission < 20) {
-        strike($planet, $espionage);
+        violent_protest($planet, $espionage);
     }
     elsif ($mission < 25) {
-        violent_protest($planet, $espionage);
+        march_on_capitol($planet, $espionage);
     }
     elsif ($mission < 30) {
         small_rebellion($planet, $espionage);
@@ -414,7 +414,171 @@ sub rebel {
 
 
 
+
 # OUTCOMES
+
+
+sub incite_rebellion {
+    my $planet = shift;
+    my $spy = random_spy($planet->rebels);
+    return undef unless defined $spy;
+    return undef if ($spy->empire_id eq $planet->empire_id);
+    if ($planet->check_rebellion) {
+    }
+    else {
+        $planet->defeat_rebellion;
+    }
+}
+
+
+
+sub uprising {
+    my ($planet, $espionage) = @_;
+    my $spy = random_spy($espionage->{rebellion}{spies});
+    return undef unless defined $spy;
+    my $loss = sprintf('%.0f', $planet->happiness * 0.10 );
+    $loss = 10000 unless ($loss > 10000);
+    $planet->spend_happiness( $loss )->put;
+    my @spies = $planet->pick_a_spy_per_empire($espionage->{rebellion}{spies});
+    foreach my $rebel (@spies) {
+        $rebel->empire->send_predefined_message(
+            tags        => ['Intelligence'],
+            filename    => 'we_incited_a_rebellion.txt',
+            params      => [$planet->empire->name, $planet->name, $loss, $rebel->name],
+        );
+    }
+    $planet->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'uprising.txt',
+        params      => [$spy->name, $planet->name, $loss],
+    );
+    $planet->add_news(90,'Led by %s, the citizens of %s are rebelling against %s.', $spy->name, $planet->name, $planet->empire->name);
+}
+
+sub turn_cops {
+    my ($planet, $espionage, $quantity) = @_;
+    out('Turn Cops');
+    my $rebel = random_spy($espionage->{rebellion}{spies});
+    return undef unless defined $rebel;
+    my $got;
+    for (1..$quantity) {
+        my $cop = shift @{$espionage->{police}{spies}};
+        last unless defined $cop;
+        $espionage->{police}{score} -= $cop->offense;
+        turn_a_spy($planet, $cop, $rebel);
+        $got = 1;
+    }
+    if ($got) {
+        $planet->add_news(70,'In a shocking turn of events, police could be seen leaving their posts to join the protesters on %s today.', $planet->name);
+    }
+}
+
+sub small_rebellion {
+    my ($planet, $espionage) = @_;
+    $planet->spend_happiness(randint(400,4000))->put;
+    $planet->add_news(70,'Hundreds are dead at this hour after a protest turned into a small, but violent, rebellion on %s.', $planet->name);
+}
+
+sub march_on_capitol {
+    my ($planet, $espionage) = @_;
+    $planet->spend_happiness(randint(400,4000))->put;
+    $planet->add_news(70,'Protesters now march on the %s Planetary Command Center, asking for the Governor\'s resignation.', $planet->name);
+}
+
+sub violent_protest {
+    my ($planet, $espionage) = @_;
+    $planet->spend_happiness(randint(300,3000))->put;
+    $planet->add_news(70,'The protests at the %s Ministries have turned violent. An official was rushed to hospital in critical condition.', $planet->name);
+}
+
+sub protest {
+    my ($planet, $espionage) = @_;
+    $planet->spend_happiness(randint(200,2000))->put;
+    $planet->add_news(70,'Protesters can be seen jeering outside nearly every Ministry at this hour on %s.', $planet->name);
+}
+
+sub civil_unrest {
+    my ($planet, $espionage) = @_;
+    $planet->spend_happiness(randint(100,1000))->put;
+    $planet->add_news(70,'In recent weeks there have been rumblings of political discontent on %s.', $planet->name);
+}
+
+sub calm_the_rebels {
+    my ($planet, $espionage) = @_;
+    $planet->add_happiness(randint(250,2500))->put;
+    $planet->add_news(70,'In an effort to bring an swift end to the rebellion, the %s Governor delivered an eloquent speech about hope.', $planet->name);
+}
+
+sub peace_talks {
+    my ($planet, $espionage) = @_;
+    $planet->add_happiness(randint(500,5000))->put;
+    $planet->add_news(70,'Officials from both sides of the rebellion are at the Planetary Command Center on %s today to discuss peace.', $planet->name);
+}
+
+sub day_of_rest {
+    my ($planet, $espionage) = @_;
+    $planet->add_happiness(randint(2500,25000))->put;
+    $planet->add_news(70,'The Governor of %s declares a day of rest and peace. Citizens rejoice.', $planet->name);
+}
+
+sub festival {
+    my ($planet, $espionage) = @_;
+    $planet->add_happiness(randint(1000,10000))->put;
+    $planet->add_news(70,'The %s Governor calls it the %s festival. Whatever you call it, people are happy.', $planet->name, $planet->star->name);
+}
+
+sub turn_rebels {
+    my ($planet, $espionage, $quantity) = @_;
+    out('Turn Rebels');
+    my $cop = random_spy($espionage->{police}{spies});
+    return undef unless defined $cop;
+    my $got;
+    for (1..$quantity) {
+        my $rebel = shift @{$espionage->{rebellion}{spies}};
+        last unless defined $rebel;
+        $espionage->{rebellion}{score} -= $rebel->offense;
+        turn_a_spy($planet, $rebel, $cop);
+        $got = 1;
+    }
+    if ($got) {
+        $planet->add_news(70,'The Governor\'s call for peace appears to be working. Several rebels told this reporter they are going home.', $planet->name);
+    }
+}
+
+sub capture_rebel {
+    my ($planet, $espionage) = @_;
+    out('Capture Rebel');
+    my $cop = random_spy($espionage->{police}{spies});
+    return undef unless defined $cop;
+    my $rebel = shift @{$espionage->{rebellion}{spies}};
+    return undef unless defined $rebel;
+    $espionage->{rebellion}{score} -= $rebel->offense;
+    capture_a_spy($planet, $rebel, $cop);
+    $planet->add_news(50,'Police say they have crushed the rebellion on %s by apprehending %s.', $planet->name, $rebel->name);
+}
+
+sub kill_rebel {
+    my ($planet, $espionage) = @_;
+    out('Kill Rebel');
+    my $cop = random_spy($espionage->{police}{spies});
+    return undef unless defined $cop;
+    my $rebel = shift @{$espionage->{rebellion}{spies}};
+    last unless defined $rebel;
+    $espionage->{rebellion}{score} -= $rebel->offense;
+    kill_a_spy($planet, $rebel, $cop);
+    $planet->add_news(80,'The leader of the rebellion to overthrow %s was killed in a firefight today on %s.', $planet->empire->name, $planet->name);
+}
+
+sub thwart_rebel {
+    my ($planet, $espionage, $quantity) = @_;
+    out('Thwart Rebels');
+    my $cop = random_spy($espionage->{police}{spies});
+    return undef unless defined $cop;
+    my $rebel = shift @{$espionage->{rebellion}{spies}};
+    last unless defined $rebel;
+    miss_a_spy($planet, $rebel, $cop);
+    $planet->add_news(20,'The rebel leader, known as %s, is still eluding authorities on %s at this hour.', $rebel->name, $planet->name);
+}
 
 sub destroy_infrastructure {
     my ($planet, $espionage, $quantity) = @_;
@@ -1359,8 +1523,6 @@ thwart_hacker {
     $espionage->{police}{score} += 3;
 }
 
-
-
 sub network19_propaganda1 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 1');
@@ -1380,7 +1542,7 @@ sub network19_propaganda2 {
 sub network19_propaganda3 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 3');
-    if ($planet->add_news(50,'The governor of %s has set aside 1000 square kilometers as a nature preserve.', $planet->name)) {
+    if ($planet->add_news(50,'The Governor of %s has set aside 1000 square kilometers as a nature preserve.', $planet->name)) {
         $planet->add_happiness(750)->put;
     }
 }
@@ -1444,7 +1606,7 @@ sub network19_defamation3 {
 sub network19_defamation4 {
     my ($planet, $espionage) = @_;
     out('Network 19 Defamation 4');
-    if ($planet->add_news(50,'The governor of %s has lost her mind. She is a raving mad lunatic! The Emperor could not be reached for comment.', $planet->name)) {
+    if ($planet->add_news(50,'The Governor of %s has lost her mind. She is a raving mad lunatic! The Emperor could not be reached for comment.', $planet->name)) {
         $planet->spend_happiness(1250)->put;
     }
 }
@@ -1456,58 +1618,6 @@ sub network19_defamation5 {
         $planet->spend_happiness(1250)->put;
     }
 }
-
-
-
-
-
-
-sub turn_spy {
-    my $planet = shift;
-    my $spy = random_spy($planet->interceptors);
-    return undef unless defined $spy;
-    return undef if ($spy->empire_id eq $planet->empire_id);
-    if ($planet->check_rebellion) {
-        my $rebel = random_spy($planet->rebels);
-        $spy->turn($rebel);
-        $planet->interception_score( $planet->interception_score + 50);
-    }
-    else {
-        $planet->defeat_rebellion;
-    }
-}
-
-sub incite_rebellion {
-    my $planet = shift;
-    my $spy = random_spy($planet->rebels);
-    return undef unless defined $spy;
-    return undef if ($spy->empire_id eq $planet->empire_id);
-    if ($planet->check_rebellion) {
-        my $loss = sprintf('%.0f', $planet->happiness * 0.10 );
-        $planet->spend_happiness( $loss )->put;
-        my @spies = $planet->pick_a_spy_per_empire($planet->rebels);
-        foreach my $rebel (@spies) {
-            $rebel->empire->send_predefined_message(
-                tags        => ['Intelligence'],
-                filename    => 'we_incited_a_rebellion.txt',
-                params      => [$planet->empire->name, $planet->name, $loss, $rebel->name],
-            );
-        }
-        $planet->empire->send_predefined_message(
-            tags        => ['Alert'],
-            filename    => 'uprising.txt',
-            params      => [$spy->name,$planet->name,$loss],
-        );
-        $planet->add_news(90,'Led by %s, the citizens of %s are rebelling against %s.', $spy->name, $planet->name, $planet->empire->name);
-        $planet->interception_score( $planet->interception_score + 20);
-    }
-    else {
-        $planet->defeat_rebellion;
-    }
-}
-
-
-
 
 
 
@@ -1677,54 +1787,24 @@ sub escape_a_spy {
     );
 }
 
-
 sub turn_a_spy {
-    my ($planet, $spy, $rebel) = @_;
+    my ($planet, $traitor, $spy) = @_;
     my $evil_empire = $planet->on_body->empire;
-    $spy->empire->send_predefined_message(
+    $traitor->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'goodbye.txt',
-        params      => [$spy->name],
+        params      => [$traitor->name],
     );
-    $rebel->empire->send_predefined_message(
+    $spy->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'new_recruit.txt',
-        params      => [$spy->empire->name, $spy->name, $rebel->name],
+        params      => [$traitor->empire->name, $traitor->name, $spy->name],
     );
     # could be abused to get lots of extra spies, may have to add a check for that.
-    $spy->task('Idle');
-    $spy->empire_id($rebel->empire_id);
-    $spy->from_body_id($rebel->from_body_id);
-    $spy->put;
-}
-
-
-
-sub defeat_rebellion {
-    my ($self) = @_;
-    if ($self->chance_of_rebellion > 0) {
-        my $event = randint(1,100);
-        my $spy = $self->rebels->[0];
-        return undef unless defined $spy;
-        my $interceptor = $self->interceptors->[0];
-        return undef unless defined $interceptor;
-        if ($event < 10) {
-            $self->rebel_score( $self->rebel_score - $spy->offense );
-            kill_a_spy($planet, $spy, $interceptor);
-            $self->add_news(80,'The leader of the rebellion to overthrow %s was killed in a firefight today on %s.', $self->empire->name, $self->name);
-            delete $self->rebels->[0];
-        }
-        elsif ($event < 25) {
-            $self->rebel_score( $self->rebel_score - $spy->offense );
-            $self->capture_a_spy($spy, $interceptor);
-            $self->add_news(50,'Police say they have crushed the rebellion on %s by apprehending %s.', $self->name, $spy->name);
-            delete $self->rebels->[0];
-        }
-        else {
-            $self->miss_a_spy($spy, $interceptor);
-            $self->add_news(20,'The rebel leader, known as %s, is still eluding authorities on %s at this hour.', $spy->name, $self->name);
-        }
-    }
+    $traitor->task('Idle');
+    $traitor->empire_id($spy->empire_id);
+    $traitor->from_body_id($spy->from_body_id);
+    $traitor->put;
 }
 
 sub pick_a_spy_per_empire {
