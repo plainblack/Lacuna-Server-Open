@@ -43,7 +43,7 @@ while (my $planet = $planets->next) {
     intel($planet, $espionage);
     hack($planet, $espionage);
     steal($planet, $espionage);
-    sabotage($splanet, $espionage);
+    sabotage($planet, $espionage);
     rebel($planet, $espionage);
 }
 
@@ -582,7 +582,8 @@ sub thwart_rebel {
 
 sub destroy_infrastructure {
     my ($planet, $espionage, $quantity) = @_;
-    out('Destroy Upgrades');
+    out('Destroy Infrastructure');
+    my $got;
     for (1..$quantity) {
         my @classes = (
             'Lacuna::DB::Building::Shipyard',
@@ -713,7 +714,7 @@ sub destroy_mining_ship {
     my $ministry = $planet->mining_ministry;
     return undef unless defined $ministry;
     return undef unless $ministry->ship_count > 0;
-    $ministry->ship_count($ministry->ship_count - $count);
+    $ministry->ship_count($ministry->ship_count - 1);
     $ministry->recalc_ore_production;
     $ministry->put;
     $planet->empire->send_predefined_message(
@@ -726,7 +727,7 @@ sub destroy_mining_ship {
         $spy->empire->send_predefined_message(
             tags        => ['Intelligence'],
             filename    => 'sabotage_report.txt',
-            params      => [$type, $planet->name, $spy->name],
+            params      => ['mining cargo ship', $planet->name, $spy->name],
         );
     }
     $planet->add_news(90,'Today, officials on %s are investigating the explosion of a mining cargo ship at the Space Port.', $planet->name);
@@ -1068,7 +1069,7 @@ sub hack_offending_probes {
     my ($planet, $espionage) = @_;
     out('Hack Offensive Probes');
     my $hacker = random_spy($espionage->{hacking}{spies});
-    return undef unless defined $spy;
+    return undef unless defined $hacker;
     my $probe = $db->domain('probes')->search(where=>{star_id => $planet->star_id, empire_id => ['!=', $hacker->empire_id] }, limit=>1)->next;
     return undef unless defined $probe;
     $hacker->empire->send_predefined_message(
@@ -1439,7 +1440,7 @@ sub thwart_intelligence {
     return undef unless defined $cop;
     my $intel = random_spy($espionage->{intel}{spies});
     return undef unless defined $intel;
-    miss_a_spy($planet, $spy, $interceptor);
+    miss_a_spy($planet, $intel, $cop);
     $planet->add_news(25,'Corporate espionage has become a real problem on %s.', $planet->name);
 }
 
@@ -1481,14 +1482,13 @@ sub kill_cop {
         tags        => ['Intelligence'],
         filename    => 'we_killed_a_spy.txt',
         params      => [$planet->name, $spy->name],
-        from        => $interceptor->empire,
     );
     $espionage->{police}{score} += 5 - $cop->defense;
     $planet->add_news(60,'An officer named %s was killed in the line of duty on %s.', $cop->name, $planet->name);
     kill_a_spy($planet, $cop, $spy);
 }
 
-capture_hacker {
+sub capture_hacker {
     my ($planet, $espionage) = @_;
     out('Capture Hacker');
     my $cop = random_spy($espionage->{police}{spies});
@@ -1500,7 +1500,7 @@ capture_hacker {
     capture_a_spy($planet, $hacker, $cop);
 }
 
-kill_hacker {
+sub kill_hacker {
     my ($planet, $espionage) = @_;
     out('Kill Hacker');
     my $cop = random_spy($espionage->{police}{spies});
@@ -1512,13 +1512,14 @@ kill_hacker {
     kill_a_spy($planet, $hacker, $cop);    
 }
 
-thwart_hacker {
-    my $cop = random_spy($espionage->{police}{spies});
+sub thwart_hacker {
+    my ($planet, $espionage) = @_;
     out('Thwart Hacker');
+    my $cop = random_spy($espionage->{police}{spies});
     return undef unless defined $cop;
     my $hacker = shift @{$espionage->{hacking}{spies}};
     return undef unless defined $hacker;
-    miss_a_spy($hacker, $cop);
+    miss_a_spy($planet, $hacker, $cop);
     $planet->add_news(10,'Identity theft has become a real problem on %s.', $planet->name);  
     $espionage->{police}{score} += 3;
 }
@@ -1665,7 +1666,7 @@ sub determine_espionage {
             push @thieves, $spy;
         }
         elsif ($spy->task eq 'Gather Intelligence') {
-            $intel += $spy->offense
+            $intel += $spy->offense;
             push @spies, $spy;
         }
         elsif ($spy->task eq 'Incite Rebellion') {
@@ -1694,7 +1695,7 @@ sub determine_espionage {
             spies => \@travellers,
         },
         theft => {
-            spies => \@theives,
+            spies => \@thieves,
             score => $steal,
         },
         hacking => {
@@ -1778,12 +1779,12 @@ sub escape_a_spy {
     $spy->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'i_have_escaped.txt',
-        params      => [$evil_empire->name, $self->name],
+        params      => [$evil_empire->name, $spy->name],
     );
     $evil_empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'you_cant_hold_me.txt',
-        params      => [$self->name],
+        params      => [$spy->name],
     );
 }
 

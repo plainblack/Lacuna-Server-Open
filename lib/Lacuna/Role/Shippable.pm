@@ -26,7 +26,7 @@ has hold_size_bonus => (
 );
 
 has cargo_ship_hold_size => (
-    is      => 1,
+    is      => 'rw',
     lazy    => 1,
     default => sub {
         my $self = shift;
@@ -35,7 +35,7 @@ has cargo_ship_hold_size => (
 );
 
 has smuggler_ship_hold_size => (
-    is      => 1,
+    is      => 'rw',
     lazy    => 1,
     default => sub {
         my $self = shift;
