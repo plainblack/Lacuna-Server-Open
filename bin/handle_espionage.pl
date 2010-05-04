@@ -97,7 +97,7 @@ sub intel {
         kill_suspect($planet, $espionage);
     }
     elsif ($mission < 5) {
-        # nothing
+        out('Nothing Happens');
     }
     elsif ($mission < 5 ) {
         false_interrogation_report($planet, $espionage);
@@ -172,7 +172,7 @@ sub hack {
         thwart_hacker($planet, $espionage);
     }
     elsif ($mission < 5) {
-        # nothing    
+        out('Nothing Happens');    
     }
     elsif ($mission < 10) {
         network19_defamation1($planet, $espionage);
@@ -244,7 +244,7 @@ sub steal {
         thwart_thief($planet, $espionage);
     }
     elsif ($mission < 5) {
-        # nothing
+        out('Nothing Happens');
     }
     elsif ($mission < 10) {
         steal_building($planet, $espionage, randint(1,3));
@@ -313,7 +313,7 @@ sub sabotage {
         thwart_saboteur($planet, $espionage);
     }
     elsif ($mission < 5) {
-        # nothing
+        out('Nothing Happens');
     }
     elsif ($mission < 10) {
         destroy_mining_ship($planet, $espionage);
@@ -382,7 +382,7 @@ sub rebel {
         thwart_rebel($planet, $espionage);
     }
     elsif ($mission < 5) {
-        # nothing
+        out('Nothing Happens');
     }
     elsif ($mission < 10) {
         civil_unrest($planet, $espionage);
@@ -429,7 +429,7 @@ sub uprising {
     my $loss = sprintf('%.0f', $planet->happiness * 0.10 );
     $loss = 10000 unless ($loss > 10000);
     $planet->spend_happiness( $loss )->put;
-    my @spies = $planet->pick_a_spy_per_empire($espionage->{rebellion}{spies});
+    my @spies = pick_a_spy_per_empire($espionage->{rebellion}{spies});
     foreach my $rebel (@spies) {
         $rebel->empire->send_predefined_message(
             tags        => ['Intelligence'],
