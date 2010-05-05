@@ -12,11 +12,11 @@ my $home = $empire->home_planet;
 my $result;
 $empire->add_essentia(10)->put;
 
-my $uni = Lacuna::DB::Building::University->new(
+my $uni = Lacuna::DB::Result::Building::University->new(
     simpledb        => $tester->db,
     x               => 0,
     y               => -1,
-    class           => 'Lacuna::DB::Building::University',
+    class           => 'Lacuna::DB::Result::Building::University',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,

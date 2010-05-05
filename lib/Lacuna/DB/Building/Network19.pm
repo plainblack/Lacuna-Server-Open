@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Network19;
+package Lacuna::DB::Result::Building::Network19;
 
 use Moose;
-extends 'Lacuna::DB::Building';
+extends 'Lacuna::DB::Result::Building';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;

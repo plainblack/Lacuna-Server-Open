@@ -1,7 +1,7 @@
-package Lacuna::DB::Star;
+package Lacuna::DB::Result::Star;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use Lacuna::Util;
 
 __PACKAGE__->table('star');
@@ -16,8 +16,8 @@ __PACKAGE__->add_columns(
 
 with 'Lacuna::Role::Zoned';
 
-__PACKAGE__->has_many('bodies', 'Lacuna::DB::Body', 'star_id');
-__PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'star_id');
+__PACKAGE__->has_many('bodies', 'Lacuna::DB::Result::Body', 'star_id');
+__PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Body::Planet', 'star_id');
 
 
 sub get_status {
@@ -33,7 +33,7 @@ sub get_status {
     if (defined $empire) {
         my @alignments;
         if ($self->id ~~ $empire->probed_stars) {
-            my $bodies = $self->bodies(where => { class => ['like', 'Lacuna::DB::Body::Planet%'] });
+            my $bodies = $self->bodies(where => { class => ['like', 'Lacuna::DB::Result::Body::Planet%'] });
             while (my $body = $bodies->next) {
                 if ($body->empire_id eq $empire->id) {
                     push @alignments, 'self';

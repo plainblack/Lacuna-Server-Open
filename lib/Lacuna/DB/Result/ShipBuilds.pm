@@ -1,7 +1,7 @@
-package Lacuna::DB::ShipBuilds;
+package Lacuna::DB::Result::ShipBuilds;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use Lacuna::Util qw(format_date);
 use DateTime;
 
@@ -13,8 +13,8 @@ __PACKAGE__->add_columns(
     type                    => { data_type => 'char', size => 30, is_nullable => 0 },
 );
 
-__PACKAGE__->belongs_to('shipyard', 'Lacuna::DB::Building::Shipyard', 'shipyard_id');
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Body::Planet', 'body_id');
+__PACKAGE__->belongs_to('shipyard', 'Lacuna::DB::Result::Building::Shipyard', 'shipyard_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body::Planet', 'body_id');
 
 sub date_completed_formatted {
     my $self = shift;

@@ -1,7 +1,7 @@
-package Lacuna::DB::Session;
+package Lacuna::DB::Result::Session;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use DateTime;
 
 __PACKAGE__->table('session');
@@ -11,7 +11,7 @@ __PACKAGE__->add_columns(
     expires         => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
 );
 
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 
 sub extend {
     my $self = shift;

@@ -1,7 +1,7 @@
-package Lacuna::DB::Body::Planet::P5;
+package Lacuna::DB::Result::Body::Planet::P5;
 
 use Moose;
-extends 'Lacuna::DB::Body::Planet';
+extends 'Lacuna::DB::Result::Body::Planet';
 
 use constant image => 'p5';
 use constant surface => 'surface-f';

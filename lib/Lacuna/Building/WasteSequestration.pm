@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Waste::Sequestration';
+    return 'Lacuna::DB::Result::Building::Waste::Sequestration';
 }
 
 no Moose;

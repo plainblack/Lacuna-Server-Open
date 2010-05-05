@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Espionage';
+    return 'Lacuna::DB::Result::Building::Espionage';
 }
 
 no Moose;

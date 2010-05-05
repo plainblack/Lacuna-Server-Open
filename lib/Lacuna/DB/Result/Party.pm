@@ -1,7 +1,7 @@
-package Lacuna::DB::Party;
+package Lacuna::DB::Result::Party;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use Lacuna::Util qw(format_date);
 use DateTime;
 
@@ -13,8 +13,8 @@ __PACKAGE__->add_columns(
     happiness_from_party    => { isa => 'Int', default => 0 },
 );
 
-__PACKAGE__->belongs_to('park', 'Lacuna::DB::Building::Park', 'park_id');
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Body::Planet', 'body_id');
+__PACKAGE__->belongs_to('park', 'Lacuna::DB::Result::Building::Park', 'park_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body::Planet', 'body_id');
 
 sub party_seconds_remaining {
     my ($self) = @_;

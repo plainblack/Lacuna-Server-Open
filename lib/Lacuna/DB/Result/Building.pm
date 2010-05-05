@@ -1,7 +1,7 @@
-package Lacuna::DB::Building;
+package Lacuna::DB::Result::Building;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use Lacuna::Constants ':all';
 use List::Util qw(shuffle);
 
@@ -18,30 +18,30 @@ __PACKAGE__->add_columns(
     offline         => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
 );
 
-__PACKAGE__->belongs_to('build_queue', 'Lacuna::DB::BuildQueue', 'build_queue_id');
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Body', 'body_id');
+__PACKAGE__->belongs_to('build_queue', 'Lacuna::DB::Result::BuildQueue', 'build_queue_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
 __PACKAGE__->typecast_map(class => {
-    'Lacuna::DB::Building::Development' => 'Lacuna::DB::Building::Development',
-    'Lacuna::DB::Building::Embassy' => 'Lacuna::DB::Building::Embassy',
-    'Lacuna::DB::Building::EntertainmentDistrict' => 'Lacuna::DB::Building::EntertainmentDistrict',
-    'Lacuna::DB::Building::Espionage' => 'Lacuna::DB::Building::Espionage',
-    'Lacuna::DB::Building::Food' => 'Lacuna::DB::Building::Food',
-    'Lacuna::DB::Building::GasGiantLab' => 'Lacuna::DB::Building::GasGiantLab',
-    'Lacuna::DB::Building::Intelligence' => 'Lacuna::DB::Building::Intelligence',
-    'Lacuna::DB::Building::Network19' => 'Lacuna::DB::Building::Network19',
-    'Lacuna::DB::Building::Observatory' => 'Lacuna::DB::Building::Observatory',
-    'Lacuna::DB::Building::Park' => 'Lacuna::DB::Building::Park',
-    'Lacuna::DB::Building::PlanetaryCommand' => 'Lacuna::DB::Building::PlanetaryCommand',
-    'Lacuna::DB::Building::Propulsion' => 'Lacuna::DB::Building::Propulsion',
-    'Lacuna::DB::Building::RND' => 'Lacuna::DB::Building::RND',
-    'Lacuna::DB::Building::Security' => 'Lacuna::DB::Building::Security',
-    'Lacuna::DB::Building::Shipyard' => 'Lacuna::DB::Building::Shipyard',
-    'Lacuna::DB::Building::SpacePort' => 'Lacuna::DB::Building::SpacePort',
-    'Lacuna::DB::Building::TerraformingLab' => 'Lacuna::DB::Building::TerraformingLab',
-    'Lacuna::DB::Building::Trade' => 'Lacuna::DB::Building::Trade',
-    'Lacuna::DB::Building::Transporter' => 'Lacuna::DB::Building::Transporter',
-    'Lacuna::DB::Building::University' => 'Lacuna::DB::Building::University',
+    'Lacuna::DB::Result::Building::Development' => 'Lacuna::DB::Result::Building::Development',
+    'Lacuna::DB::Result::Building::Embassy' => 'Lacuna::DB::Result::Building::Embassy',
+    'Lacuna::DB::Result::Building::EntertainmentDistrict' => 'Lacuna::DB::Result::Building::EntertainmentDistrict',
+    'Lacuna::DB::Result::Building::Espionage' => 'Lacuna::DB::Result::Building::Espionage',
+    'Lacuna::DB::Result::Building::Food' => 'Lacuna::DB::Result::Building::Food',
+    'Lacuna::DB::Result::Building::GasGiantLab' => 'Lacuna::DB::Result::Building::GasGiantLab',
+    'Lacuna::DB::Result::Building::Intelligence' => 'Lacuna::DB::Result::Building::Intelligence',
+    'Lacuna::DB::Result::Building::Network19' => 'Lacuna::DB::Result::Building::Network19',
+    'Lacuna::DB::Result::Building::Observatory' => 'Lacuna::DB::Result::Building::Observatory',
+    'Lacuna::DB::Result::Building::Park' => 'Lacuna::DB::Result::Building::Park',
+    'Lacuna::DB::Result::Building::PlanetaryCommand' => 'Lacuna::DB::Result::Building::PlanetaryCommand',
+    'Lacuna::DB::Result::Building::Propulsion' => 'Lacuna::DB::Result::Building::Propulsion',
+    'Lacuna::DB::Result::Building::RND' => 'Lacuna::DB::Result::Building::RND',
+    'Lacuna::DB::Result::Building::Security' => 'Lacuna::DB::Result::Building::Security',
+    'Lacuna::DB::Result::Building::Shipyard' => 'Lacuna::DB::Result::Building::Shipyard',
+    'Lacuna::DB::Result::Building::SpacePort' => 'Lacuna::DB::Result::Building::SpacePort',
+    'Lacuna::DB::Result::Building::TerraformingLab' => 'Lacuna::DB::Result::Building::TerraformingLab',
+    'Lacuna::DB::Result::Building::Trade' => 'Lacuna::DB::Result::Building::Trade',
+    'Lacuna::DB::Result::Building::Transporter' => 'Lacuna::DB::Result::Building::Transporter',
+    'Lacuna::DB::Result::Building::University' => 'Lacuna::DB::Result::Building::University',
 });
 
 sub controller_class {
@@ -504,7 +504,7 @@ sub check_build_prereqs {
 
 sub has_met_upgrade_prereqs {
     my ($self) = @_;
-    if (ref $self ne 'Lacuna::DB::Building::University' && $self->level >= $self->empire->university_level + 1) {
+    if (ref $self ne 'Lacuna::DB::Result::Building::University' && $self->level >= $self->empire->university_level + 1) {
         confess [1013, "You cannot upgrade a building past your university level."];
     }
     return 1;

@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Propulsion';
+    return 'Lacuna::DB::Result::Building::Propulsion';
 }
 
 no Moose;

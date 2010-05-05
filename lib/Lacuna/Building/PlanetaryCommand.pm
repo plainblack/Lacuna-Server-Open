@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::PlanetaryCommand';
+    return 'Lacuna::DB::Result::Building::PlanetaryCommand';
 }
 
 around 'view' => sub {

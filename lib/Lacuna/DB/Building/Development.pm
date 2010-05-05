@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Development;
+package Lacuna::DB::Result::Building::Development;
 
 use Moose;
-extends 'Lacuna::DB::Building';
+extends 'Lacuna::DB::Result::Building';
 
 sub subsidize_build_queue {
     my ($self) = @_;

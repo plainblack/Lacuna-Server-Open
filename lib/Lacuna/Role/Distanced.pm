@@ -24,7 +24,7 @@ has propulsion_factory => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->body->get_building_of_class('Lacuna::DB::Building::Propulsion');
+        return $self->body->get_building_of_class('Lacuna::DB::Result::Building::Propulsion');
     },
 );
 

@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Food::Reserve;
+package Lacuna::DB::Result::Building::Food::Reserve;
 
 use Moose;
-extends 'Lacuna::DB::Building::Food';
+extends 'Lacuna::DB::Result::Building::Food';
 
 use constant controller_class => 'Lacuna::Building::FoodReserve';
 

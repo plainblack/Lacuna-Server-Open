@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Energy::Fission;
+package Lacuna::DB::Result::Building::Energy::Fission;
 
 use Moose;
-extends 'Lacuna::DB::Building::Energy';
+extends 'Lacuna::DB::Result::Building::Energy';
 
 before check_build_prereqs => sub {
     my $self = shift;

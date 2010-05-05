@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Ore::Ministry;
+package Lacuna::DB::Result::Building::Ore::Ministry;
 
 use Moose;
-extends 'Lacuna::DB::Building::Ore';
+extends 'Lacuna::DB::Result::Building::Ore';
 use Lacuna::Constants qw(ORE_TYPES);
 
 __PACKAGE__->add_columns(
@@ -101,7 +101,7 @@ sub send_ships_home {
         $self->ship_count($self->ship_count - $count);
         my $date = DateTime->now->add(seconds => $self->calculate_seconds_from_body_to_body('cargo_ship',$asteroid, $self->body));
         foreach (1..$count) {
-            Lacuna::DB::TravelQueue->send(
+            Lacuna::DB::Result::TravelQueue->send(
                 simpledb    => $self->simpledb,
                 date_arrives=> $date,
                 body        => $self->body,
@@ -156,7 +156,7 @@ sub recalc_ore_production {
     my $production_capacity;
     foreach my $id (@{$self->asteroid_ids}) {
         unless (exists $asteroids{$id}) {
-            my $asteroid                    = $self->simpledb->domain('Lacuna::DB::Body::Asteroid')->find($id);
+            my $asteroid                    = $self->simpledb->domain('Lacuna::DB::Result::Body::Asteroid')->find($id);
             my $round_trip_time             =  $self->calculate_seconds_from_body_to_body('cargo_ship', $asteroid, $self->body) * 2;
             my $trips_per_hour              = (3600 / $round_trip_time );
             my $max_cargo_hauled_per_hour   = $trips_per_hour * $cargo_space_per_platform;

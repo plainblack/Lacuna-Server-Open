@@ -76,7 +76,7 @@ sub create {
 
     $self->is_name_available($account{name});
 
-    my $empire = Lacuna::DB::Empire->create($self->simpledb, \%account);
+    my $empire = Lacuna::DB::Result::Empire->create($self->simpledb, \%account);
     return $empire->id;
 }
 
@@ -201,7 +201,7 @@ sub view_public_profile {
         status_message  => $viewed_empire->status_message,
         species         => $viewed_empire->species->name,
         date_founded    => format_date($viewed_empire->date_created),
-        planet_count    => $self->simpledb->domain('Lacuna::DB::Body::Planet')->count(where=>{empire_id=>$viewed_empire->id}),
+        planet_count    => $self->simpledb->domain('Lacuna::DB::Result::Body::Planet')->count(where=>{empire_id=>$viewed_empire->id}),
         medals          => \%public_medals,
     );
     return { profile => \%out, status => $viewer_empire->get_status };

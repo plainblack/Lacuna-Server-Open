@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Waste::Treatment;
+package Lacuna::DB::Result::Building::Waste::Treatment;
 
 use Moose;
-extends 'Lacuna::DB::Building::Waste';
+extends 'Lacuna::DB::Result::Building::Waste';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;

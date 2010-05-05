@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Observatory';
+    return 'Lacuna::DB::Result::Building::Observatory';
 }
 
 sub abandon_probe {
@@ -19,7 +19,7 @@ sub abandon_probe {
     unless (defined $star) {
         confess [ 1002, 'Star does not exist.', $star_id];
     }
-    my $bodies = $star->bodies(where => { class => ['like', 'Lacuna::DB::Body::Planet%'] });
+    my $bodies = $star->bodies(where => { class => ['like', 'Lacuna::DB::Result::Body::Planet%'] });
     while (my $body = $bodies->next) {
         if ($empire->id eq $body->empire_id) {
             confess [ 1010, "You can't remove a probe from a system you inhabit.", $body->id ];

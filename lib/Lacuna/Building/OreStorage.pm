@@ -9,7 +9,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Ore::Storage';
+    return 'Lacuna::DB::Result::Building::Ore::Storage';
 }
 
 around 'view' => sub {

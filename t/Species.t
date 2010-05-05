@@ -10,7 +10,7 @@ my $tester = TestHelper->new;
 
 cleanup(); # in case there were failed runs previously
 
-my $empire = Lacuna::DB::Empire->create($tester->db, {name=>$tester->empire_name, password=>$tester->empire_password});
+my $empire = Lacuna::DB::Result::Empire->create($tester->db, {name=>$tester->empire_name, password=>$tester->empire_password});
 $tester->empire($empire);
 my $empire_id = $empire->id;
 

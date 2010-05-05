@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Waste::Recycling';
+    return 'Lacuna::DB::Result::Building::Waste::Recycling';
 }
 
 around 'view' => sub {

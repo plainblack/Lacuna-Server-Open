@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Trade;
+package Lacuna::DB::Result::Building::Trade;
 
 use Moose;
-extends 'Lacuna::DB::Building';
+extends 'Lacuna::DB::Result::Building';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;

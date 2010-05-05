@@ -16,11 +16,11 @@ my $command = $home->command;
 my $result;
 
 
-my $uni = Lacuna::DB::Building::University->new(
+my $uni = Lacuna::DB::Result::Building::University->new(
     simpledb        => $tester->db,
     x               => 0,
     y               => -1,
-    class           => 'Lacuna::DB::Building::University',
+    class           => 'Lacuna::DB::Result::Building::University',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,
@@ -49,7 +49,7 @@ $home->put;
 
 $result = $tester->post('spaceport', 'build', [$session_id, $home->id, 0, 1]);
 ok($result->{result}{building}{id}, "built a space port");
-my $spaceport = $empire->get_building('Lacuna::DB::Building::SpacePort',$result->{result}{building}{id});
+my $spaceport = $empire->get_building('Lacuna::DB::Result::Building::SpacePort',$result->{result}{building}{id});
 $spaceport->finish_upgrade;
 
 $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);

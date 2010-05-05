@@ -1,7 +1,7 @@
-package Lacuna::DB::TravelQueue;
+package Lacuna::DB::Result::TravelQueue;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use DateTime;
 use Lacuna::Util qw(to_seconds format_date);
 
@@ -18,9 +18,9 @@ __PACKAGE__->add_columns(
     foreign_star_id         => { data_type => 'int', size => 11, is_nullable => 1 },
 );
 
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Body', 'body_id');
-__PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Star', 'foreign_star_id');
-__PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Body', 'foreign_body_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
+__PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Result::Star', 'foreign_star_id');
+__PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Result::Body', 'foreign_body_id');
 
 
 sub date_arrives_formatted {
@@ -111,9 +111,9 @@ sub arrive {
     
     elsif ($self->ship_type eq 'terraforming_platform_ship') {
         if ($self->direction eq 'outgoing') {
-            my $lab = $self->body->get_building_of_class('Lacuna::DB::Building::TerraformingLab');
+            my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::TerraformingLab');
             if (defined $lab) {
-                $self->foreign_body->add_freebie('Lacuna::DB::Building::Permanent::TerraformingPlatform', $lab->level)->put;
+                $self->foreign_body->add_freebie('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform', $lab->level)->put;
             }
         }
         else {
@@ -123,9 +123,9 @@ sub arrive {
     
     elsif ($self->ship_type eq 'gas_giant_settlement_platform_ship') {
         if ($self->direction eq 'outgoing') {
-            my $lab = $self->body->get_building_of_class('Lacuna::DB::Building::GasGiantLab');
+            my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::GasGiantLab');
             if (defined $lab) {
-                $self->foreign_body->add_freebie('Lacuna::DB::Building::Permanent::GasGiantPlatform', $lab->level)->put;
+                $self->foreign_body->add_freebie('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform', $lab->level)->put;
             }
         }
         else {

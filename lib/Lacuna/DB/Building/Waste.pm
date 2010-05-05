@@ -1,14 +1,14 @@
-package Lacuna::DB::Building::Waste;
+package Lacuna::DB::Result::Building::Waste;
 
 use Moose;
-extends 'Lacuna::DB::Building';
+extends 'Lacuna::DB::Result::Building';
 
 __PACKAGE__->table('waste');
 
 __PACKAGE__->typecast_map(class => {
-    'Lacuna::DB::Building::Waste::Recycling' => 'Lacuna::DB::Building::Waste::Recycling',
-    'Lacuna::DB::Building::Waste::Sequestration' => 'Lacuna::DB::Building::Waste::Sequestration',
-    'Lacuna::DB::Building::Waste::Treatment' => 'Lacuna::DB::Building::Waste::Treatment',
+    'Lacuna::DB::Result::Building::Waste::Recycling' => 'Lacuna::DB::Result::Building::Waste::Recycling',
+    'Lacuna::DB::Result::Building::Waste::Sequestration' => 'Lacuna::DB::Result::Building::Waste::Sequestration',
+    'Lacuna::DB::Result::Building::Waste::Treatment' => 'Lacuna::DB::Result::Building::Waste::Treatment',
 });
 
 around 'build_tags' => sub {

@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Intelligence;
+package Lacuna::DB::Result::Building::Intelligence;
 
 use Moose;
-extends 'Lacuna::DB::Building';
+extends 'Lacuna::DB::Result::Building';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
@@ -96,7 +96,7 @@ has espionage_level => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $building = $self->body->get_buildings_of_class('Lacuna::DB::Building::Espionage')->next;
+        my $building = $self->body->get_buildings_of_class('Lacuna::DB::Result::Building::Espionage')->next;
         return (defined $building) ? $self->level : 0;
     },
 );
@@ -106,7 +106,7 @@ has security_level => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $building = $self->body->get_buildings_of_class('Lacuna::DB::Building::Security')->next;   
+        my $building = $self->body->get_buildings_of_class('Lacuna::DB::Result::Building::Security')->next;   
         return (defined $building) ? $self->level : 0;
     },
 );

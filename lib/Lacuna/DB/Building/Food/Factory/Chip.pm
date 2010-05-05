@@ -1,13 +1,13 @@
-package Lacuna::DB::Building::Food::Factory::Chip;
+package Lacuna::DB::Result::Building::Food::Factory::Chip;
 
 use Moose;
-extends 'Lacuna::DB::Building::Food::Factory';
+extends 'Lacuna::DB::Result::Building::Food::Factory';
 
 use constant controller_class => 'Lacuna::Building::Chip';
 
 use constant image => 'chips';
 
-use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Root'=>5};
+use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Farm::Root'=>5};
 
 use constant name => 'Denton Root Chip Frier';
 

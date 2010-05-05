@@ -10,7 +10,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::SpacePort';
+    return 'Lacuna::DB::Result::Building::SpacePort';
 }
 
 sub find_star {
@@ -66,7 +66,7 @@ sub send_probe {
     # check the observatory probe count
     my $count = $self->simpledb->domain('probes')->count(where => { body_id => $body->id });
     $count += $self->simpledb->domain('travel_queue')->count(where => { body_id => $body->id, ship_type=>'probe' });
-    my $observatory_level = $body->get_buildings_of_class('Lacuna::DB::Building::Observatory')->next->level;
+    my $observatory_level = $body->get_buildings_of_class('Lacuna::DB::Result::Building::Observatory')->next->level;
     if ($count >= $observatory_level * 3) {
         confess [ 1009, 'You are already controlling the maximum amount of probes for your Observatory level.'];
     }
@@ -84,13 +84,13 @@ sub send_spy_pod {
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
-    if ($target_body->isa('Lacuna::DB::Body::Asteroid')) {
+    if ($target_body->isa('Lacuna::DB::Result::Body::Asteroid')) {
         confess [ 1009, 'Cannot send a spy to an asteroid.'];
     }
     elsif (! defined $target_body->empire) {
         confess [ 1009, 'Cannot send a spy to an unoccupied planet.'];
     }
-    elsif ($target_body->isa('Lacuna::DB::Body::Planet') && $target_body->empire->is_isolationist) {
+    elsif ($target_body->isa('Lacuna::DB::Result::Body::Planet') && $target_body->empire->is_isolationist) {
         confess [ 1013, sprintf('%s is an isolationist empire, and must be left alone.',$target_body->empire->name)];
     }
     
@@ -123,7 +123,7 @@ sub send_mining_platform_ship {
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
-    unless ($target_body->isa('Lacuna::DB::Body::Asteroid')) {
+    unless ($target_body->isa('Lacuna::DB::Result::Body::Asteroid')) {
         confess [ 1009, 'Can only send a mining platform ship to an asteroid.'];
     }
     
@@ -140,7 +140,7 @@ sub send_gas_giant_settlement_platform_ship {
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
-    unless ($target_body->isa('Lacuna::DB::Body::Planet::GasGiant')) {
+    unless ($target_body->isa('Lacuna::DB::Result::Body::Planet::GasGiant')) {
         confess [ 1009, 'Can only send a gas giant settlement platform ship to a gas giant.'];
     }
     
@@ -157,7 +157,7 @@ sub send_terraforming_platform_ship {
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
-    unless ($target_body->isa('Lacuna::DB::Body::Planet')) {
+    unless ($target_body->isa('Lacuna::DB::Result::Body::Planet')) {
         confess [ 1009, 'Can only send a terraforming platfom ship to a planet.'];
     }
     
@@ -174,7 +174,7 @@ sub send_colony_ship {
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
-    unless ($target_body->isa('Lacuna::DB::Body::Planet')) {
+    unless ($target_body->isa('Lacuna::DB::Result::Body::Planet')) {
         confess [ 1009, 'Can only send a colony ship to a planet.'];
     }
     if ($target_body->empire_id ne 'None') {
@@ -199,7 +199,7 @@ sub view_ships_travelling {
     $page_number ||= 1;
     my $body = $building->body;
     $body->tick;
-    my $count = $self->simpledb->domain('Lacuna::DB::TravelQueue')->count(where=>{body_id=>$body->id});
+    my $count = $self->simpledb->domain('Lacuna::DB::Result::TravelQueue')->count(where=>{body_id=>$body->id});
     my @travelling;
     my $ships = $body->ships_travelling->paginate(25, $page_number);
     while (my $ship = $ships->next) {
@@ -212,7 +212,7 @@ sub view_ships_travelling {
         my $to = {
             id      => $target->id,
             name    => $target->name,
-            type    => (ref $target eq 'Lacuna::DB::Star') ? 'star' : 'body',
+            type    => (ref $target eq 'Lacuna::DB::Result::Star') ? 'star' : 'body',
         };
         if ($ship->direction ne 'outgoing') {
             my $temp = $from;

@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Water::Production;
+package Lacuna::DB::Result::Building::Water::Production;
 
 use Moose;
-extends 'Lacuna::DB::Building::Water';
+extends 'Lacuna::DB::Result::Building::Water';
 
 use constant controller_class => 'Lacuna::Building::WaterProduction';
 

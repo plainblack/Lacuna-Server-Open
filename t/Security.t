@@ -15,11 +15,11 @@ my $home = $empire->home_planet;
 my $result;
 
 
-my $uni = Lacuna::DB::Building::University->new(
+my $uni = Lacuna::DB::Result::Building::University->new(
     simpledb        => $tester->db,
     x               => 0,
     y               => -1,
-    class           => 'Lacuna::DB::Building::University',
+    class           => 'Lacuna::DB::Result::Building::University',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,
@@ -30,11 +30,11 @@ my $uni = Lacuna::DB::Building::University->new(
 $home->build_building($uni);
 $uni->finish_upgrade;
 
-my $intelligence = Lacuna::DB::Building::Intelligence->new(
+my $intelligence = Lacuna::DB::Result::Building::Intelligence->new(
     simpledb        => $tester->db,
     x               => 0,
     y               => -2,
-    class           => 'Lacuna::DB::Building::Intelligence',
+    class           => 'Lacuna::DB::Result::Building::Intelligence',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,
@@ -63,7 +63,7 @@ $home->put;
 
 $result = $tester->post('security', 'build', [$session_id, $home->id, 0, 1]);
 ok($result->{result}{building}{id}, "built a security ministry");
-my $security = $empire->get_building('Lacuna::DB::Building::Security',$result->{result}{building}{id});
+my $security = $empire->get_building('Lacuna::DB::Result::Building::Security',$result->{result}{building}{id});
 $security->finish_upgrade;
 
 $result = $tester->post('security', 'view_prisoners', [$session_id, $security->id]);

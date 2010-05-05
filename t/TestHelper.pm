@@ -50,7 +50,7 @@ has session => (
 
 sub generate_test_empire {
     my $self = shift;
-    my $empire = Lacuna::DB::Empire->create($self->db, {name=>$self->empire_name, password=>$self->empire_password});
+    my $empire = Lacuna::DB::Result::Empire->create($self->db, {name=>$self->empire_name, password=>$self->empire_password});
     $empire->found;
     $self->session($empire->start_session);
     $self->empire($empire);

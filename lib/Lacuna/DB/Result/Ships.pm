@@ -1,7 +1,7 @@
-package Lacuna::DB::Ships;
+package Lacuna::DB::Result::Ships;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use Lacuna::Util qw(format_date);
 use DateTime;
 
@@ -22,8 +22,8 @@ __PACKAGE__->add_columns(
     gas_giant_settlement_platform_ship_count     => { isa => 'Int', default => 0 },
 );
 
-__PACKAGE__->belongs_to('shipyard', 'Lacuna::DB::Building::Shipyard', 'shipyard_id');
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Body::Planet', 'body_id');
+__PACKAGE__->belongs_to('shipyard', 'Lacuna::DB::Result::Building::Shipyard', 'shipyard_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body::Planet', 'body_id');
 
 sub date_completed_formatted {
     my $self = shift;

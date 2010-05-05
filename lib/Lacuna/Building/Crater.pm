@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Permanent::Crater';
+    return 'Lacuna::DB::Result::Building::Permanent::Crater';
 }
 
 no Moose;

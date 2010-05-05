@@ -1,7 +1,7 @@
-package Lacuna::DB::Body::Planet::P11;
+package Lacuna::DB::Result::Body::Planet::P11;
 
 use Moose;
-extends 'Lacuna::DB::Body::Planet';
+extends 'Lacuna::DB::Result::Body::Planet';
 
 
 

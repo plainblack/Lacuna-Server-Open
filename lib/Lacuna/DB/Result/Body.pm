@@ -1,7 +1,7 @@
-package Lacuna::DB::Body;
+package Lacuna::DB::Result::Body;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use Lacuna::Util;
 
 __PACKAGE__->table('body');
@@ -19,14 +19,14 @@ __PACKAGE__->add_columns(
 );
 
 __PACKAGE__->typecast_map(class => {
-    'Lacuna::DB::Body::Asteroid::A1' => 'Lacuna::DB::Body::Asteroid::A1',
-    'Lacuna::DB::Body::Asteroid::A2' => 'Lacuna::DB::Body::Asteroid::A2',
-    'Lacuna::DB::Body::Asteroid::A3' => 'Lacuna::DB::Body::Asteroid::A3',
-    'Lacuna::DB::Body::Asteroid::A4' => 'Lacuna::DB::Body::Asteroid::A4',
-    'Lacuna::DB::Body::Asteroid::A5' => 'Lacuna::DB::Body::Asteroid::A5',
+    'Lacuna::DB::Result::Body::Asteroid::A1' => 'Lacuna::DB::Result::Body::Asteroid::A1',
+    'Lacuna::DB::Result::Body::Asteroid::A2' => 'Lacuna::DB::Result::Body::Asteroid::A2',
+    'Lacuna::DB::Result::Body::Asteroid::A3' => 'Lacuna::DB::Result::Body::Asteroid::A3',
+    'Lacuna::DB::Result::Body::Asteroid::A4' => 'Lacuna::DB::Result::Body::Asteroid::A4',
+    'Lacuna::DB::Result::Body::Asteroid::A5' => 'Lacuna::DB::Result::Body::Asteroid::A5',
 });
 
-__PACKAGE__->belongs_to('star', 'Lacuna::DB::Star', 'star_id');
+__PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Star', 'star_id');
 
 
 with 'Lacuna::Role::Zoned';
@@ -50,13 +50,13 @@ sub image {
 sub get_type {
     my ($self) = @_;
     my $type = 'habitable planet';
-    if ($self->isa('Lacuna::DB::Body::Planet::GasGiant')) {
+    if ($self->isa('Lacuna::DB::Result::Body::Planet::GasGiant')) {
         $type = 'gas giant';
     }
-    elsif ($self->isa('Lacuna::DB::Body::Asteroid')) {
+    elsif ($self->isa('Lacuna::DB::Result::Body::Asteroid')) {
         $type = 'asteroid';
     }
-    elsif ($self->isa('Lacuna::DB::Body::Station')) {
+    elsif ($self->isa('Lacuna::DB::Result::Body::Station')) {
         $type = 'space station';
     }
     return $type;

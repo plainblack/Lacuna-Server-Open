@@ -4,7 +4,7 @@ use Moose;
 extends 'Lacuna::Building';
 
 sub model_class {
-    return 'Lacuna::DB::Building::Food::Farm::Algae';
+    return 'Lacuna::DB::Result::Building::Food::Farm::Algae';
 }
 
 sub app_url {

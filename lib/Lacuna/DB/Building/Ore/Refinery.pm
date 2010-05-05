@@ -1,11 +1,11 @@
-package Lacuna::DB::Building::Ore::Refinery;
+package Lacuna::DB::Result::Building::Ore::Refinery;
 
 use Moose;
-extends 'Lacuna::DB::Building::Ore';
+extends 'Lacuna::DB::Result::Building::Ore';
 
 use constant controller_class => 'Lacuna::Building::OreRefinery';
 
-use constant building_prereq => {'Lacuna::DB::Building::Ore::Mine' => 5};
+use constant building_prereq => {'Lacuna::DB::Result::Building::Ore::Mine' => 5};
 
 use constant max_instances_per_planet => 1;
 

@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Energy::Geo';
+    return 'Lacuna::DB::Result::Building::Energy::Geo';
 }
 
 no Moose;

@@ -1,7 +1,7 @@
-package Lacuna::DB::Body::Asteroid::A2;
+package Lacuna::DB::Result::Body::Asteroid::A2;
 
 use Moose;
-extends 'Lacuna::DB::Body::Asteroid';
+extends 'Lacuna::DB::Result::Body::Asteroid';
 
 use constant image => 'a2';
 

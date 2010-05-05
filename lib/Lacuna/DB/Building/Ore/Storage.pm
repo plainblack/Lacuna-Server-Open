@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Ore::Storage;
+package Lacuna::DB::Result::Building::Ore::Storage;
 
 use Moose;
-extends 'Lacuna::DB::Building::Ore';
+extends 'Lacuna::DB::Result::Building::Ore';
 
 use constant controller_class => 'Lacuna::Building::OreStorage';
 

@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Security;
+package Lacuna::DB::Result::Building::Security;
 
 use Moose;
-extends 'Lacuna::DB::Building';
+extends 'Lacuna::DB::Result::Building';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
@@ -12,7 +12,7 @@ use constant controller_class => 'Lacuna::Building::Security';
 
 use constant max_instances_per_planet => 1;
 
-use constant building_prereq => {'Lacuna::DB::Building::Intelligence'=>1};
+use constant building_prereq => {'Lacuna::DB::Result::Building::Intelligence'=>1};
 
 use constant image => 'security';
 

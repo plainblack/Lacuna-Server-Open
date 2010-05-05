@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Water::Reclamation;
+package Lacuna::DB::Result::Building::Water::Reclamation;
 
 use Moose;
-extends 'Lacuna::DB::Building::Water';
+extends 'Lacuna::DB::Result::Building::Water';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;

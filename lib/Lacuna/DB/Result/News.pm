@@ -1,7 +1,7 @@
-package Lacuna::DB::News;
+package Lacuna::DB::Result::News;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use Lacuna::Util qw(format_date);
 use UUID::Tiny ':std';
 

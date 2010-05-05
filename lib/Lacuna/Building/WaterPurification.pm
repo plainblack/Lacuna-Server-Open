@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Water::Purification';
+    return 'Lacuna::DB::Result::Building::Water::Purification';
 }
 
 no Moose;

@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Food::Farm;
+package Lacuna::DB::Result::Building::Food::Farm;
 
 use Moose;
-extends 'Lacuna::DB::Building::Food';
+extends 'Lacuna::DB::Result::Building::Food';
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

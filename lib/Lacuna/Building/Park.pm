@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Park';
+    return 'Lacuna::DB::Result::Building::Park';
 }
 
 around 'view' => sub {

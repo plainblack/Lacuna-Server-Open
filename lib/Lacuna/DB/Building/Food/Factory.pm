@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Food::Factory;
+package Lacuna::DB::Result::Building::Food::Factory;
 
 use Moose;
-extends 'Lacuna::DB::Building::Food';
+extends 'Lacuna::DB::Result::Building::Food';
 
 has converts_food => (
     is      => 'ro',

@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Water::Purification;
+package Lacuna::DB::Result::Building::Water::Purification;
 
 use Moose;
-extends 'Lacuna::DB::Building::Water';
+extends 'Lacuna::DB::Result::Building::Water';
 
 use constant controller_class => 'Lacuna::Building::WaterPurification';
 

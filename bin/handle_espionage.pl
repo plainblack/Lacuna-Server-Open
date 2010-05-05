@@ -29,7 +29,7 @@ my $config = Lacuna->config;
 our $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key => $config->get('secret_key'), cache_servers => $config->get('memcached')); 
 
 out('Processing planets');
-my $planets = $db->domain('Lacuna::DB::Body::Planet')->search(
+my $planets = $db->domain('Lacuna::DB::Result::Body::Planet')->search(
     where   => {
         empire_id   => ['!=', 'None'],
     }
@@ -584,22 +584,22 @@ sub destroy_infrastructure {
     my $got;
     for (1..$quantity) {
         my @classes = (
-            'Lacuna::DB::Building::Shipyard',
-            'Lacuna::DB::Building::SpacePort',
-            'Lacuna::DB::Building::Trade',
-            'Lacuna::DB::Building::Transporter',
-            'Lacuna::DB::Building::Waste::Recycling',
-            'Lacuna::DB::Building::EntertainmentDistrict',
-            'Lacuna::DB::Building::Development',
-            'Lacuna::DB::Building::Espionage',
-            'Lacuna::DB::Building::Network19',
-            'Lacuna::DB::Building::Intelligence',
-            'Lacuna::DB::Building::Observatory',
-            'Lacuna::DB::Building::Park',
-            'Lacuna::DB::Building::Propulsion',
-            'Lacuna::DB::Building::RND',
-            'Lacuna::DB::Building::Security',
-            'Lacuna::DB::Building::Waste::Sequestration',
+            'Lacuna::DB::Result::Building::Shipyard',
+            'Lacuna::DB::Result::Building::SpacePort',
+            'Lacuna::DB::Result::Building::Trade',
+            'Lacuna::DB::Result::Building::Transporter',
+            'Lacuna::DB::Result::Building::Waste::Recycling',
+            'Lacuna::DB::Result::Building::EntertainmentDistrict',
+            'Lacuna::DB::Result::Building::Development',
+            'Lacuna::DB::Result::Building::Espionage',
+            'Lacuna::DB::Result::Building::Network19',
+            'Lacuna::DB::Result::Building::Intelligence',
+            'Lacuna::DB::Result::Building::Observatory',
+            'Lacuna::DB::Result::Building::Park',
+            'Lacuna::DB::Result::Building::Propulsion',
+            'Lacuna::DB::Result::Building::RND',
+            'Lacuna::DB::Result::Building::Security',
+            'Lacuna::DB::Result::Building::Waste::Sequestration',
             );
         my $building = $db->domain($classes[randint(0,length(@classes)-1)])->search(
             order_by    => 'itemName()',
@@ -811,7 +811,7 @@ sub steal_resources {
         $thief->on_body_id($home->id);
         $thief->task('Travelling');
         $thief->put;
-        Lacuna::DB::TravelQueue->send(
+        Lacuna::DB::Result::TravelQueue->send(
             simpledb        => $db,
             body            => $home,
             foreign_body    => $planet,
@@ -861,7 +861,7 @@ sub steal_ships {
         $thief->on_body_id($home->id);
         $thief->task('Travelling');
         $thief->put;
-        Lacuna::DB::TravelQueue->send(
+        Lacuna::DB::Result::TravelQueue->send(
             simpledb        => $db,
             body            => $home,
             foreign_body    => $planet,
@@ -892,12 +892,12 @@ sub steal_building {
     my $thief = random_spy($espionage->{theft}{spies});
     return undef unless defined $thief;
     my @classes = (
-        'Lacuna::DB::Building',
-        'Lacuna::DB::Building::Food',
-        'Lacuna::DB::Building::Water',
-        'Lacuna::DB::Building::Waste',
-        'Lacuna::DB::Building::Ore',
-        'Lacuna::DB::Building::Energy',
+        'Lacuna::DB::Result::Building',
+        'Lacuna::DB::Result::Building::Food',
+        'Lacuna::DB::Result::Building::Water',
+        'Lacuna::DB::Result::Building::Waste',
+        'Lacuna::DB::Result::Building::Ore',
+        'Lacuna::DB::Result::Building::Energy',
         );
     my $building = $db->domain($classes[randint(0,5)])->search(
         order_by    => 'itemName()',
@@ -959,13 +959,13 @@ sub shut_down_building {
     my ($planet, $espionage) = @_;
     out('Shut Down Building');
     my @classnames = (
-        'Lacuna::DB::Building::PlanetaryCommand',
-        'Lacuna::DB::Building::Shipyard',
-        'Lacuna::DB::Building::Waste::Recycling',
-        'Lacuna::DB::Building::Development',
-        'Lacuna::DB::Building::Intelligence',
-        'Lacuna::DB::Building::Trade',
-        'Lacuna::DB::Building::Transporter',
+        'Lacuna::DB::Result::Building::PlanetaryCommand',
+        'Lacuna::DB::Result::Building::Shipyard',
+        'Lacuna::DB::Result::Building::Waste::Recycling',
+        'Lacuna::DB::Result::Building::Development',
+        'Lacuna::DB::Result::Building::Intelligence',
+        'Lacuna::DB::Result::Building::Trade',
+        'Lacuna::DB::Result::Building::Transporter',
     );
     my $building_class = @classnames[randint(0,6)];
     my $building = $planet->get_building_of_class($building_class);
@@ -1020,7 +1020,7 @@ sub kill_contact_with_mining_platform {
     return undef unless defined $ministry;
     my $platform = $ministry->asteroid_ids->[0];
     return undef unless defined $platform;
-    my $asteroid = $db->domain('Lacuna::DB::Body::Asteroid')->find($platform);
+    my $asteroid = $db->domain('Lacuna::DB::Result::Body::Asteroid')->find($platform);
     return undef unless defined $asteroid;
     $ministry->remove_platform($asteroid);
     $planet->empire->send_predefined_message(
@@ -1245,7 +1245,7 @@ sub ship_report {
     out('Ship Report');
     my $spy = random_spy($espionage->{intel}{spies});
     return undef unless defined $spy;
-    my $ports = $planet->get_buildings_of_class('Lacuna::DB::Building::SpacePort');
+    my $ports = $planet->get_buildings_of_class('Lacuna::DB::Result::Building::SpacePort');
     my $got;
     my %tally;
     while (my $port = $ports->next) {

@@ -15,11 +15,11 @@ my $home = $empire->home_planet;
 my $result;
 
 
-my $uni = Lacuna::DB::Building::University->new(
+my $uni = Lacuna::DB::Result::Building::University->new(
     simpledb        => $tester->db,
     x               => 0,
     y               => -1,
-    class           => 'Lacuna::DB::Building::University',
+    class           => 'Lacuna::DB::Result::Building::University',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,
@@ -48,7 +48,7 @@ $home->put;
 
 $result = $tester->post('intelligence', 'build', [$session_id, $home->id, 0, 1]);
 ok($result->{result}{building}{id}, "built an intelligence ministry");
-my $intelligence = $empire->get_building('Lacuna::DB::Building::Intelligence',$result->{result}{building}{id});
+my $intelligence = $empire->get_building('Lacuna::DB::Result::Building::Intelligence',$result->{result}{building}{id});
 $intelligence->finish_upgrade;
 
 $result = $tester->post('intelligence', 'view', [$session_id, $intelligence->id]);
@@ -71,11 +71,11 @@ is($result->{result}{spies}[0]{name}, 'Waldo', "spy naming works");
 $result = $tester->post('intelligence', 'burn_spy', [$session_id, $intelligence->id, $spy_id]);
 ok(exists$result->{result}, "burn a spy");
 
-my $shipyard = Lacuna::DB::Building::Shipyard->new(
+my $shipyard = Lacuna::DB::Result::Building::Shipyard->new(
     simpledb        => $tester->db,
     x               => 1,
     y               => 1,
-    class           => 'Lacuna::DB::Building::Shipyard',
+    class           => 'Lacuna::DB::Result::Building::Shipyard',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,
@@ -86,11 +86,11 @@ my $shipyard = Lacuna::DB::Building::Shipyard->new(
 $home->build_building($shipyard);
 $shipyard->finish_upgrade;
 
-my $spaceport = Lacuna::DB::Building::SpacePort->new(
+my $spaceport = Lacuna::DB::Result::Building::SpacePort->new(
     simpledb        => $tester->db,
     x               => 1,
     y               => 2,
-    class           => 'Lacuna::DB::Building::SpacePort',
+    class           => 'Lacuna::DB::Result::Building::SpacePort',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,

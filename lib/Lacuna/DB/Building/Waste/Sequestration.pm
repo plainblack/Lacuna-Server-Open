@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Waste::Sequestration;
+package Lacuna::DB::Result::Building::Waste::Sequestration;
 
 use Moose;
-extends 'Lacuna::DB::Building::Waste';
+extends 'Lacuna::DB::Result::Building::Waste';
 
 use constant controller_class => 'Lacuna::Building::WasteSequestration';
 

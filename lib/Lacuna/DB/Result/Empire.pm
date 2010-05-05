@@ -1,7 +1,7 @@
-package Lacuna::DB::Empire;
+package Lacuna::DB::Result::Empire;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use DateTime;
 use Lacuna::Util qw(format_date);
 use Digest::SHA;
@@ -35,15 +35,15 @@ __PACKAGE__->add_columns(
 
 # personal confederacies
 
-__PACKAGE__->belongs_to('species', 'Lacuna::DB::Species', 'species_id');
-__PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Body::Planet', 'home_planet_id');
-__PACKAGE__->has_many('sessions', 'Lacuna::DB::Session', 'empire_id');
-__PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'empire_id');
-__PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Message', 'from_id');
-__PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id');
-__PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id');
-__PACKAGE__->has_many('medals', 'Lacuna::DB::Medals', 'empire_id');
-__PACKAGE__->has_many('probes', 'Lacuna::DB::Probes', 'empire_id');
+__PACKAGE__->belongs_to('species', 'Lacuna::DB::Result::Species', 'species_id');
+__PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Body::Planet', 'home_planet_id');
+__PACKAGE__->has_many('sessions', 'Lacuna::DB::Result::Session', 'empire_id');
+__PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Body::Planet', 'empire_id');
+__PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Result::Message', 'from_id');
+__PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id');
+__PACKAGE__->has_many('build_queues', 'Lacuna::DB::Result::BuildQueue', 'empire_id');
+__PACKAGE__->has_many('medals', 'Lacuna::DB::Result::Medals', 'empire_id');
+__PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
 
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $body_id) = @_;
@@ -63,7 +63,7 @@ sub get_body { # makes for uniform error handling, and prevents staleness
 
 sub get_building { # makes for uniform error handling, and prevents staleness
     my ($self, $moniker, $building_id) = @_;
-    if (ref $building_id && $building_id->isa('Lacuna::DB::Building')) {
+    if (ref $building_id && $building_id->isa('Lacuna::DB::Result::Building')) {
         return $building_id;
     }
     else {
@@ -240,7 +240,7 @@ sub found {
 
 sub find_home_planet {
     my ($self) = @_;
-    my $planets = $self->simpledb->domain('Lacuna::DB::Body::Planet');
+    my $planets = $self->simpledb->domain('Lacuna::DB::Result::Body::Planet');
     
     # define sub searches
     my $min_inhabited = sub {
@@ -294,7 +294,7 @@ sub send_message {
     $params{simpledb} = $self->simpledb;
     $params{from}   = $params{from} || $self;
     $params{to}     = $self;
-    Lacuna::DB::Message->send(%params);
+    Lacuna::DB::Result::Message->send(%params);
 }
 
 sub send_predefined_message {
@@ -413,7 +413,7 @@ has body_ids => (
     lazy        => 1,
     default     => sub {
         my $self = shift;
-        return $self->simpledb->domain('Lacuna::DB::Body::Planet')->fetch_ids(where=>{empire_id=>$self->id});
+        return $self->simpledb->domain('Lacuna::DB::Result::Body::Planet')->fetch_ids(where=>{empire_id=>$self->id});
     },
 );
 

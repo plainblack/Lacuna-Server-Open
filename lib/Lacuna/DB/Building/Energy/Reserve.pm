@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Energy::Reserve;
+package Lacuna::DB::Result::Building::Energy::Reserve;
 
 use Moose;
-extends 'Lacuna::DB::Building::Energy';
+extends 'Lacuna::DB::Result::Building::Energy';
 
 use constant controller_class => 'Lacuna::Building::EnergyReserve';
 

@@ -1,7 +1,7 @@
-package Lacuna::DB::Message;
+package Lacuna::DB::Result::Message;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use DateTime;
 use Lacuna::Util qw(format_date);
 
@@ -23,9 +23,9 @@ __PACKAGE__->add_columns(
     attachments     => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
 );
 
-__PACKAGE__->belongs_to('original_message', 'Lacuna::DB::Message', 'in_reply_to');
-__PACKAGE__->belongs_to('sender', 'Lacuna::DB::Empire', 'from_id');
-__PACKAGE__->belongs_to('receiver', 'Lacuna::DB::Empire', 'to_id');
+__PACKAGE__->belongs_to('original_message', 'Lacuna::DB::Result::Message', 'in_reply_to');
+__PACKAGE__->belongs_to('sender', 'Lacuna::DB::Result::Empire', 'from_id');
+__PACKAGE__->belongs_to('receiver', 'Lacuna::DB::Result::Empire', 'to_id');
 
 sub date_sent_formatted {
     my ($self) = @_;

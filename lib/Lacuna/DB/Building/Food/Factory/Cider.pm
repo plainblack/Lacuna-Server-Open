@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Food::Factory::Cider;
+package Lacuna::DB::Result::Building::Food::Factory::Cider;
 
 use Moose;
-extends 'Lacuna::DB::Building::Food::Factory';
+extends 'Lacuna::DB::Result::Building::Food::Factory';
 
 use constant controller_class => 'Lacuna::Building::Cider';
 
@@ -11,7 +11,7 @@ use constant min_orbit => 3;
 
 use constant max_orbit => 3;
 
-use constant building_prereq => {'Lacuna::DB::Building::Food::Farm::Apple'=>5};
+use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Farm::Apple'=>5};
 
 use constant name => 'Apple Cider Bottler';
 

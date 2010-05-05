@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Permanent::Lake;
+package Lacuna::DB::Result::Building::Permanent::Lake;
 
 use Moose;
-extends 'Lacuna::DB::Building::Permanent';
+extends 'Lacuna::DB::Result::Building::Permanent';
 
 use constant controller_class => 'Lacuna::Building::Lake';
 

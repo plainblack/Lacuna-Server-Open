@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::SpacePort;
+package Lacuna::DB::Result::Building::SpacePort;
 
 use Moose;
-extends 'Lacuna::DB::Building';
+extends 'Lacuna::DB::Result::Building';
 use Lacuna::Constants qw(SHIP_TYPES);
 use List::Util qw(shuffle);
 
@@ -18,7 +18,7 @@ sub send_probe {
     $self->remove_ship('probe');
     $self->save_changed_ports;
     my $duration = $self->calculate_seconds_from_body_to_star('probe', $self->body, $star);
-    return Lacuna::DB::TravelQueue->send(
+    return Lacuna::DB::Result::TravelQueue->send(
         simpledb        => $self->simpledb,
         body            => $self->body,
         foreign_star    => $star,
@@ -63,7 +63,7 @@ sub send_ship_to_body {
     $self->remove_ship($type);
     $self->save_changed_ports;
     my $duration = $self->calculate_seconds_from_body_to_body($type, $body, $target_body);
-    return Lacuna::DB::TravelQueue->send(
+    return Lacuna::DB::Result::TravelQueue->send(
         simpledb        => $self->simpledb,
         body            => $body,
         foreign_body    => $target_body,

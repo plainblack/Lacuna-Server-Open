@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::TerraformingLab';
+    return 'Lacuna::DB::Result::Building::TerraformingLab';
 }
 
 no Moose;

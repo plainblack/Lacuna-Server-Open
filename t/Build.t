@@ -44,11 +44,11 @@ my $empire = $db->domain('empire')->find($empire_id);
 my $home = $empire->home_planet;
 
 # quick build basic university
-my $uni = Lacuna::DB::Building::University->new(
+my $uni = Lacuna::DB::Result::Building::University->new(
     simpledb        => $tester->db,
     x               => 0,
     y               => -1,
-    class           => 'Lacuna::DB::Building::University',
+    class           => 'Lacuna::DB::Result::Building::University',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,

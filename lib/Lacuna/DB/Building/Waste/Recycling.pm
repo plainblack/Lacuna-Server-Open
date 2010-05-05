@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Waste::Recycling;
+package Lacuna::DB::Result::Building::Waste::Recycling;
 
 use Moose;
-extends 'Lacuna::DB::Building::Waste';
+extends 'Lacuna::DB::Result::Building::Waste';
 use Lacuna::Util qw(to_seconds);
 
 __PACKAGE__->add_columns(

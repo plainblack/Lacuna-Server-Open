@@ -9,7 +9,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Food::Reserve';
+    return 'Lacuna::DB::Result::Building::Food::Reserve';
 }
 
 around 'view' => sub {

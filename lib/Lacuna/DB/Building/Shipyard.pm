@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Shipyard;
+package Lacuna::DB::Result::Building::Shipyard;
 
 use Moose;
-extends 'Lacuna::DB::Building';
+extends 'Lacuna::DB::Result::Building';
 use Lacuna::Util qw(to_seconds format_date);
 use DateTime;
 
@@ -11,15 +11,15 @@ around 'build_tags' => sub {
 };
 
 use constant ship_prereqs => {
-    probe                         => 'Lacuna::DB::Building::Observatory',
-    colony_ship                   => 'Lacuna::DB::Building::Observatory',
-    spy_pod                       => 'Lacuna::DB::Building::Espionage',
-    cargo_ship                    => 'Lacuna::DB::Building::Trade',
-    space_station                 => 'Lacuna::DB::Building::Embassy',
-    smuggler_ship                 => 'Lacuna::DB::Building::Espionage',
-    mining_platform_ship          => 'Lacuna::DB::Building::Ore::Ministry',
-    terraforming_platform_ship    => 'Lacuna::DB::Building::TerraformingLab',
-    gas_giant_settlement_platform_ship     => 'Lacuna::DB::Building::GasGiantLab',
+    probe                         => 'Lacuna::DB::Result::Building::Observatory',
+    colony_ship                   => 'Lacuna::DB::Result::Building::Observatory',
+    spy_pod                       => 'Lacuna::DB::Result::Building::Espionage',
+    cargo_ship                    => 'Lacuna::DB::Result::Building::Trade',
+    space_station                 => 'Lacuna::DB::Result::Building::Embassy',
+    smuggler_ship                 => 'Lacuna::DB::Result::Building::Espionage',
+    mining_platform_ship          => 'Lacuna::DB::Result::Building::Ore::Ministry',
+    terraforming_platform_ship    => 'Lacuna::DB::Result::Building::TerraformingLab',
+    gas_giant_settlement_platform_ship     => 'Lacuna::DB::Result::Building::GasGiantLab',
 };
 
 use constant ship_costs => {
@@ -172,7 +172,7 @@ before delete => sub {
 
 use constant controller_class => 'Lacuna::Building::Shipyard';
 
-use constant building_prereq => {'Lacuna::DB::Building::SpacePort'=>1};
+use constant building_prereq => {'Lacuna::DB::Result::Building::SpacePort'=>1};
 
 use constant image => 'shipyard';
 

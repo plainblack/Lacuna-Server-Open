@@ -105,7 +105,7 @@ sub create_star_map {
                         $name = 'Lacuna';
                     }
                     say "Creating star $name at $x, $y, $z.";
-                    my $star = Lacuna::DB::Star->new(
+                    my $star = Lacuna::DB::Result::Star->new(
                         simpledb    => $db,
                         name        => $name,
                         date_created=> DateTime->now,
@@ -132,15 +132,15 @@ sub add_bodies {
     my $star = shift;
     my @body_types = ('habitable', 'asteroid', 'gas giant');
     my @body_type_weights = (qw(60 15 15));
-    my @planet_classes = qw(Lacuna::DB::Body::Planet::P1 Lacuna::DB::Body::Planet::P2 Lacuna::DB::Body::Planet::P3 Lacuna::DB::Body::Planet::P4
-        Lacuna::DB::Body::Planet::P5 Lacuna::DB::Body::Planet::P6 Lacuna::DB::Body::Planet::P7 Lacuna::DB::Body::Planet::P8 Lacuna::DB::Body::Planet::P9
-        Lacuna::DB::Body::Planet::P10 Lacuna::DB::Body::Planet::P11 Lacuna::DB::Body::Planet::P12 Lacuna::DB::Body::Planet::P13
-        Lacuna::DB::Body::Planet::P14 Lacuna::DB::Body::Planet::P15 Lacuna::DB::Body::Planet::P16 Lacuna::DB::Body::Planet::P17
-        Lacuna::DB::Body::Planet::P18 Lacuna::DB::Body::Planet::P19 Lacuna::DB::Body::Planet::P20);
-    my @gas_giant_classes = qw(Lacuna::DB::Body::Planet::GasGiant::G1 Lacuna::DB::Body::Planet::GasGiant::G2 Lacuna::DB::Body::Planet::GasGiant::G3
-        Lacuna::DB::Body::Planet::GasGiant::G4 Lacuna::DB::Body::Planet::GasGiant::G5);
-    my @asteroid_classes = qw(Lacuna::DB::Body::Asteroid::A1 Lacuna::DB::Body::Asteroid::A2 Lacuna::DB::Body::Asteroid::A3
-        Lacuna::DB::Body::Asteroid::A4 Lacuna::DB::Body::Asteroid::A5);
+    my @planet_classes = qw(Lacuna::DB::Result::Body::Planet::P1 Lacuna::DB::Result::Body::Planet::P2 Lacuna::DB::Result::Body::Planet::P3 Lacuna::DB::Result::Body::Planet::P4
+        Lacuna::DB::Result::Body::Planet::P5 Lacuna::DB::Result::Body::Planet::P6 Lacuna::DB::Result::Body::Planet::P7 Lacuna::DB::Result::Body::Planet::P8 Lacuna::DB::Result::Body::Planet::P9
+        Lacuna::DB::Result::Body::Planet::P10 Lacuna::DB::Result::Body::Planet::P11 Lacuna::DB::Result::Body::Planet::P12 Lacuna::DB::Result::Body::Planet::P13
+        Lacuna::DB::Result::Body::Planet::P14 Lacuna::DB::Result::Body::Planet::P15 Lacuna::DB::Result::Body::Planet::P16 Lacuna::DB::Result::Body::Planet::P17
+        Lacuna::DB::Result::Body::Planet::P18 Lacuna::DB::Result::Body::Planet::P19 Lacuna::DB::Result::Body::Planet::P20);
+    my @gas_giant_classes = qw(Lacuna::DB::Result::Body::Planet::GasGiant::G1 Lacuna::DB::Result::Body::Planet::GasGiant::G2 Lacuna::DB::Result::Body::Planet::GasGiant::G3
+        Lacuna::DB::Result::Body::Planet::GasGiant::G4 Lacuna::DB::Result::Body::Planet::GasGiant::G5);
+    my @asteroid_classes = qw(Lacuna::DB::Result::Body::Asteroid::A1 Lacuna::DB::Result::Body::Asteroid::A2 Lacuna::DB::Result::Body::Asteroid::A3
+        Lacuna::DB::Result::Body::Asteroid::A4 Lacuna::DB::Result::Body::Asteroid::A5);
     say "\tAdding bodies.";
     for my $orbit (1..7) {
         my $name = $star->name." ".$orbit;
@@ -177,7 +177,7 @@ sub add_bodies {
             }
             my $body = $domains->{body}->insert($params);
             my $now = DateTime->now;
-            if ($body->isa('Lacuna::DB::Body::Planet') && !$body->isa('Lacuna::DB::Body::Planet::GasGiant')) {
+            if ($body->isa('Lacuna::DB::Result::Body::Planet') && !$body->isa('Lacuna::DB::Result::Body::Planet::GasGiant')) {
                 if ($star->name eq 'Lacuna' && !$lacunans_have_been_placed) {
                     $body->name('Lacuna');
                     $body->put;
@@ -196,7 +196,7 @@ sub add_bodies {
                             level           => 1,
                             x               => $x,
                             y               => $y,
-                            class           => 'Lacuna::DB::Building::Permanent::Lake',
+                            class           => 'Lacuna::DB::Result::Building::Permanent::Lake',
                             body_id         => $body->id,
                         });
                     }
@@ -207,7 +207,7 @@ sub add_bodies {
                             level           => 1,
                             x               => $x,
                             y               => $y,
-                            class           => 'Lacuna::DB::Building::Permanent::RockyOutcrop',
+                            class           => 'Lacuna::DB::Result::Building::Permanent::RockyOutcrop',
                             body_id         => $body->id,
                         });
                     }
@@ -218,7 +218,7 @@ sub add_bodies {
                             level           => 1,
                             x               => $x,
                             y               => $y,
-                            class           => 'Lacuna::DB::Building::Permanent::Crater',
+                            class           => 'Lacuna::DB::Result::Building::Permanent::Crater',
                             body_id         => $body->id,
                         });
                     }
@@ -231,7 +231,7 @@ sub add_bodies {
 sub create_lacuna_corp {
     my ($body, $domains) = @_;
     say "\t\t\tMaking this the Lacunans home world.";
-    my $empire = Lacuna::DB::Empire->create(
+    my $empire = Lacuna::DB::Result::Empire->create(
         $db,
         {name=>'Lacuna Expanse Corp', password=>rand(9999999)},
         'lacuna_expanse_corp'

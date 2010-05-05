@@ -20,7 +20,7 @@ my $empire = $db
 	->search(where => {name_cname => cname($name)})
 	->next;
 
-Lacuna::DB::Message->send(
+Lacuna::DB::Result::Message->send(
 	simpledb	=> $db,
 	from		=> $empire,
 	to		=> $empire,

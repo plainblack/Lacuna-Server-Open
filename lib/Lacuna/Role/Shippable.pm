@@ -12,7 +12,7 @@ has trade_ministry => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->body->get_building_of_class('Lacuna::DB::Building::Trade');
+        return $self->body->get_building_of_class('Lacuna::DB::Result::Building::Trade');
     },
 );
 

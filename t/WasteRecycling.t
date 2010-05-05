@@ -13,11 +13,11 @@ my $home = $empire->home_planet;
 
 my $result;
 
-my $uni = Lacuna::DB::Building::University->new(
+my $uni = Lacuna::DB::Result::Building::University->new(
     simpledb        => $tester->db,
     x               => 0,
     y               => -1,
-    class           => 'Lacuna::DB::Building::University',
+    class           => 'Lacuna::DB::Result::Building::University',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,
@@ -45,7 +45,7 @@ $home->put;
 
 $result = $tester->post('wasterecycling', 'build', [$session_id, $home->id, 3, 3]);
 
-my $building = $db->domain('Lacuna::DB::Building::Waste::Recycling')->find($result->{result}{building}{id});
+my $building = $db->domain('Lacuna::DB::Result::Building::Waste::Recycling')->find($result->{result}{building}{id});
 $building->finish_upgrade;
 
 $result = $tester->post('wasterecycling', 'recycle', [$session_id, $building->id, 999990000,5,5]);
@@ -62,7 +62,7 @@ cmp_ok($result->{result}{seconds_remaining}, '>', 0, "timer is started");
 
 my $water_stored = $building->body->water_stored;
 
-$building = $db->domain('Lacuna::DB::Building::Waste::Recycling')->find($building->id);
+$building = $db->domain('Lacuna::DB::Result::Building::Waste::Recycling')->find($building->id);
 $building->finish_recycling;
 cmp_ok($building->body->water_stored, '>=', $water_stored + 5, "resources increased");
 

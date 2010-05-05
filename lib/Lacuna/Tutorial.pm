@@ -48,7 +48,7 @@ sub explore_the_ui {
     if ($finish) {
         if ($home->name ne $empire->tutorial_scratch) {
             $empire->add_medal('pleased_to_meet_you');
-            $home->add_freebie('Lacuna::DB::Building::Food::Farm::Malcud', 1)->put;
+            $home->add_freebie('Lacuna::DB::Result::Building::Food::Farm::Malcud', 1)->put;
             $self->start('get_food');
             return undef;
         }
@@ -66,7 +66,7 @@ sub get_food {
     my $empire = $self->empire;
     my $home = $empire->home_planet;
     if ($finish) {
-        my $malcud = $home->get_buildings_of_class('Lacuna::DB::Building::Food::Farm::Malcud')->next;
+        my $malcud = $home->get_buildings_of_class('Lacuna::DB::Result::Building::Food::Farm::Malcud')->next;
         if (defined $malcud && $malcud->level >= 1) {
             $self->start('drinking_water');
             return undef;
@@ -82,7 +82,7 @@ sub keep_the_lights_on {
     my $empire = $self->empire;
     my $home = $empire->home_planet;
     if ($finish) {
-        my $geo = $home->get_buildings_of_class('Lacuna::DB::Building::Energy::Geo')->next;
+        my $geo = $home->get_buildings_of_class('Lacuna::DB::Result::Building::Energy::Geo')->next;
         if (defined $geo && $geo->level >= 1) {
             $self->start('mine');
             return undef;
@@ -98,7 +98,7 @@ sub mine {
     my $empire = $self->empire;
     my $home = $empire->home_planet;
     if ($finish) {
-        my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Ore::Mine')->next;
+        my $building = $home->get_buildings_of_class('Lacuna::DB::Result::Building::Ore::Mine')->next;
         if (defined $building && $building->level >= 1) {
             $home->add_trona(200);
             $home->add_bread(200);
@@ -120,7 +120,7 @@ sub spaceport {
     my $empire = $self->empire;
     my $home = $empire->home_planet;
     if ($finish) {
-        my $building = $home->get_buildings_of_class('Lacuna::DB::Building::SpacePort')->next;
+        my $building = $home->get_buildings_of_class('Lacuna::DB::Result::Building::SpacePort')->next;
         if (defined $building && $building->level >= 1) {
             $home->add_bauxite(200);
             $home->add_apple(200);
@@ -142,7 +142,7 @@ sub shipyard {
     my $empire = $self->empire;
     my $home = $empire->home_planet;
     if ($finish) {
-        my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Shipyard')->next;
+        my $building = $home->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard')->next;
         if (defined $building && $building->level >= 1) {
             $home->add_bauxite(200);
             $home->add_apple(200);
@@ -163,9 +163,9 @@ sub pawn {
     my ($self, $finish) = @_;
     my $home = $self->empire->home_planet;
     if ($finish) {
-        my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Intelligence')->next;
+        my $building = $home->get_buildings_of_class('Lacuna::DB::Result::Building::Intelligence')->next;
         if (defined $building && $building->level >= 1) {
-            $home->add_freebie('Lacuna::DB::Building::Intelligence', 2)->put;
+            $home->add_freebie('Lacuna::DB::Result::Building::Intelligence', 2)->put;
             $building->train_spy;
             $self->start('counter_spy');
             return undef;
@@ -195,9 +195,9 @@ sub observatory {
     my ($self, $finish) = @_;
     my $home = $self->empire->home_planet;
     if ($finish) {
-        my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Observatory')->next;
+        my $building = $home->get_buildings_of_class('Lacuna::DB::Result::Building::Observatory')->next;
         if (defined $building && $building->level >= 1) {
-            my $shipyard = $home->get_buildings_of_class('Lacuna::DB::Building::Shipyard')->next;
+            my $shipyard = $home->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard')->next;
             $shipyard->build_ship('probe',1);
             $self->start('explore');
             return undef;
@@ -213,7 +213,7 @@ sub explore {
     my $empire = $self->empire;
     if ($finish) {
         if ($empire->count_probed_stars > 1) {
-            $empire->home_planet->add_freebie('Lacuna::DB::Building::Transporter', 1)->put;
+            $empire->home_planet->add_freebie('Lacuna::DB::Result::Building::Transporter', 1)->put;
             $self->start('the_end');
             return undef;
         }
@@ -250,7 +250,7 @@ sub drinking_water {
     my $empire = $self->empire;
     my $home = $empire->home_planet;
     if ($finish) {
-        my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Water::Purification')->next;
+        my $building = $home->get_buildings_of_class('Lacuna::DB::Result::Building::Water::Purification')->next;
         if (defined $building && $building->level >= 1) {
             $home->add_algae(140);
             $home->add_rutile(140);
@@ -273,7 +273,7 @@ sub university {
     my $empire = $self->empire;
     my $home = $empire->home_planet;
     if ($finish) {
-        my $building = $home->get_buildings_of_class('Lacuna::DB::Building::University')->next;
+        my $building = $home->get_buildings_of_class('Lacuna::DB::Result::Building::University')->next;
         if (defined $building && $building->level >= 1) {
             $self->start('storage');
             return undef;
@@ -290,13 +290,13 @@ sub storage {
     my $empire = $self->empire;
     my $home = $empire->home_planet;
     if ($finish) {
-        my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Ore::Storage')->next;
+        my $building = $home->get_buildings_of_class('Lacuna::DB::Result::Building::Ore::Storage')->next;
         if (defined $building && $building->level >= 1) {
-            my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Water::Storage')->next;
+            my $building = $home->get_buildings_of_class('Lacuna::DB::Result::Building::Water::Storage')->next;
             if (defined $building && $building->level >= 1) {
-                my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Energy::Reserve')->next;
+                my $building = $home->get_buildings_of_class('Lacuna::DB::Result::Building::Energy::Reserve')->next;
                 if (defined $building && $building->level >= 1) {
-                    my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Food::Reserve')->next;
+                    my $building = $home->get_buildings_of_class('Lacuna::DB::Result::Building::Food::Reserve')->next;
                     if (defined $building && $building->level >= 1) {
                         $home->add_algae(100);
                         $home->add_rutile(100);
@@ -321,7 +321,7 @@ sub news {
     my $empire = $self->empire;
     my $home = $empire->home_planet;
     if ($finish) {
-        my $building = $home->get_buildings_of_class('Lacuna::DB::Building::Network19')->next;
+        my $building = $home->get_buildings_of_class('Lacuna::DB::Result::Building::Network19')->next;
         if (defined $building && $building->level >= 1) {
             $home->add_algae(120);
             $home->add_rutile(120);
@@ -365,7 +365,7 @@ sub fool {
     my $home = $empire->home_planet;
     if ($finish) {
         if ($home->food_hour >= $empire->tutorial_scratch) {
-            $home->add_freebie('Lacuna::DB::Building::Food::Reserve', 2)->put;
+            $home->add_freebie('Lacuna::DB::Result::Building::Food::Reserve', 2)->put;
             $empire->add_essentia(35)->put;
             $self->start('essentia');
             return undef;
@@ -403,7 +403,7 @@ sub energy {
     my $home = $empire->home_planet;
     if ($finish) {
         if ($home->energy_hour >= $empire->tutorial_scratch) {
-            $home->add_freebie('Lacuna::DB::Building::Energy::Reserve', 2)->put;
+            $home->add_freebie('Lacuna::DB::Result::Building::Energy::Reserve', 2)->put;
             $self->start('the_300');
             return undef;
         }
@@ -425,8 +425,8 @@ sub the_300 {
     my $home = $empire->home_planet;
     if ($finish) {
         if ($home->ore_hour >= 50 && $home->water_hour >= 50) {
-            $home->add_freebie('Lacuna::DB::Building::Ore::Storage', 2)
-                ->add_freebie('Lacuna::DB::Building::Water::Storage', 2)
+            $home->add_freebie('Lacuna::DB::Result::Building::Ore::Storage', 2)
+                ->add_freebie('Lacuna::DB::Result::Building::Water::Storage', 2)
                 ->put;
             $self->start('news');
             return undef;

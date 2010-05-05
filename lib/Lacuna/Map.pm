@@ -59,7 +59,7 @@ sub get_star_by_body {
 sub load_star {
     my ($self, $star_id) = @_;
     my $star;
-    if (ref $star_id eq 'Lacuna::DB::Star') { 
+    if (ref $star_id eq 'Lacuna::DB::Result::Star') { 
         $star = $star_id;
     }
     else {
@@ -88,7 +88,7 @@ sub get_star_system {
     my %out;
     while (my $body = $bodies->next) {
         $out{$body->id} = $body->get_status($empire);
-        if ($body->isa('Lacuna::DB::Body::Planet') && $body->empire_id ne 'None') {
+        if ($body->isa('Lacuna::DB::Result::Body::Planet') && $body->empire_id ne 'None') {
             my $owner_empire = $body->empire;
             if (defined $owner_empire) {
                 $out{$body->id}{empire} = {

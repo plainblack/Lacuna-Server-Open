@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Energy::Fission';
+    return 'Lacuna::DB::Result::Building::Energy::Fission';
 }
 
 no Moose;

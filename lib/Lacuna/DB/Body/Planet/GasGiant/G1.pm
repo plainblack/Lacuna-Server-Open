@@ -1,7 +1,7 @@
-package Lacuna::DB::Body::Planet::GasGiant::G1;
+package Lacuna::DB::Result::Body::Planet::GasGiant::G1;
 
 use Moose;
-extends 'Lacuna::DB::Body::Planet::GasGiant';
+extends 'Lacuna::DB::Result::Body::Planet::GasGiant';
 
 use constant image => 'pg1';
 use constant surface => 'surface-g';

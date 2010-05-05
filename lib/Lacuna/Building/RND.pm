@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::RND';
+    return 'Lacuna::DB::Result::Building::RND';
 }
 
 no Moose;

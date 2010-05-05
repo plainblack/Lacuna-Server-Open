@@ -1,7 +1,7 @@
-package Lacuna::DB::Trades;
+package Lacuna::DB::Result::Trades;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use Lacuna::Util qw(format_date);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 
@@ -66,7 +66,7 @@ __PACKAGE__->add_columns(
     magnetite               => { data_type => 'int', size => 11, default_value => 0 },
 );
 
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Body::Planet', 'body_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body::Planet', 'body_id');
 
 sub add_trade {
     my ($class, %options) = @_;

@@ -9,7 +9,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Network19';
+    return 'Lacuna::DB::Result::Building::Network19';
 }
 
 sub view_news {
@@ -39,7 +39,7 @@ sub view_news {
     }
     my %feeds;
     foreach my $zone (@zones) {
-        $feeds{$zone} = Lacuna::DB::News->feed_url($zone);
+        $feeds{$zone} = Lacuna::DB::Result::News->feed_url($zone);
     }
     return {
         news    => \@stories,

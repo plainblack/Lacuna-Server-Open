@@ -98,7 +98,7 @@ sub send_message {
             Lacuna::Tutorial->new(empire=>$empire)->finish;
         }
         else {
-            Lacuna::DB::Message->send(
+            Lacuna::DB::Result::Message->send(
                 simpledb    => $self->simpledb,
                 from        => $empire,
                 subject     => $subject,

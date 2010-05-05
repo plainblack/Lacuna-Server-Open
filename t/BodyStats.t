@@ -15,11 +15,11 @@ my $db = $tester->db;
 
 my $initial_status = $home->get_status($empire);
 
-my $wheat = Lacuna::DB::Building::Food::Farm::Wheat->new(
+my $wheat = Lacuna::DB::Result::Building::Food::Farm::Wheat->new(
     simpledb        => $db,
     x               => 0,
     y               => 1,
-    class           => 'Lacuna::DB::Building::Food::Farm::Wheat',
+    class           => 'Lacuna::DB::Result::Building::Food::Farm::Wheat',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,
@@ -38,11 +38,11 @@ cmp_ok($initial_status->{energy_hour}, '>', $after_wheat->{energy_hour}, "energy
 cmp_ok($initial_status->{water_hour}, '>', $after_wheat->{water_hour}, "water_hour lowered");
 cmp_ok($initial_status->{waste_hour}, '<', $after_wheat->{waste_hour}, "waste_hour raised");
 
-my $water = Lacuna::DB::Building::Water::Purification->new(
+my $water = Lacuna::DB::Result::Building::Water::Purification->new(
     simpledb        => $db,
     x               => 0,
     y               => 2,
-    class           => 'Lacuna::DB::Building::Water::Purification',
+    class           => 'Lacuna::DB::Result::Building::Water::Purification',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,
@@ -61,11 +61,11 @@ cmp_ok($after_wheat->{energy_hour}, '>', $after_water->{energy_hour}, "energy_ho
 cmp_ok($after_wheat->{water_hour}, '<', $after_water->{water_hour}, "water_hour raised");
 cmp_ok($after_wheat->{waste_hour}, '<', $after_water->{waste_hour}, "waste_hour raised");
 
-my $we = Lacuna::DB::Building::Energy::Waste->new(
+my $we = Lacuna::DB::Result::Building::Energy::Waste->new(
     simpledb        => $db,
     x               => 0,
     y               => 3,
-    class           => 'Lacuna::DB::Building::Energy::Waste',
+    class           => 'Lacuna::DB::Result::Building::Energy::Waste',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,
@@ -85,11 +85,11 @@ cmp_ok($after_water->{water_hour}, '>', $after_we->{water_hour}, "water_hour low
 cmp_ok($after_water->{waste_hour}, '>', $after_we->{waste_hour}, "waste_hour lowered");
 
 
-my $ws = Lacuna::DB::Building::Waste::Sequestration->new(
+my $ws = Lacuna::DB::Result::Building::Waste::Sequestration->new(
     simpledb        => $db,
     x               => 0,
     y               => 4,
-    class           => 'Lacuna::DB::Building::Waste::Sequestration',
+    class           => 'Lacuna::DB::Result::Building::Waste::Sequestration',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,
@@ -105,11 +105,11 @@ my $after_ws = $home->get_status($empire);
 cmp_ok($after_we->{waste_capacity}, '<', $after_ws->{waste_capacity}, "waste_capacity raised");
 
 
-my $os = Lacuna::DB::Building::Ore::Storage->new(
+my $os = Lacuna::DB::Result::Building::Ore::Storage->new(
     simpledb        => $db,
     x               => 0,
     y               => 5,
-    class           => 'Lacuna::DB::Building::Ore::Storage',
+    class           => 'Lacuna::DB::Result::Building::Ore::Storage',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,
@@ -125,11 +125,11 @@ my $after_os = $home->get_status($empire);
 cmp_ok($after_ws->{ore_capacity}, '<', $after_os->{ore_capacity}, "ore_capacity raised");
 
 is($empire->university_level, 0, 'university is 0');
-my $uni = Lacuna::DB::Building::University->new(
+my $uni = Lacuna::DB::Result::Building::University->new(
     simpledb        => $db,
     x               => 0,
     y               => -1,
-    class           => 'Lacuna::DB::Building::University',
+    class           => 'Lacuna::DB::Result::Building::University',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,

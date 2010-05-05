@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Ore::Platform';
+    return 'Lacuna::DB::Result::Building::Ore::Platform';
 }
 
 no Moose;

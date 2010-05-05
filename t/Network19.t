@@ -15,11 +15,11 @@ my $home = $empire->home_planet;
 my $result;
 
 
-my $uni = Lacuna::DB::Building::University->new(
+my $uni = Lacuna::DB::Result::Building::University->new(
     simpledb        => $tester->db,
     x               => 0,
     y               => -1,
-    class           => 'Lacuna::DB::Building::University',
+    class           => 'Lacuna::DB::Result::Building::University',
     date_created    => DateTime->now,
     body_id         => $home->id,
     body            => $home,
@@ -47,7 +47,7 @@ $home->put;
 
 $result = $tester->post('network19', 'build', [$session_id, $home->id, 0, 1]);
 ok($result->{result}{building}{id}, "built a network19");
-my $network19 = $empire->get_building('Lacuna::DB::Building::Network19',$result->{result}{building}{id});
+my $network19 = $empire->get_building('Lacuna::DB::Result::Building::Network19',$result->{result}{building}{id});
 $network19->finish_upgrade;
 
 $result = $tester->post('network19', 'view', [$session_id, $network19->id]);

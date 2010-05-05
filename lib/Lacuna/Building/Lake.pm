@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Permanent::Lake';
+    return 'Lacuna::DB::Result::Building::Permanent::Lake';
 }
 
 no Moose;

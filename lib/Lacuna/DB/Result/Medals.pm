@@ -1,7 +1,7 @@
-package Lacuna::DB::Medals;
+package Lacuna::DB::Result::Medals;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use Lacuna::Util qw(format_date);
 use DateTime;
 
@@ -13,7 +13,7 @@ __PACKAGE__->add_columns(
     datestamp               => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
 );
 
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 
 sub format_datestamp {
     my ($self) = @_;

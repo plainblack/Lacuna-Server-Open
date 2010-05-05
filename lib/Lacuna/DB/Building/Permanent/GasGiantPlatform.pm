@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Permanent::GasGiantPlatform;
+package Lacuna::DB::Result::Building::Permanent::GasGiantPlatform;
 
 use Moose;
-extends 'Lacuna::DB::Building::Permanent';
+extends 'Lacuna::DB::Result::Building::Permanent';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;

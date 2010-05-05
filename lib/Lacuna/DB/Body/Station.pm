@@ -1,7 +1,7 @@
-package Lacuna::DB::Body::Station;
+package Lacuna::DB::Result::Body::Station;
 
 use Moose;
-extends 'Lacuna::DB::Body';
+extends 'Lacuna::DB::Result::Body';
 
 use constant image => 'station';
 

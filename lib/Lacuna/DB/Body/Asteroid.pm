@@ -1,7 +1,7 @@
-package Lacuna::DB::Body::Asteroid;
+package Lacuna::DB::Result::Body::Asteroid;
 
 use Moose;
-extends 'Lacuna::DB::Body';
+extends 'Lacuna::DB::Result::Body';
 use Lacuna::Constants qw(ORE_TYPES);
 
 

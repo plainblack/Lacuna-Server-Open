@@ -1,7 +1,7 @@
-package Lacuna::DB::Spies;
+package Lacuna::DB::Result::Spies;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use Lacuna::Util qw(format_date);
 use DateTime;
 
@@ -17,9 +17,9 @@ __PACKAGE__->add_columns(
     defense                 => { data_type => 'int', size => 11, default_value => 1 },
 );
 
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
-__PACKAGE__->belongs_to('from_body', 'Lacuna::DB::Body::Planet', 'from_body_id');
-__PACKAGE__->belongs_to('on_body', 'Lacuna::DB::Body::Planet', 'on_body_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+__PACKAGE__->belongs_to('from_body', 'Lacuna::DB::Result::Body::Planet', 'from_body_id');
+__PACKAGE__->belongs_to('on_body', 'Lacuna::DB::Result::Body::Planet', 'on_body_id');
 
 sub format_available_on {
     my ($self) = @_;

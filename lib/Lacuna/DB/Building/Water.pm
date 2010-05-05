@@ -1,15 +1,15 @@
-package Lacuna::DB::Building::Water;
+package Lacuna::DB::Result::Building::Water;
 
 use Moose;
-extends 'Lacuna::DB::Building';
+extends 'Lacuna::DB::Result::Building';
 
 __PACKAGE__->table('water');
 
 __PACKAGE__->typecast_map(class => {
-    'Lacuna::DB::Building::Water::Production' => 'Lacuna::DB::Building::Water::Production',
-    'Lacuna::DB::Building::Water::Purification' => 'Lacuna::DB::Building::Water::Purification',
-    'Lacuna::DB::Building::Water::Reclamation' => 'Lacuna::DB::Building::Water::Reclamation',
-    'Lacuna::DB::Building::Water::Storage' => 'Lacuna::DB::Building::Water::Storage',
+    'Lacuna::DB::Result::Building::Water::Production' => 'Lacuna::DB::Result::Building::Water::Production',
+    'Lacuna::DB::Result::Building::Water::Purification' => 'Lacuna::DB::Result::Building::Water::Purification',
+    'Lacuna::DB::Result::Building::Water::Reclamation' => 'Lacuna::DB::Result::Building::Water::Reclamation',
+    'Lacuna::DB::Result::Building::Water::Storage' => 'Lacuna::DB::Result::Building::Water::Storage',
 });
 
 around 'build_tags' => sub {

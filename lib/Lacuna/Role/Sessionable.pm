@@ -14,7 +14,7 @@ sub is_session_valid {
 
 sub get_session {
     my ($self, $session_id) = @_;
-    if (ref $session_id eq 'Lacuna::DB::Session') {
+    if (ref $session_id eq 'Lacuna::DB::Result::Session') {
         return $session_id;
     }
     else {
@@ -36,7 +36,7 @@ sub get_session {
 
 sub get_empire_by_session {
     my ($self, $session_id) = @_;
-    if (ref $session_id eq 'Lacuna::DB::Empire') {
+    if (ref $session_id eq 'Lacuna::DB::Result::Empire') {
         return $session_id;
     }
     else {

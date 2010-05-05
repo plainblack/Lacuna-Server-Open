@@ -1,7 +1,7 @@
-package Lacuna::DB::Probes;
+package Lacuna::DB::Result::Probes;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Result';
 use Lacuna::Util qw(format_date);
 use DateTime;
 
@@ -12,9 +12,9 @@ __PACKAGE__->add_columns(
     body_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
 );
 
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
-__PACKAGE__->belongs_to('star', 'Lacuna::DB::Star', 'star_id');
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Body::Planet', 'body_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+__PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Star', 'star_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body::Planet', 'body_id');
 
 
 no Moose;

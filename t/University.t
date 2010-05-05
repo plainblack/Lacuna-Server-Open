@@ -15,7 +15,7 @@ my $result;
 $result = $tester->post('university', 'build', [$session_id, $tester->empire->home_planet_id, 3, 3]);
 my $uid = $result->{result}{building}{id};
 
-$db->domain('Lacuna::DB::Building::University')->find($uid)->finish_upgrade;
+$db->domain('Lacuna::DB::Result::Building::University')->find($uid)->finish_upgrade;
 
 $result = $tester->post('university', 'view', [$session_id, $uid]);
 is($result->{result}{building}{level}, 1, "made it to level 1");
@@ -41,7 +41,7 @@ for my $level (2..10) {
     $home->put;
 
     $result = $tester->post('university', 'upgrade', [$session_id, $uid]);    
-    $db->domain('Lacuna::DB::Building::University')->find($uid)->finish_upgrade;
+    $db->domain('Lacuna::DB::Result::Building::University')->find($uid)->finish_upgrade;
     $db->cache->delete('upgrade_contention_lock', $uid);
     
     $result = $tester->post('university', 'view', [$session_id, $uid]);

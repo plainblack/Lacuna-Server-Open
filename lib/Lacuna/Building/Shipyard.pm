@@ -9,7 +9,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Shipyard';
+    return 'Lacuna::DB::Result::Building::Shipyard';
 }
 
 sub view_build_queue {
@@ -22,9 +22,9 @@ sub view_build_queue {
     $spaceport->check_for_completed_ships;
     $spaceport->save_changed_ports;
     $page_number ||= 1;
-    my $count = $self->simpledb->domain('Lacuna::DB::ShipBuilds')->count(where=>{shipyard_id=>$building->id});
+    my $count = $self->simpledb->domain('Lacuna::DB::Result::ShipBuilds')->count(where=>{shipyard_id=>$building->id});
     my @building;
-    my $ships = $self->simpledb->domain('Lacuna::DB::ShipBuilds')->search(
+    my $ships = $self->simpledb->domain('Lacuna::DB::Result::ShipBuilds')->search(
         where       => { shipyard_id => $building->id, date_completed => ['>', DateTime->now ] },
         order_by    => ['date_completed'],
         )->paginate(25, $page_number);
@@ -76,7 +76,7 @@ sub get_buildable {
     my %buildable;
     $building->body->tick;
     my $docks;
-    my $ports = $building->body->get_buildings_of_class('Lacuna::DB::Building::SpacePort');
+    my $ports = $building->body->get_buildings_of_class('Lacuna::DB::Result::Building::SpacePort');
     my $port_cached;
     while (my $port = $ports->next) {
         $docks += $port->docks_available;

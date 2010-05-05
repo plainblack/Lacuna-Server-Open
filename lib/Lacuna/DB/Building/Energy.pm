@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Energy;
+package Lacuna::DB::Result::Building::Energy;
 
 use Moose;
-extends 'Lacuna::DB::Building';
+extends 'Lacuna::DB::Result::Building';
 
 __PACKAGE__->table('energy');
 
@@ -12,13 +12,13 @@ around 'build_tags' => sub {
 
 
 __PACKAGE__->typecast_map(class => {
-    'Lacuna::DB::Building::Energy::' => 'Lacuna::DB::Building::Energy::Fission',
-    'Lacuna::DB::Building::Energy::' => 'Lacuna::DB::Building::Energy::Fusion',
-    'Lacuna::DB::Building::Energy::' => 'Lacuna::DB::Building::Energy::Geo',
-    'Lacuna::DB::Building::Energy::' => 'Lacuna::DB::Building::Energy::Hydrocarbon',
-    'Lacuna::DB::Building::Energy::' => 'Lacuna::DB::Building::Energy::Reserve',
-    'Lacuna::DB::Building::Energy::' => 'Lacuna::DB::Building::Energy::Singularity',
-    'Lacuna::DB::Building::Energy::' => 'Lacuna::DB::Building::Energy::Waste',
+    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Fission',
+    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Fusion',
+    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Geo',
+    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Hydrocarbon',
+    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Reserve',
+    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Singularity',
+    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Waste',
 });
 
 no Moose;

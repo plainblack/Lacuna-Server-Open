@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Building::Intelligence';
+    return 'Lacuna::DB::Result::Building::Intelligence';
 }
 
 sub view_spies {
@@ -39,7 +39,7 @@ sub view_spies {
             available_on=> $available_on,
         };
     }
-    my @assignments = Lacuna::DB::Spies->assignments;
+    my @assignments = Lacuna::DB::Result::Spies->assignments;
     return {
         status                  => $empire->get_status,
         spies                   => \@spies,

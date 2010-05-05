@@ -34,7 +34,7 @@ foreach my $x (int($config->get('map_size/x')->[0]/10) .. int($config->get('map_
                 $item->title($story->headline);
                 $item->pubDate($story->date_posted);
             }
-            my $object = $bucket->putobject(Lacuna::DB::News->feed_filename($zone), $feed->to_string, { 'Content-Type' => 'application/rss+xml' });
+            my $object = $bucket->putobject(Lacuna::DB::Result::News->feed_filename($zone), $feed->to_string, { 'Content-Type' => 'application/rss+xml' });
             $object->acl('public');
         }
     }

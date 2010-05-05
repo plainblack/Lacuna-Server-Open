@@ -1,7 +1,7 @@
-package Lacuna::DB::Building::Park;
+package Lacuna::DB::Result::Building::Park;
 
 use Moose;
-extends 'Lacuna::DB::Building';
+extends 'Lacuna::DB::Result::Building';
 use DateTime;
 use Lacuna::Constants qw(FOOD_TYPES);
 use Lacuna::Util qw(to_seconds);

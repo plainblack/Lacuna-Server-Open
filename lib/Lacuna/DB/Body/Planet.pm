@@ -1,7 +1,7 @@
-package Lacuna::DB::Body::Planet;
+package Lacuna::DB::Result::Body::Planet;
 
 use Moose;
-extends 'Lacuna::DB::Body';
+extends 'Lacuna::DB::Result::Body';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use List::Util qw(shuffle);
 use Lacuna::Util qw(to_seconds randint);
@@ -119,43 +119,43 @@ __PACKAGE__->add_columns(
     restrict_coverage_delta         => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },  
 );
 __PACKAGE__->typecast_map(class => {
-    'Lacuna::DB::Body::Planet::P1' => 'Lacuna::DB::Body::Planet::P1',
-    'Lacuna::DB::Body::Planet::P2' => 'Lacuna::DB::Body::Planet::P2',
-    'Lacuna::DB::Body::Planet::P3' => 'Lacuna::DB::Body::Planet::P3',
-    'Lacuna::DB::Body::Planet::P4' => 'Lacuna::DB::Body::Planet::P4',
-    'Lacuna::DB::Body::Planet::P5' => 'Lacuna::DB::Body::Planet::P5',
-    'Lacuna::DB::Body::Planet::P6' => 'Lacuna::DB::Body::Planet::P6',
-    'Lacuna::DB::Body::Planet::P7' => 'Lacuna::DB::Body::Planet::P7',
-    'Lacuna::DB::Body::Planet::P8' => 'Lacuna::DB::Body::Planet::P8',
-    'Lacuna::DB::Body::Planet::P9' => 'Lacuna::DB::Body::Planet::P9',
-    'Lacuna::DB::Body::Planet::P10' => 'Lacuna::DB::Body::Planet::P10',
-    'Lacuna::DB::Body::Planet::P11' => 'Lacuna::DB::Body::Planet::P11',
-    'Lacuna::DB::Body::Planet::P12' => 'Lacuna::DB::Body::Planet::P12',
-    'Lacuna::DB::Body::Planet::P13' => 'Lacuna::DB::Body::Planet::P13',
-    'Lacuna::DB::Body::Planet::P14' => 'Lacuna::DB::Body::Planet::P14',
-    'Lacuna::DB::Body::Planet::P15' => 'Lacuna::DB::Body::Planet::P15',
-    'Lacuna::DB::Body::Planet::P16' => 'Lacuna::DB::Body::Planet::P17',
-    'Lacuna::DB::Body::Planet::P17' => 'Lacuna::DB::Body::Planet::P17',
-    'Lacuna::DB::Body::Planet::P18' => 'Lacuna::DB::Body::Planet::P18',
-    'Lacuna::DB::Body::Planet::P19' => 'Lacuna::DB::Body::Planet::P19',
-    'Lacuna::DB::Body::Planet::P20' => 'Lacuna::DB::Body::Planet::P20',
-    'Lacuna::DB::Body::Planet::GasGiant::G1' => 'Lacuna::DB::Body::Planet::GasGiant::G1',
-    'Lacuna::DB::Body::Planet::GasGiant::G2' => 'Lacuna::DB::Body::Planet::GasGiant::G2',
-    'Lacuna::DB::Body::Planet::GasGiant::G3' => 'Lacuna::DB::Body::Planet::GasGiant::G3',
-    'Lacuna::DB::Body::Planet::GasGiant::G4' => 'Lacuna::DB::Body::Planet::GasGiant::G4',
-    'Lacuna::DB::Body::Planet::GasGiant::G5' => 'Lacuna::DB::Body::Planet::GasGiant::G5',
+    'Lacuna::DB::Result::Body::Planet::P1' => 'Lacuna::DB::Result::Body::Planet::P1',
+    'Lacuna::DB::Result::Body::Planet::P2' => 'Lacuna::DB::Result::Body::Planet::P2',
+    'Lacuna::DB::Result::Body::Planet::P3' => 'Lacuna::DB::Result::Body::Planet::P3',
+    'Lacuna::DB::Result::Body::Planet::P4' => 'Lacuna::DB::Result::Body::Planet::P4',
+    'Lacuna::DB::Result::Body::Planet::P5' => 'Lacuna::DB::Result::Body::Planet::P5',
+    'Lacuna::DB::Result::Body::Planet::P6' => 'Lacuna::DB::Result::Body::Planet::P6',
+    'Lacuna::DB::Result::Body::Planet::P7' => 'Lacuna::DB::Result::Body::Planet::P7',
+    'Lacuna::DB::Result::Body::Planet::P8' => 'Lacuna::DB::Result::Body::Planet::P8',
+    'Lacuna::DB::Result::Body::Planet::P9' => 'Lacuna::DB::Result::Body::Planet::P9',
+    'Lacuna::DB::Result::Body::Planet::P10' => 'Lacuna::DB::Result::Body::Planet::P10',
+    'Lacuna::DB::Result::Body::Planet::P11' => 'Lacuna::DB::Result::Body::Planet::P11',
+    'Lacuna::DB::Result::Body::Planet::P12' => 'Lacuna::DB::Result::Body::Planet::P12',
+    'Lacuna::DB::Result::Body::Planet::P13' => 'Lacuna::DB::Result::Body::Planet::P13',
+    'Lacuna::DB::Result::Body::Planet::P14' => 'Lacuna::DB::Result::Body::Planet::P14',
+    'Lacuna::DB::Result::Body::Planet::P15' => 'Lacuna::DB::Result::Body::Planet::P15',
+    'Lacuna::DB::Result::Body::Planet::P16' => 'Lacuna::DB::Result::Body::Planet::P17',
+    'Lacuna::DB::Result::Body::Planet::P17' => 'Lacuna::DB::Result::Body::Planet::P17',
+    'Lacuna::DB::Result::Body::Planet::P18' => 'Lacuna::DB::Result::Body::Planet::P18',
+    'Lacuna::DB::Result::Body::Planet::P19' => 'Lacuna::DB::Result::Body::Planet::P19',
+    'Lacuna::DB::Result::Body::Planet::P20' => 'Lacuna::DB::Result::Body::Planet::P20',
+    'Lacuna::DB::Result::Body::Planet::GasGiant::G1' => 'Lacuna::DB::Result::Body::Planet::GasGiant::G1',
+    'Lacuna::DB::Result::Body::Planet::GasGiant::G2' => 'Lacuna::DB::Result::Body::Planet::GasGiant::G2',
+    'Lacuna::DB::Result::Body::Planet::GasGiant::G3' => 'Lacuna::DB::Result::Body::Planet::GasGiant::G3',
+    'Lacuna::DB::Result::Body::Planet::GasGiant::G4' => 'Lacuna::DB::Result::Body::Planet::GasGiant::G4',
+    'Lacuna::DB::Result::Body::Planet::GasGiant::G5' => 'Lacuna::DB::Result::Body::Planet::GasGiant::G5',
 });
 
 # RELATIONSHIPS
 
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
-__PACKAGE__->has_many('regular_buildings','Lacuna::DB::Building','body_id');
-__PACKAGE__->has_many('food_buildings','Lacuna::DB::Building::Food','body_id');
-__PACKAGE__->has_many('water_buildings','Lacuna::DB::Building::Water','body_id');
-__PACKAGE__->has_many('waste_buildings','Lacuna::DB::Building::Waste','body_id');
-__PACKAGE__->has_many('ore_buildings','Lacuna::DB::Building::Ore', 'body_id');
-__PACKAGE__->has_many('energy_buildings','Lacuna::DB::Building::Energy','body_id');
-__PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','body_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+__PACKAGE__->has_many('regular_buildings','Lacuna::DB::Result::Building','body_id');
+__PACKAGE__->has_many('food_buildings','Lacuna::DB::Result::Building::Food','body_id');
+__PACKAGE__->has_many('water_buildings','Lacuna::DB::Result::Building::Water','body_id');
+__PACKAGE__->has_many('waste_buildings','Lacuna::DB::Result::Building::Waste','body_id');
+__PACKAGE__->has_many('ore_buildings','Lacuna::DB::Result::Building::Ore', 'body_id');
+__PACKAGE__->has_many('energy_buildings','Lacuna::DB::Result::Building::Energy','body_id');
+__PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Result::Building::Permanent','body_id');
 
 sub builds { 
     my ($self, $where, $reverse) = @_;
@@ -165,7 +165,7 @@ sub builds {
     }
     $where->{body_id} = $self->id;
     $where->{date_complete} = ['>',DateTime->now->subtract(years=>100)] unless exists $where->{date_complete};
-    return $self->simpledb->domain('Lacuna::DB::BuildQueue')->search(
+    return $self->simpledb->domain('Lacuna::DB::Result::BuildQueue')->search(
         where       => $where,
         order_by    => $order,
         consistent  => 1,
@@ -183,7 +183,7 @@ sub ships_travelling {
     }
     $where->{body_id} = $self->id;
     $where->{date_arrives} = ['>',DateTime->now->subtract(years=>100)] unless exists $where->{date_arrives};
-    return $self->simpledb->domain('Lacuna::DB::TravelQueue')->search(
+    return $self->simpledb->domain('Lacuna::DB::Result::TravelQueue')->search(
         where       => $where,
         order_by    => $order,
         consistent  => 1,
@@ -376,7 +376,7 @@ has command => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get_building_of_class('Lacuna::DB::Building::PlanetaryCommand');
+        return $self->get_building_of_class('Lacuna::DB::Result::Building::PlanetaryCommand');
     },
 );
 
@@ -385,7 +385,7 @@ has mining_ministry => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get_building_of_class('Lacuna::DB::Building::Ore::Ministry');
+        return $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Ministry');
     },
 );
 
@@ -394,7 +394,7 @@ has network19 => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get_building_of_class('Lacuna::DB::Building::Network19');
+        return $self->get_building_of_class('Lacuna::DB::Result::Building::Network19');
     },
 );
 
@@ -403,7 +403,7 @@ has refinery => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get_building_of_class('Lacuna::DB::Building::Ore::Refinery');
+        return $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Refinery');
     },
 );
 
@@ -412,7 +412,7 @@ has spaceport => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get_building_of_class('Lacuna::DB::Building::SpacePort');
+        return $self->get_building_of_class('Lacuna::DB::Result::Building::SpacePort');
     },
 );    
 
@@ -426,13 +426,13 @@ sub buildings {
 	);
     };
     return (
-	$buildings->('Lacuna::DB::Building'),
-        $buildings->('Lacuna::DB::Building::Food'),
-        $buildings->('Lacuna::DB::Building::Water'),
-        $buildings->('Lacuna::DB::Building::Waste'),
-        $buildings->('Lacuna::DB::Building::Ore'),
-        $buildings->('Lacuna::DB::Building::Energy'),
-        $buildings->('Lacuna::DB::Building::Permanent'),
+	$buildings->('Lacuna::DB::Result::Building'),
+        $buildings->('Lacuna::DB::Result::Building::Food'),
+        $buildings->('Lacuna::DB::Result::Building::Water'),
+        $buildings->('Lacuna::DB::Result::Building::Waste'),
+        $buildings->('Lacuna::DB::Result::Building::Ore'),
+        $buildings->('Lacuna::DB::Result::Building::Energy'),
+        $buildings->('Lacuna::DB::Result::Building::Permanent'),
         );
 }
 
@@ -488,10 +488,10 @@ sub can_build_building {
 sub has_room_in_build_queue {
     my ($self) = shift;
     my $max = 1;
-    my $dev_ministry = $self->simpledb->domain('Lacuna::DB::Building::Development')->search(
+    my $dev_ministry = $self->simpledb->domain('Lacuna::DB::Result::Building::Development')->search(
         where   => {
             body_id => $self->id,
-            class   => 'Lacuna::DB::Building::Development',
+            class   => 'Lacuna::DB::Result::Building::Development',
         }
         )->next;
     if (defined $dev_ministry) {
@@ -645,11 +645,11 @@ sub found_colony {
     $empire->add_medal($type);
 
     # add command building
-    my $command = Lacuna::DB::Building::PlanetaryCommand->new(
+    my $command = Lacuna::DB::Result::Building::PlanetaryCommand->new(
         simpledb        => $self->simpledb,
         x               => 0,
         y               => 0,
-        class           => 'Lacuna::DB::Building::PlanetaryCommand',
+        class           => 'Lacuna::DB::Result::Building::PlanetaryCommand',
         date_created    => DateTime->now,
         body_id         => $self->id,
         body            => $self,
@@ -694,7 +694,7 @@ sub recalc_stats {
                 my $method = $type.'_production_hour';
                 $stats{$method} += $building->$method();
             }
-            if ($building->isa('Lacuna::DB::Building::Ore::Ministry')) {
+            if ($building->isa('Lacuna::DB::Result::Building::Ore::Ministry')) {
                 foreach my $type (ORE_TYPES) {
                     my $method = $type.'_hour';
                     $stats{$method} += $building->$method();
@@ -731,7 +731,7 @@ sub add_news {
     }
     if (randint(1,100) <= $chance) {
         $headline = sprintf $headline, @_;
-        Lacuna::DB::News->new(
+        Lacuna::DB::Result::News->new(
             simpledb    => $self->simpledb,
             date_posted => DateTime->now,
             zone        => $self->zone,
