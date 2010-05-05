@@ -19,5 +19,5 @@ use constant magnetite => 1800;
 
 
 no Moose;
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable(inline_constructor => 0);
 

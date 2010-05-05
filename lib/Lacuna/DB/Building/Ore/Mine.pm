@@ -34,4 +34,4 @@ use constant water_consumption => 2;
 use constant waste_production => 5;
 
 no Moose;
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable(inline_constructor => 0);

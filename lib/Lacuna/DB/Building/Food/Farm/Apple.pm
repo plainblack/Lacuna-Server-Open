@@ -42,4 +42,4 @@ use constant waste_consumption => 1;
 
 
 no Moose;
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable(inline_constructor => 0);

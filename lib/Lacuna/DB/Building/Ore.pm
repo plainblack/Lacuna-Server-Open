@@ -21,4 +21,4 @@ around 'build_tags' => sub {
 
 
 no Moose;
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable(inline_constructor => 0);

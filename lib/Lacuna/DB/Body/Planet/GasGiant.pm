@@ -5,5 +5,5 @@ extends 'Lacuna::DB::Body::Planet';
 
 
 no Moose;
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable(inline_constructor => 0);
 

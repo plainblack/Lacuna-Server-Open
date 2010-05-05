@@ -25,10 +25,12 @@ __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Body::Asteroid::A4' => 'Lacuna::DB::Body::Asteroid::A4',
     'Lacuna::DB::Body::Asteroid::A5' => 'Lacuna::DB::Body::Asteroid::A5',
 });
-with 'Lacuna::Role::Zoned';
 
 __PACKAGE__->belongs_to('star', 'Lacuna::DB::Star', 'star_id');
-__PACKAGE__->recast_using('class');
+
+
+with 'Lacuna::Role::Zoned';
+
 
 
 sub lock {
@@ -80,4 +82,4 @@ sub get_status {
 
 
 no Moose;
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable(inline_constructor => 0);

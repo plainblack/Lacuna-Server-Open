@@ -61,5 +61,5 @@ use constant magnetite => 1;
 use constant water => 0;
 
 no Moose;
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable(inline_constructor => 0);
 

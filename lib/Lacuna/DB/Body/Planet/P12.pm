@@ -31,5 +31,5 @@ use constant monazite => 1000;
 use constant beryl => 1000;
 
 no Moose;
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable(inline_constructor => 0);
 

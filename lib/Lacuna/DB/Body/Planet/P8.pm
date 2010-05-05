@@ -25,5 +25,5 @@ use constant kerogen => 3100;
 use constant anthracite => 3100;
 
 no Moose;
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable(inline_constructor => 0);
 

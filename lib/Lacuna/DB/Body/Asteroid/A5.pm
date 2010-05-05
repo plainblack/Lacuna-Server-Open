@@ -10,5 +10,5 @@ use constant fluorite => 1000;
 use constant gold => 9000;
 
 no Moose;
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable(inline_constructor => 0);
 

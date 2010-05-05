@@ -149,13 +149,13 @@ __PACKAGE__->typecast_map(class => {
 # RELATIONSHIPS
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
-__PACKAGE__->has_many('regular_buildings','Lacuna::DB::Building','body_id', mate => 'body');
-__PACKAGE__->has_many('food_buildings','Lacuna::DB::Building::Food','body_id', mate => 'body');
-__PACKAGE__->has_many('water_buildings','Lacuna::DB::Building::Water','body_id', mate => 'body');
-__PACKAGE__->has_many('waste_buildings','Lacuna::DB::Building::Waste','body_id', mate => 'body');
-__PACKAGE__->has_many('ore_buildings','Lacuna::DB::Building::Ore','body_id', mate => 'body');
-__PACKAGE__->has_many('energy_buildings','Lacuna::DB::Building::Energy','body_id', mate => 'body');
-__PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','body_id', mate => 'body');
+__PACKAGE__->has_many('regular_buildings','Lacuna::DB::Building','body_id');
+__PACKAGE__->has_many('food_buildings','Lacuna::DB::Building::Food','body_id');
+__PACKAGE__->has_many('water_buildings','Lacuna::DB::Building::Water','body_id');
+__PACKAGE__->has_many('waste_buildings','Lacuna::DB::Building::Waste','body_id');
+__PACKAGE__->has_many('ore_buildings','Lacuna::DB::Building::Ore', 'body_id');
+__PACKAGE__->has_many('energy_buildings','Lacuna::DB::Building::Energy','body_id');
+__PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Building::Permanent','body_id');
 
 sub builds { 
     my ($self, $where, $reverse) = @_;
@@ -1280,4 +1280,4 @@ sub spend_waste {
 
 
 no Moose;
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable(inline_constructor => 0);
