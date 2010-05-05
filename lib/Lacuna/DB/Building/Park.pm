@@ -11,16 +11,6 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Happiness));
 };
 
-__PACKAGE__->add_attributes(
-    party_ends              => { isa => 'DateTime' },
-    party_in_progress       => { isa => 'Str', default => 0 },
-    happiness_from_party    => { isa => 'Int', default => 0 },
-);
-
-sub party_seconds_remaining {
-    my ($self) = @_;
-    return to_seconds($self->party_ends - DateTime->now);
-}
 
 sub can_throw_a_party {
     my ($self) = @_;

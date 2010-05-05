@@ -1,25 +1,69 @@
 package Lacuna::DB::Trades;
 
 use Moose;
-extends 'SimpleDB::Class::Item';
+extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 
-__PACKAGE__->set_domain_name('trades');
-__PACKAGE__->add_attributes(
-    body_id                 => { isa => 'Str' },
-    zone                    => { isa => 'Str' },
-    only_in_zone            => { isa => 'Str' },
-    transfer_type           => { isa => 'Str' },
-    only_same_transfer_type => { isa => 'Str' },
-    cargo_ship_count        => { isa => 'Int' },
-    smuggler_ship_count     => { isa => 'Int' },
-    resources               => { isa => 'HashRef' },
-    cargo_space_needed      => { isa => 'Int' },
-    ratio                   => { isa => 'Str' },
-    ratio_sort              => { isa => 'Int' },
-    ask_types               => { isa => 'ArrayRefOfStr'},
-    offer_types             => { isa => 'ArrayRefOfStr'},
+__PACKAGE__->table('trades');
+__PACKAGE__->add_columns(
+    body_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
+    zone                    => { data_type => 'char', size => 16, is_nullable => 0 },
+    only_in_zone            => { data_type => 'int', size => 1, default_value => 1 },
+    transfer_type           => { data_type => 'char', size => 11, is_nullable => 0 }, # ship | transporter
+    only_same_transfer_type => { data_type => 'int', size => 1, default_value => 1 },
+    cargo_ship_count        => { data_type => 'int', size => 11, default_value => 0 },
+    smuggler_ship_count     => { data_type => 'int', size => 11, default_value => 0 },
+    cargo_space_needed      => { data_type => 'int', size => 11, default_value => 0 },
+    ask_ratio               => { data_type => 'float', default_value => 0 },
+    offer_ratio             => { data_type => 'float', default_value => 0 },
+    essentia                => { data_type => 'int', size => 11, default_value => 0 },
+    energy                  => { data_type => 'int', size => 11, default_value => 0 },
+    water                   => { data_type => 'int', size => 11, default_value => 0 },
+    waste                   => { data_type => 'int', size => 11, default_value => 0 },
+    food                    => { data_type => 'int', size => 11, default_value => 0 },
+    ore                     => { data_type => 'int', size => 11, default_value => 0 },
+    bean                    => { data_type => 'int', size => 11, default_value => 0 },
+    lapis                   => { data_type => 'int', size => 11, default_value => 0 },
+    potato                  => { data_type => 'int', size => 11, default_value => 0 },
+    apple                   => { data_type => 'int', size => 11, default_value => 0 },
+    root                    => { data_type => 'int', size => 11, default_value => 0 },
+    corn                    => { data_type => 'int', size => 11, default_value => 0 },
+    cider                   => { data_type => 'int', size => 11, default_value => 0 },
+    wheat                   => { data_type => 'int', size => 11, default_value => 0 },
+    bread                   => { data_type => 'int', size => 11, default_value => 0 },
+    soup                    => { data_type => 'int', size => 11, default_value => 0 },
+    chip                    => { data_type => 'int', size => 11, default_value => 0 },
+    pie                     => { data_type => 'int', size => 11, default_value => 0 },
+    pancake                 => { data_type => 'int', size => 11, default_value => 0 },
+    milk                    => { data_type => 'int', size => 11, default_value => 0 },
+    meal                    => { data_type => 'int', size => 11, default_value => 0 },
+    algae                   => { data_type => 'int', size => 11, default_value => 0 },
+    syrup                   => { data_type => 'int', size => 11, default_value => 0 },
+    fungus                  => { data_type => 'int', size => 11, default_value => 0 },
+    burger                  => { data_type => 'int', size => 11, default_value => 0 },
+    shake                   => { data_type => 'int', size => 11, default_value => 0 },
+    beetle                  => { data_type => 'int', size => 11, default_value => 0 },
+    rutile                  => { data_type => 'int', size => 11, default_value => 0 },
+    chromite                => { data_type => 'int', size => 11, default_value => 0 },
+    chalcopyrite            => { data_type => 'int', size => 11, default_value => 0 },
+    galena                  => { data_type => 'int', size => 11, default_value => 0 },
+    gold                    => { data_type => 'int', size => 11, default_value => 0 },
+    uraninite               => { data_type => 'int', size => 11, default_value => 0 },
+    bauxite                 => { data_type => 'int', size => 11, default_value => 0 },
+    goethite                => { data_type => 'int', size => 11, default_value => 0 },
+    halite                  => { data_type => 'int', size => 11, default_value => 0 },
+    gypsum                  => { data_type => 'int', size => 11, default_value => 0 },
+    trona                   => { data_type => 'int', size => 11, default_value => 0 },
+    kerogen                 => { data_type => 'int', size => 11, default_value => 0 },
+    methane                 => { data_type => 'int', size => 11, default_value => 0 },
+    anthracite              => { data_type => 'int', size => 11, default_value => 0 },
+    sulfur                  => { data_type => 'int', size => 11, default_value => 0 },
+    zircon                  => { data_type => 'int', size => 11, default_value => 0 },
+    monazite                => { data_type => 'int', size => 11, default_value => 0 },
+    fluorite                => { data_type => 'int', size => 11, default_value => 0 },
+    beryl                   => { data_type => 'int', size => 11, default_value => 0 },
+    magnetite               => { data_type => 'int', size => 11, default_value => 0 },
 );
 
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Body::Planet', 'body_id');

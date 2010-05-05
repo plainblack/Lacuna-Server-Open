@@ -1,15 +1,15 @@
 package Lacuna::DB::News;
 
 use Moose;
-extends 'SimpleDB::Class::Item';
+extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date);
 use UUID::Tiny ':std';
 
-__PACKAGE__->set_domain_name('news');
-__PACKAGE__->add_attributes(
-    headline                => { isa => 'Str' },
-    zone                    => { isa => 'Str' },
-    date_posted             => { isa => 'DateTime'},
+__PACKAGE__->table('news');
+__PACKAGE__->add_columns(
+    headline                => { data_type => 'char', size => 140, is_nullable => 0 },
+    zone                    => { data_type => 'char', size => 16, is_nullable => 0 },
+    date_posted             => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
 );
 
 sub date_posted_formatted {

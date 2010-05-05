@@ -1,27 +1,48 @@
 package Lacuna::DB::Building;
 
 use Moose;
-extends 'SimpleDB::Class::Item';
+extends 'Lacuna::DB::Result';
 use Lacuna::Constants ':all';
 use List::Util qw(shuffle);
 
-__PACKAGE__->set_domain_name('building');
-__PACKAGE__->add_attributes(
-    date_created    => { isa => 'DateTime' },
-    body_id         => { isa => 'Str' },
-    empire_id       => { isa => 'Str' },
-    x               => { isa => 'Int' },
-    y               => { isa => 'Int' },
-    level           => { isa => 'Int' },
-    class           => { isa => 'Str' },
-    build_queue_id  => { isa => 'Str' },
-    offline         => { isa => 'DateTime' },
+__PACKAGE__->table('building');
+__PACKAGE__->add_columns(
+    date_created    => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    body_id         => { data_type => 'int', size => 11, is_nullable => 0 },
+    empire_id       => { data_type => 'int', size => 11, is_nullable => 0 },
+    x               => { data_type => 'int', size => 11, default_value => 0 },
+    y               => { data_type => 'int', size => 11, default_value => 0 },
+    level           => { data_type => 'int', size => 11, default_value => 0 },
+    class           => { data_type => 'char', size => 255, is_nullable => 0 },
+    build_queue_id  => { data_type => 'int', size => 11, is_nullable => 0 },
+    offline         => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
 );
 
-__PACKAGE__->belongs_to('build_queue', 'Lacuna::DB::BuildQueue', 'build_queue_id', mate=>'building');
+__PACKAGE__->belongs_to('build_queue', 'Lacuna::DB::BuildQueue', 'build_queue_id');
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Body', 'body_id');
-__PACKAGE__->recast_using('class');
+__PACKAGE__->typecast_map(class => {
+    'Lacuna::DB::Building::Development' => 'Lacuna::DB::Building::Development',
+    'Lacuna::DB::Building::Embassy' => 'Lacuna::DB::Building::Embassy',
+    'Lacuna::DB::Building::EntertainmentDistrict' => 'Lacuna::DB::Building::EntertainmentDistrict',
+    'Lacuna::DB::Building::Espionage' => 'Lacuna::DB::Building::Espionage',
+    'Lacuna::DB::Building::Food' => 'Lacuna::DB::Building::Food',
+    'Lacuna::DB::Building::GasGiantLab' => 'Lacuna::DB::Building::GasGiantLab',
+    'Lacuna::DB::Building::Intelligence' => 'Lacuna::DB::Building::Intelligence',
+    'Lacuna::DB::Building::Network19' => 'Lacuna::DB::Building::Network19',
+    'Lacuna::DB::Building::Observatory' => 'Lacuna::DB::Building::Observatory',
+    'Lacuna::DB::Building::Park' => 'Lacuna::DB::Building::Park',
+    'Lacuna::DB::Building::PlanetaryCommand' => 'Lacuna::DB::Building::PlanetaryCommand',
+    'Lacuna::DB::Building::Propulsion' => 'Lacuna::DB::Building::Propulsion',
+    'Lacuna::DB::Building::RND' => 'Lacuna::DB::Building::RND',
+    'Lacuna::DB::Building::Security' => 'Lacuna::DB::Building::Security',
+    'Lacuna::DB::Building::Shipyard' => 'Lacuna::DB::Building::Shipyard',
+    'Lacuna::DB::Building::SpacePort' => 'Lacuna::DB::Building::SpacePort',
+    'Lacuna::DB::Building::TerraformingLab' => 'Lacuna::DB::Building::TerraformingLab',
+    'Lacuna::DB::Building::Trade' => 'Lacuna::DB::Building::Trade',
+    'Lacuna::DB::Building::Transporter' => 'Lacuna::DB::Building::Transporter',
+    'Lacuna::DB::Building::University' => 'Lacuna::DB::Building::University',
+});
 
 sub controller_class {
     confess "you need to override me";

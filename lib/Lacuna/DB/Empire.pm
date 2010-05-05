@@ -1,56 +1,49 @@
 package Lacuna::DB::Empire;
 
 use Moose;
-extends 'SimpleDB::Class::Item';
+extends 'Lacuna::DB::Result';
 use DateTime;
 use Lacuna::Util qw(format_date);
 use Digest::SHA;
 use List::MoreUtils qw(uniq);
 
-__PACKAGE__->set_domain_name('empire');
-__PACKAGE__->add_attributes(
-    name            => { isa => 'Str', 
-        trigger => sub {
-            my ($self, $new, $old) = @_;
-            $self->name_cname(Lacuna::Util::cname($new));
-        },
-    },
-    stage               => { isa => 'Str', default=>'new'},
-    name_cname          => { isa => 'Str' },
-    date_created        => { isa => 'DateTime' },
-    description         => { isa => 'Str' },
-    home_planet_id      => { isa => 'Str' },
-    status_message      => { isa => 'Str' },
-    friends_and_foes    => { isa => 'Str' },
-    password            => { isa => 'Str' },
-    last_login          => { isa => 'DateTime' },
-    species_id          => { isa => 'Str' },
-    essentia            => { isa => 'Int', default=>0 },
-    points              => { isa => 'Int', default=>0 },
-    rank                => { isa => 'Int', default=>0 }, # just where it is stored, but will come out of date quickly
-    university_level    => { isa => 'Int', default=>0 },
-    needs_full_update   => { isa => 'Str', default=>0 },
-    tutorial_stage      => { isa => 'Str', default=>'explore_the_ui' },
-    tutorial_scratch    => { isa => 'Str' },
-    is_isolationist     => { isa => 'Str', default => 1 },
-    food_boost          => { isa => 'DateTime' },
-    water_boost         => { isa => 'DateTime' },
-    ore_boost           => { isa => 'DateTime' },
-    energy_boost        => { isa => 'DateTime' },
-    happiness_boost     => { isa => 'DateTime' },
+__PACKAGE__->table('empire');
+__PACKAGE__->add_columns(
+    name                    => { data_type => 'char', size => 30, is_nullable => 0 },
+    stage                   => { data_type => 'char', size => 30, is_nullable => 0, default_value => 'new' },
+    date_created            => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    description             => { data_type => 'text', is_nullable => 1 },
+    home_planet_id          => { data_type => 'int', size => 11, is_nullable => 1 },
+    status_message          => { data_type => 'char', size => 255 },
+    password                => { data_type => 'char', size => 255 },
+    last_login              => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    species_id              => { data_type => 'int', size => 11, is_nullable => 0 },
+    essentia                => { data_type => 'int', size => 11, default_value => 0 },
+#    points                  => { data_type => 'int', size => 11, default_value => 0 },
+#    rank                   => { data_type => 'int', size => 11, default_value => 0 }, # just where it is stored, but will come out of date quickly
+    university_level        => { data_type => 'int', size => 3, default_value => 0 },
+    needs_full_update       => { data_type => 'int', size => 1, default_value => 0 },
+    tutorial_stage          => { data_type => 'char', size => 30, is_nullable => 0, default_value => 'explore_the_ui' },
+    tutorial_scratch        => { data_type => 'text', is_nullable => 1 },
+    is_isolationist         => { data_type => 'int', size => 1, default_value => 1 },
+    food_boost              => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    water_boost             => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    ore_boost               => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    energy_boost            => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    happiness_boost         => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
 );
 
 # personal confederacies
 
 __PACKAGE__->belongs_to('species', 'Lacuna::DB::Species', 'species_id');
-__PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Body::Planet', 'home_planet_id', mate=>'empire');
-__PACKAGE__->has_many('sessions', 'Lacuna::DB::Session', 'empire_id', mate => 'empire');
-__PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'empire_id', mate => 'empire');
-__PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Message', 'from_id', mate => 'sender');
-__PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id', mate => 'receiver');
-__PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id', mate => 'empire');
-__PACKAGE__->has_many('medals', 'Lacuna::DB::Medals', 'empire_id', mate => 'empire');
-__PACKAGE__->has_many('probes', 'Lacuna::DB::Probes', 'empire_id', mate => 'empire');
+__PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Body::Planet', 'home_planet_id');
+__PACKAGE__->has_many('sessions', 'Lacuna::DB::Session', 'empire_id');
+__PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'empire_id');
+__PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Message', 'from_id');
+__PACKAGE__->has_many('received_messages', 'Lacuna::DB::Message', 'to_id');
+__PACKAGE__->has_many('build_queues', 'Lacuna::DB::BuildQueue', 'empire_id');
+__PACKAGE__->has_many('medals', 'Lacuna::DB::Medals', 'empire_id');
+__PACKAGE__->has_many('probes', 'Lacuna::DB::Probes', 'empire_id');
 
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $body_id) = @_;

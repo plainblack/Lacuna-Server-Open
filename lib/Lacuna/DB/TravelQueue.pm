@@ -1,21 +1,21 @@
 package Lacuna::DB::TravelQueue;
 
 use Moose;
-extends 'SimpleDB::Class::Item';
+extends 'Lacuna::DB::Result';
 use DateTime;
 use Lacuna::Util qw(to_seconds format_date);
 
-__PACKAGE__->set_domain_name('travel_queue');
-__PACKAGE__->add_attributes(
-    date_started        => { isa => 'DateTime' },
-    date_arrives        => { isa => 'DateTime' },
-    ship_type           => { isa => 'Str' },
-    payload             => { isa => 'HashRef' },
-#    roundtrip           => { isa => 'Int' },
-    body_id             => { isa => 'Str' },
-    direction           => { isa => 'Str' }, # outgoing || incoming
-    foreign_body_id     => { isa => 'Str' },
-    foreign_star_id     => { isa => 'Str' },
+__PACKAGE__->table('travel_queue');
+__PACKAGE__->add_columns(
+    date_started            => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    date_arrives            => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    name                    => { data_type => 'char', size => 30, is_nullable => 0 },
+    payload                 => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
+#    roundtrip              => { data_type => 'int', size => 11, default_value => 0 },
+    body_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
+    direction               => { data_type => 'char', size => 8, is_nullable => 0 }, # outgoing || incoming
+    foreign_body_id         => { data_type => 'int', size => 11, is_nullable => 1 },
+    foreign_star_id         => { data_type => 'int', size => 11, is_nullable => 1 },
 );
 
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Body', 'body_id');

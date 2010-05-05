@@ -1,15 +1,15 @@
 package Lacuna::DB::Probes;
 
 use Moose;
-extends 'SimpleDB::Class::Item';
+extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date);
 use DateTime;
 
-__PACKAGE__->set_domain_name('probes');
-__PACKAGE__->add_attributes(
-    empire_id               => { isa => 'Str' },
-    star_id                 => { isa => 'Str' },
-    body_id                 => { isa => 'Str' },
+__PACKAGE__->table('probes');
+__PACKAGE__->add_columns(
+    empire_id               => { data_type => 'int', size => 11, is_nullable => 0 },
+    star_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
+    body_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');

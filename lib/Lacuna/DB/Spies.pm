@@ -1,20 +1,20 @@
 package Lacuna::DB::Spies;
 
 use Moose;
-extends 'SimpleDB::Class::Item';
+extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date);
 use DateTime;
 
-__PACKAGE__->set_domain_name('spies');
-__PACKAGE__->add_attributes(
-    empire_id               => { isa => 'Str' },
-    name                    => { isa => 'Str', default => 'Agent Null' },
-    from_body_id            => { isa => 'Str' },
-    on_body_id              => { isa => 'Str' },
-    task                    => { isa => 'Str' },
-    available_on            => { isa => 'DateTime' },
-    offense                 => { isa => 'Int', default => 1 },
-    defense                 => { isa => 'Int', default => 1 },
+__PACKAGE__->table('spies');
+__PACKAGE__->add_columns(
+    empire_id               => { data_type => 'int', size => 11, is_nullable => 0 },
+    name                    => { data_type => 'char', size => 30, is_nullable => 0, default_value => 'Agent Null' },
+    from_body_id            => { data_type => 'int', size => 11, is_nullable => 0 },
+    on_body_id              => { data_type => 'int', size => 11, is_nullable => 0 },
+    task                    => { data_type => 'char', size => 30, is_nullable => 0, default_value => 'Idle' },
+    available_on            => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    offense                 => { data_type => 'int', size => 11, default_value => 1 },
+    defense                 => { data_type => 'int', size => 11, default_value => 1 },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');

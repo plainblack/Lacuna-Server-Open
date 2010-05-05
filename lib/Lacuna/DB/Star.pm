@@ -1,30 +1,23 @@
 package Lacuna::DB::Star;
 
 use Moose;
-extends 'SimpleDB::Class::Item';
+extends 'Lacuna::DB::Result';
 use Lacuna::Util;
 
-__PACKAGE__->set_domain_name('star');
-__PACKAGE__->add_attributes(
-    name            => { isa => 'Str', 
-        trigger => sub {
-            my ($self, $new, $old) = @_;
-            $self->name_cname(Lacuna::Util::cname($new));
-        },
-    },
-    name_cname      => { isa => 'Str' },
-    date_created    => { isa => 'DateTime' },
-    color           => { isa => 'Str' },
-    x               => { isa => 'Int' },
-    y               => { isa => 'Int' },
-    z               => { isa => 'Int' },
-    zone            => { isa => 'Str' },
+__PACKAGE__->table('star');
+__PACKAGE__->add_columns(
+    name                    => { data_type => 'char', size => 30, is_nullable => 0 },
+    color                   => { data_type => 'char', size => 6, is_nullable => 0 },
+    x                       => { data_type => 'int', size => 11, default_value => 0 },
+    y                       => { data_type => 'int', size => 11, default_value => 0 },
+    z                       => { data_type => 'int', size => 11, default_value => 0 },
+    zone                    => { data_type => 'char', size => 16, is_nullable => 0 },
 );
 
 with 'Lacuna::Role::Zoned';
 
-__PACKAGE__->has_many('bodies', 'Lacuna::DB::Body', 'star_id', mate => 'star');
-__PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'star_id', mate => 'star');
+__PACKAGE__->has_many('bodies', 'Lacuna::DB::Body', 'star_id');
+__PACKAGE__->has_many('planets', 'Lacuna::DB::Body::Planet', 'star_id');
 
 
 sub get_status {

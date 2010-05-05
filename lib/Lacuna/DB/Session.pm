@@ -1,14 +1,14 @@
 package Lacuna::DB::Session;
 
 use Moose;
-extends 'SimpleDB::Class::Item';
+extends 'Lacuna::DB::Result';
 use DateTime;
 
-__PACKAGE__->set_domain_name('session');
-__PACKAGE__->add_attributes(
+__PACKAGE__->table('session');
+__PACKAGE__->add_columns(
     empire_id       => { isa => 'Str' },
-    date_created    => { isa => 'DateTime' },
-    expires         => { isa => 'DateTime' },
+    date_created    => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    expires         => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');

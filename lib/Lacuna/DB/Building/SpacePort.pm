@@ -5,18 +5,6 @@ extends 'Lacuna::DB::Building';
 use Lacuna::Constants qw(SHIP_TYPES);
 use List::Util qw(shuffle);
 
-__PACKAGE__->add_attributes(
-    probe_count                         => { isa => 'Int', default => 0 },
-    colony_ship_count                   => { isa => 'Int', default => 0 },
-    spy_pod_count                       => { isa => 'Int', default => 0 },
-    cargo_ship_count                    => { isa => 'Int', default => 0 },
-    space_station_count                 => { isa => 'Int', default => 0 },
-    smuggler_ship_count                 => { isa => 'Int', default => 0 },
-    mining_platform_ship_count          => { isa => 'Int', default => 0 },
-    terraforming_platform_ship_count    => { isa => 'Int', default => 0 },
-    gas_giant_settlement_platform_ship_count     => { isa => 'Int', default => 0 },
-);
-
 with 'Lacuna::Role::Distanced';
 with 'Lacuna::Role::Shippable';
 

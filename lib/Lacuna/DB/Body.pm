@@ -1,28 +1,30 @@
 package Lacuna::DB::Body;
 
 use Moose;
-extends 'SimpleDB::Class::Item';
+extends 'Lacuna::DB::Result';
 use Lacuna::Util;
 
-__PACKAGE__->set_domain_name('body');
-__PACKAGE__->add_attributes(
-    name            => { isa => 'Str', 
-        trigger => sub {
-            my ($self, $new, $old) = @_;
-            $self->name_cname(Lacuna::Util::cname($new));
-        },
-    },
-    name_cname              => { isa => 'Str' },
-    star_id                 => { isa => 'Str' },
-    usable_as_starter       => { isa => 'Str', default=>'No'},
-    orbit                   => { isa => 'Int' },
-    x                       => { isa => 'Int' }, # indexed here to speed up
-    y                       => { isa => 'Int' }, # searching of planets based
-    z                       => { isa => 'Int' }, # on stor location
-    zone                    => { isa => 'Str' }, # fast index for where we are
-    class                   => { isa => 'Str' },
+__PACKAGE__->table('body');
+__PACKAGE__->add_columns(
+    name                    => { data_type => 'char', size => 30, is_nullable => 0 },
+    star_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
+    usable_as_starter       => { data_type => 'int', size => 11, default_value => 0 },
+    orbit                   => { data_type => 'int', size => 11, default_value => 0 },
+    x                       => { data_type => 'int', size => 11, default_value => 0 }, # indexed here to speed up
+    y                       => { data_type => 'int', size => 11, default_value => 0 }, # searching of planets based
+    z                       => { data_type => 'int', size => 11, default_value => 0 }, # on stor location
+    zone                    => { data_type => 'char', size => 16, is_nullable => 0 }, # fast index for where we are
+    class                   => { data_type => 'char', size => 255, is_nullable => 0 },
+    size                    => { data_type => 'int', size => 11, default_value => 0 },
 );
 
+__PACKAGE__->typecast_map(class => {
+    'Lacuna::DB::Body::Asteroid::A1' => 'Lacuna::DB::Body::Asteroid::A1',
+    'Lacuna::DB::Body::Asteroid::A2' => 'Lacuna::DB::Body::Asteroid::A2',
+    'Lacuna::DB::Body::Asteroid::A3' => 'Lacuna::DB::Body::Asteroid::A3',
+    'Lacuna::DB::Body::Asteroid::A4' => 'Lacuna::DB::Body::Asteroid::A4',
+    'Lacuna::DB::Body::Asteroid::A5' => 'Lacuna::DB::Body::Asteroid::A5',
+});
 with 'Lacuna::Role::Zoned';
 
 __PACKAGE__->belongs_to('star', 'Lacuna::DB::Star', 'star_id');

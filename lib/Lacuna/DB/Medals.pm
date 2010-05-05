@@ -1,16 +1,16 @@
 package Lacuna::DB::Medals;
 
 use Moose;
-extends 'SimpleDB::Class::Item';
+extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date);
 use DateTime;
 
-__PACKAGE__->set_domain_name('medals');
-__PACKAGE__->add_attributes(
-    type                    => { isa => 'Str' },
-    empire_id               => { isa => 'Str' },
-    public                  => { isa => 'Str' },
-    datestamp               => { isa => 'DateTime' },
+__PACKAGE__->table('medals');
+__PACKAGE__->add_columns(
+    type                    => { data_type => 'char', size => 30, is_nullable => 0 },
+    empire_id               => { data_type => 'int', size => 11, is_nullable => 0 },
+    public                  => { data_type => 'int', size => 1, default_value => 1 },
+    datestamp               => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');

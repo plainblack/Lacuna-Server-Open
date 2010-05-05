@@ -1,18 +1,18 @@
 package Lacuna::DB::BuildQueue;
 
 use Moose;
-extends 'SimpleDB::Class::Item';
+extends 'Lacuna::DB::Result';
 use DateTime;
 use Lacuna::Util qw(to_seconds format_date);
 
-__PACKAGE__->set_domain_name('build_queue');
-__PACKAGE__->add_attributes(
-    date_created        => { isa => 'DateTime' },
-    date_complete       => { isa => 'DateTime' },
-    empire_id           => { isa => 'Str' },
-    building_class      => { isa => 'Str' },
-    building_id         => { isa => 'Str' },
-    body_id             => { isa => 'Str' },
+__PACKAGE__->table('build_queue');
+__PACKAGE__->add_columns(
+    date_created        => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    date_complete       => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    empire_id           => { data_type => 'int', size => 11, is_nullable => 0 },
+    building_class      => { data_type => 'char', size => 255, is_nullable => 0 },
+    building_id         => { data_type => 'int', size => 11, is_nullable => 0 },
+    body_id             => { data_type => 'int', size => 11, is_nullable => 0 },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Empire', 'empire_id');

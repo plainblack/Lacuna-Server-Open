@@ -1,26 +1,26 @@
 package Lacuna::DB::Message;
 
 use Moose;
-extends 'SimpleDB::Class::Item';
+extends 'Lacuna::DB::Result';
 use DateTime;
 use Lacuna::Util qw(format_date);
 
-__PACKAGE__->set_domain_name('message');
-__PACKAGE__->add_attributes(
-    in_reply_to     => { isa => 'Str' },
-    subject         => { isa => 'Str' },
-    body            => { isa => 'MediumStr' },
-    date_sent       => { isa => 'DateTime' },
-    from_id         => { isa => 'Str' },
-    from_name       => { isa => 'Str' },
-    to_id           => { isa => 'Str' },
-    to_name         => { isa => 'Str' },
-    recipients      => { isa => 'ArrayRefOfStr' },
-    tags            => { isa => 'ArrayRefOfStr' },
-    has_read        => { isa => 'Str', default=>0 },
-    has_replied     => { isa => 'Str', default=>0 },
-    has_archived    => { isa => 'Str', default=>0 },
-    attachments     => { isa => 'HashRef' },
+__PACKAGE__->table('message');
+__PACKAGE__->add_columns(
+    in_reply_to     => { data_type => 'int', size => 11, is_nullable => 1 },
+    subject         => { data_type => 'char', size => 30, is_nullable => 0 },
+    body            => { data_type => 'mediumtext', is_nullable => 1 },
+    date_sent       => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    from_id         => { data_type => 'int', size => 11, is_nullable => 0 },
+    from_name       => { data_type => 'char', size => 30, is_nullable => 0 },
+    to_id           => { data_type => 'int', size => 11, is_nullable => 1 },
+    to_name         => { data_type => 'char', size => 30, is_nullable => 0 },
+    recipients      => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
+    tags            => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
+    has_read        => { data_type => 'int', size => 1, default_value => 0 },
+    has_replied     => { data_type => 'int', size => 1, default_value => 0 },
+    has_archived    => { data_type => 'int', size => 1, default_value => 0 },
+    attachments     => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
 );
 
 __PACKAGE__->belongs_to('original_message', 'Lacuna::DB::Message', 'in_reply_to');

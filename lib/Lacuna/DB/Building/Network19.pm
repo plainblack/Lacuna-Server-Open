@@ -2,18 +2,6 @@ package Lacuna::DB::Building::Network19;
 
 use Moose;
 extends 'Lacuna::DB::Building';
-use Lacuna::Util qw(to_seconds);
-use DateTime;
-
-__PACKAGE__->add_attributes(
-    restrict_coverage           => { isa=>'Str', default => 0 },  
-    restrict_coverage_delta     => { isa=>'DateTime' },  
-);
-
-sub restrict_coverage_delta_in_seconds {
-    my $self = shift;
-    return to_seconds(DateTime->now - $self->restrict_coverage_delta);
-}
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
