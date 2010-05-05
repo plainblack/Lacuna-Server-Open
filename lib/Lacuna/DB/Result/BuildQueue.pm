@@ -1,7 +1,7 @@
 package Lacuna::DB::Result::BuildQueue;
 
 use Moose;
-extends 'Lacuna::DB::Result::Result';
+extends 'Lacuna::DB::Result';
 use DateTime;
 use Lacuna::Util qw(to_seconds format_date);
 

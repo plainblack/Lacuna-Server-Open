@@ -1,7 +1,7 @@
 package Lacuna::DB::Result::Medals;
 
 use Moose;
-extends 'Lacuna::DB::Result::Result';
+extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date);
 use DateTime;
 

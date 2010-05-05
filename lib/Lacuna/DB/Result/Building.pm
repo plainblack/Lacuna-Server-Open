@@ -1,7 +1,7 @@
 package Lacuna::DB::Result::Building;
 
 use Moose;
-extends 'Lacuna::DB::Result::Result';
+extends 'Lacuna::DB::Result';
 use Lacuna::Constants ':all';
 use List::Util qw(shuffle);
 

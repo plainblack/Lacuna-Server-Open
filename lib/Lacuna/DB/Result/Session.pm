@@ -1,7 +1,7 @@
 package Lacuna::DB::Result::Session;
 
 use Moose;
-extends 'Lacuna::DB::Result::Result';
+extends 'Lacuna::DB::Result';
 use DateTime;
 
 __PACKAGE__->table('session');

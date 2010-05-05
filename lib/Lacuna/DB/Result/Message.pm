@@ -1,7 +1,7 @@
 package Lacuna::DB::Result::Message;
 
 use Moose;
-extends 'Lacuna::DB::Result::Result';
+extends 'Lacuna::DB::Result';
 use DateTime;
 use Lacuna::Util qw(format_date);
 

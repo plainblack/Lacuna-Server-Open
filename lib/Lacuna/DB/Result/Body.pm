@@ -1,7 +1,7 @@
 package Lacuna::DB::Result::Body;
 
 use Moose;
-extends 'Lacuna::DB::Result::Result';
+extends 'Lacuna::DB::Result';
 use Lacuna::Util;
 
 __PACKAGE__->table('body');
