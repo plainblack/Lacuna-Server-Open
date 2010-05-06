@@ -1139,14 +1139,13 @@ sub surface_report {
     my $spy = random_spy($espionage->{intel}{spies});
     return undef unless defined $spy;
     my @map;
-    foreach my $buildings ($planet->buildings) {
-        while (my $building = $buildings->next) {
-            push @map, {
-                image   => $building->image_level,
-                x       => $building->x,
-                y       => $building->y,
-            };
-        }
+    my $buildings = $planet->buildings;
+    while (my $building = $buildings->next) {
+        push @map, {
+            image   => $building->image_level,
+            x       => $building->x,
+            y       => $building->y,
+        };
     }
     $spy->empire->send_predefined_message(
         tags        => ['Intelligence'],

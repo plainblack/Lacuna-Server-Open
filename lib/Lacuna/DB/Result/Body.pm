@@ -162,13 +162,7 @@ __PACKAGE__->typecast_map(class => {
 
 __PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Star', 'star_id');
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id', {join_type => 'left', cascade_delete => 0});
-__PACKAGE__->has_many('regular_buildings','Lacuna::DB::Result::Building','body_id');
-__PACKAGE__->has_many('food_buildings','Lacuna::DB::Result::Building::Food','body_id');
-__PACKAGE__->has_many('water_buildings','Lacuna::DB::Result::Building::Water','body_id');
-__PACKAGE__->has_many('waste_buildings','Lacuna::DB::Result::Building::Waste','body_id');
-__PACKAGE__->has_many('ore_buildings','Lacuna::DB::Result::Building::Ore', 'body_id');
-__PACKAGE__->has_many('energy_buildings','Lacuna::DB::Result::Building::Energy','body_id');
-__PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Result::Building::Permanent','body_id');
+__PACKAGE__->has_many('buildings','Lacuna::DB::Result::Building','body_id');
 
 
 with 'Lacuna::Role::Zoned';

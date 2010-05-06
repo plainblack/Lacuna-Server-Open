@@ -68,9 +68,9 @@ sub spend_freebie {
 
 sub sanitize {
     my ($self) = @_;
-    foreach my $type (qw(food regular water waste ore energy)) {
-        my $method = $type.'_buildings';
-        $self->$method->delete;
+    my $buildings = $self->buildings->search({class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%' } });
+    foreach my $building ($buildings->next) {
+        $building->delete;    
     }
     my @attributes = qw(    building_count happiness_hour happiness waste_hour waste_stored waste_capacity
         energy_hour energy_stored energy_capacity water_hour water_stored water_capacity ore_capacity
@@ -285,18 +285,8 @@ sub buildings {
 
 sub is_space_free {
     my ($self, $x, $y) = @_;
-    my $db = $self->simpledb;
-    foreach my $domain (qw(building energy water food waste ore permanent)) {
-        my $count = $db->domain($domain)->count(
-            where => {
-                body_id => $self->id,
-                x       => $x,
-                y       => $y,
-            },
-            consistent => 1, # prevents stacking attack
-        );
-        return 0 if $count > 0;
-    }
+    my $count = $self->buildings->search({x=>$y, y=>$y})->count;
+    return 0 if $count > 0;
     return 1;
 }
 
@@ -514,30 +504,29 @@ sub found_colony {
 sub recalc_stats {
     my ($self) = @_;
     my %stats = ( needs_recalc => 0 );
-    foreach my $buildings ($self->buildings) {
-        while (my $building = $buildings->next) {
-            $stats{waste_capacity} += $building->waste_capacity;
-            $stats{water_capacity} += $building->water_capacity;
-            $stats{energy_capacity} += $building->energy_capacity;
-            $stats{food_capacity} += $building->food_capacity;
-            $stats{ore_capacity} += $building->ore_capacity;
-            $stats{happiness_hour} += $building->happiness_hour;
-            $stats{waste_hour} += $building->waste_hour;               
-            $stats{energy_hour} += $building->energy_hour;
-            $stats{water_hour} += $building->water_hour;
-            $stats{ore_hour} += $building->ore_hour;
-            $stats{food_consumption_hour} += $building->food_consumption_hour;
-            foreach my $type (FOOD_TYPES) {
-                my $method = $type.'_production_hour';
+    my $buildings = $self->buildings;
+    while (my $building = $buildings->next) {
+        $stats{waste_capacity} += $building->waste_capacity;
+        $stats{water_capacity} += $building->water_capacity;
+        $stats{energy_capacity} += $building->energy_capacity;
+        $stats{food_capacity} += $building->food_capacity;
+        $stats{ore_capacity} += $building->ore_capacity;
+        $stats{happiness_hour} += $building->happiness_hour;
+        $stats{waste_hour} += $building->waste_hour;               
+        $stats{energy_hour} += $building->energy_hour;
+        $stats{water_hour} += $building->water_hour;
+        $stats{ore_hour} += $building->ore_hour;
+        $stats{food_consumption_hour} += $building->food_consumption_hour;
+        foreach my $type (FOOD_TYPES) {
+            my $method = $type.'_production_hour';
+            $stats{$method} += $building->$method();
+        }
+        if ($building->isa('Lacuna::DB::Result::Building::Ore::Ministry')) {
+            foreach my $type (ORE_TYPES) {
+                my $method = $type.'_hour';
                 $stats{$method} += $building->$method();
             }
-            if ($building->isa('Lacuna::DB::Result::Building::Ore::Ministry')) {
-                foreach my $type (ORE_TYPES) {
-                    my $method = $type.'_hour';
-                    $stats{$method} += $building->$method();
-                }
-            }
-         }
+        }
     }
     foreach my $type (ORE_TYPES) {
         my $method = $type.'_hour';

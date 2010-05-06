@@ -49,17 +49,16 @@ sub get_buildings {
     my $body = $empire->get_body($body_id);
     $body->tick;
     my %out;
-    foreach my $buildings ($body->buildings) {
-        while (my $building = $buildings->next) {
-            $out{$building->id} = {
-                url     => $building->controller_class->app_url,
-                image   => $building->image_level,
-                name    => $building->name,
-                x       => $building->x,
-                y       => $building->y,
-                level   => $building->level,
-            };
-        }
+    my $buildings = $body->buildings;
+    while (my $building = $buildings->next) {
+        $out{$building->id} = {
+            url     => $building->controller_class->app_url,
+            image   => $building->image_level,
+            name    => $building->name,
+            x       => $building->x,
+            y       => $building->y,
+            level   => $building->level,
+        };
     }
     
     return {buildings=>\%out, body=>{surface_image => $body->surface}, status=>$empire->get_status};
