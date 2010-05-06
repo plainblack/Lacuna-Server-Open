@@ -11,12 +11,12 @@ __PACKAGE__->table('empire');
 __PACKAGE__->add_columns(
     name                    => { data_type => 'char', size => 30, is_nullable => 0 },
     stage                   => { data_type => 'char', size => 30, is_nullable => 0, default_value => 'new' },
-    date_created            => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    date_created            => { data_type => 'datetime', is_nullable => 0 },
     description             => { data_type => 'text', is_nullable => 1 },
     home_planet_id          => { data_type => 'int', size => 11, is_nullable => 1 },
     status_message          => { data_type => 'char', size => 255 },
     password                => { data_type => 'char', size => 255 },
-    last_login              => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    last_login              => { data_type => 'datetime', is_nullable => 0 },
     species_id              => { data_type => 'int', size => 11, is_nullable => 0 },
     essentia                => { data_type => 'int', size => 11, default_value => 0 },
 #    points                  => { data_type => 'int', size => 11, default_value => 0 },
@@ -26,24 +26,24 @@ __PACKAGE__->add_columns(
     tutorial_stage          => { data_type => 'char', size => 30, is_nullable => 0, default_value => 'explore_the_ui' },
     tutorial_scratch        => { data_type => 'text', is_nullable => 1 },
     is_isolationist         => { data_type => 'int', size => 1, default_value => 1 },
-    food_boost              => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
-    water_boost             => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
-    ore_boost               => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
-    energy_boost            => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
-    happiness_boost         => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    food_boost              => { data_type => 'datetime', is_nullable => 0 },
+    water_boost             => { data_type => 'datetime', is_nullable => 0 },
+    ore_boost               => { data_type => 'datetime', is_nullable => 0 },
+    energy_boost            => { data_type => 'datetime', is_nullable => 0 },
+    happiness_boost         => { data_type => 'datetime', is_nullable => 0 },
 );
 
 # personal confederacies
 
-__PACKAGE__->belongs_to('species', 'Lacuna::DB::Result::Species', 'species_id');
-__PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Body::Planet', 'home_planet_id');
-__PACKAGE__->has_many('sessions', 'Lacuna::DB::Result::Session', 'empire_id');
-__PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Body::Planet', 'empire_id');
-__PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Result::Message', 'from_id');
-__PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id');
-__PACKAGE__->has_many('build_queues', 'Lacuna::DB::Result::BuildQueue', 'empire_id');
-__PACKAGE__->has_many('medals', 'Lacuna::DB::Result::Medals', 'empire_id');
-__PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
+#__PACKAGE__->belongs_to('species', 'Lacuna::DB::Result::Species', 'species_id');
+#__PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Body::Planet', 'home_planet_id');
+#__PACKAGE__->has_many('sessions', 'Lacuna::DB::Result::Session', 'empire_id');
+#__PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Body::Planet', 'empire_id');
+#__PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Result::Message', 'from_id');
+#__PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id');
+#__PACKAGE__->has_many('build_queues', 'Lacuna::DB::Result::BuildQueue', 'empire_id');
+#__PACKAGE__->has_many('medals', 'Lacuna::DB::Result::Medals', 'empire_id');
+#__PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
 
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $body_id) = @_;

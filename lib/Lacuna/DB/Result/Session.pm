@@ -7,11 +7,11 @@ use DateTime;
 __PACKAGE__->table('session');
 __PACKAGE__->add_columns(
     empire_id       => { isa => 'Str' },
-    date_created    => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
-    expires         => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    date_created    => { data_type => 'datetime', is_nullable => 0 },
+    expires         => { data_type => 'datetime', is_nullable => 0 },
 );
 
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+#__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 
 sub extend {
     my $self = shift;

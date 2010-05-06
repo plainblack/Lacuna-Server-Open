@@ -9,7 +9,7 @@ __PACKAGE__->table('news');
 __PACKAGE__->add_columns(
     headline                => { data_type => 'char', size => 140, is_nullable => 0 },
     zone                    => { data_type => 'char', size => 16, is_nullable => 0 },
-    date_posted             => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    date_posted             => { data_type => 'datetime', is_nullable => 0 },
 );
 
 sub date_posted_formatted {

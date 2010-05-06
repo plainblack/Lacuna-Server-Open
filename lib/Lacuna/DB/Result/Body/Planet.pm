@@ -13,7 +13,7 @@ __PACKAGE__->table('planet');
 __PACKAGE__->add_columns(
     size                            => { data_type => 'int', size => 11, default_value => 0 },
     empire_id                       => { data_type => 'int', size => 11, is_nullable => 1 },
-    last_tick                       => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    last_tick                       => { data_type => 'datetime', is_nullable => 0 },
     building_count                  => { data_type => 'int', size => 11, default_value => 0 },
     happiness_hour                  => { data_type => 'int', size => 11, default_value => 0 },
     happiness                       => { data_type => 'int', size => 11, default_value => 0 },
@@ -116,7 +116,7 @@ __PACKAGE__->add_columns(
     boost_enabled                   => { data_type => 'int', size => 1, default_value => 0 },
     needs_recalc                    => { data_type => 'int', size => 1, default_value => 0 },
     restrict_coverage               => { data_type => 'int', size => 1, default_value => 1 },  
-    restrict_coverage_delta         => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },  
+    restrict_coverage_delta         => { data_type => 'datetime', is_nullable => 0 },  
 );
 __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Body::Planet::P1' => 'Lacuna::DB::Result::Body::Planet::P1',
@@ -148,14 +148,14 @@ __PACKAGE__->typecast_map(class => {
 
 # RELATIONSHIPS
 
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
-__PACKAGE__->has_many('regular_buildings','Lacuna::DB::Result::Building','body_id');
-__PACKAGE__->has_many('food_buildings','Lacuna::DB::Result::Building::Food','body_id');
-__PACKAGE__->has_many('water_buildings','Lacuna::DB::Result::Building::Water','body_id');
-__PACKAGE__->has_many('waste_buildings','Lacuna::DB::Result::Building::Waste','body_id');
-__PACKAGE__->has_many('ore_buildings','Lacuna::DB::Result::Building::Ore', 'body_id');
-__PACKAGE__->has_many('energy_buildings','Lacuna::DB::Result::Building::Energy','body_id');
-__PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Result::Building::Permanent','body_id');
+#__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+#__PACKAGE__->has_many('regular_buildings','Lacuna::DB::Result::Building','body_id');
+#__PACKAGE__->has_many('food_buildings','Lacuna::DB::Result::Building::Food','body_id');
+#__PACKAGE__->has_many('water_buildings','Lacuna::DB::Result::Building::Water','body_id');
+#__PACKAGE__->has_many('waste_buildings','Lacuna::DB::Result::Building::Waste','body_id');
+#__PACKAGE__->has_many('ore_buildings','Lacuna::DB::Result::Building::Ore', 'body_id');
+#__PACKAGE__->has_many('energy_buildings','Lacuna::DB::Result::Building::Energy','body_id');
+#__PACKAGE__->has_many('permanent_buildings','Lacuna::DB::Result::Building::Permanent','body_id');
 
 sub builds { 
     my ($self, $where, $reverse) = @_;

@@ -10,7 +10,7 @@ __PACKAGE__->add_columns(
     in_reply_to     => { data_type => 'int', size => 11, is_nullable => 1 },
     subject         => { data_type => 'char', size => 30, is_nullable => 0 },
     body            => { data_type => 'mediumtext', is_nullable => 1 },
-    date_sent       => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    date_sent       => { data_type => 'datetime', is_nullable => 0 },
     from_id         => { data_type => 'int', size => 11, is_nullable => 0 },
     from_name       => { data_type => 'char', size => 30, is_nullable => 0 },
     to_id           => { data_type => 'int', size => 11, is_nullable => 1 },
@@ -23,9 +23,9 @@ __PACKAGE__->add_columns(
     attachments     => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
 );
 
-__PACKAGE__->belongs_to('original_message', 'Lacuna::DB::Result::Message', 'in_reply_to');
-__PACKAGE__->belongs_to('sender', 'Lacuna::DB::Result::Empire', 'from_id');
-__PACKAGE__->belongs_to('receiver', 'Lacuna::DB::Result::Empire', 'to_id');
+#__PACKAGE__->belongs_to('original_message', 'Lacuna::DB::Result::Message', 'in_reply_to');
+#__PACKAGE__->belongs_to('sender', 'Lacuna::DB::Result::Empire', 'from_id');
+#__PACKAGE__->belongs_to('receiver', 'Lacuna::DB::Result::Empire', 'to_id');
 
 sub date_sent_formatted {
     my ($self) = @_;

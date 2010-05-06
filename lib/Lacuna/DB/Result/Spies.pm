@@ -12,14 +12,14 @@ __PACKAGE__->add_columns(
     from_body_id            => { data_type => 'int', size => 11, is_nullable => 0 },
     on_body_id              => { data_type => 'int', size => 11, is_nullable => 0 },
     task                    => { data_type => 'char', size => 30, is_nullable => 0, default_value => 'Idle' },
-    available_on            => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    available_on            => { data_type => 'datetime', is_nullable => 0 },
     offense                 => { data_type => 'int', size => 11, default_value => 1 },
     defense                 => { data_type => 'int', size => 11, default_value => 1 },
 );
 
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
-__PACKAGE__->belongs_to('from_body', 'Lacuna::DB::Result::Body::Planet', 'from_body_id');
-__PACKAGE__->belongs_to('on_body', 'Lacuna::DB::Result::Body::Planet', 'on_body_id');
+#__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+#__PACKAGE__->belongs_to('from_body', 'Lacuna::DB::Result::Body::Planet', 'from_body_id');
+#__PACKAGE__->belongs_to('on_body', 'Lacuna::DB::Result::Body::Planet', 'on_body_id');
 
 sub format_available_on {
     my ($self) = @_;

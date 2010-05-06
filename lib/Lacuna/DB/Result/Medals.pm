@@ -10,10 +10,10 @@ __PACKAGE__->add_columns(
     type                    => { data_type => 'char', size => 30, is_nullable => 0 },
     empire_id               => { data_type => 'int', size => 11, is_nullable => 0 },
     public                  => { data_type => 'int', size => 1, default_value => 1 },
-    datestamp               => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    datestamp               => { data_type => 'datetime', is_nullable => 0 },
 );
 
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+#__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 
 sub format_datestamp {
     my ($self) = @_;

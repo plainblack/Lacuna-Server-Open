@@ -16,8 +16,8 @@ __PACKAGE__->add_columns(
 
 with 'Lacuna::Role::Zoned';
 
-__PACKAGE__->has_many('bodies', 'Lacuna::DB::Result::Body', 'star_id');
-__PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Body::Planet', 'star_id');
+#__PACKAGE__->has_many('bodies', 'Lacuna::DB::Result::Body', 'star_id');
+#__PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Body::Planet', 'star_id');
 
 
 sub get_status {

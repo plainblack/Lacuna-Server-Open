@@ -7,16 +7,16 @@ use Lacuna::Util qw(to_seconds format_date);
 
 __PACKAGE__->table('build_queue');
 __PACKAGE__->add_columns(
-    date_created        => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
-    date_complete       => { data_type => 'datetime', is_nullable => 0, default_value => DateTime->now },
+    date_created        => { data_type => 'datetime', is_nullable => 0 },
+    date_complete       => { data_type => 'datetime', is_nullable => 0 },
     empire_id           => { data_type => 'int', size => 11, is_nullable => 0 },
     building_class      => { data_type => 'char', size => 255, is_nullable => 0 },
     building_id         => { data_type => 'int', size => 11, is_nullable => 0 },
     body_id             => { data_type => 'int', size => 11, is_nullable => 0 },
 );
 
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
+#__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+#__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
 
 sub date_complete_formatted {
     my $self = shift;
