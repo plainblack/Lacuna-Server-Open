@@ -35,15 +35,15 @@ __PACKAGE__->add_columns(
 
 # personal confederacies
 
-#__PACKAGE__->belongs_to('species', 'Lacuna::DB::Result::Species', 'species_id');
-#__PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Body::Planet', 'home_planet_id');
-#__PACKAGE__->has_many('sessions', 'Lacuna::DB::Result::Session', 'empire_id');
-#__PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Body::Planet', 'empire_id');
-#__PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Result::Message', 'from_id');
-#__PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id');
-#__PACKAGE__->has_many('build_queues', 'Lacuna::DB::Result::BuildQueue', 'empire_id');
-#__PACKAGE__->has_many('medals', 'Lacuna::DB::Result::Medals', 'empire_id');
-#__PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
+__PACKAGE__->belongs_to('species', 'Lacuna::DB::Result::Species', 'species_id');
+__PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Body::Planet', 'home_planet_id');
+__PACKAGE__->has_many('sessions', 'Lacuna::DB::Result::Session', 'empire_id');
+__PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Body::Planet', 'empire_id');
+__PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Result::Message', 'from_id');
+__PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id');
+__PACKAGE__->has_many('build_queues', 'Lacuna::DB::Result::BuildQueue', 'empire_id');
+__PACKAGE__->has_many('medals', 'Lacuna::DB::Result::Medals', 'empire_id');
+__PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
 
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $body_id) = @_;

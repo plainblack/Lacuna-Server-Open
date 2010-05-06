@@ -18,9 +18,9 @@ __PACKAGE__->add_columns(
     foreign_star_id         => { data_type => 'int', size => 11, is_nullable => 1 },
 );
 
-#__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
-#__PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Result::Star', 'foreign_star_id');
-#__PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Result::Body', 'foreign_body_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
+__PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Result::Star', 'foreign_star_id');
+__PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Result::Body', 'foreign_body_id');
 
 
 sub date_arrives_formatted {

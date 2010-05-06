@@ -26,7 +26,7 @@ __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Body::Asteroid::A5' => 'Lacuna::DB::Result::Body::Asteroid::A5',
 });
 
-#__PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Star', 'star_id');
+__PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Star', 'star_id');
 
 
 with 'Lacuna::Role::Zoned';

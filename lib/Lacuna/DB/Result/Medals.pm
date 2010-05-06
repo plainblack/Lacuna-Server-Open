@@ -13,7 +13,7 @@ __PACKAGE__->add_columns(
     datestamp               => { data_type => 'datetime', is_nullable => 0 },
 );
 
-#__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 
 sub format_datestamp {
     my ($self) = @_;

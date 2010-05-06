@@ -15,8 +15,8 @@ __PACKAGE__->add_columns(
     body_id             => { data_type => 'int', size => 11, is_nullable => 0 },
 );
 
-#__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
-#__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
 
 sub date_complete_formatted {
     my $self = shift;

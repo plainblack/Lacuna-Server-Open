@@ -11,7 +11,7 @@ __PACKAGE__->add_columns(
     expires         => { data_type => 'datetime', is_nullable => 0 },
 );
 
-#__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 
 sub extend {
     my $self = shift;

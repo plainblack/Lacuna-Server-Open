@@ -20,9 +20,9 @@ __PACKAGE__->add_columns(
 
 sub body {};
 sub empire {};
-#__PACKAGE__->belongs_to('build_queue', 'Lacuna::DB::Result::BuildQueue', 'build_queue_id');
-#__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
-#__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
+__PACKAGE__->belongs_to('build_queue', 'Lacuna::DB::Result::BuildQueue', 'build_queue_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
 __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Building::Development' => 'Lacuna::DB::Result::Building::Development',
     'Lacuna::DB::Result::Building::Embassy' => 'Lacuna::DB::Result::Building::Embassy',

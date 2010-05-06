@@ -7,14 +7,14 @@ use DateTime;
 
 __PACKAGE__->table('party');
 __PACKAGE__->add_columns(
-    park_id             => { data_type => 'int', size => 11, is_nullable => 0 },
+    park_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
     body_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
     party_ends              => { data_type => 'datetime', is_nullable => 0 },
     happiness_from_party    => { isa => 'Int', default => 0 },
 );
 
 #__PACKAGE__->belongs_to('park', 'Lacuna::DB::Result::Building::Park', 'park_id');
-#__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body::Planet', 'body_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body::Planet', 'body_id');
 
 sub party_seconds_remaining {
     my ($self) = @_;
