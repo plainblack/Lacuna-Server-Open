@@ -9,7 +9,9 @@ useall __PACKAGE__;
 
 our $VERSION = 1.1001;
 
-our $config = Config::JSON->new('/data/Lacuna-Server/etc/lacuna.conf');
+my $config = Config::JSON->new('/data/Lacuna-Server/etc/lacuna.conf');
+my $db = Lacuna::DB->connect($config->get('db/dsn'),$config->get('db/username'));
+my $cache = Lacuna::Cache->new(servers => $config->get('memcached'));
 
 sub version {
     return $VERSION;
@@ -18,5 +20,14 @@ sub version {
 sub config {
     return $config;
 }
+
+sub db {
+    return $db;
+}
+
+sub cache {
+    return $cache;
+}
+
 
 1;

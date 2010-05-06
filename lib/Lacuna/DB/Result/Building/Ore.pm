@@ -5,13 +5,13 @@ extends 'Lacuna::DB::Result::Building';
 
 __PACKAGE__->table('ore');
 
-__PACKAGE__->typecast_map(class => {
-    'Lacuna::DB::Result::Building::Ore::Mine' => 'Lacuna::DB::Result::Building::Ore::Mine',
-    'Lacuna::DB::Result::Building::Ore::Ministry' => 'Lacuna::DB::Result::Building::Ore::Ministry',
-    'Lacuna::DB::Result::Building::Ore::Platform' => 'Lacuna::DB::Result::Building::Ore::Platform',
-    'Lacuna::DB::Result::Building::Ore::Refinery' => 'Lacuna::DB::Result::Building::Ore::Refinery',
-    'Lacuna::DB::Result::Building::Ore::Storage' => 'Lacuna::DB::Result::Building::Ore::Storage',
-});
+#__PACKAGE__->typecast_map(class => {
+#    'Lacuna::DB::Result::Building::Ore::Mine' => 'Lacuna::DB::Result::Building::Ore::Mine',
+#    'Lacuna::DB::Result::Building::Ore::Ministry' => 'Lacuna::DB::Result::Building::Ore::Ministry',
+#    'Lacuna::DB::Result::Building::Ore::Platform' => 'Lacuna::DB::Result::Building::Ore::Platform',
+#    'Lacuna::DB::Result::Building::Ore::Refinery' => 'Lacuna::DB::Result::Building::Ore::Refinery',
+#    'Lacuna::DB::Result::Building::Ore::Storage' => 'Lacuna::DB::Result::Building::Ore::Storage',
+#});
 
 
 around 'build_tags' => sub {

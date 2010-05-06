@@ -5,6 +5,7 @@ extends 'Lacuna::DB::Result';
 use Lacuna::Constants ':all';
 use List::Util qw(shuffle);
 
+__PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('building');
 __PACKAGE__->add_columns(
     date_created    => { data_type => 'datetime', is_nullable => 0 },
@@ -18,10 +19,10 @@ __PACKAGE__->add_columns(
     offline         => { data_type => 'datetime', is_nullable => 0 },
 );
 
-sub body {};
 sub empire {};
-__PACKAGE__->belongs_to('build_queue', 'Lacuna::DB::Result::BuildQueue', 'build_queue_id');
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+#sub body {};
+#__PACKAGE__->belongs_to('build_queue', 'Lacuna::DB::Result::BuildQueue', 'build_queue_id');
+#__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
 __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Building::Development' => 'Lacuna::DB::Result::Building::Development',

@@ -14,7 +14,7 @@ __PACKAGE__->add_columns(
 );
 
 #__PACKAGE__->belongs_to('park', 'Lacuna::DB::Result::Building::Park', 'park_id');
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body::Planet', 'body_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
 
 sub party_seconds_remaining {
     my ($self) = @_;

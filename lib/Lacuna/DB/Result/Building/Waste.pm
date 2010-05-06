@@ -5,11 +5,11 @@ extends 'Lacuna::DB::Result::Building';
 
 __PACKAGE__->table('waste');
 
-__PACKAGE__->typecast_map(class => {
-    'Lacuna::DB::Result::Building::Waste::Recycling' => 'Lacuna::DB::Result::Building::Waste::Recycling',
-    'Lacuna::DB::Result::Building::Waste::Sequestration' => 'Lacuna::DB::Result::Building::Waste::Sequestration',
-    'Lacuna::DB::Result::Building::Waste::Treatment' => 'Lacuna::DB::Result::Building::Waste::Treatment',
-});
+#__PACKAGE__->typecast_map(class => {
+#    'Lacuna::DB::Result::Building::Waste::Recycling' => 'Lacuna::DB::Result::Building::Waste::Recycling',
+#    'Lacuna::DB::Result::Building::Waste::Sequestration' => 'Lacuna::DB::Result::Building::Waste::Sequestration',
+#    'Lacuna::DB::Result::Building::Waste::Treatment' => 'Lacuna::DB::Result::Building::Waste::Treatment',
+#});
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;

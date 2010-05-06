@@ -14,7 +14,7 @@ __PACKAGE__->add_columns(
 );
 
 #__PACKAGE__->belongs_to('shipyard', 'Lacuna::DB::Result::Building::Shipyard', 'shipyard_id');
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body::Planet', 'body_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
 
 sub date_completed_formatted {
     my $self = shift;

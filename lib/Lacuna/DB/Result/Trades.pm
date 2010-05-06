@@ -66,7 +66,7 @@ __PACKAGE__->add_columns(
     magnetite               => { data_type => 'int', size => 11, default_value => 0 },
 );
 
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body::Planet', 'body_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
 
 sub add_trade {
     my ($class, %options) = @_;

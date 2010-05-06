@@ -3,6 +3,8 @@ package Lacuna::DB::Result::Building::Permanent;
 use Moose;
 extends 'Lacuna::DB::Result::Building';
 
+__PACKAGE__->load_components('DynamicSubclass');
+
 __PACKAGE__->table('permanent');
 
 __PACKAGE__->typecast_map(class => {

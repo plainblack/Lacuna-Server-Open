@@ -25,8 +25,8 @@ __PACKAGE__->add_columns(
     growth_affinity         => { data_type => 'int', size => 1, default_value => 4 }, # price and speed of colony ships, and planetary command center start level
 );
 
-__PACKAGE__->has_many('empires', 'Lacuna::DB::Result::Empire', 'species_id');
-__PACKAGE__->belongs_to('creator', 'Lacuna::DB::Result::Empire', 'empire_id');
+#__PACKAGE__->has_many('empires', 'Lacuna::DB::Result::Empire', 'species_id');
+#__PACKAGE__->belongs_to('creator', 'Lacuna::DB::Result::Empire', 'empire_id');
 
 
 no Moose;

@@ -3,7 +3,8 @@ package Lacuna::DB::Result;
 use Moose;
 extends qw/DBIx::Class/;
 
-__PACKAGE__->load_components('DynamicSubclass', 'InflateColumn::DateTime', 'InflateColumn::Serializer', 'Core');
+#__PACKAGE__->load_components('DynamicSubclass', 'InflateColumn::DateTime', 'InflateColumn::Serializer', 'Core');
+__PACKAGE__->load_components('InflateColumn::DateTime', 'InflateColumn::Serializer', 'Core');
 
 __PACKAGE__->table('noexist_basetable');
 __PACKAGE__->add_columns(
