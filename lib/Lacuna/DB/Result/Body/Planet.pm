@@ -263,26 +263,6 @@ has spaceport => (
     },
 );    
 
-sub buildings {
-    my $self = shift;
-    my $buildings = sub {
-        my $class = shift;
-        return Lacuna->db->resultset($class)->search(
-		where	=> { body_id => $self->id },
-		set	=> { body => $self, empire => $self->empire },
-	);
-    };
-    return (
-	$buildings->('Lacuna::DB::Result::Building'),
-        $buildings->('Lacuna::DB::Result::Building::Food'),
-        $buildings->('Lacuna::DB::Result::Building::Water'),
-        $buildings->('Lacuna::DB::Result::Building::Waste'),
-        $buildings->('Lacuna::DB::Result::Building::Ore'),
-        $buildings->('Lacuna::DB::Result::Building::Energy'),
-        $buildings->('Lacuna::DB::Result::Building::Permanent'),
-        );
-}
-
 sub is_space_free {
     my ($self, $x, $y) = @_;
     my $count = $self->buildings->search({x=>$y, y=>$y})->count;

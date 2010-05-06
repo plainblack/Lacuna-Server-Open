@@ -2,7 +2,6 @@ package Lacuna::DB::Result::Body;
 
 use Moose;
 extends 'Lacuna::DB::Result';
-use Lacuna::Util;
 
 __PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('body');

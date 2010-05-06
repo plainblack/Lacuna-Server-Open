@@ -2,7 +2,6 @@ package Lacuna::Body;
 
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
-use Lacuna::Util qw(in);
 use Lacuna::Verify;
 use Lacuna::Constants qw(BUILDABLE_CLASSES);
 use DateTime;

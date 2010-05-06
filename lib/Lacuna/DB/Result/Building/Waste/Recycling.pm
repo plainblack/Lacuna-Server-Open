@@ -4,13 +4,13 @@ use Moose;
 extends 'Lacuna::DB::Result::Building::Waste';
 use Lacuna::Util qw(to_seconds);
 
-__PACKAGE__->add_columns(
-    recycling_ends          => { data_type => 'datetime', is_nullable => 0 },
-    recycling_in_progress   => { isa => 'Str', default => 0 },
-    water_from_recycling    => { isa => 'Int', default => 0 },
-    energy_from_recycling   => { isa => 'Int', default => 0 },
-    ore_from_recycling      => { isa => 'Int', default => 0 },
-);
+#__PACKAGE__->add_columns(
+#    recycling_ends          => { data_type => 'datetime', is_nullable => 0 },
+#    recycling_in_progress   => { isa => 'Str', default => 0 },
+#    water_from_recycling    => { isa => 'Int', default => 0 },
+#    energy_from_recycling   => { isa => 'Int', default => 0 },
+#    ore_from_recycling      => { isa => 'Int', default => 0 },
+#);
 
 sub recycling_seconds_remaining {
     my ($self) = @_;

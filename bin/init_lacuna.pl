@@ -178,7 +178,7 @@ sub add_features {
         my $y = randint(-5,5);
         if ($chance <= 5) {
             say "\t\t\tAdding lake.";
-            $db->resultset('Lacuna::DB::Result::Building::Permanent')->new({
+            $db->resultset('Lacuna::DB::Result::Building')->new({
                 date_created    => $now,
                 level           => 1,
                 x               => $x,
@@ -189,7 +189,7 @@ sub add_features {
         }
         elsif ($chance > 45 && $chance <= 50) {
             say "\t\t\tAdding rocky outcropping.";
-            $db->resultset('Lacuna::DB::Result::Building::Permanent')->new({
+            $db->resultset('Lacuna::DB::Result::Building')->new({
                 date_created    => $now,
                 level           => 1,
                 x               => $x,
@@ -200,7 +200,7 @@ sub add_features {
         }
         elsif ($chance > 95) {
             say "\t\t\tAdding crater.";
-            $db->resultset('Lacuna::DB::Result::Building::Permanent')->new({
+            $db->resultset('Lacuna::DB::Result::Building')->new({
                 date_created    => $now,
                 level           => 1,
                 x               => $x,
