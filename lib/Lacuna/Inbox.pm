@@ -15,7 +15,7 @@ with 'Lacuna::Role::Sessionable';
 
 sub read_message {
     my ($self, $session_id, $message_id) = @_;
-    my $message = $self->simpledb->domain('message')->find($message_id);
+    my $message = Lacuna->db->resultset('message')->find($message_id);
     unless (defined $message) {
         confess [1002, 'Message does not exist.', $message_id];
     }
@@ -50,7 +50,7 @@ sub read_message {
 sub archive_messages {
     my ($self, $session_id, $message_ids) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $messages = $self->simpledb->domain('message');
+    my $messages = Lacuna->db->resultset('message');
     my @failure;
     my @success;
     foreach my $id (@{$message_ids}) {
@@ -84,7 +84,7 @@ sub send_message {
     my @to;
     foreach my $name (split /\s*,\s*/, $recipients) {
         next if $name eq '';
-        my $user = $self->simpledb->domain('empire')->search(where=>{name_cname => cname($name)})->next;
+        my $user = Lacuna->db->resultset('empire')->search(where=>{name_cname => cname($name)})->next;
         if (defined $user) {
             push @sent, $user->name;
             push @to, $user;
@@ -159,7 +159,7 @@ sub view_messages {
     if ($options->{tags}) {
         $where->{tags} = ['in',$options->{tags}];
     }
-    my $message_domain = $self->simpledb->domain('message');
+    my $message_domain = Lacuna->db->resultset('message');
     my $messages = $message_domain->search(
         where       => $where,
         order_by    => ['date_sent'],

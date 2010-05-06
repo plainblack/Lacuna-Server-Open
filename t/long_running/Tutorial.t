@@ -19,160 +19,92 @@ $home->name(rand(1000000));
 is($tutorial->finish, 1, 'look at ui');
 
 
-my $building = Lacuna::DB::Result::Building::Food::Farm::Malcud->new(
-    simpledb        => $db,
+my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => 1,
     class           => 'Lacuna::DB::Result::Building::Food::Farm::Malcud',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
-    level           => 0,
 );
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'get food');
 
 
-$building = Lacuna::DB::Result::Building::Water::Purification->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => 3,
     class           => 'Lacuna::DB::Result::Building::Water::Purification',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
-    level           => 0,
 );
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'drinking water');
 
 
-$building = Lacuna::DB::Result::Building::Energy::Geo->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => 2,
     class           => 'Lacuna::DB::Result::Building::Energy::Geo',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
-    level           => 0,
 );
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'keep the lights on');
 
 
-$building = Lacuna::DB::Result::Building::Ore::Mine->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => 4,
     class           => 'Lacuna::DB::Result::Building::Ore::Mine',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
-    level           => 0,
 );
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'mine');
 
 
-$building = Lacuna::DB::Result::Building::University->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => 5,
     class           => 'Lacuna::DB::Result::Building::University',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
-    level           => 0,
 );
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'university');
 
 
-$building = Lacuna::DB::Result::Building::Ore::Storage->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => -5,
     class           => 'Lacuna::DB::Result::Building::Ore::Storage',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
-    level           => 0,
 );
 $home->build_building($building);
 $building->finish_upgrade;
-$building = Lacuna::DB::Result::Building::Energy::Reserve->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => -4,
     class           => 'Lacuna::DB::Result::Building::Energy::Reserve',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
-    level           => 0,
 );
 $home->build_building($building);
 $building->finish_upgrade;
-$building = Lacuna::DB::Result::Building::Food::Reserve->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => -3,
     class           => 'Lacuna::DB::Result::Building::Food::Reserve',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
-    level           => 0,
 );
 $home->build_building($building);
 $building->finish_upgrade;
-$building = Lacuna::DB::Result::Building::Water::Storage->new(
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     simpledb        => $db,
     x               => 0,
     y               => -2,
     class           => 'Lacuna::DB::Result::Building::Water::Storage',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
-    level           => 0,
 );
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'storage');
 
 
-$building = Lacuna::DB::Result::Building::Food::Farm::Wheat->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => -1,
     class           => 'Lacuna::DB::Result::Building::Food::Farm::Wheat',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
     level           => 2,
 );
 $home->build_building($building);
@@ -189,16 +121,10 @@ $home->tick;
 is($tutorial->finish, 1, 'essentia');
 
 
-$building = Lacuna::DB::Result::Building::Energy::Geo->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 1,
     y               => -5,
     class           => 'Lacuna::DB::Result::Building::Energy::Geo',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
     level           => 3,
 );
 $home->build_building($building);

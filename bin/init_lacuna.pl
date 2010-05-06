@@ -8,7 +8,6 @@ use DateTime;
 
 my $config = Lacuna->config;
 my $db = Lacuna->db;
-my $lacunans;
 my $lacunans_have_been_placed = 0;
 
 
@@ -24,7 +23,7 @@ sub create_database {
 
 sub create_species {
     say "Adding Lacunans.";
-    $lacunans = $db->resultset('Lacuna::DB::Result::Species')->new({
+    $db->resultset('Lacuna::DB::Result::Species')->new({
         id                      => 1,
         name                    => 'Lacunan',
         description             => 'The economic dieties that control the Lacuna Expanse.',
@@ -41,8 +40,7 @@ sub create_species {
         political_affinity      => 7, # happiness
         trade_affinity          => 7, # speed of cargoships, and amount of cargo hauled
         growth_affinity         => 7, # price and speed of colony ships, and planetary command center start level
-    });
-    $lacunans->insert;
+    })->insert;
     say "Adding humans.";
     $db->resultset('Lacuna::DB::Result::Species')->new({
         id                      => 2,
@@ -141,7 +139,6 @@ sub add_bodies {
                 star_id             => $star->id,
                 zone                => $star->zone,
                 usable_as_starter   => 0,
-                empire_id           => 0,
             };
             my $body;
             if ($type eq 'habitable') {
@@ -161,7 +158,7 @@ sub add_bodies {
             $body->insert;
             if ($body->isa('Lacuna::DB::Result::Body::Planet') && !$body->isa('Lacuna::DB::Result::Body::Planet::GasGiant')) {
                 if ($star->name eq 'Lacuna' && !$lacunans_have_been_placed) {
-                  #  create_lacunan_home_world($body);
+                    create_lacunan_home_world($body);
                     next;
                 }
                 else {
@@ -220,12 +217,15 @@ sub create_lacunan_home_world {
     my $body = shift;
     $body->update({name=>'Lacuna'});
     say "\t\t\tMaking this the Lacunans home world.";
-    my $empire = Lacuna::DB::Result::Empire->create(
-        $db,
-        {name=>'Lacuna Expanse Corp', password=>rand(9999999)},
-        'lacuna_expanse_corp'
-        );
-    $empire->update({species_id => $lacunans->id});
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new({
+        id                  => 1,
+        name                => 'Lacuna Expanse Corp',
+        date_created        => DateTime->now,
+        species_id          => 1,
+        status_message      => 'Will trade for Essentia.',
+        password            => Lacuna::DB::Result::Empire->encrypt_password(rand(99999999)),
+    });
+    $empire->insert;
     $empire->found($body);
     $lacunans_have_been_placed = 1;    
 }

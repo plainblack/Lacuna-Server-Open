@@ -4,6 +4,7 @@ use Moose;
 extends 'Lacuna::DB::Result';
 use Lacuna::Constants ':all';
 use List::Util qw(shuffle);
+use Lacuna::Util qw(format_date to_seconds);
 
 __PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('building');
@@ -15,13 +16,13 @@ __PACKAGE__->add_columns(
     y               => { data_type => 'int', size => 11, default_value => 0 },
     level           => { data_type => 'int', size => 11, default_value => 0 },
     class           => { data_type => 'char', size => 255, is_nullable => 0 },
-    build_queue_id  => { data_type => 'int', size => 11, is_nullable => 0 },
     offline         => { data_type => 'datetime', is_nullable => 0 },
+    upgrade_started => { data_type => 'datetime', is_nullable => 0 },
+    upgrade_ends    => { data_type => 'datetime', is_nullable => 0 },
+    is_upgrading    => { data_type => 'int', size => 1, default => 0 },
 );
 
 sub empire {};
-#sub body {};
-#__PACKAGE__->belongs_to('build_queue', 'Lacuna::DB::Result::BuildQueue', 'build_queue_id');
 #__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
 __PACKAGE__->typecast_map(class => {
@@ -45,6 +46,53 @@ __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Building::Trade' => 'Lacuna::DB::Result::Building::Trade',
     'Lacuna::DB::Result::Building::Transporter' => 'Lacuna::DB::Result::Building::Transporter',
     'Lacuna::DB::Result::Building::University' => 'Lacuna::DB::Result::Building::University',
+    'Lacuna::DB::Result::Building::Water::Production' => 'Lacuna::DB::Result::Building::Water::Production',
+    'Lacuna::DB::Result::Building::Water::Purification' => 'Lacuna::DB::Result::Building::Water::Purification',
+    'Lacuna::DB::Result::Building::Water::Reclamation' => 'Lacuna::DB::Result::Building::Water::Reclamation',
+    'Lacuna::DB::Result::Building::Water::Storage' => 'Lacuna::DB::Result::Building::Water::Storage',
+    'Lacuna::DB::Result::Building::Waste::Recycling' => 'Lacuna::DB::Result::Building::Waste::Recycling',
+    'Lacuna::DB::Result::Building::Waste::Sequestration' => 'Lacuna::DB::Result::Building::Waste::Sequestration',
+    'Lacuna::DB::Result::Building::Waste::Treatment' => 'Lacuna::DB::Result::Building::Waste::Treatment',
+    'Lacuna::DB::Result::Building::Permanent::Crater' => 'Lacuna::DB::Result::Building::Permanent::Crater',
+    'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform' => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform',
+    'Lacuna::DB::Result::Building::Permanent::Lake' => 'Lacuna::DB::Result::Building::Permanent::Lake',
+    'Lacuna::DB::Result::Building::Permanent::RockyOutcrop' => 'Lacuna::DB::Result::Building::Permanent::RockyOutcrop',
+    'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform' => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',
+    'Lacuna::DB::Result::Building::Ore::Mine' => 'Lacuna::DB::Result::Building::Ore::Mine',
+    'Lacuna::DB::Result::Building::Ore::Ministry' => 'Lacuna::DB::Result::Building::Ore::Ministry',
+    'Lacuna::DB::Result::Building::Ore::Platform' => 'Lacuna::DB::Result::Building::Ore::Platform',
+    'Lacuna::DB::Result::Building::Ore::Refinery' => 'Lacuna::DB::Result::Building::Ore::Refinery',
+    'Lacuna::DB::Result::Building::Ore::Storage' => 'Lacuna::DB::Result::Building::Ore::Storage',
+    'Lacuna::DB::Result::Building::Food::Reserve' => 'Lacuna::DB::Result::Building::Food::Reserve',
+    'Lacuna::DB::Result::Building::Food::Factory::Bread' => 'Lacuna::DB::Result::Building::Food::Factory::Bread',
+    'Lacuna::DB::Result::Building::Food::Factory::Burger' => 'Lacuna::DB::Result::Building::Food::Factory::Burger',
+    'Lacuna::DB::Result::Building::Food::Factory::Cheese' => 'Lacuna::DB::Result::Building::Food::Factory::Cheese',
+    'Lacuna::DB::Result::Building::Food::Factory::Chip' => 'Lacuna::DB::Result::Building::Food::Factory::Chip',
+    'Lacuna::DB::Result::Building::Food::Factory::Cider' => 'Lacuna::DB::Result::Building::Food::Factory::Cider',
+    'Lacuna::DB::Result::Building::Food::Factory::CornMeal' => 'Lacuna::DB::Result::Building::Food::Factory::CornMeal',
+    'Lacuna::DB::Result::Building::Food::Factory::Pancake' => 'Lacuna::DB::Result::Building::Food::Factory::Pancake',
+    'Lacuna::DB::Result::Building::Food::Factory::Pie' => 'Lacuna::DB::Result::Building::Food::Factory::Pie',
+    'Lacuna::DB::Result::Building::Food::Factory::Shake' => 'Lacuna::DB::Result::Building::Food::Factory::Shake',
+    'Lacuna::DB::Result::Building::Food::Factory::Soup' => 'Lacuna::DB::Result::Building::Food::Factory::Soup',
+    'Lacuna::DB::Result::Building::Food::Factory::Syrup' => 'Lacuna::DB::Result::Building::Food::Factory::Syrup',
+    'Lacuna::DB::Result::Building::Food::Farm::Algae' => 'Lacuna::DB::Result::Building::Food::Farm::Algae',
+    'Lacuna::DB::Result::Building::Food::Farm::Apple' => 'Lacuna::DB::Result::Building::Food::Farm::Apple',
+    'Lacuna::DB::Result::Building::Food::Farm::Beeldeban' => 'Lacuna::DB::Result::Building::Food::Farm::Beeldeban',
+    'Lacuna::DB::Result::Building::Food::Farm::Bean' => 'Lacuna::DB::Result::Building::Food::Farm::Bean',
+    'Lacuna::DB::Result::Building::Food::Farm::Corn' => 'Lacuna::DB::Result::Building::Food::Farm::Corn',
+    'Lacuna::DB::Result::Building::Food::Farm::Dairy' => 'Lacuna::DB::Result::Building::Food::Farm::Dairy',
+    'Lacuna::DB::Result::Building::Food::Farm::Lapis' => 'Lacuna::DB::Result::Building::Food::Farm::Lapis',
+    'Lacuna::DB::Result::Building::Food::Farm::Malcud' => 'Lacuna::DB::Result::Building::Food::Farm::Malcud',
+    'Lacuna::DB::Result::Building::Food::Farm::Potato' => 'Lacuna::DB::Result::Building::Food::Farm::Potato',
+    'Lacuna::DB::Result::Building::Food::Farm::Root' => 'Lacuna::DB::Result::Building::Food::Farm::Root',
+    'Lacuna::DB::Result::Building::Food::Farm::Wheat' => 'Lacuna::DB::Result::Building::Food::Farm::Wheat',
+    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Fission',
+    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Fusion',
+    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Geo',
+    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Hydrocarbon',
+    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Reserve',
+    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Singularity',
+    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Waste',
 });
 
 sub controller_class {
@@ -505,6 +553,22 @@ sub check_build_prereqs {
 
 # UPGRADES
 
+sub upgrade_status {
+    my ($self) = @_;
+    my $now = DateTime->now;
+    my $complete = $self->upgrade_ends;
+    if ($self->is_upgrading) {
+        return undef;
+    }
+    else {
+        return {
+            seconds_remaining   => to_seconds($complete - $now),
+            start               => format_date($self->upgrade_started),
+            end                 => format_date($self->upgrade_ends),
+        };
+    }
+}
+
 sub has_met_upgrade_prereqs {
     my ($self) = @_;
     if (ref $self ne 'Lacuna::DB::Result::Building::University' && $self->level >= $self->empire->university_level + 1) {
@@ -515,8 +579,7 @@ sub has_met_upgrade_prereqs {
 
 sub has_no_pending_build {
     my ($self) = @_;
-    my $queue = $self->build_queue if ($self->build_queue_id);
-    if (defined $queue && $queue->seconds_remaining > 0) {
+    if ($self->is_upgrading) {
         confess [1010, "You must complete the pending build first."];
     }
     return 1;
@@ -595,12 +658,12 @@ sub stats_after_upgrade {
 
 sub lock_upgrade {
     my ($self, $x, $y) = @_;
-    return $self->simpledb->cache->set('upgrade_contention_lock', $self->id,{locked=>$self->level + 1}, 30); # lock it
+    return Lacuna->cache->set('upgrade_contention_lock', $self->id,{locked=>$self->level + 1}, 30); # lock it
 }
 
 sub is_upgrade_locked {
     my ($self, $x, $y) = @_;
-    return eval{$self->simpledb->cache->get('upgrade_contention_lock', $self->id)->{locked}};
+    return eval{Lacuna->cache->get('upgrade_contention_lock', $self->id)->{locked}};
 }
 
 sub start_upgrade {
@@ -612,16 +675,11 @@ sub start_upgrade {
     my $time_to_build = $body->get_existing_build_queue_time->add(seconds=>$cost->{time});
     
     # add to queue
-    my $queue = $self->simpledb->domain('build_queue')->insert({
-        date_created        => DateTime->now,
-        date_complete       => $time_to_build,
-        building_id         => $self->id,
-        empire_id           => $self->empire->id,
-        building_class      => $self->class,
-        body_id             => $self->body_id,
+    $self->update({
+        is_upgrading    => 1,
+        upgrade_started => DateTime->now,
+        upgrade_ends    => $time_to_build,
     });
-    $self->build_queue_id($queue->id);
-    $self->put;
     
     # clear cache
     $body->clear_last_in_build_queue;
@@ -631,9 +689,7 @@ sub start_upgrade {
 
 sub finish_upgrade {
     my ($self) = @_;
-    $self->build_queue->delete;
     my $body = $self->body;    
-    $self->build_queue_id('');
     $self->level($self->level + 1);
     $self->put;
     $body->clear_last_in_build_queue;

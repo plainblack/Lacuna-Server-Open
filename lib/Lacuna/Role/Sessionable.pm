@@ -4,8 +4,6 @@ use Moose::Role;
 use DateTime;
 use Lacuna::Util qw(format_date);
 
-requires 'simpledb';
-
 sub is_session_valid {
     my ($self, $session_id) = @_;
     my $session = eval{$self->get_session($session_id)};
@@ -18,7 +16,7 @@ sub get_session {
         return $session_id;
     }
     else {
-        my $session = $self->simpledb->domain('session')->find($session_id);
+        my $session = Lacuna->db->resultset('Lacuna::DB::Result::Session')->find($session_id);
         if (!defined $session) {
             confess [1006, 'Session not found.', $session_id];
         }

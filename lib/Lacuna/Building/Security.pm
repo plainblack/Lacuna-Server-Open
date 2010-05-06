@@ -23,8 +23,8 @@ sub view_prisoners {
         where       => { on_body_id => $building->body_id, task => 'Captured', available_on => ['>=', DateTime->now->subtract(months=>1)] },
         order_by    => 'available_on',
     );
-    my $count = $self->simpledb->domain('spies')->count(%options);
-    my $spy_list = $self->simpledb->domain('spies')->search(%options)->paginate(25, $page_number);
+    my $count = Lacuna->db->resultset('spies')->count(%options);
+    my $spy_list = Lacuna->db->resultset('spies')->search(%options)->paginate(25, $page_number);
     while (my $spy = $spy_list->next) {
         my $available_on = $spy->format_available_on;
         push @spies, {

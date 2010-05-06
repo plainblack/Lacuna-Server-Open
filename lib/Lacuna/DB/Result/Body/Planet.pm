@@ -10,19 +10,15 @@ no warnings 'uninitialized';
 
 sub builds { 
     my ($self, $where, $reverse) = @_;
-    my $order = 'date_complete';
+    my $order = '-asc';
     if ($reverse) {
         $order = [$order];
     }
     $where->{body_id} = $self->id;
-    $where->{date_complete} = ['>',DateTime->now->subtract(years=>100)] unless exists $where->{date_complete};
-    return $self->simpledb->domain('Lacuna::DB::Result::BuildQueue')->search(
-        where       => $where,
-        order_by    => $order,
-        consistent  => 1,
-        set         => {
-            body  => $self,
-        },
+    $where->{is_upgrading} = 1;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
+        $where,
+        { $order => 'upgrade_ends' }
     );
 }
 
@@ -34,7 +30,7 @@ sub ships_travelling {
     }
     $where->{body_id} = $self->id;
     $where->{date_arrives} = ['>',DateTime->now->subtract(years=>100)] unless exists $where->{date_arrives};
-    return $self->simpledb->domain('Lacuna::DB::Result::TravelQueue')->search(
+    return Lacuna->db->resultset('Lacuna::DB::Result::TravelQueue')->search(
         where       => $where,
         order_by    => $order,
         consistent  => 1,
@@ -90,7 +86,7 @@ sub sanitize {
         algae_stored syrup_stored fungus_stored burger_stored shake_stored beetle_stored bean_production_hour bean_stored
     );
     $self->ships_travelling->delete;
-    $self->simpledb->domain('travel_queue')->search(where=>{foreign_body_id => $self->id})->delete;
+    Lacuna->db->resultset('travel_queue')->search(where=>{foreign_body_id => $self->id})->delete;
     foreach my $attribute (@attributes) {
         $self->$attribute(0);
     }
@@ -191,7 +187,7 @@ use constant water => 0;
 
 sub get_buildings_of_class {
     my ($self, $class) = @_;
-    return $self->simpledb->domain($class)->search(
+    return Lacuna->db->resultset($class)->search(
         where       => {
             body_id => $self->id,
             class   => $class,
@@ -207,7 +203,7 @@ sub get_buildings_of_class {
 
 sub get_building_of_class {
     my ($self, $class) = @_;
-    return $self->simpledb->domain($class)->search(
+    return Lacuna->db->resultset($class)->search(
         where       => {
             body_id => $self->id,
             class   => $class,
@@ -271,7 +267,7 @@ sub buildings {
     my $self = shift;
     my $buildings = sub {
         my $class = shift;
-        return $self->simpledb->domain($class)->search(
+        return Lacuna->db->resultset($class)->search(
 		where	=> { body_id => $self->id },
 		set	=> { body => $self, empire => $self->empire },
 	);
@@ -339,7 +335,7 @@ sub can_build_building {
 sub has_room_in_build_queue {
     my ($self) = shift;
     my $max = 1;
-    my $dev_ministry = $self->simpledb->domain('Lacuna::DB::Result::Building::Development')->search(
+    my $dev_ministry = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
         where   => {
             body_id => $self->id,
             class   => 'Lacuna::DB::Result::Building::Development',
@@ -348,7 +344,7 @@ sub has_room_in_build_queue {
     if (defined $dev_ministry) {
         $max += $dev_ministry->level;
     }
-    my $count = $self->simpledb->domain('build_queue')->count(where=>{body_id=>$self->id});
+    my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({body_id=>$self->id})->count;
     if ($count >= $max) {
         confess [1009, "There's no room left in the build queue.", $max];
     }
@@ -373,10 +369,10 @@ has future_operating_resources => (
         # adjust for what's already in build queue
         my $queued_builds = $self->builds;
         while (my $build = $queued_builds->next) {
-            my $building = $build->building;
-            my $other = $building->stats_after_upgrade;
+            $build->body($self);
+            my $other = $build->stats_after_upgrade;
             foreach my $method ($self->operating_resource_names) {
-                $future{$method} += $other->{$method} - $building->$method;
+                $future{$method} += $other->{$method} - $build->$method;
             }
         }
         return \%future;
@@ -420,7 +416,7 @@ sub has_resources_to_build {
 sub has_max_instances_of_building {
     my ($self, $building) = @_;
     return 0 if $building->max_instances_per_planet == 9999999;
-    my $count = $self->simpledb->domain($building->class)->count(where=>{body_id=>$self->id, class=>$building->class});
+    my $count = Lacuna->db->resultset($building->class)->count(where=>{body_id=>$self->id, class=>$building->class});
     if ($count >= $building->max_instances_per_planet) {
         confess [1009, sprintf("You are only allowed %s of these buildings per planet.",$building->max_instances_per_planet), [$building->max_instances_per_planet, $count]];
     }
@@ -432,7 +428,9 @@ has last_in_build_queue => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->builds(undef, 1)->next;
+        my $building = $self->builds(undef, 1)->next;
+        $building->body($self);
+        return $building;
     }
 );
 
@@ -448,47 +446,41 @@ sub get_existing_build_queue_time {
 
 sub lock_plot {
     my ($self, $x, $y) = @_;
-    return $self->simpledb->cache->set('plot_contention_lock', $self->id.'|'.$x.'|'.$y,{locked=>1}, 30); # lock it
+    return Lacuna->cache->set('plot_contention_lock', $self->id.'|'.$x.'|'.$y,{locked=>1}, 30); # lock it
 }
 
 sub is_plot_locked {
     my ($self, $x, $y) = @_;
-    return eval{$self->simpledb->cache->get('plot_contention_lock', $self->id.'|'.$x.'|'.$y)->{locked}};
+    return eval{Lacuna->cache->get('plot_contention_lock', $self->id.'|'.$x.'|'.$y)->{locked}};
 }
 
 sub build_building {
     my ($self, $building) = @_;
     
     $self->building_count($self->building_count + 1);
-    $self->put;
-    
+    $self->update;
+
+    $building->date_created(DateTime->now);
+    $building->body_id($self->id);
+    $building->body($self);
+    $building->empire_id($self->empire_id);
+    $building->empire($self->empire);
+    $building->upgrade_started(DateTime->now);
+    $building->is_ugrading(1);
+    $building->level(0) unless $building->level;
+
     # set time to build, plus what's in the queue
     my $time_to_build = $self->get_existing_build_queue_time->add(seconds=>$building->time_to_build);
-    
-    # add to build queue
-    my $queue = $self->simpledb->domain('build_queue')->insert({
-        date_created        => DateTime->now,
-        date_complete       => $time_to_build,
-        building_id         => $building->id,
-        empire_id           => $self->empire_id,
-        building_class      => $building->class,
-        body_id             => $self->id,
-    });
-
-    # add building placeholder to planet
-    $building->build_queue_id($queue->id);
-    $building->put;
-
-    $self->empire->trigger_full_update;
+    $building->upgrade_ends($time_to_build);    
 }
 
 sub found_colony {
     my ($self, $empire) = @_;
     $self->empire_id($empire->id);
     $self->empire($empire);
-    $self->usable_as_starter('No');
+    $self->usable_as_starter(0);
     $self->last_tick(DateTime->now);
-    $self->put;    
+    $self->update;    
 
     # award medal
     my $type = ref $self;
@@ -496,16 +488,10 @@ sub found_colony {
     $empire->add_medal($type);
 
     # add command building
-    my $command = Lacuna::DB::Result::Building::PlanetaryCommand->new(
-        simpledb        => $self->simpledb,
+    my $command = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
         x               => 0,
         y               => 0,
         class           => 'Lacuna::DB::Result::Building::PlanetaryCommand',
-        date_created    => DateTime->now,
-        body_id         => $self->id,
-        body            => $self,
-        empire_id       => $empire->id,
-        empire          => $empire,
         level           => $empire->species->growth_affinity - 1,
     );
     $self->build_building($command);
@@ -599,8 +585,8 @@ sub add_news {
 sub tick {
     my ($self) = @_;
     my $now = DateTime->now;
-    my $builds = $self->builds({date_complete => ['<=', $now]});
-    my $ships_travelling = $self->ships_travelling({date_arrives => ['<=', $now]});
+    my $builds = $self->builds({upgrade_ends => {'<=', $now}});
+    my $ships_travelling = $self->ships_travelling({date_arrives => {'<=', $now}});
     my $ship = $ships_travelling->next;
     my $build = $builds->next;
     
@@ -609,7 +595,8 @@ sub tick {
         if (defined $ship && defined $build ) {
             if ( $ship->date_arrives > $build->date_complete ) {
                 $self->tick_to($build->date_complete);
-                $build->finish_build;
+                $build->body($self);
+                $build->finish_upgrade;
                 $build = $builds->next;
             }
             else {
@@ -620,7 +607,8 @@ sub tick {
         }
         elsif (defined $build) {
             $self->tick_to($build->date_complete);
-            $build->finish_build;
+            $build->body($self);
+            $build->finish_upgrade;
             $build = $builds->next;
         }
         elsif (defined $ship) {

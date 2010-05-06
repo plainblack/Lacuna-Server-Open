@@ -17,15 +17,15 @@ sub find_star {
     my ($self, $target) = @_;
     my $star;
     if (exists $target->{star_id}) {
-        $star = $self->simpledb->domain('star')->find($target->{star_id});
+        $star = Lacuna->db->resultset('star')->find($target->{star_id});
     }
     elsif (exists $target->{star_name}) {
-        $star = $self->simpledb->domain('star')->search(
+        $star = Lacuna->db->resultset('star')->search(
             where   => { name_cname => cname($target->{star_name}) },
         )->next;
     }
     elsif (exists $target->{x}) {
-        $star = $self->simpledb->domain('star')->search(
+        $star = Lacuna->db->resultset('star')->search(
             where   => { x => $target->{x}, y => $target->{y}, z => $target->{z} },
         )->next;
     }
@@ -39,15 +39,15 @@ sub find_body {
     my ($self, $target) = @_;
     my $target_body;
     if (exists $target->{body_id}) {
-        $target_body = $self->simpledb->domain('body')->find($target->{body_id});
+        $target_body = Lacuna->db->resultset('body')->find($target->{body_id});
     }
     elsif (exists $target->{body_name}) {
-        $target_body = $self->simpledb->domain('body')->search(
+        $target_body = Lacuna->db->resultset('body')->search(
             where   => { name_cname => cname($target->{body_name}) },
         )->next;
     }
     elsif (exists $target->{x}) {
-        $target_body = $self->simpledb->domain('body')->search(
+        $target_body = Lacuna->db->resultset('body')->search(
             where   => { x => $target->{x}, y => $target->{y}, z => $target->{z}, orbit => $target->{orbit} },
         )->next;
     }
@@ -64,8 +64,8 @@ sub send_probe {
     my $star = $self->find_star($target);
 
     # check the observatory probe count
-    my $count = $self->simpledb->domain('probes')->count(where => { body_id => $body->id });
-    $count += $self->simpledb->domain('travel_queue')->count(where => { body_id => $body->id, ship_type=>'probe' });
+    my $count = Lacuna->db->resultset('probes')->count(where => { body_id => $body->id });
+    $count += Lacuna->db->resultset('travel_queue')->count(where => { body_id => $body->id, ship_type=>'probe' });
     my $observatory_level = $body->get_buildings_of_class('Lacuna::DB::Result::Building::Observatory')->next->level;
     if ($count >= $observatory_level * 3) {
         confess [ 1009, 'You are already controlling the maximum amount of probes for your Observatory level.'];
@@ -96,7 +96,7 @@ sub send_spy_pod {
     
     # get a spy
     my $spy;
-    my $spies = $self->simpledb->domain('spies')->search(
+    my $spies = Lacuna->db->resultset('spies')->search(
         where       => {task => ['in','Idle','Training'], on_body_id=>$body->id, empire_id=>$empire->id},
         consistent  => 1,
         );
@@ -199,7 +199,7 @@ sub view_ships_travelling {
     $page_number ||= 1;
     my $body = $building->body;
     $body->tick;
-    my $count = $self->simpledb->domain('Lacuna::DB::Result::TravelQueue')->count(where=>{body_id=>$body->id});
+    my $count = Lacuna->db->resultset('Lacuna::DB::Result::TravelQueue')->count(where=>{body_id=>$body->id});
     my @travelling;
     my $ships = $body->ships_travelling->paginate(25, $page_number);
     while (my $ship = $ships->next) {

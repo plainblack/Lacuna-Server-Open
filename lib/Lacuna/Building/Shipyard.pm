@@ -22,9 +22,9 @@ sub view_build_queue {
     $spaceport->check_for_completed_ships;
     $spaceport->save_changed_ports;
     $page_number ||= 1;
-    my $count = $self->simpledb->domain('Lacuna::DB::Result::ShipBuilds')->count(where=>{shipyard_id=>$building->id});
+    my $count = Lacuna->db->resultset('Lacuna::DB::Result::ShipBuilds')->count(where=>{shipyard_id=>$building->id});
     my @building;
-    my $ships = $self->simpledb->domain('Lacuna::DB::Result::ShipBuilds')->search(
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::ShipBuilds')->search(
         where       => { shipyard_id => $building->id, date_completed => ['>', DateTime->now ] },
         order_by    => ['date_completed'],
         )->paginate(25, $page_number);

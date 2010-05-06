@@ -50,7 +50,7 @@ has spy_count => (
     lazy        => 1,
     default     => sub {
         my $self = shift;
-        return $self->simpledb->domain('spies')->count(where=>{from_body_id => $self->body_id});
+        return Lacuna->db->resultset('spies')->count(where=>{from_body_id => $self->body_id});
     },
 );
 
@@ -88,7 +88,7 @@ sub get_spies {
     if ($options{consistent}) {
         $params{consistent} = 1;
     }
-    return $self->simpledb->domain('spies')->search(%params);
+    return Lacuna->db->resultset('spies')->search(%params);
 }
 
 has espionage_level => (
@@ -148,7 +148,7 @@ sub train_spy {
         my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
         $available_on->add(seconds => $time_to_train );
         my $deception = $self->empire->species->deception_affinity;
-        $self->simpledb->domain('spies')->insert({
+        Lacuna->db->resultset('spies')->insert({
             from_body_id    => $self->body_id,
             on_body_id      => $self->body_id,
             task            => 'Training',
@@ -175,7 +175,7 @@ sub train_spy {
 
 before delete => sub {
     my ($self) = @_;
-    $self->simpledb->domain('spies')->search(where=>{from_body_id=>$self->body_id})->delete;
+    Lacuna->db->resultset('spies')->search(where=>{from_body_id=>$self->body_id})->delete;
 };
 
 

@@ -22,7 +22,7 @@ sub view_news {
     foreach (1..(($building->level + 1) / 2)) {
         push @zones, shift @all;
     }
-    my $news = $self->simpledb->domain('news')->search(
+    my $news = Lacuna->db->resultset('news')->search(
         where   => {
             zone        => ['in',@zones],
             date_posted => [ '>=', DateTime->now->subtract(hours=>24)],

@@ -117,13 +117,13 @@ has other_ports => (
     lazy => 1,
     default => sub {
         my $self = shift;
-        return $self->simpledb->domain($self->class)->search( where => { class => $self->class, body_id => $self->body_id, 'itemName()' => ['!=', $self->id ] } )->to_array_ref;
+        return Lacuna->db->resultset($self->class)->search( where => { class => $self->class, body_id => $self->body_id, 'itemName()' => ['!=', $self->id ] } )->to_array_ref;
     },
 );
 
 sub check_for_completed_ships {
     my $self = shift;
-    my $ships = $self->simpledb->domain('ship_builds')->search( where => { body_id => $self->body_id, date_completed => ['<=', DateTime->now ]} );
+    my $ships = Lacuna->db->resultset('ship_builds')->search( where => { body_id => $self->body_id, date_completed => ['<=', DateTime->now ]} );
     my %ports;
     while (my $ship = $ships->next) {
         my $port = $self->add_ship($ship->type);

@@ -119,9 +119,8 @@ sub view {
         },
         status      => $empire->get_status,
     );
-    my $queue = $building->build_queue if ($building->build_queue_id);
-    if (defined $queue) {
-        $out{building}{pending_build} = $queue->get_status;
+    if (defined $building->is_upgrading) {
+        $out{building}{pending_build} = $building->upgrade_status;
     }
     return \%out;
 }
@@ -143,8 +142,7 @@ sub build {
     $body->tick;
 
     # create dummy building
-    my $building = $self->model_class->new(
-        simpledb        => $self->simpledb,
+    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
         x               => $x,
         y               => $y,
         level           => 0,
@@ -152,7 +150,6 @@ sub build {
         body            => $body,
         empire_id       => $empire->id,
         empire          => $empire,
-        date_created    => DateTime->now,
         class           => $self->model_class,
     );
 

@@ -18,7 +18,7 @@ sub is_name_available {
         ->not_empty
         ->no_restricted_chars
         ->no_profanity
-        ->ok( !$self->simpledb->domain('species')->count(where=>{name_cname=>cname($name)}, consistent=>1) );
+        ->ok( !Lacuna->db->resultset('species')->count(where=>{name_cname=>cname($name)}, consistent=>1) );
     return 1;
 }
 
@@ -74,7 +74,7 @@ sub create {
     $me->{name} =~ s{^\s+(.*)\s+$}{$1}xms; # remove extra white space
     $self->is_name_available($me->{name});
 
-    my $species = $self->simpledb->domain('species')->insert({ # specify each attribute to avaid data injection
+    my $species = Lacuna->db->resultset('species')->insert({ # specify each attribute to avaid data injection
         empire_id               => $empire_id,
         name                    => $me->{name},
         description             => $me->{description},
@@ -130,7 +130,7 @@ sub validate_empire {
     unless ($empire_id ne '') {
         confess [1002, "You must specify an empire id."];
     }
-    my $empire = $self->simpledb->domain('empire')->find($empire_id);
+    my $empire = Lacuna->db->resultset('empire')->find($empire_id);
     unless (defined $empire) {
         confess [1002, "Not a valid empire.",'empire_id'];
     }
@@ -141,7 +141,7 @@ sub validate_empire {
     }
 
     # deal with previously created species
-    my $old_species = $self->simpledb->domain('species')->search(where=>{empire_id=>$empire->id}, consistent=>1)->delete;
+    my $old_species = Lacuna->db->resultset('species')->search(where=>{empire_id=>$empire->id}, consistent=>1)->delete;
     
     return $empire;
 }

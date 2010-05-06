@@ -13,16 +13,10 @@ my $db = $tester->db;
 
 my $result;
 
-my $uni = Lacuna::DB::Result::Building::University->new(
-    simpledb        => $tester->db,
+my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => -1,
     class           => 'Lacuna::DB::Result::Building::University',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
     level           => 5,
 );
 $home->build_building($uni);

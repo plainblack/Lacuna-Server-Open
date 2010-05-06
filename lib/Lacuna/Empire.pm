@@ -3,14 +3,7 @@ package Lacuna::Empire;
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
 use Lacuna::Util qw(cname format_date);
-use Lacuna::Map;
-use Lacuna::Verify;
 use DateTime;
-
-has simpledb => (
-    is      => 'ro',
-    required=> 1,
-);
 
 with 'Lacuna::Role::Sessionable';
 
@@ -21,7 +14,7 @@ sub find {
         confess [1009, 'Empire name too short. Your search must be at least 3 characters.'];
     }
     my $empire = $self->get_empire_by_session($session_id);
-    my $empires = $self->simpledb->domain('empire')->search(where=>{name_cname => ['like', '%'.cname($name).'%']}, limit=>100);
+    my $empires = Lacuna->db->resultset('empire')->search(where=>{name_cname => ['like', '%'.cname($name).'%']}, limit=>100);
     my @list_of_empires;
     my $limit = 100;
     while (my $empire = $empires->next) {
@@ -43,7 +36,7 @@ sub is_name_available {
         ->not_empty
         ->no_restricted_chars
         ->no_profanity
-        ->ok( !$self->simpledb->domain('empire')->count(where=>{name_cname=>cname($name)}, consistent=>1) );
+        ->ok( !Lacuna->db->resultset('empire')->count(where=>{name_cname=>cname($name)}, consistent=>1) );
     return 1; 
 }
 
@@ -55,7 +48,7 @@ sub logout {
 
 sub login {
     my ($self, $name, $password) = @_;
-    my $empire = $self->simpledb->domain('empire')->search(where=>{name_cname=>cname($name)})->next;
+    my $empire = Lacuna->db->resultset('empire')->search(where=>{name_cname=>cname($name)})->next;
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
     }
@@ -76,7 +69,15 @@ sub create {
 
     $self->is_name_available($account{name});
 
-    my $empire = Lacuna::DB::Result::Empire->create($self->simpledb, \%account);
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new({
+        name                => $account{name},
+        date_created        => DateTime->now,
+        species_id          => 2,
+        status_message      => 'Making Lacuna a better Expanse.',
+        password            => Lacuna::DB::Result::Empire->encrypt_password($account{password}),
+
+    });
+    $empire->insert;
     return $empire->id;
 }
 
@@ -86,7 +87,7 @@ sub found {
     if ($empire_id eq '') {
         confess [1002, "You must specify an empire id."];
     }
-    my $empire = $self->simpledb->domain('empire')->find($empire_id);
+    my $empire = Lacuna->db->resultset('empire')->find($empire_id);
     unless (defined $empire) {
         confess [1002, "Invalid empire.", $empire_id];
     }
@@ -181,11 +182,11 @@ sub set_status_message {
 sub view_public_profile {
     my ($self, $session_id, $empire_id) = @_;
     my $viewer_empire = $self->get_empire_by_session($session_id);
-    my $viewed_empire = $self->simpledb->domain('empire')->find($empire_id);
+    my $viewed_empire = Lacuna->db->resultset('empire')->find($empire_id);
     unless (defined $viewed_empire) {
         confess [1002, 'The empire you wish to view does not exist.', $empire_id];
     }
-    my $medals = $self->simpledb->domain('medals')->search( where => { empire_id => $viewed_empire->id, public => 1 } );
+    my $medals = Lacuna->db->resultset('medals')->search( where => { empire_id => $viewed_empire->id, public => 1 } );
     my %public_medals;
     while (my $medal = $medals->next) {
         $public_medals{$medal->id} = {
@@ -201,7 +202,7 @@ sub view_public_profile {
         status_message  => $viewed_empire->status_message,
         species         => $viewed_empire->species->name,
         date_founded    => format_date($viewed_empire->date_created),
-        planet_count    => $self->simpledb->domain('Lacuna::DB::Result::Body::Planet')->count(where=>{empire_id=>$viewed_empire->id}),
+        planet_count    => Lacuna->db->resultset('Lacuna::DB::Result::Body')->count(where=>{empire_id=>$viewed_empire->id}),
         medals          => \%public_medals,
     );
     return { profile => \%out, status => $viewer_empire->get_status };

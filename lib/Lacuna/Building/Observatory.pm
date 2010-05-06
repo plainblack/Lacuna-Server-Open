@@ -15,7 +15,7 @@ sub abandon_probe {
     my ($self, $session_id, $building_id, $star_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
-    my $star = $self->simpledb->domain('star')->find($star_id);
+    my $star = Lacuna->db->resultset('star')->find($star_id);
     unless (defined $star) {
         confess [ 1002, 'Star does not exist.', $star_id];
     }
@@ -25,7 +25,7 @@ sub abandon_probe {
             confess [ 1010, "You can't remove a probe from a system you inhabit.", $body->id ];
         }
     }
-    $self->simpledb->domain('probes')->search( where => {
+    Lacuna->db->resultset('probes')->search( where => {
         empire_id   => $empire->id,
         star_id     => $star->id,
     })->delete;
@@ -39,7 +39,7 @@ sub get_probed_stars {
     my $building = $empire->get_building($self->model_class, $building_id);
     my @stars;
     $page_number ||= 1;
-    my $probes = $self->simpledb->domain('probes')->search( where => { empire_id => $empire->id })->paginate(25, $page_number);
+    my $probes = Lacuna->db->resultset('probes')->search( where => { empire_id => $empire->id })->paginate(25, $page_number);
     while (my $probe = $probes->next) {
         push @stars, $probe->star->get_status($empire);
     }

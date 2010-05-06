@@ -16,7 +16,7 @@ with 'Lacuna::Role::Sessionable';
 
 sub get_body {
     my ($self, $session_id, $body_id) = @_;
-    my $body = $self->simpledb->domain('body')->find($body_id);
+    my $body = Lacuna->db->resultset('body')->find($body_id);
     unless (defined $body) {
         confess [1002, 'Body does not exist.', $body_id];
     }
@@ -34,7 +34,7 @@ sub rename {
         ->length_lt(31)
         ->no_restricted_chars
         ->no_profanity
-        ->not_ok($self->simpledb->domain('body')->count(where => {name_cname=>Lacuna::Util::cname($name), 'itemName()'=>['!=',$body_id]}, consistent=>1)); # name available
+        ->not_ok(Lacuna->db->resultset('body')->count(where => {name_cname=>Lacuna::Util::cname($name), 'itemName()'=>['!=',$body_id]}, consistent=>1)); # name available
     
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $empire->get_body($body_id);
@@ -69,13 +69,13 @@ sub get_build_queue {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $empire->get_body($body_id);
-    my $builds = $body->builds;
     my %queue;
     $body->tick;
+    my $builds = $body->builds;
     while (my $build = $builds->next) {
-        my $status = $build->get_status;
+        my $status = $build->upgrade_status;
         if ($status) {
-            $queue{$build->building_id} = $status;
+            $queue{$build->id} = $status;
         }
     }
     return { build_queue => \%queue, status => $empire->get_status };

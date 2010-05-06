@@ -2,23 +2,23 @@ package Lacuna::DB::Result::Building::Development;
 
 use Moose;
 extends 'Lacuna::DB::Result::Building';
+use Lacuna::Util qw(to_seconds);
 
 sub subsidize_build_queue {
     my ($self) = @_;
     $self->body->tick;
-    my $builds = $self->simpledb->domain('build_queue')->search(where=>{body_id=>$self->body_id});
+    my $builds = $self->body->builds;
     while (my $build = $builds->next) {
-        $build->finish_build;
+        $build->finish_upgrade;
     }
 }
-
 
 sub calculate_subsidy {
     my ($self) = @_;
     my $levels = 0;
-    my $builds = $self->simpledb->domain('build_queue')->search(where=>{body_id=>$self->body_id});
+    my $builds = $self->body->builds;
     while (my $build = $builds->next) {
-        $levels += $build->building->level + 1;
+        $levels += $build->level + 1;
     }
     my $cost = int($levels / 3);
     $cost = 1 if $cost < 1;
@@ -30,14 +30,13 @@ sub format_build_queue {
     my @queue;
     my $builds = $self->body->builds;
     while (my $build = $builds->next) {
-        my $target = $build->building;
         push @queue, {
-            building_id         => $target->id,
-            name                => $target->name,
-            to_level            => ($target->level + 1),
-            seconds_remaining   => $build->seconds_remaining,
-            x                   => $target->x,
-            y                   => $target->y,
+            building_id         => $build->id,
+            name                => $build->name,
+            to_level            => ($build->level + 1),
+            seconds_remaining   => to_seconds($build->upgrade_ends - $build->upgrade_started),
+            x                   => $build->x,
+            y                   => $build->y,
         };
     }
     return \@queue;

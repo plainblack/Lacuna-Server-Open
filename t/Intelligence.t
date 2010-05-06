@@ -15,16 +15,10 @@ my $home = $empire->home_planet;
 my $result;
 
 
-my $uni = Lacuna::DB::Result::Building::University->new(
-    simpledb        => $tester->db,
+my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => -1,
     class           => 'Lacuna::DB::Result::Building::University',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
     level           => 2,
 );
 $home->build_building($uni);
@@ -71,34 +65,24 @@ is($result->{result}{spies}[0]{name}, 'Waldo', "spy naming works");
 $result = $tester->post('intelligence', 'burn_spy', [$session_id, $intelligence->id, $spy_id]);
 ok(exists$result->{result}, "burn a spy");
 
-my $shipyard = Lacuna::DB::Result::Building::Shipyard->new(
-    simpledb        => $tester->db,
+my $shipyard = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 1,
     y               => 1,
     class           => 'Lacuna::DB::Result::Building::Shipyard',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
     level           => 5,
 );
 $home->build_building($shipyard);
 $shipyard->finish_upgrade;
 
-my $spaceport = Lacuna::DB::Result::Building::SpacePort->new(
-    simpledb        => $tester->db,
+my $spaceport = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 1,
     y               => 2,
     class           => 'Lacuna::DB::Result::Building::SpacePort',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
     level           => 5,
-    spy_pod_count   => 5,
 );
+
+######## NEED TO GIVE MYSELF 5 SPY PODS once the new ship system is in
+
 $home->build_building($spaceport);
 $spaceport->finish_upgrade;
 

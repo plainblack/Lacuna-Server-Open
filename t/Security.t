@@ -15,31 +15,20 @@ my $home = $empire->home_planet;
 my $result;
 
 
-my $uni = Lacuna::DB::Result::Building::University->new(
-    simpledb        => $tester->db,
+my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => -1,
     class           => 'Lacuna::DB::Result::Building::University',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
     level           => 2,
 );
 $home->build_building($uni);
 $uni->finish_upgrade;
 
-my $intelligence = Lacuna::DB::Result::Building::Intelligence->new(
+my $intelligence = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     simpledb        => $tester->db,
     x               => 0,
     y               => -2,
     class           => 'Lacuna::DB::Result::Building::Intelligence',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
     level           => 1,
 );
 $home->build_building($intelligence);

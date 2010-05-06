@@ -53,7 +53,7 @@ sub assign_spy {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
     $building->is_offline;
-    my $spy = $self->simpledb->domain('spies')->find($spy_id);
+    my $spy = Lacuna->db->resultset('spies')->find($spy_id);
     unless (defined $spy) {
         confess [1002, 'No such spy.'];
     }
@@ -71,7 +71,7 @@ sub burn_spy {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
     $building->is_offline;
-    my $spy = $self->simpledb->domain('spies')->find($spy_id);
+    my $spy = Lacuna->db->resultset('spies')->find($spy_id);
     unless (defined $spy) {
         confess [1002, 'No such spy.'];
     }
@@ -159,7 +159,7 @@ sub name_spy {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
     $building->is_offline;
-    my $spy = $self->simpledb->domain('spies')->find($spy_id);
+    my $spy = Lacuna->db->resultset('spies')->find($spy_id);
     unless (defined $spy) {
         confess [1002, 'No such spy.'];
     }

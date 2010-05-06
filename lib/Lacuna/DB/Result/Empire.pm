@@ -41,13 +41,12 @@ __PACKAGE__->has_many('sessions', 'Lacuna::DB::Result::Session', 'empire_id');
 __PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Body', 'empire_id');
 __PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Result::Message', 'from_id');
 __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id');
-__PACKAGE__->has_many('build_queues', 'Lacuna::DB::Result::BuildQueue', 'empire_id');
 __PACKAGE__->has_many('medals', 'Lacuna::DB::Result::Medals', 'empire_id');
 __PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
 
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $body_id) = @_;
-    my $body = $self->simpledb->domain('body')->find($body_id);
+    my $body = Lacuna->db->resultset('body')->find($body_id);
     unless (defined $body) {
         confess [1002, 'Body does not exist.', $body_id];
     }
@@ -67,7 +66,7 @@ sub get_building { # makes for uniform error handling, and prevents staleness
         return $building_id;
     }
     else {
-        my $building = $self->simpledb->domain($moniker)->find($building_id);
+        my $building = Lacuna->db->resultset($moniker)->find($building_id);
         unless (defined $building) {
             confess [1002, 'Building does not exist.', $building_id];
         }
@@ -83,18 +82,18 @@ sub get_building { # makes for uniform error handling, and prevents staleness
 
 sub has_medal {
     my ($self, $type) = @_;
-    return $self->simpledb->domain('medals')->count(where=>{empire_id => $self->id, type => $type});
+    return Lacuna->db->resultset('medals')->search({empire_id => $self->id, type => $type})->count;
 }
 
 sub add_medal {
     my ($self, $type) = @_;
     unless ($self->has_medal($type)) {
-        my $medal = $self->simpledb->domain('medals')->insert({
+        my $medal = Lacuna->db->resultset('Lacuna::DB::Result::Medals')->new({
             datestamp   => DateTime->now,
             public      => 1,
             empire_id   => $self->id,
             type        => $type,
-        });
+        })->insert;
         my $name = $medal->name;
         $self->send_predefined_message(
             tags        => ['Medal'],
@@ -119,7 +118,11 @@ sub add_essentia {
 
 sub get_new_message_count {
     my $self = shift;
-    return $self->simpledb->domain('message')->count(where => { to_id=>$self->id, has_archived => ['!=', 1], has_read => ['!=', 1]});
+    return Lacuna->db->resultset('Lacuna::DB:Result::Message')->search({
+        to_id           => $self->id,
+        has_archived    => {'!=' => 1},
+        has_read        => {'!=' => 1}
+    })->count;
 }
 
 sub get_status {
@@ -172,19 +175,18 @@ sub get_full_status {
         },
     };
     $self->needs_full_update(0);
-    $self->put;
+    $self->update;
     return $status;
 }
 
 sub start_session {
     my $self = shift;
-    my $session = $self->simpledb->domain('session')->insert({
+    my $session = Lacuna->db->resultset('Lacuna::DB::Result::Session')->new({
         empire_id       => $self->id,
         date_created    => DateTime->now,
         expires         => DateTime->now->add(hours=>2), 
-    });
-    $self->last_login(DateTime->now);
-    $self->put;
+    })->insert;
+    $self->update({last_login => DateTime->now});
     return $session;
 }
 
@@ -198,36 +200,20 @@ sub encrypt_password {
     return Digest::SHA::sha256_base64($password);
 }
 
-sub create {
-    my ($class, $simpledb, $account, $empire_id) = @_;
-    my %options;
-    if ($empire_id) {
-        $options{id} = $empire_id;
-    }
-    return $simpledb->domain('empire')->insert({
-        name                => $account->{name},
-        date_created        => DateTime->now,
-        species_id          => 'human_species',
-        status_message      => 'Making Lacuna a better Expanse.',
-        password            => $class->encrypt_password($account->{password}),
-    }, %options);
-}
-
 sub found {
     my ($self, $home_planet) = @_;
 
     # lock empire
-    $self->stage('finding home planet');
-    $self->put;
+    $self->update({stage=>'finding home planet'});
 
     # found home planet
     $home_planet ||= $self->find_home_planet;
     $self->home_planet_id($home_planet->id);
-    $self->home_planet($home_planet);
-    $self->add_probe($home_planet->star_id, $home_planet->id);
     $self->add_essentia(100); # REMOVE BEFORE LAUNCH
     $self->stage('founded');
-    $self->put;
+    $self->update;
+    $self->home_planet($home_planet);
+    $self->add_probe($home_planet->star_id, $home_planet->id);
 
     # found colony
     $home_planet->found_colony($self);
@@ -240,36 +226,35 @@ sub found {
 
 sub find_home_planet {
     my ($self) = @_;
-    my $planets = $self->simpledb->domain('Lacuna::DB::Result::Body::Planet');
+    my $planets = Lacuna->db->resultset('Lacuna::DB::Result::Body');
     
     # define sub searches
     my $min_inhabited = sub {
         my $axis = shift;
-        return $planets->min($axis, where=>{empire_id=>['!=','None']});
+        return $planets->search({empire_id => { '>' => 0 } })->get_column($axis)->min;
     };
     my $max_inhabited = sub {
         my $axis = shift;
-        return $planets->max($axis, where=>{empire_id=>['!=','None']});
+        return $planets->search({empire_id => { '>' => 0 } })->get_column($axis)->max;
     };
 
     # search
-    my $possible_planets = $planets->search(
-        where       => {
-            usable_as_starter   => ['!=', 'No'],
-            orbit               => ['in',@{$self->species->habitable_orbits}],
-#            zone                => '0|0|0',
-            x                   => ['between', ($min_inhabited->('x') - 1), ($max_inhabited->('x') + 1)],
-            y                   => ['between', ($min_inhabited->('y') - 1), ($max_inhabited->('y') + 1)],
-            z                   => ['between', ($min_inhabited->('z') - 1), ($max_inhabited->('z') + 1)],
+    my $possible_planets = $planets->search({
+            usable_as_starter   => {'>', 0},
+            orbit               => { between => [ $self->species->min_orbit, $self->species->max_orbit] },
+            x                   => { between => [($min_inhabited->('x') - 1), ($max_inhabited->('x') + 1)] },
+            y                   => { between => [($min_inhabited->('y') - 1), ($max_inhabited->('y') + 1)] },
+            z                   => { between => [($min_inhabited->('z') - 1), ($max_inhabited->('z') + 1)] },
         },
-        order_by    => 'usable_as_starter',
-        limit       => 10,
-#        consistent  => 1,
+        {
+            order_by    => 'usable_as_starter',
+            rows        => 10,
+        },
     );
 
     # find an uncontested planet in the possible planets
     my $home_planet;
-    my $cache = $self->simpledb->cache;
+    my $cache = Lacuna->cache;
     while (my $planet = $possible_planets->next) {
         unless ($planet->is_locked) {
             $planet->lock;
@@ -281,8 +266,7 @@ sub find_home_planet {
     # didn't find one
     unless (defined $home_planet) {
         # unlock
-        $self->stage('new');
-        $self->put;
+        $self->update({stage => 'new'});
         confess [1002, 'Could not find a home planet. Try again in a few moments.'];
     }
     
@@ -293,8 +277,32 @@ sub send_message {
     my ($self, %params) = @_;
     $params{simpledb} = $self->simpledb;
     $params{from}   = $params{from} || $self;
-    $params{to}     = $self;
-    Lacuna::DB::Result::Message->send(%params);
+
+    my $recipients = $params{recipients};
+    unless (ref $recipients eq 'ARRAY' && @{$recipients}) {
+        push @{$recipients}, $self->name;
+    }
+    my $message = Lacuna->db->resultset('Lacuna::DB::Result::Message')->new({
+        simpledb    => $params{simpledb},
+        date_sent   => DateTime->now,
+        subject     => $params{subject},
+        body        => $params{body},
+        tags        => $params{tags},
+        from_id     => $params{from}->id,
+        from_name   => $params{from}->name,
+        to_id       => $self->id,
+        to_name     => $self->name,
+        recipients  => $recipients,
+        in_reply_to => $params{in_reply_to},
+        attachments => $params{attachments},
+    })->insert;
+    if (exists $params{in_reply_to} && defined $params{in_reply_to} && $params{in_reply_to} ne '') {
+        my $original =  Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($params{in_reply_to});
+        if (defined $original && !$original->has_replied) {
+            $original->update({has_replied=>1});
+        }
+    }
+    return $self;
 }
 
 sub send_predefined_message {
@@ -337,29 +345,28 @@ sub send_predefined_message {
 
 sub lacuna_expanse_corp {
     my $self = shift;
-    return $self->simpledb->domain('empire')->find('lacuna_expanse_corp');
+    return Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find(1);
 }
 
 sub add_probe {
     my ($self, $star_id, $body_id) = @_;
 
     # add probe
-    $self->simpledb->domain('probes')->insert({
+    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->new({
         empire_id   => $self->id,
         star_id     => $star_id,
         body_id     => $body_id,
-    });
+    })->insert;
     
     # no longer an isolationist
     if ($self->is_isolationist && $star_id ne $self->home_planet->star_id) {
-        $self->is_isolationist(0);
-        $self->put;
+        $self->update({is_isolationist=>0});
     }
     
     # send notifications
     # this could be a performance problem in the future depending upon the number of probes in a star system
-    my $star_name = $self->simpledb->domain('star')->find($star_id)->name;
-    my $probes = $self->simpledb->domain('probes')->search(where => { star_id => $star_id, empire_id => ['!=', $self->id ] });
+    my $star_name = Lacuna->db->resultset('Lacuna::DB::Result::Star')->find($star_id)->name;
+    my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({ star_id => $star_id, empire_id => {'!=', $self->id } });
     while (my $probe = $probes->next) {
         my $that_empire = $probe->empire;
         next unless defined $that_empire;
@@ -413,7 +420,7 @@ has body_ids => (
     lazy        => 1,
     default     => sub {
         my $self = shift;
-        return $self->simpledb->domain('Lacuna::DB::Result::Body::Planet')->fetch_ids(where=>{empire_id=>$self->id});
+        return Lacuna->db->resultset('Lacuna::DB::Result::Body')->search({empire_id=>$self->id})->get_column('id')->all;
     },
 );
 
@@ -437,7 +444,7 @@ has count_probed_stars => (
     lazy        => 1,
     default     => sub {    
         my $self = shift;
-        return $self->simpledb->domain('probes')->count(where=>{empire_id=>$self->id},consistent=>1);
+        return Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({empire_id=>$self->id})->count;
     },
 );
 
@@ -446,15 +453,14 @@ before 'delete' => sub {
     my $db = $self->simpledb;
     $self->sent_messages->delete;
     $self->received_messages->delete;
-    $self->build_queues->delete;
     $self->medals->delete;
     $self->probes->delete;
     my $planets = $self->planets;
     while ( my $planet = $planets->next ) {
         $planet->sanitize;
     }
-    if ($self->species_id ne 'human_species') {
-        $self->species->delete if defined $self->species;
+    if ($self->species_id != 2) {
+        $self->species->delete;
     }
     $self->sessions->delete;
 };
@@ -463,7 +469,7 @@ sub trigger_full_update {
     my ($self, %options) = @_;
     unless ($self->needs_full_update) {
         $self->needs_full_update(1);
-        $self->put unless $options{skip_put};
+        $self->update unless $options{skip_put};
     }
     return $self;
 }

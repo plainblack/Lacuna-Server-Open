@@ -129,7 +129,7 @@ sub can_build_ship {
         }
     }
     my $prereq = ship_prereqs->{$type};
-    my $count = $self->simpledb->domain($prereq)->count( where => { body_id => $self->body_id, class => $prereq, level => ['>=', 1] } );
+    my $count = Lacuna->db->resultset($prereq)->count( where => { body_id => $self->body_id, class => $prereq, level => ['>=', 1] } );
     unless ($count) {
         confess [1013, q{You don't have the prerequisites to build this ship.}, $prereq];
     }
@@ -141,7 +141,7 @@ sub build_ship {
     my ($self, $type, $quantity, $time) = @_;
     $quantity ||= 1;
     $time ||= $self->get_ship_costs($type)->{seconds};
-    my $builds = $self->simpledb->domain('ship_builds');
+    my $builds = Lacuna->db->resultset('ship_builds');
     my $latest = $builds->search(
         where       => { shipyard_id => $self->id, date_completed => ['>=', DateTime->now->subtract(days=>1)]},
         limit       => 1,
@@ -167,7 +167,7 @@ sub build_ship {
 
 before delete => sub {
     my ($self) = @_;
-    $self->simpledb->domain('ship_builds')->search(where=>{shipyard_id=>$self->id})->delete;
+    Lacuna->db->resultset('ship_builds')->search(where=>{shipyard_id=>$self->id})->delete;
 };
 
 use constant controller_class => 'Lacuna::Building::Shipyard';

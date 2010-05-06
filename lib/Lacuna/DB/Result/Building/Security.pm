@@ -45,7 +45,7 @@ use constant happiness_consumption => 10;
 after finish_upgrade => sub {
     my $self = shift;
     my $defense = $self->level + $self->empire->species->deception_affinity;
-    $self->simpledb->domain('spies')->search(where => {from_body_id => $self->body_id})->update({defense=>$defense});
+    Lacuna->db->resultset('spies')->search(where => {from_body_id => $self->body_id})->update({defense=>$defense});
 };
 
 no Moose;

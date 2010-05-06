@@ -156,7 +156,7 @@ sub recalc_ore_production {
     my $production_capacity;
     foreach my $id (@{$self->asteroid_ids}) {
         unless (exists $asteroids{$id}) {
-            my $asteroid                    = $self->simpledb->domain('Lacuna::DB::Result::Body::Asteroid')->find($id);
+            my $asteroid                    = Lacuna->db->resultset('Lacuna::DB::Result::Body::Asteroid')->find($id);
             my $round_trip_time             =  $self->calculate_seconds_from_body_to_body('cargo_ship', $asteroid, $self->body) * 2;
             my $trips_per_hour              = (3600 / $round_trip_time );
             my $max_cargo_hauled_per_hour   = $trips_per_hour * $cargo_space_per_platform;

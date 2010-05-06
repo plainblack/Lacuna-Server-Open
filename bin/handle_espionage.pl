@@ -29,7 +29,7 @@ my $config = Lacuna->config;
 our $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key => $config->get('secret_key'), cache_servers => $config->get('memcached')); 
 
 out('Processing planets');
-my $planets = $db->domain('Lacuna::DB::Result::Body::Planet')->search(
+my $planets = $db->domain('Lacuna::DB::Result::Body')->search(
     where   => {
         empire_id   => ['!=', 'None'],
     }
@@ -643,10 +643,9 @@ sub destroy_upgrades {
     my $builds = $planet->builds({},1);
     my $got;
     for (1..$quantity) {
-        my $build = $builds->next;
-        last unless defined $build;
-        my $building = $build->building;
+        my $building = $builds->next;
         last unless defined $building;
+        $building->body($planet);
         $espionage->{police}{score} += 20;
         $planet->empire->send_predefined_message(
             tags        => ['Alert'],
@@ -662,10 +661,13 @@ sub destroy_upgrades {
             );
         }
         $planet->add_news(90,'%s was rocked today when the %s exploded, sending people scrambling for their lives.', $planet->name, $building->name);
-        $build->delete;
         if ($building->level == 0) {
             $building->delete;
             $got = 1;
+        }
+        else {
+            $building->is_upgrading(0);
+            $building->update;
         }
     }
     if ($got) {
