@@ -22,7 +22,7 @@ __PACKAGE__->add_columns(
     gas_giant_settlement_platform_ship_count     => { isa => 'Int', default => 0 },
 );
 
-__PACKAGE__->belongs_to('shipyard', 'Lacuna::DB::Result::Building::SpacePort', 'spaceport_id');
+__PACKAGE__->belongs_to('spaceport', 'Lacuna::DB::Result::Building', 'spaceport_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
 
 sub date_completed_formatted {

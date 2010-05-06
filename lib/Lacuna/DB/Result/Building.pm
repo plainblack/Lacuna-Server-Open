@@ -11,7 +11,7 @@ __PACKAGE__->table('building');
 __PACKAGE__->add_columns(
     date_created    => { data_type => 'datetime', is_nullable => 0 },
     body_id         => { data_type => 'int', size => 11, is_nullable => 0 },
-    empire_id       => { data_type => 'int', size => 11, is_nullable => 0 },
+    empire_id       => { data_type => 'int', size => 11, is_nullable => 1 },
     x               => { data_type => 'int', size => 11, default_value => 0 },
     y               => { data_type => 'int', size => 11, default_value => 0 },
     level           => { data_type => 'int', size => 11, default_value => 0 },
@@ -22,8 +22,7 @@ __PACKAGE__->add_columns(
     is_upgrading    => { data_type => 'int', size => 1, default => 0 },
 );
 
-sub empire {};
-#__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
 __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Building::Development' => 'Lacuna::DB::Result::Building::Development',

@@ -528,21 +528,20 @@ sub add_news {
     my $self = shift;
     my $chance = shift;
     my $headline = shift;
-    my $network19 = $self->network19;
-    if (defined $network19) {
-        $chance += $network19->level * 2;
-        if ($network19->restrict_coverage) {
+    if ($self->restrict_coverage) {
+        my $network19 = $self->network19;
+        if (defined $network19) {
+            $chance += $network19->level * 2;
             $chance = $chance / $self->command->level; 
         }
     }
     if (randint(1,100) <= $chance) {
         $headline = sprintf $headline, @_;
-        Lacuna::DB::Result::News->new(
-            simpledb    => $self->simpledb,
+        Lacuna->db->resultset('Lacuna::DB::Result::News')->new(
             date_posted => DateTime->now,
             zone        => $self->zone,
             headline    => $headline,
-        )->put;
+        )->insert;
         return 1;
     }
     return 0;

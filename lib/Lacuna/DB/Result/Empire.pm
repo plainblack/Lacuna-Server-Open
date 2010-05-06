@@ -46,7 +46,7 @@ __PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
 
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $body_id) = @_;
-    my $body = Lacuna->db->resultset('body')->find($body_id);
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Body')->find($body_id);
     unless (defined $body) {
         confess [1002, 'Body does not exist.', $body_id];
     }
@@ -82,7 +82,7 @@ sub get_building { # makes for uniform error handling, and prevents staleness
 
 sub has_medal {
     my ($self, $type) = @_;
-    return Lacuna->db->resultset('medals')->search({empire_id => $self->id, type => $type})->count;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Medals')->search({empire_id => $self->id, type => $type})->count;
 }
 
 sub add_medal {
@@ -196,7 +196,7 @@ sub is_password_valid {
 }
 
 sub encrypt_password {
-    my ($self, $password) = @_;
+    my ($class, $password) = @_;
     return Digest::SHA::sha256_base64($password);
 }
 
