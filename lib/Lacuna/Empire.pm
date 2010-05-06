@@ -2,7 +2,7 @@ package Lacuna::Empire;
 
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
-use Lacuna::Util qw(cname format_date);
+use Lacuna::Util qw(format_date);
 use DateTime;
 
 with 'Lacuna::Role::Sessionable';
@@ -14,7 +14,7 @@ sub find {
         confess [1009, 'Empire name too short. Your search must be at least 3 characters.'];
     }
     my $empire = $self->get_empire_by_session($session_id);
-    my $empires = Lacuna->db->resultset('empire')->search(where=>{name_cname => ['like', '%'.cname($name).'%']}, limit=>100);
+    my $empires = Lacuna->db->resultset('empire')->search(where=>{name => ['like', '%'.$name.'%']}, limit=>100);
     my @list_of_empires;
     my $limit = 100;
     while (my $empire = $empires->next) {
@@ -36,7 +36,7 @@ sub is_name_available {
         ->not_empty
         ->no_restricted_chars
         ->no_profanity
-        ->ok( !Lacuna->db->resultset('empire')->count(where=>{name_cname=>cname($name)}, consistent=>1) );
+        ->ok( !Lacuna->db->resultset('empire')->count(where=>{name=>$name}, consistent=>1) );
     return 1; 
 }
 
@@ -48,7 +48,7 @@ sub logout {
 
 sub login {
     my ($self, $name, $password) = @_;
-    my $empire = Lacuna->db->resultset('empire')->search(where=>{name_cname=>cname($name)})->next;
+    my $empire = Lacuna->db->resultset('empire')->search(where=>{name=>$name})->next;
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
     }

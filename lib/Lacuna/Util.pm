@@ -6,14 +6,7 @@ use DateTime::Format::Duration;
 use DateTime::Format::Strptime;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(cname in randint to_seconds format_date);
-
-sub cname {
-    my $name = shift;
-    my $cname = lc($name);
-    $cname =~ s{\s+}{_}xmsg;
-    return $cname;
-}
+@EXPORT_OK = qw(randint to_seconds format_date);
 
 sub to_seconds {
     my $duration = shift;

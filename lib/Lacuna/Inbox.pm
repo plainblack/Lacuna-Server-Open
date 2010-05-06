@@ -3,7 +3,6 @@ package Lacuna::Inbox;
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
 use DateTime;
-use Lacuna::Util qw(cname);
 use Lacuna::Verify;
 
 has simpledb => (
@@ -84,7 +83,7 @@ sub send_message {
     my @to;
     foreach my $name (split /\s*,\s*/, $recipients) {
         next if $name eq '';
-        my $user = Lacuna->db->resultset('empire')->search(where=>{name_cname => cname($name)})->next;
+        my $user = Lacuna->db->resultset('empire')->search(where=>{name => $name})->next;
         if (defined $user) {
             push @sent, $user->name;
             push @to, $user;

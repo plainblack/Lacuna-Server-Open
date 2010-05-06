@@ -3,7 +3,7 @@ package Lacuna::Building::SpacePort;
 use Moose;
 extends 'Lacuna::Building';
 use Lacuna::Constants qw(SHIP_TYPES);
-use Lacuna::Util qw(cname format_date);
+use Lacuna::Util qw(format_date);
 
 sub app_url {
     return '/spaceport';
@@ -21,7 +21,7 @@ sub find_star {
     }
     elsif (exists $target->{star_name}) {
         $star = Lacuna->db->resultset('star')->search(
-            where   => { name_cname => cname($target->{star_name}) },
+            where   => { name => $target->{star_name} },
         )->next;
     }
     elsif (exists $target->{x}) {
@@ -43,7 +43,7 @@ sub find_body {
     }
     elsif (exists $target->{body_name}) {
         $target_body = Lacuna->db->resultset('body')->search(
-            where   => { name_cname => cname($target->{body_name}) },
+            where   => { name => $target->{body_name} },
         )->next;
     }
     elsif (exists $target->{x}) {

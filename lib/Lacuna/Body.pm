@@ -34,7 +34,7 @@ sub rename {
         ->length_lt(31)
         ->no_restricted_chars
         ->no_profanity
-        ->not_ok(Lacuna->db->resultset('body')->count(where => {name_cname=>Lacuna::Util::cname($name), 'itemName()'=>['!=',$body_id]}, consistent=>1)); # name available
+        ->not_ok(Lacuna->db->resultset('body')->count(where => {name=>$name, 'itemName()'=>['!=',$body_id]}, consistent=>1)); # name available
     
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $empire->get_body($body_id);

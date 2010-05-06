@@ -18,7 +18,7 @@ sub is_name_available {
         ->not_empty
         ->no_restricted_chars
         ->no_profanity
-        ->ok( !Lacuna->db->resultset('species')->count(where=>{name_cname=>cname($name)}, consistent=>1) );
+        ->ok( !Lacuna->db->resultset('species')->count(where=>{name=>$name}, consistent=>1) );
     return 1;
 }
 
