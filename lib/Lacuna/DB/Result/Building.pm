@@ -11,7 +11,6 @@ __PACKAGE__->table('building');
 __PACKAGE__->add_columns(
     date_created    => { data_type => 'datetime', is_nullable => 0 },
     body_id         => { data_type => 'int', size => 11, is_nullable => 0 },
-    empire_id       => { data_type => 'int', size => 11, is_nullable => 1 },
     x               => { data_type => 'int', size => 11, default_value => 0 },
     y               => { data_type => 'int', size => 11, default_value => 0 },
     level           => { data_type => 'int', size => 11, default_value => 0 },
@@ -22,7 +21,6 @@ __PACKAGE__->add_columns(
     is_upgrading    => { data_type => 'int', size => 1, default => 0 },
 );
 
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
 __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Building::Development' => 'Lacuna::DB::Result::Building::Development',
@@ -233,21 +231,21 @@ sub upgrade_cost {
 }
 
 sub consumption_hour {
-    $_[0]->production_hour;
+    return $_[0]->production_hour;
 }
 
 # PRODUCTION
 
 sub farming_production_bonus {
     my ($self) = @_;
-    my $empire = $self->empire;
+    my $empire = $self->body->empire;
     my $boost = (DateTime->now < $empire->food_boost) ? 25 : 0;
     return (100 + $boost + $empire->species->farming_affinity * 3) / 100;
 }
 
 sub manufacturing_production_bonus {
     my ($self) = @_;
-    my $empire = $self->empire;
+    my $empire = $self->body->empire;
     return (100 + $empire->species->manufacturing_affinity * 3) / 100;
 }
 
@@ -383,7 +381,7 @@ sub food_hour {
 
 sub energy_production_bonus {
     my ($self) = @_;
-    my $empire = $self->empire;
+    my $empire = $self->body->empire;
     my $boost = (DateTime->now < $empire->energy_boost) ? 25 : 0;
     return (100 + $boost + $empire->species->science_affinity * 3) / 100;
 }
@@ -407,7 +405,7 @@ sub mining_production_bonus {
     my ($self) = @_;
     my $refinery = $self->body->refinery;
     my $refinery_bonus = (defined $refinery) ? $refinery->level * 5 : 0;
-    my $empire = $self->empire;
+    my $empire = $self->body->empire;
     my $boost = (DateTime->now < $empire->ore_boost) ? 25 : 0;
     return (100 + $boost + $refinery_bonus + $empire->species->mining_affinity * 3) / 100;
 }
@@ -429,7 +427,7 @@ sub ore_hour {
 
 sub water_production_bonus {
     my ($self) = @_;
-    my $empire = $self->empire;
+    my $empire = $self->body->empire;
     my $boost = (DateTime->now < $empire->water_boost) ? 25 : 0;
     return (100 + $boost + $empire->species->environmental_affinity * 3) / 100;
 }
@@ -451,7 +449,7 @@ sub water_hour {
 
 sub waste_consumption_bonus {
     my ($self) = @_;
-    return (100 + $self->empire->species->environmental_affinity) / 100;
+    return (100 + $self->body->empire->species->environmental_affinity) / 100;
 }
 
 sub waste_production_hour {
@@ -471,7 +469,7 @@ sub waste_hour {
 
 sub happiness_production_bonus {
     my ($self) = @_;
-    my $empire = $self->empire;
+    my $empire = $self->body->empire;
     my $boost = (DateTime->now < $empire->happiness_boost) ? 25 : 0;
     return (100 + $boost + ($empire->species->political_affinity * 6)) / 100;
 }
@@ -535,10 +533,10 @@ sub check_build_prereqs {
         }
     
         # check building prereqs
-        my $db = $self->simpledb;
+        my $buildings = Lacuna->db->resultset('Lacuna::DB::Result::Building');
         my $prereqs = $self->building_prereq;
         foreach my $key (keys %{$prereqs}) {
-            my $count = $db->domain($key)->count(where=>{body_id=>$body->id, class=>$key, level=>['>=',$prereqs->{$key}]});
+            my $count = $buildings->search({body_id=>$body->id, class=>$key, level=>{'>=',$prereqs->{$key}}});
             if ($count < 1) {
                 confess [1013, "You don't have the necessary prerequisite buildings.",[$key->name, $prereqs->{$key}]];
             }
@@ -570,7 +568,7 @@ sub upgrade_status {
 
 sub has_met_upgrade_prereqs {
     my ($self) = @_;
-    if (ref $self ne 'Lacuna::DB::Result::Building::University' && $self->level >= $self->empire->university_level + 1) {
+    if (!$self->isa('Lacuna::DB::Result::Building::University') && $self->level >= $self->body->empire->university_level + 1) {
         confess [1013, "You cannot upgrade a building past your university level."];
     }
     return 1;
@@ -598,18 +596,18 @@ sub can_upgrade {
 
 sub construction_cost_reduction_bonus {
     my $self = shift;
-    return (100 - $self->empire->species->research_affinity) / 100
+    return (100 - $self->body->empire->species->research_affinity) / 100
 }
 
 sub manufacturing_cost_reduction_bonus {
     my $self = shift;
-    return (100 - $self->empire->species->manufacturing_affinity) / 100
+    return (100 - $self->body->empire->species->manufacturing_affinity) / 100
 }
 
 sub time_cost_reduction_bonus {
     my ($self, $extra) = @_;
     $extra ||= 0;
-    return (100 - $extra - $self->empire->species->management_affinity) / 100
+    return (100 - $extra - $self->body->empire->species->management_affinity) / 100
 }
 
 sub has_free_build {
@@ -683,7 +681,7 @@ sub start_upgrade {
     # clear cache
     $body->clear_last_in_build_queue;
 
-    $self->empire->trigger_full_update;
+    $self->body->empire->trigger_full_update;
 }
 
 sub finish_upgrade {

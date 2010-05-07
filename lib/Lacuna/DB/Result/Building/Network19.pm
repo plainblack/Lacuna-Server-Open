@@ -44,7 +44,7 @@ use constant happiness_production => 30;
 
 sub happiness_consumption {
     my ($self) = @_;
-    return ($self->restrict_coverage) ? 30 : 0;
+    return ($self->body->restrict_coverage) ? 30 : 0;
 }
 
 no Moose;

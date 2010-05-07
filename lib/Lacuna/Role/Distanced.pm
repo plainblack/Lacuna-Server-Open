@@ -1,7 +1,6 @@
 package Lacuna::Role::Distanced;
 
 use Moose::Role;
-requires 'empire';
 requires 'body';
 
 use constant star_to_body_distance_ratio => 100;
@@ -57,7 +56,7 @@ sub get_ship_speed {
     my ($self, $type) = @_;
     my $base_speed = $self->ship_speed->{$type};
     my $propulsion_level = (defined $self->propulsion_factory) ? $self->propulsion_factory->level : 0;
-    my $speed_improvement = $propulsion_level * ((100 + $self->empire->species->science_affinity) / 100);
+    my $speed_improvement = $propulsion_level * ((100 + $self->body->empire->species->science_affinity) / 100);
     return sprintf('%.0f', $base_speed * ((100 + $speed_improvement) / 100));
 }
 

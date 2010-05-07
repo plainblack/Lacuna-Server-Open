@@ -42,7 +42,7 @@ use constant happiness_production => 40;
 
 after finish_upgrade => sub {
     my $self = shift;
-    my $empire = $self->body->empire; # we are possibly stale
+    my $empire = $self->body->empire;
     if ($empire->university_level < $self->level) {
         $empire->university_level($self->level);
         $empire->put;

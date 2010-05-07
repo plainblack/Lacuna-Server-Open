@@ -42,8 +42,8 @@ use constant waste_production => 1;
 
 after finish_upgrade => sub {
     my $self = shift;
-    my $offense = $self->level + $self->empire->species->deception_affinity;
-    Lacuna->db->resultset('spies')->search(where => {from_body_id => $self->body_id})->update({offense=>$offense});
+    my $offense = $self->level + $self->body->empire->species->deception_affinity;
+    Lacuna->db->resultset('spies')->search({from_body_id => $self->body_id})->update({offense=>$offense});
 };
 
 

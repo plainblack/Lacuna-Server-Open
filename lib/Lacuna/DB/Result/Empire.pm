@@ -71,10 +71,9 @@ sub get_building { # makes for uniform error handling, and prevents staleness
             confess [1002, 'Building does not exist.', $building_id];
         }
         my $body = $self->get_body($building->body_id);        
-        unless ($body->empire_id eq $self->id) { # do body, because permanents aren't owned by anybody
+        unless ($body->empire_id eq $self->id) { 
             confess [1010, "Can't manipulate a building that you don't own.", $building_id];
         }
-        $building->empire($self);
         $building->body($body);
         return $building;
     }
@@ -275,7 +274,6 @@ sub find_home_planet {
 
 sub send_message {
     my ($self, %params) = @_;
-    $params{simpledb} = $self->simpledb;
     $params{from}   = $params{from} || $self;
 
     my $recipients = $params{recipients};
@@ -283,7 +281,6 @@ sub send_message {
         push @{$recipients}, $self->name;
     }
     my $message = Lacuna->db->resultset('Lacuna::DB::Result::Message')->new({
-        simpledb    => $params{simpledb},
         date_sent   => DateTime->now,
         subject     => $params{subject},
         body        => $params{body},

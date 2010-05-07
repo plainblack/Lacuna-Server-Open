@@ -50,7 +50,7 @@ has spy_count => (
     lazy        => 1,
     default     => sub {
         my $self = shift;
-        return Lacuna->db->resultset('spies')->count(where=>{from_body_id => $self->body_id});
+        return $self->get_spies->count;
     },
 );
 
@@ -59,36 +59,22 @@ has latest_spy => (
     lazy        => 1,
     default     => sub {
         my $self = shift;
-        return $self->get_spies(
-            where   => {
+        return $self->get_spies->search(
+            {
                 available_on    => ['>=', DateTime->now],
                 task            => 'training',
             },
-            order_by    => ['available_on'],
-            consistent  => 1,
-            )->next;
+            {
+                order_by    => { -desc => 'available_on' },
+                rows        => 1,
+            }
+        )->next;
     },
 );
 
 sub get_spies {
-    my ($self, %options) = @_;
-    my %where = (from_body_id => $self->body_id);
-    if ($options{where}) {
-        $where{'-and'} = $options{where};
-    }
-    my %params = (
-        where       => \%where,
-        set         => {
-            from_body => $self->body
-        },
-    );
-    if ($options{order_by}) {
-        $params{order_by} = $options{order_by};
-    }
-    if ($options{consistent}) {
-        $params{consistent} = 1;
-    }
-    return Lacuna->db->resultset('spies')->search(%params);
+    my ($self) = @_;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ from_body_id => $self->body_id });
 }
 
 has espionage_level => (
@@ -96,7 +82,7 @@ has espionage_level => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $building = $self->body->get_buildings_of_class('Lacuna::DB::Result::Building::Espionage')->next;
+        my $building = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Espionage');
         return (defined $building) ? $self->level : 0;
     },
 );
@@ -106,7 +92,7 @@ has security_level => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $building = $self->body->get_buildings_of_class('Lacuna::DB::Result::Building::Security')->next;   
+        my $building = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Security');   
         return (defined $building) ? $self->level : 0;
     },
 );
@@ -116,7 +102,7 @@ has training_multiplier => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $multiplier = $self->level - $self->empire->species->deception_affinity;
+        my $multiplier = $self->level - $self->body->empire->species->deception_affinity;
         $multiplier += $self->espionage_level;
         $multiplier += $self->security_level;
         $multiplier = 1 if $multiplier < 1;
@@ -127,19 +113,19 @@ has training_multiplier => (
 sub training_costs {
     my $self = shift;
     my $multiplier = $self->training_multiplier;
-    my $species = $self->empire->species;
     return {
         water   => 550 * $multiplier,
         waste   => 20 * $multiplier,
         energy  => 50 * $multiplier,
         food    => 500 * $multiplier,
         ore     => 5 * $multiplier,
-        time    => 430 * $multiplier / $species->management_affinity,
+        time    => 430 * $multiplier / $self->body->empire->species->management_affinity,
     };
 }
 
 sub train_spy {
     my ($self, $time_to_train) = @_;
+    my $empire = $self->body->empire;
     if ($self->spy_count < $self->max_spies) {
         unless ($time_to_train) {
             $time_to_train = $self->training_costs->{time};
@@ -147,7 +133,7 @@ sub train_spy {
         my $latest = $self->latest_spy;
         my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
         $available_on->add(seconds => $time_to_train );
-        my $deception = $self->empire->species->deception_affinity;
+        my $deception = $empire->species->deception_affinity;
         Lacuna->db->resultset('spies')->insert({
             from_body_id    => $self->body_id,
             on_body_id      => $self->body_id,
@@ -159,23 +145,23 @@ sub train_spy {
         });
         my $count = $self->spy_count($self->spy_count + 1);
         if ($count < $self->level) {
-            $self->body->add_news(20,'A source inside %s admitted that they are underprepared for the threats they face.', $self->empire->name);
+            $self->body->add_news(20,'A source inside %s admitted that they are underprepared for the threats they face.', $empire->name);
         }
     }
     else {
-        $self->empire->send_predefined_message(
+        $empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'training_accident.txt',
             params      => [$self->body->name],
         );
-        $self->body->add_news(20,'A source inside %s confided that they lost a brave soul in a training accident today.', $self->empire->name);
+        $self->body->add_news(20,'A source inside %s confided that they lost a brave soul in a training accident today.', $empire->name);
     }
     return $self;
 }
 
 before delete => sub {
     my ($self) = @_;
-    Lacuna->db->resultset('spies')->search(where=>{from_body_id=>$self->body_id})->delete;
+    $self->get_spies->delete;
 };
 
 

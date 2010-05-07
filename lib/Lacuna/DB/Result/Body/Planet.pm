@@ -433,8 +433,6 @@ sub build_building {
     $building->date_created(DateTime->now);
     $building->body_id($self->id);
     $building->body($self);
-    $building->empire_id($self->empire_id);
-    $building->empire($self->empire);
     $building->upgrade_started(DateTime->now);
     $building->is_ugrading(1);
     $building->level(0) unless $building->level;

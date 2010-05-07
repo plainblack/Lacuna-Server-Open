@@ -1,7 +1,6 @@
 package Lacuna::Role::Shippable;
 
 use Moose::Role;
-requires 'empire';
 requires 'body';
 
 use constant cargo_ship_base => 2000;
@@ -21,7 +20,7 @@ has hold_size_bonus => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return (100 + ($self->empire->species->trade_affinity * 25) + ($self->trade_ministry->level * 30)) / 100;
+        return (100 + ($self->body->empire->species->trade_affinity * 25) + ($self->trade_ministry->level * 30)) / 100;
     },
 );
 

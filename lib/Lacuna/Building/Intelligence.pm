@@ -20,7 +20,7 @@ sub view_spies {
     my @spies;
     my $body = $building->body;
     my %planets = ( $body->id => $body->name );
-    my $spy_list = $building->get_spies(consistent=>1)->paginate(25, $page_number);
+    my $spy_list = $building->get_spies->search({}, { rows => 25, page => $page_number});
     while (my $spy = $spy_list->next) {
         unless (exists $planets{$spy->on_body_id}) {
             $planets{$spy->on_body_id} = $spy->on_body->name;
