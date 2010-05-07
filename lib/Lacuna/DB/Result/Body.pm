@@ -18,7 +18,7 @@ __PACKAGE__->add_columns(
     usable_as_starter               => { data_type => 'int', size => 11, default_value => 0 },
     size                            => { data_type => 'int', size => 11, default_value => 0 },
     empire_id                       => { data_type => 'int', size => 11, is_nullable => 1 },
-    last_tick                       => { data_type => 'datetime', is_nullable => 0 },
+    last_tick                       => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     building_count                  => { data_type => 'int', size => 11, default_value => 0 },
     happiness_hour                  => { data_type => 'int', size => 11, default_value => 0 },
     happiness                       => { data_type => 'int', size => 11, default_value => 0 },
@@ -121,7 +121,7 @@ __PACKAGE__->add_columns(
     boost_enabled                   => { data_type => 'int', size => 1, default_value => 0 },
     needs_recalc                    => { data_type => 'int', size => 1, default_value => 0 },
     restrict_coverage               => { data_type => 'int', size => 1, default_value => 1 },  
-    restrict_coverage_delta         => { data_type => 'datetime', is_nullable => 0 },
+    restrict_coverage_delta         => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
 );
 
 __PACKAGE__->typecast_map(class => {

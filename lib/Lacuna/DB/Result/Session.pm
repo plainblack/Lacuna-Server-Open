@@ -7,8 +7,8 @@ use DateTime;
 __PACKAGE__->table('session');
 __PACKAGE__->add_columns(
     empire_id       => { isa => 'Str' },
-    date_created    => { data_type => 'datetime', is_nullable => 0 },
-    expires         => { data_type => 'datetime', is_nullable => 0 },
+    date_created    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    expires         => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');

@@ -640,7 +640,7 @@ sub destroy_infrastructure {
 sub destroy_upgrades {
     my ($planet, $espionage, $quantity) = @_;
     out('Destroy Upgrades');
-    my $builds = $planet->builds({},1);
+    my $builds = $planet->builds(1);
     my $got;
     for (1..$quantity) {
         my $building = $builds->next;

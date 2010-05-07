@@ -9,7 +9,7 @@ __PACKAGE__->table('party');
 __PACKAGE__->add_columns(
     park_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
     body_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
-    party_ends              => { data_type => 'datetime', is_nullable => 0 },
+    party_ends              => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     happiness_from_party    => { isa => 'Int', default => 0 },
 );
 

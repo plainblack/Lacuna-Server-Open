@@ -5,17 +5,19 @@ use List::Util::WeightedChoice qw( choose_weighted );
 use Lacuna;
 use Lacuna::Util qw(randint);
 use DateTime;
+use Time::HiRes;
 
 my $config = Lacuna->config;
 my $db = Lacuna->db;
 my $lacunans_have_been_placed = 0;
 
-
+my $t = [Time::HiRes::tv_interval];
 create_database();
 create_species();
 open my $star_names, "<", "../var/starnames.txt";
 create_star_map();
 close $star_names;
+say "Time Elapsed: ".Time::HiRes::tv_interval($t);
 
 sub create_database {
     $db->deploy({ add_drop_table => 1 });

@@ -9,15 +9,15 @@ use Lacuna::Util qw(format_date to_seconds);
 __PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('building');
 __PACKAGE__->add_columns(
-    date_created    => { data_type => 'datetime', is_nullable => 0 },
+    date_created    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     body_id         => { data_type => 'int', size => 11, is_nullable => 0 },
     x               => { data_type => 'int', size => 11, default_value => 0 },
     y               => { data_type => 'int', size => 11, default_value => 0 },
     level           => { data_type => 'int', size => 11, default_value => 0 },
     class           => { data_type => 'char', size => 255, is_nullable => 0 },
-    offline         => { data_type => 'datetime', is_nullable => 0 },
-    upgrade_started => { data_type => 'datetime', is_nullable => 0 },
-    upgrade_ends    => { data_type => 'datetime', is_nullable => 0 },
+    offline         => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    upgrade_started => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    upgrade_ends    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     is_upgrading    => { data_type => 'int', size => 1, default => 0 },
 );
 
@@ -688,10 +688,10 @@ sub finish_upgrade {
     my ($self) = @_;
     my $body = $self->body;    
     $self->level($self->level + 1);
-    $self->put;
+    $self->update;
     $body->clear_last_in_build_queue;
     $body->needs_recalc(1);
-    $body->put;
+    $body->update;
     my $empire = $body->empire; 
     $empire->trigger_full_update;
     $empire->add_medal('building'.$self->level);

@@ -10,7 +10,7 @@ __PACKAGE__->add_columns(
     in_reply_to     => { data_type => 'int', size => 11, is_nullable => 1 },
     subject         => { data_type => 'char', size => 30, is_nullable => 0 },
     body            => { data_type => 'mediumtext', is_nullable => 1 },
-    date_sent       => { data_type => 'datetime', is_nullable => 0 },
+    date_sent       => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     from_id         => { data_type => 'int', size => 11, is_nullable => 0 },
     from_name       => { data_type => 'char', size => 30, is_nullable => 0 },
     to_id           => { data_type => 'int', size => 11, is_nullable => 1 },

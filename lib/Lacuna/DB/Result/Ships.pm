@@ -9,7 +9,7 @@ __PACKAGE__->table('ship_builds');
 __PACKAGE__->add_columns(
     spaceport_id             => { data_type => 'int', size => 11, is_nullable => 0 },
     body_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
-    date_completed          => { data_type => 'datetime', is_nullable => 0 },
+    date_completed          => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     type                    => { data_type => 'char', size => 30, is_nullable => 0 },
     probe_count                         => { isa => 'Int', default => 0 },
     colony_ship_count                   => { isa => 'Int', default => 0 },

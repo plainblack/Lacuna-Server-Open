@@ -8,35 +8,19 @@ use Lacuna::Util qw(to_seconds randint);
 use DateTime;
 no warnings 'uninitialized';
 
-sub builds { 
+sub ships_travelling { 
     my ($self, $where, $reverse) = @_;
     my $order = '-asc';
     if ($reverse) {
-        $order = [$order];
+        $order = '-desc';
     }
     $where->{body_id} = $self->id;
-    $where->{is_upgrading} = 1;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
-        $where,
-        { $order => 'upgrade_ends' }
-    );
-}
-
-sub ships_travelling { 
-    my ($self, $where, $reverse) = @_;
-    my $order = 'date_arrives';
-    if ($reverse) {
-        $order = [$order];
-    }
-    $where->{body_id} = $self->id;
-    $where->{date_arrives} = ['>',DateTime->now->subtract(years=>100)] unless exists $where->{date_arrives};
+    $where->{date_arrives} = {'>' => DateTime->now->subtract(years=>100)} unless exists $where->{date_arrives};
     return Lacuna->db->resultset('Lacuna::DB::Result::TravelQueue')->search(
-        where       => $where,
-        order_by    => $order,
-        consistent  => 1,
-        set         => {
-            body    => $self,
-        },
+        $where,
+        {
+            order_by    => { $order => 'date_arrives' },
+        }
     );
 }
 
@@ -86,15 +70,15 @@ sub sanitize {
         algae_stored syrup_stored fungus_stored burger_stored shake_stored beetle_stored bean_production_hour bean_stored
     );
     $self->ships_travelling->delete;
-    Lacuna->db->resultset('travel_queue')->search(where=>{foreign_body_id => $self->id})->delete;
+    Lacuna->db->resultset('travel_queue')->search({foreign_body_id => $self->id})->delete;
     foreach my $attribute (@attributes) {
         $self->$attribute(0);
     }
-    $self->empire_id('None');
+    $self->empire_id(0);
     if ($self->get_type eq 'habitable planet') {
-        $self->usable_as_starter(rand(99999));
+        $self->usable_as_starter(randint(1,9999));
     }
-    $self->put;
+    $self->update;
 }
 
 around 'get_status' => sub {
@@ -187,34 +171,28 @@ use constant water => 0;
 
 sub get_buildings_of_class {
     my ($self, $class) = @_;
-    return Lacuna->db->resultset($class)->search(
-        where       => {
+    return Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
+        {
             body_id => $self->id,
             class   => $class,
-            level   => ['>=', 0],
         },
-        order_by    => ['level'],
-        set         => {
-            body    => $self,
-            empire  => $self->empire,
-        },
+        {
+            order_by    => { -desc => 'level' },
+        }
     );
 }
 
 sub get_building_of_class {
     my ($self, $class) = @_;
-    return Lacuna->db->resultset($class)->search(
-        where       => {
+    return Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
+        {
             body_id => $self->id,
             class   => $class,
-            level   => ['>=', 0],
         },
-        order_by    => ['level'],
-        set         => {
-            body    => $self,
-            empire  => $self->empire,
-        },
-        limit       => 1, 
+        {
+            order_by    => { -desc => 'level' },
+            rows        => 1,
+        }
     )->next;
 }
 
@@ -223,7 +201,10 @@ has command => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get_building_of_class('Lacuna::DB::Result::Building::PlanetaryCommand');
+        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::PlanetaryCommand');
+        return undef unless defined $building;
+        $building->body($self);
+        return $building;
     },
 );
 
@@ -232,7 +213,10 @@ has mining_ministry => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Ministry');
+        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Ministry');
+        return undef unless defined $building;
+        $building->body($self);
+        return $building;
     },
 );
 
@@ -241,7 +225,10 @@ has network19 => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get_building_of_class('Lacuna::DB::Result::Building::Network19');
+        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Network19');
+        return undef unless defined $building;
+        $building->body($self);
+        return $building;
     },
 );
 
@@ -250,7 +237,10 @@ has refinery => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Refinery');
+        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Refinery');
+        return undef unless defined $building;
+        $building->body($self);
+        return $building;
     },
 );
 
@@ -259,7 +249,10 @@ has spaceport => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get_building_of_class('Lacuna::DB::Result::Building::SpacePort');
+        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::SpacePort');
+        return undef unless defined $building;
+        $building->body($self);
+        return $building;
     },
 );    
 
@@ -305,16 +298,11 @@ sub can_build_building {
 sub has_room_in_build_queue {
     my ($self) = shift;
     my $max = 1;
-    my $dev_ministry = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
-        where   => {
-            body_id => $self->id,
-            class   => 'Lacuna::DB::Result::Building::Development',
-        }
-        )->next;
+    my $dev_ministry = $self->get_building_of_class('Lacuna::DB::Result::Building::Development');
     if (defined $dev_ministry) {
         $max += $dev_ministry->level;
     }
-    my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({body_id=>$self->id})->count;
+    my $count = $self->builds->count;
     if ($count >= $max) {
         confess [1009, "There's no room left in the build queue.", $max];
     }
@@ -386,10 +374,22 @@ sub has_resources_to_build {
 sub has_max_instances_of_building {
     my ($self, $building) = @_;
     return 0 if $building->max_instances_per_planet == 9999999;
-    my $count = Lacuna->db->resultset($building->class)->count(where=>{body_id=>$self->id, class=>$building->class});
+    my $count = $self->get_buildings_of_class($building->class)->count;
     if ($count >= $building->max_instances_per_planet) {
         confess [1009, sprintf("You are only allowed %s of these buildings per planet.",$building->max_instances_per_planet), [$building->max_instances_per_planet, $count]];
     }
+}
+
+sub builds { 
+    my ($self, $reverse) = @_;
+    my $order = '-asc';
+    if ($reverse) {
+        $order = '-desc';
+    }
+    return Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
+        { body_id => $self->id, is_upgrading => 1 },       
+        { $order => 'upgrade_ends' }
+    );
 }
 
 has last_in_build_queue => (
@@ -398,7 +398,8 @@ has last_in_build_queue => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $building = $self->builds(undef, 1)->next;
+        my $building = $self->builds(1)->next;
+        return undef unless defined $building;
         $building->body($self);
         return $building;
     }
@@ -434,12 +435,13 @@ sub build_building {
     $building->body_id($self->id);
     $building->body($self);
     $building->upgrade_started(DateTime->now);
-    $building->is_ugrading(1);
+    $building->is_upgrading(1);
     $building->level(0) unless $building->level;
 
     # set time to build, plus what's in the queue
     my $time_to_build = $self->get_existing_build_queue_time->add(seconds=>$building->time_to_build);
-    $building->upgrade_ends($time_to_build);    
+    $building->upgrade_ends($time_to_build);
+    $building->insert;
 }
 
 sub found_colony {
@@ -456,12 +458,12 @@ sub found_colony {
     $empire->add_medal($type);
 
     # add command building
-    my $command = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+    my $command = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
         x               => 0,
         y               => 0,
         class           => 'Lacuna::DB::Result::Building::PlanetaryCommand',
         level           => $empire->species->growth_affinity - 1,
-    );
+    });
     $self->build_building($command);
     $command->finish_upgrade;
     
@@ -471,7 +473,7 @@ sub found_colony {
     $self->add_energy(700);
     $self->add_water(700);
     $self->add_ore(700);
-    $self->put;
+    $self->update;
     
     # newsworthy
     $self->add_news(75,'%s founded a new colony on %s.', $empire->name, $self->name);
@@ -511,7 +513,6 @@ sub recalc_stats {
         $stats{$method} += sprintf('%.0f',$self->$type * $stats{ore_hour} / 10000);
     }
     $self->update(\%stats);
-    $self->put;
     return $self;
 }
 
@@ -535,11 +536,11 @@ sub add_news {
     }
     if (randint(1,100) <= $chance) {
         $headline = sprintf $headline, @_;
-        Lacuna->db->resultset('Lacuna::DB::Result::News')->new(
+        Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
             date_posted => DateTime->now,
             zone        => $self->zone,
             headline    => $headline,
-        )->insert;
+        })->insert;
         return 1;
     }
     return 0;
@@ -551,7 +552,7 @@ sub add_news {
 sub tick {
     my ($self) = @_;
     my $now = DateTime->now;
-    my $builds = $self->builds({upgrade_ends => {'<=', $now}});
+    my $builds = $self->builds->search({upgrade_ends => {'<=', $now}});
     my $ships_travelling = $self->ships_travelling({date_arrives => {'<=', $now}});
     my $ship = $ships_travelling->next;
     my $build = $builds->next;
@@ -644,7 +645,7 @@ sub tick_to {
             $food_consumed -= $food_produced;
         }
     }
-    $self->put;
+    $self->update;
 }
 
 sub food_hour {
