@@ -61,7 +61,7 @@ sub upgrade {
         $body->spend_food($cost->{food});
         $body->spend_ore($cost->{ore});
         $body->add_waste($cost->{waste});
-        $body->put;
+        $body->update;
     }
 
     $building->start_upgrade($cost);
@@ -73,7 +73,7 @@ sub upgrade {
         building    => {
             id              => $building->id,
             level           => $building->level,
-            pending_build   => $building->build_queue->get_status,
+            pending_build   => $building->upgrade_status,
         },
     };
 }
@@ -142,16 +142,14 @@ sub build {
     $body->tick;
 
     # create dummy building
-    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
         x               => $x,
         y               => $y,
         level           => 0,
         body_id         => $body->id,
         body            => $body,
-        empire_id       => $empire->id,
-        empire          => $empire,
         class           => $self->model_class,
-    );
+    });
 
     # make sure the planet can handle it
     $body = $body->can_build_building($building);
@@ -166,7 +164,7 @@ sub build {
         $body->add_waste($building->waste_to_build);
         $body->spend_ore($building->ore_to_build);
         $body->spend_energy($building->energy_to_build);
-        $body->put;
+        $body->update;
     }
 
     # build it
@@ -178,7 +176,7 @@ sub build {
         building    => {
             id              => $building->id,
             level           => $building->level,
-            pending_build   => $building->build_queue->get_status,
+            pending_build   => $building->upgrade_status,
         },
     };
 }

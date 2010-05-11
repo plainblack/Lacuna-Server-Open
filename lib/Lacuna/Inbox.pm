@@ -14,7 +14,7 @@ with 'Lacuna::Role::Sessionable';
 
 sub read_message {
     my ($self, $session_id, $message_id) = @_;
-    my $message = Lacuna->db->resultset('message')->find($message_id);
+    my $message = Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($message_id);
     unless (defined $message) {
         confess [1002, 'Message does not exist.', $message_id];
     }
@@ -49,7 +49,7 @@ sub read_message {
 sub archive_messages {
     my ($self, $session_id, $message_ids) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $messages = Lacuna->db->resultset('message');
+    my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message');
     my @failure;
     my @success;
     foreach my $id (@{$message_ids}) {
@@ -83,7 +83,7 @@ sub send_message {
     my @to;
     foreach my $name (split /\s*,\s*/, $recipients) {
         next if $name eq '';
-        my $user = Lacuna->db->resultset('empire')->search(where=>{name => $name})->next;
+        my $user = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $name})->next;
         if (defined $user) {
             push @sent, $user->name;
             push @to, $user;
@@ -97,12 +97,10 @@ sub send_message {
             Lacuna::Tutorial->new(empire=>$empire)->finish;
         }
         else {
-            Lacuna::DB::Result::Message->send(
-                simpledb    => $self->simpledb,
+            $to->send_message(
                 from        => $empire,
                 subject     => $subject,
                 body        => $body,
-                to          => $to,
                 in_reply_to => $options->{in_reply_to},
                 recipients  => \@sent,
                 tags        => ['Correspondence'],
@@ -123,7 +121,7 @@ sub view_inbox {
     my $session_id = shift;
     my $empire = $self->get_empire_by_session($session_id);
     my $where = {
-        has_archived    => ['!=', 1],
+        has_archived    => {'!=' => 1},
         to_id           => $empire->id,
     };
     return $self->view_messages($where, $empire, @_);
@@ -146,7 +144,7 @@ sub view_sent {
     my $empire = $self->get_empire_by_session($session_id);
     my $where = {
         from_id         => $empire->id,
-        to_id           => ['!=',$empire->id],
+        to_id           => {'!=' => $empire->id},
     };
     return $self->view_messages($where, $empire, @_);
 }
@@ -154,15 +152,17 @@ sub view_sent {
 sub view_messages {
     my ($self, $where, $empire, $options) = @_;
     $options->{page_number} ||= 1;
-    $where->{date_sent} = ['>',DateTime->new(year=>2008)];
     if ($options->{tags}) {
         $where->{tags} = ['in',$options->{tags}];
     }
-    my $message_domain = Lacuna->db->resultset('message');
-    my $messages = $message_domain->search(
-        where       => $where,
-        order_by    => ['date_sent'],
-    )->paginate(25, $options->{page_number});
+    my $messages = Lacuna->db->resultset('message')->search(
+        $where,
+        {
+            order_by    => { -desc => 'date_sent' },
+            rows        => 25,
+            page        => $options->{page_number},
+        }
+    );
     my @box;
     while (my $message = $messages->next) {
         push @box, {
@@ -179,7 +179,7 @@ sub view_messages {
     }
     return {
         messages        => \@box,
-        message_count   => $message_domain->count(where=>$where),
+        message_count   => $messages->pager->total_entries,
         status          => $empire->get_status,
     };
 }

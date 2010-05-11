@@ -74,7 +74,7 @@ sub sanitize {
     foreach my $attribute (@attributes) {
         $self->$attribute(0);
     }
-    $self->empire_id(0);
+    $self->empire_id(undef);
     if ($self->get_type eq 'habitable planet') {
         $self->usable_as_starter(randint(1,9999));
     }

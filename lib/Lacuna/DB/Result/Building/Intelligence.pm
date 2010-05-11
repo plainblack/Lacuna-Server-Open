@@ -77,6 +77,18 @@ sub get_spies {
     return Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ from_body_id => $self->body_id });
 }
 
+sub get_spy {
+    my ($self, $spy_id) = @_;
+    my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($spy_id);
+    unless (defined $spy) {
+        confess [1002, 'No such spy.'];
+    }
+    if ($spy->from_body_id ne $self->body_id) {
+        confess [1013, "You don't control that spy."];
+    }
+    return $spy;
+}
+
 has espionage_level => (
     is      => 'rw',
     lazy    => 1,

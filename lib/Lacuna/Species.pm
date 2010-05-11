@@ -18,7 +18,7 @@ sub is_name_available {
         ->not_empty
         ->no_restricted_chars
         ->no_profanity
-        ->ok( !Lacuna->db->resultset('species')->count(where=>{name=>$name}, consistent=>1) );
+        ->ok( !Lacuna->db->resultset('Lacuna::DB::Result::Species')->search({name=>$name})->count );
     return 1;
 }
 
@@ -74,11 +74,12 @@ sub create {
     $me->{name} =~ s{^\s+(.*)\s+$}{$1}xms; # remove extra white space
     $self->is_name_available($me->{name});
 
-    my $species = Lacuna->db->resultset('species')->insert({ # specify each attribute to avaid data injection
+    my $species = Lacuna->db->resultset('Lacuna::DB::Result::Species')->new({ # specify each attribute to avaid data injection
         empire_id               => $empire_id,
         name                    => $me->{name},
         description             => $me->{description},
-        habitable_orbits        => $me->{habitable_orbits},
+        min_orbit               => $me->{habitable_orbits}->[0],
+        max_orbit               => $me->{habitable_orbits}->[-1],
         manufacturing_affinity  => $me->{manufacturing_affinity},
         deception_affinity      => $me->{deception_affinity},
         research_affinity       => $me->{research_affinity},
@@ -90,10 +91,10 @@ sub create {
         political_affinity      => $me->{political_affinity},
         trade_affinity          => $me->{trade_affinity},
         growth_affinity         => $me->{growth_affinity},
-    });
+    })->insert;
     
     $empire->species_id($species->id);
-    $empire->put;
+    $empire->update;
     
     return $species->id;
 }
@@ -102,11 +103,13 @@ sub view_stats {
     my ($self, $session_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $species = $empire->species;
+    my @orbits;
+    push(@orbits, $_) foreach ($species->min_orbit .. $species->max_orbit);
     return {
         species => {
             name                    => $species->name,
             description             => $species->description,
-            habitable_orbits        => $species->habitable_orbits,
+            habitable_orbits        => \@orbits,
             manufacturing_affinity  => $species->manufacturing_affinity,
             deception_affinity      => $species->deception_affinity,
             research_affinity       => $species->research_affinity,
@@ -130,7 +133,7 @@ sub validate_empire {
     unless ($empire_id ne '') {
         confess [1002, "You must specify an empire id."];
     }
-    my $empire = Lacuna->db->resultset('empire')->find($empire_id);
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
     unless (defined $empire) {
         confess [1002, "Not a valid empire.",'empire_id'];
     }
@@ -141,7 +144,7 @@ sub validate_empire {
     }
 
     # deal with previously created species
-    my $old_species = Lacuna->db->resultset('species')->search(where=>{empire_id=>$empire->id}, consistent=>1)->delete;
+    my $old_species = Lacuna->db->resultset('Lacuna::DB::Result::Species')->search({empire_id=>$empire->id})->delete_all;
     
     return $empire;
 }
@@ -149,8 +152,8 @@ sub validate_empire {
 sub set_human {
     my ($self, $empire_id) = @_;
     my $empire = $self->validate_empire($empire_id);
-    $empire->species('human_species');
-    $empire->put;
+    $empire->species(2);
+    $empire->update;
     return 1;    
 }
 

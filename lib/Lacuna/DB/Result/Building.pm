@@ -19,6 +19,10 @@ __PACKAGE__->add_columns(
     upgrade_started => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     upgrade_ends    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     is_upgrading    => { data_type => 'int', size => 1, default => 0 },
+    work_started    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    work_ends       => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    is_working      => { data_type => 'int', size => 1, default => 0 },
+    work            => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
 );
 
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');

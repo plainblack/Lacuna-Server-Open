@@ -32,7 +32,7 @@ sub subsidize_build_queue {
     }
     $empire->spend_essentia($subsidy);
     $empire->trigger_full_update(skip_put=>1);
-    $empire->put;
+    $empire->update;
     $building->subsidize_build_queue;
     return {
         status          => $empire->get_status,

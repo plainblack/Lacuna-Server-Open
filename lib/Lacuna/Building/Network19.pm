@@ -22,13 +22,15 @@ sub view_news {
     foreach (1..(($building->level + 1) / 2)) {
         push @zones, shift @all;
     }
-    my $news = Lacuna->db->resultset('news')->search(
-        where   => {
-            zone        => ['in',@zones],
-            date_posted => [ '>=', DateTime->now->subtract(hours=>24)],
+    my $news = Lacuna->db->resultset('Lacuna::DB::Result::News')->search(
+        {
+            zone        => {'in' => \@zones},
+            date_posted => { '>=' =>DateTime->now->subtract(hours=>24)},
         },
-        limit       => 100,
-        order_by    => ['date_posted'],
+        {
+            rows       => 100,
+            order_by    => { -desc => 'date_posted' },
+        }
     );
     my @stories;
     while (my $story = $news->next) {
@@ -56,15 +58,15 @@ sub restrict_coverage {
         confess [1009, 'The valid values for onoff are 1 or 0.'];
     }
     my $body = $building->body;
-    if ($onoff == 1 && !$building->restrict_coverage && $building->restrict_coverage_delta_in_seconds > 60*60) {
+    if ($onoff == 1 && !$body->restrict_coverage && $body->restrict_coverage_delta_in_seconds > 60*60) {
         $body->add_news(100,'Network 19 has just learned that %s intends to restrict our coverage on %s!', $empire->name, $body->name);
     }
-    elsif ($onoff == 0 && $building->restrict_coverage && $building->restrict_coverage_delta_in_seconds > 60*60) {
+    elsif ($onoff == 0 && $body->restrict_coverage && $body->restrict_coverage_delta_in_seconds > 60*60) {
         $body->add_news(90,'In an act of devine wisdom, %s has restored our full coverage on %s!', $empire->name, $body->name);
     }
-    $building->restrict_coverage($onoff);
-    $building->restrict_coverage_delta(DateTime->now);
-    $building->put;
+    $body->restrict_coverage($onoff);
+    $body->restrict_coverage_delta(DateTime->now);
+    $body->update;
     return {
         status  => $empire->get_status,
     };
@@ -75,7 +77,7 @@ around 'view' => sub {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
     my $out = $orig->($self, $empire, $building);
-    $out->{restrict_coverage} = $building->restrict_coverage;
+    $out->{restrict_coverage} = $building->body->restrict_coverage;
     return $out;
 };
 

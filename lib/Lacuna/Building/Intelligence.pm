@@ -44,7 +44,7 @@ sub view_spies {
         status                  => $empire->get_status,
         spies                   => \@spies,
         possible_assignments    => \@assignments,
-        spy_count               => $building->spy_count,
+        spy_count               => $spy_list->pager->total_entries,
     };
 }
 
@@ -53,14 +53,8 @@ sub assign_spy {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
     $building->is_offline;
-    my $spy = Lacuna->db->resultset('spies')->find($spy_id);
-    unless (defined $spy) {
-        confess [1002, 'No such spy.'];
-    }
-    if ($spy->from_body_id ne $building->body_id) {
-        confess [1013, "You don't control that spy."];
-    }
-    $spy->assign($assignment)->put;
+    my $spy = $building->get_spy($spy_id);
+    $spy->assign($assignment)->update;
     return {
         status  => $empire->get_status,
     };
@@ -71,13 +65,7 @@ sub burn_spy {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
     $building->is_offline;
-    my $spy = Lacuna->db->resultset('spies')->find($spy_id);
-    unless (defined $spy) {
-        confess [1002, 'No such spy.'];
-    }
-    if ($spy->from_body_id ne $building->body_id) {
-        confess [1013, "You don't control that spy."];
-    }
+    my $spy = $building->get_spy($spy_id);
     my $body = $building->body;
     if ($body->add_news(10, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $empire->name)) {
         $body->spend_happiness(1000);
@@ -159,15 +147,9 @@ sub name_spy {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
     $building->is_offline;
-    my $spy = Lacuna->db->resultset('spies')->find($spy_id);
-    unless (defined $spy) {
-        confess [1002, 'No such spy.'];
-    }
-    if ($spy->from_body_id ne $building->body_id) {
-        confess [1013, "You don't control that spy."];
-    }
+    my $spy = $building->get_spy($spy_id);
     $spy->name($name);
-    $spy->put;
+    $spy->update;
     return {
         status  => $empire->get_status,
     };

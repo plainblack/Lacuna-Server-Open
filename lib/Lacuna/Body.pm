@@ -83,6 +83,7 @@ sub get_buildable {
     my ($self, $session_id, $body_id, $x, $y) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $empire->get_body($body_id);
+    my $building_rs = Lacuna->db->resultset('Lacuna::DB::Result::Building');
 
     $body->check_for_available_build_space($x, $y);
 
@@ -93,8 +94,6 @@ sub get_buildable {
             level           => 0,
             body_id         => $body->id,
             body            => $body,
-            empire_id       => $empire->id,
-            empire          => $empire,
             date_created    => DateTime->now,
     );
 
@@ -102,7 +101,7 @@ sub get_buildable {
     $body->tick;
     foreach my $class (BUILDABLE_CLASSES) {
         $properties{class} = $class->model_class;
-        my $building = $class->model_class->new(simpledb=>$self->simpledb)->update(\%properties);
+        my $building = $building_rs->new(\%properties);
         my $cost = $building->cost_to_upgrade;
         my $can_build = eval{$body->has_met_building_prereqs($building, $cost)};
         my $reason = $@;

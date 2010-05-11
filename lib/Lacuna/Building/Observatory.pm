@@ -15,20 +15,21 @@ sub abandon_probe {
     my ($self, $session_id, $building_id, $star_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
-    my $star = Lacuna->db->resultset('star')->find($star_id);
+    my $star = Lacuna->db->resultset('Lacuna::DB::Result::Star')->find($star_id);
     unless (defined $star) {
         confess [ 1002, 'Star does not exist.', $star_id];
     }
-    my $bodies = $star->bodies(where => { class => ['like', 'Lacuna::DB::Result::Body::Planet%'] });
+    my $bodies = $star->bodies->search({ class => {'like' => 'Lacuna::DB::Result::Body::Planet%'} });
     while (my $body = $bodies->next) {
         if ($empire->id eq $body->empire_id) {
             confess [ 1010, "You can't remove a probe from a system you inhabit.", $body->id ];
         }
     }
-    Lacuna->db->resultset('probes')->search( where => {
-        empire_id   => $empire->id,
-        star_id     => $star->id,
-    })->delete;
+    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search(
+        {
+            empire_id   => $empire->id,
+            star_id     => $star->id,
+        })->delete;
     $empire->clear_probed_stars;
     return {status => $empire->get_status};
 }
@@ -39,7 +40,7 @@ sub get_probed_stars {
     my $building = $empire->get_building($self->model_class, $building_id);
     my @stars;
     $page_number ||= 1;
-    my $probes = Lacuna->db->resultset('probes')->search( where => { empire_id => $empire->id })->paginate(25, $page_number);
+    my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({ empire_id => $empire->id }, { rows => 25, page => $page_number});
     while (my $probe = $probes->next) {
         push @stars, $probe->star->get_status($empire);
     }

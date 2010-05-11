@@ -14,7 +14,7 @@ sub find {
         confess [1009, 'Empire name too short. Your search must be at least 3 characters.'];
     }
     my $empire = $self->get_empire_by_session($session_id);
-    my $empires = Lacuna->db->resultset('empire')->search(where=>{name => ['like', '%'.$name.'%']}, limit=>100);
+    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => {'like' => '%'.$name.'%'}}, {rows=>100});
     my @list_of_empires;
     my $limit = 100;
     while (my $empire = $empires->next) {
@@ -36,7 +36,7 @@ sub is_name_available {
         ->not_empty
         ->no_restricted_chars
         ->no_profanity
-        ->ok( !Lacuna->db->resultset('empire')->count(where=>{name=>$name}, consistent=>1) );
+        ->ok( !Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->count );
     return 1; 
 }
 
@@ -48,12 +48,12 @@ sub logout {
 
 sub login {
     my ($self, $name, $password) = @_;
-    my $empire = Lacuna->db->resultset('empire')->search(where=>{name=>$name})->next;
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->next;
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
     }
     if ($empire->stage eq 'new') {
-        confess [1010, "You can't log in to an empire tha has not been founded."];
+        confess [1010, "You can't log in to an empire that has not been founded."];
     }
     unless ($empire->is_password_valid($password)) {
         confess [1004, 'Password incorrect.', $password];
@@ -87,7 +87,7 @@ sub found {
     if ($empire_id eq '') {
         confess [1002, "You must specify an empire id."];
     }
-    my $empire = Lacuna->db->resultset('empire')->find($empire_id);
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
     unless (defined $empire) {
         confess [1002, "Invalid empire.", $empire_id];
     }
@@ -182,11 +182,11 @@ sub set_status_message {
 sub view_public_profile {
     my ($self, $session_id, $empire_id) = @_;
     my $viewer_empire = $self->get_empire_by_session($session_id);
-    my $viewed_empire = Lacuna->db->resultset('empire')->find($empire_id);
+    my $viewed_empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
     unless (defined $viewed_empire) {
         confess [1002, 'The empire you wish to view does not exist.', $empire_id];
     }
-    my $medals = Lacuna->db->resultset('medals')->search( where => { empire_id => $viewed_empire->id, public => 1 } );
+    my $medals = $viewed_empire->medals->search( { public => 1 } );
     my %public_medals;
     while (my $medal = $medals->next) {
         $public_medals{$medal->id} = {
@@ -202,7 +202,7 @@ sub view_public_profile {
         status_message  => $viewed_empire->status_message,
         species         => $viewed_empire->species->name,
         date_founded    => format_date($viewed_empire->date_created),
-        planet_count    => Lacuna->db->resultset('Lacuna::DB::Result::Body')->count(where=>{empire_id=>$viewed_empire->id}),
+        planet_count    => $viewed_empire->planets->count,
         medals          => \%public_medals,
     );
     return { profile => \%out, status => $viewer_empire->get_status };
