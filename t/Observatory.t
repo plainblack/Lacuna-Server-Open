@@ -79,7 +79,9 @@ $home->water_stored(500000);
 $home->needs_recalc(0);
 $home->put;
 
-$result = $tester->post('shipyard', 'build_ship', [$session_id, $shipyard->id, 'probe', 3]);
+$result = $tester->post('shipyard', 'build_ship', [$session_id, $shipyard->id, 'probe']);
+$result = $tester->post('shipyard', 'build_ship', [$session_id, $shipyard->id, 'probe']);
+$result = $tester->post('shipyard', 'build_ship', [$session_id, $shipyard->id, 'probe']);
 ok(exists $result->{result}{ships_building}[0]{date_completed}, "got a date of completion");
 is($result->{result}{ships_building}[0]{type}, 'probe', "probe building");
 

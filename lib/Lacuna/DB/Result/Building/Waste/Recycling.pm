@@ -4,20 +4,6 @@ use Moose;
 extends 'Lacuna::DB::Result::Building::Waste';
 use Lacuna::Util qw(to_seconds);
 
-#__PACKAGE__->add_columns(
-#    recycling_ends          => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-#    recycling_in_progress   => { isa => 'Str', default => 0 },
-#    water_from_recycling    => { isa => 'Int', default => 0 },
-#    energy_from_recycling   => { isa => 'Int', default => 0 },
-#    ore_from_recycling      => { isa => 'Int', default => 0 },
-#);
-
-sub recycling_seconds_remaining {
-    my ($self) = @_;
-    my $seconds = to_seconds($self->recycling_ends - DateTime->now);
-    return ($seconds > 0) ? $seconds : 0;
-}
-
 sub can_recycle {
     my ($self, $water, $ore, $energy, $use_essentia) = @_;
     $water ||= 0;
@@ -26,13 +12,13 @@ sub can_recycle {
     if ($self->level < 1) {
         confess [1010, "You can't recycle until the Recycling Center is built."];
     }
-    if ($self->recycling_in_progress) {
+    if ($self->is_working) {
         confess [1010, "The Recycling Center is busy."];
     }
     if (($water + $ore + $energy) > $self->body->waste_stored) {
         confess [1011, "You don't have that much waste in storage."];
     }
-    if (defined $use_essentia && $use_essentia && !$self->empire->essentia >= 2) {
+    if (defined $use_essentia && $use_essentia && !$self->body->empire->essentia >= 2) {
         confess [1011, "You don't have enough essentia to subsidize recycling."];
     }
     return 1;
@@ -44,53 +30,39 @@ sub recycle {
 
     # setup
     my $body = $self->body;
-    my $empire = $self->empire;    
+    my $empire = $body->empire;    
     my $total = $water + $ore + $energy;
     
     # start
     my $seconds = $total * 10 * $self->time_cost_reduction_bonus($self->level * 2);
-    $self->recycling_ends(DateTime->now->add(seconds=>$seconds));
-    $self->water_from_recycling($water);
-    $self->ore_from_recycling($ore);
-    $self->energy_from_recycling($energy);
+    $self->start_work({
+        water_from_recycling    => $water,
+        ore_from_recycling      => $ore,
+        energy_from_recycling   => $energy,
+        }, $seconds);
 
     # spend
     $body->spend_waste($total);
     if ($use_essentia) {
         $empire->spend_essentia(2);
-        $self->finish_recycling;
+        $self->finish_work;
     }
     else {
         $body->put;
-        $empire->trigger_full_update;
-        $self->recycling_in_progress(1);
-        $self->put;
+        $self->update;
     }
+    $empire->trigger_full_update(skip_put=>1);
+    $empire->update;
 }
 
-sub finish_recycling {
-    my ($self) = @_;
-    if ($self->recycling_in_progress) {
-        $self->recycling_in_progress(0);
-        $self->put;
-    }
+before finish_work => sub {
+    my $self = shift;
     my $planet = $self->body;
-    $planet->add_water($self->water_from_recycling);
-    $planet->add_ore($self->ore_from_recycling);
-    $planet->add_energy($self->energy_from_recycling);
-    $planet->put;
-    $self->empire->trigger_full_update;
-}
-
-sub check_recycling_over {
-    my ($self) = @_;
-    if ($self->recycling_in_progress) {
-        if ($self->recycling_ends < DateTime->now) {
-            $self->finish_recycling;
-        }
-    }
-}
-
+    $planet->add_water($self->work->{water_from_recycling});
+    $planet->add_ore($self->work->{ore_from_recycling});
+    $planet->add_energy($self->work->{energy_from_recycling});
+    $planet->update;
+};
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;

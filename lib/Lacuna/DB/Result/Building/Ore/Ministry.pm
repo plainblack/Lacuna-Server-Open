@@ -31,9 +31,6 @@ use Lacuna::Constants qw(ORE_TYPES);
 #    percent_platform_capacity       => { isa => 'Int', default=>100 },
 #);
 
-with 'Lacuna::Role::Distanced';
-with 'Lacuna::Role::Shippable';
-
 has platform_count => (
     is      => 'rw',
     lazy    => 1,

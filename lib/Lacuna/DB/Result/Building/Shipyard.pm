@@ -113,8 +113,7 @@ sub get_ship_costs {
 
 
 sub can_build_ship {
-    my ($self, $type, $quantity, $costs) = @_;
-    $quantity ||= 1;
+    my ($self, $type, $costs) = @_;
     $costs ||= $self->get_ship_costs($type);
     if ($self->level < 1) {
         confess [1013, "You can't build a ship if the shipyard isn't complete."];
@@ -122,7 +121,7 @@ sub can_build_ship {
     my $body = $self->body;
     foreach my $key (keys %{$costs}) {
         next if ($key eq 'seconds' || $key eq 'waste');
-        my $cost = $costs->{$key} * $quantity;
+        my $cost = $costs->{$key};
         my $stored = $key.'_stored';
         unless ($cost <= $body->$stored) {
             confess [1011, 'Not enough resources.', $key];
@@ -138,15 +137,12 @@ sub can_build_ship {
 
 
 sub build_ship {
-    my ($self, $type, $quantity, $time) = @_;
-    $quantity ||= 1;
+    my ($self, $type, $time) = @_;
     $time ||= $self->get_ship_costs($type)->{seconds};
-    my $builds = Lacuna->db->resultset('ship_builds');
-    my $latest = $builds->search(
-        where       => { shipyard_id => $self->id, date_completed => ['>=', DateTime->now->subtract(days=>1)]},
-        limit       => 1,
-        order_by    => ['date_completed'],
-        )->next;
+    my $latest = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        { shipyard_id => $self->id},
+        { order_by    => { -desc => 'date_completed' } },
+        )->single;
     my $date_completed;
     if (defined $latest) {
         $date_completed = $latest->date_completed->clone;
@@ -154,20 +150,26 @@ sub build_ship {
     else {
         $date_completed = DateTime->now;
     }
-    foreach (1..$quantity) {
-        $date_completed->add(seconds=>$time);
-        $builds->insert({
-            shipyard_id     => $self->id,
-            body_id         => $self->body_id,
-            type            => $type,
-            date_completed  => $date_completed,
-        });
-    }
+    $date_completed->add(seconds=>$time);
+    my $name = $type;
+    $name =~ s/(_|^)(\w)(.*?)(?=_|$)/\u$2/sg;
+    $name .= $self->level;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({
+        shipyard_id     => $self->id,
+        date_started    => DateTime->now,
+        date_available  => $date_completed,
+        task            => 'Building',
+        type            => $type,
+        name            => $name,
+        body_id         => $self->body_id,
+        speed           => $self->get_ship_speed($type),
+        hold_size       => $self->get_ship_hold_size($type),
+    })->insert;
 }
 
 before delete => sub {
     my ($self) = @_;
-    Lacuna->db->resultset('ship_builds')->search(where=>{shipyard_id=>$self->id})->delete;
+    Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id => $self->id, task => 'building' })->delete_all;
 };
 
 use constant controller_class => 'Lacuna::Building::Shipyard';
@@ -200,8 +202,69 @@ use constant water_consumption => 4;
 
 use constant waste_production => 2;
 
+use constant star_to_body_distance_ratio => 100;
+
+use constant ship_speed => {
+    probe                               => 500,
+    gas_giant_settlement_platform_ship  => 70,
+    terraforming_platform_ship          => 75,
+    mining_platform_ship                => 100,
+    cargo_ship                          => 150,
+    smuggler_ship                       => 250,
+    spy_pod                             => 300,
+    colony_ship                         => 50,
+    space_station                       => 1,
+};
 
 
+has propulsion_factory => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->body->get_building_of_class('Lacuna::DB::Result::Building::Propulsion');
+    },
+);
+
+sub get_ship_speed {
+    my ($self, $type) = @_;
+    my $base_speed = $self->ship_speed->{$type};
+    my $propulsion_level = (defined $self->propulsion_factory) ? $self->propulsion_factory->level : 0;
+    my $speed_improvement = $propulsion_level * 5 + $self->body->empire->species->science_affinity * 3;
+    return sprintf('%.0f', $base_speed * ((100 + $speed_improvement) / 100));
+}
+
+
+# CARGO HOLD SIZE
+
+use constant cargo_ship_base => 2000;
+use constant smuggler_ship_base => 1200;
+
+has trade_ministry => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->body->get_building_of_class('Lacuna::DB::Result::Building::Trade');
+    },
+);
+
+has hold_size_bonus => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return (100 + ($self->body->empire->species->trade_affinity * 25) + ($self->trade_ministry->level * 30)) / 100;
+    },
+);
+
+sub get_ship_hold_size {
+    my ($self, $type) = @_;
+    my $base = 0;
+    $base = $self->cargo_ship_base if ($type eq 'cargo_ship');
+    $base = $self->smuggler_ship_base if ($type eq 'smuggler_ship');
+    return sprintf('%.0f', $base * $self->hold_size_bonus);
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

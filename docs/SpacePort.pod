@@ -103,7 +103,7 @@ A hash reference that can contain one of three items to identify a star.
  
  { "star_id" : "id-goes-here" }
  
- { "x" : 4, "y" : -3, "z" : 5 }
+ { "x" : 4, "y" : -3 }
 
 =head4 star_name
 
@@ -113,9 +113,9 @@ A string with the star's name. Case insensitive, but will throw an exception for
 
 The unique id of the star.
 
-=head4 x | y | z
+=head4 x | y
 
-A set of x,y,z coordinates to locate the star.
+A set of x,y coordinates to locate the star.
 
 
 
@@ -155,7 +155,7 @@ A hash reference that can contain one of three items to identify a planet.
  
  { "body_id" : "id-goes-here" }
  
- { "x" : 4, "y" : -3, "z" : 5, "orbit" : 3 }
+ { "x" : 4, "y" : -3 }
 
 =head4 body_name
 
@@ -165,9 +165,9 @@ A string with the body's name. Case insensitive, but will throw an exception for
 
 The unique id of the body.
 
-=head4 x | y | z | orbit
+=head4 x | y 
 
-A set of x,y,z coordinates and an orbit to locate the body.
+A set of x,y coords to locate the body.
 
 
 =head2 send_colony_ship ( session_id, from_body_id, to_body )
@@ -201,7 +201,7 @@ A hash reference that can contain one of three items to identify a planet.
  
  { "body_id" : "id-goes-here" }
  
- { "x" : 4, "y" : -3, "z" : 5, "orbit" : 3 }
+ { "x" : 4, "y" : -3 }
 
 =head4 body_name
 
@@ -211,7 +211,9 @@ A string with the body's name. Case insensitive, but will throw an exception for
 
 The unique id of the body.
 
-=head4 x | y | z | orbit
+=head4 x | y
+
+A set of x,y coords to locate the body.
 
 
 =head2 send_mining_platform_ship ( session_id, from_body_id, to_body )
@@ -245,7 +247,7 @@ A hash reference that can contain one of three items to identify a planet.
  
  { "body_id" : "id-goes-here" }
  
- { "x" : 4, "y" : -3, "z" : 5, "orbit" : 3 }
+ { "x" : 4, "y" : -3 }
 
 =head4 body_name
 
@@ -255,7 +257,9 @@ A string with the body's name. Case insensitive, but will throw an exception for
 
 The unique id of the body.
 
-=head4 x | y | z | orbit
+=head4 x | y
+
+A set of x,y coords to locate the body.
 
 
 

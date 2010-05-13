@@ -74,7 +74,7 @@ The unique id of the shipyard.
 
  
  
-=head2 build_ship ( session_id, building_id, type, [ quantity ] )
+=head2 build_ship ( session_id, building_id, type )
 
 Adds a ship to the build queue. Returns the same thing as C<view_build_queue()>.
 
@@ -88,12 +88,6 @@ The unique id of the shipyard.
 
 =head3 type
 
-A ship type. Choose from: 'probe','colony_ship','spy_pod','cargo_ship','space_station','smuggler_ship','mining_platform_ship','terraforming_platform_ship', or 'gas_giant_settlement_ship'
-
-=head3 quantity
-
-An integer representing how many ships of that type you want to build. Defaults to 1.
-
-
+A ship type. Choose from: 'probe','colony_ship','spy_pod','cargo_ship','space_station','smuggler_ship','mining_platform_ship','terraforming_platform_ship', or 'gas_giant_settlement_ship'.
 
 =cut

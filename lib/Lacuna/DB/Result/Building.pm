@@ -709,5 +709,31 @@ sub finish_upgrade {
 }
 
 
+# WORK
+
+sub work_seconds_remaining {
+    my ($self) = @_;
+    my $seconds = to_seconds($self->work_ends - DateTime->now);
+    return ($seconds > 0) ? $seconds : 0;
+}
+
+sub start_work {
+    my ($self, $work, $duration) = @_;
+    my $now = DateTime->now;
+    $self->is_working(1);
+    $self->work_started($now);
+    $self->work_ends($now->clone->add(seconds=>$duration));
+    $self->work($work);
+    return $self;
+}
+
+sub finish_work {
+    my ($self) = @_;
+    $self->is_working(0);
+    $self->work({});
+    return $self;
+}
+
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

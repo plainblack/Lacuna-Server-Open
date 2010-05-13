@@ -57,7 +57,7 @@ cmp_ok($result->{result}{seconds_remaining}, '>', 0, "timer is started");
 my $water_stored = $building->body->water_stored;
 
 $building = $db->domain('Lacuna::DB::Result::Building::Waste::Recycling')->find($building->id);
-$building->finish_recycling;
+$building->finish_work;
 cmp_ok($building->body->water_stored, '>=', $water_stored + 5, "resources increased");
 
 

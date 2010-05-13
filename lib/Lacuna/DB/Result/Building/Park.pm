@@ -17,7 +17,7 @@ sub can_throw_a_party {
     if ($self->level < 1) {
         confess [1010, "You can't throw a party until the park is built."];
     }
-    if ($self->party_in_progress) {
+    if ($self->is_working) {
         confess [1010, "There is already a party in progress."];
     }
     unless ($self->body->food_stored >= 10_000) {
@@ -43,33 +43,19 @@ sub throw_a_party {
     if ($eat) { # leftovers
         $body->spend_food($eat);
     }
-    $body->put;
+    $body->update;
     
-    $self->party_ends(DateTime->now->add(days=>1));
-    $self->party_in_progress(1);
-    $self->happiness_from_party(3_000 * $food_multiplier * $self->happiness_production_bonus);
-    $self->put;
-    $self->empire->trigger_full_update;
+    $self->start_work({
+        happiness_from_party    => 3_000 * $food_multiplier * $self->happiness_production_bonus,
+        }, 60*60*24)->update;
+    $body->empire->trigger_full_update;
 }
 
-sub end_the_party {
-    my ($self) = @_;
-    $self->party_in_progress(0);
-    $self->put;
+before finish_work => sub {
+    my $self = shift;
     my $planet = $self->body;
-    $self->empire->trigger_full_update;
-    $planet->add_happiness($self->happiness_from_party);
-    $planet->put;
-}
-
-sub check_party_over {
-    my ($self) = @_;
-    if ($self->party_in_progress) {
-        if ($self->party_ends < DateTime->now) {
-            $self->end_the_party;
-        }
-    }
-}
+    $planet->add_happiness($self->work->{happiness_from_party})->update;
+};
 
 use constant controller_class => 'Lacuna::Building::Park';
 

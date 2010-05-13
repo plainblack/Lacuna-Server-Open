@@ -15,14 +15,13 @@ around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
-    $building->check_recycling_over;
     my $out = $orig->($self, $empire, $building);
-    if ($building->recycling_in_progress) {
+    if ($building->is_working) {
         $out->{recycle} = {
-            seconds_remaining   => $building->recycling_seconds_remaining,
-            water               => $building->water_from_recycling,
-            ore                 => $building->ore_from_recycling,
-            energy              => $building->energy_from_recycling,
+            seconds_remaining   => $building->work_seconds_remaining,
+            water               => $building->work->{water_from_recycling},
+            ore                 => $building->work->{ore_from_recycling},
+            energy              => $building->work->{energy_from_recycling},
         };
     }
     else {
@@ -46,7 +45,7 @@ sub recycle {
     
     $building->recycle($water, $ore, $energy, $use_essentia);
     return {
-        seconds_remaining   => $building->recycling_seconds_remaining,
+        seconds_remaining   => $building->work_seconds_remaining,
         status              => $empire->get_status,
     };    
 }
@@ -61,8 +60,10 @@ sub subsidize_recycling {
         confess [1011, "Not enough essentia."];    
     }
 
-    $empire->spend_essentia(2)->put;    
-    $building->finish_recycling;
+    $building->finish_work->update;
+    $empire->spend_essentia(2);    
+    $empire->trigger_full_update(skip_put => 1);
+    $empire->update;
 
     return {
         status              => $empire->get_status,

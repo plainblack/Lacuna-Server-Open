@@ -679,15 +679,12 @@ sub destroy_upgrades {
 sub destroy_ships {
     my ($planet, $espionage, $quantity) = @_;
     out('Destroy Ships');
-    my $spaceport = $planet->spaceport;
-    return undef unless defined $spaceport;
-    my @ships = ('probe','colony_ship','spy_pod','cargo_ship','space_station','smuggler_ship','mining_platform_ship');
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $self->body_id, task => 'Docked'});
     for (1..$quantity) {
-        my $type = $ships[randint(0,6)];
-        eval{$spaceport->remove_ship($type)};
-        if ($@) {
-            next;
-        }
+        my $ship = $ships->next;
+        last unless (defined $ship);
+        my $type = $ship->type;
+        $ship->delete;
         $espionage->{police}{score} += 10;
         my @spies = pick_a_spy_per_empire($espionage->{sabotage}{spies});
         foreach my $spy (@spies) {
@@ -705,7 +702,6 @@ sub destroy_ships {
         );
         $planet->add_news(90,'Today, officials on %s are investigating the explosion of a %s at the Space Port.', $planet->name, $type);
     }
-    $spaceport->save_changed_ports;
 }
 
 sub destroy_mining_ship {
@@ -785,43 +781,31 @@ sub thwart_saboteur {
 sub steal_resources {
     my ($planet, $espionage, $quantity) = @_;
     out('Steal Resources');
-    my $spaceport = $planet->spaceport;
-    return undef unless defined $spaceport;
-    my @ships = ('cargo_ship','smuggler_ship');
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $planet->id, task => 'Docked', type => {'in' => ['cargo_ship','smuggler_ship']}});
     for (1..$quantity) {
         my $thief = shift @{$espionage->{theft}{spies}};
         last unless defined $thief;
-        my $type = $ships[randint(0,1)];
-        eval{$spaceport->remove_ship($type)};
-        if ($@) {
-            push @{$espionage->{theft}{spies}}, $thief;
-            next;
-        }
+        my $ship = $ships->next;
+        last unless defined $ship;
+        my $type = $ship->type;
         $espionage->{theft}{score} -= $thief->offense;
-        $espionage->{police}{score} += $thief->offense + 10;
-        my $cargo_size_method = $type.'_hold_size';
-        my $cargo_size = $spaceport->$cargo_size_method;
-        my $payload = {
-            spies => [ $thief->id ],
-            resources   => {},
-            # FINISH THIS AFTER CARGO SHIPS ARE IMPLEMENTED
-        };
+        $espionage->{police}{score} += $thief->offense;
         my $home = $thief->from_body;
-        my $duration = $spaceport->calculate_seconds_from_body_to_body($type, $planet, $home);
-        my $date = DateTime->now->add(seconds=>$duration);
-        $thief->available_on($date->clone);
+        $ship->body_id($home->id);
+        $ship->body($home);
+        $ship->send(
+            target      => $planet,
+            direction   => 'in',
+            payload     => {
+                spies => [ $thief->id ],
+                resources   => {},
+                # FINISH THIS AFTER CARGO SHIPS ARE IMPLEMENTED
+            },
+        );
+        $thief->available_on($ship->date_available->clone);
         $thief->on_body_id($home->id);
         $thief->task('Travelling');
-        $thief->put;
-        Lacuna::DB::Result::TravelQueue->send(
-            simpledb        => $db,
-            body            => $home,
-            foreign_body    => $planet,
-            payload         => $payload,
-            ship_type       => $type,
-            direction       => 'incoming',
-            date_arrives    => $date,
-        );
+        $thief->update;
         $type =~ s/_/ /g;
         $thief->empire->send_predefined_message(
             tags        => ['Alert'],
@@ -836,42 +820,32 @@ sub steal_resources {
         );
         $planet->add_news(50,'In a daring robbery a thief absconded with a %s from %s today.', $type, $planet->name);
     }
-    $spaceport->save_changed_ports;
 }
 
 sub steal_ships {
     my ($planet, $espionage, $quantity) = @_;
     out('Steal Ships');
-    my $spaceport = $planet->spaceport;
-    return undef unless defined $spaceport;
-    my @ships = ('colony_ship','spy_pod','cargo_ship','space_station','smuggler_ship','mining_platform_ship');
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $planet->id, task => 'Docked', type => {'!=' => 'probe'}});
     for (1..$quantity) {
         my $thief = shift @{$espionage->{theft}{spies}};
         last unless defined $thief;
-        my $type = $ships[randint(0,5)];
-        eval{$spaceport->remove_ship($type)};
-        if ($@) {
-            push @{$espionage->{theft}{spies}}, $thief;
-            next;
-        }
+        my $ship = $ships->next;
+        last unless defined $ship;
+        my $type = $ship->type;
         $espionage->{theft}{score} -= $thief->offense;
         $espionage->{police}{score} += $thief->offense;
         my $home = $thief->from_body;
-        my $duration = $spaceport->calculate_seconds_from_body_to_body($type, $planet, $home);
-        my $date = DateTime->now->add(seconds=>$duration);
-        $thief->available_on($date->clone);
+        $ship->body_id($home->id);
+        $ship->body($home);
+        $ship->send(
+            target      => $planet,
+            direction   => 'in',
+            payload     => { spies => [ $thief->id ] }
+        );
+        $thief->available_on($ship->date_available->clone);
         $thief->on_body_id($home->id);
         $thief->task('Travelling');
-        $thief->put;
-        Lacuna::DB::Result::TravelQueue->send(
-            simpledb        => $db,
-            body            => $home,
-            foreign_body    => $planet,
-            payload         => { spies => [ $thief->id ] },
-            ship_type       => $type,
-            direction       => 'incoming',
-            date_arrives    => $date,
-        );
+        $thief->update;
         $type =~ s/_/ /g;
         $thief->empire->send_predefined_message(
             tags        => ['Alert'],
@@ -885,7 +859,6 @@ sub steal_ships {
         );
         $planet->add_news(50,'In a daring robbery a thief absconded with a %s from %s today.', $type, $planet->name);
     }
-    $spaceport->save_changed_ports;
 }
 
 sub steal_building {

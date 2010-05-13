@@ -184,16 +184,17 @@ sub get_buildings_of_class {
 
 sub get_building_of_class {
     my ($self, $class) = @_;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
+    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
         {
             body_id => $self->id,
             class   => $class,
         },
         {
             order_by    => { -desc => 'level' },
-            rows        => 1,
         }
-    )->next;
+    )->single;
+    $building->body($self);
+    return $building;
 }
 
 has command => (
@@ -552,42 +553,83 @@ sub add_news {
 sub tick {
     my ($self) = @_;
     my $now = DateTime->now;
-    my $builds = $self->builds->search({upgrade_ends => {'<=', $now}});
-    my $ships_travelling = $self->ships_travelling({date_arrives => {'<=', $now}});
-    my $ship = $ships_travelling->next;
-    my $build = $builds->next;
-    
-    # deal with events that may have occurred
-    while (1) {
-        if (defined $ship && defined $build ) {
-            if ( $ship->date_arrives > $build->date_complete ) {
-                $self->tick_to($build->date_complete);
-                $build->body($self);
-                $build->finish_upgrade;
-                $build = $builds->next;
-            }
-            else {
-                $self->tick_to($ship->date_arrives);
-                $ship->arrive;
-                $ship = $ships_travelling->next; 
-            }
+    my %todo;
+    my $i; # in case 2 things finish at exactly the same time
+
+    # get building tasks
+    my $buildings = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
+        body_id     => $self->id,
+        -or         => [
+            -and    => [
+                is_upgrading    => 1,
+                upgrade_ends    => {'<=' => $now},
+            ],
+            -and    => [
+                is_working      => 1,
+                work_ends       => {'<=' => $now},
+            ],
+        ],
+    });
+    while (my $building = $buildings->next) {
+        if ($building->is_upgrading && $building->upgrade_ends <= $now) {
+            $todo{format_date($building->upgrade_ends).$i} = {
+                object  => $building,
+                type    => 'building upgraded',
+            };
         }
-        elsif (defined $build) {
-            $self->tick_to($build->date_complete);
-            $build->body($self);
-            $build->finish_upgrade;
-            $build = $builds->next;
+        if ($building->is_working && $building->work_ends <= $now) {
+            $todo{format_date($building->work_ends).$i} = {
+                object  => $building,
+                type    => 'building work complete',
+            };
         }
-        elsif (defined $ship) {
-            $self->tick_to($ship->date_arrives);
-            $ship->arrive;
-            $ship = $ships_travelling->next; 
-        }
-        else {
-            last;
-        }
+        $i++;
     }
 
+    # get ship tasks
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        body_id         => $self->id,
+        date_available  => { '<=' => $now },
+        task            => { '!=' => 'Docked' },
+    });
+    while (my $ship = $ships->next ) {
+        if ($ship->task eq 'Travelling') {
+            $todo{format_date($ship->date_available).$i} = {
+                object  => $ship,
+                type    => 'ship arrives',
+            };
+        }
+        elsif ($ship->task eq 'Building') {
+            $todo{format_date($ship->date_available).$i} = {
+                object  => $ship,
+                type    => 'ship built',
+            };
+        }
+        $i++;
+    }
+    
+    # synchronize completion of tasks
+    foreach my $key (sort keys %todo) {
+        my ($object, $job) = ($todo{$key}{object}, $todo{$key}{type});
+        $object->body($self);
+        if ($job eq 'ship built') {
+            $self->tick_to($object->date_available);
+            $object->finish_construction;
+        }
+        elsif ($job eq 'ship arrives') {
+            $self->tick_to($object->date_available);
+            $object->arrive;            
+        }
+        elsif ($job eq 'building work complete') {
+            $self->tick_to($object->work_ends);
+            $object->finish_work;
+        }
+        elsif ($job eq 'building upgraded') {
+            $self->tick_to($object->upgrade_ends);
+            $object->finish_upgrade;
+        }
+    }
+    
     # check / clear boosts
     if ($self->boost_enabled) {
         my $empire = $self->empire;
