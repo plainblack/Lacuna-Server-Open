@@ -15,7 +15,6 @@ Returns
     "building" : { ... },
     "mining" : {
         "ships_in_fleet" : 1,
-        "max_ships" : 2,
         "platforms_in_fleet" : 1,
         "max_platforms" : 1,
         "production" : {

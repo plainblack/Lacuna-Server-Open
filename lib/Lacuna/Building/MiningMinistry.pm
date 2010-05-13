@@ -18,8 +18,7 @@ around 'view' => sub {
     my $out = $orig->($self, $empire, $building);
     $out->{mining} = {
         ships_in_fleet      => $building->ship_count,
-        max_ships           => $building->max_ships,
-        platforms_in_fleet  => $building->platform_count,
+        platforms_in_fleet  => $building->platforms->count,
         max_platforms       => $building->max_platforms,
         production          => {
                 rutile_hour                     => $building->rutile_hour,
@@ -68,7 +67,6 @@ sub add_cargo_ships_to_fleet {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
     $count ||= 1;
-    $building->can_add_ships($count);
     $building->add_ships($count)->put;
     return {
         status  => $empire->get_status,

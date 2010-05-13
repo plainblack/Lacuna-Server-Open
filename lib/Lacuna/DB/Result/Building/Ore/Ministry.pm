@@ -4,50 +4,39 @@ use Moose;
 extends 'Lacuna::DB::Result::Building::Ore';
 use Lacuna::Constants qw(ORE_TYPES);
 
-#__PACKAGE__->add_columns(
-#    asteroid_ids                    => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
-#    ship_count                      => { data_type => 'int', size => 11, default_value => 0 },
-#    rutile_hour                     => { data_type => 'int', size => 11, default_value => 0 },
-#    chromite_hour                   => { data_type => 'int', size => 11, default_value => 0 },
-#    chalcopyrite_hour               => { data_type => 'int', size => 11, default_value => 0 },
-#    galena_hour                     => { data_type => 'int', size => 11, default_value => 0 },
-#    gold_hour                       => { data_type => 'int', size => 11, default_value => 0 },
-#    uraninite_hour                  => { data_type => 'int', size => 11, default_value => 0 },
-#    bauxite_hour                    => { data_type => 'int', size => 11, default_value => 0 },
-#    goethite_hour                   => { data_type => 'int', size => 11, default_value => 0 },
-#    halite_hour                     => { data_type => 'int', size => 11, default_value => 0 },
-#    gypsum_hour                     => { data_type => 'int', size => 11, default_value => 0 },
-#    trona_hour                      => { data_type => 'int', size => 11, default_value => 0 },
-#    kerogen_hour                    => { data_type => 'int', size => 11, default_value => 0 },
-#    methane_hour                    => { data_type => 'int', size => 11, default_value => 0 },
-#    anthracite_hour                 => { data_type => 'int', size => 11, default_value => 0 },
-#    sulfur_hour                     => { data_type => 'int', size => 11, default_value => 0 },
-#    zircon_hour                     => { data_type => 'int', size => 11, default_value => 0 },
-#    monazite_hour                   => { data_type => 'int', size => 11, default_value => 0 },
-#    fluorite_hour                   => { data_type => 'int', size => 11, default_value => 0 },
-#    beryl_hour                      => { data_type => 'int', size => 11, default_value => 0 },
-#    magnetite_hour                  => { data_type => 'int', size => 11, default_value => 0 },
-#    percent_ship_capacity           => { isa => 'Int', default=>100 },
-#    percent_platform_capacity       => { isa => 'Int', default=>100 },
-#);
-
-has platform_count => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return scalar @{$self->asteroid_ids};
-    }
+__PACKAGE__->add_columns(
+    asteroid_ids                    => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
+    ship_count                      => { data_type => 'int', size => 11, default_value => 0 },
+    rutile_hour                     => { data_type => 'int', size => 11, default_value => 0 },
+    chromite_hour                   => { data_type => 'int', size => 11, default_value => 0 },
+    chalcopyrite_hour               => { data_type => 'int', size => 11, default_value => 0 },
+    galena_hour                     => { data_type => 'int', size => 11, default_value => 0 },
+    gold_hour                       => { data_type => 'int', size => 11, default_value => 0 },
+    uraninite_hour                  => { data_type => 'int', size => 11, default_value => 0 },
+    bauxite_hour                    => { data_type => 'int', size => 11, default_value => 0 },
+    goethite_hour                   => { data_type => 'int', size => 11, default_value => 0 },
+    halite_hour                     => { data_type => 'int', size => 11, default_value => 0 },
+    gypsum_hour                     => { data_type => 'int', size => 11, default_value => 0 },
+    trona_hour                      => { data_type => 'int', size => 11, default_value => 0 },
+    kerogen_hour                    => { data_type => 'int', size => 11, default_value => 0 },
+    methane_hour                    => { data_type => 'int', size => 11, default_value => 0 },
+    anthracite_hour                 => { data_type => 'int', size => 11, default_value => 0 },
+    sulfur_hour                     => { data_type => 'int', size => 11, default_value => 0 },
+    zircon_hour                     => { data_type => 'int', size => 11, default_value => 0 },
+    monazite_hour                   => { data_type => 'int', size => 11, default_value => 0 },
+    fluorite_hour                   => { data_type => 'int', size => 11, default_value => 0 },
+    beryl_hour                      => { data_type => 'int', size => 11, default_value => 0 },
+    magnetite_hour                  => { data_type => 'int', size => 11, default_value => 0 },
+    percent_ship_capacity           => { isa => 'Int', default=>100 },
+    percent_platform_capacity       => { isa => 'Int', default=>100 },
 );
 
-has max_ships => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return $self->platform_count * $self->level;
-    }
-);
+__PACKAGE__->has_many('platforms', 'Lacuna::DB::Result::MiningPlatforms','ministry_id');
+
+sub ships {
+    my $self = shift;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $self->body_id, task => 'Mining' });
+}
 
 sub max_platforms {
     my $self = shift;
@@ -62,14 +51,6 @@ has platform_production_hour => (
         return sprintf('%.0f', 70 * $self->production_hour * $self->mining_production_bonus);
     }
 );
-
-sub can_add_ships {
-    my ($self, $count) = @_;
-    if ($self->ship_count + $count > $self->max_ships) {
-        confess [1009, 'That would put you over your fleet size limit.'];
-    }
-    return 1;
-}
 
 sub add_ships {
     my ($self, $count) = @_;
@@ -144,6 +125,28 @@ sub remove_platform {
 
 sub recalc_ore_production {
     my $self = shift;
+    
+    # get ships
+    my $ship_speed = 0;
+    my $ship_capacity = 0;
+    my $ship_count = 0;
+    my $ships = $self->ships;
+    while (my $ship = $ships->next) {
+        $ship_count++;
+        $ship_capacity += $ship->hold_size;
+        $ship_speed += $ship->speed;
+    }
+    
+    # platforms
+    my $platform_count = $self->platforms->count;
+    my $platforms = $self->platforms;
+    while (my $platform = $platforms->next) {
+        foreach my $ore (ORE_TYPES) {
+            my $asteroid = $platform->asteroid;
+        }
+    }
+    
+    
     my %asteroids;
     my %production;
     my $ships_per_platform          = $self->ship_count / $self->platform_count;
@@ -176,7 +179,7 @@ sub recalc_ore_production {
     $production{percent_platform_capacity} = sprintf('%.0f', $cargo_hauled / $production_capacity * 100);
     $self->update(\%production);
     $self->body->needs_recalc(1);
-    $self->body->put;
+    $self->body->update;
     return $self;
 }
 
