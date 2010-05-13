@@ -69,8 +69,7 @@ sub create_star_map {
     my $map_size = $config->get('map_size');
     my ($start_x, $end_x) = @{$map_size->{x}};
     my ($start_y, $end_y) = @{$map_size->{y}};
-    my ($start_z, $end_z) = @{$map_size->{z}};
-    my $star_count = abs($end_x - $start_x) * abs($end_y - $start_y) * abs($end_z - $start_z);
+    my $star_count = abs($end_x - $start_x) * abs($end_y - $start_y);
     my @star_colors = (qw(magenta red green blue yellow white));
     my $made_lacuna = 0;
     say "Adding stars.";
@@ -78,30 +77,25 @@ sub create_star_map {
         say "Start X $x";
         for my $y ($start_y .. $end_y) {
             say "Start Y $y";
-            for my $z ($start_z .. $end_z) {
-                say "Start Z $z";
-                if (rand(100) <= 15) { # 15% chance of no star
-                    say "No star at $x, $y, $z!";
+            if (rand(100) <= 15) { # 15% chance of no star
+                say "No star at $x, $y!";
+            }
+            else {
+                my $name = get_star_name();
+                if (!$made_lacuna && $x >= 0 && $y >= 0) {
+                    $made_lacuna = 1;
+                    $name = 'Lacuna';
                 }
-                else {
-                    my $name = get_star_name();
-                    if (!$made_lacuna && $x >= 0 && $y >= 0 && $z >= 0) {
-                        $made_lacuna = 1;
-                        $name = 'Lacuna';
-                    }
-                    say "Creating star $name at $x, $y, $z.";
-                    my $star = $db->resultset('Lacuna::DB::Result::Map::Star')->new({
-                        name        => $name,
-                        color       => $star_colors[rand(scalar(@star_colors))],
-                        x           => $x,
-                        y           => $y,
-                        z           => $z,
-                    });
-                    $star->set_zone_from_xyz;
-                    $star->insert;
-                    add_bodies($star);
-                }
-                say "End Z $z";
+                say "Creating star $name at $x, $y.";
+                my $star = $db->resultset('Lacuna::DB::Result::Map::Star')->new({
+                    name        => $name,
+                    color       => $star_colors[rand(scalar(@star_colors))],
+                    x           => $x,
+                    y           => $y,
+                });
+                $star->set_zone_from_xy;
+                $star->insert;
+                add_bodies($star);
             }
             say "End Y $y";
         }
@@ -131,13 +125,12 @@ sub add_bodies {
         } 
         else {
             my $type = ($orbit == 3) ? 'habitable' : choose_weighted(\@body_types, \@body_type_weights); # orbit 3 should always be habitable
-            say "\tAdding a $type at $name (".$star->x.",".$star->y.",".$star->z.").";
+            say "\tAdding a $type at $name (".$star->x.",".$star->y.").";
             my $params = {
                 name                => $name,
                 orbit               => $orbit,
                 x                   => $star->x,
                 y                   => $star->y,
-                z                   => $star->z,
                 star_id             => $star->id,
                 zone                => $star->zone,
                 usable_as_starter   => 0,

@@ -6,15 +6,8 @@ use Lacuna::Util;
 
 __PACKAGE__->table('star');
 __PACKAGE__->add_columns(
-    name                    => { data_type => 'char', size => 30, is_nullable => 0 },
     color                   => { data_type => 'char', size => 7, is_nullable => 0 },
-    x                       => { data_type => 'int', size => 11, default_value => 0 },
-    y                       => { data_type => 'int', size => 11, default_value => 0 },
-    z                       => { data_type => 'int', size => 11, default_value => 0 },
-    zone                    => { data_type => 'char', size => 16, is_nullable => 0 },
 );
-
-with 'Lacuna::Role::Zoned';
 
 __PACKAGE__->has_many('bodies', 'Lacuna::DB::Result::Map::Body', 'star_id');
 
@@ -27,7 +20,6 @@ sub get_status {
         id          => $self->id,
         x           => $self->x,
         y           => $self->y,
-        z           => $self->z,
     };
     if (defined $empire) {
         my @alignments;

@@ -105,8 +105,6 @@ sub view_asteroids {
             id              => $roid->id,
             x               => $roid->x,
             y               => $roid->y,
-            z               => $roid->z,
-            orbit           => $roid->orbit,
             image           => $roid->image,
             platform_count  => $asteroids{$id}{platform_count},
         };

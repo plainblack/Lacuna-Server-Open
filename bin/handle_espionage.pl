@@ -1087,14 +1087,13 @@ sub colony_report {
     out('Colony Report');
     my $spy = random_spy($espionage->{intel}{spies});
     return undef unless defined $spy;
-    my @colonies = (['Name','X','Y','Z','Orbit']);
+    my @colonies = (['Name','X','Y','Orbit']);
     my $planets = $planet->empire->planets;
     while (my $colony = $planets->next) {
         push @colonies, [
             $colony->name,
             $colony->x,
             $colony->y,
-            $colony->z,
             $colony->orbit,
         ];
     }

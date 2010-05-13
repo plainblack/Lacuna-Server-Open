@@ -43,7 +43,6 @@ sub get_star_by_body {
             star    => {
                 x           => $star->x,
                 y           => $star->y,
-                z           => $star->z,
                 name        => $star->name,
                 id          => $star->id,
             },

@@ -11,7 +11,56 @@ __PACKAGE__->add_columns(
     zone                    => { data_type => 'char', size => 16, is_nullable => 0 },
 );
 
-with 'Lacuna::Role::Zoned';
+sub calculate_distance_to_target {
+    my ($self, $target) = @_;
+    return sqrt(abs($self->x - $target->x)**2 + abs($self->y - $target->y)**2) * 100;
+}
+
+use constant zone_size => 10;
+
+sub adjacent_zones {
+    my ($self) = @_;
+    my ($x,$y) = $self->parse_zone_into_zone_coords;
+    my @zones;
+    push @zones, $self->format_zone_coords_into_zone($x + 1, $y);
+    push @zones, $self->format_zone_coords_into_zone($x - 1, $y);
+    push @zones, $self->format_zone_coords_into_zone($x, $y + 1);
+    push @zones, $self->format_zone_coords_into_zone($x, $y - 1);
+    push @zones, $self->format_zone_coords_into_zone($x - 1, $y - 1);
+    push @zones, $self->format_zone_coords_into_zone($x + 1, $y + 1);
+    push @zones, $self->format_zone_coords_into_zone($x - 1, $y + 1);
+    push @zones, $self->format_zone_coords_into_zone($x + 1, $y - 1);
+    return @zones;
+}
+
+sub parse_zone_into_zone_coords {
+    my ($self) = @_;
+    return split('\|', $self->zone);
+}
+
+sub format_zone_coords_into_zone {
+    my ($self, $x, $y) = @_;
+    return join '|', $x, $y;
+}
+
+sub set_zone_from_xy {
+    my ($self) = @_;
+    $self->zone($self->format_zone_from_xy);
+    return $self;
+}
+
+sub format_zone_from_xy {
+    my ($self) = @_;
+    return $self->format_zone_coords_into_zone(
+        $self->determine_zone_coord_from_xy_coord($self->x),
+        $self->determine_zone_coord_from_xy_coord($self->y),
+        );
+}
+
+sub determine_zone_coord_from_xy_coord {
+    my ($self, $coord) = @_;
+    return int($coord / zone_size);
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

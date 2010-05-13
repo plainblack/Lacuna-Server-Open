@@ -189,14 +189,11 @@ sub arrive {
 
 # DISTANCE
 
-sub calculate_travel_distance {
-    my ($self, $target) = @_;
-    return sqrt(abs($self->body->x - $target->x)**2 + abs($self->body->y - $target->y)**2) * 100;
-}
+
 
 sub calculate_travel_time {
     my ($self, $target) = @_;
-    my $distance = $self->calculate_travel_distance($target);
+    my $distance = $self->body->calculate_distance_to_target($target);
     my $hours = $distance / $self->speed;
     my $seconds = 60 * 60 * $hours;
     return sprintf('%.0f', $seconds);

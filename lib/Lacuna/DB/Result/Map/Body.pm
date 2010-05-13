@@ -6,13 +6,8 @@ extends 'Lacuna::DB::Result';
 __PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('body');
 __PACKAGE__->add_columns(
-    name                            => { data_type => 'char', size => 30, is_nullable => 0 },
     star_id                         => { data_type => 'int', size => 11, is_nullable => 0 },
     orbit                           => { data_type => 'int', size => 11, default_value => 0 },
-    x                               => { data_type => 'int', size => 11, default_value => 0 }, # indexed here to speed up
-    y                               => { data_type => 'int', size => 11, default_value => 0 }, # searching of planets based
-    z                               => { data_type => 'int', size => 11, default_value => 0 }, # on stor location
-    zone                            => { data_type => 'char', size => 16, is_nullable => 0 }, # fast index for where we are
     class                           => { data_type => 'char', size => 255, is_nullable => 0 },
     size                            => { data_type => 'int', size => 11, default_value => 0 },
     usable_as_starter               => { data_type => 'int', size => 11, default_value => 0 },
@@ -164,10 +159,6 @@ __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id', {jo
 __PACKAGE__->has_many('buildings','Lacuna::DB::Result::Building','body_id');
 
 
-with 'Lacuna::Role::Zoned';
-
-
-
 sub lock {
     my $self = shift;
     return Lacuna->cache->set('planet_contention_lock',$self->id,{locked=>1},60); # lock it
@@ -204,7 +195,6 @@ sub get_status {
         image           => $self->image,
         x               => $self->x,
         y               => $self->y,
-        z               => $self->z,
         orbit           => $self->orbit,
         type            => $self->get_type,
         star_id         => $self->star_id,
