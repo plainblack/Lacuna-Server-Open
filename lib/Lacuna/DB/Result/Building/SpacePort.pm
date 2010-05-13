@@ -20,7 +20,7 @@ sub send_probe {
 sub send_spy_pod {
     my ($self, $target_body, $spy) = @_;
     my $ship = $self->send_ship($target_body, 'spy_pod', { spies => [ $spy->id ] }); 
-    $spy->available_on($ship->date_arrives->clone);
+    $spy->available_on($ship->date_available->clone);
     $spy->on_body_id($target_body->id);
     $spy->task('Travelling');
     $spy->put;

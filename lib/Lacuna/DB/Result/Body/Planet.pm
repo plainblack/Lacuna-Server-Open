@@ -15,11 +15,10 @@ sub ships_travelling {
         $order = '-desc';
     }
     $where->{body_id} = $self->id;
-    $where->{date_arrives} = {'>' => DateTime->now->subtract(years=>100)} unless exists $where->{date_arrives};
-    return Lacuna->db->resultset('Lacuna::DB::Result::TravelQueue')->search(
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         $where,
         {
-            order_by    => { $order => 'date_arrives' },
+            order_by    => { $order => 'date_available' },
         }
     );
 }
@@ -69,8 +68,8 @@ sub sanitize {
         cider_stored wheat_stored bread_stored soup_stored chip_stored pie_stored pancake_stored milk_stored meal_stored
         algae_stored syrup_stored fungus_stored burger_stored shake_stored beetle_stored bean_production_hour bean_stored
     );
-    $self->ships_travelling->delete;
-    Lacuna->db->resultset('travel_queue')->search({foreign_body_id => $self->id})->delete;
+    Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_body_id => $self->id})->delete_all;
+    Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $self->id})->delete_all;
     foreach my $attribute (@attributes) {
         $self->$attribute(0);
     }

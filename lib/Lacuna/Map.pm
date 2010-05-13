@@ -18,10 +18,10 @@ sub check_star_for_incoming_probe {
     my $empire = $self->get_empire_by_session($session_id);
     my $date = 0;
     my $bodies = $empire->body_ids;
-    my $incoming = Lacuna->db->resultset('travel_queue')->search(where => {foreign_star_id=>$star_id, ship_type=>'probe'});
+    my $incoming = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_star_id=>$star_id, task=>'Travelling', type=>'probe'});
     while (my $probe = $incoming->next) {
         if ($probe->body_id ~~ $bodies) {
-            $date = $incoming->date_arrives_formatted;
+            $date = $incoming->date_available_formatted;
         }
     }
     return {
