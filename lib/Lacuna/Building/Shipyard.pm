@@ -41,11 +41,7 @@ sub build_ship {
     my ($self, $session_id, $building_id, $type) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
-    $building->is_offline;
     my $body = $building->body;
-    $body->tick;
-    $building = $empire->get_building($self->model_class, $building_id); #might be stale
-    $building->body($body);
     my $costs = $building->get_ship_costs($type);
     $building->can_build_ship($type, $costs);
     foreach my $key (keys %{ $costs }) {
@@ -68,9 +64,7 @@ sub get_buildable {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
-    $building->is_offline;
     my %buildable;
-    $building->body->tick;
     my $docks;
     my $ports = $building->body->get_buildings_of_class('Lacuna::DB::Result::Building::SpacePort');
     while (my $port = $ports->next) {

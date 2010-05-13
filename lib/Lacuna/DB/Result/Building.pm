@@ -589,7 +589,6 @@ sub has_no_pending_build {
 sub can_upgrade {
     my ($self, $cost) = @_;
     my $body = $self->body;
-    $body->tick;
     $body->has_resources_to_build($self,$cost);
     $body->has_resources_to_operate($self);
     $self->has_met_upgrade_prereqs;

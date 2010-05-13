@@ -70,10 +70,13 @@ sub get_building { # makes for uniform error handling, and prevents staleness
         unless (defined $building) {
             confess [1002, 'Building does not exist.', $building_id];
         }
+        $building->is_offline;
         my $body = $self->get_body($building->body_id);        
         unless ($body->empire_id eq $self->id) { 
             confess [1010, "Can't manipulate a building that you don't own.", $building_id];
         }
+        $body->tick;
+        $building->get_from_storage; # in case it changed due to the tick
         $building->body($body);
         return $building;
     }

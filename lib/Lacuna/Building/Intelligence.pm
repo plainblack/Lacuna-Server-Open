@@ -15,7 +15,6 @@ sub view_spies {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
-    $building->is_offline;
     $page_number ||= 1;
     my @spies;
     my $body = $building->body;
@@ -52,7 +51,6 @@ sub assign_spy {
     my ($self, $session_id, $building_id, $spy_id, $assignment) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
-    $building->is_offline;
     my $spy = $building->get_spy($spy_id);
     $spy->assign($assignment)->update;
     return {
@@ -64,7 +62,6 @@ sub burn_spy {
     my ($self, $session_id, $building_id, $spy_id, $assignment) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
-    $building->is_offline;
     my $spy = $building->get_spy($spy_id);
     my $body = $building->body;
     if ($body->add_news(10, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $empire->name)) {
@@ -82,16 +79,12 @@ sub train_spy {
     my ($self, $session_id, $building_id, $quantity) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
-    $building->is_offline;
     $quantity ||= 1;
     if ($quantity > 5) {
         confess [1009, "You can only train 5 spies at a time."];
     }
     my $trained = 0;
     my $body = $building->body;
-    $body->tick;
-    $building = $empire->get_building($self->model_class, $building_id); #might be stale
-    $building->body($body);
     if ($building->level < 1) {
         confess [1013, "You can't train spies until your Intelligence Ministry is completed."];
     }

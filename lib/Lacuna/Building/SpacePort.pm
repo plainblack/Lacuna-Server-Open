@@ -189,7 +189,6 @@ sub view_ships_travelling {
     my $building = $empire->get_building($self->model_class, $building_id);
     $page_number ||= 1;
     my $body = $building->body;
-    $body->tick;
     my @travelling;
     my $ships = $body->ships_travelling->search({}, {rows=>25, page=>$page_number});
     while (my $ship = $ships->next) {

@@ -71,7 +71,6 @@ __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
 sub add_trade {
     my ($class, %options) = @_;
     my $body = $options{body};
-    $body->tick;
 
     # trading
     my $ask_tally;

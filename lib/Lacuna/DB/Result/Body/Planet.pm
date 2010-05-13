@@ -289,7 +289,6 @@ sub has_met_building_prereqs {
 sub can_build_building {
     my ($self, $building) = @_;
     $self->check_for_available_build_space($building->x, $building->y);
-    $self->tick;
     $self->has_room_in_build_queue;
     $self->has_met_building_prereqs($building);
     return $self;
