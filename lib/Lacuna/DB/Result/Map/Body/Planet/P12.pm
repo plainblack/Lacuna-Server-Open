@@ -1,7 +1,7 @@
-package Lacuna::DB::Result::Body::Planet::P12;
+package Lacuna::DB::Result::Map::Body::Planet::P12;
 
 use Moose;
-extends 'Lacuna::DB::Result::Body::Planet';
+extends 'Lacuna::DB::Result::Map::Body::Planet';
 
 use constant image => 'p12';
 use constant surface => 'surface-b';

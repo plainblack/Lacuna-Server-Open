@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Body;
+package Lacuna::DB::Result::Map::Body;
 
 use Moose;
 extends 'Lacuna::DB::Result';
@@ -125,41 +125,41 @@ __PACKAGE__->add_columns(
 );
 
 __PACKAGE__->typecast_map(class => {
-    'Lacuna::DB::Result::Body::Asteroid::A1' => 'Lacuna::DB::Result::Body::Asteroid::A1',
-    'Lacuna::DB::Result::Body::Asteroid::A2' => 'Lacuna::DB::Result::Body::Asteroid::A2',
-    'Lacuna::DB::Result::Body::Asteroid::A3' => 'Lacuna::DB::Result::Body::Asteroid::A3',
-    'Lacuna::DB::Result::Body::Asteroid::A4' => 'Lacuna::DB::Result::Body::Asteroid::A4',
-    'Lacuna::DB::Result::Body::Asteroid::A5' => 'Lacuna::DB::Result::Body::Asteroid::A5',
-    'Lacuna::DB::Result::Body::Planet::P1' => 'Lacuna::DB::Result::Body::Planet::P1',
-    'Lacuna::DB::Result::Body::Planet::P2' => 'Lacuna::DB::Result::Body::Planet::P2',
-    'Lacuna::DB::Result::Body::Planet::P3' => 'Lacuna::DB::Result::Body::Planet::P3',
-    'Lacuna::DB::Result::Body::Planet::P4' => 'Lacuna::DB::Result::Body::Planet::P4',
-    'Lacuna::DB::Result::Body::Planet::P5' => 'Lacuna::DB::Result::Body::Planet::P5',
-    'Lacuna::DB::Result::Body::Planet::P6' => 'Lacuna::DB::Result::Body::Planet::P6',
-    'Lacuna::DB::Result::Body::Planet::P7' => 'Lacuna::DB::Result::Body::Planet::P7',
-    'Lacuna::DB::Result::Body::Planet::P8' => 'Lacuna::DB::Result::Body::Planet::P8',
-    'Lacuna::DB::Result::Body::Planet::P9' => 'Lacuna::DB::Result::Body::Planet::P9',
-    'Lacuna::DB::Result::Body::Planet::P10' => 'Lacuna::DB::Result::Body::Planet::P10',
-    'Lacuna::DB::Result::Body::Planet::P11' => 'Lacuna::DB::Result::Body::Planet::P11',
-    'Lacuna::DB::Result::Body::Planet::P12' => 'Lacuna::DB::Result::Body::Planet::P12',
-    'Lacuna::DB::Result::Body::Planet::P13' => 'Lacuna::DB::Result::Body::Planet::P13',
-    'Lacuna::DB::Result::Body::Planet::P14' => 'Lacuna::DB::Result::Body::Planet::P14',
-    'Lacuna::DB::Result::Body::Planet::P15' => 'Lacuna::DB::Result::Body::Planet::P15',
-    'Lacuna::DB::Result::Body::Planet::P16' => 'Lacuna::DB::Result::Body::Planet::P17',
-    'Lacuna::DB::Result::Body::Planet::P17' => 'Lacuna::DB::Result::Body::Planet::P17',
-    'Lacuna::DB::Result::Body::Planet::P18' => 'Lacuna::DB::Result::Body::Planet::P18',
-    'Lacuna::DB::Result::Body::Planet::P19' => 'Lacuna::DB::Result::Body::Planet::P19',
-    'Lacuna::DB::Result::Body::Planet::P20' => 'Lacuna::DB::Result::Body::Planet::P20',
-    'Lacuna::DB::Result::Body::Planet::GasGiant::G1' => 'Lacuna::DB::Result::Body::Planet::GasGiant::G1',
-    'Lacuna::DB::Result::Body::Planet::GasGiant::G2' => 'Lacuna::DB::Result::Body::Planet::GasGiant::G2',
-    'Lacuna::DB::Result::Body::Planet::GasGiant::G3' => 'Lacuna::DB::Result::Body::Planet::GasGiant::G3',
-    'Lacuna::DB::Result::Body::Planet::GasGiant::G4' => 'Lacuna::DB::Result::Body::Planet::GasGiant::G4',
-    'Lacuna::DB::Result::Body::Planet::GasGiant::G5' => 'Lacuna::DB::Result::Body::Planet::GasGiant::G5',
+    'Lacuna::DB::Result::Map::Body::Asteroid::A1' => 'Lacuna::DB::Result::Map::Body::Asteroid::A1',
+    'Lacuna::DB::Result::Map::Body::Asteroid::A2' => 'Lacuna::DB::Result::Map::Body::Asteroid::A2',
+    'Lacuna::DB::Result::Map::Body::Asteroid::A3' => 'Lacuna::DB::Result::Map::Body::Asteroid::A3',
+    'Lacuna::DB::Result::Map::Body::Asteroid::A4' => 'Lacuna::DB::Result::Map::Body::Asteroid::A4',
+    'Lacuna::DB::Result::Map::Body::Asteroid::A5' => 'Lacuna::DB::Result::Map::Body::Asteroid::A5',
+    'Lacuna::DB::Result::Map::Body::Planet::P1' => 'Lacuna::DB::Result::Map::Body::Planet::P1',
+    'Lacuna::DB::Result::Map::Body::Planet::P2' => 'Lacuna::DB::Result::Map::Body::Planet::P2',
+    'Lacuna::DB::Result::Map::Body::Planet::P3' => 'Lacuna::DB::Result::Map::Body::Planet::P3',
+    'Lacuna::DB::Result::Map::Body::Planet::P4' => 'Lacuna::DB::Result::Map::Body::Planet::P4',
+    'Lacuna::DB::Result::Map::Body::Planet::P5' => 'Lacuna::DB::Result::Map::Body::Planet::P5',
+    'Lacuna::DB::Result::Map::Body::Planet::P6' => 'Lacuna::DB::Result::Map::Body::Planet::P6',
+    'Lacuna::DB::Result::Map::Body::Planet::P7' => 'Lacuna::DB::Result::Map::Body::Planet::P7',
+    'Lacuna::DB::Result::Map::Body::Planet::P8' => 'Lacuna::DB::Result::Map::Body::Planet::P8',
+    'Lacuna::DB::Result::Map::Body::Planet::P9' => 'Lacuna::DB::Result::Map::Body::Planet::P9',
+    'Lacuna::DB::Result::Map::Body::Planet::P10' => 'Lacuna::DB::Result::Map::Body::Planet::P10',
+    'Lacuna::DB::Result::Map::Body::Planet::P11' => 'Lacuna::DB::Result::Map::Body::Planet::P11',
+    'Lacuna::DB::Result::Map::Body::Planet::P12' => 'Lacuna::DB::Result::Map::Body::Planet::P12',
+    'Lacuna::DB::Result::Map::Body::Planet::P13' => 'Lacuna::DB::Result::Map::Body::Planet::P13',
+    'Lacuna::DB::Result::Map::Body::Planet::P14' => 'Lacuna::DB::Result::Map::Body::Planet::P14',
+    'Lacuna::DB::Result::Map::Body::Planet::P15' => 'Lacuna::DB::Result::Map::Body::Planet::P15',
+    'Lacuna::DB::Result::Map::Body::Planet::P16' => 'Lacuna::DB::Result::Map::Body::Planet::P17',
+    'Lacuna::DB::Result::Map::Body::Planet::P17' => 'Lacuna::DB::Result::Map::Body::Planet::P17',
+    'Lacuna::DB::Result::Map::Body::Planet::P18' => 'Lacuna::DB::Result::Map::Body::Planet::P18',
+    'Lacuna::DB::Result::Map::Body::Planet::P19' => 'Lacuna::DB::Result::Map::Body::Planet::P19',
+    'Lacuna::DB::Result::Map::Body::Planet::P20' => 'Lacuna::DB::Result::Map::Body::Planet::P20',
+    'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G1' => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G1',
+    'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G2' => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G2',
+    'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G3' => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G3',
+    'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G4' => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G4',
+    'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G5' => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G5',
 });
 
 # RELATIONSHIPS
 
-__PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Star', 'star_id');
+__PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Map::Star', 'star_id');
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id', {join_type => 'left', cascade_delete => 0});
 __PACKAGE__->has_many('buildings','Lacuna::DB::Result::Building','body_id');
 
@@ -185,13 +185,13 @@ sub image {
 sub get_type {
     my ($self) = @_;
     my $type = 'habitable planet';
-    if ($self->isa('Lacuna::DB::Result::Body::Planet::GasGiant')) {
+    if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant')) {
         $type = 'gas giant';
     }
-    elsif ($self->isa('Lacuna::DB::Result::Body::Asteroid')) {
+    elsif ($self->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
         $type = 'asteroid';
     }
-    elsif ($self->isa('Lacuna::DB::Result::Body::Station')) {
+    elsif ($self->isa('Lacuna::DB::Result::Map::Body::Station')) {
         $type = 'space station';
     }
     return $type;

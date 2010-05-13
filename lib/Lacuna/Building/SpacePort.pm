@@ -17,13 +17,13 @@ sub find_star {
     my ($self, $target) = @_;
     my $star;
     if (exists $target->{star_id}) {
-        $star = Lacuna->db->resultset('Lacuna::DB::Result::Star')->find($target->{star_id});
+        $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($target->{star_id});
     }
     elsif (exists $target->{star_name}) {
-        $star = Lacuna->db->resultset('Lacuna::DB::Result::Star')->search({ name => $target->{star_name} })->single;
+        $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ name => $target->{star_name} })->single;
     }
     elsif (exists $target->{x}) {
-        $star = Lacuna->db->resultset('Lacuna::DB::Result::Star')->search({ x => $target->{x}, y => $target->{y} })->single;
+        $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ x => $target->{x}, y => $target->{y} })->single;
     }
     unless (defined $star) {
         confess [ 1002, 'Could not find the target star.', $target];
@@ -35,13 +35,13 @@ sub find_body {
     my ($self, $target) = @_;
     my $target_body;
     if (exists $target->{body_id}) {
-        $target_body = Lacuna->db->resultset('Lacuna::DB::Result::Body')->find($target->{body_id});
+        $target_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target->{body_id});
     }
     elsif (exists $target->{body_name}) {
-        $target_body = Lacuna->db->resultset('Lacuna::DB::Result::Body')->search({ name => $target->{body_name} })->single;
+        $target_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ name => $target->{body_name} })->single;
     }
     elsif (exists $target->{x}) {
-        $target_body = Lacuna->db->resultset('Lacuna::DB::Result::Body')->search({ x => $target->{x}, y => $target->{y} })->single;
+        $target_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ x => $target->{x}, y => $target->{y} })->single;
     }
     unless (defined $target_body) {
         confess [ 1002, 'Could not find the target body.', $target];
@@ -76,13 +76,13 @@ sub send_spy_pod {
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
-    if ($target_body->isa('Lacuna::DB::Result::Body::Asteroid')) {
+    if ($target_body->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
         confess [ 1009, 'Cannot send a spy to an asteroid.'];
     }
     elsif (! defined $target_body->empire) {
         confess [ 1009, 'Cannot send a spy to an unoccupied planet.'];
     }
-    elsif ($target_body->isa('Lacuna::DB::Result::Body::Planet') && $target_body->empire->is_isolationist) {
+    elsif ($target_body->isa('Lacuna::DB::Result::Map::Body::Planet') && $target_body->empire->is_isolationist) {
         confess [ 1013, sprintf('%s is an isolationist empire, and must be left alone.',$target_body->empire->name)];
     }
     
@@ -114,7 +114,7 @@ sub send_mining_platform_ship {
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
-    unless ($target_body->isa('Lacuna::DB::Result::Body::Asteroid')) {
+    unless ($target_body->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
         confess [ 1009, 'Can only send a mining platform ship to an asteroid.'];
     }
     
@@ -131,7 +131,7 @@ sub send_gas_giant_settlement_platform_ship {
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
-    unless ($target_body->isa('Lacuna::DB::Result::Body::Planet::GasGiant')) {
+    unless ($target_body->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant')) {
         confess [ 1009, 'Can only send a gas giant settlement platform ship to a gas giant.'];
     }
     
@@ -148,7 +148,7 @@ sub send_terraforming_platform_ship {
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
-    unless ($target_body->isa('Lacuna::DB::Result::Body::Planet')) {
+    unless ($target_body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
         confess [ 1009, 'Can only send a terraforming platfom ship to a planet.'];
     }
     
@@ -165,7 +165,7 @@ sub send_colony_ship {
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
-    unless ($target_body->isa('Lacuna::DB::Result::Body::Planet')) {
+    unless ($target_body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
         confess [ 1009, 'Can only send a colony ship to a planet.'];
     }
     if ($target_body->empire_id) {
@@ -201,7 +201,7 @@ sub view_ships_travelling {
         my $to = {
             id      => $target->id,
             name    => $target->name,
-            type    => (ref $target eq 'Lacuna::DB::Result::Star') ? 'star' : 'body',
+            type    => (ref $target eq 'Lacuna::DB::Result::Map::Star') ? 'star' : 'body',
         };
         if ($ship->direction ne 'outgoing') {
             my $temp = $from;

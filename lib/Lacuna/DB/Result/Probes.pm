@@ -13,8 +13,8 @@ __PACKAGE__->add_columns(
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
-__PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Star', 'star_id');
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
+__PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Map::Star', 'star_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 
 
 no Moose;

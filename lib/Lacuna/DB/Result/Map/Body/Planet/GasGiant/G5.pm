@@ -1,7 +1,7 @@
-package Lacuna::DB::Result::Body::Planet::GasGiant::G5;
+package Lacuna::DB::Result::Map::Body::Planet::GasGiant::G5;
 
 use Moose;
-extends 'Lacuna::DB::Result::Body::Planet::GasGiant';
+extends 'Lacuna::DB::Result::Map::Body::Planet::GasGiant';
 
 use constant image => 'pg5';
 

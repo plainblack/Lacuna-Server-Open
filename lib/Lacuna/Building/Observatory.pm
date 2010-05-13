@@ -15,11 +15,11 @@ sub abandon_probe {
     my ($self, $session_id, $building_id, $star_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
-    my $star = Lacuna->db->resultset('Lacuna::DB::Result::Star')->find($star_id);
+    my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id);
     unless (defined $star) {
         confess [ 1002, 'Star does not exist.', $star_id];
     }
-    my $bodies = $star->bodies->search({ class => {'like' => 'Lacuna::DB::Result::Body::Planet%'} });
+    my $bodies = $star->bodies->search({ class => {'like' => 'Lacuna::DB::Result::Map::Body::Planet%'} });
     while (my $body = $bodies->next) {
         if ($empire->id eq $body->empire_id) {
             confess [ 1010, "You can't remove a probe from a system you inhabit.", $body->id ];

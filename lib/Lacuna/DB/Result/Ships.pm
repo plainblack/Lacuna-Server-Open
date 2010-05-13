@@ -26,9 +26,9 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->belongs_to('spaceport', 'Lacuna::DB::Result::Building', 'spaceport_id', {join_type => 'left', cascade_delete => 0});
 __PACKAGE__->belongs_to('shipyard', 'Lacuna::DB::Result::Building', 'shipyard_id', {join_type => 'left', cascade_delete => 0});
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
-__PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Result::Star', 'foreign_star_id');
-__PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Result::Body', 'foreign_body_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
+__PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Result::Map::Star', 'foreign_star_id');
+__PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Result::Map::Body', 'foreign_body_id');
 
 sub date_started_formatted {
     my $self = shift;
@@ -62,11 +62,11 @@ sub send {
     $self->roundtrip($options{roundtrip} || 0);
     $self->direction($options{direction} || 'out');
     $self->date_available(DateTime->now->add(seconds=>$self->calculate_travel_time($options{target})));
-    if ($options{target}->isa('Lacuna::DB::Result::Body')) {
+    if ($options{target}->isa('Lacuna::DB::Result::Map::Body')) {
         $self->foreign_body_id($options{target}->id);
         $self->foreign_body($options{target});
     }
-    elsif ($options{target}->isa('Lacuna::DB::Result::Star')) {
+    elsif ($options{target}->isa('Lacuna::DB::Result::Map::Star')) {
         $self->foreign_star_id($options{target}->id);
         $self->foreign_star($options{target});
     }

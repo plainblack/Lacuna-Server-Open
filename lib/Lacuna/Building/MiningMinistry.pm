@@ -52,7 +52,7 @@ sub abandon_platform {
     my ($self, $session_id, $building_id, $asteroid_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $empire->get_building($self->model_class, $building_id);
-    my $asteroid = Lacuna->db->resultset('Lacuna::DB::Result::Body::Asteroid')->find($asteroid_id);
+    my $asteroid = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body::Asteroid')->find($asteroid_id);
     unless (defined $asteroid) {
         confess [1002, "Asteroid not found."];
     }
@@ -92,7 +92,7 @@ sub view_asteroids {
     my %asteroids;
     foreach my $id (@{$self->asteroid_ids}) {
         unless (exists $asteroids{$id}) {
-            my $asteroid = Lacuna->db->resultset('Lacuna::DB::Result::Body::Asteroid')->find($id);
+            my $asteroid = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body::Asteroid')->find($id);
             $asteroids{$id}{object} = $asteroid;
         }
         $asteroids{$id}{platform_count}++;

@@ -18,8 +18,8 @@ __PACKAGE__->add_columns(
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
-__PACKAGE__->belongs_to('from_body', 'Lacuna::DB::Result::Body', 'from_body_id');
-__PACKAGE__->belongs_to('on_body', 'Lacuna::DB::Result::Body', 'on_body_id');
+__PACKAGE__->belongs_to('from_body', 'Lacuna::DB::Result::Map::Body', 'from_body_id');
+__PACKAGE__->belongs_to('on_body', 'Lacuna::DB::Result::Map::Body', 'on_body_id');
 
 sub format_available_on {
     my ($self) = @_;

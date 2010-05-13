@@ -36,9 +36,9 @@ __PACKAGE__->add_columns(
 # personal confederacies
 
 __PACKAGE__->belongs_to('species', 'Lacuna::DB::Result::Species', 'species_id');
-__PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Body', 'home_planet_id');
+__PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Map::Body', 'home_planet_id');
 __PACKAGE__->has_many('sessions', 'Lacuna::DB::Result::Session', 'empire_id');
-__PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Body', 'empire_id');
+__PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Map::Body', 'empire_id');
 __PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Result::Message', 'from_id');
 __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id');
 __PACKAGE__->has_many('medals', 'Lacuna::DB::Result::Medals', 'empire_id');
@@ -46,7 +46,7 @@ __PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
 
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $body_id) = @_;
-    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Body')->find($body_id);
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
     unless (defined $body) {
         confess [1002, 'Body does not exist.', $body_id];
     }
@@ -228,7 +228,7 @@ sub found {
 
 sub find_home_planet {
     my ($self) = @_;
-    my $planets = Lacuna->db->resultset('Lacuna::DB::Result::Body');
+    my $planets = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body');
     
     # define sub searches
     my $min_inhabited = sub {
@@ -365,7 +365,7 @@ sub add_probe {
     
     # send notifications
     # this could be a performance problem in the future depending upon the number of probes in a star system
-    my $star_name = Lacuna->db->resultset('Lacuna::DB::Result::Star')->find($star_id)->name;
+    my $star_name = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id)->name;
     my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({ star_id => $star_id, empire_id => {'!=', $self->id } });
     while (my $probe = $probes->next) {
         my $that_empire = $probe->empire;
@@ -420,7 +420,7 @@ has body_ids => (
     lazy        => 1,
     default     => sub {
         my $self = shift;
-        return Lacuna->db->resultset('Lacuna::DB::Result::Body')->search({empire_id=>$self->id})->get_column('id')->all;
+        return Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({empire_id=>$self->id})->get_column('id')->all;
     },
 );
 

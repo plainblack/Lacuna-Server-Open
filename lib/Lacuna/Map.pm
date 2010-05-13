@@ -34,7 +34,7 @@ sub check_star_for_incoming_probe {
 sub get_star_by_body {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Body')->find($body_id);
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
     # we don't do any privilege checking because it's assumed if you know the body id you can access the star,
     # plus, it's not like you couldn't get the info it sends back via the get_stars method anyway
     if (defined $body) {
@@ -58,7 +58,7 @@ sub get_star_by_body {
 sub load_star {
     my ($self, $star_id) = @_;
     my $star;
-    if (ref $star_id eq 'Lacuna::DB::Result::Star') { 
+    if (ref $star_id eq 'Lacuna::DB::Result::Map::Star') { 
         $star = $star_id;
     }
     else {
@@ -87,7 +87,7 @@ sub get_star_system {
     my %out;
     while (my $body = $bodies->next) {
         $out{$body->id} = $body->get_status($empire);
-        if ($body->isa('Lacuna::DB::Result::Body::Planet') && $body->empire_id ne 'None') {
+        if ($body->isa('Lacuna::DB::Result::Map::Body::Planet') && $body->empire_id ne 'None') {
             my $owner_empire = $body->empire;
             if (defined $owner_empire) {
                 $out{$body->id}{empire} = {
@@ -112,7 +112,7 @@ sub get_star_system {
 sub get_star_system_by_body {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Body')->find($body_id);
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
     if (defined $body) {
         my $star = $body->star;
         return $self->get_star_system($empire, $star);
@@ -132,7 +132,7 @@ sub get_stars {
         confess [1003, 'Requested area too large.'];
     }
     else {
-        my $stars = Lacuna->db->resultset('Lacuna::DB::Result::Star')->search({z=>$z, y=> {between => [$starty, $endy]}, x=>{between => [$startx, $endx]}});
+        my $stars = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({z=>$z, y=> {between => [$starty, $endy]}, x=>{between => [$startx, $endx]}});
         my @out;
         while (my $star = $stars->next) {
             push @out, $star->get_status($empire);

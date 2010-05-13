@@ -29,7 +29,7 @@ my $config = Lacuna->config;
 our $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key => $config->get('secret_key'), cache_servers => $config->get('memcached')); 
 
 out('Processing planets');
-my $planets = $db->domain('Lacuna::DB::Result::Body')->search(
+my $planets = $db->domain('Lacuna::DB::Result::Map::Body')->search(
     where   => {
         empire_id   => ['!=', 'None'],
     }
@@ -995,7 +995,7 @@ sub kill_contact_with_mining_platform {
     return undef unless defined $ministry;
     my $platform = $ministry->asteroid_ids->[0];
     return undef unless defined $platform;
-    my $asteroid = $db->domain('Lacuna::DB::Result::Body::Asteroid')->find($platform);
+    my $asteroid = $db->domain('Lacuna::DB::Result::Map::Body::Asteroid')->find($platform);
     return undef unless defined $asteroid;
     $ministry->remove_platform($asteroid);
     $planet->empire->send_predefined_message(

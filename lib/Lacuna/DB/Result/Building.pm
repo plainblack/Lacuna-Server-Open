@@ -25,7 +25,7 @@ __PACKAGE__->add_columns(
     work            => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
 );
 
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Body', 'body_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Building::Development' => 'Lacuna::DB::Result::Building::Development',
     'Lacuna::DB::Result::Building::Embassy' => 'Lacuna::DB::Result::Building::Embassy',
