@@ -29,9 +29,9 @@ my $config = Lacuna->config;
 our $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key => $config->get('secret_key'), cache_servers => $config->get('memcached')); 
 
 out('Processing planets');
-my $planets = $db->domain('Lacuna::DB::Result::Map::Body')->search(
-    where   => {
-        empire_id   => ['!=', 'None'],
+my $planets = $db->resultset('Lacuna::DB::Result::Map::Body')->search(
+    {
+        empire_id   => {'!=' => 'None'},
     }
 );
 
@@ -427,7 +427,7 @@ sub uprising {
     return undef unless defined $spy;
     my $loss = sprintf('%.0f', $planet->happiness * 0.10 );
     $loss = 10000 unless ($loss > 10000);
-    $planet->spend_happiness( $loss )->put;
+    $planet->spend_happiness( $loss )->update;
     my @spies = pick_a_spy_per_empire($espionage->{rebellion}{spies});
     foreach my $rebel (@spies) {
         $rebel->empire->send_predefined_message(
@@ -465,63 +465,63 @@ sub turn_cops {
 sub small_rebellion {
     my ($planet, $espionage) = @_;
     out('Small Rebellion');
-    $planet->spend_happiness(randint(400,4000))->put;
+    $planet->spend_happiness(randint(400,4000))->update;
     $planet->add_news(70,'Hundreds are dead at this hour after a protest turned into a small, but violent, rebellion on %s.', $planet->name);
 }
 
 sub march_on_capitol {
     my ($planet, $espionage) = @_;
     out('March On Capitol');
-    $planet->spend_happiness(randint(400,4000))->put;
+    $planet->spend_happiness(randint(400,4000))->update;
     $planet->add_news(70,'Protesters now march on the %s Planetary Command Center, asking for the Governor\'s resignation.', $planet->name);
 }
 
 sub violent_protest {
     my ($planet, $espionage) = @_;
     out('Violent Protest');
-    $planet->spend_happiness(randint(300,3000))->put;
+    $planet->spend_happiness(randint(300,3000))->update;
     $planet->add_news(70,'The protests at the %s Ministries have turned violent. An official was rushed to hospital in critical condition.', $planet->name);
 }
 
 sub protest {
     my ($planet, $espionage) = @_;
     out('Protest');
-    $planet->spend_happiness(randint(200,2000))->put;
+    $planet->spend_happiness(randint(200,2000))->update;
     $planet->add_news(70,'Protesters can be seen jeering outside nearly every Ministry at this hour on %s.', $planet->name);
 }
 
 sub civil_unrest {
     my ($planet, $espionage) = @_;
     out('Civil Unrest');
-    $planet->spend_happiness(randint(100,1000))->put;
+    $planet->spend_happiness(randint(100,1000))->update;
     $planet->add_news(70,'In recent weeks there have been rumblings of political discontent on %s.', $planet->name);
 }
 
 sub calm_the_rebels {
     my ($planet, $espionage) = @_;
     out('Calm the Rebels');
-    $planet->add_happiness(randint(250,2500))->put;
+    $planet->add_happiness(randint(250,2500))->update;
     $planet->add_news(70,'In an effort to bring an swift end to the rebellion, the %s Governor delivered an eloquent speech about hope.', $planet->name);
 }
 
 sub peace_talks {
     my ($planet, $espionage) = @_;
     out('Peace Talks');
-    $planet->add_happiness(randint(500,5000))->put;
+    $planet->add_happiness(randint(500,5000))->update;
     $planet->add_news(70,'Officials from both sides of the rebellion are at the Planetary Command Center on %s today to discuss peace.', $planet->name);
 }
 
 sub day_of_rest {
     my ($planet, $espionage) = @_;
     out('Day of Rest');
-    $planet->add_happiness(randint(2500,25000))->put;
+    $planet->add_happiness(randint(2500,25000))->update;
     $planet->add_news(70,'The Governor of %s declares a day of rest and peace. Citizens rejoice.', $planet->name);
 }
 
 sub festival {
     my ($planet, $espionage) = @_;
     out('Festival');
-    $planet->add_happiness(randint(1000,10000))->put;
+    $planet->add_happiness(randint(1000,10000))->update;
     $planet->add_news(70,'The %s Governor calls it the %s festival. Whatever you call it, people are happy.', $planet->name, $planet->star->name);
 }
 
@@ -584,28 +584,27 @@ sub destroy_infrastructure {
     my $got;
     for (1..$quantity) {
         my @classes = (
-            'Lacuna::DB::Result::Building::Shipyard',
-            'Lacuna::DB::Result::Building::SpacePort',
-            'Lacuna::DB::Result::Building::Trade',
-            'Lacuna::DB::Result::Building::Transporter',
             'Lacuna::DB::Result::Building::Waste::Recycling',
             'Lacuna::DB::Result::Building::EntertainmentDistrict',
-            'Lacuna::DB::Result::Building::Development',
-            'Lacuna::DB::Result::Building::Espionage',
-            'Lacuna::DB::Result::Building::Network19',
-            'Lacuna::DB::Result::Building::Intelligence',
-            'Lacuna::DB::Result::Building::Observatory',
             'Lacuna::DB::Result::Building::Park',
+            'Lacuna::DB::Result::Building::Waste::Sequestration',
             'Lacuna::DB::Result::Building::Propulsion',
             'Lacuna::DB::Result::Building::RND',
+            'Lacuna::DB::Result::Building::Network19',
+            'Lacuna::DB::Result::Building::Espionage',
             'Lacuna::DB::Result::Building::Security',
-            'Lacuna::DB::Result::Building::Waste::Sequestration',
+            'Lacuna::DB::Result::Building::Development',
+            'Lacuna::DB::Result::Building::MiningMinistry',
+            'Lacuna::DB::Result::Building::Intelligence',
+            'Lacuna::DB::Result::Building::Trade',
+            'Lacuna::DB::Result::Building::Transporter',
+            'Lacuna::DB::Result::Building::Shipyard',
+            'Lacuna::DB::Result::Building::SpacePort',
+            'Lacuna::DB::Result::Building::Observatory',
             );
-        my $building = $db->domain($classes[randint(0,length(@classes)-1)])->search(
-            order_by    => 'itemName()',
-            where       => { body_id => $planet->id },
-            limit       => 1,
-            )->next;
+        my $building = $db->resultset('Lacuna::DB::Result::Building')->search(
+            { body_id => $planet->id, class => { in => \@classes } },
+            )->single;
         last unless defined $building;
         $espionage->{police}{score} += 25;
         $planet->empire->send_predefined_message(
@@ -628,12 +627,12 @@ sub destroy_infrastructure {
         }
         else {
             $building->level( $building->level - 1);
-            $building->put;
+            $building->update;
         }
     }
     if ($got) {
         $planet->needs_recalc(1);
-        $planet->put;
+        $planet->update;
     }
 }
 
@@ -672,7 +671,7 @@ sub destroy_upgrades {
     }
     if ($got) {
         $planet->needs_recalc(1);
-        $planet->put;
+        $planet->update;
     }
 }
 
@@ -712,7 +711,7 @@ sub destroy_mining_ship {
     return undef unless $ministry->ship_count > 0;
     $ministry->ship_count($ministry->ship_count - 1);
     $ministry->recalc_ore_production;
-    $ministry->put;
+    $ministry->update;
     $planet->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'ship_blew_up_at_port.txt',
@@ -866,21 +865,11 @@ sub steal_building {
     out('Steal Building');
     my $thief = random_spy($espionage->{theft}{spies});
     return undef unless defined $thief;
-    my @classes = (
-        'Lacuna::DB::Result::Building',
-        'Lacuna::DB::Result::Building::Food',
-        'Lacuna::DB::Result::Building::Water',
-        'Lacuna::DB::Result::Building::Waste',
-        'Lacuna::DB::Result::Building::Ore',
-        'Lacuna::DB::Result::Building::Energy',
-        );
-    my $building = $db->domain($classes[randint(0,5)])->search(
-        order_by    => 'itemName()',
-        where       => { body_id => $planet->id, 'itemName()' => ['!=','xx'], level => ['>=', $level] },
-        limit       => 1,
-        )->next;
+    my $building = $db->resultset('Lacuna::DB::Result::Building')->search(
+        { body_id => $planet->id, level => {'>=' => $level} },
+        )->single;
     return undef unless defined $building;
-    $thief->from_body->add_freebie($building->class, $level)->put;
+    $thief->from_body->add_freebie($building->class, $level)->update;
     $thief->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'building_theft_report.txt',
@@ -946,7 +935,7 @@ sub shut_down_building {
     my $building = $planet->get_building_of_class($building_class);
     return undef unless defined $building;
     $building->offline(DateTime->now->add(randint(600,3600)));
-    $building->put;
+    $building->update;
     $planet->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'building_loss_of_power.txt',
@@ -969,11 +958,11 @@ sub take_control_of_probe {
     out('Take Control Of Probe');
     my $spy = random_spy($espionage->{hacking}{spies});
     return undef unless defined $spy;
-    my $probe = $db->domain('probes')->search(where=>{body_id => $planet->id }, limit=>1)->next;
+    my $probe = $db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $planet->id })->single;
     return undef unless defined $probe;
     $probe->body_id($spy->from_body_id);
     $probe->empire_id($spy->empire_id);
-    $probe->put;
+    $probe->update;
     $spy->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_have_taken_control_of_a_probe.txt',
@@ -993,11 +982,11 @@ sub kill_contact_with_mining_platform {
     out('Kill Contact With Mining Platform');
     my $ministry = $planet->mining_ministry;
     return undef unless defined $ministry;
-    my $platform = $ministry->asteroid_ids->[0];
+    my $platform = $db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({planet_id => $plaent->id});
     return undef unless defined $platform;
-    my $asteroid = $db->domain('Lacuna::DB::Result::Map::Body::Asteroid')->find($platform);
+    my $asteroid = $platform->asteroid;
     return undef unless defined $asteroid;
-    $ministry->remove_platform($asteroid);
+    $ministry->remove_platform($platform);
     $planet->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'we_lost_contact_with_a_mining_platform.txt',
@@ -1018,7 +1007,7 @@ sub kill_contact_with_mining_platform {
 sub hack_observatory_probes {
     my ($planet, $espionage) = @_;
     out('Hack Observatory Probes');
-    my $probe = $db->domain('probes')->search(where=>{body_id => $planet->id }, limit=>1)->next;
+    my $probe = $db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $planet->id })->single;
     return undef unless defined $probe;
     my @spies = pick_a_spy_per_empire($espionage->{hacking}{spies});
     foreach my $spy (@spies) {
@@ -1043,7 +1032,7 @@ sub hack_offending_probes {
     out('Hack Offensive Probes');
     my $hacker = random_spy($espionage->{hacking}{spies});
     return undef unless defined $hacker;
-    my $probe = $db->domain('probes')->search(where=>{star_id => $planet->star_id, empire_id => ['!=', $hacker->empire_id] }, limit=>1)->next;
+    my $probe = $db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $planet->star_id, empire_id => {'!=' => $hacker->empire_id} })->single;
     return undef unless defined $probe;
     $hacker->empire->send_predefined_message(
         tags        => ['Intelligence'],
@@ -1062,7 +1051,7 @@ sub hack_offending_probes {
 sub hack_local_probes {
     my ($planet, $espionage) = @_;
     out('Hack Local Probes');
-    my $probe = $db->domain('probes')->search(where=>{star_id => $planet->star_id, empire_id => $planet->empire_id }, limit=>1)->next;
+    my $probe = $db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $planet->star_id, empire_id => $planet->empire_id })->single;
     return undef unless defined $probe;
     my @spies = pick_a_spy_per_empire($espionage->{hacking}{spies});
     foreach my $spy (@spies) {
@@ -1499,7 +1488,7 @@ sub network19_propaganda1 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 1');
     if ($planet->add_news(50,'A resident of %s has won the Lacuna Expanse talent competition.', $planet->name)) {
-        $planet->add_happiness(250)->put;
+        $planet->add_happiness(250)->update;
     }
 }
 
@@ -1507,7 +1496,7 @@ sub network19_propaganda2 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 2');
     if ($planet->add_news(50,'The economy of %s is looking strong, showing GDP growth of nearly 10%% for the past quarter.',$planet->name)) {
-        $planet->add_happiness(500)->put;
+        $planet->add_happiness(500)->update;
     }
 }
 
@@ -1515,7 +1504,7 @@ sub network19_propaganda3 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 3');
     if ($planet->add_news(50,'The Governor of %s has set aside 1000 square kilometers as a nature preserve.', $planet->name)) {
-        $planet->add_happiness(750)->put;
+        $planet->add_happiness(750)->update;
     }
 }
 
@@ -1523,7 +1512,7 @@ sub network19_propaganda4 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 4');
     if ($planet->add_news(50,'If %s had not inhabited %s, the planet would likely have reverted to a barren rock.', $planet->empire->name, $planet->name)) {
-        $planet->add_happiness(1000)->put;
+        $planet->add_happiness(1000)->update;
     }
 }
 
@@ -1531,7 +1520,7 @@ sub network19_propaganda5 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 5');
     if ($planet->add_news(50,'The benevolent leader of %s is a gift to the people of %s.', $planet->empire->name, $planet->name)) {
-        $planet->add_happiness(1250)->put;
+        $planet->add_happiness(1250)->update;
     }
 }
 
@@ -1539,7 +1528,7 @@ sub network19_propaganda6 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 6');
     if ($planet->add_news(50,'%s is the greatest, best, most free empire in the Expanse, ever.', $planet->empire->name)) {
-        $planet->add_happiness(1500)->put;
+        $planet->add_happiness(1500)->update;
     }
 }
 
@@ -1547,7 +1536,7 @@ sub network19_propaganda7 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 7');
     if ($planet->add_news(50,'%s is the ultimate power in the Expanse right now. It is unlikely to be challenged any time soon.', $planet->empire->name)) {
-        $planet->add_happiness(1750)->put;
+        $planet->add_happiness(1750)->update;
     }
 }
 
@@ -1555,7 +1544,7 @@ sub network19_defamation1 {
     my ($planet, $espionage) = @_;
     out('Network 19 Defamation 1');
     if ($planet->add_news(50,'A financial report for %s shows that many people are out of work as the unemployment rate approaches 10%%.', $planet->name)) {
-        $planet->spend_happiness(250)->put;
+        $planet->spend_happiness(250)->update;
     }
 }
 
@@ -1563,7 +1552,7 @@ sub network19_defamation2 {
     my ($planet, $espionage) = @_;
     out('Network 19 Defamation 2');
     if ($planet->add_news(50,'An outbreak of the Dultobou virus was announced on %s today. Citizens are encouraged to stay home from work and school.', $planet->name)) {
-        $planet->spend_happiness(500)->put;
+        $planet->spend_happiness(500)->update;
     }
 }
 
@@ -1571,7 +1560,7 @@ sub network19_defamation3 {
     my ($planet, $espionage) = @_;
     out('Network 19 Defamation 3');
     if ($planet->add_news(50,'%s is unable to keep its economy strong. Sources inside say it will likely fold in a few days.', $planet->empire->name)) {
-        $planet->spend_happiness(750)->put;
+        $planet->spend_happiness(750)->update;
     }
 }
 
@@ -1579,7 +1568,7 @@ sub network19_defamation4 {
     my ($planet, $espionage) = @_;
     out('Network 19 Defamation 4');
     if ($planet->add_news(50,'The Governor of %s has lost her mind. She is a raving mad lunatic! The Emperor could not be reached for comment.', $planet->name)) {
-        $planet->spend_happiness(1250)->put;
+        $planet->spend_happiness(1250)->update;
     }
 }
 
@@ -1587,7 +1576,7 @@ sub network19_defamation5 {
     my ($planet, $espionage) = @_;
     out('Network 19 Defamation 5');
     if ($planet->add_news(50,'%s is the smallest, worst, least free empire in the Expanse, ever.', $planet->empire->name)) {
-        $planet->spend_happiness(1250)->put;
+        $planet->spend_happiness(1250)->update;
     }
 }
 
@@ -1606,8 +1595,8 @@ sub determine_espionage {
     my $planet = shift;
     my $steal = my $sabotage = my $interception = my $rebel = my $hack = my $intel = 0;
     my (@thieves, @saboteurs, @interceptors, @spies, @hackers, @rebels, @idle, @prisoners, @trainees, @travellers);
-    my $spies = $db->domain('spies')->search(
-        where => {
+    my $spies = $db->resultset('Lacuna::DB::Result::Spies')->search(
+        {
             on_body_id  => $planet->id,
         }
     );
@@ -1715,7 +1704,7 @@ sub capture_a_spy {
     my ($planet, $spy, $interceptor) = @_;
     $spy->available_on(DateTime->now->add(months=>1));
     $spy->task('Captured');
-    $spy->put;
+    $spy->update;
     $spy->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'spy_captured.txt',
@@ -1748,7 +1737,7 @@ sub escape_a_spy {
     my ($planet, $spy) = @_;
     $spy->available_on(DateTime->now);
     $spy->task('Idle');
-    $spy->put;
+    $spy->update;
     my $evil_empire = $planet->empire;
     $spy->empire->send_predefined_message(
         tags        => ['Alert'],
@@ -1779,7 +1768,7 @@ sub turn_a_spy {
     $traitor->task('Idle');
     $traitor->empire_id($spy->empire_id);
     $traitor->from_body_id($spy->from_body_id);
-    $traitor->put;
+    $traitor->update;
 }
 
 sub pick_a_spy_per_empire {

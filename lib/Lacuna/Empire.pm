@@ -76,8 +76,7 @@ sub create {
         status_message      => 'Making Lacuna a better Expanse.',
         password            => Lacuna::DB::Result::Empire->encrypt_password($account{password}),
 
-    });
-    $empire->insert;
+    })->insert;
     return $empire->id;
 }
 
@@ -148,18 +147,18 @@ sub edit_profile {
     my $empire = $self->get_empire_by_session($session_id);
     $empire->description($profile->{description});
     $empire->status_message($profile->{status_message});
-    $empire->put;
+    $empire->update;
 
     # medals
     my $medals = $empire->medals;
     while (my $medal = $medals->next) {
         if ($medal->id ~~ $profile->{public_medals}) {
             $medal->public(1);
-            $medal->put;
+            $medal->update;
         }
         else {
             $medal->public(0);
-            $medal->put;
+            $medal->update;
         }
     }
     
@@ -175,7 +174,7 @@ sub set_status_message {
         ->no_profanity;
     my $empire = $self->get_empire_by_session($session_id);
     $empire->status_message($message);
-    $empire->put;
+    $empire->update;
     return $empire->get_status;
 }
 
@@ -246,7 +245,7 @@ sub boost {
     $empire->planets->update({needs_recalc=>1});
     $empire->$type($start);
     $empire->trigger_full_update(skip_put=>1);
-    $empire->put;
+    $empire->update;
     return {
         status => $empire->get_status,
         $type => format_date($empire->$type),

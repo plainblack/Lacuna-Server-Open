@@ -17,10 +17,10 @@ GetOptions(
 
 
 $db
-	->domain('empire')
-	->search(where => {name => $name})
-	->next
+	->resultset('Lacuna::DB::Result::Empire')
+	->search({name => $name})
+	->single
 	->add_essentia($amount)
-	->put;
+	->update;
 
 

@@ -15,11 +15,11 @@ my $result;
 $result = $tester->post('university', 'build', [$session_id, $tester->empire->home_planet_id, 3, 3]);
 my $uid = $result->{result}{building}{id};
 
-$db->domain('Lacuna::DB::Result::Building::University')->find($uid)->finish_upgrade;
+$db->resultset('Lacuna::DB::Result::Building::University')->find($uid)->finish_upgrade;
 
 $result = $tester->post('university', 'view', [$session_id, $uid]);
 is($result->{result}{building}{level}, 1, "made it to level 1");
-my $empire = $db->domain('empire')->find($empire_id);
+my $empire = $db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
 is($empire->university_level, 1, 'empire university level was upgraded');
 
 for my $level (2..10) {
@@ -38,15 +38,15 @@ for my $level (2..10) {
     $home->water_hour(50000000);
     $home->ore_hour(50000000);
     $home->needs_recalc(0);
-    $home->put;
+    $home->update;
 
     $result = $tester->post('university', 'upgrade', [$session_id, $uid]);    
-    $db->domain('Lacuna::DB::Result::Building::University')->find($uid)->finish_upgrade;
+    $db->resultset('Lacuna::DB::Result::Building::University')->find($uid)->finish_upgrade;
     $db->cache->delete('upgrade_contention_lock', $uid);
     
     $result = $tester->post('university', 'view', [$session_id, $uid]);
     is($result->{result}{building}{level}, $level, "made it to level ".$level);
-    $empire = $db->domain('empire')->find($empire_id);
+    $empire = $db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
     is($empire->university_level, $level, 'empire university level was upgraded');    
 }
 

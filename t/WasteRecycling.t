@@ -35,11 +35,11 @@ $home->algae_production_hour(5000);
 $home->water_hour(5000);
 $home->ore_hour(5000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 $result = $tester->post('wasterecycling', 'build', [$session_id, $home->id, 3, 3]);
 
-my $building = $db->domain('Lacuna::DB::Result::Building::Waste::Recycling')->find($result->{result}{building}{id});
+my $building = $db->resultset('Lacuna::DB::Result::Building')->find($result->{result}{building}{id});
 $building->finish_upgrade;
 
 $result = $tester->post('wasterecycling', 'recycle', [$session_id, $building->id, 999990000,5,5]);
@@ -49,14 +49,14 @@ is($result->{error}{code}, 1011, "can't recycle with waste you don't have");
 my $body = $building->body;
 $body->algae_stored(20000);
 $body->needs_recalc(0);
-$body->put;
+$body->update;
 
 $result = $tester->post('wasterecycling', 'recycle', [$session_id, $building->id, 5,5,5]);
 cmp_ok($result->{result}{seconds_remaining}, '>', 0, "timer is started");
 
 my $water_stored = $building->body->water_stored;
 
-$building = $db->domain('Lacuna::DB::Result::Building::Waste::Recycling')->find($building->id);
+$building = $db->resultset('Lacuna::DB::Result::Building')->find($building->id);
 $building->finish_work;
 cmp_ok($building->body->water_stored, '>=', $water_stored + 5, "resources increased");
 

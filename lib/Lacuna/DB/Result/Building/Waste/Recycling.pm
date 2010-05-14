@@ -48,7 +48,7 @@ sub recycle {
         $self->finish_work;
     }
     else {
-        $body->put;
+        $body->update;
         $self->update;
     }
     $empire->trigger_full_update(skip_put=>1);

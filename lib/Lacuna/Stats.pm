@@ -3,11 +3,6 @@ package Lacuna::Stats;
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
 
-has simpledb => (
-    is      => 'ro',
-    required=> 1,
-);
-
 with 'Lacuna::Role::Sessionable';
 
 sub server {

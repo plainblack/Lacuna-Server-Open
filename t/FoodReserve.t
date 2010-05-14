@@ -34,7 +34,7 @@ $home->algae_production_hour(500000);
 $home->water_hour(500000);
 $home->ore_hour(500000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 $result = $tester->post('foodreserve', 'build', [$session_id, $tester->empire->home_planet_id, 3, 3]);
 my $building_id = $result->{result}{building}{id};

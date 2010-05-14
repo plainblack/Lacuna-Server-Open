@@ -3,11 +3,6 @@ package Lacuna::Building;
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
 
-has simpledb => (
-    is      => 'ro',
-    required=> 1,
-);
-
 with 'Lacuna::Role::Sessionable';
 
 sub model_domain {
@@ -47,7 +42,7 @@ sub upgrade {
     # spend resources
     my $body = $building->body;
     if ($building->has_free_upgrade) {
-        $body->spend_freebie($building->class)->put;
+        $body->spend_freebie($building->class)->update;
     }
     else {
         $body->spend_water($cost->{water});
@@ -147,7 +142,7 @@ sub build {
 
     # adjust resources
     if ($building->has_free_build) {
-        $body->spend_freebie($building->class)->put;
+        $body->spend_freebie($building->class)->update;
     }
     else {
         $body->spend_food($building->food_to_build);

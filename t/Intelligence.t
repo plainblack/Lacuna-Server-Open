@@ -37,7 +37,7 @@ $home->energy_hour(5000);
 $home->algae_production_hour(5000);
 $home->water_hour(5000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 
 $result = $tester->post('intelligence', 'build', [$session_id, $home->id, 0, 1]);
@@ -87,13 +87,13 @@ $home->build_building($spaceport);
 $spaceport->finish_upgrade;
 
 # need a spy done right now
-$tester->db->domain('spies')->insert({
+$tester->db->resultset('Lacuna::DB::Result::Spies')->new({
     from_body_id    => $home->id,
     on_body_id      => $home->id,
     task            => 'Idle',
     available_on    => DateTime->now,
     empire_id       => $empire->id,    
-});
+})->insert;
 sleep 2;
 
 $result = $tester->post('spaceport', 'send_spy_pod', [$session_id, $home->id, {body_name=>'Lacuna'}]);

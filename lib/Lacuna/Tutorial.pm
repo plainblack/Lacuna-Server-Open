@@ -180,7 +180,7 @@ sub counter_spy {
     my ($self, $finish) = @_;
     my $empire = $self->empire;
     if ($finish) {
-        my $counter = $empire->simpledb->domain('Lacuna::DB::Result::Spies')->search({empire_id => $empire->id, task=>'Counter Espionage'})->count;
+        my $counter = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({empire_id => $empire->id, task=>'Counter Espionage'})->count;
         if ($counter >= 2) {
             $self->start('observatory');
             return undef;

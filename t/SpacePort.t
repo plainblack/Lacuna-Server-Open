@@ -38,7 +38,7 @@ $home->algae_stored(5000);
 $home->energy_stored(5000);
 $home->water_stored(5000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 
 $result = $tester->post('spaceport', 'build', [$session_id, $home->id, 0, 1]);

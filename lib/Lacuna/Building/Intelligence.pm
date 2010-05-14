@@ -66,7 +66,7 @@ sub burn_spy {
     my $body = $building->body;
     if ($body->add_news(10, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $empire->name)) {
         $body->spend_happiness(1000);
-        $body->put;
+        $body->update;
         $empire->trigger_full_update;
     }
     $spy->delete;
@@ -105,7 +105,7 @@ sub train_spy {
         $trained++;
     }
     if ($trained) {
-        $body->put;
+        $body->update;
         if ($trained == 5) {
             $body->add_news(50, '%s has just approved a massive intelligence budget increase.', $empire->name);
         }

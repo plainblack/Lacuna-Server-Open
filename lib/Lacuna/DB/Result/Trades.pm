@@ -147,7 +147,7 @@ sub add_trade {
     my $spaceport = $body->spaceport;
     
     # set up the trade
-    return $options{simpledb}->domain('trades')->insert({
+    return Lacuna->db->resultset('Lacuna::DB::Result::Trades')->new({
         body_id                 => $body->id,
         zone                    => $body->zone,
         only_in_zone            => $options{only_in_zone} || 0,
@@ -157,7 +157,7 @@ sub add_trade {
         ask_types               => \@ask_types,
         cargo_space_needed      => $ask_tally,
         offer_types             => \@offer_types,
-    });
+    })->insert;
 }
 
 no Moose;

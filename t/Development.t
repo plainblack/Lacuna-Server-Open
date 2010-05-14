@@ -10,7 +10,7 @@ my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
 my $result;
-$empire->add_essentia(10)->put;
+$empire->add_essentia(10)->update;
 
 my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
@@ -34,7 +34,7 @@ $home->energy_hour(5000);
 $home->algae_production_hour(5000);
 $home->water_hour(5000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 $result = $tester->post('development', 'build', [$session_id, $tester->empire->home_planet_id, 3, 3]);
 my $id =  $result->{result}{building}{id};

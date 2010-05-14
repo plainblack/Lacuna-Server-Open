@@ -24,7 +24,7 @@ foreach my $bid (keys %{$result->{result}{buildings}}) {
 $result = $tester->post('planetarycommand', 'view', [$session_id, $id]);
 is($result->{result}{planet}{building_count}, 1, "got building count");
 
-$tester->empire->home_planet->add_freebie('Lacuna::DB::Result::Building::SpacePort', 5)->put;
+$tester->empire->home_planet->add_freebie('Lacuna::DB::Result::Building::SpacePort', 5)->update;
 
 sleep 3;
 $result = $tester->post('planetarycommand', 'view_freebies', [$session_id, $id]);

@@ -45,7 +45,7 @@ after finish_upgrade => sub {
     my $empire = $self->body->empire;
     if ($empire->university_level < $self->level) {
         $empire->university_level($self->level);
-        $empire->put;
+        $empire->update;
     }
 };
 

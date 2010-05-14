@@ -34,11 +34,11 @@ $home->algae_production_hour(500000);
 $home->water_hour(500000);
 $home->ore_hour(500000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 $result = $tester->post('park', 'build', [$session_id, $empire->home_planet_id, 3, 3]);
 
-my $building = $db->domain('Lacuna::DB::Result::Building::Park')->find($result->{result}{building}{id});
+my $building = $db->resultset('Lacuna::DB::Result::Building::Park')->find($result->{result}{building}{id});
 $building->finish_upgrade;
 
 $result = $tester->post('park', 'throw_a_party', [$session_id, $building->id]);
@@ -47,7 +47,7 @@ is($result->{error}{code}, 1011, "can't throw a party without food");
 
 my $body = $building->body;
 $body->algae_stored(20000);
-$body->put;
+$body->update;
 
 $result = $tester->post('park', 'throw_a_party', [$session_id, $building->id]);
 cmp_ok($result->{result}{seconds_remaining}, '>', 0, "timer is started");
@@ -55,7 +55,7 @@ $result = $tester->post('park', 'view', [$session_id, $building->id]);
 cmp_ok($result->{result}{status}{planets}[0]{food_stored}, '<', 20_000, "food gets spent");
 my $happy = $result->{result}{status}{planets}[0]{happiness};
 
-$building = $db->domain('Lacuna::DB::Result::Building::Park')->find($result->{result}{building}{id});
+$building = $db->resultset('Lacuna::DB::Result::Building::Park')->find($result->{result}{building}{id});
 $building->end_the_party;
 cmp_ok($result->{result}{status}{planets}[0]{happiness}, '<', $building->body->happiness, "happiness is increased");
 

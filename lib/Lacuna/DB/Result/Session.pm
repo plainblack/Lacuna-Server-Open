@@ -16,7 +16,7 @@ __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 sub extend {
     my $self = shift;
     $self->expires(DateTime->now->add(hours=>2));
-    $self->put;
+    $self->update;
 }
 
 sub has_expired {

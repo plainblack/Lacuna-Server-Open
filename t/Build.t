@@ -29,7 +29,7 @@ cmp_ok($last_energy, '>', $result->{result}{empire}{planets}{$home_planet}{energ
 $result = $tester->post('body', 'get_build_queue', [$session_id, $home_planet]);
 cmp_ok($result->{result}{build_queue}{$wheat_id}, '>', 0, "get_build_queue");
 
-my $building = $db->domain('food')->find($wheat_id);
+my $building = $db->resultset('Lacuna::DB::Result::Building')->find($wheat_id);
 $building->finish_upgrade;
 
 $result = $tester->post('wheat', 'view', [$session_id, $building->id]);
@@ -40,7 +40,7 @@ $last_energy = $result->{result}{empire}{planets}{$home_planet}{energy_stored};
 
 
 
-my $empire = $db->domain('empire')->find($empire_id);
+my $empire = $db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
 my $home = $empire->home_planet;
 
 # quick build basic university
@@ -67,7 +67,7 @@ $home->algae_production_hour(5000);
 $home->water_hour(5000);
 $home->ore_hour(5000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 # see if the university is upgradable to level 2
 $result = $tester->post('university','view', [$session_id, $uni->id]);
@@ -90,7 +90,7 @@ $home->algae_production_hour(5000);
 $home->water_hour(5000);
 $home->ore_hour(5000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 $result = $tester->post('empire', 'get_full_status', [$session_id]);
 $last_energy = $result->{result}{empire}{planets}{$home_planet}{energy_stored};

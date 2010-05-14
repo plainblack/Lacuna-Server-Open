@@ -24,13 +24,12 @@ my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
 $home->build_building($uni);
 $uni->finish_upgrade;
 
-my $intelligence = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
-    simpledb        => $tester->db,
+my $intelligence = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => -2,
     class           => 'Lacuna::DB::Result::Building::Intelligence',
     level           => 1,
-);
+});
 $home->build_building($intelligence);
 $intelligence->finish_upgrade;
 
@@ -47,7 +46,7 @@ $home->energy_hour(5000);
 $home->algae_production_hour(5000);
 $home->water_hour(5000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 
 $result = $tester->post('security', 'build', [$session_id, $home->id, 0, 1]);

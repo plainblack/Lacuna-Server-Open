@@ -6,11 +6,6 @@ use Lacuna::Verify;
 use Lacuna::Constants qw(BUILDABLE_CLASSES);
 use DateTime;
 
-has simpledb => (
-    is      => 'ro',
-    required=> 1,
-);
-
 with 'Lacuna::Role::Sessionable';
 
 sub get_body {
@@ -33,12 +28,12 @@ sub rename {
         ->length_lt(31)
         ->no_restricted_chars
         ->no_profanity
-        ->not_ok(Lacuna->db->resultset('body')->count(where => {name=>$name, 'itemName()'=>['!=',$body_id]}, consistent=>1)); # name available
+        ->not_ok(Lacuna->db->resultset('body')->search({name=>$name, 'id'=>['!=',$body_id]}))->count; # name available
     
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $empire->get_body($body_id);
     $body->add_news(200,"In a bold move to show its growing power, %s renamed %s to %s.",$empire->name, $body->name, $name);
-    $body->update({name => $name})->put;
+    $body->update({name => $name});
     return 1;
 }
 

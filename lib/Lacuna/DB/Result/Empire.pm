@@ -450,7 +450,6 @@ has count_probed_stars => (
 
 before 'delete' => sub {
     my ($self) = @_;
-    my $db = $self->simpledb;
     $self->sent_messages->delete;
     $self->received_messages->delete;
     $self->medals->delete;

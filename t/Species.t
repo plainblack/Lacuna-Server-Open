@@ -115,7 +115,7 @@ ok(exists $result->{result}, 're-create works');
 
 $result = $tester->post('empire', 'found', [$empire_id]);
 
-$empire = $tester->db->domain('empire')->find($empire_id);
+$empire = $tester->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
 is($empire->species->name, 'Borg', 'species getting set properly');
 is($empire->home_planet->command->level, 7, 'growth affinity works');
 

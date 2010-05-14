@@ -37,7 +37,7 @@ $home->energy_hour(5000);
 $home->algae_production_hour(5000);
 $home->water_hour(5000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 $result = $tester->post('network19', 'build', [$session_id, $home->id, 0, 1]);
 ok($result->{result}{building}{id}, "built a network19");

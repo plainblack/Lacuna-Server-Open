@@ -9,7 +9,7 @@ my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
-$empire->add_essentia(10)->put;
+$empire->add_essentia(10)->update;
 
 my $base = $tester->post('empire','get_full_status', [$session_id]);
 $tester->post('empire','boost_ore', [$session_id]);

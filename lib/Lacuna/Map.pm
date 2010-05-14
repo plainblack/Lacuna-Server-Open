@@ -5,11 +5,6 @@ extends 'JSON::RPC::Dispatcher::App';
 use Lacuna::Verify;
 use Lacuna::Constants qw(ORE_TYPES);
 
-has simpledb => (
-    is      => 'ro',
-    required=> 1,
-);
-
 with 'Lacuna::Role::Sessionable';
 
 
@@ -97,7 +92,7 @@ sub get_star_system {
             else {
                 warn "Deleted vestigial relationship between empire ".$body->empire_id." and body ".$body->id;
                 $body->empire_id(undef);
-                $body->put;
+                $body->update;
             }
         }
     }

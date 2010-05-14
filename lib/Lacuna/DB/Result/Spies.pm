@@ -31,7 +31,7 @@ sub is_available {
     if (DateTime->now > $self->available_on) {
         if ($self->task eq 'Travelling' || $self->task eq 'Training' || $self->task eq 'Captured') {
             $self->task('Idle');
-            $self->put;
+            $self->update;
         }
         return 1;
     }

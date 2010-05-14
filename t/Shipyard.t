@@ -38,7 +38,7 @@ $home->algae_production_hour(500000);
 $home->water_hour(500000);
 $home->ore_hour(500000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 
 $result = $tester->post('spaceport', 'build', [$session_id, $home->id, 0, 1]);
@@ -50,7 +50,7 @@ $home->algae_production_hour(500000);
 $home->water_hour(500000);
 $home->ore_hour(500000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 $result = $tester->post('shipyard', 'build', [$session_id, $home->id, 0, 2]);
 ok($result->{result}{building}{id}, "built a shipyard");

@@ -25,7 +25,7 @@ has ua => (
 has db => (
     is => 'ro',
     lazy => 1,
-    default => sub {my $self = shift; return Lacuna::DB->new( access_key => $self->config->get('access_key'), secret_key => $self->config->get('secret_key'), cache_servers => $self->config->get('memcached')); },
+    default => sub {return Lacuna->db; },
 );
 
 has empire_name => (
@@ -41,7 +41,7 @@ has empire_password => (
 has empire => (
     is  => 'rw',
     lazy => 1,
-    default => sub { my $self = shift; return $self->db->domain('empire')->search(where=>{name=>$self->empire_name}, consistent=>1)->next; },
+    default => sub { my $self = shift; return $self->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$self->empire_name})->single; },
 );
 
 has session => (
@@ -50,7 +50,14 @@ has session => (
 
 sub generate_test_empire {
     my $self = shift;
-    my $empire = Lacuna::DB::Result::Empire->create($self->db, {name=>$self->empire_name, password=>$self->empire_password});
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new({
+        name                => $self->empire_name,
+        date_created        => DateTime->now,
+        species_id          => 2,
+        status_message      => 'Making Lacuna a better Expanse.',
+        password            => Lacuna::DB::Result::Empire->encrypt_password($self->empire_password),
+
+    })->insert;
     $empire->found;
     $self->session($empire->start_session);
     $self->empire($empire);
@@ -77,7 +84,7 @@ sub post {
 
 sub cleanup {
     my $self = shift;
-    my $empires = $self->db->domain('empire')->search(where=>{name=>$self->empire_name}, consistent=>1);
+    my $empires = $self->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$self->empire_name});
     while (my $empire = $empires->next) {
         say "Found a test empire.";
         $empire->delete;

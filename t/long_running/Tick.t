@@ -26,7 +26,7 @@ $home->waste_capacity(5000);
 $home->algae_production_hour(1000);
 $home->food_capacity(5000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 my $original_ore = $home->ore_stored;
 my $original_energy = $home->energy_stored;

@@ -35,7 +35,7 @@ $home->algae_production_hour(500000);
 $home->water_hour(500000);
 $home->ore_hour(500000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 $result = $tester->post('spaceport', 'build', [$session_id, $home->id, 0, 1]);
 my $spaceport = $empire->get_building('Lacuna::DB::Result::Building::SpacePort',$result->{result}{building}{id});
@@ -46,7 +46,7 @@ $home->algae_production_hour(500000);
 $home->water_hour(500000);
 $home->ore_hour(500000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 $result = $tester->post('shipyard', 'build', [$session_id, $home->id, 0, 2]);
 my $shipyard = $empire->get_building('Lacuna::DB::Result::Building::Shipyard',$result->{result}{building}{id});
@@ -57,7 +57,7 @@ $home->algae_production_hour(500000);
 $home->water_hour(500000);
 $home->ore_hour(500000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 
 $result = $tester->post('observatory', 'build', [$session_id, $home->id, 0, 3]);
@@ -77,7 +77,7 @@ $home->algae_stored(500000);
 $home->energy_stored(500000);
 $home->water_stored(500000);
 $home->needs_recalc(0);
-$home->put;
+$home->update;
 
 $result = $tester->post('shipyard', 'build_ship', [$session_id, $shipyard->id, 'probe']);
 $result = $tester->post('shipyard', 'build_ship', [$session_id, $shipyard->id, 'probe']);
@@ -86,7 +86,7 @@ ok(exists $result->{result}{ships_building}[0]{date_completed}, "got a date of c
 is($result->{result}{ships_building}[0]{type}, 'probe', "probe building");
 
 my $finish = DateTime->now;
-$tester->db->domain('ship_builds')->search(where=>{shipyard_id=>$shipyard->id})->update({date_completed=>$finish});
+$tester->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id=>$shipyard->id})->update({date_completed=>$finish});
 sleep 3;
 
 $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
@@ -95,9 +95,9 @@ is($result->{result}{docked_ships}{probe}, 2, "we have 2 probes built");
 $result = $tester->post('spaceport', 'send_probe', [$session_id, $home->id, {star_name=>'Rozeske'}]);
 ok($result->{result}{probe}{date_arrives}, "probe sent");
 
-my $ship = $tester->db->domain('Lacuna::DB::Result::Ships')->search({body_id => $home->id, task=>'Travelling'})->single;
+my $ship = $tester->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $home->id, task=>'Travelling'})->single;
 $ship->arrive;
-$empire = $tester->empire($tester->db->domain('empire')->find($empire->id));
+$empire = $tester->empire($tester->db->resultset('Lacuna::DB::Result::Empire')->find($empire->id));
 is($empire->count_probed_stars, 2, "2 stars probed!");
 
 $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);

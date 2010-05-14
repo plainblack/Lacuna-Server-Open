@@ -90,12 +90,11 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
 );
 $home->build_building($building);
 $building->finish_upgrade;
-$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => -2,
     class           => 'Lacuna::DB::Result::Building::Water::Storage',
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'storage');
@@ -121,62 +120,44 @@ $home->tick;
 is($tutorial->finish, 1, 'essentia');
 
 
-$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 1,
     y               => -5,
     class           => 'Lacuna::DB::Result::Building::Energy::Geo',
     level           => 3,
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 $home->tick;
 is($tutorial->finish, 1, 'energy');
 
 
-$building = Lacuna::DB::Result::Building::Water::Purification->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 1,
     y               => -4,
     class           => 'Lacuna::DB::Result::Building::Water::Purification',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
     level           => 2,
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
-$building = Lacuna::DB::Result::Building::Ore::Mine->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 1,
     y               => -3,
     class           => 'Lacuna::DB::Result::Building::Ore::Mine',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
     level           => 2,
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 $home->tick;
 is($tutorial->finish, 1, 'the 300');
 
 
-$building = Lacuna::DB::Result::Building::Network19->new(
-    simpledb        => $db,
+$building =Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => -5,
     y               => -5,
     class           => 'Lacuna::DB::Result::Building::Network19',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
     level           => 0,
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'news');
@@ -186,52 +167,31 @@ $empire->description('i rule');
 is($tutorial->finish, 1, 'rogue');
 
 
-$building = Lacuna::DB::Result::Building::SpacePort->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 1,
     y               => -2,
     class           => 'Lacuna::DB::Result::Building::SpacePort',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
-    level           => 0,
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'spaceport');
 
 
-$building = Lacuna::DB::Result::Building::Shipyard->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 1,
     y               => -1,
     class           => 'Lacuna::DB::Result::Building::Shipyard',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
-    level           => 0,
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'shipyard');
 
 
-$building = Lacuna::DB::Result::Building::Intelligence->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 1,
     y               => 0,
     class           => 'Lacuna::DB::Result::Building::Intelligence',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
-    level           => 0,
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'intelligence');
@@ -242,23 +202,16 @@ say "Waiting for spies to finish...";
 sleep 216;
 
 my $spies = $building->get_spies;
-$spies->next->assign('Counter Espionage')->put;
-$spies->next->assign('Counter Espionage')->put;
+$spies->next->assign('Counter Espionage')->update;
+$spies->next->assign('Counter Espionage')->update;
 sleep 3;
 is($tutorial->finish, 1, 'counter spy');
 
-$building = Lacuna::DB::Result::Building::Observatory->new(
-    simpledb        => $db,
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 1,
     y               => 1,
     class           => 'Lacuna::DB::Result::Building::Observatory',
-    date_created    => DateTime->now,
-    body_id         => $home->id,
-    body            => $home,
-    empire_id       => $empire->id,
-    empire          => $empire,
-    level           => 0,
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'observatory');

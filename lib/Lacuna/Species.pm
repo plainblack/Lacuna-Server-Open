@@ -3,11 +3,6 @@ package Lacuna::Species;
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
 
-has simpledb => (
-    is      => 'ro',
-    required=> 1,
-);
-
 with 'Lacuna::Role::Sessionable';
 
 sub is_name_available {

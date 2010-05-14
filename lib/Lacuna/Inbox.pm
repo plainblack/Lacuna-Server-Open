@@ -5,11 +5,6 @@ extends 'JSON::RPC::Dispatcher::App';
 use DateTime;
 use Lacuna::Verify;
 
-has simpledb => (
-    is      => 'ro',
-    required=> 1,
-);
-
 with 'Lacuna::Role::Sessionable';
 
 sub read_message {
@@ -24,7 +19,7 @@ sub read_message {
     }
     if ($empire->id eq $message->to_id && !$message->has_read) {
         $message->has_read(1);
-        $message->put;
+        $message->update;
     }
     return {
         status  => $empire->get_status,
@@ -56,7 +51,7 @@ sub archive_messages {
         my $message = $messages->find($id);
         if (defined $message && $empire->id eq $message->to_id && !$message->has_archived) {
             $message->has_archived(1);
-            $message->put;
+            $message->update;
             push @success, $id;
         }
         else {

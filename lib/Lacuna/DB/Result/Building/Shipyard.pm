@@ -128,7 +128,7 @@ sub can_build_ship {
         }
     }
     my $prereq = ship_prereqs->{$type};
-    my $count = Lacuna->db->resultset($prereq)->count( where => { body_id => $self->body_id, class => $prereq, level => ['>=', 1] } );
+    my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { body_id => $self->body_id, class => $prereq, level => {'>=' => 1} } )->count;
     unless ($count) {
         confess [1013, q{You don't have the prerequisites to build this ship.}, $prereq];
     }
