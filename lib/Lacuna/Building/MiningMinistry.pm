@@ -84,6 +84,9 @@ sub abandon_platform {
     unless (defined $platform) {
         confess [1002, "Platform not found."];
     }
+    unless ($platform->planet_id eq $building->body_id) {
+        confess [1013, "You can't abandon a platform that is not yours."];
+    }
     $building->remove_platform($platform);
     return {
         status  => $empire->get_status,
@@ -101,6 +104,9 @@ sub add_cargo_ship_to_fleet {
     unless ($ship->task eq 'Docked') {
         confess [1009, "That ship is not available."];
     }
+    unless ($ship->body_id eq $building->body_id) {
+        confess [1013, "You can't manage a ship that is not yours."];
+    }
     $building->add_ship($ship);
     return {
         status  => $empire->get_status,
@@ -117,6 +123,9 @@ sub remove_cargo_ship_from_fleet {
     }
     unless ($ship->task eq 'Mining') {
         confess [1009, "That ship is not mining."];
+    }
+    unless ($ship->body_id eq $building->body_id) {
+        confess [1013, "You can't manage a ship that is not yours."];
     }
     $building->send_ship_home($ship);
     return {

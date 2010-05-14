@@ -210,6 +210,7 @@ sub view_ships_travelling {
         }
         push @travelling, {
             id              => $ship->id,
+            name            => $ship->name,
             ship_type       => $ship->ship_type,
             to              => $to,
             from            => $from,
@@ -221,6 +222,74 @@ sub view_ships_travelling {
         number_of_ships_travelling  => $ships->pager->total_entries,
         ships_travelling            => \@travelling,
     };
+}
+
+sub view_all_ships {
+    my ($self, $session_id, $building_id, $page_number) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $empire->get_building($self->model_class, $building_id);
+    $page_number ||= 1;
+    my $body = $building->body;
+    my @fleet;
+    my $ships = $building->ships->search({}, {rows=>25, page=>$page_number});
+    while (my $ship = $ships->next) {
+        push @fleet, {
+            id              => $ship->id,
+            name            => $ship->name,
+            ship_type       => $ship->ship_type,
+            task            => $ship->task,
+            speed           => $ship->speed,
+            hold_size       => $ship->hold_size,
+        };
+    }
+    return {
+        status                      => $empire->get_status,
+        number_of_ships             => $ships->pager->total_entries,
+        ships                       => \@fleet,
+    };    
+}
+
+sub name_ship {
+    my ($self, $session_id, $building_id, $ship_id, $name) = @_;
+    Lacuna::Verify->new(content=>\$name, throws=>[1005, 'Invalid name for a ship.'])
+        ->not_empty
+        ->no_profanity
+        ->length_lt(31)
+        ->no_restricted_chars;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $empire->get_building($self->model_class, $building_id);
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+    unless (defined $ship) {
+        confess [1002, "Ship not found."];
+    }    
+    unless ($ship->body_id eq $building->body_id) {
+        confess [1013, "You can't manage a ship that is not yours."];
+    }
+    $ship->name($name);
+    $ship->update;
+    return {
+        status                      => $empire->get_status,
+    };    
+}
+
+sub scuttle_ship {
+    my ($self, $session_id, $building_id, $ship_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $empire->get_building($self->model_class, $building_id);
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+    unless (defined $ship) {
+        confess [1002, "Ship not found."];
+    }    
+    unless ($ship->task eq 'Docked') {
+        confess [1013, "You can't scuttle a ship that's not docked."];
+    }    
+    unless ($ship->body_id eq $building->body_id) {
+        confess [1013, "You can't manage a ship that is not yours."];
+    }
+    $ship->delete;
+    return {
+        status                      => $empire->get_status,
+    };    
 }
 
 around 'view' => sub {
