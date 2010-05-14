@@ -1,7 +1,7 @@
 package Lacuna::DB::Result::Map::Star;
 
 use Moose;
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Map';
 use Lacuna::Util;
 
 __PACKAGE__->table('star');

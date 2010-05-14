@@ -3,7 +3,7 @@ package Lacuna::DB::Result::MiningPlatforms;
 use Moose;
 extends 'Lacuna::DB::Result';
 
-__PACKAGE__->table('probes');
+__PACKAGE__->table('mining_platforms');
 __PACKAGE__->add_columns(
     planet_id                       => { data_type => 'int', size => 11, is_nullable => 0 },
     asteroid_id                     => { data_type => 'int', size => 11, is_nullable => 0 },

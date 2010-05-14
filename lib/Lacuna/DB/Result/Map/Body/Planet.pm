@@ -192,7 +192,9 @@ sub get_building_of_class {
             order_by    => { -desc => 'level' },
         }
     )->single;
-    $building->body($self);
+    if (defined $building ) {
+        $building->body($self);
+    }
     return $building;
 }
 
