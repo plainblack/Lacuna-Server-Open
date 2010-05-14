@@ -5,7 +5,6 @@ extends 'Lacuna::DB::Result';
 
 __PACKAGE__->table('probes');
 __PACKAGE__->add_columns(
-    ministry_id                     => { data_type => 'int', size => 11, is_nullable => 0 },
     planet_id                       => { data_type => 'int', size => 11, is_nullable => 0 },
     asteroid_id                     => { data_type => 'int', size => 11, is_nullable => 0 },
     rutile_hour                     => { data_type => 'int', size => 11, default_value => 0 },
@@ -28,9 +27,10 @@ __PACKAGE__->add_columns(
     fluorite_hour                   => { data_type => 'int', size => 11, default_value => 0 },
     beryl_hour                      => { data_type => 'int', size => 11, default_value => 0 },
     magnetite_hour                  => { data_type => 'int', size => 11, default_value => 0 },
+    percent_ship_capacity           => { data_type => 'int', size => 3, default_value => 100 },
+    percent_platform_capacity       => { data_type => 'int', size => 3, default_value => 100 },
 );
 
-__PACKAGE__->belongs_to('ministry', 'Lacuna::DB::Result::Building', 'ministry_id');
 __PACKAGE__->belongs_to('asteroid', 'Lacuna::DB::Result::Map::Body', 'asteroid_id');
 __PACKAGE__->belongs_to('planet', 'Lacuna::DB::Result::Map::Body', 'planet_id');
 

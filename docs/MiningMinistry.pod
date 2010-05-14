@@ -6,18 +6,20 @@ The Mining Ministry controls mining platform ships for harvesting the resources 
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
-=head2 view ( session_id, building_id )
+=head2 view_platforms ( session_id, building_id )
 
-Returns
+Returns a list of the mining platforms currently controlled by this ministry.
 
  {
-    "status" : { ... },
-    "building" : { ... },
-    "mining" : {
-        "ships_in_fleet" : 1,
-        "platforms_in_fleet" : 1,
-        "max_platforms" : 1,
-        "production" : {
+    "status" : { get_status() },
+    "max_platforms" : 1,
+    "platforms" : [
+        {
+            "id" : "id-goes-here",
+            "asteroid" : {
+                "id" : "id-goes-here",
+                "name" : "Kuiper"
+            },
             "rutile_hour" : 10,
             "chromite_hour" : 10,
             "chalcopyrite_hour" : 10,
@@ -38,27 +40,37 @@ Returns
             "fluorite_hour" : 10,
             "beryl_hour" : 10,
             "magnetite_hour" : 10,  
+            "production_capacity" : 100, # expressed as a percentage
+            "shipping_capacity" : 51 # expressed as a percentage
         },
-        "production_capacity" : 100, # expressed as a percentage
-        "shipping_capacity" : 51 # expressed as a percentage
-    }
+        ...
+    ]
  }
  
- 
-=head2 view_asteroids ( session_id, building_id )
+=head3 session_id
 
-Shows you the asteroids that you have mining platforms attached to.
+A session id.
+
+=head3 building_id
+
+The unique id of the mining ministry.
+
+
+ 
+=head2 view_ships ( session_id, building_id )
+
+Shows you the ships that are working in the mining fleet, and available to work in the mining fleet.
 
  {
-    "asteroids" : [
-        "name" : "$roid->name,
-        "id" : "id-goes-here",
-        "x" : 1,
-        "y" : -7,
-        "z" : 4,
-        "orbit" : 4,
-        "image" : "a3",
-        "platform_count" : 1 
+    "ships" : [
+        {
+            "name" : "CS4",
+            "id" : "id-goes-here",
+            "task" : "Mining",
+            "speed" : 350,
+            "hold_size" : 5600
+        },
+        ...
     ],
     "status" : { get_status() }
  }
