@@ -69,14 +69,22 @@ sub create_star_map {
     my $map_size = $config->get('map_size');
     my ($start_x, $end_x) = @{$map_size->{x}};
     my ($start_y, $end_y) = @{$map_size->{y}};
-    my $star_count = abs($end_x - $start_x) * abs($end_y - $start_y);
+    
+    # account for orbits
+    $start_x += 2;
+    $start_y += 2;
+    $end_x -= 2;
+    $end_y -= 2;
+    
     my @star_colors = (qw(magenta red green blue yellow white));
     my $made_lacuna = 0;
     say "Adding stars.";
-    for my $x ($start_x .. $end_x) {
-        say "Start X $x";
-        for my $y ($start_y .. $end_y) {
-            say "Start Y $y";
+    my $star_toggle = 1;
+    for (my $y = $start_y; $y < $end_y; $y += randint(3,5)) {
+        say "Start Y $y";
+        my $shim = ($star_toggle) ? 0 : randint(6,7);
+        for (my $x = $start_x + $shim; $x < $end_x; $x += 13) {
+            say "Start X $x";            
             if (rand(100) <= 15) { # 15% chance of no star
                 say "No star at $x, $y!";
             }
@@ -97,9 +105,10 @@ sub create_star_map {
                 $star->insert;
                 add_bodies($star);
             }
-            say "End Y $y";
+            say "End X $x";
         }
-        say "End X $x";
+        $star_toggle = ($star_toggle) ? 0 : 1;
+        say "End Y $y";
     }
 }
 
@@ -118,19 +127,44 @@ sub add_bodies {
     my @asteroid_classes = qw(Lacuna::DB::Result::Map::Body::Asteroid::A1 Lacuna::DB::Result::Map::Body::Asteroid::A2 Lacuna::DB::Result::Map::Body::Asteroid::A3
         Lacuna::DB::Result::Map::Body::Asteroid::A4 Lacuna::DB::Result::Map::Body::Asteroid::A5);
     say "\tAdding bodies.";
-    for my $orbit (1..7) {
+    for my $orbit (1..8) {
         my $name = $star->name." ".$orbit;
         if (randint(1,100) <= 10) { # 10% chance of no body in an orbit
             say "\tNo body at $name!";
         } 
         else {
+            my ($x, $y);
+            if ($orbit == 1) {
+                $x = $star->x + 1; $y = $star->y + 2;
+            }
+            elsif ($orbit == 2) {
+                $x = $star->x + 2; $y = $star->y + 1;
+            }
+            elsif ($orbit == 3) {
+                $x = $star->x + 2; $y = $star->y - 1;
+            }
+            elsif ($orbit == 4) {
+                $x = $star->x + 1; $y = $star->y - 2;
+            }
+            elsif ($orbit == 5) {
+                $x = $star->x - 1; $y = $star->y - 2;
+            }
+            elsif ($orbit == 6) {
+                $x = $star->x - 2; $y = $star->y - 1;
+            }
+            elsif ($orbit == 7) {
+                $x = $star->x - 2; $y = $star->y + 1;
+            }
+            elsif ($orbit == 8) {
+                $x = $star->x - 1; $y = $star->y + 2;
+            }
             my $type = ($orbit == 3) ? 'habitable' : choose_weighted(\@body_types, \@body_type_weights); # orbit 3 should always be habitable
-            say "\tAdding a $type at $name (".$star->x.",".$star->y.").";
+            say "\tAdding a $type at $name (".$x.",".$y.").";
             my $params = {
                 name                => $name,
                 orbit               => $orbit,
-                x                   => $star->x,
-                y                   => $star->y,
+                x                   => $x,
+                y                   => $y,
                 star_id             => $star->id,
                 zone                => $star->zone,
                 usable_as_starter   => 0,
