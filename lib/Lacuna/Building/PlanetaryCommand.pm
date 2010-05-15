@@ -26,9 +26,12 @@ sub view_freebies {
     my $building = $empire->get_building($self->model_class, $building_id);
     my $free_stuff = $building->body->freebies;
     my %freebies;
-    foreach my $class (keys %{$free_stuff}) {
-        next if ($class eq 'upgrades' || $class eq 'builds'); # deal with legacy REMOVE BEFORE LAUNCH
-        $freebies{$class->name} = $free_stuff->{$class};
+    while (my $freebie = $free_stuff->next) {
+        my $level = $freebie->level;
+        if ($freebie->extra_build_level) {
+            $level .= ' ('.$freebie->extra_build_level.')';
+        }
+        $freebies{$freebie->class->name} = $level;
     }
     return {
         freebies    => \%freebies,

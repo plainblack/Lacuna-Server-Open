@@ -529,7 +529,7 @@ sub check_build_prereqs {
         confess [1013, "Can't build a building outside of it's Goldilox zone.", [$self->min_orbit, $self->max_orbit]];
     }
     
-    unless ($self->has_free_build) {
+    unless ($body->get_freebie($self->class, 1)) {
         # check university level
         if ($self->university_prereq > $body->empire->university_level) {
             confess [1013, "University research too low.",$self->university_prereq];
@@ -612,24 +612,12 @@ sub time_cost_reduction_bonus {
     return (100 - $extra - $self->body->empire->species->management_affinity) / 100
 }
 
-sub has_free_build {
-    my $self = shift;
-    return ($self->level == 0 && $self->body->get_freebie($self->class) == 1) ? 1 : 0;
-}
-
-sub has_free_upgrade {
-    my $self = shift;
-    return ($self->body->get_freebie($self->class) == $self->level + 1) ? 1 : 0;
-}
-
 sub cost_to_upgrade {
     my ($self) = @_;
     my $upgrade_cost = $self->upgrade_cost;
     my $upgrade_cost_reduction = $self->construction_cost_reduction_bonus;
-    if ($self->has_free_build) { # gets a free building
-        $upgrade_cost_reduction = 0;
-    }
-    elsif ($self->has_free_upgrade) { # gets a free upgrade
+    my $freebie = $self->body->get_freebie($self->class, $self->level + 1);
+    if (defined $freebie) { 
         $upgrade_cost_reduction = 0;
     }
     return {

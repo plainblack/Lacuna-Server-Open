@@ -112,7 +112,6 @@ __PACKAGE__->add_columns(
     burger_stored                   => { data_type => 'int', size => 11, default_value => 0 },
     shake_stored                    => { data_type => 'int', size => 11, default_value => 0 },
     beetle_stored                   => { data_type => 'int', size => 11, default_value => 0 },
-    freebies                        => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
     boost_enabled                   => { data_type => 'int', size => 1, default_value => 0 },
     needs_recalc                    => { data_type => 'int', size => 1, default_value => 0 },
     restrict_coverage               => { data_type => 'int', size => 1, default_value => 1 },  

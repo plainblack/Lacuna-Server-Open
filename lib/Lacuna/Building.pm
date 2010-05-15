@@ -41,8 +41,9 @@ sub upgrade {
 
     # spend resources
     my $body = $building->body;
-    if ($building->has_free_upgrade) {
-        $body->spend_freebie($building->class)->update;
+    my $freebie = $body->get_freebie($building->class, $building->level + 1);
+    if (defined $freebie) {
+        $freebie->delete;
     }
     else {
         $body->spend_water($cost->{water});
@@ -141,8 +142,12 @@ sub build {
     $body = $body->can_build_building($building);
 
     # adjust resources
-    if ($building->has_free_build) {
-        $body->spend_freebie($building->class)->update;
+    my $freebie = $body->get_freebie($building->class, 1);
+    if (defined $freebie) {
+        if ($freebie->extra_build_level) {
+            $building->level( $freebie->extra_build_level);
+        }
+        $freebie->delete;
     }
     else {
         $body->spend_food($building->food_to_build);
