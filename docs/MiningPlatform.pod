@@ -1,7 +1,0 @@
-=head1 Mining Platform Methods
-
-Mining Platform is accessible via the URL C</miningplatform>.
-
-The list of methods below represents changes and additions to the methods that all L<Buildings> share.
-
-=cut

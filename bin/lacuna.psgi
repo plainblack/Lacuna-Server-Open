@@ -75,7 +75,6 @@ $urlmap->map(Lacuna::Building::Lapis->new->to_app_with_url);
 $urlmap->map(Lacuna::Building::Malcud->new->to_app_with_url);
 $urlmap->map(Lacuna::Building::Mine->new->to_app_with_url);
 $urlmap->map(Lacuna::Building::MiningMinistry->new->to_app_with_url);
-$urlmap->map(Lacuna::Building::MiningPlatform->new->to_app_with_url);
 $urlmap->map(Lacuna::Building::Network19->new->to_app_with_url);
 $urlmap->map(Lacuna::Building::Observatory->new->to_app_with_url);
 $urlmap->map(Lacuna::Building::OreRefinery->new->to_app_with_url);

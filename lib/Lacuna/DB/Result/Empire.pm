@@ -17,7 +17,7 @@ __PACKAGE__->add_columns(
     status_message          => { data_type => 'char', size => 255 },
     password                => { data_type => 'char', size => 255 },
     last_login              => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    species_id              => { data_type => 'int', size => 11, is_nullable => 0 },
+    species_id              => { data_type => 'int', size => 11, is_nullable => 1 },
     essentia                => { data_type => 'int', size => 11, default_value => 0 },
 #    points                  => { data_type => 'int', size => 11, default_value => 0 },
 #    rank                   => { data_type => 'int', size => 11, default_value => 0 }, # just where it is stored, but will come out of date quickly
@@ -120,7 +120,7 @@ sub add_essentia {
 
 sub get_new_message_count {
     my $self = shift;
-    return Lacuna->db->resultset('Lacuna::DB:Result::Message')->search({
+    return Lacuna->db->resultset('Lacuna::DB::Result::Message')->search({
         to_id           => $self->id,
         has_archived    => {'!=' => 1},
         has_read        => {'!=' => 1}
@@ -244,9 +244,8 @@ sub find_home_planet {
     my $possible_planets = $planets->search({
             usable_as_starter   => {'>', 0},
             orbit               => { between => [ $self->species->min_orbit, $self->species->max_orbit] },
-            x                   => { between => [($min_inhabited->('x') - 1), ($max_inhabited->('x') + 1)] },
-            y                   => { between => [($min_inhabited->('y') - 1), ($max_inhabited->('y') + 1)] },
-            z                   => { between => [($min_inhabited->('z') - 1), ($max_inhabited->('z') + 1)] },
+            x                   => { between => [($min_inhabited->('x') - 5), ($max_inhabited->('x') + 5)] },
+            y                   => { between => [($min_inhabited->('y') - 5), ($max_inhabited->('y') + 5)] },
         },
         {
             order_by    => 'usable_as_starter',

@@ -271,8 +271,6 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<MiningMinistry>
 
-=item L<MiningPlatform>
-
 =item L<Network19>
 
 =item L<Observatory>
