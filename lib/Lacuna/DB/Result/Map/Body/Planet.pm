@@ -190,6 +190,7 @@ sub get_building_of_class {
         },
         {
             order_by    => { -desc => 'level' },
+            rows        => 1,
         }
     )->single;
     if (defined $building ) {

@@ -20,10 +20,10 @@ sub find_star {
         $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($target->{star_id});
     }
     elsif (exists $target->{star_name}) {
-        $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ name => $target->{star_name} })->single;
+        $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ name => $target->{star_name} }, {rows=>1})->single;
     }
     elsif (exists $target->{x}) {
-        $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ x => $target->{x}, y => $target->{y} })->single;
+        $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ x => $target->{x}, y => $target->{y} }, {rows=>1})->single;
     }
     unless (defined $star) {
         confess [ 1002, 'Could not find the target star.', $target];
@@ -38,10 +38,10 @@ sub find_body {
         $target_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target->{body_id});
     }
     elsif (exists $target->{body_name}) {
-        $target_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ name => $target->{body_name} })->single;
+        $target_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ name => $target->{body_name} }, {rows=>1})->single;
     }
     elsif (exists $target->{x}) {
-        $target_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ x => $target->{x}, y => $target->{y} })->single;
+        $target_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ x => $target->{x}, y => $target->{y} }, {rows=>1})->single;
     }
     unless (defined $target_body) {
         confess [ 1002, 'Could not find the target body.', $target];

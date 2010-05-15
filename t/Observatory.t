@@ -95,7 +95,7 @@ is($result->{result}{docked_ships}{probe}, 2, "we have 2 probes built");
 $result = $tester->post('spaceport', 'send_probe', [$session_id, $home->id, {star_name=>'Rozeske'}]);
 ok($result->{result}{probe}{date_arrives}, "probe sent");
 
-my $ship = $tester->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $home->id, task=>'Travelling'})->single;
+my $ship = $tester->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $home->id, task=>'Travelling'}, {rows=>1})->single;
 $ship->arrive;
 $empire = $tester->empire($tester->db->resultset('Lacuna::DB::Result::Empire')->find($empire->id));
 is($empire->count_probed_stars, 2, "2 stars probed!");

@@ -2,7 +2,7 @@
 
 These methods are accessible via the C</map> URL.
 
-=head2 get_stars ( session_id, x1, y1, x2, y2, z )
+=head2 get_stars ( session_id, x1, y1, x2, y2 )
 
 Retrieves a chunk of the map and returns it as an array of hashes. B<Note:> Coordinates without a star will not be returned in the results.
 
@@ -13,17 +13,18 @@ Retrieves a chunk of the map and returns it as an array of hashes. B<Note:> Coor
             "color"         : "yellow",
             "x"             : -41,
             "y"             : 27,
-            "z"             : 14,
-            "alignments"     : "self-ally"
-        }.
+            "bodies"        : [     # only added if a probe is present
+                {
+                    same data as get_status() on /body
+                },
+                ...
+            ]
+        },
         {
             "name"          : "X143S",
-            "can_name"      : 0,
             "color"         : "green",
             "x"             : -42,
-            "y"             : 27,
-            "z"             : 14,
-            "alignments"    : "unprobed"
+            "y"             : 27
         }
      ],
     "status" : { get_status() }
@@ -45,9 +46,8 @@ The data you retrieve will allow you to draw a standard cartesian plane like the
 
              -y
 
-What you're viewing is a slice of a 3D environment, much as if you cut an apple in half. 
 
-The requested area can be no larger than 121 stars. Throws 1003 when the area is too large. 
+The requested area can be no larger than 400 spaces (20x20). Throws 1003 when the area is too large. 
 
 
 =head3 session_id
@@ -70,10 +70,6 @@ The bottom right x coord.
 
 The bottom right y coord.
 
-=head3 z
-
-The z axis. There's no secondary z coordinate because you can only pull from one z axis at a time.
-
 
 =head2 check_star_for_incoming_probe ( session_id, star_id )
 
@@ -94,98 +90,25 @@ The unique id for a star.
 
 
 
-=head2 get_star_by_body ( session_id, body_id )
+=head2 get_star (session_id, star_id)
 
-Returns the details about a star.
+Retrieves info on a single star.
 
- {
+ { 
     "star" : {
-        "name" : "Sol",
-        "id" : "yyyy",
-        "x" : -3,
-        "y" : 4,
-        "z" : 77,
-        "color" : "yellow",
-        "alignments"     : "self-ally"
-    },
-    "status" : { get_status() }
- }
-
-Throws 1002.
-
-=head3 session_id
-
-A session id.
-
-=head3 body_id
-
-The unique id for a body.
-
-
-
-=head2 get_star_system ( session_id, star_id ) 
-
-Returns an array of bodies and a hash about the star itself. The data structure looks like:
-
- {
-    "star" : {
-        "id" : "a0f7f6e5-c58e-4b9d-994b-5838c2feabe8",
-        "name" : "Sol",
-        "color" : "yellow",
-        "x" : -39
-        "y" : 44,
-        "z" : 12
-    },
-    "bodies" : {
-       "f9fe8bd3-bd09-4dc2-ba20-cf4e3b69e63a" : {
-            "id" : "id-goes-here",
-            "x" : -4,
-            "y" : 10,
-            "z" : 6,
-            "star_id" : "id-goes-here",
-            "orbit" : 3,
-            "type" : "habitable planet",
-            "name" : "Earth",
-            "image" : "p13",
-            "size" : 67,
-            "water" : 900,
-            "ore" : {
-                "gold" : 3399,
-                "bauxite" : 4000,
-                ...
+        "name"          : "Sol",
+        "color"         : "yellow",
+        "x"             : -41,
+        "y"             : 27,
+        "bodies"        : [     # only added if a probe is present
+            {
+                same data as get_status() on /body
             },
-            "alignment" : "none",   # can be 'none', 'ally','self', or 'hostile'
-            
-            --------- if you own the planet the data below will be included ---------
-            
-            "building_count" : 7,
-            "happiness" : 3939,
-            "happiness_hour" : 25,
-            "food_stored" : 33329,
-            "food_capacity" : 40000,
-            "food_hour" : 229,
-            "energy_stored" : 39931,
-            "energy_capacity" : 43000,
-            "energy_hour" : 391,
-            "ore_hour" 284,
-            "ore_capacity" 35000,
-            "ore_stored" 1901,
-            "waste_hour" : 933,
-            "waste_stored" : 9933,
-            "waste_capacity" : 13000,
-            "water_stored" : 9929,
-            "water_hour" : 295,
-            "water_capacity" : 51050,
-        }
-    },
+            ...
+        ]
+    }    
     "status" : { get_status() }
  }
-
-The C<bodies> listing here shows public information about the body. For information about a planet that an empire owner can view, see L<Empire/"get_full_status">.
-
-The C<ore> and C<water> parts of each body gives you an indication of how good the body is at producing those resources. The number is out of 10,000 possible. So a body that produces 9,000 bauxite would produce about 90% of capacity of bauxite. 
-
-Throws 1002 and 1010.
 
 =head3 session_id
 
@@ -193,23 +116,104 @@ A session id.
 
 =head3 star_id
 
-The unique id of the star you wish to retrieve system information for.
+The unique id of the star.
 
 
 
-=head2 get_star_system_by_body ( session_id, body_id )
+=head2 get_star_by_name (session_id, name)
 
-Returns the same output and throws the same errors as C<get_star_system>, but locates the system based upon a body_id rather than a star_id.
+Retrieves info on a single star.
+
+ { 
+    "star" : {
+        "name"          : "Sol",
+        "color"         : "yellow",
+        "x"             : -41,
+        "y"             : 27,
+        "bodies"        : [     # only added if a probe is present
+            {
+                same data as get_status() on /body
+            },
+            ...
+        ]
+    }    
+    "status" : { get_status() }
+ }
 
 =head3 session_id
 
 A session id.
 
-=head3 body_id
+=head3 name
 
-The unique id of a body.
+The exact name of a star. Case insensitive.
 
 
+
+=head2 get_star_by_xy (session_id, x, y)
+
+Retrieves info on a single star.
+
+ { 
+    "star" : {
+        "name"          : "Sol",
+        "color"         : "yellow",
+        "x"             : -41,
+        "y"             : 27,
+        "bodies"        : [     # only added if a probe is present
+            {
+                same data as get_status() on /body
+            },
+            ...
+        ]
+    }    
+    "status" : { get_status() }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 x
+
+The x coordinate of a star.
+
+=head3 y
+
+The y coordinate of a star.
+
+
+
+=head2 search_stars (session_id, name)
+
+If you know a partial name of a star you can search for it. Returns up to 25 results. No body data is returned with this search.
+
+ { 
+    "stars" : [
+        {
+            "name"          : "Sol",
+            "color"         : "yellow",
+            "x"             : -41,
+            "y"             : 27
+        },
+        {
+            "name"          : "Minsol",
+            "color"         : "green",
+            "x"             : -42,
+            "y"             : 27
+        }
+     ],
+    "status" : { get_status() }
+ }
+
+
+=head3 session_id
+
+A session id.
+
+=head3 name
+
+A partial name of a star. Case insensitive. Must be at least 3 characters.
 
 
 

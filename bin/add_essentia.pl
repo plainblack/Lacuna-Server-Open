@@ -18,7 +18,7 @@ GetOptions(
 
 $db
 	->resultset('Lacuna::DB::Result::Empire')
-	->search({name => $name})
+	->search({name => $name}, {rows=>1})
 	->single
 	->add_essentia($amount)
 	->update;

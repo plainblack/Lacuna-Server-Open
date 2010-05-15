@@ -80,12 +80,16 @@ sub create_star_map {
     my $made_lacuna = 0;
     say "Adding stars.";
     my $star_toggle = 1;
-    for (my $y = $start_y; $y < $end_y; $y += randint(3,5)) {
-        say "Start Y $y";
-        my $shim = ($star_toggle) ? 0 : randint(6,7);
-        for (my $x = $start_x + $shim; $x < $end_x; $x += 13) {
+    my $real_y = $start_y;
+    my $y;
+    while ($real_y + 3 < $end_y) {
+        say "Start Y $real_y";
+        my $shim = ($star_toggle) ? randint(0,3) : randint(8,10);
+        for (my $x = $start_x + $shim; $x < $end_x; $x += 15) {
+            $y = $real_y + randint(0,3);
             say "Start X $x";            
-            if (rand(100) <= 15) { # 15% chance of no star
+            #if (rand(100) <= 15) { # 15% chance of no star
+            if (0) {
                 say "No star at $x, $y!";
             }
             else {
@@ -109,6 +113,7 @@ sub create_star_map {
         }
         $star_toggle = ($star_toggle) ? 0 : 1;
         say "End Y $y";
+        $real_y += 5;
     }
 }
 

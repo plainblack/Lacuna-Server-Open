@@ -603,7 +603,7 @@ sub destroy_infrastructure {
             'Lacuna::DB::Result::Building::Observatory',
             );
         my $building = $db->resultset('Lacuna::DB::Result::Building')->search(
-            { body_id => $planet->id, class => { in => \@classes } },
+            { body_id => $planet->id, class => { in => \@classes } }, {rows=>1}
             )->single;
         last unless defined $building;
         $espionage->{police}{score} += 25;
@@ -866,7 +866,7 @@ sub steal_building {
     my $thief = random_spy($espionage->{theft}{spies});
     return undef unless defined $thief;
     my $building = $db->resultset('Lacuna::DB::Result::Building')->search(
-        { body_id => $planet->id, level => {'>=' => $level} },
+        { body_id => $planet->id, level => {'>=' => $level} }, {rows=>1}
         )->single;
     return undef unless defined $building;
     $thief->from_body->add_freebie($building->class, $level)->update;
@@ -958,7 +958,7 @@ sub take_control_of_probe {
     out('Take Control Of Probe');
     my $spy = random_spy($espionage->{hacking}{spies});
     return undef unless defined $spy;
-    my $probe = $db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $planet->id })->single;
+    my $probe = $db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $planet->id }, {rows=>1})->single;
     return undef unless defined $probe;
     $probe->body_id($spy->from_body_id);
     $probe->empire_id($spy->empire_id);
@@ -1007,7 +1007,7 @@ sub kill_contact_with_mining_platform {
 sub hack_observatory_probes {
     my ($planet, $espionage) = @_;
     out('Hack Observatory Probes');
-    my $probe = $db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $planet->id })->single;
+    my $probe = $db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $planet->id }, {rows=>1})->single;
     return undef unless defined $probe;
     my @spies = pick_a_spy_per_empire($espionage->{hacking}{spies});
     foreach my $spy (@spies) {
@@ -1032,7 +1032,7 @@ sub hack_offending_probes {
     out('Hack Offensive Probes');
     my $hacker = random_spy($espionage->{hacking}{spies});
     return undef unless defined $hacker;
-    my $probe = $db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $planet->star_id, empire_id => {'!=' => $hacker->empire_id} })->single;
+    my $probe = $db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $planet->star_id, empire_id => {'!=' => $hacker->empire_id} }, {rows=>1})->single;
     return undef unless defined $probe;
     $hacker->empire->send_predefined_message(
         tags        => ['Intelligence'],
@@ -1051,7 +1051,7 @@ sub hack_offending_probes {
 sub hack_local_probes {
     my ($planet, $espionage) = @_;
     out('Hack Local Probes');
-    my $probe = $db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $planet->star_id, empire_id => $planet->empire_id })->single;
+    my $probe = $db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $planet->star_id, empire_id => $planet->empire_id }, {rows=>1})->single;
     return undef unless defined $probe;
     my @spies = pick_a_spy_per_empire($espionage->{hacking}{spies});
     foreach my $spy (@spies) {
