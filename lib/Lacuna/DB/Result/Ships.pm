@@ -24,8 +24,8 @@ __PACKAGE__->add_columns(
     foreign_star_id         => { data_type => 'int', size => 11, is_nullable => 1 },
 );
 
-__PACKAGE__->belongs_to('spaceport', 'Lacuna::DB::Result::Building', 'spaceport_id', {join_type => 'left', cascade_delete => 0});
-__PACKAGE__->belongs_to('shipyard', 'Lacuna::DB::Result::Building', 'shipyard_id', {join_type => 'left', cascade_delete => 0});
+__PACKAGE__->belongs_to('spaceport', 'Lacuna::DB::Result::Building', 'spaceport_id');
+__PACKAGE__->belongs_to('shipyard', 'Lacuna::DB::Result::Building', 'shipyard_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 __PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Result::Map::Star', 'foreign_star_id');
 __PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Result::Map::Body', 'foreign_body_id');

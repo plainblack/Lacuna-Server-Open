@@ -139,7 +139,7 @@ sub validate_empire {
     }
 
     # deal with previously created species
-    my $old_species = Lacuna->db->resultset('Lacuna::DB::Result::Species')->search({empire_id=>$empire->id})->delete_all;
+    Lacuna->db->resultset('Lacuna::DB::Result::Species')->search({empire_id=>$empire->id})->delete_all;
     
     return $empire;
 }

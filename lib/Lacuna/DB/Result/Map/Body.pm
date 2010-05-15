@@ -154,7 +154,7 @@ __PACKAGE__->typecast_map(class => {
 # RELATIONSHIPS
 
 __PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Map::Star', 'star_id');
-__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id', {join_type => 'left', cascade_delete => 0});
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 __PACKAGE__->has_many('buildings','Lacuna::DB::Result::Building','body_id');
 
 

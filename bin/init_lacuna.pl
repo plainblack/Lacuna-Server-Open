@@ -21,6 +21,12 @@ say "Time Elapsed: ".Time::HiRes::tv_interval($t);
 
 sub create_database {
     $db->deploy({ add_drop_table => 1 });
+    #$db->storage->dbh_do(
+    #    sub {
+    #        my ($storage, $dbh) = @_;
+    #        $dbh->do("alter table empire add constraint empire_fk_species_id foreign key (species_id) references species (id) on delete set null");
+    #    }
+    #);
 }
 
 sub create_species {

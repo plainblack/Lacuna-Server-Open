@@ -35,7 +35,7 @@ __PACKAGE__->add_columns(
 
 # personal confederacies
 
-__PACKAGE__->belongs_to('species', 'Lacuna::DB::Result::Species', 'species_id');
+__PACKAGE__->belongs_to('species', 'Lacuna::DB::Result::Species', 'species_id', { on_delete => 'set null' });
 __PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Map::Body', 'home_planet_id');
 __PACKAGE__->has_many('sessions', 'Lacuna::DB::Result::Session', 'empire_id');
 __PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Map::Body', 'empire_id');
