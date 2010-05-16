@@ -288,7 +288,7 @@ sub send_message {
         date_sent   => DateTime->now,
         subject     => $params{subject},
         body        => $params{body},
-        tags        => $params{tags},
+        tag         => $params{tag} || $params{tags}->[0],
         from_id     => $params{from}->id,
         from_name   => $params{from}->name,
         to_id       => $self->id,

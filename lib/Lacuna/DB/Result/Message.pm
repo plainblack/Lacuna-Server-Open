@@ -16,7 +16,7 @@ __PACKAGE__->add_columns(
     to_id           => { data_type => 'int', size => 11, is_nullable => 1 },
     to_name         => { data_type => 'char', size => 30, is_nullable => 0 },
     recipients      => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
-    tags            => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
+    tag             => { data_type => 'char', size => 15, is_nullable => 1 },
     has_read        => { data_type => 'int', size => 1, default_value => 0 },
     has_replied     => { data_type => 'int', size => 1, default_value => 0 },
     has_archived    => { data_type => 'int', size => 1, default_value => 0 },

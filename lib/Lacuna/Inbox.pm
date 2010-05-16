@@ -35,7 +35,7 @@ sub read_message {
             has_archived=> $message->has_archived,
             in_reply_to => $message->in_reply_to,
             recipients  => $message->recipients,
-            tags        => $message->tags,
+            tags        => [$message->tag],
             attachments => $message->attachments,
         },
     };
@@ -98,7 +98,7 @@ sub send_message {
                 body        => $body,
                 in_reply_to => $options->{in_reply_to},
                 recipients  => \@sent,
-                tags        => ['Correspondence'],
+                tag         => 'Correspondence',
             );
         }
     }
@@ -148,9 +148,9 @@ sub view_messages {
     my ($self, $where, $empire, $options) = @_;
     $options->{page_number} ||= 1;
     if ($options->{tags}) {
-        $where->{tags} = ['in',$options->{tags}];
+        $where->{tag} = ['in',$options->{tags}];
     }
-    my $messages = Lacuna->db->resultset('message')->search(
+    my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message')->search(
         $where,
         {
             order_by    => { -desc => 'date_sent' },
@@ -169,7 +169,7 @@ sub view_messages {
             has_read        => $message->has_read,
             has_replied     => $message->has_replied,
             body_preview    => substr($message->body,0,30),
-            tags            => $message->tags,
+            tags            => [$message->tag],
         };
     }
     return {
