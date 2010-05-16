@@ -4,6 +4,7 @@ use Moose;
 extends 'Lacuna::DB::Result';
 use Lacuna::Util;
 
+__PACKAGE__->table('noexist_map');
 __PACKAGE__->add_columns(
     name                    => { data_type => 'char', size => 30, is_nullable => 0 },
     x                       => { data_type => 'int', size => 11, default_value => 0 },

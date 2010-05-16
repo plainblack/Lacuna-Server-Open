@@ -412,7 +412,7 @@ sub get_existing_build_queue_time {
     my $time_to_build = DateTime->now;
     my $last_in_queue = $self->last_in_build_queue;
     if (defined $last_in_queue) {
-        $time_to_build = $last_in_queue->date_complete;    
+        $time_to_build = $last_in_queue->upgrade_ends;    
     }
     return $time_to_build;
 }
@@ -435,7 +435,6 @@ sub build_building {
 
     $building->date_created(DateTime->now);
     $building->body_id($self->id);
-    $building->body($self);
     $building->upgrade_started(DateTime->now);
     $building->is_upgrading(1);
     $building->level(0) unless $building->level;
@@ -444,6 +443,7 @@ sub build_building {
     my $time_to_build = $self->get_existing_build_queue_time->add(seconds=>$building->time_to_build);
     $building->upgrade_ends($time_to_build);
     $building->insert;
+    $building->body($self);
 }
 
 sub found_colony {

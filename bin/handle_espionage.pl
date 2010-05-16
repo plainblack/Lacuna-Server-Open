@@ -1247,7 +1247,7 @@ sub build_queue_report {
         push @report, [
             $build->building->name,
             $build->building->level + 1,
-            $build->date_complete_formatted,
+            $build->upgrade_ends_formatted,
         ];
     }
     $spy->empire->send_predefined_message(
