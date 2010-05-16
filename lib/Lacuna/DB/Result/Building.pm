@@ -558,14 +558,14 @@ sub upgrade_status {
     my $now = DateTime->now;
     my $complete = $self->upgrade_ends;
     if ($self->is_upgrading) {
-        return undef;
-    }
-    else {
         return {
             seconds_remaining   => to_seconds($complete - $now),
             start               => format_date($self->upgrade_started),
             end                 => format_date($self->upgrade_ends),
         };
+    }
+    else {
+        return undef;
     }
 }
 
@@ -678,6 +678,7 @@ sub finish_upgrade {
     my ($self) = @_;
     my $body = $self->body;    
     $self->level($self->level + 1);
+    $self->is_upgrading(0);
     $self->update;
     $body->clear_last_in_build_queue;
     $body->needs_recalc(1);

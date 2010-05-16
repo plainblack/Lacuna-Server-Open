@@ -34,7 +34,7 @@ $building->finish_upgrade;
 
 $result = $tester->post('wheat', 'view', [$session_id, $building->id]);
 is($result->{result}{building}{level}, 1, 'New building is built');
-ok(! exists $result->{result}{building}{pending_build}, 'Building is no longer in build queue');
+ok(ref $result->{result}{building}{pending_build} ne 'HASH', 'Building is no longer in build queue');
 $result = $tester->post('empire', 'get_full_status', [$session_id]);
 $last_energy = $result->{result}{empire}{planets}{$home_planet}{energy_stored};
 
@@ -44,12 +44,12 @@ my $empire = $db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
 my $home = $empire->home_planet;
 
 # quick build basic university
-my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => -1,
     class           => 'Lacuna::DB::Result::Building::University',
     level           => 2,
-);
+});
 $home->build_building($uni);
 $uni->finish_upgrade;
 
