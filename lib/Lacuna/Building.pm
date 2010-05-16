@@ -5,10 +5,6 @@ extends 'JSON::RPC::Dispatcher::App';
 
 with 'Lacuna::Role::Sessionable';
 
-sub model_domain {
-    return $_[0]->model_class->domain_name;
-}
-
 sub model_class {
     confess "you need to override me";
 }
@@ -25,7 +21,7 @@ sub to_app_with_url {
 sub upgrade {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_domain, $building_id);
+    my $building = $empire->get_building($self->model_class, $building_id);
 
     # check the upgrade lock
     if ($building->is_upgrade_locked) {
@@ -71,7 +67,7 @@ sub upgrade {
 sub view {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_domain, $building_id);
+    my $building = $empire->get_building($self->model_class, $building_id);
     my $cost = $building->cost_to_upgrade;
     my $can_upgrade = eval{$building->can_upgrade($cost)};
     my $reason = $@;
@@ -175,7 +171,7 @@ sub build {
 sub get_stats_for_level {
     my ($self, $session_id, $building_id, $level) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_domain, $building_id);
+    my $building = $empire->get_building($self->model_class, $building_id);
     if ($level < 0 || $level > 100) {
         confess [1009, 'Level must be an integer between 1 and 100.'];
     }
