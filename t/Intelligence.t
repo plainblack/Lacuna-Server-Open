@@ -87,7 +87,7 @@ $home->build_building($spaceport);
 $spaceport->finish_upgrade;
 
 # need a spy done right now
-$tester->db->resultset('Lacuna::DB::Result::Spies')->new({
+Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
     from_body_id    => $home->id,
     on_body_id      => $home->id,
     task            => 'Idle',

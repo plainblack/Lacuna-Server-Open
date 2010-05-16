@@ -8,24 +8,10 @@ use JSON qw(to_json from_json);
 use Data::Dumper;
 use 5.010;
 
-
-
-has config => (
-    is  => 'ro',
-    lazy => 1,
-    default => sub { Lacuna->config },
-);
-
 has ua => (
     is  => 'ro',
     lazy => 1,
     default => sub {  my $ua = LWP::UserAgent->new; $ua->timeout(30); return $ua; },
-);
-
-has db => (
-    is => 'ro',
-    lazy => 1,
-    default => sub {return Lacuna->db; },
 );
 
 has empire_name => (
@@ -41,7 +27,7 @@ has empire_password => (
 has empire => (
     is  => 'rw',
     lazy => 1,
-    default => sub { my $self = shift; return $self->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$self->empire_name}, {rows=>1})->single; },
+    default => sub { my $self = shift; return Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$self->empire_name}, {rows=>1})->single; },
 );
 
 has session => (
@@ -56,7 +42,6 @@ sub generate_test_empire {
         species_id          => 2,
         status_message      => 'Making Lacuna a better Expanse.',
         password            => Lacuna::DB::Result::Empire->encrypt_password($self->empire_password),
-
     })->insert;
     $empire->found;
     $self->session($empire->start_session);
@@ -73,7 +58,7 @@ sub post {
         params      => $params,
     };
     say "REQUEST: ".to_json($content);
-    my $response = $self->ua->post($self->config->get('server_url').$url,
+    my $response = $self->ua->post(Lacuna->config->get('server_url').$url,
         Content_Type    => 'application/json',
         Content         => to_json($content),
         Accept          => 'application/json',
@@ -84,7 +69,7 @@ sub post {
 
 sub cleanup {
     my $self = shift;
-    my $empires = $self->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$self->empire_name});
+    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$self->empire_name});
     while (my $empire = $empires->next) {
         say "Found a test empire.";
         $empire->delete;

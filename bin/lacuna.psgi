@@ -15,8 +15,6 @@ use Log::Log4perl;
 Log::Log4perl::init('/data/Lacuna-Server/etc/log4perl.conf');
 Log::Any::Adapter->set('Log::Log4perl');
 
-my $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key => $config->get('secret_key'), cache_servers => $config->get('memcached'));
-
 my $urlmap = Plack::App::URLMap->new;
 
 #open my $file, "<", "../var/index.html";

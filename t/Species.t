@@ -10,7 +10,7 @@ my $tester = TestHelper->new;
 
 cleanup(); # in case there were failed runs previously
 
-my $empire = $tester->db->resultset('Lacuna::DB::Result::Empire')->new({name=>$tester->empire_name})->insert;
+my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new({name=>$tester->empire_name})->insert;
 $tester->empire($empire);
 my $empire_id = $empire->id;
 
@@ -115,7 +115,7 @@ ok(exists $result->{result}, 're-create works');
 
 $result = $tester->post('empire', 'found', [$empire_id]);
 
-$empire = $tester->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+$empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
 is($empire->species->name, 'Borg', 'species getting set properly');
 is($empire->home_planet->command->level, 7, 'growth affinity works');
 

@@ -247,12 +247,11 @@ sub find_home_planet {
     my $possible_planets = $planets->search({
             usable_as_starter   => {'>', 0},
             orbit               => { between => [ $self->species->min_orbit, $self->species->max_orbit] },
-            x                   => { between => [($min_inhabited->('x') - 5), ($max_inhabited->('x') + 5)] },
-            y                   => { between => [($min_inhabited->('y') - 5), ($max_inhabited->('y') + 5)] },
+            x                   => { between => [($min_inhabited->('x') - 20), ($max_inhabited->('x') + 20)] },
+            y                   => { between => [($min_inhabited->('y') - 20), ($max_inhabited->('y') + 20)] },
         },
         {
             order_by    => 'usable_as_starter',
-            rows        => 10,
         },
     );
 

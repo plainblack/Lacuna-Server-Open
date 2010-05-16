@@ -13,7 +13,7 @@ my $result;
 
 my $empire_id = $tester->empire->id;
 my $home_planet = $tester->empire->home_planet_id;
-my $db = $tester->db;
+my $db = Lacuna->db;
 
 $result = $tester->post('empire', 'get_full_status', [$session_id]);
 my $last_energy = $result->{result}{empire}{planets}{$home_planet}{energy_stored};

@@ -11,7 +11,7 @@ my $session_id = $tester->session->id;
 
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
-my $db = $tester->db;
+my $db = Lacuna->db;
 
 my $initial_status = $home->get_status($empire);
 

@@ -5,7 +5,7 @@ use Module::Find;
 use TestHelper;
 
 my $tester = TestHelper->new->generate_test_empire;
-my $db = $tester->db;
+my $db = Lacuna->db;
 my $empire = $tester->empire;
 
 open my $file, '>', '/tmp/stats.csv';
