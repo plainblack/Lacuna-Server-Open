@@ -1184,7 +1184,7 @@ sub travel_report {
             $from = $to;
             $to = $temp;
         }
-        my $type = $ship->ship_type;
+        my $type = $ship->type;
         $type =~ s/_/ /g;
         push @travelling, [
             $planet->name,

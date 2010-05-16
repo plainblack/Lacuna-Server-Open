@@ -22,7 +22,7 @@ sub view_build_queue {
     my @building;
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         { shipyard_id => $building->id, task => 'building' },
-        { order_by    => 'date_completed', rows => 25, page => $page_number },
+        { order_by    => 'date_available', rows => 25, page => $page_number },
         );
     while (my $ship = $ships->next) {
         push @building, {

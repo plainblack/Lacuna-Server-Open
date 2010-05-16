@@ -49,6 +49,42 @@ sub generate_test_empire {
     return $self;
 }
 
+sub build_infrastructure {
+    my $self = shift;
+    my $home = $self->empire->home_planet;
+    foreach my $type ('Lacuna::DB::Result::Building::Food::Algae','Lacuna::DB::Result::Building::Energy::Hydrocarbon',
+        'Lacuna::DB::Result::Building::Water::Purification','Lacuna::DB::Result::Building::Ore::Mine') {
+        my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+            x               => -5,
+            y               => -5,
+            class           => $type,
+            level           => 10,
+        });
+        $home->build_building($building);
+        $building->finish_upgrade;
+    }
+    foreach my $type ('Lacuna::DB::Result::Building::University','Lacuna::DB::Result::Building::Energy::Reserve',
+        'Lacuna::DB::Result::Building::Food::Reserve','Lacuna::DB::Result::Building::Ore::Storage',
+        'Lacuna::DB::Result::Building::Water::Storage') {
+        my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+            x               => -5,
+            y               => -5,
+            class           => $type,
+            level           => 5,
+        });
+        $home->build_building($building);
+        $building->finish_upgrade;
+    }
+
+    $home->algae_stored(100_000);
+    $home->bauxite_stored(100_000);
+    $home->energy_stored(100_000);
+    $home->water_stored(100_000);
+    
+    $home->tick;
+    return $self;
+}
+
 sub post {
     my ($self, $url, $method, $params) = @_;
     my $content = {

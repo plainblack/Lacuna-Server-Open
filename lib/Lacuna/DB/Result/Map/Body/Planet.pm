@@ -4,7 +4,7 @@ use Moose;
 extends 'Lacuna::DB::Result::Map::Body';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use List::Util qw(shuffle);
-use Lacuna::Util qw(to_seconds randint);
+use Lacuna::Util qw(to_seconds randint format_date);
 use DateTime;
 no warnings 'uninitialized';
 

@@ -141,11 +141,11 @@ sub build_ship {
     $time ||= $self->get_ship_costs($type)->{seconds};
     my $latest = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         { shipyard_id => $self->id},
-        { order_by    => { -desc => 'date_completed' }, rows=>1},
+        { order_by    => { -desc => 'date_available' }, rows=>1},
         )->single;
     my $date_completed;
     if (defined $latest) {
-        $date_completed = $latest->date_completed->clone;
+        $date_completed = $latest->date_available->clone;
     }
     else {
         $date_completed = DateTime->now;
@@ -254,7 +254,12 @@ has hold_size_bonus => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return (100 + ($self->body->empire->species->trade_affinity * 25) + ($self->trade_ministry->level * 30)) / 100;
+        my $trade_ministry_level = 0;
+        my $trade_ministry = $self->trade_ministry;
+        if (defined $trade_ministry) {
+            $trade_ministry_level = $trade_ministry->level;
+        }
+        return (100 + ($self->body->empire->species->trade_affinity * 25) + ($trade_ministry_level * 30)) / 100;
     },
 );
 

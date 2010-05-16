@@ -5,7 +5,7 @@ extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date to_seconds);
 use DateTime;
 
-__PACKAGE__->table('ship_builds');
+__PACKAGE__->table('ships');
 __PACKAGE__->add_columns(
     spaceport_id            => { data_type => 'int', size => 11, is_nullable => 1 },
     shipyard_id             => { data_type => 'int', size => 11, is_nullable => 1 },
@@ -137,7 +137,7 @@ sub arrive {
         }
     }
     
-    elsif ($self->ship_type eq 'terraforming_platform_ship') {
+    elsif ($self->type eq 'terraforming_platform_ship') {
         if ($self->direction eq 'outgoing') {
             my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::TerraformingLab');
             if (defined $lab) {
@@ -149,7 +149,7 @@ sub arrive {
         }
     }
     
-    elsif ($self->ship_type eq 'gas_giant_settlement_platform_ship') {
+    elsif ($self->type eq 'gas_giant_settlement_platform_ship') {
         if ($self->direction eq 'outgoing') {
             my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::GasGiantLab');
             if (defined $lab) {
@@ -161,7 +161,7 @@ sub arrive {
         }
     }
     
-    elsif ($self->ship_type eq 'mining_platform_ship') {
+    elsif ($self->type eq 'mining_platform_ship') {
         if ($self->direction eq 'outgoing') {
             my $ministry = $self->body->mining_ministry;
             if (eval{$ministry->can_add_platform} && !$@) {
@@ -176,15 +176,15 @@ sub arrive {
         }
     }
     
-    elsif ($self->ship_type eq 'cargo_ship') {
+    elsif ($self->type eq 'cargo_ship') {
     }
     
-    elsif ($self->ship_type eq 'smuggler_ship') {
+    elsif ($self->type eq 'smuggler_ship') {
     }
     
-    elsif ($self->ship_type eq 'space_station') {
+    elsif ($self->type eq 'space_station') {
+        $self->delete;
     }
-    $self->delete;
 }
 
 # DISTANCE
