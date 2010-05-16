@@ -54,25 +54,28 @@ sub get_body { # makes for uniform error handling, and prevents staleness
         confess [1010, "Can't manipulate a planet you don't inhabit."];
     }
     $body->empire($self);
-    if (!$self->has_home_planet && $body->id eq $self->home_planet_id) {
+    if ($body->id eq $self->home_planet_id) {
         $self->home_planet($body);
     }
     return $body;
 }
 
 sub get_building { # makes for uniform error handling, and prevents staleness
-    my ($self, $moniker, $building_id) = @_;
+    my ($self, $class, $building_id) = @_;
     if (ref $building_id && $building_id->isa('Lacuna::DB::Result::Building')) {
         return $building_id;
     }
     else {
-        my $building = Lacuna->db->resultset($moniker)->find($building_id);
+        my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->find($building_id);
         unless (defined $building) {
             confess [1002, 'Building does not exist.', $building_id];
         }
+        if ($building->class ne $class) {
+            confess [1002, 'That building is not a '.$class->name];
+        }
         $building->is_offline;
         my $body = $self->get_body($building->body_id);        
-        unless ($body->empire_id eq $self->id) { 
+        if ($body->empire_id ne $self->id) { 
             confess [1010, "Can't manipulate a building that you don't own.", $building_id];
         }
         $body->tick;

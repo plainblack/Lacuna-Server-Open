@@ -86,13 +86,13 @@ __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Building::Food::Farm::Potato' => 'Lacuna::DB::Result::Building::Food::Farm::Potato',
     'Lacuna::DB::Result::Building::Food::Farm::Root' => 'Lacuna::DB::Result::Building::Food::Farm::Root',
     'Lacuna::DB::Result::Building::Food::Farm::Wheat' => 'Lacuna::DB::Result::Building::Food::Farm::Wheat',
-    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Fission',
-    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Fusion',
-    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Geo',
-    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Hydrocarbon',
-    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Reserve',
-    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Singularity',
-    'Lacuna::DB::Result::Building::Energy::' => 'Lacuna::DB::Result::Building::Energy::Waste',
+    'Lacuna::DB::Result::Building::Energy::Fission' => 'Lacuna::DB::Result::Building::Energy::Fission',
+    'Lacuna::DB::Result::Building::Energy::Fusion' => 'Lacuna::DB::Result::Building::Energy::Fusion',
+    'Lacuna::DB::Result::Building::Energy::Geo' => 'Lacuna::DB::Result::Building::Energy::Geo',
+    'Lacuna::DB::Result::Building::Energy::Hydrocarbon' => 'Lacuna::DB::Result::Building::Energy::Hydrocarbon',
+    'Lacuna::DB::Result::Building::Energy::Reserve' => 'Lacuna::DB::Result::Building::Energy::Reserve',
+    'Lacuna::DB::Result::Building::Energy::Singularity' => 'Lacuna::DB::Result::Building::Energy::Singularity',
+    'Lacuna::DB::Result::Building::Energy::Waste' => 'Lacuna::DB::Result::Building::Energy::Waste',
 });
 
 sub controller_class {
