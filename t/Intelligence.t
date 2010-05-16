@@ -15,12 +15,12 @@ my $home = $empire->home_planet;
 my $result;
 
 
-my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => -1,
     class           => 'Lacuna::DB::Result::Building::University',
     level           => 2,
-);
+});
 $home->build_building($uni);
 $uni->finish_upgrade;
 
@@ -65,21 +65,21 @@ is($result->{result}{spies}[0]{name}, 'Waldo', "spy naming works");
 $result = $tester->post('intelligence', 'burn_spy', [$session_id, $intelligence->id, $spy_id]);
 ok(exists$result->{result}, "burn a spy");
 
-my $shipyard = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+my $shipyard = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 1,
     y               => 1,
     class           => 'Lacuna::DB::Result::Building::Shipyard',
     level           => 5,
-);
+});
 $home->build_building($shipyard);
 $shipyard->finish_upgrade;
 
-my $spaceport = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+my $spaceport = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 1,
     y               => 2,
     class           => 'Lacuna::DB::Result::Building::SpacePort',
     level           => 5,
-);
+});
 
 ######## NEED TO GIVE MYSELF 5 SPY PODS once the new ship system is in
 
