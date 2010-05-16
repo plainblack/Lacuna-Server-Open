@@ -114,7 +114,7 @@ __PACKAGE__->add_columns(
     beetle_stored                   => { data_type => 'int', size => 11, default_value => 0 },
     boost_enabled                   => { data_type => 'int', size => 1, default_value => 0 },
     needs_recalc                    => { data_type => 'int', size => 1, default_value => 0 },
-    restrict_coverage               => { data_type => 'int', size => 1, default_value => 1 },  
+    restrict_coverage               => { data_type => 'int', size => 1, default_value => 0 },  
     restrict_coverage_delta         => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
 );
 

@@ -45,7 +45,7 @@ my $network19 = $empire->get_building('Lacuna::DB::Result::Building::Network19',
 $network19->finish_upgrade;
 
 $result = $tester->post('network19', 'view', [$session_id, $network19->id]);
-is($result->{result}{restrict_coverage}, '', "coverage unrestricted");
+is($result->{result}{restrict_coverage}, 0, "coverage unrestricted");
 
 $result = $tester->post('network19', 'restrict_coverage', [$session_id, $network19->id, 1]);
 ok(exists $result->{result}, "restrict coverage");
