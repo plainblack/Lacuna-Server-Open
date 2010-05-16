@@ -1,7 +1,7 @@
-package Lacuna::DB::Result::Building::Food::Farm::Algae;
+package Lacuna::DB::Result::Building::Food::Algae;
 
 use Moose;
-extends 'Lacuna::DB::Result::Building::Food::Farm';
+extends 'Lacuna::DB::Result::Building::Food';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;

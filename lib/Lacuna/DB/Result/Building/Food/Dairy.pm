@@ -1,11 +1,11 @@
-package Lacuna::DB::Result::Building::Food::Farm::Dairy;
+package Lacuna::DB::Result::Building::Food::Dairy;
 
 use Moose;
-extends 'Lacuna::DB::Result::Building::Food::Farm';
+extends 'Lacuna::DB::Result::Building::Food';
 
 use constant controller_class => 'Lacuna::Building::Dairy';
 
-use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Farm::Corn'=>5};
+use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Corn'=>5};
 
 
 use constant min_orbit => 3;

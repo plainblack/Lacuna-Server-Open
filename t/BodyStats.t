@@ -18,7 +18,7 @@ my $initial_status = $home->get_status($empire);
 my $wheat = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => 1,
-    class           => 'Lacuna::DB::Result::Building::Food::Farm::Wheat',
+    class           => 'Lacuna::DB::Result::Building::Food::Wheat',
 );
 $home->build_building($wheat);
 $wheat->finish_upgrade;

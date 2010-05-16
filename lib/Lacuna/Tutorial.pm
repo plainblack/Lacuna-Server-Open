@@ -48,7 +48,7 @@ sub explore_the_ui {
     if ($finish) {
         if ($home->name ne $empire->tutorial_scratch) {
             $empire->add_medal('pleased_to_meet_you');
-            $home->add_freebie('Lacuna::DB::Result::Building::Food::Farm::Malcud', 1);
+            $home->add_freebie('Lacuna::DB::Result::Building::Food::Malcud', 1);
             $self->start('get_food');
             return undef;
         }
@@ -66,7 +66,7 @@ sub get_food {
     my $empire = $self->empire;
     my $home = $empire->home_planet;
     if ($finish) {
-        my $malcud = $home->get_building_of_class('Lacuna::DB::Result::Building::Food::Farm::Malcud');
+        my $malcud = $home->get_building_of_class('Lacuna::DB::Result::Building::Food::Malcud');
         if (defined $malcud && $malcud->level >= 1) {
             $self->start('drinking_water');
             return undef;

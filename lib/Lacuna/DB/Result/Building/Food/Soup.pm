@@ -1,13 +1,13 @@
-package Lacuna::DB::Result::Building::Food::Factory::Soup;
+package Lacuna::DB::Result::Building::Food::Soup;
 
 use Moose;
-extends 'Lacuna::DB::Result::Building::Food::Factory';
+extends 'Lacuna::DB::Result::Building::Food';
 
 use constant controller_class => 'Lacuna::Building::Soup';
 
 use constant image => 'cannery';
 
-use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Farm::Bean'=>5};
+use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Bean'=>5};
 
 use constant name => 'Amalgus Bean Soup Cannery';
 

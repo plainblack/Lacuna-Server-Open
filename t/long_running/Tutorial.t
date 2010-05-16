@@ -22,7 +22,7 @@ is($tutorial->finish, 1, 'look at ui');
 my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => 1,
-    class           => 'Lacuna::DB::Result::Building::Food::Farm::Malcud',
+    class           => 'Lacuna::DB::Result::Building::Food::Malcud',
 );
 $home->build_building($building);
 $building->finish_upgrade;
@@ -103,7 +103,7 @@ is($tutorial->finish, 1, 'storage');
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
     x               => 0,
     y               => -1,
-    class           => 'Lacuna::DB::Result::Building::Food::Farm::Wheat',
+    class           => 'Lacuna::DB::Result::Building::Food::Wheat',
     level           => 2,
 );
 $home->build_building($building);

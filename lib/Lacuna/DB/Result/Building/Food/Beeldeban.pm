@@ -1,11 +1,11 @@
-package Lacuna::DB::Result::Building::Food::Farm::Beeldeban;
+package Lacuna::DB::Result::Building::Food::Beeldeban;
 
 use Moose;
-extends 'Lacuna::DB::Result::Building::Food::Farm';
+extends 'Lacuna::DB::Result::Building::Food';
 
 use constant controller_class => 'Lacuna::Building::Beeldeban';
 
-use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Farm::Wheat'=>5};
+use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Wheat'=>5};
 
 use constant image => 'beeldeban';
 

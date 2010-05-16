@@ -1,11 +1,11 @@
-package Lacuna::DB::Result::Building::Food::Factory::Pancake;
+package Lacuna::DB::Result::Building::Food::Pancake;
 
 use Moose;
-extends 'Lacuna::DB::Result::Building::Food::Factory';
+extends 'Lacuna::DB::Result::Building::Food';
 
 use constant controller_class => 'Lacuna::Building::Pancake';
 
-use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Farm::Potato'=>5};
+use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Potato'=>5};
 
 use constant image => 'pancake';
 

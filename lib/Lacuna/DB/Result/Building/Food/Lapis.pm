@@ -1,7 +1,7 @@
-package Lacuna::DB::Result::Building::Food::Farm::Lapis;
+package Lacuna::DB::Result::Building::Food::Lapis;
 
 use Moose;
-extends 'Lacuna::DB::Result::Building::Food::Farm';
+extends 'Lacuna::DB::Result::Building::Food';
 
 use constant controller_class => 'Lacuna::Building::Lapis';
 

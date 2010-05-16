@@ -8,7 +8,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Result::Building::Food::Factory::Chip';
+    return 'Lacuna::DB::Result::Building::Food::Chip';
 }
 
 no Moose;
