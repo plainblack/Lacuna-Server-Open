@@ -426,8 +426,8 @@ sub the_300 {
     my $home = $empire->home_planet;
     if ($finish) {
         if ($home->ore_hour >= 50 && $home->water_hour >= 50) {
-            $home->add_freebie('Lacuna::DB::Result::Building::Ore::Storage', 2)
-                ->add_freebie('Lacuna::DB::Result::Building::Water::Storage', 2);
+            $home->add_freebie('Lacuna::DB::Result::Building::Ore::Storage', 2);
+            $home->add_freebie('Lacuna::DB::Result::Building::Water::Storage', 2);
             $self->start('news');
             return undef;
         }

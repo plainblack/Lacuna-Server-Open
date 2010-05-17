@@ -1,4 +1,4 @@
-use lib '../lib';
+use lib ('..','../../lib');
 use Test::More tests => 24;
 use Test::Deep;
 use Data::Dumper;
@@ -19,75 +19,75 @@ $home->name(rand(1000000));
 is($tutorial->finish, 1, 'look at ui');
 
 
-my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => 1,
     class           => 'Lacuna::DB::Result::Building::Food::Malcud',
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'get food');
 
 
-$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => 3,
     class           => 'Lacuna::DB::Result::Building::Water::Purification',
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'drinking water');
 
 
-$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => 2,
     class           => 'Lacuna::DB::Result::Building::Energy::Geo',
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'keep the lights on');
 
 
-$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => 4,
     class           => 'Lacuna::DB::Result::Building::Ore::Mine',
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'mine');
 
 
-$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => 5,
     class           => 'Lacuna::DB::Result::Building::University',
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'university');
 
 
-$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => -5,
     class           => 'Lacuna::DB::Result::Building::Ore::Storage',
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
-$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => -4,
     class           => 'Lacuna::DB::Result::Building::Energy::Reserve',
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
-$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => -3,
     class           => 'Lacuna::DB::Result::Building::Food::Reserve',
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -100,12 +100,12 @@ $building->finish_upgrade;
 is($tutorial->finish, 1, 'storage');
 
 
-$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new(
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => -1,
     class           => 'Lacuna::DB::Result::Building::Food::Wheat',
     level           => 2,
-);
+});
 $home->build_building($building);
 $building->finish_upgrade;
 $home->tick;
@@ -216,7 +216,7 @@ $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'observatory');
 
-$empire->add_probe($home->star_id);
+$empire->add_probe($home->star_id, $home->id);
 is($tutorial->finish, 1, 'explore');
 is($tutorial->finish, 1, 'the_end');
 is($tutorial->finish, 1, 'turing');
