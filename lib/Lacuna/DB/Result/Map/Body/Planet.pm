@@ -43,7 +43,7 @@ sub add_freebie {
     }
         
     # add it
-    $freebies->new({
+    return $freebies->new({
         body_id             => $self->id,
         class               => $class,
         level               => $level,
@@ -78,6 +78,7 @@ sub sanitize {
         $self->usable_as_starter(randint(1,9999));
     }
     $self->update;
+    return $self;
 }
 
 around 'get_status' => sub {

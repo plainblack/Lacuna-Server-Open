@@ -1,4 +1,4 @@
-use lib '../lib';
+use lib ('..','../../lib');
 use strict;
 use Test::More tests => 5;
 use Test::Deep;
@@ -15,6 +15,7 @@ my $home = $empire->home_planet;
 my $db = Lacuna->db;
 
 
+$home->bauxite_hour(1000);
 $home->ore_hour(1000);
 $home->ore_capacity(5000);
 $home->energy_hour(1000);
