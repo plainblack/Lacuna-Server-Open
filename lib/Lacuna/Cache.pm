@@ -42,11 +42,11 @@ sub delete {
     my $memcached = $self->memcached;
     Memcached::libmemcached::memcached_delete($memcached, $key);
     if ($memcached->errstr eq 'SYSTEM ERROR Unknown error: 0') {
-        confess "Cannot connect to memcached server.";
+        warn "Cannot connect to memcached server.";
     }
     elsif ($memcached->errstr eq 'UNKNOWN READ FAILURE' ) {
         if ($retry) {
-            confess "Cannot connect to memcached server.";
+            warn "Cannot connect to memcached server.";
         }
         else {
             warn "Memcached went away, reconnecting.";
@@ -54,16 +54,13 @@ sub delete {
             $self->delete($namespace, $id, 1);
         }
     }
-    elsif ($memcached->errstr eq 'NOT FOUND' ) {
-        confess "The cache key $key has no value.";
-    }
     elsif ($memcached->errstr eq 'NO SERVERS DEFINED') {
-        confess "No memcached servers specified.";
+        warn "No memcached servers specified.";
     }
     elsif ($memcached->errstr ne 'SUCCESS' # deleted
         && $memcached->errstr ne 'PROTOCOL ERROR' # doesn't exist to delete
         ) {
-        confess "Couldn't delete $key from cache because ".$memcached->errstr;
+        warn "Couldn't delete $key from cache because ".$memcached->errstr;
     }
 }
 
@@ -72,7 +69,7 @@ sub flush {
     my $memcached = $self->memcached;
     Memcached::libmemcached::memcached_flush($memcached);
     if ($memcached->errstr eq 'SYSTEM ERROR Unknown error: 0') {
-        confess "Cannot connect to memcached server.";
+        warn "Cannot connect to memcached server.";
     }
     elsif ($memcached->errstr eq 'UNKNOWN READ FAILURE' ) {
         confess "Cannot connect to memcached server." if $retry;
@@ -81,10 +78,10 @@ sub flush {
         return $self->flush(1);
     }
     elsif ($memcached->errstr eq 'NO SERVERS DEFINED') {
-        confess "No memcached servers specified.";
+        warn "No memcached servers specified.";
     }
     elsif ($memcached->errstr ne 'SUCCESS') {
-        confess "Couldn't flush cache because ".$memcached->errstr;
+        warn "Couldn't flush cache because ".$memcached->errstr;
     }
 }
 
@@ -93,30 +90,31 @@ sub get {
     my $key = $self->fix_key($namespace, $id);
     my $memcached = $self->memcached;
     my $content = Memcached::libmemcached::memcached_get($memcached, $key);
-    $content = JSON::from_json($content);
     if ($memcached->errstr eq 'SUCCESS') {
         if (ref $content) {
-            return $content;
+            return JSON::from_json($content);
         }
         else {
-            confess "Couldn't thaw value for $key.";
+            return $content;
         }
     }
     elsif ($memcached->errstr eq 'NOT FOUND' ) {
-        confess "The cache key $key has no value.";
+        return undef;
     }
     elsif ($memcached->errstr eq 'NO SERVERS DEFINED') {
-        confess "No memcached servers specified.";
+        warn "No memcached servers specified.";
+        return undef;
     }
     elsif ($memcached->errstr eq 'SYSTEM ERROR Unknown error: 0' || $retry) {
-        confess "Cannot connect to memcached server.";
+        warn "Cannot connect to memcached server.";
+        return undef;
     }
     elsif ($memcached->errstr eq 'UNKNOWN READ FAILURE' ) {
         warn "Memcached went away, reconnecting.";
         $self->clear_memcached;
         return $self->get($namespace, $id, 1);
     }
-    confess "Couldn't get $key from cache because ".$memcached->errstr;
+    warn "Couldn't get $key from cache because ".$memcached->errstr;
 }
 
 sub mget {
@@ -126,24 +124,26 @@ sub mget {
     my $memcached = $self->memcached;
     $memcached->mget_into_hashref(\@keys, \%result);
     if ($memcached->errstr eq 'SYSTEM ERROR Unknown error: 0') {
-        confess "Cannot connect to memcached server.";
+        warn "Cannot connect to memcached server.";
     }
     elsif ($memcached->errstr eq 'UNKNOWN READ FAILURE' ) {
-        confess "Cannot connect to memcached server." if $retry;
+        warn "Cannot connect to memcached server." if $retry;
         warn "Memcached went away, reconnecting.";
         $self->clear_memcached;
         return $self->get($names, 1);
     }
     elsif ($memcached->errstr eq 'NO SERVERS DEFINED') {
-        confess "No memcached servers specified.";
+        warn "No memcached servers specified.";
     }
     # no other useful status messages are returned
     my @values;
     foreach my $key (@keys) {
-        my $content = JSON::from_json($result{$key});
-        unless (ref $content) {
-            confess "Can't thaw object returned from memcache for $key.";
-            next;
+        my $content = $result{$key};
+        if (ref $content) {
+            return JSON::from_json($content);
+        }
+        else {
+            return $content;
         }
         push @values, $content;
     }
@@ -154,14 +154,14 @@ sub set {
     my ($self, $namespace, $id, $value, $ttl, $retry) = @_;
     my $key = $self->fix_key($namespace, $id);
     $ttl ||= 60;
-    my $frozenValue = JSON::to_json($value); 
+    my $frozenValue = (ref $value) ? JSON::to_json($value) : $value; 
     my $memcached = $self->memcached;
     Memcached::libmemcached::memcached_set($memcached, $key, $frozenValue, $ttl);
     if ($memcached->errstr eq 'SUCCESS') {
         return $value;
     }
     elsif ($memcached->errstr eq 'SYSTEM ERROR Unknown error: 0' || $retry) {
-        confess "Cannot connect to memcached server.";
+        warn "Cannot connect to memcached server.";
     }
     elsif ($memcached->errstr eq 'UNKNOWN READ FAILURE' ) {
         warn "Memcached went away, reconnecting.";
@@ -169,9 +169,9 @@ sub set {
         return $self->set($namespace, $id, $value, $ttl, 1);
     }
     elsif ($memcached->errstr eq 'NO SERVERS DEFINED') {
-        confess "No memcached servers specified.";
+        warn "No memcached servers specified.";
     }
-    confess "Couldn't set $key to cache because ".$memcached->errstr;
+    warn "Couldn't set $key to cache because ".$memcached->errstr;
 }
 
 

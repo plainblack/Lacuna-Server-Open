@@ -36,7 +36,6 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->belongs_to('species', 'Lacuna::DB::Result::Species', 'species_id', { on_delete => 'set null' });
 __PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Map::Body', 'home_planet_id');
-__PACKAGE__->has_many('sessions', 'Lacuna::DB::Result::Session', 'empire_id');
 __PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Map::Body', 'empire_id');
 __PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Result::Message', 'from_id');
 __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id');
@@ -111,13 +110,7 @@ sub get_status {
 
 sub start_session {
     my $self = shift;
-    my $session = Lacuna->db->resultset('Lacuna::DB::Result::Session')->new({
-        empire_id       => $self->id,
-        date_created    => DateTime->now,
-        expires         => DateTime->now->add(hours=>2), 
-    })->insert;
-    $self->update({last_login => DateTime->now});
-    return $session;
+    return Lacuna::Session->new->start($self);
 }
 
 sub is_password_valid {
@@ -182,7 +175,6 @@ sub find_home_planet {
 
     # find an uncontested planet in the possible planets
     my $home_planet;
-    my $cache = Lacuna->cache;
     while (my $planet = $possible_planets->next) {
         unless ($planet->is_locked) {
             $planet->lock;
@@ -387,7 +379,6 @@ before 'delete' => sub {
     if ($self->species_id != 2) {
         $self->species->delete;
     }
-    $self->sessions->delete;
 };
 
 no Moose;

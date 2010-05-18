@@ -39,7 +39,7 @@ sub is_name_available {
 
 sub logout {
     my ($self, $session_id) = @_;
-    $self->get_session($session_id)->delete;
+    $self->get_session($session_id)->end;
     return 1;
 }
 

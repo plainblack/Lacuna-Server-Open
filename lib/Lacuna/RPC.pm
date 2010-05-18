@@ -11,17 +11,12 @@ sub get_session {
         return $session_id;
     }
     else {
-        my $session = Lacuna->db->resultset('Lacuna::DB::Result::Session')->find($session_id);
+        my $session = Lacuna::Session->new(id=>$session_id);
         if (!defined $session) {
-            confess [1006, 'Session not found.', $session_id];
-        }
-        elsif ($session->has_expired) {
-		    my $now = format_date(DateTime->now);
-		    my $expires = format_date($session->expires);
-            confess [1006, 'Session expired.', {session_id=>$session_id, now=>$now, expired=>$expires}];
+            confess [1006, 'Session expired.', $session_id];
         }
         else {
-	    $session->extend;
+            $session->extend;
             return $session;
         }
     }

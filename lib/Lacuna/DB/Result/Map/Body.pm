@@ -160,12 +160,12 @@ __PACKAGE__->has_many('buildings','Lacuna::DB::Result::Building','body_id');
 
 sub lock {
     my $self = shift;
-    return Lacuna->cache->set('planet_contention_lock',$self->id,{locked=>1},15); # lock it
+    return Lacuna->cache->set('planet_contention_lock', $self->id, 1, 15); # lock it
 }
 
 sub is_locked {
     my $self = shift;
-    return eval{Lacuna->cache->get('planet_contention_lock',$self->id)->{locked}};
+    return Lacuna->cache->get('planet_contention_lock', $self->id);
 }
 
 sub image {

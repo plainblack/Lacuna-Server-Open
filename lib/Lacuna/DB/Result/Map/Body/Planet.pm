@@ -420,12 +420,12 @@ sub get_existing_build_queue_time {
 
 sub lock_plot {
     my ($self, $x, $y) = @_;
-    return Lacuna->cache->set('plot_contention_lock', $self->id.'|'.$x.'|'.$y,{locked=>1}, 30); # lock it
+    return Lacuna->cache->set('plot_contention_lock', $self->id.'|'.$x.'|'.$y, 1, 15); # lock it
 }
 
 sub is_plot_locked {
     my ($self, $x, $y) = @_;
-    return eval{Lacuna->cache->get('plot_contention_lock', $self->id.'|'.$x.'|'.$y)->{locked}};
+    return Lacuna->cache->get('plot_contention_lock', $self->id.'|'.$x.'|'.$y);
 }
 
 sub build_building {

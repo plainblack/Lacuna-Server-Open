@@ -645,12 +645,12 @@ sub stats_after_upgrade {
 
 sub lock_upgrade {
     my ($self, $x, $y) = @_;
-    return Lacuna->cache->set('upgrade_contention_lock', $self->id,{locked=>$self->level + 1}, 30); # lock it
+    return Lacuna->cache->set('upgrade_contention_lock', $self->id, $self->level + 1, 15); # lock it
 }
 
 sub is_upgrade_locked {
     my ($self, $x, $y) = @_;
-    return eval{Lacuna->cache->get('upgrade_contention_lock', $self->id)->{locked}};
+    return Lacuna->cache->get('upgrade_contention_lock', $self->id);
 }
 
 sub start_upgrade {
