@@ -15,16 +15,15 @@ $result = $tester->post('inbox','send_message', [$session_id, $tester->empire_na
 is($result->{result}{message}{sent}[0], $tester->empire_name, 'send message works');
 is($result->{result}{message}{unknown}[0], 'Some Guy', 'detecting unknown recipients works');
 
-sleep 3;
-
 $result = $tester->post('inbox','view_inbox', [$session_id, { tags=>['Tutorial'] }]);
 is(scalar(@{$result->{result}{messages}}), 1, 'fetching by tag works');
 
 $result = $tester->post('inbox','view_inbox', [$session_id]);
 is($result->{result}{message_count}, 5, 'message_count works');
 ok($result->{result}{messages}[0]{subject}, 'view inbox works');
-is($result->{result}{status}{empire}{has_new_messages}, 5, 'new message count works');
 my $message_id = $result->{result}{messages}[0]{id};
+$result = $tester->post('empire','get_status', [$session_id]);
+is($result->{result}{empire}{has_new_messages}, 5, 'new message count works');
 
 $result = $tester->post('inbox', 'read_message', [$session_id, $message_id]);
 is($result->{result}{message}{id}, $message_id, 'can view a message');
@@ -34,8 +33,6 @@ is(scalar(@{$result->{result}{messages}}), 0, 'should not see messages i sent my
 
 $result = $tester->post('inbox', 'archive_messages', [$session_id, [$message_id]]);
 is($result->{result}{success}[0], $message_id, 'archiving works');
-
-sleep 1;
 
 $result = $tester->post('inbox','view_archived', [$session_id]);
 is($result->{result}{messages}[0]{id}, $message_id, 'view archived works');
