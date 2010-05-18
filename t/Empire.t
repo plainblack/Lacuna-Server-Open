@@ -86,9 +86,8 @@ is($result->{result}{profile}{status_message}, 'Whoopie!', 'public profile works
 $result = $tester->post('empire', 'find', [$session_id, 'Test']);
 is($result->{result}{empires}[0]{id}, $empire_id, 'empire search works');
 
-$result = $tester->post('empire', 'get_full_status', [$session_id]);
-my ($home_id) = keys %{$result->{result}{empire}{planets}};
-is($result->{result}{empire}{planets}{$home_id}{water_stored}, 700, 'got starting resources');
+$result = $tester->post('empire', 'get_status', [$session_id]);
+ok(exists $result->{result}{empire}{planets}, 'got starting resources');
 
 END {
     $tester->cleanup;
