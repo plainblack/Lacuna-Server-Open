@@ -13,7 +13,7 @@ The list of methods below represents changes and additions to the methods that a
 Returns a list of the stars that have been probed by this planet.
 
  {
-	"status" : { get_status() },
+	"status" : { ... },
         "stars" : [
 		"color" : "yellow",
 		"name" : "Sol",
@@ -44,7 +44,7 @@ An integer representing which set of probes to return. Defaults to 1. Each page 
 The probe is deactivated, and allowed to burn up in the star.
 
  {
-	"status" : { get_status() }
+	"status" : { ... }
  }
 
 Throws 1002, 1010.

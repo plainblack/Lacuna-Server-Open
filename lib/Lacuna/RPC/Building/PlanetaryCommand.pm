@@ -14,7 +14,7 @@ sub model_class {
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $out = $orig->($self, $empire, $building);
     $out->{planet} = $building->body->get_status($empire);
     return $out;
@@ -23,7 +23,7 @@ around 'view' => sub {
 sub view_freebies {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $free_stuff = $building->body->freebies;
     my %freebies;
     while (my $freebie = $free_stuff->next) {
@@ -35,7 +35,7 @@ sub view_freebies {
     }
     return {
         freebies    => \%freebies,
-        status      => $empire->get_status,
+        status      => $self->format_status($empire, $building->body),
     };
 }
 

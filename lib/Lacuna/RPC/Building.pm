@@ -3,8 +3,6 @@ package Lacuna::RPC::Building;
 use Moose;
 extends 'Lacuna::RPC';
 
-with 'Lacuna::Role::Sessionable';
-
 sub model_class {
     confess "you need to override me";
 }
@@ -21,7 +19,7 @@ sub to_app_with_url {
 sub upgrade {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
 
     # check the upgrade lock
     if ($building->is_upgrade_locked) {
@@ -51,11 +49,9 @@ sub upgrade {
     }
 
     $building->start_upgrade($cost);
-
-    $empire->trigger_full_update;
     
     return {
-        status      => $empire->get_status,
+        status      => $self->format_status($empire, $body),
         building    => {
             id              => $building->id,
             level           => $building->level,
@@ -67,7 +63,7 @@ sub upgrade {
 sub view {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $cost = $building->cost_to_upgrade;
     my $can_upgrade = eval{$building->can_upgrade($cost)};
     my $reason = $@;
@@ -100,7 +96,7 @@ sub view {
                 image           => $image_after_upgrade,
             },
         },
-        status      => $empire->get_status,
+        status      => $self->format_status($empire, $building->body),
     );
     if (defined $building->is_upgrading) {
         $out{building}{pending_build} = $building->upgrade_status;
@@ -111,7 +107,7 @@ sub view {
 sub build {
     my ($self, $session_id, $body_id, $x, $y) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $empire->get_body($body_id);
+    my $body = $self->get_body($empire, $body_id);
 
     # check the plot lock
     if ($body->is_plot_locked($x, $y)) {
@@ -159,7 +155,7 @@ sub build {
     
     # show the user
     return {
-        status      => $empire->get_status,
+        status      => $self->format_status($empire, $body),
         building    => {
             id              => $building->id,
             level           => $building->level,
@@ -171,7 +167,7 @@ sub build {
 sub get_stats_for_level {
     my ($self, $session_id, $building_id, $level) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     if ($level < 0 || $level > 100) {
         confess [1009, 'Level must be an integer between 1 and 100.'];
     }
@@ -200,7 +196,7 @@ sub get_stats_for_level {
                 image           => $image_after_upgrade,
             },
         },
-        status      => $empire->get_status,
+        status      => $self->format_status($empire, $building->body),
     };
 }
 

@@ -14,7 +14,7 @@ sub model_class {
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $out = $orig->($self, $empire, $building);
     if ($building->is_working) {
         $out->{recycle} = {
@@ -34,18 +34,18 @@ around 'view' => sub {
 sub recycle {
     my ($self, $session_id, $building_id, $water, $ore, $energy, $use_essentia) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     $building->recycle($water, $ore, $energy, $use_essentia);
     return {
         seconds_remaining   => $building->work_seconds_remaining,
-        status              => $empire->get_status,
+        status              => $self->format_status($empire, $building->body),
     };    
 }
 
 sub subsidize_recycling {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
 
     unless ($empire->essentia >= 2) {
         confess [1011, "Not enough essentia."];    
@@ -53,11 +53,10 @@ sub subsidize_recycling {
 
     $building->finish_work->update;
     $empire->spend_essentia(2);    
-    $empire->trigger_full_update(skip_put => 1);
     $empire->update;
 
     return {
-        status              => $empire->get_status,
+        status              => $self->format_status($empire, $building->body),
     };    
 }
 

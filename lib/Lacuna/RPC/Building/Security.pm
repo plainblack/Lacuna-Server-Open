@@ -11,11 +11,10 @@ sub model_class {
     return 'Lacuna::DB::Result::Building::Security';
 }
 
-
 sub view_prisoners {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     $page_number ||= 1;
     my @out;
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
@@ -38,7 +37,7 @@ sub view_prisoners {
         };
     }
     return {
-        status                  => $empire->get_status,
+        status                  => $self->format_status($empire, $building->body),
         prisoners               => \@out,
         captured_count          => $spies->pager->total_entries,
     };

@@ -671,7 +671,6 @@ sub start_upgrade {
     # clear cache
     $body->clear_last_in_build_queue;
 
-    $self->body->empire->trigger_full_update;
 }
 
 sub finish_upgrade {
@@ -684,7 +683,6 @@ sub finish_upgrade {
     $body->needs_recalc(1);
     $body->update;
     my $empire = $body->empire; 
-    $empire->trigger_full_update;
     $empire->add_medal('building'.$self->level);
     my $type = $self->controller_class;
     $type =~ s/^Lacuna::RPC::Building::(\w+)$/$1/;

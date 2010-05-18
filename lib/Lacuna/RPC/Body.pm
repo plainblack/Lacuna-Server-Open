@@ -1,4 +1,4 @@
-package Lacuna::Body;
+package Lacuna::RPC::Body;
 
 use Moose;
 extends 'Lacuna::RPC';
@@ -6,19 +6,14 @@ use Lacuna::Verify;
 use Lacuna::Constants qw(BUILDABLE_CLASSES);
 use DateTime;
 
-with 'Lacuna::Role::Sessionable';
-
-sub get_body {
+sub get_status {
     my ($self, $session_id, $body_id) = @_;
     my $body = Lacuna->db->resultset('body')->find($body_id);
     unless (defined $body) {
         confess [1002, 'Body does not exist.', $body_id];
     }
     my $empire = $self->get_empire_by_session($session_id);
-    return {
-        status  => $empire->get_status,
-        body    => $body->get_status($empire),
-    }
+    return $self->format_status($empire, $body);
 }
 
 sub rename {
@@ -31,7 +26,7 @@ sub rename {
         ->not_ok(Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({name=>$name, 'id'=>{'!='=>$body_id}})->count); # name available
     
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $empire->get_body($body_id);
+    my $body = $self->get_body($empire, $body_id);
     $body->add_news(200,"In a bold move to show its growing power, %s renamed %s to %s.",$empire->name, $body->name, $name);
     $body->update({name => $name});
     return 1;
@@ -40,7 +35,7 @@ sub rename {
 sub get_buildings {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $empire->get_body($body_id);
+    my $body = $self->get_body($empire, $body_id);
     $body->tick;
     my %out;
     my $buildings = $body->buildings;
@@ -55,13 +50,13 @@ sub get_buildings {
         };
     }
     
-    return {buildings=>\%out, body=>{surface_image => $body->surface}, status=>$empire->get_status};
+    return {buildings=>\%out, body=>{surface_image => $body->surface}, status=>$self->format_status($empire, $body)};
 }
 
 sub get_build_queue {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $empire->get_body($body_id);
+    my $body = $self->get_body($empire, $body_id);
     my %queue;
     $body->tick;
     my $builds = $body->builds;
@@ -71,13 +66,13 @@ sub get_build_queue {
             $queue{$build->id} = $status;
         }
     }
-    return { build_queue => \%queue, status => $empire->get_status };
+    return { build_queue => \%queue, status => $self->format_status($empire, $body) };
 }
 
 sub get_buildable {
     my ($self, $session_id, $body_id, $x, $y) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $empire->get_body($body_id);
+    my $body = $self->get_body($empire, $body_id);
     my $building_rs = Lacuna->db->resultset('Lacuna::DB::Result::Building');
 
     $body->check_for_available_build_space($x, $y);
@@ -123,11 +118,11 @@ sub get_buildable {
         };
     }
 
-    return {buildable=>\%out, status=>$empire->get_status};
+    return {buildable=>\%out, status=>$self->format_status($empire, $body)};
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(rename get_build_queue get_buildings get_buildable get_body));
+__PACKAGE__->register_rpc_method_names(qw(rename get_build_queue get_buildings get_buildable get_status));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

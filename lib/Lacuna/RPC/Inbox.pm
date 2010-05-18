@@ -1,11 +1,11 @@
-package Lacuna::Inbox;
+package Lacuna::RPC::Inbox;
 
 use Moose;
 extends 'Lacuna::RPC';
 use DateTime;
 use Lacuna::Verify;
 
-with 'Lacuna::Role::Sessionable';
+
 
 sub read_message {
     my ($self, $session_id, $message_id) = @_;
@@ -22,7 +22,7 @@ sub read_message {
         $message->update;
     }
     return {
-        status  => $empire->get_status,
+        status  => $self->format_status,
         message => {
             id          => $message->id,
             from        => $message->from_name,
@@ -58,7 +58,7 @@ sub archive_messages {
             push @failure, $id;
         }
     }
-    return { success=>\@success, failure=>\@failure, status=>$empire->get_status };
+    return { success=>\@success, failure=>\@failure, status=>$self->format_status };
 }
 
 sub send_message {
@@ -107,7 +107,7 @@ sub send_message {
             sent    => \@sent,
             unknown => \@unknown,
         },
-        status  => $empire->get_status,
+        status  =>$self->format_status,
     };
 }
 
@@ -175,7 +175,7 @@ sub view_messages {
     return {
         messages        => \@box,
         message_count   => $messages->pager->total_entries,
-        status          => $empire->get_status,
+        status          => $self->format_status,
     };
 }
 

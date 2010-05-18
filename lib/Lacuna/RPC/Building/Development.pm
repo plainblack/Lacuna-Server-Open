@@ -14,7 +14,7 @@ sub model_class {
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $out = $orig->($self, $empire, $building);
     $out->{build_queue} = $building->format_build_queue;
     $out->{subsidy_cost} = $building->calculate_subsidy;
@@ -24,17 +24,16 @@ around 'view' => sub {
 sub subsidize_build_queue {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $subsidy = $building->calculate_subsidy;
     if ($empire->essentia < $subsidy) {
         confess [1011, "You don't have enough essentia."];
     }
     $empire->spend_essentia($subsidy);
-    $empire->trigger_full_update(skip_put=>1);
     $empire->update;
     $building->subsidize_build_queue;
     return {
-        status          => $empire->get_status,
+        status          => $self->format_status($empire, $building->body),
         essentia_spent  => $subsidy,
     };
 }

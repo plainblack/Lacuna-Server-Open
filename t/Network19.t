@@ -41,7 +41,7 @@ $home->update;
 
 $result = $tester->post('network19', 'build', [$session_id, $home->id, 0, 1]);
 ok($result->{result}{building}{id}, "built a network19");
-my $network19 = $empire->get_building('Lacuna::DB::Result::Building::Network19',$result->{result}{building}{id});
+my $network19 = $tester->get_building($result->{result}{building}{id});
 $network19->finish_upgrade;
 
 $result = $tester->post('network19', 'view', [$session_id, $network19->id]);

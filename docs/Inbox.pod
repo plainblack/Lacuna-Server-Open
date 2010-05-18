@@ -22,7 +22,7 @@ Displays a list of the messages in the empire's inbox. Displays 25 messages per 
         }
     ],
     "message_count" : 14,
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 The C<tags> section allows the user to filter the messages. You can do this either client side or server side. Available tags are:
@@ -125,7 +125,7 @@ Retrieves a message. Marks it read if it hasn't been already.
             }
         }
     },
-    status  => { get_status() }
+    status  => { ... }
  }
  
 C<recipients> is the complete list of users who received the message, whereas C<to> is the user that owns this particular copy of the message.
@@ -148,7 +148,7 @@ Archives a list of messages. Returns:
  {
     "success" : ["id-goes-here","id-goes-here"],
     "failure" : ["id-goes-here","id-goes-here"],
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 B<NOTE:> You cannot archive sent messages. You'll get a failure if the message is either already archived, or it's a message that cannot be archived, like a message in your sent folder.

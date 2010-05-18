@@ -52,7 +52,7 @@ sub find_body {
 sub send_probe {
     my ($self, $session_id, $body_id, $target) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $empire->get_body($body_id);
+    my $body = $self->get_body($empire, $body_id);
     my $star = $self->find_star($target);
 
     # check the observatory probe count
@@ -66,13 +66,13 @@ sub send_probe {
     # send the probe
     my $sent = $body->spaceport->send_probe($star);
 
-    return { probe => { date_arrives => format_date($sent->date_available)}, status => $empire->get_status };
+    return { probe => { date_arrives => format_date($sent->date_available)}, status => $self->format_status($empire, $body) };
 }
 
 sub send_spy_pod {
     my ($self, $session_id, $body_id, $target) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $empire->get_body($body_id);
+    my $body = $self->get_body($empire, $body_id);
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
@@ -104,13 +104,13 @@ sub send_spy_pod {
     # send the pod
     my $sent = $body->spaceport->send_spy_pod($target_body, $spy);
 
-    return { spy_pod => { date_arrives => format_date($sent->date_available), carrying_spy => { id => $spy->id, name => $spy->name }}, status => $empire->get_status };
+    return { spy_pod => { date_arrives => format_date($sent->date_available), carrying_spy => { id => $spy->id, name => $spy->name }}, status => $self->format_status($empire, $body) };
 }
 
 sub send_mining_platform_ship {
     my ($self, $session_id, $body_id, $target) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $empire->get_body($body_id);
+    my $body = $self->get_body($empire, $body_id);
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
@@ -121,13 +121,13 @@ sub send_mining_platform_ship {
     # send the ship
     my $sent = $body->spaceport->send_mining_platform_ship($target_body);
 
-    return { mining_platform_ship => { date_arrives => format_date($sent->date_available) }, status => $empire->get_status };
+    return { mining_platform_ship => { date_arrives => format_date($sent->date_available) }, status => $self->format_status($empire, $body) };
 }
 
 sub send_gas_giant_settlement_platform_ship {
     my ($self, $session_id, $body_id, $target) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $empire->get_body($body_id);
+    my $body = $self->get_body($empire, $body_id);
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
@@ -138,13 +138,13 @@ sub send_gas_giant_settlement_platform_ship {
     # send the ship
     my $sent = $body->spaceport->send_gas_giant_settlement_platform_ship($target_body);
 
-    return { gas_giant_settlement_platform_ship => { date_arrives => format_date($sent->date_available) }, status => $empire->get_status };
+    return { gas_giant_settlement_platform_ship => { date_arrives => format_date($sent->date_available) }, status => $self->format_status($empire, $body) };
 }
 
 sub send_terraforming_platform_ship {
     my ($self, $session_id, $body_id, $target) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $empire->get_body($body_id);
+    my $body = $self->get_body($empire, $body_id);
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
@@ -155,13 +155,13 @@ sub send_terraforming_platform_ship {
     # send the ship
     my $sent = $body->spaceport->send_terraforming_platform_ship($target_body);
 
-    return { terraforming_platform_ship => { date_arrives => format_date($sent->date_available) }, status => $empire->get_status };
+    return { terraforming_platform_ship => { date_arrives => format_date($sent->date_available) }, status => $self->format_status($empire, $body) };
 }
 
 sub send_colony_ship {
     my ($self, $session_id, $body_id, $target) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $empire->get_body($body_id);
+    my $body = $self->get_body($empire, $body_id);
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
@@ -180,13 +180,13 @@ sub send_colony_ship {
     # send the ship
     my $sent = $body->spaceport->send_colony_ship($target_body);
 
-    return { colony_ship => { date_arrives => format_date($sent->date_available) }, status => $empire->get_status };
+    return { colony_ship => { date_arrives => format_date($sent->date_available) }, status => $self->format_status($empire, $body) };
 }
 
 sub view_ships_travelling {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     $page_number ||= 1;
     my $body = $building->body;
     my @travelling;
@@ -218,7 +218,7 @@ sub view_ships_travelling {
         };
     }
     return {
-        status                      => $empire->get_status,
+        status                      => $self->format_status($empire, $body),
         number_of_ships_travelling  => $ships->pager->total_entries,
         ships_travelling            => \@travelling,
     };
@@ -227,7 +227,7 @@ sub view_ships_travelling {
 sub view_all_ships {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     $page_number ||= 1;
     my $body = $building->body;
     my @fleet;
@@ -243,7 +243,7 @@ sub view_all_ships {
         };
     }
     return {
-        status                      => $empire->get_status,
+        status                      => $self->format_status($empire, $body),
         number_of_ships             => $ships->pager->total_entries,
         ships                       => \@fleet,
     };    
@@ -257,7 +257,7 @@ sub name_ship {
         ->length_lt(31)
         ->no_restricted_chars;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     unless (defined $ship) {
         confess [1002, "Ship not found."];
@@ -268,14 +268,14 @@ sub name_ship {
     $ship->name($name);
     $ship->update;
     return {
-        status                      => $empire->get_status,
+        status                      => $self->format_status($empire, $building->body),
     };    
 }
 
 sub scuttle_ship {
     my ($self, $session_id, $building_id, $ship_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     unless (defined $ship) {
         confess [1002, "Ship not found."];
@@ -288,14 +288,14 @@ sub scuttle_ship {
     }
     $ship->delete;
     return {
-        status                      => $empire->get_status,
+        status                      => $self->format_status($empire, $building->body),
     };    
 }
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $out = $orig->($self, $empire, $building);
     return $out unless $building->level > 0;
     my $docked = $building->ships->search({ task => 'Docked' });

@@ -12,7 +12,7 @@ The list of methods below represents changes and additions to the methods that a
 Retrieves what is already being built at this shipyard.
 
  {
-     "status" : { get_status() },
+     "status" : { ... },
      "number_of_ships_building" : 30,
      "ships_building" : [
          {
@@ -60,7 +60,7 @@ Returns a list of buildable ships and their costs, and if they're not buildable,
         ...
     },
     "docks_available" : 7,         # you can only build ships up to the number of docks you have available
-    "status" : { get_status() },
+    "status" : { ... },
  }
 
 =head3 session_id

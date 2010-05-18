@@ -27,7 +27,7 @@ The list of methods below represents changes and additions to the methods that a
 Converts waste into water, ore, and energy. You can choose which amounts of each you want, so long as their total does not go over the amount of waste you have on hand. For each unit of waste converted, the recycling center will take 10 seconds to complete the recycling process. However, the amount of time is reduced a bit by the level of the Recycling Center.
 
  {
-    "status" : { get_status() },
+    "status" : { ... },
     "seconds_remaining" : 3932
  }
 
@@ -65,7 +65,7 @@ Defaults to 0. A boolean indicating that you wish to spend 2 essentia, to have t
 Will spend 2 essentia to complete the current recycling job immediately.
 
  {
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 Throws 1011.

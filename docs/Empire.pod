@@ -42,8 +42,8 @@ Returns a hash like the following after confirming the password matches the empi
 B<NOTE:> Once established, this session will stick around for up to 2 hours of inactivity. Therefore, you need not login again if you still have a valid session.
 
  {
-    "session_id" : "xxx",
-    "status" : { get_full_status() }
+    "session_id" : "id-goes-here",
+    "status" : { ... }
  }
 
 Throws 1004 and 1005.
@@ -87,62 +87,23 @@ Retyping the password again. This must match C<password> to succeed.
 
 =head2 found ( empire_id )
 
-Set up an empire on it's new home world. Once this method is called, the species can no longer be modified. Returns a hash reference containing the session_id and the output from the C<get_full_status> method.
+Set up an empire on it's new home world. Once this method is called, the species can no longer be modified. Returns:
 
  {
-    "session_id" : "7ba7b80d-91d1-b0b3-1111-10c04fd430cd",
-    "status" : { get_full_status() }
+    "session_id" : "id-goes-here",
+    "status" : { ... }
  }
 
 =head3 empire_id
 
 The empire to found.
 
-
-
 =head2 get_status ( session_id )
 
-Fetches the empire's status hash that is returned with many methods, but performs no other operations than to get the status.
+Returns information about the current state of the empire.
 
  {
-    "server" : {
-        "time" : "01 31 2010 13:09:05 +0600",
-        "version" : 2.0604
-    },
-    "empire" : {
-        "has_new_messages" : 3,
-        "full_status_update_required" : 1
-    }
- }
-
-The C<server> section tells you about the status of the server. The C<empire> section tells you about the status of the logged in empire.
-
-In the C<server> section, the C<version> is of particular importance. The version number takes the format of B<M.FFBB>. The B<M> part is the most important and stands for major version. The major version only changes if the API is changed in an incompatible way (no longer backwards compatible). The B<FF> part is the feature set version number. We've added features to the API, but not in an incompatible manner. The feature set version number is reset to C<00> if the major version number changes. The B<BB> part is the bug fix version number. It changes when we've fixed bugs within a release but haven't added any new features. The bug fix version number will be reset to C<00> if the feature set version number changes.
-
-In the C<empire> section, the C<full_status_update_required> element lets you know that the client data is out of date, and need to be fetched again with a call to C<get_full_status>.
-
-Throws 1002.
-
-=head3 session_id
-
-A session id.
-
-
-
-=head2 get_full_status ( session_id )
-
-Fetches the empire's status hash that is returned with many methods, but performs no other operations than to get the status.
-
- {
-    "server" : {
-        "time" : "01 31 2010 13:09:05 +0600",
-        "version" : 2.0604,
-        "star_map_size" : {
-            "x" : [ -15, 15 ],
-            "y" : [ -15, 15 ],
-            "z" : [ -15, 15 ]
-        }
-    },
+    "server" : { ... },
     "empire" : {
         "id" : "xxxx",
         "is_isolationist" : 1, # hasn't sent out probes or colony ships
@@ -150,54 +111,12 @@ Fetches the empire's status hash that is returned with many methods, but perform
         "status_message" : "A spy's work is never done.",
         "home_planet_id" : "id-goes-here",
         "essentia" : 0,
-        "happiness" : 119393
         "planets" : {
-            "id-goes-here" : {
-                "id" : "id-goes-here",
-                "x" : -4,
-                "y" : 10,
-                "z" : 6,
-                "star_id" : "id-goes-here",
-                "orbit" : 3,
-                "type" : "habitable planet",
-                "name" : "Earth",
-                "image" : "p13",
-                "size" : 67,
-                "water" : 900,
-                "ore" : {
-                    "gold" : 3399,
-                    "bauxite" : 4000,
-                    ...
-                },
-                "building_count" : 7,
-                "happiness" : 3939,
-                "happiness_hour" : 25,
-                "food_stored" : 33329,
-                "food_capacity" : 40000,
-                "food_hour" : 229,
-                "energy_stored" : 39931,
-                "energy_capacity" : 43000,
-                "energy_hour" : 391,
-                "ore_hour" 284,
-                "ore_capacity" 35000,
-                "ore_stored" 1901,
-                "waste_hour" : 933,
-                "waste_stored" : 9933,
-                "waste_capacity" : 13000,
-                "water_stored" : 9929,
-                "water_hour" : 295,
-                "water_capacity" : 51050,
-            },
-            "another-id-goes-here" : {
-                ...
-            }
+            "id-goes-here" : "Earth",
+            "id-goes-here" : "Mars
         }
     }
  }
-
-The C<server> section tells you about the status of the server. The C<empire> section tells you about the status of the logged in empire.
-
-In the C<empire> section there is a list of the empires planets, and the resources they are producing. Each resource has a C<_hour>, C<_stored>, and C<_capacity> except for happiness, which is missing C<_stored> because you can have an infinite amount of happiness. The C<_hour> elements refer the the amount of that resource that is produced by this planet per hour. The C<_stored> element refers to how much of the resource the planet has available right now. The C<_capacity> element refers to how much of the resource the planet can store at maximum. 
 
 Throws 1002.
 
@@ -224,7 +143,7 @@ Provides a list of the editable properties of the current empire's profile. See 
            ...
        }
     },
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 =head3 session_id
@@ -284,7 +203,7 @@ Provides a list of the data that's publicly known about this empire.
         "date_founded" : "01 31 2010 13:09:05 +0600",
         "Species" : "Lacunan"
     },
-    "status" : { get_status() }
+    "status" : { ... }
  }
  
 Throws 1002.
@@ -314,7 +233,7 @@ Find an empire by name. Returns a hash reference containing empire ids and empir
             "name" : "Lacuna Pirates"
         }
     ],
-    "status" : { get_status() }
+    "status" : { ... }
  }
  
 =head3 session_id
@@ -346,7 +265,7 @@ A message to indicate what you're doing, how you're feeling, or other status ind
 Shows the dates at which boosts have expired or will expire. Boosts are subsidies applied to various resources using essentia.
 
  {
-    "status" : { get_status() },
+    "status" : { ... },
     "boosts" : {
         "food" : "01 31 2010 13:09:05 +0600",
         "ore" : "01 31 2010 13:09:05 +0600",
@@ -367,7 +286,7 @@ A session id.
 Spends 5 essentia, and boosts food production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
 
  {
-    "status" : { get_status() },
+    "status" : { ... },
     "food_boost" : "01 31 2010 13:09:05 +0600",
  }
 
@@ -383,7 +302,7 @@ A session id.
 Spends 5 essentia, and boosts water production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
 
  {
-    "status" : { get_status() },
+    "status" : { ... },
     "water_boost" : "01 31 2010 13:09:05 +0600",
  }
 
@@ -399,7 +318,7 @@ A session id.
 Spends 5 essentia, and boosts energy production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
 
  {
-    "status" : { get_status() },
+    "status" : { ... },
     "energy_boost" : "01 31 2010 13:09:05 +0600",
  }
 
@@ -415,7 +334,7 @@ A session id.
 Spends 5 essentia, and boosts ore production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
 
  {
-    "status" : { get_status() },
+    "status" : { ... },
     "ore_boost" : "01 31 2010 13:09:05 +0600",
  }
 
@@ -431,7 +350,7 @@ A session id.
 Spends 5 essentia, and boosts happiness production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
 
  {
-    "status" : { get_status() },
+    "status" : { ... },
     "happiness_boost" : "01 31 2010 13:09:05 +0600",
  }
 

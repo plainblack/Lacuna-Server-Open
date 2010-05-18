@@ -11,7 +11,7 @@ The list of methods below represents changes and additions to the methods that a
 Returns a list of the mining platforms currently controlled by this ministry.
 
  {
-    "status" : { get_status() },
+    "status" : { ... },
     "max_platforms" : 1,
     "platforms" : [
         {
@@ -72,7 +72,7 @@ Shows you the ships that are working in the mining fleet, and available to work 
         },
         ...
     ],
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 =head3 session_id
@@ -90,7 +90,7 @@ The unique id of the mining ministry.
 Take a cargo ship from the space port and add it to the mining fleet.
 
  {
-    "status" : { get_status() }
+    "status" : { ... }
  }
  
 Throws 1009.
@@ -114,7 +114,7 @@ The number of ships you wish to add.
 Tell one of the cargo ships in the mining fleet to come home and park at the space port.
 
  {
-    "status" : { get_status() }
+    "status" : { ... }
  }
  
 Throws 1009.
@@ -138,7 +138,7 @@ The number of ships you wish to remove.
 Close down an existing mining platform.
 
  {
-    "status" : { get_status() }
+    "status" : { ... }
  }
  
 Throws 1002.

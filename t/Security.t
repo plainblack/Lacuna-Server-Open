@@ -51,7 +51,7 @@ $home->update;
 
 $result = $tester->post('security', 'build', [$session_id, $home->id, 0, 1]);
 ok($result->{result}{building}{id}, "built a security ministry");
-my $security = $empire->get_building('Lacuna::DB::Result::Building::Security',$result->{result}{building}{id});
+my $security = $tester->get_building($result->{result}{building}{id});
 $security->finish_upgrade;
 
 $result = $tester->post('security', 'view_prisoners', [$session_id, $security->id]);

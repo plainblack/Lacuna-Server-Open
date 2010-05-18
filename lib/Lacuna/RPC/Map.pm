@@ -1,12 +1,9 @@
-package Lacuna::Map;
+package Lacuna::RPC::Map;
 
 use Moose;
 extends 'Lacuna::RPC';
 use Lacuna::Verify;
 use Lacuna::Constants qw(ORE_TYPES);
-
-with 'Lacuna::Role::Sessionable';
-
 
 sub check_star_for_incoming_probe {
     my ($self, $session_id, $star_id) = @_;
@@ -20,7 +17,7 @@ sub check_star_for_incoming_probe {
         }
     }
     return {
-        status  => $empire->get_status,
+        status  => $self->format_status($empire),
         incoming_probe  => $date,
     };
 }
@@ -39,7 +36,7 @@ sub get_stars {
     while (my $star = $stars->next) {
         push @out, $star->get_status($empire);
     }
-    return { stars=>\@out, status=>$empire->get_status };
+    return { stars=>\@out, status=>$self->format_status($empire) };
 }
 
 sub get_star {
@@ -49,7 +46,7 @@ sub get_star {
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
     }
-    return { star=>$star->get_status($empire), status=>$empire->get_status };
+    return { star=>$star->get_status($empire), status=>$self->format_status($empire) };
 }
 
 sub get_star_by_name {
@@ -59,7 +56,7 @@ sub get_star_by_name {
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
     }
-    return { star=>$star->get_status($empire), status=>$empire->get_status };
+    return { star=>$star->get_status($empire), status=>$self->format_status($empire) };
 }
 
 sub get_star_by_xy {
@@ -69,7 +66,7 @@ sub get_star_by_xy {
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
     }
-    return { star=>$star->get_status($empire), status=>$empire->get_status };
+    return { star=>$star->get_status($empire), status=>$self->format_status($empire) };
 }
 
 sub search_stars {
@@ -83,7 +80,7 @@ sub search_stars {
     while (my $star = $stars->next) {
         push @out, $star->get_status; # planet data left out on purpose
     }
-    return { stars => \@out , status => $empire->get_status };
+    return { stars => \@out , status => $self->format_status($empire) };
 }
 
 __PACKAGE__->register_rpc_method_names(qw(get_stars get_star_by_name get_star get_star_by_xy search_stars check_star_for_incoming_probe));

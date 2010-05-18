@@ -1,14 +1,7 @@
-package Lacuna::Stats;
+package Lacuna::RPC::Stats;
 
 use Moose;
 extends 'Lacuna::RPC';
-
-with 'Lacuna::Role::Sessionable';
-
-sub server {
-        my ($self, $session_id) = @_;
-        my $empire = $self->get_empire_by_session($session_id);
-}
 
 sub credits {
     return [

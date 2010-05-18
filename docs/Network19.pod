@@ -20,7 +20,7 @@ The list of methods below represents changes and additions to the methods that a
 You can enact or disband a policy to restrict what Network 19 covers about your planet. Restricting coverage does make your citizens unhappy.
 
  {
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 Throws 1009.
@@ -53,7 +53,7 @@ Get the top 100 headlines from your region of space (called a zone). It also ret
     "feeds" : {
         "0|0|0" : 'http://feeds.game.lacunaexpanse.com/78d5e7b2-b8d7-317c-b244-3f774264be57.rss'
     },
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 =head3 session_id

@@ -31,7 +31,7 @@ The list of methods below represents changes and additions to the methods that a
 Allows you to train more spies.
 
  {
-    "status" : { get_status() },
+    "status" : { ... },
     "trained" : 3,
     "not_trained" : 2
  }
@@ -58,7 +58,7 @@ An integer between 1 and 5. Defaults to 1.
 Returns the list of spies you have on your roster.
 
  {
-    "status" : { get_status() },
+    "status" : { ... },
     "spies" : [
         {
             "id" : "id-goes-here",
@@ -102,7 +102,7 @@ Defaults to 1. An integer representing which page to view. Shows 25 spies per pa
 Allows you to eliminate one of your spies from your payroll.
 
  {
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 =head3 session_id
@@ -123,7 +123,7 @@ The unique id of the spy you wish to burn.
 Set the name of the spy. Returns:
 
  {
-    "status" : { get_status() }
+    "status" : { ... }
  }
  
 Throws 1002, 1005, 1013.

@@ -44,7 +44,7 @@ Shows you the ships that are working in the mining fleet, and available to work 
         ...
     ],
     "number_of_ships" : 13,
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 =head3 session_id
@@ -103,7 +103,7 @@ Returns a list of the ships that are travelling to or from this planet.
 B<NOTE:> All inbound/outbound ships are shown regardless of which space port they will eventually land at.
 
  {
-    "status" : { get_status() },
+    "status" : { ... },
     "number_of_ships_travelling" : 30,
     "ships_travelling" : [
        {
@@ -151,7 +151,7 @@ Returns status:
     "probe" : {
         "date_arrives" : "01 31 2010 13:09:05 +0600"
     },
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 Throws 1002.
@@ -203,7 +203,7 @@ Returns status:
            "name" : "Jason Bourne",
         }
     },
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 Throws 1002.
@@ -249,7 +249,7 @@ Returns status:
     "colony_ship" : {
         "date_arrives" : "01 31 2010 13:09:05 +0600"
     },
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 Throws 1002.
@@ -295,7 +295,7 @@ Returns status:
     "mining_platform_ship" : {
         "date_arrives" : "01 31 2010 13:09:05 +0600"
     },
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 Throws 1002.

@@ -22,7 +22,6 @@ __PACKAGE__->add_columns(
 #    points                  => { data_type => 'int', size => 11, default_value => 0 },
 #    rank                   => { data_type => 'int', size => 11, default_value => 0 }, # just where it is stored, but will come out of date quickly
     university_level        => { data_type => 'int', size => 3, default_value => 0 },
-    needs_full_update       => { data_type => 'int', size => 1, default_value => 0 },
     tutorial_stage          => { data_type => 'char', size => 30, is_nullable => 0, default_value => 'explore_the_ui' },
     tutorial_scratch        => { data_type => 'text', is_nullable => 1 },
     is_isolationist         => { data_type => 'int', size => 1, default_value => 1 },
@@ -43,47 +42,6 @@ __PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Result::Message', 'from_id')
 __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id');
 __PACKAGE__->has_many('medals', 'Lacuna::DB::Result::Medals', 'empire_id');
 __PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
-
-sub get_body { # makes for uniform error handling, and prevents staleness
-    my ($self, $body_id) = @_;
-    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
-    unless (defined $body) {
-        confess [1002, 'Body does not exist.', $body_id];
-    }
-    unless ($body->empire_id eq $self->id) {
-        confess [1010, "Can't manipulate a planet you don't inhabit."];
-    }
-    $body->empire($self);
-    if ($body->id eq $self->home_planet_id) {
-        $self->home_planet($body);
-    }
-    return $body;
-}
-
-sub get_building { # makes for uniform error handling, and prevents staleness
-    my ($self, $class, $building_id) = @_;
-    if (ref $building_id && $building_id->isa('Lacuna::DB::Result::Building')) {
-        return $building_id;
-    }
-    else {
-        my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->find($building_id);
-        unless (defined $building) {
-            confess [1002, 'Building does not exist.', $building_id];
-        }
-        if ($building->class ne $class) {
-            confess [1002, 'That building is not a '.$class->name];
-        }
-        $building->is_offline;
-        my $body = $self->get_body($building->body_id);        
-        if ($body->empire_id ne $self->id) { 
-            confess [1010, "Can't manipulate a building that you don't own.", $building_id];
-        }
-        $body->tick;
-        $building->get_from_storage; # in case it changed due to the tick
-        $building->body($body);
-        return $building;
-    }
-}
 
 sub has_medal {
     my ($self, $type) = @_;
@@ -132,55 +90,22 @@ sub get_new_message_count {
 
 sub get_status {
     my ($self) = @_;
-    my $status = {
-        server  => {
-            'time'  => format_date(DateTime->now),
-            version => Lacuna->version,
-        },
-        empire  => {
-            full_status_update_required => $self->needs_full_update,
-            has_new_messages            => $self->get_new_message_count,
-        },
-    };
-    return $status;
-}
-
-sub get_full_status {
-    my ($self) = @_;
     my $planet_rs = $self->planets;
     my %planets;
-    my $happiness = 0;
-    my $happiness_hour = 0;
     my @planet_ids;
     while (my $planet = $planet_rs->next) {
-        $planets{$planet->id} = $planet->get_status($self);
-        $happiness += $planet->happiness;
-        $happiness_hour += $planet->happiness_hour;
-        push @planet_ids, $planet->id;
+        $planets{$planet->id} = $planet->name;
     }
-    $self->body_ids(\@planet_ids);
     my $status = {
-        server  => {
-            'time'          => format_date(DateTime->now),
-            version         => Lacuna->version,
-            star_map_size   => Lacuna->config->get('map_size'),
-        },
-        empire  => {
-            is_isolationist     => $self->is_isolationist,
-            status_message      => $self->status_message,
-            happiness           => $happiness,
-            happiness_hour      => $happiness_hour,
-            name                => $self->name,
-            id                  => $self->id,
-            essentia            => $self->essentia,
-            has_new_messages    => $self->get_new_message_count,
-            home_planet_id      => $self->home_planet_id,
-            planets             => \%planets,
-            next_planet_cost    => $self->next_planet_cost,
-        },
+        is_isolationist     => $self->is_isolationist,
+        status_message      => $self->status_message,
+        name                => $self->name,
+        id                  => $self->id,
+        essentia            => $self->essentia,
+        has_new_messages    => $self->get_new_message_count,
+        home_planet_id      => $self->home_planet_id,
+        planets             => \%planets,
     };
-    $self->needs_full_update(0);
-    $self->update;
     return $status;
 }
 
@@ -464,15 +389,6 @@ before 'delete' => sub {
     }
     $self->sessions->delete;
 };
-
-sub trigger_full_update {
-    my ($self, %options) = @_;
-    unless ($self->needs_full_update) {
-        $self->needs_full_update(1);
-        $self->update unless $options{skip_put};
-    }
-    return $self;
-}
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

@@ -30,7 +30,6 @@ sub recycle {
 
     # setup
     my $body = $self->body;
-    my $empire = $body->empire;    
     my $total = $water + $ore + $energy;
     
     # start
@@ -44,15 +43,13 @@ sub recycle {
     # spend
     $body->spend_waste($total);
     if ($use_essentia) {
-        $empire->spend_essentia(2);
+        $body->empire->spend_essentia(2)->update;
         $self->finish_work;
     }
     else {
         $body->update;
         $self->update;
     }
-    $empire->trigger_full_update(skip_put=>1);
-    $empire->update;
 }
 
 before finish_work => sub {

@@ -14,7 +14,7 @@ sub model_class {
 sub abandon_probe {
     my ($self, $session_id, $building_id, $star_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id);
     unless (defined $star) {
         confess [ 1002, 'Star does not exist.', $star_id];
@@ -31,13 +31,13 @@ sub abandon_probe {
             star_id     => $star->id,
         })->delete;
     $empire->clear_probed_stars;
-    return {status => $empire->get_status};
+    return {status => $self->format_status($empire, $building->body)};
 }
 
 sub get_probed_stars {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my @stars;
     $page_number ||= 1;
     my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({ empire_id => $empire->id }, { rows => 25, page => $page_number});
@@ -46,7 +46,7 @@ sub get_probed_stars {
     }
     return {
         stars   => \@stars,
-        status  => $empire->get_status
+        status  => $self->format_status($empire, $building->body),
         };
 }
 

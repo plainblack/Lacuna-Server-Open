@@ -92,7 +92,28 @@ B<NOTE:> If you get a JSON-RPC error, then the web server will also give you a 5
 
 =head1 Status
 
-Most methods will provide a status block as part of the response. This is used to update the user interface and alert the user to things. See L<Empire/"get_status"> and L<Empire/"get_full_status"> for details on the hash that is returned in the status block. The documentation tells you whether the output from C<get_status> or C<get_full_status> will be returned. 
+Most methods will provide a status block as part of the response. This is used to update the user interface and alert the user to things. The status block looks like this:
+
+ {
+    ...
+    "status" : {
+        "server" : {
+            "time" : "01 31 2010 13:09:05 +0600",
+            "version" : 2.0604,
+            "star_map_size" : {
+                "x" : [ -15, 15 ],
+                "y" : [ -15, 15 ],
+                "z" : [ -15, 15 ]
+            }
+        },
+        "empire" : { # this block is not always included
+            See get_status() in Empire
+        },
+        "body" : { # this block is not always included
+            See get_status() in Body
+        }
+    }
+ }
 
 =head1 Modules
 

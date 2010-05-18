@@ -105,7 +105,6 @@ sub mine {
             $home->add_energy(200);
             $home->add_water(200);
             $home->update;
-            $empire->trigger_full_update;
             $self->start('university');
             return undef;
         }
@@ -127,7 +126,6 @@ sub spaceport {
             $home->add_water(200);
             $home->add_energy(200);
             $home->update;
-            $empire->trigger_full_update;
             $self->start('shipyard');
             return undef;
         }
@@ -149,7 +147,6 @@ sub shipyard {
             $home->add_water(200);
             $home->add_energy(200);
             $home->update;
-            $empire->trigger_full_update;
             $self->start('pawn');
             return undef;
         }
@@ -258,7 +255,6 @@ sub drinking_water {
             $home->add_energy(18);
             $home->add_water(100);
             $home->update;
-            $empire->trigger_full_update;
             $self->start('keep_the_lights_on');
             return undef;
         }
@@ -304,7 +300,6 @@ sub storage {
                         $home->add_energy(100);
                         $home->add_water(100);
                         $home->update;
-                        $empire->trigger_full_update;
                         $self->start('fool');
                         return undef;
                     }
@@ -329,7 +324,6 @@ sub news {
             $home->add_energy(120);
             $home->add_water(120);
             $home->update;
-            $empire->trigger_full_update;
             $self->start('rogue');
             return undef;
         }
@@ -350,7 +344,6 @@ sub rogue {
             $home->add_energy(300);
             $home->add_water(300);
             $home->update;
-            $empire->trigger_full_update;
             $self->start('spaceport');
             return undef;
         }

@@ -27,7 +27,7 @@ Retrieves a chunk of the map and returns it as an array of hashes. B<Note:> Coor
             "y"             : 27
         }
      ],
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 The data you retrieve will allow you to draw a standard cartesian plane like the following. 
@@ -76,7 +76,7 @@ The bottom right y coord.
 If the star has a status of "unprobed", call this method to find out if there is an incoming probe from this empire. 
 
  {
-    "status" : { get_status() },
+    "status" : { ... },
     "incoming_probe" : "01 31 2010 13:09:05 +0600" # date of arrival will be present if there is an incoming probe
  }
 
@@ -107,7 +107,7 @@ Retrieves info on a single star.
             ...
         ]
     }    
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 =head3 session_id
@@ -137,7 +137,7 @@ Retrieves info on a single star.
             ...
         ]
     }    
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 =head3 session_id
@@ -167,7 +167,7 @@ Retrieves info on a single star.
             ...
         ]
     }    
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 =head3 session_id
@@ -203,7 +203,7 @@ If you know a partial name of a star you can search for it. Returns up to 25 res
             "y"             : 27
         }
      ],
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 

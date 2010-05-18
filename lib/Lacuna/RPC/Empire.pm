@@ -1,12 +1,9 @@
-package Lacuna::Empire;
+package Lacuna::RPC::Empire;
 
 use Moose;
 extends 'Lacuna::RPC';
 use Lacuna::Util qw(format_date);
 use DateTime;
-
-with 'Lacuna::Role::Sessionable';
-
 
 sub find {
     my ($self, $session_id, $name) = @_;
@@ -25,7 +22,7 @@ sub find {
         $limit--;
         last unless $limit;
     }
-    return { empires => \@list_of_empires, status => $empire->get_status };
+    return { empires => \@list_of_empires, status => $self->format_status($empire) };
 }
 
 sub is_name_available {
@@ -58,7 +55,7 @@ sub login {
     unless ($empire->is_password_valid($password)) {
         confess [1004, 'Password incorrect.', $password];
     }
-    return { session_id => $empire->start_session->id, status => $empire->get_full_status };
+    return { session_id => $empire->start_session->id, status => $self->format_status($empire) };
 }
 
 sub create {
@@ -94,17 +91,12 @@ sub found {
         confess [1010, "This empire cannot be founded again.", $empire_id];
     }
     $empire = $empire->found;
-    return { session_id => $empire->start_session->id, status => $empire->get_full_status };
+    return { session_id => $empire->start_session->id, status => $self->format_status($empire) };
 }
 
 sub get_status {
     my ($self, $session_id) = @_;
-    return $self->get_empire_by_session($session_id)->get_status;
-}
-
-sub get_full_status {
-    my ($self, $session_id) = @_;
-    return $self->get_empire_by_session($session_id)->get_full_status;
+    return $self->format_status($self->get_empire_by_session($session_id));
 }
 
 sub view_profile {
@@ -125,7 +117,7 @@ sub view_profile {
         status_message  => $empire->status_message,
         medals          => \%my_medals,
     );
-    return { profile => \%out, status => $empire->get_status };    
+    return { profile => \%out, status => $self->format_status($empire) };    
 }
 
 sub edit_profile {
@@ -175,7 +167,7 @@ sub set_status_message {
     my $empire = $self->get_empire_by_session($session_id);
     $empire->status_message($message);
     $empire->update;
-    return $empire->get_status;
+    return $self->format_status($empire);
 }
 
 sub view_public_profile {
@@ -204,7 +196,7 @@ sub view_public_profile {
         planet_count    => $viewed_empire->planets->count,
         medals          => \%public_medals,
     );
-    return { profile => \%out, status => $viewer_empire->get_status };
+    return { profile => \%out, status => $self->format_status($viewer_empire) };
 }
 
 sub boost_ore {
@@ -244,10 +236,9 @@ sub boost {
     $start->add(days=>7);
     $empire->planets->update({needs_recalc=>1});
     $empire->$type($start);
-    $empire->trigger_full_update(skip_put=>1);
     $empire->update;
     return {
-        status => $empire->get_status,
+        status => $self->format_status($empire),
         $type => format_date($empire->$type),
     };
 }
@@ -256,7 +247,7 @@ sub view_boosts {
     my ($self, $session_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     return {
-        status  => $empire->get_status,
+        status  => $self->format_status($empire),
         boosts  => {
             food        => format_date($empire->food_boost),
             happiness   => format_date($empire->happiness_boost),

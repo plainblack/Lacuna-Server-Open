@@ -14,7 +14,7 @@ sub model_class {
 sub view_spies {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     $page_number ||= 1;
     my @spies;
     my $body = $building->body;
@@ -40,7 +40,7 @@ sub view_spies {
     }
     my @assignments = Lacuna::DB::Result::Spies->assignments;
     return {
-        status                  => $empire->get_status,
+        status                  => $self->format_status($empire, $body),
         spies                   => \@spies,
         possible_assignments    => \@assignments,
         spy_count               => $spy_list->pager->total_entries,
@@ -50,35 +50,34 @@ sub view_spies {
 sub assign_spy {
     my ($self, $session_id, $building_id, $spy_id, $assignment) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $spy = $building->get_spy($spy_id);
     $spy->assign($assignment)->update;
     return {
-        status  => $empire->get_status,
+        status  => $self->format_status($empire, $building->body),
     };
 }
 
 sub burn_spy {
     my ($self, $session_id, $building_id, $spy_id, $assignment) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $spy = $building->get_spy($spy_id);
     my $body = $building->body;
     if ($body->add_news(10, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $empire->name)) {
         $body->spend_happiness(1000);
         $body->update;
-        $empire->trigger_full_update;
     }
     $spy->delete;
     return {
-        status  => $empire->get_status,
+        status  => $self->format_status($empire, $body),
     };
 }
 
 sub train_spy {
     my ($self, $session_id, $building_id, $quantity) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     $quantity ||= 1;
     if ($quantity > 5) {
         confess [1009, "You can only train 5 spies at a time."];
@@ -111,7 +110,7 @@ sub train_spy {
         }
     }
     return {
-        status  => $empire->get_status,
+        status  => $self->format_status($empire, $body),
         trained => $trained,
         not_trained => $quantity - $trained,
     }
@@ -120,7 +119,7 @@ sub train_spy {
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $out = $orig->($self, $empire, $building);
     $out->{spies} = {
         maximum         => $building->max_spies,
@@ -138,13 +137,13 @@ sub name_spy {
         ->length_lt(31)
         ->no_restricted_chars;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     $building->is_offline;
     my $spy = $building->get_spy($spy_id);
     $spy->name($name);
     $spy->update;
     return {
-        status  => $empire->get_status,
+        status  => $self->format_status($empire, $building->body),
     };
     
 }

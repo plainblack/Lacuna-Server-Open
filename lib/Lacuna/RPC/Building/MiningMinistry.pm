@@ -14,7 +14,7 @@ sub model_class {
 sub view_ships {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $self->body_id, task => { in => ['Mining', 'Docked']}, type => 'cargo_ship' });
     my @fleet;
     while (my $ship = $ships->next) {
@@ -28,14 +28,14 @@ sub view_ships {
     }
     return {
         ships           => \@fleet,
-        status          => $empire->get_status,
+        status          => $self->format_status($empire, $building->body),
     };
 }
 
 sub view_platforms {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $platforms = $building->platforms;
     my @fleet;
     while (my $platform = $platforms->next) {
@@ -72,14 +72,14 @@ sub view_platforms {
     return {
         platforms       => \@fleet,
         max_platforms   => $building->max_platforms,
-        status          => $empire->get_status,
+        status          => $self->format_status($empire, $building->body),
     };
 }
 
 sub abandon_platform {
     my ($self, $session_id, $building_id, $platform_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $platform = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->find($platform_id);
     unless (defined $platform) {
         confess [1002, "Platform not found."];
@@ -89,14 +89,14 @@ sub abandon_platform {
     }
     $building->remove_platform($platform);
     return {
-        status  => $empire->get_status,
+        status  => $self->format_status($empire, $building->body),
     };
 }
 
 sub add_cargo_ship_to_fleet {
     my ($self, $session_id, $building_id, $ship_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     unless (defined $ship) {
         confess [1002, "Ship not found."];
@@ -109,14 +109,14 @@ sub add_cargo_ship_to_fleet {
     }
     $building->add_ship($ship);
     return {
-        status  => $empire->get_status,
+        status  =>$self->format_status($empire, $building->body),
     };
 }
 
 sub remove_cargo_ship_from_fleet {
     my ($self, $session_id, $building_id, $ship_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     unless (defined $ship) {
         confess [1002, "Ship not found."];
@@ -129,7 +129,7 @@ sub remove_cargo_ship_from_fleet {
     }
     $building->send_ship_home($ship);
     return {
-        status  => $empire->get_status,
+        status  => $self->format_status($empire, $building->body),
     };
 }
 

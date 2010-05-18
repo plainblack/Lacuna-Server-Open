@@ -49,6 +49,16 @@ sub generate_test_empire {
     return $self;
 }
 
+sub get_building { 
+    my ($self, $building_id) = @_;
+    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->find($building_id);
+    unless (defined $building) {
+        confess 'Building does not exist.';
+    }
+    $building->body($self->empire->home_planet);
+    return $building;
+}
+
 sub build_infrastructure {
     my $self = shift;
     my $home = $self->empire->home_planet;

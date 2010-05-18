@@ -3,50 +3,54 @@
 These methods are accessible via the C</body> URL.
 
 
-=head2 get_body ( session_id, body_id )
+=head2 get_status ( session_id, body_id )
 
-Returns detailed statistics about an empire. 
+Returns detailed statistics about a planet. 
 
  {
-    "id" : "id-goes-here",
-    "x" : -4,
-    "y" : 10,
-    "z" : 6,
-    "star_id" : "id-goes-here",
-    "star_name" : "Sol",
-    "orbit" : 3,
-    "type" : "habitable planet",
-    "name" : "Earth",
-    "image" : "p13",
-    "size" : 67,
-    "water" : 900,
-    "ore" : {
-        "gold" : 3399,
-        "bauxite" : 4000,
-        ...
-    },
-    "alignment" : "none",   # can be 'none', 'ally','self', or 'hostile'
-    
-    --------- if you own the planet the data below will be included ---------
-    
-    "building_count" : 7,
-    "happiness" : 3939,
-    "happiness_hour" : 25,
-    "food_stored" : 33329,
-    "food_capacity" : 40000,
-    "food_hour" : 229,
-    "energy_stored" : 39931,
-    "energy_capacity" : 43000,
-    "energy_hour" : 391,
-    "ore_hour" 284,
-    "ore_capacity" 35000,
-    "ore_stored" 1901,
-    "waste_hour" : 933,
-    "waste_stored" : 9933,
-    "waste_capacity" : 13000,
-    "water_stored" : 9929,
-    "water_hour" : 295,
-    "water_capacity" : 51050,
+    "server" : { ... },
+    "empire" : { ... },
+    "body" : {
+        "id" : "id-goes-here",
+        "x" : -4,
+        "y" : 10,
+        "z" : 6,
+        "star_id" : "id-goes-here",
+        "star_name" : "Sol",
+        "orbit" : 3,
+        "type" : "habitable planet",
+        "name" : "Earth",
+        "image" : "p13",
+        "size" : 67,
+        "water" : 900,
+        "ore" : {
+            "gold" : 3399,
+            "bauxite" : 4000,
+            ...
+        },
+        "alignment" : "none",   # can be 'none', 'ally','self', or 'hostile'
+        
+        --------- if you own the planet the data below will be included ---------
+        
+        "building_count" : 7,
+        "happiness" : 3939,
+        "happiness_hour" : 25,
+        "food_stored" : 33329,
+        "food_capacity" : 40000,
+        "food_hour" : 229,
+        "energy_stored" : 39931,
+        "energy_capacity" : 43000,
+        "energy_hour" : 391,
+        "ore_hour" 284,
+        "ore_capacity" 35000,
+        "ore_stored" 1901,
+        "waste_hour" : 933,
+        "waste_stored" : 9933,
+        "waste_capacity" : 13000,
+        "water_stored" : 9929,
+        "water_hour" : 295,
+        "water_capacity" : 51050,
+    }
  }
  
 =head3 session_id
@@ -88,7 +92,7 @@ The list of building's retreived by this method should be placed on the 11x11 gr
     "body" : {
         "surface_image" : "surface-e"
     },
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 Throws 1002 and 1010.
@@ -136,7 +140,7 @@ Provides a list of all the building types that are available to be built on a gi
         },
         ...
     },
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 The C<reason> section provides a little detail about why a building can or cannot be built. It is formatted the same way an exception would be formatted (an array ref of error code, error message, and error data).

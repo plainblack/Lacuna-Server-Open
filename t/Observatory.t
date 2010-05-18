@@ -15,16 +15,16 @@ my $result;
 
 
 $result = $tester->post('spaceport', 'build', [$session_id, $home->id, 0, 1]);
-my $spaceport = $empire->get_building('Lacuna::DB::Result::Building::SpacePort',$result->{result}{building}{id});
+my $spaceport = $tester->get_building($result->{result}{building}{id});
 $spaceport->finish_upgrade;
 
 $result = $tester->post('shipyard', 'build', [$session_id, $home->id, 0, 2]);
-my $shipyard = $empire->get_building('Lacuna::DB::Result::Building::Shipyard',$result->{result}{building}{id});
+my $shipyard = $tester->get_building($result->{result}{building}{id});
 $shipyard->finish_upgrade;
 
 $result = $tester->post('observatory', 'build', [$session_id, $home->id, 0, 3]);
 ok($result->{result}{building}{id}, "built an observatory");
-my $observatory = $empire->get_building('Lacuna::DB::Result::Building::Observatory',$result->{result}{building}{id});
+my $observatory = $tester->get_building($result->{result}{building}{id});
 $observatory->finish_upgrade;
 
 $result = $tester->post('shipyard', 'get_buildable', [$session_id, $shipyard->id]);

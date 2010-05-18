@@ -12,7 +12,7 @@ The list of methods below represents changes and additions to the methods that a
 Displays a list of the spies that have been captured.
 
  {
-    "status" : { get_status() },
+    "status" : { ... },
     "prisoners" : [
         {
             "id" : "id-goes-here",

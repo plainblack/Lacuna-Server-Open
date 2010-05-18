@@ -42,7 +42,7 @@ $home->update;
 
 $result = $tester->post('intelligence', 'build', [$session_id, $home->id, 0, 1]);
 ok($result->{result}{building}{id}, "built an intelligence ministry");
-my $intelligence = $empire->get_building('Lacuna::DB::Result::Building::Intelligence',$result->{result}{building}{id});
+my $intelligence = $tester->get_building($result->{result}{building}{id});
 $intelligence->finish_upgrade;
 
 $result = $tester->post('intelligence', 'view', [$session_id, $intelligence->id]);

@@ -39,7 +39,7 @@ This method is extended to include details about what's in your build queue.
 Allows a player to instantly finish any buildings in their build queue. The cost is returned by the C<view> method. Returns:
 
  {
-    "status" : { get_status() },
+    "status" : { ... },
     "essentia_spent" : 8
  }
 

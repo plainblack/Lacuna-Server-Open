@@ -98,7 +98,6 @@ sub arrive {
     my $empire = $self->body->empire;
     if ($self->type eq 'probe') {
         $empire->add_probe($self->foreign_star_id, $self->body_id);
-        $empire->trigger_full_update;
         $self->delete;
     }
     
@@ -127,7 +126,6 @@ sub arrive {
                     params      => [$planet->name, $planet->name],
                 );
                 $empire->is_isolationist(0);
-                $empire->trigger_full_update(skip_put=>1);
                 $empire->update;
                 $self->delete;
             }

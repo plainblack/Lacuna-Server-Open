@@ -15,7 +15,7 @@ sub model_class {
 sub view_build_queue {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     $building->is_offline;
     my $body = $building->body;
     $page_number ||= 1;
@@ -31,7 +31,7 @@ sub view_build_queue {
         }
     }
     return {
-        status                      => $empire->get_status,
+        status                      => $self->format_status($empire, $body),
         number_of_ships_building    => $ships->pager->total_entries,
         ships_building              => \@building,
     };
@@ -40,7 +40,7 @@ sub view_build_queue {
 sub build_ship {
     my ($self, $session_id, $building_id, $type) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my $body = $building->body;
     my $costs = $building->get_ship_costs($type);
     $building->can_build_ship($type, $costs);
@@ -55,7 +55,6 @@ sub build_ship {
         }
     }
     $body->update;
-    $empire->trigger_full_update;
     $building->build_ship($type, $costs->{seconds});
     return $self->view_build_queue($empire, $building);
 }
@@ -63,7 +62,7 @@ sub build_ship {
 sub get_buildable {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $empire->get_building($self->model_class, $building_id);
+    my $building = $self->get_building($empire, $building_id);
     my %buildable;
     my $docks;
     my $ports = $building->body->get_buildings_of_class('Lacuna::DB::Result::Building::SpacePort');
@@ -82,7 +81,7 @@ sub get_buildable {
             reason      => $@,
         };
     }
-    return { buildable=>\%buildable, docks_available=>$docks, status=>$empire->get_status};
+    return { buildable=>\%buildable, docks_available=>$docks, status=>$self->format_status($empire, $building->body)};
 }
 
 

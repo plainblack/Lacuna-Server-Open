@@ -30,7 +30,7 @@ Returns
 
  {
     "seconds_remaining" : 3933,
-    "status" : { get_status() },
+    "status" : { ... },
  }
 
 

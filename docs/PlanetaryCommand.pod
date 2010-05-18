@@ -61,7 +61,7 @@ Freebies are buildings you can build for free. You can get them from contests, t
         "Subspace Transporter" : 1,
         "Wheat Farm" : 4,
     },
-    "status" : { get_status() }
+    "status" : { ... }
  }
 
 =head3 session_id

@@ -1,9 +1,9 @@
-package Lacuna::Species;
+package Lacuna::RPC::Species;
 
 use Moose;
 extends 'Lacuna::RPC';
 
-with 'Lacuna::Role::Sessionable';
+
 
 sub is_name_available {
     my ($self, $name) = @_;
@@ -117,7 +117,7 @@ sub view_stats {
             trade_affinity          => $species->trade_affinity,
             growth_affinity         => $species->growth_affinity,
         },
-        status  => $empire->get_status,
+        status  => $self->format_status($empire),
     };
 }
 
