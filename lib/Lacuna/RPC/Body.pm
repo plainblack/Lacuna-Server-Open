@@ -8,7 +8,7 @@ use DateTime;
 
 sub get_status {
     my ($self, $session_id, $body_id) = @_;
-    my $body = Lacuna->db->resultset('body')->find($body_id);
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
     unless (defined $body) {
         confess [1002, 'Body does not exist.', $body_id];
     }

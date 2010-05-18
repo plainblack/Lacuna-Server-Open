@@ -20,7 +20,7 @@ my $urlmap = Plack::App::URLMap->new;
 $urlmap->map("/map" => Lacuna::RPC::Map->new->to_app);
 $urlmap->map("/body" => Lacuna::RPC::Body->new->to_app);
 $urlmap->map("/empire" => Lacuna::RPC::Empire->new->to_app);
-$urlmap->map("/inbox" => Lacuna::RPC::RPC::Inbox->new->to_app);
+$urlmap->map("/inbox" => Lacuna::RPC::Inbox->new->to_app);
 $urlmap->map("/species" => Lacuna::RPC::Species->new->to_app);
 $urlmap->map("/stats" => Lacuna::RPC::Stats->new->to_app);
 

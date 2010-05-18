@@ -1,7 +1,7 @@
 package Lacuna::Session;
 
 use Moose;
-use UUID::Tiny ':std';
+use UUID::Tiny;
 
 
 has id => (
