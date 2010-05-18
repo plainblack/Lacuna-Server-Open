@@ -1,7 +1,7 @@
-package Lacuna::Building::WaterReclamation;
+package Lacuna::RPC::Building::WaterReclamation;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/waterreclamation';

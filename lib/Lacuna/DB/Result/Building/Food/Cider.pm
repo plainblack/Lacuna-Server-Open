@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Food::Cider;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Food';
 
-use constant controller_class => 'Lacuna::Building::Cider';
+use constant controller_class => 'Lacuna::RPC::Building::Cider';
 
 use constant image => 'cider';
 

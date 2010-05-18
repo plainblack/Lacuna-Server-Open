@@ -1,7 +1,7 @@
-package Lacuna::Building::Denton;
+package Lacuna::RPC::Building::Denton;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/denton';

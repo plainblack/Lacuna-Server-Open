@@ -1,7 +1,7 @@
-package Lacuna::Building::Chip;
+package Lacuna::RPC::Building::Chip;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/chip';

@@ -57,7 +57,7 @@ before finish_work => sub {
     $planet->add_happiness($self->work->{happiness_from_party})->update;
 };
 
-use constant controller_class => 'Lacuna::Building::Park';
+use constant controller_class => 'Lacuna::RPC::Building::Park';
 
 use constant university_prereq => 4;
 

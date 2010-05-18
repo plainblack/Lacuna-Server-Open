@@ -1,7 +1,7 @@
-package Lacuna::Building::FoodReserve;
+package Lacuna::RPC::Building::FoodReserve;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 use Lacuna::Constants qw(FOOD_TYPES);
 
 sub app_url {

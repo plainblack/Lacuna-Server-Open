@@ -1,7 +1,7 @@
-package Lacuna::Building::Shake;
+package Lacuna::RPC::Building::Shake;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/shake';

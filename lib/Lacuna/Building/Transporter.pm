@@ -1,7 +1,7 @@
-package Lacuna::Building::Transporter;
+package Lacuna::RPC::Building::Transporter;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/transporter';

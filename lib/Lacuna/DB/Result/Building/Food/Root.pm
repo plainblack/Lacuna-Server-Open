@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Food::Root;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Food';
 
-use constant controller_class => 'Lacuna::Building::Denton';
+use constant controller_class => 'Lacuna::RPC::Building::Denton';
 
 use constant min_orbit => 5;
 

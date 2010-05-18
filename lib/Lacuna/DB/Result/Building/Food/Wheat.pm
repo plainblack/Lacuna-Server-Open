@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Food::Wheat;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Food';
 
-use constant controller_class => 'Lacuna::Building::Wheat';
+use constant controller_class => 'Lacuna::RPC::Building::Wheat';
 
 use constant min_orbit => 2;
 

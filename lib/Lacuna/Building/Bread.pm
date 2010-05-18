@@ -1,7 +1,7 @@
-package Lacuna::Building::Bread;
+package Lacuna::RPC::Building::Bread;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/bread';

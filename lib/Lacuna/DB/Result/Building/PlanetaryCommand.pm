@@ -8,7 +8,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Resources Ore Water Waste Energy Food Colonization));
 };
 
-use constant controller_class => 'Lacuna::Building::PlanetaryCommand';
+use constant controller_class => 'Lacuna::RPC::Building::PlanetaryCommand';
 
 sub check_build_prereqs {
     confess [1013,"You can't directly build a Planetary Command. You need a colony ship."];

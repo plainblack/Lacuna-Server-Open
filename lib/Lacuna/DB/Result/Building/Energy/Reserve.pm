@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Energy::Reserve;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Energy';
 
-use constant controller_class => 'Lacuna::Building::EnergyReserve';
+use constant controller_class => 'Lacuna::RPC::Building::EnergyReserve';
 
 use constant university_prereq => 1;
 

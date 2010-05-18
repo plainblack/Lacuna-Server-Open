@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Energy::Geo;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Energy';
 
-use constant controller_class => 'Lacuna::Building::Geo';
+use constant controller_class => 'Lacuna::RPC::Building::Geo';
 
 use constant image => 'geo';
 

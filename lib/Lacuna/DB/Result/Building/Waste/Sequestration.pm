@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Waste::Sequestration;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Waste';
 
-use constant controller_class => 'Lacuna::Building::WasteSequestration';
+use constant controller_class => 'Lacuna::RPC::Building::WasteSequestration';
 
 use constant image => 'wastesequestration';
 

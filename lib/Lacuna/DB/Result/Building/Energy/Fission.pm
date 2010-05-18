@@ -11,7 +11,7 @@ before check_build_prereqs => sub {
     }
 };
 
-use constant controller_class => 'Lacuna::Building::Fission';
+use constant controller_class => 'Lacuna::RPC::Building::Fission';
 
 use constant university_prereq => 6;
 

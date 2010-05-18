@@ -9,7 +9,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Ships Intelligence Colonization));
 };
 
-use constant controller_class => 'Lacuna::Building::Observatory';
+use constant controller_class => 'Lacuna::RPC::Building::Observatory';
 
 use constant university_prereq => 3;
 

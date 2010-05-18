@@ -1,7 +1,7 @@
-package Lacuna::Building::Soup;
+package Lacuna::RPC::Building::Soup;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/soup';

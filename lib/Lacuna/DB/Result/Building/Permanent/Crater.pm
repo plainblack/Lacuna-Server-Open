@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Permanent::Crater;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Permanent';
 
-use constant controller_class => 'Lacuna::Building::Crater';
+use constant controller_class => 'Lacuna::RPC::Building::Crater';
 
 sub check_build_prereqs {
     confess [1013,"You can't build a crater. It forms naturally."];

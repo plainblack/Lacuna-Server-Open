@@ -1,7 +1,7 @@
-package Lacuna::Building::RND;
+package Lacuna::RPC::Building::RND;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/rnd';

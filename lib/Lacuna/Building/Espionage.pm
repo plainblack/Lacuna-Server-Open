@@ -1,7 +1,7 @@
-package Lacuna::Building::Espionage;
+package Lacuna::RPC::Building::Espionage;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/espionage';

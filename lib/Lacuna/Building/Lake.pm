@@ -1,7 +1,7 @@
-package Lacuna::Building::Lake;
+package Lacuna::RPC::Building::Lake;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/lake';

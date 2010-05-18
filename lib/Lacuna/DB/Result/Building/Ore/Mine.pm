@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Ore::Mine;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Ore';
 
-use constant controller_class => 'Lacuna::Building::Mine';
+use constant controller_class => 'Lacuna::RPC::Building::Mine';
 
 use constant image => 'mine';
 

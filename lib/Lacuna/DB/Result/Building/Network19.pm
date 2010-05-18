@@ -8,7 +8,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Happiness Intelligence));
 };
 
-use constant controller_class => 'Lacuna::Building::Network19';
+use constant controller_class => 'Lacuna::RPC::Building::Network19';
 
 use constant university_prereq => 2;
 

@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Water::Purification;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Water';
 
-use constant controller_class => 'Lacuna::Building::WaterPurification';
+use constant controller_class => 'Lacuna::RPC::Building::WaterPurification';
 
 use constant image => 'waterpurification';
 

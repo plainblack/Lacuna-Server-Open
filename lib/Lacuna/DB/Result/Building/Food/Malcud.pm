@@ -8,7 +8,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Waste));
 };
 
-use constant controller_class => 'Lacuna::Building::Malcud';
+use constant controller_class => 'Lacuna::RPC::Building::Malcud';
 
 use constant image => 'malcud';
 

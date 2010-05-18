@@ -11,7 +11,7 @@ before check_build_prereqs => sub {
     }
 };
 
-use constant controller_class => 'Lacuna::Building::Hydrocarbon';
+use constant controller_class => 'Lacuna::RPC::Building::Hydrocarbon';
 
 use constant image => 'hydrocarbon';
 

@@ -1,7 +1,7 @@
-package Lacuna::Building::Fusion;
+package Lacuna::RPC::Building::Fusion;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/fusion';

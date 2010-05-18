@@ -125,7 +125,7 @@ after finish_upgrade => sub {
     $self->recalc_ore_production;
 };
 
-use constant controller_class => 'Lacuna::Building::MiningMinistry';
+use constant controller_class => 'Lacuna::RPC::Building::MiningMinistry';
 
 use constant university_prereq => 8;
 

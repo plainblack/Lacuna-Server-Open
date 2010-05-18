@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Food::Pie;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Food';
 
-use constant controller_class => 'Lacuna::Building::Pie';
+use constant controller_class => 'Lacuna::RPC::Building::Pie';
 
 use constant image => 'pie';
 

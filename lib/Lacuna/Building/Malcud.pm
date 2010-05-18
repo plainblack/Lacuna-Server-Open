@@ -1,7 +1,7 @@
-package Lacuna::Building::Malcud;
+package Lacuna::RPC::Building::Malcud;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/malcud';

@@ -1,7 +1,7 @@
-package Lacuna::Building::Apple;
+package Lacuna::RPC::Building::Apple;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/apple';

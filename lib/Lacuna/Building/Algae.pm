@@ -1,7 +1,7 @@
-package Lacuna::Building::Algae;
+package Lacuna::RPC::Building::Algae;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub model_class {
     return 'Lacuna::DB::Result::Building::Food::Algae';

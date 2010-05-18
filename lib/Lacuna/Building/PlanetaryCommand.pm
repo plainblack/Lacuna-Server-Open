@@ -1,7 +1,7 @@
-package Lacuna::Building::PlanetaryCommand;
+package Lacuna::RPC::Building::PlanetaryCommand;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/planetarycommand';

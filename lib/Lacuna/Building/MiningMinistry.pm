@@ -1,7 +1,7 @@
-package Lacuna::Building::MiningMinistry;
+package Lacuna::RPC::Building::MiningMinistry;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/miningministry';

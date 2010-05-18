@@ -1,7 +1,7 @@
-package Lacuna::Building::Intelligence;
+package Lacuna::RPC::Building::Intelligence;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/intelligence';

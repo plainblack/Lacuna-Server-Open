@@ -47,7 +47,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure));
 };
 
-use constant controller_class => 'Lacuna::Building::Development';
+use constant controller_class => 'Lacuna::RPC::Building::Development';
 
 use constant max_instances_per_planet => 1;
 

@@ -1,7 +1,7 @@
-package Lacuna::Building::Lapis;
+package Lacuna::RPC::Building::Lapis;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/lapis';

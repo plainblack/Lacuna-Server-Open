@@ -1,7 +1,7 @@
-package Lacuna::Building::OreStorage;
+package Lacuna::RPC::Building::OreStorage;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 use Lacuna::Constants qw(ORE_TYPES);
 
 sub app_url {

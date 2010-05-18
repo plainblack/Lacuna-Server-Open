@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Food::Shake;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Food';
 
-use constant controller_class => 'Lacuna::Building::Shake';
+use constant controller_class => 'Lacuna::RPC::Building::Shake';
 
 use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Beeldeban'=>5};
 

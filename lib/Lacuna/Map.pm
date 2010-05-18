@@ -1,7 +1,7 @@
 package Lacuna::Map;
 
 use Moose;
-extends 'JSON::RPC::Dispatcher::App';
+extends 'Lacuna::RPC';
 use Lacuna::Verify;
 use Lacuna::Constants qw(ORE_TYPES);
 

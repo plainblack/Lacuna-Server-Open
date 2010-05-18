@@ -1,7 +1,7 @@
-package Lacuna::Building::Beeldeban;
+package Lacuna::RPC::Building::Beeldeban;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/beeldeban';

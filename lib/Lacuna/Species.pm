@@ -1,7 +1,7 @@
 package Lacuna::Species;
 
 use Moose;
-extends 'JSON::RPC::Dispatcher::App';
+extends 'Lacuna::RPC';
 
 with 'Lacuna::Role::Sessionable';
 

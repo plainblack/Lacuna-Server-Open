@@ -8,7 +8,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Intelligence Ships));
 };
 
-use constant controller_class => 'Lacuna::Building::Espionage';
+use constant controller_class => 'Lacuna::RPC::Building::Espionage';
 
 use constant max_instances_per_planet => 1;
 

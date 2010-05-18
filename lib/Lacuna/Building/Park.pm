@@ -1,7 +1,7 @@
-package Lacuna::Building::Park;
+package Lacuna::RPC::Building::Park;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/park';

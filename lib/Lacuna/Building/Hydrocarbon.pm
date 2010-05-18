@@ -1,7 +1,7 @@
-package Lacuna::Building::Hydrocarbon;
+package Lacuna::RPC::Building::Hydrocarbon;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/hydrocarbon';

@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Ore::Refinery;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Ore';
 
-use constant controller_class => 'Lacuna::Building::OreRefinery';
+use constant controller_class => 'Lacuna::RPC::Building::OreRefinery';
 
 use constant building_prereq => {'Lacuna::DB::Result::Building::Ore::Mine' => 5};
 

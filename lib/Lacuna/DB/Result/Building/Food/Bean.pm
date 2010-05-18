@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Food::Bean;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Food';
 
-use constant controller_class => 'Lacuna::Building::Bean';
+use constant controller_class => 'Lacuna::RPC::Building::Bean';
 
 use constant min_orbit => 4;
 

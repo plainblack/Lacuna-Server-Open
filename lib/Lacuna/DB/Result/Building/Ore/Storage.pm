@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Ore::Storage;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Ore';
 
-use constant controller_class => 'Lacuna::Building::OreStorage';
+use constant controller_class => 'Lacuna::RPC::Building::OreStorage';
 
 use constant image => 'orestorage';
 

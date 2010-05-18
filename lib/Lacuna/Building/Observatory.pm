@@ -1,7 +1,7 @@
-package Lacuna::Building::Observatory;
+package Lacuna::RPC::Building::Observatory;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/observatory';

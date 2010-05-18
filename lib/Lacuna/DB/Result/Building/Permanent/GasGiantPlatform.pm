@@ -8,7 +8,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Colonization));
 };
 
-use constant controller_class => 'Lacuna::Building::GasGiantPlatform';
+use constant controller_class => 'Lacuna::RPC::Building::GasGiantPlatform';
 
 use constant image => 'gas-giant-platform';
 

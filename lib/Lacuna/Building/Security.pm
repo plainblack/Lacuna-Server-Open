@@ -1,7 +1,7 @@
-package Lacuna::Building::Security;
+package Lacuna::RPC::Building::Security;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/security';

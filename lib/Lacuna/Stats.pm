@@ -1,7 +1,7 @@
 package Lacuna::Stats;
 
 use Moose;
-extends 'JSON::RPC::Dispatcher::App';
+extends 'Lacuna::RPC';
 
 with 'Lacuna::Role::Sessionable';
 

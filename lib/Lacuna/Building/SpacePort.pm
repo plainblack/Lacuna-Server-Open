@@ -1,7 +1,7 @@
-package Lacuna::Building::SpacePort;
+package Lacuna::RPC::Building::SpacePort;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 use Lacuna::Constants qw(SHIP_TYPES);
 use Lacuna::Util qw(format_date);
 

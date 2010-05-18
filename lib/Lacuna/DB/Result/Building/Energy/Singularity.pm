@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Energy::Singularity;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Energy';
 
-use constant controller_class => 'Lacuna::Building::Singularity';
+use constant controller_class => 'Lacuna::RPC::Building::Singularity';
 
 use constant image => 'singularity';
 

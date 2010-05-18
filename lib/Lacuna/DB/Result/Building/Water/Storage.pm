@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Water::Storage;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Water';
 
-use constant controller_class => 'Lacuna::Building::WaterStorage';
+use constant controller_class => 'Lacuna::RPC::Building::WaterStorage';
 
 use constant image => 'waterstorage';
 

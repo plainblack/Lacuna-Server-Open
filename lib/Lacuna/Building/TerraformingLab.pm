@@ -1,7 +1,7 @@
-package Lacuna::Building::TerraformingLab;
+package Lacuna::RPC::Building::TerraformingLab;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/terraforminglab';

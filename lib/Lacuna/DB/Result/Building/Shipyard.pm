@@ -172,7 +172,7 @@ before delete => sub {
     Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id => $self->id, task => 'building' })->delete_all;
 };
 
-use constant controller_class => 'Lacuna::Building::Shipyard';
+use constant controller_class => 'Lacuna::RPC::Building::Shipyard';
 
 use constant building_prereq => {'Lacuna::DB::Result::Building::SpacePort'=>1};
 

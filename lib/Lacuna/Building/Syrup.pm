@@ -1,7 +1,7 @@
-package Lacuna::Building::Syrup;
+package Lacuna::RPC::Building::Syrup;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/syrup';

@@ -1,7 +1,7 @@
-package Lacuna::Building::EnergyReserve;
+package Lacuna::RPC::Building::EnergyReserve;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/energyreserve';

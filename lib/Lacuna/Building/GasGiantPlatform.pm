@@ -1,7 +1,7 @@
-package Lacuna::Building::GasGiantPlatform;
+package Lacuna::RPC::Building::GasGiantPlatform;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/gasgiantplatform';

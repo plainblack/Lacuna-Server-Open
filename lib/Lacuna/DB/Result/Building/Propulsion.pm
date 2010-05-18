@@ -8,7 +8,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Ships));
 };
 
-use constant controller_class => 'Lacuna::Building::Propulsion';
+use constant controller_class => 'Lacuna::RPC::Building::Propulsion';
 
 use constant university_prereq => 3;
 

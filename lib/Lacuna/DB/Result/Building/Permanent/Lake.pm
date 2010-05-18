@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Permanent::Lake;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Permanent';
 
-use constant controller_class => 'Lacuna::Building::Lake';
+use constant controller_class => 'Lacuna::RPC::Building::Lake';
 
 sub check_build_prereqs {
     confess [1013,"You can't build a lake. It forms naturally."];

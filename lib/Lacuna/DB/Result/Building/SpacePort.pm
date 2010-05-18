@@ -117,7 +117,7 @@ before delete => sub {
 };
 
 
-use constant controller_class => 'Lacuna::Building::SpacePort';
+use constant controller_class => 'Lacuna::RPC::Building::SpacePort';
 
 use constant university_prereq => 3;
 

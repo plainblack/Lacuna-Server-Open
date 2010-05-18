@@ -1,7 +1,7 @@
-package Lacuna::Building::Trade;
+package Lacuna::RPC::Building::Trade;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/trade';

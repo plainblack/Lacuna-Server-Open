@@ -1,7 +1,7 @@
-package Lacuna::Building::Potato;
+package Lacuna::RPC::Building::Potato;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/potato';

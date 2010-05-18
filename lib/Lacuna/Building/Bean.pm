@@ -1,7 +1,7 @@
-package Lacuna::Building::Bean;
+package Lacuna::RPC::Building::Bean;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/bean';

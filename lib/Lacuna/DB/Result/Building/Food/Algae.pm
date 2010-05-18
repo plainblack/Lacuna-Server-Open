@@ -8,7 +8,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Energy));
 };
 
-use constant controller_class => 'Lacuna::Building::Algae';
+use constant controller_class => 'Lacuna::RPC::Building::Algae';
 
 use constant university_prereq => 2;
 

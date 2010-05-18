@@ -1,7 +1,7 @@
-package Lacuna::Building::Embassy;
+package Lacuna::RPC::Building::Embassy;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/embassy';

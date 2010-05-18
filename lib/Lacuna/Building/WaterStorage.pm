@@ -1,7 +1,7 @@
-package Lacuna::Building::WaterStorage;
+package Lacuna::RPC::Building::WaterStorage;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/waterstorage';

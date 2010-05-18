@@ -8,7 +8,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Colonization));
 };
 
-use constant controller_class => 'Lacuna::Building::TerraformingPlatform';
+use constant controller_class => 'Lacuna::RPC::Building::TerraformingPlatform';
 
 sub check_build_prereqs {
     confess [1013,"You can't directly build a Terraforming Platform. You need a terraforming platform ship."];

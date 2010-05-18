@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Food::Dairy;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Food';
 
-use constant controller_class => 'Lacuna::Building::Dairy';
+use constant controller_class => 'Lacuna::RPC::Building::Dairy';
 
 use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Corn'=>5};
 

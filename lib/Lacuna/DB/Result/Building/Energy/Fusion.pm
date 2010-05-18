@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Energy::Fusion;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Energy';
 
-use constant controller_class => 'Lacuna::Building::Fusion';
+use constant controller_class => 'Lacuna::RPC::Building::Fusion';
 
 use constant university_prereq => 9;
 

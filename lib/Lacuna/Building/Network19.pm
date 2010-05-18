@@ -1,7 +1,7 @@
-package Lacuna::Building::Network19;
+package Lacuna::RPC::Building::Network19;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 use DateTime;
 
 sub app_url {

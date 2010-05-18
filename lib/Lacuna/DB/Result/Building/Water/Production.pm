@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Water::Production;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Water';
 
-use constant controller_class => 'Lacuna::Building::WaterProduction';
+use constant controller_class => 'Lacuna::RPC::Building::WaterProduction';
 
 use constant university_prereq => 1;
 

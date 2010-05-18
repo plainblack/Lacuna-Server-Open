@@ -1,7 +1,7 @@
-package Lacuna::Building::Cider;
+package Lacuna::RPC::Building::Cider;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/cider';

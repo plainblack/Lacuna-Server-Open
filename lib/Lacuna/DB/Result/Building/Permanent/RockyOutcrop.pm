@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Permanent::RockyOutcrop;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Permanent';
 
-use constant controller_class => 'Lacuna::Building::RockyOutcrop';
+use constant controller_class => 'Lacuna::RPC::Building::RockyOutcrop';
 
 sub check_build_prereqs {
     confess [1013,"You can't build a rocky outcropping. It forms naturally."];

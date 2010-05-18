@@ -8,7 +8,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Happiness));
 };
 
-use constant controller_class => 'Lacuna::Building::University';
+use constant controller_class => 'Lacuna::RPC::Building::University';
 
 use constant max_instances_per_planet => 1;
 

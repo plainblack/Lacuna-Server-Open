@@ -1,7 +1,7 @@
-package Lacuna::Building::Wheat;
+package Lacuna::RPC::Building::Wheat;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/wheat';

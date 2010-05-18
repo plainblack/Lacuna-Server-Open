@@ -1,7 +1,7 @@
-package Lacuna::Building::WasteEnergy;
+package Lacuna::RPC::Building::WasteEnergy;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/wasteenergy';

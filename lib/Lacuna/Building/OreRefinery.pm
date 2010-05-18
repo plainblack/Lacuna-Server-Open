@@ -1,7 +1,7 @@
-package Lacuna::Building::OreRefinery;
+package Lacuna::RPC::Building::OreRefinery;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/orerefinery';

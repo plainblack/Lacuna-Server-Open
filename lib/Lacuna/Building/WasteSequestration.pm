@@ -1,7 +1,7 @@
-package Lacuna::Building::WasteSequestration;
+package Lacuna::RPC::Building::WasteSequestration;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/wastesequestration';

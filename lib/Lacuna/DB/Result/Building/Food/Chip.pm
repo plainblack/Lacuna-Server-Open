@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Food::Chip;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Food';
 
-use constant controller_class => 'Lacuna::Building::Chip';
+use constant controller_class => 'Lacuna::RPC::Building::Chip';
 
 use constant image => 'chips';
 

@@ -1,7 +1,7 @@
-package Lacuna::Building::WaterPurification;
+package Lacuna::RPC::Building::WaterPurification;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/waterpurification';

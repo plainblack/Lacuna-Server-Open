@@ -1,7 +1,7 @@
-package Lacuna::Building::Geo;
+package Lacuna::RPC::Building::Geo;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/geo';

@@ -1,7 +1,7 @@
 package Lacuna::Inbox;
 
 use Moose;
-extends 'JSON::RPC::Dispatcher::App';
+extends 'Lacuna::RPC';
 use DateTime;
 use Lacuna::Verify;
 

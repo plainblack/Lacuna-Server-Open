@@ -1,7 +1,7 @@
 package Lacuna::Empire;
 
 use Moose;
-extends 'JSON::RPC::Dispatcher::App';
+extends 'Lacuna::RPC';
 use Lacuna::Util qw(format_date);
 use DateTime;
 

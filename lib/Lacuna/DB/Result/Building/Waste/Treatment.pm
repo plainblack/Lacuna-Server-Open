@@ -8,7 +8,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Energy Ore Water));
 };
 
-use constant controller_class => 'Lacuna::Building::WasteTreatment';
+use constant controller_class => 'Lacuna::RPC::Building::WasteTreatment';
 
 use constant image => 'wastetreatment';
 

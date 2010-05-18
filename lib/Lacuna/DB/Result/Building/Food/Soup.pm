@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Food::Soup;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Food';
 
-use constant controller_class => 'Lacuna::Building::Soup';
+use constant controller_class => 'Lacuna::RPC::Building::Soup';
 
 use constant image => 'cannery';
 

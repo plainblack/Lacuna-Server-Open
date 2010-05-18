@@ -1,7 +1,7 @@
-package Lacuna::Building::Shipyard;
+package Lacuna::RPC::Building::Shipyard;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 use Lacuna::Constants qw(SHIP_TYPES);
 
 sub app_url {

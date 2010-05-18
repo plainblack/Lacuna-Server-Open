@@ -1,7 +1,7 @@
-package Lacuna::Building::Pie;
+package Lacuna::RPC::Building::Pie;
 
 use Moose;
-extends 'Lacuna::Building';
+extends 'Lacuna::RPC::Building';
 
 sub app_url {
     return '/pie';

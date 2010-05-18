@@ -687,7 +687,7 @@ sub finish_upgrade {
     $empire->trigger_full_update;
     $empire->add_medal('building'.$self->level);
     my $type = $self->controller_class;
-    $type =~ s/^Lacuna::Building::(\w+)$/$1/;
+    $type =~ s/^Lacuna::RPC::Building::(\w+)$/$1/;
     $empire->add_medal($type);
     if ($self->level % 5 == 0) {
         my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'an epic',35=>'a miraculous',40=>'a magical');

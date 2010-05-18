@@ -8,7 +8,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Waste));
 };
 
-use constant controller_class => 'Lacuna::Building::WaterReclamation';
+use constant controller_class => 'Lacuna::RPC::Building::WaterReclamation';
 
 use constant university_prereq => 7;
 
