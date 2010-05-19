@@ -27,15 +27,18 @@ sub view_spies {
         my $available = $spy->is_available;
         my $available_on = $spy->format_available_on;
         push @spies, {
-            id          => $spy->id,
-            name        => $spy->name,
-            assignment  => $spy->task,
-            assigned_to => {
+            id              => $spy->id,
+            name            => $spy->name,
+            level           => $spy->level,
+            offense_rating  => $spy->offense,
+            defense_rating  => $spy->defense,
+            assignment      => $spy->task,
+            assigned_to     => {
                 body_id => $spy->on_body_id,
                 name    => $planets{$spy->on_body_id},
             },
-            is_available=> $available,
-            available_on=> $available_on,
+            is_available    => $available,
+            available_on    => $available_on,
         };
     }
     my @assignments = Lacuna::DB::Result::Spies->assignments;

@@ -145,15 +145,15 @@ sub train_spy {
         my $latest = $self->latest_spy;
         my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
         $available_on->add(seconds => $time_to_train );
-        my $deception = $empire->species->deception_affinity;
+        my $deception = $empire->species->deception_affinity * 50;
         Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
             from_body_id    => $self->body_id,
             on_body_id      => $self->body_id,
             task            => 'Training',
             available_on    => $available_on,
             empire_id       => $self->body->empire_id,
-            offense         => $self->espionage_level + $deception,
-            defense         => $self->security_level + $deception,
+            offense         => $self->espionage_level * 75 + $deception,
+            defense         => $self->security_level * 75 + $deception,
         })->insert;
         my $count = $self->spy_count($self->spy_count + 1);
         if ($count < $self->level) {

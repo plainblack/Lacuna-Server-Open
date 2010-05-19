@@ -64,6 +64,9 @@ Returns the list of spies you have on your roster.
             "id" : "id-goes-here",
             "name" : "Jason Bourne",
             "assignment" : "Idle",
+            "level" : 9,
+            "offense_rating" : 570,
+            "defense_rating" : 150,
             "assigned_to" : {
                 "body_id" : "id-goes-here",
                 "name" : "Earth",

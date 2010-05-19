@@ -42,11 +42,5 @@ use constant waste_production => 5;
 
 use constant happiness_consumption => 10;
 
-after finish_upgrade => sub {
-    my $self = shift;
-    my $defense = $self->level + $self->body->empire->species->deception_affinity;
-    Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->body_id})->update({defense=>$defense});
-};
-
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

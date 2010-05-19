@@ -61,5 +61,10 @@ sub assign {
     return $self;
 }
 
+sub level {
+    my $self = shift;
+    return sprintf('%.0f', ($self->offense + $self->defense) / 200)
+}
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

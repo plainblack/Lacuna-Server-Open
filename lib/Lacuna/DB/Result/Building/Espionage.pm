@@ -40,13 +40,6 @@ use constant water_consumption => 7;
 
 use constant waste_production => 1;
 
-after finish_upgrade => sub {
-    my $self = shift;
-    my $offense = $self->level + $self->body->empire->species->deception_affinity;
-    Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->body_id})->update({offense=>$offense});
-};
-
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
