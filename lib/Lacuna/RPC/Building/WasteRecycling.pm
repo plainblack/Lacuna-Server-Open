@@ -25,8 +25,11 @@ around 'view' => sub {
         };
     }
     else {
-        $out->{recycle}{can} = (eval { $building->can_recycle }) ? 1 : 0;
-        $out->{recycle}{seconds_per_resource} = 10 * $building->time_cost_reduction_bonus($building->level * 2);
+        $out->{recycle} = {
+            can                     => (eval { $building->can_recycle }) ? 1 : 0,
+            seconds_per_resource    => $self->seconds_per_resource,
+            max_recycle             => $building->max_recycle,
+        };
     }
     return $out;
 };

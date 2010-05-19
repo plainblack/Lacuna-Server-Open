@@ -14,7 +14,8 @@ The list of methods below represents changes and additions to the methods that a
     "recycle" : {
         "seconds_remaining" : 0,
         "can" : 1,
-        "seconds_per_resource", # to precalculate the time recycling will take
+        "seconds_per_resource" : "2.138", # to precalculate the time recycling will take
+        "max_recycle" : 12000,
         "water" : 0,
         "energy" : 0,
         "ore" : 0
