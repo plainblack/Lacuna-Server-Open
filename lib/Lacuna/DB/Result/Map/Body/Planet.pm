@@ -91,16 +91,16 @@ around 'get_status' => sub {
     $out->{size}            = $self->size;
     $out->{ore}             = \%ore;
     $out->{water}           = $self->water;
-    if (defined $empire) {
-        if ($self->empire_id eq $empire->id) {
-            $out->{alignment} = 'self';
-        }
-        elsif ($self->empire_id ne 'None') {
-            $out->{alignment} = 'hostile';
-        }
+    if ($self->empire_id) {
+        $out->{empire} = {
+            name        => $self->empire->name,
+            id          => $self->empire_id,
+            alignment   => 'hostile'
+        };
     }
     if (defined $empire && $empire->id eq $self->empire_id) {
         $self->tick;
+        $out->{empire}{alignment} = 'self';
         $out->{building_count}  = $self->building_count;
         $out->{water_capacity}  = $self->water_capacity;
         $out->{water_stored}    = $self->water_stored;
