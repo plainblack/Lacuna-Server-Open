@@ -46,6 +46,7 @@ sub get_probed_stars {
     }
     return {
         stars   => \@stars,
+        star_count => $probes->pager->total_entries,
         status  => $self->format_status($empire, $building->body),
         };
 }
