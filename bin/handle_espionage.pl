@@ -1030,15 +1030,23 @@ sub hack_observatory_probes {
 sub hack_offending_probes {
     my ($planet, $espionage) = @_;
     out('Hack Offensive Probes');
+    return undef unless defined scalar(@{$espionage->{police}{spies}});
     my $hacker = random_spy($espionage->{hacking}{spies});
     return undef unless defined $hacker;
-    my $probe = $db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $planet->star_id, empire_id => {'!=' => $hacker->empire_id} }, {rows=>1})->single;
+    my @safe = ($planet->empire_id);
+    foreach my $cop (@{$espionage->{police}{spies}}) {
+        push @safe, $cop->empire_id;
+    }
+    my $probe = $db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $planet->star_id, empire_id => {'not in' => \@safe} }, {rows=>1})->single;
     return undef unless defined $probe;
-    $hacker->empire->send_predefined_message(
-        tags        => ['Intelligence'],
-        filename    => 'we_destroyed_a_probe.txt',
-        params      => [$planet->star->name, $hacker->name],
-    );
+    my @spies = pick_a_spy_per_empire($espionage->{police}{spies});
+    foreach my $spy (@spies) {
+        $spy->empire->send_predefined_message(
+            tags        => ['Intelligence'],
+            filename    => 'we_destroyed_a_probe.txt',
+            params      => [$planet->star->name, $spy->name],
+        );
+    }
     $hacker->empire->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'probe_destroyed.txt',
