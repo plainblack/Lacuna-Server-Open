@@ -262,7 +262,7 @@ has spaceport => (
 
 sub is_space_free {
     my ($self, $x, $y) = @_;
-    my $count = $self->buildings->search({x=>$y, y=>$y})->count;
+    my $count = $self->buildings->search({x=>$x, y=>$y})->count;
     return 0 if $count > 0;
     return 1;
 }
