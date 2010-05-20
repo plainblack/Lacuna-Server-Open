@@ -150,6 +150,7 @@ sub train_spy {
             from_body_id    => $self->body_id,
             on_body_id      => $self->body_id,
             task            => 'Training',
+            started_assignment  => DateTime->now,
             available_on    => $available_on,
             empire_id       => $self->body->empire_id,
             offense         => $self->espionage_level * 75 + $deception,

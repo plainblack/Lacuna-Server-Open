@@ -1704,6 +1704,7 @@ sub capture_a_spy {
     my ($planet, $spy, $interceptor) = @_;
     $spy->available_on(DateTime->now->add(months=>1));
     $spy->task('Captured');
+    $spy->started_assignment(DateTime->now);
     $spy->update;
     $spy->empire->send_predefined_message(
         tags        => ['Alert'],

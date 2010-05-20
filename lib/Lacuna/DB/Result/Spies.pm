@@ -2,7 +2,7 @@ package Lacuna::DB::Result::Spies;
 
 use Moose;
 extends 'Lacuna::DB::Result';
-use Lacuna::Util qw(format_date);
+use Lacuna::Util qw(format_date to_seconds);
 use DateTime;
 
 __PACKAGE__->table('spies');
@@ -12,6 +12,7 @@ __PACKAGE__->add_columns(
     from_body_id            => { data_type => 'int', size => 11, is_nullable => 0 },
     on_body_id              => { data_type => 'int', size => 11, is_nullable => 0 },
     task                    => { data_type => 'char', size => 30, is_nullable => 0, default_value => 'Idle' },
+    started_assignment      => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     available_on            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     offense                 => { data_type => 'int', size => 11, default_value => 1 },
     defense                 => { data_type => 'int', size => 11, default_value => 1 },
@@ -24,6 +25,21 @@ __PACKAGE__->belongs_to('on_body', 'Lacuna::DB::Result::Map::Body', 'on_body_id'
 sub format_available_on {
     my ($self) = @_;
     return format_date($self->available_on);
+}
+
+sub format_started_assignment {
+    my ($self) = @_;
+    return format_date($self->started_assignment);
+}
+
+sub seconds_remaining_on_assignment {
+    my $self = shift;
+    if ($self->available_on > $self->started_assignment) {
+        return to_seconds($self->available_on - $self->started_assignment);
+    }
+    else {
+        return 0;
+    }
 }
 
 sub is_available {
@@ -58,6 +74,7 @@ sub assign {
         confess [1013, "This spy is unavailable for reassignment."];
     }
     $self->task($assignment);
+    $self->started_assignment(DateTime->now);
     return $self;
 }
 

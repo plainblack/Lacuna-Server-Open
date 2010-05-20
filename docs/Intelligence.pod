@@ -72,7 +72,9 @@ Returns the list of spies you have on your roster.
                 "name" : "Earth",
             },
             "is_available" : 1, # can be reassigned
-            "available_on" : "01 31 2010 13:09:05 +0600" # if can't be reassigned, this is when will be available
+            "available_on" : "01 31 2010 13:09:05 +0600", # if can't be reassigned, this is when will be available
+            "started_assignment" : "01 31 2010 13:09:05 +0600",
+            "seconds_remaining" : 45
         },
         ...
     ],

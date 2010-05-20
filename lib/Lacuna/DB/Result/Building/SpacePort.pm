@@ -23,6 +23,7 @@ sub send_spy_pod {
     $spy->available_on($ship->date_available->clone);
     $spy->on_body_id($target_body->id);
     $spy->task('Travelling');
+    $spy->started_assignment(DateTime->now);
     $spy->update;
     return $ship;
 }
