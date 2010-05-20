@@ -1,3 +1,13 @@
+=head1 Map Data
+
+An export of the public map data (ie the Stars), is available to download in an easy to use CSV format. The URL is
+
+ http://gameservername.lacunaexpanse.com.s3.amazonaws.com/stars.csv
+
+So if the server name is "us-east-1", then the the URL would be
+
+ http://us-east-1.lacunaexpanse.com.s3.amazonaws.com/stars.csv
+
 =head1 Map Methods
 
 These methods are accessible via the C</map> URL.
