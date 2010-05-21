@@ -25,7 +25,6 @@ sub view_spies {
             $planets{$spy->on_body_id} = $spy->on_body->name;
         }
         my $available = $spy->is_available;
-        my $available_on = $spy->format_available_on;
         push @spies, {
             id              => $spy->id,
             name            => $spy->name,
@@ -38,7 +37,9 @@ sub view_spies {
                 name    => $planets{$spy->on_body_id},
             },
             is_available    => $available,
-            available_on    => $available_on,
+            available_on    => $spy->format_available_on,
+            started_assignment  => $spy->format_started_assignment,
+            seconds_remaining   => $spy->seconds_remaining_on_assignment,
         };
     }
     my @assignments = Lacuna::DB::Result::Spies->assignments;

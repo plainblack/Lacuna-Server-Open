@@ -100,15 +100,16 @@ use constant ship_costs => {
 sub get_ship_costs {
     my ($self, $type) = @_;
     my $costs = ship_costs->{$type};
+    my %final;
     foreach my $cost (keys %{$costs}) {
         if ($cost eq 'seconds') {
-            $costs->{$cost} = sprintf('%0.f', $costs->{$cost} * $self->time_cost_reduction_bonus($self->level));
+            $final{$cost} = sprintf('%0.f', $costs->{$cost} * $self->time_cost_reduction_bonus($self->level));
         }
         else {
-            $costs->{$cost} = sprintf('%0.f', $costs->{$cost} * $self->manufacturing_cost_reduction_bonus);
+            $final{$cost} = sprintf('%0.f', $costs->{$cost} * $self->manufacturing_cost_reduction_bonus);
         }
     }
-    return $costs;
+    return \%final;
 }
 
 

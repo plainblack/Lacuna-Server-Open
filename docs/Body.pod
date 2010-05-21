@@ -28,7 +28,11 @@ Returns detailed statistics about a planet.
             "bauxite" : 4000,
             ...
         },
-        "alignment" : "none",   # can be 'none', 'ally','self', or 'hostile'
+        "empire" : { # this section only exists if an empire occupies it
+            "id" : "id-goes-here",
+            "name" : "Earthlings",
+            "alignment" : "none",   # can be 'ally','self', or 'hostile'
+        }
         
         --------- if you own the planet the data below will be included ---------
         

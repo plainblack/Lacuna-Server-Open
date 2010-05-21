@@ -14,14 +14,18 @@ Returns a list of the stars that have been probed by this planet.
 
  {
 	"status" : { ... },
-        "stars" : [
+    "stars" : [
 		"color" : "yellow",
 		"name" : "Sol",
 		"x" : 17,
 		"y" : 4,
 		"z" : -3,
-		"alignments" : "self-hostile"
-	]	
+		"bodies" : [
+            { See get_status() in Body },
+            ...
+        ]
+	],
+    "star_count" : 37
  }
 
 

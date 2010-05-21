@@ -13,7 +13,7 @@ sub check_star_for_incoming_probe {
     my $incoming = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_star_id=>$star_id, task=>'Travelling', type=>'probe'});
     while (my $probe = $incoming->next) {
         if ($probe->body_id ~~ $bodies) {
-            $date = $incoming->date_available_formatted;
+            $date = $probe->date_available_formatted;
         }
     }
     return {

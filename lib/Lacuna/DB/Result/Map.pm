@@ -17,7 +17,7 @@ sub calculate_distance_to_target {
     return sqrt(abs($self->x - $target->x)**2 + abs($self->y - $target->y)**2) * 100;
 }
 
-use constant zone_size => 10;
+use constant zone_size => 250;
 
 sub adjacent_zones {
     my ($self) = @_;

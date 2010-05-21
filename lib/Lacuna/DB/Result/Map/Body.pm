@@ -199,7 +199,6 @@ sub get_status {
         star_id         => $self->star_id,
         star_name       => $self->star->name,
         id              => $self->id,
-        alignment       => 'none',
     );
     return \%out;
 }
