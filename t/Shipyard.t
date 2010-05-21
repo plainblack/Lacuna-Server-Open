@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 2;
+use Test::More tests => 15;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -23,10 +23,22 @@ $result = $tester->post('shipyard', 'build', [$session_id, $home->id, 0, 2]);
 ok($result->{result}{building}{id}, "built a shipyard");
 my $shipyard = $tester->get_building($result->{result}{building}{id});
 $shipyard->finish_upgrade;
+is($shipyard->ship_costs->{probe}{food}, 100, 'shipyard reports base food cost correctly');
 
+my $shipyard2 = $tester->get_building($shipyard->id);
+my @resources = qw(food water energy time waste ore);
+foreach my $resource (@resources) {
+    is($shipyard->get_ship_costs('probe')->{$resource}, $shipyard2->get_ship_costs('probe')->{$resource}, "shipyard calculates $resource cost the same twice");
+}
 
 $result = $tester->post('shipyard', 'get_buildable', [$session_id, $shipyard->id]);
 is($result->{result}{buildable}{probe}{can}, 0, "ships not buildable yet");
+my $probe_cost = $result->{result}{buildable}{probe}{cost};
+
+$result = $tester->post('shipyard', 'get_buildable', [$session_id, $shipyard->id]);
+foreach my $resource (@resources) {
+    is($probe_cost->{$resource}, $result->{result}{buildable}{probe}{cost}{$resource}, "$resource cost matches on two displays");
+}
 
 END {
     $tester->cleanup;
