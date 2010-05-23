@@ -631,6 +631,7 @@ sub destroy_infrastructure {
         }
     }
     if ($got) {
+        $planet->needs_surface_refresh(1);
         $planet->needs_recalc(1);
         $planet->update;
     }
@@ -670,6 +671,7 @@ sub destroy_upgrades {
         }
     }
     if ($got) {
+        $planet->needs_surface_refresh(1);
         $planet->needs_recalc(1);
         $planet->update;
     }

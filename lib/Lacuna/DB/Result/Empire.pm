@@ -229,6 +229,7 @@ sub send_message {
         to_name     => $self->name,
         recipients  => $recipients,
         in_reply_to => $params{in_reply_to},
+        repeat_check=> $params{repeat_check},
         attachments => $params{attachments},
     })->insert;
     if (exists $params{in_reply_to} && defined $params{in_reply_to} && $params{in_reply_to} ne '') {
@@ -238,6 +239,16 @@ sub send_message {
         }
     }
     return $self;
+}
+
+sub check_for_repeat_message {
+    my ($self, $repeat) = @_;
+    return $self->received_messages->search(
+        {
+            repeat_check    => $repeat,
+            date_sent       => { '>=' => DateTime->now->subtract(hours=>6)}
+        }
+    )->count;
 }
 
 sub send_predefined_message {
@@ -269,6 +280,7 @@ sub send_predefined_message {
             subject     => $subject,
             body        => $body,
             from        => $options{from},
+            repeat_check=> $options{repeat_check},
             tags        => $options{tags},
             attachments => $attachments,
             );

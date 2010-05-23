@@ -137,6 +137,27 @@ A session id.
 The id of the building you wish to retrieve.
 
 
+
+=head2 demolish ( session_id, building_id )
+
+Allows you to instantly destroy a building provided it wouldn't put you into a negative resource production situation. For example, if you're producing only a net positive of 100 food per hour, and you destroy a corn field that would take away 200 food per hour, then the game won't allow you to demolish that building.
+
+ {
+    "status" : { ... }
+ }
+ 
+Throws 1012.
+
+=head3 session_id
+
+A session id.
+
+=head3
+
+The unique id of the building.
+
+
+
 =head2 get_stats_for_level ( session_id, building_id, level )
 
 This method is for power users and script writers. It will return the projected stats of a building at a certain level. The building must already exist on the planet, because where it exists and who it is owned by affects the stats of the building. It returns

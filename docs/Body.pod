@@ -14,7 +14,6 @@ Returns detailed statistics about a planet.
         "id" : "id-goes-here",
         "x" : -4,
         "y" : 10,
-        "z" : 6,
         "star_id" : "id-goes-here",
         "star_name" : "Sol",
         "orbit" : 3,
@@ -36,6 +35,7 @@ Returns detailed statistics about a planet.
         
         --------- if you own the planet the data below will be included ---------
         
+        "needs_surface_refresh" : 1, # indicates that the client needs to call get_buildings() because something has changed
         "building_count" : 7,
         "happiness" : 3939,
         "happiness_hour" : 25,

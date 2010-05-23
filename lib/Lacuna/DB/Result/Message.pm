@@ -21,6 +21,7 @@ __PACKAGE__->add_columns(
     has_replied     => { data_type => 'int', size => 1, default_value => 0 },
     has_archived    => { data_type => 'int', size => 1, default_value => 0 },
     attachments     => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
+    repeat_check    => { data_type => 'char', size => 30, is_nullable => 1 },
 );
 
 __PACKAGE__->belongs_to('original_message', 'Lacuna::DB::Result::Message', 'in_reply_to');

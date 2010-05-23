@@ -116,9 +116,6 @@ sub build {
     else {
         $body->lock_plot($x,$y);
     }
-    
-    # prepare the body for the building
-    $body->tick;
 
     # create dummy building
     my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -164,6 +161,19 @@ sub build {
     };
 }
 
+sub demolish {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $body = $building->body;
+    $building->can_demolish;
+    $building->demolish;
+    $body->tick;
+    return {
+        status      => $self->format_status($empire, $body),
+    };
+}
+
 sub get_stats_for_level {
     my ($self, $session_id, $building_id, $level) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -201,7 +211,7 @@ sub get_stats_for_level {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(upgrade view build get_stats_for_level));
+__PACKAGE__->register_rpc_method_names(qw(demolish upgrade view build get_stats_for_level));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

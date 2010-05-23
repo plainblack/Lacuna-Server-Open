@@ -36,7 +36,10 @@ sub get_buildings {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
-    $body->tick;
+    if ($body->needs_surface_refresh) {
+        $body->needs_surface_refresh(0);
+        $body->update;
+    }
     my %out;
     my $buildings = $body->buildings;
     while (my $building = $buildings->next) {
@@ -58,7 +61,6 @@ sub get_build_queue {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
     my %queue;
-    $body->tick;
     my $builds = $body->builds;
     while (my $build = $builds->next) {
         my $status = $build->upgrade_status;
@@ -88,7 +90,6 @@ sub get_buildable {
     );
 
     my %out;
-    $body->tick;
     foreach my $class (BUILDABLE_CLASSES) {
         $properties{class} = $class->model_class;
         my $building = $building_rs->new(\%properties);

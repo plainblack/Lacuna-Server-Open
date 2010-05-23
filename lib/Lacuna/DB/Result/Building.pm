@@ -550,6 +550,24 @@ sub check_build_prereqs {
 }
 
 
+# DEMOLISH
+
+sub can_demolish {
+    my $self = shift;
+    $self->body->has_resources_to_operate_after_building_demolished($self);
+    return 1;
+}
+
+sub demolish {
+    my ($self) = @_;
+    my $body = $self->body;
+    $body->add_waste(sprintf('%.0f',$self->ore_to_build * $self->upgrade_cost));
+    $body->needs_recalc(1);
+    $body->needs_surface_refresh(1);
+    $body->update;
+    $self->delete;
+}
+
 
 # UPGRADES
 
@@ -685,6 +703,7 @@ sub finish_upgrade {
     $self->update;
     $body->clear_last_in_build_queue;
     $body->needs_recalc(1);
+    $body->needs_surface_refresh(1);
     $body->update;
     my $empire = $body->empire; 
     $empire->add_medal('building'.$self->level);

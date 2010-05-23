@@ -51,6 +51,7 @@ sub get_body { # makes for uniform error handling, and prevents staleness
     if ($body->id eq $empire->home_planet_id) {
         $empire->home_planet($body);
     }
+    $body->tick;
     return $body;
 }
 
@@ -72,7 +73,6 @@ sub get_building { # makes for uniform error handling, and prevents staleness
         if ($body->empire_id ne $empire->id) { 
             confess [1010, "Can't manipulate a building that you don't own.", $building_id];
         }
-        $body->tick;
         $building->get_from_storage; # in case it changed due to the tick
         $building->body($body);
         return $building;
