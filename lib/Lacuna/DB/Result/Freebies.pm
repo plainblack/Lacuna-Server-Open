@@ -1,11 +1,11 @@
-package Lacuna::DB::Result::Freebies;
+package Lacuna::DB::Result::Plans;
 
 use Moose;
 extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date);
 use DateTime;
 
-__PACKAGE__->table('freebies');
+__PACKAGE__->table('plans');
 __PACKAGE__->add_columns(
     body_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
     class                   => { data_type => 'char', size => 255, is_nullable => 0 },

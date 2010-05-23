@@ -52,12 +52,12 @@ Command extends the view method to include a C<planet> section.
  }
 
 
-=head2 view_freebies ( session_id, building_id )
+=head2 view_plans ( session_id, building_id )
 
-Freebies are buildings you can build for free. You can get them from contests, tutorials, and from spy missions. You can only have one freebie of each building type at once. And you can only have 10 freebies queued up at once. You must either spend them, or lose them.
+Plans are buildings you can build for free. You can get them from contests, tutorials, and from spy missions. You can only have one plane for each building type at once. And you can only have 10 plans queued up at once. You must either spend them, or lose them.
 
  {
-    "freebies" : {
+    "plans" : {
         "Subspace Transporter" : 1,
         "Wheat Farm" : 4,
     },

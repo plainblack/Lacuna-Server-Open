@@ -869,7 +869,7 @@ sub steal_building {
         { body_id => $planet->id, level => {'>=' => $level} }, {rows=>1}
         )->single;
     return undef unless defined $building;
-    $thief->from_body->add_freebie($building->class, $level);
+    $thief->from_body->add_plan($building->class, $level);
     $thief->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'building_theft_report.txt',

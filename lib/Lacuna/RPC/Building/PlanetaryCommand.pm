@@ -20,26 +20,26 @@ around 'view' => sub {
     return $out;
 };
 
-sub view_freebies {
+sub view_plans {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $free_stuff = $building->body->freebies;
-    my %freebies;
-    while (my $freebie = $free_stuff->next) {
-        my $level = $freebie->level;
-        if ($freebie->extra_build_level) {
-            $level .= ' ('.$freebie->extra_build_level.')';
+    my $free_stuff = $building->body->plans;
+    my %plans;
+    while (my $plan = $free_stuff->next) {
+        my $level = $plan->level;
+        if ($plan->extra_build_level) {
+            $level .= ' ('.$plan->extra_build_level.')';
         }
-        $freebies{$freebie->class->name} = $level;
+        $plans{$plan->class->name} = $level;
     }
     return {
-        freebies    => \%freebies,
+        plans       => \%plans,
         status      => $self->format_status($empire, $building->body),
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(view_freebies));
+__PACKAGE__->register_rpc_method_names(qw(view_plans));
 
 
 no Moose;

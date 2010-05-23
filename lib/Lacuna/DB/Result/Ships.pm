@@ -139,7 +139,7 @@ sub arrive {
         if ($self->direction eq 'outgoing') {
             my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::TerraformingLab');
             if (defined $lab) {
-                $self->foreign_body->add_freebie('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform', 1, $lab->level);
+                $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform', 1, $lab->level);
             }
         }
         else {
@@ -151,7 +151,7 @@ sub arrive {
         if ($self->direction eq 'outgoing') {
             my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::GasGiantLab');
             if (defined $lab) {
-                $self->foreign_body->add_freebie('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform', 1, $lab->level);
+                $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform', 1, $lab->level);
             }
         }
         else {

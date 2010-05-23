@@ -10,7 +10,7 @@ no warnings 'uninitialized';
 
 
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
-__PACKAGE__->has_many('freebies','Lacuna::DB::Result::Freebies','body_id');
+__PACKAGE__->has_many('plans','Lacuna::DB::Result::Plans','body_id');
 
 sub ships_travelling { 
     my ($self, $where, $reverse) = @_;
@@ -27,23 +27,23 @@ sub ships_travelling {
     );
 }
 
-# FREEBIES
-sub get_freebie {
+# PLANS
+sub get_plan {
     my ($self, $class, $level) = @_;
-    return $self->freebies->search({class => $class, level => $level},{rows => 1})->single;
+    return $self->plans->search({class => $class, level => $level},{rows => 1})->single;
 }
 
-sub add_freebie {
+sub add_plan {
     my ($self, $class, $level, $extra_build_level) = @_;
-    my $freebies = $self->freebies;
+    my $plans = $self->plans;
 
     # can't have more than 10
-    if ($freebies->count >= 10) {
-        $freebies->next->delete;
+    if ($plans->count >= 10) {
+        $plans->next->delete;
     }
         
     # add it
-    return $freebies->new({
+    return $plans->new({
         body_id             => $self->id,
         class               => $class,
         level               => $level,
@@ -67,7 +67,7 @@ sub sanitize {
         cider_stored wheat_stored bread_stored soup_stored chip_stored pie_stored pancake_stored milk_stored meal_stored
         algae_stored syrup_stored fungus_stored burger_stored shake_stored beetle_stored bean_production_hour bean_stored
     );
-    $self->freebies->delete_all;
+    $self->plans->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_body_id => $self->id})->delete_all;
     $self->ships->delete_all;
     foreach my $attribute (@attributes) {

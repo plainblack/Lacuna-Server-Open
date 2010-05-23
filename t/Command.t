@@ -24,10 +24,10 @@ foreach my $bid (keys %{$result->{result}{buildings}}) {
 $result = $tester->post('planetarycommand', 'view', [$session_id, $id]);
 is($result->{result}{planet}{building_count}, 1, "got building count");
 
-$tester->empire->home_planet->add_freebie('Lacuna::DB::Result::Building::SpacePort', 5);
+$tester->empire->home_planet->add_plan('Lacuna::DB::Result::Building::SpacePort', 5);
 
-$result = $tester->post('planetarycommand', 'view_freebies', [$session_id, $id]);
-is($result->{result}{freebies}{'Space Port'}, 5, 'got freebies list');
+$result = $tester->post('planetarycommand', 'view_plans', [$session_id, $id]);
+is($result->{result}{plans}{'Space Port'}, 5, 'got plans list');
 
 END {
     $tester->cleanup;
