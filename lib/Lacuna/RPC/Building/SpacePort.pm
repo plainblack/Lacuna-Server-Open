@@ -169,17 +169,21 @@ sub send_colony_ship {
     if ($target_body->empire_id) {
         confess [ 1013, 'That planet is already inhabited.'];
     }
+    my $empire = $self->get_empire_by_session($session_id);
+    my $species = $empire->species;
+    unless ($target_body->orbit <= $species->max_orbit && $target_body->orbit >= $species->min_orbit) {
+        confess [ 1009, 'Your species cannot survive on that planet.' ];
+    }
     
     # make sure you have enough happiness
-    my $empire = $self->get_empire_by_session($session_id);
     my $next_colony_cost = $empire->next_colony_cost;
     my $body = $self->get_body($empire, $body_id);
     if ( $body->happiness > $next_colony_cost) {
         confess [ 1011, 'You do not have enough happiness to colonize another planet.', [$empire->next_planet_cost]];
     }
-    $body->spend_happiness($next_colony_cost)->update;
         
     # send the ship
+    $body->spend_happiness($next_colony_cost)->update;
     my $sent = $body->spaceport->send_colony_ship($target_body, { colony_cost => $next_colony_cost });
 
     return { colony_ship => { date_arrives => format_date($sent->date_available) }, status => $self->format_status($empire, $body) };
