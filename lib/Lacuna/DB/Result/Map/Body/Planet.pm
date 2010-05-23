@@ -99,6 +99,9 @@ around 'get_status' => sub {
         };
     }
     if (defined $empire && $empire->id eq $self->empire_id) {
+        if ($self->needs_recalc) {
+            $self->tick; # in case what we just did is going to change our stats
+        }
         $out->{needs_surface_refresh} = $self->needs_surface_refresh;
         $out->{empire}{alignment} = 'self';
         $out->{building_count}  = $self->building_count;
