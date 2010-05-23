@@ -536,9 +536,12 @@ sub recalc_stats {
             $stats{$method} += $building->$method();
         }
         if ($building->isa('Lacuna::DB::Result::Building::Ore::Ministry')) {
-            foreach my $type (ORE_TYPES) {
-                my $method = $type.'_hour';
-                $stats{$method} += $building->$method();
+            my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({planet_id => $self->id});
+            while (my $platform = $platforms->next) {
+                foreach my $type (ORE_TYPES) {
+                    my $method = $type.'_hour';
+                    $stats{$method} += $platform->$method();
+                }
             }
         }
     }
