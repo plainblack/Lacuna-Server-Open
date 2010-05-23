@@ -54,7 +54,7 @@ sub add_plan {
 sub sanitize {
     my ($self) = @_;
     my $buildings = $self->buildings->search({class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%' } })->delete_all;
-    my @attributes = qw(    building_count happiness_hour happiness waste_hour waste_stored waste_capacity
+    my @attributes = qw( happiness_hour happiness waste_hour waste_stored waste_capacity
         energy_hour energy_stored energy_capacity water_hour water_stored water_capacity ore_capacity
         rutile_stored chromite_stored chalcopyrite_stored galena_stored gold_stored uraninite_stored bauxite_stored
         goethite_stored halite_stored gypsum_stored trona_stored kerogen_stored methane_stored anthracite_stored
@@ -168,6 +168,19 @@ use constant water => 0;
 
 
 # BUILDINGS
+
+has building_count => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->buildings->search(
+            {
+               class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%' }, # these don't count against you 
+            }
+        )->count;
+    },
+);
 
 sub get_buildings_of_class {
     my ($self, $class) = @_;
@@ -449,9 +462,6 @@ sub is_plot_locked {
 sub build_building {
     my ($self, $building) = @_;
     
-    $self->building_count($self->building_count + 1);
-    $self->update;
-
     $building->date_created(DateTime->now);
     $building->body_id($self->id);
     $building->upgrade_started(DateTime->now);
