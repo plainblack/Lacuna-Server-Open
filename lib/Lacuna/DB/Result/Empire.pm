@@ -87,6 +87,22 @@ sub get_new_message_count {
     })->count;
 }
 
+sub get_newest_message {
+    my $self = shift;
+    my $message = Lacuna->db->resultset('Lacuna::DB::Result::Message')->search(
+        {
+            to_id           => $self->id,
+            has_archived    => {'!=' => 1},
+            has_read        => {'!=' => 1}
+        },
+        {
+            order_by        => { -desc => 'date_sent' },
+            rows            => 1,
+        }
+    )->single;
+    return { id => $message->id, date_received => $message->date_sent_formatted, subject => $message->subject };
+}
+
 sub get_status {
     my ($self) = @_;
     my $planet_rs = $self->planets;
@@ -102,6 +118,7 @@ sub get_status {
         id                  => $self->id,
         essentia            => $self->essentia,
         has_new_messages    => $self->get_new_message_count,
+        most_recent_message => $self->get_newest_message,
         home_planet_id      => $self->home_planet_id,
         planets             => \%planets,
     };

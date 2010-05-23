@@ -13,6 +13,8 @@ This method is extended to include a list of docked ships.
  {
     "building" : { ... },
     "status" : { ... },
+    "max_ships" : 8,
+    "docks_available" : 4,
     "docked_ships" : {
         "probe" : 3,
         "cargo_ship" : 0,

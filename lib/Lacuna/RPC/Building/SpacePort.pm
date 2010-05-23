@@ -310,6 +310,8 @@ around 'view' => sub {
         $ships{$ship->type}++;
     }
     $out->{docked_ships} = \%ships;
+    $out->{max_ships} = $building->max_ships;
+    $out->{docks_available} = $building->docks_available;
     return $out;
 };
 

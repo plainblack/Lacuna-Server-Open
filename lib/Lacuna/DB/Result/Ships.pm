@@ -109,7 +109,7 @@ sub arrive {
     elsif ($self->type eq 'colony_ship') {
         if ($self->direction eq 'outgoing') {
             my $planet = $self->foreign_body;
-            if ($planet->is_locked) {
+            if ($planet->is_locked || $planet->empire_id) {
                 $self->turn_around;
                 $empire->send_predefined_message(
                     tags        => ['Alert'],

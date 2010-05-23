@@ -66,9 +66,14 @@ has number_of_ships => (
     },
 );
 
+sub max_ships {
+    my $self = shift;
+    return $self->level * 2;
+}
+
 sub docks_available {
     my $self = shift;
-    return ($self->level * 2) - $self->number_of_ships;    
+    return $self->max_ships - $self->number_of_ships;    
 }
 
 sub is_full {
