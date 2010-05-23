@@ -44,8 +44,8 @@ sub send_mining_platform_ship {
 }
 
 sub send_colony_ship {
-    my ($self, $target_body) = @_;
-    return $self->send_ship($target_body, 'mining_platform_ship');
+    my ($self, $target_body, $payload) = @_;
+    return $self->send_ship($target_body, 'mining_platform_ship', $payload);
 }
 
 sub send_ship {

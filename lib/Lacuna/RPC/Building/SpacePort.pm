@@ -160,8 +160,6 @@ sub send_terraforming_platform_ship {
 
 sub send_colony_ship {
     my ($self, $session_id, $body_id, $target) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $body = $self->get_body($empire, $body_id);
     my $target_body = $self->find_body($target);
     
     # make sure it's a valid target
@@ -173,12 +171,16 @@ sub send_colony_ship {
     }
     
     # make sure you have enough happiness
-    if ( $empire->happiness < $empire->next_planet_cost) {
+    my $empire = $self->get_empire_by_session($session_id);
+    my $next_colony_cost = $empire->next_colony_cost;
+    my $body = $self->get_body($empire, $body_id);
+    if ( $body->happiness > $next_colony_cost) {
         confess [ 1011, 'You do not have enough happiness to colonize another planet.', [$empire->next_planet_cost]];
     }
+    $body->spend_happiness($next_colony_cost)->update;
         
     # send the ship
-    my $sent = $body->spaceport->send_colony_ship($target_body);
+    my $sent = $body->spaceport->send_colony_ship($target_body, { colony_cost => $next_colony_cost });
 
     return { colony_ship => { date_arrives => format_date($sent->date_available) }, status => $self->format_status($empire, $body) };
 }

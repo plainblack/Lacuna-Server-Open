@@ -300,47 +300,20 @@ sub add_probe {
     return $self;
 }
 
-has next_planet_cost => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        my $inflation = (101 - $self->species->political_affinity) / 100;
-        my $count = scalar(@{$self->body_ids});
-        my $tally = 100_000;
-        for (2..$count) {
-            $tally += $tally * 0.96;
-        }
-        return $tally;
-    },
-);
-
-has happiness => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        my $happiness = 0;
-        my @planet_ids;
-        my $planet_rs = $self->planets;
-        while (my $planet = $planet_rs->next) {
-            $planet->tick;
-            $happiness += $planet->happiness;
-            push @planet_ids, $planet->id;
-        }
-        $self->body_ids(\@planet_ids);
-    },
-);
-
-has body_ids => (
-    is          => 'rw',
-    clearer     => 'clear_body_ids',
-    lazy        => 1,
-    default     => sub {
-        my $self = shift;
-        return Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({empire_id=>$self->id})->get_column('id')->all;
-    },
-);
+sub next_colony_cost {
+    my ($self) = @_;
+    my $count = $self->planets->count;
+    $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        { type=>'colony_ship', task=>'travelling', 'body.empire_id' => $self->id},
+        { join => 'body' }
+    )->count;
+    my $inflation = (101 - $self->species->political_affinity) / 100;
+    my $tally = 100_000;
+    for (2..$count) {
+        $tally += $tally * 0.96;
+    }
+    return $tally;
+}
 
 has probed_stars => (
     is          => 'rw',
