@@ -14,6 +14,10 @@ sub check_build_prereqs {
     confess [1013,"You can't directly build a Planetary Command. You need a colony ship."];
 }
 
+before 'can_demolish' => sub {
+    confess [1013, "You cannot demolish the Planetary Commmand."];
+};
+
 use constant image => 'command';
 
 use constant name => 'Planetary Command Center';

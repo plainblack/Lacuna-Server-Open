@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 16;
+use Test::More tests => 17;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -53,20 +53,50 @@ my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 $home->build_building($uni);
 $uni->finish_upgrade;
 
+
+# build some infrastructure
+my $infrastructure = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+    x               => -5,
+    y               => -5,
+    class           => 'Lacuna::DB::Result::Building::Food::Algae',
+    level           => 1,
+});
+$home->build_building($infrastructure);
+$infrastructure->finish_upgrade;
+
+$infrastructure = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+    x               => -5,
+    y               => -5,
+    class           => 'Lacuna::DB::Result::Building::Energy::Hydrocarbon',
+    level           => 1,
+});
+$home->build_building($infrastructure);
+$infrastructure->finish_upgrade;
+
+my $water = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+    x               => -5,
+    y               => -5,
+    class           => 'Lacuna::DB::Result::Building::Water::Purification',
+    level           => 3,
+});
+$home->build_building($water);
+$water->finish_upgrade;
+
+$infrastructure = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+    x               => -5,
+    y               => -5,
+    class           => 'Lacuna::DB::Result::Building::Ore::Mine',
+    level           => 1,
+});
+$home->build_building($infrastructure);
+$infrastructure->finish_upgrade;
+
+
 # provide the resources to upgrade the university
-$home->ore_capacity(5000);
-$home->energy_capacity(5000);
-$home->food_capacity(5000);
-$home->water_capacity(5000);
 $home->bauxite_stored(5000);
 $home->algae_stored(5000);
 $home->energy_stored(5000);
 $home->water_stored(5000);
-$home->energy_hour(5000);
-$home->algae_production_hour(5000);
-$home->water_hour(5000);
-$home->ore_hour(5000);
-$home->needs_recalc(0);
 $home->update;
 
 # see if the university is upgradable to level 2
@@ -77,23 +107,13 @@ ok($result->{result}{building}{upgrade}{can}, 'university can be upgraded');
 $uni->start_upgrade;
 $uni->finish_upgrade;
 
-$home->ore_capacity(5000);
-$home->energy_capacity(5000);
-$home->food_capacity(5000);
-$home->water_capacity(5000);
 $home->bauxite_stored(5000);
 $home->algae_stored(5000);
 $home->energy_stored(5000);
 $home->water_stored(5000);
-$home->energy_hour(5000);
-$home->algae_production_hour(5000);
-$home->water_hour(5000);
-$home->ore_hour(5000);
-$home->needs_recalc(0);
 $home->update;
 
-$result = $tester->post('body', 'get_status', [$session_id, $home_planet]);
-$last_energy = $result->{result}{body}{energy_stored};
+$last_energy = 5000;
 
 # now let's make sure that other buildings can be upgraded too
 $result = $tester->post('wheat', 'upgrade', [$session_id, $building->id]);
@@ -113,8 +133,14 @@ ok(exists $result->{error}, 'attack thwarted!!!');
 $result = $tester->post('wheat', 'get_stats_for_level', [$session_id, $building->id, 15]);
 ok(exists $result->{result}, 'get_stats_for_level works');
 
-$result = $tester->post('wheat', 'demolish', [$session_id, $building->id]);
-ok(exists $result->{result}{status}, 'can demolish');
+$result = $tester->post('body', 'get_status', [$session_id, $home->id]);
+
+
+$result = $tester->post('waterpurification', 'demolish', [$session_id, $water->id]);
+ok(exists $result->{error}, 'can not demolish water purification plant');
+
+$result = $tester->post('university', 'demolish', [$session_id, $uni->id]);
+ok(exists $result->{result}{status}, 'can demolish university');
 
 END {
     $tester->cleanup;

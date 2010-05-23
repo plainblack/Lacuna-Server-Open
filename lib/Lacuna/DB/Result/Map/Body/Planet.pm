@@ -387,7 +387,7 @@ sub has_resources_to_operate_after_building_demolished {
     # check our ability to sustain ourselves
     foreach my $method ($self->operating_resource_names) {
         # don't allow it if it sucks resources && its sucking more than we're producing
-        if ($planet->{$method} - $self->$method < 0) {
+        if ($planet->{$method} - $building->$method < 0) {
             my $resource = $method;
             $resource =~ s/(\w+)_hour/$1/;
             confess [1012, "Unsustainable. Not enough resources being produced by other sources to destroy this.", $resource];
