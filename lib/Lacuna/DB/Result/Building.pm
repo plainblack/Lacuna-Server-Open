@@ -627,11 +627,12 @@ sub manufacturing_cost_reduction_bonus {
 sub time_cost_reduction_bonus {
     my ($self, $extra) = @_;
     $extra ||= 0;
+    my $body = $self->body;
     my $unhappy_workers = 0;
-    if ($self->happiness < 0 ) {
-        $unhappy_workers = abs($self->happiness) / 1000;
+    if ($body->happiness < 0 ) {
+        $unhappy_workers = abs($body->happiness) / 1000;
     }
-    return (100 - $extra - $self->body->empire->species->management_affinity + $unhappy_workers) / 100;
+    return (100 - $extra - $body->empire->species->management_affinity + $unhappy_workers) / 100;
 }
 
 sub cost_to_upgrade {
