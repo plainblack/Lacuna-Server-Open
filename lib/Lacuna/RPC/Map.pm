@@ -9,7 +9,7 @@ sub check_star_for_incoming_probe {
     my ($self, $session_id, $star_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $date = 0;
-    my @bodies = $empire->get_column('id')->all;
+    my @bodies = $empire->planets->get_column('id')->all;
     my $incoming = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_star_id=>$star_id, task=>'Travelling', type=>'probe', body_id => {in => \@bodies }}, {rows=>1})->single;
     if (defined $incoming) {
         $date = $incoming->date_available_formatted;
