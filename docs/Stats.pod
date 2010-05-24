@@ -14,6 +14,207 @@ Retrieves a list of the game credits. It is an array of hashes of arrays.
     { "Play Testers" : ["John Ottinger","Jamie Vrbsky"]},
  ]
 
+=head2 overview ( session_id )
+
+Returns a list of basic statistics about the server.
+
+ {
+    "status" : { ... },
+    "stats" : {
+        "stars" : 100,
+        "bodies" : 100,
+        "ships" : 100,
+        "spies" : 100,
+        "buildings" : 100,
+        "empires" : 100
+    }
+ }
+ 
+=head3 session_id
+
+A session id.
+
+
+=head2 empires_overview ( session_id )
+
+Returns a list of statistics about empires.
+
+ {
+    "status" : { ... },
+    "stats" : {
+        "empires" : 100,
+        "average_university_level" : 11.4,
+        "highest_university_level" : 17,
+        "human_empires" : 11,
+        "isolationist_empires" : 21,
+        "essentia_using_empires" : 47,
+        "currently_active_empires" : 38,
+        "active_today_empires" : 57,
+        "active_this_week_empires" : 81,
+        "planets_per_empire" : 3.21938,
+    }
+ }
+ 
+=head3 session_id
+
+A session id.
+
+
+=head2 buildings_overview ( session_id )
+
+Returns a list of statistics about the buildings.
+
+ {
+    "status" : { ... },
+    "stats" : {
+        "Algae Cropper" : {
+            "average_level" : 7.594,
+            "highest_level" : 11,
+            "per_empire" : 5.123,
+            "per_planet" : 3.217,
+            "count" : 100,
+        },
+        ...
+    }
+ }
+ 
+=head3 session_id
+
+A session id.
+
+
+=head2 ships_overview ( session_id )
+
+Returns a list of statistics about the ships.
+
+ {
+    "status" : { ... },
+    "stats" : {
+        "cargo_ship" : {
+            "average_hold_size" : 5300.003,
+            "largest_hold_size" : 11948,
+            "smallest_hold_size" : 1305,
+            "average_speed" : 327.6009,
+            "fastest_speed" : 540,
+            "slowest_speed" : 138,
+            "per_empire" :  7.89,
+            "count" : 543,
+        },
+        ...
+    }
+ }
+ 
+=head3 session_id
+
+A session id.
+
+
+=head2 stars_overview ( session_id )
+
+Returns a list statistics about stars.
+
+ {
+    "status" : { ... },
+    "stats" : {
+        "stars" : 100,
+        "probes" : 50,
+        "stars_probed" : 13,
+        "probes_per_star" : 3.814,
+    }
+ }
+ 
+=head3 session_id
+
+A session id.
+
+
+=head2 spies_overview ( session_id )
+
+Returns a list of statistics about spies.
+
+ {
+    "status" : { ... },
+    "stats" : {
+        "spies" : 100,
+        "average_defense" : 190.3393,
+        "average_offense" : 250.5,
+        "highest_defense" : 190,
+        "highest_offense" : 190,
+        "spies_per_empire" : 33.98,
+        "spies_gathering_intelligence" : 190,
+        "spies_hacking_networks" : 101,
+        "spies_countering_espionage" : 290,
+        "spies_inciting_rebellion" : 199,
+        "spies_sabotaging_infrastructure" : 143,
+        "spies_appropriating_technology" : 550,
+        "spies_travelling" : 188,
+        "spies_training" : 300,
+        "spies_in_prison" : 419,
+        "spies_unconscious" : 13,
+        "spies_idle" : 1193,
+    }
+ }
+ 
+=head3 session_id
+
+A session id.
+
+
+=head2 bodies_overview ( session_id )
+
+Returns a list of statistics about all the bodies in the expanse.
+
+ {
+    "status" : { ... },
+    "stats" : {
+        "bodies" : 100,
+        "orbits" : {
+            "1" : {
+                "inhabited" : 2,
+                "bodies" : 11
+            },
+            ...,
+            "8" : {
+                "inhabited" : 0,
+                "bodies" : 13
+            }
+        },
+        "gas_giants" : {
+            "count" : 10,
+            "average_size" : 110.76,
+            "largest_size" : 121,
+            "smallest_size" : 100,
+            "average_orbit" : 4.3,
+        },
+        "habitables" : {
+            "count" : 80,
+            "average_size" : 45.23003,
+            "largest_size" : 65,
+            "smallest_size" : 25,
+            "average_orbit" : 3.10001,
+        },
+        "asteroids" : {
+            "count" : 10,
+            "average_size" : 5.998,
+            "largest_size" : 9,
+            "smallest_size" : 1,
+            "average_orbit" : 4.3,
+        },
+        "stations" : {
+            "count" : 0,
+            "average_size" : 0,
+            "largest_size" : 0,
+            "smallest_size" : 0,
+            "average_orbit" : 0,
+        },
+    }
+ }
+ 
+=head3 session_id
+
+A session id.
+
+
 
 =cut
 
