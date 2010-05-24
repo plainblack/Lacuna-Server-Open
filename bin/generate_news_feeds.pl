@@ -12,8 +12,8 @@ my $db = Lacuna->db;
 my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
 my $bucket = $s3->bucket($config->get('feeds/bucket'));
 my $news_domain = $db->resultset('Lacuna::DB::Result::News');
-foreach my $x (int($config->get('map_size/x')->[0]/10) .. int($config->get('map_size/x')->[1]/10)) {
-    foreach my $y (int($config->get('map_size/y')->[0]/10) .. int($config->get('map_size/y')->[1]/10)) {
+foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map_size/x')->[1]/250)) {
+    foreach my $y (int($config->get('map_size/y')->[0]/250) .. int($config->get('map_size/y')->[1]/250)) {
         my $zone = $x.'|'.$y;
         say $zone;
         my $feed = XML::FeedPP::RSS->new;

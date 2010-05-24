@@ -58,7 +58,11 @@ sub send_probe {
     # check the observatory probe count
     my $count = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({ body_id => $body->id })->count;
     $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $body->id, type=>'probe', task=>'Travelling' })->count;
-    my $observatory_level = $body->get_buildings_of_class('Lacuna::DB::Result::Building::Observatory')->next->level;
+    my $observatory_level = 0;
+    my $observatory = $body->get_buildings_of_class('Lacuna::DB::Result::Building::Observatory')->next;
+    if (defined $observatory) {
+	$observatory_level = $observatory->level;
+    }
     if ($count >= $observatory_level * 3) {
         confess [ 1009, 'You are already controlling the maximum amount of probes for your Observatory level.'];
     }
