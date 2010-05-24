@@ -100,7 +100,12 @@ sub get_newest_message {
             rows            => 1,
         }
     )->single;
-    return { id => $message->id, date_received => $message->date_sent_formatted, subject => $message->subject };
+    if (defined $message) {
+    	return { id => $message->id, date_received => $message->date_sent_formatted, subject => $message->subject }; 
+    }
+    else {
+        return undef;
+    }
 }
 
 sub get_status {

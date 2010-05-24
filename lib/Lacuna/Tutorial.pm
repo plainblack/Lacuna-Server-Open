@@ -57,7 +57,7 @@ sub explore_the_ui {
     $empire->update;
     return {
         filename    => 'welcome.txt',
-        params      => [$home->name],
+        params      => [$empire->name],
     }
 }
 
