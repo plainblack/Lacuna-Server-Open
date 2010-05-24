@@ -88,7 +88,7 @@ sub send_message {
         }
     }
     foreach my $to (@to) {
-        if ($to->id eq 'lacuna_expanse_corp') {
+        if ($to->id == 1) {
             Lacuna::Tutorial->new(empire=>$empire)->finish;
         }
         else {
