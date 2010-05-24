@@ -183,7 +183,7 @@ sub add_bodies {
             my $body;
             if ($type eq 'habitable') {
                 $params->{class} = $planet_classes[rand(scalar(@planet_classes))];
-                $params->{size} = ($params->{orbit} == 3) ? randint(35,55) : randint(25,75);
+                $params->{size} = ($params->{orbit} == 3) ? randint(35,55) : randint(25,65);
                 $params->{usable_as_starter} = ($params->{size} >= 40 && $params->{size} <= 50) ? randint(1,9999) : 0;
             }
             elsif ($type eq 'asteroid') {
