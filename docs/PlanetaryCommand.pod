@@ -31,6 +31,7 @@ Command extends the view method to include a C<planet> section.
             ...
         },
         "building_count" : 7,
+        "population" : 470000,
         "happiness" : 3939,
         "happiness_hour" : 25,
         "food_stored" : 33329,

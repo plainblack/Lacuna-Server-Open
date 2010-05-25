@@ -55,7 +55,7 @@ sub subsidize_recycling {
     }
 
     $building->finish_work->update;
-    $empire->spend_essentia(2);    
+    $empire->spend_essentia(2, 'recycling subsidy after the fact');    
     $empire->update;
 
     return {

@@ -9,9 +9,11 @@ my $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key =
 
 my $name;
 my $amount = 10;
+my $note = 'add_essentia.pl';
 GetOptions(
 	'name=s' => \$name,
 	'amount=i' => \$amount,
+    'note=s' => \$note,
 );	
 
 
@@ -20,7 +22,7 @@ $db
 	->resultset('Lacuna::DB::Result::Empire')
 	->search({name => $name}, {rows=>1})
 	->single
-	->add_essentia($amount)
+	->add_essentia($amount,$note)
 	->update;
 
 

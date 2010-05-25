@@ -230,7 +230,7 @@ sub boost {
     unless ($empire->essentia >= 5) {
         confess [1011, 'Not enough essentia.'];
     }
-    $empire->spend_essentia(5);
+    $empire->spend_essentia(5, $type.' boost');
     my $start = DateTime->now;
     $start = $empire->$type if ($empire->$type > $start);
     $start->add(days=>7);

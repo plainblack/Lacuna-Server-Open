@@ -29,7 +29,7 @@ sub subsidize_build_queue {
     if ($empire->essentia < $subsidy) {
         confess [1011, "You don't have enough essentia."];
     }
-    $empire->spend_essentia($subsidy);
+    $empire->spend_essentia($subsidy, 'construction subsidy');
     $empire->update;
     $building->subsidize_build_queue;
     return {
