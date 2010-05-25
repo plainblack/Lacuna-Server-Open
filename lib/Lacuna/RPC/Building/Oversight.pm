@@ -1,14 +1,14 @@
-package Lacuna::RPC::Building::RND;
+package Lacuna::RPC::Building::Oversight;
 
 use Moose;
 extends 'Lacuna::RPC::Building';
 
 sub app_url {
-    return '/rnd';
+    return '/oversight';
 }
 
 sub model_class {
-    return 'Lacuna::DB::Result::Building::RND';
+    return 'Lacuna::DB::Result::Building::Oversight';
 }
 
 no Moose;
