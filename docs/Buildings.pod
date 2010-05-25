@@ -300,6 +300,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<OreStorage>
 
+=item L<Oversight>
+
 =item L<Pancake>
 
 =item L<Park>
@@ -311,8 +313,6 @@ Below is a list of the different types of structures that can be built on planet
 =item L<Potato>
 
 =item L<Propulsion>
-
-=item L<RND>
 
 =item L<RockyOutcrop>
 

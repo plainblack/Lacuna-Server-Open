@@ -1,7 +1,0 @@
-=head1 R ND Methods
-
-R ND is accessible via the URL C</rnd>.
-
-The list of methods below represents changes and additions to the methods that all L<Buildings> share.
-
-=cut
