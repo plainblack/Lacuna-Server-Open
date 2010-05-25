@@ -228,6 +228,18 @@ has command => (
     },
 );
 
+has oversight => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Oversight');
+        return undef unless defined $building;
+        $building->body($self);
+        return $building;
+    },
+);
+
 has mining_ministry => (
     is      => 'rw',
     lazy    => 1,

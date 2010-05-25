@@ -8,7 +8,9 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure));
 };
 
-use constant controller_class => 'Lacuna::RPC::Building::Oversignt';
+use constant controller_class => 'Lacuna::RPC::Building::Oversight';
+
+use constant max_instances_per_planet => 1;
 
 use constant university_prereq => 2;
 
@@ -37,9 +39,6 @@ use constant ore_consumption => 2;
 use constant water_consumption => 5;
 
 use constant waste_production => 3;
-
-use constant happiness_production => 13;
-
 
 
 no Moose;
