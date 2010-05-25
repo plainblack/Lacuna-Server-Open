@@ -6,7 +6,7 @@ extends 'Lacuna::DB::Result::Building::Ore';
 before check_build_prereqs => sub {
     my $self = shift;
     my $planet = $self->body;
-    if ($planet->sulfur + $self->fluorite < 500) {
+    if ($planet->sulfur + $planet->fluorite < 500) {
         confess [1012,"This planet does not have a sufficient supply of processing minerals to refine ore."];
     }
 };

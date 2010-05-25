@@ -644,8 +644,8 @@ sub cost_to_upgrade {
         $upgrade_cost_reduction = 0;
     }
     my $oversight_reduction = 1;
-    if (defined $self->oversight) {
-        $oversight_reduction = (100 - $self->oversight->level) / 100;
+    if (defined $self->body->oversight) {
+        $oversight_reduction = (100 - $self->body->oversight->level) / 100;
     }
     return {
         food    => sprintf('%.0f',$self->food_to_build * $upgrade_cost * $upgrade_cost_reduction),

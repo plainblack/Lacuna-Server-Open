@@ -66,13 +66,14 @@ sub sanitize {
         shake_production_hour beetle_production_hour lapis_stored potato_stored apple_stored root_stored corn_stored
         cider_stored wheat_stored bread_stored soup_stored chip_stored pie_stored pancake_stored milk_stored meal_stored
         algae_stored syrup_stored fungus_stored burger_stored shake_stored beetle_stored bean_production_hour bean_stored
+        restrict_coverage
     );
-    $self->plans->delete_all;
-    Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_body_id => $self->id})->delete_all;
-    $self->ships->delete_all;
     foreach my $attribute (@attributes) {
         $self->$attribute(0);
     }
+    $self->plans->delete_all;
+    Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_body_id => $self->id})->delete_all;
+    $self->ships->delete_all;
     $self->empire_id(undef);
     if ($self->get_type eq 'habitable planet') {
         $self->usable_as_starter(randint(1,9999));
