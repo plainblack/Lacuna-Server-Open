@@ -213,7 +213,7 @@ sub view_ships_travelling {
             name    => $target->name,
             type    => (ref $target eq 'Lacuna::DB::Result::Map::Star') ? 'star' : 'body',
         };
-        if ($ship->direction ne 'outgoing') {
+        if ($ship->direction ne 'out') {
             my $temp = $from;
             $from = $to;
             $to = $temp;

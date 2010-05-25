@@ -1189,7 +1189,7 @@ sub travel_report {
         my $target = ($ship->foreign_body_id) ? $ship->foreign_body : $ship->foreign_star;
         my $from = $planet->name;
         my $to = $target->name;
-        if ($ship->direction ne 'outgoing') {
+        if ($ship->direction ne 'out') {
             my $temp = $from;
             $from = $to;
             $to = $temp;
