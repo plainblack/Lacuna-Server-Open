@@ -5,13 +5,13 @@ extends 'Lacuna::DB::Result::Building::Food';
 
 use constant controller_class => 'Lacuna::RPC::Building::Beeldeban';
 
-use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Wheat'=>5};
+use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Root'=>5};
 
 use constant image => 'beeldeban';
 
-use constant min_orbit => 2;
+use constant min_orbit => 5;
 
-use constant max_orbit => 4;
+use constant max_orbit => 6;
 
 use constant name => 'Beeldeban Herder';
 
