@@ -589,7 +589,7 @@ sub destroy_infrastructure {
             'Lacuna::DB::Result::Building::Park',
             'Lacuna::DB::Result::Building::Waste::Sequestration',
             'Lacuna::DB::Result::Building::Propulsion',
-            'Lacuna::DB::Result::Building::RND',
+            'Lacuna::DB::Result::Building::Oversight',
             'Lacuna::DB::Result::Building::Network19',
             'Lacuna::DB::Result::Building::Espionage',
             'Lacuna::DB::Result::Building::Security',

@@ -95,12 +95,10 @@ sub view {
                 production      => $building->stats_after_upgrade,
                 image           => $image_after_upgrade,
             },
+            pending_build       => $building->upgrade_status,
         },
         status      => $self->format_status($empire, $building->body),
     );
-    if (defined $building->is_upgrading) {
-        $out{building}{pending_build} = $building->upgrade_status;
-    }
     return \%out;
 }
 

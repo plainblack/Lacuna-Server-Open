@@ -27,7 +27,7 @@ around 'view' => sub {
     else {
         $out->{recycle} = {
             can                     => (eval { $building->can_recycle }) ? 1 : 0,
-            seconds_per_resource    => $self->seconds_per_resource,
+            seconds_per_resource    => $building->seconds_per_resource,
             max_recycle             => $building->max_recycle,
         };
     }

@@ -66,7 +66,7 @@ $urlmap->map(Lacuna::RPC::Building::Pie->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::PlanetaryCommand->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Potato->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Propulsion->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::RND->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Oversight->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::RockyOutcrop->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Security->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Shake->new->to_app_with_url);
