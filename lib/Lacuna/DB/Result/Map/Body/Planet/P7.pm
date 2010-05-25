@@ -12,12 +12,13 @@ use constant water => 5700;
 
 use constant chalcopyrite => 2800;
 
-use constant bauxite => 2700;
+use constant bauxite => 1700;
 
 use constant goethite => 2400;
 
 use constant gypsum => 2100;
 
+use constant beryl => 1000;
 
 
 no Moose;

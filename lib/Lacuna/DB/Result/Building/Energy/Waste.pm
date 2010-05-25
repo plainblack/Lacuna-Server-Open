@@ -8,6 +8,14 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Waste));
 };
 
+before check_build_prereqs => sub {
+    my $self = shift;
+    my $planet = $self->body;
+    if ($planet->zircon + $planet->beryl + $planet->gypsum < 100) {
+        confess [1012,"This planet does not have a sufficient supply of insulating minerals to build a waste energy plant."];
+    }
+};
+
 use constant controller_class => 'Lacuna::RPC::Building::WasteEnergy';
 
 use constant image => 'wasteenergy';

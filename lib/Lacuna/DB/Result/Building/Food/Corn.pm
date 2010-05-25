@@ -3,6 +3,14 @@ package Lacuna::DB::Result::Building::Food::Corn;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Food';
 
+before check_build_prereqs => sub {
+    my $self = shift;
+    my $planet = $self->body;
+    if ($planet->gypsum + $planet->sulfur + $planet->monazite < 100) {
+        confess [1012,"This planet does not have a sufficient supply of phosphorus to grow corn."];
+    }
+};
+
 use constant controller_class => 'Lacuna::RPC::Building::Corn';
 
 use constant min_orbit => 2;

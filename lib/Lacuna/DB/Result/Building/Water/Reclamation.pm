@@ -8,6 +8,14 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Waste));
 };
 
+before check_build_prereqs => sub {
+    my $self = shift;
+    my $planet = $self->body;
+    if ($planet->halite + $planet->sulfur < 500) {
+        confess [1012,"This planet does not have a sufficient supply of mineral agents for water treatment."];
+    }
+};
+
 use constant controller_class => 'Lacuna::RPC::Building::WaterReclamation';
 
 use constant university_prereq => 7;

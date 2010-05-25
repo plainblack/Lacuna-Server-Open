@@ -3,6 +3,14 @@ package Lacuna::DB::Result::Building::Energy::Fusion;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Energy';
 
+before check_build_prereqs => sub {
+    my $self = shift;
+    my $planet = $self->body;
+    if ($planet->galena + $planet->halite < 500) {
+        confess [1012,"This planet does not have a sufficient supply of coolants to operate this reactor."];
+    }
+};
+
 use constant controller_class => 'Lacuna::RPC::Building::Fusion';
 
 use constant university_prereq => 9;

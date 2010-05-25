@@ -3,6 +3,14 @@ package Lacuna::DB::Result::Building::Ore::Refinery;
 use Moose;
 extends 'Lacuna::DB::Result::Building::Ore';
 
+before check_build_prereqs => sub {
+    my $self = shift;
+    my $planet = $self->body;
+    if ($planet->sulfur + $self->fluorite < 500) {
+        confess [1012,"This planet does not have a sufficient supply of processing minerals to refine ore."];
+    }
+};
+
 use constant controller_class => 'Lacuna::RPC::Building::OreRefinery';
 
 use constant building_prereq => {'Lacuna::DB::Result::Building::Ore::Mine' => 5};

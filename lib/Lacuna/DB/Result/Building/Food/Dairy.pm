@@ -7,6 +7,13 @@ use constant controller_class => 'Lacuna::RPC::Building::Dairy';
 
 use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Corn'=>5};
 
+before check_build_prereqs => sub {
+    my $self = shift;
+    my $planet = $self->body;
+    if ($planet->trona < 500) {
+        confess [1012,"This planet does not have a sufficient supply of trona to produce milk from cows."];
+    }
+};
 
 use constant min_orbit => 3;
 

@@ -8,6 +8,14 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Ships));
 };
 
+before check_build_prereqs => sub {
+    my $self = shift;
+    my $planet = $self->body;
+    if ($planet->rutile + $planet->chromite + $planet->bauxite + $planet->magnetite + $planet->beryl + $planet->goethite < 1000) {
+        confess [1012,"This planet does not have a sufficient supply of structural minerals to build better engines."];
+    }
+};
+
 use constant controller_class => 'Lacuna::RPC::Building::Propulsion';
 
 use constant university_prereq => 3;
