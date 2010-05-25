@@ -12,12 +12,12 @@ sub get_session {
     }
     else {
         my $session = Lacuna::Session->new(id=>$session_id);
-        if (!defined $session) {
-            confess [1006, 'Session expired.', $session_id];
-        }
-        else {
+        if ($session->empire_id) {
             $session->extend;
             return $session;
+        }
+        else {
+            confess [1006, 'Session expired.', $session_id];
         }
     }
 }
