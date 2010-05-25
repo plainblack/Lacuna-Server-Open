@@ -1127,11 +1127,13 @@ sub add_lapis {
 sub spend_food {
     my ($self, $value) = @_;
     my $subtract = sprintf('%.0f', $value / 5);
+    my %types;
     SPEND: while (1) {
         foreach my $type (shuffle FOOD_TYPES) {
             my $method = $type."_stored";
             my $stored = $self->$method;
             if ($stored > $subtract) {
+                $types{$type} = 1;
                 $self->$method($stored - $subtract);
                 $value -= $subtract;
             }
@@ -1143,6 +1145,21 @@ sub spend_food {
             $subtract = $value if ($subtract > $value);
         }
         last SPEND if ($subtract <= 0); # prevent an infinite loop scenario
+    }
+    my $food_type_count = scalar(keys %types);
+    if ($food_type_count > 3) {
+        $self->add_happiness($value);
+    }
+    elsif ($food_type_count < 3) {
+        $self->spend_happiness($value);
+        if ($self->empire->check_for_repeat_message('complaint_food_diversity')) {
+            $self->empire->send_predefined_message(
+                filename    => 'complaint_food_diversity.txt',
+                params      => [$self->name],
+                repeat_check=> 'complaint_food_diversity',
+                tags        => ['Alert'],
+            );
+        }
     }
     return $self;
 }
