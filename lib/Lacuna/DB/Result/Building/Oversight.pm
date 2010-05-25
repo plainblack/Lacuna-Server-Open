@@ -1,20 +1,20 @@
-package Lacuna::DB::Result::Building::RND;
+package Lacuna::DB::Result::Building::Oversight;
 
 use Moose;
 extends 'Lacuna::DB::Result::Building';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
-    return ($orig->($class), qw(Infrastructure Happiness));
+    return ($orig->($class), qw(Infrastructure));
 };
 
-use constant controller_class => 'Lacuna::RPC::Building::RND';
+use constant controller_class => 'Lacuna::RPC::Building::Oversignt';
 
 use constant university_prereq => 2;
 
-use constant image => 'rnd';
+use constant image => 'oversight';
 
-use constant name => 'Research Lab';
+use constant name => 'Oversight Ministry';
 
 use constant food_to_build => 50;
 
