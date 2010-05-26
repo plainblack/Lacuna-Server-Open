@@ -671,7 +671,7 @@ sub tick {
         }
         elsif ($job eq 'building work complete') {
             $self->tick_to($object->work_ends);
-            $object->finish_work;
+            $object->finish_work->update;
         }
         elsif ($job eq 'building upgraded') {
             $self->tick_to($object->upgrade_ends);
