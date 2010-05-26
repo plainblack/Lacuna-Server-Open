@@ -42,6 +42,12 @@ __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id
 __PACKAGE__->has_many('medals', 'Lacuna::DB::Result::Medals', 'empire_id');
 __PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
 
+has current_session => (
+    is                  => 'rw',
+    predicate           => 'has_current_session',
+    weak_ref            => 1,
+);
+
 sub has_medal {
     my ($self, $type) = @_;
     return Lacuna->db->resultset('Lacuna::DB::Result::Medals')->search({empire_id => $self->id, type => $type})->count;
@@ -143,8 +149,8 @@ sub get_status {
 }
 
 sub start_session {
-    my $self = shift;
-    return Lacuna::Session->new->start($self);
+    my ($self, $client_key) = @_;
+    return Lacuna::Session->new->start($self, $client_key);
 }
 
 sub is_password_valid {

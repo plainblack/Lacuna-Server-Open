@@ -44,7 +44,7 @@ sub logout {
 }
 
 sub login {
-    my ($self, $name, $password) = @_;
+    my ($self, $name, $password, $api_key) = @_;
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->next;
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
@@ -55,7 +55,7 @@ sub login {
     unless ($empire->is_password_valid($password)) {
         confess [1004, 'Password incorrect.', $password];
     }
-    return { session_id => $empire->start_session->id, status => $self->format_status($empire) };
+    return { session_id => $empire->start_session($api_key)->id, status => $self->format_status($empire) };
 }
 
 sub create {
@@ -79,7 +79,7 @@ sub create {
 
 
 sub found {
-    my ($self, $empire_id) = @_;
+    my ($self, $empire_id, $api_key) = @_;
     if ($empire_id eq '') {
         confess [1002, "You must specify an empire id."];
     }
@@ -91,7 +91,7 @@ sub found {
         confess [1010, "This empire cannot be founded again.", $empire_id];
     }
     $empire = $empire->found;
-    return { session_id => $empire->start_session->id, status => $self->format_status($empire) };
+    return { session_id => $empire->start_session($api_key)->id, status => $self->format_status($empire) };
 }
 
 sub get_status {

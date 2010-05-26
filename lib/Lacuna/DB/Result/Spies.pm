@@ -16,6 +16,10 @@ __PACKAGE__->add_columns(
     available_on            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     offense                 => { data_type => 'int', size => 11, default_value => 1 },
     defense                 => { data_type => 'int', size => 11, default_value => 1 },
+#    date_created            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+#    mission_count           => { data_type => 'int', size => 11, default_value => 0 },
+#    mission_successes       => { data_type => 'int', size => 11, default_value => 0 },
+#    times_captured          => { data_type => 'int', size => 11, default_value => 0 },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');

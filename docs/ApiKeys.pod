@@ -1,21 +1,21 @@
 
 =head1 What are API keys?
 
-A Client Key (or just Client Key) is a string that uniquely identifies a client (like the web client vs the iPhone client) to the server. 
+An API key is a string that uniquely identifies a client (like the web client vs the iPhone client) to the server. 
 
 
-=head1 Why are client keys needed?
+=head1 Why are API keys needed?
 
-Client keys allow us to track which clients are being used for what purpose. 
+Client keys allow us to track which clients are being used for what purpose. For example, if we find that people are using their own bots for a certain type of function, we may decide that just needs to become a game feature. Or if we find that the iPhone client is being used more than the web client, then maybe there's something wrong with the web client, or maybe it's time to build an Android client.
 
 
-=head1 Where in the API are client keys used?
+=head1 Where in the API are API keys used?
 
 They are only used on methods that create a session, such as C<login> and C<found> in L<Empire>.
 
 
-=head1 How do I get a client key?
+=head1 How do I get an API key?
 
-
+You can register for an API key by emailing jt@lacunaexpanse.com. Eventually we'll set up a site to automate that process.
 
 =cut

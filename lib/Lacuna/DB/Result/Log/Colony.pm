@@ -6,7 +6,6 @@ use Lacuna::Util;
 
 __PACKAGE__->table('colony_log');
 __PACKAGE__->add_columns(
-    amount                  => { data_type => 'int', size => 11, is_nullable => 0 },
     planet_id               => { data_type => 'int', size => 11, is_nullable => 0 },
     planet_name             => { data_type => 'char', size => 30, is_nullable => 0 },
     population              => { data_type => 'int', size => 11, is_nullable => 0 },
