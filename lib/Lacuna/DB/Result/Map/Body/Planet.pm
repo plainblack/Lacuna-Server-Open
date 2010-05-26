@@ -442,27 +442,10 @@ sub builds {
     );
 }
 
-has last_in_build_queue => (
-    is      => 'ro',
-    clearer => 'clear_last_in_build_queue',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        my $building = $self->builds(1)->next;
-        return undef unless defined $building;
-        $building->body($self);
-        return $building;
-    }
-);
-
 sub get_existing_build_queue_time {
     my $self = shift;
-    my $time_to_build = DateTime->now;
-    my $last_in_queue = $self->last_in_build_queue;
-    if (defined $last_in_queue) {
-        $time_to_build = $last_in_queue->upgrade_ends;    
-    }
-    return $time_to_build;
+    my $building = $self->builds(1)->next;
+    return (defined $building) ? $building->upgrade_ends : DateTime->now;
 }
 
 sub lock_plot {
@@ -477,18 +460,12 @@ sub is_plot_locked {
 
 sub build_building {
     my ($self, $building) = @_;
-    
     $building->date_created(DateTime->now);
     $building->body_id($self->id);
-    $building->upgrade_started(DateTime->now);
-    $building->is_upgrading(1);
     $building->level(0) unless $building->level;
-
-    # set time to build, plus what's in the queue
-    my $time_to_build = $self->get_existing_build_queue_time->add(seconds=>$building->time_to_build);
-    $building->upgrade_ends($time_to_build);
     $building->insert;
     $building->body($self);
+    $building->start_upgrade;
 }
 
 sub found_colony {
