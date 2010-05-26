@@ -1249,7 +1249,7 @@ sub add_waste {
 
 sub spend_waste {
     my ($self, $value) = @_;
-    if ($self->waste_stored > $value) {
+    if ($self->waste_stored >= $value) {
         $self->waste_stored( $self->waste_stored - $value );
     }
     else { # if they run out of waste in storage, then the citizens start bitching
