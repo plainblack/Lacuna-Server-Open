@@ -18,6 +18,8 @@ __PACKAGE__->add_columns(
     waste_hour              => { data_type => 'int', size => 11, is_nullable => 0 },
     ore_hour                => { data_type => 'int', size => 11, is_nullable => 0 },
     water_hour              => { data_type => 'int', size => 11, is_nullable => 0 },
+    spy_count               => { data_type => 'int', size => 11, is_nullable => 0 },
+    avg_spy_success_rate    => { data_type => 'int', size => 11, is_nullable => 0 },
 );
 
 no Moose;

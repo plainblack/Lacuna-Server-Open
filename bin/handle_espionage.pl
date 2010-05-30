@@ -7,34 +7,19 @@ use List::Util qw(shuffle);
 use Lacuna::Util qw(randint format_date to_seconds);
 use Getopt::Long;
 
-our $skip_sleep;
 our $quiet;
-
 GetOptions(
-    'skip-sleep'    => \$skip_sleep,  
     'quiet'         => \$quiet,  
 );
-
-unless ($skip_sleep) { # start at a random interval
-    my $sleep = randint(1,1800);
-    out("sleeping $sleep seconds to provide a random interval for espionage");
-    sleep($sleep);
-}
 
 out('Started');
 my $start = DateTime->now;
 
-out('Loading config and DB');
-my $config = Lacuna->config;
-our $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key => $config->get('secret_key'), cache_servers => $config->get('memcached')); 
+out('Loading DB');
+our $db = Lacuna->db;
 
 out('Processing planets');
-my $planets = $db->resultset('Lacuna::DB::Result::Map::Body')->search(
-    {
-        empire_id   => {'!=' => 'None'},
-    }
-);
-
+my $planets = $db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id   => {'>' => 0} });
 while (my $planet = $planets->next) {
     out('Ticking '.$planet->name);
     $planet->tick;
@@ -417,7 +402,6 @@ sub rebel {
 
 
 
-
 # OUTCOMES
 
 sub uprising {
@@ -425,6 +409,8 @@ sub uprising {
     out('Uprising');
     my $spy = random_spy($espionage->{rebellion}{spies});
     return undef unless defined $spy;
+    $spy->seeds_planted( $spy->seeds_planted + 1 );
+    $spy->update;
     my $loss = sprintf('%.0f', $planet->happiness * 0.10 );
     $loss = 10000 unless ($loss > 10000);
     $planet->spend_happiness( $loss )->update;
@@ -465,6 +451,10 @@ sub turn_cops {
 sub small_rebellion {
     my ($planet, $espionage) = @_;
     out('Small Rebellion');
+    my $spy = random_spy($espionage->{rebellion}{spies});
+    return undef unless defined $spy;
+    $spy->seeds_planted( $spy->seeds_planted + 1 );
+    $spy->update;
     $planet->spend_happiness(randint(400,4000))->update;
     $planet->add_news(70,'Hundreds are dead at this hour after a protest turned into a small, but violent, rebellion on %s.', $planet->name);
 }
@@ -472,6 +462,10 @@ sub small_rebellion {
 sub march_on_capitol {
     my ($planet, $espionage) = @_;
     out('March On Capitol');
+    my $spy = random_spy($espionage->{rebellion}{spies});
+    return undef unless defined $spy;
+    $spy->seeds_planted( $spy->seeds_planted + 1 );
+    $spy->update;
     $planet->spend_happiness(randint(400,4000))->update;
     $planet->add_news(70,'Protesters now march on the %s Planetary Command Center, asking for the Governor\'s resignation.', $planet->name);
 }
@@ -479,6 +473,10 @@ sub march_on_capitol {
 sub violent_protest {
     my ($planet, $espionage) = @_;
     out('Violent Protest');
+    my $spy = random_spy($espionage->{rebellion}{spies});
+    return undef unless defined $spy;
+    $spy->seeds_planted( $spy->seeds_planted + 1 );
+    $spy->update;
     $planet->spend_happiness(randint(300,3000))->update;
     $planet->add_news(70,'The protests at the %s Ministries have turned violent. An official was rushed to hospital in critical condition.', $planet->name);
 }
@@ -486,6 +484,10 @@ sub violent_protest {
 sub protest {
     my ($planet, $espionage) = @_;
     out('Protest');
+    my $spy = random_spy($espionage->{rebellion}{spies});
+    return undef unless defined $spy;
+    $spy->seeds_planted( $spy->seeds_planted + 1 );
+    $spy->update;
     $planet->spend_happiness(randint(200,2000))->update;
     $planet->add_news(70,'Protesters can be seen jeering outside nearly every Ministry at this hour on %s.', $planet->name);
 }
@@ -493,6 +495,10 @@ sub protest {
 sub civil_unrest {
     my ($planet, $espionage) = @_;
     out('Civil Unrest');
+    my $spy = random_spy($espionage->{rebellion}{spies});
+    return undef unless defined $spy;
+    $spy->seeds_planted( $spy->seeds_planted + 1 );
+    $spy->update;
     $planet->spend_happiness(randint(100,1000))->update;
     $planet->add_news(70,'In recent weeks there have been rumblings of political discontent on %s.', $planet->name);
 }
@@ -614,6 +620,8 @@ sub destroy_infrastructure {
         );
         my @spies = pick_a_spy_per_empire($espionage->{sabotage}{spies});
         foreach my $spy (@spies) {
+            $spy->things_destroyed( $spy->things_destroyed + 1 );
+            $spy->update;
             $spy->empire->send_predefined_message(
                 tags        => ['Intelligence'],
                 filename    => 'sabotage_report.txt',
@@ -654,6 +662,8 @@ sub destroy_upgrades {
         );
         my @spies = pick_a_spy_per_empire($espionage->{sabotage}{spies});
         foreach my $spy (@spies) {
+            $spy->things_destroyed( $spy->things_destroyed + 1 );
+            $spy->update;
             $spy->empire->send_predefined_message(
                 tags        => ['Intelligence'],
                 filename    => 'sabotage_report.txt',
@@ -689,6 +699,8 @@ sub destroy_ships {
         $espionage->{police}{score} += 10;
         my @spies = pick_a_spy_per_empire($espionage->{sabotage}{spies});
         foreach my $spy (@spies) {
+            $spy->things_destroyed( $spy->things_destroyed + 1 );
+            $spy->update;
             $spy->empire->send_predefined_message(
                 tags        => ['Intelligence'],
                 filename    => 'sabotage_report.txt',
@@ -721,6 +733,8 @@ sub destroy_mining_ship {
     );
     my @spies = pick_a_spy_per_empire($espionage->{sabotage}{spies});
     foreach my $spy (@spies) {
+        $spy->things_destroyed( $spy->things_destroyed + 1 );
+        $spy->update;
         $spy->empire->send_predefined_message(
             tags        => ['Intelligence'],
             filename    => 'sabotage_report.txt',
@@ -806,6 +820,7 @@ sub steal_resources {
         $thief->available_on($ship->date_available->clone);
         $thief->on_body_id($home->id);
         $thief->task('Travelling');
+        $thief->things_stolen( $thief->things_stolen + 1 );
         $thief->update;
         $type =~ s/_/ /g;
         $thief->empire->send_predefined_message(
@@ -845,6 +860,7 @@ sub steal_ships {
         );
         $thief->available_on($ship->date_available->clone);
         $thief->on_body_id($home->id);
+        $thief->things_stolen( $thief->things_stolen + 1 );
         $thief->task('Travelling');
         $thief->update;
         $type =~ s/_/ /g;
@@ -871,6 +887,8 @@ sub steal_building {
         { body_id => $planet->id, level => {'>=' => $level} }, {rows=>1}
         )->single;
     return undef unless defined $building;
+    $thief->things_stolen( $thief->things_stolen + 1 );
+    $thief->update;
     $thief->from_body->add_plan($building->class, $level);
     $thief->empire->send_predefined_message(
         tags        => ['Alert'],
@@ -970,6 +988,8 @@ sub take_control_of_probe {
         filename    => 'we_have_taken_control_of_a_probe.txt',
         params      => [$probe->star->name, $planet->empire->name, $spy->name],
     );
+    $spy->things_stolen( $spy->things_stolen + 1 );
+    $spy->update;
     $planet->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'probe_destroyed.txt',
@@ -996,6 +1016,8 @@ sub kill_contact_with_mining_platform {
     );
     my @spies = pick_a_spy_per_empire($espionage->{hacking}{spies});
     foreach my $spy (@spies) {
+        $spy->things_destroyed( $spy->things_destroyed + 1 );
+        $spy->update;
         $spy->empire->send_predefined_message(
             tags        => ['Intelligence'],
             filename    => 'we_disabled_a_mining_platform.txt',
@@ -1013,6 +1035,8 @@ sub hack_observatory_probes {
     return undef unless defined $probe;
     my @spies = pick_a_spy_per_empire($espionage->{hacking}{spies});
     foreach my $spy (@spies) {
+        $spy->things_destroyed( $spy->things_destroyed + 1 );
+        $spy->update;
         $spy->empire->send_predefined_message(
             tags        => ['Intelligence'],
             filename    => 'we_destroyed_a_probe.txt',
@@ -1043,6 +1067,8 @@ sub hack_offending_probes {
     return undef unless defined $probe;
     my @spies = pick_a_spy_per_empire($espionage->{police}{spies});
     foreach my $spy (@spies) {
+        $spy->things_destroyed( $spy->things_destroyed + 1 );
+        $spy->update;
         $spy->empire->send_predefined_message(
             tags        => ['Intelligence'],
             filename    => 'we_destroyed_a_probe.txt',
@@ -1065,6 +1091,8 @@ sub hack_local_probes {
     return undef unless defined $probe;
     my @spies = pick_a_spy_per_empire($espionage->{hacking}{spies});
     foreach my $spy (@spies) {
+        $spy->things_destroyed( $spy->things_destroyed + 1 );
+        $spy->update;
         $spy->empire->send_predefined_message(
             tags        => ['Intelligence'],
             filename    => 'we_destroyed_a_probe.txt',
@@ -1497,6 +1525,9 @@ sub thwart_hacker {
 sub network19_propaganda1 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 1');
+    my $spy = random_spy($espionage->{police}{spies});
+    return undef unless defined $spy;
+    $spy->update;
     if ($planet->add_news(50,'A resident of %s has won the Lacuna Expanse talent competition.', $planet->name)) {
         $planet->add_happiness(250)->update;
     }
@@ -1505,6 +1536,9 @@ sub network19_propaganda1 {
 sub network19_propaganda2 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 2');
+    my $spy = random_spy($espionage->{police}{spies});
+    return undef unless defined $spy;
+    $spy->update;
     if ($planet->add_news(50,'The economy of %s is looking strong, showing GDP growth of nearly 10%% for the past quarter.',$planet->name)) {
         $planet->add_happiness(500)->update;
     }
@@ -1513,6 +1547,9 @@ sub network19_propaganda2 {
 sub network19_propaganda3 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 3');
+    my $spy = random_spy($espionage->{police}{spies});
+    return undef unless defined $spy;
+    $spy->update;
     if ($planet->add_news(50,'The Governor of %s has set aside 1000 square kilometers as a nature preserve.', $planet->name)) {
         $planet->add_happiness(750)->update;
     }
@@ -1521,6 +1558,9 @@ sub network19_propaganda3 {
 sub network19_propaganda4 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 4');
+    my $spy = random_spy($espionage->{police}{spies});
+    return undef unless defined $spy;
+    $spy->update;
     if ($planet->add_news(50,'If %s had not inhabited %s, the planet would likely have reverted to a barren rock.', $planet->empire->name, $planet->name)) {
         $planet->add_happiness(1000)->update;
     }
@@ -1529,6 +1569,9 @@ sub network19_propaganda4 {
 sub network19_propaganda5 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 5');
+    my $spy = random_spy($espionage->{police}{spies});
+    return undef unless defined $spy;
+    $spy->update;
     if ($planet->add_news(50,'The benevolent leader of %s is a gift to the people of %s.', $planet->empire->name, $planet->name)) {
         $planet->add_happiness(1250)->update;
     }
@@ -1537,6 +1580,9 @@ sub network19_propaganda5 {
 sub network19_propaganda6 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 6');
+    my $spy = random_spy($espionage->{police}{spies});
+    return undef unless defined $spy;
+    $spy->update;
     if ($planet->add_news(50,'%s is the greatest, best, most free empire in the Expanse, ever.', $planet->empire->name)) {
         $planet->add_happiness(1500)->update;
     }
@@ -1545,6 +1591,9 @@ sub network19_propaganda6 {
 sub network19_propaganda7 {
     my ($planet, $espionage) = @_;
     out('Network 19 Propaganda 7');
+    my $spy = random_spy($espionage->{police}{spies});
+    return undef unless defined $spy;
+    $spy->update;
     if ($planet->add_news(50,'%s is the ultimate power in the Expanse right now. It is unlikely to be challenged any time soon.', $planet->empire->name)) {
         $planet->add_happiness(1750)->update;
     }
@@ -1553,6 +1602,9 @@ sub network19_propaganda7 {
 sub network19_defamation1 {
     my ($planet, $espionage) = @_;
     out('Network 19 Defamation 1');
+    my $spy = random_spy($espionage->{hacking}{spies});
+    return undef unless defined $spy;
+    $spy->update;
     if ($planet->add_news(50,'A financial report for %s shows that many people are out of work as the unemployment rate approaches 10%%.', $planet->name)) {
         $planet->spend_happiness(250)->update;
     }
@@ -1561,6 +1613,9 @@ sub network19_defamation1 {
 sub network19_defamation2 {
     my ($planet, $espionage) = @_;
     out('Network 19 Defamation 2');
+    my $spy = random_spy($espionage->{hacking}{spies});
+    return undef unless defined $spy;
+    $spy->update;
     if ($planet->add_news(50,'An outbreak of the Dultobou virus was announced on %s today. Citizens are encouraged to stay home from work and school.', $planet->name)) {
         $planet->spend_happiness(500)->update;
     }
@@ -1569,6 +1624,9 @@ sub network19_defamation2 {
 sub network19_defamation3 {
     my ($planet, $espionage) = @_;
     out('Network 19 Defamation 3');
+    my $spy = random_spy($espionage->{hacking}{spies});
+    return undef unless defined $spy;
+    $spy->update;
     if ($planet->add_news(50,'%s is unable to keep its economy strong. Sources inside say it will likely fold in a few days.', $planet->empire->name)) {
         $planet->spend_happiness(750)->update;
     }
@@ -1577,6 +1635,9 @@ sub network19_defamation3 {
 sub network19_defamation4 {
     my ($planet, $espionage) = @_;
     out('Network 19 Defamation 4');
+    my $spy = random_spy($espionage->{hacking}{spies});
+    return undef unless defined $spy;
+    $spy->update;
     if ($planet->add_news(50,'The Governor of %s has lost her mind. She is a raving mad lunatic! The Emperor could not be reached for comment.', $planet->name)) {
         $planet->spend_happiness(1250)->update;
     }
@@ -1585,6 +1646,9 @@ sub network19_defamation4 {
 sub network19_defamation5 {
     my ($planet, $espionage) = @_;
     out('Network 19 Defamation 5');
+    my $spy = random_spy($espionage->{hacking}{spies});
+    return undef unless defined $spy;
+    $spy->update;
     if ($planet->add_news(50,'%s is the smallest, worst, least free empire in the Expanse, ever.', $planet->empire->name)) {
         $planet->spend_happiness(1250)->update;
     }
@@ -1696,6 +1760,11 @@ sub determine_espionage {
 
 sub kill_a_spy {
     my ($planet, $spy, $interceptor) = @_;
+    $spy->task('Killed In Action');
+    $spy->started_assignment(DateTime->now);
+    $spy->update;
+    $interceptor->spies_killed( $interceptor->spies_killed + 1 );
+    $interceptor->update;
     $interceptor->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_killed_a_spy.txt',
@@ -1707,7 +1776,6 @@ sub kill_a_spy {
         filename    => 'spy_killed.txt',
         params      => [$spy->name, $planet->name],
     );
-    $spy->delete;
 }
 
 sub capture_a_spy {
@@ -1715,7 +1783,10 @@ sub capture_a_spy {
     $spy->available_on(DateTime->now->add(months=>1));
     $spy->task('Captured');
     $spy->started_assignment(DateTime->now);
+    $spy->times_captured( $spy->times_captured + 1 );
     $spy->update;
+    $interceptor->spies_captured( $spy->spies_captured + 1 );
+    $interceptor->update;
     $spy->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'spy_captured.txt',
@@ -1765,6 +1836,8 @@ sub escape_a_spy {
 sub turn_a_spy {
     my ($planet, $traitor, $spy) = @_;
     my $evil_empire = $planet->empire;
+    $spy->spies_turned( $spy->spies_turned + 1 );
+    $spy->update;
     $traitor->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'goodbye.txt',
@@ -1776,6 +1849,7 @@ sub turn_a_spy {
         params      => [$traitor->empire->name, $traitor->name, $spy->name],
     );
     # could be abused to get lots of extra spies, may have to add a check for that.
+    $traitor->times_turned( $traitor->times_turned + 1 );
     $traitor->task('Idle');
     $traitor->empire_id($spy->empire_id);
     $traitor->from_body_id($spy->from_body_id);
@@ -1793,12 +1867,10 @@ sub pick_a_spy_per_empire {
     return values %empires;
 }
 
-
 sub add_offense_xp {
     my ($spies, $amount) = @_;
     foreach my $spy (@{$spies}) {
         $spy->offense( $spy->offense + $amount );
-        $spy->update;
     }
 }
 
@@ -1806,6 +1878,20 @@ sub add_defense_xp {
     my ($spies, $amount) = @_;
     foreach my $spy (@{$spies}) {
         $spy->defense( $spy->defense + $amount );
+    }
+}
+
+sub increment_mission_count {
+    my ($spies, $victorious) = @_;
+    foreach my $spy (@{$spies}) {
+        $spy->mission_count( $spy->mission_count + 1 );
+        $spy->mission_successes( $spy->mission_successes + 1) if $victorious;
+    }
+}
+
+sub save_changes_to_spies {
+    my ($spies) = @_;
+    foreach my $spy (@{$spies}) {
         $spy->update;
     }
 }
@@ -1829,6 +1915,10 @@ sub calculate_mission_score {
         $score /= 10;
     }
     out('Mission Score: '.$score);
+    
+    # mission stats
+    increment_mission_count($espionage->{$type}{spies}, ($score > 0));
+    increment_mission_count($espionage->{police}{spies}, ($score < 0));
 
     # experience
     if ($offense > $defense && $defense > 0 && $offense / $defense < 2 ) {
@@ -1848,6 +1938,9 @@ sub calculate_mission_score {
         }
     }
     
+    # save
+    save_changes_to_spies($espionage->{$type}{spies});
+    save_changes_to_spies($espionage->{police}{spies});
     return $score;
 }
 

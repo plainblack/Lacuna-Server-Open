@@ -11,6 +11,5 @@ __PACKAGE__->add_columns(
     empire_name             => { data_type => 'char', size => 30, is_nullable => 0 },
 );
 
-
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

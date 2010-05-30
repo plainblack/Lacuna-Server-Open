@@ -13,7 +13,7 @@ has id => (
 
 sub BUILD {
     my $self = shift;
-    my $session_data = Lacuna->cache->get('session', $self->id);
+    my $session_data = Lacuna->cache->get_and_deserialize('session', $self->id);
     if (defined $session_data) {
         $self->api_key($session_data->{api_key});
         $self->empire_id($session_data->{empire_id});

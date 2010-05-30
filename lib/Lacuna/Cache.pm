@@ -91,12 +91,7 @@ sub get {
     my $memcached = $self->memcached;
     my $content = Memcached::libmemcached::memcached_get($memcached, $key);
     if ($memcached->errstr eq 'SUCCESS') {
-        if (ref $content) {
-            return JSON::from_json($content);
-        }
-        else {
-            return $content;
-        }
+        return $content;
     }
     elsif ($memcached->errstr eq 'NOT FOUND' ) {
         return undef;
@@ -117,37 +112,12 @@ sub get {
     warn "Couldn't get $key from cache because ".$memcached->errstr;
 }
 
-sub mget {
-    my ($self, $names, $retry) = @_;
-    my @keys = map { $self->fix_key(@{$_}) } @{ $names };
-    my %result;
-    my $memcached = $self->memcached;
-    $memcached->mget_into_hashref(\@keys, \%result);
-    if ($memcached->errstr eq 'SYSTEM ERROR Unknown error: 0') {
-        warn "Cannot connect to memcached server.";
-    }
-    elsif ($memcached->errstr eq 'UNKNOWN READ FAILURE' ) {
-        warn "Cannot connect to memcached server." if $retry;
-        warn "Memcached went away, reconnecting.";
-        $self->clear_memcached;
-        return $self->get($names, 1);
-    }
-    elsif ($memcached->errstr eq 'NO SERVERS DEFINED') {
-        warn "No memcached servers specified.";
-    }
-    # no other useful status messages are returned
-    my @values;
-    foreach my $key (@keys) {
-        my $content = $result{$key};
-        if (ref $content) {
-            return JSON::from_json($content);
-        }
-        else {
-            return $content;
-        }
-        push @values, $content;
-    }
-    return \@values;
+sub get_and_deserialize {
+    my ($self, $namespace, $id) = @_;
+    my $value = $self->get($namespace, $id);
+    $value = eval{JSON::from_json($value)};
+    warn $@ if ($@);
+    return $value;
 }
 
 sub set {
