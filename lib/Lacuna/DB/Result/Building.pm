@@ -694,10 +694,6 @@ sub start_upgrade {
         upgrade_started => DateTime->now,
         upgrade_ends    => $time_to_build,
     });
-    
-    # clear cache
-    $body->clear_last_in_build_queue;
-
 }
 
 sub finish_upgrade {
@@ -706,7 +702,6 @@ sub finish_upgrade {
     $self->level($self->level + 1);
     $self->is_upgrading(0);
     $self->update;
-    $body->clear_last_in_build_queue;
     $body->needs_recalc(1);
     $body->needs_surface_refresh(1);
     $body->update;
