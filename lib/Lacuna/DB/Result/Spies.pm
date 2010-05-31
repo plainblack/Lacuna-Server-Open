@@ -16,6 +16,17 @@ __PACKAGE__->add_columns(
     available_on            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     offense                 => { data_type => 'int', size => 11, default_value => 1 },
     defense                 => { data_type => 'int', size => 11, default_value => 1 },
+    date_created            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    mission_count           => { data_type => 'int', size => 11, default_value => 0 },
+    mission_successes       => { data_type => 'int', size => 11, default_value => 0 },
+    times_captured          => { data_type => 'int', size => 11, default_value => 0 },
+    times_turned            => { data_type => 'int', size => 11, default_value => 0 },
+    seeds_planted           => { data_type => 'int', size => 11, default_value => 0 },
+    spies_killed            => { data_type => 'int', size => 11, default_value => 0 },
+    spies_captured          => { data_type => 'int', size => 11, default_value => 0 },
+    spies_turned            => { data_type => 'int', size => 11, default_value => 0 },
+    things_destroyed        => { data_type => 'int', size => 11, default_value => 0 },
+    things_stolen           => { data_type => 'int', size => 11, default_value => 0 },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
@@ -45,9 +56,13 @@ sub seconds_remaining_on_assignment {
 sub is_available {
     my ($self) = @_;
     if (DateTime->now > $self->available_on) {
-        if ($self->task eq 'Travelling' || $self->task eq 'Training' || $self->task eq 'Captured') {
+        my $task = $self->task;
+        if ($task ~~ ['Travelling', 'Training', 'Captured','Unconscious']) {
             $self->task('Idle');
             $self->update;
+        }
+        elsif ($task ~~ ['Killed In Action','Burned']) {
+            return 0;
         }
         return 1;
     }

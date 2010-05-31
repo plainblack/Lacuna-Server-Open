@@ -123,6 +123,10 @@ Most methods will provide a status block as part of the response. This is used t
 
 A list of the error codes that might be returned by various modules.
 
+=item L<ApiKeys>
+
+You'll need a key to use the API.
+
 =item L<Empire>
 
 Methods for account and empire management.

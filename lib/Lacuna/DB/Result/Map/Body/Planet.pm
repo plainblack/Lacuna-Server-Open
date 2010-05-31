@@ -106,6 +106,7 @@ around 'get_status' => sub {
         $out->{needs_surface_refresh} = $self->needs_surface_refresh;
         $out->{empire}{alignment} = 'self';
         $out->{building_count}  = $self->building_count;
+        $out->{population}      = $self->population;
         $out->{water_capacity}  = $self->water_capacity;
         $out->{water_stored}    = $self->water_stored;
         $out->{water_hour}      = $self->water_hour;
@@ -172,6 +173,19 @@ use constant water => 0;
 
 
 # BUILDINGS
+
+has population => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->buildings->search(
+            {
+               class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%' }, 
+            }
+        )->get_column('level')->sum * 10_000;
+    },
+);
 
 has building_count => (
     is      => 'ro',

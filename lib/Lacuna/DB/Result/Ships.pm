@@ -107,7 +107,7 @@ sub arrive {
     }
     
     elsif ($self->type eq 'colony_ship') {
-        if ($self->direction eq 'outgoing') {
+        if ($self->direction eq 'out') {
             my $planet = $self->foreign_body;
             if ($planet->is_locked || $planet->empire_id) {
                 $self->turn_around;
@@ -136,7 +136,7 @@ sub arrive {
     }
     
     elsif ($self->type eq 'terraforming_platform_ship') {
-        if ($self->direction eq 'outgoing') {
+        if ($self->direction eq 'out') {
             my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::TerraformingLab');
             if (defined $lab) {
                 $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform', 1, $lab->level);
@@ -148,7 +148,7 @@ sub arrive {
     }
     
     elsif ($self->type eq 'gas_giant_settlement_platform_ship') {
-        if ($self->direction eq 'outgoing') {
+        if ($self->direction eq 'out') {
             my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::GasGiantLab');
             if (defined $lab) {
                 $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform', 1, $lab->level);
@@ -160,7 +160,7 @@ sub arrive {
     }
     
     elsif ($self->type eq 'mining_platform_ship') {
-        if ($self->direction eq 'outgoing') {
+        if ($self->direction eq 'out') {
             my $ministry = $self->body->mining_ministry;
             if (eval{$ministry->can_add_platform} && !$@) {
                 $ministry->add_platform($self->foreign_body)->update;

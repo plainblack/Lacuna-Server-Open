@@ -42,6 +42,12 @@ __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id
 __PACKAGE__->has_many('medals', 'Lacuna::DB::Result::Medals', 'empire_id');
 __PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
 
+has current_session => (
+    is                  => 'rw',
+    predicate           => 'has_current_session',
+    weak_ref            => 1,
+);
+
 sub has_medal {
     my ($self, $type) = @_;
     return Lacuna->db->resultset('Lacuna::DB::Result::Medals')->search({empire_id => $self->id, type => $type})->count;
@@ -67,14 +73,26 @@ sub add_medal {
 }
 
 sub spend_essentia {
-    my ($self, $value) = @_;
+    my ($self, $value, $note) = @_;
     $self->essentia( $self->essentia - $value );
+    Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
+        empire_id       => $self->id,
+        empire_name     => $self->name,
+        amount          => $value * -1,
+        description     => $note,
+    })->insert;
     return $self;
 }
 
 sub add_essentia {
-    my ($self, $value) = @_;
+    my ($self, $value, $note) = @_;
     $self->essentia( $self->essentia + $value );
+    Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
+        empire_id       => $self->id,
+        empire_name     => $self->name,
+        amount          => $value,
+        description     => $note,
+    })->insert;
     return $self;
 }
 
@@ -131,8 +149,8 @@ sub get_status {
 }
 
 sub start_session {
-    my $self = shift;
-    return Lacuna::Session->new->start($self);
+    my ($self, $client_key) = @_;
+    return Lacuna::Session->new->start($self, $client_key);
 }
 
 sub is_password_valid {
@@ -154,7 +172,7 @@ sub found {
     # found home planet
     $home_planet ||= $self->find_home_planet;
     $self->home_planet_id($home_planet->id);
-    $self->add_essentia(100); # REMOVE BEFORE LAUNCH
+    $self->add_essentia(100, 'alpha testers'); # REMOVE BEFORE LAUNCH
     $self->stage('founded');
     $self->update;
     $self->home_planet($home_planet);
