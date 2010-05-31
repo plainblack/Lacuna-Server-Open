@@ -43,6 +43,16 @@ sub summarize_spies {
         my $log = $logs->search({ spy_id => $spy->id },{ rows => 1 } )->single;
 	my $success_rate = ($spy->mission_count) ? $spy->mission_successes / $spy->mission_count : 0;
         if (defined $log) {
+            $log->update({
+                spy_name            => $spy->name,
+                level               => $spy->level,
+                level_delta         => $spy->level - $log->level,
+                success_rate        => $success_rate,
+                success_rate_delta  => $success_rate - $log->success_rate,
+                age                 => to_seconds(DateTime->now - $spy->date_created),
+            });
+        }
+        else {
             $logs->new({
                 empire_id           => $spy->empire_id,
                 empire_name         => $spy->empire->name,
@@ -55,16 +65,6 @@ sub summarize_spies {
                 success_rate_delta  => 0,
                 age                 => to_seconds(DateTime->now - $spy->date_created),
             })->insert;
-        }
-        else {
-            $log->update({
-                spy_name            => $spy->name,
-                level               => $spy->level,
-                level_delta         => $spy->level - $log->level,
-                success_rate        => $success_rate,
-                success_rate_delta  => $success_rate - $log->success_rate,
-                age                 => to_seconds(DateTime->now - $spy->date_created),
-            });
         }
     }
 }
