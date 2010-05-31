@@ -1142,7 +1142,7 @@ sub spend_food {
     }
     elsif ($food_type_count < 3) {
         $self->spend_happiness($value);
-        if ($self->empire->check_for_repeat_message('complaint_food_diversity')) {
+        if (!$self->empire->check_for_repeat_message('complaint_food_diversity')) {
             $self->empire->send_predefined_message(
                 filename    => 'complaint_food_diversity.txt',
                 params      => [$self->name],
@@ -1212,7 +1212,7 @@ sub add_waste {
     else {
         $self->waste_stored( $storage );
         $self->spend_happiness( $store - $storage ); # pollution
-        if ($self->empire->check_for_repeat_message('complaint_pollution')) {
+        if (!$self->empire->check_for_repeat_message('complaint_pollution')) {
             $self->empire->send_predefined_message(
                 filename    => 'complaint_pollution.txt',
                 params      => [$self->name],
@@ -1231,7 +1231,7 @@ sub spend_waste {
     }
     else { # if they run out of waste in storage, then the citizens start bitching
         $self->spend_happiness($value * 2); # twice as outraged as waste not had
-        if ($self->empire->check_for_repeat_message('complaint_lack_of_waste')) {
+        if (!$self->empire->check_for_repeat_message('complaint_lack_of_waste')) {
             my $building_name;
             if ($self->get_buildings_of_class('Lacuna::DB::Result::Building::Waste::Treatment')->count) {
                 $building_name = Lacuna::DB::Result::Building::Waste::Treatment->name;
