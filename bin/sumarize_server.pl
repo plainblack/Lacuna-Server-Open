@@ -3,8 +3,9 @@ use strict;
 use lib '/data/Lacuna-Server/lib';
 use Lacuna::DB;
 use Lacuna;
-use Lacuna::Util qw(to_seconds);
+use Lacuna::Util qw(format_date to_seconds);
 use Getopt::Long;
+$|=1;
 
 our $quiet;
 
@@ -40,6 +41,7 @@ sub summarize_spies {
     my $logs = $db->resultset('Lacuna::DB::Result::Log::Spies');
     while (my $spy = $spies->next) {
         my $log = $logs->search({ spy_id => $spy->id },{ rows => 1 } )->single;
+	my $success_rate = ($spy->mission_count) ? $spy->mission_successes / $spy->mission_count : 0;
         if (defined $log) {
             $logs->new({
                 empire_id           => $spy->empire_id,
@@ -49,13 +51,12 @@ sub summarize_spies {
                 spy_id              => $spy->id,
                 level               => $spy->level,
                 level_delta         => 0,
-                success_rate        => $spy->mission_successes / $spy->mission_count,
+                success_rate        => $success_rate,
                 success_rate_delta  => 0,
                 age                 => to_seconds(DateTime->now - $spy->date_created),
             })->insert;
         }
         else {
-            my $success_rate = $spy->mission_successes / $spy->mission_count;
             $log->update({
                 spy_name            => $spy->name,
                 level               => $spy->level,

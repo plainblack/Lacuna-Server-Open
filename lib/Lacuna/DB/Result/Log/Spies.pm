@@ -23,7 +23,5 @@ __PACKAGE__->add_columns(
     things_stolen           => { data_type => 'int', size => 11, default_value => 0 },
 );
 
-__PACKAGE__->belongs_to('spy', 'Lacuna::DB::Result::Spies', 'spy_id');
-
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
