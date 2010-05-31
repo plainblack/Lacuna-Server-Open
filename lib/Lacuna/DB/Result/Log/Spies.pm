@@ -8,6 +8,8 @@ __PACKAGE__->table('spy_log');
 __PACKAGE__->add_columns(
     spy_name                => { data_type => 'char', size => 30, is_nullable => 0 },
     spy_id                  => { data_type => 'int', size => 11, is_nullable => 0 },
+    planet_name             => { data_type => 'char', size => 30, is_nullable => 0 },
+    planet_id               => { data_type => 'int', size => 11, is_nullable => 0 },
     level                   => { data_type => 'int', size => 11, is_nullable => 0 },
     level_delta             => { data_type => 'int', size => 11, default_value => 0 },
     success_rate            => { data_type => 'float', size => [11,2], is_nullable => 0 },
