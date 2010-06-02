@@ -12,6 +12,13 @@ no warnings 'uninitialized';
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
 __PACKAGE__->has_many('plans','Lacuna::DB::Result::Plans','body_id');
 
+
+sub surface {
+    my $self = shift;
+    return 'surface-'.$self->image;
+}
+
+
 sub ships_travelling { 
     my ($self, $where, $reverse) = @_;
     my $order = '-asc';

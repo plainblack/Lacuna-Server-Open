@@ -5,8 +5,6 @@ extends 'Lacuna::DB::Result::Map::Body::Planet::GasGiant';
 
 use constant image => 'pg5';
 
-use constant surface => 'surface-g';
-
 use constant goethite => 14000;
 
 use constant sulfur => 4000;

@@ -4,7 +4,6 @@ use Moose;
 extends 'Lacuna::DB::Result::Map::Body::Planet';
 
 use constant image => 'p5';
-use constant surface => 'surface-f';
 
 use constant water => 6200;
 

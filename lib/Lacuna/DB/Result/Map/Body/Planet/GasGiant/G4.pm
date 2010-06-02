@@ -4,7 +4,6 @@ use Moose;
 extends 'Lacuna::DB::Result::Map::Body::Planet::GasGiant';
 
 use constant image => 'pg4';
-use constant surface => 'surface-g';
 
 
 use constant chalcopyrite => 2000;
