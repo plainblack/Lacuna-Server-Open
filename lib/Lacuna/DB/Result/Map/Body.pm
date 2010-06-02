@@ -172,6 +172,11 @@ sub image {
     confess "override me";
 }
 
+sub image_name {
+    my $self = shift;
+    return $self->image.'-'.$self->orbit;
+}
+
 sub get_type {
     my ($self) = @_;
     my $type = 'habitable planet';
@@ -191,7 +196,7 @@ sub get_status {
     my ($self) = @_;
     my %out = (
         name            => $self->name,
-        image           => $self->image,
+        image           => $self->image_name,
         x               => $self->x,
         y               => $self->y,
         orbit           => $self->orbit,
