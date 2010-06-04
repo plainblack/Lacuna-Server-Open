@@ -1881,11 +1881,19 @@ sub add_defense_xp {
     }
 }
 
-sub increment_mission_count {
+sub increment_offense_mission_count {
     my ($spies, $victorious) = @_;
     foreach my $spy (@{$spies}) {
-        $spy->mission_count( $spy->mission_count + 1 );
-        $spy->mission_successes( $spy->mission_successes + 1) if $victorious;
+        $spy->offense_mission_count( $spy->offense_mission_count + 1 );
+        $spy->offense_mission_successes( $spy->offense_mission_successes + 1) if $victorious;
+    }
+}
+
+sub increment_defense_mission_count {
+    my ($spies, $victorious) = @_;
+    foreach my $spy (@{$spies}) {
+        $spy->defense_mission_count( $spy->defense_mission_count + 1 );
+        $spy->defense_mission_successes( $spy->defense_mission_successes + 1) if $victorious;
     }
 }
 
@@ -1917,8 +1925,8 @@ sub calculate_mission_score {
     out('Mission Score: '.$score);
     
     # mission stats
-    increment_mission_count($espionage->{$type}{spies}, ($score > 0));
-    increment_mission_count($espionage->{police}{spies}, ($score < 0));
+    increment_offense_mission_count($espionage->{$type}{spies}, ($score > 0));
+    increment_defense_mission_count($espionage->{police}{spies}, ($score < 0));
 
     # experience
     if ($offense > $defense && $defense > 0 && $offense / $defense < 2 ) {

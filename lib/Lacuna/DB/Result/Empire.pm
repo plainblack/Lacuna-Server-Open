@@ -50,17 +50,22 @@ has current_session => (
 
 sub has_medal {
     my ($self, $type) = @_;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Medals')->search({empire_id => $self->id, type => $type})->count;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Medals')->search({empire_id => $self->id, type => $type},{rows=>1})->single;
 }
 
 sub add_medal {
     my ($self, $type) = @_;
-    unless ($self->has_medal($type)) {
+    my $existing = $self->has_medal($type);
+    if ($existing) {
+        $existing->times_earned( $existing->times_earned + 1);
+    }
+    else {
         my $medal = Lacuna->db->resultset('Lacuna::DB::Result::Medals')->new({
             datestamp   => DateTime->now,
             public      => 1,
             empire_id   => $self->id,
             type        => $type,
+            times_earned => 1,
         })->insert;
         my $name = $medal->name;
         $self->send_predefined_message(
