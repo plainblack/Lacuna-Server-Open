@@ -5,7 +5,7 @@ use Lacuna;
 use Getopt::Long;
 
 my $config = Lacuna->config;
-my $db = Lacuna::DB->new( access_key => $config->get('access_key'), secret_key => $config->get('secret_key'), cache_servers => $config->get('memcached')); 
+my $db = Lacuna->db;
 
 my $name;
 my $amount = 10;
