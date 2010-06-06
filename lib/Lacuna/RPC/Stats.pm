@@ -225,7 +225,31 @@ sub bodies_overview {
     };
 }
 
+sub empire_rank {
+    my ($self, $session_id, $by, $page_number) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    unless ($by ~~ [qw(colony_count colony_count_delta population population_delta empire_size empire_size_delta building_count university_level average_building_level highest_building_level food_hour energy_hour waste_hour ore_hour water_hour spy_count offense_success_rate offense_success_rate_delta defense_success_rate defense_success_rate_delta dirtiest dirtiest_delta)]) {
+        $by = 'empire_size';
+    }
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire')->search(undef,{order_by => {-desc => $by}});
+    unless ($page_number) {
+        my $me = $ranks->find($empire->id);
+        my $before_me = $ranks->search({ $by => { '>='}})
+    }
+    $ranks = $ranks->search(undef,{rows => 25, page => $page_number});
+    while (my $rank = $ranks->next) {
+        
+    }
+}
 
+# SELECT
+# Ê Ê (select @row := @row+1) as index,
+# Ê Ê username
+#FROM
+# Ê Ê users,
+# Ê Ê(select @row:=0) rowcount
+
+    
 __PACKAGE__->register_rpc_method_names(qw(credits overview bodies_overview spies_overview stars_overview empires_overview buildings_overview ships_overview));
 
 no Moose;
