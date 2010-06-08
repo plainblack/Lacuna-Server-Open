@@ -282,7 +282,7 @@ sub find_empire_rank {
     unless ($by ~~ [qw(empire_size_rank university_level_rank offense_success_rate_rank defense_success_rate_rank dirtiest_rank)]) {
         $by = 'empire_size_rank';
     }
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire')->search(undef,{order_by => {-desc => $by}});
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire')->search(undef,{order_by => {-desc => $by}, rows=>25});
     my $ranked = $ranks->search({empire_name => { like => '%'.$empire_name.'%'}});
     my @empires;
     while (my $rank = $ranked->next) {
@@ -301,13 +301,6 @@ sub find_empire_rank {
         empires => \@empires,
     };
 }
-
-# SELECT
-# Ê Ê (select @row := @row+1) as index,
-# Ê Ê username
-#FROM
-# Ê Ê users,
-# Ê Ê(select @row:=0) rowcount
 
 sub colony_rank {
     my ($self, $session_id, $by, $page_number) = @_;
@@ -355,7 +348,7 @@ sub find_colony_rank {
     unless ($by ~~ [qw(population_rank)]) {
         $by = 'population_rank';
     }
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Colony')->search(undef,{order_by => {-desc => $by}});
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Colony')->search(undef,{order_by => {-desc => $by}, rows=>25});
     my $ranked = $ranks->search({planet_name => { like => '%'.$colony_name.'%'}});
     my @colonies;
     while (my $rank = $ranked->next) {
@@ -370,13 +363,69 @@ sub find_colony_rank {
         };
     }
     return {
+        status      => $self->format_status($empire),
+        colonies    => \@colonies,
+    };
+}
+
+sub spy_rank {
+    my ($self, $session_id, $by, $page_number) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    unless ($by ~~ [qw(level_rank success_rate_rank dirtiest_rank)]) {
+        $by = 'level_rank';
+    }
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Spies')->search(undef,{order_by => {-desc => $by}});
+    my @spies;
+    while (my $rank = $ranks->next) {
+        push @spies, {
+            empire_id                   => $rank->empire_id,
+            empire_name                 => $rank->empire_name,
+            spy_id                      => $rank->spy_id,
+            spy_name                    => $rank->spy_name,
+            age                         => $rank->level,
+            level                       => $rank->level,
+            level_delta                 => $rank->level_delta,
+            success_rate                => $rank->success_rate,
+            success_rate_delta          => $rank->success_rate_delta,
+            dirtiest                    => $rank->dirtiest,
+            dirtiest_delta              => $rank->dirtiest_delta,
+        }
+    }
+    return {
+        status      => $self->format_status($empire),
+        spies       => \@spies,
+    };
+}
+
+sub find_spy_rank {
+    my ($self, $session_id, $by, $spy_name) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    unless ($by ~~ [qw(level_rank success_rate_rank dirtiest_rank)]) {
+        $by = 'level_rank';
+    }
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Spies')->search(undef,{order_by => {-desc => $by}, rows=>25});
+    my $ranked = $ranks->search({spy_name => { like => '%'.$spy_name.'%'}});
+    my @spies;
+    while (my $rank = $ranked->next) {
+        my $page_number = int($rank->$by / 25);
+        if ( $rank->$by % 25 ) {
+            $page_number++;
+        }
+        push @spies, {
+            page_number => $rank->page_number,
+            spy_name    => $rank->spy_name,
+            empire_name => $rank->empire_name,
+            spy_id      => $rank->spy_id,
+        };
+    }
+    return {
         status  => $self->format_status($empire),
-        empires => \@colonies,
+        spies   => \@spies,
     };
 }
 
     
-__PACKAGE__->register_rpc_method_names(qw(find_colony_rank colony_rank find_empire_rank empire_rank credits overview bodies_overview spies_overview stars_overview empires_overview buildings_overview ships_overview));
+__PACKAGE__->register_rpc_method_names(qw(find_spy spy_rank find_colony_rank colony_rank find_empire_rank empire_rank credits overview bodies_overview spies_overview stars_overview empires_overview buildings_overview ships_overview));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

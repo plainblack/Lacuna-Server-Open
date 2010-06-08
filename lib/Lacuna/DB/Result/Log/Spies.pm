@@ -11,12 +11,14 @@ __PACKAGE__->add_columns(
     planet_name                 => { data_type => 'char', size => 30, is_nullable => 0 },
     planet_id                   => { data_type => 'int', size => 11, is_nullable => 0 },
     level                       => { data_type => 'int', size => 11, is_nullable => 0 },
+    level_rank                  => { data_type => 'int', size => 11, is_nullable => 0 },
     level_delta                 => { data_type => 'int', size => 11, default_value => 0 },
     offense_success_rate        => { data_type => 'float', size => [6,6], is_nullable => 0 },
     offense_success_rate_delta  => { data_type => 'float', size => [6,6], default_value => 0 },
     defense_success_rate        => { data_type => 'float', size => [6,6], is_nullable => 0 },
     defense_success_rate_delta  => { data_type => 'float', size => [6,6], default_value => 0 },
     success_rate                => { data_type => 'float', size => [6,6], is_nullable => 0 },
+    success_rate_rank           => { data_type => 'int', size => 11, is_nullable => 0 },
     success_rate_delta          => { data_type => 'float', size => [6,6], default_value => 0 },
     age                         => { data_type => 'int', size => 11, is_nullable => 0 },
     times_captured              => { data_type => 'int', size => 11, default_value => 0 },
@@ -28,6 +30,7 @@ __PACKAGE__->add_columns(
     things_destroyed            => { data_type => 'int', size => 11, default_value => 0 },
     things_stolen               => { data_type => 'int', size => 11, default_value => 0 },
     dirtiest                    => { data_type => 'int', size => 11, default_value => 0 },
+    dirtiest_rank               => { data_type => 'int', size => 11, is_nullable => 0 },
     dirtiest_delta              => { data_type => 'int', size => 11, default_value => 0 },
 );
 
