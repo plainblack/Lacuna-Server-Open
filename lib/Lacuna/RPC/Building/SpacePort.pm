@@ -183,7 +183,7 @@ sub send_colony_ship {
     my $next_colony_cost = $empire->next_colony_cost;
     my $body = $self->get_body($empire, $body_id);
     if ( $body->happiness > $next_colony_cost) {
-        confess [ 1011, 'You do not have enough happiness to colonize another planet.', [$next_colony_cost]];
+        confess [ 1011, 'You do not have enough happiness to colonize another planet. You need '.$next_colony_cost.' happiness.', [$next_colony_cost]];
     }
         
     # send the ship
