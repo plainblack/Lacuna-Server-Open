@@ -42,6 +42,8 @@ alter table empire_log add column offense_success_rate_rank int(11) not null;
 alter table empire_log add column defense_success_rate_rank int(11) not null;
 alter table empire_log add column dirtiest_rank int(11) not null;
 alter table empire_log add column happiness_hour int(11) not null;
+alter table colony_log add column happiness_hour int(11) not null;
+alter table colony_log add column population_rank int(11) not null;
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
