@@ -228,18 +228,52 @@ sub bodies_overview {
 sub empire_rank {
     my ($self, $session_id, $by, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    unless ($by ~~ [qw(colony_count colony_count_delta population population_delta empire_size empire_size_delta building_count university_level average_building_level highest_building_level food_hour energy_hour waste_hour ore_hour water_hour spy_count offense_success_rate offense_success_rate_delta defense_success_rate defense_success_rate_delta dirtiest dirtiest_delta)]) {
-        $by = 'empire_size';
+    unless ($by ~~ [qw(empire_size_rank university_level_rank offense_success_rate_rank defense_success_rate_rank dirtiest_rank)]) {
+        $by = 'empire_size_rank';
     }
     my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire')->search(undef,{order_by => {-desc => $by}});
     unless ($page_number) {
         my $me = $ranks->find($empire->id);
-        my $before_me = $ranks->search({ $by => { '>='}})
+        $page_number = int($me->$by / 25);
+        if ( $me->$by % 25 ) {
+            $page_number++;
+        }
     }
     $ranks = $ranks->search(undef,{rows => 25, page => $page_number});
+    my @empires;
     while (my $rank = $ranks->next) {
-        
+        push @empires, {
+            empire_id                   => $rank->empire_id,
+            empire_name                 => $rank->empire_name,
+            colony_count                => $rank->colony_count,
+            colony_count_delta          => $rank->colony_count_delta,
+            population                  => $rank->population,
+            population_delta            => $rank->population_delta,
+            empire_size                 => $rank->empire_size,
+            empire_size_delta           => $rank->empire_size_delta,
+            building_count              => $rank->building_count,
+            university_level            => $rank->university_level,
+            average_building_level      => $rank->average_building_level,
+            highest_building_level      => $rank->highest_building_level,
+            food_hour                   => $rank->food_hour,
+            energy_hour                 => $rank->energy_hour,
+            waste_hour                  => $rank->waste_hour,
+            ore_hour                    => $rank->ore_hour,
+            water_hour                  => $rank->water_hour,
+            happiness_hour              => $rank->happiness_hour,
+            spy_count                   => $rank->spy_count,
+            offense_success_rate        => $rank->offense_success_rate,
+            offense_success_rate_delta  => $rank->offense_success_rate_delta,
+            defense_success_rate        => $rank->defense_success_rate,
+            defense_success_rate_delta  => $rank->defense_success_rate_delta,
+            dirtiest                    => $rank->dirtiest,
+            dirtiest_delta              => $rank->dirtiest_delta,
+        },
     }
+    return {
+        status  => $self->format_status($empire),
+        empires => \@empires,
+    };
 }
 
 # SELECT
@@ -250,7 +284,7 @@ sub empire_rank {
 # Ê Ê(select @row:=0) rowcount
 
     
-__PACKAGE__->register_rpc_method_names(qw(credits overview bodies_overview spies_overview stars_overview empires_overview buildings_overview ships_overview));
+__PACKAGE__->register_rpc_method_names(qw(empire_rank credits overview bodies_overview spies_overview stars_overview empires_overview buildings_overview ships_overview));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

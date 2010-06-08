@@ -23,6 +23,7 @@ summarize_spies();
 summarize_colonies();
 summarize_empires();
 delete_old_records($start);
+rank_empires();
 
 my $finish = DateTime->now;
 out('Finished');
@@ -32,6 +33,17 @@ out((to_seconds($finish - $start)/60)." minutes have elapsed");
 ###############
 ## SUBROUTINES
 ###############
+
+sub rank_empires {
+    my $empires = $db->resultset('Lacuna::DB::Result::Empire');
+    foreach my $field (qw(empire_size university_level offense_success_rate defense_success_rate dirtiest))
+        my $ranked = $empires->search(undef, {order_by => 'empire_size'});
+        my $counter = 1;
+        while ($empire = $ranked->next) {
+            $empire->update({$field.'_rank' => $counter});
+        }
+    }
+}
 
 sub delete_old_records {
     out('Deleting old records');
@@ -65,6 +77,7 @@ sub summarize_empires {
             $empire_data{energy_hour} 		        += $colony->energy_hour;
             $empire_data{water_hour} 		        += $colony->water_hour;
             $empire_data{waste_hour} 		        += $colony->waste_hour;
+            $empire_data{happiness_hour} 		    += $colony->happiness_hour;
             $empire_data{defense_success_rate}      += $colony->defense_success_rate;
             $empire_data{defense_success_rate_delta}+= $colony->defense_success_rate_delta;
             $empire_data{offense_success_rate}      += $colony->offense_success_rate;
