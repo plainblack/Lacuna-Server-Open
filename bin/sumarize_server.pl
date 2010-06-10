@@ -5,6 +5,10 @@ use Lacuna::DB;
 use Lacuna;
 use Lacuna::Util qw(format_date to_seconds);
 use Getopt::Long;
+use JSON;
+use SOAP::Amazon::S3;
+
+
 $|=1;
 
 our $quiet;
@@ -26,6 +30,7 @@ delete_old_records($start);
 rank_spies();
 rank_colonies();
 rank_empires();
+generate_overview();
 
 my $finish = DateTime->now;
 out('Finished');
@@ -36,7 +41,127 @@ out((to_seconds($finish - $start)/60)." minutes have elapsed");
 ## SUBROUTINES
 ###############
 
+sub generate_overivew {
+    out('Generating Overview');
+    my $stars       = $db->resultset('Lacuna::DB::Result::Map::Star');
+    my $bodies      = $db->resultset('Lacuna::DB::Result::Map::Body');
+    my $ships       = $db->resultset('Lacuna::DB::Result::Ships');
+    my $spies       = $db->resultset('Lacuna::DB::Result::Spies');
+    my $buildings   = $db->resultset('Lacuna::DB::Result::Building');
+    my $empires     = $db->resultset('Lacuna::DB::Result::Empire');
+    my $probes      = $db->resultset('Lacuna::DB::Result::Probes');
+    
+    # basics
+    my %out = (
+        stars       => {
+            count           => $stars->count,
+            probes_count    => $probes->count,
+            probed_count    => $probes->search(undef, { select => [ distinct => 'star_id' ] })->count,
+        },
+        bodies      => {
+            count           => $bodies->count,
+            colony_count    => $bodies->search({empire_id => { '>' => 0}})->count,
+        },
+        ships       => {
+            count           => $ships->count,
+        },
+        spies       => {
+            count                           => $spies->count,
+            average_defense                 => $spies->get_column('defense')->func('avg'),
+            average_offense                 => $spies->get_column('offense')->func('avg'),
+            highest_defense                 => $spies->get_column('defense')->max,
+            highest_offense                 => $spies->get_column('offense')->max,
+            gathering_intelligence_count    => $spies->search({task => 'Gather Intelligence'})->count,
+            hacking_networks_count          => $spies->search({task => 'Hack Networks'})->count,
+            countering_espionage_count      => $spies->search({task => 'Counter Espionage'})->count,
+            inciting_rebellion_count        => $spies->search({task => 'Incite Rebellion'})->count,
+            sabotaging_infrastructure_count => $spies->search({task => 'Sabotage Infrastructure'})->count,
+            appropriating_technology_count  => $spies->search({task => 'Appropriate Technology'})->count,
+            travelling_count                => $spies->search({task => 'Travelling'})->count,
+            training_count                  => $spies->search({task => 'Training'})->count,
+            in_prison_count                 => $spies->search({task => 'Captured'})->count,
+            unconscious_count               => $spies->search({task => 'Unconscious'})->count,
+            idle_count                      => $spies->search({task => 'Idle'})->count,
+        },
+        buildings   => {
+            count           => $buildings->count,
+        },
+        empires     => {
+            count                       => $empires->count,
+            average_university_level    => $empires->get_column('university_level')->func('avg'),
+            highest_university_level    => $empires->get_column('university_level')->max,
+            human_count                 => $empires->search({species_id => 2})->count,
+            isolationist_count          => $empires->search({is_isolationist => 1})->count,
+            essentia_using_count        => $empires->search({essentia => { '>' => 0 }})->count,
+            currently_active_count      => $empires->search({last_login => {'>=' => DateTime->now->subtract(hours=>1)}})->count,
+            active_today_count          => $empires->search({last_login => {'>=' => DateTime->now->subtract(hours=>24)}})->count,
+            active_this_week_count      => $empires->search({last_login => {'>=' => DateTime->now->subtract(days=>7)}})->count,
+        },
+    );
+    
+    # flesh out bodies
+    my %body_types = (
+        gas_giants  => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant%',
+        habitables  => 'Lacuna::DB::Result::Map::Body::Planet::P%',
+        asteroids   => 'Lacuna::DB::Result::Map::Body::Asteroid%',
+        stations    => 'Lacuna::DB::Result::Map::Body::Station',
+    );
+    foreach my $key (keys %body_types) {
+        my $type = $bodies->search({class => {like => $body_types{$key}}});
+        $out{bodies}{types}{$key} = {
+            count           => $type->count,
+            average_size    => $type->get_column('size')->func('avg'),
+            largest_size    => $type->get_column('size')->max,
+            smallest_size   => $type->get_column('size')->min,
+            average_orbit   => $type->get_column('orbit')->func('avg'),
+        };
+    }
+
+    # flesh out orbits
+    foreach my $orbit (1..8) {
+        $out{orbits}{$orbit} = {
+            inhabited   => $bodies->search({empire_id => {'>', 0}, orbit => $orbit})->count,
+            bodies      => $bodies->search({orbit => $orbit})->count,
+        }
+    }
+
+    # flesh out buildings
+    my $distinct = $buildings->search(undef, { select => [ distinct => 'class' ] })->get_column('class');
+    while (my $class = $distinct->next) {
+        my $type_rs = $buildings->search({class=>$class});
+        my $count = $type_rs->count;
+        $out{buildings}{types}{$class->name} = {
+            average_level       => $type_rs->get_column('level')->func('avg'),
+            highest_level       => $type_rs->get_column('level')->max,
+            count               => $count,
+        };
+    }
+    
+    # flesh out ships
+    foreach my $type (SHIP_TYPES) {
+        my $type_rs = $ships->search({type=>$type});
+        my $count = $type_rs->count;
+        $out{ships}{types}{$type} = {
+            average_hold_size   => $type_rs->get_column('hold_size')->func('avg'),
+            largest_hold_size   => $type_rs->get_column('hold_size')->max,
+            smallest_hold_size  => $type_rs->get_column('hold_size')->min,
+            average_speed       => $type_rs->get_column('speed')->func('avg'),
+            fastest_speed       => $type_rs->get_column('speed')->max,
+            slowest_speed       => $type_rs->get_column('speed')->min,
+            count               => $count
+        };
+    }
+
+    my $config = Lacuna->config;
+    my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
+    my $bucket = $s3->bucket($config->get('feeds/bucket'));
+    my $object = $bucket->putobject('server_overview.json', to_json(\%out), { 'Content-Type' => 'application/json' });
+    $object->acl('public');
+}
+
+
 sub rank_spies {
+    out('Ranking Spies');
     my $spies = $db->resultset('Lacuna::DB::Result::Log::Spies');
     foreach my $field (qw(level success_rate dirtiest))
         my $ranked = $spies->search(undef, {order_by => $field});
@@ -48,6 +173,7 @@ sub rank_spies {
 }
 
 sub rank_colonies {
+    out('Ranking Colonies');
     my $colonies = $db->resultset('Lacuna::DB::Result::Log::Colony');
     foreach my $field (qw(population))
         my $ranked = $colonies->search(undef, {order_by => $field});
@@ -59,6 +185,7 @@ sub rank_colonies {
 }
 
 sub rank_empires {
+    out('Ranking Empires');
     my $empires = $db->resultset('Lacuna::DB::Result::Log::Empire');
     foreach my $field (qw(empire_size university_level offense_success_rate defense_success_rate dirtiest))
         my $ranked = $empires->search(undef, {order_by => $field});

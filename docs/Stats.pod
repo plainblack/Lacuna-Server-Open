@@ -1,3 +1,7 @@
+=head1 Server Overview
+
+A complete overview of the server statistics is available from B<http://servername.lacunaexpanse.com/server_overview.json>. 
+
 =head1 Stats Methods
 
 These methods are accessible via the C</stats> URL.
@@ -12,207 +16,239 @@ Retrieves a list of the game credits. It is an array of hashes of arrays.
     { "iPhone Client" : ["Kevin Runde"]},
     { "Web Client" : ["John Rozeske"]},
     { "Play Testers" : ["John Ottinger","Jamie Vrbsky"]},
+    ...
  ]
-
-=head2 overview ( session_id )
-
-Returns a list of basic statistics about the server.
-
- {
-    "status" : { ... },
-    "stats" : {
-        "stars" : 100,
-        "bodies" : 100,
-        "ships" : 100,
-        "spies" : 100,
-        "buildings" : 100,
-        "empires" : 100
-    }
- }
  
-=head3 session_id
-
-A session id.
-
-
-=head2 empires_overview ( session_id )
-
-Returns a list of statistics about empires.
-
- {
-    "status" : { ... },
-    "stats" : {
-        "empires" : 100,
-        "average_university_level" : 11.4,
-        "highest_university_level" : 17,
-        "human_empires" : 11,
-        "isolationist_empires" : 21,
-        "essentia_using_empires" : 47,
-        "currently_active_empires" : 38,
-        "active_today_empires" : 57,
-        "active_this_week_empires" : 81,
-        "planets_per_empire" : 3.21938,
-    }
- }
  
-=head3 session_id
 
-A session id.
+=head2 empire_rank ( session_id, [ sort_by, page_number ] )
 
-
-=head2 buildings_overview ( session_id )
-
-Returns a list of statistics about the buildings.
+Returns a sorted list of empires ranked according to various stats.
 
  {
     "status" : { ... },
-    "stats" : {
-        "Algae Cropper" : {
-            "average_level" : 7.594,
-            "highest_level" : 11,
-            "per_empire" : 5.123,
-            "per_planet" : 3.217,
-            "count" : 100,
-        },
+    "empires" : [
+        {
+            "empire_id" : "id-goes-here",                   # unique id
+            "empire_name" : "Earthlings",                   # empire name
+            "colony_count" : "1",                           # number of planets colonized
+            "colony_count_delta" : "0",                     # number of planets colonized this week
+            "population" : "7000000000",                    # number of citizens on all planets in the empire
+            "population_delta" : "140000",                  # growth of population this week
+            "empire_size" : "7000000000",                   # size of entire empire
+            "empire_size_delta" : "140000",                 # growth of empire this week
+            "building_count" : "50",                        # number of buildings across all colonies
+            "university_level" : "25",                      # highest level of university research
+            "average_building_level" : "20",                # average level of all buildings across all colonies
+            "highest_building_level" : "26",                # highest building across all colonies
+            "food_hour" : "1111111",                        # food production from all colonies
+            "energy_hour" : "222222",                       # energy production from all colonies
+            "waste_hour" : "3333333",                       # waste production from all colonies
+            "ore_hour" : "4444444",                         # ore production from all colonies
+            "water_hour" : "11111111",                      # water production from all colonies
+            "happiness_hour" : "2222222",                   # happiness production from all colonies
+            "spy_count" : "103",                            # number of spys from all colonies
+            "offense_success_rate" : "0.793",               # the offense rate of success of spies at all colonies
+            "offense_success_rate_delta" : "0.1001",        # the change in the offensive success rate for this week
+            "defense_success_rate" : "0.49312",             # the defense rate of success of spies at all colonies
+            "defense_success_rate_delta" : "0.2219",        # the change in the defensive success rate for this week
+            "dirtiest" : "7941",                            # the number of times a spy has attempted to hurt another empire
+            "dirtiest_delta" : "167",                       # the change in the dirtiest for the week
+          },
         ...
-    }
+    ]
  }
  
 =head3 session_id
 
 A session id.
 
+=head3 sort_by
 
-=head2 ships_overview ( session_id )
+An attribute to sort by. Defaults to C<empire_size_rank>. Possible values are: C<empire_size_rank>, C<university_level_rank>, C<offense_success_rate_rank>, C<defense_success_rate_rank>, and C<dirtiest_rank>
 
-Returns a list of statistics about the ships.
+=head3 page_number
+
+An integer representing the page number to display. There are 25 records per page. Defaults to the page number that the current user is listed on.
+
+
+
+=head2 find_empire_rank ( session_id, sort_by, empire_name )
+
+Search for a particular empire in the C<empire_rank()>. Returns:
 
  {
     "status" : { ... },
-    "stats" : {
-        "cargo_ship" : {
-            "average_hold_size" : 5300.003,
-            "largest_hold_size" : 11948,
-            "smallest_hold_size" : 1305,
-            "average_speed" : 327.6009,
-            "fastest_speed" : 540,
-            "slowest_speed" : 138,
-            "per_empire" :  7.89,
-            "count" : 543,
-        },
+    "empires" : [
+        {
+            "empire_id" : "id-goes-here",
+            "empire_name" : "Earthlings",
+            "page_number" : "54",
+        }
         ...
-    }
+    ]
  }
- 
+
 =head3 session_id
 
 A session id.
 
+=head3 sort_by
 
-=head2 stars_overview ( session_id )
+The field to sort by. See C<empire_rank> for details.
 
-Returns a list statistics about stars.
+=head3 empire_name
+
+A full or partial empire name to search by. Must be at least 3 characters to search.
+
+
+
+=head2 colony_rank ( session_id, [ sort_by, page_number ] )
+
+Returns a sorted list of planets ranked according to various stats.
 
  {
     "status" : { ... },
-    "stats" : {
-        "stars" : 100,
-        "probes" : 50,
-        "stars_probed" : 13,
-        "probes_per_star" : 3.814,
-    }
+    "colonies" : [
+        {
+            "empire_id" : "id-goes-here",                   # unique id
+            "empire_name" : "Earthlings",                   # empire name
+            "planet_id" : "id-goes-here",                   # unique id
+            "planet_name" : "Earth",                        # name of the planet
+            "population" : "7000000000",                    # number of citizens on planet
+            "population_delta" : "140000",                  # growth of population this week
+            "building_count" : "50",                        # number of buildings at this colony
+            "average_building_level" : "20",                # average level of all buildings at this colony
+            "highest_building_level" : "26",                # highest building at this colony
+            "food_hour" : "1111111",                        # food production at this colony
+            "energy_hour" : "222222",                       # energy production at this colony
+            "waste_hour" : "3333333",                       # waste production at this colony
+            "ore_hour" : "4444444",                         # ore production at this colony
+            "water_hour" : "11111111",                      # water production at this colony
+            "happiness_hour" : "2222222",                   # happiness production at this colony
+            "spy_count" : "103",                            # number of spys at this colony
+            "offense_success_rate" : "0.793",               # the offense rate of success of spies at this colony
+            "offense_success_rate_delta" : "0.1001",        # the change in the offensive success rate for this week
+            "defense_success_rate" : "0.49312",             # the defense rate of success of spies at this colony
+            "defense_success_rate_delta" : "0.2219",        # the change in the defensive success rate for this week
+            "dirtiest" : "7941",                            # the number of times a spy has attempted to hurt another empire
+            "dirtiest_delta" : "167",                       # the change in the dirtiest for the week
+          },
+        ...
+    ]
  }
  
 =head3 session_id
 
 A session id.
 
+=head3 sort_by
 
-=head2 spies_overview ( session_id )
+An attribute to sort by. Defaults to C<population_rank>. Possible values are: C<population_rank>
 
-Returns a list of statistics about spies.
+=head3 page_number
+
+An integer representing the page number to display. There are 25 records per page. Defaults to page 1.
+
+
+
+=head2 find_colony_rank ( session_id, sort_by, planet_name )
+
+Search for a particular colony in the C<colony_rank()>. Returns:
 
  {
     "status" : { ... },
-    "stats" : {
-        "spies" : 100,
-        "average_defense" : 190.3393,
-        "average_offense" : 250.5,
-        "highest_defense" : 190,
-        "highest_offense" : 190,
-        "spies_per_empire" : 33.98,
-        "spies_gathering_intelligence" : 190,
-        "spies_hacking_networks" : 101,
-        "spies_countering_espionage" : 290,
-        "spies_inciting_rebellion" : 199,
-        "spies_sabotaging_infrastructure" : 143,
-        "spies_appropriating_technology" : 550,
-        "spies_travelling" : 188,
-        "spies_training" : 300,
-        "spies_in_prison" : 419,
-        "spies_unconscious" : 13,
-        "spies_idle" : 1193,
-    }
+    "colonies" : [
+        {
+            "planet_id" : "id-goes-here",
+            "planet_name" : "Earth",
+            "page_number" : "33",
+        }
+        ...
+    ]
  }
- 
+
 =head3 session_id
 
 A session id.
 
+=head3 sort_by
 
-=head2 bodies_overview ( session_id )
+The field to sort by. See C<colony_rank> for details.
 
-Returns a list of statistics about all the bodies in the expanse.
+=head3 planet_name
+
+A full or partial planet name to search by. Must be at least 3 characters to search.
+
+
+
+=head2 spy_rank ( session_id, [ sort_by, page_number ] )
+
+Returns a sorted list of spies ranked according to various stats.
 
  {
     "status" : { ... },
-    "stats" : {
-        "bodies" : 100,
-        "orbits" : {
-            "1" : {
-                "inhabited" : 2,
-                "bodies" : 11
-            },
-            ...,
-            "8" : {
-                "inhabited" : 0,
-                "bodies" : 13
-            }
-        },
-        "gas_giants" : {
-            "count" : 10,
-            "average_size" : 110.76,
-            "largest_size" : 121,
-            "smallest_size" : 100,
-            "average_orbit" : 4.3,
-        },
-        "habitables" : {
-            "count" : 80,
-            "average_size" : 45.23003,
-            "largest_size" : 65,
-            "smallest_size" : 25,
-            "average_orbit" : 3.10001,
-        },
-        "asteroids" : {
-            "count" : 10,
-            "average_size" : 5.998,
-            "largest_size" : 9,
-            "smallest_size" : 1,
-            "average_orbit" : 4.3,
-        },
-        "stations" : {
-            "count" : 0,
-            "average_size" : 0,
-            "largest_size" : 0,
-            "smallest_size" : 0,
-            "average_orbit" : 0,
-        },
-    }
+    "spies" : [
+        {
+            "empire_id" : "id-goes-here",                   # unique id
+            "empire_name" : "Earthlings",                   # empire name
+            "spy_id" : "id-goes-here",                      # unique id
+            "spy_name" : "Agent Null",                      # the name of this spy
+            "age" : "3693",                                 # how old is this guy in seconds
+            "level" : "18",                                 # the level of this spy
+            "level_delta" : "2",                            # the change in level this week
+            "success_rate" : "0.731",                       # the rate of success this spy has had for both offense and defensive tasks
+            "success_rate_delta" : "0.012",                 # the chance in success_rate this week
+            "dirtiest" : "7941",                            # the number of times a spy has attempted to hurt another empire
+            "dirtiest_delta" : "167",                       # the change in the dirtiest for the week
+          },
+        ...
+    ]
  }
  
 =head3 session_id
 
 A session id.
+
+=head3 sort_by
+
+An attribute to sort by. Defaults to C<level_rank>. Possible values are: C<level_rank> C<success_rate_rank> and C<dirtiest_rank>
+
+=head3 page_number
+
+An integer representing the page number to display. There are 25 records per page. Defaults to page 1.
+
+
+
+=head2 find_empire_rank ( session_id, sort_by, spy_name )
+
+Search for a particular spy in the C<spy_rank()>. Returns:
+
+ {
+    "status" : { ... },
+    "spy" : [
+        {
+            "spy_id" : "id-goes-here",
+            "spy_name" : "Agent Null",
+            "empire_name" : "Earthlings", # used to help distinguish like named spies
+            "page_number" : "54",
+        }
+        ...
+    ]
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 sort_by
+
+The field to sort by. See C<spy_rank> for details.
+
+=head3 spy_name
+
+A full or partial spy name to search by. Must be at least 3 characters to search.
+
 
 
 
