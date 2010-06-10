@@ -31,6 +31,7 @@ sub is_name_available {
         ->length_lt(31)
         ->length_gt(2)
         ->not_empty
+        ->no_padding
         ->no_restricted_chars
         ->no_profanity
         ->ok( !Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->count );
