@@ -14,16 +14,24 @@ __PACKAGE__->add_columns(
     x               => { data_type => 'int', size => 11, default_value => 0 },
     y               => { data_type => 'int', size => 11, default_value => 0 },
     level           => { data_type => 'int', size => 11, default_value => 0 },
-    class           => { data_type => 'char', size => 255, is_nullable => 0 },
+    class           => { data_type => 'varchar', size => 255, is_nullable => 0 },
     offline         => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     upgrade_started => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     upgrade_ends    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    is_upgrading    => { data_type => 'int', size => 1, default => 0 },
+    is_upgrading    => { data_type => 'bit', default => 0 },
     work_started    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     work_ends       => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    is_working      => { data_type => 'int', size => 1, default => 0 },
+    is_working      => { data_type => 'bit', default => 0 },
     work            => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
 );
+
+sub sqlt_deploy_hook {
+    my ($self, $sqlt_table) = @_;
+    $sqlt_table->add_index(name => 'idx_x_y', fields => ['x','y']);
+    $sqlt_table->add_index(name => 'idx_class', fields => ['class']);
+    $sqlt_table->add_index(name => 'idx_is_upgrading', fields => ['is_upgrading']);
+    $sqlt_table->add_index(name => 'idx_is_working', fields => ['is_working']);
+}
 
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 __PACKAGE__->typecast_map(class => {

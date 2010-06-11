@@ -27,8 +27,8 @@ __PACKAGE__->add_columns(
     fluorite_hour                   => { data_type => 'int', size => 11, default_value => 0 },
     beryl_hour                      => { data_type => 'int', size => 11, default_value => 0 },
     magnetite_hour                  => { data_type => 'int', size => 11, default_value => 0 },
-    percent_ship_capacity           => { data_type => 'int', size => 3, default_value => 100 },
-    percent_platform_capacity       => { data_type => 'int', size => 3, default_value => 100 },
+    percent_ship_capacity           => { data_type => 'tinyint', default_value => 100 },
+    percent_platform_capacity       => { data_type => 'tinyint', default_value => 100 },
 );
 
 __PACKAGE__->belongs_to('asteroid', 'Lacuna::DB::Result::Map::Body', 'asteroid_id');

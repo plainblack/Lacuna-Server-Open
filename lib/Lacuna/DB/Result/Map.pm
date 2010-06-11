@@ -6,11 +6,19 @@ use Lacuna::Util;
 
 __PACKAGE__->table('noexist_map');
 __PACKAGE__->add_columns(
-    name                    => { data_type => 'char', size => 30, is_nullable => 0 },
+    name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     x                       => { data_type => 'int', size => 11, default_value => 0 },
     y                       => { data_type => 'int', size => 11, default_value => 0 },
-    zone                    => { data_type => 'char', size => 16, is_nullable => 0 },
+    zone                    => { data_type => 'varchar', size => 16, is_nullable => 0 },
 );
+
+sub sqlt_deploy_hook {
+    my ($self, $sqlt_table) = @_;
+    $sqlt_table->add_index(name => 'idx_x_y', fields => ['x','y']);
+    $sqlt_table->add_index(name => 'idx_zone', fields => ['zone']);
+    $sqlt_table->add_index(name => 'idx_name', fields => ['name']);
+}
+
 
 sub calculate_distance_to_target {
     my ($self, $target) = @_;

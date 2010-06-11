@@ -6,11 +6,7 @@ __PACKAGE__->load_components('TimeStamp', 'InflateColumn::DateTime', 'InflateCol
 
 __PACKAGE__->table('noexist_basetable');
 __PACKAGE__->add_columns(
-    id      => {
-        data_type           => 'int',
-        size                => 11,
-        is_auto_increment   => 1,
-    },
+    id      => { data_type => 'int', size => 11, is_auto_increment => 1 },
 );
 __PACKAGE__->set_primary_key('id');
 

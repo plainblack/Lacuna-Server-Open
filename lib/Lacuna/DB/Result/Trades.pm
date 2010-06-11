@@ -8,10 +8,10 @@ use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 __PACKAGE__->table('trades');
 __PACKAGE__->add_columns(
     body_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
-    zone                    => { data_type => 'char', size => 16, is_nullable => 0 },
-    only_in_zone            => { data_type => 'int', size => 1, default_value => 1 },
-    transfer_type           => { data_type => 'char', size => 11, is_nullable => 0 }, # ship | transporter
-    only_same_transfer_type => { data_type => 'int', size => 1, default_value => 1 },
+    zone                    => { data_type => 'varchar', size => 16, is_nullable => 0 },
+    only_in_zone            => { data_type => 'bit', default_value => 1 },
+    transfer_type           => { data_type => 'varchar', size => 11, is_nullable => 0 }, # ship | transporter
+    only_same_transfer_type => { data_type => 'bit', default_value => 1 },
     cargo_ship_count        => { data_type => 'int', size => 11, default_value => 0 },
     smuggler_ship_count     => { data_type => 'int', size => 11, default_value => 0 },
     cargo_space_needed      => { data_type => 'int', size => 11, default_value => 0 },
