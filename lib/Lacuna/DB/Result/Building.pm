@@ -555,6 +555,9 @@ sub check_build_prereqs {
 sub can_demolish {
     my $self = shift;
     $self->body->has_resources_to_operate_after_building_demolished($self);
+    if ($self->is_working) {
+        confess [1013, "You cannot demolish a building that is working."];
+    }
     return 1;
 }
 
@@ -721,6 +724,7 @@ sub finish_upgrade {
 
 sub work_seconds_remaining {
     my ($self) = @_;
+    return 0 unless $self->is_working;
     my $seconds = to_seconds($self->work_ends - DateTime->now);
     return ($seconds > 0) ? $seconds : 0;
 }
