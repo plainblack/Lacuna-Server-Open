@@ -1,6 +1,6 @@
 =head1 Server Overview
 
-A complete overview of the server statistics is available from B<http://servername.lacunaexpanse.com/server_overview.json>. 
+A complete overview of the server statistics is available from B<http://servername.lacunaexpanse.com/server_overview.json>. This file contains many statistics about the server, but not any that you could calculate using the data provided in order to keep the file small. For example, we tell you how many stars have been probed, and how many probes there are, but we don't give you the average number of probes per star, because you could calculate that yourself.
 
 =head1 Stats Methods
 
@@ -56,7 +56,9 @@ Returns a sorted list of empires ranked according to various stats.
             "dirtiest_delta" : "167",                       # the change in the dirtiest for the week
           },
         ...
-    ]
+    ],
+   "total_empires" : 5939,
+   "page_number" : 3
  }
  
 =head3 session_id
@@ -135,7 +137,9 @@ Returns a sorted list of planets ranked according to various stats.
             "dirtiest_delta" : "167",                       # the change in the dirtiest for the week
           },
         ...
-    ]
+    ],
+   "total_colonies" : 5939,
+   "page_number" : 3
  }
  
 =head3 session_id
@@ -203,7 +207,9 @@ Returns a sorted list of spies ranked according to various stats.
             "dirtiest_delta" : "167",                       # the change in the dirtiest for the week
           },
         ...
-    ]
+    ],
+   "total_spies" : 5939,
+   "page_number" : 3
  }
  
 =head3 session_id
@@ -220,7 +226,7 @@ An integer representing the page number to display. There are 25 records per pag
 
 
 
-=head2 find_empire_rank ( session_id, sort_by, spy_name )
+=head2 find_spy_rank ( session_id, sort_by, spy_name )
 
 Search for a particular spy in the C<spy_rank()>. Returns:
 

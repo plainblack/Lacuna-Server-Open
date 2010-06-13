@@ -63,8 +63,10 @@ sub empire_rank {
         };
     }
     return {
-        status  => $self->format_status($empire),
-        empires => \@empires,
+        status  	=> $self->format_status($empire),
+        empires 	=> \@empires,
+	total_empires	=> $ranks->pager->total_entries
+	page_number	=> $page_number,
     };
 }
 
@@ -103,7 +105,7 @@ sub colony_rank {
     unless ($by ~~ [qw(population_rank)]) {
         $by = 'population_rank';
     }
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Colony')->search(undef,{order_by => {-desc => $by}});
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Colony')->search(undef,{order_by => {-desc => $by}, rows=>25, page=>$page_number});
     my @colonies;
     while (my $rank = $ranks->next) {
         push @colonies, {
@@ -132,8 +134,10 @@ sub colony_rank {
         }
     }
     return {
-        status      => $self->format_status($empire),
-        colonies    => \@colonies,
+        status      	=> $self->format_status($empire),
+        colonies    	=> \@colonies,
+	total_colonies	=> $ranks->pager->total_entries
+	page_number	=> $page_number,
     };
 }
 
@@ -172,7 +176,7 @@ sub spy_rank {
     unless ($by ~~ [qw(level_rank success_rate_rank dirtiest_rank)]) {
         $by = 'level_rank';
     }
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Spies')->search(undef,{order_by => {-desc => $by}});
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Spies')->search(undef,{order_by => {-desc => $by}, rows=>25, page=>$page_number});
     my @spies;
     while (my $rank = $ranks->next) {
         push @spies, {
@@ -190,8 +194,10 @@ sub spy_rank {
         }
     }
     return {
-        status      => $self->format_status($empire),
-        spies       => \@spies,
+        status      	=> $self->format_status($empire),
+        spies       	=> \@spies,
+	total_spies	=> $ranks->pager->total_entries
+	page_number	=> $page_number,
     };
 }
 
