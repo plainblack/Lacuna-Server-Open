@@ -65,7 +65,7 @@ sub empire_rank {
     return {
         status  	=> $self->format_status($empire),
         empires 	=> \@empires,
-	total_empires	=> $ranks->pager->total_entries
+	total_empires	=> $ranks->pager->total_entries,
 	page_number	=> $page_number,
     };
 }
@@ -136,7 +136,7 @@ sub colony_rank {
     return {
         status      	=> $self->format_status($empire),
         colonies    	=> \@colonies,
-	total_colonies	=> $ranks->pager->total_entries
+	total_colonies	=> $ranks->pager->total_entries,
 	page_number	=> $page_number,
     };
 }
@@ -196,7 +196,7 @@ sub spy_rank {
     return {
         status      	=> $self->format_status($empire),
         spies       	=> \@spies,
-	total_spies	=> $ranks->pager->total_entries
+	total_spies	=> $ranks->pager->total_entries,
 	page_number	=> $page_number,
     };
 }
