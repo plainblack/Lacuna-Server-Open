@@ -7,6 +7,7 @@ use Lacuna::Util qw(format_date to_seconds);
 use Getopt::Long;
 use JSON;
 use SOAP::Amazon::S3;
+use Lacuna::Constants qw(SHIP_TYPES);
 
 
 $|=1;
@@ -41,7 +42,7 @@ out((to_seconds($finish - $start)/60)." minutes have elapsed");
 ## SUBROUTINES
 ###############
 
-sub generate_overivew {
+sub generate_overview {
     out('Generating Overview');
     my $stars       = $db->resultset('Lacuna::DB::Result::Map::Star');
     my $bodies      = $db->resultset('Lacuna::DB::Result::Map::Body');
@@ -52,11 +53,12 @@ sub generate_overivew {
     my $probes      = $db->resultset('Lacuna::DB::Result::Probes');
     
     # basics
+    out('Getting Basic Counts');
     my %out = (
         stars       => {
             count           => $stars->count,
             probes_count    => $probes->count,
-            probed_count    => $probes->search(undef, { select => [ distinct => 'star_id' ] })->count,
+            probed_count    => $probes->search(undef, { group_by => ['star_id'] })->count,
         },
         bodies      => {
             count           => $bodies->count,
@@ -100,6 +102,7 @@ sub generate_overivew {
     );
     
     # flesh out bodies
+    out('Flesh Out Body Stats');
     my %body_types = (
         gas_giants  => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant%',
         habitables  => 'Lacuna::DB::Result::Map::Body::Planet::P%',
@@ -107,6 +110,7 @@ sub generate_overivew {
         stations    => 'Lacuna::DB::Result::Map::Body::Station',
     );
     foreach my $key (keys %body_types) {
+	out($key);
         my $type = $bodies->search({class => {like => $body_types{$key}}});
         $out{bodies}{types}{$key} = {
             count           => $type->count,
@@ -118,7 +122,9 @@ sub generate_overivew {
     }
 
     # flesh out orbits
+    out('Flesh Out Orbital Stats');
     foreach my $orbit (1..8) {
+	out($orbit);
         $out{orbits}{$orbit} = {
             inhabited   => $bodies->search({empire_id => {'>', 0}, orbit => $orbit})->count,
             bodies      => $bodies->search({orbit => $orbit})->count,
@@ -126,8 +132,10 @@ sub generate_overivew {
     }
 
     # flesh out buildings
-    my $distinct = $buildings->search(undef, { select => [ distinct => 'class' ] })->get_column('class');
+    out('Flesh Out Building Stats');
+    my $distinct = $buildings->search(undef, { group_by => ['class'] })->get_column('class');
     while (my $class = $distinct->next) {
+	out($class);
         my $type_rs = $buildings->search({class=>$class});
         my $count = $type_rs->count;
         $out{buildings}{types}{$class->name} = {
@@ -136,8 +144,9 @@ sub generate_overivew {
             count               => $count,
         };
     }
-    
+
     # flesh out ships
+    out('Flesh Out Ship Stats');
     foreach my $type (SHIP_TYPES) {
         my $type_rs = $ships->search({type=>$type});
         my $count = $type_rs->count;
@@ -152,6 +161,7 @@ sub generate_overivew {
         };
     }
 
+    out('Write To S3');
     my $config = Lacuna->config;
     my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
     my $bucket = $s3->bucket($config->get('feeds/bucket'));
@@ -163,10 +173,10 @@ sub generate_overivew {
 sub rank_spies {
     out('Ranking Spies');
     my $spies = $db->resultset('Lacuna::DB::Result::Log::Spies');
-    foreach my $field (qw(level success_rate dirtiest))
+    foreach my $field (qw(level success_rate dirtiest)) {
         my $ranked = $spies->search(undef, {order_by => $field});
         my $counter = 1;
-        while ($spy = $ranked->next) {
+        while (my $spy = $ranked->next) {
             $spy->update({$field.'_rank' => $counter});
         }
     }
@@ -175,10 +185,10 @@ sub rank_spies {
 sub rank_colonies {
     out('Ranking Colonies');
     my $colonies = $db->resultset('Lacuna::DB::Result::Log::Colony');
-    foreach my $field (qw(population))
+    foreach my $field (qw(population)) {
         my $ranked = $colonies->search(undef, {order_by => $field});
         my $counter = 1;
-        while ($colony = $ranked->next) {
+        while (my $colony = $ranked->next) {
             $colony->update({$field.'_rank' => $counter});
         }
     }
@@ -187,10 +197,10 @@ sub rank_colonies {
 sub rank_empires {
     out('Ranking Empires');
     my $empires = $db->resultset('Lacuna::DB::Result::Log::Empire');
-    foreach my $field (qw(empire_size university_level offense_success_rate defense_success_rate dirtiest))
+    foreach my $field (qw(empire_size university_level offense_success_rate defense_success_rate dirtiest)) {
         my $ranked = $empires->search(undef, {order_by => $field});
         my $counter = 1;
-        while ($empire = $ranked->next) {
+        while (my $empire = $ranked->next) {
             $empire->update({$field.'_rank' => $counter});
         }
     }

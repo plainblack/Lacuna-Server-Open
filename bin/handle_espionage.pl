@@ -6,7 +6,7 @@ use Lacuna;
 use List::Util qw(shuffle);
 use Lacuna::Util qw(randint format_date to_seconds);
 use Getopt::Long;
-
+$|=1;
 our $quiet;
 GetOptions(
     'quiet'         => \$quiet,  
@@ -1919,7 +1919,7 @@ sub calculate_mission_score {
     out('Offense Score: '.$offense);
     out('Defense Score: '.$defense);
     my $score = randint(0, $offense) - randint(0, $defense);
-    while ($score > 100 || $score < 100) {
+    while ($score > 100 || $score < -100) {
         $score /= 10;
     }
     out('Mission Score: '.$score);
