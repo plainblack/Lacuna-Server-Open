@@ -6,18 +6,18 @@ use Lacuna::Util;
 
 __PACKAGE__->table('empire_log');
 __PACKAGE__->add_columns(
-    colony_count                => { data_type => 'int', size => 3, is_nullable => 0 },
-    colony_count_delta          => { data_type => 'int', size => 3, is_nullable => 0 },
+    colony_count                => { data_type => 'tinyint', is_nullable => 0 },
+    colony_count_delta          => { data_type => 'tinyint', is_nullable => 0 },
     population                  => { data_type => 'int', size => 11, is_nullable => 0 },
     population_delta            => { data_type => 'int', size => 11, is_nullable => 0 },
     empire_size                 => { data_type => 'int', size => 11, is_nullable => 0 },
     empire_size_delta           => { data_type => 'int', size => 11, is_nullable => 0 },
     empire_size_rank            => { data_type => 'int', size => 11, is_nullable => 0 },
-    building_count              => { data_type => 'int', size => 3, is_nullable => 0 },
-    university_level            => { data_type => 'int', size => 3, is_nullable => 0 },
-    university_level_rank       => { data_type => 'int', size => 3, is_nullable => 0 },
+    building_count              => { data_type => 'smallint', is_nullable => 0 },
+    university_level            => { data_type => 'tinyint', is_nullable => 0 },
+    university_level_rank       => { data_type => 'tinyint', is_nullable => 0 },
     average_building_level      => { data_type => 'float', size =>[3,2] , is_nullable => 0 },
-    highest_building_level      => { data_type => 'int', size => 3, is_nullable => 0 },
+    highest_building_level      => { data_type => 'tinyint', size => 3, is_nullable => 0 },
     food_hour                   => { data_type => 'int', size => 11, is_nullable => 0 },
     energy_hour                 => { data_type => 'int', size => 11, is_nullable => 0 },
     waste_hour                  => { data_type => 'int', size => 11, is_nullable => 0 },
@@ -36,17 +36,15 @@ __PACKAGE__->add_columns(
     dirtiest_delta              => { data_type => 'int', size => 11, default_value => 0 },
 );
 
-alter table empire_log add column empire_size_rank int(11) not null;
-alter table empire_log add column university_level_rank int(11) not null;
-alter table empire_log add column offense_success_rate_rank int(11) not null;
-alter table empire_log add column defense_success_rate_rank int(11) not null;
-alter table empire_log add column dirtiest_rank int(11) not null;
-alter table empire_log add column happiness_hour int(11) not null;
-alter table colony_log add column happiness_hour int(11) not null;
-alter table colony_log add column population_rank int(11) not null;
-alter table spies_log add column level_rank int(11) not null;
-alter table spies_log add column success_rate_rank int(11) not null;
-alter table spies_log add column dirtiest_rank int(11) not null;
+after 'sqlt_deploy_hook' => sub {
+    my ($self, $sqlt_table) = @_;
+    $sqlt_table->add_index(name => 'idx_empire_size_rank', fields => ['empire_size_rank']);
+    $sqlt_table->add_index(name => 'idx_university_level_rank', fields => ['university_level_rank']);
+    $sqlt_table->add_index(name => 'idx_offense_success_rate_rank', fields => ['offense_success_rate_rank']);
+    $sqlt_table->add_index(name => 'idx_defense_success_rate_rank', fields => ['defense_success_rate_rank']);
+    $sqlt_table->add_index(name => 'idx_dirtiest_rank', fields => ['dirtiest_rank']);
+};
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

@@ -95,7 +95,7 @@ has espionage_level => (
     default => sub {
         my $self = shift;
         my $building = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Espionage');
-        return (defined $building) ? $self->level : 0;
+        return (defined $building) ? $building->level : 0;
     },
 );
 
@@ -105,7 +105,7 @@ has security_level => (
     default => sub {
         my $self = shift;
         my $building = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Security');   
-        return (defined $building) ? $self->level : 0;
+        return (defined $building) ? $building->level : 0;
     },
 );
 

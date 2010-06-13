@@ -6,9 +6,9 @@ use Lacuna::Util;
 
 __PACKAGE__->table('spy_log');
 __PACKAGE__->add_columns(
-    spy_name                    => { data_type => 'char', size => 30, is_nullable => 0 },
+    spy_name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     spy_id                      => { data_type => 'int', size => 11, is_nullable => 0 },
-    planet_name                 => { data_type => 'char', size => 30, is_nullable => 0 },
+    planet_name                 => { data_type => 'varchar', size => 30, is_nullable => 0 },
     planet_id                   => { data_type => 'int', size => 11, is_nullable => 0 },
     level                       => { data_type => 'int', size => 11, is_nullable => 0 },
     level_rank                  => { data_type => 'int', size => 11, is_nullable => 0 },
@@ -33,6 +33,17 @@ __PACKAGE__->add_columns(
     dirtiest_rank               => { data_type => 'int', size => 11, is_nullable => 0 },
     dirtiest_delta              => { data_type => 'int', size => 11, default_value => 0 },
 );
+
+after 'sqlt_deploy_hook' => sub {
+    my ($self, $sqlt_table) = @_;
+    $sqlt_table->add_index(name => 'idx_level_rank', fields => ['level_rank']);
+    $sqlt_table->add_index(name => 'idx_success_rate_rank', fields => ['success_rate_rank']);
+    $sqlt_table->add_index(name => 'idx_dirtiest_rank', fields => ['dirtiest_rank']);
+    $sqlt_table->add_index(name => 'idx_planet_id', fields => ['planet_id']);
+    $sqlt_table->add_index(name => 'idx_planet_name', fields => ['planet_name']);
+    $sqlt_table->add_index(name => 'idx_spy_id', fields => ['spy_id']);
+    $sqlt_table->add_index(name => 'idx_spy_name', fields => ['spy_name']);
+};
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

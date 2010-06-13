@@ -8,10 +8,9 @@ __PACKAGE__->table('body');
 __PACKAGE__->add_columns(
     star_id                         => { data_type => 'int', size => 11, is_nullable => 0 },
     orbit                           => { data_type => 'int', size => 11, default_value => 0 },
-    class                           => { data_type => 'char', size => 255, is_nullable => 0 },
+    class                           => { data_type => 'varchar', size => 255, is_nullable => 0 },
     size                            => { data_type => 'int', size => 11, default_value => 0 },
     usable_as_starter               => { data_type => 'int', size => 11, default_value => 0 },
-    size                            => { data_type => 'int', size => 11, default_value => 0 },
     empire_id                       => { data_type => 'int', size => 11, is_nullable => 1 },
     last_tick                       => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     happiness_hour                  => { data_type => 'int', size => 11, default_value => 0 },
@@ -111,12 +110,18 @@ __PACKAGE__->add_columns(
     burger_stored                   => { data_type => 'int', size => 11, default_value => 0 },
     shake_stored                    => { data_type => 'int', size => 11, default_value => 0 },
     beetle_stored                   => { data_type => 'int', size => 11, default_value => 0 },
-    boost_enabled                   => { data_type => 'int', size => 1, default_value => 0 },
-    needs_recalc                    => { data_type => 'int', size => 1, default_value => 0 },
-    needs_surface_refresh           => { data_type => 'int', size => 1, default_value => 0 },
-    restrict_coverage               => { data_type => 'int', size => 1, default_value => 0 },  
+    boost_enabled                   => { data_type => 'bit', default_value => 0 },
+    needs_recalc                    => { data_type => 'bit', default_value => 0 },
+    needs_surface_refresh           => { data_type => 'bit', default_value => 0 },
+    restrict_coverage               => { data_type => 'bit', default_value => 0 },  
     restrict_coverage_delta         => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
 );
+
+after 'sqlt_deploy_hook' => sub {
+    my ($self, $sqlt_table) = @_;
+    $sqlt_table->add_index(name => 'idx_class', fields => ['class']);
+    $sqlt_table->add_index(name => 'idx_usable_as_starter', fields => ['usable_as_starter']);
+};
 
 __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Map::Body::Asteroid::A1' => 'Lacuna::DB::Result::Map::Body::Asteroid::A1',

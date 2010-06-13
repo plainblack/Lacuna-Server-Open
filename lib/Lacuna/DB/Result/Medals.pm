@@ -7,9 +7,9 @@ use DateTime;
 
 __PACKAGE__->table('medals');
 __PACKAGE__->add_columns(
-    type                    => { data_type => 'char', size => 30, is_nullable => 0 },
+    type                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     empire_id               => { data_type => 'int', size => 11, is_nullable => 0 },
-    public                  => { data_type => 'int', size => 1, default_value => 1 },
+    public                  => { data_type => 'bit', default_value => 1 },
     datestamp               => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     times_earned            => { data_type => 'int', size => 11, default_value => 1 },
 );

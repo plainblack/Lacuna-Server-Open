@@ -56,6 +56,11 @@ sub no_restricted_chars {
     return $self->ok(${$self->content} !~ m/[@&<>;]/);
 }
 
+sub no_padding {
+    my $self = shift;
+    return $self->ok(${$self->content} !~ m/^\s/ && ${$self->content} !~ m/\s$/);
+}
+
 sub no_tags {
     my $self = shift;
     return $self->ok(${$self->content} !~ m/[<>]/);

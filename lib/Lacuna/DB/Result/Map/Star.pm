@@ -6,7 +6,7 @@ use Lacuna::Util;
 
 __PACKAGE__->table('star');
 __PACKAGE__->add_columns(
-    color                   => { data_type => 'char', size => 7, is_nullable => 0 },
+    color                   => { data_type => 'varchar', size => 7, is_nullable => 0 },
 );
 
 __PACKAGE__->has_many('bodies', 'Lacuna::DB::Result::Map::Body', 'star_id');

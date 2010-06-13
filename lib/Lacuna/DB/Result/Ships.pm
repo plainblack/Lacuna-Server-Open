@@ -12,14 +12,14 @@ __PACKAGE__->add_columns(
     body_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
     date_started            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     date_available          => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    type                    => { data_type => 'char', size => 30, is_nullable => 0 }, # probe, colony_ship, spy_pod, cargo_ship, space_station, smuggler_ship, mining_platform_ship, terraforming_platform_ship, gas_giant_settlement_platform_ship
-    task                    => { data_type => 'char', size => 10, is_nullable => 0 }, # Docked, Building, Travelling, Mining
-    name                    => { data_type => 'char', size => 30, is_nullable => 0 },
+    type                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # probe, colony_ship, spy_pod, cargo_ship, space_station, smuggler_ship, mining_platform_ship, terraforming_platform_ship, gas_giant_settlement_platform_ship
+    task                    => { data_type => 'varchar', size => 10, is_nullable => 0 }, # Docked, Building, Travelling, Mining
+    name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     speed                   => { data_type => 'int', size => 11, is_nullable => 0 },
     hold_size               => { data_type => 'int', size => 11, is_nullable => 0 },
     payload                 => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
-    roundtrip               => { data_type => 'int', size => 1, default_value => 0 },
-    direction               => { data_type => 'char', size => 3, is_nullable => 0 }, # in || out
+    roundtrip               => { data_type => 'bit', default_value => 0 },
+    direction               => { data_type => 'varchar', size => 3, is_nullable => 0 }, # in || out
     foreign_body_id         => { data_type => 'int', size => 11, is_nullable => 1 },
     foreign_star_id         => { data_type => 'int', size => 11, is_nullable => 1 },
 );

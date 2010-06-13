@@ -23,6 +23,7 @@ sub rename {
         ->length_lt(31)
         ->no_restricted_chars
         ->no_profanity
+        ->no_padding
         ->not_ok(Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({name=>$name, 'id'=>{'!='=>$body_id}})->count); # name available
     
     my $empire = $self->get_empire_by_session($session_id);

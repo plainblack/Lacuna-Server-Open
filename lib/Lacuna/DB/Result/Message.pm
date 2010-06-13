@@ -8,21 +8,26 @@ use Lacuna::Util qw(format_date);
 __PACKAGE__->table('message');
 __PACKAGE__->add_columns(
     in_reply_to     => { data_type => 'int', size => 11, is_nullable => 1 },
-    subject         => { data_type => 'char', size => 30, is_nullable => 0 },
+    subject         => { data_type => 'varchar', size => 30, is_nullable => 0 },
     body            => { data_type => 'mediumtext', is_nullable => 1 },
     date_sent       => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     from_id         => { data_type => 'int', size => 11, is_nullable => 0 },
-    from_name       => { data_type => 'char', size => 30, is_nullable => 0 },
+    from_name       => { data_type => 'varchar', size => 30, is_nullable => 0 },
     to_id           => { data_type => 'int', size => 11, is_nullable => 1 },
-    to_name         => { data_type => 'char', size => 30, is_nullable => 0 },
+    to_name         => { data_type => 'varchar', size => 30, is_nullable => 0 },
     recipients      => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
-    tag             => { data_type => 'char', size => 15, is_nullable => 1 },
-    has_read        => { data_type => 'int', size => 1, default_value => 0 },
-    has_replied     => { data_type => 'int', size => 1, default_value => 0 },
-    has_archived    => { data_type => 'int', size => 1, default_value => 0 },
+    tag             => { data_type => 'varchar', size => 15, is_nullable => 1 },
+    has_read        => { data_type => 'bit', default_value => 0 },
+    has_replied     => { data_type => 'bit', default_value => 0 },
+    has_archived    => { data_type => 'bit', default_value => 0 },
     attachments     => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
-    repeat_check    => { data_type => 'char', size => 30, is_nullable => 1 },
+    repeat_check    => { data_type => 'varchar', size => 30, is_nullable => 1 },
 );
+
+sub sqlt_deploy_hook {
+    my ($self, $sqlt_table) = @_;
+    $sqlt_table->add_index(name => 'idx_repeat_check_date_sent', fields => ['repeat_check, date_sent']);
+}
 
 __PACKAGE__->belongs_to('original_message', 'Lacuna::DB::Result::Message', 'in_reply_to');
 __PACKAGE__->belongs_to('sender', 'Lacuna::DB::Result::Empire', 'from_id');

@@ -7,10 +7,15 @@ use UUID::Tiny ':std';
 
 __PACKAGE__->table('news');
 __PACKAGE__->add_columns(
-    headline                => { data_type => 'char', size => 140, is_nullable => 0 },
-    zone                    => { data_type => 'char', size => 16, is_nullable => 0 },
+    headline                => { data_type => 'varchar', size => 140, is_nullable => 0 },
+    zone                    => { data_type => 'varchar', size => 16, is_nullable => 0 },
     date_posted             => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
 );
+
+sub sqlt_deploy_hook {
+    my ($self, $sqlt_table) = @_;
+    $sqlt_table->add_index(name => 'idx_zone_date_posted', fields => ['zone','date_posted']);
+}
 
 sub date_posted_formatted {
     my $self = shift;

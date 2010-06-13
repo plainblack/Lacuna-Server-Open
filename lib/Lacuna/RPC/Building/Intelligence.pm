@@ -144,6 +144,7 @@ sub name_spy {
         ->not_empty
         ->no_profanity
         ->length_lt(31)
+        ->length_gt(2)
         ->no_restricted_chars;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);

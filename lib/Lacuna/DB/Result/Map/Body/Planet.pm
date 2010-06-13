@@ -599,6 +599,16 @@ sub add_news {
 
 sub tick {
     my ($self) = @_;
+    
+    # stop a double tick
+    my $cache = Lacuna->cache;
+    if ($cache->get('ticking',$self->id)) {
+        return undef;
+    }
+    else {
+        $cache->set('ticking',$self->id, 1, 60);
+    }
+    
     my $now = DateTime->now;
     my %todo;
     my $i; # in case 2 things finish at exactly the same time
@@ -698,8 +708,8 @@ sub tick {
     $self->tick_to($now);
 
     # clear caches
-    $self->clear_future_operating_resources;
-    
+    $self->clear_future_operating_resources;    
+    $cache->delete('ticking', $self->id);
 }
 
 sub tick_to {

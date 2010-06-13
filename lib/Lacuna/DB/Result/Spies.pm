@@ -8,10 +8,10 @@ use DateTime;
 __PACKAGE__->table('spies');
 __PACKAGE__->add_columns(
     empire_id               => { data_type => 'int', size => 11, is_nullable => 0 },
-    name                    => { data_type => 'char', size => 30, is_nullable => 0, default_value => 'Agent Null' },
+    name                    => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'Agent Null' },
     from_body_id            => { data_type => 'int', size => 11, is_nullable => 0 },
     on_body_id              => { data_type => 'int', size => 11, is_nullable => 0 },
-    task                    => { data_type => 'char', size => 30, is_nullable => 0, default_value => 'Idle' },
+    task                    => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'Idle' },
     started_assignment      => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     available_on            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     offense                 => { data_type => 'int', size => 11, default_value => 1 },
