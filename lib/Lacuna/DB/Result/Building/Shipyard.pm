@@ -206,15 +206,15 @@ use constant waste_production => 2;
 use constant star_to_body_distance_ratio => 100;
 
 use constant ship_speed => {
-    probe                               => 500,
-    gas_giant_settlement_platform_ship  => 70,
-    terraforming_platform_ship          => 75,
-    mining_platform_ship                => 100,
-    cargo_ship                          => 150,
-    smuggler_ship                       => 250,
-    spy_pod                             => 300,
-    colony_ship                         => 50,
-    space_station                       => 1,
+    probe                               => 5000,
+    gas_giant_settlement_platform_ship  => 700,
+    terraforming_platform_ship          => 750,
+    mining_platform_ship                => 1000,
+    cargo_ship                          => 1500,
+    smuggler_ship                       => 2500,
+    spy_pod                             => 3000,
+    colony_ship                         => 600,
+    space_station                       => 5,
 };
 
 

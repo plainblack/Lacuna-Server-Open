@@ -110,6 +110,7 @@ sub view_profile {
             image   => $medal->image,
             date    => $medal->format_datestamp,
             public  => $medal->public,
+            times_earned => $medal->times_earned,
         };
     }
     my %out = (
@@ -184,6 +185,7 @@ sub view_public_profile {
             image   => $medal->image,
             name    => $medal->name,
             date    => $medal->format_datestamp,
+            times_earned => $medal->times_earned,
         };
     }
     my %out = (

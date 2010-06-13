@@ -158,7 +158,8 @@ Provides a list of the editable properties of the current empire's profile. See 
                "name" : "Built Level 1 Building",
                "image" : "building1",
                "date" : "01 31 2010 13:09:05 +0600",
-               "public" : 1
+               "public" : 1,
+               "times_earned" : 4
            },
            ...
        }
@@ -216,7 +217,8 @@ Provides a list of the data that's publicly known about this empire.
             "id-goes-here" : {
                 "name" : "Built Level 1 Building",
                 "image" : "building1",
-                "date" : "01 31 2010 13:09:05 +0600"
+                "date" : "01 31 2010 13:09:05 +0600",
+               "times_earned" : 4
             },
             ...
         },
