@@ -32,7 +32,7 @@ sub throw_a_party {
     
     my $body = $self->body;
     my $eat = 10_000;
-    my $food_multiplier = 0;
+    my $food_multiplier = $self->level * 0.3;
     foreach my $food (FOOD_TYPES) {
         my $food_stored = $food.'_stored';
         if ($body->$food_stored >= 500) {
