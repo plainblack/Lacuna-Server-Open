@@ -174,10 +174,10 @@ sub rank_spies {
     out('Ranking Spies');
     my $spies = $db->resultset('Lacuna::DB::Result::Log::Spies');
     foreach my $field (qw(level success_rate dirtiest)) {
-        my $ranked = $spies->search(undef, {order_by => $field});
+        my $ranked = $spies->search(undef, {order_by => {-desc => $field}});
         my $counter = 1;
         while (my $spy = $ranked->next) {
-            $spy->update({$field.'_rank' => $counter});
+            $spy->update({$field.'_rank' => $counter++});
         }
     }
 }
@@ -186,10 +186,10 @@ sub rank_colonies {
     out('Ranking Colonies');
     my $colonies = $db->resultset('Lacuna::DB::Result::Log::Colony');
     foreach my $field (qw(population)) {
-        my $ranked = $colonies->search(undef, {order_by => $field});
+        my $ranked = $colonies->search(undef, {order_by => {-desc => $field}});
         my $counter = 1;
         while (my $colony = $ranked->next) {
-            $colony->update({$field.'_rank' => $counter});
+            $colony->update({$field.'_rank' => $counter++});
         }
     }
 }
@@ -198,10 +198,10 @@ sub rank_empires {
     out('Ranking Empires');
     my $empires = $db->resultset('Lacuna::DB::Result::Log::Empire');
     foreach my $field (qw(empire_size university_level offense_success_rate defense_success_rate dirtiest)) {
-        my $ranked = $empires->search(undef, {order_by => $field});
+        my $ranked = $empires->search(undef, {order_by => {-desc => $field}});
         my $counter = 1;
         while (my $empire = $ranked->next) {
-            $empire->update({$field.'_rank' => $counter});
+            $empire->update({$field.'_rank' => $counter++});
         }
     }
 }

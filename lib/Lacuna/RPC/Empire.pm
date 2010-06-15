@@ -196,9 +196,19 @@ sub view_public_profile {
         status_message  => $viewed_empire->status_message,
         species         => $viewed_empire->species->name,
         date_founded    => format_date($viewed_empire->date_created),
-        planet_count    => $viewed_empire->planets->count,
+        colony_count    => $viewed_empire->planets->count,
         medals          => \%public_medals,
     );
+    my @colonies;
+    my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({empire_id => $viewer_empire->id});
+    my $planets = $viewed_empire->planets->search(undef,{order_by => 'name'});
+    while (my $colony = $planets->next) {
+        if ($colony->id == $viewed_empire->home_planet_id || $probes->search({star_id=>$colony->star_id})->count) {
+            push @colonies, $colony->get_status;
+        }
+    }
+    $out{known_colonies} = \@colonies;
+
     return { profile => \%out, status => $self->format_status($viewer_empire) };
 }
 

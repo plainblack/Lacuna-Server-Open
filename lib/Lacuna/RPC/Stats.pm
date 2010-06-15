@@ -23,7 +23,7 @@ sub empire_rank {
     unless ($by ~~ [qw(empire_size_rank university_level_rank offense_success_rate_rank defense_success_rate_rank dirtiest_rank)]) {
         $by = 'empire_size_rank';
     }
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire')->search(undef,{order_by => {-desc => $by}});
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire');
     unless ($page_number) {
         my $me = $ranks->find($empire->id);
         $page_number = int($me->$by / 25);
@@ -31,7 +31,7 @@ sub empire_rank {
             $page_number++;
         }
     }
-    $ranks = $ranks->search(undef,{rows => 25, page => $page_number});
+    $ranks = $ranks->search(undef,{rows => 25, page => $page_number, order_by => $by});
     my @empires;
     while (my $rank = $ranks->next) {
         push @empires, {
@@ -79,7 +79,7 @@ sub find_empire_rank {
         $by = 'empire_size_rank';
     }
     my $empire = $self->get_empire_by_session($session_id);
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire')->search(undef,{order_by => {-desc => $by}, rows=>25});
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire')->search(undef,{order_by => $by, rows=>25});
     my $ranked = $ranks->search({empire_name => { like => '%'.$empire_name.'%'}});
     my @empires;
     while (my $rank = $ranked->next) {
@@ -105,7 +105,7 @@ sub colony_rank {
     unless ($by ~~ [qw(population_rank)]) {
         $by = 'population_rank';
     }
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Colony')->search(undef,{order_by => {-desc => $by}, rows=>25, page=>$page_number});
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Colony')->search(undef,{order_by =>$by, rows=>25, page=>$page_number});
     my @colonies;
     while (my $rank = $ranks->next) {
         push @colonies, {
@@ -150,7 +150,7 @@ sub find_colony_rank {
         $by = 'population_rank';
     }
     my $empire = $self->get_empire_by_session($session_id);
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Colony')->search(undef,{order_by => {-desc => $by}, rows=>25});
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Colony')->search(undef,{order_by => $by, rows=>25});
     my $ranked = $ranks->search({planet_name => { like => '%'.$colony_name.'%'}});
     my @colonies;
     while (my $rank = $ranked->next) {
@@ -176,7 +176,7 @@ sub spy_rank {
     unless ($by ~~ [qw(level_rank success_rate_rank dirtiest_rank)]) {
         $by = 'level_rank';
     }
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Spies')->search(undef,{order_by => {-desc => $by}, rows=>25, page=>$page_number});
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Spies')->search(undef,{order_by => $by, rows=>25, page=>$page_number});
     my @spies;
     while (my $rank = $ranks->next) {
         push @spies, {
@@ -210,7 +210,7 @@ sub find_spy_rank {
         $by = 'level_rank';
     }
     my $empire = $self->get_empire_by_session($session_id);
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Spies')->search(undef,{order_by => {-desc => $by}, rows=>25});
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Spies')->search(undef,{order_by => $by, rows=>25});
     my $ranked = $ranks->search({spy_name => { like => '%'.$spy_name.'%'}});
     my @spies;
     while (my $rank = $ranked->next) {

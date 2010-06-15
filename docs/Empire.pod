@@ -223,7 +223,17 @@ Provides a list of the data that's publicly known about this empire.
             ...
         },
         "date_founded" : "01 31 2010 13:09:05 +0600",
-        "Species" : "Lacunan"
+        "species" : "Lacunan",
+        "known_colonies" : [
+            {
+                "id" : "id-goes-here",
+                "x" : "1",
+                "y" : "-543",
+                "name" : "Earth",
+                "image" : "p12-3",
+            },
+            ...
+        ]
     },
     "status" : { ... }
  }
