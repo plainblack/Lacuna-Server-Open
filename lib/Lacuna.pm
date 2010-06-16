@@ -13,6 +13,11 @@ my $config = Config::JSON->new('/data/Lacuna-Server/etc/lacuna.conf');
 my $db = Lacuna::DB->connect($config->get('db/dsn'),$config->get('db/username'),$config->get('db/password'));
 my $cache = Lacuna::Cache->new(servers => $config->get('memcached'));
 
+#use IO::File;
+# $db->storage->debug(1);
+# $db->storage->debugfh(IO::File->new('/tmp/dbic.trace.out', 'w'));
+
+
 sub version {
     return $VERSION;
 }

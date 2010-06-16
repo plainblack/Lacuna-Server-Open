@@ -49,7 +49,7 @@ out((to_seconds($finish - $start)/60)." minutes have elapsed");
 sub intel {
     my ($planet, $espionage) = @_;
     out('Intellgence Missions');
-    my $mission = calculate_mission_score($espionage, 'intel', 50);
+    my $mission = calculate_mission_score($espionage, 'intel', 20);
     if ($mission < -95) {
         capture_intelligence($planet, $espionage);
     }
@@ -121,7 +121,7 @@ sub intel {
 sub hack {
     my ($planet, $espionage) = @_;
     out('Hacking Missions');
-    my $mission = calculate_mission_score($espionage, 'hacking', 25);
+    my $mission = calculate_mission_score($espionage, 'hacking', 0);
     if ($mission < -95) {
         capture_hacker($planet, $espionage);
     }
@@ -196,7 +196,7 @@ sub hack {
 sub steal {
     my ($planet, $espionage) = @_;
     out('Theft Missions');
-    my $mission = calculate_mission_score($espionage, 'theft', 0);
+    my $mission = calculate_mission_score($espionage, 'theft', -20);
     if ($mission < -95) {
         increase_security($planet, $espionage, 200);
     }
@@ -265,7 +265,7 @@ sub steal {
 sub sabotage {
     my ($planet, $espionage) = @_;
     out('Sabotage Missions');
-    my $mission = calculate_mission_score($espionage, 'sabotage', -25);
+    my $mission = calculate_mission_score($espionage, 'sabotage', -40);
     if ($mission < -95) {
         capture_saboteurs($planet, $espionage,6);
     }
@@ -334,7 +334,7 @@ sub sabotage {
 sub rebel {
     my ($planet, $espionage) = @_;
     out('Rebellion Missions');
-    my $mission = calculate_mission_score($espionage, 'rebellion', -50);
+    my $mission = calculate_mission_score($espionage, 'rebellion', -60);
     if ($mission < -95) {
         turn_rebels($planet, $espionage,3);
     }
