@@ -63,6 +63,13 @@ sub is_available {
             $self->task('Idle');
             $self->update;
         }
+        elsif ($task eq 'Waiting On Trade') {
+            my $trade = Lacuna->db->resultset('Lacuna::DB::Result::Trades')->search({
+               offer_object_id  => $self->id,
+               offer_type       => 'prisoner',
+            });
+            $trade->withdraw;
+        }
         elsif ($task ~~ ['Killed In Action','Burned']) {
             return 0;
         }

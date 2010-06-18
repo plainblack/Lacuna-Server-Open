@@ -694,8 +694,6 @@ sub destroy_ships {
     for (1..$quantity) {
         my $ship = $ships->next;
         last unless (defined $ship);
-        my $type = $ship->type;
-        $ship->delete;
         $espionage->{police}{score} += 10;
         my @spies = pick_a_spy_per_empire($espionage->{sabotage}{spies});
         foreach my $spy (@spies) {
@@ -704,16 +702,16 @@ sub destroy_ships {
             $spy->empire->send_predefined_message(
                 tags        => ['Intelligence'],
                 filename    => 'sabotage_report.txt',
-                params      => [$type, $planet->name, $spy->name],
+                params      => [$ship->type_formatted, $planet->name, $spy->name],
             );
         }
-        $type =~ s/_/ /g;
         $planet->empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'ship_blew_up_at_port.txt',
-            params      => [$type, $planet->name],
+            params      => [$ship->type_formatted, $planet->name],
         );
-        $planet->add_news(90,'Today, officials on %s are investigating the explosion of a %s at the Space Port.', $planet->name, $type);
+        $planet->add_news(90,'Today, officials on %s are investigating the explosion of a %s at the Space Port.', $planet->name, $ship->type_formatted);
+        $ship->delete;
     }
 }
 
@@ -802,7 +800,6 @@ sub steal_resources {
         last unless defined $thief;
         my $ship = $ships->next;
         last unless defined $ship;
-        my $type = $ship->type;
         $espionage->{theft}{score} -= $thief->offense;
         $espionage->{police}{score} += $thief->offense;
         my $home = $thief->from_body;
@@ -822,19 +819,18 @@ sub steal_resources {
         $thief->task('Travelling');
         $thief->things_stolen( $thief->things_stolen + 1 );
         $thief->update;
-        $type =~ s/_/ /g;
         $thief->empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'ship_theft_report.txt',
-            params      => [$type, $thief->name],
+            params      => [$ship->type_formatted, $thief->name],
             ## ATTACH RESOURCE TABLE
         );
         $planet->empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'ship_stolen.txt',
-            params      => [$type, $planet->name],
+            params      => [$ship->type_formatted, $planet->name],
         );
-        $planet->add_news(50,'In a daring robbery a thief absconded with a %s from %s today.', $type, $planet->name);
+        $planet->add_news(50,'In a daring robbery a thief absconded with a %s from %s today.', $ship->type_formatted, $planet->name);
     }
 }
 
@@ -847,7 +843,6 @@ sub steal_ships {
         last unless defined $thief;
         my $ship = $ships->next;
         last unless defined $ship;
-        my $type = $ship->type;
         $espionage->{theft}{score} -= $thief->offense;
         $espionage->{police}{score} += $thief->offense;
         my $home = $thief->from_body;
@@ -863,18 +858,17 @@ sub steal_ships {
         $thief->things_stolen( $thief->things_stolen + 1 );
         $thief->task('Travelling');
         $thief->update;
-        $type =~ s/_/ /g;
         $thief->empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'ship_theft_report.txt',
-            params      => [$type, $thief->name],
+            params      => [$ship->type_formatted, $thief->name],
         );
         $planet->empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'ship_stolen.txt',
-            params      => [$type, $planet->name],
+            params      => [$ship->type_formatted, $planet->name],
         );
-        $planet->add_news(50,'In a daring robbery a thief absconded with a %s from %s today.', $type, $planet->name);
+        $planet->add_news(50,'In a daring robbery a thief absconded with a %s from %s today.', $ship->type_formatted, $planet->name);
     }
 }
 
@@ -1222,11 +1216,10 @@ sub travel_report {
             $from = $to;
             $to = $temp;
         }
-        my $type = $ship->type;
-        $type =~ s/_/ /g;
         push @travelling, [
             $planet->name,
             $target->name,
+            $ship->type_formatted,
         ];
         $got = 1;
     }
