@@ -1112,8 +1112,8 @@ sub hack_local_probes {
 sub colony_report {
     my ($planet, $espionage) = @_;
     out('Colony Report');
-    my $spy = random_spy($espionage->{intel}{spies});
-    return undef unless defined $spy;
+    my @spies = pick_a_spy_per_empire($espionage->{intel}{spies});
+    return undef unless scalar(@spies);
     my @colonies = (['Name','X','Y','Orbit']);
     my $planets = $planet->empire->planets;
     while (my $colony = $planets->next) {
@@ -1124,19 +1124,21 @@ sub colony_report {
             $colony->orbit,
         ];
     }
-    $spy->empire->send_predefined_message(
-        tags        => ['Intelligence'],
-        filename    => 'intel_report.txt',
-        params      => ['Colony Report', $planet->name, $spy->name],
-        attach_table=> \@colonies,
-    );
+    foreach my $spy (@spies) {
+    	$spy->empire->send_predefined_message(
+            tags        => ['Intelligence'],
+            filename    => 'intel_report.txt',
+            params      => ['Colony Report', $planet->name, $spy->name],
+            attach_table=> \@colonies,
+        );
+    }
 }
 
 sub surface_report {
     my ($planet, $espionage) = @_;
     out('Surface Report');
-    my $spy = random_spy($espionage->{intel}{spies});
-    return undef unless defined $spy;
+    my @spies = pick_a_spy_per_empire($espionage->{intel}{spies});
+    return undef unless scalar(@spies);
     my @map;
     my $buildings = $planet->buildings;
     while (my $building = $buildings->next) {
@@ -1146,29 +1148,30 @@ sub surface_report {
             y       => $building->y,
         };
     }
-    $spy->empire->send_predefined_message(
-        tags        => ['Intelligence'],
-        filename    => 'intel_report.txt',
-        params      => ['Surface Report', $planet->name, $spy->name],
-        attach_map  => {
-                        surface_image   => $planet->surface,
-                        buildings       => \@map
-                       },
-    );
+    foreach my $spy (@spies) {
+        $spy->empire->send_predefined_message(
+            tags        => ['Intelligence'],
+            filename    => 'intel_report.txt',
+            params      => ['Surface Report', $planet->name, $spy->name],
+            attach_map  => {
+                            surface_image   => $planet->surface,
+                            buildings       => \@map
+                           },
+        );
+    }
 }
 
 sub spy_report {
     my ($planet, $espionage) = @_;
     out('Spy Report');
-    my $spook = random_spy($espionage->{intel}{spies});
-    return undef unless defined $spook;
+    my @spooks = pick_a_spy_per_empire($espionage->{intel}{spies});
+    return undef unless scalar(@spooks);
     my @peeps = (['From','Assignment']);
     my %planets = ( $planet->id => $planet->name );
     my @spies = shuffle(@{get_full_spies_list($espionage)});
     my $i = 0;
     my $count = randint(1,50);
     while (my $spy = pop @spies) {
-        next if ($spy->empire_id eq $spook->empire_id); # skip our own
         unless (exists $planets{$spy->from_body_id}) {
             $planets{$spy->from_body_id} = $spy->from_body->name;
         }
@@ -1177,39 +1180,43 @@ sub spy_report {
         last if ($i >= $count);
     }
     if ($i) {
-        $spook->empire->send_predefined_message(
-            tags        => ['Intelligence'],
-            filename    => 'intel_report.txt',
-            params      => ['Spy Report', $planet->name, $spook->name],
-            attach_table=> \@peeps,
-        );
+        foreach my $spook (@spooks) {
+            $spook->empire->send_predefined_message(
+                tags        => ['Intelligence'],
+                filename    => 'intel_report.txt',
+                params      => ['Spy Report', $planet->name, $spook->name],
+                attach_table=> \@peeps,
+            );
+        }
     }
 }
 
 sub economic_report {
     my ($planet, $espionage) = @_;
     out('Economic Report');
-    my $spy = random_spy($espionage->{intel}{spies});
-    return undef unless defined $spy;
+    my @spies = pick_a_spy_per_empire($espionage->{intel}{spies});
+    return undef unless scalar(@spies);
     my @resources = (['Resource', 'Per Hour', 'Stored']);
     push @resources, [ 'Food', $planet->food_hour, $planet->food_stored ];
     push @resources, [ 'Water', $planet->water_hour, $planet->water_stored ];
     push @resources, [ 'Energy', $planet->energy_hour, $planet->energy_stored ];
     push @resources, [ 'Ore', $planet->ore_hour, $planet->ore_stored ];
     push @resources, [ 'Waste', $planet->waste_hour, $planet->waste_stored ];
-    $spy->empire->send_predefined_message(
-        tags        => ['Intelligence'],
-        filename    => 'intel_report.txt',
-        params      => ['Economic Report', $planet->name, $spy->name],
-        attach_table=> \@resources,
-    );
+    foreach my $spy (@spies) {
+        $spy->empire->send_predefined_message(
+            tags        => ['Intelligence'],
+            filename    => 'intel_report.txt',
+            params      => ['Economic Report', $planet->name, $spy->name],
+            attach_table=> \@resources,
+        );
+    }
 }
 
 sub travel_report {
     my ($planet, $espionage) = @_;
     out('Travel Report');
-    my $spy = random_spy($espionage->{intel}{spies});
-    return undef unless defined $spy;
+    my @spies = pick_a_spy_per_empire($espionage->{intel}{spies});
+    return undef unless scalar(@spies);
     my @travelling = (['From','To','Type']);
     my $ships = $planet->ships_travelling;
     my $got;
@@ -1231,20 +1238,22 @@ sub travel_report {
         $got = 1;
     }
     if ($got) {
-        $spy->empire->send_predefined_message(
-            tags        => ['Intelligence'],
-            filename    => 'intel_report.txt',
-            params      => ['Travel Report', $planet->name, $spy->name],
-            attach_table=> \@travelling,
-        );
+        foreach my $spy (@spies) {
+            $spy->empire->send_predefined_message(
+                tags        => ['Intelligence'],
+                filename    => 'intel_report.txt',
+                params      => ['Travel Report', $planet->name, $spy->name],
+                attach_table=> \@travelling,
+            );
+        }
     }
 }
 
 sub ship_report {
     my ($planet, $espionage) = @_;
     out('Ship Report');
-    my $spy = random_spy($espionage->{intel}{spies});
-    return undef unless defined $spy;
+    my @spies = pick_a_spy_per_empire($espionage->{intel}{spies});
+    return undef unless scalar(@spies);
     my $ports = $planet->get_buildings_of_class('Lacuna::DB::Result::Building::SpacePort');
     my $got;
     my %tally;
@@ -1265,35 +1274,39 @@ sub ship_report {
         foreach my $ship (keys %tally) {
             push @ships, [$ship, $tally{$ship}];
         }
-        $spy->empire->send_predefined_message(
-            tags        => ['Intelligence'],
-            filename    => 'intel_report.txt',
-            params      => ['Ship Report', $planet->name, $spy->name],
-            attach_table=> \@ships,
-        );
+        foreach my $spy (@spies) {
+            $spy->empire->send_predefined_message(
+                tags        => ['Intelligence'],
+                filename    => 'intel_report.txt',
+                params      => ['Ship Report', $planet->name, $spy->name],
+                attach_table=> \@ships,
+            );
+        }
     }
 }
 
 sub build_queue_report {
     my ($planet, $espionage) = @_;
     out('Build Queue Report');
-    my $spy = random_spy($espionage->{intel}{spies});
-    return undef unless defined $spy;
+    my @spies = pick_a_spy_per_empire($espionage->{intel}{spies});
+    return undef unless scalar(@spies);
     my @report = (['Building', 'Level', 'Expected Completion']);
     my $builds = $planet->builds;
     while (my $build = $builds->next) {
         push @report, [
-            $build->building->name,
-            $build->building->level + 1,
+            $build->name,
+            $build->level + 1,
             $build->upgrade_ends_formatted,
         ];
     }
-    $spy->empire->send_predefined_message(
-        tags        => ['Intelligence'],
-        filename    => 'intel_report.txt',
-        params      => ['Build Queue Report', $planet->name, $spy->name],
-        attach_table=> \@report,
-    );
+    foreach my $spy (@spies) {
+        $spy->empire->send_predefined_message(
+            tags        => ['Intelligence'],
+            filename    => 'intel_report.txt',
+            params      => ['Build Queue Report', $planet->name, $spy->name],
+            attach_table=> \@report,
+        );
+    }
 }
 
 sub false_interrogation_report {
