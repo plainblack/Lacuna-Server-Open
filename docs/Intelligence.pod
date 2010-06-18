@@ -65,6 +65,7 @@ Returns the list of spies you have on your roster.
             "name" : "Jason Bourne",
             "assignment" : "Idle",
             "level" : 9,
+            "last_mission_score" : -75,
             "offense_rating" : 570,
             "defense_rating" : 150,
             "assigned_to" : {

@@ -5,3 +5,5 @@ Here's some information about %s you may find interesting.
 More to come,
 
 %s
+
+Mission Score: %s

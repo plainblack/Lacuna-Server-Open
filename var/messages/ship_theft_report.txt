@@ -5,3 +5,5 @@ I just snatched a %s and am on my way back home.
 Debrief you soon,
 
 %s
+
+Mission Score: %s

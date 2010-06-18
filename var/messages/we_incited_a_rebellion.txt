@@ -5,3 +5,5 @@ The leadership over at %s cannot be happy today. We were able to start a rebelli
 More to come,
 
 %s
+
+Mission Score: %s

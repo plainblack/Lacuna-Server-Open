@@ -26,18 +26,19 @@ sub view_spies {
         }
         my $available = $spy->is_available;
         push @spies, {
-            id              => $spy->id,
-            name            => $spy->name,
-            level           => $spy->level,
-            offense_rating  => $spy->offense,
-            defense_rating  => $spy->defense,
-            assignment      => $spy->task,
-            assigned_to     => {
+            id                  => $spy->id,
+            name                => $spy->name,
+            level               => $spy->level,
+            last_mission_score  => $spy->last_mission_score,
+            offense_rating      => $spy->offense,
+            defense_rating      => $spy->defense,
+            assignment          => $spy->task,
+            assigned_to         => {
                 body_id => $spy->on_body_id,
                 name    => $planets{$spy->on_body_id},
             },
-            is_available    => $available,
-            available_on    => $spy->format_available_on,
+            is_available        => $available,
+            available_on        => $spy->format_available_on,
             started_assignment  => $spy->format_started_assignment,
             seconds_remaining   => $spy->seconds_remaining_on_assignment,
         };
