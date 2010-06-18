@@ -1296,7 +1296,7 @@ sub build_queue_report {
         push @report, [
             $build->name,
             $build->level + 1,
-            $build->upgrade_ends_formatted,
+            format_date($build->upgrade_ends),
         ];
     }
     foreach my $spy (@spies) {
