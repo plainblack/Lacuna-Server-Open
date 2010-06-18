@@ -1254,20 +1254,12 @@ sub ship_report {
     out('Ship Report');
     my @spies = pick_a_spy_per_empire($espionage->{intel}{spies});
     return undef unless scalar(@spies);
-    my $ports = $planet->get_buildings_of_class('Lacuna::DB::Result::Building::SpacePort');
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $planet->id, task => 'Docked'});
     my $got;
     my %tally;
-    while (my $port = $ports->next) {
+    while (my $ship = $ships->next) {
         $got = 1;
-        $tally{probes} += $port->probe_count;
-        $tally{'colony ships'} += $port->colony_ship_count;
-        $tally{'spy pods'} += $port->spy_pod_count;
-        $tally{'cargo ships'} += $port->cargo_ship_count;
-        $tally{'space stations'} += $port->space_station_count;
-        $tally{'smuggler ships'} += $port->smuggler_ship_count;
-        $tally{'mining platform ships'} += $port->mining_platform_ship_count;
-        $tally{'terraforming platform ships'} += $port->terraforming_platform_ship_count;
-        $tally{'gas giant settlement platform ships'} += $port->gas_giant_settlement_platform_ship_count;
+        $tally{$ship->type_formatted}++; 
     }
     if ($got) {
         my @ships = (['Type','Quantity']);

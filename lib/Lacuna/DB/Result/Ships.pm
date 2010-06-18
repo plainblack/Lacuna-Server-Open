@@ -30,6 +30,14 @@ __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 __PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Result::Map::Star', 'foreign_star_id');
 __PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Result::Map::Body', 'foreign_body_id');
 
+sub type_formatted {
+    my $self = shift;
+    my $type = $self->type;
+    $type =~ s/_/ /g;
+    $type =~ s/\b(\w)/\u$1/g;
+    return $type;
+}
+
 sub date_started_formatted {
     my $self = shift;
     return format_date($self->date_started);
