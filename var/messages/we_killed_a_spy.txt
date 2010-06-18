@@ -5,3 +5,5 @@ We killed an enemy agent on %s. Unfortunately, with the agent dead no other info
 Regards,
 
 %s
+
+Mission Score: %s

@@ -5,3 +5,5 @@ We captured a spy on %s. We're not sure yet where he's from, but as long as you 
 Regards,
 
 %s
+
+Mission Score: %s

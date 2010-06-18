@@ -16,6 +16,7 @@ __PACKAGE__->add_columns(
     available_on            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     offense                 => { data_type => 'int', size => 11, default_value => 1 },
     defense                 => { data_type => 'int', size => 11, default_value => 1 },
+    last_mission_score      => { data_type => 'int', size => 11, default_value => 0 },
     date_created            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     offense_mission_count   => { data_type => 'int', size => 11, default_value => 0 },
     defense_mission_count   => { data_type => 'int', size => 11, default_value => 0 },

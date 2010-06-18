@@ -5,3 +5,5 @@ I'm pretty sure we averted a catastrophe on %s. It's impossible to know what the
 Regards,
 
 %s
+
+Mission Score: %s

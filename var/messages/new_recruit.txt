@@ -5,3 +5,5 @@ Good news! I have brought over a new recruit from %s that goes by %s.
 More to come,
 
 %s
+
+Mission Score: %s
