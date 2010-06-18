@@ -1257,7 +1257,6 @@ sub ship_report {
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $planet->id, task => 'Docked'});
     my %tally;
     while (my $ship = $ships->next) {
-        $got = 1;
         $tally{$ship->type_formatted}++; 
     }
     my @ships = (['Type','Quantity']);
