@@ -1255,25 +1255,22 @@ sub ship_report {
     my @spies = pick_a_spy_per_empire($espionage->{intel}{spies});
     return undef unless scalar(@spies);
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $planet->id, task => 'Docked'});
-    my $got;
     my %tally;
     while (my $ship = $ships->next) {
         $got = 1;
         $tally{$ship->type_formatted}++; 
     }
-    if ($got) {
-        my @ships = (['Type','Quantity']);
-        foreach my $ship (keys %tally) {
-            push @ships, [$ship, $tally{$ship}];
-        }
-        foreach my $spy (@spies) {
-            $spy->empire->send_predefined_message(
-                tags        => ['Intelligence'],
-                filename    => 'intel_report.txt',
-                params      => ['Ship Report', $planet->name, $spy->name],
-                attach_table=> \@ships,
-            );
-        }
+    my @ships = (['Type','Quantity']);
+    foreach my $ship (keys %tally) {
+        push @ships, [$ship, $tally{$ship}];
+    }
+    foreach my $spy (@spies) {
+        $spy->empire->send_predefined_message(
+            tags        => ['Intelligence'],
+            filename    => 'intel_report.txt',
+            params      => ['Ship Report', $planet->name, $spy->name],
+            attach_table=> \@ships,
+        );
     }
 }
 
