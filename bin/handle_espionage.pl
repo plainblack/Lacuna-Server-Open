@@ -48,38 +48,41 @@ out((to_seconds($finish - $start)/60)." minutes have elapsed");
 # MISSIONS
 
 sub intel {
-    my ($planet, $espionage) = @_;
+    my ($planet, $espionage, $mission) = @_;
     out('Intellgence Missions');
-    my $mission = calculate_mission_score($espionage, 'intel', 20);
-    if ($mission < -95) {
+    $mission ||= calculate_mission_score($espionage, 'intel', 20);
+    if ($mission < -98) {
+        intel($planet, $espionage, randint(-98,0));
+    }
+    elsif ($mission < -95) {
         capture_intelligence($planet, $espionage);
     }
     elsif ($mission < -85) {
-        counter_intel_report($planet, $espionage, 50);
+        counter_intel_report($planet, $espionage, 250);
     }
     elsif ($mission < -80) {
         interrogation_report($planet, $espionage);
     }
     elsif ($mission < -70) {
-        counter_intel_report($planet, $espionage, 40);
+        counter_intel_report($planet, $espionage, 200);
     }
     elsif ($mission < -60) {
         kill_intelligence($planet, $espionage);
     }
     elsif ($mission < -50) {
-        counter_intel_report($planet, $espionage, 30);
+        counter_intel_report($planet, $espionage, 150);
     }
     elsif ($mission < -40) {
         thwart_intelligence($planet, $espionage);
     }
     elsif ($mission < -30) {
-        counter_intel_report($planet, $espionage, 20);
+        counter_intel_report($planet, $espionage, 100);
     }
     elsif ($mission < -20) {
         kill_suspect($planet, $espionage);
     }
     elsif ($mission < -10 ) {
-        counter_intel_report($planet, $espionage, 10);
+        counter_intel_report($planet, $espionage, 50);
     }
     elsif ($mission < 10) {
         out('Nothing Happens');
@@ -109,21 +112,27 @@ sub intel {
         spy_report($planet, $espionage);
     }
     elsif ($mission < 90 ) {
-        surface_report($planet, $espionage);
+        kill_cop($planet, $espionage, 'intel'); 
     }
     elsif ($mission < 95 ) {
+        surface_report($planet, $espionage);
+    }
+    elsif ($mission < 99) {
         colony_report($planet, $espionage);
     }
     else {
-        kill_cop($planet, $espionage, 'intel'); 
+        intel($planet, $espionage, randint(0,98));
     }
 }
 
 sub hack {
-    my ($planet, $espionage) = @_;
+    my ($planet, $espionage, $mission) = @_;
     out('Hacking Missions');
-    my $mission = calculate_mission_score($espionage, 'hacking', 0);
-    if ($mission < -95) {
+    $mission ||= calculate_mission_score($espionage, 'hacking', 0);
+    if ($mission < -98) {
+        hack($planet, $espionage, randint(-98,0));
+    }
+    elsif ($mission < -95) {
         capture_hacker($planet, $espionage);
     }
     elsif ($mission < -90) {
@@ -187,18 +196,24 @@ sub hack {
         network19_defamation5($planet, $espionage);
     }
     elsif ($mission < 95) {
+        kill_cop($planet, $espionage, 'hacking');
+    }
+    elsif ($mission < 99) {
         shut_down_building($planet, $espionage);
     }
     else {
-        kill_cop($planet, $espionage, 'hacking');
+        hack($planet, $espionage, randint(0,98));
     }
 }
 
 sub steal {
-    my ($planet, $espionage) = @_;
+    my ($planet, $espionage, $mission) = @_;
     out('Theft Missions');
-    my $mission = calculate_mission_score($espionage, 'theft', -20);
-    if ($mission < -95) {
+    $mission ||= calculate_mission_score($espionage, 'theft', -20);
+    if ($mission < -98) {
+        steal($planet, $espionage, randint(-98,0));
+    }
+    elsif ($mission < -95) {
         increase_security($planet, $espionage, 200);
     }
     elsif ($mission < -90) {
@@ -256,18 +271,24 @@ sub steal {
         steal_resources($planet, $espionage,2);
     }
     elsif ($mission < 95) {
+        kill_cop($planet, $espionage, 'theft')
+    }
+    elsif ($mission < 99) {
         steal_building($planet, $espionage, randint(16,100));
     }
     else {
-        kill_cop($planet, $espionage, 'theft')
+        steal($planet, $espionage, randint(0,98));
     }
 }
 
 sub sabotage {
-    my ($planet, $espionage) = @_;
+    my ($planet, $espionage, $mission) = @_;
     out('Sabotage Missions');
-    my $mission = calculate_mission_score($espionage, 'sabotage', -40);
-    if ($mission < -95) {
+    $mission ||= calculate_mission_score($espionage, 'sabotage', -40);
+    if ($mission < -98) {
+        sabotage($planet, $espionage, randint(-98,0));
+    }
+    elsif ($mission < -95) {
         capture_saboteurs($planet, $espionage,6);
     }
     elsif ($mission < -90) {
@@ -322,21 +343,27 @@ sub sabotage {
         destroy_infrastructure($planet, $espionage, 1);
     }
     elsif ($mission < 90) {
-        destroy_infrastructure($planet, $espionage, 2);
+        kill_cop($planet, $espionage, 'sabotage');
     }
     elsif ($mission < 95) {
+        destroy_infrastructure($planet, $espionage, 2);
+    }
+    elsif ($mission < 99) {
         destroy_infrastructure($planet, $espionage, 3);
     }
     else {
-        kill_cop($planet, $espionage, 'sabotage');
+        sabotage($planet, $espionage, randint(0,98));
     }
 }
 
 sub rebel {
-    my ($planet, $espionage) = @_;
+    my ($planet, $espionage, $mission) = @_;
     out('Rebellion Missions');
-    my $mission = calculate_mission_score($espionage, 'rebellion', -60);
-    if ($mission < -95) {
+    $mission ||= calculate_mission_score($espionage, 'rebellion', -60);
+    if ($mission < -98) {
+        rebel($planet, $espionage, randint(-98,0));
+    }
+    elsif ($mission < -95) {
         turn_rebels($planet, $espionage,3);
     }
     elsif ($mission < -90) {
@@ -396,8 +423,11 @@ sub rebel {
     elsif ($mission < 95) {
         turn_cops($planet, $espionage,3);
     }
-    else {
+    elsif ($mission < 99) {
         uprising($planet, $espionage);
+    }
+    else {
+        rebel($planet, $espionage, randint(0,98));
     }
 }
 
@@ -1170,25 +1200,19 @@ sub spy_report {
     my @peeps = (['From','Assignment']);
     my %planets = ( $planet->id => $planet->name );
     my @spies = shuffle(@{get_full_spies_list($espionage)});
-    my $i = 0;
-    my $count = randint(1,50);
     while (my $spy = pop @spies) {
         unless (exists $planets{$spy->from_body_id}) {
             $planets{$spy->from_body_id} = $spy->from_body->name;
         }
         push @peeps, [$planets{$spy->from_body_id}, $spy->task];
-        $i++;
-        last if ($i >= $count);
     }
-    if ($i) {
-        foreach my $spook (@spooks) {
-            $spook->empire->send_predefined_message(
-                tags        => ['Intelligence'],
-                filename    => 'intel_report.txt',
-                params      => ['Spy Report', $planet->name, $spook->name, $espionage->{_outcome}],
-                attach_table=> \@peeps,
-            );
-        }
+    foreach my $spook (@spooks) {
+        $spook->empire->send_predefined_message(
+            tags        => ['Intelligence'],
+            filename    => 'intel_report.txt',
+            params      => ['Spy Report', $planet->name, $spook->name, $espionage->{_outcome}],
+            attach_table=> \@peeps,
+        );
     }
 }
 
@@ -1940,13 +1964,15 @@ sub calculate_mission_score {
     my $outcome = 100 - int(($offense > $defense) ? (100 * $defense) / $offense : (100 * $offense) / $defense);	# outcome set by stakes
     $outcome *= -1 if ($victory < 0); 										# outcome is negative if defense wins
     $outcome += randint(-5,5); 											# chance of variance
+    $outcome = 100 if ($outcome > 100);										# outcome can't be higher than 100
+    $outcome = -100 if ($outcome < -100);									# outcome can't be lower than -100
     out('Outcome: '.$outcome);
-    if ($victory > 0 ) {
+    #if ($victory > 0 ) {
          update_mission_score($espionage->{$type}{spies}, $outcome);
-    }
-    else {
+    #}
+    #else {
          update_mission_score($espionage->{police}{spies}, $outcome);
-    }
+    #}
     
    ## determine experience
     my $xp;

@@ -131,7 +131,7 @@ sub training_costs {
         energy  => 50 * $multiplier,
         food    => 500 * $multiplier,
         ore     => 5 * $multiplier,
-        time    => 430 * $multiplier / $self->body->empire->species->management_affinity,
+        time    => 1030 * $multiplier / $self->body->empire->species->management_affinity,
     };
 }
 
