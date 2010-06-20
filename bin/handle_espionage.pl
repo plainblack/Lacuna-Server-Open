@@ -87,37 +87,81 @@ sub intel {
     elsif ($mission < 10) {
         out('Nothing Happens');
     }
-    elsif ($mission < 20 ) {
+    elsif ($mission < 14 ) {
         false_interrogation_report($planet, $espionage);
     }
-    elsif ($mission < 30 ) {
+    elsif ($mission < 18 ) {
         escape_prison($planet, $espionage);
     }
-    elsif ($mission < 40 ) {
+    elsif ($mission < 22 ) {
         kill_guard_and_escape_prison($planet, $espionage);
     }
-    elsif ($mission < 50 ) {
+    elsif ($mission < 26 ) {
         build_queue_report($planet, $espionage);
     }
-    elsif ($mission < 60 ) {
+    elsif ($mission < 30 ) {
         ship_report($planet, $espionage);
     }
-    elsif ($mission < 70 ) {
+    elsif ($mission < 34 ) {
+        build_queue_report($planet, $espionage);
+        ship_report($planet, $espionage);
+    }
+    elsif ($mission < 38 ) {
         travel_report($planet, $espionage);
     }
-    elsif ($mission < 80 ) {
+    elsif ($mission < 42 ) {
+        ship_report($planet, $espionage);
+        travel_report($planet, $espionage);
+    }
+    elsif ($mission < 46 ) {
         economic_report($planet, $espionage);
     }
-    elsif ($mission < 85 ) {
+    elsif ($mission < 50 ) {
+        travel_report($planet, $espionage);
+        economic_report($planet, $espionage);
+    }
+    elsif ($mission < 55 ) {
         spy_report($planet, $espionage);
     }
-    elsif ($mission < 90 ) {
-        kill_cop($planet, $espionage, 'intel'); 
+    elsif ($mission < 60 ) {
+        economic_report($planet, $espionage);
+        spy_report($planet, $espionage);
     }
-    elsif ($mission < 95 ) {
+    elsif ($mission < 65 ) {
         surface_report($planet, $espionage);
     }
-    elsif ($mission < 99) {
+    elsif ($mission < 70 ) {
+        spy_report($planet, $espionage);
+        surface_report($planet, $espionage);
+    }
+    elsif ($mission < 75 ) {
+        colony_report($planet, $espionage);
+    }
+    elsif ($mission < 80 ) {
+        surface_report($planet, $espionage);
+        colony_report($planet, $espionage);
+    }
+    elsif ($mission < 85 ) {
+        kill_cop($planet, $espionage, 'intel'); 
+    }
+    elsif ($mission < 91 ) {
+        build_queue_report($planet, $espionage);
+        ship_report($planet, $espionage);
+        travel_report($planet, $espionage);
+        economic_report($planet, $espionage);
+    }
+    elsif ($mission < 95 ) {
+        spy_report($planet, $espionage);
+        surface_report($planet, $espionage);
+        colony_report($planet, $espionage);
+    }
+    elsif ($mission < 99 ) {
+        build_queue_report($planet, $espionage);
+        ship_report($planet, $espionage);
+        travel_report($planet, $espionage);
+        economic_report($planet, $espionage);
+        spy_report($planet, $espionage);
+        surface_report($planet, $espionage);
         colony_report($planet, $espionage);
     }
     else {
