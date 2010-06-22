@@ -92,18 +92,15 @@ $urlmap->map(Lacuna::RPC::Building::WaterStorage->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Wheat->new->to_app_with_url);
 
 # admin
-my $admin = Lacuna::Admin->new->to_app;
-
-builder {
-    enable "Auth::Basic", authenticator => \&authen_cb;
-    $admin;
+my $admin = builder {
+    enable "Auth::Basic", authenticator => sub {
+        my ($username, $password) = @_;
+        return 0 unless $username;
+        my $admins = Lacuna->config->get('admins');
+        return $admins->{$username} eq $password;
+    };
+    Lacuna::Admin->new->to_app;
 };
-
-sub authen_cb {
-    my($username, $password) = @_;
-    return $username eq 'admin' && $password eq 's3cr3t';
-}
-
 $urlmap->map("/admin" => $admin);
 
 
