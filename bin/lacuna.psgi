@@ -7,6 +7,8 @@ use Log::Log4perl;
 use Log::Any::Adapter;
 use Lacuna;
 use Plack::Builder;
+use Digest::SHA;
+
 
 $|=1;
 
@@ -97,7 +99,7 @@ my $admin = builder {
         my ($username, $password) = @_;
         return 0 unless $username;
         my $admins = Lacuna->config->get('admins');
-        return $admins->{$username} eq $password;
+        return $admins->{$username} eq Digest::SHA::sha256_base64($password);
     };
     Lacuna::Admin->new->to_app;
 };
