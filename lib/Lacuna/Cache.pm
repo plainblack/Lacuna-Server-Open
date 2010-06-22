@@ -115,7 +115,7 @@ sub get {
 sub get_and_deserialize {
     my ($self, $namespace, $id) = @_;
     my $value = $self->get($namespace, $id);
-    $value = eval{JSON::from_json($value)};
+    $value = eval{JSON::from_json($value)} if ($value);
     warn $@ if ($@);
     return $value;
 }

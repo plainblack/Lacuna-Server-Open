@@ -129,9 +129,6 @@ sub get_plans {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(view_my_trades view_available_trades get_ships get_prisoners get_plans));
-
-no Moose;
-__PACKAGE__->meta->make_immutable(inline_constructor => 0);
+1;
 
 
