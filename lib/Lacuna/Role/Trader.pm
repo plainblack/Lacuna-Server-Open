@@ -17,7 +17,7 @@ sub assign_captcha {
     $captcha->set_as_current;
     return {
         guid    => $captcha->guid,
-        url     => Lacuna->config->get('feeds/surl').'/captcha/'.$captcha->guid.'.png',
+        url     => 'https://extras.lacunaexpanse.com/captcha/'.substr($captcha->guid,0,2).'/'.$captcha->guid.'.png',
     };
 }
 
