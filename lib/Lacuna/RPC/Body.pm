@@ -97,7 +97,7 @@ sub get_buildable {
     # plans
     my $plans = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search({body_id => $body_id, level => 1});
     while (my $plan = $plans->next) {
-        push @buildable, $plan->class;
+        push @buildable, $plan->class->controller_class;
     }
     
     foreach my $class (uniq @buildable) {
