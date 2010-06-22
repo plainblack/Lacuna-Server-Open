@@ -6,6 +6,10 @@ extends 'Lacuna::DB::Result::Building::Permanent';
 use constant controller_class => 'Lacuna::RPC::Building::RockyOutcrop';
 
 sub check_build_prereqs {
+    my ($self, $body) = @_;
+    if ($body->get_plan(__PACKAGE__, 1)) {
+        return 1;  
+    }
     confess [1013,"You can't build a rocky outcropping. It forms naturally."];
 }
 
@@ -21,6 +25,7 @@ sub image_level {
 }
 
 use constant name => 'Rocky Outcropping';
+use constant time_to_build => 0;
 
 
 no Moose;

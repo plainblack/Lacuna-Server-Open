@@ -13,6 +13,10 @@ use constant controller_class => 'Lacuna::RPC::Building::GasGiantPlatform';
 use constant image => 'gas-giant-platform';
 
 sub check_build_prereqs {
+    my ($self, $body) = @_;
+    if ($body->get_plan(__PACKAGE__, 1)) {
+        return 1;  
+    }
     confess [1013,"You can't directly build a Gas Giant Platform. You need a gas giant platform ship."];
 }
 

@@ -39,6 +39,7 @@ $urlmap->map(Lacuna::RPC::Building::Chip->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Cider->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Corn->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::CornMeal->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::EssentiaVein->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Crater->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Dairy->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Denton->new->to_app_with_url);
