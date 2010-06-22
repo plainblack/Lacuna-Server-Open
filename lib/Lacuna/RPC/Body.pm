@@ -5,6 +5,7 @@ extends 'Lacuna::RPC';
 use Lacuna::Verify;
 use Lacuna::Constants qw(BUILDABLE_CLASSES);
 use DateTime;
+use List::MoreUtils qw(uniq);
 
 sub get_status {
     my ($self, $session_id, $body_id) = @_;
@@ -91,7 +92,15 @@ sub get_buildable {
     );
 
     my %out;
-    foreach my $class (BUILDABLE_CLASSES) {
+    my @buildable = BUILDABLE_CLASSES;
+    
+    # plans
+    my $plans = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search({body_id => $body_id, level => 1});
+    while (my $plan = $plans->next) {
+        push @buildable, $plan->class;
+    }
+    
+    foreach my $class (uniq @buildable) {
         $properties{class} = $class->model_class;
         my $building = $building_rs->new(\%properties);
         my $cost = $building->cost_to_upgrade;

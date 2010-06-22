@@ -266,6 +266,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<Espionage>
 
+=item L<EssentiaVein>
+
 =item L<Fission>
 
 =item L<FoodReserve>
