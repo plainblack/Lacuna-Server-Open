@@ -58,5 +58,9 @@ The empire/planet/station isn't producing enough resources to keep up with the d
 
 The empire/planet/station hasn't completed building the prerequisite buildings in order to build something new.
 
+=head2 1014 Captcha not valid.
+
+A captcha was required for this request and it was not valid. The data portion will contain new captcha information to try again.
+
 =cut
 

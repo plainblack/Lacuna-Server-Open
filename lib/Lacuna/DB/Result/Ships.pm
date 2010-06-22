@@ -24,6 +24,8 @@ __PACKAGE__->add_columns(
     foreign_star_id         => { data_type => 'int', size => 11, is_nullable => 1 },
 );
 
+with 'Lacuna::Role::Container';
+
 __PACKAGE__->belongs_to('spaceport', 'Lacuna::DB::Result::Building', 'spaceport_id');
 __PACKAGE__->belongs_to('shipyard', 'Lacuna::DB::Result::Building', 'shipyard_id');
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
@@ -183,9 +185,25 @@ sub arrive {
     }
     
     elsif ($self->type eq 'cargo_ship') {
+        if ($self->direction eq 'out') {
+            $self->unload($self->foreign_body);
+            $self->turn_around;
+        }
+        else {
+            $self->unload($self->body);
+            $self->land;
+        }
     }
     
     elsif ($self->type eq 'smuggler_ship') {
+        if ($self->direction eq 'out') {
+            $self->unload($self->foreign_body);
+            $self->turn_around;
+        }
+        else {
+            $self->unload($self->body);
+            $self->land;
+        }
     }
     
     elsif ($self->type eq 'space_station') {

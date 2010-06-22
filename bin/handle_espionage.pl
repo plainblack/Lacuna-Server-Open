@@ -1646,7 +1646,7 @@ sub network19_defamation5 {
     $spy->seeds_planted($spy->seeds_planted + 1);
     $spy->update;
     if ($planet->add_news(50,'%s is the smallest, worst, least free empire in the Expanse, ever.', $planet->empire->name)) {
-        $planet->spend_happiness(1250)->update;
+        $planet->spend_happiness(1500)->update;
     }
 }
 

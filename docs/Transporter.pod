@@ -1,7 +1,279 @@
 =head1 Transporter Methods
 
-Transporter is accessible via the URL C</transporter>.
+The Subspace Transporter is accessible via the URL C</transporter>. It allows you to transport goods across the vastness of space instantly. The catch is that the planet you're transporting to must also have a transporter, and it burns essentia to use it.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+
+
+=head2 add_trade ( session_id, building_id, offer, ask )
+
+Queues a trade for others to see. In addition to anything offered in your trade, setting up the trade will cost you 1 essentia. Returns:
+
+ {
+    "trade_id" : "id-goes-here",
+    "status" : { ... },
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the subspace transporter.
+
+=head3 offer
+
+A hash reference containing the details of what you are offering.
+
+=head4 type
+
+A string. Must contain one of the following values: ship, plan, prisoner, water, energy, waste, essentia, bean, lapis, potato, apple, root, corn, cider, wheat, bread, soup, chip, pie, pancake, milk, meal, algae, syrup, fungus, burger, shake, beetle, rutile, chromite, chalcopyrite, galena, gold, uraninite, bauxite, goethite, halite, gypsum, trona, kerogen, methane, anthracite, sulfur, zircon, monazite, fluorite, beryl, or magnetite.
+
+B<NOTE> If you choose ship, plan, or prisoner, see C<ship_id>, C<plan_id>, and C<prisoner_id> below.
+
+=head4 quantity
+
+An integer representing the amount of a resource that you're trading. Only needed for resources or essentia. All others default to quantity 1.
+
+=head4 ship_id
+
+The unique id of a ship that you wish to trade. See the C<get_ships> method.
+
+=head4 prisoner_id
+
+The unique id of a prisoner that you wish to trade. See the C<get_prisoners> method.
+
+=head4 plan_id
+
+The unique id of a plan that you sih to trade. See the C<get_plans> method. 
+
+=head3 ask
+
+A hash reference containing the details of what you wish to receive in exchange for your offer.
+
+=head4 type
+
+A string. Must contain one of the following values: water, energy, waste, essentia, bean, lapis, potato, apple, root, corn, cider, wheat, bread, soup, chip, pie, pancake, milk, meal, algae, syrup, fungus, burger, shake, beetle, rutile, chromite, chalcopyrite, galena, gold, uraninite, bauxite, goethite, halite, gypsum, trona, kerogen, methane, anthracite, sulfur, zircon, monazite, fluorite, beryl, or magnetite.
+
+=head4 quantity
+
+An integer representing the amount of a resource that you're asking for. 
+
+
+
+=head2 get_ships ( session_id, building_id )
+
+Returns a list of ships that may be traded. Used with the C<add_trade> method.
+
+ {
+    "ships" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "Enterprise",
+            "type" : "probe",
+            "hold_size" : 0,
+            "speed" : 3900
+        },
+        ...
+    ],
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+
+
+=head2 get_prisoners ( session_id, building_id )
+
+Returns a list of prisoners that may be traded. Used with the C<add_trade> method.
+
+ {
+    "prisoners" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "Jack Bauer",
+            "level" : "5"
+        },
+        ...
+    ],
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+
+
+=head2 get_plans ( session_id, building_id )
+
+Returns a list of plans that may be traded. Used with the C<add_trade> method.
+
+ {
+    "plans" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "Intelligence Ministry",
+            "level" : "7",
+            "extended_build_level" : "0"        # some special plans will build a building from their level all the way to this number
+        },
+        ...
+    ],
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+
+
+=head2 withdraw_trade ( session_id, building_id, trade_id )
+
+Remove a trade that you have offered and collect the items up for trade.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 trade_id
+
+The unique id of the trade.
+
+
+
+=head2 accept_trade ( session_id, building_id, trade_id, captcha_guid, captcha_solution )
+
+Accept a trade offer from the list of available trades. In addition to paying whatever the asking price is, the subspace transporter uses 1 essentia to complete the transaction. See C<view_available_trades>.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 trade_id
+
+The unique id of the trade.
+
+=head3 captcha_guid
+
+The C<view_available_trades> list also includes a captcha guid. That string must be passed along with the trade.
+
+=head3 captcha_solution
+
+The captcha described by C<view_available_trades> will require the user to solve a simple puzzle to prove their humanity. The answer to that puzzle must be provided here.
+
+
+
+=head view_available_trades ( session_id, building_id, [ page_number ] )
+
+Displays a list of trades available at the present time.
+
+ {
+    "trades" : [
+        {
+            "date_offered" : "01 31 2010 13:09:05 +0600",
+            "id" : "id-goes-here",
+            "ask_type" : "bauxite",
+            "ask_quantity" : 10000,
+            "ask_description" : "10000 Bauxite",
+            "offer_type" : "prisoner",
+            "offer_quantity" : 1,
+            "offer_description" : "Spy Named Jack Bauer (Level: 21)"
+        },
+        ...
+    ],
+    "trade_count" : 1047,
+    "page_number" : 1,
+    "captcha" : {
+        "guid" : "id-goes-here",
+        "url" : "https://url.to.image.goes.here/captcha.png"
+    },
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 page_number
+
+An integer representing the page of trades (25 per page) to return. Defaults to 1.
+
+
+
+
+=head view_my_trades ( session_id, building_id, [ page_number ] )
+
+Displays a list of trades the current user has posted.
+
+ {
+    "trades" : [
+        {
+            "date_offered" : "01 31 2010 13:09:05 +0600",
+            "id" : "id-goes-here",
+            "ask_type" : "bauxite",
+            "ask_quantity" : 10000,
+            "ask_description" : "10000 Bauxite",
+            "offer_type" : "prisoner",
+            "offer_quantity" : 1,
+            "offer_description" : "Spy Named Jack Bauer (Level: 21)"
+        },
+        ...
+    ],
+    "trade_count" : 17,
+    "page_number" : 1,
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 page_number
+
+An integer representing the page of trades (25 per page) to return. Defaults to 1.
+
+
+
 
 =cut

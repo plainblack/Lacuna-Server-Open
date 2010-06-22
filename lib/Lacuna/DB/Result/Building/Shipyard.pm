@@ -238,8 +238,8 @@ sub get_ship_speed {
 
 # CARGO HOLD SIZE
 
-use constant cargo_ship_base => 2000;
-use constant smuggler_ship_base => 1200;
+use constant cargo_ship_base => 700;
+use constant smuggler_ship_base => 385;
 
 has trade_ministry => (
     is      => 'rw',
@@ -260,7 +260,7 @@ has hold_size_bonus => (
         if (defined $trade_ministry) {
             $trade_ministry_level = $trade_ministry->level;
         }
-        return (100 + ($self->body->empire->species->trade_affinity * 25) + ($trade_ministry_level * 30)) / 100;
+        return $self->body->empire->species->trade_affinity * $trade_ministry_level;
     },
 );
 

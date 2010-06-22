@@ -3,6 +3,9 @@ package Lacuna::DB::Result::Building::Transporter;
 use Moose;
 extends 'Lacuna::DB::Result::Building';
 
+with 'Lacuna::Role::Trader';
+
+
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
     return ($orig->($class), qw(Infrastructure));
@@ -38,6 +41,27 @@ use constant water_consumption => 5;
 
 use constant waste_production => 1;
 
+sub add_trade {
+    my ($self, $offer, $ask) = @_;
+    $ask = $self->structure_ask($ask);
+    $offer = $self->structure_offer($offer, $self->determine_available_cargo_space);
+    my %trade = (
+        %{$ask},
+        %{$offer},
+        body_id         => $self->body_id,
+        transfer_type   => $self->transfer_type,
+    );
+    return Lacuna->db->resultset('Lacuna::DB::Result::Trades')->new(\%trade)->insert;
+}
+
+sub transfer_type {
+    return 'transporter';
+}
+
+sub determine_available_cargo_space {
+    my ($self) = @_;
+    return 2000 * $self->level * $self->body->empire->species->trade_affinity;
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
