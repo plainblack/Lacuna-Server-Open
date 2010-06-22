@@ -6,6 +6,7 @@ use Plack::App::Directory;
 use Log::Log4perl;
 use Log::Any::Adapter;
 use Lacuna;
+use Plack::Builder;
 
 $|=1;
 
@@ -89,6 +90,22 @@ $urlmap->map(Lacuna::RPC::Building::WaterPurification->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::WaterReclamation->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::WaterStorage->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Wheat->new->to_app_with_url);
+
+# admin
+my $admin = Lacuna::Admin->new->to_app;
+
+builder {
+    enable "Auth::Basic", authenticator => \&authen_cb;
+    $admin;
+};
+
+sub authen_cb {
+    my($username, $password) = @_;
+    return $username eq 'admin' && $password eq 's3cr3t';
+}
+
+$urlmap->map("/admin" => $admin);
+
 
 
 $urlmap->to_app;
