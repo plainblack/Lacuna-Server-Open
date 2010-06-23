@@ -200,7 +200,7 @@ sub view_ships_travelling {
     $page_number ||= 1;
     my $body = $building->body;
     my @travelling;
-    my $ships = $body->ships_travelling->search({}, {rows=>25, page=>$page_number});
+    my $ships = $body->ships_travelling->search(undef, {rows=>25, page=>$page_number});
     while (my $ship = $ships->next) {
         my $target = ($ship->foreign_body_id) ? $ship->foreign_body : $ship->foreign_star;
         my $from = {

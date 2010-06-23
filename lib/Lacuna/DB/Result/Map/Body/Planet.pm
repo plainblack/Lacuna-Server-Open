@@ -26,6 +26,7 @@ sub ships_travelling {
         $order = '-desc';
     }
     $where->{body_id} = $self->id;
+    $where->{task} = 'Travelling';
     return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         $where,
         {
