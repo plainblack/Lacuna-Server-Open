@@ -58,14 +58,17 @@ sub restrict_coverage {
         confess [1009, 'The valid values for onoff are 1 or 0.'];
     }
     my $body = $building->body;
-    if ($onoff == 1 && !$body->restrict_coverage && $body->restrict_coverage_delta_in_seconds > 60*60) {
-        $body->add_news(100,'Network 19 has just learned that %s intends to restrict our coverage on %s!', $empire->name, $body->name);
-    }
-    elsif ($onoff == 0 && $body->restrict_coverage && $body->restrict_coverage_delta_in_seconds > 60*60) {
-        $body->add_news(90,'In an act of devine wisdom, %s has restored our full coverage on %s!', $empire->name, $body->name);
+    my $cache = Lacuna->cache;
+    unless ($cache->get('restrict_coverage_spam_lock',$body->id)) {
+        $cache->set('restrict_coverage_spam_lock',$body->id, 1, 60*60);
+        if ($onoff) {
+            $body->add_news(100,'Network 19 has just learned that %s intends to restrict our coverage on %s!', $empire->name, $body->name);
+        }
+        else {
+            $body->add_news(90,'In an act of devine wisdom, %s has restored our full coverage on %s!', $empire->name, $body->name);
+        }
     }
     $body->restrict_coverage($onoff);
-    $body->restrict_coverage_delta(DateTime->now);
     $body->update;
     return {
         status  => $self->format_status($empire, $body),

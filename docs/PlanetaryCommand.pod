@@ -13,6 +13,7 @@ Command extends the view method to include a C<planet> section.
  {
     "building" : { ... },
     "status" : { ... },
+    "next_colony_cost" : 750000,        # the amount of happiness required to settle your next colony
     "planet" : {
         "id" : "id-goes-here",
         "x" : -4,

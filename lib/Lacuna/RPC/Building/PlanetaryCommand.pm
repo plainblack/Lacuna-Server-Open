@@ -17,6 +17,7 @@ around 'view' => sub {
     my $building = $self->get_building($empire, $building_id);
     my $out = $orig->($self, $empire, $building);
     $out->{planet} = $building->body->get_status($empire);
+    $out->{next_colony_cost} = $empire->next_colony_cost;
     return $out;
 };
 

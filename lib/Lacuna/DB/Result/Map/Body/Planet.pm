@@ -566,11 +566,6 @@ sub recalc_stats {
 
 # NEWS
 
-sub restrict_coverage_delta_in_seconds {
-    my $self = shift;
-    return to_seconds(DateTime->now - $self->restrict_coverage_delta);
-}
-
 sub add_news {
     my $self = shift;
     my $chance = shift;

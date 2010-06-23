@@ -29,7 +29,11 @@ sub rename {
     
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
-    $body->add_news(200,"In a bold move to show its growing power, %s renamed %s to %s.",$empire->name, $body->name, $name);
+    my $cache = Lacuna->cache;
+    unless ($cache->get('body_rename_spam_lock',$body->id)) {
+        $cache->set('body_rename_spam_lock',$body->id, 1, 60*60);
+        $body->add_news(200,"In a bold move to show its growing power, %s renamed %s to %s.",$empire->name, $body->name, $name);
+    }
     $body->update({name => $name});
     return 1;
 }

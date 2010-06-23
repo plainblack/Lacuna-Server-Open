@@ -114,7 +114,6 @@ __PACKAGE__->add_columns(
     needs_recalc                    => { data_type => 'bit', default_value => 0 },
     needs_surface_refresh           => { data_type => 'bit', default_value => 0 },
     restrict_coverage               => { data_type => 'bit', default_value => 0 },  
-    restrict_coverage_delta         => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
 );
 
 after 'sqlt_deploy_hook' => sub {
