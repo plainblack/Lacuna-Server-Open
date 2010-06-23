@@ -535,7 +535,7 @@ sub check_build_prereqs {
     
     # check goldilox zone
     if ($body->orbit < $self->min_orbit || $body->orbit > $self->max_orbit) {
-        confess [1013, "Can't build a building outside of it's Goldilox zone.", [$self->min_orbit, $self->max_orbit]];
+        confess [1013, "This building may only be built between orbits ".$self->min_orbit." and ".$self->max_orbit.".", [$self->min_orbit, $self->max_orbit]];
     }
     
     unless ($body->get_plan($self->class, 1)) {
