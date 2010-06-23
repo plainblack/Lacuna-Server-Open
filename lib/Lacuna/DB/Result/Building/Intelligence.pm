@@ -114,9 +114,10 @@ has training_multiplier => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $multiplier = $self->level - $self->body->empire->species->deception_affinity;
-        $multiplier += $self->espionage_level;
-        $multiplier += $self->security_level;
+        my $multiplier = $self->level
+            - $self->body->empire->species->deception_affinity
+            + $self->espionage_level
+            + $self->security_level;
         $multiplier = 1 if $multiplier < 1;
         return $multiplier;
     }
@@ -131,7 +132,7 @@ sub training_costs {
         energy  => 50 * $multiplier,
         food    => 500 * $multiplier,
         ore     => 5 * $multiplier,
-        time    => 1030 * $multiplier / $self->body->empire->species->management_affinity,
+        time    => sprintf('%.0f', 1030 * $multiplier / $self->body->empire->species->management_affinity),
     };
 }
 
