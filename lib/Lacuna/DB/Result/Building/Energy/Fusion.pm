@@ -7,7 +7,7 @@ before check_build_prereqs => sub {
     my $self = shift;
     my $planet = $self->body;
     if ($planet->galena + $planet->halite < 500) {
-        confess [1012,"This planet does not have a sufficient supply of coolants to operate this reactor."];
+        confess [1012,"This planet does not have a sufficient supply of coolants such as Galena and Halite to operate this reactor."];
     }
 };
 

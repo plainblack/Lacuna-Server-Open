@@ -7,7 +7,7 @@ before check_build_prereqs => sub {
     my $self = shift;
     my $planet = $self->body;
     if ($planet->sulfur + $planet->fluorite < 500) {
-        confess [1012,"This planet does not have a sufficient supply of processing minerals to refine ore."];
+        confess [1012,"This planet does not have a sufficient supply of processing minerals such as Sulfur and Fluorite to refine ore."];
     }
 };
 

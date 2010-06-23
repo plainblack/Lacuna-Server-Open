@@ -12,7 +12,7 @@ before check_build_prereqs => sub {
     my $self = shift;
     my $planet = $self->body;
     if ($planet->zircon + $planet->beryl + $planet->gypsum < 100) {
-        confess [1012,"This planet does not have a sufficient supply of insulating minerals to build a waste energy plant."];
+        confess [1012,"This planet does not have a sufficient supply of insulating minerals such as Zircon, Beryl, and Gypsum to build a waste energy plant."];
     }
 };
 

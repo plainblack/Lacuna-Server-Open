@@ -7,7 +7,7 @@ before check_build_prereqs => sub {
     my $self = shift;
     my $planet = $self->body;
     if ($planet->kerogen + $planet->methane + $planet->anthracite < 500) {
-        confess [1012,"This planet does not have a sufficient amount of hydrocarbons to operate this plant."];
+        confess [1012,"This planet does not have a sufficient amount of hydrocarbons such as Kerogen, Methane, and Anthracite to operate this plant."];
     }
 };
 
