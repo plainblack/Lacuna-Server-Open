@@ -17,7 +17,10 @@ around 'view' => sub {
     my $building = $self->get_building($empire, $building_id);
     my $out = $orig->($self, $empire, $building);
     if ($building->is_working) {
-        $out->{party}{seconds_remaining} = $building->work_seconds_remaining;
+        $out->{party} = {
+            seconds_remaining   => $building->work_seconds_remaining,
+            happiness           => $building->work->{happiness_from_party},
+        };
     }
     else {
         $out->{party}{can_throw} = (eval { $building->can_throw_a_party }) ? 1 : 0;

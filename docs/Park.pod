@@ -15,6 +15,7 @@ This method is changed from the default because it adds a C<party> element to th
     "status" : { ... },
     "party" : {
         "seconds_remaining" : 397,
+        "happiness_from_party" : 10000,
         "can_throw" : 0
     }
  }
