@@ -196,7 +196,7 @@ The captcha described by C<view_available_trades> will require the user to solve
 
 
 
-=head view_available_trades ( session_id, building_id, [ page_number ] )
+=head2 view_available_trades ( session_id, building_id, [ page_number ] )
 
 Displays a list of trades available at the present time.
 
@@ -238,7 +238,7 @@ An integer representing the page of trades (25 per page) to return. Defaults to 
 
 
 
-=head view_my_trades ( session_id, building_id, [ page_number ] )
+=head2 view_my_trades ( session_id, building_id, [ page_number ] )
 
 Displays a list of trades the current user has posted.
 
