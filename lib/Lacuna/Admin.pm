@@ -68,7 +68,7 @@ sub www_search_bodies {
         $bodies = $bodies->search({star_id => $request->param('star_id')});
     }
     my $out = '<h1>Search Bodies</h1>';
-    $out .= '<form><input type="hidden" name="op" value="search_stars"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
+    $out .= '<form><input type="hidden" name="op" value="search_bodies"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
     $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Zone</th><th>Star</th><th>Empire</th></tr>';
     while (my $body = $bodies->next) {
         $out .= sprintf('<tr><td><a href="?op=manage_body;id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="?op=manage_empire;id=%s">%s</a></td></tr>', $body->id, $body->id, $body->name, $body->x, $body->y, $body->zone, $body->star_id, $body->empire_id || '', $body->empire_id || '');
