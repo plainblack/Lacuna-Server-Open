@@ -4,7 +4,7 @@ use Moose;
 extends 'Lacuna::RPC';
 use DateTime;
 use Lacuna::Verify;
-
+use Lacuna::Util qw(format_date);
 
 
 sub read_message {
@@ -76,16 +76,23 @@ sub send_message {
     my @sent;
     my @unknown;
     my @to;
+    my $cache = Lacuna->cache;
+    my $cache_key = 'mail_send_count_'.format_date(undef,'%d');
+    my $send_count = $cache->get($cache_key,$empire->id);
     foreach my $name (split /\s*,\s*/, $recipients) {
         next if $name eq '';
         my $user = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $name})->next;
         if (defined $user) {
             push @sent, $user->name;
             push @to, $user;
+            $send_count++;
         }
         else {
             push @unknown, $name;
         }
+    }
+    if ($send_count > 100) {
+        confess [1010, "You have already sent the maximum number of messages you can send for one day."];
     }
     foreach my $to (@to) {
         if ($to->id == 1) {
@@ -102,6 +109,7 @@ sub send_message {
             );
         }
     }
+    $cache->set($cache_key, $empire->id, $send_count, 60 * 60 * 24);
     return {
         message => {
             sent    => \@sent,

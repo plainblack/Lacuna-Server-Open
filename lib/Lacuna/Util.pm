@@ -14,9 +14,10 @@ sub to_seconds {
 }
 
 sub format_date {
-    my $date = shift;
-    $date || DateTime->now;
-    return DateTime::Format::Strptime::strftime('%d %m %Y %H:%M:%S %z',$date);
+    my ($date, $format) = @_;
+    $date ||= DateTime->now;
+    $format ||= '%d %m %Y %H:%M:%S %z';
+    return DateTime::Format::Strptime::strftime($format,$date);
 }
 
 sub randint {
