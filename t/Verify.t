@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 51;
+use Test::More tests => 53;
 
 use_ok('Lacuna::Verify');
 
@@ -45,10 +45,10 @@ my $semi = Lacuna::Verify->new(content=>\'foo;bar', throws=>'NO');
 is(eval{$semi->no_restricted_chars}, undef, 'no_restricted_chars - ;');
 like($@, qr/^NO/, 'rc ; exception');
 
-my $gt = Lacuna::Verify->new(content=>\'foo>bar', throws=>'NO');
+$gt = Lacuna::Verify->new(content=>\'foo>bar', throws=>'NO');
 is(eval{$gt->no_tags}, undef, 'no_tags - >');
 like($@, qr/^NO/, 'rc >  exception');
-my $lt = Lacuna::Verify->new(content=>\'foo<bar', throws=>'NO');
+$lt = Lacuna::Verify->new(content=>\'foo<bar', throws=>'NO');
 is(eval{$lt->no_tags}, undef, 'no_tags - <');
 like($@, qr/^NO/, 'rc < exception');
 
@@ -59,7 +59,7 @@ like($@, qr/^NO/, 'empty exception');
 ok($foo->not_empty, 'not_empty');
 is(eval{$empty->not_empty}, undef, 'not_empty - fail');
 like($@, qr/^NO/, 'not empty exception');
-my $empty = Lacuna::Verify->new(content=>\" \t", throws=>'NO');
+$empty = Lacuna::Verify->new(content=>\" \t", throws=>'NO');
 is(eval{$empty->not_empty}, undef, 'not_empty whitespace - fail');
 like($@, qr/^NO/, 'not empty whitespace exception');
 
@@ -68,13 +68,17 @@ ok($foo->no_profanity, 'no_profanity');
 is(eval{$shit->no_profanity}, undef, 'no_profanity - fail');
 like($@, qr/^NO/, 'np exception');
 
+my $fuck = Lacuna::Verify->new(content=>\'Fuck', throws=>'NO');
+is(eval{$fuck->no_profanity}, undef, 'no_profanity - uppercase fuck triggers exception');
+like($@, qr/^NO/, 'np exception');
+
 my $double_carriage_returns = Lacuna::Verify->new(content=>\"foo\n\nbar", throws=>'NO');
 ok($double_carriage_returns->no_tags, '\n\n no_tags');
 ok($double_carriage_returns->no_profanity, '\n\n no_profanity');
 ok($double_carriage_returns->not_empty, '\n\n not_empty');
 
-my $double_carriage_returns = Lacuna::Verify->new(content=>\"foo\n\n", throws=>'NO');
+$double_carriage_returns = Lacuna::Verify->new(content=>\"foo\n\n", throws=>'NO');
 ok($double_carriage_returns->not_empty, 'after \n\n not_empty');
 
-my $double_carriage_returns = Lacuna::Verify->new(content=>\"\n\nfoo", throws=>'NO');
+$double_carriage_returns = Lacuna::Verify->new(content=>\"\n\nfoo", throws=>'NO');
 ok($double_carriage_returns->not_empty, 'before \n\n not_empty');

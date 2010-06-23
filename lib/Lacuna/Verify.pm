@@ -48,7 +48,7 @@ sub not_empty {
 
 sub no_profanity {
     my $self = shift;
-    return $self->ok(${$self->content} !~ RE_profanity());
+    return $self->ok(lc(${$self->content}) !~ RE_profanity());
 }
 
 sub no_restricted_chars {
