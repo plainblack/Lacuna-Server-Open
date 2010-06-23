@@ -50,6 +50,10 @@ sub subsidize_recycling {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
 
+    unless ($building->is_working) {
+        confess [1010, "The Recycling Center isn't recycling anything."];
+    }
+ 
     unless ($empire->essentia >= 2) {
         confess [1011, "Not enough essentia."];    
     }
