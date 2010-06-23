@@ -369,7 +369,7 @@ sub next_colony_cost {
     for (2..$count) {
         $tally += $tally * 0.96;
     }
-    return $tally;
+    return sprintf('%.0f', $tally);
 }
 
 has probed_stars => (
