@@ -64,8 +64,13 @@ Retrieves the properties of the building.
         "waste_hour" : 33,
         "waste_capacity" : 500,
         "happiness_hour" : 0,
-        "pending_build" : {
+        "pending_build" : {                            # only included when building is building/upgrading
             "seconds_remaining" : 430,
+            "start" : "01 31 2010 13:09:05 +0600",
+            "end" : "01 31 2010 18:09:05 +0600"
+        },
+        "work" : {                                     # only included when building is working (Parks, Waste Recycling, etc)
+            "seconds_remaining" : 49,
             "start" : "01 31 2010 13:09:05 +0600",
             "end" : "01 31 2010 18:09:05 +0600"
         },

@@ -83,6 +83,16 @@ The list of building's retreived by this method should be placed on the 11x11 gr
             "url" : "/apple",
             "level" : 3,
             "image" : "apples3",
+            "pending_build" : {                            # only included when building is building/upgrading
+                "seconds_remaining" : 430,
+                "start" : "01 31 2010 13:09:05 +0600",
+                "end" : "01 31 2010 18:09:05 +0600"
+            },
+            "work" : {                                     # only included when building is working (Parks, Waste Recycling, etc)
+                "seconds_remaining" : 49,
+                "start" : "01 31 2010 13:09:05 +0600",
+                "end" : "01 31 2010 18:09:05 +0600"
+            }
         },
         "id-goes-here2" : {
             "name" : "Planetary Command",
@@ -90,7 +100,7 @@ The list of building's retreived by this method should be placed on the 11x11 gr
             "y" : 0,
             "url" : "/command",
             "level" : 1,
-            "image" : "command1",
+            "image" : "command1"
         }
     },
     "body" : {

@@ -731,6 +731,16 @@ sub finish_upgrade {
 
 # WORK
 
+sub work_ends_formatted {
+    my $self = shift;
+    return format_date($self->work_ends);
+}
+
+sub work_started_formatted {
+    my $self = shift;
+    return format_date($self->work_started);
+}
+
 sub work_seconds_remaining {
     my ($self) = @_;
     return 0 unless $self->is_working;

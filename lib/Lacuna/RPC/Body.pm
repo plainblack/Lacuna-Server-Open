@@ -57,6 +57,16 @@ sub get_buildings {
             y       => $building->y,
             level   => $building->level,
         };
+        if ($self->is_working) {
+            $out{$building->id}{pending_build} = $building->upgrade_status;
+        }
+        if ($self->is_upgrading) {
+            $out{$building->id}{work} = {
+                seconds_remaining   => $building->work_seconds_remaining,
+                start               => $building->work_started_formatted,
+                end                 => $building->work_ends_formatted,
+            };
+        }
     }
     
     return {buildings=>\%out, body=>{surface_image => $body->surface}, status=>$self->format_status($empire, $body)};
