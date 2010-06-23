@@ -33,12 +33,13 @@ out((to_seconds($finish - $start)/60)." minutes have elapsed");
 
 
 sub trickle {
-    my $veins = $db->resultset('Lacuna::DB::Result::Building::Permanent::EssentiaVein');
+    my $veins = $db->resultset('Lacuna::DB::Result::Building')->search({class => 'Lacuna::DB::Result::Building::Permanent::EssentiaVein'});
     while (my $vein = $veins->next) {
         my $body = $vein->body;
         if ($body->empire_id) {
             my $empire = $body->empire;
             if (defined $empire) {
+		out($empire->name);
                 $empire->add_essentia(4, 'Essentia Vein')->update;
             }
         }
