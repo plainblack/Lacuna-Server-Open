@@ -85,12 +85,12 @@ if ($account{captcha_guid}) {
 
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new({
         name                => $account{name},
-        date_created        => DateTime->now,
         species_id          => 2,
         status_message      => 'Making Lacuna a better Expanse.',
         password            => Lacuna::DB::Result::Empire->encrypt_password($account{password}),
 
     })->insert;
+    
     return $empire->id;
 }
 
