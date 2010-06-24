@@ -52,6 +52,7 @@ is($empire->count_probed_stars, 2, "2 stars probed!");
 $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
 is($result->{result}{docked_ships}{probe}, 1, "we have one probe left");
 
+
 END {
     $tester->cleanup;
 }

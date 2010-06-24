@@ -141,7 +141,7 @@ sub build_ship {
     my ($self, $type, $time) = @_;
     $time ||= $self->get_ship_costs($type)->{seconds};
     my $latest = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        { shipyard_id => $self->id},
+        { shipyard_id => $self->id, task => 'Building' },
         { order_by    => { -desc => 'date_available' }, rows=>1},
         )->single;
     my $date_completed;
