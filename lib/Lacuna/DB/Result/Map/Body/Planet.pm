@@ -97,7 +97,6 @@ around 'get_status' => sub {
     foreach my $type (ORE_TYPES) {
         $ore{$type} = $self->$type();
     }
-    $out->{size}            = $self->size;
     $out->{ore}             = \%ore;
     $out->{water}           = $self->water;
     if ($self->empire_id) {

@@ -204,6 +204,7 @@ sub get_status {
         x               => $self->x,
         y               => $self->y,
         orbit           => $self->orbit,
+        size            => $self->size,
         type            => $self->get_type,
         star_id         => $self->star_id,
         star_name       => $self->star->name,
