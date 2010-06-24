@@ -110,7 +110,7 @@ B<NOTE:> All inbound/outbound ships are shown regardless of which space port the
     "ships_travelling" : [
        {
            "id" : "id-goes-here",
-           "ship_type" : "probe",
+           "type" : "probe",
            "date_arrives" : "01 31 2010 13:09:05 +0600",
            "from" : {
                "id" : "id-goes-here",
