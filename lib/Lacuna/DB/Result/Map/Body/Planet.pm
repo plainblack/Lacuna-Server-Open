@@ -730,20 +730,26 @@ sub tick_to {
         my $add_method = 'add_'.$type;
         $self->$add_method(sprintf('%.0f', $self->$hour_method() * $tick_rate));
     }
-    my $food_consumed = sprintf('%.0f', $self->food_consumption_hour * $tick_rate);
-    foreach my $type (shuffle FOOD_TYPES) {
-        my $hour_method = $type.'_production_hour';
-        my $add_method = 'add_'.$type;
-        my $food_produced = sprintf('%.0f', $self->$hour_method() * $tick_rate);
-        if ($food_produced > $food_consumed) {
-            $food_produced -= $food_consumed;
-            $food_consumed = 0;
-            $self->$add_method($food_produced);
-        }
-        else {
-            $food_consumed -= $food_produced;
+    
+    # food production
+    my %food;
+    my $food_produced;
+    foreach my $type (FOOD_TYPES) {
+        my $production_hour_method = $type.'_production_hour';
+        $food{$type} = sprintf('%.0f', $self->$production_hour_method() * $tick_rate);
+        $food_produced += $food{$type};
+    }
+    
+    # subtract food consumption and save
+    if ($food_produced > 0) {
+        my $food_consumed = sprintf('%.0f', $self->food_consumption_hour * $tick_rate);
+        foreach my $type (FOOD_TYPES) {
+            my $add_method = 'add_'.$type;
+            $food{$type} -= sprintf('%.0f', ($food{$type} * $food_consumed) / $food_produced);
+            $self->$add_method($food{$type});
         }
     }
+    
     $self->update;
 }
 
@@ -1141,33 +1147,35 @@ sub add_lapis {
 }
 
 sub spend_food {
-    my ($self, $value) = @_;
-    my $subtract = sprintf('%.0f', $value / 5);
-    my %types;
-    SPEND: while (1) {
-        foreach my $type (shuffle FOOD_TYPES) {
-            my $method = $type."_stored";
-            my $stored = $self->$method;
-            if ($stored > $subtract) {
-                $types{$type} = 1;
-                $self->$method($stored - $subtract);
-                $value -= $subtract;
-            }
-            else {
-                $value -= $stored;
-                $self->$method(0);
-            }
-            last SPEND if ($value <= 0);
-            $subtract = $value if ($subtract > $value);
-        }
-        last SPEND if ($subtract <= 0); # prevent an infinite loop scenario
+    my ($self, $food_consumed) = @_;
+    
+    # take inventory
+    my $food_stored;
+    foreach my $type (FOOD_TYPES) {
+        my $stored_method = $type.'_stored';
+        $food_stored += $self->$stored_method;
     }
-    my $food_type_count = scalar(keys %types);
+    
+    # spend proportionally and save
+    my $food_type_count = 0;
+    if ($food_stored) {
+        foreach my $type (FOOD_TYPES) {
+            my $stored_method = $type.'_stored';
+            my $amount_stored = $self->$stored_method;
+            my $amount_spent = sprintf('%.0f', ($food_consumed * $amount_stored) / $food_stored);
+            if ($amount_spent) {
+                $food_type_count++;
+                $self->$stored_method($amount_stored - $amount_spent);
+            }
+        }
+    }
+    
+    # adjust happiness based on food diversity
     if ($food_type_count > 3) {
-        $self->add_happiness($value);
+        $self->add_happiness($food_consumed);
     }
     elsif ($food_type_count < 3) {
-        $self->spend_happiness($value);
+        $self->spend_happiness($food_consumed);
         if (!$self->empire->check_for_repeat_message('complaint_food_diversity')) {
             $self->empire->send_predefined_message(
                 filename    => 'complaint_food_diversity.txt',
