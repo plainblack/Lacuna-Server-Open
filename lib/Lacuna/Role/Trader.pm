@@ -14,10 +14,9 @@ sub assign_captcha {
     my ($self, $empire) = @_;
     my $captcha = Lacuna->db->resultset('Lacuna::DB::Result::Captcha')->find(randint(1,72792));
     Lacuna->cache->set('trade_captcha', $empire->id, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 30 );
-    $captcha->set_as_current;
     return {
         guid    => $captcha->guid,
-        url     => 'https://extras.lacunaexpanse.com/captcha/'.substr($captcha->guid,0,2).'/'.$captcha->guid.'.png',
+        url     => 'https://extras.lacunaexpanse.com.s3.amazonaws.com/captcha/'.substr($captcha->guid,0,2).'/'.$captcha->guid.'.png',
     };
 }
 

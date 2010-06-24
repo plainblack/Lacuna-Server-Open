@@ -59,11 +59,27 @@ sub login {
     return { session_id => $empire->start_session($api_key)->id, status => $self->format_status($empire) };
 }
 
+
+sub fetch_captcha {
+    my ($self, $plack_request) = @_;
+    my $ip = $plack_request->address;
+    my $captcha = Lacuna->db->resultset('Lacuna::DB::Result::Captcha')->find(randint(1,72792));
+    Lacuna->cache->set('create_empire_captcha', $ip, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 15 );
+    return {
+        guid    => $captcha->guid,
+        url     => 'https://extras.lacunaexpanse.com.s3.amazonaws.com/captcha/'.substr($captcha->guid,0,2).'/'.$captcha->guid.'.png',
+    };
+}
+
 sub create {
-    my ($self, %account) = @_;
+    my ($self, $plack_request, %account) = @_;
     Lacuna::Verify->new(content=>\$account{password}, throws=>[1001,'Invalid password.', $account{password}])
         ->length_gt(5)
         ->eq($account{password1});
+
+if ($account{captcha_guid}) {
+    $self->validate_captcha($plack_request, $account{captcha_guid}, $account{captcha_solution});
+}
 
     $self->is_name_available($account{name});
 
@@ -78,6 +94,21 @@ sub create {
     return $empire->id;
 }
 
+sub validate_captcha {
+    my ($self, $plack_request, $guid, $solution) = @_;
+    my $ip = $plack_request->address;
+    if ($guid && $solution) {                                                               # offered a solution
+        my $captcha = Lacuna->cache->get_and_deserialize('create_empire_captcha', $ip);
+        if (ref $captcha eq 'HASH') {                                                       # a captcha has been set
+            if ($captcha->{guid} eq $guid) {                                                # the guid is the one set
+                if ($captcha->{solution} eq $solution) {                                    # the solution is correct
+                    return 1;
+                }
+            }
+        }
+    }
+    confess [1014, 'Captcha not valid.', $self->assign_captcha($plack_request)];
+}
 
 sub found {
     my ($self, $empire_id, $api_key) = @_;
@@ -272,7 +303,11 @@ sub view_boosts {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(set_status_message find view_profile edit_profile view_public_profile is_name_available create found login logout get_full_status get_status boost_water boost_energy boost_ore boost_food boost_happiness view_boosts));
+__PACKAGE__->register_rpc_method_names(
+    { name => "create", options => { with_plack_request => 1 } },
+    { name => "fetch_captcha", options => { with_plack_request => 1 } },
+    qw(set_status_message find view_profile edit_profile view_public_profile is_name_available found login logout get_full_status get_status boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+);
 
 
 no Moose;
