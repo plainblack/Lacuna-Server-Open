@@ -459,13 +459,13 @@ sub builds {
     }
     return Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
         { body_id => $self->id, is_upgrading => 1 },       
-        { $order => 'upgrade_ends' }
+        { order_by => { $order => 'upgrade_ends' } }
     );
 }
 
 sub get_existing_build_queue_time {
     my $self = shift;
-    my $building = $self->builds(1)->next;
+    my $building = $self->builds(1)->search(undef, {rows=>1})->single;
     return (defined $building) ? $building->upgrade_ends : DateTime->now;
 }
 

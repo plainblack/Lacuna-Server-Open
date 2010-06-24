@@ -699,7 +699,6 @@ sub start_upgrade {
     
     # set time to build, plus what's in the queue
     my $time_to_build = $body->get_existing_build_queue_time->add(seconds=>$cost->{time});
-    
     # add to queue
     $self->update({
         is_upgrading    => 1,
