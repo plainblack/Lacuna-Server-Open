@@ -73,6 +73,12 @@ sub send_message {
         ->no_tags
         ->no_profanity;
     my $empire = $self->get_empire_by_session($session_id);
+    if ($options->{in_reply_to}) {
+        my $reply_to = Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($options->{in_reply_to});
+        unless ($empire->id ~~ [$reply_to->to_id, $reply_to->from_id]) {
+            confess [1010, 'You cannot set in_reply_to to a message id that you cannot read.'];
+        }
+    }
     my @sent;
     my @unknown;
     my @to;
