@@ -9,8 +9,8 @@ sub view_my_trades {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $my_trades = $building->my_trades->search(undef, { rows => 25, page => $page_number });
     $page_number ||=1;
+    my $my_trades = $building->my_trades->search(undef, { rows => 25, page => $page_number });
     my @trades;
     while (my $trade = $my_trades->next) {
         push @trades, {
