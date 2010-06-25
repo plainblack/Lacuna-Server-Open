@@ -333,11 +333,6 @@ sub add_probe {
         body_id     => $body_id,
     })->insert;
     
-    # no longer an isolationist
-    if ($self->is_isolationist && $star_id ne $self->home_planet->star_id) {
-        $self->update({is_isolationist=>0});
-    }
-    
     # send notifications
     # this could be a performance problem in the future depending upon the number of probes in a star system
     my $star_name = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id)->name;
