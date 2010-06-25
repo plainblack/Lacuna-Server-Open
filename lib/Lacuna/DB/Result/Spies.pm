@@ -71,9 +71,6 @@ sub is_available {
             });
             $trade->withdraw;
         }
-        elsif ($task ~~ ['Killed In Action','Burned']) {
-            return 0;
-        }
         return 1;
     }
     return 0;

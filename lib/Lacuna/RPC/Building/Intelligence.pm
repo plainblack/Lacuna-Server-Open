@@ -57,6 +57,9 @@ sub assign_spy {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $spy = $building->get_spy($spy_id);
+    unless (defined $spy) {
+        confess [1002, "Spy not found."];
+    }
     $spy->assign($assignment)->update;
     return {
         status  => $self->format_status($empire, $building->body),
@@ -68,12 +71,10 @@ sub burn_spy {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $spy = $building->get_spy($spy_id);
-    if ($spy->task eq 'Killed In Action') {
-        confess [1013, "Wow! You have to be pretty cruel to burn a spy after he is already dead."];
+    unless (defined $spy) {
+        confess [1002, "Spy not found."];
     }
-    $spy->started_assignment(DateTime->now);
-    $spy->task('Burned');
-    $spy->update;
+    $spy->delete;
     my $body = $building->body;
     if ($body->add_news(10, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $empire->name)) {
         $body->spend_happiness(1000);

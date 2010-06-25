@@ -1824,9 +1824,6 @@ sub determine_espionage {
 
 sub kill_a_spy {
     my ($planet, $spy, $interceptor, $score) = @_;
-    $spy->task('Killed In Action');
-    $spy->started_assignment(DateTime->now);
-    $spy->update;
     $interceptor->spies_killed( $interceptor->spies_killed + 1 );
     $interceptor->update;
     $interceptor->empire->send_predefined_message(
@@ -1840,6 +1837,7 @@ sub kill_a_spy {
         filename    => 'spy_killed.txt',
         params      => [$spy->name, $planet->name],
     );
+    $spy->delete;
 }
 
 sub capture_a_spy {
