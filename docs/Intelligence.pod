@@ -178,29 +178,57 @@ A string containing the new assignment name. These are the possible assignments:
 
 Don't do anything.
 
-=item Gather Intelligence
+=item Gather Shipping Intelligence
 
-Gather information about what is happening on this planet. On your own planets it will help you find out who's spying on you and what they're doing. On foreign planets it will give you information about the economy, infrastructure, and strength of that planet.
+Find out what's up for trade, what ships are available, what ships are being built, where ships are travelling to, etc.
 
-=item Capture Spies
+=item Gather Empire Intelligence
 
-Attempt to disrupt the plots of foreign spies on this planet.
+Find out what is built on this planet, the resources of the planet, what other colonies this Empire has, etc.
+
+=item Gather Operative Intelligence
+
+Find out what spies are on this planet, where they are from, what they are doing, etc.
+
+=item Hack Network 19
+
+Attempts to besmirch the good name of the empire controlling this planet, and deprive them of a small amount of happiness.
+
+=item Appropriate Plans
+
+Steal plans for buildings that this empire has built.
+
+=item Sabotage Probes
+
+Destroy probes controlled by this empire.
+
+=item Rescue Comrades
+
+Break spies out of prison.
+
+=item Sabotage Ships
+
+Destroy ships being built, docked, en route to mining platforms, etc.
+
+=item Appropriate Ships
+
+Steal empty ships, ships full of resources, ships full of trade goods, etc.
+
+=item Assassinate Operatives
+
+Kill spies.
 
 =item Sabotage Infrastructure
 
-Attempt to destroy things on the planet.
+Destroy buildings.
 
-=item Appropriate Technology
+=item Incite Mutany
 
-Attempt to steal ships, buildings, and possibly resources.
+Turn spies. If successful they come work for you.
 
 =item Incite Rebellion
 
-Attempt to deplete happiness, turn spies, and otherwise cause chaos amongst the population.
-
-=item Hack Networks
-
-Attempt to destroy or control probes, and spread misinformation through Network 19.
+Oblitterate the happiness of a planet. If done long enough, it can shut down a planet.
 
 =back
 
