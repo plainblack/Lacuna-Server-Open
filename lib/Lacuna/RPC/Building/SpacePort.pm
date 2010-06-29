@@ -111,6 +111,192 @@ sub send_spy_pod {
     return { spy_pod => { date_arrives => format_date($sent->date_available), carrying_spy => { id => $spy->id, name => $spy->name }}, status => $self->format_status($empire, $body) };
 }
 
+sub send_spies {
+    my ($self, $session_id, $body_id, $target, $ship_id, $spy_ids) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $self->get_body($empire, $body_id);
+    my $target_body = $self->find_body($target);
+    
+    # make sure it's a valid target
+    if ($target_body->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
+        confess [ 1009, 'Cannot send a spy to an asteroid.'];
+    }
+    elsif (! defined $target_body->empire) {
+        confess [ 1009, 'Cannot send a spy to an unoccupied planet.'];
+    }
+    elsif ($target_body->isa('Lacuna::DB::Result::Map::Body::Planet') && $target_body->empire->is_isolationist) {
+        confess [ 1013, sprintf('%s is an isolationist empire, and must be left alone.',$target_body->empire->name)];
+    }
+
+    # get the ship
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+    unless (defined $ship) {
+        confess [1002, "Ship not found."];
+    }
+    unless ($ship->is_available) {
+        confess [1010, "That ship is not available."];
+    }
+
+    # check size
+    if ($ship->type eq 'spy_pod' && scalar(@{$spy_ids}) == 1) {
+        # we're ok
+    }
+    elsif ($ship->hold_size <= (scalar(@{$spy_ids}) * 100)) {
+        confess [1010, "The ship cannot hold the spies selected."];
+    }
+    
+    # send it
+    $ship->send(
+        target      => $target,
+    );
+
+    # get a spies
+    my @ids_sent;
+    my @ids_not_sent;
+    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
+    foreach my $id (@{$spy_ids}) {
+        my $spy = $spies->find($id);
+        if ($spy->is_available) {
+            if ($spy->empire_id == $empire->id) {
+                push @ids_sent, $spy->id;
+                $spy->task('Travelling');
+                $spy->started_assignment(DateTime->now);
+                $spy->available_on($ship->date_available);
+                $spy->update;
+            }
+            else {
+                push @ids_not_sent, $spy->id;
+            }
+        }
+        else {
+            push @ids_not_sent, $spy->id;
+        }
+    }
+    $ship->payload({spies => \@ids_sent });
+    $ship->update;
+
+    return {
+        ship    => {
+            date_arrives    => $ship->date_available_formatted,
+            spies_sent      => \@ids_sent,
+            spies_not_sent  => \@ids_not_sent,
+        },
+        status => $self->format_status($empire, $body)
+    };
+}
+
+sub fetch_spies {
+    my ($self, $session_id, $body_id, $target, $ship_id, $spy_ids) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $self->get_body($empire, $body_id);
+    my $target_body = $self->find_body($target);
+
+    # get the ship
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+    unless (defined $ship) {
+        confess [1002, "Ship not found."];
+    }
+    unless ($ship->is_available) {
+        confess [1010, "That ship is not available."];
+    }
+    
+    # check size
+    if ($ship->hold_size <= (scalar(@{$spy_ids}) * 100)) {
+        confess [1010, "The ship cannot hold the spies selected."];
+    }
+    
+    # send it
+    $ship->send(
+        target      => $target,
+        payload     => { fetch_spies => $spy_ids },
+    );
+
+    return {
+        ship    => {
+            date_arrives    => $ship->date_available_formatted,
+        },
+        status => $self->format_status($empire, $body)
+    };
+}
+
+sub get_available_spy_ships {
+    my ($self, $session_id, $body_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $self->get_body($empire, $body_id);
+
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        {type => { in => [qw(spy_pod cargo_ship smuggler_ship)]}, task=>'Docked', body_id => $body_id},
+        {order_by => 'name', rows=>25}
+    );
+    my @out;
+    while (my $ship = $ships->next) {
+        push @out, {
+            name        => $ship->name,
+            id          => $ship->id,
+            hold_size   => $ship->hold_size,
+            speed       => $ship->speed,
+            type        => $ship->type,
+        };
+    }
+    return {
+        status  => $self->format_status($empire),
+        ships   => \@out,
+    };
+}
+
+sub get_available_spy_ships_for_fetch {
+    my ($self, $session_id, $body_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $self->get_body($empire, $body_id);
+
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        {type => { in => [qw(cargo_ship smuggler_ship)]}, task=>'Docked', body_id => $body_id},
+        {order_by => 'name', rows=>25}
+    );
+    my @out;
+    while (my $ship = $ships->next) {
+        push @out, {
+            name        => $ship->name,
+            id          => $ship->id,
+            hold_size   => $ship->hold_size,
+            speed       => $ship->speed,
+            type        => $ship->type,
+        };
+    }
+    return {
+        status  => $self->format_status($empire),
+        ships   => \@out,
+    };
+}
+
+
+sub get_my_available_spies {
+    my ($self, $session_id, $target) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $target_body = $self->find_body($target);
+
+    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
+        {on_body_id => $target->id, empire_id => $empire->id, task => 'Idle' },
+        {order_by => 'name', rows=>25}
+    );
+    my @out;
+    while (my $spy = $spies->next) {
+        push @out, {
+            name        => $spy->name,
+            id          => $spy->id,
+            level       => $spy->level,
+            from        => {
+                name    => $spy->from_body->name,
+                id      => $spy->from_body_id,
+            },
+        };
+    }
+    return {
+        status  => $self->format_status($empire),
+        spies   => \@out,
+    };
+}
+
 sub send_mining_platform_ship {
     my ($self, $session_id, $body_id, $target) = @_;
     my $empire = $self->get_empire_by_session($session_id);

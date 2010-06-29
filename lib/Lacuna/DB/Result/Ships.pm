@@ -4,6 +4,7 @@ use Moose;
 extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date to_seconds);
 use DateTime;
+use feature "switch";
 
 __PACKAGE__->table('ships');
 __PACKAGE__->add_columns(
@@ -31,6 +32,11 @@ __PACKAGE__->belongs_to('shipyard', 'Lacuna::DB::Result::Building', 'shipyard_id
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 __PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Result::Map::Star', 'foreign_star_id');
 __PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Result::Map::Body', 'foreign_body_id');
+
+sub is_available {
+    my ($self) = @_;
+    return ($self->task eq 'Docked');
+}
 
 sub type_formatted {
     my $self = shift;
@@ -105,110 +111,139 @@ sub land {
 
 sub arrive {
     my ($self) = @_;
+    given ($self->type) { # wouldn't have to do this if we subclassed ships, but oh well
+        when ('probe') { $self->arrive_probe }
+        when ('spy_pod') { $self->arrive_spy_pod }
+        when ('cargo_ship') { $self->arrive_cargo_ship }
+        when ('terraforming_platform_ship') { $self->arrive_terraforming_platform_ship }
+        when ('gas_giant_settlement_platform_ship') { $self->arrive_gas_giant_settlement_platform_ship }
+        when ('mining_platform_ship') { $self->arrive_mining_platform_ship }
+        when ('cargo_ship') { $self->arrive_cargo_ship }
+        when ('smuggler_ship') { $self->arrive_smuggler_ship }
+        when ('space_station') { $self->arrive_space_station }
+    }
+}
+
+sub arrive_probe {
+    my ($self) = @_;
     my $empire = $self->body->empire;
-    if ($self->type eq 'probe') {
-        $empire->add_probe($self->foreign_star_id, $self->body_id);
-        $self->delete;
-    }
+    $empire->add_probe($self->foreign_star_id, $self->body_id);
+    $self->delete;
+}
     
-    elsif ($self->type eq 'spy_pod') {
-        # trigger spy event on remote world
-        $self->delete;
-    }
+sub arrive_spy_pod {
+    my ($self) = @_;
+    $self->delete;
+}
     
-    elsif ($self->type eq 'colony_ship') {
-        if ($self->direction eq 'out') {
-            my $planet = $self->foreign_body;
-            if ($planet->is_locked || $planet->empire_id) {
-                $self->turn_around;
-                $empire->send_predefined_message(
-                    tags        => ['Alert'],
-                    filename    => 'cannot_colonize.txt',
-                    params      => [$planet->name, $planet->name],
-                );
-            }
-            else {
-                $planet->lock;
-                $planet->found_colony($empire);
-                $empire->send_predefined_message(
-                    tags        => ['Alert'],
-                    filename    => 'colony_founded.txt',
-                    params      => [$planet->name, $planet->name],
-                );
-                $empire->is_isolationist(0);
-                $empire->update;
-                $self->delete;
-            }
+sub arrive_colony_ship {
+    my ($self) = @_;
+    my $empire = $self->body->empire;
+    if ($self->direction eq 'out') {
+        my $planet = $self->foreign_body;
+        if ($planet->is_locked || $planet->empire_id) {
+            $self->turn_around;
+            $empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'cannot_colonize.txt',
+                params      => [$planet->name, $planet->name],
+            );
         }
         else {
-            $self->land;
+            $planet->lock;
+            $planet->found_colony($empire);
+            $empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'colony_founded.txt',
+                params      => [$planet->name, $planet->name],
+            );
+            $empire->is_isolationist(0);
+            $empire->update;
+            $self->delete;
         }
     }
+    else {
+        $self->land;
+    }
+}
     
-    elsif ($self->type eq 'terraforming_platform_ship') {
-        if ($self->direction eq 'out') {
-            my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::TerraformingLab');
-            if (defined $lab) {
-                $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform', 1, $lab->level);
-            }
+sub arrive_terraforming_platform_ship {
+    my ($self) = @_;
+    if ($self->direction eq 'out') {
+        my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::TerraformingLab');
+        if (defined $lab) {
+            $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform', 1, $lab->level);
+        }
+    }
+    else {
+        $self->land;
+    }
+}
+    
+sub arrive_gas_giant_settlement_platform_ship {
+    my ($self) = @_;
+    if ($self->direction eq 'out') {
+        my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::GasGiantLab');
+        if (defined $lab) {
+            $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform', 1, $lab->level);
+        }
+    }
+    else {
+        $self->land;
+    }
+}
+    
+sub arrive_mining_platform_ship {
+    my ($self) = @_;
+    if ($self->direction eq 'out') {
+        my $ministry = $self->body->mining_ministry;
+        if (eval{$ministry->can_add_platform} && !$@) {
+            $ministry->add_platform($self->foreign_body)->update;
         }
         else {
-            $self->land;
-        }
-    }
-    
-    elsif ($self->type eq 'gas_giant_settlement_platform_ship') {
-        if ($self->direction eq 'out') {
-            my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::GasGiantLab');
-            if (defined $lab) {
-                $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform', 1, $lab->level);
-            }
-        }
-        else {
-            $self->land;
-        }
-    }
-    
-    elsif ($self->type eq 'mining_platform_ship') {
-        if ($self->direction eq 'out') {
-            my $ministry = $self->body->mining_ministry;
-            if (eval{$ministry->can_add_platform} && !$@) {
-                $ministry->add_platform($self->foreign_body)->update;
-            }
-            else {
-                $self->turn_around;
-            }
-        }
-        else {
-            $self->land;
-        }
-    }
-    
-    elsif ($self->type eq 'cargo_ship') {
-        if ($self->direction eq 'out') {
-            $self->unload($self->foreign_body);
             $self->turn_around;
         }
-        else {
-            $self->unload($self->body);
-            $self->land;
-        }
     }
+    else {
+        $self->land;
+    }
+}
+
+sub handle_cargo_exchange {
+    my $self = shift;
+    if ($self->direction eq 'out') {
+        $self->unload($self->foreign_body);
+        $self->turn_around;
+    }
+    else {
+        $self->unload($self->body);
+        $self->land;
+    }
+}
+
+sub capture_with_spies {
+    return 0;
+}
     
-    elsif ($self->type eq 'smuggler_ship') {
-        if ($self->direction eq 'out') {
-            $self->unload($self->foreign_body);
-            $self->turn_around;
-        }
-        else {
-            $self->unload($self->body);
-            $self->land;
-        }
+sub arrive_cargo_ship {
+    my ($self) = @_;
+    my $captured = $self->capture_with_spies(2) if (exists $self->payload->{spies} || exists $self->payload->{fetch_spies} );
+    unless ($captured) {
+        $self->handle_cargo_exchange;
     }
+}
     
-    elsif ($self->type eq 'space_station') {
-        $self->delete;
+sub arrive_smuggler_ship {
+    my ($self) = @_;
+    my $captured = $self->capture_with_spies(1) if (exists $self->payload->{spies} || exists $self->payload->{fetch_spies} );
+    unless ($captured) {
+        $self->handle_cargo_exchange;
     }
+}
+    
+sub arrive_space_station {
+    my ($self) = @_;
+    $self->delete;
 }
 
 # DISTANCE

@@ -193,7 +193,9 @@ A set of x,y coordinates to locate the star.
 
 =head2 send_spy_pod ( session_id, from_body_id, to_body )
 
-Dispatches a spy pod from one of the space ports on a planet to another body. It will automatically detect which space ports on the planet have spy pods, if any, and pick one of them to dispatch the spy pod. In order to send a spy pod you must also have an idle spy available. 
+Dispatches a spy pod from one of the space ports on a planet to another body. It will automatically detect which space ports on the planet have spy pods, if any, and pick one of them to dispatch the spy pod. In order to send a spy pod you must also have an idle spy available.
+
+B<NOTE:> If you want more control over which spies and ships are used, see the C<send_spies> method.
 
 Returns status:
 
@@ -239,6 +241,9 @@ The unique id of the body.
 =head4 x | y 
 
 A set of x,y coords to locate the body.
+
+
+
 
 
 =head2 send_colony_ship ( session_id, from_body_id, to_body )
@@ -287,6 +292,9 @@ The unique id of the body.
 A set of x,y coords to locate the body.
 
 
+
+
+
 =head2 send_mining_platform_ship ( session_id, from_body_id, to_body )
 
 Dispatches a mining platform ship from one of the space ports on a planet to another body. It will automatically detect which space ports on the planet have mining platform ships, if any, and pick one of them.  You can only dispatch a mining platform ship to an asteroid.
@@ -331,6 +339,203 @@ The unique id of the body.
 =head4 x | y
 
 A set of x,y coords to locate the body.
+
+
+
+
+=head2 send_spies ( session_id, from_body_id, to_body, ship_id, spy_ids )
+
+Sends one or more of spies to a planet using a selected ship.
+
+ {
+     "ship" : {
+         "date_arrives" : "01 31 2010 13:09:05 +0600",
+         "spies_sent" : ["id-goes-here","id-goes-here","id-goes-here"],     # should be identical to "spy_ids"
+         "spies_not_sent" : ["id-goes-here","id-goes-here","id-goes-here"]  # should only contain something if you're cheating, or a spy dies/turns between RPC calls
+     },
+     "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 from_body_id
+
+The unique id of the planet that should send the ship.
+
+=head3 to_body
+
+A hash reference that can contain one of three items to identify a planet.
+
+ { "body_name" : "Earth" }
+ 
+ { "body_id" : "id-goes-here" }
+ 
+ { "x" : 4, "y" : -3 }
+
+=head4 body_name
+
+A string with the body's name. Case insensitive, but will throw an exception for misspelling.
+
+=head4 body_id
+
+The unique id of the body.
+
+=head4 x | y
+
+A set of x,y coords to locate the body.
+
+=head3 ship_id
+
+The unique id of the ship to send. See the C<get_spy_ships> method.
+
+=head3 spy_ids
+
+An array reference of spy ids to send. See the C<get_my_available_spies> method.
+
+
+
+
+
+=head2 fetch_spies ( session_id, from_body_id, to_body, ship_id, spy_ids )
+
+Sends a specified ship to fetch specified spies, and bring them back to C<from_body_id>.
+
+B<NOTE:> If the spies are not Idle when the ship arrives, they will not be picked up.
+
+ {
+     "ship" : {
+         "date_arrives" : "01 31 2010 13:09:05 +0600",
+     },
+     "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 from_body_id
+
+The unique id of the planet that should send the ship.
+
+=head3 to_body
+
+A hash reference that can contain one of three items to identify a planet.
+
+ { "body_name" : "Earth" }
+ 
+ { "body_id" : "id-goes-here" }
+ 
+ { "x" : 4, "y" : -3 }
+
+=head4 body_name
+
+A string with the body's name. Case insensitive, but will throw an exception for misspelling.
+
+=head4 body_id
+
+The unique id of the body.
+
+=head4 x | y
+
+A set of x,y coords to locate the body.
+
+=head3 ship_id
+
+The unique id of the ship to send. See the C<get_spy_ships> method.
+
+=head3 spy_ids
+
+An array reference of spy ids to send. See the C<get_my_available_spies> method.
+
+
+
+
+=head2 get_available_spy_ships ( session_id, from_body_id )
+
+Returns a list of ships capable of sending spies.
+
+ {
+     "status" : { ... },
+     "ships" : [
+         {
+            "id" : "id-goes-here",
+            "name" : "CS4",
+            "hold_size" : 1100,
+            "speed" : 400,
+            "type" : "cargo_ship"
+         },
+         ...
+     ]
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 from_body_id
+
+The unique id of the planet that should send the ship.
+
+
+
+
+=head2 get_available_spy_ships_for_fetch ( session_id, from_body_id )
+
+Returns a list of ships capable of retrieving spies.
+
+ {
+     "status" : { ... },
+     "ships" : [
+         {
+            "id" : "id-goes-here",
+            "name" : "CS4",
+            "hold_size" : 1100,
+            "speed" : 400,
+            "type" : "cargo_ship"
+         },
+         ...
+     ]
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 from_body_id
+
+The unique id of the planet that should send the ship.
+
+
+
+=head2 get_my_available_spies ( session_id, on_body_id )
+
+Returns a list of spies that are controlled by this empire and are on the specified body and are available for transport (assignment is Idle).
+
+ {
+   "spies" : [
+      {
+         "id" : "id-goes-here",
+         "level" : 12,
+         "name" : "Jack Bauer",
+         "from" : {
+            "id" : "id-goes-here",
+            "name" : "Earth"
+         },
+      },
+      ...
+   ],
+   "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 on_body_id
+
+The unique id of the planet that the spies are on.
 
 
 
