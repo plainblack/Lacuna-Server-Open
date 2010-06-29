@@ -214,11 +214,35 @@ sub handle_cargo_exchange {
     if ($self->direction eq 'out') {
         $self->unload($self->foreign_body);
         $self->turn_around;
+        $self->pick_up_spies; # goes after turn around so we have the new date available
     }
     else {
         $self->unload($self->body);
         $self->land;
     }
+}
+
+sub pick_up_spies {
+    my $self = shift;
+    my $empire_id = $self->body->empire_id;
+    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
+    my @riding;
+    foreach my $id (@{$self->payload->{fetch_spies}}) {
+        my $spy = $spies->find($id);
+        next unless defined $spy;
+        next unless $spy->is_available;
+        next unless $spy->empire_id eq $empire_id;
+        push @riding, $spy->id;
+        $spy->available_on($self->date_available);
+        $spy->on_body_id($self->body_id);
+        $spy->task('Travelling');
+        $spy->started_assignment(DateTime->now),
+        $spy->update;
+    }
+    my $payload = $self->payload;
+    $payload->{spies} = \@riding;
+    $self->payload($payload);
+    $self->update;
 }
 
 sub capture_with_spies {
