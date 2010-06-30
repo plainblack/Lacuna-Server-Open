@@ -1,0 +1,7 @@
+=head1 TempleOfTheDrajilites Methods
+
+Temple of the Drajilites is accessible via the URL C</templeofthedrajilites>. 
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

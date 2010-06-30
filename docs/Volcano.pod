@@ -1,0 +1,7 @@
+=head1 Volcano Methods
+
+Volcano is accessible via the URL C</volcano>. 
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

@@ -1,30 +1,31 @@
-package Lacuna::DB::Result::Building::Permanent::EssentiaVein;
+package Lacuna::DB::Result::Building::Permanent::NaturalSpring;
 
 use Moose;
 extends 'Lacuna::DB::Result::Building::Permanent';
 
-use constant controller_class => 'Lacuna::RPC::Building::EssentiaVein';
+use constant controller_class => 'Lacuna::RPC::Building::NaturalSpring';
 
 sub check_build_prereqs {
     my ($self, $body) = @_;
     if ($body->get_plan(__PACKAGE__, 1)) {
         return 1;  
     }
-    confess [1013,"You can't build an Essentia Vein. It forms naturally."];
+    confess [1013,"You can't build a Natural Spring. It forms naturally."];
 }
 
 sub can_upgrade {
-    confess [1013, "You can't upgrade an Essentia Vein. It forms naturally."];
+    confess [1013, "You can't upgrade a Natural Spring. It forms naturally."];
 }
 
-use constant image => 'essentiavein';
+use constant image => 'naturalspring';
 
 sub image_level {
     my ($self) = @_;
     return $self->image.'1';
 }
 
-use constant name => 'Essentia Vein';
+use constant name => 'Natural Spring';
+use constant water_production => 1500;
 
 use constant time_to_build => 0;
 use constant max_instances_per_planet => 1;

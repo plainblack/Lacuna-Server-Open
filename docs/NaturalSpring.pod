@@ -1,0 +1,7 @@
+=head1 NaturalSpring Methods
+
+Natural Spring is accessible via the URL C</naturalspring>. 
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

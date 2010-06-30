@@ -1,0 +1,7 @@
+=head1 InterDimensionalRift Methods
+
+Interdimensional Rift is accessible via the URL C</interdimensionalrift>. 
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

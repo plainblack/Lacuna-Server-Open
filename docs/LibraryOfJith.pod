@@ -1,0 +1,7 @@
+=head1 LibraryOfJith Methods
+
+Library of Jith is accessible via the URL C</libraryofjith>. 
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

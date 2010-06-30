@@ -1,0 +1,7 @@
+=head1 GeoThermalVent Methods
+
+Geo Thermal Vent is accessible via the URL C</geothermalvent>. 
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

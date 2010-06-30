@@ -285,23 +285,37 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<Geo>
 
+=item L<GeoThermalVent>
+
 =item L<Hydrocarbon>
 
 =item L<Intelligence>
+
+=item L<InterDimensionalRift>
+
+=item L<KalavianRuins>
 
 =item L<Lake>
 
 =item L<Lapis>
 
+=item L<LibraryOfJith>
+
 =item L<Malcud>
+
+=item L<MassadsHenge>
 
 =item L<Mine>
 
 =item L<MiningMinistry>
 
+=item L<NaturalSpring>
+
 =item L<Network19>
 
 =item L<Observatory>
+
+=item L<OracleOfAnid>
 
 =item L<OreRefinery>
 
@@ -337,6 +351,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<Syrup>
 
+=item L<TempleOfTheDrajilites>
+
 =item L<TerraformingLab>
 
 =item L<TerraformingPlatform>
@@ -346,6 +362,8 @@ Below is a list of the different types of structures that can be built on planet
 =item L<Transporter>
 
 =item L<University>
+
+=item L<Volcano>
 
 =item L<WasteEnergy>
 

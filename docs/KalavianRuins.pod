@@ -1,0 +1,7 @@
+=head1 KalavianRuins Methods
+
+Kalavian Ruins is accessible via the URL C</kalavianruins>. 
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut
