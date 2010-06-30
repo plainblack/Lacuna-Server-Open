@@ -73,47 +73,65 @@ while (my $planet = $planets->next) {
 	out('No Attackers');
 	next;
     }
-    my $skill_method = $skills{$spy->task}; # determined by attacker
+    my $spy_task = $spy->task;
+    my $skill_method = $skills{$spy_task}; # determined by attacker
     my $offense_rating = $spy->offense + $spy->$skill_method;
-
     my $cop = pop @{$espionage->{defense}};
-    my $defense_rating = $cop->defense + $cop->$skill_method;
+    my $defense_rating = $cop->defense + $cop->$skill_method if defined $cop;
 
     for (1..5) {
-        out($spy->name . ' vs ' . $cop->name);
-        if ($offense_rating > $defense_rating) { # offense wins
+        my $vs = (defined $spy) ? $spy->name : 'NOBODY';
+        $vs .= ' vs ';
+        $vs .= (defined $cop) ? $cop->name : 'NOBODY';
+        out($vs);
+        out("Spy Task: ". $spy_task);
+        if (defined $spy && $offense_rating > $defense_rating) { # offense wins
             # adjust stats
             $offense_rating -= $defense_rating;
             $spy->$skill_method( $spy->$skill_method + 1 );
             
             # handle outcome
-            $spy->offense_mission_successes( $cop->offense_mission_successes + 1 );
-            my $outcome = main->can($outcomes{$spy->task});
+            $spy->offense_mission_successes( $spy->offense_mission_successes + 1 );
+            my $outcome = main->can($outcomes{$spy_task});
             $outcome->($planet, $espionage, $spy, $cop);
+            if ($spy_task eq 'Travelling') {
+                $spy->update;
+                $spy = pop @{$espionage->{offense}};
+                if (defined $spy) {
+                    $spy_task = $spy->task;
+                    $skill_method = $skills{$spy_task};
+                    $offense_rating = $spy->offense + $spy->$skill_method;
+                }
+            }
             
             # get a new cop
-            $cop->update;
-            $cop = pop @{$espionage->{defense}};
             if (defined $cop) {
-                $defense_rating = $cop->defense + $cop->$skill_method;
+                $cop->update;
+                $cop = pop @{$espionage->{defense}};
+                if (defined $cop) {
+                    $defense_rating = $cop->defense + $cop->$skill_method;
+                }
             }
         }
-        else { # defense wins
+        elsif (defined $cop) { # defense wins
             # adjust stats
             $defense_rating -= $offense_rating;
             $cop->$skill_method( $cop->$skill_method + 1 );
             
             # handle outcome
             $cop->defense_mission_successes( $cop->defense_mission_successes + 1 );
-            my $outcome = main->can($outcomes{$spy->task} . '_loss');
+            my $outcome = main->can($outcomes{$spy_task} . '_loss');
             $outcome->($planet, $espionage, $spy, $cop);
             
             # get a new spy
-            $spy->update;
-            $spy = pop @{$espionage->{offense}};
             if (defined $spy) {
-                $skill_method = $skills{$spy->task};
-                $offense_rating = $spy->offense + $spy->$skill_method;
+                $spy->update;
+                $spy = pop @{$espionage->{offense}};
+                if (defined $spy) {
+                   $spy_task = $spy->task;
+                   $skill_method = $skills{$spy_task};
+                   $offense_rating = $spy->offense + $spy->$skill_method;
+                }
             }
         }
     }
@@ -1132,7 +1150,7 @@ sub false_interrogation_report {
             ['Home World', $suspect_home->name],
             ['Species Name', $suspect_species->name],
             ['Species Description', $suspect_species->description],
-            ['Habitable Orbits', randint(1,7)],
+            ['Habitable Orbits', join(' - ',randint(1,3), randint(3,7))],
             ['Manufacturing Affinity', randint(1,7)],
             ['Deception Affinity', randint(1,7)],
             ['Research Affinity', randint(1,7)],
@@ -1170,7 +1188,7 @@ sub interrogation_report {
             ['Home World', $suspect_home->name],
             ['Species Name', $suspect_species->name],
             ['Species Description', $suspect_species->description],
-            ['Habitable Orbits', join(', ', @{$suspect_species->habitable_orbits})],
+            ['Habitable Orbits', join(' - ', $suspect_species->min_orbit, $suspect_species->max_orbit)],
             ['Manufacturing Affinity', $suspect_species->manufacturing_affinity],
             ['Deception Affinity', $suspect_species->deception_affinity],
             ['Research Affinity', $suspect_species->research_affinity],
