@@ -37,6 +37,8 @@ my %skills = (
     'Incite Rebellion'              => 'politics_xp',    
 );
 
+my @offense_tasks = keys %skills;
+
 my %outcomes = (
     'Gather Resource Intelligence'  => 'gather_resource_intel',
     'Gather Empire Intelligence'    => 'gather_empire_intel',
@@ -67,6 +69,10 @@ while (my $planet = $planets->next) {
     
     # handle spy vs spy
     my $spy = pop @{$espionage->{offense}};
+    unless (defined $spy) {
+	out('No Attackers');
+	next;
+    }
     my $skill_method = $skills{$spy->task}; # determined by attacker
     my $offense_rating = $spy->offense + $spy->$skill_method;
 
@@ -82,7 +88,7 @@ while (my $planet = $planets->next) {
             
             # handle outcome
             $spy->offense_mission_successes( $cop->offense_mission_successes + 1 );
-            my $outcome = $outcomes{$spy->task};
+            my $outcome = main->can($outcomes{$spy->task});
             $outcome->($planet, $espionage, $spy, $cop);
             
             # get a new cop
@@ -99,7 +105,7 @@ while (my $planet = $planets->next) {
             
             # handle outcome
             $cop->defense_mission_successes( $cop->defense_mission_successes + 1 );
-            my $outcome = $outcomes{$spy->task} . '_loss';
+            my $outcome = main->can($outcomes{$spy->task} . '_loss');
             $outcome->($planet, $espionage, $spy, $cop);
             
             # get a new spy
@@ -816,7 +822,7 @@ sub shut_down_building {
     my $building_class = @classnames[randint(0,scalar(@classnames) - 1)];
     my $building = $planet->get_building_of_class($building_class);
     return undef unless defined $building;
-    $building->offline(DateTime->now->add(randint(60 * 10 , 60 * 60 * 3)));
+    $building->offline(DateTime->now->add(seconds => randint(60 * 10 , 60 * 60 * 3)));
     $building->update;
     $planet->empire->send_predefined_message(
         tags        => ['Alert'],
@@ -1424,7 +1430,7 @@ sub random_spy {
 sub determine_espionage {
     my $planet = shift;
     my $spies = $db->resultset('Lacuna::DB::Result::Spies')->search( { on_body_id  => $planet->id } );
-    my %espionage = ( has_spies => 0 );        
+    my %espionage = ( has_spies => 0, offense => [], defense => [], captured => [], other => []);        
     while (my $spy = $spies->next) {
         $espionage{has_spies} = 1;
         if ($spy->task eq 'Counter Espionage') {                                        # use defense
@@ -1434,7 +1440,7 @@ sub determine_espionage {
         elsif ($spy->task eq 'Captured') {
             push @{$espionage{captured}}, $spy;
         }
-        elsif ($spy->empire_id ne $planet->empire_id ) {                                # can't attack yourself
+        elsif ($spy->empire_id ne $planet->empire_id && $spy->task ~~ [@offense_tasks]) {                                # can't attack yourself
             $spy->offense_mission_count( $spy->offense_mission_count );
             push @{$espionage{offense}}, $spy;
         }
@@ -1442,8 +1448,8 @@ sub determine_espionage {
             push @{$espionage{other}}, $spy;
         }
     }
-    $espionage{defense} = shuffle @{$espionage{defense}};
-    $espionage{offense} = shuffle @{$espionage{offense}};
+    $espionage{defense} = [ shuffle @{$espionage{defense}} ];
+    $espionage{offense} = [ shuffle @{$espionage{offense}} ];
     return \%espionage;
 }
 
