@@ -88,7 +88,7 @@ while (my $planet = $planets->next) {
         if (defined $spy && $offense_rating > $defense_rating) { # offense wins
             # adjust stats
             $offense_rating -= $defense_rating;
-            $spy->$skill_method( $spy->$skill_method + 1 );
+            $spy->$skill_method( $spy->$skill_method + 3 );
             
             # handle outcome
             $spy->offense_mission_successes( $spy->offense_mission_successes + 1 );
@@ -116,7 +116,7 @@ while (my $planet = $planets->next) {
         elsif (defined $cop) { # defense wins
             # adjust stats
             $defense_rating -= $offense_rating;
-            $cop->$skill_method( $cop->$skill_method + 1 );
+            $cop->$skill_method( $cop->$skill_method + 3 );
             
             # handle outcome
             $cop->defense_mission_successes( $cop->defense_mission_successes + 1 );
