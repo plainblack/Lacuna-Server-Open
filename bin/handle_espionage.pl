@@ -94,7 +94,7 @@ while (my $planet = $planets->next) {
             $spy->offense_mission_successes( $spy->offense_mission_successes + 1 );
             my $outcome = main->can($outcomes{$spy_task});
             $outcome->($planet, $espionage, $spy, $cop);
-            if ($spy_task eq 'Travelling') {
+            if ($spy->task ~~ ['Travelling', 'Unconscious']) {
                 $spy->update;
                 $spy = pop @{$espionage->{offense}};
                 if (defined $spy) {
@@ -122,6 +122,13 @@ while (my $planet = $planets->next) {
             $cop->defense_mission_successes( $cop->defense_mission_successes + 1 );
             my $outcome = main->can($outcomes{$spy_task} . '_loss');
             $outcome->($planet, $espionage, $spy, $cop);
+            if ($cop->task ~~ ['Travelling', 'Unconscious']) {
+                $cop->update;
+                $cop = pop @{$espionage->{defense}};
+                if (defined $cop) {
+                    $defense_rating = $cop->defense + $cop->$skill_method;
+                }
+            }
             
             # get a new spy
             if (defined $spy) {
@@ -156,10 +163,11 @@ out((to_seconds($finish - $start)/60)." minutes have elapsed");
 # MISSIONS
 
 sub gather_resource_intel {
-    given (randint(1,3)) {
+    given (randint(1,4)) {
         when (1) { ship_report(@_) }
         when (2) { travel_report(@_) }
         when (3) { economic_report(@_) }
+        when (4) { knock_cop_unconscious(@_) }
     }
 }
 
@@ -167,56 +175,62 @@ sub gather_resource_intel {
 sub gather_resource_intel_loss {
     given (randint(1,2)) {
         when (1) { thwart_intelligence(@_) }
+        when (2) { knock_spy_unconscious(@_) }
     }
 }
 
 
 sub gather_empire_intel {
-    given (randint(1,3)) {
+    given (randint(1,4)) {
         when (1) { build_queue_report(@_) }
         when (2) { surface_report(@_) }
         when (3) { colony_report(@_) }
+        when (4) { knock_cop_unconscious(@_) }
     }
 }
 
 
 sub gather_empire_intel_loss {
-    given (randint(1)) {
+    given (randint(1,2)) {
         when (1) { thwart_intelligence(@_) }
+        when (2) { knock_spy_unconscious(@_) }
     }
 }
 
 
 sub gather_operative_intel {
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { false_interrogation_report(@_) }
         when (2) { spy_report(@_) }
+        when (3) { knock_cop_unconscious(@_) }
     }
 }
 
 
 sub gather_operative_intel_loss {
-    given (randint(1,3)) {
+    given (randint(1,4)) {
         when (1) { counter_intel_report(@_) }
         when (2) { interrogation_report(@_) }
         when (3) { thwart_intelligence(@_) }
+        when (4) { knock_spy_unconscious(@_) }
     }
 }
 
 
 sub hack_network_19 {
-    given (randint(1,5)) {
+    given (randint(1,6)) {
         when (1) { network19_defamation1(@_) }
         when (2) { network19_defamation2(@_) }
         when (3) { network19_defamation3(@_) }
         when (4) { network19_defamation4(@_) }
         when (5) { network19_defamation5(@_) }
+        when (6) { knock_cop_unconscious(@_) }
     }
 }
 
 
 sub hack_network_19_loss {
-    given (randint(1,9)) {
+    given (randint(1,10)) {
         when (1) { capture_hacker(@_) }
         when (2) { network19_propaganda1(@_) }
         when (3) { network19_propaganda2(@_) }
@@ -226,141 +240,159 @@ sub hack_network_19_loss {
         when (7) { network19_propaganda6(@_) }
         when (8) { network19_propaganda7(@_) }
         when (9) { thwart_hacker(@_) }
+        when (10) { knock_spy_unconscious(@_) }
     }
 }
 
 
 sub appropriate_tech {
-    given (randint(1,1)) {
+    given (randint(1,2)) {
         when (1) { steal_building(@_) }
+        when (2) { knock_cop_unconscious(@_) }
     }
 }
 
 
 sub appropriate_tech_loss {
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { capture_thief(@_) }
         when (2) { thwart_thief(@_) }
+        when (3) { knock_spy_unconscious(@_) }
     }
 }
 
 
 sub sabotage_probes {
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { hack_local_probes(@_) }
         when (2) { hack_observatory_probes(@_) }
+        when (3) { knock_cop_unconscious(@_) }
     }
 }
 
 
 sub sabotage_probes_loss {
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { hack_offending_probes(@_) }
         when (2) { kill_hacker(@_) }
+        when (3) { knock_spy_unconscious(@_) }
     }
 }
 
 
 sub rescue_comrades {
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { escape_prison(@_) }
         when (2) { kill_guard_and_escape_prison(@_) }
+        when (3) { knock_cop_unconscious(@_) }
     }
 }
 
 
 sub rescue_comrades_loss {
-    given (randint(1,2)) {
+    given (randint(1,4)) {
         when (1) { kill_suspect(@_) }
         when (2) { capture_rescuer(@_) }
+        when (3) { knock_spy_unconscious(@_) }
+        when (4) { thwart_intelligence(@_) }
     }
 }
 
 
 sub sabotage_resources {
-    given (randint(1,3)) {
+    given (randint(1,4)) {
         when (1) { destroy_mining_ship(@_) }
         when (2) { destroy_ship(@_) }
         when (3) { kill_contact_with_mining_platform(@_) }
+        when (4) { knock_cop_unconscious(@_) }
     }
 }
 
 
 sub sabotage_resources_loss {
-    given (randint(1,3)) {
+    given (randint(1,4)) {
         when (1) { capture_saboteur(@_) }
         when (2) { thwart_saboteur(@_) }
         when (3) { kill_saboteur(@_) }
+        when (4) { knock_spy_unconscious(@_) }
     }
 }
 
 
 sub appropriate_resources {
-    given (randint(1,3)) {
+    given (randint(1,4)) {
         when (1) { steal_ships(@_) }
         when (2) { steal_resources(@_) }
         when (3) { take_control_of_probe(@_) }
+        when (4) { knock_cop_unconscious(@_) }
     }
 }
 
 
 sub appropriate_resources_loss {
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { capture_thief(@_) }
         when (2) { kill_thief(@_) }
+        when (3) { knock_spy_unconscious(@_) }
     }
 }
 
 
 sub assassinate_operatives {
-    given (randint(1,1)) {
+    given (randint(1,2)) {
         when (1) { kill_cop(@_) }
+        when (2) { knock_cop_unconscious(@_) }
     }
 }
 
 
 sub assassinate_operatives_loss {
-    given (randint(1,1)) {
+    given (randint(1,2)) {
         when (1) { kill_intelligence(@_) }
+        when (2) { knock_spy_unconscious(@_) }
     }
 }
 
 
 sub sabotage_infrastructure {
-    given (randint(1,3)) {
+    given (randint(1,4)) {
         when (1) { shut_down_building(@_) }
         when (2) { destroy_upgrade(@_) }
         when (3) { destroy_infrastructure(@_) }
+        when (4) { knock_cop_unconscious(@_) }
     }
 }
 
 
 sub sabotage_infrastructure_loss {
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { capture_saboteur(@_) }
         when (2) { kill_saboteur(@_) }
+        when (3) { knock_spy_unconscious(@_) }
     }
 }
 
 
 sub incite_mutany {
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { turn_cop(@_) }
         when (2) { kill_cop(@_) }
+        when (3) { knock_cop_unconscious(@_) }
     }
 }
 
 
 sub incite_mutany_loss {
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { turn_spy(@_) }
         when (2) { kill_mutaneer(@_) }
+        when (3) { knock_spy_unconscious(@_) }
     }
 }
 
 
 sub incite_rebellion {
-    given (randint(1,8)) {
+    given (randint(1,9)) {
         when (1) { civil_unrest(@_) }
         when (2) { protest(@_) }
         when (3) { violent_protest(@_) }
@@ -369,12 +401,13 @@ sub incite_rebellion {
         when (6) { turn_riot_cop(@_) }
         when (7) { kill_cop(@_) }
         when (8) { uprising(@_) }
+        when (9) { knock_cop_unconscious(@_) }
     }
 }
 
 
 sub incite_rebellion_loss {
-    given (randint(1,8)) {
+    given (randint(1,9)) {
         when (1) { day_of_rest(@_) }
         when (2) { festival(@_) }
         when (3) { capture_rebel(@_) }
@@ -383,6 +416,7 @@ sub incite_rebellion_loss {
         when (6) { calm_the_rebels(@_) }
         when (7) { thwart_rebel(@_) }
         when (8) { turn_rebel(@_) }
+        when (9) { knock_spy_unconscious(@_) }
     }
 }
 
@@ -409,6 +443,20 @@ sub uprising {
         params      => [$spy->name, $planet->name, $loss],
     );
     $planet->add_news(100,'Led by %s, the citizens of %s are rebelling against %s.', $spy->name, $planet->name, $planet->empire->name);
+}
+
+sub knock_cop_unconscious {
+    my ($planet, $espionage, $spy, $cop) = @_;
+    return unless (defined $cop);
+    out('Knock Cop Unconscious');
+    knock_out($planet, $cop);
+}
+
+sub knock_spy_unconscious {
+    my ($planet, $espionage, $spy, $cop) = @_;
+    return unless (defined $spy);
+    out('Knock Spy Unconscious');
+    knock_out($planet, $spy);
 }
 
 sub turn_cop {
@@ -1539,6 +1587,12 @@ sub escape_a_spy {
         filename    => 'you_cant_hold_me.txt',
         params      => [$spy->name],
     );
+}
+
+sub knock_out {
+    my ($planet, $spy) = @_;
+    $spy->available_on(DateTime->now->add(seconds => randint(60, 60 * 60 * 2)));
+    $spy->task('Unconscious');
 }
 
 sub turn_a_spy {
