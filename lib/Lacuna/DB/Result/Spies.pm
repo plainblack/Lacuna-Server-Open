@@ -16,7 +16,6 @@ __PACKAGE__->add_columns(
     available_on            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     offense                 => { data_type => 'int', size => 11, default_value => 1 },
     defense                 => { data_type => 'int', size => 11, default_value => 1 },
-    last_mission_score      => { data_type => 'int', size => 11, default_value => 0 },
     date_created            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     offense_mission_count   => { data_type => 'int', size => 11, default_value => 0 },
     defense_mission_count   => { data_type => 'int', size => 11, default_value => 0 },
@@ -30,6 +29,10 @@ __PACKAGE__->add_columns(
     spies_turned            => { data_type => 'int', size => 11, default_value => 0 },
     things_destroyed        => { data_type => 'int', size => 11, default_value => 0 },
     things_stolen           => { data_type => 'int', size => 11, default_value => 0 },
+    intel_xp                => { data_type => 'int', size => 11, default_value => 0 },
+    mayhem_xp               => { data_type => 'int', size => 11, default_value => 0 },
+    politics_xp             => { data_type => 'int', size => 11, default_value => 0 },
+    theft_xp                => { data_type => 'int', size => 11, default_value => 0 },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
@@ -79,15 +82,15 @@ sub is_available {
 use constant assignments => (
     'Idle',
     'Counter Espionage',
-    'Gather Shipping Intelligence',
+    'Gather Resource Intelligence',
     'Gather Empire Intelligence',
     'Gather Operative Intelligence',
     'Hack Network 19',
     'Appropriate Technology',
     'Sabotage Probes',
     'Rescue Comrades',
-    'Sabotage Ships',
-    'Appropriate Ships',
+    'Sabotage Resources',
+    'Appropriate Resources',
     'Assassinate Operatives',
     'Sabotage Infrastructure',
     'Incite Mutiny',

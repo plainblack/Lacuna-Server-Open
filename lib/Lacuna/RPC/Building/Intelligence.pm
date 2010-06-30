@@ -30,9 +30,12 @@ sub view_spies {
             id                  => $spy->id,
             name                => $spy->name,
             level               => $spy->level,
-            last_mission_score  => $spy->last_mission_score,
             offense_rating      => $spy->offense,
             defense_rating      => $spy->defense,
+            intel               => $spy->intel_xp,
+            mayhem              => $spy->mayhem_xp,
+            politics            => $spy->politics_xp,
+            theft               => $spy->theft_xp,
             assignment          => $spy->task,
             assigned_to         => {
                 body_id => $spy->on_body_id,
@@ -75,7 +78,7 @@ sub burn_spy {
     unless (defined $spy) {
         confess [1002, "Spy not found."];
     }
-    unless ($spy->task eq 'Waiting On Trade') {
+    if ($spy->task eq 'Waiting On Trade') {
         confess [1010, "You can't burn a spy involved in a trade. You must wait for the trade to complete."];
     }
     if ($spy->on_body->empire_id != $empire->id) {

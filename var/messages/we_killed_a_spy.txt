@@ -6,4 +6,3 @@ Regards,
 
 %s
 
-Mission Score: %s

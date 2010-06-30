@@ -6,4 +6,3 @@ More to come,
 
 %s
 
-Mission Score: %s

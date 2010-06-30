@@ -6,4 +6,3 @@ Debrief you soon,
 
 %s
 
-Mission Score: %s

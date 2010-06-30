@@ -1,6 +1,6 @@
 Loss of Power
 ~~~
-It seems that we are experiencing a loss of power at our %s on %s. Technicians have been dispatched and they assure me it will be back online within the hour.
+It seems that we are experiencing a loss of power at our %s on %s. Technicians have been dispatched and they assure me it will be back online within a few hours at most.
 
 Regards,
 
