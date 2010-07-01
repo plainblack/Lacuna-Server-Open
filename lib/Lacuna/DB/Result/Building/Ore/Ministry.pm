@@ -6,7 +6,7 @@ use Lacuna::Constants qw(ORE_TYPES);
 
 sub platforms {
     my $self = shift;
-    return Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({ body_id => $self->body_id });
+    return Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({ planet_id => $self->body_id });
 }
 
 sub ships {
