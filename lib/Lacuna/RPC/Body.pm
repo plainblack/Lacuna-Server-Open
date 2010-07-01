@@ -29,6 +29,9 @@ sub rename {
     
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
+
+    return 1 if $name eq $body->name;
+
     my $cache = Lacuna->cache;
     unless ($cache->get('body_rename_spam_lock',$body->id)) {
         $cache->set('body_rename_spam_lock',$body->id, 1, 60*60);
