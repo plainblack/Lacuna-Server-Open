@@ -74,7 +74,7 @@ sub sanitize {
         shake_production_hour beetle_production_hour lapis_stored potato_stored apple_stored root_stored corn_stored
         cider_stored wheat_stored bread_stored soup_stored chip_stored pie_stored pancake_stored milk_stored meal_stored
         algae_stored syrup_stored fungus_stored burger_stored shake_stored beetle_stored bean_production_hour bean_stored
-        restrict_coverage
+        restrict_coverage cheese_production_hour cheese_stored
     );
     foreach my $attribute (@attributes) {
         $self->$attribute(0);
@@ -1119,6 +1119,14 @@ sub add_bean {
     my $amount_to_store = $self->bean_stored + $value;
     my $available_storage = $self->food_capacity - $self->food_stored + $self->bean_stored;
     $self->bean_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
+    return $self;
+}
+
+sub add_cheese {
+    my ($self, $value) = @_;
+    my $amount_to_store = $self->cheese_stored + $value;
+    my $available_storage = $self->food_capacity - $self->food_stored + $self->cheese_stored;
+    $self->cheese_stored( ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
     return $self;
 }
 

@@ -584,6 +584,7 @@ sub demolish {
     my ($self) = @_;
     my $body = $self->body;
     $body->add_waste(sprintf('%.0f',$self->ore_to_build * $self->upgrade_cost));
+    $body->spend_happiness(sprintf('%.0f',$self->food_to_build * $self->upgrade_cost));
     $body->needs_recalc(1);
     $body->needs_surface_refresh(1);
     $body->update;

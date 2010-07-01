@@ -89,6 +89,8 @@ __PACKAGE__->add_columns(
     shake_production_hour           => { data_type => 'int', size => 11, default_value => 0 },
     beetle_production_hour          => { data_type => 'int', size => 11, default_value => 0 },
     bean_production_hour            => { data_type => 'int', size => 11, default_value => 0 },
+    cheese_production_hour          => { data_type => 'int', size => 11, default_value => 0 },
+    cheese_stored                   => { data_type => 'int', size => 11, default_value => 0 },
     bean_stored                     => { data_type => 'int', size => 11, default_value => 0 },
     lapis_stored                    => { data_type => 'int', size => 11, default_value => 0 },
     potato_stored                   => { data_type => 'int', size => 11, default_value => 0 },
