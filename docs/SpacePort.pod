@@ -29,7 +29,7 @@ This method is extended to include a list of docked ships.
  }
  
 
-=head2 view_ships ( session_id, building_id )
+=head2 view_all_ships ( session_id, building_id )
 
 Shows you the ships that are working in the mining fleet, and available to work in the mining fleet.
 
