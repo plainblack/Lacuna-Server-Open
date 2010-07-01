@@ -1576,6 +1576,7 @@ sub escape_a_spy {
     my ($planet, $spy) = @_;
     $spy->available_on(DateTime->now);
     $spy->task('Idle');
+    $spy->update;
     my $evil_empire = $planet->empire;
     $spy->empire->send_predefined_message(
         tags        => ['Alert'],
