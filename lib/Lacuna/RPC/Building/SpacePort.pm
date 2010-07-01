@@ -276,7 +276,7 @@ sub get_my_available_spies {
     my $target_body = $self->find_body($target);
 
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-        {on_body_id => $target->id, empire_id => $empire->id, task => 'Idle' },
+        {on_body_id => $target_body->id, empire_id => $empire->id, task => 'Idle' },
         {order_by => 'name', rows=>25}
     );
     my @out;
@@ -504,8 +504,8 @@ around 'view' => sub {
     $out->{docks_available} = $building->docks_available;
     return $out;
 };
-
-__PACKAGE__->register_rpc_method_names(qw(send_probe send_spy_pod send_colony_ship send_mining_platform_ship view_ships_travelling));
+ 
+__PACKAGE__->register_rpc_method_names(qw(fetch_spies send_spies get_available_spy_ships_for_fetch get_available_spy_ships get_my_available_spies send_probe send_spy_pod send_colony_ship send_mining_platform_ship view_ships_travelling));
 
 
 no Moose;
