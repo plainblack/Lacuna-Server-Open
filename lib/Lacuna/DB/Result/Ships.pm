@@ -118,7 +118,7 @@ sub arrive {
         when ('terraforming_platform_ship') { $self->arrive_terraforming_platform_ship }
         when ('gas_giant_settlement_platform_ship') { $self->arrive_gas_giant_settlement_platform_ship }
         when ('mining_platform_ship') { $self->arrive_mining_platform_ship }
-        when ('cargo_ship') { $self->arrive_cargo_ship }
+        when ('colony_ship') { $self->arrive_colony_ship }
         when ('smuggler_ship') { $self->arrive_smuggler_ship }
         when ('space_station') { $self->arrive_space_station }
     }
