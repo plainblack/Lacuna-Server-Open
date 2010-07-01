@@ -61,6 +61,7 @@ use constant BUILDABLE_CLASSES => (qw(
     Lacuna::RPC::Building::WasteEnergy
     Lacuna::RPC::Building::WasteRecycling
     Lacuna::RPC::Building::WasteSequestration
+    Lacuna::RPC::Building::WasteDigester
     Lacuna::RPC::Building::WasteTreatment
     Lacuna::RPC::Building::WaterProduction
     Lacuna::RPC::Building::WaterPurification
