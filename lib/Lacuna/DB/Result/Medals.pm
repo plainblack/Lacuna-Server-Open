@@ -172,6 +172,7 @@ use constant MEDALS => {
     WasteEnergy                     => 'Built Waste Energy Plant',
     WasteRecycling                  => 'Built Waste Recycling Center',
     WasteSequestration              => 'Built Waste Sequestration Well', 
+    WasteDigester                   => 'Built Waste Digester',
     WasteTreatment                  => 'Built Waste Treatment Center',
     WaterProduction                 => 'Built Water Production Plant',
     WaterPurification               => 'Built Water Purification Plant',

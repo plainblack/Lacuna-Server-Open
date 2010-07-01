@@ -96,6 +96,7 @@ $urlmap->map(Lacuna::RPC::Building::University->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::WasteEnergy->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::WasteRecycling->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::WasteSequestration->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::WasteDigester->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::WasteTreatment->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::WaterProduction->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::WaterPurification->new->to_app_with_url);
