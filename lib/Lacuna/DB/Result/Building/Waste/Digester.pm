@@ -28,11 +28,11 @@ use constant food_consumption => 5;
 use constant energy_consumption => 5;
 
 use constant ore_consumption => 5;
+use constant ore_production => 40;
 
 use constant water_consumption => 5;
 
 use constant waste_consumption => 20;
-
 
 
 no Moose;
