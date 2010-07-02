@@ -66,7 +66,7 @@ sub jambool_buy_url {
 
 sub www_jambool_success {
     my ($self, $request) = @_;
-    return [$self->wrapper('Thank you! The essentia will be added to you account momentarily.')];
+    return [$self->wrapper('Thank you! The essentia will be added to your account momentarily.')];
 }
 
 sub www_jambool_error {
