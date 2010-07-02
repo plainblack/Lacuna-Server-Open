@@ -6,7 +6,7 @@ We will talk more about resources storage soon, but for now we should use some o
 
 I see that your planet has a good supply of about %s%% fresh water. Build a Water Purification Plant. It will produce the water needed to keep your empire on the upward trend and give your citizens something to drink with all that delicious Malcud Fungus from your new farm.  
 
-Feel free to build anything else you think you might need. Don't worry about your depleting your resources for now. We will ensure you have everything you need as you need it. Let me know once you have finished this task.
+Feel free to build anything else you think you might need. Don't worry about your depleting your resources for now. We will ensure you have everything you need as you need it. Reply to me once you have finished this task.
 
 Regards,
 
