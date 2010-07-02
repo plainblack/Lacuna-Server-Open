@@ -134,7 +134,7 @@ foreach my $riddle (keys %riddles) {
                             #scramble => 1,
                             angle => 3,
                         )
-                        ->random('6,7,_,10,11')
+                        ->random($riddle)
                         ->create( 'ttf', $style, $fg_color, ($bg_color+10) )
                         ->particle
                         ->info_text(
