@@ -18,7 +18,7 @@ has seconds_per_resource => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return 6 * $self->time_cost_reduction_bonus($self->level * 2);
+        return 5 * $self->time_cost_reduction_bonus($self->level * 3);
     },
 );
 

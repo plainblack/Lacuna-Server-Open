@@ -629,6 +629,9 @@ sub has_no_pending_build {
 sub can_upgrade {
     my ($self, $cost) = @_;
     my $body = $self->body;
+    if ($self->level >= 30) {
+        confess [1009, 'This building is already at its maximum level.'];
+    }
     $body->has_resources_to_build($self,$cost);
     $body->has_resources_to_operate($self);
     $self->has_met_upgrade_prereqs;
@@ -668,7 +671,7 @@ sub cost_to_upgrade {
     }
     my $oversight_reduction = 1;
     if (defined $self->body->oversight) {
-        $oversight_reduction = (100 - $self->body->oversight->level) / 100;
+        $oversight_reduction = (100 - ($self->body->oversight->level * 3)) / 100;
     }
     return {
         food    => sprintf('%.0f',$self->food_to_build * $upgrade_cost * $upgrade_cost_reduction),

@@ -103,7 +103,7 @@ sub get_ship_costs {
     my %final;
     foreach my $cost (keys %{$costs}) {
         if ($cost eq 'seconds') {
-            $final{$cost} = sprintf('%0.f', $costs->{$cost} * $self->time_cost_reduction_bonus($self->level));
+            $final{$cost} = sprintf('%0.f', $costs->{$cost} * $self->time_cost_reduction_bonus($self->level * 2));
         }
         else {
             $final{$cost} = sprintf('%0.f', $costs->{$cost} * $self->manufacturing_cost_reduction_bonus);
