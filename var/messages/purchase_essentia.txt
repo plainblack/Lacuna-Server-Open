@@ -1,0 +1,5 @@
+Essentia Added
+~~~
+Your purchase of %s Essentia has been credited to your empire.
+
+Transaction ID: %s

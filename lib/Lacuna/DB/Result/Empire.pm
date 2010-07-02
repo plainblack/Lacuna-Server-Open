@@ -78,25 +78,27 @@ sub add_medal {
 }
 
 sub spend_essentia {
-    my ($self, $value, $note) = @_;
+    my ($self, $value, $note, $transaction_id) = @_;
     $self->essentia( $self->essentia - $value );
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
         empire_id       => $self->id,
         empire_name     => $self->name,
         amount          => $value * -1,
         description     => $note,
+        transaction_id  => $transaction_id,
     })->insert;
     return $self;
 }
 
 sub add_essentia {
-    my ($self, $value, $note) = @_;
+    my ($self, $value, $note, $transaction_id) = @_;
     $self->essentia( $self->essentia + $value );
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
         empire_id       => $self->id,
         empire_name     => $self->name,
         amount          => $value,
         description     => $note,
+        transaction_id  => $transaction_id,
     })->insert;
     return $self;
 }
