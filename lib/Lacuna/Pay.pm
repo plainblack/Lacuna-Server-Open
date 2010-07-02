@@ -230,8 +230,8 @@ sub wrapper {
     body {
         background-color: #0000a0;
         color: white;
-        font-family: san-serif;
-        font-size: 12pt;
+        font-family: Helvetica, san serif;
+        font-size: 14pt;
     }
     </style>
     </head>
