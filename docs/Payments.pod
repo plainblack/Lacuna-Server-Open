@@ -1,0 +1,13 @@
+=head1 Payments
+
+The payments system allows users to purchase essentia. There's not much for an app developer to do here execept to hand off to the payment system. Usually this involves opening a window for them.
+
+To initiate the payments process you simply need to open the following url:
+
+ https://servername.lacunaexpanse.com/pay?session_id=xxxxxxxxxxxxxxxx;api_key=yyyyyyyyyyyyy
+
+The payment system will handle the rest.
+
+B<NOTE:> The parameters in the above URL can be passed via GET or POST, it doesn't matter which.
+
+=cut

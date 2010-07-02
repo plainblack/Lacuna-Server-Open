@@ -155,6 +155,10 @@ Methods for interacting with the buildings on a body.
 
 Methods for creating a species.
 
+=item L<Payments>
+
+How to allow users to purchase Essentia from your app.
+
 =back
 
 =cut

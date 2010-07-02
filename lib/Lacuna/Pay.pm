@@ -174,9 +174,34 @@ sub www_jambool_reversal {
     return ['OK'];
 }
 
+sub get_session {
+    my ($self, $session_id) = @_;
+    if (ref $session_id eq 'Lacuna::DB::Result::Session') {
+        return $session_id;
+    }
+    else {
+        my $session = Lacuna::Session->new(id=>$session_id);
+        if ($session->empire_id) {
+            $session->extend;
+            return $session;
+        }
+        else {
+            return undef;
+        }
+    }
+}
+
 sub www_default {
     my ($self, $request) = @_;
-    return ['<iframe frameborder="0" scrolling="no" width="425" height="365" src="'.$self->jambool_buy_url(1).'"></iframe>'];
+    my $session = $self->get_session($request->param('session_id'));
+    unless (defined $session) {
+        return [$self->wrapper('You must be logged in to purchase essentia.'), { status => 401 }];
+    }
+    my $empire = $session->empire;
+    unless (defined $empire) {
+        return [$self->wrapper('Empire not found.'), { status => 401 }];
+    }
+    return [$self->wrapper('<iframe frameborder="0" scrolling="no" width="425" height="365" src="'.$self->jambool_buy_url($empire->id).'"></iframe>')];
 }
 
 sub format_error {
@@ -201,14 +226,19 @@ sub wrapper {
     my $out = <<STOP;
     <html>
     <head><title>Lacuna Payment Console</title>
+    <style type="text/css">
+    body {
+        background-color: #0000a0;
+        color: white;
+        font-family: san-serif;
+        font-size: 12pt;
+    }
+    </style>
     </head>
     <body>
-    <div style="border: 1px solid #eeeeee; position: absolute; top: 0; left: 160px; min-width: 600px; margin: 5px;">
-    <div style="margin: 15px;">
 STOP
     $out .= $content;
     $out .= <<STOP;
-    </div></div>
     </body>
     </html>
 STOP

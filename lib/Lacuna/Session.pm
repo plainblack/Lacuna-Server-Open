@@ -48,7 +48,9 @@ has empire => (
         my $self = shift;
         return undef unless $self->has_empire_id;
         my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($self->empire_id);
-        $empire->current_session($self);
+        if (defined $empire) {
+            $empire->current_session($self);
+        }
         return $empire;
     },
 );
