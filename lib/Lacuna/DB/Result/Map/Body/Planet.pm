@@ -1184,7 +1184,7 @@ sub spend_food {
     }
     elsif ($food_type_count < 3) {
         $self->spend_happiness($food_consumed);
-        if (!$self->empire->check_for_repeat_message('complaint_food_diversity')) {
+        if (!$self->empire->is_isolationist && !$self->empire->check_for_repeat_message('complaint_food_diversity')) {
             $self->empire->send_predefined_message(
                 filename    => 'complaint_food_diversity.txt',
                 params      => [$self->name],
@@ -1254,7 +1254,7 @@ sub add_waste {
     else {
         $self->waste_stored( $storage );
         $self->spend_happiness( $store - $storage ); # pollution
-        if (!$self->empire->check_for_repeat_message('complaint_pollution')) {
+        if (!$self->empire->is_isolationist && !$self->empire->check_for_repeat_message('complaint_pollution')) {
             $self->empire->send_predefined_message(
                 filename    => 'complaint_pollution.txt',
                 params      => [$self->name],
