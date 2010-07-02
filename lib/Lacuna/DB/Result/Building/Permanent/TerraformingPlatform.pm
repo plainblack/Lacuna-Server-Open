@@ -32,7 +32,7 @@ use constant water_to_build => 1000;
 
 use constant waste_to_build => 1000;
 
-use constant time_to_build => 500;
+use constant time_to_build => 250;
 
 use constant waste_production => 20;
 
