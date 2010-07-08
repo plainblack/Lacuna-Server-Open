@@ -14,7 +14,7 @@ sub find {
         confess [1009, 'Empire name too short. Your search must be at least 3 characters.'];
     }
     my $empire = $self->get_empire_by_session($session_id);
-    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => {'like' => '%'.$name.'%'}}, {rows=>100});
+    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => {'like' => $name.'%'}}, {rows=>100});
     my @list_of_empires;
     my $limit = 100;
     while (my $empire = $empires->next) {

@@ -80,7 +80,7 @@ sub find_empire_rank {
     }
     my $empire = $self->get_empire_by_session($session_id);
     my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire')->search(undef,{order_by => $by, rows=>25});
-    my $ranked = $ranks->search({empire_name => { like => '%'.$empire_name.'%'}});
+    my $ranked = $ranks->search({empire_name => { like => $empire_name.'%'}});
     my @empires;
     while (my $rank = $ranked->next) {
         my $page_number = int($rank->$by / 25);
@@ -151,7 +151,7 @@ sub find_colony_rank {
     }
     my $empire = $self->get_empire_by_session($session_id);
     my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Colony')->search(undef,{order_by => $by, rows=>25});
-    my $ranked = $ranks->search({planet_name => { like => '%'.$colony_name.'%'}});
+    my $ranked = $ranks->search({planet_name => { like => $colony_name.'%'}});
     my @colonies;
     while (my $rank = $ranked->next) {
         my $page_number = int($rank->$by / 25);
@@ -211,7 +211,7 @@ sub find_spy_rank {
     }
     my $empire = $self->get_empire_by_session($session_id);
     my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Spies')->search(undef,{order_by => $by, rows=>25});
-    my $ranked = $ranks->search({spy_name => { like => '%'.$spy_name.'%'}});
+    my $ranked = $ranks->search({spy_name => { like => $spy_name.'%'}});
     my @spies;
     while (my $rank = $ranked->next) {
         my $page_number = int($rank->$by / 25);

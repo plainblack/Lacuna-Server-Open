@@ -74,7 +74,7 @@ sub search_stars {
     }
     my $empire = $self->get_empire_by_session($session_id);
     my @out;
-    my $stars = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({name => { like => '%'.$name.'%' }},{rows => 25});
+    my $stars = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({name => { like => $name.'%' }},{rows => 25});
     while (my $star = $stars->next) {
         push @out, $star->get_status; # planet data left out on purpose
     }
