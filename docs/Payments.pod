@@ -2,6 +2,8 @@
 
 The payments system allows users to purchase essentia. There's not much for an app developer to do here execept to hand off to the payment system. Usually this involves opening a window for them.
 
+B<NOTE:> This API is B<not> JSON-RPC based.
+
 To initiate the payments process you simply need to open the following url:
 
  https://servername.lacunaexpanse.com/pay?session_id=xxxxxxxxxxxxxxxx;api_key=yyyyyyyyyyyyy

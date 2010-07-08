@@ -197,6 +197,9 @@ sub www_default {
     unless (defined $session) {
         return [$self->wrapper('You must be logged in to purchase essentia.'), { status => 401 }];
     }
+    if ($session->is_sitter) {
+        return [$self->wrapper('Sitters cannot purchase essentia.'), { status => 401 }];
+    }
     my $empire = $session->empire;
     unless (defined $empire) {
         return [$self->wrapper('Empire not found.'), { status => 401 }];

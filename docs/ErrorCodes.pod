@@ -62,5 +62,9 @@ The empire/planet/station hasn't completed building the prerequisite buildings i
 
 A captcha was required for this request and it was not valid. The data portion will contain new captcha information to try again.
 
+=head2 1015 Restricted for sitter logins.
+
+The function you were attempting to access is not valid for sitter accounts.
+
 =cut
 

@@ -7,6 +7,7 @@ use Lacuna::Util qw(format_date);
 use Digest::SHA;
 use List::MoreUtils qw(uniq);
 
+
 __PACKAGE__->table('empire');
 __PACKAGE__->add_columns(
     name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
@@ -15,12 +16,17 @@ __PACKAGE__->add_columns(
     description             => { data_type => 'text', is_nullable => 1 },
     home_planet_id          => { data_type => 'int', size => 11, is_nullable => 1 },
     status_message          => { data_type => 'varchar', size => 255 },
-    password                => { data_type => 'varchar', size => 255 },
+    password                => { data_type => 'char', size => 43 },
+    sitter_password         => { data_type => 'varchar', size => 30 },
+    email                   => { data_type => 'varchar', size => 255, is_nullable => 1 },
+    city                    => { data_type => 'varchar', size => 100, is_nullable => 1 },
+    country                 => { data_type => 'varchar', size => 100, is_nullable => 1 },
+    skype                   => { data_type => 'varchar', size => 100, is_nullable => 1 },
+    player_name             => { data_type => 'varchar', size => 100, is_nullable => 1 },
+    password_recovery_key   => { data_type => 'varchar', size => 36, is_nullable => 1 },
     last_login              => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     species_id              => { data_type => 'int', size => 11, is_nullable => 1 },
     essentia                => { data_type => 'int', size => 11, default_value => 0 },
-#    points                  => { data_type => 'int', size => 11, default_value => 0 },
-#    rank                   => { data_type => 'int', size => 11, default_value => 0 }, # just where it is stored, but will come out of date quickly
     university_level        => { data_type => 'tinyint', default_value => 0 },
     tutorial_stage          => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'explore_the_ui' },
     tutorial_scratch        => { data_type => 'text', is_nullable => 1 },
@@ -45,7 +51,6 @@ __PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
 has current_session => (
     is                  => 'rw',
     predicate           => 'has_current_session',
-    weak_ref            => 1,
 );
 
 sub has_medal {

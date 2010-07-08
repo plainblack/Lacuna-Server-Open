@@ -91,7 +91,7 @@ The name of the empire to create. Required.
 
 =head4 password
 
-The password to log in to the empire. Required.
+The password to log in to the empire. Required. Must be between 6 and 30 characters.
 
 =head4 password1
 
@@ -104,6 +104,10 @@ This must match the C<guid> field returned by the C<fetch_captcha> method.
 =head4 captcha_solution
 
 This is the text typed in by the user as the solution of the captcha.
+
+=head4 email
+
+The user's email address. It is not required, but is used for system vital functions like password recovery.
 
 
 
@@ -180,7 +184,13 @@ Provides a list of the editable properties of the current empire's profile. See 
                "times_earned" : 4
            },
            ...
-       }
+       },
+       "city" : "Madison",
+       "country" : "USA",
+       "skype" : "joeuser47",
+       "player_name" : "Joe User",
+       "email" : "joe@example.com",
+       "sitter_password" : "abcdefgh"                   # never give out your real password, use the sitter password
     },
     "status" : { ... }
  }
@@ -210,9 +220,33 @@ A hash reference of properties to be edited.
 
 A description of the empire. Limited to 1024 characters and cannot contain < or >.
 
+=head4 email
+
+An email address that can be used for system functions like password recovery. Must either resemble an email address or be empty.
+
+=head4 sitter_password
+
+A password that can be safely given to account sitters and alliance members. Must be between 6 and 30 characters.
+
 =head4 status_message
 
 A message to indicate what you're doing, how you're feeling, or other status indicator. Limited to 100 characters, cannot be blank, and cannot contain @, &, <, >, or ;.
+
+=head4 city
+
+An optional text string of the city in which the player resides. Limited to 100 characters and cannot contain @, &, <, >, or ;
+
+=head4 country
+
+An optional text string of the country in which the player resides. Limited to 100 characters and cannot contain @, &, <, >, or ;
+
+=head4 skype
+
+An optional text string of the username this player uses on skype. Limited to 100 characters and cannot contain @, &, <, >, or ;
+
+=head4 player_name
+
+An optional text string of the real name or online identity of this player. Limited to 100 characters and cannot contain @, &, <, >, or ;
 
 =head4 public_medals
 
@@ -231,6 +265,10 @@ Provides a list of the data that's publicly known about this empire.
         "planet_count" : 1,
         "status_message" : "Looking for Essentia."
         "description" : "We are the original inhabitants of the Lacuna Expanse.",
+        "city" : "Madison",
+        "country" : "USA",
+        "skype" : "joeuser47",
+        "player_name" : "Joe User",
         "medals" : {
             "id-goes-here" : {
                 "name" : "Built Level 1 Building",
@@ -240,6 +278,7 @@ Provides a list of the data that's publicly known about this empire.
             },
             ...
         },
+        "last_login" : "01 31 2010 13:09:05 +0600",
         "date_founded" : "01 31 2010 13:09:05 +0600",
         "species" : "Lacunan",
         "known_colonies" : [
@@ -265,6 +304,78 @@ A session id.
 =head3 empire_id
 
 The id of the empire for which you'd like to retrieve the public profile.
+
+
+
+=head2 send_password_reset_message ( params )
+
+Starts a password recovery process by sending an email with a recovery key.
+
+=head3 params
+
+A hash of options to recover a password. Choose one.
+
+=head4 empire_id
+
+The unique id of the empire to recover.
+
+=head4 empire_name
+
+The full name of the empire.
+
+=head4 email
+
+The email address associated with an empire.
+
+
+
+
+=head2 reset_password ( reset_key, password1, password2, api_key ) 
+
+Change the empire password that has been forgotten.
+
+=head3 reset_key
+
+A key that was emailed to the user via the C<send_password_reset_message> method.
+
+=head3 password1
+
+The password to log in to the empire. Required. Must be between 6 and 30 characters.
+
+=head3 password2
+
+Retyping the password again. This must match C<password1> to succeed.
+
+=head3 api_key
+
+Your client's unique API key, identifiying it from all other clients. See L<ApiKeys> for details.
+
+
+
+
+
+
+
+=head2 change_password ( session_id, current_password, password1, password2 ) 
+
+Change the empire password.
+
+=head3 session_id
+
+A session id.
+
+=head3 current_password
+
+The current password as it is right now before the change. If you don't know the current password you can't change it.
+
+=head3 password1
+
+The password to log in to the empire. Required. Must be between 6 and 30 characters.
+
+=head3 password2
+
+Retyping the password again. This must match C<password1> to succeed.
+
 
 
 

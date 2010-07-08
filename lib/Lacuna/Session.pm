@@ -18,6 +18,7 @@ sub BUILD {
         $self->api_key($session_data->{api_key});
         $self->empire_id($session_data->{empire_id});
         $self->extended($session_data->{extended});
+        $self->is_sitter($session_data->{is_sitter});
     }
 }
 
@@ -28,6 +29,11 @@ has extended => (
 
 has api_key => (
     is          => 'rw',
+);
+
+has is_sitter => (
+    is          => 'rw',
+    default     => 0,
 );
 
 has empire_id => (
@@ -61,7 +67,7 @@ sub extend {
     Lacuna->cache->set(
         'session',
         $self->id,
-        { empire_id => $self->empire_id, api_key => $self->api_key, extended => $self->extended },
+        { empire_id => $self->empire_id, api_key => $self->api_key, extended => $self->extended, is_sitter => $self->is_sitter },
         60 * 60 * 2,
     );
     return $self;
@@ -81,9 +87,10 @@ sub end {
 }
 
 sub start {
-    my ($self, $empire, $api_key) = @_;
+    my ($self, $empire, $api_key, $is_sitter) = @_;
     $self->empire_id($empire->id);
     $self->api_key($api_key);
+    $self->is_sitter($is_sitter);
     $empire->current_session($self);
     $self->empire($empire);
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Login')->new({

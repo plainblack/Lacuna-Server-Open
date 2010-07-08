@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 21;
+use Test::More tests => 23;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -74,6 +74,7 @@ my %profile = (
     status_message  => 'Whoopie!',
     description     => 'test',
     public_medals   => \@medal_ids,
+    sitter_password => 'testsitter',
 );
 $result = $tester->post('empire', 'edit_profile', [$session_id, \%profile]);
 is($result->{result}{profile}{description}, 'test', 'description set in profile');
@@ -88,6 +89,14 @@ is($result->{result}{empires}[0]{id}, $empire_id, 'empire search works');
 
 $result = $tester->post('empire', 'get_status', [$session_id]);
 ok(exists $result->{result}{empire}{planets}, 'got starting resources');
+
+
+$result = $tester->post('empire', 'login', [$tester->empire_name, 'broken sitter password']);
+is($result->{error}{code}, 1004, 'broken sitter password');
+
+$result = $tester->post('empire', 'login', [$tester->empire_name, 'testsitter']);
+ok(exists $result->{result}{session_id}, 'login with sitter password');
+
 
 END {
     $tester->cleanup;

@@ -2,6 +2,7 @@ package Lacuna::Verify;
 
 use Moose;
 use Regexp::Common qw(RE_profanity);
+use Data::Validate::Email;
 
 has content => (
     is          => 'ro',
@@ -74,6 +75,11 @@ sub length_gt {
 sub length_lt {
     my ($self, $length) = @_;
     return $self->ok(length(${$self->content}) < $length);
+}
+
+sub is_email {
+    my ($self) = @_;
+    return $self->ok(Data::Validate::Email::is_email(${$self->content}));
 }
 
 

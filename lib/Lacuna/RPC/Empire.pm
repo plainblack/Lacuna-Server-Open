@@ -4,6 +4,9 @@ use Moose;
 extends 'Lacuna::RPC';
 use Lacuna::Util qw(format_date);
 use DateTime;
+use String::Random qw(random_string);
+use UUID::Tiny;
+use Email::Stuff;
 
 sub find {
     my ($self, $session_id, $name) = @_;
@@ -54,7 +57,12 @@ sub login {
         confess [1010, "You can't log in to an empire that has not been founded."];
     }
     unless ($empire->is_password_valid($password)) {
-        confess [1004, 'Password incorrect.', $password];
+        if ($password ne '' && $empire->sitter_password eq $password) {
+            return { session_id => $empire->start_session($api_key, 1)->id, status => $self->format_status($empire) };
+        }
+        else {
+            confess [1004, 'Password incorrect.', $password];            
+        }
     }
     return { session_id => $empire->start_session($api_key)->id, status => $self->format_status($empire) };
 }
@@ -71,11 +79,93 @@ sub fetch_captcha {
     };
 }
 
+sub change_password {
+    my ($self, $session_id, $password, $password1, $password2) = @_;
+    Lacuna::Verify->new(content=>\$password1, throws=>[1001,'Invalid password.', $password1])
+        ->length_gt(5)
+        ->eq($password2);
+
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot modify preferences.'];
+    }
+    unless ($empire->is_password_valid($password)) { # just in case the person walks away from their device, or the session is somehow hijacked
+        confess [1004, 'Current password incorrect.', $password];            
+    }
+    
+    $empire->password($empire->encrypt_password($password1));
+    $empire->update;
+    return { status => $self->format_status($empire) };
+}
+
+
+sub send_password_reset_message {
+    my ($self, %options) = @_;
+    my $empire;
+    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire');
+    if (exists $options{empire_id} && $options{empire_id} ne '') {
+        $empire = $empires->find($options{empire_id});
+    }
+    elsif (exists $options{empire_name}) {
+        $empire = $empires->search({ name => $options{empire_name} }, { rows => 1 })->single;
+    }
+    elsif (exists $options{email}) {
+        $empire = $empires->search({ email => $options{email} }, { rows => 1 })->single;
+    }
+    unless (defined $empire) {
+        confess [1002, 'Empire not found.'];
+    }
+    unless (defined $empire) {
+        confess [1002, 'That empire has no email address specified.'];
+    }
+    $empire->password_recovery_key(create_UUID_as_string(UUID_V4));
+    $empire->update;
+    
+    my $message = "Use the key or the link below to reset the password for %s.\n\nKey: %s\n\n%s?reset_password=%s";
+    
+    Email::Stuff->from('noreply@lacunaexpanse.com')
+        ->to($empire->email)
+        ->subject('Reset Your Password')
+        ->text_body(sprintf($message, $empire->name, $empire->password_recovery_key, Lacuna->config->get('server_url'), $empire->password_recovery_key))
+        ->send;
+    return { sent => 1 };
+}
+
+
+sub reset_password {
+    my ($self, $key, $password1, $password2, $api_key) = @_;
+    # verify
+    unless (defined $key && $key ne '') {
+        confess [1002, 'You need a key to reset a password.'];
+    }
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({password_recovery_key => $key}, { rows=>1 })->single;
+    unless (defined $empire) {
+        confess [1002, 'The key you provided is invalid. Password not reset.'];
+    }
+    Lacuna::Verify->new(content=>\$password1, throws=>[1001,'Invalid password.', $password1])
+        ->length_gt(5)
+        ->eq($password2);
+    
+    # reset
+    $empire->password($empire->encrypt_password($password1));
+    $empire->password_recovery_key('');
+    $empire->update;
+    
+    # authenticate
+    return { session_id => $empire->start_session($api_key)->id, status => $self->format_status($empire) };
+}
+
+
 sub create {
     my ($self, $plack_request, %account) = @_;
-    Lacuna::Verify->new(content=>\$account{password}, throws=>[1001,'Invalid password.', $account{password}])
+    Lacuna::Verify->new(content=>\$account{password}, throws=>[1001,'Invalid password.', 'password'])
         ->length_gt(5)
         ->eq($account{password1});
+    Lacuna::Verify->new(content=>\$account{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
+        ->is_email if ($account{email});
+    if (exists $account{email} && $account{email} ne '' && Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({email=>$account{email}})->count > 0) {
+        confess [1005, 'That email address is already in use by another empire.', 'email'];
+    }
 
 if ($account{captcha_guid}) {
     $self->validate_captcha($plack_request, $account{captcha_guid}, $account{captcha_solution});
@@ -88,7 +178,8 @@ if ($account{captcha_guid}) {
         species_id          => 2,
         status_message      => 'Making Lacuna a better Expanse.',
         password            => Lacuna::DB::Result::Empire->encrypt_password($account{password}),
-
+        sitter_password     => random_string('CC.c!ccn'),
+        email               => $account{email},
     })->insert;
     
     return $empire->id;
@@ -134,6 +225,9 @@ sub get_status {
 sub view_profile {
     my ($self, $session_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot modify preferences.'];
+    }
     my $medals = $empire->medals;
     my %my_medals;
     while (my $medal = $medals->next) {
@@ -148,6 +242,12 @@ sub view_profile {
     my %out = (
         description     => $empire->description,
         status_message  => $empire->status_message,
+        sitter_password => $empire->sitter_password,
+        email           => $empire->email,
+        city            => $empire->city,
+        country         => $empire->country,
+        skype           => $empire->skype,
+        player_name     => $empire->player_name,
         medals          => \%my_medals,
     );
     return { profile => \%out, status => $self->format_status($empire) };    
@@ -155,23 +255,57 @@ sub view_profile {
 
 sub edit_profile {
     my ($self, $session_id, $profile) = @_;
-    Lacuna::Verify->new(content=>\$profile->{description}, throws=>[1005,'Description invalid.', 'description'])
+    Lacuna::Verify->new(content=>\$profile->{description}, throws=>[1005,'Description must be less than 1024 characters and cannot contain special characters or profanity.', 'description'])
         ->length_lt(1025)
         ->no_restricted_chars
         ->no_profanity;  
-    Lacuna::Verify->new(content=>\$profile->{status_message}, throws=>[1005,'Status message invalid.', 'status_message'])
+    Lacuna::Verify->new(content=>\$profile->{status_message}, throws=>[1005,'Status cannot be empty, must be no longer than 100 characters, and cannot contain special characters or profanity.', 'status_message'])
         ->length_lt(101)
         ->not_empty
         ->no_restricted_chars
         ->no_profanity;
+    Lacuna::Verify->new(content=>\$profile->{status_message}, throws=>[1005,'Sitter password must be between 8 and 30 characters.', 'sitter_password'])
+        ->length_lt(31)
+        ->length_gt(5);
+    Lacuna::Verify->new(content=>\$profile->{city}, throws=>[1005,'City must be no longer than 100 characters, and cannot contain special characters or profanity.', 'city'])
+        ->length_lt(101)
+        ->no_restricted_chars
+        ->no_profanity if ($profile->{city});
+    Lacuna::Verify->new(content=>\$profile->{country}, throws=>[1005,'Country must be no longer than 100 characters, and cannot contain special characters or profanity.', 'country'])
+        ->length_lt(101)
+        ->no_restricted_chars
+        ->no_profanity if ($profile->{country});
+    Lacuna::Verify->new(content=>\$profile->{player_name}, throws=>[1005,'Player name must be no longer than 100 characters, and cannot contain special characters or profanity.', 'player_name'])
+        ->length_lt(101)
+        ->no_restricted_chars
+        ->no_profanity if ($profile->{player_name});
+    Lacuna::Verify->new(content=>\$profile->{skype}, throws=>[1005,'Skype must be no longer than 100 characters, and cannot contain special characters or profanity.', 'skype'])
+        ->length_lt(101)
+        ->no_restricted_chars
+        ->no_profanity if ($profile->{skype});
+    Lacuna::Verify->new(content=>\$profile->{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
+        ->is_email if ($profile->{email});
     unless (ref $profile->{public_medals} eq  'ARRAY') {
         confess [1009, 'Medals list needs to be an array reference.', 'public_medals'];
     }
     
-    # preferences
     my $empire = $self->get_empire_by_session($session_id);
+    if (exists $profile->{email} && $profile->{email} ne '' && Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({email=>$profile->{email}, empire_id=>{ '!=' => $empire->id}})->count > 0) {
+        confess [1005, 'That email address is already in use by another empire.', 'email'];
+    }
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot modify preferences.'];
+    }
+
+    # preferences
+    $empire->skype($profile->{skype});
+    $empire->city($profile->{city});
+    $empire->country($profile->{country});
+    $empire->player_name($profile->{player_name});
     $empire->description($profile->{description});
     $empire->status_message($profile->{status_message});
+    $empire->sitter_password($profile->{sitter_password});
+    $empire->email($profile->{email});
     $empire->update;
 
     # medals
@@ -227,6 +361,11 @@ sub view_public_profile {
         status_message  => $viewed_empire->status_message,
         species         => $viewed_empire->species->name,
         date_founded    => format_date($viewed_empire->date_created),
+        last_login      => format_date($viewed_empire->last_login),
+        city            => $viewed_empire->city,
+        country         => $viewed_empire->country,
+        skype           => $viewed_empire->skype,
+        player_name     => $viewed_empire->player_name,
         colony_count    => $viewed_empire->planets->count,
         medals          => \%public_medals,
     );
@@ -306,7 +445,7 @@ sub view_boosts {
 __PACKAGE__->register_rpc_method_names(
     { name => "create", options => { with_plack_request => 1 } },
     { name => "fetch_captcha", options => { with_plack_request => 1 } },
-    qw(set_status_message find view_profile edit_profile view_public_profile is_name_available found login logout get_full_status get_status boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+    qw(change_password set_status_message find view_profile edit_profile view_public_profile is_name_available found login logout get_full_status get_status boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
 );
 
 
