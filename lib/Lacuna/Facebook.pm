@@ -62,7 +62,11 @@ sub www_oauth {
     );
     my $response = $self->user_agent->get($url);
     my $uri = URI->new('?'.$response->content);
-    return [ $uri->query_param('access_token') ];
+    my $out;
+    foreach my $key ($uri->query_param) {
+       $out .= $key.': '.join(", ", $uri->query_param($key)).'<br>';
+    }
+    return [ $out ];
 }
 
 sub www_post_authorize {
@@ -96,7 +100,7 @@ sub get_session {
 sub www_default {
     my ($self, $request) = @_;
     my $config = Lacuna->config;
-    return ['https://graph.facebook.com/oauth/authorize?client_id='.$config->get('facebook/app_id').'&redirect_uri=https://alpha.lacunaexpanse.com/facebook/oauth', { status => 302 }];
+    return ['https://graph.facebook.com/oauth/authorize?client_id='.$config->get('facebook/app_id').'&redirect_uri=https://alpha.lacunaexpanse.com/facebook/oauth&scope=email,publish_stream,offline_access', { status => 302 }];
 
     my $client = WWW::Facebook::API->new(
         desktop => 0,
