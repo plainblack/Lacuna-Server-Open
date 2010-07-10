@@ -14,7 +14,7 @@ __PACKAGE__->add_columns(
     stage                   => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'new' },
     date_created            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     description             => { data_type => 'text', is_nullable => 1 },
-    home_planet_id          => { data_type => 'int', size => 11, is_nullable => 1 },
+    home_planet_id          => { data_type => 'int',  is_nullable => 1 },
     status_message          => { data_type => 'varchar', size => 255 },
     password                => { data_type => 'char', size => 43 },
     sitter_password         => { data_type => 'varchar', size => 30 },
@@ -25,8 +25,8 @@ __PACKAGE__->add_columns(
     player_name             => { data_type => 'varchar', size => 100, is_nullable => 1 },
     password_recovery_key   => { data_type => 'varchar', size => 36, is_nullable => 1 },
     last_login              => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    species_id              => { data_type => 'int', size => 11, is_nullable => 1 },
-    essentia                => { data_type => 'int', size => 11, default_value => 0 },
+    species_id              => { data_type => 'int', is_nullable => 1 },
+    essentia                => { data_type => 'int', default_value => 0 },
     university_level        => { data_type => 'tinyint', default_value => 0 },
     tutorial_stage          => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'explore_the_ui' },
     tutorial_scratch        => { data_type => 'text', is_nullable => 1 },
@@ -36,6 +36,8 @@ __PACKAGE__->add_columns(
     ore_boost               => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     energy_boost            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     happiness_boost         => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    facebook_uid            => { data_type => 'bigint', is_nullable => 1 },
+    facebook_token          => { data_type => 'varchar', size => 100, is_nullable => 1 },
 );
 
 # personal confederacies

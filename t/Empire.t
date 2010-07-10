@@ -84,7 +84,7 @@ is($result->{result}{profile}{medals}{$private_medal_id}{public}, 0, 'medal set 
 $result = $tester->post('empire', 'view_public_profile', [$session_id, $empire_id]);
 is($result->{result}{profile}{status_message}, 'Whoopie!', 'public profile works');
 
-$result = $tester->post('empire', 'find', [$session_id, 'Test']);
+$result = $tester->post('empire', 'find', [$session_id, 'TLE']);
 is($result->{result}{empires}[0]{id}, $empire_id, 'empire search works');
 
 $result = $tester->post('empire', 'get_status', [$session_id]);
