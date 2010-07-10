@@ -1,8 +1,7 @@
-package Lacuna::Facebook;
+package Lacuna::Web::Facebook;
 
 use Moose;
-extends qw(Plack::Component);
-use Plack::Request;
+extends qw(Lacuna::Web);
 use Facebook::Graph;
 use LWP::UserAgent;
 
@@ -19,40 +18,6 @@ has facebook => (
         );
     },
 );
-
-sub call {
-    my ($self, $env) = @_;
-    my $request = Plack::Request->new($env);
-
-    # figure out what is being called
-    my $method_name = $request->path_info;
-    $method_name =~ s{^/}{};                # remove preceeding slash
-    $method_name =~ s{/}{_}g;               # replace slashes with underscores
-    $method_name ||= 'default';             # if no method is specified, then display the default
-    $method_name = 'www_' . $method_name;   # not all methods are public
-    
-    # call it
-    my $out;
-    my $method = $self->can($method_name);
-    if ($method) {
-        $out = eval{$self->$method($request)};
-        if ($@) {
-            $out = $self->format_error($request, $@);
-        }
-    }
-
-    # process response
-    my $response = $request->new_response;
-    if ($out->[1]{status} eq 302) {
-        $response->redirect($out->[0]);
-    }
-    else {
-    	$response->status($out->[1]{status} || 200);
-        $response->content_type($out->[1]{content_type} || 'text/html');
-        $response->body($out->[0]);
-    }
-    return $response->finalize;
-}
 
 sub www_oauth {
     my ($self, $request) = @_;
@@ -79,24 +44,6 @@ sub www_post_authorize {
 sub www_post_remove {
     my ($self, $request) = @_;
     return [$self->wrapper('post remove')];
-}
-
-
-sub get_session {
-    my ($self, $session_id) = @_;
-    if (ref $session_id eq 'Lacuna::DB::Result::Session') {
-        return $session_id;
-    }
-    else {
-        my $session = Lacuna::Session->new(id=>$session_id);
-        if ($session->empire_id) {
-            $session->extend;
-            return $session;
-        }
-        else {
-            return undef;
-        }
-    }
 }
 
 sub www_authorize {
@@ -133,45 +80,13 @@ sub www_default {
 <div class="play_now">Play Now!</div>
 </a>
 ';
-    my $out = '<img src="https://s3.amazonaws.com/alpha.lacunaexpanse.com/assets/ui/logo.png" style="margin-left: 50px;">
-<div style="font-size: 50px; margin-left: 140px; font-family: Helvetica; color: white;">Available Servers</div>';
+    my $out = '<img src="https://s3.amazonaws.com/www.lacunaexpanse.com/logo.png" style="margin-left: 50px;">
+<div style="font-size: 50px; margin-left: 140px; font-family: Helvetica; color: white;">Choose A Server</div>';
     foreach my $server (@{$servers}) {
         $out .= sprintf $template, $server->{uri}, $server->{name}, $server->{location}, $server->{status};
     }
-    return $self->wrapper('Choose A Server', $out);
+    return [$self->wrapper('Available Servers', $out)];
 }
-
-sub format_error {
-    my ($self, $request, $error) = @_;
-    unless (ref $error eq 'ARRAY') {
-        $error = [$error];
-    }
-    my $out = '<h1>Error</h1> '. $error->[0] . ' <hr> ';
-    if (ref $request eq 'Plack::Request') {
-        foreach my $key ($request->parameters->keys) {
-            $out .= $key.': '.$request->param($key).'<br>';
-        }
-    }
-    else {
-        $out .= 'No request object!';
-    }
-    return [$self->wrapper($out), {status => $error->[1] || 500}];
-}
-
-sub wrapper {
-    my ($self, $title, $content) = @_;
-    if (open my $file, "<", '/data/Lacuna-Server/var/wrapper.html') {
-        my $html;
-        {
-            local $/;
-            $html = <$file>;
-        }
-        close $file;
-        return sprintf $html, $title, $content;    
-    }
-    return 'Could not open wrapper template.';    
-}
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

@@ -26,8 +26,8 @@ $urlmap->map("/empire" => Lacuna::RPC::Empire->new->to_app);
 $urlmap->map("/inbox" => Lacuna::RPC::Inbox->new->to_app);
 $urlmap->map("/species" => Lacuna::RPC::Species->new->to_app);
 $urlmap->map("/stats" => Lacuna::RPC::Stats->new->to_app);
-$urlmap->map("/pay" => Lacuna::Pay->new->to_app);
-$urlmap->map("/facebook" => Lacuna::Facebook->new->to_app);
+$urlmap->map("/pay" => Lacuna::Web::Pay->new->to_app);
+$urlmap->map("/facebook" => Lacuna::Web::Facebook->new->to_app);
 
 # buildings
 $urlmap->map(Lacuna::RPC::Building::Algae->new->to_app_with_url);
@@ -114,7 +114,7 @@ my $admin = builder {
         my $admins = Lacuna->config->get('admins');
         return $admins->{$username} eq Digest::SHA::sha256_base64($password);
     };
-    Lacuna::Admin->new->to_app;
+    Lacuna::Web::Admin->new->to_app;
 };
 $urlmap->map("/admin" => $admin);
 

@@ -1,39 +1,8 @@
-package Lacuna::Pay;
+package Lacuna::Web::Pay;
 
 use Moose;
-extends qw(Plack::Component);
-use Plack::Request;
-use feature "switch";
+extends qw(Lacuna::Web);
 use Digest::MD5 qw(md5_hex);
-
-sub call {
-    my ($self, $env) = @_;
-    my $request = Plack::Request->new($env);
-
-    # figure out what is being called
-    my $method_name = $request->path_info;
-    $method_name =~ s{^/}{};                # remove preceeding slash
-    $method_name =~ s{/}{_}g;               # replace slashes with underscores
-    $method_name ||= 'default';             # if no method is specified, then display the default
-    $method_name = 'www_' . $method_name;   # not all methods are public
-    
-    # call it
-    my $out;
-    my $method = $self->can($method_name);
-    if ($method) {
-        $out = eval{$self->$method($request)};
-        if ($@) {
-            $out = $self->format_error($request, $@);
-        }
-    }
-
-    # process response
-    my $response = $request->new_response;
-    $response->status($out->[1]{status} || 200);
-    $response->content_type($out->[1]{content_type} || 'text/html');
-    $response->body($out->[0]);
-    return $response->finalize;
-}
 
 sub calculate_jambool_signature {
     my ($self, $params, $secret) = @_;
@@ -66,12 +35,12 @@ sub jambool_buy_url {
 
 sub www_jambool_success {
     my ($self, $request) = @_;
-    return [$self->wrapper('Thank you! The essentia will be added to your account momentarily.')];
+    return [$self->wrap('Thank you! The essentia will be added to your account momentarily.')];
 }
 
 sub www_jambool_error {
     my ($self, $request) = @_;
-    return [$self->wrapper('Shucks! Something went wrong and we could not process your payment. Please try again in a few minutes.')];
+    return [$self->wrap('Shucks! Something went wrong and we could not process your payment. Please try again in a few minutes.')];
 }
 
 sub www_jambool_postback {
@@ -174,79 +143,26 @@ sub www_jambool_reversal {
     return ['OK'];
 }
 
-sub get_session {
-    my ($self, $session_id) = @_;
-    if (ref $session_id eq 'Lacuna::DB::Result::Session') {
-        return $session_id;
-    }
-    else {
-        my $session = Lacuna::Session->new(id=>$session_id);
-        if ($session->empire_id) {
-            $session->extend;
-            return $session;
-        }
-        else {
-            return undef;
-        }
-    }
-}
-
 sub www_default {
     my ($self, $request) = @_;
     my $session = $self->get_session($request->param('session_id'));
     unless (defined $session) {
-        return [$self->wrapper('You must be logged in to purchase essentia.'), { status => 401 }];
+        return [$self->wrap('You must be logged in to purchase essentia.'), { status => 401 }];
     }
     if ($session->is_sitter) {
-        return [$self->wrapper('Sitters cannot purchase essentia.'), { status => 401 }];
+        return [$self->wrap('Sitters cannot purchase essentia.'), { status => 401 }];
     }
     my $empire = $session->empire;
     unless (defined $empire) {
-        return [$self->wrapper('Empire not found.'), { status => 401 }];
+        return [$self->wrap('Empire not found.'), { status => 401 }];
     }
-    return [$self->wrapper('<iframe frameborder="0" scrolling="no" width="425" height="365" src="'.$self->jambool_buy_url($empire->id).'"></iframe>')];
+    return [$self->wrap('<iframe frameborder="0" scrolling="no" width="425" height="365" src="'.$self->jambool_buy_url($empire->id).'"></iframe>')];
 }
 
-sub format_error {
-    my ($self, $request, $error) = @_;
-    unless (ref $error eq 'ARRAY') {
-        $error = [$error];
-    }
-    my $out = '<h1>Error</h1> '. $error->[0] . ' <hr> ';
-    if (ref $request eq 'Plack::Request') {
-        foreach my $key ($request->parameters->keys) {
-            $out .= $key.': '.$request->param($key).'<br>';
-        }
-    }
-    else {
-        $out .= 'No request object!';
-    }
-    return [$self->wrapper($out), {status => $error->[1] || 500}];
-}
-
-sub wrapper {
+sub wrap {
     my ($self, $content) = @_;
-    my $out = <<STOP;
-    <html>
-    <head><title>Lacuna Payment Console</title>
-    <style type="text/css">
-    body {
-        background-color: #0000a0;
-        color: white;
-        font-family: Helvetica, san serif;
-        font-size: 14pt;
-    }
-    </style>
-    </head>
-    <body>
-STOP
-    $out .= $content;
-    $out .= <<STOP;
-    </body>
-    </html>
-STOP
+    return $self->wrapper('Purchase Essentia', '<img src="https://s3.amazonaws.com/www.lacunaexpanse.com/logo.png"><br>'.$content);
 }
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
