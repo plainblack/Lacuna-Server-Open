@@ -21,16 +21,32 @@ sub call {
     if ($method) {
         $out = eval{$self->$method($request)};
         if ($@) {
-            $out = $self->format_error($request, $@);
+            my $message = $@;
+            my %options = (
+                request     => $request,
+                status      => 500,
+                debug       => 1,
+            );
+            if (ref $@ eq 'ARRAY') {
+                $message = $@->[1];
+                if ($@->[0] > 99 && $@->[0] < 600) {
+                    $options{status} = $@->[0];
+                    $options{debug} = 0;
+                }
+            }
+            $out = $self->format_error($message, \%options);
         }
     }
+    else {
+        $out = $self->format_error( 'Whatever you were looking for is not here.', { status => 404 });
+    }
     if (ref $out ne 'ARRAY') {
-        $out = [$self->wrapper('Error', $method_name.' did not return a properly structured response.'), {status => 500}];   
+        $out = $self->format_error( $method_name.' did not return a properly structured response.');
     }
 
     # process response
     my $response = $request->new_response;
-    if ($out->[1]{status} eq 302) {
+    if (exists $out->[1]{status} && $out->[1]{status} eq 302) {
         $response->redirect($out->[0]);
     }
     else {
@@ -58,26 +74,25 @@ sub get_session {
     }
 }
 
-
 sub format_error {
-    my ($self, $request, $error) = @_;
-    unless (ref $error eq 'ARRAY') {
-        $error = [$error];
-    }
-    my $out = '<h1>Error</h1> '. $error->[0] . ' <hr> ';
-    if (ref $request eq 'Plack::Request') {
-        foreach my $key ($request->parameters->keys) {
-            $out .= $key.': '.$request->param($key).'<br>';
+    my ($self, $message, $options) = @_;
+    my $out = $message;
+    if ($options->{debug}) {
+        $out .= ' <hr> ';
+        if (ref $options->{request} eq 'Plack::Request') {
+            foreach my $key ($options->{request}->parameters->keys) {
+                $out .= $key.': '.$options->{request}->param($key).'<br>';
+            }
+        }
+        else {
+            $out .= 'No request object!';
         }
     }
-    else {
-        $out .= 'No request object!';
-    }
-    return [$self->wrapper($out), {status => $error->[1] || 500}];
+    return $self->wrapper($out, { title => 'Error', logo => 1, status => ($options->{status} || 500) });
 }
 
 sub wrapper {
-    my ($self, $title, $content) = @_;
+    my ($self, $content, $options) = @_;
     if (open my $file, "<", '/data/Lacuna-Server/var/wrapper.html') {
         my $html;
         {
@@ -85,9 +100,12 @@ sub wrapper {
             $html = <$file>;
         }
         close $file;
-        return sprintf $html, $title, $content;    
+        if ($options->{logo}) {
+            $content = '<img src="https://s3.amazonaws.com/www.lacunaexpanse.com/logo.png"><br><br>'.$content;
+        }
+        return [ sprintf($html, ($options->{title} || 'The Lacuna Expanse'), $content), { status => $options->{status} } ];    
     }
-    return 'Could not open wrapper template.';    
+    return ['Could not open wrapper template.', {status => 500} ];    
 }
 
 

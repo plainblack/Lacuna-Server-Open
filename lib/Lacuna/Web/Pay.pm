@@ -35,12 +35,12 @@ sub jambool_buy_url {
 
 sub www_jambool_success {
     my ($self, $request) = @_;
-    return [$self->wrap('Thank you! The essentia will be added to your account momentarily.')];
+    return $self->wrap('Thank you! The essentia will be added to your account momentarily.');
 }
 
 sub www_jambool_error {
     my ($self, $request) = @_;
-    return [$self->wrap('Shucks! Something went wrong and we could not process your payment. Please try again in a few minutes.')];
+    return $self->format_error('Shucks! Something went wrong and we could not process your payment. Please try again in a few minutes.');
 }
 
 sub www_jambool_postback {
@@ -147,21 +147,21 @@ sub www_default {
     my ($self, $request) = @_;
     my $session = $self->get_session($request->param('session_id'));
     unless (defined $session) {
-        return [$self->wrap('You must be logged in to purchase essentia.'), { status => 401 }];
+        confess [ 401, 'You must be logged in to purchase essentia.'];
     }
     if ($session->is_sitter) {
-        return [$self->wrap('Sitters cannot purchase essentia.'), { status => 401 }];
+        confess [ 401, 'Sitters cannot purchase essentia.'];
     }
     my $empire = $session->empire;
     unless (defined $empire) {
-        return [$self->wrap('Empire not found.'), { status => 401 }];
+        confess [401, 'Empire not found.'];
     }
-    return [$self->wrap('<iframe frameborder="0" scrolling="no" width="425" height="365" src="'.$self->jambool_buy_url($empire->id).'"></iframe>')];
+    return $self->wrap('<iframe frameborder="0" scrolling="no" width="425" height="365" src="'.$self->jambool_buy_url($empire->id).'"></iframe>');
 }
 
 sub wrap {
     my ($self, $content) = @_;
-    return $self->wrapper('Purchase Essentia', '<img src="https://s3.amazonaws.com/www.lacunaexpanse.com/logo.png"><br>'.$content);
+    return $self->wrapper($content, { title => 'Purchase Essentia', logo => 1 });
 }
 
 no Moose;

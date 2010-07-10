@@ -12,53 +12,41 @@ has facebook => (
         my $self = shift;
         my $config = Lacuna->config;
         return Facebook::Graph->new(
-            postback    => $config->get('server_url').'facebook/oauth',
+            postback    => $config->get('server_url').'facebook/postback',
             app_id      => $config->get('facebook/app_id'),
             secret      => $config->get('facebook/secret'),
         );
     },
 );
 
-sub www_oauth {
+sub www_postback {
     my ($self, $request) = @_;
-    my $config = Lacuna->config;
-    my $url = sprintf('https://graph.facebook.com/oauth/access_token?client_id=%s&redirect_uri=https://alpha.lacunaexpanse.com/facebook/oauth&client_secret=%s&code=%s',
-        $config->get('facebook/app_id'),
-        $config->get('facebook/secret'),
-        $request->param('code'), 
-    );
-    my $response = $self->user_agent->get($url);
-    my $uri = URI->new('?'.$response->content);
-    my $out;
-    foreach my $key ($uri->query_param) {
-       $out .= $key.': '.join(", ", $uri->query_param($key)).'<br>';
+    my $fb = $self->facebook;
+    $fb->request_access_token($request->param('code'));
+    my $user = $fb->query->find('me')->request->as_hashref;
+
+    unless (exists $user->{id}) {
+        return $self->format_error('Could not authenticate your Facebook account. Please close this window and try again.');   
     }
-    return [ $out ];
-}
 
-sub www_post_authorize {
-    my ($self, $request) = @_;
-    return [$self->wrapper('post authorize')];
-}
-
-sub www_post_remove {
-    my ($self, $request) = @_;
-    return [$self->wrapper('post remove')];
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({facebook_uid => $user->{id} }, { rows => 1 })->single;
+    my $uri = Lacuna->config->get('server_url');
+    if (defined $empire) {
+        $empire->facebook_token($fb->access_token);
+        $empire->update;
+        $uri .= '?session_id=%s';
+        $uri = sprintf $uri, $empire->start_session('facebook')->id;
+    }
+    else {
+        $uri .= '?facebook_uid=%s&facebook_token=%s';
+        $uri = sprintf $uri, $user->{id}, $fb->access_token;
+    }
+    return [$uri, { status => 302 } ];
 }
 
 sub www_authorize {
     my ($self, $request) = @_;
-    my $config = Lacuna->config;
-    return ['https://graph.facebook.com/oauth/authorize?client_id='.$config->get('facebook/app_id').'&redirect_uri=https://alpha.lacunaexpanse.com/facebook/oauth&scope=email,publish_stream,offline_access', { status => 302 }];
-    my $session = $self->get_session($request->param('session_id'));
-    unless (defined $session) {
-        return [$self->wrapper('You must be logged in to purchase essentia.'), { status => 401 }];
-    }
-    my $empire = $session->empire;
-    unless (defined $empire) {
-        return [$self->wrapper('Empire not found.'), { status => 401 }];
-    }
-    return [$self->wrapper('<iframe frameborder="0" scrolling="no" width="425" height="365" src="'.$self->jambool_buy_url($empire->id).'"></iframe>')];
+    return [$self->facebook->authorize->add_permissions(qw(email publish_stream offline_access))->uri_as_string, { status => 302 }];
 }
 
 sub www_default {
@@ -70,7 +58,7 @@ sub www_default {
         $servers = JSON->new->decode($servers_json);
         $cache->set('www.lacunaexpanse.com', 'servers.json', $servers, 60 * 60 * 24);
     }
-    my $template = '<a href="%s" class="server_button">
+    my $template = '<a href="%s" class="server_button" target="_blank">
 <div class="server_name_label">Server</div>
 <div class="server_name">%s</div>
 <div class="location_label">Location</div>
@@ -83,9 +71,9 @@ sub www_default {
     my $out = '<img src="https://s3.amazonaws.com/www.lacunaexpanse.com/logo.png" style="margin-left: 50px;">
 <div style="font-size: 50px; margin-left: 140px; font-family: Helvetica; color: white;">Choose A Server</div>';
     foreach my $server (@{$servers}) {
-        $out .= sprintf $template, $server->{uri}, $server->{name}, $server->{location}, $server->{status};
+        $out .= sprintf $template, $server->{uri}.'facebook/authorize', $server->{name}, $server->{location}, $server->{status};
     }
-    return [$self->wrapper('Available Servers', $out)];
+    return $self->wrapper($out, { title => 'Available Servers' });
 }
 
 no Moose;

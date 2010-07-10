@@ -21,7 +21,7 @@ sub www_search_empires {
     }
     $out .= '</table>';
     $out .= $self->format_paginator('search/empires', $name, $page_number);
-    return [$self->wrap($out)];
+    return $self->wrap($out);
 }
 
 sub www_search_bodies {
@@ -49,7 +49,7 @@ sub www_search_bodies {
     }
     $out .= '</table>';
     $out .= $self->format_paginator('search/bodies', $name, $page_number);
-    return [$self->wrap($out)];
+    return $self->wrap($out);
 }
 
 sub www_search_stars {
@@ -71,7 +71,7 @@ sub www_search_stars {
     }
     $out .= '</table>';
     $out .= $self->format_paginator('search/stars', $name, $page_number);
-    return [$self->wrap($out)];
+    return $self->wrap($out);
 }
 
 sub www_view_buildings {
@@ -85,7 +85,7 @@ sub www_view_buildings {
         $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $building->id, $building->name, $building->x, $building->y, $building->level);
     }
     $out .= '</table>';
-    return [$self->wrap($out)];
+    return $self->wrap($out);
 }
 
 sub www_view_plans {
@@ -112,7 +112,7 @@ sub www_view_plans {
     $out .= '<input name="extra_build_level" value="0">';
     $out .= '<input type="submit" value="add">';
     $out .= '</form></fieldset>';
-    return [$self->wrap($out)];
+    return $self->wrap($out);
 }
 
 sub www_add_plan {
@@ -132,7 +132,7 @@ sub www_recalc_body {
         confess [404, 'Body not found.'];
     }
     $body->update({needs_recalc=>1});
-    return [ $self->wrap(sprintf('Done! <a href="/admin/manage/body?id=%s">Back To Body</a>', $request->param('body_id')))];
+    return $self->wrap(sprintf('Done! <a href="/admin/manage/body?id=%s">Back To Body</a>', $request->param('body_id')));
 }
 
 sub format_paginator {
@@ -166,7 +166,7 @@ sub www_manage_empire {
     $out .= sprintf('<tr><th>University Level</th><td>%s</td><td></td></tr>', $empire->university_level);
     $out .= sprintf('<tr><th>Isolationist</th><td>%s</td><td></td></tr>', $empire->is_isolationist);
     $out .= '</table>';
-    return [$self->wrap($out)];
+    return $self->wrap($out);
 }
 
 sub www_manage_body {
@@ -192,7 +192,7 @@ sub www_manage_body {
     $out .= sprintf('<li><a href="/admin/view/plans?body_id=%s">View Plans</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/recalc/body?body_id=%s">Recalculate Body Stats</a></li>', $body->id);
     $out .= '</ul>';
-    return [$self->wrap($out)];
+    return $self->wrap($out);
 }
 
 sub www_manage_star {
@@ -213,7 +213,7 @@ sub www_manage_star {
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/search/bodies?star_id=%s">Bodies Orbiting This Star</a></li>', $star->id);
     $out .= '</ul>';
-    return [$self->wrap($out)];
+    return $self->wrap($out);
 }
 
 sub www_add_essentia {
@@ -252,12 +252,12 @@ sub www_view_logs {
         }
     }
     my $file = '/tmp/lacuna.log';
-    return [$self->wrap($list.'<hr><pre>'.$log.'</pre>')];
+    return $self->wrap($list.'<hr><pre>'.$log.'</pre>');
 }
 
 sub www_default {
     my ($self, $request) = @_;
-    return [$self->wrap('<h1>Lacuna Expanse Admin Console</h1>
+    return $self->wrap('<h1>Lacuna Expanse Admin Console</h1>
             Server Version: '.Lacuna->version.'
         <ul>
         <li><a href="/">Play Game</a></li>
@@ -270,18 +270,18 @@ sub www_default {
             <li><a href="/admin/server/wide/recalc">Force Server Wide Recalc Of Planets</a></li>
         </ul>
         </fieldset>
-        ')];
+        ');
 }
 
 sub www_server_wide_recalc {
     my ($self, $request) = @_;
     Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({empire_id => {'>', 0}})->update({needs_recalc=>1});
-    return [$self->wrap('Done!')];
+    return $self->wrap('Done!');
 }
 
 sub wrap {
     my ($self, $content) = @_;
-    return $self->wrapper('Admin Console','<div style="width: 150px;">
+    return $self->wrapper('<div style="width: 150px;">
     <ul>
     <li><a href="/admin/search/empires">Empires</a></li>
     <li><a href="/admin/search/bodies">Bodies</a></li>
@@ -291,9 +291,8 @@ sub wrap {
     </ul>
     </div>
     <div style="border-left: 5px groove #014986; position: absolute; top: 0; left: 160px; min-width: 600px; margin: 5px;">
-    <div style="margin: 15px;">
-'. $content .' </div></div>'
-        
+    <div style="margin: 15px;">'. $content .' </div></div>',
+    { title => 'Admin Console'}
     );
 }
 
