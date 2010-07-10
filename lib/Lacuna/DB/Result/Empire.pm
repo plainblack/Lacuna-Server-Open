@@ -169,7 +169,7 @@ sub start_session {
 
 sub is_password_valid {
     my ($self, $password) = @_;
-    return ($self->password eq $self->encrypt_password($password)) ? 1 : 0;
+    return (defined $password && $password ne '' && $self->password eq $self->encrypt_password($password)) ? 1 : 0;
 }
 
 sub encrypt_password {

@@ -157,31 +157,49 @@ sub reset_password {
 
 
 sub create {
-    my ($self, $plack_request, %account) = @_;
-    Lacuna::Verify->new(content=>\$account{password}, throws=>[1001,'Invalid password.', 'password'])
-        ->length_gt(5)
-        ->eq($account{password1});
-    Lacuna::Verify->new(content=>\$account{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
-        ->is_email if ($account{email});
-    if (exists $account{email} && $account{email} ne '' && Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({email=>$account{email}})->count > 0) {
-        confess [1005, 'That email address is already in use by another empire.', 'email'];
-    }
+    my ($self, $plack_request, %account) = @_;    
+    my %params = (
+        species_id          => 2,
+        status_message      => 'Making Lacuna a better Expanse.',
+        sitter_password     => random_string('CC.c!ccn'),
+    );
 
-if ($account{captcha_guid}) {
+if ($account{captcha_guid}) { # get rid of this IF before we go live
+    # verify captcha
     $self->validate_captcha($plack_request, $account{captcha_guid}, $account{captcha_solution});
 }
 
-    $self->is_name_available($account{name});
+    # check facebook    
+    my $has_facebook = (exists $account{facebook_uid} && $account{facebook_uid} =~ m/^\d+$/ && exists $account{facebook_token} && lenght($account{facebook_token}) > 60);
+    if ($has_facebook) {
+        $params{facebook_uid}   = $account{facebook_uid};
+        $params{facebook_token} = $account{facebook_token};
+    }
 
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new({
-        name                => $account{name},
-        species_id          => 2,
-        status_message      => 'Making Lacuna a better Expanse.',
-        password            => Lacuna::DB::Result::Empire->encrypt_password($account{password}),
-        sitter_password     => random_string('CC.c!ccn'),
-        email               => $account{email},
-    })->insert;
+    # verify password
+    if (exists $account{password} || !$has_facebook) {
+        Lacuna::Verify->new(content=>\$account{password}, throws=>[1001,'Invalid password. It must be at least 6 characters and both passwords must match.', 'password'])
+            ->length_gt(5)
+            ->eq($account{password1});
+        $params{password} = Lacuna::DB::Result::Empire->encrypt_password($account{password});
+    }
     
+    # verify email
+    if (exists $account{email} && $account{email} ne '') {
+        Lacuna::Verify->new(content=>\$account{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
+            ->is_email;
+        if (Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({email=>$account{email}})->count > 0) {
+            confess [1005, 'That email address is already in use by another empire.', 'email'];
+        }
+        $params{email} = $account{email};
+    }
+
+    # verify username
+    $self->is_name_available($account{name});
+    $params{name} = $account{name};
+
+    # create account
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new(\%params)->insert;
     return $empire->id;
 }
 

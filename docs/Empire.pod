@@ -91,7 +91,7 @@ The name of the empire to create. Required.
 
 =head4 password
 
-The password to log in to the empire. Required. Must be between 6 and 30 characters.
+The password to log in to the empire. Must be between 6 and 30 characters. Required unless you have a valid C<facebook_uid> and C<facebook_token>. Still recommended even if you are authenticating using Facebook.
 
 =head4 password1
 
@@ -99,15 +99,23 @@ Retyping the password again. This must match C<password> to succeed.
 
 =head4 captcha_guid
 
-This must match the C<guid> field returned by the C<fetch_captcha> method.
+This must match the C<guid> field returned by the C<fetch_captcha> method. Required.
 
 =head4 captcha_solution
 
-This is the text typed in by the user as the solution of the captcha.
+This is the text typed in by the user as the solution of the captcha. Required.
 
 =head4 email
 
 The user's email address. It is not required, but is used for system vital functions like password recovery.
+
+=head4 facebook_uid
+
+A Facebook user id passed in through Lacuna's Facebook integration system. Optional, but required with the use of C<facebook_token>.
+
+=head4 facebook_token
+
+A Facebook access token passed in through Lacuna's Facebook integration system. Optional, but required with the use of C<facebook_uid>.
 
 
 
