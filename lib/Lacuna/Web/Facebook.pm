@@ -46,7 +46,7 @@ sub www_postback {
 
 sub www_authorize {
     my ($self, $request) = @_;
-    return [$self->facebook->authorize->add_permissions(qw(email publish_stream offline_access))->uri_as_string, { status => 302 }];
+    return [$self->facebook->authorize->extend_permissions(qw(email publish_stream offline_access))->uri_as_string, { status => 302 }];
 }
 
 sub www_default {
