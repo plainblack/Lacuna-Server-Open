@@ -52,8 +52,8 @@ sub format_started_assignment {
 sub seconds_remaining_on_assignment {
     my $self = shift;
     my $now = DateTime->now;
-    if ($self->available_on < $now) {
-        return to_seconds($now - $self->available_on);
+    if ($self->available_on > $now) {
+        return to_seconds($self->available_on - $now);
     }
     else {
         return 0;
