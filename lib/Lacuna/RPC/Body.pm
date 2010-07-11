@@ -60,10 +60,10 @@ sub get_buildings {
             y       => $building->y,
             level   => $building->level,
         };
-        if ($building->is_working) {
+        if ($building->is_upgrading) {
             $out{$building->id}{pending_build} = $building->upgrade_status;
         }
-        if ($building->is_upgrading) {
+        if ($building->is_working) {
             $out{$building->id}{work} = {
                 seconds_remaining   => $building->work_seconds_remaining,
                 start               => $building->work_started_formatted,
