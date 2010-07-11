@@ -121,9 +121,9 @@ The id of the body you wish to retrieve the buildings on.
 
 
 
-=head2 get_buildable ( session_id, body_id, x, y ) 
+=head2 get_buildable ( session_id, body_id, x, y, tag ) 
 
-Provides a list of all the building types that are available to be built on a given space on a planet.
+Provides a list of all the building types that are available to be built on a given space on a planet that are within a specific tag.
 
  {
     "buildable" : {
@@ -174,6 +174,10 @@ Could be built right now if only there were enough resources in storage.
 =item Later
 
 Will eventually become available once you've completed the necessary prerequisites.
+
+=item Plan
+
+This building will be built using a Plan, which means it will cost no resources to build.
 
 =item Infrastructure
 
@@ -246,6 +250,10 @@ The x axis of the area on the planet you wish to place the building. Valid value
 =head3 y
 
 The y axis of the area on the planet you wish to place the building. Valid values are between -5 and 5 inclusive.
+
+=head3 tag
+
+A tag that will limit the list of buildings to return. Required. Cannot be C<Now>, C<Soon>, or C<Later>, but all other tags are fair game.
 
 
 

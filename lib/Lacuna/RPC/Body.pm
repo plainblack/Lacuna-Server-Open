@@ -91,7 +91,7 @@ sub get_build_queue {
 }
 
 sub get_buildable {
-    my ($self, $session_id, $body_id, $x, $y) = @_;
+    my ($self, $session_id, $body_id, $x, $y, $tag) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
     my $building_rs = Lacuna->db->resultset('Lacuna::DB::Result::Building');
@@ -112,26 +112,34 @@ sub get_buildable {
     my @buildable = BUILDABLE_CLASSES;
     
     # plans
-    my $plans = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search({body_id => $body_id, level => 1});
-    while (my $plan = $plans->next) {
+    my @plans;
+    my $plan_rs = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search({body_id => $body_id, level => 1});
+    while (my $plan = $plan_rs->next) {
         push @buildable, $plan->class->controller_class;
+        push @plans, $plan->class;
     }
     
     foreach my $class (uniq @buildable) {
         $properties{class} = $class->model_class;
         my $building = $building_rs->new(\%properties);
+        my @tags = $building->build_tags;
+        if ($properties{class} ~~ \@plans) {
+            push @tags, 'Plan',
+        }
+if ($tag) { # REMOVE IF AFTER CLIENTS SUPPORT THIS
+        next unless ($tag ~~ \@tags);
+}
         my $cost = $building->cost_to_upgrade;
         my $can_build = eval{$body->has_met_building_prereqs($building, $cost)};
         my $reason = $@;
-        my @extra_tags;
         if ($can_build) {
-            push @extra_tags, 'Now';          
+            push @tags, 'Now';          
         }
         elsif ($reason->[0] == 1011) {
-            push @extra_tags, 'Soon';
+            push @tags, 'Soon';
         }
         else {
-            push @extra_tags, 'Later';
+            push @tags, 'Later';
         }
         $out{$building->name} = {
             url         => $class->app_url,
@@ -140,7 +148,7 @@ sub get_buildable {
                 can         => ($can_build) ? 1 : 0,                
                 cost        => $cost,
                 reason      => $reason,
-                tags        => [$building->build_tags, @extra_tags],
+                tags        => \@tags,
             },
             production  => $building->stats_after_upgrade,
         };
