@@ -7,7 +7,7 @@ use Config::JSON;
 
 useall __PACKAGE__;
 
-our $VERSION = 2.0900;
+our $VERSION = 2.0901;
 
 my $config = Config::JSON->new('/data/Lacuna-Server/etc/lacuna.conf');
 my $db = Lacuna::DB->connect($config->get('db/dsn'),$config->get('db/username'),$config->get('db/password'));
