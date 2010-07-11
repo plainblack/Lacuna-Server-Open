@@ -2,6 +2,7 @@ package Lacuna::Web::Admin;
 
 use Moose;
 extends qw(Lacuna::Web);
+use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use feature "switch";
 use Module::Find;
 
@@ -88,15 +89,44 @@ sub www_view_buildings {
     return $self->wrap($out);
 }
 
+sub www_view_resources {
+    my ($self, $request, $body_id) = @_;
+    $body_id ||= $request->param('body_id');
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($request->param('body_id'));
+    my @types = (FOOD_TYPES, ORE_TYPES, qw(water energy waste));
+    my $out = '<h1>View Resources</h1>';
+    $out .= sprintf('<a href="/admin/manage/body?id=%s">Back To Body</a>', $body_id);
+    $out .= '<table style="width: 100%;"><tr><th>Type</th><th>Stored</th><th>Add</th></tr>';
+    foreach my $resource (@types) {
+        my $stored = $resource.'_stored';
+
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><form action="/admin/add/resources"><td><input name="amount"><input type="submit" value="add"><input type="hidden" name="body_id" value="%s"><input type="hidden" name="resource" value="%s"</td></form></tr>', $resource, $body->$stored, $body_id, $resource);
+    }
+    $out .= '</table>';
+    return $self->wrap($out);
+}
+
+sub www_add_resources {
+    my ($self, $request) = @_;
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($request->param('body_id'));
+    unless (defined $body) {
+        confess [404, 'Body not found.'];
+    }
+    my $add = 'add_'.$request->param('resource');
+    $body->$add($request->param('amount'));
+    $body->update;
+    return $self->www_view_resources($request, $body->id);
+}
+
 sub www_view_plans {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
     my $plans = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search({ body_id => $body_id }, {order_by => ['class'] });
     my $out = '<h1>View Plans</h1>';
     $out .= sprintf('<a href="/admin/manage/body?id=%s">Back To Body</a>', $body_id);
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>Level</th><th>Extra Build Level</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Level</th><th>Name</th><th>Extra Build Level</th><th>Delete</th></tr>';
     while (my $plan = $plans->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $plan->id, $plan->class->name, $plan->level, $plan->extra_build_level);
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/delete/plan?body_id=%s&plan_id=%s">Delete</a></td></tr>', $plan->id, $plan->level, $plan->class->name, $plan->extra_build_level, $body_id, $plan->id);
     }
     $out .= '</table>';
     $out .= '<fieldset><legend>Add Plan</legend><form action="/admin/add/plan">';
@@ -122,6 +152,16 @@ sub www_add_plan {
         confess [404, 'Body not found.'];
     }
     $body->add_plan($request->param('class'), $request->param('level'), $request->param('extra_build_level'));
+    return $self->www_view_plans($request, $body->id);
+}
+
+sub www_delete_plan {
+    my ($self, $request) = @_;
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($request->param('body_id'));
+    unless (defined $body) {
+        confess [404, 'Body not found.'];
+    }
+    $body->plans->find($request->param('plan_id'))->delete;
     return $self->www_view_plans($request, $body->id);
 }
 
@@ -188,6 +228,7 @@ sub www_manage_body {
     $out .= sprintf('<tr><th>Star</th><td><a href="/admin/manage/star?id=%s">%s</a></td><td><a href="/admin/search/bodies?star_id=%s">Bodies Orbiting This Star</a></td></tr>', $body->star_id, $body->star_id, $body->star_id);
     $out .= sprintf('<tr><th>Empire</th><td><a href="/admin/manage/empire?id=%s">%s</a></td><td></td></tr>', $body->empire_id, $body->empire_id);
     $out .= '</table><ul>';
+    $out .= sprintf('<li><a href="/admin/view/resources?body_id=%s">View Resources</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/buildings?body_id=%s">View Buildings</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/plans?body_id=%s">View Plans</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/recalc/body?body_id=%s">Recalculate Body Stats</a></li>', $body->id);
