@@ -16,7 +16,7 @@ sub ships {
 
 sub max_platforms {
     my $self = shift;
-    return sprintf('%.0f', $self->level / 2);
+    return int(($self->level + 1) / 2);
 }
 
 sub add_ship {
