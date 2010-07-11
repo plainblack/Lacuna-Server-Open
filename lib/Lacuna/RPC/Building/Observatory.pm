@@ -40,7 +40,10 @@ sub get_probed_stars {
     my $building = $self->get_building($empire, $building_id);
     my @stars;
     $page_number ||= 1;
-    my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({ empire_id => $empire->id }, { rows => 25, page => $page_number});
+    my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search(
+        { empire_id => $empire->id, body_id => $self->body_id },
+        { rows => 25, page => $page_number}
+    );
     while (my $probe = $probes->next) {
         push @stars, $probe->star->get_status($empire);
     }
