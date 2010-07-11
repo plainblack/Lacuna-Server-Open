@@ -46,7 +46,7 @@ after finish_upgrade => sub {
         on_body_id      => $self->body_id,
         from_body_id    => $self->body_id,
     })->update({
-        offense     => ($self->body->empire->species->deception_affinity * 50) + ($self->level + 75),
+        offense         => ($self->body->empire->species->deception_affinity * 50) + ($self->level + 75),
     });
 };
 
