@@ -199,6 +199,7 @@ sub arrive_mining_platform_ship {
         my $ministry = $self->body->mining_ministry;
         if (eval{$ministry->can_add_platform} && !$@) {
             $ministry->add_platform($self->foreign_body)->update;
+            $self->delete;
         }
         else {
             $self->turn_around;
