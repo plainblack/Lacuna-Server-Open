@@ -39,14 +39,16 @@ $url =~ s/\///;
 $result = $tester->post($url, 'view', [$session_id, $id]);
 ok($result->{result}{building}{energy_hour} > 0, 'command center is functional');
 
-$result = $tester->post('body', 'get_buildable', [$session_id, $home_planet, 3, 3]);
+$result = $tester->post('body', 'get_buildable', [$session_id, $home_planet, 3, 3, 'Food']);
 is($result->{result}{buildable}{'Algae Cropper'}{url}, '/algae', 'Can build buildings');
 ok('Food' ~~ $result->{result}{buildable}{'Algae Cropper'}{build}{tags}, 'Food');
 ok('Resources' ~~ $result->{result}{buildable}{'Algae Cropper'}{build}{tags}, 'Resources');
 ok('Now' ~~ $result->{result}{buildable}{'Malcud Fungus Farm'}{build}{tags}, 'Now');
+$result = $tester->post('body', 'get_buildable', [$session_id, $home_planet, 3, 3, 'Infrastructure']);
 ok('Happiness' ~~ $result->{result}{buildable}{'University'}{build}{tags}, 'Happiness');
 ok('Infrastructure' ~~ $result->{result}{buildable}{'University'}{build}{tags}, 'Infrastructure');
 ok('Later' ~~ $result->{result}{buildable}{'Subspace Transporter'}{build}{tags}, 'Later');
+$result = $tester->post('body', 'get_buildable', [$session_id, $home_planet, 3, 3, 'Waste']);
 cmp_ok($result->{result}{buildable}{'Waste Energy Plant'}{production}{happiness_hour}, '>=', 0, 'no negative happiness from waste buildings');
 
 END {

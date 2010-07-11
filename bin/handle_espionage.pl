@@ -1267,7 +1267,7 @@ sub escape_prison {
     my ($planet, $espionage, $spy, $cop) = @_;
     return unless (defined $spy);
     out('Escape Prison');
-    my $suspect = shift @{$espionage->{'Captured'}{spies}};
+    my $suspect = shift @{$espionage->{captured}};
     return undef unless defined $suspect;
     escape_a_spy($planet, $suspect);
     $planet->add_news(50,'At this hour police on %s are flabbergasted as to how an inmate escaped earlier in the day.', $planet->name);    

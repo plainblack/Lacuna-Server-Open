@@ -64,7 +64,7 @@ sub seconds_remaining {
 sub turn_around {
     my $self = shift;
     $self->direction( ($self->direction eq 'out') ? 'in' : 'out' );
-    $self->date_available->add_duration( $self->date_available - $self->date_started );
+    $self->date_available(DateTime->now->add_duration( $self->date_available - $self->date_started ));
     $self->date_started(DateTime->now);
     $self->update;
     return $self;
@@ -199,6 +199,7 @@ sub arrive_mining_platform_ship {
         my $ministry = $self->body->mining_ministry;
         if (eval{$ministry->can_add_platform} && !$@) {
             $ministry->add_platform($self->foreign_body)->update;
+            $self->delete;
         }
         else {
             $self->turn_around;

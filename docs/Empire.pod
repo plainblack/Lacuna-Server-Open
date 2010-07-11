@@ -61,7 +61,7 @@ The password to authenticate to the empire.
 Your client's unique API key, identifiying it from all other clients. See L<ApiKeys> for details.
 
 
-=head fetch_captcha ( )
+=head2 fetch_captcha ( )
 
 Retrieves a captcha that is required in order to call the C<create> method. Display the resulting captcha in your creation form and then call C<create> with the user's response.
 
@@ -222,7 +222,7 @@ A session id.
 
 =head3 profile
 
-A hash reference of properties to be edited.
+A hash reference of properties to be edited. You may set one or all of the profile properties in this hash reference. Only those set will be updated.
 
 =head4 description
 

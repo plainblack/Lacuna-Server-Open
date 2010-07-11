@@ -16,7 +16,7 @@ sub ships {
 
 sub max_platforms {
     my $self = shift;
-    return sprintf('%.0f', $self->level / 2);
+    return int(($self->level + 1) / 2);
 }
 
 sub add_ship {
@@ -40,7 +40,7 @@ sub send_ship_home {
 
 sub can_add_platform {
     my ($self) = @_;
-    if ($self->asteroid_count >= $self->max_platforms) {
+    if ($self->platforms->count >= $self->max_platforms) {
         confess [1009, 'You already have the maximum number of platforms allowed at this Ministry level.'];
     }
     return 1;

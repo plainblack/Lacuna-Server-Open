@@ -259,6 +259,7 @@ sub view_profile {
     }
     my %out = (
         description     => $empire->description,
+        notes           => $empire->notes,
         status_message  => $empire->status_message,
         sitter_password => $empire->sitter_password,
         email           => $empire->email,
@@ -273,69 +274,93 @@ sub view_profile {
 
 sub edit_profile {
     my ($self, $session_id, $profile) = @_;
-    Lacuna::Verify->new(content=>\$profile->{description}, throws=>[1005,'Description must be less than 1024 characters and cannot contain special characters or profanity.', 'description'])
-        ->length_lt(1025)
-        ->no_restricted_chars
-        ->no_profanity;  
-    Lacuna::Verify->new(content=>\$profile->{status_message}, throws=>[1005,'Status cannot be empty, must be no longer than 100 characters, and cannot contain special characters or profanity.', 'status_message'])
-        ->length_lt(101)
-        ->not_empty
-        ->no_restricted_chars
-        ->no_profanity;
-    Lacuna::Verify->new(content=>\$profile->{status_message}, throws=>[1005,'Sitter password must be between 8 and 30 characters.', 'sitter_password'])
-        ->length_lt(31)
-        ->length_gt(5);
-    Lacuna::Verify->new(content=>\$profile->{city}, throws=>[1005,'City must be no longer than 100 characters, and cannot contain special characters or profanity.', 'city'])
-        ->length_lt(101)
-        ->no_restricted_chars
-        ->no_profanity if ($profile->{city});
-    Lacuna::Verify->new(content=>\$profile->{country}, throws=>[1005,'Country must be no longer than 100 characters, and cannot contain special characters or profanity.', 'country'])
-        ->length_lt(101)
-        ->no_restricted_chars
-        ->no_profanity if ($profile->{country});
-    Lacuna::Verify->new(content=>\$profile->{player_name}, throws=>[1005,'Player name must be no longer than 100 characters, and cannot contain special characters or profanity.', 'player_name'])
-        ->length_lt(101)
-        ->no_restricted_chars
-        ->no_profanity if ($profile->{player_name});
-    Lacuna::Verify->new(content=>\$profile->{skype}, throws=>[1005,'Skype must be no longer than 100 characters, and cannot contain special characters or profanity.', 'skype'])
-        ->length_lt(101)
-        ->no_restricted_chars
-        ->no_profanity if ($profile->{skype});
-    Lacuna::Verify->new(content=>\$profile->{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
-        ->is_email if ($profile->{email});
-    unless (ref $profile->{public_medals} eq  'ARRAY') {
-        confess [1009, 'Medals list needs to be an array reference.', 'public_medals'];
-    }
-    
     my $empire = $self->get_empire_by_session($session_id);
-    if (exists $profile->{email} && $profile->{email} ne '' && Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({email=>$profile->{email}, empire_id=>{ '!=' => $empire->id}})->count > 0) {
-        confess [1005, 'That email address is already in use by another empire.', 'email'];
-    }
+    
+    # preferences
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot modify preferences.'];
     }
-
-    # preferences
-    $empire->skype($profile->{skype});
-    $empire->city($profile->{city});
-    $empire->country($profile->{country});
-    $empire->player_name($profile->{player_name});
-    $empire->description($profile->{description});
-    $empire->status_message($profile->{status_message});
-    $empire->sitter_password($profile->{sitter_password});
-    $empire->email($profile->{email});
-    $empire->update;
+    if (exists $profile->{description}) {
+        Lacuna::Verify->new(content=>\$profile->{description}, throws=>[1005,'Description must be less than 1024 characters and cannot contain special characters or profanity.', 'description'])
+            ->length_lt(1025)
+            ->no_restricted_chars
+            ->no_profanity;  
+        $empire->description($profile->{description});
+    }
+    if (exists $profile->{notes}) {
+        Lacuna::Verify->new(content=>\$profile->{notes}, throws=>[1005,'Notes must be less than 1024 characters and cannot contain special characters or profanity.', 'notes'])
+            ->length_lt(1025)
+            ->no_restricted_chars
+            ->no_profanity;  
+        $empire->notes($profile->{notes});
+    }
+    if (exists $profile->{status_message}) {
+        Lacuna::Verify->new(content=>\$profile->{status_message}, throws=>[1005,'Status cannot be empty, must be no longer than 100 characters, and cannot contain special characters or profanity.', 'status_message'])
+            ->length_lt(101)
+            ->not_empty
+            ->no_restricted_chars
+            ->no_profanity;
+        $empire->status_message($profile->{status_message});
+    }
+    if (exists $profile->{sitter_password}) {
+        Lacuna::Verify->new(content=>\$profile->{sitter_password}, throws=>[1005,'Sitter password must be between 8 and 30 characters.', 'sitter_password'])
+            ->length_lt(31)
+            ->length_gt(5);
+        $empire->sitter_password($profile->{sitter_password});
+    }
+    if (exists $profile->{city}) {
+        Lacuna::Verify->new(content=>\$profile->{city}, throws=>[1005,'City must be no longer than 100 characters, and cannot contain special characters or profanity.', 'city'])
+            ->length_lt(101)
+            ->no_restricted_chars
+            ->no_profanity;
+        $empire->city($profile->{city});
+    }
+    if (exists $profile->{country}) {
+        Lacuna::Verify->new(content=>\$profile->{country}, throws=>[1005,'Country must be no longer than 100 characters, and cannot contain special characters or profanity.', 'country'])
+            ->length_lt(101)
+            ->no_restricted_chars
+            ->no_profanity;
+        $empire->country($profile->{country});
+    }
+    if (exists $profile->{player_name}) {
+        Lacuna::Verify->new(content=>\$profile->{player_name}, throws=>[1005,'Player name must be no longer than 100 characters, and cannot contain special characters or profanity.', 'player_name'])
+            ->length_lt(101)
+            ->no_restricted_chars
+            ->no_profanity;
+        $empire->player_name($profile->{player_name});
+    }
+    if (exists $profile->{skype}) {
+        Lacuna::Verify->new(content=>\$profile->{skype}, throws=>[1005,'Skype must be no longer than 100 characters, and cannot contain special characters or profanity.', 'skype'])
+            ->length_lt(101)
+            ->no_restricted_chars
+            ->no_profanity;
+        $empire->skype($profile->{skype});
+    }
+    if (exists $profile->{email} && $profile->{email} ne '') {
+        Lacuna::Verify->new(content=>\$profile->{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
+            ->is_email if ($profile->{email});
+        if (Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({email=>$profile->{email}, empire_id=>{ '!=' => $empire->id}})->count > 0) {
+            confess [1005, 'That email address is already in use by another empire.', 'email'];
+        }
+        $empire->email($profile->{email});
+    }
+    $empire->update;    
 
     # medals
-    my $medals = $empire->medals;
-    while (my $medal = $medals->next) {
-        if ($medal->id ~~ $profile->{public_medals}) {
-            $medal->public(1);
-            $medal->update;
-        }
-        else {
-            $medal->public(0);
-            $medal->update;
+    if (exists $profile->{public_medals}) {
+        unless (ref $profile->{public_medals} eq  'ARRAY') {
+            confess [1009, 'Medals list needs to be an array reference.', 'public_medals'];
+        }    
+        my $medals = $empire->medals;
+        while (my $medal = $medals->next) {
+            if ($medal->id ~~ $profile->{public_medals}) {
+                $medal->public(1);
+                $medal->update;
+            }
+            else {
+                $medal->public(0);
+                $medal->update;
+            }
         }
     }
     

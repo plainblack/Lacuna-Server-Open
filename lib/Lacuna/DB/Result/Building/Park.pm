@@ -38,6 +38,7 @@ sub throw_a_party {
         if ($body->$food_stored >= 500) {
             $food_multiplier++;
             $body->$food_stored( $body->$food_stored() - 500 );
+            $eat -= 500;
         }
     }
     if ($eat) { # leftovers
@@ -47,7 +48,7 @@ sub throw_a_party {
     
     $self->start_work({
         happiness_from_party    => 3_000 * $food_multiplier * $self->happiness_production_bonus,
-        }, 60*60*24)->update;
+        }, 60*60*12)->update;
 }
 
 before finish_work => sub {

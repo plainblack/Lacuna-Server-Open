@@ -26,7 +26,7 @@ The user mistyped the password, or doesn't know it.
 
 Thrown when a text field contains invalid characters.
 
-=head2 1006 Authorization denied.
+=head2 1006 Session expired.
 
 A basic authorization denied error, because the session you're trying to connect with doesn't exist or has expired.
 

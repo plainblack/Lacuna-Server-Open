@@ -81,7 +81,7 @@ sub www_jambool_postback {
         $amount,
         'Purchased via Social Gold',
         $transaction_id,
-    );
+    )->update;
     $empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'purchase_essentia.txt',

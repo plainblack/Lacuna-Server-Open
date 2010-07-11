@@ -154,8 +154,8 @@ sub train_spy {
             started_assignment  => DateTime->now,
             available_on    => $available_on,
             empire_id       => $self->body->empire_id,
-            offense         => $self->espionage_level * 75 + $deception,
-            defense         => $self->security_level * 75 + $deception,
+            offense         => ($self->espionage_level * 75) + $deception,
+            defense         => ($self->security_level * 75) + $deception,
         })->insert;
         my $count = $self->spy_count($self->spy_count + 1);
         if ($count < $self->level) {

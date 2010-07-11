@@ -25,7 +25,7 @@ sub image_level {
 }
 
 use constant name => 'Natural Spring';
-use constant water_production => 750;
+use constant water_production => 1500;
 
 use constant time_to_build => 0;
 use constant max_instances_per_planet => 1;
