@@ -48,7 +48,7 @@ sub throw_a_party {
     
     $self->start_work({
         happiness_from_party    => 3_000 * $food_multiplier * $self->happiness_production_bonus,
-        }, 60*60*6)->update;
+        }, 60*60*12)->update;
 }
 
 before finish_work => sub {
