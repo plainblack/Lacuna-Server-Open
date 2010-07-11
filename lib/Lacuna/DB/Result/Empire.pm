@@ -14,6 +14,7 @@ __PACKAGE__->add_columns(
     stage                   => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'new' },
     date_created            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     description             => { data_type => 'text', is_nullable => 1 },
+    notes                   => { data_type => 'text', is_nullable => 1 },
     home_planet_id          => { data_type => 'int',  is_nullable => 1 },
     status_message          => { data_type => 'varchar', size => 255 },
     password                => { data_type => 'char', size => 43 },

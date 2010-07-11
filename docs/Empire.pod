@@ -222,7 +222,7 @@ A session id.
 
 =head3 profile
 
-A hash reference of properties to be edited.
+A hash reference of properties to be edited. You may set one or all of the profile properties in this hash reference. Only those set will be updated.
 
 =head4 description
 
