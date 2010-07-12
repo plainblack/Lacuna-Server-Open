@@ -75,7 +75,7 @@ sub fetch_captcha {
     Lacuna->cache->set('create_empire_captcha', $ip, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 15 );
     return {
         guid    => $captcha->guid,
-        url     => 'https://extras.lacunaexpanse.com.s3.amazonaws.com/captcha/'.substr($captcha->guid,0,2).'/'.$captcha->guid.'.png',
+        url     => $captcha->uri,
     };
 }
 

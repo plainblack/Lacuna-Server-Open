@@ -4,12 +4,16 @@ use Lacuna::DB;
 use Lacuna;
 use GD::SecurityImage;
 use UUID::Tiny;
+use File::Path qw(remove_tree make_path);
 
 my $db = Lacuna->db;
+my $captchas = $db->resultset('Lacuna::DB::Result::Captcha');
+
+say "Generating Riddles";
 
 my %riddles = (  
-    "1*1*1=_"     => "1",
-    "0*0*0=_"     => "0",
+    "1x1x1=_"     => "1",
+    "0x0x0=_"     => "0",
     "0+0+0=_"     => "0",
     "0-0-0=_"     => "0",
     "1/1=_"       => "1",
@@ -27,31 +31,31 @@ my %riddles = (
 
 for my $a (1..9) { 
     for my $b (1..9) { 
-        $riddles{"$a+$b"} = $a + $b;
-        $riddles{"$a-$b"} = $a - $b;
-        $riddles{"$a*$b"} = $a * $b;
+        $riddles{$a.'+'.$b.'=_'} = $a + $b;
+        $riddles{$a.'-'.$b.'=_'} = $a - $b;
+        $riddles{$a.'x'.$b.'=_'} = $a * $b;
     }
 }
 
-for my $a ('a'..'c') {
-    for (1..8) {
-        my $string = $a++;
-        my $answer = $a++;
-        $string .= '_';
-        $string .= $a++;
-        $riddles{$string} = $answer;
-    }
-}
-
-for my $a ('1'..'3') {
-    for (1..3) {
-        my $string = $a++;
-        my $answer = $a++;
-        $string .= ',_,';
-        $string .= $a++;
-        $riddles{$string} = $answer;
-    }
-}
+#for my $a ('a'..'c') {
+#    for (1..8) {
+#        my $string = $a++;
+#        my $answer = $a++;
+#        $string .= '_';
+#        $string .= $a++;
+#        $riddles{$string} = $answer;
+#    }
+#}
+#
+#for my $a ('1'..'3') {
+#    for (1..3) {
+#        my $string = $a++;
+#        my $answer = $a++;
+#        $string .= ',_,';
+#        $string .= $a++;
+#        $riddles{$string} = $answer;
+#    }
+#}
 
 for my $a ('a'..'c') {
     for (1..4) {
@@ -111,18 +115,23 @@ for my $a ('a'..'i') {
     }
 }
 
-say "Riddles: ".scalar(keys %riddles);
+say "Riddle Count: ".scalar(keys %riddles);
 
-my $captchas = $db->resultset('Lacuna::DB::Result::Captcha');
+say "Cleaning up old captchas...";
+$captchas->delete;
+remove_tree('/data/captcha');
+make_path('/data/captcha');
+
+say "Generating Captchas...";
 my $counter = 0;
 foreach my $riddle (keys %riddles) {
     foreach my $font (qw(Ayuthaya Chalkduster HeadlineA Kai)) {
         foreach my $style (qw(default rect circle ellipse ec blank)) {
-            foreach my $bg_color (qw(#ffaaff #aaffff #ffffaa)) {
-                foreach my $fg_color (qw(#880000 #008800 #000088)) {
+            foreach my $bg_color (qw(#666600 #660066 #006666)) {
+                foreach my $fg_color (qw(#ddffff #ffddff #ffffdd)) {
                     my ($image,$mime,$string) = GD::SecurityImage
                         ->new(
-                           width   => 300,
+                            width   => 300,
                             height  => 80,
                             lines   => 20,
                             font    => '/Library/Fonts/'.$font.'.ttf',
@@ -170,3 +179,9 @@ foreach my $riddle (keys %riddles) {
         }
     }
 }
+
+say "Generated $counter Captchas";
+
+say "Exporting Captcha SQL...";
+say "Please enter your MySQL root password:";
+system "mysqldump -uroot -p --no-create-info lacuna captcha > /data/captcha/captcha.sql";
