@@ -169,7 +169,7 @@ if ($tag) { # REMOVE IF AFTER CLIENTS SUPPORT THIS
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(rename get_build_queue get_buildings get_buildable get_status));
+__PACKAGE__->register_rpc_method_names(qw(abandon rename get_build_queue get_buildings get_buildable get_status));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
