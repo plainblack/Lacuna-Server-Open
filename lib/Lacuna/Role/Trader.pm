@@ -16,7 +16,7 @@ sub assign_captcha {
     Lacuna->cache->set('trade_captcha', $empire->id, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 30 );
     return {
         guid    => $captcha->guid,
-        url     => 'https://extras.lacunaexpanse.com.s3.amazonaws.com/captcha/'.substr($captcha->guid,0,2).'/'.$captcha->guid.'.png',
+        url     => $captcha->uri,
     };
 }
 
