@@ -48,7 +48,7 @@ after finish_upgrade => sub {
         on_body_id      => $self->body_id,
         from_body_id    => $self->body_id,
     })->update({
-        defense         => ($self->body->empire->species->deception_affinity * 50) + ($self->level + 75),
+        defense         => ($self->body->empire->species->deception_affinity * 50) + ($self->level * 75),
     });
 };
 
