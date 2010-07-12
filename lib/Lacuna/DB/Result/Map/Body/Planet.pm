@@ -82,6 +82,11 @@ sub sanitize {
     $self->plans->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_body_id => $self->id})->delete_all;
     $self->ships->delete_all;
+    Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $self->id})->delete_all;
+    Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->id})->delete_all;
+    Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({planet_id => $self->id})->delete_all;
+    Lacuna->db->resultset('Lacuna::DB::Result::Trades')->search({body_id => $self->id})->delete_all;
+    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->id})->delete_all;
     $self->empire_id(undef);
     if ($self->get_type eq 'habitable planet') {
         $self->usable_as_starter(randint(1,9999));

@@ -303,5 +303,25 @@ The id of the body you wish to rename.
 
 The new name of the body.
 
+
+
+=head2 abandon ( session_id, body_id )
+
+Abandon's a colony, and destroys everything on the planet. Returns
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 body_id
+
+The unique id of the body you wish to abandon. You cannot abandon your home planet.
+
+
+
 =cut
 

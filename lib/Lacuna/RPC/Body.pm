@@ -9,12 +9,23 @@ use List::MoreUtils qw(uniq);
 
 sub get_status {
     my ($self, $session_id, $body_id) = @_;
-    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id); # done this way so you can get the status of a planet you don't own
     unless (defined $body) {
         confess [1002, 'Body does not exist.', $body_id];
     }
     my $empire = $self->get_empire_by_session($session_id);
     return $self->format_status($empire, $body);
+}
+
+sub abandon {
+    my ($self, $session_id, $body_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($body_id eq $empire->home_planet_id) {
+        confess [1010, 'You cannot abandon your home colony.'];
+    }
+    my $body = $self->get_body($empire, $body_id);
+    $body->sanitize;
+    return $self->format_status($empire);
 }
 
 sub rename {
