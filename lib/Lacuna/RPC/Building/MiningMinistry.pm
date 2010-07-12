@@ -50,7 +50,7 @@ sub view_platforms {
             chalcopyrite_hour               => $platform->chalcopyrite_hour,
             galena_hour                     => $platform->galena_hour,
             gold_hour                       => $platform->gold_hour,
-            uraninite_hour                  => $platform->uraninte_hour,
+            uraninite_hour                  => $platform->uraninite_hour,
             bauxite_hour                    => $platform->bauxite_hour,
             goethite_hour                   => $platform->goethite_hour,
             halite_hour                     => $platform->halite_hour,
