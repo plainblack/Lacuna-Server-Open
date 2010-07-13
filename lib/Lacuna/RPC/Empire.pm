@@ -501,11 +501,19 @@ sub disable_self_destruct {
     return { status => $self->format_status($empire) };
 }
 
+sub redeem_essentia_code {
+    my ($self, $session_id, $code) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    $empire->redeem_essentia_code($code);
+    return { status => $self->format_status($empire) };
+}
+
+
 
 __PACKAGE__->register_rpc_method_names(
     { name => "create", options => { with_plack_request => 1 } },
     { name => "fetch_captcha", options => { with_plack_request => 1 } },
-    qw(enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available found login logout get_full_status get_status boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+    qw(redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available found login logout get_full_status get_status boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
 );
 
 

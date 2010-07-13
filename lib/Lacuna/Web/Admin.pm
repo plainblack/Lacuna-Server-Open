@@ -5,6 +5,46 @@ extends qw(Lacuna::Web);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use feature "switch";
 use Module::Find;
+use UUID::Tiny;
+
+
+sub www_search_essentia_codes {
+    my ($self, $request) = @_;
+    my $page_number = $request->param('page_number') || 1;
+    my $codes = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search(undef, {order_by => { -desc => 'amount' }, rows => 25, page => $page_number });
+    my $code = $request->param('code') || '';
+    if ($code) {
+        $codes = $codes->search({code => { like => $code.'%' }});
+    }
+    my $out = '<h1>Search Essentia Codes</h1>';
+    $out .= '<form action="/admin/search/essentia/codes"><input name="code" value="'.$code.'"><input type="submit" value="search"></form>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><td>Used</td><th>Action</th></tr>';
+    while (my $code = $codes->next) {
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td></td></tr>', $code->id, $code->code, $code->amount, $code->description, $code->date_created, $code->used);
+    }
+    $out .= '<form action="/admin/add/essentia/code"><tr>';
+    $out .= '<td></td>';
+    $out .= '<td></td>';
+    $out .= '<td><input name="amount" value="100" size="4"></td>';
+    $out .= '<td><input name="description" value="Admin Gift" size="30"></td>';
+    $out .= '<td></td>';
+    $out .= '<td><input type="submit" value="add code"></td>';
+    $out .= '</tr></form>';
+    $out .= '</table>';
+    $out .= $self->format_paginator('search/essentia/codes', 'code', $code, $page_number);
+    return $self->wrap($out);
+}
+
+sub www_add_essentia_code {
+    my ($self, $request) = @_;
+    my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->new({
+        date_created    => DateTime->now,
+        amount          => $request->param('amount'),
+        description     => $request->param('description'),
+        code            => create_UUID_as_string(UUID_V4),
+    })->insert;
+    return $self->wrap('<p>Essentia Code: '. $code->code.'</p><p><a href="/admin/search/essentia/codes">Back To Essentia Codes</a></a>');
+}
 
 sub www_search_empires {
     my ($self, $request) = @_;
@@ -21,7 +61,7 @@ sub www_search_empires {
         $out .= sprintf('<tr><td><a href="/admin/manage/empire?id=%s">%s</a></td><td>%s</td><td>%s</td><td><a href="/admin/manage/body?id=%s">%s</a></td><td>%s</td></tr>', $empire->id, $empire->id, $empire->name, $empire->species_id, $empire->home_planet_id, $empire->home_planet_id, $empire->last_login);
     }
     $out .= '</table>';
-    $out .= $self->format_paginator('search/empires', $name, $page_number);
+    $out .= $self->format_paginator('search/empires', 'name', $name, $page_number);
     return $self->wrap($out);
 }
 
@@ -49,7 +89,7 @@ sub www_search_bodies {
         $out .= sprintf('<tr><td><a href="/admin/manage/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/manage/empire?id=%s">%s</a></td></tr>', $body->id, $body->id, $body->name, $body->x, $body->y, $body->zone, $body->star_id, $body->empire_id || '', $body->empire_id || '');
     }
     $out .= '</table>';
-    $out .= $self->format_paginator('search/bodies', $name, $page_number);
+    $out .= $self->format_paginator('search/bodies', 'name', $name, $page_number);
     return $self->wrap($out);
 }
 
@@ -71,7 +111,7 @@ sub www_search_stars {
         $out .= sprintf('<tr><td><a href="/admin/manage/star?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $star->id, $star->id, $star->name, $star->x, $star->y, $star->zone);
     }
     $out .= '</table>';
-    $out .= $self->format_paginator('search/stars', $name, $page_number);
+    $out .= $self->format_paginator('search/stars', 'name', $name, $page_number);
     return $self->wrap($out);
 }
 
@@ -176,11 +216,11 @@ sub www_recalc_body {
 }
 
 sub format_paginator {
-    my ($self, $method, $name, $page_number) = @_;
+    my ($self, $method, $key, $value, $page_number) = @_;
     my $out = '<fieldset><legend>Page: '.$page_number.'</legend>';
-    $out .= '<a href="/admin/'.$method.'?name='.$name.';page_number='.($page_number - 1).'">&lt; Previous</a> | ';
-    $out .= '<a href="/admin/'.$method.'?name='.$name.';page_number='.($page_number + 1).'">Next &gt;</a> ';
-    $out .= '<form style="display: inline;" action="/admin/'.$method.'"><input name="page_number" value="'.$page_number.'" style="width: 30px;"><input type="hidden" name="name" value="'.$name.'"><input type="submit" value="go"></form>';
+    $out .= '<a href="/admin/'.$method.'?'.$key.'='.$value.';page_number='.($page_number - 1).'">&lt; Previous</a> | ';
+    $out .= '<a href="/admin/'.$method.'?'.$key.'='.$value.';page_number='.($page_number + 1).'">Next &gt;</a> ';
+    $out .= '<form style="display: inline;" action="/admin/'.$method.'"><input name="page_number" value="'.$page_number.'" style="width: 30px;"><input type="hidden" name="'.$key.'" value="'.$value.'"><input type="submit" value="go"></form>';
     $out .= '</fieldset>';
     return $out;
 }
@@ -323,16 +363,17 @@ sub www_server_wide_recalc {
 sub wrap {
     my ($self, $content) = @_;
     return $self->wrapper('<div style="width: 150px;">
-    <ul>
+    <ul class="admin_menu">
     <li><a href="/admin/search/empires">Empires</a></li>
     <li><a href="/admin/search/bodies">Bodies</a></li>
     <li><a href="/admin/search/stars">Stars</a></li>
-    <li><a href="/admin/view/logs">View Logs</a></li>
+    <li><a href="/admin/search/essentia/codes">Essentia Codes</a></li>
+    <li><a href="/admin/view/logs">Logs</a></li>
     <li><a href="/admin/default">Home</a></li>
     </ul>
     </div>
-    <div style="border-left: 5px groove #014986; position: absolute; top: 0; left: 160px; min-width: 600px; margin: 5px;">
-    <div style="margin: 15px;">'. $content .' </div></div>',
+    <div style="position: absolute; top: 0; left: 160px; min-width: 600px; margin: 5px;">
+    <div>'. $content .' </div></div>',
     { title => 'Admin Console'}
     );
 }

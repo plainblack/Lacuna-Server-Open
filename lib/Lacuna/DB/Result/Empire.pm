@@ -450,7 +450,7 @@ before 'delete' => sub {
         my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->new({
             code            => $essentia_code,
             date_created    => DateTime->now,
-            empire_name     => $self->name,
+            description     => $self->name .' deleted',
             amount          => $self->essentia,
         })->insert;
         $self->send_email(
@@ -485,12 +485,33 @@ sub enable_self_destruct {
         ),
     );
     $self->send_message(subject => $subject, message => 'Your empire will self destruct in 24 hours unless you click on the disable self destruct icon.');
+    return $self;
 }
 
 sub disable_self_destruct {
     my $self = shift;
     $self->self_destruct_active(0);
     $self->update;
+    return $self;
+}
+
+sub redeem_essentia_code {
+    my ($self, $code_string) = @_;
+    unless (defined $code_string && $code_string ne '') {
+        confess [1002,'You must specify an essentia code in order to redeem it.'];
+    }
+    my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search({code => $code_string}, {rows=>1})->single;
+    unless (defined $code) {
+        confess [1002, 'The essentia code you specified is invalid.'];
+    }
+    if ($code->used) {
+        confess [1010, 'The essentia code you specified has already been redeemed.'];
+    }
+    $self->add_essentia($code->amount, 'Essentia Code Redemption', $code->code);
+    $self->update;
+    $code->used(1);
+    $code->update;
+    return $self;
 }
 
 no Moose;
