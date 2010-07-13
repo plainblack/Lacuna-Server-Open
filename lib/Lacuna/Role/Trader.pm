@@ -12,7 +12,7 @@ my $ask_nothing_exception = [1013, 'It appears that you have asked for nothing.'
 
 sub assign_captcha {
     my ($self, $empire) = @_;
-    my $captcha = Lacuna->db->resultset('Lacuna::DB::Result::Captcha')->find(randint(1,72792));
+    my $captcha = Lacuna->db->resultset('Lacuna::DB::Result::Captcha')->find(randint(1,65664));
     Lacuna->cache->set('trade_captcha', $empire->id, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 30 );
     return {
         guid    => $captcha->guid,
