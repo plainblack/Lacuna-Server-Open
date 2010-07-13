@@ -45,12 +45,12 @@ __PACKAGE__->add_columns(
 );
 
 
-#after sqlt_deploy_hook => sub {
-#    my ($self, $sqlt_table) = @_;
-#    $sqlt_table->add_index(name => 'idx_self_destruct', fields => ['self_destruct_active','self_destruct_date']);
-#    $sqlt_table->add_index(name => 'idx_password_recovery_key', fields => ['password_recovery_key']);
-#    $sqlt_table->add_index(name => 'idx_inactives', fields => ['last_login,','self_destruct_active']);
-#};
+sub sqlt_deploy_hook {
+    my ($self, $sqlt_table) = @_;
+    $sqlt_table->add_index(name => 'idx_self_destruct', fields => ['self_destruct_active','self_destruct_date']);
+    $sqlt_table->add_index(name => 'idx_password_recovery_key', fields => ['password_recovery_key']);
+    $sqlt_table->add_index(name => 'idx_inactives', fields => ['last_login,','self_destruct_active']);
+}
 
 
 __PACKAGE__->belongs_to('species', 'Lacuna::DB::Result::Species', 'species_id', { on_delete => 'set null' });
