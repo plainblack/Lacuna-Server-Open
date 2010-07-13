@@ -16,6 +16,7 @@ after 'sqlt_deploy_hook' => sub {
     my ($self, $sqlt_table) = @_;
     $sqlt_table->add_index(name => 'idx_api_key', fields => ['api_key']);
     $sqlt_table->add_index(name => 'idx_transaction_id', fields => ['transaction_id']);
+    $sqlt_table->add_index(name => 'idx_essentiacode', fields => ['empire_id,description,amount']);
 };
 
 no Moose;

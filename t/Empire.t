@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 23;
+use Test::More tests => 25;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -97,7 +97,22 @@ is($result->{error}{code}, 1004, 'broken sitter password');
 $result = $tester->post('empire', 'login', [$tester->empire_name, 'testsitter']);
 ok(exists $result->{result}{session_id}, 'login with sitter password');
 
+my $empire2 = $empire;
+$empire2->{name} = 'essentia code';
+$empire2->{email} = 'test@example.com';
+$result = $tester->post('empire', 'create', $empire2);
+$empire2->{id} = $result->{result};
+$result = $tester->post('empire', 'found', [$empire2->{id}]);
+my $e2 = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire2->{id});
+$e2->add_essentia(100, 'test')->update;
+$result = $tester->post('empire', 'get_status', [$result->{result}{session_id}]);
+ok($result->{result}{empire}{essentia} > 99, 'added essentia works');
+$e2->delete;
+my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search({empire_name=>'essentia code'},{rows=>1})->single;
+is($result->{result}{empire}{essentia}, $code->amount, 'you get a proper essentia code');
 
 END {
     $tester->cleanup;
+    Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->delete;
+    Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => 'essentia code'})->delete;
 }

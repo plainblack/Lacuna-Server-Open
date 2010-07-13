@@ -7,6 +7,7 @@ use Lacuna::Util qw(format_date);
 use Digest::SHA;
 use List::MoreUtils qw(uniq);
 use Email::Stuff;
+use UUID::Tiny;
 
 
 __PACKAGE__->table('empire');
@@ -441,6 +442,33 @@ before 'delete' => sub {
     if ($self->species_id != 2) {
         $self->species->delete;
     }
+    my $essentia_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia');
+    my $essentia_code;
+    my $sum = $essentia_log->search({empire_id => $self->id, description => { '!=', 'tutorial' } })->get_column('amount')->sum;
+    if ($sum && $self->essentia && $self->email) {
+        $essentia_code = create_UUID_as_string(UUID_V4);
+        my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->new({
+            code            => $essentia_code,
+            date_created    => DateTime->now,
+            empire_name     => $self->name,
+            amount          => $self->essentia,
+        })->insert;
+        $self->send_email(
+            'Essentia Code',
+            sprintf("When your account was deleted you had %s essentia remaining. You can redeem it using the code %s on %s from any other account.",
+                $code->amount,
+                $essentia_code,
+                Lacuna->config->get('server_url'),
+            ),
+        );
+    }
+    $essentia_log->new({
+        empire_id       => $self->id,
+        empire_name     => $self->name,
+        amount          => $self->essentia * -1,
+        description     => 'empire deleted',
+        transaction_id  => $essentia_code,
+    })->insert;
 };
 
 sub enable_self_destruct {
