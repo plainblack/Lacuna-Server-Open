@@ -1,7 +1,7 @@
 package Lacuna::DB::Result;
 
 use Moose;
-use namespace::autoclean -except;
+use namespace::autoclean -except => ['meta'];
 
 extends 'DBIx::Class::Core';
 
