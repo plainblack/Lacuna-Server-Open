@@ -531,5 +531,25 @@ A session id.
 
 
 
+=head2 enable_self_destruct ( session_id )
+
+Enables a destruction countdown of 24 hours. Sometime after the timer runs out, the empire will vaporize.
+
+=head3 session_id
+
+A session id.
+
+
+
+=head2 disable_self_destruct ( session_id )
+
+Disables the self distruction countdown. 
+
+=head3 session_id
+
+A session id.
+
+
+
 
 =cut

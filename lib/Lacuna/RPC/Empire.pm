@@ -6,7 +6,6 @@ use Lacuna::Util qw(format_date);
 use DateTime;
 use String::Random qw(random_string);
 use UUID::Tiny;
-use Email::Stuff;
 
 sub find {
     my ($self, $session_id, $name) = @_;
@@ -122,12 +121,10 @@ sub send_password_reset_message {
     $empire->update;
     
     my $message = "Use the key or the link below to reset the password for %s.\n\nKey: %s\n\n%s?reset_password=%s";
-    
-    Email::Stuff->from('noreply@lacunaexpanse.com')
-        ->to($empire->email)
-        ->subject('Reset Your Password')
-        ->text_body(sprintf($message, $empire->name, $empire->password_recovery_key, Lacuna->config->get('server_url'), $empire->password_recovery_key))
-        ->send;
+    $empire->send_email(
+        'Reset Your Password',
+        sprintf($message, $empire->name, $empire->password_recovery_key, Lacuna->config->get('server_url'), $empire->password_recovery_key),
+    );
     return { sent => 1 };
 }
 
@@ -484,11 +481,31 @@ sub view_boosts {
     };
 }
 
+sub enable_self_destruct {
+    my ($self, $session_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot enable or disable self destruct.'];
+    }
+    $empire->enable_self_destruct;
+    return { status => $self->format_status($empire) };
+}
+
+sub disable_self_destruct {
+    my ($self, $session_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot enable or disable self destruct.'];
+    }
+    $empire->disable_self_destruct;
+    return { status => $self->format_status($empire) };
+}
+
 
 __PACKAGE__->register_rpc_method_names(
     { name => "create", options => { with_plack_request => 1 } },
     { name => "fetch_captcha", options => { with_plack_request => 1 } },
-    qw(change_password set_status_message find view_profile edit_profile view_public_profile is_name_available found login logout get_full_status get_status boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+    qw(enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available found login logout get_full_status get_status boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
 );
 
 

@@ -6,6 +6,7 @@ use DateTime;
 use Lacuna::Util qw(format_date);
 use Digest::SHA;
 use List::MoreUtils qw(uniq);
+use Email::Stuff;
 
 
 __PACKAGE__->table('empire');
@@ -13,6 +14,8 @@ __PACKAGE__->add_columns(
     name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     stage                   => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'new' },
     date_created            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    self_destruct_date      => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    self_destruct_active    => { data_type => 'bit', is_nullable => 0, default_value => 0},
     description             => { data_type => 'text', is_nullable => 1 },
     notes                   => { data_type => 'text', is_nullable => 1 },
     home_planet_id          => { data_type => 'int',  is_nullable => 1 },
@@ -41,7 +44,14 @@ __PACKAGE__->add_columns(
     facebook_token          => { data_type => 'varchar', size => 100, is_nullable => 1 },
 );
 
-# personal confederacies
+
+#after sqlt_deploy_hook => sub {
+#    my ($self, $sqlt_table) = @_;
+#    $sqlt_table->add_index(name => 'idx_self_destruct', fields => ['self_destruct_active','self_destruct_date']);
+#    $sqlt_table->add_index(name => 'idx_password_recovery_key', fields => ['password_recovery_key']);
+#    $sqlt_table->add_index(name => 'idx_inactives', fields => ['last_login,','self_destruct_active']);
+#};
+
 
 __PACKAGE__->belongs_to('species', 'Lacuna::DB::Result::Species', 'species_id', { on_delete => 'set null' });
 __PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Map::Body', 'home_planet_id');
@@ -50,6 +60,11 @@ __PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Result::Message', 'from_id')
 __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id');
 __PACKAGE__->has_many('medals', 'Lacuna::DB::Result::Medals', 'empire_id');
 __PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
+
+sub self_destruct_date_formatted {
+    my $self = shift;
+    return format_date($self->self_destruct_date);
+}
 
 has current_session => (
     is                  => 'rw',
@@ -159,6 +174,8 @@ sub get_status {
         most_recent_message => $self->get_newest_message,
         home_planet_id      => $self->home_planet_id,
         planets             => \%planets,
+        self_destruct_active=> $self->self_destruct_active,
+        self_destruct_date  => $self->self_destruct_date_formatted,
     };
     return $status;
 }
@@ -246,6 +263,16 @@ sub find_home_planet {
     }
     
     return $home_planet;
+}
+
+sub send_email {
+    my ($self, $subject, $message) = @_;
+    return unless ($self->email);
+    Email::Stuff->from('noreply@lacunaexpanse.com')
+        ->to($self->email)
+        ->subject($subject)
+        ->text_body($message)
+        ->send;
 }
 
 sub send_message {
@@ -415,6 +442,28 @@ before 'delete' => sub {
         $self->species->delete;
     }
 };
+
+sub enable_self_destruct {
+    my $self = shift;
+    $self->self_destruct_active(1);
+    $self->self_destruct_date(DateTime->now->add(hours => 24));
+    $self->update;
+    my $subject = 'Your Empire Will Self Destruct In...';
+    $self->send_email(
+        $subject,
+        sprintf("Your empire %s, will self destruct in 24 hours unless you log in and click on the disable self destruct icon.\n\n%s",
+            $self->name,
+            Lacuna->config->get('server_url'),
+        ),
+    );
+    $self->send_message(subject => $subject, message => 'Your empire will self destruct in 24 hours unless you click on the disable self destruct icon.');
+}
+
+sub disable_self_destruct {
+    my $self = shift;
+    $self->self_destruct_active(0);
+    $self->update;
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
