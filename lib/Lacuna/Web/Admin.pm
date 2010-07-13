@@ -124,24 +124,24 @@ sub www_view_plans {
     my $plans = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search({ body_id => $body_id }, {order_by => ['class'] });
     my $out = '<h1>View Plans</h1>';
     $out .= sprintf('<a href="/admin/manage/body?id=%s">Back To Body</a>', $body_id);
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Level</th><th>Name</th><th>Extra Build Level</th><th>Delete</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Level</th><th>Name</th><th>Extra Build Level</th><th>Action</th></tr>';
     while (my $plan = $plans->next) {
         $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/delete/plan?body_id=%s&plan_id=%s">Delete</a></td></tr>', $plan->id, $plan->level, $plan->class->name, $plan->extra_build_level, $body_id, $plan->id);
     }
-    $out .= '</table>';
-    $out .= '<fieldset><legend>Add Plan</legend><form action="/admin/add/plan">';
-    $out .= '<input type="hidden" name="body_id" value="'.$body_id.'">';
-    $out .= '<input name="level" value="1">';
-    $out .= '<select name="class">';
+    $out .= '<form action="/admin/add/plan"><tr>';
+    $out .= '<td><input type="hidden" name="body_id" value="'.$body_id.'"></td>';
+    $out .= '<td><input name="level" value="1" size="2"></td>';
+    $out .= '<td><select name="class">';
     my %buildings = map { $_->name => $_ } findallmod Lacuna::DB::Result::Building;
     foreach my $name (sort keys %buildings) {
         next if $name eq 'Building';
         $out .= '<option value="'.$buildings{$name}.'">'.$name.'</option>';
     }
-    $out .= '</select>';
-    $out .= '<input name="extra_build_level" value="0">';
-    $out .= '<input type="submit" value="add">';
-    $out .= '</form></fieldset>';
+    $out .= '</select></td>';
+    $out .= '<td><input name="extra_build_level" value="0" size="2"></td>';
+    $out .= '<td><input type="submit" value="add plan"></td>';
+    $out .= '</tr></form>';
+    $out .= '</table>';
     return $self->wrap($out);
 }
 
