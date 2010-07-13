@@ -196,13 +196,25 @@ sub arrive_gas_giant_settlement_platform_ship {
 sub arrive_mining_platform_ship {
     my ($self) = @_;
     if ($self->direction eq 'out') {
-        my $ministry = $self->body->mining_ministry;
+        my $body = $self->body;
+        my $ministry = $body->mining_ministry;
+        my $empire = $body->empire;
         if (eval{$ministry->can_add_platform} && !$@) {
             $ministry->add_platform($self->foreign_body)->update;
+            $empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'mining_platform_deployed.txt',
+                params      => [$self->foreign_body->name, $self->name],
+            );
             $self->delete;
         }
         else {
             $self->turn_around;
+            $empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'cannot_deploy_mining_platform.txt',
+                params      => [$@->[1], $body->name, $self->name],
+            );
         }
     }
     else {

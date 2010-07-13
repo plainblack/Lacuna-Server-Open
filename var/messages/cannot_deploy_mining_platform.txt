@@ -1,0 +1,7 @@
+Mining Platform Ship Returning
+~~~
+%s The ship is on its way back to %s now.
+
+Regards,
+
+%s Mission Commander

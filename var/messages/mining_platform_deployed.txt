@@ -1,0 +1,7 @@
+Mining Platform Deployed
+~~~
+We have deployed our new mining plaform on %s. It is operational and awaiting cargo ships.
+
+Regards,
+
+%s Mission Commander

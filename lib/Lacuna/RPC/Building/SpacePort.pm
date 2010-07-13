@@ -307,6 +307,13 @@ sub send_mining_platform_ship {
     unless ($target_body->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
         confess [ 1009, 'Can only send a mining platform ship to an asteroid.'];
     }
+
+    # make sure we pass the prereqs
+    my $ministry = $body->mining_ministry;
+    unless (defined $ministry) {
+	confess [ 1010, 'Cannot control platforms without a Mining Ministry.'];
+    }
+    $ministry->can_add_platform($target_body);
     
     # send the ship
     my $sent = $body->spaceport->send_mining_platform_ship($target_body);

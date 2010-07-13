@@ -39,9 +39,13 @@ sub send_ship_home {
 }
 
 sub can_add_platform {
-    my ($self) = @_;
+    my ($self, $asteroid) = @_;
     if ($self->platforms->count >= $self->max_platforms) {
-        confess [1009, 'You already have the maximum number of platforms allowed at this Ministry level.'];
+        confess [1009, 'Already at the maximum number of platforms allowed at this Ministry level.'];
+    } 
+    my $count = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({ asteroid_id => $asteroid->id })->count;
+    if ($asteroid->size <= $count) {
+        confess [1010, $asteroid->name.' cannot support any additional mining platforms.'];
     }
     return 1;
 }
