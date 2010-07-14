@@ -36,7 +36,7 @@ use constant ship_costs => {
         water   => 600,
         energy  => 4000,
         ore     => 3400,
-        seconds => 7200,
+        seconds => 3600,
         waste   => 1000,
     },  
     cargo_ship => {
