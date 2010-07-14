@@ -12,7 +12,7 @@ use constant controller_class => 'Lacuna::RPC::Building::Oversight';
 
 use constant max_instances_per_planet => 1;
 
-use constant university_prereq => 2;
+use constant university_prereq => 8;
 
 use constant image => 'oversight';
 

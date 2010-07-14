@@ -10,7 +10,7 @@ around 'build_tags' => sub {
 
 use constant controller_class => 'Lacuna::RPC::Building::TerraformingLab';
 
-use constant university_prereq => 10;
+use constant university_prereq => 16;
 
 use constant image => 'terraforminglab';
 

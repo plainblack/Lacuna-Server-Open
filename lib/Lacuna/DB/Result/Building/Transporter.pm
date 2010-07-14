@@ -13,7 +13,7 @@ around 'build_tags' => sub {
 
 use constant controller_class => 'Lacuna::RPC::Building::Transporter';
 
-use constant university_prereq => 12;
+use constant university_prereq => 10;
 
 use constant image => 'transporter';
 

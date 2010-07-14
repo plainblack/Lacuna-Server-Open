@@ -141,7 +141,7 @@ after finish_upgrade => sub {
 
 use constant controller_class => 'Lacuna::RPC::Building::MiningMinistry';
 
-use constant university_prereq => 8;
+use constant university_prereq => 12;
 
 use constant max_instances_per_planet => 1;
 

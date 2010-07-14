@@ -18,7 +18,7 @@ before check_build_prereqs => sub {
 
 use constant controller_class => 'Lacuna::RPC::Building::Propulsion';
 
-use constant university_prereq => 3;
+use constant university_prereq => 13;
 
 use constant max_instances_per_planet => 1;
 
