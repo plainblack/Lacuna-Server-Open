@@ -89,24 +89,34 @@ sub recalc_ore_production {
         $ship_capacity += $ship->hold_size;
         $ship_speed += $ship->speed;
     }
-    my $average_ship_speed = $ship_speed / $ship_count;
+    my $average_ship_speed = ($ship_count) ? $ship_speed / $ship_count : 0;
     
     # platforms
     my $platform_count              = $self->platforms->count;
-    my $cargo_space_per_platform    = $ship_capacity / $platform_count;
+    my $cargo_space_per_platform    = ($platform_count) ? $ship_capacity / $platform_count : 0;
     my $platforms                   = $self->platforms;
     my $production_hour             = 70 * $self->production_hour * $self->mining_production_bonus;
     while (my $platform = $platforms->next) {
         my $asteroid                    = $platform->asteroid;
-        my $trips_per_hour              = ($body->calculate_distance_to_target($asteroid) / $average_ship_speed) * 2; 
+        my $trips_per_hour              = $average_ship_speed ? (($body->calculate_distance_to_target($asteroid) / $average_ship_speed) * 2) : 0; 
         my $max_cargo_hauled_per_hour   = $trips_per_hour * $cargo_space_per_platform;
         my $cargo_hauled_per_hour       = ($production_hour > $max_cargo_hauled_per_hour) ? $max_cargo_hauled_per_hour : $production_hour;
         foreach my $ore (ORE_TYPES) {
             my $hour_method = $ore.'_hour';
             $platform->$hour_method(sprintf('%.0f', $asteroid->$ore * $cargo_hauled_per_hour / 10_000));
         }
-        $platform->percent_ship_capacity(sprintf('%.0f', $cargo_hauled_per_hour / $max_cargo_hauled_per_hour * 100));
-        $platform->percent_platform_capacity(sprintf('%.0f', $cargo_hauled_per_hour / $production_hour * 100));
+        if ($max_cargo_hauled_per_hour) {
+            $platform->percent_ship_capacity(sprintf('%.0f', $cargo_hauled_per_hour / $max_cargo_hauled_per_hour * 100));
+        }
+        else {
+            $platform->percent_ship_capacity(100);
+        }
+        if ($production_hour) {
+            $platform->percent_platform_capacity(sprintf('%.0f', $cargo_hauled_per_hour / $production_hour * 100));
+        }
+        else {
+            $platform->percent_platform_capacity(100);
+        }
         $platform->update;
     }
     

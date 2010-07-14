@@ -198,8 +198,12 @@ sub arrive_mining_platform_ship {
     if ($self->direction eq 'out') {
         my $body = $self->body;
         my $ministry = $body->mining_ministry;
+	unless (defined $ministry) {
+            $self->turn_around;
+        }
         my $empire = $body->empire;
-        if (eval{$ministry->can_add_platform} && !$@) {
+        my $can = eval{$ministry->can_add_platform($self->foreign_body)};
+        if ($can && !$@) {
             $ministry->add_platform($self->foreign_body)->update;
             $empire->send_predefined_message(
                 tags        => ['Alert'],
