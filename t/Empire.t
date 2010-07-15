@@ -108,7 +108,7 @@ $e2->add_essentia(100, 'test')->update;
 $result = $tester->post('empire', 'get_status', [$result->{result}{session_id}]);
 ok($result->{result}{empire}{essentia} > 99, 'added essentia works');
 $e2->delete;
-my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search({empire_name=>'essentia code'},{rows=>1})->single;
+my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search({description=>'essentia code deleted'},{rows=>1})->single;
 is($result->{result}{empire}{essentia}, $code->amount, 'you get a proper essentia code');
 
 END {

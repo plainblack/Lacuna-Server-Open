@@ -92,7 +92,7 @@ $urlmap->map(Lacuna::RPC::Building::SpacePort->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Syrup->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::TerraformingLab->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::GeneticsLab->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::ArchaeologyLab->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Archaeology->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::TerraformingPlatform->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Trade->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Transporter->new->to_app_with_url);

@@ -11,7 +11,7 @@ no warnings 'uninitialized';
 
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
 __PACKAGE__->has_many('plans','Lacuna::DB::Result::Plans','body_id');
-__PACKAGE__->has_many('glyphs','Lacuna::DB::Result::Glyphs','ministry_id');
+__PACKAGE__->has_many('glyphs','Lacuna::DB::Result::Glyphs','body_id');
 
 
 sub surface {
