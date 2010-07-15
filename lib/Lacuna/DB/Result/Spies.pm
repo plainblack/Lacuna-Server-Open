@@ -117,5 +117,18 @@ sub level {
     return sprintf('%.0f', ($self->offense + $self->defense) / 200)
 }
 
+sub go_to_jail {
+    my $self = shift;
+    $self->available_on(DateTime->now->add(months=>1));
+    $self->task('Captured');
+    $self->started_assignment(DateTime->now);
+    $self->times_captured( $self->times_captured + 1 );
+    $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'spy_captured.txt',
+        params      => [$self->on_body->name, $self->name],
+    );
+}
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

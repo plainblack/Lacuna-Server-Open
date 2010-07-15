@@ -2,7 +2,7 @@ package Lacuna::DB::Result::Ships;
 
 use Moose;
 extends 'Lacuna::DB::Result';
-use Lacuna::Util qw(format_date to_seconds);
+use Lacuna::Util qw(format_date to_seconds randint);
 use DateTime;
 use feature "switch";
 
@@ -263,7 +263,20 @@ sub pick_up_spies {
 }
 
 sub capture_with_spies {
-    return 0;
+    my ($self, $multiplier) = @_;
+    my $body = $self->foreign_body;
+    my $security = $body->get_building_of_class('Lacuna::DB::Result::Security');
+    return 0 unless defined $security;
+    return 0 unless (randint(1,100) < $security->level * $multiplier);
+    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
+    my $sentence = DateTime->now->add(days => 30);
+    foreach my $id ((@{$self->payload->{spies}}, @{$self->payload->{fetch_spies}})) {
+        next unless $id;
+        my $spy = $spies->find($id);
+        next unless defined $spy;
+        $spy->go_to_jail;
+    }
+    $self->delete;
 }
     
 sub arrive_cargo_ship {
