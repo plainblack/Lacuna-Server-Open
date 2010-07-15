@@ -265,6 +265,7 @@ sub pick_up_spies {
 sub capture_with_spies {
     my ($self, $multiplier) = @_;
     my $body = $self->foreign_body;
+    return 0 if ($body->empire_id == $self->body->empire_id);
     my $security = $body->get_building_of_class('Lacuna::DB::Result::Security');
     return 0 unless defined $security;
     return 0 unless (randint(1,100) < $security->level * $multiplier);
