@@ -147,6 +147,25 @@ sub get_glyphs {
     };
 }
 
+sub get_stored_resources {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my @types = (FOOD_TYPES, ORE_TYPES, qw(water waste energy));
+    my @out;
+    my $body = $building->body;
+    foreach my $type (@types) {
+        my $stored = $type.'_stored';
+        push @out, {
+            $type   => $body->$stored,
+        }
+    }
+    return {
+        resources   => \@out,
+        status      => $self->format_status($empire, $body),
+    };
+}
+
 1;
 
 

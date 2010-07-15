@@ -63,12 +63,12 @@ sub accept_trade {
         confess [1002, 'Could not find that trade. Perhaps it has already been accepted.'];
     }
     unless ($building->determine_available_cargo_space >= $trade->ask_quantity) {
-        confess [1011, 'Your transporter is not capable of a load this size.'];
+        confess [1011, 'This transporter has a maximum load size of '.$building->determine_available_cargo_space.'.'];
     }
     my $body = $building->body;
     if ($trade->ask_type eq 'essentia') {
         unless ($empire->essentia >= $trade->ask_quantity + 1) {
-            confess [1011, 'You need at least '.($trade->ask_quantity + 1).' essentia to make this trade.']
+            confess [1011, 'You need '.($trade->ask_quantity + 1).' essentia to make this trade.']
         }
         $empire->spend_essentia($trade->ask_quantity + 1, 'Trade Price and Transporter Cost')->update;
         $trade->body->empire->add_essentia($trade->ask_quantity, 'Trade Income')->update;
@@ -76,10 +76,10 @@ sub accept_trade {
     else {
         my $stored = $trade->ask_type.'_stored';
         unless ($empire->essentia >= 1) {
-            confess [1011, 'You need at least 1 essentia to make this trade.']
+            confess [1011, 'You need 1 essentia to make this trade.']
         }
         unless ($body->$stored >= $trade->ask_quantity) {
-            confess [1011, 'You need at least '.$trade->ask_quantity.' '.$body->ask_type.' to make this trade.'];
+            confess [1011, 'You need '.$trade->ask_quantity.' '.$body->ask_type.' to make this trade.'];
         }
         $empire->spend_essentia(1, 'Transporter Cost')->update;
         my $spend = 'spend_'.$trade->ask_type;
@@ -96,7 +96,17 @@ sub accept_trade {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(add_trade withdraw_trade accept_trade view_my_trades view_available_trades get_ships get_prisoners get_plans));
+sub trade_one_for_one {
+    my ($self, $session_id, $building_id, $have, $want, $quantity) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    $building->trade_one_for_one($have, $want, $quantity);
+    return {
+        status      => $self->format_status($empire, $building->body),
+    };
+}
+
+__PACKAGE__->register_rpc_method_names(qw(trade_one_for_one get_stored_resources add_trade withdraw_trade accept_trade view_my_trades view_available_trades get_ships get_prisoners get_plans));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

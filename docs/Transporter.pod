@@ -305,4 +305,59 @@ An integer representing the page of trades (25 per page) to return. Defaults to 
 
 
 
+=head2 get_stored_resources ( session_id, building_id )
+
+Returns a list of the resources you have stored to make it easier to identify what you want to trade.
+
+ {
+    "status" : { ... },
+    "resources" : [
+        {
+            "water" : 14000,
+            "waste" : 393,
+            "bauxite" : 47,
+            "cheese" : 1193,
+            ...
+        }
+    ]
+ }
+ 
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+
+
+=head2 trade_one_for_one ( session_id, building_id, have, want, quantity )
+
+Lacuna Expanse Corp will do one for one trades of any resource in exchange for 3 essentia.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 have
+
+The name of the resource you have. See C<get_stored_resources> to see what you have.
+
+=head3 want
+
+The name of any resource you want.
+
+=head3 quantity
+
+The amount of resources that will be traded one for one.
+
 =cut

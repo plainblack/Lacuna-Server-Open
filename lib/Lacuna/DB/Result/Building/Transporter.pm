@@ -2,6 +2,7 @@ package Lacuna::DB::Result::Building::Transporter;
 
 use Moose;
 extends 'Lacuna::DB::Result::Building';
+use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 
 with 'Lacuna::Role::Trader';
 
@@ -61,6 +62,34 @@ sub transfer_type {
 sub determine_available_cargo_space {
     my ($self) = @_;
     return 2000 * $self->level * $self->body->empire->species->trade_affinity;
+}
+
+sub trade_one_for_one {
+    my ($self, $have, $want, $quantity) = @_;
+    unless ($self->determine_available_cargo_space >= $quantity) {
+        confess [1011, 'This transporter has a maximum load size of '.$self->determine_available_cargo_space.'.'];
+    }
+    my @types = (FOOD_TYPES, ORE_TYPES, qw(water waste energy));
+    unless ($have ~~ \@types) {
+        confess [1009, 'There is no resource called '.$have.'.'];
+    }
+    unless ($want ~~ \@types) {
+        confess [1009, 'There is no resource called '.$want.'.'];
+    }
+    my $body = $self->body;
+    my $stored = $have.'_stored';
+    unless ($body->$stored >= $quantity) {
+        confess [1011, 'There is not enough '.$have.' in storage to trade.'];
+    }
+    my $empire = $body->empire;
+    unless ($empire->essentia >= 3) {
+        confess [1011, 'You need 3 essentia to conduct this trade.'];
+    }
+    $empire->spend_essentia(3, 'Lacunans Trade')->update;
+    $body->$stored( $body->$stored - $quantity );
+    my $add = 'add_'.$want;
+    $body->$add($quantity);
+    $body->update;
 }
 
 no Moose;

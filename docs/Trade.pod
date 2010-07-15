@@ -307,6 +307,33 @@ An integer representing the page of trades (25 per page) to return. Defaults to 
 
 
 
+=head2 get_stored_resources ( session_id, building_id )
+
+Returns a list of the resources you have stored to make it easier to identify what you want to trade.
+
+ {
+    "status" : { ... },
+    "resources" : [
+        {
+            "water" : 14000,
+            "waste" : 393,
+            "bauxite" : 47,
+            "cheese" : 1193,
+            ...
+        }
+    ]
+ }
+ 
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+
+
 
 
 =cut
