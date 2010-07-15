@@ -129,6 +129,24 @@ sub get_plans {
     };
 }
 
+sub get_glyphs {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $glyphs = $building->body->glyphs;
+    my @out;
+    while (my $glyph = $glyphs->next) {
+        push @out, {
+            id                      => $glyph->id,
+            type                    => $glyph->type,
+        };
+    }
+    return {
+        glyphs       => \@out,
+        status      => $self->format_status($empire, $building->body),
+    };
+}
+
 1;
 
 
