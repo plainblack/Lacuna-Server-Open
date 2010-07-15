@@ -68,15 +68,6 @@ sub transfer_type {
     return $self->body->zone;
 }
 
-sub send_offer {
-    my ($self, $target) = @_;
-    my $ship = $self->trade_ships->find($self->ship_id);
-    return $ship->send(
-        payload => $self->offer,
-        target  => $target,
-    );
-}
-
 sub trade_ships {
     return Lacuna->db->resultset('Lacuna::DB::Result::Ships');
 }
