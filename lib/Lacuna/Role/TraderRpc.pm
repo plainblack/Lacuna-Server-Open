@@ -79,8 +79,9 @@ sub get_ships {
         };
     }
     return {
-        ships       => \@out,
-        status      => $self->format_status($empire, $building->body),
+        ships                   => \@out,
+        cargo_space_used_each   => 10_000,
+        status                  => $self->format_status($empire, $building->body),
     };
 }
 
@@ -101,8 +102,9 @@ sub get_prisoners {
         };
     }
     return {
-        prisoners   => \@out,
-        status      => $self->format_status($empire, $building->body),
+        prisoners               => \@out,
+        cargo_space_used_each   => 100,
+        status                  => $self->format_status($empire, $building->body),
     };
 }
 
@@ -124,8 +126,9 @@ sub get_plans {
         };
     }
     return {
-        plans       => \@out,
-        status      => $self->format_status($empire, $building->body),
+        plans                   => \@out,
+        cargo_space_used_each   => 100,
+        status                  => $self->format_status($empire, $building->body),
     };
 }
 
@@ -142,8 +145,9 @@ sub get_glyphs {
         };
     }
     return {
-        glyphs       => \@out,
-        status      => $self->format_status($empire, $building->body),
+        glyphs                  => \@out,
+        cargo_space_used_each   => 100,
+        status                  => $self->format_status($empire, $building->body),
     };
 }
 
@@ -161,8 +165,9 @@ sub get_stored_resources {
         }
     }
     return {
-        resources   => \@out,
-        status      => $self->format_status($empire, $body),
+        resources               => \@out,
+        cargo_space_used_each   => 1,
+        status                  => $self->format_status($empire, $body),
     };
 }
 
