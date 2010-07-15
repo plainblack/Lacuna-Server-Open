@@ -11,6 +11,7 @@ no warnings 'uninitialized';
 
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
 __PACKAGE__->has_many('plans','Lacuna::DB::Result::Plans','body_id');
+__PACKAGE__->has_many('glyphs','Lacuna::DB::Result::Glyphs','ministry_id');
 
 
 sub surface {
@@ -33,6 +34,16 @@ sub ships_travelling {
             order_by    => { $order => 'date_available' },
         }
     );
+}
+
+# GLYPHS
+
+sub add_glyph {
+    my ($self, $type) = @_;
+    return $self->glyphs->new({
+        type    => $type,
+        body_id => $self->id,
+    })->insert;
 }
 
 # PLANS
@@ -79,14 +90,14 @@ sub sanitize {
     foreach my $attribute (@attributes) {
         $self->$attribute(0);
     }
-    $self->plans->delete_all;
+    $self->plans->delete;
+    $self->glyphs->delete;
     Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_body_id => $self->id})->delete_all;
     $self->ships->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $self->id})->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->id})->delete_all;
-    Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({planet_id => $self->id})->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::Trades')->search({body_id => $self->id})->delete_all;
-    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->id})->delete_all;
+    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->id})->delete;
     $self->empire_id(undef);
     if ($self->get_type eq 'habitable planet') {
         $self->usable_as_starter(randint(1,9999));

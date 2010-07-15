@@ -1,0 +1,79 @@
+=head1 Archaeology Ministry Methods
+
+Archaeology Ministry is accessible via the URL C</archaeology>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+
+=head2 search_for_glyph ( session_id, building_id, ore_type )
+
+Searches through ore looking for glyphs left behind by the ancient race. Takes 10,000 of one type of ore to search.
+
+ {
+    "status" : { ... },
+    "seconds_remaining" : 10800
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Archaeology Ministry.
+
+=head3 ore_type
+
+One of the 20 types of ore. Choose from: rutile, chromite, chalcopyrite, galena, gold, uraninite, bauxite, goethite, halite, gypsum, trona, kerogen, methane, anthracite, sulfur, zircon, monazite, fluorite, beryl, magnetite
+
+
+
+=head2 get_glyphs ( session_id, building_id )
+
+Returns a list of glyphs that have been found by this archaeology ministry.
+
+ {
+    "status" : { ... },
+    "glyphs" : [
+        {
+            "id" : "id-goes-here",
+            "type" : "bauxite",
+        },
+        ...
+    ]
+ }
+
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Archaeology Ministry.
+
+
+
+=head2 assemble_glyphs ( session_id, building_id, ids )
+
+Turns glyphs into rare ancient items. Returns:
+
+ {
+    "status" : { ... },
+    "item_name" : "Volcano"
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Archaeology Ministry.
+
+=head3 ids
+
+An array reference containing an ordered list of up to four glyph ids.
+
+
+=cut

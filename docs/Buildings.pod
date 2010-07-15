@@ -237,6 +237,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<Apple>
 
+=item L<Archaeology>
+
 =item L<Bean>
 
 =item L<Beeldeban>
@@ -282,6 +284,8 @@ Below is a list of the different types of structures that can be built on planet
 =item L<GasGiantLab>
 
 =item L<GasGiantPlatform>
+
+=item L<GeneticsLab>
 
 =item L<Geo>
 

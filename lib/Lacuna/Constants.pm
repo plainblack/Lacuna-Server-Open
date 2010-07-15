@@ -55,6 +55,8 @@ use constant BUILDABLE_CLASSES => (qw(
     Lacuna::RPC::Building::SpacePort
     Lacuna::RPC::Building::Syrup
     Lacuna::RPC::Building::TerraformingLab
+    Lacuna::RPC::Building::GeneticsLab
+    Lacuna::RPC::Building::Archaeology
     Lacuna::RPC::Building::Trade
     Lacuna::RPC::Building::Transporter
     Lacuna::RPC::Building::University
