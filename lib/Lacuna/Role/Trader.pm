@@ -105,9 +105,22 @@ sub structure_offer {
                 payload                     => {ships => [$ship->id] },
             };
         }
-        #when ('glyph') {
-        #    
-        #}
+        when ('glyph') {
+            confess $offer_nothing_exception if ($offer->{glyph_id} eq '');
+            my $space = 100;
+            confess [1011, sprintf($cargo_exception,$space)] unless ($space <= $available_cargo_space);
+            my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyphs')->find($offer->{glyph_id});
+            confess $have_exception unless (defined $glyph && $self->body_id eq $glyph->body_id);
+            $glyph->delete;
+            return {
+                offer_type                  => $offer->{type},
+                offer_sub_type              => $glyph->type,
+                offer_quantity              => 1,
+                offer_description           => $glyph->type,
+                offer_cargo_space_needed    => $space,
+                payload                     => {glyphs => [$glyph->type]},
+            };
+        }
         when ('prisoner') {
             confess $offer_nothing_exception if ($offer->{prisoner_id} eq '');
             my $space = 100;
