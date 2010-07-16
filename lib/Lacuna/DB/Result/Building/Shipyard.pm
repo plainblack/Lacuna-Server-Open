@@ -238,8 +238,8 @@ sub get_ship_speed {
 
 # CARGO HOLD SIZE
 
-use constant cargo_ship_base => 700;
-use constant smuggler_ship_base => 385;
+use constant cargo_ship_base => 950;
+use constant smuggler_ship_base => 480;
 
 has trade_ministry => (
     is      => 'rw',
