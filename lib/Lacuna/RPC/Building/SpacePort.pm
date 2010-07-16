@@ -141,7 +141,7 @@ sub send_spies {
     if ($ship->type eq 'spy_pod' && scalar(@{$spy_ids}) == 1) {
         # we're ok
     }
-    elsif ($ship->hold_size <= (scalar(@{$spy_ids}) * 100)) {
+    elsif ($ship->hold_size <= (scalar(@{$spy_ids}) * 300)) {
         confess [1010, "The ship cannot hold the spies selected."];
     }
     
@@ -201,7 +201,7 @@ sub fetch_spies {
     }
     
     # check size
-    if ($ship->hold_size <= (scalar(@{$spy_ids}) * 100)) {
+    if ($ship->hold_size <= (scalar(@{$spy_ids}) * 300)) {
         confess [1010, "The ship cannot hold the spies selected."];
     }
     
