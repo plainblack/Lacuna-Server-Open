@@ -85,7 +85,7 @@ The unique id of the mining ministry.
 
 
 
-=head2 add_cargo_ship_to_fleet ( session_id, building_id, ship_count )
+=head2 add_cargo_ship_to_fleet ( session_id, building_id, ship_id )
 
 Take a cargo ship from the space port and add it to the mining fleet.
 
@@ -103,13 +103,12 @@ A session id.
 
 The unique id of the mining ministry.
 
-=head3 ship_count
+=head3 ship_id
 
-The number of ships you wish to add.
+The unique id of the ship you want to add to the fleet.
 
 
-
-=head2 remove_cargo_ship_from_fleet ( session_id, building_id, ship_count )
+=head2 remove_cargo_ship_from_fleet ( session_id, building_id, ship_id )
 
 Tell one of the cargo ships in the mining fleet to come home and park at the space port.
 
@@ -127,10 +126,9 @@ A session id.
 
 The unique id of the mining ministry.
 
-=head3 ship_count
+=head3 ship_id
 
-The number of ships you wish to remove.
-
+The unique id of the ship you want to add.
 
 
 =head2 abandon_platform ( session_id, building_id, asteroid_id )
