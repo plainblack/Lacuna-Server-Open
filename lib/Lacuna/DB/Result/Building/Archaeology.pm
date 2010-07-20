@@ -62,7 +62,7 @@ sub can_search_for_glyph {
 
 sub search_for_glyph {
     my ($self, $ore) = @_;
-    $self->can_search_for_glyph;
+    $self->can_search_for_glyph($ore);
     my $body = $self->body;
     my $stored = $ore.'_stored';
     $body->$stored( $body->$stored - 10_000 );

@@ -15,7 +15,7 @@ sub view_ships {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $self->body_id, task => { in => ['Mining', 'Docked']}, type => 'cargo_ship' });
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $building->body_id, task => { in => ['Mining', 'Docked']}, type => 'cargo_ship' });
     my @fleet;
     while (my $ship = $ships->next) {
         push @fleet, {
@@ -134,7 +134,7 @@ sub remove_cargo_ship_from_fleet {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(view_platforms view_ships abandon_platform remove_cargo_ships_from_fleet add_cargo_ships_to_fleet));
+__PACKAGE__->register_rpc_method_names(qw(view_platforms view_ships abandon_platform remove_cargo_ship_from_fleet add_cargo_ship_to_fleet));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
