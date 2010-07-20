@@ -12,11 +12,11 @@ sub model_class {
 }
 
 sub get_glyphs {
-    my ($self, $session_id, $building_id, $onoff) = @_;
+    my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my @out;
-    my $glyphs = $building->glyphs;
+    my $glyphs = $building->body->glyphs;
     while (my $glyph = $glyphs->next) {
         push @out, {
             id      => $glyph->id,

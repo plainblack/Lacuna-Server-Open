@@ -54,7 +54,7 @@ sub can_search_for_glyph {
         confess [1010, 'The Archaeology Ministry is already searching for a glyph.'];
     }
     my $stored = $ore.'_stored';
-    unless ($self->$stored >= 10_000) {
+    unless ($self->body->$stored >= 10_000) {
         confess [1011, 'Not enough '.$ore.' in storage. You need 10,000.'];
     }
     return 1;
@@ -90,32 +90,32 @@ before finish_work => sub {
 
 my %recipies = (
 #    gypsum      => {
-#        plan        => 'Lacuna::DB::Building::Permanent::BeachA',
+#        plan        => 'Lacuna::DB::Result::Building::Permanent::BeachA',
 #        gypsum      => {
-#            plan        => 'Lacuna::DB::Building::Permanent::BeachB',
+#            plan        => 'Lacuna::DB::Result::Building::Permanent::BeachB',
 #        },
 #    },
     magnetite   => {
         uraninite   => {
-            plan        => 'Lacuna::DB::Building::Permanent::Volcano',
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Volcano',
         },
         halite      => {
-            plan        => 'Lacuna::DB::Building::Permanent::NaturalSpring',
+            plan        => 'Lacuna::DB::Result::Building::Permanent::NaturalSpring',
         }
     },
     rutile      => {
-        plan        => 'Lacuna::DB::Building::Permanent::Crater',
+        plan        => 'Lacuna::DB::Result::Building::Permanent::Crater',
     },
     chalcopyrite=> {
         sulfur      => {
-            plan        => 'Lacuna::DB::Building::Permanent::GeoThermalVent',
+            plan        => 'Lacuna::DB::Result::Building::Permanent::GeoThermalVent',
         },
     },
     sulfur          => {
         methane         => {
             galena          => {
                 anthracite      => {
-                    plan        => 'Lacuna::DB::Building::Permanent::GasGiantPlatform',
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform',
                 }
             }
         }
@@ -123,28 +123,28 @@ my %recipies = (
     methane     => {
         zircon      => {
             fluorite    => {
-                plan        => 'Lacuna::DB::Building::Permanent::InterDimensionalRift',
+                plan        => 'Lacuna::DB::Result::Building::Permanent::InterDimensionalRift',
             },
             magnetite   => {
                 beryl       => {
-                    plan        => 'Lacuna::DB::Building::Permanent::TerraformingPlatform',
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',
                 }
             },
         },
     },
     galena      => {
         gold        => {
-            plan        => 'Lacuna::DB::Building::Permanent::KalavianRuins',
+            plan        => 'Lacuna::DB::Result::Building::Permanent::KalavianRuins',
         },
     },
     goethite    => {
-        plan        => 'Lacuna::DB::Building::Permanent::Lake',
+        plan        => 'Lacuna::DB::Result::Building::Permanent::Lake',
     },
     chromite    => {
         halite      => {
             anthracite  =>  {
                 beryl       => {
-                    plan        => 'Lacuna::DB::Building::Permanent::LibraryOfJith',
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::LibraryOfJith',
                 },
             },
         },
@@ -153,7 +153,7 @@ my %recipies = (
         trona       => {
             kerogen     => {
                 monazite    => {
-                    plan        => 'Lacuna::DB::Building::Permanent::MassadsHenge',
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::MassadsHenge',
                 },
             },
         },
@@ -162,13 +162,13 @@ my %recipies = (
         uraninite   => {
             bauxite     => {
                 goethite    => {
-                    plan        => 'Lacuna::DB::Building::Permanent::OracleOfAnid',
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::OracleOfAnid',
                 },
             },
         },
     },
     trona       => {
-        plan        => 'Lacuna::DB::Building::Permanent::RockyOutcrop',
+        plan        => 'Lacuna::DB::Result::Building::Permanent::RockyOutcrop',
     },
     kerogen     => {
         rutile      => {
