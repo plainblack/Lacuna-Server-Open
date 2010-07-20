@@ -1,13 +1,9 @@
 package Lacuna::Role::Container;
 
 use Moose::Role;
-use feature "switch";
-
-requires 'payload';
 
 sub unload {
-    my ($self, $body) = @_;
-    my $payload = $self->payload;
+    my ($self, $payload, $body) = @_;
     if (exists $payload->{prisoners}) {
         foreach my $id (@{$payload->{prisoners}}) {
             my $prisoner = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($id);
@@ -46,7 +42,6 @@ sub unload {
             $body->add_glyph($glyph);
         }
     }
-    $self->payload({});
 }
 
 

@@ -229,12 +229,14 @@ sub arrive_mining_platform_ship {
 sub handle_cargo_exchange {
     my $self = shift;
     if ($self->direction eq 'out') {
-        $self->unload($self->foreign_body);
+        $self->unload($self->payload, $self->foreign_body);
+        $self->payload({});
         $self->turn_around;
         $self->pick_up_spies; # goes after turn around so we have the new date available
     }
     else {
-        $self->unload($self->body);
+        $self->unload($self->payload, $self->body);
+        $self->payload({});
         $self->land;
     }
 }

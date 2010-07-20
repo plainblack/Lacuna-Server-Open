@@ -80,7 +80,7 @@ sub get_ships {
     }
     return {
         ships                   => \@out,
-        cargo_space_used_each   => 10_000,
+        cargo_space_used_each   => 50_000,
         status                  => $self->format_status($empire, $building->body),
     };
 }
@@ -103,7 +103,7 @@ sub get_prisoners {
     }
     return {
         prisoners               => \@out,
-        cargo_space_used_each   => 100,
+        cargo_space_used_each   => 300,
         status                  => $self->format_status($empire, $building->body),
     };
 }
@@ -127,7 +127,7 @@ sub get_plans {
     }
     return {
         plans                   => \@out,
-        cargo_space_used_each   => 100,
+        cargo_space_used_each   => 10_000,
         status                  => $self->format_status($empire, $building->body),
     };
 }

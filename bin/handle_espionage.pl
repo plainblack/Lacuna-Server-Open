@@ -769,10 +769,10 @@ sub steal_resources {
     $ship->send(
         target      => $planet,
         direction   => 'in',
-        payload     => {
-            spies => [ $spy->id ],
-            resources   => {},
-            # FINISH THIS AFTER CARGO SHIPS ARE IMPLEMENTED
+#        payload     => {
+#            spies => [ $spy->id ],
+#            resources   => {},
+#            # FINISH THIS AFTER CARGO SHIPS ARE IMPLEMENTED
         },
     );
     $spy->available_on($ship->date_available->clone);

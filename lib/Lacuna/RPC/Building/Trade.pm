@@ -13,6 +13,25 @@ sub model_class {
     return 'Lacuna::DB::Result::Building::Trade';
 }
 
+sub push_items {
+    my ($self, $session_id, $building_id, $target_id, $items) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    unless ($target_id) {
+        confess [1002, "You must specify a target body id."];
+    }
+    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id);
+    unless (defined $target) {
+        confess [1002, 'The target body you specified could not be found.'];
+    }
+    unless ($target->empire_id eq $empire->id) {
+        confess [1010, 'You cannot push items to a planet that is not your own.'];
+    }
+    $building->push_items($target, $items);
+    return {
+        status      => $self->format_status($empire, $building->body),
+    };
+}
 
 sub add_trade {
     my ($self, $session_id, $building_id, $offer, $ask) = @_;
@@ -101,7 +120,7 @@ sub accept_trade {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(get_stored_resources add_trade withdraw_trade accept_trade view_my_trades view_available_trades get_ships get_prisoners get_plans));
+__PACKAGE__->register_rpc_method_names(qw(push_items get_stored_resources add_trade withdraw_trade accept_trade view_my_trades view_available_trades get_ships get_prisoners get_plans));
 
 
 no Moose;

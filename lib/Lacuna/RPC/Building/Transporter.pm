@@ -13,6 +13,30 @@ sub model_class {
     return 'Lacuna::DB::Result::Building::Transporter';
 }
 
+sub push_items {
+    my ($self, $session_id, $building_id, $target_id, $items) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    unless ($empire->essentia >= 2) {
+        confess [1011, "You need 2 essentia to push items using the Subspace Transporter."];
+    }
+    unless ($target_id) {
+        confess [1002, "You must specify a target body id."];
+    }
+    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id);
+    unless (defined $target) {
+        confess [1002, 'The target body you specified could not be found.'];
+    }
+    unless ($target->empire_id eq $empire->id) {
+        confess [1010, 'You cannot push items to a planet that is not your own.'];
+    }
+    $building->push_items($target, $items);
+    $empire->spend_essentia(2, 'Transporter Push')->update; # has to go after due to validation in push_goods
+    return {
+        status      => $self->format_status($empire, $building->body),
+    };
+}
+
 sub add_trade {
     my ($self, $session_id, $building_id, $offer, $ask) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -87,7 +111,7 @@ sub accept_trade {
         my $add = 'add_'.$trade->ask_type;
         $trade->body->$add($trade->ask_quantity);
     }
-    $trade->unload($body);
+    $trade->unload($trade->payload, $body);
     $trade->delete;
     $body->update;
     $trade->body->update;
@@ -106,7 +130,7 @@ sub trade_one_for_one {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(trade_one_for_one get_stored_resources add_trade withdraw_trade accept_trade view_my_trades view_available_trades get_ships get_prisoners get_plans));
+__PACKAGE__->register_rpc_method_names(qw(push_items trade_one_for_one get_stored_resources add_trade withdraw_trade accept_trade view_my_trades view_available_trades get_ships get_prisoners get_plans));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

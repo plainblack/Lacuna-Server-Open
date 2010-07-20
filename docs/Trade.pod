@@ -339,6 +339,89 @@ The unique id of this building.
 
 
 
+=head2 push_items ( session_id, building_id, target_id, items )
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 target_id
+
+The unqiue id of the planet that you control, that you want to send resources to.
+
+B<NOTE:> The list of your planets comes back with every empire status message.
+
+=head3 items
+
+An array reference of hash references of items you wish to ship to the target planet. There are three types items that can be shipped via this mechanism. They are resources, glyphs, and plans.
+
+=over
+
+=item resources
+
+The hash reference for resources looks like:
+
+ {
+    "type" : "bauxite",
+    "quantity" : 10000
+ }
+
+=over
+
+=item type
+
+The type of resource you want to ship. Available types are: water, energy, waste, essentia, bean, lapis, potato, apple, root, corn, cider, wheat, bread, soup, chip, pie, pancake, milk, meal, algae, syrup, fungus, burger, shake, beetle, rutile, chromite, chalcopyrite, galena, gold, uraninite, bauxite, goethite, halite, gypsum, trona, kerogen, methane, anthracite, sulfur, zircon, monazite, fluorite, beryl, or magnetite.
+
+=item quantity
+
+The amount of the resource that you want to ship.
+
+=back
+
+=item glyphs
+
+The hash reference for glyphs looks like:
+
+ {
+    "type" : "glyph",
+    "glyph_id" : "id-goes-here"
+ }
+ 
+=over
+
+=item type
+
+Must be exactly C<glyph>.
+
+=item glyph_id
+
+The unique id of the glyph you want to ship. See the C<get_glyphs> method for a list of your glyphs.
+ 
+=back
+
+
+=item plans
+
+=over
+
+=item type
+
+Must be exactly C<plan>.
+
+=item plan_id
+
+The unique id of the plan that you want to ship. See the C<get_plans> method for a list of your plans.
+
+=back
+
+=back
+
+
+
 
 
 =cut

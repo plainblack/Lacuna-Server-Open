@@ -4,7 +4,6 @@ use Moose;
 extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
-use feature "switch";
 
 __PACKAGE__->table('trades');
 __PACKAGE__->add_columns(
@@ -43,7 +42,7 @@ sub date_offered_formatted {
 sub withdraw {
     my ($self, $body) = @_;
     $body ||= Lacuna->db->resultset('Lacuna::DB::Result::Map::Body');
-    $self->unload($body);
+    $self->unload($self->payload, $body);
     if ($self->ship_id) {
         my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($self->ship_id);
         $ship->land if defined $ship;

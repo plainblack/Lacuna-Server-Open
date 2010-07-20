@@ -58,8 +58,7 @@ sub available_trades {
 }
 
 sub structure_offer {
-    my ($self, $offer) = @_;
-    my $available_cargo_space = $self->determine_available_cargo_space;
+    my ($self, $offer, $available_cargo_space) = @_;
     given($offer->{type}) {
         when ([qw(water energy waste)]) {
             $self->offer_resources($offer->{type}, $offer, $available_cargo_space);
@@ -87,7 +86,7 @@ sub structure_offer {
         }
         when ('ship') {
             confess $offer_nothing_exception if ($offer->{ship_id} eq '');
-            my $space = 10000;
+            my $space = 50000;
             confess [1011, sprintf($cargo_exception,$space)] unless ($space <= $available_cargo_space);
             my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($offer->{ship_id});
             confess $have_exception unless (defined $ship && $self->body_id eq $ship->body_id && $ship->task eq 'Docked');
@@ -123,7 +122,7 @@ sub structure_offer {
         }
         when ('prisoner') {
             confess $offer_nothing_exception if ($offer->{prisoner_id} eq '');
-            my $space = 100;
+            my $space = 300;
             confess [1011, sprintf($cargo_exception,$space)] unless ($space <= $available_cargo_space);
             my $prisoner = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($offer->{prisoner_id});
             confess $have_exception unless (defined $prisoner && $self->body_id eq $prisoner->on_body_id && $prisoner->task eq 'Captured');
@@ -163,12 +162,12 @@ sub structure_offer {
 sub offer_resources {
     my ($self, $type, $offer, $available_cargo_space) = @_;
     confess $offer_nothing_exception unless ($offer->{quantity} > 0);
-    my $stored = $offer->{type}.'_stored';
     confess [1011, sprintf($cargo_exception,$offer->{quantity})] unless ($offer->{quantity} <= $available_cargo_space);
-    confess $have_exception unless ($self->body->$stored >= $offer->{quantity});
-    my $spend = 'spend_'.$offer->{type};
-    $self->body->$spend($offer->{quantity});
-    $self->body->update;
+    my $stored = $offer->{type}.'_stored';
+    my $body = $self->body;
+    confess $have_exception unless ($body->$stored >= $offer->{quantity});
+    $body->$stored($body->$stored - $offer->{quantity});
+    $body->update;
     return {
         offer_type                  => $type,
         offer_sub_type              => $offer->{type},
@@ -211,5 +210,63 @@ sub ask_resources {
         ask_description           => $ask->{quantity}.' '.ucfirst($ask->{type}),
     };
 }
+
+
+sub structure_push {
+    my ($self, $items, $available_cargo_space) = @_;
+    my $body = $self->body;
+    
+    # validate
+    my $space_used;
+    foreach my $item (@{$items}) {
+        given($item->{type}) {
+            when ([qw(water energy waste ORE_TYPES FOOD_TYPES)]) {
+                 my $stored = $item->{type}.'_stored';
+                 confess $have_exception unless ($body->$stored >= $item->{quantity});
+                 $space_used += $item->{quantity};
+             }
+            when ('glyph') {
+                my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyphs')->find($item->{glyph_id});
+                confess $have_exception unless (defined $glyph && $self->body_id eq $glyph->body_id);
+                $space_used += 100;
+            }
+            when ('plan') {
+                my $plan = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->find($item->{plan_id});
+                confess $have_exception unless (defined $plan && $self->body_id eq $plan->body_id);
+                $space_used += 10000;
+            }
+        }
+    }
+    confess [1011, sprintf($cargo_exception,$space_used)] unless ($space_used <= $available_cargo_space);
+
+    # send
+    my $payload;
+    foreach my $item (@{$items}) {
+        given($item->{type}) {
+            when ([qw(water energy waste ORE_TYPES FOOD_TYPES)]) {
+                 my $stored = $item->{type}.'_stored';
+                 $body->$stored( $body->$stored - $item->{quantity});
+                 $body->update;
+                 $payload->{resources}{$item->{type}} += $item->{quantity};
+             }
+            when ('glyph') {
+                confess [1002, 'You must specify a glyph_id if you are trading a glyph.'] unless $item->{glyph_id};
+                my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyphs')->find($item->{glyph_id});
+                confess $have_exception unless (defined $glyph && $self->body_id eq $glyph->body_id);
+                $glyph->delete;
+                push @{$payload->{glyphs}}, $glyph->type;
+            }
+            when ('plan') {
+                confess [1002, 'You must specify a plan_id if you are trading a plan.'] unless $item->{plan_id};
+                my $plan = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->find($item->{plan_id});
+                confess $have_exception unless (defined $plan && $self->body_id eq $plan->body_id);
+                $plan->delete;
+                push @{$payload->{plans}}, { class => $plan->class, level => $plan->level, extra_build_level => $plan->extra_build_level };
+            }
+        }
+    }
+    return $payload;
+}
+
 
 1;

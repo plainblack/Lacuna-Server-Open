@@ -85,6 +85,22 @@ sub next_available_trade_ship {
         })->single;
 }
 
+sub push_items {
+    my ($self, $target, $items) = @_;
+    my $ship = $self->next_available_trade_ship;
+    unless (defined $ship) {
+        confess [1011, 'You do not have a ship available to transport cargo.'];
+    }
+    my $payload = $self->structure_push($items, $ship->hold_size);
+    $ship->send(
+        target  => $target,
+        payload => $payload,
+    );
+    return $ship;
+}
+
+
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

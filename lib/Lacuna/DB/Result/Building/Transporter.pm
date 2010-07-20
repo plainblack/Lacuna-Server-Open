@@ -5,6 +5,7 @@ extends 'Lacuna::DB::Result::Building';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 
 with 'Lacuna::Role::Trader';
+with 'Lacuna::Role::Container';
 
 
 around 'build_tags' => sub {
@@ -90,6 +91,12 @@ sub trade_one_for_one {
     my $add = 'add_'.$want;
     $body->$add($quantity);
     $body->update;
+}
+
+sub push_items {
+    my ($self, $target, $items) = @_;
+    my $payload = $self->structure_push($items, $self->determine_available_cargo_space);
+    $self->unload($payload, $target);
 }
 
 no Moose;
