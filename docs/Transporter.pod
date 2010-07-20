@@ -29,9 +29,9 @@ A hash reference containing the details of what you are offering.
 
 =head4 type
 
-A string. Must contain one of the following values: ship, plan, prisoner, water, energy, waste, essentia, bean, lapis, potato, apple, root, corn, cider, wheat, bread, soup, chip, pie, pancake, milk, meal, algae, syrup, fungus, burger, shake, beetle, rutile, chromite, chalcopyrite, galena, gold, uraninite, bauxite, goethite, halite, gypsum, trona, kerogen, methane, anthracite, sulfur, zircon, monazite, fluorite, beryl, or magnetite.
+A string. Must contain one of the following values: ship, glyph, plan, prisoner, water, energy, waste, essentia, bean, lapis, potato, apple, root, corn, cider, wheat, bread, soup, chip, pie, pancake, milk, meal, algae, syrup, fungus, burger, shake, beetle, rutile, chromite, chalcopyrite, galena, gold, uraninite, bauxite, goethite, halite, gypsum, trona, kerogen, methane, anthracite, sulfur, zircon, monazite, fluorite, beryl, or magnetite.
 
-B<NOTE> If you choose ship, plan, or prisoner, see C<ship_id>, C<plan_id>, and C<prisoner_id> below.
+B<NOTE> If you choose ship, glyph, plan, or prisoner, see C<ship_id>, C<glyph_id>, C<plan_id>, and C<prisoner_id> below.
 
 =head4 quantity
 
@@ -40,6 +40,10 @@ An integer representing the amount of a resource that you're trading. Only neede
 =head4 ship_id
 
 The unique id of a ship that you wish to trade. See the C<get_ships> method.
+
+=head4 glyph_id
+
+The unique id of a glyph that you wish to trade. See the C<get_glyphs> method.
 
 =head4 prisoner_id
 
@@ -128,6 +132,31 @@ Returns a list of plans that may be traded. Used with the C<add_trade> method.
             "name" : "Intelligence Ministry",
             "level" : "7",
             "extended_build_level" : "0"        # some special plans will build a building from their level all the way to this number
+        },
+        ...
+    ],
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+
+
+=head2 get_glyhps ( session_id, building_id )
+
+Returns a list of glyphs that may be traded. Used with the C<add_trade> method.
+
+ {
+    "glyphs" : [
+        {
+            "id" : "id-goes-here",
+            "type" : "bauxite"
         },
         ...
     ],
@@ -275,5 +304,60 @@ An integer representing the page of trades (25 per page) to return. Defaults to 
 
 
 
+
+=head2 get_stored_resources ( session_id, building_id )
+
+Returns a list of the resources you have stored to make it easier to identify what you want to trade.
+
+ {
+    "status" : { ... },
+    "resources" : [
+        {
+            "water" : 14000,
+            "waste" : 393,
+            "bauxite" : 47,
+            "cheese" : 1193,
+            ...
+        }
+    ]
+ }
+ 
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+
+
+=head2 trade_one_for_one ( session_id, building_id, have, want, quantity )
+
+Lacuna Expanse Corp will do one for one trades of any resource in exchange for 3 essentia.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 have
+
+The name of the resource you have. See C<get_stored_resources> to see what you have.
+
+=head3 want
+
+The name of any resource you want.
+
+=head3 quantity
+
+The amount of resources that will be traded one for one.
 
 =cut

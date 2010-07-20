@@ -37,13 +37,14 @@ sub unload {
         $body->update;
     }
     if (exists $payload->{plans}) {
-        my @plans = @{$payload->{plans}};
-        foreach my $plan (@plans) {
+        foreach my $plan (@{$payload->{plans}}) {
             $body->add_plan($plan->{class}, $plan->{level}, $plan->{extra_build_level});
         }
     }
     if (exists $payload->{glyphs}) {
-        
+        foreach my $glyph (@{$payload->{glyphs}}) {
+            $body->add_glyph($glyph);
+        }
     }
     $self->payload({});
 }
