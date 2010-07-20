@@ -78,7 +78,7 @@ my $water = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => -5,
     y               => -5,
     class           => 'Lacuna::DB::Result::Building::Water::Purification',
-    level           => 3,
+    level           => 4,
 });
 $home->build_building($water);
 $water->finish_upgrade;

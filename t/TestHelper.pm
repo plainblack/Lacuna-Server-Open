@@ -73,7 +73,9 @@ sub build_infrastructure {
         $home->build_building($building);
         $building->finish_upgrade;
     }
-    foreach my $type ('Lacuna::DB::Result::Building::University','Lacuna::DB::Result::Building::Energy::Reserve',
+    $home->empire->university_level(30);
+    $home->empire->update;
+    foreach my $type ('Lacuna::DB::Result::Building::Energy::Reserve',
         'Lacuna::DB::Result::Building::Food::Reserve','Lacuna::DB::Result::Building::Ore::Storage',
         'Lacuna::DB::Result::Building::Water::Storage') {
         my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
