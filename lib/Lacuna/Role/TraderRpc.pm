@@ -36,8 +36,8 @@ sub view_available_trades {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $all_trades = $building->available_trades->search(undef, { rows => 25, page => $page_number });
     $page_number ||=1;
+    my $all_trades = $building->available_trades->search(undef, { rows => 25, page => $page_number });
     my @trades;
     while (my $trade = $all_trades->next) {
         push @trades, {
@@ -55,7 +55,7 @@ sub view_available_trades {
         trades      => \@trades,
         trade_count => $all_trades->pager->total_entries,
         page_number => $page_number,
-        captcha     => $building->assign_captcha,
+        captcha     => $building->assign_captcha($empire),
         status      => $self->format_status($empire, $building->body),
     };
 }

@@ -54,6 +54,9 @@ sub add_trade {
 
 sub withdraw_trade {
     my ($self, $session_id, $building_id, $trade_id) = @_;
+    unless ($trade_id) {
+        confess [1002, 'You have not specified a trade to withdraw.'];
+    }
     my $cache = Lacuna->cache;
     if ($cache->get('trade_lock', $trade_id)) {
         confess [1013, 'A buyer has placed an offer on this trade. Please wait a few moments and try again.'];
@@ -74,6 +77,9 @@ sub withdraw_trade {
 
 sub accept_trade {
     my ($self, $session_id, $building_id, $trade_id, $guid, $solution) = @_;
+    unless ($trade_id) {
+        confess [1002, 'You have not specified a trade to accept.'];
+    }
     my $cache = Lacuna->cache;
     if ($cache->get('trade_lock', $trade_id)) {
         confess [1013, 'Another buyer has placed an offer on this trade. Please wait a few moments and try again.'];
