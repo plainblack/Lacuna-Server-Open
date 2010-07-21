@@ -26,7 +26,7 @@ __PACKAGE__->add_columns(
 
 sub sqlt_deploy_hook {
     my ($self, $sqlt_table) = @_;
-    $sqlt_table->add_index(name => 'idx_repeat_check_date_sent', fields => ['repeat_check, date_sent']);
+    $sqlt_table->add_index(name => 'idx_repeat_check_date_sent', fields => ['repeat_check', 'date_sent']);
 }
 
 __PACKAGE__->belongs_to('original_message', 'Lacuna::DB::Result::Message', 'in_reply_to');
