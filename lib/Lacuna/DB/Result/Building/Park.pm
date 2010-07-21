@@ -47,7 +47,7 @@ sub throw_a_party {
     $body->update;
     
     $self->start_work({
-        happiness_from_party    => 3_000 * $food_multiplier * $self->happiness_production_bonus,
+        happiness_from_party    => sprintf('%.0f', 3_000 * $food_multiplier * $self->happiness_production_bonus),
         }, 60*60*12)->update;
 }
 
