@@ -131,8 +131,8 @@ sub get_new_message_count {
     my $self = shift;
     return Lacuna->db->resultset('Lacuna::DB::Result::Message')->search({
         to_id           => $self->id,
-        has_archived    => {'!=' => 1},
-        has_read        => {'!=' => 1}
+        has_archived    => 0,
+        has_read        => 0,
     })->count;
 }
 
@@ -141,8 +141,8 @@ sub get_newest_message {
     my $message = Lacuna->db->resultset('Lacuna::DB::Result::Message')->search(
         {
             to_id           => $self->id,
-            has_archived    => {'!=' => 1},
-            has_read        => {'!=' => 1}
+            has_archived    => 0,
+            has_read        => 0,
         },
         {
             order_by        => { -desc => 'date_sent' },
