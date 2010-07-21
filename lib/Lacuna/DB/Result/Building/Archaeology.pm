@@ -10,6 +10,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure));
 };
 
+use constant max_instances_per_planet => 1;
 use constant controller_class => 'Lacuna::RPC::Building::Archaeology';
 
 use constant university_prereq => 10;
