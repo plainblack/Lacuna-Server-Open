@@ -6,6 +6,8 @@ Parks are highly useful because they generate happiness for your planet. Just be
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+
+
 =head2 view ( session_id, building_id )
 
 This method is changed from the default because it adds a C<party> element to the output.
@@ -22,8 +24,17 @@ This method is changed from the default because it adds a C<party> element to th
 
 If there's an ongoing party you'll be able to see how long it has left. And if there's not a party it will let you know whether you have the resources to throw one.
 
+=head3 session_id
 
-=head2 throw_a_party ( )
+A session id.
+
+=head3 building_id
+
+The unique id of the park.
+
+
+
+=head2 throw_a_party ( session_id, building_id )
 
 Initiates a party. It will cost you 10,000 food, and the party will last for a day. For 10,000 food you'll get 3,000 happiness. For each type of food available in quantities of 500 or more, you'll get a multiplier added to that. So if you have 4 types of food, you'll get 12,000 happiness. In addition, you get a 0.3 to your multiplier for each level of park that you have. Therefore a level 10 park is the same as adding three extra foods to your party!
 
@@ -36,5 +47,15 @@ Returns
 
 
 Throws 1002, 1006, 1010, and 1011.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the park.
+
+
 
 =cut
