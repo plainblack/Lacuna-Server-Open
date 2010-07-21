@@ -2,6 +2,22 @@
 
 This document can introduce you to interacting with the Lacuna Expanse game server. 
 
+=head1 SERVERS
+
+The list of playable servers can be read from L<http://www.lacunaexpanse.com/servers.json>.
+
+ [
+  {
+   "name" : "NA1",
+   "uri" : "https://na1.lacunaexpanse.com/",
+   "status" : "Open",
+   "location" : "United States"
+  }
+  ...
+ ]
+
+Each server in this list is an instance of the game, an individual universe separated from the others. Your app will need to allow users to select which server they want to interact with form this list.
+
 =head1 JSON-RPC
 
 The Lacuna Expanse uses a JSON-RPC 2.0 based API. You can read more about JSON-RPC 2.0 at L<http://groups.google.com/group/json-rpc/web/json-rpc-2-0>.
