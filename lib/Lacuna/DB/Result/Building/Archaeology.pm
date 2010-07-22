@@ -49,14 +49,14 @@ sub chance_of_glyph {
 sub get_ores_available_for_processing {
     my ($self) = @_;
     my $body = $self->body;
-    my @available;
+    my %available;
     foreach my $type (ORE_TYPES) {
         my $stored = $type.'_stored';
         if ($body->$stored >= 10_000) {
-            push @available, { $type => $body->$stored };
+            $available{ $type } = $body->$stored;
         }
     }
-    return \@available;
+    return \%available;
 }
 
 sub can_search_for_glyph {
