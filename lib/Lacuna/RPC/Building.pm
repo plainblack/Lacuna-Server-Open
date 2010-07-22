@@ -63,7 +63,7 @@ sub upgrade {
 sub view {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
     my $cost = $building->cost_to_upgrade;
     my $can_upgrade = eval{$building->can_upgrade($cost)};
     my $reason = $@;
@@ -88,6 +88,8 @@ sub view {
             energy_hour         => $building->energy_hour,
             energy_capacity     => $building->energy_capacity,
             happiness_hour      => $building->happiness_hour,
+            efficiency          => $building->efficiency,
+            repair_costs        => $building->get_repair_costs,
             upgrade             => {
                 can             => ($can_upgrade ? 1 : 0),
                 reason          => $reason,
@@ -215,8 +217,20 @@ sub get_stats_for_level {
     };
 }
 
+sub repair {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
+    $building->repair;
+    return {
+        status      => $self->format_status($empire, $building->body),
+    };
+}
 
-__PACKAGE__->register_rpc_method_names(qw(demolish upgrade view build get_stats_for_level));
+
+
+
+__PACKAGE__->register_rpc_method_names(qw(repair get_repair_costs demolish upgrade view build get_stats_for_level));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

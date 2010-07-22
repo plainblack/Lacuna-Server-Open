@@ -15,7 +15,6 @@ __PACKAGE__->add_columns(
     y               => { data_type => 'int', size => 11, default_value => 0 },
     level           => { data_type => 'int', size => 11, default_value => 0 },
     class           => { data_type => 'varchar', size => 255, is_nullable => 0 },
-    offline         => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     upgrade_started => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     upgrade_ends    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     is_upgrading    => { data_type => 'bit', default => 0 },
@@ -23,6 +22,7 @@ __PACKAGE__->add_columns(
     work_ends       => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     is_working      => { data_type => 'bit', default => 0 },
     work            => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
+    efficiency      => { data_type => 'int', default_value => 100, is_nullable => 0 },
 );
 
 sub sqlt_deploy_hook {
@@ -118,13 +118,6 @@ __PACKAGE__->typecast_map(class => {
 
 sub controller_class {
     confess "you need to override me";
-}
-
-sub is_offline {
-    my $self = shift;
-    if ($self->offline > DateTime->now) {
-        confess [1013, $self->name.' is currently offline.'];
-    }
 }
 
 use constant max_instances_per_planet => 9999999;
@@ -245,9 +238,11 @@ use constant waste_storage => 0;
 # BASE FORMULAS
 
 sub production_hour {
-    my $level = $_[0]->level;
-    return 0 unless $level;
-    return (GROWTH ** ( $level - 1));
+    my $self = shift;
+    return 0 unless  $self->level;
+    my $production = (GROWTH ** (  $self->level - 1));
+    $production = ($production * $self->efficiency) / 100;
+    return $production;
 }
 
 sub upgrade_cost {
@@ -630,10 +625,13 @@ sub has_no_pending_build {
 
 sub can_upgrade {
     my ($self, $cost) = @_;
-    my $body = $self->body;
+    if ($self->efficiency < 100) {
+        confess [1010, 'You must repair this building before you can upgrade it.'];
+    }
     if ($self->level >= 30) {
         confess [1009, 'This building is already at its maximum level.'];
     }
+    my $body = $self->body;
     $body->has_resources_to_build($self,$cost);
     $body->has_resources_to_operate($self);
     $self->has_met_upgrade_prereqs;
@@ -777,6 +775,68 @@ sub finish_work {
     my ($self) = @_;
     $self->is_working(0);
     $self->work({});
+    return $self;
+}
+
+# EFFICIENCY / REPAIR
+
+sub is_offline {
+    my $self = shift;
+    if ($self->efficiency == 0) {
+        confess [1013, $self->name.' is currently offline.'];
+    }
+}
+
+sub get_repair_costs {
+    my $self = shift;
+    my $upgrade_cost = $self->upgrade_cost;
+    my $damage = 100 - $self->efficiency;
+    my $damage_cost = $upgrade_cost * $damage / 100;
+    return {
+        ore     => sprintf('%.0f',$self->ore_to_build * $damage_cost),
+        water   => sprintf('%.0f',$self->water_to_build * $damage_cost),
+        food    => sprintf('%.0f',$self->food_to_build * $damage_cost),
+        energy  => sprintf('%.0f',$self->energy_to_build * $damage_cost),
+    };
+}
+
+sub repair {
+    my ($self) = @_;
+    my $costs = $self->get_repair_costs;
+    my $body = $self->body;
+    unless ($body->food_stored >= $costs->{food}) {
+        confess [1011, 'You need '.$costs->{food}.' food to repair this building.'];
+    }
+    unless ($body->water_stored >= $costs->{water}) {
+        confess [1011, 'You need '.$costs->{water}.' water to repair this building.'];
+    }
+    unless ($body->ore_stored >= $costs->{ore}) {
+        confess [1011, 'You need '.$costs->{ore}.' ore to repair this building.'];
+    }
+    unless ($body->energy_stored >= $costs->{energy}) {
+        confess [1011, 'You need '.$costs->{energy}.' energy to repair this building.'];
+    }
+    $self->efficiency(100);
+    $self->update;
+    $body->spend_food($costs->{food});
+    $body->spend_water($costs->{water});
+    $body->spend_ore($costs->{ore});
+    $body->spend_energy($costs->{energy});
+    $body->needs_recalc(1);
+    $body->update;
+}
+
+sub spend_efficiency {
+    my ($self, $amount) = @_;
+    my $efficiency = $self->efficiency;
+    if ($amount < 1 || $efficiency == 0) {
+        return $self;
+    }
+    $amount = ($amount > $efficiency) ? $efficiency : $amount;
+    $self->efficiency( $efficiency - $amount );
+    my $body = $self->body;
+    $body->needs_recalc(1);
+    $body->update;
     return $self;
 }
 

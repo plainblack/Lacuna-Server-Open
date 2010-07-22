@@ -888,7 +888,7 @@ sub shut_down_building {
     my $building_class = @classnames[randint(0,scalar(@classnames) - 1)];
     my $building = $planet->get_building_of_class($building_class);
     return undef unless defined $building;
-    $building->offline(DateTime->now->add(seconds => randint(60 * 10 , 60 * 60 * 3)));
+  #  $building->offline(DateTime->now->add(seconds => randint(60 * 10 , 60 * 60 * 3)));
     $building->update;
     $planet->empire->send_predefined_message(
         tags        => ['Alert'],

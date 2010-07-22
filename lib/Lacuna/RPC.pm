@@ -56,7 +56,7 @@ sub get_body { # makes for uniform error handling, and prevents staleness
 }
 
 sub get_building { # makes for uniform error handling, and prevents staleness
-    my ($self, $empire, $building_id) = @_;
+    my ($self, $empire, $building_id, %options) = @_;
     if (ref $building_id && $building_id->isa('Lacuna::DB::Result::Building')) {
         return $building_id;
     }
@@ -68,7 +68,7 @@ sub get_building { # makes for uniform error handling, and prevents staleness
         if ($building->class ne $self->model_class) {
             confess [1002, 'That building is not a '.$self->model_class->name];
         }
-        $building->is_offline;
+        $building->is_offline unless ($options{skip_offline});
         my $body = $self->get_body($empire, $building->body_id);        
         if ($body->empire_id ne $empire->id) { 
             confess [1010, "Can't manipulate a building that you don't own.", $building_id];

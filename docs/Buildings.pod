@@ -64,6 +64,13 @@ Retrieves the properties of the building.
         "waste_hour" : 33,
         "waste_capacity" : 500,
         "happiness_hour" : 0,
+        "efficiency" : 100,
+        "repair_costs" : {
+            "food" : 0,
+            "water" : 0,
+            "energy" : 0,
+            "ore" : 0
+        },
         "pending_build" : {                            # only included when building is building/upgrading
             "seconds_remaining" : 430,
             "start" : "01 31 2010 13:09:05 +0600",
@@ -224,6 +231,25 @@ The unique id of the building you want to get the stats for.
 =head3 level
 
 An integer between 1 and 100. This represents the stats that you want to see for the building.
+
+
+
+=head2 repair ( session_id, building_id )
+
+Restores a building's efficiency to 100%. See the C<repair_costs> section of the C<view> method to see how many resources will be spent in this process.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the building.
+
 
 
 

@@ -115,7 +115,7 @@ __PACKAGE__->add_columns(
     boost_enabled                   => { data_type => 'bit', default_value => 0 },
     needs_recalc                    => { data_type => 'bit', default_value => 0 },
     needs_surface_refresh           => { data_type => 'bit', default_value => 0 },
-    restrict_coverage               => { data_type => 'bit', default_value => 0 },  
+    restrict_coverage               => { data_type => 'bit', default_value => 0 },
 );
 
 after 'sqlt_deploy_hook' => sub {
