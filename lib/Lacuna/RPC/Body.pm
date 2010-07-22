@@ -86,20 +86,6 @@ sub get_buildings {
     return {buildings=>\%out, body=>{surface_image => $body->surface}, status=>$self->format_status($empire, $body)};
 }
 
-sub get_build_queue {
-    my ($self, $session_id, $body_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $body = $self->get_body($empire, $body_id);
-    my %queue;
-    my $builds = $body->builds;
-    while (my $build = $builds->next) {
-        my $status = $build->upgrade_status;
-        if ($status) {
-            $queue{$build->id} = $status;
-        }
-    }
-    return { build_queue => \%queue, status => $self->format_status($empire, $body) };
-}
 
 sub get_buildable {
     my ($self, $session_id, $body_id, $x, $y, $tag) = @_;

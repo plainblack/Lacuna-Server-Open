@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 21;
+use Test::More tests => 20;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -26,9 +26,6 @@ cmp_ok($result->{result}{building}{pending_build}{seconds_remaining}, '>', 0, 'B
 my $malcud_id = $result->{result}{building}{id};
 $result = $tester->post('body', 'get_status', [$session_id, $home_planet]);
 cmp_ok($last_energy, '>', $result->{result}{body}{energy_stored}, 'Resources are being spent.');
-
-$result = $tester->post('body', 'get_build_queue', [$session_id, $home_planet]);
-cmp_ok($result->{result}{build_queue}{$malcud_id}, '>', 0, "get_build_queue");
 
 my $building = $db->resultset('Lacuna::DB::Result::Building')->find($malcud_id);
 $building->finish_upgrade;
