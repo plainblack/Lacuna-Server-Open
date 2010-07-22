@@ -53,7 +53,7 @@ sub get_ores_available_for_processing {
     foreach my $type (ORE_TYPES) {
         my $stored = $type.'_stored';
         if ($body->$stored >= 10_000) {
-            push @available, $type;
+            push @available, { $type => $body->$stored };
         }
     }
     return \@available;

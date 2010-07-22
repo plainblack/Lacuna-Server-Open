@@ -84,7 +84,10 @@ Returns a list of ore names that the user has enough of to process for glyphs.
 
  {
     "status" : { ... },
-    "ore" : ['bauxite','rutile']
+    "ore" : {
+        "bauxite" : 39949,
+        "rutile" : 19393
+        }
  }
 
 =head3 session_id
