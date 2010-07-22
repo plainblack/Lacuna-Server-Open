@@ -158,6 +158,49 @@ sub www_add_resources {
     return $self->www_view_resources($request, $body->id);
 }
 
+sub www_view_glyphs {
+    my ($self, $request, $body_id) = @_;
+    $body_id ||= $request->param('body_id');
+    my $glyphs = Lacuna->db->resultset('Lacuna::DB::Result::Glyphs')->search({ body_id => $body_id }, {order_by => ['type'] });
+    my $out = '<h1>View Glyphs</h1>';
+    $out .= sprintf('<a href="/admin/manage/body?id=%s">Back To Body</a>', $body_id);
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Type</th><th>Action</th></tr>';
+    while (my $glyph = $glyphs->next) {
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td><a href="/admin/delete/glyph?body_id=%s&glyph_id=%s">Delete</a></td></tr>', $glyph->id, $glyph->type, $body_id, $glyph->id);
+    }
+    $out .= '<form action="/admin/add/glyph"><tr>';
+    $out .= '<td><input type="hidden" name="body_id" value="'.$body_id.'"></td>';
+    $out .= '<td><select name="type">';
+    foreach my $name (ORE_TYPES) {
+        $out .= '<option value="'.$name.'">'.$name.'</option>';
+    }
+    $out .= '</select></td>';
+    $out .= '<td><input type="submit" value="add glyph"></td>';
+    $out .= '</tr></form>';
+    $out .= '</table>';
+    return $self->wrap($out);
+}
+
+sub www_add_glyph {
+    my ($self, $request) = @_;
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($request->param('body_id'));
+    unless (defined $body) {
+        confess [404, 'Body not found.'];
+    }
+    $body->add_glyph($request->param('type'));
+    return $self->www_view_glyphs($request, $body->id);
+}
+
+sub www_delete_glyph {
+    my ($self, $request) = @_;
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($request->param('body_id'));
+    unless (defined $body) {
+        confess [404, 'Body not found.'];
+    }
+    $body->glyphs->find($request->param('glyph_id'))->delete;
+    return $self->www_view_glyphs($request, $body->id);
+}
+
 sub www_view_plans {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
@@ -271,6 +314,7 @@ sub www_manage_body {
     $out .= sprintf('<li><a href="/admin/view/resources?body_id=%s">View Resources</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/buildings?body_id=%s">View Buildings</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/plans?body_id=%s">View Plans</a></li>', $body->id);
+    $out .= sprintf('<li><a href="/admin/view/glyphs?body_id=%s">View Glyphs</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/recalc/body?body_id=%s">Recalculate Body Stats</a></li>', $body->id);
     $out .= '</ul>';
     return $self->wrap($out);
