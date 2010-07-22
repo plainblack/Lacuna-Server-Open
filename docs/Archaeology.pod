@@ -76,4 +76,27 @@ The unique id of the Archaeology Ministry.
 An array reference containing an ordered list of up to four glyph ids.
 
 
+
+
+=head2 get_ores_available_for_processing (session_id, building_id)
+
+Returns a list of ore names that the user has enough of to process for glyphs.
+
+ {
+    "status" : { ... },
+    "ore" : ['bauxite','rutile']
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Archaeology Ministry.
+
+
+
+
+
 =cut

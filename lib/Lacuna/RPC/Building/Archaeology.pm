@@ -29,6 +29,16 @@ sub get_glyphs {
     };
 }
 
+sub get_ores_available_for_processing {
+    my ($self, $session_id, $building_id, $ore) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    return {
+        ore                 => $building->get_ores_available_for_processing,
+        status              => $self->format_status($empire, $building->body),
+    };
+}
+
 sub search_for_glyph {
     my ($self, $session_id, $building_id, $ore) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -52,7 +62,7 @@ sub assemble_glyphs {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(assemble_glyphs search_for_glyph get_glyphs));
+__PACKAGE__->register_rpc_method_names(qw(get_ores_available_for_processing assemble_glyphs search_for_glyph get_glyphs));
 
 
 no Moose;

@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 4;
+use Test::More tests => 6;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -22,6 +22,13 @@ $result = $tester->post('archaeology', 'get_glyphs', [$session_id, $arch->id]);
 ok(exists $result->{result}, 'can call get_glyphs when there are no glyphs');
 
 $home->bauxite_stored(10000);
+$home->update;
+
+$result = $tester->post('archaeology', 'get_ores_available_for_processing', [$session_id, $arch->id]);
+ok(exists $result->{result}, 'has ores for processing');
+
+$result = $tester->post('archaeology', 'search_for_glyph', [$session_id, $arch->id, 'gold']);
+ok(exists $result->{error}, 'cannot search for glyphs you do not have the ore for');
 
 $result = $tester->post('archaeology', 'search_for_glyph', [$session_id, $arch->id, 'bauxite']);
 ok(exists $result->{result}, 'can search for glyphs');
