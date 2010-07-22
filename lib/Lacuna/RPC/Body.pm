@@ -70,6 +70,7 @@ sub get_buildings {
             x       => $building->x,
             y       => $building->y,
             level   => $building->level,
+            efficiency => $building->efficiency,
         };
         if ($building->is_upgrading) {
             $out{$building->id}{pending_build} = $building->upgrade_status;
