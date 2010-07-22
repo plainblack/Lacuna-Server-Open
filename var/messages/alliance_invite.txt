@@ -1,0 +1,5 @@
+Invitation
+~~~
+We would like to formally invite you to join %s.
+
+%s

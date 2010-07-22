@@ -80,6 +80,8 @@ Exactly the same as C<view_inbox> except that it shows archived messages instead
 Exactly the same as C<view_inbox> except that it shows sent messages instead.
 
 
+
+
 =head2 read_message ( session_id, message_id )
 
 Retrieves a message. Marks it read if it hasn't been already.
@@ -141,6 +143,8 @@ A session id.
 A message_id that was returned using C<view_inbox> or one of the other view_ methods.
 
 
+
+
 =head2 archive_messages ( session_id, message_ids )
  
 Archives a list of messages. Returns:
@@ -162,6 +166,9 @@ A session id.
 An array reference of message ids.
 
 
+
+
+
 =head2 send_message ( session_id, recipients, subject, body, [ options ] )
 
 Sends a message to other players. 
@@ -174,7 +181,9 @@ A session id.
 
 =head3 recipients
 
-A comma separated string of empire names. B<NOTE:> You may want to expose a search option here using L<Empire/"find">.
+A comma separated string of empire names. In addition to an empire name, C<@ally> is available as a shortcut to send to all members of an alliance.
+
+B<NOTE:> You may want to expose a search option here using L<Empire/"find">.
 
 =head3 subject
 

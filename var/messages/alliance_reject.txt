@@ -1,0 +1,7 @@
+Invitation Rejected
+~~~
+I'm not interested in joining your alliance at this time.
+
+%s
+
+%s

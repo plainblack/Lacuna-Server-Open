@@ -1,0 +1,7 @@
+Invitation Accepted
+~~~
+I accept your invitation.
+
+%s
+
+%s

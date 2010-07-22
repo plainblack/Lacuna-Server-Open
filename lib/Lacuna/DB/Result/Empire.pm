@@ -43,6 +43,7 @@ __PACKAGE__->add_columns(
     happiness_boost         => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     facebook_uid            => { data_type => 'bigint', is_nullable => 1 },
     facebook_token          => { data_type => 'varchar', size => 100, is_nullable => 1 },
+    alliance_id             => { data_type => 'int', is_nullable => 1 },
 );
 
 
@@ -54,6 +55,7 @@ sub sqlt_deploy_hook {
 }
 
 
+__PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Alliance', 'alliance_id', { on_delete => 'set null' });
 __PACKAGE__->belongs_to('species', 'Lacuna::DB::Result::Species', 'species_id', { on_delete => 'set null' });
 __PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Map::Body', 'home_planet_id');
 __PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Map::Body', 'empire_id');
@@ -369,6 +371,7 @@ sub add_probe {
         empire_id   => $self->id,
         star_id     => $star_id,
         body_id     => $body_id,
+        alliance_id => $self->alliance_id,
     })->insert;
     
     # send notifications
@@ -411,11 +414,15 @@ has probed_stars => (
     lazy        => 1,
     default     => sub {
         my $self = shift;
-        my $probes = $self->probes;
-        my @stars;
-        while ( my $probe = $probes->next ) {
-            push @stars, $probe->star_id;
+        my %search = (
+            empire_id => $self->id,
+        );
+        if ($self->alliance_id) {
+            %search = (
+                alliance_id => $self->alliance_id,
+            );
         }
+        my @stars = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search(\%search)->get_column('id')->all;
         return \@stars;
     },
 );
@@ -425,16 +432,23 @@ has count_probed_stars => (
     lazy        => 1,
     default     => sub {    
         my $self = shift;
-        return Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({empire_id=>$self->id})->count;
+        return $self->probes->count;
     },
 );
 
 before 'delete' => sub {
     my ($self) = @_;
+    $self->probes->delete;
+    Lacuna->db->resultset('Lacuna::DB::Result::AllianceInvite')->search({empire_id => $self->id})->delete;
+    if ($self->alliance_id) {
+        my $alliance = $self->alliance;
+        if ($alliance->leader_id == $self->id) {
+            $alliance->delete;
+        }
+    }
     $self->sent_messages->delete;
     $self->received_messages->delete;
     $self->medals->delete;
-    $self->probes->delete;
     my $planets = $self->planets;
     while ( my $planet = $planets->next ) {
         $planet->sanitize;

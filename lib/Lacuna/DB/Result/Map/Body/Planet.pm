@@ -119,34 +119,39 @@ around 'get_status' => sub {
         $out->{empire} = {
             name        => $self->empire->name,
             id          => $self->empire_id,
-            alignment   => 'hostile'
+            alignment   => 'hostile',
         };
-    }
-    if (defined $empire && $empire->id eq $self->empire_id) {
-        if ($self->needs_recalc) {
-            $self->tick; # in case what we just did is going to change our stats
+        if (defined $empire) {
+            if ($empire->id eq $self->empire_id) {
+                if ($self->needs_recalc) {
+                    $self->tick; # in case what we just did is going to change our stats
+                }
+                $out->{needs_surface_refresh} = $self->needs_surface_refresh;
+                $out->{empire}{alignment} = 'self';
+                $out->{building_count}  = $self->building_count;
+                $out->{population}      = $self->population;
+                $out->{water_capacity}  = $self->water_capacity;
+                $out->{water_stored}    = $self->water_stored;
+                $out->{water_hour}      = $self->water_hour;
+                $out->{energy_capacity} = $self->energy_capacity;
+                $out->{energy_stored}   = $self->energy_stored;
+                $out->{energy_hour}     = $self->energy_hour;
+                $out->{food_capacity}   = $self->food_capacity;
+                $out->{food_stored}     = $self->food_stored;
+                $out->{food_hour}       = $self->food_hour;
+                $out->{ore_capacity}    = $self->ore_capacity;
+                $out->{ore_stored}      = $self->ore_stored;
+                $out->{ore_hour}        = $self->ore_hour;
+                $out->{waste_capacity}  = $self->waste_capacity;
+                $out->{waste_stored}    = $self->waste_stored;
+                $out->{waste_hour}      = $self->waste_hour;
+                $out->{happiness}       = $self->happiness;
+                $out->{happiness_hour}  = $self->happiness_hour;
+            }
+            elsif ($self->empire->alliance_id == $empire->alliance_id) {
+                $out->{empire}{alignment} = 'ally';
+            }
         }
-        $out->{needs_surface_refresh} = $self->needs_surface_refresh;
-        $out->{empire}{alignment} = 'self';
-        $out->{building_count}  = $self->building_count;
-        $out->{population}      = $self->population;
-        $out->{water_capacity}  = $self->water_capacity;
-        $out->{water_stored}    = $self->water_stored;
-        $out->{water_hour}      = $self->water_hour;
-        $out->{energy_capacity} = $self->energy_capacity;
-        $out->{energy_stored}   = $self->energy_stored;
-        $out->{energy_hour}     = $self->energy_hour;
-        $out->{food_capacity}   = $self->food_capacity;
-        $out->{food_stored}     = $self->food_stored;
-        $out->{food_hour}       = $self->food_hour;
-        $out->{ore_capacity}    = $self->ore_capacity;
-        $out->{ore_stored}      = $self->ore_stored;
-        $out->{ore_hour}        = $self->ore_hour;
-        $out->{waste_capacity}  = $self->waste_capacity;
-        $out->{waste_stored}    = $self->waste_stored;
-        $out->{waste_hour}      = $self->waste_hour;
-        $out->{happiness}       = $self->happiness;
-        $out->{happiness_hour}  = $self->happiness_hour;
     }
     return $out;
 };

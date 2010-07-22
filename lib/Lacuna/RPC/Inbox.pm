@@ -87,14 +87,29 @@ sub send_message {
     my $send_count = $cache->get($cache_key,$empire->id);
     foreach my $name (split /\s*,\s*/, $recipients) {
         next if $name eq '';
-        my $user = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $name})->next;
-        if (defined $user) {
-            push @sent, $user->name;
-            push @to, $user;
-            $send_count++;
+        if ($name eq '@ally') {
+            if ($empire->alliance_id) {
+                my $allies = $empire->alliance->members;
+                while (my $ally = $allies->next) {
+                    push @sent, $ally->name;
+                    push @to, $ally;
+                    $send_count++;
+                }
+            }
+            else {
+                push @unknown, '@ally';
+            }
         }
         else {
-            push @unknown, $name;
+            my $user = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $name},{rows => 1})->single;
+            if (defined $user) {
+                push @sent, $user->name;
+                push @to, $user;
+                $send_count++;
+            }
+            else {
+                push @unknown, $name;
+            }
         }
     }
     if ($send_count > 100) {

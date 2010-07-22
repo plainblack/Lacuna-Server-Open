@@ -1,7 +1,282 @@
 =head1 Embassy Methods
 
-Embassy is accessible via the URL C</embassy>.
+Embassy is accessible via the URL C</embassy>. The embassy is used to form alliances with other players.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+
+=head2 create_alliance ( session_id, building_id, name )
+
+Create a new alliance. Returns the same output as C<get_alliance_status>.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 name
+
+A unique name for this alliance. Must be between 3 and 30 characters, cannot contain profanity or restricted characters.
+
+
+
+
+=head2 dissolve_alliance ( session_id, building_id )
+
+Can only be called by alliance leader. Disbands and existing alliance.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+
+
+=head2 get_alliance_status ( session_id, building_id )
+
+Returns everything about an alliance that members should know.
+
+ {
+    "id" : "id-goes-here",
+    "name" : "United Federation of Planets",
+    "members" : [
+        {
+            "empire_id" : "id goes here",
+            "name" : "Klingons",
+        }
+        ...
+    ],
+    "leader_id" : "id goes here",
+    "forum_uri" : "http://forum.example.com/",
+    "description" : "This is public information.",
+    "announcements" : "This is private information.",
+    "date_created" : "01 31 2010 13:09:05 +0600"
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+
+=head2 send_invite ( session_id, building_id, invitee_id, [ message ] )
+
+Can only be called by alliance leader. Invite an empire to an alliance.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 invitee_id
+
+The unique id of an empire you'd like to invite to an alliance. See L<Empire/"search_empires"> to look up empire ids.
+
+=head3 message
+
+Optional. A personalized welcome message that will be included in the invitation.
+
+
+
+=head3 withdraw_invite ( session_id, building_id, invite_id, [ message ] )
+
+Can only be called by alliance leader. Delete an invitation.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 invite_id
+
+The unique id of an invitation. See C<get_pending_invites> for details.
+
+=head3 message
+
+Optional. A personalized message that will be sent to the user about why their invitation has been withdrawn.
+
+
+
+=head3 accept_invite ( session_id, building_id, invite_id, [ message ] )
+
+Accept an invitation. Returns the same output as C<get_alliance_status>.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 invite_id
+
+The unique id of an invitation. See C<get_my_invites> for details.
+
+=head3 message
+
+Optional. A personalized message that will be sent to the alliance leader with your acceptance.
+
+
+
+=head3 reject_invite ( session_id, building_id, invite_id, [ message ] )
+
+Delete an invitation.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 invite_id
+
+The unique id of an invitation. See C<get_my_invites> for details.
+
+=head3 message
+
+Optional. A personalized message that will be sent to the alliance leader along with your rejection.
+
+
+
+
+=head3 get_pending_invites ( session_id, building_id )
+
+Can only be called by the alliance leader. Returns a list of invitations that have been sent out, but that have not been accepted, rejected, or withdrawn.
+
+ {
+    "status" : { ... },
+    "invites" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "The Borg",
+            "empire_id" : "id-goes-here"
+        },
+        ...
+    ]
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+
+
+
+=head3 get_my_invites ( session_id, building_id )
+
+Returns a list of invitations that have been offered to this empire.
+
+ {
+    "status" : { ... },
+    "invites" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "United Federation of Planets",
+            "alliance_id" : "id-goes-here"
+        },
+        ...
+    ]
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+
+
+=head3 assign_alliance_leader ( session_id, building_id, new_leader_id )
+
+Sets a new empire to lead the alliance. Can only be called by the current alliance leader. Returns the same thing as C<get_alliance_status>.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 new_leader_id
+
+The unique id of an empire that will lead the alliance going forward. The empire must already be a member of the alliance.
+
+
+
+=head2 update_alliance ( session_id, building_id, params )
+
+Updates the properties of an alliance. Returns the same thing as C<get_alliance_status>. Can only be called by the alliance leader.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 params
+
+A hash reference of alliance properties. None of which can contain profanity or restricted characters. You can update any or all of these properties at the same time.
+
+=over
+
+=item forum_uri
+
+The URI to a forum where alliance discussion occurs.
+
+=item description
+
+Information that is publcily available about an alliance.
+
+=item announcements
+
+Information that is only available to alliance members.
+
+=back
+
+
+
 
 =cut
