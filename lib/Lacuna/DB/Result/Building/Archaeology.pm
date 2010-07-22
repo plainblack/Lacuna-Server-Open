@@ -61,6 +61,9 @@ sub get_ores_available_for_processing {
 
 sub can_search_for_glyph {
     my ($self, $ore) = @_;
+    unless ($self->level > 0) {
+        confess [1010, 'The Archaeology Ministry is not finished building yet.'];
+    }
     unless ($ore ~~ [ ORE_TYPES ]) {
         confess [1005, $ore.' is not a valid type of ore.'];
     }
