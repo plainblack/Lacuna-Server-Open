@@ -16,7 +16,7 @@ __PACKAGE__->add_columns(
     stage                   => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'new' },
     date_created            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     self_destruct_date      => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    self_destruct_active    => { data_type => 'bit', is_nullable => 0, default_value => 0},
+    self_destruct_active    => { data_type => 'tinyint', is_nullable => 0, default_value => 0},
     description             => { data_type => 'text', is_nullable => 1 },
     notes                   => { data_type => 'text', is_nullable => 1 },
     home_planet_id          => { data_type => 'int',  is_nullable => 1 },
@@ -35,7 +35,7 @@ __PACKAGE__->add_columns(
     university_level        => { data_type => 'tinyint', default_value => 0 },
     tutorial_stage          => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'explore_the_ui' },
     tutorial_scratch        => { data_type => 'text', is_nullable => 1 },
-    is_isolationist         => { data_type => 'bit', default_value => 1 },
+    is_isolationist         => { data_type => 'tinyint', default_value => 1 },
     food_boost              => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     water_boost             => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     ore_boost               => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
@@ -185,6 +185,8 @@ sub get_status {
 
 sub start_session {
     my ($self, $client_key) = @_;
+    $self->last_login(DateTime->now);
+    $self->update;
     return Lacuna::Session->new->start($self, $client_key);
 }
 
