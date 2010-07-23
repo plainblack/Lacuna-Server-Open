@@ -464,7 +464,7 @@ has probed_stars => (
                 alliance_id => $self->alliance_id,
             );
         }
-        my @stars = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search(\%search)->get_column('id')->all;
+        my @stars = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search(\%search)->get_column('star_id')->all;
         return \@stars;
     },
 );

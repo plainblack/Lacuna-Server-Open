@@ -106,7 +106,7 @@ sub sanitize {
     return $self;
 }
 
-around 'get_status' => sub {
+around get_status => sub {
     my ($orig, $self, $empire) = @_;
     my $out = $orig->($self);
     my %ore;
@@ -148,7 +148,7 @@ around 'get_status' => sub {
                 $out->{happiness}       = $self->happiness;
                 $out->{happiness_hour}  = $self->happiness_hour;
             }
-            elsif ($self->empire->alliance_id == $empire->alliance_id) {
+            elsif ($empire->alliance_id && $self->empire->alliance_id == $empire->alliance_id) {
                 $out->{empire}{alignment} = 'ally';
             }
         }
