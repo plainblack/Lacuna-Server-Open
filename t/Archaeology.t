@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 6;
+use Test::More tests => 10;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -16,7 +16,19 @@ my $result;
 $result = $tester->post('archaeology', 'build', [$session_id, $home->id, 0, 3]);
 ok($result->{result}{building}{id}, "built an archaeology ministry");
 my $arch = $tester->get_building($result->{result}{building}{id});
+$arch->level(9);
 $arch->finish_upgrade;
+
+my $odds = $arch->chance_of_glyph;
+is ($arch->level, 10, 'level is set to 10');
+is($odds, 5.5, 'odds calculated correctly');
+my $successes = 0;
+foreach (1..1000) {
+    $successes++ if ($arch->is_glyph_found);
+}
+my $average = $successes / 10;
+cmp_ok($average, '>=', $odds - 1, 'real life within lower limit of odds');
+cmp_ok($average, '<=', $odds + 1, 'real life within upper limit of odds');
 
 $result = $tester->post('archaeology', 'get_glyphs', [$session_id, $arch->id]);
 ok(exists $result->{result}, 'can call get_glyphs when there are no glyphs');

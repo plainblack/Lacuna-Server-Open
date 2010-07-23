@@ -2,7 +2,6 @@ package Lacuna::DB::Result::Building::Archaeology;
 
 use Moose;
 extends 'Lacuna::DB::Result::Building';
-use Lacuna::Util qw(randint);
 use Lacuna::Constants qw(ORE_TYPES);
 
 around 'build_tags' => sub {
@@ -44,6 +43,11 @@ use constant waste_production => 20;
 sub chance_of_glyph {
     my $self = shift;
     return ($self->level * 0.5) + 0.5;
+}
+
+sub is_glyph_found {
+    my $self = shift;
+    return rand(100) <= $self->chance_of_glyph;
 }
 
 sub get_ores_available_for_processing {
@@ -92,7 +96,7 @@ sub search_for_glyph {
 
 before finish_work => sub {
     my $self = shift;
-    if (randint(1,100) <= $self->chance_of_glyph) {
+    if ($self->is_glyph_found) {
         my $ore = $self->work->{ore_type};
         $self->body->add_glyph($ore);
         my $empire = $self->body->empire;
