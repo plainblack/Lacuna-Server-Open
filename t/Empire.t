@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 25;
+use Test::More tests => 26;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -18,6 +18,7 @@ my $empire = {
     name        => $tester->empire_name,
     password    => $tester->empire_password,
     password1   => $tester->empire_password,
+    email       => 'joe@blow.com',
 };
 
 $empire->{name} = 'XX>';
@@ -83,6 +84,9 @@ is($result->{result}{profile}{medals}{$private_medal_id}{public}, 0, 'medal set 
 
 $result = $tester->post('empire', 'view_public_profile', [$session_id, $empire_id]);
 is($result->{result}{profile}{status_message}, 'Whoopie!', 'public profile works');
+
+$result = $tester->post('empire', 'invite_friend', [$session_id, $empire_id, 'tavis@isajerk.com']);
+ok($result->{result}, 'can invite a friend');
 
 $result = $tester->post('empire', 'find', [$session_id, 'TLE']);
 is($result->{result}{empires}[0]{id}, $empire_id, 'empire search works');

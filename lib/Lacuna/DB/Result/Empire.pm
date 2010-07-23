@@ -199,13 +199,13 @@ sub encrypt_password {
 }
 
 sub found {
-    my ($self, $home_planet) = @_;
+    my ($self, $home_planet, $invite_code) = @_;
 
     # lock empire
     $self->update({stage=>'finding home planet'});
 
     # found home planet
-    $home_planet ||= $self->find_home_planet;
+    $home_planet ||= $self->find_home_planet($invite_code);
     $self->home_planet_id($home_planet->id);
     $self->add_essentia(100, 'alpha testers'); # REMOVE BEFORE LAUNCH
     $self->stage('founded');
@@ -223,30 +223,45 @@ sub found {
 }
 
 sub find_home_planet {
-    my ($self) = @_;
+    my ($self, $invite_code) = @_;
     my $planets = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body');
+    my %search = (
+        usable_as_starter   => {'>', 0},
+        orbit               => { between => [ $self->species->min_orbit, $self->species->max_orbit] },
+    );
     
-    # define sub searches
-    my $min_inhabited = sub {
-        my $axis = shift;
-        return $planets->search({empire_id => { '>' => 0 } })->get_column($axis)->min;
-    };
-    my $max_inhabited = sub {
-        my $axis = shift;
-        return $planets->search({empire_id => { '>' => 0 } })->get_column($axis)->max;
-    };
+    my $invite;
+    if (defined $invite_code && $invite_code ne '') {
+        $invite = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search(
+            {code    => $invite_code, invitee_id => undef },
+            {rows => 1}
+        )->single;
+    }
+    
+    # determine search area
+    if (defined $invite) {
+        $invite->invitee_id($self->id);
+        $invite->update;
+        $search{zone} = $invite->inviter->home_planet->zone;
+        # other possible solution
+        #   (SQRT( POW(5-x,2) + POW(8-y,2) )) as distance
+        # then order by distance
+    }
+    else {
+        my $min_inhabited = sub {
+            my $axis = shift;
+            return $planets->search({empire_id => { '>' => 0 } })->get_column($axis)->min;
+        };
+        my $max_inhabited = sub {
+            my $axis = shift;
+            return $planets->search({empire_id => { '>' => 0 } })->get_column($axis)->max;
+        };
+        $search{x} = { between => [($min_inhabited->('x') - 20), ($max_inhabited->('x') + 20)] };
+        $search{y} = { between => [($min_inhabited->('y') - 20), ($max_inhabited->('y') + 20)] },
+    }
 
     # search
-    my $possible_planets = $planets->search({
-            usable_as_starter   => {'>', 0},
-            orbit               => { between => [ $self->species->min_orbit, $self->species->max_orbit] },
-            x                   => { between => [($min_inhabited->('x') - 20), ($max_inhabited->('x') + 20)] },
-            y                   => { between => [($min_inhabited->('y') - 20), ($max_inhabited->('y') + 20)] },
-        },
-        {
-            order_by    => 'usable_as_starter',
-        },
-    );
+    my $possible_planets = $planets->search(\%search, {order_by => 'usable_as_starter'});
 
     # find an uncontested planet in the possible planets
     my $home_planet;
@@ -266,6 +281,31 @@ sub find_home_planet {
     }
     
     return $home_planet;
+}
+
+sub invite_friend {
+    my ($self, $email) = @_;
+    unless ($self->email) {
+        confess [1010, 'You cannot invite friends because you have not set up your email address in your profile.'];
+    }
+    my $invites = Lacuna->db->resultset('Lacuna::DB::Result::Invite');
+    if ($invites->search({email => $email})->count) {
+        confess [1010, 'Another user has already invited that email address.'];
+    }
+    my $code = create_UUID_as_string(UUID_V4);
+    $invites->new({
+        inviter_id  => $self->id,
+        code        => $code,
+        email       => $email,
+    })->insert;
+    my $message = sprintf "I'm having a great time with this new game called Lacuna Expanse. Come play with me. My name in the game is %s. Use the code below when you register and you'll be placed near me.\n\n%s\n\n%s",
+        $self->name,
+        $code,
+        Lacuna->config->get('server_url');
+    Email::Stuff->from($self->email)
+        ->to($email)
+        ->subject('Come Play With Me')
+        ->text_body($message);
 }
 
 sub send_email {
@@ -438,6 +478,7 @@ has count_probed_stars => (
 
 before 'delete' => sub {
     my ($self) = @_;
+    Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({ -or => {invitee_id => $self->id, inviter_id => $self->id }})->delete;
     $self->probes->delete;
     Lacuna->db->resultset('Lacuna::DB::Result::AllianceInvite')->search({empire_id => $self->id})->delete;
     if ($self->alliance_id) {

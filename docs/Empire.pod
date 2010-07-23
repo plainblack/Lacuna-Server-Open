@@ -120,7 +120,7 @@ A Facebook access token passed in through Lacuna's Facebook integration system. 
 
 
 
-=head2 found ( empire_id, api_key )
+=head2 found ( empire_id, api_key, [ invite_code ] )
 
 Set up an empire on it's new home world. Once this method is called, the species can no longer be modified. Returns:
 
@@ -136,6 +136,28 @@ The empire to found.
 =head3 api_key
 
 Your client's unique API key, identifiying it from all other clients. See L<ApiKeys> for details.
+
+=head3 invite_code
+
+A 36 character code that was sent to the user by a friend. It is usable only once, and will ensure that their friend gets a home planet that is in relatively close proximity to their home planet.
+
+
+
+=head2 invite_friend ( session_id, email )
+
+Send an invitation code to a friend so that they can start in the same zone as your empire.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 email
+
+The email address of your friend.
 
 
 

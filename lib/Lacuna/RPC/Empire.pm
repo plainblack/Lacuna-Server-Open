@@ -217,7 +217,7 @@ sub validate_captcha {
 }
 
 sub found {
-    my ($self, $empire_id, $api_key) = @_;
+    my ($self, $empire_id, $api_key, $invite_code) = @_;
     if ($empire_id eq '') {
         confess [1002, "You must specify an empire id."];
     }
@@ -228,7 +228,7 @@ sub found {
     unless ($empire->stage eq 'new') {
         confess [1010, "This empire cannot be founded again.", $empire_id];
     }
-    $empire = $empire->found;
+    $empire = $empire->found(undef, $invite_code);
     return { session_id => $empire->start_session($api_key)->id, status => $self->format_status($empire) };
 }
 
@@ -508,12 +508,19 @@ sub redeem_essentia_code {
     return { status => $self->format_status($empire) };
 }
 
+sub invite_friend {
+    my ($self, $session_id, $email) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    $empire->invite_friend($email);
+    return { status => $self->format_status($empire) };
+}
+
 
 
 __PACKAGE__->register_rpc_method_names(
     { name => "create", options => { with_plack_request => 1 } },
     { name => "fetch_captcha", options => { with_plack_request => 1 } },
-    qw(redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available found login logout get_full_status get_status boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+    qw(invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available found login logout get_full_status get_status boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
 );
 
 
