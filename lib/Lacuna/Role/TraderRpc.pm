@@ -156,16 +156,14 @@ sub get_stored_resources {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my @types = (FOOD_TYPES, ORE_TYPES, qw(water waste energy));
-    my @out;
+    my %out;
     my $body = $building->body;
     foreach my $type (@types) {
         my $stored = $type.'_stored';
-        push @out, {
-            $type   => $body->$stored,
-        }
+        $out{$type} = $body->$stored;
     }
     return {
-        resources               => \@out,
+        resources               => \%out,
         cargo_space_used_each   => 1,
         status                  => $self->format_status($empire, $body),
     };

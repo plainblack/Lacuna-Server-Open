@@ -316,15 +316,13 @@ Returns a list of the resources you have stored to make it easier to identify wh
  {
     "status" : { ... },
     "cargo_space_used_each" : 100,
-    "resources" : [
-        {
+    "resources" : {
             "water" : 14000,
             "waste" : 393,
             "bauxite" : 47,
             "cheese" : 1193,
             ...
-        }
-    ]
+    }
  }
  
 =head3 session_id
