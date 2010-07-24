@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 10;
+use Test::More tests => 11;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -29,6 +29,17 @@ foreach (1..1000) {
 my $average = $successes / 10;
 cmp_ok($average, '>=', $odds - 1, 'real life within lower limit of odds');
 cmp_ok($average, '<=', $odds + 1, 'real life within upper limit of odds');
+
+$home->bauxite_stored(99999999999);
+foreach (1..100) {
+    $arch->search_for_glyph('bauxite');
+    $arch->finish_work;
+}
+$arch->update;
+my $count = $home->glyphs->count;
+say "Glyph Count: ".$count;
+ok($count, 'got glyphs');
+
 
 $result = $tester->post('archaeology', 'get_glyphs', [$session_id, $arch->id]);
 ok(exists $result->{result}, 'can call get_glyphs when there are no glyphs');
