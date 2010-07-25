@@ -9,11 +9,8 @@ use List::MoreUtils qw(uniq);
 
 sub get_status {
     my ($self, $session_id, $body_id) = @_;
-    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id); # done this way so you can get the status of a planet you don't own
-    unless (defined $body) {
-        confess [1002, 'Body does not exist.', $body_id];
-    }
     my $empire = $self->get_empire_by_session($session_id);
+    my $body = $self->get_body($empire, $body_id);
     return $self->format_status($empire, $body);
 }
 
