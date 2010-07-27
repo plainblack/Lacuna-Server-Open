@@ -30,7 +30,6 @@ sub sqlt_deploy_hook {
     $sqlt_table->add_index(name => 'idx_recent_messages', fields => [qw(has_archived has_read to_id date_sent)]);
 }
 
-__PACKAGE__->belongs_to('original_message', 'Lacuna::DB::Result::Message', 'in_reply_to');
 __PACKAGE__->belongs_to('sender', 'Lacuna::DB::Result::Empire', 'from_id');
 __PACKAGE__->belongs_to('receiver', 'Lacuna::DB::Result::Empire', 'to_id');
 
