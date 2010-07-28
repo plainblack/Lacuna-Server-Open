@@ -223,22 +223,21 @@ sub run_mission {
 
     # calculate success, failure, or bounce
     my $mission_skill = $skills{$self->task};
-    my $mission_skill_xp = $mission_skill . '_xp';
-    my $power = $self->offense + $self->$mission_skill_xp;
+    my $power = $self->offense + $self->$mission_skill;
     my $toughness = 0;
     my $defender = $self->get_defender;
     if (defined $defender) {
-        $toughness = $defender->defense + $defender->$mission_skill_xp;
+        $toughness = $defender->defense + $defender->$mission_skill;
     }
     my $breakthru = (($power - $toughness) / 100) * (($toughness == 0) ? 6 : 1);
     
     # handle outcomes and xp
     my $out;
     if ($breakthru < 0) {
-        $defender->$mission_skill_xp( $defender->$mission_skill_xp + 6 );
+        $defender->$mission_skill( $defender->$mission_skill + 6 );
         $defender->update_level;
         $defender->defense_mission_successes( $defender->defense_mission_successes + 1 );
-        $self->$mission_skill_xp( $self->$mission_skill_xp + 2 );
+        $self->$mission_skill( $self->$mission_skill + 2 );
         $self->update_level;
         my $outcome = $outcomes{$self->task} . '_loss';
         my $message_id = $self->$outcome($defender);
@@ -257,11 +256,11 @@ sub run_mission {
             $defender->task('Debriefing');
             $defender->started_assignment(DateTime->now);
             $defender->available_on(DateTime->now->add(seconds => (5 * 60 * 60) - $defender->xp ));
-            $defender->$mission_skill_xp( $defender->$mission_skill_xp + 2 );
+            $defender->$mission_skill( $defender->$mission_skill + 2 );
             $defender->update_level;
         }
         $self->offense_mission_successes( $self->offense_mission_successes + 1 );
-        $self->$mission_skill_xp( $self->$mission_skill_xp + 6 );
+        $self->$mission_skill( $self->$mission_skill + 6 );
         $self->update_level;
         my $outcome = $outcomes{$self->task};
         my $message_id = $self->$outcome($defender);
@@ -282,7 +281,7 @@ sub get_defender {
             { rows => 1 }
         )
         ->single;
-    $defender->on_body($self->on_body);
+    $defender->on_body($self->on_body) if defined $defender;
     return $defender;
 }
 
@@ -296,7 +295,7 @@ sub get_random_prisoner {
         )
         ->all;
     my $prisoner = $prisoners[randint(0, scalar(@prisoners)-1)];
-    $prisoner->on_body($self->on_body);
+    $prisoner->on_body($self->on_body) if defined $prisoner;
     return $prisoner;
 }
 
