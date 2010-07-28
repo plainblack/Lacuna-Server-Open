@@ -28,7 +28,7 @@ use constant name => 'Kalavian Ruins';
 
 use constant time_to_build => 0;
 use constant max_instances_per_planet => 1;
-use constant happiness_production => 1500;
+use constant happiness_production => 4000;
 
 
 no Moose;
