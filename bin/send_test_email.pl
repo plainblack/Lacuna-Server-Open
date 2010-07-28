@@ -24,21 +24,22 @@ $empire->send_message(
 	body		=> 'This is a test message that contains all the components possible in a message.',
 	subject		=> 'Test Message',
 	tags		=> ['Alert'],
-	attach_table => [
+	attachments => {
+        table => [
 				['Header 1', 'Header 2'],
 				['Row 1 Field 1', 'Row 1 Field 2'],
 				['Row 2 Field 1', 'Row 2 Field 2'],
 				],
-	attach_image => {
+        image => {
 				url => 'http://bloximages.chicago2.vip.townnews.com/host.madison.com/content/tncms/assets/editorial/8/ec/604/8ec6048a-998e-11de-b821-001cc4c002e0.preview-300.jpg',
 				title => 'JT Rocks',
 				link => 'http://host.madison.com/wsj/business/article_bd9f8c96-998d-11de-87d3-001cc4c002e0.html',
 				},
-	attach_link => {
+        link => {
 				url => 'http://www.plainblack.com/',
 				label => 'Plain Black',
 				},
-	attach_map => {
+        map => {
 				surface => 'surface-e',
 				buildings => [
 						{
@@ -53,6 +54,7 @@ $empire->send_message(
 						},
 					]
 				}
+    }
 );
 
 

@@ -1035,14 +1035,14 @@ sub steal_resources {
         tags        => ['Alert'],
         filename    => 'ship_stolen.txt',
         params      => [$ship->type_formatted, $self->on_body->name],
-        attach_table=> \@table,
+        attachments=> { table => \@table},
     );
     $self->on_body->add_news(50,'In a daring robbery today a thief absconded with a %s full of resources from %s.', $ship->type_formatted, $self->on_body->name);
     return $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'ship_theft_report.txt',
         params      => [$ship->type_formatted, $self->name],
-        attach_table=> \@table,
+        attachments => { table => \@table},
     )->id;
 }
 
@@ -1265,7 +1265,7 @@ sub colony_report {
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
         params      => ['Colony Report', $self->on_body->name, $self->name],
-        attach_table=> \@report,
+        attachments=> { table => \@report},
     )->id;
 }
 
@@ -1284,10 +1284,10 @@ sub surface_report {
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
         params      => ['Surface Report', $self->on_body->name, $self->name],
-        attach_map  => {
+        attachments  => { map => {
             surface_image   => $self->on_body->surface,
             buildings       => \@map
-        },
+        }},
     )->id;
 }
 
@@ -1306,7 +1306,7 @@ sub spy_report {
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
         params      => ['Spy Report', $self->on_body->name, $self->name],
-        attach_table=> \@peeps,
+        attachments=> { table => \@peeps},
     )->id;
 }
 
@@ -1325,7 +1325,7 @@ sub economic_report {
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
         params      => ['Economic Report', $self->on_body->name, $self->name],
-        attach_table=> \@resources,
+        attachments => { table => \@resources},
     )->id;
 }
 
@@ -1354,7 +1354,7 @@ sub travel_report {
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
         params      => ['Travel Report', $self->on_body->name, $self->name],
-        attach_table=> \@travelling,
+        attachments => { table => \@travelling},
     )->id;
 }
 
@@ -1369,7 +1369,7 @@ sub ship_report {
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
         params      => ['Docked Ships Report', $self->on_body->name, $self->name],
-        attach_table=> \@ships,
+        attachments => { table => \@ships},
     )->id;
 }
 
@@ -1388,7 +1388,7 @@ sub build_queue_report {
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
         params      => ['Build Queue Report', $self->on_body->name, $self->name],
-        attach_table=> \@report,
+        attachments => { table => \@report},
     )->id;
 }
 
@@ -1404,7 +1404,7 @@ sub false_interrogation_report {
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
         params      => ['Interrogation Report', $self->on_body->name, $defender->name],
-        attach_table=> [
+        attachments => { table => [
             ['Question', 'Response'],
             ['Name', $suspect->name],
             ['Offense Rating', randint(0,27)],
@@ -1425,7 +1425,7 @@ sub false_interrogation_report {
             ['Political Affinity', randint(1,7)],
             ['Trade Affinity', randint(1,7)],
             ['Growth Affinity', randint(1,7)],
-            ],
+            ]},
     );
     return undef;
 }
@@ -1443,7 +1443,7 @@ sub interrogation_report {
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
         params      => ['Interrogation Report', $self->on_body->name, $defender->name],
-        attach_table=> [
+        attachments => { table => [
             ['Question', 'Response'],
             ['Name', $suspect->name],
             ['Offense Rating', $suspect->offense],
@@ -1464,7 +1464,7 @@ sub interrogation_report {
             ['Political Affinity', $suspect_species->political_affinity],
             ['Trade Affinity', $suspect_species->trade_affinity],
             ['Growth Affinity', $suspect_species->growth_affinity],
-            ],
+            ]},
     );
     return undef;
 }
@@ -1528,7 +1528,7 @@ sub counter_intel_report {
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
         params      => ['Counter Intelligence Report', $self->on_body->name, $defender->name],
-        attach_table=> \@peeps,
+        attachments => { table => \@peeps},
     );
     return undef;
 }

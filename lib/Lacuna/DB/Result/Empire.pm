@@ -379,20 +379,13 @@ sub send_predefined_message {
         if ($options{body_prefix}) {
             $body = $options{body_prefix}.$body;
         }
-        my $attachments = {};
-        if ($options{attach_table}) {
-            $attachments->{table} = $options{attach_table};
-        }
-        if ($options{attach_map}) {
-            $attachments->{map} = $options{attach_map};
-        }
         return $self->send_message(
             subject     => $subject,
             body        => $body,
             from        => $options{from},
             repeat_check=> $options{repeat_check},
             tags        => $options{tags},
-            attachments => $attachments,
+            attachments => $options{attachments},
             );
     }
     else {
