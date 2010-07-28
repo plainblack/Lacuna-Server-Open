@@ -42,7 +42,7 @@ use constant waste_production => 20;
 
 sub chance_of_glyph {
     my $self = shift;
-    return ($self->level * 0.5) + 0.5;
+    return $self->level;
 }
 
 sub is_glyph_found {
@@ -91,7 +91,7 @@ sub search_for_glyph {
     $body->update;
     $self->start_work({
         ore_type    => $ore,
-    }, 60*60*3)->update;
+    }, 60*60*6)->update;
 }
 
 before finish_work => sub {
