@@ -67,11 +67,12 @@ sub prisoners {
 
 after finish_upgrade => sub {
     my $self = shift;
+    my $defense = ($self->body->empire->species->deception_affinity * 50) + ($self->level * 75);
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
         on_body_id      => $self->body_id,
         from_body_id    => $self->body_id,
+        defense         => { '<' => $defense },
     });
-    my $defense = ($self->body->empire->species->deception_affinity * 50) + ($self->level * 75);
     while (my $spy = $spies->next) {
         $self->defense($defense);
         $self->update_level;
