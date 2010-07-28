@@ -104,6 +104,12 @@ before finish_work => sub {
             tags        => ['Alert'],
             filename    => 'glyph_discovered.txt',
             params      => [$self->body->name, $ore],
+            attachments => {
+                image => {
+                    title   => $ore,
+                    url     => Lacuna->config->get('feeds/surl').'assets/glyphs/'.$ore.'.png',
+                }
+            }
         );
         $empire->add_medal($ore.'_glyph');
     }
