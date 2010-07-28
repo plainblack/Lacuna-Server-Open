@@ -673,13 +673,14 @@ sub cost_to_upgrade {
     if (defined $self->body->oversight) {
         $oversight_reduction = (100 - ($self->body->oversight->level * 3)) / 100;
     }
+    my $time_cost = (($self->level+1)/6 * $self->time_to_build * ($self->level + 1) ^ INFLATION) - ($self->time_to_build * INFLATION ^ (-30 / ($self->level + 1)));
     return {
         food    => sprintf('%.0f',$self->food_to_build * $upgrade_cost * $upgrade_cost_reduction),
         energy  => sprintf('%.0f',$self->energy_to_build * $upgrade_cost * $upgrade_cost_reduction),
         ore     => sprintf('%.0f',$self->ore_to_build * $upgrade_cost * $upgrade_cost_reduction),
         water   => sprintf('%.0f',$self->water_to_build * $upgrade_cost * $upgrade_cost_reduction),
         waste   => sprintf('%.0f',$self->waste_to_build * $upgrade_cost * $upgrade_cost_reduction),
-        time    => sprintf('%.0f',$self->time_to_build * $upgrade_cost * $self->time_cost_reduction_bonus * $oversight_reduction),
+        time    => sprintf('%.0f',$time_cost * $self->time_cost_reduction_bonus * $oversight_reduction),
     };
 }
 
