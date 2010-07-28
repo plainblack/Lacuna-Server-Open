@@ -773,7 +773,7 @@ sub steal_resources {
 #            spies => [ $spy->id ],
 #            resources   => {},
 #            # FINISH THIS AFTER CARGO SHIPS ARE IMPLEMENTED
-        },
+#        },
     );
     $spy->available_on($ship->date_available->clone);
     $spy->on_body_id($home->id);

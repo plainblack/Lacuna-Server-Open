@@ -159,6 +159,38 @@ The name you'd like to set for the spy. The name cannot contain @, <, #, &, ; or
 
 Set a spy on a new task.
 
+ {
+    "status" : { ... },
+    "mission" : {
+        "result" : "Failure",
+        "message_id" : "id-goes-here"
+    }
+ }
+ 
+The mission block allows you to give immediate feedback to the player. The C<result> types that can be sent back are:
+
+=over
+
+=item Accepted
+
+This is provided when no immediate mission occurs. For example, if you set a spy to "Idle" or "Counter Espionage".
+
+=item Success
+
+This means a mission has occurred and came out in favor of the spy.
+
+=item Bounce
+
+This means a mission started, but was foiled and neither side won.
+
+=item Failure
+
+This means a mission occurred, but went so poorly that the defense got the upper hand and bested you.
+
+=back
+
+The C<message_id> refers to a message in the L<Inbox>. Providing this ID allows you to pop open the inbox to a specific message to display to the user. The message will tell you what the results of the mission were if any. Not all missions will provide a message_id.
+
 =head3 session_id
 
 A session id.

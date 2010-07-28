@@ -202,8 +202,8 @@ say "Waiting for spies to finish...";
 sleep 216;
 
 my $spies = $building->get_spies;
-$spies->next->assign('Counter Espionage')->update;
-$spies->next->assign('Counter Espionage')->update;
+$spies->next->assign('Counter Espionage');
+$spies->next->assign('Counter Espionage');
 sleep 3;
 is($tutorial->finish, 1, 'counter spy');
 

@@ -21,6 +21,10 @@ out('Loading DB');
 our $db = Lacuna->db;
 my $empires = $db->resultset('Lacuna::DB::Result::Empire');
 
+
+out('Deleting dead spies');
+$db->resultset('Lacuna::DB::Result::Spies')->search({task=>'Killed In Action'})->delete_all;
+
 out('Deleting Expired Self Destruct Empires');
 $empires->search({ self_destruct_date => { '<' => $start }, self_destruct_active => 1})->delete_all;
 

@@ -40,16 +40,43 @@ use constant water_consumption => 7;
 
 use constant waste_production => 5;
 
-use constant happiness_consumption => 10;
+use constant happiness_consumption => 1;
+
+
+sub foreign_spies {
+    my $self = shift;
+    return Lacuna
+        ->db
+        ->resultset('Lacuna::DB::Result::Spies')
+        ->search({ level => { '<=' => $self->level}, on_body_id => $self->body_id, empire_id => { '!=' => $self->body->empire_id } });
+}
+
+sub prisoners {
+    my $self = shift;
+    return  Lacuna
+        ->db
+        ->resultset('Lacuna::DB::Result::Spies')
+        ->search(
+            {
+                on_body_id  => $self->body_id,
+                task        => 'Captured',
+                available_on=> { '>' => DateTime->now },
+            }
+        );
+}
 
 after finish_upgrade => sub {
     my $self = shift;
-    Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
+    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
         on_body_id      => $self->body_id,
         from_body_id    => $self->body_id,
-    })->update({
-        defense         => ($self->body->empire->species->deception_affinity * 50) + ($self->level * 75),
     });
+    my $defense = ($self->body->empire->species->deception_affinity * 50) + ($self->level * 75);
+    while (my $spy = $spies->next) {
+        $self->defense($defense);
+        $self->update_level;
+        $self->update;
+    }
 };
 
 no Moose;

@@ -35,4 +35,40 @@ The unique id of the security ministry.
 
 Defaults to 1. Each page contains 25 spies.
 
+
+
+=head2 view_foreign_spies ( session_id, building_id, [ page_number ])
+
+Displays a list of the spies that are on your planet, and have a level lower than your security ministry.
+
+ {
+    "status" : { ... },
+    "spies" : [
+        {
+            "name" : "James Bond",
+            "level" : 11,
+            "next_mission" : "01 31 2010 13:09:05 +0600"
+        },
+        ...
+    ]
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the security ministry.
+
+=head3 page_number
+
+Defaults to 1. Each page contains 25 spies.
+
+
+
+
+
+
+
 =cut

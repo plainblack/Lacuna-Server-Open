@@ -64,9 +64,10 @@ sub assign_spy {
     unless (defined $spy) {
         confess [1002, "Spy not found."];
     }
-    $spy->assign($assignment)->update;
+    my $mission = $spy->assign($assignment);
     return {
         status  => $self->format_status($empire, $building->body),
+        mission => $mission,
     };
 }
 

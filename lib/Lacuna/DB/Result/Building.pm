@@ -836,6 +836,7 @@ sub spend_efficiency {
     $self->efficiency( $efficiency - $amount );
     my $body = $self->body;
     $body->needs_recalc(1);
+    $body->needs_surface_refresh(1);
     $body->update;
     return $self;
 }

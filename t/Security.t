@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 2;
+use Test::More tests => 3;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -56,6 +56,9 @@ $security->finish_upgrade;
 
 $result = $tester->post('security', 'view_prisoners', [$session_id, $security->id]);
 is(ref $result->{result}{prisoners}, 'ARRAY', "view prisoners");
+
+$result = $tester->post('security', 'view_foreign_spies', [$session_id, $security->id]);
+is(ref $result->{result}{spies}, 'ARRAY', "view foreign spies");
 
 
 END {
