@@ -98,12 +98,13 @@ before finish_work => sub {
     my $self = shift;
     if ($self->is_glyph_found) {
         my $ore = $self->work->{ore_type};
-        $self->body->add_glyph($ore);
-        my $empire = $self->body->empire;
+        my $body = $self->body;
+        $body->add_glyph($ore);
+        my $empire = $body->empire;
         $empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'glyph_discovered.txt',
-            params      => [$self->body->name, $ore],
+            params      => [$body->name, $ore],
             attachments => {
                 image => {
                     title   => $ore,
@@ -112,6 +113,7 @@ before finish_work => sub {
             }
         );
         $empire->add_medal($ore.'_glyph');
+        $body->add_news(70, sprintf('%s has uncovered a rare and ancient %s glyph on %s.',$empire->name, $ore, $body->name));
     }
 };
 
