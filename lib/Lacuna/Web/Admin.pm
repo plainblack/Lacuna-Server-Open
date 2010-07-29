@@ -6,6 +6,7 @@ use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use feature "switch";
 use Module::Find;
 use UUID::Tiny;
+use Lacuna::Util qw(format_date);
 
 
 sub www_search_essentia_codes {
@@ -278,6 +279,7 @@ sub www_manage_empire {
     my $out = '<h1>Manage Empire</h1>';
     $out .= '<table style="width: 100%">';
     $out .= sprintf('<tr><th>Id</th><td>%s</td><td></td></tr>', $empire->id);
+    $out .= sprintf('<tr><th>RPC Requests</th><td>%s</td><td></td></tr>', Lacuna->cache->get('rpc_count_'.format_date(undef,'%d'),$empire->id));
     $out .= sprintf('<tr><th>Name</th><td>%s</td><td></td></tr>', $empire->name);
     $out .= sprintf('<tr><th>Created</th><td>%s</td><td></td></tr>', $empire->date_created);
     $out .= sprintf('<tr><th>Stage</th><td>%s</td><td></td></tr>', $empire->stage);
