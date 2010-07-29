@@ -19,33 +19,16 @@ sub view_spies {
     $page_number ||= 1;
     my @spies;
     my $body = $building->body;
-    my %planets = ( $body->id => $body->name );
+    my %planets = ( $body->id => $body );
     my $spy_list = $building->get_spies->search({}, { rows => 25, page => $page_number});
     while (my $spy = $spy_list->next) {
-        unless (exists $planets{$spy->on_body_id}) {
-            $planets{$spy->on_body_id} = $spy->on_body->name;
+        if (exists $planets{$spy->on_body_id}) {
+            $spy->on_body($planets{$spy->on_body_id});
         }
-        my $available = $spy->is_available;
-        push @spies, {
-            id                  => $spy->id,
-            name                => $spy->name,
-            level               => $spy->level,
-            offense_rating      => $spy->offense,
-            defense_rating      => $spy->defense,
-            intel               => $spy->intel_xp,
-            mayhem              => $spy->mayhem_xp,
-            politics            => $spy->politics_xp,
-            theft               => $spy->theft_xp,
-            assignment          => $spy->task,
-            assigned_to         => {
-                body_id => $spy->on_body_id,
-                name    => $planets{$spy->on_body_id},
-            },
-            is_available        => $available,
-            available_on        => $spy->format_available_on,
-            started_assignment  => $spy->format_started_assignment,
-            seconds_remaining   => $spy->seconds_remaining_on_assignment,
-        };
+        else {
+            $planets{$spy->on_body_id} = $spy->on_body;
+        }
+        push @spies, $spy->get_status;
     }
     my @assignments = Lacuna::DB::Result::Spies->assignments;
     return {
@@ -68,6 +51,7 @@ sub assign_spy {
     return {
         status  => $self->format_status($empire, $building->body),
         mission => $mission,
+        spy     => $spy->get_status,
     };
 }
 

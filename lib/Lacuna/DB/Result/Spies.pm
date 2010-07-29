@@ -58,6 +58,30 @@ sub update_level {
     return $self;
 }
 
+sub get_status {
+    my $self = shift;
+    return {
+        id                  => $self->id,
+        name                => $self->name,
+        level               => $self->level,
+        offense_rating      => $self->offense,
+        defense_rating      => $self->defense,
+        intel               => $self->intel_xp,
+        mayhem              => $self->mayhem_xp,
+        politics            => $self->politics_xp,
+        theft               => $self->theft_xp,
+        assignment          => $self->task,
+        assigned_to         => {
+            body_id => $self->on_body_id,
+            name    => $self->on_body->name,
+        },
+        is_available        => $self->is_available,
+        available_on        => $self->format_available_on,
+        started_assignment  => $self->format_started_assignment,
+        seconds_remaining   => $self->seconds_remaining_on_assignment,
+    };
+}
+
 # ASSIGNMENT STUFF
 
 sub format_available_on {
