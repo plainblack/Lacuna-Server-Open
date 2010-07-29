@@ -74,9 +74,9 @@ after finish_upgrade => sub {
         defense         => { '<' => $defense },
     });
     while (my $spy = $spies->next) {
-        $self->defense($defense);
-        $self->update_level;
-        $self->update;
+        $spy->defense($defense);
+        $spy->update_level;
+        $spy->update;
     }
 };
 

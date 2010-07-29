@@ -50,9 +50,9 @@ after finish_upgrade => sub {
         offense         => { '<' => $offense },
     });
     while (my $spy = $spies->next) {
-        $self->offense($offense);
-        $self->update_level;
-        $self->update;
+        $spy->offense($offense);
+        $spy->update_level;
+        $spy->update;
     }
 };
 
