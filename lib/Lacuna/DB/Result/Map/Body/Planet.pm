@@ -1180,20 +1180,20 @@ sub spend_food {
     
     # take inventory
     my $food_stored;
+    my $food_type_count = 0;
     foreach my $type (FOOD_TYPES) {
         my $stored_method = $type.'_stored';
         $food_stored += $self->$stored_method;
+        $food_type_count++ if ($self->$stored_method);
     }
     
     # spend proportionally and save
-    my $food_type_count = 0;
     if ($food_stored) {
         foreach my $type (FOOD_TYPES) {
             my $stored_method = $type.'_stored';
             my $amount_stored = $self->$stored_method;
             my $amount_spent = sprintf('%.0f', ($food_consumed * $amount_stored) / $food_stored);
             if ($amount_spent && $amount_stored >= $amount_spent) {
-                $food_type_count++;
                 $self->$stored_method($amount_stored - $amount_spent);
             }
         }
