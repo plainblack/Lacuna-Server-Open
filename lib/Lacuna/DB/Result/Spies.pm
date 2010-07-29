@@ -1131,6 +1131,8 @@ sub shut_down_building {
         filename    => 'building_loss_of_power.txt',
         params      => [$building->name, $self->on_body->name],
     );
+    $building->body($self->on_body);
+    $building->spend_efficiency($self->level)->update;
     $self->on_body->add_news(25,'Employees at the %s on %s were left in the dark today during a power outage.', $building->name, $self->on_body->name);    
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
