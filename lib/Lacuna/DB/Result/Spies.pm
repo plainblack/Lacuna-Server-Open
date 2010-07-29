@@ -833,7 +833,6 @@ sub capture_rebel {
 #sub kill_rebel {
 #    my ($self, $defender) = @_;
 #    return undef unless (defined $defender && defined $self);
-#    out('Kill Rebel');
 #    kill_a_spy($self->on_body, $self, $defender);
 #    $self->on_body->add_news(80,'The leader of the rebellion to overthrow %s was killed in a firefight today on %s.', $self->on_body->empire->name, $self->on_body->name);
 #}
@@ -841,7 +840,6 @@ sub capture_rebel {
 #sub kill_mutaneer {
 #    my ($self, $defender) = @_;
 #    return undef unless (defined $defender && defined $self);
-#    out('Kill Mutaneer');
 #    kill_a_spy($self->on_body, $self, $defender);
 #    $self->on_body->add_news(80,'Double agent %s of %s was executed on %s today.', $self->name, $self->empire->name, $self->on_body->name);
 #}
@@ -973,7 +971,6 @@ sub capture_saboteur {
 #sub kill_saboteur {
 #    my ($self, $defender) = @_;
 #    return undef unless (defined $defender && defined $self);
-#    out('Kill Saboteur');
 #    kill_a_spy($self->on_body, $self, $defender);
 #    $self->on_body->add_news(70,'%s told us that a lone saboteur was killed on %s before he could carry out his plot.', $self->on_body->empire->name, $self->on_body->name);
 #}
@@ -1097,7 +1094,6 @@ sub steal_building {
 #sub kill_thief {
 #    my ($self, $defender) = @_;
 #    return undef unless (defined $defender && defined $self);
-#    out('Kill Thief');
 #    kill_a_spy($self->on_body, $self, $defender);
 #    $self->on_body->add_news(70,'%s police caught and killed a thief on %s during the commission of the hiest.', $self->on_body->empire->name, $self->on_body->name);
 #}
@@ -1210,15 +1206,13 @@ sub hack_offending_probes {
     my ($self, $defender) = @_;
     return undef unless (defined $defender);
     my @safe = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({task=>'Counter Espionage', on_body_id=>$defender->on_body_id})->get_column('empire_id')->all;
-    push @safe, $self->on_body->empire_id;
-    push @safe, $defender->empire_id;
     my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $self->on_body->star_id, empire_id => {'not in' => \@safe} }, {rows=>1})->single;
     return undef unless defined $probe;
     $defender->things_destroyed( $defender->things_destroyed + 1 );
     $defender->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_destroyed_a_probe.txt',
-        params      => [$self->on_body->star->name, $defender->name],
+        params      => [$self->on_body->star->name, $probe->empire->name, $defender->name],
     );
     $probe->delete;
     $self->on_body->add_news(25,'%s scientists say they have lost control of a research satellite in the %s system.', $probe->empire->name, $self->on_body->star->name);    
@@ -1432,7 +1426,6 @@ sub false_interrogation_report {
 sub interrogation_report {
     my ($self, $defender) = @_;
     return undef unless (defined $defender);
-    out('Interrogation Report');
     my $suspect = $self->get_random_prisoner;
     return undef unless defined $suspect;
     my $suspect_home = $suspect->from_body;
@@ -1471,7 +1464,6 @@ sub interrogation_report {
 #sub kill_guard_and_escape_prison {
 #    my ($self, $defender) = @_;
 #    return undef unless (defined $defender && defined $self);
-#    out('Kill Guard and Escape Prison');
 #    my $suspect = shift @{$espionage->{captured}};
 #    return undef unless defined $suspect;
 #    kill_a_spy($self->on_body, $defender, $suspect);
@@ -1490,7 +1482,6 @@ sub escape_prison {
 #sub kill_suspect {
 #    my ($self, $defender) = @_;
 #    return undef unless (defined $defender);
-#    out('Kill Suspect');
 #    my $suspect = shift @{$espionage->{'Captured'}{spies}};
 #    return undef unless defined $suspect;
 #    kill_a_spy($self->on_body, $suspect, $defender);
@@ -1556,7 +1547,6 @@ sub capture_hacker {
 #sub kill_hacker {
 #    my ($self, $defender) = @_;
 #    return undef unless (defined $defender && defined $self);
-#    out('Kill Hacker');
 #    $self->on_body->add_news(60,'A suspected hacker, age '.randint(16,60).', was found dead in his home today on %s.', $self->on_body->name);
 #    kill_a_spy($self->on_body, $self, $defender);    
 #}
