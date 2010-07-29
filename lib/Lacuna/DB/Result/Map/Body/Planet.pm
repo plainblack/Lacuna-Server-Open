@@ -977,24 +977,25 @@ sub add_rutile {
 }
 
 sub spend_ore {
-    my ($self, $value) = @_;
-    my $subtract = sprintf('%.0f', $value / 5);
-    SPEND: while (1) {
-        foreach my $type (shuffle ORE_TYPES) {
-            my $method = $type."_stored";
-            my $stored = $self->$method;
-            if ($stored > $subtract) {
-                $self->$method($stored - $subtract);
-                $value -= $subtract;
+    my ($self, $ore_consumed) = @_;
+
+    # take inventory
+    my $ore_stored;
+    foreach my $type (ORE_TYPES) {
+        my $stored_method = $type.'_stored';
+        $ore_stored += $self->$stored_method;
+    }
+    
+    # spend proportionally and save
+    if ($ore_stored) {
+        foreach my $type (ORE_TYPES) {
+            my $stored_method = $type.'_stored';
+            my $amount_stored = $self->$stored_method;
+            my $amount_spent = sprintf('%.0f', ($ore_consumed * $amount_stored) / $ore_stored);
+            if ($amount_spent && $amount_stored >= $amount_spent) {
+                $self->$stored_method($amount_stored - $amount_spent);
             }
-            else {
-                $value -= $stored;
-                $self->$method(0);
-            }
-            last SPEND if ($value <= 0);
-            $subtract = $value if ($subtract > $value);
         }
-        last SPEND if ($subtract <= 0); # prevent an infinite loop scenario
     }
     return $self;
 }
