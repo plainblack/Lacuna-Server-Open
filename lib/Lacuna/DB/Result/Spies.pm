@@ -1145,7 +1145,7 @@ sub shut_down_building {
 
 sub take_control_of_probe {
     my ($self, $defender) = @_;
-    my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->on_body->id }, {rows=>1})->single;
+    my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->on_body_id }, {rows=>1})->single;
     return undef unless defined $probe;
     $probe->body_id($self->from_body_id);
     $probe->empire_id($self->empire_id);
