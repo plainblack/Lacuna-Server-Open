@@ -99,6 +99,7 @@ sub get_buildable {
             y               => $y,
             level           => 0,
             body_id         => $body->id,
+            efficiency      => 100,
             body            => $body,
             date_created    => DateTime->now,
     );
