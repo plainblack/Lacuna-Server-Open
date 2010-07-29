@@ -850,7 +850,7 @@ sub thwart_rebel {
     my ($self, $defender) = @_;
     return undef unless (defined $defender);
     $self->on_body->add_news(20,'The rebel leader, known as %s, is still eluding authorities on %s at this hour.', $self->name, $self->on_body->name);
-    return $defender->thwart_a_spy($self);
+    return $defender->thwart_a_spy($self)->id;
 }
 
 my @possible_building_sorts = (
@@ -982,7 +982,7 @@ sub thwart_saboteur {
     my ($self, $defender) = @_;
     return undef unless (defined $defender);
     $self->on_body->add_news(20,'%s authorities on %s are conducting a manhunt for a suspected saboteur.', $self->on_body->empire->name, $self->on_body->name);
-    return $defender->thwart_a_spy($self);
+    return $defender->thwart_a_spy($self)->id;
 }
 
 sub steal_resources {
@@ -1113,7 +1113,7 @@ sub thwart_thief {
     my ($self, $defender) = @_;
     return undef unless (defined $defender);
     $self->on_body->add_news(20,'A thief evaded %s authorities on %s. Citizens are warned to lock their doors.', $self->on_body->empire->name, $self->on_body->name);
-    return $defender->thwart_a_spy($self);
+    return $defender->thwart_a_spy($self)->id;
 }
 
 sub shut_down_building {
@@ -1508,7 +1508,7 @@ sub thwart_intelligence {
     my ($self, $defender) = @_;
     return undef unless (defined $defender);
     $self->on_body->add_news(25,'Corporate espionage has become a real problem on %s.', $self->on_body->name);
-    return $defender->thwart_a_spy($self);
+    return $defender->thwart_a_spy($self)->id;
 }
 
 sub counter_intel_report {
@@ -1565,7 +1565,7 @@ sub thwart_hacker {
     my ($self, $defender) = @_;
     return undef unless (defined $defender);
     $self->on_body->add_news(10,'Identity theft has become a real problem on %s.', $self->on_body->name);  
-    return $defender->thwart_a_spy($self);
+    return $defender->thwart_a_spy($self)->id;
 }
 
 sub network19_propaganda1 {
