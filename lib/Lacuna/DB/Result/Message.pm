@@ -17,9 +17,9 @@ __PACKAGE__->add_columns(
     to_name         => { data_type => 'varchar', size => 30, is_nullable => 0 },
     recipients      => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
     tag             => { data_type => 'varchar', size => 15, is_nullable => 1 },
-    has_read        => { data_type => 'bit', default_value => 0 },
-    has_replied     => { data_type => 'bit', default_value => 0 },
-    has_archived    => { data_type => 'bit', default_value => 0 },
+    has_read        => { data_type => 'tinyint', default_value => 0, is_nullable => 0 },
+    has_replied     => { data_type => 'tinyint', default_value => 0, is_nullable => 0 },
+    has_archived    => { data_type => 'tinyint', default_value => 0, is_nullable => 0 },
     attachments     => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
     repeat_check    => { data_type => 'varchar', size => 30, is_nullable => 1 },
 );
@@ -28,6 +28,7 @@ sub sqlt_deploy_hook {
     my ($self, $sqlt_table) = @_;
     $sqlt_table->add_index(name => 'idx_repeat_check_date_sent', fields => ['repeat_check', 'date_sent']);
     $sqlt_table->add_index(name => 'idx_recent_messages', fields => [qw(has_archived has_read to_id date_sent)]);
+    $sqlt_table->add_index(name => 'idx_inbox_only', fields => [qw(has_archived to_id date_sent)]);
 }
 
 __PACKAGE__->belongs_to('sender', 'Lacuna::DB::Result::Empire', 'from_id');

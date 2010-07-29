@@ -145,7 +145,7 @@ sub view_inbox {
     my $session_id = shift;
     my $empire = $self->get_empire_by_session($session_id);
     my $where = {
-        has_archived    => {'!=' => 1},
+        has_archived    => 0,
         to_id           => $empire->id,
     };
     return $self->view_messages($where, $empire, @_);
