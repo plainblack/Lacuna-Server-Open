@@ -7,6 +7,8 @@ These methods are accessible via the C</body> URL.
 
 Returns detailed statistics about a planet. 
 
+B<NOTE:> You should probably B<never> call this method directly, as it is a wasted call since the data it returns comes back in the status block of every relevant request. See L<Intro/"Status"> for details.
+
  {
     "server" : { ... },
     "empire" : { ... },
