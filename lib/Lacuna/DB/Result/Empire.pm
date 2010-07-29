@@ -348,7 +348,7 @@ sub send_message {
             $original->update({has_replied=>1});
         }
     }
-    return $self;
+    return $message;
 }
 
 sub check_for_repeat_message {
