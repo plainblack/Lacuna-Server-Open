@@ -19,12 +19,6 @@ sub abandon_probe {
     unless (defined $star) {
         confess [ 1002, 'Star does not exist.', $star_id];
     }
-    my $bodies = $star->bodies->search({ class => {'like' => 'Lacuna::DB::Result::Map::Body::Planet%'} });
-    while (my $body = $bodies->next) {
-        if ($empire->id eq $body->empire_id) {
-            confess [ 1010, "You can't remove a probe from a system you inhabit.", $body->id ];
-        }
-    }
     Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search(
         {
             empire_id   => $empire->id,
