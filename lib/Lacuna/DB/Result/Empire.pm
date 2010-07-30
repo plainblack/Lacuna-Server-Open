@@ -239,8 +239,9 @@ sub find_home_planet {
     );
     
     my $invite;
+    my $invites = Lacuna->db->resultset('Lacuna::DB::Result::Invite');
     if (defined $invite_code && $invite_code ne '') {
-        $invite = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search(
+        $invite = $invites->search(
             {code    => $invite_code, invitee_id => undef },
             {rows => 1}
         )->single;
@@ -250,7 +251,19 @@ sub find_home_planet {
     if (defined $invite) {
         $invite->invitee_id($self->id);
         $invite->update;
-        $search{zone} = $invite->inviter->home_planet->zone;
+        my $inviter = invite->inviter;
+        my $inviter_home = $inviter->home_planet;
+        if ($invites->search({inviter_id => $invite->inviter_id, invitee_id => {'>' => 0}})->count == 10) { # got 10 friends
+            for my $i (1..13) {
+                $inviter_home->add_plan('Lacuna::DB::Result::Building::Permanent::Beach'.$i,1);
+            }
+            $inviter->send_predefined_message(
+                tags        => ['Correspondence'],
+                filename    => 'thank_you_for_inviting_friends.txt',
+                from        => $self->lacuna_expanse_corp,
+            );
+        }
+        $search{zone} = $inviter_home->zone;
         # other possible solution
         #   (SQRT( POW(5-x,2) + POW(8-y,2) )) as distance
         # then order by distance
