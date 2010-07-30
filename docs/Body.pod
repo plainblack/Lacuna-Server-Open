@@ -85,6 +85,7 @@ The list of building's retreived by this method should be placed on the 11x11 gr
             "url" : "/apple",
             "level" : 3,
             "image" : "apples3",
+            "efficiency" : 95,
             "pending_build" : {                            # only included when building is building/upgrading
                 "seconds_remaining" : 430,
                 "start" : "01 31 2010 13:09:05 +0600",
@@ -102,6 +103,7 @@ The list of building's retreived by this method should be placed on the 11x11 gr
             "y" : 0,
             "url" : "/command",
             "level" : 1,
+            "efficiency" : 100,
             "image" : "command1"
         }
     },
