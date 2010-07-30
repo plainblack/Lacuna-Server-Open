@@ -447,6 +447,11 @@ sub boost_happiness {
     return $self->boost($session_id, 'happiness_boost');
 }
 
+sub boost_storage {
+    my ($self, $session_id) = @_;
+    return $self->boost($session_id, 'storage_boost');
+}
+
 sub boost {
     my ($self, $session_id, $type) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -477,6 +482,7 @@ sub view_boosts {
             water       => format_date($empire->water_boost),
             ore         => format_date($empire->ore_boost),
             energy      => format_date($empire->energy_boost),
+            storage     => format_date($empire->storage_boost),
         }
     };
 }
@@ -520,7 +526,7 @@ sub invite_friend {
 __PACKAGE__->register_rpc_method_names(
     { name => "create", options => { with_plack_request => 1 } },
     { name => "fetch_captcha", options => { with_plack_request => 1 } },
-    qw(invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available found login logout get_full_status get_status boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+    qw(invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available found login logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
 );
 
 

@@ -510,29 +510,40 @@ sub happiness_hour {
 
 # STORAGE
 
+has storage_bonus => (
+    is  => 'rw',
+    lazy    => 1,
+    default => sub {
+        my ($self) = @_;
+        my $empire = $self->body->empire;
+        my $boost = (DateTime->now < $empire->storage_boost) ? 25 : 0;
+        return (100 + $boost) / 100;
+    },
+);
+
 sub food_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->food_storage * $self->production_hour);
+    return sprintf('%.0f',$self->food_storage * $self->production_hour * $self->storage_bonus);
 }
 
 sub energy_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->energy_storage * $self->production_hour);
+    return sprintf('%.0f',$self->energy_storage * $self->production_hour * $self->storage_bonus);
 }
 
 sub ore_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->ore_storage * $self->production_hour);
+    return sprintf('%.0f',$self->ore_storage * $self->production_hour * $self->storage_bonus);
 }
 
 sub water_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->water_storage * $self->production_hour);
+    return sprintf('%.0f',$self->water_storage * $self->production_hour * $self->storage_bonus);
 }
 
 sub waste_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->waste_storage * $self->production_hour);
+    return sprintf('%.0f',$self->waste_storage * $self->production_hour * $self->storage_bonus);
 }
 
 # BUILD

@@ -36,6 +36,7 @@ __PACKAGE__->add_columns(
     tutorial_stage          => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'explore_the_ui' },
     tutorial_scratch        => { data_type => 'text', is_nullable => 1 },
     is_isolationist         => { data_type => 'tinyint', default_value => 1 },
+    storage_boost           => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     food_boost              => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     water_boost             => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     ore_boost               => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
