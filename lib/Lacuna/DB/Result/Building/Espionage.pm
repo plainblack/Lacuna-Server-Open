@@ -43,7 +43,12 @@ use constant waste_production => 1;
 
 after finish_upgrade => sub {
     my $self = shift;
-    my $offense = ($self->body->empire->species->deception_affinity * 50) + ($self->level * 75);
+    my $empire = $self->body->empire;
+    if ($empire->is_isolationist) {
+        $empire->is_isolationist(0);
+        $empire->update;
+    }
+    my $offense = ($empire->species->deception_affinity * 50) + ($self->level * 75);
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
         on_body_id      => $self->body_id,
         from_body_id    => $self->body_id,
