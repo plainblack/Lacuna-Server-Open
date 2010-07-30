@@ -201,6 +201,19 @@ use constant MEDALS => {
     WaterReclamation                => 'Built Water Reclamation Plant',
     WaterStorage                    => 'Built Water Storage Tank',
     Wheat                           => 'Built Wheat Farm',
+    Beach1                          => 'Built Beach (section 1)',
+    Beach2                          => 'Built Beach (section 2)',
+    Beach3                          => 'Built Beach (section 3)',
+    Beach4                          => 'Built Beach (section 4)',
+    Beach5                          => 'Built Beach (section 5)',
+    Beach6                          => 'Built Beach (section 6)',
+    Beach7                          => 'Built Beach (section 7)',
+    Beach8                          => 'Built Beach (section 8)',
+    Beach9                          => 'Built Beach (section 9)',
+    Beach10                         => 'Built Beach (section 10)',
+    Beach11                         => 'Built Beach (section 11)',
+    Beach12                         => 'Built Beach (section 12)',
+    Beach13                         => 'Built Beach (section 13)',
 };
 
 sub name {

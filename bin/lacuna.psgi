@@ -108,6 +108,19 @@ $urlmap->map(Lacuna::RPC::Building::WaterPurification->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::WaterReclamation->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::WaterStorage->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Wheat->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::Beach1->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::Beach2->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::Beach3->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::Beach4->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::Beach5->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::Beach6->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::Beach7->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::Beach8->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::Beach9->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::Beach10->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::Beach11->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::Beach12->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::Beach13->new->to_app_with_url);
 
 # admin
 my $admin = builder {
