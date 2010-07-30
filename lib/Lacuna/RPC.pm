@@ -33,8 +33,8 @@ sub get_empire_by_session {
             my $cache = Lacuna->cache;
             my $cache_key = 'rpc_count_'.format_date(undef,'%d');
             my $rpc_count = $cache->get($cache_key,$empire->id) + 1;
-            if ($rpc_count > 1500) {
-                confess [1010, 'You have already made the maximum number of requests (1500) you can make for one day.'];
+            if ($rpc_count > 2500) {
+                confess [1010, 'You have already made the maximum number of requests (2500) you can make for one day.'];
             }
             $cache->set($cache_key, $empire->id, $rpc_count, 60 * 60 * 24);
             return $empire;
