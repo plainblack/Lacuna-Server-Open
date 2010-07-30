@@ -707,7 +707,7 @@ sub tick {
     if ($self->boost_enabled) {
         my $empire = $self->empire;
         my $still_enabled = 0;
-        foreach my $resource (qw(energy water ore happiness food)) {
+        foreach my $resource (qw(energy water ore happiness food storage)) {
             my $boost = $resource.'_boost';
             if ($now > $empire->$boost) {
                 $self->needs_recalc(1);

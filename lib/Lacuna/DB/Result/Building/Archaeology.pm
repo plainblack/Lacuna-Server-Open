@@ -118,12 +118,45 @@ before finish_work => sub {
 };
 
 my %recipies = (
-#    gypsum      => {
-#        plan        => 'Lacuna::DB::Result::Building::Permanent::BeachA',
-#        gypsum      => {
-#            plan        => 'Lacuna::DB::Result::Building::Permanent::BeachB',
-#        },
-#    },
+    gypsum      => {
+        plan        => 'Lacuna::DB::Result::Building::Permanent::Beach1',
+        gypsum      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach2',
+        },
+        magnetite      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach3',
+        },
+        uraninite      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach4',
+        },
+        halite      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach5',
+        },
+        rutile      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach6',
+        },
+        chalcopyrite      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach7',
+        },
+        sulfur       => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach8',
+        },
+        anthracite     => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach9',
+        },
+        methane     => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach10',
+        },
+        chromite     => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach11',
+        },
+        goethite     => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach12',
+        },
+        galena     => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach13',
+        },
+    },
     magnetite   => {
         uraninite   => {
             plan        => 'Lacuna::DB::Result::Building::Permanent::Volcano',

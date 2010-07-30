@@ -38,35 +38,20 @@ sub empire_rank {
             empire_id                   => $rank->empire_id,
             empire_name                 => $rank->empire_name,
             colony_count                => $rank->colony_count,
-            colony_count_delta          => $rank->colony_count_delta,
             population                  => $rank->population,
-            population_delta            => $rank->population_delta,
             empire_size                 => $rank->empire_size,
-            empire_size_delta           => $rank->empire_size_delta,
             building_count              => $rank->building_count,
-            university_level            => $rank->university_level,
             average_building_level      => $rank->average_building_level,
-            highest_building_level      => $rank->highest_building_level,
-            food_hour                   => $rank->food_hour,
-            energy_hour                 => $rank->energy_hour,
-            waste_hour                  => $rank->waste_hour,
-            ore_hour                    => $rank->ore_hour,
-            water_hour                  => $rank->water_hour,
-            happiness_hour              => $rank->happiness_hour,
-            spy_count                   => $rank->spy_count,
             offense_success_rate        => $rank->offense_success_rate,
-            offense_success_rate_delta  => $rank->offense_success_rate_delta,
             defense_success_rate        => $rank->defense_success_rate,
-            defense_success_rate_delta  => $rank->defense_success_rate_delta,
             dirtiest                    => $rank->dirtiest,
-            dirtiest_delta              => $rank->dirtiest_delta,
         };
     }
     return {
         status  	=> $self->format_status($empire),
         empires 	=> \@empires,
-	total_empires	=> $ranks->pager->total_entries,
-	page_number	=> $page_number,
+        total_empires	=> $ranks->pager->total_entries,
+        page_number	=> $page_number,
     };
 }
 
@@ -75,7 +60,7 @@ sub find_empire_rank {
     unless (length($empire_name) >= 3) {
         confess [1009, 'Empire name too short. Your search must be at least 3 characters.'];
     }
-    unless ($by ~~ [qw(empire_size_rank university_level_rank offense_success_rate_rank defense_success_rate_rank dirtiest_rank)]) {
+    unless ($by ~~ [qw(empire_size_rank offense_success_rate_rank defense_success_rate_rank dirtiest_rank)]) {
         $by = 'empire_size_rank';
     }
     my $empire = $self->get_empire_by_session($session_id);
@@ -100,12 +85,12 @@ sub find_empire_rank {
 }
 
 sub colony_rank {
-    my ($self, $session_id, $by, $page_number) = @_;
+    my ($self, $session_id, $by) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     unless ($by ~~ [qw(population_rank)]) {
         $by = 'population_rank';
     }
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Colony')->search(undef,{order_by =>$by, rows=>25, page=>$page_number});
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Colony')->search(undef,{order_by =>$by, rows=>25});
     my @colonies;
     while (my $rank = $ranks->next) {
         push @colonies, {
@@ -114,69 +99,24 @@ sub colony_rank {
             planet_id                   => $rank->planet_id,
             planet_name                 => $rank->planet_name,
             population                  => $rank->population,
-            population_delta            => $rank->population_delta,
             building_count              => $rank->building_count,
             average_building_level      => $rank->average_building_level,
             highest_building_level      => $rank->highest_building_level,
-            food_hour                   => $rank->food_hour,
-            energy_hour                 => $rank->energy_hour,
-            waste_hour                  => $rank->waste_hour,
-            ore_hour                    => $rank->ore_hour,
-            water_hour                  => $rank->water_hour,
-            happiness_hour              => $rank->happiness_hour,
-            spy_count                   => $rank->spy_count,
-            offense_success_rate        => $rank->offense_success_rate,
-            offense_success_rate_delta  => $rank->offense_success_rate_delta,
-            defense_success_rate        => $rank->defense_success_rate,
-            defense_success_rate_delta  => $rank->defense_success_rate_delta,
-            dirtiest                    => $rank->dirtiest,
-            dirtiest_delta              => $rank->dirtiest_delta,
         }
     }
     return {
         status      	=> $self->format_status($empire),
         colonies    	=> \@colonies,
-	total_colonies	=> $ranks->pager->total_entries,
-	page_number	=> $page_number,
-    };
-}
-
-sub find_colony_rank {
-    my ($self, $session_id, $by, $colony_name) = @_;
-    unless (length($colony_name) >= 3) {
-        confess [1009, 'Colony name too short. Your search must be at least 3 characters.'];
-    }
-    unless ($by ~~ [qw(population_rank)]) {
-        $by = 'population_rank';
-    }
-    my $empire = $self->get_empire_by_session($session_id);
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Colony')->search(undef,{order_by => $by, rows=>25});
-    my $ranked = $ranks->search({planet_name => { like => $colony_name.'%'}});
-    my @colonies;
-    while (my $rank = $ranked->next) {
-        my $page_number = int($rank->$by / 25);
-        if ( $rank->$by % 25 ) {
-            $page_number++;
-        }
-        push @colonies, {
-            page_number => $rank->page_number,
-            planet_name => $rank->planet_name,
-            planet_id   => $rank->planet_id,
-        };
-    }
-    return {
-        status      => $self->format_status($empire),
-        colonies    => \@colonies,
     };
 }
 
 sub spy_rank {
-    my ($self, $session_id, $by, $page_number) = @_;
+    my ($self, $session_id, $by) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     unless ($by ~~ [qw(level_rank success_rate_rank dirtiest_rank)]) {
         $by = 'level_rank';
     }
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Spies')->search(undef,{order_by => $by, rows=>25, page=>$page_number});
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Spies')->search(undef,{order_by => $by, rows=>25});
     my @spies;
     while (my $rank = $ranks->next) {
         push @spies, {
@@ -196,43 +136,31 @@ sub spy_rank {
     return {
         status      	=> $self->format_status($empire),
         spies       	=> \@spies,
-	total_spies	=> $ranks->pager->total_entries,
-	page_number	=> $page_number,
     };
 }
-
-sub find_spy_rank {
-    my ($self, $session_id, $by, $spy_name) = @_;
-    unless (length($spy_name) >= 3) {
-        confess [1009, 'Spy name too short. Your search must be at least 3 characters.'];
-    }
-    unless ($by ~~ [qw(level_rank success_rate_rank dirtiest_rank)]) {
-        $by = 'level_rank';
-    }
+    
+sub weekly_medal_winners {
+    my ($self, $session_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Spies')->search(undef,{order_by => $by, rows=>25});
-    my $ranked = $ranks->search({spy_name => { like => $spy_name.'%'}});
-    my @spies;
-    while (my $rank = $ranked->next) {
-        my $page_number = int($rank->$by / 25);
-        if ( $rank->$by % 25 ) {
-            $page_number++;
+    my $winner_rs = Lacuna->db->resultset('Lacuna::DB::Result::WeeklyMedalWinner')->search;
+    my @winners;
+    while (my $winner = $winner_rs->next) {
+        push @winners, {
+            empire_id                   => $winner->empire_id,
+            empire_name                 => $winner->empire_name,
+            medal_name                  => $winner->medal_name,
+            medal_image                 => $winner->medal_image,
+            times_earned                => $winner->times_earned,
         }
-        push @spies, {
-            page_number => $rank->page_number,
-            spy_name    => $rank->spy_name,
-            empire_name => $rank->empire_name,
-            spy_id      => $rank->spy_id,
-        };
     }
     return {
-        status  => $self->format_status($empire),
-        spies   => \@spies,
+        status      	=> $self->format_status($empire),
+        winners       	=> \@winners,
     };
 }
-
     
-__PACKAGE__->register_rpc_method_names(qw(find_spy spy_rank find_colony_rank colony_rank find_empire_rank empire_rank credits));
+
+__PACKAGE__->register_rpc_method_names(qw(weekly_medal_winners spy_rank colony_rank find_empire_rank empire_rank credits));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

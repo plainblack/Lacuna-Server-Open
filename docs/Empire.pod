@@ -464,10 +464,28 @@ Shows the dates at which boosts have expired or will expire. Boosts are subsidie
         "food" : "01 31 2010 13:09:05 +0600",
         "ore" : "01 31 2010 13:09:05 +0600",
         "energy" : "01 31 2010 13:09:05 +0600",
-        "happiness" : "01 31 2010 13:09:05 +0600",
         "water" : "01 31 2010 13:09:05 +0600",
+        "happiness" : "01 31 2010 13:09:05 +0600",
+        "storage" : "01 31 2010 13:09:05 +0600"
     }
  }
+
+=head3 session_id
+
+A session id.
+
+
+
+=head2 boost_storage ( session_id )
+
+Spends 5 essentia, and boosts storage (all 5 types) on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
+
+ {
+    "status" : { ... },
+    "storage_boost" : "01 31 2010 13:09:05 +0600"
+ }
+
+Throws 1011.
 
 =head3 session_id
 
@@ -481,7 +499,7 @@ Spends 5 essentia, and boosts food production on all planets for 7 days. If a bo
 
  {
     "status" : { ... },
-    "food_boost" : "01 31 2010 13:09:05 +0600",
+    "food_boost" : "01 31 2010 13:09:05 +0600"
  }
 
 Throws 1011.
@@ -497,7 +515,7 @@ Spends 5 essentia, and boosts water production on all planets for 7 days. If a b
 
  {
     "status" : { ... },
-    "water_boost" : "01 31 2010 13:09:05 +0600",
+    "water_boost" : "01 31 2010 13:09:05 +0600"
  }
 
 Throws 1011.
@@ -513,7 +531,7 @@ Spends 5 essentia, and boosts energy production on all planets for 7 days. If a 
 
  {
     "status" : { ... },
-    "energy_boost" : "01 31 2010 13:09:05 +0600",
+    "energy_boost" : "01 31 2010 13:09:05 +0600"
  }
 
 Throws 1011.
@@ -529,7 +547,7 @@ Spends 5 essentia, and boosts ore production on all planets for 7 days. If a boo
 
  {
     "status" : { ... },
-    "ore_boost" : "01 31 2010 13:09:05 +0600",
+    "ore_boost" : "01 31 2010 13:09:05 +0600"
  }
 
 Throws 1011.
@@ -545,7 +563,7 @@ Spends 5 essentia, and boosts happiness production on all planets for 7 days. If
 
  {
     "status" : { ... },
-    "happiness_boost" : "01 31 2010 13:09:05 +0600",
+    "happiness_boost" : "01 31 2010 13:09:05 +0600"
  }
 
 Throws 1011.
@@ -560,6 +578,10 @@ A session id.
 
 Enables a destruction countdown of 24 hours. Sometime after the timer runs out, the empire will vaporize.
 
+{
+    "status" : { ... }
+}
+
 =head3 session_id
 
 A session id.
@@ -569,6 +591,10 @@ A session id.
 =head2 disable_self_destruct ( session_id )
 
 Disables the self distruction countdown. 
+
+{
+    "status" : { ... }
+}
 
 =head3 session_id
 

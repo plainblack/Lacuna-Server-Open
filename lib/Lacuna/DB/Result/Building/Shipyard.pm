@@ -103,7 +103,7 @@ sub get_ship_costs {
     my %final;
     foreach my $cost (keys %{$costs}) {
         if ($cost eq 'seconds') {
-            $final{$cost} = sprintf('%0.f', $costs->{$cost} * $self->time_cost_reduction_bonus($self->level * 2));
+            $final{$cost} = sprintf('%0.f', $costs->{$cost} * $self->time_cost_reduction_bonus($self->level * 3));
         }
         else {
             $final{$cost} = sprintf('%0.f', $costs->{$cost} * $self->manufacturing_cost_reduction_bonus);
@@ -112,6 +112,10 @@ sub get_ship_costs {
     return \%final;
 }
 
+sub max_ships {
+    my ($self) = @_;
+    return $self->level;
+}
 
 sub can_build_ship {
     my ($self, $type, $costs) = @_;
@@ -128,10 +132,14 @@ sub can_build_ship {
             confess [1011, 'Not enough resources.', $key];
         }
     }
+    my $ships_building = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id => $self->id, task=>'Building'})->count;
+    if ($ships_building >= $self->max_ships) {
+        confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.']
+    }
     my $prereq = ship_prereqs->{$type};
     my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { body_id => $self->body_id, class => $prereq, level => {'>=' => 1} } )->count;
     unless ($count) {
-        confess [1013, q{You don't have the prerequisites to build this ship.}, $prereq];
+        confess [1013, 'You need a '.$prereq->name.' to build this ship.', $prereq];
     }
     return 1;
 }

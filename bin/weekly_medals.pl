@@ -18,6 +18,9 @@ my $start = DateTime->now;
 
 out('Loading DB');
 our $db = Lacuna->db;
+my $winners = $db->resultset('Lacuna::DB::Result::WeeklyMedalWinner');
+
+$winners->delete;
 
 spies();
 colonies();
@@ -38,11 +41,11 @@ sub colonies {
     
     # fastest growing
     my $colony = $colonies->search(undef, {order_by => { -desc => 'population_delta'}, rows => 1})->single;
-    get_empire($colony->empire_id)->add_medal('fastest_growing_colony');
+    add_medal($colony->empire_id,'fastest_growing_colony');
 
     # largest
     $colony = $colonies->search(undef, {order_by => { -desc => 'population'}, rows => 1})->single;
-    get_empire($colony->empire_id)->add_medal('largest_colony');
+    add_medal($colony->empire_id,'largest_colony');
 
     # reset deltas
     $colonies->update({
@@ -54,36 +57,36 @@ sub empires {
     my $empires = $db->resultset('Lacuna::DB::Result::Log::Empire');
     
     # best attacker in the game 
-    my $empire = $empires->search(undef, {order_by => { -desc => 'offense_success_rate'}, rows => 1})->single;
-    get_empire($empire->empire_id)->add_medal('best_attacker_in_the_game');
+    my $empire_log = $empires->search(undef, {order_by => { -desc => 'offense_success_rate'}, rows => 1})->single;
+    add_medal($empire_log->empire_id,'best_attacker_in_the_game');
     
     # best attacker of the week 
-    $empire = $empires->search(undef, {order_by => { -desc => 'offense_success_rate_delta'}, rows => 1})->single;
-    get_empire($empire->empire_id)->add_medal('best_attacker_of_the_week');
+    $empire_log = $empires->search(undef, {order_by => { -desc => 'offense_success_rate_delta'}, rows => 1})->single;
+    add_medal($empire_log->empire_id, 'best_attacker_of_the_week');
 
     # best defender in the game 
-    $empire = $empires->search(undef, {order_by => { -desc => 'defense_success_rate'}, rows => 1})->single;
-    get_empire($empire->empire_id)->add_medal('best_defender_in_the_game');
+    $empire_log = $empires->search(undef, {order_by => { -desc => 'defense_success_rate'}, rows => 1})->single;
+    add_medal($empire_log->empire_id, 'best_defender_in_the_game');
     
     # best defender of the week 
-    $empire = $empires->search(undef, {order_by => { -desc => 'defense_success_rate_delta'}, rows => 1})->single;
-    get_empire($empire->empire_id)->add_medal('best_defender_of_the_week');
+    $empire_log = $empires->search(undef, {order_by => { -desc => 'defense_success_rate_delta'}, rows => 1})->single;
+    add_medal($empire_log->empire_id,'best_defender_of_the_week');
 
     # dirtiest player in the game 
-    $empire = $empires->search(undef, {order_by => { -desc => 'dirtiest'}, rows => 1})->single;
-    get_empire($empire->empire_id)->add_medal('dirtiest_empire_in_the_game');
+    $empire_log = $empires->search(undef, {order_by => { -desc => 'dirtiest'}, rows => 1})->single;
+    add_medal($empire_log->empire_id,'dirtiest_empire_in_the_game');
     
     # dirtiest player of the week 
-    $empire = $empires->search(undef, {order_by => { -desc => 'dirtiest_delta'}, rows => 1})->single;
-    get_empire($empire->empire_id)->add_medal('dirtiest_empire_of_the_week');
+    $empire_log = $empires->search(undef, {order_by => { -desc => 'dirtiest_delta'}, rows => 1})->single;
+    add_medal($empire_log->empire_id,'dirtiest_empire_of_the_week');
 
     # fastest growing empire
-    $empire = $empires->search(undef, {order_by => { -desc => 'empire_size_delta'}, rows => 1})->single;
-    get_empire($empire->empire_id)->add_medal('fastest_growing_empire');
+    $empire_log = $empires->search(undef, {order_by => { -desc => 'empire_size_delta'}, rows => 1})->single;
+    add_medal($empire_log->empire_id,'fastest_growing_empire');
 
     # largest empire
-    $empire = $empires->search(undef, {order_by => { -desc => 'empire_size'}, rows => 1})->single;
-    get_empire($empire->empire_id)->add_medal('largest_empire');
+    $empire_log = $empires->search(undef, {order_by => { -desc => 'empire_size'}, rows => 1})->single;
+    add_medal($empire_log->empire_id,'largest_empire');
 
     # reset deltas
     $empires->update({
@@ -96,39 +99,39 @@ sub spies {
     
     # best in the game
     my $spy = $spies->search(undef,{order_by => { -desc => 'success_rate'}, rows=>1})->single;
-    get_empire($spy->empire_id)->add_medal('best_spy_in_the_game');
+    add_medal($spy->empire_id,'best_spy_in_the_game');
     
     # best of the week
     $spy = $spies->search(undef,{order_by => { -desc => 'success_rate_delta'}, rows=>1})->single;
-    get_empire($spy->empire_id)->add_medal('best_spy_of_the_week');
+    add_medal($spy->empire_id,'best_spy_of_the_week');
 
     # best offender in the game
     $spy = $spies->search(undef,{order_by => { -desc => 'offense_success_rate'}, rows=>1})->single;
-    get_empire($spy->empire_id)->add_medal('best_offensive_spy_in_the_game');
+    add_medal($spy->empire_id,'best_offensive_spy_in_the_game');
     
     # best offender of the week
     $spy = $spies->search(undef,{order_by => { -desc => 'offense_success_rate_delta'}, rows=>1})->single;
-    get_empire($spy->empire_id)->add_medal('best_offensive_spy_of_the_week');
+    add_medal($spy->empire_id,'best_offensive_spy_of_the_week');
 
     # best defender in the game
     $spy = $spies->search(undef,{order_by => { -desc => 'defense_success_rate'}, rows=>1})->single;
-    get_empire($spy->empire_id)->add_medal('best_defensive_spy_in_the_game');
+    add_medal($spy->empire_id,'best_defensive_spy_in_the_game');
     
     # best defender of the week
     $spy = $spies->search(undef,{order_by => { -desc => 'defense_success_rate_delta'}, rows=>1})->single;
-    get_empire($spy->empire_id)->add_medal('best_defensive_spy_of_the_week');
+    add_medal($spy->empire_id,'best_defensive_spy_of_the_week');
 
     # dirtiest in the game
     $spy = $spies->search(undef,{order_by => { -desc => 'dirtiest'}, rows=>1})->single;
-    get_empire($spy->empire_id)->add_medal('dirtiest_spy_in_the_game');
+    add_medal($spy->empire_id,'dirtiest_spy_in_the_game');
 
     # dirtiest of the week
     $spy = $spies->search(undef,{order_by => { -desc => 'dirtiest_delta'}, rows=>1})->single;
-    get_empire($spy->empire_id)->add_medal('dirtiest_spy_of_the_week');
+    add_medal($spy->empire_id,'dirtiest_spy_of_the_week');
 
     # most improved of the week
     $spy = $spies->search(undef,{order_by => { -desc => 'level_delta'}, rows=>1})->single;
-    get_empire($spy->empire_id)->add_medal('most_improved_spy_of_the_week');
+    add_medal($spy->empire_id,'most_improved_spy_of_the_week');
 
     # reset deltas 
     $spies->update({
@@ -139,12 +142,20 @@ sub spies {
     });
 }
 
-
 # UTILITIES
 
-sub get_empire {
-    my $id = shift;
-    return $db->resultset('Lacuna::DB::Result::Empire')->find($id);
+sub add_medal {
+    my ($empire_id, $medal_name) = @_;
+    my $empire = $db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    my $medal = $empire->add_medal($medal_name, 1);
+    $winners->new({
+        empire_id   => $empire->id,
+        empire_name => $empire->name,
+        medal_id    => $medal->id,
+        times_earned=> $medal->times_earned,
+        medal_name  => $medal->name,
+        medal_image => $medal->image,
+    })->insert;
 }
 
 sub out {

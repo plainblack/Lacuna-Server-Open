@@ -114,6 +114,19 @@ __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Building::Energy::Reserve' => 'Lacuna::DB::Result::Building::Energy::Reserve',
     'Lacuna::DB::Result::Building::Energy::Singularity' => 'Lacuna::DB::Result::Building::Energy::Singularity',
     'Lacuna::DB::Result::Building::Energy::Waste' => 'Lacuna::DB::Result::Building::Energy::Waste',
+    'Lacuna::DB::Result::Building::Permanent::Beach1' => 'Lacuna::DB::Result::Building::Permanent::Beach1',
+    'Lacuna::DB::Result::Building::Permanent::Beach2' => 'Lacuna::DB::Result::Building::Permanent::Beach2',
+    'Lacuna::DB::Result::Building::Permanent::Beach3' => 'Lacuna::DB::Result::Building::Permanent::Beach3',
+    'Lacuna::DB::Result::Building::Permanent::Beach4' => 'Lacuna::DB::Result::Building::Permanent::Beach4',
+    'Lacuna::DB::Result::Building::Permanent::Beach5' => 'Lacuna::DB::Result::Building::Permanent::Beach5',
+    'Lacuna::DB::Result::Building::Permanent::Beach6' => 'Lacuna::DB::Result::Building::Permanent::Beach6',
+    'Lacuna::DB::Result::Building::Permanent::Beach7' => 'Lacuna::DB::Result::Building::Permanent::Beach7',
+    'Lacuna::DB::Result::Building::Permanent::Beach8' => 'Lacuna::DB::Result::Building::Permanent::Beach8',
+    'Lacuna::DB::Result::Building::Permanent::Beach9' => 'Lacuna::DB::Result::Building::Permanent::Beach9',
+    'Lacuna::DB::Result::Building::Permanent::Beach10' => 'Lacuna::DB::Result::Building::Permanent::Beach10',
+    'Lacuna::DB::Result::Building::Permanent::Beach11' => 'Lacuna::DB::Result::Building::Permanent::Beach11',
+    'Lacuna::DB::Result::Building::Permanent::Beach12' => 'Lacuna::DB::Result::Building::Permanent::Beach12',
+    'Lacuna::DB::Result::Building::Permanent::Beach13' => 'Lacuna::DB::Result::Building::Permanent::Beach13',
 });
 
 sub controller_class {
@@ -510,29 +523,40 @@ sub happiness_hour {
 
 # STORAGE
 
+has storage_bonus => (
+    is  => 'rw',
+    lazy    => 1,
+    default => sub {
+        my ($self) = @_;
+        my $empire = $self->body->empire;
+        my $boost = (DateTime->now < $empire->storage_boost) ? 25 : 0;
+        return (100 + $boost) / 100;
+    },
+);
+
 sub food_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->food_storage * $self->production_hour);
+    return sprintf('%.0f',$self->food_storage * $self->production_hour * $self->storage_bonus);
 }
 
 sub energy_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->energy_storage * $self->production_hour);
+    return sprintf('%.0f',$self->energy_storage * $self->production_hour * $self->storage_bonus);
 }
 
 sub ore_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->ore_storage * $self->production_hour);
+    return sprintf('%.0f',$self->ore_storage * $self->production_hour * $self->storage_bonus);
 }
 
 sub water_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->water_storage * $self->production_hour);
+    return sprintf('%.0f',$self->water_storage * $self->production_hour * $self->storage_bonus);
 }
 
 sub waste_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->waste_storage * $self->production_hour);
+    return sprintf('%.0f',$self->waste_storage * $self->production_hour * $self->storage_bonus);
 }
 
 # BUILD

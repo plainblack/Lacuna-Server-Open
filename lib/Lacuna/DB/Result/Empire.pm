@@ -36,6 +36,7 @@ __PACKAGE__->add_columns(
     tutorial_stage          => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'explore_the_ui' },
     tutorial_scratch        => { data_type => 'text', is_nullable => 1 },
     is_isolationist         => { data_type => 'tinyint', default_value => 1 },
+    storage_boost           => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     food_boost              => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     water_boost             => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     ore_boost               => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
@@ -80,19 +81,24 @@ sub has_medal {
 }
 
 sub add_medal {
-    my ($self, $type) = @_;
-    my $existing = $self->has_medal($type);
-    if ($existing) {
-        $existing->times_earned( $existing->times_earned + 1);
+    my ($self, $type, $send_message) = @_;
+    my $medal = $self->has_medal($type);
+    if ($medal) {
+        $medal->times_earned( $medal->times_earned + 1);
+        $medal->update;
     }
     else {
-        my $medal = Lacuna->db->resultset('Lacuna::DB::Result::Medals')->new({
+        $medal = Lacuna->db->resultset('Lacuna::DB::Result::Medals')->new({
             datestamp   => DateTime->now,
             public      => 1,
             empire_id   => $self->id,
             type        => $type,
             times_earned => 1,
-        })->insert;
+        });
+        $medal->insert;
+        $send_message = 1;
+    }
+    if ($send_message) {
         my $name = $medal->name;
         $self->send_predefined_message(
             tags        => ['Medal'],
@@ -100,7 +106,7 @@ sub add_medal {
             params      => [$name, $name, $self->name],
         );
     }
-    return $self;
+    return $medal;
 }
 
 sub spend_essentia {
@@ -233,8 +239,9 @@ sub find_home_planet {
     );
     
     my $invite;
+    my $invites = Lacuna->db->resultset('Lacuna::DB::Result::Invite');
     if (defined $invite_code && $invite_code ne '') {
-        $invite = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search(
+        $invite = $invites->search(
             {code    => $invite_code, invitee_id => undef },
             {rows => 1}
         )->single;
@@ -244,7 +251,19 @@ sub find_home_planet {
     if (defined $invite) {
         $invite->invitee_id($self->id);
         $invite->update;
-        $search{zone} = $invite->inviter->home_planet->zone;
+        my $inviter = invite->inviter;
+        my $inviter_home = $inviter->home_planet;
+        if ($invites->search({inviter_id => $invite->inviter_id, invitee_id => {'>' => 0}})->count == 10) { # got 10 friends
+            for my $i (1..13) {
+                $inviter_home->add_plan('Lacuna::DB::Result::Building::Permanent::Beach'.$i,1);
+            }
+            $inviter->send_predefined_message(
+                tags        => ['Correspondence'],
+                filename    => 'thank_you_for_inviting_friends.txt',
+                from        => $self->lacuna_expanse_corp,
+            );
+        }
+        $search{zone} = $inviter_home->zone;
         # other possible solution
         #   (SQRT( POW(5-x,2) + POW(8-y,2) )) as distance
         # then order by distance

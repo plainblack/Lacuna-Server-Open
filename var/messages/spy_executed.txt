@@ -1,0 +1,8 @@
+Operative Executed
+~~~
+For the crime of Espionage, %s has been found guilty and executed. See that no more of your people find their way to %s.
+
+Regards,
+
+Capital Crimes Division
+%s
