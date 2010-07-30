@@ -17,6 +17,7 @@ Displays a list of the spies that have been captured.
         {
             "id" : "id-goes-here",
             "name" : "James Bond",
+            "level" : "20",
             "sentence_expires" : "01 31 2010 13:09:05 +0600"
         },
         ...
@@ -34,6 +35,51 @@ The unique id of the security ministry.
 =head3 page_number
 
 Defaults to 1. Each page contains 25 spies.
+
+
+
+=head2 execute_prisoner ( session_id, building_id, prisoner_id )
+
+You may choose to execute a prisoner rather than letting him serve his sentence and be released. However, that will cost you 10,000 times the prisoner's level in happiness from your planet. So a level 11 prisoner would cost you 110,000 happiness.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the security ministry.
+
+=head3 prisoner_id
+
+The unique id of a prisoner you have captured. See C<view_prisoners> for details.
+
+
+
+=head2 release_prisoner ( session_id, building_id, prisoner_id )
+
+You may choose to release a prisoner by calling this method.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the security ministry.
+
+=head3 prisoner_id
+
+The unique id of a prisoner you have captured. See C<view_prisoners> for details.
+
 
 
 
