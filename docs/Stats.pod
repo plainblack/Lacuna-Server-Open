@@ -153,5 +153,31 @@ An attribute to sort by. Defaults to C<level_rank>. Possible values are: C<level
 
 
 
+
+=head2 weekly_medal_winners ( session_id )
+
+Returns a list of the empires who won this week's weekly medals.
+
+ {
+    "status" : { ... },
+    "winners" : [
+        {
+            "empire_id" : "id-goes-here",
+            "empire_name" : "Earthlings",
+            "medal_name" : "Dirtiest Player In The Game",
+            "medal_image" : "dirtiest1",
+            "times_earned" : 4,
+        },
+        ...
+    ]
+ }
+
+
+
+=head3 session_id
+
+A session id.
+
+
 =cut
 

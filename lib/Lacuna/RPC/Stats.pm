@@ -139,7 +139,28 @@ sub spy_rank {
     };
 }
     
-__PACKAGE__->register_rpc_method_names(qw(spy_rank colony_rank find_empire_rank empire_rank credits));
+sub weekly_medal_winners {
+    my ($self, $session_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $winner_rs = Lacuna->db->resultset('Lacuna::DB::Result::WeeklyMedalWinner')->search;
+    my @winners;
+    while (my $winner = $winner_rs->next) {
+        push @winners, {
+            empire_id                   => $winner->empire_id,
+            empire_name                 => $winner->empire_name,
+            medal_name                  => $winner->medal_name,
+            medal_image                 => $winner->medal_image,
+            times_earned                => $winner->times_earned,
+        }
+    }
+    return {
+        status      	=> $self->format_status($empire),
+        winners       	=> \@winners,
+    };
+}
+    
+
+__PACKAGE__->register_rpc_method_names(qw(weekly_medal_winners spy_rank colony_rank find_empire_rank empire_rank credits));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

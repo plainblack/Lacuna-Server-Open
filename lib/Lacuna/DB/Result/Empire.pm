@@ -81,19 +81,24 @@ sub has_medal {
 }
 
 sub add_medal {
-    my ($self, $type) = @_;
-    my $existing = $self->has_medal($type);
-    if ($existing) {
-        $existing->times_earned( $existing->times_earned + 1);
+    my ($self, $type, $send_message) = @_;
+    my $medal = $self->has_medal($type);
+    if ($medal) {
+        $medal->times_earned( $medal->times_earned + 1);
+        $medal->update;
     }
     else {
-        my $medal = Lacuna->db->resultset('Lacuna::DB::Result::Medals')->new({
+        $medal = Lacuna->db->resultset('Lacuna::DB::Result::Medals')->new({
             datestamp   => DateTime->now,
             public      => 1,
             empire_id   => $self->id,
             type        => $type,
             times_earned => 1,
-        })->insert;
+        });
+        $medal->insert;
+        $send_message = 1;
+    }
+    if ($send_message) {
         my $name = $medal->name;
         $self->send_predefined_message(
             tags        => ['Medal'],
@@ -101,7 +106,7 @@ sub add_medal {
             params      => [$name, $name, $self->name],
         );
     }
-    return $self;
+    return $medal;
 }
 
 sub spend_essentia {
