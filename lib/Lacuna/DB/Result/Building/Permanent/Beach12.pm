@@ -21,10 +21,10 @@ use constant image => 'beach12';
 
 sub image_level {
     my ($self) = @_;
-    return $self->image.'12';
+    return $self->image.'1';
 }
 
-use constant name => 'Beach [1]';
+use constant name => 'Beach [12]';
 
 use constant time_to_build => 0;
 
