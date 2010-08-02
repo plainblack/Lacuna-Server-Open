@@ -1,8 +1,10 @@
 Unions Unhappy About Job Loss
 ~~~
-The workers union is making loud complaints about citizens being laid off from their jobs. Apparently they used to work at the %s on %s, but have been laid off because there is not enough waste to be processed. 
+The workers union is making loud complaints about citizens being laid off from their jobs. Apparently they used to work at the %s on %s, but have been laid off because there is not enough waste to be processed.
 
 You should either close down the %s or start producing more waste to put these people back to work. If you don't do something soon this dissent could spread to the other workers.
+
+When you have enough waste you'll need to repair the building to bring it up to full capacity again.
 
 Regards,
 
