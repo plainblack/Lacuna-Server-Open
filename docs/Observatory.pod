@@ -15,6 +15,7 @@ Returns a list of the stars that have been probed by this planet.
  {
 	"status" : { ... },
     "stars" : [
+        "id" : "id-goes-here",
 		"color" : "yellow",
 		"name" : "Sol",
 		"x" : 17,
