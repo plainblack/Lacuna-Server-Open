@@ -90,34 +90,33 @@ sub recalc_ore_production {
         $ship_capacity += $ship->hold_size;
         $ship_speed += $ship->speed;
     }
-    my $average_ship_speed = ($ship_count) ? $ship_speed / $ship_count : 0;
     
     # platforms
     my $platform_count              = $self->platforms->count;
-    my $cargo_space_per_platform    = ($platform_count) ? $ship_capacity / $platform_count : 0;
     my $platforms                   = $self->platforms;
-    my $production_hour             = 70 * $self->production_hour * $self->mining_production_bonus;
+    my $production_hour             = 70 * $self->production_hour * $self->mining_production_bonus * $platform_count;
+    my $distance = 0;
+    while (my $platform = $platforms->next) {
+        $distance += $body->calculate_distance_to_target($platform->asteroid);
+    }
+    $distance *= 2; # gotta go there and back
+    $platforms->reset;
+    
+    # calculate efficiency
+    my $trips_per_hour              = $ship_speed ? ($distance / $ship_speed) : 0; 
+    my $max_cargo_hauled_per_hour   = $trips_per_hour * $ship_capacity;
+    my $cargo_hauled_per_hour       = ($production_hour > $max_cargo_hauled_per_hour) ? $max_cargo_hauled_per_hour : $production_hour;
+    my $shipping_capacity           = $max_cargo_hauled_per_hour ? sprintf('%.0f',($production_hour / $max_cargo_hauled_per_hour) * 100) : -1;
+    my $cargo_hauled_per_hour_per_platform = $platform_count ? ($cargo_hauled_per_hour / $platform_count) : 0;
+    
+    # update platforms
     while (my $platform = $platforms->next) {
         my $asteroid                    = $platform->asteroid;
-        my $trips_per_hour              = $average_ship_speed ? (($body->calculate_distance_to_target($asteroid) / $average_ship_speed) * 2) : 0; 
-        my $max_cargo_hauled_per_hour   = $trips_per_hour * $cargo_space_per_platform;
-        my $cargo_hauled_per_hour       = ($production_hour > $max_cargo_hauled_per_hour) ? $max_cargo_hauled_per_hour : $production_hour;
         foreach my $ore (ORE_TYPES) {
             my $hour_method = $ore.'_hour';
-            $platform->$hour_method(sprintf('%.0f', $asteroid->$ore * $cargo_hauled_per_hour / 10_000));
+            $platform->$hour_method(sprintf('%.0f', $asteroid->$ore * $cargo_hauled_per_hour_per_platform / 10_000));
         }
-        if ($max_cargo_hauled_per_hour) {
-            $platform->percent_ship_capacity(sprintf('%.0f', $cargo_hauled_per_hour / $max_cargo_hauled_per_hour * 100));
-        }
-        else {
-            $platform->percent_ship_capacity(100);
-        }
-        if ($production_hour) {
-            $platform->percent_platform_capacity(sprintf('%.0f', $cargo_hauled_per_hour / $production_hour * 100));
-        }
-        else {
-            $platform->percent_platform_capacity(100);
-        }
+        $platform->percent_ship_capacity($shipping_capacity);
         $platform->update;
     }
     

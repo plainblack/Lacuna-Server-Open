@@ -40,12 +40,13 @@ Returns a list of the mining platforms currently controlled by this ministry.
             "fluorite_hour" : 10,
             "beryl_hour" : 10,
             "magnetite_hour" : 10,  
-            "production_capacity" : 100, # expressed as a percentage
-            "shipping_capacity" : 51 # expressed as a percentage
+            "shipping_capacity" : 51 
         },
         ...
     ]
  }
+ 
+The C<shipping_capacity> number is a percent which gives you an indication of your production vs shipping efficiency. If it's a -1 then you have no ships servicing the platforms. If it's at 0, then it means you have ships but no production. If it's 1 to 99 then you've got more shipping capacity than production. If it's at 100 then everything is in harmony. And if it's greater than 100 then you need to add ships because you're producing more than your ships can handle.
  
 =head3 session_id
 

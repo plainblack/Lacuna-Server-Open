@@ -66,7 +66,6 @@ sub view_platforms {
             fluorite_hour                   => $platform->fluorite_hour,
             beryl_hour                      => $platform->beryl_hour,
             magnetite_hour                  => $platform->magnetite_hour,  
-            production_capacity             => $platform->percent_platform_capacity,
             shipping_capacity               => $platform->percent_ship_capacity,
         };
     }
