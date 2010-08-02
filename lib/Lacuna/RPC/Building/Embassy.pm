@@ -70,6 +70,15 @@ sub leave_alliance {
     };
 }
 
+sub expel_member {
+    my ($self, $session_id, $building_id, $member_id, $message) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $member = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($member_id);
+    $building->expel_member($member, $message);
+    return $self->get_alliance_status($empire, $building);
+}
+
 sub accept_invite {
     my ($self, $session_id, $building_id, $invite_id, $message) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -169,7 +178,7 @@ sub update_alliance {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(update_alliance get_pending_invites get_my_invites assign_alliance_leader create_alliance dissolve_alliance send_invite accept_invite withdraw_invite reject_invite leave_alliance get_alliance_status));
+__PACKAGE__->register_rpc_method_names(qw(expel_member update_alliance get_pending_invites get_my_invites assign_alliance_leader create_alliance dissolve_alliance send_invite accept_invite withdraw_invite reject_invite leave_alliance get_alliance_status));
 
 
 no Moose;

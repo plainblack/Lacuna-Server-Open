@@ -75,6 +75,9 @@ A session id.
 The unique id of the embassy.
 
 
+
+
+
 =head2 send_invite ( session_id, building_id, invitee_id, [ message ] )
 
 Can only be called by alliance leader. Invite an empire to an alliance.
@@ -98,6 +101,9 @@ The unique id of an empire you'd like to invite to an alliance. See L<Empire/"se
 =head3 message
 
 Optional. A personalized welcome message that will be included in the invitation.
+
+
+
 
 
 
@@ -127,6 +133,8 @@ Optional. A personalized message that will be sent to the user about why their i
 
 
 
+
+
 =head3 accept_invite ( session_id, building_id, invite_id, [ message ] )
 
 Accept an invitation. Returns the same output as C<get_alliance_status>.
@@ -146,6 +154,8 @@ The unique id of an invitation. See C<get_my_invites> for details.
 =head3 message
 
 Optional. A personalized message that will be sent to the alliance leader with your acceptance.
+
+
 
 
 
@@ -278,6 +288,51 @@ Information that is publcily available about an alliance.
 Information that is only available to alliance members.
 
 =back
+
+
+=head2 leave_alliance ( session_id, building_id, [ message ] )
+
+A member of an alliance revokes their own membership.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 message
+
+An optional message about why you're leaving the alliance. Cannot contain restricted characters or profanity.
+
+
+
+=head2 expel_member ( session_id, building_id, empire_id, [ message ] )
+
+Forcibly removes a member from an alliance. Returns the same thing as C<get_alliance_status>. Can only be called by the alliance leader.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 empire_id
+
+The unique id of the empire to remove from the alliance.
+
+=head3 message
+
+An optional message about why you're removing them from the alliance. Cannot contain restricted characters or profanity.
+
+
 
 
 

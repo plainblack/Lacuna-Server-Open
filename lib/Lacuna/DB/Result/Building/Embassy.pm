@@ -143,6 +143,24 @@ sub leave_alliance {
     );
 }
 
+sub expel_member {
+    my ($self, $empire_to_remove, $message) = @_;
+    Lacuna::Verify->new(content=>\$message, throws=>[1005,'Message must not contain restricted characters or profanity.', 'message'])
+        ->no_tags
+        ->no_profanity;
+    my $alliance = $self->alliance;
+    if ($self->body->empire_id != $alliance->leader_id) {
+        confess [1010, 'Only the alliance leader can expel a member.'];
+    }
+    $alliance->remove_member($empire_to_remove);
+    $empire_to_remove->send_predefined_message(
+        from        => $alliance->leader,
+        tags        => ['Correspondence'],
+        filename    => 'alliance_expelled.txt',
+        params      => [$alliance->name, $message, $alliance->name],
+    );
+}
+
 sub send_invite {
     my ($self, $empire, $message) = @_;
     my $alliance = $self->alliance;

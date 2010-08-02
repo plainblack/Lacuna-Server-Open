@@ -1,0 +1,7 @@
+Expulsion
+~~~
+Your membership in %s has been revoked.
+
+%s
+
+%s

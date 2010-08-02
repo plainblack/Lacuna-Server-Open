@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 13;
+use Test::More tests => 14;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -50,6 +50,9 @@ is($result->{error}{code}, 1010, 'cannot set non member as alliance leader');
 
 $result = $tester->post('embassy', 'leave_alliance', [$session_id, $embassy->id]);
 is($result->{error}{code}, 1010, 'cannot leave an alliance if you are the leader');
+
+$result = $tester->post('embassy', 'expel_member', [$session_id, $embassy->id, 1]);
+is($result->{error}{code}, 1010, 'expel member');
 
 $result = $tester->post('embassy', 'dissolve_alliance', [$session_id, $embassy->id]);
 ok(exists $result->{result}, 'dissolve alliance');
