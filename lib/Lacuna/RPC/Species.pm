@@ -1,6 +1,7 @@
 package Lacuna::RPC::Species;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
 
 

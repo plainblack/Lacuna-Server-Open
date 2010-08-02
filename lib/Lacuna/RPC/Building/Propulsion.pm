@@ -1,6 +1,7 @@
 package Lacuna::RPC::Building::Propulsion;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 
 sub app_url {

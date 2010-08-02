@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::SpacePort;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Constants qw(SHIP_TYPES);
 use List::Util qw(shuffle);

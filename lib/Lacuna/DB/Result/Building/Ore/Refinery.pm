@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Ore::Refinery;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Ore';
 
 before check_build_prereqs => sub {

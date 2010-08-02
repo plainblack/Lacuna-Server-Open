@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Map::Body::Planet::P13;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body::Planet';
 
 

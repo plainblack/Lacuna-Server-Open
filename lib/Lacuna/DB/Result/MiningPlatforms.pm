@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::MiningPlatforms;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 
 __PACKAGE__->table('mining_platforms');

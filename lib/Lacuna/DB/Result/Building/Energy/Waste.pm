@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Energy::Waste;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Energy';
 
 around 'build_tags' => sub {

@@ -1,6 +1,7 @@
 package Lacuna::RPC::Building::Wheat;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 
 sub app_url {

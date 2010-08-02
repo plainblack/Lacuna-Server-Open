@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Energy::Geo;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Energy';
 
 use constant controller_class => 'Lacuna::RPC::Building::Geo';

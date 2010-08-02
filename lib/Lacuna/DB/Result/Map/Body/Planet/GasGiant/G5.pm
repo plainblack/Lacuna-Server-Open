@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Map::Body::Planet::GasGiant::G5;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body::Planet::GasGiant';
 
 use constant image => 'pg5';

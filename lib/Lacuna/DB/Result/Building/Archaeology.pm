@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Archaeology;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Constants qw(ORE_TYPES);
 

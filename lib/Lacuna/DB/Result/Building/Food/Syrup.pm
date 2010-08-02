@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Food::Syrup;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Food';
 
 use constant controller_class => 'Lacuna::RPC::Building::Syrup';

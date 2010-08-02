@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Network19;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 
 around 'build_tags' => sub {

@@ -1,6 +1,7 @@
 package Lacuna::DB;
 
 use Moose;
+no warnings qw(uninitialized);
 extends qw/DBIx::Class::Schema/;
 
 __PACKAGE__->load_namespaces();

@@ -1,6 +1,7 @@
 package TestHelper;
 
 use Moose;
+no warnings qw(uninitialized);
 use Lacuna::DB;
 use Lacuna;
 use LWP::UserAgent;

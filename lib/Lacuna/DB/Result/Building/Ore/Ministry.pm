@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Ore::Ministry;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Ore';
 use Lacuna::Constants qw(ORE_TYPES);
 

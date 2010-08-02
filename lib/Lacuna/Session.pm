@@ -1,6 +1,7 @@
 package Lacuna::Session;
 
 use Moose;
+no warnings qw(uninitialized);
 use UUID::Tiny;
 
 

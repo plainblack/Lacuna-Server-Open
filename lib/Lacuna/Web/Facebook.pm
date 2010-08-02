@@ -1,6 +1,7 @@
 package Lacuna::Web::Facebook;
 
 use Moose;
+no warnings qw(uninitialized);
 extends qw(Lacuna::Web);
 use Facebook::Graph;
 use LWP::UserAgent;

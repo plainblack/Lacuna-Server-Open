@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Transporter;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 

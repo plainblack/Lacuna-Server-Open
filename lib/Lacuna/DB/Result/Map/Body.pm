@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Map::Body;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map';
 
 __PACKAGE__->load_components('DynamicSubclass');

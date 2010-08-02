@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Map::Body::Station;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body';
 
 use constant image => 'station';

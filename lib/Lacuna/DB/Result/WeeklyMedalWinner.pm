@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::WeeklyMedalWinner;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 
 __PACKAGE__->table('weekly_medal_winner');

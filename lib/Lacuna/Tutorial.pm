@@ -1,6 +1,7 @@
 package Lacuna::Tutorial;
 
 use Moose;
+no warnings qw(uninitialized);
 
 has empire => (
     is          => 'ro',

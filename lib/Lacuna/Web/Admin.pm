@@ -1,6 +1,7 @@
 package Lacuna::Web::Admin;
 
 use Moose;
+no warnings qw(uninitialized);
 extends qw(Lacuna::Web);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use feature "switch";

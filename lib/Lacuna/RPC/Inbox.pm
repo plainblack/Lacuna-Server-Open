@@ -1,6 +1,7 @@
 package Lacuna::RPC::Inbox;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
 use DateTime;
 use Lacuna::Verify;

@@ -1,6 +1,7 @@
 package Lacuna::RPC::Map;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
 use Lacuna::Verify;
 use Lacuna::Constants qw(ORE_TYPES);

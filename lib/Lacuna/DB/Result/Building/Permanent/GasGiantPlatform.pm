@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Permanent::GasGiantPlatform;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
 around 'build_tags' => sub {

@@ -1,6 +1,7 @@
 package Lacuna::RPC::Building::Algae;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 
 sub model_class {

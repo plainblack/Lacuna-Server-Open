@@ -1,6 +1,7 @@
 package Lacuna::RPC::Stats;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
 use Lacuna::Constants qw(SHIP_TYPES);
 

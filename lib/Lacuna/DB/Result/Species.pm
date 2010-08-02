@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Species;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use Lacuna::Util;
 use Lacuna::Verify;

@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Map::Body::Planet::P12;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body::Planet';
 
 use constant image => 'p12';

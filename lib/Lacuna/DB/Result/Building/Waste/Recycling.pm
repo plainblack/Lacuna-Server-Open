@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Waste::Recycling;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Waste';
 use Lacuna::Util qw(to_seconds);
 

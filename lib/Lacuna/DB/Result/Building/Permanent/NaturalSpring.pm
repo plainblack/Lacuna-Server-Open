@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Permanent::NaturalSpring;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
 use constant controller_class => 'Lacuna::RPC::Building::NaturalSpring';

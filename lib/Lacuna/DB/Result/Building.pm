@@ -1,11 +1,11 @@
 package Lacuna::DB::Result::Building;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use Lacuna::Constants ':all';
 use List::Util qw(shuffle);
 use Lacuna::Util qw(format_date to_seconds);
-no warnings qw(uninitialized);
 
 __PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('building');

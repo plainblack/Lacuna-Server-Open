@@ -1,6 +1,7 @@
 package Lacuna::RPC::Building::FoodReserve;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Lacuna::Constants qw(FOOD_TYPES);
 

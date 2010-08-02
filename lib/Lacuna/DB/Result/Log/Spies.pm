@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Log::Spies;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Log';
 use Lacuna::Util;
 

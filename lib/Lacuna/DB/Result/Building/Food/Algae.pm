@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Food::Algae;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Food';
 
 around 'build_tags' => sub {

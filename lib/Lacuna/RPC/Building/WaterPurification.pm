@@ -1,6 +1,7 @@
 package Lacuna::RPC::Building::WaterPurification;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 
 sub app_url {

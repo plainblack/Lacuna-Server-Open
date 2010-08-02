@@ -1,6 +1,7 @@
 package Lacuna::RPC::Building::SpacePort;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Lacuna::Constants qw(SHIP_TYPES);
 use Lacuna::Util qw(format_date);

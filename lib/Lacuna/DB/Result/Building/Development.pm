@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Development;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Util qw(to_seconds);
 

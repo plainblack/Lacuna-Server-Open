@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Ore::Mine;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Ore';
 
 use constant controller_class => 'Lacuna::RPC::Building::Mine';

@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Trades;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);

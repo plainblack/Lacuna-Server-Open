@@ -1,6 +1,7 @@
 package Lacuna::Web::Pay;
 
 use Moose;
+no warnings qw(uninitialized);
 extends qw(Lacuna::Web);
 use Digest::MD5 qw(md5_hex);
 

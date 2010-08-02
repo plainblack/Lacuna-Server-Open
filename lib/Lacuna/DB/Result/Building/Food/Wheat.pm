@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Food::Wheat;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Food';
 
 before check_build_prereqs => sub {

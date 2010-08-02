@@ -1,6 +1,7 @@
 package Lacuna::RPC::Building;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
 
 sub model_class {

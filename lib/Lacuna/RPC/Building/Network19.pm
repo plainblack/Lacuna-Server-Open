@@ -1,6 +1,7 @@
 package Lacuna::RPC::Building::Network19;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use DateTime;
 

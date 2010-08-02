@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Energy::Fusion;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Energy';
 
 before check_build_prereqs => sub {

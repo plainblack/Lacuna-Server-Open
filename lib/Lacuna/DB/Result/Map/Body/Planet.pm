@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Map::Body::Planet;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use List::Util qw(shuffle);

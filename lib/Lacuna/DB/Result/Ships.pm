@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Ships;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date to_seconds randint);
 use DateTime;

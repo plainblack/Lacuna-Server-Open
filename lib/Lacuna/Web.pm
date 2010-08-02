@@ -1,6 +1,7 @@
 package Lacuna::Web;
 
 use Moose;
+no warnings qw(uninitialized);
 extends qw(Plack::Component);
 use Plack::Request;
 

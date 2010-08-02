@@ -1,6 +1,7 @@
 package Lacuna::RPC::Building::Transporter;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 
 with 'Lacuna::Role::TraderRpc';

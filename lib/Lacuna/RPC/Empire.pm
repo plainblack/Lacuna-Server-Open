@@ -1,6 +1,7 @@
 package Lacuna::RPC::Empire;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
 use Lacuna::Util qw(format_date);
 use DateTime;

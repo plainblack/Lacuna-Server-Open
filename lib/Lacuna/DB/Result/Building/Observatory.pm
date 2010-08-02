@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Observatory;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 
 

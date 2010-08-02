@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Map::Star;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map';
 use Lacuna::Util;
 

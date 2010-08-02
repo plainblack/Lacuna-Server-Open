@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Empire;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use DateTime;
 use Lacuna::Util qw(format_date);

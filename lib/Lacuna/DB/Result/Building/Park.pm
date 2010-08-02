@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Park;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use DateTime;
 use Lacuna::Constants qw(FOOD_TYPES);

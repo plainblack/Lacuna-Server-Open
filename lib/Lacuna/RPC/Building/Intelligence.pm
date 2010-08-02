@@ -1,6 +1,7 @@
 package Lacuna::RPC::Building::Intelligence;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Lacuna::Util qw(randint);
 

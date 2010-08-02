@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Embassy;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 
 around 'build_tags' => sub {

@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Water::Production;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Water';
 
 use constant controller_class => 'Lacuna::RPC::Building::WaterProduction';

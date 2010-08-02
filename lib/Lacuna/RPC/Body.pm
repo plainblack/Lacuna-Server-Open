@@ -1,6 +1,7 @@
 package Lacuna::RPC::Body;
 
 use Moose;
+no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
 use Lacuna::Verify;
 use Lacuna::Constants qw(BUILDABLE_CLASSES);

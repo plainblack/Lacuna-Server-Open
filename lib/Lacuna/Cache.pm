@@ -2,6 +2,7 @@ package Lacuna::Cache;
 
 use strict;
 use Moose;
+no warnings qw(uninitialized);
 use Memcached::libmemcached;
 use JSON;
 
