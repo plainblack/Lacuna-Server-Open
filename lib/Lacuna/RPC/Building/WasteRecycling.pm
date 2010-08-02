@@ -39,10 +39,7 @@ sub recycle {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     $building->recycle($water, $ore, $energy, $use_essentia);
-    return {
-        seconds_remaining   => $building->work_seconds_remaining,
-        status              => $self->format_status($empire, $building->body),
-    };    
+    return $self->view($empire, $building);
 }
 
 sub subsidize_recycling {
@@ -62,9 +59,7 @@ sub subsidize_recycling {
     $empire->spend_essentia(2, 'recycling subsidy after the fact');    
     $empire->update;
 
-    return {
-        status              => $self->format_status($empire, $building->body),
-    };    
+    return $self->view($empire, $building);
 }
 
 __PACKAGE__->register_rpc_method_names(qw(recycle subsidize_recycling));

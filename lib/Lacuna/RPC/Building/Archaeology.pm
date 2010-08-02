@@ -44,10 +44,7 @@ sub search_for_glyph {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     $building->search_for_glyph($ore);
-    return {
-        seconds_remaining   => $building->work_seconds_remaining,
-        status              => $self->format_status($empire, $building->body),
-    };
+    return $self->view($empire, $building);
 }
 
 sub assemble_glyphs {
