@@ -58,14 +58,10 @@ sub send_ship {
     );
 }
 
-has number_of_ships => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return $self->ships->count;
-    },
-);
+sub number_of_ships {
+    my $self = shift;
+    return $self->ships->count;
+}
 
 sub max_ships {
     my $self = shift;

@@ -96,10 +96,6 @@ sub send {
 
 sub finish_construction {
     my ($self) = @_;
-    my $port = $self->body->spaceport->find_open_dock;
-    return undef unless defined $port; # it stays in the queue until there's room
-    $port->number_of_ships($port->number_of_ships + 1);
-    $self->spaceport_id($port->id);
     $self->task('Docked');
     $self->update;
 }

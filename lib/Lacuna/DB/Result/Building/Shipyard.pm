@@ -142,12 +142,16 @@ sub can_build_ship {
     unless ($count) {
         confess [1013, 'You need a '.$prereq->name.' to build this ship.', $prereq];
     }
-    return 1;
+    my $port = $self->body->spaceport->find_open_dock;
+    unless (defined $port) {
+        confess [1009, 'You do not have a dock available at the Spaceport.'];
+    }
+    return $port;
 }
 
 
 sub build_ship {
-    my ($self, $type, $time) = @_;
+    my ($self, $port, $type, $time) = @_;
     $time ||= $self->get_ship_costs($type)->{seconds};
     my $latest = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         { shipyard_id => $self->id, task => 'Building' },
@@ -166,6 +170,7 @@ sub build_ship {
     $name .= $self->level;
     return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({
         shipyard_id     => $self->id,
+        spaceport_id    => $port->id,
         date_started    => DateTime->now,
         date_available  => $date_completed,
         task            => 'Building',

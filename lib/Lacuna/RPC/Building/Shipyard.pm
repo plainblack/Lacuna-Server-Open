@@ -44,7 +44,7 @@ sub build_ship {
     my $building = $self->get_building($empire, $building_id);
     my $body = $building->body;
     my $costs = $building->get_ship_costs($type);
-    $building->can_build_ship($type, $costs);
+    my $port = $building->can_build_ship($type, $costs);
     foreach my $key (keys %{ $costs }) {
         next if $key eq 'seconds';
         if ($key eq 'waste') {
@@ -56,7 +56,7 @@ sub build_ship {
         }
     }
     $body->update;
-    $building->build_ship($type, $costs->{seconds});
+    $building->build_ship($port, $type, $costs->{seconds});
     return $self->view_build_queue($empire, $building);
 }
 
