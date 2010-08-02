@@ -101,17 +101,37 @@ sub mine {
     if ($finish) {
         my $building = $home->get_building_of_class('Lacuna::DB::Result::Building::Ore::Mine');
         if (defined $building && $building->level >= 1) {
-            $home->add_trona(200);
-            $home->add_bread(200);
-            $home->add_energy(200);
-            $home->add_water(200);
+            $home->add_trona(700);
+            $home->add_bread(700);
+            $home->add_energy(700);
+            $home->add_water(700);
+            $home->update;
+            $self->start('more_resources');
+            return undef;
+        }
+    }
+    return {
+        filename    => 'tutorial/mine.txt',  
+    };
+}
+
+sub more_resources {
+    my ($self, $finish) = @_;
+    my $empire = $self->empire;
+    my $home = $empire->home_planet;
+    if ($finish) {
+        if ($home->water_hour >= 100 && $home->energy_hour >= 100 && $home->ore_hour >= 100 && $home->food_hour >= 100) {
+            $home->add_trona(700);
+            $home->add_bread(700);
+            $home->add_energy(700);
+            $home->add_water(700);
             $home->update;
             $self->start('university');
             return undef;
         }
     }
     return {
-        filename    => 'tutorial/mine.txt',  
+        filename    => 'tutorial/more_resources.txt',  
     };
 }
 
@@ -122,10 +142,10 @@ sub spaceport {
     if ($finish) {
         my $building = $home->get_building_of_class('Lacuna::DB::Result::Building::SpacePort');
         if (defined $building && $building->level >= 1) {
-            $home->add_bauxite(200);
-            $home->add_apple(200);
-            $home->add_water(200);
-            $home->add_energy(200);
+            $home->add_bauxite(700);
+            $home->add_apple(700);
+            $home->add_water(700);
+            $home->add_energy(700);
             $home->update;
             $self->start('shipyard');
             return undef;
@@ -143,10 +163,10 @@ sub shipyard {
     if ($finish) {
         my $building = $home->get_building_of_class('Lacuna::DB::Result::Building::Shipyard');
         if (defined $building && $building->level >= 1) {
-            $home->add_bauxite(200);
-            $home->add_apple(200);
-            $home->add_water(200);
-            $home->add_energy(200);
+            $home->add_bauxite(700);
+            $home->add_apple(700);
+            $home->add_water(700);
+            $home->add_energy(700);
             $home->update;
             $self->start('pawn');
             return undef;
@@ -251,10 +271,10 @@ sub drinking_water {
     if ($finish) {
         my $building = $home->get_building_of_class('Lacuna::DB::Result::Building::Water::Purification');
         if (defined $building && $building->level >= 1) {
-            $home->add_algae(140);
-            $home->add_rutile(140);
-            $home->add_energy(18);
-            $home->add_water(100);
+            $home->add_algae(700);
+            $home->add_rutile(700);
+            $home->add_energy(700);
+            $home->add_water(700);
             $home->update;
             $self->start('keep_the_lights_on');
             return undef;
@@ -296,10 +316,10 @@ sub storage {
                 if (defined $building && $building->level >= 1) {
                     my $building = $home->get_building_of_class('Lacuna::DB::Result::Building::Food::Reserve');
                     if (defined $building && $building->level >= 1) {
-                        $home->add_algae(100);
-                        $home->add_rutile(100);
-                        $home->add_energy(100);
-                        $home->add_water(100);
+                        $home->add_algae(700);
+                        $home->add_rutile(700);
+                        $home->add_energy(700);
+                        $home->add_water(700);
                         $home->update;
                         $self->start('fool');
                         return undef;
@@ -320,10 +340,10 @@ sub news {
     if ($finish) {
         my $building = $home->get_building_of_class('Lacuna::DB::Result::Building::Network19');
         if (defined $building && $building->level >= 1) {
-            $home->add_algae(120);
-            $home->add_rutile(120);
-            $home->add_energy(120);
-            $home->add_water(120);
+            $home->add_algae(700);
+            $home->add_rutile(700);
+            $home->add_energy(700);
+            $home->add_water(700);
             $home->update;
             $self->start('rogue');
             return undef;
@@ -340,10 +360,10 @@ sub rogue {
     my $home = $empire->home_planet;
     if ($finish) {
         if ($empire->description ne '') {
-            $home->add_algae(300);
-            $home->add_rutile(300);
-            $home->add_energy(300);
-            $home->add_water(300);
+            $home->add_algae(1700);
+            $home->add_rutile(1700);
+            $home->add_energy(1700);
+            $home->add_water(1700);
             $home->update;
             $self->start('spaceport');
             return undef;
