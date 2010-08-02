@@ -17,7 +17,7 @@ sub view_foreign_spies {
     my $building = $self->get_building($empire, $building_id);
     $page_number ||= 1;
     my @out;
-    my $spies = $building->foreign_spies->search(
+    my $spies = $building->foreign_spies->search(undef,
         {
             rows        => 25,
             page        => $page_number,

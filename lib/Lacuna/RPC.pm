@@ -3,6 +3,7 @@ package Lacuna::RPC;
 use Moose;
 extends 'JSON::RPC::Dispatcher::App';
 use Lacuna::Util qw(format_date);
+no warnings qw(uninitialized);
 
 
 sub get_session {
