@@ -1170,21 +1170,22 @@ sub take_control_of_probe {
     my ($self, $defender) = @_;
     my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->on_body_id }, {rows=>1})->single;
     return undef unless defined $probe;
-    $probe->body_id($self->from_body_id);
-    $probe->empire_id($self->empire_id);
-    $probe->update;
     $self->things_stolen( $self->things_stolen + 1 );
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'probe_destroyed.txt',
-        params      => [$self->on_body->star->name],
+        params      => [$probe->star->name],
     );
     $self->on_body->add_news(25,'%s scientists say they have lost control of a research satellite in the %s system.', $self->on_body->empire->name, $probe->star->name);    
-    return $self->empire->send_predefined_message(
+    my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_have_taken_control_of_a_probe.txt',
-        params      => [$probe->star->name, $self->on_body->empire->name, $self->name],
-    )->id;
+        params      => [$probe->star->name, $probe->empire->name, $self->name],
+    );
+    $probe->body_id($self->from_body_id);
+    $probe->empire_id($self->empire_id);
+    $probe->update;
+    return $message->id;
 }
 
 sub kill_contact_with_mining_platform {
@@ -1215,10 +1216,10 @@ sub hack_observatory_probes {
     my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->on_body->id }, {rows=>1})->single;
     return undef unless defined $probe;
     $self->things_destroyed( $self->things_destroyed + 1 );
-    $self->empire->send_predefined_message(
+    my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_destroyed_a_probe.txt',
-        params      => [$probe->star->name, $self->on_body->empire->name, $self->name],
+        params      => [$probe->star->name, $probe->empire->name, $self->name],
     );
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
@@ -1227,6 +1228,7 @@ sub hack_observatory_probes {
     );
     $probe->delete;
     $self->on_body->add_news(25,'%s scientists say they have lost control of a research satellite in the %s system.', $self->on_body->empire->name, $probe->star->name);    
+    return $message->id;
 }
 
 sub hack_offending_probes {
@@ -1239,15 +1241,16 @@ sub hack_offending_probes {
     $defender->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_destroyed_a_probe.txt',
-        params      => [$self->on_body->star->name, $probe->empire->name, $defender->name],
+        params      => [$probe->star->name, $probe->empire->name, $defender->name],
     );
-    $probe->delete;
     $self->on_body->add_news(25,'%s scientists say they have lost control of a research satellite in the %s system.', $probe->empire->name, $self->on_body->star->name);    
-    return $probe->empire->send_predefined_message(
+    my $message = $probe->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'probe_destroyed.txt',
-        params      => [$self->on_body->star->name],
-    )->id;
+        params      => [$probe->star->name],
+    );
+    $probe->delete;
+    return $message->id;
 }
 
 sub hack_local_probes {
@@ -1258,15 +1261,16 @@ sub hack_local_probes {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'probe_destroyed.txt',
-        params      => [$self->on_body->star->name],
+        params      => [$probe->star->name],
     );
-    $probe->delete;
     $self->on_body->add_news(25,'%s scientists say they have lost control of a research probe in the %s system.', $self->on_body->empire->name, $self->on_body->star->name);    
-    return $self->empire->send_predefined_message(
+    my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_destroyed_a_probe.txt',
-        params      => [$self->on_body->star->name, $self->on_body->empire->name, $self->name],
-    )->id;
+        params      => [$probe->star->name, $probe->empire->name, $self->name],
+    );
+    $probe->delete;
+    return $message->id;
 }
 
 sub colony_report {
