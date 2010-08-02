@@ -47,20 +47,23 @@ The unique id of the embassy.
 Returns everything about an alliance that members should know.
 
  {
-    "id" : "id-goes-here",
-    "name" : "United Federation of Planets",
-    "members" : [
-        {
-            "empire_id" : "id goes here",
-            "name" : "Klingons",
-        }
-        ...
-    ],
-    "leader_id" : "id goes here",
-    "forum_uri" : "http://forum.example.com/",
-    "description" : "This is public information.",
-    "announcements" : "This is private information.",
-    "date_created" : "01 31 2010 13:09:05 +0600"
+    "status" : { ... },
+    "alliance" : {
+        "id" : "id-goes-here",
+        "name" : "United Federation of Planets",
+        "members" : [
+            {
+                "empire_id" : "id goes here",
+                "name" : "Klingons",
+            }
+            ...
+        ],
+        "leader_id" : "id goes here",
+        "forum_uri" : "http://forum.example.com/",
+        "description" : "This is public information.",
+        "announcements" : "This is private information.",
+        "date_created" : "01 31 2010 13:09:05 +0600"
+     }
  }
 
 =head3 session_id
