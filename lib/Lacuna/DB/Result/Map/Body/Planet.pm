@@ -574,6 +574,7 @@ sub recalc_stats {
                 foreach my $type (ORE_TYPES) {
                     my $method = $type.'_hour';
                     $stats{$method} += $platform->$method();
+                    $stats{ore_hour} += $platform->$method();
                 }
             }
         }
