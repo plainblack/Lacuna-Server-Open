@@ -105,6 +105,12 @@ sub add_medal {
             tags        => ['Medal'],
             filename    => 'medal.txt',
             params      => [$name, $name, $self->name],
+            attachments => {
+                image => {
+                    title   => $name,
+                    url     => Lacuna->config->get('feeds/surl').'assets/medal/'.$type.'.png',
+                }
+            },
         );
     }
     return $medal;

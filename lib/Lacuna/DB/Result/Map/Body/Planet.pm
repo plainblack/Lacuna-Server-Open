@@ -718,7 +718,14 @@ sub tick {
                 $still_enabled = 1;
             }
         }
-        unless ($still_enabled) {
+        unless ($still_enabled && $self->boost_enabled) {
+            if (!$self->empire->check_for_repeat_message('boosts_expired')) {
+                $self->empire->send_predefined_message(
+                    tags        => ['Alert'],
+                    filename    => 'boosts_expired.txt',
+                    repeat_check=> 'boosts_expired',
+                );
+            }
             $self->boost_enabled(0);
         }
     }

@@ -95,8 +95,11 @@ sub trade_one_for_one {
 }
 
 sub push_items {
-    my ($self, $target, $items) = @_;
-    my $payload = $self->structure_push($items, $self->determine_available_cargo_space);
+    my ($self, $target, $transporter, $items) = @_;
+    my $local_payload = $self->determine_available_cargo_space;
+    my $remote_payload = $transporter->determine_available_cargo_space;
+    my $space_available = ($remote_payload < $local_payload) ? $remote_payload : $local_payload;
+    my $payload = $self->structure_push($items, $space_available);
     $self->unload($payload, $target);
 }
 
