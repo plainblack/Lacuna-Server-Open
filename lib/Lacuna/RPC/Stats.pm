@@ -125,7 +125,7 @@ sub spy_rank {
             empire_name                 => $rank->empire_name,
             spy_id                      => $rank->spy_id,
             spy_name                    => $rank->spy_name,
-            age                         => $rank->level,
+            age                         => $rank->age,
             level                       => $rank->level,
             level_delta                 => $rank->level_delta,
             success_rate                => $rank->success_rate,
