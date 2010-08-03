@@ -94,7 +94,7 @@ sub recalc_ore_production {
     # platforms
     my $platform_count              = $self->platforms->count;
     my $platforms                   = $self->platforms;
-    my $production_hour             = 70 * $self->production_hour * $self->mining_production_bonus * $platform_count;
+    my $production_hour             = 30 * $self->production_hour * $self->mining_production_bonus * $platform_count;
     my $distance = 0;
     while (my $platform = $platforms->next) {
         $distance += $body->calculate_distance_to_target($platform->asteroid);
