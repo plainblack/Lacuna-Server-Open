@@ -103,7 +103,7 @@ sub recalc_ore_production {
     $platforms->reset;
     
     # calculate efficiency
-    my $trips_per_hour              = $ship_speed ? ($distance / $ship_speed) : 0; 
+    my $trips_per_hour              = $distance ? ($ship_speed / $distance) : 0; 
     my $max_cargo_hauled_per_hour   = $trips_per_hour * $ship_capacity;
     my $cargo_hauled_per_hour       = ($production_hour > $max_cargo_hauled_per_hour) ? $max_cargo_hauled_per_hour : $production_hour;
     my $shipping_capacity           = $max_cargo_hauled_per_hour ? sprintf('%.0f',($production_hour / $max_cargo_hauled_per_hour) * 100) : -1;
