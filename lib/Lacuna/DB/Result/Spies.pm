@@ -117,6 +117,15 @@ sub is_available {
             $self->task('Counter Espionage');
             $self->update;
         }
+        elsif ($task eq 'Unconscious') {
+            $self->task('Idle');
+            $self->update;
+            $self->empire->send_predefined_message(
+                tags        => ['Intelligence'],
+                filename    => 'must_have_been_knocked_out.txt',
+                params      => [$self->name],
+            );
+        }
         elsif ($task eq 'Waiting On Trade') {
             my $trade = Lacuna->db->resultset('Lacuna::DB::Result::Trades')->search({
                offer_object_id  => $self->id,
