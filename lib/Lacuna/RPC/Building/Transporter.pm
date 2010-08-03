@@ -28,10 +28,14 @@ sub push_items {
     unless (defined $target) {
         confess [1002, 'The target body you specified could not be found.'];
     }
-    unless ($target->empire_id eq $empire->id) {
+    unless ($target->empire_id == $empire->id) {
         confess [1010, 'You cannot push items to a planet that is not your own.'];
     }
-    $building->push_items($target, $items);
+    my $transporter = $target->get_building_of_class('Lacuna::DB::Result::Building::Transporter');
+    unless (defined $transporter) {
+        confess [1010, 'You cannot push items to a planet that does not have a transporter.'];
+    }
+    $building->push_items($target, $transporter, $items);
     $empire->spend_essentia(2, 'Transporter Push')->update; # has to go after due to validation in push_goods
     return {
         status      => $self->format_status($empire, $building->body),
