@@ -320,8 +320,8 @@ sub summarize_spies {
     while (my $spy = $spies->next) {
         out($spy->name);
         my $log = $logs->search({ spy_id => $spy->id },{ rows => 1 } )->single;
-        my $offense_success_rate = ($spy->offense_mission_count) ? $spy->offense_mission_successes / $spy->offense_mission_count : 0;
-        my $defense_success_rate = ($spy->defense_mission_count) ? $spy->defense_mission_successes / $spy->defense_mission_count : 0;
+        my $offense_success_rate = ($spy->offense_mission_count) ? 100 * $spy->offense_mission_successes / $spy->offense_mission_count : 0;
+        my $defense_success_rate = ($spy->defense_mission_count) ? 100 * $spy->defense_mission_successes / $spy->defense_mission_count : 0;
         my $success_rate = $offense_success_rate + $defense_success_rate;
         my $planet = $db->resultset('Lacuna::DB::Result::Map::Body')->find($spy->from_body_id);
         my %spy_data = (
