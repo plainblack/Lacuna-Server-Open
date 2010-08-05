@@ -450,7 +450,6 @@ sub www_view_logs {
     my ($self, $request) = @_;
     my $list = '
     <a href="/admin/view/logs?file=request">Request</a>
-    | <a href="/admin/view/logs?file=espionage">Espionage</a>
     | <a href="/admin/view/logs?file=summary">Summary</a>
     | <a href="/admin/view/logs?file=weekmedals">Weekly Medals</a>
     ';
@@ -458,9 +457,6 @@ sub www_view_logs {
     given ($request->param('file')) {
         when ('request') {
             $log = `tail -50 /tmp/lacuna.log`;
-        }
-        when ('espionage') {
-            $log = `tail -1000 /tmp/espionage.log`;
         }
         when ('weekmedals') {
             $log = `tail -100 /tmp/weekly_medals.log`;
