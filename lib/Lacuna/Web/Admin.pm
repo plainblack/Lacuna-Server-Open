@@ -117,6 +117,91 @@ sub www_search_stars {
     return $self->wrap($out);
 }
 
+my @infrastructure = (
+    'Lacuna::DB::Result::Building::Archaeology',
+    'Lacuna::DB::Result::Building::Development',
+    'Lacuna::DB::Result::Building::Embassy',
+    'Lacuna::DB::Result::Building::EntertainmentDistrict',
+    'Lacuna::DB::Result::Building::Espionage',
+    'Lacuna::DB::Result::Building::GasGiantLab',
+    'Lacuna::DB::Result::Building::GeneticsLab',
+    'Lacuna::DB::Result::Building::Intelligence',
+    'Lacuna::DB::Result::Building::Network19',
+    'Lacuna::DB::Result::Building::Observatory',
+    'Lacuna::DB::Result::Building::Oversight',
+    'Lacuna::DB::Result::Building::Park',
+    'Lacuna::DB::Result::Building::Propulsion',
+    'Lacuna::DB::Result::Building::Security',
+    'Lacuna::DB::Result::Building::Shipyard',
+    'Lacuna::DB::Result::Building::SpacePort',
+    'Lacuna::DB::Result::Building::TerraformingLab',
+    'Lacuna::DB::Result::Building::Trade',
+    'Lacuna::DB::Result::Building::Transporter',
+    'Lacuna::DB::Result::Building::University',
+    'Lacuna::DB::Result::Building::Waste::Recycling',
+    'Lacuna::DB::Result::Building::Waste::Sequestration',
+);
+
+sub www_send_stellar_flare {
+    my ($self, $request, $body_id) = @_;
+    $body_id ||= $request->param('body_id');
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
+    my $buildings = $body->buildings->search({ class => { in => \@infrastructure }});
+    while (my $building = $buildings->next) {
+        $building->efficiency(0);
+        $building->update;
+    }
+    $body->needs_recalc(1);
+    $body->update;
+    $body->add_news(99, sprintf('%s has just belched a massive stellar flare. %s bore the brunt of it.', $body->star->name, $body->name));
+    $body->empire->send_message(
+        subject     => 'Stellar Flare',
+        body        => "A stellar flare has disabled most of the infrastructure on ".$body->name.".\n\nRegards,\n\nYour Humble Assistant",
+        tag         => 'Alert',
+    );
+    return $self->wrap('Stellar flare sent!');
+}
+
+sub www_send_meteor_shower {
+    my ($self, $request, $body_id) = @_;
+    $body_id ||= $request->param('body_id');
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
+    my $buildings = $body->buildings->search({ class => { in => \@infrastructure }});
+    while (my $building = $buildings->next) {
+        $building->class('Lacuna::DB::Result::Building::Permanent::Crater');
+        $building->level(1);
+        $building->is_upgrading(0);
+        $building->is_working(0);
+        $building->update;
+    }
+    $body->needs_recalc(1);
+    $body->update;
+    $body->add_news(99, sprintf('A meteor shower rained hell on %s today, and much of its infrastructure was destroyed.', $body->name));
+    $body->empire->send_message(
+        subject     => 'Meteor Shower',
+        body        => "A meteor shower has just destroyed most of the infrastructure on ".$body->name.".\n\nRegards,\n\nYour Humble Assistant",
+        tag         => 'Alert',
+    );
+    return $self->wrap('Meteor shower sent!');
+}
+
+sub www_send_pestilence {
+    my ($self, $request, $body_id) = @_;
+    $body_id ||= $request->param('body_id');
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
+    if ($body->id == $body->empire->home_planet_id) {
+        confess [401, 'You cannot send pestilence to someone\'s home planet.'];
+    }
+    $body->add_news(99, sprintf('Yesterday there was an outbreak of Derni Pestilence on %s. Today %s has gone dark.', $body->name));
+    $body->empire->send_message(
+        subject     => 'Pestilence',
+        body        => "Derni Pestilence has broken out on ".$body->name.". The colony is lost.\n\nRegards,\n\nYour Humble Assistant",
+        tag         => 'Alert',
+    );
+    $body->sanitize;
+    return $self->wrap('Pestilence sent!');
+}
+
 sub www_view_buildings {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
@@ -319,6 +404,9 @@ sub www_manage_body {
     $out .= sprintf('<li><a href="/admin/view/plans?body_id=%s">View Plans</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/glyphs?body_id=%s">View Glyphs</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/recalc/body?body_id=%s">Recalculate Body Stats</a></li>', $body->id);
+    $out .= sprintf('<li><a href="/admin/send/stellar/flare?body_id=%s" onclick="return confirm(\'Are you sure?\')">Send Stellar Flare</a></li>', $body->id);
+    $out .= sprintf('<li><a href="/admin/send/meteor/shower?body_id=%s" onclick="return confirm(\'Are you sure?\')">Send Meteor Shower</a></li>', $body->id);
+    $out .= sprintf('<li><a href="/admin/send/pestilence?body_id=%s" onclick="return confirm(\'Are you sure?\')">Send Pestilence</a></li>', $body->id);
     $out .= '</ul>';
     return $self->wrap($out);
 }

@@ -348,7 +348,7 @@ sub send_email {
 
 sub send_message {
     my ($self, %params) = @_;
-    $params{from}   = $params{from} || $self;
+    $params{from}   ||= $self;
 
     my $recipients = $params{recipients};
     unless (ref $recipients eq 'ARRAY' && @{$recipients}) {
