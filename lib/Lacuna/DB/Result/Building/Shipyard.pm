@@ -121,6 +121,9 @@ sub max_ships {
 sub can_build_ship {
     my ($self, $type, $costs) = @_;
     $costs ||= $self->get_ship_costs($type);
+    if ($type ~~ [qw(gas_giant_settlement_platform_ship space_station terraforming_platform_ship)]) {
+        confess [1010, 'Not yet implemented.'];
+    }
     if ($self->level < 1) {
         confess [1013, "You can't build a ship if the shipyard isn't complete."];
     }
