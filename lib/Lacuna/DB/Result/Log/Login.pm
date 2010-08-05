@@ -7,8 +7,9 @@ use Lacuna::Util;
 
 __PACKAGE__->table('login_log');
 __PACKAGE__->add_columns(
-    api_key             => { data_type => 'char', size => 40, is_nullable => 1 },
-    session_id          => { data_type => 'char', size => 40, is_nullable => 0 },
+    api_key             => { data_type => 'varchar', size => 36, is_nullable => 1 },
+    session_id          => { data_type => 'char', size => 36, is_nullable => 0 },
+    ip_address          => { data_type => 'varchar', size => 15, is_nullable => 1 },
     log_out_date        => { data_type => 'datetime', is_nullable => 1 },
     extended            => { data_type => 'int', size => 11, default_value => 0 },
 );

@@ -88,16 +88,21 @@ sub end {
 }
 
 sub start {
-    my ($self, $empire, $api_key, $is_sitter) = @_;
+    my ($self, $empire, $options) = @_;
     $self->empire_id($empire->id);
-    $self->api_key($api_key);
-    $self->is_sitter($is_sitter);
+    $self->api_key($options->{api_key});
+    $self->is_sitter($options->{is_sitter});
     $empire->current_session($self);
     $self->empire($empire);
+    my $ip;
+    if (exists $options->{request}) {
+        $ip = $options->{request}->address;
+    }
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Login')->new({
         empire_id       => $empire->id,
         empire_name     => $empire->name,
-        api_key      => $api_key,
+        api_key         => $options->{api_key},
+        ip_address      => $ip,
         session_id      => $self->id,
     })->insert;
     return $self->extend;

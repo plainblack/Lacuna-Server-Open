@@ -48,7 +48,7 @@ sub logout {
 }
 
 sub login {
-    my ($self, $name, $password, $api_key) = @_;
+    my ($self, $plack_request, $name, $password, $api_key) = @_;
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->next;
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
@@ -58,13 +58,13 @@ sub login {
     }
     unless ($empire->is_password_valid($password)) {
         if ($password ne '' && $empire->sitter_password eq $password) {
-            return { session_id => $empire->start_session($api_key, 1)->id, status => $self->format_status($empire) };
+            return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request, is_sitter => 1 })->id, status => $self->format_status($empire) };
         }
         else {
             confess [1004, 'Password incorrect.', $password];            
         }
     }
-    return { session_id => $empire->start_session($api_key)->id, status => $self->format_status($empire) };
+    return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request })->id, status => $self->format_status($empire) };
 }
 
 
@@ -131,7 +131,7 @@ sub send_password_reset_message {
 
 
 sub reset_password {
-    my ($self, $key, $password1, $password2, $api_key) = @_;
+    my ($self, $plack_request, $key, $password1, $password2, $api_key) = @_;
     # verify
     unless (defined $key && $key ne '') {
         confess [1002, 'You need a key to reset a password.'];
@@ -150,7 +150,7 @@ sub reset_password {
     $empire->update;
     
     # authenticate
-    return { session_id => $empire->start_session($api_key)->id, status => $self->format_status($empire) };
+    return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request })->id, status => $self->format_status($empire) };
 }
 
 
@@ -218,7 +218,7 @@ sub validate_captcha {
 }
 
 sub found {
-    my ($self, $empire_id, $api_key, $invite_code) = @_;
+    my ($self, $plack_request, $empire_id, $api_key, $invite_code) = @_;
     if ($empire_id eq '') {
         confess [1002, "You must specify an empire id."];
     }
@@ -230,7 +230,7 @@ sub found {
         confess [1010, "This empire cannot be founded again.", $empire_id];
     }
     $empire = $empire->found(undef, $invite_code);
-    return { session_id => $empire->start_session($api_key)->id, status => $self->format_status($empire) };
+    return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request })->id, status => $self->format_status($empire) };
 }
 
 sub get_status {
@@ -527,7 +527,10 @@ sub invite_friend {
 __PACKAGE__->register_rpc_method_names(
     { name => "create", options => { with_plack_request => 1 } },
     { name => "fetch_captcha", options => { with_plack_request => 1 } },
-    qw(invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available found login logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+    { name => "login", options => { with_plack_request => 1 } },
+    { name => "found", options => { with_plack_request => 1 } },
+    { name => "reset_password", options => { with_plack_request => 1 } },
+    qw(invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
 );
 
 

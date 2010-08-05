@@ -36,7 +36,7 @@ sub www_postback {
         $empire->facebook_token($fb->access_token);
         $empire->update;
         $uri .= '?session_id=%s';
-        $uri = sprintf $uri, $empire->start_session('facebook')->id;
+        $uri = sprintf $uri, $empire->start_session({ api_key => 'facebook' })->id;
     }
     else {
         $uri .= '?facebook_uid=%s&facebook_token=%s';

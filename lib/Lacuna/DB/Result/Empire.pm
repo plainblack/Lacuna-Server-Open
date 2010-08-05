@@ -197,10 +197,10 @@ sub get_status {
 }
 
 sub start_session {
-    my ($self, $client_key) = @_;
+    my ($self, $options) = @_;
     $self->last_login(DateTime->now);
     $self->update;
-    return Lacuna::Session->new->start($self, $client_key);
+    return Lacuna::Session->new->start($self, $options);
 }
 
 sub is_password_valid {
