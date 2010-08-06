@@ -223,9 +223,7 @@ sub repair {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id, skip_offline => 1);
     $building->repair;
-    return {
-        status      => $self->format_status($empire, $building->body),
-    };
+    return $self->view($empire, $building);
 }
 
 
