@@ -333,7 +333,8 @@ sub invite_friend {
     Email::Stuff->from($self->email)
         ->to($email)
         ->subject('Come Play With Me')
-        ->text_body($message);
+        ->text_body($message)
+        ->send;
 }
 
 sub send_email {
