@@ -68,7 +68,8 @@ sub www_generate_key {
         Email::Stuff->from('noreply@lacunaexpanse.com')
             ->to($pair->email)
             ->subject('Lacuna API Key')
-            ->text_body("Here is the copy of the API Key you requested.\n\nPublic Key: ".$pair->public_key."\n\nPrivate Key: ".$pair->private_key);
+            ->text_body("Here is the copy of the API Key you requested.\n\nPublic Key: ".$pair->public_key."\n\nPrivate Key: ".$pair->private_key)
+            ->send;
     }
     return $self->wrapper($out, { title => 'Your API Key', logo => 1 });    
 }
