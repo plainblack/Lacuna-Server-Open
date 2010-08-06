@@ -42,6 +42,7 @@ sub get_status {
         leader_id       => $self->leader_id,
         forum_uri       => $self->forum_uri,
         description     => $self->description,
+        name            => $self->name,
         announcements   => $self->announcements,
         date_created    => $self->date_created_formatted,
     };
