@@ -79,7 +79,7 @@ sub restrict_coverage {
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
     my $out = $orig->($self, $empire, $building);
     $out->{restrict_coverage} = $building->body->restrict_coverage;
     return $out;

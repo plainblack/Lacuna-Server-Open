@@ -499,7 +499,7 @@ sub scuttle_ship {
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
     my $out = $orig->($self, $empire, $building);
     return $out unless $building->level > 0;
     my $docked = $building->ships->search({ task => 'Docked' });
