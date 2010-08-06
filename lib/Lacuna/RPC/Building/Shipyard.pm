@@ -17,7 +17,6 @@ sub view_build_queue {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    $building->is_offline;
     my $body = $building->body;
     $page_number ||= 1;
     my @building;

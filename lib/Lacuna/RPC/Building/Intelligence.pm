@@ -168,7 +168,6 @@ sub name_spy {
         ->no_restricted_chars;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    $building->is_offline;
     my $spy = $building->get_spy($spy_id);
     $spy->name($name);
     $spy->update;
