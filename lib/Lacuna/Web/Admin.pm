@@ -210,12 +210,18 @@ sub www_view_buildings {
     my $buildings = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({ body_id => $body_id }, {order_by => ['x','y'] });
     my $out = '<h1>View Buildings</h1>';
     $out .= sprintf('<a href="/admin/manage/body?id=%s">Back To Body</a>', $body_id);
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Level</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Level</th><th>Efficiency</th></tr>';
     while (my $building = $buildings->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $building->id, $building->name, $building->x, $building->y, $building->level);
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><form action="/admin/set/efficiency"><td><input type="hidden" name="body_id" value="%s"><input type="text" size="3" value="%s"><input type="submit" value="submit"></td></form></tr>', $building->id, $building->name, $building->x, $building->y, $building->level, $body_id, $building->efficiency);
     }
     $out .= '</table>';
     return $self->wrap($out);
+}
+
+sub www_set_efficiency {
+    my ($self, $request) = @_;
+    Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($request->param('body_id'))->update({efficiency => $request->param('efficiency')});
+    return $self->www_view_buildings($request);
 }
 
 sub www_view_resources {
