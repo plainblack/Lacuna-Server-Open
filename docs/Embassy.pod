@@ -5,6 +5,20 @@ Embassy is accessible via the URL C</embassy>. The embassy is used to form allia
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
 
+
+=head2 view ( session_id, building_id )
+
+Same as view in L<Buildings> except:
+
+ {
+    "status" : { ... },
+    "building" : { ... },
+    "alliance_status" : { get_alliance_status() }
+ }
+
+We add an C<alliance_status> block if this empire is in an alliance. It contains the same information as C<get_alliance_status>
+
+
 =head2 create_alliance ( session_id, building_id, name )
 
 Create a new alliance. Returns the same output as C<get_alliance_status>.

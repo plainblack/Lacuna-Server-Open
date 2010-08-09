@@ -8,6 +8,18 @@ sub app_url {
     return '/embassy';
 }
 
+around 'view' => sub {
+    my ($orig, $self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
+    my $out = $orig->($self, $empire, $building);
+    my $alliance = $building->alliance;
+    if (defined $alliance) {
+        $out->{alliance_status} = $alliance->get_status;
+    }
+    return $out;
+};
+
 sub model_class {
     return 'Lacuna::DB::Result::Building::Embassy';
 }
