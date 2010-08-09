@@ -8,12 +8,12 @@ use Lacuna::Constants qw(SHIP_TYPES);
 sub credits {
     return [
             { 'Game Design'         => ['JT Smith','Jamie Vrbsky']},
-            { 'Web Client'          => ['John Rozeske']},
+            { 'Web Client'          => ['John Rozeske','Graham Knop']},
             { 'iPhone Client'       => ['Kevin Runde']},
             { 'Game Server'         => ['JT Smith']},
             { 'Art and Icons'       => ['Ryan Knope','JT Smith','Joseph Wain / glyphish.com','Keegan Runde']},
             { 'Geology Consultant'  => ['Geofuels, LLC / geofuelsllc.com']},
-            { 'Playtesters'         => ['John Oettinger','Jamie Vrbsky','Mike Kastern','Chris Burr','Eric Patterson','Frank Dillon','Kristi McCombs','Ryan McCombs','Mike Helfman','Tavis Parker','Sarah Bownds']},
+            { 'Playtesters'         => ['John Oettinger','Jamie Vrbsky','Mike Kastern','Chris Burr','Eric Patterson','Frank Dillon','Kristi McCombs','Ryan McCombs','Mike Helfman','Tavis Parker','Sarah Bownds','Rob Dicke','Gemma Blair']},
             { 'Game Support'        => ['Plain Black Corporation / plainblack.com']},
             ];
 }
