@@ -561,7 +561,7 @@ sub enable_self_destruct {
             Lacuna->config->get('server_url'),
         ),
     );
-    $self->send_message(subject => $subject, message => 'Your empire will self destruct in 24 hours unless you click on the disable self destruct icon.');
+    $self->send_message(subject => $subject, body => 'Your empire will self destruct in 24 hours unless you click on the disable self destruct icon.');
     return $self;
 }
 
