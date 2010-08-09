@@ -132,7 +132,10 @@ The unique id of the mining ministry.
 The unique id of the ship you want to add.
 
 
-=head2 abandon_platform ( session_id, building_id, asteroid_id )
+
+
+
+=head2 abandon_platform ( session_id, building_id, platform_id )
 
 Close down an existing mining platform.
 
@@ -150,8 +153,8 @@ A session id.
 
 The unique id of the mining ministry.
 
-=head3 asteroid_id
+=head3 platform_id
 
-The unique id of the asteroid from which you wish to abandon a mining platform.
+The unique id of the platform you wish to abandon.
 
 =cut
