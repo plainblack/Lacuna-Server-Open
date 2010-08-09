@@ -16,7 +16,7 @@ sub view_ships {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $building->body_id, task => { in => ['Mining', 'Docked']}, type => 'cargo_ship' });
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $building->body_id, task => { in => ['Mining', 'Docked']}, hold_size => { '>' => 0 } });
     my @fleet;
     while (my $ship = $ships->next) {
         push @fleet, {
@@ -103,6 +103,9 @@ sub add_cargo_ship_to_fleet {
     }
     unless ($ship->task eq 'Docked') {
         confess [1009, "That ship is not available."];
+    }
+    unless ($ship->hold_size > 0) {
+        confess [1009, 'That ship has no cargo hold.'];
     }
     unless ($ship->body_id eq $building->body_id) {
         confess [1013, "You can't manage a ship that is not yours."];
