@@ -108,9 +108,17 @@ sub get_buildable {
     my %out;
     my @buildable = BUILDABLE_CLASSES;
     
+    # build queue
+    my $dev = $body->development;
+    my $max_items_in_build_queue = 1;
+    if (defined $dev) {
+        $max_items_in_build_queue += $dev->level;
+    }
+    my $items_in_build_queue = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({body_id => $body_id, is_upgrading=>1})->count;
+    
     # plans
     my @plans;
-    my $plan_rs = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search({body_id => $body_id, level => 1});
+    my $plan_rs = $body->plans->search({level => 1});
     while (my $plan = $plan_rs->next) {
         push @buildable, $plan->class->controller_class;
         push @plans, $plan->class;
@@ -123,9 +131,9 @@ sub get_buildable {
         if ($properties{class} ~~ \@plans) {
             push @tags, 'Plan',
         }
-if ($tag) { # REMOVE IF AFTER CLIENTS SUPPORT THIS
-        next unless ($tag ~~ \@tags);
-}
+        if ($tag) {
+            next unless ($tag ~~ \@tags);
+        }
         my $cost = $building->cost_to_upgrade;
         my $can_build = eval{$body->has_met_building_prereqs($building, $cost)};
         my $reason = $@;
@@ -151,7 +159,7 @@ if ($tag) { # REMOVE IF AFTER CLIENTS SUPPORT THIS
         };
     }
 
-    return {buildable=>\%out, status=>$self->format_status($empire, $body)};
+    return {buildable=>\%out, build_queue => { max => $max_items_in_build_queue, current => $items_in_build_queue}, status=>$self->format_status($empire, $body)};
 }
 
 

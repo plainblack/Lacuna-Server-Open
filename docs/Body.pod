@@ -130,6 +130,11 @@ The id of the body you wish to retrieve the buildings on.
 Provides a list of all the building types that are available to be built on a given space on a planet that are within a specific tag.
 
  {
+    "max_items_in_build_queue" : 6,
+    "build_queue" : {
+        "max" : 4,
+        "current" : 3
+    },
     "buildable" : {
         "Wheat Farm" : {
             "url" :"/wheat",

@@ -308,6 +308,18 @@ has network19 => (
     },
 );
 
+has development => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Development');
+        return undef unless defined $building;
+        $building->body($self);
+        return $building;
+    },
+);
+
 has refinery => (
     is      => 'rw',
     lazy    => 1,
@@ -373,7 +385,7 @@ sub can_build_building {
 sub has_room_in_build_queue {
     my ($self) = shift;
     my $max = 1;
-    my $dev_ministry = $self->get_building_of_class('Lacuna::DB::Result::Building::Development');
+    my $dev_ministry = $self->development;
     if (defined $dev_ministry) {
         $max += $dev_ministry->level;
     }
