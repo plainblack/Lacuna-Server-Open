@@ -54,11 +54,23 @@ ok($result->{result}{building}{id}, "built a security ministry");
 my $security = $tester->get_building($result->{result}{building}{id});
 $security->finish_upgrade;
 
-$result = $tester->post('security', 'view_prisoners', [$session_id, $security->id]);
-is(ref $result->{result}{prisoners}, 'ARRAY', "view prisoners");
+my $lacunans = $empire->lacuna_expanse_corp;
+my $spy = Lacuna->db->resultset('Spies')->new({
+    empire_id       => $lacunans->id,
+    from_body_id    => $lacunans->home_planet_id,
+    on_body_id      => $home->id,
+    available_on    => DateTime->now->add(minutes => 10),
+    level           => 1,
+})->insert;
 
 $result = $tester->post('security', 'view_foreign_spies', [$session_id, $security->id]);
-is(ref $result->{result}{spies}, 'ARRAY', "view foreign spies");
+is(scalar(@{$result->{result}{spies}}), 1, "view foreign spies");
+
+$spy->task('Captured');
+$spy->update;
+
+$result = $tester->post('security', 'view_prisoners', [$session_id, $security->id]);
+is(scalar(@{$result->{result}{prisoners}}), 1, "view prisoners");
 
 
 END {

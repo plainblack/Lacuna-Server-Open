@@ -30,7 +30,7 @@ sub view_foreign_spies {
         push @out, {
             name                => $spy->name,
             level               => $spy->level,
-            next_mission        => $spy->available_on_formatted,
+            next_mission        => $available_on,
         };
     }
     return {
