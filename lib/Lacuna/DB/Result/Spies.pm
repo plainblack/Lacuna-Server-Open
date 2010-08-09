@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Spies;
 use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
-use Lacuna::Util qw(format_date to_seconds randint random_string);
+use Lacuna::Util qw(format_date to_seconds randint random_element);
 use DateTime;
 use feature "switch";
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
@@ -177,10 +177,10 @@ sub assign {
     my ($self, $assignment) = @_;
     my @assignments = $self->assignments;
     unless ($assignment ~~ @assignments) {
-        return { result =>'Failure', reason => random_string(['I am not trained for that.','Don\'t know how.']) };
+        return { result =>'Failure', reason => random_element(['I am not trained for that.','Don\'t know how.']) };
     }
     unless ($self->is_available) {
-        return { result =>'Failure', reason => random_string(['I am busy just now.','It will have to wait.','Can\'t right now.','Maybe later.']) };
+        return { result =>'Failure', reason => random_element(['I am busy just now.','It will have to wait.','Can\'t right now.','Maybe later.']) };
     }
     
     # calculate recovery
@@ -204,7 +204,7 @@ sub assign {
     # run mission
     if ($assignment ~~ ['Idle','Counter Espionage']) {
         $self->update;
-        return {result => 'Accepted', reason => random_string(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.'])};
+        return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.'])};
     }
     else {
         return $self->run_mission;
@@ -252,7 +252,7 @@ sub run_mission {
 
     # can't run missions on your own planets
     if ($self->empire_id == $self->on_body->empire_id) {
-        return { result => 'Failure', reason => random_string(['I will not run offensive missions against my own people.','No!','Do you really want me to attack our own citizens?','This would not make Mom proud.','I have moral objections.']) };
+        return { result => 'Failure', reason => random_element(['I will not run offensive missions against my own people.','No!','Do you really want me to attack our own citizens?','This would not make Mom proud.','I have moral objections.']) };
     }
 
     # calculate success, failure, or bounce
@@ -275,7 +275,7 @@ sub run_mission {
         $self->update_level;
         my $outcome = $outcomes{$self->task} . '_loss';
         my $message_id = $self->$outcome($defender);
-        $out = { result => 'Failure', message_id => $message_id, reason => random_string(['Intel shmintel.','Code red!','It has just gone pear shaped.','I\'m pinned down and under fire.','I\'ll do better next time, if there is a next time.','The fit has just hit the shan.','I want my mommy!','I can\'t do it!','No time to talk! Gotta run.','Why do they always have dogs?','Did you even plan this mission?']) };
+        $out = { result => 'Failure', message_id => $message_id, reason => random_element(['Intel shmintel.','Code red!','It has just gone pear shaped.','I\'m pinned down and under fire.','I\'ll do better next time, if there is a next time.','The fit has just hit the shan.','I want my mommy!','I can\'t do it!','No time to talk! Gotta run.','Why do they always have dogs?','Did you even plan this mission?']) };
     }
     elsif (randint(1,100) > $breakthru) {
         if (defined $defender) {
@@ -283,7 +283,7 @@ sub run_mission {
             $defender->started_assignment(DateTime->now);
             $defender->available_on(DateTime->now->add(seconds => (5 * 60 * 60) - $defender->xp ));
         }
-        $out = { result => 'Bounce', reason => random_string(['I could not find a way to complete my mission, but I will give it another try.','I was stopped by an enemy spy.','Let\'s try that again later.','Hrmmm.','Could not get it done.','I\'m being shadowed.','They have some good security.','Maybe next time.']) };
+        $out = { result => 'Bounce', reason => random_element(['I could not find a way to complete my mission, but I will give it another try.','Missed it by that much.','Better luck next time.','I was stopped by an enemy spy.','Let\'s try that again later.','Hrmmm.','Could not get it done.','I\'m being shadowed.','Gotta ditch my tail.','Lost the target.','They have some good security.','Maybe next time.']) };
     }
     else {
         if (defined $defender) {
@@ -298,7 +298,7 @@ sub run_mission {
         $self->update_level;
         my $outcome = $outcomes{$self->task};
         my $message_id = $self->$outcome($defender);
-        $out = { result => 'Success', message_id => $message_id, reason => random_string(['I did it!','Mom would have been proud.','Done.','It is done.','That is why you pay me the big bucks.','I did it, but that one was close.','Mission accomplished.', 'Wahoo!', 'All good.','We\'re good.', 'I\'ll be ready for a new mission soon.', 'On my way back now.', 'I will be ready for another mission soon.']) };
+        $out = { result => 'Success', message_id => $message_id, reason => random_element(['I did it!','Mom would have been proud.','Done.','It is done.','That is why you pay me the big bucks.','I did it, but that one was close.','Mission accomplished.', 'Wahoo!', 'All good.','We\'re good.', 'I\'ll be ready for a new mission soon.', 'On my way back now.', 'I will be ready for another mission soon.']) };
     }
     $self->update;
     $defender->update if defined $defender;
@@ -328,7 +328,7 @@ sub get_random_prisoner {
             { on_body_id  => $self->on_body_id, task => 'Captured' },
         )
         ->all;
-    my $prisoner = $prisoners[randint(0, scalar(@prisoners)-1)];
+    my $prisoner = random_element(\@prisoners);
     $prisoner->on_body($self->on_body) if defined $prisoner;
     return $prisoner;
 }
@@ -896,7 +896,7 @@ sub destroy_infrastructure {
     my ($self, $defender) = @_;
     my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
         { body_id => $self->on_body->id, efficiency => { '>' => 0 }, class => { 'not like' => 'Lacuna::DB::Result::Bulding::Permanent%' } },
-        { rows=>1, order_by => $possible_building_sorts[randint(0, length(@possible_building_sorts) - 1)] }
+        { rows=>1, order_by => random_element(\@possible_building_sorts) }
         )->single;
     return undef unless defined $building;
     return undef if ($building->class eq 'Lacuna::DB::Result::PlanetaryCommand');
@@ -1157,7 +1157,7 @@ sub shut_down_building {
         'Lacuna::DB::Result::Building::Trade',
         'Lacuna::DB::Result::Building::Transporter',
     );
-    my $building_class = @classnames[randint(0,scalar(@classnames) - 1)];
+    my $building_class = random_element(\@classnames);
     my $building = $self->on_body->get_building_of_class($building_class);
     return undef unless defined $building;
     $self->on_body->empire->send_predefined_message(
