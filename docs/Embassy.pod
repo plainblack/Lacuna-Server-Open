@@ -121,7 +121,7 @@ Optional. A personalized welcome message that will be included in the invitation
 
 
 
-=head3 withdraw_invite ( session_id, building_id, invite_id, [ message ] )
+=head2 withdraw_invite ( session_id, building_id, invite_id, [ message ] )
 
 Can only be called by alliance leader. Delete an invitation.
 
@@ -149,7 +149,7 @@ Optional. A personalized message that will be sent to the user about why their i
 
 
 
-=head3 accept_invite ( session_id, building_id, invite_id, [ message ] )
+=head2 accept_invite ( session_id, building_id, invite_id, [ message ] )
 
 Accept an invitation. Returns the same output as C<get_alliance_status>.
 
@@ -173,7 +173,7 @@ Optional. A personalized message that will be sent to the alliance leader with y
 
 
 
-=head3 reject_invite ( session_id, building_id, invite_id, [ message ] )
+=head2 reject_invite ( session_id, building_id, invite_id, [ message ] )
 
 Delete an invitation.
 
@@ -200,7 +200,7 @@ Optional. A personalized message that will be sent to the alliance leader along 
 
 
 
-=head3 get_pending_invites ( session_id, building_id )
+=head2 get_pending_invites ( session_id, building_id )
 
 Can only be called by the alliance leader. Returns a list of invitations that have been sent out, but that have not been accepted, rejected, or withdrawn.
 
@@ -227,7 +227,7 @@ The unique id of the embassy.
 
 
 
-=head3 get_my_invites ( session_id, building_id )
+=head2 get_my_invites ( session_id, building_id )
 
 Returns a list of invitations that have been offered to this empire.
 
@@ -253,7 +253,7 @@ The unique id of the embassy.
 
 
 
-=head3 assign_alliance_leader ( session_id, building_id, new_leader_id )
+=head2 assign_alliance_leader ( session_id, building_id, new_leader_id )
 
 Sets a new empire to lead the alliance. Can only be called by the current alliance leader. Returns the same thing as C<get_alliance_status>.
 
