@@ -6,7 +6,7 @@ use DateTime::Format::Duration;
 use DateTime::Format::Strptime;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(randint to_seconds format_date);
+@EXPORT_OK = qw(randint to_seconds format_date random_string);
 
 sub to_seconds {
     my $duration = shift;
@@ -26,6 +26,11 @@ sub randint {
 	$high = 1 unless defined $high;
 	($low, $high) = ($high,$low) if $low > $high;
 	return $low + int( rand( $high - $low + 1 ) );
+}
+
+sub random_string {
+    my ($list) = @_;
+    return $list->[randint(0, scalar(@{$list} -1 ))];
 }
 
 1;

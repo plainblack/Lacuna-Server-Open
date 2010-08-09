@@ -163,7 +163,8 @@ Set a spy on a new task.
     "status" : { ... },
     "mission" : {
         "result" : "Failure",
-        "message_id" : "id-goes-here"
+        "message_id" : "id-goes-here",
+        "reason" : "I'm under heavy fire over here!"
     },
     "spy" : {
         "id" : "id-goes-here",
@@ -209,7 +210,9 @@ This means a mission occurred, but went so poorly that the defense got the upper
 
 =back
 
-The C<message_id> refers to a message in the L<Inbox>. Providing this ID allows you to pop open the inbox to a specific message to display to the user. The message will tell you what the results of the mission were if any. Not all missions will provide a message_id.
+The C<reason> provides a message in sentence form about why a spy won or lost a mission. This message is related to the success or failure, not any outcome that results from that success or failure.
+
+The C<message_id> refers to a message in the L<Inbox>. Providing this ID allows you to pop open the inbox to a specific message to display to the user. The message will tell you what the outcome of the mission is if any. Not all missions will provide a message_id.
 
 =head3 session_id
 
