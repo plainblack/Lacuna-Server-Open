@@ -1,3 +1,15 @@
+=head1 Transporter Diagram
+
+The Subspace Transporter is a complex beast, so to help you wrap your brain around it we've created a little flow diagram of how the methods come together.
+
+=begin html
+
+<img src="Transporter.png">
+<br>
+<a href="Transporter.graffle">OmniGraffle Version</a>
+
+=end html
+
 =head1 Transporter Methods
 
 The Subspace Transporter is accessible via the URL C</transporter>. It allows you to transport goods across the vastness of space instantly. The catch is that the planet you're transporting to must also have a transporter, and it burns essentia to use it.

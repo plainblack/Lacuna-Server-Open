@@ -10,11 +10,14 @@ opendir(my $dir, $poddir);
 my @docs = readdir($dir);
 closedir($dir);
 
-copy($poddir."api.css", $htmldir."api.css");
-copy($poddir."index.html", $htmldir."index.html");
 
 foreach my $doc (@docs) {
-    next if $doc !~ m/\.pod$/;
+    if ($doc !~ m/\.pod$/) {
+        say "Copying $doc";
+        copy($poddir.$doc, $htmldir.$doc);
+        next;
+    }
+
     say "Processing $doc";
 
     my $parser = Pod::Simple::HTML->new();

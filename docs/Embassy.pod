@@ -1,3 +1,15 @@
+=head1 Embassy Diagram
+
+The Embassy is a complex beast, so to help you wrap your brain around it we've created a little flow diagram of how the methods come together.
+
+=begin html
+
+<img src="Embassy.png">
+<br>
+<a href="Embassy.graffle">OmniGraffle Version</a>
+
+=end html
+
 =head1 Embassy Methods
 
 Embassy is accessible via the URL C</embassy>. The embassy is used to form alliances with other players.
