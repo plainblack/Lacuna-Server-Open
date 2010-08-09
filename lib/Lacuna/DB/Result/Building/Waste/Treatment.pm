@@ -13,7 +13,7 @@ before check_build_prereqs => sub {
     my $self = shift;
     my $planet = $self->body;
     if ($planet->halite + $planet->sulfur + $planet->trona < 500) {
-        confess [1012,"This planet does not have a sufficient supply of mineral agents such as Halite, Sulfur, and Trona for waste treatment."];
+        confess [1012,"This planet does not have a sufficient supply (500) of mineral agents such as Halite, Sulfur, and Trona for waste treatment."];
     }
 };
 

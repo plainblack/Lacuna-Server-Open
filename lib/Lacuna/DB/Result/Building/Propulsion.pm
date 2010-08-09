@@ -13,7 +13,7 @@ before check_build_prereqs => sub {
     my $self = shift;
     my $planet = $self->body;
     if ($planet->rutile + $planet->chromite + $planet->bauxite + $planet->magnetite + $planet->beryl + $planet->goethite < 1000) {
-        confess [1012,"This planet does not have a sufficient supply of structural minerals such as Rutile, Chromite, Bauxite, Magnetite, Beryl, and Goethite to build better engines."];
+        confess [1012,"This planet does not have a sufficient supply (1,000) of structural minerals such as Rutile, Chromite, Bauxite, Magnetite, Beryl, and Goethite to build better engines."];
     }
 };
 

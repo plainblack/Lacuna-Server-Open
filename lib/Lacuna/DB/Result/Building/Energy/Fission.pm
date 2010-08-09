@@ -8,7 +8,7 @@ before check_build_prereqs => sub {
     my $self = shift;
     my $planet = $self->body;
     if ($planet->uraninite + $planet->monazite < 500) {
-        confess [1012,"This planet does not have a sufficient supply of radioactive minerals such as Uraninite and Monazite to operate this plant."];
+        confess [1012,"This planet does not have a sufficient supply (500) of radioactive minerals such as Uraninite and Monazite to operate this plant."];
     }
 };
 
