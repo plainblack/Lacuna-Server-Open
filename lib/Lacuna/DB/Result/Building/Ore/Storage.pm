@@ -4,6 +4,11 @@ use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Ore';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Storage));
+};
+
 use constant controller_class => 'Lacuna::RPC::Building::OreStorage';
 
 use constant image => 'orestorage';

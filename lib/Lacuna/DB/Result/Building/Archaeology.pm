@@ -7,7 +7,7 @@ use Lacuna::Constants qw(ORE_TYPES);
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
-    return ($orig->($class), qw(Infrastructure));
+    return ($orig->($class), qw(Infrastructure Construction));
 };
 
 use constant max_instances_per_planet => 1;

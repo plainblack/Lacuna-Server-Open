@@ -6,7 +6,7 @@ extends 'Lacuna::DB::Result::Building';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
-    return ($orig->($class), qw(Infrastructure));
+    return ($orig->($class), qw(Infrastructure Construction));
 };
 
 use constant controller_class => 'Lacuna::RPC::Building::Oversight';

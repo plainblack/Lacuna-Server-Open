@@ -11,7 +11,7 @@ with 'Lacuna::Role::Container';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
-    return ($orig->($class), qw(Infrastructure));
+    return ($orig->($class), qw(Infrastructure Trade));
 };
 
 use constant controller_class => 'Lacuna::RPC::Building::Transporter';

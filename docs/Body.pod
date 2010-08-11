@@ -210,6 +210,14 @@ This building helps you build ships.
 
 This building helps you colonize other worlds.
 
+=item Construction
+
+This building helps in some way building buildings on your planet surface.
+
+=item Trade
+
+This building allows you to trade good or resources with other players, or assists in trade in some way.
+
 =back
 
 =item Resources
@@ -237,6 +245,10 @@ This building either produces or stores energy.
 =item Waste
 
 This building either consumes or stores waste.
+
+=item Storage
+
+This building provides storage for one or more of the five resources.
 
 =back
 

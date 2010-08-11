@@ -6,7 +6,7 @@ extends 'Lacuna::DB::Result::Building';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
-    return ($orig->($class), qw(Infrastructure Resources Ore Water Waste Energy Food Colonization));
+    return ($orig->($class), qw(Infrastructure Resources Ore Water Waste Energy Food Colonization Storage));
 };
 
 use constant controller_class => 'Lacuna::RPC::Building::PlanetaryCommand';

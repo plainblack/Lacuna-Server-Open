@@ -8,7 +8,7 @@ with 'Lacuna::Role::Trader';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
-    return ($orig->($class), qw(Infrastructure Ships));
+    return ($orig->($class), qw(Infrastructure Ships Trade));
 };
 
 use constant controller_class => 'Lacuna::RPC::Building::Trade';
