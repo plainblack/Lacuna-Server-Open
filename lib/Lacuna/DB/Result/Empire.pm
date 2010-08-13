@@ -9,6 +9,7 @@ use Digest::SHA;
 use List::MoreUtils qw(uniq);
 use Email::Stuff;
 use UUID::Tiny;
+use Lacuna::Constants qw(INFLATION);
 
 
 __PACKAGE__->table('empire');
@@ -462,10 +463,10 @@ sub next_colony_cost {
         { type=>'colony_ship', task=>'travelling', 'body.empire_id' => $self->id},
         { join => 'body' }
     )->count;
-    my $inflation = (101 - $self->species->political_affinity) / 100;
+    my $inflation = INFLATION - ($self->species->political_affinity / 100);
     my $tally = 100_000;
     for (2..$count) {
-        $tally += $tally * 0.96;
+        $tally += $tally * $inflation;
     }
     return sprintf('%.0f', $tally);
 }
