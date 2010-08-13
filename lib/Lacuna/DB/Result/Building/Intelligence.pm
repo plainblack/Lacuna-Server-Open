@@ -43,7 +43,7 @@ use constant waste_production => 1;
 
 sub max_spies {
     my ($self) = @_;
-    return $self->level * 5;
+    return $self->level;
 }
 
 has spy_count => (
@@ -128,12 +128,12 @@ sub training_costs {
     my $self = shift;
     my $multiplier = $self->training_multiplier;
     return {
-        water   => 550 * $multiplier,
-        waste   => 20 * $multiplier,
-        energy  => 50 * $multiplier,
-        food    => 500 * $multiplier,
-        ore     => 5 * $multiplier,
-        time    => sprintf('%.0f', 1030 * $multiplier / $self->body->empire->species->management_affinity),
+        water   => 1100 * $multiplier,
+        waste   => 40 * $multiplier,
+        energy  => 100 * $multiplier,
+        food    => 1000 * $multiplier,
+        ore     => 10 * $multiplier,
+        time    => sprintf('%.0f', 2060 * $multiplier / $self->body->empire->species->management_affinity),
     };
 }
 
