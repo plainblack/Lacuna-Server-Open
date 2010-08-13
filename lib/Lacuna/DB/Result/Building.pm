@@ -648,14 +648,22 @@ sub has_no_pending_build {
     return 1;
 }
 
+sub is_not_max_level {
+    my ($self) = @_;
+    if ($self->level >= 30) {
+        confess [1009, 'This building is already at its maximum level.'];
+    }
+    if ($self->level >= 15 && 'Resources' ~~ [$self->build_tags] && $self->body_id != $self->body->empire->home_planet_id) {
+        confess [1009, 'Resource buildings cannot upgrade above level 15 except on your home planet.'];
+    }
+}
+
 sub can_upgrade {
     my ($self, $cost) = @_;
     if ($self->efficiency < 100) {
         confess [1010, 'You must repair this building before you can upgrade it.'];
     }
-    if ($self->level >= 30) {
-        confess [1009, 'This building is already at its maximum level.'];
-    }
+    $self->is_not_max_level;
     my $body = $self->body;
     $body->has_resources_to_build($self,$cost);
     $body->has_resources_to_operate($self);
