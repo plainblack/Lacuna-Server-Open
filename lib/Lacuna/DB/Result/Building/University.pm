@@ -39,7 +39,7 @@ use constant water_consumption => 22;
 
 use constant waste_production => 26;
 
-use constant happiness_production => 40;
+use constant happiness_production => 15;
 
 after finish_upgrade => sub {
     my $self = shift;

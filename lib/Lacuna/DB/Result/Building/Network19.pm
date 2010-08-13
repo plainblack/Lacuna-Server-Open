@@ -41,7 +41,7 @@ use constant water_consumption => 8;
 
 use constant waste_production => 3;
 
-use constant happiness_production => 30;
+use constant happiness_production => 15;
 
 sub happiness_consumption {
     my ($self) = @_;
