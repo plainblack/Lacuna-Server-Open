@@ -10,7 +10,7 @@ has max_recycle => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->level * 3_000 * $self->body->empire->species->environmental_affinity;
+        return $self->level * 3_500 * $self->body->empire->species->environmental_affinity;
     },
 );
 
@@ -19,7 +19,7 @@ has seconds_per_resource => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return 5 * $self->time_cost_reduction_bonus($self->level * 3);
+        return 3 * $self->time_cost_reduction_bonus($self->level * 3);
     },
 );
 
