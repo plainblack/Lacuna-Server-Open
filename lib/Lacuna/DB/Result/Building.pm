@@ -259,6 +259,10 @@ sub production_hour {
     return $production;
 }
 
+sub current_level_cost {
+    return (INFLATION ** ($_[0]->level -1));
+}
+
 sub upgrade_cost {
     return (INFLATION ** $_[0]->level);
 }
@@ -826,9 +830,9 @@ sub is_offline {
 
 sub get_repair_costs {
     my $self = shift;
-    my $upgrade_cost = $self->upgrade_cost;
+    my $level_cost = $self->current_level_cost;
     my $damage = 100 - $self->efficiency;
-    my $damage_cost = $upgrade_cost * $damage / 100;
+    my $damage_cost = $level_cost * $damage / 100;
     return {
         ore     => sprintf('%.0f',$self->ore_to_build * $damage_cost),
         water   => sprintf('%.0f',$self->water_to_build * $damage_cost),
