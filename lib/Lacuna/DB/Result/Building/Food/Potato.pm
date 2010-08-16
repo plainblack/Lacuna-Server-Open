@@ -8,7 +8,7 @@ before check_build_prereqs => sub {
     my $self = shift;
     my $planet = $self->body;
     if ($planet->gypsum + $planet->sulfur + $planet->monazite < 100) {
-        confess [1012,"This planet does not have a sufficient supply of phosphorus from sources like Gypsum, Sulfur, and Monazite to grow potatoes."];
+        confess [1012,"This planet does not have a sufficient supply (100) of phosphorus from sources like Gypsum, Sulfur, and Monazite to grow potatoes."];
     }
 };
 
