@@ -11,6 +11,6 @@ Regards,
 Tou Re Ell
 Lacuna Expanse Corp
 
-Task: Build a ore, water, food, and energy production to 100+ per hour.
+Task: Increase your ore, water, food, and energy production to 100+ per hour.
 Reward: Free resources.
 
