@@ -753,7 +753,11 @@ sub knock_defender_unconscious {
     my ($self, $defender) = @_;
     return undef unless (defined $defender);
     $defender->knock_out;
-    return undef;
+    return $self->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'knocked_out_a_defender.txt',
+        params      => [$self->name],
+    )->id;
 }
 
 sub knock_attacker_unconscious {
@@ -1460,7 +1464,16 @@ sub false_interrogation_report {
             ['Growth Affinity', randint(1,7)],
             ]},
     );
-    return undef;
+    $suspect->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'false_interrogation.txt',
+        params      => [$self->on_body->name, $suspect->name],
+    );
+    return $self->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'interrogating_prisoners_failing.txt',
+        params      => [$self->on_body->name, $suspect->name, $self->name],
+    )->id;
 }
 
 sub interrogation_report {
