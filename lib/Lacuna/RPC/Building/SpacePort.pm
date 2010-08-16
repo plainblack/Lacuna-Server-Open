@@ -62,7 +62,7 @@ sub send_probe {
     my $observatory_level = 0;
     my $observatory = $body->get_buildings_of_class('Lacuna::DB::Result::Building::Observatory')->next;
     if (defined $observatory) {
-	$observatory_level = $observatory->level;
+        $observatory_level = $observatory->level;
     }
     if ($count >= $observatory_level * 3) {
         confess [ 1009, 'You are already controlling the maximum amount of probes for your Observatory level.'];
