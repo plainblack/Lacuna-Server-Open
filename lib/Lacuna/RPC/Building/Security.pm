@@ -53,7 +53,7 @@ sub execute_prisoner {
     }
     my $body = $building->body;
     $body->spend_happiness($prisoner->level * 10_000)->update;
-    $body->add_news(60, sprintf('%s was executed on %s today. Citizens were outraged at the lack of compassion.'), $prisoner->name, $body->name);
+    $body->add_news(60, sprintf('%s was executed on %s today. Citizens were outraged at the lack of compassion.', $prisoner->name, $body->name));
     $prisoner->empire->send_predefined_message(
         from        => $empire,
         tags        => ['Alert'],
