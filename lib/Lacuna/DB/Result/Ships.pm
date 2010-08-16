@@ -57,6 +57,45 @@ sub date_available_formatted {
     return format_date($self->date_available);
 }
 
+sub get_status {
+    my $self = shift;
+    my %status = (
+        id              => $self->id,
+        name            => $self->name,
+        type_human      => $self->type_formatted,
+        type            => $self->type,
+        task            => $self->task,
+        speed           => $self->speed,
+        stealth         => 0,
+        hold_size       => $self->hold_size,
+        date_started    => $self->date_started_formatted,
+        date_available  => $self->date_available_formatted,
+    );
+    if ($self->task eq 'Travelling') {
+        my $body = $self->body;
+        my $target = ($self->foreign_body_id) ? $self->foreign_body : $self->foreign_star;
+        my $from = {
+            id      => $body->id,
+            name    => $body->name,
+            type    => 'body',
+        };
+        my $to = {
+            id      => $target->id,
+            name    => $target->name,
+            type    => (ref $target eq 'Lacuna::DB::Result::Map::Star') ? 'star' : 'body',
+        };
+        if ($self->direction ne 'out') {
+            my $temp = $from;
+            $from = $to;
+            $to = $temp;
+        }
+        $status{to}             = $to;
+        $status{from}           = $from;
+        $status{date_arrives}   = $status{date_available};
+    }
+    return \%status;
+}
+
 sub seconds_remaining {
     my $self = shift;
     return to_seconds(DateTime->now - $self->date_available);

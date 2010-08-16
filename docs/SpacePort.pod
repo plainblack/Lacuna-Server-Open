@@ -36,12 +36,27 @@ Shows you the ships that are working in the mining fleet, and available to work 
  {
     "ships" : [
         {
-            "name" : "CS4",
             "id" : "id-goes-here",
-            "task" : "Mining",
-            "speed" : 350,
-            "hold_size" : 5600
+            "name" : "CS3",
+            "type_human" : "Cargo Ship",
             "type" : "cargo_ship",
+            "task" : "Travelling",
+            "speed" : "400",
+            "stealth" : "0",
+            "hold_size" : "1200",
+            "date_started" : "01 31 2010 13:09:05 +0600",
+            "date_available" : "02 01 2010 10:08:33 +0600",
+            "date_arrives" : "02 01 2010 10:08:33 +0600",
+            "from" : {
+               "id" : "id-goes-here",
+               "type" : "body",
+               "name" : "Earth"
+            },
+            "to" : {
+               "id" : "id-goes-here",
+               "type" : "body",
+               "name" : "Mars"
+            }
         },
         ...
     ],
@@ -56,6 +71,175 @@ A session id.
 =head3 building_id
 
 The unique id of the space port.
+
+
+=head2 get_ships_for ( session_id, from_body_id, target )
+
+Provides a list of incoming ships and ships that are available to send to a specific target. Use with C<send_ship>.
+
+ {
+    "incoming" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "P13",
+            "type_human" : "Probe",
+            "type" : "probe",
+            "task" : "Travelling",
+            "speed" : "1200",
+            "stealth" : "0",
+            "hold_size" : "0",
+            "date_started" : "01 31 2010 13:09:05 +0600",
+            "date_available" : "02 01 2010 10:08:33 +0600",
+            "date_arrives" : "02 01 2010 10:08:33 +0600",
+            "from" : {
+               "id" : "id-goes-here",
+               "type" : "body",
+               "name" : "Earth"
+            },
+            "to" : {
+               "id" : "id-goes-here",
+               "type" : "star",
+               "name" : "Sol"
+            }
+        },
+        ...
+    ],
+    "available" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "D13",
+            "type_human" : "Detonator",
+            "type" : "detonator",
+            "task" : "Docked",
+            "speed" : "700",
+            "stealth" : "0",
+            "hold_size" : "0",
+            "date_started" : "01 31 2010 13:09:05 +0600",
+            "date_available" : "01 31 2010 13:09:05 +0600"
+        },
+        ...
+    ],
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 from_body_id
+
+The unique id of the planet that should send the ship.
+
+=head3 target
+
+A hash reference that can contain one of five items to identify a star or body.
+
+ { "body_name" : "Earth" }
+ 
+ { "body_id" : "id-goes-here" }
+ 
+ { "star_name" : "Sol" }
+ 
+ { "star_id" : "id-goes-here" }
+ 
+ { "x" : 4, "y" : -3 }
+
+=head4 body_name
+
+A string with the body's name. Case insensitive, but will throw an exception for misspelling.
+
+=head4 body_id
+
+The unique id of the body.
+
+=head4 star_name
+
+A string with the star's name. Case insensitive, but will throw an exception for misspelling.
+
+=head4 star_id
+
+The unique id of the star.
+
+=head4 x | y
+
+A set of x,y coordinates to locate the star or body.
+
+
+
+=head2 send_ship ( session_id, ship_id, target )
+
+Sends a ship to a specified body or star. Use with C<get_ships_for>.
+
+ {
+    "status" : { ... },
+    "ship" : {
+        "id" : "id-goes-here",
+        "name" : "P13",
+        "type_human" : "Probe",
+        "type" : "probe",
+        "task" : "Travelling",
+        "speed" : "1200",
+        "stealth" : "0",
+        "hold_size" : "0",
+        "date_started" : "01 31 2010 13:09:05 +0600",
+        "date_available" : "02 01 2010 10:08:33 +0600",
+        "date_arrives" : "02 01 2010 10:08:33 +0600",
+        "from" : {
+           "id" : "id-goes-here",
+           "type" : "body",
+           "name" : "Earth"
+        },
+        "to" : {
+           "id" : "id-goes-here",
+           "type" : "star",
+           "name" : "Sol"
+        }
+    }  
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 ship_id
+
+The unique id of a ship to send.
+
+=head3 target
+
+A hash reference that can contain one of five items to identify a star or body.
+
+ { "body_name" : "Earth" }
+ 
+ { "body_id" : "id-goes-here" }
+ 
+ { "star_name" : "Sol" }
+ 
+ { "star_id" : "id-goes-here" }
+ 
+ { "x" : 4, "y" : -3 }
+
+=head4 body_name
+
+A string with the body's name. Case insensitive, but will throw an exception for misspelling.
+
+=head4 body_id
+
+The unique id of the body.
+
+=head4 star_name
+
+A string with the star's name. Case insensitive, but will throw an exception for misspelling.
+
+=head4 star_id
+
+The unique id of the star.
+
+=head4 x | y
+
+A set of x,y coordinates to locate the star or body.
+
+
 
 
 =head2 name_ship ( session_id, building_id, ship_id, name )
@@ -139,207 +323,6 @@ The unique id of the space port.
 =head3 page_number
 
 Defaults to 1. An integer representing which page of ships travelling to view. Each page shows 25 ships.
-
-
-
-
-=head2 send_probe ( session_id, from_body_id, to_star )
-
-Dispatches a probe from one of the space ports on a planet to a star. It will automatically detect which space ports on the planet have probes, if any, and pick one of them to dispatch the probe.
-
-Returns status:
-
- {
-    "probe" : {
-        "date_arrives" : "01 31 2010 13:09:05 +0600"
-    },
-    "status" : { ... }
- }
-
-Throws 1002.
-
-=head3 session_id
-
-A session id.
-
-=head3 from_body_id
-
-The unique id of the planet that should send the probe.
-
-=head3 to_star
-
-A hash reference that can contain one of three items to identify a star.
-
- { "star_name" : "Sol" }
- 
- { "star_id" : "id-goes-here" }
- 
- { "x" : 4, "y" : -3 }
-
-=head4 star_name
-
-A string with the star's name. Case insensitive, but will throw an exception for misspelling.
-
-=head4 star_id
-
-The unique id of the star.
-
-=head4 x | y
-
-A set of x,y coordinates to locate the star.
-
-
-
-
-=head2 send_spy_pod ( session_id, from_body_id, to_body )
-
-Dispatches a spy pod from one of the space ports on a planet to another body. It will automatically detect which space ports on the planet have spy pods, if any, and pick one of them to dispatch the spy pod. In order to send a spy pod you must also have an idle spy available.
-
-B<NOTE:> If you want more control over which spies and ships are used, see the C<send_spies> method.
-
-Returns status:
-
- {
-    "spy_pod" : {
-        "date_arrives" : "01 31 2010 13:09:05 +0600",
-        "carrying_spy" : {
-           "id" : "id-goes-here",
-           "name" : "Jason Bourne",
-        }
-    },
-    "status" : { ... }
- }
-
-Throws 1002.
-
-=head3 session_id
-
-A session id.
-
-=head3 from_body_id
-
-The unique id of the planet that should send the ship.
-
-=head3 to_body
-
-A hash reference that can contain one of three items to identify a planet.
-
- { "body_name" : "Earth" }
- 
- { "body_id" : "id-goes-here" }
- 
- { "x" : 4, "y" : -3 }
-
-=head4 body_name
-
-A string with the body's name. Case insensitive, but will throw an exception for misspelling.
-
-=head4 body_id
-
-The unique id of the body.
-
-=head4 x | y 
-
-A set of x,y coords to locate the body.
-
-
-
-
-
-=head2 send_colony_ship ( session_id, from_body_id, to_body )
-
-Dispatches a colony ship from one of the space ports on a planet to another body. It will automatically detect which space ports on the planet have colony ships, if any, and pick one of them.  
-
-Returns status:
-
- {
-    "colony_ship" : {
-        "date_arrives" : "01 31 2010 13:09:05 +0600"
-    },
-    "status" : { ... }
- }
-
-Throws 1002.
-
-=head3 session_id
-
-A session id.
-
-=head3 from_body_id
-
-The unique id of the planet that should send the ship.
-
-=head3 to_body
-
-A hash reference that can contain one of three items to identify a planet.
-
- { "body_name" : "Earth" }
- 
- { "body_id" : "id-goes-here" }
- 
- { "x" : 4, "y" : -3 }
-
-=head4 body_name
-
-A string with the body's name. Case insensitive, but will throw an exception for misspelling.
-
-=head4 body_id
-
-The unique id of the body.
-
-=head4 x | y
-
-A set of x,y coords to locate the body.
-
-
-
-
-
-=head2 send_mining_platform_ship ( session_id, from_body_id, to_body )
-
-Dispatches a mining platform ship from one of the space ports on a planet to another body. It will automatically detect which space ports on the planet have mining platform ships, if any, and pick one of them.  You can only dispatch a mining platform ship to an asteroid.
-
-Returns status:
-
- {
-    "mining_platform_ship" : {
-        "date_arrives" : "01 31 2010 13:09:05 +0600"
-    },
-    "status" : { ... }
- }
-
-Throws 1002.
-
-=head3 session_id
-
-A session id.
-
-=head3 from_body_id
-
-The unique id of the planet that should send the ship.
-
-=head3 to_body
-
-A hash reference that can contain one of three items to identify a planet.
-
- { "body_name" : "Earth" }
- 
- { "body_id" : "id-goes-here" }
- 
- { "x" : 4, "y" : -3 }
-
-=head4 body_name
-
-A string with the body's name. Case insensitive, but will throw an exception for misspelling.
-
-=head4 body_id
-
-The unique id of the body.
-
-=head4 x | y
-
-A set of x,y coords to locate the body.
-
 
 
 

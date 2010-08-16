@@ -4,6 +4,10 @@ use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 
+sub max_probes {
+    my $self = shift;
+    return $self->level * 3;
+}
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
