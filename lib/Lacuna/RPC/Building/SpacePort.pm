@@ -47,7 +47,7 @@ sub get_ships_for {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
     my $target = $self->find_target($target_params);
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body->id => $body->id });
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ empire_id => $empire->id });
     
     my @incoming;
     my $incoming_rs = $ships->search({task => 'Travelling', direction => 'out'});
