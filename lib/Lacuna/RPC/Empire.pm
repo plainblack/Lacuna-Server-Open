@@ -337,7 +337,7 @@ sub edit_profile {
     if (exists $profile->{email} && $profile->{email} ne '') {
         Lacuna::Verify->new(content=>\$profile->{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
             ->is_email if ($profile->{email});
-        if (Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({email=>$profile->{email}, empire_id=>{ '!=' => $empire->id}})->count > 0) {
+        if (Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({email=>$profile->{email}, id=>{ '!=' => $empire->id}})->count > 0) {
             confess [1005, 'That email address is already in use by another empire.', 'email'];
         }
         $empire->email($profile->{email});
