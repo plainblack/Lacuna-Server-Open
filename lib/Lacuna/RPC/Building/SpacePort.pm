@@ -19,21 +19,21 @@ sub find_target {
     my ($self, $target_params) = @_;
     my $target;
     if (exists $target_params->{star_id}) {
-        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($target->{star_id});
+        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($target_params->{star_id});
     }
     elsif (exists $target_params->{star_name}) {
-        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ name => $target->{star_name} }, {rows=>1})->single;
+        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ name => $target_params->{star_name} }, {rows=>1})->single;
     }
     if (exists $target_params->{body_id}) {
-        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target->{body_id});
+        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_params->{body_id});
     }
     elsif (exists $target_params->{body_name}) {
-        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ name => $target->{body_name} }, {rows=>1})->single;
+        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ name => $target_params->{body_name} }, {rows=>1})->single;
     }
     elsif (exists $target_params->{x}) {
-        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ x => $target->{x}, y => $target->{y} }, {rows=>1})->single;
+        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ x => $target_params->{x}, y => $target_params->{y} }, {rows=>1})->single;
         unless (defined $target) {
-            $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ x => $target->{x}, y => $target->{y} }, {rows=>1})->single;
+            $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ x => $target_params->{x}, y => $target_params->{y} }, {rows=>1})->single;
         }
     }
     unless (defined $target) {
