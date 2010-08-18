@@ -39,8 +39,8 @@ sub www_postback {
         $uri = sprintf $uri, $empire->start_session({ api_key => 'facebook' })->id;
     }
     else {
-        $uri .= '?facebook_uid=%s&facebook_token=%s';
-        $uri = sprintf $uri, $user->{id}, $fb->access_token;
+        $uri .= '#facebook_uid=%s&facebook_token=%s&facebook_name=%s';
+        $uri = sprintf $uri, $user->{id}, $fb->access_token, $user->{name};
     }
     return [$uri, { status => 302 } ];
 }
