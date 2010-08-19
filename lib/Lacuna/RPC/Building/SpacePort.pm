@@ -102,11 +102,24 @@ sub get_ships_for {
         push @incoming, $ship->get_status;
     }
     
-    return {
+    my %out = (
         status      => $self->format_status($empire, $body),
         incoming    => \@incoming,
         available   => \@available,
+    );
+    
+    if ($target->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
+        my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({asteroid_id => $target->id});
+        while (my $platform = $platforms->next) {
+            my $empire = $platform->planet->empire;
+            push @{$out{mining_platforms}}, {
+                empire_id   => $empire->id,
+                empire_name => $empire->name,
+            };
+        }
     }
+    
+    return \%out;
 }
 
 sub send_ship {

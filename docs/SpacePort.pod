@@ -119,8 +119,17 @@ Provides a list of incoming ships and ships that are available to send to a spec
         },
         ...
     ],
+    "mining_platforms" : [
+        {
+            empire_id   =>  "id-goes-here",
+            empire_name => "The Peeps From Across The Street"
+        },
+        ...
+    ],
     "status" : { ... }
  }
+
+The C<mining_platforms> block will be returned only if the target is an asteroid that has platforms on it.
 
 =head3 session_id
 
