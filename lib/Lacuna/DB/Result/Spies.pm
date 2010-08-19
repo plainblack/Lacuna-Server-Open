@@ -134,16 +134,17 @@ sub is_available {
             $trade->withdraw if defined $trade;
         }
         elsif ($task eq 'Travelling') {
-            if ($self->empire_id eq $self->on_body->empire_id) {
-                $self->task('Idle');
-                $self->update;
-            }
-            else {
+            my $infiltration_time = $self->available_on->clone->add(hours => 1);
+            if ($infiltration_time > DateTime->now && $self->empire_id ne $self->on_body->empire_id) {
                 $self->task('Infiltrating');
                 $self->started_assignment(DateTime->now);
-                $self->available_on(DateTime->now->add(hours => 1));
+                $self->available_on($infiltration_time);
                 $self->update;
                 return 0;
+            }
+            else {
+                $self->task('Idle');
+                $self->update;
             }
         }
         else {
