@@ -366,7 +366,7 @@ sub format_paginator {
 
 sub www_delete_empire {
     my ($self, $request, $id) = @_;
-    $id ||= $request->param('id');
+    $id ||= $request->param('empire_id');
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($id);
     unless (defined $empire) {
         confess [404, 'Empire not found.'];
@@ -375,7 +375,7 @@ sub www_delete_empire {
         confess [400, 'That empire is required.'];
     }
     $empire->delete;
-    return $self->www_default($request);
+    return $self->www_search_empires($request);
 }
 
 sub www_view_empire {
