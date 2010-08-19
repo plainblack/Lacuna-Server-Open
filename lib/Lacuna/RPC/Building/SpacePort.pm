@@ -47,24 +47,27 @@ sub get_ships_for {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
     my $target = $self->find_target($target_params);
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ empire_id => $empire->id });
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        { 'body.empire_id' => $empire->id },
+        { join => 'body' }
+        );
     
     my @incoming;
     my $incoming_rs = $ships->search({task => 'Travelling', direction => 'out'});
     if ($target->isa('Lacuna::DB::Result::Map::Star')) {
-        $incoming_rs->search({foreign_star_id => $target->id})
+        $incoming_rs = $incoming_rs->search({foreign_star_id => $target->id});
     }
     else {
-        $incoming_rs->search({foreign_body_id => $target->id})
+        $incoming_rs = $incoming_rs->search({foreign_body_id => $target->id});
     }
-    while (my $ship = $incoming_rs) {
+    while (my $ship = $incoming_rs->next) {
         $ship->body($body);
         push @incoming, $ship->get_status;
     }
     
     my @available;
     my $available_rs = $ships->search({task => 'Docked'});
-    while (my $ship = $incoming_rs) {
+    while (my $ship = $incoming_rs->next) {
         given($ship->type) {
             when ('excavator') {
                 next unless ($target->isa('Lacuna::DB::Result::Map::Body'));

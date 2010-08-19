@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -54,6 +54,9 @@ is(ref $result->{result}{ships_travelling}, 'ARRAY', "can see travelling ships")
 
 $result = $tester->post('spaceport', 'view_all_ships', [$session_id, $spaceport->id]);
 is(ref $result->{result}{ships}, 'ARRAY', "can see all ships");
+
+$result = $tester->post('spaceport', 'get_ships_for', [$session_id, $home->id, { body_id => $home->id }]);
+is(ref $result->{result}{available}, 'ARRAY', "can see what ships are available to send");
 
 $result = $tester->post('spaceport', 'get_my_available_spies', [$session_id, { body_id => $home->id }]);
 is(ref $result->{result}{spies}, 'ARRAY', "can see spy list");
