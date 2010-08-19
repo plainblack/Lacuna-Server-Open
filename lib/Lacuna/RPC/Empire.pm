@@ -168,7 +168,7 @@ if ($account{captcha_guid}) { # get rid of this IF before we go live
 }
 
     # check facebook    
-    my $has_facebook = (exists $account{facebook_uid} && $account{facebook_uid} =~ m/^\d+$/ && exists $account{facebook_token} && lenght($account{facebook_token}) > 60);
+    my $has_facebook = (exists $account{facebook_uid} && $account{facebook_uid} =~ m/^\d+$/ && exists $account{facebook_token} && length($account{facebook_token}) > 60);
     if ($has_facebook) {
         $params{facebook_uid}   = $account{facebook_uid};
         $params{facebook_token} = $account{facebook_token};
