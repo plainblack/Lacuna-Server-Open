@@ -163,7 +163,7 @@ The unique id of this building.
 
 
 
-=head2 get_glyhps ( session_id, building_id )
+=head2 get_glyphs ( session_id, building_id )
 
 Returns a list of glyphs that may be traded. Used with the C<add_trade> method.
 

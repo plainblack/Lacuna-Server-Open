@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -36,6 +36,9 @@ ok(exists $result->{result}, 'can call get_prisoners');
 
 $result = $tester->post('transporter', 'get_plans', [$session_id, $transporter->id]);
 ok(exists $result->{result}, 'can call get_plans');
+
+$result = $tester->post('transporter', 'get_glyphs', [$session_id, $transporter->id]);
+ok(exists $result->{result}, 'can call get_glyphs');
 
 $result = $tester->post('transporter', 'add_trade', [$session_id, $transporter->id]); # no ships
 is($result->{error}{code}, 1013, 'can call add_trade');
