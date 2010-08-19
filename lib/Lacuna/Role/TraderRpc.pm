@@ -160,6 +160,7 @@ sub get_stored_resources {
     my $body = $building->body;
     foreach my $type (@types) {
         my $stored = $type.'_stored';
+        next if $body->$stored < 1;
         $out{$type} = $body->$stored;
     }
     return {
