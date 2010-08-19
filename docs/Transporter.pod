@@ -145,7 +145,7 @@ Returns a list of plans that may be traded. Used with the C<add_trade> method.
             "id" : "id-goes-here",
             "name" : "Intelligence Ministry",
             "level" : "7",
-            "extended_build_level" : "0"        # some special plans will build a building from their level all the way to this number
+            "extra_build_level" : "0"        # some special plans will build a building from their level all the way to this number
         },
         ...
     ],

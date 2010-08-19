@@ -122,7 +122,7 @@ sub get_plans {
             id                      => $plan->id,
             name                    => $plan->class->name,
             level                   => $plan->level,
-            extended_build_level    => $plan->extended_build_level,
+            extra_build_level       => $plan->extra_build_level,
         };
     }
     return {
