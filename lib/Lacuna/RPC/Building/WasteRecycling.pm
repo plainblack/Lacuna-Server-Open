@@ -23,15 +23,14 @@ around 'view' => sub {
             water               => $building->work->{water_from_recycling},
             ore                 => $building->work->{ore_from_recycling},
             energy              => $building->work->{energy_from_recycling},
+            can                 => 0,
         };
     }
     else {
-        $out->{recycle} = {
-            can                     => (eval { $building->can_recycle }) ? 1 : 0,
-            seconds_per_resource    => $building->seconds_per_resource,
-            max_recycle             => $building->max_recycle,
-        };
+        $out->{recycle}{can}     = (eval { $building->can_recycle }) ? 1 : 0;
     }
+    $self->{recycle}{seconds_per_resource} = $building->seconds_per_resource;
+    $self->{recycle}{max_recycle} = $building->max_recycle;
     return $out;
 };
 
