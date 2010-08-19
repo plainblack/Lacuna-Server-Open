@@ -162,7 +162,7 @@ sub www_default {
 
 sub wrap {
     my ($self, $content) = @_;
-    return $self->wrapper($content, { title => 'Purchase Essentia' });
+    return $self->wrapper($content, { title => 'Purchase Essentia', logo => 1 });
 }
 
 no Moose;
