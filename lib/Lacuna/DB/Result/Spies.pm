@@ -62,6 +62,7 @@ sub update_level {
 sub get_status {
     my $self = shift;
     return {
+        is_available        => $self->is_available, # first so that it can update task, etc if needed
         id                  => $self->id,
         name                => $self->name,
         level               => $self->level,
@@ -76,7 +77,6 @@ sub get_status {
             body_id => $self->on_body_id,
             name    => $self->on_body->name,
         },
-        is_available        => $self->is_available,
         available_on        => $self->format_available_on,
         started_assignment  => $self->format_started_assignment,
         seconds_remaining   => $self->seconds_remaining_on_assignment,
