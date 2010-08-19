@@ -157,7 +157,9 @@ sub train_spy {
             empire_id       => $self->body->empire_id,
             offense         => ($self->espionage_level * 75) + $deception,
             defense         => ($self->security_level * 75) + $deception,
-        })->insert;
+        })
+        ->update_level
+        ->insert;
         my $count = $self->spy_count($self->spy_count + 1);
         if ($count < $self->level) {
             $self->body->add_news(20,'A source inside %s admitted that they are underprepared for the threats they face.', $empire->name);
