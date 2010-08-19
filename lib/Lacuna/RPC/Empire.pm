@@ -301,7 +301,7 @@ sub edit_profile {
         $empire->status_message($profile->{status_message});
     }
     if (exists $profile->{sitter_password}) {
-        Lacuna::Verify->new(content=>\$profile->{sitter_password}, throws=>[1005,'Sitter password must be between 8 and 30 characters.', 'sitter_password'])
+        Lacuna::Verify->new(content=>\$profile->{sitter_password}, throws=>[1005,'Sitter password must be between 6 and 30 characters.', 'sitter_password'])
             ->length_lt(31)
             ->length_gt(5);
         $empire->sitter_password($profile->{sitter_password});
