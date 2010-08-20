@@ -38,7 +38,7 @@ sub www_jambool_success {
     my ($self, $request) = @_;
     my $script = "
      try {
-      window.opener.YAHOO.lacuna.Essentia.paymentFinished(".$request->param('amount').");
+      window.opener.YAHOO.lacuna.Essentia.paymentFinished();
       window.setTimeout( function () { window.close() }, 5000);
       } catch (e) {}
     ";
