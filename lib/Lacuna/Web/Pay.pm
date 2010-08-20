@@ -36,7 +36,13 @@ sub jambool_buy_url {
 
 sub www_jambool_success {
     my ($self, $request) = @_;
-    return $self->wrap('Thank you! The essentia will be added to your account momentarily.');
+    my $script = "
+     try {
+      window.opener.YAHOO.lacuna.Essentia.paymentFinished(".$request->param('amount').");
+      window.setTimeout( function () { window.close() }, 5000);
+      } catch (e) {}
+    ";
+    return $self->wrap('Thank you! The essentia will be added to your account momentarily.<script type="text/javascript">'.$script.'</script>');
 }
 
 sub www_jambool_error {
@@ -157,7 +163,7 @@ sub www_default {
     unless (defined $empire) {
         confess [401, 'Empire not found.'];
     }
-    return $self->wrap('<iframe frameborder="0" scrolling="no" width="425" height="365" src="'.$self->jambool_buy_url($empire->id).'"></iframe>');
+    return $self->wrap('<div style="margin: 0 auto;width: 425;"><iframe frameborder="0" scrolling="no" width="425" height="365" src="'.$self->jambool_buy_url($empire->id).'"></iframe></div>');
 }
 
 sub wrap {

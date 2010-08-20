@@ -102,7 +102,7 @@ sub wrapper {
         }
         close $file;
         if ($options->{logo}) {
-            $content = '<img src="https://s3.amazonaws.com/www.lacunaexpanse.com/logo.png"><br><br>'.$content;
+            $content = '<div id="logo"><img src="https://s3.amazonaws.com/www.lacunaexpanse.com/logo.png"></div>'.$content;
         }
         return [ sprintf($html, ($options->{title} || 'The Lacuna Expanse'), $content), { status => $options->{status} } ];    
     }
