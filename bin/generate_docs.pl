@@ -4,7 +4,7 @@ use Pod::Simple::HTML;
 use File::Copy;
 
 my $poddir = '/data/Lacuna-Server/docs/';
-my $htmldir = '/data/www/public/api/';
+my $htmldir = '/data/Lacuna-Server/var/www/public/api/';
 
 opendir(my $dir, $poddir);
 my @docs = readdir($dir);
