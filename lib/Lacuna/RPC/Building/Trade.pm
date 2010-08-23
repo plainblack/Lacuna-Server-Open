@@ -61,7 +61,7 @@ sub withdraw_trade {
     unless (defined $trade) {
         confess [1002, 'Could not find that trade. Perhaps it has already been accepted.'];
     }
-    $trade->withdraw;
+    $trade->withdraw($building->body);
     return {
         status      => $self->format_status($empire, $building->body),
     };
