@@ -42,7 +42,7 @@ sub www_send_test_message {
 				label => 'Plain Black',
 				},
         map => {
-				surface => 'surface-12',
+				surface => 'surface-p12',
 				buildings => [
 						{
 							x => 0,
