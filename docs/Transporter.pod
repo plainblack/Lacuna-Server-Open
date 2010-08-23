@@ -17,6 +17,16 @@ The Subspace Transporter is accessible via the URL C</transporter>. It allows yo
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
 
+=head2 view ( session_id, building_id )
+
+ {
+   "building" : { ... },
+   "status" : { ... },
+   "transport" : {
+     "max" : 2500
+   }
+ }
+
 
 =head2 add_trade ( session_id, building_id, offer, ask )
 
