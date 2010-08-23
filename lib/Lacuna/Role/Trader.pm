@@ -183,7 +183,7 @@ sub structure_ask {
     confess $ask_nothing_exception unless ($ask->{quantity} > 0);
     given($ask->{type}) {
         when ([qw(water energy waste)]) {
-            $self->ask_resources($ask);
+            return $self->ask_resources($ask);
         }
         when ('essentia') {
             return {
@@ -193,10 +193,10 @@ sub structure_ask {
             };
         }
         when ([ORE_TYPES]) {
-            $self->ask_resources($ask);
+            return $self->ask_resources($ask);
         }
         when ([FOOD_TYPES]) {
-            $self->ask_resources($ask);
+            return $self->ask_resources($ask);
         }
     }
     confess $ask_nothing_exception;
