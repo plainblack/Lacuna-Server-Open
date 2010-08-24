@@ -13,7 +13,7 @@ around 'view' => sub {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id, skip_offline => 1);
     my $out = $orig->($self, $empire, $building);
-    my $alliance = $building->alliance;
+    my $alliance = eval{$building->alliance};
     if (defined $alliance) {
         $out->{alliance_status} = $alliance->get_status;
     }
