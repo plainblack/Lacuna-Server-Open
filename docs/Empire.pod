@@ -578,9 +578,9 @@ A session id.
 
 Enables a destruction countdown of 24 hours. Sometime after the timer runs out, the empire will vaporize.
 
-{
+ {
     "status" : { ... }
-}
+ }
 
 =head3 session_id
 
@@ -592,14 +592,30 @@ A session id.
 
 Disables the self distruction countdown. 
 
-{
+ {
     "status" : { ... }
-}
+ }
 
 =head3 session_id
 
 A session id.
 
+
+=head redeem_essentia_code ( session_id, code ) 
+
+Redeems an essentia code and applies the essentia to the empire's balance.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 code
+
+A 36 character string that was sent to the user via email.
 
 
 
