@@ -61,7 +61,7 @@ sub structure_offer {
     my ($self, $offer, $available_cargo_space) = @_;
     given($offer->{type}) {
         when ([qw(water energy waste)]) {
-            $self->offer_resources($offer->{type}, $offer, $available_cargo_space);
+            return $self->offer_resources($offer->{type}, $offer, $available_cargo_space);
         }
         when ('essentia') {
             confess $offer_nothing_exception unless ($offer->{quantity} > 0);
@@ -79,10 +79,10 @@ sub structure_offer {
             };
         }
         when ([ORE_TYPES]) {
-            $self->offer_resources('ore', $offer, $available_cargo_space);
+            return $self->offer_resources('ore', $offer, $available_cargo_space);
         }
         when ([FOOD_TYPES]) {
-            $self->offer_resources('food', $offer, $available_cargo_space);
+            return $self->offer_resources('food', $offer, $available_cargo_space);
         }
         when ('ship') {
             confess $offer_nothing_exception if ($offer->{ship_id} eq '');
