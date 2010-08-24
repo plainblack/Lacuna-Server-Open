@@ -107,8 +107,7 @@ sub accept_trade {
         unless ($body->$stored >= $trade->ask_quantity) {
             confess [1011, 'You need at least '.$trade->ask_quantity.' '.$body->ask_type.' to make this trade.'];
         }
-        my $spend = 'spend_'.$trade->ask_type;
-        $body->$spend($trade->ask_quantity)->update;
+        $body->$stored($body->$stored - $trade->ask_quantity)->update;
         $ship->send(
             target  => $trade->body,
             payload => { resources => { $trade->ask_type => $trade->ask_quantity }}

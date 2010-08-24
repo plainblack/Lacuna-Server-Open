@@ -126,8 +126,7 @@ sub accept_trade {
             confess [1011, 'You need '.$trade->ask_quantity.' '.$body->ask_type.' to make this trade.'];
         }
         $empire->spend_essentia(1, 'Transporter Cost')->update;
-        my $spend = 'spend_'.$trade->ask_type;
-        $body->$spend($trade->ask_quantity);
+        $body->$stored($body->$stored - $trade->ask_quantity);
         my $add = 'add_'.$trade->ask_type;
         $trade->body->$add($trade->ask_quantity);
     }
