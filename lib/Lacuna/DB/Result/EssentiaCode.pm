@@ -11,7 +11,7 @@ __PACKAGE__->add_columns(
     amount                  => { data_type => 'int', is_nullable => 0 },
     date_created            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     description             => { data_type => 'varchar', size => 50, is_nullable => 0 },
-    used                    => { data_type => 'bit', is_nullable => 0, default_value => 0 },
+    used                    => { data_type => 'tinyint', is_nullable => 0, default_value => 0 },
 );
 
 sub sqlt_deploy_hook {
