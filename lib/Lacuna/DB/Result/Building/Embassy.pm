@@ -102,7 +102,7 @@ sub accept_invite {
     $invite->alliance->leader->send_predefined_message(
         from        => $empire,
         tags        => ['Correspondence'],
-        filename    => 'alliance_reject.txt',
+        filename    => 'alliance_accept.txt',
         params      => [$message, $empire->name],
     );
 }
@@ -211,7 +211,7 @@ sub get_pending_invites {
 
 sub get_my_invites {
     my $self = shift;
-    my $invites = Lacuna->db->resultset('Lacuna::DB::Result::AllianceInvites')->search({empire_id => $self->body->empire_id});
+    my $invites = Lacuna->db->resultset('Lacuna::DB::Result::AllianceInvite')->search({empire_id => $self->body->empire_id});
     my @out;
     while (my $invite = $invites->next) {
         my $alliance = $invite->alliance;
