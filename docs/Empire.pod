@@ -601,7 +601,7 @@ Disables the self distruction countdown.
 A session id.
 
 
-=head redeem_essentia_code ( session_id, code ) 
+=head2 redeem_essentia_code ( session_id, code ) 
 
 Redeems an essentia code and applies the essentia to the empire's balance.
 
