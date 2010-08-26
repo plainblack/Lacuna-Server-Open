@@ -117,18 +117,18 @@ sub get_buildable {
     my $items_in_build_queue = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({body_id => $body_id, is_upgrading=>1})->count;
     
     # plans
-    my @plans;
+    my %plans;
     my $plan_rs = $body->plans->search({level => 1});
     while (my $plan = $plan_rs->next) {
         push @buildable, $plan->class->controller_class;
-        push @plans, $plan->class;
+        $plans{$plan->class} = $plan->extra_build_level;
     }
     
     foreach my $class (uniq @buildable) {
         $properties{class} = $class->model_class;
         my $building = $building_rs->new(\%properties);
         my @tags = $building->build_tags;
-        if ($properties{class} ~~ \@plans) {
+        if ($properties{class} ~~ [keys %plans]) {
             push @tags, 'Plan',
         }
         if ($tag) {
@@ -157,6 +157,9 @@ sub get_buildable {
             },
             production  => $building->stats_after_upgrade,
         };
+        if (exists $plans{$properties{class}}) {
+           $out{$building->name}{build}{extra_level} = $plans{$properties{class}};
+        }
     }
 
     return {buildable=>\%out, build_queue => { max => $max_items_in_build_queue, current => $items_in_build_queue}, status=>$self->format_status($empire, $body)};

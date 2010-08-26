@@ -148,6 +148,7 @@ Provides a list of all the building types that are available to be built on a gi
                     "ore" : 1000,
                     "time" : 1200,
                 },
+                "extra_level" : 7,  # only shows up for some plan types, skips level 1 and goes straight to this level
                 "tags" : ["Now","Resources","Food"],
                 "reason" : ""
             },
