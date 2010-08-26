@@ -367,6 +367,12 @@ The email address associated with an empire.
 
 Change the empire password that has been forgotten.
 
+ {
+   "session_id" : "id-goes-here",
+   "status" : { ... }
+ }
+
+
 =head3 reset_key
 
 A key that was emailed to the user via the C<send_password_reset_message> method.
