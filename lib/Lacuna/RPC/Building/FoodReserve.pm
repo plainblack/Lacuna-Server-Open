@@ -21,8 +21,7 @@ around 'view' => sub {
     my %foods;
     my $body = $building->body;
     foreach my $food (FOOD_TYPES) {
-        my $method = $food.'_stored';
-        $foods{$food} = $body->$method();
+        $foods{$food} = $body->type_stored($food);
     }
     $out->{food_stored} = \%foods;
     return $out;

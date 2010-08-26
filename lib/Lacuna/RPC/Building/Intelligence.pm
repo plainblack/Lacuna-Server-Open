@@ -119,8 +119,7 @@ sub train_spy {
     my $costs = $building->training_costs;
     SPY: foreach my $i (1..$quantity) {
         foreach my $resource (qw(water ore food energy)) {
-            my $stored = $resource.'_stored';
-            unless ($body->$stored >= $costs->{$resource}) {
+            unless ($body->type_stored($resource) >= $costs->{$resource}) {
                 last SPY;
             }
         }

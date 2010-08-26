@@ -287,9 +287,7 @@ sub www_view_resources {
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
     $out .= '<table style="width: 100%;"><tr><th>Type</th><th>Stored</th><th>Add</th></tr>';
     foreach my $resource (@types) {
-        my $stored = $resource.'_stored';
-
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><form action="/admin/add/resources"><td><input name="amount"><input type="submit" value="add"><input type="hidden" name="body_id" value="%s"><input type="hidden" name="resource" value="%s"</td></form></tr>', $resource, $body->$stored, $body_id, $resource);
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><form action="/admin/add/resources"><td><input name="amount"><input type="submit" value="add"><input type="hidden" name="body_id" value="%s"><input type="hidden" name="resource" value="%s"</td></form></tr>', $resource, $body->type_stored($resource), $body_id, $resource);
     }
     $out .= '</table>';
     return $self->wrap($out);
@@ -301,8 +299,7 @@ sub www_add_resources {
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
-    my $add = 'add_'.$request->param('resource');
-    $body->$add($request->param('amount'));
+    $body->add_type($request->param('resource'), $request->param('amount'));
     $body->update;
     return $self->www_view_resources($request, $body->id);
 }

@@ -163,10 +163,9 @@ sub offer_resources {
     my ($self, $type, $offer, $available_cargo_space) = @_;
     confess $offer_nothing_exception unless ($offer->{quantity} > 0);
     confess [1011, sprintf($cargo_exception,$offer->{quantity})] unless ($offer->{quantity} <= $available_cargo_space);
-    my $stored = $offer->{type}.'_stored';
     my $body = $self->body;
-    confess $have_exception unless ($body->$stored >= $offer->{quantity});
-    $body->$stored($body->$stored - $offer->{quantity});
+    confess $have_exception unless ($body->type_stored($offer->{type}) >= $offer->{quantity});
+    $body->spend_type($offer->{type}, $offer->{quantity});
     $body->update;
     return {
         offer_type                  => $type,
@@ -221,8 +220,7 @@ sub structure_push {
     foreach my $item (@{$items}) {
         given($item->{type}) {
             when ([qw(water energy waste ORE_TYPES FOOD_TYPES)]) {
-                 my $stored = $item->{type}.'_stored';
-                 confess $have_exception unless ($body->$stored >= $item->{quantity});
+                 confess $have_exception unless ($body->type_stored($item->{type}) >= $item->{quantity});
                  $space_used += $item->{quantity};
              }
             when ('glyph') {
@@ -244,8 +242,7 @@ sub structure_push {
     foreach my $item (@{$items}) {
         given($item->{type}) {
             when ([qw(water energy waste ORE_TYPES FOOD_TYPES)]) {
-                 my $stored = $item->{type}.'_stored';
-                 $body->$stored( $body->$stored - $item->{quantity});
+                 $body->spend_type($item->{type}, $item->{quantity});
                  $body->update;
                  $payload->{resources}{$item->{type}} += $item->{quantity};
              }

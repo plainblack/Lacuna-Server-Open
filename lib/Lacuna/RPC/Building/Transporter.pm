@@ -118,17 +118,15 @@ sub accept_trade {
         $trade->body->empire->add_essentia($trade->ask_quantity, 'Trade Income')->update;
     }
     else {
-        my $stored = $trade->ask_type.'_stored';
         unless ($empire->essentia >= 1) {
             confess [1011, 'You need 1 essentia to make this trade.']
         }
-        unless ($body->$stored >= $trade->ask_quantity) {
+        unless ($body->type_stored($trade->ask_type) >= $trade->ask_quantity) {
             confess [1011, 'You need '.$trade->ask_quantity.' '.$body->ask_type.' to make this trade.'];
         }
         $empire->spend_essentia(1, 'Transporter Cost')->update;
-        $body->$stored($body->$stored - $trade->ask_quantity);
-        my $add = 'add_'.$trade->ask_type;
-        $trade->body->$add($trade->ask_quantity);
+        $body->spend_type($trade->ask_type, $trade->ask_quantity);
+        $trade->body->add_type($trade->ask_type, $trade->ask_quantity);
     }
     $trade->unload($trade->payload, $body);
     $trade->delete;

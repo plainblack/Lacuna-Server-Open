@@ -468,8 +468,7 @@ sub has_resources_to_build {
     my ($self, $building, $cost) = @_;
     $cost ||= $building->cost_to_upgrade;
     foreach my $resource (qw(food energy ore water)) {
-        my $stored = $resource.'_stored';
-        unless ($self->$stored >= $cost->{$resource}) {
+        unless ($self->type_stored($resource) >= $cost->{$resource}) {
             confess [1011, "Not enough resources in storage to build this.", $resource];
         }
     }
@@ -769,8 +768,7 @@ sub tick_to {
     $self->add_water(sprintf('%.0f', $self->water_hour * $tick_rate));
     foreach my $type (ORE_TYPES) {
         my $hour_method = $type.'_hour';
-        my $add_method = 'add_'.$type;
-        $self->$add_method(sprintf('%.0f', $self->$hour_method() * $tick_rate));
+        $self->add_ore_type($type, sprintf('%.0f', $self->$hour_method() * $tick_rate));
     }
     
     # food production
@@ -786,9 +784,8 @@ sub tick_to {
     if ($food_produced > 0) {
         my $food_consumed = sprintf('%.0f', $self->food_consumption_hour * $tick_rate);
         foreach my $type (FOOD_TYPES) {
-            my $add_method = 'add_'.$type;
             $food{$type} -= sprintf('%.0f', ($food{$type} * $food_consumed) / $food_produced);
-            $self->$add_method($food{$type});
+            $self->add_food_type($type, $food{$type});
         }
     }
     
@@ -802,6 +799,20 @@ sub type_stored {
         $self->$stored_method($value);
     }
     return $self->$stored_method;
+}
+
+sub spend_type {
+    my ($self, $type, $value) = @_;
+    my $method = 'spend_'.$type;
+    $self->$method($value);
+    return $self;
+}
+
+sub add_type {
+    my ($self, $type, $value) = @_;
+    my $method = 'add_'.$type;
+    $self->$method($value);
+    return $self;
 }
 
 sub ore_stored {
@@ -1336,17 +1347,15 @@ sub spend_food {
     my $food_stored;
     my $food_type_count = 0;
     foreach my $type (FOOD_TYPES) {
-        my $stored_method = $type.'_stored';
-        $food_stored += $self->$stored_method;
-        $food_type_count++ if ($self->$stored_method);
+        my $stored = $self->type_stored($type);
+        $food_stored += $stored;
+        $food_type_count++ if ($stored);
     }
     
     # spend proportionally and save
     if ($food_stored) {
         foreach my $type (FOOD_TYPES) {
-            my $stored_method = $type.'_stored';
-            my $amount_stored = $self->$stored_method;
-            $self->spend_food_type($type, sprintf('%.0f', ($food_consumed * $amount_stored) / $food_stored));
+            $self->spend_food_type($type, sprintf('%.0f', ($food_consumed * $self->type_stored($type)) / $food_stored));
         }
     }
     

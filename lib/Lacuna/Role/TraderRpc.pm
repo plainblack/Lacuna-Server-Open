@@ -159,9 +159,9 @@ sub get_stored_resources {
     my %out;
     my $body = $building->body;
     foreach my $type (@types) {
-        my $stored = $type.'_stored';
-        next if $body->$stored < 1;
-        $out{$type} = $body->$stored;
+        my $stored = $body->type_stored($type);
+        next if $stored < 1;
+        $out{$type} = $stored;
     }
     return {
         resources               => \%out,

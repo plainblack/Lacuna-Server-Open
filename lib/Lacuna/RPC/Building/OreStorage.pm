@@ -21,8 +21,7 @@ around 'view' => sub {
     my %ores;
     my $body = $building->body;
     foreach my $ore (ORE_TYPES) {
-        my $method = $ore.'_stored';
-        $ores{$ore} = $body->$method();
+        $ores{$ore} = $body->type_stored($ore);
     }
     $out->{ore_stored} = \%ores;
     return $out;

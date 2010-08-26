@@ -131,8 +131,7 @@ sub can_build_ship {
     foreach my $key (keys %{$costs}) {
         next if ($key eq 'seconds' || $key eq 'waste');
         my $cost = $costs->{$key};
-        my $stored = $key.'_stored';
-        unless ($cost <= $body->$stored) {
+        unless ($cost <= $body->type_stored($key)) {
             confess [1011, 'Not enough resources.', $key];
         }
     }

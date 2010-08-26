@@ -1033,16 +1033,14 @@ sub steal_resources {
     my @types = (FOOD_TYPES, ORE_TYPES, 'water', 'energy', 'waste');
     my %resources;
     foreach my $type (@types) {
-        my $stored = $type.'_stored';
-        my $spend = 'spend_'.$type;
-        if ($on_body->$stored >= $space) {
+        if ($on_body->type_stored($type) >= $space) {
             $resources{$type} = $space;
-            $on_body->$spend($space);
+            $on_body->spend_type($type, $space);
             last;
         }
         else {
-            $resources{$type} = $on_body->$stored;
-            $on_body->$spend($resources{$type});
+            $resources{$type} = $on_body->type_stored($type);
+            $on_body->spend_type($type, $resources{$type});
         }
     }
     $on_body->update;

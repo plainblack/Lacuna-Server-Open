@@ -56,9 +56,9 @@ sub get_ores_available_for_processing {
     my $body = $self->body;
     my %available;
     foreach my $type (ORE_TYPES) {
-        my $stored = $type.'_stored';
-        if ($body->$stored >= 10_000) {
-            $available{ $type } = $body->$stored;
+        my $stored = $self->type_stored($type);
+        if ($stored >= 10_000) {
+            $available{ $type } = $stored;
         }
     }
     return \%available;
@@ -75,8 +75,7 @@ sub can_search_for_glyph {
     if ($self->is_working) {
         confess [1010, 'The Archaeology Ministry is already searching for a glyph.'];
     }
-    my $stored = $ore.'_stored';
-    unless ($self->body->$stored >= 10_000) {
+    unless ($self->body->type_stored($ore) >= 10_000) {
         confess [1011, 'Not enough '.$ore.' in storage. You need 10,000.'];
     }
     return 1;
@@ -86,8 +85,7 @@ sub search_for_glyph {
     my ($self, $ore) = @_;
     $self->can_search_for_glyph($ore);
     my $body = $self->body;
-    my $stored = $ore.'_stored';
-    $body->$stored( $body->$stored - 10_000 );
+    $body->spend_ore_type($ore, 10_000);
     $body->add_waste(5000);
     $body->update;
     $self->start_work({

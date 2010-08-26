@@ -27,8 +27,7 @@ sub unload {
     if (exists $payload->{resources}) {
         my %resources = %{$payload->{resources}};
         foreach my $type (keys %resources) {
-            my $add = 'add_'.$type;
-            $body->$add($resources{$type});
+            $body->add_type($type, $resources{$type});
         }
         $body->update;
     }

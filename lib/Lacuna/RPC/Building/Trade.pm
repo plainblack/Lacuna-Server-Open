@@ -103,11 +103,10 @@ sub accept_trade {
         );
     }
     else {
-        my $stored = $trade->ask_type.'_stored';
-        unless ($body->$stored >= $trade->ask_quantity) {
+        unless ($body->type_stored($trade->ask_type) >= $trade->ask_quantity) {
             confess [1011, 'You need at least '.$trade->ask_quantity.' '.$body->ask_type.' to make this trade.'];
         }
-        $body->$stored($body->$stored - $trade->ask_quantity);
+        $body->spend_type($trade->ask_type, $trade->ask_quantity);
         $body->update;
         $ship->send(
             target  => $trade->body,
