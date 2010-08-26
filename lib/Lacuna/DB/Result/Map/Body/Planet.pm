@@ -8,7 +8,7 @@ use List::Util qw(shuffle);
 use Lacuna::Util qw(to_seconds randint format_date);
 use DateTime;
 no warnings 'uninitialized';
-
+use Log::Any qw($log);
 
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
 __PACKAGE__->has_many('plans','Lacuna::DB::Result::Plans','body_id');
@@ -836,12 +836,11 @@ sub add_ore {
 }
 
 sub add_ore_type {
-    my ($self, $type, $value) = @_;
-    my $stored = $self->type_stored($type);
-    my $amount_to_store = $stored + $value;
-    my $available_storage = $self->ore_capacity - $self->ore_stored + $stored;
+    my ($self, $type, $amount_requested) = @_;
+    my $available_storage = $self->ore_capacity - $self->ore_stored;
     $available_storage = 0 if ($available_storage < 0);
-    $self->type_stored($type, ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
+    my $amount_to_add = ($amount_requested <= $available_storage) ? $amount_requested : $available_storage;
+    $self->type_stored($type, $self->type_stored($type) + $amount_to_add );
     return $self;
 }
 
@@ -851,6 +850,7 @@ sub spend_ore_type {
     if ($amount_spent > $amount_stored) {
         $self->spend_happiness($amount_spent - $amount_stored);
         $self->type_stored($type, 0);
+        $log->warn($self->name." (".$self->id.") spent ".($amount_spent - $amount_stored)." $type more than they had on hand.");
     }
     else {
         $self->type_stored($type, $amount_stored - $amount_spent );
@@ -1098,12 +1098,11 @@ sub food_stored {
 }
 
 sub add_food_type {
-    my ($self, $type, $value) = @_;
-    my $stored = $self->type_stored($type);
-    my $amount_to_store = $stored + $value;
-    my $available_storage = $self->food_capacity - $self->food_stored + $stored;
+    my ($self, $type, $amount_requested) = @_;
+    my $available_storage = $self->food_capacity - $self->food_stored;
     $available_storage = 0 if ($available_storage < 0);
-    $self->type_stored($type, ($amount_to_store < $available_storage) ? $amount_to_store : $available_storage );
+    my $amount_to_add = ($amount_requested <= $available_storage) ? $amount_requested : $available_storage;
+    $self->type_stored($type, $self->type_stored($type) + $amount_to_add );
     return $self;
 }
 
@@ -1113,6 +1112,7 @@ sub spend_food_type {
     if ($amount_spent > $amount_stored) {
         $self->spend_happiness($amount_spent - $amount_stored);
         $self->type_stored($type, 0);
+        $log->warn($self->name." (".$self->id.") spent ".($amount_spent - $amount_stored)." $type more than they had on hand.");
     }
     else {
         $self->type_stored($type, $amount_stored - $amount_spent );
@@ -1391,6 +1391,7 @@ sub spend_energy {
     if ($amount_spent > $amount_stored) {
         $self->spend_happiness($amount_spent - $amount_stored);
         $self->energy_stored(0);
+        $log->warn($self->name." (".$self->id.") spent ".($amount_spent - $amount_stored)." more energy than they had on hand.");
     }
     else {
         $self->energy_stored( $amount_stored - $amount_spent );
@@ -1412,6 +1413,7 @@ sub spend_water {
     if ($amount_spent > $amount_stored) {
         $self->spend_happiness($amount_spent - $amount_stored);
         $self->water_stored(0);
+        $log->warn($self->name." (".$self->id.") spent ".($amount_spent - $amount_stored)." more water than they had on hand.");
     }
     else {
         $self->water_stored( $amount_stored - $amount_spent );
