@@ -121,7 +121,7 @@ sub send_password_reset_message {
     $empire->password_recovery_key(create_UUID_as_string(UUID_V4));
     $empire->update;
     
-    my $message = "Use the key or the link below to reset the password for %s.\n\nKey: %s\n\n%s?reset_password=%s";
+    my $message = "Use the key or the link below to reset the password for %s.\n\nKey: %s\n\n%s#reset_password=%s";
     $empire->send_email(
         'Reset Your Password',
         sprintf($message, $empire->name, $empire->password_recovery_key, Lacuna->config->get('server_url'), $empire->password_recovery_key),
