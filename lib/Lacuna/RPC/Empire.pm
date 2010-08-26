@@ -115,7 +115,7 @@ sub send_password_reset_message {
     unless (defined $empire) {
         confess [1002, 'Empire not found.'];
     }
-    unless (defined $empire) {
+    unless ($empire->email) {
         confess [1002, 'That empire has no email address specified.'];
     }
     $empire->password_recovery_key(create_UUID_as_string(UUID_V4));
