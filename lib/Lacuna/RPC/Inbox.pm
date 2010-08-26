@@ -23,7 +23,6 @@ sub read_message {
         $message->update;
     }
     return {
-        status  => $self->format_status,
         message => {
             id          => $message->id,
             from        => $message->from_name,
@@ -39,6 +38,7 @@ sub read_message {
             tags        => [$message->tag],
             attachments => $message->attachments,
         },
+        status  => $self->format_status($empire),
     };
 }
 
@@ -59,7 +59,7 @@ sub archive_messages {
             push @failure, $id;
         }
     }
-    return { success=>\@success, failure=>\@failure, status=>$self->format_status };
+    return { success=>\@success, failure=>\@failure, status=>$self->format_status($empire) };
 }
 
 sub send_message {
@@ -137,7 +137,7 @@ sub send_message {
             sent    => \@sent,
             unknown => \@unknown,
         },
-        status  =>$self->format_status,
+        status  => $self->format_status($empire),
     };
 }
 
@@ -205,7 +205,7 @@ sub view_messages {
     return {
         messages        => \@box,
         message_count   => $messages->pager->total_entries,
-        status          => $self->format_status,
+        status          => $self->format_status($empire),
     };
 }
 
