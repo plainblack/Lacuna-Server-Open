@@ -3,12 +3,11 @@ package Lacuna::DB::Result::Map::Body::Planet;
 use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body';
-use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
+use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES BUILDABLE_CLASSES);
 use List::Util qw(shuffle);
 use Lacuna::Util qw(to_seconds randint format_date);
 use DateTime;
 no warnings 'uninitialized';
-use Log::Any qw($log);
 
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
 __PACKAGE__->has_many('plans','Lacuna::DB::Result::Plans','body_id');
@@ -876,7 +875,7 @@ sub spend_ore_type {
     if ($amount_spent > $amount_stored) {
         $self->spend_happiness($amount_spent - $amount_stored);
         $self->type_stored($type, 0);
-        $log->warn($self->name." (".$self->id.") spent ".($amount_spent - $amount_stored)." $type more than they had on hand.");
+        $self->complain_about_lack_of_resources('ore');
     }
     else {
         $self->type_stored($type, $amount_stored - $amount_spent );
@@ -1138,7 +1137,7 @@ sub spend_food_type {
     if ($amount_spent > $amount_stored) {
         $self->spend_happiness($amount_spent - $amount_stored);
         $self->type_stored($type, 0);
-        $log->warn($self->name." (".$self->id.") spent ".($amount_spent - $amount_stored)." $type more than they had on hand.");
+        $self->complain_about_lack_of_resources('food');
     }
     else {
         $self->type_stored($type, $amount_stored - $amount_spent );
@@ -1417,7 +1416,7 @@ sub spend_energy {
     if ($amount_spent > $amount_stored) {
         $self->spend_happiness($amount_spent - $amount_stored);
         $self->energy_stored(0);
-        $log->warn($self->name." (".$self->id.") spent ".($amount_spent - $amount_stored)." more energy than they had on hand.");
+        $self->complain_about_lack_of_resources('energy');
     }
     else {
         $self->energy_stored( $amount_stored - $amount_spent );
@@ -1439,7 +1438,7 @@ sub spend_water {
     if ($amount_spent > $amount_stored) {
         $self->spend_happiness($amount_spent - $amount_stored);
         $self->water_stored(0);
-        $log->warn($self->name." (".$self->id.") spent ".($amount_spent - $amount_stored)." more water than they had on hand.");
+        $self->complain_about_lack_of_resources('water');
     }
     else {
         $self->water_stored( $amount_stored - $amount_spent );
@@ -1517,6 +1516,32 @@ sub spend_waste {
         }
     }
     return $self;
+}
+
+sub complain_about_lack_of_resources {
+    my ($self, $resource) = @_;
+    # if they run out of resources in storage, then the citizens start bitching
+    if (!$self->empire->check_for_repeat_message('complaint_lack_of_'.$resource)) {
+        my $building_name;
+        foreach my $rpcclass (shuffle BUILDABLE_CLASSES) {
+            my $class = $rpcclass->model_class;
+            next unless ('Infrastructure' ~~ [$class->build_tags]);
+            my $building = $self->get_buildings_of_class($class)->search({efficiency => {'>' => 0}},{rows => 1})->single;
+            if (defined $building) {
+                $building_name = $building->name;
+                $building->spend_efficiency(25)->update;
+                last;
+            }
+        }
+        if ($building_name) {
+            $self->empire->send_predefined_message(
+                filename    => 'complaint_lack_of_'.$resource.'.txt',
+                params      => [$self->name, $building_name],
+                repeat_check=> 'complaint_lack_of_'.$resource,
+                tags        => ['Alert'],
+            );
+        }
+    }
 }
 
 
