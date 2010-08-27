@@ -6,7 +6,7 @@ B<NOTE:> This API is B<not> JSON-RPC based.
 
 To initiate the payments process you simply need to open the following url:
 
- https://servername.lacunaexpanse.com/pay?session_id=xxxxxxxxxxxxxxxx;api_key=yyyyyyyyyyyyy
+ https://servername.lacunaexpanse.com/pay?session_id=xxxxxxxxxxxxxxxx
 
 The payment system will handle the rest.
 

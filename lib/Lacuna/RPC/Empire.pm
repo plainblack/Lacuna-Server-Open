@@ -49,6 +49,9 @@ sub logout {
 
 sub login {
     my ($self, $plack_request, $name, $password, $api_key) = @_;
+    unless ($api_key) {
+        confess [1002, 'You need an API Key.'];
+    }
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->next;
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
@@ -132,6 +135,9 @@ sub send_password_reset_message {
 
 sub reset_password {
     my ($self, $plack_request, $key, $password1, $password2, $api_key) = @_;
+    unless ($api_key) {
+        confess [1002, 'You need an API Key.'];
+    }
     # verify
     unless (defined $key && $key ne '') {
         confess [1002, 'You need a key to reset a password.'];
@@ -219,6 +225,9 @@ sub validate_captcha {
 
 sub found {
     my ($self, $plack_request, $empire_id, $api_key, $invite_code) = @_;
+    unless ($api_key) {
+        confess [1002, 'You need an API Key.'];
+    }
     if ($empire_id eq '') {
         confess [1002, "You must specify an empire id."];
     }

@@ -133,12 +133,18 @@ sub spend_essentia {
 sub add_essentia {
     my ($self, $value, $note, $transaction_id) = @_;
     $self->essentia( $self->essentia + $value );
+    my $api_key;
+    my $session = $self->current_session;
+    if (defined $session) {
+        $api_key = $session->api_key;
+    }
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
         empire_id       => $self->id,
         empire_name     => $self->name,
         amount          => $value,
         description     => $note,
         transaction_id  => $transaction_id,
+        api_key         => $api_key,
     })->insert;
     return $self;
 }
