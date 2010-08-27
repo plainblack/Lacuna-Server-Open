@@ -118,7 +118,7 @@ sub send_password_reset_message {
     unless (defined $empire) {
         confess [1002, 'Empire not found.'];
     }
-    unless (defined $empire) {
+    unless ($empire->email) {
         confess [1002, 'That empire has no email address specified.'];
     }
     $empire->password_recovery_key(create_UUID_as_string(UUID_V4));
@@ -539,7 +539,7 @@ __PACKAGE__->register_rpc_method_names(
     { name => "login", options => { with_plack_request => 1 } },
     { name => "found", options => { with_plack_request => 1 } },
     { name => "reset_password", options => { with_plack_request => 1 } },
-    qw(invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+    qw(send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
 );
 
 
