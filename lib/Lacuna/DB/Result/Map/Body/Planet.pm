@@ -757,21 +757,45 @@ sub tick_to {
     if ($self->needs_recalc) {
         $self->recalc_stats;    
     }
+    # happiness
     $self->add_happiness(sprintf('%.0f', $self->happiness_hour * $tick_rate));
-    if ($self->waste_hour < 0 ) { # if it gets negative, spend out of waste stored
+    
+    # waste
+    if ($self->waste_hour < 0 ) { # if it gets negative, spend out of storage
         $self->spend_waste(sprintf('%.0f',abs($self->waste_hour) * $tick_rate));
     }
     else {
         $self->add_waste(sprintf('%.0f', $self->waste_hour * $tick_rate));
     }
-    $self->add_energy(sprintf('%.0f', $self->energy_hour * $tick_rate));
-    $self->add_water(sprintf('%.0f', $self->water_hour * $tick_rate));
-    foreach my $type (ORE_TYPES) {
-        my $hour_method = $type.'_hour';
-        $self->add_ore_type($type, sprintf('%.0f', $self->$hour_method() * $tick_rate));
+    
+    # energy
+    if ($self->energy_hour < 0 ) { # if it gets negative, spend out of storage
+        $self->spend_energy(sprintf('%.0f',abs($self->energy_hour) * $tick_rate));
+    }
+    else {
+        $self->add_energy(sprintf('%.0f', $self->energy_hour * $tick_rate));
     }
     
-    # food production
+    # water
+    if ($self->water_hour < 0 ) { # if it gets negative, spend out of storage
+        $self->spend_water(sprintf('%.0f',abs($self->water_hour) * $tick_rate));
+    }
+    else {
+        $self->add_water(sprintf('%.0f', $self->water_hour * $tick_rate));
+    }
+    
+    # ore
+    foreach my $type (ORE_TYPES) {
+        my $hour_method = $type.'_hour';
+        if ($self->$hour_method < 0 ) { # if it gets negative, spend out of storage
+            $self->spend_ore_type($type, sprintf('%.0f',abs($self->$hour_method) * $tick_rate));
+        }
+        else {
+            $self->add_ore_type($type, sprintf('%.0f', $self->$hour_method * $tick_rate));
+        }
+    }
+    
+    # food
     my %food;
     my $food_produced;
     foreach my $type (FOOD_TYPES) {
@@ -779,7 +803,6 @@ sub tick_to {
         $food{$type} = sprintf('%.0f', $self->$production_hour_method() * $tick_rate);
         $food_produced += $food{$type};
     }
-    
     # subtract food consumption and save
     if ($food_produced > 0) {
         my $food_consumed = sprintf('%.0f', $self->food_consumption_hour * $tick_rate);
@@ -787,6 +810,9 @@ sub tick_to {
             $food{$type} -= sprintf('%.0f', ($food{$type} * $food_consumed) / $food_produced);
             $self->add_food_type($type, $food{$type});
         }
+    }
+    else {
+        $self->spend_food(abs($food_produced));
     }
     
     $self->update;
