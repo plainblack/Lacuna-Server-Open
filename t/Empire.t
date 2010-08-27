@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 26;
+use Test::More tests => 27;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -51,13 +51,16 @@ $result = $tester->post('empire', 'is_name_available', [$tester->empire_name]);
 is($result->{error}{code}, 1000, 'empire name not available');
 
 $result = $tester->post('empire', 'found', [$empire_id]);
+is($result->{error}{code}, 1002, 'api key required');
+
+$result = $tester->post('empire', 'found', [$empire_id,'Anonymous']);
 my $session_id = $result->{result}{session_id};
 ok(defined $session_id, 'empire logged in after foundation');
 
 $result = $tester->post('empire', 'logout', [$session_id]);
 is($result->{result}, 1, 'logout');
 
-$result = $tester->post('empire', 'login', [$tester->empire_name,$tester->empire_password]);
+$result = $tester->post('empire', 'login', [$tester->empire_name,$tester->empire_password,'Anonymous']);
 ok(exists $result->{result}{session_id}, 'login');
 cmp_ok($result->{result}{status}{server}{version}, '>=', 1, 'version number');
 cmp_ok($result->{result}{status}{server}{star_map_size}{x}[1], '>=', 1, 'map size');
@@ -95,10 +98,10 @@ $result = $tester->post('empire', 'get_status', [$session_id]);
 ok(exists $result->{result}{empire}{planets}, 'got starting resources');
 
 
-$result = $tester->post('empire', 'login', [$tester->empire_name, 'broken sitter password']);
+$result = $tester->post('empire', 'login', [$tester->empire_name, 'broken sitter password','Anonymous']);
 is($result->{error}{code}, 1004, 'broken sitter password');
 
-$result = $tester->post('empire', 'login', [$tester->empire_name, 'testsitter']);
+$result = $tester->post('empire', 'login', [$tester->empire_name, 'testsitter','Anonymous']);
 ok(exists $result->{result}{session_id}, 'login with sitter password');
 
 my $empire2 = $empire;
@@ -106,7 +109,7 @@ $empire2->{name} = 'essentia code';
 $empire2->{email} = 'test@example.com';
 $result = $tester->post('empire', 'create', $empire2);
 $empire2->{id} = $result->{result};
-$result = $tester->post('empire', 'found', [$empire2->{id}]);
+$result = $tester->post('empire', 'found', [$empire2->{id},'Anonymous']);
 my $e2 = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire2->{id});
 $e2->add_essentia(100, 'test')->update;
 $result = $tester->post('empire', 'get_status', [$result->{result}{session_id}]);
