@@ -672,8 +672,8 @@ sub is_not_max_level {
     if ($self->level >= 30) {
         confess [1009, 'This building is already at its maximum level.'];
     }
-    if ($self->level >= 15 && 'Resources' ~~ [$self->build_tags] && $self->body_id != $self->body->empire->home_planet_id) {
-        confess [1009, 'Resource buildings cannot upgrade above level 15 except on your home planet.'];
+    if ($self->level >= 15 && 'Resources' ~~ [$self->build_tags] && !('Storage' ~~ [$self->build_tags])) { # resource buildings except storage buildings
+        confess [1009, 'Resource buildings cannot upgrade above level 15 without a Stockpile.'];
     }
 }
 
