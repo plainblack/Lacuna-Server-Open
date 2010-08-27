@@ -223,7 +223,6 @@ sub found {
     # found home planet
     $home_planet ||= $self->find_home_planet($invite_code);
     $self->home_planet_id($home_planet->id);
-    $self->add_essentia(100, 'alpha testers'); # REMOVE BEFORE LAUNCH
     $self->stage('founded');
     $self->update;
     $self->home_planet($home_planet);
