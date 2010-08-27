@@ -182,6 +182,16 @@ sub demolish {
     };
 }
 
+sub downgrade {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $body = $building->body;
+    $building->downgrade;
+    $body->tick;
+    return $self->view($empire, $building);
+}
+
 sub get_stats_for_level {
     my ($self, $session_id, $building_id, $level) = @_;
     my $empire = $self->get_empire_by_session($session_id);
