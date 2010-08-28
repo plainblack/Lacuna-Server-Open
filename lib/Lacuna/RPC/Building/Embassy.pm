@@ -38,7 +38,7 @@ sub assign_alliance_leader {
     $building->assign_alliance_leader($new_leader);
     return {
         status          => $self->format_status($empire, $building->body),
-        alliance        => $building->alliance,
+        alliance        => $building->alliance->get_status,
     };
 }
 
