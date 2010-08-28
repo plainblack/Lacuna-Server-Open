@@ -4,7 +4,7 @@ use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Ore';
 
-before check_build_prereqs => sub {
+before can_build => sub {
     my $self = shift;
     my $planet = $self->body;
     if ($planet->sulfur + $planet->fluorite < 500) {

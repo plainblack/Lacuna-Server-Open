@@ -49,7 +49,7 @@ before 'can_demolish' => sub {
     }
 };
 
-before check_build_prereqs => sub {
+before can_build => sub {
     my $self = shift;
     my @ids = $self->body->empire->planets->get_column('id')->all;
     my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({ class => __PACKAGE__, body_id => { in => \@ids } })->count;

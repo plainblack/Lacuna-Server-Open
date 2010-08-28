@@ -11,7 +11,7 @@ around 'build_tags' => sub {
 
 use constant controller_class => 'Lacuna::RPC::Building::TerraformingPlatform';
 
-sub check_build_prereqs {
+sub can_build {
     my ($self, $body) = @_;
     if ($body->get_plan(__PACKAGE__, 1)) {
         return 1;  

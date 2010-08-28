@@ -13,7 +13,7 @@ use constant controller_class => 'Lacuna::RPC::Building::GasGiantPlatform';
 
 use constant image => 'gas-giant-platform';
 
-sub check_build_prereqs {
+sub can_build {
     my ($self, $body) = @_;
     if ($body->get_plan(__PACKAGE__, 1)) {
         return 1;  

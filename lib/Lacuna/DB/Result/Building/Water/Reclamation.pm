@@ -9,7 +9,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Waste));
 };
 
-before check_build_prereqs => sub {
+before can_build => sub {
     my $self = shift;
     my $planet = $self->body;
     if ($planet->halite + $planet->sulfur < 500) {

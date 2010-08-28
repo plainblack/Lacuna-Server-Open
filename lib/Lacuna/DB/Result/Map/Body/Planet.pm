@@ -366,7 +366,7 @@ sub check_for_available_build_space {
 
 sub has_met_building_prereqs {
     my ($self, $building, $cost) = @_;
-    $building->check_build_prereqs($self);
+    $building->can_build($self);
     $self->has_resources_to_build($building, $cost);
     $self->has_max_instances_of_building($building);
     $self->has_resources_to_operate($building);

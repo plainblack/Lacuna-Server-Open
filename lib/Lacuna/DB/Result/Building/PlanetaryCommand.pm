@@ -11,7 +11,7 @@ around 'build_tags' => sub {
 
 use constant controller_class => 'Lacuna::RPC::Building::PlanetaryCommand';
 
-sub check_build_prereqs {
+sub can_build {
     confess [1013,"You can't directly build a Planetary Command. You need a colony ship."];
 }
 

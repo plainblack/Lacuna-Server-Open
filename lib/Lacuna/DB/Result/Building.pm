@@ -568,7 +568,7 @@ sub waste_capacity {
 
 # BUILD
 
-sub check_build_prereqs {
+sub can_build {
     my ($self, $body) = @_;
     
     # check goldilox zone

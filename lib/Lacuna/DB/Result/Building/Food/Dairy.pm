@@ -8,7 +8,7 @@ use constant controller_class => 'Lacuna::RPC::Building::Dairy';
 
 use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Corn'=>5};
 
-before check_build_prereqs => sub {
+before can_build => sub {
     my $self = shift;
     my $planet = $self->body;
     if ($planet->trona < 500) {

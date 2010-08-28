@@ -6,7 +6,7 @@ extends 'Lacuna::DB::Result::Building::Permanent';
 
 use constant controller_class => 'Lacuna::RPC::Building::LibraryOfJith';
 
-sub check_build_prereqs {
+sub can_build {
     my ($self, $body) = @_;
     if ($body->get_plan(__PACKAGE__, 1)) {
         return 1;  
