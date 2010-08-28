@@ -31,6 +31,8 @@ $urlmap->map("/facebook" => Lacuna::Web::Facebook->new->to_app);
 $urlmap->map("/apikey" => Lacuna::Web::ApiKey->new->to_app);
 
 # buildings
+$urlmap->map(Lacuna::RPC::Building::Capitol->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Stockpile->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Algae->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Apple->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Bean->new->to_app_with_url);

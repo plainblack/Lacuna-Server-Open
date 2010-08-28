@@ -22,8 +22,6 @@ around 'view' => sub {
     return $out;
 };
 
-__PACKAGE__->register_rpc_method_names(qw(view_plans));
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

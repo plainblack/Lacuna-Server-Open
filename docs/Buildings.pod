@@ -1,3 +1,7 @@
+=head1 Building Descriptions
+
+Your app can download a copy of the building descriptions from C<http://servername.lacunaexpanse.com/building_descriptions.json>. Your app should cache this file, and only download a new copy if it has changed. We do not include this information in L<Body/"get_buildings"> because it's the same on every request for every empire and would add a lot of bandwidth for nothing.
+
 =head1 Building Methods
 
 All buildings have some methods in common. This is a description of the methods available from each building.
@@ -286,6 +290,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<Burger>
 
+=item L<Capitol>
+
 =item L<Cheese>
 
 =item L<Chip>
@@ -391,6 +397,8 @@ Below is a list of the different types of structures that can be built on planet
 =item L<Soup>
 
 =item L<SpacePort>
+
+=item L<Stockpile>
 
 =item L<Syrup>
 
