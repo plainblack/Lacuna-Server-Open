@@ -11,6 +11,8 @@ around 'build_tags' => sub {
 
 use constant building_prereq => {'Lacuna::DB::Result::Building::PlanetaryCommand'=>10};
 
+use constant max_instances_per_planet => 1;
+
 use constant controller_class => 'Lacuna::RPC::Building::Capitol';
 
 use constant image => 'capitol';
@@ -60,9 +62,11 @@ before can_build => sub {
 
 after finish_upgrade => sub {
     my $self = shift;
-    my $empire = $self->body->empire;
-    $empire->home_planet_id($self->body_id);
+    my $body = $self->body;
+    my $empire = $body->empire;
+    $empire->home_planet_id($body->id);
     $empire->update;
+    $body->add_news(80, sprintf('%s have announced that their new capitol is %s.', $empire->name, $body->name));
 };
 
 
