@@ -621,6 +621,11 @@ sub demolish {
 
 # UPGRADES
 
+sub can_downgrade {
+    my $self = shift;
+    return 1;
+}
+
 sub downgrade {
     my $self = shift;
     if ($self->level == 1) {

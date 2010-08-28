@@ -139,6 +139,13 @@ after finish_upgrade => sub {
     $self->recalc_ore_production;
 };
 
+before 'can_downgrade' => sub {
+    my $self = shift;
+    if ($self->platforms->count > int(($self->level) / 2)) {
+        confess [1013, 'You must abandon one of your Mining Platforms before you can downgrade the Mining Ministry.'];
+    }
+};
+
 use constant controller_class => 'Lacuna::RPC::Building::MiningMinistry';
 
 use constant university_prereq => 12;

@@ -14,6 +14,11 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Ships Intelligence Colonization));
 };
 
+sub probes {
+    my $self = shift;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search( { body_id => $self->body_id } );
+}
+
 use constant controller_class => 'Lacuna::RPC::Building::Observatory';
 
 use constant university_prereq => 3;
@@ -45,6 +50,18 @@ use constant ore_consumption => 1;
 use constant water_consumption => 1;
 
 use constant waste_production => 1;
+
+before 'can_downgrade' => sub {
+    my $self = shift;
+    if ($self->probes->count > ($self->level - 1) * 3) {
+        confess [1013, 'You must abandon some probes to downgrade the Observatory.'];
+    }
+};
+
+before delete => sub {
+    my ($self) = @_;
+    $self->probes->delete_all;
+};
 
 
 no Moose;

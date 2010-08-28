@@ -181,6 +181,13 @@ before delete => sub {
     $self->get_spies->delete;
 };
 
+before 'can_downgrade' => sub {
+    my $self = shift;
+    if ($self->spy_count > $self->level - 1) {
+        confess [1013, 'You must burn a spy to downgrade the Intelligence Ministry.'];
+    }
+};
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

@@ -47,8 +47,25 @@ use constant ore_storage => 300;
 
 use constant water_storage => 300;
 
+before 'can_downgrade' => sub {
+    my $self = shift;
+    my $buildings = $self->body->buildings;
+    while (my $building = $buildings->next) {
+        if ($building->level > 15 && 'Resources' ~~ [$building->build_tags] && !('Storage' ~~ [$building->build_tags])) {
+            confess [1013, 'You have to downgrade your level '.$building->level.' '.$building->name.' to level 15 before you can downgrade the Stockpile.'];
+        }
+    }
+};
 
-
+before 'can_demolish' => sub {
+    my $self = shift;
+    my $buildings = $self->body->buildings;
+    while (my $building = $buildings->next) {
+        if ($building->level > 15 && 'Resources' ~~ [$building->build_tags] && !('Storage' ~~ [$building->build_tags])) {
+            confess [1013, 'You have to downgrade your level '.$building->level.' '.$building->name.' to level 15 before you can demolish the Stockpile.'];
+        }
+    }
+};
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

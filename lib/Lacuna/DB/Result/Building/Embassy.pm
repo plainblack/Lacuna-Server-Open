@@ -242,6 +242,22 @@ sub update_alliance {
     return $alliance;
 }
 
+before 'can_downgrade' => sub {
+    my $self = shift;
+    my $alliance = eval{$self->alliance};
+    if (defined $alliance && $self->body->empire_id == $alliance->leader_id) {
+        confess [1013, 'You cannot downgrade an Embassy while you are an alliance leader.']
+    }
+};
+
+before 'can_demolish' => sub {
+    my $self = shift;
+    my $alliance = eval{$self->alliance};
+    if (defined $alliance && $self->body->empire_id == $alliance->leader_id) {
+        confess [1013, 'You cannot demolish an Embassy while you are an alliance leader.']
+    }
+};
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

@@ -41,6 +41,13 @@ use constant waste_production => 5;
 
 use constant happiness_production => 15;
 
+before 'can_demolish' => sub {
+    my $self = shift;
+    my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
+    if (defined $stockpile) {
+        confess [1013, 'You have to demolish your Stockpile before you can demolish your Capitol.'];
+    }
+};
 
 
 no Moose;

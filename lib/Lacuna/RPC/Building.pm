@@ -187,6 +187,7 @@ sub downgrade {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $body = $building->body;
+    $building->can_downgrade;
     $building->downgrade;
     $body->tick;
     return $self->view($empire, $building);

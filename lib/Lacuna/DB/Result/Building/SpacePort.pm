@@ -116,8 +116,16 @@ sub find_ship {
 
 before delete => sub {
     my ($self) = @_;
-    Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({spaceport_id => $self->id })->delete_all;
+    $self->ships->delete_all;
 };
+
+before 'can_downgrade' => sub {
+    my $self = shift;
+    if ($self->ships->count > ($self->level - 1) * 2) {
+        confess [1013, 'You must scuttle some ships to downgrade the Spaceport.'];
+    }
+};
+
 
 
 use constant controller_class => 'Lacuna::RPC::Building::SpacePort';
@@ -149,7 +157,6 @@ use constant ore_consumption => 20;
 use constant water_consumption => 12;
 
 use constant waste_production => 20;
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
