@@ -56,7 +56,7 @@ sub get_ores_available_for_processing {
     my $body = $self->body;
     my %available;
     foreach my $type (ORE_TYPES) {
-        my $stored = $self->type_stored($type);
+        my $stored = $body->type_stored($type);
         if ($stored >= 10_000) {
             $available{ $type } = $stored;
         }
