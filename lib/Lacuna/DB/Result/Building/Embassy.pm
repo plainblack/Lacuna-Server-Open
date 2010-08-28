@@ -232,6 +232,7 @@ sub update_alliance {
     }
     my %vetted;
     foreach my $field (qw(forum_uri description announcements)) {
+        next unless exists $params->{$field};
         my $content = $params->{$field};
         Lacuna::Verify->new(content=>\$content, throws=>[1005,'The '.$field.' must not contain restricted characters or profanity.', $field])
             ->no_tags
