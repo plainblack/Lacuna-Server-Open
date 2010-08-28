@@ -579,7 +579,7 @@ sub check_build_prereqs {
     unless ($body->get_plan($self->class, 1)) {
         # check university level
         if ($self->university_prereq > $body->empire->university_level) {
-            confess [1013, "University research too low.",$self->university_prereq];
+            confess [1013, "You need a level ".$self->university_prereq." University.",$self->university_prereq];
         }
     
         # check building prereqs
@@ -588,7 +588,7 @@ sub check_build_prereqs {
         foreach my $key (keys %{$prereqs}) {
             my $count = $buildings->search({body_id=>$body->id, class=>$key, level=>{'>=',$prereqs->{$key}}});
             if ($count < 1) {
-                confess [1013, "You don't have the necessary prerequisite buildings.",[$key->name, $prereqs->{$key}]];
+                confess [1013, "You need a level ".$prereqs->{$key}." ".$key->name.".",[$key->name, $prereqs->{$key}]];
             }
         }
     }
