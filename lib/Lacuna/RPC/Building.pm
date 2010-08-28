@@ -240,7 +240,7 @@ sub repair {
 
 
 
-__PACKAGE__->register_rpc_method_names(qw(repair get_repair_costs demolish upgrade view build get_stats_for_level));
+__PACKAGE__->register_rpc_method_names(qw(repair downgrade get_repair_costs demolish upgrade view build get_stats_for_level));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
