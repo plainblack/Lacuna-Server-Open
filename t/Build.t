@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 21;
+use Test::More tests => 20;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -149,9 +149,6 @@ ok(exists $result->{result}, 'get_stats_for_level works');
 
 $result = $tester->post('body', 'get_status', [$session_id, $home->id]);
 
-
-$result = $tester->post('waterpurification', 'demolish', [$session_id, $water->id]);
-ok(exists $result->{error}, 'can not demolish water purification plant');
 
 $result = $tester->post('university', 'demolish', [$session_id, $uni->id]);
 ok(exists $result->{result}{status}, 'can demolish university');
