@@ -11,6 +11,8 @@ around 'build_tags' => sub {
 
 use constant building_prereq => {'Lacuna::DB::Result::Building::PlanetaryCommand'=>10};
 
+use constant max_instances_per_planet => 1;
+
 use constant controller_class => 'Lacuna::RPC::Building::Capitol';
 
 use constant image => 'capitol';

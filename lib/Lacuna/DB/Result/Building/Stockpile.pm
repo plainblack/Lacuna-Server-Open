@@ -9,6 +9,8 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Resources Storage Food Water Ore Energy));
 };
 
+use constant max_instances_per_planet => 1;
+
 use constant building_prereq => {'Lacuna::DB::Result::Building::Capitol'=>10};
 
 use constant controller_class => 'Lacuna::RPC::Building::Stockpile';
