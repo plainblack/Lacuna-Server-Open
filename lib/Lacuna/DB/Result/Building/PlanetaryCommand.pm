@@ -12,11 +12,15 @@ around 'build_tags' => sub {
 use constant controller_class => 'Lacuna::RPC::Building::PlanetaryCommand';
 
 sub can_build {
-    confess [1013,"You can't directly build a Planetary Command. You need a colony ship."];
+    confess [1013,"You can't directly build a Planetary Command Center. You need a colony ship."];
 }
 
 before 'can_demolish' => sub {
-    confess [1013, "You cannot demolish the Planetary Commmand."];
+   confess [1010, 'You cannot demolish the Planetary Command Center. Use the abandon colony function if you no longer want this colony.'];
+};
+
+before 'can_demolish' => sub {
+    confess [1013, "You cannot demolish the Planetary Commmand Center."];
 };
 
 use constant image => 'command';
