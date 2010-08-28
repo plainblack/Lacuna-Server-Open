@@ -223,14 +223,14 @@ use constant star_to_body_distance_ratio => 100;
 
 use constant ship_speed => {
     probe                               => 5000,
-    gas_giant_settlement_platform_ship  => 700,
-    terraforming_platform_ship          => 750,
-    mining_platform_ship                => 1000,
-    cargo_ship                          => 1500,
-    smuggler_ship                       => 2500,
-    spy_pod                             => 3000,
-    colony_ship                         => 600,
-    space_station                       => 5,
+    gas_giant_settlement_platform_ship  => 500,
+    terraforming_platform_ship          => 550,
+    mining_platform_ship                => 600,
+    cargo_ship                          => 1000,
+    smuggler_ship                       => 1500,
+    spy_pod                             => 2000,
+    colony_ship                         => 455,
+    space_station                       => 15,
 };
 
 
