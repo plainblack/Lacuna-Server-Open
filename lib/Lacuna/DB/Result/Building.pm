@@ -680,8 +680,18 @@ sub is_not_max_level {
         confess [1009, 'This building is already at its maximum level.'];
     }
     if ($self->level >= 15 && 'Resources' ~~ [$self->build_tags] && !('Storage' ~~ [$self->build_tags])) { # resource buildings except storage buildings
-        confess [1009, 'Resource buildings cannot upgrade above level 15 without a Stockpile.'];
+        my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
+        if (defined $stockpile) {
+            if ($self->level + $stockpile->extra_resource_levels > $self->level) {
+                return 1;
+            }
+            else {
+                confess [1013, 'You must upgrade your Stockpile to upgrade this building further.'];
+            }
+        }
+        confess [1013, 'Resource buildings cannot upgrade above level 15 without a Stockpile.'];
     }
+    return 1;
 }
 
 sub can_upgrade {

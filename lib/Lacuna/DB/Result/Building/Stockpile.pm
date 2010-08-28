@@ -51,7 +51,7 @@ before 'can_downgrade' => sub {
     my $self = shift;
     my $buildings = $self->body->buildings;
     while (my $building = $buildings->next) {
-        if ($building->level > 15 && 'Resources' ~~ [$building->build_tags] && !('Storage' ~~ [$building->build_tags])) {
+        if ($building->level > 15 + (($self->level - 1)/3) && 'Resources' ~~ [$building->build_tags] && !('Storage' ~~ [$building->build_tags])) {
             confess [1013, 'You have to downgrade your level '.$building->level.' '.$building->name.' to level 15 before you can downgrade the Stockpile.'];
         }
     }
@@ -66,6 +66,11 @@ before 'can_demolish' => sub {
         }
     }
 };
+
+sub extra_resource_levels {
+    my $self = shift;
+    return int($self->level / 3);
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
