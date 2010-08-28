@@ -49,6 +49,22 @@ before 'can_demolish' => sub {
     }
 };
 
+before check_build_prereqs => sub {
+    my $self = shift;
+    my @ids = $self->body->empire->planets->get_column('id')->all;
+    my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({ class => __PACKAGE__, body_id => { in => \@ids } })->count;
+    if ($count) {
+        confess [1013, 'You can only have one Capitol.'];
+    }
+};
+
+after finish_upgrade => sub {
+    my $self = shift;
+    my $empire = $self->body->empire;
+    $empire->home_planet_id($self->body_id);
+    $empire->update;
+};
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
