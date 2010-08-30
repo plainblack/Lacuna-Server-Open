@@ -7,6 +7,7 @@ use Lacuna::Util qw(format_date to_seconds randint);
 use DateTime;
 use feature "switch";
 
+__PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('ships');
 __PACKAGE__->add_columns(
     spaceport_id            => { data_type => 'int', size => 11, is_nullable => 1 },
@@ -25,6 +26,30 @@ __PACKAGE__->add_columns(
     foreign_body_id         => { data_type => 'int', size => 11, is_nullable => 1 },
     foreign_star_id         => { data_type => 'int', size => 11, is_nullable => 1 },
 );
+__PACKAGE__->typecast_map(class => {
+    'probe'                                 => 'Lacuna::DB::Result::Ships::Probe',
+    'colony_ship'                           => 'Lacuna::DB::Result::Ships::ColonyShip',
+    'spy_pod'                               => 'Lacuna::DB::Result::Ships::SpyPod',
+    'cargo_ship'                            => 'Lacuna::DB::Result::Ships::CargoShip',
+    'space_station'                         => 'Lacuna::DB::Result::Ships::SpaceStation',
+    'smuggler_ship'                         => 'Lacuna::DB::Result::Ships::SmugglerShip',
+    'mining_platform_ship'                  => 'Lacuna::DB::Result::Ships::MiningPlatformShip',
+    'terraforming_platform_ship'            => 'Lacuna::DB::Result::Ships::TerraformingPlatformShip',
+    'gas_giant_settlement_platform_ship'    => 'Lacuna::DB::Result::Ships::GasGiantSettlementPlatformShip',
+    'scanner'                               => 'Lacuna::DB::Result::Ships::Scanner',
+    'detonator'                             => 'Lacuna::DB::Result::Ships::Detonator',
+    'excavator'                             => 'Lacuna::DB::Result::Ships::Excavator',
+    'scow'                                  => 'Lacuna::DB::Result::Ships::Scow',
+    'freighter'                             => 'Lacuna::DB::Result::Ships::Freighter',
+    'dory'                                  => 'Lacuna::DB::Result::Ships::Dory',
+    'bomber'                                => 'Lacuna::DB::Result::Ships::Bomber',
+    'spy_shuttle'                           => 'Lacuna::DB::Result::Ships::SpyShuttle',
+    'drone'                                 => 'Lacuna::DB::Result::Ships::Drone',
+    'fighter'                               => 'Lacuna::DB::Result::Ships::Fighter',
+    'observatory_seeker'                    => 'Lacuna::DB::Result::Ships::ObservatorySeeker',
+    'spaceport_seeker'                      => 'Lacuna::DB::Result::Ships::SpacePortSeeker',
+    'security_ministry_seeker'              => 'Lacuna::DB::Result::Ships::SecurityMinistrySeeker',
+});
 
 with 'Lacuna::Role::Container';
 
@@ -33,6 +58,19 @@ __PACKAGE__->belongs_to('shipyard', 'Lacuna::DB::Result::Building', 'shipyard_id
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 __PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Result::Map::Star', 'foreign_star_id');
 __PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Result::Map::Body', 'foreign_body_id');
+
+use constant prereq         => { class=> 'Lacuna::DB::Result::Building::University',  level => 1 };
+use constant food_cost      => 1;
+use constant water_cost     => 1;
+use constant energy_cost    => 1;
+use constant ore_cost       => 1;
+use constant time_cost      => 1;
+use constant waste_cost     => 1;
+use constant base_speed     => 1;
+use constant base_stealth   => 0;
+use constant base_hold_size => 0;
+use constant pilotable      => 0;
+
 
 sub is_available {
     my ($self) = @_;
@@ -145,200 +183,9 @@ sub land {
     $self->update;
 }
 
+
 sub arrive {
-    my ($self) = @_;
-    given ($self->type) { # wouldn't have to do this if we subclassed ships, but oh well
-        when ('probe') { $self->arrive_probe }
-        when ('spy_pod') { $self->arrive_spy_pod }
-        when ('cargo_ship') { $self->arrive_cargo_ship }
-        when ('terraforming_platform_ship') { $self->arrive_terraforming_platform_ship }
-        when ('gas_giant_settlement_platform_ship') { $self->arrive_gas_giant_settlement_platform_ship }
-        when ('mining_platform_ship') { $self->arrive_mining_platform_ship }
-        when ('colony_ship') { $self->arrive_colony_ship }
-        when ('smuggler_ship') { $self->arrive_smuggler_ship }
-        when ('space_station') { $self->arrive_space_station }
-    }
-}
-
-sub arrive_probe {
-    my ($self) = @_;
-    my $empire = $self->body->empire;
-    $empire->add_probe($self->foreign_star_id, $self->body_id);
-    $self->delete;
-}
-    
-sub arrive_spy_pod {
-    my ($self) = @_;
-    $self->delete;
-}
-    
-sub arrive_colony_ship {
-    my ($self) = @_;
-    my $empire = $self->body->empire;
-    if ($self->direction eq 'out') {
-        my $planet = $self->foreign_body;
-        if ($planet->is_locked || $planet->empire_id) {
-            $self->turn_around;
-            $empire->send_predefined_message(
-                tags        => ['Alert'],
-                filename    => 'cannot_colonize.txt',
-                params      => [$planet->name, $planet->name],
-            );
-        }
-        else {
-            $planet->lock;
-            $planet->found_colony($empire);
-            $empire->send_predefined_message(
-                tags        => ['Alert'],
-                filename    => 'colony_founded.txt',
-                params      => [$planet->name, $planet->name],
-            );
-            $empire->is_isolationist(0);
-            $empire->update;
-            $self->delete;
-        }
-    }
-    else {
-        $self->land;
-    }
-}
-    
-sub arrive_terraforming_platform_ship {
-    my ($self) = @_;
-    if ($self->direction eq 'out') {
-        my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::TerraformingLab');
-        if (defined $lab) {
-            $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform', 1, $lab->level);
-        }
-    }
-    else {
-        $self->land;
-    }
-}
-    
-sub arrive_gas_giant_settlement_platform_ship {
-    my ($self) = @_;
-    if ($self->direction eq 'out') {
-        my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::GasGiantLab');
-        if (defined $lab) {
-            $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform', 1, $lab->level);
-        }
-    }
-    else {
-        $self->land;
-    }
-}
-    
-sub arrive_mining_platform_ship {
-    my ($self) = @_;
-    if ($self->direction eq 'out') {
-        my $body = $self->body;
-        my $ministry = $body->mining_ministry;
-	unless (defined $ministry) {
-            $self->turn_around;
-        }
-        my $empire = $body->empire;
-        my $can = eval{$ministry->can_add_platform($self->foreign_body)};
-        if ($can && !$@) {
-            $ministry->add_platform($self->foreign_body)->update;
-            $empire->send_predefined_message(
-                tags        => ['Alert'],
-                filename    => 'mining_platform_deployed.txt',
-                params      => [$self->foreign_body->name, $self->name],
-            );
-            $self->delete;
-            my $type = $self->foreign_body;
-            $type =~ s/^Lacuna::DB::Result::Map::Body::Asteroid::(\w+)$/$1/;
-            $empire->add_medal($type);        }
-        else {
-            $self->turn_around;
-            $empire->send_predefined_message(
-                tags        => ['Alert'],
-                filename    => 'cannot_deploy_mining_platform.txt',
-                params      => [$@->[1], $body->name, $self->name],
-            );
-        }
-    }
-    else {
-        $self->land;
-    }
-}
-
-sub handle_cargo_exchange {
-    my $self = shift;
-    if ($self->direction eq 'out') {
-        $self->unload($self->payload, $self->foreign_body);
-        $self->payload({});
-        $self->turn_around;
-        $self->pick_up_spies; # goes after turn around so we have the new date available
-    }
-    else {
-        $self->unload($self->payload, $self->body);
-        $self->payload({});
-        $self->land;
-    }
-}
-
-sub pick_up_spies {
-    my $self = shift;
-    my $empire_id = $self->body->empire_id;
-    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
-    my @riding;
-    foreach my $id (@{$self->payload->{fetch_spies}}) {
-        my $spy = $spies->find($id);
-        next unless defined $spy;
-        next unless $spy->is_available;
-        next unless $spy->empire_id eq $empire_id;
-        push @riding, $spy->id;
-        $spy->available_on($self->date_available);
-        $spy->on_body_id($self->body_id);
-        $spy->task('Travelling');
-        $spy->started_assignment(DateTime->now),
-        $spy->update;
-    }
-    my $payload = $self->payload;
-    $payload->{spies} = \@riding;
-    $self->payload($payload);
-    $self->update;
-}
-
-sub capture_with_spies {
-    my ($self, $multiplier) = @_;
-    my $body = $self->foreign_body;
-    return 0 if ($body->empire_id == $self->body->empire_id);
-    my $security = $body->get_building_of_class('Lacuna::DB::Result::Security');
-    return 0 unless defined $security;
-    return 0 unless (randint(1,100) < $security->level * $multiplier);
-    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
-    my $sentence = DateTime->now->add(days => 30);
-    foreach my $id ((@{$self->payload->{spies}}, @{$self->payload->{fetch_spies}})) {
-        next unless $id;
-        my $spy = $spies->find($id);
-        next unless defined $spy;
-        $spy->go_to_jail;
-    }
-    $self->delete;
-}
-    
-sub arrive_cargo_ship {
-    my ($self) = @_;
-    my $captured = $self->capture_with_spies(2) if (exists $self->payload->{spies} || exists $self->payload->{fetch_spies} );
-    unless ($captured) {
-        $self->handle_cargo_exchange;
-    }
-}
-    
-sub arrive_smuggler_ship {
-    my ($self) = @_;
-    my $captured = $self->capture_with_spies(1) if (exists $self->payload->{spies} || exists $self->payload->{fetch_spies} );
-    unless ($captured) {
-        $self->handle_cargo_exchange;
-    }
-}
-    
-sub arrive_space_station {
-    my ($self) = @_;
-    $self->delete;
+    confess 'override me';
 }
 
 # DISTANCE
