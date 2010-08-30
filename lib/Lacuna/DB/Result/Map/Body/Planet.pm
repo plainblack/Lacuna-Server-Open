@@ -1459,8 +1459,18 @@ sub add_happiness {
 sub spend_happiness {
     my ($self, $value) = @_;
     my $new = $self->happiness - $value;
-    if ($new < 0 && $self->empire->is_isolationist) {
-        $new = 0;
+    if ($new < 0) {
+        if ($self->empire->is_isolationist) {
+            $new = 0;
+        }
+        elsif (!$self->empire->check_for_repeat_message('complaint_unhappy')) {
+            $self->empire->send_predefined_message(
+                filename    => 'complaint_unhappy.txt',
+                params      => [$self->name],
+                repeat_check=> 'complaint_unhappy',
+                tags        => ['Alert'],
+            );
+        }
     }
     $self->happiness( $new );
     return $self;
