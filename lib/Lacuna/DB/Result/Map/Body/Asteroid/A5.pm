@@ -8,7 +8,7 @@ use constant image => 'a5';
 
 use constant fluorite => 1000;
 
-use constant gold => 9000;
+use constant gold => 8500;
 
 use constant water => 500;
 
