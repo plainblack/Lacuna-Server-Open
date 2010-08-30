@@ -4,7 +4,7 @@ The citizens of %s are really down, and could use some cheering up. Some have sa
 
 I probably don't need to remind you of the risks of unhappy citizens, but there are two big risks that I'll point out anyway:
 
-First, if they get too unhappy, they might start looking for new leadership. The entire planet revolt against you and overthrow your empire. They may even fall prey to insurrection and join someone else's empire.
+First, if they get too unhappy, they might start looking for new leadership. The entire planet may revolt against you and overthrow your empire. They may even fall prey to insurrection and join someone else's empire.
 
 Second, unhappy citizens make for unhappy workers. The less happy they are the longer it will take to build things. They may get so unhappy that nothing will ever get done. In which case, your only option might be to abandon the colony all together!
 
