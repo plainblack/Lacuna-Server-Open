@@ -129,9 +129,9 @@ sub can_build_ship {
         confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.']
     }
     my $ship = $ships->new({type => $type});
-    my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { body_id => $self->body_id, class => $ship->prereqs->{class}, level => {'>=' => $ship->prereqs->{level}} } )->count;
+    my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { body_id => $self->body_id, class => $ship->prereq->{class}, level => {'>=' => $ship->prereq->{level}} } )->count;
     unless ($count) {
-        confess [1013, 'You need a level '.$ship->prereqs->{level}.' '.$ship->prereqs->{class}->name.' to build this ship.'];
+        confess [1013, 'You need a level '.$ship->prereq->{level}.' '.$ship->prereq->{class}->name.' to build this ship.'];
     }
     my $port = $self->body->spaceport->find_open_dock;
     unless (defined $port) {
