@@ -11,18 +11,6 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Ships));
 };
 
-use constant ship_prereqs => {
-    probe                         => 'Lacuna::DB::Result::Building::Observatory',
-    colony_ship                   => 'Lacuna::DB::Result::Building::Observatory',
-    spy_pod                       => 'Lacuna::DB::Result::Building::Espionage',
-    cargo_ship                    => 'Lacuna::DB::Result::Building::Trade',
-    space_station                 => 'Lacuna::DB::Result::Building::Embassy',
-    smuggler_ship                 => 'Lacuna::DB::Result::Building::Propulsion',
-    mining_platform_ship          => 'Lacuna::DB::Result::Building::Ore::Ministry',
-    terraforming_platform_ship    => 'Lacuna::DB::Result::Building::TerraformingLab',
-    gas_giant_settlement_platform_ship     => 'Lacuna::DB::Result::Building::GasGiantLab',
-};
-
 use constant ship_costs => {
     probe => {
         food    => 100,
@@ -135,14 +123,15 @@ sub can_build_ship {
             confess [1011, 'Not enough resources.', $key];
         }
     }
-    my $ships_building = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id => $self->id, task=>'Building'})->count;
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
+    my $ships_building = $ships->search({shipyard_id => $self->id, task=>'Building'})->count;
     if ($ships_building >= $self->max_ships) {
         confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.']
     }
-    my $prereq = ship_prereqs->{$type};
-    my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { body_id => $self->body_id, class => $prereq, level => {'>=' => 1} } )->count;
+    my $ship = $ships->new({type => $type});
+    my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { body_id => $self->body_id, class => $ship->prereqs->{class}, level => {'>=' => $ship->prereqs->{level}} } )->count;
     unless ($count) {
-        confess [1013, 'You need a '.$prereq->name.' to build this ship.', $prereq];
+        confess [1013, 'You need a level '.$ship->prereqs->{level}.' '.$ship->prereqs->{class}->name.' to build this ship.'];
     }
     my $port = $self->body->spaceport->find_open_dock;
     unless (defined $port) {
