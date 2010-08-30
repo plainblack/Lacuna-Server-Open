@@ -148,7 +148,7 @@ sub validate_empire {
 sub set_human {
     my ($self, $empire_id) = @_;
     my $empire = $self->validate_empire($empire_id);
-    $empire->species(2);
+    $empire->species_id(2);
     $empire->update;
     return 1;    
 }
