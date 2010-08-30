@@ -220,7 +220,7 @@ sub validate_captcha {
             }
         }
     }
-    confess [1014, 'Captcha not valid.', $self->assign_captcha($plack_request)];
+    confess [1014, 'Captcha not valid.', $self->fetch_captcha($plack_request)];
 }
 
 sub found {
