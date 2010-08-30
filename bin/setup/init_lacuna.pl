@@ -127,7 +127,7 @@ sub create_star_map {
 sub add_bodies {
     my $star = shift;
     my @body_types = ('habitable', 'asteroid', 'gas giant');
-    my @body_type_weights = (qw(60 15 15));
+    my @body_type_weights = (qw(70 10 10));
     my @planet_classes = qw(Lacuna::DB::Result::Map::Body::Planet::P1 Lacuna::DB::Result::Map::Body::Planet::P2 Lacuna::DB::Result::Map::Body::Planet::P3 Lacuna::DB::Result::Map::Body::Planet::P4
         Lacuna::DB::Result::Map::Body::Planet::P5 Lacuna::DB::Result::Map::Body::Planet::P6 Lacuna::DB::Result::Map::Body::Planet::P7 Lacuna::DB::Result::Map::Body::Planet::P8 Lacuna::DB::Result::Map::Body::Planet::P9
         Lacuna::DB::Result::Map::Body::Planet::P10 Lacuna::DB::Result::Map::Body::Planet::P11 Lacuna::DB::Result::Map::Body::Planet::P12 Lacuna::DB::Result::Map::Body::Planet::P13
@@ -135,8 +135,17 @@ sub add_bodies {
         Lacuna::DB::Result::Map::Body::Planet::P18 Lacuna::DB::Result::Map::Body::Planet::P19 Lacuna::DB::Result::Map::Body::Planet::P20);
     my @gas_giant_classes = qw(Lacuna::DB::Result::Map::Body::Planet::GasGiant::G1 Lacuna::DB::Result::Map::Body::Planet::GasGiant::G2 Lacuna::DB::Result::Map::Body::Planet::GasGiant::G3
         Lacuna::DB::Result::Map::Body::Planet::GasGiant::G4 Lacuna::DB::Result::Map::Body::Planet::GasGiant::G5);
-    my @asteroid_classes = qw(Lacuna::DB::Result::Map::Body::Asteroid::A1 Lacuna::DB::Result::Map::Body::Asteroid::A2 Lacuna::DB::Result::Map::Body::Asteroid::A3
-        Lacuna::DB::Result::Map::Body::Asteroid::A4 Lacuna::DB::Result::Map::Body::Asteroid::A5);
+    my @asteroid_classes = qw(Lacuna::DB::Result::Map::Body::Asteroid::A1 Lacuna::DB::Result::Map::Body::Asteroid::A2
+        Lacuna::DB::Result::Map::Body::Asteroid::A3 Lacuna::DB::Result::Map::Body::Asteroid::A4
+        Lacuna::DB::Result::Map::Body::Asteroid::A5 Lacuna::DB::Result::Map::Body::Asteroid::A6
+        Lacuna::DB::Result::Map::Body::Asteroid::A7 Lacuna::DB::Result::Map::Body::Asteroid::A8
+        Lacuna::DB::Result::Map::Body::Asteroid::A9 Lacuna::DB::Result::Map::Body::Asteroid::A10
+        Lacuna::DB::Result::Map::Body::Asteroid::A11 Lacuna::DB::Result::Map::Body::Asteroid::A12
+        Lacuna::DB::Result::Map::Body::Asteroid::A13 Lacuna::DB::Result::Map::Body::Asteroid::A14
+        Lacuna::DB::Result::Map::Body::Asteroid::A15 Lacuna::DB::Result::Map::Body::Asteroid::A16
+        Lacuna::DB::Result::Map::Body::Asteroid::A17 Lacuna::DB::Result::Map::Body::Asteroid::A18
+        Lacuna::DB::Result::Map::Body::Asteroid::A19 Lacuna::DB::Result::Map::Body::Asteroid::A20
+        );
     say "\tAdding bodies.";
     for my $orbit (1..8) {
         my $name = $star->name." ".$orbit;
@@ -183,7 +192,7 @@ sub add_bodies {
             my $body;
             if ($type eq 'habitable') {
                 $params->{class} = $planet_classes[rand(scalar(@planet_classes))];
-                $params->{size} = ($params->{orbit} == 3) ? randint(35,55) : randint(25,65);
+                $params->{size} = ($params->{orbit} == 3) ? randint(35,55) : randint(30,60);
                 $params->{usable_as_starter} = ($params->{size} >= 40 && $params->{size} <= 50) ? randint(1,9999) : 0;
             }
             elsif ($type eq 'asteroid') {
