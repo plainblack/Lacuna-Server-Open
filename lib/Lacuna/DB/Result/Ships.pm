@@ -60,12 +60,12 @@ __PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Result::Map::Star', 'foreig
 __PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Result::Map::Body', 'foreign_body_id');
 
 use constant prereq         => { class=> 'Lacuna::DB::Result::Building::University',  level => 1 };
-use constant food_cost      => 1;
-use constant water_cost     => 1;
-use constant energy_cost    => 1;
-use constant ore_cost       => 1;
-use constant time_cost      => 1;
-use constant waste_cost     => 1;
+use constant base_food_cost      => 1;
+use constant base_water_cost     => 1;
+use constant base_energy_cost    => 1;
+use constant base_ore_cost       => 1;
+use constant base_time_cost      => 1;
+use constant base_waste_cost     => 1;
 use constant base_speed     => 1;
 use constant base_stealth   => 0;
 use constant base_hold_size => 0;
