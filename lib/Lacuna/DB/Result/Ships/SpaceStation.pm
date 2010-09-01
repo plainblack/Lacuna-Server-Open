@@ -6,12 +6,12 @@ extends 'Lacuna::DB::Result::Ships';
 
 
 use constant prereq         => { class=> 'Lacuna::DB::Result::Building::Embassy',  level => 20 };
-use constant food_cost      => 108000;
-use constant water_cost     => 270000;
-use constant energy_cost    => 400000;
-use constant ore_cost       => 540000;
-use constant time_cost      => 86400;
-use constant waste_cost     => 136900;
+use constant base_food_cost      => 108000;
+use constant base_water_cost     => 270000;
+use constant base_energy_cost    => 400000;
+use constant base_ore_cost       => 540000;
+use constant base_time_cost      => 86400;
+use constant base_waste_cost     => 136900;
 use constant base_speed     => 15;
 use constant base_stealth   => 0;
 use constant base_hold_size => 0;

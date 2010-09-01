@@ -5,12 +5,12 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
         
 use constant prereq         => { class=> 'Lacuna::DB::Result::Building::Propulsion',  level => 1 };
-use constant food_cost      => 1500;
-use constant water_cost     => 3900;
-use constant energy_cost    => 27000;
-use constant ore_cost       => 16800;
-use constant time_cost      => 28800;
-use constant waste_cost     => 1800;
+use constant base_food_cost      => 1500;
+use constant base_water_cost     => 3900;
+use constant base_energy_cost    => 27000;
+use constant base_ore_cost       => 16800;
+use constant base_time_cost      => 28800;
+use constant base_waste_cost     => 1800;
 use constant base_speed     => 1500;
 use constant base_stealth   => 8000;
 use constant base_hold_size => 480;

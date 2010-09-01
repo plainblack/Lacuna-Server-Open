@@ -5,12 +5,12 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 
 use constant prereq         => { class=> 'Lacuna::DB::Result::Building::TerraformingLab',  level => 1 };
-use constant food_cost      => 96000;
-use constant water_cost     => 180000;
-use constant energy_cost    => 510000;
-use constant ore_cost       => 426000;
-use constant time_cost      => 45000;
-use constant waste_cost     => 90000;
+use constant base_food_cost      => 96000;
+use constant base_water_cost     => 180000;
+use constant base_energy_cost    => 510000;
+use constant base_ore_cost       => 426000;
+use constant base_time_cost      => 45000;
+use constant base_waste_cost     => 90000;
 use constant base_speed     => 550;
 use constant base_stealth   => 0;
 use constant base_hold_size => 0;

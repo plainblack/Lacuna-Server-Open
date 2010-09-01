@@ -6,12 +6,12 @@ extends 'Lacuna::DB::Result::Ships';
 
 
 use constant prereq         => { class=> 'Lacuna::DB::Result::Building::Trade',  level => 20 };
-use constant food_cost      => 3600;
-use constant water_cost     => 10800;
-use constant energy_cost    => 36000;
-use constant ore_cost       => 61000;
-use constant time_cost      => 15000;
-use constant waste_cost     => 4800;
+use constant base_food_cost      => 3600;
+use constant base_water_cost     => 10800;
+use constant base_energy_cost    => 36000;
+use constant base_ore_cost       => 61000;
+use constant base_time_cost      => 15000;
+use constant base_waste_cost     => 4800;
 use constant base_speed     => 800;
 use constant base_stealth   => 1000;
 use constant base_hold_size => 1905;
