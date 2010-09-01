@@ -87,17 +87,40 @@ use constant ship_costs => {
 };
 
 sub get_ship_costs {
-    my ($self, $type) = @_;
-    my $costs = ship_costs->{$type};
-    my %final;
-    foreach my $cost (keys %{$costs}) {
-        if ($cost eq 'seconds') {
-            $final{$cost} = sprintf('%0.f', $costs->{$cost} * $self->time_cost_reduction_bonus($self->level * 3));
-        }
-        else {
-            $final{$cost} = sprintf('%0.f', $costs->{$cost} * $self->manufacturing_cost_reduction_bonus);
+    my ($self, $ship) = @_;
+    my $body = $self->body;
+    my $percentage_of_cost = 100; 
+    if ($ship->base_hold_size) {
+        my $trade = $body->get_building_of_class('Lacuna::DB::Result::Building::Trade');
+        if (defined $trade) {
+            $percentage_of_cost += $trade->level * 3;
         }
     }
+    if ($ship->base_stealth) {
+        my $cloak = $body->get_building_of_class('Lacuna::DB::Result::Building::CloakingLab');
+        if (defined $cloak) {
+            $percentage_of_cost += $cloak->level * 3;
+        }
+    }
+    if ($ship->pilotable) {
+        my $pilot = $body->get_building_of_class('Lacuna::DB::Result::Building::PilotTraining');
+        if (defined $pilot) {
+            $percentage_of_cost += $pilot->level * 3;
+        }
+    }
+    my $propulsion = $body->get_building_of_class('Lacuna::DB::Result::Building::Propulsion');
+    if (defined $propulsion) {
+        $percentage_of_cost += $propulsion->level * 3;
+    }
+    $percentage_of_cost /= 100;
+    my %final = (
+        seconds =>  sprintf('%0.f', $ship->base_time_cost * $self->time_cost_reduction_bonus($self->level * 3)),
+        food    =>  sprintf('%0.f', $ship->base_food_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
+        water   =>  sprintf('%0.f', $ship->base_water_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
+        ore     =>  sprintf('%0.f', $ship->base_ore_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
+        energy  =>  sprintf('%0.f', $ship->base_energy_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
+        waste   =>  sprintf('%0.f', $ship->base_waste_cost * $percentage_of_cost),
+    );
     return \%final;
 }
 
@@ -108,7 +131,8 @@ sub max_ships {
 
 sub can_build_ship {
     my ($self, $type, $costs) = @_;
-    $costs ||= $self->get_ship_costs($type);
+    my $ship = Lacuna::DB::Result::Ships->new({type => $type});
+    $costs ||= $self->get_ship_costs($ship);
     if ($type ~~ [qw(gas_giant_settlement_platform_ship space_station terraforming_platform_ship)]) {
         confess [1010, 'Not yet implemented.'];
     }
@@ -143,7 +167,9 @@ sub can_build_ship {
 
 sub build_ship {
     my ($self, $port, $type, $time) = @_;
-    $time ||= $self->get_ship_costs($type)->{seconds};
+        my $ship = Lacuna::DB::Result::Ships->new({type => $type});
+
+    $time ||= $self->get_ship_costs($ship)->{seconds};
     my $latest = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         { shipyard_id => $self->id, task => 'Building' },
         { order_by    => { -desc => 'date_available' }, rows=>1},

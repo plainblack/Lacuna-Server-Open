@@ -28,7 +28,7 @@ is($shipyard->ship_costs->{probe}{food}, 100, 'shipyard reports base food cost c
 my $shipyard2 = $tester->get_building($shipyard->id);
 my @resources = qw(food water energy time waste ore);
 foreach my $resource (@resources) {
-    is($shipyard->get_ship_costs('probe')->{$resource}, $shipyard2->get_ship_costs('probe')->{$resource}, "shipyard calculates $resource cost the same twice");
+    is($shipyard->get_ship_costs(Lacuna::DB::Result::Ships->new({type=>'probe'})->{$resource}, $shipyard2->get_ship_costs(Lacuna::DB::Result::Ships->new({type=>'probe'})->{$resource}, "shipyard calculates $resource cost the same twice");
 }
 
 $result = $tester->post('shipyard', 'get_buildable', [$session_id, $shipyard->id]);

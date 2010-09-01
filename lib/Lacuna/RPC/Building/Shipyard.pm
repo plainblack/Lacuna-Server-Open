@@ -42,7 +42,8 @@ sub build_ship {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $body = $building->body;
-    my $costs = $building->get_ship_costs($type);
+    my $ship = Lacuna::DB::Result::Ships->new({type => $type});
+    my $costs = $building->get_ship_costs($ship);
     my $port = $building->can_build_ship($type, $costs);
     foreach my $key (keys %{ $costs }) {
         next if $key eq 'seconds';
@@ -70,13 +71,14 @@ sub get_buildable {
         $docks += $port->docks_available;
     }
     foreach my $type (SHIP_TYPES) {
+        my $ship = Lacuna::DB::Result::Ships->new({type=>$type});
         my $can = eval{$building->can_build_ship($type)};
         $buildable{$type} = {
             attributes  => {
                 speed       =>  $building->get_ship_speed($type),
                 hold_size   =>  $building->get_ship_hold_size($type),
             },
-            cost        => $building->get_ship_costs($type),
+            cost        => $building->get_ship_costs($ship),
             can         => ($can) ? 1 : 0,
             reason      => $@,
         };
