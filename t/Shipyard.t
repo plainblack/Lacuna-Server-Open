@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 15;
+use Test::More tests => 14;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -23,12 +23,12 @@ $result = $tester->post('shipyard', 'build', [$session_id, $home->id, 0, 2]);
 ok($result->{result}{building}{id}, "built a shipyard");
 my $shipyard = $tester->get_building($result->{result}{building}{id});
 $shipyard->finish_upgrade;
-is($shipyard->ship_costs->{probe}{food}, 100, 'shipyard reports base food cost correctly');
+my $probe = Lacuna::DB::Result::Ships->new({type=>'probe'});
 
 my $shipyard2 = $tester->get_building($shipyard->id);
 my @resources = qw(food water energy time waste ore);
 foreach my $resource (@resources) {
-    is($shipyard->get_ship_costs(Lacuna::DB::Result::Ships->new({type=>'probe'})->{$resource}, $shipyard2->get_ship_costs(Lacuna::DB::Result::Ships->new({type=>'probe'})->{$resource}, "shipyard calculates $resource cost the same twice");
+    is($shipyard->get_ship_costs($probe)->{$resource}, $shipyard2->get_ship_costs($probe)->{$resource}, "shipyard calculates $resource cost the same twice");
 }
 
 $result = $tester->post('shipyard', 'get_buildable', [$session_id, $shipyard->id]);
