@@ -121,7 +121,7 @@ sub build_ship {
         name            => $name,
         body_id         => $self->body_id,
         speed           => $self->get_ship_speed($ship),
-        hold_size       => $self->get_ship_hold_size($type),
+        hold_size       => $self->get_ship_hold_size($ship),
     })->insert;
 }
 
@@ -210,11 +210,8 @@ has hold_size_bonus => (
 );
 
 sub get_ship_hold_size {
-    my ($self, $type) = @_;
-    my $base = 0;
-    $base = $self->cargo_ship_base if ($type eq 'cargo_ship');
-    $base = $self->smuggler_ship_base if ($type eq 'smuggler_ship');
-    return sprintf('%.0f', $base * $self->hold_size_bonus);
+    my ($self, $ship) = @_;
+    return sprintf('%.0f', $ship->base_hold_size * $self->hold_size_bonus);
 }
 
 no Moose;

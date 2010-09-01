@@ -76,7 +76,7 @@ sub get_buildable {
         $buildable{$type} = {
             attributes  => {
                 speed       =>  $building->get_ship_speed($ship),
-                hold_size   =>  $building->get_ship_hold_size($type),
+                hold_size   =>  $building->get_ship_hold_size($ship),
             },
             cost        => $building->get_ship_costs($ship),
             can         => ($can) ? 1 : 0,
