@@ -120,7 +120,7 @@ sub build_ship {
         type            => $type,
         name            => $name,
         body_id         => $self->body_id,
-        speed           => $self->get_ship_speed($type),
+        speed           => $self->get_ship_speed($ship),
         hold_size       => $self->get_ship_hold_size($type),
     })->insert;
 }
@@ -162,18 +162,6 @@ use constant waste_production => 2;
 
 use constant star_to_body_distance_ratio => 100;
 
-use constant ship_speed => {
-    probe                               => 5000,
-    gas_giant_settlement_platform_ship  => 500,
-    terraforming_platform_ship          => 550,
-    mining_platform_ship                => 600,
-    cargo_ship                          => 1000,
-    smuggler_ship                       => 1500,
-    spy_pod                             => 2000,
-    colony_ship                         => 455,
-    space_station                       => 15,
-};
-
 
 has propulsion_factory => (
     is      => 'rw',
@@ -185,8 +173,8 @@ has propulsion_factory => (
 );
 
 sub get_ship_speed {
-    my ($self, $type) = @_;
-    my $base_speed = $self->ship_speed->{$type};
+    my ($self, $ship) = @_;
+    my $base_speed = $ship->base_speed;
     my $propulsion_level = (defined $self->propulsion_factory) ? $self->propulsion_factory->level : 0;
     my $speed_improvement = $propulsion_level * 5 + $self->body->empire->species->science_affinity * 3;
     return sprintf('%.0f', $base_speed * ((100 + $speed_improvement) / 100));

@@ -75,7 +75,7 @@ sub get_buildable {
         my $can = eval{$building->can_build_ship($type)};
         $buildable{$type} = {
             attributes  => {
-                speed       =>  $building->get_ship_speed($type),
+                speed       =>  $building->get_ship_speed($ship),
                 hold_size   =>  $building->get_ship_hold_size($type),
             },
             cost        => $building->get_ship_costs($ship),
