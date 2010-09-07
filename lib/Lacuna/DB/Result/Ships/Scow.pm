@@ -18,20 +18,25 @@ use constant base_hold_size => 1000;
 
 sub arrive {
     my ($self) = @_;
-    unless ($self->trigger_defense) {
-        my $body_attacked = $self->foreign_body;
-        $self->body->empire->send_predefined_message(
-            tags        => ['Alert'],
-            filename    => 'our_scow_hit.txt',
-            params      => [$body_attacked->name, $self->hold_size],
-        );
-        $body_attacked->empire->send_predefined_message(
-            tags        => ['Alert'],
-            filename    => 'hit_by_scow.txt',
-            params      => [$self->body->empire->name, $body_attacked->name, $self->hold_size],
-        );
-        $body_attacked->add_news(30, sprintf('%s is so polluted that waste seems to be falling from the sky.', $body_attacked->name));
+    if ($self->foreign_star_id) {
         $self->delete;
+    }
+    else {
+        unless ($self->trigger_defense) {
+            my $body_attacked = $self->foreign_body;
+            $self->body->empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'our_scow_hit.txt',
+                params      => [$body_attacked->name, $self->hold_size],
+            );
+            $body_attacked->empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'hit_by_scow.txt',
+                params      => [$self->body->empire->name, $body_attacked->name, $self->hold_size],
+            );
+            $body_attacked->add_news(30, sprintf('%s is so polluted that waste seems to be falling from the sky.', $body_attacked->name));
+            $self->delete;
+        }
     }
 }
 
