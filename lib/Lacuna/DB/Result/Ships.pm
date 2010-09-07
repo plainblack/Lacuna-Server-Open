@@ -19,6 +19,7 @@ __PACKAGE__->add_columns(
     task                    => { data_type => 'varchar', size => 10, is_nullable => 0 }, # Docked, Building, Travelling, Mining
     name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     speed                   => { data_type => 'int', size => 11, is_nullable => 0 },
+    stealth                 => { data_type => 'int', size => 11, is_nullable => 0 },
     hold_size               => { data_type => 'int', size => 11, is_nullable => 0 },
     payload                 => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
     roundtrip               => { data_type => 'bit', default_value => 0 },
@@ -103,7 +104,7 @@ sub get_status {
         type            => $self->type,
         task            => $self->task,
         speed           => $self->speed,
-        stealth         => 0,
+        stealth         => $self->stealth,
         hold_size       => $self->hold_size,
         date_started    => $self->date_started_formatted,
         date_available  => $self->date_available_formatted,

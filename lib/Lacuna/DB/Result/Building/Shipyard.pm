@@ -39,15 +39,14 @@ sub get_ship_costs {
         $percentage_of_cost += $propulsion->level * 3;
     }
     $percentage_of_cost /= 100;
-    my %final = (
-        seconds =>  sprintf('%0.f', $ship->base_time_cost * $self->time_cost_reduction_bonus($self->level * 3)),
-        food    =>  sprintf('%0.f', $ship->base_food_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
-        water   =>  sprintf('%0.f', $ship->base_water_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
-        ore     =>  sprintf('%0.f', $ship->base_ore_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
-        energy  =>  sprintf('%0.f', $ship->base_energy_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
-        waste   =>  sprintf('%0.f', $ship->base_waste_cost * $percentage_of_cost),
-    );
-    return \%final;
+    return {
+        seconds => sprintf('%0.f', $ship->base_time_cost * $self->time_cost_reduction_bonus($self->level * 3)),
+        food    => sprintf('%0.f', $ship->base_food_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
+        water   => sprintf('%0.f', $ship->base_water_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
+        ore     => sprintf('%0.f', $ship->base_ore_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
+        energy  => sprintf('%0.f', $ship->base_energy_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
+        waste   => sprintf('%0.f', $ship->base_waste_cost * $percentage_of_cost),
+    };
 }
 
 sub max_ships {
@@ -117,6 +116,7 @@ sub build_ship {
     $ship->body_id($self->body_id);
     $self->set_ship_speed($ship);
     $self->set_ship_hold_size($ship);
+    $self->set_ship_stealth($ship);
     $ship->insert;
     return $ship;
 }
@@ -211,6 +211,15 @@ sub set_ship_hold_size {
     my $bonus = $self->body->empire->species->trade_affinity * $trade_ministry_level;
     $ship->hold_size(sprintf('%.0f', $ship->base_hold_size * $bonus));
     return $ship->hold_size;
+}
+
+sub set_ship_stealth {
+    my ($self, $ship) = @_;
+    my $cloaking_level = (defined $self->cloaking_lab) ? $self->cloaking_lab->level : 1;
+    my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 1;
+    my $bonus = $self->body->empire->species->deception_affinity * $cloaking_level * $ptf;
+    $ship->stealth(sprintf('%.0f', $ship->base_hold_size + $bonus));
+    return $ship->stealth;
 }
 
 no Moose;
