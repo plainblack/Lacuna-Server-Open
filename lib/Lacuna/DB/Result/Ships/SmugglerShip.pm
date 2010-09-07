@@ -19,8 +19,7 @@ use constant pilotable      => 1;
 
 sub arrive {
     my ($self) = @_;
-    my $captured = $self->capture_with_spies(1) if (exists $self->payload->{spies} || exists $self->payload->{fetch_spies} );
-    unless ($captured) {
+    unless ($self->capture_with_spies) {
         $self->handle_cargo_exchange;
     }
 }

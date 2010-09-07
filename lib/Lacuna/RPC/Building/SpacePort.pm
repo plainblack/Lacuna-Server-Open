@@ -264,6 +264,9 @@ sub send_spies {
     if ($ship->type eq 'spy_pod' && scalar(@{$spy_ids}) == 1) {
         # we're ok
     }
+    if ($ship->type eq 'spy_shuttle' && scalar(@{$spy_ids}) <= 4) {
+        # we're ok
+    }
     elsif ($ship->hold_size <= (scalar(@{$spy_ids}) * 300)) {
         confess [1010, "The ship cannot hold the spies selected."];
     }
@@ -348,7 +351,7 @@ sub get_available_spy_ships {
     my $body = $self->get_body($empire, $body_id);
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {type => { in => [qw(spy_pod cargo_ship smuggler_ship)]}, task=>'Docked', body_id => $body_id},
+        {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle freighter)]}, task=>'Docked', body_id => $body_id},
         {order_by => 'name', rows=>25}
     );
     my @out;
@@ -367,7 +370,7 @@ sub get_available_spy_ships_for_fetch {
     my $body = $self->get_body($empire, $body_id);
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {type => { in => [qw(cargo_ship smuggler_ship)]}, task=>'Docked', body_id => $body_id},
+        {type => { in => [qw(cargo_ship smuggler_ship dory freighter)]}, task=>'Docked', body_id => $body_id},
         {order_by => 'name', rows=>25}
     );
     my @out;

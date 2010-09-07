@@ -192,6 +192,67 @@ sub arrive {
     confess 'override me';
 }
 
+sub capture_with_spies {
+    my ($self) = @_;
+    return 0 unless (exists $self->payload->{spies} || exists $self->payload->{fetch_spies} );
+    my $body = $self->foreign_body;
+    return 0 if ($body->empire_id == $self->body->empire_id);
+    my $security = $body->get_building_of_class('Lacuna::DB::Result::Security');
+    return 0 unless defined $security && $security->efficiency > 0;
+    my $security_boost = ($security->level * 100) / $security->efficiency;
+    $security_boost *= 100;
+    return 0 unless (randint(1,10000) + $security_boost > $self->stealth);
+    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
+    foreach my $id ((@{$self->payload->{spies}}, @{$self->payload->{fetch_spies}})) {
+        next unless $id;
+        my $spy = $spies->find($id);
+        next unless defined $spy;
+        $spy->go_to_jail;
+    }
+    $self->delete;
+    return 1;
+}
+
+
+sub pick_up_spies {
+    my $self = shift;
+    my $empire_id = $self->body->empire_id;
+    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
+    my @riding;
+    foreach my $id (@{$self->payload->{fetch_spies}}) {
+        my $spy = $spies->find($id);
+        next unless defined $spy;
+        next unless $spy->is_available;
+        next unless $spy->empire_id eq $empire_id;
+        push @riding, $spy->id;
+        $spy->available_on($self->date_available);
+        $spy->on_body_id($self->body_id);
+        $spy->task('Travelling');
+        $spy->started_assignment(DateTime->now),
+        $spy->update;
+    }
+    my $payload = $self->payload;
+    $payload->{spies} = \@riding;
+    $self->payload($payload);
+    $self->update;
+}
+
+sub handle_cargo_exchange {
+    my $self = shift;
+    if ($self->direction eq 'out') {
+        $self->unload($self->payload, $self->foreign_body);
+        $self->payload({});
+        $self->turn_around;
+        $self->pick_up_spies; # goes after turn around so we have the new date available
+    }
+    else {
+        $self->unload($self->payload, $self->body);
+        $self->payload({});
+        $self->land;
+    }
+}
+
+
 # DISTANCE
 
 

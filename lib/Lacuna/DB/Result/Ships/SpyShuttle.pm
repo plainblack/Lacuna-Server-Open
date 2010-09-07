@@ -4,7 +4,7 @@ use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
         
-use constant prereq         => { class=> 'Lacuna::DB::Result::Building::University',  level => 99 };
+use constant prereq         => { class=> 'Lacuna::DB::Result::Building::Espionage',  level => 15 };
 use constant base_food_cost      => 1000;
 use constant base_water_cost     => 3000;
 use constant base_energy_cost    => 20000;
@@ -18,7 +18,9 @@ use constant pilotable      => 1;
 
 sub arrive {
     my ($self) = @_;
-    $self->delete;
+    unless ($self->capture_with_spies) {
+        $self->delete;
+    }
 }
 
 sub can_send_to_target {

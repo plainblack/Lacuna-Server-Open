@@ -18,7 +18,9 @@ use constant pilotable      => 1;
 
 sub arrive {
     my ($self) = @_;
-    $self->delete;
+    unless ($self->capture_with_spies) {
+        $self->delete;
+    }
 }
 
 sub can_send_to_target {
