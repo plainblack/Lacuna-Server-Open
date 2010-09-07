@@ -68,39 +68,8 @@ sub get_ships_for {
     my @available;
     my $available_rs = $ships->search({task => 'Docked'});
     while (my $ship = $incoming_rs->next) {
-        given($ship->type) {
-            when ('excavator') {
-                next unless ($target->isa('Lacuna::DB::Result::Map::Body'));
-                next if ($target->empire_id);
-            }
-            when ('colony_ship') {
-                next unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet'));
-                next if ($target->empire_id);
-            }
-            when ('probe') {
-                next unless ($target->isa('Lacuna::DB::Result::Map::Star'));
-            }
-            when ('detonator') {
-                next unless ($target->isa('Lacuna::DB::Result::Map::Star'));
-            }
-            when ('mining_platform_ship') {
-                next unless ($target->isa('Lacuna::DB::Result::Map::Body::Asteroid'));
-            }
-            when ('gas_giant_settlement_platform') {
-                next unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant'));
-            }
-            when ('terraforming_platform_ship') {
-                next unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet'));
-            }
-            when ('scanner') {
-                next unless ($target->isa('Lacuna::DB::Result::Map::Body'));
-            }
-            when ('spy_pod') {
-                next unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet'));
-                next unless ($target->empire_id);
-            }
-            default { next }
-        }        
+        eval{ $ship->can_send_to_target($target) };
+        next if $@;
         $ship->body($body);
         push @incoming, $ship->get_status;
     }
@@ -142,29 +111,13 @@ sub send_ship {
     my $payload;
     my $body = $ship->body;
     $body->empire($empire);
+    $ship->can_send_to_target($target);
     given($ship->type) {
-        when ('probe') {
-            confess [1009, 'Can only be sent to stars.'] unless ($target->isa('Lacuna::DB::Result::Map::Star'));
-            my $body = $ship->body;
-            my $count = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({ body_id => $body->id })->count;
-            $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $body->id, type=>'probe', task=>'Travelling' })->count;
-            my $max_probes = 0;
-            my $observatory = $body->get_buildings_of_class('Lacuna::DB::Result::Building::Observatory')->next;
-            if (defined $observatory) {
-                $max_probes = $observatory->max_probes;
-            }
-            confess [ 1009, 'You are already controlling the maximum amount of probes for your Observatory level.'] if ($count >= $max_probes);
-        }
-        when ('detonator') {
-            confess [1009, 'Can only be sent to stars.'] unless ($target->isa('Lacuna::DB::Result::Map::Star'));
-        }
-        when ('excavator') {
-            confess [1009, 'Can only be sent to bodies.'] unless ($target->isa('Lacuna::DB::Result::Map::Body'));
-            confess [1013, 'Can only be sent to uninhabited bodies.'] if ($target->empire_id);
+        when ('scow') {
+            $body->spend_waste($ship->hold_size);
+            $payload = { resources => { waste => $ship->hold_size } };
         }
         when ('colony_ship') {
-            confess [1009, 'Can only be sent to planets.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet'));
-            confess [1013, 'Can only be sent to uninhabited planets.'] if ($target->empire_id);
             my $species = $empire->species;
             confess [ 1009, 'Your species cannot survive on that planet.' ] unless ($target->orbit <= $species->max_orbit && $target->orbit >= $species->min_orbit);
             my $next_colony_cost = $empire->next_colony_cost;
@@ -172,25 +125,7 @@ sub send_ship {
             $body->spend_happiness($next_colony_cost)->update;
             $payload = { colony_cost => $next_colony_cost };
         }
-        when ('mining_platform_ship') {
-            confess [1009, 'Can only be sent to asteroids.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Asteroid'));
-            my $ministry = $ship->body->mining_ministry;
-            confess [1013, 'Cannot control platforms without a Mining Ministry.'] unless (defined $ministry);
-            $ministry->can_add_platform($target);
-        }
-        when ('gas_giant_settlement_platform') {
-            confess [1009, 'Can only be sent to gas giants.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant'));
-        }
-        when ('terraforming_platform_ship') {
-            confess [1009, 'Can only be sent to planets.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet'));
-        }
-        when ('scanner') {
-            confess [1009, 'Can only be sent to bodies.'] unless ($target->isa('Lacuna::DB::Result::Map::Body'));
-        }
         when ('spy_pod') {
-            confess [1009, 'Can only be sent to planets.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet'));
-            confess [1013, 'Can only be sent to inhabited planets.'] unless ($target->empire_id);
-            confess [1013, sprintf('%s is an isolationist empire, and must be left alone.',$target->empire->name)] if $target->empire->is_isolationist;
             my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
                 {task => ['in','Idle','Training'], on_body_id=>$body->id, empire_id=>$empire->id},
             );
@@ -209,7 +144,25 @@ sub send_ship {
             $spy->update;
             $payload = { spies => [ $spy->id ] };
         }
-        default { confess [1009, 'Cannot send that type of ship using this method.']; }
+        when ('spy_shuttle') {
+            my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
+                {task => ['in','Idle','Training'], on_body_id=>$body->id, empire_id=>$empire->id},
+            );
+            my @spies;
+            while (my $spy = $spies->next) {
+                if ($spy->is_available) {
+                    $spy->available_on($ship->date_available->clone);
+                    $spy->on_body_id($target->id);
+                    $spy->task('Travelling');
+                    $spy->started_assignment(DateTime->now);
+                    $spy->update;
+                    push @spies, $spy->id;
+                    last if (scalar(@spies) == 4);
+                }
+            }
+            confess [ 1002, 'You have no idle spies to send.'] unless (scalar(@spies));
+            $payload = { spies => \@spies };
+        }
     }        
     $ship->send(target => $target, payload => $payload);
     return {

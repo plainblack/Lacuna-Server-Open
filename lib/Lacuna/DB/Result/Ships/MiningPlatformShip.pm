@@ -54,5 +54,13 @@ sub arrive {
     }
 }
 
+sub can_send_to_target {
+    my ($self, $target) = @_;
+    confess [1009, 'Can only be sent to asteroids.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Asteroid'));
+    my $ministry = $self->body->mining_ministry;
+    confess [1013, 'Cannot control platforms without a Mining Ministry.'] unless (defined $ministry);
+    $ministry->can_add_platform($target);
+}
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

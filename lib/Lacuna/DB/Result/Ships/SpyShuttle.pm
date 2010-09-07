@@ -21,5 +21,12 @@ sub arrive {
     $self->delete;
 }
 
+sub can_send_to_target {
+    my ($self, $target) = @_;
+    confess [1009, 'Can only be sent to planets.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet'));
+    confess [1013, 'Can only be sent to inhabited planets.'] unless ($target->empire_id);
+    confess [1013, sprintf('%s is an isolationist empire, and must be left alone.',$target->empire->name)] if $target->empire->is_isolationist;
+}
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

@@ -22,5 +22,10 @@ sub arrive {
     $self->delete;
 }
 
+sub can_send_to_target {
+    my ($self, $target) = @_;
+    confess [1009, 'Can only be sent to stars or asteroids.'] unless ($target->isa('Lacuna::DB::Result::Map::Star') || $target->isa('Lacuna::DB::Result::Map::Body::Asteroid') );
+}
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

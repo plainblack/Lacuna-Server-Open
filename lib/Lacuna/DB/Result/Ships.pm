@@ -77,6 +77,10 @@ sub is_available {
     return ($self->task eq 'Docked');
 }
 
+sub can_send_to_target {
+    confess [1009, 'Cannot send that type of ship using this method.'];
+}
+
 sub type_formatted {
     my $self = shift;
     my $type = $self->type;
