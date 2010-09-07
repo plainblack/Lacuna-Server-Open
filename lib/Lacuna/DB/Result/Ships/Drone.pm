@@ -16,10 +16,5 @@ use constant base_stealth   => 0;
 use constant base_hold_size => 0;
 
 
-sub arrive {
-    my ($self) = @_;
-    $self->delete;
-}
-
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
