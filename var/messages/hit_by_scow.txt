@@ -1,0 +1,7 @@
+Bombarded With Waste
+~~~
+I can't tell if %s doesn't like us, or if they love us. They just crash landed a Scow on %s, spilling %s waste in the process. If we clean this up quickly, it's an easy source of resources, but if they dump faster than we can handle, then we could be in trouble.
+
+Regards,
+
+Your Humble Assistant

@@ -1,0 +1,7 @@
+Scow Hit Target
+~~~
+Our Scow just crashed into %s dropping %s waste in the process.
+
+Regards,
+
+Your Humble Assistant

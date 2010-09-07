@@ -18,13 +18,27 @@ use constant base_hold_size => 1000;
 
 sub arrive {
     my ($self) = @_;
-    $self->delete;
+    unless ($self->trigger_defense) {
+        my $body_attacked = $self->foreign_body;
+        $self->body->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'our_scow_hit.txt',
+            params      => [$body_attacked->name, $self->hold_size],
+        );
+        $body_attacked->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'hit_by_scow.txt',
+            params      => [$self->body->empire->name, $body_attacked->name, $self->hold_size],
+        );
+        $body_attacked->add_news(30, sprintf('%s is so polluted that waste seems to be falling from the sky.', $body_attacked->name));
+        $self->delete;
+    }
 }
 
 sub can_send_to_target {
     my ($self, $target) = @_;
-    confess [1009, 'Can only be sent to planets.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet'));
-    confess [1013, 'Can only be sent to inhabited planets.'] unless ($target->empire_id);
+    confess [1009, 'Can only be sent to planets and stars.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet') || $target->isa('Lacuna::DB::Result::Map::Star'));
+    confess [1013, 'Can only be sent to inhabited planets.'] if ($target->isa('Lacuna::DB::Result::Map::Body::Planet') && !$target->empire_id);
 }
 
 no Moose;

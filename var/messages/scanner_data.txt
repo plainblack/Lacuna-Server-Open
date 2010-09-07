@@ -1,0 +1,7 @@
+Scan Results
+~~~
+Our scanner captured the attached map of %s.
+
+Regards,
+
+Your Humble Assistant

@@ -18,7 +18,36 @@ use constant base_hold_size => 0;
 
 sub arrive {
     my ($self) = @_;
-    $self->delete;
+    unless ($self->trigger_defense) {
+        my $body_attacked = $self->foreign_body;
+        my @map;
+        my $buildings = $body_attacked->buildings;
+        while (my $building = $buildings->next) {
+            push @map, {
+                image   => $building->image_level,
+                x       => $building->x,
+                y       => $building->y,
+            };
+        }
+        $self->body->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'scanner_data.txt',
+            params      => [$body_attacked->name],
+            attachments  => {
+                map => {
+                    surface_image   => $body_attacked->surface,
+                    buildings       => \@map
+                }
+            },
+        );
+        $body_attacked->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'we_were_scanned.txt',
+            params      => [$body_attacked->name, $self->body->empire->name],
+        );
+        $body_attacked->add_news(65, sprintf('Several people reported seeing a UFO in the %s sky today.', $body_attacked->name));
+        $self->delete;
+    }
 }
 
 sub can_send_to_target {
