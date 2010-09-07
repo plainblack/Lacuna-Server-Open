@@ -207,23 +207,11 @@ has trade_ministry => (
     },
 );
 
-has hold_size_bonus => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        my $trade_ministry_level = 0;
-        my $trade_ministry = $self->trade_ministry;
-        if (defined $trade_ministry) {
-            $trade_ministry_level = $trade_ministry->level;
-        }
-        return $self->body->empire->species->trade_affinity * $trade_ministry_level;
-    },
-);
-
 sub get_ship_hold_size {
     my ($self, $ship) = @_;
-    return sprintf('%.0f', $ship->base_hold_size * $self->hold_size_bonus);
+    my $trade_ministry_level = (defined $self->trade_ministry) ? $self->trade_ministry->level : 0;
+    my $bonus = $self->body->empire->species->trade_affinity * $trade_ministry_level;
+    return sprintf('%.0f', $ship->base_hold_size * $bonus);
 }
 
 no Moose;
