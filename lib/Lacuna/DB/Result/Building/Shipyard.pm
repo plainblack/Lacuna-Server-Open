@@ -190,7 +190,8 @@ sub get_ship_speed {
     my ($self, $ship) = @_;
     my $base_speed = $ship->base_speed;
     my $propulsion_level = (defined $self->propulsion_factory) ? $self->propulsion_factory->level : 0;
-    my $speed_improvement = $propulsion_level * 5 + $self->body->empire->species->science_affinity * 3;
+    my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 0;
+    my $speed_improvement = ($ptf * 3) + ($propulsion_level * 5) + ($self->body->empire->species->science_affinity * 3);
     return sprintf('%.0f', $base_speed * ((100 + $speed_improvement) / 100));
 }
 
