@@ -1,0 +1,7 @@
+Target Hit
+~~~
+Our %s reached %s and damaged the %s.
+
+Regards,
+
+Your Humble Assistant

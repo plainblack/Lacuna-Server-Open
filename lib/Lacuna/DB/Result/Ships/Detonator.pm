@@ -5,7 +5,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 
 
-use constant prereq         => { class=> 'Lacuna::DB::Result::Building::University',  level => 99 };
+use constant prereq         => { class=> 'Lacuna::DB::Result::Building::DemolitionLab',  level => 1 };
 use constant base_food_cost      => 6000;
 use constant base_water_cost     => 15600;
 use constant base_energy_cost    => 97200;

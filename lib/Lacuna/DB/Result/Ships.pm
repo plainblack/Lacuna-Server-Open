@@ -252,6 +252,59 @@ sub handle_cargo_exchange {
     }
 }
 
+sub trigger_defense {
+    my $self = shift;
+    my $body_attacked = $self->foreign_body;
+    my $defense = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        { body_id => $self->foreign_body_id, type => { in => [qw(drone fighter)]}},
+        { rows => 1 }
+        )->single;
+    if (defined $defense) {
+        $self->body->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'ship_shot_down.txt',
+            params      => [$self->type_formatted, $body_attacked->name],
+        );
+        $body_attacked->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'we_shot_down_a_ship.txt',
+            params      => [$self->type_formatted, $body_attacked->name, $self->body->empire->name],
+        );
+        $body_attacked->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
+        $self->delete;
+        if ($defense->type eq 'fighter' && randint(1,100) > 50) {
+            # fighter lives
+        }
+        else {
+            $defense->delete;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+sub damage_building {
+    my ($self, $building) = @_;
+    my $body_attacked = $self->foreign_body;
+    $building ||= Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
+        { body_id => $self->foreign_body_id },
+        {order_by => { -desc => 'efficiency'}, rows=>1}
+        )->single;
+    $building->body($body_attacked);
+    $building->spend_efficiency(randint(1,10));
+    $self->body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'our_ship_hit_building.txt',
+        params      => [$self->type_formatted, $body_attacked->name, $building->name],
+    );
+    $body_attacked->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'ship_hit_building.txt',
+        params      => [$self->type_formatted, $body_attacked->name, $self->body->empire->name],
+    );
+    $body_attacked->add_news(70, sprintf('An attack ship screamed out of the sky and damaged the %s on %s.',$building->name, $body_attacked->name));
+    $self->delete;
+}
 
 # DISTANCE
 

@@ -4,7 +4,7 @@ use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 
-use constant prereq             => { class=> 'Lacuna::DB::Result::Building::University',  level => 99 };
+use constant prereq             => { class=> 'Lacuna::DB::Result::Building::DemolitionLab',  level => 5 };
 use constant base_food_cost     => 18000;
 use constant base_water_cost    => 46800;
 use constant base_energy_cost   => 291600;
@@ -18,7 +18,9 @@ use constant base_hold_size     => 0;
 
 sub arrive {
     my ($self) = @_;
-    $self->delete;
+    unless ($self->trigger_defense) {
+        $self->damage_building;
+    }
 }
 
 sub can_send_to_target {

@@ -1,0 +1,7 @@
+Ship Shot Down
+~~~
+Our %s, on route to %s, was shot down before it could reach its target.
+
+Regards,
+
+Your Humble Assistant

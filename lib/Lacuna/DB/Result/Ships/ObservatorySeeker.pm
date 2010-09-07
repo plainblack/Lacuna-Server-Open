@@ -4,7 +4,7 @@ use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 
-use constant prereq         => { class=> 'Lacuna::DB::Result::Building::University',  level => 99 };
+use constant prereq         => { class=> 'Lacuna::DB::Result::Building::DemolitionLab',  level => 10 };
 use constant base_food_cost      => 20000;
 use constant base_water_cost     => 50000;
 use constant base_energy_cost    => 300000;
@@ -16,7 +16,9 @@ use constant base_stealth   => 2000;
 
 sub arrive {
     my ($self) = @_;
-    $self->delete;
+    unless ($self->trigger_defense) {
+        $self->damage_building($self->foreign_body->get_building_of_class('Lacuna::DB::Result::Building::Observatory'));
+    }
 }
 
 sub can_send_to_target {
