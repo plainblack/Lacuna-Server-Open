@@ -17,24 +17,24 @@ sub get_ship_costs {
     my $body = $self->body;
     my $percentage_of_cost = 100; 
     if ($ship->base_hold_size) {
-        my $trade = $body->get_building_of_class('Lacuna::DB::Result::Building::Trade');
+        my $trade = $self->trade_ministry;
         if (defined $trade) {
             $percentage_of_cost += $trade->level * 3;
         }
     }
     if ($ship->base_stealth) {
-        my $cloak = $body->get_building_of_class('Lacuna::DB::Result::Building::CloakingLab');
+        my $cloak = $self->cloaking_lab;
         if (defined $cloak) {
             $percentage_of_cost += $cloak->level * 3;
         }
     }
     if ($ship->pilotable) {
-        my $pilot = $body->get_building_of_class('Lacuna::DB::Result::Building::PilotTraining');
+        my $pilot = $self->pilot_training_facility;
         if (defined $pilot) {
             $percentage_of_cost += $pilot->level * 3;
         }
     }
-    my $propulsion = $body->get_building_of_class('Lacuna::DB::Result::Building::Propulsion');
+    my $propulsion = $self->propulsion_factory;
     if (defined $propulsion) {
         $percentage_of_cost += $propulsion->level * 3;
     }
@@ -56,10 +56,11 @@ sub max_ships {
 }
 
 sub can_build_ship {
-    my ($self, $type, $costs) = @_;
-    my $ship = Lacuna::DB::Result::Ships->new({type => $type});
+    my ($self, $ship, $costs) = @_;
+    $ship->shipyard_id($self->id);
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     $costs ||= $self->get_ship_costs($ship);
-    if ($type ~~ [qw(gas_giant_settlement_platform_ship space_station terraforming_platform_ship)]) {
+    if ($ship->type ~~ [qw(gas_giant_settlement_platform_ship space_station terraforming_platform_ship)]) {
         confess [1010, 'Not yet implemented.'];
     }
     if ($self->level < 1) {
@@ -73,12 +74,10 @@ sub can_build_ship {
             confess [1011, 'Not enough resources.', $key];
         }
     }
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     my $ships_building = $ships->search({shipyard_id => $self->id, task=>'Building'})->count;
     if ($ships_building >= $self->max_ships) {
         confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.']
     }
-    my $ship = $ships->new({type => $type});
     my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { body_id => $self->body_id, class => $ship->prereq->{class}, level => {'>=' => $ship->prereq->{level}} } )->count;
     unless ($count) {
         confess [1013, 'You need a level '.$ship->prereq->{level}.' '.$ship->prereq->{class}->name.' to build this ship.'];
@@ -87,7 +86,8 @@ sub can_build_ship {
     unless (defined $port) {
         confess [1009, 'You do not have a dock available at the Spaceport.'];
     }
-    return $port;
+    $ship->spaceport_id($port->id);
+    return 1;
 }
 
 
@@ -163,6 +163,24 @@ use constant waste_production => 2;
 use constant star_to_body_distance_ratio => 100;
 
 
+has cloaking_lab => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->body->get_building_of_class('Lacuna::DB::Result::Building::CloakingLab');
+    },
+);
+
+has pilot_training_facility => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->body->get_building_of_class('Lacuna::DB::Result::Building::PilotTraining');
+    },
+);
+
 has propulsion_factory => (
     is      => 'rw',
     lazy    => 1,
@@ -182,9 +200,6 @@ sub get_ship_speed {
 
 
 # CARGO HOLD SIZE
-
-use constant cargo_ship_base => 950;
-use constant smuggler_ship_base => 480;
 
 has trade_ministry => (
     is      => 'rw',
