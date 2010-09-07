@@ -115,8 +115,8 @@ sub build_ship {
     $name .= $self->level;
     $ship->name($name);
     $ship->body_id($self->body_id);
-    $ship->speed($self->get_ship_speed($ship));
-    $ship->hold_size($self->get_ship_hold_size($ship));
+    $self->set_ship_speed($ship);
+    $self->set_ship_hold_size($ship);
     $ship->insert;
     return $ship;
 }
@@ -186,18 +186,6 @@ has propulsion_factory => (
     },
 );
 
-sub get_ship_speed {
-    my ($self, $ship) = @_;
-    my $base_speed = $ship->base_speed;
-    my $propulsion_level = (defined $self->propulsion_factory) ? $self->propulsion_factory->level : 0;
-    my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 0;
-    my $speed_improvement = ($ptf * 3) + ($propulsion_level * 5) + ($self->body->empire->species->science_affinity * 3);
-    return sprintf('%.0f', $base_speed * ((100 + $speed_improvement) / 100));
-}
-
-
-# CARGO HOLD SIZE
-
 has trade_ministry => (
     is      => 'rw',
     lazy    => 1,
@@ -207,11 +195,22 @@ has trade_ministry => (
     },
 );
 
-sub get_ship_hold_size {
+sub set_ship_speed {
+    my ($self, $ship) = @_;
+    my $base_speed = $ship->base_speed;
+    my $propulsion_level = (defined $self->propulsion_factory) ? $self->propulsion_factory->level : 0;
+    my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 0;
+    my $speed_improvement = ($ptf * 3) + ($propulsion_level * 5) + ($self->body->empire->species->science_affinity * 3);
+    $ship->speed(sprintf('%.0f', $base_speed * ((100 + $speed_improvement) / 100)));
+    return $ship->speed;
+}
+
+sub set_ship_hold_size {
     my ($self, $ship) = @_;
     my $trade_ministry_level = (defined $self->trade_ministry) ? $self->trade_ministry->level : 0;
     my $bonus = $self->body->empire->species->trade_affinity * $trade_ministry_level;
-    return sprintf('%.0f', $ship->base_hold_size * $bonus);
+    $ship->hold_size(sprintf('%.0f', $ship->base_hold_size * $bonus));
+    return $ship->hold_size;
 }
 
 no Moose;
