@@ -92,9 +92,9 @@ sub can_build_ship {
 
 
 sub build_ship {
-    my ($self, $port, $type, $time) = @_;
-        my $ship = Lacuna::DB::Result::Ships->new({type => $type});
-
+    my ($self, $ship, $time) = @_;
+    $ship->shipyard_id($self->id);
+    $ship->date_started(DateTime->now);
     $time ||= $self->get_ship_costs($ship)->{seconds};
     my $latest = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         { shipyard_id => $self->id, task => 'Building' },
@@ -108,21 +108,17 @@ sub build_ship {
         $date_completed = DateTime->now;
     }
     $date_completed->add(seconds=>$time);
-    my $name = $type;
+    $ship->date_available($date_completed);
+    $ship->task('Building');
+    my $name = $ship->type;
     $name =~ s/(_|^)(\w)(.*?)(?=_|$)/\u$2/sg;
     $name .= $self->level;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({
-        shipyard_id     => $self->id,
-        spaceport_id    => $port->id,
-        date_started    => DateTime->now,
-        date_available  => $date_completed,
-        task            => 'Building',
-        type            => $type,
-        name            => $name,
-        body_id         => $self->body_id,
-        speed           => $self->get_ship_speed($ship),
-        hold_size       => $self->get_ship_hold_size($ship),
-    })->insert;
+    $ship->name($name);
+    $ship->body_id($self->body_id);
+    $ship->speed($self->get_ship_speed($ship));
+    $ship->hold_size($self->get_ship_hold_size($ship));
+    $ship->insert;
+    return $ship;
 }
 
 before delete => sub {
