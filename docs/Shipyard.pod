@@ -1,3 +1,9 @@
+=head1 Ship Descriptions
+
+Ship descriptions are bulky, and are the same every time. As such we've created a file you can download to include ship descriptions in your client. You should cache this file once you've downloaded and only get it again if it has changed.
+
+ https://servername.lacunaexpanse.com/ship_descriptions.json
+
 =head1 Shipyard Methods
 
 Shipyard is accessible via the URL C</shipyard>.
