@@ -298,6 +298,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<Cider>
 
+=item L<CloakingLab>
+
 =item L<Corn>
 
 =item L<CornMeal>
@@ -350,6 +352,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<LibraryOfJith>
 
+=item L<LuxuryHousing>
+
 =item L<Malcud>
 
 =item L<MassadsHenge>
@@ -357,6 +361,10 @@ Below is a list of the different types of structures that can be built on planet
 =item L<Mine>
 
 =item L<MiningMinistry>
+
+=item L<MissionCommand>
+
+=item L<MunitionsLab>
 
 =item L<NaturalSpring>
 
@@ -377,6 +385,8 @@ Below is a list of the different types of structures that can be built on planet
 =item L<Park>
 
 =item L<Pie>
+
+=item L<PilotTraining>
 
 =item L<PlanetaryCommand>
 

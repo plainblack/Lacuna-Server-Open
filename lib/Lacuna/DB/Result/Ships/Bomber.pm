@@ -4,7 +4,7 @@ use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 
-use constant prereq             => { class=> 'Lacuna::DB::Result::Building::DemolitionLab',  level => 5 };
+use constant prereq             => { class=> 'Lacuna::DB::Result::Building::MunitionsLab',  level => 5 };
 use constant base_food_cost     => 18000;
 use constant base_water_cost    => 46800;
 use constant base_energy_cost   => 291600;

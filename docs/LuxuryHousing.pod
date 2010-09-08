@@ -1,0 +1,7 @@
+=head1 Luxury Housing Methods
+
+Luxury Housing is accessible via the URL C</luxuryhousing>. 
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

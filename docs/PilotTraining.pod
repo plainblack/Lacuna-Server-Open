@@ -1,0 +1,7 @@
+=head1 Pilot Training Facility Methods
+
+Pilot Training Facility is accessible via the URL C</pilottraining>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

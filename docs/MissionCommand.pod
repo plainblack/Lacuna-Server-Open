@@ -1,0 +1,7 @@
+=head1 Mission Command Methods
+
+Mission Command is accessible via the URL C</missioncommand>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

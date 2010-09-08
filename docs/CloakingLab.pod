@@ -1,0 +1,7 @@
+=head1 Cloaking Lab Methods
+
+Cloaking Lab is accessible via the URL C</cloakinglab>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

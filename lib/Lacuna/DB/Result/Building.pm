@@ -36,6 +36,11 @@ sub sqlt_deploy_hook {
 
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 __PACKAGE__->typecast_map(class => {
+    'Lacuna::DB::Result::Building::CloakingLab' => 'Lacuna::DB::Result::Building::CloakingLab',
+    'Lacuna::DB::Result::Building::MissionCommand' => 'Lacuna::DB::Result::Building::MissionCommand',
+    'Lacuna::DB::Result::Building::MunitionsLab' => 'Lacuna::DB::Result::Building::MunitionsLab',
+    'Lacuna::DB::Result::Building::LuxuryHousing' => 'Lacuna::DB::Result::Building::LuxuryHousing',
+    'Lacuna::DB::Result::Building::PilotTraining' => 'Lacuna::DB::Result::Building::PilotTraining',
     'Lacuna::DB::Result::Building::Development' => 'Lacuna::DB::Result::Building::Development',
     'Lacuna::DB::Result::Building::Embassy' => 'Lacuna::DB::Result::Building::Embassy',
     'Lacuna::DB::Result::Building::EntertainmentDistrict' => 'Lacuna::DB::Result::Building::EntertainmentDistrict',

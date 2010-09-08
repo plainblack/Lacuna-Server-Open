@@ -5,6 +5,8 @@ link pod file in docs/Buildings.pod
 add to class types in Lacuna::DB::Result::Building
 add to bin/lacuna.psgi
 add to Lacuna::DB::Result::Medals
+upload a medal image
+upload the building images in all 4 sizes
 create wiki entry
 add to var/www/public/building_descriptions.json
 update the tech tree image

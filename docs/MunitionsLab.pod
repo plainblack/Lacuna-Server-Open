@@ -1,0 +1,7 @@
+=head1 Munitions Lab Methods
+
+Munitions Lab is accessible via the URL C</munitionslab>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

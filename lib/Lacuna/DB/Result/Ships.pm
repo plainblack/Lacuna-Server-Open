@@ -27,7 +27,7 @@ __PACKAGE__->add_columns(
     foreign_body_id         => { data_type => 'int', size => 11, is_nullable => 1 },
     foreign_star_id         => { data_type => 'int', size => 11, is_nullable => 1 },
 );
-__PACKAGE__->typecast_map(class => {
+__PACKAGE__->typecast_map(type => {
     'probe'                                 => 'Lacuna::DB::Result::Ships::Probe',
     'colony_ship'                           => 'Lacuna::DB::Result::Ships::ColonyShip',
     'spy_pod'                               => 'Lacuna::DB::Result::Ships::SpyPod',

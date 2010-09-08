@@ -254,6 +254,11 @@ use constant MEDALS => {
     Beach11                         => 'Built Beach (section 11)',
     Beach12                         => 'Built Beach (section 12)',
     Beach13                         => 'Built Beach (section 13)',
+    MunitionsLab                    => 'Built Munitions Lab',
+    PilotTraining                   => 'Built Pilot Training Facility',
+    LuxuryHousing                   => 'Built Luxury Housing',
+    MissionCommand                  => 'Built Mission Command',
+    CloakingLab                     => 'Built Cloaking Lab',
 };
 
 sub name {
