@@ -42,7 +42,7 @@ sub build_ship {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $body = $building->body;
-    my $ship = Lacuna::DB::Result::Ships->new({type => $type});
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type => $type});
     my $costs = $building->get_ship_costs($ship);
     $building->can_build_ship($ship, $costs);
     foreach my $key (keys %{ $costs }) {
@@ -71,7 +71,7 @@ sub get_buildable {
         $docks += $port->docks_available;
     }
     foreach my $type (SHIP_TYPES) {
-        my $ship = Lacuna::DB::Result::Ships->new({type=>$type});
+        my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>$type});
         my $can = eval{$building->can_build_ship($ship)};
         $buildable{$type} = {
             attributes  => {

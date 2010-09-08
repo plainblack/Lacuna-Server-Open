@@ -93,7 +93,15 @@ sub can_build_ship {
 sub build_ship {
     my ($self, $ship, $time) = @_;
     $ship->shipyard_id($self->id);
-    $ship->date_started(DateTime->now);
+    $ship->task('Building');
+    my $name = $ship->type;
+    $name =~ s/(_|^)(\w)(.*?)(?=_|$)/\u$2/sg;
+    $name .= $self->level;
+    $ship->name($name);
+    $ship->body_id($self->body_id);
+    $self->set_ship_speed($ship);
+    $self->set_ship_hold_size($ship);
+    $self->set_ship_stealth($ship);
     $time ||= $self->get_ship_costs($ship)->{seconds};
     my $latest = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         { shipyard_id => $self->id, task => 'Building' },
@@ -108,15 +116,7 @@ sub build_ship {
     }
     $date_completed->add(seconds=>$time);
     $ship->date_available($date_completed);
-    $ship->task('Building');
-    my $name = $ship->type;
-    $name =~ s/(_|^)(\w)(.*?)(?=_|$)/\u$2/sg;
-    $name .= $self->level;
-    $ship->name($name);
-    $ship->body_id($self->body_id);
-    $self->set_ship_speed($ship);
-    $self->set_ship_hold_size($ship);
-    $self->set_ship_stealth($ship);
+    $ship->date_started(DateTime->now);
     $ship->insert;
     return $ship;
 }

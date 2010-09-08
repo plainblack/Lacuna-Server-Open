@@ -20,6 +20,7 @@ $spaceport->finish_upgrade;
 
 $result = $tester->post('shipyard', 'build', [$session_id, $home->id, 0, 2]);
 my $shipyard = $tester->get_building($result->{result}{building}{id});
+$shipyard->level(2);
 $shipyard->finish_upgrade;
 
 $result = $tester->post('observatory', 'build', [$session_id, $home->id, 0, 3]);
