@@ -177,6 +177,7 @@ sub send {
 
 sub finish_construction {
     my ($self) = @_;
+    $self->body->empire->add_medal($self->type);
     $self->task('Docked');
     $self->update;
 }
