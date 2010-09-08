@@ -11,7 +11,7 @@ around 'build_tags' => sub {
 
 use constant controller_class => 'Lacuna::RPC::Building::GasGiantLab';
 
-use constant university_prereq => 17;
+use constant university_prereq => 19;
 
 use constant image => 'gas-giant-lab';
 
