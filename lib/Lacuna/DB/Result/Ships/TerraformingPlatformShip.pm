@@ -20,9 +20,7 @@ sub arrive {
     my ($self) = @_;
     if ($self->direction eq 'out') {
         my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::TerraformingLab');
-        if (defined $lab) {
-            $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform', 1, $lab->level);
-        }
+        $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform', 1, (defined $lab) ? $lab->level : 0);
     }
     else {
         $self->land;
