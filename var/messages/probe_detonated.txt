@@ -1,0 +1,7 @@
+Probe Destroyed
+~~~
+We just lost contact with our probe in the %s system. Just before it went dark, our probe transmitted an image of an incoming ship. We've determined it was a Detonator sent by %s. We must assume the probe has been destroyed.
+
+Regards,
+
+Your Humble Assistant
