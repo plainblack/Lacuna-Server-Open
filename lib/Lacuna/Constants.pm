@@ -95,6 +95,7 @@ our @EXPORT_OK = qw(
     ORE_TYPES
     BUILDABLE_CLASSES
     SHIP_TYPES
+    FINDABLE_PLANS
 );
 
 our %EXPORT_TAGS = (
@@ -105,6 +106,7 @@ our %EXPORT_TAGS = (
         ORE_TYPES
         BUILDABLE_CLASSES
         SHIP_TYPES
+        FINDABLE_PLANS
         )],
 );
 
