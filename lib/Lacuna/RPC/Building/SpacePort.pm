@@ -113,6 +113,9 @@ sub send_ship {
     $body->empire($empire);
     $ship->can_send_to_target($target);
     given($ship->type) {
+        when ('excavator') {
+            Lacuna->cache->set('excavator_'.$target->id, $empire->id, 1, 60 * 60 * 24 * 30);
+        }
         when ('scow') {
             $body->spend_waste($ship->hold_size);
             $payload = { resources => { waste => $ship->hold_size } };

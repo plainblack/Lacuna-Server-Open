@@ -1,0 +1,7 @@
+Glyph Discovered!
+~~~
+Great news! The Excavator you sent to %s has uncovered a glyph made entirely of %s. Perhaps with your guidance our Archaeologists can unlock its secrets. The glyph has been sent back to %s for further study.
+
+Regards,
+
+Your Humble Assistant

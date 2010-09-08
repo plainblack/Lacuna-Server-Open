@@ -7,6 +7,13 @@ use constant INFLATION => 1.75;
 use constant GROWTH => 1.55;
 use constant FOOD_TYPES => (qw(cheese bean lapis potato apple root corn cider wheat bread soup chip pie pancake milk meal algae syrup fungus burger shake beetle));
 use constant ORE_TYPES => (qw(rutile chromite chalcopyrite galena gold uraninite bauxite goethite halite gypsum trona kerogen methane anthracite sulfur zircon monazite fluorite beryl magnetite));
+use constant FINDABLE_PLANS => (qw(
+    Lacuna::DB::Result::Building::Permanent::InterdimensionalRift
+    Lacuna::DB::Result::Building::Permanent::KalavianRuins
+    Lacuna::DB::Result::Building::Permanent::NaturalSpring
+    Lacuna::DB::Result::Building::Permanent::Volcano
+    Lacuna::DB::Result::Building::Permanent::GeoThermalVent
+    ));
 use constant BUILDABLE_CLASSES => (qw(
     Lacuna::RPC::Building::Capitol
     Lacuna::RPC::Building::Stockpile
