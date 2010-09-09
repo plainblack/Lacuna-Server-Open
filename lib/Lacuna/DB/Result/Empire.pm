@@ -228,17 +228,18 @@ sub found {
 
     # found home planet
     $home_planet ||= $self->find_home_planet($invite_code);
+    $self->tutorial_scratch($home_planet->name);
     $self->home_planet_id($home_planet->id);
     $self->stage('founded');
     $self->update;
     $self->home_planet($home_planet);
     $self->add_probe($home_planet->star_id, $home_planet->id);
 
-    # found colony
-    $home_planet->found_colony($self);
-    
     # send welcome
     Lacuna::Tutorial->new(empire=>$self)->start('explore_the_ui');
+    
+    # found colony
+    $home_planet->found_colony($self);
     
     return $self;
 }
