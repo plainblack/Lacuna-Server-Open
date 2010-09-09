@@ -126,8 +126,11 @@ Set up an empire on it's new home world. Once this method is called, the species
 
  {
     "session_id" : "id-goes-here",
+    "welcome_message_id" : "id-goes-here",
     "status" : { ... }
  }
+
+The C<welcome_message_id> is a message id for a message in the inbox, that starts the tutorial. This is provided so the user can be prompted to read that message right away.
 
 =head3 empire_id
 

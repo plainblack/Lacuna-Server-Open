@@ -239,8 +239,6 @@ sub found {
     
     # send welcome
     Lacuna::Tutorial->new(empire=>$self)->start('explore_the_ui');
-    
-    return $self;
 }
 
 sub find_home_planet {
@@ -461,7 +459,7 @@ sub add_probe {
     if ($self->tutorial_stage ne 'turing') {
         Lacuna::Tutorial->new(empire=>$self)->finish;
     }
-
+    return $self;
 }
 
 sub next_colony_cost {

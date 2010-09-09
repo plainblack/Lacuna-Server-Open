@@ -32,7 +32,7 @@ sub start {
     $self->empire->update;
     if (my $can = $self->can($stage)) { # safely call
         my $out = $can->($self);
-        $self->send($out);
+        return $self->send($out);
     }
 }
 

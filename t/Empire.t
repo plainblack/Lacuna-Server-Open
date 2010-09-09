@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 27;
+use Test::More tests => 28;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -56,6 +56,7 @@ is($result->{error}{code}, 1002, 'api key required');
 $result = $tester->post('empire', 'found', [$empire_id,'Anonymous']);
 my $session_id = $result->{result}{session_id};
 ok(defined $session_id, 'empire logged in after foundation');
+ok($result->{result}{welcome_message_id}, 'we get a welcome message');
 
 $result = $tester->post('empire', 'logout', [$session_id]);
 is($result->{result}, 1, 'logout');
