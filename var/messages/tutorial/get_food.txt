@@ -6,7 +6,7 @@ Resources are the key to expanding your empire. Without them, your species will 
 
 As a token of our lasting friendship, Lacuna Expanse Corp has sent emissaries to your world to build a free Malcud Fungus Farm for your people. This particular source of food is one of our favorites as it is cheap to build and does not promote waste. Don't worry if you already have one of these, you can always benefit from more of them.
 
-To build, click or tap the 'build' icon in an empty space. Then choose the Malcud Fungus Farm from the available list.
+To build, click or tap the [build] icon in an empty space on your planet surface map. Then choose the Malcud Fungus Farm from the available list.
 
 Regards,
 

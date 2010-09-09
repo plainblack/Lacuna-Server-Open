@@ -1,6 +1,6 @@
 More Resources
 ~~~
-You're doing well, but we're going to need a lot more resource production than that in order to make you an economic powerhouse. If you look at your Planetary Command Center you can see the total production of your planet. Depending on the user interface you use to manage your empire there will be several other ways to see this.
+You're doing well, but we're going to need a lot more resource production than that in order to make you an economic powerhouse. If you look at the Planet details in your Planetary Command Center you can see the total production of your planet. Depending on the user interface you use to manage your empire there will be several other ways to see this. For example, in the web client you can see it at the bottom of your screen.
 
 If you can get your production to more than 100 of each resource (ore, water, food, and energy) per hour, then we'll be in a good position to do other more interesting things. Build more farms, mines, water purification plants, and energy plants to get your resource production going.
 

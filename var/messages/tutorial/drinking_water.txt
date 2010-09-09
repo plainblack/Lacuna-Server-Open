@@ -1,12 +1,14 @@
 Drinking Water
 ~~~
-Excellent. As I mentioned before resources are going to be the key to your survival and growth. It may interest you to know that your Planetary Command Center not only produces each type of resource but has the ability to store them as well. In addition, it serves as a place for you to view overall information about your planet. Locate and click or tap the Planetary Command Center in the middle of your map. Note your planet size, the number of plots available to build on, as well as the number of buildings you've already created. These will be important statistics as you develop infrastructure.
+Excellent. As I mentioned before resources are going to be the key to your survival and growth. It may interest you to know that your Planetary Command Center not only produces each type of resource but has the ability to store them as well. In addition, it serves as a place for you to view overall information about your planet. Locate and click or tap the Planetary Command Center in the middle of your map and look at the Planet details. Note your planet size, the number of plots available to build on, as well as the number of buildings you've already created. These will be important statistics as you develop infrastructure.
 
 We will talk more about resource storage soon, but for now we should use some of your resources to build infrastructure.  
 
 I see that your planet has a good supply of about %s%% fresh water. Build a Water Purification Plant. It will produce the water needed to keep your empire on the upward trend and give your citizens something to drink with all that delicious Malcud Fungus from your new farm.  
 
-Feel free to build anything else you think you might need. For now don't worry about depleting your resources. We will ensure you have everything you need as you need it.
+Feel free to build anything else you think you might need. For now don't worry too much about depleting your resources. We will ensure you have everything you need as you need it.
+
+Oh, one more thing. As you build your empire, try to keep it organized. It will enable you to manage it more efficiently as it grows. Food related buildings together, and water related buildings together, etc.
 
 Regards,
 
