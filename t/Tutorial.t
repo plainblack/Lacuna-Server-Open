@@ -1,4 +1,4 @@
-use lib ('..','../../lib');
+use lib ('..','../lib');
 use Test::More tests => 25;
 use Test::Deep;
 use Data::Dumper;
@@ -26,7 +26,7 @@ my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
-is($tutorial->finish, 1, 'get food');
+is($empire->tutorial_stage, 'drinking_water', 'get food');
 
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -36,7 +36,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
-is($tutorial->finish, 1, 'drinking water');
+is($empire->tutorial_stage, 'keep_the_lights_on', 'drinking water');
 
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -46,7 +46,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
-is($tutorial->finish, 1, 'keep the lights on');
+is($empire->tutorial_stage, 'mine', 'keep the lights on');
 
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -56,7 +56,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
-is($tutorial->finish, 1, 'mine');
+is($empire->tutorial_stage, 'more_resources', 'mine');
 
 
 $building = $home->command;
@@ -75,7 +75,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
-is($tutorial->finish, 1, 'university');
+is($empire->tutorial_stage, 'storage', 'university');
 
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -106,7 +106,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
-is($tutorial->finish, 1, 'storage');
+is($empire->tutorial_stage, 'fool', 'storage');
 
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -158,7 +158,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 $home->build_building($building);
 $building->finish_upgrade;
 $home->tick;
-is($tutorial->finish, 1, 'the 300');
+is($empire->tutorial_stage, 'news', 'the 300');
 
 
 $building =Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -169,7 +169,7 @@ $building =Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
-is($tutorial->finish, 1, 'news');
+is($empire->tutorial_stage, 'rogue', 'news');
 
 
 $empire->description('i rule');
@@ -183,7 +183,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
-is($tutorial->finish, 1, 'spaceport');
+is($empire->tutorial_stage, 'shipyard', 'spaceport');
 
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -193,7 +193,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
-is($tutorial->finish, 1, 'shipyard');
+is($empire->tutorial_stage, 'pawn', 'shipyard');
 
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -204,18 +204,19 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 $home->build_building($building);
 $building->level( $building->level + 1 ); # extra upgrade level
 $building->finish_upgrade;
-is($tutorial->finish, 1, 'intelligence');
+is($empire->tutorial_stage, 'counter_spy', 'intelligence');
 
 $building->train_spy;
 
 my $spies = $building->get_spies;
 foreach (1..2) {
     my $spy = $spies->next;
+    $spy->empire($empire);
     $spy->available_on(DateTime->now);
     $spy->task('Idle');
     $spy->assign('Counter Espionage');
 }
-is($tutorial->finish, 1, 'counter spy');
+is($empire->tutorial_stage, 'observatory', 'counter spy');
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 1,
@@ -224,10 +225,10 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
-is($tutorial->finish, 1, 'observatory');
+is($empire->tutorial_stage, 'explore', 'observatory');
 
 $empire->add_probe($home->star_id, $home->id);
-is($tutorial->finish, 1, 'explore');
+is($empire->tutorial_stage, 'the_end', 'explore');
 is($tutorial->finish, 1, 'the_end');
 is($tutorial->finish, 1, 'turing');
 is($tutorial->finish, 1, 'turing');
