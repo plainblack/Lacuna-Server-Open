@@ -4,6 +4,7 @@ use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Constants qw(ORE_TYPES);
+use Clone qw(clone);
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
@@ -249,16 +250,17 @@ sub make_plan {
     unless (ref $ids eq 'ARRAY' && scalar(@{$ids}) < 5) {
         confess [1009, 'The ids field needs to be an array reference of no more than 4 elements.'];
     }
-    my $glyphs = $self->body->glyphs->search({id => { in => $ids }});
-    my $match = \%recipies;
-    while (my $glyph = $glyphs->next) {
+    my $match = clone(\%recipies);
+    my $glyphs = $self->body->glyphs;
+    foreach my $id (@{$ids}) {
+        my $glyph = $glyphs->find($id);
         last unless exists $match->{$glyph->type};
         $match = $match->{$glyph->type};
     }
     unless (exists $match->{plan}) {
-        confess [1002, 'The glyphs specified do not fit together in that manner.'];
+        confess [1002, 'The glyphs specified do not fit together in that manner.', $match];
     }
-    $glyphs->reset->delete;
+    $glyphs->search({ id => { in => $ids}})->delete;
     return $self->body->add_plan($match->{plan}, 1);
 }
 
