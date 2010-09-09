@@ -205,6 +205,9 @@ sub assign {
     # run mission
     if ($assignment ~~ ['Idle','Counter Espionage']) {
         $self->update;
+        if ($self->empire->tutorial_stage ne 'turing') {
+            Lacuna::Tutorial->new(empire=>$self->empire)->finish;
+        }
         return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.'])};
     }
     else {

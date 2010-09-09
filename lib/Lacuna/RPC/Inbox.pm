@@ -118,7 +118,7 @@ sub send_message {
     }
     foreach my $to (@to) {
         if ($to->id == 1) {
-            Lacuna::Tutorial->new(empire=>$empire)->finish;
+            Lacuna::Tutorial->new(empire=>$empire)->finish(1);
         }
         else {
             $to->send_message(

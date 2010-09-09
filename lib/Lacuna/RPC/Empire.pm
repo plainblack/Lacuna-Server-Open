@@ -293,6 +293,9 @@ sub edit_profile {
             ->no_restricted_chars
             ->no_profanity;  
         $empire->description($profile->{description});
+        if ($empire->tutorial_stage ne 'turing') {
+            Lacuna::Tutorial->new(empire=>$empire)->finish;
+        }
     }
     if (exists $profile->{notes}) {
         Lacuna::Verify->new(content=>\$profile->{notes}, throws=>[1005,'Notes must be less than 1024 characters and cannot contain special characters or profanity.', 'notes'])
@@ -475,6 +478,9 @@ sub boost {
     $empire->planets->update({needs_recalc=>1});
     $empire->$type($start);
     $empire->update;
+    if ($empire->tutorial_stage ne 'turing') {
+        Lacuna::Tutorial->new(empire=>$empire)->finish;
+    }
     return {
         status => $self->format_status($empire),
         $type => format_date($empire->$type),

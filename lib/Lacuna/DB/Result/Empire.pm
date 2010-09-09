@@ -458,6 +458,9 @@ sub add_probe {
     }
     
     $self->clear_probed_stars;
+    if ($self->tutorial_stage ne 'turing') {
+        Lacuna::Tutorial->new(empire=>$self)->finish;
+    }
     return $self;
 }
 

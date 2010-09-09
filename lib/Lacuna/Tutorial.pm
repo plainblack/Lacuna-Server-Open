@@ -9,13 +9,15 @@ has empire => (
 );
 
 sub finish {
-    my ($self) = @_;
+    my ($self, $reply) = @_;
     my $method = $self->empire->tutorial_stage;
     if (my $can = $self->can($method)) { # safely call
         my $out = $can->($self, 1);
         if (ref $out eq 'HASH') { # not finished
-            $out->{body_prefix} = "It doesn't look like you've completed my last request yet. Complete that first and then email me again. What I said was:\n\n";
-            $self->send($out);
+            if ($reply) {
+                $out->{body_prefix} = "It doesn't look like you've completed my last request yet, complete that first. What I said was:\n\n";
+                $self->send($out);
+            }
             return 0;
         }
         return 1;

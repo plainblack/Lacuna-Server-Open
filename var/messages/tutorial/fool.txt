@@ -6,11 +6,11 @@ If you're ever going to stand up against Lacuna Expanse Corp you'll need some he
 
 You've got a nice start to your infrastructure, but you really need to start building it up a bit. Without a steady income of your basic resources your empire's growth will slow to a crawl. Build up your food income so that it's at least %s per hour.
 
-Reply to me when that's done. I'm not against "gifts" to forward my cause, and it certainly appears you're not against receiving them to forward your empire, so I'll have a present waiting for you *if* you can complete this task.
+I'm not against "gifts" to forward my cause, and it certainly appears you're not against receiving them to forward your empire, so I'll have a present waiting for you *if* you can complete this task.
 
 Regards,
 
-Tou Re Ell (or at least his stolen email account)
+Not Tou Re Ell (or at least his stolen email account)
 Lacuna Expanse Corp
 
 Task: Build to %s food per hour.

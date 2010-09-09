@@ -2,11 +2,9 @@ Need More Power
 ~~~
 Well done. I'm sure you'll appreciate the free expansion I've given so you can upgrade your Food Reserve to store all the extra food you're producing. You should do the same for your energy output. Upgrade it so that you're producing %s per hour. 
 
-As you've done in the past, reply to me so I know you're making the progress I'd expect.
-
 Regards,
 
-Tou Re Ell (if he only knew what mailing lists I've signed him up for)
+Not Tou Re Ell (if he only knew what mailing lists I've signed him up for)
 Lacuna Expanse Corp
 
 Task: Build energy to %s per hour.

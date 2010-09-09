@@ -47,6 +47,9 @@ sub rename {
         $body->add_news(200,"In a bold move to show its growing power, %s renamed %s to %s.",$empire->name, $body->name, $name);
     }
     $body->update({name => $name});
+    if ($empire->tutorial_stage ne 'turing') {
+        Lacuna::Tutorial->new(empire=>$empire)->finish;
+    }
     return 1;
 }
 

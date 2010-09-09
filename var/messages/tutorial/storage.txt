@@ -6,12 +6,10 @@ Click or tap your Planetary Command Center. You should see how many of each reso
 
 In order to prevent resource loss, build Ore Storage Tanks, a Food Reserve, an Energy Reserve, and Water Storage Tanks. 
 
-Reply to me when you're done. I've got a gift for you.
-
 Regards,
 
 Tou Re Ell
 Lacuna Expanse Corp
 
 Task:  Build Ore Storage Tank, Food Reserve, Energy Reserve, and Water Storage Tanks.
-Reward:  100 of each resource.
+Reward:  Free resources.
