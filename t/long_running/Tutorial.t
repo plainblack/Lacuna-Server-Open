@@ -1,5 +1,5 @@
 use lib ('..','../../lib');
-use Test::More tests => 24;
+use Test::More tests => 25;
 use Test::Deep;
 use Data::Dumper;
 use DateTime;
@@ -57,6 +57,15 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 $home->build_building($building);
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'mine');
+
+
+$building = $home->command;
+$building->start_upgrade;
+$building->level( $building->level + 1 ); # extra upgrade level
+$building->finish_upgrade;
+$home->tick;
+is($tutorial->finish, 1, 'more_resources');
+
 
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -193,18 +202,19 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     class           => 'Lacuna::DB::Result::Building::Intelligence',
 });
 $home->build_building($building);
+$building->level( $building->level + 1 ); # extra upgrade level
 $building->finish_upgrade;
 is($tutorial->finish, 1, 'intelligence');
 
 $building->train_spy;
 
-say "Waiting for spies to finish...";
-sleep 216;
-
 my $spies = $building->get_spies;
-$spies->next->assign('Counter Espionage');
-$spies->next->assign('Counter Espionage');
-sleep 3;
+foreach (1..2) {
+    my $spy = $spies->next;
+    $spy->available_on(DateTime->now);
+    $spy->task('Idle');
+    $spy->assign('Counter Espionage');
+}
 is($tutorial->finish, 1, 'counter spy');
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
