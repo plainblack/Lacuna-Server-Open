@@ -238,7 +238,7 @@ sub found {
     unless ($empire->stage eq 'new') {
         confess [1010, "This empire cannot be founded again.", $empire_id];
     }
-    $empire = $empire->found(undef, $invite_code);
+    $empire->found(undef, $invite_code);
     return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request })->id, status => $self->format_status($empire) };
 }
 

@@ -461,7 +461,7 @@ sub add_probe {
     if ($self->tutorial_stage ne 'turing') {
         Lacuna::Tutorial->new(empire=>$self)->finish;
     }
-    return $self;
+
 }
 
 sub next_colony_cost {
