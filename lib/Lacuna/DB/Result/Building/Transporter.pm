@@ -96,8 +96,13 @@ sub push_items {
     my ($self, $target, $transporter, $items) = @_;
     my $local_payload = $self->determine_available_cargo_space;
     my $remote_payload = $transporter->determine_available_cargo_space;
-    my $space_available = ($remote_payload < $local_payload) ? $remote_payload : $local_payload;
-    my $payload = $self->structure_push($items, $space_available);
+    my $space_available = $local_payload;
+    my $space_exception = 'You are trying to send %s cargo, but the local transporter can only send '.$local_payload.'.';
+    if ($remote_payload < $local_payload) {
+        $space_available = $remote_payload;
+        $space_exception = 'You are trying to send %s cargo, but the remote transporter can only receive '.$remote_payload.'.';
+    }
+    my $payload = $self->structure_push($items, $space_available, $space_exception);
     $self->unload($payload, $target);
 }
 

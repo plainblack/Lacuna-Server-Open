@@ -212,8 +212,9 @@ sub ask_resources {
 
 
 sub structure_push {
-    my ($self, $items, $available_cargo_space) = @_;
+    my ($self, $items, $available_cargo_space, $space_exception) = @_;
     my $body = $self->body;
+    $space_exception ||= $cargo_exception;
     
     # validate
     my $space_used;
@@ -235,7 +236,7 @@ sub structure_push {
             }
         }
     }
-    confess [1011, sprintf($cargo_exception,$space_used)] unless ($space_used <= $available_cargo_space);
+    confess [1011, sprintf($space_exception,$space_used)] unless ($space_used <= $available_cargo_space);
 
     # send
     my $payload;
