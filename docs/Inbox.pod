@@ -199,6 +199,10 @@ A hash reference of extra options.
 
 =head4 in_reply_to
 
-If this message is in reply to another message, then set this option to the message id of the original message.
+A message id. If this message is in reply to another message, then set this option to the message id of the original message.
+
+=head4 forward
+
+A message id. If this is set, then the attachments of the message id specified will be sent along with the new message.The text of the message will not automatically be forwarded, if that is desired, it is the client's responsibility to include it in the body of the new message.
  
 =cut

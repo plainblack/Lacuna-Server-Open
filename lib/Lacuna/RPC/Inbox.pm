@@ -77,7 +77,15 @@ sub send_message {
     if ($options->{in_reply_to}) {
         my $reply_to = Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($options->{in_reply_to});
         unless ($empire->id ~~ [$reply_to->to_id, $reply_to->from_id]) {
-            confess [1010, 'You cannot set in_reply_to to a message id that you cannot read.'];
+            confess [1010, 'You cannot reply to a message id that you cannot read.'];
+        }
+    }
+    my $attachments = {};
+    if ($options->{forward}) {
+        my $forward = Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($options->{forward});
+        unless ($empire->id ~~ [$forward->to_id, $forward->from_id]) {
+            confess [1010, 'You cannot forward a message id that you cannot read.'];
+            $attachments = $forward->attachments;
         }
     }
     my @sent;
@@ -114,7 +122,7 @@ sub send_message {
         }
     }
     if ($send_count > 100) {
-        confess [1010, "You have already sent the maximum number of messages you can send for one day."];
+        confess [1010, "You have already sent the maximum number (100) of messages you can send for one day."];
     }
     foreach my $to (@to) {
         if ($to->id == 1) {
@@ -128,6 +136,7 @@ sub send_message {
                 in_reply_to => $options->{in_reply_to},
                 recipients  => \@sent,
                 tag         => 'Correspondence',
+                attachments => $attachments,
             );
         }
     }
