@@ -23,7 +23,11 @@ sub www_send_test_message {
 
     $empire->send_message(
 	from		=> $empire,
-	body		=> 'This is a test message that contains all the components possible in a message.',
+	body		=> 'This is a test message that contains all the components possible in a message.
+     {food} {water} {ore} {energy} {waste} {happiness} {essentia} {build} {time}
+    {Empire 1 Lacuna Expanse Corp}
+    [http://www.lacunaexpanse.com]
+    ',
 	subject		=> 'Test Message',
 	tags		=> ['Alert'],
 	attachments => {

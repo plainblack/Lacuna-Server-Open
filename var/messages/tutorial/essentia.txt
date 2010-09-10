@@ -4,7 +4,7 @@ You may remember I told you that the entire Lacunan economy depends upon Essenti
 
 Essentia is both rare and powerful. Our entire race spends their waking hours trying to acquire more. If you have it, you're the most powerful species in the Expanse. Essentia has rare properties that allow plants to grow more hearty and machinery to work more efficiently. It can even be used in various chemical processes to transform one element into another. It's the closest thing I've seen to magic. 
 
-Spend some of the Essentia I've given you to boost your production of water, energy, food, and ore.
+Spend some of the Essentia {essentia} I've given you to boost your production of water, energy, food, and ore. Click or tap on the {essentia} icon in your user interface and then click or tap on the *boost* button.
 
 Regards,
 

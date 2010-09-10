@@ -32,7 +32,7 @@ sub arrive {
             $body_attacked->empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'hit_by_scow.txt',
-                params      => [$self->body->empire->name, $body_attacked->name, $self->hold_size],
+                params      => [$self->body->empire_id, $self->body->empire->name, $body_attacked->name, $self->hold_size],
             );
             $body_attacked->add_news(30, sprintf('%s is so polluted that waste seems to be falling from the sky.', $body_attacked->name));
             $self->delete;

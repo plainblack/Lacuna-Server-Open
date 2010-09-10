@@ -1,10 +1,10 @@
 Keep The Lights On
 ~~~
-You're doing well. I'm sure that due to your curious nature you've already been clicking or tapping around the interface. If you haven't, you should do so. While you're on the planet map you can click or tap on any building. The first thing that you'll see is about the Production of that building. If it has a positive number, that means it's producing extra resources for you every hour, even when you're not logged in. If it's a negative number then it means it is burning resources every hour even when you're not logged in.
+You're doing well. I'm sure that due to your curious nature you've already been clicking or tapping around the interface. If you haven't, you should do so. While you're on the planet map you can click or tap on any building. The first thing that you'll see is about the Production of that building. If it has a positive number, that means it's producing extra resources for you every hour, even when you're not logged in. If it's a negative number then it means it is burning resources every hour even when you're not logged in. The time {time} icon tells you how long it will take to build or upgrade the building.
 
-Next we need to make sure we can "keep the lights on". I've sent some resources to you so you can build a Geo Energy Plant. This will provide you with the energy needed to power your economy. There are several types of energy plants that will be available to you as your knowledge grows. Each type has drawbacks and benefits, but for a fledgling empire like yours, it's good just to get the juice moving.
+Next we need to make sure we can keep the lights on. I've sent some resources to you so you can build a Geo Energy Plant. This will provide you with the energy {energy} needed to power your economy. There are several types of energy plants that will be available to you as your knowledge grows. Each type has drawbacks and benefits, but for a fledgling empire like yours, it's good just to get the juice moving.
 
-Don't worry if you've already built one. You can always use more power.
+Don't worry if you've already built one. You can always use more energy.
 
 Regards,
 

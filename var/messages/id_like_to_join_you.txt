@@ -1,6 +1,6 @@
 I'm Yours To Command
 ~~~
-I'm fed up with %s. I'd like to be on a winning team. I'm yours to command if you'll have me.
+I'm fed up with {Empire %s %s}. I'd like to be on a winning team. I'm yours to command if you'll have me.
 
 Regards,
 

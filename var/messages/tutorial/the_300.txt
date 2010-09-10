@@ -1,6 +1,6 @@
 Almost There
 ~~~
-I've given you the necessary resources to allow you to upgrade your Energy Reserve to level 2, so you should do that right away. As you've probably guessed you'll need to upgrade your water and ore production one more time each.
+I've given you the necessary resources to allow you to upgrade your Energy Reserve to level 2, so you should do that right away. As you've probably guessed you'll need to upgrade your water {water} and ore {ore} production one more time each.
 
 I'll give you the resources to upgrade your storage for both of those to level 2 as well when you're done.
 

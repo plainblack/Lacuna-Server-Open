@@ -1,6 +1,6 @@
 Welcome
 ~~~
-Allow me to introduce myself. I am Tou Re Ell, diplomat for the Lacuna Expanse Corp. We welcome %s to The Lacuna Expanse! We are the original inhabitants of the Expanse, but we are so happy to see it growing. 
+Allow me to introduce myself. I am Tou Re Ell, diplomat for {Empire 1 Lacuna Expanse Corp}. We welcome %s to The Lacuna Expanse! We are the original inhabitants of the Expanse, but we are so happy to see it growing. 
 
 Since you are new I'd like to offer you an arrangment to help get your empire started. In return for completing some simple tasks, I will assist you in building the necessary components to ensure your survival.
 

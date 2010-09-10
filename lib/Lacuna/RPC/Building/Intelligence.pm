@@ -78,12 +78,12 @@ sub burn_spy {
             $empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'you_cant_burn_me.txt',
-                params      => [$spy->empire->name, $spy->name],
+                params      => [$spy->empire_id, $spy->empire->name, $spy->name],
             );
             $spy->empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'id_like_to_join_you.txt',
-                params      => [$empire->name, $spy->name],
+                params      => [$empire->id, $empire->name, $spy->name],
             );
         }
         else {

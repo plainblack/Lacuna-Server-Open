@@ -25,7 +25,7 @@ sub arrive {
         $probe->empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'probe_detonated.txt',
-            params      => [$self->foreign_star->name, $self->body->empire->name],
+            params      => [$self->foreign_star->name, $self->body->empire_id, $self->body->empire->name],
         );
         $count++;
     }

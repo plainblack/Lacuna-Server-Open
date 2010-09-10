@@ -1,6 +1,6 @@
 Target Neutralized
 ~~~
-Our defensive squadron was able to shoot down a %s before it reached %s. Its markings indicate that it was from %s.
+Our defensive squadron was able to shoot down a %s before it reached %s. Its markings indicate that it was from {Empire %s %s}.
 
 Regards,
 

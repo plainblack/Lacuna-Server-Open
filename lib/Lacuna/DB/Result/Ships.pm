@@ -269,7 +269,7 @@ sub trigger_defense {
         $body_attacked->empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'we_shot_down_a_ship.txt',
-            params      => [$self->type_formatted, $body_attacked->name, $self->body->empire->name],
+            params      => [$self->type_formatted, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
         );
         $body_attacked->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
         $self->delete;
