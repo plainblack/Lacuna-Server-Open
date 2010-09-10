@@ -17,7 +17,7 @@ use constant max_instances_per_planet => 1;
 
 use constant image => 'munitionslab';
 
-use constant name => 'MunitionsLab';
+use constant name => 'Munitions Lab';
 
 use constant food_to_build => 220;
 

@@ -26,7 +26,6 @@ sub view_news {
     my $news = Lacuna->db->resultset('Lacuna::DB::Result::News')->search(
         {
             zone        => {'in' => \@zones},
-            date_posted => { '>=' =>DateTime->now->subtract(hours=>24)},
         },
         {
             rows       => 100,
