@@ -258,7 +258,11 @@ Displays a list of trades available at the present time.
             "ask_description" : "10000 Bauxite",
             "offer_type" : "prisoner",
             "offer_quantity" : 1,
-            "offer_description" : "Spy Named Jack Bauer (Level: 21)"
+            "offer_description" : "Spy Named Jack Bauer (Level: 21)",
+            "empire" : {
+                "id" : "id-goes-here",
+                "name" : "Earthlings"
+            }
         },
         ...
     ],

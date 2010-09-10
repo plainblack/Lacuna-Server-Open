@@ -96,7 +96,7 @@ sub structure_offer {
                 offer_type                  => $offer->{type},
                 offer_sub_type              => $ship->type,
                 offer_quantity              => 1,
-                offer_description           => $ship->type_formatted.' (Cargo: '.$ship->hold_size.', Speed: '.$ship->speed.')',
+                offer_description           => $ship->type_formatted.' (Cargo: '.$ship->hold_size.', Speed: '.$ship->speed.', Stealth: '.$ship->stealth.')',
                 offer_cargo_space_needed    => $space,
                 offer_rank_1                => $ship->hold_size,
                 offer_rank_2                => $ship->speed,

@@ -37,7 +37,10 @@ sub view_available_trades {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     $page_number ||=1;
-    my $all_trades = $building->available_trades->search(undef, { rows => 25, page => $page_number });
+    my $all_trades = $building->available_trades->search(
+        undef,
+        { rows => 25, page => $page_number, join => 'body' }
+        );
     my @trades;
     while (my $trade = $all_trades->next) {
         push @trades, {
@@ -49,6 +52,10 @@ sub view_available_trades {
             offer_description       => $trade->offer_description,
             offer_type              => $trade->offer_sub_type,
             offer_quantity          => $trade->offer_quantity,
+            empire                  => {
+                id      => $trade->body->empire->id,
+                name    => $trade->body->empire->name,
+            },
         };
     }
     return {
