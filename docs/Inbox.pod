@@ -70,12 +70,12 @@ An integer representing which page of the inbox you'd like to view. Defaults to 
 An array reference of tags. Only messages containing these tags will be displayed in the results.
 
 
-=head2 view_archived ( session_id, [ page_number ])
+=head2 view_archived ( session_id, [ options ])
 
 Exactly the same as C<view_inbox> except that it shows archived messages instead.
 
 
-=head2 view_sent ( session_id, [page_number] )
+=head2 view_sent ( session_id, [ options ] )
 
 Exactly the same as C<view_inbox> except that it shows sent messages instead.
 
