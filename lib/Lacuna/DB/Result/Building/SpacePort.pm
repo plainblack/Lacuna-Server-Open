@@ -13,6 +13,17 @@ around 'build_tags' => sub {
 
 __PACKAGE__->has_many('ships', 'Lacuna::DB::Result::Ships', 'spaceport_id');
 
+sub foreign_ships {
+    my ($self) = @_;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        {
+            foreign_body_id => $self->body_id,
+            direction       => 'out',
+            task            => 'Travelling',
+        }
+    );
+}
+
 sub send_probe {
     my ($self, $star) = @_;
     return $self->send_ship($star, 'probe');

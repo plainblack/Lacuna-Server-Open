@@ -31,7 +31,7 @@ This method is extended to include a list of docked ships.
 
 =head2 view_all_ships ( session_id, building_id )
 
-Shows you the ships that are working in the mining fleet, and available to work in the mining fleet.
+Shows you all your ships whatever they are doing.
 
  {
     "ships" : [
@@ -71,6 +71,51 @@ A session id.
 =head3 building_id
 
 The unique id of the space port.
+
+
+=head2 view_foreign_ships ( session_id, building_id )
+
+Shows you all the foreign ships that are incoming. However, the list is filtered by the stealth of the ship vs the level of the SpacePort. The formula is:
+
+ 300 * SpacePort Level >= Ship Stealth
+
+If your SpacePort exceeds the Ship's Stealth, then you'll see it incoming. Otherwise you won't.
+
+ {
+    "ships" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "CS3",
+            "type_human" : "Cargo Ship",
+            "type" : "cargo_ship",
+            "date_arrives" : "02 01 2010 10:08:33 +0600",
+            "from" : {
+                "id" : "id-goes-here",
+                "name" : "Earth",
+                "empire" : {
+                    "id" : "id-goes-here",
+                    "name" : "Earthlings"
+                }
+            }
+        },
+        ...
+    ],
+    "number_of_ships" : 13,
+    "status" : { ... }
+ }
+
+The C<from> block is only included if
+
+ 100 * SpacePort Level >= Ship Stealth
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the space port.
+
 
 
 =head2 get_ships_for ( session_id, from_body_id, target )

@@ -507,6 +507,49 @@ sub view_all_ships {
     };    
 }
 
+sub view_foreign_ships {
+    my ($self, $session_id, $building_id, $page_number) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    $page_number ||= 1;
+    my @fleet;
+    my $now = DateTime->now;
+    my $ships = $building->foreign_ships->search({}, {rows=>25, page=>$page_number, join => 'body' });
+    while (my $ship = $ships->next) {
+        if ($ship->date_available <= $now) {
+            $ship->body->tick;
+        }
+        else {
+            if ($building->level * 300 >= $ship->stealth) {
+                my $from = {};
+                if ($building->level * 100 >= $ship->stealth) {
+                    $from = {
+                        id      => $ship->body->id,
+                        name    => $ship->body->name,
+                        empire  => {
+                            id      => $ship->body->empire->id,
+                            name    => $ship->body->empire->name,
+                        },
+                    };
+                }
+                push @fleet, {
+                    id              => $self->id,
+                    name            => $self->name,
+                    type_human      => $self->type_formatted,
+                    type            => $self->type,
+                    date_arrives    => $self->date_available_formatted,
+                    from            => $from,
+                };
+            }
+        }
+    }
+    return {
+        status                      => $self->format_status($empire, $building->body),
+        number_of_ships             => $ships->pager->total_entries,
+        ships                       => \@fleet,
+    };    
+}
+
 sub name_ship {
     my ($self, $session_id, $building_id, $ship_id, $name) = @_;
     Lacuna::Verify->new(content=>\$name, throws=>[1005, 'Invalid name for a ship.'])
@@ -567,7 +610,7 @@ around 'view' => sub {
     return $out;
 };
  
-__PACKAGE__->register_rpc_method_names(qw(get_ships_for send_ship scuttle_ship name_ship fetch_spies send_spies get_available_spy_ships_for_fetch get_available_spy_ships get_my_available_spies send_probe send_spy_pod send_colony_ship send_mining_platform_ship view_ships_travelling view_all_ships));
+__PACKAGE__->register_rpc_method_names(qw(view_foreign_ships get_ships_for send_ship scuttle_ship name_ship fetch_spies send_spies get_available_spy_ships_for_fetch get_available_spy_ships get_my_available_spies send_probe send_spy_pod send_colony_ship send_mining_platform_ship view_ships_travelling view_all_ships));
 
 
 no Moose;
