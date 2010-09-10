@@ -53,4 +53,33 @@ Command extends the view method to include a C<planet> section.
     }
  }
 
+
+=head2 view_plans ( session_id, building_id )
+
+Returns a list of all the plans you've collected through various means.
+
+ {
+    "status" : { ... },
+    "plans" : [
+        {
+           "name" : "Malcud Fungus Farm",
+           "level" : 1,
+           "extra_build_level" : 5
+        },
+        ...
+    ]
+ }
+
+If the C<level> is 1, and there is an C<extra_build_level>, that means that the building will be built up to 1 plus the extra build level when complete. So in the example above, it would be a level 6 directly after being built.
+
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the PCC.
+
+
 =cut
