@@ -1,0 +1,318 @@
+# config-file-type: JSON 1
+{
+
+##
+## This is a config file for a trade mission.
+##
+## Any lines that start with a # will be ignored. Feel free to add comments to the file using this.
+##
+## All directives and values (except integers) must be wrapped in quotes ("). And directives and values must
+## be separated by colons (:). Directives within a block should be separated by commas, but the last element
+## in the block should not have a comma after it.
+##
+## As a convention we have started our instructions with ## and directives that are simply commented out
+## start with a #. This should make it easier to discern what is just text versus what is an actual mission
+## directive.
+##
+
+## The name of the mission as it will appear in Mission Command.
+## no more than 30 characters
+    "name" : "The Wedding Job",
+
+## The Network 19 headline that will be broadcast when this mission becomes available.
+## No more than 140 characters.
+    "network_19_headline" : "A local dignitary is panicking over the lack of desserts available for his daughter's wedding.",
+
+## The Network 19 headline that will be broadcast when this mission has been completed.
+## No more than 140 characters. Include a %s where the mission winner's name should go. The %s represents 30 chracters of the 140.
+    "network_19_completion" : "Dignatary hosts a glorious wedding. Says he couldn't have done it without %s.",
+
+## The description is the full length text that will appear in mission command to let the player know what they have to do
+## and what they will receive if they accomplish that goal.
+## Can use inbox message formatting paramters. Use \n\n for a new paragraph.
+    "description" : "My name is Rasjman Ukdid, and my daughter's wedding is approaching *fast*. Unfortunately due to a lapis berry blight on my planet we have no desserts to serve our guests. I need 10,000 lapis fruit pies right away.\n\nI own a ship manufacturing business. If you can provide me with the pies I need, I can give you two of our brand new robotic Excavators. They are very fast, and with them you might find a fortune in the Expanse.",
+
+## This lets the game engine know how to execute this mission.
+## Do not modify. This file has been configured specifically for a trade mission.
+    "mission_type" : "trade",
+
+## The mission objective tells the game engine what the user needs to do in order to complete the mission. In the case of
+## trade missions, they must have the correct commodities in the form of ships, glyphs, resources, essentia, or plans. Therefore
+## in the case of trade missions, the mission objective section is very similar to the mission reward section. Feel free to
+## make a combination objective. For example 1000 water, 1 gold glyph, and a Dory.
+    "mission_objective" : {
+
+## RESOURCES
+## You may absolutely use a combination of resources as an objective.
+        "resources" : {
+#            "water" : 0,
+#            "energy" : 0,
+#            "waste" : 0,
+#            "cheese" : 0,
+#            "bean" : 0,
+#            "lapis" : 0,
+#            "potato" : 0,
+#            "apple" : 0,
+#            "root" : 0,
+#            "corn" : 0,
+#            "cider" : 0,
+#            "wheat" : 0,
+#            "bread" : 0,
+#            "soup" : 0,
+#            "chip" : 0,
+            "pie" : 10000,
+#            "pancake" : 0,
+#            "milk" : 0,
+#            "meal" : 0,
+#            "algae" : 0,
+#            "syrup" : 0,
+#            "fungus" : 0,
+#            "burger" : 0,
+#            "shake" : 0,
+#            "beetle" : 0,
+#            "rutile" : 0,
+#            "chromite" : 0,
+#            "chalcopyrite" : 0,
+#            "galena" : 0,
+#            "gold" : 0,
+#            "uraninite" : 0,
+#            "bauxite" : 0,
+#            "goethite" : 0,
+#            "halite" : 0,
+#            "gypsum" : 0,
+#            "trona" : 0,
+#            "kerogen" : 0,
+#            "methane" : 0,
+#            "anthracite" : 0,
+#            "sulfur" : 0,
+#            "zircon" : 0,
+#            "monazite" : 0,
+#            "fluorite" : 0,
+#            "beryl" : 0,
+#            "magnetite" : 0
+        }
+        
+## GLYPHS
+## Feel free to include more than one of the same type of glyph in the objective. For example, the objective
+## could be to get 3 rutile and 4 gold glyphs.
+#        "glyphs" : [
+#            "rutile",
+#            "chromite",
+#            "chalcopyrite",
+#            "galena",
+#            "gold",
+#            "uraninite",
+#            "bauxite",
+#            "goethite",
+#            "halite",
+#            "gypsum",
+#            "trona",
+#            "kerogen",
+#            "methane",
+#            "anthracite",
+#            "sulfur",
+#            "zircon",
+#            "monazite",
+#            "fluorite",
+#            "beryl",
+#            "magnetite"
+#        ],
+
+## ESSENTIA
+#         "essentia" : 0,
+
+## SHIPS
+## If a particular ship is looked for the ship must be "Docked" for it to be a valid objective. In addition, whatever
+## stats are set on the ship for speed, stealth, and hold_size is the minimum that will be accepted. If the ship
+## exceeds expectations, that's fine.
+#        "ships" : [
+#            {
+##              Valid ship types are: probe colony_ship spy_pod cargo_ship space_station 
+##                        smuggler_ship mining_platform_ship terraforming_platform_ship 
+##                        gas_giant_settlement_platform_ship scow dory freighter bomber 
+##                        drone fighter spy_shuttle observatory_seeker security_ministry_seeker 
+##                        spaceport_seeker excavator detonator scanner
+#                "type" : "excavator",
+
+##              A ship speed of 1000 means 1 star per hour (the distance between two stars will be travelled in one hour)
+#                "speed" : 0,
+
+##              A ship stealth of 10000 is basically perfect protection from almost anything.                    
+#                "stealth" : 0,
+
+##               You need a hold size of 1 to carry 1 resource, 350 to hold a spy, or 10,000 to tow a ship. Only
+##               cargo ships, dorys, freighters, scows, and colony ships may have a hold size.
+#                "hold_size" : 0
+#            }
+#        ],
+
+## PLANS            
+## Plans allow the player to build/upgrade a building for free.
+#        "plans" : [
+#            {
+##              This is the name of the building class file, just fill in what type of building you want, and the programmers will
+##              convert it into the name of the appropriate file.
+#               "class" : "",
+
+##              Level one means that you can build the first level for free. Level 2 and beyond means that you get the upgrade to
+##              that level for free.
+#               "level" : 1,
+                
+##             This is only useful if the build level is 1. If this is also set then the resulting building level after the initial
+##             build sequence will be extra_build_level + 1. So if your level is 1 and extra_build_level is 5, you'll end up with a
+##             level 6 building from the initial build.
+#               "extra_build_level" : 0
+#           }
+#       ]
+
+## The end of the mission_objective section.
+    }
+
+
+
+
+
+## The mission reward is whatever the player gets for completing the mission. It could be resources, ships, glyphs,
+## essentia, or plans. Maybe more in the future.
+    "mission_reward" : {
+
+## RESOURCES
+## Unless you're providing a lot of resources, resources aren't often a good reward except for easy missions for new players
+## because experienced players often have the ability to produce tens of thousands of resources per hour. That said, some
+## resources are more rare than others. Tie the reward size to the level of the player expected to complete the mission.
+#        "resources" : {
+#            "water" : 0,
+#            "energy" : 0,
+#            "waste" : 0,
+#            "cheese" : 0,
+#            "bean" : 0,
+#            "lapis" : 0,
+#            "potato" : 0,
+#            "apple" : 0,
+#            "root" : 0,
+#            "corn" : 0,
+#            "cider" : 0,
+#            "wheat" : 0,
+#            "bread" : 0,
+#            "soup" : 0,
+#            "chip" : 0,
+#            "pie" : 0,
+#            "pancake" : 0,
+#            "milk" : 0,
+#            "meal" : 0,
+#            "algae" : 0,
+#            "syrup" : 0,
+#            "fungus" : 0,
+#            "burger" : 0,
+#            "shake" : 0,
+#            "beetle" : 0,
+#            "rutile" : 0,
+#            "chromite" : 0,
+#            "chalcopyrite" : 0,
+#            "galena" : 0,
+#            "gold" : 0,
+#            "uraninite" : 0,
+#            "bauxite" : 0,
+#            "goethite" : 0,
+#            "halite" : 0,
+#            "gypsum" : 0,
+#            "trona" : 0,
+#            "kerogen" : 0,
+#            "methane" : 0,
+#            "anthracite" : 0,
+#            "sulfur" : 0,
+#            "zircon" : 0,
+#            "monazite" : 0,
+#            "fluorite" : 0,
+#            "beryl" : 0,
+#            "magnetite" : 0
+#        },
+        
+## GLYPHS
+## Glyphs are a great reward as they are hard to get through the archaeology ministry and their uses are many. Also
+## feel free to add more than one of the same type of glyph in the reward. We've only included one of each in our example.
+#        "glyphs" : [
+#            "rutile",
+#            "chromite",
+#            "chalcopyrite",
+#            "galena",
+#            "gold",
+#            "uraninite",
+#            "bauxite",
+#            "goethite",
+#            "halite",
+#            "gypsum",
+#            "trona",
+#            "kerogen",
+#            "methane",
+#            "anthracite",
+#            "sulfur",
+#            "zircon",
+#            "monazite",
+#            "fluorite",
+#            "beryl",
+#            "magnetite"
+#        ],
+
+## ESSENTIA
+## Essentia is the most valuable resource in the game. It's also how we pay for the servers and continued development of
+## the game so we're not likely to give it out except on very rare and cool missions, and then only in small quantities.
+#         "essentia" : 0,
+
+## SHIPS
+## A ship can be a very valuable reward.
+        "ships" : [
+            {
+##              Valid ship types are: probe colony_ship spy_pod cargo_ship space_station 
+##                        smuggler_ship mining_platform_ship terraforming_platform_ship 
+##                        gas_giant_settlement_platform_ship scow dory freighter bomber 
+##                        drone fighter spy_shuttle observatory_seeker security_ministry_seeker 
+##                        spaceport_seeker excavator detonator scanner
+                "type" : "excavator",
+
+##              A ship speed of 1000 means 1 star per hour (the distance between two stars will be travelled in one hour)
+                "speed" : 3000,
+
+##              A ship stealth of 10000 is basically perfect protection from almost anything.                    
+                "stealth" : 0,
+
+##               You need a hold size of 1 to carry 1 resource, 350 to hold a spy, or 10,000 to tow a ship. Only
+##               cargo ships, dorys, freighters, scows, and colony ships may have a hold size.
+                "hold_size" : 0
+            },
+            {
+                "type" : "excavator",
+                "speed" : 3000,
+                "stealth" : 0,
+                "hold_size" : 0
+            }
+        ],
+
+## PLANS            
+## Plans allow the player to build/upgrade a building for free.
+#        "plans" : [
+#            {
+##              This is the name of the building class file, just fill in what type of building you want, and the programmers will
+##              convert it into the name of the appropriate file.
+#               "class" : "",
+
+##              Level one means that you can build the first level for free. Level 2 and beyond means that you get the upgrade to
+##              that level for free.
+#               "level" : 1,
+                
+##             This is only useful if the build level is 1. If this is also set then the resulting building level after the initial
+##             build sequence will be extra_build_level + 1. So if your level is 1 and extra_build_level is 5, you'll end up with a
+##             level 6 building from the initial build.
+#               "extra_build_level" : 0
+#           }
+#       ]
+
+
+## End of the mission_reward section
+    }
+
+
+
+
+## End of the file
+}
