@@ -406,7 +406,7 @@ Which do you think a user is more likely to get right and therefore be useful to
 
 =item *
 
-How would you do C<{food}> in HTML? Sure you can use an image tag, but what does it point to? Do you really want to download the icon from a public source in your iPhone app, when the iPhone app already has the icon locally? And if I user wanted to include the icon in their message, which is easier to type:
+How would you do C<{food}> in HTML? Sure you can use an image tag, but what does it point to? Do you really want to download the icon from a public source in your iPhone app, when the iPhone app already has the icon locally? And if a user wanted to include the icon in their message, which is easier to type:
 
  {food}
 
