@@ -223,6 +223,7 @@ Provides a list of the editable properties of the current empire's profile. See 
        },
        "city" : "Madison",
        "country" : "USA",
+       "notes" : "notes go here",
        "skype" : "joeuser47",
        "player_name" : "Joe User",
        "email" : "joe@example.com",
@@ -275,6 +276,10 @@ An optional text string of the city in which the player resides. Limited to 100 
 =head4 country
 
 An optional text string of the country in which the player resides. Limited to 100 characters and cannot contain @, &, <, >, or ;
+
+=head4 notes
+
+A text blob where the user can write down whatever they want to store in their account.  Limited to 1024 characters and cannot contain @, &, <, >, or ;
 
 =head4 skype
 
