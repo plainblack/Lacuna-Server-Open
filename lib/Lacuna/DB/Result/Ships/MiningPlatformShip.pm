@@ -34,7 +34,7 @@ sub arrive {
             $empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'mining_platform_deployed.txt',
-                params      => [$self->foreign_body->name, $self->name],
+                params      => [$body->name, $self->foreign_body->name, $self->name],
             );
             $self->delete;
             my $type = $self->foreign_body;
