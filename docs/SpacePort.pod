@@ -358,7 +358,7 @@ B<NOTE:> All inbound/outbound ships are shown regardless of which space port the
        {
            "id" : "id-goes-here",
            "type" : "probe",
-            "type_human" : "Cargo Ship",
+            "type_human" : "Probe",
            "date_arrives" : "01 31 2010 13:09:05 +0600",
            "from" : {
                "id" : "id-goes-here",
