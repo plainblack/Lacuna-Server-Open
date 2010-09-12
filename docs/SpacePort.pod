@@ -29,7 +29,7 @@ This method is extended to include a list of docked ships.
  }
  
 
-=head2 view_all_ships ( session_id, building_id )
+=head2 view_all_ships ( session_id, building_id, page_number )
 
 Shows you all your ships whatever they are doing.
 
@@ -72,8 +72,12 @@ A session id.
 
 The unique id of the space port.
 
+=head3 page_number
 
-=head2 view_foreign_ships ( session_id, building_id )
+Defaults to page 1. Shows 25 at a time.
+
+
+=head2 view_foreign_ships ( session_id, building_id, page_number )
 
 Shows you all the foreign ships that are incoming. However, the list is filtered by the stealth of the ship vs the level of the SpacePort. The formula is:
 
@@ -115,6 +119,11 @@ A session id.
 =head3 building_id
 
 The unique id of the space port.
+
+=head3 page_number
+
+Defaults to page 1. Shows 25 at a time.
+
 
 
 
