@@ -40,9 +40,10 @@ sub get_probed_stars {
         push @stars, $probe->star->get_status($empire);
     }
     return {
-        stars   => \@stars,
-        star_count => $probes->pager->total_entries,
-        status  => $self->format_status($empire, $building->body),
+        stars       => \@stars,
+        star_count  => $probes->pager->total_entries,
+        status      => $self->format_status($empire, $building->body),
+        max_probes  => $building->max_probes,
         };
 }
 
