@@ -220,7 +220,7 @@ sub structure_push {
     my $space_used;
     foreach my $item (@{$items}) {
         given($item->{type}) {
-            when ([qw(water energy waste ORE_TYPES FOOD_TYPES)]) {
+            when ([qw(water energy waste), ORE_TYPES, FOOD_TYPES]) {
                  confess $have_exception unless ($body->type_stored($item->{type}) >= $item->{quantity});
                  $space_used += $item->{quantity};
              }
@@ -242,7 +242,7 @@ sub structure_push {
     my $payload;
     foreach my $item (@{$items}) {
         given($item->{type}) {
-            when ([qw(water energy waste ORE_TYPES FOOD_TYPES)]) {
+            when ([qw(water energy waste), ORE_TYPES, FOOD_TYPES]) {
                  $body->spend_type($item->{type}, $item->{quantity});
                  $body->update;
                  $payload->{resources}{$item->{type}} += $item->{quantity};
