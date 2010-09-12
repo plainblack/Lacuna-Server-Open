@@ -225,14 +225,28 @@ sub structure_push {
                  $space_used += $item->{quantity};
              }
             when ('glyph') {
+                confess [1002, 'You must specify a glyph_id if you are pushing a glyph.'] unless $item->{glyph_id};
                 my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyphs')->find($item->{glyph_id});
                 confess $have_exception unless (defined $glyph && $self->body_id eq $glyph->body_id);
                 $space_used += 100;
             }
             when ('plan') {
+                confess [1002, 'You must specify a plan_id if you are pushing a plan.'] unless $item->{plan_id};
                 my $plan = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->find($item->{plan_id});
                 confess $have_exception unless (defined $plan && $self->body_id eq $plan->body_id);
                 $space_used += 10000;
+            }
+            when ('prisoner') {
+                confess [1002, 'You must specify a prisoner_id if you are pushing a prisoner.'] unless $item->{prisoner_id};
+                my $prisoner = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($item->{prisoner_id});
+                confess $have_exception unless (defined $prisoner && $self->body_id eq $prisoner->on_body_id && $prisoner->task eq 'Captured');
+                $space_used += 350;
+            }
+            when ('ship') {
+                confess [1002, 'You must specify a ship_id if you are pushing a ship.'] unless $item->{ship_id};
+                my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($item->{ship_id});
+                confess $have_exception unless (defined $ship && $self->body_id eq $ship->body_id && $ship->task eq 'Docked');
+                $space_used += 50000;
             }
         }
     }
@@ -248,18 +262,26 @@ sub structure_push {
                  $payload->{resources}{$item->{type}} += $item->{quantity};
              }
             when ('glyph') {
-                confess [1002, 'You must specify a glyph_id if you are trading a glyph.'] unless $item->{glyph_id};
                 my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyphs')->find($item->{glyph_id});
-                confess $have_exception unless (defined $glyph && $self->body_id eq $glyph->body_id);
                 $glyph->delete;
                 push @{$payload->{glyphs}}, $glyph->type;
             }
             when ('plan') {
-                confess [1002, 'You must specify a plan_id if you are trading a plan.'] unless $item->{plan_id};
                 my $plan = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->find($item->{plan_id});
-                confess $have_exception unless (defined $plan && $self->body_id eq $plan->body_id);
                 $plan->delete;
                 push @{$payload->{plans}}, { class => $plan->class, level => $plan->level, extra_build_level => $plan->extra_build_level };
+            }
+            when ('prisoner') {
+                my $prisoner = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($item->{prisoner_id});
+                $prisoner->task('Prisoner Transport');
+                $prisoner->update;
+                push @{$payload->{prisoners}}, $prisoner->id;
+            }
+            when ('ship') {
+                my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($item->{ship_id});
+                $ship->task('In Transport');
+                $ship->update;
+                push @{$payload->{ships}}, $ship->id;
             }
         }
     }

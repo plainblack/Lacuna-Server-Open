@@ -109,7 +109,7 @@ sub seconds_remaining_on_assignment {
 sub is_available {
     my ($self) = @_;
     my $task = $self->task;
-    if ($task ~~ ['Idle','Counter Espionage']) {
+    if ($task ~~ ['Idle','Counter Espionage','Prisoner Transport']) {
         return 1;
     }
     elsif (DateTime->now > $self->available_on) {

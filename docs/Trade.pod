@@ -371,7 +371,19 @@ B<NOTE:> The list of your planets comes back with every empire status message.
 
 =head3 items
 
-An array reference of hash references of items you wish to ship to the target planet. There are three types items that can be shipped via this mechanism. They are resources, glyphs, and plans.
+An array reference of hash references of items you wish to ship to the target planet. There are five types of items that can be shipped via this mechanism. They are resources, glyphs, plans, prisoners, and ships.
+
+ [
+    {
+       "type" : "bauxite",
+       "quantity" : 10000
+    },
+    {
+       "type" : "prisoner",
+       "prisoner_id" : "id-goes-here"
+    }
+ ]
+
 
 =over
 
@@ -388,11 +400,11 @@ The hash reference for resources looks like:
 
 =item type
 
-The type of resource you want to ship. Available types are: water, energy, waste, essentia, bean, lapis, potato, apple, root, corn, cider, wheat, bread, soup, chip, pie, pancake, milk, meal, algae, syrup, fungus, burger, shake, beetle, rutile, chromite, chalcopyrite, galena, gold, uraninite, bauxite, goethite, halite, gypsum, trona, kerogen, methane, anthracite, sulfur, zircon, monazite, fluorite, beryl, or magnetite.
+The type of resource you want to push. Available types are: water, energy, waste, essentia, bean, lapis, potato, apple, root, corn, cider, wheat, bread, soup, chip, pie, pancake, milk, meal, algae, syrup, fungus, burger, shake, beetle, rutile, chromite, chalcopyrite, galena, gold, uraninite, bauxite, goethite, halite, gypsum, trona, kerogen, methane, anthracite, sulfur, zircon, monazite, fluorite, beryl, or magnetite.
 
 =item quantity
 
-The amount of the resource that you want to ship.
+The amount of the resource that you want to push.
 
 =back
 
@@ -413,12 +425,19 @@ Must be exactly C<glyph>.
 
 =item glyph_id
 
-The unique id of the glyph you want to ship. See the C<get_glyphs> method for a list of your glyphs.
+The unique id of the glyph you want to push. See the C<get_glyphs> method for a list of your glyphs.
  
 =back
 
 
 =item plans
+
+The hash reference for plans looks like:
+
+ {
+    "type" : "plan",
+    "plan_id" : "id-goes-here"
+ }
 
 =over
 
@@ -428,11 +447,58 @@ Must be exactly C<plan>.
 
 =item plan_id
 
-The unique id of the plan that you want to ship. See the C<get_plans> method for a list of your plans.
+The unique id of the plan that you want to push. See the C<get_plans> method for a list of your plans.
 
 =back
 
+
+=item prisoners
+
+The hash reference for prisoners looks like:
+
+ {
+    "type" : "prisoner",
+    "prisoner_id" : "id-goes-here"
+ }
+
+=over
+
+=item type
+
+Must be exactly C<prisoner>.
+
+=item prisoner_id
+
+The unique id of the spy that you want to push. See the C<get_prisoners> method for a list of your prisoners.
+
 =back
+
+
+=item ships
+
+The hash reference for ships looks like:
+
+ {
+    "type" : "ship",
+    "ship_id" : "id-goes-here"
+ }
+
+=over
+
+=item type
+
+Must be exactly C<ship>.
+
+=item ship_id
+
+The unique id of the ship that you want to push. See the C<get_prisoners> method for a list of your prisoners.
+
+=back
+
+
+
+=back
+
 
 
 
