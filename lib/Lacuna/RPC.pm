@@ -47,6 +47,12 @@ sub get_empire_by_session {
     }
 }
 
+sub get_rpc_count {
+    my ($self, $session_id) = @_;
+    my $session = $self->get_session($session_id);
+    return Lacuna->cache->get('rpc_count_'.format_date(undef,'%d'), $session->empire_id);
+}
+
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $empire, $body_id) = @_;
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
@@ -106,6 +112,8 @@ sub format_status {
     return \%out;
 }
 
+
+__PACKAGE__->register_rpc_method_names(qw(get_rpc_count));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
