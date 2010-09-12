@@ -152,7 +152,7 @@
 #            {
 ##              This is the name of the building class file, just fill in what type of building you want, and the programmers will
 ##              convert it into the name of the appropriate file.
-#               "class" : "",
+#               "classname" : "",
 
 ##              Level one means that you can build the first level for free. Level 2 and beyond means that you get the upgrade to
 ##              that level for free.
@@ -166,7 +166,7 @@
 #       ]
 
 ## The end of the mission_objective section.
-    }
+    },
 
 
 
@@ -294,7 +294,7 @@
 #            {
 ##              This is the name of the building class file, just fill in what type of building you want, and the programmers will
 ##              convert it into the name of the appropriate file.
-#               "class" : "",
+#               "classname" : "",
 
 ##              Level one means that you can build the first level for free. Level 2 and beyond means that you get the upgrade to
 ##              that level for free.

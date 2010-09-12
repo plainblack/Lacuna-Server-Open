@@ -1,0 +1,58 @@
+# config-file-type: JSON 1
+{
+    "name" : "Make a Glyph Foundation",
+
+    "network_19_headline" : "Humpar Lomb, a sick merchant, is desperately searching for the final glyphs for his collection.",
+
+    "network_19_completion" : "%s has helped Humpar Lomb to accumulate the largest glyph collection in the universe.",
+
+    "description" : "I have searched all my life for the rare glyphs found in mineral deposits around the universe. Sadly, with Sradean Fever running through my veins, I am no longer able to leave my bed to search for the final glyphs needed to complete my collection.\n\nI will trade my remaining *merchant fleet* and a valuable *plan* to the empire that is able and willing to help me fulfil my dreams.\n\nHumpar Lomb",
+
+    "mission_type" : "trade",
+
+    "mission_objective" : {
+         "glyphs" : [
+             "goethite",
+             "gypsum",
+             "trona"
+         ]
+    },
+
+    "mission_reward" : {
+        "ships" : [
+            {
+                "type" : "cargo_ship",
+                "speed" : 1500,
+                "stealth" : 0,
+                "hold_size" : 30000
+            },
+            {
+                "type" : "cargo_ship",
+                "speed" : 1500,
+                "stealth" : 0,
+                "hold_size" : 30000
+            },
+            {
+                "type" : "cargo_ship",
+                "speed" : 1500,
+                "stealth" : 0,
+                "hold_size" : 30000
+            },
+            {
+                "type" : "freighter",
+                "speed" : 1250,
+                "stealth" : 0,
+                "hold_size" : 60000
+            }
+        ],
+        "plans" : [
+            {
+                "classname" : "interdimensional rift",
+                "level" : 1,
+                "extra_build_level" : 0
+            }
+        ]
+    }
+
+}
+
