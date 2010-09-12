@@ -533,11 +533,11 @@ sub view_foreign_ships {
                     };
                 }
                 push @fleet, {
-                    id              => $self->id,
-                    name            => $self->name,
-                    type_human      => $self->type_formatted,
-                    type            => $self->type,
-                    date_arrives    => $self->date_available_formatted,
+                    id              => $ship->id,
+                    name            => $ship->name,
+                    type_human      => $ship->type_formatted,
+                    type            => $ship->type,
+                    date_arrives    => $ship->date_available_formatted,
                     from            => $from,
                 };
             }
