@@ -2,7 +2,7 @@
 
 Ship descriptions are bulky, and are the same every time. As such we've created a file you can download to include ship descriptions in your client. You should cache this file once you've downloaded and only get it again if it has changed.
 
- https://servername.lacunaexpanse.com/ship_descriptions.json
+ https://servername.lacunaexpanse.com/resources.json
 
 =head1 Shipyard Methods
 
