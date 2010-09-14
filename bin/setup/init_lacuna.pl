@@ -1,4 +1,4 @@
-use lib '../lib';
+use lib '../../lib';
 use strict;
 use 5.010;
 use List::Util::WeightedChoice qw( choose_weighted );
