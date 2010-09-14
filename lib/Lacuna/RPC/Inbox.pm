@@ -85,8 +85,8 @@ sub send_message {
         my $forward = Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($options->{forward});
         unless ($empire->id ~~ [$forward->to_id, $forward->from_id]) {
             confess [1010, 'You cannot forward a message id that you cannot read.'];
-            $attachments = $forward->attachments;
         }
+        $attachments = $forward->attachments;
     }
     my @sent;
     my @unknown;
