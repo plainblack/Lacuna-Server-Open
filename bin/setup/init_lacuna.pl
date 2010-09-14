@@ -1,4 +1,4 @@
-use lib '../lib';
+use lib '../../lib';
 use strict;
 use 5.010;
 use List::Util::WeightedChoice qw( choose_weighted );
@@ -14,7 +14,7 @@ my $lacunans_have_been_placed = 0;
 my $t = [Time::HiRes::tv_interval];
 create_database();
 create_species();
-open my $star_names, "<", "../var/starnames.txt";
+open my $star_names, "<", "../../var/starnames.txt";
 create_star_map();
 close $star_names;
 say "Time Elapsed: ".Time::HiRes::tv_interval($t);
