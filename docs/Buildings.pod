@@ -1,6 +1,6 @@
 =head1 Building Descriptions
 
-Your app can download a copy of the building descriptions from C<http://servername.lacunaexpanse.com/building_descriptions.json>. Your app should cache this file, and only download a new copy if it has changed. We do not include this information in L<Body/"get_buildings"> because it's the same on every request for every empire and would add a lot of bandwidth for nothing.
+Your app can download a copy of the building descriptions from C<http://servername.lacunaexpanse.com/resources.json>. Your app should cache this file, and only download a new copy if it has changed. We do not include this information in L<Body/"get_buildings"> because it's the same on every request for every empire and would add a lot of bandwidth for nothing.
 
 =head1 Building Methods
 
