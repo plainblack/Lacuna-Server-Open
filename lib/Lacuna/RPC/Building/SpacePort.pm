@@ -17,6 +17,9 @@ sub model_class {
 
 sub find_target {
     my ($self, $target_params) = @_;
+    unless (ref $target_params eq 'HASH') {
+        confess [-32602, 'The target parameter should be a hash reference. For example { "star_id" : 9999 }.'];
+    }
     my $target;
     if (exists $target_params->{star_id}) {
         $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($target_params->{star_id});
