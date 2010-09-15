@@ -173,6 +173,24 @@ Provides a list of incoming ships and ships that are available to send to a spec
         },
         ...
     ],
+    "unavailable" : [
+	{
+           "reason" : [1009, "You can't send a detonator to a star."],
+ 	   "ship" : {
+            	"id" : "id-goes-here",
+            	"name" : "D13",
+           	"type_human" : "Detonator",
+           	"type" : "detonator",
+            	"task" : "Docked",
+            	"speed" : "700",
+            	"stealth" : "0",
+            	"hold_size" : "0",
+            	"date_started" : "01 31 2010 13:09:05 +0600",
+            	"date_available" : "01 31 2010 13:09:05 +0600"
+            }
+        },
+        ...
+    ],
     "mining_platforms" : [
         {
             empire_id   =>  "id-goes-here",
@@ -183,7 +201,7 @@ Provides a list of incoming ships and ships that are available to send to a spec
     "status" : { ... }
  }
 
-The C<mining_platforms> block will be returned only if the target is an asteroid that has platforms on it.
+The C<unavailable> block tells you about ships that are docked, but are for some reason not available to be used. The C<mining_platforms> block will be returned only if the target is an asteroid that has platforms on it.
 
 =head3 session_id
 

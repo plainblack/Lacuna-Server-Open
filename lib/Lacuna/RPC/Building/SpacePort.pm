@@ -68,19 +68,24 @@ sub get_ships_for {
         push @incoming, $ship->get_status;
     }
     
+    my @unavailable;
     my @available;
     my $available_rs = $ships->search({task => 'Docked'});
-    while (my $ship = $incoming_rs->next) {
+    while (my $ship = $available_rs->next) {
         eval{ $ship->can_send_to_target($target) };
-        next if $@;
+        if ($@) {
+    	    push @unavailable, { ship => $ship->get_status, reason => $@ };
+            next;
+        }
         $ship->body($body);
-        push @incoming, $ship->get_status;
+        push @available, $ship->get_status;
     }
     
     my %out = (
         status      => $self->format_status($empire, $body),
         incoming    => \@incoming,
         available   => \@available,
+        unavailable => \@unavailable,
     );
     
     if ($target->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {

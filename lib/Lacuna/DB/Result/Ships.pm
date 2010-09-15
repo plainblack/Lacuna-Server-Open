@@ -78,7 +78,7 @@ sub is_available {
 }
 
 sub can_send_to_target {
-    confess [1009, 'Cannot send that type of ship using this method.'];
+    confess [1009, 'Cannot be used in that manner.'];
 }
 
 sub type_formatted {
