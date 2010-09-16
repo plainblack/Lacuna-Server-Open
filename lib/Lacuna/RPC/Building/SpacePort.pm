@@ -50,13 +50,16 @@ sub get_ships_for {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
     my $target = $self->find_target($target_params);
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        { 'body.empire_id' => $empire->id },
-        { join => 'body' }
-        );
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     
     my @incoming;
-    my $incoming_rs = $ships->search({task => 'Travelling', direction => 'out'});
+    my $incoming_rs = $ships->search({
+	task => 'Travelling', 
+	direction => 'out',
+        'body.empire_id' => $empire->id,
+	},
+        { join => 'body' }
+	);
     if ($target->isa('Lacuna::DB::Result::Map::Star')) {
         $incoming_rs = $incoming_rs->search({foreign_star_id => $target->id});
     }
@@ -70,7 +73,7 @@ sub get_ships_for {
     
     my @unavailable;
     my @available;
-    my $available_rs = $ships->search({task => 'Docked'});
+    my $available_rs = $ships->search({task => 'Docked', body_id=>$body->id });
     while (my $ship = $available_rs->next) {
         eval{ $ship->can_send_to_target($target) };
         if ($@) {
@@ -110,7 +113,7 @@ sub send_ship {
     unless (defined $ship) {
         confess [1002, 'Could not locate that ship.'];
     }
-    unless ($ship->empire_id == $empire->id) {
+    unless ($ship->body->empire_id == $empire->id) {
         confess [1010, 'You do not own that ship.'];
     }
     unless ($ship->task eq 'Docked') {
