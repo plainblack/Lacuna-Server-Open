@@ -31,7 +31,7 @@ sub feed_url {
 
 sub feed_filename {
     my ($class, $zone) = @_;
-    return create_uuid_as_string(UUID_MD5, $zone.Lacuna->config->get('feeds/bucket')).'.rss';
+    return 'network19/'.create_uuid_as_string(UUID_MD5, $zone.Lacuna->config->get('feeds/bucket')).'.rss';
 }
 
 no Moose;
