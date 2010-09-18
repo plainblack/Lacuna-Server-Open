@@ -117,6 +117,10 @@ sub build {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
 
+    if ($x eq '' || $y eq '' || $x < -5 || $y < -5 || $x > 5 || $y > 5) {
+        confess [1009, "You must specify an x,y coordinate to place the building that is between -5 and 5.", [$x, $y]];
+    }
+
     # check the plot lock
     if ($body->is_plot_locked($x, $y)) {
         confess [1013, "That plot is reserved for another building.", [$x,$y]];
