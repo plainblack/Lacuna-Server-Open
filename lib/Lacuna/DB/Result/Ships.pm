@@ -302,7 +302,7 @@ sub damage_building {
     $body_attacked->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'ship_hit_building.txt',
-        params      => [$self->type_formatted, $body_attacked->name, $self->body->empire->name],
+        params      => [$self->type_formatted, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
     );
     $body_attacked->add_news(70, sprintf('An attack ship screamed out of the sky and damaged the %s on %s.',$building->name, $body_attacked->name));
     $self->delete;
