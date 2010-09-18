@@ -293,6 +293,7 @@ sub damage_building {
         )->single;
     $building->body($body_attacked);
     $building->spend_efficiency(randint(1,10));
+    $building->update;
     $self->body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'our_ship_hit_building.txt',
