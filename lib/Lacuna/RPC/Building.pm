@@ -103,7 +103,7 @@ sub view {
         status      => $self->format_status($empire, $building->body),
     );
     if ($building->is_working) {
-        $out{work} = {
+        $out{building}{work} = {
             seconds_remaining   => $building->work_seconds_remaining,
             start               => $building->work_started_formatted,
             end                 => $building->work_ends_formatted,
