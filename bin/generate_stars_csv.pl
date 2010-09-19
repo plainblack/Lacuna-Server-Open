@@ -28,7 +28,7 @@ my $s3 = Net::Amazon::S3->new(
     retry                 => 1,
     );
 my $bucket = $s3->bucket($config->get('feeds/bucket'));
-$bucket->add_key_filename(
+$bucket->add_key(
     'stars.csv',
     $out,
     {
