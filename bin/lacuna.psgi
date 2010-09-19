@@ -145,18 +145,18 @@ $urlmap->map("/admin" => $admin);
 
 
 builder {
-    enable_if { $_[0]{REQUEST_METHOD} eq 'OPTIONS' } sub {
-        return [
-            200,
-            [
-                'Access-Control-Allow-Origin' => '*',
-                'Access-Control-Max-Age' => 3628800,
-                'Access-Control-Allow-Methods' => 'GET, POST',
-                'Content-Type' => 'text/plain',
-            ],
-            [ '' ],
-        ];
-    };
-    $urlmap->to_app;
+    enable_if { $_[0]{REQUEST_METHOD} eq 'OPTIONS' } sub {
+    return [
+        200,
+            [
+                'Access-Control-Allow-Origin' => '*',
+                'Access-Control-Max-Age' => 3628800,
+                'Access-Control-Allow-Methods' => 'GET, POST',
+                'Content-Type' => 'text/plain',
+            ],
+            [''],
+        ];
+    };
+    $urlmap->to_app;
 };
 
