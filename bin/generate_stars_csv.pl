@@ -3,7 +3,7 @@ use lib '/data/Lacuna-Server/lib';
 use Lacuna::DB;
 use Lacuna;
 use DateTime;
-use SOAP::Amazon::S3;
+use Net::Amazon::S3;
 use Text::CSV_XS;
 my $out;
 my $csv = Text::CSV_XS->new({binary => 1});
@@ -22,11 +22,18 @@ while (my $star = $stars->next) {
 }
 
 my $config = Lacuna->config;
-my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
+my $s3 = Net::Amazon::S3->new(
+    aws_access_key_id     => $config->get('access_key'), 
+    aws_secret_access_key => $config->get('secret_key'),
+    retry                 => 1,
+    );
 my $bucket = $s3->bucket($config->get('feeds/bucket'));
-my $object = $bucket->putobject('stars.csv', $out, { 'Content-Type' => 'text/csv' });
-$object->acl('public');
-
-
-
+$bucket->add_key_filename(
+    'stars.csv',
+    $out,
+    {
+        'Content-Type'  => 'text/csv',
+         acl_short       => 'public-read',
+    }
+);
 
