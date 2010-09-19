@@ -157,6 +157,6 @@ builder {
             [ '' ],
         ];
     };
-    $urlmap;
+    $urlmap->to_app;
 };
 
