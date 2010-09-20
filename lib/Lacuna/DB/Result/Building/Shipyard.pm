@@ -200,7 +200,7 @@ sub set_ship_speed {
     my $base_speed = $ship->base_speed;
     my $propulsion_level = (defined $self->propulsion_factory) ? $self->propulsion_factory->level : 0;
     my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 0;
-    my $speed_improvement = ($ptf * 3) + ($propulsion_level * 5) + ($self->body->empire->species->science_affinity * 3);
+    my $speed_improvement = ($ptf * 3) + ($propulsion_level * 5) + ($self->body->empire->science_affinity * 3);
     $ship->speed(sprintf('%.0f', $base_speed * ((100 + $speed_improvement) / 100)));
     return $ship->speed;
 }
@@ -208,7 +208,7 @@ sub set_ship_speed {
 sub set_ship_hold_size {
     my ($self, $ship) = @_;
     my $trade_ministry_level = (defined $self->trade_ministry) ? $self->trade_ministry->level : 0;
-    my $bonus = $self->body->empire->species->trade_affinity * $trade_ministry_level;
+    my $bonus = $self->body->empire->trade_affinity * $trade_ministry_level;
     $ship->hold_size(sprintf('%.0f', $ship->base_hold_size * $bonus));
     return $ship->hold_size;
 }
@@ -217,7 +217,7 @@ sub set_ship_stealth {
     my ($self, $ship) = @_;
     my $cloaking_level = (defined $self->cloaking_lab) ? $self->cloaking_lab->level : 1;
     my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 1;
-    my $bonus = $self->body->empire->species->deception_affinity * $cloaking_level * $ptf;
+    my $bonus = $self->body->empire->deception_affinity * $cloaking_level * $ptf;
     $ship->stealth(sprintf('%.0f', $ship->base_hold_size + $bonus));
     return $ship->stealth;
 }

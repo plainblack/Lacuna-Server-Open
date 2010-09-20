@@ -40,7 +40,6 @@ sub generate_test_empire {
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new({
         name                => $self->empire_name,
         date_created        => DateTime->now,
-        species_id          => 2,
         status_message      => 'Making Lacuna a better Expanse.',
         password            => Lacuna::DB::Result::Empire->encrypt_password($self->empire_password),
     })->insert;

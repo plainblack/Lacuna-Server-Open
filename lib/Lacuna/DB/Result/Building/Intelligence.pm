@@ -116,7 +116,7 @@ has training_multiplier => (
     default => sub {
         my $self = shift;
         my $multiplier = $self->level
-            - $self->body->empire->species->deception_affinity
+            - $self->body->empire->deception_affinity
             + $self->espionage_level
             + $self->security_level;
         $multiplier = 1 if $multiplier < 1;
@@ -133,7 +133,7 @@ sub training_costs {
         energy  => 100 * $multiplier,
         food    => 1000 * $multiplier,
         ore     => 10 * $multiplier,
-        time    => sprintf('%.0f', 2060 * $multiplier / $self->body->empire->species->management_affinity),
+        time    => sprintf('%.0f', 2060 * $multiplier / $self->body->empire->management_affinity),
     };
 }
 
@@ -147,7 +147,7 @@ sub train_spy {
         my $latest = $self->latest_spy;
         my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
         $available_on->add(seconds => $time_to_train );
-        my $deception = $empire->species->deception_affinity * 50;
+        my $deception = $empire->deception_affinity * 50;
         Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
             from_body_id    => $self->body_id,
             on_body_id      => $self->body_id,

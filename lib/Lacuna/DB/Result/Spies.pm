@@ -1438,7 +1438,6 @@ sub false_interrogation_report {
     return undef unless defined $suspect;
     my $suspect_home = $suspect->from_body;
     my $suspect_empire = $suspect->empire;
-    my $suspect_species = $suspect_empire->species;
     $defender->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
@@ -1450,8 +1449,8 @@ sub false_interrogation_report {
             ['Defense Rating', randint(0,27)],
             ['Allegiance', $suspect_empire->name],
             ['Home World', $suspect_home->name],
-            ['Species Name', $suspect_species->name],
-            ['Species Description', $suspect_species->description],
+            ['Species Name', $suspect_empire->species_name],
+            ['Species Description', $suspect_empire->species_description],
             ['Habitable Orbits', join(' - ',randint(1,3), randint(3,7))],
             ['Manufacturing Affinity', randint(1,7)],
             ['Deception Affinity', randint(1,7)],
@@ -1485,7 +1484,6 @@ sub interrogation_report {
     return undef unless defined $suspect;
     my $suspect_home = $suspect->from_body;
     my $suspect_empire = $suspect->empire;
-    my $suspect_species = $suspect_empire->species;
     $defender->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
@@ -1497,20 +1495,20 @@ sub interrogation_report {
             ['Defense Rating', $suspect->defense],
             ['Allegiance', $suspect_empire->name],
             ['Home World', $suspect_home->name],
-            ['Species Name', $suspect_species->name],
-            ['Species Description', $suspect_species->description],
-            ['Habitable Orbits', join(' - ', $suspect_species->min_orbit, $suspect_species->max_orbit)],
-            ['Manufacturing Affinity', $suspect_species->manufacturing_affinity],
-            ['Deception Affinity', $suspect_species->deception_affinity],
-            ['Research Affinity', $suspect_species->research_affinity],
-            ['Management Affinity', $suspect_species->management_affinity],
-            ['Farming Affinity', $suspect_species->farming_affinity],
-            ['Mining Affinity', $suspect_species->mining_affinity],
-            ['Science Affinity', $suspect_species->science_affinity],
-            ['Environmental Affinity', $suspect_species->environmental_affinity],
-            ['Political Affinity', $suspect_species->political_affinity],
-            ['Trade Affinity', $suspect_species->trade_affinity],
-            ['Growth Affinity', $suspect_species->growth_affinity],
+            ['Species Name', $suspect_empire->species_name],
+            ['Species Description', $suspect_empire->species_description],
+            ['Habitable Orbits', join(' - ', $suspect_empire->min_orbit, $suspect_empire->max_orbit)],
+            ['Manufacturing Affinity', $suspect_empire->manufacturing_affinity],
+            ['Deception Affinity', $suspect_empire->deception_affinity],
+            ['Research Affinity', $suspect_empire->research_affinity],
+            ['Management Affinity', $suspect_empire->management_affinity],
+            ['Farming Affinity', $suspect_empire->farming_affinity],
+            ['Mining Affinity', $suspect_empire->mining_affinity],
+            ['Science Affinity', $suspect_empire->science_affinity],
+            ['Environmental Affinity', $suspect_empire->environmental_affinity],
+            ['Political Affinity', $suspect_empire->political_affinity],
+            ['Trade Affinity', $suspect_empire->trade_affinity],
+            ['Growth Affinity', $suspect_empire->growth_affinity],
             ]},
     );
     return undef;

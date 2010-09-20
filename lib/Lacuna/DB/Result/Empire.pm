@@ -32,7 +32,6 @@ __PACKAGE__->add_columns(
     player_name             => { data_type => 'varchar', size => 100, is_nullable => 1 },
     password_recovery_key   => { data_type => 'varchar', size => 36, is_nullable => 1 },
     last_login              => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    species_id              => { data_type => 'int', is_nullable => 1 },
     essentia                => { data_type => 'int', default_value => 0 },
     university_level        => { data_type => 'tinyint', default_value => 0 },
     tutorial_stage          => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'explore_the_ui' },
@@ -47,6 +46,21 @@ __PACKAGE__->add_columns(
     facebook_uid            => { data_type => 'bigint', is_nullable => 1 },
     facebook_token          => { data_type => 'varchar', size => 100, is_nullable => 1 },
     alliance_id             => { data_type => 'int', is_nullable => 1 },
+    species_name            => { data_type => 'varchar', size => 30, default_value => 'Human', is_nullable => 0 },
+    species_description     => { data_type => 'text', is_nullable => 1 },
+    min_orbit               => { data_type => 'tinyint', default_value => 3 },
+    max_orbit               => { data_type => 'tinyint', default_value => 3 },
+    manufacturing_affinity  => { data_type => 'tinyint', default_value => 4 }, # cost of building new stuff
+    deception_affinity      => { data_type => 'tinyint', default_value => 4 }, # spying ability
+    research_affinity       => { data_type => 'tinyint', default_value => 4 }, # cost of upgrading
+    management_affinity     => { data_type => 'tinyint', default_value => 4 }, # speed to build
+    farming_affinity        => { data_type => 'tinyint', default_value => 4 }, # food
+    mining_affinity         => { data_type => 'tinyint', default_value => 4 }, # minerals
+    science_affinity        => { data_type => 'tinyint', default_value => 4 }, # energy, propultion, and other tech
+    environmental_affinity  => { data_type => 'tinyint', default_value => 4 }, # waste and water
+    political_affinity      => { data_type => 'tinyint', default_value => 4 }, # happiness
+    trade_affinity          => { data_type => 'tinyint', default_value => 4 }, # speed of cargoships, and amount of cargo hauled
+    growth_affinity         => { data_type => 'tinyint', default_value => 4 }, # price and speed of colony ships, and planetary command center start level
 );
 
 
@@ -59,7 +73,6 @@ sub sqlt_deploy_hook {
 
 
 __PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Alliance', 'alliance_id', { on_delete => 'set null' });
-__PACKAGE__->belongs_to('species', 'Lacuna::DB::Result::Species', 'species_id', { on_delete => 'set null' });
 __PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Map::Body', 'home_planet_id');
 __PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Map::Body', 'empire_id');
 __PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Result::Message', 'from_id');
@@ -247,7 +260,7 @@ sub find_home_planet {
     my $planets = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body');
     my %search = (
         usable_as_starter   => {'>', 0},
-        orbit               => { between => [ $self->species->min_orbit, $self->species->max_orbit] },
+        orbit               => { between => [ $self->min_orbit, $self->max_orbit] },
     );
     
     my $invite;
@@ -470,7 +483,7 @@ sub next_colony_cost {
         { type=>'colony_ship', task=>'travelling', 'body.empire_id' => $self->id},
         { join => 'body' }
     )->count;
-    my $inflation = INFLATION - ($self->species->political_affinity / 100);
+    my $inflation = INFLATION - ($self->political_affinity / 100);
     my $tally = 100_000;
     for (2..$count) {
         $tally += $tally * $inflation;
@@ -523,9 +536,6 @@ before 'delete' => sub {
     my $planets = $self->planets;
     while ( my $planet = $planets->next ) {
         $planet->sanitize;
-    }
-    if ($self->species_id != 2) {
-        $self->species->delete;
     }
     my $essentia_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia');
     my $essentia_code;

@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 28;
+use Test::More tests => 46;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -43,12 +43,95 @@ $result = $tester->post('empire', 'create', $empire);
 is($result->{error}{code}, 1001, 'empire passwords do not match');
 
 $empire->{password} = $tester->empire_password;
+
 $result = $tester->post('empire', 'create', $empire);
 my $empire_id = $result->{result};
 ok(defined $empire_id, 'empire created');
 
 $result = $tester->post('empire', 'is_name_available', [$tester->empire_name]);
 is($result->{error}{code}, 1000, 'empire name not available');
+
+$result = $tester->post('empire', 'get_species_templates');
+is(ref $result->{result}, 'ARRAY', 'can get species templates');
+
+my $borg = {
+        name=>'Borg', 
+        description=>'cyborg', 
+        min_orbit               => 1,
+        max_orbit               => 7,
+        manufacturing_affinity   => 7,
+        deception_affinity      => 1,
+        research_affinity       => 4,
+        management_affinity     => 7,
+        farming_affinity        => 1,
+        mining_affinity         => 1,
+        science_affinity        => 7,
+        environmental_affinity  => 1,
+        political_affinity      => 1,
+        trade_affinity          => 1,
+        growth_affinity         => 7,
+        };
+
+$borg->{name} = 'Borg abcdefghijklmnopqrstuvwxyz 123456';
+$result = $tester->post('empire', 'update_species', [$empire_id, $borg]);
+is($result->{error}{code}, 1000, 'create species with too long a name');
+
+$borg->{name} = 'Borg >';
+$result = $tester->post('empire', 'update_species', [$empire_id, $borg]);
+is($result->{error}{code}, 1000, 'create species with invalid characters in the name');
+
+$borg->{name} = '';
+$result = $tester->post('empire', 'update_species', [$empire_id, $borg]);
+is($result->{error}{code}, 1000, 'create species with no name');
+
+$borg->{name} = 'Borg';
+$borg->{description} = 'cyborg &';
+$result = $tester->post('empire', 'update_species', [$empire_id, $borg]);
+is($result->{error}{code}, 1005, 'create species with junk in description');
+
+$borg->{description} = 'cyborg';
+$borg->{min_orbit} = '';
+$result = $tester->post('empire', 'update_species', [$empire_id, $borg]);
+is($result->{error}{code}, 1009, 'create species with too few orbits');
+
+$borg->{min_orbit} = 'blah';
+$result = $tester->post('empire', 'update_species', [$empire_id, $borg]);
+is($result->{error}{code}, 1009, 'create species with a non orbit');
+
+$borg->{min_orbit} = 0;
+$result = $tester->post('empire', 'update_species', [$empire_id, $borg]);
+is($result->{error}{code}, 1009, 'create species with invalid orbits');
+
+$borg->{min_orbit} = 1;
+$borg->{research_affinity} = 8;
+$result = $tester->post('empire', 'update_species', [$empire_id, $borg]);
+is($result->{error}{code}, 1007, 'affinity too high');
+
+$borg->{research_affinity} = 0;
+$result = $tester->post('empire', 'update_species', [$empire_id, $borg]);
+is($result->{error}{code}, 1008, 'affinity too low');
+
+$borg->{research_affinity} = 1;
+$result = $tester->post('empire', 'update_species', [$empire_id, $borg]);
+is($result->{error}{code}, 1008, 'too few points spent');
+
+$borg->{research_affinity} = 5;
+$result = $tester->post('empire', 'update_species', [$empire_id, $borg]);
+is($result->{error}{code}, 1007, 'too many points spent');
+
+$borg->{research_affinity} = 4;
+$result = $tester->post('empire', 'update_species', [$empire_id, $borg]);
+cmp_deeply(
+    $result,
+    {jsonrpc=>'2.0', id=>1, result=>ignore()},
+    'create species'
+);
+my $borg_id = $result->{result};
+
+$result = $tester->post('empire', 'update_species', [$empire_id, $borg]);
+ok(exists $result->{result}, 're-create works');
+
+
 
 $result = $tester->post('empire', 'found', [$empire_id]);
 is($result->{error}{code}, 1002, 'api key required');
@@ -57,6 +140,18 @@ $result = $tester->post('empire', 'found', [$empire_id,'Anonymous']);
 my $session_id = $result->{result}{session_id};
 ok(defined $session_id, 'empire logged in after foundation');
 ok($result->{result}{welcome_message_id}, 'we get a welcome message');
+
+
+my $empire_obj = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+is($empire_obj->species_name, 'Borg', 'species getting set properly');
+is($empire_obj->home_planet->command->level, 7, 'growth affinity works');
+
+$result = $tester->post('empire','view_species_stats',[$session_id]);
+is($result->{result}{species}{name}, 'Borg', 'get species name');
+is($result->{result}{species}{research_affinity}, 4, 'get affinity');
+
+
+
 
 $result = $tester->post('empire', 'logout', [$session_id]);
 is($result->{result}, 1, 'logout');

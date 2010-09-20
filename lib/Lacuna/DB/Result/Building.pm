@@ -284,13 +284,13 @@ sub farming_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
     my $boost = (DateTime->now < $empire->food_boost) ? 25 : 0;
-    return (100 + $boost + $empire->species->farming_affinity * 3) / 100;
+    return (100 + $boost + $empire->farming_affinity * 3) / 100;
 }
 
 sub manufacturing_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
-    return (100 + $empire->species->manufacturing_affinity * 3) / 100;
+    return (100 + $empire->manufacturing_affinity * 3) / 100;
 }
 
 sub lapis_production_hour {
@@ -427,7 +427,7 @@ sub energy_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
     my $boost = (DateTime->now < $empire->energy_boost) ? 25 : 0;
-    return (100 + $boost + $empire->species->science_affinity * 3) / 100;
+    return (100 + $boost + $empire->science_affinity * 3) / 100;
 }
 
 sub energy_production_hour {
@@ -451,7 +451,7 @@ sub mining_production_bonus {
     my $refinery_bonus = (defined $refinery) ? $refinery->level * 5 : 0;
     my $empire = $self->body->empire;
     my $boost = (DateTime->now < $empire->ore_boost) ? 25 : 0;
-    return (100 + $boost + $refinery_bonus + $empire->species->mining_affinity * 3) / 100;
+    return (100 + $boost + $refinery_bonus + $empire->mining_affinity * 3) / 100;
 }
 
 sub ore_production_hour {
@@ -473,7 +473,7 @@ sub water_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
     my $boost = (DateTime->now < $empire->water_boost) ? 25 : 0;
-    return (100 + $boost + $empire->species->environmental_affinity * 3) / 100;
+    return (100 + $boost + $empire->environmental_affinity * 3) / 100;
 }
 
 sub water_production_hour {
@@ -493,7 +493,7 @@ sub water_hour {
 
 sub waste_consumption_bonus {
     my ($self) = @_;
-    return (100 + $self->body->empire->species->environmental_affinity) / 100;
+    return (100 + $self->body->empire->environmental_affinity) / 100;
 }
 
 sub waste_production_hour {
@@ -515,7 +515,7 @@ sub happiness_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
     my $boost = (DateTime->now < $empire->happiness_boost) ? 25 : 0;
-    return (100 + $boost + ($empire->species->political_affinity * 6)) / 100;
+    return (100 + $boost + ($empire->political_affinity * 6)) / 100;
 }
 
 sub happiness_production_hour {
@@ -716,12 +716,12 @@ sub can_upgrade {
 
 sub construction_cost_reduction_bonus {
     my $self = shift;
-    return (100 - $self->body->empire->species->research_affinity) / 100;
+    return (100 - $self->body->empire->research_affinity) / 100;
 }
 
 sub manufacturing_cost_reduction_bonus {
     my $self = shift;
-    return (100 - $self->body->empire->species->manufacturing_affinity) / 100;
+    return (100 - $self->body->empire->manufacturing_affinity) / 100;
 }
 
 sub time_cost_reduction_bonus {
@@ -732,7 +732,7 @@ sub time_cost_reduction_bonus {
     if ($body->happiness < 0 ) {
         $unhappy_workers = abs($body->happiness) / 1000;
     }
-    return (100 - $extra - $body->empire->species->management_affinity + $unhappy_workers) / 100;
+    return (100 - $extra - $body->empire->management_affinity + $unhappy_workers) / 100;
 }
 
 sub cost_to_upgrade {

@@ -1,10 +1,9 @@
 package Lacuna::DB::Result;
 
-use Moose;
 no warnings qw(uninitialized);
 use namespace::autoclean -except => ['meta'];
 
-extends 'DBIx::Class::Core';
+use base 'DBIx::Class::Core';
 
 __PACKAGE__->load_components('TimeStamp', 'InflateColumn::DateTime', 'InflateColumn::Serializer', 'Core');
 
@@ -15,8 +14,9 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key('id');
 
 # override default DBIx::Class constructor to set defaults from schema
-sub BUILD {
-    my $self = shift;
+sub new {
+    my $class = shift;
+    my $self = $class->SUPER::new(@_);
     foreach my $col ($self->result_source->columns) {
         my $default = $self->result_source->column_info($col)->{default_value};
         $self->$col($default) if (defined $default && !defined $self->$col());
@@ -24,6 +24,5 @@ sub BUILD {
     return $self;
 }
 
-__PACKAGE__->meta->make_immutable(inline_constructor => 0);
 
 1;

@@ -539,7 +539,7 @@ sub found_colony {
         x               => 0,
         y               => 0,
         class           => 'Lacuna::DB::Result::Building::PlanetaryCommand',
-        level           => $empire->species->growth_affinity - 1,
+        level           => $empire->growth_affinity - 1,
     });
     $self->build_building($command);
     $command->finish_upgrade;

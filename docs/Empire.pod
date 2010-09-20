@@ -1,7 +1,7 @@
 
 =head1 Founding an empire.
 
-When founding an empire the order of operations is first to C<fetch_captcha>. Then C<create> the empire. Then optionally create a new L<Species> (default is human). Then finally call the C<found> method to set up the empire on it's new home planet.
+When founding an empire the order of operations is first to C<fetch_captcha>. Then C<create> the empire. Then optionally C<update_species> (default is human). Then finally call the C<found> method to set up the empire on it's new home planet.
 
 
 =head1 Empire Methods
@@ -75,7 +75,7 @@ Retrieves a captcha that is required in order to call the C<create> method. Disp
 
 Creates a new empire and then returns an empire_id.
  
-This is not the end of the story though. Now you must either create a L<Species> for this empire and then C<found> it, or just skip the species part and C<found> the empire.
+This is not the end of the story though. Now you must either create a C<update_species> for this empire and then C<found> it, or just skip the species part and C<found> the empire.
 
 Throws 1000, 1001, 1002, and 1014.
 
@@ -632,5 +632,138 @@ A session id.
 A 36 character string that was sent to the user via email.
 
 
+
+
+=head2 update_species ( empire_id, params ) 
+
+Updates the empire's species and returns 1. Can only be called after C<create> has been called and before C<found> has been called. Before or after that will throw an exception.
+
+See also: C<get_species_templates>
+
+Throws 1000, 1002, 1005, 1007, 1008, 1009, and 1010. The C<data> parameter will contain the field name that needs to be adjusted, if it can be attributed to a single field.
+
+=head3 empire_id
+
+The id of the empire you wish to update a species for.
+
+=head3 params
+
+A hash reference of parameters. With the exception of name and description, the parameters are all integers. When added together they must equal 45. 
+
+=head4 name
+
+The name of the species. Limited to 30 characters, cannot be blank, and cannot contain @, &, <, >, or ;. Required. 
+
+=head4 description
+
+The species description. Limited to 1024 characters and cannot contain < or >.
+
+=head4 min_orbit
+
+An integer between  between 1 and 7, inclusive, where 1 is closest to the star. Each value between C<min_orbit> and C<max_orbit>, inclusive, count as a point toward the max of 45. C<min_orbit> must be less than or equal to C<max_orbit>.
+
+=head4 max_orbit
+
+An integer between  between 1 and 7, inclusive, where 1 is closest to the star. Each value between C<min_orbit> and C<max_orbit>, inclusive, count as a point toward the max of 45. C<max_orbit> must be greater than or equal to C<min_orbit>.
+
+=head4 manufacturing_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages manufactured goods, such as ships.
+
+=head4 deception_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in spying.
+
+=head4 research_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in upgrading buildings.
+
+=head4 management_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in the speed of building.
+
+=head4 farming_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in food production.
+
+=head4 mining_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in mineral production.
+
+=head4 science_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in energy, propultion, and other technologies.
+
+=head4 environmental_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in waste and water management.
+
+=head4 political_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in managing population happiness.
+
+=head4 trade_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in freight handling.
+
+=head4 growth_affinity
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in colonization.
+
+
+
+
+
+
+
+=head2 view_species_stats ( session_id )
+
+Returns a list of the stats associated with an empire's species as it was originally created. An empire can only view it's own species stats through this method.
+
+ "species" : {
+    "name" : "Human",
+    "description" : "The descendants of Earth.",
+    "min_orbit" : 3,
+    "max_orbit" : 3,
+    "manufacturing_affinity" : 4,
+    "deception_affinity" : 4,
+    "research_affinity" : 4,
+    "management_affinity" : 4,
+    "farming_affinity" : 4,
+    "mining_affinity" : 4,
+    "science_affinity" : 4,
+    "environmental_affinity" : 4,
+    "political_affinity" : 4,
+    "trade_affinity" : 4,
+    "growth_affinity" : 4
+ },
+ "status" : { ... }
+
+
+
+=head2 get_species_templates ( )
+
+Returns an array ref of species templates that can be used to help the user populate the form for C<update_species>.
+
+ [
+    {
+       "name" : "Average", 
+        "description" : "A race of average intellect, and weak constitution.',
+        "min_orbit" : 3,
+        "max_orbit" : 3,
+        "manufacturing_affinity" : 4,
+        "deception_affinity" : 4,
+        "research_affinity" : 4,
+        "management_affinity" : 4,
+        "farming_affinity" : 4,
+        "mining_affinity" : 4,
+        "science_affinity" : 4,
+        "environmental_affinity" : 4,
+        "political_affinity" : 4,
+        "trade_affinity" : 4,
+        "growth_affinity" : 4
+    },
+    ...
+ ]
 
 =cut

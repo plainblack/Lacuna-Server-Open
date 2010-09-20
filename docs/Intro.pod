@@ -28,17 +28,17 @@ You can access these methods either as HTTP POSTs or GETs.
 
 You can simply access any method using HTTP GET. Here's an example URL:
 
- https://game.lacunaexpanse.com/species?jsonrpc=2.0&id=1&method=is_name_available&params=["Human"]
+ https://game.lacunaexpanse.com/empire?jsonrpc=2.0&id=1&method=is_name_available&params=["Lacuna Expanse Corp"]
 
 The C<https://game.lacunaexpanse.com/> part gets you to the server.
 
-Then C</species> lets you interact with the L<Species> module. See below for a complete list.
+Then C</empire> lets you interact with the L<Empire> module. See below for a complete list.
 
 To make it JSON-RPC 2.0 compatible, you must include the C<jsonrpc=2.0&id=1> part.
 
 Then specify the method you wish to call with C<method=is_name_available>. 
 
-And finally pass in whatever parameters you need like C<params=["Human"]>. Parameters need to be encoded in JSON. By default all methods require an array of parameters. However, some will specifically request a hash reference of parameters; that would look like C<params={"this":"that","foo":"bar"}>
+And finally pass in whatever parameters you need like C<params=["Lacuna Expanse Corp"]>. Parameters need to be encoded in JSON. By default all methods require an array of parameters. However, some will specifically request a hash reference of parameters; that would look like C<params={"this":"that","foo":"bar"}>
 
 B<NOTE:> You must URL encode the params. If you don't, you'll get a parse error from the server.
 
@@ -166,10 +166,6 @@ Methods for interacting with planets and other stellar bodies.
 =item L<Buildings>
 
 Methods for interacting with the buildings on a body.
-
-=item L<Species>
-
-Methods for creating a species.
 
 =item L<Payments>
 

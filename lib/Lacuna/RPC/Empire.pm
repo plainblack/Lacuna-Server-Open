@@ -163,7 +163,6 @@ sub reset_password {
 sub create {
     my ($self, $plack_request, %account) = @_;    
     my %params = (
-        species_id          => 2,
         status_message      => 'Making Lacuna a better Expanse.',
         sitter_password     => random_string('CC.c!ccn'),
     );
@@ -416,7 +415,7 @@ sub view_public_profile {
         name            => $viewed_empire->name,
         description     => $viewed_empire->description,
         status_message  => $viewed_empire->status_message,
-        species         => $viewed_empire->species->name,
+        species         => $viewed_empire->species_name,
         date_founded    => format_date($viewed_empire->date_created),
         last_login      => format_date($viewed_empire->last_login),
         city            => $viewed_empire->city,
@@ -542,6 +541,234 @@ sub invite_friend {
 }
 
 
+sub update_species {
+    my ($self, $empire_id, $me) = @_;
+
+    # make sure it's a valid empire
+    unless ($empire_id ne '') {
+        confess [1002, "You must specify an empire id."];
+    }
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    unless (defined $empire) {
+        confess [1002, "Not a valid empire.",'empire_id'];
+    }
+
+    # deal with an empire in motion
+    if ($empire->stage ne 'new') {
+        confess [1010, "You can't establish a new species for an empire that's already founded.",'empire_id'];
+    }
+
+    # make sure the name is valid
+    $me->{name} =~ s{^\s+(.*)\s+$}{$1}xms; # remove extra white space
+    Lacuna::Verify->new(content=>\$me->{name}, throws=>[1000,'Species name not available.', 'name'])
+        ->length_lt(31)
+        ->length_gt(2)
+        ->not_empty
+        ->no_restricted_chars
+        ->no_profanity;
+
+    # and the description        
+    Lacuna::Verify->new(content=>\$me->{description}, throws=>[1005,'Description invalid.', 'description'])
+        ->length_lt(1025)
+        ->no_restricted_chars
+        ->no_profanity;  
+    
+    # how about orbits
+    unless ($me->{min_orbit} >= 1 && $me->{min_orbit} <= 7 && $me->{min_orbit} <= $me->{max_orbit}) {
+        confess [1009, 'Minimum orbit must be between 1 and 7 and less than or equal to maximum orbit.','min_orbit'];
+    }
+    unless ($me->{max_orbit} >= 1 && $me->{max_orbit} <= 7 && $me->{max_orbit} >= $me->{min_orbit}) {
+        confess [1009, 'Maximum orbit must be between 1 and 7 and greater than or equal to minimum orbit.','min_orbit'];
+    }
+ 
+    # deal with point allocation
+    my $points = $me->{max_orbit} - $me->{min_orbit} + 1;
+    foreach my $attr (qw(manufacturing_affinity deception_affinity research_affinity management_affinity farming_affinity mining_affinity science_affinity environmental_affinity political_affinity trade_affinity growth_affinity)) {
+        $me->{$attr} += 0; # ensure it's a number
+        if ($me->{$attr} < 1) {
+            confess [1008, 'Too little to an affinity.', $attr];
+        }
+        elsif ($me->{$attr} > 7) {
+            confess [1007, 'Too much to an affinity.', $attr];
+        }
+        $points += $me->{$attr};
+    }
+    if ($points > 45) {
+        confess [1007, 'Overspend.'];
+    }
+    elsif ($points < 45) {
+        confess [1008, 'Underspend.'];
+    }
+
+    $empire->species_name($me->{name});
+    $empire->species_description($me->{description});
+    $empire->min_orbit($me->{min_orbit});
+    $empire->max_orbit($me->{min_orbit});
+    $empire->manufacturing_affinity($me->{manufacturing_affinity});
+    $empire->deception_affinity($me->{deception_affinity});
+    $empire->research_affinity($me->{research_affinity});
+    $empire->management_affinity($me->{management_affinity});
+    $empire->farming_affinity($me->{farming_affinity});
+    $empire->mining_affinity($me->{mining_affinity});
+    $empire->science_affinity($me->{science_affinity});
+    $empire->environmental_affinity($me->{environmental_affinity});
+    $empire->political_affinity($me->{political_affinity});
+    $empire->trade_affinity($me->{trade_affinity});
+    $empire->growth_affinity($me->{growth_affinity});
+    $empire->update;
+    
+    return 1;
+}
+
+sub view_species_stats {
+    my ($self, $session_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    return {
+        species => {
+            name                    => $empire->species_name,
+            description             => $empire->species_description,
+            min_orbit               => $empire->min_orbit,
+            max_orbit               => $empire->max_orbit,
+            manufacturing_affinity  => $empire->manufacturing_affinity,
+            deception_affinity      => $empire->deception_affinity,
+            research_affinity       => $empire->research_affinity,
+            management_affinity     => $empire->management_affinity,
+            farming_affinity        => $empire->farming_affinity,
+            mining_affinity         => $empire->mining_affinity,
+            science_affinity        => $empire->science_affinity,
+            environmental_affinity  => $empire->environmental_affinity,
+            political_affinity      => $empire->political_affinity,
+            trade_affinity          => $empire->trade_affinity,
+            growth_affinity         => $empire->growth_affinity,
+        },
+        status  => $self->format_status($empire),
+    };
+}
+
+
+sub get_species_templates {
+    return [
+        {
+            name                    => 'Average',
+            description             => 'A race of average intellect, and weak constitution.',
+            min_orbit               => 3,
+            max_orbit               => 3,
+            manufacturing_affinity  => 4,
+            deception_affinity      => 4,
+            research_affinity       => 4,
+            management_affinity     => 4,
+            farming_affinity        => 4,
+            mining_affinity         => 4,
+            science_affinity        => 4,
+            environmental_affinity  => 4,
+            political_affinity      => 4,
+            trade_affinity          => 4,
+            growth_affinity         => 4,
+        },
+        {
+            name                    => 'Resiliant',
+            description             => 'Resiliant, somewhat docile, but very quick learners and above average at producing any resource.',
+            min_orbit               => 2,
+            max_orbit               => 5,
+            manufacturing_affinity  => 3,
+            deception_affinity      => 3,
+            research_affinity       => 3,
+            management_affinity     => 5,
+            farming_affinity        => 5,
+            mining_affinity         => 5,
+            science_affinity        => 5,
+            environmental_affinity  => 5,
+            political_affinity      => 2,
+            trade_affinity          => 2,
+            growth_affinity         => 3,
+        },
+        {
+            name                    => 'Builder',
+            description             => 'Adept at building a colony to maximum levels quickly.',
+            min_orbit               => 4,
+            max_orbit               => 4,
+            manufacturing_affinity  => 4,
+            deception_affinity      => 2,
+            research_affinity       => 6,
+            management_affinity     => 6,
+            farming_affinity        => 4,
+            mining_affinity         => 4,
+            science_affinity        => 4,
+            environmental_affinity  => 4,
+            political_affinity      => 2,
+            trade_affinity          => 2,
+            growth_affinity         => 6,
+        },
+        {
+            name                    => 'Producer',
+            description             => 'No resource is a struggle for this species.',
+            min_orbit               => 2,
+            max_orbit               => 5,
+            manufacturing_affinity  => 5,
+            deception_affinity      => 2,
+            research_affinity       => 2,
+            management_affinity     => 2,
+            farming_affinity        => 6,
+            mining_affinity         => 6,
+            science_affinity        => 6,
+            environmental_affinity  => 6,
+            political_affinity      => 2,
+            trade_affinity          => 2,
+            growth_affinity         => 2,
+        },
+        {
+            name                    => 'Warmonger',
+            description             => 'Adept at ship building and espionage, they are bent on domination.',
+            min_orbit               => 4,
+            max_orbit               => 5,
+            manufacturing_affinity  => 4,
+            deception_affinity      => 7,
+            research_affinity       => 2,
+            management_affinity     => 4,
+            farming_affinity        => 2,
+            mining_affinity         => 2,
+            science_affinity        => 7,
+            environmental_affinity  => 2,
+            political_affinity      => 7,
+            trade_affinity          => 1,
+            growth_affinity         => 5,
+        },
+        {
+            name                    => 'Viral',
+            description             => 'Proficient at growing at a most expedient pace, like a virus.',
+            min_orbit               => 1,
+            max_orbit               => 7,
+            manufacturing_affinity  => 1,
+            deception_affinity      => 4,
+            research_affinity       => 7,
+            management_affinity     => 7,
+            farming_affinity        => 1,
+            mining_affinity         => 1,
+            science_affinity        => 1,
+            environmental_affinity  => 1,
+            political_affinity      => 7,
+            trade_affinity          => 1,
+            growth_affinity         => 7,
+        },
+        {
+            name                    => 'Trade',
+            description             => 'Masters of commerce and ship building.',
+            min_orbit               => 2,
+            max_orbit               => 3,
+            manufacturing_affinity  => 5,
+            deception_affinity      => 4,
+            research_affinity       => 7,
+            management_affinity     => 7,
+            farming_affinity        => 1,
+            mining_affinity         => 1,
+            science_affinity        => 7,
+            environmental_affinity  => 1,
+            political_affinity      => 1,
+            trade_affinity          => 7,
+            growth_affinity         => 2,
+        },
+    ]
+}
 
 __PACKAGE__->register_rpc_method_names(
     { name => "create", options => { with_plack_request => 1 } },
@@ -549,7 +776,7 @@ __PACKAGE__->register_rpc_method_names(
     { name => "login", options => { with_plack_request => 1 } },
     { name => "found", options => { with_plack_request => 1 } },
     { name => "reset_password", options => { with_plack_request => 1 } },
-    qw(send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+    qw(get_species_templates update_species view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
 );
 
 

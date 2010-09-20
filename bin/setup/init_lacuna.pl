@@ -13,7 +13,6 @@ my $lacunans_have_been_placed = 0;
 
 my $t = [Time::HiRes::tv_interval];
 create_database();
-create_species();
 open my $star_names, "<", "../../var/starnames.txt";
 create_star_map();
 close $star_names;
@@ -21,53 +20,6 @@ say "Time Elapsed: ".Time::HiRes::tv_interval($t);
 
 sub create_database {
     $db->deploy({ add_drop_table => 1 });
-    #$db->storage->dbh_do(
-    #    sub {
-    #        my ($storage, $dbh) = @_;
-    #        $dbh->do("alter table empire add constraint empire_fk_species_id foreign key (species_id) references species (id) on delete set null");
-    #    }
-    #);
-}
-
-sub create_species {
-    say "Adding Lacunans.";
-    $db->resultset('Lacuna::DB::Result::Species')->new({
-        id                      => 1,
-        name                    => 'Lacunan',
-        description             => 'The economic dieties that control the Lacuna Expanse.',
-        min_orbit               => 1,
-        max_orbit               => 7,
-        manufacturing_affinity  => 1, # cost of building new stuff
-        deception_affinity      => 7, # spying ability
-        research_affinity       => 1, # cost of upgrading
-        management_affinity     => 4, # speed to build
-        farming_affinity        => 1, # food
-        mining_affinity         => 1, # minerals
-        science_affinity        => 1, # energy, propultion, and other tech
-        environmental_affinity  => 1, # waste and water
-        political_affinity      => 7, # happiness
-        trade_affinity          => 7, # speed of cargoships, and amount of cargo hauled
-        growth_affinity         => 7, # price and speed of colony ships, and planetary command center start level
-    })->insert;
-    say "Adding humans.";
-    $db->resultset('Lacuna::DB::Result::Species')->new({
-        id                      => 2,
-        name                    => 'Human',
-        description             => 'A race of average intellect, and weak constitution.',
-        min_orbit               => 3,
-        max_orbit               => 3,
-        manufacturing_affinity  => 4, # cost of building new stuff
-        deception_affinity      => 4, # spying ability
-        research_affinity       => 4, # cost of upgrading
-        management_affinity     => 4, # speed to build
-        farming_affinity        => 4, # food
-        mining_affinity         => 4, # minerals
-        science_affinity        => 4, # energy, propultion, and other tech
-        environmental_affinity  => 4, # waste and water
-        political_affinity      => 4, # happiness
-        trade_affinity          => 4, # speed of cargoships, and amount of cargo hauled
-        growth_affinity         => 4, # price and speed of colony ships, and planetary command center start level
-    })->insert;
 }
 
 
@@ -270,9 +222,23 @@ sub create_lacunan_home_world {
         id                  => 1,
         name                => 'Lacuna Expanse Corp',
         date_created        => DateTime->now,
-        species_id          => 1,
         status_message      => 'Will trade for Essentia.',
         password            => Lacuna::DB::Result::Empire->encrypt_password(rand(99999999)),
+        species_name            => 'Lacunan',
+        species_description     => 'The economic dieties that control the Lacuna Expanse.',
+        min_orbit               => 1,
+        max_orbit               => 7,
+        manufacturing_affinity  => 1, # cost of building new stuff
+        deception_affinity      => 7, # spying ability
+        research_affinity       => 1, # cost of upgrading
+        management_affinity     => 4, # speed to build
+        farming_affinity        => 1, # food
+        mining_affinity         => 1, # minerals
+        science_affinity        => 1, # energy, propultion, and other tech
+        environmental_affinity  => 1, # waste and water
+        political_affinity      => 7, # happiness
+        trade_affinity          => 7, # speed of cargoships, and amount of cargo hauled
+        growth_affinity         => 7, # price and speed of colony ships, and planetary command center start level
     });
     $empire->insert;
     $empire->found($body);

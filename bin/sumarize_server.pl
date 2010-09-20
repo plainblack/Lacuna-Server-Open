@@ -92,7 +92,6 @@ sub generate_overview {
             count                       => $empires->count,
             average_university_level    => $empires->get_column('university_level')->func('avg'),
             highest_university_level    => $empires->get_column('university_level')->max,
-            human_count                 => $empires->search({species_id => 2})->count,
             isolationist_count          => $empires->search({is_isolationist => 1})->count,
             essentia_using_count        => $empires->search({essentia => { '>' => 0 }})->count,
             currently_active_count      => $empires->search({last_login => {'>=' => DateTime->now->subtract(hours=>1)}})->count,

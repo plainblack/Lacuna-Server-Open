@@ -132,8 +132,7 @@ sub send_ship {
             $payload = { resources => { waste => $ship->hold_size } };
         }
         when ('colony_ship') {
-            my $species = $empire->species;
-            confess [ 1009, 'Your species cannot survive on that planet.' ] unless ($target->orbit <= $species->max_orbit && $target->orbit >= $species->min_orbit);
+            confess [ 1009, 'Your species cannot survive on that planet.' ] unless ($target->orbit <= $empire->max_orbit && $target->orbit >= $empire->min_orbit);
             my $next_colony_cost = $empire->next_colony_cost;
             confess [ 1011, 'You do not have enough happiness to colonize another planet. You need '.$next_colony_cost.' happiness.', [$next_colony_cost]] unless ( $ship->body->happiness > $next_colony_cost);
             $body->spend_happiness($next_colony_cost)->update;
@@ -461,8 +460,7 @@ sub send_colony_ship {
         confess [ 1013, 'That planet is already inhabited.'];
     }
     my $empire = $self->get_empire_by_session($session_id);
-    my $species = $empire->species;
-    unless ($target_body->orbit <= $species->max_orbit && $target_body->orbit >= $species->min_orbit) {
+    unless ($target_body->orbit <= $empire->max_orbit && $target_body->orbit >= $empire->min_orbit) {
         confess [ 1009, 'Your species cannot survive on that planet.' ];
     }
     
