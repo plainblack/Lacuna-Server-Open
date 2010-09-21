@@ -1,6 +1,6 @@
-Need More Power
+Need More Energy
 ~~~
-Well done. I'm sure you'll appreciate the free expansion I've given so you can upgrade your Food Reserve to store all the extra food you're producing. You should do the same for your energy {energy} output. Upgrade it so that you're producing %s per hour. 
+Well done. Build up your energy {energy} output so that you're producing %s per hour. 
 
 Regards,
 
