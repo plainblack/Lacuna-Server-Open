@@ -103,7 +103,12 @@ sub accept_invite {
     unless (defined $invite) {
         confess [1002, 'Invitation not found.'];
     }
+    my $cache = Lacuna->cache;
+    if ($cache->get('join_alliance_lock', $empire->id)) {
+        confess [1010, 'You cannot join an alliance more than once in a 24 hour period. Please wait 24 hours and try again.'];
+    }
     $building->accept_invite($invite, $message);
+    $cache->set('join_alliance_lock', $empire->id, 1, 60 * 60 * 24);
     return $self->get_alliance_status($empire, $building);
 }
 
