@@ -268,16 +268,20 @@ sub view_profile {
         };
     }
     my %out = (
-        description     => $empire->description,
-        notes           => $empire->notes,
-        status_message  => $empire->status_message,
-        sitter_password => $empire->sitter_password,
-        email           => $empire->email,
-        city            => $empire->city,
-        country         => $empire->country,
-        skype           => $empire->skype,
-        player_name     => $empire->player_name,
-        medals          => \%my_medals,
+        description             => $empire->description,
+        notes                   => $empire->notes,
+        status_message          => $empire->status_message,
+        sitter_password         => $empire->sitter_password,
+        email                   => $empire->email,
+        city                    => $empire->city,
+        country                 => $empire->country,
+        skype                   => $empire->skype,
+        player_name             => $empire->player_name,
+        skip_medal_messages     => $empire->skip_medal_messages,
+        skip_pollution_warnings => $empire->skip_pollution_warnings,
+        skip_resource_warnings  => $empire->skip_resource_warnings,
+        skip_happiness_warnings => $empire->skip_happiness_warnings,
+        medals                  => \%my_medals,
     );
     return { profile => \%out, status => $self->format_status($empire) };    
 }
@@ -341,6 +345,30 @@ sub edit_profile {
             ->no_restricted_chars
             ->no_profanity;
         $empire->player_name($profile->{player_name});
+    }
+    if (exists $profile->{skip_medal_messages}) {
+        if ($profile->{skip_medal_messages} < 0 || $profile->{skip_medal_messages} > 1) {
+            confess [1009, 'Skip Medal Messages must be a 1 or a 0.', 'skip_medal_messages']
+        }
+        $empire->skip_medal_messages($profile->{skip_medal_messages});
+    }
+    if (exists $profile->{skip_happiness_warnings}) {
+        if ($profile->{skip_happiness_warnings} < 0 || $profile->{skip_happiness_warnings} > 1) {
+            confess [1009, 'Skip Happiness Warnings must be a 1 or a 0.', 'skip_happiness_warnings']
+        }
+        $empire->sskip_happiness_warnings($profile->{skip_happiness_warnings});
+    }
+    if (exists $profile->{skip_resource_warnings}) {
+        if ($profile->{skip_resource_warnings} < 0 || $profile->{skip_resource_warnings} > 1) {
+            confess [1009, 'Skip Resource Warnings must be a 1 or a 0.', 'skip_resource_warnings']
+        }
+        $empire->skip_resource_warnings($profile->{skip_resource_warnings});
+    }
+    if (exists $profile->{skip_pollution_warnings}) {
+        if ($profile->{skip_pollution_warnings} < 0 || $profile->{skip_pollution_warnings} > 1) {
+            confess [1009, 'Skip Pollution Warnings must be a 1 or a 0.', 'skip_pollution_warnings']
+        }
+        $empire->skip_pollution_warnings($profile->{skip_pollution_warnings});
     }
     if (exists $profile->{skype}) {
         Lacuna::Verify->new(content=>\$profile->{skype}, throws=>[1005,'Skype must be no longer than 100 characters, and cannot contain special characters or profanity.', 'skype'])

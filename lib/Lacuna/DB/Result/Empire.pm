@@ -61,6 +61,10 @@ __PACKAGE__->add_columns(
     political_affinity      => { data_type => 'tinyint', default_value => 4 }, # happiness
     trade_affinity          => { data_type => 'tinyint', default_value => 4 }, # speed of cargoships, and amount of cargo hauled
     growth_affinity         => { data_type => 'tinyint', default_value => 4 }, # price and speed of colony ships, and planetary command center start level
+    skip_medal_messages     => { data_type => 'tinyint', default_value => 0 },
+    skip_pollution_warnings => { data_type => 'tinyint', default_value => 0 },
+    skip_resource_warnings  => { data_type => 'tinyint', default_value => 0 },
+    skip_happiness_warnings => { data_type => 'tinyint', default_value => 0 },
 );
 
 
@@ -113,7 +117,7 @@ sub add_medal {
         $medal->insert;
         $send_message = 1;
     }
-    if ($send_message) {
+    if ($send_message && !$self->skip_medal_messages) {
         my $name = $medal->name;
         $self->send_predefined_message(
             tags        => ['Medal'],
