@@ -226,6 +226,10 @@ Provides a list of the editable properties of the current empire's profile. See 
        "notes" : "notes go here",
        "skype" : "joeuser47",
        "player_name" : "Joe User",
+       "skip_happiness_warnings" : 0,
+       "skip_resource_warnings" : 0,
+       "skip_pollution_warnings" : 0,
+       "skip_medal_messages" : 0,
        "email" : "joe@example.com",
        "sitter_password" : "abcdefgh"                   # never give out your real password, use the sitter password
     },
@@ -292,6 +296,30 @@ An optional text string of the real name or online identity of this player. Limi
 =head4 public_medals
 
 An array reference of medal ids that the user wishes to display in the public profile.
+
+=head4 skip_happiness_warnings
+
+Defaults to 0. Set to 1 if the user no longer wants to receive messages about unhappy citizens.
+
+B<WARNING>: These messages are there for your own protection. Turn off at your own risk.
+
+=head4 skip_resource_warnings
+
+Defaults to 0. Set to 1 if the user no longer wants to receive messages about a lack of resources to keep their buildings running.
+
+B<WARNING>: These messages are there for your own protection. Turn off at your own risk.
+
+=head4 skip_pollution_warnings
+
+Defaults to 0. Set to 1 if the user no longer wants to receive messages about excess waste causing pollution.
+
+B<WARNING>: These messages are there for your own protection. Turn off at your own risk.
+
+=head4 skip_medal_messages
+
+Defaults to 0. Set to 1 if the user no longer wants to receive messages about the medals they've earned.
+
+
 
 
 
