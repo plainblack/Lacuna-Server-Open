@@ -258,7 +258,7 @@ sub make_plan {
         $match = $match->{$glyph->type};
     }
     unless (exists $match->{plan}) {
-        confess [1002, 'The glyphs specified do not fit together in that manner.', $match];
+        confess [1002, 'The glyphs specified do not fit together in that manner.'];
     }
     $glyphs->search({ id => { in => $ids}})->delete;
     return $self->body->add_plan($match->{plan}, 1);
