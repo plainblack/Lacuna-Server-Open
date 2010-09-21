@@ -6,6 +6,8 @@ If you can get your production to more than 100 of each resource (ore {ore}, wat
 
 If you don't like waiting for a building to complete before building the next one, you might want to build a Development Ministry. You can add one extra building to your build queue per level of the Development Ministry.
 
+Reply to me when you're done so we can move on.
+
 Regards,
 
 Tou Re Ell
