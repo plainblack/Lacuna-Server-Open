@@ -280,7 +280,7 @@ sub find_home_planet {
     if (defined $invite) {
         $invite->invitee_id($self->id);
         $invite->update;
-        my $inviter = invite->inviter;
+        my $inviter = $invite->inviter;
         my $inviter_home = $inviter->home_planet;
         if ($invites->search({inviter_id => $invite->inviter_id, invitee_id => {'>' => 0}})->count == 10) { # got 10 friends
             for my $i (1..13) {
