@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Ships::Bomber;
+package Lacuna::DB::Result::Ships::Snark;
 
 use Moose;
 no warnings qw(uninitialized);

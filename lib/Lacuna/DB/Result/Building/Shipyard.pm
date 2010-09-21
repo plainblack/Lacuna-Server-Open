@@ -56,6 +56,9 @@ sub max_ships {
 
 sub can_build_ship {
     my ($self, $ship, $costs) = @_;
+    if (ref $ship eq 'Lacuna::DB::Result::Ships') {
+        confess [1002, 'That is an unknown ship type.'];
+    }
     $ship->shipyard_id($self->id);
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     $costs ||= $self->get_ship_costs($ship);
