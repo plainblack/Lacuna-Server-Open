@@ -1,0 +1,7 @@
+Excavator Found Nothing
+~~~
+The Excavator you sent to %s from %s found nothing interesting.
+
+Regards,
+
+Your Humble Assistant

@@ -54,6 +54,13 @@ sub arrive {
         $empire->add_medal($ore.'_glyph');
         $body->add_news(70, sprintf('%s has uncovered a rare and ancient %s glyph on %s.',$empire->name, $ore, $remote_body->name));
     }
+    else {
+        $empire->send_predefined_message(
+            tags        => ['Correspondence'],
+            filename    => 'glyph_not_discovered_by_excavator.txt',
+            params      => [$remote_body->name, $body->name],
+        );
+    }
     $self->delete;
 }
 
