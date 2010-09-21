@@ -235,7 +235,10 @@ sub observatory {
         if (defined $building && $building->level >= 1) {
             my $shipyard = $home->get_building_of_class('Lacuna::DB::Result::Building::Shipyard');
             $shipyard->body($home);
-            $shipyard->build_ship(Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({spaceport=>$home->spaceport, type=>'probe'}));
+            my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({spaceport=>$home->spaceport, type=>'probe'});
+            $shipyard->build_ship($probe);
+            $probe->date_available(DateTime->now->add(seconds=>60));
+            $probe->update;
             $self->start('explore');
             return undef;
         }
