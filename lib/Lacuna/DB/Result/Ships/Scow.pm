@@ -24,6 +24,8 @@ sub arrive {
     else {
         unless ($self->trigger_defense) {
             my $body_attacked = $self->foreign_body;
+            $body_attacked->add_waste($self->hold_size);
+            $body_attacked->update;
             $self->body->empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'our_scow_hit.txt',

@@ -128,7 +128,7 @@ sub send_ship {
             Lacuna->cache->set('excavator_'.$target->id, $empire->id, 1, 60 * 60 * 24 * 30);
         }
         when ('scow') {
-            $body->spend_waste($ship->hold_size);
+            $body->spend_waste($ship->hold_size)->update;
             $payload = { resources => { waste => $ship->hold_size } };
         }
         when ('colony_ship') {
