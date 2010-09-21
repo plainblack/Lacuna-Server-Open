@@ -146,7 +146,7 @@ A 36 character code that was sent to the user by a friend. It is usable only onc
 
 
 
-=head2 invite_friend ( session_id, email )
+=head2 invite_friend ( session_id, email, [ custom_message ] )
 
 Send an invitation code to a friend so that they can start in the same zone as your empire.
 
@@ -162,6 +162,13 @@ A session id.
 
 The email address of your friend.
 
+=head3 custom_message
+
+An optional text message that the user can type to invite their friend. This is the default message that will get sent if none is specified:
+
+ I'm having a great time with this new game called Lacuna Expanse. Come play with me.
+ 
+After the message, the user's empire name in the game, the friend code, and URI to the server will be attached.
 
 
 

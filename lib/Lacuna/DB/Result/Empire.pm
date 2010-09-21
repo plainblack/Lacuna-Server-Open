@@ -334,7 +334,8 @@ sub find_home_planet {
 }
 
 sub invite_friend {
-    my ($self, $email) = @_;
+    my ($self, $email, $custom_message) = @_;
+    $custom_message ||= "I'm having a great time with this new game called Lacuna Expanse. Come play with me.";
     unless ($self->email) {
         confess [1010, 'You cannot invite friends because you have not set up your email address in your profile.'];
     }
@@ -348,7 +349,8 @@ sub invite_friend {
         code        => $code,
         email       => $email,
     })->insert;
-    my $message = sprintf "I'm having a great time with this new game called Lacuna Expanse. Come play with me. My name in the game is %s. Use the code below when you register and you'll be placed near me.\n\n%s\n\n%s",
+    my $message = sprintf "%s\n\nMy name in the game is %s. Use the code below when you register and you'll be placed near me.\n\n%s\n\n%s",
+        $custom_message,
         $self->name,
         $code,
         Lacuna->config->get('server_url');

@@ -562,9 +562,9 @@ sub redeem_essentia_code {
 }
 
 sub invite_friend {
-    my ($self, $session_id, $email) = @_;
+    my ($self, $session_id, $email, $custom_message) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    $empire->invite_friend($email);
+    $empire->invite_friend($email, $custom_message);
     return { status => $self->format_status($empire) };
 }
 
