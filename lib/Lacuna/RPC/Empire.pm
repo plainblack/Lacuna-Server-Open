@@ -631,7 +631,7 @@ sub update_species {
     $empire->species_name($me->{name});
     $empire->species_description($me->{description});
     $empire->min_orbit($me->{min_orbit});
-    $empire->max_orbit($me->{min_orbit});
+    $empire->max_orbit($me->{max_orbit});
     $empire->manufacturing_affinity($me->{manufacturing_affinity});
     $empire->deception_affinity($me->{deception_affinity});
     $empire->research_affinity($me->{research_affinity});
