@@ -16,6 +16,11 @@ use constant base_stealth   => 9000;
 use constant base_hold_size => 0;
 use constant pilotable      => 1;
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Intelligence));
+};
+
 sub arrive {
     my ($self) = @_;
     unless ($self->capture_with_spies) {

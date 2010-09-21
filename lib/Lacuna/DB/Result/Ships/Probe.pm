@@ -15,6 +15,11 @@ use constant base_speed     => 5000;
 use constant base_stealth   => 1000;
 use constant base_hold_size => 0;
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Exploration Intelligence));
+};
+
 sub arrive {
     my ($self) = @_;
     my $empire = $self->body->empire;

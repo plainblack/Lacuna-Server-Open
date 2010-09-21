@@ -17,6 +17,12 @@ use constant base_stealth   => 1000;
 use constant base_hold_size => 1905;
 use constant pilotable      => 1;
 
+
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Trade Mining Intelligence));
+};
+
 sub arrive {
     my ($self) = @_;
     unless ($self->capture_with_spies) {

@@ -16,6 +16,11 @@ use constant base_stealth   => 100;
 use constant base_hold_size => 1000;
 
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(War Trade));
+};
+
 sub arrive {
     my ($self) = @_;
     if ($self->foreign_star_id) {

@@ -72,6 +72,11 @@ use constant base_stealth   => 0;
 use constant base_hold_size => 0;
 use constant pilotable      => 0;
 
+
+sub build_tags {
+    return ();  
+}
+
 sub is_available {
     my ($self) = @_;
     return ($self->task eq 'Docked');

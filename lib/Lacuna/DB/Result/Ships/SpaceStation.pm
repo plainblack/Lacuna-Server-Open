@@ -17,6 +17,10 @@ use constant base_stealth   => 0;
 use constant base_hold_size => 0;
 use constant pilotable      => 1;
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(War Intelligence));
+};
 
 sub arrive {
     my ($self) = @_;

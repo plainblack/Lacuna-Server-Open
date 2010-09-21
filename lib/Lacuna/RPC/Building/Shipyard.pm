@@ -61,7 +61,7 @@ sub build_ship {
 }
 
 sub get_buildable {
-    my ($self, $session_id, $building_id) = @_;
+    my ($self, $session_id, $building_id, $tag) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my %buildable;
@@ -72,6 +72,10 @@ sub get_buildable {
     }
     foreach my $type (SHIP_TYPES) {
         my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>$type});
+        my @tags = $ship->build_tags;
+        if ($tag) {
+            next unless ($tag ~~ \@tags);
+        }
         my $can = eval{$building->can_build_ship($ship)};
         $buildable{$type} = {
             attributes  => {
@@ -79,6 +83,7 @@ sub get_buildable {
                 stealth     =>  $building->set_ship_stealth($ship),
                 hold_size   =>  $building->set_ship_hold_size($ship),
             },
+            tags        => \@tags,
             cost        => $building->get_ship_costs($ship),
             can         => ($can) ? 1 : 0,
             reason      => $@,

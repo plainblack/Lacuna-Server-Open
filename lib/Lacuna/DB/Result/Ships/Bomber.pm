@@ -16,6 +16,11 @@ use constant base_stealth       => 2000;
 use constant base_hold_size     => 0;
 
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(War));
+};
+
 sub arrive {
     my ($self) = @_;
     unless ($self->trigger_defense) {

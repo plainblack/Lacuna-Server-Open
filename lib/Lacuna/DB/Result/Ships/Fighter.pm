@@ -13,6 +13,12 @@ use constant base_time_cost      => 14600;
 use constant base_waste_cost     => 4200;
 use constant pilotable      => 1;
 
+
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(War));
+};
+
 sub arrive {
     my ($self) = @_;
     $self->land;

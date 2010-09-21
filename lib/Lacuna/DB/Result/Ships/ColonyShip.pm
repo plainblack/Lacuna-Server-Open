@@ -16,6 +16,10 @@ use constant base_stealth   => 0;
 use constant base_hold_size => 2400;
 use constant pilotable      => 1;
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Colonization));
+};
 
 sub arrive {
     my ($self) = @_;

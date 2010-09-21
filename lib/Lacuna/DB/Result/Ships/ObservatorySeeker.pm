@@ -14,6 +14,11 @@ use constant base_waste_cost     => 40000;
 use constant base_speed     => 1000;
 use constant base_stealth   => 2000;
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(War));
+};
+
 sub arrive {
     my ($self) = @_;
     unless ($self->trigger_defense) {

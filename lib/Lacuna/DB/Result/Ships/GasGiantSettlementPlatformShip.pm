@@ -18,6 +18,11 @@ use constant base_speed     => 500;
 use constant base_stealth   => 0;
 use constant base_hold_size => 0;
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Colonization));
+};
+
 sub arrive {
     my ($self) = @_;
     if ($self->direction eq 'out') {

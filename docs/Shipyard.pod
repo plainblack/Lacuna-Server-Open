@@ -42,7 +42,9 @@ The unique id of this shipyard.
 Defaults to 1. An integer representing the page of data to view. There are 25 items per page.
  
  
-=head2 get_buildable ( session_id, building_id )
+ 
+ 
+=head2 get_buildable ( session_id, building_id, [ tag ] )
 
 Returns a list of buildable ships and their costs, and if they're not buildable, gives a reason why not in the form of an exception.
 
@@ -76,6 +78,38 @@ A session id.
 =head3 building_id
 
 The unique id of the shipyard.
+
+=head3 tag
+
+An optional tag to limit the list of available ships to something shorter. If no tag is specified, then all ships will be displayed.
+
+=over
+
+=item Trade
+
+Ships that can be used to carry resources between colonies.
+
+=item Colonization
+
+Ships used to get more planets.
+
+=item Intelligence
+
+Ships that deal with spies or intelligence gathering.
+
+=item Exploration
+
+Ships that allow the user to go out and explore the Expanse.
+
+=item War
+
+Ships that are used to attack or defend.
+
+=item Mining
+
+Ships that are used to gather resources from space.
+
+=back
 
 
  
