@@ -4,6 +4,11 @@ use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Waste';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Ore));
+};
+
 use constant controller_class => 'Lacuna::RPC::Building::WasteDigester';
 
 use constant image => 'wastedigester';
