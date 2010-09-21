@@ -156,6 +156,12 @@ builder {
             [''],
         ];
     };
+};
+
+builder {
+    enable 'CrossOrigin',
+        origins => '*', methods => ['GET', 'POST'], max_age => 60*60*24*30, headers => '*';
     $urlmap->to_app;
 };
+
 
