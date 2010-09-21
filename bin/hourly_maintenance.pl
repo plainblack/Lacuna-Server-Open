@@ -29,7 +29,8 @@ out('Deleting Expired Self Destruct Empires');
 $empires->search({ self_destruct_date => { '<' => $start }, self_destruct_active => 1})->delete_all;
 
 out('Enabling Self Destruct For Inactivity');
-my $inactives = $empires->search({ last_login => { '<' => DateTime->now->subtract( days => 15 ) }, self_destruct_active => 0, id => { '>' => 1}});
+my $inactivity_time_out = Lacuna->config->get('inactivity_time_out') || 15;
+my $inactives = $empires->search({ last_login => { '<' => DateTime->now->subtract( days => $inactivity_time_out ) }, self_destruct_active => 0, id => { '>' => 1}});
 while (my $empire = $inactives->next) {
     out('Enabling self destruct on '.$empire->name);
     $empire->enable_self_destruct;
