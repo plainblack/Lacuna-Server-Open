@@ -18,7 +18,11 @@ Returns a list of the mining platforms currently controlled by this ministry.
             "id" : "id-goes-here",
             "asteroid" : {
                 "id" : "id-goes-here",
-                "name" : "Kuiper"
+                "name" : "Kuiper",
+                "x" : 0,
+                "y" : -444,
+                "image" : "a1-5",
+                ...
             },
             "rutile_hour" : 10,
             "chromite_hour" : 10,

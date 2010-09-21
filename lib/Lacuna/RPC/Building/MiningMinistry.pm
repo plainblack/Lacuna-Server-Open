@@ -42,10 +42,7 @@ sub view_platforms {
     while (my $platform = $platforms->next) {
         push @fleet, {
             id                              => $platform->id,
-            asteroid                        => {
-                id      => $platform->asteroid_id,
-                name    => $platform->asteroid->name,
-            },
+            asteroid                        => $platform->asteroid->get_status,
             rutile_hour                     => $platform->rutile_hour,
             chromite_hour                   => $platform->chromite_hour,
             chalcopyrite_hour               => $platform->chalcopyrite_hour,
