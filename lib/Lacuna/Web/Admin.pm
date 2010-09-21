@@ -432,6 +432,22 @@ sub www_delete_empire {
     return $self->www_search_empires($request);
 }
 
+sub www_toggle_isolationist {
+    my ($self, $request, $id) = @_;
+    $id ||= $request->param('empire_id');
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($id);
+    unless (defined $empire) {
+        confess [404, 'Empire not found.'];
+    }
+    if ($empire->is_isolationist) {
+        $empire->update({is_isolationist => 0});
+    }
+    else {
+        $empire->update({is_isolationist => 1});
+    }
+    return $self->www_view_empire($request, $id);
+}
+
 sub www_view_empire {
     my ($self, $request, $id) = @_;
     $id ||= $request->param('id');
@@ -452,7 +468,7 @@ sub www_view_empire {
     $out .= sprintf('<tr><th>Home</th><td>%s</td><td></td></tr>', $empire->home_planet_id);
     $out .= sprintf('<tr><th>Description</th><td>%s</td><td></td></tr>', $empire->description);
     $out .= sprintf('<tr><th>University Level</th><td>%s</td><td></td></tr>', $empire->university_level);
-    $out .= sprintf('<tr><th>Isolationist</th><td>%s</td><td></td></tr>', $empire->is_isolationist);
+    $out .= sprintf('<tr><th>Isolationist</th><td>%s</td><td><a href="/admin/toggle/isolationist?id=%s">Toggle</a></td></tr>', $empire->is_isolationist, $empire->id);
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/search/bodies?empire_id=%s">View All Colonies</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/send/test/message?empire_id=%s">Send Developer Test Email</a></li>', $empire->id);
