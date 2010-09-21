@@ -71,6 +71,11 @@ sub get_food {
     if ($finish) {
         my $malcud = $home->get_building_of_class('Lacuna::DB::Result::Building::Food::Malcud');
         if (defined $malcud && $malcud->level >= 1) {
+            $home->add_trona(700);
+            $home->add_bread(700);
+            $home->add_energy(700);
+            $home->add_water(700);
+            $home->update;
             $self->start('drinking_water');
             return undef;
         }
@@ -87,6 +92,11 @@ sub keep_the_lights_on {
     if ($finish) {
         my $geo = $home->get_building_of_class('Lacuna::DB::Result::Building::Energy::Geo');
         if (defined $geo && $geo->level >= 1) {
+            $home->add_trona(700);
+            $home->add_bread(700);
+            $home->add_energy(700);
+            $home->add_water(700);
+            $home->update;
             $self->start('mine');
             return undef;
         }
@@ -199,9 +209,15 @@ sub pawn {
 sub counter_spy {
     my ($self, $finish) = @_;
     my $empire = $self->empire;
+    my $home = $empire->home_planet;
     if ($finish) {
         my $counter = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({empire_id => $empire->id, task=>'Counter Espionage'})->count;
         if ($counter >= 2) {
+            $home->add_trona(700);
+            $home->add_bread(700);
+            $home->add_energy(700);
+            $home->add_water(700);
+            $home->update;
             $self->start('observatory');
             return undef;
         }
@@ -246,7 +262,14 @@ sub explore {
 
 sub the_end {
     my ($self, $finish) = @_;
+    my $empire = $self->empire;
+    my $home = $empire->home_planet;
     if ($finish) {
+        $home->add_bauxite(2000);
+        $home->add_cheese(2000);
+        $home->add_energy(2000);
+        $home->add_water(2000);
+        $home->update;
         $self->start('turing');
         return undef;
     }
@@ -295,6 +318,11 @@ sub university {
     if ($finish) {
         my $building = $home->get_building_of_class('Lacuna::DB::Result::Building::University');
         if (defined $building && $building->level >= 1) {
+            $home->add_trona(700);
+            $home->add_bread(700);
+            $home->add_energy(700);
+            $home->add_water(700);
+            $home->update;
             $self->start('storage');
             return undef;
         }
@@ -402,9 +430,15 @@ sub fool {
 sub essentia {
     my ($self, $finish) = @_;
     my $empire = $self->empire;
+    my $home = $empire->home_planet;
     if ($finish) {
         my $now = DateTime->now;
         if ($empire->food_boost >= $now && $empire->water_boost >= $now && $empire->ore_boost >= $now && $empire->energy_boost >= $now) {
+            $home->add_trona(700);
+            $home->add_bread(700);
+            $home->add_energy(700);
+            $home->add_water(700);
+            $home->update;
             $self->start('energy');
             return undef;
         }
