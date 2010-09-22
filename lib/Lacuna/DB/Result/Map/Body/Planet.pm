@@ -728,7 +728,7 @@ sub tick {
                 $still_enabled = 1;
             }
         }
-        unless ($still_enabled && $self->boost_enabled) {
+        unless ($still_enabled) {
             if (!$self->empire->check_for_repeat_message('boosts_expired')) {
                 $self->empire->send_predefined_message(
                     tags        => ['Alert'],
