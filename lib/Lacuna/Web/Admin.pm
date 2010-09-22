@@ -434,7 +434,7 @@ sub www_delete_empire {
 
 sub www_toggle_isolationist {
     my ($self, $request, $id) = @_;
-    $id ||= $request->param('empire_id');
+    $id ||= $request->param('id');
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($id);
     unless (defined $empire) {
         confess [404, 'Empire not found.'];
