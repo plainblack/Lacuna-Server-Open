@@ -729,7 +729,7 @@ sub tick {
             }
         }
         unless ($still_enabled) {
-            if (!$self->empire->check_for_repeat_message('boosts_expired')) {
+            if (!$self->empire->check_for_repeat_message('boosts_expired')) {  # because each planet could send the message
                 $self->empire->send_predefined_message(
                     tags        => ['Alert'],
                     filename    => 'boosts_expired.txt',

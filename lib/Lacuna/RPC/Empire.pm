@@ -506,7 +506,7 @@ sub boost {
     my $start = DateTime->now;
     $start = $empire->$type if ($empire->$type > $start);
     $start->add(days=>7);
-    $empire->planets->update({needs_recalc=>1});
+    $empire->planets->update({needs_recalc=>1, boost_enabled=>1});
     $empire->$type($start);
     $empire->update;
     if ($empire->tutorial_stage ne 'turing') {
