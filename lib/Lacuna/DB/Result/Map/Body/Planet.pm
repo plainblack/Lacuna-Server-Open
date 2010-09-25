@@ -742,6 +742,10 @@ sub tick {
 
     $self->tick_to($now);
 
+    # advance tutorial
+    if ($self->empire->tutorial_stage ne 'turing') {
+        Lacuna::Tutorial->new(empire=>$self->empire)->finish;
+    }
     # clear caches
     $self->clear_future_operating_resources;    
     $cache->delete('ticking', $self->id);

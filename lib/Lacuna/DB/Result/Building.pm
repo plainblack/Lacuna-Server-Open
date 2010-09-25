@@ -817,9 +817,6 @@ sub finish_upgrade {
         my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'a magical');
         $self->body->add_news($self->level*4,"In %s ceremony, %s unveiled its newly augmentented %s.", $levels{$self->level}, $empire->name, $self->name);
     }
-    if ($empire->tutorial_stage ne 'turing') {
-        Lacuna::Tutorial->new(empire=>$empire)->finish;
-    }
 }
 
 

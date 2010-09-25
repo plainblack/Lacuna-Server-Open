@@ -509,9 +509,6 @@ sub boost {
     $empire->planets->update({needs_recalc=>1, boost_enabled=>1});
     $empire->$type($start);
     $empire->update;
-    if ($empire->tutorial_stage ne 'turing') {
-        Lacuna::Tutorial->new(empire=>$empire)->finish;
-    }
     return {
         status => $self->format_status($empire),
         $type => format_date($empire->$type),
