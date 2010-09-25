@@ -448,6 +448,19 @@ sub www_toggle_isolationist {
     return $self->www_view_empire($request, $id);
 }
 
+sub www_become_empire {
+    my ($self, $request, $id) = @_;
+    $id ||= $request->param('id');
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($id);
+    unless (defined $empire) {
+        confess [404, 'Empire not found.'];
+    }
+    my $uri = Lacuna->config->get('server_url');
+    $uri .= '#session_id=%s';
+    $uri = sprintf $uri, $empire->start_session({ api_key => 'admin_console' })->id;
+    [$uri, { status => 302 } ]
+}
+
 sub www_view_empire {
     my ($self, $request, $id) = @_;
     $id ||= $request->param('id');
@@ -470,6 +483,7 @@ sub www_view_empire {
     $out .= sprintf('<tr><th>University Level</th><td>%s</td><td></td></tr>', $empire->university_level);
     $out .= sprintf('<tr><th>Isolationist</th><td>%s</td><td><a href="/admin/toggle/isolationist?id=%s">Toggle</a></td></tr>', $empire->is_isolationist, $empire->id);
     $out .= '</table><ul>';
+    $out .= sprintf('<li><a href="/admin/become/empire?empire_id=%s">Become This Empire In-Game</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/search/bodies?empire_id=%s">View All Colonies</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/send/test/message?empire_id=%s">Send Developer Test Email</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/delete/empire?empire_id=%s" onclick="return confirm(\'Are you sure?\')">Delete Empire</a> (Be Careful)</li>', $empire->id);
