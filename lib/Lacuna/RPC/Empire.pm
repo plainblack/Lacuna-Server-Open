@@ -356,7 +356,7 @@ sub edit_profile {
         if ($profile->{skip_happiness_warnings} < 0 || $profile->{skip_happiness_warnings} > 1) {
             confess [1009, 'Skip Happiness Warnings must be a 1 or a 0.', 'skip_happiness_warnings']
         }
-        $empire->sskip_happiness_warnings($profile->{skip_happiness_warnings});
+        $empire->skip_happiness_warnings($profile->{skip_happiness_warnings});
     }
     if (exists $profile->{skip_resource_warnings}) {
         if ($profile->{skip_resource_warnings} < 0 || $profile->{skip_resource_warnings} > 1) {
