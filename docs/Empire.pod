@@ -338,7 +338,7 @@ Provides a list of the data that's publicly known about this empire.
     "profile" : {
         "id" : "empire-id-goes-here",
         "name" : "Lacuna Expanse Corp",
-        "planet_count" : 1,
+        "colony_count" : 1,
         "status_message" : "Looking for Essentia."
         "description" : "We are the original inhabitants of the Lacuna Expanse.",
         "city" : "Madison",
