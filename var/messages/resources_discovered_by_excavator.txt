@@ -1,0 +1,7 @@
+Resources Discovered!
+~~~
+Good news! While the Excavator you sent to %s has not uncovered a glyph, it did find %s %s. The resources have been sent back to %s and will be put to good use.
+
+Regards,
+
+Your Humble Assistant
