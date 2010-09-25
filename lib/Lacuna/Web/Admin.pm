@@ -578,6 +578,43 @@ sub www_view_logs {
     return $self->wrap($list.'<hr><pre>'.$log.'</pre>');
 }
 
+sub www_view_virality {
+    my ($self, $request) = @_;
+    my $out = '<h1>Virality</h1>';
+    my $viral_now = $self->get_viral_for;
+    my $viral_yesterday = $self->get_viral_for(DateTime->now->subtract(days=>1));
+
+    $out . '
+        <div style="margin-left: 100px; width: 200px; height: 200px;text-align: center; float: left;">
+            <span style="font-size: 10px;">Viral Coeficient</span><br>
+            <span style="font-size: 150px;">'.($viral_now->accepts / $viral_yesterday->total_users).'</span>
+        </div>
+        
+        <div style="margin-left: 100px; width: 200px; height: 200px;text-align: center; float: left;">
+            <span style="font-size: 10px;">Growth Rate</span><br>
+            <span style="font-size: 150px;">'.(($viral_now->total_users - $viral_yesterday->total_users) / ($viral_yesterday->total_users * 100)).'%</span>
+        </div>
+
+        <div style="margin-left: 100px; width: 200px; height: 200px;text-align: center;">
+            <span style="font-size: 10px;">Churn Rate</span><br>
+            <span style="font-size: 150px;">'.($viral_now->deletes - ($viral_yesterday->total_users * 100)).'</span>
+        </div>
+    ';
+    
+    return $self->wrap($out);
+}
+
+sub get_viral {
+    return Lacuna->db->resultset('Lacuna::DB::Result::Log::Viral');
+}
+
+sub get_viral_for {
+    my $self = shift;
+    my $date = shift;
+    return $self->get_viral->search({date_stamp => format_date($date,'%F')},{rows => 1})->single;
+}
+
+
 sub www_default {
     my ($self, $request) = @_;
     return $self->wrap('<h1>Lacuna Expanse Admin Console</h1>
@@ -588,6 +625,7 @@ sub www_default {
         <li><a href="http://www.lacunaexpanse.com/">Lacuna Web Site</a></li>
         </ul>
         
+
         <fieldset><legend>Server Utilities</legend>
         <ul>
             <li><a href="/admin/server/wide/recalc">Force Server Wide Recalc Of Planets</a></li>
@@ -610,6 +648,7 @@ sub wrap {
     <li><a href="/admin/search/bodies">Bodies</a></li>
     <li><a href="/admin/search/stars">Stars</a></li>
     <li><a href="/admin/search/essentia/codes">Essentia Codes</a></li>
+    <li><a href="/admin/view/virality">Virality</a></li>
     <li><a href="/admin/view/logs">Logs</a></li>
     <li><a href="/admin/default">Home</a></li>
     </ul>

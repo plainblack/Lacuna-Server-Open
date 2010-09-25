@@ -146,6 +146,35 @@ sub set {
 }
 
 
+sub increment {
+    my ($self, $namespace, $id, $amount, $ttl, $retry) = @_;
+    my $key = $self->fix_key($namespace, $id);
+    $amount ||= 1;
+    $ttl ||= 60;
+    my $memcached = $self->memcached;
+    my $new_tally;
+    Memcached::libmemcached::memcached_increment($memcached, $key, $amount, $new_tally);
+    if ($memcached->errstr eq 'SUCCESS') {
+        return $new_tally;
+    }
+    elsif ($memcached->errstr eq 'NOT FOUND') {
+        return $self->set($namespace, $id, $amount, $ttl);
+    }
+    elsif ($memcached->errstr eq 'SYSTEM ERROR Unknown error: 0' || $retry) {
+        warn "Cannot connect to memcached server.";
+    }
+    elsif ($memcached->errstr eq 'UNKNOWN READ FAILURE' ) {
+        warn "Memcached went away, reconnecting.";
+        $self->clear_memcached;
+        return $self->set($namespace, $id, $amount, 1);
+    }
+    elsif ($memcached->errstr eq 'NO SERVERS DEFINED') {
+        warn "No memcached servers specified.";
+    }
+    warn "Couldn't set $key to cache because ".$memcached->errstr;
+}
+
+
 no Moose;
 __PACKAGE__->meta->make_immutable;
 

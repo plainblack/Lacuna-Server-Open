@@ -280,6 +280,7 @@ sub find_home_planet {
     if (defined $invite) {
         $invite->invitee_id($self->id);
         $invite->update;
+        Lacuna->cache->increment('friends_accepted', format_date(undef,'%F'), 1, 60 * 60 * 26);
         my $inviter = $invite->inviter;
         my $inviter_home = $inviter->home_planet;
         if ($invites->search({inviter_id => $invite->inviter_id, invitee_id => {'>' => 0}})->count == 10) { # got 10 friends
@@ -354,6 +355,7 @@ sub invite_friend {
         $self->name,
         $code,
         Lacuna->config->get('server_url');
+    Lacuna->cache->increment('friends_invited', format_date(undef,'%F'), 1, 60 * 60 * 26);
     Email::Stuff->from($self->email)
         ->to($email)
         ->subject('Come Play With Me')

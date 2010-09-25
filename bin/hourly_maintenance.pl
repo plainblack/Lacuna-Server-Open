@@ -26,7 +26,41 @@ out('Deleting dead spies');
 $db->resultset('Lacuna::DB::Result::Spies')->search({task=>'Killed In Action'})->delete_all;
 
 out('Deleting Expired Self Destruct Empires');
-$empires->search({ self_destruct_date => { '<' => $start }, self_destruct_active => 1})->delete_all;
+my $to_be_deleted = $empires->search({ self_destruct_date => { '<' => $start }, self_destruct_active => 1});
+my $delete_tally = 0;
+my $active_duration = 0;
+while (my $empire = $to_be_deleted->next) {
+    $delete_tally++;
+    $active_duration += to_seconds($start - $empire->date_created);
+    $empire->delete;    
+}
+
+out('Updating Viral Log');
+my $viral_log = $db->resultset('Lacuna::DB::Result::ViralLog');
+my $add_deletes = $viral_log->search({date_stamp => format_date($start,'%F')},{rows=>1})->single;
+unless (defined $add_deletes) {
+    $add_deletes = $viral_log->new({date_stamp => format_date($start,'%F')});
+}
+$add_deletes->deletes();
+$add_deletes->active_duration();
+$add_deletes->total_users();
+$add_deletes->update({
+    deletes         => $add_deletes->deletes + $delete_tally,
+    active_duration => $add_deletes->active_duration + $active_duration,
+    total_users     => $empires->count,
+});
+my $cache = Lacuna->cache;
+my $create_date = format_date($start->clone->subtract(hours => 1),'%F');
+my $add_creates = $viral_log->search({date_stamp => $create_date},{rows=>1})->single;
+unless (defined $add_deletes) {
+    $add_creates = $viral_log->new({date_stamp => $create_date});
+}
+$add_creates->update({
+    creates => $cache->get('empires_created', $create_date),
+    accepts => $cache->get('friends_accepted', $create_date),
+    invites => $cache->get('friends_invited', $create_date),
+});
+
 
 out('Enabling Self Destruct For Inactivity');
 my $inactivity_time_out = Lacuna->config->get('inactivity_time_out') || 15;

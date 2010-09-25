@@ -201,6 +201,8 @@ sub create {
 
     # create account
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new(\%params)->insert;
+    Lacuna->cache->increment('empires_created', format_date(undef,'%F'), 1, 60 * 60 * 26);
+    
     return $empire->id;
 }
 
