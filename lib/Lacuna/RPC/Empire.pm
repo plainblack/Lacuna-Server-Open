@@ -167,10 +167,8 @@ sub create {
         sitter_password     => random_string('CC.c!ccn'),
     );
 
-if ($account{captcha_guid}) { # get rid of this IF before we go live
     # verify captcha
     $self->validate_captcha($plack_request, $account{captcha_guid}, $account{captcha_solution});
-}
 
     # check facebook    
     my $has_facebook = (exists $account{facebook_uid} && $account{facebook_uid} =~ m/^\d+$/ && exists $account{facebook_token} && length($account{facebook_token}) > 60);
