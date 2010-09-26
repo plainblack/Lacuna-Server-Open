@@ -16,10 +16,10 @@ __PACKAGE__->add_columns(
     active_duration    => { data_type => 'int', size => 11, default_value => 0 },
 );
 
-after 'sqlt_deploy_hook' => sub {
+sub sqlt_deploy_hook {
     my ($self, $sqlt_table) = @_;
     $sqlt_table->add_index(name => 'idx_date_stamp', fields => ['date_stamp']);
-};
+}
 
 
 no Moose;

@@ -8,6 +8,7 @@ use feature "switch";
 use Module::Find;
 use UUID::Tiny;
 use Lacuna::Util qw(format_date);
+use List::Util qw(sum);
 
 
 sub www_send_test_message {
@@ -581,23 +582,54 @@ sub www_view_logs {
 sub www_view_virality {
     my ($self, $request) = @_;
     my $out = '<h1>Virality</h1>';
-    my $viral_now = $self->get_viral_for;
-    my $viral_yesterday = $self->get_viral_for(DateTime->now->subtract(days=>1));
 
-    $out . '
-        <div style="margin-left: 100px; width: 200px; height: 200px;text-align: center; float: left;">
-            <span style="font-size: 10px;">Viral Coeficient</span><br>
-            <span style="font-size: 150px;">'.($viral_now->accepts / $viral_yesterday->total_users).'</span>
+    my @vc;
+    my @gr;
+    my @cr;
+    my $previous;
+    my $past30 = $self->get_viral->search({date_stamp => { '>=' => DateTime->now->subtract(days => 31)}}, { order_by => 'date_stamp'});
+    while (my $day = $past30->next) {
+        unless (defined $previous) {
+            $previous = $day;
+            next;
+        }
+        
+        push @vc, sprintf('%.0f', ($day->accepts / $previous->total_users) * 100);
+        push @gr, sprintf('%.0f', (($day->total_users - $previous->total_users) / $previous->total_users) * 100);
+        push @cr, sprintf('%.0f', ($day->deletes / $previous->total_users) * 100);
+        
+        $previous = $day;
+    }
+
+    my $chart = 'http://chart.apis.google.com/chart?chf=bg,s,014986&chls=3|3|3&chma=10,10,10,10|120,180&chs=700x200&chxs=1,ffffff&cht=ls&chdl=Viral%20Coeficient|Growth%20Rate|Churn%20Rate&chco=00ff00,ffb400,b400ff&chd=t:'
+        .join('|',
+            join(',', @vc),
+            join(',', @gr),
+            join(',', @cr),
+        );
+    
+    my $avg_vc = sprintf('%.2f', sum(@vc) / 100 / scalar(@vc));
+    my $avg_gr = sprintf('%.2f', sum(@gr) / 100 / scalar(@gr));
+    my $avg_cr = sprintf('%.2f', sum(@cr) / 100 / scalar(@cr));
+
+    $out .= '
+        <div style="text-align: center;">
+        <div style="margin: 10px; text-align: center; float: left; border: 1px solid white;">
+            <span style="font-size: 12px;">Viral Coeficient</span><br>
+            <span style="font-size: 100px;">'.$avg_vc.'</span>
         </div>
         
-        <div style="margin-left: 100px; width: 200px; height: 200px;text-align: center; float: left;">
-            <span style="font-size: 10px;">Growth Rate</span><br>
-            <span style="font-size: 150px;">'.(($viral_now->total_users - $viral_yesterday->total_users) / ($viral_yesterday->total_users * 100)).'%</span>
+        <div style="margin: 10px; text-align: center; float: left; border: 1px solid white;">
+            <span style="font-size: 12px;">Growth Rate</span><br>
+            <span style="font-size: 100px;">'.$avg_gr.'</span>
         </div>
 
-        <div style="margin-left: 100px; width: 200px; height: 200px;text-align: center;">
-            <span style="font-size: 10px;">Churn Rate</span><br>
-            <span style="font-size: 150px;">'.($viral_now->deletes - ($viral_yesterday->total_users * 100)).'</span>
+        <div style="margin: 10px;text-align: center; float: left; border: 1px solid white;">
+            <span style="font-size: 12px;">Churn Rate</span><br>
+            <span style="font-size: 100px;">'.$avg_cr.'</span>
+        </div>
+        <div style="clear: both"></div>
+        <img src="'.$chart.'" alt="chart">
         </div>
     ';
     
@@ -605,12 +637,12 @@ sub www_view_virality {
 }
 
 sub get_viral {
-    return Lacuna->db->resultset('Lacuna::DB::Result::Log::Viral');
+    return Lacuna->db->resultset('Lacuna::DB::Result::ViralLog');
 }
 
 sub get_viral_for {
     my $self = shift;
-    my $date = shift;
+    my $date = shift || DateTime->now;
     return $self->get_viral->search({date_stamp => format_date($date,'%F')},{rows => 1})->single;
 }
 

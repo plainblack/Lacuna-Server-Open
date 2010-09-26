@@ -39,11 +39,8 @@ out('Updating Viral Log');
 my $viral_log = $db->resultset('Lacuna::DB::Result::ViralLog');
 my $add_deletes = $viral_log->search({date_stamp => format_date($start,'%F')},{rows=>1})->single;
 unless (defined $add_deletes) {
-    $add_deletes = $viral_log->new({date_stamp => format_date($start,'%F')});
+    $add_deletes = $viral_log->new({date_stamp => format_date($start,'%F')})->insert;
 }
-$add_deletes->deletes();
-$add_deletes->active_duration();
-$add_deletes->total_users();
 $add_deletes->update({
     deletes         => $add_deletes->deletes + $delete_tally,
     active_duration => $add_deletes->active_duration + $active_duration,
@@ -53,7 +50,7 @@ my $cache = Lacuna->cache;
 my $create_date = format_date($start->clone->subtract(hours => 1),'%F');
 my $add_creates = $viral_log->search({date_stamp => $create_date},{rows=>1})->single;
 unless (defined $add_deletes) {
-    $add_creates = $viral_log->new({date_stamp => $create_date});
+    $add_creates = $viral_log->new({date_stamp => $create_date})->insert;
 }
 $add_creates->update({
     creates => $cache->get('empires_created', $create_date),
