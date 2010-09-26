@@ -80,9 +80,10 @@ sub www_server_list {
 sub www_default {
     my ($self, $request) = @_;
     my $user = $self->facebook->query->find('me')->request->as_hashref;
+    my $config = Lacuna->config;
     my $out;
     unless (exists $user->{id}) {
-        $out = q{<p>Join thousands of other players online now in this strategic browser game. No downloads required. Play for free.</p>
+        $out = q{<p><a href="}.$config->get('server_url').q{" target="_new">Join thousands of other players online now in this strategic browser game.</a> No downloads required. Play for free.</p>
             <p>The Expanse is a region of space with millions of habitable worlds. You can play with or compete against thousands of
             other players as you build your empire, fight off spies in a battle for cold war supremacy, form alliances, search the
             expanse for lost ancient artifacts, and more.</p>};
@@ -90,7 +91,7 @@ sub www_default {
     }
 
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({facebook_uid => $user->{id} }, { rows => 1 })->single;
-    my $config = Lacuna->config;
+    $out .= '<div style="float: right; border: 3px solid white; font-size: 20pt; background-image: url(https://s3.amazonaws.com/www.lacunaexpanse.com/button_bkg.png)"><a href="'.$config->get('server_url').'" target="_new"></a></div>';
     $out .= '<h1>'.$empire->name.'</h1>';
     my $planets = $empire->planets;
     while (my $planet = $empire->planets) {
