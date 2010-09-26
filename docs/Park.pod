@@ -51,5 +51,18 @@ A session id.
 The unique id of the park.
 
 
+=head2 subsidize_party ( session_id, building_id )
+
+Will spend 2 essentia to complete the current party immediately. Returns C<view>.
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Park.
 
 =cut

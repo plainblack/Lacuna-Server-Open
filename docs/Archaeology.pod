@@ -22,6 +22,21 @@ The unique id of the Archaeology Ministry.
 One of the 20 types of ore. Choose from: rutile, chromite, chalcopyrite, galena, gold, uraninite, bauxite, goethite, halite, gypsum, trona, kerogen, methane, anthracite, sulfur, zircon, monazite, fluorite, beryl, magnetite
 
 
+=head2 subsidize_search ( session_id, building_id )
+
+Will spend 2 essentia to complete the current glyph search immediately. Returns C<view>.
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Archaeology Ministry.
+
+
 
 =head2 get_glyphs ( session_id, building_id )
 

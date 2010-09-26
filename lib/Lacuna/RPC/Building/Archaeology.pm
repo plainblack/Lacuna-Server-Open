@@ -60,7 +60,29 @@ sub assemble_glyphs {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_ores_available_for_processing assemble_glyphs search_for_glyph get_glyphs));
+
+sub subsidize_search {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+
+    unless ($building->is_working) {
+        confess [1010, "No one is searching."];
+    }
+ 
+    unless ($empire->essentia >= 2) {
+        confess [1011, "Not enough essentia."];    
+    }
+
+    $building->finish_work->update;
+    $empire->spend_essentia(2, 'glyph search subsidy after the fact');    
+    $empire->update;
+
+    return $self->view($empire, $building);
+}
+
+
+__PACKAGE__->register_rpc_method_names(qw(get_ores_available_for_processing assemble_glyphs search_for_glyph get_glyphs subsidize_search));
 
 
 no Moose;
