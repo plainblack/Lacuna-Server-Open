@@ -615,7 +615,7 @@ sub www_view_virality {
     $out .= '
         <div style="text-align: center;">
         <div style="margin: 10px; text-align: center; float: left; border: 3px solid #00ff00;">
-            <span style="font-size: 12px;">Viral Coeficient</span><br>
+            <span style="font-size: 12px;">Viral Coefficient</span><br>
             <span style="font-size: 100px;">'.$avg_vc.'</span>
         </div>
         
