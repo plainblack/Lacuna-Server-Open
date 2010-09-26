@@ -4,11 +4,12 @@ use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Energy';
 
-before can_build => sub {
+before has_special_resources => sub {
     my $self = shift;
     my $planet = $self->body;
-    if ($planet->uraninite + $planet->monazite < 500) {
-        confess [1012,"This planet does not have a sufficient supply (500) of radioactive minerals such as Uraninite and Monazite to operate this plant."];
+    my $amount_needed = sprintf('%.0f', $self->ore_to_build * $self->upgrade_cost * 0.05);
+    if ($planet->uraninite_stored + $planet->monazite_stored < $amount_needed) {
+        confess [1012,"You do not have a sufficient supply (".$amount_needed.") of radioactive minerals such as Uraninite and Monazite to operate this plant."];
     }
 };
 

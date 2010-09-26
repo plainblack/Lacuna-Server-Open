@@ -9,6 +9,15 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Ships));
 };
 
+before has_special_resources => sub {
+    my $self = shift;
+    my $planet = $self->body;
+    my $amount_needed = sprintf('%.0f', $self->ore_to_build * $self->upgrade_cost * 0.07);
+    if ($planet->chalcopyrite_stored + $planet->gold_stored + $planet->bauxite_stored < $amount_needed) {
+        confess [1012,"You do not have a sufficient supply (".$amount_needed.") of conductive metals such as Chalcopyrite, Gold, and Bauxite to build cloaking systems."];
+    }
+};
+
 use constant controller_class => 'Lacuna::RPC::Building::CloakingLab';
 
 use constant university_prereq => 17;

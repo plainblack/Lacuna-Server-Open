@@ -271,7 +271,9 @@ sub current_level_cost {
 }
 
 sub upgrade_cost {
-    return (INFLATION ** $_[0]->level);
+    my ($self, $level) = @_;
+    $level ||= $self->level;
+    return (INFLATION ** $level);
 }
 
 sub consumption_hour {
@@ -573,6 +575,10 @@ sub waste_capacity {
 
 # BUILD
 
+sub has_special_resources {
+    return 1;
+}
+
 sub can_build {
     my ($self, $body) = @_;
     
@@ -580,6 +586,9 @@ sub can_build {
     if ($body->orbit < $self->min_orbit || $body->orbit > $self->max_orbit) {
         confess [1013, "This building may only be built between orbits ".$self->min_orbit." and ".$self->max_orbit.".", [$self->min_orbit, $self->max_orbit]];
     }
+    
+    # check special resources
+    $self->has_special_resources;
     
     unless ($body->get_plan($self->class, 1)) {
         # check university level
@@ -708,6 +717,7 @@ sub can_upgrade {
     my $body = $self->body;
     $body->has_resources_to_build($self,$cost);
     $body->has_resources_to_operate($self);
+    $self->has_special_resources;
     $self->has_met_upgrade_prereqs;
     $self->has_no_pending_build;
     $body->has_room_in_build_queue;

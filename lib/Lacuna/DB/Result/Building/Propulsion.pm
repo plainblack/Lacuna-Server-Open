@@ -9,11 +9,12 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Ships));
 };
 
-before can_build => sub {
+before has_special_resources => sub {
     my $self = shift;
     my $planet = $self->body;
-    if ($planet->rutile + $planet->chromite + $planet->bauxite + $planet->magnetite + $planet->beryl + $planet->goethite < 1000) {
-        confess [1012,"This planet does not have a sufficient supply (1,000) of structural minerals such as Rutile, Chromite, Bauxite, Magnetite, Beryl, and Goethite to build better engines."];
+    my $amount_needed = sprintf('%.0f', $self->ore_to_build * $self->upgrade_cost * 0.10);
+    if ($planet->rutile_stored + $planet->chromite_stored + $planet->bauxite_stored + $planet->magnetite_stored + $planet->beryl_stored + $planet->goethite_stored < $amount_needed) {
+        confess [1012,"You do not have a sufficient supply (".$amount_needed.") of structural minerals such as Rutile, Chromite, Bauxite, Magnetite, Beryl, and Goethite to build better engines."];
     }
 };
 

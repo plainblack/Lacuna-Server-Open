@@ -9,11 +9,12 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Waste));
 };
 
-before can_build => sub {
+before has_special_resources => sub {
     my $self = shift;
     my $planet = $self->body;
-    if ($planet->zircon + $planet->beryl + $planet->gypsum < 100) {
-        confess [1012,"This planet does not have a sufficient supply (100) of insulating minerals such as Zircon, Beryl, and Gypsum to build and operate a waste energy plant."];
+    my $amount_needed = sprintf('%.0f', $self->ore_to_build * $self->upgrade_cost * 0.01);
+    if ($planet->zircon_stored + $planet->beryl_stored + $planet->gypsum_stored < $amount_needed) {
+        confess [1012,"You do not have a sufficient supply (".$amount_needed.") of insulating minerals such as Zircon, Beryl, and Gypsum to build and operate a waste energy plant."];
     }
 };
 

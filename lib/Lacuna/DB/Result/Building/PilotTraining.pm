@@ -9,6 +9,15 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Ships));
 };
 
+before has_special_resources => sub {
+    my $self = shift;
+    my $planet = $self->body;
+    my $amount_needed = sprintf('%.0f', $self->ore_to_build * $self->upgrade_cost * 0.01);
+    if ($planet->gold_stored < $amount_needed) {
+        confess [1012,"You do not have a sufficient supply (".$amount_needed.") of gold to adorn pilot uniforms."];
+    }
+};
+
 use constant controller_class => 'Lacuna::RPC::Building::PilotTraining';
 
 use constant university_prereq => 14;

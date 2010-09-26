@@ -9,11 +9,12 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Waste));
 };
 
-before can_build => sub {
+before has_special_resources => sub {
     my $self = shift;
     my $planet = $self->body;
-    if ($planet->halite + $planet->sulfur < 500) {
-        confess [1012,"This planet does not have a sufficient supply (500) of mineral agents such as Halite and Sulfur for water treatment."];
+    my $amount_needed = sprintf('%.0f', $self->ore_to_build * $self->upgrade_cost * 0.05);
+    if ($planet->halite_stored + $planet->sulfur_stored < $amount_needed) {
+        confess [1012,"You do not have a sufficient supply (".$amount_needed.") of mineral agents such as Halite and Sulfur for water treatment."];
     }
 };
 

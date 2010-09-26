@@ -8,13 +8,15 @@ use constant controller_class => 'Lacuna::RPC::Building::Dairy';
 
 use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Corn'=>5};
 
-before can_build => sub {
+before has_special_resources => sub {
     my $self = shift;
     my $planet = $self->body;
-    if ($planet->trona < 500) {
-        confess [1012,"This planet does not have a sufficient supply (500) of Trona to produce milk from cows."];
+    my $amount_needed = sprintf('%.0f', $self->ore_to_build * $self->upgrade_cost * 0.05);
+    if ($planet->trona_stored < $amount_needed) {
+        confess [1012,"You do not have a sufficient supply (".$amount_needed.") of Trona to produce milk from cows."];
     }
 };
+
 
 use constant min_orbit => 3;
 
