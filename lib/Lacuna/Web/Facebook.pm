@@ -119,7 +119,7 @@ sub www_my_empire {
             <br>'.$planet->name.'</div>';
     }
     $out .= '<div style="clear: both;"></div>';
-    return $self->wrapper($out, { title => 'My Empire in The Lacuna Expanse' });
+    return $self->wrapper($out, { title => 'My Empire in The Lacuna Expanse', logo => 1 });
 }
 
 no Moose;
