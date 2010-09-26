@@ -121,8 +121,7 @@ sub add_medal {
     }
     if ($send_message && !$self->skip_medal_messages) {
         my $name = $medal->name;
-        my $config = Lacuna->config;
-        my $image = $config->get('feeds/surl').'assets/medal/'.$type.'.png';
+        my $image = Lacuna->config->get('feeds/surl').'assets/medal/'.$type.'.png';
         $self->send_predefined_message(
             tags        => ['Medal'],
             filename    => 'medal.txt',
@@ -135,12 +134,9 @@ sub add_medal {
             },
         );
         if (!$self->skip_facebook_wall_posts && $self->facebook_token) {
-            Facebook::Graph->new(
-                postback    => $config->get('server_url').'facebook/postback',
-                app_id      => $config->get('facebook/app_id'),
-                secret      => $config->get('facebook/secret'),
-                access_token=> $self->facebook_token,
-            )->add_post
+            my $fb = Facebook::Graph->new;
+            $fb->access_token($self->facebook_token);
+            $fb->add_post
             ->set_message('I just earned a "'.$name.'" medal.')
             ->set_picture_uri($image)
             ->set_link_name('The Lacuna Expanse')

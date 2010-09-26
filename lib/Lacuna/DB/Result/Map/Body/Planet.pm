@@ -626,13 +626,9 @@ sub add_news {
         })->insert;
         my $empire = $self->empire;
         if (!$empire->skip_facebook_wall_posts && $empire->facebook_token) {
-            my $config = Lacuna->config;
-            Facebook::Graph->new(
-                postback    => $config->get('server_url').'facebook/postback',
-                app_id      => $config->get('facebook/app_id'),
-                secret      => $config->get('facebook/secret'),
-                access_token=> $empire->facebook_token,
-            )->add_post
+            my $fb = Facebook::Graph->new;
+            $fb->access_token($self->facebook_token);
+            $fb->add_post
             ->set_message('I\'m in the news: "'.$headline.'"')
             ->set_link_name('The Lacuna Expanse')
             ->set_link_uri('http://www.lacunaexpanse.com/')
