@@ -29,7 +29,7 @@ sub arrive {
     if ($self->direction eq 'out') {
         my $body = $self->body;
         my $ministry = $body->mining_ministry;
-	unless (defined $ministry) {
+        unless (defined $ministry) {
             $self->turn_around;
         }
         my $empire = $body->empire;
