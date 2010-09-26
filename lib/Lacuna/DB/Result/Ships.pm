@@ -297,7 +297,7 @@ sub damage_building {
         {order_by => { -desc => 'efficiency'}, rows=>1}
         )->single;
     $building->body($body_attacked);
-    $building->spend_efficiency(randint(1,10));
+    $building->spend_efficiency(randint(5,35));
     $building->update;
     $self->body->empire->send_predefined_message(
         tags        => ['Alert'],
