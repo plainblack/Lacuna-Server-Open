@@ -579,7 +579,7 @@ sub enable_self_destruct {
     my $subject = 'Your Empire Will Self Destruct In...';
     $self->send_email(
         $subject,
-        sprintf("Your empire %s, will self destruct in 24 hours unless you log in and click on the disable self destruct icon.\n\n%s",
+        sprintf("Your empire, %s, will self destruct in 24 hours unless you log in and click on the disable self destruct icon.\n\n%s",
             $self->name,
             Lacuna->config->get('server_url'),
         ),
