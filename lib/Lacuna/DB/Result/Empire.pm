@@ -10,6 +10,7 @@ use List::MoreUtils qw(uniq);
 use Email::Stuff;
 use UUID::Tiny;
 use Lacuna::Constants qw(INFLATION);
+use Facebook::Graph;
 
 
 __PACKAGE__->table('empire');
@@ -65,6 +66,7 @@ __PACKAGE__->add_columns(
     skip_pollution_warnings => { data_type => 'tinyint', default_value => 0 },
     skip_resource_warnings  => { data_type => 'tinyint', default_value => 0 },
     skip_happiness_warnings => { data_type => 'tinyint', default_value => 0 },
+    skip_facebook_wall_posts => { data_type => 'tinyint', default_value => 0 },
 );
 
 
@@ -119,6 +121,8 @@ sub add_medal {
     }
     if ($send_message && !$self->skip_medal_messages) {
         my $name = $medal->name;
+        my $config = Lacuna->config;
+        my $image = $config->get('feeds/surl').'assets/medal/'.$type.'.png';
         $self->send_predefined_message(
             tags        => ['Medal'],
             filename    => 'medal.txt',
@@ -126,10 +130,23 @@ sub add_medal {
             attachments => {
                 image => {
                     title   => $name,
-                    url     => Lacuna->config->get('feeds/surl').'assets/medal/'.$type.'.png',
+                    url     => $image,
                 }
             },
         );
+        if (!$self->skip_facebook_wall_posts && $self->facebook_token) {
+            Facebook::Graph->new(
+                postback    => $config->get('server_url').'facebook/postback',
+                app_id      => $config->get('facebook/app_id'),
+                secret      => $config->get('facebook/secret'),
+                access_token=> $self->facebook_token,
+            )->add_post
+            ->set_message('I just earned a "'.$name.'" medal.')
+            ->set_picture_uri($image)
+            ->set_link_name('The Lacuna Expanse')
+            ->set_link_uri('http://www.lacunaexpanse.com/')
+            ->publish;
+        }        
     }
     return $medal;
 }

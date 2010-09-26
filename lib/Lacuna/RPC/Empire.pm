@@ -281,6 +281,7 @@ sub view_profile {
         skip_pollution_warnings => $empire->skip_pollution_warnings,
         skip_resource_warnings  => $empire->skip_resource_warnings,
         skip_happiness_warnings => $empire->skip_happiness_warnings,
+        skip_facebook_wall_posts=> $empire->skip_facebook_wall_posts,
         medals                  => \%my_medals,
     );
     return { profile => \%out, status => $self->format_status($empire) };    
@@ -357,6 +358,12 @@ sub edit_profile {
             confess [1009, 'Skip Happiness Warnings must be a 1 or a 0.', 'skip_happiness_warnings']
         }
         $empire->skip_happiness_warnings($profile->{skip_happiness_warnings});
+    }
+    if (exists $profile->{skip_facebook_wall_posts}) {
+        if ($profile->{skip_facebook_wall_posts} < 0 || $profile->{skip_facebook_wall_posts} > 1) {
+            confess [1009, 'Skip Facebook Wall Posts must be a 1 or a 0.', 'skip_facebook_wall_posts']
+        }
+        $empire->skip_facebook_wall_posts($profile->{skip_facebook_wall_posts});
     }
     if (exists $profile->{skip_resource_warnings}) {
         if ($profile->{skip_resource_warnings} < 0 || $profile->{skip_resource_warnings} > 1) {
