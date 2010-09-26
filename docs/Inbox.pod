@@ -90,7 +90,9 @@ Retrieves a message. Marks it read if it hasn't been already.
     "message" : {
         "id" : "id-goes-here",
         "from" : "Dr. Stephen T. Colbert DFA",
+        "from_id" : "id-goes-here",
         "to" : "Jon Stewart",
+        "to_id" : "id-goes-here",
         "subject" : "Vaxaslim",
         "body" : "Just a reminder that Vaxaslim may cause involuntary narnia adventures.",
         "date" : "01 31 2010 13:09:05 +0600",

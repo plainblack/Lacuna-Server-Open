@@ -26,7 +26,9 @@ sub read_message {
         message => {
             id          => $message->id,
             from        => $message->from_name,
+            from_id     => $message->from_id,
             to          => $message->to_name,
+            to_id       => $message->to_id,
             subject     => $message->subject,
             body        => $message->body,
             date        => $message->date_sent_formatted,
