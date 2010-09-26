@@ -17,7 +17,7 @@ __PACKAGE__->add_columns(
     building_count              => { data_type => 'smallint', is_nullable => 0 },
     university_level            => { data_type => 'tinyint', is_nullable => 0 },
     university_level_rank       => { data_type => 'tinyint', is_nullable => 0 },
-    average_building_level      => { data_type => 'float', size =>[3,2] , is_nullable => 0 },
+    average_building_level      => { data_type => 'float', size =>[5,2] , is_nullable => 0 },
     highest_building_level      => { data_type => 'tinyint', size => 3, is_nullable => 0 },
     food_hour                   => { data_type => 'int', size => 11, is_nullable => 0 },
     energy_hour                 => { data_type => 'int', size => 11, is_nullable => 0 },
