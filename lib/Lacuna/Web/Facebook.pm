@@ -50,7 +50,7 @@ sub www_authorize {
     return [$self->facebook->authorize->extend_permissions(qw(publish_stream offline_access))->uri_as_string, { status => 302 }];
 }
 
-sub www_default {
+sub www_server_list {
     my ($self, $request) = @_;
     my $cache = Lacuna->cache;
     my $servers = $cache->get_and_deserialize('www.lacunaexpanse.com', 'servers.json');
@@ -75,6 +75,30 @@ sub www_default {
         $out .= sprintf $template, $server->{uri}.'facebook/authorize', $server->{name}, $server->{location}, $server->{status};
     }
     return $self->wrapper($out, { title => 'Available Servers' });
+}
+
+sub www_default {
+    my ($self, $request) = @_;
+    my $user = $self->facebook->query->find('me')->request->as_hashref;
+    my $out;
+    unless (exists $user->{id}) {
+        $out = q{<p>Join thousands of other players online now in this strategic browser game. No downloads required. Play for free.</p>
+            <p>The Expanse is a region of space with millions of habitable worlds. You can play with or compete against thousands of
+            other players as you build your empire, fight off spies in a battle for cold war supremacy, form alliances, search the
+            expanse for lost ancient artifacts, and more.</p>};
+        return $self->wrapper($out, { title => 'Play for Free in The Lacuna Expanse' });   
+    }
+
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({facebook_uid => $user->{id} }, { rows => 1 })->single;
+    my $config = Lacuna->config;
+    $out .= '<h1>'.$empire->name.'</h1>';
+    my $planets = $empire->planets;
+    while (my $planet = $empire->planets) {
+        $out .= '<div style="float: left; height: 250px; text-align: center;"><img src="'.$config->get('feeds/surl').'assets/star_system/'.$planet->image_name.'.png'.'" alt="planet">
+            <br>'.$planet->name.'</div>';
+    }
+    $out .= '<div style="clear: both;"></div>';
+    return $self->wrapper($out, { title => 'My Empire in The Lacuna Expanse' });
 }
 
 no Moose;
