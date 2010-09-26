@@ -90,10 +90,14 @@ sub www_default {
 
 sub www_my_empire {
     my ($self, $request) = @_;
-    my $fb = $self->facebook;
+    my $config = Lacuna->config;
+    my $fb = Facebook::Graph->new(
+            postback    => $config->get('server_url').'facebook/my/empire',
+            app_id      => $config->get('facebook/app_id'),
+            secret      => $config->get('facebook/secret'),
+        );
     $fb->request_access_token($request->param('code'));
     my $user = $fb->query->find('me')->request->as_hashref;
-    my $config = Lacuna->config;
     unless (exists $user->{id}) {
         return $self->format_error(q{The bad thing that should never happen just happened. Facebook doesn't remember who you are!});   
     }
@@ -110,7 +114,7 @@ sub www_my_empire {
     $out .= '<div style="float: right; border: 3px solid white; font-size: 20pt; background-image: url(https://s3.amazonaws.com/www.lacunaexpanse.com/button_bkg.png)"><a href="'.$config->get('server_url').'" target="_new"></a></div>';
     $out .= '<h1>'.$empire->name.'</h1>';
     my $planets = $empire->planets;
-    while (my $planet = $empire->planets) {
+    while (my $planet = $planets->next) {
         $out .= '<div style="float: left; height: 250px; text-align: center;"><img src="'.$config->get('feeds/surl').'assets/star_system/'.$planet->image_name.'.png'.'" alt="planet">
             <br>'.$planet->name.'</div>';
     }
