@@ -42,9 +42,10 @@ sub arrive {
                 params      => [$body->name, $self->foreign_body->name, $self->name],
             );
             $self->delete;
-            my $type = $self->foreign_body;
-            $type =~ s/^Lacuna::DB::Result::Map::Body::Asteroid::(\w+)$/$1/;
-            $empire->add_medal($type);        }
+            my $type = ref $self->foreign_body;
+            $type =~ s/^.*::(\w\d+)$/$1/;
+            $empire->add_medal($type);
+        }
         else {
             $self->turn_around;
             $empire->send_predefined_message(
