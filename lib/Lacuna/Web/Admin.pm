@@ -601,7 +601,7 @@ sub www_view_virality {
         $previous = $day;
     }
 
-    my $chart = 'http://chart.apis.google.com/chart?chf=bg,s,014986&chls=3|3|3&chma=10,10,10,10|120,180&chs=700x200&chxs=1,ffffff&cht=ls&chdl=Viral%20Coeficient|Growth%20Rate|Churn%20Rate&chco=00ff00,ffb400,b400ff&chd=t:'
+    my $chart = 'http://chart.apis.google.com/chart?chf=bg,s,014986&chls=3|3|3&chs=700x200&cht=ls&chco=00ff00,ffb400,b400ff&chd=t:'
         .join('|',
             join(',', @vc),
             join(',', @gr),
@@ -614,17 +614,17 @@ sub www_view_virality {
 
     $out .= '
         <div style="text-align: center;">
-        <div style="margin: 10px; text-align: center; float: left; border: 1px solid white;">
+        <div style="margin: 10px; text-align: center; float: left; border: 3px solid #00ff00;">
             <span style="font-size: 12px;">Viral Coeficient</span><br>
             <span style="font-size: 100px;">'.$avg_vc.'</span>
         </div>
         
-        <div style="margin: 10px; text-align: center; float: left; border: 1px solid white;">
+        <div style="margin: 10px; text-align: center; float: left; border: 3px solid #ffb400;">
             <span style="font-size: 12px;">Growth Rate</span><br>
             <span style="font-size: 100px;">'.$avg_gr.'</span>
         </div>
 
-        <div style="margin: 10px;text-align: center; float: left; border: 1px solid white;">
+        <div style="margin: 10px;text-align: center; float: left; border: 3px solid #b400ff;">
             <span style="font-size: 12px;">Churn Rate</span><br>
             <span style="font-size: 100px;">'.$avg_cr.'</span>
         </div>
