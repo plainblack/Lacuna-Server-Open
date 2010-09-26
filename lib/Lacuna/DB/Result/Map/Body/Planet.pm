@@ -627,7 +627,7 @@ sub add_news {
         my $empire = $self->empire;
         if (!$empire->skip_facebook_wall_posts && $empire->facebook_token) {
             my $fb = Facebook::Graph->new;
-            $fb->access_token($self->facebook_token);
+            $fb->access_token($empire->facebook_token);
             $fb->add_post
             ->set_message('I\'m in the news: "'.$headline.'"')
             ->set_link_name('The Lacuna Expanse')
