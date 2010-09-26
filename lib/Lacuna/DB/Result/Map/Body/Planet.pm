@@ -355,11 +355,16 @@ sub check_for_available_build_space {
     if ($x > 5 || $x < -5 || $y > 5 || $y < -5) {
         confess [1009, "That's not a valid space for a building.", [$x, $y]];
     }
-    if ($self->building_count >= $self->size) {
-        confess [1009, "You've already reached the maximum number of buildings for this planet.", $self->size];
-    }
     unless ($self->is_space_free($x, $y)) {
         confess [1009, "That space is already occupied.", [$x,$y]]; 
+    }
+    return 1;
+}
+
+sub check_building_count {
+    my ($self, $building) = @_;
+    if (!$building->isa('Lacuna::DB::Result::Building::Permanent') && $self->building_count >= $self->size) {
+        confess [1009, "You've already reached the maximum number of buildings for this planet.", $self->size];
     }
     return 1;
 }
@@ -376,6 +381,7 @@ sub has_met_building_prereqs {
 sub can_build_building {
     my ($self, $building) = @_;
     $self->check_for_available_build_space($building->x, $building->y);
+    $self->check_building_count($building);
     $self->has_room_in_build_queue;
     $self->has_met_building_prereqs($building);
     return $self;
