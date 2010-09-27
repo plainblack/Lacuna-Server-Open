@@ -50,13 +50,13 @@ sub subsidize_build_queue {
         { shipyard_id => $building->id, task => 'building' }
         );
 
-    $empire->spend_essentia(2, 'glyph search subsidy after the fact');    
-    $empire->update;
-
     my $cost = $ships->count;
     unless ($empire->essentia >= $cost) {
         confess [1011, "Not enough essentia."];    
     }
+
+    $empire->spend_essentia(2, 'glyph search subsidy after the fact');    
+    $empire->update;
 
     while (my $ship = $ships->next) {
         $ship->finish_construction;

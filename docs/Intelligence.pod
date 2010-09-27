@@ -106,6 +106,22 @@ Defaults to 1. An integer representing which page to view. Shows 25 spies per pa
 
 
 
+=head2 subsidize_training ( session_id, building_id )
+
+Will spend 1 essentia per spy to complete the training of all spies immediately. Returns C<view>.
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Intelligence Ministry.
+
+
+
 =head2 burn_spy ( session_id, building_id, spy_id )
 
 Allows you to eliminate one of your spies from your payroll.
