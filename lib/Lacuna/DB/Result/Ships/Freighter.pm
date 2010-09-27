@@ -14,7 +14,7 @@ use constant base_time_cost      => 15000;
 use constant base_waste_cost     => 4800;
 use constant base_speed     => 800;
 use constant base_stealth   => 1000;
-use constant base_hold_size => 1905;
+use constant base_hold_size => 3100;
 use constant pilotable      => 1;
 
 
