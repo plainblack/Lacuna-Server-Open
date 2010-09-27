@@ -574,7 +574,7 @@ The unique id of the planet that should send the ship.
 
 
 
-=head2 get_my_available_spies ( session_id, on_body_id )
+=head2 get_my_available_spies ( session_id, on_body )
 
 Returns a list of spies that are controlled by this empire and are on the specified body and are available for transport (assignment is Idle).
 
@@ -598,9 +598,27 @@ Returns a list of spies that are controlled by this empire and are on the specif
 
 A session id.
 
-=head3 on_body_id
+=head3 on_body
 
-The unique id of the planet that the spies are on.
+A hash reference that can contain one of three items to identify a planet.
+
+ { "body_name" : "Earth" }
+ 
+ { "body_id" : "id-goes-here" }
+ 
+ { "x" : 4, "y" : -3 }
+
+=head4 body_name
+
+A string with the body's name. Case insensitive, but will throw an exception for misspelling.
+
+=head4 body_id
+
+The unique id of the body.
+
+=head4 x | y
+
+A set of x,y coords to locate the body.
 
 
 
