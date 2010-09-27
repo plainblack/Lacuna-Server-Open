@@ -63,7 +63,7 @@ sub transfer_type {
 
 sub determine_available_cargo_space {
     my ($self) = @_;
-    return 5000 * $self->level * $self->body->empire->trade_affinity;
+    return 12500 * $self->level * $self->body->empire->trade_affinity;
 }
 
 sub trade_one_for_one {
