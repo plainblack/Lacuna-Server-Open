@@ -11,7 +11,7 @@ use TestHelper;
 my @medals = keys %{Lacuna::DB::Result::Medals::MEDALS()};
 plan tests => scalar @medals;
 
-my $assets = '/Users/jtsmith/Dropbox/lacuna/assets/medal/';
+my $assets = '/data/Lacuna-Assets/medal/';
 
 opendir(my $dir, $assets);
 my @images = readdir $dir;
