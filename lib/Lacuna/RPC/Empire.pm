@@ -462,6 +462,13 @@ sub view_public_profile {
         colony_count    => $viewed_empire->planets->count,
         medals          => \%public_medals,
     );
+    if ($viewed_empire->alliance_id) {
+        my $alliance = $viewed_empire->alliance;
+        $out{alliance} = {
+            id      => $alliance->id,
+            name    => $alliance->name,
+        };
+    }
     my @colonies;
     my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({empire_id => $viewer_empire->id});
     my $planets = $viewed_empire->planets->search(undef,{order_by => 'name'});
