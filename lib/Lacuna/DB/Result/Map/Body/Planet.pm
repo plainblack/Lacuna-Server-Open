@@ -127,6 +127,24 @@ around get_status => sub {
                 if ($self->needs_recalc) {
                     $self->tick; # in case what we just did is going to change our stats
                 }
+                my $now = DateTime->now;
+                my $incoming_ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+                    {
+                        foreign_body_id => $self->id,
+                        direction       => 'out',
+                        task            => 'Travelling',
+                    }
+                );
+                while (my $ship = $incoming_ships->next) {
+                    if ($ship->date_available <= $now) {
+                        $ship->body->tick;
+                    }
+                    else {
+                        push @{$out->{incoming_foreign_ships}}, {
+                            date_arrives => $ship->date_available,
+                        };
+                    }
+                }
                 $out->{needs_surface_refresh} = $self->needs_surface_refresh;
                 $out->{empire}{alignment} = 'self';
                 $out->{building_count}  = $self->building_count;
