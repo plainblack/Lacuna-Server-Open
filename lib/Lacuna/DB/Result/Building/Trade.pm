@@ -78,7 +78,7 @@ sub next_available_trade_ship {
     return $self->trade_ships
         ->search({
             task    => 'Docked',
-            type    => { in => ['cargo_ship','smuggler_ship'] },
+            hold_size   => { '>', 0 },
             body_id => $self->body_id,
         }, {
             rows    => 1,
