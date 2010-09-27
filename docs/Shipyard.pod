@@ -20,6 +20,7 @@ Retrieves what is already being built at this shipyard.
  {
      "status" : { ... },
      "number_of_ships_building" : 30,
+     "cost_to_subsidize" : 30,
      "ships_building" : [
          {
              "type" : "spy_pod",
@@ -41,6 +42,23 @@ The unique id of this shipyard.
 
 Defaults to 1. An integer representing the page of data to view. There are 25 items per page.
  
+ 
+ 
+=head2 subsidize_build_queue ( session_id, building_id )
+
+Will spend 1 essentia per ship to complete the current build queue immediately. Returns C<view>.
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Shipyard.
+
+=cut
  
  
  

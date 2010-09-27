@@ -30,12 +30,41 @@ sub view_build_queue {
             date_completed  => $ship->date_available_formatted,
         }
     }
+    my $number_of_ships = $ships->pager->total_entries;
     return {
         status                      => $self->format_status($empire, $body),
-        number_of_ships_building    => $ships->pager->total_entries,
+        number_of_ships_building    => $number_of_ships,
         ships_building              => \@building,
+        cost_to_subsidize           => $number_of_ships,
     };
 }
+
+
+sub subsidize_build_queue {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $body = $building->body;
+
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        { shipyard_id => $building->id, task => 'building' }
+        );
+
+    $empire->spend_essentia(2, 'glyph search subsidy after the fact');    
+    $empire->update;
+
+    my $cost = $ships->count;
+    unless ($empire->essentia >= $cost) {
+        confess [1011, "Not enough essentia."];    
+    }
+
+    while (my $ship = $ships->next) {
+        $ship->finish_construction;
+    }
+ 
+    return $self->view($empire, $building);
+}
+
 
 sub build_ship {
     my ($self, $session_id, $building_id, $type) = @_;
@@ -59,6 +88,8 @@ sub build_ship {
     $building->build_ship($ship, $costs->{seconds});
     return $self->view_build_queue($empire, $building);
 }
+
+
 
 sub get_buildable {
     my ($self, $session_id, $building_id, $tag) = @_;
