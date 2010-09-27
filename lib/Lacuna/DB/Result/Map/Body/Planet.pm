@@ -587,6 +587,7 @@ sub recalc_stats {
     my ($self) = @_;
     my %stats = ( needs_recalc => 0 );
     my $buildings = $self->buildings;
+    my $mining_ministry_ore_hour = 0;
     while (my $building = $buildings->next) {
         $stats{waste_capacity} += $building->waste_capacity;
         $stats{water_capacity} += $building->water_capacity;
@@ -609,7 +610,7 @@ sub recalc_stats {
                 foreach my $type (ORE_TYPES) {
                     my $method = $type.'_hour';
                     $stats{$method} += $platform->$method();
-                    $stats{ore_hour} += $platform->$method();
+                    $mining_ministry_ore_hour += $platform->$method();
                 }
             }
         }
@@ -618,6 +619,7 @@ sub recalc_stats {
         my $method = $type.'_hour';
         $stats{$method} += sprintf('%.0f',$self->$type * $stats{ore_hour} / 10000);
     }
+    $stats{ore_hour} += $mining_ministry_ore_hour;
     $self->update(\%stats);
     return $self;
 }
