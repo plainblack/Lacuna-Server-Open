@@ -55,7 +55,7 @@ sub no_profanity {
 
 sub no_restricted_chars {
     my $self = shift;
-    return $self->ok(${$self->content} !~ m/[@&<>;]/);
+    return $self->ok(${$self->content} !~ m/[@&<>;\{\}]/);
 }
 
 sub no_padding {

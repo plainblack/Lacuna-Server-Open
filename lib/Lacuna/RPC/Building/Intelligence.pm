@@ -30,7 +30,7 @@ sub view_spies {
         else {
             $planets{$spy->on_body_id} = $spy->on_body;
         }
-        $cost_to_subsidize++ if $spy->task('Training');
+        $cost_to_subsidize++ if ($spy->task eq 'Training');
         push @spies, $spy->get_status;
     }
     my @assignments = Lacuna::DB::Result::Spies->assignments;
