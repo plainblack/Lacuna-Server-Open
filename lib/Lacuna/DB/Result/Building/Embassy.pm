@@ -78,7 +78,7 @@ sub create_alliance {
     });
     $alliance->insert;
     $alliance->add_member($empire);
-    $body->add_news(60,sprintf('A pact was formed my unnamed parties today, which formed a shadowy organization known only as %s.', $alliance->name));
+    $body->add_news(60,sprintf('A pact was formed by unnamed parties today, which formed a shadowy organization known only as %s.', $alliance->name));
     return $alliance;
 }
 
