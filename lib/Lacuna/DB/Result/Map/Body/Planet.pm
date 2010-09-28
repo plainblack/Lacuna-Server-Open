@@ -141,7 +141,7 @@ around get_status => sub {
                     }
                     else {
                         push @{$out->{incoming_foreign_ships}}, {
-                            date_arrives => $ship->date_available,
+                            date_arrives => $ship->date_available_formatted,
                         };
                     }
                 }

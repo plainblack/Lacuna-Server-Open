@@ -89,7 +89,7 @@ sub accept_trade {
         confess [1002, 'Could not find that trade. Perhaps it has already been accepted.'];
     }
     unless ($ship->hold_size >= $trade->ask_quantity) {
-        confess [1011, 'You need a cargo ship with a hold size of at least '.$trade->ask_quantity];
+        confess [1011, 'You need a cargo ship with a hold size of at least '.$trade->ask_quantity.'.'];
     }
     my $body = $building->body;
     if ($trade->ask_type eq 'essentia') {
