@@ -58,7 +58,8 @@ sub alliance {
 
 sub create_alliance {
     my ($self, $name) = @_;
-    my $empire = $self->body->empire;
+    my $body = $self->body;
+    my $empire = $body->empire;
     if ($empire->alliance_id) {
         confess [1010, 'Cannot form a new alliance, while you belong to an existing alliance.'];
     }
@@ -77,6 +78,7 @@ sub create_alliance {
     });
     $alliance->insert;
     $alliance->add_member($empire);
+    $body->add_news(50,sprintf('A pact was formed my unnamed parties today, which formed a shadowy organization known only as %s.', $alliance->name));
     return $alliance;
 }
 
@@ -181,9 +183,11 @@ sub withdraw_invite {
 sub dissolve_alliance {
     my ($self) = @_;
     my $alliance = $self->alliance;
-    if ($self->body->empire_id != $alliance->leader_id) {
+    my $body = $self->body;
+    if ($body->empire_id != $alliance->leader_id) {
         confess [1010, 'Only the alliance leader can dissolve an alliance.'];
     }
+    $body->add_news(50,sprintf('The organization known as %s dissolved today amid rumors of scandal.', $alliance->name));
     $alliance->delete;
 }
 
