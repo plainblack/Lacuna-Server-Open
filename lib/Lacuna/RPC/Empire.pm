@@ -7,6 +7,7 @@ use Lacuna::Util qw(format_date randint);
 use DateTime;
 use String::Random qw(random_string);
 use UUID::Tiny;
+use Time::HiRes;
 
 sub find {
     my ($self, $session_id, $name) = @_;
@@ -68,6 +69,53 @@ sub login {
         }
     }
     return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request })->id, status => $self->format_status($empire) };
+}
+
+
+sub benchmark {
+    my ($self, $plack_request, $name, $password, $api_key) = @_;
+    unless ($api_key) {
+        confess [1002, 'You need an API Key.'];
+    }
+
+    my %out;
+    my $t = [Time::HiRes::gettimeofday];
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->next;
+    $out{empire} = Time::HiRes::tv_interval($t);
+
+    $t = [Time::HiRes::gettimeofday];
+    unless (defined $empire) {
+         confess [1002, 'Empire does not exist.', $name];
+    }
+    if ($empire->stage eq 'new') {
+        confess [1010, "You can't log in to an empire that has not been founded."];
+    }
+    unless ($empire->is_password_valid($password)) {
+        confess [1004, 'Password incorrect.', $password];            
+    }
+    $out{validation} = Time::HiRes::tv_interval($t);
+
+    $t = [Time::HiRes::gettimeofday];
+    $empire->start_session({ api_key => $api_key, request => $plack_request });
+    $out{session} = Time::HiRes::tv_interval($t);
+
+    $t = [Time::HiRes::gettimeofday];
+    my $home = $empire->home_planet;
+    $out{home} = Time::HiRes::tv_interval($t);
+    
+    $t = [Time::HiRes::gettimeofday];
+    $home->tick;
+    $out{tick} = Time::HiRes::tv_interval($t);
+
+    $t = [Time::HiRes::gettimeofday];
+    $home->command;
+    $out{pcc} = Time::HiRes::tv_interval($t);
+ 
+    $t = [Time::HiRes::gettimeofday];
+    $self->format_status($empire, $home);
+    $out{status} = Time::HiRes::tv_interval($t);
+ 
+    return \%out;
 }
 
 
@@ -815,6 +863,7 @@ __PACKAGE__->register_rpc_method_names(
     { name => "create", options => { with_plack_request => 1 } },
     { name => "fetch_captcha", options => { with_plack_request => 1 } },
     { name => "login", options => { with_plack_request => 1 } },
+    { name => "benchmark", options => { with_plack_request => 1 } },
     { name => "found", options => { with_plack_request => 1 } },
     { name => "reset_password", options => { with_plack_request => 1 } },
     qw(get_species_templates update_species view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
