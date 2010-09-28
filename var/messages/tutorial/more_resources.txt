@@ -4,6 +4,8 @@ You're doing well, but we're going to need a lot more resource production than t
 
 If you can get your production to more than 100 of each resource (ore {ore}, water {water}, food {food}, and energy {energy}) per hour, then we'll be in a good position to do other more interesting things. Build more farms, mines, water purification plants, and energy plants to get your resource production going.
 
+One other thing. As you're choosing what buildings to build, a diversity of food is always a good thing. Your citizens will thank you for a wealth of food choices.
+
 Regards,
 
 Tou Re Ell
