@@ -5,15 +5,15 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 
 use constant prereq         => { class=> 'Lacuna::DB::Result::Building::Trade',  level => 1 };
-use constant base_food_cost      => 700;
-use constant base_water_cost     => 1400;
-use constant base_energy_cost    => 6500;
-use constant base_ore_cost       => 11000;
+use constant base_food_cost      => 350;
+use constant base_water_cost     => 700;
+use constant base_energy_cost    => 3250;
+use constant base_ore_cost       => 5500;
 use constant base_time_cost      => 3800;
-use constant base_waste_cost     => 800;
+use constant base_waste_cost     => 400;
 use constant base_speed     => 1200;
 use constant base_stealth   => 5000;
-use constant base_hold_size => 685;
+use constant base_hold_size => 343;
 use constant pilotable      => 1;
 
 around 'build_tags' => sub {
