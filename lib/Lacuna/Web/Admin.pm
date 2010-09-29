@@ -648,7 +648,7 @@ sub www_view_virality {
 
     my $change_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_change
         .'&chxt=x,y&chds=0,'.$max_change.',0,'.$max_change.',0,'.$max_change.',0,'.$max_change
-        .'&chdl=Invites|Accepts|Creates|Deletes&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3&chxtc=1,-900&chs=900x200&cht=ls&chco=ffcccc,ccffcc,ccccff,ffccff&chd=t:'
+        .'&chdl=Invites|Accepts|Creates|Deletes&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3&chxtc=1,-900&chs=900x200&cht=ls&chco=ff8888,88ff88,8888ff,ff88ff&chd=t:'
         .join('|',
             join(',', @invites),
             join(',', @accepts),
