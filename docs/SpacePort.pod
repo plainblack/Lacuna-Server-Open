@@ -461,18 +461,16 @@ Sends one or more of spies to a planet using a selected ship. See also C<prepare
 
  {
      "ship" : {
-        "ship" : {
-           "id" : "id-goes-here",
-           "name" : "CS4",
-           "hold_size" : 1100,
-           "speed" : 400,
-           "type" : "cargo_ship",
-           "date_arrives" : "01 31 2010 13:09:05 +0600",
-           ...
-        },
+        "id" : "id-goes-here",
+        "name" : "CS4",
+        "hold_size" : 1100,
+        "speed" : 400,
+        "type" : "cargo_ship",
+        "date_arrives" : "01 31 2010 13:09:05 +0600",
+        ...
      },
     "spies_sent" : ["id-goes-here","id-goes-here","id-goes-here"],     # should be identical to "spy_ids"
-    "spies_not_sent" : ["id-goes-here","id-goes-here","id-goes-here"]  # should only contain something if you're cheating, or a spy dies/turns between RPC calls
+    "spies_not_sent" : ["id-goes-here","id-goes-here","id-goes-here"],  # should only contain something if you're cheating, or a spy dies/turns between RPC calls
     "status" : { ... }
  }
 
