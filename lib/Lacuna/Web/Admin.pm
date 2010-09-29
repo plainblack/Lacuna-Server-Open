@@ -583,30 +583,69 @@ sub www_view_virality {
     my ($self, $request) = @_;
     my $out = '<h1>Virality</h1>';
 
-    my @vc;
-    my @gr;
-    my @cr;
-    my $previous;
+    my (@accepts, @creates, @invites, @dates, @deletes, @users, @vc, @gr, @cr, $previous, $max_viral, $max_change, $max_users);
     my $past30 = $self->get_viral->search({date_stamp => { '>=' => DateTime->now->subtract(days => 31)}}, { order_by => 'date_stamp'});
     while (my $day = $past30->next) {
         unless (defined $previous) {
             $previous = $day;
             next;
         }
+        push @dates, format_date($day->date_stamp, '%m/%d');
         
+        # users chart
+        push @users, $day->users;
+        $max_users = $users[-1] if ($max_users < $users[-1]);
+        
+        # viral chart
         push @vc, sprintf('%.0f', ($day->accepts / $previous->total_users) * 100);
+        $max_viral = $vc[-1] if ($max_viral < $vc[-1]);
         push @gr, sprintf('%.0f', (($day->total_users - $previous->total_users) / $previous->total_users) * 100);
+        $max_viral = $gr[-1] if ($max_viral < $gr[-1]);
         push @cr, sprintf('%.0f', ($day->deletes / $previous->total_users) * 100);
+        $max_viral = $cr[-1] if ($max_viral < $cr[-1]);
+        
+        # change chart
+        push @accepts, $day->accepts;
+        $max_change = $accepts[-1] if ($max_change < $accepts[-1]);
+        push @deletes, $day->deletes;
+        $max_change = $deletes[-1] if ($max_change < $deletes[-1]);
+        push @invites, $day->invites;
+        $max_change = $invites[-1] if ($max_change < $invites[-1]);
+        push @creates, $day->creates;
+        $max_change = $creates[-1] if ($max_change < $creates[-1]);
         
         $previous = $day;
     }
+    
+    my $users_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_users
+        .'&chds=0,'.$max_users
+        .'&chdl=Users&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3&chxtc=1,-750&chs=750x200&cht=ls&chco=ffffff&chd=t:'
+        .join(',', @users)
+        .'&chxl='
+        .join('|', '0:', @dates);
 
-    my $chart = 'http://chart.apis.google.com/chart?chf=bg,s,014986&chls=3|3|3&chs=700x200&cht=ls&chco=00ff00,ffb400,b400ff&chd=t:'
+    my $viral_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_viral
+        .'&chds=0,'.$max_viral.',0,'.$max_viral.',0,'.$max_viral
+        .'&chdl=Viral%20Coefficient|Growth%20Rate|Churn%20Rate&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3&chxtc=1,-750&chs=750x200&cht=ls&chco=00ff00,ffb400,b400ff&chd=t:'
         .join('|',
             join(',', @vc),
             join(',', @gr),
             join(',', @cr),
-        );
+        )
+        .'&chxl='
+        .join('|', '0:', @dates);
+
+    my $change_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_change
+        .'&chds=0,'.$max_change.',0,'.$max_change.',0,'.$max_change.',0,'.$max_change
+        .'&chdl=Invites|Accepts|Creates|Deletes&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3&chxtc=1,-750&chs=750x200&cht=ls&chco=ff0000,00ff00,0000ff,ff00ff&chd=t:'
+        .join('|',
+            join(',', @invites),
+            join(',', @accepts),
+            join(',', @creates),
+            join(',', @deletes),
+        )
+        .'&chxl='
+        .join('|', '0:', @dates);
     
     my $avg_vc = sprintf('%.2f', sum(@vc) / 100 / scalar(@vc));
     my $avg_gr = sprintf('%.2f', sum(@gr) / 100 / scalar(@gr));
@@ -629,7 +668,14 @@ sub www_view_virality {
             <span style="font-size: 100px;">'.$avg_cr.'</span>
         </div>
         <div style="clear: both"></div>
-        <img src="'.$chart.'" alt="chart">
+        <img src="'.$viral_chart.'" alt="viral chart">
+        
+        <h2>Change</h2>
+        <img src="'.$change_chart.'" alt="change chart">
+        
+        <h2>Total Users</h2>
+        <img src="'.$users_chart.'" alt="users chart">
+        
         </div>
     ';
     
@@ -638,12 +684,6 @@ sub www_view_virality {
 
 sub get_viral {
     return Lacuna->db->resultset('Lacuna::DB::Result::ViralLog');
-}
-
-sub get_viral_for {
-    my $self = shift;
-    my $date = shift || DateTime->now;
-    return $self->get_viral->search({date_stamp => format_date($date,'%F')},{rows => 1})->single;
 }
 
 
