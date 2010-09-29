@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 5;
+use Test::More tests => 8;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -21,8 +21,17 @@ ok(exists $result->{result}, "spy_rank");
 $result = $tester->post('stats', 'colony_rank', [$session_id]);
 ok(exists $result->{result}, "colony_rank");
 
-$result = $tester->post('stats', 'spy_rank', [$session_id]);
+$result = $tester->post('stats', 'empire_rank', [$session_id]);
 ok(exists $result->{result}, "empire_rank");
+
+$result = $tester->post('stats', 'find_empire_rank', [$session_id, 'empire_size_rank', 'test']);
+ok(exists $result->{result}, "find_empire_rank");
+
+$result = $tester->post('stats', 'alliance_rank', [$session_id]);
+ok(exists $result->{result}, "alliance_rank");
+
+$result = $tester->post('stats', 'find_alliance_rank', [$session_id, 'average_empire_size_rank', 'test']);
+ok(exists $result->{result}, "find_alliance_rank");
 
 END {
     $tester->cleanup;

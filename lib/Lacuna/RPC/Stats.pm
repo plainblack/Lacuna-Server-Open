@@ -18,18 +18,103 @@ sub credits {
             ];
 }
 
+sub alliance_rank {
+    my ($self, $session_id, $by, $page_number) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    unless ($by ~~ [qw(average_empire_size_rank offense_success_rate_rank defense_success_rate_rank dirtiest_rank)]) {
+        $by = 'average_empire_size_rank';
+    }
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Alliance');
+    unless ($page_number) {
+        if ($empire->alliance_id) {
+            my $me = $ranks->find($empire->alliance_id);
+            if (defined $me) {
+                $page_number = int($me->$by / 25);
+                if ( $me->$by % 25 ) {
+                    $page_number++;
+                }
+            }
+            else {
+                $page_number = 1;
+            }
+        }
+        else {
+            $page_number = 1;
+        }
+    }
+    $ranks = $ranks->search(undef,{rows => 25, page => $page_number, order_by => $by});
+    my @alliances;
+    while (my $rank = $ranks->next) {
+        push @alliances, {
+            alliance_id                 => $rank->alliance_id,
+            alliance_name               => $rank->alliance_name,
+            member_count                => $rank->member_count,
+            space_station_count         => $rank->space_station_count,
+            influence                   => $rank->influence,
+            colony_count                => $rank->colony_count,
+            population                  => $rank->population,
+            average_empire_size         => $rank->average_empire_size,
+            building_count              => $rank->building_count,
+            average_building_level      => $rank->average_building_level,
+            offense_success_rate        => $rank->offense_success_rate,
+            defense_success_rate        => $rank->defense_success_rate,
+            dirtiest                    => $rank->dirtiest,
+        };
+    }
+    return {
+        status  	=> $self->format_status($empire),
+        alliances 	=> \@alliances,
+        total_empires	=> $ranks->pager->total_entries,
+        page_number	=> $page_number,
+    };
+}
+
+sub find_alliance_rank {
+    my ($self, $session_id, $by, $alliance_name) = @_;
+    unless (length($alliance_name) >= 3) {
+        confess [1009, 'Alliance name too short. Your search must be at least 3 characters.'];
+    }
+    unless ($by ~~ [qw(average_empire_size_rank offense_success_rate_rank defense_success_rate_rank dirtiest_rank)]) {
+        $by = 'average_empire_size_rank';
+    }
+    my $empire = $self->get_empire_by_session($session_id);
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Alliance')->search(undef,{order_by => $by, rows=>25});
+    my $ranked = $ranks->search({alliance_name => { like => $alliance_name.'%'}});
+    my @alliances;
+    while (my $rank = $ranked->next) {
+        my $page_number = int($rank->$by / 25);
+        if ( $rank->$by % 25 ) {
+            $page_number++;
+        }
+        push @alliances, {
+            alliance_id   => $rank->alliance_id,
+            alliance_name => $rank->alliance_name,
+            page_number => $page_number,
+        };
+    }
+    return {
+        status  => $self->format_status($empire),
+        alliances => \@alliances,
+    };
+}
+
 sub empire_rank {
     my ($self, $session_id, $by, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    unless ($by ~~ [qw(empire_size_rank university_level_rank offense_success_rate_rank defense_success_rate_rank dirtiest_rank)]) {
+    unless ($by ~~ [qw(empire_size_rank offense_success_rate_rank defense_success_rate_rank dirtiest_rank)]) {
         $by = 'empire_size_rank';
     }
     my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire');
     unless ($page_number) {
         my $me = $ranks->find($empire->id);
-        $page_number = int($me->$by / 25);
-        if ( $me->$by % 25 ) {
-            $page_number++;
+        if (defined $me) {
+            $page_number = int($me->$by / 25);
+            if ( $me->$by % 25 ) {
+                $page_number++;
+            }
+        }
+        else {
+            $page_number = 1;
         }
     }
     $ranks = $ranks->search(undef,{rows => 25, page => $page_number, order_by => $by});
@@ -161,7 +246,7 @@ sub weekly_medal_winners {
 }
     
 
-__PACKAGE__->register_rpc_method_names(qw(weekly_medal_winners spy_rank colony_rank find_empire_rank empire_rank credits));
+__PACKAGE__->register_rpc_method_names(qw(weekly_medal_winners spy_rank colony_rank find_empire_rank empire_rank credits alliance_rank find_alliance_rank));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

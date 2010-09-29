@@ -19,6 +19,79 @@ Retrieves a list of the game credits. It is an array of hashes of arrays.
     ...
  ]
  
+
+
+=head2 alliance_rank ( session_id, [ sort_by, page_number ] )
+
+Returns a sorted list of alliance ranked according to various stats.
+
+ {
+    "status" : { ... },
+    "alliances" : [
+        {
+            "alliance_id" : "id-goes-here",                   # unique id
+            "alliance_name" : "Earthlings",                   # alliance name
+            "member_count" : "1",                           # number of empires in the alliance
+            "space_station_count" : 0,                      # number of space stations this alliance controlls
+            "influence" : 0,                                # the number of stars under the jurisdiction of this alliance
+            "colony_count" : "1",                           # number of planets colonized
+            "population" : "7000000000",                    # number of citizens on all planets in the empires of the alliance
+            "average_empire_size" : "7000000000",                   # average size of empires in the alliance
+            "building_count" : "50",                        # number of buildings across all colonies 
+            "average_building_level" : "20",                # average level of all buildings across all colonies
+            "offense_success_rate" : "0.793",               # the offense rate of success of spies at all colonies
+            "defense_success_rate" : "0.49312",             # the defense rate of success of spies at all colonies
+            "dirtiest" : "7941"                            # the number of times a spy has attempted to hurt another empire
+          },
+        ...
+    ],
+   "total_alliances" : 5939,
+   "page_number" : 3
+ }
+ 
+=head3 session_id
+
+A session id.
+
+=head3 sort_by
+
+An attribute to sort by. Defaults to C<average_empire_size_rank>. Possible values are: C<average_empire_size_rank>, C<offense_success_rate_rank>, C<defense_success_rate_rank>, and C<dirtiest_rank>
+
+=head3 page_number
+
+An integer representing the page number to display. There are 25 records per page. Defaults to the page number that the current user is listed on.
+
+
+
+=head2 find_alliance_rank ( session_id, sort_by, alliance_name )
+
+Search for a particular alliance in the C<alliance_rank()>. Returns:
+
+ {
+    "status" : { ... },
+    "alliances" : [
+        {
+            "alliance_id" : "id-goes-here",
+            "alliance_name" : "Earth Allies",
+            "page_number" : "54",
+        }
+        ...
+    ]
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 sort_by
+
+The field to sort by. See C<alliance_rank> for details.
+
+=head3 alliance_name
+
+A full or partial alliance name to search by. Must be at least 3 characters to search.
+
+
  
 
 =head2 empire_rank ( session_id, [ sort_by, page_number ] )
