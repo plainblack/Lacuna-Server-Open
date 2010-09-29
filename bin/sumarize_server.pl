@@ -281,9 +281,15 @@ sub summarize_empires {
     while (my $empire = $empires->next) {
         out($empire->name);
         my %empire_data = (
-            date_stamp                 => DateTime->now,
-            university_level           => $empire->university_level
+            date_stamp                  => DateTime->now,
+            university_level            => $empire->university_level,
+            empire_id                   => $empire->id,
+            empire_name                 => $empire->name,
+            alliance_id                 => $empire->alliance_id,
         );
+        if ($empire->alliance_id) {
+            $empire_data{alliance_name} = $empire->alliance->name;
+        }
         my $colonies = $colony_logs->search({empire_id => $empire->id});
         while ( my $colony = $colonies->next) {
             $empire_data{colony_count}++;
@@ -319,8 +325,6 @@ sub summarize_empires {
             $log->update(\%empire_data);
         }
         else {
-            $empire_data{empire_id}	= $empire->id;
-            $empire_data{empire_name}   = $empire->name;
             $logs->new(\%empire_data)->insert;
         }
     }
