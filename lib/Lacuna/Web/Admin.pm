@@ -700,7 +700,7 @@ sub www_view_virality {
 }
 
 sub get_viral {
-    return Lacuna->db->resultset('Lacuna::DB::Result::ViralLog');
+    return Lacuna->db->resultset('Lacuna::DB::Result::Log::Viral');
 }
 
 

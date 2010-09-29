@@ -54,6 +54,7 @@ sub view_profile {
         leader_id       => $alliance->leader_id,
         members         => \@members_list,
         space_stations  => [],
+        influence       => 0,
     );
     return { profile => \%out, status => $self->format_status($empire) };
 }

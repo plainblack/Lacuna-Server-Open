@@ -2,7 +2,7 @@ package Lacuna::DB::Result::Log::Empire;
 
 use Moose;
 no warnings qw(uninitialized);
-extends 'Lacuna::DB::Result::Log';
+extends 'Lacuna::DB::Result::Log::WithEmpire';
 use Lacuna::Util;
 
 __PACKAGE__->table('empire_log');
@@ -35,8 +35,8 @@ __PACKAGE__->add_columns(
     dirtiest                    => { data_type => 'int', size => 11, default_value => 0 },
     dirtiest_rank               => { data_type => 'int', size => 11, default_value => 0 },
     dirtiest_delta              => { data_type => 'int', size => 11, default_value => 0 },
-#    alliance_id                 => { date_type => 'int', is_nullable => 0 },
-#    alliance_name               => { data_type => 'varchar', size => 30, is_nullable => 0 },
+    alliance_id                 => { data_type => 'int', is_nullable => 1 },
+    alliance_name               => { data_type => 'varchar', size => 30, is_nullable => 1 },
 );
 
 after 'sqlt_deploy_hook' => sub {

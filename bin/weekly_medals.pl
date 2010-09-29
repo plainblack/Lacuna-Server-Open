@@ -18,7 +18,7 @@ my $start = DateTime->now;
 
 out('Loading DB');
 our $db = Lacuna->db;
-my $winners = $db->resultset('Lacuna::DB::Result::WeeklyMedalWinner');
+my $winners = $db->resultset('Lacuna::DB::Result::Log::WeeklyMedalWinner');
 
 $winners->delete;
 

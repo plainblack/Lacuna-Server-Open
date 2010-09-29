@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::ViralLog;
+package Lacuna::DB::Result::Log::Viral;
 
 use Moose;
 no warnings qw(uninitialized);

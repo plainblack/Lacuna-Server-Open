@@ -143,7 +143,7 @@ sub spy_rank {
 sub weekly_medal_winners {
     my ($self, $session_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $winner_rs = Lacuna->db->resultset('Lacuna::DB::Result::WeeklyMedalWinner')->search;
+    my $winner_rs = Lacuna->db->resultset('Lacuna::DB::Result::Log::WeeklyMedalWinner')->search;
     my @winners;
     while (my $winner = $winner_rs->next) {
         push @winners, {

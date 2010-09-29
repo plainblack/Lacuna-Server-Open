@@ -1,13 +1,11 @@
-package Lacuna::DB::Result::WeeklyMedalWinner;
+package Lacuna::DB::Result::Log::WeeklyMedalWinner;
 
 use Moose;
 no warnings qw(uninitialized);
-extends 'Lacuna::DB::Result';
+extends 'Lacuna::DB::Result::Log::WithEmpire';
 
 __PACKAGE__->table('weekly_medal_winner');
 __PACKAGE__->add_columns(
-    empire_id               => { data_type => 'int', is_nullable => 0 },
-    empire_name             => { data_type => 'varchar', size => 30, is_nullable => 0 },
     medal_id                => { data_type => 'int', is_nullable => 0 },
     medal_name              => { data_type => 'varchar', size => 50, is_nullable => 0 },
     times_earned            => { data_type => 'int', is_nullable => 0 },

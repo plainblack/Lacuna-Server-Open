@@ -27,10 +27,12 @@ our $db = Lacuna->db;
 summarize_spies();
 summarize_colonies();
 summarize_empires();
+summarize_alliances();
 delete_old_records($start);
 rank_spies();
 rank_colonies();
 rank_empires();
+rank_alliances();
 generate_overview();
 
 my $finish = DateTime->now;
@@ -205,12 +207,70 @@ sub rank_empires {
     }
 }
 
+sub rank_alliances {
+    out('Ranking Alliances');
+    my $alliances = $db->resultset('Lacuna::DB::Result::Log::Alliance');
+    foreach my $field (qw(average_empire_size offense_success_rate defense_success_rate dirtiest)) {
+        my $ranked = $alliances->search(undef, {order_by => {-desc => $field}});
+        my $counter = 1;
+        while (my $alliance = $ranked->next) {
+            $alliance->update({$field.'_rank' => $counter++});
+        }
+    }
+}
+
 sub delete_old_records {
     out('Deleting old records');
     my $start = shift;
+    $db->resultset('Lacuna::DB::Result::Log::Alliance')->search({date_stamp => { '<' => $start}})->delete;
     $db->resultset('Lacuna::DB::Result::Log::Empire')->search({date_stamp => { '<' => $start}})->delete;
     $db->resultset('Lacuna::DB::Result::Log::Colony')->search({date_stamp => { '<' => $start}})->delete;
     $db->resultset('Lacuna::DB::Result::Log::Spies')->search({date_stamp => { '<' => $start}})->delete;
+}
+
+sub summarize_alliances { 
+    out('Summarizing Alliances');
+    my $logs = $db->resultset('Lacuna::DB::Result::Log::Alliance');
+    my $alliances = $db->resultset('Lacuna::DB::Result::Alliance');
+    my $empire_logs = $db->resultset('Lacuna::DB::Result::Log::Empire');
+    while (my $alliance = $alliances->next) {
+        out($alliance->name);
+        my %alliance_data = (
+            date_stamp                 => DateTime->now,
+            space_station_count         => 0,
+            influence                   => 0,
+            alliance_id                 => $alliance->id,
+            alliance_name               => $alliance->name,
+        );
+        my $empires = $empire_logs->search({alliance_id => $alliance->id});
+        while ( my $empire = $empires->next) {
+            $alliance_data{member_count}++;
+            $alliance_data{colony_count}            += $empire->colony_count;
+            $alliance_data{population} 		        += $empire->population;
+            $alliance_data{building_count} 	        += $empire->building_count;
+            $alliance_data{average_building_level}    += $empire->average_building_level;
+            $alliance_data{defense_success_rate}      += $empire->defense_success_rate;
+            $alliance_data{offense_success_rate}      += $empire->offense_success_rate;
+            $alliance_data{dirtiest}                  += $empire->dirtiest;
+            $alliance_data{spy_count}                 += $empire->spy_count;
+            $alliance_data{average_empire_size}         += $empire->empire_size;
+            $alliance_data{average_university_level}    += $empire->university_level;
+        }
+        if ($alliance_data{member_count}) {
+            $alliance_data{average_empire_size}     /= $alliance_data{member_count};
+            $alliance_data{average_university_level}/= $alliance_data{member_count};
+       	    $alliance_data{average_building_level}  /= $alliance_data{member_count};
+            $alliance_data{offense_success_rate}    /= $alliance_data{member_count};
+            $alliance_data{defense_success_rate}    /= $alliance_data{member_count};
+        }
+        my $log = $logs->search({alliance_id => $alliance->id},{rows=>1})->single;
+        if (defined $log) {
+            $log->update(\%alliance_data);
+        }
+        else {
+            $logs->new(\%alliance_data)->insert;
+        }
+    }
 }
 
 sub summarize_empires { 

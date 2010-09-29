@@ -35,7 +35,8 @@ Provides a list of the data that's publicly known about this alliance.
                 "y" : 128
             },
             ...
-        ]
+        ],
+        "influence" : 0
     },
     "status" : { ... }
  }

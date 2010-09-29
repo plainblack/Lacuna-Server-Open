@@ -2,7 +2,7 @@ package Lacuna::DB::Result::Log::Spies;
 
 use Moose;
 no warnings qw(uninitialized);
-extends 'Lacuna::DB::Result::Log';
+extends 'Lacuna::DB::Result::Log::WithEmpire';
 use Lacuna::Util;
 
 __PACKAGE__->table('spy_log');

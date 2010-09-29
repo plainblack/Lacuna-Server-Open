@@ -36,7 +36,7 @@ while (my $empire = $to_be_deleted->next) {
 }
 
 out('Updating Viral Log');
-my $viral_log = $db->resultset('Lacuna::DB::Result::ViralLog');
+my $viral_log = $db->resultset('Lacuna::DB::Result::Log::Viral');
 my $add_deletes = $viral_log->search({date_stamp => format_date($start,'%F')},{rows=>1})->single;
 unless (defined $add_deletes) {
     $add_deletes = $viral_log->new({date_stamp => format_date($start,'%F')})->insert;
