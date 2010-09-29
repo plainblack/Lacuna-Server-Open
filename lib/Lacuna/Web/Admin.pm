@@ -590,7 +590,7 @@ sub www_view_virality {
             $previous = $day;
             next;
         }
-        push @dates, format_date($day->date_stamp, '%m/%d');
+        push @dates, $day->date_stamp->month.'/'.$day->date_stamp->day;
         
         # users chart
         push @users, $day->total_users;
@@ -622,21 +622,21 @@ sub www_view_virality {
     }
     
     my $users_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_users
-        .'&chds=0,'.$max_users
+        .'&chxt=x,y&chds=0,'.$max_users
         .'&chdl=Users&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3&chxtc=1,-750&chs=750x200&cht=ls&chco=ffffff&chd=t:'
         .join(',', @users)
         .'&chxl='
         .join('|', '0:', @dates);
 
     my $stay_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_stay
-        .'&chds=0,'.$max_stay
+        .'&chxt=x,y&chds=0,'.$max_stay
         .'&chdl=Users&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3&chxtc=1,-750&chs=750x200&cht=ls&chco=ffffff&chd=t:'
         .join(',', @stay)
         .'&chxl='
         .join('|', '0:', @dates);
 
     my $viral_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_viral
-        .'&chds=0,'.$max_viral.',0,'.$max_viral.',0,'.$max_viral
+        .'&chxt=x,y&chds=0,'.$max_viral.',0,'.$max_viral.',0,'.$max_viral
         .'&chdl=Viral%20Coefficient|Growth%20Rate|Churn%20Rate&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3&chxtc=1,-750&chs=750x200&cht=ls&chco=00ff00,ffb400,b400ff&chd=t:'
         .join('|',
             join(',', @vc),
@@ -647,7 +647,7 @@ sub www_view_virality {
         .join('|', '0:', @dates);
 
     my $change_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_change
-        .'&chds=0,'.$max_change.',0,'.$max_change.',0,'.$max_change.',0,'.$max_change
+        .'&chxt=x,y&chds=0,'.$max_change.',0,'.$max_change.',0,'.$max_change.',0,'.$max_change
         .'&chdl=Invites|Accepts|Creates|Deletes&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3&chxtc=1,-750&chs=750x200&cht=ls&chco=ff0000,00ff00,0000ff,ff00ff&chd=t:'
         .join('|',
             join(',', @invites),
@@ -681,12 +681,15 @@ sub www_view_virality {
         <div style="clear: both"></div>
         <img src="'.$viral_chart.'" alt="viral chart">
         
+        <br>
         <h2>Change</h2>
         <img src="'.$change_chart.'" alt="change chart">
         
+        <br>
         <h2>Total Users</h2>
         <img src="'.$users_chart.'" alt="users chart">
         
+        <br>
         <h2>Stay</h2>
         <img src="'.$stay_chart.'" alt="users chart">
         
