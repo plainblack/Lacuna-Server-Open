@@ -14,7 +14,7 @@ __PACKAGE__->add_columns(
     influence                   => { data_type => 'int', is_nullable => 0 },
     colony_count                => { data_type => 'int', is_nullable => 0 },
     population                  => { data_type => 'int', size => 11, is_nullable => 0 },
-    average_empire_size         => { data_type => 'float', size =>[5,2], is_nullable => 0 },
+    average_empire_size         => { data_type => 'bigint', is_nullable => 0 },
     average_empire_size_rank    => { data_type => 'int', is_nullable => 0 },
     average_university_level    => { data_type => 'float', size =>[5,2], is_nullable => 0 },
     building_count              => { data_type => 'int', is_nullable => 0 },
