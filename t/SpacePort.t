@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 9;
+use Test::More tests => 8;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -61,14 +61,14 @@ is(ref $result->{result}{ships}, 'ARRAY', "can see all foreign ships");
 $result = $tester->post('spaceport', 'get_ships_for', [$session_id, $home->id, { body_id => $home->id }]);
 is(ref $result->{result}{available}, 'ARRAY', "can see what ships are available to send");
 
-$result = $tester->post('spaceport', 'get_my_available_spies', [$session_id, { body_id => $home->id }]);
-is(ref $result->{result}{spies}, 'ARRAY', "can see spy list");
+$empire->is_isolationist(0);
+$empire->update;
 
-$result = $tester->post('spaceport', 'get_available_spy_ships_for_fetch', [$session_id, $home->id]);
-is(ref $result->{result}{ships}, 'ARRAY', "can see ship list");
+$result = $tester->post('spaceport', 'prepare_send_spies', [$session_id, $home->id, $home->id ]);
+is(ref $result->{result}{spies}, 'ARRAY', "can prepare for send spies");
 
-$result = $tester->post('spaceport', 'get_available_spy_ships', [$session_id, $home->id]);
-is(ref $result->{result}{ships}, 'ARRAY', "can see ship list");
+$result = $tester->post('spaceport', 'prepare_fetch_spies', [$session_id, $home->id, $home->id ]);
+is(ref $result->{result}{ships}, 'ARRAY', "can prepare for fetch spies");
 
 END {
     $tester->cleanup;

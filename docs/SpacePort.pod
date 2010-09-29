@@ -408,70 +408,160 @@ Defaults to 1. An integer representing which page of ships travelling to view. E
 
 
 
-=head2 send_spies ( session_id, from_body_id, to_body, ship_id, spy_ids )
+=head2 prepare_send_spies ( session_id, on_body_id, to_body_id )
 
-Sends one or more of spies to a planet using a selected ship.
+Gathers the information needed to call the C<send_spies> method.
 
  {
-     "ship" : {
-         "date_arrives" : "01 31 2010 13:09:05 +0600",
-         "spies_sent" : ["id-goes-here","id-goes-here","id-goes-here"],     # should be identical to "spy_ids"
-         "spies_not_sent" : ["id-goes-here","id-goes-here","id-goes-here"]  # should only contain something if you're cheating, or a spy dies/turns between RPC calls
-     },
-     "status" : { ... }
+    "status" : { ... },
+    "ships" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "CS4",
+            "hold_size" : 1100,
+            "speed" : 400,
+            "type" : "cargo_ship",
+            ...
+        },
+        ...
+    ],
+    "spies" : [
+        {
+            "id" : "id-goes-here",
+            "level" : 12,
+            "name" : "Jack Bauer",
+            "assigned_to" : {
+               "body_id" : "id-goes-here",
+               "name" : "Earth"
+            },
+            ...
+        },
+        ...
+    ]
  }
 
 =head3 session_id
 
 A session id.
 
-=head3 from_body_id
+=head3 on_body_id
 
-The unique id of the planet that should send the ship.
+The unique id of the planet that the spies are on and ship will be dispatched from.
 
-=head3 to_body
+=head3 to_body_id
 
-A hash reference that can contain one of three items to identify a planet.
+The unique id of the planet that the spies should be sent to.
 
- { "body_name" : "Earth" }
- 
- { "body_id" : "id-goes-here" }
- 
- { "x" : 4, "y" : -3 }
 
-=head4 body_name
 
-A string with the body's name. Case insensitive, but will throw an exception for misspelling.
 
-=head4 body_id
+=head2 send_spies ( session_id, on_body_id, to_body_id, ship_id, spy_ids )
 
-The unique id of the body.
+Sends one or more of spies to a planet using a selected ship. See also C<prepare_send_spies>.
 
-=head4 x | y
+ {
+     "ship" : {
+        "ship" : {
+           "id" : "id-goes-here",
+           "name" : "CS4",
+           "hold_size" : 1100,
+           "speed" : 400,
+           "type" : "cargo_ship",
+           "date_arrives" : "01 31 2010 13:09:05 +0600",
+           ...
+        },
+     },
+    "spies_sent" : ["id-goes-here","id-goes-here","id-goes-here"],     # should be identical to "spy_ids"
+    "spies_not_sent" : ["id-goes-here","id-goes-here","id-goes-here"]  # should only contain something if you're cheating, or a spy dies/turns between RPC calls
+    "status" : { ... }
+ }
 
-A set of x,y coords to locate the body.
+=head3 session_id
+
+A session id.
+
+=head3 on_body_id
+
+The unique id of the planet that should send the ship and that has the spies.
+
+=head3 to_body_id
+
+The unique id of the planet that the spies should be sent to.
 
 =head3 ship_id
 
-The unique id of the ship to send. See the C<get_spy_ships> method.
+The unique id of the ship to send.
 
 =head3 spy_ids
 
-An array reference of spy ids to send. See the C<get_my_available_spies> method.
+An array reference of spy ids to send. 
+
+
+
+
+=head2 prepare_fetch_spies ( session_id, on_body_id, to_body_id )
+
+Gathers the information needed to call the C<fetch_spies> method.
+
+ {
+    "status" : { ... },
+    "ships" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "CS4",
+            "hold_size" : 1100,
+            "speed" : 400,
+            "type" : "cargo_ship",
+            ...
+        },
+        ...
+    ],
+    "spies" : [
+        {
+            "id" : "id-goes-here",
+            "level" : 12,
+            "name" : "Jack Bauer",
+            "assigned_to" : {
+               "body_id" : "id-goes-here",
+               "name" : "Earth"
+            },
+            ...
+        },
+        ...
+    ]
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 on_body_id
+
+The unique id of the planet that the spies are on.
+
+=head3 to_body_id
+
+The unique id of the planet that the spies should be sent to, and the ship will be dispatched from.
 
 
 
 
 
-=head2 fetch_spies ( session_id, from_body_id, to_body, ship_id, spy_ids )
+=head2 fetch_spies ( session_id, on_body_id, to_body, ship_id, spy_ids )
 
-Sends a specified ship to fetch specified spies, and bring them back to C<from_body_id>.
+Sends a specified ship to fetch specified spies from C<on_body_id>, and bring them back to C<to_body_id>. See also C<prepare_fetch_spies>.
 
 B<NOTE:> If the spies are not Idle when the ship arrives, they will not be picked up.
 
  {
      "ship" : {
-         "date_arrives" : "01 31 2010 13:09:05 +0600",
+        "id" : "id-goes-here",
+        "name" : "CS4",
+        "hold_size" : 1100,
+        "speed" : 400,
+        "type" : "cargo_ship",
+        "date_arrives" : "01 31 2010 13:09:05 +0600",
+        ...
      },
      "status" : { ... }
  }
@@ -480,145 +570,22 @@ B<NOTE:> If the spies are not Idle when the ship arrives, they will not be picke
 
 A session id.
 
-=head3 from_body_id
+=head3 on_body_id
 
-The unique id of the planet that should send the ship.
+The unique id of the planet that the spies are on.
 
-=head3 to_body
+=head3 to_body_id
 
-A hash reference that can contain one of three items to identify a planet.
-
- { "body_name" : "Earth" }
- 
- { "body_id" : "id-goes-here" }
- 
- { "x" : 4, "y" : -3 }
-
-=head4 body_name
-
-A string with the body's name. Case insensitive, but will throw an exception for misspelling.
-
-=head4 body_id
-
-The unique id of the body.
-
-=head4 x | y
-
-A set of x,y coords to locate the body.
+The unique id of the planet that the spies should be sent to, and the ship will be dispatched from.
 
 =head3 ship_id
 
-The unique id of the ship to send. See the C<get_spy_ships> method.
+The unique id of the ship to use to fetch the spies.
 
 =head3 spy_ids
 
-An array reference of spy ids to send. See the C<get_my_available_spies> method.
+An array reference of spy ids to send. 
 
-
-
-
-=head2 get_available_spy_ships ( session_id, from_body_id )
-
-Returns a list of ships capable of sending spies.
-
- {
-     "status" : { ... },
-     "ships" : [
-         {
-            "id" : "id-goes-here",
-            "name" : "CS4",
-            "hold_size" : 1100,
-            "speed" : 400,
-            "type" : "cargo_ship"
-         },
-         ...
-     ]
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 from_body_id
-
-The unique id of the planet that should send the ship.
-
-
-
-
-=head2 get_available_spy_ships_for_fetch ( session_id, from_body_id )
-
-Returns a list of ships capable of retrieving spies.
-
- {
-     "status" : { ... },
-     "ships" : [
-         {
-            "id" : "id-goes-here",
-            "name" : "CS4",
-            "hold_size" : 1100,
-            "speed" : 400,
-            "type" : "cargo_ship"
-         },
-         ...
-     ]
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 from_body_id
-
-The unique id of the planet that should send the ship.
-
-
-
-=head2 get_my_available_spies ( session_id, on_body )
-
-Returns a list of spies that are controlled by this empire and are on the specified body and are available for transport (assignment is Idle).
-
- {
-   "spies" : [
-      {
-         "id" : "id-goes-here",
-         "level" : 12,
-         "name" : "Jack Bauer",
-         "from" : {
-            "id" : "id-goes-here",
-            "name" : "Earth"
-         },
-      },
-      ...
-   ],
-   "status" : { ... }
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 on_body
-
-A hash reference that can contain one of three items to identify a planet.
-
- { "body_name" : "Earth" }
- 
- { "body_id" : "id-goes-here" }
- 
- { "x" : 4, "y" : -3 }
-
-=head4 body_name
-
-A string with the body's name. Case insensitive, but will throw an exception for misspelling.
-
-=head4 body_id
-
-The unique id of the body.
-
-=head4 x | y
-
-A set of x,y coords to locate the body.
 
 
 
