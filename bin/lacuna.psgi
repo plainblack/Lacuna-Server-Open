@@ -2,7 +2,7 @@ use strict;
 use lib ('/data/Lacuna-Server/lib');
 use Config::JSON;
 use Plack::App::URLMap;
-use Plack::App::Directory;
+use Plack::App::File;
 use Log::Log4perl;
 use Log::Any::Adapter;
 use Lacuna;
@@ -19,6 +19,8 @@ Log::Log4perl::init('/data/Lacuna-Server/etc/log4perl.conf');
 Log::Any::Adapter->set('Log::Log4perl');
 
 my $urlmap = Plack::App::URLMap->new;
+
+$urlmap->map('/starman_ping' => Plack::App::File->new(file => '/data/Lacuna-Server/var/www/starman_ping.txt')); # remove the .txt so nginx config doesn't pick it up
 
 $urlmap->map("/map" => Lacuna::RPC::Map->new->to_app);
 $urlmap->map("/body" => Lacuna::RPC::Body->new->to_app);
@@ -142,22 +144,6 @@ my $admin = builder {
 };
 $urlmap->map("/admin" => $admin);
 
-
-
-builder {
-    enable_if { $_[0]{REQUEST_METHOD} eq 'OPTIONS' } sub {
-    return [
-        200,
-            [
-                'Access-Control-Allow-Origin' => '*',
-                'Access-Control-Max-Age' => 3628800,
-                'Access-Control-Allow-Methods' => 'GET, POST',
-                'Content-Type' => 'text/plain',
-            ],
-            [''],
-        ];
-    };
-};
 
 builder {
     enable 'CrossOrigin',
