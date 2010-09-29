@@ -147,6 +147,10 @@ You'll need a key to use the API.
 
 Methods for account and empire management.
 
+=item L<Alliance>
+
+Methods for public alliance data.
+
 =item L<Inbox>
 
 Methods for message management.
