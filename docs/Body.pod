@@ -33,6 +33,7 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
             "id" : "id-goes-here",
             "name" : "Earthlings",
             "alignment" : "ally",   # can be 'ally','self', or 'hostile'
+            "is_isolationist" : 1
         }
         
         --------- if you own the planet the data below will be included ---------
