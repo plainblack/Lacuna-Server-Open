@@ -1,6 +1,7 @@
 {
     "buildings" : {
-        "/essentiavein" : { "description" : "Produces trace amounts of Essentia", "wiki" : "http://community.lacunaexpanse.com/wiki/essentia-vein" },
+        "/essentiavein" : { "description" : "Produces trace amounts of Essentia.", "wiki" : "http://community.lacunaexpanse.com/wiki/essentia-vein" },
+        "/volcano" : { "description" : "A natural source of ore.", "wiki" : "http://community.lacunaexpanse.com/wiki/volcano" },
         "/luxuryhousing" : { "description" : "Produces more happiness than the Entertainment District, but costs more too.", "wiki" : "http://community.lacunaexpanse.com/wiki/luxury-housing" },
         "/pilottraining" : { "description" : "Increases speed and stealth of new ships, and enables building Fighters.", "wiki" : "http://community.lacunaexpanse.com/wiki/pilot-training-facility" },
         "/missioncommand" : { "description" : "Lists available missions in your zone.", "wiki" : "http://community.lacunaexpanse.com/wiki/mission-command" },
