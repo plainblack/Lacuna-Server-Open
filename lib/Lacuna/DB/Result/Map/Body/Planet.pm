@@ -118,31 +118,34 @@ around get_status => sub {
     $out->{water}           = $self->water;
     if ($self->empire_id) {
         $out->{empire} = {
-            name        => $self->empire->name,
-            id          => $self->empire_id,
-            alignment   => 'hostile',
+            name            => $self->empire->name,
+            id              => $self->empire_id,
+            alignment       => 'hostile',
+            is_isolationist => $self->empire->is_isolationist,
         };
         if (defined $empire) {
             if ($empire->id eq $self->empire_id) {
                 if ($self->needs_recalc) {
                     $self->tick; # in case what we just did is going to change our stats
                 }
-                my $now = DateTime->now;
-                my $incoming_ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-                    {
-                        foreign_body_id => $self->id,
-                        direction       => 'out',
-                        task            => 'Travelling',
-                    }
-                );
-                while (my $ship = $incoming_ships->next) {
-                    if ($ship->date_available <= $now) {
-                        $ship->body->tick;
-                    }
-                    else {
-                        push @{$out->{incoming_foreign_ships}}, {
-                            date_arrives => $ship->date_available_formatted,
-                        };
+                unless ($empire->is_isolationist) { # don't need to warn about incoming ships if can't be attacked
+                    my $now = DateTime->now;
+                    my $incoming_ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+                        {
+                            foreign_body_id => $self->id,
+                            direction       => 'out',
+                            task            => 'Travelling',
+                        }
+                    );
+                    while (my $ship = $incoming_ships->next) {
+                        if ($ship->date_available <= $now) {
+                            $ship->body->tick;
+                        }
+                        else {
+                            push @{$out->{incoming_foreign_ships}}, {
+                                date_arrives => $ship->date_available_formatted,
+                            };
+                        }
                     }
                 }
                 $out->{needs_surface_refresh} = $self->needs_surface_refresh;
