@@ -583,7 +583,7 @@ sub www_view_virality {
     my ($self, $request) = @_;
     my $out = '<h1>Virality</h1>';
 
-    my (@accepts, @creates, @invites, @dates, @deletes, @users, @vc, @gr, @cr, $previous, $max_viral, $max_change, $max_users);
+    my (@accepts, @creates, @invites, @dates, @deletes, @users, @stay, @vc, @gr, @cr, $previous, $max_viral, $max_change, $max_users, $max_stay);
     my $past30 = $self->get_viral->search({date_stamp => { '>=' => DateTime->now->subtract(days => 31)}}, { order_by => 'date_stamp'});
     while (my $day = $past30->next) {
         unless (defined $previous) {
@@ -593,8 +593,12 @@ sub www_view_virality {
         push @dates, format_date($day->date_stamp, '%m/%d');
         
         # users chart
-        push @users, $day->users;
+        push @users, $day->total_users;
         $max_users = $users[-1] if ($max_users < $users[-1]);
+        
+        # stay chart
+        push @stay, $day->active_duration;
+        $max_stay = $stay[-1] if ($max_stay < $stay[-1]);
         
         # viral chart
         push @vc, sprintf('%.0f', ($day->accepts / $previous->total_users) * 100);
@@ -621,6 +625,13 @@ sub www_view_virality {
         .'&chds=0,'.$max_users
         .'&chdl=Users&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3&chxtc=1,-750&chs=750x200&cht=ls&chco=ffffff&chd=t:'
         .join(',', @users)
+        .'&chxl='
+        .join('|', '0:', @dates);
+
+    my $stay_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_stay
+        .'&chds=0,'.$max_stay
+        .'&chdl=Users&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3&chxtc=1,-750&chs=750x200&cht=ls&chco=ffffff&chd=t:'
+        .join(',', @stay)
         .'&chxl='
         .join('|', '0:', @dates);
 
@@ -675,6 +686,9 @@ sub www_view_virality {
         
         <h2>Total Users</h2>
         <img src="'.$users_chart.'" alt="users chart">
+        
+        <h2>Stay</h2>
+        <img src="'.$stay_chart.'" alt="users chart">
         
         </div>
     ';
