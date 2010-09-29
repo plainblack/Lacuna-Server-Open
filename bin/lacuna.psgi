@@ -2,7 +2,6 @@ use strict;
 use lib ('/data/Lacuna-Server/lib');
 use Config::JSON;
 use Plack::App::URLMap;
-use Plack::App::File;
 use Log::Log4perl;
 use Log::Any::Adapter;
 use Lacuna;
@@ -20,7 +19,7 @@ Log::Any::Adapter->set('Log::Log4perl');
 
 my $urlmap = Plack::App::URLMap->new;
 
-$urlmap->map('/starman_ping' => Plack::App::File->new(file => '/data/Lacuna-Server/var/www/starman_ping.txt')); # remove the .txt so nginx config doesn't pick it up
+$urlmap->map('/starman_ping' => [200, [ 'Content-Type' => 'text/plain'], [ 'pong' ]]); 
 
 $urlmap->map("/map" => Lacuna::RPC::Map->new->to_app);
 $urlmap->map("/body" => Lacuna::RPC::Body->new->to_app);
