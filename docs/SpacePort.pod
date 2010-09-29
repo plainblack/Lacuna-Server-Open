@@ -547,7 +547,7 @@ The unique id of the planet that the spies should be sent to, and the ship will 
 
 
 
-=head2 fetch_spies ( session_id, on_body_id, to_body, ship_id, spy_ids )
+=head2 fetch_spies ( session_id, on_body_id, to_body_id, ship_id, spy_ids )
 
 Sends a specified ship to fetch specified spies from C<on_body_id>, and bring them back to C<to_body_id>. See also C<prepare_fetch_spies>.
 
