@@ -597,7 +597,7 @@ sub www_view_virality {
         $max_users = $users[-1] if ($max_users < $users[-1]);
         
         # stay chart
-        push @stay, $day->active_duration;
+        push @stay, $day->active_duration / (60 * 60 * 24);
         $max_stay = $stay[-1] if ($max_stay < $stay[-1]);
         
         # viral chart
@@ -623,21 +623,21 @@ sub www_view_virality {
     
     my $users_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_users
         .'&chxt=x,y&chds=0,'.$max_users
-        .'&chdl=Users&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3&chxtc=1,-750&chs=750x200&cht=ls&chco=ffffff&chd=t:'
+        .'&chdl=Users&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3&chxtc=1,-900&chs=900x200&cht=ls&chco=ffffff&chd=t:'
         .join(',', @users)
         .'&chxl='
         .join('|', '0:', @dates);
 
     my $stay_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_stay
         .'&chxt=x,y&chds=0,'.$max_stay
-        .'&chdl=Users&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3&chxtc=1,-750&chs=750x200&cht=ls&chco=ffffff&chd=t:'
+        .'&chdl=Days&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3&chxtc=1,-900&chs=900x200&cht=ls&chco=ffffff&chd=t:'
         .join(',', @stay)
         .'&chxl='
         .join('|', '0:', @dates);
 
     my $viral_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_viral
         .'&chxt=x,y&chds=0,'.$max_viral.',0,'.$max_viral.',0,'.$max_viral
-        .'&chdl=Viral%20Coefficient|Growth%20Rate|Churn%20Rate&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3&chxtc=1,-750&chs=750x200&cht=ls&chco=00ff00,ffb400,b400ff&chd=t:'
+        .'&chdl=Viral%20Coefficient|Growth%20Rate|Churn%20Rate&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3&chxtc=1,-900&chs=900x200&cht=ls&chco=00ff00,ffb400,b400ff&chd=t:'
         .join('|',
             join(',', @vc),
             join(',', @gr),
@@ -648,7 +648,7 @@ sub www_view_virality {
 
     my $change_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_change
         .'&chxt=x,y&chds=0,'.$max_change.',0,'.$max_change.',0,'.$max_change.',0,'.$max_change
-        .'&chdl=Invites|Accepts|Creates|Deletes&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3&chxtc=1,-750&chs=750x200&cht=ls&chco=ff0000,00ff00,0000ff,ff00ff&chd=t:'
+        .'&chdl=Invites|Accepts|Creates|Deletes&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3&chxtc=1,-900&chs=900x200&cht=ls&chco=ff0000,00ff00,0000ff,ff00ff&chd=t:'
         .join('|',
             join(',', @invites),
             join(',', @accepts),
