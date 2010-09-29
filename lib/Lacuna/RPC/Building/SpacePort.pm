@@ -54,10 +54,10 @@ sub get_ships_for {
     
     my @incoming;
     my $incoming_rs = $ships->search({
-	task => 'Travelling', 
-	direction => 'out',
-        'body.empire_id' => $empire->id,
-	},
+            task => 'Travelling', 
+            direction => 'out',
+            'body.empire_id' => $empire->id,
+    	},
         { join => 'body' }
 	);
     if ($target->isa('Lacuna::DB::Result::Map::Star')) {
@@ -67,7 +67,7 @@ sub get_ships_for {
         $incoming_rs = $incoming_rs->search({foreign_body_id => $target->id});
     }
     while (my $ship = $incoming_rs->next) {
-        $ship->body($body);
+        $ship->body($body) if ($ship->body_id == $body->id);
         push @incoming, $ship->get_status;
     }
     
