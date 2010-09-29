@@ -19,7 +19,7 @@ Log::Any::Adapter->set('Log::Log4perl');
 
 my $urlmap = Plack::App::URLMap->new;
 
-$urlmap->map('/starman_ping' => [200, [ 'Content-Type' => 'text/plain'], [ 'pong' ]]); 
+$urlmap->map('/starman_ping' => sub { [200, [ 'Content-Type' => 'text/plain'], [ 'pong' ]] } ); 
 
 $urlmap->map("/map" => Lacuna::RPC::Map->new->to_app);
 $urlmap->map("/body" => Lacuna::RPC::Body->new->to_app);
