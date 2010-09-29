@@ -250,6 +250,10 @@ sub send_spies {
     }
 
     # check size
+    unless (scalar(@{$spy_ids})) {
+        confess [1013, "You can't send a ship with no spies."];
+    }
+    
     if ($ship->type eq 'spy_pod' && scalar(@{$spy_ids}) == 1) {
         # we're ok
     }
@@ -355,7 +359,7 @@ sub fetch_spies {
         confess [1013, "Cannot fetch spies from an uninhabitted planet."];
     }
 
-    if (scalar(@{$spy_ids})) {
+    unless (scalar(@{$spy_ids})) {
         confess [1013, "You can't send a ship to collect no spies."];
     }
     
