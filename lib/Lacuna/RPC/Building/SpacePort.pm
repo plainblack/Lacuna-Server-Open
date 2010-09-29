@@ -309,7 +309,7 @@ sub prepare_fetch_spies {
     }
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {type => { '>=' => 350 }, task=>'Docked', body_id => $to_body_id},
+        {hold_size => { '>=' => 350 }, task=>'Docked', body_id => $to_body_id},
         {order_by => 'name', rows=>100}
     );
     my @ships;
