@@ -1,5 +1,8 @@
 {
     "buildings" : {
+        "/sand" : { "description" : "Decoration for your planet.", "wiki" : "http://community.lacunaexpanse.com/wiki/patch-of-sand" },
+        "/grove" : { "description" : "Decoration for your planet.", "wiki" : "http://community.lacunaexpanse.com/wiki/grove-of-trees" },
+        "/lagoon" : { "description" : "Decoration for your planet.", "wiki" : "http://community.lacunaexpanse.com/wiki/lagoon" },
         "/kalavianruins" : { "description" : "Attracts tourists and creates a sense of wonder for locals, increasing the happiness of your planet.", "wiki" : "http://community.lacunaexpanse.com/wiki/kalavian-ruins" },
         "/essentiavein" : { "description" : "Produces trace amounts of Essentia.", "wiki" : "http://community.lacunaexpanse.com/wiki/essentia-vein" },
         "/volcano" : { "description" : "A natural source of ore.", "wiki" : "http://community.lacunaexpanse.com/wiki/volcano" },

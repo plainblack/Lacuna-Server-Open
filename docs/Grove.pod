@@ -1,0 +1,7 @@
+=head1 Grove of Trees Methods
+
+Grove of Trees is accessible via the URL C</grove>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut
