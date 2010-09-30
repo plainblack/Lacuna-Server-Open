@@ -250,14 +250,108 @@ sub encrypt_password {
     return Digest::SHA::sha256_base64($password);
 }
 
+
+sub attach_invite_code {
+    my ($self, $invite_code) = @_;
+    my $invites = Lacuna->db->resultset('Lacuna::DB::Result::Invite');
+    if (defined $invite_code && $invite_code ne '') {
+        my $invite = $invites->search(
+            {code    => $invite_code, invitee_id => undef },
+            {rows => 1}
+        )->single;
+        if (defined $invite) {
+            $invite->invitee_id($self->id);
+            $invite->update;
+            Lacuna->cache->increment('friends_accepted', format_date(undef,'%F'), 1, 60 * 60 * 26);
+            my $inviter = $invite->inviter;
+            if (defined $inviter) { # they may have deleted
+                my $accepts = $invites->search({inviter_id => $invite->inviter_id, invitee_id => {'>' => 0}})->count;
+                if ($accepts == 3) { 
+                    $inviter->home_planet->add_plan('Lacuna::DB::Result::Building::Permanent::Crater',1);
+                    $inviter->send_predefined_message(
+                        tags        => ['Correspondence'],
+                        filename    => 'thank_you_for_inviting_friends.txt',
+                        params      => [$invite->email, $self->id, $self->name, $accepts, 'a crater plan'],
+                        from        => $self->lacuna_expanse_corp,
+                    );
+                }                
+                elsif ($accepts == 4) { 
+                    $inviter->home_planet->add_plan('Lacuna::DB::Result::Building::Permanent::RockyOutcrop',1);
+                    $inviter->send_predefined_message(
+                        tags        => ['Correspondence'],
+                        filename    => 'thank_you_for_inviting_friends.txt',
+                        params      => [$invite->email, $self->id, $self->name, $accepts, 'a rocky outcropping plan'],
+                        from        => $self->lacuna_expanse_corp,
+                    );
+                }                
+                elsif ($accepts == 5) { 
+                    $inviter->home_planet->add_plan('Lacuna::DB::Result::Building::Permanent::Lake',1);
+                    $inviter->send_predefined_message(
+                        tags        => ['Correspondence'],
+                        filename    => 'thank_you_for_inviting_friends.txt',
+                        params      => [$invite->email, $self->id, $self->name, $accepts, 'a lake plan'],
+                        from        => $self->lacuna_expanse_corp,
+                    );
+                }                
+                elsif ($accepts == 6) { 
+                    $inviter->home_planet->add_plan('Lacuna::DB::Result::Building::Permanent::Sand',1);
+                    $inviter->send_predefined_message(
+                        tags        => ['Correspondence'],
+                        filename    => 'thank_you_for_inviting_friends.txt',
+                        params      => [$invite->email, $self->id, $self->name, $accepts, 'a sand plan'],
+                        from        => $self->lacuna_expanse_corp,
+                    );
+                }                             
+                elsif ($accepts == 7) { 
+                    $inviter->home_planet->add_plan('Lacuna::DB::Result::Building::Permanent::Grove',1);
+                    $inviter->send_predefined_message(
+                        tags        => ['Correspondence'],
+                        filename    => 'thank_you_for_inviting_friends.txt',
+                        params      => [$invite->email, $self->id, $self->name, $accepts, 'a grove of trees plan'],
+                        from        => $self->lacuna_expanse_corp,
+                    );
+                }                
+                elsif ($accepts == 8) { 
+                    $inviter->home_planet->add_plan('Lacuna::DB::Result::Building::Permanent::Lagoon',1);
+                    $inviter->send_predefined_message(
+                        tags        => ['Correspondence'],
+                        filename    => 'thank_you_for_inviting_friends.txt',
+                        params      => [$invite->email, $self->id, $self->name, $accepts, 'a lagoon plan'],
+                        from        => $self->lacuna_expanse_corp,
+                    );
+                }                
+                elsif ($accepts == 10) { 
+                    for my $i (1..13) {
+                        $inviter->home_planet->add_plan('Lacuna::DB::Result::Building::Permanent::Beach'.$i,1);
+                    }
+                    $inviter->send_predefined_message(
+                        tags        => ['Correspondence'],
+                        filename    => 'thank_you_for_inviting_friends.txt',
+                        params      => [$invite->email, $self->id, $self->name, $accepts, 'a complete set of beach plans'],
+                        from        => $self->lacuna_expanse_corp,
+                    );
+                }
+                else {
+                    $inviter->send_predefined_message(
+                        tags        => ['Correspondence'],
+                        filename    => 'friend_joined.txt',
+                        params      => [$invite->email, $self->id, $self->name],
+                        from        => $self->lacuna_expanse_corp,
+                    );
+                }
+            }
+        }
+    }
+}
+
 sub found {
-    my ($self, $home_planet, $invite_code) = @_;
+    my ($self, $home_planet) = @_;
 
     # lock empire
     $self->update({stage=>'finding home planet'});
 
     # found home planet
-    $home_planet ||= $self->find_home_planet($invite_code);
+    $home_planet ||= $self->find_home_planet;
     $self->tutorial_scratch($home_planet->name);
     $self->home_planet_id($home_planet->id);
     $self->stage('founded');
@@ -272,41 +366,19 @@ sub found {
     return Lacuna::Tutorial->new(empire=>$self)->start('explore_the_ui');
 }
 
+
 sub find_home_planet {
-    my ($self, $invite_code) = @_;
+    my ($self) = @_;
     my $planets = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body');
     my %search = (
         usable_as_starter   => {'>', 0},
         orbit               => { between => [ $self->min_orbit, $self->max_orbit] },
     );
     
-    my $invite;
-    my $invites = Lacuna->db->resultset('Lacuna::DB::Result::Invite');
-    if (defined $invite_code && $invite_code ne '') {
-        $invite = $invites->search(
-            {code    => $invite_code, invitee_id => undef },
-            {rows => 1}
-        )->single;
-    }
-    
     # determine search area
+    my $invite = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $self->id},{rows=>1})->single;
     if (defined $invite) {
-        $invite->invitee_id($self->id);
-        $invite->update;
-        Lacuna->cache->increment('friends_accepted', format_date(undef,'%F'), 1, 60 * 60 * 26);
-        my $inviter = $invite->inviter;
-        my $inviter_home = $inviter->home_planet;
-        if ($invites->search({inviter_id => $invite->inviter_id, invitee_id => {'>' => 0}})->count == 10) { # got 10 friends
-            for my $i (1..13) {
-                $inviter_home->add_plan('Lacuna::DB::Result::Building::Permanent::Beach'.$i,1);
-            }
-            $inviter->send_predefined_message(
-                tags        => ['Correspondence'],
-                filename    => 'thank_you_for_inviting_friends.txt',
-                from        => $self->lacuna_expanse_corp,
-            );
-        }
-        $search{zone} = $inviter_home->zone;
+        $search{zone} = $invite->zone;
         # other possible solution
         #   (SQRT( POW(5-x,2) + POW(8-y,2) )) as distance
         # then order by distance
@@ -341,6 +413,9 @@ sub find_home_planet {
     unless (defined $home_planet) {
         # unlock
         $self->update({stage => 'new'});
+        if (defined $invite) {
+            $invite->update({invitee_id => undef});
+        }
         confess [1002, 'Could not find a home planet. Try again in a few moments.'];
     }
     
@@ -361,14 +436,15 @@ sub invite_friend {
     $invites->new({
         inviter_id  => $self->id,
         code        => $code,
+        zone        => $self->home_planet->zone,
         email       => $email,
     })->insert;
+    Lacuna->cache->increment('friends_invited', format_date(undef,'%F'), 1, 60 * 60 * 26);
     my $message = sprintf "%s\n\nMy name in the game is %s. Use the code below when you register and you'll be placed near me.\n\n%s\n\n%s",
         $custom_message,
         $self->name,
         $code,
         Lacuna->config->get('server_url');
-    Lacuna->cache->increment('friends_invited', format_date(undef,'%F'), 1, 60 * 60 * 26);
     Email::Stuff->from($self->email)
         ->to($email)
         ->subject('Come Play With Me')

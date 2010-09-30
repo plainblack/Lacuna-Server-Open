@@ -1,0 +1,7 @@
+Friend Joined
+~~~
+Your friend %s has just joined the Lacuna Expanse with an empire name of {Empire %s %s}. Thanks for inviting your friends to play.
+
+Warmest Regards,
+
+The Lacuna Expanse Team

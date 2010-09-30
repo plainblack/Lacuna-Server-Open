@@ -1,6 +1,8 @@
 Thank You
 ~~~
-You have invited many friends to the Lacuna Expanse, and 10 of them have taken you up on your invitation. To say thank you, we have just awarded you a complete set of beach plans on your home planet. You can use them to either decorate your planet, or trade them to other players for something you really want. Thanks again for being a valued player.
+Your friend %s has just joined the Lacuna Expanse with an empire name of {Empire %s %s}.
+
+You have invited many friends to the Lacuna Expanse, and %s of them have taken you up on your invitation. To say thank you, we have just awarded you %s on your home planet. You can use this gift to decorate your planet, or trade it to other players for something you really want. Thanks again for being a valued player.
 
 Warmest Regards,
 

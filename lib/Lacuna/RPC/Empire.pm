@@ -221,7 +221,6 @@ sub reset_password {
     return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request })->id, status => $self->format_status($empire) };
 }
 
-
 sub create {
     my ($self, $plack_request, %account) = @_;    
     my %params = (
@@ -280,6 +279,9 @@ sub create {
     # create account
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new(\%params)->insert;
     Lacuna->cache->increment('empires_created', format_date(undef,'%F'), 1, 60 * 60 * 26);
+
+    # handle invitation
+    $self->attach_invite_code($account{invite_code});
     
     return $empire->id;
 }
@@ -315,7 +317,11 @@ sub found {
     unless ($empire->stage eq 'new') {
         confess [1010, "This empire cannot be founded again.", $empire_id];
     }
-    my $welcome = $empire->found(undef, $invite_code);
+
+    # handle invitation
+    $self->attach_invite_code($invite_code);
+    
+    my $welcome = $empire->found;
     return {
         session_id          => $empire->start_session({ api_key => $api_key, request => $plack_request })->id,
         status              => $self->format_status($empire),
@@ -656,7 +662,6 @@ sub invite_friend {
     $empire->invite_friend($email, $custom_message);
     return { status => $self->format_status($empire) };
 }
-
 
 sub update_species {
     my ($self, $empire_id, $me) = @_;
