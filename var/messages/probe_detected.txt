@@ -1,6 +1,6 @@
 Probe Detected!
 ~~~
-Our probe in the %s system just detected an incoming probe. It's markings indicate it's from {Empire %s %s}.
+Our probe in the %s system just detected an incoming probe. Its markings indicate its from {Empire %s %s}.
 
 Regards,
 
