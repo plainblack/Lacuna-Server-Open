@@ -118,6 +118,7 @@ sub get_buildable {
             cost        => $building->get_ship_costs($ship),
             can         => ($can) ? 1 : 0,
             reason      => $@,
+            type_human  => $ship->type_formatted,
         };
     }
     return { buildable=>\%buildable, docks_available=>$docks, status=>$self->format_status($empire, $building->body)};
