@@ -25,12 +25,12 @@ sub image_level {
     return $self->image.'1';
 }
 
-#after finish_upgrade => sub {
-#    my $self = shift;
-#    if ($self->level == 1) {
-#        $self->body->add_news(30, sprintf('A volcano erupted on %s today spewing tons of ash on the inhabitants.', $self->body->name));
-#    }
-#};
+after finish_upgrade => sub {
+    my $self = shift;
+    if ($self->level == 1) {
+        $self->body->add_news(30, sprintf('A volcano erupted on %s today spewing tons of ash on the inhabitants.', $self->body->name));
+    }
+};
 
 use constant name => 'Volcano';
 use constant ore_production => 4000;

@@ -20,12 +20,12 @@ sub can_upgrade {
 
 use constant image => 'geothermalvent';
 
-#after finish_upgrade => sub {
-#    my $self = shift;
-#    if ($self->level == 1) {
-#        $self->body->add_news(30, sprintf('%s considers itself a very efficient planet, much of its energy production coming from thermal vents.', $self->body->name));
-#    }
-#};
+after finish_upgrade => sub {
+    my $self = shift;
+    if ($self->level == 1) {
+        $self->body->add_news(30, sprintf('%s considers itself a very efficient planet, much of its energy production coming from thermal vents.', $self->body->name));
+    }
+};
 
 sub image_level {
     my ($self) = @_;
