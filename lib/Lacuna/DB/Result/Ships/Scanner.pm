@@ -51,8 +51,8 @@ sub arrive {
                 filename    => 'we_were_scanned.txt',
                 params      => [$body_attacked->name, $self->body->empire_id, $self->body->empire->name],
             );
+            $body_attacked->add_news(65, sprintf('Several people reported seeing a UFO in the %s sky today.', $body_attacked->name));
         }
-        $body_attacked->add_news(65, sprintf('Several people reported seeing a UFO in the %s sky today.', $body_attacked->name));
         $self->delete;
     }
 }
