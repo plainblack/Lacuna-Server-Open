@@ -25,12 +25,12 @@ sub image_level {
     return $self->image.'1';
 }
 
-after finish_upgrade => sub {
-    my $self = shift;
-    if ($self->level == 1) {
-        $self->body->add_news(50, sprintf('Scientists estimate that the Kalavian Ruins they uncovered on %s were buried for 90,000 years.', $self->body->name));
-    }
-};
+#after finish_upgrade => sub {
+#    my $self = shift;
+#    if ($self->level == 1) {
+#        $self->body->add_news(50, sprintf('Scientists estimate that the Kalavian Ruins they uncovered on %s were buried for 90,000 years.', $self->body->name));
+#    }
+#};
 
 use constant name => 'Kalavian Ruins';
 

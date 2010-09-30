@@ -18,12 +18,12 @@ sub can_upgrade {
     confess [1013, "You can't upgrade the Oracle of Anid. It was left behind by the Great Race."];
 }
 
-after finish_upgrade => sub {
-    my $self = shift;
-    if ($self->level == 1) {
-        $self->body->add_news(50, sprintf('As the Oracle of Anid was untombed on %s today, it began to shimmer with a warm red glow.', $self->body->name));
-    }
-};
+#after finish_upgrade => sub {
+#    my $self = shift;
+#    if ($self->level == 1) {
+#        $self->body->add_news(50, sprintf('As the Oracle of Anid was untombed on %s today, it began to shimmer with a warm red glow.', $self->body->name));
+#    }
+#};
 
 use constant image => 'oracleanid';
 
