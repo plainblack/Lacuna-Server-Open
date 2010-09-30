@@ -32,11 +32,17 @@ sub www_postback {
 
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({facebook_uid => $user->{id} }, { rows => 1 })->single;
     my $uri = Lacuna->config->get('server_url');
-    if (defined $empire) {
+    if (defined $empire && $empire->stage eq 'founded') {
         $empire->facebook_token($fb->access_token);
         $empire->update;
         $uri .= '#session_id=%s';
         $uri = sprintf $uri, $empire->start_session({ api_key => 'facebook' })->id;
+    }
+    elsif (defined $empire && $empire->stage ne 'founded') {
+        $empire->facebook_token($fb->access_token);
+        $empire->update;
+        $uri .= '#empire_id=%s';
+        $uri = sprintf $uri, $empire->id;
     }
     else {
         $uri .= '#facebook_uid=%s&facebook_token=%s&facebook_name=%s';

@@ -66,5 +66,15 @@ A captcha was required for this request and it was not valid. The data portion w
 
 The function you were attempting to access is not valid for sitter accounts.
 
+
+=head2 1100 Empire not founded.
+
+You're trying to log in to an empire that is part way through the creation process. The data portion will tell you the empire id so that they can update the species and found the empire.
+
+=head2 1101 Empire not founded, and you tried to create it, but had the wrong password.
+
+This message will only occur if a user tries to create an empire with a name that already exists, but has not yet been founded, and the user doesn't enter the same password as they did when they first created the empire.
+
+
 =cut
 

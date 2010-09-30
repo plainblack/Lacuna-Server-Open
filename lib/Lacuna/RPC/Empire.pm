@@ -31,15 +31,29 @@ sub find {
 
 sub is_name_available {
     my ($self, $name) = @_;
-    Lacuna::Verify->new(content=>\$name, throws=>[1000,'Empire name not available.', 'name'])
+    $self->is_name_valid($name);
+    $self->is_name_unique($name);
+    return 1; 
+}
+
+sub is_name_valid {
+    my ($self, $name) = @_;
+    Lacuna::Verify->new(content=>\$name, throws=>[1000,'Empire name is invalid.', 'name'])
         ->length_lt(31)
         ->length_gt(2)
         ->not_empty
         ->no_padding
         ->no_restricted_chars
-        ->no_profanity
-        ->ok( !Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->count );
+        ->no_profanity;
     return 1; 
+}
+
+sub is_name_unique {
+    my ($self, $name) = @_;
+    if (Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->count) {
+        confess [1000, 'Empire name is in use by another player.', 'name'];
+    }
+    return 1;
 }
 
 sub logout {
@@ -58,7 +72,7 @@ sub login {
          confess [1002, 'Empire does not exist.', $name];
     }
     if ($empire->stage eq 'new') {
-        confess [1010, "You can't log in to an empire that has not been founded."];
+        confess [1100, "Your empire has not been completely created. You must complete it in order to play the game.", { empire_id => $empire->id } ];
     }
     unless ($empire->is_password_valid($password)) {
         if ($password ne '' && $empire->sitter_password eq $password) {
@@ -235,6 +249,24 @@ sub create {
         $params{password} = Lacuna::DB::Result::Empire->encrypt_password($account{password});
     }
     
+    # verify username
+    eval { $self->is_name_unique($account{name}) };
+    if ($@) { # maybe they're trying to finish an incomplete empire
+        my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$account{name}})->next;
+        if (defined $empire) {
+            if ($empire->stage eq 'new') {
+                if ($empire->is_password_valid($account{password})) {
+                    confess [1100, "Your empire has not been completely created. You must complete it in order to play the game.", { empire_id => $empire->id } ];
+                }
+                else {
+                    confess [1101, "Your empire has not been completed created, but you have also entered the wrong password."];
+                }
+            }
+        }
+    }    
+    $self->is_name_valid($account{name});
+    $params{name} = $account{name};
+
     # verify email
     if (exists $account{email} && $account{email} ne '') {
         Lacuna::Verify->new(content=>\$account{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
@@ -244,10 +276,6 @@ sub create {
         }
         $params{email} = $account{email};
     }
-
-    # verify username
-    $self->is_name_available($account{name});
-    $params{name} = $account{name};
 
     # create account
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new(\%params)->insert;
