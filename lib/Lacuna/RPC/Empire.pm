@@ -281,7 +281,7 @@ sub create {
     Lacuna->cache->increment('empires_created', format_date(undef,'%F'), 1, 60 * 60 * 26);
 
     # handle invitation
-    $self->attach_invite_code($account{invite_code});
+    $empire->attach_invite_code($account{invite_code});
     
     return $empire->id;
 }
@@ -319,7 +319,7 @@ sub found {
     }
 
     # handle invitation
-    $self->attach_invite_code($invite_code);
+    $empire->attach_invite_code($invite_code);
     
     my $welcome = $empire->found;
     return {
