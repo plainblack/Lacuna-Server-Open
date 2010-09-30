@@ -162,6 +162,8 @@ Allows you to instantly destroy a building.
     "status" : { ... }
  }
  
+B<SPECIAL EXCEPTION:> If the user downgrades a level 1 building, then the Client needs to eliminate that object from the user's view. This method will return the view of the level 1 building, because that's it's intended course of action, but the client needs to handle this gracefully for the user.
+ 
 Throws 1012.
 
 =head3 session_id
