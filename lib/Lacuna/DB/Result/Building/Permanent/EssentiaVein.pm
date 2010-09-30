@@ -25,6 +25,13 @@ sub image_level {
     return $self->image.'1';
 }
 
+after finish_upgrade => sub {
+    my $self = shift;
+    if ($self->level == 1) {
+        $self->body->add_news(30, sprintf('Though officials on %s tried to keep it secret, news of the discovery of an Essentia vein broke.', $self->body->name));
+    }
+};
+
 use constant name => 'Essentia Vein';
 
 use constant time_to_build => 0;

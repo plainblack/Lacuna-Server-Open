@@ -18,6 +18,13 @@ sub can_upgrade {
     confess [1013, "You can't upgrade the Temple of the Drajilites. It was left behind by the Great Race."];
 }
 
+after finish_upgrade => sub {
+    my $self = shift;
+    if ($self->level == 1) {
+        $self->body->add_news(50, sprintf('The followers of the Drajilite religion rejoiced when their ancient temple was uncovered on %s.', $self->body->name));
+    }
+};
+
 use constant image => 'templedrajilites';
 
 sub image_level {

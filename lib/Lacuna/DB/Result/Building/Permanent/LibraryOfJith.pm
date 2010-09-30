@@ -25,6 +25,14 @@ sub image_level {
     return $self->image.'1';
 }
 
+after finish_upgrade => sub {
+    my $self = shift;
+    if ($self->level == 1) {
+        $self->body->add_news(50, sprintf('Archaeologists discovered the long rumored Library of Jith on %s this morning.', $self->body->name));
+    }
+};
+
+
 use constant name => 'Library of Jith';
 
 use constant time_to_build => 0;
