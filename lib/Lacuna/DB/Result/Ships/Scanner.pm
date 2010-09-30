@@ -45,11 +45,13 @@ sub arrive {
                 }
             },
         );
-        $body_attacked->empire->send_predefined_message(
-            tags        => ['Alert'],
-            filename    => 'we_were_scanned.txt',
-            params      => [$body_attacked->name, $self->body->empire_id, $self->body->empire->name],
-        );
+        if ($body_attacked->empire_id && defined $body_attacked->empire) {
+            $body_attacked->empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'we_were_scanned.txt',
+                params      => [$body_attacked->name, $self->body->empire_id, $self->body->empire->name],
+            );
+        }
         $body_attacked->add_news(65, sprintf('Several people reported seeing a UFO in the %s sky today.', $body_attacked->name));
         $self->delete;
     }
