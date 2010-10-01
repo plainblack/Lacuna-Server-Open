@@ -53,6 +53,7 @@ sub add_trade {
     $ask = $self->structure_ask($ask);
     $offer = $self->structure_offer($offer, $ship->hold_size);
     $ship->task('Waiting On Trade');
+    $ship->update;
     my %trade = (
         %{$ask},
         %{$offer},
