@@ -169,6 +169,7 @@ my %recipies = (
         plan        => 'Lacuna::DB::Result::Building::Permanent::Crater',
     },
     chalcopyrite=> {
+        plan        => 'Lacuna::DB::Result::Building::Permanent::Lagoon',
         sulfur      => {
             plan        => 'Lacuna::DB::Result::Building::Permanent::GeoThermalVent',
         },
@@ -183,6 +184,7 @@ my %recipies = (
         }
     },
     methane     => {
+        plan        => 'Lacuna::DB::Result::Building::Permanent::Grove',
         zircon      => {
             fluorite    => {
                 plan        => 'Lacuna::DB::Result::Building::Permanent::InterDimensionalRift',
@@ -212,6 +214,7 @@ my %recipies = (
         },
     },
     bauxite     => {
+        plan        => 'Lacuna::DB::Result::Building::Permanent::Sand',
         trona       => {
             kerogen     => {
                 monazite    => {
