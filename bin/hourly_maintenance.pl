@@ -35,6 +35,15 @@ while (my $empire = $to_be_deleted->next) {
     $empire->delete;    
 }
 
+out('Deleting Half Created Empires');
+my $old_half_created = $start->clone->subtract(hours => 2);
+$to_be_deleted = $empires->search({ stage => 'new', date_created => { '<' => $old_half_created }});
+while (my $empire = $to_be_deleted->next) {
+    $delete_tally++;
+    $active_duration += to_seconds($start - $empire->date_created);
+    $empire->delete;    
+}
+
 out('Updating Viral Log');
 my $viral_log = $db->resultset('Lacuna::DB::Result::Log::Viral');
 my $add_deletes = $viral_log->search({date_stamp => format_date($start,'%F')},{rows=>1})->single;
