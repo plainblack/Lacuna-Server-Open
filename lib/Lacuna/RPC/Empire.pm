@@ -8,6 +8,7 @@ use DateTime;
 use String::Random qw(random_string);
 use UUID::Tiny;
 use Time::HiRes;
+use Text::CSV_XS;
 
 sub find {
     my ($self, $session_id, $name) = @_;
@@ -667,10 +668,32 @@ sub redeem_essentia_code {
 }
 
 sub invite_friend {
-    my ($self, $session_id, $email, $custom_message) = @_;
+    my ($self, $session_id, $addresses, $custom_message) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    $empire->invite_friend($email, $custom_message);
-    return { status => $self->format_status($empire) };
+    unless ($empire->email) {
+        confess [1010, 'You cannot invite friends because you have not set up your email address in your profile.'];
+    }
+    my @sent;
+    my @not_sent;
+    my $csv = Text::CSV_XS->new({allow_whitespace => 1, blank_is_undef => 1, empty_is_undef => 1});
+    if ($csv->parse($addresses)) {
+        foreach my $email ($csv->fields) {
+            eval{$empire->invite_friend($email, $custom_message)};
+            if ($@) {
+                push @not_sent, {
+                    address => $email,
+                    reason  => $@,
+                };
+            }
+            else {
+                push @sent, $email;
+            }
+        }
+    }
+    else {
+        confess [1009, 'Could not read the address(es) entered. Perhaps you formatted something incorrectly?', $addresses];
+    }
+    return { status => $self->format_status($empire), sent => \@sent, not_sent => \@not_sent };
 }
 
 sub update_species {

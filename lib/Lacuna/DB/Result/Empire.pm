@@ -425,12 +425,9 @@ sub find_home_planet {
 sub invite_friend {
     my ($self, $email, $custom_message) = @_;
     $custom_message ||= "I'm having a great time with this new game called Lacuna Expanse. Come play with me.";
-    unless ($self->email) {
-        confess [1010, 'You cannot invite friends because you have not set up your email address in your profile.'];
-    }
     my $invites = Lacuna->db->resultset('Lacuna::DB::Result::Invite');
     if ($invites->search({email => $email})->count) {
-        confess [1010, 'Another user has already invited that email address.'];
+        confess [1009, 'Another user has already invited that email address.'];
     }
     my $code = create_UUID_as_string(UUID_V4);
     $invites->new({
