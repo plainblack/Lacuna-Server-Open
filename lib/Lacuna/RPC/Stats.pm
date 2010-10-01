@@ -123,6 +123,8 @@ sub empire_rank {
         push @empires, {
             empire_id                   => $rank->empire_id,
             empire_name                 => $rank->empire_name,
+            alliance_name               => $rank->alliance_name,
+            alliance_id                 => $rank->alliance_id,
             colony_count                => $rank->colony_count,
             population                  => $rank->population,
             empire_size                 => $rank->empire_size,
