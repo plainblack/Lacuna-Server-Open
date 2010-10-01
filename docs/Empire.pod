@@ -175,7 +175,7 @@ A session id.
 
 =head3 email
 
-The email address of your friend.
+The email address of your friend, or a comma separated string of email addresses.
 
 =head3 custom_message
 
