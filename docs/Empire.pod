@@ -155,7 +155,18 @@ A 36 character code that was sent to the user by a friend. It is usable only onc
 Send an invitation code to a friend so that they can start in the same zone as your empire.
 
  {
-    "status" : { ... }
+    "status" : { ... },
+    "sent" : [
+      "you@there.com",
+      ...
+    ],
+    "not_sent" : [
+        {
+            "address" : "joe@blow.com",
+            "reason" : [ 1009, "Someone has already invited that user." ]
+        },
+       ...
+    ]
  }
 
 =head3 session_id
