@@ -309,11 +309,7 @@ The new name of the body.
 
 =head2 abandon ( session_id, body_id )
 
-Abandon's a colony, and destroys everything on the planet. Returns
-
- {
-    "status" : { ... }
- }
+Abandon's a colony, and destroys everything on the planet. Returns a status block.
 
 =head3 session_id
 
