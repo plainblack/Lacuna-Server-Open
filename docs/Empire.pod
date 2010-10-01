@@ -119,7 +119,7 @@ A Facebook access token passed in through Lacuna's Facebook integration system. 
 
 =head4 invite_code
 
-A 36 character code that was sent to the user by a friend. It is usable only once, and will ensure that their friend gets a home planet that is in relatively close proximity to their home planet. Can be passed in here, or in C<found>, whichever works best for the UI.
+A 36 character code that was sent to the user by a friend. It is usable only once, and will ensure that their friend gets a home planet that is in relatively close proximity to their home planet. 
 
 
 
@@ -146,8 +146,7 @@ Your client's unique API key, identifiying it from all other clients. See L<ApiK
 
 =head3 invite_code
 
-A 36 character code that was sent to the user by a friend. It is usable only once, and will ensure that their friend gets a home planet that is in relatively close proximity to their home planet. Can be passed in here, or in C<create>, whichever works best for the UI.
-
+Use of the invite code here is deprecated. Please pass in the invite_code in C<create> instead.
 
 
 =head2 invite_friend ( session_id, email, [ custom_message ] )
