@@ -71,10 +71,15 @@ sub login {
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
     }
-    if ($empire->stage eq 'new') {
-        confess [1100, "Your empire has not been completely created. You must complete it in order to play the game.", { empire_id => $empire->id } ];
+    if ($empire->is_password_valid($password)) {
+        if ($empire->stage eq 'new') {
+            confess [1100, "Your empire has not been completely created. You must complete it in order to play the game.", { empire_id => $empire->id } ];
+        }
+        else {
+            return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request })->id, status => $self->format_status($empire) };
+        }
     }
-    unless ($empire->is_password_valid($password)) {
+    else {
         if ($password ne '' && $empire->sitter_password eq $password) {
             return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request, is_sitter => 1 })->id, status => $self->format_status($empire) };
         }
@@ -82,7 +87,6 @@ sub login {
             confess [1004, 'Password incorrect.', $password];            
         }
     }
-    return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request })->id, status => $self->format_status($empire) };
 }
 
 

@@ -4,15 +4,38 @@ use JSON qw(to_json from_json);
 use 5.010;
 use Getopt::Long;
 use Time::HiRes;
+use HTTP::Request::Common;
 
 my $empire_name;
 my $password;
 my $server;
+my $ping;
 GetOptions(
-    'empire-name=s'         => \$empire_name,  
-    'password=s'       => \$password,
-    'server=s'        => \$server,
+    'empire-name=s'     => \$empire_name,  
+    'password=s'        => \$password,
+    'server=s'          => \$server,
+    'ping'              => \$ping,
 );
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout(30);
+$ua->get('https://www.google.com/'); # prime it
+
+
+
+if ($ping) {
+    my $t = [Time::HiRes::gettimeofday];
+    die 'nginx failed' unless $ua->get('https://'.$server.'/nginx_ping.txt')->is_success;
+    my $nginx_time = Time::HiRes::tv_interval($t);
+    $t = [Time::HiRes::gettimeofday];
+    die 'starman failed' unless $ua->get('https://'.$server.'/starman_ping')->is_success;
+    my $starman_time = Time::HiRes::tv_interval($t);
+    say "Nginx: ".$nginx_time;
+    say "Starman: ". $starman_time;
+    say "Difference: ".($starman_time - $nginx_time);
+    exit;
+}
+
 
 unless ($empire_name && $password && $server) {
     say "Usage: $0 --empire-name=xxx --password=xxx --server=us1.lacunaexpanse.com";
@@ -20,8 +43,6 @@ unless ($empire_name && $password && $server) {
 }
 
 my $t = [Time::HiRes::gettimeofday];
-my $ua = LWP::UserAgent->new;
-$ua->timeout(30);
 my $content = {
     jsonrpc     => '2.0',
     id          => 1,
@@ -46,5 +67,7 @@ foreach my $key (keys %{$result->{result}}) {
 say "Internal Time = ".$internal_time;
 say "External Time = ".($total_time - $internal_time);
 say "Total Time = ".$total_time;
+
+
 
 
