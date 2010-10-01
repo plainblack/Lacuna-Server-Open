@@ -149,17 +149,23 @@ sub fetch_captcha {
 }
 
 sub change_password {
-    my ($self, $session_id, $password, $password1, $password2) = @_;
+    #my ($self, $session_id, $password, $password1, $password2) = @_;
+    my $self = shift;
+    my $session_id = shift;
+    my ($current_password, $password1, $password2);
+    if (scalar(@_) == 2) {
+        ($password1, $password2) = @_;
+    }
+    else { # backward compatibility mode
+        ($current_password, $password1, $password2) = @_;
+    }
     Lacuna::Verify->new(content=>\$password1, throws=>[1001,'Invalid password.', $password1])
         ->length_gt(5)
         ->eq($password2);
 
     my $empire = $self->get_empire_by_session($session_id);
     if ($empire->current_session->is_sitter) {
-        confess [1015, 'Sitters cannot modify preferences.'];
-    }
-    unless ($empire->is_password_valid($password)) { # just in case the person walks away from their device, or the session is somehow hijacked
-        confess [1004, 'Current password incorrect.', $password];            
+        confess [1015, 'Sitters cannot modify the main account password.'];
     }
     
     $empire->password($empire->encrypt_password($password1));

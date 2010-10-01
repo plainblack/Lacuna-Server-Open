@@ -449,17 +449,13 @@ Your client's unique API key, identifiying it from all other clients. See L<ApiK
 
 
 
-=head2 change_password ( session_id, current_password, password1, password2 ) 
+=head2 change_password ( session_id, password1, password2 ) 
 
 Change the empire password.
 
 =head3 session_id
 
 A session id.
-
-=head3 current_password
-
-The current password as it is right now before the change. If you don't know the current password you can't change it.
 
 =head3 password1
 
