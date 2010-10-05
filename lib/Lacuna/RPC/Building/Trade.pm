@@ -124,6 +124,11 @@ sub accept_trade {
         payload => $trade->payload,
     );
     
+    $trade->body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'trade_accepted.txt',
+        params      => [$trade->offer_description, $trade->ask_description],
+    );
     $trade->delete;
 
     return {

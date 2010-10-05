@@ -1,0 +1,7 @@
+Trade Accepted
+~~~
+The trade you offered of %s in exchange for %s has been accepted.
+
+Regards,
+
+Your Humble Assistant

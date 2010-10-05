@@ -134,6 +134,11 @@ sub accept_trade {
         $trade->body->add_type($trade->ask_type, $trade->ask_quantity);
     }
     $trade->unload($trade->payload, $body);
+    $trade->body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'trade_accepted.txt',
+        params      => [$trade->offer_description, $trade->ask_description],
+    );
     $trade->delete;
     $body->update;
     $trade->body->update;
