@@ -7,7 +7,6 @@ use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES BUILDABLE_CLASSES);
 use List::Util qw(shuffle);
 use Lacuna::Util qw(to_seconds randint format_date);
 use DateTime;
-use Facebook::Graph;
 no warnings 'uninitialized';
 
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
@@ -646,17 +645,7 @@ sub add_news {
             date_posted => DateTime->now,
             zone        => $self->zone,
             headline    => $headline,
-        })->insert;
-        my $empire = $self->empire;
-        if (!$empire->skip_facebook_wall_posts && $empire->facebook_token) {
-            my $fb = Facebook::Graph->new;
-            $fb->access_token($empire->facebook_token);
-            $fb->add_post
-            ->set_message('I\'m in the news: "'.$headline.'"')
-            ->set_link_name('The Lacuna Expanse')
-            ->set_link_uri('http://www.lacunaexpanse.com/')
-            ->publish;
-        }        
+        })->insert;     
         return 1;
     }
     return 0;

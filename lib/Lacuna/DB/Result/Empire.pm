@@ -10,7 +10,6 @@ use List::MoreUtils qw(uniq);
 use Email::Stuff;
 use UUID::Tiny;
 use Lacuna::Constants qw(INFLATION);
-use Facebook::Graph;
 
 
 __PACKAGE__->table('empire');
@@ -133,16 +132,6 @@ sub add_medal {
                 }
             },
         );
-        if (!$self->skip_facebook_wall_posts && $self->facebook_token) {
-            my $fb = Facebook::Graph->new;
-            $fb->access_token($self->facebook_token);
-            $fb->add_post
-            ->set_message('I just earned a "'.$name.'" medal.')
-            ->set_picture_uri($image)
-            ->set_link_name('The Lacuna Expanse')
-            ->set_link_uri('http://www.lacunaexpanse.com/')
-            ->publish;
-        }        
     }
     return $medal;
 }
