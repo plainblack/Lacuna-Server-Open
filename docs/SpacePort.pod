@@ -439,6 +439,8 @@ Gathers the information needed to call the C<send_spies> method.
         ...
     ]
  }
+ 
+B<NOTE:> Only a certain number of spies can fit in each type of ship. Spy Pods can hold 1. Spy Shuttles can hold 4. And ships with a cargo hold can hold 1 for every 350 units of hold size.
 
 =head3 session_id
 
