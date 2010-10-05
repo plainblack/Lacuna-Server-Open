@@ -98,20 +98,23 @@ sub accept_trade {
     if ($cache->get('trade_lock', $trade_id)) {
         confess [1013, 'Another buyer has placed an offer on this trade. Please wait a few moments and try again.'];
     }
-    $cache->set('trade_lock',$trade_id,5);
+    $cache->set('trade_lock',$trade_id,1,5);
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    $building->validate_captcha($empire, $guid, $solution);
+    $building->validate_captcha($empire, $guid, $solution, $trade_id);
     my $trade = $building->trades->find($trade_id);
     unless (defined $trade) {
+        $cache->delete('trade_lock',$trade_id);
         confess [1002, 'Could not find that trade. Perhaps it has already been accepted.'];
     }
     unless ($building->determine_available_cargo_space >= $trade->ask_quantity) {
+        $cache->delete('trade_lock',$trade_id);
         confess [1011, 'This transporter has a maximum load size of '.$building->determine_available_cargo_space.'.'];
     }
     my $body = $building->body;
     if ($trade->ask_type eq 'essentia') {
         unless ($empire->essentia >= $trade->ask_quantity + 1) {
+            $cache->delete('trade_lock',$trade_id);
             confess [1011, 'You need '.($trade->ask_quantity + 1).' essentia to make this trade.']
         }
         $empire->spend_essentia($trade->ask_quantity + 1, 'Trade Price and Transporter Cost')->update;
@@ -119,9 +122,11 @@ sub accept_trade {
     }
     else {
         unless ($empire->essentia >= 1) {
-            confess [1011, 'You need 1 essentia to make this trade.']
+            $cache->delete('trade_lock',$trade_id);
+            confess [1011, 'You need 1 essentia to make this trade.'];
         }
         unless ($body->type_stored($trade->ask_type) >= $trade->ask_quantity) {
+            $cache->delete('trade_lock',$trade_id);
             confess [1011, 'You need '.$trade->ask_quantity.' '.$body->ask_type.' to make this trade.'];
         }
         $empire->spend_essentia(1, 'Transporter Cost')->update;

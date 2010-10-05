@@ -21,7 +21,7 @@ sub assign_captcha {
 }
 
 sub validate_captcha {
-    my ($self, $empire, $guid, $solution) = @_;
+    my ($self, $empire, $guid, $solution, $trade_id) = @_;
     if ($guid && $solution) {                                                               # offered a solution
         my $captcha = Lacuna->cache->get_and_deserialize('trade_captcha', $empire->id);
         if (ref $captcha eq 'HASH') {                                                       # a captcha has been set
@@ -32,6 +32,7 @@ sub validate_captcha {
             }
         }
     }
+    Lacuna->cache->delete('trade_lock',$trade_id);
     confess [1014, 'Captcha not valid.', $self->assign_captcha($empire)];
 }
 

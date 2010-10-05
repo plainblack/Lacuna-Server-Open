@@ -76,24 +76,28 @@ sub accept_trade {
     if ($cache->get('trade_lock', $trade_id)) {
         confess [1013, 'Another buyer has placed an offer on this trade. Please wait a few moments and try again.'];
     }
-    $cache->set('trade_lock',$trade_id,5);
+    $cache->set('trade_lock',$trade_id,1,5);
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    $building->validate_captcha($empire, $guid, $solution);
+    $building->validate_captcha($empire, $guid, $solution, $trade_id);
     my $ship = $building->next_available_trade_ship;
     unless (defined $ship) {
+        $cache->delete('trade_lock',$trade_id);
         confess [1011, 'You do not have a ship available to transport cargo.'];
     }
     my $trade = $building->trades->find($trade_id);
     unless (defined $trade) {
+        $cache->delete('trade_lock',$trade_id);
         confess [1002, 'Could not find that trade. Perhaps it has already been accepted.'];
     }
     unless ($ship->hold_size >= $trade->ask_quantity) {
+        $cache->delete('trade_lock',$trade_id);
         confess [1011, 'You need a cargo ship with a hold size of at least '.$trade->ask_quantity.'.'];
     }
     my $body = $building->body;
     if ($trade->ask_type eq 'essentia') {
         unless ($empire->essentia >= $trade->ask_quantity) {
+            $cache->delete('trade_lock',$trade_id);
             confess [1011, 'You need at least '.$trade->ask_quantity.' essentia to make this trade.']
         }
         $empire->spend_essentia($trade->ask_quantity, 'Trade Price')->update;
@@ -104,6 +108,7 @@ sub accept_trade {
     }
     else {
         unless ($body->type_stored($trade->ask_type) >= $trade->ask_quantity) {
+            $cache->delete('trade_lock',$trade_id);
             confess [1011, 'You need at least '.$trade->ask_quantity.' '.$trade->ask_type.' to make this trade.'];
         }
         $body->spend_type($trade->ask_type, $trade->ask_quantity);
