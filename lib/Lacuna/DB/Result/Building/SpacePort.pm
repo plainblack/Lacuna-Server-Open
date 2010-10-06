@@ -24,42 +24,6 @@ sub foreign_ships {
     );
 }
 
-sub send_probe {
-    my ($self, $star) = @_;
-    return $self->send_ship($star, 'probe');
-}
-
-sub send_spy_pod {
-    my ($self, $target_body, $spy) = @_;
-    my $ship = $self->send_ship($target_body, 'spy_pod', { spies => [ $spy->id ] }); 
-    $spy->available_on($ship->date_available->clone);
-    $spy->on_body_id($target_body->id);
-    $spy->task('Travelling');
-    $spy->started_assignment(DateTime->now);
-    $spy->update;
-    return $ship;
-}
-
-sub send_terraforming_platform_ship {
-    my ($self, $target_body) = @_;
-    return $self->send_ship($target_body, 'terraforming_platform_ship');
-}
-
-sub send_gas_giant_settlement_platform_ship {
-    my ($self, $target_body) = @_;
-    return $self->send_ship($target_body, 'gas_giant_settlement_platform_ship');
-}
-
-sub send_mining_platform_ship {
-    my ($self, $target_body) = @_;
-    return $self->send_ship($target_body, 'mining_platform_ship');
-}
-
-sub send_colony_ship {
-    my ($self, $target_body, $payload) = @_;
-    return $self->send_ship($target_body, 'colony_ship', $payload);
-}
-
 sub send_ship {
     my ($self, $target, $type, $payload) = @_;
     my $ship = $self->find_ship($type);

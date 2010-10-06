@@ -24,6 +24,7 @@ sub format_datestamp {
 
 use constant MEDALS => {
     probe                           => 'Built Probe',
+    short_range_colony_ship         => 'Built Short Range Colony Ship',
     colony_ship                     => 'Built Colony Ship',
     spy_pod                         => 'Built Spy Pod',
     cargo_ship                      => 'Built Cargo Ship',

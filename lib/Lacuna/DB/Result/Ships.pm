@@ -29,6 +29,7 @@ __PACKAGE__->add_columns(
 );
 __PACKAGE__->typecast_map(type => {
     'probe'                                 => 'Lacuna::DB::Result::Ships::Probe',
+    'short_range_colony_ship'               => 'Lacuna::DB::Result::Ships::ShortRangeColonyShip',
     'colony_ship'                           => 'Lacuna::DB::Result::Ships::ColonyShip',
     'spy_pod'                               => 'Lacuna::DB::Result::Ships::SpyPod',
     'cargo_ship'                            => 'Lacuna::DB::Result::Ships::CargoShip',
