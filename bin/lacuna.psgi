@@ -28,6 +28,7 @@ $urlmap->map("/alliance" => Lacuna::RPC::Alliance->new->to_app);
 $urlmap->map("/inbox" => Lacuna::RPC::Inbox->new->to_app);
 $urlmap->map("/stats" => Lacuna::RPC::Stats->new->to_app);
 $urlmap->map("/pay" => Lacuna::Web::Pay->new->to_app);
+$urlmap->map("/chat" => Lacuna::Web::Chat->new->to_app);
 $urlmap->map("/facebook" => Lacuna::Web::Facebook->new->to_app);
 $urlmap->map("/apikey" => Lacuna::Web::ApiKey->new->to_app);
 

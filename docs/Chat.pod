@@ -1,0 +1,15 @@
+=head1 Chat
+
+The chat system is overlayed onto the web client in a way that makes it impossible for other apps to use it. However, through this API you can pop open a web browser from your app that will allow the users to participate in the conversation.
+
+B<NOTE:> This API is B<not> JSON-RPC based.
+
+To open a chat, open a browser window / panel / pane and point it to:
+
+ http://servername.lacunaexpanse.com/chat?session_id=xxxxxxxxxxxxxxxx
+
+The chat system will handle the rest.
+
+B<NOTE:> The parameters in the above URL can be passed via GET or POST, it doesn't matter which.
+
+=cut

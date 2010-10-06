@@ -175,6 +175,10 @@ Methods for interacting with the buildings on a body.
 
 How to allow users to purchase Essentia from your app.
 
+=item L<Chat>
+
+Integrate the in-game chat system with your app.
+
 =back
 
 =cut
