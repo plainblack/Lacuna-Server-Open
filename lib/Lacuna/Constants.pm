@@ -91,7 +91,7 @@ use constant BUILDABLE_CLASSES => (qw(
     Lacuna::RPC::Building::Wheat
     ));
 
-use constant SHIP_TYPES => (qw( probe colony_ship spy_pod cargo_ship space_station 
+use constant SHIP_TYPES => (qw( probe short_range_colony_ship colony_ship spy_pod cargo_ship space_station 
                              smuggler_ship mining_platform_ship terraforming_platform_ship 
                              gas_giant_settlement_platform_ship scow dory freighter snark 
                              drone fighter spy_shuttle observatory_seeker security_ministry_seeker 
