@@ -118,98 +118,10 @@ before finish_work => sub {
 };
 
 my %recipies = (
-    gypsum      => {
-        plan        => 'Lacuna::DB::Result::Building::Permanent::Beach1',
-        gypsum      => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach2',
-        },
-        magnetite      => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach3',
-        },
-        uraninite      => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach4',
-        },
-        halite      => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach5',
-        },
-        rutile      => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach6',
-        },
-        chalcopyrite      => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach7',
-        },
-        sulfur       => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach8',
-        },
-        anthracite     => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach9',
-        },
-        methane     => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach10',
-        },
-        chromite     => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach11',
-        },
-        goethite     => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach12',
-        },
-        galena     => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach13',
-        },
-    },
-    magnetite   => {
-        uraninite   => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::Volcano',
-        },
-        halite      => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::NaturalSpring',
-        }
-    },
-    rutile      => {
-        plan        => 'Lacuna::DB::Result::Building::Permanent::Crater',
-    },
-    chalcopyrite=> {
-        plan        => 'Lacuna::DB::Result::Building::Permanent::Lagoon',
-        sulfur      => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::GeoThermalVent',
-        },
-    },
-    sulfur          => {
-        methane         => {
-            galena          => {
-                anthracite      => {
-                    plan        => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform',
-                }
-            }
-        }
-    },
-    methane     => {
-        plan        => 'Lacuna::DB::Result::Building::Permanent::Grove',
-        zircon      => {
-            fluorite    => {
-                plan        => 'Lacuna::DB::Result::Building::Permanent::InterDimensionalRift',
-            },
-            magnetite   => {
-                beryl       => {
-                    plan        => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',
-                }
-            },
-        },
-    },
-    galena      => {
-        gold        => {
-            plan        => 'Lacuna::DB::Result::Building::Permanent::KalavianRuins',
-        },
-    },
-    goethite    => {
-        plan        => 'Lacuna::DB::Result::Building::Permanent::Lake',
-    },
-    chromite    => {
-        halite      => {
-            anthracite  =>  {
-                beryl       => {
-                    plan        => 'Lacuna::DB::Result::Building::Permanent::LibraryOfJith',
-                },
+    anthracite     => {
+        trona       => {
+            kerogen     => {
+                plan        => 'Lacuna::DB::Result::Building::Permanent::BeeldebanNest',
             },
         },
     },
@@ -223,6 +135,37 @@ my %recipies = (
             },
         },
     },
+    beryl       => {
+        
+    },
+    chalcopyrite=> {
+        plan        => 'Lacuna::DB::Result::Building::Permanent::Lagoon',
+        sulfur      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::GeoThermalVent',
+        },
+    },
+    chromite    => {
+        halite      => {
+            anthracite  =>  {
+                beryl       => {
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::LibraryOfJith',
+                },
+            },
+        },
+    },
+    fluorite    => {
+        kerogen     => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::MalcudField',
+        },
+    },
+    galena      => {
+        gold        => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::KalavianRuins',
+        },
+    },
+    goethite    => {
+        plan        => 'Lacuna::DB::Result::Building::Permanent::Lake',
+    },
     gold        => {
         uraninite   => {
             bauxite     => {
@@ -232,8 +175,49 @@ my %recipies = (
             },
         },
     },
-    trona       => {
-        plan        => 'Lacuna::DB::Result::Building::Permanent::RockyOutcrop',
+    gypsum      => {
+        plan        => 'Lacuna::DB::Result::Building::Permanent::Beach1',
+        anthracite     => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach9',
+        },
+        chalcopyrite      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach7',
+        },
+        chromite     => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach11',
+        },
+        galena     => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach13',
+        },
+        goethite     => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach12',
+        },
+        gypsum      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach2',
+        },
+        halite      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach5',
+        },
+        magnetite      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach3',
+        },
+        methane     => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach10',
+        },
+        rutile      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach6',
+        },
+        sulfur       => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach8',
+        },
+        uraninite      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Beach4',
+        },
+    },
+    halite     => {
+        anthracite      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::LapisForest',
+        },
     },
     kerogen     => {
         rutile      => {
@@ -244,7 +228,59 @@ my %recipies = (
             },
         },
     },
+    magnetite   => {
+        halite      => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::NaturalSpring',
+        },
+        uraninite   => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::Volcano',
+        },
+    },
+    methane     => {
+        plan        => 'Lacuna::DB::Result::Building::Permanent::Grove',
+        zircon      => {
+            fluorite    => {
+                plan        => 'Lacuna::DB::Result::Building::Permanent::InterDimensionalRift',
+            },
+            magnetite   => {
+                beryl       => {
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',
+                },
+            },
+        },
+    },
+    monazite    => {
+        
+    },
+    rutile      => {
+        plan        => 'Lacuna::DB::Result::Building::Permanent::Crater',
+    },
+    sulfur          => {
+        methane         => {
+            galena          => {
+                anthracite      => {
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform',
+                },
+            },
+        },
+    },
+    trona       => {
+        plan        => 'Lacuna::DB::Result::Building::Permanent::RockyOutcrop',
+    },
+    uraninite   => {
+        methane         => {
+            plan        => 'Lacuna::DB::Result::Building::Permanent::AlgaePond',
+        },
+    },
+    zircon      => {
+        methane         => {
+            galena          => {
+                plan        => 'Lacuna::DB::Result::Building::Permanent::Ravine',
+            },
+        },
+    },
 );
+
 #rutile chromite chalcopyrite galena gold uraninite bauxite goethite halite
 #gypsum trona kerogen methane anthracite sulfur zircon monazite fluorite beryl magnetite
 

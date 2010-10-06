@@ -934,6 +934,11 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Permanent::Beach11' => 'Lacuna::DB::Result::Building::Permanent::Beach11',
         'Lacuna::DB::Result::Building::Permanent::Beach12' => 'Lacuna::DB::Result::Building::Permanent::Beach12',
         'Lacuna::DB::Result::Building::Permanent::Beach13' => 'Lacuna::DB::Result::Building::Permanent::Beach13',
+        'Lacuna::DB::Result::Building::Permanent::MalcudField' => 'Lacuna::DB::Result::Building::Permanent::MalcudField',
+        'Lacuna::DB::Result::Building::Permanent::BeeldebanNest' => 'Lacuna::DB::Result::Building::Permanent::BeeldebanNest',
+        'Lacuna::DB::Result::Building::Permanent::LapisForest' => 'Lacuna::DB::Result::Building::Permanent::LapisForest',
+        'Lacuna::DB::Result::Building::Permanent::AlgaePond' => 'Lacuna::DB::Result::Building::Permanent::AlgaePond',
+        'Lacuna::DB::Result::Building::Permanent::Ravine' => 'Lacuna::DB::Result::Building::Permanent::Ravine',
     });
 }
 

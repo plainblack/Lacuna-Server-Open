@@ -133,6 +133,11 @@ $urlmap->map(Lacuna::RPC::Building::MissionCommand->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::CloakingLab->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::MunitionsLab->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::LuxuryHousing->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Ravine->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::AlgaePond->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::LapisForest->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::BeeldebanNest->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::MalcudField->new->to_app_with_url);
 
 # admin
 my $admin = builder {

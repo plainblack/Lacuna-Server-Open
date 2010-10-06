@@ -1,5 +1,10 @@
 {
     "buildings" : {
+        "/ravine" : { "description" : "A natural place to store waste.", "wiki" : "http://community.lacunaexpanse.com/wiki/ravine" },
+        "/malcudfield" : { "description" : "A natural source of food.", "wiki" : "http://community.lacunaexpanse.com/wiki/malcud-field" },
+        "/lapisforest" : { "description" : "A natural source of food.", "wiki" : "http://community.lacunaexpanse.com/wiki/lapis-forest" },
+        "/algaepond" : { "description" : "A natural source of food.", "wiki" : "http://community.lacunaexpanse.com/wiki/algae-pond" },
+        "/beeldebannest" : { "description" : "A natural source of food.", "wiki" : "http://community.lacunaexpanse.com/wiki/beeldeban-nest" },
         "/geothermalvent" : { "description" : "A natural source of energy from the planet's core.", "wiki" : "http://community.lacunaexpanse.com/wiki/geo-thermal-vent" },
         "/naturalspring" : { "description" : "A natural source of water from the planet.", "wiki" : "http://community.lacunaexpanse.com/wiki/natural-spring" },
         "/interdimensionalrift" : { "description" : "The Great Race somehow learned a technique to create a pocket of subspace with a door into our world. This allowed them to store lots of resources, without taking up much space.", "wiki" : "http://community.lacunaexpanse.com/wiki/interdimensional-rift" },
@@ -101,6 +106,7 @@
     "ships" : {
         "probe" : { "description" : "Send to a star to allow you to view the bodies orbiting that star.", "wiki" : "http://community.lacunaexpanse.com/wiki/probe" },
         "colony_ship" : { "description" : "Use to create a new colony for your empire.", "wiki" : "http://community.lacunaexpanse.com/wiki/colony-ship" },
+        "short_range_colony_ship" : { "description" : "Use to create a new colony for your empire. Very slow, only useful within your own star system.", "wiki" : "http://community.lacunaexpanse.com/wiki/short-range-colony-ship" },
         "spy_pod" : { "description" : "Stealthy one way transport for a spy.", "wiki" : "http://community.lacunaexpanse.com/wiki/spy-pod" },
         "cargo_ship" : { "description" : "Medium transport ship. Can be used to push resources between your colonies, trade with other empires, or gather ore from mining platforms.", "wiki" : "http://community.lacunaexpanse.com/wiki/cargo-ship" },
         "space_station" : { "description" : "The base hull upon which you can build space station modules to build a complete space station.", "wiki" : "http://community.lacunaexpanse.com/wiki/space-station" },

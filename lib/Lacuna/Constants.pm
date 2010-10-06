@@ -13,6 +13,11 @@ use constant FINDABLE_PLANS => (qw(
     Lacuna::DB::Result::Building::Permanent::NaturalSpring
     Lacuna::DB::Result::Building::Permanent::Volcano
     Lacuna::DB::Result::Building::Permanent::GeoThermalVent
+    Lacuna::DB::Result::Building::Permanent::BeeldebanNest
+    Lacuna::DB::Result::Building::Permanent::LapisForest
+    Lacuna::DB::Result::Building::Permanent::MalcudField
+    Lacuna::DB::Result::Building::Permanent::Ravine
+    Lacuna::DB::Result::Building::Permanent::AlgaePond
     ));
 use constant BUILDABLE_CLASSES => (qw(
     Lacuna::RPC::Building::MissionCommand
