@@ -27,9 +27,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    if ($self->level == 1) {
-        $self->body->add_news(50, sprintf('An ancient interdimensional rift was opened on %s today. Onlookers stood speechless.', $self->body->name));
-    }
+    $self->body->add_news(50, sprintf('An ancient interdimensional rift was opened on %s today. Onlookers stood speechless.', $self->body->name));
 };
 
 use constant name => 'Interdimensional Rift';

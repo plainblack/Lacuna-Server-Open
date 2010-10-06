@@ -20,9 +20,7 @@ sub can_upgrade {
 
 after finish_upgrade => sub {
     my $self = shift;
-    if ($self->level == 1) {
-        $self->body->add_news(50, sprintf('The followers of the Drajilite religion rejoiced when their ancient temple was uncovered on %s.', $self->body->name));
-    }
+    $self->body->add_news(50, sprintf('The followers of the Drajilite religion rejoiced when their ancient temple was uncovered on %s.', $self->body->name));
 };
 
 use constant image => 'templedrajilites';

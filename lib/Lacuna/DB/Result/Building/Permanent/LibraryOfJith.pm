@@ -27,9 +27,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    if ($self->level == 1) {
-        $self->body->add_news(50, sprintf('Archaeologists discovered the long rumored Library of Jith on %s this morning.', $self->body->name));
-    }
+    $self->body->add_news(50, sprintf('Archaeologists discovered the long rumored Library of Jith on %s this morning.', $self->body->name));
 };
 
 

@@ -5,6 +5,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
 use constant controller_class => 'Lacuna::RPC::Building::KalavianRuins';
+use Lacuna::Util qw(randint);
 
 sub can_build {
     my ($self, $body) = @_;
@@ -27,9 +28,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    if ($self->level == 1) {
-        $self->body->add_news(50, sprintf('Scientists estimate that the Kalavian Ruins they uncovered on %s were buried for 90,000 years.', $self->body->name));
-    }
+    $self->body->add_news(50, sprintf('Archaeologists estimate that the Kalavian Ruins they uncovered on %s were buried for '.randint(10,99).',000 years.', $self->body->name));
 };
 
 use constant name => 'Kalavian Ruins';
