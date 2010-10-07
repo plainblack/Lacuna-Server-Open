@@ -30,7 +30,7 @@ after finish_upgrade => sub {
     $self->body->add_news(30, sprintf('Today the governor of %s announced that a wild malcud field would be set aside as a nature preserve.', $self->body->name));
 };
 
-use constant name => 'malcudfield';
+use constant name => 'Malcud Field';
 use constant fungus_production => 4000;
 use constant time_to_build => 0;
 use constant max_instances_per_planet => 1;
