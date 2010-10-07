@@ -275,7 +275,9 @@ my %recipies = (
     zircon      => {
         methane         => {
             galena          => {
-                plan        => 'Lacuna::DB::Result::Building::Permanent::Ravine',
+                fluorite        => {
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::Ravine',
+                },
             },
         },
     },
