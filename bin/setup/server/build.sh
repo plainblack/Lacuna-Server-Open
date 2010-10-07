@@ -2,7 +2,8 @@
 
 cp dataapps.sh /etc/profile.d/
 
-yum -y install ncurses-devel gcc make glibc-devel gcc-c++ zlib-devel openssl-devel java
+yum -y install ncurses-devel gcc make glibc-devel gcc-c++ zlib-devel openssl-devel java sendmail
+service sendmail start
 rpm -ivh *.rpm
 
 cd pcre-8.10
