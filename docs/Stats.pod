@@ -104,6 +104,8 @@ Returns a sorted list of empires ranked according to various stats.
         {
             "empire_id" : "id-goes-here",                   # unique id
             "empire_name" : "Earthlings",                   # empire name
+            "alliance_id" : "id-goes-here",                 # unique id
+            "alliance_name" : "Earthlings Allied",          # alliance name
             "colony_count" : "1",                           # number of planets colonized
             "population" : "7000000000",                    # number of citizens on all planets in the empire
             "empire_size" : "7000000000",                   # size of entire empire
