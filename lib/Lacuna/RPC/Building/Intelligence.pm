@@ -57,7 +57,7 @@ sub subsidize_training {
         confess [1011, "Not enough essentia."];    
     }
 
-    $empire->spend_essentia(2, 'spy training subsidy after the fact');    
+    $empire->spend_essentia($cost, 'spy training subsidy after the fact');    
     $empire->update;
 
     my $now = DateTime->now;
