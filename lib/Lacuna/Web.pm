@@ -104,7 +104,7 @@ sub wrapper {
         if ($options->{logo}) {
             $content = '<div id="logo"><img src="https://s3.amazonaws.com/www.lacunaexpanse.com/logo.png"></div>'.$content;
         }
-        return [ sprintf($html, ($options->{title} || 'The Lacuna Expanse'), $content), { status => $options->{status} } ];    
+        return [ sprintf($html, ($options->{title} || 'The Lacuna Expanse'), $options->{head_tags}, $content), { status => $options->{status} } ];    
     }
     return ['Could not open wrapper template.', {status => 500} ];    
 }

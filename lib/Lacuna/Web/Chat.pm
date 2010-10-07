@@ -14,17 +14,17 @@ sub www_default {
     unless (defined $empire) {
         confess [401, 'Empire not found.'];
     }
-    return $self->wrap('
+    my $content = '
            <!-- Envolve -->
            <script type="text/javascript">envoSn='.Lacuna->config->get('envolve/Sn').'</script>
            <script type="text/javascript" src="http://d.envolve.com/env.nocache.js"></script>
            <input type="hidden" id="EnvolveDesiredFirstName" value="'.$empire->name.'">
-    ');
-}
-
-sub wrap {
-    my ($self, $content) = @_;
-    return $self->wrapper($content, { title => 'Lacuna Expanse Chat', logo => 1 });
+    ';
+    return $self->wrapper($content, { 
+        title       => 'Lacuna Expanse Chat', 
+        head_tags   => '<meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">', 
+        logo        => 1 
+    });
 }
 
 no Moose;
