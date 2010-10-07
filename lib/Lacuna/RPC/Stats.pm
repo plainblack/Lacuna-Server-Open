@@ -64,7 +64,7 @@ sub alliance_rank {
     return {
         status  	=> $self->format_status($empire),
         alliances 	=> \@alliances,
-        total_empires	=> $ranks->pager->total_entries,
+        total_alliances	=> $ranks->pager->total_entries,
         page_number	=> $page_number,
     };
 }
