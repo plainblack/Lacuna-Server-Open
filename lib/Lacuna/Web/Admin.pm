@@ -77,12 +77,12 @@ sub www_search_essentia_codes {
         $codes = $codes->search({code => { like => $code.'%' }});
     }
     my $out = '<h1>Search Essentia Codes</h1>';
-    $out .= '<form action="/admin/search/essentia/codes"><input name="code" value="'.$code.'"><input type="submit" value="search"></form>';
+    $out .= '<form method="post" action="/admin/search/essentia/codes"><input name="code" value="'.$code.'"><input type="submit" value="search"></form>';
     $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><td>Used</td><th>Action</th></tr>';
     while (my $code = $codes->next) {
         $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td></td></tr>', $code->id, $code->code, $code->amount, $code->description, $code->date_created, $code->used);
     }
-    $out .= '<form action="/admin/add/essentia/code"><tr>';
+    $out .= '<form method="post" action="/admin/add/essentia/code"><tr>';
     $out .= '<td></td>';
     $out .= '<td></td>';
     $out .= '<td><input name="amount" value="100" size="4"></td>';
@@ -115,7 +115,7 @@ sub www_search_empires {
         $empires = $empires->search({name => { like => $name.'%' }});
     }
     my $out = '<h1>Search Empires</h1>';
-    $out .= '<form action="/admin/search/empires"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
+    $out .= '<form method="post" action="/admin/search/empires"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
     $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>Species</th><th>Home</th><th>Last Login</th></tr>';
     while (my $empire = $empires->next) {
         $out .= sprintf('<tr><td><a href="/admin/view/empire?id=%s">%s</a></td><td>%s</td><td>%s</td><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td></tr>', $empire->id, $empire->id, $empire->name, $empire->species_name, $empire->home_planet_id, $empire->home_planet_id, $empire->last_login);
@@ -143,7 +143,7 @@ sub www_search_bodies {
         $bodies = $bodies->search({star_id => $request->param('star_id')});
     }
     my $out = '<h1>Search Bodies</h1>';
-    $out .= '<form action="/admin/search/bodies"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
+    $out .= '<form method="post" action="/admin/search/bodies"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
     $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Zone</th><th>Star</th><th>Empire</th></tr>';
     while (my $body = $bodies->next) {
         $out .= sprintf('<tr><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/empire?id=%s">%s</a></td></tr>', $body->id, $body->id, $body->name, $body->x, $body->y, $body->zone, $body->star_id, $body->empire_id || '', $body->empire_id || '');
@@ -165,7 +165,7 @@ sub www_search_stars {
         $stars = $stars->search({zone => $request->param('zone')});
     }
     my $out = '<h1>Search Stars</h1>';
-    $out .= '<form action="/admin/search/stars"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
+    $out .= '<form method="post" action="/admin/search/stars"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
     $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Zone</th></tr>';
     while (my $star = $stars->next) {
         $out .= sprintf('<tr><td><a href="/admin/view/star?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $star->id, $star->id, $star->name, $star->x, $star->y, $star->zone);
@@ -270,7 +270,7 @@ sub www_view_buildings {
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
     $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Level</th><th>Efficiency</th></tr>';
     while (my $building = $buildings->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><form action="/admin/set/efficiency"><td><input type="hidden" name="building_id" value="%s"><input name="efficiency" type="text" size="3" value="%s"><input type="submit" value="submit"></td></form></tr>', $building->id, $building->name, $building->x, $building->y, $building->level, $building->id, $building->efficiency);
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><form method="post" action="/admin/set/efficiency"><td><input type="hidden" name="building_id" value="%s"><input name="efficiency" type="text" size="3" value="%s"><input type="submit" value="submit"></td></form></tr>', $building->id, $building->name, $building->x, $building->y, $building->level, $building->id, $building->efficiency);
     }
     $out .= '</table>';
     return $self->wrap($out);
@@ -292,7 +292,7 @@ sub www_view_resources {
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
     $out .= '<table style="width: 100%;"><tr><th>Type</th><th>Stored</th><th>Add</th></tr>';
     foreach my $resource (@types) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><form action="/admin/add/resources"><td><input name="amount"><input type="submit" value="add"><input type="hidden" name="body_id" value="%s"><input type="hidden" name="resource" value="%s"</td></form></tr>', $resource, $body->type_stored($resource), $body_id, $resource);
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><form method="post" action="/admin/add/resources"><td><input name="amount"><input type="submit" value="add"><input type="hidden" name="body_id" value="%s"><input type="hidden" name="resource" value="%s"</td></form></tr>', $resource, $body->type_stored($resource), $body_id, $resource);
     }
     $out .= '</table>';
     return $self->wrap($out);
@@ -319,7 +319,7 @@ sub www_view_glyphs {
     while (my $glyph = $glyphs->next) {
         $out .= sprintf('<tr><td>%s</td><td>%s</td><td><a href="/admin/delete/glyph?body_id=%s&glyph_id=%s">Delete</a></td></tr>', $glyph->id, $glyph->type, $body_id, $glyph->id);
     }
-    $out .= '<form action="/admin/add/glyph"><tr>';
+    $out .= '<form method="post" action="/admin/add/glyph"><tr>';
     $out .= '<td><input type="hidden" name="body_id" value="'.$body_id.'"></td>';
     $out .= '<td><select name="type">';
     foreach my $name (ORE_TYPES) {
@@ -362,7 +362,7 @@ sub www_view_plans {
     while (my $plan = $plans->next) {
         $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/delete/plan?body_id=%s&plan_id=%s">Delete</a></td></tr>', $plan->id, $plan->level, $plan->class->name, $plan->extra_build_level, $body_id, $plan->id);
     }
-    $out .= '<form action="/admin/add/plan"><tr>';
+    $out .= '<form method="post" action="/admin/add/plan"><tr>';
     $out .= '<td><input type="hidden" name="body_id" value="'.$body_id.'"></td>';
     $out .= '<td><input name="level" value="1" size="2"></td>';
     $out .= '<td><select name="class">';
@@ -414,7 +414,7 @@ sub format_paginator {
     my $out = '<fieldset><legend>Page: '.$page_number.'</legend>';
     $out .= '<a href="/admin/'.$method.'?'.$key.'='.$value.';page_number='.($page_number - 1).'">&lt; Previous</a> | ';
     $out .= '<a href="/admin/'.$method.'?'.$key.'='.$value.';page_number='.($page_number + 1).'">Next &gt;</a> ';
-    $out .= '<form style="display: inline;" action="/admin/'.$method.'"><input name="page_number" value="'.$page_number.'" style="width: 30px;"><input type="hidden" name="'.$key.'" value="'.$value.'"><input type="submit" value="go"></form>';
+    $out .= '<form method="post" style="display: inline;" action="/admin/'.$method.'"><input name="page_number" value="'.$page_number.'" style="width: 30px;"><input type="hidden" name="'.$key.'" value="'.$value.'"><input type="submit" value="go"></form>';
     $out .= '</fieldset>';
     return $out;
 }
@@ -477,7 +477,7 @@ sub www_view_empire {
     $out .= sprintf('<tr><th>Created</th><td>%s</td><td></td></tr>', $empire->date_created);
     $out .= sprintf('<tr><th>Stage</th><td>%s</td><td></td></tr>', $empire->stage);
     $out .= sprintf('<tr><th>Last Login</th><td>%s</td><td></td></tr>', $empire->last_login);
-    $out .= sprintf('<tr><th>Essentia</th><td>%s</td><td><form style="display: inline" action="/admin/add/essentia"><input type="hidden" name="id" value="%s"><input name="amount" style="width: 30px;" value="0"><input name="description" value="Administrative Privilege"><input type="submit" value="add essentia"></form></td></tr>', $empire->essentia, $empire->id);
+    $out .= sprintf('<tr><th>Essentia</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/add/essentia"><input type="hidden" name="id" value="%s"><input name="amount" style="width: 30px;" value="0"><input name="description" value="Administrative Privilege"><input type="submit" value="add essentia"></form></td></tr>', $empire->essentia, $empire->id);
     $out .= sprintf('<tr><th>Species</th><td>%s</td><td></td></tr>', $empire->species_name);
     $out .= sprintf('<tr><th>Home</th><td>%s</td><td></td></tr>', $empire->home_planet_id);
     $out .= sprintf('<tr><th>Description</th><td>%s</td><td></td></tr>', $empire->description);
