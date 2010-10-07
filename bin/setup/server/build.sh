@@ -2,9 +2,15 @@
 
 cp dataapps.sh /etc/profile.d/
 
-yum -y install ncurses-devel gcc make glibc-devel gcc-c++ zlib-devel openssl-devel java sendmail libxml2-devel
+yum -y install ncurses-devel gcc make glibc-devel gcc-c++ zlib-devel openssl-devel java sendmail
 service sendmail start
 rpm -ivh *.rpm
+
+cd libxml2-2.7.7
+./configure --prefix=/data/apps
+make
+make install
+cd ..
 
 cd pcre-8.10
 ./configure --prefix=/data/apps

@@ -24,3 +24,5 @@ tar xfz nginx-0.7.67.tar.gz
 wget http://kernel.org/pub/software/scm/git/git-1.7.2.2.tar.gz
 tar xfz git-1.7.2.2.tar.gz
 
+wget ftp://anonymous@xmlsoft.org/libxml2/libxml2-sources-2.7.7.tar.gz
+tar xfz libxml2-sources-2.7.7.tar.gz
