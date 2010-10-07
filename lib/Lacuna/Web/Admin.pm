@@ -27,6 +27,9 @@ sub www_send_test_message {
 	body		=> 'This is a test message that contains all the components possible in a message.
      {food} {water} {ore} {energy} {waste} {happiness} {essentia} {build} {time}
     {Empire 1 Lacuna Expanse Corp}
+    {Planet '.$empire->home_planet->id.' '.$empire->home_planet->name.'}
+    {Alliance 1 Fake Alliance}
+    {Starmap 0 0 The Center of the Map}
     [http://www.lacunaexpanse.com]
     ',
 	subject		=> 'Test Message',
