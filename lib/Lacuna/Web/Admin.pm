@@ -709,6 +709,9 @@ sub get_viral {
 
 sub www_default {
     my ($self, $request) = @_;
+    my $announcement = Lacuna->cache->get('announcement','message');
+    $announcement =~ s/\>/&gt;/xmsg;
+    $announcement =~ s/\</&lt;/xmsg;
     return $self->wrap('<h1>Lacuna Expanse Admin Console</h1>
             Server Version: '.Lacuna->version.'
         <ul>
@@ -717,6 +720,13 @@ sub www_default {
         <li><a href="http://www.lacunaexpanse.com/">Lacuna Web Site</a></li>
         </ul>
         
+        <fieldset><legend>Announcement</legend>
+        <form method="post" action="/admin/change/announcement">
+        <textarea name="message" rows="10" cols="80">'.$announcement.'</textarea><br>
+        <input type="submit" name="change">
+        </form>
+        Announcements last for 24 hours. <a href="/admin/delete/announcement">Delete this announcement.</a>
+        </fieldset>
 
         <fieldset><legend>Server Utilities</legend>
         <ul>
@@ -725,6 +735,23 @@ sub www_default {
         </fieldset>
         ');
 }
+
+sub www_change_announcement {
+    my ($self, $request) = @_;
+    my $cache = Lacuna->cache;
+    $cache->set('announcement','alert', 1, 60*60*24);
+    $cache->set('announcement','message', $request->param('message'), 60*60*24);
+    return $self->wrap('Announcement saved.');
+}
+
+sub www_delete_announcement {
+    my ($self, $request) = @_;
+    my $cache = Lacuna->cache;
+    $cache->delete('announcement','alert');
+    $cache->delete('announcement','message');
+    return $self->wrap('Announcement deleted.');
+}
+
 
 sub www_server_wide_recalc {
     my ($self, $request) = @_;
