@@ -15,7 +15,7 @@ sub www_default {
         confess [401, 'Empire not found.'];
     }
     my $cache = Lacuna->cache;
-    $cache->set('announcement',$empire->id, 1, 60 * 60 * 24);
+    $cache->set('announcement',$empire->id, 1, 60 * 60 * 24) unless ($cache->get('announcement',$empire->id));
     return [ $cache->get('announcement','message'), { status => 200 }];
 }
 
