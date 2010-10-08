@@ -40,7 +40,7 @@ sub arrive {
             params      => [$body_attacked->name],
             attachments  => {
                 map => {
-                    surface_image   => $body_attacked->surface,
+                    surface         => $body_attacked->surface,
                     buildings       => \@map
                 }
             },

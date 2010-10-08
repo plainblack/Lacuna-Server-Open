@@ -1322,7 +1322,7 @@ sub surface_report {
         filename    => 'intel_report.txt',
         params      => ['Surface Report', $self->on_body->name, $self->name],
         attachments  => { map => {
-            surface_image   => $self->on_body->surface,
+            surface         => $self->on_body->surface,
             buildings       => \@map
         }},
     )->id;
