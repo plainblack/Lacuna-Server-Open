@@ -157,7 +157,7 @@ sub send_ship {
                 }
             }
             confess [ 1002, 'You have no idle spies to send.'] unless (defined $spy);
-            $spy->available_on($ship->date_available->clone);
+            $spy->available_on(DateTime->now->add(seconds=>$ship->calculate_travel_time($target)));
             $spy->on_body_id($target->id);
             $spy->task('Travelling');
             $spy->started_assignment(DateTime->now);
@@ -169,9 +169,10 @@ sub send_ship {
                 {task => ['in','Idle','Training'], on_body_id=>$body->id, empire_id=>$empire->id},
             );
             my @spies;
+            my $arrives = DateTime->now->add(seconds=>$ship->calculate_travel_time($target));
             while (my $spy = $spies->next) {
                 if ($spy->is_available) {
-                    $spy->available_on($ship->date_available->clone);
+                    $spy->available_on($arrives);
                     $spy->on_body_id($target->id);
                     $spy->task('Travelling');
                     $spy->started_assignment(DateTime->now);
