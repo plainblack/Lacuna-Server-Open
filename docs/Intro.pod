@@ -116,6 +116,7 @@ Most methods will provide a status block as part of the response. This is used t
         "server" : {
             "time" : "01 31 2010 13:09:05 +0600",
             "version" : 2.0604,
+            "announcement" : 1, # see the Announcement API
             "star_map_size" : {
                 "x" : [ -15, 15 ],
                 "y" : [ -15, 15 ],
@@ -178,6 +179,10 @@ How to allow users to purchase Essentia from your app.
 =item L<Chat>
 
 Integrate the in-game chat system with your app.
+
+=item L<Announcement>
+
+Display a serverwide announcement.
 
 =back
 
