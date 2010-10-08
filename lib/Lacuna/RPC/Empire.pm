@@ -6,7 +6,7 @@ extends 'Lacuna::RPC';
 use Lacuna::Util qw(format_date randint);
 use DateTime;
 use String::Random qw(random_string);
-use UUID::Tiny;
+use UUID::Tiny ':std';
 use Time::HiRes;
 use Text::CSV_XS;
 
@@ -194,7 +194,7 @@ sub send_password_reset_message {
     unless ($empire->email) {
         confess [1002, 'That empire has no email address specified.'];
     }
-    $empire->password_recovery_key(create_UUID_as_string(UUID_V4));
+    $empire->password_recovery_key(create_uuid_as_string(UUID_V4));
     $empire->update;
     
     my $message = "Use the key or the link below to reset the password for %s.\n\nKey: %s\n\n%s#reset_password=%s";

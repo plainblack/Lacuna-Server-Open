@@ -3,7 +3,7 @@ use lib '/data/Lacuna-Server/lib';
 use Lacuna::DB;
 use Lacuna;
 use GD::SecurityImage;
-use UUID::Tiny;
+use UUID::Tiny ':std';
 use File::Path qw(remove_tree make_path);
 
 my $db = Lacuna->db;
@@ -159,7 +159,7 @@ foreach my $riddle (keys %riddles) {
                             force   => 'png',
                             compress=> 1,
                         );
-                    my $guid = create_UUID_as_string(UUID_V4);
+                    my $guid = create_uuid_as_string(UUID_V4);
                     my $prefix = substr($guid, 0,2);
                     my $dir = '/data/captcha/'.$prefix;
                     unless (-d $dir) {

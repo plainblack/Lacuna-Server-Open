@@ -2,13 +2,13 @@ package Lacuna::Session;
 
 use Moose;
 no warnings qw(uninitialized);
-use UUID::Tiny;
+use UUID::Tiny ':std';
 
 
 has id => (
     is      => 'ro',
     default => sub {
-        return create_UUID_as_string(UUID_V4);
+        return create_uuid_as_string(UUID_V4);
     },
 );
 

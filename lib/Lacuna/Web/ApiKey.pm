@@ -3,7 +3,7 @@ package Lacuna::Web::ApiKey;
 use Moose;
 no warnings qw(uninitialized);
 extends qw(Lacuna::Web);
-use UUID::Tiny;
+use UUID::Tiny ':std';
 use Email::Stuff;
 
 sub www_view_stats {
@@ -44,8 +44,8 @@ sub www_view_stats {
 sub www_generate_key {
     my ($self, $request) = @_;
     my $pair = Lacuna->db->resultset('Lacuna::DB::Result::ApiKey')->new({
-        public_key  => create_UUID_as_string(UUID_V4),
-        private_key => create_UUID_as_string(UUID_V4),
+        public_key  => create_uuid_as_string(UUID_V4),
+        private_key => create_uuid_as_string(UUID_V4),
         email       => $request->param('email'),
         name        => $request->param('name'),
         ip_address  => $request->address,

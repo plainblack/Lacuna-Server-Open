@@ -6,7 +6,7 @@ extends qw(Lacuna::Web);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use feature "switch";
 use Module::Find;
-use UUID::Tiny;
+use UUID::Tiny ':std';
 use Lacuna::Util qw(format_date);
 use List::Util qw(sum);
 
@@ -104,7 +104,7 @@ sub www_add_essentia_code {
         date_created    => DateTime->now,
         amount          => $request->param('amount'),
         description     => $request->param('description'),
-        code            => create_UUID_as_string(UUID_V4),
+        code            => create_uuid_as_string(UUID_V4),
     })->insert;
     return $self->wrap('<p>Essentia Code: '. $code->code.'</p><p><a href="/admin/search/essentia/codes">Back To Essentia Codes</a></a>');
 }

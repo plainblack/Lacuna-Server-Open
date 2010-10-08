@@ -438,7 +438,7 @@ sub invite_friend {
     if ($invites->search({email => $email, inviter_id => $self->id })->count) {
         confess [1009, 'You have already invited that email address.'];
     }
-    my $code = create_UUID_as_string(UUID_V4);
+    my $code = create_uuid_as_string(UUID_V4);
     $invites->new({
         inviter_id  => $self->id,
         code        => $code,
@@ -641,7 +641,7 @@ before 'delete' => sub {
     my $essentia_code;
     my $sum = $essentia_log->search({empire_id => $self->id, description => { '!=', 'tutorial' } })->get_column('amount')->sum;
     if ($sum && $self->essentia && $self->email) {
-        $essentia_code = create_UUID_as_string(UUID_V4);
+        $essentia_code = create_uuid_as_string(UUID_V4);
         my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->new({
             code            => $essentia_code,
             date_created    => DateTime->now,

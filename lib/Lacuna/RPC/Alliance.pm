@@ -6,7 +6,7 @@ extends 'Lacuna::RPC';
 use Lacuna::Util qw(format_date randint);
 use DateTime;
 use String::Random qw(random_string);
-use UUID::Tiny;
+use UUID::Tiny ':std';
 use Time::HiRes;
 
 sub find {
