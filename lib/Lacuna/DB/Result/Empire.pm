@@ -8,7 +8,7 @@ use Lacuna::Util qw(format_date);
 use Digest::SHA;
 use List::MoreUtils qw(uniq);
 use Email::Stuff;
-use UUID::Tiny;
+use UUID::Tiny ':std';
 use Lacuna::Constants qw(INFLATION);
 
 
@@ -245,12 +245,17 @@ sub attach_invite_code {
     my $invites = Lacuna->db->resultset('Lacuna::DB::Result::Invite');
     if (defined $invite_code && $invite_code ne '') {
         my $invite = $invites->search(
-            {code    => $invite_code, invitee_id => undef },
+            {code    => $invite_code },
             {rows => 1}
         )->single;
         if (defined $invite) {
-            $invite->invitee_id($self->id);
-            $invite->update;
+            if ($invite->invitee_id) {
+                $invite = $invite->copy({invitee_id => $self->id, email => $self->email});
+            }
+            else {
+                $invite->invitee_id($self->id);
+                $invite->update;
+            }
             Lacuna->cache->increment('friends_accepted', format_date(undef,'%F'), 1, 60 * 60 * 26);
             my $inviter = $invite->inviter;
             if (defined $inviter) { # they may have deleted
@@ -411,12 +416,27 @@ sub find_home_planet {
     return $home_planet;
 }
 
+sub get_invite_friend_url {
+    my ($self) = @_;
+    my $code = create_uuid_as_string(UUID_MD5, $self->id);
+    my $invites = Lacuna->db->resultset('Lacuna::DB::Result::Invite');
+    my $invite = $invites->search({code => $code},{rows=>1})->single;
+    unless (defined $invite) {
+        $invites->new({
+            inviter_id  => $self->id,
+            code        => $code,
+            zone        => $self->home_planet->zone,
+        })->insert;
+    }
+    return Lacuna->config->get('server_url').'#referral='.$code;
+}
+
 sub invite_friend {
     my ($self, $email, $custom_message) = @_;
     $custom_message ||= "I'm having a great time with this new game called Lacuna Expanse. Come play with me.";
     my $invites = Lacuna->db->resultset('Lacuna::DB::Result::Invite');
-    if ($invites->search({email => $email})->count) {
-        confess [1009, 'Another user has already invited that email address.'];
+    if ($invites->search({email => $email, inviter_id => $self->id })->count) {
+        confess [1009, 'You have already invited that email address.'];
     }
     my $code = create_UUID_as_string(UUID_V4);
     $invites->new({
@@ -426,7 +446,7 @@ sub invite_friend {
         email       => $email,
     })->insert;
     Lacuna->cache->increment('friends_invited', format_date(undef,'%F'), 1, 60 * 60 * 26);
-    my $message = sprintf "%s\n\nMy name in the game is %s. Use the code below when you register and you'll be placed near me.\n\n%s\n\n%s",
+    my $message = sprintf "%s\n\nMy name in the game is %s. Use the code below when you register and you'll be placed near me.\n\n%s\n\n%s\n\nIf you are unfamiliar with The Lacuna Expanse, visit the web site at: http://www.lacunaexpanse.com/",
         $custom_message,
         $self->name,
         $code,

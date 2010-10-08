@@ -149,6 +149,23 @@ Your client's unique API key, identifiying it from all other clients. See L<ApiK
 Use of the invite code here is deprecated. Please pass in the invite_code in C<create> instead.
 
 
+
+=head2 get_invite_friend_url ( session_id )
+
+Returns a URL that can be pasted into a blog, forum, or whatever to invite friends.
+
+ {
+    "status" : { ... },
+    "referral_url" : "http://servername.lacunaexpanse.com/#referral=XXXX"
+ }
+
+=head3 session_id
+
+A session id.
+
+
+
+
 =head2 invite_friend ( session_id, email, [ custom_message ] )
 
 Send an invitation code to a friend so that they can start in the same zone as your empire.

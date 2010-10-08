@@ -9,7 +9,7 @@ __PACKAGE__->add_columns(
     inviter_id              => { data_type => 'int', is_nullable => 0 },
     zone                    => { data_type => 'varchar', size => 16, is_nullable => 0 },
     invitee_id              => { data_type => 'int', is_nullable => 1 },
-    email                   => { data_type => 'varchar', size => 255, is_nullable => 0 },
+    email                   => { data_type => 'varchar', size => 255, is_nullable => 1 },
     code                    => { data_type => 'varchar', size => 36, is_nullable => 0 },
 );
 

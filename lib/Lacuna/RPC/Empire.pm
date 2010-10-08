@@ -667,6 +667,15 @@ sub redeem_essentia_code {
     return { status => $self->format_status($empire) };
 }
 
+sub get_invite_friend_url {
+    my ($self, $session_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    return {
+        referral_url    => $empire->get_invite_friend_url,
+        status          => $self->format_status($empire),
+    };
+}
+
 sub invite_friend {
     my ($self, $session_id, $addresses, $custom_message) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -932,7 +941,7 @@ __PACKAGE__->register_rpc_method_names(
     { name => "benchmark", options => { with_plack_request => 1 } },
     { name => "found", options => { with_plack_request => 1 } },
     { name => "reset_password", options => { with_plack_request => 1 } },
-    qw(get_species_templates update_species view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+    qw(get_invite_friend_url get_species_templates update_species view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
 );
 
 
