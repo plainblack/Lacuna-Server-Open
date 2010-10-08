@@ -109,13 +109,14 @@ sub seconds_remaining_on_assignment {
 sub is_available {
     my ($self) = @_;
     my $task = $self->task;
-    if ($task ~~ ['Idle','Counter Espionage','Prisoner Transport']) {
+    if ($task ~~ ['Idle','Counter Espionage']) {
         return 1;
     }
     elsif (DateTime->now > $self->available_on) {
         if ($task eq 'Debriefing') {
             $self->task('Counter Espionage');
             $self->update;
+            return 1;
         }
         elsif ($task eq 'Unconscious') {
             $self->task('Idle');
@@ -125,6 +126,7 @@ sub is_available {
                 filename    => 'must_have_been_knocked_out.txt',
                 params      => [$self->name],
             );
+            return 1;
         }
         elsif ($task eq 'Waiting On Trade') {
             my $trade = Lacuna->db->resultset('Lacuna::DB::Result::Trades')->search({
@@ -142,15 +144,14 @@ sub is_available {
                 $self->update;
                 return 0;
             }
-            else {
-                $self->task('Idle');
-                $self->update;
-            }
         }
-        else {
-            $self->task('Idle');
-            $self->update;
-        }
+        $self->task('Idle');
+        $self->update;
+        $self->empire->send_predefined_message(
+            tags        => ['Intelligence'],
+            filename    => 'ready_for_assignment.txt',
+            params      => [$self->name],
+        );
         return 1;
     }
     return 0;
