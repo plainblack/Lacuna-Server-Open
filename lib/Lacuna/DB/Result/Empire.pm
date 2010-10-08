@@ -450,7 +450,7 @@ sub invite_friend {
         $custom_message,
         $self->name,
         $code,
-        Lacuna->config->get('server_url');
+        Lacuna->config->get('server_url').'#referral='.$code;
     Email::Stuff->from($self->email)
         ->to($email)
         ->subject('Come Play With Me')
