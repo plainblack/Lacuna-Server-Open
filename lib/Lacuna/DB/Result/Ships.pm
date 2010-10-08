@@ -16,7 +16,7 @@ __PACKAGE__->add_columns(
     date_started            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     date_available          => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     type                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # probe, colony_ship, spy_pod, cargo_ship, space_station, smuggler_ship, mining_platform_ship, terraforming_platform_ship, gas_giant_settlement_platform_ship
-    task                    => { data_type => 'varchar', size => 10, is_nullable => 0 }, # Docked, Building, Travelling, Mining
+    task                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # Docked, Building, Travelling, Mining
     name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     speed                   => { data_type => 'int', size => 11, is_nullable => 0 },
     stealth                 => { data_type => 'int', size => 11, is_nullable => 0 },
