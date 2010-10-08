@@ -97,9 +97,7 @@ sub build_ship {
     my ($self, $ship, $time) = @_;
     $ship->shipyard_id($self->id);
     $ship->task('Building');
-    my $name = $ship->type;
-    $name =~ s/(_|^)(\w)(.*?)(?=_|$)/\u$2/sg;
-    $name .= $self->level;
+    my $name = $ship->type_formatted . ' '. $self->level;
     $ship->name($name);
     $ship->body_id($self->body_id);
     $self->set_ship_speed($ship);
