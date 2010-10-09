@@ -20,4 +20,6 @@ The client should call this URI to fetch the announcement whenever the C<server>
 
 By calling this method to fetch the announcement, it will automatically remove the announcement from the C<server> block so that you know you don't have to fetch it again. 
 
+The target dialog window size should be 200x200px, but scrollable.
+
 =cut
