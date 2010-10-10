@@ -21,7 +21,7 @@ sub unload {
         }
     }
     if (exists $payload->{essentia}) {
-        $body->empire->add_essentia($payload->{essentia});
+        $body->empire->add_essentia($payload->{essentia}, 'Trade Unloaded');
         $body->empire->update;
     }
     if (exists $payload->{resources}) {
