@@ -127,11 +127,17 @@ sub remove_cargo_ship_from_fleet {
     unless ($ship->body_id eq $building->body_id) {
         confess [1013, "You can't manage a ship that is not yours."];
     }
-    my $from = $building->platforms->search(undef, {rows => 1})->single->asteroid;
-    unless (defined $from) {
-        $from = $building->body;
+    my $platform = $building->platforms->search(undef, {rows => 1})->single;
+    if (defined $platform) {
+        my $from = $platform->asteroid;
+        unless (defined $from) {
+            $from = $building->body;
+        }
+        $building->send_ship_home($from, $ship);
     }
-    $building->send_ship_home($from, $ship);
+    else {
+        $ship->land;
+    }
     return {
         status  => $self->format_status($empire, $building->body),
     };
