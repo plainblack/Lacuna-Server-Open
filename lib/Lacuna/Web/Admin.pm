@@ -626,21 +626,24 @@ sub www_view_virality {
     
     my $users_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_users
         .'&chxt=x,y&chds=0,'.$max_users
-        .'&chdl=Users&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3&chxtc=1,-900&chs=900x200&cht=ls&chco=ffffff&chd=t:'
+        .'&chdl=Users&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3&chxtc=1,-900&chs=900x300&cht=ls&chco=ffffff&chd=t:'
         .join(',', @users)
         .'&chxl='
         .join('|', '0:', @dates);
 
     my $stay_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_stay
-        .'&chxt=x,y&chds=0,'.$max_stay
-        .'&chdl=Days&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3&chxtc=1,-900&chs=900x200&cht=ls&chco=ffffff&chd=t:'
-        .join(',', @stay)
+        .'&chxt=x,y&chds=0,'.$max_stay.',0,'.$max_stay
+        .'&chdl=Days|Deletes&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3&chxtc=1,-900&chs=900x300&cht=ls&chco=ffffff,000000&chd=t:'
+        .join('|',
+            join(',', @stay),
+            join(',', @deletes),
+        )
         .'&chxl='
         .join('|', '0:', @dates);
 
     my $viral_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_viral
         .'&chxt=x,y&chds=0,'.$max_viral.',0,'.$max_viral.',0,'.$max_viral
-        .'&chdl=Viral%20Coefficient|Growth%20Rate|Churn%20Rate&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3&chxtc=1,-900&chs=900x200&cht=ls&chco=00ff00,ffb400,b400ff&chd=t:'
+        .'&chdl=Viral%20Coefficient|Growth%20Rate|Churn%20Rate&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3&chxtc=1,-900&chs=900x300&cht=ls&chco=00ff00,ffb400,b400ff&chd=t:'
         .join('|',
             join(',', @vc),
             join(',', @gr),
@@ -651,7 +654,7 @@ sub www_view_virality {
 
     my $change_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_change
         .'&chxt=x,y&chds=0,'.$max_change.',0,'.$max_change.',0,'.$max_change.',0,'.$max_change
-        .'&chdl=Invites|Accepts|Creates|Deletes&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3&chxtc=1,-900&chs=900x200&cht=ls&chco=ff8888,88ff88,8888ff,ff88ff&chd=t:'
+        .'&chdl=Invites|Accepts|Creates|Deletes&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3&chxtc=1,-900&chs=900x300&cht=ls&chco=ff8888,88ff88,8888ff,ff88ff&chd=t:'
         .join('|',
             join(',', @invites),
             join(',', @accepts),
@@ -706,6 +709,208 @@ sub get_viral {
     return Lacuna->db->resultset('Lacuna::DB::Result::Log::Viral');
 }
 
+
+sub www_view_economy {
+    my ($self, $request) = @_;
+    my $out = '<h1>Economy</h1>';
+
+    my (@dates, $previous, @arpu, $max_purchases, @p30, @p100, @p200, @p600, @p1300, $max_revenue, @revenue, @r30, @r100, @r200, @r600, @r1300);
+    my ($max_out, @out_boost, @out_mission, @out_recycle, @out_ship, @out_spy, @out_glyph, @out_party, @out_building, @out_trade, @out_delete, @out_other);        
+    my ($max_in, @in_mission, @in_purchase, @in_trade, @in_redemption, @in_vein, @in_vote, @in_tutorial, @in_other);
+    my $past30 = Lacuna->db->resultset('Lacuna::DB::Result::Log::Economy')->search({date_stamp => { '>=' => DateTime->now->subtract(days => 31)}}, { order_by => 'date_stamp'});
+    while (my $day = $past30->next) {
+        unless (defined $previous) {
+            $previous = $day;
+            next;
+        }
+        push @dates, $day->date_stamp->month.'/'.$day->date_stamp->day;
+
+        # average revenue per user
+        if ($day->total_users) {
+            push @arpu, ((
+                ($day->purchases_30 * 3) +
+                ($day->purchases_100 * 6) +
+                ($day->purchases_200 * 10) +
+                ($day->purchases_600 * 25) +
+                ($day->purchases_1300 + 50)
+                ) / $day->total_users);
+        }
+        else {
+            push @arpu, 0;
+        }
+
+        # purchases chart
+        push @p30, $day->purchases_30;
+        my $sum_purchases = $day->purchases_30;
+        push @p100, $day->purchases_100;
+        $sum_purchases += $day->purchases_100;
+        push @p200, $day->purchases_200;
+        $sum_purchases += $day->purchases_200;
+        push @p600, $day->purchases_600;
+        $sum_purchases += $day->purchases_600;
+        push @p1300, $day->purchases_1300;
+        $sum_purchases += $day->purchases_1300;
+        $max_purchases = $sum_purchases if ($max_purchases < $sum_purchases);
+
+        # revenue chart
+        push @r30, $day->purchases_30 * 3;
+        my $sum_revenue = $day->purchases_30 *3;
+        push @r100, $day->purchases_100 * 6;
+        $sum_revenue += $day->purchases_100 *6;
+        push @r200, $day->purchases_200 * 10;
+        $sum_revenue += $day->purchases_200 * 10;
+        push @r600, $day->purchases_600 * 25;
+        $sum_revenue += $day->purchases_600 * 25;
+        push @r1300, $day->purchases_1300 * 50;
+        $sum_revenue += $day->purchases_1300 * 50;
+        push @revenue, $sum_revenue;
+        $max_revenue = $sum_revenue if ($max_revenue < $sum_revenue);
+
+        # in chart
+        push @in_purchase, $day->in_purchase;
+        my $sum_in = $in_purchase[-1];
+        push @in_trade, $day->in_trade;
+        $sum_in += $in_trade[-1];
+        push @in_redemption, $day->in_redemption;
+        $sum_in += $in_redemption[-1];
+        push @in_vein, $day->in_vein;
+        $sum_in += $in_vein[-1];
+        push @in_vote, $day->in_vote;
+        $sum_in += $in_vote[-1];
+        push @in_tutorial, $day->in_tutorial;
+        $sum_in += $in_tutorial[-1];
+        push @in_mission, $day->in_mission;
+        $sum_in += $in_mission[-1];
+        push @in_other, $day->in_other;
+        $sum_in += $in_other[-1];
+        $max_in = $sum_in if ($max_in < $sum_in);
+
+        # out chart
+        push @out_boost, $day->out_boost;
+        my $sum_out = $out_boost[-1];
+        push @out_recycle, $day->out_recycle;
+        $sum_out += $out_recycle[-1];
+        push @out_ship, $day->out_ship;
+        $sum_out += $out_ship[-1];
+        push @out_spy, $day->out_spy;
+        $sum_out += $out_spy[-1];
+        push @out_glyph, $day->out_glyph;
+        $sum_out += $out_glyph[-1];
+        push @out_party, $day->out_party;
+        $sum_out += $out_party[-1];
+        push @out_building, $day->out_building;
+        $sum_out += $out_building[-1];
+        push @out_trade, $day->out_trade;
+        $sum_out += $out_trade[-1];
+        push @out_delete, $day->out_delete;
+        $sum_out += $out_delete[-1];
+        push @out_mission, $day->out_mission;
+        $sum_out += $out_mission[-1];
+        push @out_other, $day->out_other;        
+        $sum_out += $out_other[-1];
+        $max_out = $sum_out if ($max_out < $sum_out);
+
+    }
+    
+    my $in_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_in
+        .'&chxt=x,y&chds=0,'.$max_in.',0,'.$max_in.',0,'.$max_in.',0,'.$max_in.',0,'.$max_in.',0,'.$max_in.',0,'.$max_in.',0,'.$max_in
+        .'&chdl=Purchased|Trade|Redemption|Vein|Vote|Tutorial|Mission|Other&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3|3|3|3|3&chxtc=1,-900&chs=900x300'
+        .'&cht=bvs&chco=00b4ff,00ff00,009900,ffff00,ff7700,b400ff,ffaaff,ff0000&chd=t:'
+        .join('|',
+            join(',', @in_purchase),
+            join(',', @in_trade),
+            join(',', @in_redemption),
+            join(',', @in_vein),
+            join(',', @in_vote),
+            join(',', @in_tutorial),
+            join(',', @in_mission),
+            join(',', @in_other),
+        )
+        .'&chxl='
+        .join('|', '0:', @dates);
+
+    my $out_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_out
+        .'&chxt=x,y&chds=0,'.$max_out.',0,'.$max_out.',0,'.$max_out.',0,'.$max_out.',0,'.$max_out.',0,'.$max_out.',0,'.$max_out.',0,'.$max_out.',0,'.$max_out.',0,'.$max_out.',0,'.$max_out
+        .'&chdl=Boosts|Recyling|Ships|Spies|Glyphs|Parties|Construction|Trade|Mission|Delete|Other&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3|3|3|3|3|3|3|3&chxtc=1,-900&chs=900x300'
+        .'&cht=bvs&chco=00b4ff,00ff00,009900,ffff00,ff7700,ff0000,ffaaff,b400ff,ffffff,999999,000000&chd=t:'
+        .join('|',
+            join(',', @out_boost),
+            join(',', @out_recycle),
+            join(',', @out_ship),
+            join(',', @out_spy),
+            join(',', @out_glyph),
+            join(',', @out_party),
+            join(',', @out_building),
+            join(',', @out_trade),
+            join(',', @out_mission),
+            join(',', @out_delete),
+            join(',', @out_other),
+        )
+        .'&chxl='
+        .join('|', '0:', @dates);
+
+    my $revenue_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_revenue
+        .'&chxt=x,y&chds=0,'.$max_revenue.',0,'.$max_revenue.',0,'.$max_revenue.',0,'.$max_revenue.',0,'.$max_revenue
+        .'&chdl=$3|$6|$10|$25|$50&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3|3'
+        .'&chxtc=1,-900&chs=900x300&cht=bvs&chco=00ff00,ffb400,b400ff,00b4ff,ff0000&chd=t:'
+        .join('|',
+            join(',', @r30),
+            join(',', @r100),
+            join(',', @r200),
+            join(',', @r600),
+            join(',', @r1300),
+        )
+        .'&chxl='
+        .join('|', '0:', @dates);
+
+    my $purchases_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_purchases
+        .'&chxt=x,y&chds=0,'.$max_purchases.',0,'.$max_purchases.',0,'.$max_purchases.',0,'.$max_purchases.',0,'.$max_purchases
+        .'&chdl=30|100|200|600|1300&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3|3&chxtc=1,-900&chs=900x300&cht=bvs&chco=00ff00,ffb400,b400ff,00b4ff,ff0000&chd=t:'
+        .join('|',
+            join(',', @p30),
+            join(',', @p100),
+            join(',', @p200),
+            join(',', @p600),
+            join(',', @p1300),
+        )
+        .'&chxl='
+        .join('|', '0:', @dates);
+
+    my $arpu_chart = 'http://chart.apis.google.com/chart?chxr=1,0,1'
+        .'&chxt=x,y&chds=0,1'
+        .'&chdl=Dollars&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3&chxtc=1,-900&chs=900x300&cht=ls&chco=ffffff&chd=t:'
+        .join(',', @arpu)
+        .'&chxl='
+        .join('|', '0:', @dates);
+
+    $out .= '
+        <div style="text-align: center;">
+
+        <h2>Revenue</h2>
+        <img src="'.$revenue_chart.'" alt="revenue chart">
+        <br>
+        
+        <h2>User Purchases</h2>
+        <img src="'.$purchases_chart.'" alt="purchases chart">
+        <br>
+        
+        <h2>Average Revenue Per User</h2>
+        <img src="'.$arpu_chart.'" alt="arpu chart">
+        <br>
+        
+        <h2>Essentia Spent</h2>
+        <img src="'.$out_chart.'" alt="out chart">
+        <br>
+        
+        <h2>Essentia Earned</h2>
+        <img src="'.$in_chart.'" alt="in chart">
+        <br>
+        
+        </div>
+    ';
+    
+    return $self->wrap($out);
+}
 
 sub www_default {
     my ($self, $request) = @_;
@@ -768,6 +973,7 @@ sub wrap {
     <li><a href="/admin/search/stars">Stars</a></li>
     <li><a href="/admin/search/essentia/codes">Essentia Codes</a></li>
     <li><a href="/admin/view/virality">Virality</a></li>
+    <li><a href="/admin/view/economy">Economy</a></li>
     <li><a href="/admin/view/logs">Logs</a></li>
     <li><a href="/admin/default">Home</a></li>
     </ul>

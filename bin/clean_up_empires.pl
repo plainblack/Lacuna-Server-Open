@@ -76,13 +76,6 @@ while (my $empire = $inactives->next) {
     $empire->enable_self_destruct;
 }
 
-out('Ticking planets');
-my $planets = $db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id   => {'>' => 0} });
-while (my $planet = $planets->next) {
-    out('Ticking '.$planet->name);
-    $planet->tick;
-}
-
 my $finish = DateTime->now;
 out('Finished');
 out((to_seconds($finish - $start)/60)." minutes have elapsed");
