@@ -80,7 +80,7 @@ sub next_available_trade_ship {
         ->search({
             task    => 'Docked',
             hold_size   => { '>', 0 },
-            type    => { 'not in' => [qw(scow)] },
+            type    => { 'in' => [qw(dory cargo_ship freighter smuggler_ship)] },
             body_id => $self->body_id,
         }, {
             rows    => 1,
