@@ -288,6 +288,7 @@ sub send_spies {
                 push @ids_sent, $spy->id;
                 $spy->task('Travelling');
                 $spy->started_assignment(DateTime->now);
+                $spy->on_body_id($to_body->id);
                 $spy->available_on($ship->date_available);
                 $spy->update;
             }
