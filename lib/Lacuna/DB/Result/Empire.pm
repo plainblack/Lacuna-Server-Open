@@ -580,7 +580,7 @@ sub next_colony_cost {
     my ($self) = @_;
     my $count = $self->planets->count;
     $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        { type=>'colony_ship', task=>'travelling', 'body.empire_id' => $self->id},
+        { type=> { in => [qw(colony_ship short_range_colony_ship)]}, task=>'travelling', 'body.empire_id' => $self->id},
         { join => 'body' }
     )->count;
     my $inflation = INFLATION - ($self->political_affinity / 100);
