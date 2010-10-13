@@ -16,7 +16,10 @@ sub www_default {
     }
     my $cache = Lacuna->cache;
     $cache->set('announcement',$empire->id, 1, 60 * 60 * 24) unless ($cache->get('announcement',$empire->id));
-    return [ $cache->get('announcement','message'), { status => 200 }];
+    return $self->wrapper($cache->get('announcement','message'), { 
+        title       => 'Lacuna Expanse Chat', 
+        head_tags   => '<meta name="viewport" content="height=device-height, width=device-width, initial-scale=3.0, maximum-scale=10.0, user-scalable=yes">', 
+    });
 }
 
 no Moose;
