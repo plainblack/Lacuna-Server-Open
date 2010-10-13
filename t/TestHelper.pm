@@ -44,7 +44,7 @@ sub generate_test_empire {
         password            => Lacuna::DB::Result::Empire->encrypt_password($self->empire_password),
     })->insert;
     $empire->found;
-    $self->session($empire->start_session);
+    $self->session($empire->start_session({api_key => 'tester'}));
     $self->empire($empire);
     return $self;
 }

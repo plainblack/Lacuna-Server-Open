@@ -1,7 +1,37 @@
-=head1 Entertainment Methods
+=head1 Entertainment District Methods
 
-Entertainment is accessible via the URL C</entertainment>.
+The Entertainment District is accessible via the URL C</entertainment>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=head2 get_lottery_voting_options ( session_id, building_id )
+
+This is the starting point to a voting lottery system. The user can vote on a site once and only once per day and each vote enters him/her into a lottery. At the end of the day a lottery ticket will be drawn, and a winner will be chosen to receive 10 essentia. Every vote is equal, but the more votes you have the greater your odds of winning.
+
+Returns a list of sites that the user can vote on.
+
+ {
+    "options" : [
+        {
+            "name" : "Some Site",
+            "url" : "http://www.somesite.com/vote?id=44"
+        },
+        ...
+    ],
+    "status" : { ... }
+ }
+
+B<NOTE:> The URLs returned in the C<url> parameter need to be opened into a new browser window so that the user can go vote on a remote site.
+
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the entertainment district.
+
+
 
 =cut

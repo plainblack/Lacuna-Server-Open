@@ -29,6 +29,7 @@ $urlmap->map("/inbox" => Lacuna::RPC::Inbox->new->to_app);
 $urlmap->map("/stats" => Lacuna::RPC::Stats->new->to_app);
 $urlmap->map("/pay" => Lacuna::Web::Pay->new->to_app);
 $urlmap->map("/chat" => Lacuna::Web::Chat->new->to_app);
+$urlmap->map("/entertainment/vote" => Lacuna::Web::EntertainmentVote->new->to_app);
 $urlmap->map("/announcement" => Lacuna::Web::Announcement->new->to_app);
 $urlmap->map("/facebook" => Lacuna::Web::Facebook->new->to_app);
 $urlmap->map("/apikey" => Lacuna::Web::ApiKey->new->to_app);
