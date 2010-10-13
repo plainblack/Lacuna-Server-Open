@@ -866,6 +866,23 @@ sub spend_type {
     return $self;
 }
 
+sub can_add_type {
+    my ($self, $type, $value) = @_;
+    if ($type ~~ [ORE_TYPES]) {
+        $type = 'ore';
+    }
+    if ($type ~~ [FOOD_TYPES]) {
+        $type = 'food';
+    }
+    my $capacity = $type.'_capacity';
+    my $stored = $type.'_stored';
+    my $available_storage = $self->$capacity - $self->$stored;
+    unless ($available_storage >= $value) {
+        confess [1009, "You don't have enough available storage."];
+    }
+    return 1;
+}
+
 sub add_type {
     my ($self, $type, $value) = @_;
     my $method = 'add_'.$type;

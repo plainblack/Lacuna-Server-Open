@@ -86,6 +86,7 @@ sub trade_one_for_one {
     unless ($empire->essentia >= 3) {
         confess [1011, 'You need 3 essentia to conduct this trade.'];
     }
+    $body->can_add_type($want, $quantity);
     $empire->spend_essentia(3, 'Lacunans Trade')->update;
     $body->spend_type($have, $quantity);
     $body->add_type($want, $quantity);
