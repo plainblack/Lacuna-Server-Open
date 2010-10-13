@@ -11,7 +11,8 @@ __PACKAGE__->add_columns(
     orbit                           => { data_type => 'int', size => 11, default_value => 0 },
     class                           => { data_type => 'varchar', size => 255, is_nullable => 0 },
     size                            => { data_type => 'int', size => 11, default_value => 0 },
-    usable_as_starter               => { data_type => 'int', size => 11, default_value => 0 },
+    usable_as_starter               => { data_type => 'int',  default_value => 0 },
+    usable_as_starter_enabled       => { data_type => 'tinyint', default_value => 0 },
     empire_id                       => { data_type => 'int', size => 11, is_nullable => 1 },
     last_tick                       => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     happiness_hour                  => { data_type => 'int', size => 11, default_value => 0 },
@@ -123,6 +124,7 @@ after 'sqlt_deploy_hook' => sub {
     my ($self, $sqlt_table) = @_;
     $sqlt_table->add_index(name => 'idx_class', fields => ['class']);
     $sqlt_table->add_index(name => 'idx_usable_as_starter', fields => ['usable_as_starter']);
+    $sqlt_table->add_index(name => 'idx_usable_as_starter_enabled', fields => ['usable_as_starter_enabled']);
 };
 
 __PACKAGE__->typecast_map(class => {

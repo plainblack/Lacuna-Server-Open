@@ -140,12 +140,16 @@ sub add_bodies {
                 star_id             => $star->id,
                 zone                => $star->zone,
                 usable_as_starter   => 0,
+                usable_as_starter_enabled => 0,
             };
             my $body;
             if ($type eq 'habitable') {
                 $params->{class} = $planet_classes[rand(scalar(@planet_classes))];
                 $params->{size} = ($params->{orbit} == 3) ? randint(35,55) : randint(30,60);
-                $params->{usable_as_starter} = ($params->{size} >= 40 && $params->{size} <= 50) ? randint(1,9999) : 0;
+                if ($params->{size} >= 40 && $params->{size} <= 50) {
+                    $params->{usable_as_starter} = randint(8000,9000) + ($params->{size} * 10) - abs($params->{y}) - abs($params->{x});
+                    $params->{usable_as_starter_enabled} = 1;
+                }
             }
             elsif ($type eq 'asteroid') {
                 $params->{class} = $asteroid_classes[rand(scalar(@asteroid_classes))];

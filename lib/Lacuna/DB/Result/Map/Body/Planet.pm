@@ -99,8 +99,8 @@ sub sanitize {
     Lacuna->db->resultset('Lacuna::DB::Result::Trades')->search({body_id => $self->id})->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->id})->delete;
     $self->empire_id(undef);
-    if ($self->get_type eq 'habitable planet') {
-        $self->usable_as_starter(randint(1,9999));
+    if ($self->get_type eq 'habitable planet' && $self->size >= 40 && $self->size <= 50) {
+        $self->usable_as_starter_enabled(1);
     }
     $self->update;
     return $self;
@@ -552,7 +552,7 @@ sub found_colony {
     my ($self, $empire) = @_;
     $self->empire_id($empire->id);
     $self->empire($empire);
-    $self->usable_as_starter(0);
+    $self->usable_as_starter_enabled(0);
     $self->last_tick(DateTime->now);
     $self->update;    
 

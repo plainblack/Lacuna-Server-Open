@@ -365,8 +365,8 @@ sub find_home_planet {
     my ($self) = @_;
     my $planets = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body');
     my %search = (
-        usable_as_starter   => {'>', 0},
-        orbit               => { between => [ $self->min_orbit, $self->max_orbit] },
+        usable_as_starter_enabled   => 1,
+        orbit                       => { between => [ $self->min_orbit, $self->max_orbit] },
     );
     
     # determine search area
