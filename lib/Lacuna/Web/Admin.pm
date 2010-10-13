@@ -930,7 +930,8 @@ sub www_default {
         <textarea name="message" rows="10" cols="80">'.$announcement.'</textarea><br>
         <input type="submit" name="change">
         </form>
-        Announcements last for 24 hours. <a href="/admin/delete/announcement">Delete this announcement.</a>
+        <p>Announcements last for 24 hours. HTML head and body are provided, you just need to type the content. Make sure links target "_new".</p>
+        <a href="/admin/delete/announcement">Delete this announcement.</a>
         </fieldset>
 
         <fieldset><legend>Server Utilities</legend>
