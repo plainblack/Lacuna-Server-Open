@@ -106,7 +106,8 @@ sub format_status {
     );
     if (defined $empire) {
         my $cache = Lacuna->cache;
-        if ($cache->get('announcement','alert') && !$cache->get('announcement', $empire->id)) {
+        my $alert = $cache->get('announcement','alert');
+        if ($alert && !$cache->get('announcement'.$alert, $empire->id)) {
             $out{server}{announcement} = 1;
         }
         $out{empire} = $empire->get_status;

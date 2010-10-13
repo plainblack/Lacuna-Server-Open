@@ -15,9 +15,10 @@ sub www_default {
         confess [401, 'Empire not found.'];
     }
     my $cache = Lacuna->cache;
-    $cache->set('announcement',$empire->id, 1, 60 * 60 * 24) unless ($cache->get('announcement',$empire->id));
+    my $alert = $cache->get('announcement','alert');
+    $cache->set('announcement'.$alert,$empire->id, 1, 60 * 60 * 24);
     return $self->wrapper($cache->get('announcement','message'), { 
-        title       => 'Lacuna Expanse Chat', 
+        title       => 'Lacuna Expanse Server Announcement', 
         head_tags   => '<meta name="viewport" content="height=device-height, width=device-width, initial-scale=3.0, maximum-scale=10.0, user-scalable=yes">', 
     });
 }

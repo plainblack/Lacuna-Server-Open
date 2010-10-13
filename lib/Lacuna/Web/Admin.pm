@@ -945,7 +945,7 @@ sub www_default {
 sub www_change_announcement {
     my ($self, $request) = @_;
     my $cache = Lacuna->cache;
-    $cache->set('announcement','alert', 1, 60*60*24);
+    $cache->set('announcement','alert', create_uuid_as_string(UUID_V4), 60*60*24);
     $cache->set('announcement','message', $request->param('message'), 60*60*24);
     return $self->wrap('Announcement saved.');
 }
