@@ -23,6 +23,8 @@ Returns a list of sites that the user can vote on.
 
 B<NOTE:> The URLs returned in the C<url> parameter need to be opened into a new browser window so that the user can go vote on a remote site.
 
+Each C<url> is usable only once every 24 hours. The server keeps track of this, but the client must remove the URL from the list after the user has clicked on it so they know not to click again.
+
 
 =head3 session_id
 
