@@ -377,21 +377,21 @@ sub find_home_planet {
         #   (SQRT( POW(5-x,2) + POW(8-y,2) )) as distance
         # then order by distance
     }
-    else {
-        my $min_inhabited = sub {
-            my $axis = shift;
-            return $planets->search({empire_id => { '>' => 0 } })->get_column($axis)->min;
-        };
-        my $max_inhabited = sub {
-            my $axis = shift;
-            return $planets->search({empire_id => { '>' => 0 } })->get_column($axis)->max;
-        };
-        $search{x} = { between => [($min_inhabited->('x') - 20), ($max_inhabited->('x') + 20)] };
-        $search{y} = { between => [($min_inhabited->('y') - 20), ($max_inhabited->('y') + 20)] },
-    }
+    #else {
+    #    my $min_inhabited = sub {
+    #        my $axis = shift;
+    #        return $planets->search({empire_id => { '>' => 0 } })->get_column($axis)->min;
+    #    };
+    #    my $max_inhabited = sub {
+    #        my $axis = shift;
+    #        return $planets->search({empire_id => { '>' => 0 } })->get_column($axis)->max;
+    #    };
+    #    $search{x} = { between => [($min_inhabited->('x') - 20), ($max_inhabited->('x') + 20)] };
+    #    $search{y} = { between => [($min_inhabited->('y') - 20), ($max_inhabited->('y') + 20)] },
+    #}
 
     # search
-    my $possible_planets = $planets->search(\%search, {order_by => 'usable_as_starter'});
+    my $possible_planets = $planets->search(\%search, {order_by => -desc => ['usable_as_starter']});
 
     # find an uncontested planet in the possible planets
     my $home_planet;
