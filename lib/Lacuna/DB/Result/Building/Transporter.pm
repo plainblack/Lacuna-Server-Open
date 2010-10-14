@@ -68,6 +68,9 @@ sub determine_available_cargo_space {
 
 sub trade_one_for_one {
     my ($self, $have, $want, $quantity) = @_;
+    unless ($quantity > 0) {
+        confess [1011, 'You cannot trade negative amounts of something.'];
+    }
     unless ($self->determine_available_cargo_space >= $quantity) {
         confess [1011, 'This transporter has a maximum load size of '.$self->determine_available_cargo_space.'.'];
     }

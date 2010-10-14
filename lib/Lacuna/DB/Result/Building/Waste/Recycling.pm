@@ -34,6 +34,9 @@ sub can_recycle {
     if ($self->is_working) {
         confess [1010, "The Recycling Center is busy."];
     }
+    if ($water < 0 || $ore < 0 || $energy < 0) {
+        confess [1011, "You cannot create negative resources."];
+    }
     if (($water + $ore + $energy) > $self->body->waste_stored) {
         confess [1011, "You don't have that much waste in storage.", [($water + $ore + $energy), $self->body->waste_stored]];
     }

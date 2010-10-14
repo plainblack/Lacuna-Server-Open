@@ -222,6 +222,7 @@ sub structure_push {
     foreach my $item (@{$items}) {
         given($item->{type}) {
             when ([qw(water energy waste), ORE_TYPES, FOOD_TYPES]) {
+                 confess $offer_nothing_exception unless ($item->{quantity} > 0);
                  confess $have_exception unless ($body->type_stored($item->{type}) >= $item->{quantity});
                  $space_used += $item->{quantity};
              }
