@@ -184,6 +184,7 @@ around 'view' => sub {
         maximum         => $building->max_spies,
         current         => $building->spy_count,
         training_costs  => $building->training_costs,
+        in_training     => $building->spies_in_training_count,
     };
     return $out;
 };

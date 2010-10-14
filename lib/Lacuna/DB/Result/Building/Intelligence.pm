@@ -55,6 +55,15 @@ has spy_count => (
     },
 );
 
+has spies_in_training_count => (
+    is          => 'rw',
+    lazy        => 1,
+    default     => sub {
+        my $self = shift;
+        return $self->get_spies->search({task=>'Training'})->count;
+    },
+);
+
 has latest_spy => (
     is          => 'rw',
     lazy        => 1,
