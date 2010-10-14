@@ -197,112 +197,156 @@ sub manufacturing_production_bonus {
 
 sub lapis_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->lapis_production * $self->production_hour * $self->farming_production_bonus);
+    my $base = $self->lapis_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub potato_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->potato_production * $self->production_hour * $self->farming_production_bonus);
+    my $base = $self->potato_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub bean_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->bean_production * $self->production_hour * $self->farming_production_bonus);
+    my $base = $self->bean_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub cheese_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->cheese_production * $self->production_hour * $self->manufacturing_production_bonus);
+    my $base = $self->cheese_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub apple_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->apple_production * $self->production_hour * $self->farming_production_bonus);
+    my $base = $self->apple_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub root_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->root_production * $self->production_hour * $self->farming_production_bonus);
+    my $base = $self->root_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub corn_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->corn_production * $self->production_hour * $self->farming_production_bonus);
+    my $base = $self->corn_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub cider_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->cider_production * $self->production_hour * $self->manufacturing_production_bonus);
+    my $base = $self->cider_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub wheat_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->wheat_production * $self->production_hour * $self->farming_production_bonus);
+    my $base = $self->wheat_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub bread_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->bread_production * $self->production_hour * $self->manufacturing_production_bonus);
+    my $base = $self->bread_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub soup_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->soup_production * $self->production_hour * $self->manufacturing_production_bonus);
+    my $base = $self->soup_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub chip_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->chip_production * $self->production_hour * $self->manufacturing_production_bonus);
+    my $base = $self->chip_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub pie_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->pie_production * $self->production_hour * $self->manufacturing_production_bonus);
+    my $base = $self->pie_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub pancake_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->pancake_production * $self->production_hour * $self->manufacturing_production_bonus);
+    my $base = $self->pancake_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub milk_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->milk_production * $self->production_hour * $self->farming_production_bonus);
+    my $base = $self->milk_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub meal_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->meal_production * $self->production_hour * $self->manufacturing_production_bonus);
+    my $base = $self->meal_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub algae_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->algae_production * $self->production_hour * $self->farming_production_bonus);
+    my $base = $self->algae_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub syrup_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->syrup_production * $self->production_hour * $self->manufacturing_production_bonus);
+    my $base = $self->syrup_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub fungus_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->fungus_production * $self->production_hour * $self->farming_production_bonus);
+    my $base = $self->fungus_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub burger_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->burger_production * $self->production_hour * $self->manufacturing_production_bonus);
+    my $base = $self->burger_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub shake_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->shake_production * $self->production_hour * $self->manufacturing_production_bonus);
+    my $base = $self->shake_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub beetle_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->beetle_production * $self->production_hour * $self->farming_production_bonus);
+    my $base = $self->beetle_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->farming_production_bonus);
 }
 
 sub food_production_hour {
@@ -334,7 +378,9 @@ sub energy_production_bonus {
 
 sub energy_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->energy_production * $self->production_hour * $self->energy_production_bonus);
+    my $base = $self->energy_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->energy_production_bonus);
 }
 
 sub energy_consumption_hour {
@@ -358,7 +404,9 @@ sub mining_production_bonus {
 
 sub ore_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->ore_production * $self->production_hour * $self->mining_production_bonus);
+    my $base = $self->ore_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->mining_production_bonus);
 }
 
 sub ore_consumption_hour {
@@ -380,7 +428,9 @@ sub water_production_bonus {
 
 sub water_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f', $self->water_production * $self->production_hour * $self->water_production_bonus);
+    my $base = $self->water_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->water_production_bonus);
 }
 
 sub water_consumption_hour {
@@ -405,7 +455,9 @@ sub waste_production_hour {
 
 sub waste_consumption_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->waste_consumption * $self->consumption_hour * $self->waste_consumption_bonus);
+    my $base = $self->waste_consumption * $self->consumption_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->waste_consumption_bonus);
 }
 
 sub waste_hour {
@@ -422,7 +474,9 @@ sub happiness_production_bonus {
 
 sub happiness_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->happiness_production * $self->production_hour * $self->happiness_production_bonus);
+    my $base = $self->happiness_production * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->happiness_production_bonus);
 }
 
 sub happiness_consumption_hour {
@@ -450,27 +504,37 @@ has storage_bonus => (
 
 sub food_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->food_storage * $self->production_hour * $self->storage_bonus);
+    my $base = $self->food_storage * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->storage_bonus);
 }
 
 sub energy_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->energy_storage * $self->production_hour * $self->storage_bonus);
+    my $base = $self->energy_storage * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->storage_bonus);
 }
 
 sub ore_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->ore_storage * $self->production_hour * $self->storage_bonus);
+    my $base = $self->ore_storage * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->storage_bonus);
 }
 
 sub water_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->water_storage * $self->production_hour * $self->storage_bonus);
+    my $base = $self->water_storage * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->storage_bonus);
 }
 
 sub waste_capacity {
     my ($self) = @_;
-    return sprintf('%.0f',$self->waste_storage * $self->production_hour * $self->storage_bonus);
+    my $base = $self->waste_storage * $self->production_hour;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->storage_bonus);
 }
 
 # BUILD
