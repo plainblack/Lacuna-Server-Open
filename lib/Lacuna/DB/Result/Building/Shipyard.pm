@@ -219,7 +219,7 @@ sub set_ship_stealth {
     my $cloaking_level = (defined $self->cloaking_lab) ? $self->cloaking_lab->level : 1;
     my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 1;
     my $bonus = $self->body->empire->deception_affinity * $cloaking_level * $ptf;
-    $ship->stealth(sprintf('%.0f', $ship->base_hold_size + $bonus));
+    $ship->stealth(sprintf('%.0f', $ship->base_stealth + $bonus));
     return $ship->stealth;
 }
 
