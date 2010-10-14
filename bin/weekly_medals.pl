@@ -3,7 +3,7 @@ use strict;
 use lib '/data/Lacuna-Server/lib';
 use Lacuna::DB;
 use Lacuna;
-use Lacuna::Util qw(format_date to_seconds);
+use Lacuna::Util qw(format_date);
 use Getopt::Long;
 $|=1;
 
@@ -14,7 +14,7 @@ GetOptions(
 );
 
 out('Started');
-my $start = DateTime->now;
+my $start = time;
 
 out('Loading DB');
 our $db = Lacuna->db;
@@ -26,9 +26,9 @@ spies();
 colonies();
 empires();
 
-my $finish = DateTime->now;
+my $finish = time;
 out('Finished');
-out((to_seconds($finish - $start)/60)." minutes have elapsed");
+out((($finish - $start)/60)." minutes have elapsed");
 
 
 ###############

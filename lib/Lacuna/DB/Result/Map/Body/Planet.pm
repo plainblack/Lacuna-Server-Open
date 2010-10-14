@@ -5,7 +5,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES BUILDABLE_CLASSES);
 use List::Util qw(shuffle);
-use Lacuna::Util qw(to_seconds randint format_date);
+use Lacuna::Util qw(randint format_date);
 use DateTime;
 no warnings 'uninitialized';
 
@@ -128,7 +128,7 @@ around get_status => sub {
                     $self->tick; # in case what we just did is going to change our stats
                 }
                 unless ($empire->is_isolationist) { # don't need to warn about incoming ships if can't be attacked
-                    my $now = DateTime->now;
+                    my $now = time;
                     my $incoming_ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
                         {
                             foreign_body_id => $self->id,
@@ -137,7 +137,7 @@ around get_status => sub {
                         }
                     );
                     while (my $ship = $incoming_ships->next) {
-                        if ($ship->date_available <= $now) {
+                        if ($ship->date_available->epoch <= $now) {
                             $ship->body->tick;
                         }
                         else {
@@ -667,6 +667,7 @@ sub tick {
     }
     
     my $now = DateTime->now;
+    my $now_epoch = $now->epoch;
     my %todo;
     my $i; # in case 2 things finish at exactly the same time
 
@@ -685,13 +686,13 @@ sub tick {
         ],
     });
     while (my $building = $buildings->next) {
-        if ($building->is_upgrading && $building->upgrade_ends <= $now) {
+        if ($building->is_upgrading && $building->upgrade_ends->epoch <= $now_epoch) {
             $todo{format_date($building->upgrade_ends).$i} = {
                 object  => $building,
                 type    => 'building upgraded',
             };
         }
-        if ($building->is_working && $building->work_ends <= $now) {
+        if ($building->is_working && $building->work_ends->epoch <= $now_epoch) {
             $todo{format_date($building->work_ends).$i} = {
                 object  => $building,
                 type    => 'building work complete',
@@ -750,7 +751,7 @@ sub tick {
         my $still_enabled = 0;
         foreach my $resource (qw(energy water ore happiness food storage)) {
             my $boost = $resource.'_boost';
-            if ($now > $empire->$boost) {
+            if ($now_epoch > $empire->$boost->epoch) {
                 $self->needs_recalc(1);
             }
             else {
@@ -782,8 +783,7 @@ sub tick {
 
 sub tick_to {
     my ($self, $now) = @_;
-    my $interval = $now - $self->last_tick;
-    my $seconds = to_seconds($interval);
+    my $seconds = $now->epoch - $self->last_tick->epoch;
     my $tick_rate = $seconds / 3600;
     $self->last_tick($now);
     if ($self->needs_recalc) {

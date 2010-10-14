@@ -3,7 +3,6 @@ package Lacuna::DB::Result::Building::Development;
 use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
-use Lacuna::Util qw(to_seconds);
 
 sub subsidize_build_queue {
     my ($self) = @_;
@@ -30,13 +29,13 @@ sub format_build_queue {
     my ($self) = @_;
     my @queue;
     my $builds = $self->body->builds;
-    my $now = DateTime->now;
+    my $now = time;
     while (my $build = $builds->next) {
         push @queue, {
             building_id         => $build->id,
             name                => $build->name,
             to_level            => ($build->level + 1),
-            seconds_remaining   => to_seconds($build->upgrade_ends - $now),
+            seconds_remaining   => $build->upgrade_ends->epoch - $now,
             x                   => $build->x,
             y                   => $build->y,
         };

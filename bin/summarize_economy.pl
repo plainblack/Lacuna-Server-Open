@@ -3,7 +3,7 @@ use strict;
 use lib '/data/Lacuna-Server/lib';
 use Lacuna::DB;
 use Lacuna;
-use Lacuna::Util qw(randint format_date to_seconds);
+use Lacuna::Util qw(randint format_date);
 use Getopt::Long;
 use DateTime;
 use DateTime::Format::Strptime;
@@ -33,8 +33,7 @@ if ($all) {
     $economy_log->delete;
     my $oldest = $essentia_log->search->get_column('date_stamp')->min;
     $oldest = DateTime::Format::Strptime->new(pattern=>'%F')->parse_datetime($oldest);
-    my $now = DateTime->now;
-    while ($oldest < $now) {
+    while ($oldest < $start) {
         summarize($oldest);
         $oldest->add(days=>1);
     }
@@ -44,9 +43,9 @@ else {
 }
 
 
-my $finish = DateTime->now;
+my $finish = time;
 out('Finished');
-out((to_seconds($finish - $start)/60)." minutes have elapsed");
+out((($finish - $start->epoch)/60)." minutes have elapsed");
 
 
 ###############

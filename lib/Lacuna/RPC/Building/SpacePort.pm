@@ -435,10 +435,10 @@ sub view_foreign_ships {
     my $building = $self->get_building($empire, $building_id);
     $page_number ||= 1;
     my @fleet;
-    my $now = DateTime->now;
+    my $now = time;
     my $ships = $building->foreign_ships->search({}, {rows=>25, page=>$page_number, join => 'body' });
     while (my $ship = $ships->next) {
-        if ($ship->date_available <= $now) {
+        if ($ship->date_available->epoch <= $now) {
             $ship->body->tick;
         }
         else {

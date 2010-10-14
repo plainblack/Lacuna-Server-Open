@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Spies;
 use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
-use Lacuna::Util qw(format_date to_seconds randint random_element);
+use Lacuna::Util qw(format_date randint random_element);
 use DateTime;
 use feature "switch";
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
@@ -97,9 +97,9 @@ sub format_started_assignment {
 
 sub seconds_remaining_on_assignment {
     my $self = shift;
-    my $now = DateTime->now;
-    if ($self->available_on > $now) {
-        return to_seconds($self->available_on - $now);
+    my $now = time;
+    if ($self->available_on->epoch > $now) {
+        return $self->available_on->epoch - $now;
     }
     else {
         return 0;
@@ -112,7 +112,7 @@ sub is_available {
     if ($task ~~ ['Idle','Counter Espionage']) {
         return 1;
     }
-    elsif (DateTime->now > $self->available_on) {
+    elsif (time > $self->available_on->epoch) {
         if ($task eq 'Debriefing') {
             $self->task('Counter Espionage');
             $self->update;
@@ -137,7 +137,7 @@ sub is_available {
         }
         elsif ($task eq 'Travelling') {
             my $infiltration_time = $self->available_on->clone->add(hours => 1);
-            if ($infiltration_time > DateTime->now && $self->empire_id ne $self->on_body->empire_id) {
+            if ($infiltration_time->epoch > time && $self->empire_id ne $self->on_body->empire_id) {
                 $self->task('Infiltrating');
                 $self->started_assignment(DateTime->now);
                 $self->available_on($infiltration_time);

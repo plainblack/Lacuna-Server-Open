@@ -6,12 +6,8 @@ use DateTime::Format::Duration;
 use DateTime::Format::Strptime;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(randint to_seconds format_date random_element);
+@EXPORT_OK = qw(randint format_date random_element);
 
-sub to_seconds {
-    my $duration = shift;
-    return DateTime::Format::Duration->new(pattern=>'%s')->format_duration($duration);
-}
 
 sub format_date {
     my ($date, $format) = @_;

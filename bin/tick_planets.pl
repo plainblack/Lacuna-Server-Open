@@ -3,7 +3,7 @@ use strict;
 use lib '/data/Lacuna-Server/lib';
 use Lacuna::DB;
 use Lacuna;
-use Lacuna::Util qw(randint format_date to_seconds);
+use Lacuna::Util qw(randint format_date);
 use Getopt::Long;
 $|=1;
 our $quiet;
@@ -13,7 +13,7 @@ GetOptions(
 
 
 out('Started');
-my $start = DateTime->now;
+my $start = time;
 
 out('Loading DB');
 our $db = Lacuna->db;
@@ -25,9 +25,9 @@ while (my $planet = $planets->next) {
     $planet->tick;
 }
 
-my $finish = DateTime->now;
+my $finish = time;
 out('Finished');
-out((to_seconds($finish - $start)/60)." minutes have elapsed");
+out((($finish - $start)/60)." minutes have elapsed");
 
 
 ###############

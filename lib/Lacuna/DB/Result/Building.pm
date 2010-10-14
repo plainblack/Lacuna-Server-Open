@@ -5,7 +5,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use Lacuna::Constants ':all';
 use List::Util qw(shuffle);
-use Lacuna::Util qw(format_date to_seconds);
+use Lacuna::Util qw(format_date);
 
 __PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('building');
@@ -185,7 +185,7 @@ sub consumption_hour {
 sub farming_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
-    my $boost = (DateTime->now < $empire->food_boost) ? 25 : 0;
+    my $boost = (time < $empire->food_boost->epoch) ? 25 : 0;
     return (100 + $boost + $empire->farming_affinity * 3) / 100;
 }
 
@@ -372,7 +372,7 @@ sub food_hour {
 sub energy_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
-    my $boost = (DateTime->now < $empire->energy_boost) ? 25 : 0;
+    my $boost = (time < $empire->energy_boost->epoch) ? 25 : 0;
     return (100 + $boost + $empire->science_affinity * 3) / 100;
 }
 
@@ -398,7 +398,7 @@ sub mining_production_bonus {
     my $refinery = $self->body->refinery;
     my $refinery_bonus = (defined $refinery) ? $refinery->level * 5 : 0;
     my $empire = $self->body->empire;
-    my $boost = (DateTime->now < $empire->ore_boost) ? 25 : 0;
+    my $boost = (time < $empire->ore_boost->epoch) ? 25 : 0;
     return (100 + $boost + $refinery_bonus + $empire->mining_affinity * 3) / 100;
 }
 
@@ -422,7 +422,7 @@ sub ore_hour {
 sub water_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
-    my $boost = (DateTime->now < $empire->water_boost) ? 25 : 0;
+    my $boost = (time < $empire->water_boost->epoch) ? 25 : 0;
     return (100 + $boost + $empire->environmental_affinity * 3) / 100;
 }
 
@@ -468,7 +468,7 @@ sub waste_hour {
 sub happiness_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
-    my $boost = (DateTime->now < $empire->happiness_boost) ? 25 : 0;
+    my $boost = (time < $empire->happiness_boost->epoch) ? 25 : 0;
     return (100 + $boost + ($empire->political_affinity * 6)) / 100;
 }
 
@@ -497,7 +497,7 @@ has storage_bonus => (
     default => sub {
         my ($self) = @_;
         my $empire = $self->body->empire;
-        my $boost = (DateTime->now < $empire->storage_boost) ? 25 : 0;
+        my $boost = (time < $empire->storage_boost->epoch) ? 25 : 0;
         return (100 + $boost) / 100;
     },
 );
@@ -622,13 +622,12 @@ sub downgrade {
 
 sub upgrade_status {
     my ($self) = @_;
-    my $now = DateTime->now;
     my $complete = $self->upgrade_ends;
     if ($self->is_upgrading) {
         return {
-            seconds_remaining   => to_seconds($complete - $now),
+            seconds_remaining   => $complete->epoch - time,
             start               => format_date($self->upgrade_started),
-            end                 => format_date($self->upgrade_ends),
+            end                 => format_date($complete),
         };
     }
     else {
@@ -809,7 +808,7 @@ sub work_started_formatted {
 sub work_seconds_remaining {
     my ($self) = @_;
     return 0 unless $self->is_working;
-    my $seconds = to_seconds($self->work_ends - DateTime->now);
+    my $seconds = $self->work_ends - time;
     return ($seconds > 0) ? $seconds : 0;
 }
 

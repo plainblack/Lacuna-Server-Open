@@ -3,7 +3,7 @@ use strict;
 use lib '/data/Lacuna-Server/lib';
 use Lacuna::DB;
 use Lacuna;
-use Lacuna::Util qw(format_date to_seconds);
+use Lacuna::Util qw(format_date);
 use Getopt::Long;
 use JSON;
 use SOAP::Amazon::S3;
@@ -19,7 +19,7 @@ GetOptions(
 );
 
 out('Started');
-my $start = DateTime->now;
+my $start = time;
 
 out('Loading DB');
 our $db = Lacuna->db;
@@ -35,9 +35,9 @@ rank_empires();
 rank_alliances();
 generate_overview();
 
-my $finish = DateTime->now;
+my $finish = time;
 out('Finished');
-out((to_seconds($finish - $start)/60)." minutes have elapsed");
+out((($finish - $start)/60)." minutes have elapsed");
 
 
 ###############
@@ -400,7 +400,7 @@ sub summarize_spies {
             defense_success_rate_delta  => 0,
             success_rate                => $success_rate,
             success_rate_delta          => 0,
-            age                         => to_seconds(DateTime->now - $spy->date_created),
+            age                         => time - $spy->date_created->epoch,
             times_captured              => $spy->times_captured,
             times_turned                => $spy->times_turned,
             seeds_planted               => $spy->seeds_planted,

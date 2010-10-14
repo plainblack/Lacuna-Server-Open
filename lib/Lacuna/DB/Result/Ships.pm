@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Ships;
 use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
-use Lacuna::Util qw(format_date to_seconds randint);
+use Lacuna::Util qw(format_date randint);
 use DateTime;
 use feature "switch";
 
@@ -146,7 +146,7 @@ sub get_status {
 
 sub seconds_remaining {
     my $self = shift;
-    return to_seconds(DateTime->now - $self->date_available);
+    return time - $self->date_available->epoch;
 }
 
 sub turn_around {

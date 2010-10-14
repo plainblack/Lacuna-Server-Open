@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Shipyard;
 use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
-use Lacuna::Util qw(to_seconds format_date);
+use Lacuna::Util qw(format_date);
 use DateTime;
 
 around 'build_tags' => sub {

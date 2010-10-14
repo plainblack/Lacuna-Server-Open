@@ -3,7 +3,7 @@ use strict;
 use lib '/data/Lacuna-Server/lib';
 use Lacuna::DB;
 use Lacuna;
-use Lacuna::Util qw(format_date to_seconds randint);
+use Lacuna::Util qw(format_date randint);
 use Getopt::Long;
 $|=1;
 
@@ -14,7 +14,7 @@ GetOptions(
 );
 
 out('Started');
-my $start = DateTime->now;
+my $start = time;
 
 out('Loading DB');
 our $db = Lacuna->db;
@@ -34,9 +34,9 @@ if ($empire_id) {
     }
 }
 
-my $finish = DateTime->now;
+my $finish = time;
 out('Finished');
-out((to_seconds($finish - $start)/60)." minutes have elapsed");
+out((($finish - $start)/60)." minutes have elapsed");
 
 
 ###############

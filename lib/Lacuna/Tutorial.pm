@@ -443,8 +443,8 @@ sub essentia {
     my $empire = $self->empire;
     my $home = $empire->home_planet;
     if ($finish) {
-        my $now = DateTime->now;
-        if ($empire->food_boost >= $now && $empire->water_boost >= $now && $empire->ore_boost >= $now && $empire->energy_boost >= $now) {
+        my $now = time;
+        if ($empire->food_boost->epoch >= $now && $empire->water_boost->epoch >= $now && $empire->ore_boost->epoch >= $now && $empire->energy_boost->epoch >= $now) {
             $home->add_trona(700);
             $home->add_bread(700);
             $home->add_energy(700);

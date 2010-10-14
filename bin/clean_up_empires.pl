@@ -5,7 +5,7 @@ use lib '/data/Lacuna-Server/lib';
 use Lacuna::DB;
 use Lacuna;
 use List::Util qw(shuffle);
-use Lacuna::Util qw(randint format_date to_seconds);
+use Lacuna::Util qw(randint format_date);
 use Getopt::Long;
 $|=1;
 our $quiet;
@@ -31,7 +31,7 @@ my $delete_tally = 0;
 my $active_duration = 0;
 while (my $empire = $to_be_deleted->next) {
     $delete_tally++;
-    $active_duration += to_seconds($start - $empire->date_created);
+    $active_duration += $start->epoch - $empire->date_created->epoch;
     $empire->delete;    
 }
 
@@ -40,7 +40,7 @@ my $old_half_created = $start->clone->subtract(hours => 2);
 $to_be_deleted = $empires->search({ stage => 'new', date_created => { '<' => $old_half_created }});
 while (my $empire = $to_be_deleted->next) {
     $delete_tally++;
-    $active_duration += to_seconds($start - $empire->date_created);
+    $active_duration += $start->epoch - $empire->date_created->epoch;
     $empire->delete;    
 }
 
@@ -76,9 +76,9 @@ while (my $empire = $inactives->next) {
     $empire->enable_self_destruct;
 }
 
-my $finish = DateTime->now;
+my $finish = time;
 out('Finished');
-out((to_seconds($finish - $start)/60)." minutes have elapsed");
+out((($finish - $start->epoch)/60)." minutes have elapsed");
 
 
 ###############
