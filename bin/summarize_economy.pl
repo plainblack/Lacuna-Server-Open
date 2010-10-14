@@ -68,7 +68,7 @@ sub summarize {
     my $entries = $essentia_log->search({date_stamp => {between => [$date->ymd, $date->ymd.' 23:59:59']}});
     while (my $entry = $entries->next) {
         given ($entry->description) {
-            when ('Purchased via Social Gold') {
+            when (/Purchased via/) {
                 $today->in_purchase( $today->in_purchase + $entry->amount);            
                 if ($entry->amount == 30) {
                     $today->purchases_30( $today->purchases_30 + 1);
