@@ -810,7 +810,7 @@ sub work_started_formatted {
 sub work_seconds_remaining {
     my ($self) = @_;
     return 0 unless $self->is_working;
-    my $seconds = $self->work_ends - time;
+    my $seconds = $self->work_ends->epoch - time;
     return ($seconds > 0) ? $seconds : 0;
 }
 
