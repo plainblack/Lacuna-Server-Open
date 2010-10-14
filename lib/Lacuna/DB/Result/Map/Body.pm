@@ -114,10 +114,10 @@ __PACKAGE__->add_columns(
     burger_stored                   => { data_type => 'int', size => 11, default_value => 0 },
     shake_stored                    => { data_type => 'int', size => 11, default_value => 0 },
     beetle_stored                   => { data_type => 'int', size => 11, default_value => 0 },
-    boost_enabled                   => { data_type => 'bit', default_value => 0 },
-    needs_recalc                    => { data_type => 'bit', default_value => 0 },
-    needs_surface_refresh           => { data_type => 'bit', default_value => 0 },
-    restrict_coverage               => { data_type => 'bit', default_value => 0 },
+    boost_enabled                   => { data_type => 'tinyint', default_value => 0 },
+    needs_recalc                    => { data_type => 'tinyint', default_value => 0 },
+    needs_surface_refresh           => { data_type => 'tinyint', default_value => 0 },
+    restrict_coverage               => { data_type => 'tinyint', default_value => 0 },
 );
 
 after 'sqlt_deploy_hook' => sub {
