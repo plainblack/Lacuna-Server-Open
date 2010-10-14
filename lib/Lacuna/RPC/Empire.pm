@@ -272,6 +272,12 @@ sub create {
                     confess [1101, "Your empire has not been completed created, but you have also entered the wrong password."];
                 }
             }
+            else {
+                confess [1000, 'Empire name is in use by another player.', 'name'];
+            }
+        }
+        else {
+            confess [1002, 'Empire has gone away.'];
         }
     }    
     $self->is_name_valid($account{name});

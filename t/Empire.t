@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 46;
+use Test::More tests => 48;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -19,7 +19,11 @@ my $empire = {
     password    => $tester->empire_password,
     password1   => $tester->empire_password,
     email       => 'joe@blow.com',
+    captcha_guid    => '1111',
+    captcha_solution=> '1111',
 };
+
+Lacuna->cache->set('create_empire_captcha', '127.0.0.1', { guid => 1111, solution => 1111 }, 60 * 15 );
 
 $empire->{name} = 'XX>';
 $result = $tester->post('empire', 'create', $empire);
@@ -140,6 +144,16 @@ $result = $tester->post('empire', 'found', [$empire_id,'Anonymous']);
 my $session_id = $result->{result}{session_id};
 ok(defined $session_id, 'empire logged in after foundation');
 ok($result->{result}{welcome_message_id}, 'we get a welcome message');
+
+$empire->{email} = 'joe2@blow.com';
+$result = $tester->post('empire', 'create', $empire);
+ok(exists $result->{error}, 'cannot create a second time');
+
+$empire->{password} = 'dddddd';
+$empire->{password1} = 'dddddd';
+$result = $tester->post('empire', 'create', $empire);
+ok(exists $result->{error}, 'cannot create a second time with a different password');
+
 
 
 my $empire_obj = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
