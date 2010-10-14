@@ -5,7 +5,10 @@ use Data::Dumper;
 use 5.010;
 
 use TestHelper;
-my $tester = TestHelper->new->generate_test_empire;
+my $tester = eval{TestHelper->new->generate_test_empire};
+if ($@) {
+die $@->[1];
+}
 my $session_id = $tester->session->id;
 my $home_planet = $tester->empire->home_planet_id;
 
