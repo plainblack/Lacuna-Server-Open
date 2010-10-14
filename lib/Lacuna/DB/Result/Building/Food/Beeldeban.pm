@@ -42,6 +42,12 @@ use constant waste_production => 11;
 
 use constant waste_consumption => 3;
 
+around produces_food_items => sub {
+    my ($orig, $class) = @_;
+    my $foods = $orig->($class);
+    push @{$foods}, qw(beetle);
+    return $foods;
+};
 
 
 no Moose;

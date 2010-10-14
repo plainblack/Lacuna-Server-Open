@@ -602,7 +602,7 @@ sub recalc_stats {
         $stats{water_hour} += $building->water_hour;
         $stats{ore_hour} += $building->ore_hour;
         $stats{food_consumption_hour} += $building->food_consumption_hour;
-        foreach my $type (FOOD_TYPES) {
+        foreach my $type (@{$building->produces_food_items}) {
             my $method = $type.'_production_hour';
             $stats{$method} += $building->$method();
         }

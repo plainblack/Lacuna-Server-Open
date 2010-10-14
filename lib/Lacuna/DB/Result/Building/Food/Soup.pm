@@ -36,6 +36,12 @@ use constant water_consumption => 14;
 
 use constant waste_production => 18;
 
+around produces_food_items => sub {
+    my ($orig, $class) = @_;
+    my $foods = $orig->($class);
+    push @{$foods}, qw(soup);
+    return $foods;
+};
 
 
 no Moose;

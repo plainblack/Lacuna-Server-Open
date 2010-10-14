@@ -36,6 +36,12 @@ use constant ore_consumption => 5;
 
 use constant waste_production => 20;
 
+around produces_food_items => sub {
+    my ($orig, $class) = @_;
+    my $foods = $orig->($class);
+    push @{$foods}, qw(bread);
+    return $foods;
+};
 
 
 no Moose;

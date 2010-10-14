@@ -37,6 +37,13 @@ use constant min_orbit => 2;
 use constant max_orbit => 2;
 use constant lapis_production => 4000; 
 
+around produces_food_items => sub {
+    my ($orig, $class) = @_;
+    my $foods = $orig->($class);
+    push @{$foods}, qw(lapis);
+    return $foods;
+};
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

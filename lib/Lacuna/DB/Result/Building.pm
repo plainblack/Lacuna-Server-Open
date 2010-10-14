@@ -68,6 +68,8 @@ sub image_level {
     return $self->image.$level;
 }
 
+sub produces_food_items { [] };
+
 use constant time_to_build => 60;
 
 use constant energy_to_build => 0;
