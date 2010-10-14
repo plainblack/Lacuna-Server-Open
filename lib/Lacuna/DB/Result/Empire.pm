@@ -391,7 +391,7 @@ sub find_home_planet {
     #}
 
     # search
-    my $possible_planets = $planets->search(\%search, {order_by => -desc => ['usable_as_starter']});
+    my $possible_planets = $planets->search(\%search, {order_by => { -desc => ['usable_as_starter'] }});
 
     # find an uncontested planet in the possible planets
     my $home_planet;
