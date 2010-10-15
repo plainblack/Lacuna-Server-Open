@@ -57,6 +57,12 @@ use constant ore_storage => 700;
 
 use constant water_storage => 700;
 
+around produces_food_items => sub {
+    my ($orig, $class) = @_;
+    my $foods = $orig->($class);
+    push @{$foods}, qw(algae);
+    return $foods;
+};
 
 
 no Moose;
