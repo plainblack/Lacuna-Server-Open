@@ -44,6 +44,16 @@ while (my $empire = $to_be_deleted->next) {
     $empire->delete;    
 }
 
+out('Enabling Self Destruct For Inactivity');
+my $abandons_tally;
+my $inactivity_time_out = Lacuna->config->get('self_destruct_after_inactive_days') || 15;
+my $inactives = $empires->search({ last_login => { '<' => DateTime->now->subtract( days => $inactivity_time_out ) }, self_destruct_active => 0, id => { '>' => 1}});
+while (my $empire = $inactives->next) {
+    out('Enabling self destruct on '.$empire->name);
+    $empire->enable_self_destruct;
+    $abandons_tally++;
+}
+
 out('Updating Viral Log');
 my $viral_log = $db->resultset('Lacuna::DB::Result::Log::Viral');
 my $add_deletes = $viral_log->search({date_stamp => format_date($start,'%F')},{rows=>1})->single;
@@ -52,6 +62,7 @@ unless (defined $add_deletes) {
 }
 $add_deletes->update({
     deletes         => $add_deletes->deletes + $delete_tally,
+    abandons        => $add_deletes->abandons + $abandons_tally,
     active_duration => $add_deletes->active_duration + $active_duration,
     total_users     => $empires->count,
 });
@@ -68,13 +79,6 @@ $add_creates->update({
 });
 
 
-out('Enabling Self Destruct For Inactivity');
-my $inactivity_time_out = Lacuna->config->get('self_destruct_after_inactive_days') || 15;
-my $inactives = $empires->search({ last_login => { '<' => DateTime->now->subtract( days => $inactivity_time_out ) }, self_destruct_active => 0, id => { '>' => 1}});
-while (my $empire = $inactives->next) {
-    out('Enabling self destruct on '.$empire->name);
-    $empire->enable_self_destruct;
-}
 
 my $finish = time;
 out('Finished');
