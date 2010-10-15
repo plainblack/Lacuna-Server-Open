@@ -19,7 +19,7 @@ sub www_default {
     $cache->set('announcement'.$alert,$empire->id, 1, 60 * 60 * 24);
     return $self->wrapper($cache->get('announcement','message'), { 
         title       => 'Lacuna Expanse Server Announcement', 
-        head_tags   => '<meta name="viewport" content="height=device-height, width=device-width, initial-scale=3.0, maximum-scale=10.0, user-scalable=yes">', 
+        head_tags   => '<meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">', 
     });
 }
 
