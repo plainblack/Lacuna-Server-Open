@@ -25,7 +25,8 @@ my $empire_id = $cache->get('high_vote_empire', $ymd);
 if ($empire_id) {
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
     if ($empire) {
-        $empire->add_essentia('Entertainment District Lottery');
+        out('Winner: '.$empire->name);
+        $empire->add_essentia(10, 'Entertainment District Lottery')->update;
         $empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'we_won_the_lottery.txt',
