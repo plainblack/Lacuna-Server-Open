@@ -599,8 +599,8 @@ sub www_view_virality {
     my ($self, $request) = @_;
     my $out = '<h1>Virality</h1>';
 
-    my (@accepts, @creates, @invites, @dates, @deletes, @users, @stay, @vc, @gr, @cr, $previous, $max_viral, $max_change, $max_users, $max_stay);
-    my $past30 = $self->get_viral->search({date_stamp => { '>=' => DateTime->now->subtract(days => 31)}}, { order_by => 'date_stamp'});
+    my (@accepts, @abandons, @creates, @invites, @dates, @deletes, @users, @stay, @vc, @gr, @cr, $previous, $max_viral, $max_change, $max_users, $max_stay);
+    my $past30 = Lacuna->db->resultset('Lacuna::DB::Result::Log::Viral')->search({date_stamp => { '>=' => DateTime->now->subtract(days => 31)}}, { order_by => 'date_stamp'});
     while (my $day = $past30->next) {
         unless (defined $previous) {
             $previous = $day;
@@ -633,6 +633,8 @@ sub www_view_virality {
         $max_change = $invites[-1] if ($max_change < $invites[-1]);
         push @creates, $day->creates;
         $max_change = $creates[-1] if ($max_change < $creates[-1]);
+        push @abandons, $day->abandons;
+        $max_change = $abandons[-1] if ($max_change < $abandons[-1]);
         
         $previous = $day;
     }
@@ -666,13 +668,14 @@ sub www_view_virality {
         .join('|', '0:', @dates);
 
     my $change_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_change
-        .'&chxt=x,y&chds=0,'.$max_change.',0,'.$max_change.',0,'.$max_change.',0,'.$max_change
-        .'&chdl=Invites|Accepts|Creates|Deletes&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3&chxtc=1,-900&chs=900x300&cht=ls&chco=ff8888,88ff88,8888ff,ff88ff&chd=t:'
+        .'&chxt=x,y&chds=0,'.$max_change.',0,'.$max_change.',0,'.$max_change.',0,'.$max_change.',0,'.$max_change
+        .'&chdl=Invites|Accepts|Creates|Deletes|Abandons&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3|3&chxtc=1,-900&chs=900x300&cht=ls&chco=ff8888,88ff88,8888ff,ff88ff,000000&chd=t:'
         .join('|',
             join(',', @invites),
             join(',', @accepts),
             join(',', @creates),
             join(',', @deletes),
+            join(',', @abandons),
         )
         .'&chxl='
         .join('|', '0:', @dates);
@@ -716,10 +719,6 @@ sub www_view_virality {
     ';
     
     return $self->wrap($out);
-}
-
-sub get_viral {
-    return Lacuna->db->resultset('Lacuna::DB::Result::Log::Viral');
 }
 
 
