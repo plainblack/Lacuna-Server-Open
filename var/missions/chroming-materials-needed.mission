@@ -1,0 +1,2 @@
+# config-file-type: JSON 1
+{"name":"Chroming Materials Needed","network_19_completion":"%s supplies needed chrome & magnesium for Alpha-Zeta's newest skyscraper!","mission_type":"trade","description":"Alpha-Zeta 5 is building a shiny skyscraper, but has run into a materials shortage.  For needed ore, yummy fungus packs will be delivered.","mission_objective":{"resources":{"chromite":2000,"magnetite":2000}},"max_university_level":"15","mission_reward":{"resources":{"fungus":5000}},"network_19_headline":"Skyscraper on Alpha-Zeta 5 runs into problem."}

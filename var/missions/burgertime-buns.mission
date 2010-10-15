@@ -1,0 +1,2 @@
+# config-file-type: JSON 1
+{"name":"Burgertime Buns","network_19_completion":"%s manages to swap burger patties for buns for Alpha-Zeta.","mission_type":"trade","description":"Here at Alpha-Zeta we're putting together party packs, but we have far too many burger patties and not near enough buns!  We'll gladly swap some of our excess burger patties for enough buns!","mission_objective":{"resources":{"burger":500}},"max_university_level":"12","mission_reward":{"resources":{"bread":500}},"network_19_headline":"Mismatched burgers and buns throws Alpha-Zeta into tizzy!"}
