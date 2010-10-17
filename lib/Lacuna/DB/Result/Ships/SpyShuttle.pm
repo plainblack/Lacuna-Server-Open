@@ -5,10 +5,10 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
         
 use constant prereq         => { class=> 'Lacuna::DB::Result::Building::Espionage',  level => 15 };
-use constant base_food_cost      => 1000;
-use constant base_water_cost     => 3000;
-use constant base_energy_cost    => 20000;
-use constant base_ore_cost       => 17000;
+use constant base_food_cost      => 750;
+use constant base_water_cost     => 2300;
+use constant base_energy_cost    => 15000;
+use constant base_ore_cost       => 13000;
 use constant base_time_cost      => 7200;
 use constant base_waste_cost     => 5000;
 use constant base_speed     => 2000;

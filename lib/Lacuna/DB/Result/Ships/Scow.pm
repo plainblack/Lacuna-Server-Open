@@ -12,7 +12,7 @@ use constant base_ore_cost       => 28400;
 use constant base_time_cost      => 14600;
 use constant base_waste_cost     => 8400;
 use constant base_speed     => 400;
-use constant base_stealth   => 100;
+use constant base_stealth   => 1000;
 use constant base_hold_size => 2100;
 
 around 'build_tags' => sub {

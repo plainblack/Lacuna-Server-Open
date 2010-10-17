@@ -12,7 +12,7 @@ use constant base_ore_cost       => 200000;
 use constant base_time_cost      => 58500;
 use constant base_waste_cost     => 40000;
 use constant base_speed     => 1000;
-use constant base_stealth   => 2000;
+use constant base_stealth   => 4000;
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;

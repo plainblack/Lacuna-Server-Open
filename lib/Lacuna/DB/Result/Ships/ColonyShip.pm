@@ -13,7 +13,7 @@ use constant base_time_cost      => 60 * 60 * 24;
 use constant base_waste_cost     => 10000;
 use constant base_speed     => 455;
 use constant base_stealth   => 0;
-use constant base_hold_size => 2400;
+use constant base_hold_size => 0;
 use constant pilotable      => 1;
 
 around 'build_tags' => sub {
