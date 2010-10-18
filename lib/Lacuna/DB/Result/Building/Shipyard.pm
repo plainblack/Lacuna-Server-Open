@@ -49,17 +49,21 @@ sub get_ship_costs {
     };
 }
 
-sub max_ships {
-    my ($self) = @_;
-    return $self->level;
-}
+has max_ships => (
+    is  => 'ro',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { class => $self->class, body_id => $self->body_id } )->get_column('level')->sum;
+    },
+);
 
 sub can_build_ship {
     my ($self, $ship, $costs) = @_;
     if (ref $ship eq 'Lacuna::DB::Result::Ships') {
         confess [1002, 'That is an unknown ship type.'];
     }
-    $ship->shipyard_id($self->id);
+    $ship->body_id($self->body_id);
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     $costs ||= $self->get_ship_costs($ship);
     if ($ship->type ~~ [qw(space_station)]) {
@@ -76,7 +80,7 @@ sub can_build_ship {
             confess [1011, 'Not enough resources.', $key];
         }
     }
-    my $ships_building = $ships->search({shipyard_id => $self->id, task=>'Building'})->count;
+    my $ships_building = $ships->search({body_id => $self->body_id, task=>'Building'})->count;
     if ($ships_building >= $self->max_ships) {
         confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.']
     }
@@ -84,18 +88,15 @@ sub can_build_ship {
     unless ($count) {
         confess [1013, 'You need a level '.$ship->prereq->{level}.' '.$ship->prereq->{class}->name.' to build this ship.'];
     }
-    my $port = $self->body->spaceport->find_open_dock;
-    unless (defined $port) {
+    unless ($self->body->spaceport->docks_available) {
         confess [1009, 'You do not have a dock available at the Spaceport.'];
     }
-    $ship->spaceport_id($port->id);
     return 1;
 }
 
 
 sub build_ship {
     my ($self, $ship, $time) = @_;
-    $ship->shipyard_id($self->id);
     $ship->task('Building');
     my $name = $ship->type_formatted . ' '. $self->level;
     $ship->name($name);
@@ -105,7 +106,7 @@ sub build_ship {
     $self->set_ship_stealth($ship);
     $time ||= $self->get_ship_costs($ship)->{seconds};
     my $latest = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        { shipyard_id => $self->id, task => 'Building' },
+        { body_id => $self->body_id, task => 'Building' },
         { order_by    => { -desc => 'date_available' }, rows=>1},
         )->single;
     my $date_completed;
@@ -121,11 +122,6 @@ sub build_ship {
     $ship->insert;
     return $ship;
 }
-
-before delete => sub {
-    my ($self) = @_;
-    Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id => $self->id, task => 'building' })->delete_all;
-};
 
 use constant controller_class => 'Lacuna::RPC::Building::Shipyard';
 

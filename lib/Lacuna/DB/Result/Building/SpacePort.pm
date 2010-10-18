@@ -11,7 +11,12 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Ships));
 };
 
-__PACKAGE__->has_many('ships', 'Lacuna::DB::Result::Ships', 'spaceport_id');
+sub ships {
+    my $self = shift;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        body_id     => $self->body_id,  
+    });
+}
 
 sub foreign_ships {
     my ($self) = @_;
@@ -38,10 +43,15 @@ sub number_of_ships {
     return $self->ships->count;
 }
 
-sub max_ships {
-    my $self = shift;
-    return $self->level * 2;
-}
+has max_ships => (
+    is  => 'ro',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $levels = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { class => $self->class, body_id => $self->body_id } )->get_column('level')->sum;
+        return $levels * 2;
+    },
+);
 
 sub docks_available {
     my $self = shift;
@@ -51,32 +61,6 @@ sub docks_available {
 sub is_full {
     my ($self) = @_;
     return $self->docks_available ? 0 : 1;
-}
-
-has other_ports => (
-    is  => 'rw',
-    predicate => 'has_other_ports',
-    lazy => 1,
-    default => sub {
-        my $self = shift;
-        my @ports = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { class => $self->class, body_id => $self->body_id, id => {'!=', $self->id } } )->all;
-        return \@ports;
-    },
-);
-
-sub find_open_dock {
-    my ($self) = @_;
-    if ( $self->docks_available ) {
-        return $self;
-    }
-    else {
-        foreach my $port (@{$self->other_ports}) {
-            if ( $port->docks_available ) {
-                return $port;
-            }
-        }
-    }
-    return undef;
 }
 
 sub find_ship {
@@ -91,7 +75,9 @@ sub find_ship {
 
 before delete => sub {
     my ($self) = @_;
-    $self->ships->delete_all;
+    unless (Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { class => $self->class, body_id => $self->body_id, id => {'!=', $self->id } } )->count) {
+        $self->ships->delete_all;
+    }
 };
 
 before 'can_downgrade' => sub {

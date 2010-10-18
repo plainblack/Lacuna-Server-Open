@@ -21,7 +21,7 @@ sub view_build_queue {
     $page_number ||= 1;
     my @building;
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        { shipyard_id => $building->id, task => 'building' },
+        { body_id => $building->body_id, task => 'Building' },
         { order_by    => 'date_available', rows => 25, page => $page_number },
         );
     while (my $ship = $ships->next) {
@@ -48,7 +48,7 @@ sub subsidize_build_queue {
     my $body = $building->body;
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        { shipyard_id => $building->id, task => 'building' }
+        { body_id => $body->id, task => 'Building' }
         );
 
     my $cost = $ships->count;
