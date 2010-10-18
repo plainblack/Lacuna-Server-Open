@@ -46,7 +46,7 @@ while (my $empire = $to_be_deleted->next) {
 
 out('Enabling Self Destruct For Inactivity');
 my $abandons_tally;
-my $inactivity_time_out = Lacuna->config->get('self_destruct_after_inactive_days') || 15;
+my $inactivity_time_out = Lacuna->config->get('self_destruct_after_inactive_days') || 20;
 my $inactives = $empires->search({ last_login => { '<' => DateTime->now->subtract( days => $inactivity_time_out ) }, self_destruct_active => 0, id => { '>' => 1}});
 while (my $empire = $inactives->next) {
     out('Enabling self destruct on '.$empire->name);
