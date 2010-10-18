@@ -277,7 +277,7 @@ sub run_mission {
         $self->update_level;
         my $outcome = $outcomes{$self->task} . '_loss';
         my $message_id = $self->$outcome($defender);
-        $out = { result => 'Failure', message_id => $message_id, reason => random_element(['Intel shmintel.','Code red!','It has just gone pear shaped.','I\'m pinned down and under fire.','I\'ll do better next time, if there is a next time.','The fit has just hit the shan.','I want my mommy!','I can\'t do it!','No time to talk! Gotta run.','Why do they always have dogs?','Did you even plan this mission?']) };
+        $out = { result => 'Failure', message_id => $message_id, reason => random_element(['Intel shmintel.','Code red!','It has just gone pear shaped.','I\'m pinned down and under fire.','I\'ll do better next time, if there is a next time.','The fit has just hit the shan.','I want my mommy!','No time to talk! Gotta run.','Why do they always have dogs?','Did you even plan this mission?']) };
     }
     elsif (randint(1,100) > $breakthru) {
         if (defined $defender) {
@@ -285,7 +285,7 @@ sub run_mission {
             $defender->started_assignment(DateTime->now);
             $defender->available_on(DateTime->now->add(seconds => (5 * 60 * 60) - $defender->xp ));
         }
-        $out = { result => 'Bounce', reason => random_element(['I could not find a way to complete my mission, but I will give it another try.','Missed it by that much.','Better luck next time.','I was stopped by an enemy spy.','Let\'s try that again later.','Hrmmm.','Could not get it done.','I\'m being shadowed.','Gotta ditch my tail.','Lost the target.','They have some good security.','Maybe next time.']) };
+        $out = { result => 'Bounce', reason => random_element(['I could not find a way to complete my mission, but I will give it another try.','Missed it by that much.','Better luck next time.','I was stopped by an enemy spy.','Let\'s try that again later.','Hrmmm.','Could not get it done this time.','I\'m being shadowed.','Gotta ditch my tail.','Lost the target.','They have some good security.','Maybe next time.']) };
     }
     else {
         if (defined $defender) {
