@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -35,6 +35,9 @@ ok(exists $result->{result}, 'can call get_stored_resources');
 
 $result = $tester->post('trade', 'view_available_trades', [$session_id, $trade->id]);
 ok(exists $result->{result}, 'can call view_available_trades');
+
+$result = $tester->post('trade', 'get_trade_ships', [$session_id, $trade->id]);
+ok(exists $result->{result}, 'can call get_trade_ships');
 
 $result = $tester->post('trade', 'get_ships', [$session_id, $trade->id]);
 ok(exists $result->{result}, 'can call get_ships');

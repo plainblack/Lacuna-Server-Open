@@ -14,8 +14,24 @@ sub model_class {
     return 'Lacuna::DB::Result::Building::Trade';
 }
 
+sub get_trade_ships {
+    my ($self, $session_id, $building_id, $target_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id) if $target_id;
+    my @ships;
+    my $ships = $building->trade_ships;
+    while (my $ship = $ships->next) {
+        push @ships, $ship->get_status($target);
+    }
+    return {
+        status      => $self->format_status($empire, $building->body),
+        ships       => \@ships,
+    };
+}
+
 sub push_items {
-    my ($self, $session_id, $building_id, $target_id, $items) = @_;
+    my ($self, $session_id, $building_id, $target_id, $items, $options) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     unless ($target_id) {
@@ -28,17 +44,18 @@ sub push_items {
     unless ($target->empire_id eq $empire->id) {
         confess [1010, 'You cannot push items to a planet that is not your own.'];
     }
-    $building->push_items($target, $items);
+    my $ship = $building->push_items($target, $items, $options);
     return {
         status      => $self->format_status($empire, $building->body),
+        ship        => $ship->get_status,
     };
 }
 
 sub add_trade {
-    my ($self, $session_id, $building_id, $offer, $ask) = @_;
+    my ($self, $session_id, $building_id, $offer, $ask, $options) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $trade = $building->add_trade($offer, $ask);
+    my $trade = $building->add_trade($offer, $ask, $options);
     return {
         trade_id    => $trade->id,
         status      => $self->format_status($empire, $building->body),
@@ -68,7 +85,7 @@ sub withdraw_trade {
 }
 
 sub accept_trade {
-    my ($self, $session_id, $building_id, $trade_id, $guid, $solution) = @_;
+    my ($self, $session_id, $building_id, $trade_id, $guid, $solution, $options) = @_;
     unless ($trade_id) {
         confess [1002, 'You have not specified a trade to accept.'];
     }
@@ -80,7 +97,7 @@ sub accept_trade {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     $building->validate_captcha($empire, $guid, $solution, $trade_id);
-    my $ship = $building->next_available_trade_ship;
+    my $ship = $building->next_available_trade_ship($options->{ship_id});
     unless (defined $ship) {
         $cache->delete('trade_lock',$trade_id);
         confess [1011, 'You do not have a ship available to transport cargo.'];
@@ -136,7 +153,7 @@ sub accept_trade {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(push_items get_stored_resources add_trade withdraw_trade accept_trade view_my_trades view_available_trades get_ships get_prisoners get_plans get_glyphs));
+__PACKAGE__->register_rpc_method_names(qw(push_items get_trade_ships get_stored_resources add_trade withdraw_trade accept_trade view_my_trades view_available_trades get_ships get_prisoners get_plans get_glyphs));
 
 
 no Moose;

@@ -45,8 +45,8 @@ use constant waste_production => 1;
 
 
 sub add_trade {
-    my ($self, $offer, $ask) = @_;
-    my $ship = $self->next_available_trade_ship;
+    my ($self, $offer, $ask, $options) = @_;
+    my $ship = $self->next_available_trade_ship($options->{ship_id});
     unless (defined $ship) {
         confess [1011, "You do not have any ships available that can carry trade goods."];
     }
@@ -71,34 +71,61 @@ sub transfer_type {
 }
 
 sub trade_ships {
-    return Lacuna->db->resultset('Lacuna::DB::Result::Ships');
+    my $self = shift;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        task    => 'Docked',
+        type    => { 'in' => [qw(dory cargo_ship freighter smuggler_ship)] },
+        body_id => $self->body_id,
+    },
+    {
+        order_by=> {-desc => ['hold_size']}
+    });
 }
 
 sub next_available_trade_ship {
-    my $self = shift;
-    return $self->trade_ships
-        ->search({
-            task    => 'Docked',
-            hold_size   => { '>', 0 },
-            type    => { 'in' => [qw(dory cargo_ship freighter smuggler_ship)] },
-            body_id => $self->body_id,
-        }, {
-            rows    => 1,
-            order_by=> {-desc => ['hold_size']}
-        })->single;
+    my ($self, $ship_id) = @_;
+    if ($ship_id) {
+        return $self->trade_ships->find($ship_id);
+    }
+    else {
+        return $self->trade_ships->search(undef, {rows => 1})->single;
+    }
 }
 
 sub push_items {
-    my ($self, $target, $items) = @_;
-    my $ship = $self->next_available_trade_ship;
+    my ($self, $target, $items, $options) = @_;
+    my $ship = $self->next_available_trade_ship($options->{ship_id});
     unless (defined $ship) {
         confess [1011, 'You do not have a ship available to transport cargo.'];
     }
+    if ($options->{stay}) {
+        my $spaceport = $target->spaceport;
+        if (defined $spaceport) {
+            unless ($spaceport->docks_available) {
+                confess [1011, 'There are no available docks on the remote planet.'];
+            }
+        }
+        else {
+            confess [1011, 'You cannot have the ship stay on the remote planet unless there is a Space Port there.'];
+        }
+    }
+    
     my $payload = $self->structure_push($items, $ship->hold_size);
-    $ship->send(
-        target  => $target,
-        payload => $payload,
-    );
+    if ($options->{stay}) {
+        $ship->body_id($target->id);
+        $ship->body($target);
+        $ship->send(
+            target      => $self->body,
+            direction   => 'in',
+            payload     => $payload,
+        );
+    }
+    else {
+        $ship->send(
+            target  => $target,
+            payload => $payload,
+        );
+    }
     return $ship;
 }
 
