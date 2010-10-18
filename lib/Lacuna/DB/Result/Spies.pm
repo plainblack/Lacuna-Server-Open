@@ -147,11 +147,6 @@ sub is_available {
         }
         $self->task('Idle');
         $self->update;
-        $self->empire->send_predefined_message(
-            tags        => ['Intelligence'],
-            filename    => 'ready_for_assignment.txt',
-            params      => [$self->name],
-        );
         return 1;
     }
     return 0;
