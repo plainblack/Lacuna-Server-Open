@@ -1,6 +1,6 @@
 Manufacturing Nearly Stopped
 ~~~
-The lack of ore has nearly shut down all production on %s. Network 19 had a story showing workers taking parts off the %s and hauling them back to their factories just to keep production moving. What happens when there are no more buildings to disassemble? Let's not find out. You need to find them some ore.
+The lack of ore has nearly shut down production on %s. Network 19 had a story showing workers taking parts off the %s and hauling them back to their factories just to keep production moving. What happens when there are no more buildings to disassemble? Let's not find out. You need to find them some ore.
 
 Regards,
 

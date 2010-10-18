@@ -923,9 +923,10 @@ sub spend_ore_type {
     my ($self, $type, $amount_spent) = @_;
     my $amount_stored = $self->type_stored($type);
     if ($amount_spent > $amount_stored) {
-        $self->spend_happiness($amount_spent - $amount_stored);
+        my $difference = $amount_spent - $amount_stored;
+        $self->spend_happiness($difference);
         $self->type_stored($type, 0);
-        $self->complain_about_lack_of_resources('ore');
+        $self->complain_about_lack_of_resources('ore') if ((($difference * 100) / $amount_spent) > 5); # help avoid rounding errors causing messages
     }
     else {
         $self->type_stored($type, $amount_stored - $amount_spent );
