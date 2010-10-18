@@ -43,7 +43,7 @@ while (my $empire = $empires->next) {
         $empire->name
         .",\n\nIt has been a while since we have seen you around the Lacuna Expanse, and we have missed you. It is important that you log in regularly because your empire will automatically activate its self-destruct sequence in "
         .$ttl
-        ."days.\n\n"
+        ." days.\n\n"
         .$server_url
     );
 }
