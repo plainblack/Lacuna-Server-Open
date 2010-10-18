@@ -68,7 +68,7 @@ sub get_ships_for {
     }
     while (my $ship = $incoming_rs->next) {
         $ship->body($body) if ($ship->body_id == $body->id);
-        push @incoming, $ship->get_status;
+        push @incoming, $ship->get_status($target);
     }
     
     my @unavailable;
@@ -212,7 +212,7 @@ sub prepare_send_spies {
     );
     my @ships;
     while (my $ship = $ships->next) {
-        push @ships, $ship->get_status;
+        push @ships, $ship->get_status($to_body);
     }
 
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
@@ -327,7 +327,7 @@ sub prepare_fetch_spies {
     );
     my @ships;
     while (my $ship = $ships->next) {
-        push @ships, $ship->get_status;
+        push @ships, $ship->get_status($on_body);
     }
     
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(

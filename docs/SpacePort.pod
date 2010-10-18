@@ -168,8 +168,8 @@ Provides a list of incoming ships and ships that are available to send to a spec
             "speed" : "700",
             "stealth" : "0",
             "hold_size" : "0",
-            "date_started" : "01 31 2010 13:09:05 +0600",
-            "date_available" : "01 31 2010 13:09:05 +0600"
+            "estimated_travel_time" : 3600, # in seconds
+            ...
         },
         ...
     ],
@@ -421,6 +421,7 @@ Gathers the information needed to call the C<send_spies> method.
             "hold_size" : 1100,
             "speed" : 400,
             "type" : "cargo_ship",
+            "estimated_travel_time" : 3600, # in seconds
             ...
         },
         ...
@@ -512,6 +513,7 @@ Gathers the information needed to call the C<fetch_spies> method.
             "hold_size" : 1100,
             "speed" : 400,
             "type" : "cargo_ship",
+            "estimated_travel_time" : 3600, # in seconds
             ...
         },
         ...

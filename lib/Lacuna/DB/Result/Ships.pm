@@ -102,7 +102,7 @@ sub date_available_formatted {
 }
 
 sub get_status {
-    my $self = shift;
+    my ($self, $target) = @_;
     my %status = (
         id              => $self->id,
         name            => $self->name,
@@ -115,6 +115,9 @@ sub get_status {
         date_started    => $self->date_started_formatted,
         date_available  => $self->date_available_formatted,
     );
+    if ($target) {
+        $status{estimated_travel_time} = $self->calculate_travel_time($target);
+    }
     if ($self->task eq 'Travelling') {
         my $body = $self->body;
         my $target = ($self->foreign_body_id) ? $self->foreign_body : $self->foreign_star;
