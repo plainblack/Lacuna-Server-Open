@@ -1114,13 +1114,14 @@ sub steal_ships {
 
 sub steal_building {
     my ($self, $defender) = @_;
-    my $level = randint(1,30);
     my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
-        { body_id => $self->on_body->id, level => {'>=' => $level}, class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%' } },
+        { body_id => $self->on_body->id, class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%' } },
         { rows=>1, order_by => { -desc => 'upgrade_started' }}
         )->single;
     return undef unless defined $building;
     $self->things_stolen( $self->things_stolen + 1 );
+    my $max = ($self->level > $building->level) ? $building->level : $self->level;
+    my $level = randint(1,$max);
     $self->from_body->add_plan($building->class, $level);
     return $self->empire->send_predefined_message(
         tags        => ['Alert'],
