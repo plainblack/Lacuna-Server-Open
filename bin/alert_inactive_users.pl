@@ -37,6 +37,7 @@ my $config = Lacuna->config;
 my $server_url = $config->get('server_url');
 my $inactivity_time_out = $config->get('self_destruct_after_inactive_days') || 20;
 while (my $empire = $empires->next) {
+    out($empire->name);
     my $ttl =  $inactivity_time_out - sprintf('%0.f',($empire->last_login->epoch - $start) / (60 * 60 * 24) );
     $empire->send_email('We Miss You',
         $empire->name
