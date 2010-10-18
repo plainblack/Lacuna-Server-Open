@@ -22,7 +22,15 @@ out('Ticking planets');
 my $spies = $db->resultset('Lacuna::DB::Result::Spies');
 while (my $spy = $spies->next) {
     out('Ticking '.$spy->name);
+    my $starting_task = $spy->task;
     $spy->is_available;
+    if ($spy->task eq 'Idle' && $starting_task ne 'Idle') {
+        $spy->empire->send_predefined_message(
+            tags        => ['Intelligence'],
+            filename    => 'ready_for_assignment.txt',
+            params      => [$spy->name],
+        );
+    }
 }
 
 my $finish = time;
