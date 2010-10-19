@@ -13,7 +13,7 @@ __PACKAGE__->add_columns(
     invites            => { data_type => 'int', default_value => 0 },
     accepts            => { data_type => 'int', default_value => 0 },
     deletes            => { data_type => 'int', default_value => 0 },
-    abbandons          => { data_type => 'int', default_value => 0 },
+    abandons          => { data_type => 'int', default_value => 0 },
     active_duration    => { data_type => 'int', default_value => 0 },
 );
 
