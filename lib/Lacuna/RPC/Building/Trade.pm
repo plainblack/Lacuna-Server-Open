@@ -111,6 +111,12 @@ sub accept_trade {
         $cache->delete('trade_lock',$trade_id);
         confess [1011, 'You need a cargo ship with a hold size of at least '.$trade->ask_quantity.'.'];
     }
+    my $offer_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($trade->ship_id);
+    unless (defined $offer_ship) {
+        $trade->withdraw;
+        confess [1009, 'Trade no longer available.'];
+    }
+
     my $body = $building->body;
     if ($trade->ask_type eq 'essentia') {
         unless ($empire->essentia >= $trade->ask_quantity) {
@@ -158,7 +164,6 @@ sub accept_trade {
         object_id   => $ship->id,
     })->insert;
     
-    my $offer_ship = $building->trade_ships->find($trade->ship_id);
     $offer_ship->send(
         target  => $body,
         payload => $trade->payload,
