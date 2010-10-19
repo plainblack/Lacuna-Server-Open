@@ -13,13 +13,13 @@ use constant controller_class => 'Lacuna::RPC::Building::GasGiantPlatform';
 
 use constant image => 'gas-giant-platform';
 
-sub can_build {
-    my ($self, $body) = @_;
+around can_build => sub {
+    my ($orig, $self, $body) = @_;
     if ($body->get_plan(__PACKAGE__, 1)) {
-        return 1;  
+        return $orig->($self, $body);  
     }
     confess [1013,"You can't directly build a Gas Giant Platform. You need a gas giant platform ship."];
-}
+};
 
 use constant name => 'Gas Giant Settlement Platform';
 

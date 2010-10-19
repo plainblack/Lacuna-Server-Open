@@ -7,13 +7,13 @@ use Lacuna::Util qw(randint);
 
 use constant controller_class => 'Lacuna::RPC::Building::AlgaePond';
 
-sub can_build {
-    my ($self, $body) = @_;
+around can_build => sub {
+    my ($orig, $self, $body) = @_;
     if ($body->get_plan(__PACKAGE__, 1)) {
-        return 1;  
+        return $orig->($self, $body);  
     }
     confess [1013,"You can't build an Algae Pond. It forms naturally."];
-}
+};
 
 sub can_upgrade {
     confess [1013, "You can't upgrade an Algae Pond. It forms naturally."];

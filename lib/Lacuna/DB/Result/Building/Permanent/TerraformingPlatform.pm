@@ -11,13 +11,13 @@ around 'build_tags' => sub {
 
 use constant controller_class => 'Lacuna::RPC::Building::TerraformingPlatform';
 
-sub can_build {
-    my ($self, $body) = @_;
+around can_build => sub {
+    my ($orig, $self, $body) = @_;
     if ($body->get_plan(__PACKAGE__, 1)) {
-        return 1;  
+        return $orig->($self, $body);  
     }
     confess [1013,"You can't directly build a Terraforming Platform. You need a terraforming platform ship."];
-}
+};
 
 use constant image => 'terraformingplatform';
 
