@@ -1,9 +1,34 @@
 package Lacuna::Role::Container;
 
 use Moose::Role;
+use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
+
+sub format_body_stats_for_log {
+    my ($self, $body ) = @_;
+    my %stats;
+    foreach my $type (qw(water energy waste), ORE_TYPES, FOOD_TYPES) {
+        $stats{$type} = $body->type_stored($type);
+    }
+    return \%stats;
+}
 
 sub unload {
     my ($self, $payload, $body) = @_;
+    my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
+    $cargo_log->new({
+        message     => 'payload to unload',
+        body_id     => $body->id,
+        data        => $payload,
+        object_type => ref($self),
+        object_id   => $self->id,
+    })->insert;
+    $cargo_log->new({
+        message     => 'before unload',
+        body_id     => $body->id,
+        data        => $self->format_body_stats_for_log($body),
+        object_type => ref($self),
+        object_id   => $self->id,
+    })->insert;
     if (exists $payload->{prisoners}) {
         foreach my $id (@{$payload->{prisoners}}) {
             my $prisoner = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($id);
@@ -41,6 +66,13 @@ sub unload {
             $body->add_glyph($glyph);
         }
     }
+    $cargo_log->new({
+        message     => 'after unload',
+        body_id     => $body->id,
+        data        => $self->format_body_stats_for_log($body),
+        object_type => ref($self),
+        object_id   => $self->id,
+    })->insert;
 }
 
 

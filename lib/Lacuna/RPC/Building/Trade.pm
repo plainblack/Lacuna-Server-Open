@@ -135,11 +135,41 @@ sub accept_trade {
             payload => { resources => { $trade->ask_type => $trade->ask_quantity }}
         )
     }
+    my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
+    $cargo_log->new({
+        message     => 'trade ministry offer accepted',
+        body_id     => $trade->body_id,
+        data        => $trade->payload,
+        object_type => ref($trade),
+        object_id   => $trade->id,
+    })->insert;
+    $cargo_log->new({
+        message     => 'trade ministry ask accepted',
+        body_id     => $trade->body_id,
+        data        => {$trade->ask_type => $trade->ask_quantity},
+        object_type => ref($trade),
+        object_id   => $trade->id,
+    })->insert;
+    $cargo_log->new({
+        message     => 'send ask',
+        body_id     => $ship->foreign_body_id,
+        data        => $ship->payload,
+        object_type => ref($ship),
+        object_id   => $ship->id,
+    })->insert;
     
-    $building->trade_ships->find($trade->ship_id)->send(
+    my $offer_ship = $building->trade_ships->find($trade->ship_id);
+    $offer_ship->send(
         target  => $body,
         payload => $trade->payload,
     );
+    $cargo_log->new({
+        message     => 'send offer',
+        body_id     => $offer_ship->foreign_body_id,
+        data        => $offer_ship->payload,
+        object_type => ref($offer_ship),
+        object_id   => $offer_ship->id,
+    })->insert;
     
     $trade->body->empire->send_predefined_message(
         tags        => ['Alert'],

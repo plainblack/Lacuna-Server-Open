@@ -133,6 +133,21 @@ sub accept_trade {
         $body->spend_type($trade->ask_type, $trade->ask_quantity);
         $trade->body->add_type($trade->ask_type, $trade->ask_quantity);
     }
+    my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
+    $cargo_log->new({
+        message     => 'transporter offer accepted',
+        body_id     => $trade->body_id,
+        data        => $trade->payload,
+        object_type => ref($trade),
+        object_id   => $trade->id,
+    })->insert;
+    $cargo_log->new({
+        message     => 'transporter ask accepted',
+        body_id     => $trade->body_id,
+        data        => {$trade->ask_type => $trade->ask_quantity},
+        object_type => ref($trade),
+        object_id   => $trade->id,
+    })->insert;
     $trade->unload($trade->payload, $body);
     $trade->body->empire->send_predefined_message(
         tags        => ['Alert'],

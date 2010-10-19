@@ -225,6 +225,14 @@ sub pick_up_spies {
     my $self = shift;
     my $empire_id = $self->body->empire_id;
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
+    my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
+    $cargo_log->new({
+        message     => 'before pick up spies',
+        body_id     => $self->foreign_body_id,
+        data        => $self->payload,
+        object_type => ref($self),
+        object_id   => $self->id,
+    })->insert;
     my @riding;
     foreach my $id (@{$self->payload->{fetch_spies}}) {
         my $spy = $spies->find($id);
@@ -241,6 +249,13 @@ sub pick_up_spies {
     my $payload = $self->payload;
     $payload->{spies} = \@riding;
     $self->payload($payload);
+    $cargo_log->new({
+        message     => 'after pick up spies',
+        body_id     => $self->foreign_body_id,
+        data        => $self->payload,
+        object_type => ref($self),
+        object_id   => $self->id,
+    })->insert;
     $self->update;
 }
 
