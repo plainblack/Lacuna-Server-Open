@@ -68,7 +68,7 @@ sub get_ships_for {
     }
     while (my $ship = $incoming_rs->next) {
         $ship->body($body) if ($ship->body_id == $body->id);
-        push @incoming, $ship->get_status($target);
+        push @incoming, $ship->get_status;
     }
     
     my @unavailable;
@@ -81,7 +81,7 @@ sub get_ships_for {
             next;
         }
         $ship->body($body);
-        push @available, $ship->get_status;
+        push @available, $ship->get_status($target);
     }
     
     my %out = (
