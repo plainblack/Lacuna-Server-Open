@@ -437,15 +437,26 @@ sub view_foreign_ships {
     my @fleet;
     my $now = time;
     my $ships = $building->foreign_ships->search({}, {rows=>25, page=>$page_number, join => 'body' });
+    my @my_planets = $empire->planets->get_column('id')->all;
     while (my $ship = $ships->next) {
         if ($ship->date_available->epoch <= $now) {
             $ship->body->tick;
         }
         else {
-            if ($building->level * 300 >= $ship->stealth) {
-                my $from = {};
-                if ($building->level * 100 >= $ship->stealth) {
-                    $from = {
+            my %ship_info = (
+                    id              => $ship->id,
+                    name            => 'Unknown',
+                    type_human      => 'Unknown',
+                    type            => 'unknown',
+                    date_arrives    => $ship->date_available_formatted,
+                    from            => {},
+                );
+            if ($ship->body_id ~~ \@my_planets || $building->level * 300 >= $ship->stealth) {
+                $ship_info{name} = $ship->name;
+                $ship_info{type} = $ship->type;
+                $ship_info{type_human} = $ship->type_formatted;
+                if ($ship->body_id ~~ \@my_planets || $building->level * 100 >= $ship->stealth) {
+                    $ship_info{from} = {
                         id      => $ship->body->id,
                         name    => $ship->body->name,
                         empire  => {
@@ -454,15 +465,8 @@ sub view_foreign_ships {
                         },
                     };
                 }
-                push @fleet, {
-                    id              => $ship->id,
-                    name            => $ship->name,
-                    type_human      => $ship->type_formatted,
-                    type            => $ship->type,
-                    date_arrives    => $ship->date_available_formatted,
-                    from            => $from,
-                };
             }
+            push @fleet, \%ship_info;
         }
     }
     return {
