@@ -41,6 +41,7 @@ sub unload {
             $prisoner->on_body_id($body->id);
             $prisoner->update;
         }
+        delete $payload->{prisoners};
     }
     if (exists $payload->{ships}) {
         foreach my $id (@{$payload->{ships}}) {
@@ -49,10 +50,12 @@ sub unload {
             $ship->body_id($body->id);
             $ship->update;
         }
+        delete $payload->{ships};
     }
     if (exists $payload->{essentia}) {
         $body->empire->add_essentia($payload->{essentia}, 'Trade Unloaded');
         $body->empire->update;
+        delete $payload->{essentia};
     }
     if (exists $payload->{resources}) {
         my %resources = %{$payload->{resources}};
@@ -60,16 +63,19 @@ sub unload {
             $body->add_type($type, $resources{$type});
         }
         $body->update;
+        delete $payload->{resources};
     }
     if (exists $payload->{plans}) {
         foreach my $plan (@{$payload->{plans}}) {
             $body->add_plan($plan->{class}, $plan->{level}, $plan->{extra_build_level});
         }
+        delete $payload->{plans};
     }
     if (exists $payload->{glyphs}) {
         foreach my $glyph (@{$payload->{glyphs}}) {
             $body->add_glyph($glyph);
         }
+        delete $payload->{glyphs};
     }
     $cargo_log->new({
         message     => 'after unload',
