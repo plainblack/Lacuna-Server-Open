@@ -38,7 +38,7 @@ my $server_url = $config->get('server_url');
 my $inactivity_time_out = $config->get('self_destruct_after_inactive_days') || 20;
 while (my $empire = $empires->next) {
     out($empire->name);
-    my $ttl =  $inactivity_time_out - sprintf('%0.f',($empire->last_login->epoch - $start) / (60 * 60 * 24) );
+    my $ttl =  $inactivity_time_out - sprintf('%0.f',($start - $empire->last_login->epoch) / (60 * 60 * 24) );
     $empire->send_email('We Miss You',
         $empire->name
         .",\n\nIt has been a while since we have seen you around the Lacuna Expanse, and we have missed you. It is important that you log in regularly because your empire will automatically activate its self-destruct sequence in "
