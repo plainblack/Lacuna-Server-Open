@@ -621,18 +621,18 @@ sub recalc_stats {
     foreach my $type (ORE_TYPES) {
         my $method = $type.'_hour';
         my $planet_side = sprintf('%.0f',$self->$type * $stats{ore_hour} / 10000); # calculate local spend/prod
-        if (abs($planet_side) > $stats{$method}) { # local spend might be more than local production
-            $overage += abs($planet_side) - $stats{$method}; # make up the difference with an overage
-            $stats{$method} = 0;
-        }
-        else {
+#        if (abs($planet_side) > $stats{$method}) { # local spend might be more than local production
+#            $overage += abs($planet_side) - $stats{$method}; # make up the difference with an overage
+#            $stats{$method} = 0;
+#        }
+#        else {
             $stats{$method} += $planet_side;            
-        }
+#        }
     }
     $stats{ore_hour} += $mining_ministry_ore_hour - $overage; # adjust the total ore hour to reflect mining ministry and overage
-    if ($stats{ore_hour} < 0) { # if there's not enough total ore production to go around
-        $stats{gold_hour} = $stats{ore_hour}; # arbitrarily assign it to one type
-    }
+#    if ($stats{ore_hour} < 0) { # if there's not enough total ore production to go around
+#        $stats{gold_hour} = $stats{ore_hour}; # arbitrarily assign it to one type
+#    }
     $self->update(\%stats);
     return $self;
 }
