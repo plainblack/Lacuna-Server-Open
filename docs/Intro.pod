@@ -106,6 +106,15 @@ If an exception is thrown you'll get an error response. It's a hash containing a
 
 B<NOTE:> If you get a JSON-RPC error, then the web server will also give you a 500 HTTP error code. 
 
+
+=head2 RPC Limit
+
+You may only make a number of calls up to the RPC Limit in a given 24 hour period. The current limit is 5000. At the current limit you you can make about 3.5 calls per minute all day long. The counter resets roughly (give or take 60 minutes) at midnight GMT. Your RPC calls are counted across all clients you use and your own programs.
+
+If you find yourself needing more RPC calls than the limit allows then you are likely making a lot of redundant requests. For example body.get_buildings() returns the entire list of buildings, and a time as to when their stats will change. So instead of calling every building on every planet every time your program looks something up, cache it until it changes.
+
+
+
 =head1 Status
 
 Most methods will provide a status block as part of the response. This is used to update the user interface and alert the user to things. The status block looks like this:
