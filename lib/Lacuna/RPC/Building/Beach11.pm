@@ -1,6 +1,7 @@
 package Lacuna::RPC::Building::Beach11;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 

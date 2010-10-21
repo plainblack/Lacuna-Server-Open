@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Permanent::MassadsHenge;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 

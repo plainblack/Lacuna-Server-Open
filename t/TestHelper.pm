@@ -1,6 +1,7 @@
 package TestHelper;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 use Lacuna::DB;
 use Lacuna;

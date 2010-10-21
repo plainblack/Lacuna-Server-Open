@@ -1,6 +1,7 @@
 package Lacuna::Web::Chat;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 extends qw(Lacuna::Web);
 

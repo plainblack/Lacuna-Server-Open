@@ -1,6 +1,7 @@
 package Lacuna::Verify;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 use Regexp::Common qw(RE_profanity);
 use Data::Validate::Email;

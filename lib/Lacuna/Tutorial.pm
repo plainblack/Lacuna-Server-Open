@@ -1,6 +1,7 @@
 package Lacuna::Tutorial;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 
 has empire => (

@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Building::Permanent::Lake;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 

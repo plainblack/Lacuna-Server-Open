@@ -1,6 +1,7 @@
 package Lacuna::RPC::Building::Cheese;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 

@@ -1,6 +1,7 @@
 package Lacuna::Session;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 use UUID::Tiny ':std';
 

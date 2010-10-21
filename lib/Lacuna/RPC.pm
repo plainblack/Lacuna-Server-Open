@@ -1,6 +1,7 @@
 package Lacuna::RPC;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 extends 'JSON::RPC::Dispatcher::App';
 use Lacuna::Util qw(format_date);

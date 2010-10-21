@@ -1,6 +1,7 @@
 package Lacuna::RPC::Building::PlanetaryCommand;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 

@@ -1,6 +1,7 @@
 package Lacuna::Web::ApiKey;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 extends qw(Lacuna::Web);
 use UUID::Tiny ':std';

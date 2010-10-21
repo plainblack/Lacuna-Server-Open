@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Ships::MiningPlatformShip;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 

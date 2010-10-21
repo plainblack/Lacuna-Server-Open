@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Ships::Excavator;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 use Lacuna::Util qw(randint random_element);

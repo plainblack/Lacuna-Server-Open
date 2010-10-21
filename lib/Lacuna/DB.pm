@@ -1,6 +1,7 @@
 package Lacuna::DB;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 extends qw/DBIx::Class::Schema/;
 

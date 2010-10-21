@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Log::Login;
 
 use Moose;
+use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Log::WithEmpire';
 use Lacuna::Util;
