@@ -6,6 +6,7 @@ use Lacuna;
 use Lacuna::Util qw(randint format_date);
 use Getopt::Long;
 use List::MoreUtils qw(uniq);
+use utf8;
 $|=1;
 our $quiet;
 GetOptions(
