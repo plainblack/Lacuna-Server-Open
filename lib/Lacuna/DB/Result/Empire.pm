@@ -461,7 +461,7 @@ sub invite_friend {
 sub send_email {
     my ($self, $subject, $message) = @_;
     return unless ($self->email);
-    Email::Stuff->from('noreply@lacunaexpanse.com')
+    Email::Stuff->from('"The Lacuna Expanse" <noreply@lacunaexpanse.com>')
         ->to($self->email)
         ->subject($subject)
         ->text_body($message)
