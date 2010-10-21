@@ -126,6 +126,7 @@ after 'sqlt_deploy_hook' => sub {
     $sqlt_table->add_index(name => 'idx_class', fields => ['class']);
     $sqlt_table->add_index(name => 'idx_usable_as_starter', fields => ['usable_as_starter']);
     $sqlt_table->add_index(name => 'idx_usable_as_starter_enabled', fields => ['usable_as_starter_enabled']);
+    $sqlt_table->add_index(name => 'idx_planet_search', fields => ['usable_as_starter_enabled','usable_as_starter']);
 };
 
 __PACKAGE__->typecast_map(class => {
