@@ -590,6 +590,11 @@ sub recalc_stats {
     my %stats = ( needs_recalc => 0 );
     my $buildings = $self->buildings;
     my $mining_ministry_ore_hour = 0;
+    #reset foods
+    foreach my $type (FOOD_TYPES) {
+        $stats{$type.'_production_hour'} = 0;
+    }
+    #calculate building production
     while (my $building = $buildings->next) {
         $stats{waste_capacity} += $building->waste_capacity;
         $stats{water_capacity} += $building->water_capacity;
