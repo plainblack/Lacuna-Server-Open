@@ -226,6 +226,7 @@ sub create_lacunan_home_world {
         id                  => 1,
         name                => 'Lacuna Expanse Corp',
         date_created        => DateTime->now,
+        stage               => 'founded',
         status_message      => 'Will trade for Essentia.',
         password            => Lacuna::DB::Result::Empire->encrypt_password(rand(99999999)),
         species_name            => 'Lacunan',
