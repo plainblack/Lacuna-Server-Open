@@ -5,6 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends qw(Plack::Component);
 use Plack::Request;
+use Encode;
 
 sub call {
     my ($self, $env) = @_;
@@ -54,7 +55,7 @@ sub call {
     else {
     	$response->status($out->[1]{status} || 200);
         $response->content_type($out->[1]{content_type} || 'text/html');
-        $response->body($out->[0]);
+        $response->body(encode_utf8($out->[0]));
     }
     return $response->finalize;
 }
