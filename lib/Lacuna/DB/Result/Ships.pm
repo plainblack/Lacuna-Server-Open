@@ -207,8 +207,7 @@ sub capture_with_spies {
     return 0 if ($body->empire_id == $self->body->empire_id);
     my $security = $body->get_building_of_class('Lacuna::DB::Result::Security');
     return 0 unless defined $security && $security->efficiency > 0;
-    my $security_boost = ($security->level * 100) / $security->efficiency;
-    $security_boost *= 100;
+    my $security_boost = $security->level * $security->efficiency;
     return 0 unless (randint(1,10000) + $security_boost > $self->stealth);
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
     foreach my $id ((@{$self->payload->{spies}}, @{$self->payload->{fetch_spies}})) {
