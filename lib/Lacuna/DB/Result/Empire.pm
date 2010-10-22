@@ -560,7 +560,7 @@ sub add_probe {
     
     # send notifications
     # this could be a performance problem in the future depending upon the number of probes in a star system
-    my $star_name = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id)->name;
+    my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id);
     my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({ star_id => $star_id, empire_id => {'!=', $self->id } });
     while (my $probe = $probes->next) {
         my $that_empire = $probe->empire;
@@ -569,7 +569,7 @@ sub add_probe {
             filename    => 'probe_detected.txt',
             tags        => ['Alert'],
             from        => $that_empire,
-            params      => [$star_name, $self->id, $self->name],
+            params      => [$star->x, $star->y, $star->name, $self->id, $self->name],
         );
     }
     

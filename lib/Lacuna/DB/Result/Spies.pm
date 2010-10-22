@@ -339,7 +339,7 @@ sub get_spooked {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'narrow_escape.txt',
-        params      => [$self->on_body->empire->name, $self->name],
+        params      => [$self->on_body->empire->name, $self->name, $self->from_body->id, $self->from_body->name],
     );
 }
 
@@ -348,7 +348,7 @@ sub thwart_a_spy {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_missed_a_spy.txt',
-        params      => [$self->on_body->name, $self->name],
+        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from],
         from        => $self->empire,
     );
     return $suspect->get_spooked;
@@ -367,7 +367,7 @@ sub escape {
     return $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'i_have_escaped.txt',
-        params      => [$self->on_body->empire->name, $self->name],
+        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
     );
 }
 
@@ -390,10 +390,21 @@ sub capture_a_spy {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_captured_a_spy.txt',
-        params      => [$self->on_body->name, $self->name],
+        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from($self->on_body->empire_id)],
         from        => $self->empire,
     );
     return $prisoner->go_to_jail;
+}
+
+sub format_from {
+    my ($self, $empire_id) = @_;
+    $empire_id ||= $self->empire_id;
+    if ($empire_id == $self->from_body->empire_id) {
+        return sprintf '%s of {Planet %s %s}', $self->name, $self->from_body->id, $self->from_body->name;
+    }
+    else {
+        return sprintf '%s of {Starmap %s %s %s}', $self->name, $self->from_body->x, $self->from_body->y, $self->from_body->name;
+    }
 }
 
 sub turn {
@@ -402,7 +413,7 @@ sub turn {
     my $message = $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'goodbye.txt',
-        params      => [$self->name],
+        params      => [$self->name, $self->from_body->id, $self->from_body->name],
     );
     $self->task('Idle');
     $self->empire_id($new_home->empire_id);
@@ -416,7 +427,7 @@ sub turn_a_spy {
     $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'new_recruit.txt',
-        params      => [$traitor->empire->name, $traitor->name, $self->name],
+        params      => [$traitor->empire->id, $traitor->empire->name, $traitor->name, $self->name, $self->from_body->id, $self->from_body->name],
     );
     return $traitor->turn($self->from_body);
 }
@@ -446,7 +457,7 @@ sub killed_in_action {
     return $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'spy_killed.txt',
-        params      => [$self->name, $self->on_body->name],
+        params      => [$self->name, $self->from_body->id, $self->from_body->name, $self->on_body->x, $self->on_body->y, $self->on_body->name],
     );
 }
 
@@ -456,7 +467,7 @@ sub kill_a_spy {
     $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_killed_a_spy.txt',
-        params      => [$self->on_body->name, $self->name],
+        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from],
         from        => $self->empire,
     );
     return $dead->killed_in_action;
@@ -736,12 +747,12 @@ sub uprising {
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_incited_a_rebellion.txt',
-        params      => [$self->on_body->empire->name, $self->on_body->name, $loss, $self->name],
+        params      => [$self->on_body->empire_id, $self->on_body->empire->name, $self->on_body->x, $self->on_body->y, $self->on_body->name, $loss, $self->format_from],
     );
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'uprising.txt',
-        params      => [$self->name, $self->on_body->name, $loss],
+        params      => [$self->name, $self->on_body->id, $self->on_body->name, $loss],
     );
     $self->on_body->add_news(100,'Led by %s, the citizens of %s are rebelling against %s.', $self->name, $self->on_body->name, $self->on_body->empire->name);
     return $message->id;
@@ -754,7 +765,7 @@ sub knock_defender_unconscious {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'knocked_out_a_defender.txt',
-        params      => [$self->name],
+        params      => [$self->name, $self->from_body->id, $self->from_body->name],
     )->id;
 }
 
@@ -906,7 +917,7 @@ sub destroy_infrastructure {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'building_kablooey.txt',
-        params      => [$building->level, $building->name, $self->on_body->name],
+        params      => [$building->level, $building->name, $self->on_body->id, $self->on_body->name],
     );
     $self->things_destroyed( $self->things_destroyed + 1 );
     $self->on_body->add_news(90,'%s was rocked today when the %s exploded, sending people scrambling for their lives.', $self->on_body->name, $building->name);
@@ -914,7 +925,7 @@ sub destroy_infrastructure {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'sabotage_report.txt',
-        params      => ['their level '.($building->level).' '.$building->name, $self->on_body->name, $self->name],
+        params      => ['their level '.($building->level).' '.$building->name, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
     )->id;
 }
 
@@ -928,13 +939,13 @@ sub destroy_infrastructure {
 #    $self->on_body->empire->send_predefined_message(
 #        tags        => ['Alert'],
 #        filename    => 'building_kablooey.txt',
-#        params      => [$building->level + 1, $building->name, $self->on_body->name],
+#        params      => [$building->level + 1, $building->name, $self->on_body->id, $self->on_body->name],
 #    );
 #    $self->things_destroyed( $self->things_destroyed + 1 );
 #    $self->empire->send_predefined_message(
 #        tags        => ['Intelligence'],
 #        filename    => 'sabotage_report.txt',
-#        params      => ['a level of their level '.($building->level + 1).' '.$building->name, $self->on_body->name, $self->name],
+#        params      => ['a level of their level '.($building->level + 1).' '.$building->name, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
 #    );
 #    $self->on_body->add_news(90,'%s was rocked today when a construction crane toppled into the %s.', $self->on_body->name, $building->name);
 #    if ($building->level == 0) {
@@ -960,12 +971,12 @@ sub destroy_ship {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'ship_blew_up_at_port.txt',
-        params      => [$ship->type_formatted, $self->on_body->name],
+        params      => [$ship->type_formatted, $self->on_body->id, $self->on_body->name],
     );
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'sabotage_report.txt',
-        params      => [$ship->type_formatted, $self->on_body->name, $self->name],
+        params      => [$ship->type_formatted, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
     );
     $self->on_body->add_news(90,'Today officials on %s are investigating the explosion of a %s at the Space Port.', $self->on_body->name, $ship->type_formatted);
     $ship->delete;
@@ -986,14 +997,14 @@ sub destroy_mining_ship {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'ship_blew_up_at_port.txt',
-        params      => ['mining cargo ship',$self->on_body->name],
+        params      => ['mining '.$ship->type_formatted, $self->on_body->id, $self->on_body->name],
     );
     $self->things_destroyed( $self->things_destroyed + 1 );
     $self->on_body->add_news(90,'Today, officials on %s are investigating the explosion of a mining cargo ship at the Space Port.', $self->on_body->name);
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'sabotage_report.txt',
-        params      => ['mining cargo ship', $self->on_body->name, $self->name],
+        params      => ['mining cargo ship', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
     )->id;
 }
 
@@ -1064,14 +1075,14 @@ sub steal_resources {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'ship_stolen.txt',
-        params      => [$ship->type_formatted, $self->on_body->name],
+        params      => [$ship->type_formatted, $self->on_body->id, $self->on_body->name],
         attachments=> { table => \@table},
     );
     $self->on_body->add_news(50,'In a daring robbery today a thief absconded with a %s full of resources from %s.', $ship->type_formatted, $self->on_body->name);
     return $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'ship_theft_report.txt',
-        params      => [$ship->type_formatted, $self->name],
+        params      => [$ship->type_formatted, $self->name, $self->from_body->id, $self->from_body->name],
         attachments => { table => \@table},
     )->id;
 }
@@ -1098,13 +1109,13 @@ sub steal_ships {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'ship_stolen.txt',
-        params      => [$ship->type_formatted, $self->on_body->name],
+        params      => [$ship->type_formatted, $self->on_body->id, $self->on_body->name],
     );
     $self->on_body->add_news(50,'In a daring robbery a thief absconded with a %s from %s today.', $ship->type_formatted, $self->on_body->name);
     return $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'ship_theft_report.txt',
-        params      => [$ship->type_formatted, $self->name],
+        params      => [$ship->type_formatted, $self->name, $self->from_body->id, $self->from_body->name],
     )->id;
 }
 
@@ -1122,7 +1133,7 @@ sub steal_building {
     return $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'building_theft_report.txt',
-        params      => [$level, $building->name, $self->name],
+        params      => [$level, $building->name, $self->name, $self->from_body->id, $self->from_body->name],
     )->id;
 }
 
@@ -1164,7 +1175,7 @@ sub shut_down_building {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'building_loss_of_power.txt',
-        params      => [$building->name, $self->on_body->name],
+        params      => [$building->name, $self->on_body->id, $self->on_body->name],
     );
     $building->body($self->on_body);
     $building->spend_efficiency($self->level)->update;
@@ -1172,7 +1183,7 @@ sub shut_down_building {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_disabled_a_building.txt',
-        params      => [$building->name, $self->on_body->name, $self->name],
+        params      => [$building->name, $self->on_body->name, $self->format_from],
     )->id;
 }
 
@@ -1184,13 +1195,13 @@ sub take_control_of_probe {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'probe_destroyed.txt',
-        params      => [$probe->star->name],
+        params      => [$probe->star->x, $probe->star->y, $probe->star->name],
     );
     $self->on_body->add_news(25,'%s scientists say they have lost control of a research satellite in the %s system.', $self->on_body->empire->name, $probe->star->name);    
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_have_taken_control_of_a_probe.txt',
-        params      => [$probe->star->name, $probe->empire->name, $self->name],
+        params      => [$probe->star->x, $probe->star->y, $probe->star->name, $probe->empire_id, $probe->empire->name, $self->format_from],
     );
     $probe->body_id($self->from_body_id);
     $probe->empire_id($self->empire_id);
@@ -1210,14 +1221,14 @@ sub kill_contact_with_mining_platform {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'we_lost_contact_with_a_mining_platform.txt',
-        params      => [$asteroid->name],
+        params      => [$asteroid->x, $asteroid->y, $asteroid->name],
     );
     $self->things_destroyed( $self->things_destroyed + 1 );
     $self->on_body->add_news(50,'The %s controlled mining outpost on %s went dark. Our thoughts are with the miners.', $self->on_body->empire->name, $asteroid->name);    
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_disabled_a_mining_platform.txt',
-        params      => [$asteroid->name, $self->on_body->empire->name, $self->name],
+        params      => [$asteroid->x, $asteroid->y, $asteroid->name, $self->on_body->empire->id, $self->on_body->empire->name, $self->format_from],
     )->id;
 }
 
@@ -1229,12 +1240,12 @@ sub hack_observatory_probes {
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_destroyed_a_probe.txt',
-        params      => [$probe->star->name, $probe->empire->name, $self->name],
+        params      => [$probe->star->x, $probe->star->y, $probe->star->name, $probe->empire->id, $probe->empire->name, $self->format_from],
     );
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'probe_destroyed.txt',
-        params      => [$probe->star->name],
+        params      => [$probe->star->x, $probe->star->y, $probe->star->name],
     );
     $probe->delete;
     $self->on_body->add_news(25,'%s scientists say they have lost control of a research satellite in the %s system.', $self->on_body->empire->name, $probe->star->name);    
@@ -1251,13 +1262,13 @@ sub hack_offending_probes {
     $defender->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_destroyed_a_probe.txt',
-        params      => [$probe->star->name, $probe->empire->name, $defender->name],
+        params      => [$probe->star->x, $probe->star->y, $probe->star->name, $probe->empire->id, $probe->empire->name, $defender->format_from],
     );
     $self->on_body->add_news(25,'%s scientists say they have lost control of a research satellite in the %s system.', $probe->empire->name, $self->on_body->star->name);    
     my $message = $probe->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'probe_destroyed.txt',
-        params      => [$probe->star->name],
+        params      => [$probe->star->x, $probe->star->y, $probe->star->name],
     );
     $probe->delete;
     return $message->id;
@@ -1271,13 +1282,13 @@ sub hack_local_probes {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'probe_destroyed.txt',
-        params      => [$probe->star->name],
+        params      => [$probe->star->x, $probe->star->y, $probe->star->name],
     );
     $self->on_body->add_news(25,'%s scientists say they have lost control of a research probe in the %s system.', $self->on_body->empire->name, $self->on_body->star->name);    
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_destroyed_a_probe.txt',
-        params      => [$probe->star->name, $probe->empire->name, $self->name],
+        params      => [$probe->star->x, $probe->star->y, $probe->star->name, $probe->empire->id, $probe->empire->name, $self->format_from],
     );
     $probe->delete;
     return $message->id;
@@ -1298,7 +1309,7 @@ sub colony_report {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Colony Report', $self->on_body->name, $self->name],
+        params      => ['Colony Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
         attachments=> { table => \@report},
     )->id;
 }
@@ -1317,7 +1328,7 @@ sub surface_report {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Surface Report', $self->on_body->name, $self->name],
+        params      => ['Surface Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
         attachments  => { map => {
             surface         => $self->on_body->surface,
             buildings       => \@map
@@ -1339,7 +1350,7 @@ sub spy_report {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Spy Report', $self->on_body->name, $self->name],
+        params      => ['Spy Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
         attachments=> { table => \@peeps},
     )->id;
 }
@@ -1358,7 +1369,7 @@ sub economic_report {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Economic Report', $self->on_body->name, $self->name],
+        params      => ['Economic Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
         attachments => { table => \@resources},
     )->id;
 }
@@ -1387,7 +1398,7 @@ sub travel_report {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Travel Report', $self->on_body->name, $self->name],
+        params      => ['Travel Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
         attachments => { table => \@travelling},
     )->id;
 }
@@ -1402,7 +1413,7 @@ sub ship_report {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Docked Ships Report', $self->on_body->name, $self->name],
+        params      => ['Docked Ships Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
         attachments => { table => \@ships},
     )->id;
 }
@@ -1421,7 +1432,7 @@ sub build_queue_report {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Build Queue Report', $self->on_body->name, $self->name],
+        params      => ['Build Queue Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
         attachments => { table => \@report},
     )->id;
 }
@@ -1436,7 +1447,7 @@ sub false_interrogation_report {
     $defender->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Interrogation Report', $self->on_body->name, $defender->name],
+        params      => ['Interrogation Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
         attachments => { table => [
             ['Question', 'Response'],
             ['Name', $suspect->name],
@@ -1463,12 +1474,12 @@ sub false_interrogation_report {
     $suspect->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'false_interrogation.txt',
-        params      => [$self->on_body->name, $suspect->name],
+        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $suspect->name, $suspect_home->id, $suspect_home->name],
     );
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'interrogating_prisoners_failing.txt',
-        params      => [$self->on_body->name, $suspect->name, $self->name],
+        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $suspect->name, $self->name, $self->from_body->id, $self->from_body->name],
     )->id;
 }
 
@@ -1482,7 +1493,7 @@ sub interrogation_report {
     $defender->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Interrogation Report', $self->on_body->name, $defender->name],
+        params      => ['Interrogation Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
         attachments => { table => [
             ['Question', 'Response'],
             ['Name', $suspect->name],
@@ -1565,7 +1576,7 @@ sub counter_intel_report {
     $defender->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Counter Intelligence Report', $self->on_body->name, $defender->name],
+        params      => ['Counter Intelligence Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
         attachments => { table => \@peeps},
     );
     return undef;

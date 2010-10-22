@@ -1,8 +1,8 @@
 %s
 ~~~
-Here's some information about %s you may find interesting.
+Here's some information about {Starmap %s %s %s} you may find interesting.
 
 More to come,
 
-%s
+%s of {Planet %s %s}
 

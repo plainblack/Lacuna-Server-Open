@@ -1,6 +1,6 @@
 Glyph Discovered!
 ~~~
-Great news! Our archaeologists on %s have uncovered a glyph made entirely of %s. Perhaps with your guidance they can unlock its secrets.
+Great news! Our archaeologists on {Planet %s %s} have uncovered a glyph made entirely of %s. Perhaps with your guidance they can unlock its secrets.
 
 Regards,
 

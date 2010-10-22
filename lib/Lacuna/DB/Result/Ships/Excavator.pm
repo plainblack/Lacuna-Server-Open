@@ -35,7 +35,7 @@ sub arrive {
         $empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'plan_discovered_by_excavator.txt',
-            params      => [$remote_body->name, ($plan->level + $plan->extra_build_level), $class->name, $body->name],
+            params      => [$remote_body->x, $remote_body->y, $remote_body->name, ($plan->level + $plan->extra_build_level), $class->name, $body->id, $body->name],
         );
     }
     elsif ($find < 16) {
@@ -44,7 +44,7 @@ sub arrive {
         $empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'glyph_discovered_by_excavator.txt',
-            params      => [$remote_body->name, $ore, $body->name],
+            params      => [$remote_body->x, $remote_body->y, $remote_body->name, $ore, $body->id, $body->name],
             attachments => {
                 image => {
                     title   => $ore,
@@ -62,14 +62,14 @@ sub arrive {
         $empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'resources_discovered_by_excavator.txt',
-            params      => [$remote_body->name, $amount, $type, $body->name],
+            params      => [$remote_body->x, $remote_body->y, $remote_body->name, $amount, $type, $body->id, $body->name],
         );
     }
     else {
         $empire->send_predefined_message(
             tags        => ['Correspondence'],
             filename    => 'glyph_not_discovered_by_excavator.txt',
-            params      => [$remote_body->name, $body->name],
+            params      => [$remote_body->x, $remote_body->y, $remote_body->name, $body->id, $body->name],
         );
     }
     $self->delete;

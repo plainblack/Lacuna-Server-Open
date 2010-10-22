@@ -30,14 +30,14 @@ sub arrive {
         $probe->empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'probe_detonated.txt',
-            params      => [$self->foreign_star->name, $self->body->empire_id, $self->body->empire->name],
+            params      => [$self->foreign_star->x, $self->foreign_star->y, $self->foreign_star->name, $self->body->empire_id, $self->body->empire->name],
         );
         $count++;
     }
     $self->body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'detonator_destroyed_probes.txt',
-        params      => [$count, $self->foreign_star->name],
+        params      => [$count, $self->foreign_star->x, $self->foreign_star->y, $self->foreign_star->name],
     );
     $self->delete;
 }

@@ -1,6 +1,6 @@
 Brownouts Causing Concern
 ~~~
-%s saw more brownouts today due to the lack of available energy. The Security Minister has told me that some citizens are taking advantage of the down security systems and lighting and are now looting buildings. The %s was damaged in one such instance.
+{Planet %s %s} saw more brownouts today due to the lack of available energy. The Security Minister has told me that some citizens are taking advantage of the down security systems and lighting and are now looting buildings. The %s was damaged in one such instance.
 
 Do whatever you need to to get the power flowing again. Your empire will fall into chaos if you don't act swiftly.
 

@@ -1,6 +1,6 @@
 Uprising
 ~~~
-An individual known as %s has started an uprising on %s, which has cost us %s happiness.
+An individual known as %s has started an uprising on {Planet %s %s}, which has cost us %s happiness.
 
 Regards,
 

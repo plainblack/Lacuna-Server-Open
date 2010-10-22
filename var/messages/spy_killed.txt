@@ -1,6 +1,6 @@
 Killed In Action
 ~~~
-%s was killed in the line of duty today on %s.
+%s of {Planet %s %s} was killed in the line of duty today on {Starmap %s %s %s}.
 
 Condolences,
 

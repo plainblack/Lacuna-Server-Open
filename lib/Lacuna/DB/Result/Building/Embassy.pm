@@ -161,7 +161,7 @@ sub expel_member {
         from        => $alliance->leader,
         tags        => ['Correspondence'],
         filename    => 'alliance_expelled.txt',
-        params      => [$alliance->name, $message, $alliance->name],
+        params      => [$alliance->id, $alliance->name, $message, $alliance->name],
     );
 }
 

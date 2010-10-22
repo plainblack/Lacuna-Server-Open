@@ -1,6 +1,6 @@
 Scan Results
 ~~~
-Our scanner captured the attached map of %s.
+Our scanner captured the attached map of {Starmap %s %s %s}.
 
 Regards,
 

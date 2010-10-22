@@ -1,6 +1,6 @@
 Starving Citizens
 ~~~
-I've gotten angry messages from citizens all day today about the lack of food on %s. I also just received a report from the Security Minister that he arrested a group of citizens as they were breaking into the %s looking for food. Some damage was done to the building in the process.
+I've gotten angry messages from citizens all day today about the lack of food on {Planet %s %s}. I also just received a report from the Security Minister that he arrested a group of citizens as they were breaking into the %s looking for food. Some damage was done to the building in the process.
 
 Please do something quickly or I'm certain there will be more trouble.
 

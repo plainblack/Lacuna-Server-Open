@@ -1,7 +1,7 @@
 I'm Free!
 ~~~
-I don't know what you said to %s, but they released me. I'm on %s and ready to be picked up for my next assignment.
+I don't know what you said to {Empire %s %s}, but they released me. I'm on {Starmap %s %s %s} and ready to be picked up for my next assignment.
 
 Regards,
 
-%s
+%s of {Planet %s %s}

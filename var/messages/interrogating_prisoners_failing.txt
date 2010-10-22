@@ -1,7 +1,7 @@
 Prisoners Being Interrogated
 ~~~
-I broke in to %s prison to find out who they've got locked up. I saw an agent named %s that I've worked with in the past. It didn't look like they were getting any valuable information.
+I broke in to {Starmap %s %s %s} prison to find out who they've got locked up. I saw an agent named %s that I've worked with in the past. It didn't look like they were getting any valuable information.
 
 More to come,
 
-%s
+%s of {Planet %s %s}

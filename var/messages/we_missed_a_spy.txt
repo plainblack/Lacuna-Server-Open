@@ -1,6 +1,6 @@
 Plot Foiled
 ~~~
-I'm pretty sure we averted a catastrophe on %s. It's impossible to know what the agent was up to, because we were unable to capture him or her, but at least we scared them off for now.
+I'm pretty sure we averted a catastrophe on {Starmap %s %s %s}. It's impossible to know what the agent was up to, because we were unable to capture him or her, but at least we scared them off for now.
 
 Regards,
 

@@ -2,4 +2,4 @@ Put Me To Work
 ~~~
 I'm ready to work. What do you need from me?
 
-%s
+%s of {Planet %s %s}

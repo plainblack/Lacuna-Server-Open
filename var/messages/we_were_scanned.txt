@@ -1,6 +1,6 @@
 We've Been Scanned
 ~~~
-Our sensors indicate that %s has just been scanned by {Empire %s %s}. This could be idle curiosity or an indication of a pending attack. We need to get some Drones built to stop future scans, and other types of attacks.
+Our sensors indicate that {Planet %s %s} has just been scanned by {Empire %s %s}. This could be idle curiosity or an indication of a pending attack. We need to get some Drones built to stop future scans, and other types of attacks.
 
 Regards,
 

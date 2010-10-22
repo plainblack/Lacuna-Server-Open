@@ -1,6 +1,6 @@
 Pollution Causing Outrage
 ~~~
-The citizens of %s are up in arms about the level of pollution being produced by the continued growth on the planet.
+The citizens of {Planet %s %s} are up in arms about the level of pollution being produced by the continued growth on the planet.
 
 You should find a way to manage the waste or their discontent could affect the progress of the empire dramatically.
 

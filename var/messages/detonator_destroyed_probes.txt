@@ -1,6 +1,6 @@
 Detonator Report
 ~~~
-Our Detonator has destroyed %s probes in the %s system.
+Our Detonator has destroyed %s probes in the {Starmap %s %s %s} system.
 
 Regards,
 

@@ -84,7 +84,7 @@ sub send_invite {
         from        => $self->leader,
         tags        => ['Correspondence'],
         filename    => 'alliance_invite.txt',
-        params      => [$self->name, $message],
+        params      => [$self->id, $self->name, $message],
     );
     return $invite;
 }
@@ -103,7 +103,7 @@ sub withdraw_invite {
         from        => $self->leader,
         tags        => ['Correspondence'],
         filename    => 'alliance_withdraw_invite.txt',
-        params      => [$self->name, $message],
+        params      => [$self->id, $self->name, $message],
     );
 }
 

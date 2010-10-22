@@ -1,5 +1,5 @@
 Not Giving Them Anything
 ~~~
-I was able to bribe a guard to get this message to you. These bastards at %s prison are trying everything to get information out of me, but I'm not giving them anything. I'm not sure how long I can hold out though. Rescue would be nice.
+I was able to bribe a guard to get this message to you. These bastards at {Starmap %s %s %s} prison are trying everything to get information out of me, but I'm not giving them anything. I'm not sure how long I can hold out though. Rescue would be nice.
 
-%s
+%s of {Planet %s %s}

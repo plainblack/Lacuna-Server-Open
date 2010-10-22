@@ -4,4 +4,4 @@ I don't know how, but %s is on to me. I narrowly escaped capture today. Perhaps 
 
 Regards,
 
-%s
+%s of {Planet %s %s}

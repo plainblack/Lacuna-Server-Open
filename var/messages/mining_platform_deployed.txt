@@ -1,7 +1,7 @@
 Mining Platform Deployed
 ~~~
-The Mining Platform Ship from %s has deployed on %s. It is operational and awaiting cargo ships.
+The Mining Platform Ship from {Planet %s %s} has deployed on {Starmap %s %s %s}. It is operational and awaiting cargo ships.
 
 Regards,
 
-%s Mission Commander
+%s Commander

@@ -1,6 +1,6 @@
 Citizens Thirsty
 ~~~
-The lack of water on %s is driving the citizens mad. They were rioting in the streets today and even damaged the %s. If you don't do something soon, I'm afraid they'll do some real damage.
+The lack of water on {Planet %s %s} is driving the citizens mad. They were rioting in the streets today and even damaged the %s. If you don't do something soon, I'm afraid they'll do some real damage.
 
 Regards,
 

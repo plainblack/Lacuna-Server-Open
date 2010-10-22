@@ -1,5 +1,5 @@
 Invitation Withdrawn
 ~~~
-We have decided to withdraw the invitation for you to join %s.
+We have decided to withdraw the invitation for you to join {Alliance %s %s}.
 
 %s

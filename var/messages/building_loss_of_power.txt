@@ -1,6 +1,6 @@
 Loss of Power
 ~~~
-It seems that we are experiencing a loss of power at our %s on %s due to faulty transformer that caught on fire and nearly destroyed the building. Unfortunately, it will be offline until you approve a budget for repairs.
+It seems that we are experiencing a loss of power at our %s on {Planet %s %s} due to faulty transformer that caught on fire and nearly destroyed the building. Unfortunately, it will be offline until you approve a budget for repairs.
 
 Regards,
 

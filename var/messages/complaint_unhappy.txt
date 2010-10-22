@@ -1,6 +1,6 @@
 Civil Unrest
 ~~~
-The citizens of %s are really down, and could use some cheering up. Some have said building a Park would help. Others think more entertainment options would do the trick. I even heard one person advocating for additional types of foods. It doesn't really matter what you do, as long as you do something to make them happy. 
+The citizens of {Planet %s %s} are really down, and could use some cheering up. Some have said building a Park would help. Others think more entertainment options would do the trick. I even heard one person advocating for additional types of foods. It doesn't really matter what you do, as long as you do something to make them happy. 
 
 I probably don't need to remind you of the risks of unhappy citizens, but there are two big risks that I'll point out anyway:
 

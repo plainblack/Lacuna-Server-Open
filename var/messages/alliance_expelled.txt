@@ -1,6 +1,6 @@
 Expulsion
 ~~~
-Your membership in %s has been revoked.
+Your membership in {Alliance %s %s} has been revoked.
 
 %s
 

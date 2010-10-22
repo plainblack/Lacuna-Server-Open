@@ -34,16 +34,17 @@ sub arrive {
             $self->turn_around;
         }
         my $empire = $body->empire;
-        my $can = eval{$ministry->can_add_platform($self->foreign_body)};
+        my $foreign_body = $self->foreign_body;
+        my $can = eval{$ministry->can_add_platform($foreign_body)};
         if ($can && !$@) {
-            $ministry->add_platform($self->foreign_body)->update;
+            $ministry->add_platform($foreign_body)->update;
             $empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'mining_platform_deployed.txt',
-                params      => [$body->name, $self->foreign_body->name, $self->name],
+                params      => [$body->id, $body->name, $foreign_body->x, $foreign_body->y, $foreign_body->name, $self->name],
             );
             $self->delete;
-            my $type = ref $self->foreign_body;
+            my $type = ref $foreign_body;
             $type =~ s/^.*::(\w\d+)$/$1/;
             $empire->add_medal($type);
         }
@@ -52,7 +53,7 @@ sub arrive {
             $empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'cannot_deploy_mining_platform.txt',
-                params      => [$@->[1], $body->name, $self->name],
+                params      => [$@->[1], $foreign_body->x, $foreign_body->y, $foreign_body->name, $body->id, $body->name, $self->name],
             );
         }
     }

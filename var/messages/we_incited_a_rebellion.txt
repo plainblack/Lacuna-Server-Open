@@ -1,6 +1,6 @@
 Rebellion Started
 ~~~
-The leadership over at %s cannot be happy today. We were able to start a rebellion on %s, which cost them %s happiness.
+The leadership over at {Empire %s %s} cannot be happy today. We were able to start a rebellion on {Starmap %s %s %s}, which cost them %s happiness.
 
 More to come,
 

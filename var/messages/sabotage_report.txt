@@ -1,8 +1,8 @@
 Sabotage Report
 ~~~
-We just sabotaged a %s on %s.
+We just sabotaged a %s on {Starmap %s %s %s}.
 
 More to come,
 
-%s
+%s of {Planet %s %s}
 

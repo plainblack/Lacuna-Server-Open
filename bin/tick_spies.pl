@@ -18,7 +18,7 @@ my $start = time;
 out('Loading DB');
 our $db = Lacuna->db;
 
-out('Ticking planets');
+out('Ticking spies');
 my $spies = $db->resultset('Lacuna::DB::Result::Spies');
 while (my $spy = $spies->next) {
     out('Ticking '.$spy->name);
@@ -28,7 +28,7 @@ while (my $spy = $spies->next) {
         $spy->empire->send_predefined_message(
             tags        => ['Intelligence'],
             filename    => 'ready_for_assignment.txt',
-            params      => [$spy->name],
+            params      => [$spy->name, $spy->from_body->id, $spy->from_body->name],
         );
     }
 }

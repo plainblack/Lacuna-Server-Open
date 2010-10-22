@@ -1462,7 +1462,7 @@ sub spend_food {
         if (!$empire->skip_resource_warnings && $empire->university_level > 2 && !$empire->check_for_repeat_message('complaint_food_diversity')) {
             $empire->send_predefined_message(
                 filename    => 'complaint_food_diversity.txt',
-                params      => [$self->name],
+                params      => [$self->id, $self->name],
                 repeat_check=> 'complaint_food_diversity',
                 tags        => ['Alert'],
             );
@@ -1560,7 +1560,7 @@ sub add_waste {
         if (!$empire->skip_pollution_warnings && $empire->university_level > 2 && !$empire->check_for_repeat_message('complaint_pollution')) {
             $empire->send_predefined_message(
                 filename    => 'complaint_pollution.txt',
-                params      => [$self->name],
+                params      => [$self->id, $self->name],
                 repeat_check=> 'complaint_pollution',
                 tags        => ['Alert'],
             );
@@ -1590,7 +1590,7 @@ sub spend_waste {
             if ($building_name && !$empire->skip_resource_warnings) {
                 $empire->send_predefined_message(
                     filename    => 'complaint_lack_of_waste.txt',
-                    params      => [$building_name, $self->name, $building_name],
+                    params      => [$building_name, $self->id, $self->name, $building_name],
                     repeat_check=> 'complaint_lack_of_waste',
                     tags        => ['Alert'],
                 );
@@ -1619,7 +1619,7 @@ sub complain_about_lack_of_resources {
         if ($building_name && !$empire->skip_resource_warnings) {
             $empire->send_predefined_message(
                 filename    => 'complaint_lack_of_'.$resource.'.txt',
-                params      => [$self->name, $building_name],
+                params      => [$self->id, $self->name, $building_name],
                 repeat_check=> 'complaint_lack_of_'.$resource,
                 tags        => ['Alert'],
             );

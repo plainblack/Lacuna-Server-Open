@@ -115,7 +115,7 @@ sub burn_spy {
             $spy->empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'id_like_to_join_you.txt',
-                params      => [$empire->id, $empire->name, $spy->name],
+                params      => [$empire->id, $empire->name, $spy->name, $spy->on_body->id, $spy->on_body->name],
             );
         }
         else {

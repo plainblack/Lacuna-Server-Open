@@ -1,8 +1,8 @@
 Operative Executed
 ~~~
-For the crime of Espionage, %s has been found guilty and executed. See that no more of your people find their way to %s.
+For the crime of Espionage, %s of {Planet %s %s} has been found guilty and executed. See that no more of your people find their way to {Starmap %s %s %s}.
 
 Regards,
 
 Capital Crimes Division
-%s
+{Empire %s %s}

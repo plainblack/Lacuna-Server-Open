@@ -307,12 +307,12 @@ sub trigger_defense {
         $self->body->empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'ship_shot_down.txt',
-            params      => [$self->type_formatted, $body_attacked->name],
+            params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $self->body->id, $self->body->name],
         );
         $body_attacked->empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'we_shot_down_a_ship.txt',
-            params      => [$self->type_formatted, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
+            params      => [$self->type_formatted, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
         );
         $body_attacked->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
         $self->delete;
@@ -340,12 +340,12 @@ sub damage_building {
     $self->body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'our_ship_hit_building.txt',
-        params      => [$self->type_formatted, $body_attacked->name, $building->name],
+        params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $building->name],
     );
     $body_attacked->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'ship_hit_building.txt',
-        params      => [$self->type_formatted, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
+        params      => [$self->type_formatted, $building->name, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
     );
     $body_attacked->add_news(70, sprintf('An attack ship screamed out of the sky and damaged the %s on %s.',$building->name, $body_attacked->name));
     $self->delete;

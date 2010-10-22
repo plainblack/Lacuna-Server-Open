@@ -2,4 +2,4 @@ Good Bye!
 ~~~
 I refuse to be a part of a cause I no longer believe in. Consider this my resignation.
 
-%s
+%s formerly of {Planet %s %s}

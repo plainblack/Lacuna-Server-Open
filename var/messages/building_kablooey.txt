@@ -1,6 +1,6 @@
 Building Attacked
 ~~~
-Our level %s %s on %s has been sabotaged. No one so far is claiming responsibility.
+Our level %s %s on {Planet %s %s} has been sabotaged. No one so far is claiming responsibility.
 
 With Much Sadness,
 

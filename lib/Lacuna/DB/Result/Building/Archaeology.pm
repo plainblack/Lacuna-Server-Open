@@ -105,7 +105,7 @@ before finish_work => sub {
         $empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'glyph_discovered.txt',
-            params      => [$body->name, $ore],
+            params      => [$body->id, $body->name, $ore],
             attachments => {
                 image => {
                     title   => $ore,

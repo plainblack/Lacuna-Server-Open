@@ -1,6 +1,6 @@
 Invitation
 ~~~
-We would like to formally invite you to join %s.
+We would like to formally invite you to join {Alliance %s %s}.
 
 %s
 

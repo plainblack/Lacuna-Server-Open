@@ -1,6 +1,6 @@
 Ship Shot Down
 ~~~
-Our %s, on route to %s, was shot down before it could reach its target.
+Our %s, on route to {Starmap %s %s %s} from {Planet %s %s}, was shot down before it could reach its target.
 
 Regards,
 

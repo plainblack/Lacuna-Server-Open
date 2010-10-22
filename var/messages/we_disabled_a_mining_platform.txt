@@ -1,6 +1,6 @@
 Mining Platform Disabled
 ~~~
-We have shut down a mining platform on %s, which was controlled by %s.
+We have shut down a mining platform on {Starmap %s %s %s}, which was controlled by {Empire %s %s}.
 
 More to come,
 

@@ -38,7 +38,7 @@ sub arrive {
                 $empire->send_predefined_message(
                     tags        => ['Alert'],
                     filename    => 'cannot_colonize.txt',
-                    params      => [$planet->name, $planet->name],
+                    params      => [$planet->x, $planet->y, $planet->name, $planet->name],
                 );
             }
         }

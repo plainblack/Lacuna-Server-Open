@@ -1,6 +1,6 @@
 Mining Platform Lost
 ~~~
-I'm sorry to say we have lost contact with the mining platform on %s. Our technicians do not believe this is a recoverable situation.
+I'm sorry to say we have lost contact with the mining platform on {Starmap %s %s %s}. Our technicians do not believe this is a recoverable situation.
 
 Regards,
 

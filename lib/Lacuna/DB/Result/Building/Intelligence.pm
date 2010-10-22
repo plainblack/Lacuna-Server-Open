@@ -179,7 +179,7 @@ sub train_spy {
         $empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'training_accident.txt',
-            params      => [$self->body->name],
+            params      => [$self->body->id, $self->body->name],
         );
         $self->body->add_news(20,'A source inside %s confided that they lost a brave soul in a training accident today.', $empire->name);
     }

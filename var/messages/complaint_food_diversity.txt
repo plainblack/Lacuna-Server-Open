@@ -1,6 +1,6 @@
 Food Riot
 ~~~
-If something isn't done soon I think the citizens of %s are going to launch a full scale revolt. They are unsatisfied with the lack of food diversity available to them. And, I have to admit, I don't like eating the same thing for dinner every night either. 
+If something isn't done soon I think the citizens of {Planet %s %s} are going to launch a full scale revolt. They are unsatisfied with the lack of food diversity available to them. And, I have to admit, I don't like eating the same thing for dinner every night either. 
 
 You need to either trade for more types of food, or build a variety of farms and food processing plants. If you don't, your workers may just stop working all together. Then where would your empire be?
 

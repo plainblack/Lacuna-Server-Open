@@ -59,7 +59,7 @@ sub execute_prisoner {
         from        => $empire,
         tags        => ['Alert'],
         filename    => 'spy_executed.txt',
-        params      => [$prisoner->name, $body->name, $empire->name],
+        params      => [$prisoner->name, $prisoner->from_body->id, $prisoner->from_body->name, $body->x, $body->y, $body->name, $empire->id, $empire->name],
     );
     $prisoner->delete;
     return {
@@ -78,16 +78,17 @@ sub release_prisoner {
     unless (!$prisoner->is_available && $prisoner->task eq 'Captured' && $prisoner->on_body_id == $building->body_id) {
         confess [1010,'That person is not a prisoner.'];
     }
+    my $body = $building->body;
     $prisoner->task('Idle');
     $prisoner->available_on(DateTime->now);
     $prisoner->update;
     $prisoner->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'spy_released.txt',
-        params      => [$empire->name, $building->body->name, $prisoner->name],
+        params      => [$empire->id, $empire->name, $body->x, $body->y, $body->name, $prisoner->name, $prisoner->from_body->id, $prisoner->from_body->name],
     );
     return {
-        status                  => $self->format_status($empire, $building->body),
+        status                  => $self->format_status($empire, $body),
     }
 }
 
