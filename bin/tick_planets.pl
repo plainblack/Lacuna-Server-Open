@@ -19,8 +19,10 @@ out('Loading DB');
 our $db = Lacuna->db;
 
 out('Ticking planets');
-my $planets = $db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id   => {'>' => 0} });
-while (my $planet = $planets->next) {
+my $planets_rs = $db->resultset('Lacuna::DB::Result::Map::Body');
+my @planets = $planets_rs->search({ empire_id   => {'>' => 0} })->get_column('id')->all;
+foreach my $id (@planets) {
+    my $planet = $planets_rs->find($id);
     out('Ticking '.$planet->name);
     $planet->tick;
 }

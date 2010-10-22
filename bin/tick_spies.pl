@@ -20,7 +20,9 @@ our $db = Lacuna->db;
 
 out('Ticking spies');
 my $spies = $db->resultset('Lacuna::DB::Result::Spies');
-while (my $spy = $spies->next) {
+my @ids = $spies->get_column('id')->all;
+foreach my $id (@ids) {
+    my $spy = $spies->find($id);
     out('Ticking '.$spy->name);
     my $starting_task = $spy->task;
     $spy->is_available;
