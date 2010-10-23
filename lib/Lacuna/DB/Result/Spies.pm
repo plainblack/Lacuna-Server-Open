@@ -125,7 +125,7 @@ sub is_available {
             $self->empire->send_predefined_message(
                 tags        => ['Intelligence'],
                 filename    => 'must_have_been_knocked_out.txt',
-                params      => [$self->name],
+                params      => [$self->format_from],
             );
             return 1;
         }
