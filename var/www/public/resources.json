@@ -17,7 +17,7 @@
         "/volcano" : { "description" : "A natural source of ore.", "wiki" : "http://community.lacunaexpanse.com/wiki/volcano" },
         "/luxuryhousing" : { "description" : "Produces more happiness than the Entertainment District, but costs more too.", "wiki" : "http://community.lacunaexpanse.com/wiki/luxury-housing" },
         "/pilottraining" : { "description" : "Increases speed and stealth of new ships, and enables building Fighters.", "wiki" : "http://community.lacunaexpanse.com/wiki/pilot-training-facility" },
-        "/missioncommand" : { "description" : "Lists available missions in your zone.", "wiki" : "http://community.lacunaexpanse.com/wiki/mission-command" },
+        "/missioncommand" : { "description" : "Lists available missions in your zone. You can view one mission per level of the Mission Command.", "wiki" : "http://community.lacunaexpanse.com/wiki/mission-command" },
         "/cloakinglab" : { "description" : "Increases the stealth of new ships.", "wiki" : "http://community.lacunaexpanse.com/wiki/cloaking-lab" },
         "/munitionslab" : { "description" : "Enables you to build the Detonator, Snark, and Seeker robotic war ships.", "wiki" : "http://community.lacunaexpanse.com/wiki/munitions-lab" },
         "/crater" : { "description" : "Decoration for your planet.", "wiki" : "http://community.lacunaexpanse.com/wiki/crater" },
