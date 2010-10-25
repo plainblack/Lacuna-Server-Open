@@ -251,10 +251,11 @@ sub attach_invite_code {
         )->single;
         if (defined $invite) {
             if ($invite->invitee_id) {
-                $invite = $invite->copy({invitee_id => $self->id, email => $self->email});
+                $invite = $invite->copy({invitee_id => $self->id, email => $self->email, accept_date => DateTime->now});
             }
             else {
                 $invite->invitee_id($self->id);
+                $invite->accept_date(DateTime->now);
                 $invite->update;
             }
             Lacuna->cache->increment('friends_accepted', format_date(undef,'%F'), 1, 60 * 60 * 26);

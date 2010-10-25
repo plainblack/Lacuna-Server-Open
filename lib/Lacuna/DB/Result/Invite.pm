@@ -12,6 +12,8 @@ __PACKAGE__->add_columns(
     invitee_id              => { data_type => 'int', is_nullable => 1 },
     email                   => { data_type => 'varchar', size => 255, is_nullable => 1 },
     code                    => { data_type => 'varchar', size => 36, is_nullable => 0 },
+    invite_date             => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    accept_date             => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
 );
 
 __PACKAGE__->belongs_to('inviter', 'Lacuna::DB::Result::Empire', 'inviter_id');
