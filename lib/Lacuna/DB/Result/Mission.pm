@@ -24,50 +24,107 @@ has params => (
     },
 );
 
-sub format_objectives {
-    my $self = shift;
+sub check_objectives {
+    my ($self, $body) = @_;
     my $objectives = $self->params->get('mission_objective');
-    my @objectives;
     
     # essentia
-    push @objectives, sprintf('Provide %d essentia.', $objectives->{essentia}) if ($objectives->{essentia});
+    if (exists $objectives->{essentia}) {
+        if ($body->empire->essentia < $objectives->{essentia}) {
+            confess [1011, 'You do not have the essentia needed to complete this mission.'];
+        }
+    }
+    
+    # resources
+    if (exists $objectives->{resources}) {
+        foreach my $resource (keys %{$objectives->{resources}}) {
+            if ($body->type_stored($resource) < $objectives->{resources}{$resource}) {
+                confess [1011, 'You do not have the '.$resource.' needed to complete this mission.'];
+            }
+        }
+    }
+
+    # glyphs
+    if (exists $objectives->{glyphs}) {
+        foreach my $glyph (@{$objectives->{glyphs}}) {
+            unless ($body->glyphs->search({ type => $glyph })->count) {
+                confess [1011, 'You do not have the '.$glyph.' glyph needed to complete this mission.'];
+            }
+        }
+    }
+
+    # ships
+    if (exists $objectives->{ships}) {
+        foreach my $ship (@{$objectives->{ships}}) {
+            unless ($body->ships->search({ type => $ship->{type}, speed => {'>=' => $ship->{speed}}, stealth => {'>=' => $ship->{stealth}}, hold_size => {'>=' => $ship->{hold_size}} })->count) {
+                my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>$ship->{type}});
+                confess [1011, 'You do not have the '.$ship->type_formatted.' needed to complete this mission.'];
+            }
+        }
+    }
+
+    return 1;
+}
+
+sub format_objectives {
+    my $self = shift;
+    return $self->format_items($self->params->get('mission_objective'));
+}
+
+sub format_rewards {
+    my $self = shift;
+    return $self->format_items($self->params->get('mission_reward'));
+}
+
+sub format_items {
+    my ($self, $items) = @_;
+    my @items;
+    
+    # essentia
+    push @items, sprintf('Essentia: %d essentia.', $items->{essentia}) if ($items->{essentia});
     
     # resources
     my @resources;
-    foreach my $resource (keys %{ $objectives->{resources}}) {
-        push @resources, sprintf('%d %s', $objectives->{resources}{$resource});
+    foreach my $resource (keys %{ $items->{resources}}) {
+        push @resources, sprintf('%d %s', $items->{resources}{$resource});
     }
-    push @objectives, $self->format_list(@resources);
+    push @items, $self->format_list('Resources',@resources);
+    
+    # glyphs
+    push @items, $self->format_list('Glyphs',@{$items->{glyphs}});
     
     # ships
     my @ships;
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
-    foreach my $stats (@{ $objectives->{ships}}) {
+    foreach my $stats (@{ $items->{ships}}) {
         my $ship = $ships->new({type=>$stats->{type}});
         push @ships, sprintf('%s (speed: %d, stealth: %d, hold size: %d)', $ship->name, $stats->{speed}, $stats->{stealth}, $stats->{hold_size});
     }
-    push @objectives, $self->format_list(@ships);
+    push @items, $self->format_list('Ships',@ships);
 
     # plans
     my @plans;
-    foreach my $stats (@{ $objectives->{plans}}) {
-        push @plans, sprintf('%s (%s)', $stats);
+    foreach my $stats (@{ $items->{plans}}) {
+        my $level = $stats->{level};
+        if ($stats->{extra_build_level}) {
+            $level = '+'.$stats->{extra_build_level};
+        }
+        push @plans, sprintf('%s (%s)', $stats->{classname}->name, $level);
     }
-    push @objectives, $self->format_list(@plans);
+    push @items, $self->format_list('Plans',@plans);
 
-    
-    return \@objectives;
+    return \@items;
 }
 
 sub format_list {
-    my ($self, @list) = @_;
+    my ($self, $label, @list) = @_;
     my @out;
     if (scalar(@list) == 1) {
-        push @out, sprintf('Provide %s.', $list[0]);
+        push @out, sprintf($label.': %s.', $list[0]);
     }
     elsif (scalar(@list) > 1) {
         my $last = pop @list;
-        push @out, sprintf('Provide %s and %s', join(',', @list), $last);
+        push @out, sprintf($label.': %s and %s', join(',', @list), $last);
     }
     return @out;
 }

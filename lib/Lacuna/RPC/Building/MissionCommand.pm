@@ -13,16 +13,46 @@ sub model_class {
     return 'Lacuna::DB::Result::Building::MissionCommand';
 }
 
-sub missions {
-    my ($self) = @_;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Mission')->search({
-        zone                    => $self->body->zone,
-    },{
-        order_by   => 'date_posted',
-    });
+sub get_missions {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my @missions;
+    my $missions = $building->missions;
+    while (my $mission = $missions->next) {
+        next if $mission->params->max_university_level < $empire->university_level;
+        push @missions, {
+            id                      => $mission->id,
+            name                    => $mission->name,
+            description             => $mission->description,
+            objectives              => $mission->format_objectives,
+            rewards                 => $mission->format_rewards,
+            max_university_level    => $mission->max_university_level,
+            date_posted             => $mission->date_posted_formatted,
+        };
+    }
+    return {
+        status      => $self->format_status($empire, $building->body),
+        missions    => \@missions,
+    };
 }
 
+sub complete_mission {
+    my ($self, $session_id, $building_id, $mission_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    confess [1002, 'Please specify a mission id.'] unless $mission_id;
+    my $mission = $building->missions->find($mission_id);
+    my $body = $building->body;
+    $mission->check_objectives($body);
+    $mission->spend_objectives($body);
+    $mission->add_rewards($body);
+    return {
+        status      => $self->format_status($empire, $body),
+    }
+}
 
+__PACKAGE__->register_rpc_method_names(qw(get_missions complete_mission));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
