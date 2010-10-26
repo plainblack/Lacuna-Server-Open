@@ -15,13 +15,18 @@ sub www_default {
     unless (defined $empire) {
         confess [401, 'Empire not found.'];
     }
-    my $content = '
-           <!-- Envolve -->
-           <script type="text/javascript">envoSn='.Lacuna->config->get('envolve/Sn').'</script>
-           <script type="text/javascript" src="http://d.envolve.com/env.nocache.js"></script>
-           <input type="hidden" id="EnvolveDesiredFirstName" value="'.$empire->name.'">
-    ';
-    return $self->wrapper($content, { 
+    my $chat = Chat::Envolve->new(
+        api_key     => Lacuna->config->get('envolve/api_key'),
+        client_ip   => 'none',
+    );
+    my %params;
+    if ($empire->alliance_id) {
+        my $alliance = $empire->alliance;
+        if (defined $alliance) {
+            $params{last_name} = '('.$alliance->name.')';
+        }
+    }
+    return $self->wrapper($chat->get_tags($empire->name, %params), { 
         title       => 'Lacuna Expanse Chat', 
         head_tags   => '<meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">', 
         logo        => 1 
