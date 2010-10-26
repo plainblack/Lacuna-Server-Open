@@ -147,7 +147,8 @@ my $admin = builder {
     enable "Auth::Basic", authenticator => sub {
         my ($username, $password) = @_;
         return 0 unless $username;
-        my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $username, is_admin => 1});
+        my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $username, is_admin => 1},{rows=>1})->single;
+        return 0 unless defined $empire;
         return $empire->is_password_valid($password);
     };
     Lacuna::Web::Admin->new->to_app;
