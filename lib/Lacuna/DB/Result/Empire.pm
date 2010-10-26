@@ -67,6 +67,7 @@ __PACKAGE__->add_columns(
     skip_resource_warnings  => { data_type => 'tinyint', default_value => 0 },
     skip_happiness_warnings => { data_type => 'tinyint', default_value => 0 },
     skip_facebook_wall_posts => { data_type => 'tinyint', default_value => 0 },
+    is_admin                => { data_type => 'tinyint', default_value => 0 },
 );
 
 
@@ -75,6 +76,7 @@ sub sqlt_deploy_hook {
     $sqlt_table->add_index(name => 'idx_self_destruct', fields => ['self_destruct_active','self_destruct_date']);
     $sqlt_table->add_index(name => 'idx_password_recovery_key', fields => ['password_recovery_key']);
     $sqlt_table->add_index(name => 'idx_inactives', fields => ['last_login,','self_destruct_active']);
+    $sqlt_table->add_index(name => 'idx_admins', fields => ['name,','is_admin']);
 }
 
 

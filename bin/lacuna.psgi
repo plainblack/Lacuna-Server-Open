@@ -6,7 +6,6 @@ use Log::Log4perl;
 use Log::Any::Adapter;
 use Lacuna;
 use Plack::Builder;
-use Digest::SHA;
 
 
 $|=1;
@@ -148,8 +147,8 @@ my $admin = builder {
     enable "Auth::Basic", authenticator => sub {
         my ($username, $password) = @_;
         return 0 unless $username;
-        my $admins = Lacuna->config->get('admins');
-        return $admins->{$username} eq Digest::SHA::sha256_base64($password);
+        my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $username, is_admin => 1});
+        return $empire->is_password_valid($password);
     };
     Lacuna::Web::Admin->new->to_app;
 };

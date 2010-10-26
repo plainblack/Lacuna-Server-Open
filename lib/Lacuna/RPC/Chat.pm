@@ -21,6 +21,9 @@ sub get_commands {
             $params{last_name} = '('.$alliance->name.')';
         }
     }
+    if ($empire->is_admin) {
+        $params{is_admin} = 1;
+    }
     my $login = $chat->get_login_command($empire->name, %params);
     my $logout = $chat->get_logout_command;
     return { login_command => $login, logout_command => $logout, status => $self->format_status($empire) };
