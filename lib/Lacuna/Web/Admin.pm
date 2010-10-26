@@ -453,6 +453,22 @@ sub www_toggle_isolationist {
     return $self->www_view_empire($request, $id);
 }
 
+sub www_toggle_admin {
+    my ($self, $request, $id) = @_;
+    $id ||= $request->param('id');
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($id);
+    unless (defined $empire) {
+        confess [404, 'Empire not found.'];
+    }
+    if ($empire->is_admin) {
+        $empire->update({is_admin => 0});
+    }
+    else {
+        $empire->update({is_admin => 1});
+    }
+    return $self->www_view_empire($request, $id);
+}
+
 sub www_become_empire {
     my ($self, $request, $id) = @_;
     $id ||= $request->param('empire_id');
@@ -488,6 +504,7 @@ sub www_view_empire {
     $out .= sprintf('<tr><th>Description</th><td>%s</td><td></td></tr>', $empire->description);
     $out .= sprintf('<tr><th>University Level</th><td>%s</td><td></td></tr>', $empire->university_level);
     $out .= sprintf('<tr><th>Isolationist</th><td>%s</td><td><a href="/admin/toggle/isolationist?id=%s">Toggle</a></td></tr>', $empire->is_isolationist, $empire->id);
+    $out .= sprintf('<tr><th>Admin</th><td>%s</td><td><a href="/admin/toggle/admin?id=%s">Toggle</a></td></tr>', $empire->is_admin, $empire->id);
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/become/empire?empire_id=%s">Become This Empire In-Game</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/search/bodies?empire_id=%s">View All Colonies</a></li>', $empire->id);
