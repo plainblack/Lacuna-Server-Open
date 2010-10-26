@@ -10,8 +10,12 @@ use Chat::Envolve;
 sub get_commands {
     my ($self, $session_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
+    my $api_key = Lacuna->config->get('envolve/api_key');
+    unless ($api_key) {
+        return { login_command => 'noapikey', logout_command => 'noapikey', status => $self->format_status($empire) }
+    }
     my $chat = Chat::Envolve->new(
-        api_key     => Lacuna->config->get('envolve/api_key'),
+        api_key     => $api_key,
         client_ip   => 'none',
     );
     my %params;
