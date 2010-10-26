@@ -35,7 +35,7 @@ sub get_commands {
 
 
 __PACKAGE__->register_rpc_method_names(
-    qw(find view_profile),
+    qw(get_commands),
 );
 
 
