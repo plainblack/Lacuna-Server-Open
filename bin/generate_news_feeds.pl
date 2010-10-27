@@ -5,6 +5,7 @@ use Lacuna;
 use XML::FeedPP;
 use DateTime;
 use Net::Amazon::S3;
+use Encode;
 
 my $config = Lacuna->config;
 my $db = Lacuna->db;
@@ -35,7 +36,7 @@ foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map
         while (my $story = $rs->next) {
 	    say $story->headline;
             my $item = $feed->add_item;
-            $item->title($story->headline);
+            $item->title(encode("UTF-8",$story->headline));
             $item->pubDate($story->date_posted);
         }
         say "Uploading...";
