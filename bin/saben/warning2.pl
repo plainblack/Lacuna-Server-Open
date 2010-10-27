@@ -6,6 +6,7 @@ use Lacuna;
 use Lacuna::Util qw(randint format_date);
 use Getopt::Long;
 use List::MoreUtils qw(uniq);
+use utf8;
 $|=1;
 our $quiet;
 GetOptions(
@@ -25,32 +26,22 @@ out('getting empires...');
 my $saben = $empires->find(-1);
 my $lec = $empires->find(1);
 
-
-out('Send Network 19 messages....');
-$saben->home->add_news(200, '$%^#%^#!%~!~!*::::::::........');
-sleep 1;
-$saben->home->add_news(200, 'We are Sābēn. You have violated our Demesne. You have seven days to vacate or perish.');
-sleep 1;
-$saben->home->add_news(200, '^#%$$^#!%~!~:::::::........');
-sleep 1;
-$saben->home->add_news(200, 'We are sorry for that unscheduled interruption. We at Network 19 do not endorse the previous transmission.');
-
 out('Sending warning...');
-my $message = q{I hoped to provide you with more warning, but I must tell you now that war is upon us. We were able to destroy one Sābēn foothold colony in zone 0|0, but our intelligence indicates that there is at least one more and we do not know its location or even which zone it is in. 
+my $message = q{Our recon teams have spotted a fleet of over 50 colony ships leaving the Sābēn staging colony in fringe space. It looks like they should reach the center of the Expanse in about a week, two at the most. We have no idea if there will be more, or if more have already left before we discovered that the Sābēn were back. This is far worse than we thought it would be. 
 
-You have no doubt seen the messages that Sābēn have broadcast on Network 19. We aren't sure how they have penetrated our broadcast system, but if they are able to do that, who knows what else they have access to, including your systems?
+We still are unsure what their plan of attack is, but we do know that it is more bold than anything we expected. We thought they'd start a single point of attack and push forward. However, the colony ships seem to be spreading out. Their current trajectory indicates that they will cover many zones at once. Maybe as much as -2|-1 to 2|3.
 
-They will start by testing the strongest among us. When they have figured out our weaknesses, they will exploit them and attempt to destroy us. When we are gone they will either destroy or enslave the weak. Our only hope is to locate their foothold colonies, capture their spies, destroy their supply lines, and ultimately demoralize their people. If we can do that, they will retreat, at least for a while.
+This tactic means that we won't be able to defend you. We simply do not have the ships or the ship building capabilitiy to cover so much area. You and your allies will have to defend each other. I wish I had better news, however, we'll still be happy to supply you with resources for all your ship building needs. You do still have that Subspace Transporter I gave you, right?
 
-Good Luck,
+Your Trading Partner,
 
 Tou Re Ell
-
 Lacuna Expanse Corp};
+$empires = $empires->search({tutorial_stage => 'turing'});
 while (my $empire = $empires->next) {
     $empire->send_message(
         tag         => 'Correspondence',
-        subject     => 'War Is Upon Us',
+        subject     => 'Ships Spotted',
         from        => $lec,
         body        => $message,
     );
