@@ -380,7 +380,7 @@ sub go_to_jail {
     return $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'spy_captured.txt',
-        params      => [$self->on_body->name, $self->name],
+        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from],
     );
 }
 
