@@ -4,11 +4,15 @@ use Lacuna::DB;
 use Lacuna;
 use XML::FeedPP;
 use DateTime;
-use SOAP::Amazon::S3;
+use Net::Amazon::S3;
 
 my $config = Lacuna->config;
 my $db = Lacuna->db;
-my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
+my $s3 = Net::Amazon::S3->new(
+    aws_access_key_id     => $config->get('access_key'), 
+    aws_secret_access_key => $config->get('secret_key'),
+    retry                 => 1,
+    );
 my $bucket = $s3->bucket($config->get('feeds/bucket'));
 my $news_domain = $db->resultset('Lacuna::DB::Result::News');
 foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map_size/x')->[1]/250)) {
@@ -34,11 +38,18 @@ foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map
             $item->title($story->headline);
             $item->pubDate($story->date_posted);
         }
-        my $object = $bucket->putobject(Lacuna::DB::Result::News->feed_filename($zone), $feed->to_string, { 'Content-Type' => 'application/rss+xml' });
-        $object->acl('public');
+        say "Uploading...";
+        $bucket->add_key(
+            Lacuna::DB::Result::News->feed_filename($zone),
+            $feed->to_string,
+            {
+                'Content-Type'  => 'application/rss+xml',
+                 acl_short       => 'public-read',
+            }
+        );
     }
 }
 
-
+say "Finished!";
 
 
