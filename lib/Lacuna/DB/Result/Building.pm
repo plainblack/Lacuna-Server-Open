@@ -604,6 +604,7 @@ sub demolish {
 
 sub can_downgrade {
     my $self = shift;
+    confess [1013, 'This building is currently upgrading.'] if $self->is_upgrading;
     return 1;
 }
 
