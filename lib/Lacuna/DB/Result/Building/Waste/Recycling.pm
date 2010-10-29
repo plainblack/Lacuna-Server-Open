@@ -40,7 +40,7 @@ sub can_recycle {
     if (($water + $ore + $energy) > $self->body->waste_stored) {
         confess [1011, "You don't have that much waste in storage.", [($water + $ore + $energy), $self->body->waste_stored]];
     }
-    if (defined $use_essentia && $use_essentia && !$self->body->empire->essentia >= 2) {
+    if (defined $use_essentia && $use_essentia && $self->body->empire->essentia < 2) {
         confess [1011, "You don't have enough essentia to subsidize recycling."];
     }
     if (($water + $ore + $energy) > $self->max_recycle) {
