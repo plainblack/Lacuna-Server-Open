@@ -1536,7 +1536,7 @@ sub spend_happiness {
         elsif (!$empire->skip_happiness_warnings && !$empire->check_for_repeat_message('complaint_unhappy')) {
             $empire->send_predefined_message(
                 filename    => 'complaint_unhappy.txt',
-                params      => [$self->name],
+                params      => [$self->id, $self->name],
                 repeat_check=> 'complaint_unhappy',
                 tags        => ['Alert'],
             );
