@@ -52,7 +52,7 @@ sub view_available_trades {
             offer_description       => $trade->offer_description,
             offer_type              => $trade->offer_sub_type,
             offer_quantity          => $trade->offer_quantity,
-            body_id                 => {
+            body                 => {
                 id      => $trade->body_id,
             },
             empire                  => {
