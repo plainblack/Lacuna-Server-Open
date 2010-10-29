@@ -33,6 +33,7 @@ sub arrive {
             params      => [$self->foreign_star->x, $self->foreign_star->y, $self->foreign_star->name, $self->body->empire_id, $self->body->empire->name],
         );
         $count++;
+        $probe->delete;
     }
     $self->body->empire->send_predefined_message(
         tags        => ['Alert'],
