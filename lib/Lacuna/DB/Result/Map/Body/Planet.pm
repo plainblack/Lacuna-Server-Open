@@ -120,7 +120,7 @@ around get_status => sub {
         $out->{empire} = {
             name            => $self->empire->name,
             id              => $self->empire_id,
-            alignment       => 'hostile',
+            alignment       => $self->empire->is_isolationist ? 'hostile-isolationist' : 'hostile',
             is_isolationist => $self->empire->is_isolationist,
         };
         if (defined $empire) {
@@ -171,7 +171,7 @@ around get_status => sub {
                 $out->{happiness_hour}  = $self->happiness_hour;
             }
             elsif ($empire->alliance_id && $self->empire->alliance_id == $empire->alliance_id) {
-                $out->{empire}{alignment} = 'ally';
+                $out->{empire}{alignment} = $self->empire->is_isolationist ? 'ally-isolationist' : 'ally';
             }
         }
     }
