@@ -28,7 +28,7 @@ sub image_level {
 
 sub name {
     my ($self) = @_;
-    if ($self->isa('Lacuna::DB::Result::Building') && $self->can('is_working') && $self->is_working) {
+    if ($self->in_storage && $self->is_working) {
         return 'Smoldering Crater';
     }
     return 'Crater';
