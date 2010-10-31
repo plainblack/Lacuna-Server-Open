@@ -174,6 +174,7 @@ sub train_spy {
         if ($count < $self->level) {
             $self->body->add_news(20,'A source inside %s admitted that they are underprepared for the threats they face.', $empire->name);
         }
+        $self->start_work({}, $available_on->epoch - time())->update;
     }
     else {
         $empire->send_predefined_message(
