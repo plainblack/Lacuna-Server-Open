@@ -121,6 +121,7 @@ sub build_ship {
     $ship->date_available($date_completed);
     $ship->date_started(DateTime->now);
     $ship->insert;
+    $self->start_work({}, $date_completed->epoch - time())->update;
     return $ship;
 }
 
