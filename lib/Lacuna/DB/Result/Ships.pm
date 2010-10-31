@@ -12,6 +12,7 @@ __PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('ships');
 __PACKAGE__->add_columns(
     body_id                 => { data_type => 'int', size => 11, is_nullable => 0 },
+    shipyard_id             => { data_type => 'int', size => 11, is_nullable => 0 },
     date_started            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     date_available          => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     type                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # probe, colony_ship, spy_pod, cargo_ship, space_station, smuggler_ship, mining_platform_ship, terraforming_platform_ship, gas_giant_settlement_platform_ship
