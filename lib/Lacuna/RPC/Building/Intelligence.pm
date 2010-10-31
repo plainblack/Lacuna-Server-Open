@@ -174,7 +174,14 @@ sub train_spy {
         status  => $self->format_status($empire, $body),
         trained => $trained,
         not_trained => $quantity - $trained,
-    }
+        building                    => {
+            work        => {
+                seconds_remaining   => $building->work_seconds_remaining,
+                start               => $building->work_started_formatted,
+                end                 => $building->work_ends_formatted,
+            },
+        },
+    },
 }
 
 around 'view' => sub {

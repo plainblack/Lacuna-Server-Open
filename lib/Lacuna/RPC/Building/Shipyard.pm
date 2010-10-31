@@ -38,6 +38,13 @@ sub view_build_queue {
         number_of_ships_building    => $number_of_ships,
         ships_building              => \@building,
         cost_to_subsidize           => $number_of_ships,
+        building                    => {
+            work        => {
+                seconds_remaining   => $building->work_seconds_remaining,
+                start               => $building->work_started_formatted,
+                end                 => $building->work_ends_formatted,
+            },
+        },
     };
 }
 
