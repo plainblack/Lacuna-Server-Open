@@ -48,9 +48,7 @@ sub subsidize_build_queue {
     my $building = $self->get_building($empire, $building_id);
     my $body = $building->body;
 
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        { body_id => $body->id, task => 'Building' }
-        );
+    my $ships = $building->building_ships;
 
     my $cost = $ships->count;
     unless ($empire->essentia >= $cost) {

@@ -65,6 +65,7 @@ sub can_build_ship {
         confess [1002, 'That is an unknown ship type.'];
     }
     $ship->body_id($self->body_id);
+    $ship->shipyard_id($self->id);
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     $costs ||= $self->get_ship_costs($ship);
     if ($ship->type ~~ [qw(space_station)]) {
@@ -95,6 +96,11 @@ sub can_build_ship {
     return 1;
 }
 
+sub building_ships {
+    my $self = shift;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ shipyard_id => $self->id, task => 'Building' });
+}
+
 
 sub build_ship {
     my ($self, $ship, $time) = @_;
@@ -102,14 +108,12 @@ sub build_ship {
     my $name = $ship->type_formatted . ' '. $self->level;
     $ship->name($name);
     $ship->body_id($self->body_id);
+    $ship->shipyard_id($self->id);
     $self->set_ship_speed($ship);
     $self->set_ship_hold_size($ship);
     $self->set_ship_stealth($ship);
     $time ||= $self->get_ship_costs($ship)->{seconds};
-    my $latest = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        { body_id => $self->body_id, task => 'Building' },
-        { order_by    => { -desc => 'date_available' }, rows=>1},
-        )->single;
+    my $latest = $self->building_ships->search(undef, { order_by    => { -desc => 'date_available' }, rows => 1})->single;
     my $date_completed;
     if (defined $latest) {
         $date_completed = $latest->date_available->clone;
