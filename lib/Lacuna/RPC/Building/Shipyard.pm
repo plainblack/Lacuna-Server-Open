@@ -63,6 +63,7 @@ sub subsidize_build_queue {
     while (my $ship = $ships->next) {
         $ship->finish_construction;
     }
+    $building->finish_work->update;
  
     return $self->view($empire, $building);
 }
