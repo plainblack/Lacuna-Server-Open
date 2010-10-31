@@ -26,7 +26,13 @@ sub image_level {
     return $self->image.'1';
 }
 
-use constant name => 'Crater';
+sub name {
+    my ($self) = @_;
+    if ($self->is_working) {
+        return 'Smoldering Crater';
+    }
+    return 'Crater';
+}
 
 use constant time_to_build => 0;
 
