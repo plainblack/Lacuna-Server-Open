@@ -67,7 +67,8 @@ sub subsidize_training {
         $spy->task('Idle');
         $spy->update;
     }
- 
+    $building->finish_work->update;
+
     return $self->view($empire, $building);
 }
 
