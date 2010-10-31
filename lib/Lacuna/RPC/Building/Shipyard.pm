@@ -99,11 +99,6 @@ sub get_buildable {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my %buildable;
-    my $docks;
-    my $ports = $building->body->get_buildings_of_class('Lacuna::DB::Result::Building::SpacePort');
-    while (my $port = $ports->next) {
-        $docks += $port->docks_available;
-    }
     foreach my $type (SHIP_TYPES) {
         my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>$type});
         my @tags = $ship->build_tags;
@@ -124,7 +119,16 @@ sub get_buildable {
             type_human  => $ship->type_formatted,
         };
     }
-    return { buildable=>\%buildable, docks_available=>$docks, status=>$self->format_status($empire, $building->body)};
+    my $docks = 0;
+    my $port = $building->body->spaceport;
+    if (defined $port) {
+        $docks = $port->docks_available;
+    }
+    return {
+        buildable       => \%buildable,
+        docks_available => $docks,
+        status          => $self->format_status($empire, $building->body),
+        };
 }
 
 
