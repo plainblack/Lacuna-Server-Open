@@ -63,6 +63,7 @@ sub arrive {
 sub can_send_to_target {
     my ($self, $target) = @_;
     confess [1009, 'Can only be sent to planets.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet'));
+    confess [1009, 'Can only be sent to habitable planets.'] if ($target->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant'));
     confess [1013, 'Can only be sent to uninhabited planets.'] if ($target->empire_id);
 }
 
