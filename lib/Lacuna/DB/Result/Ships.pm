@@ -330,22 +330,37 @@ sub trigger_defense {
 sub damage_building {
     my ($self, $building) = @_;
     my $body_attacked = $self->foreign_body;
-    $building ||= Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
+    my $buildings = Lacuna->db->resultset('Lacuna::DB::Result::Building');
+    $building ||= $buildings->search(
         { body_id => $self->foreign_body_id },
         {order_by => { -desc => 'efficiency'}, rows=>1}
         )->single;
     $building->body($body_attacked);
-    $building->spend_efficiency(randint(5,35));
-    $building->update;
+    my $amount = randint(10,70);
+    my $citadel = $buildings->search({class=>'Lacuna::DB::Result::Building::Permanent::Citadel'},{rows=>1})->single;
+    if (defined $citadel) {
+        if ($citadel->level == 1) {
+            $citadel->delete;
+        }
+        else {
+            $citadel->level($citadel->level - 1);
+            $citadel->update;
+        }
+        $building = $citadel;
+    }
+    else {
+        $building->spend_efficiency($amount);
+        $building->update;
+        $body_attacked->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'ship_hit_building.txt',
+            params      => [$self->type_formatted, $building->name, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
+        );
+    }
     $self->body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'our_ship_hit_building.txt',
-        params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $building->name],
-    );
-    $body_attacked->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'ship_hit_building.txt',
-        params      => [$self->type_formatted, $building->name, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
+        params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $building->name, $amount],
     );
     $body_attacked->add_news(70, sprintf('An attack ship screamed out of the sky and damaged the %s on %s.',$building->name, $body_attacked->name));
     $self->delete;
