@@ -300,11 +300,15 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<Cider>
 
+=item L<CitadelOfKnope>
+
 =item L<CloakingLab>
 
 =item L<Corn>
 
 =item L<CornMeal>
+
+=item L<CrashedShipSite>
 
 =item L<Crater>
 

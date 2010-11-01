@@ -57,6 +57,8 @@ $urlmap->map(Lacuna::RPC::Building::OracleOfAnid->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::TempleOfTheDrajilites->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::GeoThermalVent->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::InterDimensionalRift->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::CitadelOfKnope->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::CrashedShipSite->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::KalavianRuins->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Grove->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Sand->new->to_app_with_url);

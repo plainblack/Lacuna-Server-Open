@@ -946,6 +946,8 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Permanent::GeoThermalVent' => 'Lacuna::DB::Result::Building::Permanent::GeoThermalVent',
         'Lacuna::DB::Result::Building::Permanent::InterDimensionalRift' => 'Lacuna::DB::Result::Building::Permanent::InterDimensionalRift',
         'Lacuna::DB::Result::Building::Permanent::KalavianRuins' => 'Lacuna::DB::Result::Building::Permanent::KalavianRuins',
+        'Lacuna::DB::Result::Building::Permanent::CrashedShipSite' => 'Lacuna::DB::Result::Building::Permanent::CrashedShipSite',
+        'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope' => 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope',
         'Lacuna::DB::Result::Building::Permanent::EssentiaVein' => 'Lacuna::DB::Result::Building::Permanent::EssentiaVein',
         'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform' => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform',
         'Lacuna::DB::Result::Building::Permanent::Lake' => 'Lacuna::DB::Result::Building::Permanent::Lake',
