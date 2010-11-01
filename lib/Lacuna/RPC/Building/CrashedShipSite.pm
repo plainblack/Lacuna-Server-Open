@@ -1,4 +1,4 @@
-package Lacuna::RPC::Building::CitadelOfKnope;
+package Lacuna::RPC::Building::CrashedShipSite;
 
 use Moose;
 use utf8;
@@ -6,11 +6,11 @@ no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 
 sub app_url {
-    return '/citadelofknope';
+    return '/crashedshipsite';
 }
 
 sub model_class {
-    return 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope';
+    return 'Lacuna::DB::Result::Building::Permanent::CrashedShipSite';
 }
 
 no Moose;
