@@ -171,6 +171,15 @@ has cloaking_lab => (
     },
 );
 
+has crashed_ship_site => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::CrashedShipSite');
+    },
+);
+
 has pilot_training_facility => (
     is      => 'rw',
     lazy    => 1,
@@ -202,8 +211,9 @@ sub set_ship_speed {
     my ($self, $ship) = @_;
     my $base_speed = $ship->base_speed;
     my $propulsion_level = (defined $self->propulsion_factory) ? $self->propulsion_factory->level : 0;
+    my $css_level = (defined $self->crashed_ship_site) ? $self->crashed_ship_site->level : 0;
     my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 0;
-    my $speed_improvement = ($ptf * 3) + ($propulsion_level * 5) + ($self->body->empire->science_affinity * 3);
+    my $speed_improvement = ($ptf * 3) + ($propulsion_level * 5) + ($css_level * 5) + ($self->body->empire->science_affinity * 3);
     $ship->speed(sprintf('%.0f', $base_speed * ((100 + $speed_improvement) / 100)));
     return $ship->speed;
 }
@@ -211,8 +221,12 @@ sub set_ship_speed {
 sub set_ship_hold_size {
     my ($self, $ship) = @_;
     my $trade_ministry_level = (defined $self->trade_ministry) ? $self->trade_ministry->level : 0;
+    my $css_level = (defined $self->crashed_ship_site) ? $self->crashed_ship_site->level : 0;
     my $bonus = $self->body->empire->trade_affinity * $trade_ministry_level;
-    $ship->hold_size(sprintf('%.0f', $ship->base_hold_size * $bonus));
+    my $css_bonus = (defined $self->crashed_ship_site) ? 1 + ($self->crashed_ship_site->level * 0.05) : 1;
+    my $hold_size = $ship->base_hold_size * $bonus;
+    $hold_size *= $css_bonus;
+    $ship->hold_size(sprintf('%.0f', $hold_size));
     return $ship->hold_size;
 }
 
@@ -221,7 +235,10 @@ sub set_ship_stealth {
     my $cloaking_level = (defined $self->cloaking_lab) ? $self->cloaking_lab->level : 1;
     my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 1;
     my $bonus = $self->body->empire->deception_affinity * $cloaking_level * $ptf;
-    $ship->stealth(sprintf('%.0f', $ship->base_stealth + $bonus));
+    my $css_bonus = (defined $self->crashed_ship_site) ? 1 + ($self->crashed_ship_site->level * 0.05) : 1;
+    my $stealth = $ship->base_stealth + $bonus;
+    $stealth *= $css_bonus;
+    $ship->stealth(sprintf('%.0f', $stealth));
     return $ship->stealth;
 }
 
