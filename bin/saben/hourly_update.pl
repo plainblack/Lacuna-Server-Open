@@ -75,7 +75,7 @@ sub repair_buildings {
                 say "repaired";
             }
             else {
-                say $@;
+                say $@->[1];
             }
         }
         else {
@@ -114,7 +114,7 @@ sub train_spies {
         say "Spy trained.";
     }
     else {
-        say $@;
+        say $@->[1];
     }
 }
 
@@ -151,7 +151,7 @@ sub build_ships {
                 $shipyard->build_ship($ship, $costs->{seconds});
             }
             else {
-                say $@;
+                say $@->[1];
             }
         }
         else {
