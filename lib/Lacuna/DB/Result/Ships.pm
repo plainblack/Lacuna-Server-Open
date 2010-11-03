@@ -353,7 +353,7 @@ sub damage_building {
     );
     $body_attacked->add_news(70, sprintf('An attack ship screamed out of the sky and damaged the %s on %s.',$building->name, $body_attacked->name));
     if (defined $citadel) {
-        if ($citadel->level == 1) {
+        if ($citadel->level < 2) {
             $citadel->delete;
         }
         else {
