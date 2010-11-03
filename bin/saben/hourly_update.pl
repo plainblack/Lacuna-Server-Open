@@ -116,13 +116,13 @@ sub build_ships {
     my $shipyard = $shipyard2;
     foreach my $priority (@priorities) {
         my $count = $ships->search({body_id => $colony->id, type => $priority->[0]})->count;
-        if ($shipyard->id == $shipyard1->id) {
-            $shipyard = $shipyard2;
-        }
-        else {
-            $shipyard = $shipyard1;
-        }
         if ($count < $priority->[1]) {
+            if ($shipyard->id == $shipyard1->id) {
+                $shipyard = $shipyard2;
+            }
+            else {
+                $shipyard = $shipyard1;
+            }
             my $ship = $ships->new({type => $priority->[0]});
             my $costs = $shipyard->get_ship_costs($ship);
             if (eval{$shipyard->can_build_ship($ship, $costs)}) {
