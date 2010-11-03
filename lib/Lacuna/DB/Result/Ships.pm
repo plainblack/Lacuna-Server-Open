@@ -21,7 +21,7 @@ __PACKAGE__->add_columns(
     speed                   => { data_type => 'int', size => 11, is_nullable => 0 },
     stealth                 => { data_type => 'int', size => 11, is_nullable => 0 },
     hold_size               => { data_type => 'int', size => 11, is_nullable => 0 },
-    payload                 => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
+    payload                 => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
     roundtrip               => { data_type => 'bit', default_value => 0 },
     direction               => { data_type => 'varchar', size => 3, is_nullable => 0 }, # in || out
     foreign_body_id         => { data_type => 'int', size => 11, is_nullable => 1 },

@@ -16,7 +16,7 @@ __PACKAGE__->add_columns(
     ask_description         => { data_type => 'varchar', size => 30, is_nullable => 0 }, # 100 Corn, 500 Bauxite
     ask_type                => { data_type => 'varchar', size => 11, is_nullable => 0 }, # ore, bauxite, water, energy, food, waste, essentia
     ask_quantity            => { data_type => 'int', size => 11, default_value => 1 },
-    payload                 => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
+    payload                 => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
     offer_cargo_space_needed=> { data_type => 'int', size => 11, default_value => 0 },
     offer_description       => { data_type => 'varchar', size => 100, is_nullable => 0 }, # 1000 Corn, Empire Name Prisoner, Colony Ship (Speed: 12, Cargo: 0), etc
     offer_object_id         => { data_type => 'int', size => 11, is_nullable => 1 }, 

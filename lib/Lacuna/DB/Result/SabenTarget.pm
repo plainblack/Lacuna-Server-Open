@@ -4,7 +4,7 @@ use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 
-__PACKAGE__->table('mission');
+__PACKAGE__->table('saben_target');
 __PACKAGE__->add_columns(
     target_empire_id        => { data_type => 'int', is_nullable => 0 },
     saben_colony_id        => { data_type => 'int', is_nullable => 0 },

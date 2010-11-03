@@ -23,7 +23,7 @@ __PACKAGE__->add_columns(
     work_started    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     work_ends       => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     is_working      => { data_type => 'bit', default => 0 },
-    work            => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
+    work            => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
     efficiency      => { data_type => 'int', default_value => 100, is_nullable => 0 },
 );
 

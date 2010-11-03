@@ -54,7 +54,7 @@ out('Setting target...');
 $db->resultset('Lacuna::DB::Result::SabenTarget')->new({
     saben_colony_id     => $body->id,
     target_empire_id    => $target_player->id,
-});
+})->insert;
 
 
 out('Placing structures on '.$body->name);

@@ -12,7 +12,7 @@ __PACKAGE__->add_columns(
     object_id               => { data_type => 'int', is_nullable => 0 },
     body_id                 => { data_type => 'int', is_nullable => 0 },
     message                 => { data_type => 'varchar', size=>255, is_nullable => 0 },
-    data                    => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
+    data                    => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
 );
 
 

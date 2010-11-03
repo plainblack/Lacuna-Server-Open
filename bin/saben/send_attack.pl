@@ -39,6 +39,7 @@ while (my $colony = $colonies->next) {
         next;
     }
     # check existing target, switch if needed
+    # determine closest colony of target
     # check if a probe exists, if not cancel attack
     # send ships
 }

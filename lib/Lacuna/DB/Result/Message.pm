@@ -17,12 +17,12 @@ __PACKAGE__->add_columns(
     from_name       => { data_type => 'varchar', size => 30, is_nullable => 0 },
     to_id           => { data_type => 'int', size => 11, is_nullable => 1 },
     to_name         => { data_type => 'varchar', size => 30, is_nullable => 0 },
-    recipients      => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
+    recipients      => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
     tag             => { data_type => 'varchar', size => 15, is_nullable => 1 },
     has_read        => { data_type => 'tinyint', default_value => 0, is_nullable => 0 },
     has_replied     => { data_type => 'tinyint', default_value => 0, is_nullable => 0 },
     has_archived    => { data_type => 'tinyint', default_value => 0, is_nullable => 0 },
-    attachments     => { data_type => 'mediumtext', is_nullable => 1, 'serializer_class' => 'JSON' },
+    attachments     => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
     repeat_check    => { data_type => 'varchar', size => 30, is_nullable => 1 },
 );
 
