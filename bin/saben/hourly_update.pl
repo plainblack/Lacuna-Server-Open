@@ -31,6 +31,7 @@ out('Looping through colonies...');
 my $colonies = $saben->planets;
 while (my $colony = $colonies->next) {
     next if $colony->id == $saben->home_planet_id;
+    out('Colony: '.$colony->name);
     set_defenders($colony);
     burn_captured_spies($colony);
     train_spies($colony);
@@ -53,6 +54,7 @@ out((($finish - $start)/60)." minutes have elapsed");
 
 sub burn_captured_spies {
     my $colony = shift;
+    out('Burning captured spies...');
     my $captured_spies = $spies->search({from_body_id => $colony->id, on_body_id => {'!=', $colony->id}, task=>'Captured'});
     while (my $spy = $captured_spies->next) {
         $spy->burn;
@@ -61,6 +63,7 @@ sub burn_captured_spies {
 
 sub repair_buildings {
     my $colony = shift;
+    out('Repairing damaged buildings...');
     my $buildings = $colony->buildings;
     while (my $building = $buildings->next) {
         if ($building->efficiency < 100) {
@@ -74,6 +77,7 @@ sub repair_buildings {
 
 sub run_missions {
     my $colony = shift;
+    out('Running missions...');
     my @missions = ('Sabotage Infrastructure','Sabotage Resources','Hack Network 19','Incite Mutiny','Assassinate Operatives','Incite Rebellion');
     my $mission = $missions[rand @missions];
     my $infiltrated_spies = $spies->search({from_body_id => $colony->id, on_body_id => {'!=', $colony->id}});
@@ -86,6 +90,7 @@ sub run_missions {
 
 sub train_spies {
     my $colony = shift;
+    out('Training spies...');
     my $intelligence = $colony->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
     my $costs = $intelligence->training_costs;
     if (eval{$intelligence->can_train_spy($costs)}) {
@@ -96,6 +101,7 @@ sub train_spies {
 
 sub build_ships {
     my $colony = shift;
+    out('Building ships...');
     my $shipyards = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard');
     my $shipyard1 = $shipyards->next;
     my $shipyard2 = $shipyards->next;
@@ -110,7 +116,7 @@ sub build_ships {
     my $shipyard = $shipyard2;
     foreach my $priority (@priorities) {
         my $count = $ships->search({body_id => $colony->id, type => $priority->[0]})->count;
-        if ($shipyard->id = $shipyard1->id) {
+        if ($shipyard->id == $shipyard1->id) {
             $shipyard = $shipyard2;
         }
         else {
@@ -120,6 +126,7 @@ sub build_ships {
             my $ship = $ships->new({type => $priority->[0]});
             my $costs = $shipyard->get_ship_costs($ship);
             if (eval{$shipyard->can_build_ship($ship, $costs)}) {
+                say $ship->type_formatted;
                 $shipyard->spend_resources_to_build_ship($costs);
                 $shipyard->build_ship($ship, $costs->{seconds});
             }
@@ -129,6 +136,7 @@ sub build_ships {
 
 sub set_defenders {
     my $colony = shift;
+    out('Setting defenders...');
     my $local_spies = $spies->search({from_body_id => $colony->id, on_body_id => $colony->id});
     my $count = 0;
     while (my $spy = $local_spies->next) {
