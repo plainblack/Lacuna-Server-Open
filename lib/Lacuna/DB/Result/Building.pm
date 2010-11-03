@@ -52,7 +52,7 @@ sub build_tags {
 
 use constant min_orbit => 1;
 
-use constant max_orbit => 7;
+use constant max_orbit => 8;
 
 use constant building_prereq => {};
 
