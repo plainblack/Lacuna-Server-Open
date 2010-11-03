@@ -57,6 +57,7 @@ sub burn_captured_spies {
     out('Burning captured spies...');
     my $captured_spies = $spies->search({from_body_id => $colony->id, on_body_id => {'!=', $colony->id}, task=>'Captured'});
     while (my $spy = $captured_spies->next) {
+        say "+";
         $spy->burn;
     }
 }
@@ -70,7 +71,14 @@ sub repair_buildings {
             my $costs = $building->get_repair_costs;
             if (eval{$building->can_repair($costs)}) {
                 $building->repair($costs);
+                say "+";
             }
+            else {
+                say "-";
+            }
+        }
+        else {
+            say "=";
         }
     }
 }
@@ -83,7 +91,12 @@ sub run_missions {
     my $infiltrated_spies = $spies->search({from_body_id => $colony->id, on_body_id => {'!=', $colony->id}});
     while (my $spy = $infiltrated_spies->next) {
         if ($spy->is_available) {
-            eval{$spy->assign($mission)};
+            say "+";
+            my $result = eval{$spy->assign($mission)};
+            say $result->{result};
+        }
+        else {
+            say "-";
         }
     }
 }
@@ -96,6 +109,10 @@ sub train_spies {
     if (eval{$intelligence->can_train_spy($costs)}) {
         $intelligence->spend_resources_to_train_spy($costs);
         $intelligence->train_spy($costs->{time});
+        say "+";
+    }
+    else {
+        say "-";
     }
 }
 
@@ -130,6 +147,12 @@ sub build_ships {
                 $shipyard->spend_resources_to_build_ship($costs);
                 $shipyard->build_ship($ship, $costs->{seconds});
             }
+            else {
+                say "-";
+            }
+        }
+        else {
+            say "=";
         }
     }
 }
@@ -142,13 +165,18 @@ sub set_defenders {
     while (my $spy = $local_spies->next) {
         if ($spy->is_available) {
             if ($spy->task eq 'Counter Espionage') {
+                say "=";
                 $count++;
             }
             else {
+                say "+";
                 $spy->task('Counter Espionage');
                 $spy->update;
                 $count++;
             }
+        }
+        else {
+            say "-";
         }
         last if $count >= 3;
     }
