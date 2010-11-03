@@ -277,7 +277,7 @@ sub summarize_alliances {
 sub summarize_empires { 
     out('Summarizing Empires');
     my $logs = $db->resultset('Lacuna::DB::Result::Log::Empire');
-    my $empires = $db->resultset('Lacuna::DB::Result::Empire')->search({ empire_id   => {'>' => 1} });
+    my $empires = $db->resultset('Lacuna::DB::Result::Empire')->search({ id   => {'>' => 1} });
     my $colony_logs = $db->resultset('Lacuna::DB::Result::Log::Colony');
     while (my $empire = $empires->next) {
         out($empire->name);
