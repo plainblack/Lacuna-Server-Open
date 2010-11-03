@@ -355,15 +355,18 @@ sub damage_building {
     if (defined $citadel) {
         if ($citadel->level < 2) {
             $citadel->delete;
+            $self->delete;
         }
         else {
             $citadel->level($citadel->level - 1);
             $citadel->update;
+            if ($citadel->efficiency) {
+                $self->body_id($body_attacked->id);
+                $self->land;
+            }
         }
         $body_attacked->needs_surface_refresh(1);
         $body_attacked->update;
-        $self->body_id($body_attacked->id);
-        $self->land;
     }
     else {
         $building->spend_efficiency($amount);

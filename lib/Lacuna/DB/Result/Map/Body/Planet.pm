@@ -139,6 +139,7 @@ around get_status => sub {
                     );
                     while (my $ship = $incoming_ships->next) {
                         if ($ship->date_available->epoch <= $now) {
+                            $ship->foreign_body($self);
                             $ship->body->tick;
                         }
                         else {
