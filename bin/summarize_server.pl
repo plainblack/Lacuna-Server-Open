@@ -48,11 +48,12 @@ sub generate_overview {
     out('Generating Overview');
     my $stars       = $db->resultset('Lacuna::DB::Result::Map::Star');
     my $bodies      = $db->resultset('Lacuna::DB::Result::Map::Body');
-    my $ships       = $db->resultset('Lacuna::DB::Result::Ships');
-    my $spies       = $db->resultset('Lacuna::DB::Result::Spies');
-    my $buildings   = $db->resultset('Lacuna::DB::Result::Building');
-    my $empires     = $db->resultset('Lacuna::DB::Result::Empire');
-    my $probes      = $db->resultset('Lacuna::DB::Result::Probes');
+    my @off_limits  = $bodies->search({empire_id => {'<' => 2}})->get_column('id')->all;
+    my $ships       = $db->resultset('Lacuna::DB::Result::Ships')->search({body_id => { 'not in' => \@off_limits}});
+    my $spies       = $db->resultset('Lacuna::DB::Result::Spies')->search({empire_id => { '>' => 1}});
+    my $buildings   = $db->resultset('Lacuna::DB::Result::Building')->search({body_id => { 'not in' => \@off_limits}});
+    my $empires     = $db->resultset('Lacuna::DB::Result::Empire')->search({id => { '>' => 1}});
+    my $probes      = $db->resultset('Lacuna::DB::Result::Probes')->search({empire_id => { '>' => 1}});
     
     # basics
     out('Getting Basic Counts');
@@ -276,7 +277,7 @@ sub summarize_alliances {
 sub summarize_empires { 
     out('Summarizing Empires');
     my $logs = $db->resultset('Lacuna::DB::Result::Log::Empire');
-    my $empires = $db->resultset('Lacuna::DB::Result::Empire');
+    my $empires = $db->resultset('Lacuna::DB::Result::Empire')->search({ empire_id   => {'>' => 1} });
     my $colony_logs = $db->resultset('Lacuna::DB::Result::Log::Colony');
     while (my $empire = $empires->next) {
         out($empire->name);
@@ -333,7 +334,7 @@ sub summarize_empires {
 sub summarize_colonies { 
     out('Summarizing Planets');
     my $logs = $db->resultset('Lacuna::DB::Result::Log::Colony');
-    my $planets = $db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id   => {'>' => 0} });
+    my $planets = $db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id   => {'>' => 1} });
     my $spy_logs = $db->resultset('Lacuna::DB::Result::Log::Spies');
     while (my $planet = $planets->next) {
         out($planet->name);
@@ -378,7 +379,7 @@ sub summarize_colonies {
 
 sub summarize_spies {
     out('Summarizing Spies');
-    my $spies = $db->resultset('Lacuna::DB::Result::Spies');
+    my $spies = $db->resultset('Lacuna::DB::Result::Spies')->search({ empire_id   => {'>' => 1} });
     my $logs = $db->resultset('Lacuna::DB::Result::Log::Spies');
     while (my $spy = $spies->next) {
         out($spy->name);
