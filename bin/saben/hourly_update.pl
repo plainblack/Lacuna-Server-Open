@@ -124,14 +124,14 @@ sub build_ships {
     my $shipyards = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard');
     my $shipyard1 = $shipyards->next;
     my $shipyard2 = $shipyards->next;
-    my @priorities = [
+    my @priorities = (
         ['drone', 3],
         ['probe', 1],
         ['spy_pod', 5],
         ['scanner', randint(5,10)],
         ['scow', randint(3,6)],
         ['snark', 20],
-    ];
+    );
     my $shipyard = $shipyard2;
     foreach my $priority (@priorities) {
         say $priority->[0];
