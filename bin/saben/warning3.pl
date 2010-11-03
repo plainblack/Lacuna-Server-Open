@@ -44,16 +44,15 @@ foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map
 }
 
 out('Sending warning...');
-my $message = q{I hoped to provide you with more warning, but I must tell you now that war is upon us. We were able to destroy one Sābēn foothold colony in zone 0|0, but our intelligence indicates that there is at least one more and we do not know its location or even which zone it is in. 
+my $message = q{I hoped to provide you with more warning, but I must tell you now that war is upon us. We were able to destroy one Sābēn foothold colony in zone 0|0, but our intelligence indicates that there are several more and we do not know locations or even which zones they are in. 
 
-You have no doubt seen the messages that Sābēn have broadcast on Network 19. We aren't sure how they have penetrated our broadcast system, but if they are able to do that, who knows what else they have access to, including your systems?
+You have no doubt seen the messages that Sābēn have broadcast on Network 19. We aren't sure how they have penetrated our broadcast system, but if they are able to do that, who knows what else they have access to, including your systems? Be vigilant. 
 
 They will start by testing the strongest among us. When they have figured out our weaknesses, they will exploit them and attempt to destroy us. When we are gone they will either destroy or enslave the weak. Our only hope is to locate their foothold colonies, capture their spies, destroy their supply lines, and ultimately demoralize their people. If we can do that, they will retreat, at least for a while.
 
 Good Luck,
 
 Tou Re Ell
-
 Lacuna Expanse Corp};
 while (my $empire = $empires->next) {
     $empire->send_message(
