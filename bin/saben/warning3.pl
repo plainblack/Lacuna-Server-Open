@@ -20,6 +20,7 @@ my $start = time;
 out('Loading DB');
 our $db = Lacuna->db;
 my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire');
+my $config = Lacuna->config;
 
 out('getting empires...');
 my $saben = $empires->find(-1);
@@ -27,13 +28,20 @@ my $lec = $empires->find(1);
 
 
 out('Send Network 19 messages....');
-$saben->home->add_news(200, '$%^#%^#!%~!~!*::::::::........');
-sleep 1;
-$saben->home->add_news(200, 'We are Sābēn. You have violated our Demesne. You have seven days to vacate or perish.');
-sleep 1;
-$saben->home->add_news(200, '^#%$$^#!%~!~:::::::........');
-sleep 1;
-$saben->home->add_news(200, 'We are sorry for that unscheduled interruption. We at Network 19 do not endorse the previous transmission.');
+my $news = $db->resultset('Lacuna::DB::Result::News');
+foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map_size/x')->[1]/250)) {
+    foreach my $y (int($config->get('map_size/y')->[0]/250) .. int($config->get('map_size/y')->[1]/250)) {
+        my $zone = $x.'|'.$y;
+        say $zone;
+        $news->new({headline => '$%^#%^#!%~!~!*::::::::........', zone => $zone })->insert;
+        sleep 1;
+        $news->new({headline => 'We are Sābēn. You have violated our Demesne. You have seven days to vacate or perish.', zone => $zone })->insert;
+        sleep 1;
+        $news->new({headline => '^#%$$^#!%~!~:::::::........', zone => $zone })->insert;
+        sleep 1;
+        $news->new({headline => 'We are sorry for that unscheduled interruption. We at Network 19 do not endorse the previous transmission.', zone => $zone })->insert;
+    }
+}
 
 out('Sending warning...');
 my $message = q{I hoped to provide you with more warning, but I must tell you now that war is upon us. We were able to destroy one Sābēn foothold colony in zone 0|0, but our intelligence indicates that there is at least one more and we do not know its location or even which zone it is in. 
