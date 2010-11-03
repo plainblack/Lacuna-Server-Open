@@ -62,7 +62,7 @@ my @plans = (
     ['Lacuna::DB::Result::Building::Permanent::Ravine',3, -2, 2],
     ['Lacuna::DB::Result::Building::Intelligence', $target_player->university_level, -1, 2],
     ['Lacuna::DB::Result::Building::Security', 10, 0, 2],
-    ['Lacuna::DB::Result::Building::Espionage', $target_player->university_level, 1, 2],
+    ['Lacuna::DB::Result::Building::Espionage', 15, 1, 2],
     ['Lacuna::DB::Result::Building::Permanent::CitadelOfKnope',5, 2, 2],
 
     ['Lacuna::DB::Result::Building::Permanent::OracleOfAnid',1, -2, 1],
