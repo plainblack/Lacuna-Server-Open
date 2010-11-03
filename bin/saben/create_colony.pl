@@ -74,19 +74,19 @@ my @plans = (
     ['Lacuna::DB::Result::Building::MunitionsLab',1, -2, 0],
     ['Lacuna::DB::Result::Building::SpacePort',10, -1, 0],
     # PCC 0,0
-    ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',7, 1, 0],
+    ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',8, 1, 0],
     ['Lacuna::DB::Result::Building::Permanent::InterDimensionalRift',7, 2, 0],
 
     ['Lacuna::DB::Result::Building::Permanent::TempleOfTheDrajilites',1, -2, -1],
     ['Lacuna::DB::Result::Building::Shipyard',5, -1, -1],
     ['Lacuna::DB::Result::Building::Trade',10, 0, -1],
     ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',7, 1, -1],
-    ['Lacuna::DB::Result::Building::Permanent::MalcudField',5, 2, -1],
+    ['Lacuna::DB::Result::Building::Permanent::MalcudField',6, 2, -1],
 
     ['Lacuna::DB::Result::Building::Permanent::LibraryOfJith',1, -2, -2],
     ['Lacuna::DB::Result::Building::SpacePort',10, -1, -2],
     ['Lacuna::DB::Result::Building::Permanent::CrashedShipSite',5, 0, -2],
-    ['Lacuna::DB::Result::Building::Permanent::AlgaePond',5, 1, -2],
+    ['Lacuna::DB::Result::Building::Permanent::AlgaePond',6, 1, -2],
     ['Lacuna::DB::Result::Building::Food::Syrup',10, 2, -2],
 );
 $buildings = $db->resultset('Lacuna::DB::Result::Building');
