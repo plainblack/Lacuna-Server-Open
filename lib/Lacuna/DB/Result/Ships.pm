@@ -339,20 +339,7 @@ sub damage_building {
     my $amount = randint(10,70);
     my $citadel = $buildings->search({class=>'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope'},{rows=>1})->single;
     if (defined $citadel) {
-        if ($citadel->level == 1) {
-            $citadel->delete;
-        }
-        else {
-            $citadel->level($citadel->level - 1);
-            $citadel->update;
-        }
         $building = $citadel;
-        $body_attacked->needs_surface_refresh(1);
-        $body_attacked->update;
-    }
-    else {
-        $building->spend_efficiency($amount);
-        $building->update;
     }
     $body_attacked->empire->send_predefined_message(
         tags        => ['Alert'],
@@ -365,7 +352,24 @@ sub damage_building {
         params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $building->name, $amount],
     );
     $body_attacked->add_news(70, sprintf('An attack ship screamed out of the sky and damaged the %s on %s.',$building->name, $body_attacked->name));
-    $self->delete;
+    if (defined $citadel) {
+        if ($citadel->level == 1) {
+            $citadel->delete;
+        }
+        else {
+            $citadel->level($citadel->level - 1);
+            $citadel->update;
+        }
+        $body_attacked->needs_surface_refresh(1);
+        $body_attacked->update;
+        $self->body_id($body_attacked->id);
+        $self->land;
+    }
+    else {
+        $building->spend_efficiency($amount);
+        $building->update;
+        $self->delete;
+    }
 }
 
 # DISTANCE
