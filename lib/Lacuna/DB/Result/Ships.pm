@@ -347,16 +347,18 @@ sub damage_building {
             $citadel->update;
         }
         $building = $citadel;
+        $body_attacked->needs_surface_refresh(1);
+        $body_attacked->update;
     }
     else {
         $building->spend_efficiency($amount);
         $building->update;
-        $body_attacked->empire->send_predefined_message(
-            tags        => ['Alert'],
-            filename    => 'ship_hit_building.txt',
-            params      => [$self->type_formatted, $building->name, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
-        );
     }
+    $body_attacked->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'ship_hit_building.txt',
+        params      => [$self->type_formatted, $building->name, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
+    );
     $self->body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'our_ship_hit_building.txt',
