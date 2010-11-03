@@ -337,7 +337,7 @@ sub damage_building {
         )->single;
     $building->body($body_attacked);
     my $amount = randint(10,70);
-    my $citadel = $buildings->search({class=>'Lacuna::DB::Result::Building::Permanent::Citadel'},{rows=>1})->single;
+    my $citadel = $buildings->search({class=>'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope'},{rows=>1})->single;
     if (defined $citadel) {
         if ($citadel->level == 1) {
             $citadel->delete;
