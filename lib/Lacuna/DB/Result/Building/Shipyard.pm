@@ -101,6 +101,21 @@ sub building_ships {
     return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ shipyard_id => $self->id, task => 'Building' });
 }
 
+sub spend_resources_to_build_ship {
+    my ($self, $costs) = @_;
+    my $body = $self->body;
+    foreach my $key (keys %{ $costs }) {
+        next if $key eq 'seconds';
+        if ($key eq 'waste') {
+            $body->add_waste($costs->{waste});
+        }
+        else {
+            my $spend = 'spend_'.$key;
+            $body->$spend($costs->{$key});
+        }
+    }
+    $body->update;
+}
 
 sub build_ship {
     my ($self, $ship, $time) = @_;

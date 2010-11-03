@@ -100,39 +100,9 @@ sub burn_spy {
     if ($spy->task eq 'Waiting On Trade') {
         confess [1010, "You can't burn a spy involved in a trade. You must wait for the trade to complete."];
     }
-    if ($spy->on_body->empire_id != $empire->id) {
-        if (randint(1,100) < $spy->level) {
-            $spy->from_body_id($self->on_body_id);
-            $spy->empire_id($self->on_body->empire_id);
-            $spy->task('Idle');
-            $spy->available_on(DateTime->now);
-            $spy->times_turned( $spy->times_turned + 1 );
-            $spy->update;
-            $empire->send_predefined_message(
-                tags        => ['Alert'],
-                filename    => 'you_cant_burn_me.txt',
-                params      => [$spy->empire_id, $spy->empire->name, $spy->name],
-            );
-            $spy->empire->send_predefined_message(
-                tags        => ['Alert'],
-                filename    => 'id_like_to_join_you.txt',
-                params      => [$empire->id, $empire->name, $spy->name, $spy->on_body->id, $spy->on_body->name],
-            );
-        }
-        else {
-            $spy->delete;
-        }
-    }
-    else {
-        $spy->delete;
-    }
-    my $body = $building->body;
-    if ($body->add_news(10, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $empire->name)) {
-        $body->spend_happiness(1000);
-        $body->update;
-    }
+    $spy->burn;
     return {
-        status  => $self->format_status($empire, $body),
+        status  => $self->format_status($empire, $building->body),
     };
 }
 
@@ -151,22 +121,18 @@ sub train_spy {
     }
     my $costs = $building->training_costs;
     SPY: foreach my $i (1..$quantity) {
-        foreach my $resource (qw(water ore food energy)) {
-            unless ($body->type_stored($resource) >= $costs->{$resource}) {
-                last SPY;
-            }
+        if (eval{$building->can_train_spy($costs)}) {
+            $building->spend_resources_to_train_spy($costs);
+            $building->train_spy($costs->{time});
+            $trained++;
         }
-        foreach my $resource (qw(water ore food energy)) {
-            my $spend = 'spend_'.$resource;
-            $body->$spend($costs->{$resource});
+        else {
+            last SPY;
         }
-        $body->add_waste($costs->{waste});
-        $building->train_spy($costs->{time});
-        $trained++;
     }
     if ($trained) {
         $body->update;
-        if ($trained == 5) {
+        if ($trained >= 3) {
             $body->add_news(50, '%s has just approved a massive intelligence budget increase.', $empire->name);
         }
     }

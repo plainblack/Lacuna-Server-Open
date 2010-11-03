@@ -209,6 +209,42 @@ sub assign {
     }
 }
 
+sub burn {
+    my $self = shift;
+    my $old_empire = $self->empire;
+    my $body = $self->from_body;
+    if ($body->add_news(10, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $old_empire->name)) {
+        $body->spend_happiness(5000);
+        $body->update;
+    }
+    if ($self->on_body->empire_id != $self->empire_id) {
+        if (randint(1,100) < $self->level) {
+            $self->from_body_id($self->on_body_id);
+            $self->empire_id($self->on_body->empire_id);
+            $self->task('Idle');
+            $self->available_on(DateTime->now);
+            $self->times_turned( $self->times_turned + 1 );
+            $self->update;
+            $old_empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'you_cant_burn_me.txt',
+                params      => [$self->empire_id, $self->empire->name, $self->name],
+            );
+            $self->empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'id_like_to_join_you.txt',
+                params      => [$old_empire->id, $old_empire->name, $self->name, $self->on_body->id, $self->on_body->name],
+            );
+        }
+        else {
+            $self->delete;
+        }
+    }
+    else {
+        $self->delete;
+    }
+}
+
 # MISSION STUFF
 
 my %skills = (

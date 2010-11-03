@@ -82,17 +82,7 @@ sub build_ship {
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type => $type});
     my $costs = $building->get_ship_costs($ship);
     $building->can_build_ship($ship, $costs);
-    foreach my $key (keys %{ $costs }) {
-        next if $key eq 'seconds';
-        if ($key eq 'waste') {
-            $body->add_waste($costs->{waste});
-        }
-        else {
-            my $spend = 'spend_'.$key;
-            $body->$spend($costs->{$key});
-        }
-    }
-    $body->update;
+    $building->spend_resources_to_build_ship($costs);
     $building->build_ship($ship, $costs->{seconds});
     return $self->view_build_queue($empire, $building);
 }

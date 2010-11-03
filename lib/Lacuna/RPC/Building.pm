@@ -238,7 +238,9 @@ sub repair {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id, skip_offline => 1);
-    $building->repair;
+    my $costs = $building->get_repair_costs;
+    $building->can_repair($costs);
+    $building->repair($costs);
     return $self->view($empire, $building);
 }
 

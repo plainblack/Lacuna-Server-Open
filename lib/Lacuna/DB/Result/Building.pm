@@ -855,9 +855,9 @@ sub get_repair_costs {
     };
 }
 
-sub repair {
-    my ($self) = @_;
-    my $costs = $self->get_repair_costs;
+sub can_repair {
+    my ($self, $costs) = @_;
+    $costs ||= $self->get_repair_costs;
     my $body = $self->body;
     unless ($body->food_stored >= $costs->{food}) {
         confess [1011, 'You need '.$costs->{food}.' food to repair this building.'];
@@ -871,6 +871,13 @@ sub repair {
     unless ($body->energy_stored >= $costs->{energy}) {
         confess [1011, 'You need '.$costs->{energy}.' energy to repair this building.'];
     }
+    return 1;
+}
+
+sub repair {
+    my ($self, $costs) = @_;
+    $costs ||= $self->get_repair_costs;
+    my $body = $self->body;
     $self->efficiency(100);
     $self->update;
     $body->spend_food($costs->{food});
