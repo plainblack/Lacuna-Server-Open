@@ -57,7 +57,7 @@ sub burn_captured_spies {
     out('Burning captured spies...');
     my $captured_spies = $spies->search({from_body_id => $colony->id, on_body_id => {'!=', $colony->id}, task=>'Captured'});
     while (my $spy = $captured_spies->next) {
-        say "+";
+        say "Spy burned";
         $spy->burn;
     }
 }
@@ -67,18 +67,19 @@ sub repair_buildings {
     out('Repairing damaged buildings...');
     my $buildings = $colony->buildings;
     while (my $building = $buildings->next) {
+        say $building->name;
         if ($building->efficiency < 100) {
             my $costs = $building->get_repair_costs;
             if (eval{$building->can_repair($costs)}) {
                 $building->repair($costs);
-                say "+";
+                say "repaired";
             }
             else {
-                say "-";
+                say $@;
             }
         }
         else {
-            say "=";
+            say "does not need to be repaired";
         }
     }
 }
@@ -90,13 +91,14 @@ sub run_missions {
     my $mission = $missions[rand @missions];
     my $infiltrated_spies = $spies->search({from_body_id => $colony->id, on_body_id => {'!=', $colony->id}});
     while (my $spy = $infiltrated_spies->next) {
+        say $spy->id;
         if ($spy->is_available) {
-            say "+";
+            say "running mission...";
             my $result = eval{$spy->assign($mission)};
             say $result->{result};
         }
         else {
-            say "-";
+            say "not available";
         }
     }
 }
@@ -109,10 +111,10 @@ sub train_spies {
     if (eval{$intelligence->can_train_spy($costs)}) {
         $intelligence->spend_resources_to_train_spy($costs);
         $intelligence->train_spy($costs->{time});
-        say "+";
+        say "Spy trained.";
     }
     else {
-        say "-";
+        say $@;
     }
 }
 
@@ -132,6 +134,7 @@ sub build_ships {
     ];
     my $shipyard = $shipyard2;
     foreach my $priority (@priorities) {
+        say $priority->[0];
         my $count = $ships->search({body_id => $colony->id, type => $priority->[0]})->count;
         if ($count < $priority->[1]) {
             if ($shipyard->id == $shipyard1->id) {
@@ -143,16 +146,16 @@ sub build_ships {
             my $ship = $ships->new({type => $priority->[0]});
             my $costs = $shipyard->get_ship_costs($ship);
             if (eval{$shipyard->can_build_ship($ship, $costs)}) {
-                say $ship->type_formatted;
+                say "building";
                 $shipyard->spend_resources_to_build_ship($costs);
                 $shipyard->build_ship($ship, $costs->{seconds});
             }
             else {
-                say "-";
+                say $@;
             }
         }
         else {
-            say "=";
+            say "have enough";
         }
     }
 }
@@ -163,20 +166,21 @@ sub set_defenders {
     my $local_spies = $spies->search({from_body_id => $colony->id, on_body_id => $colony->id});
     my $count = 0;
     while (my $spy = $local_spies->next) {
+        say $spy->id;
         if ($spy->is_available) {
             if ($spy->task eq 'Counter Espionage') {
-                say "=";
+                say "already defending";
                 $count++;
             }
             else {
-                say "+";
+                say "setting defender";
                 $spy->task('Counter Espionage');
                 $spy->update;
                 $count++;
             }
         }
         else {
-            say "-";
+            say "unavailable";
         }
         last if $count >= 3;
     }
