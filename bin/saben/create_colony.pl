@@ -77,7 +77,7 @@ my @plans = (
     ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',8, 1, 0],
     ['Lacuna::DB::Result::Building::Permanent::InterDimensionalRift',7, 2, 0],
 
-    ['Lacuna::DB::Result::Building::Permanent::TempleOfTheDrajilites',1, -2, -1],
+    ['Lacuna::DB::Result::Building::Observatory',1, -2, -1],
     ['Lacuna::DB::Result::Building::Shipyard',5, -1, -1],
     ['Lacuna::DB::Result::Building::Trade',10, 0, -1],
     ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',7, 1, -1],
