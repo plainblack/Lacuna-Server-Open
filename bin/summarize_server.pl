@@ -334,7 +334,7 @@ sub summarize_empires {
 sub summarize_colonies { 
     out('Summarizing Planets');
     my $logs = $db->resultset('Lacuna::DB::Result::Log::Colony');
-    my $planets = $db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id   => {'>' => 1} });
+    my $planets = $db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id   => {'>' => 1} },{order_by => 'name'});
     my $spy_logs = $db->resultset('Lacuna::DB::Result::Log::Spies');
     while (my $planet = $planets->next) {
         out($planet->name);
