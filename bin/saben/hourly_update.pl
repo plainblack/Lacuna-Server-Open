@@ -21,7 +21,6 @@ our $db = Lacuna->db;
 our $empires = $db->resultset('Lacuna::DB::Result::Empire');
 our $spies = $db->resultset('Lacuna::DB::Result::Spies');
 our $ships = $db->resultset('Lacuna::DB::Result::Ships');
-our $local_spies = $spies->search({from_body_id => $colony->id, on_body_id => $colony->id});
 
 out('getting empires...');
 my $saben = $empires->find(-1);
@@ -37,7 +36,7 @@ while (my $colony = $colonies->next) {
     burn_captured_spies($colony);
     train_spies($colony);
     build_ships($colony);
-    repair_buildings($colony);
+    repair_upgrade_buildings($colony);
     run_missions($colony);
 }
 
@@ -63,10 +62,10 @@ sub burn_captured_spies {
     }
 }
 
-sub repair_buildings {
+sub repair_upgrade_buildings {
     my $colony = shift;
     out('Repairing damaged buildings...');
-    my $buildings = $colony->buildings;
+    my $buildings = $colony->buildings->search(undef,{order_by => 'upgrade_started'});
     while (my $building = $buildings->next) {
         say $building->name;
         if ($building->efficiency < 100) {
@@ -81,6 +80,16 @@ sub repair_buildings {
         }
         else {
             say "does not need to be repaired";
+        }
+        if ($building->name ~~ ['SpacePort', 'Entertainment District','Intelligence Ministry']) {
+            say 'attempting upgrade';
+            if (eval{$building->can_upgrade}) {
+                $building->start_upgrade;
+                say 'upgrading';
+            }
+            else {
+                say $@->[1];
+            }
         }
     }
 }
@@ -122,6 +131,7 @@ sub train_spies {
 sub build_ships {
     my $colony = shift;
     out('Building ships...');
+    my $local_spies = $spies->search({from_body_id => $colony->id, on_body_id => $colony->id});
     my $shipyards = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard');
     my $shipyard1 = $shipyards->next;
     my $shipyard2 = $shipyards->next;
@@ -164,6 +174,7 @@ sub build_ships {
 sub set_defenders {
     my $colony = shift;
     out('Setting defenders...');
+    my $local_spies = $spies->search({from_body_id => $colony->id, on_body_id => $colony->id});
     while (my $spy = $local_spies->next) {
         say $spy->id;
         if ($spy->is_available) {
