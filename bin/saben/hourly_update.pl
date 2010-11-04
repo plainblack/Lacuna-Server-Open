@@ -81,7 +81,7 @@ sub repair_upgrade_buildings {
         else {
             say "does not need to be repaired";
         }
-        if ($building->name ~~ ['SpacePort', 'Entertainment District','Intelligence Ministry']) {
+        if ($building->name ~~ ['Space Port', 'Entertainment District','Intelligence Ministry']) {
             say 'attempting upgrade';
             if (eval{$building->can_upgrade}) {
                 $building->start_upgrade;
