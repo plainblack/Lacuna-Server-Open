@@ -352,6 +352,8 @@ sub summarize_colonies {
             energy_hour            => $planet->energy_hour,
             ore_hour               => $planet->ore_hour,
             happiness_hour         => $planet->happiness_hour,
+            empire_id              => $planet->empire_id,
+            empire_name            => $planet->empire->name,
         );
         my $spies = $spy_logs->search({planet_id => $planet->id});
         while (my $spy = $spies->next) {
@@ -366,13 +368,9 @@ sub summarize_colonies {
         $colony_data{offense_success_rate} = ($colony_data{spy_count}) ? $colony_data{offense_success_rate} / $colony_data{spy_count} : 0;
         $colony_data{defense_success_rate} = ($colony_data{spy_count}) ? $colony_data{defense_success_rate} / $colony_data{spy_count} : 0;
         if (defined $log) {
-            say 'updating';
             $log->update(\%colony_data);
         }
         else {
-            say 'inserting';
-            $colony_data{empire_id}    = $planet->empire_id;
-            $colony_data{empire_name}  = $planet->empire->name;
             $colony_data{planet_id}    = $planet->id;
             $logs->new(\%colony_data)->insert;
         }
@@ -414,6 +412,8 @@ sub summarize_spies {
             things_stolen               => $spy->things_stolen,
             dirtiest                    => ($spy->seeds_planted + $spy->spies_killed + $spy->spies_captured + $spy->spies_turned + $spy->things_destroyed + $spy->things_stolen),
             dirtiest_delta              => 0,
+            empire_id                   => $spy->empire_id,
+            empire_name                 => $spy->empire_name,
         );
         if (defined $log) {
             $spy_data{dirtiest_delta}               = $spy_data{dirtiest} - $log->dirtiest + $log->dirtiest_delta;
@@ -424,8 +424,6 @@ sub summarize_spies {
             $log->update(\%spy_data);
         }
         else {
-            $spy_data{empire_id}    = $spy->empire_id;
-            $spy_data{empire_name}  = $spy->empire->name;
             $spy_data{spy_id}       = $spy->id;
             $logs->new(\%spy_data)->insert;
         }
