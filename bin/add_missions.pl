@@ -29,7 +29,7 @@ my @zones = $db->resultset('Lacuna::DB::Result::Map::Body')->search(
     { distinct => 1 })->get_column('zone')->all;
 foreach my $zone (@zones) {
     out($zone);
-    if ($missions->search({zone=>$zone})->count < 31) {
+    if ($missions->search({zone=>$zone})->count < 51) {
         my $mission = $missions->new({
             zone                 => $zone,
             mission_file_name    => $mission_files[rand @mission_files],
