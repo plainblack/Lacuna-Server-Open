@@ -56,38 +56,43 @@ $db->resultset('Lacuna::DB::Result::SabenTarget')->new({
     target_empire_id    => $target_player->id,
 })->insert;
 
+my $max_level = $target_player->university_level;
+my $half_level = int( ($max_level + 1) / 2 );
+my $one_third_level = int( ($max_level + 1) / 3 );
+my $two_thirds_level = $one_third_level * 2;
+my $quarter_level = int( ($max_level + 1) / 4 );
 
 out('Placing structures on '.$body->name);
 my @plans = (
-    ['Lacuna::DB::Result::Building::Permanent::Ravine',3, -2, 2],
-    ['Lacuna::DB::Result::Building::Intelligence', $target_player->university_level, -1, 2],
-    ['Lacuna::DB::Result::Building::Security', 10, 0, 2],
-    ['Lacuna::DB::Result::Building::Espionage', 15, 1, 2],
-    ['Lacuna::DB::Result::Building::Permanent::CitadelOfKnope',5, 2, 2],
+    ['Lacuna::DB::Result::Building::Permanent::Ravine',$quarter_level, -2, 2],
+    ['Lacuna::DB::Result::Building::Intelligence', $max_level, -1, 2],
+    ['Lacuna::DB::Result::Building::Security', $two_thirds_level, 0, 2],
+    ['Lacuna::DB::Result::Building::Espionage', $max_level, 1, 2],
+    ['Lacuna::DB::Result::Building::Permanent::CitadelOfKnope',$one_third_level, 2, 2],
 
     ['Lacuna::DB::Result::Building::Permanent::OracleOfAnid',1, -2, 1],
-    ['Lacuna::DB::Result::Building::Shipyard',5, -1, 1],
-    ['Lacuna::DB::Result::Building::EntertainmentDistrict',9, 0, 1],
-    ['Lacuna::DB::Result::Building::Permanent::Volcano',7, 1, 1],
+    ['Lacuna::DB::Result::Building::Shipyard',2, -1, 1],
+    ['Lacuna::DB::Result::Building::EntertainmentDistrict',$two_thirds_level, 0, 1],
+    ['Lacuna::DB::Result::Building::Permanent::Volcano',$half_level, 1, 1],
     ['Lacuna::DB::Result::Building::Waste::Sequestration',10, 2, 1],
 
     ['Lacuna::DB::Result::Building::MunitionsLab',5, -2, 0],
-    ['Lacuna::DB::Result::Building::SpacePort',10, -1, 0],
+    ['Lacuna::DB::Result::Building::SpacePort',$two_thirds_level, -1, 0],
     # PCC 0,0
-    ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',8, 1, 0],
-    ['Lacuna::DB::Result::Building::Permanent::InterDimensionalRift',7, 2, 0],
+    ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',$half_level, 1, 0],
+    ['Lacuna::DB::Result::Building::Permanent::InterDimensionalRift',$half_level, 2, 0],
 
     ['Lacuna::DB::Result::Building::Observatory',1, -2, -1],
-    ['Lacuna::DB::Result::Building::Shipyard',5, -1, -1],
+    ['Lacuna::DB::Result::Building::Shipyard',2, -1, -1],
     ['Lacuna::DB::Result::Building::Trade',10, 0, -1],
-    ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',7, 1, -1],
-    ['Lacuna::DB::Result::Building::Permanent::MalcudField',6, 2, -1],
+    ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',$half_level, 1, -1],
+    ['Lacuna::DB::Result::Building::Permanent::MalcudField',$one_third_level, 2, -1],
 
     ['Lacuna::DB::Result::Building::Permanent::LibraryOfJith',1, -2, -2],
-    ['Lacuna::DB::Result::Building::SpacePort',10, -1, -2],
-    ['Lacuna::DB::Result::Building::Permanent::CrashedShipSite',5, 0, -2],
-    ['Lacuna::DB::Result::Building::Permanent::AlgaePond',6, 1, -2],
-    ['Lacuna::DB::Result::Building::Food::Syrup',10, 2, -2],
+    ['Lacuna::DB::Result::Building::SpacePort',$two_thirds_level, -1, -2],
+    ['Lacuna::DB::Result::Building::Permanent::CrashedShipSite',$one_third_level, 0, -2],
+    ['Lacuna::DB::Result::Building::Permanent::AlgaePond',$half_level, 1, -2],
+    ['Lacuna::DB::Result::Building::Food::Syrup',$two_thirds_level, 2, -2],
 );
 $buildings = $db->resultset('Lacuna::DB::Result::Building');
 foreach my $plan (@plans) {
