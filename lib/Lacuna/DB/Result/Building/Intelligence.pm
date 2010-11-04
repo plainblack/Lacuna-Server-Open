@@ -149,6 +149,9 @@ sub training_costs {
 
 sub can_train_spy {
     my ($self, $costs) = @_;
+    if ($self->spy_count >= $self->max_spies) {
+        confess [1009, 'You already have the maximum number of spies.'];
+    }
     my $body = $self->body;
     foreach my $resource (qw(water ore food energy)) {
         unless ($body->type_stored($resource) >= $costs->{$resource}) {
