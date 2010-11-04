@@ -143,7 +143,7 @@ sub build_ships {
         ['scow', randint(3,6)],
         ['snark', 20],
     );
-    my $shipyard = $shipyard2;
+    my $shipyard = randint(0,1) ? $shipyard1 : $shipyard2;
     foreach my $priority (@priorities) {
         say $priority->[0];
         my $count = $ships->search({body_id => $colony->id, type => $priority->[0]})->count;
