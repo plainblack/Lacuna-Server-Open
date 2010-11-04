@@ -29,9 +29,9 @@ sub arrive {
     my $remote_body = $self->foreign_body;
     my $body = $self->body;
     my $empire = $body->empire;
-    if ($find < 6) {
+    if ($find < 5) {
         my $class = random_element([FINDABLE_PLANS]);
-        my $plan = $body->add_plan($class, 1, ($find < 3) ? randint(1,3) : 0);
+        my $plan = $body->add_plan($class, 1, ($find == 1) ? randint(1,3) : 0);
         $empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'plan_discovered_by_excavator.txt',
