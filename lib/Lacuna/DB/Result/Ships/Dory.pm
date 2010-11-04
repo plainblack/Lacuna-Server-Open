@@ -13,7 +13,7 @@ use constant base_ore_cost       => 5500;
 use constant base_time_cost      => 3800;
 use constant base_waste_cost     => 400;
 use constant base_speed     => 1200;
-use constant base_stealth   => 5000;
+use constant base_stealth   => 3500;
 use constant base_hold_size => 343;
 use constant pilotable      => 1;
 
