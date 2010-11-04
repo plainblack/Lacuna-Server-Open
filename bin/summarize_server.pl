@@ -413,7 +413,7 @@ sub summarize_spies {
             dirtiest                    => ($spy->seeds_planted + $spy->spies_killed + $spy->spies_captured + $spy->spies_turned + $spy->things_destroyed + $spy->things_stolen),
             dirtiest_delta              => 0,
             empire_id                   => $spy->empire_id,
-            empire_name                 => $spy->empire_name,
+            empire_name                 => $spy->empire->name,
         );
         if (defined $log) {
             $spy_data{dirtiest_delta}               = $spy_data{dirtiest} - $log->dirtiest + $log->dirtiest_delta;
