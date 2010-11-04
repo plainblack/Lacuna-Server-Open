@@ -67,7 +67,7 @@ my @plans = (
 
     ['Lacuna::DB::Result::Building::Permanent::OracleOfAnid',1, -2, 1],
     ['Lacuna::DB::Result::Building::Shipyard',5, -1, 1],
-    ['Lacuna::DB::Result::Building::EntertainmentDistrict',10, 0, 1],
+    ['Lacuna::DB::Result::Building::EntertainmentDistrict',9, 0, 1],
     ['Lacuna::DB::Result::Building::Permanent::Volcano',7, 1, 1],
     ['Lacuna::DB::Result::Building::Waste::Sequestration',10, 2, 1],
 
