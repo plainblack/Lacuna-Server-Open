@@ -21,6 +21,7 @@ sub get_missions {
     my $missions = $building->missions;
     while (my $mission = $missions->next) {
         next if $mission->params->max_university_level < $empire->university_level;
+        next if Lacuna->cache->get($mission->mission_file_name, $empire->id);
         push @missions, {
             id                      => $mission->id,
             name                    => $mission->name,
@@ -47,6 +48,7 @@ sub complete_mission {
     $mission->check_objectives($body);
     $mission->spend_objectives($body);
     $mission->add_rewards($body);
+    Lacuna->cache->set($mission->mission_file_name, $empire->id, 1, 60 * 60 * 24 * 30);
     return {
         status      => $self->format_status($empire, $body),
     }
