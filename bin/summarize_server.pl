@@ -366,9 +366,11 @@ sub summarize_colonies {
         $colony_data{offense_success_rate} = ($colony_data{spy_count}) ? $colony_data{offense_success_rate} / $colony_data{spy_count} : 0;
         $colony_data{defense_success_rate} = ($colony_data{spy_count}) ? $colony_data{defense_success_rate} / $colony_data{spy_count} : 0;
         if (defined $log) {
+            say 'updating';
             $log->update(\%colony_data);
         }
         else {
+            say 'inserting';
             $colony_data{empire_id}    = $planet->empire_id;
             $colony_data{empire_name}  = $planet->empire->name;
             $colony_data{planet_id}    = $planet->id;
