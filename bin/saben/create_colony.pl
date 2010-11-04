@@ -71,7 +71,7 @@ my @plans = (
     ['Lacuna::DB::Result::Building::Permanent::Volcano',7, 1, 1],
     ['Lacuna::DB::Result::Building::Waste::Sequestration',10, 2, 1],
 
-    ['Lacuna::DB::Result::Building::MunitionsLab',1, -2, 0],
+    ['Lacuna::DB::Result::Building::MunitionsLab',5, -2, 0],
     ['Lacuna::DB::Result::Building::SpacePort',10, -1, 0],
     # PCC 0,0
     ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',8, 1, 0],
