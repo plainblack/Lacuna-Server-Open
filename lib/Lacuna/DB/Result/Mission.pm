@@ -63,6 +63,15 @@ sub check_objectives {
         }
     }
 
+    # plans
+    if (exists $objectives->{plans}) {
+        foreach my $plan (@{$objectives->{plans}}) {
+            unless ($body->plans->search({ class => $plan->{classname}, level => {'>=' => $plan->{level}}, extra_build_level => {'>=' => $plan->{extra_build_level}} })->count) {
+                confess [1011, 'You do not have the '.$plan->{classname}->name.' plan needed to complete this mission.'];
+            }
+        }
+    }
+
     return 1;
 }
 
