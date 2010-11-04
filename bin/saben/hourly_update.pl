@@ -21,6 +21,7 @@ our $db = Lacuna->db;
 our $empires = $db->resultset('Lacuna::DB::Result::Empire');
 our $spies = $db->resultset('Lacuna::DB::Result::Spies');
 our $ships = $db->resultset('Lacuna::DB::Result::Ships');
+our $local_spies = $spies->search({from_body_id => $colony->id, on_body_id => $colony->id});
 
 out('getting empires...');
 my $saben = $empires->find(-1);
@@ -125,9 +126,9 @@ sub build_ships {
     my $shipyard1 = $shipyards->next;
     my $shipyard2 = $shipyards->next;
     my @priorities = (
-        ['drone', 3],
+        ['drone', 5],
         ['probe', 1],
-        ['spy_pod', 5],
+        ['spy_pod', int($local_spies->count / 2)],
         ['scanner', randint(5,10)],
         ['scow', randint(3,6)],
         ['snark', 20],
@@ -163,26 +164,21 @@ sub build_ships {
 sub set_defenders {
     my $colony = shift;
     out('Setting defenders...');
-    my $local_spies = $spies->search({from_body_id => $colony->id, on_body_id => $colony->id});
-    my $count = 0;
     while (my $spy = $local_spies->next) {
         say $spy->id;
         if ($spy->is_available) {
             if ($spy->task eq 'Counter Espionage') {
                 say "already defending";
-                $count++;
             }
             else {
                 say "setting defender";
                 $spy->task('Counter Espionage');
                 $spy->update;
-                $count++;
             }
         }
         else {
             say "unavailable";
         }
-        last if $count >= 3;
     }
 }
 
