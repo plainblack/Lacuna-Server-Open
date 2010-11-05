@@ -13,6 +13,7 @@ __PACKAGE__->add_columns(
     mission_file_name       => { data_type => 'varchar', size => 100, is_nullable => 0 },
     zone                    => { data_type => 'varchar', size => 16, is_nullable => 0 },
     date_posted             => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    scratch                 => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
 );
 
 has params => (
@@ -23,6 +24,132 @@ has params => (
         return Config::JSON->new('/data/Lacuna-Server/var/missions/'. $self->mission_file_name);
     },
 );
+
+sub complete {
+    my ($self, $body) = @_;
+    $self->spend_objectives($body);
+    $self->add_rewards($body);
+    Lacuna->cache->set($self->mission_file_name, $body->empire_id, 1, 60 * 60 * 24 * 30);
+    Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
+        zone                => $self->zone,
+        headline            => $self->params->get('network_19_completion'),
+    })->insert;
+    $self->add_next_part;
+    $self->delete;
+}
+
+sub add_next_part {
+    my $self = shift;
+    $self->mission_file_name =~ m/^([a-z0-9\-\_]+)\.((mission)|(part\d))$/i;
+    my ($name, $ext) = ($1, $2);
+    if ($ext eq 'mission') {
+        $name .= '.part2';
+    }
+    else {
+        $ext =~ m/^part(\d)$/;
+        $name .= '.part'.$1;
+    }
+    if (-f '/data/Lacuna-Server/var/missions/'.$name) {
+        Lacuna->db->resultset('Lacuna::DB::Result::Mission')->new({
+            zone                => $self->zone,
+            mission_file_name   => $name,
+        })->insert;
+        Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
+            zone                => $self->zone,
+            headline            => $self->params->get('network_19_headline'),
+        })->insert;
+    }
+}
+
+sub add_rewards {
+    my ($self, $body) = @_;
+    my $rewards = $self->params->get('mission_reward');
+    # essentia
+    if (exists $rewards->{essentia}) {
+        $body->empire->add_essentia($rewards->{essentia})->update;
+    }
+    
+    # resources
+    if (exists $rewards->{resources}) {
+        foreach my $resource (keys %{$rewards->{resources}}) {
+            $body->add_type($resource, $rewards->{resources}{$resource});
+        }
+        $body->update;
+    }
+
+    # glyphs
+    if (exists $rewards->{glyphs}) {
+        foreach my $glyph (@{$rewards->{glyphs}}) {
+            $body->add_glyph($glyph);
+        }
+    }
+
+    # ships
+    if (exists $rewards->{ships}) {
+        foreach my $ship (@{$rewards->{ships}}) {
+            $body->ships->new({
+                type        => $ship->{type},
+                name        => $ship->{type},
+                speed       => $ship->{speed},
+                stealth     => $ship->{stealth},
+                hold_size   => $ship->{hold_size},
+                body_id     => $body->id,
+                task        => 'Docked',
+            })->insert;
+        }
+    }
+
+    # plans
+    if (exists $rewards->{plans}) {
+        foreach my $plan (@{$rewards->{plans}}) {
+            $body->add_plan($plan->{classname}, $plan->{level}, $plan->{extra_build_level});
+        }
+    }
+}
+
+sub spend_objectives {
+    my ($self, $body) = @_;
+    my $objectives = $self->params->get('mission_objective');
+    # essentia
+    if (exists $objectives->{essentia}) {
+        $body->empire->spend_essentia($objectives->{essentia})->update;
+    }
+    
+    # resources
+    if (exists $objectives->{resources}) {
+        foreach my $resource (keys %{$objectives->{resources}}) {
+            $body->spend_type($resource, $objectives->{resources}{$resource});
+        }
+        $body->update;
+    }
+
+    # glyphs
+    if (exists $objectives->{glyphs}) {
+        foreach my $glyph (@{$objectives->{glyphs}}) {
+            $body->glyphs->search({ type => $glyph },{rows => 1})->single->delete;
+        }
+    }
+
+    # ships
+    if (exists $objectives->{ships}) {
+        foreach my $ship (@{$objectives->{ships}}) {
+            $body->ships->search(
+                { type => $ship->{type}, speed => {'>=' => $ship->{speed}}, stealth => {'>=' => $ship->{stealth}}, hold_size => {'>=' => $ship->{hold_size}} },
+                {rows => 1, order_by => 'id'}
+                )->single->delete;
+        }
+    }
+
+    # plans
+    if (exists $objectives->{plans}) {
+        foreach my $plan (@{$objectives->{plans}}) {
+            $body->plans->search(
+                { class => $plan->{classname}, level => {'>=' => $plan->{level}}, extra_build_level => {'>=' => $plan->{extra_build_level}} },
+                {rows => 1, order_by => 'id'},
+                )->single->delete;
+        }
+    }
+}
 
 sub check_objectives {
     my ($self, $body) = @_;
@@ -46,6 +173,10 @@ sub check_objectives {
 
     # glyphs
     if (exists $objectives->{glyphs}) {
+        my %glyphs;
+        foreach my $glyph (@{$objectives->{glyphs}}) {
+            $glyphs{$glyph}++;
+        }
         foreach my $glyph (@{$objectives->{glyphs}}) {
             unless ($body->glyphs->search({ type => $glyph })->count) {
                 confess [1011, 'You do not have the '.$glyph.' glyph needed to complete this mission.'];
@@ -55,8 +186,22 @@ sub check_objectives {
 
     # ships
     if (exists $objectives->{ships}) {
+        my @ids;
         foreach my $ship (@{$objectives->{ships}}) {
-            unless ($body->ships->search({ type => $ship->{type}, speed => {'>=' => $ship->{speed}}, stealth => {'>=' => $ship->{stealth}}, hold_size => {'>=' => $ship->{hold_size}} })->count) {
+            my $this = $body->ships->search({
+                    type => $ship->{type},
+                    speed => {'>=' => $ship->{speed}},
+                    stealth => {'>=' => $ship->{stealth}},
+                    hold_size => {'>=' => $ship->{hold_size}},
+                    id  => { 'not in' => \@ids },
+                },{
+                   rows     =>1,
+                   order_by => 'id',
+                })->single;
+            if (defined $this) {
+                push @ids, $this->id;
+            }
+            else {
                 my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>$ship->{type}});
                 confess [1011, 'You do not have the '.$ship->type_formatted.' needed to complete this mission.'];
             }
@@ -65,8 +210,20 @@ sub check_objectives {
 
     # plans
     if (exists $objectives->{plans}) {
+        my @ids;
         foreach my $plan (@{$objectives->{plans}}) {
-            unless ($body->plans->search({ class => $plan->{classname}, level => {'>=' => $plan->{level}}, extra_build_level => {'>=' => $plan->{extra_build_level}} })->count) {
+            my $this = $body->plans->search({
+                    class => $plan->{classname},
+                    level => {'>=' => $plan->{level}},
+                    extra_build_level => {'>=' => $plan->{extra_build_level}},
+                    id  => { 'not in' => \@ids },
+                },{
+                    rows => 1, order_by => 'id'
+                })->single;
+            if (defined $this) {
+                push @ids, $this->id;
+            }
+            else {
                 confess [1011, 'You do not have the '.$plan->{classname}->name.' plan needed to complete this mission.'];
             }
         }

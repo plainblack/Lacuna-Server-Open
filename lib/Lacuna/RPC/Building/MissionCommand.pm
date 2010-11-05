@@ -44,11 +44,10 @@ sub complete_mission {
     my $building = $self->get_building($empire, $building_id);
     confess [1002, 'Please specify a mission id.'] unless $mission_id;
     my $mission = $building->missions->find($mission_id);
+    confess [1002, 'No such mission.'] unless $mission;
     my $body = $building->body;
     $mission->check_objectives($body);
-    $mission->spend_objectives($body);
-    $mission->add_rewards($body);
-    Lacuna->cache->set($mission->mission_file_name, $empire->id, 1, 60 * 60 * 24 * 30);
+    $mission->complete($body);
     return {
         status      => $self->format_status($empire, $body),
     }

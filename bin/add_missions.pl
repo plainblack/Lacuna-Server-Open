@@ -34,6 +34,7 @@ foreach my $zone (@zones) {
             zone                 => $zone,
             mission_file_name    => $mission_files[rand @mission_files],
         })->insert;
+        say $mission->params->get('name');
         $news->new({
             zone                => $zone,
             headline            => $mission->params->get('network_19_headline'),
@@ -51,7 +52,7 @@ out((($finish - $start)/60)." minutes have elapsed");
 ###############
 
 
-sub get_missions_files {
+sub get_mission_files {
     opendir my $dir, '/data/Lacuna-Server/var/missions/';
     my @files = readdir $dir;
     closedir $dir;

@@ -4,4 +4,62 @@ Mission Command is accessible via the URL C</missioncommand>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+=head2 get_missions ( session_id, building_id )
+
+Returns a list of missions that you are eligible to complete in this zone.
+
+ {
+    "status" : { ... },
+    "missions" : [
+        {
+            "id" : "id-goes-here",
+            "max_university_level" : 12,
+            "date_posted" : "01 31 2010 13:09:05 +0600",
+            "name" : "The Big Mission",
+            "description" : "Do the big thing and make it go.",
+            "objectives" : [
+              "1500 apple",
+              "Kill a spy",
+              "Destroy a ship"
+            ],
+            "rewards" : [
+                "1 essentia"
+            ]
+        },
+        ...
+    ]
+ }
+
+B<NOTE:> This is not the complete list of missions in the zone. You cannot complete missions you've already completed, nor can you complete missions that are registered as being below your university level.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id for the mission command building.
+
+
+
+=head2 complete_mission ( session_id, building_id, mission_id )
+
+Completes a mission. Will be rejected if you do not have all the objectives met. If you have met the objectives, then the rewards will be distributed to you.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id for the mission command building.
+
+=head3 mission_id
+
+The unique id of the mission you'd like to complete.
+
 =cut
