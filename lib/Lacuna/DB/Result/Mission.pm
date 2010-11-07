@@ -252,7 +252,7 @@ sub format_items {
     # resources
     my @resources;
     foreach my $resource (keys %{ $items->{resources}}) {
-        push @resources, sprintf('%d %s', $items->{resources}{$resource});
+        push @resources, sprintf('%d %s', $items->{resources}{$resource}, $resource);
     }
     push @items, $self->format_list('Resources',@resources);
     
