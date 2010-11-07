@@ -66,7 +66,7 @@ sub restrict_coverage {
             $body->add_news(100,'Network 19 has just learned that %s intends to restrict our coverage on %s!', $empire->name, $body->name);
         }
         else {
-            $body->add_news(90,'In an act of devine wisdom, %s has restored our full coverage on %s!', $empire->name, $body->name);
+            $body->add_news(90,'In an act of divine wisdom, %s has restored our full coverage on %s!', $empire->name, $body->name);
         }
     }
     $body->restrict_coverage($onoff);
