@@ -241,6 +241,7 @@ sub observatory {
                 $shipyard->build_ship($probe);
                 $probe->date_available(DateTime->now->add(seconds=>60));
                 $probe->update;
+                $shipyard->finish_work->update;
                 $self->start('explore');
                 return undef;
             }
