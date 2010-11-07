@@ -73,6 +73,7 @@ sub login {
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
     }
+    Lacuna->cache->increment('rpc_count_'.format_date(undef,'%d'), $empire->id, 1, 60 * 60 * 26);
     if ($empire->is_password_valid($password)) {
         if ($empire->stage eq 'new') {
             confess [1100, "Your empire has not been completely created. You must complete it in order to play the game.", { empire_id => $empire->id } ];
