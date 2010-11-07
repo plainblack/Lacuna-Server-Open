@@ -234,7 +234,7 @@ sub check_objectives {
 
 sub format_objectives {
     my $self = shift;
-    return $self->format_items($self->params->get('mission_objective'));
+    return $self->format_items($self->params->get('mission_objective'), 1);
 }
 
 sub format_rewards {
@@ -243,7 +243,7 @@ sub format_rewards {
 }
 
 sub format_items {
-    my ($self, $items) = @_;
+    my ($self, $items, $is_objective) = @_;
     my @items;
     
     # essentia
@@ -264,7 +264,8 @@ sub format_items {
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     foreach my $stats (@{ $items->{ships}}) {
         my $ship = $ships->new({type=>$stats->{type}});
-        push @ships, sprintf('%s (speed: %d, stealth: %d, hold size: %d)', $ship->name, $stats->{speed}, $stats->{stealth}, $stats->{hold_size});
+        my $pattern = $is_objective ? '%s (speed >= %d, stealth >= %d, hold size >= %d)' : '%s (speed: %d, stealth: %d, hold size: %d)' ;
+        push @ships, sprintf($pattern, $ship->type_formatted, $stats->{speed}, $stats->{stealth}, $stats->{hold_size});
     }
     push @items, $self->format_list('Ships',@ships);
 
@@ -275,7 +276,8 @@ sub format_items {
         if ($stats->{extra_build_level}) {
             $level = '+'.$stats->{extra_build_level};
         }
-        push @plans, sprintf('%s (%s)', $stats->{classname}->name, $level);
+        my $pattern = $is_objective ? '%s (>= %s)' : '%s (%s)'; 
+        push @plans, sprintf($pattern, $stats->{classname}->name, $level);
     }
     push @items, $self->format_list('Plans',@plans);
 
