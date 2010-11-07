@@ -52,7 +52,7 @@ sub add_trade {
         confess [1011, "You do not have any ships available that can carry trade goods."];
     }
     $ask = $self->structure_ask($ask);
-    $offer = $self->structure_offer($offer, $ship->hold_size);
+    $offer = $self->structure_offer($offer, $ship->hold_size, $ship);
     $ship->task('Waiting On Trade');
     $ship->update;
     my %trade = (
@@ -111,7 +111,7 @@ sub push_items {
         }
     }
     
-    my $payload = $self->structure_push($items, $ship->hold_size);
+    my $payload = $self->structure_push($items, $ship->hold_size, undef, $ship);
     if ($options->{stay}) {
         $ship->body_id($target->id);
         $ship->body($target);

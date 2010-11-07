@@ -59,7 +59,7 @@ sub available_trades {
 }
 
 sub structure_offer {
-    my ($self, $offer, $available_cargo_space) = @_;
+    my ($self, $offer, $available_cargo_space, $transfer_ship) = @_;
     given($offer->{type}) {
         when ([qw(water energy waste)]) {
             return $self->offer_resources($offer->{type}, $offer, $available_cargo_space);
@@ -87,6 +87,9 @@ sub structure_offer {
         }
         when ('ship') {
             confess $offer_nothing_exception if ($offer->{ship_id} eq '');
+            if (defined $transfer_ship && $transfer_ship->id eq $offer->{ship_id}) {
+                confess [1010, 'You cannot trade away the same ship you are using to transfer the goods.'];
+            }
             my $space = 50000;
             confess [1011, sprintf($cargo_exception,$space)] unless ($space <= $available_cargo_space);
             my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($offer->{ship_id});
@@ -213,7 +216,7 @@ sub ask_resources {
 
 
 sub structure_push {
-    my ($self, $items, $available_cargo_space, $space_exception) = @_;
+    my ($self, $items, $available_cargo_space, $space_exception, $transfer_ship) = @_;
     my $body = $self->body;
     $space_exception ||= $cargo_exception;
     
@@ -246,6 +249,9 @@ sub structure_push {
             }
             when ('ship') {
                 confess [1002, 'You must specify a ship_id if you are pushing a ship.'] unless $item->{ship_id};
+                if (defined $transfer_ship && $transfer_ship->id == $item->{ship_id}) {
+                    confess [1010, 'You cannot push a ship with itself. Use the "stay" option instead.'];
+                }
                 my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($item->{ship_id});
                 confess $have_exception unless (defined $ship && $self->body_id eq $ship->body_id && $ship->task eq 'Docked');
                 $space_used += 50000;
