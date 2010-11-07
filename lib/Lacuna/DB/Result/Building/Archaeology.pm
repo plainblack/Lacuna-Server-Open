@@ -296,7 +296,7 @@ sub make_plan {
     my $glyphs = $self->body->glyphs;
     foreach my $id (@{$ids}) {
         my $glyph = $glyphs->find($id);
-        last unless exists $match->{$glyph->type};
+        confess [1002, 'The glyphs specified do not fit together in that manner.'] unless exists $match->{$glyph->type};
         $match = $match->{$glyph->type};
     }
     unless (exists $match->{plan}) {
