@@ -1,6 +1,6 @@
 Enemy Captured
 ~~~
-We captured a spy on {Planet %s %s}. We're not sure yet where he's from, but as long as you keep some people assigned to counter espionage, we'll get the answers we need.
+We captured a spy on {Planet %s %s %s}. We're not sure yet where he's from, but as long as you keep some people assigned to counter espionage, we'll get the answers we need.
 
 Regards,
 
