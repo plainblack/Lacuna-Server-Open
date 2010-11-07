@@ -418,7 +418,7 @@ sub view_all_ships {
     $page_number ||= 1;
     my $body = $building->body;
     my @fleet;
-    my $ships = $building->ships->search({}, {rows=>25, page=>$page_number});
+    my $ships = $building->ships->search({}, {rows=>25, order_by => ['type','name'], page=>$page_number});
     while (my $ship = $ships->next) {
         $ship->body($body);
         push @fleet, $ship->get_status;
