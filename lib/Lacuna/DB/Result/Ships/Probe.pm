@@ -40,6 +40,7 @@ sub can_send_to_target {
         $max_probes = $observatory->max_probes;
     }
     confess [ 1009, 'You are already controlling the maximum amount of probes for your Observatory level.'] if ($count >= $max_probes);
+    return 1;
 }
 
 no Moose;

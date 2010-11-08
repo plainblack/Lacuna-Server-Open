@@ -38,6 +38,7 @@ sub arrive {
 sub can_send_to_target {
     my ($self, $target) = @_;
     confess [1009, 'Can only be sent to gas giants.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant'));
+    return 1;
 }
 
 no Moose;

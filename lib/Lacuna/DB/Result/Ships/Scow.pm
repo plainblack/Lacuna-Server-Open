@@ -51,6 +51,7 @@ sub can_send_to_target {
     my ($self, $target) = @_;
     confess [1009, 'Can only be sent to planets and stars.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet') || $target->isa('Lacuna::DB::Result::Map::Star'));
     confess [1013, 'Can only be sent to inhabited planets.'] if ($target->isa('Lacuna::DB::Result::Map::Body::Planet') && !$target->empire_id);
+    return 1;
 }
 
 no Moose;

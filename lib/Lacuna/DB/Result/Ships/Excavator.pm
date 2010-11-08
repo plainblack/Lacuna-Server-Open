@@ -80,6 +80,7 @@ sub can_send_to_target {
     confess [1009, 'Can only be sent to bodies.'] unless ($target->isa('Lacuna::DB::Result::Map::Body'));
     confess [1013, 'Can only be sent to uninhabited bodies.'] if ($target->empire_id);
     confess [1010, 'You have already sent an Excavator there in the past 30 days.'] if (Lacuna->cache->get('excavator_'.$target->id, $self->body->empire->id));
+    return 1;
 }
 
 no Moose;

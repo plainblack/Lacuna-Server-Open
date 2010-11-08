@@ -46,6 +46,7 @@ sub arrive {
 sub can_send_to_target {
     my ($self, $target) = @_;
     confess [1009, 'Can only be sent to stars.'] unless ($target->isa('Lacuna::DB::Result::Map::Star'));
+    return 1;
 }
 
 no Moose;

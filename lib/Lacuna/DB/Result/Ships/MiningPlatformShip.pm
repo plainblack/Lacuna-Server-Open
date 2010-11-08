@@ -68,6 +68,7 @@ sub can_send_to_target {
     my $ministry = $self->body->mining_ministry;
     confess [1013, 'Cannot control platforms without a Mining Ministry.'] unless (defined $ministry);
     $ministry->can_add_platform($target);
+    return 1;
 }
 
 no Moose;
