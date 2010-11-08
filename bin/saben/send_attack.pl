@@ -31,7 +31,7 @@ my $lec = $empires->find(1);
 out('Looping through colonies...');
 while (my $target = $targets->next) {
     my $saben_colony = $target->saben_colony;
-    return undef unless (defined $saben_colony);
+    next unless (defined $saben_colony);
     out('Found colony '.$saben_colony->name);
     if ($saben_colony->happiness < 0) {
         out('Colony has been overcome by players.');
