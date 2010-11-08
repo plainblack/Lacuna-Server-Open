@@ -32,6 +32,7 @@ my $colonies = $saben->planets;
 while (my $colony = $colonies->next) {
     next if $colony->id == $saben->home_planet_id;
     out('Colony: '.$colony->name);
+    $colony->tick;
     set_defenders($colony);
     burn_captured_spies($colony);
     train_spies($colony);
