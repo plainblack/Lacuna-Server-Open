@@ -71,7 +71,7 @@ out((($finish - $start)/60)." minutes have elapsed");
 sub has_probe {
     my ($saben_colony, $target_colony) = @_;
     out('Looking for probes...');
-    my $count = $ships->search({body_id => $saben_colony, type => 'probe'})->count;
+    my $count = $ships->search({body_id => $saben_colony->id, type => 'probe'})->count;
     if ($count) {
         out('Has a probe to launch...');
         return 1;
