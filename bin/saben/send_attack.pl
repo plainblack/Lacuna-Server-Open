@@ -89,11 +89,26 @@ sub attack {
     my ($saben_colony, $target_colony) = @_;
     out('Attack!');
     my $available_ships = $ships->search({ task=>'Docked', body_id => $saben_colony->id});
+    my $available_spies = $spies->search({ task => 'Counter Espionage', on_body_id => $saben_colony->id, from_body_id => $saben_colony->id });
     while (my $ship = $available_ships->next) {
         my $target = $ship->type eq 'probe' ? $target_colony->star : $target_colony;
         if (eval{$ship->can_send_to_target($target)}) {
             out('Sending '.$ship->type_formatted);
-            $ship->send($target);
+            my $payload = {};
+            if ($ship->type eq 'spy_pod') {
+                my $spy = $available_spies->next;
+                unless (defined $spy) {
+                    out('No spies available.');
+                    next;
+                }
+                $spy->available_on(DateTime->now->add(seconds=>$ship->calculate_travel_time($target)));
+                $spy->on_body_id($target->id);
+                $spy->task('Travelling');
+                $spy->started_assignment(DateTime->now);
+                $spy->update;
+                $payload = { spies => [ $spy->id ] };                
+            }
+            $ship->send(target => $target, payload => $payload);
         }
     }
 }
