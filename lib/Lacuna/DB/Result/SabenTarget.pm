@@ -13,7 +13,7 @@ __PACKAGE__->add_columns(
 sub saben_colony {
     my $self = shift;
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($self->saben_colony_id);
-    if (defined $body) {
+    if (defined $body && $body->empire_id == -1) {
         return $body;
     }
     else {
