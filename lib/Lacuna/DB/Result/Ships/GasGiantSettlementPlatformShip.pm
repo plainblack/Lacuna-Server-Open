@@ -29,6 +29,7 @@ sub arrive {
     if ($self->direction eq 'out') {
         my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::GasGiantLab');
         $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform', 1, (defined $lab) ? $lab->level : 0);
+        $self->delete;
     }
     else {
         $self->land;
