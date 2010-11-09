@@ -387,7 +387,7 @@ sub check_for_available_build_space {
 
 sub check_plots_available {
     my ($self, $building) = @_;
-    if (!$building->isa('Lacuna::DB::Result::Building::Permanent') && $self->plots_available) {
+    if (!$building->isa('Lacuna::DB::Result::Building::Permanent') && $self->plots_available < 1) {
         confess [1009, "You've already reached the maximum number of buildings for this planet.", $self->size];
     }
     return 1;
