@@ -10,6 +10,15 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Colonization Ships));
 };
 
+before has_special_resources => sub {
+    my $self = shift;
+    my $planet = $self->body;
+    my $amount_needed = sprintf('%.0f', $self->ore_to_build * $self->upgrade_cost * 0.20);
+    if ($planet->gypsum_stored + $planet->sulfur_stored + $planet->monazite_stored < $amount_needed) {
+        confess [1012,"You do not have a sufficient supply (".$amount_needed.") of phosphorus from sources like Gypsum, Sulfur, and Monazite to create the chemical compounds to terraform a planet."];
+    }
+};
+
 use constant controller_class => 'Lacuna::RPC::Building::TerraformingLab';
 
 use constant university_prereq => 18;

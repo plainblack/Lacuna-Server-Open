@@ -63,8 +63,12 @@ sub arrive {
 sub can_send_to_target {
     my ($self, $target) = @_;
     confess [1009, 'Can only be sent to planets.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet'));
-    confess [1009, 'Can only be sent to habitable planets.'] if ($target->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant'));
+    my $empire = $self->body->empire;
+    confess [1009, 'Can only be sent to habitable planets.'] if ($target->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant') && $empire->university_level < 19);
     confess [1013, 'Can only be sent to uninhabited planets.'] if ($target->empire_id);
+    confess [ 1009, 'Your species cannot survive on that planet.' ] unless ($target->orbit <= $empire->max_orbit && $target->orbit >= $empire->min_orbit && $empire->university_level < 18);
+    my $next_colony_cost = $empire->next_colony_cost;
+    confess [ 1011, 'You do not have enough happiness to colonize another planet. You need '.$next_colony_cost.' happiness.', [$next_colony_cost]] unless ( $self->body->happiness > $next_colony_cost);
     return 1;
 }
 

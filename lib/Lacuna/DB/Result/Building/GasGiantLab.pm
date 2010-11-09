@@ -10,6 +10,15 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Colonization Ships));
 };
 
+before has_special_resources => sub {
+    my $self = shift;
+    my $planet = $self->body;
+    my $amount_needed = sprintf('%.0f', $self->ore_to_build * $self->upgrade_cost * 0.40);
+    if ($planet->rutile_stored + $planet->chromite_stored + $planet->bauxite_stored + $planet->magnetite_stored + $planet->beryl_stored + $planet->goethite_stored < $amount_needed) {
+        confess [1012,"You do not have a sufficient supply (".$amount_needed.") of structural minerals such as Rutile, Chromite, Bauxite, Magnetite, Beryl, and Goethite to build the components that can handle the stresses of gas giant missions."];
+    }
+};
+
 use constant controller_class => 'Lacuna::RPC::Building::GasGiantLab';
 
 use constant university_prereq => 19;

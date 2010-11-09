@@ -76,6 +76,7 @@ sub get_ships_for {
     my @available;
     my $available_rs = $ships->search({task => 'Docked', body_id=>$body->id });
     while (my $ship = $available_rs->next) {
+        $ship->body($body);
         eval{ $ship->can_send_to_target($target) };
         if ($@) {
     	    push @unavailable, { ship => $ship->get_status, reason => $@ };
@@ -133,16 +134,12 @@ sub send_ship {
             $payload = { resources => { waste => $ship->hold_size } };
         }
         when ('short_range_colony_ship') {
-            confess [ 1009, 'Your species cannot survive on that planet.' ] unless ($target->orbit <= $empire->max_orbit && $target->orbit >= $empire->min_orbit);
             my $next_colony_cost = $empire->next_colony_cost;
-            confess [ 1011, 'You do not have enough happiness to colonize another planet. You need '.$next_colony_cost.' happiness.', [$next_colony_cost]] unless ( $ship->body->happiness > $next_colony_cost);
             $body->spend_happiness($next_colony_cost)->update;
             $payload = { colony_cost => $next_colony_cost };
         }
         when ('colony_ship') {
-            confess [ 1009, 'Your species cannot survive on that planet.' ] unless ($target->orbit <= $empire->max_orbit && $target->orbit >= $empire->min_orbit);
             my $next_colony_cost = $empire->next_colony_cost;
-            confess [ 1011, 'You do not have enough happiness to colonize another planet. You need '.$next_colony_cost.' happiness.', [$next_colony_cost]] unless ( $ship->body->happiness > $next_colony_cost);
             $body->spend_happiness($next_colony_cost)->update;
             $payload = { colony_cost => $next_colony_cost };
         }

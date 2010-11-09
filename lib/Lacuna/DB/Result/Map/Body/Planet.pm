@@ -151,6 +151,7 @@ around get_status => sub {
                 }
                 $out->{needs_surface_refresh} = $self->needs_surface_refresh;
                 $out->{empire}{alignment} = 'self';
+                $out->{plots_available} = $self->plots_available;
                 $out->{building_count}  = $self->building_count;
                 $out->{population}      = $self->population;
                 $out->{water_capacity}  = $self->water_capacity;
@@ -239,7 +240,7 @@ has population => (
 );
 
 has building_count => (
-    is      => 'ro',
+    is      => 'rw',
     lazy    => 1,
     default => sub {
         my $self = shift;
@@ -384,9 +385,9 @@ sub check_for_available_build_space {
     return 1;
 }
 
-sub check_building_count {
+sub check_plots_available {
     my ($self, $building) = @_;
-    if (!$building->isa('Lacuna::DB::Result::Building::Permanent') && $self->building_count >= $self->size) {
+    if (!$building->isa('Lacuna::DB::Result::Building::Permanent') && $self->plots_available) {
         confess [1009, "You've already reached the maximum number of buildings for this planet.", $self->size];
     }
     return 1;
@@ -404,7 +405,7 @@ sub has_met_building_prereqs {
 sub can_build_building {
     my ($self, $building) = @_;
     $self->check_for_available_build_space($building->x, $building->y);
-    $self->check_building_count($building);
+    $self->check_plots_available($building);
     $self->has_room_in_build_queue;
     $self->has_met_building_prereqs($building);
     return $self;
@@ -542,6 +543,9 @@ sub is_plot_locked {
 
 sub build_building {
     my ($self, $building) = @_;
+    $self->building_count( $self->building_count + 1 );
+    $self->plots_available( $self->plots_available - 1 );
+    $self->update;
     $building->date_created(DateTime->now);
     $building->body_id($self->id);
     $building->level(0) unless $building->level;
@@ -597,6 +601,7 @@ sub recalc_stats {
         $stats{$type.'_production_hour'} = 0;
     }
     #calculate building production
+    my ($gas_giant_platforms, $terraforming_platforms);
     while (my $building = $buildings->next) {
         $stats{waste_capacity} += $building->waste_capacity;
         $stats{water_capacity} += $building->water_capacity;
@@ -623,7 +628,27 @@ sub recalc_stats {
                 }
             }
         }
+        if ($building->isa('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform')) {
+            $gas_giant_platforms += $building->level;
+        }
+        if ($building->isa('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform')) {
+            $terraforming_platforms += $building->level;
+        }
     }
+    
+    # deal with plot usage
+    my $max_plots = $self->size;
+    if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant')) {
+        $max_plots = $gas_giant_platforms < $max_plots ? $gas_giant_platforms : $max_plots;
+    }
+    if ($self->isa('Lacuna::DB::Result::Map::Body::Planet')) {
+        if ($self->orbit > $self->empire->max_orbit || $self->orbit < $self->empire->min_orbit) {
+            $max_plots = $terraforming_platforms < $max_plots ? $terraforming_platforms : $max_plots;
+        }
+    }
+    $stats{plots_available} = $max_plots - $self->building_count;
+    
+    # deal with ore overages
     my $overage;
     foreach my $type (ORE_TYPES) {
         my $method = $type.'_hour';
