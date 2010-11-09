@@ -137,7 +137,13 @@ my %recipies = (
         },
     },
     beryl       => {
-        
+        sulfur      => {
+            monazite    => {
+                galena      => {
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope',
+                },
+            },
+        },        
     },
     chalcopyrite=> {
         plan        => 'Lacuna::DB::Result::Building::Permanent::Lagoon',
@@ -251,7 +257,13 @@ my %recipies = (
         },
     },
     monazite    => {
-        
+        trona       => {
+            gold        => {
+                bauxite     => {
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::CrashedShipSite',
+                },
+            },
+        },        
     },
     rutile      => {
         plan        => 'Lacuna::DB::Result::Building::Permanent::Crater',
