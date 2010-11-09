@@ -409,7 +409,7 @@ sub escape {
 
 sub go_to_jail {
     my $self = shift;
-    $self->available_on(DateTime->now->add(months=>1));
+    $self->available_on(DateTime->now->add(days=>7));
     $self->task('Captured');
     $self->started_assignment(DateTime->now);
     $self->times_captured( $self->times_captured + 1 );

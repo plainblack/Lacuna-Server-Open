@@ -206,7 +206,7 @@ sub capture_with_spies {
     return 0 unless (exists $self->payload->{spies} || exists $self->payload->{fetch_spies} );
     my $body = $self->foreign_body;
     return 0 if ($body->empire_id == $self->body->empire_id);
-    my $security = $body->get_building_of_class('Lacuna::DB::Result::Security');
+    my $security = $body->get_building_of_class('Lacuna::DB::Result::Building::Security');
     return 0 unless defined $security && $security->efficiency > 0;
     my $security_boost = $security->level * $security->efficiency;
     return 0 unless (randint(1,10000) + $security_boost > $self->stealth);
