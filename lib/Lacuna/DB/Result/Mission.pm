@@ -32,7 +32,7 @@ sub complete {
     Lacuna->cache->set($self->mission_file_name, $body->empire_id, 1, 60 * 60 * 24 * 30);
     Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
         zone                => $self->zone,
-        headline            => $self->params->get('network_19_completion'),
+        headline            => sprintf($self->params->get('network_19_completion'), $body->empire->name),
     })->insert;
     $self->add_next_part;
     $self->delete;
