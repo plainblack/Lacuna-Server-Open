@@ -20,6 +20,7 @@ before has_special_resources => sub {
 };
 
 use constant controller_class => 'Lacuna::RPC::Building::TerraformingLab';
+use constant max_instances_per_planet => 1;
 
 use constant university_prereq => 18;
 
