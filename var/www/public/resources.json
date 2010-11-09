@@ -115,7 +115,7 @@
         "smuggler_ship" : { "description" : "Stealthy transport ship. Can be used to push resources between your colonies, trade with other empires, or gather ore from mining platforms.", "wiki" : "http://community.lacunaexpanse.com/wiki/smuggler-ship" },
         "mining_platform_ship" : { "description" : "Allows the gathering of resources from asteroids.", "wiki" : "http://community.lacunaexpanse.com/wiki/mining-platform-ship" },
         "terraforming_platform_ship" : { "description" : "Allows you to settle planets your species could not normally colonize.", "wiki" : "http://community.lacunaexpanse.com/wiki/terraforming-platform-ship" },
-        "gas_giant_settlement_platform_ship" : { "description" : "Allows you to settle gas giants.", "wiki" : "http://community.lacunaexpanse.com/wiki/gas-giant-settlement-platform-ship" },
+        "gas_giant_settlement_ship" : { "description" : "Allows you to settle gas giants.", "wiki" : "http://community.lacunaexpanse.com/wiki/gas-giant-settlement-platform-ship" },
         "scow" : { "description" : "Robotic waste transport ship. Can be used to dispose of waste in space.", "wiki" : "http://community.lacunaexpanse.com/wiki/scow" },
         "dory" : { "description" : "Small transport ship. Can be used to push resources between your colonies, trade with other empires, or gather ore from mining platforms.", "wiki" : "http://community.lacunaexpanse.com/wiki/dory" },
         "freighter" : { "description" : "Large transport ship. Can be used to push resources between your colonies, trade with other empires, or gather ore from mining platforms.", "wiki" : "http://community.lacunaexpanse.com/wiki/freighter" },

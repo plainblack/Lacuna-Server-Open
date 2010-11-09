@@ -15,7 +15,7 @@ __PACKAGE__->add_columns(
     shipyard_id             => { data_type => 'int', size => 11, is_nullable => 0 },
     date_started            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     date_available          => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    type                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # probe, colony_ship, spy_pod, cargo_ship, space_station, smuggler_ship, mining_platform_ship, terraforming_platform_ship, gas_giant_settlement_platform_ship
+    type                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # probe, colony_ship, spy_pod, cargo_ship, space_station, smuggler_ship, mining_platform_ship, terraforming_platform_ship, gas_giant_settlement_ship
     task                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # Docked, Building, Travelling, Mining
     name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     speed                   => { data_type => 'int', size => 11, is_nullable => 0 },
@@ -37,7 +37,7 @@ __PACKAGE__->typecast_map(type => {
     'smuggler_ship'                         => 'Lacuna::DB::Result::Ships::SmugglerShip',
     'mining_platform_ship'                  => 'Lacuna::DB::Result::Ships::MiningPlatformShip',
     'terraforming_platform_ship'            => 'Lacuna::DB::Result::Ships::TerraformingPlatformShip',
-    'gas_giant_settlement_platform_ship'    => 'Lacuna::DB::Result::Ships::GasGiantSettlementPlatformShip',
+    'gas_giant_settlement_ship'             => 'Lacuna::DB::Result::Ships::GasGiantSettlementPlatformShip',
     'scanner'                               => 'Lacuna::DB::Result::Ships::Scanner',
     'detonator'                             => 'Lacuna::DB::Result::Ships::Detonator',
     'excavator'                             => 'Lacuna::DB::Result::Ships::Excavator',
