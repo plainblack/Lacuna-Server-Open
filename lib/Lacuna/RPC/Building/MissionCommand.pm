@@ -19,6 +19,7 @@ sub get_missions {
     my $building = $self->get_building($empire, $building_id);
     my @missions;
     my $missions = $building->missions;
+    my $count;
     while (my $mission = $missions->next) {
         my $params = $mission->params;
         next if $params->get('max_university_level') < $empire->university_level;
@@ -32,6 +33,8 @@ sub get_missions {
             max_university_level    => $params->get('max_university_level'),
             date_posted             => $mission->date_posted_formatted,
         };
+        $count++;
+        last if ($count >= $building->level);
     }
     return {
         status      => $self->format_status($empire, $building->body),
