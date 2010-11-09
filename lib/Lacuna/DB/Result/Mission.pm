@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Mission;
 use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
-use Lacuna::Util qw(format_date);
+use Lacuna::Util qw(format_date commify);
 use UUID::Tiny ':std';
 use Config::JSON;
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
@@ -247,12 +247,12 @@ sub format_items {
     my @items;
     
     # essentia
-    push @items, sprintf('Essentia: %d essentia.', $items->{essentia}) if ($items->{essentia});
+    push @items, sprintf('Essentia: %s essentia.', commify($items->{essentia})) if ($items->{essentia});
     
     # resources
     my @resources;
     foreach my $resource (keys %{ $items->{resources}}) {
-        push @resources, sprintf('%d %s', $items->{resources}{$resource}, $resource);
+        push @resources, sprintf('%s %s', commify($items->{resources}{$resource}), $resource);
     }
     push @items, $self->format_list('Resources',@resources);
     
@@ -264,8 +264,8 @@ sub format_items {
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     foreach my $stats (@{ $items->{ships}}) {
         my $ship = $ships->new({type=>$stats->{type}});
-        my $pattern = $is_objective ? '%s (speed >= %d, stealth >= %d, hold size >= %d)' : '%s (speed: %d, stealth: %d, hold size: %d)' ;
-        push @ships, sprintf($pattern, $ship->type_formatted, $stats->{speed}, $stats->{stealth}, $stats->{hold_size});
+        my $pattern = $is_objective ? '%s (speed >= %s, stealth >= %s, hold size >= %s)' : '%s (speed: %s, stealth: %s, hold size: %s)' ;
+        push @ships, sprintf($pattern, $ship->type_formatted, commify($stats->{speed}), commify($stats->{stealth}), commify($stats->{hold_size}));
     }
     push @items, $self->format_list('Ships',@ships);
 
@@ -292,7 +292,7 @@ sub format_list {
     }
     elsif (scalar(@list) > 1) {
         my $last = pop @list;
-        push @out, sprintf($label.': %s and %s', join(',', @list), $last);
+        push @out, sprintf($label.': %s and %s', join('; ', @list), $last);
     }
     return @out;
 }

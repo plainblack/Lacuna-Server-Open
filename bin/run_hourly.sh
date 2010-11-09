@@ -7,4 +7,5 @@ perl summarize_server.pl
 perl summarize_economy.pl
 perl generate_news_feeds.pl
 perl tick_spies.pl
+perl add_missions.pl
 perl saben/hourly_update.pl
