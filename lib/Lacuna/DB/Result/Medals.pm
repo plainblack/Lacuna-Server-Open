@@ -195,6 +195,7 @@ use constant MEDALS => {
     CitadelOfKnope                  => 'Discovered the Citadel of Knope',
     KalavianRuins                   => 'Discovered the Kalavian Ruins',
     MassadsHenge                    => 'Discovered Massad\'s Henge',
+    PantheonOfHagness               => 'Discovered the Pantheon of Hagness',
     Volcano                         => 'Discovered a Volcano',
     TempleOfTheDrajilites           => 'Discovered the Temple of the Drajilites',
     GeoThermalVent                  => 'Discovered a Geo Thermal Vent',

@@ -217,6 +217,13 @@ my %recipies = (
         sulfur       => {
             plan        => 'Lacuna::DB::Result::Building::Permanent::Beach8',
         },
+        trona       => {
+            beryl       => {
+                anthracite      => {
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::PantheonOfHagness',
+                },
+            },
+        },
         uraninite      => {
             plan        => 'Lacuna::DB::Result::Building::Permanent::Beach4',
         },

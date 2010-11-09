@@ -1,5 +1,6 @@
 {
     "buildings" : {
+        "/pantheonofhagness" : { "description" : "Increases the number of available plots on your planet.", "wiki" : "http://community.lacunaexpanse.com/wiki/pantheon-of-hagness" },
         "/crashedshipsite" : { "description" : "Harvest technology from a crashed ship to make your own ships better.", "wiki" : "http://community.lacunaexpanse.com/wiki/crashed-ship-site" },
         "/citadelofknope" : { "description" : "Defends your planet from incoming hostile ships by absorbing the damage onto itself.", "wiki" : "http://community.lacunaexpanse.com/wiki/citadel-of-knope" },
         "/ravine" : { "description" : "A natural place to store waste.", "wiki" : "http://community.lacunaexpanse.com/wiki/ravine" },
@@ -115,7 +116,7 @@
         "smuggler_ship" : { "description" : "Stealthy transport ship. Can be used to push resources between your colonies, trade with other empires, or gather ore from mining platforms.", "wiki" : "http://community.lacunaexpanse.com/wiki/smuggler-ship" },
         "mining_platform_ship" : { "description" : "Allows the gathering of resources from asteroids.", "wiki" : "http://community.lacunaexpanse.com/wiki/mining-platform-ship" },
         "terraforming_platform_ship" : { "description" : "Allows you to settle planets your species could not normally colonize.", "wiki" : "http://community.lacunaexpanse.com/wiki/terraforming-platform-ship" },
-        "gas_giant_settlement_ship" : { "description" : "Allows you to settle gas giants.", "wiki" : "http://community.lacunaexpanse.com/wiki/gas-giant-settlement-platform-ship" },
+        "gas_giant_settlement_ship" : { "description" : "Allows you to settle gas giants.", "wiki" : "http://community.lacunaexpanse.com/wiki/gas-giant-settlement-ship" },
         "scow" : { "description" : "Robotic waste transport ship. Can be used to dispose of waste in space.", "wiki" : "http://community.lacunaexpanse.com/wiki/scow" },
         "dory" : { "description" : "Small transport ship. Can be used to push resources between your colonies, trade with other empires, or gather ore from mining platforms.", "wiki" : "http://community.lacunaexpanse.com/wiki/dory" },
         "freighter" : { "description" : "Large transport ship. Can be used to push resources between your colonies, trade with other empires, or gather ore from mining platforms.", "wiki" : "http://community.lacunaexpanse.com/wiki/freighter" },
