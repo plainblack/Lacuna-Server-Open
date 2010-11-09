@@ -40,6 +40,7 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
         
         "needs_surface_refresh" : 1, # indicates that the client needs to call get_buildings() because something has changed
         "building_count" : 7,
+        "plots_available" :60,
         "happiness" : 3939,
         "happiness_hour" : 25,
         "food_stored" : 33329,
