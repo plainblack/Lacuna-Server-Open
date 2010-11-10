@@ -18,27 +18,34 @@ my $start = time;
 out('Finding Mission Files');
 my @mission_files = get_mission_files();
 
-out('Loading DB');
+out('Loading DB...');
 our $db = Lacuna->db;
 our $missions = $db->resultset('Lacuna::DB::Result::Mission');
 our $news = $db->resultset('Lacuna::DB::Result::News');
 
-out('Adding missions');
+out('Deleting missions nobody has completed...');
+$missions->search({
+    date_posted => { '<' => DateTime->now->subtract( hours => 72 )}
+})->delete;
+
+out('Adding missions...');
 my @zones = $db->resultset('Lacuna::DB::Result::Map::Body')->search(
     { empire_id => { '>' => 0 }},
     { distinct => 1 })->get_column('zone')->all;
 foreach my $zone (@zones) {
     out($zone);
     if ($missions->search({zone=>$zone})->count < 51) {
-        my $mission = $missions->new({
-            zone                 => $zone,
-            mission_file_name    => $mission_files[rand @mission_files],
-        })->insert;
-        say $mission->params->get('name');
-        $news->new({
-            zone                => $zone,
-            headline            => $mission->params->get('network_19_headline'),
-        })->insert;
+        foreach (1..3) {
+            my $mission = $missions->new({
+                zone                 => $zone,
+                mission_file_name    => $mission_files[rand @mission_files],
+            })->insert;
+            say $mission->params->get('name');
+            $news->new({
+                zone                => $zone,
+                headline            => $mission->params->get('network_19_headline'),
+            })->insert;
+        }
     }
 }
 

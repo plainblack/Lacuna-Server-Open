@@ -48,7 +48,7 @@ sub missions {
     return Lacuna->db->resultset('Lacuna::DB::Result::Mission')->search({
         zone                    => $self->body->zone,
     },{
-        order_by   => 'date_posted',
+        order_by   => ['max_university_level','date_posted'],
     });
 }
 

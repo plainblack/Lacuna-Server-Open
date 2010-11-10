@@ -13,6 +13,7 @@ __PACKAGE__->add_columns(
     mission_file_name       => { data_type => 'varchar', size => 100, is_nullable => 0 },
     zone                    => { data_type => 'varchar', size => 16, is_nullable => 0 },
     date_posted             => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    max_university_level    => { data_type => 'tinyint', is_nullable => 0 },
     scratch                 => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
 );
 
