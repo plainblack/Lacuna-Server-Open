@@ -1,0 +1,2 @@
+# config-file-type: JSON 1
+{"network_19_headline":"Vernor attempts to corner market in uranite.","network_19_completion":"%s sold out to Vernor.","description":"The legendary investor known only as \"Vernor\" is once again trying to corner the market in uranite. For a short time only, he is offering 200,000 gold for 100,000 uranite.","mission_objective":{"resources":{"uraninite":100000}},"max_university_level":"15","name":"Vernor's Binge","mission_reward":{"resources":{"gold":200000}},"mission_type":"trade"}
