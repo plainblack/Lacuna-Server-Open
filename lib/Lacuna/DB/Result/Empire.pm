@@ -9,6 +9,7 @@ use Lacuna::Util qw(format_date);
 use Digest::SHA;
 use List::MoreUtils qw(uniq);
 use Email::Stuff;
+use Email::Valid;
 use UUID::Tiny ':std';
 use Lacuna::Constants qw(INFLATION);
 
@@ -438,6 +439,9 @@ sub get_invite_friend_url {
 sub invite_friend {
     my ($self, $email, $custom_message) = @_;
     $custom_message ||= "I'm having a great time with this new game called Lacuna Expanse. Come play with me.";
+    unless (Email::Valid->address($email)) {
+        confess [1009, $email.' does not appear to be a valid email address.'];
+    }
     my $invites = Lacuna->db->resultset('Lacuna::DB::Result::Invite');
     if ($invites->search({email => $email, inviter_id => $self->id })->count) {
         confess [1009, 'You have already invited that email address.'];
