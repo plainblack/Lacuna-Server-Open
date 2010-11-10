@@ -1,3 +1,4 @@
+use strict;
 use lib '../lib';
 use Test::More;
 use Test::Deep;
@@ -19,8 +20,15 @@ foreach my $filename (@files) {
     ok($filename =~ m/^[a-z0-9\-\_]+\.((mission)|(part\d))$/i, $filename.' is valid filename');
     eval{ $config = Config::JSON->new('/data/Lacuna-Server/var/missions/'.$filename)};
     isa_ok($config,'Config::JSON');
-    ok($config->get('mission_type'), 'has a type');
-    my @plans = (@{$config->get('mission_objective')->{plans}}, @{$config->get('mission_reward')->{plans}});
+    ok($config->get('max_university_level'), $filename.' has max university level');
+    my $ends_well = qr/(\?|\!|\.)$/;
+    like($config->get('network_19_headline'), $ends_well, $filename.' headline has punctuation');
+    like($config->get('network_19_completion'), $ends_well, $filename.' completion has punctuation');
+    my @plans;
+    my $temp = $config->get('mission_objective')->{plans};
+    push @plans, @{$temp} if (ref $temp eq 'ARRAY');
+    $temp = $config->get('mission_reward')->{plans};
+    push @plans, @{$temp} if (ref $temp eq 'ARRAY');
     foreach my $plan (@plans) {
         my $class = $plan->{classname};
         ok(eval{$class->name}, $filename.' plan class '.$class.' loads');
