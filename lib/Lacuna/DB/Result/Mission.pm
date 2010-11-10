@@ -51,13 +51,15 @@ sub add_next_part {
         $name .= '.part'.$1;
     }
     if (-f '/data/Lacuna-Server/var/missions/'.$name) {
-        Lacuna->db->resultset('Lacuna::DB::Result::Mission')->new({
+        my $mission = Lacuna->db->resultset('Lacuna::DB::Result::Mission')->new({
             zone                => $self->zone,
             mission_file_name   => $name,
-        })->insert;
+        });
+        $mission->max_university_level($mission->params->get('max_university_level'));
+        $mission->insert;
         Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
-            zone                => $self->zone,
-            headline            => $self->params->get('network_19_headline'),
+            zone                => $mission->zone,
+            headline            => $mission->params->get('network_19_headline'),
         })->insert;
     }
 }

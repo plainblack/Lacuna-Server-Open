@@ -39,7 +39,9 @@ foreach my $zone (@zones) {
             my $mission = $missions->new({
                 zone                 => $zone,
                 mission_file_name    => $mission_files[rand @mission_files],
-            })->insert;
+            });
+            $mission->max_university_level($mission->params->get('max_university_level'));
+            $mission->insert;
             say $mission->params->get('name');
             $news->new({
                 zone                => $zone,
