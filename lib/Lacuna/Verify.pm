@@ -4,7 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 use Regexp::Common qw(RE_profanity);
-use Data::Validate::Email;
+use Email::Valid;
 
 has content => (
     is          => 'ro',
@@ -81,7 +81,7 @@ sub length_lt {
 
 sub is_email {
     my ($self) = @_;
-    return $self->ok(Data::Validate::Email::is_email(${$self->content}));
+    return $self->ok(Email::Valid->address(${$self->content}));
 }
 
 
