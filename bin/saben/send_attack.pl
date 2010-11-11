@@ -71,14 +71,16 @@ out((($finish - $start)/60)." minutes have elapsed");
 sub has_probe {
     my ($saben_colony, $target_colony) = @_;
     out('Looking for probes...');
-    my $count = $ships->search({body_id => $saben_colony->id, type => 'probe'})->count;
-    if ($count) {
-        out('Has a probe to launch...');
-        return 1;
-    }
-    $count = $db->resultset('Lacuna::DB::Result::Probes')->search({ empire_id => -1, star_id => $target_colony->star_id })->count;
+    my $count = $db->resultset('Lacuna::DB::Result::Probes')->search({ empire_id => -1, star_id => $target_colony->star_id })->count;
     if ($count) {
         out('Has one at star already...');
+        return 1;
+    }
+    my $probe = $ships->search({body_id => $saben_colony->id, type => 'probe', task=>'Docked'},{rows => 1})->single;
+    if (defined $probe) {
+        out('Has a probe to launch...');
+        $probe->send(target => $target_colony->star);
+        sleep $probe->date_available->epoch - time();
         return 1;
     }
     out('No probe. Cancel assault.');
@@ -91,8 +93,7 @@ sub attack {
     my $available_ships = $ships->search({ task=>'Docked', body_id => $saben_colony->id});
     my $available_spies = $spies->search({ task => 'Counter Espionage', on_body_id => $saben_colony->id, from_body_id => $saben_colony->id });
     while (my $ship = $available_ships->next) {
-        my $target = $ship->type eq 'probe' ? $target_colony->star : $target_colony;
-        if (eval{$ship->can_send_to_target($target)}) {
+        if (eval{$ship->can_send_to_target($target_colony)}) {
             out('Sending '.$ship->type_formatted);
             my $payload = {};
             if ($ship->type eq 'spy_pod') {
@@ -101,14 +102,14 @@ sub attack {
                     out('No spies available.');
                     next;
                 }
-                $spy->available_on(DateTime->now->add(seconds=>$ship->calculate_travel_time($target)));
-                $spy->on_body_id($target->id);
+                $spy->available_on(DateTime->now->add(seconds=>$ship->calculate_travel_time($target_colony)));
+                $spy->on_body_id($target_colony->id);
                 $spy->task('Travelling');
                 $spy->started_assignment(DateTime->now);
                 $spy->update;
                 $payload = { spies => [ $spy->id ] };                
             }
-            $ship->send(target => $target, payload => $payload);
+            $ship->send(target => $target_colony, payload => $payload);
         }
     }
 }
