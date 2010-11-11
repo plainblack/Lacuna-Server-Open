@@ -19,7 +19,7 @@ GetOptions(
 );
 
 out('Started');
-my $start = time;
+my $start = DateTime->now;
 
 out('Loading DB');
 our $db = Lacuna->db;
@@ -37,7 +37,7 @@ generate_overview();
 
 my $finish = time;
 out('Finished');
-out((($finish - $start)/60)." minutes have elapsed");
+out((($finish - $start->epoch)/60)." minutes have elapsed");
 
 
 ###############
