@@ -543,9 +543,11 @@ sub is_plot_locked {
 
 sub build_building {
     my ($self, $building) = @_;
-    $self->building_count( $self->building_count + 1 );
-    $self->plots_available( $self->plots_available - 1 );
-    $self->update;
+    unless ($building->isa('Lacuna::DB::Result::Building::Permanent')) {
+        $self->building_count( $self->building_count + 1 );
+        $self->plots_available( $self->plots_available - 1 );
+        $self->update;
+    }
     $building->date_created(DateTime->now);
     $building->body_id($self->id);
     $building->level(0) unless $building->level;
