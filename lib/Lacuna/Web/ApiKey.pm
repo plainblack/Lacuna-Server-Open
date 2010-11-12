@@ -31,8 +31,8 @@ sub www_view_stats {
     );
     my $essentia = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search({api_key => $pair->public_key, amount => { '<' => 0 } });
     $out .= $row->('Essentia Spent',
-        $essentia->search({date_stamp => { '>=' =>$thirty_days_ago }})->get_column('amount')->sum + 0,
-        $essentia->get_column('amount')->sum + 0
+        $essentia->search({date_stamp => { '>=' =>$thirty_days_ago }})->get_column('amount')->sum * -1,
+        $essentia->get_column('amount')->sum * -1
     );
     my $lottery = Lacuna->db->resultset('Lacuna::DB::Result::Log::Lottery')->search({api_key => $pair->public_key });
     $out .= $row->('Lottery Votes',
