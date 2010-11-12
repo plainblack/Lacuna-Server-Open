@@ -1,0 +1,11 @@
+Ship Captured
+~~~
+We received this message just moments ago from the commander of %s on route to {Starmap %s %s %s}.
+
+"Mayday! Mayday! Mayday! We're being boarded. There are troops on the ground. Agents on board. Request immediate....."
+
+I'm afraid the ship is lost, and our agents have been captured.
+
+Regards,
+
+Your Humble Assistant

@@ -203,7 +203,10 @@ sub arrive {
 
 sub capture_with_spies {
     my ($self) = @_;
-    return 0 unless (exists $self->payload->{spies} || exists $self->payload->{fetch_spies} );
+    return 0 unless (
+        (exists $self->payload->{spies} && scalar(@{$self->payload->{spies}}))
+        || (exists $self->payload->{fetch_spies} && scalar(@{$self->payload->{fetch_spies}}))
+        );
     my $body = $self->foreign_body;
     return 0 if ($body->empire_id == $self->body->empire_id);
     my $security = $body->get_building_of_class('Lacuna::DB::Result::Building::Security');
@@ -216,7 +219,13 @@ sub capture_with_spies {
         my $spy = $spies->find($id);
         next unless defined $spy;
         $spy->go_to_jail;
+        $spy->update;
     }
+    $self->body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'ship_captured_with_spies.txt',
+        params      => [$self->name, $body->x, $body->y, $body->name],
+    );
     $self->delete;
     return 1;
 }
