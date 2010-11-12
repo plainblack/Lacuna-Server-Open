@@ -29,14 +29,20 @@ sub www_view_stats {
         $login->search({date_stamp => { '>=' => $thirty_days_ago }})->count,
         $login->count
     );
-    my $essentia = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search({api_key => $pair->public_key});
-    $out .= $row->('Essentia Purchases',
-        $essentia->search({date_stamp => { '>=' =>$thirty_days_ago }})->count,
-        $essentia->count
-    );
-    $out .= $row->('Essentia Purchased',
+    my $essentia = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search({api_key => $pair->public_key, amount => { '<' => 0 } });
+    $out .= $row->('Essentia Spent',
         $essentia->search({date_stamp => { '>=' =>$thirty_days_ago }})->get_column('amount')->sum + 0,
         $essentia->get_column('amount')->sum + 0
+    );
+    my $lottery = Lacuna->db->resultset('Lacuna::DB::Result::Log::Lottery')->search({api_key => $pair->public_key });
+    $out .= $row->('Lottery Votes',
+        $lottery->search({date_stamp => { '>=' =>$thirty_days_ago }})->count,
+        $lottery->count
+    );
+    my $rpc = Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->search({api_key => $pair->public_key });
+    $out .= $row->('RPC Calls',
+        $rpc->search({date_stamp => { '>=' =>$thirty_days_ago }})->count,
+        $rpc->count
     );
     $out .= '</table>';
     return $self->wrapper($out, { title => 'Your Stats', logo => 1 });    

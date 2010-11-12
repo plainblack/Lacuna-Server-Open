@@ -41,6 +41,12 @@ sub get_empire_by_session {
                 confess [1010, 'You have already made the maximum number of requests ('.$max.') you can make for one day.'];
             }
             $cache->set($cache_key, $empire->id, $rpc_count, 60 * 60 * 24);
+            Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
+               empire_id    => $empire->id,
+               empire_name  => $empire->name,
+               module       => ref $self,
+               api_key      => $empire->current_session->api_key,
+            })->insert;
             return $empire;
         }
         else {

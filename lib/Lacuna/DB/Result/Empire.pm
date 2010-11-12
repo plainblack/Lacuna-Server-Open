@@ -148,6 +148,7 @@ sub spend_essentia {
         empire_name     => $self->name,
         amount          => $value * -1,
         description     => $note,
+        api_key         => (defined $self->current_session) ? $self->current_session->api_key : undef,
         transaction_id  => $transaction_id,
     })->insert;
     return $self;
@@ -156,18 +157,13 @@ sub spend_essentia {
 sub add_essentia {
     my ($self, $value, $note, $transaction_id) = @_;
     $self->essentia( $self->essentia + $value );
-    my $api_key;
-    my $session = $self->current_session;
-    if (defined $session) {
-        $api_key = $session->api_key;
-    }
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
         empire_id       => $self->id,
         empire_name     => $self->name,
         amount          => $value,
         description     => $note,
         transaction_id  => $transaction_id,
-        api_key         => $api_key,
+        api_key         => (defined $self->current_session) ? $self->current_session->api_key : undef,
     })->insert;
     return $self;
 }
@@ -382,18 +378,6 @@ sub find_home_planet {
         #   (SQRT( POW(5-x,2) + POW(8-y,2) )) as distance
         # then order by distance
     }
-    #else {
-    #    my $min_inhabited = sub {
-    #        my $axis = shift;
-    #        return $planets->search({empire_id => { '>' => 0 } })->get_column($axis)->min;
-    #    };
-    #    my $max_inhabited = sub {
-    #        my $axis = shift;
-    #        return $planets->search({empire_id => { '>' => 0 } })->get_column($axis)->max;
-    #    };
-    #    $search{x} = { between => [($min_inhabited->('x') - 20), ($max_inhabited->('x') + 20)] };
-    #    $search{y} = { between => [($min_inhabited->('y') - 20), ($max_inhabited->('y') + 20)] },
-    #}
 
     # search
     my $possible_planets = $planets->search(\%search, {order_by => { -desc => ['usable_as_starter'] }});
