@@ -224,12 +224,11 @@ has trade_ministry => (
 
 sub set_ship_speed {
     my ($self, $ship) = @_;
-    my $base_speed = $ship->base_speed;
     my $propulsion_level = (defined $self->propulsion_factory) ? $self->propulsion_factory->level : 0;
     my $css_level = (defined $self->crashed_ship_site) ? $self->crashed_ship_site->level : 0;
     my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 0;
-    my $speed_improvement = ($ptf * 3) + ($propulsion_level * 5) + ($css_level * 5) + ($self->body->empire->science_affinity * 3);
-    $ship->speed(sprintf('%.0f', $base_speed * ((100 + $speed_improvement) / 100)));
+    my $speed_improvement = 1 + ($ptf * 0.03) + ($propulsion_level * 0.05) + ($css_level * 0.05) + ($self->body->empire->science_affinity * 0.03);
+    $ship->speed(sprintf('%.0f', $ship->base_speed * $speed_improvement));
     return $ship->speed;
 }
 
@@ -249,11 +248,9 @@ sub set_ship_stealth {
     my ($self, $ship) = @_;
     my $cloaking_level = (defined $self->cloaking_lab) ? $self->cloaking_lab->level : 1;
     my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 1;
-    my $bonus = $self->body->empire->deception_affinity * $cloaking_level * $ptf;
-    my $css_bonus = (defined $self->crashed_ship_site) ? 1 + ($self->crashed_ship_site->level * 0.05) : 1;
-    my $stealth = $ship->base_stealth + $bonus;
-    $stealth *= $css_bonus;
-    $ship->stealth(sprintf('%.0f', $stealth));
+    my $css_level = (defined $self->crashed_ship_site) ? $self->crashed_ship_site->level : 0;
+    my $stealth_improvement = 1 + ($ptf * 0.03) + ($cloaking_level * 0.05) + ($css_level * 0.05) + ($self->body->empire->deception_affinity * 0.03);
+    $ship->stealth(sprintf('%.0f', $ship->base_stealth * $stealth_improvement ));
     return $ship->stealth;
 }
 
