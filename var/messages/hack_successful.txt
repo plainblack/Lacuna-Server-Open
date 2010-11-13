@@ -1,0 +1,5 @@
+Hack Successful
+~~~
+The misinformation you wanted transmitted has gone out. The resulting scandal will cost %s %s happiness, leaving them at %s.
+
+%s

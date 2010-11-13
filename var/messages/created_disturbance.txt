@@ -1,0 +1,5 @@
+Created Disturbance
+~~~
+I was able to plant a seed of discontent on %s costing them %s happiness, leaving them with %s.
+
+%s

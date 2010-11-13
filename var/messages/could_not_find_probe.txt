@@ -1,0 +1,5 @@
+Probe Missing
+~~~
+The probe you were interested in isn't showing up in the Observatory console. It's either locked down under extra security, or the intelligence is out of date.
+
+%s
