@@ -70,7 +70,7 @@ my @plans = (
     ['Lacuna::DB::Result::Building::Waste::Sequestration',10, 0, 4],
 
     ['Lacuna::DB::Result::Building::Intelligence', $max_level, -4, -4],
-    ['Lacuna::DB::Result::Building::Security', $two_thirds_level, -4, -3],
+    ['Lacuna::DB::Result::Building::Security', $max_level, -4, -3],
     ['Lacuna::DB::Result::Building::Permanent::OracleOfAnid',1, -3, -4],
     ['Lacuna::DB::Result::Building::Permanent::LibraryOfJith',1, -3, -3],
 
