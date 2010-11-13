@@ -91,7 +91,7 @@ my @plans = (
     ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',$two_thirds_level, -3, 0],
     ['Lacuna::DB::Result::Building::Permanent::KalavianRuins',1, -4, 1],
     ['Lacuna::DB::Result::Building::Permanent::MalcudField',$half_level, -4, 0],
-    ['Lacuna::DB::Result::Building::Permanent::AlgaePond',half_level, -4, 2],
+    ['Lacuna::DB::Result::Building::Permanent::AlgaePond',$half_level, -4, 2],
     ['Lacuna::DB::Result::Building::Food::Syrup',$two_thirds_level, -4, 3],
 );
 $buildings = $db->resultset('Lacuna::DB::Result::Building');
