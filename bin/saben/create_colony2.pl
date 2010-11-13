@@ -66,8 +66,8 @@ my $quarter_level = int( ($max_level + 1) / 4 );
 
 out('Placing structures on '.$body->name);
 my @plans = (
-    ['Lacuna::DB::Result::Building::Permanent::Ravine',$half_level, 0, 5],
-    ['Lacuna::DB::Result::Building::Waste::Sequestration',10, 0, 4],
+    ['Lacuna::DB::Result::Building::Permanent::Ravine',$half_level, 3, -3],
+    ['Lacuna::DB::Result::Building::Waste::Sequestration',10, 3, -4],
 
     ['Lacuna::DB::Result::Building::Intelligence', $max_level, -4, -4],
     ['Lacuna::DB::Result::Building::Security', $max_level, -4, -3],
@@ -86,12 +86,12 @@ my @plans = (
     ['Lacuna::DB::Result::Building::Permanent::CrashedShipSite',$one_third_level, 4, 3],
 
     ['Lacuna::DB::Result::Building::Permanent::Volcano',$half_level, -3, 2],
-    ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',$half_level, -3, 1],
+    ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',$two_thirds_level, -3, 1],
     ['Lacuna::DB::Result::Building::Permanent::InterDimensionalRift',$half_level, -3, 3],
-    ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',$half_level, -3, 0],
+    ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',$two_thirds_level, -3, 0],
     ['Lacuna::DB::Result::Building::Permanent::KalavianRuins',1, -4, 1],
-    ['Lacuna::DB::Result::Building::Permanent::MalcudField',$one_third_level, -4, 0],
-    ['Lacuna::DB::Result::Building::Permanent::AlgaePond',$half_level, -4, 2],
+    ['Lacuna::DB::Result::Building::Permanent::MalcudField',$half_level, -4, 0],
+    ['Lacuna::DB::Result::Building::Permanent::AlgaePond',half_level, -4, 2],
     ['Lacuna::DB::Result::Building::Food::Syrup',$two_thirds_level, -4, 3],
 );
 $buildings = $db->resultset('Lacuna::DB::Result::Building');
