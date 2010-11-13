@@ -140,9 +140,10 @@ sub build_ships {
         ['drone', 5],
         ['probe', 1],
         ['spy_pod', int($local_spies->count / 2)],
-        ['scanner', randint(5,10)],
-        ['scow', randint(3,6)],
-        ['snark', 20],
+        ['scanner', 10],
+        ['snark', 100],
+        ['scow', 100],
+        ['fighter', 10],
     );
     my $shipyard = randint(0,1) ? $shipyard1 : $shipyard2;
     foreach my $priority (@priorities) {
