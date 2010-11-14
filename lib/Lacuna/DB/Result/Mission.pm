@@ -41,13 +41,13 @@ sub complete {
 
 sub add_next_part {
     my $self = shift;
-    $self->mission_file_name =~ m/^([a-z0-9\-\_]+)\.((mission)|(part\d))$/i;
+    $self->mission_file_name =~ m/^([a-z0-9\-\_]+)\.((mission)|(part\d+))$/i;
     my ($name, $ext) = ($1, $2);
     if ($ext eq 'mission') {
         $name .= '.part2';
     }
     else {
-        $ext =~ m/^part(\d)$/;
+        $ext =~ m/^part(\d+)$/;
         $name .= '.part'.$1;
     }
     if (-f '/data/Lacuna-Server/var/missions/'.$name) {
