@@ -122,8 +122,9 @@ sub send_message {
             }
         }
     }
-    if ($send_count > 100) {
-        confess [1010, "You have already sent the maximum number (100) of messages you can send for one day."];
+    my $max_messages = 100 + (($empire->date_created->epoch - time)/3600) + ( $self->alliance_id ? 100 : 0 );
+    if ($send_count > $max_messages) {
+        confess [1010, "You have already sent the maximum number (".$max_messages.") of messages you can send for one day."];
     }
     foreach my $to (@to) {
         if ($to->id == 1) {
