@@ -122,7 +122,7 @@ sub send_message {
             }
         }
     }
-    my $max_messages = 100 + (($empire->date_created->epoch - time)/3600) + ( $self->alliance_id ? 100 : 0 );
+    my $max_messages = 100 + (($empire->date_created->epoch - time)/3600) + ( $self->alliance_id ? 50 : 0 );
     if ($send_count > $max_messages) {
         confess [1010, "You have already sent the maximum number (".$max_messages.") of messages you can send for one day."];
     }
