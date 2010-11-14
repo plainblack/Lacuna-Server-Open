@@ -782,6 +782,7 @@ sub finish_upgrade {
     $self->level($self->level + 1);
     $self->is_upgrading(0);
     $self->update;
+    Lacuna->cache->delete('upgrade_contention_lock', $self->id);
     $body->needs_recalc(1);
     $body->needs_surface_refresh(1);
     $body->update;
