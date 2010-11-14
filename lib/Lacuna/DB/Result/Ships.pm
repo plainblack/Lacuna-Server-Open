@@ -209,6 +209,7 @@ sub capture_with_spies {
         );
     my $body = $self->foreign_body;
     return 0 if ($body->empire_id == $self->body->empire_id);
+    return 0 if ($body->empire->alliance_id == $self->body->empire->alliance_id);
     my $security = $body->get_building_of_class('Lacuna::DB::Result::Building::Security');
     return 0 unless defined $security && $security->efficiency > 0;
     my $security_boost = $security->level * $security->efficiency;
