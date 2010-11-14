@@ -37,6 +37,9 @@ sub can_recycle {
     if ($water < 0 || $ore < 0 || $energy < 0) {
         confess [1011, "You cannot create negative resources."];
     }
+    if (($water + $ore + $energy) == 0) {
+        confess [1011, "You cannot recycle 0 resources."];
+    }
     if (($water + $ore + $energy) > $self->body->waste_stored) {
         confess [1011, "You don't have that much waste in storage.", [($water + $ore + $energy), $self->body->waste_stored]];
     }
