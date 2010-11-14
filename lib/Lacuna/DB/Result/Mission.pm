@@ -137,7 +137,13 @@ sub spend_objectives {
     if (exists $objectives->{ships}) {
         foreach my $ship (@{$objectives->{ships}}) {
             $body->ships->search(
-                { type => $ship->{type}, speed => {'>=' => $ship->{speed}}, stealth => {'>=' => $ship->{stealth}}, hold_size => {'>=' => $ship->{hold_size}} },
+                {
+                    task        => 'Docked',
+                    type        => $ship->{type},
+                    speed       => {'>=' => $ship->{speed}},
+                    stealth     => {'>=' => $ship->{stealth}},
+                    hold_size   => {'>=' => $ship->{hold_size}},
+                },
                 {rows => 1, order_by => 'id'}
                 )->single->delete;
         }
@@ -192,11 +198,12 @@ sub check_objectives {
         my @ids;
         foreach my $ship (@{$objectives->{ships}}) {
             my $this = $body->ships->search({
-                    type => $ship->{type},
-                    speed => {'>=' => $ship->{speed}},
-                    stealth => {'>=' => $ship->{stealth}},
-                    hold_size => {'>=' => $ship->{hold_size}},
-                    id  => { 'not in' => \@ids },
+                    type        => $ship->{type},
+                    speed       => {'>=' => $ship->{speed}},
+                    stealth     => {'>=' => $ship->{stealth}},
+                    hold_size   => {'>=' => $ship->{hold_size}},
+                    task        => 'Docked',
+                    id          => { 'not in' => \@ids },
                 },{
                    rows     =>1,
                    order_by => 'id',
