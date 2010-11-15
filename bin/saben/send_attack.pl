@@ -5,6 +5,7 @@ use Lacuna::DB;
 use Lacuna;
 use Lacuna::Util qw(randint format_date);
 use Getopt::Long;
+use AnyEvent;
 $|=1;
 our $quiet;
 GetOptions(
@@ -49,7 +50,8 @@ foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map
 }
 
 out('Looping through colonies...');
-my @procs;
+my @attacks;
+my @timers;
 while (my $target = $targets->next) {
     my $saben_colony = $target->saben_colony;
     next unless (defined $saben_colony);
@@ -72,22 +74,15 @@ while (my $target = $targets->next) {
         out('No colony worth attacking.');
         next;
     }
-    my $pid = fork();
-    if ($pid) {
-        push @procs, $pid;
-    }
-    elsif ($pid == 0) {
-        next unless has_probe($saben_colony, $target_colony);
-        attack($saben_colony, $target_colony);
-    }
-    else {
-        out("Couldn't fork to attack ".$target_colony->name);
-    }
+
+    my ($attack, $timer) = start_attack($saben_colony, $target_colony);
+    push @attacks, $attack;
+    push @timers, $timer;
 }
 
-out("Waiting on child processess...");
-foreach my $pid (@procs) {
-    waitpid($pid, 0);
+out("Waiting on attacks...");
+foreach my $attack (@attacks) {
+    $attack->recv;
 }
 
 my $finish = time;
@@ -102,26 +97,42 @@ out((($finish - $start)/60)." minutes have elapsed");
 ###############
 
 
-sub has_probe {
+sub start_attack {
     my ($saben_colony, $target_colony) = @_;
     out('Looking for probes...');
+    my $attack = AnyEvent->condvar;
     my $count = $db->resultset('Lacuna::DB::Result::Probes')->search({ empire_id => -1, star_id => $target_colony->star_id })->count;
     if ($count) {
         out('Has one at star already...');
-        return 1;
+        my $timer = AnyEvent->timer(
+            after   => 1,
+            cb      => sub {
+                send_ships($saben_colony, $target_colony);
+                $attack->send;
+            },
+        );
+        return $attack, $timer;
     }
     my $probe = $ships->search({body_id => $saben_colony->id, type => 'probe', task=>'Docked'},{rows => 1})->single;
     if (defined $probe) {
         out('Has a probe to launch for '.$target_colony->name.'...');
         $probe->send(target => $target_colony->star);
-        sleep $probe->date_available->epoch - time();
-        return 1;
+        my $seconds = $probe->date_available->epoch - time();
+        out('Probe will arrive in '.$seconds.' seconds.');
+        my $timer = AnyEvent->timer(
+            after   => $seconds,
+            cb      => sub {
+                send_ships($saben_colony, $target_colony);
+                $attack->send;
+            },
+        );
+        return $attack, $timer;
     }
     out('No probe. Cancel assault.');
-    return 0;
+    return $attack->send;
 }
 
-sub attack {
+sub send_ships {
     my ($saben_colony, $target_colony) = @_;
     out('Attack!');
     my $available_ships = $ships->search({ task=>'Docked', body_id => $saben_colony->id});
