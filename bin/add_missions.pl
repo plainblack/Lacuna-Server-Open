@@ -5,6 +5,7 @@ use Lacuna::DB;
 use Lacuna;
 use Lacuna::Util qw(randint format_date);
 use Getopt::Long;
+use List::Util qw(shuffle);
 $|=1;
 our $quiet;
 GetOptions(
