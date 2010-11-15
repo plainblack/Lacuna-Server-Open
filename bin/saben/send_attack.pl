@@ -49,6 +49,7 @@ foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map
 }
 
 out('Looping through colonies...');
+my @procs;
 while (my $target = $targets->next) {
     my $saben_colony = $target->saben_colony;
     next unless (defined $saben_colony);
@@ -71,10 +72,23 @@ while (my $target = $targets->next) {
         out('No colony worth attacking.');
         next;
     }
-    next unless has_probe($saben_colony, $target_colony);
-    attack($saben_colony, $target_colony);
+    my $pid = fork();
+    if ($pid) {
+        push @procs, $pid;
+    }
+    elsif ($pid == 0) {
+        next unless has_probe($saben_colony, $target_colony);
+        attack($saben_colony, $target_colony);
+    }
+    else {
+        out("Couldn't fork to attack ".$target_colony->name);
+    }
 }
 
+out("Waiting on child processess...");
+foreach my $pid (@procs) {
+    waitpid($pid, 0);
+}
 
 my $finish = time;
 out('Finished');
@@ -98,7 +112,7 @@ sub has_probe {
     }
     my $probe = $ships->search({body_id => $saben_colony->id, type => 'probe', task=>'Docked'},{rows => 1})->single;
     if (defined $probe) {
-        out('Has a probe to launch...');
+        out('Has a probe to launch for '.$target_colony->name.'...');
         $probe->send(target => $target_colony->star);
         sleep $probe->date_available->epoch - time();
         return 1;
@@ -114,7 +128,7 @@ sub attack {
     my $available_spies = $spies->search({ task => 'Counter Espionage', on_body_id => $saben_colony->id, from_body_id => $saben_colony->id });
     while (my $ship = $available_ships->next) {
         if (eval{$ship->can_send_to_target($target_colony)}) {
-            out('Sending '.$ship->type_formatted);
+            out('Sending '.$ship->type_formatted.' to '.$target_colony->name.'...');
             my $payload = {};
             if ($ship->type eq 'spy_pod') {
                 my $spy = $available_spies->next;
