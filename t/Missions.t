@@ -17,7 +17,7 @@ closedir $folder;
 my $config;
 foreach my $filename (@files) {
     next if $filename =~ m/^\./;
-    ok($filename =~ m/^[a-z0-9\-\_]+\.((mission)|(part\d))$/i, $filename.' is valid filename');
+    ok($filename =~ m/^[a-z0-9\-\_]+\.((mission)|(part\d+))$/i, $filename.' is valid filename');
     eval{ $config = Config::JSON->new('/data/Lacuna-Server/var/missions/'.$filename)};
     isa_ok($config,'Config::JSON');
     ok($config->get('max_university_level'), $filename.' has max university level');
