@@ -46,6 +46,7 @@ sub can_add_platform {
         confess [1009, 'Already at the maximum number of platforms allowed at this Ministry level.'];
     } 
     my $count = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({ asteroid_id => $asteroid->id })->count;
+    $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({type=>'mining_platform_ship',task=>'Travelling',body_id=>$self->body_id})->count;
     if ($asteroid->size <= $count) {
         confess [1010, $asteroid->name.' cannot support any additional mining platforms.'];
     }
