@@ -428,7 +428,7 @@ sub invite_friend {
     }
     my $invites = Lacuna->db->resultset('Lacuna::DB::Result::Invite');
     if ($invites->search({email => $email, inviter_id => $self->id })->count) {
-        confess [1009, 'You have already invited that email address.'];
+        confess [1009, 'You have already invited '.$email.'.'];
     }
     my $code = create_uuid_as_string(UUID_V4);
     $invites->new({
