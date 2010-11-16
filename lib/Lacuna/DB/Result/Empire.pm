@@ -495,7 +495,7 @@ sub check_for_repeat_message {
     my ($self, $repeat) = @_;
     my $six_hours_ago = DateTime->now->subtract(hours=>6);
     return $self->received_messages->search_literal(
-        'repeat_check = ? and ( date_sent >= ? or ( has_read = 1 and has_archived <> 1 ))',
+        'repeat_check = ? and ( date_sent >= ? or (has_read = 0 and has_archived = 0 ))',
         $repeat,
         $six_hours_ago->ymd.' '.$six_hours_ago->hms,
     )->count;
