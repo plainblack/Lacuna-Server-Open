@@ -203,6 +203,7 @@ sub arrive {
 
 sub capture_with_spies {
     my ($self) = @_;
+    return 0 if $self->direction eq 'in';
     return 0 unless (
         (exists $self->payload->{spies} && scalar(@{$self->payload->{spies}}))
         || (exists $self->payload->{fetch_spies} && scalar(@{$self->payload->{fetch_spies}}))
