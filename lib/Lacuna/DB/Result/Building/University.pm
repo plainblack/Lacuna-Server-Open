@@ -49,6 +49,20 @@ after finish_upgrade => sub {
         $empire->university_level($self->level);
         $empire->update;
     }
+    if ($self->level > 4) {
+        my $invite = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $empire->id},{rows=>1})->single;
+        if (defined $invite) {
+            my $inviter = $invite->inviter;
+            if (defined $inviter) {
+                $inviter->add_essentia(5, 'invited friend university upgrade')->update;
+                $inviter->send_predefined_message(
+                    filename    => 'friend_essentia.txt',
+                    params      => [$empire->id, $empire->name],
+                    tags        => ['Alert'], 
+                );
+            }
+        }
+    }
 };
 
 no Moose;
