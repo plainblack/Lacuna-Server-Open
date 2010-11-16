@@ -4,4 +4,28 @@ Energy Reserve is accessible via the URL C</energyreserve>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+
+
+=head2 dump ( session_id, building_id, amount )
+
+Converts energy into waste.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the building.
+
+=head3 amount
+
+An integer representing the amount to dump.
+
+
+
 =cut

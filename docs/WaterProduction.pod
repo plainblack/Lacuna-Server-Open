@@ -4,4 +4,27 @@ Water Production is accessible via the URL C</waterproduction>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+
+
+=head2 dump ( session_id, building_id, amount )
+
+Converts water into waste.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the building.
+
+=head3 amount
+
+An integer representing the amount to dump.
+
+
 =cut

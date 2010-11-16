@@ -22,4 +22,28 @@ This method is extended to include details about what kinds of ore are stored.
  }
  
  
+=head2 dump ( session_id, building_id, type, amount )
+
+Converts ore into waste.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the building.
+
+=head3 type
+
+Choose a type of ore convert into waste. (gold, bauxite, galena, etc)
+
+=head3 amount
+
+An integer representing the amount to dump.
+ 
 =cut

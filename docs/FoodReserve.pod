@@ -20,5 +20,32 @@ This method is extended to include details about what kind of food is stored.
         ...
     }
  }
+ 
+ 
+=head2 dump ( session_id, building_id, type, amount )
+
+Converts food into waste.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the building.
+
+=head3 type
+
+Choose a type of food convert into waste. (apple, corn, burger, etc)
+
+=head3 amount
+
+An integer representing the amount to dump.
+
+
 
 =cut

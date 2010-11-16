@@ -28,6 +28,21 @@ around 'view' => sub {
     return $out;
 };
 
+sub dump {
+    my ($self, $session_id, $building_id, $type, $amount) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $body = $building->body;
+    $body->spend_type($type, $amount);
+    $body->add_type('waste', $amount);
+    $body->update;
+    return {
+        status      => $self->format_status($empire, $body),
+        };
+}
+
+__PACKAGE__->register_rpc_method_names(qw(dump));
+
 no Moose;
 __PACKAGE__->meta->make_immutable;
 
