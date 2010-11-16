@@ -217,10 +217,11 @@ sub burn {
         $body->spend_happiness(5000);
         $body->update;
     }
-    if ($self->on_body->empire_id != $self->empire_id) {
+    if ($self->on_body->empire_id != $old_empire->id) {
         if (randint(1,100) < $self->level) {
+            my $new_empire => $self->on_body->empire;
             $self->from_body_id($self->on_body_id);
-            $self->empire_id($self->on_body->empire_id);
+            $self->empire_id($new_empire->id);
             $self->task('Idle');
             $self->available_on(DateTime->now);
             $self->times_turned( $self->times_turned + 1 );
@@ -228,9 +229,9 @@ sub burn {
             $old_empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'you_cant_burn_me.txt',
-                params      => [$self->empire_id, $self->empire->name, $self->name],
+                params      => [$new_empire->id, $new_empire->name, $self->name],
             );
-            $self->empire->send_predefined_message(
+            $new_empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'id_like_to_join_you.txt',
                 params      => [$old_empire->id, $old_empire->name, $self->name, $self->on_body->id, $self->on_body->name],
