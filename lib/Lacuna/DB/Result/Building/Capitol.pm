@@ -70,6 +70,11 @@ after finish_upgrade => sub {
     $body->add_news(80, sprintf('%s have announced that their new capitol is %s.', $empire->name, $body->name));
 };
 
+sub rename_empire_cost {
+    my $self = shift;
+    return 30 - $self->level;
+}
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

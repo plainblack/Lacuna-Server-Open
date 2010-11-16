@@ -4,4 +4,37 @@ Capitol is accessible via the URL C</capitol>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+
+=head2 view ( session_id, building_id )
+
+Same as view in L<Buildings> except:
+
+ {
+    "status" : { ... },
+    "rename_empire_cost" : 29,
+ }
+
+
+=head2 rename_empire ( session_id, building_id, name )
+
+Spend some essentia to rename your empire.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the building.
+
+=head3 name
+
+The new name of your empire.
+
+
+
 =cut
