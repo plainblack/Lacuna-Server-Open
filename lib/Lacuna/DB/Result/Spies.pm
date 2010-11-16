@@ -7,7 +7,7 @@ extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date randint random_element);
 use DateTime;
 use feature "switch";
-use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
+use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES SHIP_TYPES);
 
 __PACKAGE__->table('spies');
 __PACKAGE__->add_columns(
@@ -1180,8 +1180,16 @@ sub steal_resources {
 
 sub steal_ships {
     my ($self, $defender) = @_;
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {body_id => $self->on_body->id, task => 'Docked', type => {'!=' => 'probe'}},
+    my @types;
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
+    foreach my $type (SHIP_TYPES) {
+        my $ship = $ships->new({type => $type});
+        if ($ship->pilotable) {
+            push @types, $type;
+        }
+    }
+    my $ship = $ships->search(
+        {body_id => $self->on_body->id, task => 'Docked', type => {'in' => \@types}},
         {rows => 1}
         )->single;
     last unless defined $ship;
