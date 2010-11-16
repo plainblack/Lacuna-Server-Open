@@ -312,6 +312,7 @@ sub www_zoom_ship {
     my ($self, $request) = @_;
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($request->param('ship_id'));
     $ship->update({date_available => DateTime->now});
+    $ship->body->tick;
     return $self->www_view_ships($request);
 }
 
@@ -571,6 +572,7 @@ sub www_view_body {
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/view/resources?body_id=%s">View Resources</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/buildings?body_id=%s">View Buildings</a></li>', $body->id);
+    $out .= sprintf('<li><a href="/admin/view/ships?body_id=%s">View Ships</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/plans?body_id=%s">View Plans</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/glyphs?body_id=%s">View Glyphs</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/recalc/body?body_id=%s">Recalculate Body Stats</a></li>', $body->id);
