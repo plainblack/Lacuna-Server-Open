@@ -936,6 +936,18 @@ sub add_type {
     my ($self, $type, $value) = @_;
     my $method = 'add_'.$type;
     $self->$method($value);
+    unless (eval{$self->can_add_type($type, $value)}) {
+        my $empire = $self->empire;
+        if (!$empire->skip_resource_warnings && !$empire->check_for_repeat_message('complaint_overflow'.$self->id)) {
+            $empire->send_predefined_message(
+                filename    => 'complaint_overflow.txt',
+                params      => [$type, $self->id, $self->name],
+                repeat_check=> 'complaint_overflow'.$self->id,
+                tags        => ['Alert'],
+            );
+        }
+        
+    }
     return $self;
 }
 

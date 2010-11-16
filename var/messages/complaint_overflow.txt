@@ -1,0 +1,7 @@
+Wasting Resources
+~~~
+We've lost some %s due to a lack of storage on {Planet %s %s}. Perhaps we should increase the amount of storage available there.
+
+Regards,
+
+Your Humble Assistant
