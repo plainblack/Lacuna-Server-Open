@@ -4,6 +4,18 @@ The Entertainment District is accessible via the URL C</entertainment>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+
+=head2 view ( session_id, building_id )
+
+Same as view in L<Buildings> except:
+
+ {
+    "status" : { ... },
+    "ducks_quacked" : 493
+ }
+
+
+
 =head2 get_lottery_voting_options ( session_id, building_id )
 
 This is the starting point to a voting lottery system. The user can vote on a site once and only once per day and each vote enters him/her into a lottery. At the end of the day a lottery ticket will be drawn, and a winner will be chosen to receive 10 essentia. Every vote is equal, but the more votes you have the greater your odds of winning.
