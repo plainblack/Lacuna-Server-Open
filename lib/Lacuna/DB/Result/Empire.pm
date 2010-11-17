@@ -122,7 +122,6 @@ sub update_species {
 sub determine_species_limits {
     my ($self) = @_;
     my @colony_ids = $self->planets->get_column('id')->all;
-    my $min_pcc_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({ body_id => { in => \@colony_ids }, class => 'Lacuna::DB::Result::Building::PlanetaryCommand' })->get_column('level')->min;
     my $colonies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id => $self->id });
     my $min_orbit = $colonies->get_column('orbit')->min;
     my $max_orbit = $colonies->get_column('orbit')->max;
@@ -135,7 +134,7 @@ sub determine_species_limits {
     }
     return {
         essentia_cost   => 100,
-        min_growth      => ($min_pcc_level > $self->growth_affinity) ? $self->growth_affinity : $min_pcc_level,
+        min_growth      => $self->growth_affinity,
         min_orbit       => $min_orbit,
         max_orbit       => $max_orbit,
         can             => ($reason) ? 0 : 1,
