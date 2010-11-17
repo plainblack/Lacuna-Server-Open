@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 3;
+use Test::More tests => 4;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -25,6 +25,10 @@ $capitol->finish_upgrade;
 
 $result = $tester->post('capitol', 'view', [$session_id, $capitol->id]);
 is($result->{result}{rename_empire_cost}, 29, "got rename cost");
+
+$result = $tester->post('capitol', 'rename_empire', [$session_id, $capitol->id, 'Lacuna Expanse Corp']);
+is($result->{error}{code}, 1000, "rename to an existing name errors out");
+
 
 $result = $tester->post('capitol', 'rename_empire', [$session_id, $capitol->id, 'New Name']);
 is($result->{result}{status}{empire}{essentia}, 1, "essentia spent");

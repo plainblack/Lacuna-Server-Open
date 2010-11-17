@@ -30,7 +30,7 @@ sub rename_empire {
     if ($empire->essentia < $building->rename_empire_cost) {
         confess [1011, "You don't have enough essentia. You need ".$building->rename_empire_cost."."];
     }
-    Lacuna::RPC::Empire->new->is_name_valid($name);
+    Lacuna::RPC::Empire->new->is_name_available($name);
 
     $building->body->add_news(100, '%s has officially changed its name to %s.', $empire->name, $name);
     $empire->spend_essentia($building->rename_empire_cost, 'rename empire');
