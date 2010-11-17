@@ -8,14 +8,27 @@ use Getopt::Long;
 use AnyEvent;
 $|=1;
 our $quiet;
+our $randomize;
 GetOptions(
     'quiet'         => \$quiet,
+    'randomize'         => \$randomize,
 );
 
 
 
 out('Started');
 my $start = time;
+
+if ($randomize) {
+    if (randint(1,7) == 2) { # on average 2 attacks per week are what we're looking for
+        sleep randint(0, 60*60*18); # attack anytime in the next 18 hours.
+    }
+    else {
+        out('No attacks today.');
+        exit;
+    }
+}
+
 
 out('Loading DB');
 our $db = Lacuna->db;
