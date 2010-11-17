@@ -341,11 +341,8 @@ sub trigger_defense {
 sub damage_building {
     my ($self, $building) = @_;
     my $body_attacked = $self->foreign_body;
-    my $buildings = Lacuna->db->resultset('Lacuna::DB::Result::Building');
-    $building ||= $buildings->search(
-        { body_id => $self->foreign_body_id },
-        {order_by => { -desc => 'efficiency'}, rows=>1}
-        )->single;
+    my $buildings = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({ body_id => $self->foreign_body_id });
+    $building ||= $buildings->search(undef,{order_by => { -desc => 'efficiency'}, rows=>1})->single;
     $building->body($body_attacked);
     my $amount = randint(10,70);
     my $citadel = $buildings->search({class=>'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope'},{rows=>1})->single;
