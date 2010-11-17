@@ -61,6 +61,7 @@ sub delete {
     }
     elsif ($memcached->errstr ne 'SUCCESS' # deleted
         && $memcached->errstr ne 'PROTOCOL ERROR' # doesn't exist to delete
+        && $memcached->errstr ne 'NOT FOUND' # doesn't exist to delete
         ) {
         warn "Couldn't delete $key from cache because ".$memcached->errstr;
     }
