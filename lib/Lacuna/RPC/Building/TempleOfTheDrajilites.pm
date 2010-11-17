@@ -49,12 +49,22 @@ sub view_planet {
 }
 
 sub list_planets {
-    my ($self, $session_id, $building_id) = @_;
+    my ($self, $session_id, $building_id, $star_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    my $star;
+    if ($star_id) {
+        $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id);
+        unless (defined $star) {
+            confess [1002, 'Could not find that star.'];
+        }
+    }
+    else {
+        $star = $building->body->star;
+    }
     
     my @planets;
-    my $bodies = $building->body->star->bodies;
+    my $bodies = $star->bodies;
     while (my $body = $bodies->next) {
         next unless $body->isa('Lacuna::DB::Result::Map::Body::Planet');
         push @planets, {
