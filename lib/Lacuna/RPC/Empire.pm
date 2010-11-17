@@ -795,6 +795,8 @@ sub redefine_species {
     $empire->spend_essentia(100, 'redefine species');
     $empire->update_species($me);
     $empire->update;
+    $empire->planets->update({needs_recalc=>1});
+    
     return {
         status  => $self->format_status($empire),
     };
