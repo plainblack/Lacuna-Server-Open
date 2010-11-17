@@ -309,7 +309,7 @@ my %recipies = (
 sub make_plan {
     my ($self, $ids) = @_;
     unless (ref $ids eq 'ARRAY' && scalar(@{$ids}) < 5) {
-        confess [1009, 'The ids field needs to be an array reference of no more than 4 elements.'];
+        confess [1009, 'It is not possible to combine more than 4 glyphs.'];
     }
     my $match = clone(\%recipies);
     my $glyphs = $self->body->glyphs;
