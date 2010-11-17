@@ -71,7 +71,6 @@ __PACKAGE__->add_columns(
     is_admin                => { data_type => 'tinyint', default_value => 0 },
 );
 
-
 sub sqlt_deploy_hook {
     my ($self, $sqlt_table) = @_;
     $sqlt_table->add_index(name => 'idx_self_destruct', fields => ['self_destruct_active','self_destruct_date']);
@@ -98,6 +97,51 @@ has current_session => (
     is                  => 'rw',
     predicate           => 'has_current_session',
 );
+
+
+sub update_species {
+    my ($self, $me) = @_;
+    $self->species_name($me->{name});
+    $self->species_description($me->{description});
+    $self->min_orbit($me->{min_orbit});
+    $self->max_orbit($me->{max_orbit});
+    $self->manufacturing_affinity($me->{manufacturing_affinity});
+    $self->deception_affinity($me->{deception_affinity});
+    $self->research_affinity($me->{research_affinity});
+    $self->management_affinity($me->{management_affinity});
+    $self->farming_affinity($me->{farming_affinity});
+    $self->mining_affinity($me->{mining_affinity});
+    $self->science_affinity($me->{science_affinity});
+    $self->environmental_affinity($me->{environmental_affinity});
+    $self->political_affinity($me->{political_affinity});
+    $self->trade_affinity($me->{trade_affinity});
+    $self->growth_affinity($me->{growth_affinity});
+    return $self;
+}
+
+sub determine_species_limits {
+    my ($self) = @_;
+    my @colony_ids = $self->planets->get_column('id')->all;
+    my $min_pcc_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({ body_id => { in => \@colony_ids }, class => 'Lacuna::DB::Result::Building::PlanetaryCommand' })->get_column('level')->min;
+    my $colonies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id => $self->id });
+    my $min_orbit = $colonies->get_column('orbit')->min;
+    my $max_orbit = $colonies->get_column('orbit')->max;
+    my $reason;
+    if ($self->university_level > 19) {
+        $reason = 'Your university research level is too high to redefine your species. Build a Genetics Lab instead.';
+    }
+    elsif (Lacuna->cache->get('redefine_species_timeout', $self->id)) {
+        $reason = 'You have already redefined your species in the past 30 days.';
+    }
+    return {
+        essentia_cost   => 100,
+        min_growth      => ($min_pcc_level > $self->growth_affinity) ? $self->growth_affinity : $min_pcc_level,
+        min_orbit       => $min_orbit,
+        max_orbit       => $max_orbit,
+        can             => ($reason) ? 0 : 1,
+        reason          => $reason,
+    };
+}
 
 sub has_medal {
     my ($self, $type) = @_;
@@ -631,14 +675,14 @@ before 'delete' => sub {
     }
     my $essentia_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia');
     my $essentia_code;
-    my $sum = $essentia_log->search({empire_id => $self->id, description => { '!=', 'tutorial' } })->get_column('amount')->sum;
-    if ($sum && $self->essentia && $self->email) {
+    my $sum = $self->essentia - $essentia_log->search({empire_id => $self->id, description => 'tutorial' })->get_column('amount')->sum;
+    if ($sum > 0 && $self->email) {
         $essentia_code = create_uuid_as_string(UUID_V4);
         my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->new({
             code            => $essentia_code,
             date_created    => DateTime->now,
             description     => $self->name .' deleted',
-            amount          => $self->essentia,
+            amount          => $sum,
         })->insert;
         $self->send_email(
             'Essentia Code',

@@ -719,23 +719,8 @@ sub invite_friend {
     return { status => $self->format_status($empire), sent => \@sent, not_sent => \@not_sent };
 }
 
-sub update_species {
-    my ($self, $empire_id, $me) = @_;
-
-    # make sure it's a valid empire
-    unless ($empire_id ne '') {
-        confess [1002, "You must specify an empire id."];
-    }
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
-    unless (defined $empire) {
-        confess [1002, "Not a valid empire.",'empire_id'];
-    }
-
-    # deal with an empire in motion
-    if ($empire->stage ne 'new') {
-        confess [1010, "You can't establish a new species for an empire that's already founded.",'empire_id'];
-    }
-
+sub vet_species {
+    my ($self, $me) = @_;
     # make sure the name is valid
     $me->{name} =~ s{^\s+(.*)\s+$}{$1}xms; # remove extra white space
     Lacuna::Verify->new(content=>\$me->{name}, throws=>[1000,'Species name not available.', 'name'])
@@ -777,24 +762,64 @@ sub update_species {
     elsif ($points < 45) {
         confess [1008, 'Underspend.'];
     }
+}
 
-    $empire->species_name($me->{name});
-    $empire->species_description($me->{description});
-    $empire->min_orbit($me->{min_orbit});
-    $empire->max_orbit($me->{max_orbit});
-    $empire->manufacturing_affinity($me->{manufacturing_affinity});
-    $empire->deception_affinity($me->{deception_affinity});
-    $empire->research_affinity($me->{research_affinity});
-    $empire->management_affinity($me->{management_affinity});
-    $empire->farming_affinity($me->{farming_affinity});
-    $empire->mining_affinity($me->{mining_affinity});
-    $empire->science_affinity($me->{science_affinity});
-    $empire->environmental_affinity($me->{environmental_affinity});
-    $empire->political_affinity($me->{political_affinity});
-    $empire->trade_affinity($me->{trade_affinity});
-    $empire->growth_affinity($me->{growth_affinity});
-    $empire->update;
+sub redefine_species_limits {
+    my ($self, $session_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $out = $empire->determine_species_limits($empire);
+    $out->{status} = $self->format_status($empire);
+    return $out;
+}
+
+sub redefine_species {
+    my ($self, $session_id, $me) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+
+    $self->vet_species($me);
+
+    my $limits = $empire->determine_species_limits($empire);
+    unless ($limits->{can}) {
+        confess [1010, $limits->{reason}];
+    }
+    if ($me->{min_orbit} > $limits->{min_orbit}) {
+        confess [1009, 'Your minimum orbit is '.$limits->{min_orbit}.'.'];
+    }
+    if ($me->{max_orbit} < $limits->{max_orbit}) {
+        confess [1009, 'Your maximum orbit is '.$limits->{max_orbit}.'.'];
+    }
+    if ($me->{max_orbit} < $limits->{max_orbit}) {
+        confess [1009, 'Your minimum growth affinity is '.$limits->{min_growth}.'.'];
+    }
     
+    $empire->spend_essentia(100, 'redefine species');
+    $empire->update_species($me);
+    $empire->update;
+    return {
+        status  => $self->format_status($empire),
+    };
+}
+
+
+sub update_species {
+    my ($self, $empire_id, $me) = @_;
+
+    # make sure it's a valid empire
+    unless ($empire_id ne '') {
+        confess [1002, "You must specify an empire id."];
+    }
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    unless (defined $empire) {
+        confess [1002, "Not a valid empire.",'empire_id'];
+    }
+
+    # deal with an empire in motion
+    if ($empire->stage ne 'new') {
+        confess [1010, "You can't establish a new species for an empire that's already founded.",'empire_id'];
+    }
+
+    $self->vet_species($me);
+    $empire->update_species($me)->update;
     return 1;
 }
 
@@ -955,7 +980,7 @@ __PACKAGE__->register_rpc_method_names(
     { name => "benchmark", options => { with_plack_request => 1 } },
     { name => "found", options => { with_plack_request => 1 } },
     { name => "reset_password", options => { with_plack_request => 1 } },
-    qw(get_invite_friend_url get_species_templates update_species view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+    qw(redefine_species redefine_species_limits get_invite_friend_url get_species_templates update_species view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
 );
 
 

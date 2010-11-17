@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 48;
+use Test::More tests => 51;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -214,19 +214,31 @@ is($result->{error}{code}, 1004, 'broken sitter password');
 $result = $tester->post('empire', 'login', [$tester->empire_name, 'testsitter','Anonymous']);
 ok(exists $result->{result}{session_id}, 'login with sitter password');
 
-my $empire2 = $empire;
-$empire2->{name} = 'essentia code';
-$empire2->{email} = 'test@example.com';
-$result = $tester->post('empire', 'create', $empire2);
-$empire2->{id} = $result->{result};
-$result = $tester->post('empire', 'found', [$empire2->{id},'Anonymous']);
-my $e2 = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire2->{id});
-$e2->add_essentia(100, 'test')->update;
-$result = $tester->post('empire', 'get_status', [$result->{result}{session_id}]);
-ok($result->{result}{empire}{essentia} > 99, 'added essentia works');
-$e2->delete;
+my %empire2 = %{$empire};
+$empire2{name} = 'essentia code';
+$empire2{email} = 'test@example.com';
+$result = $tester->post('empire', 'create', \%empire2);
+$empire2{id} = $result->{result};
+$result = $tester->post('empire', 'found', [$empire2{id},'Anonymous']);
+my $e2 = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire2{id});
+$e2->add_essentia(200, 'test')->update;
+my $session2 = $result->{result}{session_id};
+$result = $tester->post('empire', 'get_status', [$session2]);
+is($result->{result}{empire}{essentia}, 200, 'added essentia works');
+
+$result = $tester->post('empire', 'redefine_species_limits', [$session2]);
+is($result->{result}{essentia_cost}, 100, 'get redefine limits');
+
+$borg->{name} = 'The BORGinator';
+$result = $tester->post('empire', 'redefine_species', [$session2, $borg]);
+$result = $tester->post('empire','view_species_stats',[$session2]);
+is($result->{result}{species}{name}, 'The BORGinator', 'get renamed species name');
+is($result->{result}{status}{empire}{essentia}, 100, 'essentia spent');
+
+$e2->discard_changes->delete;
 my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search({description=>'essentia code deleted'},{rows=>1})->single;
-is($result->{result}{empire}{essentia}, $code->amount, 'you get a proper essentia code');
+is($result->{result}{status}{empire}{essentia}, $code->amount, 'you get a proper essentia code');
+
 
 END {
     $tester->cleanup;

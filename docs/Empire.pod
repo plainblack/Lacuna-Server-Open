@@ -705,7 +705,7 @@ A 36 character string that was sent to the user via email.
 
 =head2 update_species ( empire_id, params ) 
 
-Updates the empire's species and returns 1. Can only be called after C<create> has been called and before C<found> has been called. Before or after that will throw an exception.
+Updates the empire's species and returns 1. Can only be called after C<create> has been called and before C<found> has been called. Before or after that will throw an exception. If you have already founded your empire then use C<redefine_species>.
 
 See also: C<get_species_templates>
 
@@ -780,6 +780,48 @@ An integer between 1 and 7 inclusive, where 7 is best. Determines species advant
 An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in colonization.
 
 
+
+=head2 redefine_species_limits ( session_id )
+
+Defines the extra limits placed upon a user that want's to redefine their species.
+
+ {
+    "status" : { ... },
+    "essentia_cost" : 100,   # cost to redefine the species
+    "max_orbit" : 2,         # maximum settable orbit
+    "min_orbit" : 5,         # minimum settable orbit
+    "min_growth" : 4,        # minimum for growth affinity
+    "can" : 0,               # whether or not they can redefine their species
+    "reason" : "You have already redefined your species in the past 30 days."
+ }
+
+
+=head3 session_id
+
+A session id.
+
+
+
+
+=head2 redefine_species ( session_id, params )
+
+Allows a user to spend essentia and redefine their species affinities, name, and description. This can only be used after the empire has been founded. If you want to redefine the species during empire creation then see C<update_species>.
+
+See also C<redefine_species_limits>.
+
+ {
+    "status" : { ... }
+ }
+ 
+B<WARNING:> Once this is done it cannot be redone for 1 month, so make sure the user is aware of this and prompt them appropriately before submitting the request.
+ 
+=head3 session_id
+
+A ssession id.
+
+=head3 params
+
+See the C<params> list in the C<update_species> method.
 
 
 
