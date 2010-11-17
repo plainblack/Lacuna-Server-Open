@@ -35,5 +35,17 @@ A session id.
 The unique id of the entertainment district.
 
 
+=head2 duck_quack ( session_id, building_id )
+
+Returns a string that must retain its formatting (whitespace and carriage returns) when displayed to the user.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
 
 =cut

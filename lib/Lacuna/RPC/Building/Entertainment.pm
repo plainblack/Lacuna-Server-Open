@@ -35,7 +35,28 @@ sub get_lottery_voting_options {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(get_lottery_voting_options));
+sub duck_quack {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id); 
+    my @quacks = (
+        'quack',
+        'QUACK',
+        'Quack',
+        'Quack!!!',
+        'Quaaaaaack!',
+        'Q-U-A-C-K',
+        ".(,)=\n~{#}~\n_|V|_",
+        '|\__( o)>',
+        '[kwak]',
+        'noun: the harsh, throaty cry of a duck or any similar sound.',
+        "       ,~~.\n      (  6 )-_,\n (\___ )=='-'\n  \ .   ) )\n   \ `-' /       \n~'`~'`~'`~'`~",
+        "    ,,,,,\n   (o   o)\n    /. .\ \n   (_____)\n     : :\n    ##O##\n  ,,,: :,,,\n _)\ : : /(____\n{  \     /  ___}\n \/)     ((/\n  (_______)\n    :   :\n    :   :\n   / \ / \\n   \"\"\" \"\"\"",
+    );
+    return $quacks[ rand @quacks ];
+}
+
+__PACKAGE__->register_rpc_method_names(qw(duck_quack get_lottery_voting_options));
 
 
 no Moose;
