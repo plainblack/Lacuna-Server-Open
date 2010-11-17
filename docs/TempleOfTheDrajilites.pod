@@ -4,4 +4,66 @@ Temple of the Drajilites is accessible via the URL C</templeofthedrajilites>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+
+=head2 list_planets (session_id, building_id, [ star_id ] )
+
+Provides the list of the planets around a given star.
+
+ {
+    "status" : { ... },
+    "planets" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "Earth"
+        },
+        ...
+    ]
+ }
+
+=head3 session_d
+
+A session id.
+
+=head3 building_id
+
+The unique id of the building.
+
+=head3 star_id
+
+Optionally pass in a star id. Defaults to the star that the building is built on. See L<Map/"search_stars"> to see how you can get a star id by name.
+
+
+
+=head2 view_planet ( session_id, building_id, planet_id )
+
+Returns a surface map identical in format to the one returned as an L<Inbox> attachment.
+
+ {
+    "status" : { ... },
+    "map" : {
+        "surface_image" : "surface-p12",
+        "buildings" : [
+            {
+                "x" : 1,
+                "y" : -2,
+                "image" : "rockyoutcrop1"
+            },
+            ...
+        ]
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 planet_id
+
+The unique id of a planet you want to view. Note that this must be a planet id and not a body id. It won't work for an asteroid for example. Also, the planet must be in range. You get 10 star map units per level of the Temple.
+
+
 =cut

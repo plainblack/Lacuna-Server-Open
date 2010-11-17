@@ -24,10 +24,10 @@ sub view_planet {
         confess [1002, 'Could not locate that planet.'];
     }
     unless ($planet->isa('Lacuna::DB::Result::Map::Body::Planet')) {
-        confess [2009, 'The Temple can only view nearby planets.'];
+        confess [1009, 'The Temple can only view nearby planets.'];
     }
-    unless ($planet->star_id eq $building->body->star_id) {
-        confess [2009, 'That planet is too far away.'];
+    unless ($building->body->calculate_distance_to_target($planet) < $building->level * 1000) {
+        confess [1009, 'That planet is too far away.'];
     }
     
     my @map;
