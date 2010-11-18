@@ -1,4 +1,4 @@
-package Lacuna::RPC::Building::MassadsHenge;
+package Lacuna::RPC::Building::AlgaePond;
 
 use Moose;
 use utf8;
@@ -6,11 +6,11 @@ no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 
 sub app_url {
-    return '/massadshenge';
+    return '/algaepond';
 }
 
 sub model_class {
-    return 'Lacuna::DB::Result::Building::Permanent::MassadsHenge';
+    return 'Lacuna::DB::Result::Building::Permanent::AlgaePond';
 }
 
 no Moose;

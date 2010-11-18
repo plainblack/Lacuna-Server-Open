@@ -1,6 +1,6 @@
-=head1 Algae Methods
+=head1 Gratch's Gauntlet Methods
 
-Algae is accessible via the URL C</algae>.
+Gratch's Gauntlet is accessible via the URL C</gratchesgauntlet>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 

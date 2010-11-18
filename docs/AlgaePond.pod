@@ -1,6 +1,6 @@
-=head1 Algae Methods
+=head1 Algae Pond Methods
 
-Algae is accessible via the URL C</algae>.
+Algae Pond is accessible via the URL C</algaepond>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 

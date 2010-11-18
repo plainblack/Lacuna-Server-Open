@@ -1,25 +1,26 @@
-package Lacuna::DB::Result::Building::Permanent::MassadsHenge;
+package Lacuna::DB::Result::Building::Permanent::AlgaePond;
 
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
+use Lacuna::Util qw(randint);
 
-use constant controller_class => 'Lacuna::RPC::Building::MassadsHenge';
+use constant controller_class => 'Lacuna::RPC::Building::AlgaePond';
 
 around can_build => sub {
     my ($orig, $self, $body) = @_;
     if ($body->get_plan(__PACKAGE__, 1)) {
         return $orig->($self, $body);  
     }
-    confess [1013,"You can't build Massad's Henge. It was left behind by the Great Race."];
+    confess [1013,"You can't build an Algae Pond. It forms naturally."];
 };
 
 sub can_upgrade {
-    confess [1013, "You can't upgrade Massad's Henge. It was left behind by the Great Race."];
+    confess [1013, "You can't upgrade an Algae Pond. It forms naturally."];
 }
 
-use constant image => 'massadshenge';
+use constant image => 'algaepond';
 
 sub image_level {
     my ($self) = @_;
@@ -28,14 +29,20 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(50, sprintf('The discovery of Massad\'s Henge on %s has historians puzzled. It was assumed to only be legend.', $self->body->name));
+    $self->body->add_news(30, sprintf('This is no fisherman\'s tale. A local fisherman caught a '.randint(1,9).' meter Rakl out of an algae pond on %s.', $self->body->name));
 };
 
-use constant name => 'Massad\'s Henge';
-
+use constant name => 'Algae Pond';
 use constant time_to_build => 0;
 use constant max_instances_per_planet => 1;
+use constant algae_production => 4000; 
 
+around produces_food_items => sub {
+    my ($orig, $class) = @_;
+    my $foods = $orig->($class);
+    push @{$foods}, qw(algae);
+    return $foods;
+};
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

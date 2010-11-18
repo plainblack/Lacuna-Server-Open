@@ -27,6 +27,7 @@ use constant FINDABLE_PLANS => (qw(
     Lacuna::DB::Result::Building::Permanent::AlgaePond
     ));
 use constant BUILDABLE_CLASSES => (qw(
+    Lacuna::RPC::Building::ThemePark
     Lacuna::RPC::Building::MissionCommand
     Lacuna::RPC::Building::CloakingLab
     Lacuna::RPC::Building::MunitionsLab

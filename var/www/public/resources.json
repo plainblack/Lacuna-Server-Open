@@ -1,5 +1,14 @@
 {
     "buildings" : {
+        "/oracleofanid" : { "description" : "The all seeing Oracle can help detect enemy threats.", "wiki" : "http://community.lacunaexpanse.com/wiki/oracle-of-anid" },
+        "/themepark" : { "description" : "Produces happiness for your citizens through food and entertainment.", "wiki" : "http://community.lacunaexpanse.com/wiki/theme-park" },
+        "/massadshenge" : { "description" : "An ancient observatory.", "wiki" : "http://community.lacunaexpanse.com/wiki/massad-s-henge" },
+        "/gratchsgauntlet" : { "description" : "The training grounds of the Great Race.", "wiki" : "http://community.lacunaexpanse.com/wiki/gratch-s-gauntlet" },
+        "/kasternskeep" : { "description" : "The place from which the Great Race commanded their armies.", "wiki" : "http://community.lacunaexpanse.com/wiki/kastern-s-keep" },
+        "/hallsofvrbansk" : { "description" : "The source of ancient wisdom.", "wiki" : "http://community.lacunaexpanse.com/wiki/halls-of-vrbansk" },
+        "/libraryofjith" : { "description" : "Where the Great Race kept records of their experiments.", "wiki" : "http://community.lacunaexpanse.com/wiki/library-of-jith" },
+        "/thedillonforge" : { "description" : "Where raw ore formed into glyphs and the glyph buildings were born.", "wiki" : "http://community.lacunaexpanse.com/wiki/the-dillon-forge" },
+        "/blackholegenerator" : { "description" : "An experimental signularity lab engineered by the Great Race.", "wiki" : "http://community.lacunaexpanse.com/wiki/black-hole-generator" },
         "/subspacesupplydepot" : { "description" : "Helps give a fledgling colony a kickstart.", "wiki" : "http://community.lacunaexpanse.com/wiki/subspace-supply-depot" },
         "/pantheonofhagness" : { "description" : "Increases the number of available plots on your planet.", "wiki" : "http://community.lacunaexpanse.com/wiki/pantheon-of-hagness" },
         "/crashedshipsite" : { "description" : "Harvest technology from a crashed ship to make your own ships better.", "wiki" : "http://community.lacunaexpanse.com/wiki/crashed-ship-site" },

@@ -1,6 +1,6 @@
-=head1 Algae Methods
+=head1 Theme Park Methods
 
-Algae is accessible via the URL C</algae>.
+Theme Park is accessible via the URL C</themepark>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 

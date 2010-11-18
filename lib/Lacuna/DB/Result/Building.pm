@@ -1018,6 +1018,12 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Permanent::Ravine' => 'Lacuna::DB::Result::Building::Permanent::Ravine',
         'Lacuna::DB::Result::Building::Permanent::PantheonOfHagness' => 'Lacuna::DB::Result::Building::Permanent::PantheonOfHagness',
         'Lacuna::DB::Result::Building::SubspaceSupplyDepot' => 'Lacuna::DB::Result::Building::SubspaceSupplyDepot',
+        'Lacuna::DB::Result::Building::ThemePark' => 'Lacuna::DB::Result::Building::ThemePark',
+        'Lacuna::DB::Result::Building::Permanent::BlackHoleGenerator' => 'Lacuna::DB::Result::Building::Permanent::BlackHoleGenerator',
+        'Lacuna::DB::Result::Building::Permanent::GratchsGauntlet' => 'Lacuna::DB::Result::Building::Permanent::GratchsGauntlet',
+        'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk' => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk',
+        'Lacuna::DB::Result::Building::Permanent::KasternsKeep' => 'Lacuna::DB::Result::Building::Permanent::KasternsKeep',
+        'Lacuna::DB::Result::Building::Permanent::TheDillonForge' => 'Lacuna::DB::Result::Building::Permanent::TheDillonForge',
     });
 }
 

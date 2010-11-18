@@ -1,6 +1,6 @@
-=head1 Algae Methods
+=head1 The Dillon Forge Methods
 
-Algae is accessible via the URL C</algae>.
+The Dillon Forge is accessible via the URL C</thedillonforge>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 

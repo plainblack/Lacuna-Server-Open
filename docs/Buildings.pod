@@ -280,6 +280,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<Algae>
 
+=item L<AlgaePond>
+
 =item L<Apple>
 
 =item L<Archaeology>
@@ -287,6 +289,8 @@ Below is a list of the different types of structures that can be built on planet
 =item L<Bean>
 
 =item L<Beeldeban>
+
+=item L<BlackHoleGenerator>
 
 =item L<Bread>
 
@@ -344,7 +348,11 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<GeoThermalVent>
 
+=item L<GratchsGauntlet>
+
 =item L<Grove>
+
+=item L<HallsOfVrbansk>
 
 =item L<Hydrocarbon>
 
@@ -353,6 +361,8 @@ Below is a list of the different types of structures that can be built on planet
 =item L<InterDimensionalRift>
 
 =item L<KalavianRuins>
+
+=item L<KasternsKeep>
 
 =item L<Lake>
 
@@ -433,6 +443,10 @@ Below is a list of the different types of structures that can be built on planet
 =item L<TerraformingLab>
 
 =item L<TerraformingPlatform>
+
+=item L<TheDillonForge>
+
+=item L<ThemePark>
 
 =item L<Trade>
 

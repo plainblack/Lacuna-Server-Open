@@ -1,0 +1,12 @@
+2.3300
+ - Started keeping a public change log.
+ - Added missioncommand.skip_mission().
+ - Fixed a bug where you'd get an overflow message before you should.
+ - Added entertainment.duck_quack() and modified .view().
+ - Added Subspace Supply Depot.
+ - Stopped combining items in mission objectives to make it easier to read.
+ - There is no longer a limit to the number of missions in a zone.
+ - Fixed a bug with plan matching for missions.
+ - Can no longer use scows for mining.
+ - Created stubs for Black Hole Generator, Gratch's Gauntlet, Halls of Vrbansk, Kastern's Keep, The Dillon Forge, and Theme Park.
+ - Fixed the bug that caused the Saben to instantly auto-recolonize planets after abandoning them.

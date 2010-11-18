@@ -35,6 +35,12 @@ $urlmap->map("/facebook" => Lacuna::Web::Facebook->new->to_app);
 $urlmap->map("/apikey" => Lacuna::Web::ApiKey->new->to_app);
 
 # buildings
+$urlmap->map(Lacuna::RPC::Building::ThemePark->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::BlackHoleGenerator->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::TheDillonForge->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::HallsOfVrbansk->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::GratchsGauntlet->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::KasternsKeep->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::SubspaceSupplyDepot->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::PantheonOfHagness->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Capitol->new->to_app_with_url);

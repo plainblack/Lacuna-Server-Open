@@ -1,6 +1,6 @@
-=head1 MassadsHenge Methods
+=head1 Algae Methods
 
-Massads Henge is accessible via the URL C</massadshenge>. 
+Algae is accessible via the URL C</algae>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 

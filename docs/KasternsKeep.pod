@@ -1,6 +1,6 @@
-=head1 Algae Methods
+=head1 Kastern's Keep Methods
 
-Algae is accessible via the URL C</algae>.
+Kastern's Keep is accessible via the URL C</kasternskeep>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
