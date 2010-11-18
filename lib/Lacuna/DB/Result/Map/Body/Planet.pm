@@ -935,7 +935,6 @@ sub can_add_type {
 sub add_type {
     my ($self, $type, $value) = @_;
     my $method = 'add_'.$type;
-    $self->$method($value);
     unless (eval{$self->can_add_type($type, $value)}) {
         my $empire = $self->empire;
         if (!$empire->skip_resource_warnings && !$empire->check_for_repeat_message('complaint_overflow'.$self->id)) {
@@ -948,6 +947,7 @@ sub add_type {
         }
         
     }
+    $self->$method($value);
     return $self;
 }
 
