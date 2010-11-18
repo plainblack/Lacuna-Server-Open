@@ -120,6 +120,13 @@ before finish_work => sub {
 
 my %recipies = (
     anthracite     => {
+        bauxite     => {
+            beryl       => {
+                chalcopyrite=> {
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::LibraryOfJith',
+                },
+            },
+        },        
         trona       => {
             kerogen     => {
                 plan        => 'Lacuna::DB::Result::Building::Permanent::BeeldebanNest',

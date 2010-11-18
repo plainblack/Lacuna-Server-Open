@@ -4,4 +4,42 @@ Library of Jith is accessible via the URL C</libraryofjith>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+
+=head2 research_species (session_id, building_id, empire_id )
+
+Returns a list of species stats for any species in the game.
+
+  {
+    "species" : {
+       "name" : "Human",
+       "description" : "The descendants of Earth.",
+       "min_orbit" : 3,
+       "max_orbit" : 3,
+       "manufacturing_affinity" : 4,
+       "deception_affinity" : 4,
+       "research_affinity" : 4,
+       "management_affinity" : 4,
+       "farming_affinity" : 4,
+       "mining_affinity" : 4,
+       "science_affinity" : 4,
+       "environmental_affinity" : 4,
+       "political_affinity" : 4,
+       "trade_affinity" : 4,
+       "growth_affinity" : 4
+    },
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 empire_id
+
+The unique id of an empire you'd like to know more about. See L<Empire/"find"> to turn a name into an id.
+
 =cut

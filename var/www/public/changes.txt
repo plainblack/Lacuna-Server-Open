@@ -10,3 +10,4 @@
  - Can no longer use scows for mining.
  - Created stubs for Black Hole Generator, Gratch's Gauntlet, Halls of Vrbansk, Kastern's Keep, The Dillon Forge, and Theme Park.
  - Fixed the bug that caused the Saben to instantly auto-recolonize planets after abandoning them.
+ - Added Library of Jith.
