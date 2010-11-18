@@ -35,20 +35,18 @@ my @zones = $db->resultset('Lacuna::DB::Result::Map::Body')->search(
     { distinct => 1 })->get_column('zone')->all;
 foreach my $zone (@zones) {
     out($zone);
-    if ($missions->search({zone=>$zone})->count < 51) {
-        foreach (1..3) {
-            my $mission = $missions->new({
-                zone                 => $zone,
-                mission_file_name    => $mission_files[rand @mission_files],
-            });
-            $mission->max_university_level($mission->params->get('max_university_level'));
-            $mission->insert;
-            say $mission->params->get('name');
-            $news->new({
-                zone                => $zone,
-                headline            => $mission->params->get('network_19_headline'),
-            })->insert;
-        }
+    foreach (1..3) {
+        my $mission = $missions->new({
+            zone                 => $zone,
+            mission_file_name    => $mission_files[rand @mission_files],
+        });
+        $mission->max_university_level($mission->params->get('max_university_level'));
+        $mission->insert;
+        say $mission->params->get('name');
+        $news->new({
+            zone                => $zone,
+            headline            => $mission->params->get('network_19_headline'),
+        })->insert;
     }
 }
 
