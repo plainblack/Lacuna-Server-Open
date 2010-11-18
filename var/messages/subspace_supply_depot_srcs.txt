@@ -1,0 +1,17 @@
+Special Delivery
+~~~
+%s just took delivery of that thing you ordered. Sorry you weren't there to sign for it, but I just dropped it off at the Space Port. I figured that's where you'd want the thing. Anyways, the thing is that Joey, you know "Joey the Nose" down at the docks, yeah Joey, well he promised me a little something extra for delivering this one fast-like. Only he wasn't there. So if you wouldn't mind, next time I'm coming in, if you could leave a little something extra for me down at the docks, I'd really appreciate it. Anyways, enjoy your thing.
+
+Lagarty M'urtlestint
+Freighter Captain
+Lacuna Expanse Corp
+
+
+
+Order #:                    DN-%s-9b
+RMA #:                      DLX-%s
+Purchase Order #:           %s-11XYT
+Distribution Center Route:  CD-%s-EGH
+Inventory #:                DME-333-X1-2674A
+Description:                1 Short Range Colony Ship
+Authorized Signature:       Tou Re Ell

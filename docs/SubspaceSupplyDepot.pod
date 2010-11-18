@@ -1,0 +1,101 @@
+=head1 Subspace Supply Depot Methods
+
+Subspace Supply Depot is accessible via the URL C</subspacesupplydepot>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+
+=head2 transmit_food ( session_id, building_id )
+
+Convert 3600 seconds into 3600 food.
+
+ {
+    "status" : { ... }   
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+A building id.
+
+
+
+
+=head2 transmit_energy ( session_id, building_id )
+
+Convert 3600 seconds into 3600 energy.
+
+ {
+    "status" : { ... }   
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+A building id.
+
+
+
+
+=head2 transmit_ore ( session_id, building_id )
+
+Convert 3600 seconds into 3600 ore.
+
+ {
+    "status" : { ... }   
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+A building id.
+
+
+
+
+=head2 transmit_water ( session_id, building_id )
+
+Convert 3600 seconds into 3600 water.
+
+ {
+    "status" : { ... }   
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+A building id.
+
+
+
+=head2 complete_build_queue (session_id, building_id )
+
+Trade seconds for build queue time.
+
+ {
+    "status" : { ... }   
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+A building id.
+
+
+
+=cut

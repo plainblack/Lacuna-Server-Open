@@ -1,0 +1,17 @@
+Special Delivery
+~~~
+Yeah, I parked that thing you ordered over there on %s. Whew! That was a beast. Jimmy or Timmy or Kimmy or well, I think his name ended with an "immy". Anyways he wasn't there to sign for it, so I hope the location is ok. Oh yeah, his name was Ralph. Wow I guess that didn't have an "immy" in it at all! Anyways, your receipt is attached below. Hope you enjoy it.
+
+Lagarty M'urtlestint
+Freighter Captain
+Lacuna Expanse Corp
+
+
+
+Order #:                    K1-%s-7
+RMA #:                      WTFWYDT-%s
+Purchase Order #:           %s-11XYT
+Distribution Center Route:  AB-%s-COD
+Inventory #:                ANI-457-1142-CND-X551
+Description:                1 Subspace Supply Depot (5-day edition)
+Authorized Signature:       Tou Re Ell

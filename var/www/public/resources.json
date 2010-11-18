@@ -1,5 +1,6 @@
 {
     "buildings" : {
+        "/subspacesupplydepot" : { "description" : "Helps give a fledgling colony a kickstart.", "wiki" : "http://community.lacunaexpanse.com/wiki/subspace-supply-depot" },
         "/pantheonofhagness" : { "description" : "Increases the number of available plots on your planet.", "wiki" : "http://community.lacunaexpanse.com/wiki/pantheon-of-hagness" },
         "/crashedshipsite" : { "description" : "Harvest technology from a crashed ship to make your own ships better.", "wiki" : "http://community.lacunaexpanse.com/wiki/crashed-ship-site" },
         "/citadelofknope" : { "description" : "Defends your planet from incoming hostile ships by absorbing the damage onto itself.", "wiki" : "http://community.lacunaexpanse.com/wiki/citadel-of-knope" },
