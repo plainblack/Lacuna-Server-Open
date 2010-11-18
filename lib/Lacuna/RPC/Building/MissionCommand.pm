@@ -57,7 +57,21 @@ sub complete_mission {
     }
 }
 
-__PACKAGE__->register_rpc_method_names(qw(get_missions complete_mission));
+sub skip_mission {
+    my ($self, $session_id, $building_id, $mission_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    confess [1002, 'Please specify a mission id.'] unless $mission_id;
+    my $mission = $building->missions->find($mission_id);
+    confess [1002, 'No such mission.'] unless $mission;
+    my $body = $building->body;
+    $mission->skip($body);
+    return {
+        status      => $self->format_status($empire, $body),
+    }
+}
+
+__PACKAGE__->register_rpc_method_names(qw(get_missions skip_mission complete_mission));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

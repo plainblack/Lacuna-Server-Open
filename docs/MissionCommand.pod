@@ -62,4 +62,27 @@ The unique id for the mission command building.
 
 The unique id of the mission you'd like to complete.
 
+
+
+=head2 skip_mission ( session_id, building_id, mission_id )
+
+Skips a mission. This mission won't show up on the list of missions for this user for 30 days.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id for the mission command building.
+
+=head3 mission_id
+
+The unique id of the mission you'd like to skip.
+
+
 =cut

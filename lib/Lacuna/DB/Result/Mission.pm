@@ -39,6 +39,11 @@ sub complete {
     $self->delete;
 }
 
+sub skip {
+    my ($self, $body) = @_;
+    Lacuna->cache->set($self->mission_file_name, $body->empire_id, 1, 60 * 60 * 24 * 30);
+}
+
 sub add_next_part {
     my $self = shift;
     $self->mission_file_name =~ m/^([a-z0-9\-\_]+)\.((mission)|(part\d+))$/i;
