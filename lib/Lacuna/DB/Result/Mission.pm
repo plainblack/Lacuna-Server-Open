@@ -262,54 +262,37 @@ sub format_items {
     my @items;
     
     # essentia
-    push @items, sprintf('Essentia: %s essentia.', commify($items->{essentia})) if ($items->{essentia});
+    push @items, sprintf('%s essentia.', commify($items->{essentia})) if ($items->{essentia});
     
     # resources
-    my @resources;
     foreach my $resource (keys %{ $items->{resources}}) {
-        push @resources, sprintf('%s %s', commify($items->{resources}{$resource}), $resource);
+        push @items, sprintf('%s %s', commify($items->{resources}{$resource}), $resource);
     }
-    push @items, $self->format_list('Resources',@resources);
     
     # glyphs
-    push @items, $self->format_list('Glyphs',@{$items->{glyphs}});
+    foreach my $glyph (@{$items->{glyphs}}) {
+        push @items, $glyph.' glyph';
+    }
     
     # ships
-    my @ships;
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     foreach my $stats (@{ $items->{ships}}) {
         my $ship = $ships->new({type=>$stats->{type}});
         my $pattern = $is_objective ? '%s (speed >= %s, stealth >= %s, hold size >= %s)' : '%s (speed: %s, stealth: %s, hold size: %s)' ;
-        push @ships, sprintf($pattern, $ship->type_formatted, commify($stats->{speed}), commify($stats->{stealth}), commify($stats->{hold_size}));
+        push @items, sprintf($pattern, $ship->type_formatted, commify($stats->{speed}), commify($stats->{stealth}), commify($stats->{hold_size}));
     }
-    push @items, $self->format_list('Ships',@ships);
 
     # plans
-    my @plans;
     foreach my $stats (@{ $items->{plans}}) {
         my $level = $stats->{level};
         if ($stats->{extra_build_level}) {
             $level = '+'.$stats->{extra_build_level};
         }
-        my $pattern = $is_objective ? '%s (>= %s)' : '%s (%s)'; 
-        push @plans, sprintf($pattern, $stats->{classname}->name, $level);
+        my $pattern = $is_objective ? '%s (>= %s) plan' : '%s (%s) plan'; 
+        push @items, sprintf($pattern, $stats->{classname}->name, $level);
     }
-    push @items, $self->format_list('Plans',@plans);
 
     return \@items;
-}
-
-sub format_list {
-    my ($self, $label, @list) = @_;
-    my @out;
-    if (scalar(@list) == 1) {
-        push @out, sprintf($label.': %s.', $list[0]);
-    }
-    elsif (scalar(@list) > 1) {
-        my $last = pop @list;
-        push @out, sprintf($label.': %s and %s', join('; ', @list), $last);
-    }
-    return @out;
 }
 
 sub sqlt_deploy_hook {
