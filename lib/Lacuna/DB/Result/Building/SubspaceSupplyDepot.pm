@@ -34,7 +34,7 @@ use constant time_to_build => 0;
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->start_work({}, 60 * 60 * 24 * 5);
+    $self->start_work({}, 60 * 60 * 24 * 5)->update;
     $self->body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'subspace_supply_depot.txt',
