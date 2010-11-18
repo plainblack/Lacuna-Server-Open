@@ -1,4 +1,4 @@
-package Lacuna::RPC::Building::AlgaePond;
+package Lacuna::RPC::Building::OracleOfAnid;
 
 use Moose;
 use utf8;
@@ -6,11 +6,11 @@ no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 
 sub app_url {
-    return '/algaepond';
+    return '/oracleofanid';
 }
 
 sub model_class {
-    return 'Lacuna::DB::Result::Building::Permanent::AlgaePond';
+    return 'Lacuna::DB::Result::Building::Permanent::OracleOfAnid';
 }
 
 no Moose;

@@ -1,6 +1,6 @@
-=head1 Algae Methods
+=head1 Oracle of Anid Methods
 
-Algae is accessible via the URL C</algae>.
+Oracle of Anid is accessible via the URL C</oracleofanid>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
