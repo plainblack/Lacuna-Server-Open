@@ -1,6 +1,7 @@
 2.3400
  - Fixed Archaeology Ministry to have a University prereq of 11 rather than 10.
  - Added Mission Command to the tutorial.
+ - Some tweaks to existing missions that people complained about.
 
 2.3300
  - Started keeping a public change log.
