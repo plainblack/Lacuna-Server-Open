@@ -35,7 +35,7 @@ sub arrive {
         }
         my $empire = $body->empire;
         my $foreign_body = $self->foreign_body;
-        my $can = eval{$ministry->can_add_platform($foreign_body)};
+        my $can = eval{$ministry->can_add_platform($foreign_body, 1)};
         if ($can && !$@) {
             $ministry->add_platform($foreign_body)->update;
             $empire->send_predefined_message(
