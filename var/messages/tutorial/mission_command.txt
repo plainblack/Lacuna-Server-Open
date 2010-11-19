@@ -1,0 +1,15 @@
+Mission Command
+~~~
+I've just given you a plan for a Mission Command building. You should build it now.
+
+Mission Command is kind of a like a job board. People all around the expanse have need of certain tasks to be completed, or resources to be acquired. You can help them do that for a profit. Some missions are more interesting than others, and some missions are more profitable than others, but one thing is true: there is no shortage of missions.
+
+At some point you'll likely want to raise your resource production so you can upgrade Mission Command. The higher the level the more jobs are available to you. However, it's a bit too expensive for you to worry about upgrading it just yet. Let's just get it built for now and we can worry about missions later.
+
+Regards,
+
+Tou Re Ell
+Lacuna Expanse Corp
+
+Task:  Build the Mission Command plan.
+Reward:  Free resources.

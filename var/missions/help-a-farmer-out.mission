@@ -1,0 +1,2 @@
+# config-file-type: JSON 1
+{"network_19_headline":"Farmer will trade milk for fertilizer.","network_19_completion":"Farmer thanks %s for being a good trading partner.","description":"Hey you there. I need some help. My crops need some fertilzer or they just won't grow. I've got some two day old milk here that I can trade you, and make you a really good deal. Will you help a farmer out?","max_university_level":"2","name":"Help a Farmer Out","mission_objective":{"resources":{"sulfur":10}},"mission_reward":{"resources":{"milk":100}}}

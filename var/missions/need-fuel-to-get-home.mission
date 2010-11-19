@@ -1,0 +1,2 @@
+# config-file-type: JSON 1
+{"network_19_headline":"Dory captain stranded. Requests fuel.","network_19_completion":"%s saved stranded captain.","description":"I'm on my way back from a cargo run and wouldn't you know it, my fuel cells are empty. I need a little energy so I can get home. If you can help me out I've got load of pies here you could have.","max_university_level":"5","name":"Need Fuel To Get Home","mission_objective":{"resources":{"energy":1000}},"mission_reward":{"resources":{"pie":1500}}}

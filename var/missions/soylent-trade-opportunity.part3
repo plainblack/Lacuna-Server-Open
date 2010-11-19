@@ -1,0 +1,2 @@
+# config-file-type: JSON 1
+{"network_19_headline":"Soylent food processing company starts stocking shelves with Soylent Syrup.","network_19_completion":"Soylent syrup is now the number one food in the %s colonies.","description":"You've got waste, and you need food. I'm willing to turn your waste into food for you, using our newly patented process. Our sticky sweet soylent syrup is to die for. What do you say?","max_university_level":"4","name":"Soylent Trade Opportunity","mission_objective":{"resources":{"waste":2500}},"mission_reward":{"resources":{"syrup":2500}}}

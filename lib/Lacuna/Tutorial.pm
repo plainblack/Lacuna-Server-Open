@@ -331,6 +331,38 @@ sub university {
     if ($finish) {
         my $building = $home->get_building_of_class('Lacuna::DB::Result::Building::University');
         if (defined $building && $building->level >= 1) {
+            $home->add_trona(1000);
+            $home->add_bread(1000);
+            $home->add_energy(1000);
+            $home->add_water(1000);
+            $home->update;
+            $home->add_plan('Lacuna::DB::Result::Building::MissionCommand', 1);
+            our $missions = Lacuna->db->resultset('Lacuna::DB::Result::Mission');
+            foreach my $filename (qw(soylent-trade-opportunity.mission need-a-probe.mission dung-beeldeban.mission)) {
+                my $mission = $missions->new({
+                    zone                 => $home->zone,
+                    mission_file_name    => $filename,
+                });
+                $mission->max_university_level($mission->params->get('max_university_level'));
+                $mission->insert;
+            }
+            $self->start('mission_command');
+            return undef;
+        }
+    }
+    return {
+        params      => [$empire->name],
+        filename    => 'tutorial/university.txt',  
+    };
+}
+
+sub mission_command {
+    my ($self, $finish) = @_;
+    my $empire = $self->empire;
+    my $home = $empire->home_planet;
+    if ($finish) {
+        my $building = $home->get_building_of_class('Lacuna::DB::Result::Building::MissionCommand');
+        if (defined $building && $building->level >= 1) {
             $home->add_trona(700);
             $home->add_bread(700);
             $home->add_energy(700);
@@ -342,7 +374,7 @@ sub university {
     }
     return {
         params      => [$empire->name],
-        filename    => 'tutorial/university.txt',  
+        filename    => 'tutorial/mission_command.txt',  
     };
 }
 
