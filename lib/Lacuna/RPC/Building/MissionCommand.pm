@@ -20,10 +20,13 @@ sub get_missions {
     my @missions;
     my $missions = $building->missions;
     my $count;
+    my @listed;
     while (my $mission = $missions->next) {
         my $params = $mission->params;
+        next if $mission->mission_file_name ~~ \@listed;
         next if $params->get('max_university_level') < $empire->university_level;
         next if Lacuna->cache->get($mission->mission_file_name, $empire->id);
+        push @listed, $mission->mission_file_name;
         push @missions, {
             id                      => $mission->id,
             name                    => $params->get('name'),
