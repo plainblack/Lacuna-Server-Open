@@ -1,0 +1,2 @@
+# config-file-type: JSON 1
+{"network_19_headline":"Droogs on Alpha-Zeta 3 need more milk.","network_19_completion":"%s supplies the resistance of Alpha-Zeta 3!","description":"The Droogs of Alpha-Zeta 3 need more milk.  Without, they just can't function!\n\nFor a ready supply of milk, the Droogs will hand over some shiny baubles donated by some of the elite of Alpha-Zeta 3.","max_university_level":"10","name":"Milk Bar","mission_objective":{"resources":{"milk":1000}},"mission_reward":{"resources":{"chromite":2500,"gold":2500,"zircon":2500}}}

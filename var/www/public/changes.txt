@@ -2,6 +2,9 @@
  - Fixed Archaeology Ministry to have a University prereq of 11 rather than 10.
  - Added Mission Command to the tutorial.
  - Some tweaks to existing missions that people complained about.
+ - Fixed bug where mining platform ship was counted twice as it arrived at an asteroid.
+ - Stop listing duplicate missions.
+ - Added more missions submitted by users.
 
 2.3300
  - Started keeping a public change log.
