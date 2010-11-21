@@ -5,6 +5,7 @@
  - Fixed bug where mining platform ship was counted twice as it arrived at an asteroid.
  - Stop listing duplicate missions.
  - Added more missions submitted by users.
+ - Separated mission files into their own git repo for the new curator position.
 
 2.3300
  - Started keeping a public change log.

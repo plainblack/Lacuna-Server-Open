@@ -22,7 +22,7 @@ has params => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return Config::JSON->new('/data/Lacuna-Server/var/missions/'. $self->mission_file_name);
+        return Config::JSON->new('/data/Lacuna-Mission/missions/'. $self->mission_file_name);
     },
 );
 
@@ -55,7 +55,7 @@ sub add_next_part {
         $ext =~ m/^part(\d+)$/;
         $name .= '.part'.$1;
     }
-    if (-f '/data/Lacuna-Server/var/missions/'.$name) {
+    if (-f '/data/Lacuna-Mission/missions/'.$name) {
         my $mission = Lacuna->db->resultset('Lacuna::DB::Result::Mission')->new({
             zone                => $self->zone,
             mission_file_name   => $name,

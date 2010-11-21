@@ -61,7 +61,7 @@ out((($finish - $start)/60)." minutes have elapsed");
 
 
 sub get_mission_files {
-    opendir my $dir, '/data/Lacuna-Server/var/missions/';
+    opendir my $dir, '/data/Lacuna-Mission/missions/';
     my @files = readdir $dir;
     closedir $dir;
     my @missions;
