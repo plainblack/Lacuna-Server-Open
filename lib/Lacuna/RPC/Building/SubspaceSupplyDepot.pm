@@ -63,7 +63,7 @@ sub complete_build_queue {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(dump));
+__PACKAGE__->register_rpc_method_names(qw(transmit_energy transmit_ore transmit_food complete_build_queue transmit_water));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
