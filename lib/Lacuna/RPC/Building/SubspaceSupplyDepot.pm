@@ -20,6 +20,13 @@ sub transmit_food {
     $building->transmit_food;
     return {
         status      => $self->format_status($empire, $building->body),
+        building                    => {
+            work        => {
+                seconds_remaining   => $building->work_seconds_remaining,
+                start               => $building->work_started_formatted,
+                end                 => $building->work_ends_formatted,
+            },
+        },
     };
 }
 
@@ -30,6 +37,13 @@ sub transmit_energy {
     $building->transmit_energy;
     return {
         status      => $self->format_status($empire, $building->body),
+        building                    => {
+            work        => {
+                seconds_remaining   => $building->work_seconds_remaining,
+                start               => $building->work_started_formatted,
+                end                 => $building->work_ends_formatted,
+            },
+        },
     };
 }
 
@@ -40,6 +54,13 @@ sub transmit_ore {
     $building->transmit_ore;
     return {
         status      => $self->format_status($empire, $building->body),
+        building                    => {
+            work        => {
+                seconds_remaining   => $building->work_seconds_remaining,
+                start               => $building->work_started_formatted,
+                end                 => $building->work_ends_formatted,
+            },
+        },
     };
 }
 
@@ -50,6 +71,13 @@ sub transmit_water {
     $building->transmit_water;
     return {
         status      => $self->format_status($empire, $building->body),
+        building                    => {
+            work        => {
+                seconds_remaining   => $building->work_seconds_remaining,
+                start               => $building->work_started_formatted,
+                end                 => $building->work_ends_formatted,
+            },
+        },
     };
 }
 
@@ -60,6 +88,13 @@ sub complete_build_queue {
     $building->complete_build_queue;
     return {
         status      => $self->format_status($empire, $building->body),
+        building                    => {
+            work        => {
+                seconds_remaining   => $building->work_seconds_remaining,
+                start               => $building->work_started_formatted,
+                end                 => $building->work_ends_formatted,
+            },
+        },
     };
 }
 
