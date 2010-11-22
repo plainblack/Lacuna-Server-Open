@@ -88,8 +88,8 @@ sub transmit_energy {
 sub complete_build_queue {
     my $self = shift;
     my $time_to_complete = $self->body->get_existing_build_queue_time->epoch - time;
-    if ($time_to_complete < $self->work_ends->epoch - time) {
-        confess [1011, 'Not enough energy remaining to complete the build queue.'];
+    if ($time_to_complete > $self->work_ends->epoch - time) {
+        confess [1011, 'Not enough time remaining to complete the build queue.'];
     }
     $self->work_ends($self->work_ends->subtract(seconds => $time_to_complete));
     $self->update;
