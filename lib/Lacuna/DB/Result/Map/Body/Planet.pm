@@ -375,7 +375,7 @@ sub is_space_free {
 }
 
 sub find_free_space {
-    my $self;
+    my $self = shift;
     foreach my $x (-5..5) {
         foreach my $y (-5..5) {
             if ($self->is_space_free($x, $y)) {
