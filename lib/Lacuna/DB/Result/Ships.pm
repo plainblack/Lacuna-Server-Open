@@ -311,7 +311,7 @@ sub trigger_defense {
     my $self = shift;
     my $body_attacked = $self->foreign_body;
     my $defense = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        { body_id => $self->foreign_body_id, type => { in => [qw(drone fighter)]}},
+        { body_id => $self->foreign_body_id, type => { in => [qw(drone fighter)]}, task=>'Docked'},
         { rows => 1 }
         )->single;
     if (defined $defense) {
