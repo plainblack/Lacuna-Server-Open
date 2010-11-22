@@ -46,6 +46,7 @@ sub unload {
     if (exists $payload->{ships}) {
         foreach my $id (@{$payload->{ships}}) {
             my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($id);
+            next unless defined $ship;
             $ship->task('Docked');
             $ship->body_id($body->id);
             $ship->update;

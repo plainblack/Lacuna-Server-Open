@@ -6,6 +6,8 @@
  - Stop listing duplicate missions.
  - Added more missions submitted by users.
  - Separated mission files into their own git repo for the new curator position.
+ - Fixed bug where drones and fighters could be used even if they weren't Docked.
+ - Fixed ship as cargo bug.
 
 2.3300
  - Started keeping a public change log.
