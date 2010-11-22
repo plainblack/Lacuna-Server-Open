@@ -119,7 +119,7 @@ after finish_work => sub {
             from        => $body->empire->lacuna_expanse_corp,
         );
     }
-    $self->delete;
+    $self->update({class=>'Lacuna::DB::Result::Building::Permanent::Crater'});
 };
 
 no Moose;
