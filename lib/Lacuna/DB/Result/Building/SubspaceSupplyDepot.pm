@@ -95,6 +95,7 @@ sub complete_build_queue {
     $self->update;
     my $builds = $self->body->builds;
     while (my $build = $builds->next) {
+        $build->body($self->body);
         $build->finish_upgrade;
     }
 }

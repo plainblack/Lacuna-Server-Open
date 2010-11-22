@@ -10,6 +10,7 @@ sub subsidize_build_queue {
     $self->body->tick;
     my $builds = $self->body->builds;
     while (my $build = $builds->next) {
+        $build->body($self->body);
         $build->finish_upgrade;
     }
 }

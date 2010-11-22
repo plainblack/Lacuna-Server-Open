@@ -1,3 +1,6 @@
+2.3500
+ - Development ministry now immediately returns "needs_surface_refresh" on subsidize build queue.
+
 2.3400
  - Fixed Archaeology Ministry to have a University prereq of 11 rather than 10.
  - Added Mission Command to the tutorial.
