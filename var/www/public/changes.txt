@@ -1,6 +1,7 @@
 2.3500
  - Development ministry now immediately returns "needs_surface_refresh" on subsidize build queue.
  - Scows can't launch unless there is enough waste to fill them.
+ - Added Subspace Supply Depot to the end of the tutorial.
 
 2.3400
  - Fixed Archaeology Ministry to have a University prereq of 11 rather than 10.

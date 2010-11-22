@@ -374,6 +374,18 @@ sub is_space_free {
     return 1;
 }
 
+sub find_free_space {
+    my $self;
+    foreach my $x (-5..5) {
+        foreach my $y (-5..5) {
+            if ($self->is_space_free($x, $y)) {
+                return ($x, $y);
+            }
+        }
+    }
+    confess [1009, 'No free space found.'];
+}
+
 sub check_for_available_build_space {
     my ($self, $x, $y) = @_;
     if ($x > 5 || $x < -5 || $y > 5 || $y < -5) {

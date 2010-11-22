@@ -283,6 +283,13 @@ sub the_end {
         $home->add_energy(2000);
         $home->add_water(2000);
         $home->update;
+        my ($x, $y) = $home->find_free_space;
+        my $ssd = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+           x        => $x,
+           y        => $y,
+           class    => 'Lacuna::DB::Result::Building::SubspaceSupplyDepot',
+        });
+        $home->build_building($ssd);
         $self->start('turing');
         return undef;
     }
