@@ -48,7 +48,7 @@ sub transmit_food {
     unless ($self->work_ends->epoch - time  > 3600 ) {
         confess [1011, 'Not enough energy remaining to transmit resources.']
     }
-    $self->work_ends->subtract(seconds => 3600);
+    $self->work_ends($self->work_ends->subtract(seconds => 3600));
     $self->update;
     my @types = (FOOD_TYPES);
     $self->body->add_type($types[ rand @types ], 3600)->update;
@@ -59,7 +59,7 @@ sub transmit_ore {
     unless ($self->work_ends->epoch - time  > 3600 ) {
         confess [1011, 'Not enough energy remaining to transmit resources.']
     }
-    $self->work_ends->subtract(seconds => 3600);
+    $self->work_ends($self->work_ends->subtract(seconds => 3600));
     $self->update;
     my @types = (ORE_TYPES);
     $self->body->add_type($types[ rand @types ], 3600)->update;
@@ -70,7 +70,7 @@ sub transmit_water {
     unless ($self->work_ends->epoch - time  > 3600 ) {
         confess [1011, 'Not enough energy remaining to transmit resources.']
     }
-    $self->work_ends->subtract(seconds => 3600);
+    $self->work_ends($self->work_ends->subtract(seconds => 3600));
     $self->update;
     $self->body->add_type('water', 3600)->update;
 }
@@ -80,16 +80,19 @@ sub transmit_energy {
     unless ($self->work_ends->epoch - time  > 3600 ) {
         confess [1011, 'Not enough energy remaining to transmit resources.']
     }
-    $self->work_ends->subtract(seconds => 3600);
+    $self->work_ends($self->work_ends->subtract(seconds => 3600));
     $self->update;
     $self->body->add_type('energy', 3600)->update;
 }
 
 sub complete_build_queue {
     my $self = shift;
-    unless ($self->body->get_existing_build_queue_time->epoch - time < 1) {
+    my $time_to_complete = $self->body->get_existing_build_queue_time->epoch - time;
+    if ($time_to_complete < $self->work_ends->epoch - time) {
         confess [1011, 'Not enough energy remaining to complete the build queue.'];
     }
+    $self->work_ends($self->work_ends->subtract(seconds => $time_to_complete));
+    $self->update;
     my $builds = $self->body->builds;
     while (my $build = $builds->next) {
         $build->finish_upgrade;
