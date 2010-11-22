@@ -21,7 +21,9 @@ our $db = Lacuna->db;
 out('Giving SSD');
 my $empires = $db->resultset('Lacuna::DB::Result::Empire');
 while (my $empire = $empires->next) {
+    next unless $empire->tutorial_stage eq 'turing';
     my $home = $empire->home_planet;
+    next unless defined $home;
     say "Adding to ".$home->name;
     my ($x, $y) = $home->find_free_space;
     my $ssd = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
