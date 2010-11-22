@@ -51,6 +51,7 @@ sub can_send_to_target {
     my ($self, $target) = @_;
     confess [1009, 'Can only be sent to planets and stars.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet') || $target->isa('Lacuna::DB::Result::Map::Star'));
     confess [1013, 'Can only be sent to inhabited planets.'] if ($target->isa('Lacuna::DB::Result::Map::Body::Planet') && !$target->empire_id);
+    confess [1011, 'You do not have enough waste to fill this scow. You need '.$self->hold_size.' waste to launch.'] unless ($self->body->waste_stored > $self->hold_size);
     return 1;
 }
 
