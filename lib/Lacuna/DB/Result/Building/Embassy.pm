@@ -248,6 +248,30 @@ sub update_alliance {
     return $alliance;
 }
 
+sub exchange_with_stash {
+    my ($self, $donation, $request) = @_;
+    unless ($self->exchanges_remaining_today) {
+        confess [1009, 'You have already reached your stash exchange limit for the day at this embassy.']
+    }
+    $self->alliance->exchange($self->body, $donation, $request, $self->max_exchange_size);
+    Lacuna->cache->increment('stash_exchanges_'.format_date(undef,'%d'), $self->body_id, 1, 60 * 60 * 26);
+}
+
+sub max_exchange_size {
+    my $self = shift;
+    return $self->level * 10000; 
+}
+
+has exchanges_remaining_today => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->level - Lacuna->cache->get('stash_exchanges_'.format_date(undef,'%d'), $self->body_id);
+    },
+);
+
+
 before 'can_downgrade' => sub {
     my $self = shift;
     my $alliance = eval{$self->alliance};

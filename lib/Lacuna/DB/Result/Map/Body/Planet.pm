@@ -367,6 +367,18 @@ has spaceport => (
     },
 );    
 
+has embassy => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Embassy');
+        return undef unless defined $building;
+        $building->body($self);
+        return $building;
+    },
+);    
+
 sub is_space_free {
     my ($self, $x, $y) = @_;
     my $count = $self->buildings->search({x=>$x, y=>$y})->count;
@@ -918,6 +930,15 @@ sub type_stored {
         $self->$stored_method($value);
     }
     return $self->$stored_method;
+}
+
+sub can_spend_type {
+    my ($self, $type, $value) = @_;
+    my $stored = $type.'_stored';
+    unless ($self->$stored < $value) {
+        confess [1009, "You don't have enough $type in storage storage."];
+    }
+    return 1;
 }
 
 sub spend_type {

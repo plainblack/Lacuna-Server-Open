@@ -5,6 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date);
+use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use DateTime;
 
 __PACKAGE__->table('alliance');
@@ -15,7 +16,8 @@ __PACKAGE__->add_columns(
     description             => { data_type => 'text', is_nullable => 1 },
     announcements           => { data_type => 'text', is_nullable => 1 },
     date_created            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-);
+    stash                   => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
+); 
 
 __PACKAGE__->belongs_to('leader', 'Lacuna::DB::Result::Empire', 'leader_id', { on_delete => 'set null' });
 __PACKAGE__->has_many('members', 'Lacuna::DB::Result::Empire', 'alliance_id');
@@ -26,6 +28,95 @@ sub date_created_formatted {
     my ($self) = @_;
     return format_date($self->date_created);
 }
+
+use constant max_stash => 5000000;
+
+sub stash_size {
+    my $self = shift;
+    return $self->calculate_size_of_transaction($self->stash);
+}
+
+sub calculate_size_of_transaction {
+    my ($self, $resources) = @_;
+    my $size = 0;
+    foreach my $resource (keys %{$resources}) {
+        $size += $resources->{$resource};
+    }
+    return $size;
+}
+
+sub check_donation {
+    my ($self, $body, $donation) = @_;
+    my @valid = ('water','energy',FOOD_TYPES,ORE_TYPES);
+    foreach my $resource (keys %{$donation}) {
+        unless ($resource ~~ \@valid) {
+            confess [1010, 'The stash cannot hold '.$resource.'.'];
+        }
+        $body->can_spend_type($resource, $donation->{$resource});
+    }
+    return 1;
+}
+
+sub add_to_stash {
+    my ($self, $body, $donation) = @_;
+    my $stash = $self->stash;
+    foreach my $resource (keys %{$donation}) {
+        $stash->{$resource} += $donation->{$resource};
+        $body->spend_type($resource, $donation->{$resource});
+    }
+    $self->stash($stash);
+}
+
+sub donate {
+    my ($self, $body, $donation) = @_;
+    $self->check_donation($body, $donation);
+    if ($self->max_stash - $self->stash_size < $self->calculate_size_of_transaction($donation)) {
+        confess [1009, 'That would overflow the stash. The stash can only hold 500,000 resources.'];
+    }
+    $self->add_to_stash($body, $donation);
+    $body->update;
+    $self->update;
+}
+
+sub check_request {
+    my ($self, $request, $max_exchange_size) = @_;
+    my $stash = $self->stash;
+    my $sum = 0;
+    foreach my $resource (keys %{$request}) {
+        if ($request->{$resource} > $stash->{$resource}) {
+            confess [1010, 'The stash does not contain '.$request->{$resource}.' '.$resource.'.'];
+        }
+        $sum += $request->{$resource};
+    }
+    if ($sum > $max_exchange_size) {
+        confess [1009, 'Your embassy level is too low to do a transaction that size. You can exchange '.$max_exchange_size.' per transaction.'];
+    }
+    return 1;
+}
+
+sub remove_from_stash {
+    my ($self, $body, $request) = @_;
+    my $stash = $self->stash;
+    foreach my $resource (keys %{$request}) {
+        $stash->{$resource} -= $request->{$resource};
+        $body->add_type($resource, $request->{$resource});
+    }
+    $self->stash($stash);
+}
+
+sub exchange {
+    my ($self, $body, $donation, $request, $max_exchange_size) = @_;
+    $self->check_donation($body, $donation);
+    if ($self->calculate_size_of_transaction($donation) != $self->calculate_size_of_transaction($request)) {
+        confess [1009, 'The donation and request must be equal in size.'];
+    }
+    $self->check_request($request,$max_exchange_size);
+    $self->add_to_stash($body, $donation);
+    $self->remove_from_stash($body, $request);
+    $body->update;
+    $self->update;
+}
+
 
 sub get_status {
     my $self = shift;

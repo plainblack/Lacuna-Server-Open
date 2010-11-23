@@ -360,6 +360,103 @@ An optional message about why you're removing them from the alliance. Cannot con
 
 
 
+=head2 view_stash ( session_id, building_id )
+
+Returns a list of what is in the current stash:
+
+ {
+    "status" : { ... },
+    "stash" : {
+        "gold" : 4500,
+        "water" : 1000,
+        "apple" : 8
+    },
+    "stored" : {
+        "energy" : 40000,
+        "algae" : 43000,
+        "water" : 19000,
+        "bauxite" : 1110,
+        "galena" : 33120
+    },
+    "max_exchange_size" : 30000,
+    "exchanges_remaining_today" : 1
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+
+
+
+
+=head2 donate_to_stash ( session_id, building_id, donation )
+
+Returns C<view_stash>
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 donation
+
+A hash reference containing name value pairs of the resources you want to put into the stash from your planet.
+
+B<NOTE:> Cannot donate waste.
+
+ {
+    "water" : 4500,
+    "bread" : 5000
+ }
+
+
+
+
+
+=head2 exchange_with_stash ( session_id, building_id, donation, request )
+
+Returns C<view_stash>
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 donation
+
+A hash reference containing name value pairs of the resources you want to put into the stash from your planet.
+
+B<NOTE:> Cannot donate waste.
+
+ {
+    "water" : 4500,
+    "bread" : 5000
+ }
+
+=head3 request
+
+A hash reference containing name value pairs of the resources you want to pull from the stash stash onto your planet.
+
+B<NOTE:> The total sum, must add up to the sum of the donation, but can be in different concentrations.
+
+ {
+    "energy" : 2000,
+    "meal" : 7500
+ }
+ 
+ 
+ 
 
 
 

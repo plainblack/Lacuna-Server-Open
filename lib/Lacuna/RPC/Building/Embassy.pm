@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
+use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 
 sub app_url {
     return '/embassy';
@@ -196,8 +197,41 @@ sub update_alliance {
     };
 }
 
+sub view_stash {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $body = $building->body;
+    my %stored;
+    foreach my $resource ('water','energy',FOOD_TYPES,ORE_TYPES) {
+        $stored{$resource} = $body->type_stored($resource);
+    }
+    return {
+        stash           => $building->alliance->stash,
+        status          => $self->format_status($empire, $body),
+        max_exchange_size   => $building->max_exchange_size,
+        exchanges_remaining_today   => $building->exchanges_remaining_today,
+        stored          => \%stored,
+    };
+}
 
-__PACKAGE__->register_rpc_method_names(qw(expel_member update_alliance get_pending_invites get_my_invites assign_alliance_leader create_alliance dissolve_alliance send_invite accept_invite withdraw_invite reject_invite leave_alliance get_alliance_status));
+sub donate_to_stash {
+    my ($self, $session_id, $building_id, $donation) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    $building->alliance->donate($donation);
+    return $self->view_stash($empire, $building);
+}
+
+sub exchange_with_stash {
+    my ($self, $session_id, $building_id, $donation, $request) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    $building->exchange_with_stash($donation, $request);
+    return $self->view_stash($empire, $building);
+}
+
+__PACKAGE__->register_rpc_method_names(qw(exchange_with_stash view_stash donate_to_stash expel_member update_alliance get_pending_invites get_my_invites assign_alliance_leader create_alliance dissolve_alliance send_invite accept_invite withdraw_invite reject_invite leave_alliance get_alliance_status));
 
 
 no Moose;

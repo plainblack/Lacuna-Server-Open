@@ -1,3 +1,6 @@
+2.3600
+ - Added alliance stash methods to the embassy.
+
 2.3501
  - Fixed "The Gift".
 
