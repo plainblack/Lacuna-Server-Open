@@ -111,6 +111,7 @@ after finish_work => sub {
             type    => 'short_range_colony_ship',
             name    => 'The Gift',
             speed   => 25,
+            task    => 'Docked',
         })->insert;
         $body->empire->send_predefined_message(
             tags        => ['Alert'],

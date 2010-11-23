@@ -1,3 +1,6 @@
+2.3501
+ - Fixed "The Gift".
+
 2.3500
  - Development ministry now immediately returns "needs_surface_refresh" on subsidize build queue.
  - Scows can't launch unless there is enough waste to fill them.
