@@ -46,7 +46,7 @@ sub www_default {
     }
     my $out = $message.'<h1>Add Mission Essentia</h1>';
     $out .= '<form method="post" action="/missioncurator/default"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
-    $out .= '<table style="width: 100%;"><tr><th>Add Essentia</th><th>Name</th><th>Email</th></tr>';
+    $out .= '<table><tr><th>Add Essentia</th><th>Name</th><th>Email</th></tr>';
     while (my $empire = $empires->next) {
         $out .= sprintf('<tr><td><a href="/missioncurator/add_essentia?id=%s">Add Essentia</a></td><td>%s</td><td>%s</td></tr>', $empire->id, $empire->name, $empire->email);
     }
