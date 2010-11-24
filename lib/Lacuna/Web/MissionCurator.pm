@@ -1,4 +1,4 @@
-package Lacuna::Web::Admin;
+package Lacuna::Web::MissionCurator;
 
 use Moose;
 use utf8;
