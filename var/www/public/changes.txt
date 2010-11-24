@@ -1,5 +1,6 @@
 2.3600
  - Added alliance stash methods to the embassy.
+ - Added mission curator panel.
 
 2.3501
  - Fixed "The Gift".

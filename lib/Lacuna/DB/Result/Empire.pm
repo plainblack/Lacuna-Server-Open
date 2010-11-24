@@ -69,6 +69,7 @@ __PACKAGE__->add_columns(
     skip_happiness_warnings => { data_type => 'tinyint', default_value => 0 },
     skip_facebook_wall_posts => { data_type => 'tinyint', default_value => 0 },
     is_admin                => { data_type => 'tinyint', default_value => 0 },
+    is_mission_curator      => { data_type => 'tinyint', default_value => 0 },
 );
 
 sub sqlt_deploy_hook {

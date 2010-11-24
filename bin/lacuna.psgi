@@ -165,6 +165,19 @@ my $admin = builder {
 };
 $urlmap->map("/admin" => $admin);
 
+# mission curator
+my $curator = builder {
+    enable "Auth::Basic", authenticator => sub {
+        my ($username, $password) = @_;
+        return 0 unless $username;
+        my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $username, is_mission_curator => 1},{rows=>1})->single;
+        return 0 unless defined $empire;
+        return $empire->is_password_valid($password);
+    };
+    Lacuna::Web::MissionCurator->new->to_app;
+};
+$urlmap->map("/missioncurator" => $curator);
+
 
 builder {
     enable 'CrossOrigin',
