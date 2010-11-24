@@ -24,12 +24,12 @@ sub www_add_essentia {
     $empire->send_message(
         from    => $curator,
         subject => 'Mission Bounty',
-        message => 'I have approved your mission pack and awarded you 100 essentia.',
+        body    => 'I have approved your mission pack and awarded you 100 essentia.',
     );
     $jt->send_message(
         from    => $curator,
         subject => 'Mission Bounty',
-        message => 'I have approved a mission pack for '.$empire->name.'.',
+        body    => 'I have approved a mission pack for '.$empire->name.'.',
     );
     my $recent = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search({ empire_id => $curator->id, description => 'Mission Curator', date_stamp => { '>' => DateTime->now->subtract(days => 7)}})->count;
     $curator->add_essentia(100, 'Mission Curator') unless $recent;
@@ -45,10 +45,10 @@ sub www_default {
         $empires = $empires->search({name => { like => $name.'%' }});
     }
     my $out = $message.'<h1>Add Mission Essentia</h1>';
-    $out .= '<form method="post" action="/admin/search/empires"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>Species</th><th>Home</th><th>Last Login</th></tr>';
+    $out .= '<form method="post" action="/missioncurator/default"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
+    $out .= '<table style="width: 100%;"><tr><th>Add Essentia</th><th>Name</th><th>Email</th></tr>';
     while (my $empire = $empires->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td><a href="/missioncurator/add_essentia?id=%s">Add Essentia</a></td></tr>', $empire->name, $empire->email, $empire->id);
+        $out .= sprintf('<tr><td><a href="/missioncurator/add_essentia?id=%s">Add Essentia</a></td><td>%s</td><td>%s</td></tr>', $empire->id, $empire->name, $empire->email);
     }
     $out .= '</table>';
     $out .= $self->format_paginator('search/empires', 'name', $name, $page_number);
