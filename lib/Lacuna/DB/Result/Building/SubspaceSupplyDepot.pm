@@ -104,6 +104,7 @@ after finish_work => sub {
     my $self = shift;
     my $body = $self->body;
     $body->needs_surface_refresh(1);
+    $body->needs_recalc(1);
     $body->update;
     if (defined $body->spaceport) {
         $body->ships->new({

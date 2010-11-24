@@ -1,6 +1,7 @@
 2.3600
  - Added alliance stash methods to the embassy.
  - Added mission curator panel.
+ - Fixed plot size problem from SSD.
 
 2.3501
  - Fixed "The Gift".
