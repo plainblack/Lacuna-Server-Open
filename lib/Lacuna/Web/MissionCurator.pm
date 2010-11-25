@@ -59,9 +59,9 @@ sub www_default {
 sub format_paginator {
     my ($self, $method, $key, $value, $page_number) = @_;
     my $out = '<fieldset><legend>Page: '.$page_number.'</legend>';
-    $out .= '<a href="/admin/'.$method.'?'.$key.'='.$value.';page_number='.($page_number - 1).'">&lt; Previous</a> | ';
-    $out .= '<a href="/admin/'.$method.'?'.$key.'='.$value.';page_number='.($page_number + 1).'">Next &gt;</a> ';
-    $out .= '<form method="post" style="display: inline;" action="/admin/'.$method.'"><input name="page_number" value="'.$page_number.'" style="width: 30px;"><input type="hidden" name="'.$key.'" value="'.$value.'"><input type="submit" value="go"></form>';
+    $out .= '<a href="/missioncurator/'.$method.'?'.$key.'='.$value.';page_number='.($page_number - 1).'">&lt; Previous</a> | ';
+    $out .= '<a href="/missioncurator/'.$method.'?'.$key.'='.$value.';page_number='.($page_number + 1).'">Next &gt;</a> ';
+    $out .= '<form method="post" style="display: inline;" action="/missioncurator/'.$method.'"><input name="page_number" value="'.$page_number.'" style="width: 30px;"><input type="hidden" name="'.$key.'" value="'.$value.'"><input type="submit" value="go"></form>';
     $out .= '</fieldset>';
     return $out;
 }
@@ -77,7 +77,7 @@ sub wrap {
             <li><a href="http://community.lacunaexpanse.com/wiki/mission-editor">Mission Editor</a></li>
         </ul>
         </fieldset>',
-    { title => 'Admin Console'}
+    { title => 'Mission Curator Panel'}
     );
 }
 
