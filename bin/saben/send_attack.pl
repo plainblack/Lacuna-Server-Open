@@ -54,11 +54,11 @@ foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map
     foreach my $y (int($config->get('map_size/y')->[0]/250) .. int($config->get('map_size/y')->[1]/250)) {
         my $zone = $x.'|'.$y;
         say $zone;
-        $news->new({headline => '$%%^#%%^#!%%~!~!*::::::::........', zone => $zone })->insert;
+        $news->new({headline => '$~~^#!!^#!@@~!~!*::::::::........', zone => $zone })->insert;
         sleep 1;
         $news->new({headline => $message, zone => $zone })->insert;
         sleep 1;
-        $news->new({headline => '^#%%$$^#!%%~!~:::::::........', zone => $zone })->insert;
+        $news->new({headline => '^#{}$$^#!+~!~:::::::........', zone => $zone })->insert;
     }
 }
 
