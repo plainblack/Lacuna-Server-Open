@@ -1,3 +1,7 @@
+2.3700
+ - Fixed pagination in mission curator panel.
+ - Added exposed API for Halls of Vrbansk.
+
 2.3600
  - Added alliance stash methods to the embassy.
  - Added mission curator panel.

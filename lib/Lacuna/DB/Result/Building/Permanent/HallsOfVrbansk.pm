@@ -31,6 +31,21 @@ after finish_upgrade => sub {
     $self->body->add_news(30, sprintf('The ancient wisdom of the Great Race is still alive on %s.', $self->body->name));
 };
 
+sub get_halls {
+    my $self = shift;
+    return $self->body->get_buildings_of_class('Lacuna::DB::Result::DB::Building::Permanent::HallsOfVrbansk');
+}
+
+sub get_upgradable_buildings {
+    my ($self) = @_;
+    my @halls = $self->get_halls->get_column('id')->all;
+    return $self->body->buildings-search({
+        level   => { '<' => scalar @halls},
+        class   => { like => 'Lacuna::DB::Result::Building::Permanent::%' },
+        id      => { 'not in' => \@halls },
+    });
+}
+
 use constant name => 'Halls of Vrbansk';
 use constant time_to_build => 0;
 
