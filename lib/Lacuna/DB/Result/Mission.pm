@@ -399,6 +399,8 @@ sub initialize {
         $mission->scratch($scratch);
     }
     $mission->insert;
+    my $log = $mission->log;
+    $log->update({ offers => $log->offers + 1});
     Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
         zone                => $mission->zone,
         headline            => $mission->params->get('network_19_headline'),
