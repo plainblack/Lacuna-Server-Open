@@ -22,7 +22,6 @@ my @mission_files = get_mission_files();
 out('Loading DB...');
 our $db = Lacuna->db;
 our $missions = $db->resultset('Lacuna::DB::Result::Mission');
-our $news = $db->resultset('Lacuna::DB::Result::News');
 
 out('Deleting missions nobody has completed...');
 $missions->search({
@@ -36,17 +35,8 @@ my @zones = $db->resultset('Lacuna::DB::Result::Map::Body')->search(
 foreach my $zone (@zones) {
     out($zone);
     foreach (1..3) {
-        my $mission = $missions->new({
-            zone                 => $zone,
-            mission_file_name    => $mission_files[rand @mission_files],
-        });
-        $mission->max_university_level($mission->params->get('max_university_level'));
-        $mission->insert;
+        my $mission = $missions->initialize($zone, $mission_files[rand @mission_files]);
         say $mission->params->get('name');
-        $news->new({
-            zone                => $zone,
-            headline            => $mission->params->get('network_19_headline'),
-        })->insert;
     }
 }
 

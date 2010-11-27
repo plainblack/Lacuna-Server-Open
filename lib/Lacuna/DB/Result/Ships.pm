@@ -201,6 +201,11 @@ sub arrive {
     confess 'override me';
 }
 
+sub note_arrival {
+    my $self = shift;
+    Lacuna->config->set($self->type.'_arrive_'.$self->foreign_body_id.$self->foreign_star_id, $self->body->empire_id,1, 60*60*24);
+}
+
 sub capture_with_spies {
     my ($self) = @_;
     return 0 if $self->direction eq 'in';

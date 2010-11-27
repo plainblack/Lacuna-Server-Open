@@ -23,6 +23,7 @@ around 'build_tags' => sub {
 
 sub arrive {
     my ($self) = @_;
+    $self->note_arrival;
     unless ($self->trigger_defense) {
         $self->damage_building($self->foreign_body->get_building_of_class('Lacuna::DB::Result::Building::SpacePort'));
     }

@@ -346,12 +346,7 @@ sub university {
             $home->add_plan('Lacuna::DB::Result::Building::MissionCommand', 1);
             our $missions = Lacuna->db->resultset('Lacuna::DB::Result::Mission');
             foreach my $filename (qw(soylent-trade-opportunity.mission need-a-probe.mission dung-beeldeban.mission)) {
-                my $mission = $missions->new({
-                    zone                 => $home->zone,
-                    mission_file_name    => $filename,
-                });
-                $mission->max_university_level($mission->params->get('max_university_level'));
-                $mission->insert;
+                $missions->initialize($home->zone, $filename);
             }
             $self->start('mission_command');
             return undef;

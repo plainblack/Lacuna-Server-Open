@@ -21,5 +21,6 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(War));
 };
 
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

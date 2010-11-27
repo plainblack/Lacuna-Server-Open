@@ -25,6 +25,7 @@ around 'build_tags' => sub {
 
 sub arrive {
     my ($self) = @_;
+    $self->note_arrival;
     my $find = randint(1,100);
     my $remote_body = $self->foreign_body;
     my $body = $self->body;

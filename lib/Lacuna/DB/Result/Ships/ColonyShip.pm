@@ -24,6 +24,7 @@ around 'build_tags' => sub {
 
 sub arrive {
     my ($self) = @_;
+    $self->note_arrival;
     my $empire = $self->body->empire;
     if ($self->direction eq 'out') {
         my $planet = $self->foreign_body;

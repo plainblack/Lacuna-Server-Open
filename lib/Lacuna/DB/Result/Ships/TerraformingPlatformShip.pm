@@ -24,6 +24,7 @@ around 'build_tags' => sub {
 
 sub arrive {
     my ($self) = @_;
+    $self->note_arrival;
     if ($self->direction eq 'out') {
         my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::TerraformingLab');
         $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform', 1, (defined $lab) ? $lab->level : 0);

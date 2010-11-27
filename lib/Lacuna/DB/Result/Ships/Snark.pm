@@ -24,6 +24,7 @@ around 'build_tags' => sub {
 
 sub arrive {
     my ($self) = @_;
+    $self->note_arrival;
     unless ($self->trigger_defense) {
         $self->damage_building;
     }

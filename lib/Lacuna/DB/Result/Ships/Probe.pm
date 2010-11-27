@@ -23,6 +23,7 @@ around 'build_tags' => sub {
 
 sub arrive {
     my ($self) = @_;
+    $self->note_arrival;
     my $empire = $self->body->empire;
     $empire->add_probe($self->foreign_star_id, $self->body_id);
     $self->delete;

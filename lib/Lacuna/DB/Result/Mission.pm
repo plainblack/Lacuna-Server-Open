@@ -56,16 +56,7 @@ sub add_next_part {
         $name .= '.part'.$1;
     }
     if (-f '/data/Lacuna-Mission/missions/'.$name) {
-        my $mission = Lacuna->db->resultset('Lacuna::DB::Result::Mission')->new({
-            zone                => $self->zone,
-            mission_file_name   => $name,
-        });
-        $mission->max_university_level($mission->params->get('max_university_level'));
-        $mission->insert;
-        Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
-            zone                => $mission->zone,
-            headline            => $mission->params->get('network_19_headline'),
-        })->insert;
+        $self->initialize($self->zone, $name);
     }
 }
 
@@ -314,6 +305,21 @@ sub feed_url {
 sub feed_filename {
     my ($class, $zone) = @_;
     return 'missioncommand/'.create_uuid_as_string(UUID_MD5, $zone.Lacuna->config->get('feeds/bucket')).'.rss';
+}
+
+sub initialize {
+    my ($class, $zone, $filename) = @_;
+    my $mission = Lacuna->db->resultset('Lacuna::DB::Result::Mission')->new({
+        zone                => $zone,
+        mission_file_name   => $filename,
+    });
+    $mission->max_university_level($mission->params->get('max_university_level'));
+    $mission->insert;
+    Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
+        zone                => $mission->zone,
+        headline            => $mission->params->get('network_19_headline'),
+    })->insert;
+    return $mission;
 }
 
 no Moose;

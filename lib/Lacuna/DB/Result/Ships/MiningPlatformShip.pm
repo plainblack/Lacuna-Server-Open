@@ -27,6 +27,7 @@ around 'build_tags' => sub {
 
 sub arrive {
     my ($self) = @_;
+    $self->note_arrival;
     if ($self->direction eq 'out') {
         my $body = $self->body;
         my $ministry = $body->mining_ministry;
