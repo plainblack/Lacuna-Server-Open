@@ -8,8 +8,12 @@ use Getopt::Long;
 use List::Util qw(shuffle);
 $|=1;
 our $quiet;
+our $mission;
+our $zone;
 GetOptions(
-    'quiet'         => \$quiet,  
+    'quiet'         => \$quiet,
+    'mission=s'     => \$mission,
+    'zone=s'        => \$zone,
 );
 
 
@@ -29,17 +33,25 @@ while (my $mission = $old->next) {
     $mission->incomplete;
 }
 
-out('Adding missions...');
-my @zones = $db->resultset('Lacuna::DB::Result::Map::Body')->search(
-    { empire_id => { '>' => 0 }},
-    { distinct => 1 })->get_column('zone')->all;
-foreach my $zone (@zones) {
-    out($zone);
-    foreach (1..3) {
-        my $mission = $missions->initialize($zone, $mission_files[rand @mission_files]);
-        say $mission->params->get('name');
+if ($mission ne '' && $zone ne '') {
+    out('Adding specific mission...');
+    my $mission = $missions->initialize($zone, $mission);
+    say $mission->params->get('name').' added to '.$zone.'!';
+}
+else {
+    out('Adding missions...');
+    my @zones = $db->resultset('Lacuna::DB::Result::Map::Body')->search(
+        { empire_id => { '>' => 0 }},
+        { distinct => 1 })->get_column('zone')->all;
+    foreach my $zone (@zones) {
+        out($zone);
+        foreach (1..3) {
+            my $mission = $missions->initialize($zone, $mission_files[rand @mission_files]);
+            say $mission->params->get('name');
+        }
     }
 }
+
 
 my $finish = time;
 out('Finished');
