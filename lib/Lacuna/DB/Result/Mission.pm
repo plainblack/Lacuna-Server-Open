@@ -383,7 +383,7 @@ sub initialize {
     if (exists $objectives->{fleet_movement}) {
         my $scratch;
         foreach my $movement (@{$objectives->{fleet_movement}}) {
-            if ($movement->{type} eq 'star') {
+            if ($movement->{target}{type} eq 'star') {
                 push @{$scratch->{fleet_movement}}, {
                     ship_type       => $movement->{ship_type},
                     target_star_id  => $class->find_star_target($movement, $zone),
@@ -396,6 +396,7 @@ sub initialize {
                 }
             }
         }
+        $mission->scratch($scratch);
     }
     $mission->insert;
     Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
@@ -407,10 +408,10 @@ sub initialize {
 
 sub find_body_target {
     my ($class, $movement, $zone) = @_;
-    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({size => { between => $movement->{size}}});
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({size => { between => $movement->{target}{size}}});
     
     # body type
-    given ($movement->{type}) {
+    given ($movement->{target}{type}) {
         when ('asteroid') { $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Asteroid%'} }) };
         when ('habitable') { $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Planet::P%'} }) };
         when ('gas_giant') { $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant%'} }) };
@@ -418,7 +419,7 @@ sub find_body_target {
     }
     
     # zone
-    if ($movement->{in_zone}) {
+    if ($movement->{target}{in_zone}) {
         $body->search({ zone => $zone});
     }
     else {
@@ -426,10 +427,10 @@ sub find_body_target {
     }
 
     # inhabited
-    if ($movement->{inhabited}) {
+    if ($movement->{target}{inhabited}) {
         $body->search({ empire_id => { '>' => 1}});
         # isolationist
-        if ($movement->{isolationist}) {
+        if ($movement->{target}{isolationist}) {
             $body->search({ is_isolationist => 1 }, { join => 'empire' });
         }
         else {
@@ -448,7 +449,7 @@ sub find_star_target {
     my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star');
 
     # zone
-    if ($movement->{in_zone}) {
+    if ($movement->{target}{in_zone}) {
         $star->search({ zone => $zone});
     }
     else {
@@ -456,7 +457,7 @@ sub find_star_target {
     }
 
     # color
-    if ($movement->{color} ne 'any') {
+    if ($movement->{target}{color} ne 'any') {
         $star->search({ color => $movement->{color} });
     }
 
