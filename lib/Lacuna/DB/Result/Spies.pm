@@ -1221,7 +1221,7 @@ sub steal_ships {
 sub steal_building {
     my ($self, $defender) = @_;
     my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
-        { body_id => $self->on_body->id, class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%' } },
+        { body_id => $self->on_body->id, class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%' }, level => { '>' => 0 } },
         { rows=>1, order_by => { -desc => 'upgrade_started' }}
         )->single;
     return $self->building_not_found unless defined $building;
