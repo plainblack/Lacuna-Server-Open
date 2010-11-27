@@ -412,33 +412,33 @@ sub find_body_target {
     
     # body type
     given ($movement->{target}{type}) {
-        when ('asteroid') { $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Asteroid%'} }) };
-        when ('habitable') { $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Planet::P%'} }) };
-        when ('gas_giant') { $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant%'} }) };
-        when ('space_station') { $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Station%'} }) };
+        when ('asteroid') { $body = $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Asteroid%'} }) };
+        when ('habitable') { $body = $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Planet::P%'} }) };
+        when ('gas_giant') { $body = $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant%'} }) };
+        when ('space_station') { $body = $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Station%'} }) };
     }
     
     # zone
     if ($movement->{target}{in_zone}) {
-        $body->search({ zone => $zone});
+        $body = $body->search({ zone => $zone});
     }
     else {
-        $body->search({ zone => { '!=' => $zone }});
+        $body = $body->search({ zone => { '!=' => $zone }});
     }
 
     # inhabited
     if ($movement->{target}{inhabited}) {
-        $body->search({ empire_id => { '>' => 1}});
+        $body = $body->search({ empire_id => { '>' => 1}});
         # isolationist
         if ($movement->{target}{isolationist}) {
-            $body->search({ is_isolationist => 1 }, { join => 'empire' });
+            $body = $body->search({ is_isolationist => 1 }, { join => 'empire' });
         }
         else {
-            $body->search({ is_isolationist => 0 }, { join => 'empire' });
+            $body = $body->search({ is_isolationist => 0 }, { join => 'empire' });
         }
     }
     else {
-        $body->search({ empire_id => undef });
+        $body = $body->search({ empire_id => undef });
     }
     
     return $body->search(undef,{rows => 1, order_by => 'rand()'})->get_column('id')->single;
@@ -450,15 +450,15 @@ sub find_star_target {
 
     # zone
     if ($movement->{target}{in_zone}) {
-        $star->search({ zone => $zone});
+        $star = $star->search({ zone => $zone});
     }
     else {
-        $star->search({ zone => { '!=' => $zone }});
+        $star = $star->search({ zone => { '!=' => $zone }});
     }
 
     # color
     if ($movement->{target}{color} ne 'any') {
-        $star->search({ color => $movement->{color} });
+        $star = $star->search({ color => $movement->{color} });
     }
 
     return $star->search(undef,{rows => 1, order_by => 'rand()'})->get_column('id')->single;
