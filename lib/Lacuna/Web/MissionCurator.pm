@@ -51,7 +51,7 @@ sub www_stats {
             $log->complete_uni_level,
             $log->seconds_to_complete,
             $log->skips,
-            $logs->skip_uni_level,
+            $log->skip_uni_level,
         );
         $out .= $csv->string;
     }
