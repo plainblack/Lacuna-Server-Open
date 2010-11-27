@@ -7,6 +7,7 @@ use Lacuna::Util qw(format_date commify);
 use UUID::Tiny ':std';
 use Config::JSON;
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
+use feature 'switch';
 
 __PACKAGE__->table('mission');
 __PACKAGE__->add_columns(
@@ -55,9 +56,7 @@ sub add_next_part {
         $ext =~ m/^part(\d+)$/;
         $name .= '.part'.$1;
     }
-    if (-f '/data/Lacuna-Mission/missions/'.$name) {
-        $self->initialize($self->zone, $name);
-    }
+    return $self->initialize($self->zone, $name);
 }
 
 sub add_rewards {
@@ -163,7 +162,7 @@ sub check_objectives {
     # essentia
     if (exists $objectives->{essentia}) {
         if ($body->empire->essentia < $objectives->{essentia}) {
-            confess [1011, 'You do not have the essentia needed to complete this mission.'];
+            confess [1013, 'You do not have the essentia needed to complete this mission.'];
         }
     }
     
@@ -171,7 +170,7 @@ sub check_objectives {
     if (exists $objectives->{resources}) {
         foreach my $resource (keys %{$objectives->{resources}}) {
             if ($body->type_stored($resource) < $objectives->{resources}{$resource}) {
-                confess [1011, 'You do not have the '.$resource.' needed to complete this mission.'];
+                confess [1013, 'You do not have the '.$resource.' needed to complete this mission.'];
             }
         }
     }
@@ -184,12 +183,13 @@ sub check_objectives {
         }
         foreach my $glyph (@{$objectives->{glyphs}}) {
             unless ($body->glyphs->search({ type => $glyph })->count) {
-                confess [1011, 'You do not have the '.$glyph.' glyph needed to complete this mission.'];
+                confess [1013, 'You do not have the '.$glyph.' glyph needed to complete this mission.'];
             }
         }
     }
 
     # ships
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     if (exists $objectives->{ships}) {
         my @ids;
         foreach my $ship (@{$objectives->{ships}}) {
@@ -208,8 +208,27 @@ sub check_objectives {
                 push @ids, $this->id;
             }
             else {
-                my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>$ship->{type}});
-                confess [1011, 'You do not have the '.$ship->type_formatted.' needed to complete this mission.'];
+                my $ship = $ships->new({type=>$ship->{type}});
+                confess [1013, 'You do not have the '.$ship->type_formatted.' needed to complete this mission.'];
+            }
+        }
+    }
+
+    # fleet movement
+    if (exists $objectives->{fleet_movement}) {
+        my $bodies = Lacuna->db->resultset("Lacuna::DB::Result::Map::Body");
+        my $stars = Lacuna->db->resultset("Lacuna::DB::Result::Map::Star");
+        foreach my $movement (@{$self->scratch->{fleet_movement}}) {
+            unless (Lacuna->cache->get($movement->{ship_type}.'_arrive_'.$movement->{target_body_id}.$movement->{target_star_id}, $body->empire_id)) {
+                my $ship =  $ships->new({type=>$movement->{ship_type}});
+                my $target;
+                if ($movement->{target_body_id}) {
+                    $target = $bodies->find($movement->{target_body_id});
+                }
+                else {
+                    $target = $stars->find($movement->{target_star_id});
+                }
+                confess [1013, 'Have not sent '.$ship->type_formatted.' to '.$target->name.' ('.$target->x.','.$target->y.').'];
             }
         }
     }
@@ -230,7 +249,7 @@ sub check_objectives {
                 push @ids, $this->id;
             }
             else {
-                confess [1011, 'You do not have the '.$plan->{classname}->name.' plan needed to complete this mission.'];
+                confess [1013, 'You do not have the '.$plan->{classname}->name.' plan needed to complete this mission.'];
             }
         }
     }
@@ -273,6 +292,23 @@ sub format_items {
         push @items, sprintf($pattern, $ship->type_formatted, commify($stats->{speed}), commify($stats->{stealth}), commify($stats->{hold_size}));
     }
 
+    # fleet movement
+    if ($is_objective && exists $items->{fleet_movement}) {
+        my $bodies = Lacuna->db->resultset("Lacuna::DB::Result::Map::Body");
+        my $stars = Lacuna->db->resultset("Lacuna::DB::Result::Map::Star");
+        foreach my $movement (@{$self->scratch->{fleet_movement}}) {
+            my $ship =  $ships->new({type=>$movement->{ship_type}});
+            my $target;
+            if ($movement->{target_body_id}) {
+                $target = $bodies->find($movement->{target_body_id});
+            }
+            else {
+                $target = $stars->find($movement->{target_star_id});
+            }
+            push @items, 'Send '.$ship->type_formatted.' to '.$target->name.' ('.$target->x.','.$target->y.').';
+        }
+    }
+
     # plans
     foreach my $stats (@{ $items->{plans}}) {
         my $level = $stats->{level};
@@ -282,7 +318,7 @@ sub format_items {
         my $pattern = $is_objective ? '%s (>= %s) plan' : '%s (%s) plan'; 
         push @items, sprintf($pattern, $stats->{classname}->name, $level);
     }
-
+    
     return \@items;
 }
 
@@ -309,17 +345,94 @@ sub feed_filename {
 
 sub initialize {
     my ($class, $zone, $filename) = @_;
+    return undef unless (-f '/data/Lacuna-Mission/missions/'.$filename);
     my $mission = Lacuna->db->resultset('Lacuna::DB::Result::Mission')->new({
         zone                => $zone,
         mission_file_name   => $filename,
     });
     $mission->max_university_level($mission->params->get('max_university_level'));
+    my $objectives = $mission->params->get('mission_objective');
+    if (exists $objectives->{fleet_movement}) {
+        my $scratch;
+        foreach my $movement (@{$objectives->{fleet_movement}}) {
+            if ($movement->{type} eq 'star') {
+                push @{$scratch->{fleet_movement}}, {
+                    ship_type       => $movement->{ship_type},
+                    target_star_id  => $class->find_star_target($movement, $zone),
+                }
+            }
+            else {
+                push @{$scratch->{fleet_movement}}, {
+                    ship_type       => $movement->{ship_type},
+                    target_body_id  => $class->find_body_target($movement, $zone),
+                }
+            }
+        }
+    }
     $mission->insert;
     Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
         zone                => $mission->zone,
         headline            => $mission->params->get('network_19_headline'),
     })->insert;
     return $mission;
+}
+
+sub find_body_target {
+    my ($class, $movement, $zone) = @_;
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({size => { between => $movement->{size}}});
+    
+    # body type
+    given ($movement->{type}) {
+        when ('asteroid') { $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Asteroid%'} }) };
+        when ('habitable') { $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Planet::P%'} }) };
+        when ('gas_giant') { $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant%'} }) };
+        when ('space_station') { $body->search({ class => { like => 'Lacuna::DB::Result::Map::Body::Station%'} }) };
+    }
+    
+    # zone
+    if ($movement->{in_zone}) {
+        $body->search({ zone => $zone});
+    }
+    else {
+        $body->search({ zone => { '!=' => $zone }});
+    }
+
+    # inhabited
+    if ($movement->{inhabited}) {
+        $body->search({ empire_id => { '>' => 1}});
+        # isolationist
+        if ($movement->{isolationist}) {
+            $body->search({ is_isolationist => 1 }, { join => 'empire' });
+        }
+        else {
+            $body->search({ is_isolationist => 0 }, { join => 'empire' });
+        }
+    }
+    else {
+        $body->search({ empire_id => undef });
+    }
+    
+    return $body->search(undef,{rows => 1, order_by => 'rand()'})->get_column('id');
+}
+
+sub find_star_target {
+    my ($class, $movement, $zone) = @_;
+    my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star');
+
+    # zone
+    if ($movement->{in_zone}) {
+        $star->search({ zone => $zone});
+    }
+    else {
+        $star->search({ zone => { '!=' => $zone }});
+    }
+
+    # color
+    if ($movement->{color} ne 'any') {
+        $star->search({ color => $movement->{color} });
+    }
+
+    return $star->search(undef,{rows => 1, order_by => 'rand()'})->get_column('id');
 }
 
 no Moose;

@@ -203,7 +203,7 @@ sub arrive {
 
 sub note_arrival {
     my $self = shift;
-    Lacuna->config->set($self->type.'_arrive_'.$self->foreign_body_id.$self->foreign_star_id, $self->body->empire_id,1, 60*60*24);
+    Lacuna->cache->increment($self->type.'_arrive_'.$self->foreign_body_id.$self->foreign_star_id, $self->body->empire_id,1, 60*60*24*30);
 }
 
 sub capture_with_spies {
