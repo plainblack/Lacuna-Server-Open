@@ -55,7 +55,7 @@ sub www_stats {
         );
         $out .= $csv->string;
     }
-    return $self->wrapper($out, { content_type => 'text/csv' });
+    return [$out, { content_type => 'text/csv' }];
 }
 
 sub www_default {
