@@ -84,7 +84,7 @@ sub add_next_part {
         $ext =~ m/^part(\d+)$/;
         $name .= '.part'.$1;
     }
-    return $self->initialize($self->zone, $name);
+    return Lacuna::DB::Result::Mission->initialize($self->zone, $name);
 }
 
 sub add_rewards {

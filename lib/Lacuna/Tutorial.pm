@@ -344,9 +344,8 @@ sub university {
             $home->add_water(1000);
             $home->update;
             $home->add_plan('Lacuna::DB::Result::Building::MissionCommand', 1);
-            our $missions = Lacuna->db->resultset('Lacuna::DB::Result::Mission');
             foreach my $filename (qw(soylent-trade-opportunity.mission need-a-probe.mission dung-beeldeban.mission)) {
-                $missions->initialize($home->zone, $filename);
+                Lacuna::DB::Result::Mission->initialize($home->zone, $filename);
             }
             $self->start('mission_command');
             return undef;

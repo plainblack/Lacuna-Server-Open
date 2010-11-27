@@ -35,7 +35,7 @@ while (my $mission = $old->next) {
 
 if ($mission ne '' && $zone ne '') {
     out('Adding specific mission...');
-    my $mission = $missions->initialize($zone, $mission);
+    my $mission = Lacuna::DB::Result::Mission->initialize($zone, $mission);
     say $mission->params->get('name').' added to '.$zone.'!';
 }
 else {
@@ -46,7 +46,7 @@ else {
     foreach my $zone (@zones) {
         out($zone);
         foreach (1..3) {
-            my $mission = $missions->initialize($zone, $mission_files[rand @mission_files]);
+            my $mission = Lacuna::DB::Result::Mission->initialize($zone, $mission_files[rand @mission_files]);
             say $mission->params->get('name');
         }
     }
