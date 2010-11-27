@@ -458,7 +458,7 @@ sub find_star_target {
 
     # color
     if ($movement->{target}{color} ne 'any') {
-        $star = $star->search({ color => $movement->{color} });
+        $star = $star->search({ color => $movement->{target}{color} });
     }
 
     return $star->search(undef,{rows => 1, order_by => 'rand()'})->get_column('id')->single;
