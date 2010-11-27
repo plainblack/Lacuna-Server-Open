@@ -36,6 +36,7 @@ sub arrive {
             }
             else {
                 $self->turn_around;
+                $self->body->add_happiness($self->payload->{colony_cost})->update;
                 $empire->send_predefined_message(
                     tags        => ['Alert'],
                     filename    => 'cannot_colonize.txt',
