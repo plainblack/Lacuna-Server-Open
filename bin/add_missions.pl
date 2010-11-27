@@ -24,9 +24,10 @@ our $db = Lacuna->db;
 our $missions = $db->resultset('Lacuna::DB::Result::Mission');
 
 out('Deleting missions nobody has completed...');
-$missions->search({
-    date_posted => { '<' => DateTime->now->subtract( hours => 72 )}
-})->delete;
+my $old = $missions->search({date_posted => { '<' => DateTime->now->subtract( hours => 72 )}});
+while (my $mission = $old->next) {
+    $mission->incomplete;
+}
 
 out('Adding missions...');
 my @zones = $db->resultset('Lacuna::DB::Result::Map::Body')->search(

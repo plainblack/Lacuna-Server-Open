@@ -27,6 +27,23 @@ has params => (
     },
 );
 
+sub log {
+    my $self = shift;
+    my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Mission');
+    my $log = $logs->search({filename => $self->mission_file_name},{rows => 1})->single;
+    unless (defined $log) {
+        $log = $logs->new({filename => $self->mission_file_name})->insert;
+    }
+    return $log;
+}
+
+sub incomplete {
+    my $self = shift;
+    my $log = $self->log;
+    $log->update({ incompletes => $log->incompletes + 1});
+    $self->delete;
+}
+
 sub complete {
     my ($self, $body) = @_;
     $self->spend_objectives($body);
@@ -37,12 +54,23 @@ sub complete {
         headline            => sprintf($self->params->get('network_19_completion'), $body->empire->name),
     })->insert;
     $self->add_next_part;
+    my $log = $self->log;
+    $log->update({
+        completes           => $log->completes + 1,
+        complete_uni_level  => $log->complete_uni_level + $body->empire->university_level,
+        seconds_to_complete => $log->seconds_to_complete + time() - $self->date_posted->epoch,
+    });
     $self->delete;
 }
 
 sub skip {
     my ($self, $body) = @_;
     Lacuna->cache->set($self->mission_file_name, $body->empire_id, 1, 60 * 60 * 24 * 30);
+    my $log = $self->log;
+    $log->update({
+        skips           => $log->skips + 1,
+        skip_uni_level  => $log->skip_uni_level + $body->empire->university_level,
+    });
 }
 
 sub add_next_part {
@@ -412,7 +440,7 @@ sub find_body_target {
         $body->search({ empire_id => undef });
     }
     
-    return $body->search(undef,{rows => 1, order_by => 'rand()'})->get_column('id');
+    return $body->search(undef,{rows => 1, order_by => 'rand()'})->get_column('id')->single;
 }
 
 sub find_star_target {
@@ -432,7 +460,7 @@ sub find_star_target {
         $star->search({ color => $movement->{color} });
     }
 
-    return $star->search(undef,{rows => 1, order_by => 'rand()'})->get_column('id');
+    return $star->search(undef,{rows => 1, order_by => 'rand()'})->get_column('id')->single;
 }
 
 no Moose;

@@ -10,6 +10,7 @@ use Module::Find;
 use UUID::Tiny ':std';
 use Lacuna::Util qw(format_date);
 use List::Util qw(sum);
+use Text::CSV_XS;
 
 sub www_add_essentia {
     my ($self, $request) = @_;
@@ -34,6 +35,27 @@ sub www_add_essentia {
     my $recent = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search({ empire_id => $curator->id, description => 'Mission Curator', date_stamp => { '>' => DateTime->now->subtract(days => 7)}})->count;
     $curator->add_essentia(100, 'Mission Curator') unless $recent;
     return $self->www_default($request, 'Essentia Added');
+}
+
+sub www_stats {
+    my ($self, $request) = @_;
+    my $csv = Text::CSV_XS->new({binary => 1});
+    my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Mission');
+    my $out = $csv->combine('filename','number of times offered','number of incompletes','number of completes','completes university level','seconds to complete','number of skips','skips university level');
+    while (my $log = $logs->next) {
+        $csv->combine(
+            $log->filename,
+            $log->offers,
+            $log->incompletes,
+            $log->completes,
+            $log->complete_uni_level,
+            $log->seconds_to_complete,
+            $log->skips,
+            $logs->skip_uni_level,
+        );
+        $out .= $csv->string;
+    }
+    return $self->wrapper($out, { content_type => 'text/csv' });
 }
 
 sub www_default {
@@ -71,6 +93,7 @@ sub wrap {
     my ($self, $content) = @_;
     return $self->wrapper($content .' <fieldset><legend>Mission Utilities</legend>
         <ul>
+            <li><a href="/missioncurator/stats">Download Mission Stats</a></li>
             <li><a href="https://github.com/plainblack/Lacuna-Mission">Mission Repository</a></li>
             <li><a href="http://community.lacunaexpanse.com/forums/missions">Mission Forum</a> [<a href="mailto:missions@lacunaexpanse.com">missions@lacunaexpanse.com</a>]</li>
             <li><a href="http://community.lacunaexpanse.com/forums/mission-curators">Curators Forum</a> [<a href="mailto:missioncurators@lacunaexpanse.com">missioncurators@lacunaexpanse.com</a>]</li>

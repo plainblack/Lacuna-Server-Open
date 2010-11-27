@@ -2,6 +2,8 @@
  - Fixed pagination in mission curator panel.
  - Added exposed API for Halls of Vrbansk.
  - Added fleet movement missions.
+ - Added mission stats download for mission curators.
+ - Fixed a typo in embassy.view_stash().
 
 2.3600
  - Added alliance stash methods to the embassy.
