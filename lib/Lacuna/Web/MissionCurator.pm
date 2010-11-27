@@ -41,7 +41,8 @@ sub www_stats {
     my ($self, $request) = @_;
     my $csv = Text::CSV_XS->new({binary => 1});
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Mission');
-    my $out = $csv->combine('filename','number of times offered','number of incompletes','number of completes','completes university level','seconds to complete','number of skips','skips university level');
+    $csv->combine('filename','number of times offered','number of incompletes','number of completes','completes university level','seconds to complete','number of skips','skips university level');
+    my $out = $csv->string."\n";
     while (my $log = $logs->next) {
         $csv->combine(
             $log->filename,
@@ -53,7 +54,7 @@ sub www_stats {
             $log->skips,
             $log->skip_uni_level,
         );
-        $out .= $csv->string;
+        $out .= $csv->string."\n";
     }
     return [$out, { content_type => 'text/csv' }];
 }
