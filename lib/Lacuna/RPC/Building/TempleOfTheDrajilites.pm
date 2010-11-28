@@ -62,7 +62,9 @@ sub list_planets {
     else {
         $star = $building->body->star;
     }
-    
+    unless ($building->body->calculate_distance_to_target($star) < $building->level * 1000) {
+        confess [1009, 'That star is too far away.'];
+    }    
     my @planets;
     my $bodies = $star->bodies;
     while (my $body = $bodies->next) {
