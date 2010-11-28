@@ -254,7 +254,7 @@ The unique id of the trade.
 
 =head3 captcha_guid
 
-The C<view_available_trades> list also includes a captcha guid. That string must be passed along with the trade.
+The C<view_available_trades> list also includes a captcha guid. That string must be passed along with the trade. The guid used must be the most recent one returned (if you're caching the list of trades in some UI).
 
 =head3 captcha_solution
 
