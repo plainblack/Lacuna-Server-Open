@@ -15,7 +15,7 @@ __PACKAGE__->has_many('bodies', 'Lacuna::DB::Result::Map::Body', 'star_id');
 
 
 sub get_status {
-    my ($self, $empire) = @_;
+    my ($self, $empire, $override_probe) = @_;
     my $out = {
         color       => $self->color,
         name        => $self->name,
@@ -24,7 +24,7 @@ sub get_status {
         y           => $self->y,
     };
     if (defined $empire) {
-        if ($self->id ~~ $empire->probed_stars) {
+        if ($override_probe || $self->id ~~ $empire->probed_stars) {
             my @orbits;
             my $bodies = $self->bodies;
             while (my $body = $bodies->next) {

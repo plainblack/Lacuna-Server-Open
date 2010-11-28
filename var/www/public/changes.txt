@@ -1,9 +1,12 @@
 2.3800
  - Changed map.get_stars() to allow fetching of more stars at once.
+ - Exposed the API for the Oracle of Anid.
+ - Clarified captcha/guid API documentation for trades.
+ - Added distance exception for a star in the Temple of the Drajilites because users found it too confusing that you could fetch a star, but not necessarily view it's planets.
 
 2.3700
  - Fixed pagination in mission curator panel.
- - Added exposed API for Halls of Vrbansk.
+ - Exposed API for Halls of Vrbansk.
  - Added fleet movement missions.
  - Added mission stats download for mission curators.
  - Fixed a typo in embassy.view_stash().

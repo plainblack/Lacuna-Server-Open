@@ -4,4 +4,42 @@ Oracle of Anid is accessible via the URL C</oracleofanid>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+
+=head2 get_star (session_id, building_id, star_id)
+
+Retrieves info on a single star. Works like L<Map/"get_star"> except that you can see the bodies even if there is no probe there. Therefore the same displays that you would have for the star and these bodies in the star map should work from this interface. Send a scow to a star, attack a player, send a mining platform, etc.
+
+There is a range to the Oracle based upon it's level. A 10 map unit radius per level. A 1009 exception will be thrown if you request a star that its outside that range.
+
+B<NOTE:> Use L<Map/"search_stars"> to look up the id of a star by name.
+
+
+ { 
+    "star" : {
+        "name"          : "Sol",
+        "color"         : "yellow",
+        "x"             : -41,
+        "y"             : 27,
+        "bodies"        : [     
+            {
+                same data as get_status() on /body
+            },
+            ...
+        ]
+    }    
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Oracle.
+
+=head3 star_id
+
+The unique id of the star.
+
 =cut
