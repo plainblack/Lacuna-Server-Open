@@ -57,7 +57,7 @@ The data you retrieve will allow you to draw a standard cartesian plane like the
              -y
 
 
-The requested area can be no larger than 400 spaces (20x20). Throws 1003 when the area is too large. 
+The requested area can be no larger than 900 spaces (30x30). Throws 1003 when the area is too large. 
 
 
 =head3 session_id

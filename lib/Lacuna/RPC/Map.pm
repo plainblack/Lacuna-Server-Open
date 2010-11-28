@@ -27,7 +27,7 @@ sub get_stars {
     my ($startx,$starty,$endx,$endy);
     if ($x1 > $x2) { $startx = $x2; $endx = $x1; } else { $startx = $x1; $endx = $x2; } # organize x
     if ($y1 > $y2) { $starty = $y2; $endy = $y1; } else { $starty = $y1; $endy = $y2; } # organize y
-    if ((abs($endx - $startx) * abs($endy - $starty)) > 400) {
+    if ((abs($endx - $startx) * abs($endy - $starty)) > 900) {
         confess [1003, 'Requested area too large.'];
     }
     my $empire = $self->get_empire_by_session($session_id);
