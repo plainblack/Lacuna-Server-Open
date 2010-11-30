@@ -219,7 +219,7 @@ sub donate_to_stash {
     my ($self, $session_id, $building_id, $donation) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    $building->alliance->donate($donation);
+    $building->alliance->donate($building->body, $donation);
     return $self->view_stash($empire, $building);
 }
 
