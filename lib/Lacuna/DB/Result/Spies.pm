@@ -1017,7 +1017,7 @@ sub destroy_infrastructure {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'sabotage_report.txt',
-        params      => ['their level '.($building->level).' '.$building->name, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => ['level '.($building->level).' '.$building->name, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
     )->id;
 }
 
