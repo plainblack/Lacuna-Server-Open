@@ -314,7 +314,7 @@ sub create {
 sub validate_captcha {
     my ($self, $plack_request, $guid, $solution) = @_;
     my $ip = $plack_request->address;
-    if ($guid && $solution) {                                                               # offered a solution
+    if (defined $guid && defined $solution) {                                               # offered a solution
         my $captcha = Lacuna->cache->get_and_deserialize('create_empire_captcha', $ip);
         if (ref $captcha eq 'HASH') {                                                       # a captcha has been set
             if ($captcha->{guid} eq $guid) {                                                # the guid is the one set
