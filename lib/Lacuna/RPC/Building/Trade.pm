@@ -266,7 +266,7 @@ sub accept_from_market {
     $trade->body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'trade_accepted.txt',
-        params      => [join("\n",@{$self->format_description_of_payload($trade->payload)}), $trade->ask.' essentia'],
+        params      => [join("\n",@{$trade->format_description_of_payload($trade->payload)}), $trade->ask.' essentia'],
     );
     $trade->delete;
 

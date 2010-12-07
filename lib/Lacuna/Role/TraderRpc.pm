@@ -265,7 +265,7 @@ sub report_abuse {
         if (defined $trade) {
             $trade->body->empire->send_predefined_message(
                 filename    => 'trade_abuse.txt',
-                params      => [$trade->offer_description, $trade->ask_description],    # will need to be changed on switch over to market
+                params      => [join("\n",@{$trade->format_description_of_payload($trade->payload)}), $trade->ask.' essentia'],
                 tags        => ['Alert'],
             );
             $trade->withdraw($building->body);
