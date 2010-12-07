@@ -38,6 +38,7 @@ sub unload {
     if (exists $payload->{prisoners}) {
         foreach my $id (@{$payload->{prisoners}}) {
             my $prisoner = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($id);
+            next unless defined $prisoner;
             $prisoner->task('Captured');
             $prisoner->on_body_id($body->id);
             $prisoner->update;
