@@ -1,0 +1,7 @@
+Trade Withdrawn
+~~~
+The trade you offered of %s in exchange for %s has been withdrawn due to non-interest.
+
+Regards,
+
+Your Humble Assistant

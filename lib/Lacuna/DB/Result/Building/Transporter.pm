@@ -45,8 +45,11 @@ use constant water_consumption => 5;
 
 use constant waste_production => 1;
 
-sub add_trade {
+sub add_trade { #deprecated
     my ($self, $offer, $ask) = @_;
+    unless ($self->level > $self->my_trades->count) {
+        confess [1009, "This Subspace Transporter can only support ".$self->level." trades at one time."];
+    }
     $ask = $self->structure_ask($ask);
     $offer = $self->structure_offer($offer, $self->determine_available_cargo_space);
     my %trade = (
@@ -56,6 +59,25 @@ sub add_trade {
         transfer_type   => $self->transfer_type,
     );
     return Lacuna->db->resultset('Lacuna::DB::Result::Trades')->new(\%trade)->insert;
+}
+
+
+sub add_to_market {
+    my ($self, $offer, $ask) = @_;
+    unless ($ask > 0 && $ask < 100 ) {
+        confess [1009, "You must ask for between 1 and 99 essentia to create a trade."];
+    }
+    unless ($self->level > $self->my_market->count) {
+        confess [1009, "This Subspace Transporter can only support ".$self->level." trades at one time."];
+    }
+    $offer = $self->structure_payload($offer, $self->determine_available_cargo_space);
+    my %trade = (
+        %{$offer},
+        ask             => $ask,
+        body_id         => $self->body_id,
+        transfer_type   => $self->transfer_type,
+    );
+    return Lacuna->db->resultset('Lacuna::DB::Result::Market')->new(\%trade)->insert;
 }
 
 sub transfer_type {
@@ -115,7 +137,7 @@ sub push_items {
         $space_available = $remote_payload;
         $space_exception = 'You are trying to send %s cargo, but the remote transporter can only receive '.$remote_payload.'.';
     }
-    my $payload = $self->structure_push($items, $space_available, $space_exception);
+    my $payload = $self->structure_payload($items, $space_available, $space_exception);
     my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
     $cargo_log->new({
         message     => 'push resources',

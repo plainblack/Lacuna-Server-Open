@@ -45,11 +45,14 @@ use constant water_consumption => 5;
 use constant waste_production => 1;
 
 
-sub add_trade {
+sub add_trade { #deprecated
     my ($self, $offer, $ask, $options) = @_;
     my $ship = $self->next_available_trade_ship($options->{ship_id});
     unless (defined $ship) {
         confess [1011, "You do not have any ships available that can carry trade goods."];
+    }
+    unless ($self->level > $self->my_trades->count) {
+        confess [1009, "This Trade Ministry can only support ".$self->level." trades at one time."];
     }
     $ask = $self->structure_ask($ask);
     $offer = $self->structure_offer($offer, $ship->hold_size, $ship);
@@ -65,6 +68,31 @@ sub add_trade {
     return Lacuna->db->resultset('Lacuna::DB::Result::Trades')->new(\%trade)->insert;
 }
 
+
+sub add_to_market {
+    my ($self, $offer, $ask, $options) = @_;
+    my $ship = $self->next_available_trade_ship($options->{ship_id});
+    unless (defined $ship) {
+        confess [1011, "You do not have any ships available that can carry trade goods."];
+    }
+    unless ($ask > 0 && $ask < 100 ) {
+        confess [1009, "You must ask for between 1 and 99 essentia to create a trade."];
+    }
+    unless ($self->level > $self->my_market->count) {
+        confess [1009, "This Trade Ministry can only support ".$self->level." trades at one time."];
+    }
+    $offer = $self->structure_payload($offer, $ship->hold_size, undef, $ship);
+    $ship->task('Waiting On Trade');
+    $ship->update;
+    my %trade = (
+        %{$offer},
+        ask             => $ask,
+        ship_id         => $ship->id,
+        body_id         => $self->body_id,
+        transfer_type   => $self->transfer_type,
+    );
+    return Lacuna->db->resultset('Lacuna::DB::Result::Market')->new(\%trade)->insert;
+}
 
 sub transfer_type {
     my $self = shift;
@@ -111,7 +139,7 @@ sub push_items {
         }
     }
     
-    my $payload = $self->structure_push($items, $ship->hold_size, undef, $ship);
+    my $payload = $self->structure_payload($items, $ship->hold_size, undef, $ship);
     if ($options->{stay}) {
         $ship->body_id($target->id);
         $ship->body($target);

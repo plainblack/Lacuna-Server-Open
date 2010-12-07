@@ -2,6 +2,7 @@ package Lacuna::Role::Container;
 
 use Moose::Role;
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
+use Lacuna::Util qw(format_date commify);
 
 sub format_body_stats_for_log {
     my ($self, $body ) = @_;
@@ -85,6 +86,69 @@ sub unload {
         object_type => ref($self),
         object_id   => $self->id,
     })->insert;
+}
+
+sub format_description_of_payload {
+    my ($self, $payload) = @_;
+    my @items;
+    
+    # essentia
+    push @items, sprintf('%s essentia.', commify($payload->{essentia})) if ($payload->{essentia});
+    
+    # resources
+    foreach my $resource (keys %{ $payload->{resources}}) {
+        push @items, sprintf('%s %s', commify($payload->{resources}{$resource}), $resource);
+    }
+    
+    # glyphs
+    foreach my $glyph (@{$payload->{glyphs}}) {
+        push @items, $glyph.' glyph';
+    }
+    
+    # ships
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
+    foreach my $id (@{ $payload->{ships}}) {
+        my $ship = $ships->find($id);
+        my $pattern = '%s (speed: %s, stealth: %s, hold size: %s)' ;
+        push @items, sprintf($pattern, $ship->type_formatted, commify($ship->speed), commify($ship->stealth), commify($ship->hold_size));
+    }
+
+    # plans
+    foreach my $stats (@{ $payload->{plans}}) {
+        my $level = $stats->{level};
+        if ($stats->{extra_build_level}) {
+            $level = '+'.$stats->{extra_build_level};
+        }
+        my $pattern = '%s (%s) plan'; 
+        push @items, sprintf($pattern, $stats->{classname}->name, $level);
+    }
+    
+    # spies
+    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
+    if (exists $payload->{spies}) {
+        foreach my $id (@{$payload->{spies}}) {
+            my $spy = $spies->find($id);
+            push @items, 'Level '.$spy->level.' spy named '.$spy->name . ' (transport)';
+        }
+    }
+    
+    # prisoners
+    if (exists $payload->{prisoners}) {
+        foreach my $id (@{$payload->{prisoners}}) {
+            my $spy = $spies->find($id);
+            push @items, 'Level '.$spy->level.' spy named '.$spy->name . ' (prisoner)';
+        }
+    }
+    
+    # fetch spies
+    if (exists $payload->{fetch_spies}) {
+        foreach my $id (@{$payload->{fetch_spies}}) {
+            my $spy = $spies->find($id);
+            push @items, 'Level '.$spy->level.' spy named '.$spy->name . ' (fetch upon arrival)';
+        }
+    }
+    
+    return \@items;
 }
 
 

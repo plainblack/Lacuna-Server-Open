@@ -32,7 +32,7 @@ sub view_my_trades {
     };
 }
 
-sub view_available_trades {
+sub view_available_trades { # deprecated
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
@@ -53,6 +53,68 @@ sub view_available_trades {
             offer_type              => $trade->offer_sub_type,
             offer_quantity          => $trade->offer_quantity,
             body                 => {
+                id      => $trade->body_id,
+            },
+            empire                  => {
+                id      => $trade->body->empire->id,
+                name    => $trade->body->empire->name,
+            },
+        };
+    }
+    return {
+        trades      => \@trades,
+        trade_count => $all_trades->pager->total_entries,
+        page_number => $page_number,
+        captcha     => $building->assign_captcha($empire),
+        status      => $self->format_status($empire, $building->body),
+    };
+}
+
+sub view_my_market {
+    my ($self, $session_id, $building_id, $page_number) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    $page_number ||=1;
+    my $my_trades = $building->my_market->search(undef, { rows => 25, page => $page_number });
+    my @trades;
+    while (my $trade = $my_trades->next) {
+        push @trades, {
+            id                      => $trade->id,
+            date_offered            => $trade->date_offered_formatted,
+            ask                     => $trade->ask,
+            offer                   => $trade->format_description_of_payload($trade->payload),
+        };
+    }
+    return {
+        trades      => \@trades,
+        trade_count => $my_trades->pager->total_entries,
+        page_number => $page_number,
+        status      => $self->format_status($empire, $building->body),
+    };
+}
+
+
+
+sub view_market {
+    my ($self, $session_id, $building_id, $page_number, $filter) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    $page_number ||=1;
+    my $all_trades = $building->available_market->search(
+        undef,
+        { rows => 25, page => $page_number, join => 'body' }
+        );
+    if ($filter && $filter ~~[qw(food ore water waste energy glyph prisoner ship plan)]) {
+        $all_trades->search({ 'has_'.$filter => 1 });
+    }
+    my @trades;
+    while (my $trade = $all_trades->next) {
+        push @trades, {
+            id                      => $trade->id,
+            date_offered            => $trade->date_offered_formatted,
+            ask                     => $trade->ask,
+            offer                   => $trade->format_description_of_payload($trade->payload),
+            body                    => {
                 id      => $trade->body_id,
             },
             empire                  => {
@@ -179,6 +241,41 @@ sub get_stored_resources {
         status                  => $self->format_status($empire, $body),
     };
 }
+
+
+sub report_abuse {
+    my ($self, $session_id, $building_id, $trade_id) = @_;
+    unless ($trade_id) {
+        confess [1002, 'You have not specified a trade to withdraw.'];
+    }
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $cache = Lacuna->cache;
+    if ($cache->get('trade_lock', $trade_id)) {
+        confess [1013, 'A buyer has placed an offer on this trade. Please wait a few moments and try again.'];
+    }
+    $cache->set('trade_lock',$trade_id,5);
+    my $times_reporting = $cache->increment('empire_reporting_trade_abuse'.DateTime->now->day, $empire->id, 1, 60 * 60 * 24);
+    if ($times_reporting > 10) {
+        confess [1010, 'You have reported enough abuse for one day.'];
+    }
+    my $reports = $cache->increment('trade_abuse',$trade_id,1, 60 * 60 * 24 * 3);
+    if ($reports >= 5) {
+        my $trade = $building->market->find($trade_id);
+        if (defined $trade) {
+            $trade->body->empire->send_predefined_message(
+                filename    => 'trade_abuse.txt',
+                params      => [$trade->offer_description, $trade->ask_description],    # will need to be changed on switch over to market
+                tags        => ['Alert'],
+            );
+            $trade->withdraw($building->body);
+        }
+        return {
+            status      => $self->format_status($empire, $building->body),
+        };
+    }
+}
+
 
 1;
 

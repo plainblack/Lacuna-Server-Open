@@ -22,7 +22,7 @@ sub assign_captcha {
 
 sub validate_captcha {
     my ($self, $empire, $guid, $solution, $trade_id) = @_;
-    if ($guid && $solution) {                                                               # offered a solution
+    if (defined $guid && defined $solution) {                                               # offered a solution
         my $captcha = Lacuna->cache->get_and_deserialize('trade_captcha', $empire->id);
         if (ref $captcha eq 'HASH') {                                                       # a captcha has been set
             if ($captcha->{guid} eq $guid) {                                                # the guid is the one set
@@ -36,16 +36,25 @@ sub validate_captcha {
     confess [1014, 'Captcha not valid.', $self->assign_captcha($empire)];
 }
 
-sub trades {
+sub market {
+    return Lacuna->db->resultset('Lacuna::DB::Result::Market');
+}
+
+sub trades { # deprecated
     return Lacuna->db->resultset('Lacuna::DB::Result::Trades');
 }
 
-sub my_trades {
+sub my_trades { #deprecated
     my $self = shift;
     return $self->trades->search({body_id => $self->body_id, transfer_type => $self->transfer_type}, {order_by => ['date_offered']});
 }
 
-sub available_trades {
+sub my_market { 
+    my $self = shift;
+    return $self->trades->search({body_id => $self->body_id, transfer_type => $self->transfer_type});
+}
+
+sub available_trades { # deprecated
     my $self = shift;
     return $self->trades->search(
         {
@@ -55,6 +64,16 @@ sub available_trades {
         {
             order_by        => {-desc => ['offer_sub_type','offer_quantity','offer_rank_1','offer_rank_2','offer_description'] }
         }
+    )
+}
+
+sub available_market {
+    my $self = shift;
+    return $self->market->search(
+        {
+            body_id         => {'!=' => $self->body_id},
+            transfer_type   => $self->transfer_type,
+        },
     )
 }
 
@@ -215,12 +234,16 @@ sub ask_resources {
 }
 
 
-sub structure_push {
+sub structure_payload {
     my ($self, $items, $available_cargo_space, $space_exception, $transfer_ship) = @_;
     my $body = $self->body;
     $space_exception ||= $cargo_exception;
     
     # validate
+    unless (ref $items eq 'ARRAY') {
+        confess 'The list of items you want to trade needs to be formatted as an array of hashes.';
+    }
+    
     my $space_used;
     foreach my $item (@{$items}) {
         given($item->{type}) {
@@ -258,6 +281,7 @@ sub structure_push {
             }
         }
     }
+    confess $offer_nothing_exception unless $space_used;
     confess [1011, sprintf($space_exception,$space_used)] unless ($space_used <= $available_cargo_space);
 
     # send

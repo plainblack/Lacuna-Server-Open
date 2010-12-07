@@ -1,0 +1,7 @@
+Trade Abuse
+~~~
+The trade you offered of %s in exchange for %s has been withdrawn because five other empires flagged it for abuse.
+
+Regards,
+
+Your Humble Assistant

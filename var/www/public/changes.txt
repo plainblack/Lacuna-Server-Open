@@ -3,6 +3,11 @@
  - Exposed the API for the Oracle of Anid.
  - Clarified captcha/guid API documentation for trades.
  - Added distance exception for a star in the Temple of the Drajilites because users found it too confusing that you could fetch a star, but not necessarily view it's planets.
+ - Created a new "market" API to replace the existing trade system. New methods to trade and transporter are: add_to_market(), withdraw_from_market(), accept_from_market(), view_market(), view_my_market(), report_abuse()
+ - The following trade and transporter methods are now deprectated and will be removed as soon as the web client and iphone client have been updated: add_trade(), withdraw_trade(), accept_trade(), view_available_trades(), view_my_trades()
+ - Fixed embassy.donate_to_stash() causing an exception in RPC.
+ - Fixed a grammar issue in the spy sabotage report.
+ - Fixed problems with captcha where solution was 0.
 
 2.3700
  - Fixed pagination in mission curator panel.

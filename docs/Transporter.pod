@@ -28,7 +28,7 @@ The list of methods below represents changes and additions to the methods that a
  }
 
 
-=head2 add_trade ( session_id, building_id, offer, ask )
+=head2 add_to_market ( session_id, building_id, offer, ask )
 
 Queues a trade for others to see. In addition to anything offered in your trade, setting up the trade will cost you 1 essentia. Returns:
 
@@ -45,47 +45,136 @@ A session id.
 
 The unique id of the subspace transporter.
 
-=head3 offer
+=head3 items
 
-A hash reference containing the details of what you are offering.
+An array reference of hash references of items you wish to trade. There are five types of items that can be traded via this mechanism. They are resources, glyphs, plans, prisoners, and ships.
 
-=head4 type
+ [
+    {
+       "type" : "bauxite",
+       "quantity" : 10000
+    },
+    {
+       "type" : "prisoner",
+       "prisoner_id" : "id-goes-here"
+    }
+ ]
 
-A string. Must contain one of the following values: ship, glyph, plan, prisoner, water, energy, waste, essentia, bean, lapis, potato, apple, root, corn, cider, wheat, bread, soup, chip, pie, pancake, milk, meal, algae, syrup, fungus, burger, shake, beetle, rutile, chromite, chalcopyrite, galena, gold, uraninite, bauxite, goethite, halite, gypsum, trona, kerogen, methane, anthracite, sulfur, zircon, monazite, fluorite, beryl, or magnetite.
 
-B<NOTE> If you choose ship, glyph, plan, or prisoner, see C<ship_id>, C<glyph_id>, C<plan_id>, and C<prisoner_id> below.
+=over
 
-=head4 quantity
+=item resources
 
-An integer representing the amount of a resource that you're trading. Only needed for resources or essentia. All others default to quantity 1.
+The hash reference for resources looks like:
 
-=head4 ship_id
+ {
+    "type" : "bauxite",
+    "quantity" : 10000
+ }
 
-The unique id of a ship that you wish to trade. See the C<get_ships> method.
+=over
 
-=head4 glyph_id
+=item type
 
-The unique id of a glyph that you wish to trade. See the C<get_glyphs> method.
+The type of resource you want to trade. See C<get_stored_resources> to see what you have available.
 
-=head4 prisoner_id
+=item quantity
 
-The unique id of a prisoner that you wish to trade. See the C<get_prisoners> method.
+The amount of the resource that you want to trade.
 
-=head4 plan_id
+=back
 
-The unique id of a plan that you sih to trade. See the C<get_plans> method. 
+=item glyphs
+
+The hash reference for glyphs looks like:
+
+ {
+    "type" : "glyph",
+    "glyph_id" : "id-goes-here"
+ }
+ 
+=over
+
+=item type
+
+Must be exactly C<glyph>.
+
+=item glyph_id
+
+The unique id of the glyph you want to trade. See the C<get_glyphs> method for a list of your glyphs.
+ 
+=back
+
+=item plans
+
+The hash reference for plans looks like:
+
+ {
+    "type" : "plan",
+    "plan_id" : "id-goes-here"
+ }
+
+=over
+
+=item type
+
+Must be exactly C<plan>.
+
+=item plan_id
+
+The unique id of the plan that you want to trade. See the C<get_plans> method for a list of your plans.
+
+=back
+
+
+=item prisoners
+
+The hash reference for prisoners looks like:
+
+ {
+    "type" : "prisoner",
+    "prisoner_id" : "id-goes-here"
+ }
+
+=over
+
+=item type
+
+Must be exactly C<prisoner>.
+
+=item prisoner_id
+
+The unique id of the spy that you want to trade. See the C<get_prisoners> method for a list of your prisoners.
+
+=back
+
+
+=item ships
+
+The hash reference for ships looks like:
+
+ {
+    "type" : "ship",
+    "ship_id" : "id-goes-here"
+ }
+
+=over
+
+=item type
+
+Must be exactly C<ship>.
+
+=item ship_id
+
+The unique id of the ship that you want to trade. See the C<get_prisoners> method for a list of your prisoners.
+
+=back
+
+=back
 
 =head3 ask
 
-A hash reference containing the details of what you wish to receive in exchange for your offer.
-
-=head4 type
-
-A string. Must contain one of the following values: water, energy, waste, essentia, bean, lapis, potato, apple, root, corn, cider, wheat, bread, soup, chip, pie, pancake, milk, meal, algae, syrup, fungus, burger, shake, beetle, rutile, chromite, chalcopyrite, galena, gold, uraninite, bauxite, goethite, halite, gypsum, trona, kerogen, methane, anthracite, sulfur, zircon, monazite, fluorite, beryl, or magnetite.
-
-=head4 quantity
-
-An integer representing the amount of a resource that you're asking for. 
+An integer which represents how much essentia you are asking for in this trade. Must be between 1 and 99.
 
 
 
@@ -199,7 +288,7 @@ The unique id of this building.
 
 
 
-=head2 withdraw_trade ( session_id, building_id, trade_id )
+=head2 withdraw_from_market ( session_id, building_id, trade_id )
 
 Remove a trade that you have offered and collect the items up for trade.
 
@@ -221,7 +310,7 @@ The unique id of the trade.
 
 
 
-=head2 accept_trade ( session_id, building_id, trade_id, captcha_guid, captcha_solution )
+=head2 accept_from_market ( session_id, building_id, trade_id, captcha_guid, captcha_solution )
 
 Accept a trade offer from the list of available trades. In addition to paying whatever the asking price is, the subspace transporter uses 1 essentia to complete the transaction. See C<view_available_trades>.
 
@@ -251,7 +340,7 @@ The captcha described by C<view_available_trades> will require the user to solve
 
 
 
-=head2 view_available_trades ( session_id, building_id, [ page_number ] )
+=head2 view_market ( session_id, building_id, [ page_number, filter ] )
 
 Displays a list of trades available at the present time.
 
@@ -260,12 +349,12 @@ Displays a list of trades available at the present time.
         {
             "date_offered" : "01 31 2010 13:09:05 +0600",
             "id" : "id-goes-here",
-            "ask_type" : "bauxite",
-            "ask_quantity" : 10000,
-            "ask_description" : "10000 Bauxite",
-            "offer_type" : "prisoner",
-            "offer_quantity" : 1,
-            "offer_description" : "Spy Named Jack Bauer (Level: 21)"
+            "ask" : 25,     # essentia
+            "offer" : [
+                "Level 21 spy named Jack Bauer (prisoner)",
+                "4,000 bauxite",
+                "gold glyph"
+            ],
             "empire" : {
                 "id" : "id-goes-here",
                 "name" : "Earthlings"
@@ -292,12 +381,15 @@ The unique id of this building.
 
 =head3 page_number
 
-An integer representing the page of trades (25 per page) to return. Defaults to 1.
+Optional. An integer representing the page of trades (25 per page) to return. Defaults to 1.
+
+=head3 filter
+
+Optional. A string which will narrow the offered trades to those who are offering a specific kind of object, such as ships. Filter options include: food ore water waste energy glyph prisoner ship plan
 
 
 
-
-=head2 view_my_trades ( session_id, building_id, [ page_number ] )
+=head2 view_my_market ( session_id, building_id, [ page_number ] )
 
 Displays a list of trades the current user has posted.
 
@@ -306,12 +398,12 @@ Displays a list of trades the current user has posted.
         {
             "date_offered" : "01 31 2010 13:09:05 +0600",
             "id" : "id-goes-here",
-            "ask_type" : "bauxite",
-            "ask_quantity" : 10000,
-            "ask_description" : "10000 Bauxite",
-            "offer_type" : "prisoner",
-            "offer_quantity" : 1,
-            "offer_description" : "Spy Named Jack Bauer (Level: 21)"
+            "ask" : 25,     # essentia
+            "offer" : [
+                "Level 21 spy named Jack Bauer (prisoner)",
+                "4,000 bauxite",
+                "gold glyph"
+            ]
         },
         ...
     ],
@@ -537,5 +629,29 @@ The name of any resource you want.
 =head3 quantity
 
 The amount of resources that will be traded one for one.
+
+
+
+=head2 report_abuse ( session_id, building_id, trade_id )
+
+Report a trade that you think is abusing the trade system.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 trade_id
+
+The unique id of the trade.
+
+
 
 =cut

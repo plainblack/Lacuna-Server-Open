@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 13;
+use Test::More tests => 18;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -63,6 +63,20 @@ is($result->{error}{code}, 1002, 'can call withdraw_trade');
 $result = $tester->post('trade', 'push_items', [$session_id, $trade->id]);
 is($result->{error}{code}, 1002, 'can call push_items');
 
+$result = $tester->post('trade', 'add_to_market', [$session_id, $trade->id, [{ type => 'algae', quantity => 100000}], 1]); 
+is($result->{error}{code}, 1011, 'can call add_to_market');
+
+$result = $tester->post('trade', 'accept_from_market', [$session_id, $trade->id]); # no trade specified
+is($result->{error}{code}, 1002, 'can call accept_from_market');
+
+$result = $tester->post('trade', 'withdraw_from_market', [$session_id, $trade->id]); # no trade specified
+is($result->{error}{code}, 1002, 'can call withdraw_from_market');
+
+$result = $tester->post('trade', 'view_market', [$session_id, $trade->id]);
+is(scalar @{$result->{result}{trades}}, 0, 'can call view_market');
+
+$result = $tester->post('trade', 'view_my_market', [$session_id, $trade->id]);
+is(scalar @{$result->{result}{trades}}, 0, 'can call view_my_market');
 
 
 
