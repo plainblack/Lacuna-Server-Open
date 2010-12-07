@@ -776,6 +776,10 @@ sub redefine_species {
     my ($self, $session_id, $me) = @_;
     my $empire = $self->get_empire_by_session($session_id);
 
+    unless ($empire->essentia >= 100) {
+        confess [1011, 'You need at least 100 essentia to redefine your species.'];
+    }
+
     $self->vet_species($me);
 
     my $limits = $empire->determine_species_limits($empire);

@@ -8,6 +8,7 @@
  - Fixed embassy.donate_to_stash() causing an exception in RPC.
  - Fixed a grammar issue in the spy sabotage report.
  - Fixed problems with captcha where solution was 0.
+ - Fixed redefine species bug.
 
 2.3700
  - Fixed pagination in mission curator panel.
