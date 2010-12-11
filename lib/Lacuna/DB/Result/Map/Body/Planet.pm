@@ -935,8 +935,8 @@ sub type_stored {
 sub can_spend_type {
     my ($self, $type, $value) = @_;
     my $stored = $type.'_stored';
-    unless ($self->$stored < $value) {
-        confess [1009, "You don't have enough $type in storage storage."];
+    if ($self->$stored < $value) {
+        confess [1009, "You don't have enough $type in storage."];
     }
     return 1;
 }

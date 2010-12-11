@@ -5,6 +5,7 @@
  - Fixed a problem in the mission curator panel where curators weren't getting paid for their efforts.
  - Fixed a pagination problem in the mission curator panel.
  - Mistakenly set stash size to 5m rather than 500k. This has been fixed.
+ - Stash was letting you donate/exchange more than you had.
 
 2.3800
  - Changed map.get_stars() to allow fetching of more stars at once.
