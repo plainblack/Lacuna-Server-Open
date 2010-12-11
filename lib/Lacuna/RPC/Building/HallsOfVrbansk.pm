@@ -39,17 +39,21 @@ sub sacrifice_to_upgrade {
     my ($self, $session_id, $building_id, $upgrade_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $upgrade = $self->get_building($empire, $upgrade_id);
+    my $upgrade = $building->body->buildings->find($upgrade_id);
+    unless (defined $upgrade) {
+        confess [1002, 'Could not find the building to upgrade.'];
+    }
     my @upgradable = $building->get_upgradable_buildings->get_column('id')->all;
     unless ($upgrade->id ~~ \@upgradable) {
         confess [1009, 'The Halls of Vrbansk do not have the knowledge necessary to upgrade the '.$upgrade->name];
     }
+    my $body = $building->body;
+    $upgrade->body($body);
     $upgrade->start_upgrade;
     my $halls = $building->get_halls;
     foreach (1..$upgrade->level + 1) {
         $halls->next->delete;
     }
-    my $body = $building->body;
     $body->needs_surface_refresh(1);
     $body->update;
     return { status => $self->format_status($empire, $body) };
