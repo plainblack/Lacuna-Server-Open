@@ -74,7 +74,7 @@ sub www_default {
         $out .= sprintf('<tr><td><a href="/missioncurator/add_essentia?id=%s">Add Essentia</a></td><td>%s</td><td>%s</td></tr>', $empire->id, $empire->name, $empire->email);
     }
     $out .= '</table>';
-    $out .= $self->format_paginator('search/empires', 'name', $name, $page_number);
+    $out .= $self->format_paginator('default', 'name', $name, $page_number);
     return $self->wrap($out);
 }
 
