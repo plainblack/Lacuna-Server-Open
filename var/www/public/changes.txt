@@ -1,3 +1,6 @@
+2.3900
+ - Exposed Theme Park methods.
+
 2.3801
  - When stash is empty embassy.view_stash() will return {} instead of null for stash element.
  - Fixed several bugs where assigning a spy would send back a JSON processing error message rather than the actual mission message.

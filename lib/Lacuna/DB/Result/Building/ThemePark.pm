@@ -33,19 +33,92 @@ use constant waste_to_build => 995;
 
 use constant time_to_build => 300;
 
-use constant food_consumption => 125;
+sub food_consumption {
+    my $self = shift;
+    return ($self->is_working) ? 125 : 5;
+}
 
-use constant energy_consumption => 130;
+sub energy_consumption {
+    my $self = shift;
+    return ($self->is_working) ? 130 : 5;
+}
 
-use constant ore_consumption => 15;
+sub ore_consumption {
+    my $self = shift;
+    return ($self->is_working) ? 15 : 5;
+}
 
-use constant water_consumption => 150;
+sub water_consumption {
+    my $self = shift;
+    return ($self->is_working) ? 150 : 5;
+}
 
-use constant waste_production => 115;
+sub waste_production {
+    my $self = shift;
+    return ($self->is_working) ? 115 : 5;
+}
 
-use constant happiness_production => 0;
+sub happiness_production {
+    my $self = shift;
+    if ($self->is_working) {
+        return $self->work->{food_type_count} * 25;
+    }
+    return 0;
+}
 
+sub can_operate {
+    my ($self) = @_;
+    if ($self->level < 1) {
+        confess [1010, "You can't operate the Theme Park until it is built."];
+    }
+    my $types;
+    my $body = $self->body;
+    foreach my $food (FOOD_TYPES) {
+        $types++ if $body->type_stored($food) >= 1000;
+    }
+    if ($self->is_working) {
+        my $current_types = $self->work->{food_type_count};
+        if ($types < $current_types) {
+            confess [1011, "This Theme Park was started with ".$current_types." types of food so you need at least ".$current_types." types of food to continue it's operation."];
+        }
+    }
+    elsif ($types < 5) {
+        confess [1011, "You need at least 5 types of food in quantities of at least 1,000 to start operating the Theme Park."];
+    }
+    return 1;
+}
 
+sub operate {
+    my ($self) = @_;
+    $self->can_operate;
+    
+    my $body = $self->body;
+    my $types = 0;
+    foreach my $food (FOOD_TYPES) {
+        if ($body->type_stored($food) >= 1000) {
+            $types++;
+            $body->spend_food_type($food, 1000);
+        }
+    }
+    $body->needs_recalc(1);
+    $body->update;
+    
+    if ($self->is_working) {
+        $self->work_ends($self->work_ends->add(seconds=>60 * 60));
+        $self->work({ food_type_count => $types });
+        $self->update;
+    }
+    else {
+        $self->start_work({ food_type_count => $types }, 60*60)->update;
+    }
+}
+
+after finish_work => sub {
+    my $self = shift;
+    my $planet = $self->body;
+    $planet->needs_recalc(1);
+    $planet->update;
+};
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
