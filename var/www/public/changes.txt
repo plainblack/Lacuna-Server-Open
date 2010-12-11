@@ -1,5 +1,6 @@
 2.3900
  - Exposed Theme Park methods.
+ - Fixed a problem with getting the upgradable building lists in the Halls of Vrbansk.
 
 2.3801
  - When stash is empty embassy.view_stash() will return {} instead of null for stash element.

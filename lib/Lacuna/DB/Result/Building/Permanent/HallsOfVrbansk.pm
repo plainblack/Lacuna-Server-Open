@@ -33,7 +33,7 @@ after finish_upgrade => sub {
 
 sub get_halls {
     my $self = shift;
-    return $self->body->get_buildings_of_class('Lacuna::DB::Result::DB::Building::Permanent::HallsOfVrbansk');
+    return $self->body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk');
 }
 
 sub get_upgradable_buildings {
