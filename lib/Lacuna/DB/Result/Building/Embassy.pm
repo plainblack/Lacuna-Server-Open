@@ -256,6 +256,7 @@ sub exchange_with_stash {
     }
     $self->alliance->exchange($self->body, $donation, $request, $self->max_exchange_size);
     Lacuna->cache->increment('stash_exchanges_'.format_date(undef,'%d'), $self->body_id, 1, 60 * 60 * 26);
+    $self->exchanges_remaining_today( $self->exchanges_remaining_today - 1 );
 }
 
 sub max_exchange_size {
