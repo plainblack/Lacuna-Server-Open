@@ -1,5 +1,6 @@
 2.3801
  - When stash is empty embassy.view_stash() will return {} instead of null for stash element.
+ - Fixed several bugs where assigning a spy would send back a JSON processing error message rather than the actual mission message.
 
 2.3800
  - Changed map.get_stars() to allow fetching of more stars at once.

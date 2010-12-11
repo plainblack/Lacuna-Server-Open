@@ -889,31 +889,31 @@ sub turn_riot_cop {
 sub small_rebellion {
     my ($self, $defender) = @_;
     $self->on_body->add_news(100,'Hundreds are dead at this hour after a protest turned into a small, but violent, rebellion on %s.', $self->on_body->name);
-    return $self->sow_discontent(13000);
+    return $self->sow_discontent(13000)->id;
 }
 
 sub march_on_capitol {
     my ($self, $defender) = @_;
     $self->on_body->add_news(100,'Protesters now march on the %s Planetary Command Center, asking for the Governor\'s resignation.', $self->on_body->name);
-    return $self->sow_discontent(11000);
+    return $self->sow_discontent(11000)->id;
 }
 
 sub violent_protest {
     my ($self, $defender) = @_;
     $self->on_body->add_news(100,'The protests at the %s Ministries have turned violent. An official was rushed to hospital in critical condition.', $self->on_body->name);
-    return $self->sow_discontent(9000);
+    return $self->sow_discontent(9000)->id;
 }
 
 sub protest {
     my ($self, $defender) = @_;
     $self->on_body->add_news(100,'Protesters can be seen jeering outside nearly every Ministry at this hour on %s.', $self->on_body->name);
-    return $self->sow_discontent(7000);
+    return $self->sow_discontent(7000)->id;
 }
 
 sub civil_unrest {
     my ($self, $defender) = @_;
     $self->on_body->add_news(100,'In recent weeks there have been rumblings of political discontent on %s.', $self->on_body->name);
-    return $self->sow_discontent(5000);
+    return $self->sow_discontent(5000)->id;
 }
 
 sub calm_the_rebels {
@@ -1634,7 +1634,7 @@ sub escape_prison {
     my $suspect = $self->get_random_prisoner;
     return $self->no_contact unless defined $suspect;
     $self->on_body->add_news(50,'At this hour police on %s are flabbergasted as to how an inmate escaped earlier in the day.', $self->on_body->name);    
-    return $suspect->escape;
+    return $suspect->escape->id;
 }
 
 #sub kill_suspect {
@@ -1792,7 +1792,7 @@ sub network19_defamation1 {
     if ($self->on_body->add_news(50,'A financial report for %s shows that many people are out of work as the unemployment rate approaches 10%%.', $self->on_body->name)) {
         $self->hack_successful(1000);
     }
-    return $self->hack_filtered;
+    return $self->hack_filtered->id;
 }
 
 sub network19_defamation2 {
@@ -1801,7 +1801,7 @@ sub network19_defamation2 {
     if ($self->on_body->add_news(50,'An outbreak of the Dultobou virus was announced on %s today. Citizens are encouraged to stay home from work and school.', $self->on_body->name)) {
         $self->hack_successful(2000);
     }
-    return $self->hack_filtered;
+    return $self->hack_filtered->id;
 }
 
 sub network19_defamation3 {
@@ -1810,7 +1810,7 @@ sub network19_defamation3 {
     if ($self->on_body->add_news(50,'%s is unable to keep its economy strong. Sources inside say it will likely fold in a few days.', $self->on_body->empire->name)) {
         $self->hack_successful(3000);
     }
-    return $self->hack_filtered;
+    return $self->hack_filtered->id
 }
 
 sub network19_defamation4 {
@@ -1819,7 +1819,7 @@ sub network19_defamation4 {
     if ($self->on_body->add_news(50,'The Governor of %s has lost her mind. She is a raving mad lunatic! The Emperor could not be reached for comment.', $self->on_body->name)) {
         $self->hack_successful(4000);
     }
-    return $self->hack_filtered;
+    return $self->hack_filtered->id;
 }
 
 sub network19_defamation5 {
@@ -1828,7 +1828,7 @@ sub network19_defamation5 {
     if ($self->on_body->add_news(50,'%s is the smallest, worst, least free empire in the Expanse, ever.', $self->on_body->empire->name)) {
         $self->hack_successful(5000);
     }
-    return $self->hack_filtered;
+    return $self->hack_filtered->id;
 }
 
 
