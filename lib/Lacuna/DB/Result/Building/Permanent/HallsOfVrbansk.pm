@@ -39,7 +39,7 @@ sub get_halls {
 sub get_upgradable_buildings {
     my ($self) = @_;
     my @halls = $self->get_halls->get_column('id')->all;
-    return $self->body->buildings-search({
+    return $self->body->buildings->search({
         level   => { '<' => scalar @halls},
         class   => { like => 'Lacuna::DB::Result::Building::Permanent::%' },
         id      => { 'not in' => \@halls },
