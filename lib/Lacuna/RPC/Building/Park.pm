@@ -58,7 +58,7 @@ sub subsidize_party {
     return $self->view($empire, $building);
 }
 
-__PACKAGE__->register_rpc_method_names(qw(throw_a_party build subsidize_party));
+__PACKAGE__->register_rpc_method_names(qw(throw_a_party subsidize_party));
 
 
 no Moose;
