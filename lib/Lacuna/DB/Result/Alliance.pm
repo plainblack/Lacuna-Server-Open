@@ -29,7 +29,7 @@ sub date_created_formatted {
     return format_date($self->date_created);
 }
 
-use constant max_stash => 5000000;
+use constant max_stash => 500_000;
 
 sub stash_size {
     my $self = shift;
