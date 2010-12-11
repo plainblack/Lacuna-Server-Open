@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -53,6 +53,9 @@ is($result->{error}{code}, 1010, 'cannot leave an alliance if you are the leader
 
 $result = $tester->post('embassy', 'expel_member', [$session_id, $embassy->id, 1]);
 is($result->{error}{code}, 1010, 'expel member');
+
+$result = $tester->post('embassy', 'view_stash', [$session_id, $embassy->id]);
+is(ref$result->{result}{stash}, 'HASH', 'view_stash');
 
 $result = $tester->post('embassy', 'dissolve_alliance', [$session_id, $embassy->id]);
 ok(exists $result->{result}, 'dissolve alliance');

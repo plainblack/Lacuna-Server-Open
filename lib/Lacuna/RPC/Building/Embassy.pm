@@ -207,7 +207,7 @@ sub view_stash {
         $stored{$resource} = $body->type_stored($resource);
     }
     return {
-        stash           => $building->alliance->stash,
+        stash           => $building->alliance->stash || {},
         status          => $self->format_status($empire, $body),
         max_exchange_size   => $building->max_exchange_size,
         exchanges_remaining_today   => $building->exchanges_remaining_today,

@@ -366,12 +366,12 @@ Returns a list of what is in the current stash:
 
  {
     "status" : { ... },
-    "stash" : {
+    "stash" : {                # what is stored in the stash
         "gold" : 4500,
         "water" : 1000,
         "apple" : 8
     },
-    "stored" : {
+    "stored" : {               # what is stored in planetary storage
         "energy" : 40000,
         "algae" : 43000,
         "water" : 19000,

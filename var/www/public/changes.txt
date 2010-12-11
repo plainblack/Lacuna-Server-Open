@@ -1,3 +1,6 @@
+2.3801
+ - When stash is empty embassy.view_stash() will return {} instead of null for stash element.
+
 2.3800
  - Changed map.get_stars() to allow fetching of more stars at once.
  - Exposed the API for the Oracle of Anid.
