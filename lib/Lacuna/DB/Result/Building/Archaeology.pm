@@ -179,12 +179,26 @@ my %recipies = (
     },
     goethite    => {
         plan        => 'Lacuna::DB::Result::Building::Permanent::Lake',
+        halite      => {
+            gypsum      => {
+                trona       => {
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk',
+                },
+            },
+        },
     },
     gold        => {
         uraninite   => {
             bauxite     => {
                 goethite    => {
                     plan        => 'Lacuna::DB::Result::Building::Permanent::OracleOfAnid',
+                },
+            },
+        },
+        anthracite  => {
+            uraninite   => {
+                bauxite     => {
+                    plan    => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk',
                 },
             },
         },
@@ -241,6 +255,13 @@ my %recipies = (
         },
     },
     kerogen     => {
+        methane     => {
+            sulfur      => {
+                zircon      => {
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk',
+                },
+            },
+        },
         rutile      => {
             chromite    => {
                 chalcopyrite=> {
@@ -271,6 +292,13 @@ my %recipies = (
         },
     },
     monazite    => {
+        fluorite    => {
+            beryl       => {
+                magnetite   => {
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk',
+                },
+            },
+        },
         trona       => {
             gold        => {
                 bauxite     => {
@@ -281,6 +309,13 @@ my %recipies = (
     },
     rutile      => {
         plan        => 'Lacuna::DB::Result::Building::Permanent::Crater',
+        chromite        => {
+            chalcopyrite    => {
+                galena          => {
+                    plan    => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk',
+                },
+            },
+        },
     },
     sulfur          => {
         methane         => {
@@ -310,8 +345,8 @@ my %recipies = (
     },
 );
 
-#rutile chromite chalcopyrite galena gold uraninite bauxite goethite halite
-#gypsum trona kerogen methane anthracite sulfur zircon monazite fluorite beryl magnetite
+#rutile chromite chalcopyrite galena gold anthracite uraninite bauxite 
+#goethite halite gypsum trona kerogen methane  sulfur zircon monazite fluorite beryl magnetite
 
 sub make_plan {
     my ($self, $ids) = @_;
