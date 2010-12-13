@@ -13,6 +13,43 @@ sub model_class {
     return 'Lacuna::DB::Result::Building::GeneticsLab';
 }
 
+
+sub prepare_experiment {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    return {
+        status          => $self->format_status($empire, $building->body),
+        survival_odds   => $building->survival_odds,
+        graft_odds      => $building->graft_odds,
+        grafts          => $building->get_possible_grafts,
+        essentia_cost   => 2,
+    };
+}
+
+sub run_experiment {
+    my ($self, $session_id, $building_id, $spy_id, $affinity) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    unless ($spy_id) {
+        confess [1002, 'You have to specify a spy id.'];
+    }
+    unless ($affinity) {
+        confess [1002, 'You have to specify an affinity.'];
+    }
+    my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($spy_id);
+    unless (defined $spy) {
+        confess [1002, 'Could not find that spy.'];
+    }
+    return {
+        experiment      => $building->experiment($spy, $affinity),
+        status          => $self->format_status($empire, $building->body),
+    };
+}
+
+
+__PACKAGE__->register_rpc_method_names(qw(prepare_experment run_experiment));
+
 no Moose;
 __PACKAGE__->meta->make_immutable;
 

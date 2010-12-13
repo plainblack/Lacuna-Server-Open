@@ -143,6 +143,27 @@ sub determine_species_limits {
     };
 }
 
+sub get_species_stats {
+    my $self = shift;
+    return {
+        name                    => $self->species_name,
+        description             => $self->species_description,
+        min_orbit               => $self->min_orbit,
+        max_orbit               => $self->max_orbit,
+        manufacturing_affinity  => $self->manufacturing_affinity,
+        deception_affinity      => $self->deception_affinity,
+        research_affinity       => $self->research_affinity,
+        management_affinity     => $self->management_affinity,
+        farming_affinity        => $self->farming_affinity,
+        mining_affinity         => $self->mining_affinity,
+        science_affinity        => $self->science_affinity,
+        environmental_affinity  => $self->environmental_affinity,
+        political_affinity      => $self->political_affinity,
+        trade_affinity          => $self->trade_affinity,
+        growth_affinity         => $self->growth_affinity,
+    };
+}
+
 sub has_medal {
     my ($self, $type) = @_;
     return Lacuna->db->resultset('Lacuna::DB::Result::Medals')->search({empire_id => $self->id, type => $type},{rows=>1})->single;

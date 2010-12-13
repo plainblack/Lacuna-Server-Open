@@ -2,6 +2,8 @@
  - Exposed Theme Park methods.
  - Fixed a problem with getting the upgradable building lists in the Halls of Vrbansk.
  - Embassy stash wasn't decrementing exchanges remaining display value.
+ - Exposed recipies for Halls of Vrbansk.
+ - Exposed Genetics Lab methods.
 
 2.3801
  - When stash is empty embassy.view_stash() will return {} instead of null for stash element.

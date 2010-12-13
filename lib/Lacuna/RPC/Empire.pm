@@ -833,23 +833,7 @@ sub view_species_stats {
     my ($self, $session_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     return {
-        species => {
-            name                    => $empire->species_name,
-            description             => $empire->species_description,
-            min_orbit               => $empire->min_orbit,
-            max_orbit               => $empire->max_orbit,
-            manufacturing_affinity  => $empire->manufacturing_affinity,
-            deception_affinity      => $empire->deception_affinity,
-            research_affinity       => $empire->research_affinity,
-            management_affinity     => $empire->management_affinity,
-            farming_affinity        => $empire->farming_affinity,
-            mining_affinity         => $empire->mining_affinity,
-            science_affinity        => $empire->science_affinity,
-            environmental_affinity  => $empire->environmental_affinity,
-            political_affinity      => $empire->political_affinity,
-            trade_affinity          => $empire->trade_affinity,
-            growth_affinity         => $empire->growth_affinity,
-        },
+        species => $empire->get_species_stats,
         status  => $self->format_status($empire),
     };
 }

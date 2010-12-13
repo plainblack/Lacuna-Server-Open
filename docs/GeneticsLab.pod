@@ -1,7 +1,75 @@
 =head1 Genetics Lab Methods
 
-Terraforming Lab is accessible via the URL C</geneticslab>.
+Genetics Lab is accessible via the URL C</geneticslab>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+
+=head2 prepare_experiment (session_id, building_id )
+
+Returns everything you need to set up an experiment.
+
+ {
+    "status" : { ... },
+    "grafts" : [
+        {
+            "spy" : {
+                "id" : "id-goes-here",
+                "name" : "James Bond",
+                ...
+            },
+            "species" : {
+                "min_orbit" : 3,
+                "max_orbit" : 4,
+                "science_affinity" : 4,
+                ...
+            },
+            graftable_affinities : [
+                "min_orbit",
+                "management_affinity"
+            ]
+        },
+        ...
+    ],
+    "survival_odds" : 31,
+    "graft_odds" : 11,
+    "essentia_cost" : 2
+ }
+ 
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the genetics lab.
+
+
+
+
+=head2 run_experiment ( session_id, building_id, spy_id, affinity )
+
+Allows you to experiment on prisoners attempting to graft their genetic traits onto your own species.
+
+ {
+    "status" : { ... },
+    "experiment" : {
+        "graft" : 1,        # did the graft succeed
+        "survive" : 0,      # did the prisoner survive
+        "message" : "The graft was a success, and the prisoner did not survive the experiment."
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the genetics lab.
+
+
+
+
 
 =cut
