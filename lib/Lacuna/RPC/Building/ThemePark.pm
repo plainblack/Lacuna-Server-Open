@@ -24,7 +24,7 @@ around 'view' => sub {
             food_type_count           => $building->work->{food_type_count},
         };
     }
-    $out->{themepark}{can_operate} = (eval { $building->can_throw_a_party }) ? 1 : 0;
+    $out->{themepark}{can_operate} = (eval { $building->can_operate }) ? 1 : 0;
     $out->{themepark}{reason} = $@;
     return $out;
 };
