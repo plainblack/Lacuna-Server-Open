@@ -40,8 +40,10 @@ sub get_ship_costs {
         $percentage_of_cost += $propulsion->level * 3;
     }
     $percentage_of_cost /= 100;
+    my $seconds = sprintf('%0.f', $ship->base_time_cost * $self->time_cost_reduction_bonus($self->level * 3));
+    $seconds = 15 if $seconds < 15;
     return {
-        seconds => sprintf('%0.f', $ship->base_time_cost * $self->time_cost_reduction_bonus($self->level * 3)),
+        seconds => $seconds,
         food    => sprintf('%0.f', $ship->base_food_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
         water   => sprintf('%0.f', $ship->base_water_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
         ore     => sprintf('%0.f', $ship->base_ore_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),

@@ -709,7 +709,7 @@ sub time_cost_reduction_bonus {
     if ($body->happiness < 0 ) {
         $unhappy_workers = abs($body->happiness) / 1000;
     }
-    return (100 - $extra - $body->empire->management_affinity + $unhappy_workers) / 100;
+    return (100 - $extra - ($body->empire->management_affinity * 3) + $unhappy_workers) / 100;
 }
 
 sub cost_to_upgrade {
