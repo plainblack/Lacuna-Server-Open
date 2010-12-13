@@ -95,13 +95,18 @@ sub add_rewards {
         $body->empire->add_essentia($rewards->{essentia}, 'mission reward')->update;
     }
     
+    # happiness
+    if (exists $rewards->{happiness}) {
+        $body->add_happiness($rewards->{happiness});
+    }
+
     # resources
     if (exists $rewards->{resources}) {
         foreach my $resource (keys %{$rewards->{resources}}) {
             $body->add_type($resource, $rewards->{resources}{$resource});
         }
-        $body->update;
     }
+    $body->update;
 
     # glyphs
     if (exists $rewards->{glyphs}) {
@@ -141,13 +146,18 @@ sub spend_objectives {
         $body->empire->spend_essentia($objectives->{essentia},'mission objective')->update;
     }
     
+    # happiness
+    if (exists $objectives->{happiness}) {
+        $body->spend_happiness($objectives->{happiness});
+    }
+    
     # resources
     if (exists $objectives->{resources}) {
         foreach my $resource (keys %{$objectives->{resources}}) {
             $body->spend_type($resource, $objectives->{resources}{$resource});
         }
-        $body->update;
     }
+    $body->update;
 
     # glyphs
     if (exists $objectives->{glyphs}) {
@@ -191,6 +201,13 @@ sub check_objectives {
     if (exists $objectives->{essentia}) {
         if ($body->empire->essentia < $objectives->{essentia}) {
             confess [1013, 'You do not have the essentia needed to complete this mission.'];
+        }
+    }
+    
+    # happiness
+    if (exists $objectives->{happiness}) {
+        if ($body->happiness < $objectives->{happiness}) {
+            confess [1013, 'You do not have the happiness needed to complete this mission.'];
         }
     }
     
@@ -301,6 +318,9 @@ sub format_items {
     
     # essentia
     push @items, sprintf('%s essentia.', commify($items->{essentia})) if ($items->{essentia});
+    
+    # happiness
+    push @items, sprintf('%s happiness.', commify($items->{happiness})) if ($items->{happiness});
     
     # resources
     foreach my $resource (keys %{ $items->{resources}}) {
