@@ -51,10 +51,11 @@ sub arrive {
         }
         else {
             $self->turn_around;
+            my $message = ref $@ eq 'ARRAY' ? $@->[1] : 'We have encountered a glitch.';
             $empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'cannot_deploy_mining_platform.txt',
-                params      => [$@->[1], $foreign_body->x, $foreign_body->y, $foreign_body->name, $body->id, $body->name, $self->name],
+                params      => [$message, $foreign_body->x, $foreign_body->y, $foreign_body->name, $body->id, $body->name, $self->name],
             );
         }
     }
