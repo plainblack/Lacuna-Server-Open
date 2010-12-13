@@ -10,6 +10,7 @@ use constant ORE_TYPES => (qw(rutile chromite chalcopyrite galena gold uraninite
 use constant FINDABLE_PLANS => (qw(
     Lacuna::DB::Result::Building::Permanent::Lagoon
     Lacuna::DB::Result::Building::Permanent::LibraryOfJith
+    Lacuna::DB::Result::Building::Permanent::OracleOfAnid
     Lacuna::DB::Result::Building::Permanent::Sand
     Lacuna::DB::Result::Building::Permanent::Grove
     Lacuna::DB::Result::Building::Permanent::TempleOfTheDrajilites
