@@ -48,7 +48,7 @@ sub run_experiment {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(prepare_experment run_experiment));
+__PACKAGE__->register_rpc_method_names(qw(prepare_experiment run_experiment));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
