@@ -49,6 +49,9 @@ sub withdraw {
         my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($self->ship_id);
         $ship->land if defined $ship;
     }
+    elsif ($self->transfer_type eq 'transporter') {
+        $body->empire->add_essentia(1, 'Withdrew Transporter Trade')->update;
+    }
     $self->delete;
 }
 

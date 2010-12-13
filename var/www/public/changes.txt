@@ -1,3 +1,12 @@
+2.3901
+ - Fixed a bug with the management affinity calculation.
+ - Fixed a bug where Theme Park would return an error even though it worked.
+ - Fixed a bug with the Genetics Lab where it would return method not found on prepare_experiment().
+ - Oracle of Anid can now be found via excavator.
+ - Enabled happiness in missions.
+ - Fixed a crash bug with mining platforms.
+ - Fixed a bug where users weren't getting the 1 essentia credited back to their account on Transporter trades if they expired from inactivity.
+
 2.3900
  - Exposed Theme Park methods.
  - Fixed a problem with getting the upgradable building lists in the Halls of Vrbansk.

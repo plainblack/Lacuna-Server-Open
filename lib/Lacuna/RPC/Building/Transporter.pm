@@ -99,7 +99,6 @@ sub withdraw_trade {
     unless (defined $trade) {
         confess [1002, 'Could not find that trade. Perhaps it has already been accepted.'];
     }
-    $empire->add_essentia(1,'Withdrew Transporter Trade')->update;
     $trade->withdraw($building->body);
     return {
         status      => $self->format_status($empire, $building->body),
@@ -122,7 +121,6 @@ sub withdraw_from_market {
     unless (defined $trade) {
         confess [1002, 'Could not find that trade. Perhaps it has already been accepted.'];
     }
-    $empire->add_essentia(1,'Withdrew Transporter Trade')->update;
     $trade->withdraw($building->body);
     return {
         status      => $self->format_status($empire, $building->body),
