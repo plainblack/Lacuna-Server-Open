@@ -165,7 +165,7 @@ sub accept_trade { # deprecated
         }
         unless ($body->type_stored($trade->ask_type) >= $trade->ask_quantity) {
             $cache->delete('trade_lock',$trade_id);
-            confess [1011, 'You need '.$trade->ask_quantity.' '.$body->ask_type.' to make this trade.'];
+            confess [1011, 'You need '.$trade->ask_quantity.' '.$trade->ask_type.' to make this trade.'];
         }
         $empire->spend_essentia(1, 'Transporter Cost')->update;
         $body->spend_type($trade->ask_type, $trade->ask_quantity);
