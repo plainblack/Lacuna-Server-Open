@@ -33,6 +33,8 @@ use constant waste_to_build => 995;
 
 use constant time_to_build => 300;
 
+use constant max_instances_per_planet => 2;
+
 sub food_consumption {
     my $self = shift;
     return ($self->is_working) ? 125 : 5;
