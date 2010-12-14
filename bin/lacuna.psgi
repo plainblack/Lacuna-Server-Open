@@ -179,10 +179,25 @@ my $curator = builder {
 $urlmap->map("/missioncurator" => $curator);
 
 
-builder {
+my $app = builder {
     enable 'CrossOrigin',
         origins => '*', methods => ['GET', 'POST'], max_age => 60*60*24*30, headers => '*';
     $urlmap->to_app;
 };
 
+
+
+if ($config->get('offline')) {
+    print "Server Down For Maintenance\n";
+    sub {
+         [ 500,
+            ['Content-Type' => 'application/json-rpc' ],
+            [ '{"jsonrpc" : "2.0", "error" : { "code" : "-32000", "message" : "The server is offline for maintenance." }}' ],
+         ];
+    }
+}
+else {
+   print "Server Up\n";
+   $app;
+}
 
