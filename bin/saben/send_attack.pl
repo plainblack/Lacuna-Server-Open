@@ -99,7 +99,7 @@ while (my $target = $targets->next) {
 
 out("Waiting on attacks...");
 foreach my $attack (@attacks) {
-    $attack->recv;
+    $attack->recv if defined $attack;
 }
 
 my $finish = time;
