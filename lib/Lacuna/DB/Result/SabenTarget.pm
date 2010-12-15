@@ -35,7 +35,7 @@ sub find_new_target {
     my $db = Lacuna->db;
     my @empire_ids = $db->resultset('Lacuna::DB::Result::Log::Empire')->search(undef,{
         order_by    => 'empire_size_rank',
-        rows        => 50,
+        rows        => 250,
     })->all;
     my $potential = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
         zone        => $saben_colony->zone,
@@ -60,8 +60,10 @@ sub find_closest_target_planet {
     my $self = shift;
     my $saben_colony = $self->saben_colony;
     return undef unless (defined $saben_colony);
+    my $target_empire = $self->target_empire;
+    return undef unless (defined $target_empire);
     my $potential = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
-        empire_id   => $self->target_empire->id,
+        empire_id   => $target_empire->id,
     });
     my $target = $potential->next;
     unless (defined $target) {

@@ -9,9 +9,11 @@ use AnyEvent;
 $|=1;
 our $quiet;
 our $randomize;
+my $skipnews;
 GetOptions(
     'quiet'         => \$quiet,
     'randomize'         => \$randomize,
+    'skipnews'      => \$skipnews,
 );
 
 
@@ -42,23 +44,25 @@ out('getting empires...');
 my $saben = $empires->find(-1);
 my $lec = $empires->find(1);
 
-out('Send Network 19 messages....');
-my $news = $db->resultset('Lacuna::DB::Result::News');
-my @messages = (
-    'We are Sābēn. We have penetrated your defenses, and found them lacking. Goodbye.',
-    'We are Sābēn. We have studied you, and found your weaknesses. You do not have long.',
-    'We are Sābēn. You are in our Demesne. You are not welcome here.',
-);
-my $message = $messages[ rand @messages ];
-foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map_size/x')->[1]/250)) {
-    foreach my $y (int($config->get('map_size/y')->[0]/250) .. int($config->get('map_size/y')->[1]/250)) {
-        my $zone = $x.'|'.$y;
-        say $zone;
-        $news->new({headline => '$~~^#!!^#!@@~!~!*::::::::........', zone => $zone })->insert;
-        sleep 1;
-        $news->new({headline => $message, zone => $zone })->insert;
-        sleep 1;
-        $news->new({headline => '^#{}$$^#!+~!~:::::::........', zone => $zone })->insert;
+unless ($skipnews) {
+    out('Send Network 19 messages....');
+    my $news = $db->resultset('Lacuna::DB::Result::News');
+    my @messages = (
+        'We are Sābēn. We have penetrated your defenses, and found them lacking. Goodbye.',
+        'We are Sābēn. We have studied you, and found your weaknesses. You do not have long.',
+        'We are Sābēn. You are in our Demesne. You are not welcome here.',
+    );
+    my $message = $messages[ rand @messages ];
+    foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map_size/x')->[1]/250)) {
+        foreach my $y (int($config->get('map_size/y')->[0]/250) .. int($config->get('map_size/y')->[1]/250)) {
+            my $zone = $x.'|'.$y;
+            say $zone;
+            $news->new({headline => '$~~^#!!^#!@@~!~!*::::::::........', zone => $zone })->insert;
+            sleep 1;
+            $news->new({headline => $message, zone => $zone })->insert;
+            sleep 1;
+            $news->new({headline => '^#{}$$^#!+~!~:::::::........', zone => $zone })->insert;
+        }
     }
 }
 
