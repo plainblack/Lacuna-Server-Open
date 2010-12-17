@@ -18,7 +18,8 @@ Returns a list of buildings that can be upgraded by the Halls of Vrbansk.
             "x" : -3,
             "y" : 2,
             "image" : "oracleanid1",
-            "level" : 1
+            "level" : 1,
+            "url" : "/oracleofanid"
         },
         ...
     ]

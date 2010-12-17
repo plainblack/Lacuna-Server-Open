@@ -27,6 +27,7 @@ sub get_upgradable_buildings {
             y       => $building->y,
             level   => $building->level,
             image   => $building->image_level,
+            url     => $self->app_url,
         };
     }
     return {
