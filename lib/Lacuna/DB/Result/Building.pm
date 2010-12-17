@@ -663,7 +663,7 @@ sub is_not_max_level {
     if ($self->level >= 15 && 'Resources' ~~ [$self->build_tags] && !('Storage' ~~ [$self->build_tags])) { # resource buildings except storage buildings
         my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
         if (defined $stockpile) {
-            if ($self->level + $stockpile->extra_resource_levels > $self->level) {
+            if (15 + $stockpile->extra_resource_levels > $self->level) {
                 return 1;
             }
             else {
