@@ -74,6 +74,7 @@ use constant base_hold_size         => 0;
 use constant pilotable              => 0;
 use constant target_building        => undef;
 use constant build_tags             => [];
+use constant splash_radius          => 0;
 
 sub max_occupants {
     my $self = shift;

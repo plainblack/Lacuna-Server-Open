@@ -63,8 +63,20 @@ after handle_arrival_procedures => sub {
     
     # handle regular building damage
     else {
-        $building->spend_efficiency($amount);
-        $building->update;
+        $building->spend_efficiency($amount)->update;
+        if ($self->splash_radius) {
+            foreach my $i (1..$self->splash_radius) {
+                $amount /= $i + 1;
+                my $splashed = $buildings->search({
+                    x => { between => [$building->x - $i, $building->x + $i] },
+                    y => { between => [$building->y - $i, $building->y + $i] },
+                });
+                while (my $damaged = $splashed->next) {
+                    $damaged->body($body_attacked);
+                    $damaged->spend_efficiency($amount)->update;
+                }
+            }
+        }
         $self->delete;
     }
     confess [-1];
