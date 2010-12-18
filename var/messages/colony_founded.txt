@@ -1,0 +1,7 @@
+Colony Founded
+~~~
+We have established the colony on {Planet %s %s} as you requested. Awaiting initial construction orders.
+
+Regards,
+
+%s Mission Commander

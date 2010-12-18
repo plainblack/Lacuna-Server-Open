@@ -32,7 +32,7 @@ after handle_arrival_procedures => sub {
         $empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'colony_founded.txt',
-            params      => [$planet->name, $planet->name],
+            params      => [$planet->id, $planet->name, $planet->name],
         );
         $empire->is_isolationist(0);
         $empire->update;

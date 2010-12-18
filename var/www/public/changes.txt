@@ -1,6 +1,7 @@
 2.4000
  - Fixed bug where some spy missions would return invalid JSON.
  - Fixed: Halls of Vrbanks get_upgradable_buildings was returning wrong URLs.
+ - Added mission "colony founded" message.
  - Refactored ship classes.
  - Scows are no longer expendable if used to dump waste into a star.
  - Scows no longer have a 0 hold size if you have no Trade Ministry, however the Trade Ministry helps them greatly.
