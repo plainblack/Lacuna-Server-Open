@@ -16,11 +16,7 @@ use constant base_speed             => 10;
 use constant base_stealth           => 0;
 use constant base_hold_size         => 0;
 use constant pilotable              => 1;
-
-around 'build_tags' => sub {
-    my ($orig, $class) = @_;
-    return ($orig->($class), qw(Colonization));
-};
+use constant build_tags             => ['Colonization'];
 
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Uninhabited";
