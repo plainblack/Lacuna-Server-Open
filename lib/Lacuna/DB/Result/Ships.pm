@@ -94,12 +94,11 @@ sub arrive {
     
     # no exceptions, so we either need to go home or land
     if ($self->direction eq 'out') {
-        $self->turn_around;
+        $self->turn_around->update;
     }
     else {
-        $self->land;
+        $self->land->update;
     }
-    $self->update;
 }
 
 sub handle_arrival_procedures {
@@ -236,14 +235,6 @@ sub land {
     $self->task('Docked');
     $self->payload({});
 }
-
-
-
-
-
-
-
-
 
 
 
