@@ -103,9 +103,10 @@ sub get_buildable {
         my $can = eval{$building->can_build_ship($ship)};
         $buildable{$type} = {
             attributes  => {
-                speed       =>  $building->set_ship_speed($ship),
-                stealth     =>  $building->set_ship_stealth($ship),
-                hold_size   =>  $building->set_ship_hold_size($ship),
+                speed       => $building->set_ship_speed($ship),
+                stealth     => $building->set_ship_stealth($ship),
+                hold_size   => $building->set_ship_hold_size($ship),
+                combat      => $building->set_ship_combat($ship),
             },
             tags        => \@tags,
             cost        => $building->get_ship_costs($ship),

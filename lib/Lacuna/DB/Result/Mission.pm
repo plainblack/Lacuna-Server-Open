@@ -122,6 +122,7 @@ sub add_rewards {
                 type        => $ship->{type},
                 name        => $ship->{type},
                 speed       => $ship->{speed},
+                combat      => $ship->{combat},
                 stealth     => $ship->{stealth},
                 hold_size   => $ship->{hold_size},
                 body_id     => $body->id,
@@ -173,6 +174,7 @@ sub spend_objectives {
                 {
                     task        => 'Docked',
                     type        => $ship->{type},
+                    combat      => {'>=' => $ship->{combat}},
                     speed       => {'>=' => $ship->{speed}},
                     stealth     => {'>=' => $ship->{stealth}},
                     hold_size   => {'>=' => $ship->{hold_size}},
@@ -240,6 +242,7 @@ sub check_objectives {
         foreach my $ship (@{$objectives->{ships}}) {
             my $this = $body->ships->search({
                     type        => $ship->{type},
+                    combat      => {'>=' => $ship->{combat}},
                     speed       => {'>=' => $ship->{speed}},
                     stealth     => {'>=' => $ship->{stealth}},
                     hold_size   => {'>=' => $ship->{hold_size}},
@@ -336,8 +339,8 @@ sub format_items {
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     foreach my $stats (@{ $items->{ships}}) {
         my $ship = $ships->new({type=>$stats->{type}});
-        my $pattern = $is_objective ? '%s (speed >= %s, stealth >= %s, hold size >= %s)' : '%s (speed: %s, stealth: %s, hold size: %s)' ;
-        push @items, sprintf($pattern, $ship->type_formatted, commify($stats->{speed}), commify($stats->{stealth}), commify($stats->{hold_size}));
+        my $pattern = $is_objective ? '%s (speed >= %s, stealth >= %s, hold size >= %s, combat >= %s)' : '%s (speed: %s, stealth: %s, hold size: %s, combat: %s)' ;
+        push @items, sprintf($pattern, $ship->type_formatted, commify($stats->{speed}), commify($stats->{stealth}), commify($stats->{hold_size}), commify($stats->{combat}));
     }
 
     # fleet movement

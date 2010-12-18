@@ -17,33 +17,48 @@ after handle_arrival_procedures => sub {
     return if $body_attacked->empire_id == $self->body->empire_id;
         
     # get defensive ships
-    my $defense = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+    my $defense_ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         { body_id => $self->foreign_body_id, type => { in => [qw(drone fighter)]}, task=>'Docked'},
-        { rows => 1 }
-        )->single;
+        );
     
     # if there are defensive ships let's duke it out
-    if (defined $defense) {
-        $self->body->empire->send_predefined_message(
-            tags        => ['Alert'],
-            filename    => 'ship_shot_down.txt',
-            params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $self->body->id, $self->body->name],
-        );
-        $body_attacked->empire->send_predefined_message(
-            tags        => ['Alert'],
-            filename    => 'we_shot_down_a_ship.txt',
-            params      => [$self->type_formatted, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
-        );
-        $body_attacked->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
-        $self->delete;
-        if ($defense->type eq 'fighter' && randint(1,100) > 50) {
-            # fighter lives
+    while (my $defender = $defense_ships->next) {
+        my $damage = $defender->combat;
+        if ($defender->type eq 'drone') {
+            $defender->delete;
         }
         else {
-            $defense->delete;
+            $defender->combat( $defender->combat - $damage );
+            if ($defender->combat < 1) {
+                $defender->delete;
+            }
+            else {
+                $defender->send(target => $body_attacked->star);
+            }
         }
-        confess [-1]
+        $self->damage_in_combat($damage);
     }
 };
+
+
+sub damage_in_combat {
+    my ($self, $damage) = @_;
+    $self->combat( $self->combat - $damage );
+    return unless $self->combat < 1;
+    my $body_attacked = $self->foreign_body;
+    $self->body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'ship_shot_down.txt',
+        params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $self->body->id, $self->body->name],
+    );
+    $body_attacked->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'we_shot_down_a_ship.txt',
+        params      => [$self->type_formatted, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
+    );
+    $body_attacked->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
+    $self->destroy;
+    confess [-1]
+}
 
 1;

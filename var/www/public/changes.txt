@@ -1,8 +1,20 @@
 2.4000
  - Refactored ship classes.
  - Scows are no longer expendable if used to dump waste into a star.
+ - Scows no longer have a 0 hold size if you have no Trade Ministry, however the Trade Ministry helps them greatly.
  - Excavators now work on inhabited planets.
  - All ships now return max_occupants in their status.
+ - Ships now have a combat rating, which is used in ship-to-ship combat calculations.
+ - Munitions lab gives a 5% bonus to combat rating, but increases ship cost by 3%.
+ - Deception and Science affinities each give a 3% bonus to combat rating.
+ - The Crashed Ship Site gives a 5% bonus to combat rating.
+ - All ships, except drones, can now survive ship-to-ship combat if their combat rating is higher than the ship going against them.
+ - Ships lose combat rating equal to the amount of the combat rating of the ships they fight.
+ - Fighters now die based upon their combat rating going to zero, rather than a random roll of the dice.
+ - Fighters no longer instantly reset after combat. Their speed determines how quickly they get back into a reset position.
+ - If you have existing fighters, and they had a speed lower than 2000, it is now 2000.
+ - The level of the Shipyard building the ship now adds a 1% bonus per level to all attributes of the ship, without raising its cost.
+
 
 2.3902
  - Halls of Vrbansk now also returns building URL.

@@ -13,6 +13,7 @@ use constant base_ore_cost          => 2900;
 use constant base_time_cost         => 3600;
 use constant base_waste_cost        => 520;
 use constant base_speed             => 3000;
+use constant base_combat            => 200;
 use constant base_stealth           => 3700;
 use constant base_hold_size         => 0;
 use constant build_tags             => [qw(Exploration Intelligence)];

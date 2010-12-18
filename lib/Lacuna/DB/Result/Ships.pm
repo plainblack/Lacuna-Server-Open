@@ -20,6 +20,7 @@ __PACKAGE__->add_columns(
     name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     speed                   => { data_type => 'int', size => 11, is_nullable => 0 },
     stealth                 => { data_type => 'int', size => 11, is_nullable => 0 },
+    combat                  => { data_type => 'int', size => 11, is_nullable => 0 },
     hold_size               => { data_type => 'int', size => 11, is_nullable => 0 },
     payload                 => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
     roundtrip               => { data_type => 'bit', default_value => 0 },
@@ -67,6 +68,7 @@ use constant base_ore_cost          => 1;
 use constant base_time_cost         => 1;
 use constant base_waste_cost        => 1;
 use constant base_speed             => 1;
+use constant base_combat            => 0;
 use constant base_stealth           => 0;
 use constant base_hold_size         => 0;
 use constant pilotable              => 0;
@@ -151,6 +153,7 @@ sub get_status {
         task            => $self->task,
         speed           => $self->speed,
         stealth         => $self->stealth,
+        combat          => $self->combat,
         hold_size       => $self->hold_size,
         date_started    => $self->date_started_formatted,
         date_available  => $self->date_available_formatted,

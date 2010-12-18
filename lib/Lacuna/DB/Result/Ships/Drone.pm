@@ -13,6 +13,7 @@ use constant base_ore_cost          => 3550;
 use constant base_time_cost         => 3650;
 use constant base_waste_cost        => 1050;
 use constant base_speed             => 0;
+use constant base_combat            => 6000;
 use constant base_stealth           => 0;
 use constant base_hold_size         => 0;
 use constant build_tags             => ['War'];

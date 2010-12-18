@@ -23,6 +23,12 @@ sub get_ship_costs {
             $percentage_of_cost += $trade->level * 3;
         }
     }
+    if ($ship->base_combat) {
+        my $munitions = $self->munitions_lab;
+        if (defined $munitions) {
+            $percentage_of_cost += $munitions->level * 3;
+        }
+    }
     if ($ship->base_stealth) {
         my $cloak = $self->cloaking_lab;
         if (defined $cloak) {
@@ -127,6 +133,7 @@ sub build_ship {
     $ship->body_id($self->body_id);
     $ship->shipyard_id($self->id);
     $self->set_ship_speed($ship);
+    $self->set_ship_combat($ship);
     $self->set_ship_hold_size($ship);
     $self->set_ship_stealth($ship);
     $time ||= $self->get_ship_costs($ship)->{seconds};
@@ -224,25 +231,42 @@ has trade_ministry => (
     },
 );
 
+has munitions_lab => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->body->get_building_of_class('Lacuna::DB::Result::Building::MunitionsLab');
+    },
+);
+
 sub set_ship_speed {
     my ($self, $ship) = @_;
     my $propulsion_level = (defined $self->propulsion_factory) ? $self->propulsion_factory->level : 0;
     my $css_level = (defined $self->crashed_ship_site) ? $self->crashed_ship_site->level : 0;
     my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 0;
-    my $speed_improvement = 1 + ($ptf * 0.03) + ($propulsion_level * 0.05) + ($css_level * 0.05) + ($self->body->empire->science_affinity * 0.03);
-    $ship->speed(sprintf('%.0f', $ship->base_speed * $speed_improvement));
+    my $improvement = 1 + ($self->level * 0.01) + ($ptf * 0.03) + ($propulsion_level * 0.05) + ($css_level * 0.05) + ($self->body->empire->science_affinity * 0.03);
+    $ship->speed(sprintf('%.0f', $ship->base_speed * $improvement));
     return $ship->speed;
+}
+
+sub set_ship_combat {
+    my ($self, $ship) = @_;
+    my $css_level = (defined $self->crashed_ship_site) ? $self->crashed_ship_site->level : 0;
+    my $munitions = (defined $self->munitions_lab) ? $self->munitions_lab->level : 0;
+    my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 0;
+    my $improvement = 1 + ($self->level * 0.01) + ($ptf * 0.03) + ($munitions * 0.05) + ($css_level * 0.05) + ($self->body->empire->deception_affinity * 0.03) + ($self->body->empire->science_affinity * 0.03);
+    $ship->combat(sprintf('%.0f', $ship->base_combat * $improvement));
+    return $ship->combat;
 }
 
 sub set_ship_hold_size {
     my ($self, $ship) = @_;
     my $trade_ministry_level = (defined $self->trade_ministry) ? $self->trade_ministry->level : 0;
     my $css_level = (defined $self->crashed_ship_site) ? $self->crashed_ship_site->level : 0;
-    my $bonus = $self->body->empire->trade_affinity * $trade_ministry_level;
-    my $css_bonus = (defined $self->crashed_ship_site) ? 1 + ($self->crashed_ship_site->level * 0.05) : 1;
-    my $hold_size = $ship->base_hold_size * $bonus;
-    $hold_size *= $css_bonus;
-    $ship->hold_size(sprintf('%.0f', $hold_size));
+    my $improvement = 1 + ($self->level * 0.01) + ($css_level * 0.05);
+    my $trade_bonus = $self->body->empire->trade_affinity * ( $trade_ministry_level || 0.1 );
+    $ship->hold_size(sprintf('%.0f', $ship->base_hold_size * $trade_bonus * $improvement));
     return $ship->hold_size;
 }
 
@@ -251,8 +275,8 @@ sub set_ship_stealth {
     my $cloaking_level = (defined $self->cloaking_lab) ? $self->cloaking_lab->level : 1;
     my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 1;
     my $css_level = (defined $self->crashed_ship_site) ? $self->crashed_ship_site->level : 0;
-    my $stealth_improvement = 1 + ($ptf * 0.03) + ($cloaking_level * 0.05) + ($css_level * 0.05) + ($self->body->empire->deception_affinity * 0.03);
-    $ship->stealth(sprintf('%.0f', $ship->base_stealth * $stealth_improvement ));
+    my $improvement = 1 + ($self->level * 0.01) + ($ptf * 0.03) + ($cloaking_level * 0.05) + ($css_level * 0.05) + ($self->body->empire->deception_affinity * 0.03);
+    $ship->stealth(sprintf('%.0f', $ship->base_stealth * $improvement ));
     return $ship->stealth;
 }
 
