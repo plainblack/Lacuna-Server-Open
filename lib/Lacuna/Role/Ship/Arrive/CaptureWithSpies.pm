@@ -2,6 +2,7 @@ package Lacuna::Role::Ship::Arrive::CaptureWithSpies;
 
 use strict;
 use Moose::Role;
+use Lacuna::Util qw(randint);
 
 after handle_arrival_procedures => sub {
     my ($self) = @_;
