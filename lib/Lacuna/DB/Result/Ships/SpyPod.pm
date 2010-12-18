@@ -5,38 +5,25 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
         
-use constant prereq         => { class=> 'Lacuna::DB::Result::Building::Espionage',  level => 1 };
-use constant base_food_cost      => 200;
-use constant base_water_cost     => 600;
-use constant base_energy_cost    => 4000;
-use constant base_ore_cost       => 3400;
-use constant base_time_cost      => 3600;
-use constant base_waste_cost     => 1000;
-use constant base_speed     => 2000;
-use constant base_stealth   => 10000;
-use constant base_hold_size => 0;
-use constant pilotable      => 1;
+use constant prereq                 => { class=> 'Lacuna::DB::Result::Building::Espionage',  level => 1 };
+use constant base_food_cost         => 200;
+use constant base_water_cost        => 600;
+use constant base_energy_cost       => 4000;
+use constant base_ore_cost          => 3400;
+use constant base_time_cost         => 3600;
+use constant base_waste_cost        => 1000;
+use constant base_speed             => 2000;
+use constant base_stealth           => 10000;
+use constant base_hold_size         => 0;
+use constant pilotable              => 1;
+use constant build_tags             => ['Intelligence'];
+use constant max_occupants          => 4;
 
-around 'build_tags' => sub {
-    my ($orig, $class) = @_;
-    return ($orig->($class), qw(Intelligence));
-};
-
-sub arrive {
-    my ($self) = @_;
-    $self->note_arrival;
-    unless ($self->capture_with_spies) {
-        $self->delete;
-    }
-}
-
-sub can_send_to_target {
-    my ($self, $target) = @_;
-    confess [1009, 'Can only be sent to planets.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet'));
-    confess [1013, 'Can only be sent to inhabited planets.'] unless ($target->empire_id);
-    confess [1013, sprintf('%s is an isolationist empire, and must be left alone.',$target->empire->name)] if $target->empire->is_isolationist;
-    return 1;
-}
+with "Lacuna::Role::Ship::Send::Planet";
+with "Lacuna::Role::Ship::Send::Inhabited";
+with "Lacuna::Role::Ship::Send::NotIsolationist";
+with "Lacuna::Role::Ship::Send::LoadWithSpies";
+with "Lacuna::Role::Ship::Arrive::CaptureWithSpies";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

@@ -96,7 +96,7 @@ sub get_buildable {
     my %buildable;
     foreach my $type (SHIP_TYPES) {
         my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>$type});
-        my @tags = $ship->build_tags;
+        my @tags = @{$ship->build_tags};
         if ($tag) {
             next unless ($tag ~~ \@tags);
         }

@@ -118,72 +118,10 @@ sub send_ship {
     unless ($ship->body->empire_id == $empire->id) {
         confess [1010, 'You do not own that ship.'];
     }
-    unless ($ship->task eq 'Docked') {
-        confess [1010, 'That ship is busy.'];
-    }
-    my $payload;
     my $body = $ship->body;
     $body->empire($empire);
     $ship->can_send_to_target($target);
-    given($ship->type) {
-        when ('excavator') {
-            Lacuna->cache->set('excavator_'.$target->id, $empire->id, 1, 60 * 60 * 24 * 30);
-        }
-        when ('scow') {
-            $body->spend_waste($ship->hold_size)->update;
-            $payload = { resources => { waste => $ship->hold_size } };
-        }
-        when ('short_range_colony_ship') {
-            my $next_colony_cost = $empire->next_colony_cost;
-            $body->spend_happiness($next_colony_cost)->update;
-            $payload = { colony_cost => $next_colony_cost };
-        }
-        when ('colony_ship') {
-            my $next_colony_cost = $empire->next_colony_cost;
-            $body->spend_happiness($next_colony_cost)->update;
-            $payload = { colony_cost => $next_colony_cost };
-        }
-        when ('spy_pod') {
-            my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-                {task => ['in','Idle','Training'], on_body_id=>$body->id, empire_id=>$empire->id},
-            );
-            my $spy;
-            while (my $possible_spy = $spies->next) {
-                if ($possible_spy->is_available) {
-                    $spy = $possible_spy;
-                    last;
-                }
-            }
-            confess [ 1002, 'You have no idle spies to send.'] unless (defined $spy);
-            $spy->available_on(DateTime->now->add(seconds=>$ship->calculate_travel_time($target)));
-            $spy->on_body_id($target->id);
-            $spy->task('Travelling');
-            $spy->started_assignment(DateTime->now);
-            $spy->update;
-            $payload = { spies => [ $spy->id ] };
-        }
-        when ('spy_shuttle') {
-            my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-                {task => ['in','Idle','Training'], on_body_id=>$body->id, empire_id=>$empire->id},
-            );
-            my @spies;
-            my $arrives = DateTime->now->add(seconds=>$ship->calculate_travel_time($target));
-            while (my $spy = $spies->next) {
-                if ($spy->is_available) {
-                    $spy->available_on($arrives);
-                    $spy->on_body_id($target->id);
-                    $spy->task('Travelling');
-                    $spy->started_assignment(DateTime->now);
-                    $spy->update;
-                    push @spies, $spy->id;
-                    last if (scalar(@spies) == 4);
-                }
-            }
-            confess [ 1002, 'You have no idle spies to send.'] unless (scalar(@spies));
-            $payload = { spies => \@spies };
-        }
-    }        
-    $ship->send(target => $target, payload => $payload);
+    $ship->send(target => $target);
     return {
         ship    => $ship->get_status,
         status  => $self->format_status($empire),

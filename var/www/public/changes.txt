@@ -1,3 +1,9 @@
+2.4000
+ - Refactored ship classes.
+ - Scows are no longer expendable if used to dump waste into a star.
+ - Excavators now work on inhabited planets.
+ - All ships now return max_occupants in their status.
+
 2.3902
  - Halls of Vrbansk now also returns building URL.
  - Fixed a problem where your resource buildings could exceed the stockpile limit.

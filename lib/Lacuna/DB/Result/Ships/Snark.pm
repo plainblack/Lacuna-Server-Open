@@ -5,37 +5,23 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 
-use constant prereq             => { class=> 'Lacuna::DB::Result::Building::MunitionsLab',  level => 5 };
-use constant base_food_cost     => 18000;
-use constant base_water_cost    => 46800;
-use constant base_energy_cost   => 145000;
-use constant base_ore_cost      => 195030;
-use constant base_time_cost     => 58400;
-use constant base_waste_cost    => 39600;
-use constant base_speed         => 1000;
-use constant base_stealth       => 3000;
-use constant base_hold_size     => 0;
+use constant prereq                 => { class=> 'Lacuna::DB::Result::Building::MunitionsLab',  level => 5 };
+use constant base_food_cost         => 18000;
+use constant base_water_cost        => 46800;
+use constant base_energy_cost       => 145000;
+use constant base_ore_cost          => 195030;
+use constant base_time_cost         => 58400;
+use constant base_waste_cost        => 39600;
+use constant base_speed             => 1000;
+use constant base_stealth           => 3000;
+use constant base_hold_size         => 0;
+use constant build_tags             => ['War'];
 
-
-around 'build_tags' => sub {
-    my ($orig, $class) = @_;
-    return ($orig->($class), qw(War));
-};
-
-sub arrive {
-    my ($self) = @_;
-    $self->note_arrival;
-    unless ($self->trigger_defense) {
-        $self->damage_building;
-    }
-}
-
-sub can_send_to_target {
-    my ($self, $target) = @_;
-    confess [1009, 'Can only be sent to planets.'] unless ($target->isa('Lacuna::DB::Result::Map::Body::Planet'));
-    confess [1013, 'Can only be sent to inhabited planets.'] unless ($target->empire_id);
-    return 1;
-}
+with "Lacuna::Role::Ship::Send::Planet";
+with "Lacuna::Role::Ship::Send::Inhabited";
+with "Lacuna::Role::Ship::Send::NotIsolationist";
+with "Lacuna::Role::Ship::Arrive::TriggerDefense";
+with "Lacuna::Role::Ship::Arrive::DamageBuilding";
 
 
 no Moose;

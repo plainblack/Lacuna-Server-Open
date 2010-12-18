@@ -5,30 +5,23 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
         
-use constant prereq         => { class=> 'Lacuna::DB::Result::Building::CloakingLab',  level => 1 };
-use constant base_food_cost      => 1500;
-use constant base_water_cost     => 3900;
-use constant base_energy_cost    => 27000;
-use constant base_ore_cost       => 16800;
-use constant base_time_cost      => 28800;
-use constant base_waste_cost     => 1800;
-use constant base_speed     => 1500;
-use constant base_stealth   => 5000;
-use constant base_hold_size => 480;
-use constant pilotable      => 1;
+use constant prereq                 => { class=> 'Lacuna::DB::Result::Building::CloakingLab',  level => 1 };
+use constant base_food_cost         => 1500;
+use constant base_water_cost        => 3900;
+use constant base_energy_cost       => 27000;
+use constant base_ore_cost          => 16800;
+use constant base_time_cost         => 28800;
+use constant base_waste_cost        => 1800;
+use constant base_speed             => 1500;
+use constant base_stealth           => 5000;
+use constant base_hold_size         => 480;
+use constant pilotable              => 1;
+use constant build_tags             => [qw(Trade Mining Intelligence)];
 
-around 'build_tags' => sub {
-    my ($orig, $class) = @_;
-    return ($orig->($class), qw(Trade Mining Intelligence));
-};
-
-sub arrive {
-    my ($self) = @_;
-    $self->note_arrival;
-    unless ($self->capture_with_spies) {
-        $self->handle_cargo_exchange;
-    }
-}
+with "Lacuna::Role::Ship::Send::UsePush";
+with "Lacuna::Role::Ship::Arrive::CaptureWithSpies";
+with "Lacuna::Role::Ship::Arrive::CargoExchange";
+with "Lacuna::Role::Ship::Arrive::PickUpSpies";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

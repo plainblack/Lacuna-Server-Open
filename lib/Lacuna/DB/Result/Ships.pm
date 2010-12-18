@@ -59,21 +59,55 @@ __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 __PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Result::Map::Star', 'foreign_star_id');
 __PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Result::Map::Body', 'foreign_body_id');
 
-use constant prereq         => { class=> 'Lacuna::DB::Result::Building::University',  level => 1 };
-use constant base_food_cost      => 1;
-use constant base_water_cost     => 1;
-use constant base_energy_cost    => 1;
-use constant base_ore_cost       => 1;
-use constant base_time_cost      => 1;
-use constant base_waste_cost     => 1;
-use constant base_speed     => 1;
-use constant base_stealth   => 0;
-use constant base_hold_size => 0;
-use constant pilotable      => 0;
+use constant prereq                 => { class=> 'Lacuna::DB::Result::Building::University',  level => 1 };
+use constant base_food_cost         => 1;
+use constant base_water_cost        => 1;
+use constant base_energy_cost       => 1;
+use constant base_ore_cost          => 1;
+use constant base_time_cost         => 1;
+use constant base_waste_cost        => 1;
+use constant base_speed             => 1;
+use constant base_stealth           => 0;
+use constant base_hold_size         => 0;
+use constant pilotable              => 0;
+use constant target_building        => undef;
+use constant build_tags             => [];
 
+sub max_occupants {
+    my $self = shift;
+    return 0 unless $self->pilotable;
+    return int($self->hold_size / 350);
+}
 
-sub build_tags {
-    return ();  
+sub arrive {
+    my $self = shift;
+    eval {$self->handle_arrival_procedures}; # throws exceptions to stop subsequent actions from happening
+    if (ref $@ eq 'ARRAY' && $@->[0] eq -1) {
+        # this is an expected exception, it means one of the roles took over
+    }
+    elsif ($@) {
+        # this is unexpected, so let's rethrow
+        confess $@;
+    }
+    
+    # no exceptions, so we either need to go home or land
+    if ($self->direction eq 'out') {
+        $self->turn_around;
+    }
+    else {
+        $self->land;
+    }
+    $self->update;
+}
+
+sub handle_arrival_procedures {
+    my $self = shift;
+    $self->note_arrival;
+}
+
+sub note_arrival {
+    my $self = shift;
+    Lacuna->cache->increment($self->type.'_arrive_'.$self->foreign_body_id.$self->foreign_star_id, $self->body->empire_id,1, 60*60*24*30);
 }
 
 sub is_available {
@@ -82,7 +116,11 @@ sub is_available {
 }
 
 sub can_send_to_target {
-    confess [1009, 'Cannot be used in that manner.'];
+    my $self = shift;
+    unless ($self->task eq 'Docked') {
+        confess [1010, 'That ship is busy.'];
+    }
+    return 1;
 }
 
 sub type_formatted {
@@ -116,6 +154,7 @@ sub get_status {
         hold_size       => $self->hold_size,
         date_started    => $self->date_started_formatted,
         date_available  => $self->date_available_formatted,
+        max_occupants   => $self->max_occupants,
     );
     if ($target) {
         $status{estimated_travel_time} = $self->calculate_travel_time($target);
@@ -155,7 +194,6 @@ sub turn_around {
     $self->direction( ($self->direction eq 'out') ? 'in' : 'out' );
     $self->date_available(DateTime->now->add_duration( $self->date_available - $self->date_started ));
     $self->date_started(DateTime->now);
-    $self->update;
     return $self;
 }
 
@@ -193,200 +231,19 @@ sub finish_construction {
 sub land {
     my ($self) = @_;
     $self->task('Docked');
-    $self->update;
+    $self->payload({});
 }
 
 
-sub arrive {
-    confess 'override me';
-}
-
-sub note_arrival {
-    my $self = shift;
-    Lacuna->cache->increment($self->type.'_arrive_'.$self->foreign_body_id.$self->foreign_star_id, $self->body->empire_id,1, 60*60*24*30);
-}
-
-sub capture_with_spies {
-    my ($self) = @_;
-    return 0 if $self->direction eq 'in';
-    return 0 unless (
-        (exists $self->payload->{spies} && scalar(@{$self->payload->{spies}}))
-        || (exists $self->payload->{fetch_spies} && scalar(@{$self->payload->{fetch_spies}}))
-        );
-    my $body = $self->foreign_body;
-    return 0 if ($body->empire_id == $self->body->empire_id);
-    return 0 if ($body->empire->alliance_id == $self->body->empire->alliance_id);
-    my $security = $body->get_building_of_class('Lacuna::DB::Result::Building::Security');
-    return 0 unless defined $security && $security->efficiency > 0;
-    my $security_boost = $security->level * $security->efficiency;
-    return 0 unless (randint(1,10000) + $security_boost > $self->stealth);
-    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
-    foreach my $id ((@{$self->payload->{spies}}, @{$self->payload->{fetch_spies}})) {
-        next unless $id;
-        my $spy = $spies->find($id);
-        next unless defined $spy;
-        $spy->go_to_jail;
-        $spy->update;
-    }
-    $self->body->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'ship_captured_with_spies.txt',
-        params      => [$self->name, $body->x, $body->y, $body->name],
-    );
-    $self->delete;
-    return 1;
-}
 
 
-sub pick_up_spies {
-    my $self = shift;
-    my $empire_id = $self->body->empire_id;
-    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
-    my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
-    $cargo_log->new({
-        message     => 'before pick up spies',
-        body_id     => $self->foreign_body_id,
-        data        => $self->payload,
-        object_type => ref($self),
-        object_id   => $self->id,
-    })->insert;
-    my @riding;
-    foreach my $id (@{$self->payload->{fetch_spies}}) {
-        my $spy = $spies->find($id);
-        next unless defined $spy;
-    $cargo_log->new({
-        message     => 'found spy',
-        body_id     => $self->foreign_body_id,
-        data        => {spy => $id},
-        object_type => ref($self),
-        object_id   => $self->id,
-    })->insert;
-        next unless $spy->is_available;
-    $cargo_log->new({
-        message     => 'spy is available',
-        body_id     => $self->foreign_body_id,
-        data        => {spy => $id},
-        object_type => ref($self),
-        object_id   => $self->id,
-    })->insert;
-        next unless $spy->empire_id eq $empire_id;
-    $cargo_log->new({
-        message     => 'empire matches up',
-        body_id     => $self->foreign_body_id,
-        data        => {spy => $id},
-        object_type => ref($self),
-        object_id   => $self->id,
-    })->insert;
-        push @riding, $spy->id;
-        $spy->available_on($self->date_available);
-        $spy->on_body_id($self->body_id);
-        $spy->task('Travelling');
-        $spy->started_assignment(DateTime->now),
-        $spy->update;
-    }
-    my $payload = $self->payload;
-    delete $payload->{fetch_spies};
-    $payload->{spies} = \@riding;
-    $self->payload($payload);
-    $cargo_log->new({
-        message     => 'after pick up spies',
-        body_id     => $self->foreign_body_id,
-        data        => $self->payload,
-        object_type => ref($self),
-        object_id   => $self->id,
-    })->insert;
-    $self->update;
-}
 
-sub handle_cargo_exchange {
-    my $self = shift;
-    if ($self->direction eq 'out') {
-        $self->unload($self->payload, $self->foreign_body);
-        $self->turn_around;
-        $self->pick_up_spies; # goes after turn around so we have the new date available
-    }
-    else {
-        $self->unload($self->payload, $self->body);
-        $self->payload({});
-        $self->land;
-    }
-}
 
-sub trigger_defense {
-    my $self = shift;
-    my $body_attacked = $self->foreign_body;
-    my $defense = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        { body_id => $self->foreign_body_id, type => { in => [qw(drone fighter)]}, task=>'Docked'},
-        { rows => 1 }
-        )->single;
-    if (defined $defense) {
-        $self->body->empire->send_predefined_message(
-            tags        => ['Alert'],
-            filename    => 'ship_shot_down.txt',
-            params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $self->body->id, $self->body->name],
-        );
-        $body_attacked->empire->send_predefined_message(
-            tags        => ['Alert'],
-            filename    => 'we_shot_down_a_ship.txt',
-            params      => [$self->type_formatted, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
-        );
-        $body_attacked->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
-        $self->delete;
-        if ($defense->type eq 'fighter' && randint(1,100) > 50) {
-            # fighter lives
-        }
-        else {
-            $defense->delete;
-        }
-        return 1;
-    }
-    return 0;
-}
 
-sub damage_building {
-    my ($self, $building) = @_;
-    my $body_attacked = $self->foreign_body;
-    my $buildings = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({ body_id => $self->foreign_body_id });
-    $building ||= $buildings->search(undef,{order_by => { -desc => 'efficiency'}, rows=>1})->single;
-    $building->body($body_attacked);
-    my $amount = randint(10,70);
-    my $citadel = $buildings->search({class=>'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope'},{rows=>1})->single;
-    if (defined $citadel) {
-        $building = $citadel;
-    }
-    $body_attacked->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'ship_hit_building.txt',
-        params      => [$self->type_formatted, $building->name, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
-    );
-    $self->body->empire->send_predefined_message(
-        tags        => ['Alert'],
-        filename    => 'our_ship_hit_building.txt',
-        params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $building->name, $amount],
-    );
-    $body_attacked->add_news(70, sprintf('An attack ship screamed out of the sky and damaged the %s on %s.',$building->name, $body_attacked->name));
-    if (defined $citadel) {
-        if ($citadel->level < 2) {
-            $citadel->delete;
-            $self->delete;
-        }
-        else {
-            $citadel->level($citadel->level - 1);
-            $citadel->update;
-            if ($citadel->efficiency) {
-                $self->body_id($body_attacked->id);
-                $self->land;
-            }
-        }
-        $body_attacked->needs_surface_refresh(1);
-        $body_attacked->update;
-    }
-    else {
-        $building->spend_efficiency($amount);
-        $building->update;
-        $self->delete;
-    }
-}
+
+
+
+
 
 # DISTANCE
 
