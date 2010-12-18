@@ -857,7 +857,7 @@ sub uprising {
 
 sub knock_defender_unconscious {
     my ($self, $defender) = @_;
-    return $self->no_contact unless (defined $defender);
+    return $self->no_contact->id unless (defined $defender);
     $defender->knock_out;
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
@@ -874,14 +874,14 @@ sub knock_attacker_unconscious {
 
 sub turn_defender {
     my ($self, $defender) = @_;
-    return $self->no_contact unless (defined $defender);
+    return $self->no_contact->id unless (defined $defender);
     $self->on_body->add_news(70,'Military leaders on %s are calling for a no confidence vote about the Governor.', $self->on_body->name);
     return $self->turn_a_spy($defender)->id;
 }
 
 sub turn_riot_cop {
     my ($self, $defender) = @_;
-    return $self->no_contact unless (defined $defender);
+    return $self->no_contact->id unless (defined $defender);
     $self->on_body->add_news(70,'In a shocking turn of events, police could be seen leaving their posts to join the protesters on %s today.', $self->on_body->name);
     return $self->turn_a_spy($defender)->id;
 }
@@ -918,7 +918,7 @@ sub civil_unrest {
 
 sub calm_the_rebels {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless defined $defender;
+    return $self->get_spooked->id unless defined $defender;
     $self->sow_bliss(randint(250,2500));
     $self->on_body->add_news(100,'In an effort to bring an swift end to the rebellion, the %s Governor delivered an eloquent speech about hope.', $self->on_body->name);
     return undef;
@@ -926,7 +926,7 @@ sub calm_the_rebels {
 
 sub peace_talks {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless defined $defender;
+    return $self->get_spooked->id unless defined $defender;
     $self->sow_bliss(randint(500,5000));
     $self->on_body->add_news(100,'Officials from both sides of the rebellion are at the Planetary Command Center on %s today to discuss peace.', $self->on_body->name);
     return undef;
@@ -934,7 +934,7 @@ sub peace_talks {
 
 sub day_of_rest {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless defined $defender;
+    return $self->get_spooked->id unless defined $defender;
     $self->sow_bliss(randint(2500,25000));
     $self->on_body->add_news(100,'The Governor of %s declares a day of rest and peace. Citizens rejoice.', $self->on_body->name);
     return undef;
@@ -942,7 +942,7 @@ sub day_of_rest {
 
 sub festival {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless defined $defender;
+    return $self->get_spooked->id unless defined $defender;
     $self->sow_bliss(randint(1000,10000));
     $self->on_body->add_news(100,'The %s Governor calls it the %s festival. Whatever you call it, people are happy.', $self->on_body->name, $self->on_body->star->name);
     return undef;
@@ -950,42 +950,42 @@ sub festival {
 
 sub turn_defector {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(60,'%s has just announced plans to defect from %s to %s.', $self->name, $self->empire->name, $defender->empire->name);
     return $defender->turn_a_spy($self)->id;
 }
 
 sub turn_rebel {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(70,'The %s Governor\'s call for peace appears to be working. Several rebels told this reporter they are going home.', $self->on_body->name);
     return $defender->turn_a_spy($self)->id;
 }
 
 sub capture_rebel {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(50,'Police say they have crushed the rebellion on %s by apprehending %s.', $self->on_body->name, $self->name);
     return $defender->capture_a_spy($self)->id;
 }
 
 #sub kill_rebel {
 #    my ($self, $defender) = @_;
-#    return $self->get_spooked unless (defined $defender);
+#    return $self->get_spooked->id unless (defined $defender);
 #    kill_a_spy($self->on_body, $self, $defender);
 #    $self->on_body->add_news(80,'The leader of the rebellion to overthrow %s was killed in a firefight today on %s.', $self->on_body->empire->name, $self->on_body->name);
 #}
 #
 #sub kill_mutaneer {
 #    my ($self, $defender) = @_;
-#    return $self->get_spookedunless (defined $defender);
+#    return $self->get_spooked->id unless (defined $defender);
 #    kill_a_spy($self->on_body, $self, $defender);
 #    $self->on_body->add_news(80,'Double agent %s of %s was executed on %s today.', $self->name, $self->empire->name, $self->on_body->name);
 #}
 
 sub thwart_rebel {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(20,'The rebel leader, known as %s, is still eluding authorities on %s at this hour.', $self->name, $self->on_body->name);
     return $defender->thwart_a_spy($self)->id;
 }
@@ -1101,7 +1101,7 @@ sub destroy_mining_ship {
 
 sub capture_saboteur {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(40,'A saboteur was apprehended on %s today by %s authorities.', $self->on_body->name, $self->on_body->empire->name);
     return $defender->capture_a_spy($self)->id;
 }
@@ -1115,7 +1115,7 @@ sub capture_saboteur {
 
 sub thwart_saboteur {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(20,'%s authorities on %s are conducting a manhunt for a suspected saboteur.', $self->on_body->empire->name, $self->on_body->name);
     return $defender->thwart_a_spy($self)->id;
 }
@@ -1238,21 +1238,21 @@ sub steal_building {
 
 #sub kill_thief {
 #    my ($self, $defender) = @_;
-#    return $self->get_spooked unless (defined $defender);
+#    return $self->get_spooked->id unless (defined $defender);
 #    kill_a_spy($self->on_body, $self, $defender);
 #    $self->on_body->add_news(70,'%s police caught and killed a thief on %s during the commission of the hiest.', $self->on_body->empire->name, $self->on_body->name);
 #}
 
 sub capture_thief {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(40,'%s announced the incarceration of a thief on %s today.', $self->on_body->empire->name, $self->on_body->name);
     return $defender->capture_a_spy($self)->id;
 }
 
 sub thwart_thief {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(20,'A thief evaded %s authorities on %s. Citizens are warned to lock their doors.', $self->on_body->empire->name, $self->on_body->name);
     return $defender->thwart_a_spy($self)->id;
 }
@@ -1353,7 +1353,7 @@ sub hack_observatory_probes {
 
 sub hack_offending_probes {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     my @safe = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({task=>'Counter Espionage', on_body_id=>$defender->on_body_id})->get_column('empire_id')->all;
     my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $self->on_body->star_id, empire_id => {'not in' => \@safe} }, {rows=>1})->single;
     return $self->probe_not_found unless defined $probe;
@@ -1538,9 +1538,9 @@ sub build_queue_report {
 
 sub false_interrogation_report {
     my ($self, $defender) = @_;
-    return $self->no_contact unless (defined $defender);
+    return $self->no_contact->id unless (defined $defender);
     my $suspect = $self->get_random_prisoner;
-    return $self->no_contact unless defined $suspect;
+    return $self->no_contact->id unless defined $suspect;
     my $suspect_home = $suspect->from_body;
     my $suspect_empire = $suspect->empire;
     $defender->empire->send_predefined_message(
@@ -1584,9 +1584,9 @@ sub false_interrogation_report {
 
 sub interrogation_report {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     my $suspect = $self->get_random_prisoner;
-    return $self->get_spooked unless defined $suspect;
+    return $self->get_spooked->id unless defined $suspect;
     my $suspect_home = $suspect->from_body;
     my $suspect_empire = $suspect->empire;
     $defender->empire->send_predefined_message(
@@ -1621,9 +1621,9 @@ sub interrogation_report {
 
 #sub kill_guard_and_escape_prison {
 #    my ($self, $defender) = @_;
-#    return $self->no_contact unless (defined $defender);
+#    return $self->no_contact->id unless (defined $defender);
 #    my $suspect = shift @{$espionage->{captured}};
-#    return $self->no_contact unless defined $suspect;
+#    return $self->no_contact->id unless defined $suspect;
 #    kill_a_spy($self->on_body, $defender, $suspect);
 #    escape_a_spy($self->on_body, $suspect);
 #    $self->on_body->add_news(70,'An inmate killed his interrogator, and escaped the prison on %s today.', $self->on_body->name);
@@ -1632,37 +1632,37 @@ sub interrogation_report {
 sub escape_prison {
     my ($self, $defender) = @_;
     my $suspect = $self->get_random_prisoner;
-    return $self->no_contact unless defined $suspect;
+    return $self->no_contact->id unless defined $suspect;
     $self->on_body->add_news(50,'At this hour police on %s are flabbergasted as to how an inmate escaped earlier in the day.', $self->on_body->name);    
     return $suspect->escape->id;
 }
 
 #sub kill_suspect {
 #    my ($self, $defender) = @_;
-#    return $self->get_spooked unless (defined $defender);
+#    return $self->get_spooked->id unless (defined $defender);
 #    my $suspect = shift @{$espionage->{'Captured'}{spies}};
-#    return $self->get_spooked unless defined $suspect;
+#    return $self->get_spooked->id unless defined $suspect;
 #    kill_a_spy($self->on_body, $suspect, $defender);
 #    $self->on_body->add_news(50,'Allegations of police brutality are being made on %s after an inmate was killed in custody today.', $self->on_body->name);
 #}
 
 sub capture_rescuer {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(60,'%s was caught trying to break into prison today on %s. Police insisted he stay.', $self->name, $self->on_body->name);
     return $defender->capture_a_spy($self)->id;
 }
 
 sub thwart_intelligence {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(25,'Corporate espionage has become a real problem on %s.', $self->on_body->name);
     return $defender->thwart_a_spy($self)->id;
 }
 
 sub counter_intel_report {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless defined $defender;
+    return $self->get_spooked->id unless defined $defender;
     my @peeps = (['Name','From','Assignment','Level']);
     my %planets = ( $self->on_body->id => $self->on_body->name );
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({empire_id => {'!=' => $defender->empire_id}, on_body_id=>$self->on_body_id});
@@ -1683,42 +1683,42 @@ sub counter_intel_report {
 
 sub kill_cop {
     my ($self, $defender) = @_;
-    return $self->no_contact unless (defined $defender);
+    return $self->no_contact->id unless (defined $defender);
     $self->on_body->add_news(60,'An officer named %s was killed in the line of duty on %s.', $defender->name, $self->on_body->name);
     return $self->kill_a_spy($defender)->id;
 }
 
 sub kill_intelligence {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(60,'A suspected spy was killed in a struggle with police on %s today.', $self->on_body->name);
     return $defender->kill_a_spy($self)->id;
 }
 
 sub capture_hacker {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(30,'Alleged hacker %s is awaiting arraignment on %s today.', $self->name, $self->on_body->name);
     return $defender->capture_a_spy($self)->id;
 }
 
 #sub kill_hacker {
 #    my ($self, $defender) = @_;
-#    return $self->get_spooked unless (defined $defender);
+#    return $self->get_spooked->id unless (defined $defender);
 #    $self->on_body->add_news(60,'A suspected hacker, age '.randint(16,60).', was found dead in his home today on %s.', $self->on_body->name);
 #    kill_a_spy($self->on_body, $self, $defender);    
 #}
 
 sub thwart_hacker {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless (defined $defender);
+    return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(10,'Identity theft has become a real problem on %s.', $self->on_body->name);  
     return $defender->thwart_a_spy($self)->id;
 }
 
 sub network19_propaganda1 {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless defined $defender;
+    return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
     if ($self->on_body->add_news(50,'A resident of %s has won the Lacuna Expanse talent competition.', $self->on_body->name)) {
         $self->on_body->add_happiness(250)->update;
@@ -1728,7 +1728,7 @@ sub network19_propaganda1 {
 
 sub network19_propaganda2 {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless defined $defender;
+    return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
     if ($self->on_body->add_news(50,'The economy of %s is looking strong, showing GDP growth of nearly 10%% for the past quarter.',$self->on_body->name)) {
         $self->on_body->add_happiness(500)->update;
@@ -1738,7 +1738,7 @@ sub network19_propaganda2 {
 
 sub network19_propaganda3 {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless defined $defender;
+    return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
     if ($self->on_body->add_news(50,'The Governor of %s has set aside 1000 square kilometers as a nature preserve.', $self->on_body->name)) {
         $self->on_body->add_happiness(750)->update;
@@ -1748,7 +1748,7 @@ sub network19_propaganda3 {
 
 sub network19_propaganda4 {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless defined $defender;
+    return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
     if ($self->on_body->add_news(50,'If %s had not inhabited %s, the planet would likely have reverted to a barren rock.', $self->on_body->empire->name, $self->on_body->name)) {
         $self->on_body->add_happiness(1000)->update;
@@ -1758,7 +1758,7 @@ sub network19_propaganda4 {
 
 sub network19_propaganda5 {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless defined $defender;
+    return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
     if ($self->on_body->add_news(50,'The benevolent leader of %s is a gift to the people of %s.', $self->on_body->empire->name, $self->on_body->name)) {
         $self->on_body->add_happiness(1250)->update;
@@ -1768,7 +1768,7 @@ sub network19_propaganda5 {
 
 sub network19_propaganda6 {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless defined $defender;
+    return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
     if ($self->on_body->add_news(50,'%s is the greatest, best, most free empire in the Expanse, ever.', $self->on_body->empire->name)) {
         $self->on_body->add_happiness(1500)->update;
@@ -1778,7 +1778,7 @@ sub network19_propaganda6 {
 
 sub network19_propaganda7 {
     my ($self, $defender) = @_;
-    return $self->get_spooked unless defined $defender;
+    return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
     if ($self->on_body->add_news(50,'%s is the ultimate power in the Expanse right now. It is unlikely to be challenged any time soon.', $self->on_body->empire->name)) {
         $self->on_body->add_happiness(1750)->update;
