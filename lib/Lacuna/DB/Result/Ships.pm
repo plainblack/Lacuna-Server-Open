@@ -46,6 +46,7 @@ __PACKAGE__->typecast_map(type => {
     'freighter'                             => 'Lacuna::DB::Result::Ships::Freighter',
     'dory'                                  => 'Lacuna::DB::Result::Ships::Dory',
     'snark'                                 => 'Lacuna::DB::Result::Ships::Snark',
+    'snark2'                                => 'Lacuna::DB::Result::Ships::Snark2',
     'spy_shuttle'                           => 'Lacuna::DB::Result::Ships::SpyShuttle',
     'drone'                                 => 'Lacuna::DB::Result::Ships::Drone',
     'fighter'                               => 'Lacuna::DB::Result::Ships::Fighter',

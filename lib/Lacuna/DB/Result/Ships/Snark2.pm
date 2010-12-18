@@ -17,7 +17,7 @@ use constant base_stealth           => 2000;
 use constant base_combat            => 4000;
 use constant base_hold_size         => 0;
 use constant build_tags             => ['War'];
-use constant type_formatted         => 'Snark 2';
+use constant type_formatted         => 'Snark II';
 use constant splash_radius          => 1;
 
 with "Lacuna::Role::Ship::Send::Planet";

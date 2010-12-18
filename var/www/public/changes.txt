@@ -17,7 +17,7 @@
  - Fighters no longer instantly reset after combat. Their speed determines how quickly they get back into a reset position.
  - If you have existing fighters, and they had a speed lower than 2000, it is now 2000.
  - The level of the Shipyard building the ship now adds a 1% bonus per level to all attributes of the ship, without raising its cost.
- - Added Snark 2, which has a splash damage radius of 1.
+ - Added Snark II, which has a splash damage radius of 1.
 
 
 2.3902

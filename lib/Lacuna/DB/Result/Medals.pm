@@ -38,6 +38,7 @@ use constant MEDALS => {
     dory                            => 'Built Dory',
     freighter                       => 'Built Freighter',
     snark                           => 'Built Snark',
+    snark2                          => 'Built Snark II',
     drone                           => 'Built Drone',
     fighter                         => 'Built Fighter',
     spy_shuttle                     => 'Built Spy Shuttle',

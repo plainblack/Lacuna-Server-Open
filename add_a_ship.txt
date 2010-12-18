@@ -1,6 +1,5 @@
 create ship class
 update Lacuna::DB::Result::Ships to add new ship type
-update SpacePort send_ship with any custom stuff that has to be done
 create a ship image and upload it
 create a ship medal and upload it
 update Lacuna::DB::Result::Medals
