@@ -86,6 +86,7 @@ sub arrive {
     eval {$self->handle_arrival_procedures}; # throws exceptions to stop subsequent actions from happening
     if (ref $@ eq 'ARRAY' && $@->[0] eq -1) {
         # this is an expected exception, it means one of the roles took over
+        return;
     }
     elsif ($@) {
         # this is unexpected, so let's rethrow
