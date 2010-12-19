@@ -59,6 +59,7 @@ use constant MEDALS => {
     excavator                       => 'Built Excavator',
     detonator                       => 'Built Detonator',
     scanner                         => 'Built Scanner',
+    surveyor                        => 'Built Surveyor',
     rutile_glyph                    => 'Uncovered Rutile Glyph',
     chromite_glyph                  => 'Uncovered Chromite Glyph',
     chalcopyrite_glyph              => 'Uncovered Chalcopyrite Glyph',

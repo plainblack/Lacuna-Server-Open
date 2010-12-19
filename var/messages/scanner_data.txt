@@ -1,6 +1,6 @@
-Scan Results
+%s Results
 ~~~
-Our scanner captured the attached map of {Starmap %s %s %s}.
+Our %s named %s captured the attached map of {Starmap %s %s %s}.
 
 Regards,
 

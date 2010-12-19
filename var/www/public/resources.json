@@ -153,6 +153,7 @@
         "spaceport_seeker" : { "description" : "Variant of the Snark that attacks a SpacePort.", "wiki" : "http://community.lacunaexpanse.com/wiki/spaceport-seeker" },
         "excavator" : { "description" : "Robotic explorer that searches remote bodies looking for artifacts.", "wiki" : "http://community.lacunaexpanse.com/wiki/excavator" },
         "detonator" : { "description" : "Variant of the Snark that detonates in an electro magnetic pulse, which can be used to destroy probes.", "wiki" : "http://community.lacunaexpanse.com/wiki/detonator" },
+        "surveyor" : { "description" : "Robotic explorer that snaps a photograph of the surface of a remote planet, and also identifies the buildings in the photograph.", "wiki" : "http://community.lacunaexpanse.com/wiki/surveyor" },
         "scanner" : { "description" : "Robotic explorer that snaps a photograph of the surface of a remote planet.", "wiki" : "http://community.lacunaexpanse.com/wiki/scanner" }
     },
     "tips" : [

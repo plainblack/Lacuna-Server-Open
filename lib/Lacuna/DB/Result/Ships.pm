@@ -46,6 +46,7 @@ __PACKAGE__->typecast_map(type => {
     'terraforming_platform_ship'            => 'Lacuna::DB::Result::Ships::TerraformingPlatformShip',
     'gas_giant_settlement_ship'             => 'Lacuna::DB::Result::Ships::GasGiantSettlementPlatformShip',
     'scanner'                               => 'Lacuna::DB::Result::Ships::Scanner',
+    'surveyor'                              => 'Lacuna::DB::Result::Ships::Surveyor',
     'detonator'                             => 'Lacuna::DB::Result::Ships::Detonator',
     'excavator'                             => 'Lacuna::DB::Result::Ships::Excavator',
     'scow'                                  => 'Lacuna::DB::Result::Ships::Scow',

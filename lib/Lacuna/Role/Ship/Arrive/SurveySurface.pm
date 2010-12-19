@@ -1,4 +1,4 @@
-package Lacuna::Role::Ship::Arrive::ScanSurface;
+package Lacuna::Role::Ship::Arrive::SurveySurface;
 
 use strict;
 use Moose::Role;
@@ -12,6 +12,7 @@ after handle_arrival_procedures => sub {
     # do the scan
     my $body_attacked = $self->foreign_body;
     my @map;
+    my @table = ([q(Name Level X Y)]);
     my $buildings = $body_attacked->buildings;
     while (my $building = $buildings->next) {
         push @map, {
@@ -19,18 +20,25 @@ after handle_arrival_procedures => sub {
             x       => $building->x,
             y       => $building->y,
         };
+        push @table, [
+            name    => $building->name,
+            level   => $building->level,
+            x       => $building->x,
+            y       => $building->y,
+        ];
     }
     
     # phone home
     $self->body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'scanner_data.txt',
-        params      => [$self->type_formatted, $self->type_formatted, $self->named, $body_attacked->x, $body_attacked->y, $body_attacked->name],
+        params      => [$self->type_formatted, $self->type_formatted, $self->name, $body_attacked->x, $body_attacked->y, $body_attacked->name],
         attachments  => {
-            map => {
+            map     => {
                 surface         => $body_attacked->surface,
                 buildings       => \@map
-            }
+            },
+            table   => \@table,
         },
     );
     
