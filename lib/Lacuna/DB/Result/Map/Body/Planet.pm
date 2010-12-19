@@ -388,10 +388,17 @@ sub is_space_free {
 
 sub find_free_space {
     my $self = shift;
-    foreach my $x (-5..5) {
-        foreach my $y (-5..5) {
-            if ($self->is_space_free($x, $y)) {
-                return ($x, $y);
+    my $x = randint(-5,5);
+    my $y = randint(-5,5);
+    if ($self->is_space_free($x, $y)) {
+        return ($x, $y);
+    }
+    else {
+        foreach my $x (-5..5) {
+            foreach my $y (-5..5) {
+                if ($self->is_space_free($x, $y)) {
+                    return ($x, $y);
+                }
             }
         }
     }
