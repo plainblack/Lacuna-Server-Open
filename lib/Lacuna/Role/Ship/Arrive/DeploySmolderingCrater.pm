@@ -20,6 +20,8 @@ after handle_arrival_procedures => sub {
     });
     $deployed->start_work({},3600 * randint(24,168));
     $body_attacked->build_building($deployed);
+    $body_attacked->needs_surface_refresh(1);
+    $body_attacked->update;
     
     # notify home
     $self->body->empire->send_predefined_message(
