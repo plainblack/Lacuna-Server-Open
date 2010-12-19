@@ -13,7 +13,7 @@ after handle_arrival_procedures => sub {
     my $body_attacked = $self->foreign_body;
     my @map;
     my @table = ([qw(Name Level X Y)]);
-    my $buildings = $body_attacked->buildings;
+    my $buildings = $body_attacked->buildings->search(undef,{order_by => ['x','y']});
     while (my $building = $buildings->next) {
         push @map, {
             image   => $building->image_level,
