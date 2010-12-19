@@ -12,7 +12,7 @@ after handle_arrival_procedures => sub {
     # do the scan
     my $body_attacked = $self->foreign_body;
     my @map;
-    my @table = ([q(Name Level X Y)]);
+    my @table = ([qw(Name Level X Y)]);
     my $buildings = $body_attacked->buildings;
     while (my $building = $buildings->next) {
         push @map, {
@@ -21,10 +21,10 @@ after handle_arrival_procedures => sub {
             y       => $building->y,
         };
         push @table, [
-            name    => $building->name,
-            level   => $building->level,
-            x       => $building->x,
-            y       => $building->y,
+            $building->name,
+            $building->level,
+            $building->x,
+            $building->y,
         ];
     }
     
