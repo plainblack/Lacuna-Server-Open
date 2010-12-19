@@ -20,6 +20,9 @@ use constant build_tags             => [qw(War)];
 use constant type_formatted         => 'Placebo II';
 
 with "Lacuna::Role::Ship::Send::Planet";
+with "Lacuna::Role::Ship::Send::Inhabited";
+with "Lacuna::Role::Ship::Send::NotIsolationist";
+with "Lacuna::Role::Ship::Arrive::Scuttle";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
