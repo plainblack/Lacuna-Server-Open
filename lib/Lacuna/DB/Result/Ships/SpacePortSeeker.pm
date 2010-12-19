@@ -14,7 +14,7 @@ use constant base_time_cost         => 58500;
 use constant base_waste_cost        => 40000;
 use constant base_speed             => 1000;
 use constant base_combat            => 3000;
-use constant base_stealth           => 5000;
+use constant base_stealth           => 2700;
 use constant target_building        => 'Lacuna::DB::Result::Building::SpacePort';
 use constant build_tags             => ['War'];
 

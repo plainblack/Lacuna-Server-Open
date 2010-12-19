@@ -373,6 +373,8 @@ sub view_foreign_ships {
     my @fleet;
     my $now = time;
     my $ships = $building->foreign_ships->search({}, {rows=>25, page=>$page_number, join => 'body' });
+    my $see_ship_type = ($building->level * 450) * ( 100 / ($building->efficiency || 1));
+    my $see_ship_path = ($building->level * 350) * ( 100 / ($building->efficiency || 1));
     my @my_planets = $empire->planets->get_column('id')->all;
     while (my $ship = $ships->next) {
         if ($ship->date_available->epoch <= $now) {
@@ -387,11 +389,11 @@ sub view_foreign_ships {
                     date_arrives    => $ship->date_available_formatted,
                     from            => {},
                 );
-            if ($ship->body_id ~~ \@my_planets || $building->level * 300 >= $ship->stealth) {
+            if ($ship->body_id ~~ \@my_planets || $see_ship_type >= $ship->stealth) {
                 $ship_info{name} = $ship->name;
                 $ship_info{type} = $ship->type;
                 $ship_info{type_human} = $ship->type_formatted;
-                if ($ship->body_id ~~ \@my_planets || $building->level * 100 >= $ship->stealth) {
+                if ($ship->body_id ~~ \@my_planets || $see_ship_path >= $ship->stealth) {
                     $ship_info{from} = {
                         id      => $ship->body->id,
                         name    => $ship->body->name,

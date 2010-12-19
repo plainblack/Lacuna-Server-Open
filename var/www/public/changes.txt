@@ -19,6 +19,11 @@
  - The level of the Shipyard building the ship now adds a 1% bonus per level to all attributes of the ship, without raising its cost.
  - Added Snark II, which has a splash damage radius of 1.
  - Added Snark III, which has a splash damage radius of 2.
+ - Ship stealth has been refactored to be balanced and useful. All existing ships will keep their stealth, but new ones will have new values.
+ - If the Security Ministry level times 700 is over a ship's stealth carrying spies, then those spies will be apprehended. 
+ - If the Spaceport level times 450 is over the stealth of the ship, you will see the type of ship.
+ - If the Spaceport level times 350 is over the stealth of the ship, you will know where the ship is coming from.
+ - Diminished efficency diminishes the Security Ministry and Spaceport's effectiveness.
 
 
 2.3902

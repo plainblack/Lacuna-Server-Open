@@ -2,7 +2,6 @@ package Lacuna::Role::Ship::Arrive::CaptureWithSpies;
 
 use strict;
 use Moose::Role;
-use Lacuna::Util qw(randint);
 
 after handle_arrival_procedures => sub {
     my ($self) = @_;
@@ -27,8 +26,8 @@ after handle_arrival_procedures => sub {
     return unless defined $security && $security->efficiency > 0;
     
     # lets see if we can detect the ship
-    my $security_boost = $security->level * $security->efficiency;
-    return unless (randint(1,10000) + $security_boost > $self->stealth);
+    my $security_detection = ($security->level * 700) * ( 100 / ($security->efficiency || 1));
+    return unless $security_detection > $self->stealth;
     
     # ship detected, time to go kaboom
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
