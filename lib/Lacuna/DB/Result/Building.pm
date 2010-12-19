@@ -682,10 +682,10 @@ sub can_upgrade {
     }
     $self->is_not_max_level;
     my $body = $self->body;
-    $body->has_resources_to_build($self,$cost);
-    $body->has_resources_to_operate($self);
     $self->has_special_resources;
     $self->has_met_upgrade_prereqs;
+    $body->has_resources_to_operate($self);
+    $body->has_resources_to_build($self,$cost);
     $self->has_no_pending_build;
     $body->has_room_in_build_queue;
     return 1;

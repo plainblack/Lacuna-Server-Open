@@ -82,6 +82,10 @@ sub can_build_ship {
     if ($self->level < 1) {
         confess [1013, "You can't build a ship if the shipyard isn't complete."];
     }
+    my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { body_id => $self->body_id, class => $ship->prereq->{class}, level => {'>=' => $ship->prereq->{level}} } )->count;
+    unless ($count) {
+        confess [1013, 'You need a level '.$ship->prereq->{level}.' '.$ship->prereq->{class}->name.' to build this ship.'];
+    }
     my $body = $self->body;
     foreach my $key (keys %{$costs}) {
         next if ($key eq 'seconds' || $key eq 'waste');
@@ -93,10 +97,6 @@ sub can_build_ship {
     my $ships_building = $ships->search({body_id => $self->body_id, task=>'Building'})->count;
     if ($ships_building >= $self->max_ships) {
         confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.']
-    }
-    my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { body_id => $self->body_id, class => $ship->prereq->{class}, level => {'>=' => $ship->prereq->{level}} } )->count;
-    unless ($count) {
-        confess [1013, 'You need a level '.$ship->prereq->{level}.' '.$ship->prereq->{class}->name.' to build this ship.'];
     }
     unless ($self->body->spaceport->docks_available) {
         confess [1009, 'You do not have a dock available at the Spaceport.'];
