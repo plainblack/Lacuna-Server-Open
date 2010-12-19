@@ -82,6 +82,7 @@ $urlmap->map(Lacuna::RPC::Building::Espionage->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Fission->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::FoodReserve->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Fusion->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::DeployedBleeder->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::GasGiantLab->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::GasGiantPlatform->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Geo->new->to_app_with_url);

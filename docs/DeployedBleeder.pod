@@ -1,6 +1,6 @@
-=head1 Gas Giant Lab Methods
+=head1 Deployed Bleeder Methods
 
-Gas Giant Lab is accessible via the URL C</gasgiantlab>.
+Deployed Bleeder is accessible via the URL C</deployedbleeder>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 

@@ -29,7 +29,7 @@
  - Freighters can no longer fetch or deliver spies.
  - Added Barge, Galleon, and Hulk trade ship classes.
  - Added Placebo 1 thru 6, which are used to fake an attack.
-
+ - Added Bleeder attack ship.
 
 2.3902
  - Halls of Vrbansk now also returns building URL.

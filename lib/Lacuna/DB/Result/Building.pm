@@ -762,12 +762,13 @@ sub is_upgrade_locked {
 }
 
 sub start_upgrade {
-    my ($self, $cost) = @_;  
+    my ($self, $cost, $in_parallel) = @_;  
     my $body = $self->body;
     $cost ||= $self->cost_to_upgrade;
     
     # set time to build, plus what's in the queue
-    my $time_to_build = $body->get_existing_build_queue_time->add(seconds=>$cost->{time});
+    my $time_to_build = $in_parallel ? DateTime->now : $body->get_existing_build_queue_time;
+    $time_to_build->add(seconds=>$cost->{time});
     # add to queue
     $self->update({
         is_upgrading    => 1,
@@ -1019,6 +1020,7 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Permanent::PantheonOfHagness' => 'Lacuna::DB::Result::Building::Permanent::PantheonOfHagness',
         'Lacuna::DB::Result::Building::SubspaceSupplyDepot' => 'Lacuna::DB::Result::Building::SubspaceSupplyDepot',
         'Lacuna::DB::Result::Building::ThemePark' => 'Lacuna::DB::Result::Building::ThemePark',
+        'Lacuna::DB::Result::Building::DeployedBleeder' => 'Lacuna::DB::Result::Building::DeployedBleeder',
         'Lacuna::DB::Result::Building::Permanent::BlackHoleGenerator' => 'Lacuna::DB::Result::Building::Permanent::BlackHoleGenerator',
         'Lacuna::DB::Result::Building::Permanent::GratchsGauntlet' => 'Lacuna::DB::Result::Building::Permanent::GratchsGauntlet',
         'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk' => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk',

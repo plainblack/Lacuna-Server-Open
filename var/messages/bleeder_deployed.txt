@@ -1,0 +1,7 @@
+Bleeder Deployed
+~~~
+Our Bleeder is now deployed on {Starmap %s %s %s}.
+
+Regards,
+
+Your Humble Assistant
