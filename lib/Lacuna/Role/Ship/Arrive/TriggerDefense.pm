@@ -18,7 +18,7 @@ after handle_arrival_procedures => sub {
         
     # get defensive ships
     my $defense_ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        { body_id => $self->foreign_body_id, type => { in => [qw(drone fighter)]}, task=>'Docked'},
+        { body_id => $self->foreign_body_id, type => { in => [qw(fighter drone sweeper)]}, task=>'Docked'},
         );
     
     # if there are defensive ships let's duke it out
