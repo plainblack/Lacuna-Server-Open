@@ -143,7 +143,7 @@ sub prepare_send_spies {
     }
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle freighter)]}, task=>'Docked', body_id => $on_body_id},
+        {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]}, task=>'Docked', body_id => $on_body_id},
         {order_by => 'name', rows=>100}
     );
     my @ships;
@@ -258,7 +258,7 @@ sub prepare_fetch_spies {
     }
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {hold_size => { '>=' => 350 }, task=>'Docked', body_id => $to_body_id},
+        {type => { in => [qw(cargo_ship smuggler_ship dory barge)]}, task=>'Docked', body_id => $to_body_id},
         {order_by => 'name', rows=>100}
     );
     my @ships;

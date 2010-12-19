@@ -24,6 +24,8 @@
  - If the Spaceport level times 450 is over the stealth of the ship, you will see the type of ship.
  - If the Spaceport level times 350 is over the stealth of the ship, you will know where the ship is coming from.
  - Diminished efficency diminishes the Security Ministry and Spaceport's effectiveness.
+ - Freighters can no longer fetch or deliver spies.
+ - Added Barge, Galleon, and Hulk trade ship classes.
 
 
 2.3902

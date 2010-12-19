@@ -103,7 +103,7 @@ sub trade_ships {
     my $self = shift;
     return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
         task    => 'Docked',
-        type    => { 'in' => [qw(dory cargo_ship freighter smuggler_ship)] },
+        type    => { 'in' => [qw(dory barge galleon hulk cargo_ship freighter smuggler_ship)] },
         body_id => $self->body_id,
     },
     {

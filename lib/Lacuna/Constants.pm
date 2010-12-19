@@ -105,7 +105,7 @@ use constant SHIP_TYPES => (qw( probe short_range_colony_ship colony_ship spy_po
                              smuggler_ship mining_platform_ship terraforming_platform_ship 
                              gas_giant_settlement_ship scow dory freighter snark snark2 snark3
                              drone fighter spy_shuttle observatory_seeker security_ministry_seeker 
-                             spaceport_seeker excavator detonator scanner ));
+                             spaceport_seeker excavator detonator scanner barge hulk galleon ));
 
 
 our @EXPORT_OK = qw(

@@ -17,12 +17,10 @@ use constant base_speed             => 800;
 use constant base_stealth           => 0;
 use constant base_hold_size         => 3500;
 use constant pilotable              => 1;
-use constant build_tags             => [qw(Trade Mining Intelligence)];
+use constant build_tags             => [qw(Trade Mining)];
 
 with "Lacuna::Role::Ship::Send::UsePush";
-with "Lacuna::Role::Ship::Arrive::CaptureWithSpies";
 with "Lacuna::Role::Ship::Arrive::CargoExchange";
-with "Lacuna::Role::Ship::Arrive::PickUpSpies";
 
 
 no Moose;
