@@ -33,7 +33,7 @@ sub www_add_essentia {
         body    => 'I have approved a mission pack for '.$empire->name.'.',
     );
     my $recent = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search({ empire_id => $curator->id, description => 'Mission Curator', date_stamp => { '>' => DateTime->now->subtract(days => 7)}})->count;
-    $curator->add_essentia(100, 'Mission Curator')->updates unless $recent;
+    $curator->add_essentia(100, 'Mission Curator')->update unless $recent;
     return $self->www_default($request, 'Essentia Added');
 }
 
