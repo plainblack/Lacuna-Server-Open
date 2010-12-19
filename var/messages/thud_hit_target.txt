@@ -1,0 +1,7 @@
+Thud Hit Target
+~~~
+Our Thud has touched down on {Starmap %s %s %s}.
+
+Regards,
+
+Your Humble Assistant

@@ -1,0 +1,7 @@
+Thud Hit Us
+~~~
+A Thud, launched by {Empire %s %s}, has devastated a plot on {Planet %s %s}.
+
+Regards,
+
+Your Humble Assistant

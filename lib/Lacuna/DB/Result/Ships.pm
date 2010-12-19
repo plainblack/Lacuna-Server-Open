@@ -63,6 +63,7 @@ __PACKAGE__->typecast_map(type => {
     'fighter'                               => 'Lacuna::DB::Result::Ships::Fighter',
     'sweeper'                               => 'Lacuna::DB::Result::Ships::Sweeper',
     'bleeder'                               => 'Lacuna::DB::Result::Ships::Bleeder',
+    'thud'                                  => 'Lacuna::DB::Result::Ships::Thud',
     'observatory_seeker'                    => 'Lacuna::DB::Result::Ships::ObservatorySeeker',
     'spaceport_seeker'                      => 'Lacuna::DB::Result::Ships::SpacePortSeeker',
     'security_ministry_seeker'              => 'Lacuna::DB::Result::Ships::SecurityMinistrySeeker',

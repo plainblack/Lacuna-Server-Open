@@ -119,6 +119,7 @@
         "/wheat" : { "description" : "Allows you to grow wheat on your planet.  You can only grow wheat on planets that are in orbits 2, 3 or 4 (the goldilox zone).  The Farm will produce more wheat for each level it is increased. All plants need a source of phosphorus to photosynthesize their food. Therefore you need a good source of gypsum, sulfur, or monazite for plants to thrive.", "wiki" : "http://community.lacunaexpanse.com/wiki/wheat-farm" }
     },
     "ships" : {
+        "thud" : { "description" : "Temporarily destroys plots on a planet's surface.", "wiki" : "http://community.lacunaexpanse.com/wiki/thud" },
         "placebo" : { "description" : "Use to fake an attack on another player.", "wiki" : "http://community.lacunaexpanse.com/wiki/placebo" },
         "placebo2" : { "description" : "A faster and more stealthed version of the Placebo.", "wiki" : "http://community.lacunaexpanse.com/wiki/placebo" },
         "placebo3" : { "description" : "A faster and more stealthed version of the Placebo II.", "wiki" : "http://community.lacunaexpanse.com/wiki/placebo" },

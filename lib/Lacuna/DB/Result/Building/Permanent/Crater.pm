@@ -28,7 +28,7 @@ sub image_level {
 
 sub name {
     my ($self) = @_;
-    if (ref $self eq 'Lacuna::DB::Result::Building::Permanent::Crater' && $self->in_storage && $self->is_working) {
+    if (ref $self eq 'Lacuna::DB::Result::Building::Permanent::Crater' && $self->is_working) {
         return 'Smoldering Crater';
     }
     return 'Crater';
