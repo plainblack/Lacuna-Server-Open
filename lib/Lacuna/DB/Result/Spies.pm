@@ -1159,7 +1159,7 @@ sub steal_resources {
     $self->on_body_id($home->id);
     $self->task('Travelling');
     $self->things_stolen( $self->things_stolen + 1 );
-    my @table = ('Resource','Amount');
+    my @table = (['Resource','Amount']);
     foreach my $type (keys %resources) {
         push @table, [ $type, $resources{$type} ];
     }
