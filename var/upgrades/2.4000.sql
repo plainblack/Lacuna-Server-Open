@@ -1,4 +1,4 @@
-alter table ships add column combat int not null default 0;
+alter table ships add column combat int default 0;
 update ships set combat=2000 where type='snark';
 update ships set combat=200 where type='scanner';
 update ships set combat=2500 where type='observatory_seeker';

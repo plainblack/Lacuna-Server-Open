@@ -121,10 +121,10 @@ sub add_rewards {
             $body->ships->new({
                 type        => $ship->{type},
                 name        => $ship->{type},
-                speed       => $ship->{speed},
-                combat      => $ship->{combat},
-                stealth     => $ship->{stealth},
-                hold_size   => $ship->{hold_size},
+                speed       => $ship->{speed} || 0,
+                combat      => $ship->{combat} || 0,
+                stealth     => $ship->{stealth} || 0,
+                hold_size   => $ship->{hold_size} || 0,
                 body_id     => $body->id,
                 task        => 'Docked',
             })->insert;
