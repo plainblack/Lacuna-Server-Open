@@ -1,6 +1,7 @@
 2.4000
  - Fixed bug where some spy missions would return invalid JSON.
  - Fixed: Halls of Vrbansk get_upgradable_buildings was returning wrong URLs.
+ - Added mission payout history to mission curator panel.
  - Added missing "colony founded" message.
  - Reorganized the prereqs for buildings and ships so you are told the unique prereqs first.
  - Refactored ship classes.

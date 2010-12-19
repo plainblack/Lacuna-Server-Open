@@ -59,6 +59,21 @@ sub www_stats {
     return [$out, { content_type => 'text/csv' }];
 }
 
+sub www_payouts {
+    my ($self, $request) = @_;
+    my $payouts = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search(
+        {description => 'Mission Curator' -or => { description => { like => 'Mission Pack Approved By%'} } },
+        {order_by => { -desc => 'date_stamp' } }
+    );
+    my $out = '<p><a href="/missioncurator">Back To Empires</a></p><h1>Mission Payout History</h1>';
+    $out .= '<table><tr><th>Date</th><th>Paid To</th><th>Description</th></tr>';
+    while (my $payout = $payouts->next) {
+        $out .= sprintf('<tr><td>%s</td><td>%s</td></tr>', $payout->date_stamp, $payout->empire_name, $payout->description);
+    }
+    $out .= '</table>';
+    return $self->wrap($out);
+}
+
 sub www_default {
     my ($self, $request, $message) = @_;
     my $page_number = $request->param('page_number') || 1;
@@ -75,6 +90,16 @@ sub www_default {
     }
     $out .= '</table>';
     $out .= $self->format_paginator('default', 'name', $name, $page_number);
+    $out .= ' <fieldset><legend>Mission Utilities</legend>
+        <ul>
+            <li><a href="/missioncurator/payouts">View Mission Payout History</a></li>
+            <li><a href="/missioncurator/stats">Download Mission Stats</a></li>
+            <li><a href="https://github.com/plainblack/Lacuna-Mission">Mission Repository</a></li>
+            <li><a href="http://community.lacunaexpanse.com/forums/missions">Mission Forum</a> [<a href="mailto:missions@lacunaexpanse.com">missions@lacunaexpanse.com</a>]</li>
+            <li><a href="http://community.lacunaexpanse.com/forums/mission-curators">Curators Forum</a> [<a href="mailto:missioncurators@lacunaexpanse.com">missioncurators@lacunaexpanse.com</a>]</li>
+            <li><a href="http://community.lacunaexpanse.com/wiki/mission-editor">Mission Editor</a></li>
+        </ul>
+        </fieldset>';
     return $self->wrap($out);
 }
 
@@ -92,15 +117,7 @@ sub format_paginator {
 
 sub wrap {
     my ($self, $content) = @_;
-    return $self->wrapper($content .' <fieldset><legend>Mission Utilities</legend>
-        <ul>
-            <li><a href="/missioncurator/stats">Download Mission Stats</a></li>
-            <li><a href="https://github.com/plainblack/Lacuna-Mission">Mission Repository</a></li>
-            <li><a href="http://community.lacunaexpanse.com/forums/missions">Mission Forum</a> [<a href="mailto:missions@lacunaexpanse.com">missions@lacunaexpanse.com</a>]</li>
-            <li><a href="http://community.lacunaexpanse.com/forums/mission-curators">Curators Forum</a> [<a href="mailto:missioncurators@lacunaexpanse.com">missioncurators@lacunaexpanse.com</a>]</li>
-            <li><a href="http://community.lacunaexpanse.com/wiki/mission-editor">Mission Editor</a></li>
-        </ul>
-        </fieldset>',
+    return $self->wrapper($content,
     { title => 'Mission Curator Panel'}
     );
 }
