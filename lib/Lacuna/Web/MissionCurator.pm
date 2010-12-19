@@ -66,9 +66,9 @@ sub www_payouts {
         {order_by => { -desc => 'date_stamp' } }
     );
     my $out = '<p><a href="/missioncurator">Back To Empires</a></p><h1>Mission Payout History</h1>';
-    $out .= '<table><tr><th>Date</th><th>Paid To</th><th>Description</th></tr>';
+    $out .= '<table style="width: 80%;"><tr><th>Date</th><th>Paid To</th><th>Description</th></tr>';
     while (my $payout = $payouts->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td></tr>', $payout->date_stamp, $payout->empire_name, $payout->description);
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td></tr>', $payout->date_stamp, $payout->empire_name, $payout->description);
     }
     $out .= '</table>';
     return $self->wrap($out);
