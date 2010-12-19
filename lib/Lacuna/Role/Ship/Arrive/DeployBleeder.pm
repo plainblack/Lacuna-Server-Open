@@ -18,6 +18,8 @@ after handle_arrival_procedures => sub {
         y           => $y,
     });
     $body_attacked->build_building($deployed);
+    $body_attacked->needs_surface_refresh(1);
+    $body_attacked->update;
     
     # notify home
     $self->body->empire->send_predefined_message(
