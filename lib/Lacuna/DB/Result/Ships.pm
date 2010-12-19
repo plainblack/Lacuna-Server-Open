@@ -30,6 +30,12 @@ __PACKAGE__->add_columns(
 );
 __PACKAGE__->typecast_map(type => {
     'probe'                                 => 'Lacuna::DB::Result::Ships::Probe',
+    'placebo'                               => 'Lacuna::DB::Result::Ships::Placebo',
+    'placebo2'                              => 'Lacuna::DB::Result::Ships::Placebo2',
+    'placebo3'                              => 'Lacuna::DB::Result::Ships::Placebo3',
+    'placebo4'                              => 'Lacuna::DB::Result::Ships::Placebo4',
+    'placebo5'                              => 'Lacuna::DB::Result::Ships::Placebo5',
+    'placebo6'                              => 'Lacuna::DB::Result::Ships::Placebo6',
     'short_range_colony_ship'               => 'Lacuna::DB::Result::Ships::ShortRangeColonyShip',
     'colony_ship'                           => 'Lacuna::DB::Result::Ships::ColonyShip',
     'spy_pod'                               => 'Lacuna::DB::Result::Ships::SpyPod',

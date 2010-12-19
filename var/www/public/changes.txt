@@ -28,6 +28,7 @@
  - Diminished efficency diminishes the Security Ministry and Spaceport's effectiveness.
  - Freighters can no longer fetch or deliver spies.
  - Added Barge, Galleon, and Hulk trade ship classes.
+ - Added Placebo 1 thru 6, which are used to fake an attack.
 
 
 2.3902
