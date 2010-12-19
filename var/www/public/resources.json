@@ -133,6 +133,7 @@
         "freighter" : { "description" : "Large transport ship. Can be used to push resources between your colonies, trade with other empires, or gather ore from mining platforms.", "wiki" : "http://community.lacunaexpanse.com/wiki/freighter" },
         "snark" : { "description" : "Robotic bombardment weapon, that can be used to destroy buildings on remote planets.", "wiki" : "http://community.lacunaexpanse.com/wiki/snark" },
         "snark2" : { "description" : "An improved version of the Snark, which has a splash damage radius of 1.", "wiki" : "http://community.lacunaexpanse.com/wiki/snark" },
+        "snark3" : { "description" : "An improved version of the Snark, which has a splash damage radius of 2.", "wiki" : "http://community.lacunaexpanse.com/wiki/snark" },
         "drone" : { "description" : "Robotic defense weapon, that can stop enemy attacks before they reach your planet.", "wiki" : "http://community.lacunaexpanse.com/wiki/drone" },
         "fighter" : { "description" : "Piloted defense ship, that can stop enemy attacks before they reach your planet.", "wiki" : "http://community.lacunaexpanse.com/wiki/fighter" },
         "spy_shuttle" : { "description" : "Stealthy one way transport for up to four spies.", "wiki" : "http://community.lacunaexpanse.com/wiki/spy-shuttle" },

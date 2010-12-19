@@ -39,6 +39,7 @@ use constant MEDALS => {
     freighter                       => 'Built Freighter',
     snark                           => 'Built Snark',
     snark2                          => 'Built Snark II',
+    snark3                          => 'Built Snark III',
     drone                           => 'Built Drone',
     fighter                         => 'Built Fighter',
     spy_shuttle                     => 'Built Spy Shuttle',

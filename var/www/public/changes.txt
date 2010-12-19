@@ -18,6 +18,7 @@
  - If you have existing fighters, and they had a speed lower than 2000, it is now 2000.
  - The level of the Shipyard building the ship now adds a 1% bonus per level to all attributes of the ship, without raising its cost.
  - Added Snark II, which has a splash damage radius of 1.
+ - Added Snark III, which has a splash damage radius of 2.
 
 
 2.3902
