@@ -247,6 +247,7 @@ sub land {
     my ($self) = @_;
     $self->task('Docked');
     $self->payload({});
+    return $self;
 }
 
 
