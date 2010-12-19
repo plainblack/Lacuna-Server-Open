@@ -62,7 +62,7 @@ sub www_stats {
 sub www_payouts {
     my ($self, $request) = @_;
     my $payouts = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search(
-        {description => 'Mission Curator' -or => { description => { like => 'Mission Pack Approved By%'} } },
+        {description => 'Mission Curator', -or => { description => { like => 'Mission Pack Approved By%'} } },
         {order_by => { -desc => 'date_stamp' } }
     );
     my $out = '<p><a href="/missioncurator">Back To Empires</a></p><h1>Mission Payout History</h1>';
