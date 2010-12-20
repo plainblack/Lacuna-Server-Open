@@ -1,5 +1,6 @@
 2.40001
  - Galleons had incorrect build time.
+ - Surveyors had incorrect speed.
 
 2.4000
  - Fixed bug where some spy missions would return invalid JSON.
