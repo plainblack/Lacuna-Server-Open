@@ -25,7 +25,7 @@ after handle_arrival_procedures => sub {
     $self->body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'scanner_data.txt',
-        params      => [$self->type_formatted, $self->type_formatted, $self->named, $body_attacked->x, $body_attacked->y, $body_attacked->name],
+        params      => [$self->type_formatted, $self->type_formatted, $self->name, $body_attacked->x, $body_attacked->y, $body_attacked->name],
         attachments  => {
             map => {
                 surface         => $body_attacked->surface,
