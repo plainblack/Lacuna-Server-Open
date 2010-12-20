@@ -217,7 +217,7 @@ sub accept_from_market {
     my $trade = $building->market->find($trade_id);
     unless (defined $trade) {
         $cache->delete('trade_lock',$trade_id);
-        confess [1002, 'Could not find that trade. Perhaps it has already been accepted.'];
+        confess [1002, 'Could not find that trade. Perhaps it has already been accepted.', $trade_id];
     }
     unless ($building->determine_available_cargo_space >= $trade->ask_quantity) {
         $cache->delete('trade_lock',$trade_id);
