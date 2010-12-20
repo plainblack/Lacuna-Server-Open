@@ -121,7 +121,7 @@ sub format_description_of_payload {
             $level = '+'.$stats->{extra_build_level};
         }
         my $pattern = '%s (%s) plan'; 
-        push @items, sprintf($pattern, $stats->{classname}->name, $level);
+        push @items, sprintf($pattern, $stats->{class}->name, $level);
     }
     
     # spies
