@@ -8,8 +8,10 @@ use Getopt::Long;
 use List::MoreUtils qw(uniq);
 $|=1;
 our $quiet;
+our $add_one;
 GetOptions(
     'quiet'         => \$quiet,
+    addone          => \$add_one,
 );
 
 
@@ -33,8 +35,8 @@ my $colonies = $diablotin->planets;
 my @existing_zones = $colonies->get_column('zone')->all;
 
 out('Adding colonies...');
-foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map_size/x')->[1]/250)) {
-    foreach my $y (int($config->get('map_size/y')->[0]/250) .. int($config->get('map_size/y')->[1]/250)) {
+X: foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map_size/x')->[1]/250)) {
+    Y: foreach my $y (int($config->get('map_size/y')->[0]/250) .. int($config->get('map_size/y')->[1]/250)) {
         my $zone = $x.'|'.$y;
         say $zone;
         if ($zone ~~ \@existing_zones) {
@@ -42,6 +44,7 @@ foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map
         }
         else {
             add_colony($zone);
+            last X if $add_one;
         }
    }
 }
@@ -86,13 +89,28 @@ sub add_colony {
         ['Lacuna::DB::Result::Building::Food::Reserve', 20],
         ['Lacuna::DB::Result::Building::Intelligence', 20],
         ['Lacuna::DB::Result::Building::Security', 20],
-        ['Lacuna::DB::Result::Building::LuxuryHousing',10],
+        ['Lacuna::DB::Result::Building::LuxuryHousing',15],
+        ['Lacuna::DB::Result::Building::CloakingLab', 20],
         ['Lacuna::DB::Result::Building::Shipyard', 4],
         ['Lacuna::DB::Result::Building::Shipyard', 4],
         ['Lacuna::DB::Result::Building::SpacePort', 20],
         ['Lacuna::DB::Result::Building::SpacePort', 20],
         ['Lacuna::DB::Result::Building::Observatory',20],
         ['Lacuna::DB::Result::Building::Food::Syrup',10],
+        ['Lacuna::DB::Result::Building::Food::Burger',10],
+        ['Lacuna::DB::Result::Building::Food::Malcud',20],
+        ['Lacuna::DB::Result::Building::Food::Malcud',20],
+        ['Lacuna::DB::Result::Building::Food::Malcud',20],
+        ['Lacuna::DB::Result::Building::Food::Malcud',20],
+        ['Lacuna::DB::Result::Building::Ore::Mine',20],
+        ['Lacuna::DB::Result::Building::Ore::Refinery',20],
+        ['Lacuna::DB::Result::Building::Waste::Digester',20],
+        ['Lacuna::DB::Result::Building::Waste::Digester',20],
+        ['Lacuna::DB::Result::Building::Energy::Singularity',20],
+        ['Lacuna::DB::Result::Building::Water::Production',20],
+        ['Lacuna::DB::Result::Building::Water::Production',20],
+        ['Lacuna::DB::Result::Building::Water::Production',20],
+        ['Lacuna::DB::Result::Building::Water::Production',20],
     );
     my $buildings = $db->resultset('Lacuna::DB::Result::Building');
     foreach my $plan (@plans) {
