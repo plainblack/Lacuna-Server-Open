@@ -2,6 +2,7 @@
  - Scanners had a typo that caused them to create crash bug upon arrival.
  - Fixed a bug in the new market system.
  - Fixed the crash bug with the mission system after the release of the new ship system.
+ - Fixed a problem where colony ships where spending the happiness for the colony after next, rather than the next colony.
 
 2.4001
  - Galleons had incorrect build time.

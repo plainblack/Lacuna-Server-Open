@@ -634,8 +634,8 @@ sub add_probe {
 }
 
 sub next_colony_cost {
-    my ($self) = @_;
-    my $count = $self->planets->count;
+    my ($self, $adjustment) = @_;
+    my $count = $self->planets->count + $adjustment;
     $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         { type=> { in => [qw(colony_ship short_range_colony_ship)]}, task=>'travelling', 'body.empire_id' => $self->id},
         { join => 'body' }
