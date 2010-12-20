@@ -242,10 +242,10 @@ sub check_objectives {
         foreach my $ship (@{$objectives->{ships}}) {
             my $this = $body->ships->search({
                     type        => $ship->{type},
-                    combat      => {'>=' => $ship->{combat}},
-                    speed       => {'>=' => $ship->{speed}},
-                    stealth     => {'>=' => $ship->{stealth}},
-                    hold_size   => {'>=' => $ship->{hold_size}},
+                    combat      => {'>=' => $ship->{combat} || 0},
+                    speed       => {'>=' => $ship->{speed} || 0},
+                    stealth     => {'>=' => $ship->{stealth} || 0},
+                    hold_size   => {'>=' => $ship->{hold_size} || 0},
                     task        => 'Docked',
                     id          => { 'not in' => \@ids },
                 },{
