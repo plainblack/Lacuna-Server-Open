@@ -43,8 +43,8 @@ X: foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('
             say "nothing needed";
         }
         else {
-            add_colony($zone);
-            last X if $add_one;
+            my $success = add_colony($zone);
+            last X if $add_one && $success;
         }
    }
 }
@@ -69,7 +69,10 @@ sub add_colony {
         { zone => $zone, empire_id => undef, size => { between => [40,49]}},
         { rows => 1, order_by => 'rand()' }
         )->single;
-    die 'Could not find a colony to occupy.' unless defined $body;
+    unless (defined $body) {
+        say 'Could not find a colony to occupy.';
+        return 0;
+    }
     say $body->name;
     
     out('Colonizing '.$body->name);
@@ -124,7 +127,8 @@ sub add_colony {
         say $building->name;
         $body->build_building($building);
         $building->finish_upgrade;
-    }    
+    }
+    return 1;
 }
 
 

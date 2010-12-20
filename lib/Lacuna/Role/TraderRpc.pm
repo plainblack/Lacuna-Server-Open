@@ -105,7 +105,7 @@ sub view_market {
         { rows => 25, page => $page_number, join => 'body' }
         );
     if ($filter && $filter ~~ [qw(food ore water waste energy glyph prisoner ship plan)]) {
-        $all_trades->search({ 'has_'.$filter => 1 });
+        $all_trades = $all_trades->search({ 'has_'.$filter => 1 });
     }
     my @trades;
     while (my $trade = $all_trades->next) {
