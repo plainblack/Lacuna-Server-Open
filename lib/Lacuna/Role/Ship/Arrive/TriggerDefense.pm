@@ -57,7 +57,7 @@ sub damage_in_combat {
         params      => [$self->type_formatted, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
     );
     $body_attacked->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
-    $self->destroy;
+    $self->delete;
     confess [-1]
 }
 
