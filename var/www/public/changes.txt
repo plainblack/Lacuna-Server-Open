@@ -5,6 +5,7 @@
  - Fixed a bug where colony ships where spending the happiness for the colony after next, rather than the next colony.
  - Fixed a bug where trades withdrawn didn't land the ships.
  - Fixed a bug where pushing wouldn't deliver the goods.
+ - Fixed defenses not being triggered for scanners.
 
 2.4001
  - Galleons had incorrect build time.
