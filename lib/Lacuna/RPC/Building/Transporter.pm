@@ -263,7 +263,7 @@ sub trade_one_for_one {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(view_my_market view_market accept_from_market withdraw_from_market add_to_market push_items trade_one_for_one get_stored_resources add_trade withdraw_trade accept_trade view_my_trades view_available_trades get_ships get_prisoners get_plans get_glyphs));
+__PACKAGE__->register_rpc_method_names(qw(report_abuse view_my_market view_market accept_from_market withdraw_from_market add_to_market push_items trade_one_for_one get_stored_resources add_trade withdraw_trade accept_trade view_my_trades view_available_trades get_ships get_prisoners get_plans get_glyphs));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
