@@ -121,7 +121,7 @@ sub format_description_of_payload {
             $level = '+'.$stats->{extra_build_level};
         }
         my $pattern = '%s (%s) plan'; 
-        push @items, sprintf($pattern, $stats->{class}->name, $level);
+        push @items, sprintf($pattern, $stats->{classname}->name, $level);
     }
     
     # spies
@@ -129,6 +129,7 @@ sub format_description_of_payload {
     if (exists $payload->{spies}) {
         foreach my $id (@{$payload->{spies}}) {
             my $spy = $spies->find($id);
+            next unless defined $spy;
             push @items, 'Level '.$spy->level.' spy named '.$spy->name . ' (transport)';
         }
     }
@@ -137,6 +138,7 @@ sub format_description_of_payload {
     if (exists $payload->{prisoners}) {
         foreach my $id (@{$payload->{prisoners}}) {
             my $spy = $spies->find($id);
+            next unless defined $spy;
             push @items, 'Level '.$spy->level.' spy named '.$spy->name . ' (prisoner)';
         }
     }
