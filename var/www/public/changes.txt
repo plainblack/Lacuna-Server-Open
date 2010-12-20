@@ -1,4 +1,8 @@
-2.40001
+2.4002
+ - Scanners had a typo that caused them to create crash bug upon arrival.
+ - Fixed a bug in the new market system.
+
+2.4001
  - Galleons had incorrect build time.
  - Surveyors had incorrect speed.
 

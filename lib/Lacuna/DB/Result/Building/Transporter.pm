@@ -70,9 +70,10 @@ sub add_to_market {
     unless ($self->level > $self->my_market->count) {
         confess [1009, "This Subspace Transporter can only support ".$self->level." trades at one time."];
     }
-    $offer = $self->structure_payload($offer, $self->determine_available_cargo_space);
+    my ($payload, $meta) = $self->structure_payload($offer, $self->determine_available_cargo_space);
     my %trade = (
-        %{$offer},
+        %{$meta},
+        payload         => %{$payload},
         ask             => $ask,
         body_id         => $self->body_id,
         transfer_type   => $self->transfer_type,

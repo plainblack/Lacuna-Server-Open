@@ -286,38 +286,56 @@ sub structure_payload {
 
     # send
     my $payload;
+    my %meta = ( offer_cargo_space_needed => $space_used );
     foreach my $item (@{$items}) {
         given($item->{type}) {
-            when ([qw(water energy waste), ORE_TYPES, FOOD_TYPES]) {
-                 $body->spend_type($item->{type}, $item->{quantity});
-                 $body->update;
-                 $payload->{resources}{$item->{type}} += $item->{quantity};
+            when ([qw(water energy waste)]) {
+                $body->spend_type($item->{type}, $item->{quantity});
+                $body->update;
+                $payload->{resources}{$item->{type}} += $item->{quantity};
+                $meta{'has_'.$item->{type}} = 1;
+             }
+            when ([ORE_TYPES]) {
+                $body->spend_type($item->{type}, $item->{quantity});
+                $body->update;
+                $payload->{resources}{$item->{type}} += $item->{quantity};
+                $meta{has_ore} = 1;
+             }
+            when ([FOOD_TYPES]) {
+                $body->spend_type($item->{type}, $item->{quantity});
+                $body->update;
+                $payload->{resources}{$item->{type}} += $item->{quantity};
+                $meta{has_food} = 1;
              }
             when ('glyph') {
                 my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyphs')->find($item->{glyph_id});
                 $glyph->delete;
                 push @{$payload->{glyphs}}, $glyph->type;
+                $meta{has_glyph} = 1;
             }
             when ('plan') {
                 my $plan = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->find($item->{plan_id});
                 $plan->delete;
                 push @{$payload->{plans}}, { class => $plan->class, level => $plan->level, extra_build_level => $plan->extra_build_level };
+                $meta{has_plan} = 1;
             }
             when ('prisoner') {
                 my $prisoner = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($item->{prisoner_id});
                 $prisoner->task('Prisoner Transport');
                 $prisoner->update;
                 push @{$payload->{prisoners}}, $prisoner->id;
+                $meta{has_prisoner} = 1;
             }
             when ('ship') {
                 my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($item->{ship_id});
                 $ship->task('In Transport');
                 $ship->update;
                 push @{$payload->{ships}}, $ship->id;
+                $meta{has_ship} = 1;
             }
         }
     }
-    return $payload;
+    return ($payload, \%meta);
 }
 
 

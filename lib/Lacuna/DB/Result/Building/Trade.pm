@@ -81,11 +81,12 @@ sub add_to_market {
     unless ($self->level > $self->my_market->count) {
         confess [1009, "This Trade Ministry can only support ".$self->level." trades at one time."];
     }
-    $offer = $self->structure_payload($offer, $ship->hold_size, undef, $ship);
+    my ($payload, $meta) = $self->structure_payload($offer, $ship->hold_size, undef, $ship);
     $ship->task('Waiting On Trade');
     $ship->update;
     my %trade = (
-        %{$offer},
+        %{$meta},
+        payload         => %{$payload},
         ask             => $ask,
         ship_id         => $ship->id,
         body_id         => $self->body_id,
