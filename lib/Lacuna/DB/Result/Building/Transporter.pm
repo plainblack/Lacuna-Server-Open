@@ -73,7 +73,7 @@ sub add_to_market {
     my ($payload, $meta) = $self->structure_payload($offer, $self->determine_available_cargo_space);
     my %trade = (
         %{$meta},
-        payload         => %{$payload},
+        payload         => $payload,
         ask             => $ask,
         body_id         => $self->body_id,
         transfer_type   => $self->transfer_type,

@@ -86,7 +86,7 @@ sub add_to_market {
     $ship->update;
     my %trade = (
         %{$meta},
-        payload         => %{$payload},
+        payload         => $payload,
         ask             => $ask,
         ship_id         => $ship->id,
         body_id         => $self->body_id,
