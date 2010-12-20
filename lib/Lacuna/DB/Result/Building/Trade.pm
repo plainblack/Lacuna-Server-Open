@@ -140,7 +140,7 @@ sub push_items {
         }
     }
     
-    my $payload = $self->structure_payload($items, $ship->hold_size, undef, $ship);
+    my ($payload, $meta) = $self->structure_payload($items, $ship->hold_size, undef, $ship);
     if ($options->{stay}) {
         $ship->body_id($target->id);
         $ship->body($target);

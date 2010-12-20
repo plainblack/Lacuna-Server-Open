@@ -3,7 +3,8 @@
  - Fixed a bug in the new market system.
  - Fixed the crash bug with the mission system after the release of the new ship system.
  - Fixed a bug where colony ships where spending the happiness for the colony after next, rather than the next colony.
- - Fixed a bug where trades withdrawn didn't land the ships. 
+ - Fixed a bug where trades withdrawn didn't land the ships.
+ - Fixed a bug where pushing wouldn't deliver the goods.
 
 2.4001
  - Galleons had incorrect build time.

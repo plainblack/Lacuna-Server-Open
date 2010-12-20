@@ -138,7 +138,7 @@ sub push_items {
         $space_available = $remote_payload;
         $space_exception = 'You are trying to send %s cargo, but the remote transporter can only receive '.$remote_payload.'.';
     }
-    my $payload = $self->structure_payload($items, $space_available, $space_exception);
+    my ($payload, $meta) = $self->structure_payload($items, $space_available, $space_exception);
     my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
     $cargo_log->new({
         message     => 'push resources',
