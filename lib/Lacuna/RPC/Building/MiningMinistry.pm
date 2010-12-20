@@ -137,7 +137,7 @@ sub remove_cargo_ship_from_fleet {
         $building->send_ship_home($from, $ship);
     }
     else {
-        $ship->land;
+        $ship->land->update;
     }
     return {
         status  => $self->format_status($empire, $building->body),
