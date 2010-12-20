@@ -7,7 +7,7 @@ after handle_arrival_procedures => sub {
     my ($self) = @_;
     
     # no defense at stars
-    return $self->foreign_body_id;
+    return unless $self->foreign_body_id;
     
     # no defense unless inhabited
     my $body_attacked = $self->foreign_body;
