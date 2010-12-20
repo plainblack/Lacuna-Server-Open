@@ -225,10 +225,10 @@ sub accept_from_market {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     $building->validate_captcha($empire, $guid, $solution, $trade_id);
-    my $trade = $building->trades->find($trade_id);
+    my $trade = $building->market->find($trade_id);
     unless (defined $trade) {
         $cache->delete('trade_lock',$trade_id);
-        confess [1002, 'Could not find that trade. Perhaps it has already been accepted.'];
+        confess [1002, 'Could not find that trade. Perhaps it has already been accepted.',$trade_id];
     }
     my $offer_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($trade->ship_id);
     unless (defined $offer_ship) {
