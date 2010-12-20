@@ -1,3 +1,6 @@
+2.40001
+ - Galleons had incorrect build time.
+
 2.4000
  - Fixed bug where some spy missions would return invalid JSON.
  - Fixed: Halls of Vrbansk get_upgradable_buildings was returning wrong URLs.
