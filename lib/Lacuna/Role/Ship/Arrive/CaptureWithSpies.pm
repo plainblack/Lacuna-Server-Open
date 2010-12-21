@@ -26,7 +26,7 @@ after handle_arrival_procedures => sub {
     return unless defined $security && $security->efficiency > 0;
     
     # lets see if we can detect the ship
-    my $security_detection = ($security->level * 700) * ( 100 / ($security->efficiency || 1));
+    my $security_detection = ($security->level * 700) * ( $security->efficiency / 100 );
     return unless $security_detection > $self->stealth;
     
     # ship detected, time to go kaboom
