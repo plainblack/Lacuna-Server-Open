@@ -254,7 +254,6 @@ sub report_abuse {
     if ($cache->get('trade_lock', $trade_id)) {
         confess [1013, 'A buyer has placed an offer on this trade. Please wait a few moments and try again.'];
     }
-    $cache->set('trade_lock',$trade_id,5);
     my $times_reporting = $cache->increment('empire_reporting_trade_abuse'.DateTime->now->day, $empire->id, 1, 60 * 60 * 24);
     if ($times_reporting > 10) {
         confess [1010, 'You have reported enough abuse for one day.'];
