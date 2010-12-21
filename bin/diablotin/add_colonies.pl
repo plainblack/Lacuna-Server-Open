@@ -24,11 +24,15 @@ out('Loading DB');
 our $db = Lacuna->db;
 my $config = Lacuna->config;
 my $empires = $db->resultset('Lacuna::DB::Result::Empire');
-
-
-out('getting empires...');
-my $diablotin = $empires->find(-2);
+my $viable_colonies = $db->resultset('Lacuna::DB::Result::Map::Body')->search(
+                { empire_id => undef, orbit => 7, size => { between => [41,49]}},
+                { rows => 1, order_by => 'rand()' }
+                );
 my $lec = $empires->find(1);
+my $diablotin = $empires->find(-2);
+unless (defined $diablotin) {
+    $diablotin = create_empire();
+}
 
 
 out('getting existing colonies');
@@ -44,10 +48,19 @@ X: foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('
             say "nothing needed";
         }
         else {
-            my $success = add_colony($zone);
-            last X if $add_one && $success;
+            out('Finding colony in '.$zone.'...');
+            my $body = $viable_colonies->search({zone => $zone})->single;
+            if (defined $body) {
+                out('Colonizing '.$body->name);
+                $body->found_colony($diablotin);
+                build_colony($body);
+                last X if $add_one;
+            }
+            else {
+                say 'Could not find a colony to occupy.';
+            }
         }
-   }
+    }
 }
 
 
@@ -63,21 +76,8 @@ out((($finish - $start)/60)." minutes have elapsed");
 ## SUBROUTINES
 ###############
 
-sub add_colony {
-    my $zone = shift;
-    out('Finding colony in '.$zone.'...');
-    my $body = $db->resultset('Lacuna::DB::Result::Map::Body')->search(
-        { zone => $zone, empire_id => undef, size => { between => [40,49]}},
-        { rows => 1, order_by => 'rand()' }
-        )->single;
-    unless (defined $body) {
-        say 'Could not find a colony to occupy.';
-        return 0;
-    }
-    say $body->name;
-    
-    out('Colonizing '.$body->name);
-    $body->found_colony($diablotin);
+sub build_colony {
+    my $body = shift;    
     
     out('Upgrading PCC');
     my $pcc = $body->command;
@@ -113,24 +113,16 @@ sub add_colony {
         ['Lacuna::DB::Result::Building::Food::Malcud',15],
         ['Lacuna::DB::Result::Building::Food::Malcud',15],
         ['Lacuna::DB::Result::Building::Food::Malcud',15],
-        ['Lacuna::DB::Result::Building::Food::Malcud',15],
-        ['Lacuna::DB::Result::Building::Food::Malcud',15],
         ['Lacuna::DB::Result::Building::Ore::Refinery',15],
         ['Lacuna::DB::Result::Building::Waste::Digester',15],
         ['Lacuna::DB::Result::Building::Waste::Digester',15],
         ['Lacuna::DB::Result::Building::Waste::Digester',15],
         ['Lacuna::DB::Result::Building::Waste::Digester',15],
         ['Lacuna::DB::Result::Building::Waste::Digester',15],
-        ['Lacuna::DB::Result::Building::Waste::Digester',15],
-        ['Lacuna::DB::Result::Building::Waste::Digester',15],
         ['Lacuna::DB::Result::Building::Energy::Singularity',15],
-        ['Lacuna::DB::Result::Building::Energy::Singularity',15],
+        ['Lacuna::DB::Result::Building::Energy::Singularity',13],
         ['Lacuna::DB::Result::Building::Water::Reclamation',15],
         ['Lacuna::DB::Result::Building::Water::Reclamation',15],
-        ['Lacuna::DB::Result::Building::Water::Reclamation',15],
-        ['Lacuna::DB::Result::Building::Water::Reclamation',15],
-        ['Lacuna::DB::Result::Building::Water::Production',15],
-        ['Lacuna::DB::Result::Building::Water::Production',15],
         ['Lacuna::DB::Result::Building::Water::Production',15],
         ['Lacuna::DB::Result::Building::Water::Production',15],
         ['Lacuna::DB::Result::Building::Archaeology',10],
@@ -154,9 +146,45 @@ sub add_colony {
         $body->build_building($building);
         $building->finish_upgrade;
     }
-    return 1;
 }
 
+sub create_empire {
+    out('Creating empire...');
+    my $empire = $empires->new({
+        id                  => -2,
+        name                => 'Diablotin',
+        stage               => 'founded',
+        date_created        => DateTime->now,
+        status_message      => 'Vous tes le bouffon!',
+        description         => 'La plaisanterie est sur toi.',
+        password            => Lacuna::DB::Result::Empire->encrypt_password(rand(99999999)),
+        university_level    => 30,
+        species_name            => 'Diablotin',
+        species_description     => 'Nous aimons nous amuser.',
+        min_orbit               => 7,
+        max_orbit               => 7,
+        manufacturing_affinity  => 7, # cost of building new stuff
+        deception_affinity      => 7, # spying ability
+        research_affinity       => 1, # cost of upgrading
+        management_affinity     => 1, # speed to build
+        farming_affinity        => 6, # food
+        mining_affinity         => 1, # minerals
+        science_affinity        => 7, # energy, propultion, and other tech
+        environmental_affinity  => 6, # waste and water
+        political_affinity      => 6, # happiness
+        trade_affinity          => 1, # speed of cargoships, and amount of cargo hauled
+        growth_affinity         => 1, # price and speed of colony ships, and planetary command center start level
+    });
+    
+    out('Find home planet...');
+    my $bodies = $db->resultset('Lacuna::DB::Result::Map::Body');
+    my $zone = $bodies->get_column('zone')->max;
+    my $home = $viable_colonies->search({zone => $zone})->single;
+    $empire->insert;
+    $empire->found($home);
+    build_colony($home);
+    return $empire;
+}
 
 sub out {
     my $message = shift;
