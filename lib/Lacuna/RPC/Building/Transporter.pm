@@ -219,7 +219,7 @@ sub accept_from_market {
         $cache->delete('trade_lock',$trade_id);
         confess [1002, 'Could not find that trade. Perhaps it has already been accepted.', $trade_id];
     }
-    unless ($building->determine_available_cargo_space >= $trade->ask_quantity) {
+    unless ($building->determine_available_cargo_space >= $trade->ask) {
         $cache->delete('trade_lock',$trade_id);
         confess [1011, 'This transporter has a maximum load size of '.$building->determine_available_cargo_space.'.'];
     }
