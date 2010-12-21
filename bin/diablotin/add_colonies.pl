@@ -6,6 +6,7 @@ use Lacuna;
 use Lacuna::Util qw(randint format_date);
 use Getopt::Long;
 use List::MoreUtils qw(uniq);
+use Lacuna::Constants qw(FINDABLE_PLANS);
 $|=1;
 our $quiet;
 our $add_one;
@@ -77,24 +78,28 @@ sub add_colony {
     
     out('Colonizing '.$body->name);
     $body->found_colony($diablotin);
-        
+    
+    out('Upgrading PCC');
+    my $pcc = $body->command;
+    $pcc->level(15);
+    $pcc->update;
+
     out('Placing structures on '.$body->name);
     my @plans = (
-        ['Lacuna::DB::Result::Building::Waste::Sequestration', 20],
-        ['Lacuna::DB::Result::Building::Waste::Sequestration', 20],
-        ['Lacuna::DB::Result::Building::Water::Storage', 20],
-        ['Lacuna::DB::Result::Building::Ore::Storage', 20],
-        ['Lacuna::DB::Result::Building::Energy::Reserve', 20],
-        ['Lacuna::DB::Result::Building::Food::Reserve', 20],
-        ['Lacuna::DB::Result::Building::Intelligence', 20],
-        ['Lacuna::DB::Result::Building::Security', 20],
-        ['Lacuna::DB::Result::Building::LuxuryHousing',15],
-        ['Lacuna::DB::Result::Building::CloakingLab', 20],
+        ['Lacuna::DB::Result::Building::Waste::Sequestration', 15],
+        ['Lacuna::DB::Result::Building::Waste::Sequestration', 15],
+        ['Lacuna::DB::Result::Building::Intelligence', 15],
+        ['Lacuna::DB::Result::Building::Security', 15],
+        ['Lacuna::DB::Result::Building::LuxuryHousing',10],
+        ['Lacuna::DB::Result::Building::CloakingLab', 15],
+        ['Lacuna::DB::Result::Building::MunitionsLab', 3],
         ['Lacuna::DB::Result::Building::Shipyard', 4],
         ['Lacuna::DB::Result::Building::Shipyard', 4],
-        ['Lacuna::DB::Result::Building::SpacePort', 20],
-        ['Lacuna::DB::Result::Building::SpacePort', 20],
-        ['Lacuna::DB::Result::Building::Observatory',20],
+        ['Lacuna::DB::Result::Building::Shipyard', 4],
+        ['Lacuna::DB::Result::Building::SpacePort', 15],
+        ['Lacuna::DB::Result::Building::SpacePort', 15],
+        ['Lacuna::DB::Result::Building::SpacePort', 15],
+        ['Lacuna::DB::Result::Building::Observatory',15],
         ['Lacuna::DB::Result::Building::Food::Syrup',15],
         ['Lacuna::DB::Result::Building::Food::Burger',15],
         ['Lacuna::DB::Result::Building::Food::Malcud',15],
@@ -104,15 +109,36 @@ sub add_colony {
         ['Lacuna::DB::Result::Building::Food::Malcud',15],
         ['Lacuna::DB::Result::Building::Food::Malcud',15],
         ['Lacuna::DB::Result::Building::Food::Malcud',15],
-        ['Lacuna::DB::Result::Building::Ore::Mine',15],
+        ['Lacuna::DB::Result::Building::Food::Malcud',15],
+        ['Lacuna::DB::Result::Building::Food::Malcud',15],
+        ['Lacuna::DB::Result::Building::Food::Malcud',15],
+        ['Lacuna::DB::Result::Building::Food::Malcud',15],
+        ['Lacuna::DB::Result::Building::Food::Malcud',15],
+        ['Lacuna::DB::Result::Building::Food::Malcud',15],
         ['Lacuna::DB::Result::Building::Ore::Refinery',15],
         ['Lacuna::DB::Result::Building::Waste::Digester',15],
         ['Lacuna::DB::Result::Building::Waste::Digester',15],
+        ['Lacuna::DB::Result::Building::Waste::Digester',15],
+        ['Lacuna::DB::Result::Building::Waste::Digester',15],
+        ['Lacuna::DB::Result::Building::Waste::Digester',15],
+        ['Lacuna::DB::Result::Building::Waste::Digester',15],
+        ['Lacuna::DB::Result::Building::Waste::Digester',15],
         ['Lacuna::DB::Result::Building::Energy::Singularity',15],
+        ['Lacuna::DB::Result::Building::Energy::Singularity',15],
+        ['Lacuna::DB::Result::Building::Water::Reclamation',15],
+        ['Lacuna::DB::Result::Building::Water::Reclamation',15],
+        ['Lacuna::DB::Result::Building::Water::Reclamation',15],
+        ['Lacuna::DB::Result::Building::Water::Reclamation',15],
         ['Lacuna::DB::Result::Building::Water::Production',15],
         ['Lacuna::DB::Result::Building::Water::Production',15],
         ['Lacuna::DB::Result::Building::Water::Production',15],
+        ['Lacuna::DB::Result::Building::Water::Production',15],
+        ['Lacuna::DB::Result::Building::Archaeology',10],
     );
+    
+    my @findable = FINDABLE_PLANS;
+    push @plans, [$findable[rand @findable], randint(1,30)];
+    
     my $buildings = $db->resultset('Lacuna::DB::Result::Building');
     foreach my $plan (@plans) {
         my ($x, $y) = $body->find_free_space;
