@@ -12,16 +12,18 @@ after handle_arrival_procedures => sub {
     
     # deploy the crater
     my $body_attacked = $self->foreign_body;
-    my ($x, $y) = $body_attacked->find_free_space;
-    my $deployed = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-        class       => 'Lacuna::DB::Result::Building::Permanent::Crater',
-        x           => $x,
-        y           => $y,
-    });
-    $deployed->start_work({},3600 * randint(24,168));
-    $body_attacked->build_building($deployed);
-    $body_attacked->needs_surface_refresh(1);
-    $body_attacked->update;
+    my ($x, $y) = eval{$body_attacked->find_free_space};
+    unless ($@) {
+        my $deployed = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+            class       => 'Lacuna::DB::Result::Building::Permanent::Crater',
+            x           => $x,
+            y           => $y,
+        });
+        $deployed->start_work({},3600 * randint(24,168));
+        $body_attacked->build_building($deployed);
+        $body_attacked->needs_surface_refresh(1);
+        $body_attacked->update;
+    }
     
     # notify home
     $self->body->empire->send_predefined_message(
