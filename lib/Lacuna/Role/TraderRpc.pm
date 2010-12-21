@@ -267,7 +267,7 @@ sub report_abuse {
                 params      => [join("\n",@{$trade->format_description_of_payload($trade->payload)}), $trade->ask.' essentia'],
                 tags        => ['Alert'],
             );
-            $trade->withdraw($building->body);
+            $trade->withdraw($trade->body);
         }
         return {
             status      => $self->format_status($empire, $building->body),
