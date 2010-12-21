@@ -467,8 +467,10 @@ sub www_delete_empire {
     unless (defined $empire) {
         confess [404, 'Empire not found.'];
     }
-    if ($empire->id <= 1) {
-        confess [400, 'That empire is required.'];
+    unless ($empire->self_destruct_active) {
+        if ($empire->id <= 1) {
+            confess [400, 'That empire is required.'];
+        }
     }
     $empire->delete;
     return $self->www_search_empires($request);
