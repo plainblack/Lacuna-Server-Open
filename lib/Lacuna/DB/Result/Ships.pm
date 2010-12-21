@@ -30,6 +30,7 @@ __PACKAGE__->add_columns(
 );
 __PACKAGE__->typecast_map(type => {
     'probe'                                 => 'Lacuna::DB::Result::Ships::Probe',
+    'stake'                                 => 'Lacuna::DB::Result::Ships::Stake',
     'placebo'                               => 'Lacuna::DB::Result::Ships::Placebo',
     'placebo2'                              => 'Lacuna::DB::Result::Ships::Placebo2',
     'placebo3'                              => 'Lacuna::DB::Result::Ships::Placebo3',

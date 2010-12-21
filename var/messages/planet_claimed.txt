@@ -1,0 +1,7 @@
+Planet Claimed
+~~~
+We have staked a claim to {Planet %s %s} as you requested. We now have 72 hours to found a colony before we lose our claim.
+
+Regards,
+
+Your Humble Assistant

@@ -1,0 +1,7 @@
+Coming Home
+~~~
+We arrived at {Starmap %s %s %s} and found that it had already been claimed by {Empire %s %s}. Their Stake prevented us from landing, so we had no choice but to turn back.
+
+Regards,
+
+%s Colony Mission Commander

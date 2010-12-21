@@ -1,0 +1,7 @@
+Coming Home
+~~~
+Our Stake named %s arrived at {Starmap %s %s %s} and found that it had already been claimed by {Empire %s %s}. The Stake has rerouted back home.
+
+Regards,
+
+Your Humble Assistant

@@ -37,6 +37,28 @@ sub ships_travelling {
     );
 }
 
+# CLAIM
+
+sub claim {
+    my ($self, $empire_id) = @_;
+    return Lacuna->cache->set('planet_claim_lock', $self->id, $empire_id, 60 * 60 * 24 * 3); # lock it
+}
+
+has is_claimed => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return Lacuna->cache->get('planet_claim_lock', $self->id);
+    }
+);
+
+sub claimed_by {
+    my $self = shift;
+    my $empire_id = $self->is_claimed;
+    return $empire_id ? Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id) : undef;    
+}
+
 # GLYPHS
 
 sub add_glyph {
