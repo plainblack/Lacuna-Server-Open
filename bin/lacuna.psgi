@@ -35,6 +35,13 @@ $urlmap->map("/facebook" => Lacuna::Web::Facebook->new->to_app);
 $urlmap->map("/apikey" => Lacuna::Web::ApiKey->new->to_app);
 
 # buildings
+$urlmap->map(Lacuna::RPC::Building::SAW->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Water::AtmosphericEvaporator->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::GreatBallOfJunk->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::JunkHengeSculpture->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::MetalJunkArches->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::PyramidJunkSculpture->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Permanent::SpaceJunkPark->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::ThemePark->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::BlackHoleGenerator->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::TheDillonForge->new->to_app_with_url);

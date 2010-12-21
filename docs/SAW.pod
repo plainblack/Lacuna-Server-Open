@@ -1,0 +1,7 @@
+=head1 Shield Against Weapons Methods
+
+Shield Against Weapons is accessible via the URL C</saw>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

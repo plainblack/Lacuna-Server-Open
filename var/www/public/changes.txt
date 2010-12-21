@@ -1,3 +1,14 @@
+2.4100
+ - When looking at trades in the market they are now sorted by price.
+ - Added 5 new waste monuments: Great Ball of Junk, Junk Henge Sculpture, Space Junk Park, Pyramid Junk Sculpture, and Metal Junk Arches.
+ - Added Shield Against Weapons building. SAW is great for ripping enemy ships from the sky. 
+ - Added Atmospheric Evaporator water producer building. This is the tier 2 water building.
+ - Added Stake ship. This can be used to hold a target planet until your colony ship arrives.
+ - You can now only have 2 singularity plants per planet. Existing planets with more than 2 are grandfathered in.
+ - You can now only have 2 luxury housing buildings per planet. Existing planets with more than 2 are grandfathered in.
+ - Fixed: Was calculating efficiency wrong for security ministry and space port as far as detecting ships.
+ - Flipped Space Port's ability to see the type of ship vs the path of where it's coming from, because it's more realistic that way.
+
 2.4002
  - Scanners had a typo that caused them to create crash bug upon arrival.
  - Fixed a bug in the new market system.

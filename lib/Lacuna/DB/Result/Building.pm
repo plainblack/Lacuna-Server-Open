@@ -1026,6 +1026,11 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk' => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk',
         'Lacuna::DB::Result::Building::Permanent::KasternsKeep' => 'Lacuna::DB::Result::Building::Permanent::KasternsKeep',
         'Lacuna::DB::Result::Building::Permanent::TheDillonForge' => 'Lacuna::DB::Result::Building::Permanent::TheDillonForge',
+        'Lacuna::DB::Result::Building::Permanent::GreatBallOfJunk' => 'Lacuna::DB::Result::Building::Permanent::GreatBallOfJunk',
+        'Lacuna::DB::Result::Building::Permanent::PyramidJunkSculpture' => 'Lacuna::DB::Result::Building::Permanent::PyramidJunkSculpture',
+        'Lacuna::DB::Result::Building::Permanent::MetalJunkArches' => 'Lacuna::DB::Result::Building::Permanent::MetalJunkArches',
+        'Lacuna::DB::Result::Building::Permanent::JunkHengeSculpture' => 'Lacuna::DB::Result::Building::Permanent::JunkHengeSculpture',
+        'Lacuna::DB::Result::Building::Permanent::SpaceJunkPark' => 'Lacuna::DB::Result::Building::Permanent::SpaceJunkPark',
     });
 }
 

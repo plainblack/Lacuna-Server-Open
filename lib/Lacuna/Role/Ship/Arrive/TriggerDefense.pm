@@ -38,6 +38,22 @@ after handle_arrival_procedures => sub {
         }
         $self->damage_in_combat($damage);
     }
+    
+    # get SAWs
+    my $saws = $body_attacked->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
+    
+    # if there are SAWs lets duke it out
+    while (my $saw = $saws->next) {
+        next if $saw->efficiency < 1;
+        next if $saw->is_working;
+        my $combat = ($saw->level * 1000) * ( $saw->efficiency / 100 );
+        $saw->spend_efficiency( int( $self->combat / 100 ) );
+        $saw->start_work({}, 60 * $self->level);
+        $saw->update;
+        $self->damage_in_combat($combat);
+    }
+    
+    
 };
 
 

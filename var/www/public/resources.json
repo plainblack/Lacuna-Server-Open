@@ -1,5 +1,12 @@
 {
     "buildings" : {
+        "/saw" : { "description" : "A railgun system used to protect your planet from enemy ships.", "wiki" : "http://community.lacunaexpanse.com/wiki/shield-against-weapons" },
+        "/atmosphericevaporator" : { "description" : "Produces water by condensing it from the air and soil.", "wiki" : "http://community.lacunaexpanse.com/wiki/atmospheric-evaporator" },
+        "/greatballofjunk" : { "description" : "Eliminate waste and give your citizens something to be proud of at the same time.", "wiki" : "http://community.lacunaexpanse.com/wiki/great-ball-of-junk" },
+        "/pyramidjunksculpture" : { "description" : "Eliminate waste and give your citizens something to be proud of at the same time.", "wiki" : "http://community.lacunaexpanse.com/wiki/pyramid-junk-sculpture" },
+        "/spacejunkpark" : { "description" : "Eliminate waste and give your citizens something to be proud of at the same time.", "wiki" : "http://community.lacunaexpanse.com/wiki/space-junk-park" },
+        "/junkhengesculpture" : { "description" : "Eliminate waste and give your citizens something to be proud of at the same time.", "wiki" : "http://community.lacunaexpanse.com/wiki/junk-henge-sculpture" },
+        "/metaljunkarches" : { "description" : "Eliminate waste and give your citizens something to be proud of at the same time.", "wiki" : "http://community.lacunaexpanse.com/wiki/metal-junk-arches" },
         "/deployedbleeder" : { "description" : "Converts planet's resources directly into waste.", "wiki" : "http://community.lacunaexpanse.com/wiki/bleeder" },
         "/oracleofanid" : { "description" : "The all seeing Oracle can help detect enemy threats.", "wiki" : "http://community.lacunaexpanse.com/wiki/oracle-of-anid" },
         "/themepark" : { "description" : "Produces happiness for your citizens through food and entertainment.", "wiki" : "http://community.lacunaexpanse.com/wiki/theme-park" },
@@ -119,6 +126,7 @@
         "/wheat" : { "description" : "Allows you to grow wheat on your planet.  You can only grow wheat on planets that are in orbits 2, 3 or 4 (the goldilox zone).  The Farm will produce more wheat for each level it is increased. All plants need a source of phosphorus to photosynthesize their food. Therefore you need a good source of gypsum, sulfur, or monazite for plants to thrive.", "wiki" : "http://community.lacunaexpanse.com/wiki/wheat-farm" }
     },
     "ships" : {
+        "stake" : { "description" : "Allows you to claim a planet prior to your colony ship arriving.", "wiki" : "http://community.lacunaexpanse.com/wiki/stake" },
         "thud" : { "description" : "Temporarily destroys plots on a planet's surface.", "wiki" : "http://community.lacunaexpanse.com/wiki/thud" },
         "sweeper" : { "description" : "An upgraded Figher who's primary role is offense rather than defense.", "wiki" : "http://community.lacunaexpanse.com/wiki/sweeper" },
         "placebo" : { "description" : "Use to fake an attack on another player.", "wiki" : "http://community.lacunaexpanse.com/wiki/placebo" },

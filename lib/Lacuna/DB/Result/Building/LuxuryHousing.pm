@@ -41,6 +41,7 @@ use constant water_consumption => 85;
 use constant waste_production => 60;
 
 use constant happiness_production => 230;
+use constant max_instances_per_planet => 2;
 
 
 

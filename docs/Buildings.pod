@@ -286,6 +286,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<Archaeology>
 
+=item L<AtmosphericEvaporator>
+
 =item L<Bean>
 
 =item L<Beeldeban>
@@ -352,6 +354,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<GratchsGauntlet>
 
+=item L<GreatBallOfJunk>
+
 =item L<Grove>
 
 =item L<HallsOfVrbansk>
@@ -361,6 +365,8 @@ Below is a list of the different types of structures that can be built on planet
 =item L<Intelligence>
 
 =item L<InterDimensionalRift>
+
+=item L<JunkHengeSculpture>
 
 =item L<KalavianRuins>
 
@@ -379,6 +385,8 @@ Below is a list of the different types of structures that can be built on planet
 =item L<Malcud>
 
 =item L<MassadsHenge>
+
+=item L<MetalJunkArches>
 
 =item L<Mine>
 
@@ -418,9 +426,13 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<Propulsion>
 
+=item L<PyramidJunkSculpture>
+
 =item L<RockyOutcrop>
 
 =item L<Sand>
+
+=item L<SAW>
 
 =item L<Security>
 
@@ -431,6 +443,8 @@ Below is a list of the different types of structures that can be built on planet
 =item L<Singularity>
 
 =item L<Soup>
+
+=item L<SpaceJunkPark>
 
 =item L<SpacePort>
 

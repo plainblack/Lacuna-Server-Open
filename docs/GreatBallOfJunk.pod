@@ -1,0 +1,7 @@
+=head1 Great Ball Of Junk Methods
+
+Great Ball Of Junk is accessible via the URL C</greatballofjunk>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut

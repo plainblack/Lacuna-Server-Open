@@ -1,0 +1,7 @@
+=head1 PyramidJunkSculpture Methods
+
+Pyramid Junk Sculpture is accessible via the URL C</pyramidjunksculpture>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut
