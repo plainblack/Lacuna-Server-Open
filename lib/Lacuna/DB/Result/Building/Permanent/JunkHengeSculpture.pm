@@ -12,6 +12,11 @@ sub can_upgrade {
     confess [1013, "You can't upgrade a monument."];
 }
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Waste Happiness));
+};
+
 use constant image => 'junkhengesculpture';
 
 sub image_level {

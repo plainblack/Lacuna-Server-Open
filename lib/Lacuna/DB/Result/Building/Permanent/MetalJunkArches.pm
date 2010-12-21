@@ -7,6 +7,11 @@ extends 'Lacuna::DB::Result::Building::Permanent';
 
 use constant controller_class => 'Lacuna::RPC::Building::MetalJunkArches';
 
+around 'build_tags' => sub {
+    my ($orig, $class) = @_;
+    return ($orig->($class), qw(Waste Happiness));
+};
+
 sub can_upgrade {
     confess [1013, "You can't upgrade a monument."];
 }
