@@ -102,7 +102,7 @@ sub view_market {
     $page_number ||=1;
     my $all_trades = $building->available_market->search(
         undef,
-        { rows => 25, page => $page_number, join => 'body' }
+        { rows => 25, page => $page_number, join => 'body', order_by => 'ask' }
         );
     if ($filter && $filter ~~ [qw(food ore water waste energy glyph prisoner ship plan)]) {
         $all_trades = $all_trades->search({ 'has_'.$filter => 1 });
