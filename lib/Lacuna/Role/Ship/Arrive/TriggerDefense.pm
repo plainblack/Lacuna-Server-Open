@@ -48,7 +48,7 @@ after handle_arrival_procedures => sub {
         next if $saw->is_working;
         my $combat = ($saw->level * 1000) * ( $saw->efficiency / 100 );
         $saw->spend_efficiency( int( $self->combat / 100 ) );
-        $saw->start_work({}, 60 * $self->level);
+        $saw->start_work({}, 60 * $saw->level);
         $saw->update;
         $self->damage_in_combat($combat);
     }
