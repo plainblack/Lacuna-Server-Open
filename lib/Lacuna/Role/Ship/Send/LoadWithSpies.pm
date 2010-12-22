@@ -5,7 +5,7 @@ use Moose::Role;
 
 after send => sub {
     my $self = shift;
-    return if exists $self->payload->{spies};
+    return if $self->payload->{spies}[0];
     my $arrives = DateTime->now->add(seconds=>$self->calculate_travel_time($self->foreign_body));
     my @spies;
     foreach my $spy (@{$self->get_available_spies_to_send}) {
