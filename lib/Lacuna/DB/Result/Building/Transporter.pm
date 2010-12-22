@@ -7,7 +7,6 @@ extends 'Lacuna::DB::Result::Building';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 
 with 'Lacuna::Role::Trader';
-with 'Lacuna::Role::Container';
 
 
 around 'build_tags' => sub {
@@ -139,6 +138,7 @@ sub push_items {
         $space_exception = 'You are trying to send %s cargo, but the remote transporter can only receive '.$remote_payload.'.';
     }
     my ($payload, $meta) = $self->structure_payload($items, $space_available, $space_exception);
+    my $container = Lacuna::VirtualContainer(payload => $payload);
     my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
     $cargo_log->new({
         message     => 'push resources',
@@ -147,7 +147,7 @@ sub push_items {
         object_type => ref($self),
         object_id   => $self->id,
     })->insert;
-    $self->unload($payload, $target);
+    $container->unload($target);
 }
 
 no Moose;

@@ -4,6 +4,8 @@ use Moose::Role;
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
 use Lacuna::Util qw(format_date commify);
 
+requires "payload";
+
 sub format_body_stats_for_log {
     my ($self, $body ) = @_;
     my %stats;
@@ -19,7 +21,8 @@ sub format_body_stats_for_log {
 }
 
 sub unload {
-    my ($self, $payload, $body) = @_;
+    my ($self, $body) = @_;
+    my $payload = $self->payload;
     my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
     $cargo_log->new({
         message     => 'payload to unload',
@@ -86,11 +89,14 @@ sub unload {
         object_type => ref($self),
         object_id   => $self->id,
     })->insert;
+    $self->payload($payload);
+    return $self;
 }
 
 sub format_description_of_payload {
-    my ($self, $payload) = @_;
+    my ($self) = @_;
     my @items;
+    my $payload = $self->payload;
     
     # essentia
     push @items, sprintf('%s essentia.', commify($payload->{essentia})) if ($payload->{essentia});

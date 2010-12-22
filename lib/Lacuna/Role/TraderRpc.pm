@@ -82,7 +82,7 @@ sub view_my_market {
             id                      => $trade->id,
             date_offered            => $trade->date_offered_formatted,
             ask                     => $trade->ask,
-            offer                   => $trade->format_description_of_payload($trade->payload),
+            offer                   => $trade->format_description_of_payload,
         };
     }
     return {
@@ -113,7 +113,7 @@ sub view_market {
             id                      => $trade->id,
             date_offered            => $trade->date_offered_formatted,
             ask                     => $trade->ask,
-            offer                   => $trade->format_description_of_payload($trade->payload),
+            offer                   => $trade->format_description_of_payload,
             body                    => {
                 id      => $trade->body_id,
             },
@@ -264,7 +264,7 @@ sub report_abuse {
         if (defined $trade) {
             $trade->body->empire->send_predefined_message(
                 filename    => 'trade_abuse.txt',
-                params      => [join("\n",@{$trade->format_description_of_payload($trade->payload)}), $trade->ask.' essentia'],
+                params      => [join("\n",@{$trade->format_description_of_payload}), $trade->ask.' essentia'],
                 tags        => ['Alert'],
             );
             $trade->withdraw($trade->body);

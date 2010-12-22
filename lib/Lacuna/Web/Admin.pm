@@ -295,9 +295,12 @@ sub www_view_ships {
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
     $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>Type</th><th>Stealth</th><th>Hold Size</th><th>Speed</th><th>Task</th><th>Delete</td></tr>';
     while (my $ship = $ships->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>', $ship->id, $ship->name, $ship->type_formatted, $ship->stealth, $ship->hold_size, $ship->speed, $ship->task);
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>', $ship->id, $ship->name, $ship->type_formatted, $ship->stealth, $ship->hold_size, $ship->speed);
         if ($ship->task eq 'Travelling') {
             $out .= sprintf('<td>%s<form method="post" action="/admin/zoom/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="zoom"></form></td>', $ship->task, $ship->id, $body_id);
+        }
+        elsif ($ship->task ne 'Docked') {
+            $out .= sprintf('<td>%s<form method="post" action="/admin/dock/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="dock"></form></td>', $ship->task, $ship->id);            
         }
         else {
             $out .= sprintf('<td>%s</td>', $ship->task);            
@@ -314,6 +317,13 @@ sub www_zoom_ship {
     my $body = $ship->body;
     $ship->update({date_available => DateTime->now});
     $body->tick;
+    return $self->www_view_ships($request);
+}
+
+sub www_dock_ship {
+    my ($self, $request) = @_;
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($request->param('ship_id'));
+    $ship->land->update;
     return $self->www_view_ships($request);
 }
 

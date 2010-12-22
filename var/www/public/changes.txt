@@ -12,6 +12,7 @@
  - Fixed corn meal grinder and cider bottler to work in any orbit.
  - Fixed trade accepted email.
  - Fixed sending too many spies.
+ - Fixed pushing brings everything back to source planet.
 
 2.4002
  - Scanners had a typo that caused them to create crash bug upon arrival.

@@ -6,10 +6,10 @@ use Moose::Role;
 after handle_arrival_procedures => sub {
     my ($self) = @_;
     if ($self->direction eq 'out') {
-        $self->unload($self->payload, $self->foreign_body);
+        $self->unload($self->foreign_body);
     }
     else {
-        $self->unload($self->payload, $self->body);
+        $self->unload($self->body);
     }
 };
 

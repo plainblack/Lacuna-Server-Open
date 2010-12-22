@@ -44,7 +44,7 @@ sub date_offered_formatted {
 sub withdraw {
     my ($self, $body) = @_;
     $body ||= $self->body;
-    $self->unload($self->payload, $body);
+    $self->unload($body);
     if ($self->ship_id) {
         my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($self->ship_id);
         $ship->land->update if defined $ship;
