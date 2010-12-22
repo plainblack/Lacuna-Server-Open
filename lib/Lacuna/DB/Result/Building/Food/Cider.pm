@@ -9,10 +9,6 @@ use constant controller_class => 'Lacuna::RPC::Building::Cider';
 
 use constant image => 'cider';
 
-use constant min_orbit => 3;
-
-use constant max_orbit => 3;
-
 use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Apple'=>5};
 
 use constant name => 'Apple Cider Bottler';
