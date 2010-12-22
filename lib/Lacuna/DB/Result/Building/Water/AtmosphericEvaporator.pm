@@ -7,7 +7,7 @@ extends 'Lacuna::DB::Result::Building::Water';
 
 use constant controller_class => 'Lacuna::RPC::Building::AtmosphericEvaporator';
 
-use constant image => 'atmposphericevaporator';
+use constant image => 'atmosphericevaporator';
 
 use constant name => 'Atmospheric Evaporator';
 

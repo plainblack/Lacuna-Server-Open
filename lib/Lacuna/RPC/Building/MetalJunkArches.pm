@@ -10,7 +10,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Result::Building::MetalJunkArches';
+    return 'Lacuna::DB::Result::Building::Permanent::MetalJunkArches';
 }
 
 no Moose;

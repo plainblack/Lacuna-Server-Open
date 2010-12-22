@@ -10,7 +10,7 @@ sub app_url {
 }
 
 sub model_class {
-    return 'Lacuna::DB::Result::Building::PyramidJunkSculpture';
+    return 'Lacuna::DB::Result::Building::Permanent::PyramidJunkSculpture';
 }
 
 no Moose;
