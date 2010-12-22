@@ -238,12 +238,12 @@ sub accept_from_market {
         object_type => ref($trade),
         object_id   => $trade->id,
     })->insert;
-    $trade->unload($trade->payload, $body);
     $trade->body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'trade_accepted.txt',
-        params      => [join("\n",@{$trade->format_description_of_payload($trade->payload)}), $trade->ask.' essentia'],
+        params      => [join("; ",@{$trade->format_description_of_payload($trade->payload)}), $trade->ask.' essentia'],
     );
+    $trade->unload($trade->payload, $body);
     $trade->delete;
     $body->update;
     $trade->body->update;
