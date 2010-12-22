@@ -567,7 +567,7 @@ sub www_view_empire {
     $out .= sprintf('<tr><th>Species</th><td>%s</td><td></td></tr>', $empire->species_name);
     $out .= sprintf('<tr><th>Home</th><td>%s</td><td></td></tr>', $empire->home_planet_id);
     $out .= sprintf('<tr><th>Description</th><td>%s</td><td></td></tr>', $empire->description);
-    $out .= sprintf('<tr><th>University Level</th><td>%s</td><td></td></tr>', $empire->university_level);
+    $out .= sprintf('<tr><th>University Level</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/change/university/level"><input type="hidden" name="id" value="%s"><input name="university_level" style="width: 30px;" value="0"><input type="submit" value="change"></form></td></tr>', $empire->university_level, $empire->id);
     $out .= sprintf('<tr><th>Isolationist</th><td>%s</td><td><a href="/admin/toggle/isolationist?id=%s">Toggle</a></td></tr>', $empire->is_isolationist, $empire->id);
     $out .= sprintf('<tr><th>Admin</th><td>%s</td><td><a href="/admin/toggle/admin?id=%s">Toggle</a></td></tr>', $empire->is_admin, $empire->id);
     $out .= sprintf('<tr><th>Mission Curator</th><td>%s</td><td><a href="/admin/toggle/mission/curator?id=%s">Toggle</a></td></tr>', $empire->is_mission_curator, $empire->id);
@@ -642,6 +642,18 @@ sub www_add_essentia {
         confess [404, 'Empire not found.'];
     }
     $empire->add_essentia($request->param('amount'), $request->param('description'))->update;
+    return $self->www_view_empire($request, $id);
+}
+
+sub www_change_university_level {
+    my ($self, $request) = @_;
+    my $id = $request->param('id');
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($id);
+    unless (defined $empire) {
+        confess [404, 'Empire not found.'];
+    }
+    $empire->university_level($request->param('university_level'));
+    $empire->update;
     return $self->www_view_empire($request, $id);
 }
 
