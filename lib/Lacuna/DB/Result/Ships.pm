@@ -252,6 +252,7 @@ sub finish_construction {
 sub land {
     my ($self) = @_;
     $self->task('Docked');
+    $self->date_available(DateTime->now);
     $self->payload({});
     return $self;
 }
