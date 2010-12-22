@@ -26,7 +26,7 @@ after handle_arrival_procedures => sub {
     }
     
     # can't colonize because it's claimed
-    elsif ($planet->is_claimed) {
+    elsif ($planet->is_claimed && $planet->is_claimed != $empire->id) {
         my $claimer = $planet->claimed_by;
         $empire->send_predefined_message(
             tags        => ['Alert'],
