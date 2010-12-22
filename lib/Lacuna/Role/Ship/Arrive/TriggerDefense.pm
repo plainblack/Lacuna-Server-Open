@@ -44,6 +44,7 @@ after handle_arrival_procedures => sub {
     
     # if there are SAWs lets duke it out
     while (my $saw = $saws->next) {
+        next if $saw->level < 1;
         next if $saw->efficiency < 1;
         next if $saw->is_working;
         my $combat = ($saw->level * 1000) * ( $saw->efficiency / 100 );
