@@ -319,7 +319,7 @@ The unique id of the trade.
 
 =head2 accept_from_market ( session_id, building_id, trade_id, captcha_guid, captcha_solution )
 
-Accept a trade offer from the list of available trades. See C<view_available_trades>.
+Accept a trade offer from the list of available trades. See C<view_market>.
 
  {
     "status" : { ... }
@@ -339,11 +339,11 @@ The unique id of the trade.
 
 =head3 captcha_guid
 
-The C<view_available_trades> list also includes a captcha guid. That string must be passed along with the trade. The guid used must be the most recent one returned (if you're caching the list of trades in some UI).
+The C<view_market> list also includes a captcha guid. That string must be passed along with the trade. The guid used must be the most recent one returned (if you're caching the list of trades in some UI).
 
 =head3 captcha_solution
 
-The captcha described by C<view_available_trades> will require the user to solve a simple puzzle to prove their humanity. The answer to that puzzle must be provided here.
+The captcha described by C<view_market> will require the user to solve a simple puzzle to prove their humanity. The answer to that puzzle must be provided here.
 
 
 
