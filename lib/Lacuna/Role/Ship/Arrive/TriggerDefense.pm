@@ -16,6 +16,21 @@ after handle_arrival_procedures => sub {
     # no defense against self
     return if $body_attacked->empire_id == $self->body->empire_id;
         
+    # get SAWs
+    my $saws = $body_attacked->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
+    
+    # if there are SAWs lets duke it out
+    while (my $saw = $saws->next) {
+        next if $saw->level < 1;
+        next if $saw->efficiency < 1;
+        next if $saw->is_working;
+        my $combat = ($saw->level * 1000) * ( $saw->efficiency / 100 );
+        $saw->spend_efficiency( int( $self->combat / 100 ) );
+        $saw->start_work({}, 60 * 5);
+        $saw->update;
+        $self->damage_in_combat($combat);
+    }
+
     # get defensive ships
     my $defense_ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         { body_id => $self->foreign_body_id, type => { in => [qw(fighter drone sweeper)]}, task=>'Docked'},
@@ -38,23 +53,6 @@ after handle_arrival_procedures => sub {
         }
         $self->damage_in_combat($damage);
     }
-    
-    # get SAWs
-    my $saws = $body_attacked->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
-    
-    # if there are SAWs lets duke it out
-    while (my $saw = $saws->next) {
-        next if $saw->level < 1;
-        next if $saw->efficiency < 1;
-        next if $saw->is_working;
-        my $combat = ($saw->level * 1000) * ( $saw->efficiency / 100 );
-        $saw->spend_efficiency( int( $self->combat / 100 ) );
-        $saw->start_work({}, 60 * $saw->level);
-        $saw->update;
-        $self->damage_in_combat($combat);
-    }
-    
-    
 };
 
 
