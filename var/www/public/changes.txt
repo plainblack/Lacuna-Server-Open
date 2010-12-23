@@ -2,11 +2,14 @@
  - Fixed the API docs for Trade Ministry and Transporter that were referring to deprecated methods.
  - SAWs now attack before defensive ships.
  - SAWs now have a cooldown time of 5 minutes, regardless of level.
+ - SAWs are now available at University level 8.
  - You can now build Stakes at level 10 Observatory.
  - Lowered the base speed and combat of the Sweeper by 400.
  - The odds of finding better stuff with an excavator are now increased by the distance it travels from its home planet.
  - Added another voting site to the Entertainment District.
- - Voting in the Entertainment District is now per zone rather that server-wide. You can still only vote on each link once per empire per day, but if you wanted to, you could vote on a different link in a different zone.
+ - Lottery in the Entertainment District is now per zone rather than server-wide. You can still only vote on each link once per empire per day, but if you wanted to, you could vote on a different link in a different zone.
+ - Fixed genetics lab api error.
+ - Eliminated "In Transit" as a ship status, in favor of "Waiting on Trade". The incosistency was causing many problems.
 
 2.4100
  - When looking at trades in the market they are now sorted by price.
