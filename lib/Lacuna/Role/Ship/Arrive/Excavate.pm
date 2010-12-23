@@ -12,15 +12,16 @@ after handle_arrival_procedures => sub {
     return if ($self->direction eq 'in');
 
     # what are our chances
-    my $find = randint(1,100);
-
-    # found a plan
     my $remote_body = $self->foreign_body;
     my $body = $self->body;
+    my $distance_modifier = int($body->calculate_distance_to_target($remote_body) / 100);
+    my $find = randint(1,100) - $distance_modifier;
+
+    # found a plan
     my $empire = $body->empire;
     if ($find < 5) {
         my $class = random_element([FINDABLE_PLANS]);
-        my $plan = $body->add_plan($class, 1, ($find == 1) ? randint(1,3) : 0);
+        my $plan = $body->add_plan($class, 1, ($find == 1) ? randint(1,4) : 0);
         $empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'plan_discovered_by_excavator.txt',
@@ -59,7 +60,7 @@ after handle_arrival_procedures => sub {
         );
     }
     
-    # wha wha wha wah - nothing!
+    # wha wha wha wahaa - nothing!
     else {
         $empire->send_predefined_message(
             tags        => ['Correspondence'],
