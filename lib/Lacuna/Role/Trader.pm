@@ -328,7 +328,7 @@ sub structure_payload {
             }
             when ('ship') {
                 my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($item->{ship_id});
-                $ship->task('In Transport');
+                $ship->task('Waiting On Trade');
                 $ship->update;
                 push @{$payload->{ships}}, $ship->id;
                 $meta{has_ship} = 1;
