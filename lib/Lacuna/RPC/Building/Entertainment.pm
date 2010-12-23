@@ -35,7 +35,7 @@ sub get_lottery_voting_options {
     foreach my $site (@{$config->get('voting_sites')}) {
         next if $cache->get($site->{url}, $empire->id);
         push @list, {
-            url     => $server_url.'entertainment/vote?session_id='.$session_id.'&site_url='.uri_encode($site->{url}, 1),
+            url     => $server_url.'entertainment/vote?session_id='.$session_id.'&building_id='.$building_id.'&site_url='.uri_encode($site->{url}, 1),
             name    => $site->{name},
         };
     }

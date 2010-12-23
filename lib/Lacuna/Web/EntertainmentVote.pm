@@ -21,6 +21,17 @@ sub www_default {
         confess [417, 'You need to specify a site.'];
     }
     my $found;
+    my $building_id = $request->param('building_id');
+    unless ($building_id) {
+        confess [400, 'You need to pass a building id'];
+    }
+    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->find($building_id);
+    unless (defined $building) {
+        confess [404, 'Could not find your entertainment district.'];
+    }
+    unless ($building->body->empire_id == $empire->id) {
+        confess [401, 'You do not own that building.'];
+    }
     foreach my $site (@{Lacuna->config->get('voting_sites')}) {
         if ($site->{url} eq $url) {
             $found = 1;
@@ -34,9 +45,10 @@ sub www_default {
     $cache->set($url,$empire->id,1, 60*60*24);
     my $ticket = randint(1,99999);
     my $ymd = DateTime->now->ymd;
-    if ($ticket > $cache->get('high_vote', $ymd)) {
-        $cache->set('high_vote', $ymd, $ticket, 60*60*48);
-        $cache->set('high_vote_empire', $ymd, $empire->id, 60*60*48);
+    my $zone = $building->body->zone;
+    if ($ticket > $cache->get('high_vote'.$zone, $ymd)) {
+        $cache->set('high_vote'.$zone, $ymd, $ticket, 60*60*48);
+        $cache->set('high_vote_empire'.$zone, $ymd, $empire->id, 60*60*48);
     }
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Lottery')->new({
         empire_id   => $empire->id,

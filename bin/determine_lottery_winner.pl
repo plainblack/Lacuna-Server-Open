@@ -18,20 +18,31 @@ my $start = time;
 
 out('Loading DB');
 our $db = Lacuna->db;
-
-my $cache = Lacuna->cache;
+our $config = Lacuna->config;
+our $cache = Lacuna->cache;
+our $news = $db->resultset('Lacuna::DB::Result::News');
+our $empires = $db->resultset('Lacuna::DB::Result::Empire');
 my $ymd = DateTime->now->subtract(days=>1)->ymd;
-my $empire_id = $cache->get('high_vote_empire', $ymd);
-if ($empire_id) {
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
-    if ($empire) {
-        out('Winner: '.$empire->name);
-        $empire->add_essentia(10, 'Entertainment District Lottery')->update;
-        $empire->send_predefined_message(
-            tags        => ['Alert'],
-            filename    => 'we_won_the_lottery.txt',
-        );
-        $empire->home_planet->add_news(70,'And the winning numbers are...'.randint(10,99).', '.randint(10,99).', and '.randint(10,99).'...%s has won today\'s lottery!', $empire->name);
+X: foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map_size/x')->[1]/250)) {
+    Y: foreach my $y (int($config->get('map_size/y')->[0]/250) .. int($config->get('map_size/y')->[1]/250)) {
+        my $zone = $x.'|'.$y;
+        say $zone;
+        my $empire_id = $cache->get('high_vote_empire'.$zone, $ymd);
+        if ($empire_id) {
+            my $empire = $empires->find($empire_id);
+            if ($empire) {
+                out('Winner: '.$empire->name);
+                $empire->add_essentia(10, 'Entertainment District Lottery')->update;
+                $empire->send_predefined_message(
+                    tags        => ['Alert'],
+                    filename    => 'we_won_the_lottery.txt',
+                );
+                $news->new({
+                    headline    => sprintf('And the winning numbers are...'.randint(10,99).', '.randint(10,99).', and '.randint(10,99).'...%s has won today\'s lottery!', $empire->name),
+                    zone        => $zone,
+                })->insert;
+            }
+        }
     }
 }
 
