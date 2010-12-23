@@ -313,7 +313,8 @@ sub www_view_ships {
 
 sub www_zoom_ship {
     my ($self, $request) = @_;
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($request->param('ship_id'));
+    my $ship_id = $request->param('ship_id');
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     my $body = $ship->body;
     $ship->update({date_available => DateTime->now});
     $body->tick;
@@ -322,7 +323,8 @@ sub www_zoom_ship {
 
 sub www_dock_ship {
     my ($self, $request) = @_;
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($request->param('ship_id'));
+    my $ship_id = $request->param('ship_id');
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     $ship->land->update;
     return $self->www_view_ships($request);
 }
