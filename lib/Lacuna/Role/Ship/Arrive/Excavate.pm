@@ -14,7 +14,7 @@ after handle_arrival_procedures => sub {
     # what are our chances
     my $remote_body = $self->foreign_body;
     my $body = $self->body;
-    my $distance_modifier = int($body->calculate_distance_to_target($remote_body) / 100);
+    my $distance_modifier = int($body->calculate_distance_to_target($remote_body) / 10000);
     my $find = randint(1,100) - $distance_modifier;
 
     # found a plan
