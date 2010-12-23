@@ -25,11 +25,11 @@ our $db = Lacuna->db;
 my $config = Lacuna->config;
 my $empires = $db->resultset('Lacuna::DB::Result::Empire');
 my $viable_colonies = $db->resultset('Lacuna::DB::Result::Map::Body')->search(
-                { empire_id => undef, orbit => 7, size => { between => [41,49]}},
+                { empire_id => undef, orbit => 7, size => { between => [45,49]}},
                 { rows => 1, order_by => 'rand()' }
                 );
 my $lec = $empires->find(1);
-my $diablotin = $empires->find(-2);
+my $diablotin = $empires->find(-7);
 unless (defined $diablotin) {
     $diablotin = create_empire();
 }
@@ -126,6 +126,10 @@ sub build_colony {
         ['Lacuna::DB::Result::Building::Water::Production',15],
         ['Lacuna::DB::Result::Building::Water::Production',15],
         ['Lacuna::DB::Result::Building::Archaeology',10],
+        ['Lacuna::DB::Result::Building::SAW',6],
+        ['Lacuna::DB::Result::Building::SAW',6],
+        ['Lacuna::DB::Result::Building::SAW',6],
+        ['Lacuna::DB::Result::Building::SAW',6],
     );
     
     my @findable = FINDABLE_PLANS;
@@ -151,7 +155,7 @@ sub build_colony {
 sub create_empire {
     out('Creating empire...');
     my $empire = $empires->new({
-        id                  => -2,
+        id                  => -7,
         name                => 'Diablotin',
         stage               => 'founded',
         date_created        => DateTime->now,
