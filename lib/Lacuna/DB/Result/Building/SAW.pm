@@ -24,7 +24,7 @@ before has_special_resources => sub {
 
 use constant controller_class => 'Lacuna::RPC::Building::SAW';
 
-use constant university_prereq => 15;
+use constant university_prereq => 8;
 
 use constant image => 'saw';
 
