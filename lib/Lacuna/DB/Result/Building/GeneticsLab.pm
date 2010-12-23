@@ -100,7 +100,7 @@ sub is_survival_success {
 
 sub experiment {
     my ($self, $spy, $affinity) = @_;
-    unless ($spy->body_id == $self->body_id && $spy->task eq 'Captured') {
+    unless ($spy->on_body_id == $self->body_id && $spy->task eq 'Captured') {
         confess [1010, 'This spy is not a prisoner on your planet.'];
     }
     unless ($affinity ~~ $self->find_graftable($spy)) {
