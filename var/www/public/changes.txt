@@ -1,3 +1,6 @@
+2.4102
+ - Fixed bleeders and thuds being added to the normal build queue on striking ground.
+
 2.4101
  - Fixed the API docs for Trade Ministry and Transporter that were referring to deprecated methods.
  - SAWs now attack before defensive ships.
