@@ -122,14 +122,15 @@ sub build_colony {
         ['Lacuna::DB::Result::Building::Energy::Singularity',15],
         ['Lacuna::DB::Result::Building::Energy::Singularity',13],
         ['Lacuna::DB::Result::Building::Water::Reclamation',15],
-        ['Lacuna::DB::Result::Building::Water::Reclamation',15],
-        ['Lacuna::DB::Result::Building::Water::Production',15],
-        ['Lacuna::DB::Result::Building::Water::Production',15],
+        ['Lacuna::DB::Result::Building::Water::AtmosphericEvaporator',15],
         ['Lacuna::DB::Result::Building::Archaeology',10],
-        ['Lacuna::DB::Result::Building::SAW',6],
-        ['Lacuna::DB::Result::Building::SAW',6],
-        ['Lacuna::DB::Result::Building::SAW',6],
-        ['Lacuna::DB::Result::Building::SAW',6],
+        ['Lacuna::DB::Result::Building::SAW',10],
+        ['Lacuna::DB::Result::Building::SAW',10],
+        ['Lacuna::DB::Result::Building::SAW',10],
+        ['Lacuna::DB::Result::Building::SAW',10],
+        ['Lacuna::DB::Result::Building::SAW',10],
+        ['Lacuna::DB::Result::Building::SAW',10],
+        ['Lacuna::DB::Result::Building::SAW',10],
     );
     
     my @findable = FINDABLE_PLANS;
