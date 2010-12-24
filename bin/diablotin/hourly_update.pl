@@ -33,9 +33,9 @@ while (my $colony = $colonies->next) {
     $colony->tick;
     set_defenders($colony);
     burn_captured_spies($colony);
+    repair_buildings($colony);
     train_spies($colony);
     build_ships($colony);
-    repair_buildings($colony);
 }
 
 
