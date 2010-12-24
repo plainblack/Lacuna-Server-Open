@@ -410,8 +410,8 @@ sub is_space_free {
 
 sub find_free_space {
     my $self = shift;
-    my $x = randint(-4,5);
-    my $y = randint(-4,5);
+    my $x = randint(-3,5);
+    my $y = randint(-3,5);
     if ($self->is_space_free($x, $y)) {
         return ($x, $y);
     }
@@ -595,7 +595,7 @@ sub is_plot_locked {
 }
 
 sub build_building {
-    my ($self, $building) = @_;
+    my ($self, $building, $in_parallel) = @_;
     unless ($building->isa('Lacuna::DB::Result::Building::Permanent')) {
         $self->building_count( $self->building_count + 1 );
         $self->plots_available( $self->plots_available - 1 );
@@ -606,7 +606,7 @@ sub build_building {
     $building->level(0) unless $building->level;
     $building->insert;
     $building->body($self);
-    $building->start_upgrade;
+    $building->start_upgrade(undef, $in_parallel);
 }
 
 sub found_colony {
