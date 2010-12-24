@@ -115,6 +115,7 @@ sub format_description_of_payload {
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     foreach my $id (@{ $payload->{ships}}) {
         my $ship = $ships->find($id);
+        next unless defined $ship;
         my $pattern = '%s (speed: %s, stealth: %s, hold size: %s, combat: %s)' ;
         push @items, sprintf($pattern, $ship->type_formatted, commify($ship->speed), commify($ship->stealth), commify($ship->hold_size), commify($ship->combat));
     }
