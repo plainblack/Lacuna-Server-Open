@@ -23,7 +23,7 @@ our $spies = $db->resultset('Lacuna::DB::Result::Spies');
 our $ships = $db->resultset('Lacuna::DB::Result::Ships');
 
 out('getting empires...');
-my $diablotin = $empires->find(-1);
+my $diablotin = $empires->find(-7);
 
 
 out('Looping through colonies...');
