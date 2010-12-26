@@ -74,6 +74,7 @@ sub get_status {
         politics            => $self->politics_xp,
         theft               => $self->theft_xp,
         assignment          => $self->task,
+        possible_assignments=> $self->get_possible_assignments,
         assigned_to         => {
             body_id => $self->on_body_id,
             name    => $self->on_body->name,
@@ -85,6 +86,59 @@ sub get_status {
 }
 
 # ASSIGNMENT STUFF
+
+sub get_possible_assignments {
+    my $self = shift;
+    my @assignments = qw(Idle);
+    
+    # can't be assigned anything right now
+    unless ($self->task ~~ ['Counter Espionage','Idle']) {
+        return [$self->task];
+    }
+    
+    # at home you can defend
+    if ($self->on_body->empire_id == $self->from_body->empire_id) {
+        push @assignments, 'Counter Espionage';
+    }
+    
+    # at allies you can defend and attack
+    elsif ($self->on_body->empire->alliance_id && $self->on_body->empire->alliance_id == $self->from_body->empire->alliance_id) {
+        push @assignments,
+            'Counter Espionage',
+            'Gather Resource Intelligence',
+            'Gather Empire Intelligence',
+            'Gather Operative Intelligence',
+            'Hack Network 19',
+            'Appropriate Technology',
+            'Sabotage Probes',
+            'Rescue Comrades',
+            'Sabotage Resources',
+            'Appropriate Resources',
+            'Assassinate Operatives',
+            'Sabotage Infrastructure',
+            'Incite Mutiny',
+            'Incite Rebellion';
+    }
+    
+    # at hostiles you can attack
+    else {
+        push @assignments,
+            'Gather Resource Intelligence',
+            'Gather Empire Intelligence',
+            'Gather Operative Intelligence',
+            'Hack Network 19',
+            'Appropriate Technology',
+            'Sabotage Probes',
+            'Rescue Comrades',
+            'Sabotage Resources',
+            'Appropriate Resources',
+            'Assassinate Operatives',
+            'Sabotage Infrastructure',
+            'Incite Mutiny',
+            'Incite Rebellion';
+    }
+    return \@assignments;
+}
 
 sub format_available_on {
     my ($self) = @_;
@@ -174,10 +228,10 @@ use constant assignments => (
 sub assign {
     my ($self, $assignment) = @_;
     my @assignments = $self->assignments;
-    unless ($assignment ~~ @assignments) {
+    unless ($assignment ~~ \@assignments) {
         return { result =>'Failure', reason => random_element(['I am not trained for that.','Don\'t know how.']) };
     }
-    unless ($self->is_available) {
+    if (!$self->is_available || !($assignment ~~ $self->get_possible_assignments)) {
         return { result =>'Failure', reason => random_element(['I am busy just now.','It will have to wait.','Can\'t right now.','Maybe later.']) };
     }
     
