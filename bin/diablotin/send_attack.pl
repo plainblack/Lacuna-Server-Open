@@ -52,6 +52,7 @@ while (my $attacking_colony = $colonies->next) {
     });
     my @ships = qw(thud placebo placebo2 placebo3);
     while (my $target_colony = $targets->next) {
+        out('Attacking '.$target_colony->name);
         push @attacks, start_attack($attacking_colony, $target_colony, shift @ships);
     }
 }
