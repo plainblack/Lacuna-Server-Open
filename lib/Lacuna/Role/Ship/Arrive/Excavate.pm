@@ -51,7 +51,7 @@ after handle_arrival_procedures => sub {
     # found some resources
     elsif ($find < 66) {
         my $type = random_element([ORE_TYPES, FOOD_TYPES, qw(water energy)]);
-        my $amount = randint(100,2500);
+        my $amount = randint(100 + $distance_modifier, 2500 + $distance_modifier);
         $body->add_type($type, $amount)->update;
         $empire->send_predefined_message(
             tags        => ['Alert'],
