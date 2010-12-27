@@ -49,7 +49,7 @@ after handle_arrival_procedures => sub {
     }
     
     # found some resources
-    elsif ($find < 66) {
+    elsif ($find < 80) {
         my $type = random_element([ORE_TYPES, FOOD_TYPES, qw(water energy)]);
         my $amount = randint(100 + $distance_modifier, 2500 + $distance_modifier);
         $body->add_type($type, $amount)->update;
