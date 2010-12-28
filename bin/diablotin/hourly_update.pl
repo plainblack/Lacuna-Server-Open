@@ -32,10 +32,10 @@ while (my $colony = $colonies->next) {
     out('Colony: '.$colony->name);
     $colony->tick;
     set_defenders($colony);
-    burn_captured_spies($colony);
     repair_buildings($colony);
     train_spies($colony);
     build_ships($colony);
+    run_missions($colony);
 }
 
 
@@ -50,13 +50,22 @@ out((($finish - $start)/60)." minutes have elapsed");
 ## SUBROUTINES
 ###############
 
-sub burn_captured_spies {
+sub run_missions {
     my $colony = shift;
-    out('Burning captured spies...');
-    my $captured_spies = $spies->search({from_body_id => $colony->id, on_body_id => {'!=', $colony->id}, task=>'Captured'});
-    while (my $spy = $captured_spies->next) {
-        say "Spy burned";
-        $spy->burn;
+    out('Running missions...');
+    my @missions = ('Appropriate Resources','Sabotage Resources');
+    my $mission = $missions[rand @missions];
+    my $infiltrated_spies = $spies->search({from_body_id => $colony->id, on_body_id => {'!=', $colony->id}});
+    while (my $spy = $infiltrated_spies->next) {
+        say $spy->id;
+        if ($spy->is_available) {
+            say "running mission...";
+            my $result = eval{$spy->assign($mission)};
+            say $result->{result};
+        }
+        else {
+            say "not available";
+        }
     }
 }
 
