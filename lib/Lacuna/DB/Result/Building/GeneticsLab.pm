@@ -133,7 +133,8 @@ sub experiment {
         $message .= ', and the prisoner survived the experiment.';
     }
     else {
-        $spy->kill;
+        $spy->killed_in_action;
+        $spy->delete;
         $message .= ', and the prisoner did not survive the experiment.';
     }
     return {

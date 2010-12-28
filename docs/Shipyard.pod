@@ -80,6 +80,10 @@ Returns a list of buildable ships and their costs, and if they're not buildable,
             },
             attributes : {
                 "speed" : 1000,    # 100 roughly equals 1 star in 1 hour
+                "hold_size" : 1000,
+                "max_occupants" : 2,
+                "combat" : 0,
+                "stealth" : 1500
             }
         },
         ...

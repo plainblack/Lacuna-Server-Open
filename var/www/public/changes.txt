@@ -2,6 +2,11 @@
  - API now tells you exactly what assignments a spy can be given at the present time and how long the recovery time will be.
  - Added "Security Sweep" defensive assignment.
  - Fixed a crash bug with fleet movement missions.
+ - If you have ships heading to a body that becomes uninhabited while on route, the ships will now turn around and come home instead of falling dead.
+ - If you have spies on a body that becomes uninhabited while they are on the planet, they will teleport home.
+ - You can now only have 1 subspace transporter per planet. That's all that ever made sense anyway.
+ - Fixed a bug in the genetics ministry where killed spies didn't get killed.
+ - Exposed "max_occupants" on shipyard.get_buildable().
 
 2.4102
  - Fixed bleeders and thuds being added to the normal build queue on striking ground.
