@@ -1,0 +1,7 @@
+Agent Abducted
+~~~
+Nobody has seen %s for a while. The current thinking in the Intelligence community is that %s was abducted.
+
+Regards,
+
+Your Humble Assistant

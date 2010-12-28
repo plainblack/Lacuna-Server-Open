@@ -1,0 +1,5 @@
+Got One!
+~~~
+I've bagged %s and am on my way home with our new prisoner now.
+
+%s

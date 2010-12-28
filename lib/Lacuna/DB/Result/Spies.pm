@@ -133,6 +133,10 @@ use constant offensive_assignments => (
         recovery    => 60 * 60 * 12,
     },
     {
+        task        =>'Abduct Operatives',
+        recovery    => 60 * 60 * 12,
+    },
+    {
         task        =>'Appropriate Technology',
         recovery    => 60 * 60 * 12,
     },
@@ -270,6 +274,7 @@ use constant assignments => (
     'Sabotage Infrastructure',
     'Assassinate Operatives',
     'Incite Mutiny',
+    'Abduct Operatives',
     'Appropriate Technology',
     'Incite Rebellion',
 );
@@ -367,6 +372,7 @@ my %skills = (
     'Assassinate Operatives'        => 'mayhem_xp',
     'Sabotage Infrastructure'       => 'mayhem_xp',
     'Incite Mutiny'                 => 'politics_xp',
+    'Abduct Operatives'             => 'intel_xp',
     'Incite Rebellion'              => 'politics_xp',    
 );
 
@@ -385,6 +391,7 @@ my %outcomes = (
     'Assassinate Operatives'        => 'assassinate_operatives',
     'Sabotage Infrastructure'       => 'sabotage_infrastructure',
     'Incite Mutiny'                 => 'incite_mutany',
+    'Abduct Operatives'             => 'abduct_operatives',
     'Incite Rebellion'              => 'incite_rebellion',    
 );
 
@@ -893,6 +900,23 @@ sub rescue_comrades_loss {
     }
 }
 
+sub abduct_operatives {
+    my $self = shift;
+    given (randint(1,1)) {
+        when (1) { return $self->abduct_operative(@_) }
+    }
+}
+
+sub abduct_operatives_loss {
+    my $self = shift;
+    given (randint(1,4)) {
+        when (1) { return $self->capture_kidnapper(@_) }
+        when (2) { return $self->knock_attacker_unconscious(@_) }
+        when (3) { return $self->thwart_intelligence(@_) }
+        when (4) { return $self->kill_intelligence(@_) }
+    }
+}
+
 sub sabotage_resources {
     my $self = shift;
     given (randint(1,4)) {
@@ -1150,6 +1174,40 @@ sub capture_rebel {
     return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(50,'Police say they have crushed the rebellion on %s by apprehending %s.', $self->on_body->name, $self->name);
     return $defender->capture_a_spy($self)->id;
+}
+
+sub capture_kidnapper {
+    my ($self, $defender) = @_;
+    return $self->get_spooked->id unless (defined $defender);
+    $self->on_body->add_news(50,'Police say they have captured the notorious %s-time kidnapper %s on %s.', randint(10,20), $self->on_body->name, $self->name);
+    return $defender->capture_a_spy($self)->id;
+}
+
+sub abduct_operative {
+    my ($self, $defender) = @_;
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        {body_id => $self->on_body->id, task => 'Docked', hold_size => { '>=' => 700 }},
+        {rows => 1}
+        )->single;
+    return $self->ship_not_found unless (defined $ship);
+    return $self->get_spooked->id unless (defined $defender);
+    $defender->task('Waiting On Trade');
+    $defender->update;
+    $ship->send(
+        target      => $self->from_body,
+        direction   => 'in',
+        payload     => { spies => [ $self->id ], prisoners => [$defender->id] }
+    );
+    $defender->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'spy_abducted.txt',
+        params      => [$defender->format_from, $defender->name],
+    );
+    return $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'bringing_home_abductee.txt',
+        params      => [$defender->format_from, $self->format_from],
+    )->id;
 }
 
 #sub kill_rebel {

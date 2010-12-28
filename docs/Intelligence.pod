@@ -324,6 +324,10 @@ Destroy buildings.
 
 Turn spies. If successful they come work for you.
 
+=item Abduct Operatives
+
+Kidnap a spy and bring him back home.
+
 =item Appropriate Technology
 
 Steal plans for buildings that this empire has built, or has in inventory.
