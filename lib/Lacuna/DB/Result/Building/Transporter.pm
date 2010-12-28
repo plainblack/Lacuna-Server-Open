@@ -41,6 +41,7 @@ use constant energy_consumption => 10;
 use constant ore_consumption => 3;
 
 use constant water_consumption => 5;
+use constant max_instances_per_planet => 1;
 
 use constant waste_production => 1;
 
