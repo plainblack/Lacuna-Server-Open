@@ -115,9 +115,16 @@ sub sanitize {
     }
     $self->plans->delete;
     $self->glyphs->delete;
-    Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_body_id => $self->id})->delete_all;
+    my $incoming = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_body_id => $self->id});
+    while (my $ship = $incoming->next) {
+        $ship->turn_around->update;
+    }
     $self->ships->delete_all;
-    Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $self->id})->delete_all;
+    my $enemy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $self->id});
+    while (my $spy = $enemy->next) {
+        $spy->on_body_id($spy->from_body_id);
+        $spy->update;
+    }
     Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->id})->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::Trades')->search({body_id => $self->id})->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->id})->delete;
