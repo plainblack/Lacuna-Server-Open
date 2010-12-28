@@ -1,6 +1,7 @@
 2.4200
  - API now tells you exactly what assignments a spy can be given at the present time and how long the recovery time will be.
  - Added "Security Sweep" defensive assignment.
+ - Fixed a crash bug with fleet movement missions.
 
 2.4102
  - Fixed bleeders and thuds being added to the normal build queue on striking ground.

@@ -276,6 +276,7 @@ sub check_objectives {
                 else {
                     $target = $stars->find($movement->{target_star_id});
                 }
+                next unless defined $target;
                 confess [1013, 'Have not sent '.$ship->type_formatted.' to '.$target->name.' ('.$target->x.','.$target->y.').'];
             }
         }
@@ -356,6 +357,8 @@ sub format_items {
             else {
                 $target = $stars->find($movement->{target_star_id});
             }
+            warn "fleet movement target not found";
+            next unless defined $target;
             push @items, 'Send '.$ship->type_formatted.' to '.$target->name.' ('.$target->x.','.$target->y.').';
         }
     }
