@@ -100,6 +100,9 @@ sub burn_spy {
     if ($spy->task eq 'Waiting On Trade') {
         confess [1010, "You can't burn a spy involved in a trade. You must wait for the trade to complete."];
     }
+    if ($spy->task eq 'Captured') {
+        confess [1010, "You can't burn a spy that has been captured. If you did he would have no reason not to tell your enemy all your secrets."];
+    }
     $spy->burn;
     return {
         status  => $self->format_status($empire, $building->body),
