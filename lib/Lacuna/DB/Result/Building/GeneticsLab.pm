@@ -62,7 +62,7 @@ sub find_graftable {
         next unless ($spy_empire->$affinity > $my_empire->$affinity);
         push @graftable, $affinity;
     }
-    return \@affinities;
+    return \@graftable;
 }
 
 sub get_possible_grafts {
