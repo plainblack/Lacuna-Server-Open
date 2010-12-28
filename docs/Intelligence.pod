@@ -65,6 +65,21 @@ Returns the list of spies you have on your roster.
             "id" : "id-goes-here",
             "name" : "Jason Bourne",
             "assignment" : "Idle",
+            "possible_assignments" : [
+                {
+                    "task" : "Idle",
+                    "recovery" : 0,
+                },
+                {
+                    "task" : "Counter Espionage",
+                    "recovery" : 0,
+                },
+                {
+                    "task" : "Security Sweep",
+                    "recovery" : 14400,        # in seconds
+                },
+                ...
+            ],
             "level" : 9,
             "politics" : 0,                         # experience in handling happiness
             "mayhem" : 20,                          # experience in handling missions involving murder and destruction
@@ -83,15 +98,12 @@ Returns the list of spies you have on your roster.
         },
         ...
     ],
-    "spy_count" : 12,
-    "possible_assignments" : [
-        'Idle',
-        'Gather Intelligence',
-        ...
-    ]
+    "spy_count" : 12
  }
 
 Take a look at the C<assign_spy> method below for assignment descriptions.
+
+B<NOTE:> If a spy is already recovering from a particular assignment, then C<possible_assignments> will return only that one assignment and the recovery time will be however much recovery time is remaining.
 
 =head3 session_id
 
@@ -187,6 +199,21 @@ Set a spy on a new task.
         "id" : "id-goes-here",
         "name" : "Jason Bourne",
         "assignment" : "Idle",
+        "possible_assignments" : [
+            {
+                "task" : "Idle",
+                "recovery" : 0,
+            },
+            {
+                "task" : "Counter Espionage",
+                "recovery" : 0,
+            },
+            {
+                "task" : "Security Sweep",
+                "recovery" : 14400,        # in seconds
+            },
+            ...
+        ],
         "level" : 9,
         "politics" : 0,                         # experience in handling happiness
         "mayhem" : 20,                          # experience in handling missions involving murder and destruction
@@ -269,10 +296,6 @@ Find out what spies are on this planet, where they are from, what they are doing
 
 Attempts to besmirch the good name of the empire controlling this planet, and deprive them of a small amount of happiness.
 
-=item Appropriate Plans
-
-Steal plans for buildings that this empire has built.
-
 =item Sabotage Probes
 
 Destroy probes controlled by this empire.
@@ -281,11 +304,11 @@ Destroy probes controlled by this empire.
 
 Break spies out of prison.
 
-=item Sabotage Ships
+=item Sabotage Resources
 
 Destroy ships being built, docked, en route to mining platforms, etc.
 
-=item Appropriate Ships
+=item Appropriate Resources
 
 Steal empty ships, ships full of resources, ships full of trade goods, etc.
 
@@ -300,6 +323,10 @@ Destroy buildings.
 =item Incite Mutany
 
 Turn spies. If successful they come work for you.
+
+=item Appropriate Technology
+
+Steal plans for buildings that this empire has built, or has in inventory.
 
 =item Incite Rebellion
 

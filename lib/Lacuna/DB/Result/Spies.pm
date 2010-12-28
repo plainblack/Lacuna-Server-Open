@@ -87,55 +87,103 @@ sub get_status {
 
 # ASSIGNMENT STUFF
 
+use constant offensive_assignments => (
+    {
+        task        =>'Gather Resource Intelligence',
+        recovery    => 60 * 60 * 1,
+    },
+    {
+        task        =>'Gather Empire Intelligence',
+        recovery    => 60 * 60 * 1,
+    },
+    {
+        task        =>'Gather Operative Intelligence',
+        recovery    => 60 * 60 * 1,
+    },
+    {
+        task        =>'Hack Network 19',
+        recovery    => 60 * 60 * 2,
+    },
+    {
+        task        =>'Sabotage Probes',
+        recovery    => 60 * 60 * 4,
+    },
+    {
+        task        =>'Rescue Comrades',
+        recovery    => 60 * 60 * 6,
+    },
+    {
+        task        =>'Sabotage Resources',
+        recovery    => 60 * 60 * 8,
+    },
+    {
+        task        =>'Appropriate Resources',
+        recovery    => 60 * 60 * 8,
+    },
+    {
+        task        =>'Sabotage Infrastructure',
+        recovery    => 60 * 60 * 8,
+    },
+    {
+        task        =>'Assassinate Operatives',
+        recovery    => 60 * 60 * 8,
+    },
+    {
+        task        =>'Incite Mutiny',
+        recovery    => 60 * 60 * 12,
+    },
+    {
+        task        =>'Appropriate Technology',
+        recovery    => 60 * 60 * 12,
+    },
+    {
+        task        =>'Incite Rebellion',
+        recovery    => 60 * 60 * 18,
+    },
+);
+
+use constant defensive_assignments  => (
+    {
+        task        => 'Counter Espionage',
+        recovery    => 0,
+    },
+    {
+        task        => 'Security Sweep',
+        recovery    => 60 * 60 * 4,
+    },
+);
+
+use constant neutral_assignments => (
+    {
+        task        => 'Idle',
+        recovery    => 0,
+    },
+);
+
+
 sub get_possible_assignments {
     my $self = shift;
-    my @assignments = qw(Idle);
     
     # can't be assigned anything right now
     unless ($self->task ~~ ['Counter Espionage','Idle']) {
-        return [$self->task];
+        return [{ task => $self->task, recovery => $self->seconds_remaining_on_assignment }];
     }
+    
+    my @assignments = neutral_assignments;
     
     # at home you can defend
     if ($self->on_body->empire_id == $self->from_body->empire_id) {
-        push @assignments, 'Counter Espionage';
+        push @assignments, defensive_assignments;
     }
     
     # at allies you can defend and attack
     elsif ($self->on_body->empire->alliance_id && $self->on_body->empire->alliance_id == $self->from_body->empire->alliance_id) {
-        push @assignments,
-            'Counter Espionage',
-            'Gather Resource Intelligence',
-            'Gather Empire Intelligence',
-            'Gather Operative Intelligence',
-            'Hack Network 19',
-            'Appropriate Technology',
-            'Sabotage Probes',
-            'Rescue Comrades',
-            'Sabotage Resources',
-            'Appropriate Resources',
-            'Assassinate Operatives',
-            'Sabotage Infrastructure',
-            'Incite Mutiny',
-            'Incite Rebellion';
+        push @assignments, defensive_assignments, offensive_assignments;
     }
     
     # at hostiles you can attack
     else {
-        push @assignments,
-            'Gather Resource Intelligence',
-            'Gather Empire Intelligence',
-            'Gather Operative Intelligence',
-            'Hack Network 19',
-            'Appropriate Technology',
-            'Sabotage Probes',
-            'Rescue Comrades',
-            'Sabotage Resources',
-            'Appropriate Resources',
-            'Assassinate Operatives',
-            'Sabotage Infrastructure',
-            'Incite Mutiny',
-            'Incite Rebellion';
+        push @assignments, offensive_assignments;
     }
     return \@assignments;
 }
@@ -210,18 +258,19 @@ sub is_available {
 use constant assignments => (
     'Idle',
     'Counter Espionage',
+    'Security Sweep',
     'Gather Resource Intelligence',
     'Gather Empire Intelligence',
     'Gather Operative Intelligence',
     'Hack Network 19',
-    'Appropriate Technology',
     'Sabotage Probes',
     'Rescue Comrades',
     'Sabotage Resources',
     'Appropriate Resources',
-    'Assassinate Operatives',
     'Sabotage Infrastructure',
+    'Assassinate Operatives',
     'Incite Mutiny',
+    'Appropriate Technology',
     'Incite Rebellion',
 );
 
@@ -257,6 +306,9 @@ sub assign {
     if ($assignment ~~ ['Idle','Counter Espionage']) {
         $self->update;
         return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.'])};
+    }
+    if ($assignment eq 'Security Sweep') {
+        return $self->run_security_sweep;
     }
     else {
         return $self->run_mission;
@@ -394,6 +446,56 @@ sub run_mission {
     return $out;
 }
 
+sub run_security_sweep {
+    my $self = shift;
+
+    # calculate success, failure, or bounce
+    my $mission_skill = 'intel_xp';
+    my $power = $self->defense + $self->$mission_skill;
+    my $toughness = 0;
+    my $attacker = $self->get_attacker;
+    if (defined $attacker) {
+        $toughness = $attacker->offense + $attacker->$mission_skill;
+    }
+    my $breakthru = (($power - $toughness) / 100) * (($toughness == 0) ? 6 : 1);
+    
+    # handle outcomes and xp
+    my $out;
+    if ($breakthru < 0) {
+        if (defined $attacker) {
+            $attacker->$mission_skill( $attacker->$mission_skill + 6 );
+            $attacker->update_level;
+            $attacker->defense_mission_successes( $attacker->offense_mission_successes + 1 );
+        }
+        $self->$mission_skill( $self->$mission_skill + 2 );
+        $self->update_level;
+        my $outcome = $outcomes{$self->task} . '_loss';
+        my $message_id = $self->$outcome($attacker);
+        $out = { result => 'Failure', message_id => $message_id, reason => random_element(['Didn\'t find anyone.','It has just gone pear shaped.','I\'m pinned down and under fire.','I\'ll do better next time, if there is a next time.','The fit has just hit the shan.','I want my mommy!']) };
+    }
+    elsif (randint(1,100) > $breakthru) {
+        $out = { result => 'Bounce', reason => random_element(['Better luck next time.','Let\'s try that again later.','Hrmmm.','Could not get it done this time.','Lost the target.','They\'re good. Real good.','Maybe next time.']) };
+    }
+    else {
+        my $message_id;
+        if (defined $attacker) {
+            $message_id = $self->capture_a_spy($attacker)->id;
+            $attacker->$mission_skill( $self->$mission_skill + 2);
+            $attacker->update_level;
+        }
+        else {
+            $message_id = $self->no_target->id;
+        }
+        $self->offense_mission_successes( $self->offense_mission_successes + 1 );
+        $self->$mission_skill( $self->$mission_skill + 6 );
+        $self->update_level;
+        $out = { result => 'Success', message_id => $message_id, reason => random_element(['Mom would have been proud.','Done.','That is why you pay me the big bucks.']) };
+    }
+    $self->update;
+    $attacker->update if defined $attacker;
+    return $out;
+}
+
 sub get_defender {
     my $self = shift;
     my $defender = Lacuna
@@ -406,6 +508,24 @@ sub get_defender {
         ->single;
     $defender->on_body($self->on_body) if defined $defender;
     return $defender;
+}
+
+sub get_attacker {
+    my $self = shift;
+    my @tasks = qw('Infiltrating');
+    foreach my $task (offensive_assignments) {
+        push @tasks, $task->{task};
+    }
+    my $attacker = Lacuna
+        ->db
+        ->resultset('Lacuna::DB::Result::Spies')
+        ->search(
+            { on_body_id  => $self->on_body_id, task => {  in => \@tasks }},
+            { rows => 1 }
+        )
+        ->single;
+    $attacker->on_body($self->on_body) if defined $attacker;
+    return $attacker;
 }
 
 sub get_random_prisoner {
@@ -562,6 +682,15 @@ sub no_contact {
     return $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'no_contact.txt',
+        params      => [$self->format_from],
+    );
+}
+
+sub no_target {
+    my ($self) = @_;
+    return $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'no_target.txt',
         params      => [$self->format_from],
     );
 }
