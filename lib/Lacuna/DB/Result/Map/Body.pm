@@ -231,6 +231,7 @@ sub get_status {
         type            => $self->get_type,
         star_id         => $self->star_id,
         star_name       => $self->star->name,
+        zone            => $self->zone,
         id              => $self->id,
     );
     return \%out;

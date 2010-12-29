@@ -17,11 +17,12 @@ __PACKAGE__->has_many('bodies', 'Lacuna::DB::Result::Map::Body', 'star_id');
 sub get_status {
     my ($self, $empire, $override_probe) = @_;
     my $out = {
-        color       => $self->color,
-        name        => $self->name,
-        id          => $self->id,
-        x           => $self->x,
-        y           => $self->y,
+        color           => $self->color,
+        name            => $self->name,
+        id              => $self->id,
+        x               => $self->x,
+        y               => $self->y,
+        zone            => $self->zone,
     };
     if (defined $empire) {
         if ($override_probe || $self->id ~~ $empire->probed_stars) {
