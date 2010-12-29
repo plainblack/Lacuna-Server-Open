@@ -41,10 +41,10 @@ sub run_experiment {
     unless (defined $spy) {
         confess [1002, 'Could not find that spy.'];
     }
-    return {
-        experiment      => $building->experiment($spy, $affinity),
-        status          => $self->format_status($empire, $building->body),
-    };
+    my $experiment = $building->experiment($spy, $affinity);
+    my $out = $self->prepapre_experiment($empire, $building);
+    $out->{experiment} = $experiment;
+    return $out;
 }
 
 

@@ -52,12 +52,12 @@ The unique id of the genetics lab.
 Allows you to experiment on prisoners attempting to graft their genetic traits onto your own species.
 
  {
-    "status" : { ... },
     "experiment" : {
         "graft" : 1,        # did the graft succeed
         "survive" : 0,      # did the prisoner survive
         "message" : "The graft was a success, and the prisoner did not survive the experiment."
-    }
+    },
+    # the rest is the same as prepare_experiment 
  }
 
 =head3 session_id
