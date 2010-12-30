@@ -42,7 +42,7 @@ sub run_experiment {
         confess [1002, 'Could not find that spy.'];
     }
     my $experiment = $building->experiment($spy, $affinity);
-    my $out = $self->prepapre_experiment($empire, $building);
+    my $out = $self->prepare_experiment($empire, $building);
     $out->{experiment} = $experiment;
     return $out;
 }
