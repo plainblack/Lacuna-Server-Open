@@ -109,6 +109,10 @@ sub view_market {
     }
     my @trades;
     while (my $trade = $all_trades->next) {
+        if ($trade->body->empire_id eq '') {
+            $trade->delete;
+            next;
+        }
         push @trades, {
             id                      => $trade->id,
             date_offered            => $trade->date_offered_formatted,
