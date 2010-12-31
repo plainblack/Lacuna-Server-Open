@@ -192,6 +192,16 @@ sub get_possible_assignments {
     return \@assignments;
 }
 
+sub get_possible_assignments_list {
+    my $self = shift;
+    my $possible = $self->get_possible_assignments;
+    my @list;
+    foreach my $assignment (@{$possible}) {
+        push @list, $assignment->{task};
+    }
+    return \@list;
+}
+
 sub format_available_on {
     my ($self) = @_;
     return format_date($self->available_on);
@@ -285,8 +295,7 @@ sub assign {
     unless ($assignment ~~ \@assignments) {
         return { result =>'Failure', reason => random_element(['I am not trained for that.','Don\'t know how.']) };
     }
-    if (!$self->is_available || !($assignment ~~ $self->get_possible_assignments)) {
-        return { result => 'Failure', reason => join(' :: ', @{$self->get_possible_assignments})};
+    if (!$self->is_available || !($assignment ~~ $self->get_possible_assignments_list)) {
         return { result =>'Failure', reason => random_element(['I am busy just now.','It will have to wait.','Can\'t right now.','Maybe later.']) };
     }
     
