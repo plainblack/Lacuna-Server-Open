@@ -286,6 +286,7 @@ sub assign {
         return { result =>'Failure', reason => random_element(['I am not trained for that.','Don\'t know how.']) };
     }
     if (!$self->is_available || !($assignment ~~ $self->get_possible_assignments)) {
+        return { result => 'Failure', reason => join(' :: ', @{$self->get_possible_assignments})};
         return { result =>'Failure', reason => random_element(['I am busy just now.','It will have to wait.','Can\'t right now.','Maybe later.']) };
     }
     

@@ -11,6 +11,7 @@
  - API now tells you exactly what assignments a spy can be given at the present time and how long the recovery time will be.
  - Fixed a bug in the genetics ministry where killed spies didn't get killed.
  - Fixed a crash bug with fleet movement missions.
+ - Fixed a formatting problem in the "Enemy Captured" email.
 
 2.4102
  - Fixed bleeders and thuds being added to the normal build queue on striking ground.
