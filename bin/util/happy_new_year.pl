@@ -41,7 +41,7 @@ while (my $empire = $empires->next) {
     out('Sending message...');
     $empire->send_message(
         tag         => 'Correspondence',
-        subject     => 'War Is Coming',
+        subject     => 'Happy New Year',
         from        => $lec,
         body        => $message,
     );
