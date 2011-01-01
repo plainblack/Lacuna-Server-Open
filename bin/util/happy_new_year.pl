@@ -36,8 +36,8 @@ Lacuna Expanse Corp};
 out('Giving Glyphs');
 my @types = ORE_TYPES;
 while (my $empire = $empires->next) {
-    next unless defined $home;
     my $home = $empire->home_planet;
+    next unless defined $home;
     out('Sending message...');
     $empire->send_message(
         tag         => 'Correspondence',
