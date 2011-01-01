@@ -496,7 +496,7 @@ sub run_security_sweep {
     else {
         my $message_id;
         if (defined $attacker) {
-            $message_id = $self->capture_a_spy($attacker)->id;
+            $message_id = $self->detain_a_spy($attacker)->id;
             $attacker->$mission_skill( $self->$mission_skill + 2);
             $attacker->update_level;
         }
@@ -622,6 +622,18 @@ sub capture_a_spy {
         from        => $self->empire,
     );
     return $prisoner->go_to_jail;
+}
+
+sub detain_a_spy {
+    my ($self, $prisoner) = @_;
+    $self->spies_captured( $self->spies_captured + 1 );
+    $prisoner->go_to_jail;
+    return $self->on_body->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'we_captured_a_spy.txt',
+        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from($self->on_body->empire_id)],
+        from        => $self->empire,
+    );
 }
 
 sub format_from {
