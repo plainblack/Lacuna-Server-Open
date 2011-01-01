@@ -36,6 +36,8 @@ Lacuna Expanse Corp};
 out('Giving Glyphs');
 my @types = ORE_TYPES;
 while (my $empire = $empires->next) {
+    next unless defined $home;
+    my $home = $empire->home_planet;
     out('Sending message...');
     $empire->send_message(
         tag         => 'Correspondence',
@@ -43,8 +45,6 @@ while (my $empire = $empires->next) {
         from        => $lec,
         body        => $message,
     );
-    my $home = $empire->home_planet;
-    next unless defined $home;
     foreach (1..11) {
         my $type = $types[ rand @types ];
         say "Adding $type to ".$home->name;
