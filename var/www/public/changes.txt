@@ -5,6 +5,7 @@
  - You can now steal glyphs using the "Appropriate Resources" spy assignment.
  - You can now steal plans using the "Appropriate Technology" spy assignment.
  - All spy recovery times have been changed to better reflect mission difficulty.
+ - Defender's recovery time is now half attackers recovery time, rather than being a flat 5 hours.
  - You can now destroy resources, glyphs and plans by running "Sabotage Resources".
  - If you steal a building (not a plan) using the "Appropriate Technology" spy assignment, it reduces the level of the building by one.
  - You can no longer run "Appropriate Technology" on empires that are ranked more than 50 below you.

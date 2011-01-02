@@ -189,7 +189,7 @@ sub defensive_assignments {
         },
         {
             task        => 'Security Sweep',
-            recovery    => $self->recovery_time(60 * 60 * 4),
+            recovery    => $self->recovery_time(60 * 60 * 6),
             skill       => 'intel',
         },
     );
@@ -335,13 +335,10 @@ sub assign {
         return { result =>'Failure', reason => random_element(['I am busy just now.','It will have to wait.','Can\'t right now.','Maybe later.']) };
     }
     
-    # calculate recovery
-    my $recovery = $mission->{recovery};
-    
     # set assignment
     $self->task($assignment);
     $self->started_assignment(DateTime->now);
-    $self->available_on(DateTime->now->add(seconds => $recovery));
+    $self->available_on(DateTime->now->add(seconds => $mission->{recovery}));
     
     # run mission
     if ($assignment ~~ ['Idle','Counter Espionage']) {
@@ -349,7 +346,7 @@ sub assign {
         return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.'])};
     }
     if ($assignment eq 'Security Sweep') {
-        return $self->run_security_sweep;
+        return $self->run_security_sweep($mission);
     }
     else {
         return $self->run_mission($mission);
@@ -449,7 +446,7 @@ sub run_mission {
         if (defined $defender) {
             $defender->task('Debriefing');
             $defender->started_assignment(DateTime->now);
-            $defender->available_on(DateTime->now->add(seconds => (5 * 60 * 60) - $defender->xp ));
+            $defender->available_on(DateTime->now->add(seconds => int($mission->{recovery} / 2)));
             $defender->$mission_skill( $defender->$mission_skill + 2 );
             $defender->update_level;
         }
@@ -461,7 +458,7 @@ sub run_mission {
         if (defined $defender) {
             $defender->task('Debriefing');
             $defender->started_assignment(DateTime->now);
-            $defender->available_on(DateTime->now->add(seconds => (5 * 60 * 60) - $defender->xp ));
+            $defender->available_on(DateTime->now->add(seconds => int($mission->{recovery} / 2)));
             $defender->$mission_skill( $defender->$mission_skill + 6 );
             $defender->update_level;
         }
@@ -494,31 +491,35 @@ sub run_security_sweep {
     my $out;
     if ($breakthru < 0) {
         if (defined $attacker) {
-            $attacker->$mission_skill( $attacker->$mission_skill + 6 );
+            $attacker->$mission_skill( $attacker->$mission_skill + 10 );
             $attacker->update_level;
-            $attacker->defense_mission_successes( $attacker->offense_mission_successes + 1 );
+            $attacker->defense_mission_successes( $attacker->defense_mission_successes + 1 );
         }
-        $self->$mission_skill( $self->$mission_skill + 2 );
+        $self->$mission_skill( $self->$mission_skill + 6 );
         $self->update_level;
         my $outcome = $outcomes{$self->task} . '_loss';
         my $message_id = $self->$outcome($attacker);
         $out = { result => 'Failure', message_id => $message_id, reason => random_element(['Didn\'t find anyone.','It has just gone pear shaped.','I\'m pinned down and under fire.','I\'ll do better next time, if there is a next time.','The fit has just hit the shan.','I want my mommy!']) };
     }
     elsif (randint(1,100) > $breakthru) {
+        if (defined $attacker) {
+            $attacker->$mission_skill( $attacker->$mission_skill + 2 );
+        }
+        $self->$mission_skill( $self->$mission_skill + 2 );
         $out = { result => 'Bounce', reason => random_element(['Better luck next time.','Let\'s try that again later.','Hrmmm.','Could not get it done this time.','Lost the target.','They\'re good. Real good.','Maybe next time.']) };
     }
     else {
         my $message_id;
         if (defined $attacker) {
             $message_id = $self->detain_a_spy($attacker)->id;
-            $attacker->$mission_skill( $self->$mission_skill + 2);
+            $attacker->$mission_skill( $self->$mission_skill + 6);
             $attacker->update_level;
         }
         else {
             $message_id = $self->no_target->id;
         }
         $self->offense_mission_successes( $self->offense_mission_successes + 1 );
-        $self->$mission_skill( $self->$mission_skill + 6 );
+        $self->$mission_skill( $self->$mission_skill + 10 );
         $self->update_level;
         $out = { result => 'Success', message_id => $message_id, reason => random_element(['Mom would have been proud.','Done.','That is why you pay me the big bucks.']) };
     }
