@@ -87,6 +87,7 @@ sub run_all_hourly_colony_updates {
     my $colonies = $self->empire->planets;
     while (my $colony = $colonies->next) {
         say 'Colony: '.$colony->name;
+        $colony->tick;
         $self->run_hourly_colony_updates($colony);
     }
 }
