@@ -423,7 +423,7 @@ sub run_mission {
     # find assignment
     my $assignment;
     foreach my $possible (offensive_assignments) {
-        if ($assignment->{task} eq $self->task) {
+        if ($possible->{task} eq $self->task) {
             $assignment = $possible;
         }
     }
