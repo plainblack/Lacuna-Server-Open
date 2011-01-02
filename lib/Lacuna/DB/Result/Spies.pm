@@ -1110,7 +1110,7 @@ sub steal_planet {
         )->id;
     }
     my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire');
-    my $defender_rank = $ranks->search({empire_id => $defender->on_body->empire_id },{rows => 1})->get_column('empire_size_rank')->single;
+    my $defender_rank = $ranks->search({empire_id => $self->on_body->empire_id },{rows => 1})->get_column('empire_size_rank')->single;
     my $attacker_rank = $ranks->search({empire_id => $self->empire_id },{rows => 1})->get_column('empire_size_rank')->single;
     unless ($attacker_rank + 50 > $defender_rank ) { # remember that the rank is inverted 1 is higher than 2.
         return $self->empire->send_predefined_message(
