@@ -326,7 +326,7 @@ sub assign {
 
     # determine mission
     my $mission;
-    foreach my $possible ($self->get_possible_assignments) {
+    foreach my $possible (@{$self->get_possible_assignments}) {
         if ($possible->{task} eq $self->task) {
             $mission = $possible;
         }
