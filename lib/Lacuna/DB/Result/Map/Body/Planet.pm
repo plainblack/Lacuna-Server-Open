@@ -27,9 +27,8 @@ sub ships_travelling {
     if ($reverse) {
         $order = '-desc';
     }
-    $where->{body_id} = $self->id;
     $where->{task} = 'Travelling';
-    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+    return $self->ships->search(
         $where,
         {
             order_by    => { $order => 'date_available' },

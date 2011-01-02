@@ -1,9 +1,16 @@
 2.4200
  - Added "Security Sweep" defensive spy assignment.
- - Added "Insurrection" offensive spy assignment.
+ - Added "Insurrection" offensive spy assignment, but it cannot be run on empires ranked more than 50 below you.
  - Added "Abduct Operatives" offensive spy assignment.
+ - You can now steal glyphs using the "Appropriate Resources" spy assignment.
+ - You can now steal plans using the "Appropriate Technology" spy assignment.
+ - All spy recovery times have been changed to better reflect mission difficulty.
+ - You can now destroy resources, glyphs and plans by running "Sabotage Resources".
+ - If you steal a building (not a plan) using the "Appropriate Technology" spy assignment, it reduces the level of the building by one.
+ - You can no longer run "Appropriate Technology" on empires that are ranked more than 50 below you.
  - Changed XP earned for spy mission assignments. Now 10 for success, 6 for failure, and 2 for bounce.
  - You can no longer burn a spy that has been captured.
+ - See "Spies" and "How Spying Works" in the wiki for details on all the spying changes.
  - If you have ships heading to a body that becomes uninhabited while on route, the ships will now turn around and come home instead of falling dead.
  - If you have spies on a body that becomes uninhabited while they are on the planet, they will teleport home.
  - You can now only have 1 subspace transporter per planet. That's all that ever made sense anyway.

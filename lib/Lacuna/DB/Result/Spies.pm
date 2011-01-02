@@ -747,6 +747,15 @@ sub building_not_found {
     );
 }
 
+sub mission_objective_not_found {
+    my ($self, $objective) = @_;
+    return $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'could_not_find_mission_objective.txt',
+        params      => [$objective, $self->format_from],
+    );
+}
+
 sub ship_not_found {
     my ($self) = @_;
     return $self->empire->send_predefined_message(
@@ -955,11 +964,14 @@ sub abduct_operatives_loss {
 
 sub sabotage_resources {
     my $self = shift;
-    given (randint(1,4)) {
+    given (randint(1,7)) {
         when (1) { return $self->destroy_mining_ship(@_) }
         when (2) { return $self->destroy_ship(@_) }
         when (3) { return $self->kill_contact_with_mining_platform(@_) }
         when (4) { return $self->knock_defender_unconscious(@_) }
+        when (5) { return $self->destroy_resources(@_) }
+        when (6) { return $self->destroy_plan(@_) }
+        when (7) { return $self->destroy_glyph(@_) }
     }
 }
 
@@ -975,11 +987,12 @@ sub sabotage_resources_loss {
 
 sub appropriate_resources {
     my $self = shift;
-    given (randint(1,4)) {
+    given (randint(1,5)) {
         when (1) { return $self->steal_ships(@_) }
         when (2) { return $self->steal_resources(@_) }
         when (3) { return $self->take_control_of_probe(@_) }
         when (4) { return $self->knock_defender_unconscious(@_) }
+        when (5) { return $self->steal_glyph(@_) }
     }
 }
 
@@ -1355,18 +1368,12 @@ sub thwart_rebel {
     return $defender->thwart_a_spy($self)->id;
 }
 
-my @possible_building_sorts = (
-    { -desc => 'level' },
-    { -desc => 'upgrade_ends' },
-    { -desc => 'work_ends' },
-    'efficiency',
-);
 
 sub destroy_infrastructure {
     my ($self, $defender) = @_;
-    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
-        { body_id => $self->on_body->id, efficiency => { '>' => 0 }, class => { 'not like' => 'Lacuna::DB::Result::Bulding::Permanent%' } },
-        { rows=>1, order_by => random_element(\@possible_building_sorts) }
+    my $building = $self->on_body->buildings->search(
+        { efficiency => { '>' => 0 }, class => { 'not like' => 'Lacuna::DB::Result::Bulding::Permanent%' } },
+        { rows=>1, order_by => 'rand()' }
         )->single;
     return $self->building_not_found unless defined $building;
     return $self->building_not_found if ($building->class eq 'Lacuna::DB::Result::PlanetaryCommand');
@@ -1418,9 +1425,9 @@ sub destroy_infrastructure {
 
 sub destroy_ship {
     my ($self, $defender) = @_;
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {body_id => $self->on_body->id, task => 'Docked'},
-        {rows => 1}
+    my $ship = $self->on_body->ships->search(
+        {task => 'Docked'},
+        {rows => 1, order_by => 'rand()' }
         )->single;
     return $self->ship_not_found unless (defined $ship);
     $self->things_destroyed( $self->things_destroyed + 1 );
@@ -1436,6 +1443,69 @@ sub destroy_ship {
     );
     $self->on_body->add_news(90,'Today officials on %s are investigating the explosion of a %s at the Space Port.', $self->on_body->name, $ship->type_formatted);
     $ship->delete;
+    return $message->id;
+}
+
+sub destroy_plan {
+    my ($self, $defender) = @_;
+    my $plan = $self->on_body->plans->search(undef, {rows => 1, order_by => 'rand()'})->single;
+    return $self->mission_objective_not_found('plan') unless defined $plan;
+    $self->things_destroyed( $self->things_destroyed + 1 );
+    my $stolen = 'level '.$plan->level_formatted.' '.$plan->class->name.' plan';
+    $self->on_body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'item_destroyed.txt',
+        params      => [$stolen, $self->on_body->id, $self->on_body->name],
+    );
+    my $message = $self->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'sabotage_report.txt',
+        params      => [$stolen, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+    );
+    $self->on_body->add_news(70,'The Planetary Command on %s was torched. While the building itself survived a critical plan was lost.', $self->on_body->name);
+    $plan->delete;
+    return $message->id;
+}
+
+sub destroy_glyph {
+    my ($self, $defender) = @_;
+    my $glyph = $self->on_body->glyphs->search(undef, {rows => 1, order_by => 'rand()'})->single;
+    return $self->mission_objective_not_found('glyph') unless defined $glyph;
+    $self->things_destroyed( $self->things_destroyed + 1 );
+    my $stolen = $glyph->type.' glyph';
+    $self->on_body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'item_destroyed.txt',
+        params      => [$stolen, $self->on_body->id, $self->on_body->name],
+    );
+    my $message = $self->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'sabotage_report.txt',
+        params      => [$stolen, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+    );
+    $self->on_body->add_news(70,'A museum was broken into on %s and a rare artifact was smashed to pieces.', $self->on_body->name);
+    $glyph->delete;
+    return $message->id;
+}
+
+sub destroy_resources {
+    my ($self, $defender) = @_;
+    $self->things_destroyed( $self->things_destroyed + 1 );
+    my @types = qw(food water energy ore);
+    my $resource = $types[ rand @types ];
+    my $stolen = 'bunch of '. $resource;
+    $self->on_body->spend_type($resource, int($self->on_body->type_stored($resource) / 2))->update;
+    $self->on_body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'item_destroyed.txt',
+        params      => [$stolen, $self->on_body->id, $self->on_body->name],
+    );
+    my $message = $self->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'sabotage_report.txt',
+        params      => [$stolen, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+    );
+    $self->on_body->add_news(70,'A train carrying a load of %s on %s derailed destroying the cargo.', $resource, $self->on_body->name);
     return $message->id;
 }
 
@@ -1488,13 +1558,13 @@ sub thwart_saboteur {
 sub steal_resources {
     my ($self, $defender) = @_;
     my $on_body = $self->on_body;
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {body_id => $on_body->id, task => 'Docked', type => {'in' => ['cargo_ship','smuggler_ship']}},
+    my $ship = $on_body->ships->search(
+        {task => 'Docked', type => {'in' => ['cargo_ship','smuggler_ship','galleon','freighter','hulk','dory','barge']}},
         { rows => 1}
         )->single;
     return $self->ship_not_found unless defined $ship;
     my $space = $ship->hold_size;
-    my @types = (FOOD_TYPES, ORE_TYPES, 'water', 'energy', 'waste');
+    my @types = (FOOD_TYPES, ORE_TYPES, 'water', 'energy');
     my %resources;
     foreach my $type (@types) {
         if ($on_body->type_stored($type) >= $space) {
@@ -1535,6 +1605,49 @@ sub steal_resources {
         attachments=> { table => \@table},
     );
     $self->on_body->add_news(50,'In a daring robbery today a thief absconded with a %s full of resources from %s.', $ship->type_formatted, $self->on_body->name);
+    return $self->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'ship_theft_report.txt',
+        params      => [$ship->type_formatted, $self->name, $self->from_body->id, $self->from_body->name],
+        attachments => { table => \@table},
+    )->id;
+}
+
+sub steal_glyph {
+    my ($self, $defender) = @_;
+    my $on_body = $self->on_body;
+    my $ship = $on_body->ships->search(
+        {task => 'Docked', type => {'in' => ['cargo_ship','smuggler_ship','galleon','freighter','hulk','barge']}},
+        { rows => 1}
+        )->single;
+    return $self->ship_not_found unless defined $ship;
+    my $glyph = $on_body->glyphs->search(undef, {rows => 1, order_by => 'rand()'})->single;
+    return $self->ship_not_found unless defined $glyph;
+    $ship->send(
+        target      => $self->on_body,
+        direction   => 'in',
+        payload     => {
+            spies => [ $self->id ],
+            glyphs   => [$glyph->type],
+        },
+    );
+    my $home = $self->from_body;
+    $ship->body_id($home->id);
+    $ship->body($home);
+    $ship->update;
+    $self->available_on($ship->date_available->clone);
+    $self->on_body_id($home->id);
+    $self->task('Travelling');
+    $self->things_stolen( $self->things_stolen + 1 );
+    my @table = (['Glyph'],$glyph->type);
+    $glyph->delete;
+    $self->on_body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'ship_stolen.txt',
+        params      => [$ship->type_formatted, $self->on_body->id, $self->on_body->name],
+        attachments=> { table => \@table},
+    );
+    $self->on_body->add_news(50,'In a daring robbery today a thief absconded with a %s carrying a glyph from %s.', $ship->type_formatted, $self->on_body->name);
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'ship_theft_report.txt',

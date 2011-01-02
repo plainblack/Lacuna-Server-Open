@@ -1,0 +1,5 @@
+Mission Objective Missing
+~~~
+I could not locate the %s you wanted me to find. I'm sure it is there somewhere. Give me another chance later and I'll locate it and complete my mission.
+
+%s

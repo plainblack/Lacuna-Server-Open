@@ -1,0 +1,7 @@
+Item Destroyed
+~~~
+It seems an enemy agent destroyed a %s on {Planet %s %s}. We should increase our defense against spies.
+
+Regards,
+
+Your Humble Assistant
