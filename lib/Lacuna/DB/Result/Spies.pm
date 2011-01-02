@@ -433,10 +433,10 @@ sub run_mission {
     # handle outcomes and xp
     my $out;
     if ($breakthru < 0) {
-        $defender->$mission_skill( $defender->$mission_skill + 6 );
+        $defender->$mission_skill( $defender->$mission_skill + 10 );
         $defender->update_level;
         $defender->defense_mission_successes( $defender->defense_mission_successes + 1 );
-        $self->$mission_skill( $self->$mission_skill + 2 );
+        $self->$mission_skill( $self->$mission_skill + 6 );
         $self->update_level;
         my $outcome = $outcomes{$self->task} . '_loss';
         my $message_id = $self->$outcome($defender);
@@ -447,7 +447,11 @@ sub run_mission {
             $defender->task('Debriefing');
             $defender->started_assignment(DateTime->now);
             $defender->available_on(DateTime->now->add(seconds => (5 * 60 * 60) - $defender->xp ));
+            $defender->$mission_skill( $defender->$mission_skill + 2 );
+            $defender->update_level;
         }
+        $self->$mission_skill( $self->$mission_skill + 2 );
+        $self->update_level;
         $out = { result => 'Bounce', reason => random_element(['I could not find a way to complete my mission, but I will give it another try.','Missed it by that much.','Better luck next time.','I was stopped by an enemy spy.','Let\'s try that again later.','Hrmmm.','Could not get it done this time.','I\'m being shadowed.','Gotta ditch my tail.','Lost the target.','They have some good security.','Maybe next time.']) };
     }
     else {
@@ -455,11 +459,11 @@ sub run_mission {
             $defender->task('Debriefing');
             $defender->started_assignment(DateTime->now);
             $defender->available_on(DateTime->now->add(seconds => (5 * 60 * 60) - $defender->xp ));
-            $defender->$mission_skill( $defender->$mission_skill + 2 );
+            $defender->$mission_skill( $defender->$mission_skill + 6 );
             $defender->update_level;
         }
         $self->offense_mission_successes( $self->offense_mission_successes + 1 );
-        $self->$mission_skill( $self->$mission_skill + 6 );
+        $self->$mission_skill( $self->$mission_skill + 10 );
         $self->update_level;
         my $outcome = $outcomes{$self->task};
         my $message_id = $self->$outcome($defender);
