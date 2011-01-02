@@ -15,6 +15,7 @@
  - If you have ships heading to a body that becomes uninhabited while on route, the ships will now turn around and come home instead of falling dead.
  - If you have spies on a body that becomes uninhabited while they are on the planet, they will teleport home.
  - You can now only have 1 subspace transporter per planet. That's all that ever made sense anyway.
+ - Improved excavation chance by distance a bit more.
  - Captured spies no longer show up in foreign spies on the security ministry.
  - You can now send up to 3 stakes in a 24 hour period, and the happiness requirement has been lifted.
  - Whenever you are returned a planet or a star via get_status() they now return their zone as well.
