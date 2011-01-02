@@ -38,7 +38,7 @@ after handle_arrival_procedures => sub {
         filename    => 'thud_hit_us.txt',
         params      => [$self->body->empire->id, $self->body->empire->name, $body_attacked->id, $body_attacked->name],
     );
-    $body_attacked->add_news(70, sprintf("A quake measuring %.1f on the seismic magnitude scale just struck %s.",rand(10)));
+    $body_attacked->add_news(70, sprintf("A quake measuring %.1f on the seismic magnitude scale just struck %s.",rand(10), $body_attacked->name));
     
     # all pow
     $self->delete;

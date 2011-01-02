@@ -17,6 +17,7 @@
  - Fixed a crash bug with fleet movement missions.
  - Fixed a formatting problem in the "Enemy Captured" email.
  - Fixed a formatting problem on plans with extra build levels.
+ - Fixed quake message for Thuds.
 
 2.4102
  - Fixed bleeders and thuds being added to the normal build queue on striking ground.
