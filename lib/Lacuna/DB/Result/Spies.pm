@@ -1305,8 +1305,11 @@ sub prevent_insurrection {
     if ($alliance_id) {
         my @member_ids = $defender->empire->alliance->members->get_column('id')->all;
         my $conspirators = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ on_body_id => $self->on_body_id, task => { 'not in' => ['Idle','Travelling','Captured'] }, empire_id => { 'in' => \@member_ids } });
+        my $count = randint(5,15);
         while (my $conspirator = $conspirators->next ) {
+            $count--;
             $defender->capture_a_spy($conspirator);
+            last if $count < 1;
         }
     }
     return $defender->on_body->empire->send_predefined_message(
