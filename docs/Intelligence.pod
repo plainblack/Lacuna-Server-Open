@@ -283,7 +283,15 @@ A string containing the new assignment name. These are the possible assignments:
 
 Don't do anything.
 
-=item Gather Shipping Intelligence
+=item Counter Espionage.
+
+Passively defend against all attackers.
+
+=item Security Sweep
+
+Round up all attackers.
+
+=item Gather Resource Intelligence
 
 Find out what's up for trade, what ships are available, what ships are being built, where ships are travelling to, etc.
 
@@ -339,8 +347,12 @@ Steal plans for buildings that this empire has built, or has in inventory.
 
 Oblitterate the happiness of a planet. If done long enough, it can shut down a planet.
 
+=item Incite Insurrection
+
+Steal a planet.
+
 =back
 
-B<NOTE:> You can do good things to enemies, and bad things to allies using these assignments.
+B<NOTE:> You can do bad things to allies using these assignments.
 
 =cut
