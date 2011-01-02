@@ -1109,6 +1109,9 @@ sub can_conduct_advanced_missions {
         confess [1010, 'You cannot use this assignment on a capitol planet.'];
     }
     return 1 if ($self->on_body->empire_id < 2); # you can hit AI's all day long
+    if ($self->on_body->empire->alliance_id && $self->on_body->empire->alliance_id == $self->empire->alliance_id) {
+        confess [1010, 'You cannot attack your alliance mates.'];
+    }
     my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire');
     my $defender_rank = $ranks->search({empire_id => $self->on_body->empire_id },{rows => 1})->get_column('empire_size_rank')->single;
     my $attacker_rank = $ranks->search({empire_id => $self->empire_id },{rows => 1})->get_column('empire_size_rank')->single;
@@ -1698,7 +1701,8 @@ sub steal_ships {
 
 sub steal_building {
     my ($self, $defender) = @_;
-    my $building = $self->on_body->buildings->search(
+    my $on_body = $self->on_body;
+    my $building = $on_body->buildings->search(
         { level => { '>' => 1 } },
         { rows=>1, order_by => 'rand()' }
         )->single;
@@ -1707,11 +1711,15 @@ sub steal_building {
     my $max = ($self->level > $building->level) ? $building->level : $self->level;
     my $level = randint(1,$max);
     $building->level( $building->level - 1 );
+    $building->update;
+    $on_body->needs_recalc(1);
+    $on_body->needs_surface_refresh(1);
+    $on_body->update;
     $self->from_body->add_plan($building->class, $level);
-    $self->on_body->empire->send_predefined_message(
+    $on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'building_level_stolen.txt',
-        params      => [$building->name, $self->on_body->id, $self->on_body->name],
+        params      => [$building->name, $on_body->id, $on_body->name],
     );
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
