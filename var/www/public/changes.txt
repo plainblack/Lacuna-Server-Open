@@ -1,7 +1,8 @@
 2.4200
- - Added "Security Sweep" defensive assignment.
- - Added "Insurrection" offensive assignment.
- - Added "Abduct Operatives" offensive assignment.
+ - Added "Security Sweep" defensive spy assignment.
+ - Added "Insurrection" offensive spy assignment.
+ - Added "Abduct Operatives" offensive spy assignment.
+ - Changed XP earned for spy mission assignments. Now 10 for success, 6 for failure, and 2 for bounce.
  - You can no longer burn a spy that has been captured.
  - If you have ships heading to a body that becomes uninhabited while on route, the ships will now turn around and come home instead of falling dead.
  - If you have spies on a body that becomes uninhabited while they are on the planet, they will teleport home.

@@ -91,62 +91,77 @@ use constant offensive_assignments => (
     {
         task        =>'Gather Resource Intelligence',
         recovery    => 60 * 60 * 1,
+        skill       => 'intel',
     },
     {
         task        =>'Gather Empire Intelligence',
         recovery    => 60 * 60 * 1,
+        skill       => 'intel',
     },
     {
         task        =>'Gather Operative Intelligence',
         recovery    => 60 * 60 * 1,
+        skill       => 'intel',
     },
     {
         task        =>'Hack Network 19',
         recovery    => 60 * 60 * 2,
+        skill       => 'politics',
     },
     {
         task        =>'Sabotage Probes',
         recovery    => 60 * 60 * 4,
+        skill       => 'mayhem',
     },
     {
         task        =>'Rescue Comrades',
         recovery    => 60 * 60 * 6,
+        skill       => 'intel',
     },
     {
         task        =>'Sabotage Resources',
         recovery    => 60 * 60 * 8,
+        skill       => 'mayhem',
     },
     {
         task        =>'Appropriate Resources',
         recovery    => 60 * 60 * 8,
+        skill       => 'theft',
     },
     {
         task        =>'Sabotage Infrastructure',
         recovery    => 60 * 60 * 8,
+        skill       => 'mayhem',
     },
     {
         task        =>'Assassinate Operatives',
         recovery    => 60 * 60 * 8,
+        skill       => 'mayhem',
     },
     {
         task        =>'Incite Mutiny',
         recovery    => 60 * 60 * 12,
+        skill       => 'politics',
     },
     {
         task        =>'Abduct Operatives',
         recovery    => 60 * 60 * 12,
+        skill       => 'theft',
     },
     {
         task        =>'Appropriate Technology',
         recovery    => 60 * 60 * 18,
+        skill       => 'theft',
     },
     {
         task        =>'Incite Rebellion',
         recovery    => 60 * 60 * 18,
+        skill       => 'politics',
     },
     {
         task        =>'Incite Insurrection',
         recovery    => 60 * 60 * 24,
+        skill       => 'politics',
     },
 );
 
@@ -154,10 +169,12 @@ use constant defensive_assignments  => (
     {
         task        => 'Counter Espionage',
         recovery    => 0,
+        skill       => '*',
     },
     {
         task        => 'Security Sweep',
         recovery    => 60 * 60 * 4,
+        skill       => 'intel',
     },
 );
 
@@ -165,6 +182,7 @@ use constant neutral_assignments => (
     {
         task        => 'Idle',
         recovery    => 0,
+        skill       => 'none',
     },
 );
 
@@ -374,26 +392,6 @@ sub burn {
 
 # MISSION STUFF
 
-my %skills = (
-    'Gather Resource Intelligence'  => 'intel_xp',
-    'Gather Empire Intelligence'    => 'intel_xp',
-    'Gather Operative Intelligence' => 'intel_xp',
-    'Hack Network 19'               => 'politics_xp',
-    'Sabotage Probes'               => 'mayhem_xp',
-    'Rescue Comrades'               => 'intel_xp',
-    'Sabotage Resources'            => 'mayhem_xp',
-    'Appropriate Resources'         => 'theft_xp',
-    'Assassinate Operatives'        => 'mayhem_xp',
-    'Sabotage Infrastructure'       => 'mayhem_xp',
-    'Incite Mutiny'                 => 'politics_xp',
-    'Abduct Operatives'             => 'intel_xp',
-    'Appropriate Technology'        => 'theft_xp',
-    'Incite Rebellion'              => 'politics_xp',    
-    'Incite Insurrection'           => 'politics_xp',    
-);
-
-my @offense_tasks = keys %skills;
-
 my %outcomes = (
     'Gather Resource Intelligence'  => 'gather_resource_intel',
     'Gather Empire Intelligence'    => 'gather_empire_intel',
@@ -412,6 +410,8 @@ my %outcomes = (
     'Incite Insurrection'           => 'incite_insurrection',    
 );
 
+my @offense_tasks = keys %outcomes;
+
 sub run_mission {
     my $self = shift;
 
@@ -420,8 +420,16 @@ sub run_mission {
         return { result => 'Failure', reason => random_element(['I will not run offensive missions against my own people.','No!','Do you really want me to attack our own citizens?','This would not make Mom proud.','I have moral objections.']) };
     }
 
+    # find assignment
+    my $assignment;
+    foreach $assignment (offensive_assignments) {
+        if ($assignment->{task} eq $self->task) {
+            last;
+        }
+    }
+
     # calculate success, failure, or bounce
-    my $mission_skill = $skills{$self->task};
+    my $mission_skill = $assignment->{skill}.'_xp';
     my $power = $self->offense + $self->$mission_skill;
     my $toughness = 0;
     my $defender = $self->get_defender;

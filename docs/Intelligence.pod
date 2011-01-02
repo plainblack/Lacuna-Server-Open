@@ -203,14 +203,17 @@ Set a spy on a new task.
             {
                 "task" : "Idle",
                 "recovery" : 0,
+                "skill" : "none"
             },
             {
                 "task" : "Counter Espionage",
                 "recovery" : 0,
+                "skill" : "*"
             },
             {
                 "task" : "Security Sweep",
                 "recovery" : 14400,        # in seconds
+                "skill" : "intel"
             },
             ...
         ],
