@@ -279,6 +279,7 @@ sub attack_with_ships {
     my $available_ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ type => { in => $ship_types }, task=>'Docked', body_id => $attacking_colony->id});
     while (my $ship = $available_ships->next) {
         if (eval{$ship->can_send_to_target($target_colony)}) {
+            sleep(randint(1,10)); # simulate regular player clicking
             say 'Sending '.$ship->type_formatted.' to '.$target_colony->name.'...';
             $ship->send(target => $target_colony);
         }
