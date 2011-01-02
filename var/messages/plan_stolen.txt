@@ -1,0 +1,7 @@
+Plan Stolen
+~~~
+Thieves have our level %s %s plan from {Planet %s %s}.
+
+Regards,
+
+Your Humble Assistant

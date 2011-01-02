@@ -15,6 +15,15 @@ __PACKAGE__->add_columns(
     extra_build_level       => { data_type => 'tinyint', is_nullable => 1, default_value => 0 },
 );
 
+sub level_formatted {
+    my $self = shift;
+    my $level = $self->level;
+    if ($self->extra_build_level) {
+        $level .= '+'.$self->extra_build_level;
+    }
+    return $level;
+}
+
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 
 no Moose;

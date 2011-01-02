@@ -886,7 +886,7 @@ sub appropriate_tech {
     my $self = shift;
     given (randint(1,2)) {
         when (1) { return $self->steal_building(@_) }
-        when (2) { return $self->knock_defender_unconscious(@_) }
+        when (2) { return $self->steal_plan(@_) }
     }
 }
 
@@ -895,7 +895,7 @@ sub appropriate_tech_loss {
     given (randint(1,3)) {
         when (1) { return $self->capture_thief(@_) }
         when (2) { return $self->thwart_thief(@_) }
-        when (3) { return $self->knock_attacker_unconscious(@_) }
+        when (3) { return $self->kill_thief(@_) }
     }
 }
 
@@ -988,7 +988,6 @@ sub appropriate_resources_loss {
     given (randint(1,2)) {
         when (1) { return $self->capture_thief(@_) }
         when (2) { return $self->knock_attacker_unconscious(@_) }
-        #when (2) { return $self->kill_thief(@_) }
     }
 }
 
@@ -1133,6 +1132,7 @@ sub steal_planet {
             params      => [$self->on_body->name, $self->on_body->x, $self->on_body->y, $self->on_body->name],
         );
         $self->on_body->add_news(100,'Led by %s, the citizens of %s have overthrown %s!', $self->name, $self->on_body->name, $self->on_body->empire->name);
+        my $defender_capitol_id = $self->on_body->empire->home_planet_id;
         Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->on_body_id})->update({from_body_id => $defender_capitol_id });
         $self->on_body->empire_id($self->empire_id);
         $self->on_body->add_happiness(int(abs($planet_happiness) / 10));
@@ -1536,7 +1536,7 @@ sub steal_resources {
     );
     $self->on_body->add_news(50,'In a daring robbery today a thief absconded with a %s full of resources from %s.', $ship->type_formatted, $self->on_body->name);
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Intelligence'],
         filename    => 'ship_theft_report.txt',
         params      => [$ship->type_formatted, $self->name, $self->from_body->id, $self->from_body->name],
         attachments => { table => \@table},
@@ -1577,7 +1577,7 @@ sub steal_ships {
     );
     $self->on_body->add_news(50,'In a daring robbery a thief absconded with a %s from %s today.', $ship->type_formatted, $self->on_body->name);
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Intelligence'],
         filename    => 'ship_theft_report.txt',
         params      => [$ship->type_formatted, $self->name, $self->from_body->id, $self->from_body->name],
     )->id;
@@ -1585,28 +1585,53 @@ sub steal_ships {
 
 sub steal_building {
     my ($self, $defender) = @_;
-    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
-        { body_id => $self->on_body->id, class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%' }, level => { '>' => 0 } },
-        { rows=>1, order_by => { -desc => 'upgrade_started' }}
+    my $building = $self->on_body->buildings->search(
+        { level => { '>' => 1 } },
+        { rows=>1, order_by => 'rand()' }
         )->single;
     return $self->building_not_found unless defined $building;
     $self->things_stolen( $self->things_stolen + 1 );
     my $max = ($self->level > $building->level) ? $building->level : $self->level;
     my $level = randint(1,$max);
+    $building->level( $building->level - 1 );
     $self->from_body->add_plan($building->class, $level);
-    return $self->empire->send_predefined_message(
+    $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
+        filename    => 'building_level_stolen.txt',
+        params      => [$building->name, $self->on_body->id, $self->on_body->name],
+    );
+    return $self->empire->send_predefined_message(
+        tags        => ['Intelligence'],
         filename    => 'building_theft_report.txt',
         params      => [$level, $building->name, $self->name, $self->from_body->id, $self->from_body->name],
     )->id;
 }
 
-#sub kill_thief {
-#    my ($self, $defender) = @_;
-#    return $self->get_spooked->id unless (defined $defender);
-#    kill_a_spy($self->on_body, $self, $defender);
-#    $self->on_body->add_news(70,'%s police caught and killed a thief on %s during the commission of the hiest.', $self->on_body->empire->name, $self->on_body->name);
-#}
+sub steal_plan {
+    my ($self, $defender) = @_;
+    my $plan = $self->on_body->plans->search(undef,{ rows=>1, order_by => 'rand()' })->single;
+    return $self->building_not_found unless defined $plan;
+    $self->things_stolen( $self->things_stolen + 1 );
+    $plan->body_id($self->from_body_id);
+    $plan->update;
+    $self->on_body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'plan_stolen.txt',
+        params      => [$plan->level_formatted, $plan->class->name, $self->on_body->id, $self->on_body->name],
+    );
+    return $self->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'building_theft_report.txt',
+        params      => [$plan->level_formatted, $plan->class->name, $self->name, $self->from_body->id, $self->from_body->name],
+    )->id;
+}
+
+sub kill_thief {
+    my ($self, $defender) = @_;
+    return $self->get_spooked->id unless (defined $defender);
+    $self->on_body->add_news(70,'%s police caught and killed a thief on %s during the commission of the hiest.', $self->on_body->empire->name, $self->on_body->name);
+    return $defender->kill_a_spy($self)->id;
+}
 
 sub capture_thief {
     my ($self, $defender) = @_;

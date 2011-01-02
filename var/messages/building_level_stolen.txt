@@ -1,0 +1,7 @@
+Building Technology Stolen
+~~~
+Thieves have stolen technology from our %s on {Planet %s %s}, reducing its level by one.
+
+Regards,
+
+Your Humble Assistant
