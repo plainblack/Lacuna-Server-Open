@@ -1311,7 +1311,7 @@ sub prevent_insurrection {
         tags        => ['Alert'],
         filename    => 'prevented_insurrection.txt',
         params      => [$self->on_body_id, $self->on_body->name, $defender->format_from],
-    );
+    )->id;
 }
 
 sub capture_kidnapper {
@@ -1327,7 +1327,7 @@ sub abduct_operative {
         {body_id => $self->on_body->id, task => 'Docked', hold_size => { '>=' => 700 }},
         {rows => 1}
         )->single;
-    return $self->ship_not_found unless (defined $ship);
+    return $self->ship_not_found->id unless (defined $ship);
     return $self->get_spooked->id unless (defined $defender);
     $defender->task('Waiting On Trade');
     $defender->update;
@@ -1376,8 +1376,8 @@ sub destroy_infrastructure {
         { efficiency => { '>' => 0 }, class => { 'not like' => 'Lacuna::DB::Result::Bulding::Permanent%' } },
         { rows=>1, order_by => 'rand()' }
         )->single;
-    return $self->building_not_found unless defined $building;
-    return $self->building_not_found if ($building->class eq 'Lacuna::DB::Result::PlanetaryCommand');
+    return $self->building_not_found->id unless defined $building;
+    return $self->building_not_found->id if ($building->class eq 'Lacuna::DB::Result::PlanetaryCommand');
     $building->body($self->on_body);
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
@@ -1398,7 +1398,7 @@ sub destroy_infrastructure {
 #    my ($self, $defender) = @_;
 #    my $builds = $self->on_body->builds(1);
 #    my $building = $builds->next;
-#    return $self->building_not_found unless defined $building;
+#    return $self->building_not_found->id unless defined $building;
 #    $building->body($self->on_body);
 #    $self->on_body->empire->send_predefined_message(
 #        tags        => ['Alert'],
@@ -1430,7 +1430,7 @@ sub destroy_ship {
         {task => 'Docked'},
         {rows => 1, order_by => 'rand()' }
         )->single;
-    return $self->ship_not_found unless (defined $ship);
+    return $self->ship_not_found->id unless (defined $ship);
     $self->things_destroyed( $self->things_destroyed + 1 );
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
@@ -1450,7 +1450,7 @@ sub destroy_ship {
 sub destroy_plan {
     my ($self, $defender) = @_;
     my $plan = $self->on_body->plans->search(undef, {rows => 1, order_by => 'rand()'})->single;
-    return $self->mission_objective_not_found('plan') unless defined $plan;
+    return $self->mission_objective_not_found('plan')->id unless defined $plan;
     $self->things_destroyed( $self->things_destroyed + 1 );
     my $stolen = 'level '.$plan->level_formatted.' '.$plan->class->name.' plan';
     $self->on_body->empire->send_predefined_message(
@@ -1471,7 +1471,7 @@ sub destroy_plan {
 sub destroy_glyph {
     my ($self, $defender) = @_;
     my $glyph = $self->on_body->glyphs->search(undef, {rows => 1, order_by => 'rand()'})->single;
-    return $self->mission_objective_not_found('glyph') unless defined $glyph;
+    return $self->mission_objective_not_found('glyph')->id unless defined $glyph;
     $self->things_destroyed( $self->things_destroyed + 1 );
     my $stolen = $glyph->type.' glyph';
     $self->on_body->empire->send_predefined_message(
@@ -1513,12 +1513,12 @@ sub destroy_resources {
 sub destroy_mining_ship {
     my ($self, $defender) = @_;
     my $ministry = $self->on_body->mining_ministry;
-    return $self->building_not_found unless defined $ministry;
+    return $self->building_not_found->id unless defined $ministry;
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         {body_id => $self->on_body->id, task => 'Mining'},
         {rows => 1}
         )->single;
-    return $self->ship_not_found unless $ship;
+    return $self->ship_not_found->id unless $ship;
     $ship->delete;
     $ministry->recalc_ore_production;
     $self->on_body->empire->send_predefined_message(
@@ -1544,7 +1544,7 @@ sub capture_saboteur {
 
 #sub kill_saboteur {
 #    my ($self, $defender) = @_;
-#    return $self->get_spooked unless (defined $defender);
+#    return $self->get_spooked->id unless (defined $defender);
 #    kill_a_spy($self->on_body, $self, $defender);
 #    $self->on_body->add_news(70,'%s told us that a lone saboteur was killed on %s before he could carry out his plot.', $self->on_body->empire->name, $self->on_body->name);
 #}
@@ -1563,7 +1563,7 @@ sub steal_resources {
         {task => 'Docked', type => {'in' => ['cargo_ship','smuggler_ship','galleon','freighter','hulk','dory','barge']}},
         { rows => 1}
         )->single;
-    return $self->ship_not_found unless defined $ship;
+    return $self->ship_not_found->id unless defined $ship;
     my $space = $ship->hold_size;
     my @types = (FOOD_TYPES, ORE_TYPES, 'water', 'energy');
     my %resources;
@@ -1621,9 +1621,9 @@ sub steal_glyph {
         {task => 'Docked', type => {'in' => ['cargo_ship','smuggler_ship','galleon','freighter','hulk','barge']}},
         { rows => 1}
         )->single;
-    return $self->ship_not_found unless defined $ship;
+    return $self->ship_not_found->id unless defined $ship;
     my $glyph = $on_body->glyphs->search(undef, {rows => 1, order_by => 'rand()'})->single;
-    return $self->ship_not_found unless defined $glyph;
+    return $self->mission_objective_not_found('glyph')->id unless defined $glyph;
     $ship->send(
         target      => $self->on_body,
         direction   => 'in',
@@ -1640,7 +1640,7 @@ sub steal_glyph {
     $self->on_body_id($home->id);
     $self->task('Travelling');
     $self->things_stolen( $self->things_stolen + 1 );
-    my @table = (['Glyph'],$glyph->type);
+    my @table = (['Glyph'],[$glyph->type]);
     $glyph->delete;
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
@@ -1703,7 +1703,7 @@ sub steal_building {
         { level => { '>' => 1 } },
         { rows=>1, order_by => 'rand()' }
         )->single;
-    return $self->building_not_found unless defined $building;
+    return $self->building_not_found->id unless defined $building;
     $self->things_stolen( $self->things_stolen + 1 );
     my $max = ($self->level > $building->level) ? $building->level : $self->level;
     my $level = randint(1,$max);
@@ -1724,7 +1724,7 @@ sub steal_building {
 sub steal_plan {
     my ($self, $defender) = @_;
     my $plan = $self->on_body->plans->search(undef,{ rows=>1, order_by => 'rand()' })->single;
-    return $self->building_not_found unless defined $plan;
+    return $self->mission_objective_not_found('plan')->id unless defined $plan;
     $self->things_stolen( $self->things_stolen + 1 );
     $plan->body_id($self->from_body_id);
     $plan->update;
@@ -1774,7 +1774,7 @@ sub shut_down_building {
     );
     my $building_class = random_element(\@classnames);
     my $building = $self->on_body->get_building_of_class($building_class);
-    return $self->building_not_found unless defined $building;
+    return $self->building_not_found->id unless defined $building;
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'building_loss_of_power.txt',
@@ -1793,7 +1793,7 @@ sub shut_down_building {
 sub take_control_of_probe {
     my ($self, $defender) = @_;
     my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->on_body_id }, {rows=>1})->single;
-    return $self->probe_not_found unless defined $probe;
+    return $self->probe_not_found->id unless defined $probe;
     $self->things_stolen( $self->things_stolen + 1 );
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
@@ -1815,11 +1815,11 @@ sub take_control_of_probe {
 sub kill_contact_with_mining_platform {
     my ($self, $defender) = @_;
     my $ministry = $self->on_body->mining_ministry;
-    return $self->building_not_found unless defined $ministry;
+    return $self->building_not_found->id unless defined $ministry;
     my $platform = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({planet_id => $self->on_body->id},{rows=>1})->single;
-    return $self->building_not_found unless defined $platform;
+    return $self->mission_objective_not_found('mining platform')->id unless defined $platform;
     my $asteroid = $platform->asteroid;
-    return $self->building_not_found unless defined $asteroid;
+    return $self->mission_objective_not_found('mining platform')->id unless defined $asteroid;
     $ministry->remove_platform($platform);
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
@@ -1838,7 +1838,7 @@ sub kill_contact_with_mining_platform {
 sub hack_observatory_probes {
     my ($self, $defender) = @_;
     my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->on_body->id }, {rows=>1})->single;
-    return $self->probe_not_found unless defined $probe;
+    return $self->probe_not_found->id unless defined $probe;
     $self->things_destroyed( $self->things_destroyed + 1 );
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
@@ -1860,7 +1860,7 @@ sub hack_offending_probes {
     return $self->get_spooked->id unless (defined $defender);
     my @safe = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({task=>'Counter Espionage', on_body_id=>$defender->on_body_id})->get_column('empire_id')->all;
     my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $self->on_body->star_id, empire_id => {'not in' => \@safe} }, {rows=>1})->single;
-    return $self->probe_not_found unless defined $probe;
+    return $self->probe_not_found->id unless defined $probe;
     $defender->things_destroyed( $defender->things_destroyed + 1 );
     $defender->empire->send_predefined_message(
         tags        => ['Intelligence'],
@@ -1880,7 +1880,7 @@ sub hack_offending_probes {
 sub hack_local_probes {
     my ($self, $defender) = @_;
     my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $self->on_body->star_id, empire_id => $self->on_body->empire_id }, {rows=>1})->single;
-    return $self->probe_not_found unless defined $probe;
+    return $self->probe_not_found->id unless defined $probe;
     $self->things_destroyed( $self->things_destroyed + 1 );
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
