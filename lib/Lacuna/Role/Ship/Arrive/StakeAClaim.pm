@@ -53,10 +53,14 @@ after can_send_to_target => sub {
     my ($self, $target) = @_;
     my $empire = $self->body->empire;
     confess [1009, 'Can only be sent to habitable planets.'] if ($target->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant') && $empire->university_level < 19);
-    confess [ 1009, 'Your species cannot survive on that planet.' ] if ($empire->university_level < 18 && ($target->orbit > $empire->max_orbit || $target->orbit < $empire->min_orbit));
-    my $next_colony_cost = $empire->next_colony_cost;
-    confess [ 1011, 'You do not have enough happiness to colonize another planet. You need '.$next_colony_cost.' happiness.', [$next_colony_cost]] unless ( $self->body->happiness > $next_colony_cost);
+    confess [1009, 'Your species cannot survive on that planet.' ] if ($empire->university_level < 18 && ($target->orbit > $empire->max_orbit || $target->orbit < $empire->min_orbit));
+    confess [1010, 'You have already sent 3 stakes in a short period of time. Wait 24 hours since the last stake and send again.'] if (Lacuna->cache->get('stake', $self->body->empire->id) >= 3);
     return 1;
+};
+
+after send => sub {
+    my $self = shift;
+    Lacuna->cache->increment('stake', $self->body->empire_id, 1, 60 * 60 * 24);
 };
 
 1;
