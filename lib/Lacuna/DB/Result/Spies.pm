@@ -490,15 +490,18 @@ sub run_security_sweep {
     # handle outcomes and xp
     my $out;
     if ($breakthru < 0) {
+        my $message_id;
         if (defined $attacker) {
             $attacker->$mission_skill( $attacker->$mission_skill + 10 );
             $attacker->update_level;
             $attacker->defense_mission_successes( $attacker->defense_mission_successes + 1 );
+            $message_id = $attacker->kill_a_spy($self)->id;
+        }
+        else {
+            $self->no_target->id;
         }
         $self->$mission_skill( $self->$mission_skill + 6 );
         $self->update_level;
-        my $outcome = $outcomes{$self->task} . '_loss';
-        my $message_id = $self->$outcome($attacker);
         $out = { result => 'Failure', message_id => $message_id, reason => random_element(['Didn\'t find anyone.','It has just gone pear shaped.','I\'m pinned down and under fire.','I\'ll do better next time, if there is a next time.','The fit has just hit the shan.','I want my mommy!']) };
     }
     elsif (randint(1,100) > $breakthru) {
