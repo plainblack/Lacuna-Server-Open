@@ -1122,7 +1122,6 @@ sub can_conduct_advanced_missions {
 
 sub steal_planet {
     my ($self, $defender) = @_;
-    $self->can_conduct_advanced_missions;
     my $next_colony_cost = $self->empire->next_colony_cost;
     my $planet_happiness = $self->on_body->happiness;
     my $chance = abs($planet_happiness * 100) / $next_colony_cost;
