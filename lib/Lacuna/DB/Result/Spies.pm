@@ -422,10 +422,13 @@ sub run_mission {
 
     # find assignment
     my $assignment;
-    foreach $assignment (offensive_assignments) {
+    foreach my $possible (offensive_assignments) {
         if ($assignment->{task} eq $self->task) {
-            last;
+            $assignment = $possible;
         }
+    }
+    unless ($assignment->{skill}) {
+        confess [-32000, 'Could not find the assignment you asked for.'];
     }
 
     # calculate success, failure, or bounce
