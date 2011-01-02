@@ -215,7 +215,7 @@ sub build_ships {
 }
 
 sub set_defenders {
-    my $colony = shift;
+    my ($self, $colony) = @_;
     say 'Setting defenders...';
     my $local_spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $colony->id, on_body_id => $colony->id});
     while (my $spy = $local_spies->next) {
