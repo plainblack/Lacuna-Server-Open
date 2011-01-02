@@ -87,105 +87,124 @@ sub get_status {
 
 # ASSIGNMENT STUFF
 
-use constant offensive_assignments => (
-    {
-        task        =>'Gather Resource Intelligence',
-        recovery    => 60 * 60 * 1,
-        skill       => 'intel',
-    },
-    {
-        task        =>'Gather Empire Intelligence',
-        recovery    => 60 * 60 * 1,
-        skill       => 'intel',
-    },
-    {
-        task        =>'Gather Operative Intelligence',
-        recovery    => 60 * 60 * 1,
-        skill       => 'intel',
-    },
-    {
-        task        =>'Hack Network 19',
-        recovery    => 60 * 60 * 2,
-        skill       => 'politics',
-    },
-    {
-        task        =>'Sabotage Probes',
-        recovery    => 60 * 60 * 4,
-        skill       => 'mayhem',
-    },
-    {
-        task        =>'Rescue Comrades',
-        recovery    => 60 * 60 * 6,
-        skill       => 'intel',
-    },
-    {
-        task        =>'Sabotage Resources',
-        recovery    => 60 * 60 * 8,
-        skill       => 'mayhem',
-    },
-    {
-        task        =>'Appropriate Resources',
-        recovery    => 60 * 60 * 8,
-        skill       => 'theft',
-    },
-    {
-        task        =>'Sabotage Infrastructure',
-        recovery    => 60 * 60 * 8,
-        skill       => 'mayhem',
-    },
-    {
-        task        =>'Assassinate Operatives',
-        recovery    => 60 * 60 * 8,
-        skill       => 'mayhem',
-    },
-    {
-        task        =>'Incite Mutiny',
-        recovery    => 60 * 60 * 12,
-        skill       => 'politics',
-    },
-    {
-        task        =>'Abduct Operatives',
-        recovery    => 60 * 60 * 12,
-        skill       => 'theft',
-    },
-    {
-        task        =>'Appropriate Technology',
-        recovery    => 60 * 60 * 18,
-        skill       => 'theft',
-    },
-    {
-        task        =>'Incite Rebellion',
-        recovery    => 60 * 60 * 18,
-        skill       => 'politics',
-    },
-    {
-        task        =>'Incite Insurrection',
-        recovery    => 60 * 60 * 24,
-        skill       => 'politics',
-    },
-);
+sub recovery_time {
+    my ($self, $base) = @_;
+    my $seconds = $base - $self->xp;
+    return ($seconds > 5 * 60) ? $seconds : 5 * 60;
+}
 
-use constant defensive_assignments  => (
-    {
-        task        => 'Counter Espionage',
-        recovery    => 0,
-        skill       => '*',
-    },
-    {
-        task        => 'Security Sweep',
-        recovery    => 60 * 60 * 4,
-        skill       => 'intel',
-    },
-);
+sub offensive_assignments {
+    my $self = shift;
+    my @assignments = (
+        {
+            task        =>'Gather Resource Intelligence',
+            recovery    => $self->recovery_time(60 * 60 * 1),
+            skill       => 'intel',
+        },
+        {
+            task        =>'Gather Empire Intelligence',
+            recovery    => $self->recovery_time(60 * 60 * 1),
+            skill       => 'intel',
+        },
+        {
+            task        =>'Gather Operative Intelligence',
+            recovery    => $self->recovery_time(60 * 60 * 1),
+            skill       => 'intel',
+        },
+        {
+            task        =>'Hack Network 19',
+            recovery    => $self->recovery_time(60 * 60 * 2),
+            skill       => 'politics',
+        },
+        {
+            task        =>'Sabotage Probes',
+            recovery    => $self->recovery_time(60 * 60 * 4),
+            skill       => 'mayhem',
+        },
+        {
+            task        =>'Rescue Comrades',
+            recovery    => $self->recovery_time(60 * 60 * 6),
+            skill       => 'intel',
+        },
+        {
+            task        =>'Sabotage Resources',
+            recovery    => $self->recovery_time(60 * 60 * 8),
+            skill       => 'mayhem',
+        },
+        {
+            task        =>'Appropriate Resources',
+            recovery    => $self->recovery_time(60 * 60 * 8),
+            skill       => 'theft',
+        },
+        {
+            task        =>'Sabotage Infrastructure',
+            recovery    => $self->recovery_time(60 * 60 * 8),
+            skill       => 'mayhem',
+        },
+        {
+            task        =>'Assassinate Operatives',
+            recovery    => $self->recovery_time(60 * 60 * 8),
+            skill       => 'mayhem',
+        },
+        {
+            task        =>'Incite Mutiny',
+            recovery    => $self->recovery_time(60 * 60 * 12),
+            skill       => 'politics',
+        },
+        {
+            task        =>'Abduct Operatives',
+            recovery    => $self->recovery_time(60 * 60 * 12),
+            skill       => 'theft',
+        },
+        {
+            task        =>'Incite Rebellion',
+            recovery    => $self->recovery_time(60 * 60 * 18),
+            skill       => 'politics',
+        },
+    );
+    if (eval{$self->can_conduct_advanced_missions}) {
+        push @assignments, (
+            {
+                task        =>'Appropriate Technology',
+                recovery    => $self->recovery_time(60 * 60 * 18),
+                skill       => 'theft',
+            },
+            {
+                task        =>'Incite Insurrection',
+                recovery    => $self->recovery_time(60 * 60 * 24),
+                skill       => 'politics',
+            },
+        );    
+    }
+    return @assignments;
+}
 
-use constant neutral_assignments => (
-    {
-        task        => 'Idle',
-        recovery    => 0,
-        skill       => 'none',
-    },
-);
+sub defensive_assignments {
+    my $self = shift;
+    return (
+        {
+            task        => 'Counter Espionage',
+            recovery    => 0,
+            skill       => '*',
+        },
+        {
+            task        => 'Security Sweep',
+            recovery    => $self->recovery_time(60 * 60 * 4),
+            skill       => 'intel',
+        },
+    );
+}
 
+sub neutral_assignments {
+    my $self = shift;
+    return (
+        {
+            task        => 'Idle',
+            recovery    => 0,
+            skill       => 'none',
+        },
+    );
+}
 
 sub get_possible_assignments {
     my $self = shift;
@@ -195,33 +214,23 @@ sub get_possible_assignments {
         return [{ task => $self->task, recovery => $self->seconds_remaining_on_assignment }];
     }
     
-    my @assignments = neutral_assignments;
+    my @assignments = $self->neutral_assignments;
     
     # at home you can defend
     if ($self->on_body->empire_id == $self->from_body->empire_id) {
-        push @assignments, defensive_assignments;
+        push @assignments, $self->defensive_assignments;
     }
     
     # at allies you can defend and attack
     elsif ($self->on_body->empire->alliance_id && $self->on_body->empire->alliance_id == $self->from_body->empire->alliance_id) {
-        push @assignments, defensive_assignments, offensive_assignments;
+        push @assignments, $self->defensive_assignments, $self->offensive_assignments;
     }
     
     # at hostiles you can attack
     else {
-        push @assignments, offensive_assignments;
+        push @assignments, $self->offensive_assignments;
     }
     return \@assignments;
-}
-
-sub get_possible_assignments_list {
-    my $self = shift;
-    my $possible = $self->get_possible_assignments;
-    my @list;
-    foreach my $assignment (@{$possible}) {
-        push @list, $assignment->{task};
-    }
-    return \@list;
 }
 
 sub format_available_on {
@@ -307,33 +316,27 @@ use constant assignments => (
     'Assassinate Operatives',
     'Incite Mutiny',
     'Abduct Operatives',
-    'Appropriate Technology',
     'Incite Rebellion',
+    'Appropriate Technology',
     'Incite Insurrection',
 );
 
 sub assign {
     my ($self, $assignment) = @_;
-    my @assignments = $self->assignments;
-    unless ($assignment ~~ \@assignments) {
-        return { result =>'Failure', reason => random_element(['I am not trained for that.','Don\'t know how.']) };
+
+    # determine mission
+    my $mission;
+    foreach my $possible ($self->get_possible_assignments) {
+        if ($possible->{task} eq $self->task) {
+            $mission = $possible;
+        }
     }
-    if (!$self->is_available || !($assignment ~~ $self->get_possible_assignments_list)) {
+    if (!$mission->{skill} || !$self->is_available) {
         return { result =>'Failure', reason => random_element(['I am busy just now.','It will have to wait.','Can\'t right now.','Maybe later.']) };
     }
     
     # calculate recovery
-    my $recovery = 4;
-    foreach my $task (assignments) {
-        $recovery++;
-        last if $task eq $assignment;
-    }
-    if ($assignment ~~ ['Idle','Counter Espionage']) {
-        $recovery = 0;
-    }
-    else {
-        $recovery = ($recovery * 60 * 60) - $self->xp;
-    }
+    my $recovery = $mission->{recovery};
     
     # set assignment
     $self->task($assignment);
@@ -349,7 +352,7 @@ sub assign {
         return $self->run_security_sweep;
     }
     else {
-        return $self->run_mission;
+        return $self->run_mission($mission);
     }
 }
 
@@ -413,26 +416,15 @@ my %outcomes = (
 my @offense_tasks = keys %outcomes;
 
 sub run_mission {
-    my $self = shift;
+    my ($self, $mission) = @_;
 
     # can't run missions on your own planets
     if ($self->empire_id == $self->on_body->empire_id) {
         return { result => 'Failure', reason => random_element(['I will not run offensive missions against my own people.','No!','Do you really want me to attack our own citizens?','This would not make Mom proud.','I have moral objections.']) };
     }
 
-    # find assignment
-    my $assignment;
-    foreach my $possible (offensive_assignments) {
-        if ($possible->{task} eq $self->task) {
-            $assignment = $possible;
-        }
-    }
-    unless ($assignment->{skill}) {
-        confess [-32000, 'Could not find the assignment you asked for.'];
-    }
-
     # calculate success, failure, or bounce
-    my $mission_skill = $assignment->{skill}.'_xp';
+    my $mission_skill = $mission->{skill}.'_xp';
     my $power = $self->offense + $self->$mission_skill;
     my $toughness = 0;
     my $defender = $self->get_defender;
@@ -552,7 +544,7 @@ sub get_defender {
 sub get_attacker {
     my $self = shift;
     my @tasks = qw('Infiltrating');
-    foreach my $task (offensive_assignments) {
+    foreach my $task ($self->offensive_assignments) {
         push @tasks, $task->{task};
     }
     my $attacker = Lacuna
@@ -1097,28 +1089,27 @@ sub incite_insurrection_loss {
     }
 }
 
-# OUTCOMES
-
-sub steal_planet {
-    my ($self, $defender) = @_;
+sub can_conduct_advanced_missions {
+    my $self = shift;
     my $defender_capitol_id = $self->on_body->empire->home_planet_id;
     if ($defender_capitol_id == $self->on_body_id ) {
-        return $self->empire->send_predefined_message(
-            tags        => ['Correspondence'],
-            filename    => 'cannot_steal_homeworld.txt',
-            from        => $self->empire->lacuna_expanse_corp,
-        )->id;
+        confess [1010, 'You cannot use this assignment on a capitol planet.'];
     }
+    return 1 if ($self->on_body->empire_id < 2); # you can hit AI's all day long
     my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire');
     my $defender_rank = $ranks->search({empire_id => $self->on_body->empire_id },{rows => 1})->get_column('empire_size_rank')->single;
     my $attacker_rank = $ranks->search({empire_id => $self->empire_id },{rows => 1})->get_column('empire_size_rank')->single;
     unless ($attacker_rank + 50 > $defender_rank ) { # remember that the rank is inverted 1 is higher than 2.
-        return $self->empire->send_predefined_message(
-            tags        => ['Correspondence'],
-            filename    => 'cannot_insurrect.txt',
-            from        => $self->empire->lacuna_expanse_corp,
-        )->id;
+        confess [1010, 'This empire is more than 50 away from you in empire rank, and is therefore immune to this attack.'];
     }
+    return 1;
+}
+
+# OUTCOMES
+
+sub steal_planet {
+    my ($self, $defender) = @_;
+    $self->can_conduct_advanced_missions;
     my $next_colony_cost = $self->empire->next_colony_cost;
     my $planet_happiness = $self->on_body->happiness;
     my $chance = abs($planet_happiness * 100) / $next_colony_cost;
