@@ -345,7 +345,7 @@ sub assign {
         $self->update;
         return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.'])};
     }
-    if ($assignment eq 'Security Sweep') {
+    elsif ($assignment eq 'Security Sweep') {
         return $self->run_security_sweep($mission);
     }
     else {
