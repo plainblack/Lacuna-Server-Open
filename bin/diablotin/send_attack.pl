@@ -26,17 +26,12 @@ if ($randomize) {
 
 out('Loading DB');
 our $db = Lacuna->db;
-our $empires = $db->resultset('Lacuna::DB::Result::Empire');
-our $spies = $db->resultset('Lacuna::DB::Result::Spies');
-our $ships = $db->resultset('Lacuna::DB::Result::Ships');
+our $ai = Lacuna::AI::Diablotin->new;
+
 my $config = Lacuna->config;
 
-out('getting empires...');
-my $diablotin = $empires->find(-7);
-
-
 out('Looping through colonies...');
-my $colonies = $diablotin->planets;
+my $colonies = $ai->empire->planets;
 my @attacks;
 while (my $attacking_colony = $colonies->next) {
     out('Found colony to attack from named '.$attacking_colony->name);
@@ -53,7 +48,7 @@ while (my $attacking_colony = $colonies->next) {
     my @ships = qw(thud placebo placebo2 placebo3);
     while (my $target_colony = $targets->next) {
         out('Attacking '.$target_colony->name);
-        push @attacks, start_attack($attacking_colony, $target_colony, shift @ships);
+        push @attacks, $ai->start_attack($attacking_colony, $target_colony, [shift @ships]);
     }
 }
 
@@ -73,56 +68,6 @@ out((($finish - $start)/60)." minutes have elapsed");
 ## SUBROUTINES
 ###############
 
-
-sub start_attack {
-    my ($attacking_colony, $target_colony, $ship_type) = @_;
-    out('Looking for probes...');
-    my $attack = AnyEvent->condvar;
-    my $count = $db->resultset('Lacuna::DB::Result::Probes')->search({ empire_id => -1, star_id => $target_colony->star_id })->count;
-    if ($count) {
-        out('Has one at star already...');
-        my $timer; $timer = AnyEvent->timer(
-            after   => 1,
-            cb      => sub {
-                send_ships($attacking_colony, $target_colony, $ship_type);
-                $attack->send;
-                undef $timer;
-            },
-        );
-        return $attack;
-    }
-    my $probe = $ships->search({body_id => $attacking_colony->id, type => 'probe', task=>'Docked'},{rows => 1})->single;
-    if (defined $probe) {
-        out('Has a probe to launch for '.$target_colony->name.'...');
-        $probe->send(target => $target_colony->star);
-        my $seconds = $probe->date_available->epoch - time();
-        out('Probe will arrive in '.$seconds.' seconds.');
-        my $timer; $timer = AnyEvent->timer(
-            after   => $seconds,
-            cb      => sub {
-                send_ships($attacking_colony, $target_colony, $ship_type);
-                $attack->send;
-                undef $timer;
-            },
-        );
-        return $attack;
-    }
-    out('No probe. Cancel assault.');
-    $attack->send;
-    return $attack;
-}
-
-sub send_ships {
-    my ($attacking_colony, $target_colony, $ship_type) = @_;
-    out('Attack!');
-    my $available_ships = $ships->search({ type => $ship_type, task=>'Docked', body_id => $attacking_colony->id});
-    while (my $ship = $available_ships->next) {
-        if (eval{$ship->can_send_to_target($target_colony)}) {
-            out('Sending '.$ship->type_formatted.' to '.$target_colony->name.'...');
-            $ship->send(target => $target_colony);
-        }
-    }
-}
 
 sub out {
     my $message = shift;
