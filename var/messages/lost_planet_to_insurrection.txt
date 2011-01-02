@@ -1,0 +1,7 @@
+Lost %s
+~~~
+It is a sad day. Today we lost {Starmap %s %s %s} to insurrection. We should work harder to protect the rest of our empire.
+
+Regards,
+
+Your Humble Assistant

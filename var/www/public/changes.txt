@@ -1,5 +1,6 @@
 2.4200
  - Added "Security Sweep" defensive assignment.
+ - Added "Insurrection" offensive assignment.
  - Added "Abduct Operatives" offensive assignment.
  - You can no longer burn a spy that has been captured.
  - If you have ships heading to a body that becomes uninhabited while on route, the ships will now turn around and come home instead of falling dead.
@@ -13,6 +14,7 @@
  - Fixed a bug in the genetics ministry where killed spies didn't get killed.
  - Fixed a crash bug with fleet movement missions.
  - Fixed a formatting problem in the "Enemy Captured" email.
+ - Fixed a formatting problem on plans with extra build levels.
 
 2.4102
  - Fixed bleeders and thuds being added to the normal build queue on striking ground.

@@ -1,0 +1,7 @@
+Insurrection Complete
+~~~
+We have taken control of {Planet %s %s}, however, our work is far from complete. The planet has regained some happiness because its citizens are glad we have saved them from their former empire, but they are still largely unhappy. In addition, there are likely enemy agents on the planet looking to take it back.
+
+Regards,
+
+%s

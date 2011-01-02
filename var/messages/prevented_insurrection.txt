@@ -1,0 +1,10 @@
+Insurrection Stopped
+~~~
+We stopped an insurrection on {Planet %s %s} today.  Do something quickly to raise the happiness there or we could lose the planet.
+
+Luckily we were able to capture several of the conspirators, so you have a little time. Use it wisely.
+
+Regards,
+
+%s
+

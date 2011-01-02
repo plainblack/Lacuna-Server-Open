@@ -138,11 +138,15 @@ use constant offensive_assignments => (
     },
     {
         task        =>'Appropriate Technology',
-        recovery    => 60 * 60 * 12,
+        recovery    => 60 * 60 * 18,
     },
     {
         task        =>'Incite Rebellion',
         recovery    => 60 * 60 * 18,
+    },
+    {
+        task        =>'Incite Insurrection',
+        recovery    => 60 * 60 * 24,
     },
 );
 
@@ -287,6 +291,7 @@ use constant assignments => (
     'Abduct Operatives',
     'Appropriate Technology',
     'Incite Rebellion',
+    'Incite Insurrection',
 );
 
 sub assign {
@@ -374,7 +379,6 @@ my %skills = (
     'Gather Empire Intelligence'    => 'intel_xp',
     'Gather Operative Intelligence' => 'intel_xp',
     'Hack Network 19'               => 'politics_xp',
-    'Appropriate Technology'        => 'theft_xp',
     'Sabotage Probes'               => 'mayhem_xp',
     'Rescue Comrades'               => 'intel_xp',
     'Sabotage Resources'            => 'mayhem_xp',
@@ -383,7 +387,9 @@ my %skills = (
     'Sabotage Infrastructure'       => 'mayhem_xp',
     'Incite Mutiny'                 => 'politics_xp',
     'Abduct Operatives'             => 'intel_xp',
+    'Appropriate Technology'        => 'theft_xp',
     'Incite Rebellion'              => 'politics_xp',    
+    'Incite Insurrection'           => 'politics_xp',    
 );
 
 my @offense_tasks = keys %skills;
@@ -403,6 +409,7 @@ my %outcomes = (
     'Incite Mutiny'                 => 'incite_mutany',
     'Abduct Operatives'             => 'abduct_operatives',
     'Incite Rebellion'              => 'incite_rebellion',    
+    'Incite Insurrection'           => 'incite_insurrection',    
 );
 
 sub run_mission {
@@ -1061,8 +1068,77 @@ sub incite_rebellion_loss {
     }
 }
 
+sub incite_insurrection {
+    my $self = shift;
+    given (randint(1,1)) {
+        when (1) { return $self->steal_planet(@_) }
+    }
+}
+
+sub incite_insurrection_loss {
+    my $self = shift;
+    given (randint(1,1)) {
+        when (1) { return $self->prevent_insurrection(@_) }
+    }
+}
 
 # OUTCOMES
+
+sub steal_planet {
+    my ($self, $defender) = @_;
+    my $defender_capitol_id = $self->on_body->empire->home_planet_id;
+    unless ($defender_capitol_id == $self->on_body_id ) {
+        return $self->empire->send_predefined_message(
+            tags        => ['Correspondence'],
+            filename    => 'cannot_steal_homeworld.txt',
+            from        => $self->empire->lacuna_expanse_corp,
+        )->id;
+    }
+    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire');
+    my $defender_rank = $ranks->search({empire_id => $defender->on_body->empire_id },{rows => 1})->get_column('empire_size_rank')->single;
+    my $attacker_rank = $ranks->search({empire_id => $self->empire_id },{rows => 1})->get_column('empire_size_rank')->single;
+    unless ($attacker_rank + 50 > $defender_rank ) { # remember that the rank is inverted 1 is higher than 2.
+        return $self->empire->send_predefined_message(
+            tags        => ['Correspondence'],
+            filename    => 'cannot_insurrect.txt',
+            from        => $self->empire->lacuna_expanse_corp,
+        )->id;
+    }
+    my $next_colony_cost = $self->empire->next_colony_cost;
+    my $planet_happiness = $self->on_body->happiness;
+    my $chance = abs($planet_happiness * 100) / $next_colony_cost;
+    my $failure = randint(1,100) > $chance;
+    if ($planet_happiness > 0 || $failure) { # lose
+        $self->on_body->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'insurrection_luck.txt',
+            params      => [$self->on_body_id, $self->on_body->name],
+        );
+        return $self->empire->send_predefined_message(
+            tags        => ['Intelligence'],
+            filename    => 'insurrection_failed.txt',
+            params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from],
+        )->id;
+    }
+    else { # win
+        $self->on_body->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'lost_planet_to_insurrection.txt',
+            params      => [$self->on_body->name, $self->on_body->x, $self->on_body->y, $self->on_body->name],
+        );
+        $self->on_body->add_news(100,'Led by %s, the citizens of %s have overthrown %s!', $self->name, $self->on_body->name, $self->on_body->empire->name);
+        Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->on_body_id})->update({from_body_id => $defender_capitol_id });
+        $self->on_body->empire_id($self->empire_id);
+        $self->on_body->add_happiness(int(abs($planet_happiness) / 10));
+        $self->on_body->update;
+        return $self->empire->send_predefined_message(
+            tags        => ['Intelligence'],
+            filename    => 'insurrection_complete.txt',
+            params      => [$self->on_body_id, $self->on_body->name, $self->format_from],
+        )->id;
+    }
+}
+
 
 sub uprising {
     my ($self, $defender) = @_;
@@ -1196,6 +1272,26 @@ sub capture_rebel {
     return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(50,'Police say they have crushed the rebellion on %s by apprehending %s.', $self->on_body->name, $self->name);
     return $defender->capture_a_spy($self)->id;
+}
+
+sub prevent_insurrection {
+    my ($self, $defender) = @_;
+    return $self->get_spooked->id unless (defined $defender);
+    $self->on_body->add_news(50,'Officials prevented a coup d\'Žtat today on on %s by capturing %s and comrades.', $self->on_body->name, $self->name);
+    $defender->capture_a_spy($self)->id;
+    my $alliance_id = $defender->empire->alliance_id;
+    if ($alliance_id) {
+        my @member_ids = $defender->empire->alliance->members->get_column('id')->all;
+        my $conspirators = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ on_body_id => $self->on_body_id, task => { 'not in' => ['Idle','Travelling','Captured'] }, empire_id => { 'in' => \@member_ids } });
+        while (my $conspirator = $conspirators->next ) {
+            $defender->capture_a_spy($conspirator);
+        }
+    }
+    return $defender->on_body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'prevented_insurrection.txt',
+        params      => [$self->on_body_id, $self->on_body->name, $defender->format_from],
+    );
 }
 
 sub capture_kidnapper {
