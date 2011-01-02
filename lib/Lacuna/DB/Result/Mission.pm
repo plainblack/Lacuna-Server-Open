@@ -367,7 +367,7 @@ sub format_items {
     foreach my $stats (@{ $items->{plans}}) {
         my $level = $stats->{level};
         if ($stats->{extra_build_level}) {
-            $level = '+'.$stats->{extra_build_level};
+            $level .= '+'.$stats->{extra_build_level};
         }
         my $pattern = $is_objective ? '%s (>= %s) plan' : '%s (%s) plan'; 
         push @items, sprintf($pattern, $stats->{classname}->name, $level);
