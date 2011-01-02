@@ -14,7 +14,7 @@ after handle_arrival_procedures => sub {
     # what are our chances
     my $remote_body = $self->foreign_body;
     my $body = $self->body;
-    my $distance_modifier = int($body->calculate_distance_to_target($remote_body) / 10000);
+    my $distance_modifier = int($body->calculate_distance_to_target($remote_body) / 7500);
     my $find = randint(1,100) - $distance_modifier;
 
     # found a plan
@@ -50,7 +50,7 @@ after handle_arrival_procedures => sub {
     
     # found some resources
     elsif ($find < 80) {
-        $distance_modifier *= 100;
+        $distance_modifier *= 75;
         my $type = random_element([ORE_TYPES, FOOD_TYPES, qw(water energy)]);
         my $amount = randint(100 + $distance_modifier, 2500 + $distance_modifier);
         $body->add_type($type, $amount)->update;
