@@ -1102,7 +1102,7 @@ sub incite_insurrection_loss {
 sub steal_planet {
     my ($self, $defender) = @_;
     my $defender_capitol_id = $self->on_body->empire->home_planet_id;
-    unless ($defender_capitol_id == $self->on_body_id ) {
+    if ($defender_capitol_id == $self->on_body_id ) {
         return $self->empire->send_predefined_message(
             tags        => ['Correspondence'],
             filename    => 'cannot_steal_homeworld.txt',
