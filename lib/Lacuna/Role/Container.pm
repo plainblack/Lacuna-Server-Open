@@ -124,7 +124,7 @@ sub format_description_of_payload {
     foreach my $stats (@{ $payload->{plans}}) {
         my $level = $stats->{level};
         if ($stats->{extra_build_level}) {
-            $level = '+'.$stats->{extra_build_level};
+            $level .= '+'.$stats->{extra_build_level};
         }
         my $pattern = '%s (%s) plan'; 
         push @items, sprintf($pattern, $stats->{class}->name, $level);
