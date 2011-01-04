@@ -557,7 +557,12 @@ sub has_resources_to_build {
     $cost ||= $building->cost_to_upgrade;
     foreach my $resource (qw(food energy ore water)) {
         unless ($self->type_stored($resource) >= $cost->{$resource}) {
-            confess [1011, "Not enough resources in storage to build this.", $resource];
+            confess [1011, "Not enough $resource in storage to build this.", $resource];
+        }
+    }
+    if ($cost->{waste} < 0) { # we're spending waste to build a building, which is unusal, but not wrong
+        if ($self->waste_stored < abs($cost->{waste})) {
+            confess [1011, "Not enough waste in storage to build this.", 'waste'];
         }
     }
     return 1;

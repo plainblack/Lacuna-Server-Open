@@ -1,3 +1,10 @@
+2.4201
+ - Fixed the bug where if an invitee built multiple universities then the inviter would get the essentia reward for each university built.
+ - Fixed a bug where you could lower your growth affinity using the redefine species function.
+ - Fixed a bug where you could cheat the archaeology ministry.
+ - Fixed mission command crash bug.
+ - Fixed the bug where you could build the waste monuments even if you didn't have the waste needed.
+
 2.4200
  - Added "Security Sweep" defensive spy assignment.
  - Added "Insurrection" offensive spy assignment, but it cannot be run on empires ranked more than 50 below you.
