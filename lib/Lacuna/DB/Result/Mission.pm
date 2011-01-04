@@ -266,7 +266,8 @@ sub check_objectives {
     if (exists $objectives->{fleet_movement}) {
         my $bodies = Lacuna->db->resultset("Lacuna::DB::Result::Map::Body");
         my $stars = Lacuna->db->resultset("Lacuna::DB::Result::Map::Star");
-        foreach my $movement (@{$self->scratch->{fleet_movement}}) {
+        my $scratch = $self->scratch || {fleet_movement=>[]};
+        foreach my $movement (@{$scratch->{fleet_movement}}) {
             unless (Lacuna->cache->get($movement->{ship_type}.'_arrive_'.$movement->{target_body_id}.$movement->{target_star_id}, $body->empire_id)) {
                 my $ship =  $ships->new({type=>$movement->{ship_type}});
                 my $target;
@@ -348,7 +349,8 @@ sub format_items {
     if ($is_objective && exists $items->{fleet_movement}) {
         my $bodies = Lacuna->db->resultset("Lacuna::DB::Result::Map::Body");
         my $stars = Lacuna->db->resultset("Lacuna::DB::Result::Map::Star");
-        foreach my $movement (@{$self->scratch->{fleet_movement}}) {
+        my $scratch = $self->scratch || {fleet_movement=>[]};
+        foreach my $movement (@{$scratch->{fleet_movement}}) {
             my $ship =  $ships->new({type=>$movement->{ship_type}});
             my $target;
             if ($movement->{target_body_id}) {
