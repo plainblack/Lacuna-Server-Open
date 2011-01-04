@@ -749,18 +749,18 @@ sub vet_species {
     foreach my $attr (qw(manufacturing_affinity deception_affinity research_affinity management_affinity farming_affinity mining_affinity science_affinity environmental_affinity political_affinity trade_affinity growth_affinity)) {
         $me->{$attr} += 0; # ensure it's a number
         if ($me->{$attr} < 1) {
-            confess [1008, 'Too little to an affinity.', $attr];
+            confess [1008, 'Too little to the '.$attr.' affinity.', $attr];
         }
         elsif ($me->{$attr} > 7) {
-            confess [1007, 'Too much to an affinity.', $attr];
+            confess [1007, 'Too much to the '.$attr.' affinity.', $attr];
         }
         $points += $me->{$attr};
     }
     if ($points > 45) {
-        confess [1007, 'Overspend.'];
+        confess [1007, 'You spent too many points.'];
     }
     elsif ($points < 45) {
-        confess [1008, 'Underspend.'];
+        confess [1008, 'You did not spend all of your points.'];
     }
 }
 
@@ -792,7 +792,7 @@ sub redefine_species {
     if ($me->{max_orbit} < $limits->{max_orbit}) {
         confess [1009, 'Your maximum orbit is '.$limits->{max_orbit}.'.'];
     }
-    if ($me->{max_orbit} < $limits->{max_orbit}) {
+    if ($me->{growth_affinity} < $limits->{min_growth}) {
         confess [1009, 'Your minimum growth affinity is '.$limits->{min_growth}.'.'];
     }
     
