@@ -69,14 +69,17 @@ Returns the list of spies you have on your roster.
                 {
                     "task" : "Idle",
                     "recovery" : 0,
+                    "skill" : "none"
                 },
                 {
                     "task" : "Counter Espionage",
                     "recovery" : 0,
+                    "skill" : "*"
                 },
                 {
                     "task" : "Security Sweep",
                     "recovery" : 14400,        # in seconds
+                    "skill" : "intel"
                 },
                 ...
             ],
