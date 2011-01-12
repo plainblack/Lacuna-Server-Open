@@ -44,16 +44,16 @@ sub empire_defaults {
 sub colony_structures {
     return (
         ['Lacuna::DB::Result::Building::Permanent::EssentiaVein',1],
-        ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',20],
-        ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',20],
-        ['Lacuna::DB::Result::Building::Permanent::Volcano',20],
-        ['Lacuna::DB::Result::Building::Permanent::AlgaePond',16],
-        ['Lacuna::DB::Result::Building::Permanent::BeeldebanNest',16],
-        ['Lacuna::DB::Result::Building::Permanent::MalcudField',16],
-        ['Lacuna::DB::Result::Building::Permanent::GreatBallOfJunk',15],
-        ['Lacuna::DB::Result::Building::Permanent::JunkHengeSculpture',15],
-        ['Lacuna::DB::Result::Building::Permanent::MetalJunkArches',15],
-        ['Lacuna::DB::Result::Building::Permanent::KalavianRuins',15],
+        ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',16],
+        ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',18],
+        ['Lacuna::DB::Result::Building::Permanent::Volcano',16],
+        ['Lacuna::DB::Result::Building::Permanent::AlgaePond',15],
+        ['Lacuna::DB::Result::Building::Permanent::BeeldebanNest',15],
+        ['Lacuna::DB::Result::Building::Permanent::MalcudField',15],
+        ['Lacuna::DB::Result::Building::Permanent::GreatBallOfJunk',8],
+        ['Lacuna::DB::Result::Building::Permanent::JunkHengeSculpture',9],
+        ['Lacuna::DB::Result::Building::Permanent::MetalJunkArches',7],
+        ['Lacuna::DB::Result::Building::Permanent::KalavianRuins',8],
         ['Lacuna::DB::Result::Building::Intelligence', 25],
         ['Lacuna::DB::Result::Building::Security', 25],
         ['Lacuna::DB::Result::Building::MunitionsLab', 25],
@@ -110,7 +110,7 @@ sub colony_structures {
 
 sub extra_glyph_buildings {
     return {
-        quantity    => 1,
+        quantity    => 0,
         min_level   => 1,
         max_level   => 5,
     }
