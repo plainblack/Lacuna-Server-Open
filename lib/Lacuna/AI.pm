@@ -105,6 +105,7 @@ sub add_colonies {
     X: foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map_size/x')->[1]/250)) {
         Y: foreach my $y (int($config->get('map_size/y')->[0]/250) .. int($config->get('map_size/y')->[1]/250)) {
             my $zone = $x.'|'.$y;
+            next if $zone eq '-3|0';
             say $zone;
             if ($zone ~~ \@existing_zones) {
                 say "nothing needed";
