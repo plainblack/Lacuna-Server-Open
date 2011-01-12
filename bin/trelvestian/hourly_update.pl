@@ -5,23 +5,20 @@ use Lacuna::DB;
 use Lacuna;
 use Lacuna::Util qw(format_date);
 use Getopt::Long;
-use Lacuna::AI::Trelvestian;
 $|=1;
 our $quiet;
-our $add_one;
 GetOptions(
     'quiet'         => \$quiet,
-    addone          => \$add_one,
 );
-
-
 
 out('Started');
 my $start = time;
 
+out('Loading AI');
 my $ai = Lacuna::AI::Trelvestian->new;
 
-$ai->add_colonies($add_one);
+out('Running Updates');
+$ai->run_all_hourly_colony_updates; 
 
 
 my $finish = time;
@@ -34,6 +31,8 @@ out((($finish - $start)/60)." minutes have elapsed");
 ###############
 ## SUBROUTINES
 ###############
+
+
 
 sub out {
     my $message = shift;

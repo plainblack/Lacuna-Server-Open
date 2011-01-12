@@ -63,6 +63,7 @@ sub colony_structures {
         ['Lacuna::DB::Result::Building::SpacePort', 15],
         ['Lacuna::DB::Result::Building::SpacePort', 15],
         ['Lacuna::DB::Result::Building::SpacePort', 15],
+        ['Lacuna::DB::Result::Building::SpacePort', 15],
         ['Lacuna::DB::Result::Building::Observatory',15],
         ['Lacuna::DB::Result::Building::PilotTraining',1],
         ['Lacuna::DB::Result::Building::Energy::Reserve', 20],
@@ -78,7 +79,6 @@ sub colony_structures {
         ['Lacuna::DB::Result::Building::Food::Algae',15],
         ['Lacuna::DB::Result::Building::Food::Root',15],
         ['Lacuna::DB::Result::Building::Ore::Refinery',15],
-        ['Lacuna::DB::Result::Building::Ore::Mine',15],
         ['Lacuna::DB::Result::Building::Ore::Mine',15],
         ['Lacuna::DB::Result::Building::Ore::Mine',15],
         ['Lacuna::DB::Result::Building::Ore::Mine',15],
@@ -124,18 +124,13 @@ sub spy_missions {
 
 sub ship_building_priorities {
     return (
-        ['drone', 40],
-        ['fighter', 20],
-        ['sweeper', 20],
+        ['drone', 35],
+        ['fighter', 25],
         ['probe', 1],
-        ['bleeder', 10],
-        ['security_ministry_seeker', 3],
-        ['space_port_seeker', 3],
-        ['snark', 12],
-        ['snark2', 5],
+        ['sweeper', 25],
+        ['snark', 25],
+        ['snark2', 6],
         ['snark3', 3],
-        ['thud', 5],
-        ['observatory_seeker', 3],
     );
 }
 

@@ -1,6 +1,7 @@
 2.4300
- - Fixed documentation bug on spy listing in Intelligence Ministry.
  - Added Trelvestian AI.
+ - Munitions Lab now available at University Level 9.
+ - Fixed documentation bug on spy listing in Intelligence Ministry.
 
 2.4201
  - Fixed the bug where if an invitee built multiple universities then the inviter would get the essentia reward for each university built.
