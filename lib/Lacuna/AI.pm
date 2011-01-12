@@ -112,7 +112,7 @@ sub add_colonies {
                 say "nothing needed";
             }
             else {
-                out('Finding colony in '.$zone.'...');
+                say 'Finding colony in '.$zone.'...';
                 my $body = $self->viable_colonies->search({zone => $zone})->single;
                 if (defined $body) {
                     say 'Colonizing '.$body->name;
@@ -255,7 +255,7 @@ sub start_attack {
         say 'Has a probe to launch for '.$target_colony->name.'...';
         $probe->send(target => $target_colony->star);
         $seconds = $probe->date_available->epoch - time();
-        out('Probe will arrive in '.$seconds.' seconds.');
+        say 'Probe will arrive in '.$seconds.' seconds.';
     }
     if ($seconds) {
         my $timer; $timer = AnyEvent->timer(
