@@ -41,7 +41,7 @@ sub create_empire {
     my $db = Lacuna->db;
     my $empire = $db->resultset('Lacuna::DB::Result::Empire')->new(\%attributes)->insert;
     my $zone = $db->resultset('Lacuna::DB::Result::Map::Body')->get_column('zone')->max;
-    my $home = $self->viable_colonies->search({zone => $zone})->single;
+    my $home = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
     $empire->found($home);
     $self->build_colony($home);
     return $empire;
@@ -113,7 +113,7 @@ sub add_colonies {
             }
             else {
                 say 'Finding colony in '.$zone.'...';
-                my $body = $self->viable_colonies->search({zone => $zone})->single;
+                my $body = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
                 if (defined $body) {
                     say 'Colonizing '.$body->name;
                     $body->found_colony($empire);
