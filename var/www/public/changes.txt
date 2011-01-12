@@ -1,3 +1,7 @@
+2.4300
+ - Fixed documentation bug on spy listing in Intelligence Ministry.
+ - Added Trelvestian AI.
+
 2.4201
  - Fixed the bug where if an invitee built multiple universities then the inviter would get the essentia reward for each university built.
  - Fixed a bug where you could lower your growth affinity using the redefine species function.
