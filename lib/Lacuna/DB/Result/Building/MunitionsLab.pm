@@ -21,7 +21,7 @@ before has_special_resources => sub {
 
 use constant controller_class => 'Lacuna::RPC::Building::MunitionsLab';
 
-use constant university_prereq => 16;
+use constant university_prereq => 9;
 
 use constant max_instances_per_planet => 1;
 
