@@ -5,6 +5,7 @@ use Lacuna::DB;
 use Lacuna;
 use Lacuna::Util qw(format_date);
 use Getopt::Long;
+use Lacuna::AI::Trelvestian;
 $|=1;
 our $quiet;
 our $add_one;
@@ -18,7 +19,7 @@ GetOptions(
 out('Started');
 my $start = time;
 
-my $trelvestian = Lacuna::AI::Tralvestian->new;
+my $trelvestian = Lacuna::AI::Trelvestian->new;
 
 $trelvestian->add_colonies($add_one);
 

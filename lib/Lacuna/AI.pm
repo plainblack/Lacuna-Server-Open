@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 use Lacuna::Constants qw(FINDABLE_PLANS);
+use Lacuna::Util qw(randint);
 use 5.010;
 
 has empire      => (
