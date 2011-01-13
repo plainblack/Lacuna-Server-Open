@@ -52,12 +52,12 @@ after send => sub {
     foreach my $type (shuffle FOOD_TYPES) {
         my $stored = $body->type_stored($type);
         if ($stored >= $food) {
-            $self->spend_type($type, $food);
+            $body->spend_type($type, $food);
             $payload->{resources}{$type} = $food;
             last;
         }
         else {
-            $self->spend_type($type, $stored);
+            $body->spend_type($type, $stored);
             $payload->{resources}{$type} = $stored;
             $food -= $stored;
         }
@@ -65,32 +65,32 @@ after send => sub {
     foreach my $type (shuffle ORE_TYPES) {
         my $stored = $body->type_stored($type);
         if ($stored >= $ore) {
-            $self->spend_type($type, $ore);
+            $body->spend_type($type, $ore);
             $payload->{resources}{$type} = $ore;
             last;
         }
         else {
-            $self->spend_type($type, $stored);
+            $body->spend_type($type, $stored);
             $payload->{resources}{$type} = $stored;
             $ore -= $stored;
         }
     }
     my $energy = $body->type_stored('energy');
     if ($energy >= $part) {
-        $self->spend_type('energy', $part);
+        $body->spend_type('energy', $part);
         $payload->{resources}{energy} = $part;
     }
     else {
-        $self->spend_type('energy', $energy);
+        $body->spend_type('energy', $energy);
         $payload->{resources}{energy} = $energy;
     }
     my $water = $body->type_stored('water');
     if ($water >= $part) {
-        $self->spend_type('water', $part);
+        $body->spend_type('water', $part);
         $payload->{resources}{water} = $part;
     }
     else {
-        $self->spend_type('water', $water);
+        $body->spend_type('water', $water);
         $payload->{resources}{water} = $water;
     }
     $self->payload($payload);
