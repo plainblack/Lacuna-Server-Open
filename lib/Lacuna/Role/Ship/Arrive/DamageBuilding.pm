@@ -52,6 +52,8 @@ after handle_arrival_procedures => sub {
             if ($citadel->efficiency) {
                 $self->body_id($body_attacked->id);
                 $self->direction('in');
+                $self->land;
+                $self->update;
             }
             else {
                 $self->delete;
