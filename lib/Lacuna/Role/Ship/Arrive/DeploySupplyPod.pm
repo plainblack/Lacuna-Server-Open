@@ -100,7 +100,7 @@ after send => sub {
 
 after can_send_to_target => sub {
     my ($self, $target) = @_;
-    confess [1010, 'Cannot send more than one per day per planet.'] unless (Lacuna->cache->get('supply_pod_sent',$self->body_id));
+    confess [1010, 'Cannot send more than one per day per planet.'] if (Lacuna->cache->get('supply_pod_sent',$self->body_id));
 };
 
 
