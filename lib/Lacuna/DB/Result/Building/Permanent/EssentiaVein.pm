@@ -29,6 +29,16 @@ sub image_level {
 after finish_upgrade => sub {
     my $self = shift;
     $self->body->add_news(30, sprintf('Though officials on %s tried to keep it secret, news of the discovery of an Essentia vein broke.', $self->body->name));
+    $self->start_work({}, 60 * 60 * 24 * 60)->update;
+};
+
+after finish_work => sub {
+    my $self = shift;
+    my $body = $self->body;
+    $body->needs_surface_refresh(1);
+    $body->needs_recalc(1);
+    $body->update;
+    $self->update({class=>'Lacuna::DB::Result::Building::Permanent::Crater'});
 };
 
 use constant name => 'Essentia Vein';
