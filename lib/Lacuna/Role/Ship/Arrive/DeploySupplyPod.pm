@@ -58,7 +58,7 @@ after send => sub {
         }
         else {
             $body->spend_type($type, $stored);
-            $payload->{resources}{$type} = $stored;
+            $payload->{resources}{$type} = $stored if $stored;
             $food -= $stored;
         }
     }
@@ -71,7 +71,7 @@ after send => sub {
         }
         else {
             $body->spend_type($type, $stored);
-            $payload->{resources}{$type} = $stored;
+            $payload->{resources}{$type} = $stored if $stored;
             $ore -= $stored;
         }
     }
@@ -82,7 +82,7 @@ after send => sub {
     }
     else {
         $body->spend_type('energy', $energy);
-        $payload->{resources}{energy} = $energy;
+        $payload->{resources}{energy} = $energy if $energy;
     }
     my $water = $body->type_stored('water');
     if ($water >= $part) {
@@ -91,7 +91,7 @@ after send => sub {
     }
     else {
         $body->spend_type('water', $water);
-        $payload->{resources}{water} = $water;
+        $payload->{resources}{water} = $water if $water;
     }
     $self->payload($payload);
     $self->update;
