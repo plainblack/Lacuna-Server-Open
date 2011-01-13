@@ -2,6 +2,8 @@
  - Added Trelvestian AI.
  - Munitions Lab now available at University Level 9.
  - Fixed documentation bug on spy listing in Intelligence Ministry.
+ - Fixed the bug where Citadel wasn't giving the ships it catches.
+ - Fixed the bug where ships would get stuck if the foreign body they were going to didn't have an owner.
 
 2.4201
  - Fixed the bug where if an invitee built multiple universities then the inviter would get the essentia reward for each university built.
