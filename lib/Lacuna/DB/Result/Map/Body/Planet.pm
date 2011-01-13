@@ -742,6 +742,20 @@ sub recalc_stats {
     if ($stats{ore_hour} < 0) { # if there's not enough total ore production to go around
         $stats{gold_hour} = $stats{ore_hour}; # arbitrarily assign it to one type
     }
+    
+    # deal with storage overages
+    if ($self->ore_stored > $self->ore_capacity) {
+        $self->spend_ore($self->ore_stored - $self->ore_capacity);
+    }
+    if ($self->food_stored > $self->food_capacity) {
+        $self->spend_food($self->food_stored - $self->food_capacity);
+    }
+    if ($self->water_stored > $self->water_capacity) {
+        $self->spend_water($self->water_stored - $self->water_capacity);
+    }
+    if ($self->energy_stored > $self->energy_capacity) {
+        $self->spend_energy($self->energy_stored - $self->energy_capacity);
+    }
 
     # deal with plot usage
     my $max_plots = $self->size + $pantheon_of_hagness;
@@ -1030,7 +1044,7 @@ sub add_type {
     my $method = 'add_'.$type;
     unless (eval{$self->can_add_type($type, $value)}) {
         my $empire = $self->empire;
-        if (!$empire->skip_resource_warnings && !$empire->check_for_repeat_message('complaint_overflow'.$self->id)) {
+        if (defined $empire && !$empire->skip_resource_warnings && !$empire->check_for_repeat_message('complaint_overflow'.$self->id)) {
             $empire->send_predefined_message(
                 filename    => 'complaint_overflow.txt',
                 params      => [$type, $self->id, $self->name],

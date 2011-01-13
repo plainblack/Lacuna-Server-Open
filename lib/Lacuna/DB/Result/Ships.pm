@@ -31,6 +31,10 @@ __PACKAGE__->add_columns(
 __PACKAGE__->typecast_map(type => {
     'probe'                                 => 'Lacuna::DB::Result::Ships::Probe',
     'stake'                                 => 'Lacuna::DB::Result::Ships::Stake',
+    'supply_pod'                            => 'Lacuna::DB::Result::Ships::SupplyPod',
+    'supply_pod2'                           => 'Lacuna::DB::Result::Ships::SupplyPod2',
+    'supply_pod3'                           => 'Lacuna::DB::Result::Ships::SupplyPod3',
+    'supply_pod4'                           => 'Lacuna::DB::Result::Ships::SupplyPod4',
     'placebo'                               => 'Lacuna::DB::Result::Ships::Placebo',
     'placebo2'                              => 'Lacuna::DB::Result::Ships::Placebo2',
     'placebo3'                              => 'Lacuna::DB::Result::Ships::Placebo3',

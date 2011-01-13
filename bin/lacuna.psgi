@@ -49,6 +49,7 @@ $urlmap->map(Lacuna::RPC::Building::HallsOfVrbansk->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::GratchsGauntlet->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::KasternsKeep->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::SubspaceSupplyDepot->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::SupplyPod->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::PantheonOfHagness->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Capitol->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::Stockpile->new->to_app_with_url);

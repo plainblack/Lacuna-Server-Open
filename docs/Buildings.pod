@@ -452,6 +452,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<SubspaceSupplyDepot>
 
+=item L<SupplyPod>
+
 =item L<Syrup>
 
 =item L<TempleOfTheDrajilites>
