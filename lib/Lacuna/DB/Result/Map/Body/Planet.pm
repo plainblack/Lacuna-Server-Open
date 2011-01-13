@@ -444,6 +444,7 @@ sub find_free_space {
     else {
         foreach my $x (-5..5) {
             foreach my $y (-5..5) {
+                next if $y == 0 && $x == 0;
                 if ($self->is_space_free($x, $y)) {
                     return ($x, $y);
                 }
