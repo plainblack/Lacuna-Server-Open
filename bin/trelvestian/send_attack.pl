@@ -8,20 +8,14 @@ use Getopt::Long;
 use AnyEvent;
 $|=1;
 our $quiet;
-our $randomize;
 GetOptions(
     'quiet'         => \$quiet,
-    'randomize'         => \$randomize,
 );
 
 
 
 out('Started');
 my $start = time;
-
-if ($randomize) {
-    sleep randint(0, 60*60*18); # attack anytime in the next 18 hours.
-}
 
 
 out('Loading DB');
@@ -37,9 +31,11 @@ while (my $attacking_colony = $colonies->next) {
     out('Found colony to attack from named '.$attacking_colony->name);
     out('Finding target body to attack...');
     my $target_colony = $attacking_colony->get_last_attacked_by;
+    next unless defined $target_colony;
     my @ships = qw(sweeper snark snark2 snark3);
     out('Attacking '.$target_colony->name);
     push @attacks, $ai->start_attack($attacking_colony, $target_colony, [shift @ships]);
+    $attacking_colony->delete_last_attacked_by;
 }
 
 out("Waiting on attacks...");

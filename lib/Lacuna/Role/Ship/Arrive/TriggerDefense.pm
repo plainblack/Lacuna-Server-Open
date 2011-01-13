@@ -17,7 +17,7 @@ after handle_arrival_procedures => sub {
     return if $body_attacked->empire_id == $self->body->empire_id;
     
     # set last attack status
-    Lacuna->cache->set('last_attacked_by',$body_attacked->id, $self->body->id, 60 * 60 * 24 * 30);
+    $body_attacked->set_last_attacked_by($self->body->id);
         
     # get SAWs
     my $saws = $body_attacked->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');

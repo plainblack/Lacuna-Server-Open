@@ -46,6 +46,16 @@ sub get_last_attacked_by {
     return $attacker_body;
 }
 
+sub set_last_attacked_by {
+    my ($self, $attacker_body_id) = @_;
+    Lacuna->cache->set('last_attacked_by',$self->id, $attacker_body_id, 60 * 60 * 24 * 30);
+}
+
+sub delete_last_attacked_by {
+    my $self = shift;
+    Lacuna->cache->delete('last_attacked_by',$self->id);
+}
+
 # CLAIM
 
 sub claim {

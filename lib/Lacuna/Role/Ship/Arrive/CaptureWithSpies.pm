@@ -22,7 +22,7 @@ after handle_arrival_procedures => sub {
     return if ($body->empire->alliance_id == $self->body->empire->alliance_id);
     
     # set last attack status
-    Lacuna->cache->set('last_attacked_by',$body->id, $self->body->id, 60 * 60 * 24 * 30);
+    $body->set_last_attacked_by($self->body->id);
 
     # we don't capture if they don't have a working security ministry
     my $security = $body->get_building_of_class('Lacuna::DB::Result::Building::Security');
