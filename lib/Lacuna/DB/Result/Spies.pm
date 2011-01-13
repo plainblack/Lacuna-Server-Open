@@ -1337,13 +1337,17 @@ sub abduct_operative {
         )->single;
     return $self->ship_not_found->id unless (defined $ship);
     return $self->get_spooked->id unless (defined $defender);
-    $defender->task('Waiting On Trade');
-    $defender->update;
     $ship->send(
         target      => $self->from_body,
         direction   => 'in',
         payload     => { spies => [ $self->id ], prisoners => [$defender->id] }
     );
+    $defender->task('Waiting On Trade');
+    $defender->available_on($ship->date_available);
+    $defender->update;
+    $self->task('Travelling');
+    $self->available_on($ship->date_available);
+    $self->update;
     $defender->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'spy_abducted.txt',
