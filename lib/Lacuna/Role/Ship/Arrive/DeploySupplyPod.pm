@@ -25,7 +25,8 @@ after handle_arrival_procedures => sub {
             level       => $self->supply_pod_level - 1,
         });
         $body->build_building($deployed, 1);
-        $body->needs_surface_refresh(1);
+        $deployed->finish_upgrade;
+        $body->recalc_stats;
         my $payload = $self->payload;
         if (exists $payload->{resources}) {
             my %resources = %{$payload->{resources}};
