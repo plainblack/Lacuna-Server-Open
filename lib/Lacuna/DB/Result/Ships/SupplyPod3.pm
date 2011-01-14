@@ -21,6 +21,7 @@ use constant supply_pod_level       => 15;
 use constant type_formatted         => 'Supply Pod III';
 
 with "Lacuna::Role::Ship::Send::Planet";
+with "Lacuna::Role::Ship::Send::Inhabited";
 with "Lacuna::Role::Ship::Arrive::DeploySupplyPod";
 
 no Moose;
