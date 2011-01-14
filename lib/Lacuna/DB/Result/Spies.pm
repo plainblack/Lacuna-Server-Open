@@ -2196,7 +2196,7 @@ sub counter_intel_report {
     $defender->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Counter Intelligence Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => ['Counter Intelligence Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $defender->name, $defender->from_body->id, $defender->from_body->name],
         attachments => { table => \@peeps},
     );
     return undef;
