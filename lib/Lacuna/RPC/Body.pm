@@ -155,6 +155,7 @@ sub get_buildable {
                 cost        => $cost,
                 reason      => $reason,
                 tags        => \@tags,
+                no_plot_use => $building->isa('Lacuna::DB::Result::Building::Permanent'),
             },
             production  => $building->stats_after_upgrade,
         };
