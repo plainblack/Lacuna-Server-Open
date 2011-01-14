@@ -35,11 +35,11 @@ after handle_arrival_procedures => sub {
             }
         }
         $body->update;
-    }
 
-    # all pow
-    $self->delete;
-    confess [-1];
+        # all pow
+        $self->delete;
+        confess [-1];
+    }
 };
 
 
