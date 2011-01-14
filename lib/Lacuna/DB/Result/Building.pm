@@ -407,7 +407,7 @@ sub mining_production_bonus {
 
 sub ore_production_hour {
     my ($self) = @_;
-    my $base = $self->ore_production * $self->production_hour;
+    my $base = $self->ore_production * $self->production_hour * ($self->body->total_ore_concentration / 10000);
     return 0 if $base == 0;
     return sprintf('%.0f', $base * $self->mining_production_bonus);
 }

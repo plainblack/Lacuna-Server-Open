@@ -678,6 +678,19 @@ sub found_colony {
     return $self;
 }
 
+has total_ore_concentration => (
+    is          => 'ro',  
+    lazy        => 1,
+    default     => sub {
+        my $self = shift;
+        my $tally = 0;
+        foreach my $type (ORE_TYPES) {
+            $tally += $self->$type;
+        }
+        return $tally;
+    },
+);
+
 sub recalc_stats {
     my ($self) = @_;
     my %stats = ( needs_recalc => 0 );
@@ -730,7 +743,7 @@ sub recalc_stats {
     my $overage;
     foreach my $type (ORE_TYPES) {
         my $method = $type.'_hour';
-        my $planet_side = sprintf('%.0f',$self->$type * $stats{ore_hour} / 10000); # calculate local spend/prod
+        my $planet_side = sprintf('%.0f',$self->$type * $stats{ore_hour} / $self->total_ore_concentration); # calculate local spend/prod
         if ($planet_side < 0 && abs($planet_side) > $stats{$method}) { # local spend might be more than local production
             $overage += abs($planet_side) - $stats{$method}; # make up the difference with an overage
             $stats{$method} = 0;
