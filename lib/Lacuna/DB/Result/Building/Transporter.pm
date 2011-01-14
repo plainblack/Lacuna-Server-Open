@@ -45,21 +45,6 @@ use constant max_instances_per_planet => 1;
 
 use constant waste_production => 1;
 
-sub add_trade { #deprecated
-    my ($self, $offer, $ask) = @_;
-    unless ($self->level > $self->my_trades->count) {
-        confess [1009, "This Subspace Transporter can only support ".$self->level." trades at one time."];
-    }
-    $ask = $self->structure_ask($ask);
-    $offer = $self->structure_offer($offer, $self->determine_available_cargo_space);
-    my %trade = (
-        %{$ask},
-        %{$offer},
-        body_id         => $self->body_id,
-        transfer_type   => $self->transfer_type,
-    );
-    return Lacuna->db->resultset('Lacuna::DB::Result::Trades')->new(\%trade)->insert;
-}
 
 
 sub add_to_market {

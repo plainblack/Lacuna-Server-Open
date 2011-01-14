@@ -44,31 +44,6 @@ use constant water_consumption => 5;
 
 use constant waste_production => 1;
 
-
-sub add_trade { #deprecated
-    my ($self, $offer, $ask, $options) = @_;
-    my $ship = $self->next_available_trade_ship($options->{ship_id});
-    unless (defined $ship) {
-        confess [1011, "You do not have any ships available that can carry trade goods."];
-    }
-    unless ($self->level > $self->my_trades->count) {
-        confess [1009, "This Trade Ministry can only support ".$self->level." trades at one time."];
-    }
-    $ask = $self->structure_ask($ask);
-    $offer = $self->structure_offer($offer, $ship->hold_size, $ship);
-    $ship->task('Waiting On Trade');
-    $ship->update;
-    my %trade = (
-        %{$ask},
-        %{$offer},
-        ship_id         => $ship->id,
-        body_id         => $self->body_id,
-        transfer_type   => $self->transfer_type,
-    );
-    return Lacuna->db->resultset('Lacuna::DB::Result::Trades')->new(\%trade)->insert;
-}
-
-
 sub add_to_market {
     my ($self, $offer, $ask, $options) = @_;
     my $ship = $self->next_available_trade_ship($options->{ship_id});

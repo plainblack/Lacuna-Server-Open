@@ -2,6 +2,8 @@
  - Fixed counter intel reports being signed by wrong agent.
  - Identifying buildings that don't use a plot in get_builable() by no_plot_use = 1.
  - Fixed a bug where space port wouldn't be able to see a ship's path if it couldn't also see the type.
+ - Fixed a bug where Gas Giants didn't display properly the level of ore they were producing.
+ - Removed old trade system.
 
 2.4300
  - Added Trelvestian AI.

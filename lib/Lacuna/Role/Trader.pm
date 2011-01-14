@@ -40,31 +40,9 @@ sub market {
     return Lacuna->db->resultset('Lacuna::DB::Result::Market');
 }
 
-sub trades { # deprecated
-    return Lacuna->db->resultset('Lacuna::DB::Result::Trades');
-}
-
-sub my_trades { #deprecated
-    my $self = shift;
-    return $self->trades->search({body_id => $self->body_id, transfer_type => $self->transfer_type}, {order_by => ['date_offered']});
-}
-
 sub my_market { 
     my $self = shift;
     return $self->market->search({body_id => $self->body_id, transfer_type => $self->transfer_type});
-}
-
-sub available_trades { # deprecated
-    my $self = shift;
-    return $self->trades->search(
-        {
-            body_id         => {'!=' => $self->body_id},
-            transfer_type   => $self->transfer_type,
-        },
-        {
-            order_by        => {-desc => ['offer_sub_type','offer_quantity','offer_rank_1','offer_rank_2','offer_description'] }
-        }
-    )
 }
 
 sub available_market {

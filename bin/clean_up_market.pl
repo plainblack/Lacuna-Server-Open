@@ -37,24 +37,6 @@ foreach my $id (@to_be_deleted) {
 }
 
 
-# whole section deprecated
-out('Deleting Outdated Trades');
-$market = $db->resultset('Lacuna::DB::Result::Trades');
-@to_be_deleted = $market->search({ date_offered => { '<' => $date_ended }})->get_column('id')->all;
-foreach my $id (@to_be_deleted) {
-    out('Withdrawing '.$id);
-    my $trade = $market->find($id);
-    next unless defined $trade;
-    $trade->body->empire->send_predefined_message(
-        filename    => 'trade_withdrawn.txt',
-        params      => [$trade->offer_description, $trade->ask_description],  
-        tags        => ['Alert'],
-    );
-    $trade->withdraw;
-}
-
-
-
 my $finish = time;
 out('Finished');
 out((($finish - $start)/60)." minutes have elapsed");
