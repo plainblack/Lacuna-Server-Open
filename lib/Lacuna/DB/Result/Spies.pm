@@ -495,7 +495,7 @@ sub run_security_sweep {
         }
         $self->$mission_skill( $self->$mission_skill + 6 );
         $self->update_level;
-        $out = { result => 'Failure', message_id => $message_id, reason => random_element(['Didn\'t find anyone.','It has just gone pear shaped.','I\'m pinned down and under fire.','I\'ll do better next time, if there is a next time.','The fit has just hit the shan.','I want my mommy!']) };
+        $out = { result => 'Failure', message_id => $message_id, reason => random_element(['It has just gone pear shaped.','I\'ll do better next time, if there is a next time.','The fit has just hit the shan.','I want my mommy!']) };
     }
     elsif (randint(1,100) > $breakthru) {
         if (defined $attacker) {
@@ -540,7 +540,7 @@ sub get_defender {
 
 sub get_attacker {
     my $self = shift;
-    my @tasks = qw('Infiltrating');
+    my @tasks;
     foreach my $task ($self->offensive_assignments) {
         push @tasks, $task->{task};
     }
