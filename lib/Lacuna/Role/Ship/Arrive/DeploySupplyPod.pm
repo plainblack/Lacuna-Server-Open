@@ -96,7 +96,7 @@ after send => sub {
     }
     $self->payload($payload);
     $self->update;
-    Lacuna->cache->get('supply_pod_sent',$self->body_id,1,60*60*24);
+    Lacuna->cache->set('supply_pod_sent',$self->body_id,1,60*60*24);
 };
 
 after can_send_to_target => sub {
