@@ -82,9 +82,9 @@ sub www_search_essentia_codes {
     }
     my $out = '<h1>Search Essentia Codes</h1>';
     $out .= '<form method="post" action="/admin/search/essentia/codes"><input name="code" value="'.$code.'"><input type="submit" value="search"></form>';
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><td>Used</td><th>Action</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><td>Used</td></tr>';
     while (my $code = $codes->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td></td></tr>', $code->id, $code->code, $code->amount, $code->description, $code->date_created, $code->used);
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $code->id, $code->code, $code->amount, $code->description, $code->date_created, $code->used);
     }
     $out .= '<form method="post" action="/admin/add/essentia/code"><tr>';
     $out .= '<td></td>';
