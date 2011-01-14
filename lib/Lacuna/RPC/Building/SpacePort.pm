@@ -389,19 +389,19 @@ sub view_foreign_ships {
                     date_arrives    => $ship->date_available_formatted,
                     from            => {},
                 );
-            if ($ship->body_id ~~ \@my_planets || $see_ship_type >= $ship->stealth) {
-                $ship_info{name} = $ship->name;
-                $ship_info{type} = $ship->type;
-                $ship_info{type_human} = $ship->type_formatted;
-                if ($ship->body_id ~~ \@my_planets || $see_ship_path >= $ship->stealth) {
-                    $ship_info{from} = {
-                        id      => $ship->body->id,
-                        name    => $ship->body->name,
-                        empire  => {
-                            id      => $ship->body->empire->id,
-                            name    => $ship->body->empire->name,
-                        },
-                    };
+            if ($ship->body_id ~~ \@my_planets || $see_ship_path >= $ship->stealth) {
+                $ship_info{from} = {
+                    id      => $ship->body->id,
+                    name    => $ship->body->name,
+                    empire  => {
+                        id      => $ship->body->empire->id,
+                        name    => $ship->body->empire->name,
+                    },
+                };
+                if ($ship->body_id ~~ \@my_planets || $see_ship_type >= $ship->stealth) {
+                    $ship_info{name} = $ship->name;
+                    $ship_info{type} = $ship->type;
+                    $ship_info{type_human} = $ship->type_formatted;
                 }
             }
             push @fleet, \%ship_info;
