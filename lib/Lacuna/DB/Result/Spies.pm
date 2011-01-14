@@ -276,13 +276,6 @@ sub is_available {
             );
             return 1;
         }
-        elsif ($task eq 'Waiting On Trade') {
-            my $trade = Lacuna->db->resultset('Lacuna::DB::Result::Trades')->search({
-               offer_object_id  => $self->id,
-               offer_type       => 'prisoner',
-            });
-            $trade->withdraw if defined $trade;
-        }
         elsif ($task eq 'Travelling') {
             my $infiltration_time = $self->available_on->clone->add(hours => 1);
             if ($infiltration_time->epoch > time && $self->empire_id ne $self->on_body->empire_id) {
