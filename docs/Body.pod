@@ -148,6 +148,7 @@ Provides a list of all the building types that are available to be built on a gi
             "url" :"/wheat",
             "build" : {
                 "can" : 1,
+                "no_plot_use" : 0,
                 "cost" : {
                     "food" : 500,
                     "water" : 500,
