@@ -87,6 +87,16 @@ sub get_status {
     };
 }
 
+sub send {
+    my ($self, $to_id, $arrives, $task) = @_;
+    $task ||= 'Travelling';
+    $self->available_on($arrives);
+    $self->on_body_id($to_id);
+    $self->task($task);
+    $self->started_assignment(DateTime->now);
+    return $self;
+}
+
 # ASSIGNMENT STUFF
 
 sub recovery_time {
@@ -1337,12 +1347,8 @@ sub abduct_operative {
         direction   => 'in',
         payload     => { spies => [ $self->id ], prisoners => [$defender->id] }
     );
-    $defender->task('Waiting On Trade');
-    $defender->available_on($ship->date_available);
-    $defender->update;
-    $self->task('Travelling');
-    $self->available_on($ship->date_available);
-    $self->update;
+    $defender->send($self->from_body_id, $ship->date_available, 'Waiting On Trade');
+    $self->send($self->from_body_id, $ship->date_available);
     $defender->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'spy_abducted.txt',
@@ -1598,10 +1604,6 @@ sub steal_resources {
     $ship->body_id($home->id);
     $ship->body($home);
     $ship->update;
-    $self->available_on($ship->date_available->clone);
-    $self->on_body_id($home->id);
-    $self->task('Travelling');
-    $self->things_stolen( $self->things_stolen + 1 );
     my @table = (['Resource','Amount']);
     foreach my $type (keys %resources) {
         push @table, [ $type, $resources{$type} ];
@@ -1613,6 +1615,8 @@ sub steal_resources {
         attachments=> { table => \@table},
     );
     $self->on_body->add_news(50,'In a daring robbery today a thief absconded with a %s full of resources from %s.', $ship->type_formatted, $self->on_body->name);
+    $self->send($home->id, $ship->date_available->clone);
+    $self->things_stolen( $self->things_stolen + 1 );
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'ship_theft_report.txt',
@@ -1643,10 +1647,6 @@ sub steal_glyph {
     $ship->body_id($home->id);
     $ship->body($home);
     $ship->update;
-    $self->available_on($ship->date_available->clone);
-    $self->on_body_id($home->id);
-    $self->task('Travelling');
-    $self->things_stolen( $self->things_stolen + 1 );
     my @table = (['Glyph'],[$glyph->type]);
     $glyph->delete;
     $self->on_body->empire->send_predefined_message(
@@ -1656,6 +1656,8 @@ sub steal_glyph {
         attachments=> { table => \@table},
     );
     $self->on_body->add_news(50,'In a daring robbery today a thief absconded with a %s carrying a glyph from %s.', $ship->type_formatted, $self->on_body->name);
+    $self->send($home->id, $ship->date_available->clone);
+    $self->things_stolen( $self->things_stolen + 1 );
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'ship_theft_report.txt',
@@ -1687,16 +1689,14 @@ sub steal_ships {
         direction   => 'in',
         payload     => { spies => [ $self->id ] }
     );
-    $self->available_on($ship->date_available->clone);
-    $self->on_body_id($home->id);
-    $self->things_stolen( $self->things_stolen + 1 );
-    $self->task('Travelling');
     $self->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'ship_stolen.txt',
         params      => [$ship->type_formatted, $self->on_body->id, $self->on_body->name],
     );
     $self->on_body->add_news(50,'In a daring robbery a thief absconded with a %s from %s today.', $ship->type_formatted, $self->on_body->name);
+    $self->things_stolen( $self->things_stolen + 1 );
+    $self->send($home->id, $ship->date_available->clone);
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'ship_theft_report.txt',

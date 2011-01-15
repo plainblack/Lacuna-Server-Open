@@ -164,11 +164,7 @@ sub send_ships {
                     out('No spies available.');
                     next;
                 }
-                $spy->available_on(DateTime->now->add(seconds=>$ship->calculate_travel_time($target_colony)));
-                $spy->on_body_id($target_colony->id);
-                $spy->task('Travelling');
-                $spy->started_assignment(DateTime->now);
-                $spy->update;
+                $spy->send($target_colony->id, DateTime->now->add(seconds=>$ship->calculate_travel_time($target_colony)))->update;
                 $payload = { spies => [ $spy->id ] };                
             }
             $ship->send(target => $target_colony, payload => $payload);

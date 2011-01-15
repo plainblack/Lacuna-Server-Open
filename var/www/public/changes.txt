@@ -19,6 +19,8 @@
  - Fix a problem with Trel attack.
  - API: Now returning on body x,y with spy status in intelligence ministry.
  - You can now upgrade glyph buildings using plans.
+ - Fixed spy theft mission messages.
+ - Fixed spy abduction.
 
 2.4300
  - Added Trelvestian AI.

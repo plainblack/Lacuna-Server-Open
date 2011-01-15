@@ -9,11 +9,7 @@ after send => sub {
     my $arrives = DateTime->now->add(seconds=>$self->calculate_travel_time($self->foreign_body));
     my @spies;
     foreach my $spy (@{$self->get_available_spies_to_send}) {
-        $spy->available_on($arrives);
-        $spy->on_body_id($self->foreign_body_id);
-        $spy->task('Travelling');
-        $spy->started_assignment(DateTime->now);
-        $spy->update;
+        $spy->send($self->foreign_body_id, $arrives)->update;
         push @spies, $spy->id;
     }
     $self->payload({ spies => \@spies });

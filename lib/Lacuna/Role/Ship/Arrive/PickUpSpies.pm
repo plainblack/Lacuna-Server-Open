@@ -48,11 +48,7 @@ after handle_arrival_procedures => sub {
         })->insert;
         push @riding, $spy->id;
         my $duration = $self->date_available - $self->date_started;
-        $spy->available_on($self->date_available->clone->add_duration($duration));
-        $spy->on_body_id($self->body_id);
-        $spy->task('Travelling');
-        $spy->started_assignment(DateTime->now),
-        $spy->update;
+        $spy->send($self->body_id, $self->date_available->clone->add_duration($duration))->update;
     }
     my $payload = $self->payload;
     delete $payload->{fetch_spies};

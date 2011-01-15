@@ -222,11 +222,7 @@ sub send_spies {
         if ($spy->is_available) {
             if ($spy->empire_id == $empire->id) {
                 push @ids_sent, $spy->id;
-                $spy->task('Travelling');
-                $spy->started_assignment(DateTime->now);
-                $spy->on_body_id($to_body->id);
-                $spy->available_on($ship->date_available);
-                $spy->update;
+                $spy->send($to_body->id, $ship->date_available)->update;
             }
             else {
                 push @ids_not_sent, $spy->id;
