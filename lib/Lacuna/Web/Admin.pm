@@ -82,9 +82,9 @@ sub www_search_essentia_codes {
     }
     my $out = '<h1>Search Essentia Codes</h1>';
     $out .= '<form method="post" action="/admin/search/essentia/codes"><input name="code" value="'.$code.'"><input type="submit" value="search"></form>';
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><td>Used</td><th>Action</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><td>Used</td></tr>';
     while (my $code = $codes->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td></td></tr>', $code->id, $code->code, $code->amount, $code->description, $code->date_created, $code->used);
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $code->id, $code->code, $code->amount, $code->description, $code->date_created, $code->used);
     }
     $out .= '<form method="post" action="/admin/add/essentia/code"><tr>';
     $out .= '<td></td>';
@@ -108,6 +108,20 @@ sub www_add_essentia_code {
         code            => create_uuid_as_string(UUID_V4),
     })->insert;
     return $self->wrap('<p>Essentia Code: '. $code->code.'</p><p><a href="/admin/search/essentia/codes">Back To Essentia Codes</a></a>');
+}
+
+sub www_view_essentia_log {
+    my ($self, $request) = @_;
+    my $empire_id = $request->param('empire_id');
+    my $transactions = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search({empire_id => $empire_id}, {order_by => { -desc => 'date_stamp' }});
+    my $out = '<h1>Essentia Transaction Log</h1>';
+    $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $empire_id);
+    $out .= '<table style="width: 100%;"><tr><th>Date</th><th>Amount</th><th>Description</th><th>Transaction ID</th><td>Miscellaneous</td></tr>';
+    while (my $transaction = $transactions->next) {
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>Ha Ha</td></tr>', $transaction->date_stamp, $transaction->amount, $transaction->description, $transaction->transaction_id);
+    }
+    $out .= '</table>';
+    return $self->wrap($out);
 }
 
 sub www_search_empires {
@@ -565,7 +579,12 @@ sub www_view_empire {
     $out .= sprintf('<tr><th>Created</th><td>%s</td><td></td></tr>', $empire->date_created);
     $out .= sprintf('<tr><th>Stage</th><td>%s</td><td></td></tr>', $empire->stage);
     $out .= sprintf('<tr><th>Last Login</th><td>%s</td><td></td></tr>', $empire->last_login);
-    $out .= sprintf('<tr><th>Essentia</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/add/essentia"><input type="hidden" name="id" value="%s"><input name="amount" style="width: 30px;" value="0"><input name="description" value="Administrative Privilege"><input type="submit" value="add essentia"></form></td></tr>', $empire->essentia, $empire->id);
+    $out .= sprintf('<tr><th>Essentia</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/add/essentia">
+<input type="hidden" name="id" value="%s">
+<input name="amount" style="width: 30px;" value="0">
+<input name="description" value="Administrative Privilege">
+<input type="submit" value="add essentia"></form>', $empire->essentia, $empire->id); 
+    $out .= sprintf('<a href="/admin/view/essentia/log?empire_id=%s">View Log</a></td></tr>',$empire->id);
     $out .= sprintf('<tr><th>Species</th><td>%s</td><td></td></tr>', $empire->species_name);
     $out .= sprintf('<tr><th>Home</th><td>%s</td><td></td></tr>', $empire->home_planet_id);
     $out .= sprintf('<tr><th>Description</th><td>%s</td><td></td></tr>', $empire->description);
