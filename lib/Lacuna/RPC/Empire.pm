@@ -73,7 +73,7 @@ sub login {
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
     }
-    $self->rpc_count; # just want to increment it
+    $empire->rpc_count; # just want to increment it
     Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
        empire_id    => $empire->id,
        empire_name  => $empire->name,
