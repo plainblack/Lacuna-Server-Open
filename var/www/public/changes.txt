@@ -21,6 +21,7 @@
  - You can now upgrade glyph buildings using plans.
  - Fixed spy theft mission messages.
  - Fixed spy abduction.
+ - API: Exposed id, is_ally, is_own in the incoming ships list on the planet status.
 
 2.4300
  - Added Trelvestian AI.

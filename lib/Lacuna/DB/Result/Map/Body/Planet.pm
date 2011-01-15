@@ -185,14 +185,28 @@ around get_status => sub {
                             task            => 'Travelling',
                         }
                     );
+                    my @colonies;
+                    my @allies;
                     while (my $ship = $incoming_ships->next) {
                         if ($ship->date_available->epoch <= $now) {
                             $ship->foreign_body($self);
                             $ship->body->tick;
                         }
                         else {
+                            unless (scalar @colonies) { # we don't look it up unless we have incoming
+                                @colonies = $empire->planets->get_column('id')->all;
+                            }
+                            unless (scalar @allies) { # we don't look it up unless we have incoming
+                                my $alliance = $empire->alliance if $empire->alliance_id;
+                                if (defined $alliance) {
+                                    @allies = $alliance->members->get_column('id')->all;
+                                }
+                            }
                             push @{$out->{incoming_foreign_ships}}, {
                                 date_arrives => $ship->date_available_formatted,
+                                is_own       => $ship->body_id ~~ \@colonies,
+                                is_ally      => $ship->body->empire_id ~~ \@allies,
+                                id           => $ship->id,
                             };
                         }
                     }

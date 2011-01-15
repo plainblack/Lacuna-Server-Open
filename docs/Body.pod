@@ -60,7 +60,10 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
         "water_capacity" : 51050,
         "incoming_foreign_ships" : [  # will only be included when foreign ships are coming to your planet, more detail at spaceport
             {
-                "date_arrives" : "01 31 2010 13:09:05 +0600"
+                "id" : "id-goes-here",                          # not terribly useful, except for client caching of notices
+                "date_arrives" : "01 31 2010 13:09:05 +0600",
+                "is_own" : 1,                                   # is this from one of our own planets
+                "is_ally" : 1                                   # is this from a planet within our alliance
             },
             ...
         ]
