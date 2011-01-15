@@ -10,6 +10,8 @@
  - Removed old trade system.
  - Fixed "Security sweep kills my own spies on ally's planet".
  - You now get a message if your planet captures a ship with spies.
+ - Fixed the regex documentation for mail formatting to work for negative ids.
+ - Snarks will no longer target craters.
 
 2.4300
  - Added Trelvestian AI.
