@@ -54,6 +54,9 @@ The unique id of your Intelligence Ministry.
 An integer between 1 and 5. Defaults to 1.
 
 
+
+
+
 =head2 view_spies ( session_id, building_id, [ page_number ] )
 
 Returns the list of spies you have on your roster.
@@ -93,6 +96,8 @@ Returns the list of spies you have on your roster.
             "assigned_to" : {
                 "body_id" : "id-goes-here",
                 "name" : "Earth",
+                "x" : 40,
+                "y" : -71
             },
             "is_available" : 1, # can be reassigned
             "available_on" : "01 31 2010 13:09:05 +0600", # if can't be reassigned, this is when will be available

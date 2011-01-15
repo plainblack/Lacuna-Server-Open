@@ -78,6 +78,8 @@ sub get_status {
         assigned_to         => {
             body_id => $self->on_body_id,
             name    => $self->on_body->name,
+            x       => $self->on_body->x,
+            y       => $self->on_body->y,
         },
         available_on        => $self->format_available_on,
         started_assignment  => $self->format_started_assignment,
