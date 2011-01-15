@@ -204,8 +204,8 @@ around get_status => sub {
                             }
                             push @{$out->{incoming_foreign_ships}}, {
                                 date_arrives => $ship->date_available_formatted,
-                                is_own       => $ship->body_id ~~ \@colonies,
-                                is_ally      => $ship->body->empire_id ~~ \@allies,
+                                is_own       => ($ship->body_id ~~ \@colonies) ? 1 : 0,
+                                is_ally      => ($ship->body->empire_id ~~ \@allies) ? 1 : 0,
                                 id           => $ship->id,
                             };
                         }
