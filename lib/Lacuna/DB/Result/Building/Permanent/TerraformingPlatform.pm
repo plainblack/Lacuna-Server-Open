@@ -20,6 +20,22 @@ around can_build => sub {
     confess [1013,"You can't directly build a Terraforming Platform. You need a terraforming platform ship."];
 };
 
+before 'can_demolish' => sub {
+    my $self = shift;
+    my $body = $self->body;
+    if ($body->plots_available < $self->level && ($body->orbit > $body->empire->max_orbit || $body->orbit < $body->empire->min_orbit)) {
+        confess [1013, 'You need to demolish a building before you can demolish this Terraforming Platform.'];
+    }
+};
+
+before 'can_downgrade' => sub {
+    my $self = shift;
+    my $body = $self->body;
+    if ($body->plots_available < 1 && ($body->orbit > $body->empire->max_orbit || $body->orbit < $body->empire->min_orbit)) {
+        confess [1013, 'You need to demolish a building before you can downgrade this Terraforming Platform.'];
+    }
+};
+
 before has_special_resources => sub {
     my $self = shift;
     my $planet = $self->body;

@@ -22,6 +22,20 @@ around can_build => sub {
     confess [1013,"You can't directly build a Gas Giant Platform. You need a gas giant platform ship."];
 };
 
+before 'can_demolish' => sub {
+    my $self = shift;
+    if ($self->body->plots_available < $self->level) {
+        confess [1013, 'You need to demolish a building before you can demolish this Gas Giant Settlement Platform.'];
+    }
+};
+
+before 'can_downgrade' => sub {
+    my $self = shift;
+    if ($self->body->plots_available < 1) {
+        confess [1013, 'You need to demolish a building before you can downgrade this Gas Giant Settlement Platform.'];
+    }
+};
+
 before has_special_resources => sub {
     my $self = shift;
     my $planet = $self->body;
