@@ -34,7 +34,7 @@ while (my $attacking_colony = $colonies->next) {
     next unless defined $target_colony;
     my @ships = qw(sweeper snark snark2 snark3);
     out('Attacking '.$target_colony->name);
-    push @attacks, $ai->start_attack($attacking_colony, $target_colony, [shift @ships]);
+    push @attacks, $ai->start_attack($attacking_colony, $target_colony, \@ships);
     $attacking_colony->delete_last_attacked_by;
 }
 
