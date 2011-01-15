@@ -72,14 +72,13 @@ has latest_spy => (
         my $self = shift;
         return $self->get_spies->search(
             {
-                available_on    => ['>=', DateTime->now],
-                task            => 'training',
+                task            => 'Training',
             },
             {
                 order_by    => { -desc => 'available_on' },
                 rows        => 1,
             }
-        )->next;
+        )->single;
     },
 );
 
