@@ -116,6 +116,21 @@ sub push_items {
     }
     
     my ($payload, $meta) = $self->structure_payload($items, $ship->hold_size, undef, $ship);
+
+    my $ship_count = scalar(@{$payload->{ships}});
+    $ship_count += 1 if ($options->{stay});
+    if ($ship_count) {
+        my $spaceport = $target->spaceport;
+        if (defined $spaceport) {
+            unless ($spaceport->docks_available >= $ship_count) {
+                confess [1011, 'There are no available docks on the remote planet.'];
+            }
+        }
+        else {
+            confess [1011, 'You cannot push ships to a planet that does not have a space port.'];
+        }
+    }
+
     if ($options->{stay}) {
         $ship->body_id($target->id);
         $ship->body($target);

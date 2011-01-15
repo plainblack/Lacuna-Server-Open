@@ -124,6 +124,18 @@ sub push_items {
         $space_exception = 'You are trying to send %s cargo, but the remote transporter can only receive '.$remote_payload.'.';
     }
     my ($payload, $meta) = $self->structure_payload($items, $space_available, $space_exception);
+    my $ship_count = scalar(@{$payload->{ships}});
+    if ($ship_count) {
+        my $spaceport = $target->spaceport;
+        if (defined $spaceport) {
+            unless ($spaceport->docks_available >= $ship_count) {
+                confess [1011, 'There are no available docks on the remote planet.'];
+            }
+        }
+        else {
+            confess [1011, 'You cannot push ships to a planet that does not have a space port.'];
+        }
+    }
     my $container = Lacuna::VirtualContainer->new(payload => $payload);
     my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
     $cargo_log->new({

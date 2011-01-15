@@ -12,6 +12,7 @@
  - You now get a message if your planet captures a ship with spies.
  - Fixed the regex documentation for mail formatting to work for negative ids.
  - Snarks will no longer target craters.
+ - You can no longer push ships if there aren't enough docks on the remote planet.
 
 2.4300
  - Added Trelvestian AI.
