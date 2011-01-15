@@ -33,14 +33,10 @@ sub get_empire_by_session {
     else {
         my $empire = $self->get_session($session_id)->empire;
         if (defined $empire) {
-            my $cache = Lacuna->cache;
-            my $cache_key = 'rpc_count_'.format_date(undef,'%d');
-            my $rpc_count = $cache->get($cache_key,$empire->id) + 1;
             my $max = Lacuna->config->get('rpc_limit') || 2500;
-            if ($rpc_count > $max) {
+            if ($empire->rpc_count > $max) {
                 confess [1010, 'You have already made the maximum number of requests ('.$max.') you can make for one day.'];
             }
-            $cache->set($cache_key, $empire->id, $rpc_count, 60 * 60 * 24);
             #Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
             #   empire_id    => $empire->id,
             #   empire_name  => $empire->name,
@@ -53,12 +49,6 @@ sub get_empire_by_session {
             confess [1002, 'Empire does not exist.'];
         }
     }
-}
-
-sub get_rpc_count {
-    my ($self, $session_id) = @_;
-    my $session = $self->get_session($session_id);
-    return Lacuna->cache->get('rpc_count_'.format_date(undef,'%d'), $session->empire_id);
 }
 
 sub get_body { # makes for uniform error handling, and prevents staleness
@@ -109,6 +99,7 @@ sub format_status {
             time            => format_date(DateTime->now),
             version         => Lacuna->version,
             star_map_size   => Lacuna->config->get('map_size'),
+            rpc_limit       => Lacuna->config->get('rpc_limit') || 2500,
         },
     );
     if (defined $empire) {
@@ -124,9 +115,6 @@ sub format_status {
     }
     return \%out;
 }
-
-
-__PACKAGE__->register_rpc_method_names(qw(get_rpc_count));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

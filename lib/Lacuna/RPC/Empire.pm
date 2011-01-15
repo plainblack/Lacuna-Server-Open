@@ -64,6 +64,15 @@ sub logout {
     return 1;
 }
 
+has rpc_count => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return Lacuna->cache->increment('rpc_count_'.format_date(undef,'%d'), $self->id, 1, 60 * 60 * 26);
+    }
+);
+
 sub login {
     my ($self, $plack_request, $name, $password, $api_key) = @_;
     unless ($api_key) {
@@ -73,7 +82,7 @@ sub login {
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
     }
-    Lacuna->cache->increment('rpc_count_'.format_date(undef,'%d'), $empire->id, 1, 60 * 60 * 26);
+    $self->rpc_count; # just want to increment it
     Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
        empire_id    => $empire->id,
        empire_name  => $empire->name,

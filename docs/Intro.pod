@@ -126,6 +126,7 @@ Most methods will provide a status block as part of the response. This is used t
             "time" : "01 31 2010 13:09:05 +0600",
             "version" : 2.0604,
             "announcement" : 1, # see the Announcement API
+            "rpc_limit" : 2500, # max calls per day, compare to empire rpc_count
             "star_map_size" : {
                 "x" : [ -15, 15 ],
                 "y" : [ -15, 15 ],

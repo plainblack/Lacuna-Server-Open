@@ -214,6 +214,7 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
     "server" : { ... },
     "empire" : {
         "id" : "xxxx",
+        "rpc_count" : 321, # the number of calls made to the server
         "is_isolationist" : 1, # hasn't sent out probes or colony ships
         "name" : "The Syndicate",
         "status_message" : "A spy's work is never done.",

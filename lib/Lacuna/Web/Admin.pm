@@ -573,7 +573,7 @@ sub www_view_empire {
     my $out = '<h1>Manage Empire</h1>';
     $out .= '<table style="width: 100%">';
     $out .= sprintf('<tr><th>Id</th><td>%s</td><td></td></tr>', $empire->id);
-    $out .= sprintf('<tr><th>RPC Requests</th><td>%s</td><td></td></tr>', Lacuna->cache->get('rpc_count_'.format_date(undef,'%d'),$empire->id));
+    $out .= sprintf('<tr><th>RPC Requests</th><td>%s</td><td></td></tr>', $empire->rpc_count);
     $out .= sprintf('<tr><th>Name</th><td>%s</td><td></td></tr>', $empire->name);
     $out .= sprintf('<tr><th>Email</th><td>%s</td><td></td></tr>', $empire->email);
     $out .= sprintf('<tr><th>Created</th><td>%s</td><td></td></tr>', $empire->date_created);

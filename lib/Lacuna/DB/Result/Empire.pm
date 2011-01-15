@@ -272,6 +272,7 @@ sub get_status {
         $planets{$planet->id} = $planet->name;
     }
     my $status = {
+        rpc_count           => $self->rpc_count,
         is_isolationist     => $self->is_isolationist,
         status_message      => $self->status_message,
         name                => $self->name,
