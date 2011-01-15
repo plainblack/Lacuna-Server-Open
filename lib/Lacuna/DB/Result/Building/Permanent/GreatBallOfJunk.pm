@@ -8,9 +8,9 @@ extends 'Lacuna::DB::Result::Building::Permanent';
 use constant controller_class => 'Lacuna::RPC::Building::GreatBallOfJunk';
 
 around can_upgrade => sub {
-    my ($orig, $self, $body) = @_;
-    if ($body->get_plan(__PACKAGE__, $self->level + 1)) {
-        return $orig->($self, $body);  
+    my ($orig, $self) = @_;
+    if ($self->body->get_plan(__PACKAGE__, $self->level + 1)) {
+        return $orig->($self);  
     }
     confess [1013,"You can't upgrade a monument."];
 };

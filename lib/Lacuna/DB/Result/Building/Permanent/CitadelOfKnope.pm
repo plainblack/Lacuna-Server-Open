@@ -17,9 +17,9 @@ around can_build => sub {
 };
 
 around can_upgrade => sub {
-    my ($orig, $self, $body) = @_;
-    if ($body->get_plan(__PACKAGE__, $self->level + 1)) {
-        return $orig->($self, $body);  
+    my ($orig, $self) = @_;
+    if ($self->body->get_plan(__PACKAGE__, $self->level + 1)) {
+        return $orig->($self);  
     }
     confess [1013,"You can't upgrade the Citadel of Knope. It was left behind by the Great Race."];
 };
