@@ -182,7 +182,7 @@ sub train_spy {
         my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
         $available_on->add(seconds => $time_to_train );
         my $deception = $empire->deception_affinity * 50;
-        Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
+        my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
             from_body_id    => $self->body_id,
             on_body_id      => $self->body_id,
             task            => 'Training',
@@ -194,6 +194,7 @@ sub train_spy {
         })
         ->update_level
         ->insert;
+        $self->latest_spy($spy);
         my $count = $self->spy_count($self->spy_count + 1);
         if ($count < $self->level) {
             $self->body->add_news(20,'A source inside %s admitted that they are underprepared for the threats they face.', $empire->name);
