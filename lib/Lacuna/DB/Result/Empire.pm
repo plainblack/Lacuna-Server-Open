@@ -263,6 +263,15 @@ sub get_newest_message {
     }
 }
 
+has rpc_count => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return Lacuna->cache->increment('rpc_count_'.format_date(undef,'%d'), $self->id, 1, 60 * 60 * 26);
+    }
+);
+
 sub get_status {
     my ($self) = @_;
     my $planet_rs = $self->planets;

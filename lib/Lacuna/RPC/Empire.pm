@@ -64,15 +64,6 @@ sub logout {
     return 1;
 }
 
-has rpc_count => (
-    is      => 'ro',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return Lacuna->cache->increment('rpc_count_'.format_date(undef,'%d'), $self->id, 1, 60 * 60 * 26);
-    }
-);
-
 sub login {
     my ($self, $plack_request, $name, $password, $api_key) = @_;
     unless ($api_key) {
