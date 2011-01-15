@@ -46,6 +46,11 @@ after handle_arrival_procedures => sub {
         filename    => 'ship_captured_with_spies.txt',
         params      => [$self->name, $body->x, $body->y, $body->name],
     );
+    $body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'we_captured_ship_with_spies.txt',
+        params      => [$body->id, $body->name, $self->body->empire->id, $self->body->empire->name],
+    );
     $self->delete;
     confess [-1];
 };

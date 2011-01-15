@@ -1,0 +1,7 @@
+Ship Captured
+~~~
+We captured a ship landing on {Planet %s %s}. Suspects on board were incarcerated. The ship has been destroyed, but its markings indicated it was from {Empire %s %s}.
+
+Regards,
+
+Your Humble Assistant

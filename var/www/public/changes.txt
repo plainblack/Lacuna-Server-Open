@@ -9,6 +9,7 @@
  - Fixed a bug where Gas Giants didn't display properly the level of ore they were producing.
  - Removed old trade system.
  - Fixed "Security sweep kills my own spies on ally's planet".
+ - You now get a message if your planet captures a ship with spies.
 
 2.4300
  - Added Trelvestian AI.
