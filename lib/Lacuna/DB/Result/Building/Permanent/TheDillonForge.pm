@@ -16,9 +16,14 @@ around can_build => sub {
     confess [1013,"You can't build The Dillon Forge."];
 };
 
-sub can_upgrade {
-    confess [1013, "You can't upgrade The Dillon Forge."];
-}
+around can_upgrade => sub {
+    my ($orig, $self, $body) = @_;
+    if ($body->get_plan(__PACKAGE__, $self->level + 1)) {
+        return $orig->($self, $body);  
+    }
+    confess [1013,"You can't upgrade the Dillon Forge."];
+};
+
 
 use constant image => 'thedillonforge';
 

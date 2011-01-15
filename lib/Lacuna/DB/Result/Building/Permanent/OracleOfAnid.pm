@@ -15,9 +15,13 @@ around can_build => sub {
     confess [1013,"You can't build the Oracle of Anid."];
 };
 
-sub can_upgrade {
-    confess [1013, "You can't upgrade the Oracle of Anid."];
-}
+around can_upgrade => sub {
+    my ($orig, $self, $body) = @_;
+    if ($body->get_plan(__PACKAGE__, $self->level + 1)) {
+        return $orig->($self, $body);  
+    }
+    confess [1013,"You can't upgrade the Oracle of Anid. It was left behind by the Great Race."];
+};
 
 use constant image => 'oracleanid';
 

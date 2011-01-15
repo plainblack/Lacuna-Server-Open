@@ -18,6 +18,7 @@
  - API: Added rpc_count to empire data and rpc_limit to server data on each response.
  - Fix a problem with Trel attack.
  - API: Now returning on body x,y with spy status in intelligence ministry.
+ - You can now upgrade glyph buildings using plans.
 
 2.4300
  - Added Trelvestian AI.

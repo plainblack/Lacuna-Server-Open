@@ -15,9 +15,13 @@ around can_build => sub {
     confess [1013,"You can't build a Natural Spring. It forms naturally."];
 };
 
-sub can_upgrade {
-    confess [1013, "You can't upgrade a Natural Spring. It forms naturally."];
-}
+around can_upgrade => sub {
+    my ($orig, $self, $body) = @_;
+    if ($body->get_plan(__PACKAGE__, $self->level + 1)) {
+        return $orig->($self, $body);  
+    }
+    confess [1013,"You can't upgrade a Natural Spring. It forms naturally."];
+};
 
 use constant image => 'naturalspring';
 
