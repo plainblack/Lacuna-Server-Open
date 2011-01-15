@@ -40,7 +40,7 @@ sub get_last_attacked_by {
     my $self = shift;
     my $attacker_body_id = Lacuna->cache->get('last_attacked_by',$self->id);
     return undef unless defined $attacker_body_id;
-    my $attacker_body = Lacuna->db->resultset('Lacuna::DB::Result::Body')->find($attacker_body_id);
+    my $attacker_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($attacker_body_id);
     return undef unless defined $attacker_body;
     return undef unless $attacker_body->empire_id;
     return $attacker_body;
