@@ -28,6 +28,7 @@ sub push_items {
     my ($self, $session_id, $building_id, $target_id, $items) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->level > 0;
     unless ($empire->essentia >= 2) {
         confess [1011, "You need 2 essentia to push items using the Subspace Transporter."];
     }
@@ -56,6 +57,7 @@ sub add_to_market {
     my ($self, $session_id, $building_id, $offer, $ask) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->level > 0;
     unless ($empire->essentia >= 1) {
         confess [1011, "You need 1 essentia to make a trade using the Subspace Transporter."];
     }
@@ -101,6 +103,7 @@ sub accept_from_market {
     $cache->set('trade_lock',$trade_id,1,5);
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->level > 0;
     $building->validate_captcha($empire, $guid, $solution, $trade_id);
     my $trade = $building->market->find($trade_id);
     unless (defined $trade) {
@@ -145,6 +148,7 @@ sub trade_one_for_one {
     my ($self, $session_id, $building_id, $have, $want, $quantity) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->level > 0;
     $building->trade_one_for_one($have, $want, $quantity);
     return {
         status      => $self->format_status($empire, $building->body),

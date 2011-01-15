@@ -14,6 +14,7 @@
  - Snarks will no longer target craters.
  - You can no longer push ships if there aren't enough docks on the remote planet.
  - Spies no longer train in parallel.
+ - Can no longer use Trade Ministry or Transporter until it has been completely built to level 1.
 
 2.4300
  - Added Trelvestian AI.

@@ -35,6 +35,7 @@ sub push_items {
     my ($self, $session_id, $building_id, $target_id, $items, $options) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
     unless ($target_id) {
         confess [1002, "You must specify a target body id."];
     }
@@ -87,6 +88,7 @@ sub accept_from_market {
     $cache->set('trade_lock',$trade_id,1,5);
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
     $building->validate_captcha($empire, $guid, $solution, $trade_id);
     my $trade = $building->market->find($trade_id);
     unless (defined $trade) {
@@ -142,6 +144,7 @@ sub add_to_market {
     my ($self, $session_id, $building_id, $offer, $ask, $options) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
     my $trade = $building->add_to_market($offer, $ask, $options);
     return {
         trade_id    => $trade->id,
