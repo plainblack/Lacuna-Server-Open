@@ -1342,8 +1342,9 @@ sub abduct_operative {
         )->single;
     return $self->ship_not_found->id unless (defined $ship);
     return $self->get_spooked->id unless (defined $defender);
+    $ship->body($self->from_body);
     $ship->send(
-        target      => $self->from_body,
+        target      => $self->on_body,
         direction   => 'in',
         payload     => { spies => [ $self->id ], prisoners => [$defender->id] }
     );
