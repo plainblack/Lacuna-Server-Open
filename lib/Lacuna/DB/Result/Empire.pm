@@ -135,7 +135,7 @@ sub determine_species_limits {
     }
     return {
         essentia_cost   => 100,
-        min_growth      => $self->growth_affinity,
+        min_growth      => 1, # no longer limited as of 2.4400
         min_orbit       => $min_orbit,
         max_orbit       => $max_orbit,
         can             => ($reason) ? 0 : 1,
@@ -650,7 +650,7 @@ sub next_colony_cost {
         { type=> { in => [qw(colony_ship short_range_colony_ship)]}, task=>'travelling', 'body.empire_id' => $self->id},
         { join => 'body' }
     )->count;
-    my $inflation = INFLATION - ($self->political_affinity / 100);
+    my $inflation = INFLATION - ($self->growth_affinity / 100);
     my $tally = 100_000;
     for (2..$count) {
         $tally += $tally * $inflation;

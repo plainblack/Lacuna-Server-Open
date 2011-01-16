@@ -14,6 +14,9 @@
  - Rule: Research affinity now reduces building build costs by 5% per level instead of 1%.
  - Rule: Genetics lab now requires 1 level for each point you graft on to your species.
  - Rule: SAW protects all allied planets in the same star system.
+ - Rule: Growth affinity now affects the cost of your next colony, rather than political affinity.
+ - Rule: Political affinity now increases happiness production by 10% per level rather than 6%.
+ - Rule: Growth affinity can now be changed as part of species respec.
  - Fix: Abducted operatives didn't stay prisoners long enough.
  - Fix: Farming affinity was being applied to manufactured foods instead of manufacturing affinity.
  - Fix: Environmental/Science/Mining affinity was being applied to waste conversion buildings instead of manufacturing affinity.
