@@ -1,12 +1,22 @@
 2.4400
- - Rule: Environmental affinity now adds 5% per level to waste and water storage capacity.
- - Rule: Mining affinity now adds 5% per level to ore storage capacity.
- - Rule: Farming affinity now adds 5% per level to food storage capacity.
- - Rule: Science affinity now adds 5% per level to energy storage capacity.
+ - Add: Configurable settings for Tournament Server play.
+ - Rule: Environmental affinity now adds 4% per level to waste and water storage capacity.
+ - Rule: Mining affinity now adds 4% per level to ore storage capacity.
+ - Rule: Farming affinity now adds 4% per level to food storage capacity.
+ - Rule: Science affinity now adds 4% per level to energy storage capacity.
+ - Rule: Farming affinity now increases food production 4% per level instead of 3%.
+ - Rule: Mining affinity now increases ore production 4% per level instead of 3%.
+ - Rule: Science affinity now increases energy production 4% per level instead of 3%.
+ - Rule: Environmental affinity now increases water production 4% per level instead of 3%.
+ - Rule: Environmental affinity now increases waste consumption 4% per level instead of 1%.
  - Rule: Management affinity now reduces building build times by 5% per level instead of 3%.
+ - Rule: Manufacturing affinity now reduces ship build costs by 5% per level instead of 1%.
+ - Rule: Research affinity now reduces building build costs by 5% per level instead of 1%.
  - Rule: Genetics lab now requires 1 level for each point you graft on to your species.
  - Rule: SAW protects all allied planets in the same star system.
  - Fix: Abducted operatives didn't stay prisoners long enough.
+ - Fix: Farming affinity was being applied to manufactured foods instead of manufacturing affinity.
+ - Fix: Environmental/Science/Mining affinity was being applied to waste conversion buildings instead of manufacturing affinity.
 
 2.4301
  - Fixed counter intel reports being signed by wrong agent.
