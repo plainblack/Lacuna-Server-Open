@@ -113,8 +113,6 @@ sub total_grafts {
         + $empire->growth_affinity
         + $empire->deception_affinity
         + $empire->research_affinity
-        + $empire->_affinity
-        + $empire->_affinity
         - 45;
 }
 

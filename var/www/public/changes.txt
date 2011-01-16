@@ -5,6 +5,7 @@
  - Rule: Science affinity now adds 5% per level to energy storage capacity.
  - Rule: Management affinity now reduces building build times by 5% per level instead of 3%.
  - Rule: Genetics lab now requires 1 level for each point you graft on to your species.
+ - Fix: Abducted operatives didn't stay prisoners long enough.
 
 2.4301
  - Fixed counter intel reports being signed by wrong agent.
