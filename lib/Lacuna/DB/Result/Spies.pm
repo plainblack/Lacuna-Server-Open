@@ -474,8 +474,12 @@ sub run_mission {
         my $message_id = $self->$outcome($defender);
         $out = { result => 'Success', message_id => $message_id, reason => random_element(['I did it!','Mom would have been proud.','Done.','It is done.','That is why you pay me the big bucks.','I did it, but that one was close.','Mission accomplished.', 'Wahoo!', 'All good.','We\'re good.', 'I\'ll be ready for a new mission soon.', 'On my way back now.', 'I will be ready for another mission soon.']) };
     }
+    $self->offense_mission_count( $self->offense_mission_count + 1);
     $self->update;
-    $defender->update if defined $defender;
+    if (defined $defender) {
+        $defender->defense_mission_count( $defender->defense_mission_count + 1); 
+        $defender->update;
+    }
     return $out;
 }
 
@@ -531,8 +535,12 @@ sub run_security_sweep {
         $self->update_level;
         $out = { result => 'Success', message_id => $message_id, reason => random_element(['Mom would have been proud.','Done.','That is why you pay me the big bucks.']) };
     }
+    $self->defense_mission_count( $self->defense_mission_count + 1); 
     $self->update;
-    $attacker->update if defined $attacker;
+    if (defined $attacker) {
+        $attacker->offense_mission_count( $attacker->offense_mission_count + 1);
+        $attacker->update;
+    }
     return $out;
 }
 

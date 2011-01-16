@@ -23,6 +23,8 @@
  - Fix: Stop ask of 0 essentia for trade/transporter by using fractions.
  - Fix: Mining platforms were miscounting the number of platforms on an asteroid based upon how many were en route.
  - Fix: Ore production calculation bug when mining ministries are used.
+ - Fix: Change in population not being tracked by stats, which caused fastest growing medal to be handed out incorrectly.
+ - Fix: Spy mission counts weren't being tallied correctly, which was affecting medals and stats.
 
 2.4301
  - Fixed counter intel reports being signed by wrong agent.
