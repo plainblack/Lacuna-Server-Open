@@ -709,13 +709,12 @@ sub recalc_stats {
     my ($self) = @_;
     my %stats = ( needs_recalc => 0 );
     my $buildings = $self->buildings;
-    my $mining_ministry_ore_hour = 0;
     #reset foods
     foreach my $type (FOOD_TYPES) {
         $stats{$type.'_production_hour'} = 0;
     }
     #calculate building production
-    my ($gas_giant_platforms, $terraforming_platforms, $pantheon_of_hagness);
+    my ($gas_giant_platforms, $terraforming_platforms, $pantheon_of_hagness, $total_ore_production_hour, $ore_production_hour, $ore_consumption_hour) = 0;
     while (my $building = $buildings->next) {
         $stats{waste_capacity} += $building->waste_capacity;
         $stats{water_capacity} += $building->water_capacity;
@@ -726,7 +725,8 @@ sub recalc_stats {
         $stats{waste_hour} += $building->waste_hour;               
         $stats{energy_hour} += $building->energy_hour;
         $stats{water_hour} += $building->water_hour;
-        $stats{ore_hour} += $building->ore_hour;
+        $ore_consumption_hour += $building->ore_consumption_hour;
+        $ore_production_hour += $building->ore_production_hour;
         $stats{food_consumption_hour} += $building->food_consumption_hour;
         foreach my $type (@{$building->produces_food_items}) {
             my $method = $type.'_production_hour';
@@ -738,7 +738,7 @@ sub recalc_stats {
                 foreach my $type (ORE_TYPES) {
                     my $method = $type.'_hour';
                     $stats{$method} += $platform->$method();
-                    $mining_ministry_ore_hour += $platform->$method();
+                    $total_ore_production_hour += $platform->$method();
                 }
             }
         }
@@ -752,24 +752,23 @@ sub recalc_stats {
             $pantheon_of_hagness += $building->level;
         }
     }
-    
-    # deal with ore overages
-    my $overage;
+
+    # local ore production
     foreach my $type (ORE_TYPES) {
         my $method = $type.'_hour';
-        my $planet_side = sprintf('%.0f',$self->$type * $stats{ore_hour} / $self->total_ore_concentration); # calculate local spend/prod
-        if ($planet_side < 0 && abs($planet_side) > $stats{$method}) { # local spend might be more than local production
-            $overage += abs($planet_side) - $stats{$method}; # make up the difference with an overage
-            $stats{$method} = 0;
-        }
-        else {
-            $stats{$method} += $planet_side;            
-        }
+        $stats{$method} = sprintf('%.0f',$self->$type * $ore_production_hour / $self->total_ore_concentration);
+        $total_ore_production_hour += $stats{$method};
     }
-    $stats{ore_hour} += $mining_ministry_ore_hour - $overage; # adjust the total ore hour to reflect mining ministry and overage
-    if ($stats{ore_hour} < 0) { # if there's not enough total ore production to go around
-        $stats{gold_hour} = $stats{ore_hour}; # arbitrarily assign it to one type
+
+    # subtract ore consumption
+    foreach my $type (ORE_TYPES) {
+        my $method = $type.'_hour';
+        $stats{$method} = sprintf('%.0f', $ore_consumption_hour * $stats{$method} / $total_ore_production_hour);
     }
+    
+    # overall ore production
+    $stats{ore_hour} = $total_ore_production_hour - $ore_consumption_hour;
+    
     
     # deal with storage overages
     if ($self->ore_stored > $self->ore_capacity) {
