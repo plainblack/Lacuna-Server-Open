@@ -47,7 +47,7 @@ sub can_add_platform {
     } 
     my $count = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({ asteroid_id => $asteroid->id })->count;
     unless ($on_arrival) {
-        $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({type=>'mining_platform_ship',task=>'Travelling',body_id=>$self->body_id})->count;
+        $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({type=>'mining_platform_ship',foreign_body_id => $asteroid->id, task=>'Travelling',body_id=>$self->body_id})->count;
     }
     if ($asteroid->size <= $count) {
         confess [1010, $asteroid->name.' cannot support any additional mining platforms.'];
