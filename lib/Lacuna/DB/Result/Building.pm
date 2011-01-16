@@ -509,35 +509,35 @@ sub food_capacity {
     my ($self) = @_;
     my $base = $self->food_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->farming_affinity * 5 / 100) ));
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->farming_affinity * 4 / 100) ));
 }
 
 sub energy_capacity {
     my ($self) = @_;
     my $base = $self->energy_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->science_affinity * 5 / 100) ));
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->science_affinity * 4 / 100) ));
 }
 
 sub ore_capacity {
     my ($self) = @_;
     my $base = $self->ore_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->mining_affinity * 5 / 100) ));
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->mining_affinity * 4 / 100) ));
 }
 
 sub water_capacity {
     my ($self) = @_;
     my $base = $self->water_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->environmental_affinity * 5 / 100) ));
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->environmental_affinity * 4 / 100) ));
 }
 
 sub waste_capacity {
     my ($self) = @_;
     my $base = $self->waste_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->environmental_affinity * 5 / 100) ));
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->environmental_affinity * 4 / 100) ));
 }
 
 # BUILD
