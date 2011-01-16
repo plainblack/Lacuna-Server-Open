@@ -22,6 +22,7 @@
  - Fix: Environmental/Science/Mining affinity was being applied to waste conversion buildings instead of manufacturing affinity.
  - Fix: Stop ask of 0 essentia for trade/transporter by using fractions.
  - Fix: Mining platforms were miscounting the number of platforms on an asteroid based upon how many were en route.
+ - Fix: Ore production calculation bug when mining ministries are used.
 
 2.4301
  - Fixed counter intel reports being signed by wrong agent.

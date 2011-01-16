@@ -756,7 +756,7 @@ sub recalc_stats {
     # local ore production
     foreach my $type (ORE_TYPES) {
         my $method = $type.'_hour';
-        $stats{$method} = sprintf('%.0f',$self->$type * $ore_production_hour / $self->total_ore_concentration);
+        $stats{$method} -= sprintf('%.0f',$stats{$method} * $ore_production_hour / $self->total_ore_concentration);
         $total_ore_production_hour += $stats{$method};
     }
 
