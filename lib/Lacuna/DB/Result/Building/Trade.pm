@@ -56,7 +56,8 @@ sub add_to_market {
     unless ($self->level > $self->my_market->count) {
         confess [1009, "This Trade Ministry can only support ".$self->level." trades at one time."];
     }
-    my ($payload, $meta) = $self->structure_payload($offer, $ship->hold_size, undef, $ship);
+    my $space_used = $self->check_payload($offer, $ship->hold_size, undef, $ship);
+    my ($payload, $meta) = $self->structure_payload($offer, $space_used);
     $ship->task('Waiting On Trade');
     $ship->update;
     my %trade = (
@@ -115,10 +116,12 @@ sub push_items {
         }
     }
     
-    my ($payload, $meta) = $self->structure_payload($items, $ship->hold_size, undef, $ship);
-
-    my $ship_count = scalar(@{$payload->{ships}});
-    $ship_count += 1 if ($options->{stay});
+    my $space_used = $self->check_payload($items, $ship->hold_size, undef, $ship);
+    my $ship_count = 0;
+    foreach my $item (@{$items}) {
+        $ship_count++ if $item->{type} eq 'ship';
+    }
+    $ship_count++ if ($options->{stay});
     if ($ship_count) {
         my $spaceport = $target->spaceport;
         if (defined $spaceport) {
@@ -130,6 +133,8 @@ sub push_items {
             confess [1011, 'You cannot push ships to a planet that does not have a space port.'];
         }
     }
+
+    my ($payload, $meta) = $self->structure_payload($items, $space_used);
 
     if ($options->{stay}) {
         $ship->body_id($target->id);

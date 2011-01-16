@@ -55,7 +55,7 @@ sub available_market {
     )
 }
 
-sub structure_payload {
+sub check_payload {
     my ($self, $items, $available_cargo_space, $space_exception, $transfer_ship) = @_;
     my $body = $self->body;
     $space_exception ||= $cargo_exception;
@@ -104,8 +104,12 @@ sub structure_payload {
     }
     confess $offer_nothing_exception unless $space_used;
     confess [1011, sprintf($space_exception,$space_used)] unless ($space_used <= $available_cargo_space);
+    return $space_used;
+}
 
-    # send
+sub structure_payload {
+    my ($self, $items, $space_used) = @_;
+    my $body = $self->body;
     my $payload;
     my %meta = ( offer_cargo_space_needed => $space_used );
     foreach my $item (@{$items}) {

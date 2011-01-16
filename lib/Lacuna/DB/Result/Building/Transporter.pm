@@ -55,7 +55,8 @@ sub add_to_market {
     unless ($self->level > $self->my_market->count) {
         confess [1009, "This Subspace Transporter can only support ".$self->level." trades at one time."];
     }
-    my ($payload, $meta) = $self->structure_payload($offer, $self->determine_available_cargo_space);
+    my $space_used = $self->check_payload($offer, $self->determine_available_cargo_space);
+    my ($payload, $meta) = $self->structure_payload($offer, $space_used);
     my %trade = (
         %{$meta},
         payload         => $payload,
@@ -123,8 +124,11 @@ sub push_items {
         $space_available = $remote_payload;
         $space_exception = 'You are trying to send %s cargo, but the remote transporter can only receive '.$remote_payload.'.';
     }
-    my ($payload, $meta) = $self->structure_payload($items, $space_available, $space_exception);
-    my $ship_count = scalar(@{$payload->{ships}});
+    my $space_used = $self->check_payload($items, $space_available, $space_exception);
+    my $ship_count = 0;
+    foreach my $item (@{$items}) {
+        $ship_count++ if $item->{type} eq 'ship';
+    }
     if ($ship_count) {
         my $spaceport = $target->spaceport;
         if (defined $spaceport) {
@@ -136,6 +140,7 @@ sub push_items {
             confess [1011, 'You cannot push ships to a planet that does not have a space port.'];
         }
     }
+    my ($payload, $meta) = $self->structure_payload($items, $space_used);
     my $container = Lacuna::VirtualContainer->new(payload => $payload);
     my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
     $cargo_log->new({
