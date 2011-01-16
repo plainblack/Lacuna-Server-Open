@@ -24,6 +24,7 @@ sub prepare_experiment {
         graft_odds      => $building->graft_odds,
         grafts          => $building->get_possible_grafts,
         essentia_cost   => 2,
+        can_experiment  => eval{ $building->can_experiment },
     };
 }
 
@@ -41,6 +42,7 @@ sub run_experiment {
     unless (defined $spy) {
         confess [1002, 'Could not find that spy.'];
     }
+    $building->can_experiment;
     my $experiment = $building->experiment($spy, $affinity);
     my $out = $self->prepare_experiment($empire, $building);
     $out->{experiment} = $experiment;

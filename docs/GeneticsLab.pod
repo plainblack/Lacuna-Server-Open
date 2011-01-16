@@ -33,7 +33,8 @@ Returns everything you need to set up an experiment.
     ],
     "survival_odds" : 31,
     "graft_odds" : 11,
-    "essentia_cost" : 2
+    "essentia_cost" : 2,
+    "can_experiment" : 1
  }
  
 =head3 session_id

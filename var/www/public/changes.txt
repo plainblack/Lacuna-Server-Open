@@ -1,8 +1,10 @@
 2.4400
- - Environmental affinity now adds 3% per level to waste and water storage capacity.
- - Mining affinity now adds 3% per level to ore storage capacity.
- - Farming affinity now adds 3% per level to food storage capacity.
- - Science affinity now adds 3% per level to energy storage capacity.
+ - Rule: Environmental affinity now adds 5% per level to waste and water storage capacity.
+ - Rule: Mining affinity now adds 5% per level to ore storage capacity.
+ - Rule: Farming affinity now adds 5% per level to food storage capacity.
+ - Rule: Science affinity now adds 5% per level to energy storage capacity.
+ - Rule: Management affinity now reduces building build times by 5% per level instead of 3%.
+ - Rule: Genetics lab now requires 1 level for each point you graft on to your species.
 
 2.4301
  - Fixed counter intel reports being signed by wrong agent.

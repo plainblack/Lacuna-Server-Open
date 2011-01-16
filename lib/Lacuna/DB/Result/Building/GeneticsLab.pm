@@ -98,6 +98,34 @@ sub is_survival_success {
     return (randint(1, 100) <= $self->survival_odds);
 }
 
+sub total_grafts {
+    my $self = shift;
+    my $empire = $self->body->empire;
+    return $empire->max_orbit - $empire->min_orbit + 1
+        + $empire->management_affinity
+        + $empire->science_affinity
+        + $empire->environmental_affinity
+        + $empire->farming_affinity
+        + $empire->mining_affinity
+        + $empire->trade_affinity
+        + $empire->political_affinity
+        + $empire->manufacturing_affinity
+        + $empire->growth_affinity
+        + $empire->deception_affinity
+        + $empire->research_affinity
+        + $empire->_affinity
+        + $empire->_affinity
+        - 45;
+}
+
+sub can_experiment {
+    my $self = shift;
+    if ($self->total_grafts >= $self->level) {
+        confess [1013, 'You need to raise your genetics lab level to run more experiments.'];
+    }
+    return 1;
+}
+
 sub experiment {
     my ($self, $spy, $affinity) = @_;
     unless ($spy->on_body_id == $self->body_id && $spy->task eq 'Captured') {
