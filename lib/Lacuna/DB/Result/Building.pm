@@ -693,12 +693,12 @@ sub can_upgrade {
 
 sub construction_cost_reduction_bonus {
     my $self = shift;
-    return (100 - $self->body->empire->research_affinity) / 100;
+    return (100 - $self->body->empire->research_affinity * 5) / 100;
 }
 
 sub manufacturing_cost_reduction_bonus {
     my $self = shift;
-    return (100 - $self->body->empire->manufacturing_affinity) / 100;
+    return (100 - $self->body->empire->manufacturing_affinity * 5) / 100;
 }
 
 sub time_cost_reduction_bonus {

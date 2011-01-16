@@ -49,12 +49,13 @@ sub get_ship_costs {
     my $throttle = Lacuna->config->get('ship_build_speed') || 0;
     my $seconds = sprintf('%0.f', $ship->base_time_cost * $self->time_cost_reduction_bonus(($self->level * 3) + $throttle));
     $seconds = 15 if $seconds < 15;
+    my $bonus = $self->manufacturing_cost_reduction_bonus;
     return {
         seconds => $seconds,
-        food    => sprintf('%0.f', $ship->base_food_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
-        water   => sprintf('%0.f', $ship->base_water_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
-        ore     => sprintf('%0.f', $ship->base_ore_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
-        energy  => sprintf('%0.f', $ship->base_energy_cost * $percentage_of_cost * $self->manufacturing_cost_reduction_bonus),
+        food    => sprintf('%0.f', $ship->base_food_cost * $percentage_of_cost * $bonus),
+        water   => sprintf('%0.f', $ship->base_water_cost * $percentage_of_cost * $bonus),
+        ore     => sprintf('%0.f', $ship->base_ore_cost * $percentage_of_cost * $bonus),
+        energy  => sprintf('%0.f', $ship->base_energy_cost * $percentage_of_cost * $bonus),
         waste   => sprintf('%0.f', $ship->base_waste_cost * $percentage_of_cost),
     };
 }
