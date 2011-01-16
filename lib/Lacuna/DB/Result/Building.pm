@@ -42,7 +42,7 @@ sub controller_class {
     confess "you need to override me";
 }
 
-use constant max_instances_per_planet => 9999999;
+use constant max_instances_per_planet => 99;
 
 use constant university_prereq => 0;
 
@@ -726,7 +726,8 @@ sub cost_to_upgrade {
     }
     my $time_inflator = ($self->level * 2) - 1;
     $time_inflator = 1 if ($time_inflator < 1);
-    my $time_cost = (($self->level+1)/6 * $self->time_to_build * $time_inflator ** INFLATION) * $self->time_cost_reduction_bonus * $oversight_reduction;
+    my $throttle = Lacuna->config->get('building_build_speed') || 6;
+    my $time_cost = (($self->level+1)/$throttle * $self->time_to_build * $time_inflator ** INFLATION) * $self->time_cost_reduction_bonus * $oversight_reduction;
     $time_cost = 15 if ($time_cost < 15);
     return {
         food    => sprintf('%.0f',$self->food_to_build * $upgrade_cost * $upgrade_cost_reduction),
