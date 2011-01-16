@@ -173,6 +173,15 @@ sub repair_buildings {
     }
 }
 
+sub demolish_bleeders {
+    my ($self, $colony) = @_;
+    say 'Demolishing bleeders';
+    my @bleeders = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::DeployedBleeder');
+    foreach my $bleeder (@bleeders) {
+        $bleeder->demolish;
+    }
+}
+
 
 sub train_spies {
     my ($self, $colony) = @_;

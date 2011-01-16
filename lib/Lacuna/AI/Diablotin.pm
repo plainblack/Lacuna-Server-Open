@@ -119,6 +119,7 @@ sub ship_building_priorities {
 
 sub run_hourly_colony_updates {
     my ($self, $colony) = @_;
+    $self->demolish_bleeders($colony);
     $self->set_defenders($colony);
     $self->repair_buildings($colony);
     $self->train_spies($colony);
