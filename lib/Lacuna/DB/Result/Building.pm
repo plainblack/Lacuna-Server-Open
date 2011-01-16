@@ -189,13 +189,13 @@ sub farming_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
     my $boost = (time < $empire->food_boost->epoch) ? 25 : 0;
-    return (100 + $boost + $empire->farming_affinity * 3) / 100;
+    return (100 + $boost + $empire->farming_affinity * 4) / 100;
 }
 
 sub manufacturing_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
-    return (100 + $empire->manufacturing_affinity * 3) / 100;
+    return (100 + $empire->manufacturing_affinity * 4) / 100;
 }
 
 sub lapis_production_hour {
@@ -376,7 +376,7 @@ sub energy_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
     my $boost = (time < $empire->energy_boost->epoch) ? 25 : 0;
-    return (100 + $boost + $empire->science_affinity * 3) / 100;
+    return (100 + $boost + $empire->science_affinity * 4) / 100;
 }
 
 sub energy_production_hour {
@@ -402,7 +402,7 @@ sub mining_production_bonus {
     my $refinery_bonus = (defined $refinery) ? $refinery->level * 5 : 0;
     my $empire = $self->body->empire;
     my $boost = (time < $empire->ore_boost->epoch) ? 25 : 0;
-    return (100 + $boost + $refinery_bonus + $empire->mining_affinity * 3) / 100;
+    return (100 + $boost + $refinery_bonus + $empire->mining_affinity * 4) / 100;
 }
 
 sub ore_production_hour {
@@ -426,7 +426,7 @@ sub water_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
     my $boost = (time < $empire->water_boost->epoch) ? 25 : 0;
-    return (100 + $boost + $empire->environmental_affinity * 3) / 100;
+    return (100 + $boost + $empire->environmental_affinity * 4) / 100;
 }
 
 sub water_production_hour {
@@ -448,7 +448,7 @@ sub water_hour {
 
 sub waste_consumption_bonus {
     my ($self) = @_;
-    return (100 + $self->body->empire->environmental_affinity) / 100;
+    return (100 + $self->body->empire->environmental_affinity * 4) / 100;
 }
 
 sub waste_production_hour {
