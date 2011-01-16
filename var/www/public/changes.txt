@@ -5,6 +5,7 @@
  - Rule: Science affinity now adds 5% per level to energy storage capacity.
  - Rule: Management affinity now reduces building build times by 5% per level instead of 3%.
  - Rule: Genetics lab now requires 1 level for each point you graft on to your species.
+ - Rule: SAW protects all allied planets in the same star system.
  - Fix: Abducted operatives didn't stay prisoners long enough.
 
 2.4301

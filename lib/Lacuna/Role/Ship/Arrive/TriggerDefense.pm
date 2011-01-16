@@ -20,18 +20,15 @@ after handle_arrival_procedures => sub {
     $body_attacked->set_last_attacked_by($self->body->id);
         
     # get SAWs
-    my $saws = $body_attacked->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
-    
-    # if there are SAWs lets duke it out
-    while (my $saw = $saws->next) {
-        next if $saw->level < 1;
-        next if $saw->efficiency < 1;
-        next if $saw->is_working;
-        my $combat = ($saw->level * 1000) * ( $saw->efficiency / 100 );
-        $saw->spend_efficiency( int( $self->combat / 100 ) );
-        $saw->start_work({}, 60 * 5);
-        $saw->update;
-        $self->damage_in_combat($combat);
+    $self->saw_combat($body_attacked);
+    my $alliance_id = $body_attacked->empire->alliance_id;
+    if ($alliance_id) {
+        my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id => { '!=' => undef }, body_id => { '!=' => $body_attacked->id}, star_id => $body_attacked->star_id});
+        while (my $body = $bodies->next) {
+            if ($body->empire->alliance_id == $alliance_id) {
+                $self->saw_combat($body);
+            }
+        }
     }
 
     # get defensive ships
@@ -77,6 +74,23 @@ sub damage_in_combat {
     $body_attacked->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
     $self->delete;
     confess [-1]
+}
+
+sub saw_combat {
+    my ($self, $body) = @_;
+    my $saws = $body->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
+        
+    # if there are SAWs lets duke it out
+    while (my $saw = $saws->next) {
+        next if $saw->level < 1;
+        next if $saw->efficiency < 1;
+        next if $saw->is_working;
+        my $combat = ($saw->level * 1000) * ( $saw->efficiency / 100 );
+        $saw->spend_efficiency( int( $self->combat / 100 ) );
+        $saw->start_work({}, 60 * 5);
+        $saw->update;
+        $self->damage_in_combat($combat);
+    }
 }
 
 1;
