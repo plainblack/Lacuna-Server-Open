@@ -1,3 +1,9 @@
+2.4400
+ - Environmental affinity now adds 3% per level to waste and water storage capacity.
+ - Mining affinity now adds 3% per level to ore storage capacity.
+ - Farming affinity now adds 3% per level to food storage capacity.
+ - Science affinity now adds 3% per level to energy storage capacity.
+
 2.4301
  - Fixed counter intel reports being signed by wrong agent.
  - API: Identifying buildings that don't use a plot in get_builable() by no_plot_use = 1.
