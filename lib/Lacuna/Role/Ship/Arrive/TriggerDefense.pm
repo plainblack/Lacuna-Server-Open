@@ -23,8 +23,9 @@ after handle_arrival_procedures => sub {
     $self->saw_combat($body_attacked);
     my $alliance_id = $body_attacked->empire->alliance_id;
     if ($alliance_id) {
-        my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id => { '!=' => undef }, body_id => { '!=' => $body_attacked->id}, star_id => $body_attacked->star_id});
+        my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ body_id => { '!=' => $body_attacked->id}, star_id => $body_attacked->star_id});
         while (my $body = $bodies->next) {
+            next unless $body->empire_id;
             if ($body->empire->alliance_id == $alliance_id) {
                 $self->saw_combat($body);
             }
