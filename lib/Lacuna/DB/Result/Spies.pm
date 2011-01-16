@@ -1117,6 +1117,7 @@ sub can_conduct_advanced_missions {
         confess [1010, 'You cannot use this assignment on a capitol planet.'];
     }
     return 1 if ($self->on_body->empire_id < 2); # you can hit AI's all day long
+    return 1 if (Lacuna->config->get('ignore_advanced_mission_limits'));
     if ($self->on_body->empire->alliance_id && $self->on_body->empire->alliance_id == $self->empire->alliance_id) {
         confess [1010, 'You cannot attack your alliance mates.'];
     }
