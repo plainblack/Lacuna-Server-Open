@@ -1317,7 +1317,7 @@ sub prevent_insurrection {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(50,'Officials prevented a coup d\'tat today on on %s by capturing %s and comrades.', $self->on_body->name, $self->name);
-    $defender->capture_a_spy($self)->id;
+    $self->go_to_jail;
     my $alliance_id = $defender->empire->alliance_id;
     if ($alliance_id) {
         my @member_ids = $defender->empire->alliance->members->get_column('id')->all;
@@ -1325,14 +1325,20 @@ sub prevent_insurrection {
         my $count = randint(5,15);
         while (my $conspirator = $conspirators->next ) {
             $count--;
-            $defender->capture_a_spy($conspirator);
+            $conspirator->go_to_jail;
+            $conspirator->update;
             last if $count < 1;
         }
     }
-    return $defender->on_body->empire->send_predefined_message(
+    $defender->on_body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'prevented_insurrection.txt',
         params      => [$self->on_body_id, $self->on_body->name, $defender->format_from],
+    );
+    $self->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'insurrection_attempt_failed.txt',
+        params      => [$self->on_body_id, $self->on_body->name, $self->format_from],
     )->id;
 }
 

@@ -1,0 +1,8 @@
+Insurrection Failed
+~~~
+Our insurrection on {Planet %s %s} was prevented by enemy agents and I was captured. I'm lucky to have gotten this message out to you.
+
+Regards,
+
+%s
+
