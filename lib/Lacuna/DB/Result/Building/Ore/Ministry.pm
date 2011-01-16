@@ -42,10 +42,18 @@ sub send_ship_home {
 
 sub can_add_platform {
     my ($self, $asteroid, $on_arrival) = @_;
-    if ($self->platforms->count >= $self->max_platforms) {
+    
+    # ministry count
+    my $count = $self->platforms->count;
+    unless ($on_arrival) {
+        $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({type=>'mining_platform_ship', task=>'Travelling',body_id=>$self->body_id})->count;
+    }    
+    if ($count >= $self->max_platforms) {
         confess [1009, 'Already at the maximum number of platforms allowed at this Ministry level.'];
-    } 
-    my $count = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({ asteroid_id => $asteroid->id })->count;
+    }
+    
+    # asteroid count
+    $count = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({ asteroid_id => $asteroid->id })->count;
     unless ($on_arrival) {
         $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({type=>'mining_platform_ship',foreign_body_id => $asteroid->id, task=>'Travelling',body_id=>$self->body_id})->count;
     }
