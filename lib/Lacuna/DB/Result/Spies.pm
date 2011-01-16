@@ -1348,7 +1348,7 @@ sub abduct_operative {
         direction   => 'in',
         payload     => { spies => [ $self->id ], prisoners => [$defender->id] }
     );
-    $defender->send($self->from_body_id, $ship->date_available, 'Waiting On Trade');
+    $defender->send($self->from_body_id, DateTime->now->add(days => 7), 'Waiting On Trade');
     $self->send($self->from_body_id, $ship->date_available);
     $defender->empire->send_predefined_message(
         tags        => ['Alert'],
