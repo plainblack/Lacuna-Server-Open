@@ -19,7 +19,7 @@ make install
 cd ..
 
 cd nginx-0.7.67
-./configure --prefix=/data/apps --with-pcre=../pcre-8.10 --with-http_ssl_module --with-openssl=../openssl-1.0.0a
+./configure --prefix=/data/apps --with-pcre=../pcre-8.10 --with-http_ssl_module --with-openssl=../openssl-1.0.0c
 make
 make install
 cd ..
