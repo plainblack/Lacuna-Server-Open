@@ -344,7 +344,7 @@ sub summarize_colonies {
             planet_name            => $planet->name,
             building_count         => $planet->buildings->count,
             population             => $planet->population,
-            population_delta       => $log->population_delta + $planet->population - $log->population,
+            population_delta       => (defined $log ? $log->population_delta + $planet->population - $log->population :  $planet->population ),
             average_building_level => $planet->buildings->get_column('level')->func('avg'),
             highest_building_level => $planet->buildings->get_column('level')->max,
             food_hour              => $planet->food_hour,
