@@ -9,7 +9,7 @@ use Lacuna::Util;
 __PACKAGE__->table('essentia_log');
 __PACKAGE__->add_columns(
     api_key             => { data_type => 'varchar', size => 40, is_nullable => 1 },
-    amount              => { data_type => 'int', size => 11, is_nullable => 0 },
+    amount              => { data_type => 'float', size => [11,1], is_nullable => 0 },
     description         => { data_type => 'varchar', size => 90, is_nullable => 0 },
     transaction_id      => { data_type => 'varchar', size => 32, is_nullable => 1 },
 );

@@ -26,7 +26,7 @@ sub spend {
 sub add {
     my ($self, $key, $amount, $description) = @_;
     confess [401, 'Invalid key.'] unless $self->verify_key($key);
-    confess [1009, 'Amount must be 1 or higher.'] unless $amount >= 1;
+    confess [1009, 'Amount must be 0 or higher.'] unless $amount >= 0;
     confess [1009, 'You must supply a description'] unless length($description);
     my $code_string = create_uuid_as_string(UUID_V4);
     my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->new({

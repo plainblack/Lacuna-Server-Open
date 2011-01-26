@@ -50,8 +50,8 @@ sub add_to_market {
     unless (defined $ship) {
         confess [1011, "You do not have any ships available that can carry trade goods."];
     }
-    unless ($ask >= 1 && $ask < 100 ) {
-        confess [1009, "You must ask for between 1 and 99 essentia to create a trade."];
+    unless ($ask >= 0.1 && $ask < 100 ) {
+        confess [1009, "You must ask for between 0.1 and 99 essentia to create a trade."];
     }
     unless ($self->level > $self->my_market->count) {
         confess [1009, "This Trade Ministry can only support ".$self->level." trades at one time."];

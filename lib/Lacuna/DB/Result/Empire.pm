@@ -34,7 +34,7 @@ __PACKAGE__->add_columns(
     player_name             => { data_type => 'varchar', size => 100, is_nullable => 1 },
     password_recovery_key   => { data_type => 'varchar', size => 36, is_nullable => 1 },
     last_login              => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    essentia                => { data_type => 'int', default_value => 0 },
+    essentia                => { data_type => 'float', size => [11,1], default_value => 0 },
     university_level        => { data_type => 'tinyint', default_value => 0 },
     tutorial_stage          => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'explore_the_ui' },
     tutorial_scratch        => { data_type => 'text', is_nullable => 1 },

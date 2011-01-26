@@ -9,7 +9,7 @@ use Lacuna::Util;
 __PACKAGE__->table('essentia_code');
 __PACKAGE__->add_columns(
     code                    => { data_type => 'varchar', size => 36, is_nullable => 0 },
-    amount                  => { data_type => 'int', is_nullable => 0 },
+    amount                  => { data_type => 'float', size => [11,1], is_nullable => 0 },
     date_created            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     description             => { data_type => 'varchar', size => 50, is_nullable => 0 },
     used                    => { data_type => 'tinyint', is_nullable => 0, default_value => 0 },

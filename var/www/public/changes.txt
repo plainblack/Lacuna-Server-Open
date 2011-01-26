@@ -1,3 +1,7 @@
+2.4500
+ - Rule: Essentia can now be divided into tenths.
+ - Fix: Stats not updating.
+
 2.4400
  - Add: Configurable settings for Tournament Server play.
  - Rule: Environmental affinity now adds 4% per level to waste and water storage capacity.

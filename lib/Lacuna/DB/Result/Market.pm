@@ -13,7 +13,7 @@ __PACKAGE__->add_columns(
     body_id                 => { data_type => 'int', is_nullable => 0 },
     transfer_type           => { data_type => 'varchar', size => 16, is_nullable => 0 }, # zone | transporter
     ship_id                 => { data_type => 'int', is_nullable => 1 },
-    ask                     => { data_type => 'int', is_nullable => 0},
+    ask                     => { data_type => 'float', size => [11,1], is_nullable => 0},
     payload                 => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
     offer_cargo_space_needed=> { data_type => 'int', default_value => 0 },
     has_water               => { data_type => 'tinyint', default_value => 0 },
