@@ -29,10 +29,10 @@ sub post {
             Content         => to_json($content),
             Accept          => 'application/json',
             );
-        last if ($response->code < 400 && $response->code > 600);
+        last if ($response->header('Content-Type') eq 'application/json-rpc');
         usleep((4 ** $retry) * 100_000);
     }
-    confess [$response->code, 'Could not connect to JSON RPC server.'] if ($response->code >= 400 && $response->code <= 600);
+    confess [$response->code, 'Could not connect to JSON RPC server.'] unless ($response->header('Content-Type') eq 'application/json-rpc');
     my $result = from_json($response->content);
     if (exists $result->{error}) {
         confess [$result->{error}{code}, $result->{error}{message}, $result->{error}{data}];
