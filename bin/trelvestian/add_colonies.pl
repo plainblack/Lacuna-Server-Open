@@ -9,9 +9,11 @@ use Lacuna::AI::Trelvestian;
 $|=1;
 our $quiet;
 our $add_one;
+our $tournament;
 GetOptions(
-    'quiet'         => \$quiet,
+    quiet           => \$quiet,
     addone          => \$add_one,
+    tournament      => \$tournament,
 );
 
 
@@ -21,7 +23,24 @@ my $start = time;
 
 my $ai = Lacuna::AI::Trelvestian->new;
 
-$ai->add_colonies($add_one);
+if ($tournament) {
+    my $viable = $ai->viable_colonies;
+    my @colonies;
+    push @colonies, $viable->search({ x => { '>' => 150}, y => { '>' => 150} },{rows=>1})->single;
+    push @colonies, $viable->search({ x => { '<' => -150}, y => { '>' => 150} },{rows=>1})->single;
+    push @colonies, $viable->search({ x => { '<' => -150}, y => { '<' => -150} },{rows=>1})->single;
+    push @colonies, $viable->search({ x => { '>' => 150}, y => { '<' => -150} },{rows=>1})->single;
+    foreach my $body (@colonies) {
+        say 'Clearing '.$body->name;
+        $body->buildings->delete_all;
+        say 'Colonizing '.$body->name;
+        $body->found_colony($ai->empire);
+        $ai->build_colony($body);
+    }
+}
+else {
+    $ai->add_colonies($add_one);
+}
 
 
 my $finish = time;
