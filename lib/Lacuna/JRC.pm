@@ -24,7 +24,7 @@ sub post {
     };
     my $response;
     foreach my $retry (1..5) {
-        $response = $self->ua->post(Lacuna->config->get('server_url').$url,
+        $response = $self->ua->post($url,
             Content_Type    => 'application/json',
             Content         => to_json($content),
             Accept          => 'application/json',
