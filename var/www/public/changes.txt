@@ -3,6 +3,8 @@
  - Rule: Essentia codes can now be used between servers (except the test server).
  - Rule: The limit on plans per planet has been eliminated.
  - Infrastructure: Centralized all assets on game.lacunaexpanse.com and d16cbq0l6kkf21.cloudfront.net for better caching between servers.
+ - Infrastructure: Added zones to separate the chat environment for each server.
+ - Infrastructure: Updated many of the ship images to provide more detail and color.
  - Fix: Stats not updating.
 
 2.4400
