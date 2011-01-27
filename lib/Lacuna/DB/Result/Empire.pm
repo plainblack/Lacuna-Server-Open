@@ -706,21 +706,23 @@ before 'delete' => sub {
     }
     my $essentia_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia');
     my $essentia_code;
+    my $config = Lacuna->config;
     my $sum = $self->essentia - $essentia_log->search({empire_id => $self->id, description => 'tutorial' })->get_column('amount')->sum;
     if ($sum > 0 && $self->email) {
-        $essentia_code = create_uuid_as_string(UUID_V4);
-        my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->new({
-            code            => $essentia_code,
-            date_created    => DateTime->now,
-            description     => $self->name .' deleted',
-            amount          => $sum,
-        })->insert;
+        $essentia_code = Lacuna::JRC->new->post(
+            $config->get('essentia_code_server_url'),
+            'add',
+            [
+                $config->get('server_key'),
+                $sum,
+                $self->name .' deleted',
+            ],
+        );
         $self->send_email(
             'Essentia Code',
-            sprintf("When your account was deleted you had %s essentia remaining. You can redeem it using the code %s on %s from any other account.",
-                $code->amount,
+            sprintf("When your account was deleted you had %s essentia remaining. You can redeem it using the code %s on any Lacuna Expanse server.",
+                $sum,
                 $essentia_code,
-                Lacuna->config->get('server_url'),
             ),
         );
     }
@@ -762,17 +764,17 @@ sub redeem_essentia_code {
     unless (defined $code_string && $code_string ne '') {
         confess [1002,'You must specify an essentia code in order to redeem it.'];
     }
-    my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search({code => $code_string}, {rows=>1})->single;
-    unless (defined $code) {
-        confess [1002, 'The essentia code you specified is invalid.'];
-    }
-    if ($code->used) {
-        confess [1010, 'The essentia code you specified has already been redeemed.'];
-    }
-    $self->add_essentia($code->amount, 'Essentia Code Redemption', $code->code);
+    my $config = Lacuna->config;
+    my $amount = Lacuna::JRC->new->post(
+        $config->get('essentia_code_server_url'),
+        'spend',
+        [
+            $config->get('server_key'),
+            $code_string,
+        ],
+    );
+    $self->add_essentia($amount, 'Essentia Code Redemption', $code_string);
     $self->update;
-    $code->used(1);
-    $code->update;
     return $self;
 }
 
