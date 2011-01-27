@@ -1,6 +1,7 @@
 2.4500
  - Rule: Essentia can now be divided into tenths.
  - Rule: Essentia codes can now be used between servers (except the test server).
+ - Rule: The limit on plans per planet has been eliminated.
  - Fix: Stats not updating.
 
 2.4400

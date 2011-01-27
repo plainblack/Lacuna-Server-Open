@@ -98,11 +98,6 @@ sub add_plan {
     my ($self, $class, $level, $extra_build_level) = @_;
     my $plans = $self->plans;
 
-    # can't have more than 20
-    if ($plans->count >= 20) {
-        $plans->next->delete;
-    }
-        
     # add it
     return $plans->new({
         body_id             => $self->id,
