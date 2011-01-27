@@ -2,6 +2,7 @@
  - Rule: Essentia can now be divided into tenths.
  - Rule: Essentia codes can now be used between servers (except the test server).
  - Rule: The limit on plans per planet has been eliminated.
+ - Infrastructure: Centralized all assets on game.lacunaexpanse.com and d16cbq0l6kkf21.cloudfront.net for better caching between servers.
  - Fix: Stats not updating.
 
 2.4400

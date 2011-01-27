@@ -122,7 +122,7 @@ sub www_my_empire {
     $out .= '<h1>'.$empire->name.'</h1>';
     my $planets = $empire->planets;
     while (my $planet = $planets->next) {
-        $out .= '<div style="float: left; height: 250px; text-align: center;"><img src="'.$config->get('feeds/surl').'assets/star_system/'.$planet->image_name.'.png'.'" alt="planet">
+        $out .= '<div style="float: left; height: 250px; text-align: center;"><img src="https://d16cbq0l6kkf21.cloudfront.net/assets/star_system/'.$planet->image_name.'.png'.'" alt="planet">
             <br>'.$planet->name.'</div>';
     }
     $out .= '<div style="clear: both;"></div>';

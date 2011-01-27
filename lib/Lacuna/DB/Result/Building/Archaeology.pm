@@ -109,7 +109,7 @@ before finish_work => sub {
             attachments => {
                 image => {
                     title   => $ore,
-                    url     => Lacuna->config->get('feeds/surl').'assets/glyphs/'.$ore.'.png',
+                    url     => 'https://d16cbq0l6kkf21.cloudfront.net/assets/glyphs/'.$ore.'.png',
                 }
             }
         );
