@@ -24,6 +24,7 @@ my $start = time;
 my $ai = Lacuna::AI::Trelvestian->new;
 
 if ($tournament) {
+    $ai->create_empire;
     my $viable = $ai->viable_colonies;
     my @colonies;
     push @colonies, $viable->search({ x => { '>' => 150}, y => { '>' => 150} },{rows=>1})->single;
