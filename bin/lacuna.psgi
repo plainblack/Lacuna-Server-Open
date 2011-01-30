@@ -196,13 +196,22 @@ my $app = builder {
 };
 
 
-
-if ($config->get('offline')) {
+my $status = Lacuna->cache->get('server','status');
+if ($status eq 'Online') {
     print "Server Down For Maintenance\n";
     sub {
          [ 500,
             ['Content-Type' => 'application/json-rpc' ],
             [ '{"jsonrpc" : "2.0", "error" : { "code" : "-32000", "message" : "The server is offline for maintenance." }}' ],
+         ];
+    }
+}
+elsif ($status eq 'Offline') {
+    print "Game Over\n";
+    sub {
+         [ 1200,
+            ['Content-Type' => 'application/json-rpc' ],
+            [ '{"jsonrpc" : "2.0", "error" : { "code" : "1200", "message" : "Game Over", "data" : "'.$config->get('feeds/url').'/game-over.html" }}' ],
          ];
     }
 }

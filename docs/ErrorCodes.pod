@@ -76,5 +76,10 @@ You're trying to log in to an empire that is part way through the creation proce
 This message will only occur if a user tries to create an empire with a name that already exists, but has not yet been founded, and the user doesn't enter the same password as they did when they first created the empire.
 
 
+=head2 1200 Game Over.
+
+This game has come to an end. The data section of this exception will contain a URI to a web page that shows the final stats.
+
+
 =cut
 
