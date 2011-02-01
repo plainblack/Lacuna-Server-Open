@@ -18,6 +18,9 @@ after handle_arrival_procedures => sub {
     my $body = $self->foreign_body;
     return if ($body->empire_id == $self->body->empire_id);
     
+    # do nothing, because it is uninhabited
+    return if (!$body->empire_id);
+
     # we don't capture if it is an ally
     return if ($body->empire->alliance_id == $self->body->empire->alliance_id);
     

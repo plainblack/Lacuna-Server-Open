@@ -6,6 +6,8 @@
  - Infrastructure: Added zones to separate the chat environment for each server.
  - Infrastructure: Updated many of the ship images to provide more detail and color.
  - Fix: Stats not updating.
+ - Fix: Illegal division by zero on Planet.
+ - Fix: Ship carrying spies arrives at uninhabited planet and throws an exception.
 
 2.4400
  - Add: Configurable settings for Tournament Server play.
