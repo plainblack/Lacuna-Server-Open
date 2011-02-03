@@ -16,7 +16,7 @@ has id => (
 sub BUILD {
     my $self = shift;
     my $session_data = Lacuna->cache->get_and_deserialize('session', $self->id);
-    if (defined $session_data) {
+    if (defined $session_data && ref $session_data eq 'HASH') {
         $self->api_key($session_data->{api_key});
         $self->empire_id($session_data->{empire_id});
         $self->extended($session_data->{extended});
