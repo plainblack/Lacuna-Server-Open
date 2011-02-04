@@ -24,7 +24,10 @@ after handle_arrival_procedures => sub {
     if ($self->target_building) {
         $building ||= $body_attacked->get_building_of_class($self->target_building);
     }
-    $building ||= $buildings->search({class => { '!=' => 'Lacuna::DB::Result::Building::Permanent::Crater' }},{order_by => { -desc => 'efficiency'}, rows=>1})->single;
+    $building ||= $buildings->search(
+		{class => { '!=' => 'Lacuna::DB::Result::Building::Permanent::Crater' }},
+		{order_by => { -desc => ['efficiency', 'rand()'] }, rows=>1}
+	)->single;
     $building->body($body_attacked);
     
     # let everyone know what's going on

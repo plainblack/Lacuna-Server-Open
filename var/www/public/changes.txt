@@ -1,3 +1,6 @@
+2.4501
+ - Fix: Snarks will now select a random building from the list of most damaged buildings. 
+
 2.4500
  - Rule: Essentia can now be divided into tenths.
  - Rule: Essentia codes can now be used between servers (except the test server).
