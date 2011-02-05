@@ -1356,7 +1356,7 @@ sub abduct_operative {
         {rows => 1}
         )->single;
     return $self->ship_not_found->id unless (defined $ship);
-    return $self->get_spooked->id unless (defined $defender);
+    return $self->no_contact->id unless (defined $defender);
     $ship->body($self->from_body);
     $ship->send(
         target      => $self->on_body,
