@@ -504,7 +504,7 @@ sub run_security_sweep {
             $attacker->$mission_skill( $attacker->$mission_skill + 10 );
             $attacker->update_level;
             $attacker->defense_mission_successes( $attacker->defense_mission_successes + 1 );
-            $message_id = $attacker->kill_a_spy($self)->id;
+            $message_id = $attacker->kill_attacking_spy($self)->id;
         }
         else {
             $self->no_target->id;
@@ -810,7 +810,7 @@ sub hack_filtered {
     );
 }
 
-sub kill_a_spy {
+sub kill_attacking_spy {
     my ($self, $dead) = @_;
     $self->spies_killed( $self->spies_killed + 1 );
     $self->empire->send_predefined_message(
@@ -820,6 +820,18 @@ sub kill_a_spy {
         from        => $self->empire,
     );
     return $dead->killed_in_action;
+}
+
+sub kill_defending_spy {
+    my ($self, $dead) = @_;
+    $self->spies_killed( $self->spies_killed + 1 );
+    $dead->killed_in_action;
+    return $self->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'we_killed_a_spy.txt',
+        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from],
+        from        => $self->empire,
+    );
 }
 
 
@@ -1772,7 +1784,7 @@ sub kill_thief {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(70,'%s police caught and killed a thief on %s during the commission of the hiest.', $self->on_body->empire->name, $self->on_body->name);
-    return $defender->kill_a_spy($self)->id;
+    return $defender->kill_attacking_spy($self)->id;
 }
 
 sub capture_thief {
@@ -2217,14 +2229,14 @@ sub kill_cop {
     my ($self, $defender) = @_;
     return $self->no_contact->id unless (defined $defender);
     $self->on_body->add_news(60,'An officer named %s was killed in the line of duty on %s.', $defender->name, $self->on_body->name);
-    return $self->kill_a_spy($defender)->id;
+	return $self->kill_defending_spy($defender)->id;
 }
 
 sub kill_intelligence {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(60,'A suspected spy was killed in a struggle with police on %s today.', $self->on_body->name);
-    return $defender->kill_a_spy($self)->id;
+    return $defender->kill_attacking_spy($self)->id;
 }
 
 sub capture_hacker {
