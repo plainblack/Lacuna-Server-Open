@@ -188,34 +188,37 @@ my $curator = builder {
 };
 $urlmap->map("/missioncurator" => $curator);
 
-
-my $app = builder {
+my $online = builder {
     enable 'CrossOrigin',
         origins => '*', methods => ['GET', 'POST'], max_age => 60*60*24*30, headers => '*';
     $urlmap->to_app;
 };
 
+my $offline = [ 500,
+            ['Content-Type' => 'application/json-rpc' ],
+            [ '{"jsonrpc" : "2.0", "error" : { "code" : "-32000", "message" : "The server is offline for maintenance." }}' ],
+        ];
+
+my $gameover = [ 1200,
+            ['Content-Type' => 'application/json-rpc' ],
+            [ '{"jsonrpc" : "2.0", "error" : { "code" : "1200", "message" : "Game Over", "data" : "'.$config->get('feeds/url').'/game-over.html" }}' ],
+        ];
+
 print "Server Up\n";
-sub {
+my $app = sub {
+    my @args = @_;
     my $status = Lacuna->cache->get('server','status');
     if ($status eq 'Offline') {
-        sub {
-             [ 500,
-                ['Content-Type' => 'application/json-rpc' ],
-                [ '{"jsonrpc" : "2.0", "error" : { "code" : "-32000", "message" : "The server is offline for maintenance." }}' ],
-             ];
-        }
+	return $offline;
     }
     elsif ($status eq 'Game Over') {
-        sub {
-             [ 1200,
-                ['Content-Type' => 'application/json-rpc' ],
-                [ '{"jsonrpc" : "2.0", "error" : { "code" : "1200", "message" : "Game Over", "data" : "'.$config->get('feeds/url').'/game-over.html" }}' ],
-            ];
-        }
+	return $gameover;
     }
     else {
-       $app;
+        return $online->(@args);
     }
-}
+};
+
+$app;
+
 
