@@ -353,7 +353,7 @@ Steal plans for buildings that this empire has built, or has in inventory.
 
 =item Incite Rebellion
 
-Oblitterate the happiness of a planet. If done long enough, it can shut down a planet.
+Obliterate the happiness of a planet. If done long enough, it can shut down a planet.
 
 =item Incite Insurrection
 
