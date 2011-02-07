@@ -409,7 +409,7 @@ my %outcomes = (
     'Appropriate Resources'         => 'appropriate_resources',
     'Assassinate Operatives'        => 'assassinate_operatives',
     'Sabotage Infrastructure'       => 'sabotage_infrastructure',
-    'Incite Mutiny'                 => 'incite_mutany',
+    'Incite Mutiny'                 => 'incite_mutiny',
     'Abduct Operatives'             => 'abduct_operatives',
     'Incite Rebellion'              => 'incite_rebellion',    
     'Incite Insurrection'           => 'incite_insurrection',    
@@ -1068,7 +1068,7 @@ sub sabotage_infrastructure_loss {
     }
 }
 
-sub incite_mutany {
+sub incite_mutiny {
     my $self = shift;
     given (randint(1,2)) {
         when (1) { return $self->turn_defender(@_) }
@@ -1077,7 +1077,7 @@ sub incite_mutany {
     }
 }
 
-sub incite_mutany_loss {
+sub incite_mutiny_loss {
     my $self = shift;
     given (randint(1,2)) {
         when (1) { return $self->turn_defector(@_) }

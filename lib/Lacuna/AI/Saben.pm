@@ -82,7 +82,7 @@ sub extra_glyph_buildings {
 sub spy_missions {
     return (
         'Incite Rebellion',
-        'Incite Mutany',
+        'Incite Mutiny',
         'Appropriate Resources',
     );
 }

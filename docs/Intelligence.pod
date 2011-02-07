@@ -339,7 +339,7 @@ Kill spies.
 
 Destroy buildings.
 
-=item Incite Mutany
+=item Incite Mutiny
 
 Turn spies. If successful they come work for you.
 
