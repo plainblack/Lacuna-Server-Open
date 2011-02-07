@@ -78,8 +78,9 @@ sub get_ships_for {
     while (my $ship = $available_rs->next) {
         $ship->body($body);
         eval{ $ship->can_send_to_target($target) };
-        if ($@) {
-    	    push @unavailable, { ship => $ship->get_status, reason => $@ };
+		my $reason = $@;
+        if ($reason) {
+    	    push @unavailable, { ship => $ship->get_status, reason => $reason };
             next;
         }
         $ship->body($body);

@@ -98,7 +98,7 @@ sub can_build_ship {
     }
     my $ships_building = $ships->search({body_id => $self->body_id, task=>'Building'})->count;
     if ($ships_building >= $self->max_ships) {
-        confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.']
+        confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.'];
     }
     unless ($self->body->spaceport->docks_available) {
         confess [1009, 'You do not have a dock available at the Spaceport.'];

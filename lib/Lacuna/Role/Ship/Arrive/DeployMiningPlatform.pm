@@ -18,9 +18,10 @@ after handle_arrival_procedures => sub {
     my $empire = $body->empire;
     my $foreign_body = $self->foreign_body;
     my $can = eval{$ministry->can_add_platform($foreign_body, 1)};
+	my $reason = $@;
 
     # yes, we can
-    if ($can && !$@) {
+    if ($can && !$reason) {
         $ministry->add_platform($foreign_body)->update;
         $empire->send_predefined_message(
             tags        => ['Alert'],
@@ -36,7 +37,7 @@ after handle_arrival_procedures => sub {
 
     # no we can't
     else {
-        my $message = (ref $@ eq 'ARRAY') ? $@->[1] : 'We have encountered a glitch.';
+        my $message = (ref $reason eq 'ARRAY') ? $reason->[1] : 'We have encountered a glitch.';
         $empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'cannot_deploy_mining_platform.txt',

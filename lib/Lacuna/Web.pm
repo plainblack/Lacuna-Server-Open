@@ -23,17 +23,18 @@ sub call {
     my $method = $self->can($method_name);
     if ($method) {
         $out = eval{$self->$method($request)};
-        if ($@) {
-            my $message = $@;
+		my $reason = $@;
+        if ($reason) {
+            my $message = $reason;
             my %options = (
                 request     => $request,
                 status      => 500,
                 debug       => 1,
             );
-            if (ref $@ eq 'ARRAY') {
-                $message = $@->[1];
-                if ($@->[0] > 99 && $@->[0] < 600) {
-                    $options{status} = $@->[0];
+            if (ref $reason eq 'ARRAY') {
+                $message = $reason->[1];
+                if ($reason->[0] > 99 && $reason->[0] < 600) {
+                    $options{status} = $reason->[0];
                     $options{debug} = 0;
                 }
             }

@@ -702,10 +702,11 @@ sub invite_friend {
     if ($csv->parse($addresses)) {
         foreach my $email ($csv->fields) {
             eval{$empire->invite_friend($email, $custom_message)};
-            if ($@) {
+			my $reason = $@;
+            if ($reason) {
                 push @not_sent, {
                     address => $email,
-                    reason  => $@,
+                    reason  => $reason,
                 };
             }
             else {

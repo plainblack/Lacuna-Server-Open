@@ -105,13 +105,14 @@ sub max_occupants {
 sub arrive {
     my $self = shift;
     eval {$self->handle_arrival_procedures}; # throws exceptions to stop subsequent actions from happening
-    if (ref $@ eq 'ARRAY' && $@->[0] eq -1) {
+	my $reason = $@;
+    if (ref $reason eq 'ARRAY' && $reason->[0] eq -1) {
         # this is an expected exception, it means one of the roles took over
         return;
     }
-    elsif ($@) {
+    elsif ($reason) {
         # this is unexpected, so let's rethrow
-        confess $@;
+        confess $reason;
     }
     
     # no exceptions, so we either need to go home or land

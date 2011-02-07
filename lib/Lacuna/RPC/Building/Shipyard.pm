@@ -101,6 +101,7 @@ sub get_buildable {
             next unless ($tag ~~ \@tags);
         }
         my $can = eval{$building->can_build_ship($ship)};
+		my $reason = $@;
         $buildable{$type} = {
             attributes  => {
                 speed           => $building->set_ship_speed($ship),
@@ -112,7 +113,7 @@ sub get_buildable {
             tags        => \@tags,
             cost        => $building->get_ship_costs($ship),
             can         => ($can) ? 1 : 0,
-            reason      => $@,
+            reason      => $reason,
             type_human  => $ship->type_formatted,
         };
     }

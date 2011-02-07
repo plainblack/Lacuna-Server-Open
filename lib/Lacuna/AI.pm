@@ -159,12 +159,14 @@ sub repair_buildings {
         say $building->name;
         if ($building->efficiency < 100) {
             my $costs = $building->get_repair_costs;
-            if (eval{$building->can_repair($costs)}) {
+			my $can = eval{$building->can_repair($costs)};
+			my $reason = $@;
+			if ($can) {
                 $building->repair($costs);
                 say "repaired";
             }
             else {
-                say $@->[1];
+                say $reason->[1];
             }
         }
         else {
@@ -188,13 +190,15 @@ sub train_spies {
     say 'Training spies...';
     my $intelligence = $colony->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
     my $costs = $intelligence->training_costs;
-    if (eval{$intelligence->can_train_spy($costs)}) {
+    my $can = eval{$intelligence->can_train_spy($costs)};
+	my $reason = $@;
+    if ($can) {
         $intelligence->spend_resources_to_train_spy($costs);
         $intelligence->train_spy($costs->{time});
         say "Spy trained.";
     }
     else {
-        say $@->[1];
+        say $reason->[1];
     }
 }
 
@@ -213,13 +217,15 @@ sub build_ships {
             $shipyard->body($colony);
             my $ship = $ships->new({type => $priority->[0]});
             my $costs = $shipyard->get_ship_costs($ship);
-            if (eval{$shipyard->can_build_ship($ship, $costs)}) {
+            my $can = eval{$shipyard->can_build_ship($ship, $costs)};
+			my $reason = $@;
+            if ($can) {
                 say "building ".$ship->type;
                 $shipyard->spend_resources_to_build_ship($costs);
                 $shipyard->build_ship($ship, $costs->{seconds});
             }
             else {
-                say $@->[1];
+                say $reason->[1];
             }
             push @shipyards, $shipyard;
         }
