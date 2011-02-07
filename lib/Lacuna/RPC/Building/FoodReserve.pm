@@ -30,6 +30,9 @@ around 'view' => sub {
 
 sub dump {
     my ($self, $session_id, $building_id, $type, $amount) = @_;
+	if ($amount <= 0) {
+		confess [1009, 'You must specify an amount greater than 0.'];
+	}
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $body = $building->body;
