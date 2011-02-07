@@ -15,6 +15,9 @@ after handle_arrival_procedures => sub {
     
     # no defense against self
     return if $body_attacked->empire_id == $self->body->empire_id;
+
+	# only trigger defenses on arrival to the foreign body
+	return if $self->direction ne 'out';
     
     # set last attack status
     $body_attacked->set_last_attacked_by($self->body->id);
