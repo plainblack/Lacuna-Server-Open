@@ -1,0 +1,64 @@
+Step 1: Prereqs
+
+First you need to have all the prereqs installed. If you're on a CentOS / RHEL environment you can do the following:
+
+cd bin/setup/server
+./download.sh
+./build.sh
+cd ..
+./installpms.sh
+
+If not, then you'll need to tear apart those scripts and do what they do.
+
+
+
+Step 2: Start Storage
+
+You need to start up you MySQL server and memcached. Memcached is as easy as:
+
+memcached -d
+
+MySQL will depend on the system and how you installed it.
+
+
+
+Step 3: Config Files
+
+You'll need to create lacuna.conf, nginx.conf, and log.conf in your Lacuna-Server/etc folder. The best way to do this
+is probably to just get them off one of the play testers server.
+
+
+
+Step 4: Initialize Database
+
+Log into mysql and create a database:
+
+mysql -uroot -pyourrootpassword
+
+create database lacuna;
+grant all privileges on lacuna.* to lacuna@localhost identified by 'somepassword';
+flush privileges;
+exit;
+
+cd bin
+perl init_lacuna.pl
+mysql -uroot -pyourrootpassword lacuna < ../var/captcha.sql
+
+
+
+Step 5: Start The Server
+
+To start the lacuna server just type:
+
+cd bin
+./startdev.sh
+
+Now in another terminal you can start issuing commands to the server.
+
+
+
+Step 6: Missions (optional)
+
+If you want to be able to do anything with missions, you'll need to check out the Lacuna-Mission repository into
+/data/Lacuna-Mission
+
