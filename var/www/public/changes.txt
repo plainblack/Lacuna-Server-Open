@@ -1,4 +1,5 @@
 2.4501
+ - Fix: Thuds don't get hung up if launched at a planet that is subsequently abandoned.
  - Fix: Snarks will now select a random building from the list of most damaged buildings. 
 
 2.4500
