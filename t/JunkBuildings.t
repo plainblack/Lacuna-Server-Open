@@ -6,82 +6,48 @@ use 5.010;
 
 use TestHelper;
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
-my $db = Lacuna->db;
 my $session_id = $tester->session->id;
+diag("session id: $session_id");
 my $home_planet = $tester->empire->home_planet_id;
+diag("home_planet: $home_planet");
 my $empire_id = $tester->empire->id;
 
-diag("session id: $session_id");
-diag("home_planet: $home_planet");
-
+my $db = Lacuna->db;
 my $empire = $db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
 my $home = $empire->home_planet;
 
-$home->waste_capacity(2_000_000);
-$home->waste_stored(2_000_000);
-$home->update;
+my @builds = (
+	{ type => 'junkhengesculpture', name => 'Junk Henge Sculpture', x => 2, y => 1, },
+	{ type => 'greatballofjunk', name => 'Great Ball of Junk', x => 2, y => 2, },
+	{ type => 'metaljunkarches', name => 'Metal Junk Arches', x => 2, y => 3, },
+	{ type => 'pyramidjunksculpture', name => 'Pyramid Junk Sculpture', x => 2, y => 4, },
+	{ type => 'spacejunkpark', name => 'Space Junk Park', x => 2, y => 5, },
+);
 
-my $result = $tester->post('body', 'get_buildable', [$session_id, $home_planet, 3, 3, 'Waste']);
+for my $build ( @builds ) {
+	my $result = $tester->post($build->{type}, 'build', [$session_id, $home_planet, $build->{x}, $build->{y}]);
+	is($result->{error}{code}, 1011, "Not enough waste in storage to build this.");
 
-#cmp_ok($result->{result}{buildable}{'Junk Henge Sculpture'}{production}{happiness_hour}, '>=', 0, 'no negative happiness from waste buildings');
-#diag explain $result->{result}{buildable}{'Junk Henge Sculpture'};
-#diag(Dumper($result->{result}{buildable}{'Great Ball of Junk'}));
-#diag(Dumper($result->{result}{buildable}{'Metal Junk Arches'}));
-#diag(Dumper($result->{result}{buildable}{'Pyramid Junk Sculpture'}));
-#diag(Dumper($result->{result}{buildable}{'Space Junk Park'}));
+	$result = $tester->post('body', 'get_buildable', [$session_id, $home_planet, 5, 5, 'Waste']);
 
-#$db->resultset('Lacuna::DB::Result::Building')->search({class=>'Lacuna::DB::Result::Building::Permanent::JunkHengeSculpture'})->delete; # clean up for future builds
+	my $amount = 0 - $result->{result}{buildable}{$build->{name}}{build}{cost}{waste};
+	$home->waste_capacity($amount);
+	$home->waste_stored($amount);
+	$home->update;
 
-$result = $tester->post('junkhengesculpture', 'build', [$session_id, $home_planet, 1, 1]);
+	$result = $tester->post($build->{type}, 'build', [$session_id, $home_planet, $build->{x}, $build->{y}]);
 
-#diag explain $result;
+	$build->{building} = $db->resultset('Lacuna::DB::Result::Building')->find($result->{result}{building}{id});
+	$build->{building}->finish_upgrade;
 
-my $junk = $db->resultset('Lacuna::DB::Result::Building')->find($result->{result}{building}{id});
-$junk->finish_upgrade;
-
-diag explain $junk;
-
-$home->waste_capacity(600000000);
-$home->waste_stored(600000000);
-$home->update;
-
-$result = $tester->post('greatballofjunk', 'build', [$session_id, $home_planet, 1, 2]);
-my $ball = $db->resultset('Lacuna::DB::Result::Building')->find($result->{result}{building}{id});
-$ball->finish_upgrade;
-
-$home->waste_capacity(600000000);
-$home->waste_stored(600000000);
-$home->update;
-
-$result = $tester->post('metaljunkarches', 'build', [$session_id, $home_planet, 1, 3]);
-my $arches = $db->resultset('Lacuna::DB::Result::Building')->find($result->{result}{building}{id});
-$arches->finish_upgrade;
-
-$home->waste_capacity(600000000);
-$home->waste_stored(600000000);
-$home->update;
-
-$result = $tester->post('pyramidjunksculpture', 'build', [$session_id, $home_planet, 1, 4]);
-my $pyramid = $db->resultset('Lacuna::DB::Result::Building')->find($result->{result}{building}{id});
-$pyramid->finish_upgrade;
-
-$home->waste_capacity(600000000);
-$home->waste_stored(600000000);
-$home->update;
-
-$result = $tester->post('body', 'get_buildable', [$session_id, $home_planet, 3, 3, 'Waste']);
-
-$result = $tester->post('spacejunkpark', 'build', [$session_id, $home_planet, 1, 5]);
-my $space = $db->resultset('Lacuna::DB::Result::Building')->find($result->{result}{building}{id});
-$space->finish_upgrade;
+	#diag explain $result;
+}
 
 
 END {
-	$junk->delete;
-	$ball->delete;
-	$arches->delete;
-	$pyramid->delete;
-	$space->delete;
+	for my $build ( @builds ) {
+		$build->{building}->delete;
+	}
     $tester->cleanup;
 }
 

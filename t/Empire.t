@@ -1,7 +1,6 @@
 use lib '../lib';
 use Test::More tests => 51;
 use Test::Deep;
-use Data::Dumper;
 use 5.010;
 
 my $result;
@@ -9,7 +8,6 @@ my $result;
 use TestHelper;
 my $tester = TestHelper->new;
 $tester->cleanup;
-
 
 $result = $tester->post('empire', 'is_name_available', [$tester->empire_name]);
 is($result->{result}, 1, 'empire name is available');
@@ -135,8 +133,6 @@ my $borg_id = $result->{result};
 $result = $tester->post('empire', 'update_species', [$empire_id, $borg]);
 ok(exists $result->{result}, 're-create works');
 
-
-
 $result = $tester->post('empire', 'found', [$empire_id]);
 is($result->{error}{code}, 1002, 'api key required');
 
@@ -154,8 +150,6 @@ $empire->{password1} = 'dddddd';
 $result = $tester->post('empire', 'create', $empire);
 ok(exists $result->{error}, 'cannot create a second time with a different password');
 
-
-
 my $empire_obj = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
 is($empire_obj->species_name, 'Borg', 'species getting set properly');
 is($empire_obj->home_planet->command->level, 7, 'growth affinity works');
@@ -163,9 +157,6 @@ is($empire_obj->home_planet->command->level, 7, 'growth affinity works');
 $result = $tester->post('empire','view_species_stats',[$session_id]);
 is($result->{result}{species}{name}, 'Borg', 'get species name');
 is($result->{result}{species}{research_affinity}, 4, 'get affinity');
-
-
-
 
 $result = $tester->post('empire', 'logout', [$session_id]);
 is($result->{result}, 1, 'logout');
@@ -224,7 +215,7 @@ my $e2 = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire2{id})
 $e2->add_essentia(200, 'test')->update;
 my $session2 = $result->{result}{session_id};
 $result = $tester->post('empire', 'get_status', [$session2]);
-is($result->{result}{empire}{essentia}, 200, 'added essentia works');
+is($result->{result}{empire}{essentia}, '200.0', 'added essentia works');
 
 $result = $tester->post('empire', 'redefine_species_limits', [$session2]);
 is($result->{result}{essentia_cost}, 100, 'get redefine limits');
@@ -233,12 +224,11 @@ $borg->{name} = 'The BORGinator';
 $result = $tester->post('empire', 'redefine_species', [$session2, $borg]);
 $result = $tester->post('empire','view_species_stats',[$session2]);
 is($result->{result}{species}{name}, 'The BORGinator', 'get renamed species name');
-is($result->{result}{status}{empire}{essentia}, 100, 'essentia spent');
+is($result->{result}{status}{empire}{essentia}, '100.0', 'essentia spent');
 
 $e2->discard_changes->delete;
 my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search({description=>'essentia code deleted'},{rows=>1})->single;
 is($result->{result}{status}{empire}{essentia}, $code->amount, 'you get a proper essentia code');
-
 
 END {
     $tester->cleanup;
