@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More skip_all => 'No tests are ready yet';
+use Test::More; # skip_all => 'No tests are ready yet';
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -14,27 +14,32 @@ my $empire_id = $tester->empire->id;
 diag("session id: $session_id");
 diag("home_planet: $home_planet");
 
+my $empire = $db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+my $home = $empire->home_planet;
+
+$home->waste_capacity(2_000_000);
+$home->waste_stored(2_000_000);
+$home->update;
+
 my $result = $tester->post('body', 'get_buildable', [$session_id, $home_planet, 3, 3, 'Waste']);
 
 #cmp_ok($result->{result}{buildable}{'Junk Henge Sculpture'}{production}{happiness_hour}, '>=', 0, 'no negative happiness from waste buildings');
-#diag(Dumper($result->{result}{buildable}{'Junk Henge Sculpture'}));
+#diag explain $result->{result}{buildable}{'Junk Henge Sculpture'};
 #diag(Dumper($result->{result}{buildable}{'Great Ball of Junk'}));
 #diag(Dumper($result->{result}{buildable}{'Metal Junk Arches'}));
 #diag(Dumper($result->{result}{buildable}{'Pyramid Junk Sculpture'}));
 #diag(Dumper($result->{result}{buildable}{'Space Junk Park'}));
 
-
-my $empire = $db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
-my $home = $empire->home_planet;
-
-$home->waste_capacity(6000000000);
-$home->waste_stored(6000000000);
-$home->update;
-
 #$db->resultset('Lacuna::DB::Result::Building')->search({class=>'Lacuna::DB::Result::Building::Permanent::JunkHengeSculpture'})->delete; # clean up for future builds
+
 $result = $tester->post('junkhengesculpture', 'build', [$session_id, $home_planet, 1, 1]);
+
+#diag explain $result;
+
 my $junk = $db->resultset('Lacuna::DB::Result::Building')->find($result->{result}{building}{id});
 $junk->finish_upgrade;
+
+diag explain $junk;
 
 $home->waste_capacity(600000000);
 $home->waste_stored(600000000);
@@ -63,6 +68,8 @@ $pyramid->finish_upgrade;
 $home->waste_capacity(600000000);
 $home->waste_stored(600000000);
 $home->update;
+
+$result = $tester->post('body', 'get_buildable', [$session_id, $home_planet, 3, 3, 'Waste']);
 
 $result = $tester->post('spacejunkpark', 'build', [$session_id, $home_planet, 1, 5]);
 my $space = $db->resultset('Lacuna::DB::Result::Building')->find($result->{result}{building}{id});

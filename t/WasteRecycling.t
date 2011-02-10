@@ -12,7 +12,6 @@ my $session_id = $tester->session->id;
 my $home = $empire->home_planet;
 my $result;
 
-
 $result = $tester->post('wasterecycling', 'build', [$session_id, $home->id, 3, 3]);
 
 my $building = $db->resultset('Lacuna::DB::Result::Building')->find($result->{result}{building}{id});
@@ -27,15 +26,13 @@ $home->waste_capacity(500);
 $home->update;
 
 $result = $tester->post('wasterecycling', 'recycle', [$session_id, $building->id, 5,5,5]);
-cmp_ok($result->{result}{seconds_remaining}, '>', 0, "timer is started");
+cmp_ok($result->{result}{recycle}{seconds_remaining}, '>', 0, "timer is started");
 
 my $water_stored = $building->body->water_stored;
 
 $building = $db->resultset('Lacuna::DB::Result::Building')->find($building->id);
 $building->finish_work;
 cmp_ok($building->body->water_stored, '>=', $water_stored + 5, "resources increased");
-
-
 
 END {
     $tester->cleanup;
