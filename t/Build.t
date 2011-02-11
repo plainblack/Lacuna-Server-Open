@@ -201,8 +201,11 @@ $water1->finish_upgrade;
 $water2->finish_upgrade;
 $water3->finish_upgrade;
 
-$home->add_plan('Lacuna::DB::Result::Building::SpacePort',1);
 $home->add_plan('Lacuna::DB::Result::Building::SpacePort',1,4);
+$home->add_plan('Lacuna::DB::Result::Building::SpacePort',1);
+$home->add_plan('Lacuna::DB::Result::Building::SpacePort',1,3);
+$home->update;
+
 $result = $tester->post('body', 'get_buildable', [$session_id, $home_planet, 4, 4, 'Ships']);
 is($result->{result}{buildable}{'Space Port'}{build}{extra_level}, 4, 'Can build the 1+4 plan');
 $result = $tester->post('spaceport', 'build', [$session_id, $home->id, 4, 4]);
