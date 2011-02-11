@@ -63,6 +63,7 @@ after can_send_to_target => sub {
 
 after send => sub {
     my $self = shift;
+    return if ($self->direction eq 'in');
     my $next_colony_cost = $self->body->empire->next_colony_cost(-1);
     $self->body->spend_happiness($next_colony_cost)->update;
     $self->payload({ colony_cost => $next_colony_cost });
