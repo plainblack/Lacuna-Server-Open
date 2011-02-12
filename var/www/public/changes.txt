@@ -1,4 +1,5 @@
 2.4501
+ - Fix: Cargo Ships from the Zyler Mining Strike mission have had their hold size increased from 85,000 to 100,000 and speed decreased from 100,000 to 2,500.
  - Fix: Happiness limit increased from 2,147,483,647 to 9,223,372,036,854,775,807.
  - Fix: Stolen Colony Ships & Short Range Colony Ships will no longer deduct happiness.
  - Fix: Running a successful "Abduct Operatives" spy mission when there are no defenders will return a "No contact" message instead of "Narrow escape".
