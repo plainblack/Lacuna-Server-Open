@@ -2,9 +2,9 @@
 
 Energy Reserve is accessible via the URL C</energyreserve>.
 
+Energy Reserves increase the amount of energy you can store on your planet.
+
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
-
-
 
 =head2 dump ( session_id, building_id, amount )
 
@@ -25,7 +25,5 @@ The unique id of the building.
 =head3 amount
 
 An integer representing the amount to dump.
-
-
 
 =cut
