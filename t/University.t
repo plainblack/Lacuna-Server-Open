@@ -9,9 +9,19 @@ my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $db = Lacuna->db;
 my $session_id = $tester->session->id;
 my $empire_id = $tester->empire->id;
-
 my $result;
-my $university = $db->resultset('Lacuna::DB::Result::Building')->search({class=>'Lacuna::DB::Result::Building::University', body_id=>$tester->empire->home_planet_id})->single;
+
+my $university = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+	x               => -5,
+	y               => -5,
+	class           => 'Lacuna::DB::Result::Building::University',
+	level           => 5,
+});
+$tester->empire->home_planet->build_building($university);
+$university->finish_upgrade;
+$tester->empire->university_level(6);
+$tester->empire->update;
+
 my $uid = $university->id;
 
 $result = $tester->post('university', 'view', [$session_id, $uid]);
@@ -20,7 +30,6 @@ my $empire = $db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
 is($empire->university_level, 6, 'empire university level was upgraded');
 
 for my $level (7..10) {
-
     $result = $tester->post('university', 'upgrade', [$session_id, $uid]);    
     $db->resultset('Lacuna::DB::Result::Building')->find($uid)->finish_upgrade;
     Lacuna->cache->delete('upgrade_contention_lock', $uid);
@@ -30,7 +39,6 @@ for my $level (7..10) {
     $empire = $db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
     is($empire->university_level, $level, 'empire university level was upgraded');    
 }
-
 
 END {
     $tester->cleanup;

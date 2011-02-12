@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 21;
+use Test::More tests => 24;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -186,14 +186,34 @@ my $format = '%d %m %Y %H:%M:%S %z';
 
 $result = $tester->post('waterpurification', 'build', [$session_id, $home_planet, 3, -5]);
 my $date1 = DateTime::Format::Strptime::strptime($format, $result->{result}{building}{pending_build}{end});
+my $water1 = $tester->get_building($result->{result}{building}{id});
 $result = $tester->post('waterpurification', 'build', [$session_id, $home_planet, 3, -4]);
 my $date2 = DateTime::Format::Strptime::strptime($format, $result->{result}{building}{pending_build}{end});
+my $water2 = $tester->get_building($result->{result}{building}{id});
 $result = $tester->post('waterpurification', 'build', [$session_id, $home_planet, 3, -3]);
 my $date3 = DateTime::Format::Strptime::strptime($format, $result->{result}{building}{pending_build}{end});
+my $water3 = $tester->get_building($result->{result}{building}{id});
 
 ok($date1 < $date2, 'subsequent builds are adding to queue time 1');
 ok($date2 < $date3, 'subsequent builds are adding to queue time 2');
 
+$water1->finish_upgrade;
+$water2->finish_upgrade;
+$water3->finish_upgrade;
+
+$home->add_plan('Lacuna::DB::Result::Building::SpacePort',1,4);
+$home->add_plan('Lacuna::DB::Result::Building::SpacePort',1);
+$home->add_plan('Lacuna::DB::Result::Building::SpacePort',1,3);
+$home->update;
+
+$result = $tester->post('body', 'get_buildable', [$session_id, $home_planet, 4, 4, 'Ships']);
+is($result->{result}{buildable}{'Space Port'}{build}{extra_level}, 4, 'Can build the 1+4 plan');
+$result = $tester->post('spaceport', 'build', [$session_id, $home->id, 4, 4]);
+is($result->{result}{building}{level}, 4, 'New building is level 4 before final upgrade');
+my $spaceport = $tester->get_building($result->{result}{building}{id});
+$spaceport->finish_upgrade;
+$result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
+is($result->{result}{building}{level}, 5, 'Finished building is level 5');
 
 END {
     $tester->cleanup;

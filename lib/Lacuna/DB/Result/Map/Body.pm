@@ -17,7 +17,7 @@ __PACKAGE__->add_columns(
     empire_id                       => { data_type => 'int', is_nullable => 1 },
     last_tick                       => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     happiness_hour                  => { data_type => 'int', default_value => 0 },
-    happiness                       => { data_type => 'int', default_value => 0 },
+    happiness                       => { data_type => 'bigint', default_value => 0 },
     waste_hour                      => { data_type => 'int', default_value => 0 },
     waste_stored                    => { data_type => 'int', default_value => 0 },
     waste_capacity                  => { data_type => 'int', default_value => 0 },
