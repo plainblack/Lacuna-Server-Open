@@ -757,11 +757,13 @@ sub recalc_stats {
     }
 
     # subtract ore consumption
-    foreach my $type (ORE_TYPES) {
-        my $method = $type.'_hour';
-        $stats{$method} -= sprintf('%.0f', $ore_consumption_hour * $stats{$method} / $total_ore_production_hour);
-    }
-    
+    if ($total_ore_production_hour > 0) {
+		foreach my $type (ORE_TYPES) {
+			my $method = $type.'_hour';
+			$stats{$method} -= sprintf('%.0f', $ore_consumption_hour * $stats{$method} / $total_ore_production_hour);
+		}
+	}
+
     # overall ore production
     $stats{ore_hour} = $total_ore_production_hour - $ore_consumption_hour;
     
