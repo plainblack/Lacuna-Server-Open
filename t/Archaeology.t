@@ -21,7 +21,7 @@ $arch->finish_upgrade;
 
 my $odds = $arch->chance_of_glyph;
 is ($arch->level, 10, 'level is set to 10');
-is($odds, 5.5, 'odds calculated correctly');
+is($odds, 10, 'odds calculated correctly');
 my $successes = 0;
 foreach (1..1000) {
     $successes++ if ($arch->is_glyph_found);
