@@ -47,7 +47,7 @@ after handle_arrival_procedures => sub {
             $defender->delete;
         }
         else {
-            $defender->combat( $defender->combat - $damage );
+            $defender->combat( $defender->combat - $self->combat );
             if ($defender->combat < 1) {
                 $defender->delete;
             }
