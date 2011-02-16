@@ -307,9 +307,9 @@ sub www_view_ships {
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $body_id });
     my $out = '<h1>View Ships</h1>';
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>Type</th><th>Stealth</th><th>Hold Size</th><th>Speed</th><th>Task</th><th>Delete</td></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>Type</th><th>Stealth</th><th>Hold Size</th><th>Speed</th><th>Combat</th><th>Task</th><th>Delete</td></tr>';
     while (my $ship = $ships->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>', $ship->id, $ship->name, $ship->type_formatted, $ship->stealth, $ship->hold_size, $ship->speed);
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>', $ship->id, $ship->name, $ship->type_formatted, $ship->stealth, $ship->hold_size, $ship->speed, $ship->combat);
         if ($ship->task eq 'Travelling') {
             $out .= sprintf('<td>%s<form method="post" action="/admin/zoom/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="zoom"></form></td>', $ship->task, $ship->id, $body_id);
         }
