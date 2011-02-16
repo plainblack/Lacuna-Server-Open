@@ -1,4 +1,5 @@
 2.4502
+ - Fix: The adjusted cost will be used when building buildings instead of the base cost.
  - Fix: Offline buildings can now be demolished.
  - Fix: Scows will now travel only to their intended destination.
  - Fix: Defenders will no longer attack themselves (thuds were appearing to defeat sweepers).
