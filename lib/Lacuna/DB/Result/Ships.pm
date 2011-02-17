@@ -16,7 +16,7 @@ __PACKAGE__->add_columns(
     date_started            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     date_available          => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     type                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # probe, colony_ship, spy_pod, cargo_ship, space_station, smuggler_ship, mining_platform_ship, terraforming_platform_ship, gas_giant_settlement_ship
-    task                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # Docked, Building, Travelling, Mining
+    task                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # Docked, Building, Travelling, Mining, Defend
     name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     speed                   => { data_type => 'int', is_nullable => 0 },
     stealth                 => { data_type => 'int', is_nullable => 0 },
@@ -147,6 +147,14 @@ sub can_send_to_target {
     return 1;
 }
 
+sub can_recall {
+    my $self = shift;
+    unless ($self->task eq 'Defend') {
+        confess [1010, 'That ship is busy.'];
+    }
+    return 1;
+}
+
 sub type_formatted {
     my $self = shift;
     my $type = $self->type;
@@ -256,6 +264,13 @@ sub finish_construction {
     $self->task('Docked');
     $self->date_available(DateTime->now);
     $self->update;
+}
+
+sub defend {
+	my ($self) = @_;
+	$self->task('Defend');
+    $self->date_available(DateTime->now);
+    return $self;
 }
 
 sub land {

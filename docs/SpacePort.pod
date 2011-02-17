@@ -323,6 +323,49 @@ A set of x,y coordinates to locate the star or body.
 
 
 
+=head2 recall_ship ( session_id, ship_id )
+
+Recalls a ship from allied defense ('Defend' task) to the body of origin.
+
+ {
+    "status" : { ... },
+    "ship" : {
+        "id" : "id-goes-here",
+        "name" : "F13",
+        "type_human" : "Fighter",
+        "type" : "fighter",
+        "task" : "Travelling",
+        "speed" : "1200",
+        "stealth" : "0",
+        "hold_size" : "0",
+        "date_started" : "01 31 2010 13:09:05 +0600",
+        "date_available" : "02 01 2010 10:08:33 +0600",
+        "date_arrives" : "02 01 2010 10:08:33 +0600",
+        "from" : {
+           "id" : "id-goes-here",
+           "type" : "body",
+           "name" : "Earth"
+        },
+        "to" : {
+           "id" : "id-goes-here",
+           "type" : "star",
+           "name" : "Sol"
+        }
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 ship_id
+
+The unique id of a ship to send.
+
+
+
+
+
 =head2 name_ship ( session_id, building_id, ship_id, name )
 
 Set the name of a ship.

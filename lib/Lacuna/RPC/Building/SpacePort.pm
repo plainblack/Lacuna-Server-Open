@@ -129,6 +129,25 @@ sub send_ship {
     }
 }
 
+sub recall_ship {
+	my ($self, $session_id, $ship_id) = @_;
+	my $empire = $self->get_empire_by_session($session_id);
+	my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+    unless (defined $ship) {
+        confess [1002, 'Could not locate that ship.'];
+    }
+    unless ($ship->body->empire_id == $empire->id) {
+        confess [1010, 'You do not own that ship.'];
+    }
+    my $body = $ship->body;
+    $body->empire($empire);
+    $ship->can_recall();
+    $ship->send(target => $ship->body_id);
+    return {
+        ship    => $ship->get_status,
+        status  => $self->format_status($empire),
+    }
+}
 
 sub prepare_send_spies {
     my ($self, $session_id, $on_body_id, $to_body_id) = @_;

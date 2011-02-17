@@ -1,3 +1,6 @@
+2.4600
+ - Rule: Fighters can now defend foreign bodies (planets and asteroids).
+
 2.4502
  - Fix: The adjusted cost will be used when building buildings instead of the base cost.
  - Fix: Offline buildings can now be demolished.
