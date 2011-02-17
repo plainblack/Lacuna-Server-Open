@@ -58,8 +58,8 @@ $uni->finish_upgrade;
 
 # build some infrastructure
 my $food = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-    x               => -5,
-    y               => -5,
+    x               => 0,
+    y               => -2,
     class           => 'Lacuna::DB::Result::Building::Food::Algae',
     level           => 2,
 });
@@ -67,8 +67,8 @@ $home->build_building($food);
 $food->finish_upgrade;
 
 my $energy = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-    x               => -5,
-    y               => -5,
+    x               => 0,
+    y               => -3,
     class           => 'Lacuna::DB::Result::Building::Energy::Hydrocarbon',
     level           => 1,
 });
@@ -76,8 +76,8 @@ $home->build_building($energy);
 $energy->finish_upgrade;
 
 my $water = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-    x               => -5,
-    y               => -5,
+    x               => 0,
+    y               => -4,
     class           => 'Lacuna::DB::Result::Building::Water::Purification',
     level           => 4,
 });
@@ -85,7 +85,7 @@ $home->build_building($water);
 $water->finish_upgrade;
 
 my $ore = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-    x               => -5,
+    x               => 0,
     y               => -5,
     class           => 'Lacuna::DB::Result::Building::Ore::Mine',
     level           => 1,
@@ -96,8 +96,8 @@ $ore->finish_upgrade;
 # we need a dev ministry so we can upgrade lots of stuff.
 
 my $dev = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-    x               => -5,
-    y               => -5,
+    x               => 0,
+    y               => 5,
     class           => 'Lacuna::DB::Result::Building::Development',
     level           => 2,
 });

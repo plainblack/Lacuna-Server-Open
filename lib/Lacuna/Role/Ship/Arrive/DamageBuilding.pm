@@ -26,7 +26,7 @@ after handle_arrival_procedures => sub {
     }
     $building ||= $buildings->search(
 		{class => { '!=' => 'Lacuna::DB::Result::Building::Permanent::Crater' }},
-		{order_by => { -asc => ['efficiency', 'rand()'] }, rows=>1}
+		{order_by => { -desc => ['efficiency', 'rand()'] }, rows=>1}
 	)->single;
     $building->body($body_attacked);
     

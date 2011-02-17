@@ -234,10 +234,14 @@ sub send {
     if ($options{target}->isa('Lacuna::DB::Result::Map::Body')) {
         $self->foreign_body_id($options{target}->id);
         $self->foreign_body($options{target});
+        $self->foreign_star_id(undef);
+        $self->foreign_star(undef);
     }
     elsif ($options{target}->isa('Lacuna::DB::Result::Map::Star')) {
         $self->foreign_star_id($options{target}->id);
         $self->foreign_star($options{target});
+        $self->foreign_body_id(undef);
+        $self->foreign_body(undef);
     }
     else {
         confess [1002, 'You cannot send a ship to a non-existant target.'];

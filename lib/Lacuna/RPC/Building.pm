@@ -141,6 +141,7 @@ sub build {
     });
 
     # make sure the planet can handle it
+    my $cost = $building->cost_to_upgrade;
     $body = $body->can_build_building($building);
 
     # adjust resources
@@ -152,11 +153,11 @@ sub build {
         $plan->delete;
     }
     else {
-        $body->spend_food($building->food_to_build);
-        $body->spend_water($building->water_to_build);
-        $body->add_waste($building->waste_to_build);
-        $body->spend_ore($building->ore_to_build);
-        $body->spend_energy($building->energy_to_build);
+        $body->spend_food($cost->{food});
+        $body->spend_water($cost->{water});
+        $body->add_waste($cost->{waste});
+        $body->spend_ore($cost->{ore});
+        $body->spend_energy($cost->{energy});
         $body->update;
     }
 
@@ -177,7 +178,7 @@ sub build {
 sub demolish {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
     my $body = $building->body;
     $building->can_demolish;
     $building->demolish;
