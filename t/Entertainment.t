@@ -27,12 +27,13 @@ my $ua = $tester->ua;
 $ua->requests_redirectable([]);
 my $response = $ua->get($result->{result}{options}[0]{url});
 is($response->code, 302, 'get a redirect');
-ok($cache->get('high_vote', $ymd), 'high_vote gets set');
-ok($cache->get('high_vote_empire', $ymd), 'high_vote_empire gets set');
+my $zone = $ed->body->zone;
+ok($cache->get('high_vote'.$zone, $ymd), 'high_vote gets set');
+ok($cache->get('high_vote_empire'.$zone, $ymd), 'high_vote_empire gets set');
 
 
 END {
     $tester->cleanup;
-    $cache->set('high_vote', $ymd);
-    $cache->set('high_vote_empire', $ymd);
+    $cache->set('high_vote'.$zone, $ymd);
+    $cache->set('high_vote_empire'.$zone, $ymd);
 }
