@@ -77,7 +77,7 @@ sub ship_to_ship_combat {
 			$ship->delete;
 		}
 		else {
-			$ship->send(target => $body_attacked->star);
+			$ship->send(target => $self->foreign_body->star);
 		}
         $self->damage_in_combat($damage);
     }

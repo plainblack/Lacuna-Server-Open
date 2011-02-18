@@ -490,7 +490,7 @@ around 'view' => sub {
     return $out;
 };
  
-__PACKAGE__->register_rpc_method_names(qw(view_foreign_ships get_ships_for send_ship scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_travelling view_all_ships));
+__PACKAGE__->register_rpc_method_names(qw(view_foreign_ships get_ships_for send_ship recall_ship scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_travelling view_all_ships));
 
 
 no Moose;
