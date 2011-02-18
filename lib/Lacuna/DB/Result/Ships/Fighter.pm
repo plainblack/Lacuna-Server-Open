@@ -19,7 +19,6 @@ use constant build_tags             => ['War'];
 
 with "Lacuna::Role::Ship::Send::Body";
 with "Lacuna::Role::Ship::Send::NotIsolationist";
-with "Lacuna::Role::Ship::Send::Allied";
 with "Lacuna::Role::Ship::Arrive::Defend";
 
 no Moose;
