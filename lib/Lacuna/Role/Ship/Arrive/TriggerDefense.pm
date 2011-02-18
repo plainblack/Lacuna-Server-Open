@@ -11,7 +11,7 @@ after handle_arrival_procedures => sub {
     
     # no defense unless inhabited
     my $body_attacked = $self->foreign_body;
-    return unless $body_attacked->empire_id;    
+    return unless ( $body_attacked->empire_id || $body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid') );
     
     # no defense against self
     return if $body_attacked->empire_id == $self->body->empire_id;
