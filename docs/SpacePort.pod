@@ -327,6 +327,8 @@ A set of x,y coordinates to locate the star or body.
 
 Recalls a ship from allied defense ('Defend' task) to the body of origin.
 
+Throws 1002, 1010.
+
  {
     "status" : { ... },
     "ship" : {
