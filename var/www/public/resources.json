@@ -1,5 +1,6 @@
 {
     "buildings" : {
+        "/distributioncenter" : { "description" : "A tier two resource storage building.  Allows keeping specific resources in reserve.", "wiki" : "http://community.lacunaexpanse.com/wiki/distribution-center" },
         "/saw" : { "description" : "A railgun system used to protect your planet from enemy ships.", "wiki" : "http://community.lacunaexpanse.com/wiki/shield-against-weapons" },
         "/atmosphericevaporator" : { "description" : "Produces water by condensing it from the air and soil.", "wiki" : "http://community.lacunaexpanse.com/wiki/atmospheric-evaporator" },
         "/greatballofjunk" : { "description" : "Eliminate waste and give your citizens something to be proud of at the same time.", "wiki" : "http://community.lacunaexpanse.com/wiki/great-ball-of-junk" },

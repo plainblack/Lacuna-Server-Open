@@ -37,6 +37,7 @@ $urlmap->map("/essentia-code" => Lacuna::RPC::EssentiaCode->new->to_app);
 $urlmap->map("/captcha" => Lacuna::RPC::Captcha->new->to_app);
 
 # buildings
+$urlmap->map(Lacuna::RPC::Building::DistributionCenter->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::SAW->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::AtmosphericEvaporator->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::GreatBallOfJunk->new->to_app_with_url);

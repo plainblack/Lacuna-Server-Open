@@ -183,6 +183,7 @@ use constant MEDALS => {
     building29                      => 'Built Level 29 Building',
     building30                      => 'Built Level 30 Building',
     SAW                             => 'Built Shield Against Weapons',
+    DistributionCenter              => 'Built Distribution Center',
     AtmosphericEvaporator           => 'Built Atmospheric Evaporator',
     GreatBallOfJunk                 => 'Built Great Ball of Junk',
     PyramidJunkSculpture            => 'Built Pyramid Junk Sculpture',

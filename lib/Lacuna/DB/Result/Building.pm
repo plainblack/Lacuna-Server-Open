@@ -1035,6 +1035,7 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Water::AtmosphericEvaporator' => 'Lacuna::DB::Result::Building::Water::AtmosphericEvaporator',
         'Lacuna::DB::Result::Building::SupplyPod' => 'Lacuna::DB::Result::Building::SupplyPod',
         'Lacuna::DB::Result::Building::SAW' => 'Lacuna::DB::Result::Building::SAW',
+        'Lacuna::DB::Result::Building::DistributionCenter' => 'Lacuna::DB::Result::Building::DistributionCenter',
     });
 }
 
