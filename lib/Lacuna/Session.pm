@@ -38,6 +38,15 @@ has is_sitter => (
     default     => 0,
 );
 
+has captcha_expires => (
+	is			=> 'rw',
+	isa			=> 'DateTime',
+	predicate	=> 'has_captcha_expires',
+	default		=> sub {
+		DateTime->now->subtract( days => 1 ); # yesterday at this time, way past expiration
+	},
+);
+
 has empire_id => (
     is          => 'rw',
     predicate   => 'has_empire_id',
@@ -62,6 +71,16 @@ has empire => (
         return $empire;
     },
 );
+
+sub check_captcha {
+	my $self = shift;
+	# It's expired if it doesn't exist or is older than now
+	if (!$self->has_captcha_expires || $self->captcha_expires <= DateTime->now) {
+		#confess [1016, 'Needs to solve a captcha.'];
+		return undef;
+	}
+	return 1;
+}
 
 sub extend {
     my $self = shift;

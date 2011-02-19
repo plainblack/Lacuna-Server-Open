@@ -1,3 +1,5 @@
+ - API: Added Lacuna::RCP::Captcha with methods fetch() and solve().
+
 2.4502
  - Fix: The adjusted cost will be used when building buildings instead of the base cost.
  - Fix: Offline buildings can now be demolished.
