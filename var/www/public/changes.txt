@@ -6,6 +6,7 @@
  - Rule: Fighters can now defend foreign bodies (planets and asteroids).
  - Rule: In addition to defending allied planets, SAWs now defend all asteroids in their system.
  - Rule: Sweepers can now be sent to asteroids in addition to planets.
+ - API: Added recall_ship() to spaceport.
 
 2.4502
  - Fix: The adjusted cost will be used when building buildings instead of the base cost.
