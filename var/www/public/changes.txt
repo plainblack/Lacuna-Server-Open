@@ -1,5 +1,11 @@
 2.4600
+ - Rule: Stakes now have a combat rating of 250 and trigger defenses.
+ - Rule: Colony Ships and Small Colony Ships now have a combat rating of 1000 and trigger defenses.
+ - Rule: Mining Platform Ships now have a combat rating of 600 and trigger defenses.
+ - Rule: Detonators now have a combat rating of 1850 and in addition to detonating probes at a star, they can also destroy mining platforms on asteroids.
  - Rule: Fighters can now defend foreign bodies (planets and asteroids).
+ - Rule: In addition to defending allied planets, SAWs now defend all asteroids in their system.
+ - Rule: Sweepers can now be sent to asteroids in addition to planets.
 
 2.4502
  - Fix: The adjusted cost will be used when building buildings instead of the base cost.

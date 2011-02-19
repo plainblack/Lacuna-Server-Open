@@ -46,13 +46,11 @@ after handle_arrival_procedures => sub {
     }
 };
 
-
 after can_send_to_target => sub {
     my ($self, $target) = @_;
     my $ministry = $self->body->mining_ministry;
     confess [1013, 'Cannot control platforms without a Mining Ministry.'] unless (defined $ministry);
     $ministry->can_add_platform($target);
 };
-
 
 1;

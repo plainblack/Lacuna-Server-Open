@@ -1,0 +1,7 @@
+Mining Platform Destroyed
+~~~
+We just lost contact with our mining platform on {Starmap %s %s %s}. Just before it went dark, our mining platform transmitted an image of an incoming ship. We've determined it was a Detonator sent by {Empire %s %s}. We must assume the mining platform has been destroyed.
+
+Regards,
+
+Your Humble Assistant

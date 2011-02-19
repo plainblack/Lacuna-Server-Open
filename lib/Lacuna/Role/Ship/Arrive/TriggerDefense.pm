@@ -32,7 +32,7 @@ after handle_arrival_procedures => sub {
     if ($alliance_id) {
         my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ id => { '!=' => $body_attacked->id}, star_id => $body_attacked->star_id});
         while (my $body = $bodies->next) {
-            next unless $body->empire_id;
+            next unless ( $body->empire_id || $body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid') );
             if ($body->empire->alliance_id == $alliance_id) {
                 $self->saw_combat($body);
             }
