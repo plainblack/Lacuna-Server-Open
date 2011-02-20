@@ -21,8 +21,8 @@ sub BUILD {
         $self->empire_id($session_data->{empire_id});
         $self->extended($session_data->{extended});
         $self->is_sitter($session_data->{is_sitter});
-#		$self->captcha_expires(DateTime->now->subtract( days => 1 ));
-#		$self->valid_captcha(0);
+		$self->captcha_expires($session_data->{captcha_expires});
+		$self->valid_captcha($session_data->{valid_captcha});
     }
 }
 
@@ -40,18 +40,6 @@ has is_sitter => (
     default     => 0,
 );
 
-has captcha_expires => (
-	is			=> 'rw',
-	isa			=> 'DateTime',
-	predicate	=> 'has_captcha_expires',
-	default		=> sub { return DateTime->now->subtract( days => 1 ); },
-);
-
-has valid_captcha => (
-	is			=> 'rw',
-	default		=> 0,
-);
-
 has empire_id => (
     is          => 'rw',
     predicate   => 'has_empire_id',
@@ -59,6 +47,14 @@ has empire_id => (
         my $self = shift;
         $self->clear_empire;
     },
+);
+
+has captcha_expires => (
+	is			=> 'rw',
+);
+
+has valid_captcha => (
+	is			=> 'rw',
 );
 
 has empire => (
@@ -77,20 +73,20 @@ has empire => (
     },
 );
 
-#around 'valid_captcha' => sub {
-#	my ( $orig, $self, $value ) = @_;
-#	return $self->$orig() unless defined $value;
-#	if ( $value ) {
-#		$self->captcha_expires(DateTime->now->add( minutes => 30 ));
-#	}
-#	return $self->$orig($value);
-#};
+around 'valid_captcha' => sub {
+	my ( $orig, $self, $value ) = @_;
+	return $self->$orig() unless defined $value;
+	if ( $value ) {
+		$self->captcha_expires( time() + 60 * 30 );
+	}
+	return $self->$orig($value);
+};
 
 sub check_captcha {
 	my $self = shift;
-
-	my $valid = $self->valid_captcha;
-	if ( ! $self->has_captcha_expires || ( $valid && $self->captcha_expires <= DateTime->now ) ) {
+	
+	my $expires = $self->captcha_expires;
+	if ( $expires <= time() ) {
 		#confess [1016, 'Needs to solve a captcha.'];
 		return undef;
 	}
@@ -103,7 +99,14 @@ sub extend {
     Lacuna->cache->set(
         'session',
         $self->id,
-        { empire_id => $self->empire_id, api_key => $self->api_key, extended => $self->extended, is_sitter => $self->is_sitter },
+        { 
+			empire_id		=> $self->empire_id,
+			api_key			=> $self->api_key,
+			extended		=> $self->extended,
+			is_sitter		=> $self->is_sitter,
+			valid_captcha	=> $self->valid_captcha,
+			captcha_expires => $self->captcha_expires,
+		},
         60 * 60 * 2,
     );
     return $self;

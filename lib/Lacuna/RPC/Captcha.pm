@@ -26,8 +26,8 @@ sub solve {
         if (ref $captcha eq 'HASH') {                                                       # a captcha has been set
             if ($captcha->{guid} eq $guid) {                                                # the guid is the one set
                 if ($captcha->{solution} eq $solution) {                                    # the solution is correct
-					my $empire = $self->get_empire_by_session($session_id);
-					$empire->current_session->valid_captcha(1);
+                    my $empire = $self->get_empire_by_session($session_id);
+                    $empire->current_session->valid_captcha(1);
                     return 1;
                 }
             }
