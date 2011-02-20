@@ -21,6 +21,8 @@ sub BUILD {
         $self->empire_id($session_data->{empire_id});
         $self->extended($session_data->{extended});
         $self->is_sitter($session_data->{is_sitter});
+#		$self->captcha_expires(DateTime->now->subtract( days => 1 ));
+#		$self->valid_captcha(0);
     }
 }
 
@@ -42,9 +44,12 @@ has captcha_expires => (
 	is			=> 'rw',
 	isa			=> 'DateTime',
 	predicate	=> 'has_captcha_expires',
-	default		=> sub {
-		DateTime->now->subtract( days => 1 ); # yesterday at this time, way past expiration
-	},
+	default		=> sub { return DateTime->now->subtract( days => 1 ); },
+);
+
+has valid_captcha => (
+	is			=> 'rw',
+	default		=> 0,
 );
 
 has empire_id => (
@@ -72,10 +77,20 @@ has empire => (
     },
 );
 
+#around 'valid_captcha' => sub {
+#	my ( $orig, $self, $value ) = @_;
+#	return $self->$orig() unless defined $value;
+#	if ( $value ) {
+#		$self->captcha_expires(DateTime->now->add( minutes => 30 ));
+#	}
+#	return $self->$orig($value);
+#};
+
 sub check_captcha {
 	my $self = shift;
-	# It's expired if it doesn't exist or is older than now
-	if (!$self->has_captcha_expires || $self->captcha_expires <= DateTime->now) {
+
+	my $valid = $self->valid_captcha;
+	if ( ! $self->has_captcha_expires || ( $valid && $self->captcha_expires <= DateTime->now ) ) {
 		#confess [1016, 'Needs to solve a captcha.'];
 		return undef;
 	}
