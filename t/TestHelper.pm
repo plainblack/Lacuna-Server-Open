@@ -126,5 +126,11 @@ sub cleanup {
     }
 }
 
+sub finish_ships {
+	my ( $self, $shipyard_id ) = shift;
+	my $finish = DateTime->now;
+	Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id=>$shipyard_id})->update({date_available=>$finish});
+}
+
 
 1;

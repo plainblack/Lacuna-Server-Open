@@ -130,19 +130,24 @@ sub send_ship {
 }
 
 sub recall_ship {
-	my ($self, $session_id, $ship_id) = @_;
-	my $empire = $self->get_empire_by_session($session_id);
-	my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+	my ($self, $session_id, $building_id, $ship_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+    my $target = $self->find_target({body_id => $ship->foreign_body_id});
     unless (defined $ship) {
         confess [1002, 'Could not locate that ship.'];
     }
     unless ($ship->body->empire_id == $empire->id) {
         confess [1010, 'You do not own that ship.'];
     }
-    my $body = $ship->body;
+    my $body = $building->body;
     $body->empire($empire);
     $ship->can_recall();
-    $ship->send(target => $ship->body_id);
+    $ship->send(
+		target		=> $target,
+		direction	=> 'in',
+	);
     return {
         ship    => $ship->get_status,
         status  => $self->format_status($empire),

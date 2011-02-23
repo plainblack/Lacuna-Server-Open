@@ -13,6 +13,20 @@ my $home = $empire->home_planet;
 
 my $result;
 
+$home->ore_hour(50000);
+$home->water_hour(50000);
+$home->energy_hour(50000);
+$home->algae_production_hour(50000);
+$home->ore_capacity(50000);
+$home->energy_capacity(50000);
+$home->food_capacity(50000);
+$home->water_capacity(50000);
+$home->bauxite_stored(50000);
+$home->algae_stored(50000);
+$home->energy_stored(50000);
+$home->water_stored(50000);
+$home->needs_recalc(0);
+$home->update;
 
 $result = $tester->post('spaceport', 'build', [$session_id, $home->id, 0, 1]);
 my $spaceport = $tester->get_building($result->{result}{building}{id});
@@ -36,17 +50,18 @@ $result = $tester->post('shipyard', 'build_ship', [$session_id, $shipyard->id, '
 ok(exists $result->{result}{ships_building}[0]{date_completed}, "got a date of completion");
 is($result->{result}{ships_building}[0]{type}, 'probe', "probe building");
 
-my $finish = DateTime->now;
-Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id=>$shipyard->id})->update({date_available=>$finish});
+$tester->finish_ships( $shipyard->id );
 
 $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
 is($result->{result}{docked_ships}{probe}, 2, "we have 2 probes built");
 
-$result = $tester->post('spaceport', 'send_probe', [$session_id, $home->id, {star_name=>'Rozeske'}]);
-ok($result->{result}{probe}{date_arrives}, "probe sent");
+my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $home->id, type=>'probe'}, {rows=>1})->single;
+$result = $tester->post('spaceport', 'send_ship', [$session_id, $ship->id, {star_id=>6}]);
+ok($result->{result}{ship}{date_arrives}, "probe sent");
 
-my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $home->id, task=>'Travelling'}, {rows=>1})->single;
+$ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$ship->id}, {rows=>1})->single;
 $ship->arrive;
+
 $empire = $tester->empire(Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire->id));
 is($empire->count_probed_stars, 2, "2 stars probed!");
 

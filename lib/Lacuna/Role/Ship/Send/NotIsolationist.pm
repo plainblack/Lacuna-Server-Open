@@ -5,7 +5,9 @@ use Moose::Role;
 
 after can_send_to_target => sub {
     my ($self, $target) = @_;
-    confess [1013, sprintf('%s is an isolationist empire, and must be left alone.',$target->empire->name)] if $target->empire->is_isolationist;
+	if ( $target->empire && $target->empire->is_isolationist ) {
+		confess [1013, sprintf('%s is an isolationist empire, and must be left alone.',$target->empire->name)];
+	}
 };
 
 1;
