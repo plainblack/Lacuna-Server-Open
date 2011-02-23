@@ -1,3 +1,14 @@
+2.4600
+ - Add: "Allied Defense" as outlined below.
+ - Rule: Fighters' defensive capabilities have been expanded; they can now be sent to defend foreign bodies (planets and asteroids).
+ - Rule: Stakes now have a combat rating of 250 and trigger defenses.
+ - Rule: Colony Ships and Small Colony Ships now have a combat rating of 1000 and trigger defenses.
+ - Rule: Mining Platform Ships now have a combat rating of 600 and trigger defenses.
+ - Rule: Detonators now have a combat rating of 1850 and in addition to being able to detonate probes at a star, they can also be sent to asteroids to destroy all of their mining platforms.
+ - Rule: SAWs' defensive capabilities have been expanded; they now defend all asteroids in their system (in addition to the allied planets).
+ - Rule: Sweepers' offensive capabilities have been expanded; they can now be sent to asteroids as well as planets.
+ - API: Added recall_ship() to spaceport to recall fighters from their defensive task.
+
 2.4502
  - Fix: The adjusted cost will be used when building buildings instead of the base cost.
  - Fix: Offline buildings can now be demolished.

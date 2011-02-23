@@ -129,6 +129,30 @@ sub send_ship {
     }
 }
 
+sub recall_ship {
+	my ($self, $session_id, $building_id, $ship_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+    my $target = $self->find_target({body_id => $ship->foreign_body_id});
+    unless (defined $ship) {
+        confess [1002, 'Could not locate that ship.'];
+    }
+    unless ($ship->body->empire_id == $empire->id) {
+        confess [1010, 'You do not own that ship.'];
+    }
+    my $body = $building->body;
+    $body->empire($empire);
+    $ship->can_recall();
+    $ship->send(
+		target		=> $target,
+		direction	=> 'in',
+	);
+    return {
+        ship    => $ship->get_status,
+        status  => $self->format_status($empire),
+    }
+}
 
 sub prepare_send_spies {
     my ($self, $session_id, $on_body_id, $to_body_id) = @_;
@@ -471,7 +495,7 @@ around 'view' => sub {
     return $out;
 };
  
-__PACKAGE__->register_rpc_method_names(qw(view_foreign_ships get_ships_for send_ship scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_travelling view_all_ships));
+__PACKAGE__->register_rpc_method_names(qw(view_foreign_ships get_ships_for send_ship recall_ship scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_travelling view_all_ships));
 
 
 no Moose;

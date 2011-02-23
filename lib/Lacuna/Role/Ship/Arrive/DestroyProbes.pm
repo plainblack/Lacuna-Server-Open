@@ -9,6 +9,9 @@ after handle_arrival_procedures => sub {
     # we're coming home
     return if ($self->direction eq 'in');
 
+	# not a star
+	return unless $self->foreign_star_id;
+
     # find probes to destroy
     my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $self->foreign_star_id });
     my $count;

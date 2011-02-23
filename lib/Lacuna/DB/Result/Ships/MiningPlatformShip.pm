@@ -12,6 +12,7 @@ use constant base_energy_cost       => 96000;
 use constant base_ore_cost          => 81600;
 use constant base_time_cost         => 28800;
 use constant base_waste_cost        => 12000;
+use constant base_combat            => 600;
 use constant base_speed             => 600;
 use constant base_stealth           => 0;
 use constant base_hold_size         => 0;

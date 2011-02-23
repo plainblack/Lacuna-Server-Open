@@ -1,0 +1,7 @@
+Detonator Report
+~~~
+Our Detonator has destroyed %s mining platforms on {Starmap %s %s %s}.
+
+Regards,
+
+Your Humble Assistant
