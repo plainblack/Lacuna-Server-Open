@@ -24,7 +24,7 @@ sub prepare_experiment {
         graft_odds      => $building->graft_odds,
         grafts          => $building->get_possible_grafts,
         essentia_cost   => 2,
-        can_experiment  => eval{ $building->can_experiment },
+        can_experiment  => eval{ $building->can_experiment } ? 1 : 0,
     };
 }
 
