@@ -524,7 +524,7 @@ sub run_security_sweep {
         my $message_id;
         if (defined $attacker) {
             $message_id = $self->detain_a_spy($attacker)->id;
-            $attacker->$mission_skill( $self->$mission_skill + 6);
+            $attacker->$mission_skill( $attacker->$mission_skill + 6);
             $attacker->update_level;
         }
         else {
