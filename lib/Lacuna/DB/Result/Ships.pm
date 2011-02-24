@@ -291,7 +291,7 @@ sub land {
 sub calculate_travel_time {
     my ($self, $target) = @_;
     my $distance = $self->body->calculate_distance_to_target($target);
-    my $hours = $distance / $self->speed;
+    my $hours = $distance / ($self->speed || 1);
     my $seconds = 60 * 60 * $hours;
     return sprintf('%.0f', $seconds);
 }
