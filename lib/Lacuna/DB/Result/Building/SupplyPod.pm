@@ -46,6 +46,11 @@ after finish_work => sub {
     $self->update({class=>'Lacuna::DB::Result::Building::Permanent::Crater'});
 };
 
+# allow demolishing even when working
+sub can_demolish {
+    return 1;
+}
+
 use constant food_storage => 1000;
 use constant energy_storage => 1000;
 use constant ore_storage => 1000;

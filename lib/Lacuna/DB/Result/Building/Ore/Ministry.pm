@@ -5,6 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Ore';
 use Lacuna::Constants qw(ORE_TYPES);
+use POSIX qw(ceil);
 
 sub platforms {
     my $self = shift;
@@ -18,7 +19,7 @@ sub ships {
 
 sub max_platforms {
     my $self = shift;
-    return int(($self->level + 1) / 2);
+    return ceil($self->level / 2);
 }
 
 sub add_ship {
@@ -153,7 +154,7 @@ after finish_upgrade => sub {
 
 before 'can_downgrade' => sub {
     my $self = shift;
-    if ($self->platforms->count > int(($self->level - 1) / 2)) {
+    if ($self->platforms->count > ceil(($self->level - 1) / 2)) {
         confess [1013, 'You must abandon one of your Mining Platforms before you can downgrade the Mining Ministry.'];
     }
 };
