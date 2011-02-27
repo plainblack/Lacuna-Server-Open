@@ -215,6 +215,21 @@ sub get_status {
         $status{from}           = $from;
         $status{date_arrives}   = $status{date_available};
     }
+	elsif ($self->task eq 'Defend') {
+        my $body = $self->body;
+        my $from = {
+            id      => $body->id,
+            name    => $body->name,
+            type    => 'body',
+        };
+		my $defending = {
+			id		=> $self->foreign_body_id,
+            name    => $self->foreign_body->name,
+			type	=> 'body',
+        };
+		$status{from} = $from;
+		$status{defending} = $defending;
+	}
     return \%status;
 }
 

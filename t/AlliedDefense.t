@@ -1,11 +1,8 @@
 use lib '../lib';
-#use Test::More tests => 16; # 8 * 2
-use Test::More;
-use Test::Deep;
-use Data::Dumper;
+use Test::More tests => 78;
 use 5.010;
 use DateTime;
-use Math::Complex;
+use Math::Complex; # used for asteroid and planet selection
 
 use TestHelper;
 TestHelper->new->cleanup;
@@ -178,7 +175,6 @@ for my $tester ( @testers ) {
 	}
 	@distance = sort { $a->{dist} <=> $b->{dist} } @distance;
 	my $asteroid = shift @distance;
-	diag explain $asteroid;
 	$tester->{asteroid} = $asteroid;
 
 	# Find the closest habitable planet
@@ -198,7 +194,6 @@ for my $tester ( @testers ) {
 	}
 	@distance = sort { $a->{dist} <=> $b->{dist} } @distance;
 	my $planet = shift @distance;
-	diag explain $planet;
 	$tester->{planet} = $planet;
 }
 
@@ -253,6 +248,9 @@ for my $i ( 0 .. 1 ) {
     $fighter = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$fighter->id},{rows=>1})->single; # pull the latest data on this ship
     $fighter->arrive;
 
+	$result = $tester->post('spaceport', 'get_ships_for', [$tester{session_id}, $tester{home}->id, { x => $asteroid->{x}, y => $asteroid->{y} } ]);
+	is( @{ $result->{result}{recallable} }, 1, 'one ship is recallable' );
+
 	# Send a fighter to defend the closest planet
 	my $fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'fighter', task=>'Docked'},{rows=>1})->single;
     diag "Sending ship ", $fighter2->id, " type ", $fighter2->type, " to ", $planet->{x}, ",", $planet->{y};
@@ -263,15 +261,25 @@ for my $i ( 0 .. 1 ) {
     $fighter2->arrive;
 	$tester->{fighter2} = $fighter2->id;
 
+	$result = $tester->post('spaceport', 'get_ships_for', [$tester{session_id}, $tester{home}->id, { x => $planet->{x}, y => $planet->{y} } ]);
+	is( @{ $result->{result}{recallable} }, 2, 'two ships are recallable' );
+
 	$result = $tester->post('spaceport', 'view_all_ships', [$tester{session_id}, $tester->{spaceport_id}]);
-	my %ships;
 	for my $ship ( @{ $result->{result}{ships} } ) {
 		if ( $ship->{type} ) {
 			if ( $ship->{id} == $fighter->id ) {
 				is( $ship->{task}, 'Defend', 'fighter is defending' );
+				ok( $ship->{defending}{id}, 'defending has an id' );
+				ok( $ship->{defending}{name}, 'defending has a name' );
+				ok( $ship->{from}{id}, 'from has an id' );
+				ok( $ship->{from}{name}, 'from has a name' );
 			}
 			elsif ( $ship->{id} == $fighter2->id ) {
 				is( $ship->{task}, 'Defend', 'fighter2 is defending' );
+				ok( $ship->{defending}{id}, 'defending has an id' );
+				ok( $ship->{defending}{name}, 'defending has a name' );
+				ok( $ship->{from}{id}, 'from has an id' );
+				ok( $ship->{from}{name}, 'from has a name' );
 			}
 		}
 	}
@@ -435,8 +443,6 @@ for my $i ( 0 .. 1 ) {
 	$result = $tester->post('spaceport', 'view', [$tester{session_id}, $tester->{spaceport_id}]);
 	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Detonator Report\r\n~~~\r\nOur Det", 'Detonator took out mining platforms' );
 }
-
-done_testing();
 
 END {
     $testers[1]->cleanup;

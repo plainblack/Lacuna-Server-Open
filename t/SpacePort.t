@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 8;
+use Test::More tests => 9;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -60,6 +60,7 @@ is(ref $result->{result}{ships}, 'ARRAY', "can see all foreign ships");
 
 $result = $tester->post('spaceport', 'get_ships_for', [$session_id, $home->id, { body_id => $home->id }]);
 is(ref $result->{result}{available}, 'ARRAY', "can see what ships are available to send");
+is(ref $result->{result}{recallable}, 'ARRAY', "can see what ships are available to recall");
 
 $empire->is_isolationist(0);
 $empire->update;

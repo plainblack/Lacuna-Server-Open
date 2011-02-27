@@ -94,6 +94,23 @@ sub get_ships_for {
         unavailable => \@unavailable,
     );
     
+	unless ($target->isa('Lacuna::DB::Result::Map::Star')) {
+		my @recallable;
+		my $recallable_rs = $ships->search({task => 'Defend', body_id=>$body->id });
+		while (my $ship = $recallable_rs->next) {
+			$ship->body($body);
+			eval{ $ship->can_recall() };
+			my $reason = $@;
+			if ($reason) {
+				push @unavailable, { ship => $ship->get_status, reason => $reason };
+				next;
+			}
+			$ship->body($body);
+			push @recallable, $ship->get_status($target);
+		}
+		$out{recallable} = \@recallable;
+	}
+
     if ($target->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
         my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({asteroid_id => $target->id});
         while (my $platform = $platforms->next) {

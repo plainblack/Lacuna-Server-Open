@@ -1,3 +1,6 @@
+2.4700
+ - API: The status for defending fighters will now include from and defending blocks (as returned by view_all_ships(), get_ships_for(), etc). The get_ships_for() now includes a recallable block when that lists the fighters that defending that body.
+
 2.4600
  - Add: "Allied Defense" as outlined below.
  - Rule: Fighters' defensive capabilities have been expanded; they can now be sent to defend foreign bodies (planets and asteroids).
