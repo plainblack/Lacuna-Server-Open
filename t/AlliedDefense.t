@@ -262,7 +262,7 @@ for my $i ( 0 .. 1 ) {
 	$tester->{fighter2} = $fighter2->id;
 
 	$result = $tester->post('spaceport', 'get_ships_for', [$tester{session_id}, $tester{home}->id, { x => $planet->{x}, y => $planet->{y} } ]);
-	is( @{ $result->{result}{recallable} }, 2, 'two ships are recallable' );
+	is( @{ $result->{result}{recallable} }, 1, 'one ship is recallable' );
 
 	$result = $tester->post('spaceport', 'view_all_ships', [$tester{session_id}, $tester->{spaceport_id}]);
 	for my $ship ( @{ $result->{result}{ships} } ) {

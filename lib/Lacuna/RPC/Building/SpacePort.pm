@@ -96,7 +96,7 @@ sub get_ships_for {
     
 	unless ($target->isa('Lacuna::DB::Result::Map::Star')) {
 		my @recallable;
-		my $recallable_rs = $ships->search({task => 'Defend', body_id=>$body->id });
+		my $recallable_rs = $ships->search({task => 'Defend', body_id => $body->id, foreign_body_id => $target->id });
 		while (my $ship = $recallable_rs->next) {
 			$ship->body($body);
 			eval{ $ship->can_recall() };
