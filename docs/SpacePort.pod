@@ -75,7 +75,7 @@ Shows you all your ships whatever they are doing.
                "type" : "body",
                "name" : "Earth"
             },
-            "defending" : {
+            "orbiting" : {
                "id" : "id-goes-here",
                "type" : "body",
                "name" : "Mars"
@@ -88,7 +88,7 @@ Shows you all your ships whatever they are doing.
     "status" : { ... }
  }
 
-Travelling ships will have a from and to block. Defending fighters will have a from and defending block.
+Travelling ships will have a from and to block. Defending fighters will have a from and orbiting block.
 
 =head3 session_id
 
@@ -235,7 +235,7 @@ Provides a list of incoming ships and ships that are available to send to a spec
                "type" : "body",
                "name" : "Earth"
             },
-            "defending" : {
+            "orbiting" : {
                "id" : "id-goes-here",
                "type" : "body",
                "name" : "Mars"

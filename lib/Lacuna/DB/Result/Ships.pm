@@ -222,13 +222,13 @@ sub get_status {
             name    => $body->name,
             type    => 'body',
         };
-		my $defending = {
+		my $orbiting = {
 			id		=> $self->foreign_body_id,
             name    => $self->foreign_body->name,
 			type	=> 'body',
         };
 		$status{from} = $from;
-		$status{defending} = $defending;
+		$status{orbiting} = $orbiting;
 	}
     return \%status;
 }

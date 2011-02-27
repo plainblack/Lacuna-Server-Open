@@ -268,16 +268,16 @@ for my $i ( 0 .. 1 ) {
 	for my $ship ( @{ $result->{result}{ships} } ) {
 		if ( $ship->{type} ) {
 			if ( $ship->{id} == $fighter->id ) {
-				is( $ship->{task}, 'Defend', 'fighter is defending' );
-				ok( $ship->{defending}{id}, 'defending has an id' );
-				ok( $ship->{defending}{name}, 'defending has a name' );
+				is( $ship->{task}, 'Defend', 'fighter is orbiting' );
+				ok( $ship->{orbiting}{id}, 'orbiting has an id' );
+				ok( $ship->{orbiting}{name}, 'orbiting has a name' );
 				ok( $ship->{from}{id}, 'from has an id' );
 				ok( $ship->{from}{name}, 'from has a name' );
 			}
 			elsif ( $ship->{id} == $fighter2->id ) {
-				is( $ship->{task}, 'Defend', 'fighter2 is defending' );
-				ok( $ship->{defending}{id}, 'defending has an id' );
-				ok( $ship->{defending}{name}, 'defending has a name' );
+				is( $ship->{task}, 'Defend', 'fighter2 is orbiting' );
+				ok( $ship->{orbiting}{id}, 'orbiting has an id' );
+				ok( $ship->{orbiting}{name}, 'orbiting has a name' );
 				ok( $ship->{from}{id}, 'from has an id' );
 				ok( $ship->{from}{name}, 'from has a name' );
 			}
