@@ -310,7 +310,7 @@ The unique id of the trade.
 
 
 
-=head2 accept_from_market ( session_id, building_id, trade_id, captcha_guid, captcha_solution )
+=head2 accept_from_market ( session_id, building_id, trade_id )
 
 Accept a trade offer from the list of available trades. In addition to paying whatever the asking price is, the subspace transporter uses 1 essentia to complete the transaction. See C<view_market>.
 
@@ -329,14 +329,6 @@ The unique id of this building.
 =head3 trade_id
 
 The unique id of the trade.
-
-=head3 captcha_guid
-
-The C<view_market> list also includes a captcha guid. That string must be passed along with the trade. The guid used must be the most recent one returned (if you're caching the list of trades in some UI).
-
-=head3 captcha_solution
-
-The captcha described by C<view_market> will require the user to solve a simple puzzle to prove their humanity. The answer to that puzzle must be provided here.
 
 
 
@@ -364,10 +356,6 @@ Displays a list of trades available at the present time.
     ],
     "trade_count" : 1047,
     "page_number" : 1,
-    "captcha" : {
-        "guid" : "id-goes-here",
-        "url" : "https://url.to.image.goes.here/captcha.png"
-    },
     "status" : { ... }
  }
 

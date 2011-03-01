@@ -34,6 +34,7 @@ $urlmap->map("/announcement" => Lacuna::Web::Announcement->new->to_app);
 $urlmap->map("/facebook" => Lacuna::Web::Facebook->new->to_app);
 $urlmap->map("/apikey" => Lacuna::Web::ApiKey->new->to_app);
 $urlmap->map("/essentia-code" => Lacuna::RPC::EssentiaCode->new->to_app);
+$urlmap->map("/captcha" => Lacuna::RPC::Captcha->new->to_app);
 
 # buildings
 $urlmap->map(Lacuna::RPC::Building::SAW->new->to_app_with_url);

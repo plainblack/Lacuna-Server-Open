@@ -1,5 +1,6 @@
 2.4700
  - API: The status for defending fighters will now include from and orbiting blocks (as returned by view_all_ships(), get_ships_for(), etc). The get_ships_for() now includes a recallable block when that lists the fighters that defending that body.
+ - API: Added Lacuna::RCP::Captcha with methods fetch() and solve().
 
 2.4600
  - Add: "Allied Defense" as outlined below.
