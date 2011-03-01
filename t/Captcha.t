@@ -1,7 +1,5 @@
 use lib '../lib';
 use Test::More tests => 6;
-use Test::Deep;
-use Data::Dumper;
 use 5.010;
 
 use TestHelper;
@@ -17,6 +15,7 @@ my $result;
 is($tester->session->check_captcha(), undef, 'Captcha is not valid');
 
 $result = $tester->post('captcha','fetch', []);
+diag explain $result->{result};
 ok(exists $result->{result}{guid}, 'Fetch captcha returned guid');
 ok(exists $result->{result}{url}, 'Fetch captcha returned url');
 
