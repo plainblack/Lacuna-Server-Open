@@ -314,6 +314,8 @@ The unique id of the trade.
 
 Accept a trade offer from the list of available trades. In addition to paying whatever the asking price is, the subspace transporter uses 1 essentia to complete the transaction. See C<view_market>.
 
+Throws 1016.
+
  {
     "status" : { ... }
  }

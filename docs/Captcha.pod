@@ -17,7 +17,7 @@ Retrieves a captcha that is required in order to call the C<solve> method. Displ
 
 Validates the user's solution against the known solution for the given guid. If the solution validates, the captcha will be valid for thirty minutes (an expiration timestamp is set in the session) and it returns a value of 1.
 
-Throws 1016.
+Throws 1014.
 
 =head3 session_id
 
