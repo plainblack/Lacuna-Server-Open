@@ -10,32 +10,6 @@ my $cargo_exception = 'You need %s cargo space to trade that.';
 my $offer_nothing_exception = [1013, 'It appears that you have offered nothing.'];
 my $ask_nothing_exception = [1013, 'It appears that you have asked for nothing.'];
 
-sub assign_captcha {
-    my ($self, $empire) = @_;
-    my $captcha = Lacuna->db->resultset('Lacuna::DB::Result::Captcha')->find(randint(1,65664));
-    Lacuna->cache->set('trade_captcha', $empire->id, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 30 );
-    return {
-        guid    => $captcha->guid,
-        url     => $captcha->uri,
-    };
-}
-
-sub validate_captcha {
-    my ($self, $empire, $guid, $solution, $trade_id) = @_;
-    if (defined $guid && defined $solution) {                                               # offered a solution
-        my $captcha = Lacuna->cache->get_and_deserialize('trade_captcha', $empire->id);
-        if (ref $captcha eq 'HASH') {                                                       # a captcha has been set
-            if ($captcha->{guid} eq $guid) {                                                # the guid is the one set
-                if ($captcha->{solution} eq $solution) {                                    # the solution is correct
-                    return 1;
-                }
-            }
-        }
-    }
-    Lacuna->cache->delete('trade_lock',$trade_id);
-    confess [1014, 'Captcha not valid.', $self->assign_captcha($empire)];
-}
-
 sub market {
     return Lacuna->db->resultset('Lacuna::DB::Result::Market');
 }

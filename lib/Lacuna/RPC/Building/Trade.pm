@@ -77,7 +77,7 @@ sub withdraw_from_market {
 
 
 sub accept_from_market {
-    my ($self, $session_id, $building_id, $trade_id, $guid, $solution) = @_;
+    my ($self, $session_id, $building_id, $trade_id) = @_;
     unless ($trade_id) {
         confess [1002, 'You have not specified a trade to accept.'];
     }
@@ -89,7 +89,10 @@ sub accept_from_market {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
-    $building->validate_captcha($empire, $guid, $solution, $trade_id);
+
+	# Replacing the old captchas for all but empire creation
+	$empire->session->check_captcha();
+
     my $trade = $building->market->find($trade_id);
     unless (defined $trade) {
         $cache->delete('trade_lock',$trade_id);

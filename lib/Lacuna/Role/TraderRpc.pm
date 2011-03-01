@@ -66,7 +66,6 @@ sub view_market {
         trades      => \@trades,
         trade_count => $all_trades->pager->total_entries,
         page_number => $page_number,
-        captcha     => $building->assign_captcha($empire),
         status      => $self->format_status($empire, $building->body),
     };
 }
