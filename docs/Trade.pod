@@ -321,6 +321,8 @@ The unique id of the trade.
 
 Accept a trade offer from the list of available trades. See C<view_market>.
 
+Throws 1016.
+
  {
     "status" : { ... }
  }

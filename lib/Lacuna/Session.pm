@@ -21,7 +21,6 @@ sub BUILD {
         $self->empire_id($session_data->{empire_id});
         $self->extended($session_data->{extended});
         $self->is_sitter($session_data->{is_sitter});
-		$self->captcha_expires($session_data->{captcha_expires});
     }
 }
 
@@ -48,12 +47,6 @@ has empire_id => (
     },
 );
 
-has captcha_expires => (
-	is			=> 'rw',
-	lazy		=> 1,
-	default		=> 0,
-);
-
 has empire => (
     is          => 'rw',
     predicate   => 'has_empire',
@@ -70,27 +63,16 @@ has empire => (
     },
 );
 
-after 'captcha_expires' => sub {
-	my ($self, $value) = @_;
-	warn "captcha_expires set to $value\n";
-};
-
-sub valid_captcha {
-	my ($self, $value) = @_;
-	if ( $value ) {
-		$self->captcha_expires( time() + 60 * 30 );
-	}
-	return $self;
-}
-
 sub check_captcha {
 	my $self = shift;
-	my $expires = $self->captcha_expires;
-	if ( $expires <= time() ) {
+	my $valid = Lacuna->cache->get('captcha_valid', $self->id);
+	if ( defined $valid && $valid  ) {
+		return 1;
+	}
+	else {
 		confess [1016, 'Needs to solve a captcha.'];
 		#return undef;
 	}
-	return 1;
 }
 
 sub extend {
@@ -104,7 +86,6 @@ sub extend {
 			api_key			=> $self->api_key,
 			extended		=> $self->extended,
 			is_sitter		=> $self->is_sitter,
-			captcha_expires	=> $self->captcha_expires,
 		},
         60 * 60 * 2,
     );
@@ -129,7 +110,6 @@ sub start {
     $self->empire_id($empire->id);
     $self->api_key($options->{api_key});
     $self->is_sitter($options->{is_sitter});
-	$self->captcha_expires($options->{captcha_expires});
     $empire->current_session($self);
     $self->empire($empire);
     my $ip;

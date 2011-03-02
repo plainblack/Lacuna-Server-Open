@@ -194,6 +194,10 @@ Integrate the in-game chat system with your app.
 
 Display a serverwide announcement.
 
+=item L<Captcha>
+
+Request and solve CAPTCHAs
+
 =back
 
 =cut
