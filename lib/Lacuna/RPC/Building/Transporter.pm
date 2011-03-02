@@ -106,7 +106,7 @@ sub accept_from_market {
     confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->level > 0;
 
 	# Replacing the old captchas for all but empire creation
-	$empire->session->check_captcha();
+	$empire->current_session->check_captcha();
 
     my $trade = $building->market->find($trade_id);
     unless (defined $trade) {
