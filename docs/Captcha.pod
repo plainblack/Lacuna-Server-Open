@@ -23,6 +23,8 @@ Validates the user's solution against the known solution for the given guid. If 
 
 Throws 1014.
 
+B<NOTE:> If either C<captcha_guid> or C<captcha_solution> don't match what the server is expecting it will throw a 1014 error, and the data portion of the error message will contain new captcha information. You must use this. A captcha cannot be used more than once.
+
 =head3 session_id
 
 A session id.
