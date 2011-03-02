@@ -9,11 +9,8 @@ use DateTime;
 
 sub fetch {
     my ($self, $session_id) = @_;
-warn "fetch( $session_id )\n";
     my $captcha = Lacuna->db->resultset('Lacuna::DB::Result::Captcha')->find(randint(1,65664));
-warn "captcha -- guid: ", $captcha->guid, ", solution: ", $captcha->solution, ", url: ", $captcha->uri, "\n";
     Lacuna->cache->set('captcha', $session_id, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 30 );
-warn "no match! deleting captcha_valid\n";
 	Lacuna->cache->delete('captcha_valid', $session_id);
     return {
         guid    => $captcha->guid,
@@ -23,13 +20,11 @@ warn "no match! deleting captcha_valid\n";
 
 sub solve {
     my ($self, $session_id, $guid, $solution) = @_;
-warn "solve( $session_id, $guid, $solution )\n";
     if (defined $guid && defined $solution) {                                               # offered a solution
         my $captcha = Lacuna->cache->get_and_deserialize('captcha', $session_id);
         if (ref $captcha eq 'HASH') {                                                       # a captcha has been set
             if ($captcha->{guid} eq $guid) {                                                # the guid is the one set
                 if ($captcha->{solution} eq $solution) {                                    # the solution is correct
-warn "match! setting captcha_valid to 1\n";
 					Lacuna->cache->set('captcha_valid', $session_id, 1, 60 * 30 );
                     return 1;
                 }

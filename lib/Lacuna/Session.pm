@@ -65,15 +65,13 @@ has empire => (
 
 sub check_captcha {
 	my $self = shift;
-warn "check_captcha\n";
 	my $valid = Lacuna->cache->get('captcha_valid', $self->id);
-warn "valid: $valid\n";
 	if ( defined $valid && $valid  ) {
 		return 1;
 	}
 	else {
-		confess [1016, 'Needs to solve a captcha.'];
-		#return undef;
+		#confess [1016, 'Needs to solve a captcha.'];
+		return undef;
 	}
 }
 
