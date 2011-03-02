@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 78;
+use Test::More tests => 80;
 use 5.010;
 use DateTime;
 use Math::Complex; # used for asteroid and planet selection
@@ -22,11 +22,18 @@ my @planets = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
 
 my $result;
 
+Lacuna->cache->set('captcha', '127.0.0.1', { guid => 1111, solution => 1111 }, 60 * 30 );
+
 for my $tester ( @testers ) {
 	my $session_id = $tester->session->id;
 	my $empire = $tester->empire;
 	my $home = $empire->home_planet;
 	my $command = $home->command;
+
+	$result = $tester->post('captcha','solve', [$session_id, 1111, 1111]);
+	is($result->{result}, 1, 'Solved captcha');
+	$tester->session->valid_captcha(1); # Why is this needed? This line is already in solve().
+
 
 	my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 		x               => 0,

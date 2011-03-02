@@ -9,6 +9,8 @@ use DateTime;
 use feature "switch";
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES SHIP_TYPES);
 
+with 'Lacuna::Role::Captcha::Spies';
+
 __PACKAGE__->table('spies');
 __PACKAGE__->add_columns(
     empire_id               => { data_type => 'int', is_nullable => 0 },
