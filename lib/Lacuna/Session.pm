@@ -21,8 +21,6 @@ sub BUILD {
         $self->empire_id($session_data->{empire_id});
         $self->extended($session_data->{extended});
         $self->is_sitter($session_data->{is_sitter});
-		$self->captcha_expires($session_data->{captcha_expires});
-		$self->valid_captcha($session_data->{valid_captcha});
     }
 }
 
@@ -49,14 +47,6 @@ has empire_id => (
     },
 );
 
-has captcha_expires => (
-	is			=> 'rw',
-);
-
-has valid_captcha => (
-	is			=> 'rw',
-);
-
 has empire => (
     is          => 'rw',
     predicate   => 'has_empire',
@@ -73,24 +63,18 @@ has empire => (
     },
 );
 
-around 'valid_captcha' => sub {
-	my ( $orig, $self, $value ) = @_;
-	return $self->$orig() unless defined $value;
-	if ( $value ) {
-		$self->captcha_expires( time() + 60 * 30 );
-	}
-	return $self->$orig($value);
-};
-
 sub check_captcha {
 	my $self = shift;
-	
-	my $expires = $self->captcha_expires;
-	if ( $expires <= time() ) {
-		#confess [1016, 'Needs to solve a captcha.'];
-		return undef;
+warn "check_captcha\n";
+	my $valid = Lacuna->cache->get('captcha_valid', $self->id);
+warn "valid: $valid\n";
+	if ( defined $valid && $valid  ) {
+		return 1;
 	}
-	return 1;
+	else {
+		confess [1016, 'Needs to solve a captcha.'];
+		#return undef;
+	}
 }
 
 sub extend {
@@ -104,8 +88,6 @@ sub extend {
 			api_key			=> $self->api_key,
 			extended		=> $self->extended,
 			is_sitter		=> $self->is_sitter,
-			valid_captcha	=> $self->valid_captcha,
-			captcha_expires => $self->captcha_expires,
 		},
         60 * 60 * 2,
     );

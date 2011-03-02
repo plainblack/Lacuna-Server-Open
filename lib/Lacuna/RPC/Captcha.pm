@@ -8,10 +8,13 @@ use Lacuna::Util qw(format_date randint);
 use DateTime;
 
 sub fetch {
-    my ($self, $plack_request) = @_;
-    my $ip = $plack_request->address;
+    my ($self, $session_id) = @_;
+warn "fetch( $session_id )\n";
     my $captcha = Lacuna->db->resultset('Lacuna::DB::Result::Captcha')->find(randint(1,65664));
-    Lacuna->cache->set('captcha', $ip, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 30 );
+warn "captcha -- guid: ", $captcha->guid, ", solution: ", $captcha->solution, ", url: ", $captcha->uri, "\n";
+    Lacuna->cache->set('captcha', $session_id, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 30 );
+warn "no match! deleting captcha_valid\n";
+	Lacuna->cache->delete('captcha_valid', $session_id);
     return {
         guid    => $captcha->guid,
         url     => $captcha->uri,
@@ -19,26 +22,26 @@ sub fetch {
 }
 
 sub solve {
-    my ($self, $plack_request, $session_id, $guid, $solution) = @_;
-    my $ip = $plack_request->address;
+    my ($self, $session_id, $guid, $solution) = @_;
+warn "solve( $session_id, $guid, $solution )\n";
     if (defined $guid && defined $solution) {                                               # offered a solution
-        my $captcha = Lacuna->cache->get_and_deserialize('captcha', $ip);
+        my $captcha = Lacuna->cache->get_and_deserialize('captcha', $session_id);
         if (ref $captcha eq 'HASH') {                                                       # a captcha has been set
             if ($captcha->{guid} eq $guid) {                                                # the guid is the one set
                 if ($captcha->{solution} eq $solution) {                                    # the solution is correct
-                    my $empire = $self->get_empire_by_session($session_id);
-                    $empire->current_session->valid_captcha(1);
+warn "match! setting captcha_valid to 1\n";
+					Lacuna->cache->set('captcha_valid', $session_id, 1, 60 * 30 );
                     return 1;
                 }
             }
         }
     }
-    confess [1014, 'Captcha not valid.', $self->fetch($plack_request)];
+    confess [1014, 'Captcha not valid.', $self->fetch($session_id)];
 }
 
 __PACKAGE__->register_rpc_method_names(
-    { name => "fetch", options => { with_plack_request => 1 } },
-	{ name => "solve", options => { with_plack_request => 1 } },
+    { name => "fetch", },
+	{ name => "solve", },
 );
 
 

@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 6;
+use Test::More tests => 5;
 use 5.010;
 
 use TestHelper;
@@ -14,7 +14,7 @@ my $result;
 
 is($tester->session->check_captcha(), undef, 'Captcha is not valid');
 
-$result = $tester->post('captcha','fetch', []);
+$result = $tester->post('captcha','fetch', [ $session_id ]);
 diag explain $result->{result};
 ok(exists $result->{result}{guid}, 'Fetch captcha returned guid');
 ok(exists $result->{result}{url}, 'Fetch captcha returned url');
@@ -26,15 +26,7 @@ is($result->{result}, 1, 'Solved captcha');
 $result = $tester->post('empire', 'logout', [$session_id]);
 $result = $tester->post('empire', 'login', [$tester->empire_name,$tester->empire_password,'Anonymous']);
 
-$tester->session->valid_captcha(1); # Why is this needed? This line is already in solve().
-
-is($tester->empire->current_session->check_captcha(), 1, 'Captcha is still valid');
-
-diag $tester->empire->current_session->captcha_expires;
-
-$tester->empire->current_session->captcha_expires( time() - 60 * 30 );
-
-is($tester->session->check_captcha, undef, 'Captcha is no longer valid');
+is($tester->empire->current_session->check_captcha(), 1, 'Captcha is valid');
 
 END {
     $tester->cleanup;
