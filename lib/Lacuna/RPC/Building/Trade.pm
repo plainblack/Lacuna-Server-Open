@@ -91,7 +91,10 @@ sub accept_from_market {
     confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
 
 	# Replacing the old captchas for all but empire creation
-	$empire->current_session->check_captcha();
+	unless ($empire->current_session->check_captcha()) {
+        $cache->delete('trade_lock',$trade_id);
+		confess [1016, 'Needs to solve a captcha.'];
+	}
 
     my $trade = $building->market->find($trade_id);
     unless (defined $trade) {

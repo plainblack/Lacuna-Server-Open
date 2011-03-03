@@ -10,9 +10,8 @@ my $session_id = $tester->session->id;
 my $home_planet = $tester->empire->home_planet_id;
 
 my $result;
-eval {$tester->session->check_captcha()};
-if ($@) {
-	is( $@->[0], 1016, 'Needs to solve a captcha' );
+unless ($tester->session->check_captcha()) {
+	ok( 'Needs to solve a captcha' );
 }
 
 $result = $tester->post('captcha','fetch', [ $session_id ]);
