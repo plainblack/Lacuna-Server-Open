@@ -314,7 +314,7 @@ sub www_view_ships {
             $out .= sprintf('<td>%s<form method="post" action="/admin/zoom/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="zoom"></form></td>', $ship->task, $ship->id, $body_id);
         }
 		elsif ($ship->task eq 'Defend') {
-            $out .= sprintf('<td>%s<form method="post" action="/admin/recall/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="recall"></form></td>', $ship->task, $ship->id, $body_id);
+            $out .= sprintf('<td>%s<br>%s<form method="post" action="/admin/recall/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="recall"></form></td>', $ship->task, $ship->{orbiting}{name}, $ship->id, $body_id);
 		}
         elsif ($ship->task ne 'Docked') {
             $out .= sprintf('<td>%s<form method="post" action="/admin/dock/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="dock" onclick="return confirm(\'Doing this without knowing the implications can cause unintended side effects. Are you sure?\');"></form></td>', $ship->task, $ship->id, $body_id);            
