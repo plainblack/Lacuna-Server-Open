@@ -341,8 +341,11 @@ sub www_zoom_ship {
 sub www_recall_ship {
     my ($self, $request) = @_;
     my $ship_id = $request->param('ship_id');
+    my $body_id = $request->param('body_id');
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
+    my $building = $body->buildings->search({ class => 'Lacuna::DB::Result::Building::SpacePort' },{rows=>1})->single;
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-	my $target = $self->find_target({body_id => $ship->foreign_body_id});
+	my $target = $building->find_target({body_id => $ship->foreign_body_id});
     my $body = $ship->body;
     $ship->send(
         target      => $target,
