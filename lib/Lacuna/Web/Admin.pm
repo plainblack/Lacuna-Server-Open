@@ -313,6 +313,9 @@ sub www_view_ships {
         if ($ship->task eq 'Travelling') {
             $out .= sprintf('<td>%s<form method="post" action="/admin/zoom/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="zoom"></form></td>', $ship->task, $ship->id, $body_id);
         }
+		elsif ($ship->task eq 'Defend') {
+            $out .= sprintf('<td>%s<form method="post" action="/admin/recall/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="recall"></form></td>', $ship->task, $ship->id, $body_id);
+		}
         elsif ($ship->task ne 'Docked') {
             $out .= sprintf('<td>%s<form method="post" action="/admin/dock/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="dock" onclick="return confirm(\'Doing this without knowing the implications can cause unintended side effects. Are you sure?\');"></form></td>', $ship->task, $ship->id, $body_id);            
         }
@@ -331,6 +334,21 @@ sub www_zoom_ship {
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     my $body = $ship->body;
     $ship->update({date_available => DateTime->now});
+    $body->tick;
+    return $self->www_view_ships($request);
+}
+
+sub www_recall_ship {
+    my ($self, $request) = @_;
+    my $ship_id = $request->param('ship_id');
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+	my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($ship->foreign_body_id});
+
+    my $body = $ship->body;
+    $ship->send(
+        target      => $target,
+        direction   => 'in',
+    );
     $body->tick;
     return $self->www_view_ships($request);
 }
