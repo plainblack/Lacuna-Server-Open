@@ -70,8 +70,8 @@ sub check_captcha {
 		return 1;
 	}
 	else {
-		#confess [1016, 'Needs to solve a captcha.'];
-		return undef;
+		confess [1016, 'Needs to solve a captcha.'];
+		#return undef;
 	}
 }
 
