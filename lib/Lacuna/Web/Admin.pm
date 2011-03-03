@@ -342,7 +342,7 @@ sub www_recall_ship {
     my ($self, $request) = @_;
     my $ship_id = $request->param('ship_id');
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-	my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($ship->foreign_body_id});
+	my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($ship->foreign_body_id);
 
     my $body = $ship->body;
     $ship->send(
