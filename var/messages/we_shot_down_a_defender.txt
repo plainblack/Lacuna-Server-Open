@@ -1,0 +1,7 @@
+Target Neutralized
+~~~
+Our offensive squadron was able to shoot down a %s that was defending {Starmap %s %s %s}. Its markings indicate that it was from {Empire %s %s}.
+
+Regards,
+
+Your Humble Assistant

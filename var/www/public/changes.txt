@@ -2,6 +2,8 @@
  - API: The status for defending fighters will now include from and orbiting blocks (as returned by view_all_ships(), get_ships_for(), etc). The get_ships_for() now includes a recallable block when that lists the fighters that defending that body.
  - API: Added Lacuna::RCP::Captcha with methods fetch() and solve().
  - API: Trade Ministry and Transporter's accept_from_market methods use the new captchas.
+ - Fix: Attacker shot down messages will once again show the proper Empire.
+ - Add: Defender shot down messages have been added.
 
 2.4600
  - Add: "Allied Defense" as outlined below.

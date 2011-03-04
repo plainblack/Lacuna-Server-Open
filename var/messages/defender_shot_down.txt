@@ -1,0 +1,7 @@
+Ship Shot Down
+~~~
+Our %s from {Planet %s %s} was shot down while defending {Starmap %s %s %s}.
+
+Regards,
+
+Your Humble Assistant
