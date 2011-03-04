@@ -95,12 +95,29 @@ sub defender_shot_down {
 }
 
 sub ship_to_ship_combat {
-	my ($self, $ships) = @_;
+    my ($self, $ships) = @_;
+
+    my %body_alliance;
+    my %body_empire;
+    my $alliance;
+    my $empire = $self->body->empire_id;
 
     # if there are ships let's duke it out
     while (my $ship = $ships->next) {
+        # don't fight our own ships
+        my $ship_empire = $body_empire{$ship->body_id} //= $ship->body->empire_id;
+        if ($empire == $ship_empire) {
+            next;
+        }
 
-		# defender dealt this damage
+        # don't fight allied ships
+        $alliance //= $self->body->empire->alliance_id;
+        my $ship_alliance = $body_alliance{$ship->body_id} //= $ship->body->empire->alliance_id;
+        if ($ship_alliance && $ship_alliance == $alliance) {
+            next;
+        }
+
+        # defender dealt this damage
         my $damage = $ship->combat;
         if ($ship->type eq 'drone') {
             $ship->delete;
