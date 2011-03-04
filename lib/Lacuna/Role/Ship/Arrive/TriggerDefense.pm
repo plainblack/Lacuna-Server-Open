@@ -104,19 +104,20 @@ sub ship_to_ship_combat {
         my $damage = $ship->combat;
         if ($ship->type eq 'drone') {
             $ship->delete;
-			next;
         }
 
-		# subtract attacker's damage dealt from defender
-		$ship->combat( $ship->combat - $self->combat );
-		if ($ship->combat < 1) {
-			$self->defender_shot_down($ship);
-			$ship->delete;
-		}
-		else {
-			# "reset"
-			$ship->send(target => $self->foreign_body->star);
-		}
+        else {
+            # subtract attacker's damage dealt from defender
+            $ship->combat( $ship->combat - $self->combat );
+            if ($ship->combat < 1) {
+                $self->defender_shot_down($ship);
+                $ship->delete;
+            }
+            else {
+                # "reset"
+                $ship->send(target => $self->foreign_body->star);
+            }
+        }
 
         $self->damage_in_combat($ship, $damage);
     }
