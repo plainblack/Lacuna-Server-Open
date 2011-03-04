@@ -24,5 +24,10 @@ sub new {
     return $self;
 }
 
+sub random {
+    my $self = shift;
+    return $self->search( undef, { rows => 1, order_by => 'rand()' })->single;
+}
+
 
 1;
