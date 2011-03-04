@@ -228,9 +228,9 @@ sub check_objectives {
         foreach my $glyph (@{$objectives->{glyphs}}) {
             $glyphs{$glyph}++;
         }
-        foreach my $glyph (@{$objectives->{glyphs}}) {
-            unless ($body->glyphs->search({ type => $glyph })->count) {
-                confess [1013, 'You do not have the '.$glyph.' glyph needed to complete this mission.'];
+        foreach my $glyph (keys %glyphs) {
+            if ($body->glyphs->search({ type => $glyph })->count < $glyphs{$glyph} ) {
+                confess [1013, 'You do not have enough '.$glyph.' glyphs needed to complete this mission.'];
             }
         }
     }
