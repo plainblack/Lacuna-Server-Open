@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 78;
+use Test::More tests => 86;
 use 5.010;
 use DateTime;
 use Math::Complex; # used for asteroid and planet selection
@@ -271,6 +271,8 @@ for my $i ( 0 .. 1 ) {
 				is( $ship->{task}, 'Defend', 'fighter is orbiting' );
 				ok( $ship->{orbiting}{id}, 'orbiting has an id' );
 				ok( $ship->{orbiting}{name}, 'orbiting has a name' );
+				is( $ship->{orbiting}{x}, $asteroid->{x}, 'orbiting x matches x of target' );
+				is( $ship->{orbiting}{y}, $asteroid->{y}, 'orbiting x matches x of target' );
 				ok( $ship->{from}{id}, 'from has an id' );
 				ok( $ship->{from}{name}, 'from has a name' );
 			}
@@ -278,6 +280,8 @@ for my $i ( 0 .. 1 ) {
 				is( $ship->{task}, 'Defend', 'fighter2 is orbiting' );
 				ok( $ship->{orbiting}{id}, 'orbiting has an id' );
 				ok( $ship->{orbiting}{name}, 'orbiting has a name' );
+				is( $ship->{orbiting}{x}, $planet->{x}, 'orbiting x matches x of target' );
+				is( $ship->{orbiting}{y}, $planet->{y}, 'orbiting x matches x of target' );
 				ok( $ship->{from}{id}, 'from has an id' );
 				ok( $ship->{from}{name}, 'from has a name' );
 			}

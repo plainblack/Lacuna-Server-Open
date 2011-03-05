@@ -78,7 +78,9 @@ Shows you all your ships whatever they are doing.
             "orbiting" : {
                "id" : "id-goes-here",
                "type" : "body",
-               "name" : "Mars"
+               "name" : "Mars",
+			   "x" : 4,
+			   "y" : -3
             }
 
 		},
@@ -238,7 +240,9 @@ Provides a list of incoming ships and ships that are available to send to a spec
             "orbiting" : {
                "id" : "id-goes-here",
                "type" : "body",
-               "name" : "Mars"
+               "name" : "Mars",
+			   "x" : 4,
+			   "y" : -3,
             }
 
 		},

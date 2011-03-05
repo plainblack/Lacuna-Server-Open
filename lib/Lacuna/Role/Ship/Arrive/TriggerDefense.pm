@@ -75,7 +75,7 @@ sub attacker_shot_down {
         filename    => 'we_shot_down_a_ship.txt',
         params      => [$self->type_formatted, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
     );
-    $body_attacked->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
+    $defender->body->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
 }
 
 sub defender_shot_down {
@@ -91,7 +91,7 @@ sub defender_shot_down {
         filename    => 'defender_shot_down.txt',
         params      => [$defender->type_formatted, $defender->body->id, $defender->body->name, $body_attacked->x, $body_attacked->y, $body_attacked->name],
     );
-    $body_attacked->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
+    $defender->body->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
 }
 
 sub ship_to_ship_combat {

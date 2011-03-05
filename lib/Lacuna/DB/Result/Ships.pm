@@ -226,6 +226,8 @@ sub get_status {
 			id		=> $self->foreign_body_id,
             name    => $self->foreign_body->name,
 			type	=> 'body',
+			x		=> $self->foreign_body->x,
+			y		=> $self->foreign_body->y,
         };
 		$status{from} = $from;
 		$status{orbiting} = $orbiting;
