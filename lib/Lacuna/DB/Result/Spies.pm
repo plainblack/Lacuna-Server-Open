@@ -791,7 +791,7 @@ sub probe_not_found {
 
 sub hack_successful {
     my ($self, $amount) = @_;
-    $self->on_body->spend_happiness(250)->update;
+    $self->on_body->spend_happiness($amount)->update;
     return $self->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'hack_successful.txt',
