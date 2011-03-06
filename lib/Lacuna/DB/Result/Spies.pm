@@ -2332,7 +2332,7 @@ sub network19_defamation1 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
     if ($self->on_body->add_news(50,'A financial report for %s shows that many people are out of work as the unemployment rate approaches 10%%.', $self->on_body->name)) {
-        $self->hack_successful(1000);
+        return $self->hack_successful(1000)->id;
     }
     return $self->hack_filtered->id;
 }
@@ -2341,7 +2341,7 @@ sub network19_defamation2 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
     if ($self->on_body->add_news(50,'An outbreak of the Dultobou virus was announced on %s today. Citizens are encouraged to stay home from work and school.', $self->on_body->name)) {
-        $self->hack_successful(2000);
+        return $self->hack_successful(2000)->id;
     }
     return $self->hack_filtered->id;
 }
@@ -2350,7 +2350,7 @@ sub network19_defamation3 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
     if ($self->on_body->add_news(50,'%s is unable to keep its economy strong. Sources inside say it will likely fold in a few days.', $self->on_body->empire->name)) {
-        $self->hack_successful(3000);
+        return $self->hack_successful(3000)->id;
     }
     return $self->hack_filtered->id
 }
@@ -2359,7 +2359,7 @@ sub network19_defamation4 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
     if ($self->on_body->add_news(50,'The Governor of %s has lost her mind. She is a raving mad lunatic! The Emperor could not be reached for comment.', $self->on_body->name)) {
-        $self->hack_successful(4000);
+        return $self->hack_successful(4000)->id;
     }
     return $self->hack_filtered->id;
 }
@@ -2368,7 +2368,7 @@ sub network19_defamation5 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
     if ($self->on_body->add_news(50,'%s is the smallest, worst, least free empire in the Expanse, ever.', $self->on_body->empire->name)) {
-        $self->hack_successful(5000);
+        return $self->hack_successful(5000)->id;
     }
     return $self->hack_filtered->id;
 }
