@@ -101,14 +101,14 @@ sub trade_one_for_one {
     }
     $body->can_add_type($want, $quantity);
     $empire->spend_essentia(3, 'Lacunans Trade')->update;
-    my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
-    $cargo_log->new({
-        message     => 'transporter one for one',
-        body_id     => $self->body_id,
-        data        => { have => $have, want => $want, quantity => $quantity },
-        object_type => ref($self),
-        object_id   => $self->id,
-    })->insert;
+    #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
+    #$cargo_log->new({
+    #    message     => 'transporter one for one',
+    #    body_id     => $self->body_id,
+    #    data        => { have => $have, want => $want, quantity => $quantity },
+    #    object_type => ref($self),
+    #    object_id   => $self->id,
+    #})->insert;
     $body->spend_type($have, $quantity);
     $body->add_type($want, $quantity);
     $body->update;
@@ -142,14 +142,14 @@ sub push_items {
     }
     my ($payload, $meta) = $self->structure_payload($items, $space_used);
     my $container = Lacuna::VirtualContainer->new(payload => $payload);
-    my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
-    $cargo_log->new({
-        message     => 'push resources',
-        body_id     => $self->body_id,
-        data        => $payload,
-        object_type => ref($self),
-        object_id   => $self->id,
-    })->insert;
+    #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
+    #$cargo_log->new({
+    #    message     => 'push resources',
+    #    body_id     => $self->body_id,
+    #    data        => $payload,
+    #    object_type => ref($self),
+    #    object_id   => $self->id,
+    #})->insert;
     $container->unload($target);
 }
 

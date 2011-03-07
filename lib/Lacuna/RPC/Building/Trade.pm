@@ -114,25 +114,25 @@ sub accept_from_market {
     }
     $empire->spend_essentia($trade->ask, 'Trade Price')->update;
     $trade->body->empire->add_essentia($trade->ask, 'Trade Income')->update;
-    my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
-    $cargo_log->new({
-        message     => 'trade ministry offer accepted',
-        body_id     => $trade->body_id,
-        data        => $trade->payload,
-        object_type => ref($trade),
-        object_id   => $trade->id,
-    })->insert;
+    #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
+    #$cargo_log->new({
+    #    message     => 'trade ministry offer accepted',
+    #    body_id     => $trade->body_id,
+    #    data        => $trade->payload,
+    #    object_type => ref($trade),
+    #    object_id   => $trade->id,
+    #})->insert;
     $offer_ship->send(
         target  => $body,
         payload => $trade->payload,
     );
-    $cargo_log->new({
-        message     => 'send offer',
-        body_id     => $offer_ship->foreign_body_id,
-        data        => $offer_ship->payload,
-        object_type => ref($offer_ship),
-        object_id   => $offer_ship->id,
-    })->insert;
+    #$cargo_log->new({
+    #    message     => 'send offer',
+    #    body_id     => $offer_ship->foreign_body_id,
+    #    data        => $offer_ship->payload,
+    #    object_type => ref($offer_ship),
+    #    object_id   => $offer_ship->id,
+    #})->insert;
     
     $trade->body->empire->send_predefined_message(
         tags        => ['Alert'],
