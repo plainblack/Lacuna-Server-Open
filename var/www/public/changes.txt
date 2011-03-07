@@ -1,6 +1,7 @@
 2.4700
  - Rule: Spies now have a minimum recovery time of 1 hour.
  - Rule: Spies now retire after 150 offensive or defensive missions, which means they can perform 299 total missions if divided equally.
+ - Rule: Trade accepted message now tells you who accepted the trade.
  - API: The status for defending fighters will now include from and orbiting blocks (as returned by view_all_ships(), get_ships_for(), etc). The get_ships_for() now includes a recallable block when that lists the fighters that defending that body.
  - API: Added Lacuna::RCP::Captcha with methods fetch() and solve().
  - API: Trade Ministry and Transporter's accept_from_market methods use the new captchas.
