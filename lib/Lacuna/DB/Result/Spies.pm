@@ -551,7 +551,8 @@ sub get_defender {
         ->resultset('Lacuna::DB::Result::Spies')
         ->search(
             { on_body_id  => $self->on_body_id, task => 'Counter Espionage' },
-        )->random;
+            { rows => 1, order_by => 'rand()' }
+        )->single;
     $defender->on_body($self->on_body) if defined $defender;
     return $defender;
 }
