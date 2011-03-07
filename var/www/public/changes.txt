@@ -7,6 +7,13 @@
  - API: Trade Ministry and Transporter's accept_from_market methods use the new captchas.
  - Fix: Attacker shot down messages will once again show the proper Empire.
  - Add: Defender shot down messages have been added.
+ - Fix: Drones will once again defend properly
+ - Fix: Ships defending other planets won't attack their own empire
+ - Add: Distribution Center building
+ - Fix: Essentia veins higher than level 1 will properly produce essentia.
+ - Fix: Missions won't repeatedly run against the same spy
+ - Fix: Missions requiring multiple of the same glyph will no longer cause errors
+ - Fix: Hacking Network 19 will properly reduce happiness and will send correct messages.
 
 2.4600
  - Add: "Allied Defense" as outlined below.
