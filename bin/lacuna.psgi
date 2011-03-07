@@ -203,7 +203,7 @@ my $offline = [ 500,
 
 my $gameover = [ 1200,
             ['Content-Type' => 'application/json-rpc' ],
-            [ '{"jsonrpc" : "2.0", "error" : { "code" : "1200", "message" : "Game Over", "data" : "'.$config->get('feeds/url').'/game-over.html" }}' ],
+            [ '{"jsonrpc" : "2.0", "error" : { "code" : "1200", "message" : "Game Over", "data" : "http://community.lacunaexanse.com/wiki/hall-of-fame" }}' ],
         ];
 
 print "Server Up\n";
