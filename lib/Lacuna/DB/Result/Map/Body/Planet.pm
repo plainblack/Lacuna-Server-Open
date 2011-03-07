@@ -1729,7 +1729,8 @@ sub spend_waste {
         $self->waste_stored( $self->waste_stored - $value );
     }
     else { # if they run out of waste in storage, then the citizens start bitching
-        $self->spend_happiness($value);
+        $self->spend_happiness($value - $self->waste_stored);
+        $self->waste_stored(0);
         my $empire = $self->empire;
         if (!$empire->check_for_repeat_message('complaint_lack_of_waste')) {
             my $building_name;
