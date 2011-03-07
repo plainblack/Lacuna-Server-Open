@@ -22,8 +22,19 @@ our $db = Lacuna->db;
 my $empires = $db->resultset('Lacuna::DB::Result::Empire');
 
 
-out('Deleting dead spies');
-$db->resultset('Lacuna::DB::Result::Spies')->search({task=>'Killed In Action'})->delete_all;
+out('Deleting dead spies and retiring old spies.');
+my $spies = $db->resultset('Lacuna::DB::Result::Spies');
+$spies->search({task=>'Killed In Action'})->delete_all;
+my $retiring_spies = $spies->search({ -or => { offense_mission_count => { '>=' => 150 }, defense_mission_count => { '>=' => 150 } }});
+while (my $spy = $retiring_spies->next) {
+    $spy->empire->send_predefined_message(
+        tags        => ['Correspondence'],
+        filename    => 'retiring.txt',
+        params      => [$spy->format_from],
+    );
+    $spy->delete;
+}
+
 
 out('Deleting Expired Self Destruct Empires');
 my $to_be_deleted = $empires->search({ self_destruct_date => { '<' => $start }, self_destruct_active => 1});

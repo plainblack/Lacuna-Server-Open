@@ -1,0 +1,12 @@
+Retirement
+~~~
+Well Chief, we had a good run, but my tour is over. It is time for me to head off to that remote island and sip on margaritas all day. If you're ever down my way, stop by and say 'hello'.
+
+See ya around,
+
+%s
+
+PS,
+
+I appreciate the gold watch.
+
