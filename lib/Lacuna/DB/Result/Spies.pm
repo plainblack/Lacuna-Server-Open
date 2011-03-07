@@ -102,7 +102,7 @@ sub send {
 sub recovery_time {
     my ($self, $base) = @_;
     my $seconds = $base - $self->xp;
-    return ($seconds > 5 * 60) ? $seconds : 5 * 60;
+    return ($seconds > 60 * 60) ? $seconds : 60 * 60;
 }
 
 sub offensive_assignments {
