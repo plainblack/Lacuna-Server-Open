@@ -2,6 +2,7 @@
  - API: Sending ships that trigger defenses requires the new captchas.
  - API: Sending spies requires the new captchas.
  - API: Running spy missions require the new captchas.
+ - API: Added send_fleet() to spaceport to allow sending multiple ships to a single target at once. This requires a valid captcha.
 
 2.4700
  - Rule: Spies now have a minimum recovery time of 1 hour.

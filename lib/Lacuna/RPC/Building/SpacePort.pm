@@ -146,6 +146,47 @@ sub send_ship {
     }
 }
 
+sub send_fleet {
+    my ($self, $session_id, $ship_ids, $target_params) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $target = $self->find_target($target_params);
+	my $max_ships = Lacuna->config->get('ships_per_fleet') || 10;
+	if (@$ship_ids > $max_ships) {
+		confess [1009, 'Too many ships for a fleet.'];
+	}
+	unless ($empire->current_session->check_captcha()) {
+		confess [1016, 'Needs to solve a captcha.'];
+	}
+	my @fleet;
+	my $speed = 999999999;
+	for my $ship_id (@$ship_ids) {
+		my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+		unless (defined $ship) {
+			confess [1002, 'Could not locate that ship.'];
+		}
+		unless ($ship->body->empire_id == $empire->id) {
+			confess [1010, 'You do not own that ship.'];
+		}
+		my $body = $ship->body;
+		$body->empire($empire);
+		$ship->can_send_to_target($target);
+		push @fleet, $ship;
+		$speed = $ship->speed if ( $speed > $ship->speed );
+	}
+	my @ret;
+	for my $ship (@fleet) {
+		$ship->speed($speed);
+		$ship->send(target => $target);
+		push @ret, {
+			ship    => $ship->get_status,
+		}
+	}
+	return {
+		fleet	=> \@ret,
+		status  => $self->format_status($empire),
+	};
+}
+
 sub recall_ship {
 	my ($self, $session_id, $building_id, $ship_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -512,7 +553,7 @@ around 'view' => sub {
     return $out;
 };
  
-__PACKAGE__->register_rpc_method_names(qw(view_foreign_ships get_ships_for send_ship recall_ship scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_travelling view_all_ships));
+__PACKAGE__->register_rpc_method_names(qw(view_foreign_ships get_ships_for send_ship send_fleet recall_ship scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_travelling view_all_ships));
 
 
 no Moose;
