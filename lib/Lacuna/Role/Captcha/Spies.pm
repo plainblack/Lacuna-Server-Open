@@ -20,7 +20,7 @@ before 'assign_spy' => sub {
 	unless ($empire->current_session->check_captcha()) {
 		confess [1016,'Needs to solve a captcha.'];
 	}
-}
+};
 
 
 1;
