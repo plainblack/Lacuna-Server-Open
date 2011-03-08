@@ -52,7 +52,7 @@ before 'can_demolish' => sub {
 
 before can_build => sub {
     my $self = shift;
-    if ($self->x == 5 || $self->y == 5 || (($self->y == 1 || $self->y == 0) && ($self->x == -1 && $self->x == 0))) {
+    if ($self->x == 5 || $self->y == 5 || (($self->y == 1 || $self->y == 0) && ($self->x == -1 || $self->x == 0))) {
         confess [1009, 'Space Station Lab cannot be placed in that location.'];
     }
 };
