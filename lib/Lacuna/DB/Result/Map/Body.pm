@@ -176,6 +176,7 @@ __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G3' => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G3',
     'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G4' => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G4',
     'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G5' => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G5',
+    'Lacuna::DB::Result::Map::Body::Planet::Station' => 'Lacuna::DB::Result::Map::Body::Planet::Station',
 });
 
 # RELATIONSHIPS
@@ -213,7 +214,7 @@ sub get_type {
     elsif ($self->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
         $type = 'asteroid';
     }
-    elsif ($self->isa('Lacuna::DB::Result::Map::Body::Station')) {
+    elsif ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         $type = 'space station';
     }
     return $type;
