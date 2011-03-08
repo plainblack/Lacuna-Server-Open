@@ -17,6 +17,7 @@ use constant base_stealth           => 0;
 use constant base_hold_size         => 0;
 use constant build_tags             => ['Exploration'];
 
+with "Lacuna::Role::Captcha::Ships";
 with "Lacuna::Role::Ship::Send::Body";
 with "Lacuna::Role::Ship::Arrive::TriggerDefense";
 with "Lacuna::Role::Ship::Arrive::Excavate";

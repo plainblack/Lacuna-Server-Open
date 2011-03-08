@@ -1,3 +1,8 @@
+2.4800
+ - API: Sending ships that trigger defenses requires the new captchas.
+ - API: Sending spies requires the new captchas.
+ - API: Running spy missions require the new captchas.
+
 2.4700
  - Rule: Spies now have a minimum recovery time of 1 hour.
  - Rule: Spies now retire after 150 offensive or defensive missions, which means they can perform 299 total missions if divided equally.

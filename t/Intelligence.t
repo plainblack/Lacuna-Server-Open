@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -11,8 +11,11 @@ my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
 
+Lacuna->cache->set('captcha', $session_id, { guid => 1111, solution => 1111 }, 60 * 30 );
 
 my $result;
+
+$result = $tester->post('captcha','solve', [$session_id, 1111, 1111]);
 
 $result = $tester->post('intelligence', 'build', [$session_id, $home->id, 0, 1]);
 ok($result->{result}{building}{id}, "built an intelligence ministry");
@@ -20,10 +23,10 @@ my $intelligence = $tester->get_building($result->{result}{building}{id});
 $intelligence->finish_upgrade;
 
 $result = $tester->post('intelligence', 'view', [$session_id, $intelligence->id]);
-is($result->{result}{spies}{maximum}, 5, "get spy data");
+is($result->{result}{spies}{maximum}, 1, "get spy data");
 
 $result = $tester->post('intelligence', 'train_spy', [$session_id, $intelligence->id, 3]);
-is($result->{result}{trained}, 3, "train a spy");
+is($result->{result}{trained}, 1, "train a spy");
 
 $result = $tester->post('intelligence', 'view_spies', [$session_id, $intelligence->id]);
 is($result->{result}{spies}[0]{is_available}, 0, "spy training");
@@ -69,7 +72,16 @@ Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
     empire_id       => $empire->id,    
 })->insert;
 
-$result = $tester->post('spaceport', 'send_spy_pod', [$session_id, $home->id, {body_name=>'Lacuna'}]);
+my $spy_pod = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>'spy_pod'});
+$shipyard->build_ship($spy_pod);
+
+my $finish = DateTime->now;
+Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id=>$shipyard->id})->update({date_available=>$finish});
+
+$result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
+is($result->{result}{docked_ships}{spy_pod}, 1, "we have 1 spy_pod built");
+
+$result = $tester->post('spaceport', 'send_ship', [$session_id, $spy_pod->id, {body_name=>'Lacuna'}]);
 is($result->{error}{code}, 1013, "leave isolationsts alone");
 
 

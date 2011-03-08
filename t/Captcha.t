@@ -23,7 +23,7 @@ Lacuna->cache->set( 'captcha', $session_id, { guid => 1111, solution => 1111 }, 
 $result = $tester->post( 'captcha','solve', [ $session_id, 1111, 1111 ] );
 is( $result->{result}, 1, 'Solved captcha' );
 
-is( $tester->empire->current_session->check_captcha(), 1, 'Captcha is still valid' );
+is( $tester->empire->current_session->check_captcha(), 1, 'Captcha is valid' );
 
 END {
     $tester->cleanup;

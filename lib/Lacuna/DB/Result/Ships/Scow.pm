@@ -18,6 +18,7 @@ use constant base_stealth           => 0;
 use constant base_hold_size         => 2100;
 use constant build_tags             => [qw(War Trade)];
 
+with "Lacuna::Role::Captcha::Ships";
 with "Lacuna::Role::Ship::Send::PlanetAndStar";
 with "Lacuna::Role::Ship::Arrive::TriggerDefense";
 with "Lacuna::Role::Ship::Arrive::DumpWaste";
