@@ -162,7 +162,7 @@ for my $tester ( @testers ) {
 	is($result->{result}{docked_ships}{detonator}, 2, "we have 2 detonators built");
 	is($result->{result}{docked_ships}{mining_platform_ship}, 2, "we have 2 mining platform ships built");
 	is($result->{result}{docked_ships}{stake}, 1, "we have 1 stake built");
-	is($result->{result}{docked_ships}{colony_ship}, 1, "we have 2 colony ship built");
+	is($result->{result}{docked_ships}{colony_ship}, 1, "we have 1 colony ship built");
 
 	# Find the closest asteroid
 	my @distance;
@@ -333,15 +333,8 @@ for my $i ( 0 .. 1 ) {
 	for my $ship ( @{ $result->{result}{ships} } ) {
 		$ships{$ship->{type}}++;
 	}
-#	if ( $i  )
-#	{
-#		is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Target Neutralized\r\n~~~\r\nOur d", 'Sweeper shot down' );
-#		is( $ships{sweeper}, 2, 'Two sweepers left' );
-#	}
-#	else {
-		is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Ship Shot Down\r\n~~~\r\nOur Sweep", 'Sweeper shot down' );
-		is( $ships{sweeper}, 1, 'One sweeper left' );
-#	}
+	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Ship Shot Down\r\n~~~\r\nOur Sweep", 'Sweeper shot down' );
+	is( $ships{sweeper}, 1, 'One sweeper left' );
 
 	# Send a fighter to enemy asteroid
 	my $fighter3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'fighter', task=>'Docked'},{rows=>1})->single;
@@ -451,6 +444,7 @@ for my $i ( 0 .. 1 ) {
 
 	$result = $tester->post('spaceport', 'view', [$tester{session_id}, $tester->{spaceport_id}]);
 	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Detonator Report\r\n~~~\r\nOur Det", 'Detonator took out mining platforms' );
+
 }
 
 END {
