@@ -410,6 +410,8 @@ Sends a fleet of ships to a specified body or star. Use with C<get_ships_for>.
     ]
  }
 
+Throws 1002, 1009, 1010, 1016.
+
 =head3 session_id
 
 A session id.
