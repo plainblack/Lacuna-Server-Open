@@ -4,9 +4,7 @@ use Moose::Role;
 
 before 'assign' => sub {
 	my ($self, $assignment) = @_;
-	die "spy id ", $self->id, " from body id ", $self->from_body->id, " empire id ", $self->empire_id;
-	my $empire = $self->from_body->empire;
-	
+	my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($self->empire_id);
 	unless ($empire->current_session->check_captcha()) {
 		confess [1016,'Needs to solve a captcha.'];
 	}
