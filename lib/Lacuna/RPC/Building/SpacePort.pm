@@ -154,6 +154,9 @@ sub send_fleet {
 	if (@$ship_ids > $max_ships) {
 		confess [1009, 'Too many ships for a fleet.'];
 	}
+	unless ($empire->current_session->check_captcha()) {
+		confess [1016, 'Needs to solve a captcha.'];
+	}
 	my @fleet;
 	my $speed = 999999999;
 	for my $ship_id (@$ship_ids) {
