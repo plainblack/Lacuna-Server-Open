@@ -6,6 +6,7 @@ use Log::Log4perl;
 use Log::Any::Adapter;
 use Lacuna;
 use Plack::Builder;
+use JSON qw(encode_json);
 
 
 $|=1;
@@ -16,216 +17,221 @@ use Log::Log4perl;
 Log::Log4perl::init('/data/Lacuna-Server/etc/log4perl.conf');
 Log::Any::Adapter->set('Log::Log4perl');
 
-my $urlmap = Plack::App::URLMap->new;
+my $offline = [ 500,
+    [ 'Content-Type' => 'application/json-rpc' ],
+    [ encode_json( {
+        "jsonrpc" => "2.0",
+        "error" => {
+            "code" => -32000,
+            "message" => "The server is offline for maintenance.",
+        }
+    } ) ],
+];
 
-$urlmap->map('/starman_ping' => sub { [200, [ 'Content-Type' => 'text/plain'], [ 'pong' ]] } ); 
+my $gameover = [ 500,
+    [ 'Content-Type' => 'application/json-rpc' ],
+    [ encode_json( {
+        "jsonrpc" => "2.0",
+        "error" => {
+            "code" => 1200,
+            "message" => "Game Over",
+            "data" => "http://community.lacunaexanse.com/wiki/hall-of-fame",
+        }
+    } ) ],
+];
 
-$urlmap->map("/map" => Lacuna::RPC::Map->new->to_app);
-$urlmap->map("/body" => Lacuna::RPC::Body->new->to_app);
-$urlmap->map("/empire" => Lacuna::RPC::Empire->new->to_app);
-$urlmap->map("/alliance" => Lacuna::RPC::Alliance->new->to_app);
-$urlmap->map("/inbox" => Lacuna::RPC::Inbox->new->to_app);
-$urlmap->map("/stats" => Lacuna::RPC::Stats->new->to_app);
-$urlmap->map("/pay" => Lacuna::Web::Pay->new->to_app);
-$urlmap->map("/chat" => Lacuna::Web::Chat->new->to_app);
-$urlmap->map("/chat/rpc" => Lacuna::RPC::Chat->new->to_app);
-$urlmap->map("/entertainment/vote" => Lacuna::Web::EntertainmentVote->new->to_app);
-$urlmap->map("/announcement" => Lacuna::Web::Announcement->new->to_app);
-$urlmap->map("/facebook" => Lacuna::Web::Facebook->new->to_app);
-$urlmap->map("/apikey" => Lacuna::Web::ApiKey->new->to_app);
-$urlmap->map("/essentia-code" => Lacuna::RPC::EssentiaCode->new->to_app);
-$urlmap->map("/captcha" => Lacuna::RPC::Captcha->new->to_app);
-
-# buildings
-$urlmap->map(Lacuna::RPC::Building::DistributionCenter->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::SAW->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::AtmosphericEvaporator->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::GreatBallOfJunk->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::JunkHengeSculpture->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::MetalJunkArches->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::PyramidJunkSculpture->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::SpaceJunkPark->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::ThemePark->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::BlackHoleGenerator->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::TheDillonForge->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::HallsOfVrbansk->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::GratchsGauntlet->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::KasternsKeep->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::SubspaceSupplyDepot->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::SupplyPod->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::PantheonOfHagness->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Capitol->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Stockpile->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Algae->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Apple->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Bean->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Beeldeban->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Bread->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Burger->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Cheese->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Chip->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Cider->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Corn->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::CornMeal->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::EssentiaVein->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Volcano->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::MassadsHenge->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::LibraryOfJith->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::NaturalSpring->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::OracleOfAnid->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::TempleOfTheDrajilites->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::GeoThermalVent->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::InterDimensionalRift->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::CitadelOfKnope->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::CrashedShipSite->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::KalavianRuins->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Grove->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Sand->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Lagoon->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Crater->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Dairy->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Denton->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Development->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Embassy->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::EnergyReserve->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Entertainment->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Espionage->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Fission->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::FoodReserve->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Fusion->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::DeployedBleeder->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::GasGiantLab->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::GasGiantPlatform->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Geo->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Hydrocarbon->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Intelligence->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Lapis->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Malcud->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Mine->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::MiningMinistry->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Network19->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Observatory->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::OreRefinery->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::OreStorage->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Pancake->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Park->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Pie->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::PlanetaryCommand->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Potato->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Propulsion->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Oversight->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::RockyOutcrop->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Lake->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Security->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Shake->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Shipyard->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Singularity->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Soup->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::SpacePort->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Syrup->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::TerraformingLab->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::GeneticsLab->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Archaeology->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::TerraformingPlatform->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Trade->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Transporter->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::University->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::WasteEnergy->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::WasteRecycling->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::WasteSequestration->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::WasteDigester->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::WasteTreatment->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::WaterProduction->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::WaterPurification->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::WaterReclamation->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::WaterStorage->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Wheat->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Beach1->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Beach2->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Beach3->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Beach4->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Beach5->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Beach6->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Beach7->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Beach8->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Beach9->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Beach10->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Beach11->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Beach12->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Beach13->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::PilotTraining->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::MissionCommand->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::CloakingLab->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::MunitionsLab->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::LuxuryHousing->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::Ravine->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::AlgaePond->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::LapisForest->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::BeeldebanNest->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::MalcudField->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::SSLa->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::SSLb->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::SSLc->new->to_app_with_url);
-$urlmap->map(Lacuna::RPC::Building::SSLd->new->to_app_with_url);
-
-
-# admin
-my $admin = builder {
-    enable "Auth::Basic", authenticator => sub {
-        my ($username, $password) = @_;
-        return 0 unless $username;
-        my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $username, is_admin => 1},{rows=>1})->single;
-        return 0 unless defined $empire;
-        return $empire->is_password_valid($password);
-    };
-    Lacuna::Web::Admin->new->to_app;
-};
-$urlmap->map("/admin" => $admin);
-
-# mission curator
-my $curator = builder {
-    enable "Auth::Basic", authenticator => sub {
-        my ($username, $password) = @_;
-        return 0 unless $username;
-        my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $username, is_mission_curator => 1},{rows=>1})->single;
-        return 0 unless defined $empire;
-        return $empire->is_password_valid($password);
-    };
-    Lacuna::Web::MissionCurator->new->to_app;
-};
-$urlmap->map("/missioncurator" => $curator);
-
-my $online = builder {
+builder {
     enable 'CrossOrigin',
         origins => '*', methods => ['GET', 'POST'], max_age => 60*60*24*30, headers => '*';
-    $urlmap->to_app;
+
+    enable sub {
+        my $app = shift;
+        return sub {
+            my ($env) = @_;
+            my $status = Lacuna->cache->get('server','status');
+            if ($status eq 'Offline') {
+                return $offline;
+            }
+            elsif ($status eq 'Game Over') {
+                return $gameover;
+            }
+            $app->($env);
+        }
+    };
+
+    mount '/starman_ping' => sub { [200, [ 'Content-Type' => 'text/plain'], [ 'pong' ]] };
+
+    mount "/map"            => Lacuna::RPC::Map->new->to_app;
+    mount "/body"           => Lacuna::RPC::Body->new->to_app;
+    mount "/empire"         => Lacuna::RPC::Empire->new->to_app;
+    mount "/alliance"       => Lacuna::RPC::Alliance->new->to_app;
+    mount "/inbox"          => Lacuna::RPC::Inbox->new->to_app;
+    mount "/stats"          => Lacuna::RPC::Stats->new->to_app;
+    mount "/pay"            => Lacuna::Web::Pay->new->to_app;
+    mount "/chat"           => Lacuna::Web::Chat->new->to_app;
+    mount "/chat/rpc"       => Lacuna::RPC::Chat->new->to_app;
+    mount "/entertainment/vote" => Lacuna::Web::EntertainmentVote->new->to_app;
+    mount "/announcement"   => Lacuna::Web::Announcement->new->to_app;
+    mount "/facebook"       => Lacuna::Web::Facebook->new->to_app;
+    mount "/apikey"         => Lacuna::Web::ApiKey->new->to_app;
+    mount "/essentia-code"  => Lacuna::RPC::EssentiaCode->new->to_app;
+    mount "/captcha"        => Lacuna::RPC::Captcha->new->to_app;
+
+    for my $building (qw(
+        Lacuna::RPC::Building::DistributionCenter
+        Lacuna::RPC::Building::SAW
+        Lacuna::RPC::Building::AtmosphericEvaporator
+        Lacuna::RPC::Building::GreatBallOfJunk
+        Lacuna::RPC::Building::JunkHengeSculpture
+        Lacuna::RPC::Building::MetalJunkArches
+        Lacuna::RPC::Building::PyramidJunkSculpture
+        Lacuna::RPC::Building::SpaceJunkPark
+        Lacuna::RPC::Building::ThemePark
+        Lacuna::RPC::Building::BlackHoleGenerator
+        Lacuna::RPC::Building::TheDillonForge
+        Lacuna::RPC::Building::HallsOfVrbansk
+        Lacuna::RPC::Building::GratchsGauntlet
+        Lacuna::RPC::Building::KasternsKeep
+        Lacuna::RPC::Building::SubspaceSupplyDepot
+        Lacuna::RPC::Building::SupplyPod
+        Lacuna::RPC::Building::PantheonOfHagness
+        Lacuna::RPC::Building::Capitol
+        Lacuna::RPC::Building::Stockpile
+        Lacuna::RPC::Building::Algae
+        Lacuna::RPC::Building::Apple
+        Lacuna::RPC::Building::Bean
+        Lacuna::RPC::Building::Beeldeban
+        Lacuna::RPC::Building::Bread
+        Lacuna::RPC::Building::Burger
+        Lacuna::RPC::Building::Cheese
+        Lacuna::RPC::Building::Chip
+        Lacuna::RPC::Building::Cider
+        Lacuna::RPC::Building::Corn
+        Lacuna::RPC::Building::CornMeal
+        Lacuna::RPC::Building::EssentiaVein
+        Lacuna::RPC::Building::Volcano
+        Lacuna::RPC::Building::MassadsHenge
+        Lacuna::RPC::Building::LibraryOfJith
+        Lacuna::RPC::Building::NaturalSpring
+        Lacuna::RPC::Building::OracleOfAnid
+        Lacuna::RPC::Building::TempleOfTheDrajilites
+        Lacuna::RPC::Building::GeoThermalVent
+        Lacuna::RPC::Building::InterDimensionalRift
+        Lacuna::RPC::Building::CitadelOfKnope
+        Lacuna::RPC::Building::CrashedShipSite
+        Lacuna::RPC::Building::KalavianRuins
+        Lacuna::RPC::Building::Grove
+        Lacuna::RPC::Building::Sand
+        Lacuna::RPC::Building::Lagoon
+        Lacuna::RPC::Building::Crater
+        Lacuna::RPC::Building::Dairy
+        Lacuna::RPC::Building::Denton
+        Lacuna::RPC::Building::Development
+        Lacuna::RPC::Building::Embassy
+        Lacuna::RPC::Building::EnergyReserve
+        Lacuna::RPC::Building::Entertainment
+        Lacuna::RPC::Building::Espionage
+        Lacuna::RPC::Building::Fission
+        Lacuna::RPC::Building::FoodReserve
+        Lacuna::RPC::Building::Fusion
+        Lacuna::RPC::Building::DeployedBleeder
+        Lacuna::RPC::Building::GasGiantLab
+        Lacuna::RPC::Building::GasGiantPlatform
+        Lacuna::RPC::Building::Geo
+        Lacuna::RPC::Building::Hydrocarbon
+        Lacuna::RPC::Building::Intelligence
+        Lacuna::RPC::Building::Lapis
+        Lacuna::RPC::Building::Malcud
+        Lacuna::RPC::Building::Mine
+        Lacuna::RPC::Building::MiningMinistry
+        Lacuna::RPC::Building::Network19
+        Lacuna::RPC::Building::Observatory
+        Lacuna::RPC::Building::OreRefinery
+        Lacuna::RPC::Building::OreStorage
+        Lacuna::RPC::Building::Pancake
+        Lacuna::RPC::Building::Park
+        Lacuna::RPC::Building::Pie
+        Lacuna::RPC::Building::PlanetaryCommand
+        Lacuna::RPC::Building::Potato
+        Lacuna::RPC::Building::Propulsion
+        Lacuna::RPC::Building::Oversight
+        Lacuna::RPC::Building::RockyOutcrop
+        Lacuna::RPC::Building::Lake
+        Lacuna::RPC::Building::Security
+        Lacuna::RPC::Building::Shake
+        Lacuna::RPC::Building::Shipyard
+        Lacuna::RPC::Building::Singularity
+        Lacuna::RPC::Building::Soup
+        Lacuna::RPC::Building::SpacePort
+        Lacuna::RPC::Building::Syrup
+        Lacuna::RPC::Building::TerraformingLab
+        Lacuna::RPC::Building::GeneticsLab
+        Lacuna::RPC::Building::Archaeology
+        Lacuna::RPC::Building::TerraformingPlatform
+        Lacuna::RPC::Building::Trade
+        Lacuna::RPC::Building::Transporter
+        Lacuna::RPC::Building::University
+        Lacuna::RPC::Building::WasteEnergy
+        Lacuna::RPC::Building::WasteRecycling
+        Lacuna::RPC::Building::WasteSequestration
+        Lacuna::RPC::Building::WasteDigester
+        Lacuna::RPC::Building::WasteTreatment
+        Lacuna::RPC::Building::WaterProduction
+        Lacuna::RPC::Building::WaterPurification
+        Lacuna::RPC::Building::WaterReclamation
+        Lacuna::RPC::Building::WaterStorage
+        Lacuna::RPC::Building::Wheat
+        Lacuna::RPC::Building::Beach1
+        Lacuna::RPC::Building::Beach2
+        Lacuna::RPC::Building::Beach3
+        Lacuna::RPC::Building::Beach4
+        Lacuna::RPC::Building::Beach5
+        Lacuna::RPC::Building::Beach6
+        Lacuna::RPC::Building::Beach7
+        Lacuna::RPC::Building::Beach8
+        Lacuna::RPC::Building::Beach9
+        Lacuna::RPC::Building::Beach10
+        Lacuna::RPC::Building::Beach11
+        Lacuna::RPC::Building::Beach12
+        Lacuna::RPC::Building::Beach13
+        Lacuna::RPC::Building::PilotTraining
+        Lacuna::RPC::Building::MissionCommand
+        Lacuna::RPC::Building::CloakingLab
+        Lacuna::RPC::Building::MunitionsLab
+        Lacuna::RPC::Building::LuxuryHousing
+        Lacuna::RPC::Building::Ravine
+        Lacuna::RPC::Building::AlgaePond
+        Lacuna::RPC::Building::LapisForest
+        Lacuna::RPC::Building::BeeldebanNest
+        Lacuna::RPC::Building::MalcudField
+        Lacuna::RPC::Building::SSLa
+        Lacuna::RPC::Building::SSLb
+        Lacuna::RPC::Building::SSLc
+        Lacuna::RPC::Building::SSLd
+    )) {
+        mount $building->new->to_app_with_url;
+    }
+
+    mount '/admin' => builder {
+        enable "Auth::Basic", authenticator => sub {
+            my ($username, $password) = @_;
+            return 0 unless $username;
+            my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $username, is_admin => 1},{rows=>1})->single;
+            return 0 unless defined $empire;
+            return $empire->is_password_valid($password);
+        };
+        Lacuna::Web::Admin->new->to_app;
+    };
+
+    mount "/missioncurator" => builder {
+        enable "Auth::Basic", authenticator => sub {
+            my ($username, $password) = @_;
+            return 0 unless $username;
+            my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $username, is_mission_curator => 1},{rows=>1})->single;
+            return 0 unless defined $empire;
+            return $empire->is_password_valid($password);
+        };
+        Lacuna::Web::MissionCurator->new->to_app;
+    };
 };
-
-my $offline = [ 500,
-            ['Content-Type' => 'application/json-rpc' ],
-            [ '{"jsonrpc" : "2.0", "error" : { "code" : "-32000", "message" : "The server is offline for maintenance." }}' ],
-        ];
-
-my $gameover = [ 1200,
-            ['Content-Type' => 'application/json-rpc' ],
-            [ '{"jsonrpc" : "2.0", "error" : { "code" : "1200", "message" : "Game Over", "data" : "http://community.lacunaexanse.com/wiki/hall-of-fame" }}' ],
-        ];
-
-print "Server Up\n";
-my $app = sub {
-    my @args = @_;
-    my $status = Lacuna->cache->get('server','status');
-    if ($status eq 'Offline') {
-	return $offline;
-    }
-    elsif ($status eq 'Game Over') {
-	return $gameover;
-    }
-    else {
-        return $online->(@args);
-    }
-};
-
-$app;
-
 
