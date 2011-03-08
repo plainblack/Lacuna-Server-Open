@@ -87,8 +87,8 @@ sub get_status {
         started_assignment  => $self->format_started_assignment,
         seconds_remaining   => $self->seconds_remaining_on_assignment,
 		mission_count		=> {
-			offensive	=> offensive_mission_count,
-			defensive	=> defensive_mission_count,
+			offensive	=> $self->offensive_mission_count,
+			defensive	=> $self->defensive_mission_count,
 		},
     };
 }
