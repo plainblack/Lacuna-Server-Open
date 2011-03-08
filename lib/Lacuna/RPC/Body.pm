@@ -24,6 +24,9 @@ sub abandon {
     }
     my $body = $self->get_body($empire, $body_id);
     $body->sanitize;
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) {
+        $body->delete;
+    }
     return $self->format_status($empire);
 }
 
@@ -86,11 +89,15 @@ sub get_buildings {
     return {buildings=>\%out, body=>{surface_image => $body->surface}, status=>$self->format_status($empire, $body)};
 }
 
-
 sub get_buildable {
     my ($self, $session_id, $body_id, $x, $y, $tag) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
+    
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) {
+        confess [1010, 'This is not how you expand a space station.'];
+    }
+    
     my $building_rs = Lacuna->db->resultset('Lacuna::DB::Result::Building');
 
     $body->check_for_available_build_space($x, $y);
@@ -168,7 +175,7 @@ sub get_buildable {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(abandon rename get_build_queue get_buildings get_buildable get_status));
+__PACKAGE__->register_rpc_method_names(qw(abandon rename get_buildings get_buildable get_status));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
