@@ -1,3 +1,6 @@
+2.4800
+ - Rule: Added Space Station Lab building, which will eventually allow building space station modules.
+
 2.4700
  - Rule: Spies now have a minimum recovery time of 1 hour.
  - Rule: Spies now retire after 150 offensive or defensive missions, which means they can perform 299 total missions if divided equally.

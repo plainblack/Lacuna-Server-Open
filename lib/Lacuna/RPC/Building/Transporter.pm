@@ -127,14 +127,14 @@ sub accept_from_market {
     }
     $empire->spend_essentia($trade->ask + 1, 'Trade Price and Transporter Cost')->update;
     $trade->body->empire->add_essentia($trade->ask, 'Trade Income')->update;
-    my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
-    $cargo_log->new({
-        message     => 'transporter offer accepted',
-        body_id     => $trade->body_id,
-        data        => $trade->payload,
-        object_type => ref($trade),
-        object_id   => $trade->id,
-    })->insert;
+    #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
+    #$cargo_log->new({
+    #    message     => 'transporter offer accepted',
+    #    body_id     => $trade->body_id,
+    #    data        => $trade->payload,
+    #    object_type => ref($trade),
+    #    object_id   => $trade->id,
+    #})->insert;
     $trade->body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'trade_accepted.txt',

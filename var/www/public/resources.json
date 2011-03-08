@@ -1,5 +1,9 @@
 {
     "buildings" : {
+        "/ssla" : { "description" : "Allows the construction of Space Station Lab modules.", "wiki" : "http://community.lacunaexpanse.com/wiki/space-station-lab" },
+        "/sslb" : { "description" : "Infrastructure required to support Space Station Lab (A).", "wiki" : "http://community.lacunaexpanse.com/wiki/space-station-lab" },
+        "/sslc" : { "description" : "Infrastructure required to support Space Station Lab (A).", "wiki" : "http://community.lacunaexpanse.com/wiki/space-station-lab" },
+        "/ssld" : { "description" : "Infrastructure required to support Space Station Lab (A).", "wiki" : "http://community.lacunaexpanse.com/wiki/space-station-lab" },
         "/distributioncenter" : { "description" : "A tier two resource storage building.  Allows keeping specific resources in reserve.", "wiki" : "http://community.lacunaexpanse.com/wiki/distribution-center" },
         "/saw" : { "description" : "A railgun system used to protect your planet from enemy ships.", "wiki" : "http://community.lacunaexpanse.com/wiki/shield-against-weapons" },
         "/atmosphericevaporator" : { "description" : "Produces water by condensing it from the air and soil.", "wiki" : "http://community.lacunaexpanse.com/wiki/atmospheric-evaporator" },

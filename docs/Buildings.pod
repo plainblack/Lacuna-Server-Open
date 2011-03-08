@@ -450,6 +450,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<SpacePort>
 
+=item L<SpaceStationLab>
+
 =item L<Stockpile>
 
 =item L<SubspaceSupplyDepot>
