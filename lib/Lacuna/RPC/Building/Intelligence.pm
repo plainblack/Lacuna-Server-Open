@@ -6,8 +6,6 @@ no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Lacuna::Util qw(randint);
 
-with 'Lacuna::Role::Captcha::Spies';
-
 sub app_url {
     return '/intelligence';
 }
@@ -79,6 +77,7 @@ sub assign_spy {
     my ($self, $session_id, $building_id, $spy_id, $assignment) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    $empire->current_session->check_captcha;
     my $spy = $building->get_spy($spy_id);
     unless (defined $spy) {
         confess [1002, "Spy not found."];

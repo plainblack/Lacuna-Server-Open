@@ -20,7 +20,6 @@ use constant build_tags             => ['War'];
 use constant type_formatted         => 'Snark III';
 use constant splash_radius          => 2;
 
-with "Lacuna::Role::Captcha::Ships";
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Inhabited";
 with "Lacuna::Role::Ship::Send::NotIsolationist";

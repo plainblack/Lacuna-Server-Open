@@ -9,10 +9,10 @@ $tester->cleanup;
 my $session_id = $tester->session->id;
 my $home_planet = $tester->empire->home_planet_id;
 
+Lacuna->cache->delete( 'captcha', $session_id );
+
 my $result;
-unless ($tester->session->check_captcha()) {
-	ok( 'Needs to solve a captcha' );
-}
+ok( ! eval { $tester->session->check_captcha }, "captcha required initially" );
 
 $result = $tester->post('captcha','fetch', [ $session_id ]);
 ok( exists $result->{result}{guid}, 'Fetch captcha returned guid' );
@@ -23,7 +23,7 @@ Lacuna->cache->set( 'captcha', $session_id, { guid => 1111, solution => 1111 }, 
 $result = $tester->post( 'captcha','solve', [ $session_id, 1111, 1111 ] );
 is( $result->{result}, 1, 'Solved captcha' );
 
-is( $tester->empire->current_session->check_captcha(), 1, 'Captcha is valid' );
+ok ( eval {$tester->session->check_captcha } , 'Captcha is valid' );
 
 END {
     $tester->cleanup;

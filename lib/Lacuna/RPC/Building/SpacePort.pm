@@ -129,6 +129,7 @@ sub send_ship {
     my ($self, $session_id, $ship_id, $target_params) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $target = $self->find_target($target_params);
+    $empire->current_session->check_captcha;
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     unless (defined $ship) {
         confess [1002, 'Could not locate that ship.'];
@@ -150,12 +151,10 @@ sub send_fleet {
     my ($self, $session_id, $ship_ids, $target_params) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $target = $self->find_target($target_params);
+    $empire->current_session->check_captcha;
 	my $max_ships = Lacuna->config->get('ships_per_fleet') || 10;
 	if (@$ship_ids > $max_ships) {
 		confess [1009, 'Too many ships for a fleet.'];
-	}
-	unless ($empire->current_session->check_captcha()) {
-		confess [1016, 'Needs to solve a captcha.'];
 	}
 	my @fleet;
 	my $speed = 999999999;

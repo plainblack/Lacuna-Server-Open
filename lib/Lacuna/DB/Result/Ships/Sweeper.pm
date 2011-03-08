@@ -18,7 +18,6 @@ use constant base_stealth           => 2800;
 use constant pilotable              => 1;
 use constant build_tags             => ['War'];
 
-with "Lacuna::Role::Captcha::Ships";
 with "Lacuna::Role::Ship::Send::Body";
 with "Lacuna::Role::Ship::Send::NotIsolationist";
 with "Lacuna::Role::Ship::Arrive::TriggerDefense";
