@@ -78,9 +78,6 @@ sub can_build_ship {
     $ship->shipyard_id($self->id);
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     $costs ||= $self->get_ship_costs($ship);
-    if ($ship->type ~~ [qw(space_station)]) {
-        confess [1010, 'Not yet implemented.'];
-    }
     if ($self->level < 1) {
         confess [1013, "You can't build a ship if the shipyard isn't complete."];
     }
