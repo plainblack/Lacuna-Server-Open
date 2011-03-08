@@ -380,6 +380,58 @@ A set of x,y coordinates to locate the star or body.
 
 
 
+=head2 send_fleet ( session_id, ship_ids, target )
+
+Sends a fleet of ships to a specified body or star. Use with C<get_ships_for>.
+
+ {
+    "status" : { ... },
+	"fleet" : [
+		"ship" : {
+			"id" : "id-goes-here",
+			"name" : "P13",
+			"type_human" : "Probe",
+			"type" : "probe",
+			"task" : "Travelling",
+			"speed" : "1200",
+			"stealth" : "0",
+			"hold_size" : "0",
+			"date_started" : "01 31 2010 13:09:05 +0600",
+			"date_available" : "02 01 2010 10:08:33 +0600",
+			"date_arrives" : "02 01 2010 10:08:33 +0600",
+			"from" : {
+			   "id" : "id-goes-here",
+			   "type" : "body",
+			   "name" : "Earth"
+			},
+			"to" : {
+			   "id" : "id-goes-here",
+			   "type" : "star",
+			   "name" : "Sol"
+			}
+		},
+		...
+    ]
+ }
+
+Throws 1002, 1009, 1010, 1016.
+
+=head3 session_id
+
+A session id.
+
+=head3 ship_id
+
+An array reference of ship ids to send.
+
+=head3 target
+
+A hash reference that can contain one of five items to identify a star or body. Same as C<send_ship>.
+
+
+
+
+
 =head2 recall_ship ( session_id, building_id, ship_id )
 
 Recalls a ship from allied defense ('Defend' task) to the body of origin.

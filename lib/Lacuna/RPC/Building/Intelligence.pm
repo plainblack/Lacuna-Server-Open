@@ -6,6 +6,8 @@ no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Lacuna::Util qw(randint);
 
+with 'Lacuna::Role::Captcha::Spies';
+
 sub app_url {
     return '/intelligence';
 }

@@ -3,6 +3,8 @@ package Lacuna::Role::Ship::Send::LoadWithSpies;
 use strict;
 use Moose::Role;
 
+with 'Lacuna::Role::Captcha::Ships';
+
 after send => sub {
     my $self = shift;
     return if $self->payload->{spies}[0];

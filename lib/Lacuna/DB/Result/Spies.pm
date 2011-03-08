@@ -9,6 +9,7 @@ use DateTime;
 use feature "switch";
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES SHIP_TYPES);
 
+
 __PACKAGE__->table('spies');
 __PACKAGE__->add_columns(
     empire_id               => { data_type => 'int', is_nullable => 0 },
@@ -84,6 +85,10 @@ sub get_status {
         available_on        => $self->format_available_on,
         started_assignment  => $self->format_started_assignment,
         seconds_remaining   => $self->seconds_remaining_on_assignment,
+		mission_count		=> {
+			offensive	=> $self->offense_mission_count,
+			defensive	=> $self->defense_mission_count,
+		},
     };
 }
 
