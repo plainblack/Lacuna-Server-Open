@@ -1,3 +1,6 @@
+2.3800
+ - API: Added send_fleet() to spaceport to allow sending multiple ships to a single target at once. This requires a valid captcha.
+
 2.4700
  - API: The status for defending fighters will now include from and orbiting blocks (as returned by view_all_ships(), get_ships_for(), etc). The get_ships_for() now includes a recallable block when that lists the fighters that defending that body.
  - API: Added Lacuna::RCP::Captcha with methods fetch() and solve().
