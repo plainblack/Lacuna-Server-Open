@@ -1,4 +1,4 @@
-2.3400
+2.4800
  - API: Added send_fleet() to spaceport to allow sending multiple ships to a single target at once. This requires a valid captcha.
 
 2.4700
