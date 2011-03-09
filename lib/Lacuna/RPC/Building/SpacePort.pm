@@ -8,8 +8,6 @@ use Lacuna::Constants qw(SHIP_TYPES);
 use Lacuna::Util qw(format_date);
 use feature "switch";
 
-with 'Lacuna::Role::Captcha::SendSpies';
-
 sub app_url {
     return '/spaceport';
 }
@@ -226,6 +224,8 @@ sub prepare_send_spies {
         confess [ 1013, sprintf('%s is an isolationist empire, and must be left alone.',$to_body->empire->name)];
     }
 
+    $empire->current_session->check_captcha;
+
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]}, task=>'Docked', body_id => $on_body_id},
         {order_by => 'name', rows=>100}
@@ -267,6 +267,8 @@ sub send_spies {
     if ($to_body->empire->is_isolationist) {
         confess [ 1013, sprintf('%s is an isolationist empire, and must be left alone.',$to_body->empire->name)];
     }
+
+    $empire->current_session->check_captcha;
 
     # get the ship
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
