@@ -1,0 +1,10 @@
+=head1 Space Station Lab Methods
+
+Space Station Lab is accessible via the URLs C</ssla>, C</sslb>, C</sslc>, and C</ssld>. The C</ssla> URL controls all the actual functions of the lab, but you must build all four lab components to use the functions of SSL A. 
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+
+
+
+=cut

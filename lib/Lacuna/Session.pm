@@ -64,14 +64,12 @@ has empire => (
 );
 
 sub check_captcha {
-	my $self = shift;
-	my $valid = Lacuna->cache->get('captcha_valid', $self->id);
-	if ( defined $valid && $valid  ) {
-		return 1;
-	}
-	else {
-		return undef;
-	}
+    my $self = shift;
+    my $valid = Lacuna->cache->get('captcha_valid', $self->id);
+    if ( defined $valid && $valid  ) {
+        return 1;
+    }
+    confess [1016,'Needs to solve a captcha.'];
 }
 
 sub extend {

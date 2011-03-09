@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
+use Guard;
 
 with 'Lacuna::Role::TraderRpc';
 
@@ -86,19 +87,18 @@ sub accept_from_market {
         confess [1013, 'Another buyer has placed an offer on this trade. Please wait a few moments and try again.'];
     }
     $cache->set('trade_lock',$trade_id,1,5);
+    my $guard = scope_guard {
+        $cache->delete('trade_lock',$trade_id);
+    };
+
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
 
-	# Replacing the old captchas for all but empire creation
-	unless ($empire->current_session->check_captcha()) {
-        $cache->delete('trade_lock',$trade_id);
-		confess [1016, 'Needs to solve a captcha.'];
-	}
+    $empire->current_session->check_captcha;
 
     my $trade = $building->market->find($trade_id);
     unless (defined $trade) {
-        $cache->delete('trade_lock',$trade_id);
         confess [1002, 'Could not find that trade. Perhaps it has already been accepted.',$trade_id];
     }
     my $offer_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($trade->ship_id);
@@ -109,9 +109,11 @@ sub accept_from_market {
 
     my $body = $building->body;
     unless ($empire->essentia >= $trade->ask) {
-        $cache->delete('trade_lock',$trade_id);
         confess [1011, 'You need at least '.$trade->ask.' essentia to make this trade.']
     }
+
+    $guard->cancel;
+
     $empire->spend_essentia($trade->ask, 'Trade Price')->update;
     $trade->body->empire->add_essentia($trade->ask, 'Trade Income')->update;
     #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');

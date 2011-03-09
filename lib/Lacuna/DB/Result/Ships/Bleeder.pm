@@ -18,7 +18,6 @@ use constant base_combat            => 1700;
 use constant base_hold_size         => 0;
 use constant build_tags             => ['War'];
 
-with "Lacuna::Role::Captcha::Ships";
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Inhabited";
 with "Lacuna::Role::Ship::Send::NotIsolationist";

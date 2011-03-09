@@ -1036,6 +1036,10 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::SupplyPod' => 'Lacuna::DB::Result::Building::SupplyPod',
         'Lacuna::DB::Result::Building::SAW' => 'Lacuna::DB::Result::Building::SAW',
         'Lacuna::DB::Result::Building::DistributionCenter' => 'Lacuna::DB::Result::Building::DistributionCenter',
+        'Lacuna::DB::Result::Building::SSLa' => 'Lacuna::DB::Result::Building::SSLa',
+        'Lacuna::DB::Result::Building::SSLb' => 'Lacuna::DB::Result::Building::SSLb',
+        'Lacuna::DB::Result::Building::SSLc' => 'Lacuna::DB::Result::Building::SSLc',
+        'Lacuna::DB::Result::Building::SSLd' => 'Lacuna::DB::Result::Building::SSLd',
     });
 }
 
