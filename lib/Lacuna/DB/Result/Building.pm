@@ -582,7 +582,7 @@ sub can_build {
 
 sub can_build_on {
     my $self = shift;
-    if (!$self->isa('Lacuna::DB::Result::Map::Body::Planet') || $self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+    if (!$self->body->isa('Lacuna::DB::Result::Map::Body::Planet') || $self->body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         confess [1009, 'Can only be built on habitable planets and gas giants.'];
     }
     return 1;
