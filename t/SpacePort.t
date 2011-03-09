@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -120,6 +120,11 @@ ok($result->{result}{fleet}[0]{ship}{date_arrives}, "fleet sent");
 
 $result = $tester->post('spaceport', 'send_ship', [$session_id, $sweeper->id, { body_id => $enemy->empire->home_planet->id } ] );
 ok($result->{result}{ship}{date_arrives}, "sweeper sent");
+
+$result = $tester->post('spaceport', 'view_all_ships', 
+    [$session_id, $spaceport->id, undef, undef, { task => "Docked", tags => [qw(Trade Mining)]}, 'combat']
+);
+is(ref $result->{result}{ships}, 'ARRAY', "can see all my ships");
 
 END {
 	$enemy->cleanup;
