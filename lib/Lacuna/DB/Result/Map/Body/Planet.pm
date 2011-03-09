@@ -715,6 +715,9 @@ sub convert_to_station{
     $self->build_building($warehouse);
     $command->finish_upgrade;
     
+    # convert to station
+    $self->class('Lacuna::DB::Result::Map::Body::Planet::Station');
+    
     # add starting resources
     $self->tick;
     $self->add_algae(2500);
