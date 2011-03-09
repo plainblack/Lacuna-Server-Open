@@ -1,4 +1,4 @@
-package Lacuna::Role::Ship::Arrive::Colonize;
+package Lacuna::Role::Ship::Arrive::ConvertToStation;
 
 use strict;
 use Moose::Role;
@@ -9,23 +9,23 @@ after handle_arrival_procedures => sub {
     # we're coming home
     return if ($self->direction eq 'in');
     
-    # can't colonize because it's already taken
+    # can't convert because it's already taken
     my $empire = $self->body->empire;
     my $planet = $self->foreign_body;
     if ($planet->is_locked || $planet->empire_id) {
         $empire->send_predefined_message(
             tags        => ['Alert'],
-            filename    => 'cannot_colonize.txt',
+            filename    => 'cannot_convert_to_station.txt',
             params      => [$planet->x, $planet->y, $planet->name, $planet->name],
         );
     }
     
-    # can't colonize because it's claimed
+    # can't convert because it's claimed
     elsif ($planet->is_claimed && $planet->is_claimed != $empire->id) {
         my $claimer = $planet->claimed_by;
         $empire->send_predefined_message(
             tags        => ['Alert'],
-            filename    => 'cannot_colonize_staked.txt',
+            filename    => 'cannot_convert_to_station_staked.txt',
             params      => [$planet->x, $planet->y, $planet->name, $claimer->id, $claimer->name, $planet->name],
         );        
     }
@@ -33,10 +33,10 @@ after handle_arrival_procedures => sub {
     # let's claim this for our very own!
     else {
         $planet->lock;
-        $planet->found_colony($empire);
+        $planet->convert_to_station($empire);
         $empire->send_predefined_message(
             tags        => ['Alert'],
-            filename    => 'colony_founded.txt',
+            filename    => 'station_founded.txt',
             params      => [$planet->id, $planet->name, $planet->name],
         );
         $empire->is_isolationist(0);
@@ -46,12 +46,5 @@ after handle_arrival_procedures => sub {
     }
 };
 
-after can_send_to_target => sub {
-    my ($self, $target) = @_;
-    my $empire = $self->body->empire;
-    confess [1009, 'Can only be sent to habitable planets.'] if ($target->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant') && $empire->university_level < 19);
-    confess [ 1009, 'Your species cannot survive on that planet.' ] if ($empire->university_level < 18 && ($target->orbit > $empire->max_orbit || $target->orbit < $empire->min_orbit));
-    return 1;
-};
 
 1;

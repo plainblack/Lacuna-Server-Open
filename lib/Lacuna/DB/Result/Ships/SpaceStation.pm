@@ -20,8 +20,10 @@ use constant pilotable              => 1;
 use constant build_tags             => [qw(War Intelligence)];
 use constant type_formatted         => 'Space Station Hull';
 
-with 'Lacuna::Role::Ship::Send::NotAllowed';
+with "Lacuna::Role::Ship::Send::Planet";
 with 'Lacuna::Role::Ship::Send::Uninhabited';
+with "Lacuna::Role::Ship::Send::SpendNextColonyCost";
+with "Lacuna::Role::Ship::Arrive::ConvertToStation";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

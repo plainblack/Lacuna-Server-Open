@@ -1,0 +1,7 @@
+Station Operational
+~~~
+We have established the station at {Planet %s %s} as you requested. Awaiting Parliamentary delegates.
+
+Regards,
+
+%s Station Mission Commander

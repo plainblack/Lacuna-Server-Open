@@ -675,6 +675,60 @@ sub found_colony {
     return $self;
 }
 
+sub convert_to_station{
+    my ($self, $empire) = @_;
+    $self->empire_id($empire->id);
+    $self->empire($empire);
+    $self->usable_as_starter_enabled(0);
+    $self->last_tick(DateTime->now);
+    $self->update;    
+
+    # award medal
+    my $type = ref $self;
+    $type =~ s/^.*::(\w\d+)$/$1/;
+    $empire->add_medal($type);
+
+    # add command building
+    my $command = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+        x               => 0,
+        y               => 0,
+        class           => 'Lacuna::DB::Result::Building::Module::StationCommand',
+    });
+    $self->build_building($command);
+    $command->finish_upgrade;
+    
+    # add parliament
+    my $parliament = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+        x               => -1,
+        y               => 0,
+        class           => 'Lacuna::DB::Result::Building::Module::Parliament',
+    });
+    $self->build_building($parliament);
+    $command->finish_upgrade;
+    
+    # add warehouse
+    my $warehouse = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+        x               => 1,
+        y               => 0,
+        class           => 'Lacuna::DB::Result::Building::Module::Warehouse',
+    });
+    $self->build_building($warehouse);
+    $command->finish_upgrade;
+    
+    # add starting resources
+    $self->tick;
+    $self->add_algae(2500);
+    $self->add_energy(2500);
+    $self->add_water(2500);
+    $self->add_ore(2500);
+    $self->update;
+    
+    # newsworthy
+    $self->add_news(100,'%s deployed a space station at %s.', $empire->name, $self->name);
+        
+    return $self;
+}
+
 has total_ore_concentration => (
     is          => 'ro',  
     lazy        => 1,
