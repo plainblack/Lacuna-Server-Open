@@ -9,6 +9,7 @@ my $have_exception = [1011, 'You cannot offer to trade something you do not have
 my $cargo_exception = 'You need %s cargo space to trade that.';
 my $offer_nothing_exception = [1013, 'It appears that you have offered nothing.'];
 my $ask_nothing_exception = [1013, 'It appears that you have asked for nothing.'];
+my $fractional_offer_exception = [1013, 'You cannot offer a fraction of a resource.'];
 
 sub market {
     return Lacuna->db->resultset('Lacuna::DB::Result::Market');
@@ -44,6 +45,7 @@ sub check_payload {
         given($item->{type}) {
             when ([qw(water energy waste), ORE_TYPES, FOOD_TYPES]) {
                  confess $offer_nothing_exception unless ($item->{quantity} > 0);
+                 confess $fractional_offer_exception if ($item->{quantity} != int($item->{quantity}));
                  confess $have_exception unless ($body->type_stored($item->{type}) >= $item->{quantity});
                  $space_used += $item->{quantity};
              }

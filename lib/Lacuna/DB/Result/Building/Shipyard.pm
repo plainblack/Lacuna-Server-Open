@@ -271,8 +271,8 @@ sub set_ship_hold_size {
 
 sub set_ship_stealth {
     my ($self, $ship) = @_;
-    my $cloaking_level = (defined $self->cloaking_lab) ? $self->cloaking_lab->level : 1;
-    my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 1;
+    my $cloaking_level = (defined $self->cloaking_lab) ? $self->cloaking_lab->level : 0;
+    my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->level : 0;
     my $css_level = (defined $self->crashed_ship_site) ? $self->crashed_ship_site->level : 0;
     my $improvement = 1 + ($self->level * 0.01) + ($ptf * 0.03) + ($cloaking_level * 0.05) + ($css_level * 0.05) + ($self->body->empire->deception_affinity * 0.03);
     $ship->stealth(sprintf('%.0f', $ship->base_stealth * $improvement ));
