@@ -1,5 +1,11 @@
 {
     "buildings" : {
+        "/stationcommand" : { "description" : "The internal operations of a space station. Controls how big the station can be expanded.", "wiki" : "http://community.lacunaexpanse.com/wiki/station-command-center" },
+        "/parliament" : { "description" : "The central government for the star systems that are controlled by a space station. Laws for the jurisdiction are made here.", "wiki" : "http://community.lacunaexpanse.com/wiki/parliament" },
+        "/warehouse" : { "description" : "Resource storage for a space station.", "wiki" : "http://community.lacunaexpanse.com/wiki/warehouse" },
+        "/ibs" : { "description" : "A means of spreading the culture and influence of a space station's government.", "wiki" : "http://community.lacunaexpanse.com/wiki/interstellar-broadcast-system" },
+        "/stationcommand" : { "description" : "The internal operations of a space station. Controls how big the station can be expanded.", "wiki" : "http://community.lacunaexpanse.com/wiki/station-command-center" },
+        "/stationcommand" : { "description" : "The internal operations of a space station. Controls how big the station can be expanded.", "wiki" : "http://community.lacunaexpanse.com/wiki/station-command-center" },
         "/ssla" : { "description" : "Allows the construction of Space Station Lab modules. Requires four plots, and this is the top left corner of the building.", "wiki" : "http://community.lacunaexpanse.com/wiki/space-station-lab" },
         "/sslb" : { "description" : "Infrastructure required to support Space Station Lab (A).", "wiki" : "http://community.lacunaexpanse.com/wiki/space-station-lab" },
         "/sslc" : { "description" : "Infrastructure required to support Space Station Lab (A).", "wiki" : "http://community.lacunaexpanse.com/wiki/space-station-lab" },

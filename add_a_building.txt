@@ -7,7 +7,7 @@ add to bin/lacuna.psgi
 add to Lacuna::DB::Result::Medals
 add to var/www/public/resources.json
 upload a medal image
-upload the building images in all 4 sizes
+upload the building images in all 5 sizes
 create wiki entry
 
 # if buildable

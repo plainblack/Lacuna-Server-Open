@@ -549,6 +549,9 @@ sub has_special_resources {
 sub can_build {
     my ($self, $body) = @_;
     
+    # check body type
+    $self->can_build_on;
+    
     # check goldilox zone
     if ($body->orbit < $self->min_orbit || $body->orbit > $self->max_orbit) {
         confess [1013, "This building may only be built between orbits ".$self->min_orbit." and ".$self->max_orbit.".", [$self->min_orbit, $self->max_orbit]];
@@ -574,6 +577,14 @@ sub can_build {
         }
     }
     
+    return 1;
+}
+
+sub can_build_on {
+    my $self = shift;
+    if (!$self->isa('Lacuna::DB::Result::Map::Body::Planet') || $self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        confess [1009, 'Can only be built on habitable planets and gas giants.'];
+    }
     return 1;
 }
 

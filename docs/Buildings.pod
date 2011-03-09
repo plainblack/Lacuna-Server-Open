@@ -269,8 +269,9 @@ A session id.
 
 The unique id of the building.
 
+=head1 Space Station Modules
 
-
+Space stations have buildings too (called Modules), but they don't behave exactly the same as ground based buildings. See the L<Modules> documentation for more information.
 
 =head1 Building Types
 

@@ -130,6 +130,14 @@ sub sanitize {
     return $self;
 }
 
+before abandon => sub {
+    my $self = shift;
+    if ($self->id eq $self->empire->home_planet_id) {
+        confess [1010, 'You cannot abandon your home colony.'];
+    }
+    $self->sanitize;
+};
+
 around get_status => sub {
     my ($orig, $self, $empire) = @_;
     my $out = $orig->($self);
@@ -689,7 +697,7 @@ sub recalc_stats {
         $stats{$type.'_production_hour'} = 0;
     }
     #calculate building production
-    my ($gas_giant_platforms, $terraforming_platforms, $pantheon_of_hagness, $total_ore_production_hour, $ore_production_hour, $ore_consumption_hour) = 0;
+    my ($gas_giant_platforms, $terraforming_platforms, $station_command, $pantheon_of_hagness, $total_ore_production_hour, $ore_production_hour, $ore_consumption_hour) = 0;
     while (my $building = $buildings->next) {
         $stats{waste_capacity} += $building->waste_capacity;
         $stats{water_capacity} += $building->water_capacity;
@@ -726,6 +734,9 @@ sub recalc_stats {
         if ($building->isa('Lacuna::DB::Result::Building::Permanent::PantheonOfHagness')) {
             $pantheon_of_hagness += $building->level;
         }
+        if ($building->isa('Lacuna::DB::Result::Building::Module::StationCommand')) {
+            $station_command += $building->level;
+        }
     }
 
     # local ore production
@@ -761,7 +772,7 @@ sub recalc_stats {
     }
 
     # deal with plot usage
-    my $max_plots = $self->size + $pantheon_of_hagness;
+    my $max_plots = $self->size + $pantheon_of_hagness + $station_command;
     if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant')) {
         $max_plots = $gas_giant_platforms < $max_plots ? $gas_giant_platforms : $max_plots;
     }

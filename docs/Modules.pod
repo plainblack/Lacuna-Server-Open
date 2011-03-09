@@ -1,0 +1,25 @@
+=head1 Modules vs Buildings
+
+Modules are special types of L<Buildings> that can only be built on a space station.
+
+Modules produce no resources, and therefore may be built to consume resources beyond your production levels.
+
+Modules can only be built, repaired, upgraded, downgraded, and demolished via acts of L<Parliament>. Therefore modules don't inherit the C<build>, C<upgrade>, C<downgrade>, C<demolish>, and C<repair> methods from L<Buildings>.
+
+=head1 Module Types
+
+Below is a list of the different types of structures that can be built on space stations in Lacuna. 
+
+=over
+
+=item L<IBS>
+
+=item L<Parliament>
+
+=item L<StationCommand>
+
+=item L<Warehouse>
+
+=back
+
+=cut

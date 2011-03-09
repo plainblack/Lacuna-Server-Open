@@ -167,6 +167,10 @@ $urlmap->map(Lacuna::RPC::Building::SSLa->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::SSLb->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::SSLc->new->to_app_with_url);
 $urlmap->map(Lacuna::RPC::Building::SSLd->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::StationCommand->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Parliament->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::Warehouse->new->to_app_with_url);
+$urlmap->map(Lacuna::RPC::Building::IBS->new->to_app_with_url);
 
 
 # admin

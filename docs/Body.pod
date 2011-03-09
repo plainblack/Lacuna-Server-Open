@@ -140,6 +140,8 @@ The id of the body you wish to retrieve the buildings on.
 
 Provides a list of all the building types that are available to be built on a given space on a planet that are within a specific tag.
 
+B<NOTE:> Calling C<get_buildable> on a Space Station will result in an exception. Use L<Parliament> instead.
+
  {
     "max_items_in_build_queue" : 6,
     "build_queue" : {
@@ -296,6 +298,8 @@ A tag that will limit the list of buildings to return. Required. Cannot be C<Now
 
 Renames a body, provided the empire attached to the session owns the body. Returns a 1 on success.
 
+B<NOTE:> Calling C<rename> on a Space Station will result in an exception. Use L<Parliament> instead.
+
 Throws 1000, 1002 and 1010.
 
 =head3 session_id
@@ -315,6 +319,8 @@ The new name of the body.
 =head2 abandon ( session_id, body_id )
 
 Abandon's a colony, and destroys everything on the planet. Returns a status block.
+
+B<NOTE:> Calling C<abandon> on a Space Station will result in an exception. Use L<Parliament> instead.
 
 =head3 session_id
 

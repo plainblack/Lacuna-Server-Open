@@ -185,6 +185,9 @@ __PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Map::Star', 'star_id');
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 __PACKAGE__->has_many('buildings','Lacuna::DB::Result::Building','body_id');
 
+sub abandon {
+    my $self = shift;
+}
 
 sub lock {
     my $self = shift;

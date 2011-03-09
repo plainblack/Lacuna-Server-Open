@@ -1,5 +1,7 @@
 2.4800
  - Rule: Added Space Station Lab building, which will eventually allow building space station modules.
+ - Rule: Allow building space station hulls.
+ - Rule: Added Station Command Center, Parliament, Warehouse, and IBS modules for space stations.
  - API: Sending ships that trigger defenses requires the new captchas.
  - API: Sending spies requires the new captchas.
  - API: Running spy missions require the new captchas.

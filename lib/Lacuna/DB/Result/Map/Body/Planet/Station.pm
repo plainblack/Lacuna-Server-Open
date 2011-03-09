@@ -7,6 +7,14 @@ extends 'Lacuna::DB::Result::Map::Body::Planet';
 
 use constant image => 'station';
 
+after abandon => sub {
+    my $self = shift;
+    $self->update({
+        size        => randint(1,10),
+        class       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,20),
+    });
+};
+
 has command => (
     is      => 'rw',
     lazy    => 1,
@@ -25,6 +33,26 @@ sub has_resources_to_operate {
 
 sub has_resources_to_operate_after_building_demolished {
     return 1;
+}
+
+sub spend_happiness {
+    my $self = shift;
+    return $self;
+}
+
+sub add_happiness {
+    my $self = shift;
+    return $self;
+}
+
+sub spend_waste {
+    my $self = shift;
+    return $self;
+}
+
+sub add_waste {
+    my $self = shift;
+    return $self;
 }
 
 no Moose;

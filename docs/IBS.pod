@@ -1,0 +1,7 @@
+=head1 Interstellar Broadcast System Methods
+
+Interstellar Broadcast System is accessible via the URL C</ibs>.
+
+The list of methods below represents changes and additions to the methods that all L<Modules> share.
+
+=cut

@@ -7,6 +7,7 @@ extends 'Lacuna::RPC';
 use Lacuna::Verify;
 use Lacuna::Constants qw(BUILDABLE_CLASSES);
 use DateTime;
+use Lacuna::Util qw(randint);
 use List::MoreUtils qw(uniq);
 
 sub get_status {
@@ -19,14 +20,11 @@ sub get_status {
 sub abandon {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    if ($body_id eq $empire->home_planet_id) {
-        confess [1010, 'You cannot abandon your home colony.'];
-    }
     my $body = $self->get_body($empire, $body_id);
-    $body->sanitize;
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) {
-        $body->delete;
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) { 
+        confess [1010, 'Space stations can only be abandoned through an act of Parliament.'];
     }
+    $body->abandon;
     return $self->format_status($empire);
 }
 
@@ -42,6 +40,9 @@ sub rename {
     
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) { 
+        confess [1010, 'Space stations can only be renamed through an act of Parliament.'];
+    }
 
     return 1 if $name eq $body->name;
 
@@ -94,8 +95,8 @@ sub get_buildable {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
     
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) {
-        confess [1010, 'This is not how you expand a space station.'];
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) { # short circuiting for better performance
+        confess [1010, 'Space stations can only be expanded through an act of Parliament.'];
     }
     
     my $building_rs = Lacuna->db->resultset('Lacuna::DB::Result::Building');

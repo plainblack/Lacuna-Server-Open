@@ -1,0 +1,7 @@
+=head1 Parliament Methods
+
+Parliament is accessible via the URL C</parliament>.
+
+The list of methods below represents changes and additions to the methods that all L<Modules> share.
+
+=cut
