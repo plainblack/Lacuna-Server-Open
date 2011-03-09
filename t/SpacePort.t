@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 13;
+use Test::More tests => 14;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -65,12 +65,6 @@ is(ref $result->{result}{recallable}, 'ARRAY', "can see what ships are available
 $empire->is_isolationist(0);
 $empire->update;
 
-$result = $tester->post('spaceport', 'prepare_send_spies', [$session_id, $home->id, $home->id ]);
-is(ref $result->{result}{spies}, 'ARRAY', "can prepare for send spies");
-
-$result = $tester->post('spaceport', 'prepare_fetch_spies', [$session_id, $home->id, $home->id ]);
-is(ref $result->{result}{ships}, 'ARRAY', "can prepare for fetch spies");
-
 my $shipyard = Lacuna::db->resultset('Lacuna::DB::Result::Building')->new({
 	x       => 0,
 	y       => 2,
@@ -104,13 +98,22 @@ $enemy->empire->update;
 
 @ships = map { $_->id } @ships;
 diag explain @ships;
+
+$result = $tester->post('spaceport', 'prepare_send_spies', [$session_id, $home->id, $home->id ]);
+is( $result->{error}{code}, 1016, 'Needs to solve a captcha.' );
+
 $result = $tester->post('spaceport', 'send_fleet', [$session_id, [ @ships ], { body_id => $enemy->empire->home_planet->id } ] );
 is( $result->{error}{code}, 1016, 'Needs to solve a captcha.' );
 
 Lacuna->cache->set('captcha', $session_id, { guid => 1111, solution => 1111 }, 60 * 30 );
 
-$result = $tester->post('captcha','solve', [$session_id, 1111, 1111]);
-is($result->{result}, 1, 'Solved captcha');
+ok( eval{ $tester->post('captcha','solve', [$session_id, 1111, 1111]) }, 'Solved captcha' );
+
+$result = $tester->post('spaceport', 'prepare_send_spies', [$session_id, $home->id, $home->id ]);
+is( ref $result->{result}{spies}, 'ARRAY', "can prepare for send spies" );
+
+$result = $tester->post('spaceport', 'prepare_fetch_spies', [$session_id, $home->id, $home->id ]);
+is( ref $result->{result}{ships}, 'ARRAY', "can prepare for fetch spies");
 
 $result = $tester->post('spaceport', 'send_fleet', [$session_id, [ @ships ], { body_id => $enemy->empire->home_planet->id } ] );
 ok($result->{result}{fleet}[0]{ship}{date_arrives}, "fleet sent");
