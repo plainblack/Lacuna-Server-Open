@@ -1,6 +1,6 @@
 Trade Accepted
 ~~~
-The trade you offered of %s in exchange for %s has been accepted by [Empire %s %s].
+The trade you offered of %s in exchange for %s has been accepted by {Empire %s %s}.
 
 Regards,
 
