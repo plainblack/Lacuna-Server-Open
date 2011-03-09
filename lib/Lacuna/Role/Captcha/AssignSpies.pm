@@ -1,4 +1,4 @@
-package Lacuna::Role::Captcha::Spies;
+package Lacuna::Role::Captcha::AssignSpies;
 
 use Moose::Role;
 

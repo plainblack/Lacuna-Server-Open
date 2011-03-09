@@ -8,6 +8,8 @@ use Lacuna::Constants qw(SHIP_TYPES);
 use Lacuna::Util qw(format_date);
 use feature "switch";
 
+with 'Lacuna::Role::Captcha::AssignSpies';
+
 sub app_url {
     return '/spaceport';
 }
