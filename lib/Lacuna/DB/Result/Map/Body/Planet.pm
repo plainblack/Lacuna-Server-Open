@@ -697,6 +697,9 @@ sub convert_to_station{
     $self->build_building($command);
     $command->finish_upgrade;
     
+    # clean it
+    $self->buildings->delete_all;
+    
     # add parliament
     my $parliament = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
         x               => -1,
