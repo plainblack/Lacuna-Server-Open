@@ -58,6 +58,12 @@ sub get_body { # makes for uniform error handling, and prevents staleness
         confess [1002, 'Body does not exist.', $body_id];
     }
     unless ($body->empire_id eq $empire->id) {
+        if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+            if ($body->empire->alliance_id eq $empire->alliance_id) {
+                $body->tick;
+                return $body;
+            }
+        }
         confess [1010, "Can't manipulate a planet you don't inhabit."];
     }
     $body->empire($empire);

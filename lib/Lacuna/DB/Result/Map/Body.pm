@@ -9,6 +9,7 @@ __PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('body');
 __PACKAGE__->add_columns(
     star_id                         => { data_type => 'int', is_nullable => 0 },
+    alliance_id                     => { data_type => 'int', is_nullable => 1 },
     orbit                           => { data_type => 'int', default_value => 0 },
     class                           => { data_type => 'varchar', size => 255, is_nullable => 0 },
     size                            => { data_type => 'int', default_value => 0 },
@@ -182,6 +183,7 @@ __PACKAGE__->typecast_map(class => {
 # RELATIONSHIPS
 
 __PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Map::Star', 'star_id');
+__PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Alliance', 'alliance_id', { on_delete => 'set null' });
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 __PACKAGE__->has_many('buildings','Lacuna::DB::Result::Building','body_id');
 

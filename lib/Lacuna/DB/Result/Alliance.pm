@@ -22,6 +22,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->belongs_to('leader', 'Lacuna::DB::Result::Empire', 'leader_id', { on_delete => 'set null' });
 __PACKAGE__->has_many('members', 'Lacuna::DB::Result::Empire', 'alliance_id');
 __PACKAGE__->has_many('invites', 'Lacuna::DB::Result::AllianceInvite', 'alliance_id');
+__PACKAGE__->has_many('stations', 'Lacuna::DB::Result::Map::Body', 'alliance_id');
+
 
 
 sub date_created_formatted {
