@@ -30,6 +30,15 @@ after handle_arrival_procedures => sub {
         );        
     }
     
+    # can't convert because not in an alliance
+    elsif (!$empire->alliance_id) {
+        $empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'cannot_convert_to_station_no_alliance.txt',
+            params      => [$planet->x, $planet->y, $planet->name, $planet->name],
+        );
+    }
+    
     # let's claim this for our very own!
     else {
         $planet->lock;

@@ -107,6 +107,7 @@ sub sanitize {
     foreach my $attribute (@attributes) {
         $self->$attribute(0);
     }
+    $self->alliance_id(undef);
     $self->plans->delete;
     $self->glyphs->delete;
     my $incoming = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_body_id => $self->id});
@@ -677,10 +678,14 @@ sub found_colony {
 
 sub convert_to_station{
     my ($self, $empire) = @_;
+    $self->size(3);
+    $self->plots_available(0);
     $self->empire_id($empire->id);
     $self->empire($empire);
     $self->usable_as_starter_enabled(0);
     $self->last_tick(DateTime->now);
+    $self->alliance_id($self->empire->alliance_id);
+    $self->class('Lacuna::DB::Result::Map::Body::Planet::Station');
     $self->update;    
 
     # award medal
@@ -717,9 +722,6 @@ sub convert_to_station{
     });
     $self->build_building($warehouse);
     $command->finish_upgrade;
-    
-    # convert to station
-    $self->class('Lacuna::DB::Result::Map::Body::Planet::Station');
     
     # add starting resources
     $self->tick;
@@ -832,7 +834,10 @@ sub recalc_stats {
     }
 
     # deal with plot usage
-    my $max_plots = $self->size + $pantheon_of_hagness + $station_command;
+    my $max_plots = $self->size + $pantheon_of_hagness;
+    if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        $max_plots = $stats{size} = $station_command * 3;
+    }
     if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant')) {
         $max_plots = $gas_giant_platforms < $max_plots ? $gas_giant_platforms : $max_plots;
     }

@@ -689,7 +689,7 @@ has count_probed_stars => (
     },
 );
 
-before 'delete' => sub {
+before delete => sub {
     my ($self) = @_;
     Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({ -or => {invitee_id => $self->id, inviter_id => $self->id }})->delete;
     $self->probes->delete;

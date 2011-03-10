@@ -7,11 +7,12 @@ extends 'Lacuna::DB::Result::Map::Body::Planet';
 
 use constant image => 'station';
 
-after abandon => sub {
+after sanitize => sub {
     my $self = shift;
     $self->update({
         size        => randint(1,10),
         class       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,20),
+        alliance_id => undef,
     });
 };
 
