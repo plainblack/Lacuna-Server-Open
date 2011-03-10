@@ -90,6 +90,13 @@ sub get_building { # makes for uniform error handling, and prevents staleness
         $building->is_offline unless ($options{skip_offline});
         my $body = $self->get_body($empire, $building->body_id);        
         if ($body->empire_id ne $empire->id) { 
+            if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+                if ($body->empire->alliance_id eq $empire->alliance_id) {
+                    $building->get_from_storage; # in case it changed due to the tick
+                    $building->body($body);
+                    return $building;
+                }
+            }
             confess [1010, "Can't manipulate a building that you don't own.", $building_id];
         }
         $building->get_from_storage; # in case it changed due to the tick
