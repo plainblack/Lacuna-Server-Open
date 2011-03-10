@@ -122,7 +122,12 @@ $result = $tester->post('spaceport', 'send_ship', [$session_id, $sweeper->id, { 
 ok($result->{result}{ship}{date_arrives}, "sweeper sent");
 
 $result = $tester->post('spaceport', 'view_all_ships', 
-    [$session_id, $spaceport->id, undef, { task => "Docked", tags => [qw(Trade Mining)]}, 'combat']
+    [$session_id, $spaceport->id, undef, { task => "Docked", tag => [qw(Trade Mining)]}, 'combat']
+);
+is(ref $result->{result}{ships}, 'ARRAY', "can see all my ships");
+
+$result = $tester->post('spaceport', 'view_all_ships', 
+    [$session_id, $spaceport->id, { no_paging => 1}, { task => "Docked", tag => [qw(Trade Mining)]}, 'combat']
 );
 is(ref $result->{result}{ships}, 'ARRAY', "can see all my ships");
 

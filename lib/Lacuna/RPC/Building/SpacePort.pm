@@ -452,9 +452,9 @@ sub _ship_filter_options {
 
     # Valid filter options include...
     my $options = {
-        task => [qw(Docked Building Mining Travelling Defend)],
-        tags => [qw(Trade Colonization Intelligence Exploration War Mining)],
-        type => [SHIP_TYPES],
+        task    => [qw(Docked Building Mining Travelling Defend)],
+        tag     => [qw(Trade Colonization Intelligence Exploration War Mining)],
+        type    => [SHIP_TYPES],
     };
 
     # Pull in the list of ship types by tag
@@ -486,7 +486,7 @@ sub _ship_filter_options {
         }
 
         # Convert tags to types (destructive)
-        if ( $key eq 'tags' ) {
+        if ( $key eq 'tag' ) {
             if ( ref($value) eq 'ARRAY' ) {
                 my @types;
                 for my $tag ( @$value ) {
@@ -498,7 +498,7 @@ sub _ship_filter_options {
             else {
                 $filter->{type} = $tag{$value};
             }
-            delete $filter->{tags};
+            delete $filter->{tag};
         }
     }
 
@@ -542,7 +542,7 @@ sub view_all_ships {
 
     return {
         status                      => $self->format_status($empire, $body),
-        number_of_ships             => $ships->pager->total_entries,
+        number_of_ships             => defined $paging->{page_number} ? $ships->pager->total_entries : $ships->count,
         ships                       => \@fleet,
     };    
 }
