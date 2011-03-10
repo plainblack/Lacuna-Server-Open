@@ -428,82 +428,104 @@ sub view_ships_travelling {
     };
 }
 
-sub view_all_ships {
-    my ($self, $session_id, $building_id, $page_number, $items_per_page, $filter, $sort) = @_;
-    if (defined $filter && ref $filter ne 'HASH') {
-        confess [-32602, 'The filter parameter should be a hash reference. For example { "task" : "Docked" }.'];
+sub _ship_paging_options {
+    my ($self, $paging) = @_;
+    for my $key ( keys %{ $paging } ) {
+        # Throw away bad keys
+        unless ($key ~~ [qw(page_number items_per_page no_paging)]) {
+            delete $paging->{$key};
+            next;
+        }
     }
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    $page_number ||= 1;
-    $items_per_page ||= 25;
-    $filter //= {};
-    $sort //= 'type';
+    if ($paging->{no_paging}) {
+        $paging = {};
+    }
+    else {
+        $paging->{page_number} ||= 1;
+        $paging->{items_per_page} ||= 25;
+    }
+    return $paging;
+}
 
-    if ($sort && $sort ~~ [qw(combat name speed stealth task type)]) {
-        if ( $sort ne 'name' ) {
-            $sort = [ $sort, 'name' ];
+sub _ship_filter_options {
+    my ($self, $filter) = @_;
+
+    # Valid filter options include...
+    my $options = {
+        task => [qw(Docked Building Mining Travelling Defend)],
+        tags => [qw(Trade Colonization Intelligence Exploration War Mining)],
+        type => [SHIP_TYPES],
+    };
+
+    # Pull in the list of ship types by tag
+    my %tag;
+    for my $type ( SHIP_TYPES ) {
+        my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({ type => $type });
+        for my $tag ( @{$ship->build_tags} ) {
+            push @{ $tag{$tag} }, $type;
+        }
+    }
+
+    for my $key ( keys %{ $filter } ) {
+        # Throw away bad keys
+        unless ( $key ~~ [keys %$options] ) {
+            delete $filter->{$key};
+            next;
+        }
+
+        # Throw away bad values
+        my $value = $filter->{$key};
+        if ( ref($value) eq 'ARRAY' ) {
+            @$value = grep { $_ ~~ $options->{$key} } @$value;
+        }
+        elsif ( ! ref($value) ) {
+            delete $filter->{$key} unless ( $value ~~ $options->{$key} );
         }
         else {
-            $sort = [ 'name' ];
-        }
-    }
-
-    if ($filter) {
-        # Valid filter options include...
-        my $options = {
-            task => [qw(Docked Building Mining Travelling Defend)],
-            tags => [qw(Trade Colonization Intelligence Exploration War Mining)],
-            type => [SHIP_TYPES],
-        };
-
-        # Pull in the list of ship types by tag
-        my %tag;
-        foreach my $type (SHIP_TYPES) {
-            my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>$type});
-            my @tags = @{$ship->build_tags};
-            for my $tag ( @tags ) {
-                push @{$tag{$tag}}, $type;
-            }
+            delete $filter->{$key};
         }
 
-        for my $key ( keys %{$filter} ) {
-            # Throw away bad keys
-            unless ($key ~~ [keys %$options]) {
-                delete $filter->{$key};
-                next;
-            }
-
-            # Throw away bad values
-            my $value = $filter->{$key};
-            if (ref($value) eq 'ARRAY') {
-                @$value = grep { $_ ~~ $options->{$key} } @$value;
-            }
-            elsif (! ref($value)) {
-                delete $filter->{$key} unless ($value ~~ $options->{$key});
+        # Convert tags to types (destructive)
+        if ( $key eq 'tags' ) {
+            if ( ref($value) eq 'ARRAY' ) {
+                my @types;
+                for my $tag ( @$value ) {
+                    push @types, @{ $tag{$tag} };
+                }
+                my %uniq = map { $_ => 1 } @types;
+                $filter->{type} = [ sort keys %uniq ];
             }
             else {
-                delete $filter->{$key};
+                $filter->{type} = $tag{$value};
             }
-
-            # Convert tags to types (destructive)
-            if ($key eq 'tags') {
-                if (ref($value) eq 'ARRAY') {
-                    my @types;
-                    for my $tag ( @$value ) {
-                        push @types, @{$tag{$tag}};
-                    }
-                    my %types = map { $_ => 1 } @types;
-                    $filter->{type} = [ sort keys %types ];
-                }
-                else {
-                    $filter->{type} = $tag{$value};
-                }
-                delete $filter->{tags};
-            }
+            delete $filter->{tags};
         }
     }
 
+    return $filter;
+}
+
+sub _ship_sort_options {
+    my ($self, $sort) = @_;
+
+    # return the default if it's not one of the following or is 'name'
+    if ( ! $sort || $sort eq 'name' || ! $sort ~~ [qw(combat speed stealth task type)] ) {
+        return [ 'name' ];
+    }
+
+    # append name to the sort options
+    return [ $sort, 'name' ];
+}
+
+sub view_all_ships {
+    my ($self, $session_id, $building_id, $paging, $filter, $sort) = @_;
+
+    $paging = $self->_ship_paging_options( $paging // {} );
+    $filter = $self->_ship_filter_options( $filter // {} );
+    $sort = $self->_ship_sort_options( $sort // 'type' );
+
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
     my $body = $building->body;
     my @fleet;
     my $ships = $building->ships->search( $filter, { rows => $items_per_page, order_by => $sort, page => $page_number } );
@@ -511,6 +533,7 @@ sub view_all_ships {
         $ship->body($body);
         push @fleet, $ship->get_status;
     }
+
     return {
         status                      => $self->format_status($empire, $body),
         number_of_ships             => $ships->pager->total_entries,

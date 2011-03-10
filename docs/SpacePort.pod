@@ -29,7 +29,7 @@ This method is extended to include a list of docked ships.
  }
  
 
-=head2 view_all_ships ( session_id, building_id, [ page_number, items_per_page, filter, sort ] )
+=head2 view_all_ships ( session_id, building_id, [ paging, filter, sort ] )
 
 Shows you all your ships whatever they are doing.
 
@@ -100,17 +100,43 @@ A session id.
 
 The unique id of the space port.
 
-=head3 page_number
+=head3 paging
+
+Optional. A hash reference that contains the paging criteria. Valid paging option keys include page_number, items_per page and no_paging.
+
+=head4 page_number
 
 Optional. An integer representing the page of ships to return. Defaults to 1.
 
-=head3 items_per_page
+=head4 items_per_page
 
 Optional. An integer representing the number of items per page to return. Defaults to 25.
 
+=head4 no_paging
+
+Optional. If set to 1, all other paging options are ignored and all results will be retured.
+
+  { "no_paging" : 1 }
+
+  { "page_number" : 2, "items_per_page" : 30 }
+
 =head3 filter
 
-Optional. A hash reference that contains the filter criteria. Valid filter option keys include task, type and tag. Valid tasks include Docked, Building, Mining, Travelling, and Defend. Valid types are the existing ship types. Valid tags include Trade, Colonization, Intelligence, Exploration, War, and Mining. The filter option values should be passed as an array reference or scalar. Tags will be converted to types prior to filtering. (This means that if tags and types are passed together, the types will be overwritten when the tags are converted.)
+Optional. A hash reference that contains the filter criteria. Valid filter option keys include task, type and tag.
+
+=head4 task
+
+Optional. An array reference or string with the task(s) to filter on. Valid tasks include Docked, Building, Mining, Travelling, and Defend.
+
+=head4 type
+
+Optional. An array reference or string with the type(s) to filter on. Valid types are the existing ship types.
+
+=head4 tag
+
+Optional. An array reference or string with the tag(s) to filter on. Valid tags include Trade, Colonization, Intelligence, Exploration, War, and Mining.
+
+Note: Tags will be converted to types prior to filtering and any types that were passed will be replaced.
 
   { "task" : "Defend" }
 
@@ -123,7 +149,6 @@ Optional. A hash reference that contains the filter criteria. Valid filter optio
 =head3 sort
 
 Optional. A string with the column to sort on. Defaults to 'type'. (A second sort column, 'name', is added to your chosen sort column.) Valid columns to sort on include: combat, name, speed, stealth, task, and type.
-
 
 
 =head2 view_foreign_ships ( session_id, building_id, page_number )
