@@ -21,14 +21,12 @@ my $date_ended = DateTime->now->subtract( days => 30);
 out('Loading DB');
 our $db = Lacuna->db;
 
-out('Deleting Outdated Mail Items');
+out('Deleting AI Mail Items');
 my $mail = $db->resultset('Lacuna::DB::Result::Message');
-my @to_be_deleted = $mail->search({ has_archived => 1, date_sent => { '<' => $date_ended }})->get_column('id')->all;
-foreach my $id (@to_be_deleted) {
-    out('Deleting '.$id);
-    my $message = $mail->find($id);
-    $message->delete;
-}
+$mail->search({ to_id => { '<' => 0 }})->get_column('id')->delete_all;
+
+out('Deleting Outdated Player Mail Items');
+$mail->search({ has_archived => 1, date_sent => { '<' => $date_ended }})->get_column('id')->delete_all;
 
 my $finish = time;
 out('Finished');
