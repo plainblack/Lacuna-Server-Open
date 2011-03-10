@@ -524,11 +524,17 @@ sub view_all_ships {
     $filter = $self->_ship_filter_options( $filter // {} );
     $sort = $self->_ship_sort_options( $sort // 'type' );
 
+    my $attrs = {
+        sort_by => $sort
+    };
+    $attrs->{rows} = $paging->{items_per_page} if ( defined $paging->{items_per_page} );
+    $attrs->{page} = $paging->{page_number} if ( defined $paging->{page_number} );
+
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $body = $building->body;
     my @fleet;
-    my $ships = $building->ships->search( $filter, { rows => $items_per_page, order_by => $sort, page => $page_number } );
+    my $ships = $building->ships->search( $filter, $attrs );
     while (my $ship = $ships->next) {
         $ship->body($body);
         push @fleet, $ship->get_status;
