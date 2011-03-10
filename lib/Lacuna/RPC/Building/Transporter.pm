@@ -102,7 +102,7 @@ sub accept_from_market {
         confess [1013, 'Another buyer has placed an offer on this trade. Please wait a few moments and try again.'];
     }
     $cache->set('trade_lock',$trade_id,1,5);
-    my $guard = scope_guard {
+    my $guard = guard {
         $cache->delete('trade_lock',$trade_id);
     };
 

@@ -3,6 +3,7 @@
  - Rule: Allow building space station hulls.
  - Rule: Added Station Command Center, Parliament, Warehouse, and IBS modules for space stations.
  - Rule: Members of an alliance have alliance controlled stations added to their planet list.
+ - Rule: Archived messages will be purged thirty days after they were sent.
  - API: Sending ships that trigger defenses requires the new captchas.
  - API: Sending spies requires the new captchas.
  - API: Running spy missions require the new captchas.
