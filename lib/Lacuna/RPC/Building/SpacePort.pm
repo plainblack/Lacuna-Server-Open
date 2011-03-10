@@ -542,7 +542,7 @@ sub view_all_ships {
 
     return {
         status                      => $self->format_status($empire, $body),
-        number_of_ships             => $ships->pager->total_entries,
+        number_of_ships             => defined $paging->{page_number} ? $ships->pager->total_entries : $ships->count,
         ships                       => \@fleet,
     };    
 }
