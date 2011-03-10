@@ -13,3 +13,4 @@ perl trelvestian/hourly_update.pl
 perl trelvestian/send_attack.pl&
 perl diablotin/hourly_update.pl
 perl saben/hourly_update.pl
+perl clean_up_mail.pl
