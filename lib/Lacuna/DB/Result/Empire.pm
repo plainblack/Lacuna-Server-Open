@@ -276,10 +276,9 @@ sub get_status {
     my ($self) = @_;
     my $planet_rs = $self->planets;
     if ($self->alliance_id) {
-        $planet_rs = $planet_rs->search({-or => { alliance_id => $self->alliance_id }});
+        $planet_rs = Lacuna->db->resultset('Map::Body')->search({-or => { empire_id => $self->id, alliance_id => $self->alliance_id }});
     }
     my %planets;
-    my @planet_ids;
     while (my $planet = $planet_rs->next) {
         $planets{$planet->id} = $planet->name;
     }
