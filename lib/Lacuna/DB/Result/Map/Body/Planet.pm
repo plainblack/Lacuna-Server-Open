@@ -835,13 +835,13 @@ sub recalc_stats {
 
     # deal with plot usage
     my $max_plots = $self->size + $pantheon_of_hagness;
-    if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-        $max_plots = $stats{size} = $station_command * 3;
-    }
     if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant')) {
         $max_plots = $gas_giant_platforms < $max_plots ? $gas_giant_platforms : $max_plots;
     }
-    if ($self->isa('Lacuna::DB::Result::Map::Body::Planet')) {
+    if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        $max_plots = $stats{size} = $station_command * 3;
+    }
+    elsif ($self->isa('Lacuna::DB::Result::Map::Body::Planet')) {
         if ($self->orbit > $self->empire->max_orbit || $self->orbit < $self->empire->min_orbit) {
             $max_plots = $terraforming_platforms < $max_plots ? $terraforming_platforms : $max_plots;
         }
