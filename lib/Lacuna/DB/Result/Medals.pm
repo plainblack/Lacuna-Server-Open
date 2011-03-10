@@ -182,6 +182,7 @@ use constant MEDALS => {
     building28                      => 'Built Level 28 Building',
     building29                      => 'Built Level 29 Building',
     building30                      => 'Built Level 30 Building',
+    SAW                             => 'Built Shield Against Weapons',
     IBS                             => 'Built Interstellar Broadcast System',
     StationCommand                  => 'Built Station Command Center',
     Parliament                      => 'Built Parliament',
