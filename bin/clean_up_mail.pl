@@ -23,7 +23,7 @@ our $db = Lacuna->db;
 
 out('Deleting AI Mail Items');
 my $mail = $db->resultset('Lacuna::DB::Result::Message');
-$mail->search({ to_id => { '<' => 0 }})->delete_all;
+$mail->search({ to_id => { '<=' => 1 }})->delete_all;
 
 out('Deleting Outdated Player Mail Items');
 $mail->search({ has_archived => 1, date_sent => { '<' => $date_ended }})->delete_all;
