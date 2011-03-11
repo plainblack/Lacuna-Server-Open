@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 10;
+use Test::More tests => 12;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -84,6 +84,28 @@ is($result->{result}{docked_ships}{spy_pod}, 1, "we have 1 spy_pod built");
 $result = $tester->post('spaceport', 'send_ship', [$session_id, $spy_pod->id, {body_name=>'Lacuna'}]);
 is($result->{error}{code}, 1013, "leave isolationsts alone");
 
+for my $count ( 1 .. 5 ) {
+    Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
+        from_body_id    => $home->id,
+        on_body_id      => $home->id,
+        task            => 'Idle',
+        available_on    => DateTime->now,
+        empire_id       => $empire->id,    
+    })->insert;
+}
+
+my $enemy = TestHelper->new(empire_name => 'Enemy')->generate_test_empire->build_infrastructure;
+$enemy->empire->is_isolationist(0);
+$enemy->empire->update;
+
+Lacuna->cache->set('captcha', $session_id, { guid => 1111, solution => 1111 }, 60 * 30 );
+
+$result = $tester->post('spaceport', 'prepare_send_spies', [$session_id, $home->id, $enemy->empire->home_planet->id ]);
+is( ref $result->{result}{spies}, 'ARRAY', "can prepare for send spies" );
+
+my $spy_id = $result->{result}{spies}[0]{id};
+$result = $tester->post('spaceport', 'send_spies', [$session_id, $home->id, $enemy->empire->home_planet->id, $spy_pod->id, [ $spy_id] ]);
+ok($result->{result}{ship}{date_arrives}, "spy pod sent");
 
 END {
     $tester->cleanup;

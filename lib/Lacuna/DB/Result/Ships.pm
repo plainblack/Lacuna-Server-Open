@@ -16,7 +16,7 @@ __PACKAGE__->add_columns(
     date_started            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     date_available          => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     type                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # probe, colony_ship, spy_pod, cargo_ship, space_station, smuggler_ship, mining_platform_ship, terraforming_platform_ship, gas_giant_settlement_ship
-    task                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # Docked, Building, Travelling, Mining, Defend
+    task                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # Docked, Building, Travelling, Mining, Defend, Orbiting
     name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     speed                   => { data_type => 'int', is_nullable => 0 },
     stealth                 => { data_type => 'int', is_nullable => 0 },
@@ -149,7 +149,7 @@ sub can_send_to_target {
 
 sub can_recall {
     my $self = shift;
-    unless ($self->task eq 'Defend') {
+	unless ($self->task ~~ [qw(Defend Orbiting)]) {
         confess [1010, 'That ship is busy.'];
     }
     return 1;
@@ -215,7 +215,7 @@ sub get_status {
         $status{from}           = $from;
         $status{date_arrives}   = $status{date_available};
     }
-	elsif ($self->task eq 'Defend') {
+	elsif ($self->task ~~ [qw(Defend Orbiting)]) {
         my $body = $self->body;
         my $from = {
             id      => $body->id,
@@ -281,6 +281,13 @@ sub finish_construction {
     $self->task('Docked');
     $self->date_available(DateTime->now);
     $self->update;
+}
+
+sub orbit {
+	my ($self) = @_;
+	$self->task('Orbiting');
+    $self->date_available(DateTime->now);
+    return $self;
 }
 
 sub defend {

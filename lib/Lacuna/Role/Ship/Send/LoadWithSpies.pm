@@ -16,10 +16,10 @@ after send => sub {
     $self->update;
 };
 
-after can_send_to_target => sub {
-    my ($self, $target) = @_;
-    confess [ 1002, 'You have no idle spies to send.'] unless (scalar(@{$self->get_available_spies_to_send}));
-};
+#after can_send_to_target => sub {
+#    my ($self, $target) = @_;
+#    confess [ 1002, 'You have no idle spies to send.'] unless (scalar(@{$self->get_available_spies_to_send}));
+#};
 
 sub get_available_spies_to_send {
     my $self = shift;
