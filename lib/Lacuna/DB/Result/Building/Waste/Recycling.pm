@@ -101,7 +101,7 @@ use constant image => 'wasterecycling';
 use constant university_prereq => 3;
 
 use constant name => 'Waste Recycling Center';
-
+use constant waste_storage => 400;
 use constant food_to_build => 75;
 
 use constant energy_to_build => 75;

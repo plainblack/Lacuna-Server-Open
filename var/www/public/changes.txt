@@ -1,8 +1,9 @@
 3.0000
- - Rule: Added Space Station Lab building, which will eventually allow building space station modules.
+ - Add: Added Space Station Lab building, which will eventually allow building space station modules.
+ - Add: Added Station Command Center, Parliament, Warehouse, and IBS modules for space stations.
  - Rule: Allow building space station hulls.
- - Rule: Added Station Command Center, Parliament, Warehouse, and IBS modules for space stations.
  - Rule: Members of an alliance have alliance controlled stations added to their planet list.
+ - Rule: Waste Recyclers now add 400 waste storage at base.
  - Rule: Archived messages will be purged thirty days after they were sent.
  - API: Sending ships that trigger defenses requires the new captchas.
  - API: Sending spies requires the new captchas.
