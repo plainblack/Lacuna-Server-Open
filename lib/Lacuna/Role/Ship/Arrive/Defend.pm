@@ -12,9 +12,6 @@ after handle_arrival_procedures => sub {
 	# only defend on arrival to the foreign body
 	return if $self->direction eq 'in';
 
-	# who do we protect?
-    my $body_defending = $self->foreign_body;
-
 	$self->defend->update;
 
 	confess [-1];

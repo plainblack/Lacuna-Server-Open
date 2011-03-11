@@ -18,9 +18,6 @@ after handle_arrival_procedures => sub {
         (exists $self->payload->{fetch_spies} && scalar(@{$self->payload->{fetch_spies}}))
     );
 
-	# who do we orbit?
-    my $body_orbiting = $self->foreign_body;
-
 	$self->orbit->update;
 
 	confess [-1];

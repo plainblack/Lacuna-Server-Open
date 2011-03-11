@@ -511,24 +511,6 @@ Throws 1002, 1010.
     }
  }
 
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id for the space port.
-
-=head3 ship_id
-
-The unique id of a ship to recall.
-
-
-
-
-
-=head2 recall_spies ( session_id, building_id, ship_id )
-
 Recalls an orbiting Spy Shuttle ('Orbiting' task) and fetches all idle spies from the body it is orbiting to the body of origin.
 
 Throws 1002, 1010, 1013.

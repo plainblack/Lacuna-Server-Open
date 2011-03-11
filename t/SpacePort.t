@@ -92,7 +92,7 @@ Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
     on_body_id      => $home->id,
     task            => 'Idle',
     available_on    => DateTime->now,
-    empire_id       => $empire->id,    
+    empire_id       => $empire->id,
 })->insert;
 
 my @ships;
@@ -113,7 +113,6 @@ $shipyard->build_ship($spy_pod);
 
 my $spy_shuttle = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>'spy_shuttle'});
 $shipyard->build_ship($spy_shuttle);
-diag "Spy shuttle id ", $spy_shuttle->id;
 
 my $finish = DateTime->now;
 Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id=>$shipyard->id})->update({date_available=>$finish});
@@ -154,11 +153,9 @@ ok($result->{result}{ship}{date_arrives}, "sweeper sent");
 
 $result = $tester->post('spaceport', 'send_ship', [$session_id, $spy_shuttle->id, { body_id => $enemy->empire->home_planet->id } ] );
 ok($result->{result}{ship}{date_arrives}, "spy shuttle sent to orbit");
-diag "Spy shuttle id ", $spy_shuttle->id;
 
 $spy_shuttle = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$spy_shuttle->id},{rows=>1})->single; # pull the latest data on this ship
 $spy_shuttle->arrive;
-diag "Spy shuttle id ", $spy_shuttle->id;
 
 $result = $tester->post('spaceport', 'get_ships_for', [$session_id, $home->id, { body_id => $enemy->empire->home_planet->id }]);
 is(ref $result->{result}{recallable}, 'ARRAY', "can see what ships are available to recall");
@@ -168,8 +165,6 @@ is( ref $result->{result}{ships}, 'ARRAY', "can prepare for fetch spies");
 
 $spy_shuttle = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$spy_shuttle->id},{rows=>1})->single; # pull the latest data on this ship
 $result = $tester->post('spaceport', 'recall_ship', [$session_id, $spaceport->id, $spy_shuttle->id]);
-diag "Spy shuttle arrives ", $result->{result}{ship}{date_arrives};
-diag "Spy shuttle type is ", $spy_shuttle->type;
 ok($result->{result}{ship}{date_arrives}, "spy shuttle recalled");
 $spy_shuttle = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$spy_shuttle->id},{rows=>1})->single; # pull the latest data on this ship
 $spy_shuttle->arrive;
