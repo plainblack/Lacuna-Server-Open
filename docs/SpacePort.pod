@@ -511,17 +511,17 @@ Throws 1002, 1010.
     }
  }
 
-Recalls an orbiting Spy Shuttle ('Orbiting' task) and fetches all idle spies from the body it is orbiting to the body of origin.
+Recalls an orbiting Spy Shuttle ('Orbiting' task) and also fetches as many idle spies as will fit from the planet it was orbiting.
 
 Throws 1002, 1010, 1013.
 
  {
      "ship" : {
         "id" : "id-goes-here",
-        "name" : "CS4",
-        "hold_size" : 1100,
-        "speed" : 400,
-        "type" : "cargo_ship",
+        "name" : "SS4",
+        "hold_size" : 0,
+        "speed" : 3400,
+        "type" : "spy_shuttle",
         "date_arrives" : "01 31 2010 13:09:05 +0600",
         ...
      },
