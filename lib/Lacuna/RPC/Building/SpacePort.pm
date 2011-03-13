@@ -213,6 +213,7 @@ sub recall_ship {
 		target		=> $target,
 		direction	=> 'in',
 	);
+    $ship->body->update;
     return {
         ship    => $ship->get_status,
         status  => $self->format_status($empire),
