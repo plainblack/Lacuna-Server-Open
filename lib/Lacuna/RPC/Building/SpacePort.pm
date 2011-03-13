@@ -202,7 +202,10 @@ sub recall_ship {
     $ship->can_recall();
 
     if ($ship->type eq 'spy_shuttle') {
-        return $self->recall_spies($session_id, $ship_id);
+        my $spies = $self->_prepare_recall_spies($session_id, $ship_id);
+        if ( @$spies ) {
+            return $self->fetch_spies($session_id, $ship->foreign_body_id, $ship->body_id, $ship->id, $spies);
+        }
     }
 
     my $target = $self->find_target({body_id => $ship->foreign_body_id});
@@ -216,17 +219,13 @@ sub recall_ship {
     }
 }
 
-sub recall_spies {
+sub _prepare_recall_spies {
 	my ($self, $session_id, $ship_id) = @_;
 
     my $empire = $self->get_empire_by_session($session_id);
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     my $to_body = $self->get_body($empire, $ship->body_id);
     my $on_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($ship->foreign_body_id);
-
-    unless ($on_body->empire_id) {
-        confess [1013, "Cannot fetch spies from an uninhabitted planet."];
-    }
 
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
         {on_body_id => $on_body->id, empire_id => $empire->id },
@@ -242,8 +241,7 @@ sub recall_spies {
             }
         }
     }
-
-    return $self->fetch_spies($session_id, $on_body->id, $ship->body_id, $ship->id, \@spies);
+    return \@spies;
 }
 
 sub prepare_send_spies {

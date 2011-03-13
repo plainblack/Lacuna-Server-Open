@@ -5,7 +5,9 @@ use Moose::Role;
 
 after send => sub {
     my $self = shift;
-    return if $self->payload->{spies}[0];
+    return if ( $self->payload->{spies}[0] ); # Spies loaded
+    my $dispatched = (caller(3))[3]; # Should be Lacuna::RPC::Building::SpacePort::send_ship if...
+    return if ( $self->type eq 'spy_shuttle' && $dispatched =~ m/send_ship/ ); # we're trying to orbit
     my $arrives = DateTime->now->add(seconds=>$self->calculate_travel_time($self->foreign_body));
     my @spies;
     foreach my $spy (@{$self->get_available_spies_to_send}) {
@@ -16,10 +18,12 @@ after send => sub {
     $self->update;
 };
 
-#after can_send_to_target => sub {
-#    my ($self, $target) = @_;
-#    confess [ 1002, 'You have no idle spies to send.'] unless (scalar(@{$self->get_available_spies_to_send}));
-#};
+after can_send_to_target => sub {
+    my ($self, $target) = @_;
+    my $dispatched = (caller(3))[3]; # Should be Lacuna::RPC::Building::SpacePort::send_ship if...
+    return if ( $self->type eq 'spy_shuttle' && $dispatched =~ m/send_ship/ ); # we're trying to orbit
+    confess [ 1002, 'You have no idle spies to send.'] unless (scalar(@{$self->get_available_spies_to_send}));
+};
 
 sub get_available_spies_to_send {
     my $self = shift;

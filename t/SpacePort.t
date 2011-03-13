@@ -120,13 +120,12 @@ Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id=>$shipya
 $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
 
 @ships = map { $_->id } @ships;
-diag explain @ships;
 
 $result = $tester->post('spaceport', 'prepare_send_spies', [$session_id, $home->id, $enemy->empire->home_planet->id ]);
-is( $result->{error}{code}, 1016, 'Needs to solve a captcha.' );
+is( $result->{error}{code}, 1016, 'prepare_send_spies requires a captcha.' );
 
 $result = $tester->post('spaceport', 'send_fleet', [$session_id, [ @ships ], { body_id => $enemy->empire->home_planet->id } ] );
-is( $result->{error}{code}, 1016, 'Needs to solve a captcha.' );
+is( $result->{error}{code}, 1016, 'send_fleet requires a captcha.' );
 
 Lacuna->cache->set('captcha', $session_id, { guid => 1111, solution => 1111 }, 60 * 30 );
 

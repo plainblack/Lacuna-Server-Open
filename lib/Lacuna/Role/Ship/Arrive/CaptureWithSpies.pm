@@ -22,7 +22,8 @@ after handle_arrival_procedures => sub {
     return if (!$body->empire_id);
 
     # we don't capture if it is an ally
-    return if ($body->empire->alliance_id == $self->body->empire->alliance_id);
+    return if ($body->empire->alliance_id && $self->body->empire->alliance_id
+        && $body->empire->alliance_id == $self->body->empire->alliance_id);
     
     # set last attack status
     $body->set_last_attacked_by($self->body->id);
