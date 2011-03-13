@@ -201,13 +201,6 @@ sub recall_ship {
     $body->empire($empire);
     $ship->can_recall();
 
-    if ($ship->type eq 'spy_shuttle') {
-        my $spies = $self->_prepare_recall_spies($session_id, $ship_id);
-        if ( @$spies ) {
-            return $self->fetch_spies($session_id, $ship->foreign_body_id, $ship->body_id, $ship->id, $spies);
-        }
-    }
-
     my $target = $self->find_target({body_id => $ship->foreign_body_id});
     $ship->send(
 		target		=> $target,
@@ -218,31 +211,6 @@ sub recall_ship {
         ship    => $ship->get_status,
         status  => $self->format_status($empire),
     }
-}
-
-sub _prepare_recall_spies {
-	my ($self, $session_id, $ship_id) = @_;
-
-    my $empire = $self->get_empire_by_session($session_id);
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    my $to_body = $self->get_body($empire, $ship->body_id);
-    my $on_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($ship->foreign_body_id);
-
-    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-        {on_body_id => $on_body->id, empire_id => $empire->id },
-        {order_by => 'name', rows=>100}
-    );
-    my @spies;
-    while (my $spy = $spies->next) {
-        $spy->on_body($on_body);
-        if ($spy->is_available) {
-            push @spies, $spy->get_status;
-            if ($ship->type eq 'spy_shuttle' && scalar(@spies) == 4) {
-                last;
-            }
-        }
-    }
-    return \@spies;
 }
 
 sub prepare_send_spies {

@@ -86,14 +86,16 @@ my $intelligence = Lacuna::db->resultset('Lacuna::DB::Result::Building')->new({
 $home->build_building($intelligence);
 $intelligence->finish_upgrade;
 
-# need a spy done right now
-Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
-    from_body_id    => $home->id,
-    on_body_id      => $home->id,
-    task            => 'Idle',
-    available_on    => DateTime->now,
-    empire_id       => $empire->id,
-})->insert;
+# need some spies done right now
+for my $count ( 0 .. 4 ) {
+    Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
+        from_body_id    => $home->id,
+        on_body_id      => $home->id,
+        task            => 'Idle',
+        available_on    => DateTime->now,
+        empire_id       => $empire->id,
+    })->insert;
+}
 
 my @ships;
 for my $i ( 0 .. 1 ) {
@@ -150,7 +152,8 @@ ok($result->{result}{fleet}[0]{ship}{date_arrives}, "fleet sent");
 $result = $tester->post('spaceport', 'send_ship', [$session_id, $sweeper->id, { body_id => $enemy->empire->home_planet->id } ] );
 ok($result->{result}{ship}{date_arrives}, "sweeper sent");
 
-$result = $tester->post('spaceport', 'send_ship', [$session_id, $spy_shuttle->id, { body_id => $enemy->empire->home_planet->id } ] );
+$result = $tester->post('spaceport', 'prepare_send_spies', [$session_id, $home->id, $enemy->empire->home_planet->id ]);
+$result = $tester->post('spaceport', 'send_spies', [$session_id, $home->id, $enemy->empire->home_planet->id, $spy_shuttle->id, $result->{result}{spies} ] );
 ok($result->{result}{ship}{date_arrives}, "spy shuttle sent to orbit");
 
 $spy_shuttle = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$spy_shuttle->id},{rows=>1})->single; # pull the latest data on this ship
