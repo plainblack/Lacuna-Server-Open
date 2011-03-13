@@ -25,7 +25,8 @@ with "Lacuna::Role::Ship::Send::NotIsolationist";
 with "Lacuna::Role::Ship::Send::LoadWithSpies";
 with "Lacuna::Role::Ship::Arrive::Orbit";
 with "Lacuna::Role::Ship::Arrive::CaptureWithSpies";
-with "Lacuna::Role::Ship::Arrive::Scuttle";
+with "Lacuna::Role::Ship::Arrive::PickupSpies";
+#with "Lacuna::Role::Ship::Arrive::Scuttle";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
