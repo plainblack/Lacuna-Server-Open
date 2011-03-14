@@ -67,7 +67,6 @@ sub view_market {
         trade_count => $all_trades->pager->total_entries,
         page_number => $page_number,
         status      => $self->format_status($empire, $building->body),
-        captcha     => { guid =>'f6885186-886f-421a-8dc6-099a04fded52', url => Lacuna->config->get('server_url').'/captcha/f6/f6885186-886f-421a-8dc6-099a04fded52.png'},
     };
 }
 
