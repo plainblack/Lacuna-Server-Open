@@ -7,8 +7,8 @@ extends 'Lacuna::DB::Result::Ships';
 
 
 use constant prereq                 => { class=> 'Lacuna::DB::Result::Building::Embassy',  level => 20 };
-use constant base_food_cost         => 400000;
-use constant base_water_cost        => 800000;
+use constant base_food_cost         => 8000000;
+use constant base_water_cost        => 8000000;
 use constant base_energy_cost       => 8000000;
 use constant base_ore_cost          => 8000000;
 use constant base_time_cost         => 60 * 60 * 72;
