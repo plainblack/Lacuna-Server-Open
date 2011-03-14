@@ -33,6 +33,10 @@ sub get_empire_by_session {
     else {
         my $empire = $self->get_session($session_id)->empire;
         if (defined $empire) {
+            my $throttle = Lacuna->config->get('rpc_throttle') || 30;
+            if ($empire->rpc_rate > $throttle) {
+                confess [1010, 'Slow down! No more than '.$throttle.' requests per minute.'];
+            }
             my $max = Lacuna->config->get('rpc_limit') || 2500;
             if ($empire->rpc_count > $max) {
                 confess [1010, 'You have already made the maximum number of requests ('.$max.') you can make for one day.'];

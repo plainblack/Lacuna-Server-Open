@@ -6,6 +6,7 @@
  - Rule: Waste Recyclers now add 400 waste storage at base.
  - Rule: Archived messages will be purged thirty days after they were sent.
  - Rule: Spy shuttles can be sent to orbit planets.
+ - Rule: Now allow 10,000 RPC per day, but rate limited to no more than 30 per minute.
  - API: Sending ships that trigger defenses requires the new captchas.
  - API: Sending spies requires the new captchas.
  - API: Running spy missions require the new captchas.

@@ -73,13 +73,20 @@ sub login {
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
     }
-    $empire->rpc_count; # just want to increment it
-    Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
-       empire_id    => $empire->id,
-       empire_name  => $empire->name,
-       module       => ref $self,
-       api_key      => $api_key,
-    })->insert;
+    my $throttle = Lacuna->config->get('rpc_throttle') || 30;
+    if ($empire->rpc_rate > $throttle) {
+        confess [1010, 'Slow down! No more than '.$throttle.' requests per minute.'];
+    }
+    my $max = Lacuna->config->get('rpc_limit') || 2500;
+    if ($empire->rpc_count > $max) {
+        confess [1010, 'You have already made the maximum number of requests ('.$max.') you can make for one day.'];
+    }
+    #Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
+    #   empire_id    => $empire->id,
+    #   empire_name  => $empire->name,
+    #   module       => ref $self,
+    #   api_key      => $api_key,
+    #})->insert;
     if ($empire->is_password_valid($password)) {
         if ($empire->stage eq 'new') {
             confess [1100, "Your empire has not been completely created. You must complete it in order to play the game.", { empire_id => $empire->id } ];

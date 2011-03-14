@@ -272,6 +272,15 @@ has rpc_count => (
     }
 );
 
+has rpc_rate => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return Lacuna->cache->increment('rpc_rate_'.format_date(undef,'%M'), $self->id, 1, 60 * 2);
+    }
+);
+
 sub get_status {
     my ($self) = @_;
     my $planet_rs = $self->planets;
