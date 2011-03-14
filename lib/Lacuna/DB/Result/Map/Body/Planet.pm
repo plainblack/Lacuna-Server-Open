@@ -712,7 +712,7 @@ sub convert_to_station{
         class           => 'Lacuna::DB::Result::Building::Module::Parliament',
     });
     $self->build_building($parliament);
-    $command->finish_upgrade;
+    $parliament->finish_upgrade;
     
     # add warehouse
     my $warehouse = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -721,7 +721,7 @@ sub convert_to_station{
         class           => 'Lacuna::DB::Result::Building::Module::Warehouse',
     });
     $self->build_building($warehouse);
-    $command->finish_upgrade;
+    $warehouse->finish_upgrade;
     
     # add starting resources
     $self->tick;
