@@ -229,6 +229,9 @@ sub remove_member {
     elsif ($empire->id == $self->leader_id && !$delete_leader) {
         confess [1010, 'The leader of the alliance cannot be removed from the alliance.'];
     }
+    elsif ($empire->planets->search({ class => 'Lacuna::DB::Result::Map::Body::Planet::Station'})->count) {
+        confess [1010, 'A member who owns a space station cannot leave an alliance.'];
+    }
     $empire->alliance_id(undef);
     $empire->update;
     Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({empire_id => $empire->id})->update({alliance_id => undef});
