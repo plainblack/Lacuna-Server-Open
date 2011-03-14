@@ -47,7 +47,7 @@ before can_build => sub {
     unless (defined $sslc) {
         confess [1013, 'You must have a Space Station Lab (C) before you can build Space Station Lab (D).'];
     }
-    unless ($self->x == $sslc->x + 1 && $self->y == $sslc->y) {
+    unless ($self->x == $sslc->x - 1 && $self->y == $sslc->y) {
         confess [1013, 'Space Station Lab (D) must be placed to the left of Space Station Lab (C).'];
     }
 };
