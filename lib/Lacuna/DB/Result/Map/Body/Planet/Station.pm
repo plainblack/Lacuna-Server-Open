@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body::Planet';
+use Lacuna::Util qw(randint);
 
 use constant image => 'station';
 
