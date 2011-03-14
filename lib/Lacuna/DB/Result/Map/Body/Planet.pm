@@ -676,7 +676,7 @@ sub found_colony {
     return $self;
 }
 
-sub convert_to_station{
+sub convert_to_station {
     my ($self, $empire) = @_;
     $self->size(3);
     $self->plots_available(0);
@@ -728,7 +728,7 @@ sub convert_to_station{
     $self->add_algae(2500);
     $self->add_energy(2500);
     $self->add_water(2500);
-    $self->add_ore(2500);
+    $self->add_rutile(2500);
     $self->update;
     
     # newsworthy
