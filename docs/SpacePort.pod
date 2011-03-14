@@ -511,6 +511,23 @@ Throws 1002, 1010.
     }
  }
 
+Recalls an orbiting Spy Shuttle ('Orbiting' task) and also fetches as many idle spies as will fit from the planet it was orbiting.
+
+Throws 1002, 1010, 1013.
+
+ {
+     "ship" : {
+        "id" : "id-goes-here",
+        "name" : "SS4",
+        "hold_size" : 0,
+        "speed" : 3400,
+        "type" : "spy_shuttle",
+        "date_arrives" : "01 31 2010 13:09:05 +0600",
+        ...
+     },
+     "status" : { ... }
+ }
+
 =head3 session_id
 
 A session id.

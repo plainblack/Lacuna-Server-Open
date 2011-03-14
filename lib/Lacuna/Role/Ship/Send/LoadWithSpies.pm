@@ -5,11 +5,13 @@ use Moose::Role;
 
 after send => sub {
     my $self = shift;
-    return if $self->payload->{spies}[0];
+    return if ( $self->direction eq 'in' && $self->type ne 'spy_shuttle' ); # load outbound ships and inbound spy shuttles
+    return if ( $self->payload->{spies}[0] ); # Spies already loaded
     my $arrives = DateTime->now->add(seconds=>$self->calculate_travel_time($self->foreign_body));
     my @spies;
+    my $to_body = $self->direction eq 'out' ? $self->foreign_body : $self->body;
     foreach my $spy (@{$self->get_available_spies_to_send}) {
-        $spy->send($self->foreign_body_id, $arrives)->update;
+        $spy->send($to_body->id, $arrives)->update;
         push @spies, $spy->id;
     }
     $self->payload({ spies => \@spies });
@@ -18,14 +20,17 @@ after send => sub {
 
 after can_send_to_target => sub {
     my ($self, $target) = @_;
+    return if ( $self->direction eq 'in' ); # Only applies to outbound ships
+    return if ( $self->type eq 'spy_shuttle' ); # Except for spy shuttles
     confess [ 1002, 'You have no idle spies to send.'] unless (scalar(@{$self->get_available_spies_to_send}));
 };
 
 sub get_available_spies_to_send {
     my $self = shift;
     my $body = $self->body;
+    my $on_body = $self->direction eq 'out' ? $self->body : $self->foreign_body;
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-        {task => ['in','Idle','Training'], on_body_id=>$body->id, empire_id=>$body->empire->id},
+        {task => ['in','Idle','Training'], on_body_id=>$on_body->id, empire_id=>$body->empire->id},
     );
     my @spies;
     while (my $spy = $spies->next) {

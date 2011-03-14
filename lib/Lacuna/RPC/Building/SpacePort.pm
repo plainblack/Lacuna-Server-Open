@@ -96,7 +96,7 @@ sub get_ships_for {
     
 	unless ($target->isa('Lacuna::DB::Result::Map::Star')) {
 		my @recallable;
-		my $recallable_rs = $ships->search({task => 'Defend', body_id => $body->id, foreign_body_id => $target->id });
+		my $recallable_rs = $ships->search({task => [qw(Defend Orbiting)], body_id => $body->id, foreign_body_id => $target->id });
 		while (my $ship = $recallable_rs->next) {
 			$ship->body($body);
 			eval{ $ship->can_recall() };
@@ -191,7 +191,6 @@ sub recall_ship {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    my $target = $self->find_target({body_id => $ship->foreign_body_id});
     unless (defined $ship) {
         confess [1002, 'Could not locate that ship.'];
     }
@@ -201,10 +200,13 @@ sub recall_ship {
     my $body = $building->body;
     $body->empire($empire);
     $ship->can_recall();
+
+    my $target = $self->find_target({body_id => $ship->foreign_body_id});
     $ship->send(
 		target		=> $target,
 		direction	=> 'in',
 	);
+    $ship->body->update;
     return {
         ship    => $ship->get_status,
         status  => $self->format_status($empire),
@@ -334,7 +336,6 @@ sub prepare_fetch_spies {
     my $empire = $self->get_empire_by_session($session_id);
     my $to_body = $self->get_body($empire, $to_body_id);
     my $on_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($on_body_id);
-    
     unless ($on_body->empire_id) {
         confess [1013, "Cannot fetch spies from an uninhabitted planet."];
     }
@@ -378,7 +379,7 @@ sub fetch_spies {
     unless (defined $ship) {
         confess [1002, "Ship not found."];
     }
-    unless ($ship->is_available) {
+    unless ($ship->is_available || ($ship->can_recall && $ship->foreign_body_id == $on_body_id)) {
         confess [1010, "That ship is not available."];
     }
 
@@ -391,7 +392,10 @@ sub fetch_spies {
     }
     
     # check size
-    if ($ship->hold_size <= (scalar(@{$spy_ids}) * 350)) {
+    if ($ship->type eq 'spy_shuttle' && scalar(@{$spy_ids}) <= 4) {
+        # we're ok
+    }
+    elsif ($ship->hold_size <= (scalar(@{$spy_ids}) * 350)) {
         confess [1013, "The ship cannot hold the spies selected."];
     }
     
@@ -452,7 +456,7 @@ sub _ship_filter_options {
 
     # Valid filter options include...
     my $options = {
-        task    => [qw(Docked Building Mining Travelling Defend)],
+        task    => [qw(Docked Building Mining Travelling Defend Orbiting)],
         tag     => [qw(Trade Colonization Intelligence Exploration War Mining)],
         type    => [SHIP_TYPES],
     };
@@ -656,7 +660,7 @@ around 'view' => sub {
     return $out;
 };
  
-__PACKAGE__->register_rpc_method_names(qw(view_foreign_ships get_ships_for send_ship send_fleet recall_ship scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_travelling view_all_ships));
+__PACKAGE__->register_rpc_method_names(qw(view_foreign_ships get_ships_for send_ship send_fleet recall_ship recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_travelling view_all_ships));
 
 
 no Moose;

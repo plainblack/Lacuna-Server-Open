@@ -1,4 +1,4 @@
-package Lacuna::Role::Ship::Arrive::Defend;
+package Lacuna::Role::Ship::Arrive::Orbit;
 
 use strict;
 use Moose::Role;
@@ -6,13 +6,13 @@ use Moose::Role;
 after handle_arrival_procedures => sub {
     my ($self) = @_;
 
-    # no defense at stars
+    # cannot orbit stars
     return unless $self->foreign_body_id;
 
-	# only defend on arrival to the foreign body
+	# only orbit on arrival to the foreign body
 	return if $self->direction eq 'in';
 
-	$self->defend->update;
+	$self->orbit->update;
 
 	confess [-1];
 };
