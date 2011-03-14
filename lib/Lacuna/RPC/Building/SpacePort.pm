@@ -524,8 +524,8 @@ sub _ship_sort_options {
 sub view_all_ships {
     my ($self, $session_id, $building_id, $paging, $filter, $sort) = @_;
 
-    $paging = $self->_ship_paging_options( $paging // {} );
-    $filter = $self->_ship_filter_options( $filter // {} );
+    $paging = $self->_ship_paging_options( (defined $paging && ref $paging eq 'HASH') ? $paging : {} );
+    $filter = $self->_ship_filter_options( (defined $filter && ref $filter eq 'HASH') ? $filter : {} );
     $sort = $self->_ship_sort_options( $sort // 'type' );
 
     my $attrs = {
