@@ -44,7 +44,7 @@ sub push_items {
     unless (defined $target) {
         confess [1002, 'The target body you specified could not be found.'];
     }
-    unless ($target->empire_id eq $empire->id) {
+    unless ($target->empire_id == $empire->id || ($target->class eq 'Lacuna::DB::Result::Map::Body::Planet::Station' && $target->alliance_id == $empire->alliance_id)) {
         confess [1010, 'You cannot push items to a planet that is not your own.'];
     }
     my $ship = $building->push_items($target, $items, $options);
