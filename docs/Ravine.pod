@@ -1,6 +1,6 @@
-=head1 Lapis Orchard Methods
+=head1 Ravine Methods
 
-Lapis Orchard is accessible via the URL C</lapis>.
+Ravine is accessible via the URL C</ravine>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 

@@ -1,6 +1,6 @@
-=head1 Lapis Orchard Methods
+=head1 Lapis Forest Methods
 
-Lapis Orchard is accessible via the URL C</lapis>.
+Lapis Forest is accessible via the URL C</lapisforest>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
