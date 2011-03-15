@@ -39,6 +39,7 @@ while (my $attacking_colony = $colonies->next) {
     my $targets = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
         empire_id                   => { '>' => 1 },
         'empire.is_isolationist'    => 0,
+        zone                        => { '!=' => '-3|0' },
     },
     {
         order_by    => 'rand()',
