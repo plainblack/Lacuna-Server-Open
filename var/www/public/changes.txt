@@ -2,6 +2,7 @@
  - Rule: Deployed bleeders now require a captcha to be demolished.
  - Fix: All body resource attributes have been upgraded to support 9223372036854775807 instead of 2147483647.
  - Fix: Space stations now count against your next colony cost while in transit.
+ - Fix: Added missing Malcud Field and Beeldeban Nest API docs.
 
 3.0001
  - Add: Added Space Station Lab building, which will eventually allow building space station modules.

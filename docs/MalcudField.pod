@@ -1,6 +1,6 @@
-=head1 Malcud Fungus Farm Methods
+=head1 Malcud Field Methods
 
-Malcud Fungus Farm is accessible via the URL C</malcud>.
+Malcud Field is accessible via the URL C</malcudfield>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 

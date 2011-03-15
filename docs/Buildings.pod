@@ -293,6 +293,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<Beeldeban>
 
+=item L<BeeldebanNest>
+
 =item L<BlackHoleGenerator>
 
 =item L<Bread>
@@ -386,6 +388,8 @@ Below is a list of the different types of structures that can be built on planet
 =item L<LuxuryHousing>
 
 =item L<Malcud>
+
+=item L<MalcudField>
 
 =item L<MassadsHenge>
 
