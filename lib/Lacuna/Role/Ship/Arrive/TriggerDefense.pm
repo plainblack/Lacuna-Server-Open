@@ -34,11 +34,20 @@ after handle_arrival_procedures => sub {
 		$alliance_id = $body_attacked->empire->alliance_id;
 	}
 	my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
-		{ id => { '!=' => $body_attacked->id}, star_id => $body_attacked->star_id}
+		{ id => { '!=' => $body_attacked->id}, star_id => $body_attacked->star_id }
 	);
 	while (my $body = $bodies->next) {
 		# asteroids don't have SAWs
-		next unless $body->isa('Lacuna::DB::Result::Map::Body::Planet');
+        next
+            unless $body->isa('Lacuna::DB::Result::Map::Body::Planet');
+
+        # don't attack own ships
+        next
+            if $body->empire_id && $body->empire_id == $self->body->empire_id;
+        # don't attack alliance ships
+        my $body_alliance = $body->alliance_id || ($body->empire && $body->empire->alliance_id);
+        next
+            if $body_alliance && $body_alliance == $self->body->empire->alliance_id;
 
 		if ( $is_asteroid ) {
 			# all planets defend the asteroids in their system
