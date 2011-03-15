@@ -19,6 +19,8 @@ use constant base_hold_size         => 0;
 use constant build_tags             => [qw(War)];
 use constant type_formatted         => 'Placebo IV';
 
+sub _build_hostile_action { 1 }
+
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Inhabited";
 with "Lacuna::Role::Ship::Send::NotIsolationist";

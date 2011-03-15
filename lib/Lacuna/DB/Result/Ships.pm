@@ -8,6 +8,15 @@ use Lacuna::Util qw(format_date randint);
 use DateTime;
 use feature "switch";
 
+has 'hostile_action' => (
+    is      => 'rw',
+    isa     => 'Bool',
+    lazy    => 1,
+    builder => '_build_hostile_action',
+);
+
+sub _build_hostile_action { 0 }
+
 __PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('ships');
 __PACKAGE__->add_columns(

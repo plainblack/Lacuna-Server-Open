@@ -1,3 +1,6 @@
+3.0002
+ - Rule: Only ships that are performing hostile actions will trigger captchas.
+
 3.0001
  - Add: Added Space Station Lab building, which will eventually allow building space station modules.
  - Add: Added Station Command Center, Parliament, Warehouse, and IBS modules for space stations.

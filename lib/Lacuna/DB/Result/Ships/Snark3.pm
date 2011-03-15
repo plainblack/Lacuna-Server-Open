@@ -20,12 +20,13 @@ use constant build_tags             => ['War'];
 use constant type_formatted         => 'Snark III';
 use constant splash_radius          => 2;
 
+sub _build_hostile_action { 1 }
+
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Inhabited";
 with "Lacuna::Role::Ship::Send::NotIsolationist";
 with "Lacuna::Role::Ship::Arrive::TriggerDefense";
 with "Lacuna::Role::Ship::Arrive::DamageBuilding";
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

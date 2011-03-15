@@ -129,8 +129,11 @@ sub send_ship {
     my ($self, $session_id, $ship_id, $target_params) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $target = $self->find_target($target_params);
-    $empire->current_session->check_captcha;
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+    my $hostile = $ship->hostile_action;
+    if ($hostile) {
+        $empire->current_session->check_captcha;
+    }
     unless (defined $ship) {
         confess [1002, 'Could not locate that ship.'];
     }

@@ -18,7 +18,6 @@ use constant base_hold_size         => 0;
 use constant pilotable              => 1;
 use constant build_tags             => ['Colonization'];
 
-
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Arrive::AddTerraformingPlatform";
 
