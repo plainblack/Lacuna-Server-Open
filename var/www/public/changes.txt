@@ -1,3 +1,6 @@
+3.0100
+ - Deployed bleeders now require a captcha to be demolished.
+
 3.0001
  - Add: Added Space Station Lab building, which will eventually allow building space station modules.
  - Add: Added Station Command Center, Parliament, Warehouse, and IBS modules for space stations.
