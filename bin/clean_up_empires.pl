@@ -60,9 +60,15 @@ my $abandons_tally;
 my $inactivity_time_out = Lacuna->config->get('self_destruct_after_inactive_days') || 20;
 my $inactives = $empires->search({ last_login => { '<' => DateTime->now->subtract( days => $inactivity_time_out ) }, self_destruct_active => 0, id => { '>' => 1}});
 while (my $empire = $inactives->next) {
-    out('Enabling self destruct on '.$empire->name);
-    $empire->enable_self_destruct;
-    $abandons_tally++;
+    if ($empire->essentia >= 1) {
+        out('Preventing self-destruct by spending essentia.');
+        $empire->spend_essentia(1, 'prevent self-destruct')->update;
+    }
+    else {
+        out('Enabling self destruct on '.$empire->name);
+        $empire->enable_self_destruct;
+        $abandons_tally++;
+    }
 }
 
 out('Updating Viral Log');
