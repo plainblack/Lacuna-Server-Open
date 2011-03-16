@@ -18,8 +18,6 @@ use constant base_combat            => 2000;
 use constant base_hold_size         => 0;
 use constant build_tags             => ['War'];
 
-#sub _build_hostile_action { 1 }
-
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Inhabited";
 with "Lacuna::Role::Ship::Send::NotIsolationist";

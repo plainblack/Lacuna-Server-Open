@@ -23,15 +23,5 @@ with "Lacuna::Role::Ship::Send::MaybeHostile";
 with "Lacuna::Role::Ship::Arrive::TriggerDefense";
 with "Lacuna::Role::Ship::Arrive::ScanSurface";
 
-#sub _build_hostile_action {
-#    my $self = shift;
-#    if ($self->foreign_body->empire) {
-#        return 1;
-#    }
-#    else {
-#        return 0;
-#    }
-#}
-
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

@@ -19,8 +19,6 @@ use constant base_hold_size         => 0;
 use constant pilotable              => 1;
 use constant build_tags             => ['Colonization'];
 
-#sub _build_hostile_action { 1 }
-
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Uninhabited";
 with "Lacuna::Role::Ship::Send::SpendNextColonyCost";
