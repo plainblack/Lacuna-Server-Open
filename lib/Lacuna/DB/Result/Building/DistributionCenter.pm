@@ -68,6 +68,7 @@ sub can_reserve {
     if ($self->is_working) {
         confess [1010, "The Distribution Center is busy."];
     }
+    return 1;
 }
 
 sub reserve {
