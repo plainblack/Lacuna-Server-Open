@@ -29,14 +29,16 @@ sub get_available_spies_to_send {
     my $self = shift;
     my $body = $self->body;
     my $on_body = $self->direction eq 'out' ? $self->body : $self->foreign_body;
-    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-        {task => ['in','Idle','Training'], on_body_id=>$on_body->id, empire_id=>$body->empire->id},
-    );
     my @spies;
-    while (my $spy = $spies->next) {
-        if ($spy->is_available) {
-            push @spies, $spy;
-            last if (scalar(@spies) >= $self->max_occupants);
+    if ($on_body) {
+        my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
+            {task => ['in','Idle','Training'], on_body_id=>$on_body->id, empire_id=>$body->empire->id},
+        );
+        while (my $spy = $spies->next) {
+            if ($spy->is_available) {
+                push @spies, $spy;
+                last if (scalar(@spies) >= $self->max_occupants);
+            }
         }
     }
     return \@spies;
