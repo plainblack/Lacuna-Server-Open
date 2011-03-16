@@ -7,6 +7,7 @@
  - Fix: Space stations now count against your next colony cost while in transit.
  - Fix: Added missing Malcud Field, Ravine, Lapis Forest, and Beeldeban Nest API docs.
  - Rule: Only ships that are performing hostile actions will trigger captchas.
+ - Fix: Allow Spy Pods to show up as available in get_ships_for results.
 
 3.0001
  - Add: Added Space Station Lab building, which will eventually allow building space station modules.
