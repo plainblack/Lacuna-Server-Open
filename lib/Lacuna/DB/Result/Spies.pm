@@ -244,7 +244,7 @@ sub get_possible_assignments {
     }
     
     # at hostiles you can attack
-    else {
+    elsif (! $self->empire->is_isolationist) {
         push @assignments, $self->offensive_assignments;
     }
     return \@assignments;

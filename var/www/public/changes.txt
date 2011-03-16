@@ -1,4 +1,11 @@
-3.0002
+3.0100
+ - Add: The space station lab is now capable of producing some module plans.
+ - Rule: Deployed bleeders now require a captcha to be demolished.
+ - API: Added get_stored_resources method to Distribution Center.
+ - Fix: "can" result in distribution center returned 0 always.
+ - Fix: All body resource attributes have been upgraded to support 9223372036854775807 instead of 2147483647.
+ - Fix: Space stations now count against your next colony cost while in transit.
+ - Fix: Added missing Malcud Field, Ravine, Lapis Forest, and Beeldeban Nest API docs.
  - Rule: Only ships that are performing hostile actions will trigger captchas.
 
 3.0001

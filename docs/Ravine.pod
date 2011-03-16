@@ -1,6 +1,6 @@
-=head1 Malcud Fungus Farm Methods
+=head1 Ravine Methods
 
-Malcud Fungus Farm is accessible via the URL C</malcud>.
+Ravine is accessible via the URL C</ravine>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 

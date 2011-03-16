@@ -1,6 +1,6 @@
-=head1 Beeldeban Methods
+=head1 Beeldeban Herder Methods
 
-Beeldeban is accessible via the URL C</beeldeban>.
+Beeldeban Herder is accessible via the URL C</beeldeban>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 

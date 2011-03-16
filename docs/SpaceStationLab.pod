@@ -2,8 +2,88 @@
 
 Space Station Lab is accessible via the URLs C</ssla>, C</sslb>, C</sslc>, and C</ssld>. The C</ssla> URL controls all the actual functions of the lab, but you must build all four lab components to use the functions of SSL A. 
 
-The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+The list of methods below represents changes and additions to the methods that all L<Buildings> share. 
 
+B<NOTE:> These methods and changes have only been made to C</ssla>.
+
+=head2 view ( session_id, building_id )
+
+This method is changed from the default because it adds a C<make_plan> element to the output.
+
+ {
+    "building" : { ... },
+    "status" : { ... },
+    "make_plan" : {
+        "types" : {
+            "ibs" : "Interstellar Broadcast Station",
+            ...
+        },
+        "level_costs" : [
+            {
+               level    => 1,
+               food     => 10000,
+               ore      => 10000,
+               water    => 10000,
+               energy   => 10000,
+               waste    => 2500,
+               time     => 1200
+            },
+            ...
+        ],
+        "subsidy_cost" : 2,
+        "making" : "Interstellar Broadcast Station (3+0)"
+    }
+ }
+
+If there is a plan being made then the C<making> element will be present.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the space station lab.
+
+
+
+=head2 make_plan ( session_id, building_id, type, level )
+
+Starts the plan creation process.
+
+Returns C<view>.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the space station lab.
+
+=head3 type
+
+The key from the hash returned by the C<view> method in make_plan > types. For example, C<ibs> for "Interstellar Broadcast Station".
+
+=head3 level
+
+An integer between 1 and 30. The level from the array returned by the C<view> method in make_plan > level_costs.
+
+
+
+=head2 subsidize_plan ( session_id, building_id )
+
+Will spend essentia equal to the subsidy_cost returned by the C<view> method to complete the current plan immediately. Returns C<view>.
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the space station lab.
 
 
 

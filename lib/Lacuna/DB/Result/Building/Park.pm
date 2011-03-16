@@ -54,7 +54,7 @@ sub throw_a_party {
 before finish_work => sub {
     my $self = shift;
     my $planet = $self->body;
-    $planet->add_happiness($self->work->{happiness_from_party})->update;
+    $planet->add_happiness($self->work->{happiness_from_party});
 };
 
 use constant controller_class => 'Lacuna::RPC::Building::Park';

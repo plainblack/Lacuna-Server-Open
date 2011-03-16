@@ -1,5 +1,6 @@
 use strict;
 use lib ('/data/Lacuna-Server/lib');
+use 5.010;
 use Config::JSON;
 use Plack::App::URLMap;
 use Log::Log4perl;
@@ -40,7 +41,7 @@ my $gameover = [ 500,
     } ) ],
 ];
 
-builder {
+my $app = builder {
     enable 'CrossOrigin',
         origins => '*', methods => ['GET', 'POST'], max_age => 60*60*24*30, headers => '*';
 
@@ -237,5 +238,10 @@ builder {
         };
         Lacuna::Web::MissionCurator->new->to_app;
     };
+
 };
+
+say "Server Started";
+
+$app;
 
