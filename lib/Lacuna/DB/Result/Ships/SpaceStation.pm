@@ -5,7 +5,6 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 
-
 use constant prereq                 => { class=> 'Lacuna::DB::Result::Building::Embassy',  level => 20 };
 use constant base_food_cost         => 8000000;
 use constant base_water_cost        => 8000000;
@@ -24,6 +23,7 @@ with "Lacuna::Role::Ship::Send::Planet";
 with 'Lacuna::Role::Ship::Send::Uninhabited';
 with 'Lacuna::Role::Ship::Send::MemberOfAlliance';
 with "Lacuna::Role::Ship::Send::SpendNextColonyCost";
+with "Lacuna::Role::Ship::Send::IsHostile";
 with "Lacuna::Role::Ship::Arrive::ConvertToStation";
 
 no Moose;

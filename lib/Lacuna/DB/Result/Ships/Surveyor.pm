@@ -19,6 +19,7 @@ use constant base_hold_size         => 0;
 use constant build_tags             => [qw(Exploration Intelligence)];
 
 with "Lacuna::Role::Ship::Send::Planet";
+with "Lacuna::Role::Ship::Send::MaybeHostile";
 with "Lacuna::Role::Ship::Arrive::TriggerDefense";
 with "Lacuna::Role::Ship::Arrive::SurveySurface";
 

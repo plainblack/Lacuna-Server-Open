@@ -23,9 +23,9 @@ use constant splash_radius          => 1;
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Inhabited";
 with "Lacuna::Role::Ship::Send::NotIsolationist";
+with "Lacuna::Role::Ship::Send::IsHostile";
 with "Lacuna::Role::Ship::Arrive::TriggerDefense";
 with "Lacuna::Role::Ship::Arrive::DamageBuilding";
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
