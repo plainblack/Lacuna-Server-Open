@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
+with 'Lacuna::Role::TraderRpc';
 
 sub app_url {
     return '/distributioncenter';
@@ -49,7 +50,7 @@ sub release_reserve {
     return $self->view($empire, $building);
 }
 
-__PACKAGE__->register_rpc_method_names(qw(reserve release_reserve));
+__PACKAGE__->register_rpc_method_names(qw(reserve release_reserve get_stored_resources));
 
 
 no Moose;
