@@ -18,9 +18,10 @@ use constant base_stealth           => 0;
 use constant base_hold_size         => 0;
 use constant build_tags             => ['War'];
 
-sub _build_hostile_action { 1 }
+#sub _build_hostile_action { 1 }
 
 with "Lacuna::Role::Ship::Send::AsteroidAndStar";
+with "Lacuna::Role::Ship::Send::IsHostile";
 with "Lacuna::Role::Ship::Arrive::TriggerDefense";
 with "Lacuna::Role::Ship::Arrive::DestroyProbes";
 with "Lacuna::Role::Ship::Arrive::DestroyMiningPlatforms";

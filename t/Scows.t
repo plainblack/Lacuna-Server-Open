@@ -82,9 +82,6 @@ $enemy->empire->update;
 
 Lacuna->cache->set('captcha', $session_id, { guid => 1111, solution => 1111 }, 60 * 30 );
 
-$result = $tester->post('captcha','solve', [$session_id, 1111, 1111]);
-is($result->{result}, 1, 'Solved captcha');
-
 $result = $tester->post('spaceport', 'send_ship', [$session_id, $scow->id, { star_id => $home->star_id } ] );
 ok($result->{result}{ship}{date_arrives}, "scow sent to star id " . $home_star_id);
 $scow = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow->id},{rows=>1})->single; # pull the latest data on this ship
@@ -101,6 +98,9 @@ $scow->arrive;
 is( $scow->task, 'Docked', 'scow is docked' );
 cmp_deeply( $scow->payload, {}, 'no payload' );
 
+$result = $tester->post('captcha','solve', [$session_id, 1111, 1111]);
+is($result->{result}, 1, 'Solved captcha');
+
 $result = $tester->post('spaceport', 'send_ship', [$session_id, $scow2->id, { body_id => $enemy->empire->home_planet->id } ] );
 ok($result->{result}{ship}{date_arrives}, "scow sent to planet id " . $enemy->empire->home_planet->id);
 $scow2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow2->id},{rows=>1})->single; # pull the latest data on this ship
@@ -112,7 +112,7 @@ $scow2->arrive;
 $scow2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow2->id},{rows=>1})->single; # pull the latest data on this ship
 
 $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
-is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Scow Hit Target\r\n~~~\r\nOur Scow", 'Scow hit target' );
+is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Scow Hit Target\r\n~~~\r\nOur Scow", 'Scow2 hit target' );
 
 is( $scow2, undef, 'scow2 is undef' );
 
