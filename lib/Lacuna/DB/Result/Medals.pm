@@ -317,6 +317,8 @@ use constant MEDALS => {
     LuxuryHousing                   => 'Built Luxury Housing',
     MissionCommand                  => 'Built Mission Command',
     CloakingLab                     => 'Built Cloaking Lab',
+    AmalgusMeadow                   => 'Discovered an Amalgus Meadow',
+    DentonBrambles                  => 'Discovered Denton Brambles',
 };
 
 sub name {

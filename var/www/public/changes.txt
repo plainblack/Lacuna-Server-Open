@@ -1,3 +1,6 @@
+3.0200
+ - Add: Added Amalgus Meadow and Denton Brambles glyph buildings.
+
 3.0100
  - Add: The space station lab is now capable of producing some module plans.
  - Rule: Deployed bleeders now require a captcha to be demolished.

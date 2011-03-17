@@ -1055,6 +1055,8 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Module::IBS' => 'Lacuna::DB::Result::Building::Module::IBS',
         'Lacuna::DB::Result::Building::Module::Warehouse' => 'Lacuna::DB::Result::Building::Module::Warehouse',
         'Lacuna::DB::Result::Building::Module::Parliament' => 'Lacuna::DB::Result::Building::Module::Parliament',
+        'Lacuna::DB::Result::Building::Permanent::AmalgusMeadow' => 'Lacuna::DB::Result::Building::Permanent::AmalgusMeadow',
+        'Lacuna::DB::Result::Building::Permanent::DentonBrambles' => 'Lacuna::DB::Result::Building::Permanent::DentonBrambles',
     });
 }
 

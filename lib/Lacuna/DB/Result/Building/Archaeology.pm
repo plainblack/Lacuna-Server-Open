@@ -151,6 +151,9 @@ my %recipies = (
                 },
             },
         },        
+        trona   => {
+            plan    => 'Lacuna::DB::Result::Building::Permanent::AmalgusMeadow',
+        },
     },
     chalcopyrite=> {
         plan        => 'Lacuna::DB::Result::Building::Permanent::Lagoon',
@@ -315,6 +318,9 @@ my %recipies = (
                     plan    => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk',
                 },
             },
+        },
+        goethite    => {
+            plan    => 'Lacuna::DB::Result::Building::Permanent::DentonBrambles',
         },
     },
     sulfur          => {

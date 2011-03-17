@@ -1,0 +1,8 @@
+=head1 Amalgus Meadow Methods
+
+Amalgus Meadow is accessible via the URL C</amalgusmeadow>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut
+
