@@ -1,3 +1,6 @@
+3.0200
+ - Fix: P16 type planets were being misidentified as P17 planets.
+
 3.0100
  - Add: The space station lab is now capable of producing some module plans.
  - Rule: Deployed bleeders now require a captcha to be demolished.
