@@ -22,6 +22,17 @@ before has_special_resources => sub {
     }
 };
 
+around spend_efficiency => sub {
+    my ($orig, $self, $amount) = @_;
+    if ($amount * 100 < $self->body->water_stored) {
+        $self->body->spend_water($amount * 100);
+    }
+    else {
+        $orig->($self, $amount);
+    }
+    return $self;
+};
+
 use constant controller_class => 'Lacuna::RPC::Building::SAW';
 
 use constant university_prereq => 8;
