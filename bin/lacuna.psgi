@@ -213,6 +213,8 @@ my $app = builder {
         Lacuna::RPC::Building::SSLb
         Lacuna::RPC::Building::SSLc
         Lacuna::RPC::Building::SSLd
+        Lacuna::RPC::Building::AmalgusMeadow
+        Lacuna::RPC::Building::DentonBrambles
     )) {
         mount $building->new->to_app_with_url;
     }

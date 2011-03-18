@@ -1,0 +1,9 @@
+=head1 Denton Brambles Methods
+
+Denton Brambles is accessible via the URL C</dentonbrambles>.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=cut
+
+

@@ -1,4 +1,5 @@
 3.0200
+ - Add: Added Amalgus Meadow and Denton Brambles glyph buildings.
  - API: Slight change to the Space Station Lab API to accomodate displaying descriptions and images for the plans.
  - Fix: P16 type planets were being misidentified as P17 planets.
 
@@ -13,6 +14,8 @@
  - Fix: All body resource attributes have been upgraded to support 9223372036854775807 instead of 2147483647.
  - Fix: Space stations now count against your next colony cost while in transit.
  - Fix: Added missing Malcud Field, Ravine, Lapis Forest, and Beeldeban Nest API docs.
+ - Rule: Only ships that are performing hostile actions will trigger captchas.
+ - Fix: Allow Spy Pods to show up as available in get_ships_for results.
 
 3.0001
  - Add: Added Space Station Lab building, which will eventually allow building space station modules.
