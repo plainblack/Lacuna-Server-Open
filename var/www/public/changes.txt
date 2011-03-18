@@ -1,5 +1,6 @@
 3.0200
  - Add: Added Amalgus Meadow and Denton Brambles glyph buildings.
+ - Rule: Surveyors now return efficiency information in the table of building data.
  - API: Slight change to the Space Station Lab API to accomodate displaying descriptions and images for the plans.
  - Fix: P16 type planets were being misidentified as P17 planets.
 
