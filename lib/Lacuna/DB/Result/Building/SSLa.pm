@@ -69,12 +69,17 @@ sub makeable_plans {
 
 sub makeable_plans_formatted {
     my $self = shift;
-    my %out;
+    my @out;
     my $makeable_plans = $self->makeable_plans;
     while (my ($type, $class) = each %{$makeable_plans}) {
-        $out{$type} = $class->name;
+        push @out, {
+            image   => $class->image,
+            name    => $class->name,
+            url     => $class->controller_class->app_url,
+            type    => $type,
+        };
     }
-    return \%out;
+    return \@out;
 }
 
 sub level_costs_formatted {

@@ -50,7 +50,7 @@ $result = $tester->post('ssla', 'view', [$session_id, $ssla->id]);
 is($result->{result}{make_plan}{subsidy_cost}, 2, 'got subsidy cost');
 is(scalar(@{$result->{result}{make_plan}{level_costs}}), 1, 'got level costs');
 ok($result->{result}{make_plan}{level_costs}[0]{food} > 1000, 'got good level costs');
-is($result->{result}{make_plan}{types}{ibs}, 'Interstellar Broadcast System', 'got types');
+ok(exists $result->{result}{make_plan}{types}[0]{url}, 'got types');
 
 $home->ore_capacity(5_000_000);
 $home->water_capacity(5_000_000);

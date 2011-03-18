@@ -14,10 +14,15 @@ This method is changed from the default because it adds a C<make_plan> element t
     "building" : { ... },
     "status" : { ... },
     "make_plan" : {
-        "types" : {
-            "ibs" : "Interstellar Broadcast Station",
+        "types" : [
+            {
+                "type" : "ibs",
+                "name" : "Interstellar Broadcast Station",
+                "image" : "ibs",
+                "url" : "/ibs"
+            },
             ...
-        },
+        ],
         "level_costs" : [
             {
                level    => 1,
