@@ -74,6 +74,10 @@ The old captcha has expired. A new captcha is needed.
 
 The action you tried to perform has been put on hold pending a parliamentary vote.
 
+=head2 1018 Already Voted
+
+You've already voted on this proposition.
+
 =head2 1100 Empire not founded.
 
 You're trying to log in to an empire that is part way through the creation process. The data portion will tell you the empire id so that they can update the species and found the empire.
