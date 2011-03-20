@@ -1,0 +1,12 @@
+%s
+~~~
+A parliamentary vote has been called on a proposition titled *%s*. Here are the particulars:
+
+%s
+
+
+Do you agree to this proposition?
+
+{VoteYes %s %s %s} {VoteNo %s %s %s}
+
+This proposition will automatically pass without a majority vote 72 hours from now.

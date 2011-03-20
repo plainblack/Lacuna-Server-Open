@@ -40,8 +40,16 @@ sub rename {
     
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) { 
-        confess [1010, 'Space stations can only be renamed through an act of Parliament.'];
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) {
+        my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+            type        => 'RenameStation',
+            name        => 'Rename Station',
+            scratch     => { name => $name },
+            description => 'Rename the station from "'.$body->name.'" to "'.$name.'".',            
+        });
+        $proposition->station($body);
+        $proposition->insert;
+        confess [1017, 'The rename has been delayed pending a parliamentary vote.'];
     }
 
     return 1 if $name eq $body->name;

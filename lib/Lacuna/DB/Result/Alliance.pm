@@ -23,6 +23,7 @@ __PACKAGE__->belongs_to('leader', 'Lacuna::DB::Result::Empire', 'leader_id', { o
 __PACKAGE__->has_many('members', 'Lacuna::DB::Result::Empire', 'alliance_id');
 __PACKAGE__->has_many('invites', 'Lacuna::DB::Result::AllianceInvite', 'alliance_id');
 __PACKAGE__->has_many('stations', 'Lacuna::DB::Result::Map::Body', 'alliance_id');
+__PACKAGE__->has_many('propositions', 'Lacuna::DB::Result::Propositions', 'alliance_id');
 
 
 
@@ -240,11 +241,27 @@ sub remove_member {
 
 before delete => sub {
     my $self = shift;
+    my $propositions = $self->propositions;
+    while (my $proposition = $propositions->next) {
+        $proposition->delete;
+    }
+    my $stations = $self->stations;
+    while (my $station = $stations->next) {
+        $station->sanitize;
+    }
     my $members = $self->members;
     while (my $member = $members->next) {
         $self->remove_member($member, 1);
     }
 };
+
+sub send_predefined_message {
+    my ($self, %options) = @_;
+    my $members = $self->members;
+    while (my $empire = $members->next) {
+        $empire->send_predefined_message(%options);
+    }
+}
 
 
 no Moose;

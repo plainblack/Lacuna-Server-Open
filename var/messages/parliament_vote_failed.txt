@@ -1,0 +1,7 @@
+Fail: %s
+~~~
+The parliamentary vote for the proposition titled *%s* has failed with %s votes for and %s votes against. As a reminder, here are the particulars:
+
+%s
+
+%s
