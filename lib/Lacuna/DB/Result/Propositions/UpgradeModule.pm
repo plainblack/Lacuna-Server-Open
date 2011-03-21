@@ -10,7 +10,9 @@ before pass => sub {
     my $station = $self->station;
     my $building = $station->buildings->find($self->scratch->{building_id});
     if (defined $building) {
-        $building->finish_upgrade;
+        if ($self->is_upgrading && $self->level < $self->scratch->{to_level}) {
+            $building->finish_upgrade;
+        }
     }
     else {
         $self->pass_extra_message('Unfortunately by the time the proposition passed, the module had been demolished, effectively nullifying the vote.');

@@ -59,7 +59,7 @@ sub upgrade {
             type            => 'UpgradeModule',
             name            => 'Upgrade '.$name,
             description     => 'Upgrade '.$name.' on the station named "'.$body->name.'" from level '.$building->level.' to '.($building->level + 1).'.',
-            scratch         => { building_id => $building->id },
+            scratch         => { building_id => $building->id, to_level => $building->level + 1 },
             proposed_by_id  => $empire->id,
         });
         $proposition->station($body);
@@ -186,7 +186,7 @@ sub build {
             type            => 'InstallModule',
             name            => 'Install '.$name,
             description     => 'Install '.$name.' on the station named "'.$body->name.'".',
-            scratch         => { building_id => $building->id },
+            scratch         => { building_id => $building->id, to_level => $building->level + 1 },
             proposed_by_id  => $empire->id,
         });
         $proposition->station($body);
