@@ -54,7 +54,7 @@ sub cost_to_upgrade {
     };
 }
 
-before can_upgrade {
+before can_upgrade => sub {
     my $self = shift;
     my $plan = $self->body->get_plan($self->class, $self->level + 1);
     if (defined $plan) {
