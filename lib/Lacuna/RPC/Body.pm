@@ -117,10 +117,6 @@ sub get_buildable {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
     
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) { # short circuiting for better performance
-        confess [1010, 'Space stations can only be expanded through an act of Parliament.'];
-    }
-    
     my $building_rs = Lacuna->db->resultset('Lacuna::DB::Result::Building');
 
     $body->check_for_available_build_space($x, $y);
@@ -138,6 +134,9 @@ sub get_buildable {
 
     my %out;
     my @buildable = BUILDABLE_CLASSES;
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) { 
+        @buildable = ();
+    }
     
     # build queue
     my $dev = $body->development;

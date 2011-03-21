@@ -54,56 +54,6 @@ sub cost_to_upgrade {
     };
 }
 
-around can_upgrade => sub {
-    my ($orig, $self, $cost, $from_parliament) = @_;
-    if ($from_parliament) {
-        $orig->($self, $cost);
-    }
-    else {
-        confess [1010, 'Space station modules can only be upgraded by an act of Parliament.'];
-    }
-};
-
-around can_downgrade => sub {
-    my ($orig, $self, $cost, $from_parliament) = @_;
-    if ($from_parliament) {
-        $orig->($self, $cost);
-    }
-    else {
-        confess [1010, 'Space station modules can only be downgraded by an act of Parliament.'];
-    }
-};
-
-around can_demolish => sub {
-    my ($orig, $self, $cost, $from_parliament) = @_;
-    if ($from_parliament) {
-        $orig->($self, $cost);
-    }
-    else {
-        confess [1010, 'Space station modules can only be demolished by an act of Parliament.'];
-    }
-};
-
-around can_build => sub {
-    my ($orig, $self, $cost, $from_parliament) = @_;
-    if ($from_parliament) {
-        $orig->($self, $cost);
-    }
-    else {
-        confess [1010, 'Space station modules can only be built by an act of Parliament.'];
-    }
-};
-
-around can_repair => sub {
-    my ($orig, $self, $cost, $from_parliament) = @_;
-    if ($from_parliament) {
-        $orig->($self, $cost);
-    }
-    else {
-        confess [1010, 'Space station modules can only be repaired by an act of Parliament.'];
-    }
-};
-
 sub can_build_on {
     my $self = shift;
     if ($self->body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
