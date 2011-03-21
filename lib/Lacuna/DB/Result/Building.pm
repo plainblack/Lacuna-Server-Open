@@ -780,7 +780,8 @@ sub start_upgrade {
     
     # set time to build, plus what's in the queue
     my $time_to_build = $in_parallel ? DateTime->now : $body->get_existing_build_queue_time;
-    $time_to_build->add(seconds=>$cost->{time});
+    my $time_to_add = $body->isa('Lacuna::DB::Result::Map::Body::Planet::Station') ? 60 * 60 * 72 : $cost->{time};
+    $time_to_build->add(seconds=>$time_to_add);
     # add to queue
     $self->update({
         is_upgrading    => 1,

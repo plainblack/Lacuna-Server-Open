@@ -52,6 +52,21 @@ sub upgrade {
 
     $building->start_upgrade($cost);
     
+    # add vote
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        my $name = $building->name.' ('.$building->x.','.$building->y.')';
+        my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+            type            => 'UpgradeModule',
+            name            => 'Upgrade '.$name,
+            description     => 'Upgrade '.$name.' on the station named "'.$body->name.'" from level '.$building->level.' to '.($building->level + 1).'.',
+            scratch         => { building_id => $building->id },
+            proposed_by_id  => $empire->id,
+        });
+        $proposition->station($body);
+        $proposition->proposed_by($empire);
+        $proposition->insert;
+    }
+    
     return {
         status      => $self->format_status($empire, $body),
         building    => {
@@ -164,6 +179,21 @@ sub build {
     # build it
     $body->build_building($building);
     
+    # add vote
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        my $name = $building->name.' ('.$building->x.','.$building->y.')';
+        my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+            type            => 'UpgradeModule',
+            name            => 'Install '.$name,
+            description     => 'Install '.$name.' on the station named "'.$body->name.'".',
+            scratch         => { building_id => $building->id },
+            proposed_by_id  => $empire->id,
+        });
+        $proposition->station($body);
+        $proposition->proposed_by($empire);
+        $proposition->insert;
+    }
+    
     # show the user
     return {
         status      => $self->format_status($empire, $body),
@@ -184,7 +214,7 @@ sub demolish {
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         my $name = $building->name.' ('.$building->x.','.$building->y.')';
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
-            type            => 'DemolishBuilding',
+            type            => 'DemolishModule',
             name            => 'Demolish '.$name,
             description     => 'Demolish '.$name.' on the station named "'.$body->name.'".',
             scratch         => { building_id => $building->id },

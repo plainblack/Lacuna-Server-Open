@@ -50,6 +50,9 @@ sub rename {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        unless ($body->get_building_by_class('Lacuna::DB::Result::Building::Module::Parliament')->level >= 3) {
+            confess [1013, 'You need to have a level 3 Parliament to rename a station.'];
+        }
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
             type            => 'RenameStation',
             name            => 'Rename Station',
