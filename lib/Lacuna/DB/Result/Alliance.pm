@@ -23,7 +23,6 @@ __PACKAGE__->belongs_to('leader', 'Lacuna::DB::Result::Empire', 'leader_id', { o
 __PACKAGE__->has_many('members', 'Lacuna::DB::Result::Empire', 'alliance_id');
 __PACKAGE__->has_many('invites', 'Lacuna::DB::Result::AllianceInvite', 'alliance_id');
 __PACKAGE__->has_many('stations', 'Lacuna::DB::Result::Map::Body', 'alliance_id');
-__PACKAGE__->has_many('propositions', 'Lacuna::DB::Result::Propositions', 'alliance_id');
 
 
 
@@ -241,10 +240,6 @@ sub remove_member {
 
 before delete => sub {
     my $self = shift;
-    my $propositions = $self->propositions;
-    while (my $proposition = $propositions->next) {
-        $proposition->delete;
-    }
     my $stations = $self->stations;
     while (my $station = $stations->next) {
         $station->sanitize;

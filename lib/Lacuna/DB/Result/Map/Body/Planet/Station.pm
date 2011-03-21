@@ -8,6 +8,11 @@ use Lacuna::Util qw(randint);
 
 use constant image => 'station';
 
+before sanitize => sub {
+    my $self = shift;
+    $self->propositions->delete_all;
+};
+
 after sanitize => sub {
     my $self = shift;
     $self->update({
