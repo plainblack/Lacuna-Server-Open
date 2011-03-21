@@ -162,7 +162,7 @@ sub send_vote {
     my $self = shift;
     my $station = $self->station;
     my $parliament = $station->parliament;
-    $station->alliance->send_message(
+    $station->alliance->send_predefined_message(
         filename    => 'parliament_vote.txt',
         tag         => 'Correspondence',
         from        => $self->proposed_by,
