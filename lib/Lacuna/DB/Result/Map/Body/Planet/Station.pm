@@ -9,6 +9,19 @@ use Lacuna::Util qw(randint);
 use constant image => 'station';
 __PACKAGE__->has_many('propositions','Lacuna::DB::Result::Propositions','station_id');
 
+has parliament => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $parliament = $self->get_building_by_class('Lacuna::DB::Result::Building::Module::Parliament');
+        if (defined $parliament) {
+            $parliament->body($self);
+        }
+        return $parliament;
+    },
+);
+
 before sanitize => sub {
     my $self = shift;
     $self->propositions->delete_all;

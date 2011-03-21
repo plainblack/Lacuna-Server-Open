@@ -183,7 +183,7 @@ sub build {
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         my $name = $building->name.' ('.$building->x.','.$building->y.')';
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
-            type            => 'UpgradeModule',
+            type            => 'InstallModule',
             name            => 'Install '.$name,
             description     => 'Install '.$name.' on the station named "'.$body->name.'".',
             scratch         => { building_id => $building->id },
@@ -212,6 +212,9 @@ sub demolish {
     my $body = $building->body;
     $building->can_demolish;
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        unless ($body->parliament->level >= 2) {
+            confess [1013, 'You need to have a level 2 Parliament to demolish a module.'];
+        }
         my $name = $building->name.' ('.$building->x.','.$building->y.')';
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
             type            => 'DemolishModule',
@@ -238,6 +241,23 @@ sub downgrade {
     my $building = $self->get_building($empire, $building_id);
     my $body = $building->body;
     $building->can_downgrade;
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        unless ($body->parliament->level >= 2) {
+            confess [1013, 'You need to have a level 2 Parliament to downgrade a module.'];
+        }
+        my $name = $building->name.' ('.$building->x.','.$building->y.')';
+        my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+            type            => 'DowngradeModule',
+            name            => 'Downgrade '.$name,
+            description     => 'Downgrade '.$name.' on the station named "'.$body->name.'" from level '.$self->level.' to '.($self->level - 1).'.',
+            scratch         => { building_id => $building->id },
+            proposed_by_id  => $empire->id,
+        });
+        $proposition->station($body);
+        $proposition->proposed_by($empire);
+        $proposition->insert;
+        confess [1017, 'The downgrade order has been delayed pending a parliamentary vote.'];
+    }
     $building->downgrade;
     $body->tick;
     return $self->view($empire, $building);
