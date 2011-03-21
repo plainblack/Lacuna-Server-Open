@@ -22,7 +22,14 @@ sub abandon {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) { 
-        confess [1010, 'Space stations can only be abandoned through an act of Parliament.'];
+        my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+            type        => 'AbandonStation',
+            name        => 'Abandon Station',
+            description => 'Abandon the station named "'.$body->name.'".',            
+        });
+        $proposition->station($body);
+        $proposition->insert;
+        confess [1017, 'The abandon has been delayed pending a parliamentary vote.'];
     }
     $body->abandon;
     return $self->format_status($empire);
