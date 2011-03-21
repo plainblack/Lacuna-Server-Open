@@ -32,6 +32,9 @@ sub view_propositions {
 sub cast_vote {
     my ($self, $session_id, $building_id, $proposition_id, $vote) = @_;
     my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot vote in parliament.'];
+    }
     my $building = $self->get_building($empire, $building_id);
     my $cache = Lacuna->cache;
     my $lock = 'vote_lock_'.$empire->id;
