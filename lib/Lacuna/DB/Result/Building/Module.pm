@@ -54,6 +54,17 @@ sub cost_to_upgrade {
     };
 }
 
+before can_upgrade {
+    my $self = shift;
+    my $plan = $self->body->get_plan($self->class, $self->level + 1);
+    if (defined $plan) {
+        return 1;
+    }
+    else {
+        confess [1013, 'You need a plan to upgrade this module.'];
+    }
+};
+
 sub can_build_on {
     my $self = shift;
     if ($self->body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
