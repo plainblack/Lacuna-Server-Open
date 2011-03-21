@@ -7,3 +7,7 @@ We were just awarded a "%s" medal. The people of %s have much to be proud of thi
 Regards,
 
 Your Humble Assistant
+
+PS.
+
+If you no longer want to receive messages about medals, you can turn them off in your profile settings.
