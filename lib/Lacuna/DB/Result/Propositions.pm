@@ -19,6 +19,7 @@ __PACKAGE__->add_columns(
     type                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     scratch                 => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
     date_ends               => { data_type => 'datetime', is_nullable => 0 },
+    proposed_by_id          => { data_type => 'int', size => 11, is_nullable => 0 },
     status                  => { data_type => 'varchar', size => 10, is_nullable => 0, default_value => 'Pending' },
 ); 
 
@@ -26,6 +27,7 @@ __PACKAGE__->typecast_map(type => {
     RenameStation           => 'Lacuna::DB::Result::Propositions::RenameStation',
 });
 
+__PACKAGE__->belongs_to('proposed_by', 'Lacuna::DB::Result::Empire', 'proposed_by_id');
 __PACKAGE__->belongs_to('station', 'Lacuna::DB::Result::Map::Body', 'station_id');
 __PACKAGE__->has_many('votes', 'Lacuna::DB::Result::Votes', 'proposition_id');
 
@@ -55,6 +57,7 @@ sub cast_vote {
 
 before delete => sub {
     my $self = shift;
+    $self->fail;
     $self->votes->delete_all;
 };
 
@@ -141,6 +144,10 @@ sub get_status {
         votes_no    => $self->votes_no,
         status      => $self->status,
         date_ends   => $self->date_ends_formatted,
+        proposed_by => {
+            id      => $self->proposed_by->id,
+            name    => $self->proposed_by->name,
+        },
     };
     if (defined $empire) {
         my $vote = $self->votes->search({ empire_id => $empire->id})->get_column('vote');
@@ -158,6 +165,7 @@ sub send_vote {
     $station->alliance->send_message(
         filename    => 'parliament_vote.txt',
         tag         => 'Correspondence',
+        from        => $self->proposed_by,
         params      => [
             $self->name,
             $self->name,

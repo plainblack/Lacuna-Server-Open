@@ -21,6 +21,10 @@ Returns a list of the pending propositions.
            "votes_no" : 0,
            "status" : "Pending",
            "date_ends" : "01 31 2010 13:09:05 +0600",
+           "proposed_by" : {
+                "id" : "id-goes-here",
+                "name" : "Klingons",
+           },
            "my_vote" : 0 # not present if they haven't voted
         },
         ...
@@ -54,6 +58,10 @@ Casts a vote for or against a proposition. Cannot be voted on using a sitter pas
         "votes_no" : 0,
         "status" : "Pending",
         "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        },
         "my_vote" : 0 # not present if they haven't voted
     }
  }

@@ -23,11 +23,13 @@ sub abandon {
     my $body = $self->get_body($empire, $body_id);
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) { 
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
-            type        => 'AbandonStation',
-            name        => 'Abandon Station',
-            description => 'Abandon the station named "'.$body->name.'".',            
+            type            => 'AbandonStation',
+            name            => 'Abandon Station',
+            description     => 'Abandon the station named "'.$body->name.'".',            
+            proposed_by_id  => $empire->id,
         });
         $proposition->station($body);
+        $proposition->proposed_by($empire);
         $proposition->insert;
         confess [1017, 'The abandon has been delayed pending a parliamentary vote.'];
     }
@@ -49,12 +51,14 @@ sub rename {
     my $body = $self->get_body($empire, $body_id);
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) {
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
-            type        => 'RenameStation',
-            name        => 'Rename Station',
-            scratch     => { name => $name },
-            description => 'Rename the station from "'.$body->name.'" to "'.$name.'".',            
+            type            => 'RenameStation',
+            name            => 'Rename Station',
+            scratch         => { name => $name },
+            description     => 'Rename the station from "'.$body->name.'" to "'.$name.'".',            
+            proposed_by_id  => $empire->id,
         });
         $proposition->station($body);
+        $proposition->proposed_by($empire);
         $proposition->insert;
         confess [1017, 'The rename has been delayed pending a parliamentary vote.'];
     }
