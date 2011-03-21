@@ -134,9 +134,6 @@ sub get_buildable {
 
     my %out;
     my @buildable = BUILDABLE_CLASSES;
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) { 
-        @buildable = ();
-    }
     
     # build queue
     my $dev = $body->development;
@@ -146,6 +143,11 @@ sub get_buildable {
     }
     my $items_in_build_queue = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({body_id => $body_id, is_upgrading=>1})->count;
     
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) { 
+        @buildable = ();
+        $max_items_in_build_queue = 99;
+    }
+
     # plans
     my %plans;
     my $plan_rs = $body->plans->search({level => 1});

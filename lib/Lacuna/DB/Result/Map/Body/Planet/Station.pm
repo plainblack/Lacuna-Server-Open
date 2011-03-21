@@ -22,6 +22,10 @@ has parliament => (
     },
 );
 
+sub has_room_in_build_queue {
+    return 1;   
+}
+
 before sanitize => sub {
     my $self = shift;
     $self->propositions->delete_all;
