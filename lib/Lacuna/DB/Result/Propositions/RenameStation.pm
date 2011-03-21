@@ -13,7 +13,8 @@ before pass => sub {
         $self->pass_extra_message('Unfortunately by the time the proposition passed, the name *'.$name.'* had already taken, effectively nullifying the vote.');
     }
     else {
-        $self->station->name($name);
+        $station->name($name);
+        $station->update;
     }
 };
 
