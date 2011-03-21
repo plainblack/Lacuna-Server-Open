@@ -21,7 +21,7 @@ sub view_propositions {
     my $propositions = $building->propositions->search({ status => 'Pending'});
     while (my $proposition = $propositions->next) {
         $proposition->check_status;
-        push @out, $proposition->get_status;
+        push @out, $proposition->get_status($empire);
     }
     return {
         status          => $self->format_status($empire, $building->body),
@@ -47,7 +47,7 @@ sub cast_vote {
     $proposition->cast_vote($self->empire, $vote);
     return {
         status      => $self->format_status($empire, $building->body),
-        proposition => $proposition->get_status,
+        proposition => $proposition->get_status($empire),
     };
 }
 

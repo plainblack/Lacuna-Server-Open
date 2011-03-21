@@ -20,7 +20,8 @@ Returns a list of the pending propositions.
            "votes_yes" : 1,
            "votes_no" : 0,
            "status" : "Pending",
-           "date_ends" : "01 31 2010 13:09:05 +0600"
+           "date_ends" : "01 31 2010 13:09:05 +0600",
+           "my_vote" : 0 # not present if they haven't voted
         },
         ...
     ]
@@ -40,7 +41,7 @@ The unique id of the parliament.
 
 =head2 cast_vote ( session_id, building_id, proposition_id, vote )
 
-Casts a vote for or against a proposition.
+Casts a vote for or against a proposition. Cannot be voted on using a sitter password.
 
  {
     "status" : { ... },
@@ -52,7 +53,8 @@ Casts a vote for or against a proposition.
         "votes_yes" : 2,
         "votes_no" : 0,
         "status" : "Pending",
-        "date_ends" : "01 31 2010 13:09:05 +0600"
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "my_vote" : 0 # not present if they haven't voted
     }
  }
 

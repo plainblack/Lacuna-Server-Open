@@ -131,8 +131,8 @@ after insert => sub {
 };
 
 sub get_status {
-    my $self = shift;
-    return {
+    my ($self, $empire) = @_;
+    my $out = {
         id          => $self->id,
         name        => $self->name,
         description => $self->description,
@@ -142,6 +142,13 @@ sub get_status {
         status      => $self->status,
         date_ends   => $self->date_ends_formatted,
     };
+    if (defined $empire) {
+        my $vote = $self->votes->search({ empire_id => $empire->id})->get_column('vote');
+        if (defined $vote) {
+            $out->{my_vote} = $vote;
+        }
+    }
+    return $out;
 }
 
 sub send_vote {
