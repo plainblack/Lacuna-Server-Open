@@ -181,7 +181,7 @@ sub demolish {
     my $building = $self->get_building($empire, $building_id, skip_offline => 1);
     my $body = $building->body;
     $building->can_demolish;
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) {
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         my $name = $building->name.' ('.$building->x.','.$building->y.')';
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
             type            => 'DemolishBuilding',

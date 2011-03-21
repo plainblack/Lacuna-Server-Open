@@ -7,6 +7,7 @@ extends 'Lacuna::DB::Result::Map::Body::Planet';
 use Lacuna::Util qw(randint);
 
 use constant image => 'station';
+__PACKAGE__->has_many('propositions','Lacuna::DB::Result::Propositions','station_id');
 
 before sanitize => sub {
     my $self = shift;

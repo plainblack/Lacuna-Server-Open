@@ -21,7 +21,7 @@ sub abandon {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) { 
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) { 
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
             type            => 'AbandonStation',
             name            => 'Abandon Station',
@@ -49,7 +49,7 @@ sub rename {
     
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) {
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
             type            => 'RenameStation',
             name            => 'Rename Station',
@@ -114,7 +114,7 @@ sub get_buildable {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
     
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::SpaceStation')) { # short circuiting for better performance
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) { # short circuiting for better performance
         confess [1010, 'Space stations can only be expanded through an act of Parliament.'];
     }
     
