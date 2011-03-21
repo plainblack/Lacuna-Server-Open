@@ -305,6 +305,21 @@ sub repair {
     my $building = $self->get_building($empire, $building_id, skip_offline => 1);
     my $costs = $building->get_repair_costs;
     $building->can_repair($costs);
+    my $body = $building->body;
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        my $name = $building->name.' ('.$building->x.','.$building->y.')';
+        my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+            type            => 'RepairModule',
+            name            => 'Repair '.$name,
+            description     => 'Repair '.$name.' on the station named "'.$body->name.'".',
+            scratch         => { building_id => $building->id },
+            proposed_by_id  => $empire->id,
+        });
+        $proposition->station($body);
+        $proposition->proposed_by($empire);
+        $proposition->insert;
+        confess [1017, 'The repair order has been delayed pending a parliamentary vote.'];
+    }
     $building->repair($costs);
     return $self->view($empire, $building);
 }

@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Propositions::DowngradeModule;
+package Lacuna::DB::Result::Propositions::RepairModule;
 
 use Moose;
 use utf8;
@@ -10,7 +10,13 @@ before pass => sub {
     my $station = $self->station;
     my $building = $station->buildings->find($self->scratch->{building_id});
     if (defined $building) {
-        $building->downgrade;
+        my $costs = $building->get_repair_costs;
+        if (eval{$building->can_repair($costs)}) {
+            $building->repair($costs);            
+        }
+        else {
+            $self->pass_extra_message('Unfortunately, by the time the proposition passed, there weren\'t enough resources in storage to repair the module, effectively nullifying the vote.');
+        }
     }
     else {
         $self->pass_extra_message('Unfortunately, by the time the proposition passed, the module had been demolished, effectively nullifying the vote.');

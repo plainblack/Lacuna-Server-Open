@@ -13,7 +13,7 @@ before pass => sub {
         $building->demolish;
     }
     else {
-        $self->pass_extra_message('Unfortunately by the time the proposition passed, the module had already been demolished, effectively nullifying the vote.');
+        $self->pass_extra_message('Unfortunately, by the time the proposition passed, the module had already been demolished, effectively nullifying the vote.');
     }
 };
 
