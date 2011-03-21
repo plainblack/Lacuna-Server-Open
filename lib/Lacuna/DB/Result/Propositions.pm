@@ -161,7 +161,7 @@ sub get_status {
 sub send_vote {
     my $self = shift;
     my $station = $self->station;
-    my $parliament = $station->get_building_of_type('Lacuna::DB::Result::Building::Module::Parliament');
+    my $parliament = $station->parliament;
     $station->alliance->send_message(
         filename    => 'parliament_vote.txt',
         tag         => 'Correspondence',

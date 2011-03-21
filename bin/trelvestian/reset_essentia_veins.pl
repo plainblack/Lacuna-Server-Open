@@ -23,7 +23,7 @@ out('Looping through colonies...');
 my $colonies = $ai->empire->planets;
 while (my $colony = $colonies->next) {
     out('Found colony '.$colony->name);
-    my $vein = $colony->get_building_of_type('Lacuna::DB::Result::Building::Permanent::EssentiaVein');
+    my $vein = $colony->get_building_of_class('Lacuna::DB::Result::Building::Permanent::EssentiaVein');
     if (defined $vein) {
         $vein->start_work({}, 60 * 60 * 24 * 60)->update;
     }
