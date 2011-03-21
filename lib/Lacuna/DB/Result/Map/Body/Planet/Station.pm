@@ -14,7 +14,7 @@ has parliament => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $parliament = $self->get_building_by_class('Lacuna::DB::Result::Building::Module::Parliament');
+        my $parliament = $self->get_building_of_class('Lacuna::DB::Result::Building::Module::Parliament');
         if (defined $parliament) {
             $parliament->body($self);
         }
