@@ -81,7 +81,7 @@ sub check_status {
 sub pass {
     my $self = shift;
     $self->status('Passed');
-    $self->station->alliance->send_message(
+    $self->station->alliance->send_predefined_message(
         filename    => 'parliament_vote_passed.txt',
         tag         => 'Correspondence',
         params      => [
@@ -103,7 +103,7 @@ has pass_extra_message => (
 sub fail {
     my $self = shift;
     $self->status('Failed');
-    $self->station->alliance->send_message(
+    $self->station->alliance->send_predefined_message(
         filename    => 'parliament_vote_failed.txt',
         tag         => 'Correspondence',
         params      => [
@@ -124,7 +124,7 @@ has fail_extra_message  => (
 
 before insert => sub {
     my $self = shift;
-    $self->votes_needed( int($self->station->alliance->members->count / 2) );
+    $self->votes_needed( int($self->station->alliance->members->count + 1 / 2) );
     $self->date_ends( DateTime->now->add(hours => 72) );
 };
 
@@ -150,9 +150,9 @@ sub get_status {
         },
     };
     if (defined $empire) {
-        my $vote = $self->votes->search({ empire_id => $empire->id})->get_column('vote');
+        my $vote = $self->votes->search({ empire_id => $empire->id},{rows=>1})->single;
         if (defined $vote) {
-            $out->{my_vote} = $vote;
+            $out->{my_vote} = $vote->vote;
         }
     }
     return $out;

@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
+use Guard qw(guard);
 
 sub app_url {
     return '/parliament';
@@ -47,7 +48,7 @@ sub cast_vote {
     unless (defined $proposition) {
         confess [1002, 'Proposition not found.'];
     }
-    $proposition->cast_vote($self->empire, $vote);
+    $proposition->cast_vote($empire, $vote);
     return {
         status      => $self->format_status($empire, $building->body),
         proposition => $proposition->get_status($empire),
@@ -55,7 +56,7 @@ sub cast_vote {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(view_propositions));
+__PACKAGE__->register_rpc_method_names(qw(view_propositions cast_vote));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

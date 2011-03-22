@@ -1,3 +1,5 @@
+3.0201
+
 3.0200
  - Add: Added Amalgus Meadow and Denton Brambles glyph buildings.
  - Add: Small improvements to starting player experience.

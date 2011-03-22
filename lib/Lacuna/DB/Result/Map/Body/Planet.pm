@@ -684,7 +684,7 @@ sub convert_to_station {
     $self->empire($empire);
     $self->usable_as_starter_enabled(0);
     $self->last_tick(DateTime->now);
-    $self->alliance_id($self->empire->alliance_id);
+    $self->alliance_id($empire->alliance_id);
     $self->class('Lacuna::DB::Result::Map::Body::Planet::Station');
     $self->update;    
 
