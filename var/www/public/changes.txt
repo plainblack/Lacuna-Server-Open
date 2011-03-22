@@ -5,6 +5,7 @@
  - API: Added {VoteYes 0 0 0} and {VoteNo 0 0 0} formatters to the email DSL.
  - API: Through parliamentary vote you can now: rename and abandon a station; build, upgrade, repair, downgrade, and demolish a module on a station.
  - API: Slight change to the Space Station Lab API to accomodate displaying descriptions and images for the plans.
+ - Fix: Chat now works properly in SSL mode or out.
  - Fix: P16 type planets were being misidentified as P17 planets.
 
 3.0100
