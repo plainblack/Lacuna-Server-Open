@@ -41,6 +41,9 @@ sub cast_vote {
     unless ($self->status eq 'Pending') {
         confess [1009, 'This proposition has already '.$self->status.'.'];
     }
+    if ($self->votes->search({empire_id => $empire->id})->count) {
+        confess [1010, 'You have already voted on this proposition.'];
+    }
     Lacuna->db->resultset('Lacuna::DB::Result::Votes')->new({
         proposition_id  => $self->id,
         empire_id       => $empire->id,
