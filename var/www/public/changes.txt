@@ -1,4 +1,6 @@
 3.0201
+ - Add: Changed crater to dent when on space station.
+ - Fix: API problems with new parliament methods.
 
 3.0200
  - Add: Added Amalgus Meadow and Denton Brambles glyph buildings.
