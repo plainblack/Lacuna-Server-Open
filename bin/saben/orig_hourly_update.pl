@@ -34,6 +34,7 @@ out((($finish - $start)/60)." minutes have elapsed");
 
 
 
+
 sub out {
     my $message = shift;
     unless ($quiet) {

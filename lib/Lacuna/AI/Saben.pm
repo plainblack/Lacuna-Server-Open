@@ -4,6 +4,8 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::AI';
+use 5.010;
+use Lacuna::Util qw(randint format_date);
 
 use constant empire_id  => -1;
 
@@ -44,15 +46,18 @@ sub empire_defaults {
 sub colony_structures {
     return (
     ['Lacuna::DB::Result::Building::Waste::Sequestration',10],
-    ['Lacuna::DB::Result::Building::Permanent::Ravine',10],
+    ['Lacuna::DB::Result::Building::Permanent::Ravine',15],
     ['Lacuna::DB::Result::Building::Espionage', 20],
     ['Lacuna::DB::Result::Building::Intelligence', 25],
     ['Lacuna::DB::Result::Building::Security', 20],
-    ['Lacuna::DB::Result::Building::Permanent::CitadelOfKnope',10],
+    ['Lacuna::DB::Result::Building::Permanent::CitadelOfKnope',20],
     ['Lacuna::DB::Result::Building::Observatory', 15],
     ['Lacuna::DB::Result::Building::Shipyard', 4],
     ['Lacuna::DB::Result::Building::Shipyard', 4],
     ['Lacuna::DB::Result::Building::Shipyard', 4],
+    ['Lacuna::DB::Result::Building::Shipyard', 4],
+    ['Lacuna::DB::Result::Building::SpacePort',20],
+    ['Lacuna::DB::Result::Building::SpacePort',20],
     ['Lacuna::DB::Result::Building::SpacePort',20],
     ['Lacuna::DB::Result::Building::SpacePort',20],
     ['Lacuna::DB::Result::Building::SpacePort',20],
@@ -63,9 +68,10 @@ sub colony_structures {
     ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',25],
     ['Lacuna::DB::Result::Building::Permanent::InterDimensionalRift',25],
     ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',25],
-    ['Lacuna::DB::Result::Building::Permanent::KalavianRuins',5],
+    ['Lacuna::DB::Result::Building::Permanent::KalavianRuins',10],
     ['Lacuna::DB::Result::Building::Permanent::MalcudField',25],
     ['Lacuna::DB::Result::Building::Permanent::AlgaePond',25],
+    ['Lacuna::DB::Result::Building::Permanent::BlackHoleGenerator',30],
     ['Lacuna::DB::Result::Building::Food::Syrup',10],
     ['Lacuna::DB::Result::Building::Food::Burger',10],
     );
@@ -83,24 +89,19 @@ sub spy_missions {
     return (
         'Incite Rebellion',
         'Incite Mutiny',
-        'Appropriate Resources',
     );
 }
 
 sub ship_building_priorities {
     return (
-        ['drone', 10],
+        ['drone', 100],
+        ['scanner', 30],
         ['sweeper', 30],
-        ['probe', 1],
-        ['scow', 15],
-        ['bleeder', 20],
-        ['spy_pod', 5],
-        ['security_ministry_seeker', 3],
-        ['space_port_seeker', 3],
-        ['snark', 15],
-        ['snark2', 5],
-        ['thud', 20],
-        ['observatory_seeker', 3],
+        ['probe', 2],
+        ['scow', 20],
+        ['bleeder', 16],
+        ['snark', 1],
+        ['snark2', 1],
     );
 }
 
@@ -112,6 +113,31 @@ sub run_hourly_colony_updates {
     $self->train_spies($colony);
     $self->build_ships($colony);
     $self->run_missions($colony);
+}
+
+sub destroy_world {
+    my ($self, $colony) = @_;
+    say "Looking for world to destroy...";
+    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
+            zone        => $colony->zone,
+            size        => { between => [46, 60] },
+            empire_id   => undef,
+        },
+        { rows => 1}
+    )->single;
+    if (defined $target) {
+        say "Found ".$target->name;
+        $target->update({
+            class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
+            size                        => randint(1,10),
+            usable_as_starter_enabled   => 0,
+        });
+        say "Turned into ".$target->class;
+        $colony->add_news(100, 'We are Sābēn. We have destroyed '.$target->name.'. Leave now.');
+    }
+    else {
+        say "Nothing to destroy.";
+    }
 }
 
 no Moose;
