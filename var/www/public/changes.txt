@@ -1,5 +1,6 @@
 3.0300
  - Add: Added Mercenaries Guild building.
+ - Fix: Spies require 350 cargo space consistently through the API and docs.
 
 3.0201
  - Add: Changed crater to dent when on space station.

@@ -113,7 +113,7 @@ sub get_prisoners {
     }
     return {
         prisoners               => \@out,
-        cargo_space_used_each   => 300,
+        cargo_space_used_each   => 350,
         status                  => $self->format_status($empire, $building->body),
     };
 }
