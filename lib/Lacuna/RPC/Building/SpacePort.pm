@@ -219,16 +219,16 @@ sub recall_all {
 	my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $ships = $body->ships_orbiting->search(undef)->all;
+    my $body = $building->body;
+    my @ships = $body->ships_orbiting->search(undef)->all;
     my @ret;
-    while(my $ship = $ships->next) {
+    for my $ship (@ships) {
         unless (defined $ship) {
             confess [1002, 'Could not locate that ship.'];
         }
         unless ($ship->body->empire_id == $empire->id) {
             confess [1010, 'You do not own that ship.'];
         }
-        my $body = $building->body;
         $body->empire($empire);
         $ship->can_recall();
 

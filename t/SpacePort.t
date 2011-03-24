@@ -72,7 +72,7 @@ $result = $tester->post('spaceport', 'view_ships_orbiting', [$session_id, $space
 is(ref $result->{result}{ships_orbiting}, 'ARRAY', "can see orbiting ships");
 
 $result = $tester->post('spaceport', 'recall_all', [$session_id, $spaceport->id]);
-is(ref $result->{result}{ships}, 'ARRAY', 'can call recall-all');
+is(ref $result->{result}{ships}, 'ARRAY', 'can call recall_all');
 
 my $shipyard = Lacuna::db->resultset('Lacuna::DB::Result::Building')->new({
 	x       => 0,
