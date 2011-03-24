@@ -78,7 +78,7 @@ Returns a list of spies that may be traded. Used with the C<add_trade> method.
         {
             "id" : "id-goes-here",
             "name" : "Jack Bauer",
-            "level" : "5"
+            "level" : "9"
         },
         ...
     ],
@@ -153,7 +153,7 @@ Displays a list of trades available at the present time.
             "id" : "id-goes-here",
             "ask" : 25,     # essentia
             "offer" : [
-                "Level 21 spy named Jack Bauer",
+                "Level 9 spy named Jack Bauer (Mercenary Transport) Offense: 875, Defense: 875, Intel: 2, Mayhem: 0, Politics: 0, Theft: 0, Mission Count Offensive: 0 Defensive: 2)",
             ],
             "body" : {
                 "id" : "id-goes-here"         # use with get_trade_ships() to determine travel time
@@ -196,7 +196,7 @@ Displays a list of trades the current user has posted.
             "id" : "id-goes-here",
             "ask" : 25,     # essentia
             "offer" : [
-                "Level 21 spy named Jack Bauer",
+                "Level 9 spy named Jack Bauer (Mercenary Transport) Offense: 875, Defense: 875, Intel: 2, Mayhem: 0, Politics: 0, Theft: 0, Mission Count Offensive: 0 Defensive: 2)",
             ]
         },
         ...

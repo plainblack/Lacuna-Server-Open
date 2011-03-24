@@ -60,7 +60,7 @@ sub structure_payload {
             my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($item->{spy_id});
             $spy->task('Mercenary Transport');
             $spy->update;
-            push @{$payload->{spies}}, $spy->id;
+            push @{$payload->{mercenaries}}, $spy->id;
             $meta{has_spy} = 1;
         }
     }
