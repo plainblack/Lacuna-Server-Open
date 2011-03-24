@@ -189,16 +189,18 @@ sub train_spies {
     my ($self, $colony) = @_;
     say 'Training spies...';
     my $intelligence = $colony->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
-    my $costs = $intelligence->training_costs;
-    my $can = eval{$intelligence->can_train_spy($costs)};
-	my $reason = $@;
-    if ($can) {
-        $intelligence->spend_resources_to_train_spy($costs);
-        $intelligence->train_spy($costs->{time});
-        say "Spy trained.";
-    }
-    else {
-        say $reason->[1];
+    if (defined $intelligence) {
+        my $costs = $intelligence->training_costs;
+        my $can = eval{$intelligence->can_train_spy($costs)};
+        my $reason = $@;
+        if ($can) {
+            $intelligence->spend_resources_to_train_spy($costs);
+            $intelligence->train_spy($costs->{time});
+            say "Spy trained.";
+        }
+        else {
+            say $reason->[1];
+        }
     }
 }
 
