@@ -1058,6 +1058,7 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Module::Parliament' => 'Lacuna::DB::Result::Building::Module::Parliament',
         'Lacuna::DB::Result::Building::Permanent::AmalgusMeadow' => 'Lacuna::DB::Result::Building::Permanent::AmalgusMeadow',
         'Lacuna::DB::Result::Building::Permanent::DentonBrambles' => 'Lacuna::DB::Result::Building::Permanent::DentonBrambles',
+        'Lacuna::DB::Result::Building::MercenariesGuild' => 'Lacuna::DB::Result::Building::MercenariesGuild',
     });
 }
 

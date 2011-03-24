@@ -215,6 +215,7 @@ my $app = builder {
         Lacuna::RPC::Building::SSLd
         Lacuna::RPC::Building::AmalgusMeadow
         Lacuna::RPC::Building::DentonBrambles
+        Lacuna::RPC::Building::MercenariesGuild
     )) {
         mount $building->new->to_app_with_url;
     }

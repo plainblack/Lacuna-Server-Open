@@ -76,6 +76,7 @@ use constant BUILDABLE_CLASSES => (qw(
     Lacuna::RPC::Building::Intelligence
     Lacuna::RPC::Building::Lapis
     Lacuna::RPC::Building::Malcud
+    Lacuna::RPC::Building::MercenariesGuild
     Lacuna::RPC::Building::Mine
     Lacuna::RPC::Building::MiningMinistry
     Lacuna::RPC::Building::Network19
