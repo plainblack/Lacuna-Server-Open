@@ -35,7 +35,7 @@ after sanitize => sub {
     my $self = shift;
     $self->update({
         size        => randint(1,10),
-        class       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,20),
+        class       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
         alliance_id => undef,
     });
 };

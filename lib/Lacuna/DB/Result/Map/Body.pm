@@ -152,6 +152,7 @@ __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Map::Body::Asteroid::A18' => 'Lacuna::DB::Result::Map::Body::Asteroid::A18',
     'Lacuna::DB::Result::Map::Body::Asteroid::A19' => 'Lacuna::DB::Result::Map::Body::Asteroid::A19',
     'Lacuna::DB::Result::Map::Body::Asteroid::A20' => 'Lacuna::DB::Result::Map::Body::Asteroid::A20',
+    'Lacuna::DB::Result::Map::Body::Asteroid::A21' => 'Lacuna::DB::Result::Map::Body::Asteroid::A21',
     'Lacuna::DB::Result::Map::Body::Planet::P1' => 'Lacuna::DB::Result::Map::Body::Planet::P1',
     'Lacuna::DB::Result::Map::Body::Planet::P2' => 'Lacuna::DB::Result::Map::Body::Planet::P2',
     'Lacuna::DB::Result::Map::Body::Planet::P3' => 'Lacuna::DB::Result::Map::Body::Planet::P3',
