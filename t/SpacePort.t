@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 20;
+use Test::More tests => 21;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -66,7 +66,10 @@ is(ref $result->{result}{ships}, 'ARRAY', "can see all foreign ships");
 
 $result = $tester->post('spaceport', 'get_ships_for', [$session_id, $home->id, { body_id => $enemy->empire->home_planet->id }]);
 is(ref $result->{result}{available}, 'ARRAY', "can see what ships are available to send");
-is(ref $result->{result}{recallable}, 'ARRAY', "can see what ships are available to recall");
+is(ref $result->{result}{orbiting}, 'ARRAY', "can see what ships are orbiting");
+
+$result = $tester->post('spaceport', 'view_ships_orbiting', [$session_id, $spaceport->id]);
+is(ref $result->{result}{ships_orbiting}, 'ARRAY', "can see orbiting ships");
 
 my $shipyard = Lacuna::db->resultset('Lacuna::DB::Result::Building')->new({
 	x       => 0,
@@ -182,7 +185,7 @@ for my $spy_id ( @$spies ) {
 }
 
 $result = $tester->post('spaceport', 'get_ships_for', [$session_id, $home->id, { body_id => $enemy->empire->home_planet->id }]);
-is(ref $result->{result}{recallable}, 'ARRAY', "can see what ships are available to recall");
+is(ref $result->{result}{orbiting}, 'ARRAY', "can see what ships are available to recall");
 
 $result = $tester->post('spaceport', 'prepare_fetch_spies', [$session_id, $enemy->empire->home_planet->id, $home->id ]);
 is( ref $result->{result}{ships}, 'ARRAY', "can prepare for fetch spies");

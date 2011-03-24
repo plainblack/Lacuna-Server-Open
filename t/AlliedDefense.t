@@ -254,7 +254,7 @@ for my $i ( 0 .. 1 ) {
     $fighter->arrive;
 
 	$result = $tester->post('spaceport', 'get_ships_for', [$tester{session_id}, $tester{home}->id, { x => $asteroid->{x}, y => $asteroid->{y} } ]);
-	is( @{ $result->{result}{recallable} }, 1, 'one ship is recallable' );
+	is( @{ $result->{result}{orbiting} }, 1, 'one ship is orbiting' );
 
 	# Send a fighter to defend the closest planet
 	my $fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'fighter', task=>'Docked'},{rows=>1})->single;
@@ -267,7 +267,7 @@ for my $i ( 0 .. 1 ) {
 	$tester->{fighter2} = $fighter2->id;
 
 	$result = $tester->post('spaceport', 'get_ships_for', [$tester{session_id}, $tester{home}->id, { x => $planet->{x}, y => $planet->{y} } ]);
-	is( @{ $result->{result}{recallable} }, 1, 'one ship is recallable' );
+	is( @{ $result->{result}{orbiting} }, 1, 'one ship is orbiting' );
 
 	$result = $tester->post('spaceport', 'view_all_ships', [$tester{session_id}, $tester->{spaceport_id}]);
 	for my $ship ( @{ $result->{result}{ships} } ) {

@@ -95,9 +95,9 @@ sub get_ships_for {
     );
     
 	unless ($target->isa('Lacuna::DB::Result::Map::Star')) {
-		my @recallable;
-		my $recallable_rs = $ships->search({task => [qw(Defend Orbiting)], body_id => $body->id, foreign_body_id => $target->id });
-		while (my $ship = $recallable_rs->next) {
+		my @orbiting;
+		my $orbiting_rs = $ships->search({task => [qw(Defend Orbiting)], body_id => $body->id, foreign_body_id => $target->id });
+		while (my $ship = $orbiting_rs->next) {
 			$ship->body($body);
 			eval{ $ship->can_recall() };
 			my $reason = $@;
@@ -106,9 +106,9 @@ sub get_ships_for {
 				next;
 			}
 			$ship->body($body);
-			push @recallable, $ship->get_status($target);
+			push @orbiting, $ship->get_status($target);
 		}
-		$out{recallable} = \@recallable;
+		$out{orbiting} = \@orbiting;
 	}
 
     if ($target->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
@@ -415,6 +415,25 @@ sub fetch_spies {
 
 
 
+sub view_ships_orbiting {
+    my ($self, $session_id, $building_id, $page_number) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    $page_number ||= 1;
+    my $body = $building->body;
+    my @orbiting;
+    my $ships = $body->ships_orbiting->search(undef, {rows=>25, page=>$page_number});
+    while (my $ship = $ships->next) {
+        $ship->body($body);
+        push @orbiting, $ship->get_status;
+    }
+    return {
+        status                    => $self->format_status($empire, $body),
+        number_of_ships_orbiting  => $ships->pager->total_entries,
+        ships_orbiting            => \@orbiting,
+    };
+}
+
 sub view_ships_travelling {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -662,7 +681,7 @@ around 'view' => sub {
     return $out;
 };
  
-__PACKAGE__->register_rpc_method_names(qw(view_foreign_ships get_ships_for send_ship send_fleet recall_ship recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_travelling view_all_ships));
+__PACKAGE__->register_rpc_method_names(qw(view_foreign_ships get_ships_for send_ship send_fleet recall_ship recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_ships_travelling view_all_ships));
 
 
 no Moose;

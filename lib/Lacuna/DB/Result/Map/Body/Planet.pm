@@ -36,6 +36,21 @@ sub ships_travelling {
     );
 }
 
+sub ships_orbiting {
+    my ($self, $where, $reverse) = @_;
+    my $order = '-asc';
+    if ($reverse) {
+        $order = '-desc';
+    }
+    $where->{task} = { in => ['Defend','Orbiting'] };
+    return $self->ships->search(
+        $where,
+        {
+            order_by    => { $order => 'date_available' },
+        }
+    );
+}
+
 # CLAIM
 
 sub claim {
