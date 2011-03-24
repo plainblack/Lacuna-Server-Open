@@ -3,6 +3,7 @@
  - Fix: Spies require 350 cargo space consistently through the API and docs.
  - API: Changed recallable to orbiting in the spaceport's get_ships_for results.
  - API: Added view_ships_orbiting() to spaceport to allow viewing the ships orbiting your planet.
+ - API: Added recall_all() to spaceport.
 
 3.0201
  - Add: Changed crater to dent when on space station.

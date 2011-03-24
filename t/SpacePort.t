@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 21;
+use Test::More tests => 22;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -70,6 +70,9 @@ is(ref $result->{result}{orbiting}, 'ARRAY', "can see what ships are orbiting");
 
 $result = $tester->post('spaceport', 'view_ships_orbiting', [$session_id, $spaceport->id]);
 is(ref $result->{result}{ships_orbiting}, 'ARRAY', "can see orbiting ships");
+
+$result = $tester->post('spaceport', 'recall_all', [$session_id, $spaceport->id]);
+is(ref $result->{result}{ships}, 'ARRAY', 'can call recall-all');
 
 my $shipyard = Lacuna::db->resultset('Lacuna::DB::Result::Building')->new({
 	x       => 0,

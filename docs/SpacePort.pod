@@ -480,7 +480,7 @@ A hash reference that can contain one of five items to identify a star or body. 
 
 =head2 recall_ship ( session_id, building_id, ship_id )
 
-Recalls a ship from allied defense ('Defend' task) to the body of origin.
+Recalls an orbiting ship (task of 'Defend' or 'Orbiting') to the body of origin.
 
 Throws 1002, 1010.
 
@@ -511,7 +511,7 @@ Throws 1002, 1010.
     }
  }
 
-Recalls an orbiting Spy Shuttle ('Orbiting' task) and also fetches as many idle spies as will fit from the planet it was orbiting.
+Recalling an orbiting Spy Shuttle also fetches as many idle spies as will fit from the planet it was orbiting.
 
 Throws 1002, 1010, 1013.
 
@@ -539,6 +539,53 @@ The unique id for the space port.
 =head3 ship_id
 
 The unique id of a ship to recall.
+
+
+
+=head2 recall_all ( session_id, building_id )
+
+Recalls all of this planet's ships that are orbiting (task of 'Defend' or 'Orbiting') to their spaceport of origin. This behaves like C<recall_ship> in all other aspects.
+
+Throws 1002, 1010.
+
+ {
+    "status" : { ... },
+    "ships" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "F13",
+            "type_human" : "Fighter",
+            "type" : "fighter",
+            "task" : "Travelling",
+            "speed" : "2000",
+            "stealth" : "0",
+            "hold_size" : "0",
+            "date_started" : "01 31 2010 13:09:05 +0600",
+            "date_available" : "02 01 2010 10:08:33 +0600",
+            "date_arrives" : "02 01 2010 10:08:33 +0600",
+            "from" : {
+               "id" : "id-goes-here",
+               "type" : "body",
+               "name" : "Earth"
+            },
+            "to" : {
+               "id" : "id-goes-here",
+               "type" : "star",
+               "name" : "Sol"
+            }
+        },
+        ...
+    ],
+ }
+
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id for the space port.
 
 
 
