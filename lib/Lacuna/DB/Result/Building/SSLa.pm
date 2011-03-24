@@ -150,6 +150,9 @@ has max_level => (
 
 sub can_make_plan {
     my ($self, $type, $level) = @_;
+    if ($self->is_working) {
+        confess [1010, 'The Space Station Lab is already making a plan.'];
+    }
     $level ||= 1;
     if ($level > $self->max_level) {
         confess [1013, 'This Space Station Lab is not a high enough level to make that plan.'];
