@@ -1708,7 +1708,7 @@ sub spend_food {
             $empire->send_predefined_message(
                 filename    => 'complaint_food_diversity.txt',
                 params      => [$self->id, $self->name],
-                repeat_check=> 'complaint_food_diversity',
+                repeat_check=> 'complaint_food_diversity'.$self->id,
                 tags        => ['Alert'],
             );
         }
@@ -1782,7 +1782,7 @@ sub spend_happiness {
             $empire->send_predefined_message(
                 filename    => 'complaint_unhappy.txt',
                 params      => [$self->id, $self->name],
-                repeat_check=> 'complaint_unhappy',
+                repeat_check=> 'complaint_unhappy'.$self->id,
                 tags        => ['Alert'],
             );
         }
@@ -1806,7 +1806,7 @@ sub add_waste {
             $empire->send_predefined_message(
                 filename    => 'complaint_pollution.txt',
                 params      => [$self->id, $self->name],
-                repeat_check=> 'complaint_pollution',
+                repeat_check=> 'complaint_pollution'.$self->id,
                 tags        => ['Alert'],
             );
         }
@@ -1837,7 +1837,7 @@ sub spend_waste {
                 $empire->send_predefined_message(
                     filename    => 'complaint_lack_of_waste.txt',
                     params      => [$building_name, $self->id, $self->name, $building_name],
-                    repeat_check=> 'complaint_lack_of_waste',
+                    repeat_check=> 'complaint_lack_of_waste'.$self->id,
                     tags        => ['Alert'],
                 );
             }
@@ -1866,7 +1866,7 @@ sub complain_about_lack_of_resources {
             $empire->send_predefined_message(
                 filename    => 'complaint_lack_of_'.$resource.'.txt',
                 params      => [$self->id, $self->name, $building_name],
-                repeat_check=> 'complaint_lack_of_'.$resource,
+                repeat_check=> 'complaint_lack_of_'.$resource.$self->id,
                 tags        => ['Alert'],
             );
         }

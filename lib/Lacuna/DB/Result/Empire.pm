@@ -570,6 +570,9 @@ sub send_message {
         repeat_check=> $params{repeat_check},
         attachments => $params{attachments},
     })->insert;
+    if ($params{repeat_check}) {
+        Lacuna->cache->set($params{repeat_check} .'='. int((DateTime->now->hour + 1) / 6), 1, 60 * 60 * 6);
+    }
     if (exists $params{in_reply_to} && defined $params{in_reply_to} && $params{in_reply_to} ne '') {
         my $original =  Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($params{in_reply_to});
         if (defined $original && !$original->has_replied) {
@@ -581,12 +584,7 @@ sub send_message {
 
 sub check_for_repeat_message {
     my ($self, $repeat) = @_;
-    my $six_hours_ago = DateTime->now->subtract(hours=>6);
-    return $self->received_messages->search_literal(
-        'repeat_check = ? and ( date_sent >= ? or (has_read = 0 and has_archived = 0 ))',
-        $repeat,
-        $six_hours_ago->ymd.' '.$six_hours_ago->hms,
-    )->count;
+    return Lacuna->cache->get($repeat .'='. int((DateTime->now->hour + 1) / 6));
 }
 
 sub send_predefined_message {

@@ -1,6 +1,7 @@
 3.0300
  - Add: Added Mercenaries Guild building.
  - Add: Changed crater to dent when on space station.
+ - Rule: Resource warnings are now tracked per planet rather than per empire.
  - API: Changed recallable to orbiting in the spaceport's get_ships_for results.
  - API: Added view_ships_orbiting() to spaceport to allow viewing the ships orbiting your planet.
  - API: Added recall_all() to spaceport.
@@ -8,6 +9,8 @@
  - Fix: Spies require 350 cargo space consistently through the API and docs.
  - Fix: API problems with new parliament methods.
  - Fix: Terraforming lab description.
+ - Fix: Space Station Lab clobbers second plan if you call make plan while it's building one.
+ - Fix: A few minor performance improvements.
 
 3.0200
  - Add: Added Amalgus Meadow and Denton Brambles glyph buildings.
