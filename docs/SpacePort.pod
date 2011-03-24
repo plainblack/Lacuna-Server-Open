@@ -678,7 +678,7 @@ Defaults to 1. An integer representing which page of ships travelling to view. E
 
 =head2 view_ships_orbiting ( session_id, building_id, [ page_number ])
 
-Returns a list of the ships that are orbiting this planet.
+Returns a list of the ships from this planet that are orbiting.
 
  {
     "status" : { ... },
