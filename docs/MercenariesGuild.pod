@@ -1,0 +1,281 @@
+=head1 Mercenaries Guild Methods
+
+The Mercenaries Guild is accessible via the URL C</mercenariesguild>. It allows you to send spies to other players via spy pods. Due to the vast distance of space, you may only trade with other players in your zone. It costs essentia to use it.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+
+=head2 add_to_market ( session_id, building_id, offer, ask, options )
+
+Queues a trade for others to see. Returns:
+
+ {
+    "trade_id" : "id-goes-here",
+    "status" : { ... },
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the mercenaries guild.
+
+=head3 offer
+
+A hash reference containing the item you wish to trade. There is one type of item that can be traded via this mechanism: spies.
+
+
+=over
+
+=item spies
+
+The hash reference for spiess looks like:
+
+ {
+    "type" : "spy",
+    "spy_id" : "id-goes-here"
+ }
+
+=over
+
+=item type
+
+Must be exactly C<spy>.
+
+=item spy_id
+
+The unique id of the spy that you want to trade. See the C<get_spies> method for a list of your spies.
+
+=back
+
+=back
+
+=head3 ask
+
+An integer representing the amount of essentia you are asking for in this trade. Must be between 1 and 99.
+
+=head3 options
+
+A hash reference of options to modify the trade.
+
+=over
+
+=item ship_id
+
+The specific id of a ship you want to use for this trade. See C<get_trade_ships> for details.
+
+=back
+
+
+=head2 get_spies ( session_id, building_id )
+
+Returns a list of spies that may be traded. Used with the C<add_trade> method.
+
+ {
+    "spies" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "Jack Bauer",
+            "level" : "9"
+        },
+        ...
+    ],
+    "cargo_space_used_each" : 350,
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+
+=head2 withdraw_from_market ( session_id, building_id, trade_id )
+
+Remove a trade that you have offered and collect the items up for trade.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 trade_id
+
+The unique id of the trade.
+
+
+
+
+=head2 accept_from_market ( session_id, building_id, trade_id )
+
+Accept a trade offer from the list of available trades. See C<view_market>.
+
+Throws 1016.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 trade_id
+
+The unique id of the trade.
+
+
+
+=head2 view_market ( session_id, building_id, [ page_number ] )
+
+Displays a list of trades available at the present time.
+
+ {
+    "trades" : [
+        {
+            "date_offered" : "01 31 2010 13:09:05 +0600",
+            "id" : "id-goes-here",
+            "ask" : 25,     # essentia
+            "offer" : [
+                "Level 9 spy named Jack Bauer (Mercenary Transport) Offense: 875, Defense: 875, Intel: 2, Mayhem: 0, Politics: 0, Theft: 0, Mission Count Offensive: 0 Defensive: 2)",
+            ],
+            "body" : {
+                "id" : "id-goes-here"         # use with get_trade_ships() to determine travel time
+            },
+            "empire" : {
+                "id" : "id-goes-here",
+                "name" : "Earthlings"
+            }
+        },
+        ...
+    ],
+    "trade_count" : 1047,
+    "page_number" : 1,
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 page_number
+
+Optional. An integer representing the page of trades (25 per page) to return. Defaults to 1.
+
+
+
+
+=head2 view_my_market ( session_id, building_id, [ page_number ] )
+
+Displays a list of trades the current user has posted.
+
+ {
+    "trades" : [
+        {
+            "date_offered" : "01 31 2010 13:09:05 +0600",
+            "id" : "id-goes-here",
+            "ask" : 25,     # essentia
+            "offer" : [
+                "Level 9 spy named Jack Bauer (Mercenary Transport) Offense: 875, Defense: 875, Intel: 2, Mayhem: 0, Politics: 0, Theft: 0, Mission Count Offensive: 0 Defensive: 2)",
+            ]
+        },
+        ...
+    ],
+    "trade_count" : 17,
+    "page_number" : 1,
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 page_number
+
+An integer representing the page of trades (25 per page) to return. Defaults to 1.
+
+
+
+=head2 get_trade_ships ( session_id, building_id, [ target_body_id ] )
+
+Returns a list of the ships that could be used to do a trade.
+
+ {
+    "status" : { ... },
+    "ships" : [
+        {
+           "id" : "id-goes-here",
+           "type" : "spy_pod",
+           "name" : "Spy Pod 5",
+           "estimated_travel_time" : 3600, # in seconds, one way
+           ...
+        },
+        ...
+    ]
+ }
+
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the trade ministry.
+
+=head3 target_body_id
+
+The unique id of the body you'll be shipping to. Optional. If included it will calculate the estimated travel time of the ships to this body.
+
+
+
+
+
+=head2 report_abuse ( session_id, building_id, trade_id )
+
+Report a trade that you think is abusing the trade system.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
+
+=head3 trade_id
+
+The unique id of the trade.
+
+
+
+
+=cut
