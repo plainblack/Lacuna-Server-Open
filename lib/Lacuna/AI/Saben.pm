@@ -46,7 +46,6 @@ sub empire_defaults {
 sub colony_structures {
     return (
     ['Lacuna::DB::Result::Building::Waste::Sequestration',10],
-    ['Lacuna::DB::Result::Building::Permanent::Ravine',13],
     ['Lacuna::DB::Result::Building::Espionage', 20],
     ['Lacuna::DB::Result::Building::Intelligence', 25],
     ['Lacuna::DB::Result::Building::Security', 20],
