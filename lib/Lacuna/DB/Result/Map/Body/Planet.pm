@@ -139,7 +139,7 @@ sub sanitize {
     Lacuna->db->resultset('Lacuna::DB::Result::Market')->search({body_id => $self->id})->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->id})->delete;
     $self->empire_id(undef);
-    if ($self->get_type eq 'habitable planet' && $self->size >= 40 && $self->size <= 50) {
+    if ($self->get_type eq 'habitable planet' && $self->size >= 40 && $self->size <= 50 && $self->zone ~~ ['1|1','1|-1','-1|1','-1|-1','0|0','0|1','1|0','-1|0','0|-1']) {
         $self->usable_as_starter_enabled(1);
     }
     $self->update;
