@@ -1704,7 +1704,7 @@ sub spend_food {
     elsif ($food_type_count < 3) {
         $self->spend_happiness($food_consumed);
         my $empire = $self->empire;
-        if (!$empire->skip_resource_warnings && $empire->university_level > 2 && !$empire->check_for_repeat_message('complaint_food_diversity')) {
+        if (!$empire->skip_resource_warnings && $empire->university_level > 2 && !$empire->check_for_repeat_message('complaint_food_diversity'.$self->id)) {
             $empire->send_predefined_message(
                 filename    => 'complaint_food_diversity.txt',
                 params      => [$self->id, $self->name],
@@ -1778,7 +1778,7 @@ sub spend_happiness {
         if ($empire->is_isolationist) {
             $new = 0;
         }
-        elsif (!$empire->skip_happiness_warnings && !$empire->check_for_repeat_message('complaint_unhappy')) {
+        elsif (!$empire->skip_happiness_warnings && !$empire->check_for_repeat_message('complaint_unhappy'.$self->id)) {
             $empire->send_predefined_message(
                 filename    => 'complaint_unhappy.txt',
                 params      => [$self->id, $self->name],
@@ -1802,7 +1802,7 @@ sub add_waste {
         my $empire = $self->empire;
         $self->waste_stored( $storage );
         $self->spend_happiness( $store - $storage ); # pollution
-        if (!$empire->skip_pollution_warnings && $empire->university_level > 2 && !$empire->check_for_repeat_message('complaint_pollution')) {
+        if (!$empire->skip_pollution_warnings && $empire->university_level > 2 && !$empire->check_for_repeat_message('complaint_pollution'.$self->id)) {
             $empire->send_predefined_message(
                 filename    => 'complaint_pollution.txt',
                 params      => [$self->id, $self->name],
@@ -1823,7 +1823,7 @@ sub spend_waste {
         $self->spend_happiness($value - $self->waste_stored);
         $self->waste_stored(0);
         my $empire = $self->empire;
-        if (!$empire->check_for_repeat_message('complaint_lack_of_waste')) {
+        if (!$empire->check_for_repeat_message('complaint_lack_of_waste'.$self->id)) {
             my $building_name;
             foreach my $class (qw(Lacuna::DB::Result::Building::Energy::Waste Lacuna::DB::Result::Building::Waste::Treatment Lacuna::DB::Result::Building::Waste::Digester Lacuna::DB::Result::Building::Water::Reclamation)) {
                 my $building = $self->get_buildings_of_class($class)->search({efficiency => {'>' => 0}},{rows => 1})->single;
@@ -1850,7 +1850,7 @@ sub complain_about_lack_of_resources {
     my ($self, $resource) = @_;
     my $empire = $self->empire;
     # if they run out of resources in storage, then the citizens start bitching
-    if (!$empire->check_for_repeat_message('complaint_lack_of_'.$resource)) {
+    if (!$empire->check_for_repeat_message('complaint_lack_of_'.$resource.$self->id)) {
         my $building_name;
         foreach my $rpcclass (shuffle BUILDABLE_CLASSES) {
             my $class = $rpcclass->model_class;
