@@ -17,7 +17,7 @@ sub market {
 
 sub my_market { 
     my $self = shift;
-    return $self->market->search({body_id => $self->body_id, transfer_type => $self->transfer_type, has_spy => 0 });
+    return $self->market->search({body_id => $self->body_id, transfer_type => $self->transfer_type });
 }
 
 sub available_market {
@@ -26,7 +26,6 @@ sub available_market {
         {
             body_id         => {'!=' => $self->body_id},
             transfer_type   => $self->transfer_type,
-            has_spy         => 0,
         },
     )
 }
