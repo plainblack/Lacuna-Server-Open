@@ -448,25 +448,6 @@ sub fetch_spies {
 
 
 
-sub view_ships_orbiting {
-    my ($self, $session_id, $building_id, $page_number) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    $page_number ||= 1;
-    my $body = $building->body;
-    my @orbiting;
-    my $ships = $body->ships_orbiting->search(undef, {rows=>25, page=>$page_number});
-    while (my $ship = $ships->next) {
-        $ship->body($body);
-        push @orbiting, $ship->get_status;
-    }
-    return {
-        status                    => $self->format_status($empire, $body),
-        number_of_ships_orbiting  => $ships->pager->total_entries,
-        ships_orbiting            => \@orbiting,
-    };
-}
-
 sub view_ships_travelling {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -602,7 +583,7 @@ sub view_all_ships {
         status                      => $self->format_status($empire, $body),
         number_of_ships             => defined $paging->{page_number} ? $ships->pager->total_entries : $ships->count,
         ships                       => \@fleet,
-    };    
+    };
 }
 
 sub view_foreign_ships {
@@ -610,9 +591,24 @@ sub view_foreign_ships {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     $page_number ||= 1;
+    return $self->_view_ships($session_id, $building_id, $page_number, 'foreign_ships');
+}
+
+sub view_ships_orbiting {
+    my ($self, $session_id, $building_id, $page_number) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    $page_number ||= 1;
+    return $self->_view_ships($session_id, $building_id, $page_number, 'orbiting_ships');
+}
+
+sub _view_ships {
+    my ($self, $session_id, $building_id, $page_number, $method) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
     my @fleet;
     my $now = time;
-    my $ships = $building->foreign_ships->search({}, {rows=>25, page=>$page_number, join => 'body' });
+    my $ships = $building->$method->search({}, {rows=>25, page=>$page_number, join => 'body' });
     my $see_ship_type = ($building->level * 350) * ( $building->efficiency / 100 );
     my $see_ship_path = ($building->level * 450) * ( $building->efficiency / 100 );
     my @my_planets = $empire->planets->get_column('id')->all;
@@ -651,7 +647,7 @@ sub view_foreign_ships {
         status                      => $self->format_status($empire, $building->body),
         number_of_ships             => $ships->pager->total_entries,
         ships                       => \@fleet,
-    };    
+    };
 }
 
 sub name_ship {
