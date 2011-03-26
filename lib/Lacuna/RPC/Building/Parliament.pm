@@ -57,17 +57,17 @@ sub cast_vote {
 
 sub propose_fire_bfg {
     my ($self, $session_id, $building_id, $x, $y, $reason) = @_;
-    Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot be empty.',$reason])->not_empty;
-    Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot contain HTML tags or entities.',$reason])->no_tags;
-    Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot contain profanity.',$reason])->no_profanity;
     my $empire = $self->get_empire_by_session($session_id);
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot vote in parliament.'];
     }
     my $building = $self->get_building($empire, $building_id);
     unless ($building->level >= 30) {
-        confess [1013, 'Parliament must be level 30 to propose using the BFG.'];
+        confess [1013, 'Parliament must be level 30 to propose using the BFG.',30];
     }
+    Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot be empty.',$reason])->not_empty;
+    Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot contain HTML tags or entities.',$reason])->no_tags;
+    Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot contain profanity.',$reason])->no_profanity;
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({x=>$x, y=>$y},{rows=>1})->single;
     unless (defined $body) {
         confess [1002, 'Could not find the target body.'];
@@ -89,8 +89,12 @@ sub propose_fire_bfg {
     $proposition->insert;
 }
 
+sub propose_writ {
+    
+}
 
-__PACKAGE__->register_rpc_method_names(qw(view_propositions cast_vote));
+
+__PACKAGE__->register_rpc_method_names(qw(view_propositions cast_vote propose_fire_bfg propose_writ));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

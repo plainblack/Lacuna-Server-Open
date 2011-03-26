@@ -35,7 +35,7 @@ $station = $station->get_from_storage; # just in case
 ok $station->alliance_id, 'alliance assigned to station';
 
 my $par = $station->parliament;
-$par->level(3);
+$par->level(4);
 $par->update;
     
 $result = $tester->post('parliament', 'view', [$session_id, $par->id]);
@@ -50,6 +50,8 @@ is($result->{result}{propositions}[0]{name}, 'Rename Station', 'got a list of pr
 $result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $result->{result}{propositions}[0]{id}, 1]);
 is($result->{result}{proposition}{my_vote}, 1, 'got my vote');
 
+$result = $tester->post('parliament', 'propose_fire_bfg', [$session_id, $par->id]);
+is($result->{error}{data}, 30, 'firing bfg requires level 30 parliament');
 
 END {
     $station->sanitize;
