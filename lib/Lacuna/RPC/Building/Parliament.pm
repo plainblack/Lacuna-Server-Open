@@ -55,6 +55,40 @@ sub cast_vote {
     };
 }
 
+sub propose_fire_bfg {
+    my ($self, $session_id, $building_id, $x, $y, $reason) = @_;
+    Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot be empty.',$reason])->not_empty;
+    Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot contain HTML tags or entities.',$reason])->no_tags;
+    Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot contain profanity.',$reason])->no_profanity;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot vote in parliament.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 30) {
+        confess [1013, 'Parliament must be level 30 to propose using the BFG.'];
+    }
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({x=>$x, y=>$y},{rows=>1})->single;
+    unless (defined $body) {
+        confess [1002, 'Could not find the target body.'];
+    }
+    unless ($body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
+        confess [1009, 'Target is not a planet.'];
+    }
+    $self->body->in_jurisdiction($body);
+    my $name = $body->name.' ('.$body->x.','.$body->y.')';
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'FireBfg',
+        name            => 'Fire BFG at '.$name,
+        description     => 'Fire the BFG at '.$name.' from the station named "'.$body->name.'". Reason cited: '.$reason,
+        scratch         => { body_id => $body->id },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+}
+
 
 __PACKAGE__->register_rpc_method_names(qw(view_propositions cast_vote));
 

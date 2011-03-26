@@ -66,7 +66,6 @@ Casts a vote for or against a proposition. Cannot be voted on using a sitter pas
     }
  }
 
-
 =head3 session_id
 
 A session id.
@@ -82,5 +81,31 @@ The id of the propostion your casting this vote for or against. See C<view_propo
 =head3 vote
 
 A boolean indicating which way you wish to vote. 1 for yes. 0 for no. Default is 0.
+
+
+=head1 Proposition Methods
+
+The following methods propose laws or actions to be taken by the station on behalf of Parliament. There are many propositions that are implied, such as installing a new module or renaming the station. These propositions, must be explicitly declared through parliament by calling these methods.
+
+
+=head2 propose_fire_bfg ( session_id, building_id, target_x, target_y, reason )
+
+Fires the BFG equipped on all space stations at a planet of Parliament's choosing as long as it is within the jurisdiction of the station. Can only be called by Parliament level 30.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+=head3 target_x, target_y
+
+The C<x,y> coordinates of the planet that is the target.
+
+=head3 reason
+
+An explict reason why the BFG should be fired upon the target. Same rules as an L<Inbox> message body apply here.
 
 =cut

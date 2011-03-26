@@ -80,6 +80,16 @@ sub add_waste {
     return $self;
 }
 
+sub in_jurisdiction {
+    my ($self, $target) = @_;
+    confess [1009, 'Target is not in the station\'s jurisdiction.'];
+}
+
+sub in_range_of_influence {
+    my ($self, $target) = @_;
+    confess [1009, 'Target is not in the station\'s range of influence.'];
+}
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
 
