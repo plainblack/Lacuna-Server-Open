@@ -1,3 +1,6 @@
+3.0400
+ - Rule: SAWs now cost less in upkeep.
+
 3.0301
  - Fixed the massive repeating resource warning messages.
 
