@@ -1,7 +1,10 @@
 3.0400
  - Rule: SAWs now cost less in upkeep.
+ - API: Added proposing enacting writs at Parliament level 4.
+ - API: Added proposing firing the station's BFG at Parliament level 30.
  - API: The Mercenaries Guild API has been corrected.
  - API: The view_ships_orbiting() method of the SpacePort now correctly shows the foreign ships orbiting your planet as opposed to your ships that are orbiting foreign bodies.
+ - Fix: Space station propositions weren't all working properly when passed/failed.
 
 3.0301
  - Fixed the massive repeating resource warning messages.

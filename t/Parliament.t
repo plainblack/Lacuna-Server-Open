@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 8;
+use Test::More tests => 11;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -50,8 +50,15 @@ is($result->{result}{propositions}[0]{name}, 'Rename Station', 'got a list of pr
 $result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $result->{result}{propositions}[0]{id}, 1]);
 is($result->{result}{proposition}{my_vote}, 1, 'got my vote');
 
+$result = $tester->post('parliament', 'propose_writ', [$session_id, $par->id, 'Do the big thing.', 'Make it go.']);
+is($result->{result}{proposition}{name}, 'Do the big thing.', 'writ proposed');
+$result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $result->{result}{propositions}[0]{id}, 1]);
+$result = $tester->post('parliament', 'view_laws', [$session_id, $station->id]);
+is($result->{result}{laws}[0]{name}, 'Do the big thing.', 'writ enacted');
+
 $result = $tester->post('parliament', 'propose_fire_bfg', [$session_id, $par->id]);
 is($result->{error}{data}, 30, 'firing bfg requires level 30 parliament');
+
 
 END {
     $station->sanitize;

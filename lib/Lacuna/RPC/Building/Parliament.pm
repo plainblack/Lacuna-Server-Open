@@ -30,6 +30,21 @@ sub view_propositions {
     };
 }
 
+sub view_laws {
+    my ($self, $session_id, $body_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $self->get_body($empire, $body_id);
+    my @out;
+    my $laws = $body->laws;
+    while (my $law = $laws->next) {
+        push @out, $law->get_status($empire);
+    }
+    return {
+        status          => $self->format_status($empire, $body),
+        laws            => \@out,
+    };
+}
+
 sub cast_vote {
     my ($self, $session_id, $building_id, $proposition_id, $vote) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -80,21 +95,53 @@ sub propose_fire_bfg {
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'FireBfg',
         name            => 'Fire BFG at '.$name,
-        description     => 'Fire the BFG at '.$name.' from the station named "'.$body->name.'". Reason cited: '.$reason,
+        description     => 'Fire the BFG at '.$name.' from the station named "'.$building->body->name.'". Reason cited: '.$reason,
         scratch         => { body_id => $body->id },
         proposed_by_id  => $empire->id,
     });
-    $proposition->station($body);
+    $proposition->station($building->body);
     $proposition->proposed_by($empire);
     $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
 }
 
 sub propose_writ {
-    
+    my ($self, $session_id, $building_id, $title, $writ) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot vote in parliament.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 30) {
+        confess [1013, 'Parliament must be level 4 to propose a writ.',4];
+    }
+    Lacuna::Verify->new(content=>\$title, throws=>[1005,'Title cannot be empty.',$title])->not_empty;
+    Lacuna::Verify->new(content=>\$title, throws=>[1005,'Title cannot contain any of these characters: {}<>&;@',$title])->no_restricted_chars;
+    Lacuna::Verify->new(content=>\$title, throws=>[1005,'Title must be less than 30 characters.',$title])->length_lt(30);
+    Lacuna::Verify->new(content=>\$title, throws=>[1005,'Title cannot contain profanity.',$title])->no_profanity;
+    Lacuna::Verify->new(content=>\$writ, throws=>[1005,'Writ cannot be empty.',$writ])->not_empty;
+    Lacuna::Verify->new(content=>\$writ, throws=>[1005,'Writ cannot contain HTML tags or entities.',$writ])->no_tags;
+    Lacuna::Verify->new(content=>\$writ, throws=>[1005,'Writ cannot contain profanity.',$writ])->no_profanity;
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'EnactWrit',
+        name            => $title,
+        description     => $writ,
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(view_propositions cast_vote propose_fire_bfg propose_writ));
+__PACKAGE__->register_rpc_method_names(qw(view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
