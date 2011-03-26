@@ -24,7 +24,15 @@ __PACKAGE__->add_columns(
 ); 
 
 __PACKAGE__->typecast_map(type => {
+    AbandonStation          => 'Lacuna::DB::Result::Propositions::AbandonStation',
+    DemolishModule          => 'Lacuna::DB::Result::Propositions::DemolishModule',
+    DowngradeModule         => 'Lacuna::DB::Result::Propositions::DowngradeModule',
+    EnactWrit               => 'Lacuna::DB::Result::Propositions::EnactWrit',
+    FireBfg                 => 'Lacuna::DB::Result::Propositions::FireBfg',
+    InstallModule           => 'Lacuna::DB::Result::Propositions::InstallModule',
     RenameStation           => 'Lacuna::DB::Result::Propositions::RenameStation',
+    RepairModule            => 'Lacuna::DB::Result::Propositions::RepairModule',
+    UpgradeModule           => 'Lacuna::DB::Result::Propositions::UpgradeModule',
 });
 
 __PACKAGE__->belongs_to('proposed_by', 'Lacuna::DB::Result::Empire', 'proposed_by_id');
