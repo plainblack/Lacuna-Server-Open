@@ -3,10 +3,8 @@ package Lacuna::RPC::Building::MercenariesGuild;
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
-extends 'Lacuna::RPC::Building::Trade';
+extends 'Lacuna::RPC::Building';
 use Guard;
-
-with 'Lacuna::Role::SpyTraderRpc';
 
 sub app_url {
     return '/mercenariesguild';
@@ -14,6 +12,22 @@ sub app_url {
 
 sub model_class {
     return 'Lacuna::DB::Result::Building::MercenariesGuild';
+}
+
+sub get_trade_ships {
+    my ($self, $session_id, $building_id, $target_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id) if $target_id;
+    my @ships;
+    my $ships = $building->trade_ships;
+    while (my $ship = $ships->next) {
+        push @ships, $ship->get_status($target);
+    }
+    return {
+        status      => $self->format_status($empire, $building->body),
+        ships       => \@ships,
+    };
 }
 
 sub withdraw_from_market {
@@ -33,8 +47,6 @@ sub withdraw_from_market {
         confess [1002, 'Could not find that trade. Perhaps it has already been accepted.'];
     }
     $trade->withdraw($building->body);
-    my $cost = sprintf "%.1f", 3 - $building->level * 0.1;
-    $empire->add_essentia($cost, 'Withdrew Mercenary Trade')->update;
     return {
         status      => $self->format_status($empire, $building->body),
     };
@@ -77,8 +89,8 @@ sub accept_from_market {
 
     $guard->cancel;
 
-    $empire->spend_essentia($trade->ask, 'Trade Price')->update;
-    $trade->body->empire->add_essentia($trade->ask, 'Trade Income')->update;
+    $empire->spend_essentia($trade->ask, 'Mercenary Price')->update;
+    $trade->body->empire->add_essentia($trade->ask, 'Mercenary Income')->update;
     #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
     #$cargo_log->new({
     #    message     => 'mercenaries guild offer accepted',
@@ -102,7 +114,7 @@ sub accept_from_market {
     $trade->body->empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'trade_accepted.txt',
-        params      => [join("; ",@{$trade->format_description_of_payload}), $trade->ask.' essentia', $empire->id, $empire->name],
+        params      => [$trade->format_description_of_payload, $trade->ask.' essentia', $empire->id, $empire->name],
     );
     $trade->delete;
 
@@ -112,7 +124,7 @@ sub accept_from_market {
 }
 
 sub add_to_market {
-    my ($self, $session_id, $building_id, $offer, $ask, $options) = @_;
+    my ($self, $session_id, $building_id, $spy_id, $ask, $ship_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     confess [1013, 'You cannot use a mercenaries guild that has not yet been built.'] unless $building->level > 0;
@@ -120,14 +132,127 @@ sub add_to_market {
     unless ($empire->essentia >= $cost) {
         confess [1011, "You need $cost essentia to make a trade using the Mercenaries Guild."];
     }
-    $empire->spend_essentia($cost, 'Offered Mercenaries Trade')->update;
-    my $trade = $building->add_to_market($offer, $ask, $options);
+    $empire->spend_essentia($cost, 'Offered Mercenary Trade')->update;
+    my $trade = $building->add_to_market($cost, $spy_id, $ask, $ship_id);
     return {
         trade_id    => $trade->id,
         status      => $self->format_status($empire, $building->body),
     };
 }
 
+sub view_my_market {
+    my ($self, $session_id, $building_id, $page_number) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    $page_number ||=1;
+    my $my_trades = $building->my_market->search(undef, { rows => 25, page => $page_number });
+    my @trades;
+    while (my $trade = $my_trades->next) {
+        push @trades, {
+            id                      => $trade->id,
+            date_offered            => $trade->date_offered_formatted,
+            ask                     => $trade->ask,
+            offer                   => $trade->format_description_of_payload,
+        };
+    }
+    return {
+        trades      => \@trades,
+        trade_count => $my_trades->pager->total_entries,
+        page_number => $page_number,
+        status      => $self->format_status($empire, $building->body),
+    };
+}
+
+sub view_market {
+    my ($self, $session_id, $building_id, $page_number) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    $page_number ||=1;
+    my $all_trades = $building->available_market->search(
+        undef,
+        { rows => 25, page => $page_number, join => 'body', order_by => 'ask' }
+    );
+    my @trades;
+    while (my $trade = $all_trades->next) {
+        if ($trade->body->empire_id eq '') {
+            $trade->delete;
+            next;
+        }
+        push @trades, {
+            id                      => $trade->id,
+            date_offered            => $trade->date_offered_formatted,
+            ask                     => $trade->ask,
+            offer                   => $trade->format_description_of_payload,
+            body                    => {
+                id      => $trade->body_id,
+            },
+            empire                  => {
+                id      => $trade->body->empire->id,
+                name    => $trade->body->empire->name,
+            },
+        };
+    }
+    return {
+        trades      => \@trades,
+        trade_count => $all_trades->pager->total_entries,
+        page_number => $page_number,
+        status      => $self->format_status($empire, $building->body),
+    };
+}
+
+sub get_spies {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
+        { on_body_id => $building->body_id, task => { in => ['Counter Espionage','Idle'] } },
+        { order_by => 'name' }
+    );
+    my @out;
+    while (my $spy = $spies->next) {
+        push @out, {
+            id          => $spy->id,
+            name        => $spy->name,
+            level       => $spy->level,
+        };
+    }
+    return {
+        spies                   => \@out,
+        status                  => $self->format_status($empire, $building->body),
+    };
+}
+
+sub report_abuse {
+    my ($self, $session_id, $building_id, $trade_id) = @_;
+    unless ($trade_id) {
+        confess [1002, 'You have not specified a trade to withdraw.'];
+    }
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $cache = Lacuna->cache;
+    if ($cache->get('trade_lock', $trade_id)) {
+        confess [1013, 'A buyer has placed an offer on this trade. Please wait a few moments and try again.'];
+    }
+    my $times_reporting = $cache->increment('empire_reporting_trade_abuse'.DateTime->now->day, $empire->id, 1, 60 * 60 * 24);
+    if ($times_reporting > 10) {
+        confess [1010, 'You have reported enough abuse for one day.'];
+    }
+    my $reports = $cache->increment('trade_abuse',$trade_id,1, 60 * 60 * 24 * 3);
+    if ($reports >= 5) {
+        my $trade = $building->market->find($trade_id);
+        if (defined $trade) {
+            $trade->body->empire->send_predefined_message(
+                filename    => 'trade_abuse.txt',
+                params      => [join("\n",@{$trade->format_description_of_payload}), $trade->ask.' essentia'],
+                tags        => ['Alert'],
+            );
+            $trade->withdraw($trade->body);
+        }
+        return {
+            status      => $self->format_status($empire, $building->body),
+        };
+    }
+}
 __PACKAGE__->register_rpc_method_names(qw(report_abuse view_my_market view_market accept_from_market withdraw_from_market add_to_market push_items get_trade_ships get_spies));
 
 

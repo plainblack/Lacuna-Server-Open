@@ -678,48 +678,52 @@ Defaults to 1. An integer representing which page of ships travelling to view. E
 
 =head2 view_ships_orbiting ( session_id, building_id, [ page_number ])
 
-Returns a list of the ships from this planet that are orbiting.
+Shows you all the foreign ships that are orbiting this planet. However, the list is filtered by the stealth of the ship vs the level of the SpacePort. The formula is:
+
+ 300 * SpacePort Level >= Ship Stealth
+
+If your SpacePort exceeds the Ship's Stealth, then you'll see it orbiting. Otherwise you won't.
 
  {
-    "status" : { ... },
-    "number_of_ships_orbiting" : 30,
-    "ships_orbiting" : [
+    "ships" : [
        {
            "id" : "id-goes-here",
+           "name" : "SS3",
            "type" : "spy_shuttle",
            "type_human" : "Spy Shuttle",
-           "task" : "Orbiting",
+           "date_arrives" : "02 01 2010 10:08:33 +0600",
            "from" : {
                "id" : "id-goes-here",
-               "type" : "body",
-               "name" : "New Earth",
-           },
-           "to" : {
-               "id" : "id-goes-here",
-               "type" : "body",
-               "name" : "Earth",
+               "name" : "Mars",
+               "empire" : {
+                   "id" : "id-goes-here",
+                   "name" : "Martians"
+               }
            }
        },
        {
            "id" : "id-goes-here",
+           "name" : "F3",
            "type" : "fighter",
            "type_human" : "Fighter",
-           "task" : "Defend",
            "from" : {
                "id" : "id-goes-here",
-               "type" : "body",
-               "name" : "New Earth",
-           },
-           "to" : {
-               "id" : "id-goes-here",
-               "type" : "body",
                "name" : "Earth",
+               "empire" : {
+                   "id" : "id-goes-here",
+                   "name" : "Earthlings"
+               }
            }
        },
-       ...
-    ]
+        ...
+    ],
+    "number_of_ships" : 13,
+    "status" : { ... }
  }
 
+The C<from> block is only included if
+
+ 100 * SpacePort Level >= Ship Stealth
 
 =head3 session_id
 
@@ -731,7 +735,7 @@ The unique id of the space port.
 
 =head3 page_number
 
-Defaults to 1. An integer representing which page of ships orbiting to view. Each page shows 25 ships.
+Defaults to page 1. Shows 25 at a time.
 
 
 

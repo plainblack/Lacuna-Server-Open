@@ -25,7 +25,6 @@ __PACKAGE__->add_columns(
     has_prisoner            => { data_type => 'tinyint', default_value => 0 },
     has_glyph               => { data_type => 'tinyint', default_value => 0 },
     has_plan                => { data_type => 'tinyint', default_value => 0 },
-    has_spy                 => { data_type => 'tinyint', default_value => 0 },
 );
 
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
@@ -46,12 +45,7 @@ sub withdraw {
     my ($self, $body) = @_;
     $body ||= $self->body;
     $self->unload($body);
-    if ($self->has_spy) {
-        my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($self->ship_id);
-        $ship->land->update if defined $ship;
-        $body->empire->add_essentia(1, 'Withdrew Mercenary Trade')->update;
-    }
-    elsif ($self->ship_id) {
+    if ($self->ship_id) {
         my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($self->ship_id);
         $ship->land->update if defined $ship;
     }

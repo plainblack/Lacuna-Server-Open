@@ -1,5 +1,7 @@
 3.0400
  - Rule: SAWs now cost less in upkeep.
+ - API: The Mercenaries Guild API has been corrected.
+ - API: The view_ships_orbiting() method of the SpacePort now correctly shows the foreign ships orbiting your planet as opposed to your ships that are orbiting foreign bodies.
 
 3.0301
  - Fixed the massive repeating resource warning messages.

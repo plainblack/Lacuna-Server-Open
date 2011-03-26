@@ -37,6 +37,13 @@ sub push_items {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
+    my $cache = Lacuna->cache;
+    if (! $cache->add('trade_push_lock', $building_id, 1, 5)) {
+        confess [1013, 'You have a push setup in progress.  Please wait a few moments and try again.'];
+    }
+    my $guard = guard {
+        $cache->delete('trade_push_lock',$building_id);
+    };
     unless ($target_id) {
         confess [1002, "You must specify a target body id."];
     }
@@ -60,10 +67,9 @@ sub withdraw_from_market {
         confess [1002, 'You have not specified a trade to withdraw.'];
     }
     my $cache = Lacuna->cache;
-    if ($cache->get('trade_lock', $trade_id)) {
+    if (! $cache->add('trade_lock', $trade_id, 1, 5)) {
         confess [1013, 'A buyer has placed an offer on this trade. Please wait a few moments and try again.'];
     }
-    $cache->set('trade_lock',$trade_id,1,5);
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $trade = $building->market->find($trade_id);
@@ -83,10 +89,9 @@ sub accept_from_market {
         confess [1002, 'You have not specified a trade to accept.'];
     }
     my $cache = Lacuna->cache;
-    if ($cache->get('trade_lock', $trade_id)) {
+    if (! $cache->add('trade_lock', $trade_id, 1, 5)) {
         confess [1013, 'Another buyer has placed an offer on this trade. Please wait a few moments and try again.'];
     }
-    $cache->set('trade_lock',$trade_id,1,5);
     my $guard = guard {
         $cache->delete('trade_lock',$trade_id);
     };

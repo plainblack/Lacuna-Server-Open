@@ -48,21 +48,12 @@ Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
     empire_id       => $empire->id,    
 })->insert;
 
-my $dory = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>'dory'});
-$shipyard->build_ship($dory);
-
 my $spy_pod = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>'spy_pod'});
 $shipyard->build_ship($spy_pod);
 
 my $finish = DateTime->now;
 Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id=>$shipyard->id})->update({date_available=>$finish});
 
-
-$result = $tester->post('trade', 'build', [$session_id, $home->id, 0, 4]);
-my $trade = $tester->get_building($result->{result}{building}{id});
-$trade->finish_upgrade;
-
-$result = $tester->post('trade', 'add_to_market', [$session_id, $trade->id, [{ type => 'water', quantity => 100}], 1]);
 
 $result = $tester->post('mercenariesguild', 'build', [$session_id, $home->id, 0, 3]);
 ok($result->{result}{building}{id}, "built a mercenaries guild");
@@ -75,18 +66,19 @@ ok(exists $result->{result}, 'can call get_trade_ships');
 $result = $tester->post('mercenariesguild', 'get_spies', [$session_id, $merc->id]);
 ok(exists $result->{result}, 'can call get_spies');
 my $spy_id = $result->{result}{spies}[0]{id};
+diag "spy_id: $spy_id";
 
-$result = $tester->post('mercenariesguild', 'add_to_market', [$session_id, $merc->id, { type => 'spy', spy_id => $spy_id}, 1]); 
+$result = $tester->post('mercenariesguild', 'add_to_market', [$session_id, $merc->id, $spy_id, 1]); 
 is($result->{error}{code}, 1011, 'can call add_to_market');
 ok($result->{error}{message} =~ / 2\.9 essentia /, 'requires 2.9 essentia to add_to_market');
 
 $empire->add_essentia(100, 'Topping up');
 $empire->update();
 
-$result = $tester->post('mercenariesguild', 'add_to_market', [$session_id, $merc->id, { type => 'algae', quantity => 100000}, 1]); 
+$result = $tester->post('mercenariesguild', 'add_to_market', [$session_id, $merc->id, undef, 1]); 
 is($result->{error}{code}, 1013, 'no spy offered');
 
-$result = $tester->post('mercenariesguild', 'add_to_market', [$session_id, $merc->id, { type => 'spy', spy_id => $spy_id}, 1, { ship_id => $spy_pod->id }]); 
+$result = $tester->post('mercenariesguild', 'add_to_market', [$session_id, $merc->id, $spy_id, 1, $spy_pod->id]); 
 my $trade_id = $result->{result}{trade_id};
 ok($trade_id, 'spy offered');
 

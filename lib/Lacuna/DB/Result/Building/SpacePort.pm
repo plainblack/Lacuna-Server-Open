@@ -30,6 +30,16 @@ sub foreign_ships {
     );
 }
 
+sub orbiting_ships {
+    my ($self) = @_;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        {
+            foreign_body_id => $self->body_id,
+            task            => { in => ['Defend','Orbiting'] },
+        }
+    );
+}
+
 sub send_ship {
     my ($self, $target, $type, $payload) = @_;
     my $ship = $self->find_ship($type);

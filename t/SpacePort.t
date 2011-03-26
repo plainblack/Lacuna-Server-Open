@@ -69,7 +69,7 @@ is(ref $result->{result}{available}, 'ARRAY', "can see what ships are available 
 is(ref $result->{result}{orbiting}, 'ARRAY', "can see what ships are orbiting");
 
 $result = $tester->post('spaceport', 'view_ships_orbiting', [$session_id, $spaceport->id]);
-is(ref $result->{result}{ships_orbiting}, 'ARRAY', "can see orbiting ships");
+is(ref $result->{result}{ships}, 'ARRAY', "can see orbiting ships");
 
 $result = $tester->post('spaceport', 'recall_all', [$session_id, $spaceport->id]);
 is(ref $result->{result}{ships}, 'ARRAY', 'can call recall_all');

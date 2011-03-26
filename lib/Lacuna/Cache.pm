@@ -123,6 +123,35 @@ sub get_and_deserialize {
     return $value;
 }
 
+sub add {
+    my ($self, $namespace, $id, $value, $ttl, $retry) = @_;
+    my $key = $self->fix_key($namespace, $id);
+    $ttl ||= 60;
+    my $frozenValue = (ref $value) ? JSON::to_json($value) : $value; 
+    my $memcached = $self->memcached;
+    Memcached::libmemcached::memcached_add($memcached, $key, $frozenValue, $ttl);
+    if ($memcached->errstr eq 'SUCCESS') {
+        return $value;
+    }
+    elsif ($memcached->errstr eq 'NOT STORED') {
+        # already exists in cache
+        return undef;
+    }
+    elsif ($memcached->errstr eq 'SYSTEM ERROR Unknown error: 0' || $retry) {
+        warn "Cannot connect to memcached server.";
+    }
+    elsif ($memcached->errstr eq 'UNKNOWN READ FAILURE' ) {
+        warn "Memcached went away, reconnecting.";
+        $self->clear_memcached;
+        return $self->set($namespace, $id, $value, $ttl, 1);
+    }
+    elsif ($memcached->errstr eq 'NO SERVERS DEFINED') {
+        warn "No memcached servers specified.";
+    }
+    warn "Couldn't set $key to cache because ".$memcached->errstr;
+}
+
+
 sub set {
     my ($self, $namespace, $id, $value, $ttl, $retry) = @_;
     my $key = $self->fix_key($namespace, $id);
