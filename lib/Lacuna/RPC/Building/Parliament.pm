@@ -115,7 +115,7 @@ sub propose_writ {
         confess [1015, 'Sitters cannot vote in parliament.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 30) {
+    unless ($building->level >= 4) {
         confess [1013, 'Parliament must be level 4 to propose a writ.',4];
     }
     Lacuna::Verify->new(content=>\$title, throws=>[1005,'Title cannot be empty.',$title])->not_empty;

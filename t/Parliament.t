@@ -52,7 +52,7 @@ is($result->{result}{proposition}{my_vote}, 1, 'got my vote');
 
 $result = $tester->post('parliament', 'propose_writ', [$session_id, $par->id, 'Do the big thing.', 'Make it go.']);
 is($result->{result}{proposition}{name}, 'Do the big thing.', 'writ proposed');
-$result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $result->{result}{propositions}[0]{id}, 1]);
+$result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $result->{result}{proposition}{id}, 1]);
 $result = $tester->post('parliament', 'view_laws', [$session_id, $station->id]);
 is($result->{result}{laws}[0]{name}, 'Do the big thing.', 'writ enacted');
 

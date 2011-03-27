@@ -19,7 +19,7 @@ __PACKAGE__->add_columns(
 ); 
 
 __PACKAGE__->typecast_map(type => {
-    EnactWrit           => 'Lacuna::DB::Result::Laws::Writ',
+    Writ                => 'Lacuna::DB::Result::Laws::Writ',
 });
 
 __PACKAGE__->belongs_to('station', 'Lacuna::DB::Result::Map::Body', 'station_id');
