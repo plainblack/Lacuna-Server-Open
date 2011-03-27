@@ -62,6 +62,9 @@ sub makeable_plans {
     return {
         command     => 'Lacuna::DB::Result::Building::Module::StationCommand',
         ibs         => 'Lacuna::DB::Result::Building::Module::IBS',
+        art         => 'Lacuna::DB::Result::Building::Module::ArtMuseum',
+        opera       => 'Lacuna::DB::Result::Building::Module::OperaHouse',
+        food        => 'Lacuna::DB::Result::Building::Module::CulinaryInstitute',
         parliament  => 'Lacuna::DB::Result::Building::Module::Parliament',
         warehouse   => 'Lacuna::DB::Result::Building::Module::Warehouse',
     };

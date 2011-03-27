@@ -147,8 +147,8 @@ sub propose_transfer_station_ownership {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 5) {
-        confess [1013, 'Parliament must be level 5 to transfer station ownership.',5];
+    unless ($building->level >= 6) {
+        confess [1013, 'Parliament must be level 6 to transfer station ownership.',6];
     }
     unless ($to_empire_id) {
         confess [1002, 'Must specify an empire id to transfer the station to.'];

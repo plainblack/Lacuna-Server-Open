@@ -1,5 +1,8 @@
 {
     "buildings" : {
+        "/operahouse" : { "description" : "A source of cultural influence for your space station.", "wiki" : "http://community.lacunaexpanse.com/wiki/opera-house" },
+        "/artmuseum" : { "description" : "A source of cultural influence for your space station.", "wiki" : "http://community.lacunaexpanse.com/wiki/art-museum" },
+        "/culinaryinstitute" : { "description" : "A source of cultural influence for your space station.", "wiki" : "http://community.lacunaexpanse.com/wiki/culinary-institute" },
         "/stationcommand" : { "description" : "The internal operations of a space station. Controls how big the station can be expanded.", "wiki" : "http://community.lacunaexpanse.com/wiki/station-command-center" },
         "/parliament" : { "description" : "The central government for the star systems that are controlled by a space station. Laws for the jurisdiction are made here.", "wiki" : "http://community.lacunaexpanse.com/wiki/parliament" },
         "/warehouse" : { "description" : "Resource storage for a space station.", "wiki" : "http://community.lacunaexpanse.com/wiki/warehouse" },
@@ -234,6 +237,17 @@
         "A higher level Security Ministry increases the chance of catching enemy spies as they come and go from your planet.",
         "A higher level Security Ministry allows you to see more detail about the enemy spies that are on your planet.",
         "You can make a new planet your home planet by building a Capitol building."
+    ],
+    "writ_templates" : [
+        { "title" : "Non-Agression Mandate", "description" : "Planets in this jurisdiction may not attack anyone inside the jurisdiction." },
+        { "title" : "No Munitions", "description" : "Planets in this jurisdiction, except for members of ______ alliance are not allowed to build a Munitions Lab. If you are found with one the penalty shall be _______." },
+        { "title" : "No Operatives", "description" : "Planets in this jurisdiction, except for members of ______ alliance are not allowed to build a Espionage Ministry. If you are found with one the penalty shall be _______." },
+        { "title" : "Defense Mandate", "description" : "Planets in this jurisdiction are required to come to the aid of the other planets in this jurisdiction when under attack from both foreign and domestic enemies." },
+        { "title" : "Confederacy with ______", "description" : "_______ alliance declares a mutual conferation with _______ alliance." },
+        { "title" : "NAP with ______", "description" : "_______ alliance declares a non-aggression pact with _______ alliance." },
+        { "title" : "Declaration of War", "description" : "_______ alliance declares war on ______ alliance. All citizens in this jurisdiction are required to supply the war effort with all available ships, operatives, and aid packages." },
+        { "title" : "Centure of ______", "description" : "We, the members of _______ alliance, hereby declare a formal repremand of _______ for __________________." },
+        { "title" : "Glyph Heresy", "description" : "_______ alliance hereby denounces the existence of the Great Race. Anyone in our jurisdiction found using glyph technology shall be treated cruely and without mercy." }
     ]
 }
 

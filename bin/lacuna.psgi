@@ -79,10 +79,13 @@ my $app = builder {
     mount "/captcha"        => Lacuna::RPC::Captcha->new->to_app;
 
     for my $building (qw(
-        Lacuna::RPC::Building::StationCommand
-        Lacuna::RPC::Building::IBS
-        Lacuna::RPC::Building::Warehouse
-        Lacuna::RPC::Building::Parliament
+        Lacuna::RPC::Building::Shipyard
+        Lacuna::RPC::Building::SpacePort
+        Lacuna::RPC::Building::Intelligence
+        Lacuna::RPC::Building::Security
+        Lacuna::RPC::Building::Trade
+        Lacuna::RPC::Building::Transporter
+        Lacuna::RPC::Building::Archaeology
         Lacuna::RPC::Building::DistributionCenter
         Lacuna::RPC::Building::SAW
         Lacuna::RPC::Building::AtmosphericEvaporator
@@ -144,7 +147,6 @@ my $app = builder {
         Lacuna::RPC::Building::GasGiantPlatform
         Lacuna::RPC::Building::Geo
         Lacuna::RPC::Building::Hydrocarbon
-        Lacuna::RPC::Building::Intelligence
         Lacuna::RPC::Building::Lapis
         Lacuna::RPC::Building::Malcud
         Lacuna::RPC::Building::Mine
@@ -162,19 +164,13 @@ my $app = builder {
         Lacuna::RPC::Building::Oversight
         Lacuna::RPC::Building::RockyOutcrop
         Lacuna::RPC::Building::Lake
-        Lacuna::RPC::Building::Security
         Lacuna::RPC::Building::Shake
-        Lacuna::RPC::Building::Shipyard
         Lacuna::RPC::Building::Singularity
         Lacuna::RPC::Building::Soup
-        Lacuna::RPC::Building::SpacePort
         Lacuna::RPC::Building::Syrup
         Lacuna::RPC::Building::TerraformingLab
         Lacuna::RPC::Building::GeneticsLab
-        Lacuna::RPC::Building::Archaeology
         Lacuna::RPC::Building::TerraformingPlatform
-        Lacuna::RPC::Building::Trade
-        Lacuna::RPC::Building::Transporter
         Lacuna::RPC::Building::University
         Lacuna::RPC::Building::WasteEnergy
         Lacuna::RPC::Building::WasteRecycling
@@ -216,6 +212,13 @@ my $app = builder {
         Lacuna::RPC::Building::AmalgusMeadow
         Lacuna::RPC::Building::DentonBrambles
         Lacuna::RPC::Building::MercenariesGuild
+        Lacuna::RPC::Building::StationCommand
+        Lacuna::RPC::Building::OperaHouse
+        Lacuna::RPC::Building::ArtMuseum
+        Lacuna::RPC::Building::CulinaryInstitute
+        Lacuna::RPC::Building::IBS
+        Lacuna::RPC::Building::Warehouse
+        Lacuna::RPC::Building::Parliament
     )) {
         mount $building->new->to_app_with_url;
     }

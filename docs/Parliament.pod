@@ -124,6 +124,8 @@ The following methods propose laws or actions to be taken by the station on beha
 
 Proproses an unenforceable law. Only works with Parliament 4 and higher.
 
+B<NOTE:> See the C<writ_templates> section of C<resources.json>. These should be included as selectable options as a way to start the writeup of a title and description for a writ.
+
  {
     "status" : { ... },
     "proposition" : {
@@ -164,7 +166,7 @@ An explict reason why the BFG should be fired upon the target. Same rules as an 
 
 =head2 propose_transfer_station_ownership ( session_id, building_id, to_empire_id )
 
-Transfer the ownership of the station to another member of the alliance. Only works with Parliament 5 and higher.
+Transfer the ownership of the station to another member of the alliance. Only works with Parliament 6 and higher.
 
  {
     "status" : { ... },

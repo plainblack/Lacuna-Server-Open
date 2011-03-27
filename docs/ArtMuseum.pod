@@ -1,0 +1,7 @@
+=head1 Art Museum Methods
+
+Art Museum is accessible via the URL C</artmuseum>.
+
+The list of methods below represents changes and additions to the methods that all L<Modules> share.
+
+=cut

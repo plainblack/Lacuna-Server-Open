@@ -1,0 +1,7 @@
+=head1 Culinary Institute Methods
+
+Culinary Institute is accessible via the URL C</culinaryinstitute>.
+
+The list of methods below represents changes and additions to the methods that all L<Modules> share.
+
+=cut

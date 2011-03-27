@@ -13,3 +13,6 @@ create wiki entry
 # if buildable
 add to Lacuna::Constants::BUILDABLE_CLASSES
 update the tech tree image
+
+# if it's a space station module
+add it to the list of buildable modules in SSLa

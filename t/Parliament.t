@@ -57,7 +57,7 @@ $result = $tester->post('parliament', 'view_laws', [$session_id, $station->id]);
 is($result->{result}{laws}[0]{name}, 'Do the big thing.', 'writ enacted');
 
 $result = $tester->post('parliament', 'propose_transfer_station_ownership', [$session_id, $par->id]);
-is($result->{error}{data}, 5, 'transfering ownership of station requires level 5 parliament');
+is($result->{error}{data}, 6, 'transfering ownership of station requires level 6 parliament');
 
 $result = $tester->post('parliament', 'propose_fire_bfg', [$session_id, $par->id]);
 is($result->{error}{data}, 30, 'firing bfg requires level 30 parliament');
