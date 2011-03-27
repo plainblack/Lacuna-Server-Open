@@ -58,7 +58,13 @@ before can_upgrade => sub {
     my $self = shift;
     my $plan = $self->body->get_plan($self->class, $self->level + 1);
     if (defined $plan) {
-        return 1;
+        my $command = $self->body->command;
+        if ($command->level >= $self->level + 1 || $self->isa('Lacuna::DB::Result::Building::StationCommand')) {
+            return 1;
+        }
+        else {
+            confess [1013, 'A module cannot be upgraded past the level of station command.'];
+        }
     }
     else {
         confess [1013, 'You need a plan to upgrade this module.'];

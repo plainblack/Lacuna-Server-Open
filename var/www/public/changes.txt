@@ -1,6 +1,7 @@
 3.0400
  - Add: Added the Opera House, Art Museum, and Culinary Institute space station modules.
  - Rule: SAWs now cost less in upkeep.
+ - Rule: Station modules cannot be upgraded past the station command level.
  - API: Added proposing enacting writs at Parliament level 4.
  - API: Added transfering ownership of stations at Parliament level 5.
  - API: Added proposing firing the station's BFG at Parliament level 30.
