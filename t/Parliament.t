@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 11;
+use Test::More tests => 12;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -55,6 +55,9 @@ is($result->{result}{proposition}{name}, 'Do the big thing.', 'writ proposed');
 $result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $result->{result}{proposition}{id}, 1]);
 $result = $tester->post('parliament', 'view_laws', [$session_id, $station->id]);
 is($result->{result}{laws}[0]{name}, 'Do the big thing.', 'writ enacted');
+
+$result = $tester->post('parliament', 'propose_transfer_station_ownership', [$session_id, $par->id]);
+is($result->{error}{data}, 5, 'transfering ownership of station requires level 5 parliament');
 
 $result = $tester->post('parliament', 'propose_fire_bfg', [$session_id, $par->id]);
 is($result->{error}{data}, 30, 'firing bfg requires level 30 parliament');

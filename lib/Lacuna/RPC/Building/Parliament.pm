@@ -74,7 +74,7 @@ sub propose_fire_bfg {
     my ($self, $session_id, $building_id, $x, $y, $reason) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     if ($empire->current_session->is_sitter) {
-        confess [1015, 'Sitters cannot vote in parliament.'];
+        confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
     unless ($building->level >= 30) {
@@ -112,7 +112,7 @@ sub propose_writ {
     my ($self, $session_id, $building_id, $title, $writ) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     if ($empire->current_session->is_sitter) {
-        confess [1015, 'Sitters cannot vote in parliament.'];
+        confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
     unless ($building->level >= 4) {
@@ -140,8 +140,43 @@ sub propose_writ {
     };
 }
 
+sub propose_transfer_station_ownership {
+    my ($self, $session_id, $building_id, $to_empire_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 5) {
+        confess [1013, 'Parliament must be level 5 to transfer station ownership.',5];
+    }
+    unless ($to_empire_id) {
+        confess [1002, 'Must specify an empire id to transfer the station to.'];
+    }
+    my $to_empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($to_empire_id);
+    unless (defined $to_empire) {
+        confess [1002, 'Could not find the empire to transfer the station to.'];
+    }
+    unless ($to_empire->alliance_id == $empire->alliance_id) {
+        confess [1009, 'That empire is not a member of your alliance.'];
+    }
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'TransferStationOwnership',
+        name            => 'Transfer Station',
+        description     => 'Transfer ownership of station named '.$self->body->name.' from '.$self->body->empire->name.' to '.$to_empire->name.'.',
+        scratch         => { empire_id => $to_empire->id },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
 
-__PACKAGE__->register_rpc_method_names(qw(view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
+__PACKAGE__->register_rpc_method_names(qw(propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

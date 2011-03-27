@@ -1,6 +1,7 @@
 3.0400
  - Rule: SAWs now cost less in upkeep.
  - API: Added proposing enacting writs at Parliament level 4.
+ - API: Added transfering ownership of stations at Parliament level 5.
  - API: Added proposing firing the station's BFG at Parliament level 30.
  - API: Anyone can now view the laws passed by a space station, by simply calling view_laws() on the parliament.
  - API: The Mercenaries Guild API has been corrected.

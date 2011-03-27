@@ -122,7 +122,7 @@ The following methods propose laws or actions to be taken by the station on beha
 
 =head2 propose_writ ( session_id, building_id, title, description )
 
-Proproses an unenforceable law.
+Proproses an unenforceable law. Only works with Parliament 4 and higher.
 
  {
     "status" : { ... },
@@ -160,6 +160,44 @@ An explict reason why the BFG should be fired upon the target. Same rules as an 
 
 
 
+
+
+=head2 propose_transfer_station_ownership ( session_id, building_id, to_empire_id )
+
+Transfer the ownership of the station to another member of the alliance. Only works with Parliament 5 and higher.
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Transfer Station",
+        "description" : "Transfer ownership of Deep Space 9 from The Federation to the Klingon Empire.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+=head3 to_empire_id
+
+The id of an empire within the alliance that wants control over the station.
+
+
+
 =head2 propose_fire_bfg ( session_id, building_id, target_x, target_y, reason )
 
 Fires the BFG equipped on all space stations at a planet of Parliament's choosing as long as it is within the jurisdiction of the station. Can only be called by Parliament level 30.
@@ -169,7 +207,7 @@ Fires the BFG equipped on all space stations at a planet of Parliament's choosin
     "proposition" : {
         "id" : "id-goes-here",
         "name" : "Fire BFG",
-        "description" : "Fire BFG at 'Bri Prui 7' from 'Deep Space 1'. Reason cited: They smell funny.",
+        "description" : "Fire BFG at Alderaan from The Death Star. Reason cited: The princess isn't talking!",
         "votes_needed" : 7,
         "votes_yes" : 0,
         "votes_no" : 0,
@@ -177,7 +215,7 @@ Fires the BFG equipped on all space stations at a planet of Parliament's choosin
         "date_ends" : "01 31 2010 13:09:05 +0600",
         "proposed_by" : {
              "id" : "id-goes-here",
-             "name" : "Klingons",
+             "name" : "Admiral Motti",
         }
     }
  }
