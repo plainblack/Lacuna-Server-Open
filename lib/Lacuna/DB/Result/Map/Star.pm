@@ -9,10 +9,20 @@ use Lacuna::Util;
 __PACKAGE__->table('star');
 __PACKAGE__->add_columns(
     color                   => { data_type => 'varchar', size => 7, is_nullable => 0 },
+    station_id              => { data_type => 'int', is_nullable => 1 },
 );
 
 __PACKAGE__->has_many('bodies', 'Lacuna::DB::Result::Map::Body', 'star_id');
+__PACKAGE__->has_many('laws', 'Lacuna::DB::Result::Laws', 'star_id');
+__PACKAGE__->belongs_to('station', 'Lacuna::DB::Result::Map::Body', 'station_id', { on_delete => 'set null' });
 
+sub send_predefined_message {
+    my ($self, %options) = @_;
+    my $members = $self->bodies->search({empire_id => {'!=' => undef } });
+    while (my $body = $members->next) {
+        $body->empire->send_predefined_message(%options);
+    }
+}
 
 sub get_status {
     my ($self, $empire, $override_probe) = @_;
@@ -32,6 +42,15 @@ sub get_status {
                 push @orbits, $body->get_status($empire);
             }
             $out->{bodies} = \@orbits;
+            if ($self->station_id) {
+                my $station = $self->station;
+                $out->{station} = {
+                    id      => $station->id,
+                    x       => $station->x,
+                    y       => $station->y,
+                    name    => $station->name,
+                };
+            }
         }
     }
     return $out;

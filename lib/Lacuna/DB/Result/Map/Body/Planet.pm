@@ -237,6 +237,12 @@ around get_status => sub {
                 $out->{empire}{alignment} = $self->empire->is_isolationist ? 'ally-isolationist' : 'ally';
             }
         }
+        if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station') && defined $self->alliance) {
+            $out->{alliance} = {
+                id      => $self->alliance->id,
+                name    => $self->alliance->name,
+            }
+        }
     }
     return $out;
 };

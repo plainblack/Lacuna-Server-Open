@@ -66,7 +66,17 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
                 "is_ally" : 1                                   # is this from a planet within our alliance
             },
             ...
-        ]
+        ],
+        "station" : { # only shows up if this planet is under the influence of a space station
+            "id" : "id-goes-here",
+            "x" : 143,
+            "y" : -27,
+            "name" : "The Death Star"
+        }
+        "alliance" : { # only shows up if type is "space station"
+            "id" : "id-goes-here",
+            "name" : "Imperial Empire" 
+        }
     }
  }
  

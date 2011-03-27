@@ -16,6 +16,7 @@ __PACKAGE__->add_columns(
     type                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     scratch                 => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
     date_enacted            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    star_id                 => { data_type => 'int', is_nullable => 1 },
 ); 
 
 __PACKAGE__->typecast_map(type => {
@@ -23,6 +24,7 @@ __PACKAGE__->typecast_map(type => {
 });
 
 __PACKAGE__->belongs_to('station', 'Lacuna::DB::Result::Map::Body', 'station_id');
+__PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Map::Star', 'star_id', { on_delete => 'set null' });
 
 sub sqlt_deploy_hook {
     my ($self, $sqlt_table) = @_;

@@ -241,6 +241,15 @@ sub get_status {
         zone            => $self->zone,
         id              => $self->id,
     );
+    if ($self->star->station_id) {
+        my $station = $self->star->station;
+        $out{station} = {
+            id      => $station->id,
+            x       => $station->x,
+            y       => $station->y,
+            name    => $station->name,
+        };
+    }
     return \%out;
 }
 
