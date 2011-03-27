@@ -24,6 +24,18 @@ has parliament => (
     },
 );
 
+around get_status => sub {
+    my ($orig, $self, $empire) = @_;
+    my $out = $orig->($self);
+    if (defined $self->alliance) {
+        $out->{alliance} = {
+            id      => $self->alliance->id,
+            name    => $self->alliance->name,
+        }
+    }
+    return $out;
+};
+
 sub has_room_in_build_queue {
     return 1;   
 }
