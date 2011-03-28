@@ -6,6 +6,7 @@
  - API: Added "station" element to the status of bodies and probed stars.
  - API: Added "alliance" and "influence" elements to the status of bodies that are space stations.
  - API: Added proposing enacting writs at Parliament level 4.
+ - API: Added repealing an existing law at Parliament level 5.
  - API: Added transfering ownership of stations at Parliament level 6.
  - API: Added seizing control of stars at Parliament level 7.
  - API: Added proposing firing the station's BFG at Parliament level 30.
