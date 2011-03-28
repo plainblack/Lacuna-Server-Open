@@ -33,13 +33,40 @@ sub sqlt_deploy_hook {
 
 before delete => sub {
     my $self = shift;
-    # notify about repeal
+    $self->notify_about_law('parliament_law_repealed.txt');
 };
 
 after insert => sub {
     my $self = shift;
-    # notify about act
+    $self->notify_about_law('parliament_law_enacted.txt');
 };
+
+sub notify_about_law {
+    my ($self, $filename) = @_;
+    if ($self->star_id) {
+        $self->notify_stellar_inhabitants($self->star, $filename);
+    }
+    else {
+        my $stars = $self->station->stars;
+        while (my $star = $stars->next) {
+            $self->notify_stellar_inhabitants($star, $filename);
+        }
+    }
+}
+
+sub notify_stellar_inhabitants {
+    my ($self, $star, $filename) = @_;
+    my $planets = $star->bodies->search({empire_id => {'!=' => undef } });
+    my $station = $self->station;
+    my $from = $station->alliance->leader;
+    while (my $planet = $planets->next) {
+        $planet->empire->send_predefined_message(
+            filename    => $filename,
+            from        => $from,
+            params      => [$self->name, $station->name.'('.$station->x.','.$station->y.')', $planet->name, $self->description],
+        );
+    }
+}
 
 sub get_status {
     my ($self, $empire) = @_;

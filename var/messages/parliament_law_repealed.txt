@@ -1,0 +1,5 @@
+Repeal: %s
+~~~
+A law from the station %s has been repealed, so it no longer affects your planet %s. Here were the particulars:
+
+%s

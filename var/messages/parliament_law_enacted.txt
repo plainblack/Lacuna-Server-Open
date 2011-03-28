@@ -1,0 +1,5 @@
+Law: %s
+~~~
+A new law from the station %s has been passed which affects your planet %s. Here are the particulars:
+
+%s

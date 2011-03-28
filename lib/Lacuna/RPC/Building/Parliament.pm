@@ -176,7 +176,48 @@ sub propose_transfer_station_ownership {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
+sub propose_seize_star {
+    my ($self, $session_id, $building_id, $star_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 7) {
+        confess [1013, 'Parliament must be level 7 to transfer station ownership.',7];
+    }
+    unless ($star_id) {
+        confess [1002, 'Must specify a star id to seize.'];
+    }
+    my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id);
+    unless (defined $star) {
+        confess [1002, 'Could not find the star.'];
+    }
+    unless ($star->station_id) {
+        confess [1009, 'That star is already controlled by a station.'];
+    }
+    $building->body->in_range_of_influence($star);
+    unless ($building->body->influence_remaining > 0) {
+        confess [1009, 'You do not have enough influence to control another star.'];
+    }
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'SeizeStar',
+        name            => 'Seize '.$star->name,
+        description     => 'Seize control of '.$star->name.' ('.$star->x.','.$star->y.'), and apply all present laws to said star and its inhabitants.',
+        scratch         => { star_id => $star->id },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
+
+
+__PACKAGE__->register_rpc_method_names(qw(propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

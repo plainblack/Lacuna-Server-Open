@@ -59,6 +59,9 @@ is($result->{result}{laws}[0]{name}, 'Do the big thing.', 'writ enacted');
 $result = $tester->post('parliament', 'propose_transfer_station_ownership', [$session_id, $par->id]);
 is($result->{error}{data}, 6, 'transfering ownership of station requires level 6 parliament');
 
+$result = $tester->post('parliament', 'propose_seize_star', [$session_id, $par->id]);
+is($result->{error}{data}, 7, 'transfering ownership of station requires level 7 parliament');
+
 $result = $tester->post('parliament', 'propose_fire_bfg', [$session_id, $par->id]);
 is($result->{error}{data}, 30, 'firing bfg requires level 30 parliament');
 
