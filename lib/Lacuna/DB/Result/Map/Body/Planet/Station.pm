@@ -31,7 +31,11 @@ around get_status => sub {
         $out->{alliance} = {
             id      => $self->alliance->id,
             name    => $self->alliance->name,
-        }
+        };
+        $out->{influence} = {
+            spent => $self->influence_spent,
+            total => $self->total_influence,
+        };
     }
     return $out;
 };
@@ -60,7 +64,7 @@ has command => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::StationCommand');
+        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Module::StationCommand');
         return undef unless defined $building;
         $building->body($self);
         return $building;
@@ -100,10 +104,50 @@ sub in_jurisdiction {
     confess [1009, 'Target is not in the station\'s jurisdiction.'];
 }
 
+has total_influence => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->buildings
+            ->search({ class => { in => ['Lacuna::DB::Result::Building::Module::OperaHouse','Lacuna::DB::Result::Building::Module::CulinaryInstitute','Lacuna::DB::Result::Building::Module::ArtMuseum'] }})
+            ->get_column('level')
+            ->sum;
+    },
+);
+
+has influence_spent => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->stars->count;
+    },
+);
+
+sub influence_remaining {
+    my $self = shift;
+    return $self->total_influence - $self->influence_remaining;
+}
+
+has range_of_influence => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->buildings
+            ->search({ class => 'Lacuna::DB::Result::Building::Module::IBS'})
+            ->get_column('level')
+            ->sum
+            * 1000;
+    },
+);
+
 sub in_range_of_influence {
     my ($self, $target) = @_;
     confess [1009, 'Target is not in the station\'s range of influence.'];
 }
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
