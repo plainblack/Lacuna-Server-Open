@@ -164,7 +164,7 @@ An explict reason why the BFG should be fired upon the target. Same rules as an 
 
 =head2 propose_repeal_law ( session_id, building_id, law_id )
 
-Repeal an existing law.
+Repeal an existing law. Usable at parliament level 5.
 
  {
     "status" : { ... },
@@ -239,7 +239,7 @@ The id of an empire within the alliance that wants control over the station.
 
 =head2 propose_seize-star ( session_id, building_id, star_id )
 
-Take control of a star.
+Take control of a star. Usable a parliament level 7.
 
  {
     "status" : { ... },

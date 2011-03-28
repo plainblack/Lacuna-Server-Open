@@ -47,6 +47,18 @@ sub view_profile {
             name        => $member->name,
         };
     }
+    my $stations = $alliance->stations;
+    my @stations_list;
+    my $influence = 0;
+    while (my $station = $stations->next) {
+        push @stations_list, {
+            id          => $station->id,
+            name        => $station->name,
+            x           => $station->x,
+            y           => $station->y,
+        };
+        $influence += $station->total_influence;
+    }
     my %out = (
         id              => $alliance->id,
         name            => $alliance->name,
@@ -54,8 +66,8 @@ sub view_profile {
         date_created    => $alliance->date_created_formatted,
         leader_id       => $alliance->leader_id,
         members         => \@members_list,
-        space_stations  => [],
-        influence       => 0,
+        space_stations  => \@stations_list,
+        influence       => $influence,
     );
     return { profile => \%out, status => $self->format_status($empire) };
 }
