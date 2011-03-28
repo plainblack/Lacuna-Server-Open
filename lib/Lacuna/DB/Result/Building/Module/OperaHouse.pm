@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Module';
+with 'Lacuna::Role::Influencer';
 
 use constant controller_class => 'Lacuna::RPC::Building::OperaHouse';
 use constant image => 'operahouse';
