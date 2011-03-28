@@ -65,6 +65,9 @@ is($result->{error}{data}, 6, 'transfering ownership of station requires level 6
 $result = $tester->post('parliament', 'propose_seize_star', [$session_id, $par->id]);
 is($result->{error}{data}, 7, 'seizing star requires level 7 parliament');
 
+$result = $tester->post('parliament', 'propose_rename_star', [$session_id, $par->id]);
+is($result->{error}{data}, 8, 'renaming star requires level 8 parliament');
+
 $result = $tester->post('parliament', 'propose_fire_bfg', [$session_id, $par->id]);
 is($result->{error}{data}, 30, 'firing bfg requires level 30 parliament');
 

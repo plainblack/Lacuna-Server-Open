@@ -184,7 +184,7 @@ sub propose_seize_star {
     }
     my $building = $self->get_building($empire, $building_id);
     unless ($building->level >= 7) {
-        confess [1013, 'Parliament must be level 7 to transfer station ownership.',7];
+        confess [1013, 'Parliament must be level 7 to seize control of a star.',7];
     }
     unless ($star_id) {
         confess [1002, 'Must specify a star id to seize.'];
@@ -249,8 +249,51 @@ sub propose_repeal_law {
     };
 }
 
+sub propose_rename_star {
+    my ($self, $session_id, $building_id, $star_id, $star_name) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 8) {
+        confess [1013, 'Parliament must be level 8 to rename a star.',8];
+    }
+    unless ($star_id) {
+        confess [1002, 'Must specify a star id to rename.'];
+    }
+    my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id);
+    unless (defined $star) {
+        confess [1002, 'Could not find the star.'];
+    }
+    unless ($star->station_id == $self->body_id) {
+        confess [1009, 'That star is not controlled by this station.'];
+    }
+    Lacuna::Verify->new(content=>\$star_name, throws=>[1000,'Name not available.',$star_name])
+        ->length_gt(2)
+        ->length_lt(31)
+        ->no_restricted_chars
+        ->no_profanity
+        ->no_padding
+        ->not_ok(Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({name=>$star_name, 'star_id'=>{'!='=>$star->id}})->count); # name available
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'RenameStar',
+        name            => 'Rename '.$star->name,
+        description     => 'Rename '.$star->name.' ('.$star->x.','.$star->y.') to '.$star_name.'.',
+        scratch         => { star_id => $star->id, name => $star_name },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
 
-__PACKAGE__->register_rpc_method_names(qw(propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
+
+__PACKAGE__->register_rpc_method_names(qw(propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
