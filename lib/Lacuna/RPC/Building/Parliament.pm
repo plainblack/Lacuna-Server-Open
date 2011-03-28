@@ -93,8 +93,8 @@ sub propose_fire_bfg {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 30) {
-        confess [1013, 'Parliament must be level 30 to propose using the BFG.',30];
+    unless ($building->level >= 25) {
+        confess [1013, 'Parliament must be level 25 to propose using the BFG.',25];
     }
     Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot be empty.',$reason])->not_empty;
     Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot contain HTML tags or entities.',$reason])->no_tags;
@@ -308,8 +308,38 @@ sub propose_rename_star {
     };
 }
 
+sub propose_broadcast_on_network19 {
+    my ($self, $session_id, $building_id, $message) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 9) {
+        confess [1013, 'Parliament must be level 9 to propose a broadcast.',9];
+    }
+    Lacuna::Verify->new(content=>\$message, throws=>[1005,'Message cannot be empty.',$message])->not_empty;
+    Lacuna::Verify->new(content=>\$message, throws=>[1005,'Message cannot contain any of these characters: {}<>&;@',$message])->no_restricted_chars;
+    Lacuna::Verify->new(content=>\$message, throws=>[1005,'Message must be less than 141 characters.',$message])->length_lt(141);
+    Lacuna::Verify->new(content=>\$message, throws=>[1005,'Message cannot contain profanity.',$message])->no_profanity;
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'BroadcastOnNetwork19',
+        name            => 'Broadcast On Network 19',
+        description     => 'Broadcast the following message on Network 19: '.$message,
+        scratch         => { message => $message },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
 
-__PACKAGE__->register_rpc_method_names(qw(get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
+
+__PACKAGE__->register_rpc_method_names(qw(propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

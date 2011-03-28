@@ -352,9 +352,47 @@ The new name of the star.
 
 
 
+=head2 propose_broadcast_on_network19 ( session_id, building_id, message )
+
+Broadcast any message you like on Network 19. Usable a parliament level 9.
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Network 19 Broadcast",
+        "description" : "Broadcast the following message on Network 19: Plant your corn early next season.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+=head3 message
+
+A 140 character string that cannot contain special characters or profanity.
+
+
+
+
+
 =head2 propose_fire_bfg ( session_id, building_id, target_x, target_y, reason )
 
-Fires the BFG equipped on all space stations at a planet of Parliament's choosing as long as it is within the jurisdiction of the station. Can only be called by Parliament level 30.
+Fires the BFG equipped on all space stations at a planet of Parliament's choosing as long as it is within the jurisdiction of the station. Can only be called by Parliament level 25.
 
  {
     "status" : { ... },

@@ -71,8 +71,11 @@ is($result->{error}{data}, 7, 'seizing star requires level 7 parliament');
 $result = $tester->post('parliament', 'propose_rename_star', [$session_id, $par->id]);
 is($result->{error}{data}, 8, 'renaming star requires level 8 parliament');
 
+$result = $tester->post('parliament', 'propose_broadcast_on_network19', [$session_id, $par->id]);
+is($result->{error}{data}, 9, 'broadcasting on network 19 requires level 9 parliament');
+
 $result = $tester->post('parliament', 'propose_fire_bfg', [$session_id, $par->id]);
-is($result->{error}{data}, 30, 'firing bfg requires level 30 parliament');
+is($result->{error}{data}, 25, 'firing bfg requires level 25 parliament');
 
 
 END {
