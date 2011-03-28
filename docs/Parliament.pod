@@ -73,6 +73,45 @@ The unique id of the parliament.
 
 
 
+=head2 get_stars_in_jurisdiction (session_id, building_id )
+
+Returns a list of the stars in the jurisdiction of this space station.
+
+ {
+    "status" : { ... },
+    "stars" : [
+        {
+            "name"          : "Sol",
+            "color"         : "yellow",
+            "x"             : -41,
+            "y"             : 27,
+            "station" : { # only shows up if this star is under the influence of a space station
+                "id" : "id-goes-here",
+                "x" : 143,
+                "y" : -27,
+                "name" : "The Death Star"
+            },
+            "bodies"        : [     # only added if a probe is present
+                {
+                    same data as get_status() on /body
+                },
+                ...
+            ]
+        },
+        ...
+    ]
+ }
+ 
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+
+
 
 =head2 cast_vote ( session_id, building_id, proposition_id, vote )
 

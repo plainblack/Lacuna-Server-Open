@@ -30,6 +30,21 @@ sub view_propositions {
     };
 }
 
+sub get_stars_in_jurisdiction {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my @out;
+    my $stars = $building->body->stars;
+    while (my $star = $stars->next) {
+        push @out, $star->get_status($empire, 1);
+    }
+    return {
+        status          => $self->format_status($empire, $building->body),
+        stars           => \@out,
+    };
+}
+
 sub view_laws {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -44,6 +59,7 @@ sub view_laws {
         laws            => \@out,
     };
 }
+
 
 sub cast_vote {
     my ($self, $session_id, $building_id, $proposition_id, $vote) = @_;
@@ -293,7 +309,7 @@ sub propose_rename_star {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
+__PACKAGE__->register_rpc_method_names(qw(get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

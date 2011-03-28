@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 12;
+use Test::More tests => 16;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -44,6 +44,9 @@ is($result->{result}{building}{name}, 'Parliament', 'built successfully');
 $result = $tester->post('body', 'rename', [$session_id, $station->id, 'station'.rand(1000000)]);
 is($result->{error}{code}, 1017, 'renaming the station causes a proposition response');
 
+$result = $tester->post('parliament', 'get_stars_in_jurisdiction', [$session_id, $par->id]);
+is(scalar @{$result->{result}{stars}}, 0, 'got a list of zero stars');
+
 $result = $tester->post('parliament', 'view_propositions', [$session_id, $par->id]);
 is($result->{result}{propositions}[0]{name}, 'Rename Station', 'got a list of propositions');
 
@@ -56,7 +59,7 @@ $result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $resu
 $result = $tester->post('parliament', 'view_laws', [$session_id, $station->id]);
 is($result->{result}{laws}[0]{name}, 'Do the big thing.', 'writ enacted');
 
-$result = $tester->post('parliament', 'propose_repeal', [$session_id, $par->id]);
+$result = $tester->post('parliament', 'propose_repeal_law', [$session_id, $par->id]);
 is($result->{error}{data}, 5, 'repealing law requires level 5 parliament');
 
 $result = $tester->post('parliament', 'propose_transfer_station_ownership', [$session_id, $par->id]);
