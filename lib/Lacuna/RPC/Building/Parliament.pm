@@ -339,7 +339,50 @@ sub propose_broadcast_on_network19 {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
+sub propose_rename_asteroid {
+    my ($self, $session_id, $building_id, $asteroid_id, $name) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 12) {
+        confess [1013, 'Parliament must be level 12 to rename a star.',12];
+    }
+    unless ($asteroid_id) {
+        confess [1002, 'Must specify a asteroid id to rename.'];
+    }
+    my $asteroid = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($asteroid_id);
+    unless (defined $asteroid) {
+        confess [1002, 'Could not find the asteroid.'];
+    }
+    unless ($asteroid->star->station_id == $self->body_id) {
+        confess [1009, 'That asteroid is not controlled by this station.'];
+    }
+    Lacuna::Verify->new(content=>\$name, throws=>[1000,'Name not available.',$name])
+        ->length_gt(2)
+        ->length_lt(31)
+        ->no_restricted_chars
+        ->no_profanity
+        ->no_padding
+        ->not_ok(Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({name=>$name, 'body_id'=>{'!='=>$asteroid->id}})->count); # name available
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'RenameAsteroid',
+        name            => 'Rename '.$asteroid->name,
+        description     => 'Rename '.$asteroid->name.' ('.$asteroid->x.','.$asteroid->y.') to '.$name.'.',
+        scratch         => { asteroid_id => $asteroid->id, name => $name },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
+
+__PACKAGE__->register_rpc_method_names(qw(propose_rename_asteroid propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

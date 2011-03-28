@@ -390,6 +390,49 @@ A 140 character string that cannot contain special characters or profanity.
 
 
 
+=head2 propose_rename_asteroid ( session_id, building_id, asteroid_id, name )
+
+Rename any asteroid in the station's jurisdiction. Usable a parliament level 11.
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Rename Bebox 3",
+        "description" : "Rename the asteroid Bebox 3 to Big Rock.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+=head3 asteroid_id
+
+The unique id of an asteroid in the station's jurisdiction to rename.
+
+=head3 name
+
+A 30 chararacter string without profanity or special characters.
+
+
+
+
+
+
 =head2 propose_fire_bfg ( session_id, building_id, target_x, target_y, reason )
 
 Fires the BFG equipped on all space stations at a planet of Parliament's choosing as long as it is within the jurisdiction of the station. Can only be called by Parliament level 25.
