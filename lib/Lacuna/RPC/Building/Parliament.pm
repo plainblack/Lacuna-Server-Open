@@ -216,8 +216,41 @@ sub propose_seize_star {
     };
 }
 
+sub propose_repeal_law {
+    my ($self, $session_id, $building_id, $law_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 5) {
+        confess [1013, 'Parliament must be level 5 to repeal a low.',5];
+    }
+    unless ($law_id) {
+        confess [1002, 'Must specify a law id to repeal.'];
+    }
+    my $law = $self->body->laws->find($law_id);
+    unless (defined $law) {
+        confess [1002, 'Could not find the law.'];
+    }
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'RepealLaw',
+        name            => 'Repeal '.$law->name,
+        description     => 'Repeal the law described as: '.$law->description,
+        scratch         => { law_id => $law->id },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
 
-__PACKAGE__->register_rpc_method_names(qw(propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
+
+__PACKAGE__->register_rpc_method_names(qw(propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
