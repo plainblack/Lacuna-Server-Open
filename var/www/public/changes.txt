@@ -5,6 +5,7 @@
  - Rule: Security ministry is now more oppressive on happiness consumption.
  - Rule: Defending spies now have home field advantage. Security ministry level * Security ministry efficiency / 2. So a level 10 at 50% efficiency is home field advantage is 250.
  - Rule: Spy success is now calculated differently. power - toughness - home field advantage + luck, where >0 is success for the attacker.
+ - Rule: You can now incite rebellion and appropriate technology of empires 100 ranks from you instead of 50.
  - Rule: SAWs now cost less in upkeep.
  - Rule: Station modules cannot be upgraded past the station command level.
  - Rule: If the IBS, Opera House, Art Museum, or Culinary institute are downgraded or demolished then the jurisdictional influence they exert is also repealed.
