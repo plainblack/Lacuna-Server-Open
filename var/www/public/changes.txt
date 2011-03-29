@@ -11,7 +11,8 @@
  - API: Added seizing control of stars at Parliament level 7.
  - API: Added renaming stars at Parliament level 8, along with a method to get the list of stars in the jurisdiction.
  - API: Added broadcasting on Network 19 at parliament level 9.
- - API: Added renaming asteroids at parliament level 11.
+ - API: Added renaming asteroids at parliament level 12.
+ - API: Added members only mining rights at parliament level 13.
  - API: Added proposing firing the station's BFG at Parliament level 25.
  - API: Anyone can now view the laws passed by a space station, by simply calling view_laws() on the parliament.
  - API: The stations list is now populated in the /alliance.view_profile() method.

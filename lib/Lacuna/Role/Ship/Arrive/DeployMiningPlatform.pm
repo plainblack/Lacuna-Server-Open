@@ -51,6 +51,11 @@ after can_send_to_target => sub {
     my $ministry = $self->body->mining_ministry;
     confess [1013, 'Cannot control platforms without a Mining Ministry.'] unless (defined $ministry);
     $ministry->can_add_platform($target);
+    if ($target->star->station_id) {
+        if ($target->star->station->laws->search({type => 'MembersOnlyMiningRights'})->count) {
+            confess [1010, 'Only '.$target->star->station->alliance->name.' members can mine asteroids in the jurisdiction of the space station.'];
+        }
+    }
 };
 
 1;
