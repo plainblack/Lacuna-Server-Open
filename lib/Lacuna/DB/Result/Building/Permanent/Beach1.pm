@@ -18,7 +18,9 @@ around can_build => sub {
 sub can_upgrade {
     confess [1013, "You can't upgrade a beach. It forms naturally."];
 }
-
+use constant algae_production => 10; 
+use constant ore_production => 10; 
+use constant water_production => 10; 
 use constant image => 'beach1';
 
 sub image_level {

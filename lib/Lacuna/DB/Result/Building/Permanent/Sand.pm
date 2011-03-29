@@ -21,6 +21,6 @@ use constant name => 'Patch of Sand';
 
 use constant ore_to_build => 1;
 use constant time_to_build => 1;
-
+use constant ore_production => 10; 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

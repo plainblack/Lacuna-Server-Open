@@ -20,7 +20,9 @@ sub can_upgrade {
 }
 
 use constant image => 'beach2';
-
+use constant algae_production => 10; 
+use constant ore_production => 10; 
+use constant water_production => 10; 
 sub image_level {
     my ($self) = @_;
     return $self->image.'1';

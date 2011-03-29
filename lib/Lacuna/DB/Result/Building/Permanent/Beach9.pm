@@ -27,6 +27,9 @@ sub image_level {
 }
 
 use constant name => 'Beach [9]';
+use constant algae_production => 10; 
+use constant ore_production => 10; 
+use constant water_production => 10; 
 
 use constant time_to_build => 0;
 
