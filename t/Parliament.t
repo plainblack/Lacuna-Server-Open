@@ -80,6 +80,9 @@ is($result->{error}{data}, 12, 'renaming asteroid requires level 12 parliament')
 $result = $tester->post('parliament', 'propose_members_only_mining_rights', [$session_id, $par->id]);
 is($result->{error}{data}, 13, 'members mining rights requires level 13 parliament');
 
+$result = $tester->post('parliament', 'propose_evict_mining_platform', [$session_id, $par->id]);
+is($result->{error}{data}, 14, 'evict mining platform requires level 14 parliament');
+
 $result = $tester->post('parliament', 'propose_fire_bfg', [$session_id, $par->id]);
 is($result->{error}{data}, 25, 'firing bfg requires level 25 parliament');
 

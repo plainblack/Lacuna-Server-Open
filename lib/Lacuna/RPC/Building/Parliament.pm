@@ -37,11 +37,62 @@ sub get_stars_in_jurisdiction {
     my @out;
     my $stars = $building->body->stars;
     while (my $star = $stars->next) {
-        push @out, $star->get_status($empire, 1);
+        push @out, $star->get_status;
     }
     return {
         status          => $self->format_status($empire, $building->body),
         stars           => \@out,
+    };
+}
+
+sub get_bodies_for_star_in_jurisdiction {
+    my ($self, $session_id, $building_id, $star_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    unless ($star_id) {
+        confess [1002, 'You have to specify a star id.'];
+    }
+    my $star = $building->body->stars->find($star_id);
+    my @out;
+    my $bodies = $star->bodies;
+    while (my $body = $bodies->next) {
+        push @out, $body->get_status($empire);
+    }
+    return {
+        status          => $self->format_status($empire, $building->body),
+        bodies          => \@out,
+    };
+}
+
+sub get_mining_platforms_for_asteroid_in_jurisdiction {
+    my ($self, $session_id, $building_id, $asteroid_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my @out;
+    my @star_ids = $building->body->stars->get_column('id')->all;
+    unless ($asteroid_id) {
+        confess [1002, 'You must specify an asteroid id.'];
+    }
+    my $asteroid = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ id => $asteroid_id });
+    unless (defined $asteroid) {
+        confess [1002, 'Asteroid not found.'];
+    }
+    unless ($asteroid->star->station_id == $building->body_id) {
+        confess [1009, 'That asteroid is not in your jurisdiction.'];
+    }
+    my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({asteroid_id => $asteroid->id});
+    while (my $platform = $platforms->next) {
+        push @out, {
+            id          => $platform->id,
+            empire      => {
+                name    => $platform->planet->empire->name,
+                id      => $platform->planet->empire->id,
+            }
+        };
+    }
+    return {
+        status          => $self->format_status($empire, $building->body),
+        platforms       => \@out,
     };
 }
 
@@ -407,7 +458,43 @@ sub propose_members_only_mining_rights {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(propose_members_only_mining_rights propose_rename_asteroid propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
+sub propose_evict_mining_platform {
+    my ($self, $session_id, $building_id, $platform_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 14) {
+        confess [1013, 'Parliament must be level 14 to evict a mining platform.',14];
+    }
+    unless ($platform_id) {
+        confess [1002, 'You must specify a mining platform id.'];
+    }
+    my $platform = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->find($platform_id);
+    unless (defined $platform) {
+        confess [1002, 'Platform not found.'];
+    }
+    unless ($platform->asteroid->star->station_id == $building->body_id) {
+        confess [1009, 'That platform is not in your jurisdiction.'];
+    }
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'EvictMiningPlatform',
+        name            => 'Evict '.$platform->planet->empire->name.' Mining Platform',
+        description     => 'Evict a mining platform on '.$platform->asteroid->name.' controlled by '.$platform->planet->empire->name.'.',
+        scratch         => { platform_id => $platform_id },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
+
+__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_rename_asteroid propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -91,12 +91,6 @@ Returns a list of the stars in the jurisdiction of this space station.
                 "y" : -27,
                 "name" : "The Death Star"
             },
-            "bodies"        : [     # only added if a probe is present
-                {
-                    same data as get_status() on /body
-                },
-                ...
-            ]
         },
         ...
     ]
@@ -109,6 +103,68 @@ A session id.
 =head3 building_id
 
 The unique id of the parliament.
+
+
+
+=head2 get_bodies_for_star_in_jurisdiction (session_id, building_id, star_id )
+
+Returns a list of the bodies for a star in the jurisdiction of the space station.
+
+ {
+    "status" : { ... },
+    "bodies" : [
+        {
+            same data as get_status() on /body
+        },
+        ...
+    ]
+ }
+ 
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+=head3 star_id
+
+The unique id of a star in jurisdiction. See c<get_stars_in_jurisdiction>.
+
+
+
+
+=head2 get_mining_platforms_for_asteroid_in_jurisdiction (session_id, building_id, asteroid_id )
+
+Returns a list of the platforms for an asteroid in the jurisdiction of the space station.
+
+ {
+    "status" : { ... },
+    "platforms" : [
+        {
+            "id" : "id-goes-here",
+            "empire" : {
+                "id" : "id-goes-here",
+                "name" : "Klingons"
+            }
+        },
+        ...
+    ]
+ }
+ 
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+=head3 asteroid_id
+
+The unique id of an asteroid in jurisdiction. See c<get_bodies_for_star_in_jurisdiction>.
+
 
 
 
@@ -461,6 +517,43 @@ A session id.
 =head3 building_id
 
 The unique id of the parliament.
+
+
+
+
+=head2 propose_evict_mining_platform ( session_id, building_id, platform_id )
+
+Destroys a mining platform on an asteroid. Usable a parliament level 14.
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Evict Bjoran Mining Platform",
+        "description" : "Evict a mining platform on Big Rock that is controlled by Bjoran.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+=head3 platform_id
+
+The unique id of a mining platform. See C<get_platforms_for_asteroid_in_jurisdiction>.
 
 
 
