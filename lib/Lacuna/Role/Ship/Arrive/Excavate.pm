@@ -3,7 +3,7 @@ package Lacuna::Role::Ship::Arrive::Excavate;
 use strict;
 use Moose::Role;
 use Lacuna::Util qw(randint random_element);
-use Lacuna::Constants qw(ORE_TYPES FINDABLE_PLANS FOOD_TYPES);
+use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
 
 after handle_arrival_procedures => sub {
     my ($self) = @_;
@@ -20,7 +20,37 @@ after handle_arrival_procedures => sub {
     # found a plan
     my $empire = $body->empire;
     if ($find < 5) {
-        my $class = random_element([FINDABLE_PLANS]);
+        my $class = random_element([qw(
+            Lacuna::DB::Result::Building::Permanent::AlgaePond
+            Lacuna::DB::Result::Building::Permanent::AmalgusMeadow
+            Lacuna::DB::Result::Building::Permanent::Beach1
+            Lacuna::DB::Result::Building::Permanent::Beach2
+            Lacuna::DB::Result::Building::Permanent::Beach3
+            Lacuna::DB::Result::Building::Permanent::Beach4
+            Lacuna::DB::Result::Building::Permanent::Beach5
+            Lacuna::DB::Result::Building::Permanent::Beach6
+            Lacuna::DB::Result::Building::Permanent::Beach7
+            Lacuna::DB::Result::Building::Permanent::Beach8
+            Lacuna::DB::Result::Building::Permanent::Beach9
+            Lacuna::DB::Result::Building::Permanent::Beach10
+            Lacuna::DB::Result::Building::Permanent::Beach11
+            Lacuna::DB::Result::Building::Permanent::Beach12
+            Lacuna::DB::Result::Building::Permanent::Beach13
+            Lacuna::DB::Result::Building::Permanent::BeeldebanNest
+            Lacuna::DB::Result::Building::Permanent::Crater
+            Lacuna::DB::Result::Building::Permanent::DentonBrambles
+            Lacuna::DB::Result::Building::Permanent::GeoThermalVent
+            Lacuna::DB::Result::Building::Permanent::Grove
+            Lacuna::DB::Result::Building::Permanent::Lagoon
+            Lacuna::DB::Result::Building::Permanent::Lake
+            Lacuna::DB::Result::Building::Permanent::LapisForest
+            Lacuna::DB::Result::Building::Permanent::MalcudField
+            Lacuna::DB::Result::Building::Permanent::NaturalSpring
+            Lacuna::DB::Result::Building::Permanent::Ravine
+            Lacuna::DB::Result::Building::Permanent::RockyOutcrop
+            Lacuna::DB::Result::Building::Permanent::Sand
+            Lacuna::DB::Result::Building::Permanent::Volcano
+            )]);
         my $plan = $body->add_plan($class, 1, ($find == 1) ? randint(1,4) : 0);
         $empire->send_predefined_message(
             tags        => ['Alert'],

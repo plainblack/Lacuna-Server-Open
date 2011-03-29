@@ -3,6 +3,8 @@
  - Rule: SAWs now cost less in upkeep.
  - Rule: Station modules cannot be upgraded past the station command level.
  - Rule: If the IBS, Opera House, Art Museum, or Culinary institute are downgraded or demolished then the jurisdictional influence they exert is also repealed.
+ - Rule: The following plans are no longer findable via excavator: Library of Jith, Citadel of Knope, Crashed Ship Site, Oracle of Anid, Kalavian Ruins, Interdimensional Rift, Pantheon of Hagness, Temple of the Drajilites
+ - Rule: The following plans are now findable via excavator: Beach 1-13, Amalgus Meadow, Crater, Denton Brambles, Lake, Rocky Outcrop
  - API: Added "station" element to the status of bodies and probed stars.
  - API: Added "alliance" and "influence" elements to the status of bodies that are space stations.
  - API: Added proposing enacting writs at Parliament level 4.

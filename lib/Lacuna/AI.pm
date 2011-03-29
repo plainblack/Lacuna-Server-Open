@@ -3,9 +3,9 @@ package Lacuna::AI;
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
-use Lacuna::Constants qw(FINDABLE_PLANS);
 use Lacuna::Util qw(randint);
 use 5.010;
+use Module::Find;
 
 has empire      => (
    is           => 'ro',
@@ -59,7 +59,11 @@ sub build_colony {
     say 'Placing structures on '.$body->name;
     my @plans = $self->colony_structures;
     
-    my @findable = FINDABLE_PLANS;
+    my @findable;
+    foreach my $module (findallmod Lacuna::DB::Result::Building::Permanent) {
+        push @findable, $module unless $module =~ m/Platform$/ || $module =~ m/Beach/;
+    }
+    
     my $extras = $self->extra_glyph_buildings;
     if ($extras->{quantity}) {
         foreach (1..$extras->{quantity}) {

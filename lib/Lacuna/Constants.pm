@@ -7,27 +7,6 @@ use constant INFLATION => 1.75;
 use constant GROWTH => 1.55;
 use constant FOOD_TYPES => (qw(cheese bean lapis potato apple root corn cider wheat bread soup chip pie pancake milk meal algae syrup fungus burger shake beetle));
 use constant ORE_TYPES => (qw(rutile chromite chalcopyrite galena gold uraninite bauxite goethite halite gypsum trona kerogen methane anthracite sulfur zircon monazite fluorite beryl magnetite));
-use constant FINDABLE_PLANS => (qw(
-    Lacuna::DB::Result::Building::Permanent::Lagoon
-    Lacuna::DB::Result::Building::Permanent::LibraryOfJith
-    Lacuna::DB::Result::Building::Permanent::OracleOfAnid
-    Lacuna::DB::Result::Building::Permanent::Sand
-    Lacuna::DB::Result::Building::Permanent::Grove
-    Lacuna::DB::Result::Building::Permanent::TempleOfTheDrajilites
-    Lacuna::DB::Result::Building::Permanent::PantheonOfHagness
-    Lacuna::DB::Result::Building::Permanent::CitadelOfKnope
-    Lacuna::DB::Result::Building::Permanent::CrashedShipSite
-    Lacuna::DB::Result::Building::Permanent::InterDimensionalRift
-    Lacuna::DB::Result::Building::Permanent::KalavianRuins
-    Lacuna::DB::Result::Building::Permanent::NaturalSpring
-    Lacuna::DB::Result::Building::Permanent::Volcano
-    Lacuna::DB::Result::Building::Permanent::GeoThermalVent
-    Lacuna::DB::Result::Building::Permanent::BeeldebanNest
-    Lacuna::DB::Result::Building::Permanent::LapisForest
-    Lacuna::DB::Result::Building::Permanent::MalcudField
-    Lacuna::DB::Result::Building::Permanent::Ravine
-    Lacuna::DB::Result::Building::Permanent::AlgaePond
-    ));
 use constant BUILDABLE_CLASSES => (qw(
     Lacuna::RPC::Building::SSLa
     Lacuna::RPC::Building::SSLb
@@ -131,7 +110,6 @@ our @EXPORT_OK = qw(
     ORE_TYPES
     BUILDABLE_CLASSES
     SHIP_TYPES
-    FINDABLE_PLANS
 );
 
 our %EXPORT_TAGS = (
@@ -142,7 +120,6 @@ our %EXPORT_TAGS = (
         ORE_TYPES
         BUILDABLE_CLASSES
         SHIP_TYPES
-        FINDABLE_PLANS
         )],
 );
 

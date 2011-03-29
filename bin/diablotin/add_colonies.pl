@@ -6,7 +6,6 @@ use Lacuna;
 use Lacuna::Util qw(randint format_date);
 use Getopt::Long;
 use List::MoreUtils qw(uniq);
-use Lacuna::Constants qw(FINDABLE_PLANS);
 $|=1;
 our $quiet;
 our $add_one;
@@ -133,7 +132,10 @@ sub build_colony {
         ['Lacuna::DB::Result::Building::SAW',10],
     );
     
-    my @findable = FINDABLE_PLANS;
+    my @findable;
+    foreach my $module (findallmod Lacuna::DB::Result::Building::Permanent) {
+        push @findable, $module unless $module =~ m/Platform$/ || $module =~ m/Beach/;
+    }
     push @plans, [$findable[rand @findable], randint(1,30)];
     
     my $buildings = $db->resultset('Lacuna::DB::Result::Building');
