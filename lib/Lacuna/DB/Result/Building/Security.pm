@@ -42,7 +42,7 @@ use constant water_consumption => 7;
 
 use constant waste_production => 5;
 
-use constant happiness_consumption => 1;
+use constant happiness_consumption => 5;
 
 
 sub foreign_spies {

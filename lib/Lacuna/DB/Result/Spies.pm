@@ -422,6 +422,30 @@ my %outcomes = (
 
 my @offense_tasks = keys %outcomes;
 
+sub luck {
+    return randint(-500,500);
+}
+
+has home_field_advantage => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $body = $self->on_body;
+        my $building = 'Security';
+        if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+            $building = 'Module::PoliceStation';
+        }
+        my $hq = $body->get_building_of_class('Lacuna::DB::Result::Building::'.$building);
+        if (defined $hq) {
+            return $hq->level * $hq->efficiency / 2;
+        }
+        else {
+            return 0;
+        }
+    }
+);
+
 sub run_mission {
     my ($self, $mission) = @_;
 
@@ -430,7 +454,7 @@ sub run_mission {
         return { result => 'Failure', reason => random_element(['I will not run offensive missions against my own people.','No!','Do you really want me to attack our own citizens?','This would not make Mom proud.','I have moral objections.']) };
     }
 
-    # calculate success, failure, or bounce
+    # calculate success or failure
     my $mission_skill = $mission->{skill}.'_xp';
     my $power = $self->offense + $self->$mission_skill;
     my $toughness = 0;
@@ -438,11 +462,11 @@ sub run_mission {
     if (defined $defender) {
         $toughness = $defender->defense + $defender->$mission_skill;
     }
-    my $breakthru = (($power - $toughness) / 100) * (($toughness == 0) ? 6 : 1);
+    my $breakthru = ($power - $toughness - $defender->home_field_advantage) + $self->luck;
     
     # handle outcomes and xp
     my $out;
-    if ($breakthru < 0) {
+    if ($breakthru <= 0) {
         $defender->$mission_skill( $defender->$mission_skill + 10 );
         $defender->update_level;
         $defender->defense_mission_successes( $defender->defense_mission_successes + 1 );
@@ -451,18 +475,6 @@ sub run_mission {
         my $outcome = $outcomes{$self->task} . '_loss';
         my $message_id = $self->$outcome($defender);
         $out = { result => 'Failure', message_id => $message_id, reason => random_element(['Intel shmintel.','Code red!','It has just gone pear shaped.','I\'m pinned down and under fire.','I\'ll do better next time, if there is a next time.','The fit has just hit the shan.','I want my mommy!','No time to talk! Gotta run.','Why do they always have dogs?','Did you even plan this mission?']) };
-    }
-    elsif (randint(1,100) > $breakthru) {
-        if (defined $defender) {
-            $defender->task('Debriefing');
-            $defender->started_assignment(DateTime->now);
-            $defender->available_on(DateTime->now->add(seconds => int($mission->{recovery} / 2)));
-            $defender->$mission_skill( $defender->$mission_skill + 2 );
-            $defender->update_level;
-        }
-        $self->$mission_skill( $self->$mission_skill + 2 );
-        $self->update_level;
-        $out = { result => 'Bounce', reason => random_element(['I could not find a way to complete my mission, but I will give it another try.','Missed it by that much.','Better luck next time.','I was stopped by an enemy spy.','Let\'s try that again later.','Hrmmm.','Could not get it done this time.','I\'m being shadowed.','Gotta ditch my tail.','Lost the target.','They have some good security.','Maybe next time.']) };
     }
     else {
         if (defined $defender) {
@@ -499,7 +511,7 @@ sub run_security_sweep {
     if (defined $attacker) {
         $toughness = $attacker->offense + $attacker->$mission_skill;
     }
-    my $breakthru = (($power - $toughness) / 100) * (($toughness == 0) ? 6 : 1);
+    my $breakthru = ($power - $toughness - $self->home_field_advantage) + $self->luck;
     
     # handle outcomes and xp
     my $out;
@@ -517,13 +529,6 @@ sub run_security_sweep {
         $self->$mission_skill( $self->$mission_skill + 6 );
         $self->update_level;
         $out = { result => 'Failure', message_id => $message_id, reason => random_element(['It has just gone pear shaped.','I\'ll do better next time, if there is a next time.','The fit has just hit the shan.','I want my mommy!']) };
-    }
-    elsif (randint(1,100) > $breakthru) {
-        if (defined $attacker) {
-            $attacker->$mission_skill( $attacker->$mission_skill + 2 );
-        }
-        $self->$mission_skill( $self->$mission_skill + 2 );
-        $out = { result => 'Bounce', reason => random_element(['Better luck next time.','Let\'s try that again later.','Hrmmm.','Could not get it done this time.','Lost the target.','They\'re good. Real good.','Maybe next time.']) };
     }
     else {
         my $message_id;
