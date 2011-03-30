@@ -13,6 +13,9 @@ sub model_class {
     return 'Lacuna::DB::Result::Building::Permanent::GratchsGauntlet';
 }
 
+
+__PACKAGE__->register_rpc_method_names(qw());
+
 no Moose;
 __PACKAGE__->meta->make_immutable;
 

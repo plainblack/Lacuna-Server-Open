@@ -162,6 +162,13 @@ my %recipies = (
         },
     },
     chromite    => {
+        bauxite    => {
+            gold        => {
+                kerogen     => {
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::GratchsGauntlet',
+                },
+            },
+        },
         halite      => {
             anthracite  =>  {
                 beryl       => {

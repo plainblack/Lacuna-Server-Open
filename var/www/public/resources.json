@@ -27,7 +27,7 @@
         "/themepark" : { "description" : "Produces happiness for your citizens through food and entertainment.", "wiki" : "http://community.lacunaexpanse.com/wiki/theme-park" },
         "/geneticslab" : { "description" : "Allows genetic experiements on captured spies to improve your species.", "wiki" : "http://community.lacunaexpanse.com/wiki/genetics-lab" },
         "/massadshenge" : { "description" : "An ancient observatory.", "wiki" : "http://community.lacunaexpanse.com/wiki/massad-s-henge" },
-        "/gratchsgauntlet" : { "description" : "The training grounds of the Great Race.", "wiki" : "http://community.lacunaexpanse.com/wiki/gratch-s-gauntlet" },
+        "/gratchsgauntlet" : { "description" : "The anti-espionage system of the Great Race.", "wiki" : "http://community.lacunaexpanse.com/wiki/gratch-s-gauntlet" },
         "/kasternskeep" : { "description" : "The place from which the Great Race commanded their armies.", "wiki" : "http://community.lacunaexpanse.com/wiki/kastern-s-keep" },
         "/hallsofvrbansk" : { "description" : "The source of ancient wisdom.", "wiki" : "http://community.lacunaexpanse.com/wiki/halls-of-vrbansk" },
         "/libraryofjith" : { "description" : "Where the Great Race kept records of their experiments.", "wiki" : "http://community.lacunaexpanse.com/wiki/library-of-jith" },

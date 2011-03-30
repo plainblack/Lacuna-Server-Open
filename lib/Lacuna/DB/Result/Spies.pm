@@ -294,13 +294,22 @@ sub is_available {
             return 1;
         }
         elsif ($task eq 'Travelling') {
-            my $infiltration_time = $self->available_on->clone->add(hours => 1);
-            if ($infiltration_time->epoch > time && $self->empire_id ne $self->on_body->empire_id) {
-                $self->task('Infiltrating');
-                $self->started_assignment(DateTime->now);
-                $self->available_on($infiltration_time);
-                $self->update;
-                return 0;
+            if ($self->empire_id ne $self->on_body->empire_id) {
+                if (!$self->empire->alliance_id || $self->empire->alliance_id != $self->on_body->empire->alliance_id ) {
+                    my $hours = 1;
+                    my $gauntlet = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::GratchsGauntlet');
+                    if (defined $gauntlet) {
+                        $hours += $gauntlet->level * 3;
+                    }
+                    my $infiltration_time = $self->available_on->clone->add(hours => $hours);
+                    if ($infiltration_time->epoch > time) {
+                        $self->task('Infiltrating');
+                        $self->started_assignment(DateTime->now);
+                        $self->available_on($infiltration_time);
+                        $self->update;
+                        return 0;
+                    }
+                }
             }
         }
         $self->task('Idle');
@@ -569,7 +578,7 @@ sub get_defender {
 
 sub get_attacker {
     my $self = shift;
-    my @tasks;
+    my @tasks = 'Infiltrating';
     foreach my $task ($self->offensive_assignments) {
         push @tasks, $task->{task};
     }
