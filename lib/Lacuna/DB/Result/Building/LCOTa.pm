@@ -65,7 +65,7 @@ sub stats_after_upgrade {
     unless ($self->has_effective_level) {
         $self->calculate_effective_stats;
     }
-    $self->level($self->effective_level + 1);
+    $self->level($self->effective_level + 2);
     my %stats;
     my @list = qw(food_hour food_capacity ore_hour ore_capacity water_hour water_capacity waste_hour waste_capacity energy_hour energy_capacity happiness_hour);
     foreach my $resource (@list) {
