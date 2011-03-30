@@ -101,7 +101,7 @@ use constant base_combat            => 0;
 use constant base_stealth           => 0;
 use constant base_hold_size         => 0;
 use constant pilotable              => 0;
-use constant target_building        => undef;
+use constant target_building        => [];
 use constant build_tags             => [];
 use constant splash_radius          => 0;
 
