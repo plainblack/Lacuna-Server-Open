@@ -19,6 +19,11 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Water Food Waste Energy Ore Storage Happiness));
 };
 
+sub image_level {
+    my $self = shift;
+    return $self->image;
+}
+
 
 
 
