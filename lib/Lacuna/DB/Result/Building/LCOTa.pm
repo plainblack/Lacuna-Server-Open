@@ -15,7 +15,7 @@ use constant water_storage => 10000;
 use constant food_storage => 10000;
 use constant ore_storage => 10000;
 use constant waste_storage => 1000;
-use constant waste_consumption => 900;
+use constant waste_consumption => 450;
 use constant happiness_production => 2250;
 use constant energy_production => 2250;
 use constant water_production => 2250;
@@ -56,6 +56,23 @@ sub production_hour {
     my $production = (GROWTH ** (  $self->effective_level - 1));
     $production = ($production * $self->effective_efficiency) / 100;
     return $production;
+}
+
+
+sub stats_after_upgrade {
+    my ($self) = @_;
+    my $current_level = $self->level;
+    unless ($self->has_effective_level) {
+        $self->calculate_effective_stats;
+    }
+    $self->level($self->effective_level + 1);
+    my %stats;
+    my @list = qw(food_hour food_capacity ore_hour ore_capacity water_hour water_capacity waste_hour waste_capacity energy_hour energy_capacity happiness_hour);
+    foreach my $resource (@list) {
+        $stats{$resource} = $self->$resource;
+    }
+    $self->level($current_level);
+    return \%stats;
 }
 
 sub calculate_effective_stats {
