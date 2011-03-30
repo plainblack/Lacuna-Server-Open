@@ -67,7 +67,7 @@ sub makeable_plans {
         food            => 'Lacuna::DB::Result::Building::Module::CulinaryInstitute',
         parliament      => 'Lacuna::DB::Result::Building::Module::Parliament',
         warehouse       => 'Lacuna::DB::Result::Building::Module::Warehouse',
-        policestation   => 'Lacuna::DB::Result::Building::MOdule::PoliceStation',
+        policestation   => 'Lacuna::DB::Result::Building::Module::PoliceStation',
     };
 }
 
