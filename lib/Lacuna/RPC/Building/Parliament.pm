@@ -138,7 +138,7 @@ sub cast_vote {
 }
 
 sub propose_fire_bfg {
-    my ($self, $session_id, $building_id, $x, $y, $reason) = @_;
+    my ($self, $session_id, $building_id, $body_id, $reason) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
@@ -150,7 +150,10 @@ sub propose_fire_bfg {
     Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot be empty.',$reason])->not_empty;
     Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot contain HTML tags or entities.',$reason])->no_tags;
     Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot contain profanity.',$reason])->no_profanity;
-    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({x=>$x, y=>$y},{rows=>1})->single;
+    unless ($body_id) {
+        confess [1002, 'You must specify a body id.'];
+    }
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
     unless (defined $body) {
         confess [1002, 'Could not find the target body.'];
     }

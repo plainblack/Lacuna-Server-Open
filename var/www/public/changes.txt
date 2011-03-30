@@ -1,3 +1,6 @@
+3.0500
+ - API: Slightly changed propose_fire_bfg().
+
 3.0400
  - Add: Added the Opera House, Art Museum, and Culinary Institute space station modules.
  - Add: The Lost City of Tyleon.

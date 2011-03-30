@@ -559,7 +559,7 @@ The unique id of a mining platform. See C<get_platforms_for_asteroid_in_jurisdic
 
 
 
-=head2 propose_fire_bfg ( session_id, building_id, target_x, target_y, reason )
+=head2 propose_fire_bfg ( session_id, building_id, body_id, reason )
 
 Fires the BFG equipped on all space stations at a planet of Parliament's choosing as long as it is within the jurisdiction of the station. Can only be called by Parliament level 25.
 
@@ -589,9 +589,9 @@ A session id.
 
 The unique id of the parliament.
 
-=head3 target_x, target_y
+=head3 body_id
 
-The C<x,y> coordinates of the planet that is the target.
+A planet to fire at. See C<get_bodies_for_star_in_jurisdiction> for details.
 
 =head3 reason
 
