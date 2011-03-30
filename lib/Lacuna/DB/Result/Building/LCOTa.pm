@@ -37,12 +37,14 @@ has effective_efficiency => (
     is          => 'rw',
     lazy        => 1,
     predicate   => 'has_effective_efficiency',
+    default     => 0,
 );
 
 has effective_level => (
     is      => 'rw',
     lazy        => 1,
-    predicate   => 'has_effective_efficiency',
+    predicate   => 'has_effective_level',
+    default     => 0,
 );
 
 sub production_hour {
