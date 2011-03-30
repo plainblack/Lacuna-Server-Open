@@ -22,14 +22,14 @@ use constant name => 'Lagoon';
 use constant water_to_build => 1;
 use constant ore_to_build => 1;
 use constant time_to_build => 1;
-use constant algae_production => 10; 
+use constant algae_production => 1; 
 around produces_food_items => sub {
     my ($orig, $class) = @_;
     my $foods = $orig->($class);
     push @{$foods}, qw(algae);
     return $foods;
 };
-use constant water_production => 10;
+use constant water_production => 1;
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

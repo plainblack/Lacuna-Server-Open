@@ -1,5 +1,6 @@
-3.0500
+3.0401
  - API: Slightly changed propose_fire_bfg().
+ - Rule: Reduced the output Lagoon, Grove of Trees, and Patch of Sand decorations.
 
 3.0400
  - Add: Added the Opera House, Art Museum, and Culinary Institute space station modules.
