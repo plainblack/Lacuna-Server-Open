@@ -1,5 +1,6 @@
 3.0400
  - Add: Added the Opera House, Art Museum, and Culinary Institute space station modules.
+ - Add: The Lost City of Tyleon.
  - Rule: We now allow 20 ships per fleet.
  - Rule: Spies no longer bounce. There is either a success or a failure. They can still however not be able to complete a mission on success (try to steal a ship and there isn't one to steal, etc).
  - Rule: Spies now have luck. A random number between -500 and 500.

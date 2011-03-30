@@ -1,0 +1,7 @@
+=head1 Lost City of Tyleon Methods
+
+Space Station Lab is accessible via the URLs C</lcota>, C</lcotb>, C</lcotc>, C</lcotd>, C</lcote>, C</lcotf>, C</lcotg>, C</lcoth>, and C</lcoti>. The C</lcotaa> URL controls all the actual functions of the city, but you must build all nine components to get the benefits.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share. 
+
+=cut

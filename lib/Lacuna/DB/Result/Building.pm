@@ -1062,6 +1062,15 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Permanent::AmalgusMeadow' => 'Lacuna::DB::Result::Building::Permanent::AmalgusMeadow',
         'Lacuna::DB::Result::Building::Permanent::DentonBrambles' => 'Lacuna::DB::Result::Building::Permanent::DentonBrambles',
         'Lacuna::DB::Result::Building::MercenariesGuild' => 'Lacuna::DB::Result::Building::MercenariesGuild',
+        'Lacuna::DB::Result::Building::LCOTa' => 'Lacuna::DB::Result::Building::LCOTa',
+        'Lacuna::DB::Result::Building::LCOTb' => 'Lacuna::DB::Result::Building::LCOTb',
+        'Lacuna::DB::Result::Building::LCOTc' => 'Lacuna::DB::Result::Building::LCOTc',
+        'Lacuna::DB::Result::Building::LCOTd' => 'Lacuna::DB::Result::Building::LCOTd',
+        'Lacuna::DB::Result::Building::LCOTe' => 'Lacuna::DB::Result::Building::LCOTe',
+        'Lacuna::DB::Result::Building::LCOTf' => 'Lacuna::DB::Result::Building::LCOTf',
+        'Lacuna::DB::Result::Building::LCOTg' => 'Lacuna::DB::Result::Building::LCOTg',
+        'Lacuna::DB::Result::Building::LCOTh' => 'Lacuna::DB::Result::Building::LCOTh',
+        'Lacuna::DB::Result::Building::LCOTi' => 'Lacuna::DB::Result::Building::LCOTi',
     });
 }
 

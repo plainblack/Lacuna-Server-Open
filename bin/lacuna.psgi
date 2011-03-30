@@ -219,6 +219,15 @@ my $app = builder {
         Lacuna::RPC::Building::IBS
         Lacuna::RPC::Building::Warehouse
         Lacuna::RPC::Building::Parliament
+        Lacuna::RPC::Building::LCOTa
+        Lacuna::RPC::Building::LCOTb
+        Lacuna::RPC::Building::LCOTc
+        Lacuna::RPC::Building::LCOTd
+        Lacuna::RPC::Building::LCOTe
+        Lacuna::RPC::Building::LCOTf
+        Lacuna::RPC::Building::LCOTg
+        Lacuna::RPC::Building::LCOTh
+        Lacuna::RPC::Building::LCOTi
     )) {
         mount $building->new->to_app_with_url;
     }
