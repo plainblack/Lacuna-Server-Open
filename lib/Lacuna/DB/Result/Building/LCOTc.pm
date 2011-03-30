@@ -7,7 +7,7 @@ extends 'Lacuna::DB::Result::Building';
 with 'Lacuna::Role::LCOT';
 
 use constant controller_class => 'Lacuna::RPC::Building::LCOTc';
-use constant image => 'lcotc';
+use constant image => 'lcoti';
 use constant name => 'Lost City of Tyleon (C)';
 
 before 'can_demolish' => sub {
