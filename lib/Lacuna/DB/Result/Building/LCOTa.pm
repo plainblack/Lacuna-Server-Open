@@ -90,7 +90,7 @@ before 'can_demolish' => sub {
 
 before can_build => sub {
     my $self = shift;
-    if ($self->x ~~ [-5,-1,0,1,5] || $self->y ~~ [-5,-1,0,1,5]) {
+    if ($self->x ~~ [-5,5] || $self->y ~~ [-5,5] || ($self->x ~~ [-1,0,1] && $self->y ~~ [-1,0,1] )) {
         confess [1009, 'Lost City of Tyleon cannot be placed in that location.'];
     }
 };
