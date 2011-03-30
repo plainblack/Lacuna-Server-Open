@@ -1,0 +1,120 @@
+=head1 Police Station Methods
+
+Police Station is accessible via the URL C</policestation>.
+
+Captured spies are detained at the police station.
+
+The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+
+=head2 view_prisoners ( session_id, building_id, [ page_number ])
+
+Displays a list of the spies that have been captured.
+
+ {
+    "status" : { ... },
+    "prisoners" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "James Bond",
+            "level" : "20",
+            "sentence_expires" : "01 31 2010 13:09:05 +0600"
+        },
+        ...
+    ]
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the police station.
+
+=head3 page_number
+
+Defaults to 1. Each page contains 25 spies.
+
+
+
+=head2 execute_prisoner ( session_id, building_id, prisoner_id )
+
+You may choose to execute a prisoner rather than letting him serve his sentence and be released. 
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the police station.
+
+=head3 prisoner_id
+
+The unique id of a prisoner you have captured. See C<view_prisoners> for details.
+
+
+
+=head2 release_prisoner ( session_id, building_id, prisoner_id )
+
+You may choose to release a prisoner by calling this method.
+
+ {
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the police station.
+
+=head3 prisoner_id
+
+The unique id of a prisoner you have captured. See C<view_prisoners> for details.
+
+
+
+
+=head2 view_foreign_spies ( session_id, building_id, [ page_number ])
+
+Displays a list of the spies that are on your planet, and have a level lower than your police station.
+
+ {
+    "status" : { ... },
+    "spies" : [
+        {
+            "name" : "James Bond",
+            "level" : 11,
+            "next_mission" : "01 31 2010 13:09:05 +0600"
+        },
+        ...
+    ]
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the police station.
+
+=head3 page_number
+
+Defaults to 1. Each page contains 25 spies.
+
+
+
+
+
+
+
+=cut

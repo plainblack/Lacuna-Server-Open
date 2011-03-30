@@ -29,6 +29,8 @@
  - API: The Mercenaries Guild API has been corrected.
  - API: The view_ships_orbiting() method of the SpacePort now correctly shows the foreign ships orbiting your planet as opposed to your ships that are orbiting foreign bodies.
  - Fix: Space station propositions weren't all working properly when passed/failed.
+ - Add: The Police Station space station module has been added.
+ - Rule: Security Ministry Seekers can also target Police Stations now.
 
 3.0301
  - Fixed the massive repeating resource warning messages.
