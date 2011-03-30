@@ -2,10 +2,10 @@ package Lacuna::Role::LCOT;
 
 use Moose::Role;
 
-use constant food_to_build => 21000;
-use constant energy_to_build => 21000;
-use constant ore_to_build => 21000;
-use constant water_to_build => 21000;
+use constant food_to_build => 18000;
+use constant energy_to_build => 18000;
+use constant ore_to_build => 18000;
+use constant water_to_build => 18000;
 use constant time_to_build => 60 * 2;
 use constant food_consumption => 100;
 use constant energy_consumption => 100;
