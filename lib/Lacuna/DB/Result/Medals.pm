@@ -332,7 +332,8 @@ use constant MEDALS => {
     CloakingLab                     => 'Built Cloaking Lab',
     AmalgusMeadow                   => 'Discovered an Amalgus Meadow',
     DentonBrambles                  => 'Discovered Denton Brambles',
-    MercenariesGuild                => 'Build Mercenaries Guild',
+    MercenariesGuild                => 'Built Mercenaries Guild',
+    PoliceStation                   => 'Built Police Station',
 };
 
 sub name {

@@ -219,6 +219,7 @@ my $app = builder {
         Lacuna::RPC::Building::IBS
         Lacuna::RPC::Building::Warehouse
         Lacuna::RPC::Building::Parliament
+        Lacuna::RPC::Building::PoliceStation
         Lacuna::RPC::Building::LCOTa
         Lacuna::RPC::Building::LCOTb
         Lacuna::RPC::Building::LCOTc

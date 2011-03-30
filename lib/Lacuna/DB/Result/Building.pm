@@ -1062,6 +1062,7 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Permanent::AmalgusMeadow' => 'Lacuna::DB::Result::Building::Permanent::AmalgusMeadow',
         'Lacuna::DB::Result::Building::Permanent::DentonBrambles' => 'Lacuna::DB::Result::Building::Permanent::DentonBrambles',
         'Lacuna::DB::Result::Building::MercenariesGuild' => 'Lacuna::DB::Result::Building::MercenariesGuild',
+        'Lacuna::DB::Result::Building::Module::PoliceStation' => 'Lacuna::DB::Result::Building::Module::PoliceStation',
         'Lacuna::DB::Result::Building::LCOTa' => 'Lacuna::DB::Result::Building::LCOTa',
         'Lacuna::DB::Result::Building::LCOTb' => 'Lacuna::DB::Result::Building::LCOTb',
         'Lacuna::DB::Result::Building::LCOTc' => 'Lacuna::DB::Result::Building::LCOTc',

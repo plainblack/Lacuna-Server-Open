@@ -22,7 +22,9 @@ after handle_arrival_procedures => sub {
         $building = $citadel;
     }
     if ($self->target_building) {
-        $building ||= $body_attacked->get_building_of_class($self->target_building);
+        for my $tb ( @{$self->target_building} ) {
+            $building ||= $body_attacked->get_building_of_class($tb);
+        }
     }
     $building ||= $buildings->search(
 		{class => { '!=' => 'Lacuna::DB::Result::Building::Permanent::Crater' }},

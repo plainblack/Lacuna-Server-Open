@@ -28,12 +28,18 @@ after handle_arrival_procedures => sub {
     # set last attack status
     $body->set_last_attacked_by($self->body->id);
 
-    # we don't capture if they don't have a working security ministry
-    my $security = $body->get_building_of_class('Lacuna::DB::Result::Building::Security');
+    my $building = 'Security';
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        $building = 'Module::PoliceStation';
+    }
+    my $security = $body->get_building_of_class('Lacuna::DB::Result::Building::'.$building);
     return unless defined $security && $security->efficiency > 0;
     
     # lets see if we can detect the ship
     my $security_detection = ($security->level * 700) * ( $security->efficiency / 100 );
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        $security_detection *= 1.25;
+    }
     return unless $security_detection > $self->stealth;
     
     # ship detected, time to go kaboom
