@@ -1,6 +1,7 @@
 3.0402
  - API: Changed parliament propositions and laws to use email formatting rules.
  - Rule: Lagoons, Groves, and Sand now produce less because they were unbalancing.
+ - Fix: Some of the new laws and propositions weren't being stored correctly.
 
 3.0401
  - API: Slightly changed propose_fire_bfg().

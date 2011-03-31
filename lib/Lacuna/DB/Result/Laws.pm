@@ -20,7 +20,9 @@ __PACKAGE__->add_columns(
 ); 
 
 __PACKAGE__->typecast_map(type => {
-    Writ                => 'Lacuna::DB::Result::Laws::Writ',
+    Jurisdiction            => 'Lacuna::DB::Result::Laws::Jurisdiction',
+    MembersOnlyMiningRights => 'Lacuna::DB::Result::Laws::MembersOnlyMiningRights',
+    Writ                    => 'Lacuna::DB::Result::Laws::Writ',
 });
 
 __PACKAGE__->belongs_to('station', 'Lacuna::DB::Result::Map::Body', 'station_id');

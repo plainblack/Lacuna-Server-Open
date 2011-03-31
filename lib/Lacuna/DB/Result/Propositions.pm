@@ -25,13 +25,21 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->typecast_map(type => {
     AbandonStation          => 'Lacuna::DB::Result::Propositions::AbandonStation',
+    BroadcastOnNetwork19    => 'Lacuna::DB::Result::Propositions::BroadcastOnNetwork19',
     DemolishModule          => 'Lacuna::DB::Result::Propositions::DemolishModule',
     DowngradeModule         => 'Lacuna::DB::Result::Propositions::DowngradeModule',
     EnactWrit               => 'Lacuna::DB::Result::Propositions::EnactWrit',
+    EvictMiningPlatform     => 'Lacuna::DB::Result::Propositions::EvictMiningPlatform',
     FireBfg                 => 'Lacuna::DB::Result::Propositions::FireBfg',
     InstallModule           => 'Lacuna::DB::Result::Propositions::InstallModule',
+    MembersOnlyMiningRights => 'Lacuna::DB::Result::Propositions::MembersOnlyMiningRights',
+    RenameAsteroid          => 'Lacuna::DB::Result::Propositions::RenameAsteroid',
+    RenameStar              => 'Lacuna::DB::Result::Propositions::RenameStar',
     RenameStation           => 'Lacuna::DB::Result::Propositions::RenameStation',
     RepairModule            => 'Lacuna::DB::Result::Propositions::RepairModule',
+    RepealLaw               => 'Lacuna::DB::Result::Propositions::RepealLaw',
+    SeizeStar               => 'Lacuna::DB::Result::Propositions::SeizeStar',
+    TransferStationOwnership=> 'Lacuna::DB::Result::Propositions::TransferStationOwnership',
     UpgradeModule           => 'Lacuna::DB::Result::Propositions::UpgradeModule',
 });
 
