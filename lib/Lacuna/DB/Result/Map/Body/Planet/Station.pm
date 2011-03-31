@@ -26,7 +26,7 @@ has parliament => (
 
 around get_status => sub {
     my ($orig, $self, $empire) = @_;
-    my $out = $orig->($self);
+    my $out = $orig->($self, $empire);
     if (defined $self->alliance) {
         $out->{alliance} = {
             id      => $self->alliance->id,

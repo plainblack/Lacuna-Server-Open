@@ -2,6 +2,12 @@
  - API: Changed parliament propositions and laws to use email formatting rules.
  - Rule: Lagoons, Groves, and Sand now produce less because they were unbalancing.
  - Fix: Some of the new laws and propositions weren't being stored correctly.
+ - Fix: API documentation for propose_enact_writ().
+ - Fix: Home field advantage crash.
+ - Fix: Was giving home field advantage to foreign spies on security sweep.
+ - Fix: Alignment flag was set wrong for ring indicator on space stations.
+ - Fix: After the 3.0400 update Space Stations don't return *_hour, *_capacity, *_stored (e.g. water_hour, food_capacity, energy_stored), happiness, and building_count.
+ - Fix: Space station command upgrade error.
 
 3.0401
  - API: Slightly changed propose_fire_bfg().

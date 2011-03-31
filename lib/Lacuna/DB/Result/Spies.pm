@@ -520,7 +520,7 @@ sub run_security_sweep {
     if (defined $attacker) {
         $toughness = $attacker->offense + $attacker->$mission_skill;
     }
-    my $breakthru = ($power - $toughness - $self->home_field_advantage) + $self->luck;
+    my $breakthru = ($power - $toughness + $self->home_field_advantage) + $self->luck;
     
     # handle outcomes and xp
     my $out;

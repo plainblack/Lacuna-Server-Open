@@ -247,13 +247,13 @@ A session id.
 
 The unique id of the parliament.
 
-=head3 target_x, target_y
+=head3 title
 
-The C<x,y> coordinates of the planet that is the target.
+The name of the law.
 
-=head3 reason
+=head3 description
 
-An explict reason why the BFG should be fired upon the target. Same rules as an L<Inbox> message body apply here.
+A detailed description of what the law intends to promote or prohibit. Same rules as an L<Inbox> message body apply here.
 
 
 

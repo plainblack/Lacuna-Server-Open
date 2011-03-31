@@ -59,7 +59,7 @@ before can_upgrade => sub {
     my $plan = $self->body->get_plan($self->class, $self->level + 1);
     if (defined $plan) {
         my $command = $self->body->command;
-        if ($command->level >= $self->level + 1 || $self->isa('Lacuna::DB::Result::Building::StationCommand')) {
+        if ($command->level >= $self->level + 1 || $self->isa('Lacuna::DB::Result::Building::Module::StationCommand')) {
             return 1;
         }
         else {

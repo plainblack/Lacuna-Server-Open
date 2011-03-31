@@ -234,7 +234,7 @@ around get_status => sub {
                 $out->{happiness}       = $self->happiness;
                 $out->{happiness_hour}  = $self->happiness_hour;
             }
-            elsif ($empire->alliance_id && $self->empire->alliance_id == $empire->alliance_id) {
+            if ($empire->alliance_id && $self->empire->alliance_id == $empire->alliance_id) {
                 $out->{empire}{alignment} = $self->empire->is_isolationist ? 'ally-isolationist' : 'ally';
             }
         }
