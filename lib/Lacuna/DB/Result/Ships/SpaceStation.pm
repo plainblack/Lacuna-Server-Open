@@ -25,6 +25,7 @@ with 'Lacuna::Role::Ship::Send::MemberOfAlliance';
 with "Lacuna::Role::Ship::Send::SpendNextColonyCost";
 with "Lacuna::Role::Ship::Send::IsHostile";
 with "Lacuna::Role::Ship::Arrive::ConvertToStation";
+with "Lacuna::Role::Ship::Arrive::TriggerDefense";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
