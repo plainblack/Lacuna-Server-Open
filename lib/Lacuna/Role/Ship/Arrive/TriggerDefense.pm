@@ -167,30 +167,22 @@ sub system_saw_combat {
         next
             unless $defending_body->isa('Lacuna::DB::Result::Map::Body::Planet');
 
-        # never attack own ships
         my $defending_empire = $defending_body->empire_id;
-        next
-            if $defending_empire && $defending_empire == $ship_empire;
-
         my $defending_alliance = $defending_body->alliance_id
             || ($defending_body->empire && $defending_body->empire->alliance_id);
 
-        if ( $is_asteroid ) {
-            # don't attack alliance ships
-            next
-                if $defending_alliance && $ship_alliance && $defending_alliance == $ship_alliance;
-            # all planets defend the asteroids in their system
-            $self->saw_combat($defending_body);
+        if ( $defending_empire && $defending_empire == $ship_empire ) {
+            # don't attack ships from same empire
         }
         elsif ( $defending_empire && $attacked_empire && $defending_empire == $attacked_empire ) {
             # defend own planets in system
             $self->saw_combat($defending_body);
         }
         elsif ( $defending_alliance && $ship_alliance && $defending_alliance == $ship_alliance ) {
-            # don't defend against allied ships
+            # don't attack ships in same alliance
         }
-        elsif ( $defending_alliance && $attacked_alliance && $defending_alliance == $attacked_alliance ) {
-            # alliance planets defend each other in their system
+        else {
+            # attack everything else
             $self->saw_combat($defending_body);
         }
     }
