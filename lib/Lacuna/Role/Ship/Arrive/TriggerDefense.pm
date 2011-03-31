@@ -24,13 +24,13 @@ after handle_arrival_procedures => sub {
     # set last attack status
     $body_attacked->set_last_attacked_by($ship_body->id);
 
-    # get allies
-    $self->allied_combat();
-
     # get SAWs
     $self->saw_combat($body_attacked) if $is_planet;
 
     $self->system_saw_combat;
+
+    # get allies
+    $self->allied_combat();
 
     $self->defender_combat();
 };
