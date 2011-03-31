@@ -31,11 +31,11 @@ sub push_items {
     my $building = $self->get_building($empire, $building_id);
     confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->level > 0;
     my $cache = Lacuna->cache;
-    if (! $cache->add('trade_push_lock', $building_id, 1, 5)) {
-        confess [1013, 'You have a push setup in progress.  Please wait a few moments and try again.'];
+    if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
+        confess [1013, 'You have a trade setup in progress.  Please wait a few moments and try again.'];
     }
     my $guard = guard {
-        $cache->delete('trade_push_lock',$building_id);
+        $cache->delete('trade_add_lock',$building_id);
     };
     unless ($empire->essentia >= 2) {
         confess [1011, "You need 2 essentia to push items using the Subspace Transporter."];
@@ -66,6 +66,13 @@ sub add_to_market {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->level > 0;
+    my $cache = Lacuna->cache;
+    if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
+        confess [1013, 'You have a trade setup in progress.  Please wait a few moments and try again.'];
+    }
+    my $guard = guard {
+        $cache->delete('trade_add_lock',$building_id);
+    };
     unless ($empire->essentia >= 1) {
         confess [1011, "You need 1 essentia to make a trade using the Subspace Transporter."];
     }
