@@ -1,3 +1,7 @@
+3.0402
+ - API: Changed parliament propositions and laws to use email formatting rules.
+ - Rule: Lagoons, Groves, and Sand now produce less because they were unbalancing.
+
 3.0401
  - API: Slightly changed propose_fire_bfg().
  - Rule: Reduced the output Lagoon, Grove of Trees, and Patch of Sand decorations, and limited to 3 per planet.
