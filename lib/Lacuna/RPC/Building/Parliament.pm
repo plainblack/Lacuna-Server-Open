@@ -164,8 +164,8 @@ sub propose_fire_bfg {
     my $name = $body->name.' ('.$body->x.','.$body->y.')';
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'FireBfg',
-        name            => 'Fire BFG at '.$name,
-        description     => 'Fire the BFG at '.$name.' from the station named "'.$building->body->name.'". Reason cited: '.$reason,
+        name            => 'Fire BFG at '.$body->name,
+        description     => 'Fire the BFG at {Starmap '.$body->x.' '.$body->y.' '.$body->name.'} from {Planet '.$building->body->id.' '.$building->body->name.'}. Reason cited: '.$reason,
         scratch         => { body_id => $body->id },
         proposed_by_id  => $empire->id,
     });
@@ -233,7 +233,7 @@ sub propose_transfer_station_ownership {
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'TransferStationOwnership',
         name            => 'Transfer Station',
-        description     => 'Transfer ownership of station named '.$self->body->name.' from '.$self->body->empire->name.' to '.$to_empire->name.'.',
+        description     => 'Transfer ownership of {Planet '.$building->body->id.' '.$building->body->name.'} from {Empire '.$self->body->empire_id.' '.$self->body->empire->name.'} to {Empire '.$to_empire->id.' '.$to_empire->name.'}.',
         scratch         => { empire_id => $to_empire->id },
         proposed_by_id  => $empire->id,
     });
@@ -273,7 +273,7 @@ sub propose_seize_star {
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'SeizeStar',
         name            => 'Seize '.$star->name,
-        description     => 'Seize control of '.$star->name.' ('.$star->x.','.$star->y.'), and apply all present laws to said star and its inhabitants.',
+        description     => 'Seize control of {Starmap '.$star->x.' '.$star->y.' '.$star->name.'} by {Planet '.$building->body->id.' '.$building->body->name.'}, and apply all present laws to said star and its inhabitants.',
         scratch         => { star_id => $star->id },
         proposed_by_id  => $empire->id,
     });
@@ -349,7 +349,7 @@ sub propose_rename_star {
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'RenameStar',
         name            => 'Rename '.$star->name,
-        description     => 'Rename '.$star->name.' ('.$star->x.','.$star->y.') to '.$star_name.'.',
+        description     => 'Rename {Starmap '.$star->x.' '.$star->y.' '.$star->name.'} to '.$star_name.'.',
         scratch         => { star_id => $star->id, name => $star_name },
         proposed_by_id  => $empire->id,
     });
@@ -423,7 +423,7 @@ sub propose_rename_asteroid {
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'RenameAsteroid',
         name            => 'Rename '.$asteroid->name,
-        description     => 'Rename '.$asteroid->name.' ('.$asteroid->x.','.$asteroid->y.') to '.$name.'.',
+        description     => 'Rename {Starmap '.$asteroid->x.' '.$asteroid->y.' '.$asteroid->name.'} to '.$name.'.',
         scratch         => { asteroid_id => $asteroid->id, name => $name },
         proposed_by_id  => $empire->id,
     });
@@ -449,7 +449,7 @@ sub propose_members_only_mining_rights {
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'MembersOnlyMiningRights',
         name            => 'Members Only Mining Rights',
-        description     => 'Only members of '.$building->body->alliance->name.' should be allowed to mine asteroids in the jurisdiction of this station.',
+        description     => 'Only members of {Alliance '.$building->body->alliance_id.' '.$building->body->alliance->name.'} should be allowed to mine asteroids in the jurisdiction of this station.',
         proposed_by_id  => $empire->id,
     });
     $proposition->station($building->body);
@@ -484,7 +484,7 @@ sub propose_evict_mining_platform {
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'EvictMiningPlatform',
         name            => 'Evict '.$platform->planet->empire->name.' Mining Platform',
-        description     => 'Evict a mining platform on '.$platform->asteroid->name.' controlled by '.$platform->planet->empire->name.'.',
+        description     => 'Evict a mining platform on {Starmap '.$platform->asteroid->x.' '.$platform->asteroid->y.' '.$platform->asteroid->name.'} controlled by {Empire '.$platform->planet->empire_id.' '.$platform->planet->empire->name.'}.',
         scratch         => { platform_id => $platform_id },
         proposed_by_id  => $empire->id,
     });

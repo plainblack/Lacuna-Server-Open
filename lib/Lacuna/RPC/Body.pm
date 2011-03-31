@@ -25,7 +25,7 @@ sub abandon {
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
             type            => 'AbandonStation',
             name            => 'Abandon Station',
-            description     => 'Abandon the station named "'.$body->name.'".',            
+            description     => 'Abandon the station named {Planet '.$body->id.' '.$body->name.'}.',            
             proposed_by_id  => $empire->id,
         });
         $proposition->station($body);
@@ -57,7 +57,7 @@ sub rename {
             type            => 'RenameStation',
             name            => 'Rename Station',
             scratch         => { name => $name },
-            description     => 'Rename the station from "'.$body->name.'" to "'.$name.'".',            
+            description     => 'Rename the station from {Planet '.$body->id.' '.$body->name.'} to "'.$name.'".',            
             proposed_by_id  => $empire->id,
         });
         $proposition->station($body);

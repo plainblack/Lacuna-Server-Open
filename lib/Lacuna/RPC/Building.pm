@@ -58,7 +58,7 @@ sub upgrade {
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
             type            => 'UpgradeModule',
             name            => 'Upgrade '.$name,
-            description     => 'Upgrade '.$name.' on the station named "'.$body->name.'" from level '.$building->level.' to '.($building->level + 1).'.',
+            description     => 'Upgrade '.$name.' on {Planet '.$body->id.' '.$body->name.'} from level '.$building->level.' to '.($building->level + 1).'.',
             scratch         => { building_id => $building->id, to_level => $building->level + 1 },
             proposed_by_id  => $empire->id,
         });
@@ -185,7 +185,7 @@ sub build {
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
             type            => 'InstallModule',
             name            => 'Install '.$name,
-            description     => 'Install '.$name.' on the station named "'.$body->name.'".',
+            description     => 'Install '.$name.' on {Planet '.$body->id.' '.$body->name.'}.',
             scratch         => { building_id => $building->id, to_level => $building->level + 1 },
             proposed_by_id  => $empire->id,
         });
@@ -219,7 +219,7 @@ sub demolish {
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
             type            => 'DemolishModule',
             name            => 'Demolish '.$name,
-            description     => 'Demolish '.$name.' on the station named "'.$body->name.'".',
+            description     => 'Demolish '.$name.' on {Planet '.$body->id.' '.$body->name.'}.',
             scratch         => { building_id => $building->id },
             proposed_by_id  => $empire->id,
         });
@@ -249,7 +249,7 @@ sub downgrade {
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
             type            => 'DowngradeModule',
             name            => 'Downgrade '.$name,
-            description     => 'Downgrade '.$name.' on the station named "'.$body->name.'" from level '.$self->level.' to '.($self->level - 1).'.',
+            description     => 'Downgrade '.$name.' on {Planet '.$body->id.' '.$body->name.'} from level '.$self->level.' to '.($self->level - 1).'.',
             scratch         => { building_id => $building->id },
             proposed_by_id  => $empire->id,
         });
@@ -311,7 +311,7 @@ sub repair {
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
             type            => 'RepairModule',
             name            => 'Repair '.$name,
-            description     => 'Repair '.$name.' on the station named "'.$body->name.'".',
+            description     => 'Repair '.$name.' on {Planet '.$body->id.' '.$body->name.'}.',
             scratch         => { building_id => $building->id },
             proposed_by_id  => $empire->id,
         });
