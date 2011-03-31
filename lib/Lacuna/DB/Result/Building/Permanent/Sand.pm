@@ -18,6 +18,7 @@ around can_build => sub {
 use constant image => 'sand';
 
 use constant name => 'Patch of Sand';
+use constant max_instances_per_planet => 3;
 
 use constant ore_to_build => 1;
 use constant time_to_build => 1;
