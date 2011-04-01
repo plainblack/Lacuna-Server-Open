@@ -439,8 +439,6 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<PlanetaryCommand>
 
-=item L<PoliceStation>
-
 =item L<Potato>
 
 =item L<Propulsion>
