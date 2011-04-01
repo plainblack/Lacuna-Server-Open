@@ -1,3 +1,6 @@
+3.0403
+ - Fix: Police Station docs now show up under Modules instead of Buildings.
+
 3.0402
  - API: Changed parliament propositions and laws to use email formatting rules.
  - Rule: SAWs will now defend before allied ships
