@@ -604,8 +604,89 @@ sub propose_elect_new_leader {
     };
 }
 
+sub propose_induct_member {
+    my ($self, $session_id, $building_id, $empire_id, $message) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 10) {
+        confess [1013, 'Parliament must be level 10 to induct a new alliance member.',10];
+    }
+    my $alliance = $self->alliance;
+    my $count = $alliance->members->count;
+    $count += $alliance->invites->count;
+    if ($count >= $self->max_members ) {
+        confess [1009, 'You may only have '.$self->max_members.' in or invited to this alliance.'];
+    }
+    unless ($empire_id) {
+        confess [1002, 'Must specify an empire id to induct a new alliance member.'];
+    }
+    my $invite_empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    unless (defined $invite_empire) {
+        confess [1002, 'Could not find the empire of the proposed new alliance member.'];
+    }
+    Lacuna::Verify->new(content=>\$message, throws=>[1005,'Message must not contain restricted characters or profanity.', 'message'])
+        ->no_tags
+        ->no_profanity;
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'InductMember',
+        name            => 'Induct Member',
+        description     => 'Induct {Empire '.$invite_empire->id.' '.$invite_empire->name.'} as a new member of {Alliance '.$building->body->alliance_id.' '.$building->body->alliance->name.'}.',
+        scratch         => { empire_id => $invite_empire->id, message => $message },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
 
-__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_members_only_colonization propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ propose_elect_new_leader));
+sub propose_expel_member {
+    my ($self, $session_id, $building_id, $empire_id, $message) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 10) {
+        confess [1013, 'Parliament must be level 10 to expel an alliance member.',10];
+    }
+    unless ($empire_id) {
+        confess [1002, 'Must specify an empire id to expel an alliance member.'];
+    }
+    my $empire_to_remove = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    unless (defined $empire_to_remove) {
+        confess [1002, 'Could not find the empire of the proposed member to expel.'];
+    }
+    unless ($empire_to_remove->alliance_id == $empire->alliance_id) {
+        confess [1009, 'That empire is not a member of your alliance.'];
+    }
+    Lacuna::Verify->new(content=>\$message, throws=>[1005,'Message must not contain restricted characters or profanity.', 'message'])
+        ->no_tags
+        ->no_profanity;
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'ExpelMember',
+        name            => 'Expel Member',
+        description     => 'Expel {Empire '.$empire_to_remove->id.' '.$empire_to_remove->name.'} from {Alliance '.$building->body->alliance_id.' '.$building->body->alliance->name.'}.',
+        scratch         => { empire_id => $empire_to_remove->id, message => $message },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
+
+
+__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_members_only_colonization propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ propose_elect_new_leader propose_induct_member propose_expel_member));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
