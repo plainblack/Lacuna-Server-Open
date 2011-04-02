@@ -1,6 +1,7 @@
 3.0500
  - API: Added proposing renaming uninhabited planets at Parliament level 17.
  - Fix: Police Station docs now show up under Modules instead of Buildings.
+ - Fix: view_ships_orbiting will now return the ships that are orbiting your planet instead of just the count.
 
 3.0402
  - API: Changed parliament propositions and laws to use email formatting rules.

@@ -591,7 +591,48 @@ sub view_foreign_ships {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     $page_number ||= 1;
-    return $self->_view_ships($session_id, $building_id, $page_number, 'foreign_ships');
+    my @fleet;
+    my $now = time;
+    my $ships = $building->foreign_ships->search({}, {rows=>25, page=>$page_number, join => 'body' });
+    my $see_ship_type = ($building->level * 350) * ( $building->efficiency / 100 );
+    my $see_ship_path = ($building->level * 450) * ( $building->efficiency / 100 );
+    my @my_planets = $empire->planets->get_column('id')->all;
+    while (my $ship = $ships->next) {
+        if ($ship->date_available->epoch <= $now) {
+            $ship->body->tick;
+        }
+        else {
+            my %ship_info = (
+                    id              => $ship->id,
+                    name            => 'Unknown',
+                    type_human      => 'Unknown',
+                    type            => 'unknown',
+                    date_arrives    => $ship->date_available_formatted,
+                    from            => {},
+                );
+            if ($ship->body_id ~~ \@my_planets || $see_ship_path >= $ship->stealth) {
+                $ship_info{from} = {
+                    id      => $ship->body->id,
+                    name    => $ship->body->name,
+                    empire  => {
+                        id      => $ship->body->empire->id,
+                        name    => $ship->body->empire->name,
+                    },
+                };
+                if ($ship->body_id ~~ \@my_planets || $see_ship_type >= $ship->stealth) {
+                    $ship_info{name} = $ship->name;
+                    $ship_info{type} = $ship->type;
+                    $ship_info{type_human} = $ship->type_formatted;
+                }
+            }
+            push @fleet, \%ship_info;
+        }
+    }
+    return {
+        status                      => $self->format_status($empire, $building->body),
+        number_of_ships             => $ships->pager->total_entries,
+        ships                       => \@fleet,
+    };
 }
 
 sub view_ships_orbiting {
@@ -599,7 +640,46 @@ sub view_ships_orbiting {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     $page_number ||= 1;
-    return $self->_view_ships($session_id, $building_id, $page_number, 'orbiting_ships');
+    my @fleet;
+    my $now = time;
+    my $ships = $building->orbiting_ships->search({}, {rows=>25, page=>$page_number, join => 'body' });
+    my $see_ship_type = ($building->level * 350) * ( $building->efficiency / 100 );
+    my $see_ship_path = ($building->level * 450) * ( $building->efficiency / 100 );
+    my @my_planets = $empire->planets->get_column('id')->all;
+    while (my $ship = $ships->next) {
+            if ($ship->date_available->epoch <= $now) {
+                $ship->body->tick;
+            }
+            my %ship_info = (
+                    id              => $ship->id,
+                    name            => 'Unknown',
+                    type_human      => 'Unknown',
+                    type            => 'unknown',
+                    date_arrived    => $ship->date_available_formatted,
+                    from            => {},
+                );
+            if ($ship->body_id ~~ \@my_planets || $see_ship_path >= $ship->stealth) {
+                $ship_info{from} = {
+                    id      => $ship->body->id,
+                    name    => $ship->body->name,
+                    empire  => {
+                        id      => $ship->body->empire->id,
+                        name    => $ship->body->empire->name,
+                    },
+                };
+                if ($ship->body_id ~~ \@my_planets || $see_ship_type >= $ship->stealth) {
+                    $ship_info{name} = $ship->name;
+                    $ship_info{type} = $ship->type;
+                    $ship_info{type_human} = $ship->type_formatted;
+                }
+            }
+            push @fleet, \%ship_info;
+    }
+    return {
+        status                      => $self->format_status($empire, $building->body),
+        number_of_ships             => $ships->pager->total_entries,
+        ships                       => \@fleet,
+    };
 }
 
 sub _view_ships {
