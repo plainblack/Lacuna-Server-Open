@@ -29,6 +29,7 @@ __PACKAGE__->typecast_map(type => {
     DemolishModule          => 'Lacuna::DB::Result::Propositions::DemolishModule',
     DowngradeModule         => 'Lacuna::DB::Result::Propositions::DowngradeModule',
     EnactWrit               => 'Lacuna::DB::Result::Propositions::EnactWrit',
+    ElectNewLeader          => 'Lacuna::DB::Result::Propositions::ElectNewLeader',
     EvictMiningPlatform     => 'Lacuna::DB::Result::Propositions::EvictMiningPlatform',
     FireBfg                 => 'Lacuna::DB::Result::Propositions::FireBfg',
     InstallModule           => 'Lacuna::DB::Result::Propositions::InstallModule',

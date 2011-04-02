@@ -568,7 +568,44 @@ sub propose_evict_mining_platform {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_members_only_colonization propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
+sub propose_elect_new_leader {
+    my ($self, $session_id, $building_id, $to_empire_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 11) {
+        confess [1013, 'Parliament must be level 11 to elect a new alliance leader.',11];
+    }
+    unless ($to_empire_id) {
+        confess [1002, 'Must specify an empire id to elect a new alliance leader.'];
+    }
+    my $to_empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($to_empire_id);
+    unless (defined $to_empire) {
+        confess [1002, 'Could not find the empire of the proposed new leader.'];
+    }
+    unless ($to_empire->alliance_id == $empire->alliance_id) {
+        confess [1009, 'That empire is not a member of your alliance.'];
+    }
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'ElectNewLeader',
+        name            => 'Elect New Leader',
+        description     => 'Elect {Empire '.$to_empire->id.' '.$to_empire->name.'} as the new leader of {Alliance '.$building->body->alliance_id.' '.$building->body->alliance->name.'}.',
+        scratch         => { empire_id => $to_empire->id },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
+
+
+__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_members_only_colonization propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ propose_elect_new_leader));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
