@@ -691,7 +691,7 @@ If your SpacePort exceeds the Ship's Stealth, then you'll see it orbiting. Other
            "name" : "SS3",
            "type" : "spy_shuttle",
            "type_human" : "Spy Shuttle",
-           "date_arrives" : "02 01 2010 10:08:33 +0600",
+           "date_arrived" : "02 01 2010 10:08:33 +0600",
            "from" : {
                "id" : "id-goes-here",
                "name" : "Mars",
