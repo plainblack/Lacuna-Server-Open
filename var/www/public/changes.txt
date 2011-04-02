@@ -1,5 +1,6 @@
 3.0500
  - API: Added proposing renaming uninhabited planets at Parliament level 17.
+ - API: Added proposing members only colonization at Parliament level 18.
  - Fix: Police Station docs now show up under Modules instead of Buildings.
  - Fix: view_ships_orbiting will now return the ships that are orbiting your planet instead of just the count.
 

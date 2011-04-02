@@ -32,6 +32,7 @@ __PACKAGE__->typecast_map(type => {
     EvictMiningPlatform     => 'Lacuna::DB::Result::Propositions::EvictMiningPlatform',
     FireBfg                 => 'Lacuna::DB::Result::Propositions::FireBfg',
     InstallModule           => 'Lacuna::DB::Result::Propositions::InstallModule',
+    MembersOnlyColonization => 'Lacuna::DB::Result::Propositions::MembersOnlyColonization',
     MembersOnlyMiningRights => 'Lacuna::DB::Result::Propositions::MembersOnlyMiningRights',
     RenameAsteroid          => 'Lacuna::DB::Result::Propositions::RenameAsteroid',
     RenameStar              => 'Lacuna::DB::Result::Propositions::RenameStar',

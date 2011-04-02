@@ -507,6 +507,31 @@ sub propose_members_only_mining_rights {
     };
 }
 
+sub propose_members_only_colonization {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 18) {
+        confess [1013, 'Parliament must be level 18 to propose members only colonization.',18];
+    }
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'MembersOnlyColonization',
+        name            => 'Members Only Colonization',
+        description     => 'Only members of {Alliance '.$building->body->alliance_id.' '.$building->body->alliance->name.'} should be allowed to colonize planets in the jurisdiction of this station.',
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
+
 sub propose_evict_mining_platform {
     my ($self, $session_id, $building_id, $platform_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -543,7 +568,7 @@ sub propose_evict_mining_platform {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
+__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_members_only_colonization propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

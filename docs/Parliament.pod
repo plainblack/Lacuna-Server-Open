@@ -334,7 +334,7 @@ The id of an empire within the alliance that wants control over the station.
 
 =head2 propose_seize_star ( session_id, building_id, star_id )
 
-Take control of a star. Usable a parliament level 7.
+Take control of a star. Usable at parliament level 7.
 
  {
     "status" : { ... },
@@ -370,7 +370,7 @@ The id of a star the station should control.
 
 =head2 propose_rename_star ( session_id, building_id, star_id, name )
 
-Rename a star. Usable a parliament level 8.
+Rename a star. Usable at parliament level 8.
 
  {
     "status" : { ... },
@@ -410,7 +410,7 @@ The new name of the star.
 
 =head2 propose_broadcast_on_network19 ( session_id, building_id, message )
 
-Broadcast any message you like on Network 19. Usable a parliament level 9.
+Broadcast any message you like on Network 19. Usable at parliament level 9.
 
  {
     "status" : { ... },
@@ -448,7 +448,7 @@ A 140 character string that cannot contain special characters or profanity.
 
 =head2 propose_rename_asteroid ( session_id, building_id, asteroid_id, name )
 
-Rename any asteroid in the station's jurisdiction. Usable a parliament level 12.
+Rename any asteroid in the station's jurisdiction. Usable at parliament level 12.
 
  {
     "status" : { ... },
@@ -490,7 +490,7 @@ A 30 chararacter string without profanity or special characters.
 
 =head2 propose_rename_uninhabited ( session_id, building_id, planet_id, name )
 
-Rename any uninhabited planet in the station's jurisdiction. Usable a parliament level 17.
+Rename any uninhabited planet in the station's jurisdiction. Usable at parliament level 17.
 
  {
     "status" : { ... },
@@ -532,7 +532,7 @@ A 30 chararacter string without profanity or special characters.
 
 =head2 propose_members_only_mining_rights ( session_id, building_id )
 
-If passed, only members of the alliance would be able to set up new mining platforms on asteroids in this station's jurisdiction. Usable a parliament level 13.
+If passed, only members of the alliance would be able to set up new mining platforms on asteroids in this station's jurisdiction. Usable at parliament level 13.
 
  {
     "status" : { ... },
@@ -565,7 +565,7 @@ The unique id of the parliament.
 
 =head2 propose_evict_mining_platform ( session_id, building_id, platform_id )
 
-Destroys a mining platform on an asteroid. Usable a parliament level 14.
+Destroys a mining platform on an asteroid. Usable at parliament level 14.
 
  {
     "status" : { ... },
@@ -597,6 +597,39 @@ The unique id of the parliament.
 
 The unique id of a mining platform. See C<get_platforms_for_asteroid_in_jurisdiction>.
 
+
+
+
+
+=head2 propose_members_only_colonization ( session_id, building_id )
+
+If passed, only members of the alliance would be able to set up new colonies on planets in this station's jurisdiction. Usable at parliament level 18.
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Members Only Mining Rights",
+        "description" : "Only members of The Federation of Planets should be allowed to colonize planets in the jurisdiction of this station.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
 
 
 

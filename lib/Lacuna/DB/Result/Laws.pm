@@ -21,6 +21,7 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->typecast_map(type => {
     Jurisdiction            => 'Lacuna::DB::Result::Laws::Jurisdiction',
+    MembersOnlyColonization => 'Lacuna::DB::Result::Laws::MembersOnlyColonization',
     MembersOnlyMiningRights => 'Lacuna::DB::Result::Laws::MembersOnlyMiningRights',
     Writ                    => 'Lacuna::DB::Result::Laws::Writ',
 });
