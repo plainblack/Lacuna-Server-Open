@@ -401,7 +401,7 @@ sub propose_rename_asteroid {
     }
     my $building = $self->get_building($empire, $building_id);
     unless ($building->level >= 12) {
-        confess [1013, 'Parliament must be level 12 to rename a star.',12];
+        confess [1013, 'Parliament must be level 12 to rename an asteroid.',12];
     }
     unless ($asteroid_id) {
         confess [1002, 'Must specify a asteroid id to rename.'];
@@ -425,6 +425,52 @@ sub propose_rename_asteroid {
         name            => 'Rename '.$asteroid->name,
         description     => 'Rename {Starmap '.$asteroid->x.' '.$asteroid->y.' '.$asteroid->name.'} to '.$name.'.',
         scratch         => { asteroid_id => $asteroid->id, name => $name },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
+
+sub propose_rename_uninhabited {
+    my ($self, $session_id, $building_id, $planet_id, $name) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 17) {
+        confess [1013, 'Parliament must be level 17 to rename an uninhabited planet.',17];
+    }
+    unless ($planet_id) {
+        confess [1002, 'Must specify a planet id to rename.'];
+    }
+    my $planet = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($planet_id);
+    unless (defined $planet) {
+        confess [1002, 'Could not find the planet.'];
+    }
+    unless ($planet->star->station_id == $self->body_id) {
+        confess [1009, 'That planet is not controlled by this station.'];
+    }
+    if ($planet->empire_id) {
+        confess [1013, 'That planet is inhabited.'];
+    }
+    Lacuna::Verify->new(content=>\$name, throws=>[1000,'Name not available.',$name])
+        ->length_gt(2)
+        ->length_lt(31)
+        ->no_restricted_chars
+        ->no_profanity
+        ->no_padding
+        ->not_ok(Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({name=>$name, 'body_id'=>{'!='=>$planet->id}})->count); # name available
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'RenameUninhabited',
+        name            => 'Rename '.$planet->name,
+        description     => 'Rename {Starmap '.$planet->x.' '.$planet->y.' '.$planet->name.'} to '.$name.'.',
+        scratch         => { planet_id => $planet->id, name => $name },
         proposed_by_id  => $empire->id,
     });
     $proposition->station($building->body);
@@ -497,7 +543,7 @@ sub propose_evict_mining_platform {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_rename_asteroid propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
+__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

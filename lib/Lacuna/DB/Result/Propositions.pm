@@ -36,6 +36,7 @@ __PACKAGE__->typecast_map(type => {
     RenameAsteroid          => 'Lacuna::DB::Result::Propositions::RenameAsteroid',
     RenameStar              => 'Lacuna::DB::Result::Propositions::RenameStar',
     RenameStation           => 'Lacuna::DB::Result::Propositions::RenameStation',
+    RenameUninhabited       => 'Lacuna::DB::Result::Propositions::RenameUninhabited',
     RepairModule            => 'Lacuna::DB::Result::Propositions::RepairModule',
     RepealLaw               => 'Lacuna::DB::Result::Propositions::RepealLaw',
     SeizeStar               => 'Lacuna::DB::Result::Propositions::SeizeStar',

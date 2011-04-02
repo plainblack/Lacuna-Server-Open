@@ -28,9 +28,9 @@ Returns a list of the laws.
 
 A session id.
 
-=head3 building_id
+=head3 body_id
 
-The unique id of the parliament.
+The unique id of the space station.
 
 
 
@@ -479,6 +479,48 @@ The unique id of the parliament.
 =head3 asteroid_id
 
 The unique id of an asteroid in the station's jurisdiction to rename.
+
+=head3 name
+
+A 30 chararacter string without profanity or special characters.
+
+
+
+
+
+=head2 propose_rename_uninhabited ( session_id, building_id, planet_id, name )
+
+Rename any uninhabited planet in the station's jurisdiction. Usable a parliament level 17.
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Rename Bebox 4",
+        "description" : "Rename the planet Bebox 4 to Blue Orb.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+=head3 planet_id
+
+The unique id of an uninhabited planet in the station's jurisdiction to rename.
 
 =head3 name
 
