@@ -685,8 +685,45 @@ sub propose_expel_member {
     };
 }
 
+sub propose_foreign_aid {
+    my ($self, $session_id, $building_id, $planet_id, $resources) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 16) {
+        confess [1013, 'Parliament must be level 16 to send out foreign aid packages.',16];
+    }
+    unless ($planet_id) {
+        confess [1002, 'You must specify a planet id.'];
+    }
+    my $planet = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($planet_id);
+    unless (defined $planet) {
+        confess [1002, 'Could not find the planet.'];
+    }
+    unless ($planet->star->station_id == $self->body_id) {
+        confess [1009, 'That planet is not in the jurisdiction of this station.'];
+    }
+# BUG Needs to check for available resources
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'Foreign Aid',
+        name            => 'Foreign Aid for {Planet '.$planet->id.' '.$planet->name.'}.',
+        description     => 'Send a foreign aid package of '.$resources.' resources to {Planet '.$planet->id.' '.$planet->name.'} (total cost '.2*$resources.'resources).',
+        scratch         => { planet_id => $planet->id, resources => $resources },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
 
-__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_members_only_colonization propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ propose_elect_new_leader propose_induct_member propose_expel_member));
+
+__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_members_only_colonization propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ propose_elect_new_leader propose_induct_member propose_expel_member propose_foreign_aid));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

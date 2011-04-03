@@ -33,6 +33,7 @@ __PACKAGE__->typecast_map(type => {
     EvictMiningPlatform     => 'Lacuna::DB::Result::Propositions::EvictMiningPlatform',
     ExpelMember             => 'Lacuna::DB::Result::Propositions::ExpelMember',
     FireBfg                 => 'Lacuna::DB::Result::Propositions::FireBfg',
+    ForeignAid              => 'Lacuna::DB::Result::Propositions::ForeignAid',
     InductMember            => 'Lacuna::DB::Result::Propositions::InductMember',
     InstallModule           => 'Lacuna::DB::Result::Propositions::InstallModule',
     MembersOnlyColonization => 'Lacuna::DB::Result::Propositions::MembersOnlyColonization',
