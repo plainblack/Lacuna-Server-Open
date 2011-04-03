@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 20;
+use Test::More tests => 24;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -73,6 +73,15 @@ is($result->{error}{data}, 8, 'renaming star requires level 8 parliament');
 
 $result = $tester->post('parliament', 'propose_broadcast_on_network19', [$session_id, $par->id]);
 is($result->{error}{data}, 9, 'broadcasting on network 19 requires level 9 parliament');
+
+$result = $tester->post('parliament', 'propose_induct_member', [$session_id, $par->id]);
+is($result->{error}{data}, 10, 'inducting new members requires level 10 parliament');
+
+$result = $tester->post('parliament', 'propose_expel_member', [$session_id, $par->id]);
+is($result->{error}{data}, 10, 'expelling members requires level 10 parliament');
+
+$result = $tester->post('parliament', 'propose_elect_new_leader', [$session_id, $par->id]);
+is($result->{error}{data}, 11, 'electing a new leader requires level 11 parliament');
 
 $result = $tester->post('parliament', 'propose_rename_asteroid', [$session_id, $par->id]);
 is($result->{error}{data}, 12, 'renaming asteroid requires level 12 parliament');
