@@ -262,7 +262,7 @@ sub propose_seize_star {
     unless (defined $star) {
         confess [1002, 'Could not find the star.'];
     }
-    unless ($star->station_id) {
+    if ($star->station_id) {
         confess [1009, 'That star is already controlled by a station.'];
     }
     $building->body->in_range_of_influence($star);
