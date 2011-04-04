@@ -613,7 +613,7 @@ sub propose_induct_member {
     unless ($building->level >= 10) {
         confess [1013, 'Parliament must be level 10 to induct a new alliance member.',10];
     }
-    my $alliance = $self->alliance;
+    my $alliance = $self->body->alliance;
     my $count = $alliance->members->count;
     $count += $alliance->invites->count;
     if ($count >= $self->max_members ) {
