@@ -232,7 +232,7 @@ sub propose_transfer_station_ownership {
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'TransferStationOwnership',
         name            => 'Transfer Station',
-        description     => 'Transfer ownership of {Planet '.$building->body->id.' '.$building->body->name.'} from {Empire '.$self->body->empire_id.' '.$self->body->empire->name.'} to {Empire '.$to_empire->id.' '.$to_empire->name.'}.',
+        description     => 'Transfer ownership of {Planet '.$building->body->id.' '.$building->body->name.'} from {Empire '.$building->body->empire_id.' '.$building->body->empire->name.'} to {Empire '.$to_empire->id.' '.$to_empire->name.'}.',
         scratch         => { empire_id => $to_empire->id },
         proposed_by_id  => $empire->id,
     });
