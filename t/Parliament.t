@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 24;
+use Test::More tests => 27;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -53,6 +53,11 @@ is($result->{result}{propositions}[0]{name}, 'Rename Station', 'got a list of pr
 $result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $result->{result}{propositions}[0]{id}, 1]);
 is($result->{result}{proposition}{my_vote}, 1, 'got my vote');
 
+$empire->pay_taxes($station->id,500);
+$result = $tester->post('parliament', 'view_taxes_collected', [$session_id, $par->id]);
+is($result->{result}{taxes_collected}[0]{name}, $empire->name, 'found my payment');
+is($result->{result}{taxes_collected}[0]{total}, 500, 'my payment is correct');
+
 $result = $tester->post('parliament', 'propose_writ', [$session_id, $par->id, 'Do the big thing.', 'Make it go.']);
 is($result->{result}{proposition}{name}, 'Do the big thing.', 'writ proposed');
 $result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $result->{result}{proposition}{id}, 1]);
@@ -91,6 +96,9 @@ is($result->{error}{data}, 13, 'members mining rights requires level 13 parliame
 
 $result = $tester->post('parliament', 'propose_evict_mining_platform', [$session_id, $par->id]);
 is($result->{error}{data}, 14, 'evict mining platform requires level 14 parliament');
+
+$result = $tester->post('parliament', 'propose_taxation', [$session_id, $par->id]);
+is($result->{error}{data}, 15, 'Setting a tax rate requires level 15 parliament');
 
 $result = $tester->post('parliament', 'propose_rename_uninhabited', [$session_id, $par->id]);
 is($result->{error}{data}, 17, 'renaming uninhabited requires level 17 parliament');

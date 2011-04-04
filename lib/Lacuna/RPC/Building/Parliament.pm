@@ -111,22 +111,6 @@ sub view_laws {
     };
 }
 
-sub view_taxes_collected {
-    my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my @out;
-# BUG get the taxes collected here
-    my $taxes = $building->taxes->search({});
-    while (my $tax = $taxes->next) {
-        push @out, $tax->get_status($empire);
-    }
-    return {
-        status          => $self->format_status($empire, $building->body),
-        taxes_collected    => \@out,
-    };
-}
-
 sub cast_vote {
     my ($self, $session_id, $building_id, $proposition_id, $vote) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -451,36 +435,6 @@ sub propose_rename_asteroid {
     };
 }
 
-sub propose_taxation {
-    my ($self, $session_id, $building_id, $taxes) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    if ($empire->current_session->is_sitter) {
-        confess [1015, 'Sitters cannot create propositions.'];
-    }
-    my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 15) {
-        confess [1013, 'Parliament must be level 15 to propose taxation.',15];
-    }
-    unless ($taxes =~ /^\d+$/ && $taxes > 0 )
-    {
-        confess [1009, 'Taxes must be an integer greater than 0.'];
-    }
-    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
-        type            => 'Taxation',
-        name            => 'Tax of '.$taxes.' resources per day',
-        description     => 'Implement a tax of '.$taxes. ' resources per day for all empires in the jurisdiction of this station',
-        scratch         => { taxes => $taxes },
-        proposed_by_id  => $empire->id,
-    });
-    $proposition->station($building->body);
-    $proposition->proposed_by($empire);
-    $proposition->insert;
-    return {
-        status      => $self->format_status($empire, $building->body),
-        proposition => $proposition->get_status($empire),
-    };
-}
-
 sub propose_rename_uninhabited {
     my ($self, $session_id, $building_id, $planet_id, $name) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -730,9 +684,54 @@ sub propose_expel_member {
     };
 }
 
+sub propose_taxation {
+    my ($self, $session_id, $building_id, $taxes) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 15) {
+        confess [1013, 'Parliament must be level 15 to propose taxation.',15];
+    }
+    unless ($taxes =~ /^\d+$/ && $taxes > 0 )
+    {
+        confess [1009, 'Taxes must be an integer greater than 0.'];
+    }
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'Taxation',
+        name            => 'Tax of '.$taxes.' resources per day',
+        description     => 'Implement a tax of '.$taxes. ' resources per day for all empires in the jurisdiction of this station',
+        scratch         => { taxes => $taxes },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
+
+sub view_taxes_collected {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my @out;
+    my $taxes = Lacuna->db->resultset('Lacuna::DB::Result::Taxes')->search({station_id => $building->body_id});
+    while (my $tax = $taxes->next) {
+        push @out, $tax->get_status();
+    }
+    return {
+        status          => $self->format_status($empire, $building->body),
+        taxes_collected    => \@out,
+    };
+}
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_members_only_colonization propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ propose_elect_new_leader propose_induct_member propose_expel_member));
+
+__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_members_only_colonization propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ propose_elect_new_leader propose_induct_member propose_expel_member propose_taxation view_taxes_collected));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

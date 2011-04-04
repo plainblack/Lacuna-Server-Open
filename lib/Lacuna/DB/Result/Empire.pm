@@ -791,5 +791,21 @@ sub redeem_essentia_code {
     return $self;
 }
 
+sub pay_taxes {
+    my ($self, $station_id, $amount) = @_;
+    my $taxes = Lacuna->db->resultset('Lacuna::DB::Result::Taxes')->search({empire_id=>$self->id,station_id=>$station_id})->single;
+    if (defined $taxes) {
+        $taxes->{paid_0} += $amount;
+        $taxes->update;
+    }
+    else {
+        Lacuna->db->resultset('Lacuna::DB::Result::Taxes')->new({
+            empire_id   => $self->id,
+            station_id  => $station_id,
+            paid_0      => $amount,
+        })->insert;
+    }
+}
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
