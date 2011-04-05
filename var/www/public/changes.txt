@@ -1,6 +1,6 @@
 3.0500
  - API: Added proposing induction of new alliance members at Parliament level 10.
- - API: Added proposing expulstion of alliance members at Parliament level 10.
+ - API: Added proposing expulsion of alliance members at Parliament level 10.
  - API: Added proposing election of a new alliance leader at Parliament level 11.
  - API: Added proposing taxation at Parliament level 15.
  - API: Added proposing sending foreign aid to planets at Parliament level 16.
