@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 24;
+use Test::More tests => 25;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -91,6 +91,9 @@ is($result->{error}{data}, 13, 'members mining rights requires level 13 parliame
 
 $result = $tester->post('parliament', 'propose_evict_mining_platform', [$session_id, $par->id]);
 is($result->{error}{data}, 14, 'evict mining platform requires level 14 parliament');
+
+$result = $tester->post('parliament', 'propose_foreign_aid', [$session_id, $par->id]);
+is($result->{error}{data}, 16, 'sending foreign aid requires level 16 parliament');
 
 $result = $tester->post('parliament', 'propose_rename_uninhabited', [$session_id, $par->id]);
 is($result->{error}{data}, 17, 'renaming uninhabited requires level 17 parliament');

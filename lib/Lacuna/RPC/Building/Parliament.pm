@@ -705,12 +705,35 @@ sub propose_foreign_aid {
     unless ($planet->star->station_id == $self->body_id) {
         confess [1009, 'That planet is not in the jurisdiction of this station.'];
     }
-# BUG Needs to check for available resources
+
+    my $cost = 2 * $resources;
+    my @types = qw( energy food ore water );
+    my @costs = @types;
+    my %cost;
+    # mostly even distribution of resources
+    while ( my $type = shift @costs ) {
+        my $cost_per_resource = int($cost / (scalar @costs + 1));
+        $cost{$type} = $cost_per_resource;
+        $cost -= $cost_per_resource;
+    }
+    for my $cost ( @types ) {
+        my $method = "${cost}_stored";
+        unless ( $building->body->$method >= $cost{$cost} ) {
+            confess [1007, "The station does not have enough $cost stored."];
+        }
+    }
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'Foreign Aid',
         name            => 'Foreign Aid for {Planet '.$planet->id.' '.$planet->name.'}.',
         description     => 'Send a foreign aid package of '.$resources.' resources to {Planet '.$planet->id.' '.$planet->name.'} (total cost '.2*$resources.'resources).',
-        scratch         => { planet_id => $planet->id, resources => $resources },
+        scratch         => {
+            planet_id => $planet->id,
+            resources => $resources,
+            energy_cost => $cost{energy},
+            food_cost => $cost{food},
+            ore_cost => $cost{ore},
+            water_cost => $cost{water},
+        },
         proposed_by_id  => $empire->id,
     });
     $proposition->station($building->body);
