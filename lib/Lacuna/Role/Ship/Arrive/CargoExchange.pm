@@ -19,7 +19,7 @@ after handle_arrival_procedures => sub {
                 }
             }
             if ($amount > 0) {
-                $self->empire->pay_taxes($self->foreign_body->id, $amount);
+                $self->body->empire->pay_taxes($self->foreign_body->id, $amount);
             }
         }
         $self->unload($self->foreign_body);
