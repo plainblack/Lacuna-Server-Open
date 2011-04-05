@@ -3,6 +3,7 @@
  - API: Added proposing expulstion of alliance members at Parliament level 10.
  - API: Added proposing election of a new alliance leader at Parliament level 11.
  - API: Added proposing taxation at Parliament level 15.
+ - API: Added proposing sending foreign aid to planets at Parliament level 16.
  - API: Added proposing renaming uninhabited planets at Parliament level 17.
  - API: Added proposing members only colonization at Parliament level 18.
  - API: Added view_taxes_collected to the Parliament module.

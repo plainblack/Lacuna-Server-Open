@@ -785,6 +785,49 @@ The amount of taxes to impose per day.
 
 
 
+=head2 propose_foreign_aid ( session_id, building_id, planet_id, resources )
+
+Sends a foreign aid package to a planet in the jurisdiction of the station. The foreign aid is sent via supply pod. Usable at parliament level 16.
+
+The foreign aid package costs double whatever aid is being sent. The first half to cover the cost of the supply pod, the second half is the resources being sent. Just like with normal supply pods, no more than one per day.
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Foreign Aid for Kronos",
+        "description" : "Send a foreign aid package of 10000 resources to Kronos (total cost 20000 resources).",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+=head3 planet_id
+
+The unique id of the planet to receive the foreign aid package.
+
+=head3 resources
+
+The amount of resources to send to the receiving planet.
+
+
+
+
 =head2 propose_members_only_colonization ( session_id, building_id )
 
 If passed, only members of the alliance would be able to set up new colonies on planets in this station's jurisdiction. Usable at parliament level 18.
