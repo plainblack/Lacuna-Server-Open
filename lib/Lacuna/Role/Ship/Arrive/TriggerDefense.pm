@@ -104,8 +104,17 @@ sub ship_to_ship_combat {
                 $ship->delete;
             }
             else {
-                # "reset"
-                $ship->send(target => $self->foreign_body->star);
+                # just return home
+                if ($ship->task eq 'Defend') {
+                    $ship->send(
+                        target      => $self->foreign_body,
+                        direction   => 'in',
+                    );
+                }
+                else {
+                    # reset to star and back
+                    $ship->send(target => $self->foreign_body->star);
+                }
             }
         }
 
