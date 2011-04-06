@@ -468,10 +468,12 @@ sub run_mission {
     my $power = $self->offense + $self->$mission_skill;
     my $toughness = 0;
     my $defender = $self->get_defender;
+    my $hfa = 0;
     if (defined $defender) {
         $toughness = $defender->defense + $defender->$mission_skill;
+        $hfa = $defender->home_field_advantage;
     }
-    my $breakthru = ($power - $toughness - $defender->home_field_advantage) + $self->luck;
+    my $breakthru = ($power - $toughness - $hfa) + $self->luck;
     
     # handle outcomes and xp
     my $out;
