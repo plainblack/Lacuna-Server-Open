@@ -11,6 +11,7 @@
  - Fix: view_ships_orbiting will now return the ships that are orbiting your planet instead of just the count.
  - Fix: Fighters will return home after defending (instead of doubling the travel time).
  - Fix: Fix defender's home field advantage.
+ - Fix: Abandoning Space Stations will now work.
 
 3.0402
  - API: Changed parliament propositions and laws to use email formatting rules.
