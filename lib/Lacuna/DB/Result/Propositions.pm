@@ -107,7 +107,9 @@ sub check_status {
 sub pass {
     my $self = shift;
     $self->status('Passed');
-    $self->station->alliance->send_predefined_message(
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($self->proposed_by_id);
+    my $alliance = $empire->alliance;
+    $alliance->send_predefined_message(
         filename    => 'parliament_vote_passed.txt',
         tag         => 'Correspondence',
         params      => [
