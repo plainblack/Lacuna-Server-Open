@@ -107,14 +107,7 @@ sub check_status {
 sub pass {
     my $self = shift;
     $self->status('Passed');
-    my $alliance;
-    if ($self->scratch->{alliance_id}) {
-        $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->search({alliance_id => $self->scratch->{alliance_id})->single;
-    }
-    else {
-        $alliance = $self->station->alliance;
-    }
-    $alliance->send_predefined_message(
+    $self->station->alliance->send_predefined_message(
         filename    => 'parliament_vote_passed.txt',
         tag         => 'Correspondence',
         params      => [

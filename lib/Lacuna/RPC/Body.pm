@@ -27,7 +27,6 @@ sub abandon {
             name            => 'Abandon Station',
             description     => 'Abandon the station named {Planet '.$body->id.' '.$body->name.'}.',            
             proposed_by_id  => $empire->id,
-            scratch         => { alliance_id => $empire->alliance_id },
         });
         $proposition->station($body);
         $proposition->proposed_by($empire);
