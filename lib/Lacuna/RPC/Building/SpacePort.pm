@@ -160,6 +160,7 @@ sub send_fleet {
 	}
 	my @fleet;
 	my $speed = 999999999;
+    my $excavator = 0;
 	for my $ship_id (@$ship_ids) {
 		my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
 		unless (defined $ship) {
@@ -168,12 +169,18 @@ sub send_fleet {
 		unless ($ship->body->empire_id == $empire->id) {
 			confess [1010, 'You do not own that ship.'];
 		}
+        if ($ship->type eq 'excavator') {
+            $excavator++;
+        }
 		my $body = $ship->body;
 		$body->empire($empire);
 		$ship->can_send_to_target($target);
 		push @fleet, $ship;
 		$speed = $ship->speed if ( $speed > $ship->speed );
 	}
+    unless ($excavator <= 1) {
+        confess [1010, 'Only one Excavator may be sent to a body in a 30 day period'];
+    }
 	my @ret;
 	for my $ship (@fleet) {
 		$ship->speed($speed);
