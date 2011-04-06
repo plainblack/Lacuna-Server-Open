@@ -5,7 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Propositions';
 
-after pass => sub {
+before pass => sub {
     my ($self) = @_;
     $self->station->sanitize;
 };
