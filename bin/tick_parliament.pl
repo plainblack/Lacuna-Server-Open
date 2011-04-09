@@ -20,7 +20,7 @@ our $db = Lacuna->db;
 
 out('Ticking parliament');
 my $propositions_rs = $db->resultset('Lacuna::DB::Result::Propositions');
-my @propositions = $propositions_rs->search({ date_ends => { '<' => DateTime->now} })->get_column('id')->all;
+my @propositions = $propositions_rs->search({ status => 'Pending', date_ends => { '<' => DateTime->now} })->get_column('id')->all;
 foreach my $id (@propositions) {
     my $proposition = $propositions_rs->find($id);
     out('Ticking '.$proposition->name);
