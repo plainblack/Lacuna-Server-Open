@@ -315,7 +315,7 @@ sub propose_repeal_law {
     unless ($law_id) {
         confess [1002, 'Must specify a law id to repeal.'];
     }
-    my $law = $self->body->laws->find($law_id);
+    my $law = $building->body->laws->find($law_id);
     unless (defined $law) {
         confess [1002, 'Could not find the law.'];
     }

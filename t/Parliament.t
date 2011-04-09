@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 32;
+use Test::More tests => 34;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -63,9 +63,23 @@ is($result->{result}{proposition}{name}, 'Do the big thing.', 'writ proposed');
 $result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $result->{result}{proposition}{id}, 1]);
 $result = $tester->post('parliament', 'view_laws', [$session_id, $station->id]);
 is($result->{result}{laws}[0]{name}, 'Do the big thing.', 'writ enacted');
+my $big = $result->{result}{laws}[0]{id};
 
 $result = $tester->post('parliament', 'propose_repeal_law', [$session_id, $par->id]);
 is($result->{error}{data}, 5, 'repealing law requires level 5 parliament');
+
+$par->level(5);
+$par->update;
+
+$result = $tester->post('parliament', 'propose_repeal_law', [$session_id, $par->id, $big]);
+is($result->{result}{proposition}{name}, 'Repeal Do the big thing.', 'repeal law proposed');
+
+$result = $tester->post('parliament', 'view_propositions', [$session_id, $par->id]);
+my @props = sort { $b->{id} <=> $a->{id} } @{ $result->{result}{propositions} };
+is($props[0]->{name}, 'Repeal Do the big thing.', 'repeal law');
+
+$result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $props[0]->{id}, 1]);
+is($result->{result}{proposition}{my_vote}, 1, 'got my vote');
 
 $result = $tester->post('parliament', 'propose_transfer_station_ownership', [$session_id, $par->id]);
 is($result->{error}{data}, 6, 'transfering ownership of station requires level 6 parliament');
@@ -120,7 +134,7 @@ $result = $tester->post('body', 'abandon', [$session_id, $station->id]);
 is($result->{error}{code}, 1017, 'abandoning the station causes a proposition response');
 
 $result = $tester->post('parliament', 'view_propositions', [$session_id, $par->id]);
-my @props = sort { $b->{id} <=> $a->{id} } @{ $result->{result}{propositions} };
+@props = sort { $b->{id} <=> $a->{id} } @{ $result->{result}{propositions} };
 is($props[0]->{name}, 'Abandon Station', 'abandon station proposed');
 
 $result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $props[0]->{id}, 1]);
