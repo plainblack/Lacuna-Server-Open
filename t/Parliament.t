@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 35;
+use Test::More tests => 46;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -11,6 +11,10 @@ my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
+
+my $friend = TestHelper->new(empire_name => 'Friend')->generate_test_empire->build_infrastructure;
+$friend->empire->is_isolationist(0);
+$friend->empire->update;
 
 my $emb = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
         x               => 4,
@@ -87,11 +91,29 @@ is($result->{error}{data}, 6, 'transfering ownership of station requires level 6
 $result = $tester->post('parliament', 'propose_seize_star', [$session_id, $par->id]);
 is($result->{error}{data}, 7, 'seizing star requires level 7 parliament');
 
+$par->level(7);
+$par->update;
+
+$result = $tester->post('parliament', 'propose_seize_star', [$session_id, $par->id, $friend->empire->home_planet->star_id]);
+is($result->{error}{code}, 1009, 'star is not in range of influence');
+
 $result = $tester->post('parliament', 'propose_rename_star', [$session_id, $par->id]);
 is($result->{error}{data}, 8, 'renaming star requires level 8 parliament');
 
+$par->level(8);
+$par->update;
+
+$result = $tester->post('parliament', 'propose_rename_star', [$session_id, $par->id, $friend->empire->home_planet->star_id, 'Jerkus']);
+is($result->{error}{code}, 1009, 'star is not in range of influence');
+
 $result = $tester->post('parliament', 'propose_broadcast_on_network19', [$session_id, $par->id]);
 is($result->{error}{data}, 9, 'broadcasting on network 19 requires level 9 parliament');
+
+$par->level(9);
+$par->update;
+
+$result = $tester->post('parliament', 'propose_broadcast_on_network19', [$session_id, $par->id, 'Kevin is the coolest']);
+is($result->{result}{proposition}{name}, 'Broadcast On Network 19', 'broadcasting on network 19 proposed');
 
 $result = $tester->post('parliament', 'propose_induct_member', [$session_id, $par->id]);
 is($result->{error}{data}, 10, 'inducting new members requires level 10 parliament');
@@ -99,36 +121,80 @@ is($result->{error}{data}, 10, 'inducting new members requires level 10 parliame
 $par->level(10);
 $par->update;
 
-my $friend = TestHelper->new(empire_name => 'Friend')->generate_test_empire->build_infrastructure;
-$friend->empire->is_isolationist(0);
-$friend->empire->update;
-
 $result = $tester->post('parliament', 'propose_induct_member', [$session_id, $par->id, $friend->empire->id]);
 is($result->{result}{proposition}{name}, 'Induct Member', 'induct member proposed');
 
 $result = $tester->post('parliament', 'propose_elect_new_leader', [$session_id, $par->id]);
 is($result->{error}{data}, 11, 'electing a new leader requires level 11 parliament');
 
+$par->level(11);
+$par->update;
+
+$result = $tester->post('parliament', 'propose_elect_new_leader', [$session_id, $par->id, 1]);
+is($result->{error}{code}, 1009, 'not an alliance member');
+
 $result = $tester->post('parliament', 'propose_rename_asteroid', [$session_id, $par->id]);
 is($result->{error}{data}, 12, 'renaming asteroid requires level 12 parliament');
+
+$par->level(12);
+$par->update;
+
+$result = $tester->post('parliament', 'propose_rename_asteroid', [$session_id, $par->id, 1, 'Dorkus']);
+is($result->{error}{code}, 1009, 'asteroid not in jurisdiction of the station');
 
 $result = $tester->post('parliament', 'propose_members_only_mining_rights', [$session_id, $par->id]);
 is($result->{error}{data}, 13, 'members mining rights requires level 13 parliament');
 
+$par->level(13);
+$par->update;
+
+$result = $tester->post('parliament', 'propose_members_only_mining_rights', [$session_id, $par->id]);
+is($result->{result}{proposition}{name}, 'Members Only Mining Rights', 'members only miningb rights proposed');
+
 $result = $tester->post('parliament', 'propose_evict_mining_platform', [$session_id, $par->id]);
 is($result->{error}{data}, 14, 'evict mining platform requires level 14 parliament');
+
+$par->level(14);
+$par->update;
+
+$result = $tester->post('parliament', 'propose_evict_mining_platform', [$session_id, $par->id, 1]);
+is($result->{error}{code}, 1002, 'platform not found');
 
 $result = $tester->post('parliament', 'propose_taxation', [$session_id, $par->id]);
 is($result->{error}{data}, 15, 'Setting a tax rate requires level 15 parliament');
 
+$par->level(15);
+$par->update;
+
+$result = $tester->post('parliament', 'propose_taxation', [$session_id, $par->id, 5000]);
+is($result->{result}{proposition}{name}, 'Tax of 5000 resources per day', 'tax rate of 5000 resources per day proposed');
+
 $result = $tester->post('parliament', 'propose_foreign_aid', [$session_id, $par->id]);
 is($result->{error}{data}, 16, 'sending foreign aid requires level 16 parliament');
+
+$par->level(16);
+$par->update;
+
+$result = $tester->post('parliament', 'propose_foreign_aid', [$session_id, $par->id, 2, 1000]);
+is($result->{error}{code}, 1009, 'planet is not within jurisdiction of the station');
 
 $result = $tester->post('parliament', 'propose_rename_uninhabited', [$session_id, $par->id]);
 is($result->{error}{data}, 17, 'renaming uninhabited requires level 17 parliament');
 
+$par->level(17);
+$par->update;
+
+$result = $tester->post('parliament', 'propose_rename_uninhabited', [$session_id, $par->id, 1]);
+is($result->{error}{code}, 1009, 'planet is not within jurisdiction of the station');
+
 $result = $tester->post('parliament', 'propose_fire_bfg', [$session_id, $par->id]);
 is($result->{error}{data}, 25, 'firing bfg requires level 25 parliament');
+
+$par->level(25);
+$par->update;
+
+$result = $tester->post('parliament', 'propose_fire_bfg', [$session_id, $par->id, 1, 'feel like it']);
+is($result->{error}{code}, 1009, 'planet is not within jurisdiction of the station');
 
 $result = $tester->post('body', 'abandon', [$session_id, $station->id]);
 is($result->{error}{code}, 1017, 'abandoning the station causes a proposition response');

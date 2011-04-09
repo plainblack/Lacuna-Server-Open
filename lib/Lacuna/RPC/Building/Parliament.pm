@@ -352,7 +352,7 @@ sub propose_rename_star {
     unless (defined $star) {
         confess [1002, 'Could not find the star.'];
     }
-    unless ($star->station_id == $self->body_id) {
+    unless ($star->station_id == $building->body_id) {
         confess [1009, 'That star is not controlled by this station.'];
     }
     Lacuna::Verify->new(content=>\$star_name, throws=>[1000,'Name not available.',$star_name])
@@ -426,7 +426,7 @@ sub propose_rename_asteroid {
     unless (defined $asteroid) {
         confess [1002, 'Could not find the asteroid.'];
     }
-    unless ($asteroid->star->station_id == $self->body_id) {
+    unless ($asteroid->star->station_id == $building->body_id) {
         confess [1009, 'That asteroid is not controlled by this station.'];
     }
     Lacuna::Verify->new(content=>\$name, throws=>[1000,'Name not available.',$name])
@@ -469,7 +469,7 @@ sub propose_rename_uninhabited {
     unless (defined $planet) {
         confess [1002, 'Could not find the planet.'];
     }
-    unless ($planet->star->station_id == $self->body_id) {
+    unless ($planet->star->station_id == $building->body_id) {
         confess [1009, 'That planet is not controlled by this station.'];
     }
     if ($planet->empire_id) {
@@ -749,7 +749,7 @@ sub propose_foreign_aid {
     unless (defined $planet) {
         confess [1002, 'Could not find the planet.'];
     }
-    unless ($planet->star->station_id == $self->body_id) {
+    unless ($planet->star->station_id == $building->body_id) {
         confess [1009, 'That planet is not in the jurisdiction of this station.'];
     }
 
