@@ -7,7 +7,8 @@ extends 'Lacuna::DB::Result::Propositions';
 
 before pass => sub {
     my ($self) = @_;
-    $self->station->sanitize;
+    $self->pass_extra_message('Station shutdown has been initiated.');
+#    $self->station->sanitize;
 };
 
 
