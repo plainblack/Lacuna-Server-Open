@@ -478,9 +478,11 @@ sub run_mission {
     # handle outcomes and xp
     my $out;
     if ($breakthru <= 0) {
-        $defender->$mission_skill( $defender->$mission_skill + 10 );
-        $defender->update_level;
-        $defender->defense_mission_successes( $defender->defense_mission_successes + 1 );
+        if (defined $defender) {
+            $defender->$mission_skill( $defender->$mission_skill + 10 );
+            $defender->update_level;
+            $defender->defense_mission_successes( $defender->defense_mission_successes + 1 );
+        }
         $self->$mission_skill( $self->$mission_skill + 6 );
         $self->update_level;
         my $outcome = $outcomes{$self->task} . '_loss';

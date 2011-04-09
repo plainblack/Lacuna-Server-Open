@@ -12,6 +12,7 @@
  - Fix: Fighters will return home after defending (instead of doubling the travel time).
  - Fix: Fix defender's home field advantage.
  - Fix: Only one excavator is allowed in a send_fleet call.
+ - Fix: Failure of Appropriate Resources spy mission works again even if there wasn't a defender.
 
 3.0402
  - API: Changed parliament propositions and laws to use email formatting rules.
