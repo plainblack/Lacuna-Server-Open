@@ -15,6 +15,7 @@
  - Fix: Failure of Appropriate Resources spy mission works again even if there wasn't a defender.
  - Fix: A passing vote for the Abandon Station proposition no longer causes a server error.
  - Fix: Added docs for Beaches.
+ - Fix: Corrected typo in Theme Park documentation.
 
 3.0402
  - API: Changed parliament propositions and laws to use email formatting rules.

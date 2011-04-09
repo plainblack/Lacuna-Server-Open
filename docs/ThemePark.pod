@@ -15,7 +15,7 @@ This method is changed from the default because it adds a C<themepark> element t
     "themepark" : {
         "food_type_count" : 12,
         "can_operate" : 0,
-        "reason" : [1011, "This Theme Park was started with 12 types of food so you need at least 12 types of food to continue it's operation."]
+        "reason" : [1011, "This Theme Park was started with 12 types of food so you need at least 12 types of food to continue its operation."]
     }
  }
 
