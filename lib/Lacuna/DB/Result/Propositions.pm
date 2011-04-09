@@ -84,7 +84,7 @@ sub cast_vote {
 
 before delete => sub {
     my $self = shift;
-    $self->fail;
+    $self->fail if $self->status eq 'Pending';
     $self->votes->delete_all;
 };
 
