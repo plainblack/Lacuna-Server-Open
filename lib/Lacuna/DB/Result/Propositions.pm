@@ -78,6 +78,7 @@ sub cast_vote {
     else {
         $self->votes_no( $self->votes_no + 1 );
     }
+    $self->update;
     $self->check_status;
 }
 
@@ -106,10 +107,7 @@ sub check_status {
 
 sub pass {
     my $self = shift;
-    $self->status('Passed');
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($self->proposed_by_id);
-    my $alliance = $empire->alliance;
-    $alliance->send_predefined_message(
+    $self->station->alliance->send_predefined_message(
         filename    => 'parliament_vote_passed.txt',
         tag         => 'Correspondence',
         params      => [
@@ -118,9 +116,10 @@ sub pass {
             $self->votes_yes,
             $self->votes_no,
             $self->description,
-            $self->fail_extra_message,
+            $self->pass_extra_message,
         ],
     );
+    $self->status('Passed');
     return $self;
 }
 
@@ -130,7 +129,6 @@ has pass_extra_message => (
 
 sub fail {
     my $self = shift;
-    $self->status('Failed');
     $self->station->alliance->send_predefined_message(
         filename    => 'parliament_vote_failed.txt',
         tag         => 'Correspondence',
@@ -143,6 +141,7 @@ sub fail {
             $self->fail_extra_message,
         ],
     );
+    $self->status('Failed');
     return $self;
 }
 

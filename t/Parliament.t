@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 28;
+use Test::More tests => 32;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -109,6 +109,19 @@ is($result->{error}{data}, 17, 'renaming uninhabited requires level 17 parliamen
 $result = $tester->post('parliament', 'propose_fire_bfg', [$session_id, $par->id]);
 is($result->{error}{data}, 25, 'firing bfg requires level 25 parliament');
 
+$result = $tester->post('body', 'abandon', [$session_id, $station->id]);
+is($result->{error}{code}, 1017, 'abandoning the station causes a proposition response');
+
+$result = $tester->post('parliament', 'view_propositions', [$session_id, $par->id]);
+is($result->{result}{propositions}[0]{name}, 'Abandon Station', 'got a list of propositions');
+
+$result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $result->{result}{propositions}[0]{id}, 1]);
+is($result->{result}{proposition}{my_vote}, 1, 'got my vote');
+
+$result = $tester->post('inbox','view_inbox', [$session_id]);
+
+my @messages = sort { $b->{id} <=> $a->{id} } @{ $result->{result}{messages} };
+ok($messages[0]->{subject} =~ /^Pass: Abandon Station/, 'Pass email received');
 
 END {
     $station->sanitize;

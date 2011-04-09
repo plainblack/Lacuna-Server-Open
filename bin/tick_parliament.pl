@@ -25,6 +25,9 @@ foreach my $id (@propositions) {
     my $proposition = $propositions_rs->find($id);
     out('Ticking '.$proposition->name);
     $proposition->check_status;
+    if ($proposition->name eq 'Abandon Station' && $proposition->status eq 'Passed') {
+        $proposition->station->sanitize;
+    }
 }
 
 my $finish = time;
