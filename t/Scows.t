@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 13;
+use Test::More tests => 15;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -18,7 +18,7 @@ my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => -1,
     class           => 'Lacuna::DB::Result::Building::University',
-    level           => 2,
+    level           => 5,
 });
 $home->build_building($uni);
 $uni->finish_upgrade;
@@ -27,7 +27,7 @@ my $seq = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => -2,
     class           => 'Lacuna::DB::Result::Building::Waste::Sequestration',
-    level           => 2,
+    level           => 5,
 });
 $home->build_building($seq);
 $seq->finish_upgrade;
@@ -40,12 +40,12 @@ $home->ore_capacity(5000);
 $home->energy_capacity(5000);
 $home->food_capacity(5000);
 $home->water_capacity(5000);
-$home->waste_capacity(5000);
+$home->waste_capacity(8000);
 $home->bauxite_stored(5000);
 $home->algae_stored(5000);
 $home->energy_stored(5000);
 $home->water_stored(5000);
-$home->waste_stored(5000);
+$home->waste_stored(8000);
 $home->needs_recalc(0);
 $home->update;
 
@@ -71,7 +71,11 @@ $shipyard->build_ship($scow);
 my $scow2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>'scow'});
 $shipyard->build_ship($scow2);
 
+my $scow3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>'scow'});
+$shipyard->build_ship($scow);
+
 my $finish = DateTime->now;
+
 Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id=>$shipyard->id})->update({date_available=>$finish});
 
 $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
@@ -115,6 +119,25 @@ $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
 is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Scow Hit Target\r\n~~~\r\nOur Scow", 'Scow2 hit target' );
 
 is( $scow2, undef, 'scow2 is undef' );
+
+my $scow3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>'scow'});
+$shipyard->build_ship($scow3);
+
+my $scow4 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>'scow'});
+$shipyard->build_ship($scow4);
+
+$finish = DateTime->now;
+
+Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id=>$shipyard->id})->update({date_available=>$finish});
+
+$result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
+
+$scow3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow3->id},{rows=>1})->single; # pull the latest data on this ship
+$scow4 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow4->id},{rows=>1})->single; # pull the latest data on this ship
+
+$result = $tester->post('spaceport', 'send_fleet', [$session_id, [$scow3->id, $scow4->id], { star_id => $home->star_id }]);
+is(scalar @{$result->{result}{fleet}}, 2, 'fleet sent');
+is($scow4->body->waste_stored, 3962, 'correct waste removed');
 
 END {
 	$enemy->cleanup;

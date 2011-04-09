@@ -16,6 +16,7 @@
  - Fix: A passing vote for the Abandon Station proposition no longer causes a server error.
  - Fix: Added docs for Beaches.
  - Fix: Corrected typo in Theme Park documentation.
+ - Fix: Sending scows with send_fleet will remove the proper amount of waste.
 
 3.0402
  - API: Changed parliament propositions and laws to use email formatting rules.
