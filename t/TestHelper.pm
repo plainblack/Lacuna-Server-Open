@@ -113,6 +113,7 @@ sub post {
         Accept          => 'application/json',
         );
     say "RESPONSE: ".$response->content;
+    sleep 2;
     return from_json($response->content);
 }
 

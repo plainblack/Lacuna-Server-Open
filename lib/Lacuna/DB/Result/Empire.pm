@@ -86,6 +86,7 @@ __PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Map::Body', 'home_pl
 __PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Map::Body', 'empire_id');
 __PACKAGE__->has_many('propositions', 'Lacuna::DB::Result::Propositions', 'proposed_by_id');
 __PACKAGE__->has_many('votes', 'Lacuna::DB::Result::Votes', 'empire_id');
+__PACKAGE__->has_many('taxes', 'Lacuna::DB::Result::Taxes', 'empire_id');
 __PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Result::Message', 'from_id');
 __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id');
 __PACKAGE__->has_many('medals', 'Lacuna::DB::Result::Medals', 'empire_id');
@@ -700,6 +701,7 @@ has count_probed_stars => (
 before delete => sub {
     my ($self) = @_;
     $self->votes->delete_all;
+    $self->taxes->delete_all;
     $self->propositions->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({ -or => {invitee_id => $self->id, inviter_id => $self->id }})->delete;
     $self->probes->delete;

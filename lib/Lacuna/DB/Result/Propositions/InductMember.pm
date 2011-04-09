@@ -7,13 +7,30 @@ extends 'Lacuna::DB::Result::Propositions';
 
 before pass => sub {
     my ($self) = @_;
+
     my $station = $self->station;
-    my $alliance = $station->alliance;
-    my $invite_empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($self->scratch->{empire_id});
+    my $invite_empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($self->scratch->{invite_id});
     if (defined $invite_empire) {
+        my $alliance = $station->alliance;
         my $count = $alliance->members->count;
         $count += $alliance->invites->count;
-        if ($count < $self->max_members ) {
+
+        my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($self->proposed_by_id);
+        my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->find($self->scratch->{building_id});
+
+        my $leader_emp = $building->body->empire;
+        my $leader_planets = $leader_emp->planets;
+        my @planet_ids;
+        while ( my $planet = $leader_planets->next ) {
+            push @planet_ids, $planet->id;
+        }
+        my $embassy = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
+            { body_id => { in => \@planet_ids }, class => 'Lacuna::DB::Result::Building::Embassy' },
+            { order_by => { -desc => 'level' } }
+        )->single;
+        my $max_members = ( $building->level >= $embassy->level ) ? 2 * $building->level : 2 * $embassy->level;
+
+        if ($count < $max_members ) {
             $alliance->send_invite($invite_empire, $self->scratch->{message});
         }
         else {

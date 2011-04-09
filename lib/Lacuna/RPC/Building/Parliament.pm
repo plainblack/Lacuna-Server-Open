@@ -14,6 +14,23 @@ sub model_class {
     return 'Lacuna::DB::Result::Building::Module::Parliament';
 }
 
+sub max_members {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $leader_emp = $building->body->empire;
+    my $leader_planets = $leader_emp->planets;
+    my @planet_ids;
+    while ( my $planet = $leader_planets->next ) {
+        push @planet_ids, $planet->id;
+    }
+    my $embassy = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
+        { body_id => { in => \@planet_ids }, class => 'Lacuna::DB::Result::Building::Embassy' }, 
+        { order_by => { -desc => 'level' } }
+    )->single;
+    return ( $building->level >= $embassy->level ) ? 2 * $building->level : 2 * $embassy->level;
+}
+
 sub view_propositions {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -616,8 +633,9 @@ sub propose_induct_member {
     my $alliance = $building->body->alliance;
     my $count = $alliance->members->count;
     $count += $alliance->invites->count;
-    if ($count >= $self->max_members ) {
-        confess [1009, 'You may only have '.$self->max_members.' in or invited to this alliance.'];
+    my $max_members = $self->max_members($session_id, $building_id);
+    if ($count >= $max_members ) {
+        confess [1009, 'You may only have '.$max_members.' in or invited to this alliance.'];
     }
     unless ($empire_id) {
         confess [1002, 'Must specify an empire id to induct a new alliance member.'];
@@ -633,7 +651,7 @@ sub propose_induct_member {
         type            => 'InductMember',
         name            => 'Induct Member',
         description     => 'Induct {Empire '.$invite_empire->id.' '.$invite_empire->name.'} as a new member of {Alliance '.$building->body->alliance_id.' '.$building->body->alliance->name.'}.',
-        scratch         => { empire_id => $invite_empire->id, message => $message },
+        scratch         => { invite_id => $invite_empire->id, message => $message, building_id => $building_id },
         proposed_by_id  => $empire->id,
     });
     $proposition->station($building->body);

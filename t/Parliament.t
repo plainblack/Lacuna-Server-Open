@@ -37,7 +37,7 @@ ok $station->alliance_id, 'alliance assigned to station';
 my $par = $station->parliament;
 $par->level(4);
 $par->update;
-    
+
 $result = $tester->post('parliament', 'view', [$session_id, $par->id]);
 is($result->{result}{building}{name}, 'Parliament', 'built successfully');
 
@@ -82,8 +82,15 @@ is($result->{error}{data}, 9, 'broadcasting on network 19 requires level 9 parli
 $result = $tester->post('parliament', 'propose_induct_member', [$session_id, $par->id]);
 is($result->{error}{data}, 10, 'inducting new members requires level 10 parliament');
 
-$result = $tester->post('parliament', 'propose_expel_member', [$session_id, $par->id]);
-is($result->{error}{data}, 10, 'expelling members requires level 10 parliament');
+$par->level(10);
+$par->update;
+
+my $friend = TestHelper->new(empire_name => 'Friend')->generate_test_empire->build_infrastructure;
+$friend->empire->is_isolationist(0);
+$friend->empire->update;
+
+$result = $tester->post('parliament', 'propose_induct_member', [$session_id, $par->id, $friend->empire->id]);
+is($result->{result}{proposition}{name}, 'Induct Member', 'induct member proposed');
 
 $result = $tester->post('parliament', 'propose_elect_new_leader', [$session_id, $par->id]);
 is($result->{error}{data}, 11, 'electing a new leader requires level 11 parliament');
@@ -113,9 +120,10 @@ $result = $tester->post('body', 'abandon', [$session_id, $station->id]);
 is($result->{error}{code}, 1017, 'abandoning the station causes a proposition response');
 
 $result = $tester->post('parliament', 'view_propositions', [$session_id, $par->id]);
-is($result->{result}{propositions}[0]{name}, 'Abandon Station', 'got a list of propositions');
+my @props = sort { $b->{id} <=> $a->{id} } @{ $result->{result}{propositions} };
+is($props[0]->{name}, 'Abandon Station', 'abandon station proposed');
 
-$result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $result->{result}{propositions}[0]{id}, 1]);
+$result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $props[0]->{id}, 1]);
 is($result->{result}{proposition}{my_vote}, 1, 'got my vote');
 
 $result = $tester->post('inbox','view_inbox', [$session_id]);
@@ -125,5 +133,6 @@ ok($messages[0]->{subject} =~ /^Pass: Abandon Station/, 'Pass email received');
 
 END {
     $station->sanitize;
+    $friend->cleanup;
     $tester->cleanup;
 }
