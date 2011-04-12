@@ -3,6 +3,9 @@
  - Rule: Archived messages will no longer be deleted. Trashed messages will be purged thirty days after they were sent.
  - Fix: Corrected documentation for the rename method in Body.
 
+3.0501
+ - Fix: Denton Brambles now produce roots.
+
 3.0500
  - API: Added proposing induction of new alliance members at Parliament level 10.
  - API: Added proposing expulsion of alliance members at Parliament level 10.
