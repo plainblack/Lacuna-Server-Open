@@ -77,6 +77,11 @@ An array reference of tags. Only messages containing these tags will be displaye
 Exactly the same as C<view_inbox> except that it shows archived messages instead.
 
 
+=head2 view_trashed ( session_id, [ options ])
+
+Exactly the same as C<view_inbox> except that it shows trashed messages instead.
+
+
 =head2 view_sent ( session_id, [ options ] )
 
 Exactly the same as C<view_inbox> except that it shows sent messages instead.
@@ -160,6 +165,30 @@ Archives a list of messages. Returns:
  }
 
 B<NOTE:> You cannot archive sent messages. You'll get a failure if the message is either already archived, or it's a message that cannot be archived, like a message in your sent folder.
+
+=head3 session_id
+
+A session id.
+
+=head3 message_ids
+
+An array reference of message ids.
+
+
+
+
+
+=head2 trash_messages ( session_id, message_ids )
+ 
+Trashes a list of messages. Returns:
+
+ {
+    "success" : ["id-goes-here","id-goes-here"],
+    "failure" : ["id-goes-here","id-goes-here"],
+    "status" : { ... }
+ }
+
+B<NOTE:> You cannot trash sent messages. You'll get a failure if the message is either already trashed, or it's a message that cannot be trashed, like a message in your sent folder.
 
 =head3 session_id
 

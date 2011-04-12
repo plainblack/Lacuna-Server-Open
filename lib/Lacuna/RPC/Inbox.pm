@@ -55,6 +55,28 @@ sub archive_messages {
         my $message = $messages->find($id);
         if (defined $message && $empire->id eq $message->to_id && !$message->has_archived) {
             $message->has_archived(1);
+            $message->has_trashed(0);
+            $message->update;
+            push @success, $id;
+        }
+        else {
+            push @failure, $id;
+        }
+    }
+    return { success=>\@success, failure=>\@failure, status=>$self->format_status($empire) };
+}
+
+sub trash_messages {
+    my ($self, $session_id, $message_ids) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message');
+    my @failure;
+    my @success;
+    foreach my $id (@{$message_ids}) {
+        my $message = $messages->find($id);
+        if (defined $message && $empire->id eq $message->to_id && !$message->has_trashed) {
+            $message->has_archived(0);
+            $message->has_trashed(1);
             $message->update;
             push @success, $id;
         }
@@ -158,6 +180,7 @@ sub view_inbox {
     my $empire = $self->get_empire_by_session($session_id);
     my $where = {
         has_archived    => 0,
+        has_trashed     => 0,
         to_id           => $empire->id,
     };
     return $self->view_messages($where, $empire, @_);
@@ -169,6 +192,19 @@ sub view_archived {
     my $empire = $self->get_empire_by_session($session_id);
     my $where = {
         has_archived    => 1,
+        has_trashed     => 0,
+        to_id           => $empire->id,
+    };
+    return $self->view_messages($where, $empire, @_);
+}
+
+sub view_trashed {
+    my $self = shift;
+    my $session_id = shift;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $where = {
+        has_archived    => 0,
+        has_trashed     => 1,
         to_id           => $empire->id,
     };
     return $self->view_messages($where, $empire, @_);
@@ -222,7 +258,7 @@ sub view_messages {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(view_inbox view_archived view_sent send_message read_message archive_messages));
+__PACKAGE__->register_rpc_method_names(qw(view_inbox view_archived view_trashed view_sent send_message read_message archive_messages trash_messages));
 
 
 no Moose;

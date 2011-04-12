@@ -22,6 +22,7 @@ __PACKAGE__->add_columns(
     has_read        => { data_type => 'tinyint', default_value => 0, is_nullable => 0 },
     has_replied     => { data_type => 'tinyint', default_value => 0, is_nullable => 0 },
     has_archived    => { data_type => 'tinyint', default_value => 0, is_nullable => 0 },
+    has_trashed     => { data_type => 'tinyint', default_value => 0, is_nullable => 0 },
     attachments     => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
     repeat_check    => { data_type => 'varchar', size => 30, is_nullable => 1 },
 );
