@@ -94,7 +94,7 @@ after handle_arrival_procedures => sub {
     # wha wha wha wahaa - nothing!
     else {
         $empire->send_predefined_message(
-            tags        => ['Correspondence'],
+            tags        => ['Info'],
             filename    => 'glyph_not_discovered_by_excavator.txt',
             params      => [$remote_body->x, $remote_body->y, $remote_body->name, $body->id, $body->name],
         );
