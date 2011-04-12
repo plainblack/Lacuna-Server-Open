@@ -314,8 +314,6 @@ A tag that will limit the list of buildings to return. Required. Cannot be C<Now
 
 Renames a body, provided the empire attached to the session owns the body. Returns a 1 on success.
 
-B<NOTE:> Calling C<rename> on a Space Station will result in an exception. Use L<Parliament> instead.
-
 Throws 1000, 1002 and 1010.
 
 =head3 session_id
