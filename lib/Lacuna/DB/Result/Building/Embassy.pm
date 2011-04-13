@@ -105,7 +105,7 @@ sub accept_invite {
     $alliance->add_member($empire);
     $invite->alliance->leader->send_predefined_message(
         from        => $empire,
-        tags        => ['Correspondence'],
+        tags        => ['Alliance','Correspondence'],
         filename    => 'alliance_accept.txt',
         params      => [$message, $empire->name],
     );
@@ -122,7 +122,7 @@ sub reject_invite {
     my $empire = $self->body->empire;
     $invite->alliance->leader->send_predefined_message(
         from        => $empire,
-        tags        => ['Correspondence'],
+        tags        => ['Alliance','Correspondence'],
         filename    => 'alliance_reject.txt',
         params      => [$message, $empire->name],
     );
@@ -142,7 +142,7 @@ sub leave_alliance {
     $alliance->remove_member($empire);
     $alliance->leader->send_predefined_message(
         from        => $empire,
-        tags        => ['Correspondence'],
+        tags        => ['Alliance','Correspondence'],
         filename    => 'alliance_leave.txt',
         params      => [$message, $empire->name],
     );
@@ -160,7 +160,7 @@ sub expel_member {
     $alliance->remove_member($empire_to_remove);
     $empire_to_remove->send_predefined_message(
         from        => $alliance->leader,
-        tags        => ['Correspondence'],
+        tags        => ['Alliance','Correspondence'],
         filename    => 'alliance_expelled.txt',
         params      => [$alliance->id, $alliance->name, $message, $alliance->name],
     );

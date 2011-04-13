@@ -1144,7 +1144,7 @@ sub add_type {
                 filename    => 'complaint_overflow.txt',
                 params      => [$type, $self->id, $self->name],
                 repeat_check=> 'complaint_overflow'.$self->id,
-                tags        => ['Alert'],
+                tags        => ['Complaint','Alert'],
             );
         }
         
@@ -1710,7 +1710,7 @@ sub spend_food {
                 filename    => 'complaint_food_diversity.txt',
                 params      => [$self->id, $self->name],
                 repeat_check=> 'complaint_food_diversity'.$self->id,
-                tags        => ['Alert'],
+                tags        => ['Complaint','Alert'],
             );
         }
     }
@@ -1784,7 +1784,7 @@ sub spend_happiness {
                 filename    => 'complaint_unhappy.txt',
                 params      => [$self->id, $self->name],
                 repeat_check=> 'complaint_unhappy'.$self->id,
-                tags        => ['Alert'],
+                tags        => ['Complaint','Alert'],
             );
         }
     }
@@ -1808,7 +1808,7 @@ sub add_waste {
                 filename    => 'complaint_pollution.txt',
                 params      => [$self->id, $self->name],
                 repeat_check=> 'complaint_pollution'.$self->id,
-                tags        => ['Alert'],
+                tags        => ['Complaint','Alert'],
             );
         }
     }
@@ -1839,7 +1839,7 @@ sub spend_waste {
                     filename    => 'complaint_lack_of_waste.txt',
                     params      => [$building_name, $self->id, $self->name, $building_name],
                     repeat_check=> 'complaint_lack_of_waste'.$self->id,
-                    tags        => ['Alert'],
+                    tags        => ['Complaint','Alert'],
                 );
             }
         }
@@ -1868,7 +1868,7 @@ sub complain_about_lack_of_resources {
                 filename    => 'complaint_lack_of_'.$resource.'.txt',
                 params      => [$self->id, $self->name, $building_name],
                 repeat_check=> 'complaint_lack_of_'.$resource.$self->id,
-                tags        => ['Alert'],
+                tags        => ['Complaint','Alert'],
             );
         }
     }

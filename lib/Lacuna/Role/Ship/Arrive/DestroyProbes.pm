@@ -19,7 +19,7 @@ after handle_arrival_procedures => sub {
     # destroy those suckers
     while (my $probe = $probes->next) {
         $probe->empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Attack','Alert'],
             filename    => 'probe_detonated.txt',
             params      => [$self->foreign_star->x, $self->foreign_star->y, $self->foreign_star->name, $self->body->empire_id, $self->body->empire->name],
         );
@@ -29,7 +29,7 @@ after handle_arrival_procedures => sub {
     
     # notify about destruction
     $self->body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Attack','Alert'],
         filename    => 'detonator_destroyed_probes.txt',
         params      => [$count, $self->foreign_star->x, $self->foreign_star->y, $self->foreign_star->name],
     );

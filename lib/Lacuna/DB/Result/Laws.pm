@@ -68,6 +68,7 @@ sub notify_stellar_inhabitants {
             filename    => $filename,
             from        => $from,
             params      => [$self->name, $station->name.'('.$station->x.','.$station->y.')', $planet->name, $self->description],
+            tags        => ['Parliament','Correspondence'],
         );
     }
 }

@@ -14,7 +14,7 @@ after handle_arrival_procedures => sub {
     my $planet = $self->foreign_body;
     if ($planet->is_locked || $planet->empire_id) {
         $empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Colonization','Alert'],
             filename    => 'cannot_colonize.txt',
             params      => [$planet->x, $planet->y, $planet->name, $planet->name],
         );
@@ -24,7 +24,7 @@ after handle_arrival_procedures => sub {
     elsif ($planet->is_claimed && $planet->is_claimed != $empire->id) {
         my $claimer = $planet->claimed_by;
         $empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Colonization','Alert'],
             filename    => 'cannot_colonize_staked.txt',
             params      => [$planet->x, $planet->y, $planet->name, $claimer->id, $claimer->name, $planet->name],
         );        
@@ -35,7 +35,7 @@ after handle_arrival_procedures => sub {
         $planet->lock;
         $planet->found_colony($empire);
         $empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Colonization','Alert'],
             filename    => 'colony_founded.txt',
             params      => [$planet->id, $planet->name, $planet->name],
         );

@@ -109,7 +109,7 @@ sub pass {
     my $self = shift;
     $self->station->alliance->send_predefined_message(
         filename    => 'parliament_vote_passed.txt',
-        tag         => 'Correspondence',
+        tags        => ['Parliament','Correspondence'],
         params      => [
             $self->name,
             $self->name,
@@ -131,7 +131,7 @@ sub fail {
     my $self = shift;
     $self->station->alliance->send_predefined_message(
         filename    => 'parliament_vote_failed.txt',
-        tag         => 'Correspondence',
+        tags        => ['Parliament','Correspondence'],
         params      => [
             $self->name,
             $self->name,
@@ -191,7 +191,7 @@ sub send_vote {
     my $parliament = $station->parliament;
     $station->alliance->send_predefined_message(
         filename    => 'parliament_vote.txt',
-        tag         => 'Correspondence',
+        tags        => ['Parliament','Correspondence'],
         from        => $self->proposed_by,
         params      => [
             $self->name,

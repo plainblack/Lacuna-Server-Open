@@ -30,7 +30,7 @@ after handle_arrival_procedures => sub {
     }
     if ($claimed) {
         $empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Colonization','Alert'],
             filename    => 'cannot_stake.txt',
             params      => [$self->name, $planet->x, $planet->y, $planet->name, $claimer_id, $claimed_by],
         );        
@@ -40,7 +40,7 @@ after handle_arrival_procedures => sub {
     else {
         $planet->claim($empire->id);
         $empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Colonization','Alert'],
             filename    => 'planet_claimed.txt',
             params      => [$planet->id, $planet->name, $planet->name],
         );

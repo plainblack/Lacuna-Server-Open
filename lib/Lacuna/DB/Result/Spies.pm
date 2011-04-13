@@ -384,12 +384,12 @@ sub burn {
         if (randint(1,100) < $self->level) {
             my $new_empire = $self->on_body->empire;
             $old_empire->send_predefined_message(
-                tags        => ['Alert'],
+                tags        => ['Spies','Alert'],
                 filename    => 'you_cant_burn_me.txt',
                 params      => [$new_empire->id, $new_empire->name, $self->name],
             );
             $new_empire->send_predefined_message(
-                tags        => ['Alert'],
+                tags        => ['Spies','Alert'],
                 filename    => 'id_like_to_join_you.txt',
                 params      => [$old_empire->id, $old_empire->name, $self->name, $self->on_body->id, $self->on_body->name],
             );
@@ -641,12 +641,12 @@ sub escape {
     $self->task('Idle');
     $self->update;
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'you_cant_hold_me.txt',
         params      => [$self->name],
     );
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'i_have_escaped.txt',
         params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
     );
@@ -659,7 +659,7 @@ sub go_to_jail {
     $self->started_assignment(DateTime->now);
     $self->times_captured( $self->times_captured + 1 );
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'spy_captured.txt',
         params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from],
     );
@@ -704,7 +704,7 @@ sub turn {
     my ($self, $new_home) = @_;
     $self->times_turned( $self->times_turned + 1 );
     my $message = $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'goodbye.txt',
         params      => [$self->name, $self->from_body->id, $self->from_body->name],
     );
@@ -718,7 +718,7 @@ sub turn_a_spy {
     my ($self, $traitor) = @_;
     $self->spies_turned( $self->spies_turned + 1 );
     $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'new_recruit.txt',
         params      => [$traitor->empire->id, $traitor->empire->name, $traitor->name, $self->name, $self->from_body->id, $self->from_body->name],
     );
@@ -736,7 +736,7 @@ sub sow_discontent {
     $self->seeds_planted( $self->seeds_planted + 1 );
     $self->on_body->spend_happiness($amount)->update;
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'created_disturbance.txt',
         params      => [$self->on_body->name, $amount, $self->on_body->happiness, $self->format_from],
     );
@@ -753,7 +753,7 @@ sub killed_in_action {
     $self->available_on(DateTime->now->add(years => 5));
     $self->task('Killed In Action');
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'spy_killed.txt',
         params      => [$self->name, $self->from_body->id, $self->from_body->name, $self->on_body->x, $self->on_body->y, $self->on_body->name],
     );
@@ -762,7 +762,7 @@ sub killed_in_action {
 sub no_contact {
     my ($self) = @_;
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'no_contact.txt',
         params      => [$self->format_from],
     );
@@ -771,7 +771,7 @@ sub no_contact {
 sub no_target {
     my ($self) = @_;
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'no_target.txt',
         params      => [$self->format_from],
     );
@@ -780,7 +780,7 @@ sub no_target {
 sub building_not_found {
     my ($self) = @_;
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'could_not_find_building.txt',
         params      => [$self->format_from],
     );
@@ -789,7 +789,7 @@ sub building_not_found {
 sub mission_objective_not_found {
     my ($self, $objective) = @_;
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'could_not_find_mission_objective.txt',
         params      => [$objective, $self->format_from],
     );
@@ -798,7 +798,7 @@ sub mission_objective_not_found {
 sub ship_not_found {
     my ($self) = @_;
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'could_not_find_ship.txt',
         params      => [$self->format_from],
     );
@@ -807,7 +807,7 @@ sub ship_not_found {
 sub probe_not_found {
     my ($self) = @_;
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'could_not_find_probe.txt',
         params      => [$self->format_from],
     );
@@ -817,7 +817,7 @@ sub hack_successful {
     my ($self, $amount) = @_;
     $self->on_body->spend_happiness($amount)->update;
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'hack_successful.txt',
         params      => [$self->on_body->name, $amount, $self->on_body->happiness, $self->format_from],
     );
@@ -826,7 +826,7 @@ sub hack_successful {
 sub hack_filtered {
     my ($self) = @_;
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'hack_filtered.txt',
         params      => [$self->on_body->name, $self->format_from],
     );
@@ -1182,7 +1182,7 @@ sub steal_planet {
     my $failure = randint(1,100) > $chance;
     if ($planet_happiness > 0 || $failure) { # lose
         $self->on_body->empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Spies','Alert'],
             filename    => 'insurrection_luck.txt',
             params      => [$self->on_body_id, $self->on_body->name],
         );
@@ -1194,7 +1194,7 @@ sub steal_planet {
     }
     else { # win
         $self->on_body->empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Spies','Alert'],
             filename    => 'lost_planet_to_insurrection.txt',
             params      => [$self->on_body->name, $self->on_body->x, $self->on_body->y, $self->on_body->name],
         );
@@ -1225,7 +1225,7 @@ sub uprising {
         params      => [$self->on_body->empire_id, $self->on_body->empire->name, $self->on_body->x, $self->on_body->y, $self->on_body->name, $loss, $self->on_body->happiness, $self->format_from],
     );
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'uprising.txt',
         params      => [$self->name, $self->on_body->id, $self->on_body->name, $loss],
     );
@@ -1365,12 +1365,12 @@ sub prevent_insurrection {
         }
     }
     $defender->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'prevented_insurrection.txt',
         params      => [$self->on_body_id, $self->on_body->name, $defender->format_from],
     );
     $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'insurrection_attempt_failed.txt',
         params      => [$self->on_body_id, $self->on_body->name, $self->format_from],
     )->id;
@@ -1400,12 +1400,12 @@ sub abduct_operative {
     $defender->send($self->from_body_id, DateTime->now->add(days => 7), 'Waiting On Trade');
     $self->send($self->from_body_id, $ship->date_available);
     $defender->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'spy_abducted.txt',
         params      => [$defender->format_from, $defender->name],
     );
     return $self->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'bringing_home_abductee.txt',
         params      => [$defender->format_from, $self->format_from],
     )->id;
@@ -1443,7 +1443,7 @@ sub destroy_infrastructure {
     return $self->building_not_found->id if ($building->class eq 'Lacuna::DB::Result::PlanetaryCommand');
     $building->body($self->on_body);
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'building_kablooey.txt',
         params      => [$building->level, $building->name, $self->on_body->id, $self->on_body->name],
     );
@@ -1464,7 +1464,7 @@ sub destroy_infrastructure {
 #    return $self->building_not_found->id unless defined $building;
 #    $building->body($self->on_body);
 #    $self->on_body->empire->send_predefined_message(
-#        tags        => ['Alert'],
+#        tags        => ['Spies','Alert'],
 #        filename    => 'building_kablooey.txt',
 #        params      => [$building->level + 1, $building->name, $self->on_body->id, $self->on_body->name],
 #    );
@@ -1496,7 +1496,7 @@ sub destroy_ship {
     return $self->ship_not_found->id unless (defined $ship);
     $self->things_destroyed( $self->things_destroyed + 1 );
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'ship_blew_up_at_port.txt',
         params      => [$ship->type_formatted, $self->on_body->id, $self->on_body->name],
     );
@@ -1517,7 +1517,7 @@ sub destroy_plan {
     $self->things_destroyed( $self->things_destroyed + 1 );
     my $stolen = 'level '.$plan->level_formatted.' '.$plan->class->name.' plan';
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'item_destroyed.txt',
         params      => [$stolen, $self->on_body->id, $self->on_body->name],
     );
@@ -1538,7 +1538,7 @@ sub destroy_glyph {
     $self->things_destroyed( $self->things_destroyed + 1 );
     my $stolen = $glyph->type.' glyph';
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'item_destroyed.txt',
         params      => [$stolen, $self->on_body->id, $self->on_body->name],
     );
@@ -1560,7 +1560,7 @@ sub destroy_resources {
     my $stolen = 'bunch of '. $resource;
     $self->on_body->spend_type($resource, int($self->on_body->type_stored($resource) / 2))->update;
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'item_destroyed.txt',
         params      => [$stolen, $self->on_body->id, $self->on_body->name],
     );
@@ -1585,7 +1585,7 @@ sub destroy_mining_ship {
     $ship->delete;
     $ministry->recalc_ore_production;
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'ship_blew_up_at_port.txt',
         params      => ['mining '.$ship->type_formatted, $self->on_body->id, $self->on_body->name],
     );
@@ -1659,7 +1659,7 @@ sub steal_resources {
         push @table, [ $type, $resources{$type} ];
     }
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'ship_stolen.txt',
         params      => [$ship->type_formatted, $self->on_body->id, $self->on_body->name],
         attachments=> { table => \@table},
@@ -1700,7 +1700,7 @@ sub steal_glyph {
     my @table = (['Glyph'],[$glyph->type]);
     $glyph->delete;
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'ship_stolen.txt',
         params      => [$ship->type_formatted, $self->on_body->id, $self->on_body->name],
         attachments=> { table => \@table},
@@ -1740,7 +1740,7 @@ sub steal_ships {
         payload     => { spies => [ $self->id ] }
     );
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'ship_stolen.txt',
         params      => [$ship->type_formatted, $self->on_body->id, $self->on_body->name],
     );
@@ -1772,7 +1772,7 @@ sub steal_building {
     $on_body->update;
     $self->from_body->add_plan($building->class, $level);
     $on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'building_level_stolen.txt',
         params      => [$building->name, $on_body->id, $on_body->name],
     );
@@ -1791,7 +1791,7 @@ sub steal_plan {
     $plan->body_id($self->from_body_id);
     $plan->update;
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'plan_stolen.txt',
         params      => [$plan->level_formatted, $plan->class->name, $self->on_body->id, $self->on_body->name],
     );
@@ -1838,7 +1838,7 @@ sub shut_down_building {
     my $building = $self->on_body->get_building_of_class($building_class);
     return $self->building_not_found->id unless defined $building;
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'building_loss_of_power.txt',
         params      => [$building->name, $self->on_body->id, $self->on_body->name],
     );
@@ -1858,7 +1858,7 @@ sub take_control_of_probe {
     return $self->probe_not_found->id unless defined $probe;
     $self->things_stolen( $self->things_stolen + 1 );
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'probe_destroyed.txt',
         params      => [$probe->star->x, $probe->star->y, $probe->star->name],
     );
@@ -1884,7 +1884,7 @@ sub kill_contact_with_mining_platform {
     return $self->mission_objective_not_found('mining platform')->id unless defined $asteroid;
     $ministry->remove_platform($platform);
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'we_lost_contact_with_a_mining_platform.txt',
         params      => [$asteroid->x, $asteroid->y, $asteroid->name],
     );
@@ -1908,7 +1908,7 @@ sub hack_observatory_probes {
         params      => [$probe->star->x, $probe->star->y, $probe->star->name, $probe->empire->id, $probe->empire->name, $self->format_from],
     );
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'probe_destroyed.txt',
         params      => [$probe->star->x, $probe->star->y, $probe->star->name],
     );
@@ -1931,7 +1931,7 @@ sub hack_offending_probes {
     );
     $self->on_body->add_news(25,'%s scientists say they have lost control of a research satellite in the %s system.', $probe->empire->name, $self->on_body->star->name);    
     my $message = $probe->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'probe_destroyed.txt',
         params      => [$probe->star->x, $probe->star->y, $probe->star->name],
     );
@@ -1945,7 +1945,7 @@ sub hack_local_probes {
     return $self->probe_not_found->id unless defined $probe;
     $self->things_destroyed( $self->things_destroyed + 1 );
     $self->on_body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'probe_destroyed.txt',
         params      => [$probe->star->x, $probe->star->y, $probe->star->name],
     );

@@ -15,7 +15,7 @@ before pass => sub {
             $alliance->remove_member($empire_to_remove);
             $empire_to_remove->send_predefined_message(
                 from        => $alliance->leader,
-                tags        => ['Correspondence'],
+                tags        => ['Alliance','Correspondence'],
                 filename    => 'alliance_expelled.txt',
                 params      => [$alliance->id, $alliance->name, $self->scratch->{message}, $alliance->name],
             );

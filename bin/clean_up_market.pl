@@ -31,7 +31,7 @@ foreach my $id (@to_be_deleted) {
     $trade->body->empire->send_predefined_message(
         filename    => 'trade_withdrawn.txt',
         params      => [join("\n",@{$trade->format_description_of_payload}), $trade->ask.' essentia'],  
-        tags        => ['Alert'],
+        tags        => ['Trade','Alert'],
     );
     $trade->withdraw;
 }
