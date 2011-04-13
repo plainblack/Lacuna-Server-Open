@@ -53,7 +53,7 @@ after handle_arrival_procedures => sub {
             )]);
         my $plan = $body->add_plan($class, 1, ($find == 1) ? randint(1,4) : 0);
         $empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Excavator','Alert'],
             filename    => 'plan_discovered_by_excavator.txt',
             params      => [$remote_body->x, $remote_body->y, $remote_body->name, ($plan->level + $plan->extra_build_level), $class->name, $body->id, $body->name],
         );
@@ -64,7 +64,7 @@ after handle_arrival_procedures => sub {
         my $ore = random_element([ORE_TYPES]);
         $body->add_glyph($ore);
         $empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Excavator','Alert'],
             filename    => 'glyph_discovered_by_excavator.txt',
             params      => [$remote_body->x, $remote_body->y, $remote_body->name, $ore, $body->id, $body->name],
             attachments => {
@@ -85,7 +85,7 @@ after handle_arrival_procedures => sub {
         my $amount = randint(100 + $distance_modifier, 2500 + $distance_modifier);
         $body->add_type($type, $amount)->update;
         $empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Excavator','Alert'],
             filename    => 'resources_discovered_by_excavator.txt',
             params      => [$remote_body->x, $remote_body->y, $remote_body->name, $amount, $type, $body->id, $body->name],
         );
@@ -94,7 +94,7 @@ after handle_arrival_procedures => sub {
     # wha wha wha wahaa - nothing!
     else {
         $empire->send_predefined_message(
-            tags        => ['Info'],
+            tags        => ['Excavator','Alert'],
             filename    => 'glyph_not_discovered_by_excavator.txt',
             params      => [$remote_body->x, $remote_body->y, $remote_body->name, $body->id, $body->name],
         );

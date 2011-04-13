@@ -23,6 +23,7 @@ before pass => sub {
             filename    => 'parliament_evict_mining_platform.txt',
             params      => [$station->alliance->name, $platform->asteroid->x, $platform->asteroid->y, $platform->asteroid->name],
             from        => $station->alliance->leader,
+            tags        => ['Parliament','Correspondence'],
         );
         $platform->planet->get_building_of_class('Lacuna::DB::Result::Building::Ore::Ministry')->remove_platform($platform);
     }

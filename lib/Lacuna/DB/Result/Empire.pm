@@ -645,7 +645,7 @@ sub add_probe {
         next unless defined $that_empire;
         $that_empire->send_predefined_message(
             filename    => 'probe_detected.txt',
-            tags        => ['Alert'],
+            tags        => ['Probe','Alert'],
             from        => $that_empire,
             params      => [$star->x, $star->y, $star->name, $self->id, $self->name],
         );

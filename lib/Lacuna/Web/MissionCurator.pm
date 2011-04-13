@@ -26,11 +26,13 @@ sub www_add_essentia {
         from    => $curator,
         subject => 'Mission Bounty',
         body    => 'I have approved your mission pack and awarded you 100 essentia.',
+        tags    => ['Mission','Correspondence'],
     );
     $jt->send_message(
         from    => $curator,
         subject => 'Mission Bounty',
         body    => 'I have approved a mission pack for '.$empire->name.'.',
+        tags    => ['Mission','Correspondence'],
     );
     my $recent = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search({ empire_id => $curator->id, description => 'Mission Curator', date_stamp => { '>' => DateTime->now->subtract(days => 7)}})->count;
     $curator->add_essentia(100, 'Mission Curator')->update unless $recent;

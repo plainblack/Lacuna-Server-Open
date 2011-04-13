@@ -202,7 +202,7 @@ sub train_spy {
     }
     else {
         $empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Spies','Alert'],
             filename    => 'training_accident.txt',
             params      => [$self->body->id, $self->body->name],
         );

@@ -17,12 +17,12 @@ after handle_arrival_procedures => sub {
     $body_attacked->add_waste($self->hold_size);
     $body_attacked->update;
     $self->body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Attack','Alert'],
         filename    => 'our_scow_hit.txt',
         params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name, $self->hold_size],
     );
     $body_attacked->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Attack','Alert'],
         filename    => 'hit_by_scow.txt',
         params      => [$self->body->empire_id, $self->body->empire->name, $body_attacked->id, $body_attacked->name, $self->hold_size],
     );

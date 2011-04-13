@@ -175,7 +175,7 @@ sub send_invite {
     })->insert;
     $empire->send_predefined_message(
         from        => $self->leader,
-        tags        => ['Correspondence'],
+        tags        => ['Alliance','Correspondence'],
         filename    => 'alliance_invite.txt',
         params      => [$self->id, $self->name, $message],
     );
@@ -194,7 +194,7 @@ sub withdraw_invite {
     $invite->delete;
     $empire->send_predefined_message(
         from        => $self->leader,
-        tags        => ['Correspondence'],
+        tags        => ['Alliance','Correspondence'],
         filename    => 'alliance_withdraw_invite.txt',
         params      => [$self->id, $self->name, $message],
     );

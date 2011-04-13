@@ -34,12 +34,12 @@ after handle_arrival_procedures => sub {
     
     # let everyone know what's going on
     $body_attacked->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Attack','Alert'],
         filename    => 'ship_hit_building.txt',
         params      => [$self->type_formatted, $building->name, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
     );
     $self->body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Attack','Alert'],
         filename    => 'our_ship_hit_building.txt',
         params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $building->name, $amount],
     );

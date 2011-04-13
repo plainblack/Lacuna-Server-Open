@@ -56,7 +56,7 @@ sub execute_prisoner {
     $body->add_news(60, sprintf('%s was executed on %s today. Citizens were outraged at the lack of compassion.', $prisoner->name, $body->name));
     $prisoner->empire->send_predefined_message(
         from        => $empire,
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'spy_executed.txt',
         params      => [$prisoner->name, $prisoner->from_body->id, $prisoner->from_body->name, $body->x, $body->y, $body->name, $empire->id, $empire->name],
     );
@@ -82,7 +82,7 @@ sub release_prisoner {
     $prisoner->available_on(DateTime->now);
     $prisoner->update;
     $prisoner->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Spies','Alert'],
         filename    => 'spy_released.txt',
         params      => [$empire->id, $empire->name, $body->x, $body->y, $body->name, $prisoner->name, $prisoner->from_body->id, $prisoner->from_body->name],
     );

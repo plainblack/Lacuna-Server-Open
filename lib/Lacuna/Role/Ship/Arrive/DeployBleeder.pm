@@ -25,7 +25,7 @@ after handle_arrival_procedures => sub {
     
     # notify home
     $self->body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Attack','Alert'],
         filename    => 'bleeder_deployed.txt',
         params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name],
     );

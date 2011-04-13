@@ -112,7 +112,7 @@ sub accept_from_market {
     #})->insert;
     
     $trade->body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Trade','Alert'],
         filename    => 'trade_accepted.txt',
         params      => [$trade->format_description_of_payload, $trade->ask.' essentia', $empire->id, $empire->name],
     );
@@ -244,7 +244,7 @@ sub report_abuse {
             $trade->body->empire->send_predefined_message(
                 filename    => 'trade_abuse.txt',
                 params      => [join("\n",@{$trade->format_description_of_payload}), $trade->ask.' essentia'],
-                tags        => ['Alert'],
+                tags        => ['Trade','Alert'],
             );
             $trade->withdraw($trade->body);
         }

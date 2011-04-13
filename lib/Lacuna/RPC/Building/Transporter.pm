@@ -149,7 +149,7 @@ sub accept_from_market {
     #    object_id   => $trade->id,
     #})->insert;
     $trade->body->empire->send_predefined_message(
-        tags        => ['Alert'],
+        tags        => ['Trade','Alert'],
         filename    => 'trade_accepted.txt',
         params      => [join("; ",@{$trade->format_description_of_payload}), $trade->ask.' essentia', $empire->id, $empire->name],
     );
