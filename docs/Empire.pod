@@ -270,6 +270,12 @@ Provides a list of the editable properties of the current empire's profile. See 
        "skip_pollution_warnings" : 0,
        "skip_medal_messages" : 0,
        "skip_facebook_wall_posts" : 0,
+       "skip_found_nothing
+       "skip_excavator_resources" : 0,
+       "skip_excavator_glyph" : 0,
+       "skip_excavator_plan" : 0,
+       "skip_spy_recovery" : 0,
+       "skip_probe_detected" : 0,
        "email" : "joe@example.com",
        "sitter_password" : "abcdefgh"                   # never give out your real password, use the sitter password
     },
@@ -363,7 +369,29 @@ Defaults to 0. Set to 1 if the user no longer wants to receive messages about th
 
 Defaults to 0. Set to 1 if the user no longer wants messages to be posted to their Facebook wall.
 
+=head4 skip_found_nothing
 
+Defaults to 0. Set to 1 if the user no longer wants to receive messages when excavators find nothing.
+
+=head4 skip_excavator_resources
+
+Defaults to 0. Set to 1 if the user no longer wants to receive messages when excavators find resources.
+
+=head4 skip_excavator_glyph
+
+Defaults to 0. Set to 1 if the user no longer wants to receive messages when excavators find glyphs.
+
+=head4 skip_excavator_plan
+
+Defaults to 0. Set to 1 if the user no longer wants to receive messages when excavators find plans.
+
+=head4 skip_spy_recovery
+
+Defaults to 0. Set to 1 if the user no longer wants to receive spy recovery messages. ("I'm ready to work. What do you need from me?")
+
+=head4 skip_probe_detected
+
+Defaults to 0. Set to 1 if the user no longers wants to receive messages when a probe is detected.
 
 =head2 view_public_profile (session_id, empire_id)
 

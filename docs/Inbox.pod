@@ -51,6 +51,42 @@ Reports gathered from spies.
 
 Messages letting you know something dire about your empire, usually sabotage by spies.
 
+=item Attack
+
+Messages informing you about attacks (offensive and defensive).
+
+=item Colonization
+
+Messages concerning staking and colonizing planets (including space station conversions).
+
+=item Complaint
+
+Messages regarding planetary complaints (happiness, resource, and pollution warnings).
+
+=item Excavator
+
+Messages about excavator findings (nothing, resources, glyph, plan).
+
+=item Mission
+
+Messages from the Mission Curators.
+
+=item Parliament
+
+Messages that tell you about Parliamentary proceedings (votes needed, votes passed, votes failed, etc).
+
+=item Probe
+
+Messages concerning detected probes.
+
+=item Spies
+
+Non-intelligence related spy reports.
+
+=item Trade
+
+Messages related to trades.
+
 =back
  
 Throws 1002, 1006.
