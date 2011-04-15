@@ -30,13 +30,13 @@ foreach my $id (@{Lacuna->config->get('win/alliance_control')}) {
     my $planet = $bodies->find($id);
     if ($planet->empire_id eq '' || $planet->empire_id > 1) {
         if ($cache->get('victory_planet'.$id) ne $planet->empire_id) {
-            my $controlled = '[Starmap '.$planet->x.' '.$planet->y.' '.$planet->name.']';
-            my $controller = $planet->empire_id ? '[Empire '.$planet->empire_id.' '.$planet->empire->name.']' : 'No one';
+            my $controlled = '{Starmap '.$planet->x.' '.$planet->y.' '.$planet->name.'}';
+            my $controller = $planet->empire_id ? '{Empire '.$planet->empire_id.' '.$planet->empire->name.'}' : 'No one';
             while (my $empire = $empires->next) {
                 $empire->send_message(
                     tags        => ['Alert'],
                     from        => $lec,
-                    body        => $controller.q{ now controls the Trelvestian SveitarfŽlagi planet named }.$controlled.q{.},
+                    body        => $controller.q{ now controls the Trelvestian planet named }.$controlled.q{.},
                     subject     => 'Control Changed Hands',
                 );
             }

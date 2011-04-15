@@ -4,6 +4,7 @@
  - API: Added Alliance, Attack, Colonization, Complaint, Excavator, Mission, Parliament, Probe, Spies, and Trade tags to the Inbox.
  - Rule: Archived messages will no longer be deleted. Trashed messages will be purged thirty days after they were sent.
  - Fix: Corrected documentation for the rename method in Body.
+ - Fix: Trel total victory captured message.
 
 3.0501
  - Fix: Denton Brambles now produce roots.
