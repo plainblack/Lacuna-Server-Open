@@ -52,28 +52,32 @@ after handle_arrival_procedures => sub {
             Lacuna::DB::Result::Building::Permanent::Volcano
             )]);
         my $plan = $body->add_plan($class, 1, ($find == 1) ? randint(1,4) : 0);
-        $empire->send_predefined_message(
-            tags        => ['Excavator','Alert'],
-            filename    => 'plan_discovered_by_excavator.txt',
-            params      => [$remote_body->x, $remote_body->y, $remote_body->name, ($plan->level + $plan->extra_build_level), $class->name, $body->id, $body->name],
-        );
+        if (!$empire->skip_excavator_plan) {
+            $empire->send_predefined_message(
+                tags        => ['Excavator','Alert'],
+                filename    => 'plan_discovered_by_excavator.txt',
+                params      => [$remote_body->x, $remote_body->y, $remote_body->name, ($plan->level + $plan->extra_build_level), $class->name, $body->id, $body->name],
+            );
+        }
     }
     
     # found a glyph
     elsif ($find < 16) {
         my $ore = random_element([ORE_TYPES]);
         $body->add_glyph($ore);
-        $empire->send_predefined_message(
-            tags        => ['Excavator','Alert'],
-            filename    => 'glyph_discovered_by_excavator.txt',
-            params      => [$remote_body->x, $remote_body->y, $remote_body->name, $ore, $body->id, $body->name],
-            attachments => {
-                image => {
-                    title   => $ore,
-                    url     => 'https://d16cbq0l6kkf21.cloudfront.net/assets/glyphs/'.$ore.'.png',
+        if (!$empire->skip_excavator_glyph) {
+            $empire->send_predefined_message(
+                tags        => ['Excavator','Alert'],
+                filename    => 'glyph_discovered_by_excavator.txt',
+                params      => [$remote_body->x, $remote_body->y, $remote_body->name, $ore, $body->id, $body->name],
+                attachments => {
+                    image => {
+                        title   => $ore,
+                        url     => 'https://d16cbq0l6kkf21.cloudfront.net/assets/glyphs/'.$ore.'.png',
+                    }
                 }
-            }
-        );
+            );
+        }
         $empire->add_medal($ore.'_glyph');
         $body->add_news(70, sprintf('%s has uncovered a rare and ancient %s glyph on %s.',$empire->name, $ore, $remote_body->name));
     }
@@ -84,20 +88,24 @@ after handle_arrival_procedures => sub {
         my $type = random_element([ORE_TYPES, FOOD_TYPES, qw(water energy)]);
         my $amount = randint(100 + $distance_modifier, 2500 + $distance_modifier);
         $body->add_type($type, $amount)->update;
-        $empire->send_predefined_message(
-            tags        => ['Excavator','Alert'],
-            filename    => 'resources_discovered_by_excavator.txt',
-            params      => [$remote_body->x, $remote_body->y, $remote_body->name, $amount, $type, $body->id, $body->name],
-        );
+        if (!$empire->skip_excavator_resources) {
+            $empire->send_predefined_message(
+                tags        => ['Excavator','Alert'],
+                filename    => 'resources_discovered_by_excavator.txt',
+                params      => [$remote_body->x, $remote_body->y, $remote_body->name, $amount, $type, $body->id, $body->name],
+            );
+        }
     }
     
     # wha wha wha wahaa - nothing!
     else {
-        $empire->send_predefined_message(
-            tags        => ['Excavator','Alert'],
-            filename    => 'glyph_not_discovered_by_excavator.txt',
-            params      => [$remote_body->x, $remote_body->y, $remote_body->name, $body->id, $body->name],
-        );
+        if (!$empire->skip_found_nothing) {
+            $empire->send_predefined_message(
+                tags        => ['Excavator','Alert'],
+                filename    => 'glyph_not_discovered_by_excavator.txt',
+                params      => [$remote_body->x, $remote_body->y, $remote_body->name, $body->id, $body->name],
+            );
+        }
     }
     
     # all pow

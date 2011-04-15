@@ -70,6 +70,12 @@ __PACKAGE__->add_columns(
     skip_facebook_wall_posts => { data_type => 'tinyint', default_value => 0 },
     is_admin                => { data_type => 'tinyint', default_value => 0 },
     is_mission_curator      => { data_type => 'tinyint', default_value => 0 },
+    skip_found_nothing      => { data_type => 'tinyint', default_value => 0 },
+    skip_excavator_resources => { data_type => 'tinyint', default_value => 0 },
+    skip_excavator_glyph    => { data_type => 'tinyint', default_value => 0 },
+    skip_excavator_plan     => { data_type => 'tinyint', default_value => 0 },
+    skip_spy_recovery       => { data_type => 'tinyint', default_value => 0 },
+    skip_probe_detected     => { data_type => 'tinyint', default_value => 0 },
 );
 
 sub sqlt_deploy_hook {
@@ -643,12 +649,14 @@ sub add_probe {
     while (my $probe = $probes->next) {
         my $that_empire = $probe->empire;
         next unless defined $that_empire;
-        $that_empire->send_predefined_message(
-            filename    => 'probe_detected.txt',
-            tags        => ['Probe','Alert'],
-            from        => $that_empire,
-            params      => [$star->x, $star->y, $star->name, $self->id, $self->name],
-        );
+        if (!$that_empire->skip_probe_detected) {
+            $that_empire->send_predefined_message(
+                filename    => 'probe_detected.txt',
+                tags        => ['Probe','Alert'],
+                from        => $that_empire,
+                params      => [$star->x, $star->y, $star->name, $self->id, $self->name],
+            );
+        }
     }
     
     $self->clear_probed_stars;

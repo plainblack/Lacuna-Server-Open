@@ -27,11 +27,13 @@ foreach my $id (@ids) {
     my $starting_task = $spy->task;
     $spy->is_available;
     if ($spy->task eq 'Idle' && $starting_task ne 'Idle') {
-        $spy->empire->send_predefined_message(
-            tags        => ['Intelligence'],
-            filename    => 'ready_for_assignment.txt',
-            params      => [$spy->name, $spy->from_body->id, $spy->from_body->name],
-        );
+        if (!$spy->empire->skip_spy_recovery) {
+            $spy->empire->send_predefined_message(
+                tags        => ['Intelligence'],
+                filename    => 'ready_for_assignment.txt',
+                params      => [$spy->name, $spy->from_body->id, $spy->from_body->name],
+            );
+        }
     }
 }
 

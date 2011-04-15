@@ -399,7 +399,14 @@ sub view_profile {
         skip_happiness_warnings => $empire->skip_happiness_warnings,
         skip_facebook_wall_posts=> $empire->skip_facebook_wall_posts,
         medals                  => \%my_medals,
+        skip_found_nothing      => $empire->skip_found_nothing,
+        skip_excavator_resources => $empire->skip_excavator_resources,
+        skip_excavator_glyph    => $empire->skip_excavator_glyph,
+        skip_excavator_plan     => $empire->skip_excavator_plan,
+        skip_spy_recovery       => $empire->skip_spy_recovery,
+        skip_probe_detected     => $empire->skip_probe_detected,
     );
+
     return { profile => \%out, status => $self->format_status($empire) };    
 }
 
@@ -493,6 +500,44 @@ sub edit_profile {
         }
         $empire->skip_pollution_warnings($profile->{skip_pollution_warnings});
     }
+
+    if (exists $profile->{skip_found_nothing}) {
+        if ($profile->{skip_found_nothing} < 0 || $profile->{skip_found_nothing} > 1) {
+            confess [1009, 'Skip Found Nothing must be a 1 or a 0.', 'skip_found_nothing']
+        }
+        $empire->skip_found_nothing($profile->{skip_found_nothing});
+    }
+    if (exists $profile->{skip_excavator_resources}) {
+        if ($profile->{skip_excavator_resources} < 0 || $profile->{skip_excavator_resources} > 1) {
+            confess [1009, 'Skip Excavator Resources must be a 1 or a 0.', 'skip_excavator_resources']
+        }
+        $empire->skip_excavator_resources($profile->{skip_excavator_resources});
+    }
+    if (exists $profile->{skip_excavator_glyph}) {
+        if ($profile->{skip_excavator_glyph} < 0 || $profile->{skip_excavator_glyph} > 1) {
+            confess [1009, 'Skip Excavator Glyph must be a 1 or a 0.', 'skip_excavator_glyph']
+        }
+        $empire->skip_excavator_glyph($profile->{skip_excavator_glyph});
+    }
+    if (exists $profile->{skip_excavator_plan}) {
+        if ($profile->{skip_excavator_plan} < 0 || $profile->{skip_excavator_plan} > 1) {
+            confess [1009, 'Skip Excavator Plan must be a 1 or a 0.', 'skip_excavator_plan']
+        }
+        $empire->skip_excavator_plan($profile->{skip_excavator_plan});
+    }
+    if (exists $profile->{skip_spy_recovery}) {
+        if ($profile->{skip_spy_recovery} < 0 || $profile->{skip_spy_recovery} > 1) {
+            confess [1009, 'Skip Spy Recovery must be a 1 or a 0.', 'skip_spy_recovery']
+        }
+        $empire->skip_spy_recovery($profile->{skip_spy_recovery});
+    }
+    if (exists $profile->{skip_probe_detected}) {
+        if ($profile->{skip_probe_detected} < 0 || $profile->{skip_probe_detected} > 1) {
+            confess [1009, 'Skip Probe Detected must be a 1 or a 0.', 'skip_probe_detected']
+        }
+        $empire->skip_probe_detected($profile->{skip_probe_detected});
+    }
+
     if (exists $profile->{skype}) {
         Lacuna::Verify->new(content=>\$profile->{skype}, throws=>[1005,'Skype must be no longer than 100 characters, and cannot contain special characters or profanity.', 'skype'])
             ->length_lt(101)
