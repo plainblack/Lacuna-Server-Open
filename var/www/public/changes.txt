@@ -2,6 +2,8 @@
  - API: Added trash methods to the Inbox.
  - API: Parliament messages will be tagged as such instead of Correspondence.
  - API: Added Alliance, Attack, Colonization, Complaint, Excavator, Mission, Parliament, Probe, Spies, and Trade tags to the Inbox.
+ - API: Added profile settings to disable excavator, probe detected, and spy recovery messages.
+ - API: Archived and trashed messages are marked as read.
  - Rule: Archived messages will no longer be deleted. Trashed messages will be purged thirty days after they were sent.
  - Fix: Corrected documentation for the rename method in Body.
  - Fix: Trel total victory captured message.

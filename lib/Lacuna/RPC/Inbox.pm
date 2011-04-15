@@ -54,6 +54,7 @@ sub archive_messages {
     foreach my $id (@{$message_ids}) {
         my $message = $messages->find($id);
         if (defined $message && $empire->id eq $message->to_id && !$message->has_archived) {
+            $message->has_read(1);
             $message->has_archived(1);
             $message->has_trashed(0);
             $message->update;
@@ -75,6 +76,7 @@ sub trash_messages {
     foreach my $id (@{$message_ids}) {
         my $message = $messages->find($id);
         if (defined $message && $empire->id eq $message->to_id && !$message->has_trashed) {
+            $message->has_read(1);
             $message->has_archived(0);
             $message->has_trashed(1);
             $message->update;
