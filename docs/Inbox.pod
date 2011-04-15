@@ -142,6 +142,7 @@ Retrieves a message. Marks it read if it hasn't been already.
         "has_read" : 1,
         "has_replied" : 0,
         "has_archived" : 0,
+        "has_trashed" : 0,
         "in_reply_to" : "",
         "recipients" : ["John Stewart"],
         "tags" : ["Correspondence"],
@@ -200,6 +201,8 @@ Archives a list of messages. Returns:
     "status" : { ... }
  }
 
+Archived messages are marked as read.
+
 B<NOTE:> You cannot archive sent messages. You'll get a failure if the message is either already archived, or it's a message that cannot be archived, like a message in your sent folder.
 
 =head3 session_id
@@ -216,6 +219,8 @@ An array reference of message ids.
 
 =head2 trash_messages ( session_id, message_ids )
  
+Trashed messages are marked as read.
+
 Trashes a list of messages. Returns:
 
  {
