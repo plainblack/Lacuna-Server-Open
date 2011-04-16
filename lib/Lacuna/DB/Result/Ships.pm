@@ -192,6 +192,7 @@ sub get_status {
         type            => $self->type,
         task            => $self->task,
         speed           => $self->speed,
+        fleet_speed     => $self->fleet_speed,
         stealth         => $self->stealth,
         combat          => $self->combat,
         hold_size       => $self->hold_size,
