@@ -1,6 +1,6 @@
 Probe Destroyed
 ~~~
-We just lost contact with our probe in the {Starmap %s %s %s} system. Just before it went dark, our probe transmitted an image of an incoming ship. We've determined it was a Detonator sent by {Empire %s %s}. We must assume the probe has been destroyed.
+We just lost contact with our probe from {Planet %s %s} in the {Starmap %s %s %s} system. Just before it went dark, our probe transmitted an image of an incoming ship. We've determined it was a Detonator sent by {Empire %s %s}. We must assume the probe has been destroyed.
 
 Regards,
 

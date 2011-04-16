@@ -15,13 +15,13 @@ after handle_arrival_procedures => sub {
     # find probes to destroy
     my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $self->foreign_star_id });
     my $count;
-    
+
     # destroy those suckers
     while (my $probe = $probes->next) {
         $probe->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'probe_detonated.txt',
-            params      => [$self->foreign_star->x, $self->foreign_star->y, $self->foreign_star->name, $self->body->empire_id, $self->body->empire->name],
+            params      => [$probe->body->id, $probe->body->name, $self->foreign_star->x, $self->foreign_star->y, $self->foreign_star->name, $self->body->empire_id, $self->body->empire->name],
         );
         $count++;
         $probe->delete;

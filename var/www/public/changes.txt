@@ -1,3 +1,6 @@
+3.0601
+ - Fix: Probe destroyed/detonated messages will include the probe's planet of origin.
+
 3.0600
  - API: Added trash methods to the Inbox.
  - API: Parliament messages will be tagged as such instead of Correspondence.

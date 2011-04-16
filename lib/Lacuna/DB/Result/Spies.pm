@@ -1860,7 +1860,7 @@ sub take_control_of_probe {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'probe_destroyed.txt',
-        params      => [$probe->star->x, $probe->star->y, $probe->star->name],
+        params      => [$probe->body->id, $probe->body->name, $probe->star->x, $probe->star->y, $probe->star->name],
     );
     $self->on_body->add_news(25,'%s scientists say they have lost control of a research satellite in the %s system.', $self->on_body->empire->name, $probe->star->name);    
     my $message = $self->empire->send_predefined_message(

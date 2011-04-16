@@ -1,6 +1,6 @@
 Lost Contact With Probe
 ~~~
-We have just lost contact with the probe tasked to the {Starmap %s %s %s} system. We have to assume it has been disabled by enemy forces.
+We have just lost contact with the probe from {Planet %s %s} tasked to the {Starmap %s %s %s} system. We have to assume it has been disabled by enemy forces.
 
 Regards,
 
