@@ -182,6 +182,10 @@ sub send_fleet {
     unless ($set_speed <= $speed) {
         confess [1009, 'Set speed cannot exceed the speed of the slowest ship.'];
     }
+    unless ($set_speed >= 0) {
+        confess [1009, 'Set speed cannot be less than zero.'];
+    }
+    $speed = $set_speed if ($set_speed > 0 && $set_speed < $speed);
 	my @ret;
 	for my $ship_id (@fleet) {
 		my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);

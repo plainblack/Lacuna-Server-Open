@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 22;
+use Test::More tests => 24;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -150,6 +150,12 @@ $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({id=>$spy_id},
 $spy->available_on($finish);
 $spy->task('Idle');
 $spy->update;
+
+$result = $tester->post('spaceport', 'send_fleet', [$session_id, [ @ships ], { body_id => $enemy->empire->home_planet->id }, -100 ] );
+is($result->{error}{code}, 1009, 'set_speed cannot be less than 0');
+
+$result = $tester->post('spaceport', 'send_fleet', [$session_id, [ @ships ], { body_id => $enemy->empire->home_planet->id }, 99999 ] );
+is($result->{error}{code}, 1009, 'set_speed exceeds speed of slowest ship');
 
 $result = $tester->post('spaceport', 'send_fleet', [$session_id, [ @ships ], { body_id => $enemy->empire->home_planet->id } ] );
 ok($result->{result}{fleet}[0]{ship}{date_arrives}, "fleet sent");
