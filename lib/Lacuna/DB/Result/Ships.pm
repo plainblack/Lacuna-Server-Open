@@ -36,6 +36,7 @@ __PACKAGE__->add_columns(
     direction               => { data_type => 'varchar', size => 3, is_nullable => 0 }, # in || out
     foreign_body_id         => { data_type => 'int', is_nullable => 1 },
     foreign_star_id         => { data_type => 'int', is_nullable => 1 },
+    fleet_speed             => { data_type => 'int', is_nullable => 0 },
 );
 __PACKAGE__->typecast_map(type => {
     'probe'                                 => 'Lacuna::DB::Result::Ships::Probe',
@@ -309,6 +310,7 @@ sub defend {
 sub land {
     my ($self) = @_;
     $self->task('Docked');
+    $self->fleet_speed(0);
     $self->date_available(DateTime->now);
     $self->payload({});
     return $self;
@@ -324,7 +326,12 @@ sub land {
 sub calculate_travel_time {
     my ($self, $target) = @_;
     my $distance = $self->body->calculate_distance_to_target($target);
-    my $hours = $distance / ($self->speed || 1);
+    my $speed = $self->speed;
+    if ( $self->fleet_speed > 0 && $self->fleet_speed < $self->speed ) {
+        $speed = $self->fleet_speed;
+    }
+    $speed ||= 1;
+    my $hours = $distance / $speed;
     my $seconds = 60 * 60 * $hours;
     return sprintf('%.0f', $seconds);
 }

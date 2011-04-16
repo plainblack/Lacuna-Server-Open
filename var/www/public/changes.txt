@@ -1,6 +1,7 @@
 3.0601
  - API: Add set_speed parameter to the SpacePort's send_fleet method.
  - Fix: Probe destroyed/detonated messages will include the probe's planet of origin.
+ - Fix: SpacePort's send_fleet method no longer reduces the speed of ships.
 
 
 3.0600

@@ -192,7 +192,7 @@ sub send_fleet {
 		my $body = $ship->body;
 		$body->empire($empire);
 		$ship->can_send_to_target($target);
-		$ship->speed($speed);
+		$ship->fleet_speed($speed);
 		$ship->send(target => $target);
 		push @ret, {
 			ship    => $ship->get_status,
