@@ -426,7 +426,7 @@ A set of x,y coordinates to locate the star or body.
 
 
 
-=head2 send_fleet ( session_id, ship_ids, target )
+=head2 send_fleet ( session_id, ship_ids, target, [ set_speed ] )
 
 Sends a fleet of ships to a specified body or star. Use with C<get_ships_for>.
 
@@ -474,6 +474,9 @@ An array reference of ship ids to send.
 
 A hash reference that can contain one of five items to identify a star or body. Same as C<send_ship>.
 
+=head3 set_speed
+
+Optional. An integer specifying the speed at which all ships in the fleet should travel. An exception will be thrown if this exceeds the speed of the slowest ship in the fleet.
 
 
 

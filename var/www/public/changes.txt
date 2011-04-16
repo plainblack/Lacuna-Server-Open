@@ -1,5 +1,7 @@
 3.0601
+ - API: Add set_speed parameter to the SpacePort's send_fleet method.
  - Fix: Probe destroyed/detonated messages will include the probe's planet of origin.
+
 
 3.0600
  - API: Added trash methods to the Inbox.

@@ -150,7 +150,8 @@ sub send_ship {
 }
 
 sub send_fleet {
-    my ($self, $session_id, $ship_ids, $target_params) = @_;
+    my ($self, $session_id, $ship_ids, $target_params, $set_speed) = @_;
+    $set_speed //= 0;
     my $empire = $self->get_empire_by_session($session_id);
     my $target = $self->find_target($target_params);
     $empire->current_session->check_captcha;
@@ -177,6 +178,9 @@ sub send_fleet {
 	}
     unless ($excavator <= 1) {
         confess [1010, 'Only one Excavator may be sent to a body in a 30 day period'];
+    }
+    unless ($set_speed <= $speed) {
+        confess [1009, 'Set speed cannot exceed the speed of the slowest ship.'];
     }
 	my @ret;
 	for my $ship_id (@fleet) {
