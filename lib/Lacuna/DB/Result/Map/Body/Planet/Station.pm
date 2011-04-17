@@ -127,7 +127,7 @@ has influence_spent => (
 
 sub influence_remaining {
     my $self = shift;
-    return $self->total_influence - $self->influence_remaining;
+    return $self->total_influence - $self->influence_spent;
 }
 
 has range_of_influence => (

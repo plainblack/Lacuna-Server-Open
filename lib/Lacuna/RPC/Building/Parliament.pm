@@ -282,9 +282,11 @@ sub propose_seize_star {
     if ($star->station_id) {
         confess [1009, 'That star is already controlled by a station.'];
     }
-    $building->body->in_range_of_influence($star);
     unless ($building->body->influence_remaining > 0) {
         confess [1009, 'You do not have enough influence to control another star.'];
+    }
+    unless ($building->body->in_range_of_influence($star)) {
+        confess [1009, 'That star is not in range of influence.'];
     }
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'SeizeStar',
