@@ -28,7 +28,7 @@ after can_send_to_target => sub {
 sub get_available_spies_to_send {
     my $self = shift;
     my $body = $self->body;
-    my $on_body = $self->direction eq 'out' ? $self->body : $self->foreign_body;
+    my $on_body = $self->direction eq 'in' ? $self->foreign_body : $self->body;
     my @spies;
     if ($on_body) {
         my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
