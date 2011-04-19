@@ -246,6 +246,9 @@ sub propose_transfer_station_ownership {
     unless ($to_empire->alliance_id == $empire->alliance_id) {
         confess [1009, 'That empire is not a member of your alliance.'];
     }
+    if ($to_empire->is_isolationist) {
+        confess [1013, 'That empire is an isolationist.'];
+    }
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'TransferStationOwnership',
         name            => 'Transfer Station',

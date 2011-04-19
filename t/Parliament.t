@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 46;
+use Test::More tests => 48;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -13,8 +13,10 @@ my $empire = $tester->empire;
 my $home = $empire->home_planet;
 
 my $friend = TestHelper->new(empire_name => 'Friend')->generate_test_empire->build_infrastructure;
-$friend->empire->is_isolationist(0);
-$friend->empire->update;
+
+my $friend2 = TestHelper->new(empire_name => 'Friend')->generate_test_empire->build_infrastructure;
+$friend2->empire->is_isolationist(0);
+$friend2->empire->update;
 
 my $emb = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
         x               => 4,
@@ -31,6 +33,9 @@ $result = $tester->post('embassy', 'get_alliance_status', [$session_id, $emb->id
 ok(scalar@{$result->{result}{alliance}{members}}, 'alliance has members');
 $empire = $empire->get_from_storage;
 ok $empire->alliance_id, 'empire has alliance';
+
+$friend->empire->alliance_id($empire->alliance_id);
+$friend->empire->update;
 
 my $station = Lacuna->db->resultset('Map::Body')->search({class => {like => 'Lacuna::DB::Result::Map::Body::Planet::P%'}, empire_id => undef},{rows=>1})->single;
 $station->convert_to_station($empire);
@@ -87,6 +92,15 @@ is($result->{result}{proposition}{my_vote}, 1, 'got my vote');
 
 $result = $tester->post('parliament', 'propose_transfer_station_ownership', [$session_id, $par->id]);
 is($result->{error}{data}, 6, 'transfering ownership of station requires level 6 parliament');
+
+$par->level(6);
+$par->update;
+
+$result = $tester->post('parliament', 'propose_transfer_station_ownership', [$session_id, $par->id, $friend2->empire->id]);
+is($result->{error}{code}, 1009, 'cannot transfer a station to a non-alliance member');
+
+$result = $tester->post('parliament', 'propose_transfer_station_ownership', [$session_id, $par->id, $friend->empire->id]);
+is($result->{error}{code}, 1013, 'cannot transfer a station to an isolationist');
 
 $result = $tester->post('parliament', 'propose_seize_star', [$session_id, $par->id]);
 is($result->{error}{data}, 7, 'seizing star requires level 7 parliament');
@@ -206,6 +220,8 @@ is($props[0]->{name}, 'Abandon Station', 'abandon station proposed');
 $result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $props[0]->{id}, 1]);
 is($result->{result}{proposition}{my_vote}, 1, 'got my vote');
 
+sleep 5;
+
 $result = $tester->post('inbox','view_inbox', [$session_id]);
 
 my @messages = sort { $b->{id} <=> $a->{id} } @{ $result->{result}{messages} };
@@ -213,6 +229,7 @@ ok($messages[0]->{subject} =~ /^Pass: Abandon Station/, 'Pass email received');
 
 END {
     $station->sanitize;
+    $friend2->cleanup;
     $friend->cleanup;
     $tester->cleanup;
 }

@@ -151,7 +151,7 @@ has fail_extra_message  => (
 
 before insert => sub {
     my $self = shift;
-    $self->votes_needed( int($self->station->alliance->members->count + 1) / 2 );
+    $self->votes_needed( int( ( $self->station->alliance->members->count + 1 ) / 2 ) );
     $self->date_ends( DateTime->now->add(hours => 72) );
 };
 

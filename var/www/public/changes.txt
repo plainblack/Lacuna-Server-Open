@@ -4,6 +4,8 @@
  - Fix: SpacePort's send_fleet method no longer reduces the speed of ships.
  - Fix: Space Station's influence_remaining will now be properly calculated.
  - Fix: Parliament's propose_seize_star will no longer fail.
+ - Fix: Propositions need int( ( members + 1 ) / 2 ) votes to pass.
+ - Fix: An exception will be thrown if you attempt to propose_transfer_station_ownership to an isolationist.
 
 
 3.0600
