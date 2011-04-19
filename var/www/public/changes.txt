@@ -6,7 +6,7 @@
  - Fix: Parliament's propose_seize_star will no longer fail.
  - Fix: Propositions need int( ( members + 1 ) / 2 ) votes to pass.
  - Fix: An exception will be thrown if you attempt to propose_transfer_station_ownership to an isolationist.
-
+ - Fix: Attempting to send spies will pull the correct list of spies.
 
 3.0600
  - API: Added trash methods to the Inbox.

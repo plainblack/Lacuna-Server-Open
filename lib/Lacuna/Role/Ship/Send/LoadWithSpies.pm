@@ -32,7 +32,7 @@ sub get_available_spies_to_send {
     my @spies;
     if ($on_body) {
         my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-            {task => ['in','Idle','Training'], on_body_id=>$on_body->id, empire_id=>$body->empire->id},
+            { task => { in => ['Idle','Counter Espionage'] }, on_body_id=>$on_body->id, empire_id=>$body->empire->id },
         );
         while (my $spy = $spies->next) {
             if ($spy->is_available) {
