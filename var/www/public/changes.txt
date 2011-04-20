@@ -1,5 +1,6 @@
 3.0602
  - Fix: Empire size in Universe Stats increased from 2,147,483,647 to 9,223,372,036,854,775,807.
+ - Fix: Installing SS modules no longer fails after the proposition passes.
 
 3.0601
  - API: Add set_speed parameter to the SpacePort's send_fleet method.
