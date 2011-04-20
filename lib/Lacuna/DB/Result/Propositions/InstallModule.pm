@@ -10,7 +10,7 @@ before pass => sub {
     my $station = $self->station;
     my $building = $station->buildings->find($self->scratch->{building_id});
     if (defined $building) {
-        if ($building->is_upgrading && $building->level < $self->scratch->{level}) {
+        if ($building->is_upgrading && $building->level < $self->scratch->{to_level}) {
             $building->finish_upgrade;
         }
     }
