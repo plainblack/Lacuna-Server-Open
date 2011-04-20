@@ -12,7 +12,7 @@ __PACKAGE__->add_columns(
     colony_count_delta          => { data_type => 'tinyint', is_nullable => 0 },
     population                  => { data_type => 'int', size => 11, is_nullable => 0 },
     population_delta            => { data_type => 'int', size => 11, is_nullable => 0 },
-    empire_size                 => { data_type => 'int', size => 11, is_nullable => 0 },
+    empire_size                 => { data_type => 'bigint', size => 11, is_nullable => 0 },
     empire_size_delta           => { data_type => 'int', size => 11, is_nullable => 0 },
     empire_size_rank            => { data_type => 'int', size => 11, is_nullable => 0 },
     building_count              => { data_type => 'smallint', is_nullable => 0 },

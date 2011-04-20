@@ -315,7 +315,7 @@ sub propose_repeal_law {
     }
     my $building = $self->get_building($empire, $building_id);
     unless ($building->level >= 5) {
-        confess [1013, 'Parliament must be level 5 to repeal a low.',5];
+        confess [1013, 'Parliament must be level 5 to repeal a law.',5];
     }
     unless ($law_id) {
         confess [1002, 'Must specify a law id to repeal.'];
