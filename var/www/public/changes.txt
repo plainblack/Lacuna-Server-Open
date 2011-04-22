@@ -6,6 +6,7 @@
  - Fix: Planets belonging to an empire that are in an alliance will once again be tagged with an alignment of 'self' instead of 'ally'.
  - Fix: Updated documentation for Body and Embassy.
  - Fix: Parliament's propose_fire_bfg and propose_rename_star no longer thrown an Internal Error.
+ - Fix: Parliament messages that used to say "jurisdiction of this station" will now say "jurisdiction of <station name>".
 
 3.0602
  - Fix: Empire size in Universe Stats increased from 2,147,483,647 to 9,223,372,036,854,775,807.
