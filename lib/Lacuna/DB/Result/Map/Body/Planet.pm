@@ -1699,19 +1699,21 @@ sub spend_food {
     }
     
     # adjust happiness based on food diversity
-    if ($food_type_count > 3) {
-        $self->add_happiness($food_consumed);
-    }
-    elsif ($food_type_count < 3) {
-        $self->spend_happiness($food_consumed);
-        my $empire = $self->empire;
-        if (!$empire->skip_resource_warnings && $empire->university_level > 2 && !$empire->check_for_repeat_message('complaint_food_diversity'.$self->id)) {
-            $empire->send_predefined_message(
-                filename    => 'complaint_food_diversity.txt',
-                params      => [$self->id, $self->name],
-                repeat_check=> 'complaint_food_diversity'.$self->id,
-                tags        => ['Complaint','Alert'],
-            );
+    if (!$self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        if ($food_type_count > 3) {
+            $self->add_happiness($food_consumed);
+        }
+        elsif ($food_type_count < 3) {
+            $self->spend_happiness($food_consumed);
+            my $empire = $self->empire;
+            if (!$empire->skip_resource_warnings && $empire->university_level > 2 && !$empire->check_for_repeat_message('complaint_food_diversity'.$self->id)) {
+                $empire->send_predefined_message(
+                    filename    => 'complaint_food_diversity.txt',
+                    params      => [$self->id, $self->name],
+                    repeat_check=> 'complaint_food_diversity'.$self->id,
+                    tags        => ['Complaint','Alert'],
+                );
+            }
         }
     }
     return $self;
