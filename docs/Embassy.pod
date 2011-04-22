@@ -52,7 +52,7 @@ A unique name for this alliance. Must be between 3 and 30 characters, cannot con
 
 =head2 dissolve_alliance ( session_id, building_id )
 
-Can only be called by alliance leader. Disbands and existing alliance.
+Can only be called by alliance leader. Disbands an existing alliance.
 
 NOTE: All space stations associated with the alliance will be abandoned and converted to asteroids.
 
