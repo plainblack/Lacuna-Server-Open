@@ -404,8 +404,8 @@ Rename a star. Usable at parliament level 8.
     "status" : { ... },
     "proposition" : {
         "id" : "id-goes-here",
-        "name" : "Seize Sol",
-        "description" : "Seize control of Sol.",
+        "name" : "Rename Sol",
+        "description" : "Rename Sol to Sun.",
         "votes_needed" : 7,
         "votes_yes" : 0,
         "votes_no" : 0,
