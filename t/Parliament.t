@@ -207,7 +207,7 @@ is($result->{error}{data}, 25, 'firing bfg requires level 25 parliament');
 $par->level(25);
 $par->update;
 
-$result = $tester->post('parliament', 'propose_fire_bfg', [$session_id, $par->id, 1, 'feel like it']);
+$result = $tester->post('parliament', 'propose_fire_bfg', [$session_id, $par->id, 2, 'feel like it']);
 is($result->{error}{code}, 1009, 'planet is not within jurisdiction of the station');
 
 $result = $tester->post('body', 'abandon', [$session_id, $station->id]);

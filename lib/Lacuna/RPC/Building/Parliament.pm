@@ -176,7 +176,7 @@ sub propose_fire_bfg {
     unless ($body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
         confess [1009, 'Target is not a planet.'];
     }
-    $self->body->in_jurisdiction($body);
+    $building->body->in_jurisdiction($body);
     my $name = $body->name.' ('.$body->x.','.$body->y.')';
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'FireBfg',
@@ -366,7 +366,7 @@ sub propose_rename_star {
         ->no_restricted_chars
         ->no_profanity
         ->no_padding
-        ->not_ok(Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({name=>$star_name, 'star_id'=>{'!='=>$star->id}})->count); # name available
+        ->not_ok(Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({name=>$star_name, 'id'=>{'!='=>$star->id}})->count); # name available
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'RenameStar',
         name            => 'Rename '.$star->name,
