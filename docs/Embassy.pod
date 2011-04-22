@@ -54,6 +54,8 @@ A unique name for this alliance. Must be between 3 and 30 characters, cannot con
 
 Can only be called by alliance leader. Disbands and existing alliance.
 
+NOTE: All space stations associated with the alliance will be abandoned and converted to asteroids.
+
  {
     "status" : { ... }
  }

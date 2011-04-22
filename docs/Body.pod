@@ -156,8 +156,6 @@ The id of the body you wish to retrieve the buildings on.
 
 Provides a list of all the building types that are available to be built on a given space on a planet that are within a specific tag.
 
-B<NOTE:> Calling C<get_buildable> on a Space Station will result in an exception. Use L<Parliament> instead.
-
  {
     "max_items_in_build_queue" : 6,
     "build_queue" : {
@@ -333,8 +331,6 @@ The new name of the body.
 =head2 abandon ( session_id, body_id )
 
 Abandon's a colony, and destroys everything on the planet. Returns a status block.
-
-B<NOTE:> Calling C<abandon> on a Space Station will result in an exception. Use L<Parliament> instead.
 
 =head3 session_id
 
