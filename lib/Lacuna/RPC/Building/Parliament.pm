@@ -516,7 +516,7 @@ sub propose_members_only_mining_rights {
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'MembersOnlyMiningRights',
         name            => 'Members Only Mining Rights',
-        description     => 'Only members of {Alliance '.$building->body->alliance_id.' '.$building->body->alliance->name.'} should be allowed to mine asteroids in the jurisdiction of '.$building->body->name.'.',
+        description     => 'Only members of {Alliance '.$building->body->alliance_id.' '.$building->body->alliance->name.'} should be allowed to mine asteroids in the jurisdiction of {Starmap '.$building->body->x.' '.$building->body->y.' '.$building->body->name.'}.',
         proposed_by_id  => $empire->id,
     });
     $proposition->station($building->body);
@@ -541,7 +541,7 @@ sub propose_members_only_colonization {
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'MembersOnlyColonization',
         name            => 'Members Only Colonization',
-        description     => 'Only members of {Alliance '.$building->body->alliance_id.' '.$building->body->alliance->name.'} should be allowed to colonize planets in the jurisdiction of '.$building->body->name.'.',
+        description     => 'Only members of {Alliance '.$building->body->alliance_id.' '.$building->body->alliance->name.'} should be allowed to colonize planets in the jurisdiction of {Starmap '.$building->body->x.' '.$building->body->y.' '.$building->body->name.'}.',
         proposed_by_id  => $empire->id,
     });
     $proposition->station($building->body);
@@ -724,7 +724,7 @@ sub propose_taxation {
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'Taxation',
         name            => 'Tax of '.$taxes.' resources per day',
-        description     => 'Implement a tax of '.$taxes. ' resources per day for all empires in the jurisdiction of '.$building->body->name.'.',
+        description     => 'Implement a tax of '.$taxes. ' resources per day for all empires in the jurisdiction of {Starmap '.$building->body->x.' '.$building->body->y.' '.$building->body->name.'}.',
         scratch         => { taxes => $taxes },
         proposed_by_id  => $empire->id,
     });
