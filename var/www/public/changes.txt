@@ -2,6 +2,7 @@
  - Fix: Space Stations should no longer complain about food.
  - Fix: Updated propose_rename_star docs.
  - Fix: Successful insurrection will transfer probes to the new planet owner.
+ - Fix: Only pilotable ships with a cargo size of 700 or greater can be used to transport abducted spies.
 
 3.0602
  - Fix: Empire size in Universe Stats increased from 2,147,483,647 to 9,223,372,036,854,775,807.

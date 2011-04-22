@@ -1387,7 +1387,7 @@ sub capture_kidnapper {
 sub abduct_operative {
     my ($self, $defender) = @_;
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {body_id => $self->on_body->id, task => 'Docked', hold_size => { '>=' => 700 }},
+        {body_id => $self->on_body->id, task => 'Docked', hold_size => { '>=' => 700 }, pilotable => 1},
         {rows => 1}
         )->single;
     return $self->ship_not_found->id unless (defined $ship);
