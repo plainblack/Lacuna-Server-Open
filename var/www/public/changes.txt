@@ -3,6 +3,7 @@
  - Fix: Updated propose_rename_star docs.
  - Fix: Successful insurrection will transfer probes to the new planet owner.
  - Fix: Only pilotable ships with a hold size of 700 or greater can be used to transport abducted spies.
+ - Fix: Planets belonging to an empire that are in an alliance will once again be tagged with an alignment of 'self' instead of 'ally'.
 
 3.0602
  - Fix: Empire size in Universe Stats increased from 2,147,483,647 to 9,223,372,036,854,775,807.
