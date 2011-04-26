@@ -2,6 +2,7 @@ x.xxxx
  - Add: Lost City of Tyleon credits.
  - Fix: Abandoning a planet will no longer cause stolen ships to turn around.
  - Fix: The typo that crept into Parliament rename star has also been corrected.
+ - Fix: Ships pushed via the Trade Ministry will count against the receiving SpacePort's count as soon as they are sent.
 
 3.0603
  - Fix: Space Stations should no longer complain about food.
