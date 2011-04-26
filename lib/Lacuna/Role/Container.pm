@@ -145,7 +145,7 @@ sub format_description_of_payload {
         foreach my $id (@{$payload->{prisoners}}) {
             my $spy = $spies->find($id);
             next unless defined $spy;
-            push @items, 'Level '.$spy->level.' spy named '.$spy->name . ' (prisoner)';
+            push @items, 'Level '.$spy->level.' spy named '.$spy->name . ' (prisoner) sentence expires '.$spy->available_on;
         }
     }
     

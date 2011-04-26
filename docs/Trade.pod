@@ -221,7 +221,8 @@ Returns a list of prisoners that may be traded. Used with the C<add_trade> metho
         {
             "id" : "id-goes-here",
             "name" : "Jack Bauer",
-            "level" : "5"
+            "level" : "5",
+            "sentence_expires" : "01 31 2010 13:09:05 +0600"
         },
         ...
     ],
@@ -495,7 +496,7 @@ Allows you to push items between your colonies.
  {
     "status" : { ... },
     "ship" : {
-        "name" : "SS Minow",
+        "name" : "SS Minnow",
         "type" : "cargo_ship",
         "date_arrives" : "01 31 2010 13:09:05 +0600",
         ...
