@@ -1,3 +1,6 @@
+x.xxxx
+ - Add: Lost City of Tyleon credits.
+
 3.0603
  - Fix: Space Stations should no longer complain about food.
  - Fix: Updated propose_rename_star docs.
