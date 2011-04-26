@@ -100,7 +100,7 @@ sub get_prisoners {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $prisoners = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-        { on_body_id => $building->body_id, task => 'Captured', available_on => { '>' => DateTime->now } }
+        { on_body_id => $building->body_id, task => 'Captured', available_on => { '>' => DateTime->now } },
         {order_by => [ 'name' ]}
         );
     my @out;
