@@ -139,7 +139,7 @@ sub push_items {
         if ( $item->{type} eq 'ship' ) {
             my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($item->{ship_id});
             next unless defined $ship;
-            $ship->body_id($body->id);
+            $ship->body_id($target->id);
             $ship->update;
         }
     }
