@@ -125,7 +125,7 @@ sub sanitize {
     $self->alliance_id(undef);
     $self->plans->delete;
     $self->glyphs->delete;
-    my $incoming = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_body_id => $self->id});
+    my $incoming = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_body_id => $self->id, direction => 'out'});
     while (my $ship = $incoming->next) {
         $ship->turn_around->update;
     }
