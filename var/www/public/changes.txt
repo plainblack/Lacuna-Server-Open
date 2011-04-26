@@ -1,5 +1,6 @@
 x.xxxx
  - Add: Lost City of Tyleon credits.
+ - Fix: Abandoning a planet will no longer cause stolen ships to turn around.
 
 3.0603
  - Fix: Space Stations should no longer complain about food.
