@@ -109,7 +109,7 @@ sub get_prisoners {
             id          => $prisoner->id,
             name        => $prisoner->name,
             level       => $prisoner->level,
-            sentence_expires => $prisoner->available_on,
+            sentence_expires => $prisoner->format_available_on,
         };
     }
     return {
