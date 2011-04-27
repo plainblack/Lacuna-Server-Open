@@ -1,10 +1,12 @@
-x.xxxx
- - Add: Lost City of Tyleon credits.
+3.0700
+ - Rule: Only allow 5,000 RPC per day and limit rate to no more than 50 per minute.
+ - API: Added an RPC boost that doubles the RPC per day and increases the throttle allowance by 50%.
  - Fix: Abandoning a planet will no longer cause stolen ships to turn around.
  - Fix: The typo that crept into Parliament rename star has also been corrected.
  - Fix: Ships pushed via the Trade Ministry will count against the receiving SpacePort's count as soon as they are sent.
  - Fix: Trade Ministry and SST get_prisoners() now includes the sentence expiration of the spy.
  - Fix: Prisoners now list their sentence expiration as well.
+ - Add: Lost City of Tyleon credits.
 
 3.0603
  - Fix: Space Stations should no longer complain about food.

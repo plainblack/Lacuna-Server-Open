@@ -45,6 +45,7 @@ __PACKAGE__->add_columns(
     ore_boost               => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     energy_boost            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     happiness_boost         => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    rpc_boost               => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     facebook_uid            => { data_type => 'bigint', is_nullable => 1 },
     facebook_token          => { data_type => 'varchar', size => 100, is_nullable => 1 },
     alliance_id             => { data_type => 'int', is_nullable => 1 },
