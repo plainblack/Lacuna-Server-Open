@@ -4,7 +4,7 @@
  - Fix: Abandoning a planet will no longer cause stolen ships to turn around.
  - Fix: The typo that crept into Parliament rename star has also been corrected.
  - Fix: Ships pushed via the Trade Ministry will count against the receiving SpacePort's count as soon as they are sent.
- - Fix: SST get_prisoners() now includes the sentence expiration of the spy.
+ - Fix: Trade Min and SST get_prisoners() now includes the sentence expiration of the spy.
  - Fix: Prisoners now list their sentence expiration as well.
  - Add: Lost City of Tyleon credits.
 
