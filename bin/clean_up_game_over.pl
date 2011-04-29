@@ -34,8 +34,8 @@ my $empires = $db->resultset('Lacuna::DB::Result::Empire');
 
 out('Deleting Empires');
 while (my $empire = $empires->next) {
-    out('Empire: '. $empire->name);
-#    $empire->delete;    
+    out('Deleting Empire: '. $empire->name);
+    $empire->delete;    
 }
 
 my $finish = time;
