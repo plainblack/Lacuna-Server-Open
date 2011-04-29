@@ -155,6 +155,8 @@ Allows you to eliminate one of your spies from your payroll.
     "status" : { ... }
  }
 
+Throws 1002, 1010
+
 =head3 session_id
 
 A session id.
