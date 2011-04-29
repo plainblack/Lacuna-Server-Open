@@ -1,5 +1,6 @@
 3.0701
  - Fix: Passed RenameAsteroid, RenameStar and RenameUninhabited propositions will no longer fail with not in jurisdiction errors when they should not.
+ - Fix: get_bodies_for_star_in_jurisdiction will now throw an exception if you pass it a star outside your jurisdiction.
 
 3.0700
  - Rule: Only allow 5,000 RPC per day and limit rate to no more than 50 per minute.
