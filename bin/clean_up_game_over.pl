@@ -6,6 +6,8 @@ use Lacuna::DB;
 use Lacuna;
 use List::Util qw(shuffle);
 use Lacuna::Util qw(randint format_date);
+use Config::JSON;
+use Lacuna::Cache;
 use Getopt::Long;
 $|=1;
 our $quiet;
@@ -17,14 +19,22 @@ GetOptions(
 out('Started');
 my $start = DateTime->now;
 
+out('Checking server status');
+my $config = Config::JSON->new('/data/Lacuna-Server/etc/lacuna.conf');
+my $cache = Lacuna::Cache->new(servers => $config->get('memcached'));
+my $status = $cache->get('server','status');
+unless ( $status eq 'Game Over' ) {
+    out('Server status is ' . $status);
+    exit 1;
+}
+
 out('Loading DB');
 our $db = Lacuna->db;
 my $empires = $db->resultset('Lacuna::DB::Result::Empire');
 
-
 out('Deleting Empires');
 while (my $empire = $empires->next) {
-    out('Empire ', $empire->name);
+    out('Empire: '. $empire->name);
 #    $empire->delete;    
 }
 
