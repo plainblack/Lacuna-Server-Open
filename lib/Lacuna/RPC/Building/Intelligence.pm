@@ -107,7 +107,6 @@ sub burn_spy {
     if ($spy->task eq 'Killed In Action') {
         confess [1010, "You can't burn a spy that has been killed in action; he's dead, Jim."
     }
-    if ($spy->task 
     $spy->burn;
     return {
         status  => $self->format_status($empire, $building->body),
