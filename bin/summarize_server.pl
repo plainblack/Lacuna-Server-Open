@@ -108,8 +108,8 @@ sub generate_overview {
     my %body_types = (
         gas_giants  => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant%',
         habitables  => 'Lacuna::DB::Result::Map::Body::Planet::P%',
+        stations    => 'Lacuna::DB::Result::Map::Body::Planet::Station',
         asteroids   => 'Lacuna::DB::Result::Map::Body::Asteroid%',
-        stations    => 'Lacuna::DB::Result::Map::Body::Station',
     );
     foreach my $key (keys %body_types) {
 	out($key);
