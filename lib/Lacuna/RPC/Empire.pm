@@ -683,7 +683,7 @@ sub boost_rpc {
 sub boost {
     my ($self, $session_id, $type) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $cost = $type eq 'rpc' ? 25 : 5;
+    my $cost = $type eq 'rpc_boost' ? 25 : 5;
     unless ($empire->essentia >= $cost) {
         confess [1011, 'Not enough essentia.'];
     }
