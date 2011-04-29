@@ -1,3 +1,6 @@
+3.0701
+ - Fix: Passed RenameAsteroid, RenameStar and RenameUninhabited propositions will no longer fail with not in jurisdiction errors when they should not.
+
 3.0700
  - Rule: Only allow 5,000 RPC per day and limit rate to no more than 50 per minute.
  - API: Added an RPC boost that doubles the RPC per day and increases the throttle allowance by 50%.
