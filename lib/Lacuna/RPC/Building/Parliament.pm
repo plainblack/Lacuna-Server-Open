@@ -443,7 +443,7 @@ sub propose_rename_asteroid {
         ->no_restricted_chars
         ->no_profanity
         ->no_padding
-        ->not_ok(Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({name=>$name, 'body_id'=>{'!='=>$asteroid->id}})->count); # name available
+        ->not_ok(Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({name=>$name, 'id'=>{'!='=>$asteroid->id}})->count); # name available
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'RenameAsteroid',
         name            => 'Rename '.$asteroid->name,
