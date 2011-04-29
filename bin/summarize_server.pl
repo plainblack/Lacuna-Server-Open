@@ -362,7 +362,7 @@ sub summarize_colonies {
             $colony_data{offense_success_rate}          += $spy->offense_success_rate;
             $colony_data{offense_success_rate_delta}    += $spy->offense_success_rate_delta;
             $colony_data{defense_success_rate}          += $spy->defense_success_rate;
-            $colony_data{offense_success_rate_delta}    += $spy->defense_success_rate_delta;
+            $colony_data{defense_success_rate_delta}    += $spy->defense_success_rate_delta;
             $colony_data{dirtiest}                      += $spy->dirtiest;
             $colony_data{dirtiest_delta}                += $spy->dirtiest_delta;
         }
