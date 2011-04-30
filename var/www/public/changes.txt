@@ -5,6 +5,7 @@
  - Fix: Spies that have been killed in action can no longer be burned.
  - Fix: Correct how the Offense/Defense stats are calculated.
  - Fix: Space Stations will now be counted in the stats along with the other bodies.
+ - Fix: Cache completed missions sooner in the method call.
 
 3.0700
  - Rule: Only allow 5,000 RPC per day and limit rate to no more than 50 per minute.
