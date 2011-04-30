@@ -96,7 +96,7 @@ sub add_bodies {
         Lacuna::DB::Result::Map::Body::Asteroid::A13 Lacuna::DB::Result::Map::Body::Asteroid::A14
         Lacuna::DB::Result::Map::Body::Asteroid::A15 Lacuna::DB::Result::Map::Body::Asteroid::A16
         Lacuna::DB::Result::Map::Body::Asteroid::A17 Lacuna::DB::Result::Map::Body::Asteroid::A18
-        Lacuna::DB::Result::Map::Body::Asteroid::A19 Lacuna::DB::Result::Map::Body::Asteroid::A20
+        Lacuna::DB::Result::Map::Body::Asteroid::A19 Lacuna::DB::Result::Map::Body::Asteroid::A20 Lacuna::DB::Result::Map::Body::Asteroid::A21
         );
     say "\tAdding bodies.";
     for my $orbit (1..8) {
