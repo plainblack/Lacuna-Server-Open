@@ -53,7 +53,9 @@ after can_send_to_target => sub {
     $ministry->can_add_platform($target);
     if ($target->star->station_id) {
         if ($target->star->station->laws->search({type => 'MembersOnlyMiningRights'})->count) {
-            confess [1010, 'Only '.$target->star->station->alliance->name.' members can mine asteroids in the jurisdiction of the space station.'];
+            unless ($target->star->station->alliance_id == $self->body->alliance_id) {
+                confess [1010, 'Only '.$target->star->station->alliance->name.' members can mine asteroids in the jurisdiction of the space station.'];
+            }
         }
     }
 };
