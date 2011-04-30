@@ -15,7 +15,7 @@ before pass => sub {
     if (! defined $platform) {
         $self->pass_extra_message('Unfortunately, by the time the proposition passed, the platform had already been destroyed, effectively nullifying the vote.');
     }
-    elsif ($self->station_id == $platform->asteroid->star->station_id) {
+    elsif ($self->station_id != $platform->asteroid->star->station_id) {
         $self->pass_extra_message('Unfortunately, by the time the proposition passed, the asteroid was no longer under the jurisdiction of this station, effectively nullifying the vote.');
     }
     else {

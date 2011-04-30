@@ -27,6 +27,21 @@ while (my $colony = $colonies->next) {
     if (defined $vein) {
         $vein->start_work({}, 60 * 60 * 24 * 60)->update;
     }
+    else {
+        my $buildings = $db->resultset('Lacuna::DB::Result::Building');
+        my ($x, $y) = $colony->find_free_space;
+        my $building = $buildings->new({
+            class   => 'Lacuna::DB::Result::Building::Permanent::EssentiaVein',
+            level   => 0,
+            x       => $x,
+            y       => $y,
+            body_id => $colony->id,
+            body    => $colony,
+        });
+        out('Added ' . $building->name);
+        $colony->build_building($building);
+        $building->finish_upgrade;
+    }
 }
 
 my $finish = time;

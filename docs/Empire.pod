@@ -579,6 +579,7 @@ Shows the dates at which boosts have expired or will expire. Boosts are subsidie
         "water" : "01 31 2010 13:09:05 +0600",
         "happiness" : "01 31 2010 13:09:05 +0600",
         "storage" : "01 31 2010 13:09:05 +0600"
+        "rpc" : "01 31 2010 13:09:05 +0600"
     }
  }
 
@@ -676,6 +677,25 @@ Spends 5 essentia, and boosts happiness production on all planets for 7 days. If
  {
     "status" : { ... },
     "happiness_boost" : "01 31 2010 13:09:05 +0600"
+ }
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+
+
+=head2 boost_rpc ( session_id )
+
+Spends 25 essentia, and boosts the number of RPC calls allowed per minute by 50% as well as doubling the total number RPC calls per day. If a boost is already underway, calling again will add 7 more days.
+
+NOTE: The boost will not affect the 'rpc_limit' returned as a part of server status.
+
+ {
+    "status" : { ... },
+    "rpc_boost" : "01 31 2010 13:09:05 +0600"
  }
 
 Throws 1011.

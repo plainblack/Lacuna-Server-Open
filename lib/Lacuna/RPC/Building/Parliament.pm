@@ -71,6 +71,9 @@ sub get_bodies_for_star_in_jurisdiction {
     }
     my $star = $building->body->stars->find($star_id);
     my @out;
+    unless ($star) {
+        confess [1009, 'That star is not in your jurisdiction.'];
+    }
     my $bodies = $star->bodies;
     while (my $body = $bodies->next) {
         push @out, $body->get_status($empire);
@@ -440,7 +443,7 @@ sub propose_rename_asteroid {
         ->no_restricted_chars
         ->no_profanity
         ->no_padding
-        ->not_ok(Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({name=>$name, 'body_id'=>{'!='=>$asteroid->id}})->count); # name available
+        ->not_ok(Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({name=>$name, 'id'=>{'!='=>$asteroid->id}})->count); # name available
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'RenameAsteroid',
         name            => 'Rename '.$asteroid->name,
@@ -486,7 +489,7 @@ sub propose_rename_uninhabited {
         ->no_restricted_chars
         ->no_profanity
         ->no_padding
-        ->not_ok(Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({name=>$name, 'body_id'=>{'!='=>$planet->id}})->count); # name available
+        ->not_ok(Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({name=>$name, 'id'=>{'!='=>$planet->id}})->count); # name available
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'RenameUninhabited',
         name            => 'Rename '.$planet->name,

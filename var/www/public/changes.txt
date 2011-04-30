@@ -1,4 +1,21 @@
-x.xxxx
+3.0701
+ - Fix: Passed EvictMiningPlatform, RenameAsteroid, RenameStar and RenameUninhabited propositions will no longer fail with not in jurisdiction errors when they should not.
+ - Fix: Passed RenameAsteroid and RenameUninhabited propositions will no longer fail with a DBIx error.
+ - Fix: get_bodies_for_star_in_jurisdiction will now throw an exception if you pass it a star outside your jurisdiction.
+ - Fix: Spies that have been killed in action can no longer be burned.
+ - Fix: Correct how the Offense/Defense stats are calculated.
+ - Fix: Space Stations will now be counted in the stats along with the other bodies.
+ - Fix: Cache completed missions sooner in the method call.
+ - Fix: Deploying a Mining Platform correctly checks Alliances now.
+
+3.0700
+ - Rule: Only allow 5,000 RPC per day and limit rate to no more than 50 per minute.
+ - API: Added an RPC boost that doubles the RPC per day and increases the throttle allowance by 50%.
+ - Fix: Abandoning a planet will no longer cause stolen ships to turn around.
+ - Fix: The typo that crept into Parliament rename star has also been corrected.
+ - Fix: Ships pushed via the Trade Ministry will count against the receiving SpacePort's count as soon as they are sent.
+ - Fix: Trade Min and SST get_prisoners() now includes the sentence expiration of the spy.
+ - Fix: Prisoners now list their sentence expiration as well.
  - Add: Lost City of Tyleon credits.
 
 3.0603

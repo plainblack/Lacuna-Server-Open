@@ -46,9 +46,9 @@ sub incomplete {
 
 sub complete {
     my ($self, $body) = @_;
+    Lacuna->cache->set($self->mission_file_name, $body->empire_id, 1, 60 * 60 * 24 * 30);
     $self->spend_objectives($body);
     $self->add_rewards($body);
-    Lacuna->cache->set($self->mission_file_name, $body->empire_id, 1, 60 * 60 * 24 * 30);
     Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
         zone                => $self->zone,
         headline            => sprintf($self->params->get('network_19_completion'), $body->empire->name),

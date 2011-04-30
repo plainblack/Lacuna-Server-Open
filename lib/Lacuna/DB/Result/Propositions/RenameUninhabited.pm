@@ -14,7 +14,7 @@ before pass => sub {
     if ($bodies->search({name=>$name, 'body_id'=>{'!='=>$planet->id}})->count) {
         $self->pass_extra_message('Unfortunately, by the time the proposition passed, the name *'.$name.'* had already taken, effectively nullifying the vote.');
     }
-    elsif ($planet->star->station_id = $station->id) {
+    elsif ($planet->star->station_id != $station->id) {
         $self->pass_extra_message('Unfortunately, by the time the proposition passed, the planet was no longer under the jurisdiction of this station, effectively nullifying the vote.');
     }
     elsif ($planet->empire_id) {

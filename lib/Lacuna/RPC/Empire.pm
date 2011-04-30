@@ -73,14 +73,18 @@ sub login {
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
     }
+    my $boost = (time < $empire->rpc_boost->epoch) ? 1 : 0;
     my $throttle = Lacuna->config->get('rpc_throttle') || 30;
+    $throttle *= 1.5 if ($boost);
     if ($empire->rpc_rate > $throttle) {
         confess [1010, 'Slow down! No more than '.$throttle.' requests per minute.'];
     }
     my $max = Lacuna->config->get('rpc_limit') || 2500;
+    $max *= 2 if ($boost);
     if ($empire->rpc_count > $max) {
         confess [1010, 'You have already made the maximum number of requests ('.$max.') you can make for one day.'];
     }
+
     #Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
     #   empire_id    => $empire->id,
     #   empire_name  => $empire->name,
@@ -671,13 +675,19 @@ sub boost_storage {
     return $self->boost($session_id, 'storage_boost');
 }
 
+sub boost_rpc {
+    my ($self, $session_id) = @_;
+    return $self->boost($session_id, 'rpc_boost');
+}
+
 sub boost {
     my ($self, $session_id, $type) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    unless ($empire->essentia >= 5) {
+    my $cost = $type eq 'rpc_boost' ? 25 : 5;
+    unless ($empire->essentia >= $cost) {
         confess [1011, 'Not enough essentia.'];
     }
-    $empire->spend_essentia(5, $type.' boost');
+    $empire->spend_essentia($cost, $type.' boost');
     my $start = DateTime->now;
     $start = $empire->$type if ($empire->$type > $start);
     $start->add(days=>7);
@@ -702,6 +712,7 @@ sub view_boosts {
             ore         => format_date($empire->ore_boost),
             energy      => format_date($empire->energy_boost),
             storage     => format_date($empire->storage_boost),
+            rpc         => format_date($empire->rpc_boost),
         }
     };
 }
@@ -1023,7 +1034,7 @@ __PACKAGE__->register_rpc_method_names(
     { name => "benchmark", options => { with_plack_request => 1 } },
     { name => "found", options => { with_plack_request => 1 } },
     { name => "reset_password", options => { with_plack_request => 1 } },
-    qw(redefine_species redefine_species_limits get_invite_friend_url get_species_templates update_species view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+    qw(redefine_species redefine_species_limits get_invite_friend_url get_species_templates update_species view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness boost_rpc view_boosts),
 );
 
 
