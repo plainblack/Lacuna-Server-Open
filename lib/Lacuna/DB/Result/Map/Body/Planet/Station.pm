@@ -103,11 +103,12 @@ sub in_jurisdiction {
     my ($self, $target) = @_;
     my $type = '';
     $type = 'star' if (ref $target eq 'Lacuna::DB::Result::Map::Star');
-    $type = 'body' if (ref $target eq 'Lacuna::DB::Result::Map::Body');
+    $type = 'body' if (ref $target =~ /Lacuna::DB::Result::Map::Body/);
     unless ($type) {
         confess [1009, 'Invalid target'];
     }
-    my $search = Lacuna->db->resultset(ref $target);
+    my $class = ( $type eq 'star' ) ? 'Lacuna::DB::Result::Map::Star' : 'Lacuna::DB::Result::Map::Body';
+    my $search = Lacuna->db->resultset($class);
     my $find = $search->find($target->id);
     unless (defined $find) {
         confess [1009, 'Invalid target'];
