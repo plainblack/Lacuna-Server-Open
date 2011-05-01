@@ -5,6 +5,88 @@ use utf8;
 no warnings qw(uninitialized);
 extends qw(Lacuna::Web);
 use Digest::MD5 qw(md5_hex);
+use Digest::HMAC_SHA1;
+use XML::Hash::LX;
+use Tie::IxHash;
+use LWP::UserAgent;
+
+sub pay_by_credit_card {
+    my ($self, $params) = @_;
+    confess [1009, 'Card number is required.'] unless $params->{card_number};
+    confess [1009, 'Expiration month is required and must be 2 digits.'] unless ($params->{expiration_month} && length($params->{expiration_month}) == 2);
+    confess [1009, 'Expiration year is required and must be 4 digits.'] unless ($params->{expiration_year} && length($params->{expiration_year}) == 4);
+    confess [1009, 'CVV2 is required and must be 3 or 4 digits.'] unless ($params->{cvv2} && length($params->{cvv2}) >= 3 && length($params->{cvv2}) <= 4);
+    my $config = Lacuna->config->get('itransact');
+    my @name = split /\s+/, $params->{billingaddress}{name};
+    my %payload;
+    tie %payload, 'Tie::IxHash';
+    %payload = (
+        GatewayInterface    => {
+            APICredentials  => {
+                Username            => $config->{APIUsername},
+                TargetGateway       => $config->{Gateway},
+            },
+            AuthTransaction => {
+                CustomerData    => {
+                    Email           => $params->{user}->{email},
+                    BillingAddress  => {
+                        Address1        => $params->{billingaddress}{address1},
+                        Address2        => $params->{billingaddress}{address2},
+                        FirstName       => shift @name,
+                        LastName        => join ' ', @name,
+                        City            => $params->{billingaddress}{city},
+                        State           => $params->{billingaddress}{state},
+                        Zip             => $params->{billingaddress}{postal_code},
+                        Country         => $params->{billingaddress}{country},
+                        Phone           => $params->{billingaddress}{phone_number},
+                    },
+                    CustId          => $params->{user}{username},
+                },
+                Total               => $params->{total},
+                Description         => 'Essentia Order #'.$params->{order_number},
+                AccountInfo         => {
+                    CardAccount => {
+                        AccountNumber   => $params->{card_number},
+                        ExpirationMonth => $params->{expiration_month},
+                        ExpirationYear  => $params->{expiration_year},
+                        CVVNumber       => $params->{cvv2},
+                    },
+                },
+                TransactionControl  => {
+                    SendCustomerEmail   => $config->{SendCustomerEmail},
+                    SendMerchantEmail   => $config->{SendMerchantEmail},
+                    TestMode            => $config->{TestMode},
+                },
+            },
+        },
+    );
+    my $xml = hash2xml \%payload;
+    my $hmac = Digest::HMAC_SHA1->new($config->{APIKey});
+    $hmac->add($xml);
+    $payload{GatewayInterface}{APICredentials}{PayloadSignature} = $hmac->b64digest . '=';
+    $xml = hash2xml \%payload;
+    my $response = LWP::UserAgent->new->post(
+        'https://secure.itransact.com/cgi-bin/rc/xmltrans2.cgi',
+        Content_Type    => 'text/xml',
+        Content         => $xml,
+        Accept          => 'text/xml',
+    );
+    $self->payment_method('Credit Card');
+    if ($response->is_success) {
+        my $result = xml2hash $response->decoded_content;
+        $result = $result->{GatewayInterface}{TransactionResponse}{TransactionResult};
+        if($result->{Status} eq 'ok') {
+            # show success message
+            # add essentia
+        }
+        else {
+            confess [1009, 'Card was rejected: '.$result->{XID}];
+        }
+    }
+    else {
+        confess [1009, 'Could not connect to the credit card processor.'];
+    }
+}
 
 sub calculate_jambool_signature {
     my ($self, $params, $secret) = @_;
