@@ -1,5 +1,5 @@
 3.0701
- - Fix: Passed EvictMiningPlatform, RenameAsteroid, RenameStar and RenameUninhabited propositions will no longer fail with not in jurisdiction errors when they should not.
+ - Fix: Passed EvictMiningPlatform, FireBfg, RenameAsteroid, RenameStar and RenameUninhabited propositions will no longer fail with not in jurisdiction errors when they should not.
  - Fix: Passed RenameAsteroid and RenameUninhabited propositions will no longer fail with a DBIx error.
  - Fix: get_bodies_for_star_in_jurisdiction will now throw an exception if you pass it a star outside your jurisdiction.
  - Fix: Spies that have been killed in action can no longer be burned.

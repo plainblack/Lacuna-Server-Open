@@ -101,7 +101,23 @@ sub add_waste {
 
 sub in_jurisdiction {
     my ($self, $target) = @_;
-    confess [1009, 'Target is not in the station\'s jurisdiction.'];
+    my $type = '';
+    $type = 'star' if (ref $target eq 'Lacuna::DB::Result::Map::Star');
+    $type = 'body' if (ref $target eq 'Lacuna::DB::Result::Map::Body');
+    unless ($type) {
+        confess [1009, 'Invalid target'];
+    }
+    my $search = Lacuna->db->resultset(ref $target);
+    my $find = $search->find($target->id);
+    unless (defined $find) {
+        confess [1009, 'Invalid target'];
+    }
+    if ($type eq 'star' && $find->station_id != $self->id) {
+        confess [1009, 'Target is not in the station\'s jurisdiction.'];
+    }
+    elsif ($find->star->station_id != $self->id) {
+        confess [1009, 'Target is not in the station\'s jurisdiction.'];
+    }
 }
 
 has total_influence => (
