@@ -93,7 +93,7 @@ sub get_mining_platforms_for_asteroid_in_jurisdiction {
     unless ($asteroid_id) {
         confess [1002, 'You must specify an asteroid id.'];
     }
-    my $asteroid = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ id => $asteroid_id });
+    my $asteroid = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($asteroid_id);
     unless (defined $asteroid) {
         confess [1002, 'Asteroid not found.'];
     }
