@@ -101,23 +101,22 @@ sub add_waste {
 
 sub in_jurisdiction {
     my ($self, $target) = @_;
-    my $type = '';
-    $type = 'star' if (ref $target eq 'Lacuna::DB::Result::Map::Star');
-    $type = 'body' if (ref $target =~ /Lacuna::DB::Result::Map::Body/);
-    unless ($type) {
-        confess [1009, 'Invalid target '.ref $target. ' '.$target->id];
-    }
-    my $class = ( $type eq 'star' ) ? 'Lacuna::DB::Result::Map::Star' : 'Lacuna::DB::Result::Map::Body';
-    my $search = Lacuna->db->resultset($class);
-    my $find = $search->find($target->id);
-    unless (defined $find) {
-        confess [1009, 'Invalid target '.ref $target. ' '.$target->id];
-    }
-    if ($type eq 'star' && $find->station_id != $self->id) {
-        confess [1009, 'Target is not in the station\'s jurisdiction.'];
-    }
-    elsif ($find->star->station_id != $self->id) {
-        confess [1009, 'Target is not in the station\'s jurisdiction.'];
+    if (ref $target eq 'Lacuna::DB::Result::Map::Star') {
+        my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($target->id);
+        unless (defined $star) {
+            confess [1009, 'Invalid star'];
+        }
+        unless ($star->station_id == $self->id) {
+            confess [1009, 'Target star is not in the station\'s jurisdiction.'];
+        }
+    } else {
+        my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target->id);
+        unless (defined $body) {
+            confess [1009, 'Invalid body'];
+        }
+        unless ($body->star->station_id == $self->id) {
+            confess [1009, 'Target body is not in the station\'s jurisdiction.'];
+        }
     }
 }
 
