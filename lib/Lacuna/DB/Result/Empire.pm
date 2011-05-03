@@ -481,6 +481,13 @@ sub find_home_planet {
     # find an uncontested planet in the possible planets
     my $home_planet;
     while (my $planet = $possible_planets->next) {
+        # skip planets with member's only colonization
+        if ($planet->star->station_id) {
+            if ($planet->star->station->laws->search({type => 'MembersOnlyColonization'})->count) {
+                next;
+            }
+        }
+
         unless ($planet->is_locked) {
             $planet->lock;
             $home_planet = $planet;
