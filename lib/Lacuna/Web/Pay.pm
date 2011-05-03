@@ -184,10 +184,10 @@ sub itransact_buy_url {
 
 sub www_buy_currency_cc {
     my ($self, $request) = @_;
-    confess [1009, 'Card number is required.'] unless $params->{card_number};
-    confess [1009, 'Expiration month is required and must be 2 digits.'] unless ($params->{expiration_month} && length($params->{expiration_month}) == 2);
-    confess [1009, 'Expiration year is required and must be 4 digits.'] unless ($params->{expiration_year} && length($params->{expiration_year}) == 4);
-    confess [1009, 'CVV2 is required and must be 3 or 4 digits.'] unless ($params->{cvv2} && length($params->{cvv2}) >= 3 && length($params->{cvv2}) <= 4);
+    confess [1009, 'Card number is required.'] unless $request->param('card_number');
+    confess [1009, 'Expiration month is required and must be 2 digits.'] unless ($request->param('expiration_month') && length($request->param('expiration_month')) == 2);
+    confess [1009, 'Expiration year is required and must be 4 digits.'] unless ($request->param('expiration_year') && length($request->param('expiration_year')) == 4);
+    confess [1009, 'CVV2 is required and must be 3 or 4 digits.'] unless ($request->param('cvv2') && length($request->param('cvv2')) >= 3 && length($request->param('cvv2')) <= 4);
     my $config = Lacuna->config->get('itransact');
     my @name = split /\s+/, $request->param('name');
     my %payload;
