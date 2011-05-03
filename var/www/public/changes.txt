@@ -1,3 +1,6 @@
+3.0702
+ - Fix: Member's only colonization functions properly now.
+
 3.0701
  - Fix: Passed EvictMiningPlatform, FireBfg, RenameAsteroid, RenameStar and RenameUninhabited propositions will no longer fail with not in jurisdiction errors when they should not.
  - Fix: Passed RenameAsteroid and RenameUninhabited propositions will no longer fail with a DBIx error.

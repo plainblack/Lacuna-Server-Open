@@ -53,7 +53,9 @@ after can_send_to_target => sub {
     confess [ 1009, 'Your species cannot survive on that planet.' ] if ($empire->university_level < 18 && ($target->orbit > $empire->max_orbit || $target->orbit < $empire->min_orbit));
     if ($target->star->station_id) {
         if ($target->star->station->laws->search({type => 'MembersOnlyColonization'})->count) {
-            confess [1010, 'Only '.$target->star->station->alliance->name.' members can colonize planets in the jurisdiction of the space station.'];
+            unless ($target->star->station->alliance_id == $self->body->empire->alliance_id) {
+                confess [1010, 'Only '.$target->star->station->alliance->name.' members can colonize planets in the jurisdiction of the space station.'];
+            }
         }
     }
     return 1;
