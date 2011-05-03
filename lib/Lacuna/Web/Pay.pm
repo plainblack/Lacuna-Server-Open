@@ -615,7 +615,7 @@ sub www_buy_currency {
                     </select> 
                 <label for="email">Email:</label><input name="email" id="email" type="text" size="18">
                 <label for="phone_number">Phone number:</label><input name="phone_number" id="postal_code" size="18">
-                <input type="button" name="buy_now" id="buy_now" value="Buy Now" onclick="this.form.submit()">
+                <input type="submit" name="buy_now" id="buy_now" value="Buy Now">
         </form>
 EoHTML
     return $self->wrap($content);
