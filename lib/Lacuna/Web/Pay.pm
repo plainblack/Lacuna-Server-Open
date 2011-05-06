@@ -234,7 +234,8 @@ sub www_buy_currency_cc {
         GatewayInterface    => {
             APICredentials  => {
                 Username            => $config->{APIUsername},
-                TargetGateway       => $config->{OrderFormUID}, #$config->{Gateway},
+                #TargetGateway       => $config->{OrderFormUID},
+                TargetGateway       => $config->{Gateway},
                 PayloadSignature    => $hmac->b64digest . '=',
             },
             %payload,
