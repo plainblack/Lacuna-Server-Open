@@ -168,7 +168,7 @@ sub www_default {
     unless (defined $empire) {
         confess [401, 'Empire not found.'];
     }
-    return $self->wrap('<div style="margin: 0 auto;width: 425;"><iframe frameborder="0" scrolling="no" width="425" height="365" src="'.$self->itransact_buy_url($empire->id).'></iframe></div>');
+    return $self->wrap('<div style="margin: 0 auto;width: 500;"><iframe frameborder="0" scrolling="no" width="500" height="650" src="'.$self->itransact_buy_url($empire->id).'></iframe></div>');
     #return $self->wrap('<div style="margin: 0 auto;width: 425;"><iframe frameborder="0" scrolling="no" width="425" height="365" src="'.$self->jambool_buy_url($empire->id).'"></iframe></div>');
 }
 
@@ -287,7 +287,14 @@ sub www_buy_currency_cc {
                 params      => [$amount, $transaction_id],        
             );
                 
-            return ['OK'];
+            my $script = "
+             try {
+              window.opener.YAHOO.lacuna.Essentia.paymentFinished();
+              window.setTimeout( function () { window.close() }, 5000);
+              } catch (e) {}
+            ";
+            return $self->wrap('Thank you! The essentia will be added to your account momentarily.<script type="text/javascript">'.$script.'</script>');
+
         }
         else {
             confess [1009, 'Card was rejected: '.$result->{XID}];
@@ -619,15 +626,15 @@ sub www_buy_currency {
                     <div>
                     <select name="expiration_month" id="expiration_month">
                         <option value=''>mon</option>
-                        <option value='1'>1</option>
-                        <option value='2'>2</option>
-                        <option value='3'>3</option>
-                        <option value='4'>4</option>
-                        <option value='5'>5</option>
-                        <option value='6'>6</option>
-                        <option value='7'>7</option>
-                        <option value='8'>8</option>
-                        <option value='9'>9</option>
+                        <option value='01'>1</option>
+                        <option value='02'>2</option>
+                        <option value='03'>3</option>
+                        <option value='04'>4</option>
+                        <option value='05'>5</option>
+                        <option value='06'>6</option>
+                        <option value='07'>7</option>
+                        <option value='08'>8</option>
+                        <option value='09'>9</option>
                         <option value='10'>10</option>
                         <option value='11'>11</option>
                         <option value='12'>12</option>
@@ -656,7 +663,7 @@ sub www_buy_currency {
         </form>
 EoHTML
 
-    return $self->wrap($content);
+    return $self->wrapper($content);
 }
 
 no Moose;
