@@ -168,7 +168,8 @@ sub www_default {
     unless (defined $empire) {
         confess [401, 'Empire not found.'];
     }
-    return $self->wrap('<div style="margin: 0 auto;width: 500;"><iframe frameborder="0" scrolling="no" width="500" height="650" src="'.$self->itransact_buy_url($empire->id).'></iframe></div>');
+    return $self->www_buy_currency($empire->id);
+    #return $self->wrap('<div style="margin: 0 auto;width: 500;"><iframe frameborder="0" scrolling="no" width="500" height="650" src="'.$self->itransact_buy_url($empire->id).'></iframe></div>');
     #return $self->wrap('<div style="margin: 0 auto;width: 425;"><iframe frameborder="0" scrolling="no" width="425" height="365" src="'.$self->jambool_buy_url($empire->id).'"></iframe></div>');
 }
 
@@ -308,8 +309,9 @@ sub www_buy_currency_cc {
 }
 
 sub www_buy_currency {
-    my ($self, $request) = @_;
-    my $user_id = $request->param('user_id');
+    my ($self, $user_id) = @_;
+    #my ($self, $request) = @_;
+    #my $user_id = $request->param('user_id');
     my $content = <<EoHTML;
         <script type="text/javascript">
             function update_currency(el) {
