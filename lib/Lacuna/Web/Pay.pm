@@ -179,7 +179,8 @@ sub wrap {
 
 sub itransact_buy_url {
     my ($self, $user_id) = @_;
-    return '/pay/buy/currency?user_id='.$user_id;
+    my $config = Lacuna->config->get();
+    return $config->{server_url}.'/pay/buy/currency?user_id='.$user_id;
 }
 
 sub www_buy_currency_cc {
