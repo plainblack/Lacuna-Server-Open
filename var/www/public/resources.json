@@ -156,7 +156,7 @@
     "ships" : {
         "stake" : { "description" : "Allows you to claim a planet prior to your colony ship arriving.", "wiki" : "http://community.lacunaexpanse.com/wiki/stake" },
         "thud" : { "description" : "Temporarily destroys plots on a planet's surface.", "wiki" : "http://community.lacunaexpanse.com/wiki/thud" },
-        "sweeper" : { "description" : "An upgraded Figher who's primary role is offense rather than defense.", "wiki" : "http://community.lacunaexpanse.com/wiki/sweeper" },
+        "sweeper" : { "description" : "An upgraded Figher whose primary role is offense rather than defense.", "wiki" : "http://community.lacunaexpanse.com/wiki/sweeper" },
         "supply_pod" : { "description" : "Creates temporary storage on a remote planet.", "wiki" : "http://community.lacunaexpanse.com/wiki/supply-pod" },
         "supply_pod2" : { "description" : "A larger version of the Supply Pod.", "wiki" : "http://community.lacunaexpanse.com/wiki/supply-pod" },
         "supply_pod3" : { "description" : "A very large version of the Supply Pod.", "wiki" : "http://community.lacunaexpanse.com/wiki/supply-pod" },
