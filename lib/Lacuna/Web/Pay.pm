@@ -230,11 +230,11 @@ sub www_buy_currency_cc {
     $xml = (split(/\n/, $xml))[1]; # strip the <xml> tag before calculating the PayloadSignature
     my $hmac = Digest::HMAC_SHA1->new($config->{APIKey});
     $hmac->add($xml);
+                #TargetGateway       => $config->{OrderFormUID},
     my %xml = (
         GatewayInterface    => {
             APICredentials  => {
                 Username            => $config->{APIUsername},
-                #TargetGateway       => $config->{OrderFormUID},
                 TargetGateway       => $config->{Gateway},
                 PayloadSignature    => $hmac->b64digest . '=',
             },
