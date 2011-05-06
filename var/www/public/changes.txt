@@ -1,6 +1,7 @@
 3.0702
  - Fix: Member's only colonization properly checks the Alliance id.
  - Fix: New players will not be given a planet around a star under the member's only colonization law.
+ - Fix: Corrected sweeper description.
 
 3.0701
  - Fix: Passed EvictMiningPlatform, FireBfg, RenameAsteroid, RenameStar and RenameUninhabited propositions will no longer fail with not in jurisdiction errors when they should not.
