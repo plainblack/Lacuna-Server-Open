@@ -9,6 +9,7 @@ use Digest::HMAC_SHA1;
 use XML::Hash::LX;
 use Tie::IxHash;
 use LWP::UserAgent;
+use Business::PayPal::API qw( ExpressCheckout );
 
 sub calculate_jambool_signature {
     my ($self, $params, $secret) = @_;
@@ -168,8 +169,8 @@ sub www_default {
     unless (defined $empire) {
         confess [401, 'Empire not found.'];
     }
-    return $self->www_buy_currency($empire->id);
-    #return $self->wrap('<div style="margin: 0 auto;width: 500;"><iframe frameborder="0" scrolling="no" width="500" height="650" src="'.$self->itransact_buy_url($empire->id).'></iframe></div>');
+    Lacuna->cache->set( 'paypal_order', $empire->id, { session => $session, }, 60 * 30 );
+    return [ $self->buy_currency_url($empire->id), { status => 302 } ];
     #return $self->wrap('<div style="margin: 0 auto;width: 425;"><iframe frameborder="0" scrolling="no" width="425" height="365" src="'.$self->jambool_buy_url($empire->id).'"></iframe></div>');
 }
 
@@ -178,148 +179,39 @@ sub wrap {
     return $self->wrapper($content, { title => 'Purchase Essentia', logo => 1 });
 }
 
-sub itransact_buy_url {
+sub buy_currency_url {
     my ($self, $user_id) = @_;
     my $config = Lacuna->config->get();
     return $config->{server_url}.'pay/buy/currency?user_id='.$user_id;
 }
 
-sub www_buy_currency_cc {
+sub buy_currency {
     my ($self, $request) = @_;
-    confess [1009, 'Card number is required.'] unless $request->param('card_number');
-    confess [1009, 'Expiration month is required and must be 2 digits.'] unless ($request->param('expiration_month') && length($request->param('expiration_month')) == 2);
-    confess [1009, 'Expiration year is required and must be 4 digits.'] unless ($request->param('expiration_year') && length($request->param('expiration_year')) == 4);
-    confess [1009, 'CVV2 is required and must be 3 or 4 digits.'] unless ($request->param('cvv2') && length($request->param('cvv2')) >= 3 && length($request->param('cvv2')) <= 4);
-    my $config = Lacuna->config->get('itransact');
-    my @name = split /\s+/, $request->param('name');
-    my %payload;
-    tie %payload, 'Tie::IxHash';
-    %payload = (
-        AuthTransaction => {
-            CustomerData    => {
-                Email           => $request->param('email'),
-                BillingAddress  => {
-                    Address1        => $request->param('address1'),
-                    FirstName       => shift @name,
-                    LastName        => join(' ', @name),
-                    City            => $request->param('city'),
-                    State           => $request->param('state'),
-                    Zip             => $request->param('postal_code'),
-                    Country         => $request->param('country'),
-                    Phone           => $request->param('phone_number'),
-                },
-                CustId          => $request->param('user_id'),
-            },
-            Total               => $request->param('total'),
-            Description         => 'Essentia Order',
-            AccountInfo         => {
-                CardAccount => {
-                    AccountNumber   => $request->param('card_number'),
-                    ExpirationMonth => $request->param('expiration_month'),
-                    ExpirationYear  => $request->param('expiration_year'),
-                    CVVNumber       => $request->param('cvv2'),
-                },
-            },
-            TransactionControl  => {
-                SendCustomerEmail   => $config->{SendCustomerEmail},
-                SendMerchantEmail   => $config->{SendMerchantEmail},
-                TestMode            => $config->{TestMode},
-            },
-        },
-    );
-    $payload{AuthTransaction}{CustomerData}{BillingAddress}{Address2} = $request->param('address2') if ( $request->param('address2') );
-    my $xml = hash2xml \%payload;
-    $xml = (split(/\n/, $xml))[1]; # strip the <xml> tag before calculating the PayloadSignature
-    my $hmac = Digest::HMAC_SHA1->new($config->{APIKey});
-    $hmac->add($xml);
-    my %xml = (
-        GatewayInterface    => {
-            APICredentials  => {
-                Username            => $config->{APIUsername},
-                TargetGateway       => $config->{Gateway},
-                PayloadSignature    => $hmac->b64digest . '=',
-            },
-            %payload,
-        }
-    );
-    $xml = hash2xml \%xml;
-    my $response = LWP::UserAgent->new->post(
-        'https://secure.itransact.com/cgi-bin/rc/xmltrans2.cgi',
-        Content_Type    => 'text/xml',
-        Content         => $xml,
-        Accept          => 'text/xml',
-    );
-    if ($response->is_success) {
-        my $result = xml2hash $response->decoded_content;
-        $result = $result->{GatewayInterface}{TransactionResponse}{TransactionResult};
-        if($result->{Status} eq 'ok') {
-            # get user account
-            my $empire_id = $request->param('user_id');
-            unless ($empire_id) {
-                return ['Not a valid user_id.', { status => 401 }];
-            }
-            my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
-            unless (defined $empire) {
-                return ['Empire not found.', { status => 404 }];
-            }
-            
-            # make sure we haven't already processed this transaction
-            my $transaction_id = $result->{AuthCode};
-            unless ($transaction_id) {
-                return ['Not a valid iTransact AuthCode.', { status => 402 }];
-            }
-            my $transaction = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search(
-                { transaction_id => $transaction_id },
-                { rows => 1 }
-            )->single;
-            if (defined $transaction) {
-                return ['Already processed this transaction.', { status => 200 }];
-            }
-            
-            # add essentia and alert user
-            my $amount = $request->param('premium_currency_amount');
-            $empire->add_essentia(
-                $amount,
-                'Purchased via iTransact',
-                $transaction_id,
-            )->update;
-            $empire->send_predefined_message(
-                tags        => ['Alert'],
-                filename    => 'purchase_essentia.txt',
-                params      => [$amount, $transaction_id],        
-            );
-                
-            my $script = "
-             try {
-              window.opener.YAHOO.lacuna.Essentia.paymentFinished();
-              window.setTimeout( function () { window.close() }, 5000);
-              } catch (e) {}
-            ";
-            return $self->wrap('Thank you! The essentia will be added to your account momentarily.<script type="text/javascript">'.$script.'</script>');
-
-        }
-        else {
-            confess [1009, 'Card was rejected: '.$result->{XID}];
-            
-        }
-    }
-    else {
-        confess [1009, 'Could not connect to the credit card processor.'];
-    }
-}
-
-sub www_buy_currency {
-    my ($self, $user_id) = @_;
-    #my ($self, $request) = @_;
-    #my $user_id = $request->param('user_id');
+    my $user_id = $request->param('user_id');
     my $content = <<EoHTML;
         <script type="text/javascript">
             function update_currency(el) {
                 var text = el.options[el.selectedIndex].text;
                 var value = text.split(" ");
                 var newvalue = value[0];
-                var currency = document.getElementByID("premium_currency_amount");
+                var formid = document.getElementById('form_to_update').value;
+                var form = document.getElementById(formid);
+                var currency = form.premium_currency_amount;
                 currency.value = newvalue;
+            }
+            function update_form(el) {
+                var chosen = el.value;
+                var form = chosen+'_form';
+                document.getElementById('form_to_update').value = form;
+                var form1 = document.getElementById(form);
+                if (chosen == 'cc') {
+                    chosen = 'paypal';
+                } else {
+                    chosen = 'cc';
+                }       
+                var form2 = document.getElementById(chosen+'_form');
+                form2.style.display = 'none';
+                form1.style.display = 'block';
             }
         </script>
         <style>
@@ -353,8 +245,53 @@ sub www_buy_currency {
                 margin-right: auto;
 
             }
+            form#paypal_form {
+                display: none;
+            }
+            form#cc_form {
+                display: block;
+            }
         </style>
         <h2>Get More Essentia</h2>
+        <form id="payment_selector">
+            <fieldset>
+                <legend>Payment Type</legend>
+                <input type="radio" name="payment_type" value="cc" onchange="update_form(this)" checked>Credit card
+                <input type="radio" name="payment_type" value="paypal" onchange="update_form(this)">Paypal
+                <input type="hidden" name="form_to_update" id="form_to_update" value="cc_form">
+            </fieldset>
+        </form>
+        <form action="/pay/buy/currency/paypal" id="paypal_form">
+            <input type="hidden" name="user_id" id="user_id" value="$user_id">
+            <input type="hidden" name="premium_currency_amount" id="premium_currency_amount" value="30">
+            <fieldset>
+                <legend>Get More Essentia</legend>
+                <label for="total">Buy</label>
+                <select name="total" id="total" onchange="update_currency(this)">
+                    <option value='2.99'>30 Essentia for \$2.99</option>
+                    <option value='5.99'>100 Essentia for \$5.99</option>
+                    <option value='9.99'>200 Essentia for \$9.99</option>
+                    <option value='24.99' default>600 Essentia for \$24.99</option>
+                    <option value='49.95'>1300 Essentia for \$49.95</option>
+                </select>
+            </fieldset>
+            <a href="javascript:document.paypal_form.submit()"><img src="https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif" align="left" style="margin-right:7px;"></a>
+        </form>
+        <form action="/pay/buy/currency/paypal" id="paypal_form">
+                <input type="hidden" name="user_id" id="user_id" value="$user_id">
+                <input type="hidden" name="premium_currency_amount" id="premium_currency_amount" value="30">
+                <fieldset>
+                    <legend>Get More Essentia</legend>
+                    <label for="total">Buy</label>
+                    <select name="total" id="total" onchange="update_currency(this)">
+                        <option value='2.99'>30 Essentia for \$2.99</option>
+                        <option value='5.99'>100 Essentia for \$5.99</option>
+                        <option value='9.99'>200 Essentia for \$9.99</option>
+                        <option value='24.99' default>600 Essentia for \$24.99</option>
+                        <option value='49.95'>1300 Essentia for \$49.95</option>
+                    </select>
+                </fieldset>
+        </form>
         <form action="/pay/buy/currency/cc" id="cc_form">
             <div>
                 <input type="hidden" name="user_id" id="user_id" value="$user_id">
@@ -667,6 +604,286 @@ sub www_buy_currency {
 EoHTML
 
     return $self->wrapper($content);
+}
+
+sub buy_currency_cc {
+    my ($self, $request) = @_;
+    confess [1009, 'Card number is required.'] unless $request->param('card_number');
+    confess [1009, 'Expiration month is required and must be 2 digits.'] unless ($request->param('expiration_month') && length($request->param('expiration_month')) == 2);
+    confess [1009, 'Expiration year is required and must be 4 digits.'] unless ($request->param('expiration_year') && length($request->param('expiration_year')) == 4);
+    confess [1009, 'CVV2 is required and must be 3 or 4 digits.'] unless ($request->param('cvv2') && length($request->param('cvv2')) >= 3 && length($request->param('cvv2')) <= 4);
+    my $config = Lacuna->config->get('itransact');
+    my @name = split /\s+/, $request->param('name');
+    my %payload;
+    tie %payload, 'Tie::IxHash';
+    %payload = (
+        AuthTransaction => {
+            CustomerData    => {
+                Email           => $request->param('email'),
+                BillingAddress  => {
+                    Address1        => $request->param('address1'),
+                    FirstName       => shift @name,
+                    LastName        => join(' ', @name),
+                    City            => $request->param('city'),
+                    State           => $request->param('state'),
+                    Zip             => $request->param('postal_code'),
+                    Country         => $request->param('country'),
+                    Phone           => $request->param('phone_number'),
+                },
+                CustId          => $request->param('user_id'),
+            },
+            Total               => $request->param('total'),
+            Description         => 'Essentia Order',
+            AccountInfo         => {
+                CardAccount => {
+                    AccountNumber   => $request->param('card_number'),
+                    ExpirationMonth => $request->param('expiration_month'),
+                    ExpirationYear  => $request->param('expiration_year'),
+                    CVVNumber       => $request->param('cvv2'),
+                },
+            },
+            TransactionControl  => {
+                SendCustomerEmail   => $config->{SendCustomerEmail},
+                SendMerchantEmail   => $config->{SendMerchantEmail},
+                TestMode            => $config->{TestMode},
+            },
+        },
+    );
+    $payload{AuthTransaction}{CustomerData}{BillingAddress}{Address2} = $request->param('address2') if ( $request->param('address2') );
+    my $xml = hash2xml \%payload;
+    $xml = (split(/\n/, $xml))[1]; # strip the <xml> tag before calculating the PayloadSignature
+    my $hmac = Digest::HMAC_SHA1->new($config->{APIKey});
+    $hmac->add($xml);
+    my %xml = (
+        GatewayInterface    => {
+            APICredentials  => {
+                Username            => $config->{APIUsername},
+                TargetGateway       => $config->{Gateway},
+                PayloadSignature    => $hmac->b64digest . '=',
+            },
+            %payload,
+        }
+    );
+    $xml = hash2xml \%xml;
+    my $response = LWP::UserAgent->new->post(
+        'https://secure.itransact.com/cgi-bin/rc/xmltrans2.cgi',
+        Content_Type    => 'text/xml',
+        Content         => $xml,
+        Accept          => 'text/xml',
+    );
+    if ($response->is_success) {
+        my $result = xml2hash $response->decoded_content;
+        $result = $result->{GatewayInterface}{TransactionResponse}{TransactionResult};
+        if($result->{Status} eq 'ok') {
+            # get user account
+            my $empire_id = $request->param('user_id');
+            unless ($empire_id) {
+                return ['Not a valid user_id.', { status => 401 }];
+            }
+            my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+            unless (defined $empire) {
+                return ['Empire not found.', { status => 404 }];
+            }
+            
+            # make sure we haven't already processed this transaction
+            my $transaction_id = $result->{AuthCode};
+            unless ($transaction_id) {
+                return ['Not a valid iTransact AuthCode.', { status => 402 }];
+            }
+            my $transaction = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search(
+                { transaction_id => $transaction_id },
+                { rows => 1 }
+            )->single;
+            if (defined $transaction) {
+                return ['Already processed this transaction.', { status => 200 }];
+            }
+            
+            # add essentia and alert user
+            my $amount = $request->param('premium_currency_amount');
+            $empire->add_essentia(
+                $amount,
+                'Purchased via iTransact',
+                $transaction_id,
+            )->update;
+            $empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'purchase_essentia.txt',
+                params      => [$amount, $transaction_id],        
+            );
+                
+            my $script = "
+             try {
+              window.opener.YAHOO.lacuna.Essentia.paymentFinished();
+              window.setTimeout( function () { window.close() }, 5000);
+              } catch (e) {}
+            ";
+            return $self->wrap('Thank you! The essentia will be added to your account momentarily.<script type="text/javascript">'.$script.'</script>');
+
+        }
+        else {
+            return $self->wrap('Card was rejected: '.$result->{XID});
+            
+        }
+    }
+    else {
+        return $self->wrap('Could not connect to the credit card processor.');
+    }
+}
+
+sub paypal_ec_return {
+    my $self = shift;
+    my $config = Lacuna->config->get();
+    return $config->{server_url}.'pay/paypal/ec/return';
+}
+
+sub paypal_ec_cancel {
+    my ($self, $user_id) = @_;
+    my $config = Lacuna->config->get();
+    Lacuna->cache->delete( 'paypal_order', $user_id );
+    return $config->{server_url}.'pay/paypal/ec/cancel?user_id='.$user_id;
+}
+
+# step one
+sub buy_currency_paypal {
+    my ($self, $request) = @_;
+    my $user_id = $request->param('user_id');
+    my $total = $request->param('total');
+    my $currency = $request->param('premium_currency_amount');
+    my $config = Lacuna->config->get('paypal');
+
+    $Business::PayPal::API::Debug = 1;
+
+    my $pp = Business::PayPal::API->new(
+        Username    => $config->{APIUsername},
+        Password    => $config->{APIPassword},
+        Signature   => $config->{Signature},
+        sandbox     => $config->{Sandbox},
+    );
+    my %resp = $pp->SetExpressCheckout(
+        OrderTotal  => $total,
+        ReturnURL   => $self->paypal_ec_return,
+        CancelURL   => $self->paypal_ec_cancel,
+        NoShipping  => 1,
+        Custom      => $user_id,
+#        InvoiceID   => $InvoiceID,
+    );
+warn Dumper(\%resp);use Data::Dumper;
+    if ($resp{Ack} ne 'Success') {
+        # Uh oh
+        my $content = Dumper(\%resp); use Data::Dumper;
+        return $self->wrap(qq{<h2>Error acquiring token</h2><pre>$content</pre>});
+    }
+    my $token = $resp{Token};
+    my $uri = qq{https://www.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=$token};
+    my $order = Lacuna->cache->get( 'paypal_order', $user_id );
+    Lacuna->cache->set( 'paypal_order', $user_id, { session => $order->{session}, token => $token, total => $total, currency => $currency }, 60 * 30 );
+    return [ $uri, { status => 302 } ];
+}
+
+sub www_paypal_ec_return {
+    my ($self, $request) = @_;
+    my $token = $request->param('token');
+    my $payerId = $request->param('PayerID');
+warn "token: $token\n";
+warn "payerId: $payerId\n";
+    my $config = Lacuna->config->get('paypal');
+    my $paypal = $config->{paypal};
+
+    $Business::PayPal::API::Debug = 1;
+
+    my $pp = Business::PayPal::API->new(
+        Username    => $paypal->{APIUsername},
+        Password    => $paypal->{APIPassword},
+        Signature   => $paypal->{Signature},
+        sandbox     => $paypal->{Sandbox},
+    );
+    my %details = $pp->GetExpressCheckoutDetails($token);
+warn Dumper(\%details);use Data::Dumper;
+    if ($details{Ack} ne 'Success') {
+        # Uh oh
+        my $content = Dumper(\%details); use Data::Dumper;
+        return $self->wrap(qq{<h2>Error acquiring checkout details</h2><pre>$content</pre>});
+    }
+    my $PayerID = '';
+    $PayerID = $details{PayerID} if $details{PayerID};
+    my $uri = $config->{server_url}.'pay/paypal/ec/checkout?token='.$token.'&PayerID='.$PayerID.'&user_id='.$details{Custom};
+    return [ $uri, { status => 302 } ];
+}
+
+sub www_paypal_ec_cancel {
+    my ($self, $request) = @_;
+    my $user_id = $request->param('user_id');
+    Lacuna->cache->delete( 'paypal_order', $user_id );
+    return $self->wrap('<h2>Transaction cancelled</h2>');
+}
+
+sub www_paypal_ec_checkout {
+    my ($self, $request) = @_;
+    my $token = $request->param('token');
+    my $PayerID = $request->param('PayerID');
+    my $user_id = $request->param('user_id');
+
+    # get user account
+    unless ($user_id) {
+        return ['Not a valid user_id.', { status => 401 }];
+    }
+
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($user_id);
+    unless (defined $empire) {
+        return ['Emire not found.', { status => 404 }];
+    }
+
+    my $order = Lacuna->cache->get( 'paypal_order', $user_id );
+    my $config = Lacuna->config->get('paypal');
+    my $paypal = $config->{paypal};
+
+    $Business::PayPal::API::Debug = 1;
+
+    my $pp = Business::PayPal::API->new(
+        Username    => $paypal->{APIUsername},
+        Password    => $paypal->{APIPassword},
+        Signature   => $paypal->{Signature},
+        sandbox     => $paypal->{Sandbox},
+    );
+    my %payinfo = $pp->DoExpressCheckoutPayment(
+        Token           => $token,
+        PayerID         => $PayerID,
+        OrderTotal      => $order->{total},
+    );
+warn Dumper(\%payinfo);use Data::Dumper;
+    if ($payinfo{Ack} ne 'Success') {
+        # Uh oh
+        my $content = Dumper(\%payinfo); use Data::Dumper;
+        return $self->wrap(qq{<h2>Error acquiring with checkout</h2><pre>$content</pre>});
+    }
+
+    # make sure we haven't already processed this transaction
+    my $transaction_id = $payinfo{TransactionID};
+    unless ($transaction_id) {
+        return ['Not a valid PayPal TransactionID.', { status => 402 }];
+    }
+    my $transaction = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search(
+        { transaction_id => $transaction_id },
+        { rows => 1 }
+    )->single;
+    if (defined $transaction) {
+        return ['Already processed this transaction.', { status => 200 }];
+    }
+
+    # add essentia and alert user
+    my $amount = $order->{currency};
+    $empire->add_essentia(
+        $amount,
+        'Purchased via PayPal',
+        $transaction_id,
+    )->update;
+    $empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'purchase_essentia.txt',
+        params      => [$amount, $transaction_id],
+    );
+
+    Lacuna->cache->delete( 'paypal_order', $user_id );
 }
 
 no Moose;
