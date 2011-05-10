@@ -11,7 +11,7 @@ before pass => sub {
     my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body');
     my $planet = $bodies->find($self->scratch->{planet_id});
     my $name = $self->scratch->{name};
-    if ($bodies->search({name=>$name, 'body_id'=>{'!='=>$planet->id}})->count) {
+    if ($bodies->search({name=>$name, 'id'=>{'!='=>$planet->id}})->count) {
         $self->pass_extra_message('Unfortunately, by the time the proposition passed, the name *'.$name.'* had already taken, effectively nullifying the vote.');
     }
     elsif ($planet->star->station_id != $station->id) {
