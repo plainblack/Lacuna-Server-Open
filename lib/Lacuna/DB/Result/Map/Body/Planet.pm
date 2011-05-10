@@ -1855,7 +1855,7 @@ sub complain_about_lack_of_resources {
     # if they run out of resources in storage, then the citizens start bitching
     if (!$empire->check_for_repeat_message('complaint_lack_of_'.$resource.$self->id)) {
         my $building_name;
-        foreach my $rpcclass (shuffle (BUILDABLE_CLASSES SPACE_STATION_MODULES)) {
+        foreach my $rpcclass (shuffle (BUILDABLE_CLASSES, SPACE_STATION_MODULES)) {
             my $class = $rpcclass->model_class;
             next unless ('Infrastructure' ~~ [$class->build_tags]);
             my $building = $self->get_buildings_of_class($class)->search({efficiency => {'>' => 0}},{rows => 1})->single;
