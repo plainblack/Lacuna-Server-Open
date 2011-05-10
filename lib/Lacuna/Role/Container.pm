@@ -53,6 +53,7 @@ sub unload {
             my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($id);
             next unless defined $ship;
             $ship->body_id($body->id);
+            $ship->task('Docked');
             $ship->land->update;
         }
         delete $payload->{ships};

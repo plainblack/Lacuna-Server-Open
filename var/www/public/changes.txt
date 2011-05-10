@@ -3,6 +3,7 @@
  - Fix: New players will not be given a planet around a star under the member's only colonization law.
  - Fix: Corrected sweeper description.
  - Fix: Another fix for RenameAsteroid.
+ - Fix: Ships will be docked when they are unloaded from another ship.
 
 3.0701
  - Fix: Passed EvictMiningPlatform, FireBfg, RenameAsteroid, RenameStar and RenameUninhabited propositions will no longer fail with not in jurisdiction errors when they should not.
