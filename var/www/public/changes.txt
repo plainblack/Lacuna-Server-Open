@@ -1,3 +1,6 @@
+3.0703
+ - Fix: Space Station modules will now take damage due to lack of resources.
+
 3.0702
  - Fix: Member's only colonization properly checks the Alliance id.
  - Fix: New players will not be given a planet around a star under the member's only colonization law.

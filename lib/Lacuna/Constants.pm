@@ -92,7 +92,16 @@ use constant BUILDABLE_CLASSES => (qw(
     Lacuna::RPC::Building::WaterStorage
     Lacuna::RPC::Building::Wheat
     ));
-
+use constant SPACE_STATION_MODULES => (qw(
+    Lacuna::RPC::Building::ArtMuseum
+    Lacuna::RPC::Building::CulinaryInstitute
+    Lacuna::RPC::Building::IBS
+    Lacuna::RPC::Building::OperaHouse
+    Lacuna::RPC::Building::Parliament
+    Lacuna::RPC::Building::PoliceStation
+    Lacuna::RPC::Building::StationCommand
+    Lacuna::RPC::Building::Warehouse
+    ));
 use constant SHIP_TYPES => (qw( probe short_range_colony_ship colony_ship spy_pod cargo_ship space_station 
                              smuggler_ship mining_platform_ship terraforming_platform_ship surveyor
                              gas_giant_settlement_ship scow dory freighter snark snark2 snark3 thud
@@ -109,6 +118,7 @@ our @EXPORT_OK = qw(
     FOOD_TYPES
     ORE_TYPES
     BUILDABLE_CLASSES
+    SPACE_STATION_MODULES
     SHIP_TYPES
 );
 
@@ -119,6 +129,7 @@ our %EXPORT_TAGS = (
         FOOD_TYPES
         ORE_TYPES
         BUILDABLE_CLASSES
+        SPACE_STATION_MODULES
         SHIP_TYPES
         )],
 );
