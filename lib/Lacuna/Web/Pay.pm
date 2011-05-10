@@ -72,7 +72,7 @@ sub www_jambool_postback {
     }
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
     unless (defined $empire) {
-        return ['Emire not found.', { status => 404 }];
+        return ['Empire not found.', { status => 404 }];
     }
     
     # make sure we haven't already processed this transaction
@@ -126,7 +126,7 @@ sub www_jambool_reversal {
     }
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
     unless (defined $empire) {
-        return ['Emire not found.', { status => 404 }];
+        return ['Empire not found.', { status => 404 }];
     }
     
     # make sure we already gave them essentia
@@ -158,7 +158,8 @@ sub www_jambool_reversal {
 
 sub www_default {
     my ($self, $request) = @_;
-    my $session = $self->get_session($request->param('session_id'));
+    my $session_id = $request->param('session_id');
+    my $session = $self->get_session($session_id);
     unless (defined $session) {
         confess [ 401, 'You must be logged in to purchase essentia.'];
     }
@@ -169,7 +170,7 @@ sub www_default {
     unless (defined $empire) {
         confess [401, 'Empire not found.'];
     }
-    Lacuna->cache->set( 'paypal_order', $empire->id, { session => $session, }, 60 * 30 );
+    Lacuna->cache->set( 'paypal_order', $empire->id, { session => $session_id, }, 60 * 30 );
     return [ $self->buy_currency_url($empire->id), { status => 302 } ];
     #return $self->wrap('<div style="margin: 0 auto;width: 425;"><iframe frameborder="0" scrolling="no" width="425" height="365" src="'.$self->jambool_buy_url($empire->id).'"></iframe></div>');
 }
@@ -185,7 +186,7 @@ sub buy_currency_url {
     return $config->{server_url}.'pay/buy/currency?user_id='.$user_id;
 }
 
-sub buy_currency {
+sub www_buy_currency {
     my ($self, $request) = @_;
     my $user_id = $request->param('user_id');
     my $content = <<EoHTML;
@@ -274,8 +275,8 @@ sub buy_currency {
                     <option value='24.99' default>600 Essentia for \$24.99</option>
                     <option value='49.95'>1300 Essentia for \$49.95</option>
                 </select>
+                <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif" align="left" style="margin-right:7px;">
             </fieldset>
-            <a href="javascript:document.paypal_form.submit()"><img src="https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif" align="left" style="margin-right:7px;"></a>
         </form>
         <form action="/pay/buy/currency/paypal" id="paypal_form">
                 <input type="hidden" name="user_id" id="user_id" value="$user_id">
@@ -744,13 +745,13 @@ sub paypal_ec_cancel {
 }
 
 # step one
-sub buy_currency_paypal {
+sub www_buy_currency_paypal {
     my ($self, $request) = @_;
     my $user_id = $request->param('user_id');
     my $total = $request->param('total');
     my $currency = $request->param('premium_currency_amount');
     my $config = Lacuna->config->get('paypal');
-
+warn Dumper( $config );
     $Business::PayPal::API::Debug = 1;
 
     my $pp = Business::PayPal::API->new(
@@ -767,15 +768,15 @@ sub buy_currency_paypal {
         Custom      => $user_id,
 #        InvoiceID   => $InvoiceID,
     );
-warn Dumper(\%resp);use Data::Dumper;
     if ($resp{Ack} ne 'Success') {
-        # Uh oh
         my $content = Dumper(\%resp); use Data::Dumper;
         return $self->wrap(qq{<h2>Error acquiring token</h2><pre>$content</pre>});
     }
     my $token = $resp{Token};
-    my $uri = qq{https://www.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=$token};
-    my $order = Lacuna->cache->get( 'paypal_order', $user_id );
+    my $uri = $config->{Sandbox} 
+        ? qq{https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=$token} 
+        : qq{https://www.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=$token};
+    my $order = Lacuna->cache->get_and_deserialize( 'paypal_order', $user_id );
     Lacuna->cache->set( 'paypal_order', $user_id, { session => $order->{session}, token => $token, total => $total, currency => $currency }, 60 * 30 );
     return [ $uri, { status => 302 } ];
 }
@@ -784,11 +785,8 @@ sub www_paypal_ec_return {
     my ($self, $request) = @_;
     my $token = $request->param('token');
     my $payerId = $request->param('PayerID');
-warn "token: $token\n";
-warn "payerId: $payerId\n";
-    my $config = Lacuna->config->get('paypal');
+    my $config = Lacuna->config->get();
     my $paypal = $config->{paypal};
-
     $Business::PayPal::API::Debug = 1;
 
     my $pp = Business::PayPal::API->new(
@@ -797,10 +795,8 @@ warn "payerId: $payerId\n";
         Signature   => $paypal->{Signature},
         sandbox     => $paypal->{Sandbox},
     );
-    my %details = $pp->GetExpressCheckoutDetails($token);
-warn Dumper(\%details);use Data::Dumper;
+    my %details = $pp->GetExpressCheckoutDetails( $token );
     if ($details{Ack} ne 'Success') {
-        # Uh oh
         my $content = Dumper(\%details); use Data::Dumper;
         return $self->wrap(qq{<h2>Error acquiring checkout details</h2><pre>$content</pre>});
     }
@@ -830,11 +826,11 @@ sub www_paypal_ec_checkout {
 
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($user_id);
     unless (defined $empire) {
-        return ['Emire not found.', { status => 404 }];
+        return ['Empire not found.', { status => 404 }];
     }
 
-    my $order = Lacuna->cache->get( 'paypal_order', $user_id );
-    my $config = Lacuna->config->get('paypal');
+    my $order = Lacuna->cache->get_and_deserialize( 'paypal_order', $user_id );
+    my $config = Lacuna->config->get();
     my $paypal = $config->{paypal};
 
     $Business::PayPal::API::Debug = 1;
@@ -850,9 +846,7 @@ sub www_paypal_ec_checkout {
         PayerID         => $PayerID,
         OrderTotal      => $order->{total},
     );
-warn Dumper(\%payinfo);use Data::Dumper;
     if ($payinfo{Ack} ne 'Success') {
-        # Uh oh
         my $content = Dumper(\%payinfo); use Data::Dumper;
         return $self->wrap(qq{<h2>Error acquiring with checkout</h2><pre>$content</pre>});
     }
@@ -884,6 +878,13 @@ warn Dumper(\%payinfo);use Data::Dumper;
     );
 
     Lacuna->cache->delete( 'paypal_order', $user_id );
+    my $script = "
+     try {
+      window.opener.YAHOO.lacuna.Essentia.paymentFinished();
+      window.setTimeout( function () { window.close() }, 5000);
+      } catch (e) {}
+    ";
+    return $self->wrap('Thank you! The essentia will be added to your account momentarily.<script type="text/javascript">'.$script.'</script>');    
 }
 
 no Moose;
