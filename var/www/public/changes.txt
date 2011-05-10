@@ -1,6 +1,7 @@
 3.0703
  - Fix: Space Station modules will now take damage due to lack of resources.
  - Fix: Added additional check to FireBFG.
+ - Fix: New empires will not have smoldering craters on their newly founded planet.
 
 3.0702
  - Fix: Member's only colonization properly checks the Alliance id.

@@ -677,6 +677,14 @@ sub found_colony {
     });
     $self->build_building($command);
     $command->finish_upgrade;
+
+    my $craters = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
+        class   => 'Lacuna::DB::Result::Building::Permanent::Crater',
+        work    => '{}',
+    });
+    while (my $crater = $craters->next) {
+        $crater->finish_work->update;
+    }
     
     # add starting resources
     $self->tick;
