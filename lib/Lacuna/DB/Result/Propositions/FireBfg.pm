@@ -10,7 +10,7 @@ before pass => sub {
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($self->scratch->{body_id});
     if (defined $body && $body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
         if (eval {$self->station->in_jurisdiction($body)}) {
-            if ($body->empire) {
+            if (defined $body->empire && $body->empire) {
                 my $buildings = $body->buildings->search({ class => { in => [
                     'Lacuna::DB::Result::Building::Archaeology',
                     'Lacuna::DB::Result::Building::Development',
