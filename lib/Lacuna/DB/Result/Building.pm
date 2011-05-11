@@ -954,6 +954,7 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Water::Purification' => 'Lacuna::DB::Result::Building::Water::Purification',
         'Lacuna::DB::Result::Building::Water::Reclamation' => 'Lacuna::DB::Result::Building::Water::Reclamation',
         'Lacuna::DB::Result::Building::Water::Storage' => 'Lacuna::DB::Result::Building::Water::Storage',
+        'Lacuna::DB::Result::Building::Waste::Exchanger' => 'Lacuna::DB::Result::Building::Waste::Exchanger',
         'Lacuna::DB::Result::Building::Waste::Recycling' => 'Lacuna::DB::Result::Building::Waste::Recycling',
         'Lacuna::DB::Result::Building::Waste::Sequestration' => 'Lacuna::DB::Result::Building::Waste::Sequestration',
         'Lacuna::DB::Result::Building::Waste::Digester' => 'Lacuna::DB::Result::Building::Waste::Digester',
