@@ -501,6 +501,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<WasteEnergy>
 
+=item L<WasteExchanger>
+
 =item L<WasteRecycling>
 
 =item L<WasteSequestration>

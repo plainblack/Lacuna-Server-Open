@@ -304,6 +304,7 @@ use constant MEDALS => {
     Transporter                     => 'Built Subspace Transporter',
     University                      => 'Built University',
     WasteEnergy                     => 'Built Waste Energy Plant',
+    WasteExchanger                  => 'Built Waste Exchanger',
     WasteRecycling                  => 'Built Waste Recycling Center',
     WasteSequestration              => 'Built Waste Sequestration Well', 
     WasteDigester                   => 'Built Waste Digester',

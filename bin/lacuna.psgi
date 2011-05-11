@@ -173,6 +173,7 @@ my $app = builder {
         Lacuna::RPC::Building::TerraformingPlatform
         Lacuna::RPC::Building::University
         Lacuna::RPC::Building::WasteEnergy
+        Lacuna::RPC::Building::WasteExchanger
         Lacuna::RPC::Building::WasteRecycling
         Lacuna::RPC::Building::WasteSequestration
         Lacuna::RPC::Building::WasteDigester

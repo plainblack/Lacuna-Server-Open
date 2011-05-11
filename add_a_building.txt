@@ -15,4 +15,5 @@ add to Lacuna::Constants::BUILDABLE_CLASSES
 update the tech tree image
 
 # if it's a space station module
+add to Lacuna::Constants::SPACE_STATION_MODULES
 add it to the list of buildable modules in SSLa
