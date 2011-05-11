@@ -27,6 +27,8 @@ use constant waste_consumption => 225;
 
 use constant waste_storage => 700;
 
+use constant max_instances_per_planet => 2;
+
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
     return ($orig->($class), qw(Storage Energy Ore Water));
