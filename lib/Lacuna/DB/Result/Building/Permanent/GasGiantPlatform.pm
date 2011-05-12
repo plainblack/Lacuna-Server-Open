@@ -26,7 +26,9 @@ before 'can_demolish' => sub {
     my $self = shift;
     my $body = $self->body;
     my $buildings = $body->buildings;
-    my $gas_giant_platforms = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform' })->count;
+    my $gas_giant_platforms = 0;
+    my @gas_giant_platforms = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform' })->get_column('level')->all;
+    $gas_giat_platforms += $_ for @gas_giant_platforms;
     my $excess_plots = $gas_giant_platforms - ($body->plots_available + $body->building_count);
     my $available = $excess_plots > $body->plots_available ? $excess_plots : $body->plots_available;
     if ($available < $self->level) {
@@ -38,7 +40,9 @@ before 'can_downgrade' => sub {
     my $self = shift;
     my $body = $self->body;
     my $buildings = $body->buildings;
-    my $gas_giant_platforms = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform' })->count;
+    my $gas_giant_platforms = 0;
+    my @gas_giant_platforms = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform' })->get_column('level')->all;
+    $gas_giat_platforms += $_ for @gas_giant_platforms;
     my $excess_plots = $gas_giant_platforms - ($body->plots_available + $body->building_count);
     my $available = $excess_plots > $body->plots_available ? $excess_plots : $body->plots_available;
     if ($available < 1) {

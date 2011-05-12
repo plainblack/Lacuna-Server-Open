@@ -24,7 +24,9 @@ before 'can_demolish' => sub {
     my $self = shift;
     my $body = $self->body;
     my $buildings = $body->buildings;
-    my $terraforming_platforms = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform' })->count;
+    my $terraforming_platforms = 0;
+    my @terraforming_platforms = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform' })->get_column('level')->all;
+    $terraforming_platforms += $_ for @terraforming_platforms;
     my $excess_plots = $terraforming_platforms - ($self->body->plots_available + $self->body->building_count);
     my $available = $excess_plots > $self->body->plots_available ? $excess_plots : $self->body->plots_available;
     if ($available < $self->level && ($body->orbit > $body->empire->max_orbit || $body->orbit < $body->empire->min_orbit)) {
@@ -36,7 +38,9 @@ before 'can_downgrade' => sub {
     my $self = shift;
     my $body = $self->body;
     my $buildings = $body->buildings;
-    my $terraforming_platforms = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform' })->count;
+    my $terraforming_platforms = 0;
+    my @terraforming_platforms = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform' })->get_column('level')->all;
+    $terraforming_platforms += $_ for @terraforming_platforms;
     my $excess_plots = $terraforming_platforms - ($self->body->plots_available + $self->body->building_count);
     my $available = $excess_plots > $self->body->plots_available ? $excess_plots : $self->body->plots_available;
     if ($available < 1 && ($body->orbit > $body->empire->max_orbit || $body->orbit < $body->empire->min_orbit)) {
