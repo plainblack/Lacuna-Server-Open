@@ -24,12 +24,11 @@ around can_build => sub {
 
 before 'can_demolish' => sub {
     my $self = shift;
-    my $gas_giant_platforms = 0;
-    if ($building->isa('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform')) {
-        $gas_giant_platforms += $building->level;
-    }
-    my $excess_plots = $gas_giant_platforms - ($self->body->plots_available + $self->body->building_count);
-    my $available = $excess_plots > $self->body->plots_available ? $excess_plots : $self->body->plots_available;
+    my $body = $self->body;
+    my $buildings = $body->buildings;
+    my $gas_giant_platforms = $buildings->->search({ class => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform' })->count;
+    my $excess_plots = $gas_giant_platforms - ($body->plots_available + $body->building_count);
+    my $available = $excess_plots > $body->plots_available ? $excess_plots : $body->plots_available;
     if ($available < $self->level) {
         confess [1013, 'You need to demolish a building before you can demolish this Gas Giant Settlement Platform.'];
     }
@@ -37,12 +36,11 @@ before 'can_demolish' => sub {
 
 before 'can_downgrade' => sub {
     my $self = shift;
-    my $gas_giant_platforms = 0;
-    if ($building->isa('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform')) {
-        $gas_giant_platforms += $building->level;
-    }
-    my $excess_plots = $gas_giant_platforms - ($self->body->plots_available + $self->body->building_count);
-    my $available = $excess_plots > $self->body->plots_available ? $excess_plots : $self->body->plots_available;
+    my $body = $self->body;
+    my $buildings = $body->buildings;
+    my $gas_giant_platforms = $buildings->->search({ class => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform' })->count;
+    my $excess_plots = $gas_giant_platforms - ($body->plots_available + $body->building_count);
+    my $available = $excess_plots > $body->plots_available ? $excess_plots : $body->plots_available;
     if ($available < 1) {
         confess [1013, 'You need to demolish a building before you can downgrade this Gas Giant Settlement Platform.'];
     }
