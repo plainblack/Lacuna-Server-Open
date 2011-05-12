@@ -23,7 +23,13 @@ around can_build => sub {
 before 'can_demolish' => sub {
     my $self = shift;
     my $body = $self->body;
-    if ($body->plots_available < $self->level && ($body->orbit > $body->empire->max_orbit || $body->orbit < $body->empire->min_orbit)) {
+    my $terraforming_platforms = 0;
+    if ($building->isa('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform')) {
+        $terraforming_platforms += $building->level;
+    }
+    my $excess_plots = $terraforming_platforms - ($self->body->plots_available + $self->body->building_count);
+    my $available = $excess_plots > $self->body->plots_available ? $excess_plots : $self->body->plots_available;
+    if ($available < $self->level && ($body->orbit > $body->empire->max_orbit || $body->orbit < $body->empire->min_orbit)) {
         confess [1013, 'You need to demolish a building before you can demolish this Terraforming Platform.'];
     }
 };
@@ -31,7 +37,13 @@ before 'can_demolish' => sub {
 before 'can_downgrade' => sub {
     my $self = shift;
     my $body = $self->body;
-    if ($body->plots_available < 1 && ($body->orbit > $body->empire->max_orbit || $body->orbit < $body->empire->min_orbit)) {
+    my $terraforming_platforms = 0;
+    if ($building->isa('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform')) {
+        $terraforming_platforms += $building->level;
+    }
+    my $excess_plots = $terraforming_platforms - ($self->body->plots_available + $self->body->building_count);
+    my $available = $excess_plots > $self->body->plots_available ? $excess_plots : $self->body->plots_available;
+    if ($available < 1 && ($body->orbit > $body->empire->max_orbit || $body->orbit < $body->empire->min_orbit)) {
         confess [1013, 'You need to demolish a building before you can downgrade this Terraforming Platform.'];
     }
 };
