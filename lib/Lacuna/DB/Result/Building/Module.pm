@@ -79,5 +79,20 @@ sub can_build_on {
     return 1;
 }
 
+around demolish => sub {
+    my ($orig, $self) = @_;
+    my $body = $self->body;
+    my $empire = $body->empire;
+    $orig->($self);
+    if (! defined $body->command && ! defined $body->parliament) {
+        $empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'space_station_destroyed.txt',
+            params      => [$body->id, $body->name],
+        );
+        $body->sanitize;
+    }
+};
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
