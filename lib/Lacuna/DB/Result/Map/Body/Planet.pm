@@ -681,10 +681,7 @@ sub found_colony {
     $self->build_building($command);
     $command->finish_upgrade;
 
-    my $craters = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
-        class   => 'Lacuna::DB::Result::Building::Permanent::Crater',
-        work    => '{}',
-    });
+    my $craters = $self->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Crater')->search({ work    => '{}', });
     while (my $crater = $craters->next) {
         $crater->finish_work->update;
     }
@@ -1866,9 +1863,57 @@ sub complain_about_lack_of_resources {
     # if they run out of resources in storage, then the citizens start bitching
     if (!$empire->check_for_repeat_message('complaint_lack_of_'.$resource.$self->id)) {
         my $building_name;
-        foreach my $rpcclass (shuffle (BUILDABLE_CLASSES, SPACE_STATION_MODULES)) {
+        foreach my $rpcclass (shuffle (BUILDABLE_CLASSES,SPACE_STATION_MODULES)) {
             my $class = $rpcclass->model_class;
             next unless ('Infrastructure' ~~ [$class->build_tags]);
+            # Special conditions for space stations
+            if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+                if ($class eq 'Lacuna::DB::Result::Building::Module::Parliament' || $class eq 'Lacuna::DB::Result::Building::Module::StationCommand') {
+                    my $others = $self->buildings->search( {
+                        class => { 'not in' => [
+                            'Lacuna::DB::Result::Building::Module::Parliament',
+                            'Lacuna::DB::Result::Building::Module::StationCommand'
+                        ] }
+                    } )->count;
+                    if ( $others ) {
+                        # If there are other buildings, divert power from them to keep Parliament and Station Command running as long as possible
+                        next;
+                    }
+                    else {
+                        my $par = $self->get_building_of_class('Lacuna::DB::Result::Building::Module::Parliament');
+                        my $sc = $self->get_building_of_class('Lacuna::DB::Result::Building::Module::StationCommand');
+                        if ($sc->level == $par->level) {
+                            if ($sc->level == 1 && $sc->efficiency == 25 && $par->efficiency == 25) {
+                                # They go out together with a big bang
+                                $sc->spend_efficiency(25)->update;
+                                $building_name = $par->name;
+                                $par->spend_efficiency(25)->update;
+                                last;
+                            }
+                            elsif ($sc->efficiency <= $par->efficiency) {
+                                $building_name = $par->name;
+                                $par->spend_efficiency(25)->update;
+                                last;
+                            }
+                            else {
+                                $building_name = $sc->name;
+                                $sc->spend_efficiency(25)->update;
+                                last;
+                            }
+                        }
+                        elsif ($sc->level < $par->level) {
+                            $building_name = $par->name;
+                            $par->spend_efficiency(25)->update;
+                            last;
+                        }
+                        else {
+                            $building_name = $sc->name;
+                            $sc->spend_efficiency(25)->update;
+                            last;
+                        }
+                    }
+                }
+            }
             my $building = $self->get_buildings_of_class($class)->search({efficiency => {'>' => 0}},{rows => 1})->single;
             if (defined $building) {
                 $building_name = $building->name;
