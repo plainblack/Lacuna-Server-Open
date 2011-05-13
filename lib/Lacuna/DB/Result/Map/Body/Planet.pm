@@ -999,7 +999,7 @@ sub tick {
     if ($self->boost_enabled) {
         my $empire = $self->empire;
         my $still_enabled = 0;
-        foreach my $resource (qw(energy water ore happiness food storage rpc)) {
+        foreach my $resource (qw(energy water ore happiness food storage)) {
             my $boost = $resource.'_boost';
             if ($now_epoch > $empire->$boost->epoch) {
                 $self->needs_recalc(1);

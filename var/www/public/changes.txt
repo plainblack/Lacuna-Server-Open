@@ -1,6 +1,7 @@
 3.0800
  - Rule: Space Stations are abandoned when both their Parliament and Station Command Center are destroyed.
  - Add: Added the Waste Exchanger building.
+ - API: Removed the RPC boost.
  - Fix: Space Station modules will now take damage due to lack of resources.
  - Fix: Added additional check to FireBFG.
  - Fix: New empires will not have smoldering craters on their newly founded planet.
@@ -33,7 +34,6 @@
  - Fix: Ships pushed via the Trade Ministry will count against the receiving SpacePort's count as soon as they are sent.
  - Fix: Trade Min and SST get_prisoners() now includes the sentence expiration of the spy.
  - Fix: Prisoners now list their sentence expiration as well.
- - Add: Lost City of Tyleon credits.
 
 3.0603
  - Fix: Space Stations should no longer complain about food.
