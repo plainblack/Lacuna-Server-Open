@@ -34,14 +34,6 @@ foreach my $id (@propositions) {
         $proposition->station->sanitize;
     }
 }
-#my $stations_rs = $db->resultset('Lacuna::DB::Result::Map::Planet::Station');
-#my @stations = $stations_rs->search()->get_column('id')->all;
-#foreach my $id (@stations) {
-#    my $station = $stations_rs->find($id);
-#    if (! defined $station->command && ! defined $station->parliament) {
-#        $station->sanitize;
-#    }
-#}
 my $finish = time;
 out('Finished');
 out((($finish - $start)/60)." minutes have elapsed");
