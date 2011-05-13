@@ -1,5 +1,5 @@
 Space Station Destroyed
-~~
+~~~
 We have just received word that our station named {Planet %s %s} has been destroyed.
 
 Regards,
