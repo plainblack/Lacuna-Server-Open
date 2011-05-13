@@ -11,6 +11,7 @@ use Tie::IxHash;
 use LWP::UserAgent;
 use Business::PayPal::API qw( ExpressCheckout );
 
+# jambool methods are deprecated
 sub calculate_jambool_signature {
     my ($self, $params, $secret) = @_;
     my $message;
@@ -214,6 +215,12 @@ sub www_buy_currency {
                 form2.style.display = 'none';
                 form1.style.display = 'block';
             }
+            function close_current() {
+                try {
+                    window.setTimeout( function () { window.close() }, 5000);
+                } catch (e) {};
+            }
+
         </script>
         <style>
             label {
@@ -262,7 +269,7 @@ sub www_buy_currency {
                 <input type="hidden" name="form_to_update" id="form_to_update" value="cc_form">
             </fieldset>
         </form>
-        <form action="/pay/buy/currency/paypal" id="paypal_form">
+        <form action="/pay/buy/currency/paypal" id="paypal_form" target="_blank" onclick="close_current();">
             <input type="hidden" name="user_id" id="user_id" value="$user_id">
             <input type="hidden" name="premium_currency_amount" id="premium_currency_amount" value="30">
             <fieldset>
