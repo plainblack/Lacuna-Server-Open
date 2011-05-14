@@ -714,7 +714,7 @@ sub convert_to_station {
 
     # award medal
     my $type = ref $self;
-    $type =~ s/^.*::(\w\d+)$/$1/;
+    $type =~ s/^.*::(\w+)$/$1/;
     $empire->add_medal($type);
 
     # clean it
