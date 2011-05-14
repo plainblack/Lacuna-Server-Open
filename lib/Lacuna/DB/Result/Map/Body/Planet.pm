@@ -1078,7 +1078,7 @@ sub tick_to {
             $self->add_ore_type($type, sprintf('%.0f', $self->$hour_method * $tick_rate));
         }
     }
-    if ($hour_ore == 0 && $self->ore_hour != 0) {
+    if ($ore_hour == 0 && $self->ore_hour != 0) {
         if ($self->ore_hour < 0) {
             $self->spend_ore(sprintf('%.0f', abs($self->ore_hour) * $tick_rate));
         }
