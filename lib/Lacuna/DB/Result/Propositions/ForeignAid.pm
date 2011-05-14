@@ -24,28 +24,8 @@ before pass => sub {
             }
             if ( !@missing ) {
                 $self->station->spend_energy($self->scratch->{energy_cost});
-                for my $food ( FOOD_TYPES ) {
-                    if ( $self->scratch->{food_cost} > $self->station->$food ) {
-                        $self->scratch->{food_cost} -= $self->station->$food;
-                        $self->station->spend_food_type($food,$self->station->$food);
-                    }
-                    else {
-                        $self->station->spend_food_type($food,$self->scratch->{food_cost});
-                        $self->scratch->{food_cost} = 0;
-                        last;
-                    }
-                }
-                for my $ore ( ORE_TYPES ) {
-                    if ( $self->scratch->{ore_cost} > $self->station->$ore ) {
-                        $self->scratch->{ore_cost} -= $self->station->$ore;
-                        $self->station->spend_ore_type($ore,$self->station->$ore);
-                    }
-                    else {
-                        $self->station->spend_ore_type($ore,$self->scratch->{ore_cost});
-                        $self->scratch->{ore_cost} = 0;
-                        last;
-                    }
-                }
+                $self->station->spend_food($self->scratch->{food_cost});
+                $self->station->spend_ore($self->scratch->{ore_cost});
                 $self->station->spend_water($self->scratch->{water_cost});
                 $self->station->update;
                 my $supply_pod = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({
