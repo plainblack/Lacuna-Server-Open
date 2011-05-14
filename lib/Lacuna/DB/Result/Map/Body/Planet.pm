@@ -1067,8 +1067,10 @@ sub tick_to {
     }
     
     # ore
+    my $ore_hour = 0;
     foreach my $type (ORE_TYPES) {
         my $hour_method = $type.'_hour';
+        $ore_hour += $self->$hour_method;
         if ($self->$hour_method < 0 ) { # if it gets negative, spend out of storage
             $self->spend_ore_type($type, sprintf('%.0f',abs($self->$hour_method) * $tick_rate));
         }
@@ -1076,12 +1078,22 @@ sub tick_to {
             $self->add_ore_type($type, sprintf('%.0f', $self->$hour_method * $tick_rate));
         }
     }
+    if ($hour_ore == 0 && $self->ore_hour != 0) {
+        if ($self->ore_hour < 0) {
+            $self->spend_ore(sprintf('%.0f', abs($self->ore_hour) * $tick_rate));
+        }
+        else {
+            $self->add_ore(sprintf('%.0f', $self->ore_hour * $tick_rate));
+        }
+    }
     
     # food
     my %food;
     my $food_produced;
+    my $food_hour = 0;
     foreach my $type (FOOD_TYPES) {
         my $production_hour_method = $type.'_production_hour';
+        $food_hour += $self->$production_hour_method;
         $food{$type} = sprintf('%.0f', $self->$production_hour_method() * $tick_rate);
         $food_produced += $food{$type};
     }
@@ -1096,7 +1108,14 @@ sub tick_to {
     else {
         $self->spend_food(abs($food_produced));
     }
-    
+    if ($food_hour == 0 && $self->food_hour != 0) {
+        if ($self->food_hour < 0) {
+            $self->spend_food(sprintf('%.0f', abs($self->food_hour) * $tick_rate));
+        }
+        else {
+            $self->add_food(sprintf('%.0f', $self->food_hour * $tick_rate));
+        }
+    }
     $self->update;
 }
 
