@@ -2,6 +2,7 @@
  - API: Police Stations can now detect incoming and orbiting ships.
  - Fix: When Space Station modules take damage due to lack of resources, Parliament and Station Command will be exempt until all other modules have been destroyed.
  - Fix: Added an additional means of destroying Space Stations that are already without Parliament and Station Command Centers.
+ - Fix: Food and Ore amounts will now be updated.
 
 3.0800
  - Rule: Space Stations are abandoned when both their Parliament and Station Command Center are destroyed.
