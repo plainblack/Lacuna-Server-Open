@@ -32,5 +32,34 @@ sub prisoners {
         );
 }
 
+sub ships {
+    my $self = shift;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        body_id     => $self->body_id,
+    });
+}
+
+sub foreign_ships {
+    my ($self) = @_;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        {
+            foreign_body_id => $self->body_id,
+            direction       => 'out',
+            task            => 'Travelling',
+        }
+    );
+}
+
+sub orbiting_ships {
+    my ($self) = @_;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        {
+            foreign_body_id => $self->body_id,
+            task            => { in => ['Defend','Orbiting'] },
+        }
+    );
+}
+
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

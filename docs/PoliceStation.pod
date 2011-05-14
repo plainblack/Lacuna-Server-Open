@@ -2,7 +2,7 @@
 
 Police Station is accessible via the URL C</policestation>.
 
-Captured spies are detained at the police station.
+Captured spies are detained at the Police Station.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
@@ -30,7 +30,7 @@ A session id.
 
 =head3 building_id
 
-The unique id of the police station.
+The unique id of the Police Station.
 
 =head3 page_number
 
@@ -52,7 +52,7 @@ A session id.
 
 =head3 building_id
 
-The unique id of the police station.
+The unique id of the Police Station.
 
 =head3 prisoner_id
 
@@ -74,7 +74,7 @@ A session id.
 
 =head3 building_id
 
-The unique id of the police station.
+The unique id of the Police Station.
 
 =head3 prisoner_id
 
@@ -85,7 +85,7 @@ The unique id of a prisoner you have captured. See C<view_prisoners> for details
 
 =head2 view_foreign_spies ( session_id, building_id, [ page_number ])
 
-Displays a list of the spies that are on your planet, and have a level lower than your police station.
+Displays a list of the spies that are on your planet, and have a level lower than your Police Station.
 
  {
     "status" : { ... },
@@ -105,7 +105,7 @@ A session id.
 
 =head3 building_id
 
-The unique id of the police station.
+The unique id of the Police Station.
 
 =head3 page_number
 
@@ -114,6 +114,161 @@ Defaults to 1. Each page contains 25 spies.
 
 
 
+=head2 view_foreign_ships ( session_id, building_id, page_number )
+
+Shows you all the foreign ships that are incoming. However, the list is filtered by the stealth of the ship vs the level of the Police Station. The formula is:
+
+ 525 * Police Station Level >= Ship Stealth
+
+If your Police Station exceeds the Ship's Stealth, then you'll see it incoming. Otherwise you won't.
+
+ {
+    "ships" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "CS3",
+            "type_human" : "Cargo Ship",
+            "type" : "cargo_ship",
+            "date_arrives" : "02 01 2010 10:08:33 +0600",
+            "from" : {
+                "id" : "id-goes-here",
+                "name" : "Earth",
+                "empire" : {
+                    "id" : "id-goes-here",
+                    "name" : "Earthlings"
+                }
+            }
+        },
+        ...
+    ],
+    "number_of_ships" : 13,
+    "status" : { ... }
+ }
+
+The C<from> block is only included if
+
+ 675 * Police Station Level >= Ship Stealth
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the space port.
+
+=head3 page_number
+
+Defaults to page 1. Shows 25 at a time.
+
+
+
+
+=head2 view_ships_travelling ( session_id, building_id, [ page_number ])
+
+Returns a list of the ships that are travelling to or from this planet.
+
+B<NOTE:> All inbound/outbound ships are shown regardless of which space port they will eventually land at.
+
+ {
+    "status" : { ... },
+    "number_of_ships_travelling" : 30,
+    "ships_travelling" : [
+       {
+           "id" : "id-goes-here",
+           "type" : "probe",
+            "type_human" : "Probe",
+           "date_arrives" : "01 31 2010 13:09:05 +0600",
+           "from" : {
+               "id" : "id-goes-here",
+               "type" : "body",
+               "name" : "Earth",
+           },
+           "to" : {
+               "id" : "id-goes-here",
+               "type" : "star",
+               "name" : "Sol",
+           }
+       },
+       ...
+    ]
+ }
+
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the space port.
+
+=head3 page_number
+
+Defaults to 1. An integer representing which page of ships travelling to view. Each page shows 25 ships.
+
+
+
+=head2 view_ships_orbiting ( session_id, building_id, [ page_number ])
+
+Shows you all the foreign ships that are orbiting this planet. However, the list is filtered by the stealth of the ship vs the level of the Police Station. The formula is:
+
+ 525 * Police Station Level >= Ship Stealth
+
+If your Police Station exceeds the Ship's Stealth, then you'll see it orbiting. Otherwise you won't.
+
+ {
+    "ships" : [
+       {
+           "id" : "id-goes-here",
+           "name" : "SS3",
+           "type" : "spy_shuttle",
+           "type_human" : "Spy Shuttle",
+           "date_arrived" : "02 01 2010 10:08:33 +0600",
+           "from" : {
+               "id" : "id-goes-here",
+               "name" : "Mars",
+               "empire" : {
+                   "id" : "id-goes-here",
+                   "name" : "Martians"
+               }
+           }
+       },
+       {
+           "id" : "id-goes-here",
+           "name" : "F3",
+           "type" : "fighter",
+           "type_human" : "Fighter",
+           "from" : {
+               "id" : "id-goes-here",
+               "name" : "Earth",
+               "empire" : {
+                   "id" : "id-goes-here",
+                   "name" : "Earthlings"
+               }
+           }
+       },
+        ...
+    ],
+    "number_of_ships" : 13,
+    "status" : { ... }
+ }
+
+The C<from> block is only included if
+
+ 675 * Police Station Level >= Ship Stealth
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the space port.
+
+=head3 page_number
+
+Defaults to page 1. Shows 25 at a time.
 
 
 
