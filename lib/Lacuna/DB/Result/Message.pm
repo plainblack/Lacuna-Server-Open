@@ -32,7 +32,7 @@ sub sqlt_deploy_hook {
     $sqlt_table->add_index(name => 'idx_repeat_check_date_sent', fields => ['repeat_check', 'date_sent']);
     $sqlt_table->add_index(name => 'idx_recent_messages', fields => [qw(has_archived has_read to_id date_sent)]);
     $sqlt_table->add_index(name => 'idx_inbox_only', fields => [qw(has_archived to_id date_sent)]);
-    $sqlt_table->add_index(name => 'idx_trash_only', fields => [qw(has_trashed to_id date_sent)]);
+#    $sqlt_table->add_index(name => 'idx_trash_only', fields => [qw(has_trashed to_id date_sent)]);
 }
 
 __PACKAGE__->belongs_to('sender', 'Lacuna::DB::Result::Empire', 'from_id');
