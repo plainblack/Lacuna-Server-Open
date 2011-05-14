@@ -7,6 +7,7 @@
  - Fix: Space Station created medal message should now be formatted properly.
  - Fix: Corrected docs for SpacePort's view_foreign_ships and view_ships_orbiting methods.
  - Fix: get_status on allied Space Stations will now show resources.
+ - Fix: Slight performance boost for the inbox.
 
 3.0800
  - Rule: Space Stations are abandoned when both their Parliament and Station Command Center are destroyed.
