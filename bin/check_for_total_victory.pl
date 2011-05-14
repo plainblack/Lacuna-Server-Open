@@ -38,12 +38,14 @@ if (scalar keys %victory_empire) {
 }
 elsif (DateTime->now->hour == 3 ) {
     while (my $empire = $empires->next) {
-        $empire->send_message(
-            tags        => ['Alert'],
-            from        => $lec,
-            body        => $message,
-            subject     => 'Situation Update',
-        );
+        if ( $message ) {
+            $empire->send_message(
+                tags        => ['Alert'],
+                from        => $lec,
+                body        => $message,
+                subject     => 'Situation Update',
+            );
+        }
     }
 }
 
