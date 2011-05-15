@@ -614,7 +614,7 @@ EoHTML
     return $self->wrapper($content);
 }
 
-sub buy_currency_cc {
+sub www_buy_currency_cc {
     my ($self, $request) = @_;
     confess [1009, 'Card number is required.'] unless $request->param('card_number');
     confess [1009, 'Expiration month is required and must be 2 digits.'] unless ($request->param('expiration_month') && length($request->param('expiration_month')) == 2);
