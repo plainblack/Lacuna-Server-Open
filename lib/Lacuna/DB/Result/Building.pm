@@ -671,7 +671,7 @@ sub is_not_max_level {
     if ($self->level >= 30) {
         confess [1009, 'This building is already at its maximum level.'];
     }
-    if ($self->level >= 15 && 'Resources' ~~ [$self->build_tags] && !('Storage' ~~ [$self->build_tags])) { # resource buildings except storage buildings
+    if ($self->level >= 15 && 'Resources' ~~ [$self->build_tags] && (!('Storage' ~~ [$self->build_tags]) || $self->isa('Lacuna::DB::Result::Building::Waste::Exchanger'))) { # resource buildings except storage buildings (treat a Waste Exchanger as if it were not a storage building)
         my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
         if (defined $stockpile) {
             if (15 + $stockpile->extra_resource_levels > $self->level) {
