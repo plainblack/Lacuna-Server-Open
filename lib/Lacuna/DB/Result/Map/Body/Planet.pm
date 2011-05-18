@@ -1901,15 +1901,27 @@ sub complain_about_lack_of_resources {
                     else {
                         my $par = $self->get_building_of_class('Lacuna::DB::Result::Building::Module::Parliament');
                         my $sc = $self->get_building_of_class('Lacuna::DB::Result::Building::Module::StationCommand');
-                        if ($sc->level == $par->level) {
-                            if ($sc->level == 1 && $sc->efficiency == 25 && $par->efficiency == 25) {
-                                # They go out together with a big bang
-                                $sc->spend_efficiency(25)->update;
-                                $building_name = $par->name;
-                                $par->spend_efficiency(25)->update;
-                                last;
+                        if ($sc && $par) {
+                            if ($sc->level == $par->level) {
+                                if ($sc->level == 1 && $sc->efficiency == 25 && $par->efficiency == 25) {
+                                    # They go out together with a big bang
+                                    $sc->spend_efficiency(25)->update;
+                                    $building_name = $par->name;
+                                    $par->spend_efficiency(25)->update;
+                                    last;
+                                }
+                                elsif ($sc->efficiency <= $par->efficiency) {
+                                    $building_name = $par->name;
+                                    $par->spend_efficiency(25)->update;
+                                    last;
+                                }
+                                else {
+                                    $building_name = $sc->name;
+                                    $sc->spend_efficiency(25)->update;
+                                    last;
+                                }
                             }
-                            elsif ($sc->efficiency <= $par->efficiency) {
+                            elsif ($sc->level < $par->level) {
                                 $building_name = $par->name;
                                 $par->spend_efficiency(25)->update;
                                 last;
@@ -1920,14 +1932,14 @@ sub complain_about_lack_of_resources {
                                 last;
                             }
                         }
-                        elsif ($sc->level < $par->level) {
-                            $building_name = $par->name;
-                            $par->spend_efficiency(25)->update;
-                            last;
-                        }
-                        else {
+                        elsif ($sc) {
                             $building_name = $sc->name;
                             $sc->spend_efficiency(25)->update;
+                            last;
+                        }
+                        elsif ($par) {
+                            $building_name = $par->name;
+                            $par->spend_efficiency(25)->update;
                             last;
                         }
                     }

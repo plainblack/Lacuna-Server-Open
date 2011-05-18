@@ -2,6 +2,7 @@
  - Fix: Waste Exchangers are now limited to level 15 except on capitols with a stockpile.
  - Fix: Waste Exchangers now take damage when there is no waste to process.
  - Fix: Corrected the "Disabled a Building" spy message.
+ - Fix: Corrected a bug caused by having either a Parliament or a Station Command but not both.
 
 3.0801
  - API: Police Stations can now detect incoming and orbiting ships.
