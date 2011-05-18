@@ -1855,7 +1855,7 @@ sub spend_waste {
         my $empire = $self->empire;
         if (!$empire->check_for_repeat_message('complaint_lack_of_waste'.$self->id)) {
             my $building_name;
-            foreach my $class (qw(Lacuna::DB::Result::Building::Energy::Waste Lacuna::DB::Result::Building::Waste::Treatment Lacuna::DB::Result::Building::Waste::Digester Lacuna::DB::Result::Building::Water::Reclamation)) {
+            foreach my $class (qw(Lacuna::DB::Result::Building::Energy::Waste Lacuna::DB::Result::Building::Waste::Treatment Lacuna::DB::Result::Building::Waste::Digester Lacuna::DB::Result::Building::Water::Reclamation Lacuna::DB::Result::Building::Waste::Exchanger)) {
                 my $building = $self->get_buildings_of_class($class)->search({efficiency => {'>' => 0}},{rows => 1})->single;
                 if (defined $building) {
                     $building_name = $building->name;
