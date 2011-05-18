@@ -1857,7 +1857,7 @@ sub shut_down_building {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_disabled_a_building.txt',
-        params      => [$building->name, $self->on_body->name, $self->format_from],
+        params      => [$building->name, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from],
     )->id;
 }
 
