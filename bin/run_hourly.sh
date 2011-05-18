@@ -2,6 +2,7 @@
 export PATH=/data/apps/bin:$PATH
 cd /data/Lacuna-Server/bin
 perl clean_up_empires.pl
+perl sanitize_ss.pl
 perl tick_planets.pl
 perl summarize_server.pl
 perl summarize_economy.pl

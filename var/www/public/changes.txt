@@ -3,6 +3,7 @@
  - Fix: Waste Exchangers now take damage when there is no waste to process.
  - Fix: Corrected the "Disabled a Building" spy message.
  - Fix: Corrected a bug caused by having either a Parliament or a Station Command but not both.
+ - Fix: Enabled the script that destroys Space Stations that are lacking a Parliament and Station Command Center.
 
 3.0801
  - API: Police Stations can now detect incoming and orbiting ships.
