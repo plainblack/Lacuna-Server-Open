@@ -1,3 +1,4 @@
+package Lacuna::DB::Result::Building::IntelTraining;
 
 use Moose;
 use utf8;
@@ -78,7 +79,7 @@ has latest_spy => (
 
 sub get_spies {
     my ($self) = @_;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ from_body_id => $self->body_id });
+    return Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ from_body_id => $self->body_id, on_body_id => $self->body_id });
 }
 
 sub get_spy {
@@ -106,15 +107,35 @@ has training_multiplier => (
 
 sub training_costs {
     my $self = shift;
+    my $spy_id = shift;
+    my $costs;
     my $multiplier = $self->training_multiplier;
-    return {
-        water   => 1100 * $multiplier,
-        waste   => 40 * $multiplier,
-        energy  => 100 * $multiplier,
-        food    => 1000 * $multiplier,
-        ore     => 10 * $multiplier,
-        time    => sprintf('%.0f', 2060 * $multiplier / $self->body->empire->management_affinity),
-    };
+    if ($spy_id) {
+        my $spy = $self->get_spy($spy_id);
+        push @$costs, {
+            spy_id  => $spy->id,
+            water   => 1100 * $multiplier,
+            waste   => 40 * $multiplier,
+            energy  => 100 * $multiplier,
+            food    => 1000 * $multiplier,
+            ore     => 10 * $multiplier,
+            time    => sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100)),
+        };
+    }
+    else {
+        my $spies = $self->get_spies->search({ task => 'Idle' });
+        while (my $spy = $spies->next) {
+            push @$costs, {
+                spy_id  => $spy->id,
+                water   => 1100 * $multiplier,
+                waste   => 40 * $multiplier,
+                energy  => 100 * $multiplier,
+                food    => 1000 * $multiplier,
+                ore     => 10 * $multiplier,
+                time    => sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100)),
+            };
+        }
+    return $costs;
 }
 
 sub can_train_spy {
@@ -139,35 +160,20 @@ sub spend_resources_to_train_spy {
 }
 
 sub train_spy {
-    my ($self, $time_to_train) = @_;
+    my ($self, $spy_id, $time_to_train) = @_;
     my $empire = $self->body->empire;
-    if ($self->spy_count < $self->max_spies) {
-        unless ($time_to_train) {
-            $time_to_train = $self->training_costs->{time};
-        }
-        my $latest = $self->latest_spy;
-        my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
-        $available_on->add(seconds => $time_to_train );
-        my $deception = $empire->deception_affinity * 50;
-        my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
-            from_body_id    => $self->body_id,
-            on_body_id      => $self->body_id,
-            task            => 'Training',
-            started_assignment  => DateTime->now,
-            available_on    => $available_on,
-            empire_id       => $self->body->empire_id,
-            offense         => ($self->espionage_level * 75) + $deception,
-            defense         => ($self->security_level * 75) + $deception,
-        })
-        ->update_level
-        ->insert;
-        $self->latest_spy($spy);
-        my $count = $self->spy_count($self->spy_count + 1);
-        if ($count < $self->level) {
-            $self->body->add_news(20,'A source inside %s admitted that they are underprepared for the threats they face.', $empire->name);
-        }
-        $self->start_work({}, $available_on->epoch - time())->update;
+    my $spy = $self->get_spy($spy_id);
+    unless ($time_to_train) {
+        $time_to_train = $self->training_costs($spy)->{time};
     }
+    my $latest = $self->latest_spy;
+    my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
+    $available_on->add(seconds => $time_to_train );
+    $spy->intel_xp($spy->intel_xp + $self->level);
+    $spy->task('Training');
+    $spy->available_on($available_on);
+    $self->latest_spy($spy);
+    $self->start_work({}, $available_on->epoch - time())->update;
     return $self;
 }
 

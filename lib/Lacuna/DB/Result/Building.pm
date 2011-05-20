@@ -933,6 +933,7 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Food' => 'Lacuna::DB::Result::Building::Food',
         'Lacuna::DB::Result::Building::GasGiantLab' => 'Lacuna::DB::Result::Building::GasGiantLab',
         'Lacuna::DB::Result::Building::Intelligence' => 'Lacuna::DB::Result::Building::Intelligence',
+        'Lacuna::DB::Result::Building::IntelTraining' => 'Lacuna::DB::Result::Building::IntelTraining',
         'Lacuna::DB::Result::Building::Network19' => 'Lacuna::DB::Result::Building::Network19',
         'Lacuna::DB::Result::Building::Observatory' => 'Lacuna::DB::Result::Building::Observatory',
         'Lacuna::DB::Result::Building::Park' => 'Lacuna::DB::Result::Building::Park',
