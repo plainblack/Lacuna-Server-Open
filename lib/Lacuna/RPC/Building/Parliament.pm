@@ -779,8 +779,8 @@ sub propose_foreign_aid {
     }
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'Foreign Aid',
-        name            => 'Foreign Aid for {Planet '.$planet->id.' '.$planet->name.'}.',
-        description     => 'Send a foreign aid package of '.$resources.' resources to {Planet '.$planet->id.' '.$planet->name.'} (total cost '.2*$resources.'resources).',
+        name            => 'Foreign Aid for '.$planet->name.'.',
+        description     => 'Send a foreign aid package of '.$resources.' resources to {Starmap '.$planet->x, $planet->y, $planet->name.'} (total cost '.2*$resources.' resources).',
         scratch         => {
             planet_id => $planet->id,
             resources => $resources,
