@@ -1,3 +1,6 @@
+3.0803
+ - Fix: Time reduction calculations will no longer cause waste recycling rates to go negative.
+
 3.0802
  - Fix: Waste Exchangers are now limited to level 15 except on capitols with a stockpile.
  - Fix: Waste Exchangers now take damage when there is no waste to process.
