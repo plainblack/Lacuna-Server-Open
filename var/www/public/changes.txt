@@ -1,6 +1,7 @@
 3.0803
  - Fix: Time reduction calculations will no longer cause waste recycling rates to go negative.
  - Fix: Foreign Aid proposition fixes: removed link from proposition name, added a space between 'resources' and the amount, changed the planet link to a starmap link.
+ - Fix: Dents are now ignored when determining if Parliament or the Station Command Center should take damage.
 
 3.0802
  - Fix: Waste Exchangers are now limited to level 15 except on capitols with a stockpile.

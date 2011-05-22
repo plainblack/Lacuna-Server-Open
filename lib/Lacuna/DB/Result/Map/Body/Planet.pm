@@ -1891,7 +1891,8 @@ sub complain_about_lack_of_resources {
                     my $others = $self->buildings->search( {
                         class => { 'not in' => [
                             'Lacuna::DB::Result::Building::Module::Parliament',
-                            'Lacuna::DB::Result::Building::Module::StationCommand'
+                            'Lacuna::DB::Result::Building::Module::StationCommand',
+                            'Lacuna::DB::Result::Building::Permanent::Crater'
                         ] }
                     } )->count;
                     if ( $others ) {
