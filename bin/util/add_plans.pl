@@ -17,6 +17,8 @@ GetOptions(
     'count'         => \$count,
 );
 
+die "Usage: perl $0 body_id class count\n" unless ( defined $body_id && defined $class && defined $count );
+
 out('Started');
 my $start = time;
 
@@ -25,7 +27,7 @@ our $db = Lacuna->db;
 
 my $body = $db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
 unless ($body) {
-    die "Cannot find body id $body_id";
+    die "Cannot find body id $body_id\n";
 }
 say "Adding $count level 1 $class plans to $body->name";
 for my $cnt ( 1 .. $count ) {
