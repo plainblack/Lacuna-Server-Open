@@ -1,3 +1,6 @@
+3.0804
+ - Fix: Another fix for negative waste recycling rates.
+
 3.0803
  - Fix: Time reduction calculations will no longer cause waste recycling rates to go negative.
  - Fix: Foreign Aid proposition fixes: removed link from proposition name, added a space between 'resources' and the amount, changed the planet link to a starmap link.
