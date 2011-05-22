@@ -25,7 +25,7 @@ our $db = Lacuna->db;
 
 my $body = $db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
 unless ($body) {
-    confess "Cannot find body id $body_id";
+    die "Cannot find body id $body_id";
 }
 say "Adding $count level 1 $class plans to $body->name";
 for my $cnt ( 1 .. $count ) {
