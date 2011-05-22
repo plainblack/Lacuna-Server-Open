@@ -29,7 +29,7 @@ my $body = $db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
 unless ($body) {
     die "Cannot find body id $body_id\n";
 }
-say "Adding $count level 1 $class plans to $body->name";
+say "Adding $count level 1 $class plans to ".$body->name;
 for my $cnt ( 1 .. $count ) {
     $body->add_plan($class, 1, 0);
 }
