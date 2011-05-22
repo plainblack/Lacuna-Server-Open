@@ -12,9 +12,9 @@ our $class;
 our $count;
 GetOptions(
     'quiet'         => \$quiet,  
-    'body'          => \$body_id,
-    'class'          => \$class,
-    'count'         => \$count,
+    'body=i'          => \$body_id,
+    'class=s'          => \$class,
+    'count=i'         => \$count,
 );
 
 die "Usage: perl $0 body_id class count\n" unless ( defined $body_id && defined $class && defined $count );
