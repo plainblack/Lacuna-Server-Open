@@ -150,7 +150,7 @@ sub training_costs {
         food    => 1000 * $multiplier,
         ore     => 10 * $multiplier,
         time    => [],
-    }
+    };
     if ($spy_id) {
         my $spy = $self->get_spy($spy_id);
         push @{$costs->{time}}, {
