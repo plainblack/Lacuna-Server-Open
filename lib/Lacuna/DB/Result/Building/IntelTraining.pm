@@ -108,30 +108,27 @@ has training_multiplier => (
 sub training_costs {
     my $self = shift;
     my $spy_id = shift;
-    my $costs;
+    my $costs = {
+        water   => 1100 * $multiplier,
+        waste   => 40 * $multiplier,
+        energy  => 100 * $multiplier,
+        food    => 1000 * $multiplier,
+        ore     => 10 * $multiplier,
+        time    => [],
+    }
     my $multiplier = $self->training_multiplier;
     if ($spy_id) {
         my $spy = $self->get_spy($spy_id);
-        push @$costs, {
+        push @{$costs->{time}}, {
             spy_id  => $spy->id,
-            water   => 1100 * $multiplier,
-            waste   => 40 * $multiplier,
-            energy  => 100 * $multiplier,
-            food    => 1000 * $multiplier,
-            ore     => 10 * $multiplier,
             time    => sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100)),
         };
     }
     else {
         my $spies = $self->get_spies->search({ task => 'Idle' });
         while (my $spy = $spies->next) {
-            push @$costs, {
+            push @{$costs->{time}}, {
                 spy_id  => $spy->id,
-                water   => 1100 * $multiplier,
-                waste   => 40 * $multiplier,
-                energy  => 100 * $multiplier,
-                food    => 1000 * $multiplier,
-                ore     => 10 * $multiplier,
                 time    => sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100)),
             };
         }

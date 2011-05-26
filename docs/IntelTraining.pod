@@ -31,6 +31,8 @@ The list of methods below represents changes and additions to the methods that a
 
 Allows you to train an idle spy in the ways of intelligence gathering.
 
+The trained spy will receive 1 intel per level of the building.
+
  {
     "status" : { ... },
     "trained" : 1,
