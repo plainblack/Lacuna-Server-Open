@@ -94,46 +94,12 @@ sub get_spy {
     return $spy;
 }
 
-has espionage_level => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        my $building = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Espionage');
-        return (defined $building) ? $building->level : 0;
-    },
-);
-
-has security_level => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        my $building = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Security');   
-        return (defined $building) ? $building->level : 0;
-    },
-);
-
-has intelligence_level => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        my $building = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');   
-        return (defined $building) ? $building->level : $self->level;
-    },
-);
-
 has training_multiplier => (
     is      => 'rw',
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $multiplier = $self->intelligence_level
-            - $self->body->empire->deception_affinity
-            + $self->espionage_level
-            + $self->security_level;
-
+        my $multiplier = $self->level;
         $multiplier = 1 if $multiplier < 1;
         return $multiplier;
     }
