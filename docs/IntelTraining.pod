@@ -21,7 +21,13 @@ The list of methods below represents changes and additions to the methods that a
             "energy" : 20,
             "ore" : 5,
             "waste" : 10,
-            "time" : 60,
+            "time" : [
+                {
+                    "spy_id" : "1",
+                    "time" : "18720",
+                },
+                ...
+            ],
         }
     },
  }
