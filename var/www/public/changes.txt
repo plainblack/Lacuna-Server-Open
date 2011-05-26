@@ -1,5 +1,6 @@
 3.0xxx
  - Add: Added the Intel Training Facility.
+ - Fix: Another tweak of the waste recycling rates/ship build times.
 
 3.0804
  - Fix: Another fix for negative waste recycling rates.
