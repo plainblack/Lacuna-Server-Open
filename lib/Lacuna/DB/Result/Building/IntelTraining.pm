@@ -167,6 +167,9 @@ sub train_spy {
     unless ($time_to_train) {
         $time_to_train = $self->training_costs($spy)->{time};
     }
+    unless ($spy->task eq 'Idle') {
+        confess [1011, 'Spy must be idle to train.'];
+    }
     my $latest = $self->latest_spy;
     my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
     $available_on->add(seconds => $time_to_train );

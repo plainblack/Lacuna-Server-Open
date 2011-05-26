@@ -271,6 +271,7 @@ use constant MEDALS => {
     Geo                             => 'Built Geo Energy Plant',
     Hydrocarbon                     => 'Built Hydrocarbon Energy Plant',
     Intelligence                    => 'Built Intelligence Ministry',
+    IntelTraining                   => 'Built Intel Training Facility',
     Lapis                           => 'Built Lapis Orchard',
     Lake                            => 'Discovered a Lake',
     Malcud                          => 'Built Malcud Fungus Farm',

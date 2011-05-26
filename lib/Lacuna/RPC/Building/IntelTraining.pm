@@ -34,11 +34,9 @@ sub view_spies {
         $cost_to_subsidize++ if ($spy->task eq 'Training');
         push @spies, $spy->get_status;
     }
-    my @assignments = Lacuna::DB::Result::Spies->assignments;
     return {
         status                  => $self->format_status($empire, $body),
         spies                   => \@spies,
-        possible_assignments    => \@assignments,
         spy_count               => $spy_list->pager->total_entries,
         cost_to_subsidize       => $cost_to_subsidize,
     };

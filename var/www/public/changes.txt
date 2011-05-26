@@ -1,3 +1,6 @@
+3.0xxx
+ - Add: Added the Intel Training Facility.
+
 3.0804
  - Fix: Another fix for negative waste recycling rates.
 
