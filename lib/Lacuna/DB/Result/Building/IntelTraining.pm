@@ -135,6 +135,7 @@ sub training_costs {
                 time    => sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100)),
             };
         }
+    }
     return $costs;
 }
 
