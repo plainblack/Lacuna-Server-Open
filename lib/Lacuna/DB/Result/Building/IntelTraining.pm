@@ -42,15 +42,6 @@ use constant water_consumption => 84;
 
 use constant waste_production => 2;
 
-has spy_count => (
-    is          => 'rw',
-    lazy        => 1,
-    default     => sub {
-        my $self = shift;
-        return $self->get_spies({task=>'Idle'})->count;
-    },
-);
-
 has spies_in_training_count => (
     is          => 'rw',
     lazy        => 1,
@@ -119,10 +110,7 @@ sub training_costs {
     };
     if ($spy_id) {
         my $spy = $self->get_spy($spy_id);
-        push @{$costs->{time}}, {
-            spy_id  => $spy->id,
-            time    => sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100)),
-        };
+        $costs->{time} = sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
     }
     else {
         my $spies = $self->get_spies->search({ task => 'Idle' });

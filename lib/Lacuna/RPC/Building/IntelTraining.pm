@@ -75,13 +75,13 @@ sub train_spy {
     my ($self, $session_id, $building_id, $spy_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $spy = $building->get_spy($spy_id);
-    my $trained = 0;
     my $body = $building->body;
     if ($building->level < 1) {
         confess [1013, "You can't train spies until your Intel Training Facility is completed."];
     }
-    my $costs = $building->training_costs($spy);
+    my $spy = $building->get_spy($spy_id);
+    my $trained = 0;
+    my $costs = $building->training_costs($spy_id);
     if (eval{$building->can_train_spy($costs)}) {
         $building->spend_resources_to_train_spy($costs);
         $building->train_spy($spy_id, $costs->{time});
