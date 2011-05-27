@@ -287,6 +287,7 @@ use constant MEDALS => {
     Park                            => 'Built Park',
     Pie                             => 'Built Pie Factory',
     PlanetaryCommand                => 'Built Planetary Command Center',
+    PoliticsTraining                => 'Built Politics Training Facility',
     Potato                          => 'Built Potato Plantation',
     Propulsion                      => 'Built Propulsion Factory',
     Oversight                       => 'Built Oversight Ministry',

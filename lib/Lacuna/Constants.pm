@@ -67,6 +67,7 @@ use constant BUILDABLE_CLASSES => (qw(
     Lacuna::RPC::Building::Pancake
     Lacuna::RPC::Building::Park
     Lacuna::RPC::Building::Pie
+    Lacuna::RPC::Building::PoliticsTraining
     Lacuna::RPC::Building::Potato
     Lacuna::RPC::Building::Propulsion
     Lacuna::RPC::Building::Oversight

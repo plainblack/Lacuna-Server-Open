@@ -940,6 +940,7 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Intelligence' => 'Lacuna::DB::Result::Building::Intelligence',
         'Lacuna::DB::Result::Building::IntelTraining' => 'Lacuna::DB::Result::Building::IntelTraining',
         'Lacuna::DB::Result::Building::MayhemTraining' => 'Lacuna::DB::Result::Building::MayhemTraining',
+        'Lacuna::DB::Result::Building::PoliticsTraining' => 'Lacuna::DB::Result::Building::PoliticsTraining',
         'Lacuna::DB::Result::Building::TheftTraining' => 'Lacuna::DB::Result::Building::TheftTraining',
         'Lacuna::DB::Result::Building::Network19' => 'Lacuna::DB::Result::Building::Network19',
         'Lacuna::DB::Result::Building::Observatory' => 'Lacuna::DB::Result::Building::Observatory',

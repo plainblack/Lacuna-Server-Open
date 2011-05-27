@@ -84,6 +84,7 @@ my $app = builder {
         Lacuna::RPC::Building::Intelligence
         Lacuna::RPC::Building::IntelTraining
         Lacuna::RPC::Building::MayhemTraining
+        Lacuna::RPC::Building::PoliticsTraining
         Lacuna::RPC::Building::TheftTraining
         Lacuna::RPC::Building::Security
         Lacuna::RPC::Building::Trade
