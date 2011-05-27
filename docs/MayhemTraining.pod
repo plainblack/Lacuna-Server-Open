@@ -1,8 +1,8 @@
-=head1 IntelTraining Methods
+=head1 MayhemTraining Methods
 
-Intel Training Facility is accessible via the URL C</inteltraining>.
+Mayhem Training Facility is accessible via the URL C</mayhemtraining>.
 
-The Intel Training Facility is where you train your spies in the ways of intelligence gathering.
+The Mayhem Training Facility is where you train your spies in the art of destruction.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
@@ -35,9 +35,9 @@ The list of methods below represents changes and additions to the methods that a
 
 =head2 train_spy ( session_id, building_id, spy_id )
 
-Allows you to train an idle spy in the ways of intelligence gathering.
+Allows you to train an idle spy in the art of destruction.
 
-The trained spy will receive 1 intel per level of the building.
+The trained spy will receive 1 mayhem per level of the building.
 
  {
     "status" : { ... },
@@ -55,7 +55,7 @@ A session id.
 
 =head3 building_id
 
-The unique id of your Intel Training Facility.
+The unique id of your Mayhem Training Facility.
 
 =head3 spy_id
 
@@ -109,7 +109,7 @@ A session id.
 
 =head3 building_id
 
-The unique id of your Intel Training Facility.
+The unique id of your Mayhem Training Facility.
 
 =head3 page_number
 

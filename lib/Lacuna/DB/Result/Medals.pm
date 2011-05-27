@@ -275,6 +275,7 @@ use constant MEDALS => {
     Lapis                           => 'Built Lapis Orchard',
     Lake                            => 'Discovered a Lake',
     Malcud                          => 'Built Malcud Fungus Farm',
+    MayhemTraining                  => 'Built Mayhem Training Facility',
     Mine                            => 'Built Mine',
     MiningMinistry                  => 'Built Mining Ministry',
     MiningPlatform                  => 'Built Mining Platform',

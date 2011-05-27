@@ -405,6 +405,8 @@ Below is a list of the different types of structures that can be built on planet
 
 =item L<MassadsHenge>
 
+=item L<MayhemTraining>
+
 =item L<MercenariesGuild>
 
 =item L<MetalJunkArches>
