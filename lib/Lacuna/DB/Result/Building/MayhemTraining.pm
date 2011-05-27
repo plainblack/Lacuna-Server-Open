@@ -14,7 +14,7 @@ use constant controller_class => 'Lacuna::RPC::Building::MayhemTraining';
 
 use constant max_instances_per_planet => 1;
 
-use constant university_prereq => 12;
+use constant university_prereq => 13;
 
 use constant image => 'mayhemtraining';
 

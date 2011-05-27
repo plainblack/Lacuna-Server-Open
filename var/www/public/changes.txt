@@ -1,5 +1,6 @@
 3.0xxx
  - Add: Added the Intel Training Facility.
+ - Add: Added the Mayhem Training Facility.
  - Fix: Another tweak of the waste recycling rates/ship build times.
 
 3.0804
