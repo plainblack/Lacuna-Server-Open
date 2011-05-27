@@ -43,45 +43,17 @@ sub view_spies {
 }
 
 
-sub subsidize_training {
-    my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my $body = $building->body;
-
-    my $spies = $building->get_spies->search({ task => 'Training' });
-
-    my $cost = $spies->count;
-    unless ($empire->essentia >= $cost) {
-        confess [1011, "Not enough essentia."];    
-    }
-
-    $empire->spend_essentia($cost, 'spy training subsidy after the fact');    
-    $empire->update;
-
-    my $now = DateTime->now;
-    while (my $spy = $spies->next) {
-        $spy->available_on($now);
-        $spy->task('Idle');
-        $spy->update;
-    }
-    $building->finish_work->update;
-
-    return $self->view($empire, $building);
-}
-
-
 sub train_spy {
     my ($self, $session_id, $building_id, $spy_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $spy = $building->get_spy($spy_id);
-    my $trained = 0;
     my $body = $building->body;
     if ($building->level < 1) {
         confess [1013, "You can't train spies until your Intel Training Facility is completed."];
     }
-    my $costs = $building->training_costs($spy);
+    my $spy = $building->get_spy($spy_id);
+    my $trained = 0;
+    my $costs = $building->training_costs($spy_id);
     if (eval{$building->can_train_spy($costs)}) {
         $building->spend_resources_to_train_spy($costs);
         $building->train_spy($spy_id, $costs->{time});
@@ -90,7 +62,7 @@ sub train_spy {
     if ($trained) {
         $body->update;
     }
-    my $quantity;
+    my $quantity = 1;
     return {
         status  => $self->format_status($empire, $body),
         trained => $trained,
@@ -118,7 +90,7 @@ around 'view' => sub {
 };
 
 
-__PACKAGE__->register_rpc_method_names(qw(view_spies train_spy subsidize_training));
+__PACKAGE__->register_rpc_method_names(qw(view_spies train_spy));
 
 
 no Moose;

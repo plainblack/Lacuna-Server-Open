@@ -42,15 +42,6 @@ use constant water_consumption => 84;
 
 use constant waste_production => 2;
 
-has spy_count => (
-    is          => 'rw',
-    lazy        => 1,
-    default     => sub {
-        my $self = shift;
-        return $self->get_spies({task=>'Idle'})->count;
-    },
-);
-
 has spies_in_training_count => (
     is          => 'rw',
     lazy        => 1,
@@ -79,7 +70,7 @@ has latest_spy => (
 
 sub get_spies {
     my ($self) = @_;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ from_body_id => $self->body_id, on_body_id => $self->body_id });
+    return Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ empire_id => $self->body->empire_id, on_body_id => $self->body_id });
 }
 
 sub get_spy {
@@ -88,52 +79,18 @@ sub get_spy {
     unless (defined $spy) {
         confess [1002, 'No such spy.'];
     }
-    if ($spy->from_body_id ne $self->body_id) {
+    if ($spy->empire_id ne $self->body->empire_id) {
         confess [1013, "You don't control that spy."];
     }
     return $spy;
 }
-
-has espionage_level => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        my $building = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Espionage');
-        return (defined $building) ? $building->level : 0;
-    },
-);
-
-has security_level => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        my $building = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Security');   
-        return (defined $building) ? $building->level : 0;
-    },
-);
-
-has intelligence_level => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        my $building = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');   
-        return (defined $building) ? $building->level : $self->level;
-    },
-);
 
 has training_multiplier => (
     is      => 'rw',
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $multiplier = $self->intelligence_level
-            - $self->body->empire->deception_affinity
-            + $self->espionage_level
-            + $self->security_level;
-
+        my $multiplier = $self->level;
         $multiplier = 1 if $multiplier < 1;
         return $multiplier;
     }
@@ -153,10 +110,7 @@ sub training_costs {
     };
     if ($spy_id) {
         my $spy = $self->get_spy($spy_id);
-        push @{$costs->{time}}, {
-            spy_id  => $spy->id,
-            time    => sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100)),
-        };
+        $costs->{time} = sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
     }
     else {
         my $spies = $self->get_spies->search({ task => 'Idle' });
@@ -207,8 +161,9 @@ sub train_spy {
     $spy->intel_xp($spy->intel_xp + $self->level);
     $spy->task('Training');
     $spy->available_on($available_on);
+    $spy->update;
     $self->latest_spy($spy);
-    $self->start_work({}, $available_on->epoch - time())->update;
+#    $self->start_work({}, $available_on->epoch - time())->update;
     return $self;
 }
 
