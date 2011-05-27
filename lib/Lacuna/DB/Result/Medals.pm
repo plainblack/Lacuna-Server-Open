@@ -302,6 +302,7 @@ use constant MEDALS => {
     GeneticsLab                     => 'Built Genetics Lab',
     Archaeology                     => 'Built Archaeology Ministry',
     TerraformingPlatform            => 'Built Terraforming Platform',
+    TheftTraining                   => 'Built Theft Training Facility',
     Trade                           => 'Built Trade Ministry',
     Transporter                     => 'Built Subspace Transporter',
     University                      => 'Built University',
