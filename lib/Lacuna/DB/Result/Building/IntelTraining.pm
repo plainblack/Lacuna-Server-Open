@@ -79,7 +79,7 @@ sub get_spy {
     unless (defined $spy) {
         confess [1002, 'No such spy.'];
     }
-    if ($spy->from_body_id ne $self->body_id) {
+    if ($spy->empire_id ne $self->body->empire_id) {
         confess [1013, "You don't control that spy."];
     }
     return $spy;
