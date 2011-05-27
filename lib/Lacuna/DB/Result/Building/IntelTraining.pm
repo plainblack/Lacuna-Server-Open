@@ -163,7 +163,7 @@ sub train_spy {
     $spy->available_on($available_on);
     $spy->update;
     $self->latest_spy($spy);
-    $self->start_work({}, $available_on->epoch - time())->update;
+#    $self->start_work({}, $available_on->epoch - time())->update;
     return $self;
 }
 
