@@ -90,7 +90,7 @@ sub train_spy {
     if ($trained) {
         $body->update;
     }
-    my $quantity;
+    my $quantity = 1;
     return {
         status  => $self->format_status($empire, $body),
         trained => $trained,

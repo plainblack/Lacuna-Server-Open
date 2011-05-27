@@ -160,7 +160,7 @@ sub train_spy {
     $available_on->add(seconds => $time_to_train );
     $spy->intel_xp($spy->intel_xp + $self->level);
     $spy->task('Training');
-    $spy->available_on($available_on);
+    $spy->available_on($available_on)->update;
     $self->latest_spy($spy);
     $self->start_work({}, $available_on->epoch - time())->update;
     return $self;
