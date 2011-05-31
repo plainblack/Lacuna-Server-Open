@@ -45,6 +45,7 @@ sub get_upgradable_buildings {
         level   => { '<' => $max_level },
         class   => { like => 'Lacuna::DB::Result::Building::Permanent::%' },
         id      => { 'not in' => \@halls },
+        is_upgrading    => 0,
     });
 }
 

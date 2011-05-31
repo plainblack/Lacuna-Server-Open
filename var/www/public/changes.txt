@@ -5,6 +5,7 @@
  - Add: Added the Theft Training Facility.
  - Fix: Another tweak of the waste recycling rates/ship build times.
  - Fix: Spies purchased from Mercenaries Guild will now belong to the purchaser.
+ - Fix: Halls of Vrbansk will no longer upgrade buildings that are already being upgraded.
 
 3.0804
  - Fix: Another fix for negative waste recycling rates.
