@@ -29,6 +29,7 @@ sub unload {
     if (exists $payload->{mercenary}) {
         my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($payload->{mercenary});
         if (defined $spy) {
+            $spy->from_body_id($body->id);
             $spy->on_body_id($body->id);
             $spy->update;
         }
