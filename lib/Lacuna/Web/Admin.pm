@@ -193,37 +193,14 @@ sub www_search_stars {
     return $self->wrap($out);
 }
 
-my @infrastructure = (
-    'Lacuna::DB::Result::Building::Archaeology',
-    'Lacuna::DB::Result::Building::Development',
-    'Lacuna::DB::Result::Building::Embassy',
-    'Lacuna::DB::Result::Building::EntertainmentDistrict',
-    'Lacuna::DB::Result::Building::Espionage',
-    'Lacuna::DB::Result::Building::GasGiantLab',
-    'Lacuna::DB::Result::Building::GeneticsLab',
-    'Lacuna::DB::Result::Building::Intelligence',
-    'Lacuna::DB::Result::Building::Network19',
-    'Lacuna::DB::Result::Building::Observatory',
-    'Lacuna::DB::Result::Building::Oversight',
-    'Lacuna::DB::Result::Building::Park',
-    'Lacuna::DB::Result::Building::Propulsion',
-    'Lacuna::DB::Result::Building::Security',
-    'Lacuna::DB::Result::Building::Shipyard',
-    'Lacuna::DB::Result::Building::SpacePort',
-    'Lacuna::DB::Result::Building::TerraformingLab',
-    'Lacuna::DB::Result::Building::Trade',
-    'Lacuna::DB::Result::Building::Transporter',
-    'Lacuna::DB::Result::Building::University',
-    'Lacuna::DB::Result::Building::Waste::Recycling',
-    'Lacuna::DB::Result::Building::Waste::Sequestration',
-);
-
 sub www_send_stellar_flare {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
-    my $buildings = $body->buildings->search({ class => { in => \@infrastructure }});
+    my $buildings = $body->buildings;
     while (my $building = $buildings->next) {
+        next unless ('Infrastructure' ~~ [$building->build_tags]);
+        next if ( $building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' );
         $building->efficiency(0);
         $building->update;
     }
@@ -243,8 +220,10 @@ sub www_send_meteor_shower {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
-    my $buildings = $body->buildings->search({ class => { in => \@infrastructure }});
+    my $buildings = $body->buildings;
     while (my $building = $buildings->next) {
+        next unless ('Infrastructure' ~~ [$building->build_tags]);
+        next if ( $building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' );
         $building->class('Lacuna::DB::Result::Building::Permanent::Crater');
         $building->level(1);
         $building->is_upgrading(0);
