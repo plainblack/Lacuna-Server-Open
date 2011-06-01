@@ -249,7 +249,7 @@ sub downgrade {
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
             type            => 'DowngradeModule',
             name            => 'Downgrade '.$name,
-            description     => 'Downgrade '.$name.' on {Planet '.$body->id.' '.$body->name.'} from level '.$self->level.' to '.($self->level - 1).'.',
+            description     => 'Downgrade '.$name.' on {Planet '.$body->id.' '.$body->name.'} from level '.$building->level.' to '.($building->level - 1).'.',
             scratch         => { building_id => $building->id },
             proposed_by_id  => $empire->id,
         });
