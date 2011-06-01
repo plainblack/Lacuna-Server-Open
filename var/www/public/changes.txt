@@ -5,7 +5,7 @@
  - Add: Added the Theft Training Facility.
  - Fix: Another tweak of the waste recycling rates/ship build times.
  - Fix: Spies purchased from Mercenaries Guild will now belong to the purchaser.
- - Fix: Stellar Flare and BFG will now target all Infrastructure buildings except for the PCC.
+ - Fix: BFG, Meteor Shower and Stellar Flare will now target all Infrastructure buildings except for the PCC.
 
 3.0804
  - Fix: Another fix for negative waste recycling rates.
