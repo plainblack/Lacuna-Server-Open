@@ -220,8 +220,10 @@ sub www_send_meteor_shower {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
-    my $buildings = $body->buildings->search({ class => { in => \@infrastructure }});
+    my $buildings = $body->buildings;
     while (my $building = $buildings->next) {
+        next unless ('Infrastructure' ~~ [$building->build_tags]);
+        next if ( $building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' );
         $building->class('Lacuna::DB::Result::Building::Permanent::Crater');
         $building->level(1);
         $building->is_upgrading(0);
