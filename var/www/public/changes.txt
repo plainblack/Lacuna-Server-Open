@@ -7,6 +7,7 @@
  - Fix: Spies purchased from Mercenaries Guild will now belong to the purchaser.
  - Fix: Halls of Vrbansk will no longer upgrade buildings that are already being upgraded.
  - Fix: BFG, Meteor Shower and Stellar Flare will now target all Infrastructure buildings except for the PCC.
+ - Fix: Attacking ships that target buildings will turn around if they cannot find a target building.
 
 3.0804
  - Fix: Another fix for negative waste recycling rates.

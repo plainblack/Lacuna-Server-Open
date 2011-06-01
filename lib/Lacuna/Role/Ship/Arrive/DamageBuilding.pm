@@ -30,6 +30,7 @@ after handle_arrival_procedures => sub {
 		{class => { '!=' => 'Lacuna::DB::Result::Building::Permanent::Crater' }},
 		{order_by => { -desc => ['efficiency', 'rand()'] }, rows=>1}
 	)->single;
+    return unless defined $building;
     $building->body($body_attacked);
     
     # let everyone know what's going on
