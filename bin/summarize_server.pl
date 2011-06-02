@@ -235,6 +235,7 @@ sub summarize_alliances {
     my $alliances = $db->resultset('Lacuna::DB::Result::Alliance');
     my $empire_logs = $db->resultset('Lacuna::DB::Result::Log::Empire');
     while (my $alliance = $alliances->next) {
+        next if ! defined $alliance->leader_id; # until Alliances get deleted...
         out($alliance->name);
         my %alliance_data = (
             date_stamp                 => DateTime->now,
