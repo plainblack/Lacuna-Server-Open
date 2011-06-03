@@ -75,6 +75,10 @@ The unique id of the genetics lab.
 
 Updates the empire's species name and description.
 
+{
+   "success" : "1"
+}
+
 Throws 1000, 1005. The C<data> parameter will contain the field name that needs to be adjusted, if it can be attributed to a single field.
 
 =head3 empire_id
