@@ -271,7 +271,7 @@ sub prepare_send_spies {
     my $to_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($to_body_id);
     
     unless ($to_body->empire_id) {
-        confess [1009, "Cannot send spies to an uninhabitted body."];
+        confess [1009, "Cannot send spies to an uninhabited body."];
     }
     if ($to_body->empire->is_isolationist) {
         confess [ 1013, sprintf('%s is an isolationist empire, and must be left alone.',$to_body->empire->name)];
@@ -388,7 +388,7 @@ sub prepare_fetch_spies {
     my $to_body = $self->get_body($empire, $to_body_id);
     my $on_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($on_body_id);
     unless ($on_body->empire_id) {
-        confess [1013, "Cannot fetch spies from an uninhabitted planet."];
+        confess [1013, "Cannot fetch spies from an uninhabited planet."];
     }
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
@@ -435,7 +435,7 @@ sub fetch_spies {
     }
 
     unless ($on_body->empire_id) {
-        confess [1013, "Cannot fetch spies from an uninhabitted planet."];
+        confess [1013, "Cannot fetch spies from an uninhabited planet."];
     }
 
     unless (scalar(@{$spy_ids})) {
