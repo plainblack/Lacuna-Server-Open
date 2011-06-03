@@ -176,7 +176,7 @@ sub rename_species {
     $empire->species_name($me->{name});
     $empire->species_description($me->{description}) if $me->{description};
     $empire->update;
-    return $empire;
+    return { success => 1 };
 }
 
 no Moose;
