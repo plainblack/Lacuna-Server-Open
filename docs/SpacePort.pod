@@ -48,6 +48,8 @@ Shows you all your ships whatever they are doing.
             "date_started" : "01 31 2010 13:09:05 +0600",
             "date_available" : "02 01 2010 10:08:33 +0600",
             "date_arrives" : "02 01 2010 10:08:33 +0600",
+            "can_recall" : "0",
+            "can_scuttle" : "1",
             "from" : {
                "id" : "id-goes-here",
                "type" : "body",
@@ -72,6 +74,8 @@ Shows you all your ships whatever they are doing.
             "date_started" : "01 31 2010 13:09:05 +0600",
             "date_available" : "02 01 2010 10:08:33 +0600",
             "date_arrives" : "02 01 2010 10:08:33 +0600",
+            "can_recall" : "0",
+            "can_scuttle" : "1",
             "from" : {
                "id" : "id-goes-here",
                "type" : "body",
@@ -169,6 +173,8 @@ If your SpacePort exceeds the Ship's Stealth, then you'll see it incoming. Other
             "type_human" : "Cargo Ship",
             "type" : "cargo_ship",
             "date_arrives" : "02 01 2010 10:08:33 +0600",
+            "can_recall" : "0",
+            "can_scuttle" : "0",
             "from" : {
                 "id" : "id-goes-here",
                 "name" : "Earth",
@@ -375,6 +381,8 @@ Sends a ship to a specified body or star. Use with C<get_ships_for>.
         "date_started" : "01 31 2010 13:09:05 +0600",
         "date_available" : "02 01 2010 10:08:33 +0600",
         "date_arrives" : "02 01 2010 10:08:33 +0600",
+        "can_recall" : "0",
+        "can_scuttle" : "0",
         "from" : {
            "id" : "id-goes-here",
            "type" : "body",
@@ -453,6 +461,8 @@ Sends a fleet of ships to a specified body or star. Use with C<get_ships_for>.
 			"date_started" : "01 31 2010 13:09:05 +0600",
 			"date_available" : "02 01 2010 10:08:33 +0600",
 			"date_arrives" : "02 01 2010 10:08:33 +0600",
+            "can_recall" : "0",
+            "can_scuttle" : "0",
 			"from" : {
 			   "id" : "id-goes-here",
 			   "type" : "body",
@@ -511,6 +521,8 @@ Throws 1002, 1010.
         "date_started" : "01 31 2010 13:09:05 +0600",
         "date_available" : "02 01 2010 10:08:33 +0600",
         "date_arrives" : "02 01 2010 10:08:33 +0600",
+        "can_recall" : "0",
+        "can_scuttle" : "0",
         "from" : {
            "id" : "id-goes-here",
            "type" : "body",
@@ -576,6 +588,8 @@ Throws 1002, 1010.
             "date_started" : "01 31 2010 13:09:05 +0600",
             "date_available" : "02 01 2010 10:08:33 +0600",
             "date_arrives" : "02 01 2010 10:08:33 +0600",
+            "can_recall" : "0",
+            "can_scuttle" : "0",
             "from" : {
                "id" : "id-goes-here",
                "type" : "body",
