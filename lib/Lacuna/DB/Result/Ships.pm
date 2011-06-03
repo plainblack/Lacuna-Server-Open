@@ -200,6 +200,8 @@ sub get_status {
         date_available  => $self->date_available_formatted,
         max_occupants   => $self->max_occupants,
         payload         => $self->format_description_of_payload,
+        can_scuttle     => ($self->task eq 'Docked') ? 1 : 0,
+        can_recall      => ($self->task ~~ [qw(Defend Orbiting)]) ? 1 : 0,
     );
     if ($target) {
         $status{estimated_travel_time} = $self->calculate_travel_time($target);

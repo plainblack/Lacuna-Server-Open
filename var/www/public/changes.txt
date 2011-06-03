@@ -1,5 +1,6 @@
 3.0xxx
  - API: If there are multiple plans for a building, body's get_buildable will return the plan with the highest extra_build_level. The build time cost for 1+X plans will show the time for the +X level.
+ - API: Add can_scuttle and can_recall to ship status.
  - Add: Added the Intel Training Facility.
  - Add: Added the Mayhem Training Facility.
  - Add: Added the Politics Training Facility.
