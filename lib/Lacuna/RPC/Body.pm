@@ -150,7 +150,7 @@ sub get_buildable {
 
     # plans
     my %plans;
-    my $plan_rs = $body->plans->search({level => 1},{ group_by => ['class'], order_by => { 'class', -desc => 'extra_build_level' }});
+    my $plan_rs = $body->plans->search({level => 1},{ group_by => ['class'], order_by => { -asc => 'class', -desc => 'extra_build_level' }});
     while (my $plan = $plan_rs->next) {
         push @buildable, $plan->class->controller_class;
         $plans{$plan->class} = $plan->extra_build_level;
