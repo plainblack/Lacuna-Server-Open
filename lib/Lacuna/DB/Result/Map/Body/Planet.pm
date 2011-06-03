@@ -86,7 +86,7 @@ sub add_glyph {
 # PLANS
 sub get_plan {
     my ($self, $class, $level) = @_;
-    return $self->plans->search({class => $class, level => $level},{rows => 1})->single;
+    return $self->plans->search({class => $class, level => $level},{order_by => { -desc => 'extra_build_level' },rows => 1})->single;
 }
 
 sub add_plan {
