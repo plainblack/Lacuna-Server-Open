@@ -66,7 +66,10 @@ sub rename_species {
         ->length_lt(1025)
         ->no_restricted_chars
         ->no_profanity if $me->{description};
-    return $building->rename_species($me);
+    $empire = $building->rename_species($me);
+    return {
+        status          => $self->format_status($empire, $building->body),
+    };
 }
 
 __PACKAGE__->register_rpc_method_names(qw(prepare_experiment run_experiment rename_species));
