@@ -65,7 +65,7 @@ sub rename_species {
     Lacuna::Verify->new(content=>\$me->{description}, throws=>[1005,'Description invalid.', 'description'])
         ->length_lt(1025)
         ->no_restricted_chars
-        ->no_profanity;  
+        ->no_profanity if $me->{description};
     $building->rename_species($me);
 }
 

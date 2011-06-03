@@ -174,7 +174,7 @@ sub rename_species {
     my ($self, $me) = @_;
     my $empire = $self->body->empire;
     $empire->species_name($me->{name});
-    $empire->species_description($me->{description});
+    $empire->species_description($me->{description}) if $me->{description};
     $empire->update;
     return $empire;
 }
