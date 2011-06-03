@@ -150,7 +150,7 @@ sub get_buildable {
 
     # plans
     my %plans;
-    my $plan_rs = $body->plans->search({level => 1});
+    my $plan_rs = $body->plans->search({level => 1},{ group_by => ['class'], order_by => { -desc => 'extra_build_level' }});
     while (my $plan = $plan_rs->next) {
         push @buildable, $plan->class->controller_class;
         $plans{$plan->class} = $plan->extra_build_level;
@@ -191,7 +191,12 @@ sub get_buildable {
             production  => $building->stats_after_upgrade,
         };
         if (exists $plans{$properties{class}}) {
-           $out{$building->name}{build}{extra_level} = $plans{$properties{class}};
+            my $building_tmp = $building;
+            $building_tmp->level( $plans{$properties{class}} );
+            $cost = $building_tmp->cost_to_upgrade;
+            $out{$building->name}{build}{cost}{time} = 0;
+            $out{$building->name}{upgrade}{time} = $cost->{time};
+            $out{$building->name}{build}{extra_level} = $plans{$properties{class}};
         }
     }
 
