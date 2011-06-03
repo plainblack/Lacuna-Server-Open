@@ -1,5 +1,5 @@
 3.0xxx
- - API: If there are multiple plans for a building, body's get_buildable will return the plan with the highest extra_build_level. The build time cost for 1+X plans will show 0. The upgrade time cost will show the time for the +X level.
+ - API: If there are multiple plans for a building, body's get_buildable will return the plan with the highest extra_build_level. The build time cost for 1+X plans will show the time for the +X level.
  - Add: Added the Intel Training Facility.
  - Add: Added the Mayhem Training Facility.
  - Add: Added the Politics Training Facility.

@@ -194,8 +194,7 @@ sub get_buildable {
             my $building_tmp = $building;
             $building_tmp->level( $plans{$properties{class}} );
             $cost = $building_tmp->cost_to_upgrade;
-            $out{$building->name}{build}{cost}{time} = 0;
-            $out{$building->name}{upgrade}{time} = $cost->{time};
+            $out{$building->name}{build}{cost}{time} = $cost->{time};
             $out{$building->name}{build}{extra_level} = $plans{$properties{class}};
         }
     }
