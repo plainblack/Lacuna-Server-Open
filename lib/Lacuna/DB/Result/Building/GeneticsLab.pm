@@ -170,7 +170,14 @@ sub experiment {
     };
 }
 
-
+sub rename_species {
+    my ($self, $me) = @_;
+    my $empire = $self->body->empire;
+    $empire->species_name($me->{name});
+    $empire->species_description($me->{description});
+    $empire->update;
+    return $empire;
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

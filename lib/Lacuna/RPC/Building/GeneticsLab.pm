@@ -49,8 +49,27 @@ sub run_experiment {
     return $out;
 }
 
+sub rename_species {
+    my ($self, $session_id, $building_id, $me) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    $me->{name} =~ s{^\s+(.*)\s+$}{$1}xms; # remove extra white space
+    Lacuna::Verify->new(content=>\$me->{name}, throws=>[1000,'Species name not available.', 'name'])
+        ->length_lt(31)
+        ->length_gt(2)
+        ->not_empty
+        ->no_restricted_chars
+        ->no_profanity;
 
-__PACKAGE__->register_rpc_method_names(qw(prepare_experiment run_experiment));
+    # and the description        
+    Lacuna::Verify->new(content=>\$me->{description}, throws=>[1005,'Description invalid.', 'description'])
+        ->length_lt(1025)
+        ->no_restricted_chars
+        ->no_profanity;  
+    $building->rename_species($me);
+}
+
+__PACKAGE__->register_rpc_method_names(qw(prepare_experiment run_experiment rename_species));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -71,6 +71,28 @@ The unique id of the genetics lab.
 
 
 
+=head2 rename_species ( empire_id, building_id, params )
+
+Updates the empire's species name and description.
+
+Throws 1000, 1005. The C<data> parameter will contain the field name that needs to be adjusted, if it can be attributed to a single field.
+
+=head3 empire_id
+
+The id of the empire you wish to update a species for.
+
+=head3 params
+
+A hash reference of parameters.
+
+=head4 name
+
+The name of the species. Limited to 30 characters, cannot be blank, and cannot contain @, &, <, >, or ;. Required.
+
+=head4 description
+
+The species description. Limited to 1024 characters and cannot contain < or >.
+
 
 
 =cut
