@@ -90,6 +90,9 @@ before delete => sub {
 
 sub check_status {
     my $self = shift;
+    if ($self->status eq 'Pending') {
+        $self->votes_needed( int( ( $self->station->alliance->members->count + 1 ) / 2 ) );
+    }
     if ($self->status ne 'Pending') {
     }
     elsif ($self->votes_yes >= $self->votes_needed) {
