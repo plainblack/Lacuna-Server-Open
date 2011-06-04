@@ -25,7 +25,8 @@ sub abandon_probe {
         {
             empire_id   => $empire->id,
             star_id     => $star->id,
-        })->delete;
+        },
+        {rows => 1})->single->delete;
     $empire->clear_probed_stars;
     return {status => $self->format_status($empire, $building->body)};
 }

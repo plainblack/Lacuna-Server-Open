@@ -14,6 +14,7 @@
  - Fix: SS modules can now be downgraded.
  - Fix: Disbanded Alliances will no longer show up in the Alliance ranking.
  - Fix: The votes needed for a pending proposition to pass will be updated when the status is checked.
+ - Fix: Abandon probe only removes one probe from the star now.
 
 3.0804
  - Fix: Another fix for negative waste recycling rates.
