@@ -28,7 +28,7 @@ foreach my $id (@planets) {
 }
 
 # sanitize derilict space stations
-my $stations_rs = $db->resultset('Lacuna::DB::Result::Map::Planet::Station');
+my $stations_rs = $db->resultset('Lacuna::DB::Result::Map::Body::Planet::Station');
 my @stations = $stations_rs->search()->get_column('id')->all;
 foreach my $id (@stations) {
     my $station = $stations_rs->find($id);
