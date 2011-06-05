@@ -18,28 +18,11 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 
+with 'Lacuna::Role::Container';
+
 sub date_offered_formatted {
     my $self = shift;
     return format_date($self->date_offered);
-}
-
-sub unload {
-    my ($self, $body) = @_;
-    my $payload = $self->payload;
-    if (exists $payload->{mercenary}) {
-        my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($payload->{mercenary});
-        if (defined $spy) {
-            $spy->task('Idle');
-            $spy->empire_id($body->empire_id);
-            $spy->from_body_id($body->id);
-            $spy->on_body_id($body->id);
-            $spy->date_available(DateTime->now);
-            $spy->update;
-            delete $payload->{mercenary};
-        }
-    }
-    $self->payload($payload);
-    return $self;
 }
 
 sub format_description_of_payload {
