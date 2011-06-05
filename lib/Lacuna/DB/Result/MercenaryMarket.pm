@@ -29,9 +29,11 @@ sub unload {
     if (exists $payload->{mercenary}) {
         my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($payload->{mercenary});
         if (defined $spy) {
+            $spy->task('Idle');
             $spy->empire_id($body->empire_id);
             $spy->from_body_id($body->id);
             $spy->on_body_id($body->id);
+            $spy->date_available(DateTime->now);
             $spy->update;
             delete $payload->{mercenary};
         }
