@@ -49,16 +49,15 @@ sub unload {
         delete $payload->{prisoners};
     }
     if (exists $payload->{mercenary}) {
-        foreach my $id (@{$payload->{mercenary}}) {
-            my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($id);
-            next unless defined $spy;
-            $spy->task('Idle');
-            $spy->empire_id($body->empire_id);
-            $spy->from_body_id($body->id);
-            $spy->on_body_id($body->id);
-            $spy->date_available(DateTime->now);
-            $spy->update;
-        }
+        my $id = $payload->{mercenary};
+        my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($id);
+        next unless defined $spy;
+        $spy->task('Idle');
+        $spy->empire_id($body->empire_id);
+        $spy->from_body_id($body->id);
+        $spy->on_body_id($body->id);
+        $spy->date_available(DateTime->now);
+        $spy->update;
         delete $payload->{mercenary};
     }
     if (exists $payload->{ships}) {

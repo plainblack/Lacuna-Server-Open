@@ -253,7 +253,7 @@ sub report_abuse {
         };
     }
 }
-__PACKAGE__->register_rpc_method_names(qw(report_abuse view_my_market view_market accept_from_market withdraw_from_market add_to_market push_items get_trade_ships get_spies));
+__PACKAGE__->register_rpc_method_names(qw(report_abuse view_my_market view_market accept_from_market withdraw_from_market add_to_market get_trade_ships get_spies));
 
 
 no Moose;
