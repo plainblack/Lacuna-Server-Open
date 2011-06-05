@@ -205,7 +205,7 @@ sub get_spies {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-        { on_body_id => $building->body_id, task => { in => ['Counter Espionage','Idle'] } },
+        { empire_id => $empire->id, on_body_id => $building->body_id, task => { in => ['Counter Espionage','Idle'] } },
         { order_by => 'name' }
     );
     my @out;
