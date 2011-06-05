@@ -33,8 +33,8 @@ sub unload {
             $spy->from_body_id($body->id);
             $spy->on_body_id($body->id);
             $spy->update;
+            delete $payload->{mercenary};
         }
-        delete $payload->{mercenary};
     }
     $self->payload($payload);
     return $self;
