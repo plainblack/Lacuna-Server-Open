@@ -56,7 +56,7 @@ sub unload {
         $spy->empire_id($body->empire_id);
         $spy->from_body_id($body->id);
         $spy->on_body_id($body->id);
-        $spy->date_available(DateTime->now);
+        $spy->available_on(DateTime->now);
         $spy->update;
         delete $payload->{mercenary};
     }
