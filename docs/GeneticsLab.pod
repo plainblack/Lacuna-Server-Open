@@ -71,7 +71,7 @@ The unique id of the genetics lab.
 
 
 
-=head2 rename_species ( empire_id, building_id, params )
+=head2 rename_species ( session_id, building_id, params )
 
 Updates the empire's species name and description.
 
@@ -81,9 +81,9 @@ Updates the empire's species name and description.
 
 Throws 1000, 1005. The C<data> parameter will contain the field name that needs to be adjusted, if it can be attributed to a single field.
 
-=head3 empire_id
+=head3 session_id
 
-The id of the empire you wish to update a species for.
+A session id.
 
 =head3 params
 
