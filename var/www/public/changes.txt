@@ -1,8 +1,7 @@
 3.0808
  - API: Cleaned up the data returned by train_spy in the new spy training buildings.
  - API: Added spy name to the training costs section of the data returned by view in the new spy training buildings.
- - Fix: Spies up for sale via the Merc Guild will no longer be available for other assignments.
- - Fix: Spies up for save via the Merc Guild will no longer be able to be burned.
+ - Fix: Spies up for sale via the Merc Guild will no longer be available for other assignments or able to be burned.
 
 3.0807
  - API: Removed view_spies from the new spy training buildings.
