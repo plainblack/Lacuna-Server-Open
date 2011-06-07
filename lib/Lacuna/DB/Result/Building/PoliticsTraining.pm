@@ -113,7 +113,7 @@ sub training_costs {
         $costs->{time} = sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
     }
     else {
-        my $spies = $self->get_spies->search({ task => 'Idle' });
+        my $spies = $self->get_spies->search({ task => { in => ['Counter Espionage','Idle'] } });
         while (my $spy = $spies->next) {
             push @{$costs->{time}}, {
                 spy_id  => $spy->id,
@@ -152,18 +152,18 @@ sub train_spy {
     unless ($time_to_train) {
         $time_to_train = $self->training_costs($spy)->{time};
     }
-    unless ($spy->task eq 'Idle') {
+    unless ($spy->task ~~ ['Counter Espionage','Idle']) {
         confess [1011, 'Spy must be idle to train.'];
     }
     my $latest = $self->latest_spy;
     my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
     $available_on->add(seconds => $time_to_train );
     $spy->politics_xp($spy->politics_xp + $self->level);
+    $spy->update_level;
     $spy->task('Training');
     $spy->available_on($available_on);
     $spy->update;
     $self->latest_spy($spy);
-#    $self->start_work({}, $available_on->epoch - time())->update;
     return $self;
 }
 

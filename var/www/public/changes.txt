@@ -1,3 +1,7 @@
+3.0807
+ - Fix: Spies trained via the new training buildings will level up appropriately.
+ - Fix: When a Merc Guild trade is withdrawn, the spy will no longer change home planet to the planet the Merc Guild resides on.
+
 3.0806
  - Fix: Mercenaries Guild will no longer show foreign spies on your planet.
  - Fix: Spy Pods will now behave properly when shipping spies purchased through the Mercenaries Guild.
