@@ -117,6 +117,7 @@ sub training_costs {
         while (my $spy = $spies->next) {
             push @{$costs->{time}}, {
                 spy_id  => $spy->id,
+                name    => $spy->name,
                 time    => sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100)),
             };
         }
