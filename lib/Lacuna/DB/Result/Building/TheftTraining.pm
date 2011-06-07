@@ -139,7 +139,7 @@ sub train_spy {
     unless ($spy->task ~~ ['Counter Espionage','Idle']) {
         confess [1011, 'Spy must be idle to train.'];
     }
-    my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
+    my $available_on = DateTime->now;
     $available_on->add(seconds => $time_to_train );
     $spy->theft_xp($spy->theft_xp + $self->level);
     $spy->update_level;

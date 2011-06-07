@@ -51,23 +51,6 @@ has spies_in_training_count => (
     },
 );
 
-has latest_spy => (
-    is          => 'rw',
-    lazy        => 1,
-    default     => sub {
-        my $self = shift;
-        return $self->get_spies->search(
-            {
-                task            => 'Training',
-            },
-            {
-                order_by    => { -desc => 'available_on' },
-                rows        => 1,
-            }
-        )->single;
-    },
-);
-
 sub get_spies {
     my ($self) = @_;
     return Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ empire_id => $self->body->empire_id, on_body_id => $self->body_id });
@@ -156,15 +139,13 @@ sub train_spy {
     unless ($spy->task ~~ ['Counter Espionage','Idle']) {
         confess [1011, 'Spy must be idle to train.'];
     }
-    my $latest = $self->latest_spy;
-    my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
+    my $available_on = DateTime->now;
     $available_on->add(seconds => $time_to_train );
     $spy->intel_xp($spy->intel_xp + $self->level);
     $spy->update_level;
     $spy->task('Training');
     $spy->available_on($available_on);
     $spy->update;
-    $self->latest_spy($spy);
     return $self;
 }
 
