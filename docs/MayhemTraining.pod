@@ -33,6 +33,8 @@ The list of methods below represents changes and additions to the methods that a
  }
  
 
+The list of spies available to train shows up under training_costs in the time section since that varies from spy to spy. 
+
 =head2 train_spy ( session_id, building_id, spy_id )
 
 Allows you to train an idle spy in the art of destruction.
@@ -60,60 +62,6 @@ The unique id of your Mayhem Training Facility.
 =head3 spy_id
 
 The unique id of the spy to train.
-
-
-
-
-
-=head2 view_spies ( session_id, building_id, [ page_number ] )
-
-Returns the list of spies you have on your roster that are present.
-
- {
-    "status" : { ... },
-    "spies" : [
-        {
-            "id" : "id-goes-here",
-            "name" : "Jason Bourne",
-            "assignment" : "Idle",
-            "level" : 9,
-            "politics" : 0,                         # experience in handling happiness
-            "mayhem" : 20,                          # experience in handling missions involving murder and destruction
-            "theft" : 40,                           # experience in handling missions involving stealing items
-            "intel" : 33,                           # experience in handling missions involving information and spies
-            "offense_rating" : 570,
-            "defense_rating" : 150,
-            "assigned_to" : {
-                "body_id" : "id-goes-here",
-                "name" : "Earth",
-                "x" : 40,
-                "y" : -71
-            },
-            "is_available" : 1, # can be reassigned
-            "available_on" : "01 31 2010 13:09:05 +0600", # if can't be reassigned, this is when will be available
-            "started_assignment" : "01 31 2010 13:09:05 +0600",
-            "seconds_remaining" : 45,
-			"mission_count" : {
-				"offensive" : 149,
-				"defensive" : 149
-			}
-        },
-        ...
-    ],
-    "spy_count" : 12
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of your Mayhem Training Facility.
-
-=head3 page_number
-
-Defaults to 1. An integer representing which page to view. Shows 25 spies per page.
 
 
 
