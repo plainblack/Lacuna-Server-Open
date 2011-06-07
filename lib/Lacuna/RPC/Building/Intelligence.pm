@@ -98,7 +98,7 @@ sub burn_spy {
     unless (defined $spy) {
         confess [1002, "Spy not found."];
     }
-    if ($spy->task eq 'Waiting On Trade' || $spy->task eq 'Mercenary Trade') {
+    if ($spy->task eq 'Waiting On Trade' || $spy->task eq 'Mercenary Transport') {
         confess [1010, "You can't burn a spy involved in a trade. You must wait for the trade to complete."];
     }
     if ($spy->task eq 'Captured') {
