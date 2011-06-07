@@ -14,35 +14,6 @@ sub model_class {
     return 'Lacuna::DB::Result::Building::IntelTraining';
 }
 
-sub view_spies {
-    my ($self, $session_id, $building_id, $page_number) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    $page_number ||= 1;
-    my @spies;
-    my $body = $building->body;
-    my %planets = ( $body->id => $body );
-    my $spy_list = $building->get_spies->search({}, { rows => 25, page => $page_number});
-    my $cost_to_subsidize = 0;
-    while (my $spy = $spy_list->next) {
-        if (exists $planets{$spy->on_body_id}) {
-            $spy->on_body($planets{$spy->on_body_id});
-        }
-        else {
-            $planets{$spy->on_body_id} = $spy->on_body;
-        }
-        $cost_to_subsidize++ if ($spy->task eq 'Training');
-        push @spies, $spy->get_status;
-    }
-    return {
-        status                  => $self->format_status($empire, $body),
-        spies                   => \@spies,
-        spy_count               => $spy_list->pager->total_entries,
-        cost_to_subsidize       => $cost_to_subsidize,
-    };
-}
-
-
 sub train_spy {
     my ($self, $session_id, $building_id, $spy_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -90,7 +61,7 @@ around 'view' => sub {
 };
 
 
-__PACKAGE__->register_rpc_method_names(qw(view_spies train_spy));
+__PACKAGE__->register_rpc_method_names(qw(train_spy));
 
 
 no Moose;

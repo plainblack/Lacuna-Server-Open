@@ -1,5 +1,6 @@
 3.0807
- - Fix: Spies trained via the new training buildings will level up appropriately.
+ - API: Removed view_spies from the new spy training buildings.
+ - Fix: Spies trained via the new spy training buildings will level up appropriately.
  - Fix: When a Merc Guild trade is withdrawn, the spy will no longer change home planet to the planet the Merc Guild resides on.
 
 3.0806
