@@ -1,3 +1,7 @@
+3.0808
+ - API: Cleaned up the data returned by train_spy in the new spy training buildings.
+ - API: Added spy name to the training costs section of the data returned by view in the new spy training buildings.
+
 3.0807
  - API: Removed view_spies from the new spy training buildings.
  - Fix: Spies trained via the new spy training buildings will level up appropriately.
