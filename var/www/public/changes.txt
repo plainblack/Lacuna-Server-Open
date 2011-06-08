@@ -1,3 +1,6 @@
+3.0809
+ - Fix: Tax payments will be properly rotated.
+
 3.0808
  - API: Cleaned up the data returned by train_spy in the new spy training buildings.
  - API: Added spy name to the training costs section of the data returned by view in the new spy training buildings.
