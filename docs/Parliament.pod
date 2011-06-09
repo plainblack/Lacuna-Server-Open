@@ -77,6 +77,8 @@ The unique id of the parliament.
 
 Returns a list of the empires that have paid taxes and how much has been paid for the past seven days.
 
+Within the taxes_collected list you will find the id and name of the empire that paid taxes, a list of payments for today (element 0) and the previous six days as well as the total of those seven days payments.
+
  {
     "status" : { ... },
     "taxes_collected" : [
