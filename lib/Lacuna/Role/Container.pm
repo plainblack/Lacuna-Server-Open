@@ -21,7 +21,7 @@ sub format_body_stats_for_log {
 }
 
 sub unload {
-    my ($self, $body) = @_;
+    my ($self, $body, $withdraw) = @_;
     my $payload = $self->payload;
     #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
     #$cargo_log->new({
@@ -55,8 +55,10 @@ sub unload {
         $spy->task('Idle');
         $spy->available_on(DateTime->now);
         $spy->on_body_id($body->id);
-        if ($spy->empire_id != $body->empire_id) {
-            $spy->empire_id($body->empire_id);
+        unless ($withdraw) { 
+            unless ($spy->empire_id == $body->empire_id) {
+                $spy->empire_id($body->empire_id);
+            }
             $spy->from_body_id($body->id);
         }
         $spy->update;

@@ -46,7 +46,7 @@ sub format_description_of_payload {
 sub withdraw {
     my ($self, $body) = @_;
     $body ||= $self->body;
-    $self->unload($body);
+    $self->unload($body,'withdraw'); # set the withdraw flag because mercs get special treatment
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($self->ship_id);
     $ship->land->update if defined $ship;
     $body->empire->add_essentia($self->cost, 'Withdrew Mercenary Trade')->update;

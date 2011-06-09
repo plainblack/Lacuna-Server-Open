@@ -1,5 +1,6 @@
 3.0809
  - Fix: Tax payments will be properly rotated.
+ - Fix: If you buy one of your own spies from another planet, it will now belong to the purchasing planet.
 
 3.0808
  - API: Cleaned up the data returned by train_spy in the new spy training buildings.
