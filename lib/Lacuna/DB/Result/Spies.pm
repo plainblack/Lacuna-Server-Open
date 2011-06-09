@@ -1767,7 +1767,11 @@ sub steal_building {
     my ($self, $defender) = @_;
     my $on_body = $self->on_body;
     my $building = $on_body->buildings->search(
-        { level => { '>' => 1 }, class => { '!=' => 'Lacuna::DB::Result::Building::Permanent::EssentiaVein' } },
+        {
+            level => { '>' => 1 }, 
+            class => { '!=' => 'Lacuna::DB::Result::Building::Permanent::EssentiaVein' },
+            class => { '!=' => 'Lacuna::DB::Result::Building::DeployedBleeder' },
+        },
         { rows=>1, order_by => 'rand()' }
         )->single;
     return $self->building_not_found->id unless defined $building;
