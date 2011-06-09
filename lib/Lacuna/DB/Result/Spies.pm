@@ -1798,7 +1798,10 @@ sub steal_building {
 
 sub steal_plan {
     my ($self, $defender) = @_;
-    my $plan = $self->on_body->plans->search(undef,{ rows=>1, order_by => 'rand()' })->single;
+    my $plan = $self->on_body->plans->search(
+        { class => { '!=' => 'Lacuna::DB::Result::Building::DeployedBleeder' } },
+        { rows=>1, order_by => 'rand()' }
+    )->single;
     return $self->mission_objective_not_found('plan')->id unless defined $plan;
     $self->things_stolen( $self->things_stolen + 1 );
     $plan->body_id($self->from_body_id);
