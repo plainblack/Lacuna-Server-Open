@@ -1,6 +1,7 @@
 package Lacuna::RPC::Building::Trade;
 
 use Moose;
+use feature "switch";
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
@@ -51,8 +52,30 @@ sub push_items {
     unless (defined $target) {
         confess [1002, 'The target body you specified could not be found.'];
     }
-    unless ($target->empire_id == $empire->id || ($target->class eq 'Lacuna::DB::Result::Map::Body::Planet::Station' && $target->alliance_id == $empire->alliance_id)) {
-        confess [1010, 'You cannot push items to a planet that is not your own.'];
+    if ($target->class eq 'Lacuna::DB::Result::Map::Body::Planet::Station') {
+        my $planet = $building->body;
+        if ($target->alliance_id == $empire->alliance_id) {
+            # You can push anything to your Alliance's Space Stations
+        }
+        elsif ($target->in_jurisdiction($planet)) {
+            # Allowed to push food, ore, water and energy only to SS that control your star
+            foreach my $item (@{$items}) {
+                given($item->{type}) {
+                    when([qw(waste glyph plan prisoner ship)]) {
+                        confess [1010, "You cannot push $item->{type} to that space station."];
+                    }
+                }
+            }
+        }
+        else {
+            confess [1010, 'You cannot push items to that space station.'];
+        }
+    }
+    else {
+        # You can push anything to your own planets
+        unless ($target->empire_id == $empire->id) {
+            confess [1010, 'You cannot push items to a planet that is not your own.'];
+        }
     }
     my $ship = $building->push_items($target, $items, $options);
     return {
