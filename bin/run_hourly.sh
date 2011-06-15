@@ -15,4 +15,4 @@ perl trelvestian/hourly_update.pl
 perl trelvestian/send_attack.pl&
 perl diablotin/hourly_update.pl
 perl saben/hourly_update.pl
-#perl check_for_total_victory.pl
+perl check_for_total_victory.pl
