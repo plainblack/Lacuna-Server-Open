@@ -5,6 +5,7 @@ use Lacuna::DB;
 use Lacuna;
 use Lacuna::Util qw(format_date);
 use Getopt::Long;
+use UUID::Tiny ':std';
 $|=1;
 our $quiet;
 GetOptions(
@@ -13,6 +14,9 @@ GetOptions(
 
 out('Started');
 my $start = time;
+
+my $config = Lacuna->config;
+my $server_url = $config->get('server_url');
 
 out('Loading AI');
 my $ai = Lacuna::AI::Trelvestian->new;
@@ -51,7 +55,25 @@ foreach my $id (@{Lacuna->config->get('win/alliance_control')}) {
 
 if (defined $victory_empire) {
     if ($victory_points{$victory_empire->id} >= 4) {
-        $cache->set('server','status','Game Over', 60 * 60 * 24 * 30);
+        if ($server_url =~ /us2/) {
+            $cache->set('server','status','Game Over', 60 * 60 * 24 * 30);
+        }
+        elsif ($server_url =~ /us1/) {
+            my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($victory_empire->alliance_id);
+            if (defined $alliance) {
+                while (my $empire = $alliance->members->next) {
+                    $empire->add_medal('tournament');
+                }
+                set_announcement("The '" . $alliance->name . "' alliance has won the Four Trel Colonies tournament!")
+            } 
+            else {
+                $victory_empire->add_medal('tournament');
+                set_announcement("The '" . $victory_empire->name . "' empire has won the Four Trel Colonies tournament single-handedly!")
+            }
+        }
+        else {
+            out('Not configured to run on ' . $server_url);
+        }
     }
 }
 
@@ -61,19 +83,24 @@ out('Finished');
 out((($finish - $start)/60)." minutes have elapsed");
 
 
-
-
 ###############
 ## SUBROUTINES
 ###############
-
-
 
 sub out {
     my $message = shift;
     unless ($quiet) {
         say format_date(DateTime->now), " ", $message;
     }
+}
+
+sub set_announcement {
+    my $message = shift;
+    my $cache = Lacuna->cache;
+    my $announcement = $cache->get('announcement','message');
+    $announcement .= '<br>' . $message;
+    $cache->set('announcement','alert', create_uuid_as_string(UUID_V4), 60*60*24);
+    $cache->set('announcement','message', $announcement, 60*60*24);
 }
 
 

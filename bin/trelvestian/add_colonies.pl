@@ -21,22 +21,53 @@ GetOptions(
 out('Started');
 my $start = time;
 
+my $config = Lacuna->config;
+my $server_url = $config->get('server_url');
 my $ai = Lacuna::AI::Trelvestian->new;
 
 if ($tournament) {
     $ai->create_empire;
     my $viable = $ai->viable_colonies;
     my @colonies;
-    push @colonies, $viable->search({ x => { '>' => 150}, y => { '>' => 150} },{rows=>1})->single;
-    push @colonies, $viable->search({ x => { '<' => -150}, y => { '>' => 150} },{rows=>1})->single;
-    push @colonies, $viable->search({ x => { '<' => -150}, y => { '<' => -150} },{rows=>1})->single;
-    push @colonies, $viable->search({ x => { '>' => 150}, y => { '<' => -150} },{rows=>1})->single;
+
+    my $test = 0; # BUG
+
+    if ($server_url =~ /us2/) {
+        push @colonies, $viable->search({ x => { '>' => 150}, y => { '>' => 150} },{rows=>1})->single;
+        push @colonies, $viable->search({ x => { '<' => -150}, y => { '>' => 150} },{rows=>1})->single;
+        push @colonies, $viable->search({ x => { '<' => -150}, y => { '<' => -150} },{rows=>1})->single;
+        push @colonies, $viable->search({ x => { '>' => 150}, y => { '<' => -150} },{rows=>1})->single;
+    }
+    elsif ($server_url =~ /us1/) {
+        # four planets in 2|2
+        my $search = {
+            x => { -between => [ 500, 749 ] },
+            y => { -between => [ 500, 749 ] },
+        };
+        push @colonies, $viable->search( $search, {rows=>1})->single;
+        push @colonies, $viable->search( $search, {rows=>1})->single;
+        push @colonies, $viable->search( $search, {rows=>1})->single;
+        push @colonies, $viable->search( $search, {rows=>1})->single;
+
+        say 'You need to add the colonies to ../etc/lacuna.conf before the tournament begins.'
+        say '"win" : { "alliance_control" : [' . join(',', @colonies) . '] },'; # "win" : { "alliance_control" : [441,19093,47,19293] },
+
+        $test = 1; # BUG
+    }
+    else {
+        say 'No information on ' . $server_url;
+    }
     foreach my $body (@colonies) {
         say 'Clearing '.$body->name;
-        $body->buildings->delete_all;
-        say 'Colonizing '.$body->name;
-        $body->found_colony($ai->empire);
-        $ai->build_colony($body);
+        unless ( $test ) {
+            $body->buildings->delete_all;
+            say 'Colonizing '.$body->name;
+            $body->found_colony($ai->empire);
+            $ai->build_colony($body);
+        }
+        else {
+            say $body->x . ',' . $body->y;
+        }
     }
 }
 else {
