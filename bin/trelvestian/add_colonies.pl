@@ -34,7 +34,7 @@ if ($tournament) {
     my $viable = $ai->viable_colonies;
     my @colonies;
 
-    my $test = 0; # BUG
+    my $test = 1; # BUG set to 0 when testing is complete
 
     if ($server_url =~ /us2/) {
         push @colonies, $viable->search({ x => { '>' => 150}, y => { '>' => 150} },{rows=>1})->single;
@@ -53,39 +53,40 @@ if ($tournament) {
         push @colonies, $viable->search( $search, {rows=>1})->single;
         push @colonies, $viable->search( $search, {rows=>1})->single;
 
-        say 'You need to add the colonies to ../etc/lacuna.conf before the tournament begins.';
-        say '"win" : { "alliance_control" : [' . join(',', @colonies) . '] },'; # "win" : { "alliance_control" : [441,19093,47,19293] },
-
-        $test = 1; # BUG
+        if (@colonies) {
+            say 'You need to add the colonies to ../etc/lacuna.conf before the tournament begins.';
+            say '"win" : { "alliance_control" : [' . join(',', @colonies) . '] },'; # "win" : { "alliance_control" : [441,19093,47,19293] },
+        }
     }
     else {
         say 'No information on ' . $server_url;
     }
     foreach my $body (@colonies) {
-        say 'Clearing '.$body->name;
-        unless ( $test ) {
+        if ($test) {
+            say $body->name . ' ' . $body->x . ',' . $body->y;
+        }
+        else {
+            say 'Clearing '.$body->name;
             $body->buildings->delete_all;
             say 'Colonizing '.$body->name;
             $body->found_colony($ai->empire);
             $ai->build_colony($body);
         }
-        else {
-            say $body->x . ',' . $body->y;
-        }
     }
 }
 else {
     say 'Normal mode';
-
-    $ai->add_colonies($add_one);
+    if ($test) {
+        say 'Would normally add colonies here';
+    }
+    else {
+        $ai->add_colonies($add_one);
+    }
 }
-
 
 my $finish = time;
 out('Finished');
 out((($finish - $start)/60)." minutes have elapsed");
-
-
 
 
 ###############
@@ -98,5 +99,4 @@ sub out {
         say format_date(DateTime->now), " ", $message;
     }
 }
-
 
