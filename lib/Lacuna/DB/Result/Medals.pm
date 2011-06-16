@@ -340,6 +340,11 @@ use constant MEDALS => {
     DentonBrambles                  => 'Discovered Denton Brambles',
     MercenariesGuild                => 'Built Mercenaries Guild',
     PoliceStation                   => 'Built Police Station',
+    #DiablotinDefeated               => '',
+    #SabenDefeated                   => '',
+    TrelDefeated                    => 'Won the Four Trel Colonies tournament',
+    TournamentVictory               => 'Won a tournament',
+    '20Stars'                       => 'Won the Twenty Stars tournament',
 };
 
 sub name {

@@ -62,12 +62,14 @@ if (defined $victory_empire) {
             my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($victory_empire->alliance_id);
             if (defined $alliance) {
                 while (my $empire = $alliance->members->next) {
-                    $empire->add_medal('tournament');
+                    $empire->add_medal('TrelDefeated');
+                    $empire->add_medal('TournamentVictory');
                 }
                 set_announcement("The '" . $alliance->name . "' alliance has won the Four Trel Colonies tournament!")
             } 
             else {
-                $victory_empire->add_medal('tournament');
+                $victory_empire->add_medal('TrelDefeated');
+                $victory_empire->add_medal('TournamentVictory');
                 set_announcement("The '" . $victory_empire->name . "' empire has won the Four Trel Colonies tournament single-handedly!")
             }
         }
