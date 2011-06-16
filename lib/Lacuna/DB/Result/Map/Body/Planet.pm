@@ -713,9 +713,7 @@ sub convert_to_station {
     $self->update;    
 
     # award medal
-    my $type = ref $self;
-    $type =~ s/^.*::(\w+)$/$1/;
-    $empire->add_medal($type);
+    $empire->add_medal('space_station_deployed');
 
     # clean it
     $self->buildings->delete_all;
