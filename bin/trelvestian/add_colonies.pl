@@ -49,7 +49,7 @@ if ($tournament) {
         push @colonies, $viable->search( $search, {rows=>1})->single;
         push @colonies, $viable->search( $search, {rows=>1})->single;
 
-        say 'You need to add the colonies to ../etc/lacuna.conf before the tournament begins.'
+        say 'You need to add the colonies to ../etc/lacuna.conf before the tournament begins.';
         say '"win" : { "alliance_control" : [' . join(',', @colonies) . '] },'; # "win" : { "alliance_control" : [441,19093,47,19293] },
 
         $test = 1; # BUG
