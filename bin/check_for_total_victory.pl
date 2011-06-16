@@ -24,9 +24,12 @@ my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire');
 my $cache = Lacuna->cache;
 my $lec = Lacuna::DB::Result::Empire->lacuna_expanse_corp;
 
+my $search = { class => 'Lacuna::DB::Result::Map::Body::Planet::Station' };
+$search->{zone} = '-2|-2' if $server_url =~ /us1/;
+
 out('Checking space stations.');
 my %victory_empire;
-my $stations = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({class => 'Lacuna::DB::Result::Map::Body::Planet::Station'});
+my $stations = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search($search);
 my $message = '';
 while (my $station = $stations->next) {
     my $stars = $station->influence_spent;
