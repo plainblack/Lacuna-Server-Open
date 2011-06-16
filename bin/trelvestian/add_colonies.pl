@@ -16,8 +16,6 @@ GetOptions(
     tournament      => \$tournament,
 );
 
-
-
 out('Started');
 my $start = time;
 
@@ -30,7 +28,9 @@ my $ai = Lacuna::AI::Trelvestian->new;
 if ($tournament) {
     say 'Tournament mode';
 
-    $ai->create_empire;
+    # for the side effect of running $ai->create_empire only if the empire hasn't been created yet
+    my $colonies = $ai->empire->planets;
+
     my $viable = $ai->viable_colonies;
     my @colonies;
 
