@@ -23,9 +23,13 @@ my $start = time;
 
 my $config = Lacuna->config;
 my $server_url = $config->get('server_url');
+say "Running on $server_url";
+
 my $ai = Lacuna::AI::Trelvestian->new;
 
 if ($tournament) {
+    say 'Tournament mode';
+
     $ai->create_empire;
     my $viable = $ai->viable_colonies;
     my @colonies;
@@ -71,6 +75,8 @@ if ($tournament) {
     }
 }
 else {
+    say 'Normal mode';
+
     $ai->add_colonies($add_one);
 }
 
