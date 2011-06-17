@@ -23,7 +23,7 @@ my $config = Lacuna->config;
 my $server_url = $config->get('server_url');
 say "Running on $server_url";
 
-my $test = 1; # BUG set to 0 when testing is complete
+my $test = 0; # set to 1 when you want to test this
 
 my $ai = Lacuna::AI::Trelvestian->new;
 
