@@ -24,56 +24,62 @@ my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire');
 my $cache = Lacuna->cache;
 my $lec = Lacuna::DB::Result::Empire->lacuna_expanse_corp;
 
-my $search = { class => 'Lacuna::DB::Result::Map::Body::Planet::Station' };
-$search->{zone} = '-2|-2' if $server_url =~ /us1/;
+if ($cache->get('20Stars') ne 'Tournament Over') {
+	my $search = { class => 'Lacuna::DB::Result::Map::Body::Planet::Station' };
+	$search->{zone} = '-2|-2' if $server_url =~ /us1/;
 
-out('Checking space stations.');
-my %victory_empire;
-my $stations = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search($search);
-my $message = '';
-while (my $station = $stations->next) {
-    my $stars = $station->influence_spent;
-    $message .= sprintf("The station {Starmap %s %s %s}, owned by {Empire %s %s}, controls %d stars.\n", 
-        $station->x, $station->y, $station->name, $station->empire_id, $station->empire->name, $stars);
-    if ( $stars >= 20 ) {
-        $victory_empire{$station->empire_id} = $stars;
-    }
-}
+	out('Checking space stations.');
+	my %victory_empire;
+	my $stations = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search($search);
+	my $message = '';
+	while (my $station = $stations->next) {
+	    my $stars = $station->influence_spent;
+	    $message .= sprintf("The station {Starmap %s %s %s}, owned by {Empire %s %s}, controls %d stars.\n", 
+		$station->x, $station->y, $station->name, $station->empire_id, $station->empire->name, $stars);
+	    if ( $stars >= 20 ) {
+		$victory_empire{$station->empire_id} = $stars;
+	    }
+	}
 
-if (scalar keys %victory_empire) {
-    if ($server_url =~ /us2/) {
-        $cache->set('server','status','Game Over', 60 * 60 * 24 * 30);
-    }
-    elsif ($server_url =~ /us1/) {
-        my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($victory_empire->alliance_id);
-        if (defined $alliance) {
-            while (my $empire = $alliance->members->next) {
-                $empire->add_medal('20Stars');
-                $empire->add_medal('TournamentVictory');
-            }
-            set_announcement("The '" . $alliance->name . "' alliance has won the Twenty Stars tournament!")
-        } 
-        else {
-            $victory_empire->add_medal('20Stars');
-            $victory_empire->add_medal('TournamentVictory');
-            set_announcement("The '" . $victory_empire->name . "' empire has won the Twenty Stars tournament single-handedly!")
-        }
-    }
-    else {
-        out('Not configured to run on ' . $server_url);
-    }
+	if (scalar keys %victory_empire) {
+	    if ($server_url =~ /us2/) {
+		$cache->set('server','status','Game Over', 60 * 60 * 24 * 30);
+	    }
+	    elsif ($server_url =~ /us1/) {
+		$cache->set('20Stars','Tournament Over', 60 * 60 * 24 * 30);
+		my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($victory_empire->alliance_id);
+		if (defined $alliance) {
+		    while (my $empire = $alliance->members->next) {
+			$empire->add_medal('20Stars');
+			$empire->add_medal('TournamentVictory');
+		    }
+		    set_announcement("The '" . $alliance->name . "' alliance has won the Twenty Stars tournament!")
+		} 
+		else {
+		    $victory_empire->add_medal('20Stars');
+		    $victory_empire->add_medal('TournamentVictory');
+		    set_announcement("The '" . $victory_empire->name . "' empire has won the Twenty Stars tournament single-handedly!")
+		}
+	    }
+	    else {
+		out('Not configured to run on ' . $server_url);
+	    }
+	}
+	elsif (DateTime->now->hour == 3 ) {
+	    while (my $empire = $empires->next) {
+		if ( $message ) {
+		    $empire->send_message(
+			tags        => ['Alert'],
+			from        => $lec,
+			body        => $message,
+			subject     => 'Situation Update',
+		    );
+		}
+	    }
+	}
 }
-elsif (DateTime->now->hour == 3 ) {
-    while (my $empire = $empires->next) {
-        if ( $message ) {
-            $empire->send_message(
-                tags        => ['Alert'],
-                from        => $lec,
-                body        => $message,
-                subject     => 'Situation Update',
-            );
-        }
-    }
+else {
+    out('The tournament is already over');
 }
 
 my $finish = time;

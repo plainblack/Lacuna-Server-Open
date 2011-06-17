@@ -10,10 +10,12 @@ $|=1;
 our $quiet;
 our $add_one;
 our $tournament;
+our $test;
 GetOptions(
     quiet           => \$quiet,
     addone          => \$add_one,
     tournament      => \$tournament,
+    test	    => \$test,
 );
 
 out('Started');
@@ -22,8 +24,6 @@ my $start = time;
 my $config = Lacuna->config;
 my $server_url = $config->get('server_url');
 say "Running on $server_url";
-
-my $test = 0; # set to 1 when you want to test this
 
 my $ai = Lacuna::AI::Trelvestian->new;
 
