@@ -52,7 +52,8 @@ if ($tournament) {
 
         if (@colonies) {
             say 'You need to add the colonies to ../etc/lacuna.conf before the tournament begins.';
-            say '"win" : { "alliance_control" : [' . join(',', @colonies) . '] },'; # "win" : { "alliance_control" : [441,19093,47,19293] },
+            my $list = join ',', map { $_->id } @colonies;
+            say '"win" : { "alliance_control" : [' . $list . '] },'; # "win" : { "alliance_control" : [441,19093,47,19293] },
         }
     }
     else {
