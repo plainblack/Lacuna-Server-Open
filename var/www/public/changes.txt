@@ -3,6 +3,7 @@
  - Fix: You can now push food, ore, water and energy to the Space Station that controls your planet's star.
  - Fix: The medal for setting up a Space Station completely works now.
  - Fix: Spies tasked with 'Mercenary Transport' will no longer show up in the list of available spies.
+ - Fix: If you have more than 100 spies on a foreign planet, the Space Port's prepare_fetch_spies will now return more of your available spies.
 
 3.0809
  - Fix: Tax payments will be properly rotated.
