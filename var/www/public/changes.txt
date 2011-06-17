@@ -2,6 +2,7 @@
  - Fix: Spies wised up some more. They will no longer steal Bleeder plans.
  - Fix: You can now push food, ore, water and energy to the Space Station that controls your planet's star.
  - Fix: The medal for setting up a Space Station completely works now.
+ - Fix: Spies tasked with 'Mercenary Transport' will no longer show up in the list of available spies.
 
 3.0809
  - Fix: Tax payments will be properly rotated.

@@ -401,7 +401,17 @@ sub prepare_fetch_spies {
     }
     
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-        {on_body_id => $on_body->id, empire_id => $empire->id },
+        {
+            on_body_id => $on_body->id, 
+            empire_id => $empire->id,
+            -or => [
+                task => { in => [ 'Idle', 'Counter Espionage' ], },
+                -and => [
+                    task => { in => [ 'Unconscious', 'Debriefing' ], },
+                    available_on => { '<' => '\NOW()' }, 
+                ],
+            ],
+        },
         {order_by => 'name', rows=>100}
     );
     my @spies;

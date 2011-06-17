@@ -274,8 +274,11 @@ sub seconds_remaining_on_assignment {
 sub is_available {
     my ($self) = @_;
     my $task = $self->task;
-    if ($task ~~ ['Idle','Counter Espionage','Mercenary Transport']) {
+    if ($task ~~ ['Idle','Counter Espionage']) {
         return 1;
+    }
+    elsif ($task eq 'Mercenary Transport') {
+        return 0;
     }
     elsif (time > $self->available_on->epoch) {
         if ($task eq 'Debriefing') {
