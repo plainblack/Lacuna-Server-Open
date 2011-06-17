@@ -48,10 +48,7 @@ if ($tournament) {
             x => { -between => [ 500, 749 ] },
             y => { -between => [ 500, 749 ] },
         };
-        push @colonies, $viable->search( $search, {rows=>1})->single;
-        push @colonies, $viable->search( $search, {rows=>1})->single;
-        push @colonies, $viable->search( $search, {rows=>1})->single;
-        push @colonies, $viable->search( $search, {rows=>1})->single;
+        push @colonies, $viable->search( $search, {rows=>4});
 
         if (@colonies) {
             say 'You need to add the colonies to ../etc/lacuna.conf before the tournament begins.';
