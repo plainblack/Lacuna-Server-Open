@@ -748,7 +748,7 @@ before delete => sub {
                 $self->name .' deleted',
             ],
         );
-        if ( ! defined $self->email ) {
+        if ( defined $self->email ) {
             $self->send_email(
                 'Essentia Code',
                 sprintf("When your account was deleted you had %s essentia remaining. You can redeem it using the code %s on any Lacuna Expanse server.",
