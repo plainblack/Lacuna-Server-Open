@@ -758,7 +758,7 @@ before delete => sub {
             );
         }
         else {
-            $self->email = 'root@localhost';
+            $self->email('root@localhost');
             $self->send_email(
                 'Essentia Code',
                 sprintf("When %s's account was deleted it had %s essentia remaining. The essentia code is %s.",

@@ -30,12 +30,12 @@ unless ( $status eq 'Game Over' ) {
 
 out('Loading DB');
 our $db = Lacuna->db;
-my $empires = $db->resultset('Lacuna::DB::Result::Empire');
+my $empires = $db->resultset('Lacuna::DB::Result::Empire')->search({empire_id => { '>' => 1 } });
 
 out('Deleting Empires');
 while (my $empire = $empires->next) {
     out('Deleting Empire: '. $empire->name);
-    $empire->delete;    
+    $empire->delete;
 }
 
 my $finish = time;
