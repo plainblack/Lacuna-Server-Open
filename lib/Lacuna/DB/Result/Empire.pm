@@ -738,7 +738,7 @@ before delete => sub {
     my $essentia_code;
     my $config = Lacuna->config;
     my $sum = $self->essentia - $essentia_log->search({empire_id => $self->id, description => 'tutorial' })->get_column('amount')->sum;
-    if ($sum > 0 && $self->email) {
+    if ($sum > 0 ) {
         $essentia_code = Lacuna::JRC->new->post(
             $config->get('essentia_code_server_url'),
             'add',
@@ -748,13 +748,26 @@ before delete => sub {
                 $self->name .' deleted',
             ],
         );
-        $self->send_email(
-            'Essentia Code',
-            sprintf("When your account was deleted you had %s essentia remaining. You can redeem it using the code %s on any Lacuna Expanse server.",
-                $sum,
-                $essentia_code,
-            ),
-        );
+        if ( ! $self->email ) {
+            $self->send_email(
+                'Essentia Code',
+                sprintf("When your account was deleted you had %s essentia remaining. You can redeem it using the code %s on any Lacuna Expanse server.",
+                    $sum,
+                    $essentia_code,
+                ),
+            );
+        }
+        else {
+            $self->email = 'root@localhost';
+            $self->send_email(
+                'Essentia Code',
+                sprintf("When %s's account was deleted it had %s essentia remaining. The essentia code is %s.",
+                    $self->name,
+                    $sum,
+                    $essentia_code,
+                ),
+            );
+        }
     }
     $essentia_log->new({
         empire_id       => $self->id,
