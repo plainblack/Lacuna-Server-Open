@@ -723,7 +723,7 @@ before delete => sub {
     Lacuna->db->resultset('Lacuna::DB::Result::AllianceInvite')->search({empire_id => $self->id})->delete;
     if ($self->alliance_id) {
         my $alliance = $self->alliance;
-        if ($alliance->leader_id == $self->id) {
+        if (defined $alliance && $alliance->leader_id == $self->id) {
             $alliance->delete;
         }
     }
@@ -748,7 +748,7 @@ before delete => sub {
                 $self->name .' deleted',
             ],
         );
-        if ( ! $self->email ) {
+        if ( ! defined $self->email ) {
             $self->send_email(
                 'Essentia Code',
                 sprintf("When your account was deleted you had %s essentia remaining. You can redeem it using the code %s on any Lacuna Expanse server.",
