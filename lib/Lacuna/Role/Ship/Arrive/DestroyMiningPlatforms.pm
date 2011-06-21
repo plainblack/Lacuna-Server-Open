@@ -21,7 +21,8 @@ after handle_arrival_procedures => sub {
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
 
     while (my $platform = $platforms->next) {
-        my $empire = $platform->planet->empire->send_predefined_message(
+        my $empire = $platform->planet->empire;
+        $empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'mining_platform_destroyed.txt',
             params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
