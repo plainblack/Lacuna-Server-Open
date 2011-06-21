@@ -55,7 +55,7 @@ after handle_arrival_procedures => sub {
 
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
     $logs->new({
-        datestamp => DateTime->now,
+        date_stamp => DateTime->now,
         attacking_empire_id     => $self->body->empire_id,
         attacking_empire_name   => $self->body->empire->name,
         attacking_body_id       => $self->body_id,

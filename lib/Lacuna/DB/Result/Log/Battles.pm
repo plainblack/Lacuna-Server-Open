@@ -8,7 +8,6 @@ use Lacuna::Util;
 
 __PACKAGE__->table('battle_log');
 __PACKAGE__->add_columns(
-    datestamp               => { data_type => 'datetime', is_nullable => 0 },
     attacking_empire_id     => { data_type => 'int', size => 11, is_nullable => 0 },
     attacking_empire_name   => { data_type => 'varchar', size => 30, is_nullable => 0 },
     attacking_body_id       => { data_type => 'int', size => 11, is_nullable => 0 },

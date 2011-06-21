@@ -1,6 +1,6 @@
 CREATE TABLE `battle_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `datestamp` datetime NOT NULL,
+  `date_stamp` datetime NOT NULL,
   `attacking_empire_id` int(11) NOT NULL,
   `attacking_empire_name` char(30) NOT NULL,
   `attacking_body_id` int(11) NOT NULL,
