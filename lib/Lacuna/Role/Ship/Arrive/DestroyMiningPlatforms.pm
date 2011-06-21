@@ -27,7 +27,7 @@ after handle_arrival_procedures => sub {
             params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
         );
         $logs->new({
-            date_stamp => DateTime->now,
+            datestamp => DateTime->now,
             attacking_empire_id     => $self->body->empire_id,
             attacking_empire_name   => $self->body->empire->name,
             attacking_body_id       => $self->body_id,
