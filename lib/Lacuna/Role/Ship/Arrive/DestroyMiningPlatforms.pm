@@ -17,12 +17,29 @@ after handle_arrival_procedures => sub {
     my $count;
 
     # destroy those suckers
+    my $body_attacked = $self->foreign_body;
+    my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
+
     while (my $platform = $platforms->next) {
         my $empire = $platform->planet->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'mining_platform_destroyed.txt',
-            params      => [$self->foreign_body->x, $self->foreign_body->y, $self->foreign_body->name, $self->body->empire_id, $self->body->empire->name],
+            params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
         );
+        $logs->new({
+            date_stamp => DateTime->now,
+            attacking_empire_id     => $self->body->empire_id,
+            attacking_empire_name   => $self->body->empire->name,
+            attacking_body_id       => $self->body_id,
+            attacking_body_name     => $self->body->name,
+            attacking_unit_name     => $self->name,
+            defending_empire_id     => $empire->id,
+            defending_empire_name   => $empire->name,
+            defending_body_id       => $body_attacked->id,
+            defending_body_name     => $body_attacked->name,
+            defending_unit_name     => 'Mining platform',
+            victory_to              => 'attacker',
+        })->insert;
         $count++;
         $platform->delete;
     }
@@ -31,7 +48,7 @@ after handle_arrival_procedures => sub {
     $self->body->empire->send_predefined_message(
         tags        => ['Attack','Alert'],
         filename    => 'detonator_destroyed_mining_platforms.txt',
-        params      => [$count, $self->foreign_body->x, $self->foreign_body->y, $self->foreign_body->name],
+        params      => [$count, $body_attacked->x, $body_attacked->y, $body_attacked->name],
     );
 
     # it's all over but the cryin

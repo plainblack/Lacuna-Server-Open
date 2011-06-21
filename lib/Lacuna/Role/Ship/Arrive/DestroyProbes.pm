@@ -16,6 +16,7 @@ after handle_arrival_procedures => sub {
     my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $self->foreign_star_id });
     my $count;
 
+    my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
     # destroy those suckers
     while (my $probe = $probes->next) {
         $probe->empire->send_predefined_message(
@@ -23,6 +24,20 @@ after handle_arrival_procedures => sub {
             filename    => 'probe_detonated.txt',
             params      => [$probe->body->id, $probe->body->name, $self->foreign_star->x, $self->foreign_star->y, $self->foreign_star->name, $self->body->empire_id, $self->body->empire->name],
         );
+        $logs->new({
+            date_stamp => DateTime->now,
+            attacking_empire_id     => $self->body->empire_id,
+            attacking_empire_name   => $self->body->empire->name,
+            attacking_body_id       => $self->body_id,
+            attacking_body_name     => $self->body->name,
+            attacking_unit_name     => $self->name,
+            defending_empire_id     => $probe->empire_id,
+            defending_empire_name   => $probe->empire->name,
+            defending_body_id       => $probe->body->id,
+            defending_body_name     => $probe->body->name,
+            defending_unit_name     => sprintf("Probe {Starmap %s %s %s}", $self->foreign_star->x, $self->foreign_star->y, $self->foreign_star->name),
+            victory_to              => 'attacker',
+        })->insert;
         $count++;
         $probe->delete;
     }

@@ -3,6 +3,7 @@ package Lacuna::Role::Ship::Arrive::DamageBuilding;
 use strict;
 use Moose::Role;
 use Lacuna::Util qw(randint);
+use DateTime;
 
 after handle_arrival_procedures => sub {
     my ($self) = @_;
@@ -27,7 +28,7 @@ after handle_arrival_procedures => sub {
         }
     }
     $building ||= $buildings->search(
-		{class => { '!=' => 'Lacuna::DB::Result::Building::Permanent::Crater' }},
+		{class => { '!=' => 'Lacuna::DB::Result::Building::Permanent::Crater' }}, # BUG need to exempt bleeders as well
 		{order_by => { -desc => ['efficiency', 'rand()'] }, rows=>1}
 	)->single;
     return unless defined $building;
@@ -45,6 +46,22 @@ after handle_arrival_procedures => sub {
         params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $building->name, $amount],
     );
     $body_attacked->add_news(70, sprintf('An attack ship screamed out of the sky and damaged the %s on %s.',$building->name, $body_attacked->name));
+
+    my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
+    $logs->new({
+        date_stamp => DateTime->now,
+        attacking_empire_id     => $self->body->empire_id,
+        attacking_empire_name   => $self->body->empire->name,
+        attacking_body_id       => $self->body_id,
+        attacking_body_name     => $self->body->name,
+        attacking_unit_name     => $self->name,
+        defending_empire_id     => $body_attacked->empire_id,
+        defending_empire_name   => $body_attacked->empire->name,
+        defending_body_id       => $body_attacked->id,
+        defending_body_name     => $body_attacked->name,
+        defending_unit_name     => $building->name,
+        victory_to              => 'attacker',
+    })->insert;
 
     # handle citadel damage
     if (defined $citadel) {

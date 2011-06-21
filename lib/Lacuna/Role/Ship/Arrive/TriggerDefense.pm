@@ -58,6 +58,22 @@ sub attacker_shot_down {
         params      => [$self->type_formatted, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
     );
     $defender->body->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
+
+    my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
+    $logs->new({
+        date_stamp => DateTime->now,
+        attacking_empire_id     => $self->body->empire_id,
+        attacking_empire_name   => $self->body->empire->name,
+        attacking_body_id       => $self->body_id,
+        attacking_body_name     => $self->body->name,
+        attacking_unit_name     => $self->name,
+        defending_empire_id     => $body_attacked->empire_id,
+        defending_empire_name   => $body_attacked->empire->name,
+        defending_body_id       => $body_attacked->id,
+        defending_body_name     => $body_attacked->name,
+        defending_unit_name     => $defender->name,
+        victory_to              => 'defender',
+    })->insert;
 }
 
 sub defender_shot_down {
@@ -74,6 +90,23 @@ sub defender_shot_down {
         params      => [$defender->type_formatted, $defender->body->id, $defender->body->name, $body_attacked->x, $body_attacked->y, $body_attacked->name],
     );
     $defender->body->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
+
+    my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
+    $logs->new({
+        date_stamp => DateTime->now,
+        attacking_empire_id     => $self->body->empire_id,
+        attacking_empire_name   => $self->body->empire->name,
+        attacking_body_id       => $self->body_id,
+        attacking_body_name     => $self->body->name,
+        attacking_unit_name     => $self->name,
+        defending_empire_id     => $body_attacked->empire_id,
+        defending_empire_name   => $body_attacked->empire->name,
+        defending_body_id       => $body_attacked->id,
+        defending_body_name     => $body_attacked->name,
+        defending_unit_name     => $defender->name,
+        victory_to              => 'attacker',
+    })->insert;
+
 }
 
 sub ship_to_ship_combat {

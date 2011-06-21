@@ -44,6 +44,22 @@ after handle_arrival_procedures => sub {
         $body_attacked->add_news(65, sprintf('Several people reported seeing a UFO in the %s sky today.', $body_attacked->name));
     }
 
+    my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
+    $logs->new({
+        date_stamp => DateTime->now,
+        attacking_empire_id     => $self->body->empire_id,
+        attacking_empire_name   => $self->body->empire->name,
+        attacking_body_id       => $self->body_id,
+        attacking_body_name     => $self->body->name,
+        attacking_unit_name     => $self->name,
+        defending_empire_id     => $body_attacked->empire_id,
+        defending_empire_name   => $body_attacked->empire->name,
+        defending_body_id       => $body_attacked->id,
+        defending_body_name     => $body_attacked->name,
+        defending_unit_name     => '',
+        victory_to              => 'attacker',
+    })->insert;
+
     # all pow
     $self->delete;
     confess [-1];
