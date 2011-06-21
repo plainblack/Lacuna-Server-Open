@@ -1,5 +1,6 @@
 3.0811
  - Fix: When a planet is insurrected, all spies that are in training will be executed on sight.
+ - Fix: Attempting to delete the same probe twice will no longer cause an error in the Observatory.
 
 3.0810
  - Fix: Spies wised up some more. They will no longer steal Bleeder plans.
