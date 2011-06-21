@@ -354,7 +354,7 @@ sub assign {
         }
     }
     if (!$mission->{skill} || !$self->is_available) {
-        return { result =>'Failure', reason => random_element(['I am busy just now.','It will have to wait.','Can\'t right now.','Maybe later.']) };
+        return { result =>'Failure', reason => random_element(['I am busy just now.','It will have to wait.','Can\'t right now.','Maybe later.','Negative.']) };
     }
     
     # set assignment
@@ -365,7 +365,7 @@ sub assign {
     # run mission
     if ($assignment ~~ ['Idle','Counter Espionage']) {
         $self->update;
-        return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.'])};
+        return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
     }
     elsif ($assignment eq 'Security Sweep') {
         return $self->run_security_sweep($mission);
@@ -1203,6 +1203,9 @@ sub steal_planet {
         );
         $self->on_body->add_news(100,'Led by %s, the citizens of %s have overthrown %s!', $self->name, $self->on_body->name, $self->on_body->empire->name);
         my $defender_capitol_id = $self->on_body->empire->home_planet_id;
+        Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
+            from_body_id => $self->on_body_id, on_body_id => $self->on_body_id, task => 'Training',
+        })->delete_all; # All spies in training are executed
         Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->on_body_id})->update({from_body_id => $defender_capitol_id });
         Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->on_body_id })->update({empire_id => $self->empire_id});
         $self->on_body->empire_id($self->empire_id);

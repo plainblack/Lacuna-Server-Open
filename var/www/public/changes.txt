@@ -1,3 +1,6 @@
+3.0811
+ - Fix: When a planet is insurrected, all spies that are in training will be executed on sight.
+
 3.0810
  - Fix: Spies wised up some more. They will no longer steal Bleeder plans.
  - Fix: You can now push food, ore, water and energy to the Space Station that controls your planet's star.
