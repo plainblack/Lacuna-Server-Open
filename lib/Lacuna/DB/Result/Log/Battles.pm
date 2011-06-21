@@ -12,12 +12,12 @@ __PACKAGE__->add_columns(
     attacking_empire_name   => { data_type => 'varchar', size => 30, is_nullable => 0 },
     attacking_body_id       => { data_type => 'int', size => 11, is_nullable => 0 },
     attacking_body_name     => { data_type => 'varchar', size => 30, is_nullable => 0 },
-    attacking_unit_name     => { data_type => 'varchar', size => 30, is_nullable => 0 },
+    attacking_unit_name     => { data_type => 'varchar', size => 60, is_nullable => 0 },
     defending_empire_id     => { data_type => 'int', size => 11, is_nullable => 0 },
     defending_empire_name   => { data_type => 'varchar', size => 30, is_nullable => 0 },
     defending_body_id       => { data_type => 'int', size => 11, is_nullable => 0 },
     defending_body_name     => { data_type => 'varchar', size => 30, is_nullable => 0 },
-    defending_unit_name     => { data_type => 'varchar', size => 30, is_nullable => 0 },
+    defending_unit_name     => { data_type => 'varchar', size => 60, is_nullable => 0 },
     victory_to              => { data_type => 'varchar', size => 8, is_nullable => 0 },        
 );
 
