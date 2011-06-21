@@ -267,7 +267,12 @@ sub summarize_alliances {
         }
         my $log = $logs->search({alliance_id => $alliance->id},{rows=>1})->single;
         if (defined $log) {
-            $log->update(\%alliance_data);
+            if ($alliance_data{member_count}) {
+                $log->update(\%alliance_data);
+            }
+            else {
+                $log->delete;
+            }
         }
         else {
             $logs->new(\%alliance_data)->insert;
