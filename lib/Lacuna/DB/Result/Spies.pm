@@ -1651,7 +1651,7 @@ sub steal_resources {
             $on_body->spend_type($type, $space);
             last;
         }
-        else {
+        elsif ( $on_body->type_stored($type) > 0 ) {
             $resources{$type} = $on_body->type_stored($type);
             $on_body->spend_type($type, $resources{$type});
         }
