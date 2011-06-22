@@ -28,7 +28,10 @@ after handle_arrival_procedures => sub {
         }
     }
     $building ||= $buildings->search(
-		{class => { '!=' => 'Lacuna::DB::Result::Building::Permanent::Crater' }}, # BUG need to exempt bleeders as well
+		{
+            class => { '!=' => 'Lacuna::DB::Result::Building::Permanent::Crater' },
+            class => { '!=' => 'Lacuna::DB::Result::Building::DeployedBleeder' },
+        },
 		{order_by => { -desc => ['efficiency', 'rand()'] }, rows=>1}
 	)->single;
     return unless defined $building;
