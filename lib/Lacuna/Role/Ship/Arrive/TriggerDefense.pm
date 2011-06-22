@@ -71,8 +71,8 @@ sub attacker_shot_down {
         attacking_unit_name     => $self->name,
         defending_empire_id     => $defender->body->empire_id,
         defending_empire_name   => $defender->body->empire->name,
-        defending_body_id       => $is_asteroid ? undef : $body_attacked->id,
-        defending_body_name     => $is_asteroid ? undef : $body_attacked->name,
+        defending_body_id       => $body_attacked->id,
+        defending_body_name     => $body_attacked->name,
         defending_unit_name     => $defender->name,
         victory_to              => 'defender',
     })->insert;
@@ -105,8 +105,8 @@ sub defender_shot_down {
         attacking_unit_name     => $self->name,
         defending_empire_id     => $defender->body->empire_id,
         defending_empire_name   => $defender->body->empire->name,
-        defending_body_id       => $is_asteroid ? undef : $body_attacked->id,
-        defending_body_name     => $is_asteroid ? undef : $body_attacked->name,
+        defending_body_id       => $body_attacked->id,
+        defending_body_name     => $body_attacked->name,
         defending_unit_name     => $defender->name,
         victory_to              => 'attacker',
     })->insert;
