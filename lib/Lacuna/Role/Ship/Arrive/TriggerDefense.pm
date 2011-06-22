@@ -59,6 +59,8 @@ sub attacker_shot_down {
     );
     $defender->body->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
 
+    my $is_asteroid = $body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid');
+
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
     $logs->new({
         date_stamp => DateTime->now,
@@ -90,6 +92,8 @@ sub defender_shot_down {
         params      => [$defender->type_formatted, $defender->body->id, $defender->body->name, $body_attacked->x, $body_attacked->y, $body_attacked->name],
     );
     $defender->body->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
+
+    my $is_asteroid = $body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid');
 
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
     $logs->new({
