@@ -948,5 +948,35 @@ An array reference of spy ids to send.
 
 
 
+=head2 view_battle_log ( session_id, building_id )
+
+Shows you the battle logs for your empire.
+
+ {
+   "battle_log" : [
+     {
+       "date" : "06 21 2011 22:54:37 +0600",
+       "attacking_body" : "Romulus",
+       "attacking_empire" : "Romulans",
+       "attacking_unit" : "Sweeper 21",
+       "defending_body" : "Kronos",
+       "defending_empire" : "Klingons",
+       "defending_unit" : "Shield Against Weapons",
+       "victory_to" : "defender"
+     },
+     ...
+   ],
+   "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the space port.
+
+
 
 =cut

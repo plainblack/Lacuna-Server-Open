@@ -1,5 +1,6 @@
 3.0811
  - Add: Battles will now be logged.
+ - API: Added view_battle_logs to the SpacePort.
  - Fix: When a planet is insurrected, all spies that are in training will be executed on sight.
  - Fix: Attempting to delete the same probe twice will no longer cause an error in the Observatory.
  - Fix: Alliances without any members will be deleted from the stats.

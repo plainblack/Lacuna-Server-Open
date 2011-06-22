@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 88;
+use Test::More tests => 90;
 use 5.010;
 use DateTime;
 use Math::Complex; # used for asteroid and planet selection
@@ -445,6 +445,9 @@ for my $i ( 0 .. 1 ) {
 	$result = $tester->post('spaceport', 'view', [$tester{session_id}, $tester->{spaceport_id}]);
 	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Detonator Report\r\n~~~\r\nOur Det", 'Detonator took out mining platforms' );
 
+    $result = $tester->post('spaceport', 'view_battle_logs', [$tester{session_id}, $tester->{spaceport_id} ]);
+    ok(scalar @{$result->{result}{battle_log}}, "Battle logs retrieved");
+diag explain $result->{result}{battle_log};
 }
 
 END {

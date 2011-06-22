@@ -799,6 +799,30 @@ sub scuttle_ship {
     };    
 }
 
+sub view_battle_logs {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $battle_logs = $building->battle_logs;
+    my @logs;
+    while (my $log = $battle_logs->next) {
+        push @logs, {
+            date                => format_date($log->date_stamp),
+            attacking_empire    => $log->attacking_empire_name,
+            attacking_body      => $log->attacking_body_name,
+            attacking_unit      => $log->attacking_unit_name,
+            defending_empire    => $log->defending_empire_name,
+            defending_body      => $log->defending_body_name,
+            defending_unit      => $log->defending_unit_name,
+            victory_to          => $log->victory_to,
+        };
+    }
+    return {
+        status      => $self->format_status($empire, $building->body),
+        battle_log  => \@logs,
+    };
+}
+
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -816,7 +840,7 @@ around 'view' => sub {
     return $out;
 };
  
-__PACKAGE__->register_rpc_method_names(qw(view_foreign_ships get_ships_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_ships_travelling view_all_ships));
+__PACKAGE__->register_rpc_method_names(qw(view_foreign_ships get_ships_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_ships_travelling view_all_ships view_battle_logs));
 
 
 no Moose;

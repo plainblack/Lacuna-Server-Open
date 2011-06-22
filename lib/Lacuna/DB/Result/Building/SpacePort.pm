@@ -40,6 +40,21 @@ sub orbiting_ships {
     );
 }
 
+sub battle_logs {
+    my ($self) = @_;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles')->search(
+        {
+            -or => [
+                { attacking_empire_id => $self->body->empire_id },
+                { defending_empire_id => $self->body->empire_id },
+            ],
+        },
+        {
+            order_by => => { -desc => 'date_stamp' },
+        }
+    );
+}
+
 sub send_ship {
     my ($self, $target, $type, $payload) = @_;
     my $ship = $self->find_ship($type);
