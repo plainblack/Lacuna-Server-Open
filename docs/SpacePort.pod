@@ -313,10 +313,11 @@ Provides a list of incoming ships and ships that are available to send to a spec
         },
         ...
     ],
+    "fleet_send_limit" : 20,
     "status" : { ... }
  }
 
-The C<unavailable> block tells you about ships that are docked, but are for some reason not available to be used. The C<orbiting> block will be returned only if the target is body and tells you about fighters that are defending and can be recalled. The C<mining_platforms> block will be returned only if the target is an asteroid that has platforms on it.
+The C<unavailable> block tells you about ships that are docked, but are for some reason not available to be used. The C<orbiting> block will be returned only if the target is body and tells you about fighters that are defending and can be recalled. The C<mining_platforms> block will be returned only if the target is an asteroid that has platforms on it. The value of C<fleet_send_limit> tells you how many ships can be included in a fleet.
 
 =head3 session_id
 

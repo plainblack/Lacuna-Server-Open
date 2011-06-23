@@ -87,11 +87,14 @@ sub get_ships_for {
         push @available, $ship->get_status($target);
     }
     
+    my $max_ships = Lacuna->config->get('ships_per_fleet') || 20;
+
     my %out = (
-        status      => $self->format_status($empire, $body),
-        incoming    => \@incoming,
-        available   => \@available,
-        unavailable => \@unavailable,
+        status              => $self->format_status($empire, $body),
+        incoming            => \@incoming,
+        available           => \@available,
+        unavailable         => \@unavailable,
+        fleet_send_limit    => $max_ships,
     );
     
 	unless ($target->isa('Lacuna::DB::Result::Map::Star')) {
