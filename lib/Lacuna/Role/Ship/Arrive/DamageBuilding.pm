@@ -38,16 +38,20 @@ after handle_arrival_procedures => sub {
     $building->body($body_attacked);
     
     # let everyone know what's going on
-    $body_attacked->empire->send_predefined_message(
-        tags        => ['Attack','Alert'],
-        filename    => 'ship_hit_building.txt',
-        params      => [$self->type_formatted, $building->name, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
-    );
-    $self->body->empire->send_predefined_message(
-        tags        => ['Attack','Alert'],
-        filename    => 'our_ship_hit_building.txt',
-        params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $building->name, $amount],
-    );
+    unless ($body_attacked->empire->skip_attack_messages) {
+        $body_attacked->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'ship_hit_building.txt',
+            params      => [$self->type_formatted, $building->name, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
+        );
+    }
+    unless ($self->body->empire->skip_attack_messages) {
+        $self->body->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'our_ship_hit_building.txt',
+            params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $building->name, $amount],
+        );
+    }
     $body_attacked->add_news(70, sprintf('An attack ship screamed out of the sky and damaged the %s on %s.',$building->name, $body_attacked->name));
 
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');

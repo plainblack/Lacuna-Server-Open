@@ -405,6 +405,7 @@ sub view_profile {
         skip_excavator_plan     => $empire->skip_excavator_plan,
         skip_spy_recovery       => $empire->skip_spy_recovery,
         skip_probe_detected     => $empire->skip_probe_detected,
+        skip_attack_messages    => $empire->skip_attack_messages,
     );
 
     return { profile => \%out, status => $self->format_status($empire) };    
@@ -536,6 +537,12 @@ sub edit_profile {
             confess [1009, 'Skip Probe Detected must be a 1 or a 0.', 'skip_probe_detected']
         }
         $empire->skip_probe_detected($profile->{skip_probe_detected});
+    }
+    if (exists $profile->{skip_attack_messages}) {
+        if ($profile->{skip_attack_messages} < 0 || $profile->{skip_attack_messages} > 1) {
+            confess [1009, 'Skip Attack Messages must be a 1 or a 0.', 'skip_attack_messages']
+        }
+        $empire->skip_attack_messages($profile->{skip_attack_messages});
     }
 
     if (exists $profile->{skype}) {

@@ -14,3 +14,6 @@ CREATE TABLE `battle_log` (
   `victory_to` char(8) NOT NULL,
   PRIMARY KEY (`id`)
 );
+
+alter table empire add column `skip_attack_messages` tinyint NOT NULL default 0;
+

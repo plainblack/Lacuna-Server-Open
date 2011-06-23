@@ -16,16 +16,23 @@ after handle_arrival_procedures => sub {
     my $body_attacked = $self->foreign_body;
     $body_attacked->add_waste($self->hold_size);
     $body_attacked->update;
-    $self->body->empire->send_predefined_message(
-        tags        => ['Attack','Alert'],
-        filename    => 'our_scow_hit.txt',
-        params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name, $self->hold_size],
-    );
-    $body_attacked->empire->send_predefined_message(
-        tags        => ['Attack','Alert'],
-        filename    => 'hit_by_scow.txt',
-        params      => [$self->body->empire_id, $self->body->empire->name, $body_attacked->id, $body_attacked->name, $self->hold_size],
-    );
+
+    unless ($self->body->empire->skip_attack_messages) {
+        $self->body->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'our_scow_hit.txt',
+            params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name, $self->hold_size],
+        );
+    }
+
+    unless ($body_attacked->empire->skip_attack_messages) {
+        $body_attacked->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'hit_by_scow.txt',
+            params      => [$self->body->empire_id, $self->body->empire->name, $body_attacked->id, $body_attacked->name, $self->hold_size],
+        );
+    }
+
     $body_attacked->add_news(30, sprintf('%s is so polluted that waste seems to be falling from the sky.', $body_attacked->name));
     
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');

@@ -22,11 +22,15 @@ after handle_arrival_procedures => sub {
 
     while (my $platform = $platforms->next) {
         my $empire = $platform->planet->empire;
-        $empire->send_predefined_message(
-            tags        => ['Attack','Alert'],
-            filename    => 'mining_platform_destroyed.txt',
-            params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
-        );
+
+        unless ($empire->skip_attack_messages) {
+            $empire->send_predefined_message(
+                tags        => ['Attack','Alert'],
+                filename    => 'mining_platform_destroyed.txt',
+                params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
+            );
+        }
+
         $logs->new({
             date_stamp => DateTime->now,
             attacking_empire_id     => $self->body->empire_id,
@@ -46,11 +50,13 @@ after handle_arrival_procedures => sub {
     }
 
     # notify about destruction
-    $self->body->empire->send_predefined_message(
-        tags        => ['Attack','Alert'],
-        filename    => 'detonator_destroyed_mining_platforms.txt',
-        params      => [$count, $body_attacked->x, $body_attacked->y, $body_attacked->name],
-    );
+    unless ($self->body->empire->skip_attack_messages) {
+        $self->body->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'detonator_destroyed_mining_platforms.txt',
+            params      => [$count, $body_attacked->x, $body_attacked->y, $body_attacked->name],
+        );
+    }
 
     # it's all over but the cryin
     $self->delete;

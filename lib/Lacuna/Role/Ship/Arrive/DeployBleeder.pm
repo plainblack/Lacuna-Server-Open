@@ -24,12 +24,14 @@ after handle_arrival_procedures => sub {
     }
     
     # notify home
-    $self->body->empire->send_predefined_message(
-        tags        => ['Attack','Alert'],
-        filename    => 'bleeder_deployed.txt',
-        params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name],
-    );
-    
+    unless ($self->body->empire->skip_attack_messages) {
+        $self->body->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'bleeder_deployed.txt',
+            params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name],
+        );
+    }
+
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
     $logs->new({
         date_stamp => DateTime->now,

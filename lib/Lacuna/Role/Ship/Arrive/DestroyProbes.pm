@@ -19,11 +19,15 @@ after handle_arrival_procedures => sub {
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
     # destroy those suckers
     while (my $probe = $probes->next) {
-        $probe->empire->send_predefined_message(
-            tags        => ['Attack','Alert'],
-            filename    => 'probe_detonated.txt',
-            params      => [$probe->body->id, $probe->body->name, $self->foreign_star->x, $self->foreign_star->y, $self->foreign_star->name, $self->body->empire_id, $self->body->empire->name],
-        );
+
+        unless ($probe->empire->skip_attack_messages) {
+            $probe->empire->send_predefined_message(
+                tags        => ['Attack','Alert'],
+                filename    => 'probe_detonated.txt',
+                params      => [$probe->body->id, $probe->body->name, $self->foreign_star->x, $self->foreign_star->y, $self->foreign_star->name, $self->body->empire_id, $self->body->empire->name],
+            );
+        }
+
         $logs->new({
             date_stamp => DateTime->now,
             attacking_empire_id     => $self->body->empire_id,
@@ -43,11 +47,13 @@ after handle_arrival_procedures => sub {
     }
     
     # notify about destruction
-    $self->body->empire->send_predefined_message(
-        tags        => ['Attack','Alert'],
-        filename    => 'detonator_destroyed_probes.txt',
-        params      => [$count, $self->foreign_star->x, $self->foreign_star->y, $self->foreign_star->name],
-    );
+    unless ($self->body->empire->skip_attack_messages) {
+        $self->body->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'detonator_destroyed_probes.txt',
+            params      => [$count, $self->foreign_star->x, $self->foreign_star->y, $self->foreign_star->name],
+        );
+    }
     
     # it's all over but the cryin
     $self->delete;

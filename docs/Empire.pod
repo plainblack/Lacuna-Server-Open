@@ -276,6 +276,7 @@ Provides a list of the editable properties of the current empire's profile. See 
        "skip_excavator_plan" : 0,
        "skip_spy_recovery" : 0,
        "skip_probe_detected" : 0,
+       "skip_attack_messages" : 0,
        "email" : "joe@example.com",
        "sitter_password" : "abcdefgh"                   # never give out your real password, use the sitter password
     },
@@ -392,6 +393,10 @@ Defaults to 0. Set to 1 if the user no longer wants to receive spy recovery mess
 =head4 skip_probe_detected
 
 Defaults to 0. Set to 1 if the user no longers wants to receive messages when a probe is detected.
+
+=head4 skip_attack_messages
+
+Defaults to 0. Set to 1 if the user no longers wants to receive messages about attacks.
 
 =head2 view_public_profile (session_id, empire_id)
 

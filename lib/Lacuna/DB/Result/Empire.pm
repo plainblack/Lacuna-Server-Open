@@ -76,6 +76,7 @@ __PACKAGE__->add_columns(
     skip_excavator_plan     => { data_type => 'tinyint', default_value => 0 },
     skip_spy_recovery       => { data_type => 'tinyint', default_value => 0 },
     skip_probe_detected     => { data_type => 'tinyint', default_value => 0 },
+    skip_attack_messages    => { data_type => 'tinyint', default_value => 0 },
 );
 
 sub sqlt_deploy_hook {

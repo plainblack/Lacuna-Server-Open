@@ -26,18 +26,22 @@ after handle_arrival_procedures => sub {
     }
     
     # notify home
-    $self->body->empire->send_predefined_message(
-        tags        => ['Attack','Alert'],
-        filename    => 'thud_hit_target.txt',
-        params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name],
-    );
+    unless ($self->body->empire->skip_attack_messages) {
+        $self->body->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'thud_hit_target.txt',
+            params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name],
+        );
+    }
 
     # notify attacked
-    $body_attacked->empire->send_predefined_message(
-        tags        => ['Attack','Alert'],
-        filename    => 'thud_hit_us.txt',
-        params      => [$self->body->empire->id, $self->body->empire->name, $body_attacked->id, $body_attacked->name],
-    ) if $body_attacked->empire_id;
+    unless ($body_attacked->empire_id && $body_attacked->empire->skip_attack_messages) {
+        $body_attacked->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'thud_hit_us.txt',
+            params      => [$self->body->empire->id, $self->body->empire->name, $body_attacked->id, $body_attacked->name],
+        );
+    }
     $body_attacked->add_news(70, sprintf("A quake measuring %.1f on the seismic magnitude scale just struck %s.",rand(10), $body_attacked->name));
     
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');

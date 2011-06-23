@@ -47,16 +47,23 @@ sub damage_in_combat {
 sub attacker_shot_down {
 	my ($self, $defender) = @_;
     my $body_attacked = $self->foreign_body;
-    $self->body->empire->send_predefined_message(
-        tags        => ['Attack','Alert'],
-        filename    => 'ship_shot_down.txt',
-        params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $self->body->id, $self->body->name],
-    );
-    $defender->body->empire->send_predefined_message(
-        tags        => ['Attack','Alert'],
-        filename    => 'we_shot_down_a_ship.txt',
-        params      => [$self->type_formatted, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
-    );
+
+    unless ($self->body->empire->skip_attack_messages) {
+        $self->body->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'ship_shot_down.txt',
+            params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $self->body->id, $self->body->name],
+        );
+    }
+
+    unless ($defender->body->empire->skip_attack_messages) {
+        $defender->body->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'we_shot_down_a_ship.txt',
+            params      => [$self->type_formatted, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
+        );
+    }
+
     $defender->body->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
 
     my $is_asteroid = $body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid');
@@ -81,16 +88,23 @@ sub attacker_shot_down {
 sub defender_shot_down {
 	my ($self, $defender) = @_;
     my $body_attacked = $self->foreign_body;
-    $self->body->empire->send_predefined_message(
-        tags        => ['Attack','Alert'],
-        filename    => 'we_shot_down_a_defender.txt',
-        params      => [$defender->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $defender->body->empire_id, $defender->body->empire->name],
-    );
-    $defender->body->empire->send_predefined_message(
-        tags        => ['Attack','Alert'],
-        filename    => 'defender_shot_down.txt',
-        params      => [$defender->type_formatted, $defender->body->id, $defender->body->name, $body_attacked->x, $body_attacked->y, $body_attacked->name],
-    );
+
+    unless ($self->body->empire->skip_attack_messages) {
+        $self->body->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'we_shot_down_a_defender.txt',
+            params      => [$defender->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $defender->body->empire_id, $defender->body->empire->name],
+        );
+    }
+
+    unless ($defender->body->empire->skip_attack_messages) {
+        $defender->body->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'defender_shot_down.txt',
+            params      => [$defender->type_formatted, $defender->body->id, $defender->body->name, $body_attacked->x, $body_attacked->y, $body_attacked->name],
+        );
+    }
+
     $defender->body->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
 
     my $is_asteroid = $body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid');
