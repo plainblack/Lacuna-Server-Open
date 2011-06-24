@@ -48,9 +48,6 @@ sub battle_logs {
                 { attacking_empire_id => $self->body->empire_id },
                 { defending_empire_id => $self->body->empire_id },
             ],
-        },
-        {
-            order_by => => { -desc => 'date_stamp' },
         }
     );
 }

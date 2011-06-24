@@ -800,11 +800,12 @@ sub scuttle_ship {
 }
 
 sub view_battle_logs {
-    my ($self, $session_id, $building_id) = @_;
+    my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $battle_logs = $building->battle_logs;
+    $page_number ||= 1;
     my @logs;
+    my $battle_logs = $building->battle_logs->search({}, { rows=>25, page=>$page_number, order_by => => { -desc => 'date_stamp' } });
     while (my $log = $battle_logs->next) {
         push @logs, {
             date                => format_date($log->date_stamp),
@@ -818,8 +819,9 @@ sub view_battle_logs {
         };
     }
     return {
-        status      => $self->format_status($empire, $building->body),
-        battle_log  => \@logs,
+        status          => $self->format_status($empire, $building->body),
+        number_of_logs  => $battle_logs->pager->total_entries,
+        battle_log      => \@logs,
     };
 }
 

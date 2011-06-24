@@ -948,7 +948,7 @@ An array reference of spy ids to send.
 
 
 
-=head2 view_battle_log ( session_id, building_id )
+=head2 view_battle_log ( session_id, building_id, [ page_number ] )
 
 Shows you the battle logs for your empire with the most recent action listed first. This data will be cleaned out every seven days.
 
@@ -966,6 +966,7 @@ Shows you the battle logs for your empire with the most recent action listed fir
      },
      ...
    ],
+   "number_of_logs" : 57,
    "status" : { ... }
  }
 
@@ -977,6 +978,9 @@ A session id.
 
 The unique id of the space port.
 
+=head3 page_number
+
+Defaults to 1. An integer representing which page of battle logs to view. Each page shows 25 entries.
 
 
 =cut
