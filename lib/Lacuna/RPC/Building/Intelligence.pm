@@ -127,6 +127,7 @@ sub train_spy {
         confess [1013, "You can't train spies until your Intelligence Ministry is completed."];
     }
     my $costs = $building->training_costs;
+    my $reason;
     SPY: foreach my $i (1..$quantity) {
         if (eval{$building->can_train_spy($costs)}) {
             $building->spend_resources_to_train_spy($costs);
@@ -134,6 +135,7 @@ sub train_spy {
             $trained++;
         }
         else {
+            push @$reason, $@;
             last SPY;
         }
     }
@@ -143,7 +145,7 @@ sub train_spy {
             $body->add_news(50, '%s has just approved a massive intelligence budget increase.', $empire->name);
         }
     }
-    return {
+    my $ret = {
         status  => $self->format_status($empire, $body),
         trained => $trained,
         not_trained => $quantity - $trained,
@@ -154,7 +156,9 @@ sub train_spy {
                 end                 => $building->work_ends_formatted,
             },
         },
-    },
+    };
+    $ret->{reason_not_trained} = $reason;
+    return $ret;
 }
 
 around 'view' => sub {
