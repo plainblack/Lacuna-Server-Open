@@ -135,7 +135,8 @@ sub train_spy {
             $trained++;
         }
         else {
-            $reason = $@;
+            my ( $code, $message ) = @{$@};
+            $reason = { code => $code, message => $message };
             last SPY;
         }
     }
