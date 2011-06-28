@@ -34,10 +34,14 @@ Allows you to train more spies.
  {
     "status" : { ... },
     "trained" : 3,
-    "not_trained" : 2
+    "not_trained" : 2,
+    "reason_not_trained" : {
+        "code" : 1011,
+        "message" : "Not enough food to train a spy.",
+    },
  }
  
-The only reason C<not_trained> might be over 0 is if you specify training more spies than you have resources to spend.
+The only reason C<not_trained> might be over 0 is if you specify training more spies than you have resources to spend in which case the reason_not_trained block will be included.
 
 Throws 1013, 1009.
 
