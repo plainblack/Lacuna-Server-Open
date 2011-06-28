@@ -66,7 +66,7 @@ after handle_arrival_procedures => sub {
         defending_empire_name   => $body_attacked->empire->name,
         defending_body_id       => $body_attacked->id,
         defending_body_name     => $body_attacked->name,
-        defending_unit_name     => $building->name,
+        defending_unit_name     => sprintf("%s (%d,%d)", $building->name, $building->x, $building->y),
         victory_to              => 'attacker',
     })->insert;
 
