@@ -68,21 +68,7 @@ sub attacker_shot_down {
 
     my $is_asteroid = $body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid');
 
-    my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
-    $logs->new({
-        date_stamp => DateTime->now,
-        attacking_empire_id     => $self->body->empire_id,
-        attacking_empire_name   => $self->body->empire->name,
-        attacking_body_id       => $self->body_id,
-        attacking_body_name     => $self->body->name,
-        attacking_unit_name     => $self->name,
-        defending_empire_id     => $defender->body->empire_id,
-        defending_empire_name   => $defender->body->empire->name,
-        defending_body_id       => $body_attacked->id,
-        defending_body_name     => $body_attacked->name,
-        defending_unit_name     => $defender->name,
-        victory_to              => 'defender',
-    })->insert;
+    $self->log_attack( $self, $defender, 'defender' );
 }
 
 sub defender_shot_down {
@@ -109,22 +95,27 @@ sub defender_shot_down {
 
     my $is_asteroid = $body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid');
 
+    $self->log_attack( $self, $defender, 'attacker' );
+}
+
+sub log_attack {
+    my ($self, $attacker, $defender, $victor) = @_;
+    my $body_attacked = $attacker->foreign_body;
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
     $logs->new({
         date_stamp => DateTime->now,
-        attacking_empire_id     => $self->body->empire_id,
-        attacking_empire_name   => $self->body->empire->name,
-        attacking_body_id       => $self->body_id,
-        attacking_body_name     => $self->body->name,
-        attacking_unit_name     => $self->name,
+        attacking_empire_id     => $attacker->body->empire_id,
+        attacking_empire_name   => $attacker->body->empire->name,
+        attacking_body_id       => $attacker->body_id,
+        attacking_body_name     => $attacker->body->name,
+        attacking_unit_name     => $attacker->isa('Lacuna::DB::Result::Building') ? sprintf("%s (%d,%d)", $attacker->name, $attacker->x, $attacker->y) : $attacker->name,
         defending_empire_id     => $defender->body->empire_id,
         defending_empire_name   => $defender->body->empire->name,
         defending_body_id       => $body_attacked->id,
         defending_body_name     => $body_attacked->name,
-        defending_unit_name     => $defender->name,
-        victory_to              => 'attacker',
+        defending_unit_name     => $defender->isa('Lacuna::DB::Result::Building') ? sprintf("%s (%d,%d)", $defender->name, $defender->x, $defender->y) : $defender->name,
+        victory_to              => $victor,
     })->insert;
-
 }
 
 sub ship_to_ship_combat {
