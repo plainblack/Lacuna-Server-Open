@@ -135,7 +135,7 @@ sub train_spy {
             $trained++;
         }
         else {
-            push @$reason, $@;
+            $reason = $@;
             last SPY;
         }
     }
