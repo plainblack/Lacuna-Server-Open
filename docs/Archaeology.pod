@@ -5,6 +5,16 @@ Archaeology Ministry is accessible via the URL C</archaeology>.
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
 
+=head2 view ( session_id, building_id )
+
+ {
+    "status" : { ... },
+    "building" : { ... },
+ }
+
+If a search is active, the work block will be included. In the work block, there is an additional item not included in other work blocks: searching. c<searching> will contain the name of the ore being searched.
+ 
+
 =head2 search_for_glyph ( session_id, building_id, ore_type )
 
 Searches through ore looking for glyphs left behind by the ancient race. Takes 10,000 of one type of ore to search. Returns C<view>.

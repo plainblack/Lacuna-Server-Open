@@ -4,6 +4,7 @@
  - API: Added view_battle_logs to the SpacePort.
  - API: Added fleet_send_limit to the data returned by the Space Port's get_ships_for method.
  - API: Added reason_not_trained to the return of train_spy.
+ - API: Added searching to the work block of the Archaeology Ministry.
  - Fix: When a planet is insurrected, all spies that are in training will be executed on sight.
  - Fix: Attempting to delete the same probe twice will no longer cause an error in the Observatory.
  - Fix: Alliances without any members will be deleted from the stats.
