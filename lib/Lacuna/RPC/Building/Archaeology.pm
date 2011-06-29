@@ -19,7 +19,7 @@ around 'view' => sub {
     my $building = $self->get_building($empire, $building_id, skip_offline => 1);
     my $out = $orig->($self, $empire, $building);
     if ($building->is_working) {
-        $out->{building}{work}{working_on} = $building->work->{ore_type};
+        $out->{building}{work}{searching_for} = $building->work->{ore_type};
     }
     return $out;
 };
