@@ -949,7 +949,7 @@ An array reference of spy ids to send.
 
 
 
-=head2 view_battle_log ( session_id, building_id, [ page_number ] )
+=head2 view_battle_logs ( session_id, building_id, [ page_number ] )
 
 Shows you the battle logs for your empire with the most recent action listed first. This data will be cleaned out every seven days.
 
