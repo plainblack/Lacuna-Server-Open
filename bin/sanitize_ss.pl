@@ -18,13 +18,17 @@ my $start = time;
 out('Loading DB');
 our $db = Lacuna->db;
 
-out('Ticking planets');
-my $planets_rs = $db->resultset('Lacuna::DB::Result::Map::Body');
-my @planets = $planets_rs->search({ empire_id   => {'>' => 0} })->get_column('id')->all;
-foreach my $id (@planets) {
-    my $planet = $planets_rs->find($id);
-    out('Ticking '.$planet->name);
-    eval{$planet->tick;} or warn @{$@};
+out('Sanitize derilict space stations');
+# sanitize derilict space stations
+my $stations_rs = $db->resultset('Lacuna::DB::Result::Map::Body');
+my @stations = $stations_rs->search({ empire_id => {'>' => 0 }, class => 'Lacuna::DB::Result::Map::Body::Planet::Station' })->get_column('id')->all;
+foreach my $id (@stations) {
+    my $station = $stations_rs->find($id);
+    out('Checking '.$station->name);
+    if (! defined $station->command && ! defined $station->parliament) {
+        out('Sanitizing');
+        $station->sanitize;
+    }
 }
 
 my $finish = time;

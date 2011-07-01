@@ -1,3 +1,6 @@
+3.0812
+ - Fix: Battle logs will be captured when sending a scanner or surveyor to an uninhabited body.
+
 3.0811
  - Add: Battles will now be logged.
  - Add: Added a setting to the profile to skip attack messages.
