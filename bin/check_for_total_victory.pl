@@ -49,18 +49,21 @@ if ($cache->get('20Stars') ne 'Tournament Over') {
 	    }
 	    elsif ($server_url =~ /us1/) {
             $cache->set('20Stars','Tournament Over', 60 * 60 * 24 * 30);
-            my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($victory_empire->alliance_id);
-            if (defined $alliance) {
-                while (my $empire = $alliance->members->next) {
-                    $empire->add_medal('20Stars');
-                    $empire->add_medal('TournamentVictory');
+            for my $victory_empire ( keys %victory_empire ) {
+                out('victory empire: ' . $victory_empire->name);
+                my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($victory_empire->alliance_id);
+                if (defined $alliance) {
+                    while (my $empire = $alliance->members->next) {
+                        $empire->add_medal('20Stars');
+                        $empire->add_medal('TournamentVictory');
+                    }
+                    set_announcement("The '" . $alliance->name . "' alliance has won the Twenty Stars tournament!")
+                } 
+                else {
+                    $victory_empire->add_medal('20Stars');
+                    $victory_empire->add_medal('TournamentVictory');
+                    set_announcement("The '" . $victory_empire->name . "' empire has won the Twenty Stars tournament single-handedly!")
                 }
-                set_announcement("The '" . $alliance->name . "' alliance has won the Twenty Stars tournament!")
-            } 
-            else {
-                $victory_empire->add_medal('20Stars');
-                $victory_empire->add_medal('TournamentVictory');
-                set_announcement("The '" . $victory_empire->name . "' empire has won the Twenty Stars tournament single-handedly!")
             }
 	    }
 	    else {
