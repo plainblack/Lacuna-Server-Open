@@ -60,9 +60,9 @@ if ($stars_over ne 'Tournament Over') {
                 my @allies = $alliance->members->get_column('id')->all;
                 for my $id ( @allies ) {
                     my $allie = $empires->find($id);
-                    out('Giving medals to ' . $empire->name);
-                    $empire->add_medal('20Stars');
-                    $empire->add_medal('TournamentVictory');
+                    out('Giving medals to ' . $allie->name);
+                    $allie->add_medal('20Stars');
+                    $allie->add_medal('TournamentVictory');
                 }
                 out('setting announcement');
                 set_announcement("The '" . $alliance->name . "' alliance has won the Twenty Stars tournament!")
