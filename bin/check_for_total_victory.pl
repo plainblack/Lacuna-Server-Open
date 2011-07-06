@@ -26,7 +26,7 @@ my $lec = Lacuna::DB::Result::Empire->lacuna_expanse_corp;
 
 my $stars_over = $cache->get('20Stars');
 out('stars_over: ' . $stars_over);
-if ($stars_ver ne 'Tournament Over') {
+if ($stars_over ne 'Tournament Over') {
 	my $search = { class => 'Lacuna::DB::Result::Map::Body::Planet::Station' };
 	$search->{zone} = '-2|-2' if $server_url =~ /us1/;
 
