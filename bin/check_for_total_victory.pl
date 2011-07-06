@@ -57,11 +57,10 @@ if ($stars_over ne 'Tournament Over') {
             my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($empire->alliance_id);
             if (defined $alliance) {
                 out('victory alliance: ' . $alliance->name);
-                my %names;
-                while (my $empire = $alliance->members->next) {
-                    next if $names{$empire->name};
+                my @allies = $alliance->members->get_column('id')->all;
+                for my $id ( @allies ) {
+                    my $allie = $empires->find($id);
                     out('Giving medals to ' . $empire->name);
-                    $names{$empire->name}++;
                     $empire->add_medal('20Stars');
                     $empire->add_medal('TournamentVictory');
                 }
