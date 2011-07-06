@@ -56,14 +56,18 @@ if ($cache->get('20Stars') ne 'Tournament Over') {
                 my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($victory_empire->alliance_id);
                 if (defined $alliance) {
                     while (my $empire = $alliance->members->next) {
+                        out('Giving medals to ' . $empire->name);
                         $empire->add_medal('20Stars');
                         $empire->add_medal('TournamentVictory');
                     }
+                    out('setting announcement');
                     set_announcement("The '" . $alliance->name . "' alliance has won the Twenty Stars tournament!")
                 } 
                 else {
+                    out('Giving medals to ' . $victory_empire->name);
                     $victory_empire->add_medal('20Stars');
                     $victory_empire->add_medal('TournamentVictory');
+                    out('setting announcement');
                     set_announcement("The '" . $victory_empire->name . "' empire has won the Twenty Stars tournament single-handedly!")
                 }
             }
