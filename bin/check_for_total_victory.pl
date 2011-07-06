@@ -24,7 +24,7 @@ my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire');
 my $cache = Lacuna->cache;
 my $lec = Lacuna::DB::Result::Empire->lacuna_expanse_corp;
 
-my $stars_over = $cache->get('20Stars');
+my $stars_over = $cache->get('tournament', '20Stars');
 out('stars_over: ' . $stars_over);
 if ($stars_over ne 'Tournament Over') {
 	my $search = { class => 'Lacuna::DB::Result::Map::Body::Planet::Station' };
@@ -50,14 +50,18 @@ if ($stars_over ne 'Tournament Over') {
             $cache->set('server','status','Game Over', 60 * 60 * 24 * 30);
 	    }
 	    elsif ($server_url =~ /us1/) {
-            $cache->set('20Stars','Tournament Over', 60 * 60 * 24 * 30);
+            $cache->set('tournament', '20Stars','Tournament Over', 60 * 60 * 24 * 30);
             out('victory empire id: ' . $victory_empire);
             my $empire = $empires->find($victory_empire);
             out('victory empire name: ' . $empire->name);
             my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($empire->alliance_id);
             if (defined $alliance) {
+                out('victory alliance: ' . $alliance->name);
+                my %names;
                 while (my $empire = $alliance->members->next) {
+                    next if $names{$empire->name};
                     out('Giving medals to ' . $empire->name);
+                    $names{$empire->name}++;
                     $empire->add_medal('20Stars');
                     $empire->add_medal('TournamentVictory');
                 }
