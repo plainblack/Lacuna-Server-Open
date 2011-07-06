@@ -49,8 +49,10 @@ if ($cache->get('20Stars') ne 'Tournament Over') {
 	    }
 	    elsif ($server_url =~ /us1/) {
             $cache->set('20Stars','Tournament Over', 60 * 60 * 24 * 30);
-            for my $victory_empire ( keys %victory_empire ) {
-                out('victory empire: ' . $victory_empire->name);
+            for my $victory_id ( keys %victory_empire ) {
+                out('victory empire id: ' . $victory_id);
+                my $victory_empire = $empires->find($victory_id);
+                out('victory empire name: ' . $victory_empire->name);
                 my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($victory_empire->alliance_id);
                 if (defined $alliance) {
                     while (my $empire = $alliance->members->next) {
