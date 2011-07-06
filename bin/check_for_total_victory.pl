@@ -50,7 +50,7 @@ if ($stars_over ne 'Tournament Over') {
             $cache->set('server','status','Game Over', 60 * 60 * 24 * 30);
 	    }
 	    elsif ($server_url =~ /us1/) {
-            $cache->set('tournament', '20Stars','Tournament Over', 60 * 60 * 24 * 30);
+#            $cache->set('tournament', '20Stars','Tournament Over', 60 * 60 * 24 * 30);
             out('victory empire id: ' . $victory_empire);
             my $empire = $empires->find($victory_empire);
             out('victory empire name: ' . $empire->name);
