@@ -24,7 +24,7 @@ my @planets = $planets_rs->search({ empire_id   => {'>' => 0} })->get_column('id
 foreach my $id (@planets) {
     my $planet = $planets_rs->find($id);
     out('Ticking '.$planet->name);
-    eval{$planet->tick;} or warn @{$@};
+    eval{$planet->tick;} or warn $@;
 }
 
 my $finish = time;
