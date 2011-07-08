@@ -30,7 +30,7 @@ foreach my $id (@planets) {
     }
     elsif ( ref $reason eq 'ARRAY') {
     out('Ticking '.$planet->name);
-        out(sprintf("Ticking $s resulted in errno: %d, %s\n", $planet->name, $reason->[0], $reason->[1]));
+        out(sprintf("Ticking %s resulted in errno: %d, %s\n", $planet->name, $reason->[0], $reason->[1]));
     }
     elsif ( $reason ) {
         out(sprintf("Ticking %s resulted in: %s\n", $planet->name, $reason));
