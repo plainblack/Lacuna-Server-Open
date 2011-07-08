@@ -23,17 +23,17 @@ my $planets_rs = $db->resultset('Lacuna::DB::Result::Map::Body');
 my @planets = $planets_rs->search({ empire_id   => {'>' => 0} })->get_column('id')->all;
 foreach my $id (@planets) {
     my $planet = $planets_rs->find($id);
-    out('Ticking '.$planet->name);
     eval{$planet->tick};
     my $reason = $@;
     if (ref $reason eq 'ARRAY' && $reason->[0] eq -1) {
         # this is an expected exception, it means one of the roles took over
     }
     elsif ( ref $reason eq 'ARRAY') {
-        warn sprintf "errno: %d, %s\n", $reason->[0], $reason->[1];
+    out('Ticking '.$planet->name);
+        out(sprintf("Ticking $s resulted in errno: %d, %s\n", $planet->name, $reason->[0], $reason->[1]));
     }
     elsif ( $reason ) {
-        warn "$reason\n";
+        out(sprintf("Ticking %s resulted in: %s\n", $planet->name, $reason));
     }
 }
 
