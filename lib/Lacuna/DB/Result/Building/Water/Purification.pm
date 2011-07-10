@@ -37,7 +37,9 @@ use constant waste_production => 5;
 
 sub water_production_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->body->water * $self->water_production * $self->production_hour / 10000);
+    my $base = $self->body->water * $self->water_production * $self->production_hour / 10000;
+    return 0 if $base == 0;
+    return sprintf('%.0f', $base * $self->water_production_bonus);
 }
 
 
