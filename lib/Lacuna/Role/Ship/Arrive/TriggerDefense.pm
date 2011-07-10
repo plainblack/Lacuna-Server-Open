@@ -56,7 +56,7 @@ sub attacker_shot_down {
         );
     }
 
-    unless ($defender->body->empire->skip_attack_messages) {
+    unless ($defender->body->empire_id && $defender->body->empire->skip_attack_messages) {
         $defender->body->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'we_shot_down_a_ship.txt',
@@ -83,7 +83,7 @@ sub defender_shot_down {
         );
     }
 
-    unless ($defender->body->empire->skip_attack_messages) {
+    unless ($defender->body->empire_id && $defender->body->empire->skip_attack_messages) {
         $defender->body->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'defender_shot_down.txt',
