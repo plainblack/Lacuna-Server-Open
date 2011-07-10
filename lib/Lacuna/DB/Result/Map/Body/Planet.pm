@@ -996,25 +996,27 @@ sub tick {
     # check / clear boosts
     if ($self->boost_enabled) {
         my $empire = $self->empire;
-        my $still_enabled = 0;
-        foreach my $resource (qw(energy water ore happiness food storage)) {
-            my $boost = $resource.'_boost';
-            if ($now_epoch > $empire->$boost->epoch) {
-                $self->needs_recalc(1);
+        if ($empire) {
+            my $still_enabled = 0;
+            foreach my $resource (qw(energy water ore happiness food storage)) {
+                my $boost = $resource.'_boost';
+                if ($now_epoch > $empire->$boost->epoch) {
+                    $self->needs_recalc(1);
+                }
+                else {
+                    $still_enabled = 1;
+                }
             }
-            else {
-                $still_enabled = 1;
+            unless ($still_enabled) {
+                if (!$self->empire->check_for_repeat_message('boosts_expired')) {  # because each planet could send the message
+                    $self->empire->send_predefined_message(
+                        tags        => ['Alert'],
+                        filename    => 'boosts_expired.txt',
+                        repeat_check=> 'boosts_expired',
+                    );
+                }
+                $self->boost_enabled(0);
             }
-        }
-        unless ($still_enabled) {
-            if (!$self->empire->check_for_repeat_message('boosts_expired')) {  # because each planet could send the message
-                $self->empire->send_predefined_message(
-                    tags        => ['Alert'],
-                    filename    => 'boosts_expired.txt',
-                    repeat_check=> 'boosts_expired',
-                );
-            }
-            $self->boost_enabled(0);
         }
     }
 
