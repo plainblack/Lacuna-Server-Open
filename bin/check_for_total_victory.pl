@@ -24,13 +24,57 @@ my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire');
 my $cache = Lacuna->cache;
 my $lec = Lacuna::DB::Result::Empire->lacuna_expanse_corp;
 
-# it'll only run on servers that have the configuration
-my $tourney20stars = $config->get('tournament/20Stars');
-if ($tourney20stars) {
+# the tournaments will only run on servers that have the proper configuration
+my $tourney = $config->get('tournament');
+if (defined $tourney && $tourney) {
+    out('Checking on tournaments');
+    if (defined $tourney->{'20Stars'} && $tourney->{'20Stars'}) {
+        twenty_stars();
+    }
+}
+
+my $finish = time;
+out('Finished');
+out((($finish - $start)/60)." minutes have elapsed");
+
+###############
+## SUBROUTINES
+###############
+
+sub zone_coord {
+    my $coord = shift;
+    return int($coord / 250);
+}
+
+sub out {
+    my $message = shift;
+    unless ($quiet) {
+        say format_date(DateTime->now), " ", $message;
+    }
+}
+
+sub set_announcement {
+    my $message = shift;
+    my $cache = Lacuna->cache;
+    my $announcement = $cache->get('announcement','message');
+    $announcement .= '<br>' . $message;
+    $cache->set('announcement','alert', create_uuid_as_string(UUID_V4), 60*60*24);
+    $cache->set('announcement','message', $announcement, 60*60*24);
+}
+
+sub twenty_stars {
+    out('Checking on the 20 Stars tournament');
+
+    my $cache = Lacuna->cache;
+    my $config = Lacuna->config;
+
+    my $tourney20stars = $config->get('tournament/20Stars');
     my $zone = $tourney20stars->{zone};
     my $stars_over = $cache->get('tournament', '20Stars');
-    out('stars_over: ' . $stars_over);
+
     if ($stars_over ne 'Tournament Over') {
+        out("20 Stars tournament in progress in zone $zone") if (defined $zone && $zone);
+
         my $search = { class => 'Lacuna::DB::Result::Map::Body::Planet::Station' };
         $search->{zone} = $zone if $server_url =~ /us1/;
 
@@ -146,35 +190,6 @@ if ($tourney20stars) {
         # It should only be possible to get here on us1 when we have run out of zones for a 20 Stars tournament.
         out('The 20 Stars tournaments have all ended.');
     }
-}
-
-my $finish = time;
-out('Finished');
-out((($finish - $start)/60)." minutes have elapsed");
-
-###############
-## SUBROUTINES
-###############
-
-sub zone_coord {
-    my $coord = shift;
-    return int($coord / 250);
-}
-
-sub out {
-    my $message = shift;
-    unless ($quiet) {
-        say format_date(DateTime->now), " ", $message;
-    }
-}
-
-sub set_announcement {
-    my $message = shift;
-    my $cache = Lacuna->cache;
-    my $announcement = $cache->get('announcement','message');
-    $announcement .= '<br>' . $message;
-    $cache->set('announcement','alert', create_uuid_as_string(UUID_V4), 60*60*24);
-    $cache->set('announcement','message', $announcement, 60*60*24);
 }
 
 
