@@ -1776,9 +1776,10 @@ sub steal_building {
         {
             level => { '>' => 1 }, 
             class => { 'not in' => [
-                'Lacuna::DB::Result::Building::Permanent::EssentiaVein',
-                'Lacuna::DB::Result::Building::DeployedBleeder',
-            ],
+                    'Lacuna::DB::Result::Building::Permanent::EssentiaVein',
+                    'Lacuna::DB::Result::Building::DeployedBleeder',
+                ],
+            },
         },
         { rows=>1, order_by => 'rand()' }
         )->single;
