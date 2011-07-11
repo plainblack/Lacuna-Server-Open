@@ -29,8 +29,10 @@ after handle_arrival_procedures => sub {
     }
     $building ||= $buildings->search(
 		{
-            class => { '!=' => 'Lacuna::DB::Result::Building::Permanent::Crater' },
-            class => { '!=' => 'Lacuna::DB::Result::Building::DeployedBleeder' },
+            class => { 'not in' => [
+                'Lacuna::DB::Result::Building::Permanent::Crater',
+                'Lacuna::DB::Result::Building::DeployedBleeder',
+            ],
         },
 		{order_by => { -desc => ['efficiency', 'rand()'] }, rows=>1}
 	)->single;

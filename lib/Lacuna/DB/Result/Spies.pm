@@ -1775,8 +1775,10 @@ sub steal_building {
     my $building = $on_body->buildings->search(
         {
             level => { '>' => 1 }, 
-            class => { '!=' => 'Lacuna::DB::Result::Building::Permanent::EssentiaVein' },
-            class => { '!=' => 'Lacuna::DB::Result::Building::DeployedBleeder' },
+            class => { 'not in' => [
+                'Lacuna::DB::Result::Building::Permanent::EssentiaVein',
+                'Lacuna::DB::Result::Building::DeployedBleeder',
+            ],
         },
         { rows=>1, order_by => 'rand()' }
         )->single;

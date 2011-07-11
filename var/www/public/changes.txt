@@ -3,6 +3,7 @@
  - Fix: Fix an issue with skip attack messages and excavators.
  - Fix: Fix an issue with tick planets.
  - Fix: Water Purifiers and Atmospheric Evaporators will now receive the environmental affinity bonus.
+ - Fix: Fixed the regression bug involving snarks targetting craters.
 
 3.0812
  - Fix: Battle logs will be captured when sending a scanner or surveyor to an uninhabited body.
