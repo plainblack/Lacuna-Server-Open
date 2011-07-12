@@ -1202,12 +1202,29 @@ sub steal_planet {
             params      => [$self->on_body->name, $self->on_body->x, $self->on_body->y, $self->on_body->name],
         );
         $self->on_body->add_news(100,'Led by %s, the citizens of %s have overthrown %s!', $self->name, $self->on_body->name, $self->on_body->empire->name);
+
+        # withdraw trades
+        for my $market ( Lacuna->db->resultset('Lacuna::DB::Result::Market'), Lacuna->db->resultset('Lacuna::DB::Result::MercenaryMarket') ) {
+            my @to_be_deleted = $market->search({body_id => $self->on_body_id})->get_column('id')->all;
+            foreach my $id (@to_be_deleted) {
+                my $trade = $market->find($id);
+                next unless defined $trade;
+                $trade->body->empire->send_predefined_message(
+                    filename    => 'trade_withdrawn.txt',
+                    params      => [join("\n",@{$trade->format_description_of_payload}), $trade->ask.' essentia'],
+                    tags        => ['Trade','Alert'],
+                );
+                $trade->withdraw;
+            }
+        }
+
         my $defender_capitol_id = $self->on_body->empire->home_planet_id;
         Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
             from_body_id => $self->on_body_id, on_body_id => $self->on_body_id, task => 'Training',
         })->delete_all; # All spies in training are executed
         Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->on_body_id})->update({from_body_id => $defender_capitol_id });
-        Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->on_body_id })->update({empire_id => $self->empire_id});
+        Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->on_body_id})->update({empire_id => $self->empire_id});
+
         $self->on_body->empire_id($self->empire_id);
         $self->on_body->add_happiness(int(abs($planet_happiness) / 10));
         $self->on_body->update;
