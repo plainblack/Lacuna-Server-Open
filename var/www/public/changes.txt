@@ -5,6 +5,7 @@
  - Fix: Water Purifiers and Atmospheric Evaporators will now receive the environmental affinity bonus.
  - Fix: Fixed the regression bug involving snarks targetting craters.
  - Fix: Trades are withdrawn when a planet is insurrected.
+ - Fix: Battle logs will only be retained for seven days.
 
 3.0812
  - Fix: Battle logs will be captured when sending a scanner or surveyor to an uninhabited body.

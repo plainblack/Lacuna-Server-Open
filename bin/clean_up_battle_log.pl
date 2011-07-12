@@ -22,7 +22,8 @@ out('Loading DB');
 our $db = Lacuna->db;
 
 out('Deleting Old Battle Logs');
-$mail->search({ date_stamp => { '<' => $date_ended }})->delete_all;
+my $log = $db->resultset('Lacuna::DB::Result::Log::Battles');
+$log->search({ date_stamp => { '<' => $date_ended }})->delete_all;
 
 my $finish = time;
 out('Finished');
