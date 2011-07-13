@@ -373,7 +373,7 @@ sub send_spies {
     # send it
     $ship->send(
         target      => $to_body,
-        payload     => {spies => \@ids_send },
+        payload     => {spies => \@ids_sent },
     );
 
     return {
