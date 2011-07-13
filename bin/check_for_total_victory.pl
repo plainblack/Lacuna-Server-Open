@@ -62,6 +62,61 @@ sub set_announcement {
     $cache->set('announcement','message', $announcement, 60*60*24);
 }
 
+sub start_new_twenty_stars {
+    my $cache = Lacuna->cache;
+    my $config = Lacuna->config;
+
+    my $tourney20stars = $config->get('tournament/20Stars');
+    my $zone = $tourney20stars->{zone};
+
+    out('The tournament is over; time to pick a new zone');
+    my $map_size = $config->get('map_size');
+
+    # x and y coords
+    my @x = @{ $map_size->{x} };
+    my @y = @{ $map_size->{y} };
+
+    # convert x and y coords to zones
+    @x = ( zone_coord($x[0]), zone_coord($x[1]) );
+    @y = ( zone_coord($y[0]), zone_coord($y[1]) );
+
+    # get old_zones and skip_zones
+    my $old_zones = $tourney20stars->{'old_zones'};
+    my $old_zone = $tourney20stars->{'zone'};
+    out("Adding $old_zone to old_zones");
+    push @{ $old_zones }, $zone;
+    my $skip_zones = $tourney20stars->{'skip_zones'};
+
+    # create a list of possible zones for the next tournament
+    my @zones;
+    for my $x ( $x[0] .. $x[1] ) {
+        for my $y ( $y[0] .. $y[1] ) {
+            my $zone = join '|', $x, $y;
+            if ( $zone ~~ $old_zones || $zone ~~ $skip_zones ) {
+                out("Skipping $zone");
+                next;
+            }
+            push @zones, $zone;
+        }
+    }
+    if ( @zones ) {
+        @zones = shuffle @zones;
+        $zone = unshift @zones;
+        out("Picked $zone");
+        $tourney20stars->{'zone'} = $zone;
+
+        $cache->set('tournament', '20Stars',"Tournament in $zone", 60 * 60 * 24 * 30);
+
+        # and announce the start of the next tournament
+        out('setting announcement');
+        set_announcement("A new 20 Stars tournament has started in zone $zone.")
+    }
+    else {
+        out('*** No zones left for a 20 Stars tournament! ***');
+        $cache->set('tournament', '20Stars','No more zones', 60 * 60 * 24 * 30);
+    }
+}
+
 sub twenty_stars {
     out('Checking on the 20 Stars tournament');
 
@@ -70,10 +125,14 @@ sub twenty_stars {
 
     my $tourney20stars = $config->get('tournament/20Stars');
     my $zone = $tourney20stars->{zone};
-    my $stars_over = $cache->get('tournament', '20Stars');
+    my $stars_cache = $cache->get('tournament', '20Stars');
 
-    if ($stars_over ne 'Tournament Over') {
+    if ($stars_cache eq 'No more zones' ) {
+        out(' *** No more zones left for the 20 Stars Tournament ***');
+    }
+    elsif ($stars_cache ne 'Tournament Over') {
         out("20 Stars tournament in progress in zone $zone") if (defined $zone && $zone);
+        out("Cached zone ($stars_cache) doesn't match config ($zone)") if ( $stars_cache ne $zone );
 
         my $search = { class => 'Lacuna::DB::Result::Map::Body::Planet::Station' };
         $search->{zone} = $zone if $server_url =~ /us1/;
@@ -125,52 +184,7 @@ sub twenty_stars {
                 }
             }
 
-            out('The tournament is over; time to pick a new zone');
-            my $map_size = $config->get('map_size');
-
-            # x and y coords
-            my @x = @{ $map_size->{x} };
-            my @y = @{ $map_size->{y} };
-
-            # convert x and y coords to zones
-            @x = ( zone_coord($x[0]), zone_coord($x[1]) );
-            @y = ( zone_coord($y[0]), zone_coord($y[1]) );
-
-            # get old_zones and skip_zones
-            my $old_zones = $tourney20stars->{'old_zones'};
-            my $old_zone = $tourney20stars->{'zone'};
-            out("Adding $old_zone to old_zones");
-            push @{ $old_zones }, $zone;
-            my $skip_zones = $tourney20stars->{'skip_zones'};
-
-            # create a list of possible zones for the next tournament
-            my @zones;
-            for my $x ( $x[0] .. $x[1] ) {
-                for my $y ( $y[0] .. $y[1] ) {
-                    my $zone = join '|', $x, $y;
-                    if ( $zone ~~ $old_zones || $zone ~~ $skip_zones ) {
-                        out("Skipping $zone");
-                        next;
-                    }
-                    push @zones, $zone;
-                }
-            }
-            if ( @zones ) {
-                @zones = shuffle @zones;
-                $zone = unshift @zones;
-                out("Picked $zone");
-                $tourney20stars->{'zone'} = $zone;
-
-                # clear out the tournament end condition
-                $cache->delete('tournament', '20Stars');
-
-                # and announce the start of the next tournament
-                out('setting announcement');
-                set_announcement("A new 20 Stars tournament has started in zone $zone.")
-            }
-            else {
-                out('*** No zones left for a 20 Stars tournament! ***');
-            }
+            start_new_twenty_stars();
         }
         elsif (DateTime->now->hour == 3 ) {
             while (my $empire = $empires->next) {
@@ -186,9 +200,7 @@ sub twenty_stars {
         }
     }
     else {
-        # It shouldn't be possible to get here on us2 due to game over condition.
-        # It should only be possible to get here on us1 when we have run out of zones for a 20 Stars tournament.
-        out('The 20 Stars tournaments have all ended.');
+        start_new_twenty_stars();
     }
 }
 
