@@ -488,8 +488,8 @@ sub find_home_planet {
             }
         }
 
-        # Skip Biggie, the unlucky planet
-        if ($planet->id == 304486) {
+        # Skip the unlucky planet by coords
+        if ($planet->x == -4 && $planet->y == -444) {
             next; 
         }
 
