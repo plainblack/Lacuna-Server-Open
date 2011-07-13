@@ -369,12 +369,11 @@ sub send_spies {
             push @ids_not_sent, $spy->id;
         }
     }
-    $ship->payload({spies => \@ids_sent });
-    $ship->update;
 
     # send it
     $ship->send(
         target      => $to_body,
+        payload     => {spies => \@ids_send },
     );
 
     return {
