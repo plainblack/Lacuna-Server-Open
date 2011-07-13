@@ -488,6 +488,11 @@ sub find_home_planet {
             }
         }
 
+        # Skip Biggie, the unlucky planet
+        if ($planet->id == 304486) {
+            next; 
+        }
+
         unless ($planet->is_locked) {
             $planet->lock;
             $home_planet = $planet;
