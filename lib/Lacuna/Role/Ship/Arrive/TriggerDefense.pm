@@ -123,12 +123,19 @@ sub ship_to_ship_combat {
 
     my %body_empire;
     my $empire = $self->body->empire_id;
+    my $alliance = $self->body->empire->alliance_id;
 
     # if there are ships let's duke it out
     while (my $ship = $ships->next) {
         # don't fight our own ships
         my $ship_empire = $body_empire{$ship->body_id} //= $ship->body->empire_id;
         if ($empire == $ship_empire) {
+            next;
+        }
+
+        # don't fight our alliance
+        my $ship_alliance = $ship->body->empire->alliance_id;
+        if ( $alliance && $ship_alliance && $alliance == $ship_alliance ) {
             next;
         }
 
