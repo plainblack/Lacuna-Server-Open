@@ -7,6 +7,7 @@
  - Fix: Trades are withdrawn when a planet is insurrected.
  - Fix: Battle logs will only be retained for seven days.
  - Fix: Ships owned by members of your alliance will no longer attack your ships.
+ - Fix: The correct message_id will be returned when running Incite Mutiny and a defender is recruited.
 
 3.0812
  - Fix: Battle logs will be captured when sending a scanner or surveyor to an uninhabited body.
