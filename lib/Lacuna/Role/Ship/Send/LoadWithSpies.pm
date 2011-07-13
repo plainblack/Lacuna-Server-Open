@@ -14,6 +14,7 @@ after send => sub {
     foreach my $spy (@{$self->get_available_spies_to_send}) {
         $spy->send($to_body->id, $arrives)->update;
         push @spies, $spy->id;
+        last if (scalar(@spies) >= $self->max_occupants);
     }
     $self->payload({ spies => \@spies });
     $self->update;
@@ -38,7 +39,6 @@ sub get_available_spies_to_send {
         while (my $spy = $spies->next) {
             if ($spy->is_available) {
                 push @spies, $spy;
-                last if (scalar(@spies) >= $self->max_occupants);
             }
         }
     }
