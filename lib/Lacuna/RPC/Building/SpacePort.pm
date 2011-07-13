@@ -350,11 +350,6 @@ sub send_spies {
         confess [1010, "The ship cannot hold the spies selected."];
     }
     
-    # send it
-    $ship->send(
-        target      => $to_body,
-    );
-
     # get a spies
     my @ids_sent;
     my @ids_not_sent;
@@ -376,6 +371,11 @@ sub send_spies {
     }
     $ship->payload({spies => \@ids_sent });
     $ship->update;
+
+    # send it
+    $ship->send(
+        target      => $to_body,
+    );
 
     return {
         ship            => $ship->get_status,
