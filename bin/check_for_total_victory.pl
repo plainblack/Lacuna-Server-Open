@@ -171,14 +171,14 @@ sub twenty_stars {
                         $allie->add_medal('TournamentVictory');
                     }
                     out('setting announcement');
-                    set_announcement("The '" . $alliance->name . "' alliance has won the Twenty Stars tournament!")
+                    set_announcement("The '" . $alliance->name . "' alliance has won the $zone Twenty Stars tournament!")
                 }
                 else {
                     out('Giving medals to ' . $victory_empire->name);
                     $victory_empire->add_medal('20Stars');
                     $victory_empire->add_medal('TournamentVictory');
                     out('setting announcement');
-                    set_announcement("The '" . $victory_empire->name . "' empire has won the Twenty Stars tournament single-handedly!")
+                    set_announcement("The '" . $victory_empire->name . "' empire has won the $zone Twenty Stars tournament single-handedly!")
                 }
             }
 
