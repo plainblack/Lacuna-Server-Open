@@ -78,8 +78,8 @@ sub start_new_twenty_stars {
     my @y = @{ $map_size->{y} };
 
     # convert x and y coords to zones
-    @x = ( zone_coord($x[0]), zone_coord($x[1]) );
-    @y = ( zone_coord($y[0]), zone_coord($y[1]) );
+    @x = ( zone_coord($x[0] + 1), zone_coord($x[1] - 1) );
+    @y = ( zone_coord($y[0] + 1), zone_coord($y[1] - 1) );
 
     # get old_zones and skip_zones
     my $old_zones = $cache->get_and_deserialize('tournament', '20StarsOldZone');
@@ -128,6 +128,9 @@ sub twenty_stars {
 
     if ($stars_cache eq 'No more zones' ) {
         out(' *** No more zones left for the 20 Stars Tournament ***');
+    }
+    elsif ($stars_cache eq '4|-6') {
+        start_new_twenty_stars();
     }
     elsif ($stars_cache ne 'Tournament Over') {
         my $zone = $stars_cache;
