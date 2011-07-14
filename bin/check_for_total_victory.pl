@@ -67,9 +67,10 @@ sub start_new_twenty_stars {
     my $config = Lacuna->config;
 
     my $tourney20stars = $config->get('tournament/20Stars');
-    my $zone = $tourney20stars->{zone};
+    my $zone = $cache->get('tournament', '20Stars');
+    out("zone is $zone");
 
-    out('The tournament is over; time to pick a new zone');
+    out('Time to pick a new zone');
     my $map_size = $config->get('map_size');
 
     # x and y coords
@@ -81,10 +82,11 @@ sub start_new_twenty_stars {
     @y = ( zone_coord($y[0]), zone_coord($y[1]) );
 
     # get old_zones and skip_zones
-    my $old_zones = $tourney20stars->{'old_zones'};
-    my $old_zone = $tourney20stars->{'zone'};
+    my $old_zones = $cache->get_and_deserialize('tournament', '20StarsOldZone');
+    my $old_zone = $zone;
     out("Adding $old_zone to old_zones");
     push @{ $old_zones }, $zone;
+    $cache->set('tournament', '20StarsOldZone', $old_zones, 60 * 60 * 24 * 30);
     my $skip_zones = $tourney20stars->{'skip_zones'};
 
     # create a list of possible zones for the next tournament
@@ -101,11 +103,10 @@ sub start_new_twenty_stars {
     }
     if ( @zones ) {
         @zones = shuffle @zones;
-        $zone = unshift @zones;
+        $zone = shift @zones;
         out("Picked $zone");
-        $tourney20stars->{'zone'} = $zone;
 
-        $cache->set('tournament', '20Stars',"Tournament in $zone", 60 * 60 * 24 * 30);
+        $cache->set('tournament', '20Stars', $zone, 60 * 60 * 24 * 30);
 
         # and announce the start of the next tournament
         out('setting announcement');
@@ -123,16 +124,14 @@ sub twenty_stars {
     my $cache = Lacuna->cache;
     my $config = Lacuna->config;
 
-    my $tourney20stars = $config->get('tournament/20Stars');
-    my $zone = $tourney20stars->{zone};
     my $stars_cache = $cache->get('tournament', '20Stars');
 
     if ($stars_cache eq 'No more zones' ) {
         out(' *** No more zones left for the 20 Stars Tournament ***');
     }
     elsif ($stars_cache ne 'Tournament Over') {
-        out("20 Stars tournament in progress in zone $zone") if (defined $zone && $zone);
-        out("Cached zone ($stars_cache) doesn't match config ($zone)") if ( $stars_cache ne $zone );
+        my $zone = $stars_cache;
+        out("20 Stars tournament in progress in zone $zone") if ($zone);
 
         my $search = { class => 'Lacuna::DB::Result::Map::Body::Planet::Station' };
         $search->{zone} = $zone if $server_url =~ /us1/;
@@ -144,7 +143,7 @@ sub twenty_stars {
         my $message = '';
         while (my $station = $stations->next) {
             my $stars = $station->influence_spent;
-            $message .= sprintf("The station {Starmap %s %s %s}, owned by {Empire %s %s}, controls %d stars.\n", 
+            $message .= sprintf("The station {Starmap %s %s %s}, owned by {Empire %s %s}, controls %d stars.\n",
             $station->x, $station->y, $station->name, $station->empire_id, $station->empire->name, $stars);
             if ( $stars >= 20 ) {
                 $victory_empire{$station->empire_id} = $stars;
@@ -158,7 +157,6 @@ sub twenty_stars {
                 $cache->set('server','status','Game Over', 60 * 60 * 24 * 30);
             }
             else {
-                $cache->set('tournament', '20Stars','Tournament Over', 60 * 60 * 24 * 30);
                 out('victory empire id: ' . $victory_empire);
                 my $empire = $empires->find($victory_empire);
                 out('victory empire name: ' . $empire->name);
@@ -174,7 +172,7 @@ sub twenty_stars {
                     }
                     out('setting announcement');
                     set_announcement("The '" . $alliance->name . "' alliance has won the Twenty Stars tournament!")
-                } 
+                }
                 else {
                     out('Giving medals to ' . $victory_empire->name);
                     $victory_empire->add_medal('20Stars');
