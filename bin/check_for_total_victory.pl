@@ -129,9 +129,6 @@ sub twenty_stars {
     if ($stars_cache eq 'No more zones' ) {
         out(' *** No more zones left for the 20 Stars Tournament ***');
     }
-    elsif ($stars_cache eq '4|-6') {
-        start_new_twenty_stars();
-    }
     elsif ($stars_cache ne 'Tournament Over') {
         my $zone = $stars_cache;
         out("20 Stars tournament in progress in zone $zone") if ($zone);
