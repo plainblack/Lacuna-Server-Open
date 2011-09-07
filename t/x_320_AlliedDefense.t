@@ -13,7 +13,7 @@ my @testers = (
 );
 
 my @asteroids = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
-	{ zone => $testers[0]->empire->home_planet->zone, class => { like => 'Lacuna::DB::Result::Map::Body::Asteroid%' } },
+	{ zone => $testers[0]->empire->home_planet->zone, size => {'>' => 9}, class => { like => 'Lacuna::DB::Result::Map::Body::Asteroid%' } },
 )->all();
 
 my @planets = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
@@ -387,7 +387,7 @@ for my $i ( 0 .. 1 ) {
 	$stake->arrive;
 
 	$result = $tester->post('spaceport', 'view', [$tester{session_id}, $tester->{spaceport_id}]);
-	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Ship Shot Down\r\n~~~\r\nOur Stake", 'Stake shot down' );
+	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Ship Shot Down", 'Stake shot down' );
 
 	# Accelerate reset period
 	$fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$enemy->{fighter2}},{rows=>1})->single;
@@ -421,7 +421,7 @@ for my $i ( 0 .. 1 ) {
 			}
 		}
 	}
-	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Colony Founded\r\n~~~\r\nWe have e", 'Colony founded' );
+	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Colony Founded", 'Colony founded' );
 
 	my $detonator = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'detonator'},{rows=>1})->single;
 	diag "Sending ship ", $detonator->id, " type ", $detonator->type, " to star_id ", $enemy{home}->star_id;
@@ -432,7 +432,7 @@ for my $i ( 0 .. 1 ) {
 	$detonator->arrive;
 
 	$result = $tester->post('spaceport', 'view', [$tester{session_id}, $tester->{spaceport_id}]);
-	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Detonator Report\r\n~~~\r\nOur Det", 'Detonator took out probes' );
+	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Detonator Report", 'Detonator took out probes' );
 
 	my $detonator2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'detonator'},{rows=>1})->single;
 	diag "Sending ship ", $detonator2->id, " type ", $detonator2->type, " to ", $asteroid->{x}, ",", $asteroid->{y};
@@ -443,7 +443,7 @@ for my $i ( 0 .. 1 ) {
 	$detonator2->arrive;
 
 	$result = $tester->post('spaceport', 'view', [$tester{session_id}, $tester->{spaceport_id}]);
-	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Detonator Report\r\n~~~\r\nOur Det", 'Detonator took out mining platforms' );
+	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Detonator Report", 'Detonator took out mining platforms' );
 
     $result = $tester->post('spaceport', 'view_battle_logs', [$tester{session_id}, $tester->{spaceport_id} ]);
     ok(scalar @{$result->{result}{battle_log}}, "Battle logs retrieved");

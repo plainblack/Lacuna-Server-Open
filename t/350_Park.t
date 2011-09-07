@@ -50,7 +50,7 @@ $body->algae_stored(20000);
 $body->update;
 
 $result = $tester->post('park', 'throw_a_party', [$session_id, $building->id]);
-cmp_ok($result->{result}{seconds_remaining}, '>', 0, "timer is started");
+cmp_ok($result->{result}{party}{seconds_remaining}, '>', 0, "timer is started");
 $result = $tester->post('park', 'view', [$session_id, $building->id]);
 cmp_ok($result->{result}{status}{planets}[0]{food_stored}, '<', 20_000, "food gets spent");
 my $happy = $result->{result}{status}{planets}[0]{happiness};

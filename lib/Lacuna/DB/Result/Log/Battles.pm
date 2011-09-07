@@ -23,7 +23,7 @@ __PACKAGE__->add_columns(
 
 after 'sqlt_deploy_hook' => sub {
     my ($self, $sqlt_table) = @_;
-    $sqlt_table->add_index(name => 'idx_datestamp', fields => ['datestamp']);
+    $sqlt_table->add_index(name => 'idx_datestamp', fields => ['date_stamp']);
     $sqlt_table->add_index(name => 'idx_attacking_empire_id', fields => ['attacking_empire_id']);
     $sqlt_table->add_index(name => 'idx_attacking_empire_name', fields => ['attacking_empire_name']);
     $sqlt_table->add_index(name => 'idx_attacking_body_id', fields => ['attacking_body_id']);
