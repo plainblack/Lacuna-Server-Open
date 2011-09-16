@@ -5,6 +5,8 @@ use Data::Dumper;
 use 5.010;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
 
@@ -25,5 +27,5 @@ is($result->{result}{profile}{leader_id}, 1, 'can search');
 
 END {
     $alliances->delete;
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

@@ -5,6 +5,8 @@ use Data::Dumper;
 use 5.010;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
@@ -46,5 +48,5 @@ $result = $tester->post('development', 'subsidize_build_queue', [$session_id, $i
 ok($result->{result}{essentia_spent}, 'subsidy worked');
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

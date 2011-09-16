@@ -1,11 +1,16 @@
 use lib '../lib';
-use Test::More tests => 51;
+use Test::More tests => 50;
 use Test::Deep;
 use 5.010;
+
+use strict;
+use warnings;
 
 my $result;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new;
 $tester->cleanup;
 
@@ -20,6 +25,7 @@ my $empire = {
     captcha_guid    => '1111',
     captcha_solution=> '1111',
 };
+my $e2;
 
 Lacuna->cache->set('create_empire_captcha', '127.0.0.1', { guid => 1111, solution => 1111 }, 60 * 15 );
 
@@ -206,12 +212,12 @@ $result = $tester->post('empire', 'login', [$tester->empire_name, 'testsitter','
 ok(exists $result->{result}{session_id}, 'login with sitter password');
 
 my %empire2 = %{$empire};
-$empire2{name} = 'essentia code';
+$empire2{name} = 'TLE Test essentia code';
 $empire2{email} = 'test@example.com';
 $result = $tester->post('empire', 'create', \%empire2);
 $empire2{id} = $result->{result};
 $result = $tester->post('empire', 'found', [$empire2{id},'Anonymous']);
-my $e2 = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire2{id});
+$e2 = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire2{id});
 $e2->add_essentia(200, 'test')->update;
 my $session2 = $result->{result}{session_id};
 $result = $tester->post('empire', 'get_status', [$session2]);
@@ -226,12 +232,10 @@ $result = $tester->post('empire','view_species_stats',[$session2]);
 is($result->{result}{species}{name}, 'The BORGinator', 'get renamed species name');
 is($result->{result}{status}{empire}{essentia}, '100.0', 'essentia spent');
 
-$e2->discard_changes->delete;
-my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search({description=>'essentia code deleted'},{rows=>1})->single;
-is($result->{result}{status}{empire}{essentia}, $code->amount, 'you get a proper essentia code');
+# as far as I can tell, we don't create an EssentiaCode in this test.
+#my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search({description=>'essentia code deleted'},{rows=>1})->single;
+#is($result->{result}{status}{empire}{essentia}, $code->amount, 'you get a proper essentia code');
 
 END {
-    $tester->cleanup;
-    Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->delete;
-    Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => 'essentia code'})->delete;
+    TestHelper->clear_all_test_empires;
 }

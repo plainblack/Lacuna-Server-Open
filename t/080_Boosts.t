@@ -5,6 +5,8 @@ use Data::Dumper;
 use 5.010;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
@@ -26,5 +28,5 @@ my $unboost_message_recieved = $empire->received_messages->search({ subject => {
 ok($unboost_message_recieved, 'unboost message received');
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

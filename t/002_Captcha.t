@@ -3,6 +3,8 @@ use Test::More tests => 5;
 use 5.010;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire;
 $tester->cleanup; 
 
@@ -26,5 +28,5 @@ is( $result->{result}, 1, 'Solved captcha' );
 ok ( eval {$tester->session->check_captcha } , 'Captcha is valid' );
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

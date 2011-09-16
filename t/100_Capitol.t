@@ -6,10 +6,10 @@ use 5.010;
 
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
-
-
 
 my $result;
 
@@ -30,12 +30,12 @@ $result = $tester->post('capitol', 'rename_empire', [$session_id, $capitol->id, 
 is($result->{error}{code}, 1000, "rename to an existing name errors out");
 
 
-$result = $tester->post('capitol', 'rename_empire', [$session_id, $capitol->id, 'New Name']);
+$result = $tester->post('capitol', 'rename_empire', [$session_id, $capitol->id, 'TLE Test New Name']);
 is($result->{result}{status}{empire}{essentia}, 1, "essentia spent");
-is($result->{result}{status}{empire}{name}, 'New Name', "name changed");
+is($result->{result}{status}{empire}{name}, 'TLE Test New Name', "name changed");
 
 
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

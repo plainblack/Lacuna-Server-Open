@@ -6,6 +6,8 @@ use 5.010;
 use DateTime;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
@@ -33,7 +35,7 @@ ok($cache->get('high_vote_empire'.$zone, $ymd), 'high_vote_empire gets set');
 
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
     $cache->set('high_vote'.$zone, $ymd);
     $cache->set('high_vote_empire'.$zone, $ymd);
 }

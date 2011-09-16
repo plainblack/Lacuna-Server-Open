@@ -6,14 +6,14 @@ use 5.010;
 use DateTime;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
 
-
 my $result;
-
 
 my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
@@ -56,8 +56,6 @@ is($result->{result}{restrict_coverage}, 1, "coverage restricted");
 $result = $tester->post('network19', 'view_news', [$session_id, $network19->id]);
 cmp_ok(scalar(@{$result->{result}{news}}), '>', 0, "view news");
 
-
-
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

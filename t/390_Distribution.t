@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -23,7 +23,7 @@ $home->update;
 $result = $tester->post('distributioncenter', 'reserve', [$session_id, $building->id, [
     {
         type => 'water',
-        quantity    => 1000,
+        quantity    => 10000,
     },
 ]]);
 
@@ -32,21 +32,25 @@ is($result->{error}{code}, 1009, "can't reserve resources you don't have");
 $result = $tester->post('distributioncenter', 'release_reserve', [$session_id, $building->id]);
 is($result->{error}{code}, 1010, "can't release with nothing in reserve");
 
-$home->water_stored(2000);
+$home->water_stored(20000);
 $home->update;
 
 $result = $tester->post('distributioncenter', 'reserve', [$session_id, $building->id, [
     {
         type => 'water',
-        quantity    => 1000,
+        quantity    => 10000,
     },
 ]]);
 is($result->{result}{reserve}{resources}[0]{type}, 'water', "correct resource reserved");
-is($result->{result}{reserve}{resources}[0]{quantity}, 1000, "correct amount reserved");
-is($result->{result}{status}{body}{water_stored}, 1000, "resources removed from planet");
+is($result->{result}{reserve}{resources}[0]{quantity}, 10000, "correct amount reserved");
+# Because the PCC is running, producing resources while the test is running, then the numbers are slightly out
+# expect a small positive excess (caused by production in the mean time)
+cmp_ok($result->{result}{status}{body}{water_stored}, '<', 10500, "resources removed from planet");
 
 $result = $tester->post('distributioncenter', 'release_reserve', [$session_id, $building->id]);
-is($result->{result}{status}{body}{water_stored}, 2000, "resources added to planet");
+my $resources_stored = $result->{result}{status}{body}{water_stored};
+cmp_ok($resources_stored, '>', 20000, "resources added to planet");
+cmp_ok($resources_stored, '<', 20500, "not too many resources added to planet");
 
 END {
     $tester->cleanup;

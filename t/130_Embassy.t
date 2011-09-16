@@ -6,6 +6,8 @@ use 5.010;
 use DateTime;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
@@ -60,8 +62,6 @@ is(ref$result->{result}{stash}, 'HASH', 'view_stash');
 $result = $tester->post('embassy', 'dissolve_alliance', [$session_id, $embassy->id]);
 ok(exists $result->{result}, 'dissolve alliance');
 
-
-
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

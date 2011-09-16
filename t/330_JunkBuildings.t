@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 15;
+use Test::More tests => 25;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -39,7 +39,6 @@ for my $build ( @builds ) {
 
 	$result = $tester->post('body', 'get_status', [$session_id, $home_planet]);
 	my $starting_waste = $result->{result}{body}{waste_stored};
-
 	$result = $tester->post('body', 'get_buildable', [$session_id, $home_planet, $build->{x}, $build->{y}, 'Waste']);
 	my $cost_to_build = $result->{result}{buildable}{$build->{name}}{build}{cost}{waste};
 	my $orig_cost = $cost_to_build / $construction_cost_reduction_bonus;
@@ -52,15 +51,24 @@ for my $build ( @builds ) {
 	$result = $tester->post('body', 'get_status', [$session_id, $home_planet]);
 	my $last_waste = $result->{result}{body}{waste_stored};
 
+	is($last_waste, $amount, 'Correct waste is stored.');
 	$result = $tester->post($build->{type}, 'build', [$session_id, $home_planet, $build->{x} + 1, $build->{y}]);
 	$build->{building} = $db->resultset('Lacuna::DB::Result::Building')->find($result->{result}{building}{id});
+
+        my $final_waste = $result->{result}{status}{body}{waste_stored};
+        is($final_waste, 0, "No waste left after build 1.");
+
 	$build->{building}->finish_upgrade;
 
 	$result = $tester->post('body', 'get_status', [$session_id, $home_planet]);
 	my $final_waste = $result->{result}{body}{waste_stored};
 	cmp_ok($last_waste, '>', $final_waste, 'Waste is being spent.');
 
-	is($final_waste, 0, "No waste left");
+        # Note, this cannot be zero, because waste is produced in the time the script takes to run
+        # so the final_waste will be a small positive value
+	diag("FINAL WASTE is $final_waste");
+#	is($final_waste, 0, "No waste left 3");
+        cmp_ok($final_waste, '<', 20, 'Waste is a small value.');
 }
 
 END {

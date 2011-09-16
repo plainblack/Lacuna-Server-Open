@@ -7,6 +7,7 @@ use DateTime::Format::Strptime;
 
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
 my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
 
@@ -216,5 +217,5 @@ $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
 is($result->{result}{building}{level}, 5, 'Finished building is level 5');
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

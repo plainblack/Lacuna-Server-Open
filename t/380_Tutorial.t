@@ -7,6 +7,7 @@ use 5.010;
 
 use TestHelper;
 my $tester = TestHelper->new->generate_test_empire;
+
 my $session_id = $tester->session->id;
 
 my $empire = $tester->empire;
@@ -18,45 +19,47 @@ is($tutorial->finish, 0, 'look at ui - not yet complete');
 $home->name(rand(1000000));
 is($tutorial->finish, 1, 'look at ui');
 
-
+is($empire->tutorial_stage, 'get_food', 'get_food');
 my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-    x               => 0,
-    y               => 1,
+    x               => -5,
+    y               => -5,
     class           => 'Lacuna::DB::Result::Building::Food::Malcud',
 });
 $home->build_building($building);
 $building->finish_upgrade;
-is($empire->tutorial_stage, 'drinking_water', 'get food');
-
+$home->tick;
+is($empire->tutorial_stage, 'drinking_water', 'drinking water');
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-    x               => 0,
-    y               => 3,
+    x               => -4,
+    y               => -5,
     class           => 'Lacuna::DB::Result::Building::Water::Purification',
 });
 $home->build_building($building);
 $building->finish_upgrade;
-is($empire->tutorial_stage, 'keep_the_lights_on', 'drinking water');
-
+$home->tick;
+is($empire->tutorial_stage, 'keep_the_lights_on', 'keep the lights on');
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-    x               => 0,
-    y               => 2,
+    x               => -3,
+    y               => -5,
     class           => 'Lacuna::DB::Result::Building::Energy::Geo',
 });
 $home->build_building($building);
 $building->finish_upgrade;
-is($empire->tutorial_stage, 'mine', 'keep the lights on');
+$home->tick;
+is($empire->tutorial_stage, 'mine', 'mine');
 
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-    x               => 0,
-    y               => 4,
+    x               => -2,
+    y               => -5,
     class           => 'Lacuna::DB::Result::Building::Ore::Mine',
 });
 $home->build_building($building);
 $building->finish_upgrade;
-is($empire->tutorial_stage, 'more_resources', 'mine');
+$home->tick;
+is($empire->tutorial_stage, 'more_resources', 'more resources');
 
 
 $building = $home->command;
@@ -64,17 +67,29 @@ $building->start_upgrade;
 $building->level( $building->level + 1 ); # extra upgrade level
 $building->finish_upgrade;
 $home->tick;
-is($tutorial->finish, 1, 'more_resources');
-
+is($empire->tutorial_stage,'university', 'university');
 
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-    x               => 0,
-    y               => 5,
+    x               => -1,
+    y               => -5,
     class           => 'Lacuna::DB::Result::Building::University',
 });
 $home->build_building($building);
 $building->finish_upgrade;
+$home->tick;
+is($empire->tutorial_stage, 'mission_command', 'mission_command');
+$building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+    x               => -1, 
+    y               => -5, 
+    class           => 'Lacuna::DB::Result::Building::MissionCommand',
+});
+$home->build_building($building);
+$building->finish_upgrade;
+$home->tick;
+
+
+
 is($empire->tutorial_stage, 'storage', 'university');
 
 
@@ -85,6 +100,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
+$home->tick;
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => -4,
@@ -92,6 +108,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
+$home->tick;
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => -3,
@@ -99,6 +116,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
+$home->tick;
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
     y               => -2,
@@ -106,6 +124,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
+$home->tick;
 is($empire->tutorial_stage, 'fool', 'storage');
 
 
@@ -118,7 +137,6 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 $home->build_building($building);
 $building->finish_upgrade;
 $home->tick;
-is($tutorial->finish, 1, 'fool');
 
 my $future = DateTime->now->add(hours=>1);
 $empire->food_boost($future);
@@ -126,8 +144,6 @@ $empire->water_boost($future);
 $empire->energy_boost($future);
 $empire->ore_boost($future);
 $home->tick;
-is($tutorial->finish, 1, 'essentia');
-
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 1,
@@ -149,6 +165,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
+$home->tick;
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 1,
     y               => -3,
@@ -169,6 +186,7 @@ $building =Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
+$home->tick;
 is($empire->tutorial_stage, 'rogue', 'news');
 
 
@@ -183,6 +201,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
+$home->tick;
 is($empire->tutorial_stage, 'shipyard', 'spaceport');
 
 
@@ -193,6 +212,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
+$home->tick;
 is($empire->tutorial_stage, 'pawn', 'shipyard');
 
 
@@ -204,6 +224,7 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 $home->build_building($building);
 $building->level( $building->level + 1 ); # extra upgrade level
 $building->finish_upgrade;
+$home->tick;
 is($empire->tutorial_stage, 'counter_spy', 'intelligence');
 
 $building->train_spy;
@@ -216,6 +237,8 @@ foreach (1..2) {
     $spy->task('Idle');
     $spy->assign('Counter Espionage');
 }
+$home->tick;
+
 is($empire->tutorial_stage, 'observatory', 'counter spy');
 
 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -225,9 +248,12 @@ $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($building);
 $building->finish_upgrade;
+$home->tick;
 is($empire->tutorial_stage, 'explore', 'observatory');
 
 $empire->add_probe($home->star_id, $home->id);
+$home->tick;
+
 is($empire->tutorial_stage, 'the_end', 'explore');
 is($tutorial->finish, 1, 'the_end');
 is($tutorial->finish, 1, 'turing');

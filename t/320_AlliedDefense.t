@@ -13,12 +13,13 @@ my @testers = (
 );
 
 my @asteroids = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
-	{ zone => $testers[0]->empire->home_planet->zone, size => {'>' => 9}, class => { like => 'Lacuna::DB::Result::Map::Body::Asteroid%' } },
+	{ zone => $testers[0]->empire->home_planet->zone, size => 10, class => { like => 'Lacuna::DB::Result::Map::Body::Asteroid%' } },
 )->all();
 
 my @planets = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
 	{ zone => $testers[0]->empire->home_planet->zone, orbit => 3, class => { like => 'Lacuna::DB::Result::Map::Body::Planet::P%'} },
 )->all();
+
 
 my $result;
 
@@ -34,11 +35,11 @@ for my $tester ( @testers ) {
 	is($result->{result}, 1, 'Solved captcha');
 
 	my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-		x               => 0,
-		y               => -1,
-		class           => 'Lacuna::DB::Result::Building::University',
-		level           => 20,
-	});
+			x               => -5,
+			y               => 5,
+			class           => 'Lacuna::DB::Result::Building::University',
+			level           => 10,
+			});
 	$home->build_building($uni);
 	$uni->finish_upgrade;
 
@@ -62,59 +63,59 @@ for my $tester ( @testers ) {
 	$empire->update;
 
 	my $spaceport = Lacuna::db->resultset('Lacuna::DB::Result::Building')->new({
-		x		=> 0,
-		y		=> 1,
-		class	=> 'Lacuna::DB::Result::Building::SpacePort',
-		level	=> 20,
-	});
+			x		=> -4,
+			y		=> 5,
+			class	=> 'Lacuna::DB::Result::Building::SpacePort',
+			level	=> 10,
+			});
 	$home->build_building($spaceport);
 	$spaceport->finish_upgrade;
 	$tester->{spaceport_id} = $spaceport->id;
 
 	my $shipyard = Lacuna::db->resultset('Lacuna::DB::Result::Building')->new({
-        x       => 0,
-        y       => 2,
-        class   => 'Lacuna::DB::Result::Building::Shipyard',
-        level   => 20,
-    });
-    $home->build_building($shipyard);
-    $shipyard->finish_upgrade;
+			x       => -3,
+			y       => 5,
+			class   => 'Lacuna::DB::Result::Building::Shipyard',
+			level   => 10,
+			});
+	$home->build_building($shipyard);
+	$shipyard->finish_upgrade;
 
 	my $miningmin = Lacuna::db->resultset('Lacuna::DB::Result::Building')->new({
-        x       => 0,
-        y       => 3,
-        class   => 'Lacuna::DB::Result::Building::Ore::Ministry',
-        level   => 20,
-    });
-    $home->build_building($miningmin);
-    $miningmin->finish_upgrade;
+			x       => -2,
+			y       => 5,
+			class   => 'Lacuna::DB::Result::Building::Ore::Ministry',
+			level   => 10,
+			});
+	$home->build_building($miningmin);
+	$miningmin->finish_upgrade;
 
-    my $munitions = Lacuna::db->resultset('Lacuna::DB::Result::Building')->new({
-        x       => 0,
-        y       => 4,
-        class   => 'Lacuna::DB::Result::Building::MunitionsLab',
-        level   => 20,
-    });
-    $home->build_building($munitions);
-    $munitions->finish_upgrade;
+	my $munitions = Lacuna::db->resultset('Lacuna::DB::Result::Building')->new({
+			x       => -1,
+			y       => 5,
+			class   => 'Lacuna::DB::Result::Building::MunitionsLab',
+			level   => 10,
+			});
+	$home->build_building($munitions);
+	$munitions->finish_upgrade;
 
-    my $observatory = Lacuna::db->resultset('Lacuna::DB::Result::Building')->new({
-        x       => 0,
-        y       => 4,
-        class   => 'Lacuna::DB::Result::Building::Observatory',
-        level   => 20,
-    });
-    $home->build_building($observatory);
-    $observatory->finish_upgrade;
+	my $observatory = Lacuna::db->resultset('Lacuna::DB::Result::Building')->new({
+			x       => 0,
+			y       => 5,
+			class   => 'Lacuna::DB::Result::Building::Observatory',
+			level   => 10,
+			});
+	$home->build_building($observatory);
+	$observatory->finish_upgrade;
 
-    my $saw = Lacuna::db->resultset('Lacuna::DB::Result::Building')->new({
-        x       => 0,
-        y       => 5,
-        class   => 'Lacuna::DB::Result::Building::SAW',
-        level   => 20,
-    });
-    $home->build_building($saw);
-    $saw->finish_upgrade;
+	my $saw = Lacuna::db->resultset('Lacuna::DB::Result::Building')->new({
+			x       => 1,
+			y       => 5,
+			class   => 'Lacuna::DB::Result::Building::SAW',
+			level   => 10,
+			});
+	$home->build_building($saw);
+	$saw->finish_upgrade;
 
 	my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>'probe'});
 	$shipyard->build_ship($probe);
@@ -333,8 +334,8 @@ for my $i ( 0 .. 1 ) {
 	for my $ship ( @{ $result->{result}{ships} } ) {
 		$ships{$ship->{type}}++;
 	}
-	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Ship Shot Down\r\n~~~\r\nOur Sweep", 'Sweeper shot down' );
-	is( $ships{sweeper}, 1, 'One sweeper left' );
+	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Target Neutralized", 'Target neutralazed' );
+	is( $ships{sweeper}, 2, 'Two sweepers left' );
 
 	# Send a fighter to enemy asteroid
 	my $fighter3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'fighter', task=>'Docked'},{rows=>1})->single;
@@ -451,6 +452,6 @@ diag explain $result->{result}{battle_log};
 }
 
 END {
-    $testers[1]->cleanup;
-    $testers[0]->cleanup;
+#    $testers[1]->cleanup;
+#    $testers[0]->cleanup;
 }

@@ -40,7 +40,7 @@ grant all privileges on lacuna.* to lacuna@localhost identified by 'somepassword
 flush privileges;
 exit;
 
-cd bin
+cd bin/setup
 perl init_lacuna.pl
 mysql -uroot -pyourrootpassword lacuna < ../var/captcha.sql
 

@@ -6,7 +6,10 @@ use 5.010;
 use DateTime;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
+
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
@@ -94,7 +97,7 @@ for my $count ( 1 .. 5 ) {
     })->insert;
 }
 
-my $enemy = TestHelper->new(empire_name => 'Enemy')->generate_test_empire->build_infrastructure;
+my $enemy = TestHelper->new(empire_name => 'TLE Test Enemy')->generate_test_empire->build_infrastructure;
 $enemy->empire->is_isolationist(0);
 $enemy->empire->update;
 
@@ -108,5 +111,5 @@ $result = $tester->post('spaceport', 'send_spies', [$session_id, $home->id, $ene
 ok($result->{result}{ship}{date_arrives}, "spy pod sent");
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

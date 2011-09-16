@@ -721,6 +721,9 @@ has count_probed_stars => (
 
 before delete => sub {
     my ($self) = @_;
+
+    $self->discard_changes;
+
     $self->votes->delete_all;
     $self->taxes->delete_all;
     $self->propositions->delete_all;

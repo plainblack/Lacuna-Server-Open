@@ -6,6 +6,8 @@ use 5.010;
 
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
 
@@ -63,7 +65,6 @@ is($result->{result}{success}[0], $archive_id, 'trashing a archived message work
 $result = $tester->post('inbox','send_message', [$session_id, $tester->empire_name, 'my subject', "foo\n\nbar"]);
 is($result->{result}{message}{sent}[0], $tester->empire_name, 'you can send a message with double carriage return');
 
-
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

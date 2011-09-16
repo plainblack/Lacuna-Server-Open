@@ -6,6 +6,8 @@ use 5.010;
 
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
 my $home_planet = $tester->empire->home_planet;
@@ -31,5 +33,5 @@ is($result->{result}{incoming_probe}, 0, 'gcheck_star_for_incoming_probe');
 
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

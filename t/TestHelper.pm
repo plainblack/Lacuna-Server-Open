@@ -36,8 +36,31 @@ has session => (
     is => 'rw',
 );
 
+sub clear_all_test_empires {
+    my ($class, $name) = @_;
+
+    $name = 'TLE Test%' unless $name;
+
+    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({
+        name => {like => $name},
+    });
+    while (my $empire = $empires->next) {
+        $empire->delete;
+    }
+}
+
+
 sub generate_test_empire {
     my $self = shift;
+    # Make sure no other test empires are still around
+    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({
+        name                => $self->empire_name,
+    });
+    while (my $empire = $empires->next) {
+        $empire->delete;
+    }
+
+
     my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new({
         name                => $self->empire_name,
         date_created        => DateTime->now,
@@ -63,14 +86,20 @@ sub get_building {
 sub build_infrastructure {
     my $self = shift;
     my $home = $self->empire->home_planet;
+    my $x = -5;
+    my $y = -5;
     foreach my $type ('Lacuna::DB::Result::Building::Food::Algae','Lacuna::DB::Result::Building::Energy::Hydrocarbon',
         'Lacuna::DB::Result::Building::Water::Purification','Lacuna::DB::Result::Building::Ore::Mine') {
         my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-            x               => -5,
-            y               => -5,
+            x               => $x,
+            y               => $y,
             class           => $type,
-            level           => 10,
+            level           => 20,
         });
+        if (++$x == 6) {
+            $x = -5;
+            $y++;
+        }
         $home->build_building($building);
         $building->finish_upgrade;
     }
@@ -80,11 +109,15 @@ sub build_infrastructure {
         'Lacuna::DB::Result::Building::Food::Reserve','Lacuna::DB::Result::Building::Ore::Storage',
         'Lacuna::DB::Result::Building::Water::Storage') {
         my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-            x               => -5,
-            y               => -5,
+            x               => $x,
+            y               => $y,
             class           => $type,
-            level           => 5,
+            level           => 20,
         });
+        if (++$x == 6) {
+            $x = -5;
+            $y++;
+        }
         $home->build_building($building);
         $building->finish_upgrade;
     }
@@ -121,9 +154,7 @@ sub cleanup {
     my $self = shift;
     my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$self->empire_name});
     while (my $empire = $empires->next) {
-        say "Found a test empire.";
         $empire->delete;
-        say "Deleted it.";
     }
 }
 

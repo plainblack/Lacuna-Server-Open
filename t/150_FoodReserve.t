@@ -5,6 +5,8 @@ use Data::Dumper;
 use 5.010;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
@@ -42,7 +44,6 @@ $result = $tester->post('foodreserve', 'view', [$session_id, $building_id]);
 
 cmp_ok($result->{result}{food_stored}{algae}, '>', 0, "got food storage");
 
-
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

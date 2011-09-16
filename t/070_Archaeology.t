@@ -6,6 +6,8 @@ use 5.010;
 use DateTime;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
@@ -23,10 +25,10 @@ my $odds = $arch->chance_of_glyph;
 is ($arch->level, 10, 'level is set to 10');
 is($odds, 10, 'odds calculated correctly');
 my $successes = 0;
-foreach (1..1000) {
+foreach (1..10000) {
     $successes++ if ($arch->is_glyph_found);
 }
-my $average = $successes / 10;
+my $average = $successes / 100;
 cmp_ok($average, '>=', $odds - 1, 'real life within lower limit of odds');
 cmp_ok($average, '<=', $odds + 1, 'real life within upper limit of odds');
 
@@ -63,5 +65,5 @@ ok(exists $result->{result}, 'can assemble glyphs into a plan');
 
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

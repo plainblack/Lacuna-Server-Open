@@ -5,6 +5,8 @@ use Data::Dumper;
 use 5.010;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = eval{TestHelper->new->generate_test_empire};
 if ($@) {
 die $@->[1];
@@ -55,5 +57,5 @@ $result = $tester->post('body', 'get_buildable', [$session_id, $home_planet, 3, 
 cmp_ok($result->{result}{buildable}{'Waste Energy Plant'}{production}{happiness_hour}, '>=', 0, 'no negative happiness from waste buildings');
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

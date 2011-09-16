@@ -6,6 +6,8 @@ use 5.010;
 use DateTime;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
@@ -25,8 +27,6 @@ ok(exists $result->{result}, 'can call get_missions');
 $result = $tester->post('missioncommand', 'complete_mission', [$session_id, $mc->id, 'noexistid']);
 is($result->{error}{code}, 1002, 'can call complete_mission');
 
-
-
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }
