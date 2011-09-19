@@ -6,27 +6,31 @@ use 5.010;
 use DateTime;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
+
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
 
 my $result;
 
-$home->ore_hour(50000);
-$home->water_hour(50000);
-$home->energy_hour(50000);
-$home->algae_production_hour(50000);
-$home->ore_capacity(50000);
-$home->energy_capacity(50000);
-$home->food_capacity(50000);
-$home->water_capacity(50000);
-$home->bauxite_stored(50000);
-$home->algae_stored(50000);
-$home->energy_stored(50000);
-$home->water_stored(50000);
+$home->ore_hour(500000);
+$home->water_hour(500000);
+$home->energy_hour(500000);
+$home->algae_production_hour(500000);
+$home->ore_capacity(500000);
+$home->energy_capacity(500000);
+$home->food_capacity(500000);
+$home->water_capacity(500000);
+$home->bauxite_stored(500000);
+$home->algae_stored(500000);
+$home->energy_stored(500000);
+$home->water_stored(500000);
 $home->needs_recalc(0);
 $home->update;
+$home->tick;
 
 $result = $tester->post('spaceport', 'build', [$session_id, $home->id, 0, 1]);
 my $spaceport = $tester->get_building($result->{result}{building}{id});
@@ -70,5 +74,5 @@ is($result->{result}{docked_ships}{probe}, 1, "we have one probe left");
 
 
 END {
-    $tester->cleanup;
+    TestEmpire->clear_all_test_empires;
 }

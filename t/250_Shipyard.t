@@ -6,12 +6,13 @@ use 5.010;
 use DateTime;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
 my $command = $home->command;
-
 
 my $result;
 
@@ -42,5 +43,5 @@ foreach my $resource (@resources) {
 }
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

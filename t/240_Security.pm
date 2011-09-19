@@ -6,14 +6,14 @@ use 5.010;
 use DateTime;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
 
-
 my $result;
-
 
 my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
@@ -74,5 +74,5 @@ is(scalar(@{$result->{result}{prisoners}}), 1, "view prisoners");
 
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

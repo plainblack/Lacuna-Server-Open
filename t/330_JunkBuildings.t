@@ -5,6 +5,8 @@ use Data::Dumper;
 use 5.010;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $session_id = $tester->session->id;
 diag("session id: $session_id");
@@ -75,6 +77,6 @@ END {
 	for my $build ( @builds ) {
 		$build->{building}->delete;
 	}
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }
 

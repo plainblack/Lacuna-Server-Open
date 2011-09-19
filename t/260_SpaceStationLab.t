@@ -7,6 +7,8 @@ use DateTime;
 use Lacuna::Constants qw(ORE_TYPES);
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
@@ -72,5 +74,5 @@ ok(!exists $result->{result}{make_plan}{making}, 'subsidize making plan');
 
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

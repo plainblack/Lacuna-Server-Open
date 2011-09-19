@@ -6,6 +6,8 @@ use 5.010;
 use DateTime;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
@@ -80,7 +82,7 @@ Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id=>$shipya
 
 $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
 
-my $enemy = TestHelper->new(empire_name => 'Enemy')->generate_test_empire->build_infrastructure;
+my $enemy = TestHelper->new(empire_name => 'TLE Test Enemy')->generate_test_empire->build_infrastructure;
 $enemy->empire->is_isolationist(0);
 $enemy->empire->update;
 
@@ -140,6 +142,5 @@ is(scalar @{$result->{result}{fleet}}, 2, 'fleet sent');
 is($scow4->body->waste_stored, 3983, 'correct waste removed');
 
 END {
-	$enemy->cleanup;
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

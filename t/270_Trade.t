@@ -6,6 +6,8 @@ use 5.010;
 use DateTime;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
@@ -63,5 +65,5 @@ is(scalar @{$result->{result}{trades}}, 0, 'can call view_my_market');
 
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

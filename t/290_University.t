@@ -5,6 +5,8 @@ use Data::Dumper;
 use 5.010;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $db = Lacuna->db;
 my $session_id = $tester->session->id;
@@ -41,5 +43,5 @@ for my $level (7..10) {
 }
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

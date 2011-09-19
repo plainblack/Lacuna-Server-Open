@@ -36,6 +36,16 @@ has session => (
     is => 'rw',
 );
 
+has x => (
+    is => 'rw',
+    default => -5,
+);
+
+has y => (
+    is => 'rw',
+    default => -5,
+);
+
 sub clear_all_test_empires {
     my ($class, $name) = @_;
 
@@ -83,23 +93,45 @@ sub get_building {
     return $building;
 }
 
+sub find_empty_plot {
+     my ($self) = @_;
+
+     my $home = $self->empire->home_planet;
+
+     # Ensure we only build on an empty plot
+     EXISTING_BUILDING:
+     while (1) {
+          my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
+               x       => $self->x,
+               y       => $self->y,
+               body_id => $home->id,
+          });
+
+          last EXISTING_BUILDING if $building == 0;
+          $self->x($self->x + 1);
+          if ($self->x == 6) {
+               $self->x(-5);
+               $self->y($self->y + 1);
+          }
+     }
+}
+
+
 sub build_infrastructure {
     my $self = shift;
     my $home = $self->empire->home_planet;
-    my $x = -5;
-    my $y = -5;
     foreach my $type ('Lacuna::DB::Result::Building::Food::Algae','Lacuna::DB::Result::Building::Energy::Hydrocarbon',
         'Lacuna::DB::Result::Building::Water::Purification','Lacuna::DB::Result::Building::Ore::Mine') {
+
+        # Ensure we only build on an empty plot
+        $self->find_empty_plot;
+
         my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-            x               => $x,
-            y               => $y,
+            x               => $self->x,
+            y               => $self->y,
             class           => $type,
             level           => 20,
         });
-        if (++$x == 6) {
-            $x = -5;
-            $y++;
-        }
         $home->build_building($building);
         $building->finish_upgrade;
     }
@@ -108,16 +140,14 @@ sub build_infrastructure {
     foreach my $type ('Lacuna::DB::Result::Building::Energy::Reserve',
         'Lacuna::DB::Result::Building::Food::Reserve','Lacuna::DB::Result::Building::Ore::Storage',
         'Lacuna::DB::Result::Building::Water::Storage') {
+        $self->find_empty_plot;
+
         my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-            x               => $x,
-            y               => $y,
+            x               => $self->x,
+            y               => $self->y,
             class           => $type,
             level           => 20,
         });
-        if (++$x == 6) {
-            $x = -5;
-            $y++;
-        }
         $home->build_building($building);
         $building->finish_upgrade;
     }

@@ -5,6 +5,8 @@ use Data::Dumper;
 use 5.010;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $db = Lacuna->db;
 my $empire = $tester->empire;
@@ -53,5 +55,5 @@ cmp_ok($resources_stored, '>', 20000, "resources added to planet");
 cmp_ok($resources_stored, '<', 20500, "not too many resources added to planet");
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

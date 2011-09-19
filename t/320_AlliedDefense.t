@@ -5,11 +5,11 @@ use DateTime;
 use Math::Complex; # used for asteroid and planet selection
 
 use TestHelper;
-TestHelper->new->cleanup;
+Helper->clear_all_test_empires;
 
 my @testers = ( 
 	TestHelper->new->generate_test_empire->build_infrastructure,
-	TestHelper->new(empire_name => 'Enemy')->generate_test_empire->build_infrastructure,
+	TestHelper->new(empire_name => 'TLE Test Enemy')->generate_test_empire->build_infrastructure,
 );
 
 my @asteroids = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
@@ -334,8 +334,8 @@ for my $i ( 0 .. 1 ) {
 	for my $ship ( @{ $result->{result}{ships} } ) {
 		$ships{$ship->{type}}++;
 	}
-	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Target Neutralized", 'Target neutralazed' );
-	is( $ships{sweeper}, 2, 'Two sweepers left' );
+	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Ship Shot Down", 'Ship shot down' );
+	is( $ships{sweeper}, 1, 'One sweeper left' );
 
 	# Send a fighter to enemy asteroid
 	my $fighter3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'fighter', task=>'Docked'},{rows=>1})->single;
@@ -382,11 +382,9 @@ for my $i ( 0 .. 1 ) {
 	my $stake = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'stake'},{rows=>1})->single;
 	diag "Sending ship ", $stake->id, " type ", $stake->type, " to ", $planet->{x}, ",", $planet->{y};
 	$result = $tester->post('spaceport', 'send_ship', [$tester{session_id}, $stake->id, {x=>$planet->{x},y=>$planet->{y}}]);
-	diag "Stake arrives ", $result->{result}{ship}{date_arrives};
-	ok($result->{result}{ship}{date_arrives}, "stake sent");
-	$stake = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$stake->id},{rows=>1})->single; # pull the latest data on this ship
-	$stake->arrive;
-
+        # Cannot send a stake to an inhabited planet	
+        is($result->{error}{code}, 1013, "Cannot send stake to inhabited planet");
+ 
 	$result = $tester->post('spaceport', 'view', [$tester{session_id}, $tester->{spaceport_id}]);
 	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Ship Shot Down", 'Stake shot down' );
 
@@ -452,6 +450,5 @@ diag explain $result->{result}{battle_log};
 }
 
 END {
-#    $testers[1]->cleanup;
-#    $testers[0]->cleanup;
+    TestHelper->clear_all_test_empires;
 }

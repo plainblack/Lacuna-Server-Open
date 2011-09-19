@@ -5,6 +5,8 @@ use Data::Dumper;
 use 5.010;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
@@ -59,8 +61,6 @@ $building = $db->resultset('Lacuna::DB::Result::Building')->find($result->{resul
 $building->finish_work;
 cmp_ok($result->{result}{status}{planets}[0]{happiness}, '<', $building->body->happiness, "happiness is increased");
 
-
-
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }

@@ -7,14 +7,16 @@ use DateTime;
 use Lacuna::Constants qw(ORE_TYPES);
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
 
-my $friend = TestHelper->new(empire_name => 'Friend')->generate_test_empire->build_infrastructure;
+my $friend = TestHelper->new(empire_name => 'TLE TEST Friend 1')->generate_test_empire->build_infrastructure;
 
-my $friend2 = TestHelper->new(empire_name => 'Friend')->generate_test_empire->build_infrastructure;
+my $friend2 = TestHelper->new(empire_name => 'TLE TEST Friend 2')->generate_test_empire->build_infrastructure;
 $friend2->empire->is_isolationist(0);
 $friend2->empire->update;
 
@@ -220,8 +222,6 @@ is($props[0]->{name}, 'Abandon Station', 'abandon station proposed');
 $result = $tester->post('parliament', 'cast_vote', [$session_id, $par->id, $props[0]->{id}, 1]);
 is($result->{result}{proposition}{my_vote}, 1, 'got my vote');
 
-sleep 5;
-
 $result = $tester->post('inbox','view_inbox', [$session_id]);
 
 my @messages = sort { $b->{id} <=> $a->{id} } @{ $result->{result}{messages} };
@@ -229,7 +229,5 @@ ok($messages[0]->{subject} =~ /^Pass: Abandon Station/, 'Pass email received');
 
 END {
     $station->sanitize;
-    $friend2->cleanup;
-    $friend->cleanup;
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;    
 }

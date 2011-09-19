@@ -5,6 +5,8 @@ use Data::Dumper;
 use 5.010;
 
 use TestHelper;
+TestHelper->clear_all_test_empires;
+
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $db = Lacuna->db;
 my $empire = $tester->empire;
@@ -35,5 +37,5 @@ $building->finish_work;
 cmp_ok($building->body->water_stored, '>=', $water_stored + 5, "resources increased");
 
 END {
-    $tester->cleanup;
+    TestHelper->clear_all_test_empires;
 }
