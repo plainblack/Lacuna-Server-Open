@@ -1,5 +1,5 @@
 use lib '../lib';
-use Test::More tests => 15;
+use Test::More tests => 16;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -139,7 +139,11 @@ $scow4 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow4-
 
 $result = $tester->post('spaceport', 'send_fleet', [$session_id, [$scow3->id, $scow4->id], { star_id => $home->star_id }]);
 is(scalar @{$result->{result}{fleet}}, 2, 'fleet sent');
-is($scow4->body->waste_stored, 3983, 'correct waste removed');
+# waste removed cannot be exact, due to variation in clock tick
+cmp_ok($scow4->body->waste_stored, "<", 4000, 'correct waste removed');
+cmp_ok($scow4->body->waste_stored, ">", 3900, 'correct waste removed');
+
+#is($scow4->body->waste_stored, 3983, 'correct waste removed');
 
 END {
     TestHelper->clear_all_test_empires;

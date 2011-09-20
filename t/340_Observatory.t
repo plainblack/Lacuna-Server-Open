@@ -74,5 +74,5 @@ is($result->{result}{docked_ships}{probe}, 1, "we have one probe left");
 
 
 END {
-    TestEmpire->clear_all_test_empires;
+    TestHelper->clear_all_test_empires;
 }
