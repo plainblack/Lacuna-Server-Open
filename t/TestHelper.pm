@@ -46,6 +46,11 @@ has y => (
     default => -5,
 );
 
+has big_producer => (
+    is => 'rw',
+    default => 0,
+);
+
 sub clear_all_test_empires {
     my ($class, $name) = @_;
 
@@ -116,6 +121,22 @@ sub find_empty_plot {
      }
 }
 
+sub build_building {
+    my ($self, $class, $level) = @_;
+
+    my $home = $self->empire->home_planet;
+    $self->find_empty_plot;
+
+    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+        x               => $self->x,
+        y               => $self->y,
+        class           => $class,
+        level           => $level - 1,
+    });
+    $home->build_building($building);
+    $building->finish_upgrade;
+    return $building;
+}
 
 sub build_infrastructure {
     my $self = shift;
@@ -123,40 +144,40 @@ sub build_infrastructure {
     foreach my $type ('Lacuna::DB::Result::Building::Food::Algae','Lacuna::DB::Result::Building::Energy::Hydrocarbon',
         'Lacuna::DB::Result::Building::Water::Purification','Lacuna::DB::Result::Building::Ore::Mine') {
 
-        # Ensure we only build on an empty plot
-        $self->find_empty_plot;
-
-        my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-            x               => $self->x,
-            y               => $self->y,
-            class           => $type,
-            level           => 20,
-        });
-        $home->build_building($building);
-        $building->finish_upgrade;
+        $self->build_building($type, 20);
     }
     $home->empire->university_level(30);
     $home->empire->update;
     foreach my $type ('Lacuna::DB::Result::Building::Energy::Reserve',
         'Lacuna::DB::Result::Building::Food::Reserve','Lacuna::DB::Result::Building::Ore::Storage',
         'Lacuna::DB::Result::Building::Water::Storage') {
-        $self->find_empty_plot;
 
-        my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-            x               => $self->x,
-            y               => $self->y,
-            class           => $type,
-            level           => 20,
-        });
-        $home->build_building($building);
-        $building->finish_upgrade;
+        $self->build_building($type, 20);
+
     }
 
-    $home->algae_stored(100_000);
-    $home->bauxite_stored(100_000);
-    $home->energy_stored(100_000);
-    $home->water_stored(100_000);
-    
+    if ($self->big_producer) {
+        $home->ore_hour(50000000);
+        $home->water_hour(50000000);
+        $home->energy_hour(50000000);
+        $home->algae_production_hour(50000000);
+        $home->ore_capacity(50000000);
+        $home->energy_capacity(50000000);
+        $home->food_capacity(50000000);
+        $home->water_capacity(50000000);
+        $home->bauxite_stored(50000000);
+        $home->algae_stored(50000000);
+        $home->energy_stored(50000000);
+        $home->water_stored(50000000);
+        $home->add_happiness(50000000);
+    }
+    else {
+        $home->algae_stored(100_000);
+        $home->bauxite_stored(100_000);
+        $home->energy_stored(100_000);
+        $home->water_stored(100_000);
+    }
+
     $home->tick;
     return $self;
 }

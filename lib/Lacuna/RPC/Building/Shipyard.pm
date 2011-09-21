@@ -27,6 +27,7 @@ sub view_build_queue {
         );
     while (my $ship = $ships->next) {
         push @building, {
+            id              => $ship->id,
             type            => $ship->type,
             type_human      => $ship->type_formatted,
             date_completed  => $ship->date_available_formatted,
