@@ -170,6 +170,7 @@ sub build_infrastructure {
         $home->energy_stored(50000000);
         $home->water_stored(50000000);
         $home->add_happiness(50000000);
+        $home->monazite_stored(5000000);
     }
     else {
         $home->algae_stored(100_000);

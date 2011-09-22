@@ -51,6 +51,14 @@ use constant water_consumption => 20;
 
 use constant waste_production => 15;
 
+after finish_upgrade => sub {
+    my $self = shift;
+    my $empire = $self->body->empire;
+    if ($empire->is_isolationist) {
+        $empire->is_isolationist(0);
+        $empire->update;
+    }
+};
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
