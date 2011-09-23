@@ -60,6 +60,13 @@ sub clear_all_test_empires {
         name => {like => $name},
     });
     while (my $empire = $empires->next) {
+
+        my $planets = $empire->planets;
+        while ( my $planet = $planets->next ) {
+            $planet->buildings->search({class => { 'like' => 'Lacuna::DB::Result::Building::Permanent%' } })->delete_all;
+        }
+
+
         $empire->delete;
     }
 }
@@ -206,6 +213,13 @@ sub cleanup {
     my $self = shift;
     my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$self->empire_name});
     while (my $empire = $empires->next) {
+        # delete any permanent buildings
+        
+        my $planets = $empire->planets;
+        while ( my $planet = $planets->next ) {
+            $planet->buildings->search({class => { 'like' => 'Lacuna::DB::Result::Building::Permanent%' } })->delete_all;
+        }
+
         $empire->delete;
     }
 }

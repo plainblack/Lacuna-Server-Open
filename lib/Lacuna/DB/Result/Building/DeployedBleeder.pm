@@ -33,7 +33,11 @@ use constant time_to_build => 15;
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->start_upgrade(undef, 1);
+    $self->discard_changes;
+
+    if ($self->level < 30) {
+        $self->start_upgrade(undef, 1);
+    }
 };
 
 use constant food_consumption => 125;
