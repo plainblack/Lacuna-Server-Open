@@ -136,6 +136,8 @@ sub determine_species_limits {
     my $colonies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id => $self->id });
     my $min_orbit = $colonies->get_column('orbit')->min;
     my $max_orbit = $colonies->get_column('orbit')->max;
+    $max_orbit    = 7 if $max_orbit > 7;
+
     my $reason;
     if ($self->university_level > 19) {
         $reason = 'Your university research level is too high to redefine your species. Build a Genetics Lab instead.';
