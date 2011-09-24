@@ -136,6 +136,8 @@ sub get_plans {
             extra_build_level       => $plan->extra_build_level,
         };
     }
+    # Put plans in a sensible order
+    @out = sort {$a->{name} cmp $b->{name} || $a->{level} <=> $b->{level} || $b->{extra_build_level} <=> $a->{extra_build_level} } @out;
     return {
         plans                   => \@out,
         cargo_space_used_each   => 10_000,
