@@ -36,6 +36,9 @@ sub view_plans {
             extra_build_level   => $plan->extra_build_level,
         }
     }
+    # sort plans into a sensible order
+    @out = sort {$a->{name} cmp $b->{name} || $a->{level} <=> $b->{level} || $b->{extra_build_level} <=> $a->{extra_build_level} } @out;
+
     return {
         status  => $self->format_status($empire, $building->body),
         plans   => \@out,

@@ -30,6 +30,9 @@ $home->happiness(-1000,000,000,000,000);
 $home->update;
 $home->tick;
 
+
+
+
 END {
 #    TestHelper->clear_all_test_empires;
 }
