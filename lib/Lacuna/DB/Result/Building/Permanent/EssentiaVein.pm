@@ -19,6 +19,10 @@ sub can_upgrade {
     confess [1013, "You can't upgrade an Essentia Vein. It forms naturally."];
 }
 
+sub can_downgrade {
+    confess [1013, "You can't downgrade an Essentia Vein."];
+}
+
 use constant image => 'essentiavein';
 
 sub image_level {

@@ -16,9 +16,13 @@ around can_build => sub {
     confess [1013,"You can't build Gratch's Gauntlet."];
 };
 
-sub can_upgrade {
-    confess [1013, "You can't upgrade an Gratch's Gauntlet."];
-}
+around can_upgrade => sub {
+    my ($orig, $self) = @_;
+    if ($self->body->get_plan(__PACKAGE__, $self->level + 1)) {
+        return $orig->($self);
+    }
+    confess [1013,"You can't upgrade a Gratch's Gauntlet. You need a plan."];
+};
 
 use constant image => 'gratchsgauntlet';
 
