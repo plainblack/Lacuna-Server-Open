@@ -880,18 +880,18 @@ sub can_repair {
     my ($self, $costs) = @_;
     $costs ||= $self->get_repair_costs;
     my $body = $self->body;
-    unless ($body->food_stored >= $costs->{food}) {
-        confess [1011, 'You need '.$costs->{food}.' food to repair this building.'];
-    }
-    unless ($body->water_stored >= $costs->{water}) {
-        confess [1011, 'You need '.$costs->{water}.' water to repair this building.'];
-    }
-    unless ($body->ore_stored >= $costs->{ore}) {
-        confess [1011, 'You need '.$costs->{ore}.' ore to repair this building.'];
-    }
-    unless ($body->energy_stored >= $costs->{energy}) {
-        confess [1011, 'You need '.$costs->{energy}.' energy to repair this building.'];
-    }
+#    unless ($body->food_stored >= $costs->{food}) {
+#        confess [1011, 'You need '.$costs->{food}.' food to repair this building.'];
+#    }
+#    unless ($body->water_stored >= $costs->{water}) {
+#        confess [1011, 'You need '.$costs->{water}.' water to repair this building.'];
+#    }
+#    unless ($body->ore_stored >= $costs->{ore}) {
+#        confess [1011, 'You need '.$costs->{ore}.' ore to repair this building.'];
+#    }
+#    unless ($body->energy_stored >= $costs->{energy}) {
+#        confess [1011, 'You need '.$costs->{energy}.' energy to repair this building.'];
+#    }
     return 1;
 }
 
@@ -899,7 +899,35 @@ sub repair {
     my ($self, $costs) = @_;
     $costs ||= $self->get_repair_costs;
     my $body = $self->body;
-    $self->efficiency(100);
+    my $eff = 100;
+    unless ($body->food_stored >= $costs->{food}) {
+      my $teff = int(($body->food_stored-50)*100/$costs->{food});
+      $eff = $teff if ($teff < $eff);
+    }
+    unless ($body->water_stored >= $costs->{water}) {
+      my $teff = int($body->water_stored*100/$costs->{water});
+      $eff = $teff if ($teff < $eff);
+    }
+    unless ($body->ore_stored >= $costs->{ore}) {
+      my $teff = int(($body->ore_stored-50)*100/$costs->{ore});
+      $eff = $teff if ($teff < $eff);
+    }
+    unless ($body->energy_stored >= $costs->{energy}) {
+      my $teff = int($body->energy_stored*100/$costs->{energy});
+      $eff = $teff if ($teff < $eff);
+    }
+    unless ($eff > 0) {
+        confess [1011, 'Not enough resources to do a partial repair.'];
+    }
+    $self->efficiency($eff);
+    $costs->{food}   = int($eff*$costs->{food}/100);
+    $costs->{water}  = int($eff*$costs->{water}/100);
+    $costs->{ore}    = int($eff*$costs->{ore}/100);
+    $costs->{energy} = int($eff*$costs->{energy}/100);
+    if ($eff < 100) {
+      $eff = $self->efficiency + $eff;
+      $eff = 100 if ($eff > 100);
+    }
     $self->update;
     $body->spend_food($costs->{food});
     $body->spend_water($costs->{water});
