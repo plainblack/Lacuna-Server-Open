@@ -1376,17 +1376,21 @@ sub prevent_insurrection {
     return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(50,'Officials prevented a coup d\'Žtat today on on %s by capturing %s and comrades.', $self->on_body->name, $self->name);
     $self->go_to_jail;
-    my $alliance_id = $defender->empire->alliance_id;
+    my $alliance_id = $self->empire->alliance_id;
+    my @member_ids;
     if ($alliance_id) {
-        my @member_ids = $defender->empire->alliance->members->get_column('id')->all;
-        my $conspirators = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ on_body_id => $self->on_body_id, task => { 'not in' => ['Idle','Travelling','Captured'] }, empire_id => { 'in' => \@member_ids } });
-        my $count = randint(5,15);
-        while (my $conspirator = $conspirators->next ) {
-            $count--;
-            $conspirator->go_to_jail;
-            $conspirator->update;
-            last if $count < 1;
-        }
+       @member_ids = $self->empire->alliance->members->get_column('id')->all;
+    }
+    else {
+       $member_ids[0] = $self->empire->id;
+    }
+    my $conspirators = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ on_body_id => $self->on_body_id, task => { 'not in' => ['Killed in Action', 'Travelling','Captured'] }, empire_id => { 'in' => \@member_ids } });
+    my $count = randint(5,15);
+    while (my $conspirator = $conspirators->next ) {
+       $count--;
+       $conspirator->go_to_jail;
+       $conspirator->update;
+       last if $count < 1;
     }
     $defender->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
