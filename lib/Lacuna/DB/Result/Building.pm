@@ -744,7 +744,7 @@ sub cost_to_upgrade {
     $time_inflator = 1 if ($time_inflator < 1);
     my $throttle = Lacuna->config->get('building_build_speed') || 6;
     my $time_cost = (($self->level+1)/$throttle * $self->time_to_build * $time_inflator ** INFLATION) * $self->time_cost_reduction_bonus * $oversight_reduction;
-    $time_cost = 5184000 if ($time_cost > 5184000); #60 days
+    $time_cost = 5184000 if ($time_cost > 5184000); # 60 Days
     $time_cost = 15 if ($time_cost < 15);
     return {
         food    => sprintf('%.0f',$self->food_to_build * $upgrade_cost * $upgrade_cost_reduction),
@@ -900,19 +900,19 @@ sub repair {
     $costs ||= $self->get_repair_costs;
     my $body = $self->body;
     my $eff = 100;
-    unless ($body->food_stored >= $costs->{food}) {
+    unless ($body->food_stored >= $costs->{food} or $costs->{food} == 0) {
       my $teff = int(($body->food_stored-50)*100/$costs->{food});
       $eff = $teff if ($teff < $eff);
     }
-    unless ($body->water_stored >= $costs->{water}) {
+    unless ($body->water_stored >= $costs->{water} or $costs->{water} == 0) {
       my $teff = int($body->water_stored*100/$costs->{water});
       $eff = $teff if ($teff < $eff);
     }
-    unless ($body->ore_stored >= $costs->{ore}) {
+    unless ($body->ore_stored >= $costs->{ore} or $costs->{ore} == 0) {
       my $teff = int(($body->ore_stored-50)*100/$costs->{ore});
       $eff = $teff if ($teff < $eff);
     }
-    unless ($body->energy_stored >= $costs->{energy}) {
+    unless ($body->energy_stored >= $costs->{energy} or $costs->{energy} == 0) {
       my $teff = int($body->energy_stored*100/$costs->{energy});
       $eff = $teff if ($teff < $eff);
     }
