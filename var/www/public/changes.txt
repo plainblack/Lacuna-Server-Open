@@ -2,6 +2,8 @@
  - Fix: Alliance Stats now shows number of space stations and influence
  - Fix: Updated documentation for Shipyard
  - Fix: API - Added surface version number for bodies to better indicate that a refresh is needed
+ - Fix: It is no longer possible to downgrade a spaceport if it could no longer support the number of ships.
+ - Fix: Very high negative happiness, and very long building times should not now crash the planet
 
 3.0813
  - Add: When one 20 Stars tournament ends, the next one should begin automatically.
