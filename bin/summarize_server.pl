@@ -230,98 +230,102 @@ sub delete_old_records {
 }
 
 sub summarize_alliances { 
-    out('Summarizing Alliances');
-    my $logs = $db->resultset('Lacuna::DB::Result::Log::Alliance');
-    my $alliances = $db->resultset('Lacuna::DB::Result::Alliance');
-    my $empire_logs = $db->resultset('Lacuna::DB::Result::Log::Empire');
-    while (my $alliance = $alliances->next) {
-        next if ! defined $alliance->leader_id; # until Alliances get deleted...
-        out($alliance->name);
-        my %alliance_data = (
-            date_stamp                 => DateTime->now,
-            space_station_count         => 0,
-            influence                   => 0,
-            alliance_id                 => $alliance->id,
-            alliance_name               => $alliance->name,
-        );
-        my $empires = $empire_logs->search({alliance_id => $alliance->id});
-        while ( my $empire = $empires->next) {
-            $alliance_data{member_count}++;
-            $alliance_data{colony_count}             += $empire->colony_count;
-            $alliance_data{space_station_count}      += $empire->space_station_count;
-            $alliance_data{influence}                += $empire->influence;
-            $alliance_data{population}               += $empire->population;
-            $alliance_data{building_count}           += $empire->building_count;
-            $alliance_data{average_building_level}   += $empire->average_building_level;
-            $alliance_data{defense_success_rate}     += $empire->defense_success_rate;
-            $alliance_data{offense_success_rate}     += $empire->offense_success_rate;
-            $alliance_data{dirtiest}                 += $empire->dirtiest;
-            $alliance_data{spy_count}                += $empire->spy_count;
-            $alliance_data{average_empire_size}      += $empire->empire_size;
-            $alliance_data{average_university_level} += $empire->university_level;
-        }
-        if ($alliance_data{member_count}) {
-            $alliance_data{average_empire_size}     /= $alliance_data{member_count};
-            $alliance_data{average_university_level}/= $alliance_data{member_count};
-       	    $alliance_data{average_building_level}  /= $alliance_data{member_count};
-            $alliance_data{offense_success_rate}    /= $alliance_data{member_count};
-            $alliance_data{defense_success_rate}    /= $alliance_data{member_count};
-        }
-        my $log = $logs->search({alliance_id => $alliance->id},{rows=>1})->single;
-        if (defined $log) {
-            if ($alliance_data{member_count}) {
-                $log->update(\%alliance_data);
-            }
-            else {
-                $log->delete;
-            }
-        }
-        else {
-            $logs->new(\%alliance_data)->insert;
-        }
-    }
+	out('Summarizing Alliances');
+	my $logs = $db->resultset('Lacuna::DB::Result::Log::Alliance');
+	my $alliances = $db->resultset('Lacuna::DB::Result::Alliance');
+	my $empire_logs = $db->resultset('Lacuna::DB::Result::Log::Empire');
+	while (my $alliance = $alliances->next) {
+		next if ! defined $alliance->leader_id; # until Alliances get deleted...
+			out($alliance->name);
+		my %alliance_data = (
+				date_stamp                 => DateTime->now,
+				space_station_count         => 0,
+				influence                   => 0,
+				alliance_id                 => $alliance->id,
+				alliance_name               => $alliance->name,
+				);
+		my $empires = $empire_logs->search({alliance_id => $alliance->id});
+		while ( my $empire = $empires->next) {
+			$alliance_data{member_count}++;
+			$alliance_data{colony_count}             += $empire->colony_count;
+			$alliance_data{space_station_count}      += $empire->space_station_count;
+			$alliance_data{influence}                += $empire->influence;
+			$alliance_data{population}               += $empire->population;
+			$alliance_data{building_count}           += $empire->building_count;
+			$alliance_data{average_building_level}   += $empire->average_building_level;
+			$alliance_data{defense_success_rate}     += $empire->defense_success_rate;
+			$alliance_data{offense_success_rate}     += $empire->offense_success_rate;
+			$alliance_data{dirtiest}                 += $empire->dirtiest;
+			$alliance_data{spy_count}                += $empire->spy_count;
+			$alliance_data{average_empire_size}      += $empire->empire_size;
+			$alliance_data{average_university_level} += $empire->university_level;
+		}
+		if ($alliance_data{member_count}) {
+			$alliance_data{average_empire_size}     /= $alliance_data{member_count};
+			$alliance_data{average_university_level}/= $alliance_data{member_count};
+			$alliance_data{average_building_level}  /= $alliance_data{member_count};
+			$alliance_data{offense_success_rate}    /= $alliance_data{member_count};
+			$alliance_data{defense_success_rate}    /= $alliance_data{member_count};
+		}
+		my $log = $logs->search({alliance_id => $alliance->id},{rows=>1})->single;
+		if (defined $log) {
+			if ($alliance_data{member_count}) {
+				$log->update(\%alliance_data);
+			}
+			else {
+				$log->delete;
+			}
+		}
+		else {
+			$logs->new(\%alliance_data)->insert;
+		}
+	}
 }
 
 sub summarize_empires { 
-    out('Summarizing Empires');
-    my $logs = $db->resultset('Lacuna::DB::Result::Log::Empire');
-    my $empires = $db->resultset('Lacuna::DB::Result::Empire')->search({ id   => {'>' => 1} });
-    my $colony_logs = $db->resultset('Lacuna::DB::Result::Log::Colony');
-    while (my $empire = $empires->next) {
-        out($empire->name);
-        my %empire_data = (
-            date_stamp                  => DateTime->now,
-            university_level            => $empire->university_level,
-            empire_id                   => $empire->id,
-            empire_name                 => $empire->name,
-            alliance_id                 => $empire->alliance_id,
-        );
-        if ($empire->alliance_id) {
-            $empire_data{alliance_name} = $empire->alliance->name;
-        }
-        my $colonies = $colony_logs->search({empire_id => $empire->id});
-        while ( my $colony = $colonies->next) {
-            $empire_data{colony_count}++;
-            $empire_data{influence}                 += $colony->influence;
-            $empire_data{space_station_count}++     if $colony->is_space_station;
-            $empire_data{population}                += $colony->population;
-            $empire_data{population_delta}          += $colony->population_delta;
-            $empire_data{building_count}            += $colony->building_count;
-            $empire_data{average_building_level}    += $colony->average_building_level;
-            $empire_data{highest_building_level}    =  $colony->highest_building_level if ($colony->highest_building_level > $empire_data{highest_building_level});
-            $empire_data{food_hour}                 += $colony->food_hour;
-            $empire_data{ore_hour}                  += $colony->ore_hour;
-            $empire_data{energy_hour}               += $colony->energy_hour;
-            $empire_data{water_hour}                += $colony->water_hour;
-            $empire_data{waste_hour}                += $colony->waste_hour;
-            $empire_data{happiness_hour}            += $colony->happiness_hour;
-            $empire_data{defense_success_rate}      += $colony->defense_success_rate;
-            $empire_data{defense_success_rate_delta}+= $colony->defense_success_rate_delta;
-            $empire_data{offense_success_rate}      += $colony->offense_success_rate;
-            $empire_data{offense_success_rate_delta}+= $colony->offense_success_rate_delta;
-            $empire_data{dirtiest}                  += $colony->dirtiest;
-            $empire_data{dirtiest_delta}            += $colony->dirtiest_delta;
-            $empire_data{spy_count}                 += $colony->spy_count;
+	out('Summarizing Empires');
+	my $logs = $db->resultset('Lacuna::DB::Result::Log::Empire');
+	my $empires = $db->resultset('Lacuna::DB::Result::Empire')->search({ id   => {'>' => 1} });
+	my $colony_logs = $db->resultset('Lacuna::DB::Result::Log::Colony');
+	while (my $empire = $empires->next) {
+		out($empire->name);
+		my %empire_data = (
+				date_stamp                  => DateTime->now,
+				university_level            => $empire->university_level,
+				empire_id                   => $empire->id,
+				empire_name                 => $empire->name,
+				alliance_id                 => $empire->alliance_id,
+				);
+		if ($empire->alliance_id) {
+			$empire_data{alliance_name} = $empire->alliance->name;
+		}
+		my $colonies = $colony_logs->search({empire_id => $empire->id});
+		while ( my $colony = $colonies->next) {
+			if ($colony->is_space_station) {
+				$empire_data{influence}                 += $colony->influence;
+				$empire_data{space_station_count}++;
+			}
+			else {
+				$empire_data{colony_count}++;
+				$empire_data{population}                += $colony->population;
+                $empire_data{population_delta}          += $colony->population_delta;
+                $empire_data{building_count}            += $colony->building_count;
+                $empire_data{average_building_level}    += $colony->average_building_level;
+                $empire_data{highest_building_level}    =  $colony->highest_building_level if ($colony->highest_building_level > $empire_data{highest_building_level});
+                $empire_data{food_hour}                 += $colony->food_hour;
+                $empire_data{ore_hour}                  += $colony->ore_hour;
+                $empire_data{energy_hour}               += $colony->energy_hour;
+                $empire_data{water_hour}                += $colony->water_hour;
+                $empire_data{waste_hour}                += $colony->waste_hour;
+                $empire_data{happiness_hour}            += $colony->happiness_hour;
+                $empire_data{defense_success_rate}      += $colony->defense_success_rate;
+                $empire_data{defense_success_rate_delta}+= $colony->defense_success_rate_delta;
+                $empire_data{offense_success_rate}      += $colony->offense_success_rate;
+                $empire_data{offense_success_rate_delta}+= $colony->offense_success_rate_delta;
+                $empire_data{dirtiest}                  += $colony->dirtiest;
+                $empire_data{dirtiest_delta}            += $colony->dirtiest_delta;
+                $empire_data{spy_count}                 += $colony->spy_count;
+            }
         }
         if ($empire_data{colony_count}) {
        	    $empire_data{average_building_level}    = $empire_data{average_building_level} / $empire_data{colony_count};
