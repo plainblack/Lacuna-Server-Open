@@ -299,6 +299,9 @@ sub summarize_empires {
 		if ($empire->alliance_id) {
 			$empire_data{alliance_name} = $empire->alliance->name;
 		}
+ 		else {
+			$empire_data{alliance_name} = undef;
+		}
 		my $colonies = $colony_logs->search({empire_id => $empire->id});
 		while ( my $colony = $colonies->next) {
 			if ($colony->is_space_station) {
