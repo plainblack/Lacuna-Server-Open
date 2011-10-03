@@ -1,9 +1,20 @@
-3.0814
+3.0815
  - Fix: Alliance Stats now shows number of space stations and influence
  - Fix: Updated documentation for Shipyard
  - Fix: API - Added surface version number for bodies to better indicate that a refresh is needed
  - Fix: It is no longer possible to downgrade a spaceport if it could no longer support the number of ships.
  - Fix: Very high negative happiness, and very long building times should not now crash the planet
+
+3.0814
+ - Fix: creating a munitions lab does not break isolation status
+ - Fix: Gratch's Gauntlet cannot upgrade via a plan
+ - Fix: Essentia vein can be downgraded
+ - Fix: It is possible to build ships while having negative docks free
+ - Fix: Terraforming an orbit 8 fails when doing a respec
+ - Fix: Bleeders will upgrade past level 30
+ - Fix: Empire names can be created to impersonate other empires
+ - Fix: Build ships does not return the ship ID
+ - Fix: Plans displayed in different orders in PCC,Trade and Transporter
 
 3.0813
  - Add: When one 20 Stars tournament ends, the next one should begin automatically.
