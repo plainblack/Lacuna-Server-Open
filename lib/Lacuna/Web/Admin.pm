@@ -193,6 +193,24 @@ sub www_search_stars {
     return $self->wrap($out);
 }
 
+sub www_complete_builds {
+    my ($self, $request, $body_id) = @_;
+    $body_id ||= $request->param('body_id');
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
+    my $buildings = $body->buildings;
+    while (my $building = $buildings->next) {
+        next unless ( $building->is_upgrading );
+        $building->is_upgrading(0);
+        $building->upgrade_ends($building->upgrade_started);
+        $building->level($building->level + 1);
+        $building->update;
+    }
+    $body->needs_recalc(1);
+    $body->needs_surface_refresh(1);
+    $body->update;
+    return $self->wrap(sprintf('All building constuction completed! <a href="/admin/view/body?id=%s">Back To Body</a>', $request->param('body_id')));
+}
+
 sub www_send_stellar_flare {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
@@ -265,9 +283,9 @@ sub www_view_buildings {
     my $buildings = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({ body_id => $body_id }, {order_by => ['x','y'] });
     my $out = '<h1>View Buildings</h1>';
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Level</th><th>Efficiency</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Level</th><th>InProgress</th><th>Efficiency</th></tr>';
     while (my $building = $buildings->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><form method="post" action="/admin/set/efficiency"><td><input type="hidden" name="building_id" value="%s"><input name="efficiency" type="text" size="3" value="%s"><input type="submit" value="submit"></td></form></tr>', $building->id, $building->name, $building->x, $building->y, $building->level, $building->id, $building->efficiency);
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><form method="post" action="/admin/set/efficiency"><td><input type="hidden" name="building_id" value="%s"><input name="efficiency" type="text" size="3" value="%s"><input type="submit" value="submit"></td></form></tr>', $building->id, $building->name, $building->x, $building->y, $building->level, $building->is_upgrading, $building->id, $building->efficiency);
     }
     $out .= '</table>';
     return $self->wrap($out);
@@ -625,6 +643,7 @@ sub www_view_body {
     $out .= sprintf('<li><a href="/admin/view/plans?body_id=%s">View Plans</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/glyphs?body_id=%s">View Glyphs</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/recalc/body?body_id=%s">Recalculate Body Stats</a></li>', $body->id);
+    $out .= sprintf('<li><a href="/admin/complete/builds?body_id=%s">Complete All Builds</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/send/stellar/flare?body_id=%s" onclick="return confirm(\'Are you sure?\')">Send Stellar Flare</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/send/meteor/shower?body_id=%s" onclick="return confirm(\'Are you sure?\')">Send Meteor Shower</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/send/pestilence?body_id=%s" onclick="return confirm(\'Are you sure?\')">Send Pestilence</a></li>', $body->id);

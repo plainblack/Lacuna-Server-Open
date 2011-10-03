@@ -108,7 +108,7 @@ before delete => sub {
 
 before 'can_downgrade' => sub {
     my $self = shift;
-    if ($self->ships->count > ($self->level - 1) * 2) {
+    if ( ($self->max_ships - $self->number_of_ships) <  2) {
         confess [1013, 'You must scuttle some ships to downgrade the Spaceport.'];
     }
 };
