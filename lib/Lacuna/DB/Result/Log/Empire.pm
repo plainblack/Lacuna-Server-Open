@@ -38,6 +38,8 @@ __PACKAGE__->add_columns(
     dirtiest_delta              => { data_type => 'int', size => 11, default_value => 0 },
     alliance_id                 => { data_type => 'int', is_nullable => 1 },
     alliance_name               => { data_type => 'varchar', size => 30, is_nullable => 1 },
+    space_station_count         => { data_type => 'int', size => 11, default_value => 0 },
+    influence                   => { data_type => 'int', size => 11, default_value => 0 },
 );
 
 after 'sqlt_deploy_hook' => sub {

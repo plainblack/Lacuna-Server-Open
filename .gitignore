@@ -2,4 +2,4 @@ etc/lacuna.conf
 etc/log4perl.conf
 etc/nginx.conf
 var/www/public/index.html
-
+var/www/public/api

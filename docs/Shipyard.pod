@@ -23,7 +23,9 @@ Retrieves what is already being built at this shipyard.
      "cost_to_subsidize" : 30,
      "ships_building" : [
          {
+             "id" : "1234",
              "type" : "spy_pod",
+             "type_human" : "Spy Pod",
              "date_completed" : "01 31 2010 13:09:05 +0600"
          }
          ...

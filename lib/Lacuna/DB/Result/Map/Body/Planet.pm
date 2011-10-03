@@ -215,6 +215,12 @@ around get_status => sub {
                     }
                 }
                 $out->{needs_surface_refresh} = $self->needs_surface_refresh;
+                if ($self->needs_surface_refresh) {
+                    $self->surface_version($self->surface_version+1);
+                    $self->update;
+                }
+                $out->{surface_version} = $self->surface_version;
+
                 $out->{empire}{alignment} = 'self';
                 $out->{plots_available} = $self->plots_available;
                 $out->{building_count}  = $self->building_count;

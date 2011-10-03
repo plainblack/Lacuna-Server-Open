@@ -247,16 +247,18 @@ sub summarize_alliances {
         my $empires = $empire_logs->search({alliance_id => $alliance->id});
         while ( my $empire = $empires->next) {
             $alliance_data{member_count}++;
-            $alliance_data{colony_count}            += $empire->colony_count;
-            $alliance_data{population} 		        += $empire->population;
-            $alliance_data{building_count} 	        += $empire->building_count;
-            $alliance_data{average_building_level}    += $empire->average_building_level;
-            $alliance_data{defense_success_rate}      += $empire->defense_success_rate;
-            $alliance_data{offense_success_rate}      += $empire->offense_success_rate;
-            $alliance_data{dirtiest}                  += $empire->dirtiest;
-            $alliance_data{spy_count}                 += $empire->spy_count;
-            $alliance_data{average_empire_size}         += $empire->empire_size;
-            $alliance_data{average_university_level}    += $empire->university_level;
+            $alliance_data{colony_count}             += $empire->colony_count;
+            $alliance_data{space_station_count}      += $empire->space_station_count;
+            $alliance_data{influence}                += $empire->influence;
+            $alliance_data{population}               += $empire->population;
+            $alliance_data{building_count}           += $empire->building_count;
+            $alliance_data{average_building_level}   += $empire->average_building_level;
+            $alliance_data{defense_success_rate}     += $empire->defense_success_rate;
+            $alliance_data{offense_success_rate}     += $empire->offense_success_rate;
+            $alliance_data{dirtiest}                 += $empire->dirtiest;
+            $alliance_data{spy_count}                += $empire->spy_count;
+            $alliance_data{average_empire_size}      += $empire->empire_size;
+            $alliance_data{average_university_level} += $empire->university_level;
         }
         if ($alliance_data{member_count}) {
             $alliance_data{average_empire_size}     /= $alliance_data{member_count};
@@ -300,17 +302,19 @@ sub summarize_empires {
         my $colonies = $colony_logs->search({empire_id => $empire->id});
         while ( my $colony = $colonies->next) {
             $empire_data{colony_count}++;
-            $empire_data{population} 		        += $colony->population;
-            $empire_data{population_delta} 		    += $colony->population_delta;
-            $empire_data{building_count} 	        += $colony->building_count;
+            $empire_data{influence}                 += $colony->influence;
+            $empire_data{space_station_count}++     if $colony->is_space_station;
+            $empire_data{population}                += $colony->population;
+            $empire_data{population_delta}          += $colony->population_delta;
+            $empire_data{building_count}            += $colony->building_count;
             $empire_data{average_building_level}    += $colony->average_building_level;
             $empire_data{highest_building_level}    =  $colony->highest_building_level if ($colony->highest_building_level > $empire_data{highest_building_level});
-            $empire_data{food_hour} 		        += $colony->food_hour;
-            $empire_data{ore_hour} 		            += $colony->ore_hour;
-            $empire_data{energy_hour} 		        += $colony->energy_hour;
-            $empire_data{water_hour} 		        += $colony->water_hour;
-            $empire_data{waste_hour} 		        += $colony->waste_hour;
-            $empire_data{happiness_hour} 		    += $colony->happiness_hour;
+            $empire_data{food_hour}                 += $colony->food_hour;
+            $empire_data{ore_hour}                  += $colony->ore_hour;
+            $empire_data{energy_hour}               += $colony->energy_hour;
+            $empire_data{water_hour}                += $colony->water_hour;
+            $empire_data{waste_hour}                += $colony->waste_hour;
+            $empire_data{happiness_hour}            += $colony->happiness_hour;
             $empire_data{defense_success_rate}      += $colony->defense_success_rate;
             $empire_data{defense_success_rate_delta}+= $colony->defense_success_rate_delta;
             $empire_data{offense_success_rate}      += $colony->offense_success_rate;
@@ -362,6 +366,12 @@ sub summarize_colonies {
             empire_id              => $planet->empire_id,
             empire_name            => $planet->empire->name,
         );
+        if ($planet->class =~ /Station$/) {
+            $colony_data{is_space_station} = 1;
+            $colony_data{influence} = $planet->influence_spent;
+        }
+
+
         my $spies = $spy_logs->search({planet_id => $planet->id});
         while (my $spy = $spies->next) {
     	    $colony_data{spy_count}++;

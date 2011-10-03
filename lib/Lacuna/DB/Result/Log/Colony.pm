@@ -30,6 +30,8 @@ __PACKAGE__->add_columns(
     defense_success_rate_delta  => { data_type => 'float', size => [6,6], default_value => 0 },
     dirtiest                    => { data_type => 'int', size => 11, default_value => 0 },
     dirtiest_delta              => { data_type => 'int', size => 11, default_value => 0 },
+    is_space_station            => { data_type => 'int', size => 11, default_value => 0 },
+    influence                   => { data_type => 'int', size => 11, default_value => 0 },
 );
 
 after 'sqlt_deploy_hook' => sub {

@@ -121,6 +121,7 @@ __PACKAGE__->add_columns(
     needs_surface_refresh           => { data_type => 'tinyint', default_value => 0 },
     restrict_coverage               => { data_type => 'tinyint', default_value => 0 },
     plots_available                 => { data_type => 'tinyint', default_value => 0 },    
+    surface_version                 => { data_type => 'tinyint', default_value => 0 },
 );
 
 after 'sqlt_deploy_hook' => sub {
