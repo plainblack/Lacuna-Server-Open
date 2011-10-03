@@ -5,6 +5,7 @@
  - Fix: It is no longer possible to downgrade a spaceport if it could no longer support the number of ships.
  - Fix: Very high negative happiness, and very long building times should not now crash the planet
  - Fix: Empires no longer show a 'ghost' alliance when they leave in the stats page
+ - Fix: Partial repairs on buildings, dependent upon resources, is now possible
 
 3.0814
  - Fix: creating a munitions lab does not break isolation status
