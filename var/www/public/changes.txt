@@ -1,3 +1,14 @@
+3.0814
+ - Fix: creating a munitions lab does not break isolation status
+ - Fix: Gratch's Gauntlet cannot upgrade via a plan
+ - Fix: Essentia vein can be downgraded
+ - Fix: It is possible to build ships while having negative docks free
+ - Fix: Terraforming an orbit 8 fails when doing a respec
+ - Fix: Bleeders will upgrade past level 30
+ - Fix: Empire names can be created to impersonate other empires
+ - Fix: Build ships does not return the ship ID
+ - Fix: Plans displayed in different orders in PCC,Trade and Transporter
+
 3.0813
  - Add: When one 20 Stars tournament ends, the next one should begin automatically.
  - Fix: Fix an issue with skip attack messages and excavators.

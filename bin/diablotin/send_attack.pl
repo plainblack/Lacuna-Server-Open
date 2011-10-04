@@ -15,6 +15,13 @@ GetOptions(
 );
 
 
+use Fcntl qw(:flock);
+# stop multiple copies from running
+unless (flock(DATA, LOCK_EX|LOCK_NB)) {
+    print "$0 is already running. Exiting.\n";
+    exit(1);
+}
+
 
 out('Started');
 my $start = time;
@@ -77,4 +84,6 @@ sub out {
     }
 }
 
-
+__DATA__
+This exists so flock() code above works.
+DO NOT REMOVE THIS DATA SECTION.
