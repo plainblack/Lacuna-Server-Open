@@ -65,7 +65,11 @@ has max_ships => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { class => $self->class, body_id => $self->body_id } )->get_column('level')->sum;
+        return Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( {
+            class       => $self->class, 
+            body_id     => $self->body_id,
+            efficiency  => 100,
+        } )->get_column('level')->sum;
     },
 );
 

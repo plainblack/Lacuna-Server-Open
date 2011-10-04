@@ -2,10 +2,12 @@
  - Fix: Alliance Stats now shows number of space stations and influence
  - Fix: Updated documentation for Shipyard
  - Fix: API - Added surface version number for bodies to better indicate that a refresh is needed
- - Fix: It is no longer possible to downgrade a spaceport if it could no longer support the number of ships.
+ - Fix: It is no longer possible to downgrade a spaceport if it could not support the number of ships present.
  - Fix: Very high negative happiness, and very long building times should not now crash the planet
  - Fix: Empires no longer show a 'ghost' alliance when they leave in the stats page
  - Fix: Partial repairs on buildings, dependent upon resources, is now possible
+ - Fix: Damaged Space Ports no longer count towards the max ships a colony can support
+ - Fix: Damaged Shipyards no longer count towards the max ships a colony can build
 
 3.0814
  - Fix: creating a munitions lab does not break isolation status
