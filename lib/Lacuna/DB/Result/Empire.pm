@@ -593,7 +593,7 @@ sub send_message {
         attachments => $params{attachments},
     })->insert;
     if (exists $params{repeat_check}) {
-        Lacuna->cache->set($params{repeat_check}, int((DateTime->now->hour + 1) / 6), 1, 60 * 60 * 6);
+        Lacuna->cache->set($params{repeat_check}, int(DateTime->now->hour / 6), 1, 60 * 60 * 6);
     }
     if (exists $params{in_reply_to} && defined $params{in_reply_to} && $params{in_reply_to} ne '') {
         my $original =  Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($params{in_reply_to});
@@ -606,7 +606,7 @@ sub send_message {
 
 sub check_for_repeat_message {
     my ($self, $repeat) = @_;
-    return Lacuna->cache->get($repeat, int((DateTime->now->hour + 1) / 6));
+    return Lacuna->cache->get($repeat, int(DateTime->now->hour / 6));
 }
 
 sub send_predefined_message {
