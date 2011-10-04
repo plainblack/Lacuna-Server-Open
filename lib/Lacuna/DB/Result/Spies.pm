@@ -526,6 +526,8 @@ sub run_security_sweep {
     my $attacker = $self->get_attacker;
     if (defined $attacker) {
         $toughness = $attacker->offense + $attacker->$mission_skill;
+#XXX
+print $attacker->name,"\n";
     }
     my $breakthru = ($power - $toughness + $self->home_field_advantage) + $self->luck;
     
@@ -1374,7 +1376,7 @@ sub capture_rebel {
 sub prevent_insurrection {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(50,'Officials prevented a coup d\'Žtat today on on %s by capturing %s and comrades.', $self->on_body->name, $self->name);
+    $self->on_body->add_news(20,'Officials prevented a coup d\'Žtat today on on %s by capturing %s and comrades.', $self->on_body->name, $self->name);
     $self->go_to_jail;
     my $alliance_id = $self->empire->alliance_id;
     my @member_ids;
@@ -1385,7 +1387,7 @@ sub prevent_insurrection {
        $member_ids[0] = $self->empire->id;
     }
     my $conspirators = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ on_body_id => $self->on_body_id, task => { 'not in' => ['Killed in Action', 'Travelling','Captured'] }, empire_id => { 'in' => \@member_ids } });
-    my $count = randint(5,15);
+    my $count = randint(5,75);
     while (my $conspirator = $conspirators->next ) {
        $count--;
        $conspirator->go_to_jail;

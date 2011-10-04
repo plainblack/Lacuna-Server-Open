@@ -358,8 +358,9 @@ sub send_spies {
         my $spy = $spies->find($id);
         if ($spy->is_available) {
             if ($spy->empire_id == $empire->id) {
+                my $arrives = DateTime->now->add(seconds=>$ship->calculate_travel_time($ship->foreign_body));
                 push @ids_sent, $spy->id;
-                $spy->send($to_body->id, $ship->date_available)->update;
+                $spy->send($to_body->id, $arrives)->update;
             }
             else {
                 push @ids_not_sent, $spy->id;
