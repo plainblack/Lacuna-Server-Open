@@ -85,9 +85,14 @@ Retrieves the properties of the building.
             "start" : "01 31 2010 13:09:05 +0600",
             "end" : "01 31 2010 18:09:05 +0600"
         },
+        "downgrade" : {
+            "can" : 1,
+            "reason" : "",
+            "image" : "command5",
+        },
         "upgrade" : {
             "can" : 0,
-            "reason" : [1011, "Note enough resources.", "food"],
+            "reason" : [1011, "Not enough resources.", "food"],
             "cost" : {
                 "food" : 500,
                 "water" : 500,
