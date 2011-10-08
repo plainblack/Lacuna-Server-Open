@@ -49,6 +49,7 @@ sub get_ship_costs {
     my $throttle = Lacuna->config->get('ship_build_speed') || 0;
     my $seconds = sprintf('%0.f', $ship->base_time_cost * $self->time_cost_reduction_bonus(($self->level * 3) + $throttle));
     $seconds = 15 if $seconds < 15;
+    $seconds = 5184000 if ($seconds > 5184000); # 60 Days
     my $bonus = $self->manufacturing_cost_reduction_bonus;
     return {
         seconds => $seconds,

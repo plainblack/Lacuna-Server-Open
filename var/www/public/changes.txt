@@ -1,14 +1,16 @@
 3.0815
- - Fix: Alliance Stats now shows number of space stations and influence
- - Fix: Updated documentation for Shipyard
- - Fix: API - Added surface version number for bodies to better indicate that a refresh is needed
+ - Add: Partial repairs on buildings, dependent upon resources, is now possible.
+ - API: Added surface version number for bodies to better indicate that a refresh is needed.
+ - Fix: Alliance Stats now shows number of space stations and influence.
+ - Fix: Updated documentation for Shipyard.
  - Fix: It is no longer possible to downgrade a spaceport if it could not support the number of ships present.
- - Fix: Very high negative happiness, and very long building times should not now crash the planet
- - Fix: Empires no longer show a 'ghost' alliance when they leave in the stats page
- - Fix: Partial repairs on buildings, dependent upon resources, is now possible
- - Fix: Damaged Space Ports no longer count towards the max ships a colony can support
- - Fix: Damaged Shipyards no longer count towards the max ships a colony can build
+ - Fix: Very high negative happiness, and very long building times should not crash the planet.
+        Maximum build time per building is now 60 days.
+ - Fix: Empires no longer show a 'ghost' alliance when they leave in the stats page.
+ - Fix: Damaged Space Ports no longer count towards the max ships a colony can support.
+ - Fix: Damaged Shipyards no longer count towards the max ships a colony can build.
  - Fix: Instant spy travel has now been fixed. Spies sent to a colony should only become operational after the ship arrives.
+ - Fix: Failing Incite Insurrection will catch the instigators and cohorts, instead of doing a self purge.
 
 3.0814
  - Fix: creating a munitions lab does not break isolation status

@@ -128,7 +128,10 @@ has plan_time_cost => (
 
 sub plan_cost_at_level {
     my ($self, $level, $base) = @_;
-    return sprintf('%.0f', $base * (INFLATION ** $level));
+    my $time_cost = sprintf('%.0f', $base * (INFLATION ** $level));
+    $time_cost = 15 if ($time_cost < 15);
+    $time_cost = 5184000 if ($time_cost > 5184000);
+    return $time_cost;
 }
 
 has max_level => (
