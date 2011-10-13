@@ -549,7 +549,6 @@ sub run_security_sweep {
     else {
         my $message_id;
         if (defined $attacker) {
-#Does detain just get enemies?
             $message_id = $self->detain_a_spy($attacker)->id;
             $attacker->$mission_skill( $attacker->$mission_skill + 6);
             $attacker->update_level;
@@ -573,11 +572,23 @@ sub run_security_sweep {
 
 sub get_defender {
     my $self = shift;
+
+    my $alliance_id = $self->empire->alliance_id;
+    my @member_ids;
+    if ($alliance_id) {
+       @member_ids = $self->empire->alliance->members->get_column('id')->all;
+    }
+    else {
+       $member_ids[0] = $self->empire->id;
+    }
+
     my $defender = Lacuna
         ->db
         ->resultset('Lacuna::DB::Result::Spies')
         ->search(
-            { on_body_id  => $self->on_body_id, task => 'Counter Espionage' },
+            { on_body_id  => $self->on_body_id,
+              task => 'Counter Espionage',
+              empire_id => { 'not_in' => \@member_ids } },
             { rows => 1, order_by => 'rand()' }
         )->single;
     $defender->on_body($self->on_body) if defined $defender;
@@ -590,14 +601,21 @@ sub get_attacker {
     foreach my $task ($self->offensive_assignments) {
         push @tasks, $task->{task};
     }
-# Here's where we make sure to only get non-allied
-# Current method sees if spy has done an offensive item, but Gather Operative is counted, etc...
+    my $alliance_id = $self->empire->alliance_id;
+    my @member_ids;
+    if ($alliance_id) {
+       @member_ids = $self->empire->alliance->members->get_column('id')->all;
+    }
+    else {
+       $member_ids[0] = $self->empire->id;
+    }
     my $attacker = Lacuna
         ->db
         ->resultset('Lacuna::DB::Result::Spies')
         ->search(
-            { on_body_id  => $self->on_body_id, task => {  in => \@tasks }},
-            { rows => 1 }
+            { on_body_id  => $self->on_body_id,
+              task => {  in => \@tasks }, empire_id => { 'not in' => \@member_ids } },
+            { rows => 1, order_by => 'rand()' }
         )
         ->single;
     $attacker->on_body($self->on_body) if defined $attacker;
