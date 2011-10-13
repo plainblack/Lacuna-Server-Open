@@ -526,8 +526,6 @@ sub run_security_sweep {
     my $attacker = $self->get_attacker;
     if (defined $attacker) {
         $toughness = $attacker->offense + $attacker->$mission_skill;
-#XXX
-print $attacker->name,"\n";
     }
     my $breakthru = ($power - $toughness + $self->home_field_advantage) + $self->luck;
     
