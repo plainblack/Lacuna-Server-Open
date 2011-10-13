@@ -549,6 +549,7 @@ sub run_security_sweep {
     else {
         my $message_id;
         if (defined $attacker) {
+#Does detain just get enemies?
             $message_id = $self->detain_a_spy($attacker)->id;
             $attacker->$mission_skill( $attacker->$mission_skill + 6);
             $attacker->update_level;
@@ -589,6 +590,8 @@ sub get_attacker {
     foreach my $task ($self->offensive_assignments) {
         push @tasks, $task->{task};
     }
+# Here's where we make sure to only get non-allied
+# Current method sees if spy has done an offensive item, but Gather Operative is counted, etc...
     my $attacker = Lacuna
         ->db
         ->resultset('Lacuna::DB::Result::Spies')
