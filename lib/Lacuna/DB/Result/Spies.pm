@@ -807,12 +807,14 @@ sub turn {
 sub turn_a_spy {
     my ($self, $traitor) = @_;
     $self->spies_turned( $self->spies_turned + 1 );
+    my $old_empire_id   = $traitor->empire->id;
+    my $old_empire_name = $traitor->empire->name;
     $traitor->turn($self->from_body);
     return $self->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'new_recruit.txt',
-        params      => [$traitor->empire->id,
-                        $traitor->empire->name,
+        params      => [$old_empire_id,
+                        $old_empire_name,
                         $traitor->name,
                         $self->name,
                         $self->from_body->id,
