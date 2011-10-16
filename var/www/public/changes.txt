@@ -14,6 +14,8 @@
  - API: Added a 'download' hash to the building status
  - Fix: Failing Incite Insurrection will catch the instigators and cohorts, instead of doing a self purge.
  - Fix: Defending & Attacking Spies will no longer do negative actions against their allies.
+ - Fix: Pushing ships to a colony via Trade or SST is no longer allowed if there are insufficient docks for the ships
+ - Fix: Accepting a trade via the Trade or the SST is no longer allowed if you have insufficient docks
 
 3.0814
  - Fix: creating a munitions lab does not break isolation status
