@@ -463,7 +463,12 @@ sub run_mission {
 
     # can't run missions on your own planets
     if ($self->empire_id == $self->on_body->empire_id) {
-        return { result => 'Failure', reason => random_element(['I will not run offensive missions against my own people.','No!','Do you really want me to attack our own citizens?','This would not make Mom proud.','I have moral objections.']) };
+        return { result => 'Failure',
+                 reason => random_element(['I will not run offensive missions against my own people.',
+                                           'No!',
+                                           'Do you really want me to attack our own citizens?',
+                                           'This would not make Mom proud.',
+                                           'I have moral objections.']) };
     }
 
     # calculate success or failure
@@ -490,7 +495,18 @@ sub run_mission {
         $self->update_level;
         my $outcome = $outcomes{$self->task} . '_loss';
         my $message_id = $self->$outcome($defender);
-        $out = { result => 'Failure', message_id => $message_id, reason => random_element(['Intel shmintel.','Code red!','It has just gone pear shaped.','I\'m pinned down and under fire.','I\'ll do better next time, if there is a next time.','The fit has just hit the shan.','I want my mommy!','No time to talk! Gotta run.','Why do they always have dogs?','Did you even plan this mission?']) };
+        $out = { result => 'Failure',
+                 message_id => $message_id,
+                 reason => random_element(['Intel shmintel.',
+                                           'Code red!',
+                                           'It has just gone pear shaped.',
+                                           'I\'m pinned down and under fire.',
+                                           'I\'ll do better next time, if there is a next time.',
+                                           'The fit has just hit the shan.',
+                                           'I want my mommy!',
+                                           'No time to talk! Gotta run.',
+                                           'Why do they always have dogs?',
+                                           'Did you even plan this mission?']) };
     }
     else {
         if (defined $defender) {
@@ -505,7 +521,19 @@ sub run_mission {
         $self->update_level;
         my $outcome = $outcomes{$self->task};
         my $message_id = $self->$outcome($defender);
-        $out = { result => 'Success', message_id => $message_id, reason => random_element(['I did it!','Mom would have been proud.','Done.','It is done.','That is why you pay me the big bucks.','I did it, but that one was close.','Mission accomplished.', 'Wahoo!', 'All good.','We\'re good.', 'I\'ll be ready for a new mission soon.', 'On my way back now.', 'I will be ready for another mission soon.']) };
+        $out = { result => 'Success',
+                 message_id => $message_id,
+                 reason => random_element(['I did it!',
+                                           'Mom would have been proud.',
+                                           'Done.','It is done.',
+                                           'That is why you pay me the big bucks.',
+                                           'I did it, but that one was close.',
+                                           'Mission accomplished.', 'Wahoo!',
+                                           'All good.',
+                                           'We\'re good.',
+                                           'I\'ll be ready for a new mission soon.',
+                                           'On my way back now.',
+                                           'I will be ready for another mission soon.']) };
     }
     $self->offense_mission_count( $self->offense_mission_count + 1);
     $self->update;
@@ -526,8 +554,6 @@ sub run_security_sweep {
     my $attacker = $self->get_attacker;
     if (defined $attacker) {
         $toughness = $attacker->offense + $attacker->$mission_skill;
-#XXX
-print $attacker->name,"\n";
     }
     my $breakthru = ($power - $toughness + $self->home_field_advantage) + $self->luck;
     
@@ -546,7 +572,12 @@ print $attacker->name,"\n";
         }
         $self->$mission_skill( $self->$mission_skill + 6 );
         $self->update_level;
-        $out = { result => 'Failure', message_id => $message_id, reason => random_element(['It has just gone pear shaped.','I\'ll do better next time, if there is a next time.','The fit has just hit the shan.','I want my mommy!']) };
+        $out = { result => 'Failure',
+                 message_id => $message_id,
+                 reason => random_element(['It has just gone pear shaped.',
+                                           'I\'ll do better next time, if there is a next time.',
+                                           'The fit has just hit the shan.',
+                                           'I want my mommy!']) };
     }
     else {
         my $message_id;
@@ -561,7 +592,11 @@ print $attacker->name,"\n";
         $self->offense_mission_successes( $self->offense_mission_successes + 1 );
         $self->$mission_skill( $self->$mission_skill + 10 );
         $self->update_level;
-        $out = { result => 'Success', message_id => $message_id, reason => random_element(['Mom would have been proud.','Done.','That is why you pay me the big bucks.']) };
+        $out = { result => 'Success',
+                 message_id => $message_id,
+                 reason => random_element(['Mom would have been proud.',
+                                           'Done.',
+                                           'That is why you pay me the big bucks.']) };
     }
     $self->defense_mission_count( $self->defense_mission_count + 1); 
     $self->update;
@@ -574,11 +609,23 @@ print $attacker->name,"\n";
 
 sub get_defender {
     my $self = shift;
+
+    my $alliance_id = $self->empire->alliance_id;
+    my @member_ids;
+    if ($alliance_id) {
+       @member_ids = $self->empire->alliance->members->get_column('id')->all;
+    }
+    else {
+       $member_ids[0] = $self->empire->id;
+    }
+
     my $defender = Lacuna
         ->db
         ->resultset('Lacuna::DB::Result::Spies')
         ->search(
-            { on_body_id  => $self->on_body_id, task => 'Counter Espionage' },
+            { on_body_id  => $self->on_body_id,
+              task => 'Counter Espionage',
+              empire_id => { 'not_in' => \@member_ids } },
             { rows => 1, order_by => 'rand()' }
         )->single;
     $defender->on_body($self->on_body) if defined $defender;
@@ -591,12 +638,21 @@ sub get_attacker {
     foreach my $task ($self->offensive_assignments) {
         push @tasks, $task->{task};
     }
+    my $alliance_id = $self->empire->alliance_id;
+    my @member_ids;
+    if ($alliance_id) {
+       @member_ids = $self->empire->alliance->members->get_column('id')->all;
+    }
+    else {
+       $member_ids[0] = $self->empire->id;
+    }
     my $attacker = Lacuna
         ->db
         ->resultset('Lacuna::DB::Result::Spies')
         ->search(
-            { on_body_id  => $self->on_body_id, task => {  in => \@tasks }},
-            { rows => 1 }
+            { on_body_id  => $self->on_body_id,
+              task => {  in => \@tasks }, empire_id => { 'not in' => \@member_ids } },
+            { rows => 1, order_by => 'rand()' }
         )
         ->single;
     $attacker->on_body($self->on_body) if defined $attacker;
@@ -625,7 +681,10 @@ sub get_spooked {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'narrow_escape.txt',
-        params      => [$self->on_body->empire->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => [$self->on_body->empire->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
     );
 }
 
@@ -634,7 +693,10 @@ sub thwart_a_spy {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_missed_a_spy.txt',
-        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from],
+        params      => [$self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->format_from],
         from        => $self->empire,
     );
     return $suspect->get_spooked;
@@ -653,7 +715,12 @@ sub escape {
     return $self->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'i_have_escaped.txt',
-        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => [$self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
     );
 }
 
@@ -666,7 +733,10 @@ sub go_to_jail {
     return $self->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'spy_captured.txt',
-        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from],
+        params      => [$self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->format_from],
     );
 }
 
@@ -676,7 +746,10 @@ sub capture_a_spy {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_captured_a_spy.txt',
-        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from($self->on_body->empire_id)],
+        params      => [$self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->format_from($self->on_body->empire_id)],
         from        => $self->empire,
     );
     return $prisoner->go_to_jail;
@@ -689,7 +762,10 @@ sub detain_a_spy {
     return $self->on_body->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_captured_a_spy.txt',
-        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from($self->on_body->empire_id)],
+        params      => [$self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->format_from($self->on_body->empire_id)],
         from        => $self->empire,
     );
 }
@@ -698,10 +774,17 @@ sub format_from {
     my ($self, $empire_id) = @_;
     $empire_id ||= $self->empire_id;
     if ($empire_id == $self->from_body->empire_id) {
-        return sprintf '%s of {Planet %s %s}', $self->name, $self->from_body->id, $self->from_body->name;
+        return sprintf '%s of {Planet %s %s}',
+                         $self->name,
+                         $self->from_body->id,
+                         $self->from_body->name;
     }
     else {
-        return sprintf '%s of {Starmap %s %s %s}', $self->name, $self->from_body->x, $self->from_body->y, $self->from_body->name;
+        return sprintf '%s of {Starmap %s %s %s}',
+                          $self->name,
+                          $self->from_body->x,
+                          $self->from_body->y,
+                          $self->from_body->name;
     }
 }
 
@@ -711,7 +794,9 @@ sub turn {
     my $message = $self->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'goodbye.txt',
-        params      => [$self->name, $self->from_body->id, $self->from_body->name],
+        params      => [$self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
     );
     $self->task('Idle');
     $self->empire_id($new_home->empire_id);
@@ -722,11 +807,18 @@ sub turn {
 sub turn_a_spy {
     my ($self, $traitor) = @_;
     $self->spies_turned( $self->spies_turned + 1 );
+    my $old_empire_id   = $traitor->empire->id;
+    my $old_empire_name = $traitor->empire->name;
     $traitor->turn($self->from_body);
     return $self->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'new_recruit.txt',
-        params      => [$traitor->empire->id, $traitor->empire->name, $traitor->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => [$old_empire_id,
+                        $old_empire_name,
+                        $traitor->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
     );
 }
 
@@ -743,7 +835,10 @@ sub sow_discontent {
     return $self->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'created_disturbance.txt',
-        params      => [$self->on_body->name, $amount, $self->on_body->happiness, $self->format_from],
+        params      => [$self->on_body->name,
+                        $amount,
+                        $self->on_body->happiness,
+                        $self->format_from],
     );
 }
 
@@ -760,7 +855,12 @@ sub killed_in_action {
     return $self->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'spy_killed.txt',
-        params      => [$self->name, $self->from_body->id, $self->from_body->name, $self->on_body->x, $self->on_body->y, $self->on_body->name],
+        params      => [$self->name,
+                        $self->from_body->id,
+                        $self->from_body->name,
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name],
     );
 }
 
@@ -824,7 +924,10 @@ sub hack_successful {
     return $self->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'hack_successful.txt',
-        params      => [$self->on_body->name, $amount, $self->on_body->happiness, $self->format_from],
+        params      => [$self->on_body->name,
+                        $amount,
+                        $self->on_body->happiness,
+                        $self->format_from],
     );
 }
 
@@ -843,7 +946,10 @@ sub kill_attacking_spy {
     $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_killed_a_spy.txt',
-        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from],
+        params      => [$self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->format_from],
         from        => $self->empire,
     );
     return $dead->killed_in_action;
@@ -856,7 +962,10 @@ sub kill_defending_spy {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_killed_a_spy.txt',
-        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from],
+        params      => [$self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->format_from],
         from        => $self->empire,
     );
 }
@@ -1169,8 +1278,10 @@ sub can_conduct_advanced_missions {
         confess [1010, 'You cannot attack your alliance mates.'];
     }
     my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire');
-    my $defender_rank = $ranks->search({empire_id => $self->on_body->empire_id },{rows => 1})->get_column('empire_size_rank')->single;
-    my $attacker_rank = $ranks->search({empire_id => $self->empire_id },{rows => 1})->get_column('empire_size_rank')->single;
+    my $defender_rank = $ranks->search( { empire_id => $self->on_body->empire_id },
+                                        {rows => 1})->get_column('empire_size_rank')->single;
+    my $attacker_rank = $ranks->search( {empire_id => $self->empire_id },
+                                        {rows => 1})->get_column('empire_size_rank')->single;
     unless ($attacker_rank + 100 > $defender_rank ) { # remember that the rank is inverted 1 is higher than 2.
         confess [1010, 'This empire is more than 100 away from you in empire rank, and is therefore immune to this attack.'];
     }
@@ -1194,19 +1305,30 @@ sub steal_planet {
         return $self->empire->send_predefined_message(
             tags        => ['Intelligence'],
             filename    => 'insurrection_failed.txt',
-            params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from],
+            params      => [$self->on_body->x,
+                            $self->on_body->y,
+                            $self->on_body->name,
+                            $self->format_from],
         )->id;
     }
     else { # win
         $self->on_body->empire->send_predefined_message(
             tags        => ['Spies','Alert'],
             filename    => 'lost_planet_to_insurrection.txt',
-            params      => [$self->on_body->name, $self->on_body->x, $self->on_body->y, $self->on_body->name],
+            params      => [$self->on_body->name,
+                            $self->on_body->x,
+                            $self->on_body->y,
+                            $self->on_body->name],
         );
-        $self->on_body->add_news(100,'Led by %s, the citizens of %s have overthrown %s!', $self->name, $self->on_body->name, $self->on_body->empire->name);
+        $self->on_body->add_news(100,
+                                 'Led by %s, the citizens of %s have overthrown %s!',
+                                 $self->name,
+                                 $self->on_body->name,
+                                 $self->on_body->empire->name);
 
         # withdraw trades
-        for my $market ( Lacuna->db->resultset('Lacuna::DB::Result::Market'), Lacuna->db->resultset('Lacuna::DB::Result::MercenaryMarket') ) {
+        for my $market ( Lacuna->db->resultset('Lacuna::DB::Result::Market'),
+                         Lacuna->db->resultset('Lacuna::DB::Result::MercenaryMarket') ) {
             my @to_be_deleted = $market->search({body_id => $self->on_body_id})->get_column('id')->all;
             foreach my $id (@to_be_deleted) {
                 my $trade = $market->find($id);
@@ -1224,8 +1346,12 @@ sub steal_planet {
         Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
             from_body_id => $self->on_body_id, on_body_id => $self->on_body_id, task => 'Training',
         })->delete_all; # All spies in training are executed
-        Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->on_body_id})->update({from_body_id => $defender_capitol_id });
-        Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->on_body_id})->update({empire_id => $self->empire_id});
+        Lacuna->db->resultset('Lacuna::DB::Result::Spies')
+                      ->search({from_body_id => $self->on_body_id})
+                      ->update({from_body_id => $defender_capitol_id });
+        Lacuna->db->resultset('Lacuna::DB::Result::Probes')
+                      ->search({body_id => $self->on_body_id})
+                      ->update({empire_id => $self->empire_id});
 
         $self->on_body->empire_id($self->empire_id);
         $self->on_body->add_happiness(int(abs($planet_happiness) / 10));
@@ -1248,14 +1374,25 @@ sub uprising {
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_incited_a_rebellion.txt',
-        params      => [$self->on_body->empire_id, $self->on_body->empire->name, $self->on_body->x, $self->on_body->y, $self->on_body->name, $loss, $self->on_body->happiness, $self->format_from],
+        params      => [$self->on_body->empire_id,
+                        $self->on_body->empire->name,
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $loss,
+                        $self->on_body->happiness,
+                        $self->format_from],
     );
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'uprising.txt',
         params      => [$self->name, $self->on_body->id, $self->on_body->name, $loss],
     );
-    $self->on_body->add_news(100,'Led by %s, the citizens of %s are rebelling against %s.', $self->name, $self->on_body->name, $self->on_body->empire->name);
+    $self->on_body->add_news(100,
+                             'Led by %s, the citizens of %s are rebelling against %s.',
+                             $self->name,
+                             $self->on_body->name,
+                             $self->on_body->empire->name);
     return $message->id;
 }
 
@@ -1279,26 +1416,34 @@ sub knock_attacker_unconscious {
 sub turn_defender {
     my ($self, $defender) = @_;
     return $self->no_contact->id unless (defined $defender);
-    $self->on_body->add_news(70,'Military leaders on %s are calling for a no confidence vote about the Governor.', $self->on_body->name);
+    $self->on_body->add_news(70,
+                             'Military leaders on %s are calling for a no confidence vote about the Governor.',
+                             $self->on_body->name);
     return $self->turn_a_spy($defender)->id;
 }
 
 sub turn_riot_cop {
     my ($self, $defender) = @_;
     return $self->no_contact->id unless (defined $defender);
-    $self->on_body->add_news(70,'In a shocking turn of events, police could be seen leaving their posts to join the protesters on %s today.', $self->on_body->name);
+    $self->on_body->add_news(70,
+                             'In a shocking turn of events, police could be seen leaving their posts to join the protesters on %s today.',
+                             $self->on_body->name);
     return $self->turn_a_spy($defender)->id;
 }
 
 sub small_rebellion {
     my ($self, $defender) = @_;
-    $self->on_body->add_news(100,'Hundreds are dead at this hour after a protest turned into a small, but violent, rebellion on %s.', $self->on_body->name);
+    $self->on_body->add_news(100,
+                             'Hundreds are dead at this hour after a protest turned into a small, but violent, rebellion on %s.',
+                             $self->on_body->name);
     return $self->sow_discontent(13000)->id;
 }
 
 sub march_on_capitol {
     my ($self, $defender) = @_;
-    $self->on_body->add_news(100,'Protesters now march on the %s Planetary Command Center, asking for the Governor\'s resignation.', $self->on_body->name);
+    $self->on_body->add_news(100,
+                             'Protesters now march on the %s Planetary Command Center, asking for the Governor\'s resignation.',
+                             $self->on_body->name);
     return $self->sow_discontent(11000)->id;
 }
 
@@ -1310,13 +1455,17 @@ sub violent_protest {
 
 sub protest {
     my ($self, $defender) = @_;
-    $self->on_body->add_news(100,'Protesters can be seen jeering outside nearly every Ministry at this hour on %s.', $self->on_body->name);
+    $self->on_body->add_news(100,
+                             'Protesters can be seen jeering outside nearly every Ministry at this hour on %s.',
+                             $self->on_body->name);
     return $self->sow_discontent(7000)->id;
 }
 
 sub civil_unrest {
     my ($self, $defender) = @_;
-    $self->on_body->add_news(100,'In recent weeks there have been rumblings of political discontent on %s.', $self->on_body->name);
+    $self->on_body->add_news(100,
+                             'In recent weeks there have been rumblings of political discontent on %s.',
+                             $self->on_body->name);
     return $self->sow_discontent(5000)->id;
 }
 
@@ -1324,7 +1473,9 @@ sub calm_the_rebels {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $self->sow_bliss(randint(250,2500));
-    $self->on_body->add_news(100,'In an effort to bring an swift end to the rebellion, the %s Governor delivered an eloquent speech about hope.', $self->on_body->name);
+    $self->on_body->add_news(100,
+                             'In an effort to bring an swift end to the rebellion, the %s Governor delivered an eloquent speech about hope.',
+                             $self->on_body->name);
     return undef;
 }
 
@@ -1332,7 +1483,9 @@ sub peace_talks {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $self->sow_bliss(randint(500,5000));
-    $self->on_body->add_news(100,'Officials from both sides of the rebellion are at the Planetary Command Center on %s today to discuss peace.', $self->on_body->name);
+    $self->on_body->add_news(100,
+                             'Officials from both sides of the rebellion are at the Planetary Command Center on %s today to discuss peace.',
+                             $self->on_body->name);
     return undef;
 }
 
@@ -1340,7 +1493,9 @@ sub day_of_rest {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $self->sow_bliss(randint(2500,25000));
-    $self->on_body->add_news(100,'The Governor of %s declares a day of rest and peace. Citizens rejoice.', $self->on_body->name);
+    $self->on_body->add_news(100,
+                             'The Governor of %s declares a day of rest and peace. Citizens rejoice.',
+                             $self->on_body->name);
     return undef;
 }
 
@@ -1348,35 +1503,50 @@ sub festival {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $self->sow_bliss(randint(1000,10000));
-    $self->on_body->add_news(100,'The %s Governor calls it the %s festival. Whatever you call it, people are happy.', $self->on_body->name, $self->on_body->star->name);
+    $self->on_body->add_news(100,
+                             'The %s Governor calls it the %s festival. Whatever you call it, people are happy.',
+                             $self->on_body->name,
+                             $self->on_body->star->name);
     return undef;
 }
 
 sub turn_defector {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(60,'%s has just announced plans to defect from %s to %s.', $self->name, $self->empire->name, $defender->empire->name);
+    $self->on_body->add_news(60,
+                             '%s has just announced plans to defect from %s to %s.',
+                             $self->name,
+                             $self->empire->name,
+                             $defender->empire->name);
     return $defender->turn_a_spy($self)->id;
 }
 
 sub turn_rebel {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(70,'The %s Governor\'s call for peace appears to be working. Several rebels told this reporter they are going home.', $self->on_body->name);
+    $self->on_body->add_news(70,
+                             'The %s Governor\'s call for peace appears to be working. Several rebels told this reporter they are going home.',
+                             $self->on_body->name);
     return $defender->turn_a_spy($self)->id;
 }
 
 sub capture_rebel {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(50,'Police say they have crushed the rebellion on %s by apprehending %s.', $self->on_body->name, $self->name);
+    $self->on_body->add_news(50,
+                             'Police say they have crushed the rebellion on %s by apprehending %s.',
+                             $self->on_body->name,
+                             $self->name);
     return $defender->capture_a_spy($self)->id;
 }
 
 sub prevent_insurrection {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(20,'Officials prevented a coup d\'tat today on on %s by capturing %s and comrades.', $self->on_body->name, $self->name);
+    $self->on_body->add_news(20,
+                             'Officials prevented a coup d\'tat today on on %s by capturing %s and comrades.',
+                             $self->on_body->name,
+                             $self->name);
     $self->go_to_jail;
     my $alliance_id = $self->empire->alliance_id;
     my @member_ids;
@@ -1386,7 +1556,11 @@ sub prevent_insurrection {
     else {
        $member_ids[0] = $self->empire->id;
     }
-    my $conspirators = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ on_body_id => $self->on_body_id, task => { 'not in' => ['Killed in Action', 'Travelling','Captured'] }, empire_id => { 'in' => \@member_ids } });
+    my $conspirators = Lacuna->db
+                        ->resultset('Lacuna::DB::Result::Spies')
+                        ->search( { on_body_id => $self->on_body_id,
+                                    task => { 'not in' => ['Killed in Action', 'Travelling','Captured'] },
+                                    empire_id => { 'in' => \@member_ids } });
     my $count = randint(5,75);
     while (my $conspirator = $conspirators->next ) {
        $count--;
@@ -1409,7 +1583,9 @@ sub prevent_insurrection {
 sub capture_kidnapper {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(50,'Police say they have captured the notorious %s-time kidnapper %s on %s.', randint(10,20), $self->on_body->name, $self->name);
+    $self->on_body->add_news(50,
+                             'Police say they have captured the notorious %s-time kidnapper %s on %s.',
+                             randint(10,20), $self->on_body->name, $self->name);
     return $defender->capture_a_spy($self)->id;
 }
 
@@ -1424,7 +1600,9 @@ sub abduct_operative {
         }
     }
     my $ship = $ships->search(
-        {body_id => $self->on_body->id, task => 'Docked', hold_size => { '>=' => 700 }, type => {'in' => \@types}},
+        {body_id => $self->on_body->id,
+                    task => 'Docked',
+                    hold_size => { '>=' => 700 }, type => {'in' => \@types}},
         {rows => 1}
         )->single;
     return $self->ship_not_found->id unless (defined $ship);
@@ -1466,7 +1644,10 @@ sub abduct_operative {
 sub thwart_rebel {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(20,'The rebel leader, known as %s, is still eluding authorities on %s at this hour.', $self->name, $self->on_body->name);
+    $self->on_body->add_news(20,
+                             'The rebel leader, known as %s, is still eluding authorities on %s at this hour.',
+                             $self->name,
+                             $self->on_body->name);
     return $defender->thwart_a_spy($self)->id;
 }
 
@@ -1474,7 +1655,8 @@ sub thwart_rebel {
 sub destroy_infrastructure {
     my ($self, $defender) = @_;
     my $building = $self->on_body->buildings->search(
-        { efficiency => { '>' => 0 }, class => { 'not like' => 'Lacuna::DB::Result::Bulding::Permanent%' } },
+        { efficiency => { '>' => 0 },
+          class => { 'not like' => 'Lacuna::DB::Result::Bulding::Permanent%' } },
         { rows=>1, order_by => 'rand()' }
         )->single;
     return $self->building_not_found->id unless defined $building;
@@ -1486,12 +1668,21 @@ sub destroy_infrastructure {
         params      => [$building->level, $building->name, $self->on_body->id, $self->on_body->name],
     );
     $self->things_destroyed( $self->things_destroyed + 1 );
-    $self->on_body->add_news(90,'%s was rocked today when the %s exploded, sending people scrambling for their lives.', $self->on_body->name, $building->name);
+    $self->on_body->add_news(90,
+                             '%s was rocked today when the %s exploded, sending people scrambling for their lives.',
+                             $self->on_body->name,
+                             $building->name);
     $building->spend_efficiency($self->level)->update;
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'sabotage_report.txt',
-        params      => ['level '.($building->level).' '.$building->name, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => ['level '.($building->level).' '.$building->name,
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
     )->id;
 }
 
@@ -1541,9 +1732,18 @@ sub destroy_ship {
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'sabotage_report.txt',
-        params      => [$ship->type_formatted, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => [$ship->type_formatted,
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
     );
-    $self->on_body->add_news(90,'Today officials on %s are investigating the explosion of a %s at the Space Port.', $self->on_body->name, $ship->type_formatted);
+    $self->on_body->add_news(90,
+                             'Today officials on %s are investigating the explosion of a %s at the Space Port.', 
+                             $self->on_body->name, 
+                             $ship->type_formatted);
     $ship->delete;
     return $message->id;
 }
@@ -1562,9 +1762,17 @@ sub destroy_plan {
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'sabotage_report.txt',
-        params      => [$stolen, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => [$stolen,
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
     );
-    $self->on_body->add_news(70,'The Planetary Command on %s was torched. While the building itself survived a critical plan was lost.', $self->on_body->name);
+    $self->on_body->add_news(70,
+                             'The Planetary Command on %s was torched. While the building itself survived a critical plan was lost.',
+                             $self->on_body->name);
     $plan->delete;
     return $message->id;
 }
@@ -1583,9 +1791,17 @@ sub destroy_glyph {
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'sabotage_report.txt',
-        params      => [$stolen, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => [$stolen,
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
     );
-    $self->on_body->add_news(70,'A museum was broken into on %s and a rare artifact was smashed to pieces.', $self->on_body->name);
+    $self->on_body->add_news(70,
+                             'A museum was broken into on %s and a rare artifact was smashed to pieces.',
+                             $self->on_body->name);
     $glyph->delete;
     return $message->id;
 }
@@ -1605,9 +1821,18 @@ sub destroy_resources {
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'sabotage_report.txt',
-        params      => [$stolen, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => [$stolen,
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
     );
-    $self->on_body->add_news(70,'A train carrying a load of %s on %s derailed destroying the cargo.', $resource, $self->on_body->name);
+    $self->on_body->add_news(70,
+                             'A train carrying a load of %s on %s derailed destroying the cargo.',
+                             $resource,
+                             $self->on_body->name);
     return $message->id;
 }
 
@@ -1625,21 +1850,34 @@ sub destroy_mining_ship {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'ship_blew_up_at_port.txt',
-        params      => ['mining '.$ship->type_formatted, $self->on_body->id, $self->on_body->name],
+        params      => ['mining '.$ship->type_formatted,
+                        $self->on_body->id,
+                        $self->on_body->name],
     );
     $self->things_destroyed( $self->things_destroyed + 1 );
-    $self->on_body->add_news(90,'Today, officials on %s are investigating the explosion of a mining cargo ship at the Space Port.', $self->on_body->name);
+    $self->on_body->add_news(90,
+                             'Today, officials on %s are investigating the explosion of a mining cargo ship at the Space Port.',
+                             $self->on_body->name);
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'sabotage_report.txt',
-        params      => ['mining cargo ship', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => ['mining cargo ship',
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
     )->id;
 }
 
 sub capture_saboteur {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(40,'A saboteur was apprehended on %s today by %s authorities.', $self->on_body->name, $self->on_body->empire->name);
+    $self->on_body->add_news(40,
+                             'A saboteur was apprehended on %s today by %s authorities.',
+                             $self->on_body->name,
+                             $self->on_body->empire->name);
     return $defender->capture_a_spy($self)->id;
 }
 
@@ -1653,7 +1891,10 @@ sub capture_saboteur {
 sub thwart_saboteur {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(20,'%s authorities on %s are conducting a manhunt for a suspected saboteur.', $self->on_body->empire->name, $self->on_body->name);
+    $self->on_body->add_news(20,
+                             '%s authorities on %s are conducting a manhunt for a suspected saboteur.',
+                             $self->on_body->empire->name,
+                             $self->on_body->name);
     return $defender->thwart_a_spy($self)->id;
 }
 
@@ -1661,7 +1902,14 @@ sub steal_resources {
     my ($self, $defender) = @_;
     my $on_body = $self->on_body;
     my $ship = $on_body->ships->search(
-        {task => 'Docked', type => {'in' => ['cargo_ship','smuggler_ship','galleon','freighter','hulk','dory','barge']}},
+        {task => 'Docked',
+         type => {'in' => ['cargo_ship',
+                           'smuggler_ship',
+                           'galleon',
+                           'freighter',
+                           'hulk',
+                           'dory',
+                           'barge']}},
         { rows => 1}
         )->single;
     return $self->ship_not_found->id unless defined $ship;
@@ -1702,7 +1950,10 @@ sub steal_resources {
         params      => [$ship->type_formatted, $self->on_body->id, $self->on_body->name],
         attachments=> { table => \@table},
     );
-    $self->on_body->add_news(50,'In a daring robbery today a thief absconded with a %s full of resources from %s.', $ship->type_formatted, $self->on_body->name);
+    $self->on_body->add_news(50,
+                             'In a daring robbery today a thief absconded with a %s full of resources from %s.',
+                             $ship->type_formatted,
+                             $self->on_body->name);
     $self->send($home->id, $ship->date_available->clone);
     $self->things_stolen( $self->things_stolen + 1 );
     return $self->empire->send_predefined_message(
@@ -1717,7 +1968,13 @@ sub steal_glyph {
     my ($self, $defender) = @_;
     my $on_body = $self->on_body;
     my $ship = $on_body->ships->search(
-        {task => 'Docked', type => {'in' => ['cargo_ship','smuggler_ship','galleon','freighter','hulk','barge']}},
+        {task => 'Docked',
+         type => {'in' => ['cargo_ship',
+                           'smuggler_ship',
+                           'galleon',
+                           'freighter',
+                           'hulk',
+                           'barge']}},
         { rows => 1}
         )->single;
     return $self->ship_not_found->id unless defined $ship;
@@ -1743,7 +2000,10 @@ sub steal_glyph {
         params      => [$ship->type_formatted, $self->on_body->id, $self->on_body->name],
         attachments=> { table => \@table},
     );
-    $self->on_body->add_news(50,'In a daring robbery today a thief absconded with a %s carrying a glyph from %s.', $ship->type_formatted, $self->on_body->name);
+    $self->on_body->add_news(50,
+                             'In a daring robbery today a thief absconded with a %s carrying a glyph from %s.',
+                             $ship->type_formatted,
+                             $self->on_body->name);
     $self->send($home->id, $ship->date_available->clone);
     $self->things_stolen( $self->things_stolen + 1 );
     return $self->empire->send_predefined_message(
@@ -1782,13 +2042,19 @@ sub steal_ships {
         filename    => 'ship_stolen.txt',
         params      => [$ship->type_formatted, $self->on_body->id, $self->on_body->name],
     );
-    $self->on_body->add_news(50,'In a daring robbery a thief absconded with a %s from %s today.', $ship->type_formatted, $self->on_body->name);
+    $self->on_body->add_news(50,
+                             'In a daring robbery a thief absconded with a %s from %s today.',
+                             $ship->type_formatted,
+                             $self->on_body->name);
     $self->things_stolen( $self->things_stolen + 1 );
     $self->send($home->id, $ship->date_available->clone);
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'ship_theft_report.txt',
-        params      => [$ship->type_formatted, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => [$ship->type_formatted,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
     )->id;
 }
 
@@ -1824,7 +2090,11 @@ sub steal_building {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'building_theft_report.txt',
-        params      => [$level, $building->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => [$level,
+                        $building->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
     )->id;
 }
 
@@ -1841,33 +2111,49 @@ sub steal_plan {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'plan_stolen.txt',
-        params      => [$plan->level_formatted, $plan->class->name, $self->on_body->id, $self->on_body->name],
+        params      => [$plan->level_formatted,
+                        $plan->class->name,
+                        $self->on_body->id,
+                        $self->on_body->name],
     );
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'building_theft_report.txt',
-        params      => [$plan->level_formatted, $plan->class->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => [$plan->level_formatted,
+                        $plan->class->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
     )->id;
 }
 
 sub kill_thief {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(70,'%s police caught and killed a thief on %s during the commission of the hiest.', $self->on_body->empire->name, $self->on_body->name);
+    $self->on_body->add_news(70,
+                             '%s police caught and killed a thief on %s during the commission of the hiest.',
+                             $self->on_body->empire->name,
+                             $self->on_body->name);
     return $defender->kill_attacking_spy($self)->id;
 }
 
 sub capture_thief {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(40,'%s announced the incarceration of a thief on %s today.', $self->on_body->empire->name, $self->on_body->name);
+    $self->on_body->add_news(40,
+                             '%s announced the incarceration of a thief on %s today.',
+                             $self->on_body->empire->name,
+                             $self->on_body->name);
     return $defender->capture_a_spy($self)->id;
 }
 
 sub thwart_thief {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(20,'A thief evaded %s authorities on %s. Citizens are warned to lock their doors.', $self->on_body->empire->name, $self->on_body->name);
+    $self->on_body->add_news(20,
+                             'A thief evaded %s authorities on %s. Citizens are warned to lock their doors.',
+                             $self->on_body->empire->name,
+                             $self->on_body->name);
     return $defender->thwart_a_spy($self)->id;
 }
 
@@ -1892,29 +2178,51 @@ sub shut_down_building {
     );
     $building->body($self->on_body);
     $building->spend_efficiency($self->level)->update;
-    $self->on_body->add_news(25,'Employees at the %s on %s were left in the dark today during a power outage.', $building->name, $self->on_body->name);    
+    $self->on_body->add_news(25,
+                             'Employees at the %s on %s were left in the dark today during a power outage.',
+                             $building->name,
+                             $self->on_body->name);
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_disabled_a_building.txt',
-        params      => [$building->name, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->format_from],
+        params      => [$building->name,
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->format_from],
     )->id;
 }
 
 sub take_control_of_probe {
     my ($self, $defender) = @_;
-    my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->on_body_id }, {rows=>1})->single;
+    my $probe = Lacuna->db
+                  ->resultset('Lacuna::DB::Result::Probes')
+                  ->search({body_id => $self->on_body_id },
+                           {rows=>1})->single;
     return $self->probe_not_found->id unless defined $probe;
     $self->things_stolen( $self->things_stolen + 1 );
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'probe_destroyed.txt',
-        params      => [$probe->body->id, $probe->body->name, $probe->star->x, $probe->star->y, $probe->star->name],
+        params      => [$probe->body->id,
+                        $probe->body->name,
+                        $probe->star->x,
+                        $probe->star->y,
+                        $probe->star->name],
     );
-    $self->on_body->add_news(25,'%s scientists say they have lost control of a research satellite in the %s system.', $self->on_body->empire->name, $probe->star->name);    
+    $self->on_body->add_news(25,
+                             '%s scientists say they have lost control of a research satellite in the %s system.',
+                             $self->on_body->empire->name,
+                             $probe->star->name);    
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_have_taken_control_of_a_probe.txt',
-        params      => [$probe->star->x, $probe->star->y, $probe->star->name, $probe->empire_id, $probe->empire->name, $self->format_from],
+        params      => [$probe->star->x,
+                        $probe->star->y,
+                        $probe->star->name,
+                        $probe->empire_id,
+                        $probe->empire->name,
+                        $self->format_from],
     );
     $probe->body_id($self->from_body_id);
     $probe->empire_id($self->empire_id);
@@ -1926,7 +2234,10 @@ sub kill_contact_with_mining_platform {
     my ($self, $defender) = @_;
     my $ministry = $self->on_body->mining_ministry;
     return $self->building_not_found->id unless defined $ministry;
-    my $platform = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({planet_id => $self->on_body->id},{rows=>1})->single;
+    my $platform = Lacuna->db
+                     ->resultset('Lacuna::DB::Result::MiningPlatforms')
+                     ->search({planet_id => $self->on_body->id},
+                              {rows=>1})->single;
     return $self->mission_objective_not_found('mining platform')->id unless defined $platform;
     my $asteroid = $platform->asteroid;
     return $self->mission_objective_not_found('mining platform')->id unless defined $asteroid;
@@ -1937,47 +2248,84 @@ sub kill_contact_with_mining_platform {
         params      => [$asteroid->x, $asteroid->y, $asteroid->name],
     );
     $self->things_destroyed( $self->things_destroyed + 1 );
-    $self->on_body->add_news(50,'The %s controlled mining outpost on %s went dark. Our thoughts are with the miners.', $self->on_body->empire->name, $asteroid->name);    
+    $self->on_body->add_news(50,
+                             'The %s controlled mining outpost on %s went dark. Our thoughts are with the miners.',
+                             $self->on_body->empire->name,
+                             $asteroid->name);    
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_disabled_a_mining_platform.txt',
-        params      => [$asteroid->x, $asteroid->y, $asteroid->name, $self->on_body->empire->id, $self->on_body->empire->name, $self->format_from],
+        params      => [$asteroid->x,
+                        $asteroid->y,
+                        $asteroid->name,
+                        $self->on_body->empire->id,
+                        $self->on_body->empire->name,
+                        $self->format_from],
     )->id;
 }
 
 sub hack_observatory_probes {
     my ($self, $defender) = @_;
-    my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->on_body->id }, {rows=>1})->single;
+    my $probe = Lacuna->db
+                  ->resultset('Lacuna::DB::Result::Probes')
+                  ->search({body_id => $self->on_body->id },
+                           {rows=>1})->single;
     return $self->probe_not_found->id unless defined $probe;
     $self->things_destroyed( $self->things_destroyed + 1 );
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_destroyed_a_probe.txt',
-        params      => [$probe->star->x, $probe->star->y, $probe->star->name, $probe->empire->id, $probe->empire->name, $self->format_from],
+        params      => [$probe->star->x,
+                        $probe->star->y,
+                        $probe->star->name,
+                        $probe->empire->id,
+                        $probe->empire->name,
+                        $self->format_from],
     );
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'probe_destroyed.txt',
-        params      => [$probe->star->x, $probe->star->y, $probe->star->name],
+        params      => [$probe->star->x,
+                        $probe->star->y,
+                        $probe->star->name],
     );
     $probe->delete;
-    $self->on_body->add_news(25,'%s scientists say they have lost control of a research satellite in the %s system.', $self->on_body->empire->name, $probe->star->name);    
+    $self->on_body->add_news(25,
+                             '%s scientists say they have lost control of a research satellite in the %s system.',
+                             $self->on_body->empire->name,
+                             $probe->star->name);    
     return $message->id;
 }
 
 sub hack_offending_probes {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    my @safe = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({task=>'Counter Espionage', on_body_id=>$defender->on_body_id})->get_column('empire_id')->all;
-    my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $self->on_body->star_id, empire_id => {'not in' => \@safe} }, {rows=>1})->single;
+    my @safe = Lacuna->db
+                 ->resultset('Lacuna::DB::Result::Spies')
+                 ->search( {task=>'Counter Espionage',
+                            on_body_id=>$defender->on_body_id})
+                 ->get_column('empire_id')->all;
+    my $probe = Lacuna->db
+                 ->resultset('Lacuna::DB::Result::Probes')
+                 ->search({star_id => $self->on_body->star_id,
+                           empire_id => {'not in' => \@safe} },
+                          {rows=>1})->single;
     return $self->probe_not_found->id unless defined $probe;
     $defender->things_destroyed( $defender->things_destroyed + 1 );
     $defender->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_destroyed_a_probe.txt',
-        params      => [$probe->star->x, $probe->star->y, $probe->star->name, $probe->empire->id, $probe->empire->name, $defender->format_from],
+        params      => [$probe->star->x,
+                        $probe->star->y,
+                        $probe->star->name,
+                        $probe->empire->id,
+                        $probe->empire->name,
+                        $defender->format_from],
     );
-    $self->on_body->add_news(25,'%s scientists say they have lost control of a research satellite in the %s system.', $probe->empire->name, $self->on_body->star->name);    
+    $self->on_body->add_news(25,
+                             '%s scientists say they have lost control of a research satellite in the %s system.',
+                             $probe->empire->name,
+                             $self->on_body->star->name);    
     my $message = $probe->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'probe_destroyed.txt',
@@ -1989,19 +2337,33 @@ sub hack_offending_probes {
 
 sub hack_local_probes {
     my ($self, $defender) = @_;
-    my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $self->on_body->star_id, empire_id => $self->on_body->empire_id }, {rows=>1})->single;
+    my $probe = Lacuna->db
+                  ->resultset('Lacuna::DB::Result::Probes')
+                  ->search( {star_id => $self->on_body->star_id,
+                             empire_id => $self->on_body->empire_id },
+                            {rows=>1})->single;
     return $self->probe_not_found->id unless defined $probe;
     $self->things_destroyed( $self->things_destroyed + 1 );
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'probe_destroyed.txt',
-        params      => [$probe->star->x, $probe->star->y, $probe->star->name],
+        params      => [$probe->star->x,
+                        $probe->star->y,
+                        $probe->star->name],
     );
-    $self->on_body->add_news(25,'%s scientists say they have lost control of a research probe in the %s system.', $self->on_body->empire->name, $self->on_body->star->name);    
+    $self->on_body->add_news(25,
+                             '%s scientists say they have lost control of a research probe in the %s system.',
+                             $self->on_body->empire->name,
+                             $self->on_body->star->name);    
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_destroyed_a_probe.txt',
-        params      => [$probe->star->x, $probe->star->y, $probe->star->name, $probe->empire->id, $probe->empire->name, $self->format_from],
+        params      => [$probe->star->x,
+                        $probe->star->y,
+                        $probe->star->name,
+                        $probe->empire->id,
+                        $probe->empire->name,
+                        $self->format_from],
     );
     $probe->delete;
     return $message->id;
@@ -2022,7 +2384,13 @@ sub colony_report {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Colony Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => ['Colony Report',
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
         attachments=> { table => \@report},
     )->id;
 }
@@ -2041,7 +2409,13 @@ sub surface_report {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Surface Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => ['Surface Report',
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
         attachments  => { map => {
             surface         => $self->on_body->surface,
             buildings       => \@map
@@ -2053,7 +2427,10 @@ sub spy_report {
     my ($self, $defender) = @_;
     my @peeps = (['Name','From','Assignment','Level']);
     my %planets = ( $self->on_body->id => $self->on_body->name );
-    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({empire_id => {'!=' => $self->empire_id}, on_body_id=>$self->on_body_id});
+    my $spies = Lacuna->db
+                  ->resultset('Lacuna::DB::Result::Spies')
+                  ->search( {empire_id => {'!=' => $self->empire_id},
+                             on_body_id=>$self->on_body_id});
     while (my $spook = $spies->next) {
         unless (exists $planets{$spook->from_body_id}) {
             $planets{$spook->from_body_id} = $spook->from_body->name;
@@ -2063,7 +2440,13 @@ sub spy_report {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Spy Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => ['Spy Report',
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
         attachments=> { table => \@peeps},
     )->id;
 }
@@ -2082,7 +2465,13 @@ sub economic_report {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Economic Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => ['Economic Report',
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
         attachments => { table => \@resources},
     )->id;
 }
@@ -2111,14 +2500,23 @@ sub travel_report {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Travel Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => ['Travel Report',
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
         attachments => { table => \@travelling},
     )->id;
 }
 
 sub ship_report {
     my ($self, $defender) = @_;
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $self->on_body->id, task => 'Docked'});
+    my $ships = Lacuna->db
+                  ->resultset('Lacuna::DB::Result::Ships')
+                  ->search( {body_id => $self->on_body->id,
+                             task => 'Docked'});
     my @ships = (['Name', 'Type', 'Speed', 'Hold Size']);
     while (my $ship = $ships->next) {
         push @ships, [$ship->name, $ship->type_formatted, $ship->speed, $ship->hold_size];
@@ -2126,7 +2524,13 @@ sub ship_report {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Docked Ships Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => ['Docked Ships Report',
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
         attachments => { table => \@ships},
     )->id;
 }
@@ -2145,7 +2549,13 @@ sub build_queue_report {
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Build Queue Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => ['Build Queue Report',
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
         attachments => { table => \@report},
     )->id;
 }
@@ -2160,7 +2570,13 @@ sub false_interrogation_report {
     $defender->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Interrogation Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => ['Interrogation Report',
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
         attachments => { table => [
             ['Question', 'Response'],
             ['Name', $suspect->name],
@@ -2187,12 +2603,23 @@ sub false_interrogation_report {
     $suspect->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'false_interrogation.txt',
-        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $suspect->name, $suspect_home->id, $suspect_home->name],
+        params      => [$self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $suspect->name,
+                        $suspect_home->id,
+                        $suspect_home->name],
     );
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'interrogating_prisoners_failing.txt',
-        params      => [$self->on_body->x, $self->on_body->y, $self->on_body->name, $suspect->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => [$self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $suspect->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
     )->id;
 }
 
@@ -2206,7 +2633,13 @@ sub interrogation_report {
     $defender->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Interrogation Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
+        params      => ['Interrogation Report',
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
         attachments => { table => [
             ['Question', 'Response'],
             ['Name', $suspect->name],
@@ -2247,7 +2680,10 @@ sub escape_prison {
     my ($self, $defender) = @_;
     my $suspect = $self->get_random_prisoner;
     return $self->no_contact->id unless defined $suspect;
-    $self->on_body->add_news(50,'At this hour police on %s are flabbergasted as to how an inmate escaped earlier in the day.', $self->on_body->name);    
+    $self->on_body
+      ->add_news(50,
+                 'At this hour police on %s are flabbergasted as to how an inmate escaped earlier in the day.',
+                 $self->on_body->name);    
     return $suspect->escape->id;
 }
 
@@ -2263,14 +2699,21 @@ sub escape_prison {
 sub capture_rescuer {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(60,'%s was caught trying to break into prison today on %s. Police insisted he stay.', $self->name, $self->on_body->name);
+    $self->on_body
+       ->add_news(60,
+                  '%s was caught trying to break into prison today on %s. Police insisted he stay.',
+                   $self->name,
+                   $self->on_body->name);
     return $defender->capture_a_spy($self)->id;
 }
 
 sub thwart_intelligence {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(25,'Corporate espionage has become a real problem on %s.', $self->on_body->name);
+    $self->on_body
+      ->add_news(25,
+                 'Corporate espionage has become a real problem on %s.',
+                 $self->on_body->name);
     return $defender->thwart_a_spy($self)->id;
 }
 
@@ -2279,7 +2722,10 @@ sub counter_intel_report {
     return $self->get_spooked->id unless defined $defender;
     my @peeps = (['Name','From','Assignment','Level']);
     my %planets = ( $self->on_body->id => $self->on_body->name );
-    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({empire_id => {'!=' => $defender->empire_id}, on_body_id=>$self->on_body_id});
+    my $spies = Lacuna->db
+                  ->resultset('Lacuna::DB::Result::Spies')
+                  ->search( {empire_id => {'!=' => $defender->empire_id},
+                             on_body_id=>$self->on_body_id});
     while (my $spook = $spies->next) {
         unless (exists $planets{$spook->from_body_id}) {
             $planets{$spook->from_body_id} = $spook->from_body->name;
@@ -2289,7 +2735,13 @@ sub counter_intel_report {
     $defender->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
-        params      => ['Counter Intelligence Report', $self->on_body->x, $self->on_body->y, $self->on_body->name, $defender->name, $defender->from_body->id, $defender->from_body->name],
+        params      => ['Counter Intelligence Report',
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $defender->name,
+                        $defender->from_body->id,
+                        $defender->from_body->name],
         attachments => { table => \@peeps},
     );
     return undef;
@@ -2298,21 +2750,32 @@ sub counter_intel_report {
 sub kill_cop {
     my ($self, $defender) = @_;
     return $self->no_contact->id unless (defined $defender);
-    $self->on_body->add_news(60,'An officer named %s was killed in the line of duty on %s.', $defender->name, $self->on_body->name);
+    $self->on_body
+      ->add_news(60,
+                 'An officer named %s was killed in the line of duty on %s.',
+                 $defender->name,
+                 $self->on_body->name);
 	return $self->kill_defending_spy($defender)->id;
 }
 
 sub kill_intelligence {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(60,'A suspected spy was killed in a struggle with police on %s today.', $self->on_body->name);
+    $self->on_body
+      ->add_news(60,
+                 'A suspected spy was killed in a struggle with police on %s today.',
+                 $self->on_body->name);
     return $defender->kill_attacking_spy($self)->id;
 }
 
 sub capture_hacker {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(30,'Alleged hacker %s is awaiting arraignment on %s today.', $self->name, $self->on_body->name);
+    $self->on_body
+      ->add_news(30,
+                 'Alleged hacker %s is awaiting arraignment on %s today.',
+                 $self->name,
+                 $self->on_body->name);
     return $defender->capture_a_spy($self)->id;
 }
 
@@ -2326,7 +2789,10 @@ sub capture_hacker {
 sub thwart_hacker {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(10,'Identity theft has become a real problem on %s.', $self->on_body->name);  
+    $self->on_body
+      ->add_news(10,
+                'Identity theft has become a real problem on %s.',
+                $self->on_body->name);  
     return $defender->thwart_a_spy($self)->id;
 }
 
@@ -2334,7 +2800,10 @@ sub network19_propaganda1 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
-    if ($self->on_body->add_news(50,'A resident of %s has won the Lacuna Expanse talent competition.', $self->on_body->name)) {
+    if ($self->on_body
+          ->add_news(50,
+                     'A resident of %s has won the Lacuna Expanse talent competition.',
+                     $self->on_body->name)) {
         $self->on_body->add_happiness(250)->update;
     }
     return undef;
@@ -2344,7 +2813,10 @@ sub network19_propaganda2 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
-    if ($self->on_body->add_news(50,'The economy of %s is looking strong, showing GDP growth of nearly 10%% for the past quarter.',$self->on_body->name)) {
+    if ($self->on_body
+          ->add_news(50,
+                     'The economy of %s is looking strong, showing GDP growth of nearly 10%% for the past quarter.',
+                     $self->on_body->name)) {
         $self->on_body->add_happiness(500)->update;
     }
     return undef;
@@ -2354,7 +2826,10 @@ sub network19_propaganda3 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
-    if ($self->on_body->add_news(50,'The Governor of %s has set aside 1000 square kilometers as a nature preserve.', $self->on_body->name)) {
+    if ($self->on_body
+          ->add_news(50,
+                     'The Governor of %s has set aside 1000 square kilometers as a nature preserve.',
+                      $self->on_body->name)) {
         $self->on_body->add_happiness(750)->update;
     }
     return undef;
@@ -2364,7 +2839,11 @@ sub network19_propaganda4 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
-    if ($self->on_body->add_news(50,'If %s had not inhabited %s, the planet would likely have reverted to a barren rock.', $self->on_body->empire->name, $self->on_body->name)) {
+    if ($self->on_body
+          ->add_news(50,
+                     'If %s had not inhabited %s, the planet would likely have reverted to a barren rock.',
+                      $self->on_body->empire->name,
+                      $self->on_body->name)) {
         $self->on_body->add_happiness(1000)->update;
     }
     return undef;
@@ -2374,7 +2853,11 @@ sub network19_propaganda5 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
-    if ($self->on_body->add_news(50,'The benevolent leader of %s is a gift to the people of %s.', $self->on_body->empire->name, $self->on_body->name)) {
+    if ($self->on_body
+          ->add_news(50,
+                     'The benevolent leader of %s is a gift to the people of %s.',
+                      $self->on_body->empire->name,
+                      $self->on_body->name)) {
         $self->on_body->add_happiness(1250)->update;
     }
     return undef;
@@ -2384,7 +2867,10 @@ sub network19_propaganda6 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
-    if ($self->on_body->add_news(50,'%s is the greatest, best, most free empire in the Expanse, ever.', $self->on_body->empire->name)) {
+    if ($self->on_body
+          ->add_news(50,
+                     '%s is the greatest, best, most free empire in the Expanse, ever.',
+                      $self->on_body->empire->name)) {
         $self->on_body->add_happiness(1500)->update;
     }
     return undef;
@@ -2394,7 +2880,10 @@ sub network19_propaganda7 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
-    if ($self->on_body->add_news(50,'%s is the ultimate power in the Expanse right now. It is unlikely to be challenged any time soon.', $self->on_body->empire->name)) {
+    if ($self->on_body
+          ->add_news(50,
+                     '%s is the ultimate power in the Expanse right now. It is unlikely to be challenged any time soon.',
+                      $self->on_body->empire->name)) {
         $self->on_body->add_happiness(1750)->update;
     }
     return undef;
@@ -2403,7 +2892,10 @@ sub network19_propaganda7 {
 sub network19_defamation1 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
-    if ($self->on_body->add_news(50,'A financial report for %s shows that many people are out of work as the unemployment rate approaches 10%%.', $self->on_body->name)) {
+    if ($self->on_body
+          ->add_news(50,
+                     'A financial report for %s shows that many people are out of work as the unemployment rate approaches 10%%.',
+                      $self->on_body->name)) {
         return $self->hack_successful(1000)->id;
     }
     return $self->hack_filtered->id;
@@ -2412,7 +2904,10 @@ sub network19_defamation1 {
 sub network19_defamation2 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
-    if ($self->on_body->add_news(50,'An outbreak of the Dultobou virus was announced on %s today. Citizens are encouraged to stay home from work and school.', $self->on_body->name)) {
+    if ($self->on_body
+          ->add_news(50,
+                     'An outbreak of the Dultobou virus was announced on %s today. Citizens are encouraged to stay home from work and school.',
+                      $self->on_body->name)) {
         return $self->hack_successful(2000)->id;
     }
     return $self->hack_filtered->id;
@@ -2421,7 +2916,10 @@ sub network19_defamation2 {
 sub network19_defamation3 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
-    if ($self->on_body->add_news(50,'%s is unable to keep its economy strong. Sources inside say it will likely fold in a few days.', $self->on_body->empire->name)) {
+    if ($self->on_body
+          ->add_news(50,
+                     '%s is unable to keep its economy strong. Sources inside say it will likely fold in a few days.',
+                      $self->on_body->empire->name)) {
         return $self->hack_successful(3000)->id;
     }
     return $self->hack_filtered->id
@@ -2430,7 +2928,10 @@ sub network19_defamation3 {
 sub network19_defamation4 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
-    if ($self->on_body->add_news(50,'The Governor of %s has lost her mind. She is a raving mad lunatic! The Emperor could not be reached for comment.', $self->on_body->name)) {
+    if ($self->on_body
+          ->add_news(50,
+                     'The Governor of %s has lost her mind. She is a raving mad lunatic! The Emperor could not be reached for comment.',
+                      $self->on_body->name)) {
         return $self->hack_successful(4000)->id;
     }
     return $self->hack_filtered->id;
@@ -2439,7 +2940,10 @@ sub network19_defamation4 {
 sub network19_defamation5 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
-    if ($self->on_body->add_news(50,'%s is the smallest, worst, least free empire in the Expanse, ever.', $self->on_body->empire->name)) {
+    if ($self->on_body
+          ->add_news(50,
+                     '%s is the smallest, worst, least free empire in the Expanse, ever.',
+                      $self->on_body->empire->name)) {
         return $self->hack_successful(5000)->id;
     }
     return $self->hack_filtered->id;

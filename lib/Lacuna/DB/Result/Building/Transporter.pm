@@ -6,7 +6,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 
-with 'Lacuna::Role::Trader';
+with 'Lacuna::Role::Trader','Lacuna::Role::Ship::Trade';
 
 
 around 'build_tags' => sub {
@@ -124,22 +124,9 @@ sub push_items {
         $space_available = $remote_payload;
         $space_exception = 'You are trying to send %s cargo, but the remote transporter can only receive '.$remote_payload.'.';
     }
-    my $space_used = $self->check_payload($items, $space_available, $space_exception);
-    my $ship_count = 0;
-    foreach my $item (@{$items}) {
-        $ship_count++ if $item->{type} eq 'ship';
-    }
-    if ($ship_count) {
-        my $spaceport = $target->spaceport;
-        if (defined $spaceport) {
-            unless ($spaceport->docks_available >= $ship_count) {
-                confess [1011, 'There are no available docks on the remote planet.'];
-            }
-        }
-        else {
-            confess [1011, 'You cannot push ships to a planet that does not have a space port.'];
-        }
-    }
+
+    my $space_used = $self->check_payload_ships($items, $target);
+
     my ($payload, $meta) = $self->structure_payload($items, $space_used);
     my $container = Lacuna::VirtualContainer->new(payload => $payload);
     #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');

@@ -746,7 +746,6 @@ sub cost_to_upgrade {
     my $time_cost = (($self->level+1)/$throttle * $self->time_to_build * $time_inflator ** INFLATION) * $self->time_cost_reduction_bonus * $oversight_reduction;
     $time_cost = 5184000 if ($time_cost > 5184000); # 60 Days
     $time_cost = 15 if ($time_cost < 15);
-    $time_cost = 10000000 if ($time_cost > 10000000);
 
     return {
         food    => sprintf('%.0f',$self->food_to_build * $upgrade_cost * $upgrade_cost_reduction),

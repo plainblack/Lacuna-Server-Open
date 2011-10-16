@@ -6,7 +6,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Guard;
 
-with 'Lacuna::Role::TraderRpc';
+with 'Lacuna::Role::TraderRpc','Lacuna::Role::Ship::Trade';
 
 sub app_url {
     return '/transporter';
@@ -131,10 +131,14 @@ sub accept_from_market {
     unless ($building->determine_available_cargo_space >= $trade->ask) {
         confess [1011, 'This transporter has a maximum load size of '.$building->determine_available_cargo_space.'.'];
     }
+
+    $self->check_payload_ships_id($trade->payload->{ships}, $building->body);
+
     my $body = $building->body;
     unless ($empire->essentia >= $trade->ask + 1) {
         confess [1011, 'You need '.($trade->ask + 1).' essentia to make this trade.']
     }
+
 
     $guard->cancel;
 

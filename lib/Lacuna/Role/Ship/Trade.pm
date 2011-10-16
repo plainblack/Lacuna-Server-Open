@@ -15,7 +15,23 @@ sub check_payload_ships {
 
     $ship_count++ if $ship_stay;
 
-    my $spaceport = $target->spaceport;
+    $self->_can_target_accept_ships($target, $ship_count);
+}
+
+# Check that the target can accept by ship id
+#
+sub check_payload_ships_id {
+    my ($self, $items, $target) = @_;
+
+    my $ship_count = scalar @$items;
+
+    $self->_can_target_accept_ships($target, scalar @$items);
+}
+
+
+sub _can_target_accept_ships {
+    my ($self, $target, $ship_count) = @_;
+
     if ($ship_count) {
         my $spaceport = $target->spaceport;
         if (not defined $spaceport) {

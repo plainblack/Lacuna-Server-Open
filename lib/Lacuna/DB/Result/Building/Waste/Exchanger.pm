@@ -91,6 +91,8 @@ sub recycle {
     
     # start
     my $seconds = $total * $self->seconds_per_resource;
+    $seconds = 15 if $seconds < 15;
+    $seconds = 5184000 if $seconds > 5184000;
     $self->start_work({
         water_from_recycling    => $water,
         ore_from_recycling      => $ore,
