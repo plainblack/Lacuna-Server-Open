@@ -5,7 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 
-with 'Lacuna::Role::Trader';
+with 'Lacuna::Role::Trader','Lacuna::Role::Ship::Trade';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
@@ -104,35 +104,9 @@ sub push_items {
     unless (defined $ship) {
         confess [1011, 'You do not have a ship available to transport cargo.'];
     }
-    if ($options->{stay}) {
-        my $spaceport = $target->spaceport;
-        if (defined $spaceport) {
-            unless ($spaceport->docks_available) {
-                confess [1011, 'There are no available docks on the remote planet.'];
-            }
-        }
-        else {
-            confess [1011, 'You cannot have the ship stay on the remote planet unless there is a Space Port there.'];
-        }
-    }
-    
-    my $space_used = $self->check_payload($items, $ship->hold_size, undef, $ship);
-    my $ship_count = 0;
-    foreach my $item (@{$items}) {
-        $ship_count++ if $item->{type} eq 'ship';
-    }
-    $ship_count++ if ($options->{stay});
-    if ($ship_count) {
-        my $spaceport = $target->spaceport;
-        if (defined $spaceport) {
-            unless ($spaceport->docks_available >= $ship_count) {
-                confess [1011, 'There are no available docks on the remote planet.'];
-            }
-        }
-        else {
-            confess [1011, 'You cannot push ships to a planet that does not have a space port.'];
-        }
-    }
+
+    my $space_used = $self->check_payload($items,$ship->hold_size, undef, $ship);
+    $self->check_payload_ships($items,$target,$options->{stay});
 
     my ($payload, $meta) = $self->structure_payload($items, $space_used);
     foreach my $item (@{$items}) {

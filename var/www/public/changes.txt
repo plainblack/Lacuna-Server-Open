@@ -10,7 +10,13 @@
  - Fix: Damaged Space Ports no longer count towards the max ships a colony can support.
  - Fix: Damaged Shipyards no longer count towards the max ships a colony can build.
  - Fix: Instant spy travel has now been fixed. Spies sent to a colony should only become operational after the ship arrives.
+        Spies will infiltrate after arrival and will be slowed down by Gratch's Gauntlet.
+ - Fix: Transport ships set to 'stay at target' now correctly unload the cargo when the sending colony destructs en-route.
+ - API: Added a 'download' hash to the building status
  - Fix: Failing Incite Insurrection will catch the instigators and cohorts, instead of doing a self purge.
+ - Fix: Defending & Attacking Spies will no longer do negative actions against their allies.
+ - Fix: Pushing ships to a colony via Trade or SST is no longer allowed if there are insufficient docks for the ships
+ - Fix: Accepting a trade via the Trade or the SST is no longer allowed if you have insufficient docks
 
 3.0814
  - Fix: creating a munitions lab does not break isolation status

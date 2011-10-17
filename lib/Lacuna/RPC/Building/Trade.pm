@@ -7,7 +7,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Guard;
 
-with 'Lacuna::Role::TraderRpc';
+with 'Lacuna::Role::TraderRpc','Lacuna::Role::Ship::Trade';
 
 sub app_url {
     return '/trade';
@@ -49,7 +49,7 @@ sub push_items {
         confess [1002, "You must specify a target body id."];
     }
     my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id);
-    unless (defined $target) {
+    if (not defined $target) {
         confess [1002, 'The target body you specified could not be found.'];
     }
     if ($target->class eq 'Lacuna::DB::Result::Map::Body::Planet::Station') {
@@ -139,6 +139,8 @@ sub accept_from_market {
     unless ($empire->essentia >= $trade->ask) {
         confess [1011, 'You need at least '.$trade->ask.' essentia to make this trade.']
     }
+
+    $self->check_payload_ships_id($trade->payload->{ships}, $body);
 
     $guard->cancel;
 

@@ -83,8 +83,11 @@ sub view {
     my $building = $self->get_building($empire, $building_id, skip_offline => 1);
     my $cost = $building->cost_to_upgrade;
     my $can_upgrade = eval{$building->can_upgrade($cost)};
-    my $reason = $@;
+    my $upgrade_reason = $@;
+    my $can_downgrade = eval{$building->can_downgrade};
+    my $downgrade_reason = $@;
     my $image_after_upgrade = $building->image_level($building->level + 1);
+    my $image_after_downgrade = $building->image_level($building->level > 0 ? $building->level - 1 : 0);
 
     my %out = ( 
         building    => {
@@ -109,10 +112,15 @@ sub view {
             repair_costs        => $building->get_repair_costs,
             upgrade             => {
                 can             => ($can_upgrade ? 1 : 0),
-                reason          => $reason,
+                reason          => $upgrade_reason,
                 cost            => $cost,
                 production      => $building->stats_after_upgrade,
                 image           => $image_after_upgrade,
+            },
+            downgrade           => {
+                can             => ($can_downgrade ? 1 : 0),
+                reason          => $downgrade_reason,
+                image           => $image_after_downgrade,
             },
             pending_build       => $building->upgrade_status,
         },
