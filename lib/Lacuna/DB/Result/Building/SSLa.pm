@@ -102,7 +102,7 @@ sub level_costs_formatted {
             energy  => $resource,
             food    => $resource,
             waste   => sprintf('%.0f', $resource/4),
-            time    => $self->plan_cost_at_level($level, $time_cost),
+            time    => $self->plan_time_at_level($level, $time_cost),
         };
     }
     return \@costs;
@@ -126,12 +126,18 @@ has plan_time_cost => (
     }
 );
 
-sub plan_cost_at_level {
+sub plan_time_at_level {
     my ($self, $level, $base) = @_;
     my $time_cost = sprintf('%.0f', $base * (INFLATION ** $level));
     $time_cost = 15 if ($time_cost < 15);
     $time_cost = 5184000 if ($time_cost > 5184000);
     return $time_cost;
+}
+
+sub plan_cost_at_level {
+    my ($self, $level, $base) = @_;
+    my $cost = sprintf('%.0f', $base * (INFLATION ** $level));
+    return $cost;
 }
 
 has max_level => (
