@@ -180,10 +180,6 @@ The specific id of a ship you want to use for this trade. See C<get_trade_ships>
 =back
 
 
-
-
-
-
 =head2 get_ships ( session_id, building_id )
 
 Returns a list of ships that may be traded. Used with the C<add_trade> method.
@@ -253,7 +249,7 @@ Returns a list of plans that may be traded. Used with the C<add_trade> method.
         },
         ...
     ],
-    "cargo_space_used_each" : 100,
+    "cargo_space_used_each" : 10000,
     "status" : { ... }
  }
 
@@ -266,7 +262,32 @@ A session id.
 The unique id of this building.
 
 
+=head2 get_plan_summary ( session_id, building_id )
 
+Returns a list of plans that may be traded in summary form.
+Used with the C<add_trade> method.
+
+ {
+    "plans" : [
+        {
+            "name" : "Intelligence Ministry",
+            "level" : "7",
+            "extra_build_level" : "0",
+            "quantity" : "2"
+        },
+        ...
+    ],
+    "cargo_space_used_each" : 10000,
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building
 
 
 =head2 get_glyphs ( session_id, building_id )
@@ -293,6 +314,29 @@ A session id.
 
 The unique id of this building.
 
+=head2 get_glyph_summary ( session_id, building_id )
+
+Returns a summary of all glyphs that may be traded. Used with the C<add_trade> method.
+
+ {
+    "glyphs" : [
+        {
+            "type" : "bauxite",
+            "quantity" : 2
+        },
+        ...
+    ],
+    "cargo_space_used_each" : 100,
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of this building.
 
 
 =head2 withdraw_from_market ( session_id, building_id, trade_id )

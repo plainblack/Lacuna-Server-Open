@@ -95,6 +95,46 @@ sub get_ships {
     };
 }
 
+sub get_ship_summary {
+    my ($self, $session_id, $building_id) = @_;
+
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        {body_id => $building->body_id, task => 'docked'},
+        {order_by => [ 'type', 'hold_size', 'speed']}
+        );
+
+    my $ship_summary = {};
+    while (my $ship = $ships->next) {
+        my $key = sprintf("%s~%s~%02u~%02u", $ship->name, $ship->type, $ship->hold_size, $ship->speed);
+        $ship_summary->{$key}++;
+    }
+
+    # Sort
+    my @ships = map { {$_ => $ship_summary->{$_}} } sort {$a cmp $b} keys %$ship_summary;
+
+    my @out;
+    for my $ship (@ships) {
+        my ($key,$quantity) = %$ship;
+        my ($name,$type,$hold_size,$speed) = split /~/, $key;
+
+        push @out, {
+            name        => $name,
+            type        => $type,
+            hold_size   => int($hold_size),
+            speed       => int($speed),
+            quantity    => $quantity,
+        };
+    }
+    return {
+        ships                   => \@out,
+        cargo_space_used_each   => 50_000,
+        status                  => $self->format_status($empire, $building->body),
+    };
+}
+
+
 sub get_prisoners {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -118,6 +158,44 @@ sub get_prisoners {
         status                  => $self->format_status($empire, $building->body),
     };
 }
+
+sub get_plan_summary {
+    my ($self, $session_id, $building_id) = @_;
+
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    my $plans = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search(
+        {body_id => $building->body_id}
+    );
+
+    my $plan_summary = {};
+    while (my $plan = $plans->next) {
+        my $key = sprintf("%s~%02u~%02u", $plan->class->name, $plan->level, $plan->extra_build_level);
+        $plan_summary->{$key}++;
+    }
+
+    # Sort
+    my @plans = map { {$_ => $plan_summary->{$_}} } sort {$a cmp $b} keys %$plan_summary;
+
+    my @out;
+    for my $plan (@plans) {
+        my ($key,$quantity) = %$plan;
+        my ($name,$level,$extra) = split /~/, $key;
+
+        push @out, {
+            name                => $name,
+            level               => int($level),
+            extra_build_level   => int($extra),
+            quantity            => $quantity,
+        };
+    }
+    return {
+        plans                   => \@out,
+        cargo_space_used_each   => 10_000,
+        status                  => $self->format_status($empire, $building->body),
+    };
+}
+
 
 sub get_plans {
     my ($self, $session_id, $building_id) = @_;
@@ -163,6 +241,28 @@ sub get_glyphs {
         status                  => $self->format_status($empire, $building->body),
     };
 }
+
+sub get_glyph_summary {
+    my ($self, $session_id, $building_id) = @_;
+
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    my $glyphs      = $building->body->glyphs;
+
+    my $glyph_summary = {};
+    while (my $glyph = $glyphs->next) {
+        $glyph_summary->{$glyph->type}++;
+    }
+    # sort
+    my @out = map { {type => $_, quantity => $glyph_summary->{$_}}} sort {$a cmp $b} keys %$glyph_summary;
+
+    return {
+        glyphs                  => \@out,
+        cargo_space_used_each   => 100,
+        status                  => $self->format_status($empire, $building->body),
+    };
+}
+
 
 sub get_stored_resources {
     my ($self, $session_id, $building_id) = @_;
