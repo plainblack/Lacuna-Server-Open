@@ -64,41 +64,105 @@ sub run_bhg {
   }
 # Pass the basic checks
 # Check for startup failure
+  my $return_stats;
   if (($task->{fail_chance} - $building->level * 3) > randint(1,100) ) {
 # Something went wrong with the start
     my $fail = randint(1,20);
     if ($fail < 2) {
       self_destruct_bhg($building);
+      $body->add_news(100,
+             sprintf('%s finds a decimal point out of place.',
+                     $empire->name));
     }
     elsif ($fail <  7) {
       bhg_decor($body);
+      $body->add_news(100,
+             sprintf('%s is wracked with changes.',
+                     $body->name));
     }
     elsif ($fail < 12) {
       bhg_resource($body, -1);
+      $body->add_news(100,
+             sprintf('%s opens up a wormhole near their storage area.',
+                     $body->name));
     }
     elsif ($fail < 17) {
-      bhg_size($building, -1);
+      bhg_size($building, $body, -1);
+      $body->add_news(100,
+             sprintf('%s deforms after an expirement goes wild.',
+                     $body->name));
     }
     elsif ($fail < 20) {
       bhg_random_make($body);
+      $body->add_news(100,
+             sprintf('Scientists on %s are concerned when their singularity has a malfunction.',
+                     $body->name));
     }
     else {
-      bhg_change_type($body, randint(1..21));
+      bhg_random_type($body);
+      $body->add_news(100,
+             sprintf('Scientists on %s are concerned when their singularity has a malfunction.',
+                     $body->name));
     }
   }
   else {
     if ($task->{name} eq "Make Planet") {
+      bhg_make_planet($building, $target);
+      $body->add_news(100,
+                      sprintf('%s has expanded %s into a habitable world!',
+                        $empire->name, $target->name));
     }
     elsif ($task->{name} eq "Make Asteroid") {
+      bhg_make_asteroid($building, $target);
+      $body->add_news(100, sprintf('%s has destroyed %s.', $empire->name, $target->name));
     }
     elsif ($task->{name} eq "Increase Size") {
+      bhg_size($building, $target, 1);
+      $body->add_news(100, sprintf('%s has expanded %s.', $empire->name, $target->name));
     }
     elsif ($task->{name} eq "Change Type") {
+      bhg_change_type($building, $target, $params);
+      $body->add_news(100, sprintf('%s has gone thru extensive changes.', $target->name));
     }
     else {
       confess [1009, "Internal Error"];
     }
   }
+  return {
+    status => $self->format_status($empire, $body, $target),
+  };
+}
+
+sub bhg_make_planet {
+  my ($building, $body) = @_;
+  my $class;
+  my $size;
+  my $random = randint(1,100);
+  if ($random < 6) {
+    $class = 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G'.randint(1,5);
+    $size  = randint(70, 121);
+  }
+  else {
+    $class = 'Lacuna::DB::Result::Map::Body::Planet::P'.randint(1,20);
+    $size  = 25+int($building->level/2);
+  }
+ 
+  $body->update({
+    class                       => $class,
+    size                        => $size,
+    usable_as_starter_enabled   => 0,
+  });
+  $body->sanitize;
+}
+
+sub bhg_make_asteroid {
+  my ($building, $body) = @_;
+  $planet->update({
+    class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
+    size                        => int($building->level/3),
+    usable_as_starter_enabled   => 0,
+  });
+  $body->add_news(100, sprintf('%s has destroyed %s.', $empire->name, $planet->name));
 }
 
 sub bhg_random_make {
@@ -124,12 +188,11 @@ sub bhg_resource {
 }
 
 sub bhg_change_type {
-  my ($body, $pnum) = @_;
-# Change to habitable $pnum
+  my ($body, $params) = @_;
 }
 
 sub bhg_size {
-  my ($building, $bruce) = @_;
+  my ($building, $body, $bruce) = @_;
 # If -1, subtract up to level (or min 30 size)
 # If 0, add or subtract 5 (sizes can't go over 65 or under 30)
 # if 1, add level
