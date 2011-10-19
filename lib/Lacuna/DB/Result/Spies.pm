@@ -1603,7 +1603,7 @@ sub abduct_operative {
         {body_id => $self->on_body->id,
                     task => 'Docked',
                     hold_size => { '>=' => 700 }, type => {'in' => \@types}},
-        {rows => 1}
+        { rows => 1, order_by => 'rand()' }
         )->single;
     return $self->ship_not_found->id unless (defined $ship);
     return $self->no_contact->id unless (defined $defender);
@@ -1842,7 +1842,7 @@ sub destroy_mining_ship {
     return $self->building_not_found->id unless defined $ministry;
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         {body_id => $self->on_body->id, task => 'Mining'},
-        {rows => 1}
+        { rows => 1, order_by => 'rand()' }
         )->single;
     return $self->ship_not_found->id unless $ship;
     $ship->delete;
@@ -1910,7 +1910,7 @@ sub steal_resources {
                            'hulk',
                            'dory',
                            'barge']}},
-        { rows => 1}
+        { rows => 1, order_by => 'rand()' }
         )->single;
     return $self->ship_not_found->id unless defined $ship;
     my $space = $ship->hold_size;
@@ -1928,6 +1928,7 @@ sub steal_resources {
         }
     }
     $on_body->update;
+    $ship->body($self->from_body);
     $ship->send(
         target      => $self->on_body,
         direction   => 'in',
@@ -1936,10 +1937,6 @@ sub steal_resources {
             resources   => \%resources,
         },
     );
-    my $home = $self->from_body;
-    $ship->body_id($home->id);
-    $ship->body($home);
-    $ship->update;
     my @table = (['Resource','Amount']);
     foreach my $type (keys %resources) {
         push @table, [ $type, $resources{$type} ];
@@ -1954,7 +1951,7 @@ sub steal_resources {
                              'In a daring robbery today a thief absconded with a %s full of resources from %s.',
                              $ship->type_formatted,
                              $self->on_body->name);
-    $self->send($home->id, $ship->date_available->clone);
+    $self->send($self->from_body_id, $ship->date_available);
     $self->things_stolen( $self->things_stolen + 1 );
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
@@ -1975,11 +1972,12 @@ sub steal_glyph {
                            'freighter',
                            'hulk',
                            'barge']}},
-        { rows => 1}
+        { rows => 1, order_by => 'rand()' }
         )->single;
     return $self->ship_not_found->id unless defined $ship;
     my $glyph = $on_body->glyphs->search(undef, {rows => 1, order_by => 'rand()'})->single;
     return $self->mission_objective_not_found('glyph')->id unless defined $glyph;
+    $ship->body($self->from_body);
     $ship->send(
         target      => $self->on_body,
         direction   => 'in',
@@ -1988,10 +1986,6 @@ sub steal_glyph {
             glyphs   => [$glyph->type],
         },
     );
-    my $home = $self->from_body;
-    $ship->body_id($home->id);
-    $ship->body($home);
-    $ship->update;
     my @table = (['Glyph'],[$glyph->type]);
     $glyph->delete;
     $self->on_body->empire->send_predefined_message(
@@ -2004,7 +1998,7 @@ sub steal_glyph {
                              'In a daring robbery today a thief absconded with a %s carrying a glyph from %s.',
                              $ship->type_formatted,
                              $self->on_body->name);
-    $self->send($home->id, $ship->date_available->clone);
+    $self->send($self->from_body_id, $ship->date_available); 
     $self->things_stolen( $self->things_stolen + 1 );
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
@@ -2026,12 +2020,10 @@ sub steal_ships {
     }
     my $ship = $ships->search(
         {body_id => $self->on_body->id, task => 'Docked', type => {'in' => \@types}},
-        {rows => 1}
+        { rows => 1, order_by => 'rand()' }
         )->single;
     last unless defined $ship;
-    my $home = $self->from_body;
-    $ship->body_id($home->id);
-    $ship->body($home);
+    $ship->body($self->from_body);
     $ship->send(
         target      => $self->on_body,
         direction   => 'in',
@@ -2047,7 +2039,7 @@ sub steal_ships {
                              $ship->type_formatted,
                              $self->on_body->name);
     $self->things_stolen( $self->things_stolen + 1 );
-    $self->send($home->id, $ship->date_available->clone);
+    $self->send($self->from_body_id, $ship->date_available);
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'ship_theft_report.txt',
@@ -2198,7 +2190,8 @@ sub take_control_of_probe {
     my $probe = Lacuna->db
                   ->resultset('Lacuna::DB::Result::Probes')
                   ->search({body_id => $self->on_body_id },
-                           {rows=>1})->single;
+                           { rows => 1, order_by => 'rand()' }
+                           )->single;
     return $self->probe_not_found->id unless defined $probe;
     $self->things_stolen( $self->things_stolen + 1 );
     $self->on_body->empire->send_predefined_message(
@@ -2237,7 +2230,8 @@ sub kill_contact_with_mining_platform {
     my $platform = Lacuna->db
                      ->resultset('Lacuna::DB::Result::MiningPlatforms')
                      ->search({planet_id => $self->on_body->id},
-                              {rows=>1})->single;
+                              { rows => 1, order_by => 'rand()' }
+                              )->single;
     return $self->mission_objective_not_found('mining platform')->id unless defined $platform;
     my $asteroid = $platform->asteroid;
     return $self->mission_objective_not_found('mining platform')->id unless defined $asteroid;
@@ -2269,7 +2263,8 @@ sub hack_observatory_probes {
     my $probe = Lacuna->db
                   ->resultset('Lacuna::DB::Result::Probes')
                   ->search({body_id => $self->on_body->id },
-                           {rows=>1})->single;
+                           { rows => 1, order_by => 'rand()' }
+                           )->single;
     return $self->probe_not_found->id unless defined $probe;
     $self->things_destroyed( $self->things_destroyed + 1 );
     my $message = $self->empire->send_predefined_message(
@@ -2309,7 +2304,8 @@ sub hack_offending_probes {
                  ->resultset('Lacuna::DB::Result::Probes')
                  ->search({star_id => $self->on_body->star_id,
                            empire_id => {'not in' => \@safe} },
-                          {rows=>1})->single;
+                          { rows => 1, order_by => 'rand()' }
+                          )->single;
     return $self->probe_not_found->id unless defined $probe;
     $defender->things_destroyed( $defender->things_destroyed + 1 );
     $defender->empire->send_predefined_message(
@@ -2341,7 +2337,8 @@ sub hack_local_probes {
                   ->resultset('Lacuna::DB::Result::Probes')
                   ->search( {star_id => $self->on_body->star_id,
                              empire_id => $self->on_body->empire_id },
-                            {rows=>1})->single;
+                            { rows => 1, order_by => 'rand()' }
+                          )->single;
     return $self->probe_not_found->id unless defined $probe;
     $self->things_destroyed( $self->things_destroyed + 1 );
     $self->on_body->empire->send_predefined_message(
