@@ -11,6 +11,8 @@ my $no_spaceport_exception = [1011, 'There is no space port available to receive
 sub check_payload_ships {
     my ($self, $items, $target, $ship_stay) = @_;
 
+    return if not $items;
+
     my $ship_count = grep {$_->{type} eq 'ship'} @$items;
 
     $ship_count++ if $ship_stay;
@@ -22,6 +24,8 @@ sub check_payload_ships {
 #
 sub check_payload_ships_id {
     my ($self, $items, $target) = @_;
+
+    return if not $items;
 
     my $ship_count = scalar @$items;
 
