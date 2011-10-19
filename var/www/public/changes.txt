@@ -1,3 +1,8 @@
+3.0816
+ - Fix: SST and Trade no longer causes exception on accepting a trade
+ - Fix: Space Station Plans now increase in cost correctly
+ - Fix: When a spy runs "Appropriate Resources", travel time of the stolen ship is correctly calculated.
+
 3.0815
  - Add: Partial repairs on buildings, dependent upon resources, is now possible.
  - API: Added surface version number for bodies to better indicate that a refresh is needed.
