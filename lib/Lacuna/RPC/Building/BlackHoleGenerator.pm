@@ -23,7 +23,7 @@ sub run_bhg {
   unless (defined $target) {
     confess [1002, 'Could not locate target.'];
   }
-  my @tasks = bhg_tasks();
+  my @tasks = bhg_tasks($building);
   my ($task) = grep { $task_name eq $_->{name} } @tasks;
   unless ($task) {
     confess [1002, 'Could not find task: '.$task_name];
@@ -50,26 +50,28 @@ sub run_bhg {
       }
       if ($count) {
         $body->add_news(100, sprintf('Scientists revolt against %s for despicable practices.', $empire->name));
-# Self Destruct BHG
+        bhg_self_destruct($building);
         confess [1009, 'Your scientists refuse to destroy an asteroid with '.$count.' platforms.'];
       }
     }
-    elsif (defined($body->empire) {
+    elsif (defined($target->empire)) {
       $body->add_news(100,
              sprintf('Scientists revolt against %s for trying to turn %s into an asteroid.',
                      $empire->name, $target->name));
-# Self Destruct BHG
+      bhg_self_destruct($building);
       confess [1009, 'Your scientists refuse to destroy an inhabited body.'];
     }
   }
 # Pass the basic checks
 # Check for startup failure
   my $return_stats;
-  if (($task->{fail_chance} - $building->level * 3) > randint(1,100) ) {
+  my $fail = randint(1,100);
+  print "Fail: $fail\n";
+  if (($task->{fail_chance} > $fail )) {
 # Something went wrong with the start
-    my $fail = randint(1,20);
+    $fail = randint(1,20);
     if ($fail < 2) {
-      self_destruct_bhg($building);
+      bhg_self_destruct($building);
       $body->add_news(100,
              sprintf('%s finds a decimal point out of place.',
                      $empire->name));
@@ -121,15 +123,17 @@ sub run_bhg {
       $body->add_news(100, sprintf('%s has expanded %s.', $empire->name, $target->name));
     }
     elsif ($task->{name} eq "Change Type") {
-      bhg_change_type($building, $target, $params);
+      bhg_change_type($target, $params);
       $body->add_news(100, sprintf('%s has gone thru extensive changes.', $target->name));
     }
     else {
       confess [1009, "Internal Error"];
     }
+#And now side effect time
   }
   return {
-    status => $self->format_status($empire, $body, $target),
+    status => $self->format_status($empire, $body),
+    target => $target->get_status($target),
   };
 }
 
@@ -157,48 +161,206 @@ sub bhg_make_planet {
 
 sub bhg_make_asteroid {
   my ($building, $body) = @_;
-  $planet->update({
+  $body->update({
     class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
-    size                        => int($building->level/3),
+    size                        => int($building->level/5),
     usable_as_starter_enabled   => 0,
+    alliance_id => undef,
   });
-  $body->add_news(100, sprintf('%s has destroyed %s.', $empire->name, $planet->name));
 }
 
 sub bhg_random_make {
   my ($body) = @_;
+print "Random Make!\n";
 # Find random non-occupied body
 # Call make asteroid or make planet
 }
 
 sub bhg_self_destruct {
   my ($building) = @_;
+print "Boom!\n";
 # Blow up BHG, Splash damage
 }
 
 sub bhg_decor {
   my ($body) = @_;
+print "Decor explosion!\n";
 # Find out how many open spaces are on planet.
 # Fill in with decor
 }
 
 sub bhg_resource {
   my ($body, $bruce) = @_;
+print "Resource shuffle $bruce\n";
 # If -1 deduct resources, if 0 randomize, if 1 add
+  my @food = qw( algae_stored apple_stored bean_stored beetle_stored
+                 bread_stored burger_stored cheese_stored chip_stored
+                 cider_stored corn_stored fungus_stored lapis_stored
+                 meal_stored milk_stored pancake_stored pie_stored
+                 potato_stored root_stored shake_stored soup_stored
+                 syrup_stored wheat_stored
+  );
+  my @ore = qw( anthracite_stored bauxite_stored beryl_stored chalcopyrite_stored
+                chromite_stored fluorite_stored galena_stored goethite_stored
+                gold_stored gypsum_stored halite_stored kerogen_stored
+                magnetite_stored methane_stored monazite_stored rutile_stored
+                sulfur_stored trona_stored uraninite_stored zircon_stored
+  );
+# Waste always reacts oddly
+  my $waste_rnd = randint(1,5);
+  if ($waste_rnd > 3) {
+    $body->waste_stored($body->waste_capacity);
+  }
+  elsif ($waste_rnd < 3) {
+    $body->waste_stored(0);
+  }
+  else {
+    $body->waste_stored(randint(0, $body->waste_capacity));
+  }
+# Other resources
+  if ($bruce == 1) {
+    $body->water_stored(randint($body->water_stored, $body->water_capacity));
+    $body->energy_stored(randint($body->energy_stored, $body->energy_capacity));
+    my $arr = rand_perc(scalar @food);
+    my $food_stored = 0;
+    for my $attrib (@food) { $food_stored += $body->$attrib; }
+    my $food_room = $body->food_capacity - $food_stored;
+    for (0..(scalar @food - 1)) {
+      $body->{$food[$_]}(randint($body->{$food[$_]},
+                              int($food_room * $arr->[$_]/100) ));
+    }
+    $arr = rand_perc(scalar @ore);
+    my $ore_stored = 0;
+    for my $attrib (@ore) { $ore_stored += $body->$attrib; }
+    my $ore_room = $body->ore_capacity - $ore_stored;
+    for (0..(scalar @ore - 1)) {
+      $body->{$ore[$_]}(randint($body->{$ore[$_]},
+                              int($ore_room * $arr->[$_]/100) ));
+    }
+  }
+  elsif ($bruce == -1) {
+    $body->water_stored(randint(0, $body->water_stored));
+    $body->energy_stored(randint(0, $body->energy_stored));
+    foreach my $attribute (@food, @ore) {
+      next unless $body->$attribute;
+      $body->$attribute(randint(0, $body->$attribute));
+    }
+  }
+  else {
+    $body->water_stored(randint(0, $body->water_capacity));
+    $body->energy_stored(randint(0, $body->energy_capacity));
+    my $arr = rand_perc(scalar @food);
+    for (0..(scalar @food - 1)) {
+      $body->{$food[$_]}(randint(0, int($body->food_capacity * $arr->[$_]/100) ));
+    }
+    $arr = rand_perc(scalar @ore);
+    for (0..(scalar @ore - 1)) {
+      $body->{$ore[$_]}(randint(0, int($body->ore * $arr->[$_]/100) ));
+    }
+  }
+  $body->update({
+    needs_recalc                => 1,
+  });
+}
+
+sub rand_perc {
+  my ($num) = @_;
+
+  my @arr;
+  for (1..100) {
+    $arr[randint(0,$num)]++;
+  }
+  return \@arr;
 }
 
 sub bhg_change_type {
   my ($body, $params) = @_;
+print "Changing to type $params->{newtype}\n";
+  my $class = $body->class;
+  my $btype = $body->get_type;
+  if ($btype eq 'asteroid') {
+    confess [1009, "We can't change the type of that body"];
+  }
+  elsif ($btype eq 'gas giant') {
+    confess [1009, "We can't change the type of that body"];
+  }
+  elsif ($btype eq 'habitable planet') {
+    if ($params->{newtype} >= 1 and $params->{newtype} <= 20) {
+      $class = 'Lacuna::DB::Result::Map::Body::Planet::P'.$params->{newtype};
+    }
+    else {
+      confess [1009, 'Tring to change to a forbidden type!\n'];
+    }
+  }
+  else {
+    confess [1009, "We can't change the type of that body"];
+  }
+  $body->update({
+    needs_recalc                => 1,
+    class                       => $class,
+    usable_as_starter_enabled   => 0,
+  });
 }
 
 sub bhg_size {
   my ($building, $body, $bruce) = @_;
-# If -1, subtract up to level (or min 30 size)
-# If 0, add or subtract 5 (sizes can't go over 65 or under 30)
-# if 1, add level
+  print "Changing size\n";
+  my $current_size = $body->size;
+  my $btype = $body->get_type;
+  if ($btype eq 'asteroid') {
+    if ($bruce == -1) {
+      $current_size -= int($building->level/10);
+      $current_size = 1 if ($current_size < 1);
+    }
+    elsif ($bruce == 1) {
+      if ($current_size >= 10) {
+        $current_size++ if (randint(1,5) < 2);
+      }
+      else {
+        $current_size += int($building->level/10);
+        $current_size = 10 if ($current_size > 10);
+      }
+    }
+    else {
+      $current_size += randint(1,5) - 3;
+      $current_size = 1 if ($current_size < 1);
+    }
+  }
+  elsif ($btype eq 'gas giant') {
+    confess [1009, "We can't change the sizes of that body"];
+  }
+  elsif ($btype eq 'habitable planet') {
+    if ($bruce == -1) {
+      $current_size -= $building->level;
+      $current_size = 30 if ($current_size < 30);
+    }
+    elsif ($bruce == 1) {
+      if ($current_size >= 65) {
+        $current_size++ if (randint(1,5) < 2);
+        $current_size = 69 if ($current_size > 69);
+      }
+      else {
+        $current_size += $building->level;
+        $current_size = 65 if ($current_size > 65);
+      }
+    }
+    else {
+      $current_size += randint(1,5) - 3;
+      $current_size = 30 if ($current_size < 30);
+    }
+  }
+  else {
+    confess [1009, "We can't change the sizes of that body"];
+  }
+  $body->update({
+    needs_recalc                => 1,
+    size                        => $current_size,
+    usable_as_starter_enabled   => 0,
+  });
 }
 
 sub bhg_tasks {
+  my ($building) = @_;
   my $day_sec = 60 * 60 * 24;
   my @tasks = (
     {
@@ -207,10 +369,10 @@ sub bhg_tasks {
       wrongtype    => "You can only make a planet from an asteroid.",
       occupied     => 0,
       min_level    => 10,
-      recovery     => int($day_sec * 90/$building->level);
+      recovery     => int($day_sec * 90/$building->level),
       waste        => 1_000_000_000,
-      fail_chance  => 100,
-      side_chance  => "high",
+      fail_chance  => int(100 - $building->level * 2.5),
+      side_chance  => 50,
     },
     {
       name         => 'Make Asteroid',
@@ -218,10 +380,10 @@ sub bhg_tasks {
       wrongtype    => "You can only make an asteroid from a planet.",
       occupied     => 0,
       min_level    => 10,
-      recovery     => int($day_sec * 90/$building->level);
+      recovery     => int($day_sec * 90/$building->level),
       waste        => 10_000_000,
-      fail_chance  => 100,
-      side_chance  => "high",
+      fail_chance  => int(100 - $building->level * 3),
+      side_chance  => 10,
     },
     {
       name         => 'Increase Size',
@@ -229,10 +391,10 @@ sub bhg_tasks {
       wrongtype    => "You can only increase the sizes of habitable planets and asteroids.",
       occupied     => 1,
       min_level    => 20,
-      recovery     => int($day_sec * 90/$building->level);
+      recovery     => int($day_sec * 180/$building->level),
       waste        => 10_000_000_000,
-      fail_chance  => 100,
-      side_chance  => "high",
+      fail_chance  => int(100 - $building->level * 2),
+      side_chance  => 65,
     },
     {
       name         => 'Change Type',
@@ -240,10 +402,10 @@ sub bhg_tasks {
       wrongtype    => "You can only change the type of habitable planets.",
       occupied     => 1,
       min_level    => 30,
-      recovery     => int($day_sec * 90/$building->level);
+      recovery     => int($day_sec * 300/$building->level),
       waste        => 100_000_000,
-      fail_chance  => 100,
-      side_chance  => "high",
+      fail_chance  => int(100 - $building->level * 1.5),
+      side_chance  => 90,
     },
   );
   return @tasks;
