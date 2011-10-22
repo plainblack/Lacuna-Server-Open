@@ -19,9 +19,11 @@ sub run_bhg {
   my $empire   = $self->get_empire_by_session($session_id);
   my $building = $self->get_building($empire, $building_id);
   my $body = $building->body;
-#  if ($building->is_working) {
-#    confess [1010, 'The Black Hole Generator is cooling down from the last use.']
-#  }
+  my $effect = {};
+  my $return_stats = {};
+  if ($building->is_working) {
+    confess [1010, 'The Black Hole Generator is cooling down from the last use.']
+  }
   my $target   = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id);
   unless (defined $target) {
     confess [1002, 'Could not locate target.'];
@@ -35,14 +37,18 @@ sub run_bhg {
   unless ( grep { $btype eq $_ } @{$task->{types}} ) {
     confess [1009, $task->{wrongtype}];
   }
-  unless ($building->body->calculate_distance_to_target($target) < $building->level * 1000) {
-    my $dist = sprintf "%7.2f", $building->body->calculate_distance_to_target($target);
-    my $range = $building->level * 1000;
+# TEST SETTINGS
+  $task->{waste} = 1;
+  $task->{recovery} = 10;
+# TEST SETTINGS
+  my $dist = sprintf "%7.2f", $building->body->calculate_distance_to_target($target)/100;
+  my $range = $building->level * 10;
+  unless ($dist < $range) {
     confess [1009, 'That body is too far away at '.$dist.' with a range of '.$range.'. '.$target_id."\n"];
   }
-#  unless ($body->waste_stored >= $task->{waste}) {
-#    confess [1009, 'Attempt to start Black Hole Generator without enough waste mass is not allowed.'];
-#  }
+  unless ($body->waste_stored >= $task->{waste}) {
+    confess [1009, 'Attempt to start Black Hole Generator without enough waste mass is not allowed.'];
+  }
   unless ($task->{occupied}) {
     if ($btype eq 'asteroid') {
       my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->
@@ -65,104 +71,106 @@ sub run_bhg {
       confess [1009, 'Your scientists refuse to destroy an inhabited body.'];
     }
   }
-#  $body->spend_waste($task->{waste})->update; #While Testing commented out
+  $body->spend_waste($task->{waste})->update;
   $building->start_work({}, $task->{recovery})->update;
 # Pass the basic checks
 # Check for startup failure
-  my $return_stats;
-  my $fail = randint(1,100);
+  my $fail = randint(1,100) - (50 - sqrt( ($range - $dist) * (300/$range)) * 2.71);
   print "Failure: $task->{fail_chance} Roll: $fail\n";
   if (($task->{fail_chance} > $fail )) {
 # Something went wrong with the start
     $fail = randint(1,20);
     if ($fail < 2) {
-      bhg_self_destruct($building);
+      $return_stats = bhg_self_destruct($building);
       $body->add_news(100,
              sprintf('%s finds a decimal point out of place.',
                      $empire->name));
     }
     elsif ($fail <  7) {
-      bhg_decor($building, $body, -1);
+      $return_stats = bhg_decor($building, $body, -1);
       $body->add_news(100,
              sprintf('%s is wracked with changes.',
                      $body->name));
     }
     elsif ($fail < 12) {
-      bhg_resource($body, -1);
+      $return_stats = bhg_resource($body, -1);
       $body->add_news(100,
              sprintf('%s opens up a wormhole near their storage area.',
                      $body->name));
     }
     elsif ($fail < 17) {
-      bhg_size($building, $body, -1);
+      $return_stats = bhg_size($building, $body, -1);
       $body->add_news(100,
              sprintf('%s deforms after an expirement goes wild.',
                      $body->name));
     }
     elsif ($fail < 20) {
-      bhg_random_make($building);
+      $return_stats = bhg_random_make($building);
       $body->add_news(100,
              sprintf('Scientists on %s are concerned when their singularity has a malfunction.',
                      $body->name));
     }
     else {
-      bhg_random_type($building);
+      $return_stats = bhg_random_type($building);
       $body->add_news(100,
              sprintf('Scientists on %s are concerned when their singularity has a malfunction.',
                      $body->name));
     }
+    $effect->{fail} = $return_stats;
   }
   else {
 # We have a working BHG!
     if ($task->{name} eq "Make Planet") {
-      bhg_make_planet($building, $target);
+      $return_stats = bhg_make_planet($building, $target);
       $body->add_news(100,
                       sprintf('%s has expanded %s into a habitable world!',
                         $empire->name, $target->name));
     }
     elsif ($task->{name} eq "Make Asteroid") {
-      bhg_make_asteroid($building, $target);
+      $return_stats = bhg_make_asteroid($building, $target);
       $body->add_news(100, sprintf('%s has destroyed %s.', $empire->name, $target->name));
     }
     elsif ($task->{name} eq "Increase Size") {
-      bhg_size($building, $target, 1);
+      $return_stats = bhg_size($building, $target, 1);
       $body->add_news(100, sprintf('%s has expanded %s.', $empire->name, $target->name));
     }
     elsif ($task->{name} eq "Change Type") {
-      bhg_change_type($target, $params);
+      $return_stats = bhg_change_type($target, $params);
       $body->add_news(100, sprintf('%s has gone thru extensive changes.', $target->name));
     }
     else {
       confess [1009, "Internal Error"];
     }
+    $effect->{target} = $return_stats;
 #And now side effect time
     my $side = randint(1,100);
     print "Side: $task->{side_chance} Roll: $side\n";
     if ($task->{side_chance} > $side) {
       my $side_type = randint(0,99);
       if ($side_type < 25) {
-        bhg_random_size($building);
+        $return_stats = bhg_random_size($building);
       }
       elsif ($side_type < 40) {
-        bhg_random_make($building);
+        $return_stats = bhg_random_make($building);
       }
       elsif ($side_type < 50) {
-        bhg_random_type($building);
+        $return_stats = bhg_random_type($building);
       }
       elsif ($side_type < 76) {
-        bhg_random_resource($building);
+        $return_stats = bhg_random_resource($building);
       }
       elsif ($side_type < 96) {
-        bhg_random_decor($building);
+        $return_stats = bhg_random_decor($building);
       }
       else {
-        bhg_size($building, $body, 0);
+        $return_stats = bhg_size($building, $body, 0);
       }
+      $effect->{side} = $return_stats;
     }
   }
   return {
     status => $self->format_status($empire, $body),
-    target => $target->get_status($target),
+    effect => $effect,
   };
 }
 
@@ -170,6 +178,8 @@ sub bhg_make_planet {
   my ($building, $body) = @_;
   my $class;
   my $size;
+  my $old_class = $body->class;
+  my $old_size  = $body->size;
   my $random = randint(1,100);
   if ($random < 6) {
     $class = 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G'.randint(1,5);
@@ -187,10 +197,20 @@ sub bhg_make_planet {
     usable_as_starter_enabled   => 0,
   });
   $body->sanitize;
+  return {
+    old_class => $old_class,
+    class     => $class,
+    old_size  => $old_size,
+    size      => $size,
+    id        => $body->id,
+    name      => $body->name,
+  };
 }
 
 sub bhg_make_asteroid {
   my ($building, $body) = @_;
+  my $old_class = $body->class;
+  my $old_size  = $body->size;
   $body->update({
     class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
     size                        => int($building->level/5),
@@ -198,12 +218,21 @@ sub bhg_make_asteroid {
     usable_as_starter_enabled   => 0,
     alliance_id => undef,
   });
+  return {
+    result    => "Made Asteroid",
+    old_class => $old_class,
+    class     => $body->class,
+    old_size  => $old_size,
+    size      => $body->size,
+    id        => $body->id,
+    name      => $body->name,
+  };
 }
 
 sub bhg_random_make {
   my ($building) = @_;
   my $body = $building->body;
-print "Random Make!\n";
+  my $return;
   my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
                   { zone => $body->zone, empire_id => undef, },
                   {rows => 1, order_by => 'rand()' }
@@ -212,19 +241,24 @@ print "Random Make!\n";
   print $target->name, " is a ", $btype, " of ", substr($target->class, -3), ".\n";
   if ($btype eq 'habitable planet' or $btype eq 'gas giant') {
     $body->add_news(100, sprintf('%s has been destroyed!', $target->name));
-    bhg_make_asteroid($building, $target);
+    $return = bhg_make_asteroid($building, $target);
   }
   elsif ($btype eq 'asteroid') {
     my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->
                       search({asteroid_id => $target->id });
     unless ($platforms->next) {
       $body->add_news(100, sprintf('A new planet has appeared where %s had been!', $target->name));
-      bhg_make_planet($building, $target);
+      $return = bhg_make_planet($building, $target);
     }
     else {
-      print "Aborted making an asteroid", $target->id, "\n";
+      $return = {
+        result => "Aborted making planet",
+        id     => $target->id,
+        name   => $target->name,
+      };
     }
   }
+  return $return;
 }
 
 sub bhg_random_type {
@@ -236,19 +270,25 @@ print "Random Type!\n";
                   {rows => 1, order_by => 'rand()' }
                 )->single;
   my $btype = $target->get_type;
+  my $return;
   if ($btype eq 'habitable planet') {
     my $params = { newtype => randint(1,20) };
     $body->add_news(100, sprintf('%s has gone thru extensive changes.', $target->name));
-    bhg_change_type($target, $params);
+    $return = bhg_change_type($target, $params);
   }
   elsif ($btype eq 'asteroid') {
     my $params = { newtype => randint(1,21) };
     $body->add_news(100, sprintf('%s has gone thru extensive changes.', $target->name));
-    bhg_change_type($target, $params);
+    $return = bhg_change_type($target, $params);
   }
   else {
-    print "Nothing changed\n";
+    $return = {
+      result => "Did not change type",
+      id     => $target->id,
+      name   => $target->name,
+    };
   }
+  return $return;
 }
 
 sub bhg_random_size {
@@ -259,18 +299,24 @@ print "Random Size!\n";
                   { zone => $body->zone, empire_id => undef },
                   {rows => 1, order_by => 'rand()' }
                 )->single;
+  my $return;
   my $btype = $target->get_type;
   if ($btype eq 'habitable planet') {
     $body->add_news(100, sprintf('%s has deformed.', $target->name));
-    bhg_size($building, $target, 0);
+    $return = bhg_size($building, $target, 0);
   }
   elsif ($btype eq 'asteroid') {
     $body->add_news(100, sprintf('%s has deformed.', $target->name));
-    bhg_size($building, $target, 0);
+    $return = bhg_size($building, $target, 0);
   }
   else {
-    print "Nothing changed\n";
+    $return = {
+      result => "Did not change size",
+      id     => $target->id,
+      name   => $target->name,
+    };
   }
+  return $return;
 }
 
 sub bhg_random_resource {
@@ -281,14 +327,20 @@ print "Random Resource!\n";
                   { zone => $body->zone, empire_id => { '!=' => undef} },
                   {rows => 1, order_by => 'rand()' }
                 )->single;
+  my $return;
   my $btype = $target->get_type;
   if ($btype eq 'habitable planet' or $btype eq 'gas giant') {
     $body->add_news(100, sprintf('A wormhole briefly appeared on %s.', $target->name));
-    bhg_resource($target, 0);
+    $return = bhg_resource($target, 0);
   }
   else {
-    print "Nothing changed\n";
+    $return = {
+      result => "No Resources Modified",
+      id     => $target->id,
+      name   => $target->name,
+    };
   }
+  return $return;
 }
 
 sub bhg_random_decor {
@@ -300,6 +352,10 @@ print "Random decor!\n";
                   {rows => 1, order_by => 'rand()' }
                 )->single;
   my $btype = $target->get_type;
+  my $return = {
+                 id        => $target->id,
+                 name      => $target->name,
+  };
   if ($btype eq 'habitable planet') {
     if ($target->empire_id) {
       $body->add_news(100, sprintf('The population of %s marvels at the new terrain.', $target->name));
@@ -310,17 +366,26 @@ print "Random decor!\n";
     my $bruce = randint(0,10);
     if ($bruce > 8) { $bruce = 1; }
     else { $bruce = 0; }
-    bhg_decor($building, $target, $bruce);
+    $return = bhg_decor($building, $target, $bruce);
   }
   else {
-    print "Nothing changed\n";
+    $return = {
+      result => "No decorating",
+      id     => $target->id,
+      name   => $target->name,
+    };
   }
+  return $return;
 }
 
 sub bhg_self_destruct {
   my ($building) = @_;
 print "Boom!\n";
   my $body = $building->body;
+  my $return = {
+                 id        => $body->id,
+                 name  => $body->name,
+  };
   my $bombed = $body->buildings;
   my $bombs = $building->level;
 
@@ -342,6 +407,8 @@ print "Boom!\n";
   $body->needs_recalc(1);
   $body->update;
   $building->update({class=>'Lacuna::DB::Result::Building::Permanent::Crater'});
+  $return->{result} = "Black Hole Generator Destroyed";
+  return $return;
 }
 
 sub bhg_decor {
@@ -355,7 +422,7 @@ print "Decor explosion on ", $body->name, "!\n";
                  Lacuna::DB::Result::Building::Permanent::Sand
                  Lacuna::DB::Result::Building::Permanent::Lagoon
               );
-  my $plant = randint(1, $building->level);
+  my $plant = randint(1, int($building->level/10)+1);
   my $planted = 0;
   my $now = DateTime->now;
   foreach my $cnt (1..$plant) {
@@ -366,10 +433,10 @@ print "Decor explosion on ", $body->name, "!\n";
             class        => random_element(\@decor),
             x            => $x,
             y            => $y,
-            level        => randint(1, $building->level),
+            level        => randint(1, int($building->level/5)),
             body_id      => $body->id,
         })->insert;
-        $planted = 1;
+        $planted++;
     }
     else {
       last;
@@ -379,7 +446,11 @@ print "Decor explosion on ", $body->name, "!\n";
     $body->needs_surface_refresh(1);
     $body->update;
   }
-# return info
+  return {
+    id     => $body->id,
+    name   => $body->name,
+    result => "$planted items placed",
+  };
 }
 
 sub bhg_resource {
@@ -399,16 +470,24 @@ print "Resource shuffle $bruce\n";
                 magnetite_stored methane_stored monazite_stored rutile_stored
                 sulfur_stored trona_stored uraninite_stored zircon_stored
   );
+  my $return = {
+    variance => $bruce,
+    id       => $body->id,
+    name     => $body->name,
+  };
 # Waste always reacts oddly
   my $waste_rnd = randint(1,5);
   if ($waste_rnd > 3) {
     $body->waste_stored($body->waste_capacity);
+    $return->{waste} = "Filled";
   }
   elsif ($waste_rnd < 3) {
     $body->waste_stored(0);
+    $return->{waste} = "Zero";
   }
   else {
     $body->waste_stored(randint(0, $body->waste_capacity));
+    $return->{waste} = "Random";
   }
 # Other resources
   if ($bruce == 1) {
@@ -456,6 +535,7 @@ print "Resource shuffle $bruce\n";
   $body->update({
     needs_recalc                => 1,
   });
+  return $return;
 }
 
 sub rand_perc {
@@ -472,6 +552,7 @@ sub bhg_change_type {
   my ($body, $params) = @_;
 print "Changing to type $params->{newtype}\n";
   my $class = $body->class;
+  my $old_class = $class;
   my $btype = $body->get_type;
   if ($btype eq 'asteroid') {
     if ($params->{newtype} >= 1 and $params->{newtype} <= 21) {
@@ -500,12 +581,20 @@ print "Changing to type $params->{newtype}\n";
     class                       => $class,
     usable_as_starter_enabled   => 0,
   });
+  return {
+    result    => "Changed Type",
+    old_class => $old_class,
+    class     => $class,
+    id        => $body->id,
+    name      => $body->name,
+  };
 }
 
 sub bhg_size {
   my ($building, $body, $bruce) = @_;
   print "Changing size\n";
   my $current_size = $body->size;
+  my $old_size     = $current_size;
   my $btype = $body->get_type;
   if ($btype eq 'asteroid') {
     if ($bruce == -1) {
@@ -515,6 +604,7 @@ sub bhg_size {
     elsif ($bruce == 1) {
       if ($current_size >= 10) {
         $current_size++ if (randint(1,5) < 2);
+        $current_size = 20 if ($current_size > 20);
       }
       else {
         $current_size += int($building->level/10);
@@ -537,7 +627,7 @@ sub bhg_size {
     elsif ($bruce == 1) {
       if ($current_size >= 65) {
         $current_size++ if (randint(1,5) < 2);
-        $current_size = 69 if ($current_size > 69);
+        $current_size = 70 if ($current_size > 70);
       }
       else {
         $current_size += $building->level;
@@ -557,6 +647,14 @@ sub bhg_size {
     size                        => $current_size,
     usable_as_starter_enabled   => 0,
   });
+  return {
+    result    => "Changed Size",
+    old_size  => $old_size,
+    size      => $current_size,
+    id        => $body->id,
+    name      => $body->name,
+    type      => $btype,
+  };
 }
 
 sub bhg_tasks {
