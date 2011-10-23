@@ -33,6 +33,10 @@ sub run_bhg {
   unless ($task) {
     confess [1002, 'Could not find task: '.$task_name];
   }
+  unless ($building->level >= $task->{min_level}) {
+    confess [1013, sprintf("You need a Level %d Black Hole Generator to do that",
+                           $task->{min_level})];
+  }
   my $btype = $target->get_type;
   unless ( grep { $btype eq $_ } @{$task->{types}} ) {
     confess [1009, $task->{wrongtype}];
@@ -47,7 +51,7 @@ sub run_bhg {
     confess [1009, 'That body is too far away at '.$dist.' with a range of '.$range.'. '.$target_id."\n"];
   }
   unless ($body->waste_stored >= $task->{waste}) {
-    confess [1009, 'Attempt to start Black Hole Generator without enough waste mass is not allowed.'];
+    confess [1011, 'Attempt to start Black Hole Generator without enough waste mass is not allowed.'];
   }
   unless ($task->{occupied}) {
     if ($btype eq 'asteroid') {
@@ -60,7 +64,7 @@ sub run_bhg {
       if ($count) {
         $body->add_news(100, sprintf('Scientists revolt against %s for despicable practices.', $empire->name));
         bhg_self_destruct($building);
-        confess [1009, 'Your scientists refuse to destroy an asteroid with '.$count.' platforms.'];
+        confess [1013, 'Your scientists refuse to destroy an asteroid with '.$count.' platforms.'];
       }
     }
     elsif (defined($target->empire)) {
@@ -68,7 +72,7 @@ sub run_bhg {
              sprintf('Scientists revolt against %s for trying to turn %s into an asteroid.',
                      $empire->name, $target->name));
       bhg_self_destruct($building);
-      confess [1009, 'Your scientists refuse to destroy an inhabited body.'];
+      confess [1013, 'Your scientists refuse to destroy an inhabited body.'];
     }
   }
   $body->spend_waste($task->{waste})->update;
@@ -76,7 +80,7 @@ sub run_bhg {
 # Pass the basic checks
 # Check for startup failure
   my $fail = randint(1,100) - (50 - sqrt( ($range - $dist) * (300/$range)) * 2.71);
-  print "Failure: $task->{fail_chance} Roll: $fail\n";
+  printf "Failure: %3d : Roll: %3.2f\n", $task->{fail_chance}, $fail;
   if (($task->{fail_chance} > $fail )) {
 # Something went wrong with the start
     $fail = randint(1,20);
@@ -139,7 +143,7 @@ sub run_bhg {
       $body->add_news(100, sprintf('%s has gone thru extensive changes.', $target->name));
     }
     else {
-      confess [1009, "Internal Error"];
+      confess [552, "Internal Error"];
     }
     $effect->{target} = $return_stats;
 #And now side effect time
@@ -331,7 +335,8 @@ print "Random Resource!\n";
   my $btype = $target->get_type;
   if ($btype eq 'habitable planet' or $btype eq 'gas giant') {
     $body->add_news(100, sprintf('A wormhole briefly appeared on %s.', $target->name));
-    $return = bhg_resource($target, 0);
+    my $variance =  (randint(1,10) > 8) ? 1 : 0;
+    $return = bhg_resource($target, $variance);
   }
   else {
     $return = {
@@ -363,16 +368,15 @@ print "Random decor!\n";
     else {
       $body->add_news(100, sprintf('Astromers claim that the surface of %s has changed.', $target->name));
     }
-    my $bruce = randint(0,10);
-    if ($bruce > 8) { $bruce = 1; }
-    else { $bruce = 0; }
-    $return = bhg_decor($building, $target, $bruce);
+    my $variance =  (randint(1,10) > 8) ? 1 : 0;
+    $return = bhg_decor($building, $target, $variance);
   }
   else {
     $return = {
       result => "No decorating",
       id     => $target->id,
       name   => $target->name,
+      type   => $btype,
     };
   }
   return $return;
@@ -412,7 +416,7 @@ print "Boom!\n";
 }
 
 sub bhg_decor {
-  my ($building, $body, $bruce) = @_;
+  my ($building, $body, $variance) = @_;
 print "Decor explosion on ", $body->name, "!\n";
   my @decor = qw(
                  Lacuna::DB::Result::Building::Permanent::Crater
@@ -454,8 +458,8 @@ print "Decor explosion on ", $body->name, "!\n";
 }
 
 sub bhg_resource {
-  my ($body, $bruce) = @_;
-print "Resource shuffle $bruce\n";
+  my ($body, $variance) = @_;
+print "Resource shuffle $variance\n";
 # If -1 deduct resources, if 0 randomize, if 1 add
   my @food = qw( algae_stored apple_stored bean_stored beetle_stored
                  bread_stored burger_stored cheese_stored chip_stored
@@ -471,9 +475,10 @@ print "Resource shuffle $bruce\n";
                 sulfur_stored trona_stored uraninite_stored zircon_stored
   );
   my $return = {
-    variance => $bruce,
+    variance => $variance,
     id       => $body->id,
     name     => $body->name,
+    result   => "Resource Shuffle",
   };
 # Waste always reacts oddly
   my $waste_rnd = randint(1,5);
@@ -490,7 +495,7 @@ print "Resource shuffle $bruce\n";
     $return->{waste} = "Random";
   }
 # Other resources
-  if ($bruce == 1) {
+  if ($variance == 1) {
     $body->water_stored(randint($body->water_stored, $body->water_capacity));
     $body->energy_stored(randint($body->energy_stored, $body->energy_capacity));
     my $arr = rand_perc(scalar @food);
@@ -498,7 +503,8 @@ print "Resource shuffle $bruce\n";
     for my $attrib (@food) { $food_stored += $body->$attrib; }
     my $food_room = $body->food_capacity - $food_stored;
     for (0..(scalar @food - 1)) {
-      $body->{$food[$_]}(randint($body->{$food[$_]},
+      my $attribute = $food[$_];
+      $body->$attribute(randint($attribute,
                               int($food_room * $arr->[$_]/100) ));
     }
     $arr = rand_perc(scalar @ore);
@@ -506,11 +512,12 @@ print "Resource shuffle $bruce\n";
     for my $attrib (@ore) { $ore_stored += $body->$attrib; }
     my $ore_room = $body->ore_capacity - $ore_stored;
     for (0..(scalar @ore - 1)) {
-      $body->{$ore[$_]}(randint($body->{$ore[$_]},
+      my $attribute = $ore[$_];
+      $body->$attribute(randint($attribute,
                               int($ore_room * $arr->[$_]/100) ));
     }
   }
-  elsif ($bruce == -1) {
+  elsif ($variance == -1) {
     $body->water_stored(randint(0, $body->water_stored));
     $body->energy_stored(randint(0, $body->energy_stored));
     foreach my $attribute (@food, @ore) {
@@ -559,22 +566,22 @@ print "Changing to type $params->{newtype}\n";
       $class = 'Lacuna::DB::Result::Map::Body::Asteroid::A'.$params->{newtype};
     }
     else {
-      confess [1009, 'Tring to change to a forbidden type!\n'];
+      confess [1013, 'Tring to change to a forbidden type!\n'];
     }
   }
   elsif ($btype eq 'gas giant') {
-    confess [1009, "We can't change the type of that body"];
+    confess [1013, "We can't change the type of that body"];
   }
   elsif ($btype eq 'habitable planet') {
     if ($params->{newtype} >= 1 and $params->{newtype} <= 20) {
       $class = 'Lacuna::DB::Result::Map::Body::Planet::P'.$params->{newtype};
     }
     else {
-      confess [1009, 'Tring to change to a forbidden type!\n'];
+      confess [1013, 'Tring to change to a forbidden type!\n'];
     }
   }
   else {
-    confess [1009, "We can't change the type of that body"];
+    confess [1013, "We can't change the type of that body"];
   }
   $body->update({
     needs_recalc                => 1,
@@ -591,17 +598,17 @@ print "Changing to type $params->{newtype}\n";
 }
 
 sub bhg_size {
-  my ($building, $body, $bruce) = @_;
+  my ($building, $body, $variance) = @_;
   print "Changing size\n";
   my $current_size = $body->size;
   my $old_size     = $current_size;
   my $btype = $body->get_type;
   if ($btype eq 'asteroid') {
-    if ($bruce == -1) {
+    if ($variance == -1) {
       $current_size -= randint(1, int($building->level/10)+1);
       $current_size = 1 if ($current_size < 1);
     }
-    elsif ($bruce == 1) {
+    elsif ($variance == 1) {
       if ($current_size >= 10) {
         $current_size++ if (randint(1,5) < 2);
         $current_size = 20 if ($current_size > 20);
@@ -617,14 +624,14 @@ sub bhg_size {
     }
   }
   elsif ($btype eq 'gas giant') {
-    confess [1009, "We can't change the sizes of that body"];
+    confess [1013, "We can't change the sizes of that body"];
   }
   elsif ($btype eq 'habitable planet') {
-    if ($bruce == -1) {
+    if ($variance == -1) {
       $current_size -= randint(1,$building->level);
       $current_size = 30 if ($current_size < 30);
     }
-    elsif ($bruce == 1) {
+    elsif ($variance == 1) {
       if ($current_size >= 65) {
         $current_size++ if (randint(1,5) < 2);
         $current_size = 70 if ($current_size > 70);
@@ -640,7 +647,7 @@ sub bhg_size {
     }
   }
   else {
-    confess [1009, "We can't change the sizes of that body"];
+    confess [1013, "We can't change the sizes of that body"];
   }
   $body->update({
     needs_recalc                => 1,
@@ -666,7 +673,7 @@ sub bhg_tasks {
       types        => ['asteroid'],
       wrongtype    => "You can only make a planet from an asteroid.",
       occupied     => 0,
-      min_level    => 10,
+      min_level    => 15,
       recovery     => int($day_sec * 90/$building->level),
       waste        => 1_000_000_000,
       fail_chance  => int(100 - $building->level * 2.5),
@@ -708,97 +715,6 @@ sub bhg_tasks {
   );
   return @tasks;
 }
-
-# sub make_asteroid {
-#     my ($self, $session_id, $building_id, $planet_id) = @_;
-#     my $empire = $self->get_empire_by_session($session_id);
-#     my $building = $self->get_building($empire, $building_id);
-#     my $body = $building->body;
-#     my $planet = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($planet_id);
-#     
-#     unless (defined $planet) {
-#         confess [1002, 'Could not locate that planet.'];
-#     }
-#     unless ($planet->isa('Lacuna::DB::Result::Map::Body::Planet')) {
-#         confess [1009, 'Black Hole Generator can only turn planets into asteroids.'];
-#     }
-#     unless ($building->body->calculate_distance_to_target($planet) < $building->level * 1000) {
-#       my $dist = sprintf "%7.2f", $building->body->calculate_distance_to_target($planet);
-#       my $range = $building->level * 1000;
-#       confess [1009, 'That asteroid is too far away at '.$dist.' with a range of '.$range.'. '.$planet_id."\n"];
-#     }
-#     if (defined($planet->empire)) {
-#       $body->add_news(100, sprintf('Scientists revolt against %s for trying to turn %s into an asteroid.', $empire->name, $planet->name));
-# # Self Destruct BHG
-#       confess [1009, 'Your scientists refuse to destroy an inhabited planet.'];
-#     }
-#     $planet->update({
-#        class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
-#        size                        => int($building->level/3),
-#        usable_as_starter_enabled   => 0,
-#     });
-#     $body->add_news(100, sprintf('%s has destroyed %s.', $empire->name, $planet->name));
-# 
-#     return {
-#       status => $self->format_status($empire, $planet),
-#     }
-# }
-# 
-# sub make_planet {
-#     my ($self, $session_id, $building_id, $asteroid_id) = @_;
-#     my $empire = $self->get_empire_by_session($session_id);
-#     my $building = $self->get_building($empire, $building_id);
-#     my $body = $building->body;
-#     my $asteroid = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($asteroid_id);
-#     
-#     unless (defined $asteroid) {
-#         confess [1002, 'Could not locate that asteroid.'];
-#     }
-# 
-#     unless ($building->body->calculate_distance_to_target($asteroid) < $building->level * 1000) {
-#       my $dist = sprintf "%7.2f", $building->body->calculate_distance_to_target($asteroid);
-#       my $range = $building->level * 1000;
-#       confess [1009, 'That asteroid is too far away.'];
-#     }
-# 
-#     unless ($asteroid->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
-#         confess [1009, 'Black Hole Generator can only turn asteroids into planets.'];
-#     }
-# 
-#     my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->
-#                       search({asteroid_id => $asteroid_id });
-#     my $count = 0;
-#     while (my $platform = $platforms->next) {
-#       $count++;
-#     }
-# 
-#     if ($count) {
-#       $body->add_news(100, sprintf('Scientists revolt against %s despicable practices.', $empire->name));
-#       confess [1009, 'Your scientists refuse to destroy an asteroid with '.$count.' platforms.'];
-#     }
-#     my $class;
-#     my $size;
-#     my $random = randint(1,100);
-#     if ($random < 6) {
-#       $class = 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G'.randint(1,5);
-#       $size  = randint(70, 121);
-#     }
-#     else {
-#       $class = 'Lacuna::DB::Result::Map::Body::Planet::P'.randint(1,20);
-#       $size  = 25+int($building->level/2);
-#     }
-# 
-#     $asteroid->update({
-#        class                       => $class,
-#        size                        => $size,
-#        usable_as_starter_enabled   => 0,
-#     });
-#     $body->add_news(100, sprintf('%s has expanded %s into a habitable world!', $empire->name, $asteroid->name));
-# 
-#     return {
-#       status => $self->format_status($empire, $asteroid),
-#     }
-# }
 
 __PACKAGE__->register_rpc_method_names(qw(run_bhg));
 
