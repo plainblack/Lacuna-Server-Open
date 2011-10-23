@@ -706,7 +706,7 @@ sub bhg_tasks {
       types        => ['habitable planet'],
       wrongtype    => "You can only change the type of habitable planets.",
       occupied     => 1,
-      min_level    => 30,
+      min_level    => 25,
       recovery     => int($day_sec * 300/$building->level),
       waste        => 100_000_000,
       fail_chance  => int(100 - $building->level * 2),

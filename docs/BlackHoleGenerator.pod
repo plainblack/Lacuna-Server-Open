@@ -4,4 +4,63 @@ Black Hole Generator is accessible via the URL C</blackholegenerator>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+=head2 view ( session_id, building_id )
+
+=head2 run_bhg ( session_id, building_id, target_id, $task_name, $params ])
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of your Black Hole Generator.
+
+=head3 task_name
+
+One of the tasks available for the BHG.
+Make Asteroid
+Make Planet
+Increase Size
+Change Type
+
+=head3 $params
+reference to a hash
+Current usuage: $params = { newtype => 20 }
+Only used for Change Type
+
+=head3
+Returns success, failure, and side effect results.
+
+Throws 1002, 1009, 1010, 1013
+
+=head3 Tasks
+
+=over
+
+=item Make Asteroid
+
+Can convert any non-inhabited planet to a random asteroid.  Initial size is determined by level of BHG.
+  Minimum Level of 10 to use this function.
+
+=item Make Planet
+
+Can convert any non-inhabited asteroid (no platforms) to a random planet.  Initial size is determined by level of BHG.
+  Minimum Level of 15 to use this function.
+
+=item Increase Size
+
+Can increase the size of a habitable planet up to size 65 or an asteroid up to size 10.
+  Minimum Level of 20 to use this function.
+
+=item Change Type
+
+Can change the type of a habitable planet to any of the basic 20 types.
+  Minimum Level of 25 to use this function.
+
+=back
+
+  Failure rates for the Blackhole Generator increases with range.
+  Side Effects happen fairly random, but occur more often the more difficult the task.
+
 =cut
