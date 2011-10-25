@@ -35,6 +35,15 @@ after finish_upgrade => sub {
     $self->body->add_news(30, sprintf('%s is experimenting with advanced singularity technology.', $self->body->name));
 };
 
+sub can_build_on {
+    my $self = shift;
+    unless ($self->body->isa('Lacuna::DB::Result::Map::Body::Planet') &&
+            !$self->body->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant')) {
+        confess [1009, 'Can only be built on habitable planets.'];
+    }
+    return 1;
+}
+
 use constant name => 'Black Hole Generator';
 use constant time_to_build => 0;
 use constant max_instances_per_planet => 1;
