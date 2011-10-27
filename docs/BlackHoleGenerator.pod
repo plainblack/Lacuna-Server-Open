@@ -5,8 +5,25 @@ Black Hole Generator is accessible via the URL C</blackholegenerator>.
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
 =head2 view ( session_id, building_id )
+ {
+    "status" : { ... },
+    "building" : { ... },
+    "tasks" : [
+       {
+          "fail_chance" : 25,
+          "min_level" : 15,
+          "name" : "Make Planet",
+          "occupied" : 0,
+          "recovery" : 129600,
+          "side_chance" : 50,
+          "types" : [
+             "asteroid"
+          ],
+          "waste_cost" : 1000000000,
+          "wrongtype" : "You can only make a planet from an asteroid."
+       },...
 
-=head2 run_bhg ( session_id, building_id, target_id, $task_name, $params ])
+=head2 generate_singularity ( session_id, building_id, target_id, $task_name, $params ])
 
 =head3 session_id
 
