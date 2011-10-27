@@ -1,0 +1,7 @@
+Changed Type
+~~~
+Geologists are puzzled.  %s's planetary classification has gone from %s to %s.
+
+Regards,
+
+Your Humble Assistant

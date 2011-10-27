@@ -63,7 +63,8 @@ sub generate_singularity {
   }
 # TEST SETTINGS
   $task->{waste_cost} = 1;
-  $task->{recovery} = 10;
+  $task->{recovery} = 5;
+#  $task->{side_chance} = 95;
 # TEST SETTINGS
   my $dist = sprintf "%7.2f", $building->body->calculate_distance_to_target($target)/100;
   my $range = $building->level * 10;
@@ -443,7 +444,19 @@ sub bhg_decor {
                  Lacuna::DB::Result::Building::Permanent::Sand
                  Lacuna::DB::Result::Building::Permanent::Lagoon
               );
-  my $plant = randint(1, int($building->level/10)+1);
+  my $plant; my $max_level;
+  if ($variance == -1) {
+    $plant = randint(1, int($building->level/10)+1);
+    $max_level = 3;
+  }
+  elsif ($variance == 0) {
+    $plant = randint(1, int($building->level/5)+1);
+    $max_level = int($building->level/5);
+  }
+  else {
+    $plant = randint(1, int($building->level/3)+1);
+    $max_level = $building->level;
+  }
   my $planted = 0;
   my $now = DateTime->now;
   foreach my $cnt (1..$plant) {
@@ -454,7 +467,7 @@ sub bhg_decor {
             class        => random_element(\@decor),
             x            => $x,
             y            => $y,
-            level        => randint(1, int($building->level/5)),
+            level        => randint(1, $max_level),
             body_id      => $body->id,
         })->insert;
         $planted++;
@@ -466,11 +479,19 @@ sub bhg_decor {
   if ($planted) {
     $body->needs_surface_refresh(1);
     $body->update;
+    if ($body->empire) {
+      my $plural = ($planted > 1) ? "s" : "";
+      $body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'new_decor.txt',
+        params      => [$planted, $plural, $body->name],
+      );
+    }
   }
   return {
     id     => $body->id,
     name   => $body->name,
-    result => "$planted items placed",
+    result => "$planted decor items placed",
   };
 }
 
@@ -497,20 +518,25 @@ sub bhg_resource {
     result   => "Resource Shuffle",
   };
 # Waste always reacts oddly
+  my $waste_msg;
   my $waste_rnd = randint(1,5);
   if ($waste_rnd > 3) {
     $body->waste_stored($body->waste_capacity);
     $return->{waste} = "Filled";
+    $waste_msg = "filled our waste containers";
   }
   elsif ($waste_rnd < 3) {
     $body->waste_stored(0);
     $return->{waste} = "Zero";
+    $waste_msg = "emptied our waste containers";
   }
   else {
     $body->waste_stored(randint(0, $body->waste_capacity));
     $return->{waste} = "Random";
+    $waste_msg = "randomized our waste storage";
   }
 # Other resources
+  my $resource_msg;
   if ($variance == 1) {
     $body->water_stored(randint($body->water_stored, $body->water_capacity));
     $body->energy_stored(randint($body->energy_stored, $body->energy_capacity));
@@ -532,6 +558,7 @@ sub bhg_resource {
       $body->$attribute(randint($attribute,
                               int($ore_room * $arr->[$_]/100) ));
     }
+    $resource_msg = "added various resources";
   }
   elsif ($variance == -1) {
     $body->water_stored(randint(0, $body->water_stored));
@@ -540,6 +567,7 @@ sub bhg_resource {
       next unless $body->$attribute;
       $body->$attribute(randint(0, $body->$attribute));
     }
+    $resource_msg = "took away various resources";
   }
   else {
     $body->water_stored(randint(0, $body->water_capacity));
@@ -554,7 +582,13 @@ sub bhg_resource {
       my $attribute = $ore[$_];
       $body->$attribute(randint(0, int($body->ore_capacity * $arr->[$_]/100) ));
     }
+    $resource_msg = "randomized our resources. We may need to do a full inventory";
   }
+  $body->empire->send_predefined_message(
+    tags        => ['Alert'],
+    filename    => 'wormhole.txt',
+    params      => [$body->name, $waste_msg, $resource_msg],
+  );
   $body->update({
     needs_recalc                => 1,
   });
@@ -590,6 +624,17 @@ sub bhg_change_type {
   elsif ($btype eq 'habitable planet') {
     if ($params->{newtype} >= 1 and $params->{newtype} <= 20) {
       $class = 'Lacuna::DB::Result::Map::Body::Planet::P'.$params->{newtype};
+      my $old_type = $old_class;
+      my $new_type = $class;
+      $old_type =~ s/::(P\d+)/$1/;
+      $new_type =~ s/::(P\d+)/$1/;
+      if ($body->empire) {
+        $body->empire->send_predefined_message(
+          tags        => ['Alert'],
+          filename    => 'changed_type.txt',
+          params      => [$body->name, $old_type, $new_type],
+        );
+      }
     }
     else {
       confess [1013, 'Tring to change to a forbidden type!\n'];
@@ -658,6 +703,13 @@ sub bhg_size {
     else {
       $current_size += randint(1,5) - 3;
       $current_size = 30 if ($current_size < 30);
+    }
+    if ($old_size != $current_size && $body->empire) {
+      $body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'changed_size.txt',
+        params      => [$body->name, $old_size, $current_size],
+      );
     }
   }
   else {

@@ -1,0 +1,7 @@
+Changed size!
+~~~
+%s has gone from size %s to %s overnight!
+
+Regards,
+
+Your Humble Assistant
