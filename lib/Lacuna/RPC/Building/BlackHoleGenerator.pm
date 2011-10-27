@@ -34,17 +34,46 @@ around 'view' => sub {
 return $out;
 };
 
+sub find_target {
+  my ($self, $target_params) = @_;
+  unless (ref $target_params eq 'HASH') {
+    confess [-32602,
+             'The target parameter should be a hash reference. For example { "body_id" : 9999 }.'];
+  }
+  my $target;
+  if (exists $target_params->{body_id}) {
+    $target = Lacuna->db
+                ->resultset('Lacuna::DB::Result::Map::Body')
+                ->find($target_params->{body_id});
+  }
+  elsif (exists $target_params->{body_name}) {
+    $target = Lacuna->db
+                ->resultset('Lacuna::DB::Result::Map::Body')
+                ->search({ name => $target_params->{body_name} }, {rows=>1})->single;
+  }
+  elsif (exists $target_params->{x}) {
+    $target = Lacuna->db
+                ->resultset('Lacuna::DB::Result::Map::Body')
+                ->search({ x => $target_params->{x}, y => $target_params->{y} }, {rows=>1})->single;
+  }
+  unless (defined $target) {
+    confess [ 1002, 'Could not find the target.', $target];
+  }
+return $target;
+}
+
 sub generate_singularity {
-  my ($self, $session_id, $building_id, $target_id, $task_name, $params) = @_;
+  my ($self, $session_id, $building_id, $target_params, $task_name, $params) = @_;
   my $empire   = $self->get_empire_by_session($session_id);
   my $building = $self->get_building($empire, $building_id);
   my $body = $building->body;
+  my $target = $self->find_target($target_params);
   my $effect = {};
   my $return_stats = {};
   if ($building->is_working) {
     confess [1010, 'The Black Hole Generator is cooling down from the last use.']
   }
-  my $target   = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id);
+#  my $target   = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id);
   unless (defined $target) {
     confess [1002, 'Could not locate target.'];
   }
@@ -69,7 +98,7 @@ sub generate_singularity {
   my $dist = sprintf "%7.2f", $building->body->calculate_distance_to_target($target)/100;
   my $range = $building->level * 10;
   unless ($dist < $range) {
-    confess [1009, 'That body is too far away at '.$dist.' with a range of '.$range.'. '.$target_id."\n"];
+    confess [1009, 'That body is too far away at '.$dist.' with a range of '.$range.'. '.$target->id."\n"];
   }
   unless ($body->waste_stored >= $task->{waste_cost}) {
     confess [1011, 'You need at least '.$task->{waste_cost}.' to run that function of the Black Hole Generator.'];
@@ -77,7 +106,7 @@ sub generate_singularity {
   unless ($task->{occupied}) {
     if ($btype eq 'asteroid') {
       my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->
-                      search({asteroid_id => $target_id });
+                      search({asteroid_id => $target->id });
       my $count = 0;
       while (my $platform = $platforms->next) {
         $count++;

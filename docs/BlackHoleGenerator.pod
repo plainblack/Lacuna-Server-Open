@@ -5,6 +5,8 @@ Black Hole Generator is accessible via the URL C</blackholegenerator>.
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
 =head2 view ( session_id, building_id )
+ This method is extended to include the list of tasks.
+
  {
     "status" : { ... },
     "building" : { ... },
@@ -23,8 +25,13 @@ The list of methods below represents changes and additions to the methods that a
           "wrongtype" : "You can only make a planet from an asteroid."
        },...
 
-=head2 generate_singularity ( session_id, building_id, target_id, $task_name, $params ])
-
+=head2 generate_singularity ( session_id, building_id, target, task_name, params ])
+ {
+    "status" : { ... },
+    "fail" : { ... },
+    "side" : { ... },
+    "target" : { ... },
+}
 =head3 session_id
 
 A session id.
@@ -32,6 +39,16 @@ A session id.
 =head3 building_id
 
 The unique id of your Black Hole Generator.
+
+=head3 target
+
+A hash reference that can contain one of three items to identify a body.
+
+ { "body_name" : "Earth" }
+ 
+ { "body_id" : "id-goes-here" }
+ 
+ { "x" : 4, "y" : -3 }
 
 =head3 task_name
 
@@ -41,7 +58,7 @@ Make Planet
 Increase Size
 Change Type
 
-=head3 $params
+=head3 params
 reference to a hash
 Current usuage: $params = { newtype => 20 }
 Only used for Change Type
