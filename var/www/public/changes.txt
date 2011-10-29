@@ -1,3 +1,6 @@
+3.0817
+ - Mod: Lowered chances of glyphs discovered being announced on N19
+
 3.0816
  - Fix: SST and Trade no longer causes exception on accepting a trade
  - Fix: Space Station Plans now increase in cost correctly

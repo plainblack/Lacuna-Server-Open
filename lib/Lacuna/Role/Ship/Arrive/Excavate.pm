@@ -79,7 +79,7 @@ after handle_arrival_procedures => sub {
             );
         }
         $empire->add_medal($ore.'_glyph');
-        $body->add_news(70, sprintf('%s has uncovered a rare and ancient %s glyph on %s.',$empire->name, $ore, $remote_body->name));
+        $body->add_news(20, sprintf('%s has uncovered a rare and ancient %s glyph on %s.',$empire->name, $ore, $remote_body->name));
     }
     
     # found some resources
