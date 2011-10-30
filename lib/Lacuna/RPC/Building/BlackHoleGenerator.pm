@@ -88,7 +88,7 @@ sub generate_singularity {
   }
   my $btype = $target->get_type;
   unless ( grep { $btype eq $_ } @{$task->{types}} ) {
-    confess [1009, $task->{wrongtype}];
+    confess [1009, $task->{reason}];
   }
 # TEST SETTINGS
   $task->{waste_cost} = 1;
@@ -195,7 +195,7 @@ sub generate_singularity {
     }
     elsif ($task->{name} eq "Change Type") {
       $return_stats = bhg_change_type($target, $params);
-      $body->add_news(50, sprintf('%s has gone thru extensive changes.', $target->name));
+      $body->add_news(50, sprintf('The geology of %s has been extensively altered by powers unknown', $target->name));
     }
     else {
       confess [552, "Internal Error"];
@@ -644,7 +644,7 @@ sub bhg_change_type {
       $class = 'Lacuna::DB::Result::Map::Body::Asteroid::A'.$params->{newtype};
     }
     else {
-      confess [1013, 'Tring to change to a forbidden type!\n'];
+      confess [1013, "Trying to change to a forbidden type!"];
     }
   }
   elsif ($btype eq 'gas giant') {
@@ -653,10 +653,10 @@ sub bhg_change_type {
   elsif ($btype eq 'habitable planet') {
     if ($params->{newtype} >= 1 and $params->{newtype} <= 20) {
       $class = 'Lacuna::DB::Result::Map::Body::Planet::P'.$params->{newtype};
-      my $old_type = $old_class;
-      my $new_type = $class;
-      $old_type =~ s/::(P\d+)/$1/;
-      $new_type =~ s/::(P\d+)/$1/;
+      $old_class =~ /::(P\d+)/;
+      my $old_type = $1;
+      $class =~ /::(P\d+)/;
+      my $new_type = $1;
       if ($body->empire) {
         $body->empire->send_predefined_message(
           tags        => ['Alert'],
@@ -666,7 +666,7 @@ sub bhg_change_type {
       }
     }
     else {
-      confess [1013, 'Tring to change to a forbidden type!\n'];
+      confess [1013, "Trying to change to a forbidden type!"];
     }
   }
   else {
@@ -744,6 +744,7 @@ sub bhg_size {
   else {
     confess [1013, "We can't change the sizes of that body"];
   }
+  my $starter = ($current_size >= 40 && $current_size <= 50) ? 1 : 0;
   $body->update({
     needs_recalc                => 1,
     size                        => $current_size,
@@ -766,7 +767,7 @@ sub bhg_tasks {
     {
       name         => 'Make Planet',
       types        => ['asteroid'],
-      wrongtype    => "You can only make a planet from an asteroid.",
+      reason       => "You can only make a planet from an asteroid.",
       occupied     => 0,
       min_level    => 15,
       recovery     => int($day_sec * 90/$building->level),
@@ -777,7 +778,7 @@ sub bhg_tasks {
     {
       name         => 'Make Asteroid',
       types        => ['habitable planet', 'gas giant'],
-      wrongtype    => "You can only make an asteroid from a planet.",
+      reason       => "You can only make an asteroid from a planet.",
       occupied     => 0,
       min_level    => 10,
       recovery     => int($day_sec * 90/$building->level),
@@ -788,7 +789,7 @@ sub bhg_tasks {
     {
       name         => 'Increase Size',
       types        => ['habitable planet', 'asteroid'],
-      wrongtype    => "You can only increase the sizes of habitable planets and asteroids.",
+      reason       => "You can only increase the sizes of habitable planets and asteroids.",
       occupied     => 1,
       min_level    => 20,
       recovery     => int($day_sec * 180/$building->level),
@@ -799,7 +800,7 @@ sub bhg_tasks {
     {
       name         => 'Change Type',
       types        => ['habitable planet'],
-      wrongtype    => "You can only change the type of habitable planets.",
+      reason       => "You can only change the type of habitable planets.",
       occupied     => 1,
       min_level    => 25,
       recovery     => int($day_sec * 300/$building->level),
