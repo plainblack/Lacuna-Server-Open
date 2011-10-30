@@ -18,7 +18,7 @@ around can_build => sub {
 use constant image => 'grove';
 
 use constant name => 'Grove of Trees';
-use constant max_instances_per_planet => 1;
+use constant max_instances_per_planet => 9;
 
 use constant water_to_build => 1;
 use constant time_to_build => 1;
