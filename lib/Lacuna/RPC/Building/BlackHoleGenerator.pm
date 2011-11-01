@@ -131,6 +131,11 @@ sub generate_singularity {
       };
     }
   }
+  if ($task->{name} eq "Change Type" && defined ($target->empire) &&
+        ($body->empire->alliance_id != $target->empire->alliance_id)) {
+    confess [1009, "You can not change a body type if it is outside your alliance!\n"];
+# Maybe expand to allow if the alliance owns the star...
+  }
   $body->spend_waste($task->{waste_cost})->update;
   $building->start_work({}, $task->{recovery})->update;
 # Pass the basic checks
@@ -438,6 +443,7 @@ sub bhg_self_destruct {
                  id        => $body->id,
                  name  => $body->name,
   };
+  $body->waste_stored(0);
   my $bombed = $body->buildings;
   my $bombs = $building->level;
 
@@ -516,12 +522,19 @@ sub bhg_decor {
         params      => [$planted, $plural, $body->name],
       );
     }
+    return {
+      result => "$planted decor items placed",
+      id     => $body->id,
+      name   => $body->name,
+    };
   }
-  return {
-    id     => $body->id,
-    name   => $body->name,
-    result => "$planted decor items placed",
-  };
+  else {
+    return {
+      result => "Fizzle",
+      id     => $body->id,
+      name   => $body->name,
+    };
+  }
 }
 
 sub bhg_resource {
@@ -657,7 +670,7 @@ sub bhg_change_type {
       my $old_type = $1;
       $class =~ /::(P\d+)/;
       my $new_type = $1;
-      if ($body->empire) {
+      if ($body->empire and $old_type ne $new_type) {
         $body->empire->send_predefined_message(
           tags        => ['Alert'],
           filename    => 'changed_type.txt',
@@ -672,10 +685,18 @@ sub bhg_change_type {
   else {
     confess [1013, "We can't change the type of that body"];
   }
+  if ($class eq $old_class) {
+    return {
+      result    => "Fizzle",
+      id        => $body->id,
+      name      => $body->name,
+    };
+  }
+  my $starter = ($body->size >= 40 && $body->size <= 50) ? 1 : 0;
   $body->update({
     needs_recalc                => 1,
     class                       => $class,
-    usable_as_starter_enabled   => 0,
+    usable_as_starter_enabled   => $starter,
   });
   return {
     result    => "Changed Type",
@@ -744,11 +765,18 @@ sub bhg_size {
   else {
     confess [1013, "We can't change the sizes of that body"];
   }
+  if ($old_size == $current_size) {
+    return {
+      result    => "Fizzle",
+      id        => $body->id,
+      name      => $body->name,
+    };
+  }
   my $starter = ($current_size >= 40 && $current_size <= 50) ? 1 : 0;
   $body->update({
     needs_recalc                => 1,
     size                        => $current_size,
-    usable_as_starter_enabled   => 0,
+    usable_as_starter_enabled   => $starter,
   });
   return {
     result    => "Changed Size",
@@ -765,26 +793,26 @@ sub bhg_tasks {
   my $day_sec = 60 * 60 * 24;
   my @tasks = (
     {
-      name         => 'Make Planet',
-      types        => ['asteroid'],
-      reason       => "You can only make a planet from an asteroid.",
-      occupied     => 0,
-      min_level    => 15,
-      recovery     => int($day_sec * 90/$building->level),
-      waste_cost   => 1_000_000_000,
-      fail_chance  => int(100 - $building->level * 2.5),
-      side_chance  => 25,
-    },
-    {
       name         => 'Make Asteroid',
       types        => ['habitable planet', 'gas giant'],
       reason       => "You can only make an asteroid from a planet.",
       occupied     => 0,
       min_level    => 10,
       recovery     => int($day_sec * 90/$building->level),
-      waste_cost   => 10_000_000,
+      waste_cost   => 50_000_000,
       fail_chance  => int(100 - $building->level * 3),
       side_chance  => 10,
+    },
+    {
+      name         => 'Make Planet',
+      types        => ['asteroid'],
+      reason       => "You can only make a planet from an asteroid.",
+      occupied     => 0,
+      min_level    => 15,
+      recovery     => int($day_sec * 90/$building->level),
+      waste_cost   => 100_000_000,
+      fail_chance  => int(100 - $building->level * 2.5),
+      side_chance  => 25,
     },
     {
       name         => 'Increase Size',
@@ -793,7 +821,7 @@ sub bhg_tasks {
       occupied     => 1,
       min_level    => 20,
       recovery     => int($day_sec * 180/$building->level),
-      waste_cost   => 10_000_000_000,
+      waste_cost   => 1_000_000_000,
       fail_chance  => int(100 - $building->level * 2),
       side_chance  => 50,
     },
@@ -804,7 +832,7 @@ sub bhg_tasks {
       occupied     => 1,
       min_level    => 25,
       recovery     => int($day_sec * 300/$building->level),
-      waste_cost   => 100_000_000,
+      waste_cost   => 10_000_000_000,
       fail_chance  => int(100 - $building->level * 2),
       side_chance  => 75,
     },

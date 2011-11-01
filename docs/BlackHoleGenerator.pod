@@ -3,6 +3,7 @@
 Black Hole Generator is accessible via the URL C</blackholegenerator>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+More data needs to be added for return values.
 
 =head2 view ( session_id, building_id )
 
@@ -23,7 +24,7 @@ The list of methods below represents changes and additions to the methods that a
              "asteroid"
           ],
           "waste_cost" : 1000000000,
-          "wrongtype" : "You can only make a planet from an asteroid."
+          "reason" : "You can only make a planet from an asteroid."
        },...
 
 =head2 generate_singularity ( session_id, building_id, target, task_name, params ])
