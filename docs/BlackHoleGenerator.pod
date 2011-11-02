@@ -3,7 +3,6 @@
 Black Hole Generator is accessible via the URL C</blackholegenerator>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
-More data needs to be added for return values.
 
 =head2 view ( session_id, building_id )
 
@@ -14,17 +13,18 @@ More data needs to be added for return values.
     "building" : { ... },
     "tasks" : [
        {
-          "fail_chance" : 25,
-          "min_level" : 15,
-          "name" : "Make Planet",
+          "fail_chance" : 15,  #Note, range is not factored in.
+          "min_level" : 10,
+          "name" : "Make Asteroid",
           "occupied" : 0,
           "recovery" : 129600,
-          "side_chance" : 50,
+          "side_chance" : 10,
           "types" : [
-             "asteroid"
+             "habitable planet",
+             "gas giant"
           ],
-          "waste_cost" : 1000000000,
-          "reason" : "You can only make a planet from an asteroid."
+          "waste_cost" : 50000000
+          "reason" : "You can only make an asteroid from a planet."
        },...
 
 =head2 generate_singularity ( session_id, building_id, target, task_name, params ])
@@ -33,8 +33,21 @@ More data needs to be added for return values.
     "status" : { ... },
     "fail" : { ... },
     "side" : { ... },
-    "target" : { ... },
+    "target" : {
+        "class" : "Lacuna::DB::Result::Map::Body::Asteroid::A2",
+        "id" : "body id",
+        "name" : "name of planet effected",
+        "old_class" : "Lacuna::DB::Result::Map::Body::Planet::P9",
+        "old_size" : Size before change,
+        "message" : "Made Asteroid",
+        "size" : Size of body after effect
+        "type" : "asteroid", "gas giant", "habitable planet", or "space station"
+        "variance" : -1, 0, or 1
+        "waste" : "Zero", "Random", or "Filled"
+    }
  }
+
+Not all fields are used for every result or task.
 
 =head3 session_id
 

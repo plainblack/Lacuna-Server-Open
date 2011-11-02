@@ -73,7 +73,6 @@ sub generate_singularity {
   if ($building->is_working) {
     confess [1010, 'The Black Hole Generator is cooling down from the last use.']
   }
-#  my $target   = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id);
   unless (defined $target) {
     confess [1002, 'Could not locate target.'];
   }
@@ -140,35 +139,35 @@ sub generate_singularity {
   $building->start_work({}, $task->{recovery})->update;
 # Pass the basic checks
 # Check for startup failure
-  my $fail = randint(1,100) - (50 - sqrt( ($range - $dist) * (300/$range)) * 2.71);
+  my $fail = randint(0,99) - (50 - sqrt( ($range - $dist) * (300/$range)) * 2.71);
   if (($task->{fail_chance} > $fail )) {
 # Something went wrong with the start
-    $fail = randint(1,20);
-    if ($fail < 2) {
+    $fail = randint(0,19);
+    if ($fail == 0) {
       $return_stats = bhg_self_destruct($building);
       $body->add_news(75,
              sprintf('%s finds a decimal point out of place.',
                      $empire->name));
     }
-    elsif ($fail <  7) {
+    elsif ($fail <  6) {
       $return_stats = bhg_decor($building, $body, -1);
       $body->add_news(30,
              sprintf('%s is wracked with changes.',
                      $body->name));
     }
-    elsif ($fail < 12) {
+    elsif ($fail < 11) {
       $return_stats = bhg_resource($body, -1);
       $body->add_news(50,
              sprintf('%s opens up a wormhole near their storage area.',
                      $body->name));
     }
-    elsif ($fail < 17) {
+    elsif ($fail < 16) {
       $return_stats = bhg_size($building, $body, -1);
       $body->add_news(50,
              sprintf('%s deforms after an expirement goes wild.',
                      $body->name));
     }
-    elsif ($fail < 20) {
+    elsif ($fail < 19) {
       $return_stats = bhg_random_make($building);
       $body->add_news(50,
              sprintf('Scientists on %s are concerned when their singularity has a malfunction.',
@@ -207,7 +206,7 @@ sub generate_singularity {
     }
     $effect->{target} = $return_stats;
 #And now side effect time
-    my $side = randint(1,100);
+    my $side = randint(0,99);
     if ($task->{side_chance} > $side) {
       my $side_type = randint(0,99);
       if ($side_type < 25) {
@@ -219,10 +218,10 @@ sub generate_singularity {
       elsif ($side_type < 50) {
         $return_stats = bhg_random_type($building);
       }
-      elsif ($side_type < 76) {
+      elsif ($side_type < 75) {
         $return_stats = bhg_random_resource($building);
       }
-      elsif ($side_type < 96) {
+      elsif ($side_type < 95) {
         $return_stats = bhg_random_decor($building);
       }
       else {
@@ -243,8 +242,8 @@ sub bhg_make_planet {
   my $size;
   my $old_class = $body->class;
   my $old_size  = $body->size;
-  my $random = randint(1,100);
-  if ($random < 6) {
+  my $random = randint(0,99);
+  if ($random < 5) {
     $class = 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G'.randint(1,5);
     $size  = randint(70, 121);
   }
@@ -261,6 +260,7 @@ sub bhg_make_planet {
   });
   $body->sanitize;
   return {
+    message   => "Made Planet",
     old_class => $old_class,
     class     => $class,
     old_size  => $old_size,
@@ -282,7 +282,7 @@ sub bhg_make_asteroid {
     alliance_id => undef,
   });
   return {
-    result    => "Made Asteroid",
+    message   => "Made Asteroid",
     old_class => $old_class,
     class     => $body->class,
     old_size  => $old_size,
@@ -314,9 +314,9 @@ sub bhg_random_make {
     }
     else {
       $return = {
-        result => "Aborted making planet",
-        id     => $target->id,
-        name   => $target->name,
+        message => "Aborted making planet",
+        id      => $target->id,
+        name    => $target->name,
       };
     }
   }
@@ -344,9 +344,9 @@ sub bhg_random_type {
   }
   else {
     $return = {
-      result => "Did not change type",
-      id     => $target->id,
-      name   => $target->name,
+      message => "Fizzle",
+      id      => $target->id,
+      name    => $target->name,
     };
   }
   return $return;
@@ -371,9 +371,9 @@ sub bhg_random_size {
   }
   else {
     $return = {
-      result => "Did not change size",
-      id     => $target->id,
-      name   => $target->name,
+      message => "Fizzle",
+      id      => $target->id,
+      name    => $target->name,
     };
   }
   return $return;
@@ -390,14 +390,14 @@ sub bhg_random_resource {
   my $btype = $target->get_type;
   if ($btype eq 'habitable planet' or $btype eq 'gas giant') {
     $body->add_news(50, sprintf('A wormhole briefly appeared on %s.', $target->name));
-    my $variance =  (randint(1,10) > 8) ? 1 : 0;
+    my $variance =  (randint(0,9) < 2) ? 1 : 0;
     $return = bhg_resource($target, $variance);
   }
   else {
     $return = {
-      result => "No Resources Modified",
-      id     => $target->id,
-      name   => $target->name,
+      message => "No Resources Modified",
+      id      => $target->id,
+      name    => $target->name,
     };
   }
   return $return;
@@ -422,15 +422,15 @@ sub bhg_random_decor {
     else {
       $body->add_news(30, sprintf('Astromers claim that the surface of %s has changed.', $target->name));
     }
-    my $variance =  (randint(1,10) > 8) ? 1 : 0;
+    my $variance =  (randint(0,9) < 2) ? 1 : 0;
     $return = bhg_decor($building, $target, $variance);
   }
   else {
     $return = {
-      result => "No decorating",
-      id     => $target->id,
-      name   => $target->name,
-      type   => $btype,
+      message => "No decorating",
+      id      => $target->id,
+      name    => $target->name,
+      type    => $btype,
     };
   }
   return $return;
@@ -441,7 +441,7 @@ sub bhg_self_destruct {
   my $body = $building->body;
   my $return = {
                  id        => $body->id,
-                 name  => $body->name,
+                 name      => $body->name,
   };
   $body->waste_stored(0);
   my $bombed = $body->buildings;
@@ -465,7 +465,7 @@ sub bhg_self_destruct {
   $body->needs_recalc(1);
   $body->update;
   $building->update({class=>'Lacuna::DB::Result::Building::Permanent::Crater'});
-  $return->{result} = "Black Hole Generator Destroyed";
+  $return->{message} = "Black Hole Generator Destroyed";
   return $return;
 }
 
@@ -523,16 +523,16 @@ sub bhg_decor {
       );
     }
     return {
-      result => "$planted decor items placed",
-      id     => $body->id,
-      name   => $body->name,
+      message => "$planted decor items placed",
+      id      => $body->id,
+      name    => $body->name,
     };
   }
   else {
     return {
-      result => "Fizzle",
-      id     => $body->id,
-      name   => $body->name,
+      message => "Fizzle",
+      id      => $body->id,
+      name    => $body->name,
     };
   }
 }
@@ -554,10 +554,10 @@ sub bhg_resource {
                 sulfur_stored trona_stored uraninite_stored zircon_stored
   );
   my $return = {
-    variance => $variance,
-    id       => $body->id,
-    name     => $body->name,
-    result   => "Resource Shuffle",
+    variance  => $variance,
+    id        => $body->id,
+    name      => $body->name,
+    message   => "Resource Shuffle",
   };
 # Waste always reacts oddly
   my $waste_msg;
@@ -687,9 +687,9 @@ sub bhg_change_type {
   }
   if ($class eq $old_class) {
     return {
-      result    => "Fizzle",
-      id        => $body->id,
-      name      => $body->name,
+      message    => "Fizzle",
+      id         => $body->id,
+      name       => $body->name,
     };
   }
   my $starter = ($body->size >= 40 && $body->size <= 50) ? 1 : 0;
@@ -699,7 +699,7 @@ sub bhg_change_type {
     usable_as_starter_enabled   => $starter,
   });
   return {
-    result    => "Changed Type",
+    message   => "Changed Type",
     old_class => $old_class,
     class     => $class,
     id        => $body->id,
@@ -719,7 +719,7 @@ sub bhg_size {
     }
     elsif ($variance == 1) {
       if ($current_size >= 10) {
-        $current_size++ if (randint(1,5) < 2);
+        $current_size++ if (randint(0,99) < 10);
         $current_size = 20 if ($current_size > 20);
       }
       else {
@@ -742,7 +742,7 @@ sub bhg_size {
     }
     elsif ($variance == 1) {
       if ($current_size >= 65) {
-        $current_size++ if (randint(1,5) < 2);
+        $current_size++ if (randint(0,99) < 10);
         $current_size = 70 if ($current_size > 70);
       }
       else {
@@ -767,7 +767,7 @@ sub bhg_size {
   }
   if ($old_size == $current_size) {
     return {
-      result    => "Fizzle",
+      message   => "Fizzle",
       id        => $body->id,
       name      => $body->name,
     };
@@ -779,7 +779,7 @@ sub bhg_size {
     usable_as_starter_enabled   => $starter,
   });
   return {
-    result    => "Changed Size",
+    message   => "Changed Size",
     old_size  => $old_size,
     size      => $current_size,
     id        => $body->id,
