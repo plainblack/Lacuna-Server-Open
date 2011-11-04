@@ -19,21 +19,21 @@ use constant name => 'Distribution Center';
 
 use constant university_prereq => 19;
 
-use constant food_to_build => 200;
+use constant food_to_build => 300;
 
-use constant energy_to_build => 200;
+use constant energy_to_build => 300;
 
-use constant ore_to_build => 200;
+use constant ore_to_build => 300;
 
-use constant water_to_build => 200;
+use constant water_to_build => 300;
 
-use constant waste_to_build => 400;
+use constant waste_to_build => 500;
 
 use constant time_to_build => 120;
 
 use constant food_consumption => 2;
 
-use constant energy_consumption => 12;
+use constant energy_consumption => 4;
 
 use constant ore_consumption => 2;
 
@@ -41,19 +41,19 @@ use constant water_consumption => 2;
 
 use constant waste_production => 2;
 
-use constant water_storage => 500;
+use constant water_storage => 750;
 
-use constant ore_storage => 500;
+use constant ore_storage => 750;
 
-use constant energy_storage => 500;
+use constant energy_storage => 750;
 
-use constant food_storage => 500;
+use constant food_storage => 750;
 
 use constant max_instances_per_planet => 2;
 
 sub max_reserve_size {
     my $self = shift;
-    return $self->level * 100000;
+    return $self->level * 10000 * (10 ** ($self->level/10+1));
 }
 sub reserve_duration {
     my $self = shift;
