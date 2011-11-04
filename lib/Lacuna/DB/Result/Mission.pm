@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Mission;
 use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
-use Lacuna::Util qw(format_date commify);
+use Lacuna::Util qw(format_date commify randint);
 use UUID::Tiny ':std';
 use Config::JSON;
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
