@@ -170,7 +170,7 @@ sub get_plan_summary {
 
     my $plan_summary = {};
     while (my $plan = $plans->next) {
-        my $key = sprintf("%s~%02u~%02u", $plan->class->name, $plan->level, $plan->extra_build_level);
+        my $key = sprintf("%s~%s~%02u~%02u", $plan->class->name, $plan->class, $plan->level, $plan->extra_build_level);
         $plan_summary->{$key}++;
     }
 
@@ -180,10 +180,11 @@ sub get_plan_summary {
     my @out;
     for my $plan (@plans) {
         my ($key,$quantity) = %$plan;
-        my ($name,$level,$extra) = split /~/, $key;
+        my ($name,$class,$level,$extra) = split /~/, $key;
 
         push @out, {
             name                => $name,
+            class               => $class,
             level               => int($level),
             extra_build_level   => int($extra),
             quantity            => $quantity,
@@ -254,7 +255,7 @@ sub get_glyph_summary {
         $glyph_summary->{$glyph->type}++;
     }
     # sort
-    my @out = map { {type => $_, quantity => $glyph_summary->{$_}}} sort {$a cmp $b} keys %$glyph_summary;
+    my @out = map { {name => $_, quantity => $glyph_summary->{$_}}} sort {$a cmp $b} keys %$glyph_summary;
 
     return {
         glyphs                  => \@out,

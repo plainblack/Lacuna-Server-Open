@@ -149,7 +149,7 @@ sub build_infrastructure {
     my $self = shift;
     my $home = $self->empire->home_planet;
     foreach my $type ('Lacuna::DB::Result::Building::Food::Algae','Lacuna::DB::Result::Building::Energy::Hydrocarbon',
-        'Lacuna::DB::Result::Building::Water::Purification','Lacuna::DB::Result::Building::Ore::Mine') {
+        'Lacuna::DB::Result::Building::Water::Purification','Lacuna::DB::Result::Building::Water::Purification','Lacuna::DB::Result::Building::Water::Purification','Lacuna::DB::Result::Building::Ore::Mine','Lacuna::DB::Result::Building::Ore::Mine','Lacuna::DB::Result::Building::Ore::Mine','Lacuna::DB::Result::Building::Food::Algae','Lacuna::DB::Result::Building::Food::Algae','Lacuna::DB::Result::Building::Energy::Hydrocarbon','Lacuna::DB::Result::Building::Energy::Hydrocarbon') {
 
         $self->build_building($type, 20);
     }

@@ -77,11 +77,19 @@ The amount of the resource that you want to trade.
 
 =item glyphs
 
-The hash reference for glyphs looks like:
+The hash reference for glyphs can either look like this:
 
  {
     "type" : "glyph",
     "glyph_id" : "id-goes-here"
+ }
+
+Or it can look like this:
+
+ {
+    "type" : "glyph",
+    "name : "bauxite",
+    "quantity" : 3
  }
  
 =over
@@ -93,17 +101,35 @@ Must be exactly C<glyph>.
 =item glyph_id
 
 The unique id of the glyph you want to trade. See the C<get_glyphs> method for a list of your glyphs.
- 
+
+=item name
+
+The type of glyph you want to trade (must be an ore type name).
+
+=item quantity
+
+The number of glyphs of type C<name> that you want to trade 
+
 =back
+
 
 =item plans
 
-The hash reference for plans looks like:
+The hash reference for plans can look like this:
 
  {
     "type" : "plan",
     "plan_id" : "id-goes-here"
  }
+
+Or it can look like this
+
+ {
+    "type" : "plan",
+    "plan_type" : "Malcud Field",
+    "
+ }
+
 
 =over
 
