@@ -40,6 +40,10 @@ for ( 0 .. 2 ) {
 }
 $tester->finish_ships($tester_shipyard->id);
 
+$trader->post('trade', 'get_glyphs', [$trader_session_id, $trader_trade->id]);
+exit;
+
+
 # build some ships for the trader to trade
 
 my @ships;
