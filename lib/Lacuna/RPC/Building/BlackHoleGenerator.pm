@@ -7,6 +7,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Lacuna::Util qw(randint random_element);
+use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 
 sub app_url {
     return '/blackholegenerator';
@@ -540,19 +541,9 @@ sub bhg_decor {
 sub bhg_resource {
   my ($body, $variance) = @_;
 # If -1 deduct resources, if 0 randomize, if 1 add
-  my @food = qw( algae_stored apple_stored bean_stored beetle_stored
-                 bread_stored burger_stored cheese_stored chip_stored
-                 cider_stored corn_stored fungus_stored lapis_stored
-                 meal_stored milk_stored pancake_stored pie_stored
-                 potato_stored root_stored shake_stored soup_stored
-                 syrup_stored wheat_stored
-  );
-  my @ore = qw( anthracite_stored bauxite_stored beryl_stored chalcopyrite_stored
-                chromite_stored fluorite_stored galena_stored goethite_stored
-                gold_stored gypsum_stored halite_stored kerogen_stored
-                magnetite_stored methane_stored monazite_stored rutile_stored
-                sulfur_stored trona_stored uraninite_stored zircon_stored
-  );
+  my @food = map { $_.'_stored' } FOOD_TYPES;
+  my @ore  = map { $_.'_stored' } ORE_TYPES;
+
   my $return = {
     variance  => $variance,
     id        => $body->id,

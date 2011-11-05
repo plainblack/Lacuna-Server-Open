@@ -749,6 +749,7 @@ sub _view_ships {
                     $ship_info{type_human} = $ship->type_formatted;
                 }
             }
+warn Dumper(\%ship_info); use Data::Dumper;
             push @fleet, \%ship_info;
         }
     }
