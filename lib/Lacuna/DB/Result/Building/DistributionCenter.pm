@@ -53,7 +53,7 @@ use constant max_instances_per_planet => 2;
 
 sub max_reserve_size {
     my $self = shift;
-    return $self->level * 10000 * (10 ** ($self->level/10+1));
+    return int($self->level * 10000 * (10 ** ($self->level/10+1)));
 }
 sub reserve_duration {
     my $self = shift;
@@ -117,7 +117,18 @@ before finish_work => sub {
     my $body = $self->body;
 
     my $resources = $self->work->{reserved};
-    for my $resource ( @$resources ) {
+    my $food_reserve = 0;
+    my $ore_reserve  = 0;
+    my $resource;
+    for $resource ( @$resources ) {
+      $food_reserve += $resource->{quantity} if (grep { $resource->{type} eq $_ } FOOD_TYPES);
+      $ore_reserve  += $resource->{quantity} if (grep { $resource->{type} eq $_ } ORE_TYPES);
+    }
+    my $food_res = ($food_reserve + $body->food_stored) - $body->food_capacity;
+    if ($food_res > 0) { $body->spend_food($food_res + 100) };
+    my $ore_res = ($ore_reserve + $body->ore_stored) - $body->ore_capacity;
+    if ($ore_res > 0) { $body->spend_ore($ore_res + 100) };
+    for $resource ( @$resources ) {
         $body->add_type($resource->{type}, $resource->{quantity});
     }
     $body->update;
