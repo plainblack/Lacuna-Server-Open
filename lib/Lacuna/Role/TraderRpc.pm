@@ -184,7 +184,7 @@ sub get_plan_summary {
 
         push @out, {
             name                => $name,
-            class               => $class,
+            plan_class          => $class,
             level               => int($level),
             extra_build_level   => int($extra),
             quantity            => $quantity,

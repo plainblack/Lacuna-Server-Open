@@ -89,7 +89,7 @@ sub unload {
     }
     if (exists $payload->{plans}) {
         foreach my $plan (@{$payload->{plans}}) {
-            $body->add_plan($plan->{class}, $plan->{level}, $plan->{extra_build_level});
+            $body->add_plan($plan->{plan_class}, $plan->{level}, $plan->{extra_build_level});
         }
         delete $payload->{plans};
     }
@@ -144,7 +144,7 @@ sub format_description_of_payload {
             $level .= '+'.$stats->{extra_build_level};
         }
         my $pattern = '%s (%s) plan'; 
-        push @items, sprintf($pattern, $stats->{class}->name, $level);
+        push @items, sprintf($pattern, $stats->{plan_class}->name, $level);
     }
     
     # spies
