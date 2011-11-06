@@ -211,7 +211,7 @@ sub rank_empires {
 sub rank_alliances {
     out('Ranking Alliances');
     my $alliances = $db->resultset('Lacuna::DB::Result::Log::Alliance');
-    foreach my $field (qw(average_empire_size offense_success_rate defense_success_rate dirtiest)) {
+    foreach my $field (qw(influence population space_station_count average_empire_size offense_success_rate defense_success_rate dirtiest)) {
         my $ranked = $alliances->search(undef, {order_by => {-desc => $field}});
         my $counter = 1;
         while (my $alliance = $ranked->next) {

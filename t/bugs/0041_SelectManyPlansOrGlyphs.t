@@ -55,6 +55,10 @@ $tester->finish_ships($tester_shipyard->id);
 $home->tick;
 
 my $result = $tester->post('trade', 'get_glyph_summary', [$tester_session_id, $tester_trade_id]);
+is_deeply
+
+
+exit;
 
 $result = $tester->post('trade', 'add_to_market', [$tester_session_id, $tester_trade_id, [
     {
@@ -76,7 +80,7 @@ $result = $tester->post('trade', 'get_plan_summary', [$tester_session_id, $teste
 $result = $tester->post('trade', 'add_to_market', [$tester_session_id, $tester_trade_id, [
     {
         type        => 'plan',
-        class       => 'Lacuna::DB::Result::Building::Food::Malcud',
+        plan_class  => 'Lacuna::DB::Result::Building::Food::Malcud',
         level       => 1,
         extra_build_level => 3,
         quantity    => 3,

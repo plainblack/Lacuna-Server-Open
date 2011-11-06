@@ -12,9 +12,12 @@ __PACKAGE__->add_columns(
     alliance_name               => { data_type => 'varchar', size => 30, is_nullable => 0 },
     member_count                => { data_type => 'int', is_nullable => 0 },
     space_station_count         => { data_type => 'int', is_nullable => 0 },
+    space_station_count_rank    => { data_type => 'int', is_nullable => 0 },
     influence                   => { data_type => 'int', is_nullable => 0 },
+    influence_rank              => { data_type => 'int', is_nullable => 0 },
     colony_count                => { data_type => 'int', is_nullable => 0 },
     population                  => { data_type => 'int', size => 11, is_nullable => 0 },
+    population_rank             => { data_type => 'int', is_nullable => 0 },
     average_empire_size         => { data_type => 'bigint', is_nullable => 0 },
     average_empire_size_rank    => { data_type => 'int', is_nullable => 0 },
     average_university_level    => { data_type => 'float', size =>[5,2], is_nullable => 0 },
@@ -35,6 +38,8 @@ after 'sqlt_deploy_hook' => sub {
     $sqlt_table->add_index(name => 'idx_offense_success_rate_rank', fields => ['offense_success_rate_rank']);
     $sqlt_table->add_index(name => 'idx_defense_success_rate_rank', fields => ['defense_success_rate_rank']);
     $sqlt_table->add_index(name => 'idx_dirtiest_rank', fields => ['dirtiest_rank']);
+    $sqlt_table->add_index(name => 'idx_population_rank', fields => ['population_rank']);
+    $sqlt_table->add_index(name => 'idx_influence_rank', fields => ['influence_rank']);
 };
 
 
