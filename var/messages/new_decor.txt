@@ -1,0 +1,7 @@
+New Decorations!
+~~~
+Something odd happened during that earthquake and we have %s new decoration%s on %s.
+
+Regards,
+
+Your Humble Assistant

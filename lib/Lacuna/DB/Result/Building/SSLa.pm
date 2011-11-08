@@ -195,7 +195,7 @@ sub make_plan {
     $level ||= 1;
     my $makeable = $self->makeable_plans;
     my $resource_cost = $self->plan_cost_at_level($level, $self->plan_resource_cost);
-    my $time_cost = $self->plan_cost_at_level($level, $self->plan_time_cost);
+    my $time_cost = $self->plan_time_at_level($level, $self->plan_time_cost);
     my $body = $self->body;
     $body->spend_ore($resource_cost);
     $body->spend_water($resource_cost);

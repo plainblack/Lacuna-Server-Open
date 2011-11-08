@@ -265,6 +265,13 @@ my %recipies = (
         },
     },
     kerogen     => {
+        beryl       => {
+            anthracite      => {
+               monazite    => {
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::BlackHoleGenerator',
+                },
+            },
+        },
         methane     => {
             sulfur      => {
                 zircon      => {
@@ -313,6 +320,13 @@ my %recipies = (
             gold        => {
                 bauxite     => {
                     plan        => 'Lacuna::DB::Result::Building::Permanent::CrashedShipSite',
+                },
+            },
+        },        
+        uraninite   => {
+            sulfur          => {
+                trona       => {
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::TheDillonForge',
                 },
             },
         },        

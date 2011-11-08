@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Mission;
 use Moose;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
-use Lacuna::Util qw(format_date commify);
+use Lacuna::Util qw(format_date commify randint);
 use UUID::Tiny ':std';
 use Config::JSON;
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
@@ -49,10 +49,12 @@ sub complete {
     Lacuna->cache->set($self->mission_file_name, $body->empire_id, 1, 60 * 60 * 24 * 30);
     $self->spend_objectives($body);
     $self->add_rewards($body);
-    Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
-        zone                => $self->zone,
-        headline            => sprintf($self->params->get('network_19_completion'), $body->empire->name),
-    })->insert;
+    if (randint(0,9) < 5) {
+      Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
+          zone                => $self->zone,
+          headline            => sprintf($self->params->get('network_19_completion'), $body->empire->name),
+      })->insert;
+    }
     $self->add_next_part;
     my $log = $self->log;
     $log->update({
@@ -429,10 +431,12 @@ sub initialize {
     $mission->insert;
     my $log = $mission->log;
     $log->update({ offers => $log->offers + 1});
-    Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
-        zone                => $mission->zone,
-        headline            => $mission->params->get('network_19_headline'),
-    })->insert;
+    if (randint(0,9) < 3) {
+      Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
+          zone                => $mission->zone,
+          headline            => $mission->params->get('network_19_headline'),
+      })->insert;
+    }
     return $mission;
 }
 

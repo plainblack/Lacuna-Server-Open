@@ -4,4 +4,114 @@ Black Hole Generator is accessible via the URL C</blackholegenerator>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+=head2 view ( session_id, building_id )
+
+ This method is extended to include the list of tasks.
+
+ {
+    "status" : { ... },
+    "building" : { ... },
+    "tasks" : [
+       {
+          "fail_chance" : 15,  #Note, range is not factored in.
+          "min_level" : 10,
+          "name" : "Make Asteroid",
+          "occupied" : 0,
+          "recovery" : 129600,
+          "side_chance" : 10,
+          "types" : [
+             "habitable planet",
+             "gas giant"
+          ],
+          "waste_cost" : 50000000
+          "reason" : "You can only make an asteroid from a planet."
+       },...
+
+=head2 generate_singularity ( session_id, building_id, target, task_name, params ])
+
+ {
+    "status" : { ... },
+    "fail" : { ... },
+    "side" : { ... },
+    "target" : {
+        "class" : "Lacuna::DB::Result::Map::Body::Asteroid::A2",
+        "id" : "body id",
+        "name" : "name of planet effected",
+        "old_class" : "Lacuna::DB::Result::Map::Body::Planet::P9",
+        "old_size" : Size before change,
+        "message" : "Made Asteroid",
+        "size" : Size of body after effect
+        "type" : "asteroid", "gas giant", "habitable planet", or "space station"
+        "variance" : -1, 0, or 1
+        "waste" : "Zero", "Random", or "Filled"
+    }
+ }
+
+Not all fields are used for every result or task.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of your Black Hole Generator.
+
+=head3 target
+
+A hash reference that can contain one of three items to identify a body.
+
+ { "body_name" : "Earth" }
+ 
+ { "body_id" : "id-goes-here" }
+ 
+ { "x" : 4, "y" : -3 }
+
+=head3 task_name
+
+One of the tasks available for the BHG.
+Make Asteroid
+Make Planet
+Increase Size
+Change Type
+
+=head3 params
+reference to a hash
+Current usuage: $params = { newtype => 20 }
+Only used for Change Type
+
+=head3
+Returns success, failure, and side effect results.
+
+Throws 1002, 1009, 1010, 1013
+
+=head3 Tasks
+
+=over
+
+=item Make Asteroid
+
+Can convert any non-inhabited planet to a random asteroid.  Initial size is determined by level of BHG.
+  Minimum Level of 10 to use this function.
+
+=item Make Planet
+
+Can convert any non-inhabited asteroid (no platforms) to a random planet.  Initial size is determined by level of BHG.
+  Minimum Level of 15 to use this function.
+
+=item Increase Size
+
+Can increase the size of a habitable planet up to size 65 or an asteroid up to size 10.
+  Minimum Level of 20 to use this function.
+
+=item Change Type
+
+Can change the type of a habitable planet to any of the basic 20 types.
+  Minimum Level of 25 to use this function.
+
+=back
+
+  Failure rates for the Blackhole Generator increases with range.
+  Side Effects happen fairly random, but occur more often the more difficult the task.
+
 =cut
