@@ -678,6 +678,11 @@ sub boost_storage {
     return $self->boost($session_id, 'storage_boost');
 }
 
+sub boost_building {
+    my ($self, $session_id) = @_;
+    return $self->boost($session_id, 'building_boost');
+}
+
 sub boost {
     my ($self, $session_id, $type) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -709,6 +714,7 @@ sub view_boosts {
             ore         => format_date($empire->ore_boost),
             energy      => format_date($empire->energy_boost),
             storage     => format_date($empire->storage_boost),
+            building    => format_date($empire->building_boost),
         }
     };
 }
@@ -1030,7 +1036,7 @@ __PACKAGE__->register_rpc_method_names(
     { name => "benchmark", options => { with_plack_request => 1 } },
     { name => "found", options => { with_plack_request => 1 } },
     { name => "reset_password", options => { with_plack_request => 1 } },
-    qw(redefine_species redefine_species_limits get_invite_friend_url get_species_templates update_species view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+    qw(redefine_species redefine_species_limits get_invite_friend_url get_species_templates update_species view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_building boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
 );
 
 
