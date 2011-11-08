@@ -1,11 +1,12 @@
 3.0817
+ - Add: Black Hole Generator Code added.
+ - Mod: Lowered chances of glyphs discovered being announced on N19.
+ - Add: Glyph Recipe for Black Hole Generator added.
+ - Mod: Adjusted costs and storage for Distribution Centers.
  - Rule: Alliances are now ranked first by influence, then by population
  - Rule: Sitters are now allowed to vote in parliament
  - Add:  Experimental code to bulk-trade in glyphs/plans/ships in Trade Ministry 'Add Trade'
- - Rule: Distribution centre costs and consumption have been adjusted
- - Add:  Black Hole Generator is now on-line
  - Rule: You may now have nine of each of Grove of Trees, Lagoon and Sand on each Colony.
- - Rule: Chances of a glyph being announced on N19 has been reduced
  - Fix:  Spies waiting on trade at the Merc guild can no longer be burned
 
 3.0816
