@@ -195,7 +195,7 @@ sub structure_payload {
                 if ($item->{plan_id}) {
                     my $plan = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->find($item->{plan_id});
                     $plan->delete;
-                    push @{$payload->{plans}}, { plan_class => $plan->class, level => $plan->level, extra_build_level => $plan->extra_build_level };
+                    push @{$payload->{plans}}, { class => $plan->class, level => $plan->level, extra_build_level => $plan->extra_build_level };
                     $meta{has_plan} = 1;
                 }
             }
