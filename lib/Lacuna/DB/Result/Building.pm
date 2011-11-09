@@ -375,7 +375,7 @@ sub food_hour {
 sub building_reduction_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
-    return (time < $empire->building_boost->epoch) ? 100/75 : 1;
+    return (time < $empire->building_boost->epoch) ? 0.75 : 1;
 }
  
 sub energy_production_bonus {
