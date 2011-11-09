@@ -24,7 +24,7 @@ sub alliance_rank {
     my ($self, $session_id, $by, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     unless ($by ~~ [qw(influence population average_empire_size_rank offense_success_rate_rank defense_success_rate_rank dirtiest_rank)]) {
-        $by = 'influence,population';
+        $by = 'influence,population desc';
     }
     my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Alliance');
     unless ($page_number) {
