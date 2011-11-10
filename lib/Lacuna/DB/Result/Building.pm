@@ -372,6 +372,12 @@ sub food_hour {
     return sprintf('%.0f',$self->food_production_hour - $self->food_consumption_hour);
 }
 
+sub building_reduction_bonus {
+    my ($self) = @_;
+    my $empire = $self->body->empire;
+    return (time < $empire->building_boost->epoch) ? 0.75 : 1;
+}
+ 
 sub energy_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
@@ -743,7 +749,7 @@ sub cost_to_upgrade {
     my $time_inflator = ($self->level * 2) - 1;
     $time_inflator = 1 if ($time_inflator < 1);
     my $throttle = Lacuna->config->get('building_build_speed') || 6;
-    my $time_cost = (($self->level+1)/$throttle * $self->time_to_build * $time_inflator ** INFLATION) * $self->time_cost_reduction_bonus * $oversight_reduction;
+    my $time_cost = (($self->level+1)/$throttle * $self->time_to_build * $time_inflator ** INFLATION) * $self->building_reduction_bonus * $self->time_cost_reduction_bonus * $oversight_reduction;
     $time_cost = 5184000 if ($time_cost > 5184000); # 60 Days
     $time_cost = 15 if ($time_cost < 15);
 
