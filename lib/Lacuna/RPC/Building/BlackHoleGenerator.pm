@@ -782,6 +782,7 @@ sub bhg_size {
 sub bhg_tasks {
   my ($building) = @_;
   my $day_sec = 60 * 60 * 24;
+  my $blevel = $building->level == 0 ? 1 : $building->level;
   my @tasks = (
     {
       name         => 'Make Asteroid',
@@ -789,7 +790,7 @@ sub bhg_tasks {
       reason       => "You can only make an asteroid from a planet.",
       occupied     => 0,
       min_level    => 10,
-      recovery     => int($day_sec * 90/$building->level),
+      recovery     => int($day_sec * 90/$blevel),
       waste_cost   => 50_000_000,
       fail_chance  => int(100 - $building->level * 3),
       side_chance  => 10,
@@ -800,7 +801,7 @@ sub bhg_tasks {
       reason       => "You can only make a planet from an asteroid.",
       occupied     => 0,
       min_level    => 15,
-      recovery     => int($day_sec * 90/$building->level),
+      recovery     => int($day_sec * 90/$blevel),
       waste_cost   => 100_000_000,
       fail_chance  => int(100 - $building->level * 2.5),
       side_chance  => 25,
@@ -811,7 +812,7 @@ sub bhg_tasks {
       reason       => "You can only increase the sizes of habitable planets and asteroids.",
       occupied     => 1,
       min_level    => 20,
-      recovery     => int($day_sec * 180/$building->level),
+      recovery     => int($day_sec * 180/$blevel),
       waste_cost   => 1_000_000_000,
       fail_chance  => int(100 - $building->level * 2),
       side_chance  => 50,
@@ -822,7 +823,7 @@ sub bhg_tasks {
       reason       => "You can only change the type of habitable planets.",
       occupied     => 1,
       min_level    => 25,
-      recovery     => int($day_sec * 300/$building->level),
+      recovery     => int($day_sec * 300/$blevel),
       waste_cost   => 10_000_000_000,
       fail_chance  => int(100 - $building->level * 2),
       side_chance  => 75,
