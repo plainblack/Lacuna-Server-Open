@@ -19,7 +19,7 @@ use constant build_tags             => ['Exploration'];
 
 with "Lacuna::Role::Ship::Send::Body";
 with "Lacuna::Role::Ship::Send::MaybeHostile";
-with "Lacuna::Role::Ship::Arrive::TriggerDefense";
+# with "Lacuna::Role::Ship::Arrive::TriggerDefense";
 with "Lacuna::Role::Ship::Arrive::Excavate";
 
 no Moose;
