@@ -15,10 +15,10 @@ sub image_level {
     return $self->image;
 }
 
-use constant energy_consumption => 200;
-use constant water_consumption => 100;
-use constant food_consumption => 100;
-use constant ore_consumption => 100;
+use constant energy_consumption => 50;
+use constant water_consumption => 50;
+use constant food_consumption => 50;
+use constant ore_consumption => 50;
 use constant energy_to_build => 500;
 use constant food_to_build => 100;
 use constant ore_to_build => 500;

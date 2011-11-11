@@ -9,7 +9,10 @@ use constant controller_class => 'Lacuna::RPC::Building::IBS';
 use constant image => 'ibs';
 use constant name => 'Interstellar Broadcast System';
 use constant max_instances_per_planet => 1;
-use constant energy_consumption => 600;
+use constant food_consumption => 100;
+use constant ore_consumption => 100;
+use constant water_consumption => 100;
+use constant energy_consumption => 100;
 
 before demolish => sub {
     my $self = shift;
