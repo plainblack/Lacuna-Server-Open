@@ -33,6 +33,8 @@ around spend_efficiency => sub {
     return $self;
 };
 
+use constant max_instances_per_planet => 10;
+
 use constant controller_class => 'Lacuna::RPC::Building::SAW';
 
 use constant university_prereq => 8;
@@ -55,13 +57,13 @@ use constant time_to_build => 60 * 2;
 
 use constant food_consumption => 2;
 
-use constant energy_consumption => 80;
+use constant energy_consumption => 50;
 
 use constant ore_consumption => 5;
 
 use constant water_consumption => 6;
 
-use constant waste_production => 15;
+use constant waste_production => 20;
 
 
 no Moose;
