@@ -326,7 +326,7 @@ my %recipies = (
         uraninite   => {
             sulfur          => {
                 trona       => {
-                    plan        => 'Lacuna::DB::Result::Building::Permanent::TheDillonForge',
+                    plan        => 'Lacuna::DB::Result::Building::Permanent::KasternsKeep',
                 },
             },
         },        
