@@ -56,7 +56,7 @@ if (not defined $empire) {
 # colonies to DeLambert colonies is fairly constant.
 #
 # First work out how many bodies are occupied in each zone which are *not* DeLambert
-my @zone_body = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
+my @zone_empire = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
     -and => [
         empire_id   => {'!=' => undef}, 
         empire_id   => {'!=' => $empire->id},
@@ -69,18 +69,18 @@ my @zone_body = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
         'zone',
         { count => 'id', -as => 'count_bodies'},
     ],
-    as => ['zone','total_bodies'],
+    as => ['zone','occupied'],
     order_by => {-desc => 'count_bodies'},
 });
 
-out("There are ".scalar(@zone_body)." bodies occupied by empires");
+out("There are ".scalar(@zone_empire)." bodies occupied by empires");
 out("    Zone\tCount");
-my $total_bodies = 0;
-for my $zone (@zone_body) {
-    out("    ".$zone->zone."\t".$zone->get_column('total_bodies'));
-    $total_bodies += $zone->get_column('total_bodies');
+my $empire_occupied = 0;
+for my $zone (@zone_empire) {
+    out("    ".$zone->zone."\t".$zone->get_column('occupied'));
+    $empire_occupied += $zone->get_column('occupied');
 }
-out("    Total\t$total_bodies");
+out("    Total\t$empire_occupied");
 
 # Now, how many deLambert bodies are in each zone
 my @zone_delambert = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
@@ -91,16 +91,19 @@ my @zone_delambert = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
         'zone',
         { count => 'id', -as => 'count_bodies'},
     ],
-    as => ['zone','total_bodies'],
+    as => ['zone','occupied'],
     order_by => {-desc => 'count_bodies'},
 });
 
 out("There are ".scalar(@zone_delambert)." bodies occupied by DeLamberti");
 out("    Zone\tCount");
 my $total_delamberti = 0;
+my $delamberti_in;
 for my $zone (@zone_delambert) {
-    out("    ".$zone->zone."\t".$zone->get_column('total_bodies'));
-    $total_delamberti += $zone->get_column('total_bodies');
+    my $delamberti_in_zone = $zone->get_column('occupied');
+    out("    ".$zone->zone."\t$delamberti_in_zone");
+    $total_delamberti += $delamberti_in_zone;
+    $delamberti_in->{$zone->zone} = $delamberti_in_zone;
 }
 out("    Total\t$total_delamberti");
 
@@ -110,7 +113,26 @@ out("    Total\t$total_delamberti");
 #
 for (1..$add) {
     out("Adding a new colony");
+    # Find the zone with the lowest ratio of colonies to DeLamberti colonies
+    my $add_to_zone = '';
+    my $lowest_ratio = 999999999;
+    my $delamberti_in_lowest_zone = 0;
+    for my $zone (@zone_empire) {
+        my $delamberti_in_zone  = $delamberti_in->{$zone->zone} || 0;
+        my $colonies_in_zone    = $zone->get_column('occupied') || 1;
+        my $ratio = $delamberti_in_zone / $colonies_in_zone;
+        if ($ratio < $lowest_ratio) {
+            $lowest_ratio = $ratio;
+            $add_to_zone = $zone->zone;
+            $delamberti_in_lowest_zone = $delamberti_in_zone;
+        }
+    }
+    out("Add colony to zone $add_to_zone");
+    
 
+
+
+    $delamberti_in->{$add_to_zone} = $delamberti_in_lowest_zone + 1;
 }
 
 
