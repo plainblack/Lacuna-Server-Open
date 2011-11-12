@@ -128,9 +128,33 @@ for (1..$add) {
         }
     }
     out("Add colony to zone $add_to_zone");
-    
+    # Choose a colony size at random (weighted)
+    #
+    my @levels = (5,10,15,20,20,25,25,30);
+    my $sizes  = {5 => [60,70], 10 => [70,80], 15 => [80,90], 20 => [90,100], 25 => [100, 110], 30 => [110,121]};
+    my $level = $levels[randint(0,scalar(@levels)-1)];
+    out("Creating a colony level $level");
 
+    # We want to find a colony in an un-occupied star system
+    my $body;
+    my $stars_rs = $db->resultset('Lacuna::DB::Result::Map::Star')->search({zone => $add_to_zone});
+    STAR:
+    while (my $star = $stars_rs->next) {
+        # Ensure there are no occupied bodies in this system
+        my $occupied_bodies = $star->bodies->search({empire_id => {'!=' => undef }});
+        next STAR if $occupied_bodies > 0;
 
+        $body = $star->bodies->search({
+            class => {-like => ['%Planet::GasGiant::G%','%:Planet::P%']},
+            -and => [size => {'>=' => $sizes->{$level}[0]}, size => {'<' => $sizes->{$level}[1] }],
+        },{rows=>1})->single;
+        next STAR if not $body;
+        out("Putting colony in star system ".$star->name);
+        last STAR;
+        
+    }
+    die "Cannot find a star in zone $add_to_zone" unless $body;
+    out("Putting level $level colony on body ".$body->name);
 
     $delamberti_in->{$add_to_zone} = $delamberti_in_lowest_zone + 1;
 }
