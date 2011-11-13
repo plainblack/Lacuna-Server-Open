@@ -10,6 +10,7 @@ use constant controller_class => 'Lacuna::RPC::Building::CulinaryInstitute';
 use constant image => 'culinaryinstitute';
 use constant name => 'Culinary Institute';
 use constant max_instances_per_planet => 1;
+use constant food_consumption => 160;
 
 
 no Moose;
