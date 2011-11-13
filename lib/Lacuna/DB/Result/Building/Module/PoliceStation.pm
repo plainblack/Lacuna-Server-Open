@@ -9,6 +9,10 @@ use constant controller_class => 'Lacuna::RPC::Building::PoliceStation';
 use constant image => 'policestation';
 use constant name => 'Police Station';
 use constant max_instances_per_planet => 1;
+use constant food_consumption   => 120;
+use constant ore_consumption    => 120;
+use constant water_consumption  => 120;
+use constant energy_consumption => 120;
 
 sub foreign_spies {
     my $self = shift;

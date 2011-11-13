@@ -10,6 +10,7 @@ use constant controller_class => 'Lacuna::RPC::Building::ArtMuseum';
 use constant image => 'artmuseum';
 use constant name => 'Art Museum';
 use constant max_instances_per_planet => 1;
+use constant ore_consumption => 160;
 
 
 no Moose;

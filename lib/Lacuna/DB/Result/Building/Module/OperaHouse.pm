@@ -10,6 +10,7 @@ use constant controller_class => 'Lacuna::RPC::Building::OperaHouse';
 use constant image => 'operahouse';
 use constant name => 'Opera House';
 use constant max_instances_per_planet => 1;
+use constant water_consumption => 160;
 
 
 no Moose;

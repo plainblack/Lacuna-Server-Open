@@ -545,66 +545,74 @@ sub run_mission {
 }
 
 sub run_security_sweep {
-    my $self = shift;
+  my $self = shift;
 
-    # calculate success, failure, or bounce
-    my $mission_skill = 'intel_xp';
-    my $power = $self->defense + $self->$mission_skill;
-    my $toughness = 0;
-    my $attacker = $self->get_attacker;
+  # calculate success, failure, or bounce
+  my $mission_skill = 'intel_xp';
+  my $power = $self->defense + $self->$mission_skill;
+  my $toughness = 0;
+  my $attacker = $self->get_attacker;
+  if (defined $attacker) {
+    $toughness = $attacker->offense + $attacker->$mission_skill;
+  }
+  else {
+    $attacker = $self->get_idle_attacker;
     if (defined $attacker) {
-        $toughness = $attacker->offense + $attacker->$mission_skill;
+# Would prefer to have it easier the longer the spy has been inactive, but...
+      $toughness = $attacker->offense + $attacker->$mission_skill - randint(500,2000);
     }
-    my $breakthru = ($power - $toughness + $self->home_field_advantage) + $self->luck;
+  }
+  my $breakthru = ($power - $toughness + $self->home_field_advantage) + $self->luck;
     
-    # handle outcomes and xp
-    my $out;
-    if ($breakthru < 0) {
-        my $message_id;
-        if (defined $attacker) {
-            $attacker->$mission_skill( $attacker->$mission_skill + 10 );
-            $attacker->update_level;
-            $attacker->defense_mission_successes( $attacker->defense_mission_successes + 1 );
-            $message_id = $attacker->kill_attacking_spy($self)->id;
-        }
-        else {
-            $self->no_target->id;
-        }
-        $self->$mission_skill( $self->$mission_skill + 6 );
-        $self->update_level;
-        $out = { result => 'Failure',
-                 message_id => $message_id,
-                 reason => random_element(['It has just gone pear shaped.',
-                                           'I\'ll do better next time, if there is a next time.',
-                                           'The fit has just hit the shan.',
-                                           'I want my mommy!']) };
+  # handle outcomes and xp
+  my $out;
+  if ($breakthru < 0) {
+    my $message_id;
+    if (defined $attacker) {
+      $attacker->$mission_skill( $attacker->$mission_skill + 10 );
+      $attacker->update_level;
+      $attacker->defense_mission_successes( $attacker->defense_mission_successes + 1 );
+      $message_id = $attacker->kill_attacking_spy($self)->id;
     }
     else {
-        my $message_id;
-        if (defined $attacker) {
-            $message_id = $self->detain_a_spy($attacker)->id;
-            $attacker->$mission_skill( $attacker->$mission_skill + 6);
-            $attacker->update_level;
-        }
-        else {
-            $message_id = $self->no_target->id;
-        }
-        $self->offense_mission_successes( $self->offense_mission_successes + 1 );
-        $self->$mission_skill( $self->$mission_skill + 10 );
-        $self->update_level;
-        $out = { result => 'Success',
-                 message_id => $message_id,
-                 reason => random_element(['Mom would have been proud.',
-                                           'Done.',
-                                           'That is why you pay me the big bucks.']) };
+      $self->no_target->id;
     }
-    $self->defense_mission_count( $self->defense_mission_count + 1); 
-    $self->update;
+    $self->$mission_skill( $self->$mission_skill + 6 );
+    $self->update_level;
+    $out = { result => 'Failure',
+             message_id => $message_id,
+             reason => random_element(['It has just gone pear shaped.',
+                                       'I\'ll do better next time, if there is a next time.',
+                                       'The fit has just hit the shan.',
+                                       'I want my mommy!']) };
+  }
+  else {
+    my $message_id;
     if (defined $attacker) {
-        $attacker->offense_mission_count( $attacker->offense_mission_count + 1);
-        $attacker->update;
+      $message_id = $self->detain_a_spy($attacker)->id;
+      $attacker->$mission_skill( $attacker->$mission_skill + 6);
+      $attacker->update_level;
     }
-    return $out;
+    else {
+      $message_id = $self->spy_report(@_);
+#      $message_id = $self->no_target->id;
+    }
+    $self->offense_mission_successes( $self->offense_mission_successes + 1 );
+    $self->$mission_skill( $self->$mission_skill + 10 );
+    $self->update_level;
+    $out = { result => 'Success',
+             message_id => $message_id,
+             reason => random_element(['Mom would have been proud.',
+                                       'Done.',
+                                       'That is why you pay me the big bucks.']) };
+  }
+  $self->defense_mission_count( $self->defense_mission_count + 1); 
+  $self->update;
+  if (defined $attacker) {
+      $attacker->offense_mission_count( $attacker->offense_mission_count + 1);
+      $attacker->update;
+  }
+  return $out;
 }
 
 sub get_defender {
@@ -655,6 +663,34 @@ sub get_attacker {
             { rows => 1, order_by => 'rand()' }
         )
         ->single;
+    $attacker->on_body($self->on_body) if defined $attacker;
+    return $attacker;
+}
+
+sub get_idle_attacker {
+    my $self = shift;
+
+    my $alliance_id = $self->empire->alliance_id;
+    my @member_ids;
+    if ($alliance_id) {
+       @member_ids = $self->empire->alliance->members->get_column('id')->all;
+    }
+    else {
+       $member_ids[0] = $self->empire->id;
+    }
+
+    my @attackers = Lacuna
+        ->db
+        ->resultset('Lacuna::DB::Result::Spies')
+        ->search(
+            { on_body_id  => $self->on_body_id,
+              task => 'Idle', empire_id => { 'not in' => \@member_ids },
+              started_assignment => { '<' => DateTime->now->subtract(days => 7) } },
+        )
+        ->all;
+
+    my $attacker = random_element(\@attackers);
+
     $attacker->on_body($self->on_body) if defined $attacker;
     return $attacker;
 }

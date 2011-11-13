@@ -22,6 +22,7 @@ use constant type_formatted         => 'Supply Pod III';
 
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Inhabited";
+with "Lacuna::Role::Ship::Send::LoadSupplyPod";
 with "Lacuna::Role::Ship::Arrive::DeploySupplyPod";
 
 no Moose;
