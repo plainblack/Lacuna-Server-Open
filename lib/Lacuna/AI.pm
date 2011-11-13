@@ -38,10 +38,10 @@ sub create_empire {
         password            => Lacuna::DB::Result::Empire->encrypt_password(rand(99999999)),
         university_level    => 30,
     );
-    my $db = Lacuna->db;
-    my $empire = $db->resultset('Lacuna::DB::Result::Empire')->new(\%attributes)->insert;
-    my $zone = $db->resultset('Lacuna::DB::Result::Map::Body')->get_column('zone')->max;
-    my $home = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
+    my $db      = Lacuna->db;
+    my $empire  = $db->resultset('Lacuna::DB::Result::Empire')->new(\%attributes)->insert;
+    my $zone    = $db->resultset('Lacuna::DB::Result::Map::Body')->get_column('zone')->max;
+    my $home    = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
     $home->buildings->delete_all;
     $empire->found($home);
     $self->build_colony($home);
