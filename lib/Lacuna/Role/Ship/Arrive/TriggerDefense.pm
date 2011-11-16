@@ -318,11 +318,11 @@ sub saw_stats {
 sub saw_combat {
   my ($self, $saw, $saw_combat) = @_;
 
-  printf "ship:%6d:%5d saw:%6d:%2d:%3d total:%8d ",
-         $self->id, $self->combat, $saw->id, $saw->level, $saw->efficiency, $saw_combat;
+#  printf "ship:%6d:%5d saw:%6d:%2d:%3d total:%8d ",
+#         $self->id, $self->combat, $saw->id, $saw->level, $saw->efficiency, $saw_combat;
   if ($self->combat > $saw_combat) {
     $saw->spend_efficiency(100);
-    print "100\n";
+#    print "100\n";
   }
   else {
     my $perc = int(($self->combat * 100)/$saw_combat + 0.5);
@@ -334,7 +334,7 @@ sub saw_combat {
         if (randint(0,99) < 5) { $perc = 1; } else { $perc = 0; }
       }
     }
-    printf "%3d\n", $perc;
+#    printf "%3d\n", $perc;
     $saw->spend_efficiency($perc);
   }
   unless ($saw->is_working) {
