@@ -3,6 +3,8 @@
  - Fix: Supply Pods now deduct resources on send.
  - Mod: Excavators no longer trigger defenses.
  - Mod: SAWs improved.
+ - Fix: Battlelogs report Defending Body Name.
+ - Add: Battlelogs report Attacked Body Stats.
 
 3.0817
  - Add:  Black Hole Generator Code added.

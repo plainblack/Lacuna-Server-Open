@@ -18,7 +18,11 @@ __PACKAGE__->add_columns(
     defending_body_id       => { data_type => 'int', size => 11, is_nullable => 0 },
     defending_body_name     => { data_type => 'varchar', size => 30, is_nullable => 0 },
     defending_unit_name     => { data_type => 'varchar', size => 60, is_nullable => 0 },
-    victory_to              => { data_type => 'varchar', size => 8, is_nullable => 0 },        
+    victory_to              => { data_type => 'varchar', size => 8, is_nullable => 0 },
+    attacked_body_id        => { data_type => 'int', size => 11, is_nullable => 0 },
+    attacked_body_name      => { data_type => 'varchar', size => 30, is_nullable => 0 },
+    attacked_empire_id      => { data_type => 'int', size => 11, is_nullable => 1 },
+    attacked_empire_name    => { data_type => 'varchar', size => 30, is_nullable => 1 },
 );
 
 after 'sqlt_deploy_hook' => sub {
