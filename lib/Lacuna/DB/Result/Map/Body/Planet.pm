@@ -459,18 +459,23 @@ sub is_space_free {
 
 sub find_free_space {
     my $self = shift;
-    my $x = randint(-3,5);
+    my $x = randint(-5,5);
     my $y = randint(-5,5);
+
     if ($self->is_space_free($x, $y)) {
         return ($x, $y);
     }
     else {
-        foreach my $x (-5..5) {
-            foreach my $y (-5..5) {
-                next if $y == 0 && $x == 0;
-                if ($self->is_space_free($x, $y)) {
-                    return ($x, $y);
+        for (1..121) {
+            if (++$x > 5) {
+                $x = -5;
+                if (++$y > 5) {
+                    $y = -5;
                 }
+            }
+            next if $y == 0 && $x == 0;
+            if ($self->is_space_free($x, $y)) {
+                return ($x, $y);
             }
         }
     }
