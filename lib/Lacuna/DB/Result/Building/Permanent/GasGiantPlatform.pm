@@ -31,7 +31,7 @@ before 'can_demolish' => sub {
     $gas_giant_platforms += $_ for @gas_giant_platforms;
     my $excess_plots = $gas_giant_platforms - ($body->plots_available + $body->building_count);
     my $available = $excess_plots > $body->plots_available ? $excess_plots : $body->plots_available;
-    if ($available < $self->level) {
+    if ($available < $self->level && $body->get_type eq "gas giant") {
         confess [1013, 'You need to demolish a building before you can demolish this Gas Giant Settlement Platform.'];
     }
 };

@@ -5,6 +5,7 @@
  - Mod: SAWs improved.
  - Fix: Battlelogs report Defending Body Name.
  - Add: Battlelogs report Attacked Body Stats.
+ - Fix: Gas Ginat Platforms on habitable planets can be demolished regardless of plot count.
 
 3.0817
  - Add:  Black Hole Generator Code added.
