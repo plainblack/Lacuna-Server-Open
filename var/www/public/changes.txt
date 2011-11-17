@@ -1,4 +1,4 @@
-3.0818
+3.0820
  - Mod: Security Sweep improved.
  - Fix: Supply Pods now deduct resources on send.
  - Mod: Excavators no longer trigger defenses.
