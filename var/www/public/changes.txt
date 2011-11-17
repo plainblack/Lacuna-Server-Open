@@ -1,8 +1,9 @@
-3.0818
+3.0820
  - Mod: Security Sweep improved.
  - Fix: Supply Pods now deduct resources on send.
  - Mod: Excavators no longer trigger defenses.
  - Mod: SAWs improved.
+ - Rule: Interstellar Broadcast Module now contributes to a Space Stations influence
  - Fix: Battlelogs report Defending Body Name.
  - Add: Battlelogs report Attacked Body Stats.
  - Fix: Gas Ginat Platforms on habitable planets can be demolished regardless of plot count.

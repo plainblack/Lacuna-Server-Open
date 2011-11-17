@@ -126,7 +126,7 @@ has total_influence => (
     default => sub {
         my $self = shift;
         return $self->buildings
-            ->search({ class => { in => ['Lacuna::DB::Result::Building::Module::OperaHouse','Lacuna::DB::Result::Building::Module::CulinaryInstitute','Lacuna::DB::Result::Building::Module::ArtMuseum'] }})
+            ->search({ class => { in => ['Lacuna::DB::Result::Building::Module::IBS','Lacuna::DB::Result::Building::Module::OperaHouse','Lacuna::DB::Result::Building::Module::CulinaryInstitute','Lacuna::DB::Result::Building::Module::ArtMuseum'] }})
             ->get_column('level')
             ->sum;
     },

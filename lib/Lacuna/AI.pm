@@ -38,10 +38,10 @@ sub create_empire {
         password            => Lacuna::DB::Result::Empire->encrypt_password(rand(99999999)),
         university_level    => 30,
     );
-    my $db = Lacuna->db;
-    my $empire = $db->resultset('Lacuna::DB::Result::Empire')->new(\%attributes)->insert;
-    my $zone = $db->resultset('Lacuna::DB::Result::Map::Body')->get_column('zone')->max;
-    my $home = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
+    my $db      = Lacuna->db;
+    my $empire  = $db->resultset('Lacuna::DB::Result::Empire')->new(\%attributes)->insert;
+    my $zone    = $db->resultset('Lacuna::DB::Result::Map::Body')->get_column('zone')->max;
+    my $home    = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
     $home->buildings->delete_all;
     $empire->found($home);
     $self->build_colony($home);
@@ -213,7 +213,7 @@ sub build_ships {
     my ($self, $colony) = @_;
     say 'Building ships...';
     my @shipyards = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard')->search(undef,{order_by => 'work_ends'})->all;
-    my @priorities = $self->ship_building_priorities;
+    my @priorities = $self->ship_building_priorities($colony);
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     foreach my $priority (@priorities) {
         say $priority->[0];
