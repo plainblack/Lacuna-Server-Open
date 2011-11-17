@@ -2,6 +2,8 @@ package Lacuna::Role::Ship::Arrive::TriggerDefense;
 
 use strict;
 use Moose::Role;
+use List::Util qw(shuffle);
+use Lacuna::Util qw(randint);
 
 after handle_arrival_procedures => sub {
     my ($self) = @_;
@@ -25,7 +27,7 @@ after handle_arrival_procedures => sub {
     $body_attacked->set_last_attacked_by($ship_body->id);
 
     # get SAWs
-    $self->saw_combat($body_attacked) if $is_planet;
+#    $self->saw_combat($body_attacked) if $is_planet;
 
     $self->system_saw_combat;
 
@@ -52,7 +54,12 @@ sub attacker_shot_down {
         $self->body->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'ship_shot_down.txt',
-            params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $self->body->id, $self->body->name],
+            params      => [$self->type_formatted,
+                            $body_attacked->x,
+                            $body_attacked->y,
+                            $body_attacked->name,
+                            $self->body->id,
+                            $self->body->name],
         );
     }
 
@@ -60,11 +67,17 @@ sub attacker_shot_down {
         $defender->body->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'we_shot_down_a_ship.txt',
-            params      => [$self->type_formatted, $body_attacked->id, $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
+            params      => [$self->type_formatted,
+                            $body_attacked->id,
+                            $body_attacked->name,
+                            $self->body->empire_id,
+                            $self->body->empire->name],
         );
     }
 
-    $defender->body->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
+    $defender->body->add_news(20,
+                 sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',
+                 $body_attacked->name));
 
     my $is_asteroid = $body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid');
 
@@ -79,7 +92,12 @@ sub defender_shot_down {
         $self->body->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'we_shot_down_a_defender.txt',
-            params      => [$defender->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name, $defender->body->empire_id, $defender->body->empire->name],
+            params      => [$defender->type_formatted,
+                            $body_attacked->x,
+                            $body_attacked->y,
+                            $body_attacked->name,
+                            $defender->body->empire_id,
+                            $defender->body->empire->name],
         );
     }
 
@@ -87,11 +105,18 @@ sub defender_shot_down {
         $defender->body->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'defender_shot_down.txt',
-            params      => [$defender->type_formatted, $defender->body->id, $defender->body->name, $body_attacked->x, $body_attacked->y, $body_attacked->name],
+            params      => [$defender->type_formatted,
+                            $defender->body->id,
+                            $defender->body->name,
+                            $body_attacked->x,
+                            $body_attacked->y,
+                            $body_attacked->name],
         );
     }
 
-    $defender->body->add_news(20, sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',$body_attacked->name));
+    $defender->body->add_news(20,
+                     sprintf('An amateur astronomer witnessed an explosion in the sky today over %s.',
+                     $body_attacked->name));
 
     my $is_asteroid = $body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid');
 
@@ -99,23 +124,32 @@ sub defender_shot_down {
 }
 
 sub log_attack {
-    my ($self, $attacker, $defender, $victor) = @_;
-    my $body_attacked = $attacker->foreign_body;
-    my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
-    $logs->new({
-        date_stamp => DateTime->now,
-        attacking_empire_id     => $attacker->body->empire_id,
-        attacking_empire_name   => $attacker->body->empire->name,
-        attacking_body_id       => $attacker->body_id,
-        attacking_body_name     => $attacker->body->name,
-        attacking_unit_name     => $attacker->isa('Lacuna::DB::Result::Building') ? sprintf("%s (%d,%d)", $attacker->name, $attacker->x, $attacker->y) : $attacker->name,
-        defending_empire_id     => $defender->body->empire_id,
-        defending_empire_name   => $defender->body->empire->name,
-        defending_body_id       => $body_attacked->id,
-        defending_body_name     => $body_attacked->name,
-        defending_unit_name     => $defender->isa('Lacuna::DB::Result::Building') ? sprintf("%s (%d,%d)", $defender->name, $defender->x, $defender->y) : $defender->name,
-        victory_to              => $victor,
-    })->insert;
+  my ($self, $attacker, $defender, $victor) = @_;
+  my $body_attacked = $attacker->foreign_body;
+  my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
+  $logs->new({
+     date_stamp => DateTime->now,
+     attacking_empire_id     => $attacker->body->empire_id,
+     attacking_empire_name   => $attacker->body->empire->name,
+     attacking_body_id       => $attacker->body_id,
+     attacking_body_name     => $attacker->body->name,
+     attacking_unit_name     =>
+       $attacker->isa('Lacuna::DB::Result::Building') ?
+         sprintf("%s (%d,%d)", $attacker->name, $attacker->x, $attacker->y) :
+         $attacker->name,
+     defending_empire_id     => $defender->body->empire_id,
+     defending_empire_name   => $defender->body->empire->name,
+     defending_body_id       => $body_attacked->id,
+     defending_body_name     => $body_attacked->name,
+     defending_unit_name     => $defender->isa('Lacuna::DB::Result::Building') ?
+       sprintf("%s (%d,%d)", $defender->name, $defender->x, $defender->y) :
+       $defender->name,
+     victory_to              => $victor,
+     attacked_empire_id     => $body_attacked->empire_id,
+     attacked_empire_name   => $body_attacked->empire->name,
+     attacked_body_id       => $body_attacked->id,
+     attacked_body_name     => $body_attacked->name,
+  })->insert;
 }
 
 sub ship_to_ship_combat {
@@ -203,65 +237,129 @@ sub allied_combat {
 }
 
 sub system_saw_combat {
-    my ($self) = @_;
+  my ($self) = @_;
 
-    my $attacked_body = $self->foreign_body;
-    my $ship_body = $self->body;
-    my $is_planet = $attacked_body->isa('Lacuna::DB::Result::Map::Body::Planet');
-    my $is_asteroid = $attacked_body->isa('Lacuna::DB::Result::Map::Body::Asteroid');
+  my $attacked_body = $self->foreign_body;
+  my $ship_body = $self->body;
+  my $is_planet = $attacked_body->isa('Lacuna::DB::Result::Map::Body::Planet');
+  my $is_asteroid = $attacked_body->isa('Lacuna::DB::Result::Map::Body::Asteroid');
 
-    my $attacked_empire = $attacked_body->empire_id;
-    my $attacked_alliance = $attacked_body->alliance_id
-        || ($attacked_body->empire && $attacked_body->empire->alliance_id);
+  my $attacked_empire = $attacked_body->empire_id;
+  my $attacked_alliance = $attacked_body->alliance_id
+      || ($attacked_body->empire && $attacked_body->empire->alliance_id);
 
-    my $ship_empire = $ship_body->empire_id;
-    my $ship_alliance = $ship_body->empire->alliance_id;
+  my $ship_empire = $ship_body->empire_id;
+  my $ship_alliance = $ship_body->empire->alliance_id;
 
-    my $defending_bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
-        { id => { '!=' => $attacked_body->id}, star_id => $attacked_body->star_id }
-    );
-    while (my $defending_body = $defending_bodies->next) {
-        # asteroids don't have SAWs
-        next
-            unless $defending_body->isa('Lacuna::DB::Result::Map::Body::Planet');
+  my $defending_bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
+      { id => { '!=' => $attacked_body->id}, star_id => $attacked_body->star_id }
+  );
+# Here's where we get total number of defending SAWs
+# 1) Get Targetted Planet's SAWs first.
+# 2) Go thru and get all SAWs hostile to incoming.
+  my $total_combat = 0;
+  my $saw_number   = 0;
+  my @saws;
+  my ( $attacked_saws, $attacked_combat ) = $self->saw_stats($attacked_body);
+  $total_combat += $attacked_combat;
+  while (my $defending_body = $defending_bodies->next) {
+    # asteroids don't have SAWs
+    next
+      unless $defending_body->isa('Lacuna::DB::Result::Map::Body::Planet');
 
-        my $defending_empire = $defending_body->empire_id;
-        my $defending_alliance = $defending_body->alliance_id
-            || ($defending_body->empire && $defending_body->empire->alliance_id);
+    my $defending_empire = $defending_body->empire_id;
+    my $defending_alliance = $defending_body->alliance_id
+         || ($defending_body->empire && $defending_body->empire->alliance_id);
 
-        if ( $defending_empire && $defending_empire == $ship_empire ) {
-            # don't attack ships from same empire
-        }
-        elsif ( $defending_empire && $attacked_empire && $defending_empire == $attacked_empire ) {
-            # defend own planets in system
-            $self->saw_combat($defending_body);
-        }
-        elsif ( $defending_alliance && $ship_alliance && $defending_alliance == $ship_alliance ) {
-            # don't attack ships in same alliance
-        }
-        else {
-            # attack everything else
-            $self->saw_combat($defending_body);
-        }
+    if ( $defending_empire && $defending_empire == $ship_empire ) {
+      # don't attack ships from same empire
     }
+    elsif ( $defending_empire && $attacked_empire && $defending_empire == $attacked_empire ) {
+      # defend own planets in system
+      my ( $saws, $combat ) = $self->saw_stats($defending_body);
+      push @saws, @$saws;
+      $total_combat += $combat;
+    }
+    elsif ( $defending_alliance && $ship_alliance && $defending_alliance == $ship_alliance ) {
+      # don't attack ships in same alliance
+    }
+    else {
+      # attack everything else
+      my ( $saws, $combat ) = $self->saw_stats($defending_body);
+      push @saws, @$saws;
+      $total_combat += $combat;
+    }
+  }
+  my $cnt = 0;
+# Defending Planet SAWs go first, then random from other planets.
+  for my $saw (@$attacked_saws, shuffle @saws) {
+    $self->saw_combat($saw, $total_combat);
+    last if (++$cnt >= 80);  # Only 80 SAWs are considered
+  }
+}
+
+sub saw_stats {
+  my ($self, $body) = @_;
+
+  my $saws = $body->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
+
+  my $planet_combat = 0;
+  my @saws;
+  while (my $saw = $saws->next) {
+    next if $saw->level < 1;
+    next if $saw->efficiency < 1;
+    $planet_combat += int((500 * (1.4^$saw->level) * $saw->efficiency)/100);
+    push @saws, $saw;
+  }
+  $planet_combat = int($planet_combat * (scalar @saws > 10 ? 2 : 1+(scalar @saws)/10));
+  return \@saws, $planet_combat;
 }
 
 sub saw_combat {
-    my ($self, $body) = @_;
+  my ($self, $saw, $saw_combat) = @_;
 
-    my $saws = $body->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
-
-    # if there are SAWs lets duke it out
-    while (my $saw = $saws->next) {
-        next if $saw->level < 1;
-        next if $saw->efficiency < 1;
-        next if $saw->is_working;
-        my $combat = ($saw->level * 1000) * ( $saw->efficiency / 100 );
-        $saw->spend_efficiency( int( $self->combat / 100 ) );
-        $saw->start_work({}, 60 * 5);
-        $saw->update;
-        $self->damage_in_combat($saw, $combat);
+#  printf "ship:%6d:%5d saw:%6d:%2d:%3d total:%8d ",
+#         $self->id, $self->combat, $saw->id, $saw->level, $saw->efficiency, $saw_combat;
+  if ($self->combat > $saw_combat) {
+    $saw->spend_efficiency(100);
+#    print "100\n";
+  }
+  else {
+    my $perc = int(($self->combat * 100)/$saw_combat + 0.5);
+    if ($perc < 1) {
+      if ($self->combat > (($saw->level * 1000 * $saw->efficiency)/100)) {
+        $perc = 1;
+      }
+      else {
+        if (randint(0,99) < 5) { $perc = 1; } else { $perc = 0; }
+      }
     }
+#    printf "%3d\n", $perc;
+    $saw->spend_efficiency($perc);
+  }
+  unless ($saw->is_working) {
+    $saw->start_work({}, 60 * 5);
+  }
+  $saw->update;
+  $self->damage_in_combat($saw, $saw_combat);
+}
+
+sub old_saw_combat {
+  my ($self, $body) = @_;
+
+  my $saws = $body->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
+
+# if there are SAWs lets duke it out
+  while (my $saw = $saws->next) {
+    next if $saw->level < 1;
+    next if $saw->efficiency < 1;
+    next if $saw->is_working;
+    my $combat = ($saw->level * 1000) * ( $saw->efficiency / 100 );
+    $saw->spend_efficiency( int( $self->combat / 100 ) );
+    $saw->start_work({}, 60 * 5);
+    $saw->update;
+    $self->damage_in_combat($saw, $combat);
+  }
 }
 
 1;

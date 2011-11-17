@@ -813,12 +813,20 @@ sub view_battle_logs {
     while (my $log = $battle_logs->next) {
         push @logs, {
             date                => format_date($log->date_stamp),
+            attacking_empire_id => $log->attacking_empire_id,
             attacking_empire    => $log->attacking_empire_name,
+            attacking_body_id   => $log->attacking_body_id,
             attacking_body      => $log->attacking_body_name,
             attacking_unit      => $log->attacking_unit_name,
+            defending_empire_id => $log->defending_empire_id,
             defending_empire    => $log->defending_empire_name,
+            defending_body_id   => $log->defending_body_id,
             defending_body      => $log->defending_body_name,
             defending_unit      => $log->defending_unit_name,
+            attacked_empire_id  => $log->attacked_empire_id,
+            attacked_empire     => $log->attacked_empire_name,
+            attacked_body_id    => $log->attacked_body_id,
+            attacked_body       => $log->attacked_body_name,
             victory_to          => $log->victory_to,
         };
     }

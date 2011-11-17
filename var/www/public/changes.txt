@@ -4,6 +4,8 @@
  - Mod: Excavators no longer trigger defenses.
  - Mod: SAWs improved.
  - Rule: Interstellar Broadcast Module now contributes to a Space Stations influence
+ - Fix: Battlelogs report Defending Body Name.
+ - Add: Battlelogs report Attacked Body Stats.
 
 3.0817
  - Add:  Black Hole Generator Code added.

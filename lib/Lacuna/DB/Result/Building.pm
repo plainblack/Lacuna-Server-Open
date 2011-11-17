@@ -887,18 +887,26 @@ sub can_repair {
     my ($self, $costs) = @_;
     $costs ||= $self->get_repair_costs;
     my $body = $self->body;
-#    unless ($body->food_stored >= $costs->{food}) {
-#        confess [1011, 'You need '.$costs->{food}.' food to repair this building.'];
-#    }
-#    unless ($body->water_stored >= $costs->{water}) {
-#        confess [1011, 'You need '.$costs->{water}.' water to repair this building.'];
-#    }
-#    unless ($body->ore_stored >= $costs->{ore}) {
-#        confess [1011, 'You need '.$costs->{ore}.' ore to repair this building.'];
-#    }
-#    unless ($body->energy_stored >= $costs->{energy}) {
-#        confess [1011, 'You need '.$costs->{energy}.' energy to repair this building.'];
-#    }
+    my $fix = 100;
+    if ($body->food_stored < $costs->{food} and $costs->{food} > 0) {
+        my $teff = int(($body->food_stored-50)*100/$costs->{food});
+        $fix = $teff if ($teff < $fix);
+    }
+    if ($body->water_stored < $costs->{water} and $costs->{water} > 0) {
+        my $teff = int($body->water_stored*100/$costs->{water});
+        $fix = $teff if ($teff < $fix);
+    }
+    if ($body->ore_stored < $costs->{ore} and $costs->{ore} > 0) {
+        my $teff = int(($body->ore_stored-50)*100/$costs->{ore});
+        $fix = $teff if ($teff < $fix);
+    }
+    if ($body->energy_stored < $costs->{energy} and $costs->{energy} > 0) {
+        my $teff = int($body->energy_stored*100/$costs->{energy});
+        $fix = $teff if ($teff < $fix);
+    }
+    if ($fix <= 0) {
+        confess [1011, 'Not enough resources to do a partial repair.'];
+    }
     return 1;
 }
 
@@ -925,7 +933,8 @@ sub repair {
         $fix = $teff if ($teff < $fix);
     }
     if ($fix <= 0) {
-        confess [1011, 'Not enough resources to do a partial repair.'];
+#        confess [1011, 'Not enough resources to do a partial repair.'];
+      return 0;
     }
     $costs->{food}   = int($fix*$costs->{food}/100);
     $costs->{water}  = int($fix*$costs->{water}/100);

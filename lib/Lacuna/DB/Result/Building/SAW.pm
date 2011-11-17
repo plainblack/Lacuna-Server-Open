@@ -22,16 +22,26 @@ before has_special_resources => sub {
     }
 };
 
-around spend_efficiency => sub {
-    my ($orig, $self, $amount) = @_;
-    if ($amount * 100 < $self->body->water_stored) {
-        $self->body->spend_water($amount * 100);
-    }
-    else {
-        $orig->($self, $amount);
-    }
-    return $self;
+before finish_work => sub {
+    my $self = shift;
+    my $body = $self->body;
+
+    $self->repair;
 };
+
+# Since we now just spend efficiency and self repair, commented out
+# around spend_efficiency => sub {
+#     my ($orig, $self, $amount) = @_;
+#     if ($amount * 100 < $self->body->water_stored) {
+#         $self->body->spend_water($amount * 100);
+#     }
+#     else {
+#         $orig->($self, $amount);
+#     }
+#     return $self;
+# };
+
+use constant max_instances_per_planet => 10;
 
 use constant controller_class => 'Lacuna::RPC::Building::SAW';
 
@@ -55,13 +65,13 @@ use constant time_to_build => 60 * 2;
 
 use constant food_consumption => 2;
 
-use constant energy_consumption => 80;
+use constant energy_consumption => 50;
 
 use constant ore_consumption => 5;
 
 use constant water_consumption => 6;
 
-use constant waste_production => 15;
+use constant waste_production => 20;
 
 
 no Moose;
