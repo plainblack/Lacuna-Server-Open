@@ -9,8 +9,10 @@ use List::MoreUtils qw(uniq);
 use utf8;
 $|=1;
 our $quiet;
+our $all;
 GetOptions(
-    'quiet'         => \$quiet,  
+    'quiet'      => \$quiet,  
+    'all'        => \$all,
 );
 
 
@@ -20,7 +22,8 @@ my $start = time;
 
 out('Loading DB');
 our $db = Lacuna->db;
-my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire');
+my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({
+});
 
 out('getting empires...');
 my $de_lambert = $empires->find(-9);
@@ -47,7 +50,15 @@ Watch this space, for more news and for our imminent arrival.
 
 Guillaume de Lambert 9th
 };
+
+if (not $all) {
+    # if not all then just send to admins
+    $empires = $empires->search({is_admin => 1});
+}
+$empires = $empires->search({id => {'>' => 1}});
+
 while (my $empire = $empires->next) {
+    out("From ".$de_lambert->name." to ".$empire->name);
     $empire->send_message(
         tag         => 'Correspondence',
         subject     => 'The DeLamberti',

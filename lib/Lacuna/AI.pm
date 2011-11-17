@@ -213,7 +213,7 @@ sub build_ships {
     my ($self, $colony) = @_;
     say 'Building ships...';
     my @shipyards = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard')->search(undef,{order_by => 'work_ends'})->all;
-    my @priorities = $self->ship_building_priorities;
+    my @priorities = $self->ship_building_priorities($colony);
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     foreach my $priority (@priorities) {
         say $priority->[0];

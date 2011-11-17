@@ -3,118 +3,11 @@ package Lacuna::AI::DeLambert;
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
+use Data::Dumper;
+
 extends 'Lacuna::AI';
 
-use constant empire_id  => -3;
-
-has viable_colonies => (
-    is          => 'ro',
-    lazy        => 1,
-    default     => sub {
-        return Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
-            { empire_id => undef, orbit => { between => [5,6] }, size => { between => [50,60]}},
-            );
-    }
-);
-
-sub empire_defaults {
-    return {
-        name                    => 'DeLambert Traders',
-        status_message          => 'We Come in Peace',
-        description             => 'Traders in Glyphs',
-        species_name            => 'DeLamberti',
-        species_description     => 'Heavy Worlders',
-        min_orbit               => 1,
-        max_orbit               => 7,
-        manufacturing_affinity  => 6, 
-        deception_affinity      => 4,
-        research_affinity       => 1,
-        management_affinity     => 1,
-        farming_affinity        => 2,
-        mining_affinity         => 2,
-        science_affinity        => 7,
-        environmental_affinity  => 7,
-        political_affinity      => 7,
-        trade_affinity          => 7,
-        growth_affinity         => 1,
-        is_isolationist         => 0,
-    };
-}
-
-sub colony_structures {
-    return (
-        ['Lacuna::DB::Result::Building::Permanent::EssentiaVein',1],
-        ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',16],
-        ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',18],
-        ['Lacuna::DB::Result::Building::Permanent::Volcano',16],
-        ['Lacuna::DB::Result::Building::Permanent::AlgaePond',15],
-        ['Lacuna::DB::Result::Building::Permanent::BeeldebanNest',15],
-        ['Lacuna::DB::Result::Building::Permanent::MalcudField',15],
-        ['Lacuna::DB::Result::Building::Permanent::GreatBallOfJunk',8],
-        ['Lacuna::DB::Result::Building::Permanent::JunkHengeSculpture',9],
-        ['Lacuna::DB::Result::Building::Permanent::MetalJunkArches',7],
-        ['Lacuna::DB::Result::Building::Permanent::KalavianRuins',8],
-        ['Lacuna::DB::Result::Building::Intelligence', 25],
-        ['Lacuna::DB::Result::Building::Security', 25],
-        ['Lacuna::DB::Result::Building::MunitionsLab', 25],
-        ['Lacuna::DB::Result::Building::Shipyard', 4],
-        ['Lacuna::DB::Result::Building::Shipyard', 4],
-        ['Lacuna::DB::Result::Building::Shipyard', 4],
-        ['Lacuna::DB::Result::Building::SpacePort', 15],
-        ['Lacuna::DB::Result::Building::SpacePort', 15],
-        ['Lacuna::DB::Result::Building::SpacePort', 15],
-        ['Lacuna::DB::Result::Building::SpacePort', 15],
-        ['Lacuna::DB::Result::Building::Observatory',15],
-        ['Lacuna::DB::Result::Building::PilotTraining',1],
-        ['Lacuna::DB::Result::Building::Energy::Reserve', 20],
-        ['Lacuna::DB::Result::Building::Food::Reserve', 20],
-        ['Lacuna::DB::Result::Building::Ore::Storage', 20],
-        ['Lacuna::DB::Result::Building::Water::Storage', 20],
-        ['Lacuna::DB::Result::Building::Food::Beeldeban',15],
-        ['Lacuna::DB::Result::Building::Food::Malcud',15],
-        ['Lacuna::DB::Result::Building::Food::Algae',15],
-        ['Lacuna::DB::Result::Building::Food::Root',15],
-        ['Lacuna::DB::Result::Building::Food::Beeldeban',15],
-        ['Lacuna::DB::Result::Building::Food::Malcud',15],
-        ['Lacuna::DB::Result::Building::Food::Algae',15],
-        ['Lacuna::DB::Result::Building::Food::Root',15],
-        ['Lacuna::DB::Result::Building::Ore::Refinery',15],
-        ['Lacuna::DB::Result::Building::Ore::Mine',15],
-        ['Lacuna::DB::Result::Building::Ore::Mine',15],
-        ['Lacuna::DB::Result::Building::Ore::Mine',15],
-        ['Lacuna::DB::Result::Building::Ore::Mine',15],
-        ['Lacuna::DB::Result::Building::Ore::Mine',15],
-        ['Lacuna::DB::Result::Building::Ore::Mine',15],
-        ['Lacuna::DB::Result::Building::Ore::Mine',15],
-        ['Lacuna::DB::Result::Building::Ore::Mine',15],
-        ['Lacuna::DB::Result::Building::Energy::Singularity',15],
-        ['Lacuna::DB::Result::Building::Energy::Singularity',15],
-        ['Lacuna::DB::Result::Building::Energy::Fusion',15],
-        ['Lacuna::DB::Result::Building::Energy::Fusion',15],
-        ['Lacuna::DB::Result::Building::Energy::Fusion',15],
-        ['Lacuna::DB::Result::Building::Water::Production',15],
-        ['Lacuna::DB::Result::Building::Water::Production',15],
-        ['Lacuna::DB::Result::Building::Water::Production',15],
-        ['Lacuna::DB::Result::Building::Water::AtmosphericEvaporator',15],
-        ['Lacuna::DB::Result::Building::Water::AtmosphericEvaporator',15],
-        ['Lacuna::DB::Result::Building::SAW',10],
-        ['Lacuna::DB::Result::Building::SAW',10],
-        ['Lacuna::DB::Result::Building::SAW',10],
-        ['Lacuna::DB::Result::Building::SAW',10],
-        ['Lacuna::DB::Result::Building::SAW',10],
-        ['Lacuna::DB::Result::Building::SAW',10],
-        ['Lacuna::DB::Result::Building::SAW',10],
-        ['Lacuna::DB::Result::Building::SAW',10],
-    );
-}
-
-sub extra_glyph_buildings {
-    return {
-        quantity    => 0,
-        min_level   => 1,
-        max_level   => 5,
-    }
-}
+use constant empire_id  => -9;
 
 sub spy_missions {
     return (
@@ -123,25 +16,66 @@ sub spy_missions {
 }
 
 sub ship_building_priorities {
-    return (
-        ['drone', 35],
-        ['fighter', 25],
-        ['probe', 1],
-        ['sweeper', 25],
-        ['snark', 25],
-        ['snark2', 6],
-        ['snark3', 3],
-    );
+    my ($self, $colony) = @_;
+
+    my $status = 'peace';
+    my ($dillon_forge)  = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::TheDillonForge');
+    my $level = $dillon_forge ? $dillon_forge->level : 0;
+
+    my $quota = {
+        peace => {
+            5 => [
+                ['galleon', 50],
+                ['sweeper',350],
+            ],
+            10 => [
+            ],
+            15 => [
+            ],
+            20 => [
+            ],
+            25 => [
+            ],
+            30 => [
+                ['galleon', 50],
+                ['sweeper',350],
+            ],
+        },
+        war => {
+            5 => [
+                ['sweeper',                  300],
+                ['scow',                     100],
+                ['security_ministry_seeker',   5],
+                ['snark2',                    10],
+            ],
+            10 => [
+            ],
+            15 => [
+            ],
+            20 => [
+            ],
+            25 => [
+            ],
+            30 => [
+                ['sweeper',                  300],
+                ['scow',                     100],
+                ['security_ministry_seeker',   5],
+                ['snark2',                    10],
+            ],
+        },
+    };
+
+    return ( @{$quota->{$status}{$level}} );
 }
 
 sub run_hourly_colony_updates {
     my ($self, $colony) = @_;
-    $self->demolish_bleeders($colony);
-    $self->set_defenders($colony);
-    $self->repair_buildings($colony);
-    $self->train_spies($colony);
+#    $self->demolish_bleeders($colony);
+#    $self->set_defenders($colony);
+#    $self->repair_buildings($colony);
+#    $self->train_spies($colony);
     $self->build_ships($colony);
-    $self->run_missions($colony);
+#    $self->run_missions($colony);
 }
 
 no Moose;
