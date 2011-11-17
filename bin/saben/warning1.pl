@@ -20,7 +20,8 @@ my $start = time;
 
 out('Loading DB');
 our $db = Lacuna->db;
-my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire');
+my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({
+});
 
 out('getting empires...');
 my $saben = $empires->find(-1);
@@ -40,7 +41,11 @@ Your Trading Partner,
 Tou Re Ell
 
 Lacuna Expanse Corp};
+
+$empires = $empires->search({id => {'>' => 1}});
+
 while (my $empire = $empires->next) {
+    out("From ".$lec->name." To ".$empire->name);
     $empire->send_message(
         tag         => 'Correspondence',
         subject     => 'War Is Coming',
