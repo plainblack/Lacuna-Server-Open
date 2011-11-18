@@ -91,8 +91,8 @@ sub generate_singularity {
     confess [1009, $task->{reason}];
   }
 # TEST SETTINGS
-#  $task->{waste_cost} = 1;
-#  $task->{recovery} = 5;
+  $task->{waste_cost} = 1;
+  $task->{recovery} = 5;
 #  $task->{side_chance} = 95;
 # TEST SETTINGS
   my $dist = sprintf "%7.2f", $building->body->calculate_distance_to_target($target)/100;
@@ -131,7 +131,8 @@ sub generate_singularity {
       };
     }
   }
-  if ($task->{name} eq "Change Type" && defined ($target->empire) &&
+  if ( ($task->{name} eq "Change Type" or $task->{name} eq "Swap Places") &&
+        defined ($target->empire) &&
         ($body->empire->alliance_id != $target->empire->alliance_id)) {
     confess [1009, "You can not change a body type if it is outside your alliance!\n"];
 # Maybe expand to allow if the alliance owns the star...
@@ -202,11 +203,18 @@ sub generate_singularity {
       $return_stats = bhg_change_type($target, $params);
       $body->add_news(50, sprintf('The geology of %s has been extensively altered by powers unknown', $target->name));
     }
+    elsif ($task->{name} eq "Swap Places") {
+      $return_stats = bhg_swap($building, $target);
+      $body->add_news(50,
+        sprintf('%s has switched places with %s!',
+                $body->name, $target->name));
+    }
     else {
       confess [552, "Internal Error"];
     }
     $effect->{target} = $return_stats;
 #And now side effect time
+# If we add swap, swap two random unihabited bodies, possibly current planet with another random?
     my $side = randint(0,99);
     if ($task->{side_chance} > $side) {
       my $side_type = randint(0,99);
@@ -234,6 +242,40 @@ sub generate_singularity {
   return {
     status => $self->format_status($empire, $body),
     effect => $effect,
+  };
+}
+
+sub bhg_swap {
+  my ($building, $target) = @_;
+  my $body = $building->body;
+  my $return;
+  my $old_x        = $body->x;
+  my $old_y        = $body->y;
+  my $old_zone     = $body->zone;
+  my $old_star     = $body->star_id;
+  my $old_orbit    = $body->orbit;
+  $body->update({
+    needs_recalc => 1,
+    x            => $target->x,
+    y            => $target->y,
+    zone         => $target->zone,
+    star_id      => $target->star_id,
+    orbit        => $target->orbit,
+  });
+  $target->update({
+    needs_recalc => 1,
+    x            => $old_x,
+    y            => $old_y,
+    zone         => $old_zone,
+    star_id      => $old_star,
+    orbit        => $old_orbit,
+  });
+  return {
+    message  => "Swapped Places",
+    name     => $body->name,
+    id       => $body->id,
+    swapname => $target->name,
+    swapid   => $target->id,
   };
 }
 
@@ -793,7 +835,7 @@ sub bhg_tasks {
       recovery     => int($day_sec * 90/$blevel),
       waste_cost   => 50_000_000,
       fail_chance  => int(100 - $building->level * 3),
-      side_chance  => 10,
+      side_chance  => 25,
     },
     {
       name         => 'Make Planet',
@@ -803,8 +845,8 @@ sub bhg_tasks {
       min_level    => 15,
       recovery     => int($day_sec * 90/$blevel),
       waste_cost   => 100_000_000,
-      fail_chance  => int(100 - $building->level * 2.5),
-      side_chance  => 25,
+      fail_chance  => int(100 - $building->level * 2.75),
+      side_chance  => 40,
     },
     {
       name         => 'Increase Size',
@@ -814,8 +856,8 @@ sub bhg_tasks {
       min_level    => 20,
       recovery     => int($day_sec * 180/$blevel),
       waste_cost   => 1_000_000_000,
-      fail_chance  => int(100 - $building->level * 2),
-      side_chance  => 50,
+      fail_chance  => int(100 - $building->level * 2.5),
+      side_chance  => 60,
     },
     {
       name         => 'Change Type',
@@ -825,8 +867,19 @@ sub bhg_tasks {
       min_level    => 25,
       recovery     => int($day_sec * 300/$blevel),
       waste_cost   => 10_000_000_000,
-      fail_chance  => int(100 - $building->level * 2),
+      fail_chance  => int(100 - $building->level * 2.25),
       side_chance  => 75,
+    },
+    {
+      name         => 'Swap Places',
+      types        => ['asteroid', 'habitable planet', 'gas giant', 'space station'],
+      reason       => "This message is bogus.",
+      occupied     => 1,
+      min_level    => 30,
+      recovery     => int($day_sec * 400/$blevel),
+      waste_cost   => 20_000_000_000,
+      fail_chance  => int(100 - $building->level * 2),
+      side_chance  => 90,
     },
   );
   return @tasks;
