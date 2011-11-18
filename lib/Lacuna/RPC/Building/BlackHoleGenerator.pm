@@ -101,7 +101,7 @@ sub generate_singularity {
     confess [1009, 'That body is too far away at '.$dist.' with a range of '.$range.'. '.$target->id."\n"];
   }
   unless ($body->waste_stored >= $task->{waste_cost}) {
-    confess [1011, 'You need at least '.$task->{waste_cost}.' to run that function of the Black Hole Generator.'];
+    confess [1011, 'You need at least '.$task->{waste_cost}.' waste to run that function of the Black Hole Generator.'];
   }
   unless ($task->{occupied}) {
     if ($btype eq 'asteroid') {
