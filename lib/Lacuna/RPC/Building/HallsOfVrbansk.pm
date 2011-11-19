@@ -20,6 +20,7 @@ sub get_upgradable_buildings {
     my @buildings;
     my $upgradable = $building->get_upgradable_buildings;
     while (my $building = $upgradable->next) {
+        next if ($building->level > $empire->university_level);
         push @buildings, {
             id      => $building->id,
             name    => $building->name,
