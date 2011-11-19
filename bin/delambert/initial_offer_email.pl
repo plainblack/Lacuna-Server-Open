@@ -72,12 +72,12 @@ Guillaume de Lambert 9th
 ----
 
 small print.
-(Offer subject to availability while stocks last. This offer may be withdrawn at any time. No correspondence may be entered into concerning this offer. This offer not available to Diablotin, Saben, Trelvestian or other aggressive species. You must be over the age of consent for your species. Note that combining glyphs in random order may result in dangerous consequences. DeLamberti take no responsibility for subsequent damage, accident or death (both permanent and temporary) caused by our products.)
+(Offer subject to availability while stocks last. This offer may be withdrawn at any time. No correspondence may be entered into concerning this offer. This offer not available to Diablotin, Saben, Trelvestian or other aggressive species. You must be over the age of consent for your species. Note that combining glyphs in random order may result in dangerous consequences. DeLamberti take no responsibility for subsequent damage, accident, personal injury or death (both permanent and temporary) caused by our products.)
 };
 
 if (not $all) {
     # if not all then just send to admins
-    $empires = $empires->search({is_admin => 1});
+    $empires = $empires->search({name => ['icd','icydee','Sweden','Norway']});
 }
 
 $empires = $empires->search({id => {'>' => 1}});

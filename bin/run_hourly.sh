@@ -15,4 +15,5 @@ perl trelvestian/hourly_update.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl trelvestian/send_attack.pl >>/tmp/hourly.log 2>>/tmp/hourly.log &
 perl diablotin/hourly_update.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl saben/hourly_update.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
-perl check_for_total_victory.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
+perl delambert/hourly_update.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
+#perl check_for_total_victory.pl >>/tmp/hourly.log 2>>/tmp/hourly.log

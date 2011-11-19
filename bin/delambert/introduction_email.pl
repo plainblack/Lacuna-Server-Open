@@ -53,7 +53,7 @@ Guillaume de Lambert 9th
 
 if (not $all) {
     # if not all then just send to admins
-    $empires = $empires->search({is_admin => 1});
+    $empires = $empires->search({name => ['icd','icydee','Sweden','Norway']});
 }
 $empires = $empires->search({id => {'>' => 1}});
 
