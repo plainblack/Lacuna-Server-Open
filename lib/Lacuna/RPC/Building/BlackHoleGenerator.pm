@@ -134,8 +134,8 @@ sub generate_singularity {
   if ( ($task->{name} eq "Change Type" or $task->{name} eq "Swap Places") &&
         defined ($target->empire) &&
         ($body->empire->alliance_id != $target->empire->alliance_id)) {
-    confess [1009, "You can not change a body type if it is outside your alliance!\n"];
-# Maybe expand to allow if the alliance owns the star...
+    confess [1009, "You can not attempt that action on a body if it is occupied by another alliance!\n"];
+# Maybe expand to allow if the alliance owns the star and disallow if a star is owned by a different alliance.
   }
   $body->spend_waste($task->{waste_cost})->update;
   $building->start_work({}, $task->{recovery})->update;
