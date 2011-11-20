@@ -96,12 +96,12 @@ sub ship_building_priorities {
 
 sub run_hourly_colony_updates {
     my ($self, $colony) = @_;
-#    $self->demolish_bleeders($colony);
-#    $self->set_defenders($colony);
-#    $self->repair_buildings($colony);
-#    $self->train_spies($colony);
-#    $self->build_ships_max($colony);
-#    $self->run_missions($colony);
+    $self->demolish_bleeders($colony);
+    $self->set_defenders($colony);
+    $self->repair_buildings($colony);
+    $self->train_spies($colony);
+    $self->build_ships_max($colony);
+    $self->run_missions($colony);
     $self->process_email;
 }
 
