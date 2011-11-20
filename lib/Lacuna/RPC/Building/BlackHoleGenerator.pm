@@ -214,7 +214,7 @@ sub generate_singularity {
     }
     $effect->{target} = $return_stats;
 #And now side effect time
-# If we add swap, swap two random unihabited bodies, possibly current planet with another random?
+# If we add swap, swap two random unihabited bodies or possibly current planet with another random?
     my $side = randint(0,99);
     if ($task->{side_chance} > $side) {
       my $side_type = randint(0,99);
@@ -873,7 +873,7 @@ sub bhg_tasks {
     {
       name         => 'Swap Places',
       types        => ['asteroid', 'habitable planet', 'gas giant', 'space station'],
-      reason       => "This message is bogus.",
+      reason       => "Invalid reason.",
       occupied     => 1,
       min_level    => 30,
       recovery     => int($day_sec * 400/$blevel),
