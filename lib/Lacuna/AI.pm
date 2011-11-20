@@ -22,6 +22,20 @@ has empire      => (
    }
 );
 
+has scratch     => (
+    is          => 'ro',
+    lazy        => 1,
+    default     => sub {
+        my $self = shift;
+        my ($scratch) = Lacuna->db->resultset('Lacuna::DB::Result::AIScratchPad')->search({
+            ai_empire_id    => $self->empire_id,
+            body_id         => 0,
+        });
+
+        return $scratch;
+    }
+);
+
 sub next_viable_colony {
     my $self = shift;
     return $self->viable_colonies->search(undef, { rows => 1, order_by => 'rand()' })->single;
@@ -194,16 +208,21 @@ sub train_spies {
     say 'Training spies...';
     my $intelligence = $colony->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
     if (defined $intelligence) {
-        my $costs = $intelligence->training_costs;
-        my $can = eval{$intelligence->can_train_spy($costs)};
-        my $reason = $@;
-        if ($can) {
-            $intelligence->spend_resources_to_train_spy($costs);
-            $intelligence->train_spy($costs->{time});
-            say "Spy trained.";
-        }
-        else {
-            say $reason->[1];
+        my $can_train = 1;
+
+        while ($can_train) {
+            my $costs = $intelligence->training_costs;
+            my $can = eval{$intelligence->can_train_spy($costs)};
+            my $reason = $@;
+            if ($can) {
+                $intelligence->spend_resources_to_train_spy($costs);
+                $intelligence->train_spy($costs->{time});
+                say "Spy trained.";
+            }
+            else {
+                say $reason->[1];
+                $can_train = 0;
+            }
         }
     }
 }
@@ -237,6 +256,55 @@ sub build_ships {
         }
         else {
             say "have enough";
+        }
+    }
+}
+
+# Fill the shipyards as full as they can be
+sub build_ships_max {
+    my ($self, $colony) = @_;
+    say 'Building ships...';
+    my @ship_yards  = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard')->search(undef,{order_by => 'work_ends'})->all;
+    my $ships 	    = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
+    my $ship_yard   = shift @ship_yards;
+    my $free_docks  = $ship_yard->level - $ships->search({shipyard_id => $ship_yard->id, task => 'Building'});
+    my @priorities  = $self->ship_building_priorities($colony);
+    SHIP:
+    for my $priority (@priorities) {
+        my ($ship_type,$quota) = @$priority;
+
+        my $no_of_ships = $ships->search({body_id => $colony->id, type => $ship_type})->count;
+        my $ships_needed = $quota - $no_of_ships;
+        if ($ships_needed <= 0) {
+            say "quota met for $ship_type";
+        }
+        while ($ships_needed > 0) {
+            # loop around filling shipyards one at a time until either there are no more
+            # shipyards or we need no more ships
+            SHIP_YARD:
+            while ($ships_needed > 0 and $ship_yard) {
+
+                while ($free_docks <= 0) {
+                    $ship_yard = shift @ship_yards;
+                    last SHIP unless $ship_yard;
+                    $free_docks  = $ship_yard->level - $ships->search({shipyard_id => $ship_yard->id, task => 'Building'});
+                }
+                my $ship = $ships->new({type => $ship_type});
+                my $costs = $ship_yard->get_ship_costs($ship);
+                my $can_build = eval{$ship_yard->can_build_ship($ship, $costs)};
+                my $reason = $@;
+                if ($can_build) {
+                    say "building ".$ship->type;
+                    $ship_yard->spend_resources_to_build_ship($costs);
+                    $ship_yard->build_ship($ship, $costs->{seconds});
+                }
+                else {
+                    say $reason->[1];
+                    next SHIP;
+                }
+                $ships_needed--;
+                $free_docks--;
+            }
         }
     }
 }

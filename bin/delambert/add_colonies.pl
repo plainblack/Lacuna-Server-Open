@@ -14,14 +14,14 @@ use Data::Dumper;
 $|=1;
 our $quiet      = 0; # omit output messages
 our $respawn    = 0; # delete and respawn the empire
-our $dry_run    = 0; # go through the motions, but don't change the database
 our $add        = 0; # the number of colonies to add
+our $each_level = 0; # Add one colony of each level
 
 GetOptions(
     'quiet'      => \$quiet,  
     'respawn'    => \$respawn,
-    'dry_run'    => \$dry_run,
     'add=i'      => \$add,
+    'each_level' => \$each_level,
 );
 
 out('Started');
@@ -36,6 +36,8 @@ my $empire;
 if ($respawn) {
     # with 'respawn' we delete and re-create the whole empire
     out('Re-Spawning Empire');
+    $db->resultset('Lacuna::DB::Result::AIScratchPad')->search->delete;
+
     $empire = $empires->find(-9);
 
     if (defined $empire) {
@@ -44,16 +46,19 @@ if ($respawn) {
         for my $planet ($empire->planets->all) {
             out("Removing sensitive buildings from ".$planet->name);
             $planet->buildings->delete_all;
+            # Rename the planet 
+            $planet->name($planet->star->name." ".$planet->orbit);
+            $planet->update;
         }
 
-        $empire->delete unless $dry_run;
+        $empire->delete;
     }
 }
 
 $empire = $empires->find(-9);
 if (not defined $empire) {
     out('Creating new empire');
-    $empire = create_empire() unless $dry_run;
+    $empire = create_empire();
 }
 
 # We need to determine how many DeLambert colonies to add to each zone
@@ -116,9 +121,26 @@ out("    Total\t$total_delamberti");
 
 # Now we know how many empires are in each zone, and how many DeLamberti
 # we can determine which zones have the lowest proportion of DeLamberti
-# and add new one's there.
+# and add new ones there.
 #
-for (1..$add) {
+# Calculate the levels we want
+#
+
+my @build_levels;
+
+if ($each_level) {
+    push @build_levels,(5,10,15,20,25);
+}
+else {
+    my @levels = (5,10,15,20,20,25,25,30);
+    foreach (1..$add) {
+        my $level = $levels[randint(0,scalar(@levels)-1)];
+        push @build_levels, $level;
+    }
+}
+
+#
+for my $level(@build_levels) {
     out("Adding a new colony");
     # Find the zone with the lowest ratio of colonies to DeLamberti colonies
     my $add_to_zone = '';
@@ -137,9 +159,7 @@ for (1..$add) {
     out("Add colony to zone $add_to_zone");
     # Choose a colony size at random (weighted)
     #
-    my @levels = (5,10,15,20,20,25,25,30);
     my $sizes  = {5 => [50,60], 10 => [70,80], 15 => [80,90], 20 => [90,100], 25 => [100, 110], 30 => [110,121]};
-    my $level = $levels[randint(0,scalar(@levels)-1)];
     out("Creating a colony level $level");
 
     # We want to find a colony in an un-occupied star system
@@ -227,6 +247,15 @@ sub create_empire {
     $empire->university_level(30);
     $empire->update;
     create_colony(30, $home);
+
+    # Create an empire wide scratchpad for the AI
+    #
+    my $scratch = $db->resultset('Lacuna::DB::Result::AIScratchPad')->create({
+        ai_empire_id    => -9,
+        body_id         => 0,
+        pad             => {status => 'peace'},
+    });
+
     return $empire;
 }
 
@@ -235,6 +264,16 @@ sub create_colony {
     my ($level, $body) = @_;
 
     out("Creating a level $level DeLambert colony on body ".$body->name);
+    if ($each_level) {
+        $body->name("TLE DeLambert $level");
+        $body->update;
+    }
+    # Create a scratch-pad for the colony
+    my $scratch = $db->resultset('Lacuna::DB::Result::AIScratchPad')->create({
+        ai_empire_id    => -9,
+        body_id         => $body->id,
+        pad             => {level => $level},
+    });
 
     out('Upgrading PCC');
     my $pcc = $body->command;
@@ -281,7 +320,7 @@ sub create_colony {
             'Permanent::GasGiantPlatform'       => {qty => 4, level => 17},
             'Permanent::PyramidJunkSculpture'   => {qty => 1, level => 10},
             'Permanent::NaturalSpring'          => {qty => 1, level => 16},
-            'Permanent::GeoThermalVent'         => {qty => 1, level => 18},
+            'Permanent::GeoThermalVent'         => {qty => 1, level => 19},
             'Permanent::AlgaePond'              => {qty => 1, level => 16},
             'Permanent::Volcano'                => {qty => 1, level => 15},
             'Permanent::InterDimensionalRift'   => {qty => 1, level => 15},
@@ -311,8 +350,8 @@ sub create_colony {
 
         },
         '15'   => {
-            'Permanent::TheDillonForge'     => {qty => 1, level => 15},
-            'Permanent::GasGiantPlatform'   => {qty => 4, level => 20},
+            'Permanent::TheDillonForge'         => {qty => 1, level => 15},
+            'Permanent::GasGiantPlatform'       => {qty => 4, level => 20},
 
             'Permanent::PyramidJunkSculpture'   => {qty => 1, level => 14},
             'Permanent::NaturalSpring'          => {qty => 1, level => 21},
@@ -346,8 +385,8 @@ sub create_colony {
 
         },
         '20'   => {
-            'Permanent::TheDillonForge'     => {qty => 1, level => 20},
-            'Permanent::GasGiantPlatform'   => {qty => 4, level => 23},
+            'Permanent::TheDillonForge'         => {qty => 1, level => 20},
+            'Permanent::GasGiantPlatform'       => {qty => 4, level => 23},
 
             'Permanent::PyramidJunkSculpture'   => {qty => 1, level => 17},
             'Permanent::NaturalSpring'          => {qty => 1, level => 22},
@@ -381,8 +420,8 @@ sub create_colony {
 
         },
         '25'   => {
-            'Permanent::TheDillonForge'     => {qty => 1, level => 25},
-            'Permanent::GasGiantPlatform'   => {qty => 4, level => 26},
+            'Permanent::TheDillonForge'         => {qty => 1, level => 25},
+            'Permanent::GasGiantPlatform'       => {qty => 4, level => 26},
 
             'Permanent::PyramidJunkSculpture'   => {qty => 1, level => 19},
             'Permanent::NaturalSpring'          => {qty => 1, level => 25},
@@ -416,8 +455,8 @@ sub create_colony {
 
         },
         '30'   => {
-            'Permanent::TheDillonForge'     => {qty => 1, level => 30},
-            'Permanent::GasGiantPlatform'   => {qty => 4, level => 28},
+            'Permanent::TheDillonForge'         => {qty => 1, level => 30},
+            'Permanent::GasGiantPlatform'       => {qty => 4, level => 28},
 
             'Permanent::PyramidJunkSculpture'   => {qty => 1, level => 20},
             'Permanent::NaturalSpring'          => {qty => 1, level => 27},
