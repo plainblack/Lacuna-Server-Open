@@ -208,16 +208,21 @@ sub train_spies {
     say 'Training spies...';
     my $intelligence = $colony->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
     if (defined $intelligence) {
-        my $costs = $intelligence->training_costs;
-        my $can = eval{$intelligence->can_train_spy($costs)};
-        my $reason = $@;
-        if ($can) {
-            $intelligence->spend_resources_to_train_spy($costs);
-            $intelligence->train_spy($costs->{time});
-            say "Spy trained.";
-        }
-        else {
-            say $reason->[1];
+        my $can_train = 1;
+
+        while ($can_train) {
+            my $costs = $intelligence->training_costs;
+            my $can = eval{$intelligence->can_train_spy($costs)};
+            my $reason = $@;
+            if ($can) {
+                $intelligence->spend_resources_to_train_spy($costs);
+                $intelligence->train_spy($costs->{time});
+                say "Spy trained.";
+            }
+            else {
+                say $reason->[1];
+                $can_train = 0;
+            }
         }
     }
 }
@@ -270,6 +275,9 @@ sub build_ships_max {
 
         my $no_of_ships = $ships->search({body_id => $colony->id, type => $ship_type})->count;
         my $ships_needed = $quota - $no_of_ships;
+        if ($ships_needed <= 0) {
+            say "quota met for $ship_type";
+        }
         while ($ships_needed > 0) {
             # loop around filling shipyards one at a time until either there are no more
             # shipyards or we need no more ships
