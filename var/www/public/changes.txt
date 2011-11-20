@@ -9,6 +9,7 @@
  - Fix:  Gas Giant Platforms on habitable planets can be demolished regardless of plot count.
  - Add:  Blackholes can move bodies.
  - Fix:  Halls will not upgrade glyph buildings past university level plus one.
+ - Fix:  When probes are stolen, alliance IDs are switched as well.
 
 3.0817
  - Add:  Black Hole Generator Code added.

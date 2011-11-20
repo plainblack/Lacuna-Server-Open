@@ -2256,6 +2256,7 @@ sub take_control_of_probe {
     );
     $probe->body_id($self->from_body_id);
     $probe->empire_id($self->empire_id);
+    $probe->alliance_id($self->empire->alliance_id);
     $probe->update;
     return $message->id;
 }
