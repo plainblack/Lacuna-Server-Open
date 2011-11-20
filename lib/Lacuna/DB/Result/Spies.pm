@@ -1385,9 +1385,10 @@ sub steal_planet {
         Lacuna->db->resultset('Lacuna::DB::Result::Spies')
                       ->search({from_body_id => $self->on_body_id})
                       ->update({from_body_id => $defender_capitol_id });
+
         Lacuna->db->resultset('Lacuna::DB::Result::Probes')
                       ->search({body_id => $self->on_body_id})
-                      ->update({empire_id => $self->empire_id});
+                      ->update({empire_id => $self->empire_id, alliance_id => $self->empire->alliance_id});
 
         $self->on_body->empire_id($self->empire_id);
         $self->on_body->add_happiness(int(abs($planet_happiness) / 10));
