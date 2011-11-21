@@ -10,20 +10,23 @@ use constant controller_class => 'Lacuna::RPC::Building::TheDillonForge';
 
 around can_build => sub {
     my ($orig, $self, $body) = @_;
-    if ($body->get_plan(__PACKAGE__, 1)) {
-        return $orig->($self, $body);  
-    }
-    confess [1013,"You can't build The Dillon Forge."];
+    confess [1013,"You can't build The Dillon Forge by any known process. How the hell did you manage to get a plan!?"];
 };
 
 around can_upgrade => sub {
     my ($orig, $self) = @_;
-    if ($self->body->get_plan(__PACKAGE__, $self->level + 1)) {
-        return $orig->($self);  
-    }
-    confess [1013,"You can't upgrade the Dillon Forge."];
+    confess [1013,"You can't upgrade the Dillon Forge, the technology to do so is beyond your scientific ability."];
 };
 
+around can_downgrade => sub {
+    my ($orig, $self) = @_;
+    confess [1013,"You can't downgrade the Dillon Forge, it is impervious to your current level of technology."];
+};
+
+around can_demolish => sub {
+    my ($orig, $self) = @_;
+    confess [1013,"You can't demolish the Dillon Forge, it is impervious to your current level of technology."];
+};
 
 use constant image => 'thedillonforge';
 

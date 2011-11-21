@@ -19,7 +19,7 @@ sub ship_building_priorities {
     my ($self, $colony) = @_;
 
     my $status = $self->scratch->pad->{status};
-    print "Status is [$status]\n";
+    print "    Status is [$status]\n";
 
     my $scratch = $self->get_colony_scratchpad($colony);
     my $level = $scratch->pad->{level};
@@ -102,9 +102,13 @@ sub run_hourly_colony_updates {
     $self->train_spies($colony);
     $self->build_ships_max($colony);
     $self->run_missions($colony);
-    $self->process_email;
 }
 
+sub run_hourly_empire_updates {
+    my ($self, $empire) = @_;
+
+    $self->process_email($empire);
+}
 
 sub get_colony_scratchpad {
     my ($self, $colony) = @_;
