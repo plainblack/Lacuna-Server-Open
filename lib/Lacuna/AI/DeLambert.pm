@@ -19,7 +19,7 @@ sub ship_building_priorities {
     my ($self, $colony) = @_;
 
     my $status = $self->scratch->pad->{status};
-    print "Status is [$status]\n";
+    print "    Status is [$status]\n";
 
     my $scratch = $self->get_colony_scratchpad($colony);
     my $level = $scratch->pad->{level};
@@ -96,15 +96,19 @@ sub ship_building_priorities {
 
 sub run_hourly_colony_updates {
     my ($self, $colony) = @_;
-#    $self->demolish_bleeders($colony);
-#    $self->set_defenders($colony);
-#    $self->repair_buildings($colony);
-#    $self->train_spies($colony);
-#    $self->build_ships_max($colony);
-#    $self->run_missions($colony);
-    $self->process_email;
+    $self->demolish_bleeders($colony);
+    $self->set_defenders($colony);
+    $self->repair_buildings($colony);
+    $self->train_spies($colony);
+    $self->build_ships_max($colony);
+    $self->run_missions($colony);
 }
 
+sub run_hourly_empire_updates {
+    my ($self, $empire) = @_;
+
+    $self->process_email($empire);
+}
 
 sub get_colony_scratchpad {
     my ($self, $colony) = @_;
@@ -128,18 +132,38 @@ sub process_email {
     MESSAGE:
     while (my $message = $messages->next) {
         print("Received message [".$message->subject."]\n");
+        if ($message->from_id == $self->empire->id) {
+            # message is from oneself
+            $message->has_read(1);
+            $message->update;
+            next MESSAGE;
+        }
+        my $request_empire = Lacuna::db->resultset('Lacuna::DB::Result::Empire')->find($message->from_id);
+        if (not $request_empire) {
+            # empire seems to have disapeared
+            $message->has_read(1);
+            $message->update;
+            next MESSAGE;
+        }
+
         # Check for special offer
         if ($message->subject eq "Re: Special Offer") {
             print("Special offer request from ".$message->from_name."\n");
             # Check if this user has received an offer previously
 
+            $self->scratch->discard_changes;
+            if ($self->scratch->pad->{offer_empire}{$message->from_id}) {
+                $message->has_read(1);
+                $message->update;
+                $self->duplicate_order_email($request_empire);
+                next MESSAGE;
+            }
             my $total_glyphs = 0;
             my $asked_for_too_many = 0;
             my $payload;
             # If not, send the order
             my @lines = split(/\n/, $message->body);
             for my $line (@lines) {
-#                print("   #".$line."#\n");
                 my ($quantity,$glyph) = $line =~ m/(\d+)\s*(anthracite|bauxite|beryl|chalcopyrite|chromite|fluorite|galena|goethite|gold|gypsum|halite|kerogen|magnetite|methane|monazite|rutile|sulfur|trona|uraninite|zircon)/i;
                 print("    [$glyph][$quantity]\n") if $quantity;
 
@@ -153,30 +177,28 @@ sub process_email {
                 }
                 $total_glyphs += $quantity;
             }
-            my $request_empire = Lacuna::db->resultset('Lacuna::DB::Result::Empire')->find($message->from_id);
 
             if ($total_glyphs < 20) {
                 # asked for too few, possible problem with order
                 print "### TOO FEW GLYPHS\n";
                 $self->spoiled_order_email($request_empire,"100: Less than 20 glyphs on order form");
                 $self->special_offer_email($request_empire);
+                $message->has_read(1);
+                $message->update;
             }
             elsif ($asked_for_too_many) {
                 # asked for too many, possible problem with order
                 print "### TOO MANY GLYPHS\n";
                 $self->spoiled_order_email($request_empire,"101: More than 20 glyphs on order form");
                 $self->special_offer_email($request_empire);
+                $message->has_read(1);
+                $message->update;
             }
             else {
                 # asked for correct number, fulfill the order
                 #
                 # Send to the home-world of the person making the order
                 #
-                if (not $request_empire) {
-                    # The empires seems to have disappeared
-                    $message->delete;
-                    next MESSAGE;
-                }
 
                 my $to_x = $request_empire->home_planet->x;
                 my $to_y = $request_empire->home_planet->y;
@@ -198,19 +220,77 @@ sub process_email {
                         target  => $request_empire->home_planet,
                         payload => $payload
                     );
-                $self->order_dispatched_email($request_empire);
+                    $self->order_dispatched_email($request_empire);
+                    my $scratchpad = $self->scratch->pad;
+                    $scratchpad->{offer_empire}{$message->from_id} = 1;
+                    $self->scratch->pad($scratchpad);
+                    $self->scratch->update;
+                    $message->has_read(1);
+                    $message->update;
                 }
                 else {
                     print "Cannot find ship to send\n";
                 }
                 # Mark this user as having received their order
             }
+        }
+        else {
+            $self->unsolicited_email($request_empire);
             $message->has_read(1);
             $message->update;
-
         }
     }
 }
+
+sub unsolicited_email {
+    my ($self, $empire) = @_;
+
+    my $message = qq{
+We the DeLamberti greet you.
+
+We regret that due to the huge amount of email we have received after our special offer we are unable to engage in correspondence at this time.
+
+Your email will remain on file until such time as we are able to clear the backlog and provide you with a personal response.
+
+However if you are looking for a job in our call center and you meet the following qualifications then please present yourself to our nearest trading post for an initial interview.
+
+Your species must breath a methane/chlorine mix atmosphere at 20 degrees absolute, you must have an Intelligence Quotient no higher than that of a Dilurian slime worm, you must be prepared to work for 90% of the day for a basic pay of 15 DeLamberti cents per day. 
+
+small print
+(note pay may go down as well as up, the DeLamberti are free to define the terms 'day' as they see fit, the DeLamberti cent is not fixed against the standard currency of Essentia and is likely to be revalued from time to time).
+
+Guillaume de Lambert 9th
+};
+    $empire->send_message(
+        tag         => 'Correspondence',
+        subject     => 'Unsolicited email.',
+        from        => $self->empire,
+        body        => $message,
+    );
+
+}
+
+sub duplicate_order_email {
+    my ($self, $empire) = @_;
+
+    my $message = qq{
+We the DeLamberti greet you.
+
+Our automated trading system has received your order but unfortunately we have had to decline it. Our records show that you have previously accepted our once in a lifetime offer of 20 brand new, mint condition glyphs.
+
+Of course if you can offer proof that your species is able to regenerate after death, a notarized death certificate from your previous life and a similarly notarized birth certificate for your new life, we will be more than willing to repeat this once in a lifetime offer.
+
+Guillaume de Lambert 9th
+};
+    $empire->send_message(
+        tag         => 'Correspondence',
+        subject     => 'Your Order has been declined.',
+        from        => $self->empire,
+        body        => $message,
+    );
+
+}
+
 
 # Order dispatched email
 sub order_dispatched_email {

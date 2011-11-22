@@ -106,11 +106,23 @@ sub run_all_hourly_colony_updates {
     my $self = shift;
     my $colonies = $self->empire->planets;
     while (my $colony = $colonies->next) {
-        say 'Colony: '.$colony->name;
+        say '###############';
+        say '#### UPDATE COLONY : '.$colony->name;
+        say '###############';
+
         $colony->tick;
         $self->run_hourly_colony_updates($colony);
     }
 }
+
+sub run_all_hourly_empire_updates {
+    my $self = shift;
+    say '###############';
+    say '#### UPDATE EMPIRE ';
+    say '###############';
+    $self->run_hourly_empire_updates($self->empire);
+}
+
 
 sub add_colonies {
     my ($self, $add_one) = @_;
@@ -151,19 +163,18 @@ sub add_colonies {
 
 sub run_missions {
     my ($self, $colony) = @_;
-    say 'Running missions...';
+    say 'RUN MISSIONS';
     my @missions = $self->spy_missions;
     my $mission = $missions[rand @missions];
     my $infiltrated_spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $colony->id, on_body_id => {'!=', $colony->id}});
     while (my $spy = $infiltrated_spies->next) {
-        say $spy->id;
         if ($spy->is_available) {
-            say "running mission...";
+            say "    Spy ID: ".$spy->id." running mission...";
             my $result = eval{$spy->assign($mission)};
-            say $result->{result};
+            say "        ".$result->{result};
         }
         else {
-            say "not available";
+            say "    Spy ID: ".$spy->id." not available";
         }
     }
 }
@@ -171,33 +182,31 @@ sub run_missions {
 
 sub repair_buildings {
     my ($self, $colony) = @_;
-    say 'Repairing damaged buildings...';
+    say 'REPAIR DAMAGED BUILDINGS';
     my $buildings = $colony->buildings;
     while (my $building = $buildings->next) {
-        say $building->name;
         if ($building->efficiency < 100) {
+            say "    ".$building->name." needs repairing";
             my $costs = $building->get_repair_costs;
-			my $can = eval{$building->can_repair($costs)};
-			my $reason = $@;
-			if ($can) {
+            my $can = eval{$building->can_repair($costs)};
+            my $reason = $@;
+            if ($can) {
                 $building->repair($costs);
-                say "repaired";
+                say "        repaired";
             }
             else {
-                say $reason->[1];
+                say "        ".$reason->[1];
             }
-        }
-        else {
-            say "does not need to be repaired";
         }
     }
 }
 
 sub demolish_bleeders {
     my ($self, $colony) = @_;
-    say 'Demolishing bleeders';
+    say 'DEMOLISH BLEEDERS';
     my @bleeders = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::DeployedBleeder');
     foreach my $bleeder (@bleeders) {
+        say '    demolish bleeder';
         $bleeder->demolish;
     }
 }
@@ -205,7 +214,7 @@ sub demolish_bleeders {
 
 sub train_spies {
     my ($self, $colony) = @_;
-    say 'Training spies...';
+    say 'TRAIN SPIES';
     my $intelligence = $colony->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
     if (defined $intelligence) {
         my $can_train = 1;
@@ -217,10 +226,10 @@ sub train_spies {
             if ($can) {
                 $intelligence->spend_resources_to_train_spy($costs);
                 $intelligence->train_spy($costs->{time});
-                say "Spy trained.";
+                say "    Spy being trained.";
             }
             else {
-                say $reason->[1];
+                say '    '.$reason->[1];
                 $can_train = 0;
             }
         }
@@ -230,7 +239,7 @@ sub train_spies {
 
 sub build_ships {
     my ($self, $colony) = @_;
-    say 'Building ships...';
+    say 'BUILD SHIPS';
     my @shipyards = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard')->search(undef,{order_by => 'work_ends'})->all;
     my @priorities = $self->ship_building_priorities($colony);
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
@@ -263,7 +272,7 @@ sub build_ships {
 # Fill the shipyards as full as they can be
 sub build_ships_max {
     my ($self, $colony) = @_;
-    say 'Building ships...';
+    say 'BUILD SHIPS';
     my @ship_yards  = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard')->search(undef,{order_by => 'work_ends'})->all;
     my $ships 	    = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     my $ship_yard   = shift @ship_yards;
@@ -276,7 +285,7 @@ sub build_ships_max {
         my $no_of_ships = $ships->search({body_id => $colony->id, type => $ship_type})->count;
         my $ships_needed = $quota - $no_of_ships;
         if ($ships_needed <= 0) {
-            say "quota met for $ship_type";
+            say "    quota met for $ship_type";
         }
         while ($ships_needed > 0) {
             # loop around filling shipyards one at a time until either there are no more
@@ -294,12 +303,12 @@ sub build_ships_max {
                 my $can_build = eval{$ship_yard->can_build_ship($ship, $costs)};
                 my $reason = $@;
                 if ($can_build) {
-                    say "building ".$ship->type;
+                    say "    building ".$ship->type;
                     $ship_yard->spend_resources_to_build_ship($costs);
                     $ship_yard->build_ship($ship, $costs->{seconds});
                 }
                 else {
-                    say $reason->[1];
+                    say "    ".$reason->[1];
                     next SHIP;
                 }
                 $ships_needed--;
@@ -311,43 +320,39 @@ sub build_ships_max {
 
 sub set_defenders {
     my ($self, $colony) = @_;
-    say 'Setting defenders...';
+    say 'SET DEFENDERS';
     my $local_spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $colony->id, on_body_id => $colony->id});
     while (my $spy = $local_spies->next) {
-        say $spy->id;
         if ($spy->is_available) {
-            if ($spy->task eq 'Counter Espionage') {
-                say "already defending";
-            }
-            else {
-                say "setting defender";
+            if ($spy->task ne 'Counter Espionage') {
+                say "    Spy ID: ".$spy->id." setting to defend";
                 $spy->task('Counter Espionage');
                 $spy->update;
             }
         }
         else {
-            say "unavailable";
+            say "    Spy ID: ".$spy->id." is currently unavailable";
         }
     }
 }
 
 sub start_attack {
     my ($self, $attacking_colony, $target_colony, $ship_types) = @_;
-    say 'Looking for probes...';
+    say 'LOOK FOR PROBES';
     my $attack = AnyEvent->condvar;
     my $db = Lacuna->db;
     my $seconds = 0;
     my $count = $db->resultset('Lacuna::DB::Result::Probes')->search({ empire_id => $self->empire_id, star_id => $target_colony->star_id })->count;
     if ($count) {
-        say 'Has one at star already...';
+        say '    Has one at star already...';
         $seconds = 1;
     }
     my $probe = $db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $attacking_colony->id, type => 'probe', task=>'Docked'},{rows => 1})->single;
     if (defined $probe) {
-        say 'Has a probe to launch for '.$target_colony->name.'...';
+        say '    Has a probe to launch for '.$target_colony->name.'...';
         $probe->send(target => $target_colony->star);
         $seconds = $probe->date_available->epoch - time();
-        say 'Probe will arrive in '.$seconds.' seconds.';
+        say '    Probe will arrive in '.$seconds.' seconds.';
     }
     if ($seconds) {
         my $timer; $timer = AnyEvent->timer(
@@ -361,7 +366,7 @@ sub start_attack {
         return $attack;
     }
     else {
-        say 'No probe. Cancel assault.';
+        say '    No probe. Cancel assault.';
         $attack->send;
         return $attack;
     }
@@ -369,12 +374,12 @@ sub start_attack {
 
 sub attack_with_ships {
     my ($self, $attacking_colony, $target_colony, $ship_types) = @_;
-    say 'Attack!';
+    say 'ATTACK WITH SHIPS';
     my $available_ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ type => { in => $ship_types }, task=>'Docked', body_id => $attacking_colony->id});
     while (my $ship = $available_ships->next) {
         if (eval{$ship->can_send_to_target($target_colony)}) {
             sleep(randint(1,10)); # simulate regular player clicking
-            say 'Sending '.$ship->type_formatted.' to '.$target_colony->name.'...';
+            say '    Sending '.$ship->type_formatted.' to '.$target_colony->name.'...';
             $ship->send(target => $target_colony);
         }
     }

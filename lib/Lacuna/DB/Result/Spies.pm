@@ -1693,7 +1693,8 @@ sub destroy_infrastructure {
     my ($self, $defender) = @_;
     my $building = $self->on_body->buildings->search(
         { efficiency => { '>' => 0 },
-          class => { 'not like' => 'Lacuna::DB::Result::Bulding::Permanent%' } },
+#          class => { 'not like' => 'Lacuna::DB::Result::Bulding::Permanent%' },
+        },
         { rows=>1, order_by => 'rand()' }
         )->single;
     return $self->building_not_found->id unless defined $building;
@@ -2095,6 +2096,7 @@ sub steal_building {
             level => { '>' => 1 }, 
             class => { 'not in' => [
                     'Lacuna::DB::Result::Building::Permanent::EssentiaVein',
+                    'Lacuna::DB::Result::Building::Permanent::TheDillonForge',
                     'Lacuna::DB::Result::Building::DeployedBleeder',
                 ],
             },

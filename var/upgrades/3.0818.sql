@@ -12,7 +12,6 @@ create table ai_scratch_pad (
     primary key (id),
     key aic_idx_ai_empire_id (ai_empire_id),
     key aic_idx_body_id (body_id),
-    constraint aic_fk_empire_id foreign key (ai_empire_id) references empire (id),
-    constraint aic_fk_body_id foreign key (body_id) references body (id)
+    constraint aic_fk_empire_id foreign key (ai_empire_id) references empire (id)
 );
 

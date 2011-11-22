@@ -18,6 +18,7 @@ out('Loading AI');
 my $ai = Lacuna::AI::DeLambert->new;
 
 out('Running Updates');
+$ai->run_all_hourly_empire_updates;
 $ai->run_all_hourly_colony_updates; 
 
 
