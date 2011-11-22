@@ -483,30 +483,36 @@ sub run_mission {
     }
     my $breakthru = ($power - $toughness - $hfa) + $self->luck;
     
+    $breakthru = ( randint(0,99) < 5) ? $breakthru * -1 : $breakthru;
     # handle outcomes and xp
     my $out;
     if ($breakthru <= 0) {
-        if (defined $defender) {
-            $defender->$mission_skill( $defender->$mission_skill + 10 );
-            $defender->update_level;
-            $defender->defense_mission_successes( $defender->defense_mission_successes + 1 );
+      if (defined $defender) {
+        $defender->$mission_skill( $defender->$mission_skill + 10 );
+        $defender->update_level;
+        $defender->defense_mission_successes( $defender->defense_mission_successes + 1 );
+        if ( randint(0,99) < 5) {
+          $defender->task('Debriefing');
+          $defender->started_assignment(DateTime->now);
+          $defender->available_on(DateTime->now->add(seconds => int($mission->{recovery} / 4)));
         }
-        $self->$mission_skill( $self->$mission_skill + 6 );
-        $self->update_level;
-        my $outcome = $outcomes{$self->task} . '_loss';
-        my $message_id = $self->$outcome($defender);
-        $out = { result => 'Failure',
-                 message_id => $message_id,
-                 reason => random_element(['Intel shmintel.',
-                                           'Code red!',
-                                           'It has just gone pear shaped.',
-                                           'I\'m pinned down and under fire.',
-                                           'I\'ll do better next time, if there is a next time.',
-                                           'The fit has just hit the shan.',
-                                           'I want my mommy!',
-                                           'No time to talk! Gotta run.',
-                                           'Why do they always have dogs?',
-                                           'Did you even plan this mission?']) };
+      }
+      $self->$mission_skill( $self->$mission_skill + 6 );
+      $self->update_level;
+      my $outcome = $outcomes{$self->task} . '_loss';
+      my $message_id = $self->$outcome($defender);
+      $out = { result => 'Failure',
+               message_id => $message_id,
+               reason => random_element(['Intel shmintel.',
+                                         'Code red!',
+                                         'It has just gone pear shaped.',
+                                         'I\'m pinned down and under fire.',
+                                         'I\'ll do better next time, if there is a next time.',
+                                         'The fit has just hit the shan.',
+                                         'I want my mommy!',
+                                         'No time to talk! Gotta run.',
+                                         'Why do they always have dogs?',
+                                         'Did you even plan this mission?']) };
     }
     else {
         if (defined $defender) {
@@ -1406,6 +1412,7 @@ sub uprising {
     my ($self, $defender) = @_;
     $self->seeds_planted( $self->seeds_planted + 1 );
     my $loss = sprintf('%.0f', $self->on_body->happiness * 0.10 );
+    $loss *= -1 if ($loss < 0);
     $loss = 15000 unless ($loss > 15000);
     $self->on_body->spend_happiness( $loss )->update;
     my $message = $self->empire->send_predefined_message(
