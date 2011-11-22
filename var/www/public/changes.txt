@@ -13,6 +13,7 @@
  - Mod:  Lowered upgrade cost of Distribution Center.
  - Mod:  Spies may have a reversal of fortune.
  - Mod:  Rebellions make unhappy planets even unhappier.
+ - Add:  Something interesting :)
 
 3.0817
  - Add:  Black Hole Generator Code added.
