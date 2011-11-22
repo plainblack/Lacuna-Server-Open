@@ -131,9 +131,12 @@ sub generate_singularity {
       };
     }
   }
-  if ( $task->{name} eq "Change Type" && defined ($target->empire) &&
-        ($body->empire->alliance_id != $target->empire->alliance_id)) {
-    confess [1009, "You can not change type of a body if it is occupied by another alliance!\n"];
+  if ( $task->{name} eq "Change Type" && defined ($target->empire) ) {
+    unless ( ($body->empire->id == $target->empire->id) or
+             ( $body->empire->alliance_id &&
+               ($body->empire->alliance_id == $target->empire->alliance_id))) {
+      confess [1009, "You can not change type of a body if it is occupied by another alliance!\n"];
+    }
   }
   elsif ( $task->{name} eq "Swap Places" ) {
     my $confess = "";

@@ -109,6 +109,12 @@ Can increase the size of a habitable planet up to size 65 or an asteroid up to s
 
 Can change the type of a habitable planet to any of the basic 20 types. Usable at Black Hole Generator level 25.
 
+Only allowed to change occupied planets that share your alliance.
+
+=item Swap Places
+
+Can swap places with another body within range. Usable at Black Hole Generator level 30.
+
 =back
 
 =head3 params
