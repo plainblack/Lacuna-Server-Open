@@ -99,7 +99,7 @@ Can convert any non-inhabited planet to a random asteroid.  Initial size is dete
 
 =item Make Planet
 
-Can convert any non-inhabited asteroid (no platforms) to a random planet.  Initial size is determined by level of BHG. Usable at Black Hole Generator level 15.
+Can convert any non-inhabited asteroid (no platforms) to a size 30 planet of random type.  Usable at Black Hole Generator level 15.
 
 =item Increase Size
 
