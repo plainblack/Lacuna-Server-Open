@@ -4,9 +4,9 @@
  - Mod:  Excavators no longer trigger defenses.
  - Mod:  SAWs improved.
  - Rule: Interstellar Broadcast Module now contributes to a Space Stations influence
- - Fix: Battlelogs report Defending Body Name.
- - Add: Battlelogs report Attacked Body Stats.
- - Fix: Gas Giant Platforms on habitable planets can be demolished regardless of plot count.
+ - Fix:  Battlelogs report Defending Body Name.
+ - Add:  Battlelogs report Attacked Body Stats.
+ - Fix:  Gas Giant Platforms on habitable planets can be demolished regardless of plot count.
  - Add:  Blackholes can move bodies.
  - Fix:  Halls will not upgrade glyph buildings past university level plus one.
  - Fix:  When probes are stolen, alliance IDs are switched as well.
