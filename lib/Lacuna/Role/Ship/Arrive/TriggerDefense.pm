@@ -145,8 +145,8 @@ sub log_attack {
        sprintf("%s (%d,%d)", $defender->name, $defender->x, $defender->y) :
        $defender->name,
      victory_to              => $victor,
-     attacked_empire_id     => $body_attacked->empire_id,
-     attacked_empire_name   => $body_attacked->empire->name,
+     attacked_empire_id     => defined($body_attacked->empire) ? $body_attacked->empire_id : 0,
+     attacked_empire_name   => defined($body_attacked->empire) ? $body_attacked->empire->name : "",
      attacked_body_id       => $body_attacked->id,
      attacked_body_name     => $body_attacked->name,
   })->insert;
