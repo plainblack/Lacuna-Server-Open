@@ -19,13 +19,13 @@ use constant name => 'Distribution Center';
 
 use constant university_prereq => 19;
 
-use constant food_to_build => 300;
+use constant food_to_build => 250;
 
-use constant energy_to_build => 300;
+use constant energy_to_build => 250;
 
-use constant ore_to_build => 300;
+use constant ore_to_build => 250;
 
-use constant water_to_build => 300;
+use constant water_to_build => 250;
 
 use constant waste_to_build => 500;
 

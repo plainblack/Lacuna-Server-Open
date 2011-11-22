@@ -261,7 +261,7 @@ sub system_saw_combat {
   my $saw_number   = 0;
   my @saws;
   my ( $attacked_saws, $attacked_combat ) = $self->saw_stats($attacked_body);
-  $total_combat += $attacked_combat;
+  $total_combat += 2 * $attacked_combat;
   while (my $defending_body = $defending_bodies->next) {
     # asteroids don't have SAWs
     next
@@ -290,11 +290,9 @@ sub system_saw_combat {
       $total_combat += $combat;
     }
   }
-  my $cnt = 0;
 # Defending Planet SAWs go first, then random from other planets.
   for my $saw (@$attacked_saws, shuffle @saws) {
     $self->saw_combat($saw, $total_combat);
-    last if (++$cnt >= 80);  # Only 80 SAWs are considered
   }
 }
 
@@ -305,13 +303,16 @@ sub saw_stats {
 
   my $planet_combat = 0;
   my @saws;
+  my $cnt = 0;
   while (my $saw = $saws->next) {
+    $cnt++;
     next if $saw->level < 1;
     next if $saw->efficiency < 1;
-    $planet_combat += int((500 * (1.4^$saw->level) * $saw->efficiency)/100);
+    $planet_combat += int((1500 * $saw->level * $saw->efficiency)/100+0.5);
     push @saws, $saw;
+    last if $cnt >= 10;
   }
-  $planet_combat = int($planet_combat * (scalar @saws > 10 ? 2 : 1+(scalar @saws)/10));
+  $planet_combat = $planet_combat * $cnt;
   return \@saws, $planet_combat;
 }
 
@@ -325,13 +326,13 @@ sub saw_combat {
 #    print "100\n";
   }
   else {
-    my $perc = int(($self->combat * 100)/$saw_combat + 0.5);
+    my $perc = int(($self->combat * $saw->efficiency)/$saw_combat + 0.5);
     if ($perc < 1) {
-      if ($self->combat > (($saw->level * 1000 * $saw->efficiency)/100)) {
+      if ($self->combat > (($saw->level * 1500 * $saw->efficiency)/100)) {
         $perc = 1;
       }
       else {
-        if (randint(0,99) < 5) { $perc = 1; } else { $perc = 0; }
+        if (randint(0,99) < 15) { $perc = 1; } else { $perc = 0; }
       }
     }
 #    printf "%3d\n", $perc;

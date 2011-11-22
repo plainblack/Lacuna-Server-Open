@@ -38,10 +38,12 @@ sub get_halls {
 
 sub get_upgradable_buildings {
     my ($self) = @_;
+    my $body = $self->body;
+    $body->update;
     my @halls = $self->get_halls->get_column('id')->all;
     my $max_level = scalar @halls;
     $max_level = 30 if $max_level > 30;
-    return $self->body->buildings->search({
+    return $body->buildings->search({
         level   => { '<' => $max_level },
         class   => { like => 'Lacuna::DB::Result::Building::Permanent::%' },
         id      => { 'not in' => \@halls },

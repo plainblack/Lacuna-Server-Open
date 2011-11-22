@@ -131,17 +131,60 @@ sub generate_singularity {
       };
     }
   }
-  if ( ($task->{name} eq "Change Type" or $task->{name} eq "Swap Places") &&
-        defined ($target->empire) &&
-        ($body->empire->alliance_id != $target->empire->alliance_id)) {
-    confess [1009, "You can not attempt that action on a body if it is occupied by another alliance!\n"];
-# Maybe expand to allow if the alliance owns the star and disallow if a star is owned by a different alliance.
+  if ( $task->{name} eq "Change Type" && defined ($target->empire) ) {
+    unless ( ($body->empire->id == $target->empire->id) or
+             ( $body->empire->alliance_id &&
+               ($body->empire->alliance_id == $target->empire->alliance_id))) {
+      confess [1009, "You can not change type of a body if it is occupied by another alliance!\n"];
+    }
   }
+  elsif ( $task->{name} eq "Swap Places" ) {
+    my $confess = "";
+    my $allowed = 0;
+    if (defined($target->empire)) {
+      $confess = "You can not attempt that action on a body if it is occupied by another alliance!\n";
+      if ($body->empire->id == $target->empire->id) {
+        $allowed = 1;
+      }
+      elsif ($body->empire->alliance_id &&
+            ($body->empire->alliance_id == $target->empire->alliance_id)) {
+        $allowed = 1;
+      }
+      elsif ($target->star->station_id) {
+        if ($target->star->station->laws->search({type => 'MembersOnlyColonization'})->count) {
+          if ($target->star->station->alliance_id == $body->empire->alliance_id) {
+            $allowed = 1;
+          }
+          else {
+            $confess = 'Only '.$target->star->station->alliance->name.
+              ' members can colonize planets in the jurisdiction of the space station.\n';
+          }
+        }
+      }
+    }
+    else {
+      if ($target->star->station_id) {
+        if ($target->star->station->laws->search({type => 'MembersOnlyColonization'})->count) {
+          if ($target->star->station->alliance_id == $body->empire->alliance_id) {
+            $allowed = 1;
+          }
+          else {
+            $confess = 'Only '.$target->star->station->alliance->name.
+              ' members can colonize planets in the jurisdiction of the space station.\n';
+          }
+        }
+      }
+    }
+    unless ($allowed) {
+      confess [ 1010, $confess ];
+    }
+  }
+
   $body->spend_waste($task->{waste_cost})->update;
   $building->start_work({}, $task->{recovery})->update;
 # Pass the basic checks
 # Check for startup failure
-  my $fail = randint(0,99) - (50 - sqrt( ($range - $dist) * (300/$range)) * 2.71);
+  my $fail = randint(0,99) - (30 - sqrt( ($range - $dist) * (300/$range)) * 2.71);
   if (($task->{fail_chance} > $fail )) {
 # Something went wrong with the start
     $fail = randint(0,19);
