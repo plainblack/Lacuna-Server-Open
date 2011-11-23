@@ -2481,6 +2481,9 @@ sub spy_report {
         }
         push @peeps, [$spook->name, $planets{$spook->from_body_id}, $spook->task, $spook->level];
     }
+    unless (scalar @peeps > 1) {
+        $peeps[0] = ["No", "Enemy", "Spies", "Found" ];
+    }
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',

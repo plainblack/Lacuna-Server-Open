@@ -154,6 +154,7 @@ sub experiment {
         $message = 'The graft failed';
     }
     $empire->update;
+    $empire->planets->update({needs_recalc=>1});
     if ($self->is_survival_success) {
         $survival = 1;
         $message .= ', and the prisoner survived the experiment.';
