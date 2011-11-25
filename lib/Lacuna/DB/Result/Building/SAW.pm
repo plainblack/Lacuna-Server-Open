@@ -26,7 +26,13 @@ before finish_work => sub {
     my $self = shift;
     my $body = $self->body;
 
-    $self->repair;
+    my $costs = $self->get_repair_costs;
+    $costs->{food}   = int(2.71 * $costs->{food}  /$self->food_to_build   + 0.5);
+    $costs->{ore}    = int(2.71 * $costs->{ore}   /$self->ore_to_build    + 0.5);
+    $costs->{energy} = int(2.71 * $costs->{energy}/$self->energy_to_build + 0.5);
+    $costs->{water}  = int(2.71 * $costs->{water} /($self->water_to_build/10) + 0.5);
+
+    $self->repair($costs);
 };
 
 # Since we now just spend efficiency and self repair, commented out
