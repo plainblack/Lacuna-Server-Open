@@ -174,6 +174,9 @@ sub generate_singularity {
           }
         }
       }
+      else {
+        $allowed = 1;
+      }
     }
     unless ($allowed) {
       confess [ 1010, $confess ];
