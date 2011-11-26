@@ -91,8 +91,8 @@ sub generate_singularity {
     confess [1009, $task->{reason}];
   }
 # TEST SETTINGS
-  $task->{waste_cost} = 1;
-  $task->{recovery} = 5;
+#  $task->{waste_cost} = 1;
+#  $task->{recovery} = 5;
 #  $task->{side_chance} = 95;
 # TEST SETTINGS
   my $dist = sprintf "%7.2f", $building->body->calculate_distance_to_target($target)/100;
