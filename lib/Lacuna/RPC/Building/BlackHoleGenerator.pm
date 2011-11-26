@@ -161,6 +161,9 @@ sub generate_singularity {
           }
         }
       }
+      else {
+        $allowed = 1;
+      }
     }
     else {
       if ($target->star->station_id) {
@@ -172,6 +175,9 @@ sub generate_singularity {
             $confess = 'Only '.$target->star->station->alliance->name.
               ' members can colonize planets in the jurisdiction of the space station.\n';
           }
+        }
+        else {
+          $allowed = 1;
         }
       }
       else {
