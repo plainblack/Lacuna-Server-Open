@@ -213,7 +213,7 @@ sub demolish_bleeders {
 
 
 sub train_spies {
-    my ($self, $colony) = @_;
+    my ($self, $colony, $subsidise) = @_;
     say 'TRAIN SPIES';
     my $intelligence = $colony->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
     if (defined $intelligence) {
@@ -232,6 +232,17 @@ sub train_spies {
                 say '    '.$reason->[1];
                 $can_train = 0;
             }
+        }
+        if ($subsidise) {
+            my $spies = $intelligence->get_spies->search({ task => 'Training' });
+
+            my $now = DateTime->now;
+            while (my $spy = $spies->next) {
+                $spy->available_on($now);
+                $spy->task('Idle');
+                $spy->update;
+            }
+            $intelligence->finish_work->update;
         }
     }
 }

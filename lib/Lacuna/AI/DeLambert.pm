@@ -99,7 +99,7 @@ sub run_hourly_colony_updates {
     $self->demolish_bleeders($colony);
     $self->set_defenders($colony);
     $self->repair_buildings($colony);
-    $self->train_spies($colony);
+    $self->train_spies($colony, 1);
     $self->build_ships_max($colony);
     $self->run_missions($colony);
 }
