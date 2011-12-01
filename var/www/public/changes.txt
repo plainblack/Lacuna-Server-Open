@@ -1,3 +1,6 @@
+3.0821
+ - Fix:  Added types to battle logs.
+
 3.0820
  - Mod:  Security Sweep improved.
  - Fix:  Supply Pods now deduct resources on send.

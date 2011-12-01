@@ -63,11 +63,21 @@ after handle_arrival_procedures => sub {
         attacking_body_id       => $self->body_id,
         attacking_body_name     => $self->body->name,
         attacking_unit_name     => $self->name,
-        defending_empire_id     => $body_attacked->empire_id && defined $body_attacked->empire ? $body_attacked->empire_id : undef,
-        defending_empire_name   => $body_attacked->empire_id && defined $body_attacked->empire ? $body_attacked->empire->name : undef,
+        attacking_type          => $self->type_formatted,
+        defending_empire_id     => $body_attacked->empire_id &&
+                                     defined $body_attacked->empire ? $body_attacked->empire_id : undef,
+        defending_empire_name   => $body_attacked->empire_id &&
+                                     defined $body_attacked->empire ? $body_attacked->empire->name : undef,
         defending_body_id       => $body_attacked->id,
         defending_body_name     => $body_attacked->name,
         defending_unit_name     => '',
+        defending_type          => '',
+        attacked_empire_id     => $body_attacked->empire_id &&
+                                     defined $body_attacked->empire ? $body_attacked->empire_id : undef,
+        attacked_empire_name   => $body_attacked->empire_id &&
+                                     defined $body_attacked->empire ? $body_attacked->empire->name : undef,
+        attacked_body_id       => $body_attacked->id,
+        attacked_body_name     => $body_attacked->name,
         victory_to              => 'attacker',
     })->insert;
 
