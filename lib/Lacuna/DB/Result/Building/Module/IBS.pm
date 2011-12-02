@@ -20,7 +20,8 @@ before demolish => sub {
     }
 };
 
-before downgrade => sub {
+# after downgrade do we have the new range
+after downgrade => sub {
     my $self = shift;
     my $station = $self->body;
     my $laws = $station->laws->search({type => 'Jurisdiction'});
