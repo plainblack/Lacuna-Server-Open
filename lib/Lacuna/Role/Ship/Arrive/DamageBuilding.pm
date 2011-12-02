@@ -65,11 +65,17 @@ after handle_arrival_procedures => sub {
         attacking_body_id       => $self->body_id,
         attacking_body_name     => $self->body->name,
         attacking_unit_name     => $self->name,
+        attacking_type          => $self->type_formatted,
         defending_empire_id     => $body_attacked->empire_id,
         defending_empire_name   => $body_attacked->empire->name,
         defending_body_id       => $body_attacked->id,
         defending_body_name     => $body_attacked->name,
         defending_unit_name     => sprintf("%s (%d,%d)", $building->name, $building->x, $building->y),
+        defending_type          => $building->name,
+        attacked_empire_id      => $body_attacked->empire_id,
+        attacked_empire_name    => $body_attacked->empire->name,
+        attacked_body_id        => $body_attacked->id,
+        attacked_body_name      => $body_attacked->name,
         victory_to              => 'attacker',
     })->insert;
 
