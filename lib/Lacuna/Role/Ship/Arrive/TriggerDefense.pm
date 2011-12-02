@@ -81,7 +81,8 @@ sub attacker_shot_down {
 
     my $is_asteroid = $body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid');
 
-    $self->log_attack( $self, $defender, 'defender' );
+    log_attack( $self, $defender, 'defender' );
+#    $self->log_attack( $defender, 'defender' );
 }
 
 sub defender_shot_down {
@@ -120,11 +121,12 @@ sub defender_shot_down {
 
     my $is_asteroid = $body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid');
 
-    $self->log_attack( $self, $defender, 'attacker' );
+    log_attack( $self, $defender, 'attacker' );
+#    $self->log_attack( $defender, 'attacker' );
 }
 
 sub log_attack {
-  my ($self, $attacker, $defender, $victor) = @_;
+  my ($attacker, $defender, $victor) = @_;
   my $body_attacked = $attacker->foreign_body;
   my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
   $logs->new({
@@ -137,13 +139,19 @@ sub log_attack {
        $attacker->isa('Lacuna::DB::Result::Building') ?
          sprintf("%s (%d,%d)", $attacker->name, $attacker->x, $attacker->y) :
          $attacker->name,
+     attacking_type          => 
+       $attacker->isa('Lacuna::DB::Result::Building') ?
+         $attacker->name : $attacker->type_formatted,
      defending_empire_id     => $defender->body->empire_id,
      defending_empire_name   => $defender->body->empire->name,
-     defending_body_id       => $body_attacked->id,
-     defending_body_name     => $body_attacked->name,
+     defending_body_id       => $defender->body->id,
+     defending_body_name     => $defender->body->name,
      defending_unit_name     => $defender->isa('Lacuna::DB::Result::Building') ?
        sprintf("%s (%d,%d)", $defender->name, $defender->x, $defender->y) :
        $defender->name,
+     defending_type          => 
+       $defender->isa('Lacuna::DB::Result::Building') ?
+         $defender->name : $defender->type_formatted,
      victory_to              => $victor,
      attacked_empire_id     => defined($body_attacked->empire) ? $body_attacked->empire_id : 0,
      attacked_empire_name   => defined($body_attacked->empire) ? $body_attacked->empire->name : "",
@@ -260,7 +268,10 @@ sub system_saw_combat {
   my $total_combat = 0;
   my $saw_number   = 0;
   my @saws;
-  my ( $attacked_saws, $attacked_combat ) = $self->saw_stats($attacked_body);
+  my $attacked_saws = [];
+  my $attacked_combat = 0;
+  ( $attacked_saws, $attacked_combat ) = $self->saw_stats($attacked_body)
+     if ($attacked_body->isa('Lacuna::DB::Result::Map::Body::Planet'));
   $total_combat += 2 * $attacked_combat;
   while (my $defending_body = $defending_bodies->next) {
     # asteroids don't have SAWs
