@@ -396,6 +396,39 @@ sub attack_with_ships {
     }
 }
 
+# summarize the battle log and keep track of how many times an
+# empire has attacked the AI and the AI has attacked them
+#
+sub battle_summary {
+    my ($self) = @_;
 
+    say 'BATTLE SUMMARY';
+    $self->scratch->discard_changes;
+    my $scratchpad = $self->scratch->pad;
+
+    if (not defined $scratchpad->{battle_summary}) {
+        $scratchpad->{battle_summary} = {
+            processed_date => '2011-01-01 00:00:00',
+            empires => [],
+        };
+    }
+
+    Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles')->search({
+            date_stamp => {'>' => $scratchpad->{battle_summary}{processed_date}},
+        },
+        {
+            group_by => 'attacking_empire_id',
+            select => [
+                
+            ],
+            as => [
+            ],
+        }
+    );
+
+    $self->scratch->pad($scratchpad);
+    $self->scratch->update;
+}
+    
 no Moose;
 __PACKAGE__->meta->make_immutable;

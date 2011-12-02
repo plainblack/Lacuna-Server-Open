@@ -48,7 +48,7 @@ sub ship_building_priorities {
             ],
             30 => [
                 ['galleon', 50],
-                ['sweeper',350],
+                ['sweeper',3500],
             ],
         },
         war => {
@@ -83,10 +83,10 @@ sub ship_building_priorities {
                 ['snark2',                    10],
             ],
             30 => [
-                ['sweeper',                  300],
-                ['scow',                     100],
+                ['sweeper',                  2200],
+                ['scow',                     1000],
                 ['security_ministry_seeker',   5],
-                ['snark2',                    10],
+                ['snark2',                    500],
             ],
         },
     };
