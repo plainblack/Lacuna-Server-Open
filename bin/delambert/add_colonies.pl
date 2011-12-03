@@ -72,7 +72,7 @@ my @zone_empire = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
     -and => [
         empire_id   => {'>'  => 1},             # Ignore all AI empires
         empire_id   => {'!=' => $empire->id},
-        zone        => {'!=' => '0|0'},         # Central zone is too populated
+#        zone        => {'!=' => '0|0'},         # Central zone is too populated
         zone        => {'!=' => '-3|0'},         # Ignore the neutral zone
     ],
 },{

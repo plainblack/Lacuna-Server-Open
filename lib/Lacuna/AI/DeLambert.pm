@@ -1,9 +1,11 @@
 package Lacuna::AI::DeLambert;
 
 use Moose;
+use 5.010;
 use utf8;
 no warnings qw(uninitialized);
 use Data::Dumper;
+use Lacuna::Util qw(randint);
 
 extends 'Lacuna::AI';
 
@@ -108,6 +110,7 @@ sub run_hourly_colony_updates {
     $self->train_spies($colony, 1);
     $self->build_ships_max($colony);
     $self->run_missions($colony);
+    $self->buy_trade($colony);
 }
 
 sub run_hourly_empire_updates {
@@ -126,6 +129,92 @@ sub get_colony_scratchpad {
 
     return $scratch;
 }
+
+sub buy_trade {
+    my ($self, $colony) = @_;
+
+    say "#### BUY TRADE ####";
+
+    my $scratchpad = $self->scratch->pad;
+
+    # The probability of each colony doing a buy trade per hour
+    # where 100 is 100%
+    if (not defined $scratchpad->{buy_trades_probability}) {
+        $scratchpad->{buy_trades_probability} = 1;    # percentage chance of buying per hour
+        $scratchpad->{buy_max_price_per_plan} = 3;    # max price that the DeL pay per plan
+        $self->scratch->pad($scratchpad);
+        $self->scratch->update;
+    }
+    if (randint(1,100) > $scratchpad->{buy_trades_probability}) {
+        return;
+    }
+
+    # get all trades with plans by other empires in this zone
+    my $market = Lacuna->db->resultset('Lacuna::DB::Result::Market')->search({
+        'body.empire_id'  => {'!=' => $self->empire_id},
+        transfer_type   => $colony->zone,
+        has_plan        => 1,
+        has_water       => 0,
+        has_energy      => 0,
+        has_ore         => 0,
+        has_waste       => 0,
+        has_ship        => 0,
+        has_prisoner    => 0,
+        has_glyph       => 0,
+        has_food        => 0,
+    },
+    {
+        join => 'body',
+    });
+    # we are only interested in trades just for plans level 1+0
+    my $best_trade_id;
+    my $best_price_per_plan = 999999;
+
+    TRADE:
+    while (my $trade = $market->next) {
+        my @plans = @{$trade->payload->{plans}};
+        my $good_plans = 0;
+        for my $plan (@plans) {
+            if ($plan->{level} == 1 
+                and $plan->{extra_build_level} == 0 
+                and $plan->{class} =~ m/AlgaePond|AmalgusMeadow|BeeldebanNest|CrashedShipSite|DentonBrambles|GeoThermalVent|LapisForest|MalcudField|NaturalSpring|Ravine|Volcano/) {
+                $good_plans++;
+            }
+        }
+        next TRADE if $good_plans == 0;
+        my $price_per_plan = $trade->ask / $good_plans;
+        if ($price_per_plan < $best_price_per_plan) {
+            $best_price_per_plan = $price_per_plan;
+            $best_trade_id = $trade->id;
+        }
+    }
+    return unless $best_trade_id;
+
+    # purchase the best value trade
+    if ($best_price_per_plan <= $scratchpad->{buy_max_price_per_plan}) {
+        my $trade = Lacuna->db->resultset('Lacuna::DB::Result::Market')->find($best_trade_id);
+        return if not defined $trade;
+
+        my $offer_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($trade->ship_id);
+        return if not defined $offer_ship;
+
+        $self->empire->spend_essentia($trade->ask, 'Trade Price')->update;
+        $trade->body->empire->add_essentia($trade->ask, 'Trade Income')->update;
+
+        $offer_ship->send(
+            target  => $colony,
+            payload => $trade->payload,
+        );
+
+        $trade->body->empire->send_predefined_message(
+            tags        => ['Trade','Alert'],
+            filename    => 'trade_accepted.txt',
+            params      => [join("; ",@{$trade->format_description_of_payload}), $trade->ask.' essentia', $self->empire->id, $self->empire->name],
+        );
+        $trade->delete;
+    }
+}
+
 
 sub process_email {
     my ($self) = @_;
