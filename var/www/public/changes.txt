@@ -1,5 +1,8 @@
 3.0821
  - Fix:  Added types to battle logs.
+ - Mod:  Supply Pods are more evenly loaded.
+ - Fix:  Spies steal more than pond scum.
+ - Fix:  Fleets ask for captcha only on hostile actions.
 
 3.0820
  - Mod:  Security Sweep improved.
