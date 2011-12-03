@@ -369,6 +369,7 @@ sub bhg_make_asteroid {
   my ($building, $body) = @_;
   my $old_class = $body->class;
   my $old_size  = $body->size;
+  $body->buildings->delete_all;
   $body->update({
     class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
     size                        => int($building->level/5),
@@ -928,8 +929,8 @@ sub bhg_tasks {
       reason       => "Invalid reason.",
       occupied     => 1,
       min_level    => 30,
-      recovery     => int($day_sec * 400/$blevel),
-      waste_cost   => 20_000_000_000,
+      recovery     => int($day_sec * 360/$blevel),
+      waste_cost   => 15_000_000_000,
       fail_chance  => int(100 - $building->level * 2),
       side_chance  => 90,
     },
