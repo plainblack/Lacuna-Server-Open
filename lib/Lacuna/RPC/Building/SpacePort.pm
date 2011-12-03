@@ -58,9 +58,9 @@ sub get_ships_for {
             task => 'Travelling', 
             direction => 'out',
             'body.empire_id' => $empire->id,
-    	},
+      },
         { join => 'body' }
-	);
+  );
     if ($target->isa('Lacuna::DB::Result::Map::Star')) {
         $incoming_rs = $incoming_rs->search({foreign_star_id => $target->id});
     }
@@ -78,9 +78,9 @@ sub get_ships_for {
     while (my $ship = $available_rs->next) {
         $ship->body($body);
         eval{ $ship->can_send_to_target($target) };
-		my $reason = $@;
+    my $reason = $@;
         if ($reason) {
-    	    push @unavailable, { ship => $ship->get_status, reason => $reason };
+          push @unavailable, { ship => $ship->get_status, reason => $reason };
             next;
         }
         $ship->body($body);
@@ -97,22 +97,22 @@ sub get_ships_for {
         fleet_send_limit    => $max_ships,
     );
     
-	unless ($target->isa('Lacuna::DB::Result::Map::Star')) {
-		my @orbiting;
-		my $orbiting_rs = $ships->search({task => [qw(Defend Orbiting)], body_id => $body->id, foreign_body_id => $target->id });
-		while (my $ship = $orbiting_rs->next) {
-			$ship->body($body);
-			eval{ $ship->can_recall() };
-			my $reason = $@;
-			if ($reason) {
-				push @unavailable, { ship => $ship->get_status, reason => $reason };
-				next;
-			}
-			$ship->body($body);
-			push @orbiting, $ship->get_status($target);
-		}
-		$out{orbiting} = \@orbiting;
-	}
+  unless ($target->isa('Lacuna::DB::Result::Map::Star')) {
+    my @orbiting;
+    my $orbiting_rs = $ships->search({task => [qw(Defend Orbiting)], body_id => $body->id, foreign_body_id => $target->id });
+    while (my $ship = $orbiting_rs->next) {
+      $ship->body($body);
+      eval{ $ship->can_recall() };
+      my $reason = $@;
+      if ($reason) {
+        push @unavailable, { ship => $ship->get_status, reason => $reason };
+        next;
+      }
+      $ship->body($body);
+      push @orbiting, $ship->get_status($target);
+    }
+    $out{orbiting} = \@orbiting;
+  }
 
     if ($target->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
         my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({asteroid_id => $target->id});
@@ -153,62 +153,66 @@ sub send_ship {
 }
 
 sub send_fleet {
-    my ($self, $session_id, $ship_ids, $target_params, $set_speed) = @_;
-    $set_speed //= 0;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $target = $self->find_target($target_params);
-    $empire->current_session->check_captcha;
-	my $max_ships = Lacuna->config->get('ships_per_fleet') || 20;
-	if (@$ship_ids > $max_ships) {
-		confess [1009, 'Too many ships for a fleet.'];
-	}
-	my @fleet;
-	my $speed = 999999999;
-    my $excavator = 0;
-	for my $ship_id (@$ship_ids) {
-		my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-		unless (defined $ship) {
-			confess [1002, 'Could not locate that ship.'];
-		}
-		unless ($ship->body->empire_id == $empire->id) {
-			confess [1010, 'You do not own that ship.'];
-		}
-        if ($ship->type eq 'excavator') {
-            $excavator++;
-        }
-		$speed = $ship->speed if ( $speed > $ship->speed );
-		push @fleet, $ship_id;
-	}
-    unless ($excavator <= 1) {
-        confess [1010, 'Only one Excavator may be sent to a body in a 30 day period'];
+  my ($self, $session_id, $ship_ids, $target_params, $set_speed) = @_;
+  $set_speed //= 0;
+  my $empire = $self->get_empire_by_session($session_id);
+  my $target = $self->find_target($target_params);
+  my $max_ships = Lacuna->config->get('ships_per_fleet') || 20;
+  if (@$ship_ids > $max_ships) {
+    confess [1009, 'Too many ships for a fleet.'];
+  }
+  my @fleet;
+  my $speed = 999999999;
+  my $excavator = 0;
+  for my $ship_id (@$ship_ids) {
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+    unless (defined $ship) {
+      confess [1002, 'Could not locate that ship.'];
     }
-    unless ($set_speed <= $speed) {
-        confess [1009, 'Set speed cannot exceed the speed of the slowest ship.'];
+    unless ($ship->body->empire_id == $empire->id) {
+      confess [1010, 'You do not own that ship.'];
     }
-    unless ($set_speed >= 0) {
-        confess [1009, 'Set speed cannot be less than zero.'];
+    if ($ship->type eq 'excavator') {
+      $excavator++;
     }
-    $speed = $set_speed if ($set_speed > 0 && $set_speed < $speed);
-	my @ret;
-	for my $ship_id (@fleet) {
-		my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-		my $body = $ship->body;
-		$body->empire($empire);
-		$ship->can_send_to_target($target);
-		$ship->fleet_speed($speed);
-		$ship->send(target => $target);
-		push @ret, {
-			ship    => $ship->get_status,
-		}
-	}
-	return {
-		fleet	=> \@ret,
-		status  => $self->format_status($empire),
-	};
+    $speed = $ship->speed if ( $speed > $ship->speed );
+    push @fleet, $ship_id;
+  }
+  unless ($excavator <= 1) {
+    confess [1010, 'Only one Excavator may be sent to a body in a 30 day period'];
+  }
+  unless ($set_speed <= $speed) {
+    confess [1009, 'Set speed cannot exceed the speed of the slowest ship.'];
+  }
+  unless ($set_speed >= 0) {
+    confess [1009, 'Set speed cannot be less than zero.'];
+  }
+  $speed = $set_speed if ($set_speed > 0 && $set_speed < $speed);
+  my @ret;
+  my $captcha_check = 1;
+  for my $ship_id (@fleet) {
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+    my $body = $ship->body;
+    $body->empire($empire);
+    $ship->can_send_to_target($target);
+    if ($captcha_check && $ship->hostile_action ) {
+      $empire->current_session->check_captcha;
+      $captcha_check = 0;
+    }
+    $ship->fleet_speed($speed);
+    $ship->send(target => $target);
+    push @ret, {
+      ship    => $ship->get_status,
+    }
+  }
+  return {
+    fleet  => \@ret,
+    status  => $self->format_status($empire),
+  };
 }
 
 sub recall_ship {
-	my ($self, $session_id, $building_id, $ship_id) = @_;
+  my ($self, $session_id, $building_id, $ship_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
@@ -224,9 +228,9 @@ sub recall_ship {
 
     my $target = $self->find_target({body_id => $ship->foreign_body_id});
     $ship->send(
-		target		=> $target,
-		direction	=> 'in',
-	);
+    target    => $target,
+    direction  => 'in',
+  );
     $ship->body->update;
     return {
         ship    => $ship->get_status,
@@ -235,7 +239,7 @@ sub recall_ship {
 }
 
 sub recall_all {
-	my ($self, $session_id, $building_id) = @_;
+  my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $body = $building->body;
@@ -253,16 +257,16 @@ sub recall_all {
 
         my $target = $self->find_target({body_id => $ship->foreign_body_id});
         $ship->send(
-            target		=> $target,
-            direction	=> 'in',
+            target    => $target,
+            direction  => 'in',
         );
         $ship->body->update;
-		push @ret, {
-			ship    => $ship->get_status,
-		}
+    push @ret, {
+      ship    => $ship->get_status,
+    }
     }
     return {
-		ships	=> \@ret,
+    ships  => \@ret,
         status  => $self->format_status($empire),
     }
 }
