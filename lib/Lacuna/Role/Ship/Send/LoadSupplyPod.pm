@@ -9,36 +9,40 @@ use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 requires 'supply_pod_level';
 
 after send => sub {
-    my $self = shift;
+   my $self = shift;
     my $part = $self->hold_size;
     my $food = $part;
     my $ore = $part;
     my $body = $self->body;
     my $payload;
-    foreach my $type (shuffle FOOD_TYPES) {
+    my $food_stored = 0;
+    my $food_type_count = 0;
+    for my $type (FOOD_TYPES) {
+      my $stored = $body->type_stored($type);
+      $food_stored += $stored;
+      $food_type_count++ if ($stored);
+    }
+    foreach my $type (FOOD_TYPES) {
         my $stored = $body->type_stored($type);
-        if ($stored >= $food) {
-            $body->spend_type($type, $food);
-            $payload->{resources}{$type} = $food;
-            last;
-        }
-        else {
-            $body->spend_type($type, $stored);
-            $payload->{resources}{$type} = $stored if $stored;
-            $food -= $stored;
+        if ($stored) {
+          my $amt = int(($food * $stored)/$food_stored);
+          $body->spend_type($type, $amt);
+          $payload->{resources}{$type} = $amt;
         }
     }
-    foreach my $type (shuffle ORE_TYPES) {
+    my $ore_stored = 0;
+    my $ore_type_count = 0;
+    for my $type (ORE_TYPES) {
+      my $stored = $body->type_stored($type);
+      $ore_stored += $stored;
+      $ore_type_count++ if ($stored);
+    }
+    foreach my $type (ORE_TYPES) {
         my $stored = $body->type_stored($type);
-        if ($stored >= $ore) {
-            $body->spend_type($type, $ore);
-            $payload->{resources}{$type} = $ore;
-            last;
-        }
-        else {
-            $body->spend_type($type, $stored);
-            $payload->{resources}{$type} = $stored if $stored;
-            $ore -= $stored;
+        if ($stored) {
+          my $amt = int(($ore * $stored)/$ore_stored);
+          $body->spend_type($type, $amt);
+          $payload->{resources}{$type} = $amt;
         }
     }
     my $energy = $body->type_stored('energy');

@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
+use List::Util qw(shuffle);
 use Lacuna::Util qw(format_date randint random_element);
 use DateTime;
 use feature "switch";
@@ -1959,17 +1960,31 @@ sub steal_resources {
         )->single;
     return $self->ship_not_found->id unless defined $ship;
     my $space = $ship->hold_size;
-    my @types = (FOOD_TYPES, ORE_TYPES, 'water', 'energy');
+    my @types = shuffle (FOOD_TYPES, ORE_TYPES);
+    if (randint(0,9) < 7) { push( @types, 'water'); }
+    else { unshift( @types, 'water'); }
+    if (randint(0,9) < 7) { push( @types, 'energy'); }
+    else { unshift( @types, 'energy'); }
     my %resources;
     foreach my $type (@types) {
-        if ($on_body->type_stored($type) >= $space) {
+        next unless ($on_body->type_stored($type) > 0);
+        my $amt;
+        if (randint(0,9) < 3) {
+          $amt = randint(0, $on_body->type_stored($type));
+        }
+        else {
+          $amt = randint(0, $space);
+          $amt = $on_body->type_stored($type) if ($amt > $on_body->type_stored($type));
+        }
+        if ($amt >= $space) {
             $resources{$type} = $space;
             $on_body->spend_type($type, $space);
             last;
         }
-        elsif ( $on_body->type_stored($type) > 0 ) {
-            $resources{$type} = $on_body->type_stored($type);
+        elsif ( $amt > 0 ) {
+            $resources{$type} = $amt;
             $on_body->spend_type($type, $resources{$type});
+            $space -= $amt;
         }
     }
     $on_body->update;
