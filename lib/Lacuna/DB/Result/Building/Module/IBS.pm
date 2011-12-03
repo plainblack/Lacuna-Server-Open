@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Module';
+with 'Lacuna::Role::Influencer';
 
 use constant controller_class => 'Lacuna::RPC::Building::IBS';
 use constant image => 'ibs';
@@ -19,7 +20,8 @@ before demolish => sub {
     }
 };
 
-before downgrade => sub {
+# after downgrade do we have the new range
+after downgrade => sub {
     my $self = shift;
     my $station = $self->body;
     my $laws = $station->laws->search({type => 'Jurisdiction'});

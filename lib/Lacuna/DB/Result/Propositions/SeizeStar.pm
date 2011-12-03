@@ -10,15 +10,21 @@ before pass => sub {
     my $station = $self->station;
     my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($self->scratch->{star_id});
     if (!$star->station_id) {
-        my $law = Lacuna->db->resultset('Lacuna::DB::Result::Laws')->new({
-            name        => $self->name,
-            description => $self->description,
-            type        => 'Jurisdiction',
-            station_id  => $self->station_id,
-            star_id     => $star->id,
-        });
-        $law->star($star);
-        $law->insert;
+        my $influence_remaining = $station->influence_remaining;
+        if ( $influence_remaining >= 1 ) {
+            my $law = Lacuna->db->resultset('Lacuna::DB::Result::Laws')->new({
+                name        => $self->name,
+                description => $self->description,
+                type        => 'Jurisdiction',
+                station_id  => $self->station_id,
+                star_id     => $star->id,
+            });
+            $law->star($star);
+            $law->insert;
+        }
+        else {
+            $self->pass_extra_message('Unfortunately, by the time the proposition passed, the station lacked any spare influence, effectively nullifying the vote.');
+        }
     }
     else {
         $self->pass_extra_message('Unfortunately, by the time the proposition passed, the star was already controlled by another station, effectively nullifying the vote.');
