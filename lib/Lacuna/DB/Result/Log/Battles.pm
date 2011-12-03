@@ -40,5 +40,29 @@ after 'sqlt_deploy_hook' => sub {
     $sqlt_table->add_index(name => 'idx_defending_body_name', fields => ['defending_body_name']);
 };
 
+after insert => sub {
+    my $self = shift;
+
+    my $summary_rs = $self->result_source->resultset('Lacuna::DB::Result::AIBattleSummary');
+    my $ai_battle_summary = $summary_rs->search({
+        attacking_empire_id     => $self->attacking_empire_id,
+        defending_empire_id     => $self->defending_empire_id,
+    },
+    {
+        rows => 1,
+    })->single;
+    if (not $ai_battle_summary) {
+        $ai_battle_summary = $summary_rs->create({
+            attacking_empire_id => $self->attacking_empire_id,
+            defending_empire_id => $self->defending_empire_id,
+            attack_victories    => 0,
+            defense_victories   => 0,
+        });
+    }
+    $ai_battle_summary->attack_victories($ai_battle_summary->attack_victories + 1) if $self->victory_to eq 'attacker';
+    $ai_battle_summary->defense_victories($ai_battle_summary->defense_victories + 1) if $self->victory_to eq 'defender';
+    $ai_battle_summary->update;
+};
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
