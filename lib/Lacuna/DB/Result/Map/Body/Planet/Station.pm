@@ -162,7 +162,7 @@ has range_of_influence => (
 sub in_range_of_influence {
     my ($self, $star) = @_;
     if ($self->calculate_distance_to_target($star) > $self->range_of_influence) {
-        confess [1009, 'That star is not in the station\'s range of influence.'];
+        return;
     }
     return 1;
 }
