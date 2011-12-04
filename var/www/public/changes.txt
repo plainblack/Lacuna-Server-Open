@@ -1,3 +1,6 @@
+3.0822
+ - Add:  DeLambert trading buy and sell
+
 3.0821
  - Fix:  Added types to battle logs.
  - Mod:  Supply Pods are more evenly loaded.
