@@ -64,7 +64,7 @@ if (not defined $empire) {
 # We need to determine how many DeLambert colonies to add to each zone
 # we ignore the neutral zone
 # we ignore zone 0|0 since it is already highly occupied already
-# we want to put DeLambert colonies in zones such that the ration of other empires
+# we want to put DeLambert colonies in zones such that the ratio of other empires
 # colonies to DeLambert colonies is fairly constant.
 #
 # First work out how many bodies are occupied in each zone which are *not* DeLambert
@@ -72,7 +72,7 @@ my @zone_empire = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
     -and => [
         empire_id   => {'>'  => 1},             # Ignore all AI empires
         empire_id   => {'!=' => $empire->id},
-        zone        => {'!=' => '0|0'},         # Central zone is too populated
+#        zone        => {'!=' => '0|0'},         # Central zone is too populated
         zone        => {'!=' => '-3|0'},         # Ignore the neutral zone
     ],
 },{
@@ -121,7 +121,7 @@ out("    Total\t$total_delamberti");
 
 # Now we know how many empires are in each zone, and how many DeLamberti
 # we can determine which zones have the lowest proportion of DeLamberti
-# and add new ones there.
+# (or noDeLamberti) and add new ones there.
 #
 # Calculate the levels we want
 #

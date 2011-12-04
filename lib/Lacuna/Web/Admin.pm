@@ -1112,6 +1112,46 @@ sub www_server_wide_recalc {
     return $self->wrap('Done!');
 }
 
+sub www_delambert {
+    my ($self, $request) = @_;
+
+    my ($scratch) = Lacuna->db->resultset('Lacuna::DB::Result::AIScratchPad')->search({ai_empire_id => -9, body_id => 0});
+    my $scratchpad = $scratch->pad;
+
+    if ($request->param('submit')) {
+        $scratchpad->{status} = lc $request->param('status') eq 'war' ? 'war' : 'peace';
+        $scratchpad->{buy_max_price_per_plan} = $request->param('buy_max_price_per_plan');
+        $scratchpad->{buy_trades_probability} = $request->param('buy_trades_probability');
+        $scratch->pad($scratchpad);
+        $scratch->update;
+    }   
+    my $out = ''; 
+    my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
+            empire_id => -9,
+        },
+        {
+            order_by => ['name'],
+        });
+    $out   .= '<h1>DeLamberti</h1>';
+    $out   .= '<form method="post" action="/admin/delambert"><table>';
+    $out   .= '<tr><td><b>Status</b></td><td><input name="status" value="'.$scratchpad->{status}.'"></td></tr>';
+    $out   .= '<tr><td><b>Max Plan Buy Price</b></td><td><input name="buy_max_price_per_plan" value="'.$scratchpad->{buy_max_price_per_plan}.'"></td></tr>';
+    $out   .= '<tr><td><b>Probability of Colony Buying each hour (100=100%)</b></td><td><input name="buy_trades_probability" value="'.$scratchpad->{buy_trades_probability}.'"></td></tr>';
+
+    $out   .= '<tr><td><input type="submit" name="submit" value="submit"></td><td>&nbsp;</td></tr></table></form>';
+    $out   .= '<h2>DeLamberti Colonies</h2>';
+    $out   .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Zone</th></tr>';
+    while (my $body = $bodies->next) {
+        $out .= sprintf('<tr><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $body->id, $body->id, $body->name, $body->x, $body->y, $body->zone);
+    }
+    $out .= '</table>';
+    return $self->wrap($out);
+}
+
+
+
+
+
 sub wrap {
     my ($self, $content) = @_;
     return $self->wrapper('<div style="width: 150px;">
@@ -1123,6 +1163,7 @@ sub wrap {
     <li><a href="/admin/view/virality">Virality</a></li>
     <li><a href="/admin/view/economy">Economy</a></li>
     <li><a href="/admin/view/logs">Logs</a></li>
+    <li><a href="/admin/delambert">DeLamberti</a></li>
     <li><a href="/admin/default">Home</a></li>
     </ul>
     </div>
