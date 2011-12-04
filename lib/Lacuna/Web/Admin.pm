@@ -1120,8 +1120,18 @@ sub www_delambert {
 
     if ($request->param('submit')) {
         $scratchpad->{status} = lc $request->param('status') eq 'war' ? 'war' : 'peace';
-        $scratchpad->{buy_max_price_per_plan} = $request->param('buy_max_price_per_plan');
-        $scratchpad->{buy_trades_probability} = $request->param('buy_trades_probability');
+        $scratchpad->{buy_max_price_per_plan}    = $request->param('buy_max_price_per_plan');
+        $scratchpad->{buy_trades_probability}    = $request->param('buy_trades_probability');
+        $scratchpad->{sell_glyph_probability}    = $request->param('sell_glyph_probability');
+        $scratchpad->{sell_glyph_min_e}          = $request->param('sell_glyph_min_e');
+        $scratchpad->{sell_glyph_max_e}          = $request->param('sell_glyph_max_e');
+        $scratchpad->{sell_glyph_max_batch}      = $request->param('sell_glyph_max_batch');
+        $scratchpad->{sell_plan_probability}     = $request->param('sell_plan_probability');
+        $scratchpad->{sell_plan_min_level}       = $request->param('sell_plan_min_level');
+        $scratchpad->{sell_plan_max_level}       = $request->param('sell_plan_max_level');
+        $scratchpad->{sell_plan_max_batch}       = $request->param('sell_plan_max_batch');
+        $scratchpad->{sell_plan_min_hall_factor} = $request->param('sell_plan_min_hall_factor');
+        $scratchpad->{sell_plan_max_hall_factor} = $request->param('sell_plan_max_hall_factor');
         $scratch->pad($scratchpad);
         $scratch->update;
     }   
@@ -1137,6 +1147,16 @@ sub www_delambert {
     $out   .= '<tr><td><b>Status</b></td><td><input name="status" value="'.$scratchpad->{status}.'"></td></tr>';
     $out   .= '<tr><td><b>Max Plan Buy Price</b></td><td><input name="buy_max_price_per_plan" value="'.$scratchpad->{buy_max_price_per_plan}.'"></td></tr>';
     $out   .= '<tr><td><b>Probability of Colony Buying each hour (100=100%)</b></td><td><input name="buy_trades_probability" value="'.$scratchpad->{buy_trades_probability}.'"></td></tr>';
+    $out   .= '<tr><td><b>Probability of Colony selling glyphs each hour (%)</b></td><td><input name="sell_glyph_probability" value="'.$scratchpad->{sell_glyph_probability}.'"></td></tr>';
+    $out   .= '<tr><td><b>Minimum selling price per glyph</b></td><td><input name="sell_glyph_min_e" value="'.$scratchpad->{sell_glyph_min_e}.'"></td></tr>';
+    $out   .= '<tr><td><b>Maximum selling price per glyph</b></td><td><input name="sell_glyph_max_e" value="'.$scratchpad->{sell_glyph_max_e}.'"></td></tr>';
+    $out   .= '<tr><td><b>Maximum number of glyphs to batch in sale</b></td><td><input name="sell_glyph_max_batch" value="'.$scratchpad->{sell_glyph_max_batch}.'"></td></tr>';
+    $out   .= '<tr><td><b>Probability of Colony selling plans each hour (%)</b></td><td><input name="sell_plan_probability" value="'.$scratchpad->{sell_plan_probability}.'"></td></tr>';
+    $out   .= '<tr><td><b>Minimum plan level to sell</b></td><td><input name="sell_plan_min_level" value="'.$scratchpad->{sell_plan_min_level}.'"></td></tr>';
+    $out   .= '<tr><td><b>Maximum plan level to sell</b></td><td><input name="sell_plan_max_level" value="'.$scratchpad->{sell_plan_max_level}.'"></td></tr>';
+    $out   .= '<tr><td><b>Maximum number of plans to batch is sale</b></td><td><input name="sell_plan_max_batch" value="'.$scratchpad->{sell_plan_max_batch}.'"></td></tr>';
+    $out   .= '<tr><td><b>Minimum Hall equivalent costing factor</b></td><td><input name="sell_plan_min_hall_factor" value="'.$scratchpad->{sell_plan_min_hall_factor}.'"></td></tr>';
+    $out   .= '<tr><td><b>Maximum Hall equivalent costing factor</b></td><td><input name="sell_plan_max_hall_factor" value="'.$scratchpad->{sell_plan_max_hall_factor}.'"></td></tr>';
 
     $out   .= '<tr><td><input type="submit" name="submit" value="submit"></td><td>&nbsp;</td></tr></table></form>';
     $out   .= '<h2>DeLamberti Colonies</h2>';

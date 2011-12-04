@@ -5,7 +5,8 @@ use 5.010;
 use utf8;
 no warnings qw(uninitialized);
 use Data::Dumper;
-use Lacuna::Util qw(randint);
+use Lacuna::Util qw(randint random_element);
+use Lacuna::Constants qw(ORE_TYPES);
 
 extends 'Lacuna::AI';
 
@@ -111,6 +112,7 @@ sub run_hourly_colony_updates {
     $self->build_ships_max($colony);
     $self->run_missions($colony);
     $self->buy_trade($colony);
+    $self->sell_trade($colony);
 }
 
 sub run_hourly_empire_updates {
@@ -128,6 +130,75 @@ sub get_colony_scratchpad {
     });
 
     return $scratch;
+}
+
+sub sell_trade {
+    my ($self, $colony) = @_;
+
+    say "#### SELL TRADE ####";
+
+    my $scratchpad = $self->scratch->pad;
+
+    if (not defined $scratchpad->{sell_glyph_probability}) {
+        $scratchpad->{sell_glyph_probability} = 1;
+        $scratchpad->{sell_glyph_min_e} = 2;
+        $scratchpad->{sell_glyph_max_e} = 5;
+        $scratchpad->{sell_glyph_max_batch} = 10;
+        $scratchpad->{sell_plan_probability} = 1;
+        $scratchpad->{sell_plan_min_level} = 6;
+        $scratchpad->{sell_plan_max_level} = 7;
+        $scratchpad->{sell_plan_max_batch} = 4;
+        $scratchpad->{sell_plan_min_hall_factor} = 4;
+        $scratchpad->{sell_plan_max_hall_factor} = 6;
+        $self->scratch->pad($scratchpad);
+        $self->scratch->update;
+    }
+    if (randint(1,100) <= $scratchpad->{sell_glyph_probability}) {
+        # sell some glyphs
+        my $ship = $self->get_trade_ship($colony);
+        return unless $ship;
+
+        my $quantity = randint(1,$scratchpad->{sell_glyph_max_batch});
+        my $cost_per = rand($scratchpad->{sell_glyph_max_e} - $scratchpad->{sell_glyph_min_e}) + $scratchpad->{sell_glyph_min_e};
+        if ($quantity * $cost_per > 100) {
+            $quantity = int(100 / $cost_per);
+        }
+        my @glyphs;
+        for (1..$quantity) {
+            my $ore = random_element([ORE_TYPES]);
+            push @glyphs, $ore;
+        }
+        if ($quantity) {
+            say "Creating a trade for $quantity glyphs";
+            $ship->task('Waiting On Trade');
+            $ship->update;
+            my %trade = (
+                offer_cargo_space_needed  => $quantity * 100,
+                has_glyph       => 1,
+                payload         => {glyphs => \@glyphs},
+                ask             => $cost_per * $quantity,
+                ship_id         => $ship->id,
+                body_id         => $colony->id,
+                transfer_type   => $colony->zone,
+            );
+            Lacuna->db->resultset('Lacuna::DB::Result::Market')->create(\%trade);
+        }
+    }
+
+    if (randint(1,100) <= $scratchpad->{sell_plan_probability}) {
+        # sell some plans
+    }
+}
+
+sub get_trade_ship {
+    my ($self, $colony) = @_;
+
+    my ($ship) = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        task    => 'Docked',
+        type    => 'galleon',
+        body_id => $colony->id,
+    });
+    return $ship;
 }
 
 sub buy_trade {
