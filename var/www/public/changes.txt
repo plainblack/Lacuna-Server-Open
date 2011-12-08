@@ -1,5 +1,7 @@
 3.0822
  - Add:  DeLambert trading buy and sell
+ - Add:  Redefine Species available at University level 30.  WARNING: Drops attribute total to 45.
+ - Mod:  SAWs adjusted a bit more. SAW level taken more into account.
 
 3.0821
  - Fix:  Added types to battle logs.
