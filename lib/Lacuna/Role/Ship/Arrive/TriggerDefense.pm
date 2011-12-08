@@ -302,7 +302,7 @@ sub system_saw_combat {
     }
   }
 # Defending Planet SAWs go first, then random from other planets.
-  for my $saw (@$attacked_saws, shuffle @saws) {
+  for my $saw ((shuffle @$attacked_saws), shuffle @saws) {
     $self->saw_combat($saw, $total_combat);
   }
 }
@@ -319,7 +319,7 @@ sub saw_stats {
     $cnt++;
     next if $saw->level < 1;
     next if $saw->efficiency < 1;
-    $planet_combat += int((1500 * $saw->level * $saw->efficiency)/100+0.5);
+    $planet_combat += int( (100 * $saw->level * ($saw->level+1) * $saw->efficiency)/200 + 0.5);
     push @saws, $saw;
     last if $cnt >= 10;
   }
@@ -337,14 +337,13 @@ sub saw_combat {
 #    print "100\n";
   }
   else {
-    my $perc = int(($self->combat * $saw->efficiency)/$saw_combat + 0.5);
+    my $perc_1 = int( ($self->combat * 100)/$saw_combat + 0.5);
+    my $perc_2 = int( $self->combat/
+                       ((200 * $saw->level * ($saw->level+1) * $saw->efficiency)/200));
+    $perc_2 = 5 if $perc_2 > 5;
+    my $perc = $perc_1 > $perc_2 ? $perc_1 : $perc_2;
     if ($perc < 1) {
-      if ($self->combat > (($saw->level * 1500 * $saw->efficiency)/100)) {
-        $perc = 1;
-      }
-      else {
-        if (randint(0,99) < 15) { $perc = 1; } else { $perc = 0; }
-      }
+      if (randint(0,99) < 10) { $perc = 1; } else { $perc = 0; }
     }
 #    printf "%3d\n", $perc;
     $saw->spend_efficiency($perc);
@@ -354,24 +353,6 @@ sub saw_combat {
   }
   $saw->update;
   $self->damage_in_combat($saw, $saw_combat);
-}
-
-sub old_saw_combat {
-  my ($self, $body) = @_;
-
-  my $saws = $body->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
-
-# if there are SAWs lets duke it out
-  while (my $saw = $saws->next) {
-    next if $saw->level < 1;
-    next if $saw->efficiency < 1;
-    next if $saw->is_working;
-    my $combat = ($saw->level * 1000) * ( $saw->efficiency / 100 );
-    $saw->spend_efficiency( int( $self->combat / 100 ) );
-    $saw->start_work({}, 60 * 5);
-    $saw->update;
-    $self->damage_in_combat($saw, $combat);
-  }
 }
 
 1;
