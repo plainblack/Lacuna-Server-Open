@@ -140,7 +140,7 @@ sub determine_species_limits {
     $max_orbit    = 7 if $max_orbit > 7;
 
     my $reason;
-    if ($self->university_level > 19) {
+    if ($self->university_level > 19 and $self->university_level != 30) {
         $reason = 'Your university research level is too high to redefine your species. Build a Genetics Lab instead.';
     }
     elsif (Lacuna->cache->get('redefine_species_timeout', $self->id)) {
