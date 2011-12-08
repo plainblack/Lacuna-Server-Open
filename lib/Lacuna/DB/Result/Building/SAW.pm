@@ -27,10 +27,10 @@ before finish_work => sub {
     my $body = $self->body;
 
     my $costs = $self->get_repair_costs;
-    $costs->{food}   = int(2.71 * $costs->{food}  /$self->food_to_build   + 0.5);
-    $costs->{ore}    = int(2.71 * $costs->{ore}   /$self->ore_to_build    + 0.5);
-    $costs->{energy} = int(2.71 * $costs->{energy}/$self->energy_to_build + 0.5);
-    $costs->{water}  = int(2.71 * $costs->{water} /($self->water_to_build/10) + 0.5);
+    $costs->{food}   = int(2.71 * $costs->{food}  /18 + 0.5);
+    $costs->{ore}    = int(2.71 * $costs->{ore}   /25 + 0.5);
+    $costs->{energy} = int(2.71 * $costs->{energy}/25 + 0.5);
+    $costs->{water}  = int(2.71 * $costs->{water} /10 + 0.5);
 
     $self->repair($costs);
 };
