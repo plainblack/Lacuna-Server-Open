@@ -1,3 +1,6 @@
+3.0823
+ - Fix:  Scanners sent to unoccupied planets no longer cause an exception
+
 3.0822
  - Add:  DeLambert trading buy and sell
  - Add:  Redefine Species available at University level 30.  WARNING: Drops attribute total to 45.
