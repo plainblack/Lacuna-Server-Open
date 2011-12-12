@@ -285,7 +285,14 @@ sub www_view_buildings {
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
     $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Level</th><th>InProgress</th><th>Efficiency</th></tr>';
     while (my $building = $buildings->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><form method="post" action="/admin/set/efficiency"><td><input type="hidden" name="building_id" value="%s"><input name="efficiency" type="text" size="3" value="%s"><input type="submit" value="submit"></td></form></tr>', $building->id, $building->name, $building->x, $building->y, $building->level, $building->is_upgrading, $building->id, $building->efficiency);
+        $out .= sprintf('<form method="get" action="/admin/set/efficiency"><tr>');
+        $out .= sprintf('<td>%s</td><td>%s</td>',$building->id,$building->name);
+        $out .= sprintf('<td><input name="x" type="text" size="3" value="%s"></td>',$building->x);
+        $out .= sprintf('<td><input name="y" type="text" size="3" value="%s"></td>',$building->y);
+        $out .= sprintf('<td><input name="level" type="text" size="5" value="%s"></td>',$building->level);
+        $out .= sprintf('<td>%s</td><td><input type="hidden" name="building_id" value="%s">',$building->is_upgrading, $building->id);
+        $out .= sprintf('<input name="efficiency" type="text" size="3" value="%s">', $building->efficiency);
+        $out .= sprintf('<input type="submit" value="submit"></td></tr></form>');
     }
     $out .= '</table>';
     return $self->wrap($out);
@@ -294,7 +301,12 @@ sub www_view_buildings {
 sub www_set_efficiency {
     my ($self, $request) = @_;
     my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->find($request->param('building_id'));
-    $building->update({efficiency => $request->param('efficiency')});
+    $building->update({
+        efficiency      => $request->param('efficiency'),
+        x               => $request->param('x'),
+        y               => $request->param('y'),
+        level           => $request->param('level'),
+    });
     return $self->www_view_buildings($request, $building->body_id);
 }
 
@@ -438,15 +450,31 @@ sub www_delete_glyph {
 sub www_view_plans {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
-    my $plans = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search({ body_id => $body_id }, {order_by => ['class'] });
+    my $plans = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search({
+        body_id => $body_id,
+    }, {
+        order_by => ['class'],
+        group_by => ['class','level','extra_build_level'],
+        select   => ['class','level','extra_build_level', {count => 'id', -as => 'count_plans'}],
+        as       => ['class','level','extra_build_level','no_of_plans'],
+    });
+
     my $out = '<h1>View Plans</h1>';
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Level</th><th>Name</th><th>Extra Build Level</th><th>Action</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Level</th><th>Name</th><th>Extra Build Level</th><th>Quantity</th><th>Action</th></tr>';
     while (my $plan = $plans->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/delete/plan?body_id=%s&plan_id=%s">Delete</a></td></tr>', $plan->id, $plan->level, $plan->class->name, $plan->extra_build_level, $body_id, $plan->id);
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>',$plan->level, $plan->class->name, $plan->extra_build_level, $plan->get_column('no_of_plans'));
+        $out .= sprintf('<form method="get" action="/admin/delete/plan">');
+        $out .= sprintf('<input type="hidden" name="level" value="%s">',$plan->level);
+        $out .= sprintf('<input type="hidden" name="class" value="%s">',$plan->class);
+        $out .= sprintf('<input type="hidden" name="extra" value="%s">',$plan->extra_build_level);
+        $out .= sprintf('<input type="hidden" name="body_id" value="%s">',$body_id);
+        $out .= sprintf('<input type="submit" name="delete_one" value="Delete One">');
+        $out .= sprintf('<input type="submit" name="delete_all" value="Delete All">');
+        $out .= sprintf('</form>');
     }
     $out .= '<form method="post" action="/admin/add/plan"><tr>';
-    $out .= '<td><input type="hidden" name="body_id" value="'.$body_id.'"></td>';
+    $out .= '<input type="hidden" name="body_id" value="'.$body_id.'">';
     $out .= '<td><input name="level" value="1" size="2"></td>';
     $out .= '<td><select name="class">';
     my %buildings = map { $_->name => $_ } findallmod Lacuna::DB::Result::Building;
@@ -456,6 +484,7 @@ sub www_view_plans {
     }
     $out .= '</select></td>';
     $out .= '<td><input name="extra_build_level" value="0" size="2"></td>';
+    $out .= '<td><input name="quantity" value="1" size="2"></td>';
     $out .= '<td><input type="submit" value="add plan"></td>';
     $out .= '</tr></form>';
     $out .= '</table>';
@@ -468,7 +497,9 @@ sub www_add_plan {
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
-    $body->add_plan($request->param('class'), $request->param('level'), $request->param('extra_build_level'));
+    for (1..$request->param('quantity')) {
+        $body->add_plan($request->param('class'), $request->param('level'), $request->param('extra_build_level'));
+    }
     return $self->www_view_plans($request, $body->id);
 }
 
@@ -478,7 +509,25 @@ sub www_delete_plan {
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
-    $body->plans->find($request->param('plan_id'))->delete;
+    # Find a plan
+    my $plan_rs = $body->plans->search({
+        level               => $request->param('level'),
+        class               => $request->param('class'),
+        extra_build_level   => $request->param('extra'),
+    });
+    if ($plan_rs < 1 and $request->param('delete_one')) {
+        confess [404, 'Plan not found.'];
+    }
+    if ($request->param('delete_one')) {
+        if ($plan_rs < 1) {
+            confess [404, 'Plan not found.'];
+        }
+        my $plan = $plan_rs->next;
+        $plan->delete;
+    }
+    if ($request->param('delete_all')) {
+        $plan_rs->delete_all;
+    }
     return $self->www_view_plans($request, $body->id);
 }
 
