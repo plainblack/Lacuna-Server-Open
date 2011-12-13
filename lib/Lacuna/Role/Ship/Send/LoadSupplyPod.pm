@@ -26,8 +26,10 @@ after send => sub {
         my $stored = $body->type_stored($type);
         if ($stored) {
           my $amt = int(($food * $stored)/$food_stored);
-          $body->spend_type($type, $amt);
-          $payload->{resources}{$type} = $amt;
+          if ( $amt > 0 ) {
+            $body->spend_type($type, $amt);
+            $payload->{resources}{$type} = $amt;
+          }
         }
     }
     my $ore_stored = 0;
@@ -41,8 +43,10 @@ after send => sub {
         my $stored = $body->type_stored($type);
         if ($stored) {
           my $amt = int(($ore * $stored)/$ore_stored);
-          $body->spend_type($type, $amt);
-          $payload->{resources}{$type} = $amt;
+          if ( $amt > 0 ) {
+            $body->spend_type($type, $amt);
+            $payload->{resources}{$type} = $amt;
+          }
         }
     }
     my $energy = $body->type_stored('energy');
