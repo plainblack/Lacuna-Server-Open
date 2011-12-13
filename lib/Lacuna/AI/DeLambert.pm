@@ -110,6 +110,7 @@ sub run_hourly_colony_updates {
     $self->repair_buildings($colony);
     $self->train_spies($colony, 1);
     $self->build_ships_max($colony);
+    $self->pod_check($colony, 20);
     $self->run_missions($colony);
     $self->buy_trade($colony);
     $self->sell_trade($colony);

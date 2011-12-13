@@ -3,7 +3,9 @@ package Lacuna::AI;
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
-use Lacuna::Util qw(randint);
+use Lacuna::Util qw(randint random_element);
+use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
+use List::Util qw(shuffle);
 use 5.010;
 use Module::Find;
 
@@ -202,15 +204,62 @@ sub repair_buildings {
 }
 
 sub demolish_bleeders {
-    my ($self, $colony) = @_;
-    say 'DEMOLISH BLEEDERS';
-    my @bleeders = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::DeployedBleeder');
-    foreach my $bleeder (@bleeders) {
-        say '    demolish bleeder';
-        $bleeder->demolish;
+  my ($self, $colony) = @_;
+  say 'DEMOLISH BLEEDERS';
+  my @bleeders = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::DeployedBleeder');
+  foreach my $bleeder (@bleeders) {
+    if (randint(0,9) < 2) {
+      say '    missed bleeder';
     }
+    else {
+      say '    demolish bleeder';
+      $bleeder->demolish;
+    }
+  }
 }
 
+sub pod_check {
+  my ($self, $colony, $pod_level) = @_;
+  return if (Lacuna->cache->get('supply_pod_sent',$colony->id));
+  my $food_stored = 0; my $ore_stored = 0;
+  if ($colony->water_stored > 0 or $colony->energy_stored > 0) {
+    my @food = map { $_.'_stored' } FOOD_TYPES;
+    my @ore  = map { $_.'_stored' } ORE_TYPES;
+    my $attrib;
+    for $attrib (@food) { $food_stored += $colony->$attrib; }
+    for $attrib (@ore)  { $ore_stored  += $colony->$attrib; }
+  }
+  if ($food_stored <= 0 or $ore_stored <= 0 or
+      $colony->water_stored <= 0 or $colony->energy_stored <= 0) {
+    say 'DEPLOY SUPPLY POD';
+    my ($x, $y) = $colony->find_free_space;
+    my $deployed = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+      class       => 'Lacuna::DB::Result::Building::SupplyPod',
+      x           => $x,
+      y           => $y,
+      level       => $pod_level - 1,
+      body_id     => $colony->id,
+      body        => $colony,
+    });
+    say $deployed->name;
+    $colony->build_building($deployed, 1);
+    $deployed->finish_upgrade;
+    $colony->recalc_stats;
+    $colony->add_type("water",  $deployed->water_storage);
+    $colony->add_type("energy", $deployed->energy_storage);
+    my @foods = shuffle FOOD_TYPES;
+    my @ores  = shuffle ORE_TYPES;
+    my @food_type = splice(@foods, 0, 4);
+    my @ore_type  = splice(@ores,  0, 4);
+    for my $food (@food_type) {
+      $colony->add_type("$food", int($deployed->food_storage/4));
+    }
+    for my $ore (@ore_type) {
+      $colony->add_type("$ore", int($deployed->ore_storage/4));
+    }
+    Lacuna->cache->set('supply_pod_sent',$colony->id,1,60*60*24);
+  }
+}
 
 sub train_spies {
     my ($self, $colony, $subsidise) = @_;
