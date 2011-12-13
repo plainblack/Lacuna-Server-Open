@@ -1,3 +1,6 @@
+3.0824:
+ - Mod:  AI empires can use supply pod tech.
+
 3.0823
  - Fix:  Scanners sent to unoccupied planets no longer cause an exception
 

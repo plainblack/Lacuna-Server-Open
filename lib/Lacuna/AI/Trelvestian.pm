@@ -141,6 +141,7 @@ sub run_hourly_colony_updates {
     $self->repair_buildings($colony);
     $self->train_spies($colony);
     $self->build_ships($colony);
+    $self->pod_check($colony, 20);
     $self->run_missions($colony);
 }
 
