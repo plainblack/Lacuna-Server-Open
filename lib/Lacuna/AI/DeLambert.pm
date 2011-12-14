@@ -107,10 +107,10 @@ sub run_hourly_colony_updates {
     my ($self, $colony) = @_;
     $self->demolish_bleeders($colony);
     $self->set_defenders($colony);
+    $self->pod_check($colony, 20);
     $self->repair_buildings($colony);
     $self->train_spies($colony, 1);
     $self->build_ships_max($colony);
-    $self->pod_check($colony, 20);
     $self->run_missions($colony);
     $self->buy_trade($colony);
     $self->sell_trade($colony);
