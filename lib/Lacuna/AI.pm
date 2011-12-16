@@ -222,13 +222,11 @@ sub pod_check {
   my ($self, $colony, $pod_level) = @_;
   return if (Lacuna->cache->get('supply_pod_sent',$colony->id));
   my $food_stored = 0; my $ore_stored = 0;
-  if ($colony->water_stored > 0 or $colony->energy_stored > 0) {
-    my @food = map { $_.'_stored' } FOOD_TYPES;
-    my @ore  = map { $_.'_stored' } ORE_TYPES;
-    my $attrib;
-    for $attrib (@food) { $food_stored += $colony->$attrib; }
-    for $attrib (@ore)  { $ore_stored  += $colony->$attrib; }
-  }
+  my @food = map { $_.'_stored' } FOOD_TYPES;
+  my @ore  = map { $_.'_stored' } ORE_TYPES;
+  my $attrib;
+  for $attrib (@food) { $food_stored += $colony->$attrib; }
+  for $attrib (@ore)  { $ore_stored  += $colony->$attrib; }
   if ($food_stored <= 0 or $ore_stored <= 0 or
       $colony->water_stored <= 0 or $colony->energy_stored <= 0) {
     say 'DEPLOY SUPPLY POD';
@@ -256,24 +254,18 @@ sub pod_check {
       }
     }
     $colony->recalc_stats;
-    $colony->water_stored($colony->water_capacity);
-    $colony->energy_stored($colony->energy_capacity);
+    my $add_it = $colony->water_capacity  - $colony->water_stored;
+    say "Adding Water: $add_it";
+    $colony->add_type("water",  $add_it);
+    $add_it = $colony->energy_capacity  - $colony->energy_stored;
+    say "Adding Energy: $add_it";
+    $colony->add_type("energy", $add_it);
+    my $food_room = $colony->food_capacity - $food_stored;
+    say "Adding Food: $food_room";
+    my $ore_room = $colony->ore_capacity - $ore_stored;
+    say "Adding Ore: $ore_room";
     my @foods = shuffle FOOD_TYPES;
-    my $food_store;
-    for my $food (@foods) {
-      my $fstore = $food."_stored";
-      if ($colony->$food_store < 0) { $colony->$food_store = 0; }
-      $food_store += $colony->$food_store;
-    }
-    my $food_room = $colony->food_capacity - $food_store;
     my @ores  = shuffle ORE_TYPES;
-    my $ore_store;
-    for my $ore (@ores) {
-      my $ostore = $ore."_stored";
-      if ($colony->$ore_store < 0) { $colony->$ore_store = 0; }
-      $ore_store += $colony->$ore_store;
-    }
-    my $ore_room = $colony->ore_capacity - $ore_store;
     my @food_type = splice(@foods, 0, 4);
     my @ore_type  = splice(@ores,  0, 4);
     for my $food (@food_type) {
