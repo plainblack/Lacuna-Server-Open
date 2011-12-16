@@ -232,33 +232,58 @@ sub pod_check {
   if ($food_stored <= 0 or $ore_stored <= 0 or
       $colony->water_stored <= 0 or $colony->energy_stored <= 0) {
     say 'DEPLOY SUPPLY POD';
-    my ($x, $y) = $colony->find_free_space;
-    my $deployed = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-      class       => 'Lacuna::DB::Result::Building::SupplyPod',
-      x           => $x,
-      y           => $y,
-      level       => $pod_level - 1,
-      body_id     => $colony->id,
-      body        => $colony,
-    });
-    say $deployed->name;
-    $colony->build_building($deployed, 1);
-    $deployed->finish_upgrade;
+    my ($x, $y) = eval{ $colony->find_free_space };
+# Check to see if spot found, if not, clear off a crater if found.
+    unless ($@) {
+      my $deployed = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+        class       => 'Lacuna::DB::Result::Building::SupplyPod',
+        x           => $x,
+        y           => $y,
+        level       => $pod_level - 1,
+        body_id     => $colony->id,
+        body        => $colony,
+      });
+      say $deployed->name;
+      $colony->build_building($deployed, 1);
+      $deployed->finish_upgrade;
+      Lacuna->cache->set('supply_pod_sent',$colony->id,1,60*60*24);
+    }
+    else {
+      my @craters = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Crater');
+      if (@craters) {
+        my $crater =  random_element @craters;
+        $crater->demolish;
+      }
+    }
     $colony->recalc_stats;
-    $colony->add_type("water",  $deployed->water_storage);
-    $colony->add_type("energy", $deployed->energy_storage);
+    $colony->water_stored($colony->water_capacity);
+    $colony->energy_stored($colony->energy_capacity);
     my @foods = shuffle FOOD_TYPES;
+    my $food_store;
+    for my $food (@foods) {
+      my $fstore = $food."_stored";
+      if ($colony->$food_store < 0) { $colony->$food_store = 0; }
+      $food_store += $colony->$food_store;
+    }
+    my $food_room = $colony->food_capacity - $food_store;
     my @ores  = shuffle ORE_TYPES;
+    my $ore_store;
+    for my $ore (@ores) {
+      my $ostore = $ore."_stored";
+      if ($colony->$ore_store < 0) { $colony->$ore_store = 0; }
+      $ore_store += $colony->$ore_store;
+    }
+    my $ore_room = $colony->ore_capacity - $ore_store;
     my @food_type = splice(@foods, 0, 4);
     my @ore_type  = splice(@ores,  0, 4);
     for my $food (@food_type) {
-      $colony->add_type("$food", int($deployed->food_storage/4));
+      $colony->add_type("$food", int($food_room/4));
     }
     for my $ore (@ore_type) {
-      $colony->add_type("$ore", int($deployed->ore_storage/4));
+      $colony->add_type("$ore", int($ore_room/4));
     }
-    Lacuna->cache->set('supply_pod_sent',$colony->id,1,60*60*24);
   }
+  $colony->update;
 }
 
 sub train_spies {
