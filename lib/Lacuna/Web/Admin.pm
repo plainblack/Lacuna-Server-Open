@@ -1181,6 +1181,8 @@ sub www_delambert {
         $scratchpad->{sell_plan_max_batch}       = $request->param('sell_plan_max_batch');
         $scratchpad->{sell_plan_min_hall_factor} = $request->param('sell_plan_min_hall_factor');
         $scratchpad->{sell_plan_max_hall_factor} = $request->param('sell_plan_max_hall_factor');
+        $scratchpad->{sell_max_glyph_trades_in_zone}   = $request->param('sell_max_glyph_trades_in_zone');
+        $scratchpad->{sell_max_plan_trades_in_zone}   = $request->param('sell_max_plan_trades_in_zone');
         $scratch->pad($scratchpad);
         $scratch->update;
     }   
@@ -1206,7 +1208,8 @@ sub www_delambert {
     $out   .= '<tr><td><b>Maximum number of plans to batch is sale</b></td><td><input name="sell_plan_max_batch" value="'.$scratchpad->{sell_plan_max_batch}.'"></td></tr>';
     $out   .= '<tr><td><b>Minimum Hall equivalent costing factor</b></td><td><input name="sell_plan_min_hall_factor" value="'.$scratchpad->{sell_plan_min_hall_factor}.'"></td></tr>';
     $out   .= '<tr><td><b>Maximum Hall equivalent costing factor</b></td><td><input name="sell_plan_max_hall_factor" value="'.$scratchpad->{sell_plan_max_hall_factor}.'"></td></tr>';
-
+    $out   .= '<tr><td><b>Maximum sell glyph trades in any one zone</b></td><td><input name="sell_max_glyph_trades_in_zone" value="'.$scratchpad->{sell_max_glyph_trades_in_zone}.'"></td></tr>';
+    $out   .= '<tr><td><b>Maximum sell plan trades in any one zone</b></td><td><input name="sell_max_plan_trades_in_zone" value="'.$scratchpad->{sell_max_plan_trades_in_zone}.'"></td></tr>';
     $out   .= '<tr><td><input type="submit" name="submit" value="submit"></td><td>&nbsp;</td></tr></table></form>';
     $out   .= '<h2>DeLamberti Colonies</h2>';
     $out   .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Zone</th></tr>';

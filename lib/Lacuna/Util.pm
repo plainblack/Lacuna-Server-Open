@@ -16,6 +16,7 @@ sub format_date {
     return DateTime::Format::Strptime::strftime($format,$date);
 }
 
+# Return a random integer between $low and $high inclusive
 sub randint {
 	my ($low, $high) = @_;
 	$low = 0 unless defined $low;
