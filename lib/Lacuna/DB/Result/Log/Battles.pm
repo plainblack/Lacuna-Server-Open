@@ -44,7 +44,7 @@ after insert => sub {
     my $self = shift;
 
     # only store summary information for attacking or defending AI
-    return if ($self->attacking_empire_id > 1 and $self->defending_empire_id > 1 or not defined $self->defending_empire_id);
+    return if ($self->attacking_empire_id > 1 and (not defined $self->defending_empire_id or $self->defending_empire_id > 1 ));
 
     my $summary_rs = Lacuna->db->resultset('Lacuna::DB::Result::AIBattleSummary');
     my $ai_battle_summary = $summary_rs->search({
