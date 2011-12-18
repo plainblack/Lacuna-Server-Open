@@ -1,5 +1,6 @@
 3.0824:
  - Mod:  AI empires can use supply pod tech.
+ - Mod:  DeLamberti will now sell plans on the Trade Ministry
 
 3.0823
  - Fix:  Scanners sent to unoccupied planets no longer cause an exception
