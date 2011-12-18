@@ -112,7 +112,8 @@ sub run_hourly_colony_updates {
     $self->build_ships_max($colony);
     $self->run_missions($colony);
     $self->buy_trade($colony);
-    $self->sell_trade($colony);
+    $self->sell_glyph_trade($colony);
+    $self->sell_plan_trade($colony);
 }
 
 sub run_hourly_empire_updates {
@@ -132,10 +133,10 @@ sub get_colony_scratchpad {
     return $scratch;
 }
 
-sub sell_trade {
+sub sell_glyph_trade {
     my ($self, $colony) = @_;
 
-    say "#### SELL TRADE ####";
+    say "#### SELL GLYPH TRADE ####";
 
     my $scratchpad = $self->scratch->pad;
 
@@ -150,6 +151,9 @@ sub sell_trade {
         $scratchpad->{sell_plan_max_batch} = 4;
         $scratchpad->{sell_plan_min_hall_factor} = 4;
         $scratchpad->{sell_plan_max_hall_factor} = 6;
+        $scratchpad->{sell_max_glyph_trades_in_zone} = 25;
+        $scratchpad->{sell_max_plan_trades_in_zone} = 25;
+
         $self->scratch->pad($scratchpad);
         $self->scratch->update;
     }
@@ -158,6 +162,17 @@ sub sell_trade {
         my $ship = $self->get_trade_ship($colony);
         return unless $ship;
 
+        # check how many trades there are in the zone at the moment
+        my $trades_in_zone = Lacuna->db->resultset('Lacuna::DB::Result::Market')->search({
+            transfer_type       => $colony->zone,
+            has_glyph           => 1,
+            'body.empire_id'    => -9,
+        },{
+            join                => 'body',
+        })->count;
+        if ($trades_in_zone >= $scratchpad->{sell_max_glyph_trades_in_zone}) {
+            return;
+        }
         my $quantity = randint(1,$scratchpad->{sell_glyph_max_batch});
         my $cost_per = rand($scratchpad->{sell_glyph_max_e} - $scratchpad->{sell_glyph_min_e}) + $scratchpad->{sell_glyph_min_e};
         if ($quantity * $cost_per > 100) {
@@ -184,9 +199,70 @@ sub sell_trade {
             Lacuna->db->resultset('Lacuna::DB::Result::Market')->create(\%trade);
         }
     }
+}
+
+sub sell_plan_trade {
+    my ($self, $colony) = @_;
+
+    say "#### SELL PLAN TRADE ####";
+
+    my $scratchpad = $self->scratch->pad;
 
     if (randint(1,100) <= $scratchpad->{sell_plan_probability}) {
         # sell some plans
+        my $ship = $self->get_trade_ship($colony);
+        if ( not $ship ) {
+            say "No Ship to use for trade!";
+            return;
+        }
+
+        # check how many trades there are in the zone at the moment
+        my $trades_in_zone = Lacuna->db->resultset('Lacuna::DB::Result::Market')->search({
+            transfer_type       => $colony->zone,
+            has_plan            => 1,
+            'body.empire_id'    => -9,
+        },{
+            join                => 'body',
+        })->count;
+        if ($trades_in_zone >= $scratchpad->{sell_max_plan_trades_in_zone}) {
+            say "Already enough trades ($trades_in_zone) in zone!";
+            return;
+        }
+        my $level = randint($scratchpad->{sell_plan_min_level},$scratchpad->{sell_plan_max_level});
+        say "Offering level ($level) plan";
+        my $hall_factor = rand( $scratchpad->{sell_plan_max_hall_factor} - $scratchpad->{sell_plan_min_hall_factor} ) + $scratchpad->{sell_plan_min_hall_factor};
+        my $cost_per = $hall_factor * $level;
+        my $quantity = randint(1, $scratchpad->{sell_plan_max_batch});
+        if ($quantity * $cost_per > 100) {
+            $quantity = int(100 / $cost_per);
+        }
+        my @plans;
+        for (1..$quantity) {
+            # randomly select from the various plans we sell
+            my @types = qw(AlgaePond AmalgusMeadow BeeldebanNest CrashedShipSite DentonBrambles GeoThermalVent GratchsGauntlet GreatBallOfJunk InterDimensionalRift JunkHengeSculpture KalavianRuins LapisForest MalcudField MetalJunkArches NaturalSpring PyramidJunkSculpture Ravine Volcano
+);
+            my $type = $types[randint(0,scalar(@types)-1)];
+            push @plans, {
+                class               => "Lacuna::DB::Result::Building::Permanent::$type",
+                level               => $level,
+                extra_build_level   => 0,
+            };
+        }
+        if ($quantity) {
+            say "Creating a trade for $quantity plans";
+            $ship->task('Waiting On Trade');
+            $ship->update;
+            my %trade = (
+                offer_cargo_space_needed    => $quantity * 10000,
+                has_plan                    => 1,
+                payload                     => {plans => \@plans},
+                ask                         => $cost_per * $quantity,
+                ship_id                     => $ship->id,
+                body_id                     => $colony->id,
+                transfer_type               => $colony->zone,
+            );
+            Lacuna->db->resultset('Lacuna::DB::Result::Market')->create(\%trade);
+        }
     }
 }
 
