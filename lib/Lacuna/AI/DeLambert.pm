@@ -115,6 +115,7 @@ sub run_hourly_colony_updates {
     $self->buy_trade($colony);
     $self->sell_glyph_trade($colony);
     $self->sell_plan_trade($colony);
+    $self->check_enemy_spy_action($colony);
 }
 
 sub run_hourly_empire_updates {
@@ -132,6 +133,51 @@ sub get_colony_scratchpad {
     });
 
     return $scratch;
+}
+
+
+sub check_enemy_spy_action {
+    my ($self, $colony) = @_;
+
+    say "#### CHECK ENEMY SPY ACTION ####";
+
+    my $scratchpad = $self->scratch->pad;
+
+    my $enemy_spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
+        task    => ['Incite Mutiny','Incite Rebellion','Appropriate Technology','Sabotage Resources','Infiltrating','Incite Insurrection','Appropriate Resources','Abduct Operatives','Gather Operative Intelligence','Sabotage Probes','Rescue Comrades','Assassinate Operatives','Debriefing','Sabotage Infrastructure',],
+        on_body_id => $colony->id,
+        empire_id  => {'!=' => -9},
+    });
+
+    my $spy_ref;
+    while (my $spy = $enemy_spies->next) {
+        if (defined $spy_ref->{$spy->empire_id}) {
+            $spy_ref->{$spy->empire_id}++;
+        }
+        else {
+            $spy_ref->{$spy->empire_id} = 1;
+        }
+    }
+
+    for my $empire_id (keys %$spy_ref) {
+        my ($ai_battle_summary) = Lacuna->db->resultset('Lacuna::DB::Result::AIBattleSummary')->search({
+            attacking_empire_id => $empire_id,
+            defending_empire_id => -9,
+        });
+        if (not $ai_battle_summary) {
+            $ai_battle_summary = Lacuna->db->resultset('Lacuna::DB::Result::AIBattleSummary')->create({
+                attacking_empire_id => $empire_id,
+                defending_empire_id => -9,
+                attack_victories    => 0,
+                defense_victories   => 0,
+                attack_spy_hours    => 0,
+            });
+        }
+        my $add_hours = $spy_ref->{$empire_id};
+        say "    adding $add_hours spy attack hours from empire $empire_id";
+        $ai_battle_summary->attack_spy_hours($ai_battle_summary->attack_spy_hours + $add_hours);
+        $ai_battle_summary->update;
+    }
 }
 
 sub sell_glyph_trade {

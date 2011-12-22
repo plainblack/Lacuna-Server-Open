@@ -14,6 +14,7 @@ __PACKAGE__->add_columns(
     defending_empire_id => { data_type => 'int', size => 11, is_nullable => 0 },
     attack_victories    => { data_type => 'int', size => 11, is_nullable => 0 },
     defense_victories   => { data_type => 'int', size => 11, is_nullable => 0 },
+    attack_spy_hours    => { data_type => 'int', size => 11, is_nullable => 0 },
 ); 
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'attacking_empire_id');
