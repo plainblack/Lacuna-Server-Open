@@ -1486,7 +1486,7 @@ sub add_food_type {
 sub spend_food_type {
     my ($self, $type, $amount_spent) = @_;
     my $amount_stored = $self->type_stored($type);
-    if ($amount_spent > $amount_stored) {
+    if ($amount_spent > 0 && $amount_spent > $amount_stored) {
         my $difference = $amount_spent - $amount_stored;
         $self->spend_happiness($difference);
         $self->type_stored($type, 0);
