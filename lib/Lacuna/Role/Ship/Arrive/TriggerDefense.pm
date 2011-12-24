@@ -85,6 +85,43 @@ sub attacker_shot_down {
 #    $self->log_attack( $defender, 'defender' );
 }
 
+sub saw_disabled {
+  my ($self, $defender) = @_;
+  my $body_attacked = $self->foreign_body;
+
+  unless ($self->body->empire->skip_attack_messages) {
+    $self->body->empire->send_predefined_message(
+       tags        => ['Attack','Alert'],
+       filename    => 'saw_neutralized.txt',
+       params      => [$defender->body->x,
+                       $defender->body->y,
+                       $defender->body->name,
+                       $body_attacked->x,
+                       $body_attacked->y,
+                       $body_attacked->name,
+                       $defender->body->empire_id,
+                       $defender->body->empire->name],
+      );
+  }
+
+  unless ($defender->body->empire_id && $defender->body->empire->skip_attack_messages) {
+    $defender->body->empire->send_predefined_message(
+       tags        => ['Attack','Alert'],
+       filename    => 'saw_disabled.txt',
+       params      => [$defender->body->x,
+                       $defender->body->y,
+                       $defender->body->name,
+                       $body_attacked->x,
+                       $body_attacked->y,
+                       $body_attacked->name,
+                       $defender->body->empire_id,
+                       $defender->body->empire->name,
+                       $self->type_formatted],
+    );
+  }
+  log_attack($self, $defender, 'attacker');
+}
+
 sub defender_shot_down {
 	my ($self, $defender) = @_;
     my $body_attacked = $self->foreign_body;
@@ -334,6 +371,7 @@ sub saw_combat {
 #         $self->id, $self->combat, $saw->id, $saw->level, $saw->efficiency, $saw_combat;
   if ($self->combat > $saw_combat) {
     $saw->spend_efficiency(100);
+    $self->saw_disabled($saw);
 #    print "100\n";
   }
   else {

@@ -1,0 +1,7 @@
+SAW Neutralized
+~~~
+Our offensive squadron was able to neutralize a SAW from {Starmap %s %s %s} that was defending {Starmap %s %s %s}. Empire {Empire %s %s}.
+
+Regards,
+
+Your Humble Assistant
