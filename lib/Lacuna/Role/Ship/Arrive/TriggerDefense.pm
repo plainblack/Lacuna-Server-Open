@@ -93,14 +93,15 @@ sub saw_disabled {
     $self->body->empire->send_predefined_message(
        tags        => ['Attack','Alert'],
        filename    => 'saw_neutralized.txt',
-       params      => [$defender->body->x,
+       params      => [
+                       $defender->body->x,
                        $defender->body->y,
                        $defender->body->name,
+                       $defender->body->empire_id,
+                       $defender->body->empire->name,
                        $body_attacked->x,
                        $body_attacked->y,
-                       $body_attacked->name,
-                       $defender->body->empire_id,
-                       $defender->body->empire->name],
+                       $body_attacked->name],
       );
   }
 
@@ -114,8 +115,8 @@ sub saw_disabled {
                        $body_attacked->x,
                        $body_attacked->y,
                        $body_attacked->name,
-                       $defender->body->empire_id,
-                       $defender->body->empire->name,
+                       $self->body->empire_id,
+                       $self->body->empire->name,
                        $self->type_formatted],
     );
   }

@@ -1,6 +1,6 @@
 SAW Neutralized
 ~~~
-Our offensive squadron was able to neutralize a SAW from {Starmap %s %s %s} that was defending {Starmap %s %s %s}. Empire {Empire %s %s}.
+Our offensive squadron was able to neutralize a SAW on planet {Starmap %s %s %s} from the empire of {Empire %s %s} that was defending {Starmap %s %s %s}.
 
 Regards,
 

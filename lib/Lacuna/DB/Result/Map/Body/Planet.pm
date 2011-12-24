@@ -850,7 +850,18 @@ sub recalc_stats {
 
     # overall ore production
     $stats{ore_hour} = $total_ore_production_hour - $ore_consumption_hour;
-    
+
+    # deal with negative amounts stored
+    if ($self->water_stored < 0) {
+      $self->water_stored(0);
+    }
+    if ($self->energy_stored < 0) {
+      $self->energy_stored(0);
+    }
+    for my $type (FOOD_TYPES, ORE_TYPES) {
+      my $stype = $type.'_stored';
+      $self->$stype(0) if ($self->$stype < 0);
+    }
     
     # deal with storage overages
     if ($self->ore_stored > $self->ore_capacity) {
@@ -1126,6 +1137,17 @@ sub tick_to {
         else {
             $self->add_food(sprintf('%.0f', $self->food_hour * $tick_rate));
         }
+    }
+    # deal with negative amounts stored
+    if ($self->water_stored < 0) {
+      $self->water_stored(0);
+    }
+    if ($self->energy_stored < 0) {
+      $self->energy_stored(0);
+    }
+    for my $type (FOOD_TYPES, ORE_TYPES) {
+      my $stype = $type.'_stored';
+      $self->$stype(0) if ($self->$stype < 0);
     }
     $self->update;
 }
