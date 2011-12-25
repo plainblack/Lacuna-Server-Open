@@ -2,6 +2,7 @@
  - Fix:  Planet resources shouldn't go below zero.
  - Add:  Battle Logs generated when SAWs neutralized.
  - Add:  Email generated when SAWs neutralized.
+ - Mod:  Repair cycle on SAWs increased to 15 minutes.
 
 3.0824:
  - Mod:  AI empires can use supply pod tech.
