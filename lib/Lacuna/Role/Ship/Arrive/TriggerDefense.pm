@@ -389,7 +389,7 @@ sub saw_combat {
     $saw->spend_efficiency($perc);
   }
   unless ($saw->is_working) {
-    $saw->start_work({}, 60 * 5);
+    $saw->start_work({}, 60 * 15);
   }
   $saw->update;
   $self->damage_in_combat($saw, $saw_combat);
