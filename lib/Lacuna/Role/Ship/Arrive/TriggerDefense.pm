@@ -361,7 +361,7 @@ sub saw_stats {
     push @saws, $saw;
     last if $cnt >= 10;
   }
-  $planet_combat = $planet_combat * $cnt;
+#  $planet_combat = $planet_combat * $cnt;
   return \@saws, $planet_combat;
 }
 

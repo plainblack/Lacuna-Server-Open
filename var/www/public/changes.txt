@@ -4,6 +4,7 @@
  - Add:  Email generated when SAWs neutralized.
  - Mod:  Repair cycle on SAWs increased to 15 minutes.
  - Fix:  Slight change to starting planet locations.
+ - Mod:  SAWs downgraded (a bonus was applied twice.)
 
 3.0824:
  - Mod:  AI empires can use supply pod tech.
