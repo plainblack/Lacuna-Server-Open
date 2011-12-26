@@ -778,7 +778,7 @@ sub bhg_change_type {
       name       => $body->name,
     };
   }
-  my $starter = ($body->size >= 40 && $body->size <= 50) ? 1 : 0;
+  my $starter = (!$body->empire && $body->size >= 40 && $body->size <= 50) ? 1 : 0;
   $body->update({
     needs_recalc                => 1,
     class                       => $class,
@@ -809,7 +809,7 @@ sub bhg_size {
         $current_size = 20 if ($current_size > 20);
       }
       else {
-        $current_size += int($building->level/10);
+        $current_size += int($building->level/5);
         $current_size = 10 if ($current_size > 10);
       }
     }
@@ -858,7 +858,7 @@ sub bhg_size {
       name      => $body->name,
     };
   }
-  my $starter = ($current_size >= 40 && $current_size <= 50) ? 1 : 0;
+  my $starter = (!$body->empire && $body->size >= 40 && $body->size <= 50) ? 1 : 0;
   $body->update({
     needs_recalc                => 1,
     size                        => $current_size,

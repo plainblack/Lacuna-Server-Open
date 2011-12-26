@@ -485,6 +485,7 @@ sub find_home_planet {
     my $home_planet;
     while (my $planet = $possible_planets->next) {
         # skip planets with member's only colonization
+        next if ($planet->empire);  # If a planet is qualified, but inhabited.
         if ($planet->star->station_id) {
             if ($planet->star->station->laws->search({type => 'MembersOnlyColonization'})->count) {
                 next;
