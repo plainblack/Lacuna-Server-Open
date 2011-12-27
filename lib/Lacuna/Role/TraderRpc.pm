@@ -181,10 +181,13 @@ sub get_plan_summary {
     for my $plan (@plans) {
         my ($key,$quantity) = %$plan;
         my ($name,$class,$level,$extra) = split /~/, $key;
+        my $plan_type = $class;
+        $plan_type =~ s/Lacuna::DB::Result::Building:://;
+        $plan_type =~ s/::/_/g;
 
         push @out, {
             name                => $name,
-            plan_class          => $class,
+            plan_type           => $plan_type,
             level               => int($level),
             extra_build_level   => int($extra),
             quantity            => $quantity,

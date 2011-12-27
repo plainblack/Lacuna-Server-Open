@@ -87,12 +87,15 @@ sub check_payload {
                 elsif ($item->{quantity}) {
                     confess $offer_nothing_exception unless ($item->{quantity} > 0);
                     confess $fractional_offer_exception if ($item->{quantity} != int($item->{quantity}));
-                    confess [1002, 'you must specify a plan_class if you specify a quantity.'] unless $item->{plan_class};
+                    confess [1002, 'you must specify a plan_type if you specify a quantity.'] unless $item->{plan_type};
                     confess [1002, 'you must specify a level if you specify a quantity.'] unless $item->{level};
                     confess [1002, 'you must specify an extra_build_level if you specify a quantity.'] unless defined $item->{extra_build_level};
 
+                    my $plan_class = $item->{plan_type};
+                    $plan_class =~ s/_/::/g;
+                    $plan_class = "Lacuna::DB::Result::Building::$plan_class";
                     my @plans = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search({
-                        class   => $item->{plan_class},
+                        class   => $plan_class,
                         body_id => $self->body_id,
                         level   => $item->{level},
                         extra_build_level   => $item->{extra_build_level},
