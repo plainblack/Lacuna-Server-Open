@@ -5,6 +5,7 @@
  - Mod:  Repair cycle on SAWs increased to 15 minutes.
  - Fix:  Slight change to starting planet locations.
  - Mod:  SAWs downgraded (a bonus was applied twice.)
+ - Add:  (API only) At shipyard you can now specify the number of ships to build
 
 3.0824:
  - Mod:  AI empires can use supply pod tech.

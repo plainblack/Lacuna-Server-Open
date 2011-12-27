@@ -76,15 +76,26 @@ sub subsidize_build_queue {
 
 
 sub build_ship {
-    my ($self, $session_id, $building_id, $type) = @_;
+    my ($self, $session_id, $building_id, $type, $quantity) = @_;
+    $quantity = defined $quantity ? $quantity : 1;
+    if ($quantity > 50) {
+        confess [1011, "You can only build up to 50 ships at a time"];
+    }
+    if ($quantity <= 0 or int($quantity) != $quantity) {
+        confess [1001, "Quantity must be a positive integer"];
+    }
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $body = $building->body;
+
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type => $type});
-    my $costs = $building->get_ship_costs($ship);
-    $building->can_build_ship($ship, $costs);
-    $building->spend_resources_to_build_ship($costs);
-    $building->build_ship($ship, $costs->{seconds});
+    my $costs = $building->get_ship_costs($ship,$quantity);
+    $building->can_build_ship($ship, $costs, $quantity);
+    for (1..$quantity) {
+        $building->spend_resources_to_build_ship($costs);
+        $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type => $type});
+        $building->build_ship($ship, $costs->{seconds});
+    }
     return $self->view_build_queue($empire, $building);
 }
 

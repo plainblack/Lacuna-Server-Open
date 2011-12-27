@@ -75,7 +75,9 @@ has max_ships => (
 );
 
 sub can_build_ship {
-    my ($self, $ship, $costs) = @_;
+    my ($self, $ship, $costs, $quantity) = @_;
+    $quantity = defined $quantity ? $quantity : 1;
+
     if (ref $ship eq 'Lacuna::DB::Result::Ships') {
         confess [1002, 'That is an unknown ship type.'];
     }
@@ -93,17 +95,17 @@ sub can_build_ship {
     my $body = $self->body;
     foreach my $key (keys %{$costs}) {
         next if ($key eq 'seconds' || $key eq 'waste');
-        my $cost = $costs->{$key};
+        my $cost = $costs->{$key} * $quantity;
         unless ($cost <= $body->type_stored($key)) {
             confess [1011, 'Not enough resources.', $key];
         }
     }
     my $ships_building = $ships->search({body_id => $self->body_id, task=>'Building'})->count;
-    if ($ships_building >= $self->max_ships) {
+    if ($ships_building + $quantity > $self->max_ships) {
         confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.'];
     }
-    unless ($self->body->spaceport->docks_available) {
-        confess [1009, 'You do not have a dock available at the Spaceport.'];
+    unless ($self->body->spaceport->docks_available >= $quantity) {
+        confess [1009, "You do not have $quantity docks available at the Spaceport."];
     }
     return 1;
 }

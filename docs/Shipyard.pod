@@ -134,12 +134,9 @@ Ships that are used to gather resources from space.
 
 =back
 
+=head2 build_ship ( session_id, building_id, type, [ quantity ] )
 
- 
- 
-=head2 build_ship ( session_id, building_id, type )
-
-Adds a ship to the build queue. Returns the same thing as C<view_build_queue()>.
+Adds ships to the build queue. Returns the same thing as C<view_build_queue()>.
 
 =head3 session_id
 
@@ -152,5 +149,12 @@ The unique id of the shipyard.
 =head3 type
 
 A ship type. Get from C<get_buildable>.
+
+=head3 quantity
+
+An optional quantity, if left blank it defaults to 1, otherwise specify the number
+of ships to build up to a maximum of 50. You must have the shipyard capacity, the
+space port capacity and the resources required to build the specified quantity of
+ships.
 
 =cut
