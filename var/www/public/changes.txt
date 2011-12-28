@@ -1,3 +1,6 @@
+3.0829:
+ - Add:  Added bulk trading in plans/glyphs/ships to SST
+
 3.0828:
  - Fix:  Planet resources shouldn't go below zero.
  - Add:  Battle Logs generated when SAWs neutralized.
