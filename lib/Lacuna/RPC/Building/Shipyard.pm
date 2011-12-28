@@ -84,21 +84,20 @@ sub build_ship {
     if ($quantity <= 0 or int($quantity) != $quantity) {
         confess [1001, "Quantity must be a positive integer"];
     }
+    my $costs;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $body = $building->body;
-
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type => $type});
-    my $costs = $building->get_ship_costs($ship,$quantity);
-    $building->can_build_ship($ship, $costs, $quantity);
     for (1..$quantity) {
+        my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type => $type});
+        if (not defined $costs) {
+            $costs = $building->get_ship_costs($ship);
+            $building->can_build_ship($ship, $costs, $quantity);
+        }
         $building->spend_resources_to_build_ship($costs);
-        $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type => $type});
         $building->build_ship($ship, $costs->{seconds});
     }
     return $self->view_build_queue($empire, $building);
 }
-
 
 
 sub get_buildable {
