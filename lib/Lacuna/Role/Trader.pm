@@ -100,7 +100,7 @@ sub check_payload {
                         level   => $item->{level},
                         extra_build_level   => $item->{extra_build_level},
                     });
-                    confess [1002, "You don't have ".$item->{quantity}." plans of type ".$item->{name}." you only have ".scalar(@plans)] unless scalar(@plans) >= $item->{quantity};
+                    confess [1002, "You don't have ".$item->{quantity}." plans of type ".$item->{plan_type}." you only have ".scalar(@plans)] unless scalar(@plans) >= $item->{quantity};
                     push @expanded_items, map { {type => 'plan',plan_id => $_->id} } splice @plans, 0, $item->{quantity};
                     $space_used += 10000 * $item->{quantity};
 

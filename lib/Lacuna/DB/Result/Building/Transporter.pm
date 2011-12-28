@@ -125,18 +125,11 @@ sub push_items {
         $space_exception = 'You are trying to send %s cargo, but the remote transporter can only receive '.$remote_payload.'.';
     }
 
+    $self->check_payload($items, $local_payload);
     my $space_used = $self->check_payload_ships($items, $target);
 
     my ($payload, $meta) = $self->structure_payload($items, $space_used);
     my $container = Lacuna::VirtualContainer->new(payload => $payload);
-    #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
-    #$cargo_log->new({
-    #    message     => 'push resources',
-    #    body_id     => $self->body_id,
-    #    data        => $payload,
-    #    object_type => ref($self),
-    #    object_id   => $self->id,
-    #})->insert;
     $container->unload($target);
 }
 

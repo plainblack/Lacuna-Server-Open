@@ -133,14 +133,6 @@ sub push_items {
             payload => $payload,
         );
     }
-    #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
-    #$cargo_log->new({
-    #    message     => 'push resources',
-    #    body_id     => $ship->foreign_body_id,
-    #    data        => $ship->payload,
-    #    object_type => ref($ship),
-    #    object_id   => $ship->id,
-    #})->insert;
     return $ship;
 }
 
