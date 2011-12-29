@@ -530,7 +530,110 @@ The unique id of the trade ministry.
 The unique id of the body you'll be shipping to. Optional. If included it will calculate the estimated travel time of the ships to this body.
 
 
+=head2 get_waste_ships ( session_id, building_id )
 
+Returns a list of the ships that are either working to transport waste or available.
+
+ {
+    "status" : { ... },
+    "ships" : [
+        {
+           "id" : "id-goes-here",
+           "type" : "scow",
+           "task" : "Docked",
+           "name" : "Dumper Truck 1",
+           "speed" : 600,
+           "hold_size" : 1234800,
+        },
+        ...
+    ]
+ }
+
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the trade ministry.
+
+=head2 view_waste_pushes ( session_id, building_id )
+
+Returns a list of the waste pushes currently controlled by this Trade Ministry
+
+ {
+    "status" : { ... },
+    "waste_pushes" : [
+      {
+        "id" : "id-goes-here",
+        "star" : {
+          "id" : "id-goes-here",
+          "name" : "Sol",
+          "x" : 0,
+          "y" : -123,
+          ...
+        },
+        "waste_hour" : 10000000,
+        "percent_transferred" : 95,
+      }
+    ]
+ }
+
+There will usually only be one waste-push in action, to your local star.
+
+The B<waste_hour> is the amount of waste you wish to transfer per hour.
+
+The B<percent_transferred> is the percentage of B<waste_hour> that is actually transferred.
+This is based on the number of ships you have servicing the waste. If you have no ships then
+the B<percent_transferred> will be zero. If it is below 100 then you need to add ships so that
+it is at or above 100. Above 100 and you have more ship capacity than you need, but you will 
+still only transfer the specified B<waste_hour>, it just means some ships will be idle or not
+fully filled.
+
+=head2 add_waste_ship_to_fleet (session_id, building_id, ship_id )
+
+Take a scow from your space port and add it to the ships servicing the waste pushes.
+
+ {
+   "status" : { ... },
+ }
+
+Throws 1009.
+
+=head3 session_id
+
+A Session ID.
+
+=head3 building_id
+
+The unique ID of the Trade Ministry.
+
+=head3 ship_id
+
+The unique ID of the ship you want to add to the fleet.
+
+=head2 remove_waste_ship_from_fleet (session_id, building_id, ship_id )
+
+Remove a ship from servicing you waste management and tell it to return to the space port.
+
+ {
+   "status" : { ... },
+ }
+
+Throws 1009.
+
+=head3 session_id
+
+A Session ID.
+
+=head3 building_id
+
+The unique ID of the Trade Ministry.
+
+=head3 ship_id
+
+The unique ID of the ship you want to remove from the fleet.
 
 
 =head2 get_stored_resources ( session_id, building_id )
@@ -556,7 +659,6 @@ A session id.
 =head3 building_id
 
 The unique id of this building.
-
 
 
 =head2 push_items ( session_id, building_id, target_id, items, options )
