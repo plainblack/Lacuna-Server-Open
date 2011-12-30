@@ -66,6 +66,79 @@ sub get_ores_available_for_processing {
     return \%available;
 }
 
+sub max_excavators {
+  my $self = shift;
+  return ($self->level);
+}
+
+sub add_ship {
+    my ($self, $ship) = @_;
+    $ship->task('Excavating');
+    $ship->update;
+    $self->recalc_excavating;
+    return $self;
+}
+
+sub send_ship_home {
+    my ($self, $body, $ship) = @_;
+    $ship->send(
+        target      => $body,
+        direction   => 'in',
+        task        => 'Travelling',
+    );
+    $self->recalc_excavating;
+    return $self;
+}
+
+sub excavators {
+  my $self = shift;
+  return Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->search({ planet_id => $self->body_id });
+}
+
+sub can_add_excavator {
+  my ($self, $body, $on_arrival) = @_;
+    
+  # excavator count for archaeology
+  my $count = $self->excavators->count;
+  unless ($on_arrival) {
+    $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')
+                ->search({type=>'excavators', task=>'Travelling',body_id=>$self->body_id})->count;
+    }    
+    if ($count >= $self->max_excavators) {
+      confess [1009, 'Already at the maximum number of platforms allowed at this Ministry level.'];
+    }
+    
+    # body count (Not sure if we want to implement this)
+#    $count = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')
+#               ->search({ body_id => $body->id })->count;
+#    unless ($on_arrival) {
+#        $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')
+#                    ->search( {
+#                      type=>'excavators',
+#                      foreign_body_id => $body->id,
+#                      task=>'Travelling',
+#                      body_id=>$self->body_id
+#                    })->count;
+#    }
+#    if ($body->size <= $count) {
+#        confess [1010, $body->name.' cannot support any additional excavators.'];
+#    }
+    return 1;
+}
+
+sub add_excavator {
+  my ($self, $body, $speed) = @_;
+  Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->new({
+    planet_id   => $self->body_id,
+    planet      => $self->body,
+    body_id     => $asteroid->id,
+    body        => $asteroid,
+    speed       => $speed,
+  })->insert;
+  $self->recalc_excavating;
+  return $self;
+}
+
 sub can_search_for_glyph {
     my ($self, $ore) = @_;
     unless ($self->level > 0) {
