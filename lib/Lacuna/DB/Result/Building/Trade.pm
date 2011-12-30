@@ -231,6 +231,29 @@ sub trade_ships {
     });
 }
 
+sub waste_ships {
+    my ($self) = @_;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        task    => 'Docked',
+        type    => { 'in' => [qw(scow)] },
+        body_id => $self->body_id,
+    },
+    {
+        order_by=> {-desc => ['hold_size']}
+    });
+}
+
+sub waste_chains {
+    my ($self) = @_;
+    return Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->search({
+        planet_id   => $self->body_id,
+        star_id     => $self->body->star_id,
+    },
+    {
+        order_by    => 'waste_hour',
+    });
+}
+
 sub next_available_trade_ship {
     my ($self, $ship_id) = @_;
     if ($ship_id) {

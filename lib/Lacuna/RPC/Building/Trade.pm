@@ -33,6 +33,41 @@ sub get_trade_ships {
     };
 }
 
+sub get_waste_ships {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    my $body        = $building->body;
+    # get the local star
+    my $target      = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($body->star_id);
+    my @ships;
+    my $ships       = $building->waste_ships;
+    while (my $ship = $ships->next) {
+        push @ships, $ship->get_status($target);
+    }
+    return {
+        status      => $self->format_status($empire, $building->body),
+        ships       => \@ships,
+    };
+
+}
+
+sub view_waste_chain {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    my $body        = $building->body;
+    my @waste_chain;
+    my $chains      = $building->waste_chains;
+    while (my $waste_push = $chains->next) {
+        push @waste_chain, $waste_push->get_status;
+    }
+    return {
+        status          => $self->format_status($empire, $building->body),
+        waste_chain     => \@waste_chain,
+    };
+}
+
 sub push_items {
     my ($self, $session_id, $building_id, $target_id, $items, $options) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -146,25 +181,10 @@ sub accept_from_market {
 
     $empire->spend_essentia($trade->ask, 'Trade Price')->update;
     $trade->body->empire->add_essentia($trade->ask, 'Trade Income')->update;
-    #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
-    #$cargo_log->new({
-    #    message     => 'trade ministry offer accepted',
-    #    body_id     => $trade->body_id,
-    #    data        => $trade->payload,
-    #    object_type => ref($trade),
-    #    object_id   => $trade->id,
-    #})->insert;
     $offer_ship->send(
         target  => $body,
         payload => $trade->payload,
     );
-    #$cargo_log->new({
-    #    message     => 'send offer',
-    #    body_id     => $offer_ship->foreign_body_id,
-    #    data        => $offer_ship->payload,
-    #    object_type => ref($offer_ship),
-    #    object_id   => $offer_ship->id,
-    #})->insert;
     
     $trade->body->empire->send_predefined_message(
         tags        => ['Trade','Alert'],
@@ -199,7 +219,7 @@ sub add_to_market {
 
 
 
-__PACKAGE__->register_rpc_method_names(qw(report_abuse view_my_market view_market accept_from_market withdraw_from_market add_to_market push_items get_trade_ships get_stored_resources get_ships get_ship_summary get_prisoners get_plans get_plan_summary get_glyphs get_glyph_summary));
+__PACKAGE__->register_rpc_method_names(qw(get_waste_ships view_waste_chain add_waste_ship_to_fleet remove_waste_ship_from_fleet report_abuse view_my_market view_market accept_from_market withdraw_from_market add_to_market push_items get_trade_ships get_stored_resources get_ships get_ship_summary get_prisoners get_plans get_plan_summary get_glyphs get_glyph_summary));
 
 
 no Moose;
