@@ -1,5 +1,6 @@
 3.0830:
  - Mod:  Even more changes to SAWs. (We'll keep banging on these keys.)
+ - Fix:  Correspondance school is no longer an acredited option for spies.
 
 3.0829:
  - Add:  Added bulk trading in plans/glyphs/ships to SST
