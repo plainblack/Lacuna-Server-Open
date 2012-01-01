@@ -573,7 +573,7 @@ sub output_map {
   my $config = Lacuna->config;
   my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
   my $bucket = $s3->bucket($config->get('feeds/bucket'));
-  my $object = $bucket->putobject('starmap.json', to_json(\%output), { 'Content-Type' => 'application/json' });
+  my $object = $bucket->putobject('starmap.json', to_json(\%output), { 'Content-Type' => 'application/json; charset=utf-8' });
   $object->acl('public');
 }
 
