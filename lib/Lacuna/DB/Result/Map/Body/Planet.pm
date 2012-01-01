@@ -190,10 +190,12 @@ around get_status => sub {
                     );
                     my @colonies;
                     my @allies;
+                    my $foreign_bodies;
                     while (my $ship = $incoming_ships->next) {
                         if ($ship->date_available->epoch <= $now) {
-                            $ship->foreign_body($self);
-                            $ship->body->tick;
+#                            $ship->foreign_body($self);
+#                            $ship->body->tick;
+                             $foreign_bodies->{$ship->body_id} = 1;
                         }
                         else {
                             unless (scalar @colonies) { # we don't look it up unless we have incoming
@@ -211,6 +213,13 @@ around get_status => sub {
                                 is_ally      => ($ship->body->empire_id ~~ \@allies) ? 1 : 0,
                                 id           => $ship->id,
                             };
+                        }
+                    }
+                    # tick all bodies where ships have arrived
+                    foreach my $body_id (keys %$foreign_bodies) {
+                        my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
+                        if ($body) {
+                            $body->tick;
                         }
                     }
                 }

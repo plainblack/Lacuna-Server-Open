@@ -105,23 +105,24 @@ sub ship_building_priorities {
 
 sub run_hourly_colony_updates {
     my ($self, $colony) = @_;
-    $self->demolish_bleeders($colony);
-    $self->set_defenders($colony);
-    $self->pod_check($colony, 20);
-    $self->repair_buildings($colony);
-    $self->train_spies($colony, 1);
-    $self->build_ships_max($colony);
-    $self->run_missions($colony);
-    $self->buy_trade($colony);
-    $self->sell_glyph_trade($colony);
-    $self->sell_plan_trade($colony);
-    $self->check_enemy_spy_action($colony);
+#    $self->demolish_bleeders($colony);
+#    $self->set_defenders($colony);
+#    $self->pod_check($colony, 20);
+#    $self->repair_buildings($colony);
+#    $self->train_spies($colony, 1);
+#    $self->build_ships_max($colony);
+#    $self->run_missions($colony);
+#    $self->buy_trade($colony);
+#    $self->sell_glyph_trade($colony);
+#    $self->sell_plan_trade($colony);
+#    $self->check_enemy_spy_action($colony);
 }
 
 sub run_hourly_empire_updates {
     my ($self, $empire) = @_;
 
     $self->process_email($empire);
+    $self->retaliate($empire);
 }
 
 sub get_colony_scratchpad {
@@ -410,21 +411,129 @@ sub buy_trade {
 }
 
 
+sub retaliate {
+    my ($self) = @_;
+
+    say "#### Retaliate! ####";
+    my $empire = $self->empire;
+    $self->scratch->discard_changes;
+    my $attack = $self->scratch->pad->{attack};
+
+    my @del_colonies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
+        empire_id   => -9,
+    });
+
+TARGET:
+    foreach my $target_id (keys %$attack) {
+       my $target = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($target_id);
+       if ($target) {
+           say "    Target empire '".$target->name."' status '".$attack->{$target_id}{status}."'";
+           if ($attack->{$target_id}{status} eq "Attacking") {
+               my $target_colony_id    = $attack->{$target_id}{colony_id};
+               my $num_sweepers        = $attack->{$target_id}{sweepers};
+               my $num_scows           = $attack->{$target_id}{scows};
+               my $num_snarks          = $attack->{$target_id}{snarks};
+               my $target_colony       = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_colony_id);
+               next TARGET unless $target_colony;
+               next TARGET if $target_colony->empire_id != $target_id;
+               say "    Attack '".$target_colony->name."' with $num_sweepers sweepers, $num_scows scows, $num_snarks snarks";
+
+               # Sort the DeLamberti colonies, closest to the target first
+               @del_colonies = sort {$self->distance_comp($a,$b,$target_colony)} @del_colonies;
+               # Get a percentage of ships from the closest colonies.
+               my @sweepers;
+               my @scows;
+               my @snarks;
+               foreach my $del_colony (@del_colonies) {
+                   if (@sweepers < $num_sweepers) {
+                       my @ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+                           type     => 'sweeper',
+                           task     => 'Docked',
+                           body_id  => $del_colony->id,
+                       });
+                       # 20% of sweepers
+                       my $quantity = int(@ships / 5);
+                       say "    Colony has ".scalar(@ships)." sweepers";
+                       if (@sweepers + $quantity > $num_sweepers) {
+                           $quantity = $num_sweepers - @sweepers;
+                       }
+                       say "    taking $quantity sweepers from ".$del_colony->name;
+                       @sweepers = (@sweepers,  splice(@ships, 0, $quantity));
+                       say "    Now got ".scalar(@sweepers)." sweepers";
+                   }
+                   if (@scows < $num_scows) {
+                       my @ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+                           type     => 'scow',
+                           task     => 'Docked',
+                           body_id  => $del_colony->id,
+                       });
+                       # 50% of scows
+                       my $quantity = int(@ships / 2);
+                       if (@scows + $quantity > $num_scows) {
+                           $quantity = $num_scows - @scows;
+                       }
+                       say "    taking $quantity scows from ".$del_colony->name;
+                       @scows = (@scows, splice(@ships, 0, $quantity));
+                   }
+                   if (@snarks < $num_snarks) {
+                       my @ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+                           type     => {like => "snark%"},
+                           task     => 'Docked',
+                           body_id  => $del_colony->id,
+                       });
+                       # 50% of snarks
+                       my $quantity = int(@ships / 2);
+                       if (@snarks + $quantity > $num_snarks) {
+                           $quantity = $num_snarks - @snarks;
+                       }
+                       say "    taking $quantity snarks from ".$del_colony->name;
+                       @snarks = (@snarks, splice(@ships, 0, $quantity));
+                   }
+               }
+               # Send all the ships and adjust their travel time to the latest arrival
+               my $arrival_time;
+               for my $ship (@snarks,@sweepers,@scows) {
+                   say "    sending ship ID".$ship->id;
+                   $ship->send(target => $target_colony);
+                   if (not defined $arrival_time or $ship->date_available > $arrival_time) {
+                       $arrival_time = $ship->date_available;
+                   }
+               }
+               say "    Latest arrival time is $arrival_time";
+               for my $ship (@sweepers,@snarks,@scows) {
+                   $ship->date_available($arrival_time);
+                   $ship->update;
+               }
+           }
+       }
+    }
+}
+
+sub distance_comp {
+    my ($self, $left, $right, $target) = @_;
+
+    my $distance_left = ($left->x - $target->x) * ($left->x - $target->x) + ($left->y - $target->y) * ($left->y - $target->y);
+    my $distance_right = ($right->x - $target->x) * ($right->x - $target->x) + ($right->y - $target->y) * ($right->y - $target->y);
+    return $distance_left <=> $distance_right;
+}
+
 sub process_email {
     my ($self) = @_;
 
     my $empire = $self->empire;
     my $messages = $self->empire->received_messages->search({
         has_read    => 0,
-        tag         => 'Correspondence',
+#        tag         => 'Correspondence',
     });
     MESSAGE:
     while (my $message = $messages->next) {
         print("Received message [".$message->subject."]\n");
         if ($message->from_id == $self->empire->id) {
-            # message is from oneself
-            $message->has_read(1);
-            $message->update;
+            if ($message->subject eq "Trade Withdrawn") {
+                $message->has_read(1);
+                $message->has_trashed(1);
+                $message->update;
+            }
             next MESSAGE;
         }
         my $request_empire = Lacuna::db->resultset('Lacuna::DB::Result::Empire')->find($message->from_id);
