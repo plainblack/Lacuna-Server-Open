@@ -1,3 +1,6 @@
+3.0831:
+ - Add:  Alliance mapping data available.
+
 3.0830:
  - Mod:  Even more changes to SAWs. (We'll keep banging on these keys.)
  - Fix:  Correspondance school is no longer an acredited option for spies.
