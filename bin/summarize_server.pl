@@ -8,6 +8,7 @@ use Getopt::Long;
 use JSON;
 use SOAP::Amazon::S3;
 use Lacuna::Constants qw(SHIP_TYPES);
+use utf8;
 
 
   $|=1;
@@ -326,6 +327,7 @@ sub summarize_empires {
           x    => $colony->x,
           y    => $colony->y,
           zone => $colony->zone,
+          name => "",
         );
         push @map_colonies, \%map_col;
       }
@@ -355,6 +357,7 @@ sub summarize_empires {
             x    => $colony->x,
             y    => $colony->y,
             zone => $colony->zone,
+            name => "",
           );
           push @map_colonies, \%map_col;
         }
@@ -399,6 +402,7 @@ sub summarize_empires {
         x    => $colony->x,
         y    => $colony->y,
         zone => $colony->zone,
+        name => $colony->name,
       );
       my $btype = $colony->get_type;
       if ($btype eq "space staion") {
@@ -544,7 +548,7 @@ sub output_map {
     for my $bod (@{$mapping->{$emp_id}->{bodies}}) {
       my $info_str =
         sprintf("%s (%s) -- %s : (%d,%d) [%s]",
-          $mapping->{$emp_id}->{empire_name},
+          ($bod->{name} ne "") ? $bod->{name} : $mapping->{$emp_id}->{empire_name},
           $mapping->{$emp_id}->{alliance_name},
           $bod->{type},
           $bod->{x},
@@ -567,13 +571,13 @@ sub output_map {
     }
   }
   open(OUT, ">starmap.json");
-  print OUT to_json(\%output, { pretty => 1});
+  print OUT to_json(\%output, { pretty => 1, utf8 => 1});
   close(OUT);
-  out('Write To S3');
+  out('Write Map To S3');
   my $config = Lacuna->config;
   my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
   my $bucket = $s3->bucket($config->get('feeds/bucket'));
-  my $object = $bucket->putobject('starmap.json', to_json(\%output), { 'Content-Type' => 'application/json; charset=utf-8' });
+  my $object = $bucket->putobject('starmap.json', to_json(\%output, {utf8 => 1}), { 'Content-Type' => 'application/json; charset=utf-8' });
   $object->acl('public');
 }
 
