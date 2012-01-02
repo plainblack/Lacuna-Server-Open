@@ -1229,13 +1229,13 @@ sub www_delambert_war {
     my ($scratch) = Lacuna->db->resultset('Lacuna::DB::Result::AIScratchPad')->search({ai_empire_id => -9, body_id => 0});
     my $scratchpad = $scratch->pad;
 
-    if ($request->param('action')) {
+    if ($request->param('submit')) {
         $scratchpad->{attack}{$request->param('attacker_id')} = {
-            status      => $request->param('action') eq 'Hold' ? 'Holding' : 'Attacking',
             sweepers    => $request->param('sweepers'),
             scows       => $request->param('scows'),
             snarks      => $request->param('snarks'),
             colony_id   => $request->param('colony_id'),
+            frequency   => $request->param('frequency'),
         };
         $scratch->pad($scratchpad);
         $scratch->update;
@@ -1265,7 +1265,7 @@ sub www_delambert_war {
     # Sort the attackers so that those who have done the most un-retaliated damage are shown first
     my @worst_attackers = sort {( $defence{$b}{weight} - defined $attack{$b} ? $attack{$b} : 0) <=> ( $defence{$a}{weight} - defined $attack{$a} ? $attack{$a} : 0 ) } keys %defence;
 
-    $out .= "<table><tr><th>Attacker</th><th>Victories</th><th>Defeats</th><th>Spy Hours</th><th>Counter Attacks</th><th>Weight</th><th>Status</th><th>Colony</th><th>Attack Sweepers</th><th>Attack Scows</th><th>Attack Snark</th><th>Action</th></tr>\n";
+    $out .= "<table><tr><th>Attacker</th><th>Victories</th><th>Defeats</th><th>Spy Hours</th><th>Counter Attacks</th><th>Weight</th><th>Colony</th><th>Frequency</th><th>Attack Sweepers</th><th>Attack Scows</th><th>Attack Snark</th><th>Action</th></tr>\n";
 ATTACKER:
     foreach my $attacker (@worst_attackers) {
         my $attack_empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($attacker);
@@ -1279,23 +1279,22 @@ ATTACKER:
 
         if (not defined $scratchpad->{attack}{$attacker}) {
             $scratchpad->{attack}{$attacker} = {
-                status      => 'Holding',
                 colony_id   => $colonies[0]->id,
                 sweepers    => 1000,
                 snarks      => 200,
                 scows       => 200,
+                frequency   => 'Once',
             };
             $scratch->pad($scratchpad);
             $scratch->update;
         }
 
-        my $status      = $scratchpad->{attack}{$attacker}{status};
         my $sweepers    = $scratchpad->{attack}{$attacker}{sweepers};
         my $snarks      = $scratchpad->{attack}{$attacker}{snarks};
         my $scows       = $scratchpad->{attack}{$attacker}{scows};
-        my $action      = $status eq 'Holding' ? 'Attack' : 'Hold';
+        my $frequency   = $scratchpad->{attack}{$attacker}{frequency};
         my $counter_attacks = defined $attack{$attacker} ? $attack{$attacker} : 0;
-        $out .= "<tr><td>".$attack_empire->name."</td><td>".$defence{$attacker}{attack_victories}."</td><td>".$defence{$attacker}{defense_victories}."</td><td>".$defence{$attacker}{attack_spy_hours}."</td><td>$counter_attacks</td><td>".$defence{$attacker}{weight}."</td><td>$status</td>";
+        $out .= "<tr><td>".$attack_empire->name."</td><td>".$defence{$attacker}{attack_victories}."</td><td>".$defence{$attacker}{defense_victories}."</td><td>".$defence{$attacker}{attack_spy_hours}."</td><td>$counter_attacks</td><td>".$defence{$attacker}{weight}."</td>";
         $out .= "<form action='/admin/delambert_war'>";
         $out .= "<td><select name='colony_id'>";
         foreach my $colony (@colonies) {
@@ -1303,11 +1302,17 @@ ATTACKER:
             $out .= "<option value='".$colony->id."' $selected>".$colony->name."</option>";
         }
         $out .= "</select></td>";
+        $out .= "<td><select name='frequency'>";
+        foreach my $freq (qw(never once hourly daily)) {
+            my $selected = ' selected ' if $scratchpad->{attack}{$attacker}{frequency} eq $freq;
+            $out .= "<option value='$freq' $selected>$freq</option>";
+        }
+        $out .= "</select></td>";
         $out .= "<td><input type='text' name='sweepers' value='$sweepers'></td>";
         $out .= "<input type='hidden' name='attacker_id' value='$attacker'>";
         $out .= "<td><input type='text' name='scows' value='$scows'></td>";
         $out .= "<td><input type='text' name='snarks' value='$snarks'></td>";
-        $out .= "<td><input type='submit' name='action' value='$action'></form></tr>";
+        $out .= "<td><input type='submit' name='submit' value='Submit'></form></tr>";
     }
     $out .= "</table>\n";
     return $self->wrap($out);

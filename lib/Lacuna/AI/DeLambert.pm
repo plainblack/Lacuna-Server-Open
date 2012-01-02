@@ -417,18 +417,23 @@ sub retaliate {
     say "#### Retaliate! ####";
     my $empire = $self->empire;
     $self->scratch->discard_changes;
-    my $attack = $self->scratch->pad->{attack};
+    my $scratch_pad = $self->scratch->pad;
+    my $attack = $scratch_pad->{attack};
 
     my @del_colonies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
         empire_id   => -9,
     });
 
+    say "    Checking daily attack time '".DateTime->now->hour."'";
+    my $attack_daily = DateTime->now->hour eq 14;
+
 TARGET:
     foreach my $target_id (keys %$attack) {
        my $target = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($target_id);
        if ($target) {
-           say "    Target empire '".$target->name."' status '".$attack->{$target_id}{status}."'";
-           if ($attack->{$target_id}{status} eq "Attacking") {
+           my $freq = $attack->{$target_id}{frequency} || 'never';
+           say "    Target empire '".$target->name."' frequency '$freq'";
+           if ($freq eq 'hourly' or $freq eq 'once' or ($freq eq 'daily' and $attack_daily)) {
                my $target_colony_id    = $attack->{$target_id}{colony_id};
                my $num_sweepers        = $attack->{$target_id}{sweepers};
                my $num_scows           = $attack->{$target_id}{scows};
@@ -503,6 +508,11 @@ TARGET:
                for my $ship (@sweepers,@snarks,@scows) {
                    $ship->date_available($arrival_time);
                    $ship->update;
+               }
+               if ($freq eq 'once') {
+                   $scratch_pad->{attack}{$target_id}{frequency} = 'never';
+                   $self->scratch->pad($scratch_pad);
+                   $self->scratch->update;
                }
            }
        }
