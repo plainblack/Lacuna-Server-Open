@@ -184,11 +184,12 @@ around get_status => sub {
 
                     my $foreign_bodies;
                     # Process all ships that have already arrived
+
                     my $incoming_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
                         foreign_body_id     => $self->id,
                         direction           => 'out',
                         task                => 'Travelling',
-                        date_available      => {'<' => $now.''},
+                        date_available      => {'<' => DateTime->now.''},
                     });
                     while (my $ship = $incoming_rs->next) {
                         $foreign_bodies->{$ship->body_id} = 1;
@@ -250,7 +251,7 @@ around get_status => sub {
 
                     $out->{num_incoming_enemy} = $num_incoming_enemy;
                     foreach my $ship (@incoming_enemy) {
-                        push @{$out->{incoming_foreign_ships}}, {
+                        push @{$out->{incoming_enemy_ships}}, {
                             date_arrives    => $ship->date_available_formatted,
                             is_own          => 0,
                             is_ally         => 0,
@@ -259,7 +260,7 @@ around get_status => sub {
                     }
                     $out->{num_incoming_ally} = $num_incoming_ally;
                     foreach my $ship (@incoming_ally) {
-                        push @{$out->{incoming_foreign_ships}}, {
+                        push @{$out->{incoming_ally_ships}}, {
                             date_arrives    => $ship->date_available_formatted,
                             is_own          => 0,
                             is_ally         => 1,
@@ -268,7 +269,7 @@ around get_status => sub {
                     }
                     $out->{num_incoming_own} = $num_incoming_own;
                     foreach my $ship (@incoming_own) {
-                        push @{$out->{incoming_foreign_ships}}, {
+                        push @{$out->{incoming_own_ships}}, {
                             date_arrives    => $ship->date_available_formatted,
                             is_own          => 1,
                             is_ally         => 0,
