@@ -115,7 +115,7 @@ sub generate_overview {
         asteroids   => 'Lacuna::DB::Result::Map::Body::Asteroid%',
     );
     foreach my $key (keys %body_types) {
-  out($key);
+        out($key);
         my $type = $bodies->search({class => {like => $body_types{$key}}});
         $out{bodies}{types}{$key} = {
             count           => $type->count,
@@ -306,7 +306,6 @@ sub summarize_empires {
         alliance_id      => $empire->alliance_id,
         home_id          => $empire->home_planet_id,
     );
-    out("Working on Empire: $map_data{empire_name} $map_data{alliance_id} $map_data{home_id}");
     if ($empire->alliance_id) {
       $empire_data{alliance_name} = $empire->alliance->name;
       $map_data{alliance_name}    = $empire->alliance->name;
@@ -394,7 +393,6 @@ sub summarize_empires {
         alliance_name    => $empire->name,
         home_id          => $empire->home_planet_id,
     );
-    out("Working on Empire: $map_data{empire_name} $map_data{alliance_id}");
     my @map_colonies;
     my $colonies = $db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id   => $empire->id});
     while ( my $colony = $colonies->next) {
@@ -537,6 +535,10 @@ sub summarize_spies {
 sub output_map {
   my $mapping = shift;
   
+#  my $map_txt = JSON->new->utf8->encode($mapping);
+#  open(OUT, ">:utf8:", "mapping.json");
+#  print OUT $map_txt;
+#  close(OUT);
   my %output;
   my $star_map_size = Lacuna->config->get('map_size');
   $output{map} = {
@@ -570,10 +572,10 @@ sub output_map {
       $output{alliances}->{$key}->{data}        = \@data;
     }
   }
-  my $json_txt = JSON->new->utf8->encode(\%output);
-  open(OUT, ">:utf8:", "starmap.json");
-  print OUT $json_txt;
-  close(OUT);
+#  my $json_txt = JSON->new->utf8->encode(\%output);
+#  open(OUT, ">:utf8:", "starmap.json");
+#  print OUT $json_txt;
+#  close(OUT);
   out('Write Map To S3');
   my $config = Lacuna->config;
   my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
