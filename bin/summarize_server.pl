@@ -129,25 +129,25 @@ sub generate_overview {
     # flesh out orbits
     out('Flesh Out Orbital Stats');
     foreach my $orbit (1..8) {
-  out($orbit);
-        $out{orbits}{$orbit} = {
-            inhabited   => $bodies->search({empire_id => {'>', 0}, orbit => $orbit})->count,
-            bodies      => $bodies->search({orbit => $orbit})->count,
-        }
+      out($orbit);
+      $out{orbits}{$orbit} = {
+           inhabited   => $bodies->search({empire_id => {'>', 0}, orbit => $orbit})->count,
+           bodies      => $bodies->search({orbit => $orbit})->count,
+      }
     }
 
     # flesh out buildings
     out('Flesh Out Building Stats');
     my $distinct = $buildings->search(undef, { group_by => ['class'] })->get_column('class');
     while (my $class = $distinct->next) {
-  out($class);
-        my $type_rs = $buildings->search({class=>$class});
-        my $count = $type_rs->count;
-        $out{buildings}{types}{$class->name} = {
-            average_level       => $type_rs->get_column('level')->func('avg'),
-            highest_level       => $type_rs->get_column('level')->max,
-            count               => $count,
-        };
+      out($class);
+      my $type_rs = $buildings->search({class=>$class});
+      my $count = $type_rs->count;
+      $out{buildings}{types}{$class->name} = {
+           average_level       => $type_rs->get_column('level')->func('avg'),
+           highest_level       => $type_rs->get_column('level')->max,
+           count               => $count,
+      };
     }
 
     # flesh out ships
@@ -570,14 +570,15 @@ sub output_map {
       $output{alliances}->{$key}->{data}        = \@data;
     }
   }
-  open(OUT, ">starmap.json");
-  print OUT to_json(\%output, { pretty => 1, utf8 => 1});
+  my $json_txt = JSON->new->utf8->encode(\%output);
+  open(OUT, ">:utf8:", "starmap.json");
+  print OUT $json_txt;
   close(OUT);
   out('Write Map To S3');
   my $config = Lacuna->config;
   my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
   my $bucket = $s3->bucket($config->get('feeds/bucket'));
-  my $object = $bucket->putobject('starmap.json', to_json(\%output, {utf8 => 1}), { 'Content-Type' => 'application/json; charset=utf-8' });
+  my $object = $bucket->putobject('starmap.json', $json_txt, { 'Content-Type' => 'application/json; charset=utf-8' });
   $object->acl('public');
 }
 
