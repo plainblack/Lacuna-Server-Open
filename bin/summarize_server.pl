@@ -314,7 +314,7 @@ sub summarize_empires {
     else {
       $empire_data{alliance_name} = undef;
       $map_data{alliance_id}   = 0;
-      $map_data{alliance_name} = "Unalligned";
+      $map_data{alliance_name} = "Unaligned";
     }
     my @map_colonies;
     my $colonies = $colony_logs->search({empire_id => $empire->id});
@@ -365,7 +365,7 @@ sub summarize_empires {
     }
     if (scalar @map_colonies > 0) {
       $map_data{bodies} = \@map_colonies;
-      %{$mapping{$map_data{alliance_id}}} = %map_data;
+      %{$mapping{$map_data{empire_id}}} = %map_data;
     }
     if ($empire_data{colony_count}) {
       $empire_data{average_building_level}    = $empire_data{average_building_level} / $empire_data{colony_count};
@@ -418,7 +418,7 @@ sub summarize_empires {
     }
     if (scalar @map_colonies > 0) {
       $map_data{bodies} = \@map_colonies;
-      %{$mapping{$map_data{alliance_id}}} = %map_data;
+      %{$mapping{$map_data{empire_id}}} = %map_data;
     }
   }
   return (\%mapping);
