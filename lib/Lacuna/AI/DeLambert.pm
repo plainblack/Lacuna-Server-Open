@@ -640,6 +640,39 @@ sub process_email {
     }
 }
 
+sub attack_email {
+    my ($self, $empire, $attackers) = @_;
+
+    my $message = qq{
+We are the DeLamberti.
+
+It is with great sadness and anger that we have to inform you that we have recently been attacked
+by $attackers with great loss of life at one of our trading posts.
+
+We believed that The Lacuna Expanse was a peaceful place where we could trade to mutual benefit
+but this was not meant to be.
+
+While we are by nature a peaceful species, we will not stand by and let this unprovoked attack go
+without a response.
+
+We proclaim that from this day the DeLamberti are at war with $attackers. We will need time to
+decide on an appropriate level of response, but be warned, respond we will!
+
+To all other peaceful empires, understand that we will continue to trade with you, but any attacks
+against our trading posts will be met with appropriate force.
+
+Guilliame de Lambert 9th
+};
+    $empire->send_message(
+        tag         => 'Correspondence',
+        subject     => 'Declaration of war',
+        from        => $self->empire,
+        body        => $message,
+    );
+
+}
+
+
 sub unsolicited_email {
     my ($self, $empire) = @_;
 
