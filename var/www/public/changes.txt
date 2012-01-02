@@ -1,3 +1,8 @@
+3.0830:
+ - Fix:  Dillon Forge can not be upgraded with Halls of Vrbansk
+ - Note: Dillon Forge cannot be demolished/plan stripped/upgraded
+ - Fix:  You cannot now sacrifice Halls of Vrbansk that have not completed their build
+
 3.0829:
  - Add:  Added bulk trading in plans/glyphs/ships to SST
 
