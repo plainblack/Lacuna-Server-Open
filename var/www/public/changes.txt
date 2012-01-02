@@ -4,6 +4,9 @@
 3.0830:
  - Mod:  Even more changes to SAWs. (We'll keep banging on these keys.)
  - Fix:  Correspondance school is no longer an acredited option for spies.
+ - Fix:  Dillon Forge can not be upgraded with Halls of Vrbansk
+ - Note: Dillon Forge cannot be demolished/plan stripped/upgraded
+ - Fix:  You cannot now sacrifice Halls of Vrbansk that have not completed their build
 
 3.0829:
  - Add:  Added bulk trading in plans/glyphs/ships to SST
