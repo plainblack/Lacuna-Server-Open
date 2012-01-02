@@ -313,7 +313,7 @@ sub summarize_empires {
     else {
       $empire_data{alliance_name} = undef;
       $map_data{alliance_id}   = 0;
-      $map_data{alliance_name} = "Unaligned";
+      $map_data{alliance_name} = "Neutral";
     }
     my @map_colonies;
     my $colonies = $colony_logs->search({empire_id => $empire->id});
