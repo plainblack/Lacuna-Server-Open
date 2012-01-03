@@ -572,7 +572,7 @@ sub output_map {
       $output{alliances}->{$key}->{data}        = \@data;
     }
   }
-#  my $json_txt = JSON->new->utf8->encode(\%output);
+  my $json_txt = JSON->new->utf8->encode(\%output);
 #  open(OUT, ">:utf8:", "starmap.json");
 #  print OUT $json_txt;
 #  close(OUT);
