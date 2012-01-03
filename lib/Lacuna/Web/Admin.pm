@@ -1260,12 +1260,12 @@ sub www_delambert_war {
     } @ai_defence;
 
     # If the AI attacks, we just care about when the AI wins the attack
-    my %attack  = map { $_->defending_empire_id => $_->attack_victories + $_->attack_spy_hours * 2 } @ai_defence;
+    my %attack  = map { $_->defending_empire_id => $_->attack_victories + $_->attack_spy_hours * 2 } @ai_attack;
 
     # Sort the attackers so that those who have done the most un-retaliated damage are shown first
-    my @worst_attackers = sort {( $defence{$b}{weight} - defined $attack{$b} ? $attack{$b} : 0) <=> ( $defence{$a}{weight} - defined $attack{$a} ? $attack{$a} : 0 ) } keys %defence;
+    my @worst_attackers = sort {( $defence{$a}{weight} - defined $attack{$a} ? $attack{$a} : 0) <=> ( $defence{$b}{weight} - defined $attack{$b} ? $attack{$b} : 0 ) } keys %defence;
 
-    $out .= "<table><tr><th>Attacker</th><th>Victories</th><th>Defeats</th><th>Spy Hours</th><th>Counter Attacks</th><th>Weight</th><th>Colony</th><th>Frequency</th><th>Attack Sweepers</th><th>Attack Scows</th><th>Attack Snark</th><th>Action</th></tr>\n";
+    $out .= "<table border='1'><tr><th>Attacker</th><th>Victories</th><th>Defeats</th><th>Spy Hours</th><th>Retaliate Weight</th><th>Attack Weight</th><th>Colony</th><th>Frequency</th><th>Attack Sweepers</th><th>Attack Scows</th><th>Attack Snark</th><th>Action</th></tr>\n";
 ATTACKER:
     foreach my $attacker (@worst_attackers) {
         my $attack_empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($attacker);
@@ -1315,6 +1315,14 @@ ATTACKER:
         $out .= "<td><input type='submit' name='submit' value='Submit'></form></tr>";
     }
     $out .= "</table>\n";
+    $out .= "<ul>\n";
+    $out .= "<li>Victories, Defeats and Spy hours are attacks against the DeLamberti</li>";
+    $out .= "<li>Retaliate Weight, is the factor which measures the AI Retaliation against those attacks</li>";
+    $out .= "<li>Attack Weight, is a measure of the amount of attacks against the AI</li>";
+    $out .= "<li>The list is sorted so that those empires with the highest (Attack Weight - Retaliate Weight) are first</li>";
+    $out .= "</ul>\n";
+
+
     return $self->wrap($out);
 }
 
