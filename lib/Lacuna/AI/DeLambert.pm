@@ -449,7 +449,11 @@ TARGET:
                my @sweepers;
                my @scows;
                my @snarks;
+DEL_COLONY:
                foreach my $del_colony (@del_colonies) {
+                   # Don't attack from the Neutral Zone
+                   next DEL_COLONY if $del_colony->x == -3 and $del_colony->y == 0;
+
                    if (@sweepers < $num_sweepers) {
                        my @ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
                            type     => 'sweeper',
