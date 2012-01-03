@@ -204,15 +204,15 @@ around get_status => sub {
                     my $num_incoming_ally = 0;
                     my @incoming_ally;
                     # If we are in an alliance, all ships coming from ally (which are not ourself)
-                    if ($self->alliance_id) {
+                    if ($self->empire->alliance_id) {
                         my $incoming_ally_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
                             foreign_body_id     => $self->id,
                             direction           => 'out',
                             task                => 'Travelling',
                             'body.empire_id'    => {'!=' => $self->empire_id},
-                            'body.alliance_id'  => $self->alliance_id,
+                            'empire.alliance_id'  => $self->empire->alliance_id,
                         },{
-                            join                => 'body',
+                            join                => {body => 'empire'},
                             order_by            => 'date_available',
                         });
                         $num_incoming_ally = $incoming_ally_rs->count;
@@ -238,12 +238,12 @@ around get_status => sub {
                         task                => 'Travelling',
                         'body.empire_id'    => {'!=' => $self->empire_id},
                     },{
-                        join                => 'body',
+                        join                => {body => 'empire'},
                         order_by            => 'date_available',
                     });
-                    if ($self->alliance_id) {
+                    if ($self->empire->alliance_id) {
                         $incoming_enemy_rs = $incoming_enemy_rs->search({
-                            'body.alliance_id' => {'!=' => $self->alliance_id},
+                            'empire.alliance_id' => {'!=' => $self->empire->alliance_id},
                         });
                     }
                     my $num_incoming_enemy = $incoming_enemy_rs->count;
