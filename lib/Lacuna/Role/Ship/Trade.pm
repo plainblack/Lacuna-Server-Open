@@ -41,7 +41,7 @@ sub _can_target_accept_ships {
         if (not defined $spaceport) {
             confess $no_spaceport_exception;
         }
-        if ($spaceport->docks_available < $ship_count) {
+        if ($spaceport->docks_available <= $ship_count) {
             confess $no_docks_exception;
         }
     }
