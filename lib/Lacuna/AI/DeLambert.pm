@@ -105,17 +105,17 @@ sub ship_building_priorities {
 
 sub run_hourly_colony_updates {
     my ($self, $colony) = @_;
-#    $self->demolish_bleeders($colony);
-#    $self->set_defenders($colony);
-#    $self->pod_check($colony, 20);
-#    $self->repair_buildings($colony);
-#    $self->train_spies($colony, 1);
-#    $self->build_ships_max($colony);
-#    $self->run_missions($colony);
-#    $self->buy_trade($colony);
-#    $self->sell_glyph_trade($colony);
-#    $self->sell_plan_trade($colony);
-#    $self->check_enemy_spy_action($colony);
+    $self->demolish_bleeders($colony);
+    $self->set_defenders($colony);
+    $self->pod_check($colony, 20);
+    $self->repair_buildings($colony);
+    $self->train_spies($colony, 1);
+    $self->build_ships_max($colony);
+    $self->run_missions($colony);
+    $self->buy_trade($colony);
+    $self->sell_glyph_trade($colony);
+    $self->sell_plan_trade($colony);
+    $self->check_enemy_spy_action($colony);
 }
 
 sub run_hourly_empire_updates {
