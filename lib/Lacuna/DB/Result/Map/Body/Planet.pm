@@ -243,7 +243,10 @@ around get_status => sub {
                     });
                     if ($self->empire->alliance_id) {
                         $incoming_enemy_rs = $incoming_enemy_rs->search({
-                            'empire.alliance_id' => {'!=' => $self->empire->alliance_id},
+                            'empire.alliance_id' => [
+                                {'!=' => $self->empire->alliance_id},
+                                undef,
+                            ]
                         });
                     }
                     my $num_incoming_enemy = $incoming_enemy_rs->count;
