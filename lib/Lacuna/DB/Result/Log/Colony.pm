@@ -32,6 +32,10 @@ __PACKAGE__->add_columns(
     dirtiest_delta              => { data_type => 'int', size => 11, default_value => 0 },
     is_space_station            => { data_type => 'int', size => 11, default_value => 0 },
     influence                   => { data_type => 'int', size => 11, default_value => 0 },
+    x                           => { data_type => 'int', size => 11, default_value => 0 },
+    y                           => { data_type => 'int', size => 11, default_value => 0 },
+    body_id                     => { data_type => 'int', size => 11, default_value => 0 },
+    zone                        => { data_type => 'varchar', size => 16, default_value => 0 },
 );
 
 after 'sqlt_deploy_hook' => sub {

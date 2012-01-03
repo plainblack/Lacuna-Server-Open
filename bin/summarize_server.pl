@@ -8,36 +8,39 @@ use Getopt::Long;
 use JSON;
 use SOAP::Amazon::S3;
 use Lacuna::Constants qw(SHIP_TYPES);
+use utf8;
 
 
-$|=1;
+  $|=1;
 
-our $quiet;
+  our $quiet;
 
-GetOptions(
+  GetOptions(
     'quiet'         => \$quiet,  
-);
+  );
 
-out('Started');
-my $start = DateTime->now;
+  out('Started');
+  my $start = DateTime->now;
 
-out('Loading DB');
-our $db = Lacuna->db;
+  out('Loading DB');
+  our $db = Lacuna->db;
 
-summarize_spies();
-summarize_colonies();
-summarize_empires();
-summarize_alliances();
-delete_old_records($start);
-rank_spies();
-rank_colonies();
-rank_empires();
-rank_alliances();
-generate_overview();
+  summarize_spies();
+  summarize_colonies();
+  my $mapping = summarize_empires();
+  summarize_alliances();
+  delete_old_records($start);
+  rank_spies();
+  rank_colonies();
+  rank_empires();
+  rank_alliances();
+  output_map($mapping);
+  generate_overview();
 
-my $finish = time;
-out('Finished');
-out((($finish - $start->epoch)/60)." minutes have elapsed");
+  my $finish = time;
+  out('Finished');
+  out((($finish - $start->epoch)/60)." minutes have elapsed");
+exit;
 
 
 ###############
@@ -112,7 +115,7 @@ sub generate_overview {
         asteroids   => 'Lacuna::DB::Result::Map::Body::Asteroid%',
     );
     foreach my $key (keys %body_types) {
-	out($key);
+        out($key);
         my $type = $bodies->search({class => {like => $body_types{$key}}});
         $out{bodies}{types}{$key} = {
             count           => $type->count,
@@ -126,25 +129,25 @@ sub generate_overview {
     # flesh out orbits
     out('Flesh Out Orbital Stats');
     foreach my $orbit (1..8) {
-	out($orbit);
-        $out{orbits}{$orbit} = {
-            inhabited   => $bodies->search({empire_id => {'>', 0}, orbit => $orbit})->count,
-            bodies      => $bodies->search({orbit => $orbit})->count,
-        }
+      out($orbit);
+      $out{orbits}{$orbit} = {
+           inhabited   => $bodies->search({empire_id => {'>', 0}, orbit => $orbit})->count,
+           bodies      => $bodies->search({orbit => $orbit})->count,
+      }
     }
 
     # flesh out buildings
     out('Flesh Out Building Stats');
     my $distinct = $buildings->search(undef, { group_by => ['class'] })->get_column('class');
     while (my $class = $distinct->next) {
-	out($class);
-        my $type_rs = $buildings->search({class=>$class});
-        my $count = $type_rs->count;
-        $out{buildings}{types}{$class->name} = {
-            average_level       => $type_rs->get_column('level')->func('avg'),
-            highest_level       => $type_rs->get_column('level')->max,
-            count               => $count,
-        };
+      out($class);
+      my $type_rs = $buildings->search({class=>$class});
+      my $count = $type_rs->count;
+      $out{buildings}{types}{$class->name} = {
+           average_level       => $type_rs->get_column('level')->func('avg'),
+           highest_level       => $type_rs->get_column('level')->max,
+           count               => $count,
+      };
     }
 
     # flesh out ships
@@ -230,122 +233,193 @@ sub delete_old_records {
 }
 
 sub summarize_alliances { 
-	out('Summarizing Alliances');
-	my $logs = $db->resultset('Lacuna::DB::Result::Log::Alliance');
-	my $alliances = $db->resultset('Lacuna::DB::Result::Alliance');
-	my $empire_logs = $db->resultset('Lacuna::DB::Result::Log::Empire');
-	while (my $alliance = $alliances->next) {
-		next if ! defined $alliance->leader_id; # until Alliances get deleted...
-			out($alliance->name);
-		my %alliance_data = (
-				date_stamp                 => DateTime->now,
-				space_station_count         => 0,
-				influence                   => 0,
-				alliance_id                 => $alliance->id,
-				alliance_name               => $alliance->name,
-				);
-		my $empires = $empire_logs->search({alliance_id => $alliance->id});
-		while ( my $empire = $empires->next) {
-			$alliance_data{member_count}++;
-			$alliance_data{colony_count}             += $empire->colony_count;
-			$alliance_data{space_station_count}      += $empire->space_station_count;
-			$alliance_data{influence}                += $empire->influence;
-			$alliance_data{population}               += $empire->population;
-			$alliance_data{building_count}           += $empire->building_count;
-			$alliance_data{average_building_level}   += $empire->average_building_level;
-			$alliance_data{defense_success_rate}     += $empire->defense_success_rate;
-			$alliance_data{offense_success_rate}     += $empire->offense_success_rate;
-			$alliance_data{dirtiest}                 += $empire->dirtiest;
-			$alliance_data{spy_count}                += $empire->spy_count;
-			$alliance_data{average_empire_size}      += $empire->empire_size;
-			$alliance_data{average_university_level} += $empire->university_level;
-		}
-		if ($alliance_data{member_count}) {
-			$alliance_data{average_empire_size}     /= $alliance_data{member_count};
-			$alliance_data{average_university_level}/= $alliance_data{member_count};
-			$alliance_data{average_building_level}  /= $alliance_data{member_count};
-			$alliance_data{offense_success_rate}    /= $alliance_data{member_count};
-			$alliance_data{defense_success_rate}    /= $alliance_data{member_count};
-		}
-		my $log = $logs->search({alliance_id => $alliance->id},{rows=>1})->single;
-		if (defined $log) {
-			if ($alliance_data{member_count}) {
-				$log->update(\%alliance_data);
-			}
-			else {
-				$log->delete;
-			}
-		}
-		else {
-			$logs->new(\%alliance_data)->insert;
-		}
-	}
+  out('Summarizing Alliances');
+  my $logs = $db->resultset('Lacuna::DB::Result::Log::Alliance');
+  my $alliances = $db->resultset('Lacuna::DB::Result::Alliance');
+  my $empire_logs = $db->resultset('Lacuna::DB::Result::Log::Empire');
+  while (my $alliance = $alliances->next) {
+    next if ! defined $alliance->leader_id; # until Alliances get deleted...
+      out($alliance->name);
+    my %alliance_data = (
+        date_stamp                 => DateTime->now,
+        space_station_count         => 0,
+        influence                   => 0,
+        alliance_id                 => $alliance->id,
+        alliance_name               => $alliance->name,
+        );
+    my $empires = $empire_logs->search({alliance_id => $alliance->id});
+    while ( my $empire = $empires->next) {
+      $alliance_data{member_count}++;
+      $alliance_data{colony_count}             += $empire->colony_count;
+      $alliance_data{space_station_count}      += $empire->space_station_count;
+      $alliance_data{influence}                += $empire->influence;
+      $alliance_data{population}               += $empire->population;
+      $alliance_data{building_count}           += $empire->building_count;
+      $alliance_data{average_building_level}   += $empire->average_building_level;
+      $alliance_data{defense_success_rate}     += $empire->defense_success_rate;
+      $alliance_data{offense_success_rate}     += $empire->offense_success_rate;
+      $alliance_data{dirtiest}                 += $empire->dirtiest;
+      $alliance_data{spy_count}                += $empire->spy_count;
+      $alliance_data{average_empire_size}      += $empire->empire_size;
+      $alliance_data{average_university_level} += $empire->university_level;
+    }
+    if ($alliance_data{member_count}) {
+      $alliance_data{average_empire_size}     /= $alliance_data{member_count};
+      $alliance_data{average_university_level}/= $alliance_data{member_count};
+      $alliance_data{average_building_level}  /= $alliance_data{member_count};
+      $alliance_data{offense_success_rate}    /= $alliance_data{member_count};
+      $alliance_data{defense_success_rate}    /= $alliance_data{member_count};
+    }
+    my $log = $logs->search({alliance_id => $alliance->id},{rows=>1})->single;
+    if (defined $log) {
+      if ($alliance_data{member_count}) {
+        $log->update(\%alliance_data);
+      }
+      else {
+        $log->delete;
+      }
+    }
+    else {
+      $logs->new(\%alliance_data)->insert;
+    }
+  }
 }
 
 sub summarize_empires { 
-	out('Summarizing Empires');
-	my $logs = $db->resultset('Lacuna::DB::Result::Log::Empire');
-	my $empires = $db->resultset('Lacuna::DB::Result::Empire')->search({ id   => {'>' => 1} });
-	my $colony_logs = $db->resultset('Lacuna::DB::Result::Log::Colony');
-	while (my $empire = $empires->next) {
-		out($empire->name);
-		my %empire_data = (
-				date_stamp                  => DateTime->now,
-				university_level            => $empire->university_level,
-				empire_id                   => $empire->id,
-				empire_name                 => $empire->name,
-				alliance_id                 => $empire->alliance_id,
-				);
-		if ($empire->alliance_id) {
-			$empire_data{alliance_name} = $empire->alliance->name;
-		}
- 		else {
-			$empire_data{alliance_name} = undef;
-		}
-		my $colonies = $colony_logs->search({empire_id => $empire->id});
-		while ( my $colony = $colonies->next) {
-			if ($colony->is_space_station) {
-				$empire_data{influence}                 += $colony->influence;
-				$empire_data{space_station_count}++;
-			}
-			else {
-				$empire_data{colony_count}++;
-				$empire_data{population}                += $colony->population;
-                $empire_data{population_delta}          += $colony->population_delta;
-                $empire_data{building_count}            += $colony->building_count;
-                $empire_data{average_building_level}    += $colony->average_building_level;
-                $empire_data{highest_building_level}    =  $colony->highest_building_level if ($colony->highest_building_level > $empire_data{highest_building_level});
-                $empire_data{food_hour}                 += $colony->food_hour;
-                $empire_data{ore_hour}                  += $colony->ore_hour;
-                $empire_data{energy_hour}               += $colony->energy_hour;
-                $empire_data{water_hour}                += $colony->water_hour;
-                $empire_data{waste_hour}                += $colony->waste_hour;
-                $empire_data{happiness_hour}            += $colony->happiness_hour;
-                $empire_data{defense_success_rate}      += $colony->defense_success_rate;
-                $empire_data{defense_success_rate_delta}+= $colony->defense_success_rate_delta;
-                $empire_data{offense_success_rate}      += $colony->offense_success_rate;
-                $empire_data{offense_success_rate_delta}+= $colony->offense_success_rate_delta;
-                $empire_data{dirtiest}                  += $colony->dirtiest;
-                $empire_data{dirtiest_delta}            += $colony->dirtiest_delta;
-                $empire_data{spy_count}                 += $colony->spy_count;
-            }
-        }
-        if ($empire_data{colony_count}) {
-       	    $empire_data{average_building_level}    = $empire_data{average_building_level} / $empire_data{colony_count};
-            $empire_data{offense_success_rate}      = $empire_data{offense_success_rate} / $empire_data{colony_count};
-            $empire_data{defense_success_rate}      = $empire_data{defense_success_rate} / $empire_data{colony_count};
-        }
-        $empire_data{empire_size} = $empire_data{colony_count} * $empire_data{population};
-        my $log = $logs->search({empire_id => $empire->id},{rows=>1})->single;
-        if (defined $log) {
-            $empire_data{colony_count_delta} = $empire_data{colony_count} - $log->colony_count + $log->colony_count_delta;
-            $empire_data{empire_size_delta} = ($empire_data{colony_count_delta}) ? $empire_data{colony_count_delta} * $empire_data{population_delta} : $empire_data{population_delta};
-            $log->update(\%empire_data);
-        }
-        else {
-            $logs->new(\%empire_data)->insert;
-        }
+  out('Summarizing Empires');
+  my $logs = $db->resultset('Lacuna::DB::Result::Log::Empire');
+  my $empires = $db->resultset('Lacuna::DB::Result::Empire')->search({ id   => {'>' => 1} });
+  my $colony_logs = $db->resultset('Lacuna::DB::Result::Log::Colony');
+  my %mapping;
+  while (my $empire = $empires->next) {
+    out($empire->name);
+    my %empire_data = (
+        date_stamp       => DateTime->now,
+        university_level => $empire->university_level,
+        empire_id        => $empire->id,
+        empire_name      => $empire->name,
+        alliance_id      => $empire->alliance_id,
+        );
+    my %map_data = (
+        empire_id        => $empire->id,
+        empire_name      => $empire->name,
+        alliance_id      => $empire->alliance_id,
+        home_id          => $empire->home_planet_id,
+    );
+    if ($empire->alliance_id) {
+      $empire_data{alliance_name} = $empire->alliance->name;
+      $map_data{alliance_name}    = $empire->alliance->name;
     }
+    else {
+      $empire_data{alliance_name} = undef;
+      $map_data{alliance_id}   = 0;
+      $map_data{alliance_name} = "Neutral";
+    }
+    my @map_colonies;
+    my $colonies = $colony_logs->search({empire_id => $empire->id});
+    while ( my $colony = $colonies->next) {
+      if ($colony->is_space_station) {
+        $empire_data{influence}                 += $colony->influence;
+        $empire_data{space_station_count}++;
+        my %map_col = (
+          type => "SS",
+          x    => $colony->x,
+          y    => $colony->y,
+          zone => $colony->zone,
+          name => "",
+        );
+        push @map_colonies, \%map_col;
+      }
+      else {
+        $empire_data{colony_count}++;
+        $empire_data{population}                += $colony->population;
+        $empire_data{population_delta}          += $colony->population_delta;
+        $empire_data{building_count}            += $colony->building_count;
+        $empire_data{average_building_level}    += $colony->average_building_level;
+        $empire_data{highest_building_level}    =  $colony->highest_building_level if ($colony->highest_building_level > $empire_data{highest_building_level});
+        $empire_data{food_hour}                 += $colony->food_hour;
+        $empire_data{ore_hour}                  += $colony->ore_hour;
+        $empire_data{energy_hour}               += $colony->energy_hour;
+        $empire_data{water_hour}                += $colony->water_hour;
+        $empire_data{waste_hour}                += $colony->waste_hour;
+        $empire_data{happiness_hour}            += $colony->happiness_hour;
+        $empire_data{defense_success_rate}      += $colony->defense_success_rate;
+        $empire_data{defense_success_rate_delta}+= $colony->defense_success_rate_delta;
+        $empire_data{offense_success_rate}      += $colony->offense_success_rate;
+        $empire_data{offense_success_rate_delta}+= $colony->offense_success_rate_delta;
+        $empire_data{dirtiest}                  += $colony->dirtiest;
+        $empire_data{dirtiest_delta}            += $colony->dirtiest_delta;
+        $empire_data{spy_count}                 += $colony->spy_count;
+        if ($colony->body_id eq $map_data{home_id}) {
+          my %map_col = (
+            type => "Cap",
+            x    => $colony->x,
+            y    => $colony->y,
+            zone => $colony->zone,
+            name => "",
+          );
+          push @map_colonies, \%map_col;
+        }
+      }
+    }
+    if (scalar @map_colonies > 0) {
+      $map_data{bodies} = \@map_colonies;
+      %{$mapping{$map_data{empire_id}}} = %map_data;
+    }
+    if ($empire_data{colony_count}) {
+      $empire_data{average_building_level}    = $empire_data{average_building_level} / $empire_data{colony_count};
+      $empire_data{offense_success_rate}      = $empire_data{offense_success_rate} / $empire_data{colony_count};
+      $empire_data
+{defense_success_rate}      = $empire_data{defense_success_rate} / $empire_data{colony_count};
+    }
+    $empire_data{empire_size} = $empire_data{colony_count} * $empire_data{population};
+    my $log = $logs->search({empire_id => $empire->id},{rows=>1})->single;
+    if (defined $log) {
+      $empire_data{colony_count_delta} = $empire_data{colony_count} - $log->colony_count + $log->colony_count_delta;
+      $empire_data{empire_size_delta} = ($empire_data{colony_count_delta}) ? $empire_data{colony_count_delta} * $empire_data{population_delta} : $empire_data{population_delta};
+      $log->update(\%empire_data);
+    }
+    else {
+      $logs->new(\%empire_data)->insert;
+    }
+  }
+  my $ai = $db->resultset('Lacuna::DB::Result::Empire')->search({ id   => {'<' => 0} });
+  out('Summarizing AI for map');
+  while (my $empire = $ai->next) {
+    my %map_data = (
+        empire_id        => $empire->id,
+        empire_name      => $empire->name,
+        alliance_id      => $empire->id,
+        alliance_name    => $empire->name,
+        home_id          => $empire->home_planet_id,
+    );
+    my @map_colonies;
+    my $colonies = $db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id   => $empire->id});
+    while ( my $colony = $colonies->next) {
+      my %map_col = (
+        x    => $colony->x,
+        y    => $colony->y,
+        zone => $colony->zone,
+        name => $colony->name,
+      );
+      my $btype = $colony->get_type;
+      if ($btype eq "space staion") {
+        $map_col{type} = "SS",
+      }
+      elsif ($colony->id == $map_data{home_id}) {
+        $map_col{type} = "Cap",
+      }
+      else {
+        $map_col{type} = "Col",
+      }
+      push @map_colonies, \%map_col;
+    }
+    if (scalar @map_colonies > 0) {
+      $map_data{bodies} = \@map_colonies;
+      %{$mapping{$map_data{empire_id}}} = %map_data;
+    }
+  }
+  return (\%mapping);
 }
 
 sub summarize_colonies { 
@@ -372,6 +446,10 @@ sub summarize_colonies {
             happiness_hour         => $planet->happiness_hour,
             empire_id              => $planet->empire_id,
             empire_name            => $planet->empire->name,
+            body_id                => $planet->id,
+            x                      => $planet->x,
+            y                      => $planet->y,
+            zone                   => $planet->zone,
         );
         if ($planet->class =~ /Station$/) {
             $colony_data{is_space_station} = 1;
@@ -381,7 +459,7 @@ sub summarize_colonies {
 
         my $spies = $spy_logs->search({planet_id => $planet->id});
         while (my $spy = $spies->next) {
-    	    $colony_data{spy_count}++;
+          $colony_data{spy_count}++;
             $colony_data{offense_success_rate}          += $spy->offense_success_rate;
             $colony_data{offense_success_rate_delta}    += $spy->offense_success_rate_delta;
             $colony_data{defense_success_rate}          += $spy->defense_success_rate;
@@ -454,6 +532,57 @@ sub summarize_spies {
     }
 }
 
+sub output_map {
+  my $mapping = shift;
+  
+#  my $map_txt = JSON->new->utf8->encode($mapping);
+#  open(OUT, ">:utf8:", "mapping.json");
+#  print OUT $map_txt;
+#  close(OUT);
+  my %output;
+  my $star_map_size = Lacuna->config->get('map_size');
+  $output{map} = {
+    bounds => $star_map_size,
+  };
+  for my $emp_id (keys %$mapping) {
+    my @info;
+    my @data;
+    for my $bod (@{$mapping->{$emp_id}->{bodies}}) {
+      my $info_str =
+        sprintf("%s (%s) -- %s : (%d,%d) [%s]",
+          ($bod->{name} ne "") ? $bod->{name} : $mapping->{$emp_id}->{empire_name},
+          $mapping->{$emp_id}->{alliance_name},
+          $bod->{type},
+          $bod->{x},
+          $bod->{y},
+          $bod->{zone});
+      my $data_str = [ $bod->{x}, $bod->{y} ];
+      push @info, $info_str;
+      push @data, $data_str;
+    }
+    my $key = $mapping->{$emp_id}->{alliance_id};
+    if (defined $output{alliances}->{$key}) {
+      push @{$output{alliances}->{$key}->{info}}, @info;
+      push @{$output{alliances}->{$key}->{data}}, @data;
+    }
+    else {
+      $output{alliances}->{$key}->{label}       = $mapping->{$emp_id}->{alliance_name};
+      $output{alliances}->{$key}->{alliance_id} = $mapping->{$emp_id}->{alliance_id};
+      $output{alliances}->{$key}->{info}        = \@info;
+      $output{alliances}->{$key}->{data}        = \@data;
+    }
+  }
+  my $json_txt = JSON->new->utf8->encode(\%output);
+#  open(OUT, ">:utf8:", "starmap.json");
+#  print OUT $json_txt;
+#  close(OUT);
+  out('Write Map To S3');
+  my $config = Lacuna->config;
+  my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
+  my $bucket = $s3->bucket($config->get('feeds/bucket'));
+  my $object = $bucket->putobject('starmap.json', $json_txt, { 'Content-Type' => 'application/json; charset=utf-8' });
+  $object->acl('public');
+}
 
 # UTILITIES
 

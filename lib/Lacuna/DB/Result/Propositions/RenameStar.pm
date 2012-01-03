@@ -11,7 +11,7 @@ before pass => sub {
     my $star = $station->stars->find($self->scratch->{star_id});
     my $name = $self->scratch->{name};
     if (Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({name=>$name, 'id'=>{'!='=>$star->id}})->count) {
-        $self->pass_extra_message('Unfortunately, by the time the proposition passed, the name *'.$name.'* had already taken, effectively nullifying the vote.');
+        $self->pass_extra_message('Unfortunately, by the time the proposition passed, the name *'.$name.'* had already been taken, effectively nullifying the vote.');
     }
     elsif ($star->station_id != $station->id) {
         $self->pass_extra_message('Unfortunately, by the time the proposition passed, the star was no longer under the jurisdiction of this station, effectively nullifying the vote.');

@@ -1,8 +1,14 @@
 3.0831:
  - Fix:  Trashed mail older than 7 days will be deleted regularly
  - Mod:  All mail older than 30 days will be deleted regularly
+ - Add:  Alliance mapping data available.
+ - Mod:  Map now shows the number of incoming ships of enemy,ally and own with the first few of each type
+ - Mod:  Server is more responsive when you have thousands of incoming ships
+ - API:  Map Status now shows the number of incoming ships, not every one individually
 
 3.0830:
+ - Mod:  Even more changes to SAWs. (We'll keep banging on these keys.)
+ - Fix:  Correspondance school is no longer an acredited option for spies.
  - Fix:  Dillon Forge can not be upgraded with Halls of Vrbansk
  - Note: Dillon Forge cannot be demolished/plan stripped/upgraded
  - Fix:  You cannot now sacrifice Halls of Vrbansk that have not completed their build
