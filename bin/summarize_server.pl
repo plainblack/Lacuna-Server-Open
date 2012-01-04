@@ -573,9 +573,6 @@ sub output_map {
     }
   }
   my $json_txt = JSON->new->utf8->encode(\%output);
-#  open(OUT, ">:utf8:", "starmap.json");
-#  print OUT $json_txt;
-#  close(OUT);
   out('Write Map To S3');
   my $config = Lacuna->config;
   my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });

@@ -37,7 +37,6 @@
 $(function () {
 
     function getData() {
-// TODO get starmap.json from amazonaws
         $.getJSON("/starmap.json",
         function(starmap) {
 
@@ -64,8 +63,8 @@ $(function () {
             for (var idx in keylist) {
                 var key = keylist[idx];
                 var val = starmap.alliances[key];
-                if (key == '-2') {
-                    // by default only check the Diablotin
+                if (key == '-1') {
+                    // by default only check the Saben
                     choiceContainer.append('<br/><input type="checkbox" name="' + key +
                                            '" checked="checked" id="id' + key + '">' +
                                            '<label for="id' + key + '">'
@@ -137,8 +136,8 @@ $(function () {
                         points: { show: true },
                         shadowSize: 0
                     },
-                    xaxis: { min: -1500, max: 1500 },
-                    yaxis: { min: -1500, max: 1500 },
+                    xaxis: { min: starmap.map.bounds.x[0], max: starmap.map.bounds.x[1] },
+                    yaxis: { min: starmap.map.bounds.y[0], max: starmap.map.bounds.y[1] },
                     grid: { color: "#999" },
                     selection: { mode: "xy" }
                 });
