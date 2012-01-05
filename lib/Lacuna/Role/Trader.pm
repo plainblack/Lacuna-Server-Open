@@ -129,7 +129,7 @@ sub check_payload {
                     confess [1002, 'you must specify a name if you specify a quantity.'] unless $item->{name};
                     confess [1002, 'you must specify a ship_type if you specify a quantity.'] unless $item->{ship_type};
                     confess [1002, 'you must specify a hold_size if you specify a quantity.'] unless defined $item->{hold_size};
-                    confess [1002, 'you must specify a speed if you specify a quantity.'] unless $item->{speed};
+                    confess [1002, 'you must specify a speed if you specify a quantity.'] unless defined $item->{speed};
                     my $ships_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
                         name        => $item->{name},
                         body_id     => $self->body_id,
