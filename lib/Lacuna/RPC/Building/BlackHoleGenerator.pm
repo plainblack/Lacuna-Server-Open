@@ -151,19 +151,22 @@ sub generate_singularity {
         $allowed = 1;
       }
       elsif ($target->star->station_id) {
-        if ($target->star->station->laws->search({type => 'MembersOnlyColonization'})->count) {
-          if ($target->star->station->alliance_id == $body->empire->alliance_id) {
-            $allowed = 1;
-          }
-          else {
-            $confess = 'Only '.$target->star->station->alliance->name.
-              ' members can colonize planets in the jurisdiction of the space station.\n';
-          }
+        if ($target->star->station->alliance_id == $body->empire->alliance_id) {
+          $allowed = 1;
         }
-      }
-      else {
-        $allowed = 1;
-      }
+#        elsif ($target->star->station->laws->search({type => 'MembersOnlyColonization'})->count) {
+#          if ($target->star->station->alliance_id == $body->empire->alliance_id) {
+#            $allowed = 1;
+#          }
+#          else {
+#            $confess = 'Only '.$target->star->station->alliance->name.
+#              ' members can colonize planets in the jurisdiction of the space station.\n';
+#          }
+#        }
+#      }
+#      else {
+#        $allowed = 1;
+#      }
     }
     else {
       if ($target->star->station_id) {
