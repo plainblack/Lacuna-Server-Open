@@ -1260,12 +1260,19 @@ sub www_delambert_war {
     } @ai_defence;
 
     # If the AI attacks, we just care about when the AI wins the attack
-    my %attack  = map { $_->defending_empire_id => $_->attack_victories + $_->attack_spy_hours * 2 } @ai_attack;
+    my %attack  = map { 
+        $_->defending_empire_id => {
+            attack_victories    => $_->attack_victories,
+            defense_victories   => $_->defense_victories,
+            attack_spy_hours    => $_->attack_spy_hours,
+            weight              => ($_->attack_victories / 2) + $_->attack_spy_hours,
+        }
+    } @ai_attack;
 
     # Sort the attackers so that those who have done the most un-retaliated damage are shown first
-    my @worst_attackers = sort {( $defence{$a}{weight} - defined $attack{$a} ? $attack{$a} : 0) <=> ( $defence{$b}{weight} - defined $attack{$b} ? $attack{$b} : 0 ) } keys %defence;
+    my @worst_attackers = sort {( $defence{$a}{weight} - defined $attack{$a} ? $attack{$a}{weight} : 0) <=> ( $defence{$b}{weight} - defined $attack{$b} ? $attack{$b}{weight} : 0 ) } keys %defence;
 
-    $out .= "<table border='1'><tr><th>Attacker</th><th>Victories</th><th>Defeats</th><th>Spy Hours</th><th>Retaliate Weight</th><th>Attack Weight</th><th>Colony</th><th>Frequency</th><th>Attack Sweepers</th><th>Attack Scows</th><th>Attack Snark</th><th>Action</th></tr>\n";
+    $out .= "<table border='1'><tr><th>Attacker</th><th>A-Victories</th><th>A-Defeats</th><th>A-Spy Hours</th><th>Attack Weight</th><th>R-Victories</th><th>R-Defeats</th><th>R-Spy Hours</th><th>Retaliate Weight</th><th>Colony</th><th>Frequency</th><th>Attack Sweepers</th><th>Attack Scows</th><th>Attack Snark</th><th>Action</th></tr>\n";
 ATTACKER:
     foreach my $attacker (@worst_attackers) {
         my $attack_empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($attacker);
@@ -1293,8 +1300,19 @@ ATTACKER:
         my $snarks      = $scratchpad->{attack}{$attacker}{snarks};
         my $scows       = $scratchpad->{attack}{$attacker}{scows};
         my $frequency   = $scratchpad->{attack}{$attacker}{frequency};
-        my $counter_attacks = defined $attack{$attacker} ? $attack{$attacker} : 0;
-        $out .= "<tr><td>".$attack_empire->name."</td><td>".$defence{$attacker}{attack_victories}."</td><td>".$defence{$attacker}{defense_victories}."</td><td>".$defence{$attacker}{attack_spy_hours}."</td><td>$counter_attacks</td><td>".$defence{$attacker}{weight}."</td>";
+        my $counter = {attack_victories=>0, defense_victories=>0, attack_spy_hours=>0, weight=>0};
+        if (defined $attack{$attacker}) {
+            $counter = {
+                attack_victories  => $attack{$attacker}{attack_victories},
+                defense_victories => $attack{$attacker}{defense_victories},
+                attack_spy_hours  => $attack{$attacker}{attack_spy_hours},
+                weight            => $attack{$attacker}{weight},
+            };
+        }
+        $out .= "<tr><td>".$attack_empire->name."</td><td>".$defence{$attacker}{attack_victories}."</td><td>".$defence{$attacker}{defense_victories}."</td>";
+        $out .= "<td>".$defence{$attacker}{attack_spy_hours}."</td><td>".$defence{$attacker}{weight}."</td>";
+        $out .= "<td>".$counter->{attack_victories}."</td><td>".$counter->{defense_victories}."</td>";
+        $out .= "<td>".$counter->{attack_spy_hours}."</td><td>".$counter->{weight}."</td>";
         $out .= "<form action='/admin/delambert_war'>";
         $out .= "<td><select name='colony_id'>";
         foreach my $colony (@colonies) {
@@ -1316,9 +1334,10 @@ ATTACKER:
     }
     $out .= "</table>\n";
     $out .= "<ul>\n";
-    $out .= "<li>Victories, Defeats and Spy hours are attacks against the DeLamberti</li>";
-    $out .= "<li>Retaliate Weight, is the factor which measures the AI Retaliation against those attacks</li>";
+    $out .= "<li>A-Victories, A-Defeats and A-Spy hours are attacks against the DeLamberti</li>";
+    $out .= "<li>R-Victories, R-Defeats and R-Spy hours are retaliations by the DeLamberti</li>";
     $out .= "<li>Attack Weight, is a measure of the amount of attacks against the AI</li>";
+    $out .= "<li>Retaliate Weight, is a measure of the AI Retaliation against those attacks</li>";
     $out .= "<li>The list is sorted so that those empires with the highest (Attack Weight - Retaliate Weight) are first</li>";
     $out .= "</ul>\n";
 
