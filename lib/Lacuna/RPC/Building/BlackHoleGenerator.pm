@@ -154,6 +154,7 @@ sub generate_singularity {
         if ($body->empire->alliance_id && $target->star->station->alliance_id == $body->empire->alliance_id) {
           $allowed = 1;
         }
+      }
 #        elsif ($target->star->station->laws->search({type => 'MembersOnlyColonization'})->count) {
 #          if ($target->star->station->alliance_id == $body->empire->alliance_id) {
 #            $allowed = 1;
