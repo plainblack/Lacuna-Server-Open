@@ -111,10 +111,10 @@ sub push_items {
     my ($payload, $meta) = $self->structure_payload($items, $space_used);
     foreach my $item (@{$items}) {
         if ( $item->{type} eq 'ship' ) {
-            my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($item->{ship_id});
-            next unless defined $ship;
-            $ship->body_id($target->id);
-            $ship->update;
+            my $pship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($item->{ship_id});
+            next unless defined $pship;
+            $pship->body_id($target->id);
+            $pship->update;
         }
     }
 
