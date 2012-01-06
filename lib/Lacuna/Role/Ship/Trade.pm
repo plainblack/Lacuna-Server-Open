@@ -13,7 +13,7 @@ sub check_payload_ships {
 
     return if not $items;
 
-    my $ship_count = grep {$_->{type} eq 'ship' and not defined($_->{quantity})} @$items;
+    my $ship_count = grep {$_->{type} eq 'ship'} @$items;
 
     $ship_count++ if $ship_stay;
 
@@ -27,7 +27,7 @@ sub check_payload_ships_id {
 
     return if not $items;
 
-    my $ship_count = grep {$_->{type} eq 'ship' and not defined($_->{quantity})} @$items;
+    my $ship_count = grep {$_->{type} eq 'ship'} @$items;
 
     $self->_can_target_accept_ships($target, $ship_count);
 }

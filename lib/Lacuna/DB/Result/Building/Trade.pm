@@ -56,7 +56,8 @@ sub add_to_market {
     unless ($self->level > $self->my_market->count) {
         confess [1009, "This Trade Ministry can only support ".$self->level." trades at one time."];
     }
-    my $space_used = $self->check_payload($offer, $ship->hold_size, undef, $ship);
+    my $space_used;
+    ($space_used, $offer ) = $self->check_payload($offer, $ship->hold_size, undef, $ship);
     my ($payload, $meta) = $self->structure_payload($offer, $space_used);
     $ship->task('Waiting On Trade');
     $ship->update;
@@ -105,7 +106,8 @@ sub push_items {
         confess [1011, 'You do not have a ship available to transport cargo.'];
     }
 
-    my $space_used = $self->check_payload($items,$ship->hold_size, undef, $ship);
+    my $space_used;
+    ($space_used, $items) = $self->check_payload($items,$ship->hold_size, undef, $ship);
     $self->check_payload_ships($items,$target,$options->{stay});
 
     my ($payload, $meta) = $self->structure_payload($items, $space_used);
