@@ -27,9 +27,9 @@ sub check_payload_ships_id {
 
     return if not $items;
 
-    my $ship_count = scalar @$items;
+    my $ship_count = grep {$_->{type} eq 'ship'} @$items;
 
-    $self->_can_target_accept_ships($target, scalar @$items);
+    $self->_can_target_accept_ships($target, $ship_count);
 }
 
 
@@ -41,7 +41,7 @@ sub _can_target_accept_ships {
         if (not defined $spaceport) {
             confess $no_spaceport_exception;
         }
-        if ($spaceport->docks_available <= $ship_count) {
+        if ($spaceport->docks_available < $ship_count) {
             confess $no_docks_exception;
         }
     }

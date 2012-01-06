@@ -1,5 +1,6 @@
 3.0832:
  - Fix:  Drones can now be pushed or added to a trade
+ - Fix:  Ship dockspace check more refined.
 
 3.0831:
  - Fix:  Trashed mail older than 7 days will be deleted regularly
