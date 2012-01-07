@@ -27,7 +27,7 @@ sub check_payload_ships_id {
 
     return if not $items;
 
-    my $ship_count = grep {$_->{type} eq 'ship'} @$items;
+    my $ship_count = scalar @$items;
 
     $self->_can_target_accept_ships($target, $ship_count);
 }
