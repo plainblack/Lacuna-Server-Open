@@ -278,15 +278,52 @@ sub pod_check {
   $colony->update;
 }
 
+# empires can have more spies now than their intelligence ministry could
+# normally supply. Put a limit of 3 times the level of the Intelligence ministry
+# if 'subsidise' is set
+#
 sub train_spies {
     my ($self, $colony, $subsidise) = @_;
     say 'TRAIN SPIES';
+
     my $intelligence = $colony->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
-    if (defined $intelligence) {
+
+    return unless defined $intelligence;
+
+    my $costs = $intelligence->training_costs;
+    if ($subsidise) {
+        my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
+            from_body_id => $colony->id,
+        })->count;
+        my $max_spies = $intelligence->level;
+        my $deception = $colony->empire->deception_affinity * 50;
+        while ($spies < $max_spies * 3) {
+            # bypass everything and just create the spy
+            my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
+                from_body_id    => $colony->id,
+                on_body_id      => $colony->id,
+                task            => 'Idle',
+                started_assignment  => DateTime->now,
+                available_on    => DateTime->now,
+                empire_id       => $colony->empire_id,
+                offense         => ($intelligence->espionage_level * 75) + $deception,
+                defense         => ($intelligence->security_level * 75) + $deception,
+                intel_xp        => randint(10,40),
+                mayhem_xp       => randint(10,40),
+                politics_xp     => randint(10,40),
+                theft_xp        => randint(10,40),
+            })
+            ->update_level
+            ->insert;
+
+            say "    Subsidised spy being trained";
+            $spies++;
+        }
+    }
+    else {
         my $can_train = 1;
 
         while ($can_train) {
-            my $costs = $intelligence->training_costs;
             my $can = eval{$intelligence->can_train_spy($costs)};
             my $reason = $@;
             if ($can) {
@@ -298,17 +335,6 @@ sub train_spies {
                 say '    '.$reason->[1];
                 $can_train = 0;
             }
-        }
-        if ($subsidise) {
-            my $spies = $intelligence->get_spies->search({ task => 'Training' });
-
-            my $now = DateTime->now;
-            while (my $spy = $spies->next) {
-                $spy->available_on($now);
-                $spy->task('Idle');
-                $spy->update;
-            }
-            $intelligence->finish_work->update;
         }
     }
 }
