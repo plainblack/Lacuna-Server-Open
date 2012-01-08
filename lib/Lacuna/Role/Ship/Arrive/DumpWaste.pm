@@ -10,7 +10,11 @@ after handle_arrival_procedures => sub {
     return if ($self->direction eq 'in');
     
     # we're dumping on a star, nothing to do but go home
-    return if $self->foreign_star_id;
+    if ($self->foreign_star_id) {
+      $self->payload({ resources => { waste => 0 } });
+      $self->update;
+      return;
+    }
 
     # dump it!
     my $body_attacked = $self->foreign_body;

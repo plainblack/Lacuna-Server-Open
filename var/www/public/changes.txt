@@ -1,3 +1,7 @@
+3.0833:
+ - Fix:  Spies caught up in failed insurrection five to defender level * 2.
+ - Fix:  Scows show empty when coming back from stars.
+
 3.0832:
  - Fix:  Drones can now be pushed or added to a trade
  - Fix:  Ship dockspace check more refined.

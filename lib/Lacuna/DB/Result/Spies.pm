@@ -1606,7 +1606,9 @@ sub prevent_insurrection {
                         ->search( { on_body_id => $self->on_body_id,
                                     task => { 'not in' => ['Killed in Action', 'Travelling','Captured'] },
                                     empire_id => { 'in' => \@member_ids } });
-    my $count = randint(5,75);
+    my $max_cnt = $defender->level;
+    $max_cnt = ($max_cnt < 3) ? 6 : $max_cnt * 2;
+    my $count = randint(5,$max_cnt);
     while (my $conspirator = $conspirators->next ) {
        $count--;
        $conspirator->go_to_jail;
