@@ -454,11 +454,15 @@ DEL_COLONY:
                    # Don't attack from the Neutral Zone
                    next DEL_COLONY if $del_colony->x == -3 and $del_colony->y == 0;
 
+                   # Send damaged sweepers by preference, leaving undamaged ones to defend!
                    if (@sweepers < $num_sweepers) {
                        my @ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
                            type     => 'sweeper',
                            task     => 'Docked',
                            body_id  => $del_colony->id,
+                       },
+                       {
+                           order_by => 'combat',
                        });
                        # 20% of sweepers
                        my $quantity = int(@ships / 5);
