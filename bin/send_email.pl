@@ -7,7 +7,6 @@ use Lacuna::Util qw(randint format_date);
 use Lacuna::AI::DeLambert;
 use Getopt::Long;
 use List::MoreUtils qw(uniq);
-use Template;
 
 use utf8;
 $|=1;
