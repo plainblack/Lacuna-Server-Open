@@ -18,7 +18,7 @@ use constant pilotable              => 1;
 use constant build_tags             => ['War'];
 
 with "Lacuna::Role::Ship::Send::Body";
-with "Lacuna::Role::Ship::Send::NotIsolationist";
+# with "Lacuna::Role::Ship::Send::NotIsolationist"; #commented out to let fighters to protect iso
 with "Lacuna::Role::Ship::Arrive::Defend";
 
 no Moose;
