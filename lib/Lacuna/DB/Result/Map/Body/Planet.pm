@@ -930,17 +930,17 @@ sub recalc_stats {
     }
     
     # deal with storage overages
-    if ($self->ore_stored > $self->ore_capacity) {
-        $self->spend_ore($self->ore_stored - $self->ore_capacity);
+    if ($self->ore_stored > $stats{ore_capacity}) {
+        $self->spend_ore($self->ore_stored - $stats{ore_capacity});
     }
-    if ($self->food_stored > $self->food_capacity) {
-        $self->spend_food($self->food_stored - $self->food_capacity);
+    if ($self->food_stored > $stats{food_capacity}) {
+        $self->spend_food($self->food_stored - $stats{food_capacity}, 1);
     }
-    if ($self->water_stored > $self->water_capacity) {
-        $self->spend_water($self->water_stored - $self->water_capacity);
+    if ($self->water_stored > $stats{water_capacity}) {
+        $self->spend_water($self->water_stored - $stats{water_capacity});
     }
-    if ($self->energy_stored > $self->energy_capacity) {
-        $self->spend_energy($self->energy_stored - $self->energy_capacity);
+    if ($self->energy_stored > $stats{energy_capacity}) {
+        $self->spend_energy($self->energy_stored - $stats{energy_capacity});
     }
 
     # deal with plot usage
@@ -1194,11 +1194,11 @@ sub tick_to {
         }
     }
     else {
-        $self->spend_food(abs($food_produced));
+        $self->spend_food(abs($food_produced), 0);
     }
     if ($food_hour == 0 && $self->food_hour != 0) {
         if ($self->food_hour < 0) {
-            $self->spend_food(sprintf('%.0f', abs($self->food_hour) * $tick_rate));
+            $self->spend_food(sprintf('%.0f', abs($self->food_hour) * $tick_rate), 1);
         }
         else {
             $self->add_food(sprintf('%.0f', $self->food_hour * $tick_rate));
@@ -1807,8 +1807,9 @@ sub spend_lapis {
 }
 
 sub spend_food {
-    my ($self, $food_consumed) = @_;
+    my ($self, $food_consumed, $loss) = @_;
     
+   $loss = 0 unless defined($loss);
     # take inventory
     my $food_stored;
     my $food_type_count = 0;
@@ -1826,7 +1827,7 @@ sub spend_food {
     }
     
     # adjust happiness based on food diversity
-    if (!$self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+    unless ($loss or $self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         if ($food_type_count > 3) {
             $self->add_happiness($food_consumed);
         }

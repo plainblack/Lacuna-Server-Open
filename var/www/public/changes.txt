@@ -1,3 +1,6 @@
+3.0835:
+ - Fix:  Better resource checks when storage is reduced.
+
 3.0834:
  - Fix:  Spies caught up in failed insurrection five to defender level * 2.
  - Fix:  Scows show empty when coming back from stars.
