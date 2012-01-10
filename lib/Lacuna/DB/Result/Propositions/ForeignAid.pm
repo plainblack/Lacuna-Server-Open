@@ -24,7 +24,7 @@ before pass => sub {
             }
             if ( !@missing ) {
                 $self->station->spend_energy($self->scratch->{energy_cost});
-                $self->station->spend_food($self->scratch->{food_cost});
+                $self->station->spend_food($self->scratch->{food_cost}, 1);
                 $self->station->spend_ore($self->scratch->{ore_cost});
                 $self->station->spend_water($self->scratch->{water_cost});
                 $self->station->update;

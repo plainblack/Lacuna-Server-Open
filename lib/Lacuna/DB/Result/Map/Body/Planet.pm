@@ -179,39 +179,105 @@ around get_status => sub {
                 if ($self->needs_recalc) {
                     $self->tick; # in case what we just did is going to change our stats
                 }
-                unless ($empire->is_isolationist) { # don't need to warn about incoming ships if can't be attacked
+                if (not $empire->is_isolationist) { # don't need to warn about incoming ships if can't be attacked
                     my $now = time;
-                    my $incoming_ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-                        {
-                            foreign_body_id => $self->id,
-                            direction       => 'out',
-                            task            => 'Travelling',
+
+                    my $foreign_bodies;
+                    # Process all ships that have already arrived
+
+                    my $incoming_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+                        foreign_body_id     => $self->id,
+                        direction           => 'out',
+                        task                => 'Travelling',
+                        date_available      => {'<' => DateTime->now.''},
+                    });
+                    while (my $ship = $incoming_rs->next) {
+                        $foreign_bodies->{$ship->body_id} = 1;
+                    }
+                    foreach my $body_id (keys %$foreign_bodies) {
+                        my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
+                        if ($body) {
+                            $body->tick;
                         }
-                    );
-                    my @colonies;
-                    my @allies;
-                    while (my $ship = $incoming_ships->next) {
-                        if ($ship->date_available->epoch <= $now) {
-                            $ship->foreign_body($self);
-                            $ship->body->tick;
-                        }
-                        else {
-                            unless (scalar @colonies) { # we don't look it up unless we have incoming
-                                @colonies = $empire->planets->get_column('id')->all;
-                            }
-                            unless (scalar @allies) { # we don't look it up unless we have incoming
-                                my $alliance = $empire->alliance if $empire->alliance_id;
-                                if (defined $alliance) {
-                                    @allies = $alliance->members->get_column('id')->all;
-                                }
-                            }
-                            push @{$out->{incoming_foreign_ships}}, {
-                                date_arrives => $ship->date_available_formatted,
-                                is_own       => ($ship->body_id ~~ \@colonies) ? 1 : 0,
-                                is_ally      => ($ship->body->empire_id ~~ \@allies) ? 1 : 0,
-                                id           => $ship->id,
-                            };
-                        }
+                    }
+
+                    my $num_incoming_ally = 0;
+                    my @incoming_ally;
+                    # If we are in an alliance, all ships coming from ally (which are not ourself)
+                    if ($self->empire->alliance_id) {
+                        my $incoming_ally_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+                            foreign_body_id     => $self->id,
+                            direction           => 'out',
+                            task                => 'Travelling',
+                            'body.empire_id'    => {'!=' => $self->empire_id},
+                            'empire.alliance_id'  => $self->empire->alliance_id,
+                        },{
+                            join                => {body => 'empire'},
+                            order_by            => 'date_available',
+                        });
+                        $num_incoming_ally = $incoming_ally_rs->count;
+                        @incoming_ally = $incoming_ally_rs->search({},{rows => 10});
+                    }
+                    # All ships coming from ourself
+                    my $incoming_own_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+                        foreign_body_id     => $self->id,
+                        direction           => 'out',
+                        task                => 'Travelling',
+                        'body.empire_id'    => $self->empire_id,
+                    },{
+                        join                => 'body',
+                        order_by            => 'date_available',
+                    });
+                    my $num_incoming_own = $incoming_own_rs->count;
+                    my @incoming_own = $incoming_own_rs->search({},{rows => 10});
+
+                    # All enemy incoming
+                    my $incoming_enemy_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+                        foreign_body_id     => $self->id,
+                        direction           => 'out',
+                        task                => 'Travelling',
+                        'body.empire_id'    => {'!=' => $self->empire_id},
+                    },{
+                        join                => {body => 'empire'},
+                        order_by            => 'date_available',
+                    });
+                    if ($self->empire->alliance_id) {
+                        $incoming_enemy_rs = $incoming_enemy_rs->search({
+                            'empire.alliance_id' => [
+                                {'!=' => $self->empire->alliance_id},
+                                undef,
+                            ]
+                        });
+                    }
+                    my $num_incoming_enemy = $incoming_enemy_rs->count;
+                    my @incoming_enemy = $incoming_enemy_rs->search({},{rows => 20});
+
+                    $out->{num_incoming_enemy} = $num_incoming_enemy;
+                    foreach my $ship (@incoming_enemy) {
+                        push @{$out->{incoming_enemy_ships}}, {
+                            date_arrives    => $ship->date_available_formatted,
+                            is_own          => 0,
+                            is_ally         => 0,
+                            id              => $ship->id,
+                        };
+                    }
+                    $out->{num_incoming_ally} = $num_incoming_ally;
+                    foreach my $ship (@incoming_ally) {
+                        push @{$out->{incoming_ally_ships}}, {
+                            date_arrives    => $ship->date_available_formatted,
+                            is_own          => 0,
+                            is_ally         => 1,
+                            id              => $ship->id,
+                        };
+                    }
+                    $out->{num_incoming_own} = $num_incoming_own;
+                    foreach my $ship (@incoming_own) {
+                        push @{$out->{incoming_own_ships}}, {
+                            date_arrives    => $ship->date_available_formatted,
+                            is_own          => 1,
+                            is_ally         => 0,
+                            id              => $ship->id,
+                        };
                     }
                 }
                 $out->{needs_surface_refresh} = $self->needs_surface_refresh;
@@ -876,17 +942,17 @@ sub recalc_stats {
     }
     
     # deal with storage overages
-    if ($self->ore_stored > $self->ore_capacity) {
-        $self->spend_ore($self->ore_stored - $self->ore_capacity);
+    if ($self->ore_stored > $stats{ore_capacity}) {
+        $self->spend_ore($self->ore_stored - $stats{ore_capacity});
     }
-    if ($self->food_stored > $self->food_capacity) {
-        $self->spend_food($self->food_stored - $self->food_capacity);
+    if ($self->food_stored > $stats{food_capacity}) {
+        $self->spend_food($self->food_stored - $stats{food_capacity}, 1);
     }
-    if ($self->water_stored > $self->water_capacity) {
-        $self->spend_water($self->water_stored - $self->water_capacity);
+    if ($self->water_stored > $stats{water_capacity}) {
+        $self->spend_water($self->water_stored - $stats{water_capacity});
     }
-    if ($self->energy_stored > $self->energy_capacity) {
-        $self->spend_energy($self->energy_stored - $self->energy_capacity);
+    if ($self->energy_stored > $stats{energy_capacity}) {
+        $self->spend_energy($self->energy_stored - $stats{energy_capacity});
     }
 
     # deal with plot usage
@@ -1140,11 +1206,11 @@ sub tick_to {
         }
     }
     else {
-        $self->spend_food(abs($food_produced));
+        $self->spend_food(abs($food_produced), 0);
     }
     if ($food_hour == 0 && $self->food_hour != 0) {
         if ($self->food_hour < 0) {
-            $self->spend_food(sprintf('%.0f', abs($self->food_hour) * $tick_rate));
+            $self->spend_food(sprintf('%.0f', abs($self->food_hour) * $tick_rate), 1);
         }
         else {
             $self->add_food(sprintf('%.0f', $self->food_hour * $tick_rate));
@@ -1753,8 +1819,9 @@ sub spend_lapis {
 }
 
 sub spend_food {
-    my ($self, $food_consumed) = @_;
+    my ($self, $food_consumed, $loss) = @_;
     
+   $loss = 0 unless defined($loss);
     # take inventory
     my $food_stored;
     my $food_type_count = 0;
@@ -1772,7 +1839,7 @@ sub spend_food {
     }
     
     # adjust happiness based on food diversity
-    if (!$self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+    unless ($loss or $self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         if ($food_type_count > 3) {
             $self->add_happiness($food_consumed);
         }

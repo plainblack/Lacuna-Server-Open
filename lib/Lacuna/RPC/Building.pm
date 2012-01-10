@@ -44,7 +44,7 @@ sub upgrade {
     else {
         $body->spend_water($cost->{water});
         $body->spend_energy($cost->{energy});
-        $body->spend_food($cost->{food});
+        $body->spend_food($cost->{food}, 0);
         $body->spend_ore($cost->{ore});
         $body->add_waste($cost->{waste});
         $body->update;
@@ -176,7 +176,7 @@ sub build {
         $plan->delete;
     }
     else {
-        $body->spend_food($cost->{food});
+        $body->spend_food($cost->{food}, 0);
         $body->spend_water($cost->{water});
         $body->add_waste($cost->{waste});
         $body->spend_ore($cost->{ore});

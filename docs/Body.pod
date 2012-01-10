@@ -63,15 +63,24 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
         "waste_capacity" : 13000,
         "water_stored" : 9929,
         "water_hour" : 295,
-        "water_capacity" : 51050,
-        "incoming_foreign_ships" : [  # will only be included when foreign ships are coming to your planet, more detail at spaceport
+        "water_capacity" : 51050,   
+        "num_incoming_enemy" : 10,   # total number of incoming enemy ships
+        "num_incoming_ally" : 1,     # total number of incoming allied ships
+        "num_incoming_own : 0,       # total number of incoming own ships from other colonies
+        "incoming_enemy_ships" : [ # will only be included when enemy ships are coming to your planet (only the first 20 will be shown)
             {
-                "id" : "id-goes-here",                          # not terribly useful, except for client caching of notices
+                "id" : "id-goes-here",
                 "date_arrives" : "01 31 2010 13:09:05 +0600",
                 "is_own" : 1,                                   # is this from one of our own planets
                 "is_ally" : 1                                   # is this from a planet within our alliance
             },
             ...
+        ],
+        "incoming_ally_ships" : [ # will only be included when allied ships are coming to your planet (only the first 10 will be shown)
+            ...
+        ],
+        "incoming_own_ships" : [ # will only be included when ships from your other colonies are coming to your planet (only the first 10 will be shown)
+            ...  
         ],
         
         ----- if the body is a station the follwing information will be included

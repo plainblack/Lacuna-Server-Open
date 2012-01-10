@@ -632,6 +632,8 @@ sub view_foreign_ships {
     my @my_planets = $empire->planets->get_column('id')->all;
     while (my $ship = $ships->next) {
         if ($ship->date_available->epoch <= $now) {
+            # it might be more efficient to move this out of the loop and just remember those bodies
+            # that need to be ticked. Rather than ticking the same body (potentially) many times
             $ship->body->tick;
         }
         else {

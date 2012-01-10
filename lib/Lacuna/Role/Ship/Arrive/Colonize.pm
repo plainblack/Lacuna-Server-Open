@@ -12,7 +12,22 @@ after handle_arrival_procedures => sub {
     # can't colonize because it's already taken
     my $empire = $self->body->empire;
     my $planet = $self->foreign_body;
-    if ($planet->is_locked || $planet->empire_id) {
+
+    if ($planet->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant') && $empire->university_level < 19) {
+        $empire->send_predefined_message(
+            tags        => ['Colonization','Alert'],
+            filename    => 'cannot_colonize_gg.txt',
+            params      => [$planet->x, $planet->y, $planet->name, $planet->name],
+        );
+    }
+    elsif ($planet->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
+        $empire->send_predefined_message(
+            tags        => ['Colonization','Alert'],
+            filename    => 'cannot_colonize_asteroid.txt',
+            params      => [$planet->x, $planet->y, $planet->name, $planet->name],
+        );
+    }
+    elsif ($planet->is_locked || $planet->empire_id) {
         $empire->send_predefined_message(
             tags        => ['Colonization','Alert'],
             filename    => 'cannot_colonize.txt',

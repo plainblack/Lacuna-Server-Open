@@ -55,7 +55,8 @@ sub add_to_market {
     unless ($self->level > $self->my_market->count) {
         confess [1009, "This Subspace Transporter can only support ".$self->level." trades at one time."];
     }
-    my $space_used = $self->check_payload($offer, $self->determine_available_cargo_space);
+    my $space_used;
+    ($space_used, $offer) = $self->check_payload($offer, $self->determine_available_cargo_space);
     my ($payload, $meta) = $self->structure_payload($offer, $space_used);
     my %trade = (
         %{$meta},
@@ -125,8 +126,9 @@ sub push_items {
         $space_exception = 'You are trying to send %s cargo, but the remote transporter can only receive '.$remote_payload.'.';
     }
 
-    $self->check_payload($items, $local_payload);
-    my $space_used = $self->check_payload_ships($items, $target);
+    my $space_used;
+    ($space_used, $items) = $self->check_payload($items, $local_payload);
+    $space_used = $self->check_payload_ships($items, $target);
 
     my ($payload, $meta) = $self->structure_payload($items, $space_used);
     my $container = Lacuna::VirtualContainer->new(payload => $payload);

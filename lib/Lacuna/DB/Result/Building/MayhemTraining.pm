@@ -65,6 +65,12 @@ sub get_spy {
     if ($spy->empire_id ne $self->body->empire_id) {
         confess [1013, "You don't control that spy."];
     }
+    if ($spy->on_body_id != $self->body->id) {
+        confess [1013, "Spy must be on planet to train."];
+    }
+    if ($spy->on_body_id != $self->body->id) {
+        confess [1013, "Spy must be on planet to train."];
+    }
     return $spy;
 }
 

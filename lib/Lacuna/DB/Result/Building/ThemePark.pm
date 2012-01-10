@@ -99,7 +99,7 @@ sub operate {
     foreach my $food (FOOD_TYPES) {
         if ($body->type_stored($food) >= 1000) {
             $types++;
-            $body->spend_food_type($food, 1000);
+            $body->spend_food_type($food, 1000, 0);
         }
     }
     $body->needs_recalc(1);

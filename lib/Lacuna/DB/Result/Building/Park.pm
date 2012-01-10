@@ -37,7 +37,7 @@ sub throw_a_party {
     foreach my $food (FOOD_TYPES) {
         if ($body->type_stored($food) >= 500) {
             $food_multiplier++;
-            $body->spend_food_type($food, 500);
+            $body->spend_food_type($food, 500, 0);
             $eat -= 500;
         }
     }
