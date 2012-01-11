@@ -68,6 +68,7 @@ sub get_ores_available_for_processing {
 
 sub max_excavators {
   my $self = shift;
+  return 0 if ($self->level < 15);
   return ($self->level);
 }
 
@@ -105,10 +106,16 @@ sub can_add_excavator {
                 ->search({type=>'excavators', task=>'Travelling',body_id=>$self->body_id})->count;
     }    
     if ($count >= $self->max_excavators) {
-      confess [1009, 'Already at the maximum number of platforms allowed at this Ministry level.'];
+      confess [1009, 'Already at the maximum number of excavators allowed at this Archaeology level.'];
     }
     
-    # body count (Not sure if we want to implement this)
+# Allowed one per empire per asteroid.
+    $count = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')
+               ->search({ body_id => $body->id, empire_id => $self->empire->id; })->count;
+    if ($count) {
+      confess [1010, $body-name.' already has an excavator from your empire.'];
+    }
+# body count (Not sure if we want to implement this) (If we decide to go with size)
 #    $count = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')
 #               ->search({ body_id => $body->id })->count;
 #    unless ($on_arrival) {
@@ -132,6 +139,7 @@ sub add_excavator {
     planet_id   => $self->body_id,
     planet      => $self->body,
     body_id     => $asteroid->id,
+    empire_id   => $self->empire->id;
     body        => $asteroid,
     speed       => $speed,
   })->insert;
