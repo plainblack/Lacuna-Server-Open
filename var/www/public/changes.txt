@@ -1,7 +1,8 @@
-3.0835:
+3.0836:
  - Fix:  Better resource checks when storage is reduced.
  - Fix:  Supply Pods can only take what is available on a planet when launched.
  - Fix:  Primitve screwheads can only be uplifted one level.
+ - Add:  Ability in API to move buildings.
 
 3.0834:
  - Fix:  Spies caught up in failed insurrection five to defender level * 2.
