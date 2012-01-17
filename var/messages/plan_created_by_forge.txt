@@ -1,0 +1,7 @@
+Dillon Forge Makes Plan
+~~~
+The Dillon Forge on {Planet %s %s} today created a level %s+0 %s plan. This is cause for great joy and celebration throughout the Empire.
+
+Regards,
+
+Your Humble Assistant

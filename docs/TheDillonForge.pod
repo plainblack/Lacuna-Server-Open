@@ -21,7 +21,7 @@ This method is extended to include the list of tasks.
           "name" : "Algae",
           "max_level" : 10,
           "class" : "Food::Algae",
-          "seconds_per_level" : 5000,
+          "reset_sec_per_level" : 5000,
         },...
       ],
       "split_plan" : [
@@ -31,7 +31,7 @@ This method is extended to include the list of tasks.
           "level" : 1,
           "extra_build_level" : 2,
           "fail_chance" : 50,
-          "seconds_to_split",
+          "reset_seconds",
         },...
       ]
     }
