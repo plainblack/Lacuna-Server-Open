@@ -2129,8 +2129,9 @@ sub steal_building {
         )->single;
     return $self->building_not_found->id unless defined $building;
     $self->things_stolen( $self->things_stolen + 1 );
-    my $max = ($self->level > $building->level) ? $building->level : $self->level;
-    my $level = randint(1,$max);
+    my $max = ($self->level > 30) ? 30 : $self->level;
+    my $level = randint(1, $max);
+    $level = $building->level if ($level > $building->level);
     $building->level( $building->level - 1 );
     $building->update;
     $on_body->needs_recalc(1);

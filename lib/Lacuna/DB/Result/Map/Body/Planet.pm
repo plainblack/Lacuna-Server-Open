@@ -760,6 +760,13 @@ sub found_colony {
     $type =~ s/^.*::(\w\d+)$/$1/;
     $empire->add_medal($type);
 
+    my $buildings = $self->buildings;
+    while (my $building = $buildings->next) {
+      if ($building->x == 0 and $building->y == 0) {
+        $building->delete;
+      }
+    }
+
     # add command building
     my $command = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
         x               => 0,
