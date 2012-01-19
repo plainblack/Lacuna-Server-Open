@@ -93,8 +93,43 @@ sub subsidize_search {
     return $self->view($empire, $building);
 }
 
+sub view_excavators {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $excavators = $building->excavators;
+    my @sites;
+    while (my $excav = $excavators->next) {
+        push @sites, {
+            id                              => $platform->id,
+            asteroid                        => $platform->asteroid->get_status,
+        };
+    }
+    return {
+        platforms       => \@sites,
+        max_platforms   => $building->max_platforms,
+        status          => $self->format_status($empire, $building->body),
+    };
+}
 
-__PACKAGE__->register_rpc_method_names(qw(get_ores_available_for_processing assemble_glyphs search_for_glyph get_glyphs subsidize_search));
+sub abandon_excavator {
+    my ($self, $session_id, $building_id, $site_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $site = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->find($site_id);
+    unless (defined $site) {
+        confess [1002, "Excavator Site not found."];
+    }
+    unless ($site->planet_id eq $building->body_id) {
+        confess [1013, "You can't abandon an excavator site that is not yours."];
+    }
+    $building->remove_excavator($site);
+    return {
+        status  => $self->format_status($empire, $building->body),
+    };
+}
+
+__PACKAGE__->register_rpc_method_names(qw(get_ores_available_for_processing assemble_glyphs search_for_glyph get_glyphs subsidize_search view_excavators abandon_excavator));
 
 
 no Moose;

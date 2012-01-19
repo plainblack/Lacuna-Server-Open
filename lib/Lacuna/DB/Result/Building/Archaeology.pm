@@ -91,6 +91,7 @@ sub send_ship_home {
     return $self;
 }
 
+
 sub excavators {
   my $self = shift;
   return Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->search({ planet_id => $self->body_id });
@@ -104,46 +105,43 @@ sub can_add_excavator {
   unless ($on_arrival) {
     $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')
                 ->search({type=>'excavators', task=>'Travelling',body_id=>$self->body_id})->count;
-    }    
-    if ($count >= $self->max_excavators) {
-      confess [1009, 'Already at the maximum number of excavators allowed at this Archaeology level.'];
-    }
+  }
+  if ($count >= $self->max_excavators) {
+    confess [1009, 'Already at the maximum number of excavators allowed at this Archaeology level.'];
+  }
     
 # Allowed one per empire per asteroid.
-    $count = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')
-               ->search({ body_id => $body->id, empire_id => $self->empire->id; })->count;
-    if ($count) {
-      confess [1010, $body-name.' already has an excavator from your empire.'];
-    }
-# body count (Not sure if we want to implement this) (If we decide to go with size)
-#    $count = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')
-#               ->search({ body_id => $body->id })->count;
-#    unless ($on_arrival) {
-#        $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')
-#                    ->search( {
-#                      type=>'excavators',
-#                      foreign_body_id => $body->id,
-#                      task=>'Travelling',
-#                      body_id=>$self->body_id
-#                    })->count;
-#    }
-#    if ($body->size <= $count) {
-#        confess [1010, $body->name.' cannot support any additional excavators.'];
-#    }
-    return 1;
+  $count = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')
+             ->search({ body_id => $body->id, empire_id => $self->empire->id; })->count;
+  unless ($on_arrival) {
+    $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')
+                ->search( {
+                    type=>'excavators',
+                    foreign_body_id => $body->id,
+                    task=>'Travelling',
+                    body_id=>$self->body_id
+                 })->count;
+  }
+  if ($count) {
+    confess [1010, $body-name.' already has an excavator from your empire (or one is on the way.'];
+  }
+  return 1;
 }
 
 sub add_excavator {
   my ($self, $body, $speed) = @_;
   Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->new({
     planet_id   => $self->body_id,
-    planet      => $self->body,
-    body_id     => $asteroid->id,
-    empire_id   => $self->empire->id;
-    body        => $asteroid,
-    speed       => $speed,
+    asteroid_id => $asteroid->id,
+#    speed       => $speed,
   })->insert;
   $self->recalc_excavating;
+  return $self;
+}
+
+sub remove_excavator {
+  my ($self, $platform) = @_;
+  $platform->delete;
   return $self;
 }
 
@@ -219,7 +217,7 @@ my %recipies = (
         trona       => {
             kerogen     => {
                 monazite    => {
-                    plan        => 'Lacuna::DB::Result::Building::Permanent::MassadsHenge',
+#                    plan        => 'Lacuna::DB::Result::Building::Permanent::MassadsHenge',
                 },
             },
         },
@@ -474,6 +472,16 @@ sub make_plan {
     }
     $glyphs->search({ id => { in => $ids}})->delete;
     return $self->body->add_plan($match->{plan}, 1);
+}
+
+before 'can_downgrade' => sub {
+  my $self = shift;
+  if ($self->excavators->count > ($self->level - 1)) {
+    confess [1013, 'You must abandon one of your Excavator Sites before you can downgrade the Archaeology Ministry.'];
+  }
+  if ($self->excavators->count && ($self->level -1) < 15 ) {
+    confess [1013, 'You can not have any Excavator Sites if you are to downgrade your Archaeology Ministry below 15.'];
+  }
 }
 
 no Moose;
