@@ -2,6 +2,8 @@ package Lacuna::DB::Result::Building::Trade;
 
 use Moose;
 use utf8;
+use List::Util qw(max);
+
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 
@@ -90,7 +92,7 @@ sub available_market {
     return $self->market->search({
         -and => [
             body_id         => {'!=' => $self->body_id},
-            \[ "transfer_type = ? and ceil(pow(pow(me.x - $minus_x, 2) + pow(me.y - $minus_y, 2), 0.5)) < trade_range", [transfer_type => $self->transfer_type]],
+            \[ "transfer_type = ? and ceil(pow(pow(me.x + $minus_x, 2) + pow(me.y + $minus_y, 2), 0.5)) < trade_range", [transfer_type => $self->transfer_type]],
         ]},{
         '+select' => [
             { ceil => \"pow(pow(me.x + $minus_x,2) + pow(me.y + $minus_y,2), 0.5)", '-as' => 'distance' },

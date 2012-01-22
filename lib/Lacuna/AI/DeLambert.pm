@@ -187,6 +187,12 @@ sub sell_glyph_trade {
     say "#### SELL GLYPH TRADE ####";
 
     my $scratchpad = $self->scratch->pad;
+    my $trade_min = $colony->get_building_of_class('Lacuna::DB::Result::Building::Trade');
+
+    if (not $trade_min) {
+        say "    ERROR: No trade ministry found on ".$colony->name;
+        return;
+    }
 
     if (not defined $scratchpad->{sell_glyph_probability}) {
         $scratchpad->{sell_glyph_probability} = 1;
@@ -210,15 +216,18 @@ sub sell_glyph_trade {
         my $ship = $self->get_trade_ship($colony);
         return unless $ship;
 
-        # check how many trades there are in the zone at the moment
-        my $trades_in_zone = Lacuna->db->resultset('Lacuna::DB::Result::Market')->search({
-            transfer_type       => $colony->zone,
+        # check how many trades there are in range at the moment
+        my $trades_in_zone = $trade_min->available_market({
+            transfer_type       => 'trade',
             has_glyph           => 1,
             'body.empire_id'    => -9,
         },{
             join                => 'body',
         })->count;
-        if ($trades_in_zone >= $scratchpad->{sell_max_glyph_trades_in_zone}) {
+        my $my_trades = $trade_min->my_market({
+            has_plan            => 1,
+        })->count;
+        if ($trades_in_zone + $my_trades >= $scratchpad->{sell_max_glyph_trades_in_zone}) {
             return;
         }
         my $quantity = randint(1,$scratchpad->{sell_glyph_max_batch});
@@ -242,7 +251,11 @@ sub sell_glyph_trade {
                 ask             => $cost_per * $quantity,
                 ship_id         => $ship->id,
                 body_id         => $colony->id,
-                transfer_type   => $colony->zone,
+                transfer_type   => 'trade',
+                x               => $colony->x,
+                y               => $colony->y,
+                speed           => $ship->speed,
+                trade_range     => 600,
             );
             Lacuna->db->resultset('Lacuna::DB::Result::Market')->create(\%trade);
         }
@@ -254,6 +267,13 @@ sub sell_plan_trade {
 
     say "#### SELL PLAN TRADE ####";
 
+    my $trade_min = $colony->get_building_of_class('Lacuna::DB::Result::Building::Trade');
+
+    if (not $trade_min) {
+        say "    ERROR: No trade ministry found on ".$colony->name;
+        return;
+    }
+
     my $scratchpad = $self->scratch->pad;
 
     if (randint(1,100) <= $scratchpad->{sell_plan_probability}) {
@@ -264,16 +284,20 @@ sub sell_plan_trade {
             return;
         }
 
-        # check how many trades there are in the zone at the moment
-        my $trades_in_zone = Lacuna->db->resultset('Lacuna::DB::Result::Market')->search({
-            transfer_type       => $colony->zone,
+        # check how many trades there are in the zone at the moment (including our own)
+        my $trades_in_zone = $trade_min->available_market({
+            transfer_type       => 'trade',
             has_plan            => 1,
             'body.empire_id'    => -9,
         },{
             join                => 'body',
         })->count;
-        if ($trades_in_zone >= $scratchpad->{sell_max_plan_trades_in_zone}) {
-            say "Already enough trades ($trades_in_zone) in zone!";
+        my $my_trades = $trade_min->my_market({
+            has_plan            => 1,
+        })->count;
+
+        if ($trades_in_zone + $my_trades >= $scratchpad->{sell_max_plan_trades_in_zone}) {
+            say "Already enough trades ($trades_in_zone + $my_trades) in zone!";
             return;
         }
         my $level = randint($scratchpad->{sell_plan_min_level},$scratchpad->{sell_plan_max_level});
@@ -307,7 +331,11 @@ sub sell_plan_trade {
                 ask                         => $cost_per * $quantity,
                 ship_id                     => $ship->id,
                 body_id                     => $colony->id,
-                transfer_type               => $colony->zone,
+                transfer_type               => 'trade',
+                x                           => $colony->x,
+                y                           => $colony->y,
+                speed                       => $ship->speed,
+                trade_range                 => 600,
             );
             Lacuna->db->resultset('Lacuna::DB::Result::Market')->create(\%trade);
         }
@@ -886,3 +914,4 @@ small print.
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
+
