@@ -61,6 +61,7 @@ sub add_to_market {
     my ($payload, $meta) = $self->structure_payload($offer, $space_used);
     $ship->task('Waiting On Trade');
     $ship->update;
+    my $body = $self->body;
     my %trade = (
         %{$meta},
         payload         => $payload,
@@ -68,13 +69,36 @@ sub add_to_market {
         ship_id         => $ship->id,
         body_id         => $self->body_id,
         transfer_type   => $self->transfer_type,
+        x               => $body->x,
+        y               => $body->y,
+        speed           => $ship->speed,
+        trade_range     => max (250, $self->level * 20),
     );
     return Lacuna->db->resultset('Lacuna::DB::Result::Market')->new(\%trade)->insert;
 }
 
 sub transfer_type {
     my $self = shift;
-    return $self->body->zone;
+    return 'trade';
+}
+
+sub available_market {
+    my $self = shift;
+    my $minus_x = 0 - $self->body->x;
+    my $minus_y = 0 - $self->body->y;
+
+    return $self->market->search({
+        -and => [
+            body_id         => {'!=' => $self->body_id},
+            \[ "transfer_type = ? and ceil(pow(pow(me.x - $minus_x, 2) + pow(me.y - $minus_y, 2), 0.5)) < trade_range", [transfer_type => $self->transfer_type]],
+        ]},{
+        '+select' => [
+            { ceil => \"pow(pow(me.x + $minus_x,2) + pow(me.y + $minus_y,2), 0.5)", '-as' => 'distance' },
+        ],
+        '+as' => [
+            'distance',
+        ],
+    });
 }
 
 sub trade_ships {
