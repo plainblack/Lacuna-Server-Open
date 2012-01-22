@@ -225,7 +225,7 @@ sub sell_glyph_trade {
             join                => 'body',
         })->count;
         my $my_trades = $trade_min->my_market({
-            has_plan            => 1,
+            has_glyph           => 1,
         })->count;
         if ($trades_in_zone + $my_trades >= $scratchpad->{sell_max_glyph_trades_in_zone}) {
             return;
