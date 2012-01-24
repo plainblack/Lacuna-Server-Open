@@ -101,13 +101,13 @@ sub view_excavators {
     my @sites;
     while (my $excav = $excavators->next) {
         push @sites, {
-            id                              => $platform->id,
-            asteroid                        => $platform->asteroid->get_status,
+            id                              => $excav->id,
+            asteroid                        => $excav->asteroid->get_status,
         };
     }
     return {
-        platforms       => \@sites,
-        max_platforms   => $building->max_platforms,
+        excavators       => \@sites,
+        max_excavators   => $building->max_excavators,
         status          => $self->format_status($empire, $building->body),
     };
 }

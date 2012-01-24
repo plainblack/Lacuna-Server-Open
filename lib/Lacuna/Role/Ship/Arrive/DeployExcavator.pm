@@ -1,4 +1,4 @@
-package Lacuna::Role::Ship::Arrive::DeployExcavator.pm
+package Lacuna::Role::Ship::Arrive::DeployExcavator;
 
 use strict;
 use Moose::Role;

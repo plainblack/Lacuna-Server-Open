@@ -112,7 +112,7 @@ sub can_add_excavator {
     
 # Allowed one per empire per asteroid.
   $count = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')
-             ->search({ body_id => $body->id, empire_id => $self->empire->id; })->count;
+             ->search({ body_id => $body->id, empire_id => $self->empire->id })->count;
   unless ($on_arrival) {
     $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')
                 ->search( {
@@ -123,7 +123,7 @@ sub can_add_excavator {
                  })->count;
   }
   if ($count) {
-    confess [1010, $body-name.' already has an excavator from your empire (or one is on the way.'];
+    confess [1010, $body->name.' already has an excavator from your empire (or one is on the way.'];
   }
   return 1;
 }
@@ -132,7 +132,7 @@ sub add_excavator {
   my ($self, $body, $speed) = @_;
   Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->new({
     planet_id   => $self->body_id,
-    asteroid_id => $asteroid->id,
+    asteroid_id => $body->id,
 #    speed       => $speed,
   })->insert;
   $self->recalc_excavating;
@@ -227,7 +227,12 @@ before 'can_downgrade' => sub {
   if ($self->excavators->count && ($self->level -1) < 15 ) {
     confess [1013, 'You can not have any Excavator Sites if you are to downgrade your Archaeology Ministry below 15.'];
   }
-}
+};
+
+after 'downgrade' => sub {
+    my $self = shift;
+    $self->recalc_excavating;
+};
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
