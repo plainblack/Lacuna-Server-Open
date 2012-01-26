@@ -36,9 +36,13 @@ sub view_market {
     my $building = $self->get_building($empire, $building_id);
     $page_number ||=1;
     my $all_trades = $building->available_market->search(
-        undef,
-        { rows => 25, page => $page_number, join => 'body', order_by => 'ask' }
-        );
+        undef,{
+            rows        => 25, 
+            page        => $page_number, 
+            join        => 'body', 
+            order_by    => 'ask',
+        }
+    );
     if ($filter && $filter ~~ [qw(food ore water waste energy glyph prisoner ship plan)]) {
         $all_trades = $all_trades->search({ 'has_'.$filter => 1 });
     }
@@ -48,18 +52,26 @@ sub view_market {
             $trade->delete;
             next;
         }
+        my $delivery;
+        if ($trade->transfer_type eq 'transporter') {
+            $delivery = {duration => 0};
+        }
+        else {
+            $delivery = {duration => $trade->ship->calculate_travel_time($building->body)};
+        }
         push @trades, {
-            id                      => $trade->id,
-            date_offered            => $trade->date_offered_formatted,
-            ask                     => $trade->ask,
-            offer                   => $trade->format_description_of_payload,
-            body                    => {
-                id      => $trade->body_id,
+            id              => $trade->id,
+            date_offered    => $trade->date_offered_formatted,
+            ask             => $trade->ask,
+            offer           => $trade->format_description_of_payload,
+            body => {
+                id          => $trade->body_id,
             },
-            empire                  => {
-                id      => $trade->body->empire->id,
-                name    => $trade->body->empire->name,
+            empire => {
+                id          => $trade->body->empire->id,
+                name        => $trade->body->empire->name,
             },
+            delivery =>     => $delivery,
         };
     }
     return {

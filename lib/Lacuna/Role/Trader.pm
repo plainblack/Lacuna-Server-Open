@@ -21,16 +21,6 @@ sub my_market {
     return $self->market->search({body_id => $self->body_id, transfer_type => $self->transfer_type });
 }
 
-sub available_market {
-    my $self = shift;
-    return $self->market->search(
-        {
-            body_id         => {'!=' => $self->body_id},
-            transfer_type   => $self->transfer_type,
-        },
-    )
-}
-
 sub check_payload {
     my ($self, $items, $available_cargo_space, $space_exception, $transfer_ship) = @_;
     my $body = $self->body;

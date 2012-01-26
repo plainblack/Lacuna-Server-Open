@@ -1,3 +1,6 @@
+3.0837:
+ - Mod:  Trade Ministry now trades within a set distance rather than just within zone
+
 3.0836:
  - Fix:  Better resource checks when storage is reduced.
  - Fix:  Supply Pods can only take what is available on a planet when launched.
