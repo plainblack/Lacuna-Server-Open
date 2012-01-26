@@ -1,0 +1,7 @@
+Dillon Forge Splits Plan
+~~~
+The Dillon Forge on {Planet %s %s} today split a level %s+%s %s plan and created the following glyphs.
+
+Regards,
+
+Your Humble Assistant
