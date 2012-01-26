@@ -217,17 +217,11 @@ sub sell_glyph_trade {
         return unless $ship;
 
         # check how many trades there are in range at the moment
-        my $trades_in_zone = $trade_min->available_market({
-            transfer_type       => 'trade',
-            has_glyph           => 1,
-            'body.empire_id'    => -9,
-        },{
-            join                => 'body',
+        my $trades_in_zone = $trade_min->local_market({
+            has_glyph => 1,
         })->count;
-        my $my_trades = $trade_min->my_market({
-            has_glyph           => 1,
-        })->count;
-        if ($trades_in_zone + $my_trades >= $scratchpad->{sell_max_glyph_trades_in_zone}) {
+        if ($trades_in_zone >= $scratchpad->{sell_max_glyph_trades_in_zone}) {
+            say "Already enough trades ($trades_in_zone) in zone!";
             return;
         }
         my $quantity = randint(1,$scratchpad->{sell_glyph_max_batch});
@@ -285,19 +279,12 @@ sub sell_plan_trade {
         }
 
         # check how many trades there are in the zone at the moment (including our own)
-        my $trades_in_zone = $trade_min->available_market({
-            transfer_type       => 'trade',
-            has_plan            => 1,
-            'body.empire_id'    => -9,
-        },{
-            join                => 'body',
-        })->count;
-        my $my_trades = $trade_min->my_market({
+        my $trades_in_zone = $trade_min->local_market({
             has_plan            => 1,
         })->count;
 
-        if ($trades_in_zone + $my_trades >= $scratchpad->{sell_max_plan_trades_in_zone}) {
-            say "Already enough trades ($trades_in_zone + $my_trades) in zone!";
+        if ($trades_in_zone >= $scratchpad->{sell_max_plan_trades_in_zone}) {
+            say "Already enough trades ($trades_in_zone) in zone!";
             return;
         }
         my $level = randint($scratchpad->{sell_plan_min_level},$scratchpad->{sell_plan_max_level});

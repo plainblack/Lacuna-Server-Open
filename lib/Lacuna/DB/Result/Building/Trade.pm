@@ -3,6 +3,7 @@ package Lacuna::DB::Result::Building::Trade;
 use Moose;
 use utf8;
 use List::Util qw(max);
+use Data::Dumper;
 
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
@@ -84,22 +85,34 @@ sub transfer_type {
     return 'trade';
 }
 
-sub available_market {
-    my $self = shift;
-    my $minus_x = 0 - $self->body->x;
-    my $minus_y = 0 - $self->body->y;
+# all trades within range (including those on this colony)
+sub local_market {
+    my ($self, $args) = @_;
+
+    my $minus_x = -$self->body->x;
+    my $minus_y = -$self->body->y;
 
     return $self->market->search({
+        %$args,
         -and => [
-            body_id         => {'!=' => $self->body_id},
             \[ "transfer_type = ? and ceil(pow(pow(me.x + $minus_x, 2) + pow(me.y + $minus_y, 2), 0.5)) < trade_range", [transfer_type => $self->transfer_type]],
-        ]},{
+        ]
+    },{
         '+select' => [
             { ceil => \"pow(pow(me.x + $minus_x,2) + pow(me.y + $minus_y,2), 0.5)", '-as' => 'distance' },
         ],
         '+as' => [
             'distance',
         ],
+        join => 'body',
+    });
+}
+
+# available market. All trades within range that are not our own
+sub available_market {
+    my ($self) = @_;
+    return $self->local_market({
+        body_id => {'!=' => $self->body_id},
     });
 }
 
