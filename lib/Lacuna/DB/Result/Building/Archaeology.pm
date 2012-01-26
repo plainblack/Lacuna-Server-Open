@@ -69,26 +69,60 @@ sub get_ores_available_for_processing {
 sub max_excavators {
   my $self = shift;
   return 0 if ($self->level < 15);
-  return ($self->level);
+  return ($self->level - 14);
 }
 
-sub add_ship {
-    my ($self, $ship) = @_;
-    $ship->task('Excavating');
-    $ship->update;
-    $self->recalc_excavating;
-    return $self;
-}
+# sub add_ship {
+#     my ($self, $ship) = @_;
+#     $ship->task('Excavating');
+#     $ship->update;
+#    $self->recalc_excavating;
+#     return $self;
+# }
 
-sub send_ship_home {
-    my ($self, $body, $ship) = @_;
-    $ship->send(
-        target      => $body,
-        direction   => 'in',
-        task        => 'Travelling',
-    );
-    $self->recalc_excavating;
-    return $self;
+# sub send_ship_home {
+#     my ($self, $body, $ship) = @_;
+#     $ship->send(
+#         target      => $body,
+#         direction   => 'in',
+#         task        => 'Travelling',
+#     );
+#    $self->recalc_excavating;
+#     return $self;
+# }
+
+sub run_excavators {
+  my $self = shift;
+
+
+# Run thru excavators for each arch.
+# 1) See what they find
+#    Glyph, Plan, resource, (artifact), something bad
+# 2) Glyph
+#    a) Chances based on ore content.  (total ore)/10,000 * level
+#    b) Each ore has at least 1%, but proportional to content.
+# 3) Plan % equal to level/5
+#    1+floor(lvl/6) possible
+#    5% something special, 50% chance of 1+0, otherwise rand(1,lvl/6)
+# 4) Resource Lvl * 2 percent chance
+# 5) If glyph building on uninhabited excav planet
+#    Chance of grabbing a lvl 1 plan of it (no dillon or e-veins)
+#    Chance of 1+X up to level of arch/2+1 or level of building
+#    If lvl 1 (50% chance of destroying building, or reduce by 1 level)
+#    If 1+x, destroy building
+# 6) Ancient Horror released. All cases, excavator destroyed. 1% chance
+#    a) Ph'nglui Mglw'nafh Cthulhu R'lyeh wgah'nagi fhtagn.
+#    b) Klaatu Barada Ni*cough*
+#    c) Brass Doors
+#    d) flutes
+
+  my $level = $self->level;
+# Do once for arch
+  if ($level > 14) {
+    my $excavators = $self->excavators;
+    while (my $excav = $excavators->next) {
+    }
+  }
 }
 
 
@@ -102,46 +136,51 @@ sub can_add_excavator {
     
   # excavator count for archaeology
   my $count = $self->excavators->count;
+# print "Checking is more than $count are travelling.\n";
   unless ($on_arrival) {
     $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')
-                ->search({type=>'excavators', task=>'Travelling',body_id=>$self->body_id})->count;
+                ->search({type=>'excavator', task=>'Travelling',body_id=>$self->body_id})->count;
   }
-  if ($count >= $self->max_excavators) {
+  my $max_e = $self->max_excavators;
+# print "Count $count with max of $max_e\n";
+  if ($count >= $max_e) {
     confess [1009, 'Already at the maximum number of excavators allowed at this Archaeology level.'];
   }
     
-# Allowed one per empire per asteroid.
+# Allowed one per empire per body.
   $count = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')
-             ->search({ body_id => $body->id, empire_id => $self->empire->id })->count;
+             ->search({ body_id => $body->id, empire_id => $self->body->empire->id })->count;
+# print "$count on body.\n";
   unless ($on_arrival) {
     $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')
                 ->search( {
-                    type=>'excavators',
+                    type=>'excavator',
                     foreign_body_id => $body->id,
                     task=>'Travelling',
                     body_id=>$self->body_id
                  })->count;
   }
+# print "$count on body or on way.\n";
   if ($count) {
-    confess [1010, $body->name.' already has an excavator from your empire (or one is on the way.'];
+    confess [1010, $body->name.' already has an excavator from your empire or one is on the way.'];
   }
   return 1;
 }
 
 sub add_excavator {
-  my ($self, $body, $speed) = @_;
+  my ($self, $body) = @_;
   Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->new({
     planet_id   => $self->body_id,
-    asteroid_id => $body->id,
-#    speed       => $speed,
+    body_id     => $body->id,
+    empire_id   => $self->body->empire->id,
   })->insert;
-  $self->recalc_excavating;
+#  $self->recalc_excavating;
   return $self;
 }
 
 sub remove_excavator {
-  my ($self, $platform) = @_;
-  $platform->delete;
+  my ($self, $excavator) = @_;
+  $excavator->delete;
   return $self;
 }
 
@@ -221,7 +260,7 @@ sub make_plan {
 
 before 'can_downgrade' => sub {
   my $self = shift;
-  if ($self->excavators->count > ($self->level - 1)) {
+  if ($self->excavators->count > ($self->level - 15)) {
     confess [1013, 'You must abandon one of your Excavator Sites before you can downgrade the Archaeology Ministry.'];
   }
   if ($self->excavators->count && ($self->level -1) < 15 ) {
@@ -229,10 +268,10 @@ before 'can_downgrade' => sub {
   }
 };
 
-after 'downgrade' => sub {
-    my $self = shift;
-    $self->recalc_excavating;
-};
+#after 'downgrade' => sub {
+#    my $self = shift;
+#    $self->recalc_excavating;
+#};
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

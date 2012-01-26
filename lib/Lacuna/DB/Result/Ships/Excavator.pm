@@ -24,7 +24,7 @@ use constant base_stealth           => 0;
 use constant base_hold_size         => 0;
 use constant build_tags             => ['Exploration'];
 
-with "Lacuna::Role::Ship::Send::Asteroid";
+with "Lacuna::Role::Ship::Send::AsteroidAndUninhabited";
 with "Lacuna::Role::Ship::Arrive::DeployExcavator";
 
 no Moose;

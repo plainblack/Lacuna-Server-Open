@@ -99,10 +99,11 @@ sub view_excavators {
     my $building = $self->get_building($empire, $building_id);
     my $excavators = $building->excavators;
     my @sites;
+#XXX Different data return: Percent rates of rewards
     while (my $excav = $excavators->next) {
         push @sites, {
-            id                              => $excav->id,
-            asteroid                        => $excav->asteroid->get_status,
+            id   => $excav->id,
+            body => $excav->body->get_status,
         };
     }
     return {

@@ -754,6 +754,7 @@ sub found_colony {
     $self->usable_as_starter_enabled(0);
     $self->last_tick(DateTime->now);
     $self->update;    
+# Clear Excavators, send message to both empires.
 
     # award medal
     my $type = ref $self;
@@ -1056,6 +1057,10 @@ sub tick {
         $i++;
     }
 
+    # Process excavator sites
+    if( my $arch = $self->archaeology) {
+      $arch->run_excavators;
+    }
     # get ship tasks
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
         body_id         => $self->id,
@@ -1077,7 +1082,7 @@ sub tick {
         }
         $i++;
     }
-    
+
     # synchronize completion of tasks
     foreach my $key (sort keys %todo) {
         my ($object, $job) = ($todo{$key}{object}, $todo{$key}{type});
