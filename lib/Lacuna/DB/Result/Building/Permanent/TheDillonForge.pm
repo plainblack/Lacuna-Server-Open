@@ -64,6 +64,9 @@ sub split_plan {
     if (not $glyphs) {
         confess [1002, 'You can only split plans that have a glyph recipe.'];
     }
+    if ($class =~ m/Platform$/) {
+        confess [1002, 'You cannot split a plan for a Platform.'];
+    }
     $plan->delete;
     my $build_secs = int($halls * 30 * 3600 / $self->level);
     $self->start_work({task => 'split_plan', class => $class, level => $level, extra_build_level => $extra_build_level}, $build_secs)->update;
@@ -87,6 +90,10 @@ sub make_plan {
     if ($level > $self->level) {
         confess [1002, 'Your Dillon Forge level is not high enough to build that high a plan level.'];
     }
+    if ($class =~ m/HallsOfVrbansk/) {
+        confess [1002, 'It is not a good idea to create a plan you cannot use.'];
+    }
+
     $plans_rs->search({},{
         rows => $level * 2,
     })->delete_all;
