@@ -4,8 +4,10 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
-use Lacuna::Constants qw(ORE_TYPES);
+use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
+use Lacuna::Util qw(randint random_element);
 use Clone qw(clone);
+use feature 'switch';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
@@ -118,11 +120,148 @@ sub run_excavators {
 
   my $level = $self->level;
 # Do once for arch
+  my $result = $self->dig_it($self->body, $level, 1);
+  my @results = ($result);
   if ($level > 14) {
     my $excavators = $self->excavators;
     while (my $excav = $excavators->next) {
+      my $body = $excav->body;
+      my $result = $self->dig_it($body, $level, 0);
+      push @results, $result;
+      if ($result->{outcome} eq "Destroyed") {
+        $self->remove_excavator($excav);
+      }
     }
   }
+  for $result (@results) {
+    printf "%3d:%s - %s : %s\n",
+      $result->{id}, $result->{site},
+      $result->{outcome}, $result->{message};
+  }
+}
+
+sub dig_it {
+  my ($self, $body, $level, $arch) = @_;
+  my $chances = $self->can_you_dig_it($body, $level, $arch);
+
+  my $rnum = randint(0,100);
+  my $base = 0;
+  my $outcome = "nothing";
+  for my $type (keys %$chances) {
+    if ($rnum < $chances->{$type} + $base) {
+      $outcome = $type;
+      last;
+    }
+    $base += $chances->{$type};
+  }
+  my $result;
+  given ($outcome) {
+    when ("resource") {
+      my $type = random_element([ORE_TYPES, FOOD_TYPES, qw(water energy)]);
+      my $amount = randint(100 * $level, 1000 * $level);
+      $self->body->add_type($type, $amount)->update;
+      $result = {
+        message => "Found $amount of $type.",
+        outcome => "Resource",
+      };
+    }
+    when ("plan") {
+      my ($plan, $lvl, $plus, $name) = random_plan($level);
+      $result = {
+        message => "Found level $lvl + $plus $name Plan.",
+        outcome => "Plan",
+      };
+    }
+    when ("glyph") {
+      my $glyph = $self->found_glyph($body);
+      $result = {
+        message => "Found a $glyph glyph.",
+        outcome => "Glyph",
+      };
+    }
+    when ("artifact") {
+      my ($plan, $lvl, $plus, $name) = $self->get_artifact($body, $level);
+      $result = {
+        message => "Found level $lvl + $plus $name Plan.",
+        outcome => "Artifact",
+      };
+    }
+    when ("horror") {
+      $result = {
+        message => "Poor insane robots.",
+        outcome => "Destroyed",
+      };
+    }
+    default {
+      $result = {
+        message => "No results found.",
+        outcome => "Nothing",
+      };
+    }
+  }
+  $result->{id} = $self->id;
+  $result->{site} = $body->name;
+  return $result;
+}
+
+sub get_artifact {
+  my ($self, $body, $level) = @_;
+  
+  my $plan = 0;
+  my $lvl  = 0;
+  my $plus = 0;
+  my $name = "pending";
+
+  return ($plan, $lvl, $plus, $name);
+}
+
+sub found_glyph {
+  my ($self, $body) = @_;
+
+  my $glyph = "a glyph!";
+
+  return $glyph;
+}
+
+sub random_plan {
+  my ($level) = @_;
+
+  my $plan = 0;
+  my $lvl  = 0;
+  my $plus = 0;
+  my $name = "pending";
+
+  return ($plan, $lvl, $plus, $name);
+}
+
+sub can_you_dig_it {
+  my ($self, $body, $level, $arch) = @_;
+
+  my $mult = $arch + 1;
+  my $plan  = (int($level/5)+1) * $mult; # 1-7%
+  my $ore_total = 0;
+  for my $ore (ORE_TYPES) {
+     $ore_total += $body->$ore;
+  }
+  my $glyph = int($mult * $level * $ore_total/10_000)+1; #max 1-61%
+  my $resource = 2 * $level; # 2-60%
+  my $artifact = 0;
+  if (!$arch && $body->buildings->count) {
+    $artifact = 5;
+  }
+  my $horror = $arch ? 0 : 1;
+  my $most = $plan + $glyph + $artifact + $horror;
+  if ($most + $resource > 100) {
+    $resource -= ($most + $resource - 100);
+  }
+  my $return = {
+    plan => $plan,
+    glyph => $glyph,
+    resource => $resource,
+    artifact => $artifact,
+    horror   => $horror,
+  };
+  return $return;
 }
 
 
@@ -136,13 +275,11 @@ sub can_add_excavator {
     
   # excavator count for archaeology
   my $count = $self->excavators->count;
-# print "Checking is more than $count are travelling.\n";
   unless ($on_arrival) {
     $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')
                 ->search({type=>'excavator', task=>'Travelling',body_id=>$self->body_id})->count;
   }
   my $max_e = $self->max_excavators;
-# print "Count $count with max of $max_e\n";
   if ($count >= $max_e) {
     confess [1009, 'Already at the maximum number of excavators allowed at this Archaeology level.'];
   }
@@ -150,7 +287,6 @@ sub can_add_excavator {
 # Allowed one per empire per body.
   $count = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')
              ->search({ body_id => $body->id, empire_id => $self->body->empire->id })->count;
-# print "$count on body.\n";
   unless ($on_arrival) {
     $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')
                 ->search( {
@@ -160,7 +296,6 @@ sub can_add_excavator {
                     body_id=>$self->body_id
                  })->count;
   }
-# print "$count on body or on way.\n";
   if ($count) {
     confess [1010, $body->name.' already has an excavator from your empire or one is on the way.'];
   }
@@ -174,7 +309,6 @@ sub add_excavator {
     body_id     => $body->id,
     empire_id   => $self->body->empire->id,
   })->insert;
-#  $self->recalc_excavating;
   return $self;
 }
 
@@ -267,11 +401,6 @@ before 'can_downgrade' => sub {
     confess [1013, 'You can not have any Excavator Sites if you are to downgrade your Archaeology Ministry below 15.'];
   }
 };
-
-#after 'downgrade' => sub {
-#    my $self = shift;
-#    $self->recalc_excavating;
-#};
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

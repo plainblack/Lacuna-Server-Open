@@ -99,12 +99,19 @@ sub view_excavators {
     my $building = $self->get_building($empire, $building_id);
     my $excavators = $building->excavators;
     my @sites;
-#XXX Different data return: Percent rates of rewards
+    my $level = $building->level;
     while (my $excav = $excavators->next) {
-        push @sites, {
-            id   => $excav->id,
-            body => $excav->body->get_status,
-        };
+      print "digging ", $excav->id, "\n";
+      my $body = $excav->body;
+      my $chances = $building->can_you_dig_it($body, $level, 0);
+      my $excav_stat = {
+        id      => $excav->id,
+        chances => $chances,
+      };
+      push @sites, {
+        excavator => $excav_stat,
+        body      => $excav->body->get_status,
+      };
     }
     return {
         excavators       => \@sites,

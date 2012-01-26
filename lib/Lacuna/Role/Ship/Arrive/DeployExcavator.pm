@@ -47,6 +47,7 @@ after handle_arrival_procedures => sub {
 
 after can_send_to_target => sub {
     my ($self, $target) = @_;
+    confess [1009, 'Can only be sent to asteroids and habitable planets.'] if ($target->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant'));
     my $archaeology = $self->body->archaeology;
     confess [1013, 'Cannot control excavators without an Archaeology.'] unless (defined $archaeology);
     confess [1013, 'Your Archaeology Ministry must be level 15 or higher in order to send excavators.'] unless ($archaeology->level >= 15);

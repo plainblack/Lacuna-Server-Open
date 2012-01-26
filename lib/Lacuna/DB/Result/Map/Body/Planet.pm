@@ -1057,7 +1057,7 @@ sub tick {
         $i++;
     }
 
-    # Process excavator sites
+    # Process excavator sites (Wrong spot, happens everytime planet is touched...)
     if( my $arch = $self->archaeology) {
       $arch->run_excavators;
     }
