@@ -163,7 +163,7 @@ The id of the body you wish to retrieve the buildings on.
 
 Rearranges all buildings to the coordinates supplied via the arrangment array of hashes.
 
-{
+ {
     "moved" : [
         {
           "id" : building_id,
@@ -176,7 +176,7 @@ Rearranges all buildings to the coordinates supplied via the arrangment array of
         "surface_image" : "surface-e"
     },
     "status" : { ... }
-}
+ }
 
 Throws 1002 and 1010.
 
@@ -191,14 +191,14 @@ The id of the body you wish to arrange buildings on.
 =head3  arrangement
 
 A array of hashes.
-[
+ [
   {
     "id" : building_id,
     "x"  : new X coord,
     "y"  : new Y coord,
   },
   ...
-]
+ ]
 
 All buildings being moved need to be supplied.
 PCC or Station Command need to be in position 0,0.
