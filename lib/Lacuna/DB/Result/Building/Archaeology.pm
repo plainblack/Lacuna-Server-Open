@@ -96,58 +96,61 @@ sub max_excavators {
 sub run_excavators {
   my $self = shift;
 
-
-# Run thru excavators for each arch.
-# 1) See what they find
-#    Glyph, Plan, resource, (artifact), something bad
-# 2) Glyph
-#    a) Chances based on ore content.  (total ore)/10,000 * level
-#    b) Each ore has at least 1%, but proportional to content.
-# 3) Plan % equal to level/5
-#    1+floor(lvl/6) possible
-#    5% something special, 50% chance of 1+0, otherwise rand(1,lvl/6)
-# 4) Resource Lvl * 2 percent chance
-# 5) If glyph building on uninhabited excav planet
-#    Chance of grabbing a lvl 1 plan of it (no dillon or e-veins)
-#    Chance of 1+X up to level of arch/2+1 or level of building
-#    If lvl 1 (50% chance of destroying building, or reduce by 1 level)
-#    If 1+x, destroy building
-# 6) Ancient Horror released. All cases, excavator destroyed. 1% chance
-#    a) Ph'nglui Mglw'nafh Cthulhu R'lyeh wgah'nagi fhtagn.
-#    b) Klaatu Barada Ni*cough*
-#    c) Brass Doors
-#    d) flutes
-
   my $level = $self->level;
-# Do once for arch
+# Do once for arch itself.  No chance of h orrors or artifacts.
   my $result = $self->dig_it($self->body, $level, 1);
+  $result->{id} = $self->id;
   my @results = ($result);
   if ($level > 14) {
     my $excavators = $self->excavators;
     while (my $excav = $excavators->next) {
       my $body = $excav->body;
-      my $result = $self->dig_it($body, $level, 0);
+      my $result;
+      if ($body->empire_id) {
+#Oops, we didn't clean off the excav when settled.
+        $result = {
+          id => $excav->id,
+          site => $body->name,
+          outcome => "Destroyed",
+          message => "Colony wiped out dig.",
+        };
+      }
+      else {
+        $result = $self->dig_it($body, $level, 0);
+        $result->{id} = $excav->id;
+      }
       push @results, $result;
       if ($result->{outcome} eq "Destroyed") {
         $self->remove_excavator($excav);
       }
     }
   }
+  my @report = (['Site','Type','Result']);
   for $result (@results) {
-    printf "%3d:%s - %s : %s\n",
-      $result->{id}, $result->{site},
-      $result->{outcome}, $result->{message};
+    push @report, [
+      $result->{site},
+      $result->{outcome},
+      $result->{message},
+    ];
   }
+  $self->body->empire->send_predefined_message(
+    tags        => ['Excavator','Alert'],
+    filename    => 'excavator_results.txt',
+    params      => [ $self->body->id, $self->body->name ],
+    attachments => { table => \@report},
+  );
+  return 1;
 }
 
 sub dig_it {
   my ($self, $body, $level, $arch) = @_;
+
   my $chances = $self->can_you_dig_it($body, $level, $arch);
 
-  my $rnum = randint(0,100);
+  my $rnum = randint(0,999);
   my $base = 0;
   my $outcome = "nothing";
-  for my $type (keys %$chances) {
+  for my $type (qw(horror artifact plan glyph resource)) {
     if ($rnum < $chances->{$type} + $base) {
       $outcome = $type;
       last;
@@ -166,7 +169,7 @@ sub dig_it {
       };
     }
     when ("plan") {
-      my ($plan, $lvl, $plus, $name) = random_plan($level);
+      my ($lvl, $plus, $name) = $self->found_plan($level);
       $result = {
         message => "Found level $lvl + $plus $name Plan.",
         outcome => "Plan",
@@ -180,13 +183,26 @@ sub dig_it {
       };
     }
     when ("artifact") {
-      my ($plan, $lvl, $plus, $name) = $self->get_artifact($body, $level);
-      $result = {
-        message => "Found level $lvl + $plus $name Plan.",
-        outcome => "Artifact",
-      };
+      my ($lvl, $plus, $name) = $self->found_artifact($body, $level);
+      if ($name eq "Nothing") {
+        $result = {
+          message => "No results found.",
+          outcome => "Nothing",
+        };
+      }
+      else {
+        $result = {
+          message => "Found level $lvl + $plus $name Plan.",
+          outcome => "Artifact",
+        };
+      }
     }
     when ("horror") {
+# 6) Ancient Horror released. All cases, excavator destroyed. 1% chance
+#    a) Ph'nglui Mglw'nafh Cthulhu R'lyeh wgah'nagi fhtagn.
+#    b) Klaatu Barada Ni*cough*
+#    c) Brass Doors
+#    d) flutes
       $result = {
         message => "Poor insane robots.",
         outcome => "Destroyed",
@@ -204,55 +220,119 @@ sub dig_it {
   return $result;
 }
 
-sub get_artifact {
+sub found_plan {
+  my ($self, $level) = @_;
+
+  my $plan_types = plans_of_type();
+  my $class;
+  my $rand_cat = randint(0,19);
+  my $lvl = 1;
+  my $plus = 0;
+  if ($rand_cat < 1) {
+    $class = random_element($plan_types->{special});
+    $plus = randint(0, int($level/7));
+  }
+  elsif ($rand_cat < 10) {
+    $class = random_element($plan_types->{natural});
+    $plus = randint(1, int($level/7)+1) if (randint(0,3) < 1);
+  }
+  else {
+    $class = random_element($plan_types->{decor});
+    $plus = randint(1, int($level/5)+1) if (randint(0,2) < 1);
+  }
+  my $plan = $self->body->add_plan($class, $lvl, $plus);
+
+  return ($lvl, $plus, $class->name);
+}
+
+sub found_artifact {
   my ($self, $body, $level) = @_;
   
-  my $plan = 0;
-  my $lvl  = 0;
-  my $plus = 0;
-  my $name = "pending";
+  my $plan_types = plans_of_type();
+  my @buildings;
+  my $buildings = $body->buildings;
+  while (my $building = $buildings->next) {
+    unless ( grep { $building->class eq $_ } @{$plan_types->{disallow}}) {
+      push @buildings, $building;
+    }
+  }
+  return (0,0,"Nothing") unless (@buildings);
+  my $select = random_element(\@buildings);
+  my $class; my $lvl; my $plus; my $name; my $destroy;
+  if ($level > $select->level and randint(1, int(3 * $level/2)) >= $select->level) {
+    $class = $select->class;
+    $lvl   = 1;
+    $plus  = $select->level - 1;
+    $name  = $select->name;
+    $destroy = 100;
+  }
+  elsif (randint(1,2) == 1) {
+    $class = $select->class;
+    $lvl   = 1;
+    $plus  = 0;
+    $name  = $select->name;
+    $destroy = 10;
+  }
+  else {
+    $class = $select->class;
+    $lvl   = randint(1,$select->level);
+    $plus  = 0;
+    $name  = $select->name;
+    $destroy = 25;
+  }
+  $self->body->add_plan($class, $lvl, $plus);
+  if (randint(0,99) < $destroy) {
+    $select->delete;
+  }
 
-  return ($plan, $lvl, $plus, $name);
+  return ($lvl, $plus, $name);
 }
 
 sub found_glyph {
   my ($self, $body) = @_;
 
-  my $glyph = "a glyph!";
-
+  my %ores;
+  my $ore_total = 0;
+  for my $ore (ORE_TYPES) {
+    $ores{$ore} = $body->$ore;
+    $ore_total += $ores{$ore};
+  }
+  my $base = 0;
+  my $rnum = randint(1,$ore_total);
+  my $glyph = "error";
+  for my $ore (ORE_TYPES) {
+    if ($rnum < $ores{$ore} + $base) {
+      $glyph = $ore;
+      last;
+    }
+    $base += $ores{$ore};
+  }
+  if ($glyph ne "error") {
+    $self->body->add_glyph($glyph);
+  }
   return $glyph;
-}
-
-sub random_plan {
-  my ($level) = @_;
-
-  my $plan = 0;
-  my $lvl  = 0;
-  my $plus = 0;
-  my $name = "pending";
-
-  return ($plan, $lvl, $plus, $name);
 }
 
 sub can_you_dig_it {
   my ($self, $body, $level, $arch) = @_;
 
   my $mult = $arch + 1;
-  my $plan  = (int($level/5)+1) * $mult; # 1-7%
+  my $plan  = ($level/5+1) * $mult * 10; # 2.4-14%
   my $ore_total = 0;
   for my $ore (ORE_TYPES) {
      $ore_total += $body->$ore;
   }
-  my $glyph = int($mult * $level * $ore_total/10_000)+1; #max 1-61%
-  my $resource = 2 * $level; # 2-60%
+  my $glyph = int(10* $mult * $level * $ore_total/10_000)+1; #max 1-60%
+  $glyph = 600 if ($glyph > 600);
+  my $resource = 10 * 2 * $level; # 2-60%
   my $artifact = 0;
   if (!$arch && $body->buildings->count) {
-    $artifact = 5;
+    $artifact = 50;
   }
   my $horror = $arch ? 0 : 1;
   my $most = $plan + $glyph + $artifact + $horror;
-  if ($most + $resource > 100) {
-    $resource -= ($most + $resource - 100);
+  if ($most + $resource > 1000) {
+    $resource -= ($most + $resource - 1000);
   }
   my $return = {
     plan => $plan,
@@ -262,6 +342,77 @@ sub can_you_dig_it {
     horror   => $horror,
   };
   return $return;
+}
+
+sub plans_of_type {
+  my $decor   = [qw(
+       Lacuna::DB::Result::Building::Permanent::Beach1
+       Lacuna::DB::Result::Building::Permanent::Beach2
+       Lacuna::DB::Result::Building::Permanent::Beach3
+       Lacuna::DB::Result::Building::Permanent::Beach4
+       Lacuna::DB::Result::Building::Permanent::Beach5
+       Lacuna::DB::Result::Building::Permanent::Beach6
+       Lacuna::DB::Result::Building::Permanent::Beach7
+       Lacuna::DB::Result::Building::Permanent::Beach8
+       Lacuna::DB::Result::Building::Permanent::Beach9
+       Lacuna::DB::Result::Building::Permanent::Beach10
+       Lacuna::DB::Result::Building::Permanent::Beach11
+       Lacuna::DB::Result::Building::Permanent::Beach12
+       Lacuna::DB::Result::Building::Permanent::Beach13
+       Lacuna::DB::Result::Building::Permanent::Crater
+       Lacuna::DB::Result::Building::Permanent::Grove
+       Lacuna::DB::Result::Building::Permanent::Lagoon
+       Lacuna::DB::Result::Building::Permanent::Lake
+       Lacuna::DB::Result::Building::Permanent::RockyOutcrop
+       Lacuna::DB::Result::Building::Permanent::Sand
+                )];
+  my $natural = [qw(
+       Lacuna::DB::Result::Building::Permanent::AlgaePond
+       Lacuna::DB::Result::Building::Permanent::AmalgusMeadow
+       Lacuna::DB::Result::Building::Permanent::BeeldebanNest
+       Lacuna::DB::Result::Building::Permanent::DentonBrambles
+       Lacuna::DB::Result::Building::Permanent::GeoThermalVent
+       Lacuna::DB::Result::Building::Permanent::LapisForest
+       Lacuna::DB::Result::Building::Permanent::MalcudField
+       Lacuna::DB::Result::Building::Permanent::NaturalSpring
+       Lacuna::DB::Result::Building::Permanent::Ravine
+       Lacuna::DB::Result::Building::Permanent::Volcano
+                )];
+  my $special = [qw(
+    Lacuna::DB::Result::Building::Permanent::BlackHoleGenerator
+    Lacuna::DB::Result::Building::Permanent::CitadelOfKnope
+    Lacuna::DB::Result::Building::Permanent::CrashedShipSite
+    Lacuna::DB::Result::Building::Permanent::GratchsGauntlet
+    Lacuna::DB::Result::Building::Permanent::InterDimensionalRift
+    Lacuna::DB::Result::Building::Permanent::KalavianRuins
+    Lacuna::DB::Result::Building::Permanent::LibraryOfJith
+    Lacuna::DB::Result::Building::Permanent::OracleOfAnid
+    Lacuna::DB::Result::Building::Permanent::PantheonOfHagness
+    Lacuna::DB::Result::Building::Permanent::TempleOfTheDrajilites
+                )];
+  my $artifact = [qw(
+       Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk
+       Lacuna::DB::Result::Building::Permanent::GasGiantPlatform
+       Lacuna::DB::Result::Building::Permanent::GreatBallOfJunk
+       Lacuna::DB::Result::Building::Permanent::JunkHengeSculpture
+       Lacuna::DB::Result::Building::Permanent::MetalJunkArches
+       Lacuna::DB::Result::Building::Permanent::PyramidJunkSculpture
+       Lacuna::DB::Result::Building::Permanent::SpaceJunkPark
+       Lacuna::DB::Result::Building::Permanent::TerraformingPlatform
+                )];
+  my $disallow = [qw(
+       Lacuna::DB::Result::Building::Permanent::EssentiaVein
+       Lacuna::DB::Result::Building::Permanent::KasternsKeep
+       Lacuna::DB::Result::Building::Permanent::MassadsHenge
+       Lacuna::DB::Result::Building::Permanent::TheDillonForge
+                )];
+  return {
+    decor    => $decor,
+    natural  => $natural,
+    special  => $special,
+    artifact => $artifact,
+    disallow => $disallow,
+  };
 }
 
 

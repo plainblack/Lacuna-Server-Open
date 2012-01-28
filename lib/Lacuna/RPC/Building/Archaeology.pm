@@ -101,7 +101,6 @@ sub view_excavators {
     my @sites;
     my $level = $building->level;
     while (my $excav = $excavators->next) {
-      print "digging ", $excav->id, "\n";
       my $body = $excav->body;
       my $chances = $building->can_you_dig_it($body, $level, 0);
       my $excav_stat = {
