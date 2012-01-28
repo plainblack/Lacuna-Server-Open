@@ -25,9 +25,14 @@ __PACKAGE__->add_columns(
     has_prisoner            => { data_type => 'tinyint', default_value => 0 },
     has_glyph               => { data_type => 'tinyint', default_value => 0 },
     has_plan                => { data_type => 'tinyint', default_value => 0 },
+    x                       => { data_type => 'int', default_value => 0 },
+    y                       => { data_type => 'int', default_value => 0 },
+    speed                   => { data_type => 'int', default_value => 0 },
+    trade_range             => { data_type => 'int', default_value => 0 },
 );
 
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
+__PACKAGE__->belongs_to('ship', 'Lacuna::DB::Result::Ships', 'ship_id');
 
 sub sqlt_deploy_hook {
     my ($self, $sqlt_table) = @_;

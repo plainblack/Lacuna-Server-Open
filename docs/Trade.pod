@@ -428,11 +428,14 @@ Displays a list of trades available at the present time.
                 "gold glyph"
             ],
             "body" : {
-                "id" : "id-goes-here"         # use with get_trade_ships() to determine travel time
+                "id" : "id-goes-here"
             },
             "empire" : {
                 "id" : "id-goes-here",
                 "name" : "Earthlings"
+            },
+            "delivery: : {
+                "duration" : 3600,            # travel time in seconds
             }
         },
         ...

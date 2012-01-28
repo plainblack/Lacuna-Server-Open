@@ -2,6 +2,9 @@ package Lacuna::DB::Result::Building::Trade;
 
 use Moose;
 use utf8;
+use List::Util qw(max);
+use Data::Dumper;
+
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 
@@ -61,6 +64,7 @@ sub add_to_market {
     my ($payload, $meta) = $self->structure_payload($offer, $space_used);
     $ship->task('Waiting On Trade');
     $ship->update;
+    my $body = $self->body;
     my %trade = (
         %{$meta},
         payload         => $payload,
@@ -68,13 +72,48 @@ sub add_to_market {
         ship_id         => $ship->id,
         body_id         => $self->body_id,
         transfer_type   => $self->transfer_type,
+        x               => $body->x,
+        y               => $body->y,
+        speed           => $ship->speed,
+        trade_range     => max (250, $self->level * 20),
     );
     return Lacuna->db->resultset('Lacuna::DB::Result::Market')->new(\%trade)->insert;
 }
 
 sub transfer_type {
     my $self = shift;
-    return $self->body->zone;
+    return 'trade';
+}
+
+# all trades within range (including those on this colony)
+sub local_market {
+    my ($self, $args) = @_;
+
+    my $minus_x = -$self->body->x;
+    my $minus_y = -$self->body->y;
+
+    return $self->market->search({
+        %$args,
+        -and => [
+            \[ "transfer_type = ? and ceil(pow(pow(me.x + $minus_x, 2) + pow(me.y + $minus_y, 2), 0.5)) < trade_range", [transfer_type => $self->transfer_type]],
+        ]
+    },{
+        '+select' => [
+            { ceil => \"pow(pow(me.x + $minus_x,2) + pow(me.y + $minus_y,2), 0.5)", '-as' => 'distance' },
+        ],
+        '+as' => [
+            'distance',
+        ],
+        join => 'body',
+    });
+}
+
+# available market. All trades within range that are not our own
+sub available_market {
+    my ($self) = @_;
+    return $self->local_market({
+        body_id => {'!=' => $self->body_id},
+    });
 }
 
 sub trade_ships {
