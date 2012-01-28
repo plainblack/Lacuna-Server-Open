@@ -898,7 +898,7 @@ sub recalc_stats {
             }
         }
         if ($building->isa('Lacuna::DB::Result::Building::Trade')) {
-carp "### Trade building ###";
+            # Calculate the amount of waste to deduct based on the waste_chains
             my $waste_chains = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->search({planet_id => $self->id});
             while (my $waste_chain = $waste_chains->next) {
                 my $waste_hour = 0;
@@ -907,11 +907,9 @@ carp "### Trade building ###";
                         $waste_hour = $waste_chain->waste_hour;
                     }
                     else {
-carp "[".$waste_chain->waste_hour."][".$waste_chain->percent_transferred."]";
                         $waste_hour = sprintf('%.0f',$waste_chain->waste_hour * $waste_chain->percent_transferred / 100);
                     }
                 }
-carp "### Deduct [$waste_hour] waste per hour at capacity [".$waste_chain->percent_transferred."] ###";
                 $stats{waste_hour} -= $waste_hour;
             }
         }
@@ -938,10 +936,10 @@ carp "### Deduct [$waste_hour] waste per hour at capacity [".$waste_chain->perce
     }
 
     # subtract ore consumption
-	foreach my $type (ORE_TYPES) {
-		my $method = $type.'_hour';
-		$stats{$method} -= sprintf('%.0f', ($total_ore_production_hour) ? $ore_consumption_hour * $stats{$method} / $total_ore_production_hour: 0);
-	}
+    foreach my $type (ORE_TYPES) {
+        my $method = $type.'_hour';
+        $stats{$method} -= sprintf('%.0f', ($total_ore_production_hour) ? $ore_consumption_hour * $stats{$method} / $total_ore_production_hour: 0);
+    }
 
     # overall ore production
     $stats{ore_hour} = $total_ore_production_hour - $ore_consumption_hour;

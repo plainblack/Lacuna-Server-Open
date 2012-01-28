@@ -561,13 +561,13 @@ A session id.
 
 The unique id of the trade ministry.
 
-=head2 view_waste_pushes ( session_id, building_id )
+=head2 view_waste_chain ( session_id, building_id )
 
-Returns a list of the waste pushes currently controlled by this Trade Ministry
+Returns a list of the waste chains currently controlled by this Trade Ministry
 
  {
     "status" : { ... },
-    "waste_pushes" : [
+    "waste_chain" : [
       {
         "id" : "id-goes-here",
         "star" : {
@@ -583,7 +583,8 @@ Returns a list of the waste pushes currently controlled by this Trade Ministry
     ]
  }
 
-There will usually only be one waste-push in action, to your local star.
+There should only be one waste-chain in action, to your local star. There is no point in
+setting up a waste-chain to any other star.
 
 The B<waste_hour> is the amount of waste you wish to transfer per hour.
 
@@ -593,6 +594,15 @@ the B<percent_transferred> will be zero. If it is below 100 then you need to add
 it is at or above 100. Above 100 and you have more ship capacity than you need, but you will 
 still only transfer the specified B<waste_hour>, it just means some ships will be idle or not
 fully filled.
+
+=head2 update_waste_chain ( session_id, building_id, waste_chain_id, waste_hour)
+
+Change the B<waste_hour> for the Waste Chain specified by B<waste_chain_id>
+
+Returns the same as the call to B<view_waste_chain>
+
+Note, the B<percent_transferred> may be modified as a result of changing the amount of
+B<waste_hour> if you don't have enough ships to transfer the full amount of waste.
 
 =head2 add_waste_ship_to_fleet (session_id, building_id, ship_id )
 

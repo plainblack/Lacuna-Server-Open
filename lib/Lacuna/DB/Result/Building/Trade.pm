@@ -52,6 +52,17 @@ use constant waste_production => 1;
 
 sub waste_chains {
     my $self = shift;
+
+    # If there is no waste chain, then create a default one
+    my $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->search({ planet_id => $self->body_id });
+    if ($waste_chain->count == 0) {
+        Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->create({
+            planet_id   => $self->body_id,
+            star_id     => $self->body->star_id,
+            waste_hour  => 0,
+            percent_transferred => 0,
+        });
+    }
     return Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->search({ planet_id => $self->body_id });
 }
 
@@ -153,16 +164,11 @@ sub recalc_waste_production {
         $waste_hour += $waste_chain->waist_hour;
     }
     $distance *= 2;
-carp "RECALC: distance=[$distance] ship_speed=[$ship_speed] ship_capacity=[$ship_capacity]";
 
     my $trips_per_hour              = $distance ? ($ship_speed / $distance) : 0;
-carp "RECALC: trips_per_hour=[$trips_per_hour]";
     my $max_waste_hauled_per_hour   = $trips_per_hour * $ship_capacity;
-carp "RECALC: max_waste_hauled_per_hour=[$max_waste_hauled_per_hour]";
     my $waste_hauled_per_hour       = min($waste_hour, $max_waste_hauled_per_hour);
-carp "RECALC: waste_hauled_per_hour=[$waste_hauled_per_hour]";
     my $shipping_capacity           = $max_waste_hauled_per_hour ? sprintf('%.0f',($waste_hour / $max_waste_hauled_per_hour) * 100) : -1;
-carp "RECALC: shipping_capacity=[$shipping_capacity]";
 
     $waste_chains->reset;
     while (my $waste_chain = $waste_chains->next) {

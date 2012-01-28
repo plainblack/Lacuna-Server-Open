@@ -16,6 +16,23 @@ __PACKAGE__->add_columns(
 __PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Map::Star', 'star_id');
 __PACKAGE__->belongs_to('planet', 'Lacuna::DB::Result::Map::Body', 'planet_id');
 
+sub get_status {
+    my ($self) = @_;
+
+    my $star = $self->star;
+    return {
+        id      => $self->id,
+        star    => {
+            id      => $star->id,
+            name    => $star->name,
+            x       => $star->x,
+            y       => $star->y,
+        }
+        waste_hour  => $self->waste_hour,
+        percent_transferred => $self->percent_transferred,
+    };
+}
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

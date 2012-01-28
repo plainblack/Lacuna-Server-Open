@@ -33,6 +33,60 @@ sub get_trade_ships {
     };
 }
 
+sub add_waste_ship_to_fleet {
+    my ($self, $session_id, $building_id, $ship_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+    unless (defined $ship) {
+        confess [1002, "Ship not found."];
+    }
+    unless ($ship->task eq 'Docked') {
+        confess [1009, "That ship is not available."];
+    }
+    unless ($ship->hold_size > 0) {
+        confess [1009, 'That ship has no cargo hold.'];
+    }
+    unless ($ship->body_id eq $building->body_id) {
+        confess [1013, "You can't manage a ship that is not yours."];
+    }
+    unless ($ship->type eq 'scow') {
+        confess [1009, 'You can only use a scow to a waste chain.'];
+    }
+    $building->add_waste_ship($ship);
+    return {
+        status  =>$self->format_status($empire, $building->body),
+    };
+}
+
+sub remove_waste_ship_from_fleet {
+    my ($self, $session_id, $building_id, $ship_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+    unless (defined $ship) {
+        confess [1002, "Ship not found."];
+    }
+    unless ($ship->task eq 'Waste Chain') {
+        confess [1009, "That ship is not in a Waste Chain."];
+    }
+    unless ($ship->body_id eq $building->body_id) {
+        confess [1013, "You can't manage a ship that is not yours."];
+    }
+
+    my $waste_chain = $building->waste_chains->search({},{rows => 1})->single;
+    if (defined $waste_chain) {
+        my $from = $building->body->star;
+        $building->send_waste_ship_home($from, $ship);
+    }
+    else {
+        $ship->land->update;
+    }
+    return {
+        status  => $self->format_status($empire, $building->body),
+    };
+}
+
 sub get_waste_ships {
     my ($self, $session_id, $building_id) = @_;
     my $empire      = $self->get_empire_by_session($session_id);
@@ -49,7 +103,6 @@ sub get_waste_ships {
         status      => $self->format_status($empire, $building->body),
         ships       => \@ships,
     };
-
 }
 
 sub view_waste_chain {
@@ -67,6 +120,33 @@ sub view_waste_chain {
         waste_chain     => \@waste_chain,
     };
 }
+
+sub update_waste_chain {
+    my ($self, $session_id, $building_id, $waste_chain_id, $waste_hour) = @_;
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    my $body        = $building->body;
+    unless ($waste_chain_id) {
+        confess [1002, "You must specify a waste chain id."];
+    }
+    unless (defined $waste_hour) {
+        confess [1002, "You must specify an amount for waste_hour."];
+    }
+    unless ($waste_hour >= 0) {
+        confess [1002, "Waste per Hour must be positive or zero."];
+    }
+
+    my $chain       = $building->waste_chains->find($waste_chain_id);
+    unless ($chain) {
+        confess [1002, "That Waste Chain does not exist on this planet."];
+    }
+    $chain->waste_hour(int($waste_hour));
+    $chain->update;
+    $building->recalc_waste_production;
+
+    return $self->view_waste_chain($session_id, $building_id);
+}
+
 
 sub push_items {
     my ($self, $session_id, $building_id, $target_id, $items, $options) = @_;
@@ -219,7 +299,7 @@ sub add_to_market {
 
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_waste_ships view_waste_chain add_waste_ship_to_fleet remove_waste_ship_from_fleet report_abuse view_my_market view_market accept_from_market withdraw_from_market add_to_market push_items get_trade_ships get_stored_resources get_ships get_ship_summary get_prisoners get_plans get_plan_summary get_glyphs get_glyph_summary));
+__PACKAGE__->register_rpc_method_names(qw(get_waste_ships view_waste_chain add_waste_ship_to_fleet remove_waste_ship_from_fleet update_waste_chain report_abuse view_my_market view_market accept_from_market withdraw_from_market add_to_market push_items get_trade_ships get_stored_resources get_ships get_ship_summary get_prisoners get_plans get_plan_summary get_glyphs get_glyph_summary));
 
 
 no Moose;
