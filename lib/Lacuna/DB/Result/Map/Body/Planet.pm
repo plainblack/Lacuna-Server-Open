@@ -754,7 +754,7 @@ sub found_colony {
     $self->usable_as_starter_enabled(0);
     $self->last_tick(DateTime->now);
     $self->update;    
-# Clear Excavators, send message to both empires.
+# Excavators get cleared when being checked for results.
 
     # award medal
     my $type = ref $self;
@@ -1057,9 +1057,11 @@ sub tick {
         $i++;
     }
 
-    # Process excavator sites (Wrong spot, happens everytime planet is touched...)
-    if( my $arch = $self->archaeology) {
+    # Process excavator sites
+    if ( my $arch = $self->archaeology and
+           not Lacuna->cache->get('excavator_'.$self->id)) {
       $arch->run_excavators;
+      Lacuna->cache->set('excavator_'.$self->id, 1, 600 );
     }
     # get ship tasks
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({

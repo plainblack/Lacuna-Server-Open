@@ -1,3 +1,6 @@
+3.0838:
+ - Mod:  Major change to how excavators work.
+
 3.0837:
  - Mod:  Trade Ministry now trades within a set distance rather than just within zone
 

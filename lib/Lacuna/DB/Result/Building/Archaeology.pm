@@ -97,6 +97,7 @@ sub run_excavators {
   my $self = shift;
 
   my $level = $self->level;
+  my $empire = $self->body->empire;
 # Do once for arch itself.  No chance of h orrors or artifacts.
   my $result = $self->dig_it($self->body, $level, 1);
   $result->{id} = $self->id;
@@ -125,20 +126,29 @@ sub run_excavators {
       }
     }
   }
-  my @report = (['Site','Type','Result']);
-  for $result (@results) {
+  my @report;
+  for $result (sort { $a->{site} cmp $b->{site} } @results) {
+    next if ($empire->skip_found_nothing       and $result->{outcome} eq "Nothing");
+    next if ($empire->skip_excavator_artifact  and $result->{outcome} eq "Artifact");
+    next if ($empire->skip_excavator_resources and $result->{outcome} eq "Resource");
+    next if ($empire->skip_excavator_plan      and $result->{outcome} eq "Plan");
+    next if ($empire->skip_excavator_glyph     and $result->{outcome} eq "Glyph");
+    next if ($empire->skip_excavator_destroyed and $result->{outcome} eq "Destroyed");
     push @report, [
       $result->{site},
       $result->{outcome},
       $result->{message},
     ];
   }
-  $self->body->empire->send_predefined_message(
-    tags        => ['Excavator','Alert'],
-    filename    => 'excavator_results.txt',
-    params      => [ $self->body->id, $self->body->name ],
-    attachments => { table => \@report},
-  );
+  if (@report) {
+    unshift @report, (['Site','Type','Result']);
+    $empire->send_predefined_message(
+      tags        => ['Excavator','Alert'],
+      filename    => 'excavator_results.txt',
+      params      => [ $self->body->id, $self->body->name ],
+      attachments => { table => \@report},
+    );
+  }
   return 1;
 }
 
@@ -198,13 +208,14 @@ sub dig_it {
       }
     }
     when ("horror") {
-# 6) Ancient Horror released. All cases, excavator destroyed. 1% chance
-#    a) Ph'nglui Mglw'nafh Cthulhu R'lyeh wgah'nagi fhtagn.
-#    b) Klaatu Barada Ni*cough*
-#    c) Brass Doors
-#    d) flutes
+      my $message = random_element([
+                      'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagi fhtagn.',
+                      'Klaatu Barada Ni*cough*',
+                      'The brazen temple doors open...',
+                      'It\'s full of stars'
+                                  ]);
       $result = {
-        message => "Poor insane robots.",
+        message => $message,
         outcome => "Destroyed",
       };
     }
@@ -330,6 +341,7 @@ sub can_you_dig_it {
     $artifact = 50;
   }
   my $horror = $arch ? 0 : 1;
+  $horror += 2 * $artifact;
   my $most = $plan + $glyph + $artifact + $horror;
   if ($most + $resource > 1000) {
     $resource -= ($most + $resource - 1000);

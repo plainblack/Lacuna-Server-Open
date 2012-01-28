@@ -403,6 +403,8 @@ sub view_profile {
         skip_excavator_resources => $empire->skip_excavator_resources,
         skip_excavator_glyph    => $empire->skip_excavator_glyph,
         skip_excavator_plan     => $empire->skip_excavator_plan,
+        skip_excavator_artifact => $empire->skip_excavator_artifact,
+        skip_excavator_destroyed => $empire->skip_excavator_destroyed,
         skip_spy_recovery       => $empire->skip_spy_recovery,
         skip_probe_detected     => $empire->skip_probe_detected,
         skip_attack_messages    => $empire->skip_attack_messages,
@@ -525,6 +527,18 @@ sub edit_profile {
             confess [1009, 'Skip Excavator Plan must be a 1 or a 0.', 'skip_excavator_plan']
         }
         $empire->skip_excavator_plan($profile->{skip_excavator_plan});
+    }
+    if (exists $profile->{skip_excavator_artifact}) {
+        if ($profile->{skip_excavator_artifact} < 0 || $profile->{skip_excavator_artifact} > 1) {
+            confess [1009, 'Skip Excavator Artifact must be a 1 or a 0.', 'skip_excavator_artifact']
+        }
+        $empire->skip_excavator_resources($profile->{skip_excavator_artifact});
+    }
+    if (exists $profile->{skip_excavator_destroyed}) {
+        if ($profile->{skip_excavator_destroyed} < 0 || $profile->{skip_excavator_destroyed} > 1) {
+            confess [1009, 'Skip Excavator Destroyed must be a 1 or a 0.', 'skip_excavator_destroyed']
+        }
+        $empire->skip_excavator_resources($profile->{skip_excavator_destroyed});
     }
     if (exists $profile->{skip_spy_recovery}) {
         if ($profile->{skip_spy_recovery} < 0 || $profile->{skip_spy_recovery} > 1) {
