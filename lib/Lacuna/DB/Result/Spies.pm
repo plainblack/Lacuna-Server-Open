@@ -1606,7 +1606,9 @@ sub prevent_insurrection {
                         ->search( { on_body_id => $self->on_body_id,
                                     task => { 'not in' => ['Killed in Action', 'Travelling','Captured'] },
                                     empire_id => { 'in' => \@member_ids } });
-    my $count = randint(5,75);
+    my $max_cnt = $defender->level;
+    $max_cnt = ($max_cnt < 3) ? 6 : $max_cnt * 2;
+    my $count = randint(5,$max_cnt);
     while (my $conspirator = $conspirators->next ) {
        $count--;
        $conspirator->go_to_jail;
@@ -2127,8 +2129,9 @@ sub steal_building {
         )->single;
     return $self->building_not_found->id unless defined $building;
     $self->things_stolen( $self->things_stolen + 1 );
-    my $max = ($self->level > $building->level) ? $building->level : $self->level;
-    my $level = randint(1,$max);
+    my $max = ($self->level > 30) ? 30 : $self->level;
+    my $level = randint(1, $max);
+    $level = $building->level if ($level > $building->level);
     $building->level( $building->level - 1 );
     $building->update;
     $on_body->needs_recalc(1);

@@ -236,8 +236,8 @@ sub get_status {
             type    => 'body',
         };
 		my $orbiting = {
-			id		=> $self->foreign_body_id,
-            name    => $self->foreign_body->name,
+             id		=> $self->foreign_body_id,
+             name    => $self->foreign_body->name,
 			type	=> 'body',
 			x		=> $self->foreign_body->x,
 			y		=> $self->foreign_body->y,

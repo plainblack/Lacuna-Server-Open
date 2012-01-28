@@ -310,6 +310,7 @@ sub system_saw_combat {
   my $attacked_combat = 0;
   ( $attacked_saws, $attacked_combat ) = $self->saw_stats($attacked_body)
      if ($attacked_body->isa('Lacuna::DB::Result::Map::Body::Planet'));
+# Attacked planet defense a bit more fierce.
   $total_combat += 2 * $attacked_combat;
   while (my $defending_body = $defending_bodies->next) {
     # asteroids don't have SAWs
@@ -357,11 +358,10 @@ sub saw_stats {
     $cnt++;
     next if $saw->level < 1;
     next if $saw->efficiency < 1;
-    $planet_combat += int( (150 * $saw->level * ($saw->level+1) * $saw->efficiency)/100 + 0.5);
+    $planet_combat += int( (5 * ($saw->level + 1) * ($saw->level+1) * $saw->efficiency)/2 + 0.5);
     push @saws, $saw;
     last if $cnt >= 10;
   }
-#  $planet_combat = $planet_combat * $cnt;
   return \@saws, $planet_combat;
 }
 
@@ -377,16 +377,16 @@ sub saw_combat {
   }
   else {
     my $perc_1 = int( ($self->combat * 100)/$saw_combat + 0.5);
-    my $perc_2 = int( $self->combat/
-                       ((300 * $saw->level * ($saw->level+1) * $saw->efficiency)/100));
-    $perc_2 = 5 if $perc_2 > 5;
-    my $perc = $perc_1 > $perc_2 ? $perc_1 : $perc_2;
-    $perc = $perc == 1 ? 1 : int($perc * $saw->efficiency/100 +0.5);
-    if ($perc < 1) {
-      if (randint(0,99) < 15) { $perc = 1; } else { $perc = 0; }
+    my $perc_2 = int( $self->combat * 100/
+                       (5 * ($saw->level + 1) * ($saw->level+1) * $saw->efficiency));
+    $perc_2 = 100 if $perc_2 > 99;
+    if ($perc_1 < 1) {
+      $perc_2 = $perc_2 > 1 ? $perc_2 : 1;
+      if (randint(0,99) < $perc_2) { $perc_1 = 1; } else { $perc_1 = 0; }
     }
+    $perc_1 = $perc_1 == 1 ? 1 : int($perc_1 * $saw->efficiency/100 +0.5);
 #    printf "%3d\n", $perc;
-    $saw->spend_efficiency($perc);
+    $saw->spend_efficiency($perc_1);
   }
   unless ($saw->is_working) {
     $saw->start_work({}, 60 * 15);

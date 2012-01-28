@@ -10,7 +10,7 @@ use Module::Find;
 use UUID::Tiny ':std';
 use Lacuna::Util qw(format_date);
 use List::Util qw(sum);
-
+use Data::Dumper;
 
 sub www_send_test_message {
     my ($self, $request, $id) = @_;
@@ -1211,6 +1211,9 @@ sub www_delambert {
     $out   .= '<tr><td><b>Maximum sell glyph trades in any one zone</b></td><td><input name="sell_max_glyph_trades_in_zone" value="'.$scratchpad->{sell_max_glyph_trades_in_zone}.'"></td></tr>';
     $out   .= '<tr><td><b>Maximum sell plan trades in any one zone</b></td><td><input name="sell_max_plan_trades_in_zone" value="'.$scratchpad->{sell_max_plan_trades_in_zone}.'"></td></tr>';
     $out   .= '<tr><td><input type="submit" name="submit" value="submit"></td><td>&nbsp;</td></tr></table></form>';
+    $out   .= '<p><a href="/admin/delambert_war">War Status</a></p>';
+
+
     $out   .= '<h2>DeLamberti Colonies</h2>';
     $out   .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Zone</th></tr>';
     while (my $body = $bodies->next) {
@@ -1220,9 +1223,127 @@ sub www_delambert {
     return $self->wrap($out);
 }
 
+sub www_delambert_war {
+    my ($self, $request) = @_;
+
+    my ($scratch) = Lacuna->db->resultset('Lacuna::DB::Result::AIScratchPad')->search({ai_empire_id => -9, body_id => 0});
+    my $scratchpad = $scratch->pad;
+
+    if ($request->param('submit')) {
+        $scratchpad->{attack}{$request->param('attacker_id')} = {
+            sweepers    => $request->param('sweepers'),
+            scows       => $request->param('scows'),
+            snarks      => $request->param('snarks'),
+            colony_id   => $request->param('colony_id'),
+            frequency   => $request->param('frequency'),
+        };
+        $scratch->pad($scratchpad);
+        $scratch->update;
+    }
+
+    my $out = '';
+    $out .= "<h1>DeLamberti war status</h1>\n";
+    my @ai_defence = Lacuna->db->resultset('Lacuna::DB::Result::AIBattleSummary')->search({
+        defending_empire_id => -9,
+    });
+    my @ai_attack = Lacuna->db->resultset('Lacuna::DB::Result::AIBattleSummary')->search({
+        attacking_empire_id => -9,
+    });
+    # If the AI is attacked, we don't care who won or lost, just that there was an action against the AI
+    my %defence = map {
+        $_->attacking_empire_id => {
+            attack_victories    => $_->attack_victories,
+            defense_victories   => $_->defense_victories,
+            attack_spy_hours    => $_->attack_spy_hours,
+            weight              => $_->attack_victories + $_->defense_victories + $_->attack_spy_hours * 2,
+        }
+    } @ai_defence;
+
+    # If the AI attacks, we just care about when the AI wins the attack
+    my %attack  = map { 
+        $_->defending_empire_id => {
+            attack_victories    => $_->attack_victories,
+            defense_victories   => $_->defense_victories,
+            attack_spy_hours    => $_->attack_spy_hours,
+            weight              => ($_->attack_victories / 2) + $_->attack_spy_hours,
+        }
+    } @ai_attack;
+
+    # Sort the attackers so that those who have done the most un-retaliated damage are shown first
+    my @worst_attackers = sort {( $defence{$a}{weight} - defined $attack{$a} ? $attack{$a}{weight} : 0) <=> ( $defence{$b}{weight} - defined $attack{$b} ? $attack{$b}{weight} : 0 ) } keys %defence;
+
+    $out .= "<table border='1'><tr><th>Attacker</th><th>A-Victories</th><th>A-Defeats</th><th>A-Spy Hours</th><th>Attack Weight</th><th>R-Victories</th><th>R-Defeats</th><th>R-Spy Hours</th><th>Retaliate Weight</th><th>Colony</th><th>Frequency</th><th>Attack Sweepers</th><th>Attack Scows</th><th>Attack Snark</th><th>Action</th></tr>\n";
+ATTACKER:
+    foreach my $attacker (@worst_attackers) {
+        my $attack_empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($attacker);
+        next ATTACKER unless $attack_empire;
+
+        # Obtain all colonies of the attacking empire, sorted by population desc.
+        my @colonies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
+            empire_id       => $attacker,
+        });
+        @colonies = sort {$b->population <=> $a->population} @colonies;
+
+        if (not defined $scratchpad->{attack}{$attacker}) {
+            $scratchpad->{attack}{$attacker} = {
+                colony_id   => $colonies[0]->id,
+                sweepers    => 1000,
+                snarks      => 200,
+                scows       => 200,
+                frequency   => 'Once',
+            };
+            $scratch->pad($scratchpad);
+            $scratch->update;
+        }
+
+        my $sweepers    = $scratchpad->{attack}{$attacker}{sweepers};
+        my $snarks      = $scratchpad->{attack}{$attacker}{snarks};
+        my $scows       = $scratchpad->{attack}{$attacker}{scows};
+        my $frequency   = $scratchpad->{attack}{$attacker}{frequency};
+        my $counter = {attack_victories=>0, defense_victories=>0, attack_spy_hours=>0, weight=>0};
+        if (defined $attack{$attacker}) {
+            $counter = {
+                attack_victories  => $attack{$attacker}{attack_victories},
+                defense_victories => $attack{$attacker}{defense_victories},
+                attack_spy_hours  => $attack{$attacker}{attack_spy_hours},
+                weight            => $attack{$attacker}{weight},
+            };
+        }
+        $out .= "<tr><td>".$attack_empire->name."</td><td>".$defence{$attacker}{attack_victories}."</td><td>".$defence{$attacker}{defense_victories}."</td>";
+        $out .= "<td>".$defence{$attacker}{attack_spy_hours}."</td><td>".$defence{$attacker}{weight}."</td>";
+        $out .= "<td>".$counter->{attack_victories}."</td><td>".$counter->{defense_victories}."</td>";
+        $out .= "<td>".$counter->{attack_spy_hours}."</td><td>".$counter->{weight}."</td>";
+        $out .= "<form action='/admin/delambert_war'>";
+        $out .= "<td><select name='colony_id'>";
+        foreach my $colony (@colonies) {
+            my $selected = ' selected ' if $colony->id == $scratchpad->{attack}{$attacker}{colony_id};
+            $out .= "<option value='".$colony->id."' $selected>".$colony->name."</option>";
+        }
+        $out .= "</select></td>";
+        $out .= "<td><select name='frequency'>";
+        foreach my $freq (qw(never once hourly daily)) {
+            my $selected = ' selected ' if $scratchpad->{attack}{$attacker}{frequency} eq $freq;
+            $out .= "<option value='$freq' $selected>$freq</option>";
+        }
+        $out .= "</select></td>";
+        $out .= "<td><input type='text' name='sweepers' value='$sweepers'></td>";
+        $out .= "<input type='hidden' name='attacker_id' value='$attacker'>";
+        $out .= "<td><input type='text' name='scows' value='$scows'></td>";
+        $out .= "<td><input type='text' name='snarks' value='$snarks'></td>";
+        $out .= "<td><input type='submit' name='submit' value='Submit'></form></tr>";
+    }
+    $out .= "</table>\n";
+    $out .= "<ul>\n";
+    $out .= "<li>A-Victories, A-Defeats and A-Spy hours are attacks against the DeLamberti</li>";
+    $out .= "<li>R-Victories, R-Defeats and R-Spy hours are retaliations by the DeLamberti</li>";
+    $out .= "<li>Attack Weight, is a measure of the amount of attacks against the AI</li>";
+    $out .= "<li>Retaliate Weight, is a measure of the AI Retaliation against those attacks</li>";
+    $out .= "<li>The list is sorted so that those empires with the highest (Attack Weight - Retaliate Weight) are first</li>";
+    $out .= "</ul>\n";
 
 
-
+    return $self->wrap($out);
+}
 
 sub wrap {
     my ($self, $content) = @_;

@@ -63,15 +63,24 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
         "waste_capacity" : 13000,
         "water_stored" : 9929,
         "water_hour" : 295,
-        "water_capacity" : 51050,
-        "incoming_foreign_ships" : [  # will only be included when foreign ships are coming to your planet, more detail at spaceport
+        "water_capacity" : 51050,   
+        "num_incoming_enemy" : 10,   # total number of incoming enemy ships
+        "num_incoming_ally" : 1,     # total number of incoming allied ships
+        "num_incoming_own : 0,       # total number of incoming own ships from other colonies
+        "incoming_enemy_ships" : [ # will only be included when enemy ships are coming to your planet (only the first 20 will be shown)
             {
-                "id" : "id-goes-here",                          # not terribly useful, except for client caching of notices
+                "id" : "id-goes-here",
                 "date_arrives" : "01 31 2010 13:09:05 +0600",
                 "is_own" : 1,                                   # is this from one of our own planets
                 "is_ally" : 1                                   # is this from a planet within our alliance
             },
             ...
+        ],
+        "incoming_ally_ships" : [ # will only be included when allied ships are coming to your planet (only the first 10 will be shown)
+            ...
+        ],
+        "incoming_own_ships" : [ # will only be included when ships from your other colonies are coming to your planet (only the first 10 will be shown)
+            ...  
         ],
         
         ----- if the body is a station the follwing information will be included
@@ -150,7 +159,49 @@ A session id.
 
 The id of the body you wish to retrieve the buildings on.
 
+=head2 rearrange_buildings ( session_id, body_id, arrangement)
 
+Rearranges all buildings to the coordinates supplied via the arrangment array of hashes.
+
+ {
+    "moved" : [
+        {
+          "id" : building_id,
+          "name" : "Building Name",
+          "x" : X coord,
+          "y" : Y coord
+        }
+    ],
+    "body" : {
+        "surface_image" : "surface-e"
+    },
+    "status" : { ... }
+ }
+
+Throws 1002 and 1010.
+
+=head3 session_id
+
+A session id.
+
+=head3 body_id
+
+The id of the body you wish to arrange buildings on.
+
+=head3  arrangement
+
+A array of hashes.
+ [
+  {
+    "id" : building_id,
+    "x"  : new X coord,
+    "y"  : new Y coord,
+  },
+  ...
+ ]
+
+All buildings being moved need to be supplied.
+PCC or Station Command need to be in position 0,0.
 
 =head2 get_buildable ( session_id, body_id, x, y, tag ) 
 

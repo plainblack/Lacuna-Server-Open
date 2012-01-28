@@ -4,4 +4,109 @@ The Dillon Forge is accessible via the URL C</thedillonforge>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+=head2 view ( session_id, building_id )
+
+This method is extended to include the list of tasks.
+
+ {
+    "status " : { ... },
+    "building" : { ... },
+    "tasks" : {
+      "current_task" : "make_plan",
+      "seconds_remaining" : 120,
+      "can" : 0,
+
+      "make_plan" : [
+        {
+          "name" : "Algae",
+          "max_level" : 10,
+          "class" : "Food::Algae",
+          "reset_sec_per_level" : 5000,
+        },...
+      ],
+      "split_plan" : [
+        {
+          "name" : "Beach [10]",
+          "class" : "Permanent::Beach10",
+          "level" : 1,
+          "extra_build_level" : 2,
+          "fail_chance" : 50,
+          "reset_seconds",
+        },...
+      ]
+    }
+ }
+
+=head2 make_plan ( session_id, building_id, plan_class, level )
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Dillon Forge.
+
+=head3 plan_class
+
+The class of the plan, as returned in the B<view> method
+
+=head3 level
+
+The level to build the plan. Note that The Dillon Forge can only build plans
+up to the level of the building. A level 10 Dillon Forge can build any plan level 
+from 2+0 to 10+0. There must be at least 2x level 1+0 plans on a colony of the
+specified class to build a level x+0 plan.
+
+The B<seconds_per_level> is how long it will take to build a plan per level.
+
+=head2 split_plan ( session_id, building_id, plan_class, level, extra_build_level )
+
+Split a plan into it's constituant glyphs. The glyph types that can be returned
+depend upon the recipe to build that type of plan. The maximum number of glyphs
+that can be returned depend upon the number of glyphs in the recipe for a level 
+1+0 plan, the level of the plan being split and the extra build levels.
+
+The B<fail_chance> given in the view method, determines the number of glyphs that
+are likely to be returned. For example, if a plan is 'worth' 4 glyphs then, on
+average, a 50% fail_chance will return 2 glyphs (chosen at random from all glyph
+types that make up the plan.
+
+The B<fail_chance> is determined by the level of The Dillon Forge and is 3% per
+level of the building.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Dillon Forge.
+
+=head3 plan_class
+
+The class of the plan, as returned in the B<view> method
+
+=head3 level
+
+The level of the plan to be split.
+
+=head3 extra_build_level
+
+The extra build levels (if any) for that plan.
+
+=head2 subsidize ( session_id, building_id )
+
+Will spend 2 essentia to complete the current task immediately. Returns B<view>
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Dillon Forge.
+
 =cut

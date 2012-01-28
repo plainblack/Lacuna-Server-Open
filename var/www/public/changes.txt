@@ -1,3 +1,38 @@
+3.0837:
+ - Mod:  Trade Ministry now trades within a set distance rather than just within zone
+
+3.0836:
+ - Fix:  Better resource checks when storage is reduced.
+ - Fix:  Supply Pods can only take what is available on a planet when launched.
+ - Fix:  Primitve screwheads can only be uplifted one level.
+ - Add:  Ability in API to move buildings.
+ - Add:  Fighters can now protect Iso empires.  (In case of scows, or they are about to break Iso)
+ - Mod:  Spy Level considered more during Appropriate Tech.
+ - Add:  Can operate The Dillon Forge via the API
+
+3.0834:
+ - Fix:  Spies caught up in failed insurrection five to defender level * 2.
+ - Fix:  Scows show empty when coming back from stars.
+
+3.0832:
+ - Fix:  Drones can now be pushed or added to a trade
+ - Fix:  Ship dockspace check more refined.
+
+3.0831:
+ - Fix:  Trashed mail older than 7 days will be deleted regularly
+ - Mod:  All mail older than 30 days will be deleted regularly
+ - Add:  Alliance mapping data available.
+ - Mod:  Map now shows the number of incoming ships of enemy,ally and own with the first few of each type
+ - Mod:  Server is more responsive when you have thousands of incoming ships
+ - API:  Map Status now shows the number of incoming ships, not every one individually
+
+3.0830:
+ - Mod:  Even more changes to SAWs. (We'll keep banging on these keys.)
+ - Fix:  Correspondance school is no longer an acredited option for spies.
+ - Fix:  Dillon Forge can not be upgraded with Halls of Vrbansk
+ - Note: Dillon Forge cannot be demolished/plan stripped/upgraded
+ - Fix:  You cannot now sacrifice Halls of Vrbansk that have not completed their build
+
 3.0829:
  - Add:  Added bulk trading in plans/glyphs/ships to SST
 

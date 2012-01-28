@@ -1,0 +1,7 @@
+Dillon Forge Failure
+~~~
+The Dillon Forge on {Planet %s %s} failed to split a level %s %s plan, perhaps your scientists need to do further research into it's operation?
+
+Regards,
+
+Your Humble Assistant

@@ -21,16 +21,6 @@ sub my_market {
     return $self->market->search({body_id => $self->body_id, transfer_type => $self->transfer_type });
 }
 
-sub available_market {
-    my $self = shift;
-    return $self->market->search(
-        {
-            body_id         => {'!=' => $self->body_id},
-            transfer_type   => $self->transfer_type,
-        },
-    )
-}
-
 sub check_payload {
     my ($self, $items, $available_cargo_space, $space_exception, $transfer_ship) = @_;
     my $body = $self->body;
@@ -50,14 +40,14 @@ sub check_payload {
                  confess $offer_nothing_exception unless ($item->{quantity} > 0);
                  confess $fractional_offer_exception if ($item->{quantity} != int($item->{quantity}));
                  confess $have_exception unless ($body->type_stored($item->{type}) >= $item->{quantity});
-#                 push @expanded_items, $item;
+                 push @expanded_items, $item;
                  $space_used += $item->{quantity};
             }
             when ('glyph') {
                 if ($item->{glyph_id}) {
                     my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyphs')->find($item->{glyph_id});
                     confess $have_exception unless (defined $glyph && $self->body_id eq $glyph->body_id);
-#                    push @expanded_items, $item;
+                    push @expanded_items, $item;
                     $space_used += 100;
                 }
                 elsif ($item->{quantity}) {
@@ -81,7 +71,7 @@ sub check_payload {
                 if ($item->{plan_id}) {
                     my $plan = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->find($item->{plan_id});
                     confess $have_exception unless (defined $plan && $self->body_id eq $plan->body_id);
-#                    push @expanded_items, $item;
+                    push @expanded_items, $item;
                     $space_used += 10000;
                 }
                 elsif ($item->{quantity}) {
@@ -113,14 +103,14 @@ sub check_payload {
                 confess [1002, 'You must specify a prisoner_id if you are pushing a prisoner.'] unless $item->{prisoner_id};
                 my $prisoner = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($item->{prisoner_id});
                 confess $have_exception unless (defined $prisoner && $self->body_id eq $prisoner->on_body_id && $prisoner->task eq 'Captured');
-#                push @expanded_items, $item;
+                push @expanded_items, $item;
                 $space_used += 350;
             }
             when ('ship') {
                 if ($item->{ship_id}) {
                     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($item->{ship_id});
                     confess $have_exception unless (defined $ship && $self->body_id eq $ship->body_id && $ship->task eq 'Docked');
-#                    push @expanded_items, $item;
+                    push @expanded_items, $item;
                     $space_used += 50000;
                 }
                 elsif ($item->{quantity}) {
@@ -129,7 +119,7 @@ sub check_payload {
                     confess [1002, 'you must specify a name if you specify a quantity.'] unless $item->{name};
                     confess [1002, 'you must specify a ship_type if you specify a quantity.'] unless $item->{ship_type};
                     confess [1002, 'you must specify a hold_size if you specify a quantity.'] unless defined $item->{hold_size};
-                    confess [1002, 'you must specify a speed if you specify a quantity.'] unless $item->{speed};
+                    confess [1002, 'you must specify a speed if you specify a quantity.'] unless defined $item->{speed};
                     my $ships_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
                         name        => $item->{name},
                         body_id     => $self->body_id,
@@ -155,10 +145,11 @@ sub check_payload {
             }
         }
     }
-    push @$items, @expanded_items;
+#    push @$items, @expanded_items;
+    $items = \@expanded_items;
     confess $offer_nothing_exception unless $space_used;
     confess [1011, sprintf($space_exception,$space_used)] unless ($space_used <= $available_cargo_space);
-    return $space_used;
+    return $space_used, $items;
 }
 
 sub structure_payload {

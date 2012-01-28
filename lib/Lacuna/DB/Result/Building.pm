@@ -610,10 +610,10 @@ sub demolish {
     my $body = $self->body;
     $body->add_waste(sprintf('%.0f',$self->ore_to_build * $self->upgrade_cost));
     $body->spend_happiness(sprintf('%.0f',$self->food_to_build * $self->upgrade_cost));
+    $self->delete;
     $body->needs_recalc(1);
     $body->needs_surface_refresh(1);
     $body->update;
-    $self->delete;
 }
 
 
@@ -658,7 +658,8 @@ sub upgrade_status {
 
 sub has_met_upgrade_prereqs {
     my ($self) = @_;
-    if (!$self->isa('Lacuna::DB::Result::Building::University') && $self->level >= $self->body->empire->university_level + 1) {
+#    if (!$self->isa('Lacuna::DB::Result::Building::University') && $self->level >= $self->body->empire->university_level + 1) {
+    if ($self->level >= $self->body->empire->university_level + 1) {
         confess [1013, "You cannot upgrade a building past your university level."];
     }
     return 1;
@@ -949,7 +950,7 @@ sub repair {
     }
     $self->efficiency($n_eff);
     $self->update;
-    $body->spend_food($costs->{food});
+    $body->spend_food($costs->{food}, 0);
     $body->spend_water($costs->{water});
     $body->spend_ore($costs->{ore});
     $body->spend_energy($costs->{energy});

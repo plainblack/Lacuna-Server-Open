@@ -45,10 +45,12 @@ use constant happiness_production => 15;
 after finish_upgrade => sub {
     my $self = shift;
     my $empire = $self->body->empire;
-    if ($empire->university_level < $self->level) {
-        $empire->university_level($self->level);
+    my $tech_lvl = $empire->university_level;
+    my $bld_lvl  = $self->level;
+    if ($tech_lvl < $bld_lvl) {
+        $empire->university_level(++$tech_lvl);
         $empire->update;
-        if ($self->level > 4) {
+        if ($tech_lvl > 4) {
             my $invite = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $empire->id},{rows=>1})->single;
             if (defined $invite) {
                 my $inviter = $invite->inviter;

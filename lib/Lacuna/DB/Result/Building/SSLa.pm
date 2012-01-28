@@ -199,7 +199,7 @@ sub make_plan {
     my $body = $self->body;
     $body->spend_ore($resource_cost);
     $body->spend_water($resource_cost);
-    $body->spend_food($resource_cost);
+    $body->spend_food($resource_cost, 0);
     $body->spend_energy($resource_cost);
     $body->add_waste($resource_cost/4);
     $body->update;

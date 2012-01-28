@@ -5,6 +5,9 @@ use List::Util qw(max min);
 use Carp;
 
 use utf8;
+use List::Util qw(max);
+use Data::Dumper;
+
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 
@@ -199,10 +202,12 @@ sub add_to_market {
     unless ($self->level > $self->my_market->count) {
         confess [1009, "This Trade Ministry can only support ".$self->level." trades at one time."];
     }
-    my $space_used = $self->check_payload($offer, $ship->hold_size, undef, $ship);
+    my $space_used;
+    ($space_used, $offer ) = $self->check_payload($offer, $ship->hold_size, undef, $ship);
     my ($payload, $meta) = $self->structure_payload($offer, $space_used);
     $ship->task('Waiting On Trade');
     $ship->update;
+    my $body = $self->body;
     my %trade = (
         %{$meta},
         payload         => $payload,
@@ -210,13 +215,48 @@ sub add_to_market {
         ship_id         => $ship->id,
         body_id         => $self->body_id,
         transfer_type   => $self->transfer_type,
+        x               => $body->x,
+        y               => $body->y,
+        speed           => $ship->speed,
+        trade_range     => max (250, $self->level * 20),
     );
     return Lacuna->db->resultset('Lacuna::DB::Result::Market')->new(\%trade)->insert;
 }
 
 sub transfer_type {
     my $self = shift;
-    return $self->body->zone;
+    return 'trade';
+}
+
+# all trades within range (including those on this colony)
+sub local_market {
+    my ($self, $args) = @_;
+
+    my $minus_x = -$self->body->x;
+    my $minus_y = -$self->body->y;
+
+    return $self->market->search({
+        %$args,
+        -and => [
+            \[ "transfer_type = ? and ceil(pow(pow(me.x + $minus_x, 2) + pow(me.y + $minus_y, 2), 0.5)) < trade_range", [transfer_type => $self->transfer_type]],
+        ]
+    },{
+        '+select' => [
+            { ceil => \"pow(pow(me.x + $minus_x,2) + pow(me.y + $minus_y,2), 0.5)", '-as' => 'distance' },
+        ],
+        '+as' => [
+            'distance',
+        ],
+        join => 'body',
+    });
+}
+
+# available market. All trades within range that are not our own
+sub available_market {
+    my ($self) = @_;
+    return $self->local_market({
+        body_id => {'!=' => $self->body_id},
+    });
 }
 
 sub trade_ships {
@@ -271,16 +311,17 @@ sub push_items {
         confess [1011, 'You do not have a ship available to transport cargo.'];
     }
 
-    my $space_used = $self->check_payload($items,$ship->hold_size, undef, $ship);
+    my $space_used;
+    ($space_used, $items) = $self->check_payload($items,$ship->hold_size, undef, $ship);
     $self->check_payload_ships($items,$target,$options->{stay});
 
     my ($payload, $meta) = $self->structure_payload($items, $space_used);
     foreach my $item (@{$items}) {
         if ( $item->{type} eq 'ship' ) {
-            my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($item->{ship_id});
-            next unless defined $ship;
-            $ship->body_id($target->id);
-            $ship->update;
+            my $pship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($item->{ship_id});
+            next unless defined $pship;
+            $pship->body_id($target->id);
+            $pship->update;
         }
     }
 

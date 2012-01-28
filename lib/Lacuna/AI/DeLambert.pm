@@ -122,6 +122,7 @@ sub run_hourly_empire_updates {
     my ($self, $empire) = @_;
 
     $self->process_email($empire);
+    $self->retaliate($empire);
 }
 
 sub get_colony_scratchpad {
@@ -186,6 +187,12 @@ sub sell_glyph_trade {
     say "#### SELL GLYPH TRADE ####";
 
     my $scratchpad = $self->scratch->pad;
+    my $trade_min = $colony->get_building_of_class('Lacuna::DB::Result::Building::Trade');
+
+    if (not $trade_min) {
+        say "    ERROR: No trade ministry found on ".$colony->name;
+        return;
+    }
 
     if (not defined $scratchpad->{sell_glyph_probability}) {
         $scratchpad->{sell_glyph_probability} = 1;
@@ -209,15 +216,12 @@ sub sell_glyph_trade {
         my $ship = $self->get_trade_ship($colony);
         return unless $ship;
 
-        # check how many trades there are in the zone at the moment
-        my $trades_in_zone = Lacuna->db->resultset('Lacuna::DB::Result::Market')->search({
-            transfer_type       => $colony->zone,
-            has_glyph           => 1,
-            'body.empire_id'    => -9,
-        },{
-            join                => 'body',
+        # check how many trades there are in range at the moment
+        my $trades_in_zone = $trade_min->local_market({
+            has_glyph => 1,
         })->count;
         if ($trades_in_zone >= $scratchpad->{sell_max_glyph_trades_in_zone}) {
+            say "Already enough trades ($trades_in_zone) in zone!";
             return;
         }
         my $quantity = randint(1,$scratchpad->{sell_glyph_max_batch});
@@ -241,7 +245,11 @@ sub sell_glyph_trade {
                 ask             => $cost_per * $quantity,
                 ship_id         => $ship->id,
                 body_id         => $colony->id,
-                transfer_type   => $colony->zone,
+                transfer_type   => 'trade',
+                x               => $colony->x,
+                y               => $colony->y,
+                speed           => $ship->speed,
+                trade_range     => 600,
             );
             Lacuna->db->resultset('Lacuna::DB::Result::Market')->create(\%trade);
         }
@@ -253,6 +261,13 @@ sub sell_plan_trade {
 
     say "#### SELL PLAN TRADE ####";
 
+    my $trade_min = $colony->get_building_of_class('Lacuna::DB::Result::Building::Trade');
+
+    if (not $trade_min) {
+        say "    ERROR: No trade ministry found on ".$colony->name;
+        return;
+    }
+
     my $scratchpad = $self->scratch->pad;
 
     if (randint(1,100) <= $scratchpad->{sell_plan_probability}) {
@@ -263,14 +278,11 @@ sub sell_plan_trade {
             return;
         }
 
-        # check how many trades there are in the zone at the moment
-        my $trades_in_zone = Lacuna->db->resultset('Lacuna::DB::Result::Market')->search({
-            transfer_type       => $colony->zone,
+        # check how many trades there are in the zone at the moment (including our own)
+        my $trades_in_zone = $trade_min->local_market({
             has_plan            => 1,
-            'body.empire_id'    => -9,
-        },{
-            join                => 'body',
         })->count;
+
         if ($trades_in_zone >= $scratchpad->{sell_max_plan_trades_in_zone}) {
             say "Already enough trades ($trades_in_zone) in zone!";
             return;
@@ -306,7 +318,11 @@ sub sell_plan_trade {
                 ask                         => $cost_per * $quantity,
                 ship_id                     => $ship->id,
                 body_id                     => $colony->id,
-                transfer_type               => $colony->zone,
+                transfer_type               => 'trade',
+                x                           => $colony->x,
+                y                           => $colony->y,
+                speed                       => $ship->speed,
+                trade_range                 => 600,
             );
             Lacuna->db->resultset('Lacuna::DB::Result::Market')->create(\%trade);
         }
@@ -410,21 +426,147 @@ sub buy_trade {
 }
 
 
+sub retaliate {
+    my ($self) = @_;
+
+    say "#### Retaliate! ####";
+    my $empire = $self->empire;
+    $self->scratch->discard_changes;
+    my $scratch_pad = $self->scratch->pad;
+    my $attack = $scratch_pad->{attack};
+
+    my @del_colonies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
+        empire_id   => -9,
+    });
+
+    say "    Checking daily attack time '".DateTime->now->hour."'";
+    my $attack_daily = DateTime->now->hour eq 14;
+
+TARGET:
+    foreach my $target_id (keys %$attack) {
+       my $target = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($target_id);
+       if ($target) {
+           my $freq = $attack->{$target_id}{frequency} || 'never';
+           say "    Target empire '".$target->name."' frequency '$freq'";
+           if ($freq eq 'hourly' or $freq eq 'once' or ($freq eq 'daily' and $attack_daily)) {
+               my $target_colony_id    = $attack->{$target_id}{colony_id};
+               my $num_sweepers        = $attack->{$target_id}{sweepers};
+               my $num_scows           = $attack->{$target_id}{scows};
+               my $num_snarks          = $attack->{$target_id}{snarks};
+               my $target_colony       = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_colony_id);
+               next TARGET unless $target_colony;
+               next TARGET if $target_colony->empire_id != $target_id;
+               say "    Attack '".$target_colony->name."' with $num_sweepers sweepers, $num_scows scows, $num_snarks snarks";
+
+               # Sort the DeLamberti colonies, closest to the target first
+               @del_colonies = sort {$self->distance_comp($a,$b,$target_colony)} @del_colonies;
+               # Get a percentage of ships from the closest colonies.
+               my @sweepers;
+               my @scows;
+               my @snarks;
+DEL_COLONY:
+               foreach my $del_colony (@del_colonies) {
+                   # Don't attack from the Neutral Zone
+                   next DEL_COLONY if $del_colony->x == -3 and $del_colony->y == 0;
+
+                   # Send damaged sweepers by preference, leaving undamaged ones to defend!
+                   if (@sweepers < $num_sweepers) {
+                       my @ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+                           type     => 'sweeper',
+                           task     => 'Docked',
+                           body_id  => $del_colony->id,
+                       },
+                       {
+                           order_by => 'combat',
+                       });
+                       # 20% of sweepers
+                       my $quantity = int(@ships / 5);
+                       say "    Colony has ".scalar(@ships)." sweepers";
+                       if (@sweepers + $quantity > $num_sweepers) {
+                           $quantity = $num_sweepers - @sweepers;
+                       }
+                       say "    taking $quantity sweepers from ".$del_colony->name;
+                       @sweepers = (@sweepers,  splice(@ships, 0, $quantity));
+                       say "    Now got ".scalar(@sweepers)." sweepers";
+                   }
+                   if (@scows < $num_scows) {
+                       my @ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+                           type     => 'scow',
+                           task     => 'Docked',
+                           body_id  => $del_colony->id,
+                       });
+                       # 50% of scows
+                       my $quantity = int(@ships / 2);
+                       if (@scows + $quantity > $num_scows) {
+                           $quantity = $num_scows - @scows;
+                       }
+                       say "    taking $quantity scows from ".$del_colony->name;
+                       @scows = (@scows, splice(@ships, 0, $quantity));
+                   }
+                   if (@snarks < $num_snarks) {
+                       my @ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+                           type     => {like => "snark%"},
+                           task     => 'Docked',
+                           body_id  => $del_colony->id,
+                       });
+                       # 50% of snarks
+                       my $quantity = int(@ships / 2);
+                       if (@snarks + $quantity > $num_snarks) {
+                           $quantity = $num_snarks - @snarks;
+                       }
+                       say "    taking $quantity snarks from ".$del_colony->name;
+                       @snarks = (@snarks, splice(@ships, 0, $quantity));
+                   }
+               }
+               # Send all the ships and adjust their travel time to the latest arrival
+               my $arrival_time;
+               for my $ship (@snarks,@sweepers,@scows) {
+                   say "    sending ship ID".$ship->id;
+                   $ship->send(target => $target_colony);
+                   if (not defined $arrival_time or $ship->date_available > $arrival_time) {
+                       $arrival_time = $ship->date_available;
+                   }
+               }
+               say "    Latest arrival time is $arrival_time";
+               for my $ship (@sweepers,@snarks,@scows) {
+                   $ship->date_available($arrival_time);
+                   $ship->update;
+               }
+               if ($freq eq 'once') {
+                   $scratch_pad->{attack}{$target_id}{frequency} = 'never';
+                   $self->scratch->pad($scratch_pad);
+                   $self->scratch->update;
+               }
+           }
+       }
+    }
+}
+
+sub distance_comp {
+    my ($self, $left, $right, $target) = @_;
+
+    my $distance_left = ($left->x - $target->x) * ($left->x - $target->x) + ($left->y - $target->y) * ($left->y - $target->y);
+    my $distance_right = ($right->x - $target->x) * ($right->x - $target->x) + ($right->y - $target->y) * ($right->y - $target->y);
+    return $distance_left <=> $distance_right;
+}
+
 sub process_email {
     my ($self) = @_;
 
     my $empire = $self->empire;
     my $messages = $self->empire->received_messages->search({
         has_read    => 0,
-        tag         => 'Correspondence',
+#        tag         => 'Correspondence',
     });
     MESSAGE:
     while (my $message = $messages->next) {
         print("Received message [".$message->subject."]\n");
         if ($message->from_id == $self->empire->id) {
-            # message is from oneself
-            $message->has_read(1);
-            $message->update;
+            if ($message->subject eq "Trade Withdrawn") {
+                $message->has_read(1);
+                $message->has_trashed(1);
+                $message->update;
+            }
             next MESSAGE;
         }
         my $request_empire = Lacuna::db->resultset('Lacuna::DB::Result::Empire')->find($message->from_id);
@@ -530,6 +672,39 @@ sub process_email {
         }
     }
 }
+
+sub attack_email {
+    my ($self, $empire, $attackers) = @_;
+
+    my $message = qq{
+We are the DeLamberti.
+
+It is with great sadness and anger that we have to inform you that we have recently been attacked
+by $attackers with great loss of life at one of our trading posts.
+
+We believed that The Lacuna Expanse was a peaceful place where we could trade to mutual benefit
+but this was not meant to be.
+
+While we are by nature a peaceful species, we will not stand by and let this unprovoked attack go
+without a response.
+
+We proclaim that from this day the DeLamberti are at war with $attackers. We will need time to
+decide on an appropriate level of response, but be warned, respond we will!
+
+To all other peaceful empires, understand that we will continue to trade with you, but any attacks
+against our trading posts will be met with appropriate force.
+
+Guilliame de Lambert 9th
+};
+    $empire->send_message(
+        tag         => 'Correspondence',
+        subject     => 'Declaration of war',
+        from        => $self->empire,
+        body        => $message,
+    );
+
+}
+
 
 sub unsolicited_email {
     my ($self, $empire) = @_;
@@ -726,3 +901,4 @@ small print.
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
+

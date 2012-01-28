@@ -33,22 +33,28 @@ after finish_upgrade => sub {
 
 sub get_halls {
     my $self = shift;
-    return $self->body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk');
+    return $self->body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk')->search({
+        is_upgrading => 0,
+    });
 }
 
 sub get_upgradable_buildings {
     my ($self) = @_;
-    my $body = $self->body;
+    my $body    = $self->body;
     $body->update;
-    my @halls = $self->get_halls->get_column('id')->all;
+    my @halls   = $self->get_halls->get_column('id')->all;
     my $max_level = scalar @halls;
     $max_level = 30 if $max_level > 30;
-    return $body->buildings->search({
+    my $rs = $body->buildings->search({
         level   => { '<' => $max_level },
-        class   => { like => 'Lacuna::DB::Result::Building::Permanent::%' },
-        id      => { 'not in' => \@halls },
+        -and    => [
+            class => {like => 'Lacuna::DB::Result::Building::Permanent::%'},
+            class => {'!=' => 'Lacuna::DB::Result::Building::Permanent::TheDillonForge'},
+            class => {'!=' => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'},
+        ],
         is_upgrading    => 0,
     });
+    return $rs;
 }
 
 use constant name => 'Halls of Vrbansk';

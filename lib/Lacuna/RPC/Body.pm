@@ -9,6 +9,7 @@ use Lacuna::Constants qw(BUILDABLE_CLASSES);
 use DateTime;
 use Lacuna::Util qw(randint);
 use List::MoreUtils qw(uniq);
+use feature 'switch';
 
 sub get_status {
     my ($self, $session_id, $body_id) = @_;
@@ -112,6 +113,235 @@ sub get_buildings {
     return {buildings=>\%out, body=>{surface_image => $body->surface}, status=>$self->format_status($empire, $body)};
 }
 
+sub rearrange_buildings {
+  my ($self, $session_id, $body_id, $arrangement) = @_;
+  my $empire = $self->get_empire_by_session($session_id);
+  my $body = $self->get_body($empire, $body_id);
+  my $cur_bld = $body->buildings;
+  my %cur_lay; my %new_lay;
+  my %cur_ids; my %new_ids;
+  my @miss_in_new; my @miss_in_cur;
+  for my $building (@$arrangement) {
+    my $id = $building->{id};
+    my $x  = $building->{x};
+    my $y  = $building->{y};
+    $new_ids{$id} = {
+      x     => $x,
+      y     => $y,
+    };
+  }
+  while (my $building = $cur_bld->next) {
+    my $id   = $building->id;
+    my $x    = $building->x;
+    my $y    = $building->y;
+    my $name = $building->name;
+    my $class = $building->class;
+    $cur_ids{$id} = {
+      x     => $x,
+      y     => $y,
+      name  => $name,
+      class => $class,
+    };
+    my $spot = sprintf("%d:%d",$x,$y);
+    $cur_lay{$spot} = $id;
+    if (defined($new_ids{$id})) {
+      $new_ids{$id}->{name} = $name;
+      $new_ids{$id}->{class} = $class;
+    }
+    else {
+      $new_ids{$id} = {
+        x     => $x,
+        y     => $y,
+        name  => $name,
+        class => $class,
+      };
+    }
+  }
+  for my $id (keys %new_ids) {
+    my $spot = sprintf("%d:%d", $new_ids{$id}->{x}, $new_ids{$id}->{y});
+    push @miss_in_cur, $id unless defined($cur_ids{$id});
+    if (defined($new_lay{$spot})) {
+      confess [1013,
+        sprintf("Trying to place %s in %s, where you alread have %s",
+          $new_ids{$id}->{name}, $spot, $new_ids{$new_lay{$spot}}->{name})
+      ];
+    }
+    $new_lay{$spot} = $id;
+    if ($spot eq "0:0") {
+      if ($new_ids{$id}->{class} ne "Lacuna::DB::Result::Building::PlanetaryCommand" and
+          $new_ids{$id}->{class} ne "Lacuna::DB::Result::Building::Module::StationCommand") {
+        confess [1013, "Position 0:0 needs to be occupied by PCC or Station Command" ];
+      }
+    }
+  }
+  if (scalar @miss_in_cur) {
+    confess [1013, sprintf("Ids in new layout, not in current: %s\n",
+                   join(":",@miss_in_cur))
+    ];
+  }
+  my $position_err = check_positions(\%new_ids, \%new_lay);
+  if (scalar @$position_err) {
+    confess [1013, sprintf("Position Errors: %s", join("\n", @$position_err)) ];
+  }
+# Done with checks, let's set new locations.
+  my @moved;
+  for my $id (keys %new_ids) {
+    my $new_spot = sprintf("%d:%d", $new_ids{$id}->{x}, $new_ids{$id}->{y});
+    my $old_spot = sprintf("%d:%d", $cur_ids{$id}->{x}, $cur_ids{$id}->{y});
+    if ($new_spot ne $old_spot) {
+      my $building =
+           Lacuna->db->resultset('Lacuna::DB::Result::Building')->
+           find({body_id => $body_id, id => $id});
+      $building->update({
+        x => $new_ids{$id}->{x},
+        y => $new_ids{$id}->{y},
+      });
+      my $move = {
+        id   => $id,
+        x    => $new_ids{$id}->{x},
+        y    => $new_ids{$id}->{y},
+        name => $new_ids{$id}->{name},
+      };
+      push @moved, $move;
+    }
+  }
+  return { moved => \@moved,
+           body => {surface_image => $body->surface},
+           status => $self->format_status($empire, $body)};
+}
+
+sub check_positions {
+  my ($new_ids, $new_lay) = @_;
+
+  my @position_err;
+  for my $id (keys %$new_ids) {
+    my $spot_chk;
+    given ($new_ids->{$id}->{class}) {
+      when("Lacuna::DB::Result::Building::PlanetaryCommand") {
+        unless ($new_ids->{$id}->{x} == 0 &&
+            $new_ids->{$id}->{y} == 0) {
+          push @position_err,
+               sprintf("%s can not be placed anywhere but 0,0", $new_ids->{$id}->{name});
+        }
+      }
+      when("Lacuna::DB::Result::Building::Module::StationCommand") {
+        unless ($new_ids->{$id}->{x} == 0 &&
+            $new_ids->{$id}->{y} == 0) {
+          push @position_err,
+               sprintf("%s can not be placed anywhere but 0,0", $new_ids->{$id}->{name});
+        }
+      }
+      when("Lacuna::DB::Result::Building::SSLa") {
+        if ($new_ids->{$id}->{x} == 5 ||
+            $new_ids->{$id}->{y} == 5 ||
+            $new_ids->{$id}->{y} == 1 ||
+            $new_ids->{$id}->{y} == 0 && ($new_ids->{$id}->{x} == -1 || $new_ids->{$id}->{x} == 0)) {
+          push @position_err,
+               sprintf("%s can not be placed in that position", $new_ids->{$id}->{name});
+        }
+      }
+      when("Lacuna::DB::Result::Building::SSLb") {
+        $spot_chk = sprintf("%d:%d", $new_ids->{$id}->{x} - 1, $new_ids->{$id}->{y});
+        if ($new_ids->{$new_lay->{$spot_chk}}->{class} ne
+            "Lacuna::DB::Result::Building::SSLa") {
+          push @position_err,
+               sprintf("%s needs SSLa to the left of it.", $new_ids->{$id}->{name});
+        }
+      }
+      when("Lacuna::DB::Result::Building::SSLc") {
+        $spot_chk = sprintf("%d:%d", $new_ids->{$id}->{x}, $new_ids->{$id}->{y}+1);
+        if ($new_ids->{$new_lay->{$spot_chk}}->{class} ne
+            "Lacuna::DB::Result::Building::SSLb") {
+          push @position_err,
+               sprintf("%s needs SSLb above it.", $new_ids->{$id}->{name});
+        }
+      }
+      when("Lacuna::DB::Result::Building::SSLd") {
+        $spot_chk = sprintf("%d:%d", $new_ids->{$id}->{x} + 1, $new_ids->{$id}->{y});
+        if ($new_ids->{$new_lay->{$spot_chk}}->{class} ne
+            "Lacuna::DB::Result::Building::SSLc") {
+          push @position_err,
+               sprintf("%s needs SSLc to the right of it.", $new_ids->{$id}->{name});
+        }
+      }
+      when("Lacuna::DB::Result::Building::LCOTa") {
+        if ($new_ids->{$id}->{x} ~~ [ -5, 5 ] ||
+            $new_ids->{$id}->{y} ~~ [ -5, 5 ] ||
+           ($new_ids->{$id}->{x} ~~ [ -1, 0, 1 ] &&
+            $new_ids->{$id}->{y} ~~ [ -1, 0, 1 ])) {
+          push @position_err,
+               sprintf("%s can not be placed in that position", $new_ids->{$id}->{name});
+        }
+      }
+      when("Lacuna::DB::Result::Building::LCOTb") {
+        $spot_chk = sprintf("%d:%d", $new_ids->{$id}->{x} + 1, $new_ids->{$id}->{y});
+        if ($new_ids->{$new_lay->{$spot_chk}}->{class} ne
+            "Lacuna::DB::Result::Building::LCOTa") {
+          push @position_err,
+               sprintf("%s needs LCOTa to the right of it.", $new_ids->{$id}->{name});
+        }
+      }
+      when("Lacuna::DB::Result::Building::LCOTc") {
+        $spot_chk = sprintf("%d:%d", $new_ids->{$id}->{x}, $new_ids->{$id}->{y}-1);
+        if ($new_ids->{$new_lay->{$spot_chk}}->{class} ne
+            "Lacuna::DB::Result::Building::LCOTb") {
+          push @position_err,
+               sprintf("%s needs LCOTb below it.", $new_ids->{$id}->{name});
+        }
+      }
+      when("Lacuna::DB::Result::Building::LCOTd") {
+        $spot_chk = sprintf("%d:%d", $new_ids->{$id}->{x} - 1, $new_ids->{$id}->{y});
+        if ($new_ids->{$new_lay->{$spot_chk}}->{class} ne
+            "Lacuna::DB::Result::Building::LCOTc") {
+          push @position_err,
+               sprintf("%s needs LCOTc to the left of it.", $new_ids->{$id}->{name});
+        }
+      }
+      when("Lacuna::DB::Result::Building::LCOTe") {
+        $spot_chk = sprintf("%d:%d", $new_ids->{$id}->{x} - 1, $new_ids->{$id}->{y});
+        if ($new_ids->{$new_lay->{$spot_chk}}->{class} ne
+            "Lacuna::DB::Result::Building::LCOTd") {
+          push @position_err,
+               sprintf("%s needs LCOTd to the left of it.", $new_ids->{$id}->{name});
+        }
+      }
+      when("Lacuna::DB::Result::Building::LCOTf") {
+        $spot_chk = sprintf("%d:%d", $new_ids->{$id}->{x}, $new_ids->{$id}->{y}+1);
+        if ($new_ids->{$new_lay->{$spot_chk}}->{class} ne
+            "Lacuna::DB::Result::Building::LCOTe") {
+          push @position_err,
+               sprintf("%s needs LCOTe above it.", $new_ids->{$id}->{name});
+        }
+      }
+      when("Lacuna::DB::Result::Building::LCOTg") {
+        $spot_chk = sprintf("%d:%d", $new_ids->{$id}->{x}, $new_ids->{$id}->{y}+1);
+        if ($new_ids->{$new_lay->{$spot_chk}}->{class} ne
+            "Lacuna::DB::Result::Building::LCOTf") {
+          push @position_err,
+               sprintf("%s needs LCOTg above it.", $new_ids->{$id}->{name});
+        }
+      }
+      when("Lacuna::DB::Result::Building::LCOTh") {
+        $spot_chk = sprintf("%d:%d", $new_ids->{$id}->{x} + 1, $new_ids->{$id}->{y});
+        if ($new_ids->{$new_lay->{$spot_chk}}->{class} ne
+            "Lacuna::DB::Result::Building::LCOTg") {
+          push @position_err,
+               sprintf("%s needs LCOTg to the right of it.", $new_ids->{$id}->{name});
+        }
+      }
+      when("Lacuna::DB::Result::Building::LCOTi") {
+        $spot_chk = sprintf("%d:%d", $new_ids->{$id}->{x} + 1, $new_ids->{$id}->{y});
+        if ($new_ids->{$new_lay->{$spot_chk}}->{class} ne
+            "Lacuna::DB::Result::Building::LCOTh") {
+          push @position_err,
+               sprintf("%s needs LCOTh to the right of it.", $new_ids->{$id}->{name});
+        }
+      }
+    }
+  }
+  return \@position_err;
+}
+
 sub get_buildable {
     my ($self, $session_id, $body_id, $x, $y, $tag) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -203,7 +433,7 @@ sub get_buildable {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(abandon rename get_buildings get_buildable get_status));
+__PACKAGE__->register_rpc_method_names(qw(abandon rename get_buildings get_buildable get_status rearrange_buildings));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -1,0 +1,5 @@
+Coming Home
+~~~
+We arrived at {Starmap %s %s %s} and found that it had been turned into a Gas Giant. Since we lack the technology to survive there, we were forced to turn around and come home. We're on our way now.
+
+%s Colony Mission Commander
