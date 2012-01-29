@@ -119,7 +119,69 @@ A session id.
 The unique id of the Archaeology Ministry.
 
 
+=head2 view_excavators ( session_id, building_id )
 
+Returns a list of the excavator sites currently controlled by this ministry.
+
+ {
+    "status" : { ... },
+    "max_excavators" : 1,
+    "excavators" : [
+        {
+            "id" : "id-goes-here",
+            "body" : {
+                "id" : "id-goes-here",
+                "name" : "Kuiper",
+                "x" : 0,
+                "y" : -444,
+                "image" : "a1-5",
+                ...
+            },
+            "excavator" : {
+                "chances" : {
+                   "artifact" : 50,
+                   "glyph" : 301,
+                   "plan" : 70,
+                   "resource" : 528
+                }
+            }
+        },
+        ...
+    ]
+ }
+ 
+The C<chances> numbers give the chances out of 1000 that a certain result is found by your excavator each hour.
+ 
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the archaeology ministry.
+
+
+=head2 abandon_excavator ( session_id, building_id, site_id )
+
+Close down an existing excavator site.
+
+ {
+    "status" : { ... }
+ }
+ 
+Throws 1002.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the archaeology ministry.
+
+=head3 site_id
+
+The unique id of the excavator site you wish to abandon.
 
 
 =cut

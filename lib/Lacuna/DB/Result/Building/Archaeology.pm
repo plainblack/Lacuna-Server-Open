@@ -74,31 +74,12 @@ sub max_excavators {
   return ($self->level - 14);
 }
 
-# sub add_ship {
-#     my ($self, $ship) = @_;
-#     $ship->task('Excavating');
-#     $ship->update;
-#    $self->recalc_excavating;
-#     return $self;
-# }
-
-# sub send_ship_home {
-#     my ($self, $body, $ship) = @_;
-#     $ship->send(
-#         target      => $body,
-#         direction   => 'in',
-#         task        => 'Travelling',
-#     );
-#    $self->recalc_excavating;
-#     return $self;
-# }
-
 sub run_excavators {
   my $self = shift;
 
   my $level = $self->level;
   my $empire = $self->body->empire;
-# Do once for arch itself.  No chance of h orrors or artifacts.
+# Do once for arch itself.  No chance of horrors or artifacts.
   my $result = $self->dig_it($self->body, $level, 1);
   $result->{id} = $self->id;
   my @results = ($result);
@@ -108,12 +89,13 @@ sub run_excavators {
       my $body = $excav->body;
       my $result;
       if ($body->empire_id) {
-#Oops, we didn't clean off the excav when settled.
+# Clean off the excav if planet gets settled.
         $result = {
           id => $excav->id,
           site => $body->name,
           outcome => "Destroyed",
-          message => "Colony wiped out dig.",
+          message => sprintf "Dig wiped out by new Colony from %s.",
+                      $body->empire->name,
         };
       }
       else {
@@ -241,15 +223,15 @@ sub found_plan {
   my $plus = 0;
   if ($rand_cat < 1) {
     $class = random_element($plan_types->{special});
-    $plus = randint(0, int($level/7));
+    $plus = randint(0, int($level/7)) if (randint(0,19) < 1);
   }
   elsif ($rand_cat < 10) {
     $class = random_element($plan_types->{natural});
-    $plus = randint(1, int($level/7)+1) if (randint(0,3) < 1);
+    $plus = randint(1, int($level/7)+1) if (randint(0,9) < 1);
   }
   else {
     $class = random_element($plan_types->{decor});
-    $plus = randint(1, int($level/5)+1) if (randint(0,2) < 1);
+    $plus = randint(1, int($level/5)+1) if (randint(0,4) < 1);
   }
   my $plan = $self->body->add_plan($class, $lvl, $plus);
 
@@ -273,7 +255,7 @@ sub found_artifact {
   if ($level > $select->level and randint(1, int(3 * $level/2)) >= $select->level) {
     $class = $select->class;
     $lvl   = 1;
-    $plus  = $select->level - 1;
+    $plus  = int( ($select->level - 1) * 2/3); #Max doable would be 1+18
     $name  = $select->name;
     $destroy = 100;
   }
@@ -286,14 +268,18 @@ sub found_artifact {
   }
   else {
     $class = $select->class;
-    $lvl   = randint(1,$select->level);
+    $lvl   = randint(1,$select->level); # Slight chance of getting a level 30 plan.
     $plus  = 0;
     $name  = $select->name;
     $destroy = 25;
   }
   $self->body->add_plan($class, $lvl, $plus);
-  if (randint(0,99) < $destroy) {
+  if ($select->level == 1 or randint(0,99) < $destroy) {
     $select->delete;
+  }
+  else {
+    $select->level($select->level - 1);
+    $select->update;
   }
 
   return ($lvl, $plus, $name);
@@ -341,7 +327,7 @@ sub can_you_dig_it {
     $artifact = 50;
   }
   my $horror = $arch ? 0 : 1;
-  $horror += 2 * $artifact;
+  $horror += $artifact;
   my $most = $plan + $glyph + $artifact + $horror;
   if ($most + $resource > 1000) {
     $resource -= ($most + $resource - 1000);

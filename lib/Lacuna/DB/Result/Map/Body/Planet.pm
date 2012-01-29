@@ -1057,12 +1057,6 @@ sub tick {
         $i++;
     }
 
-    # Process excavator sites
-    if ( my $arch = $self->archaeology and
-           not Lacuna->cache->get('excavator_'.$self->id)) {
-      $arch->run_excavators;
-      Lacuna->cache->set('excavator_'.$self->id, 1, 600 );
-    }
     # get ship tasks
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
         body_id         => $self->id,
@@ -1147,11 +1141,29 @@ sub tick {
 
 sub tick_to {
     my ($self, $now) = @_;
-    my $seconds = $now->epoch - $self->last_tick->epoch;
+    my $seconds  = $now->epoch - $self->last_tick->epoch;
     my $tick_rate = $seconds / 3600;
     $self->last_tick($now);
     if ($self->needs_recalc) {
         $self->recalc_stats;    
+    }
+    # Process excavator sites
+    if ( my $arch = $self->archaeology) {
+      if ($arch->efficiency == 100) {
+        my $dig_sec = $now->epoch - $self->last_dig->epoch;
+        if ($dig_sec >= 3600) {
+          my $dig_hours = int($dig_sec/3600);
+          my $new_ld = $self->last_dig->add( seconds => ($dig_hours * 3600));
+          $dig_hours = 3 if $dig_hours > 3;
+          for (1..$dig_hours) {
+            $arch->run_excavators;
+          }
+          $self->last_dig($new_ld);
+        }
+      }
+      else {
+        $self->last_dig($now);
+      }
     }
     # happiness
     $self->add_happiness(sprintf('%.0f', $self->happiness_hour * $tick_rate));
