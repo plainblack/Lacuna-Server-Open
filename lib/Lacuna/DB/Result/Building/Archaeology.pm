@@ -543,10 +543,11 @@ sub make_plan {
 
 before 'can_downgrade' => sub {
   my $self = shift;
-  if ($self->excavators->count > ($self->level - 15)) {
+  my $ecount = $self->excavators->count;
+  if ($ecount > 0 and $ecount > ($self->level - 15)) {
     confess [1013, 'You must abandon one of your Excavator Sites before you can downgrade the Archaeology Ministry.'];
   }
-  if ($self->excavators->count && ($self->level -1) < 15 ) {
+  if ($ecount > 0 && ($self->level -1) < 15 ) {
     confess [1013, 'You can not have any Excavator Sites if you are to downgrade your Archaeology Ministry below 15.'];
   }
 };
