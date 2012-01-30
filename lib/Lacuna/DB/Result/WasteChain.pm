@@ -27,7 +27,7 @@ sub get_status {
             name    => $star->name,
             x       => $star->x,
             y       => $star->y,
-        }
+        },
         waste_hour  => $self->waste_hour,
         percent_transferred => $self->percent_transferred,
     };
