@@ -79,7 +79,7 @@ sub run_excavators {
 
   my $level = $self->level;
   my $empire = $self->body->empire;
-# Do once for arch itself.  No chance of horrors or artifacts.
+# Do once for arch itself.  No chance of destroy or artifacts.
   my $result = $self->dig_it($self->body, $level, 1);
   $result->{id} = $self->id;
   my @results = ($result);
@@ -102,6 +102,7 @@ sub run_excavators {
         $result = $self->dig_it($body, $level, 0);
         $result->{id} = $excav->id;
       }
+#N19
       push @results, $result;
       if ($result->{outcome} eq "Destroyed") {
         $self->remove_excavator($excav);
@@ -138,11 +139,12 @@ sub dig_it {
   my ($self, $body, $level, $arch) = @_;
 
   my $chances = $self->can_you_dig_it($body, $level, $arch);
+  my $empire_name  = $self->body->empire->name;
 
-  my $rnum = randint(0,999);
+  my $rnum = randint(0,99);
   my $base = 0;
   my $outcome = "nothing";
-  for my $type (qw(horror artifact plan glyph resource)) {
+  for my $type (qw(destroy artifact plan glyph resource)) {
     if ($rnum < $chances->{$type} + $base) {
       $outcome = $type;
       last;
@@ -159,6 +161,8 @@ sub dig_it {
         message => "Found $amount of $type.",
         outcome => "Resource",
       };
+      $self->body->add_news(1,sprintf("%s uncovered a cache of %s on %s.",
+                          $empire_name, $type, $body->name));
     }
     when ("plan") {
       my ($lvl, $plus, $name) = $self->found_plan($level);
@@ -166,6 +170,8 @@ sub dig_it {
         message => "Found level $lvl + $plus $name Plan.",
         outcome => "Plan",
       };
+      $self->body->add_news(5,sprintf("%s uncovered a %s plan on %s.",
+                          $empire_name, $name, $body->name));
     }
     when ("glyph") {
       my $glyph = $self->found_glyph($body);
@@ -173,6 +179,8 @@ sub dig_it {
         message => "Found a $glyph glyph.",
         outcome => "Glyph",
       };
+      $self->body->add_news(5,sprintf("%s uncovered a %s glyph on %s.",
+                          $empire_name, $glyph, $body->name));
     }
     when ("artifact") {
       my ($lvl, $plus, $name) = $self->found_artifact($body, $level);
@@ -187,19 +195,31 @@ sub dig_it {
           message => "Found level $lvl + $plus $name Plan.",
           outcome => "Artifact",
         };
+        $self->body->add_news(20,sprintf("%s uncovered a rare %s plan on %s.",
+                              $empire_name, $name, $body->name));
       }
     }
-    when ("horror") {
-      my $message = random_element([
-                      'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagi fhtagn.',
-                      'Klaatu Barada Ni*cough*',
-                      'The brazen temple doors open...',
-                      'It\'s full of stars'
-                                  ]);
-      $result = {
-        message => $message,
-        outcome => "Destroyed",
-      };
+    when ("destroy") {
+      if (randint(0,99) < 10) {
+# This should give an excavator a
+        my $message = random_element([
+                        'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagi fhtagn.',
+                        'Klaatu Barada Ni*cough*',
+                        'The brazen temple doors open...',
+                        'It\'s full of stars'
+                                    ]);
+        $result = {
+          message => $message,
+          outcome => "Destroyed",
+        };
+        $self->body->add_news(10, $message);
+      }
+      else {
+        $result = {
+          message => "No results found.",
+          outcome => "Nothing",
+        };
+      }
     }
     default {
       $result = {
@@ -314,30 +334,30 @@ sub can_you_dig_it {
   my ($self, $body, $level, $arch) = @_;
 
   my $mult = $arch + 1;
-  my $plan  = ($level/5+1) * $mult * 10; # 2.4-14%
+  my $plan  = ($level/5+1) * $mult; # 2.4-14%
   my $ore_total = 0;
   for my $ore (ORE_TYPES) {
      $ore_total += $body->$ore;
   }
-  my $glyph = int(10* $mult * $level * $ore_total/10_000)+1; #max 1-60%
-  $glyph = 600 if ($glyph > 600);
-  my $resource = 10 * 2 * $level; # 2-60%
+  $ore_total = 10_000 if $ore_total > 10_000;
+  my $glyph = int($mult * $level * $ore_total/10_000)+1; # 1-30% (2x if arch run)
+  my $resource = 2 * $level; # 2-60%
   my $artifact = 0;
   if (!$arch && $body->buildings->count) {
-    $artifact = 50;
+    $artifact = 5;
   }
-  my $horror = $arch ? 0 : 1;
-  $horror += $artifact;
-  my $most = $plan + $glyph + $artifact + $horror;
-  if ($most + $resource > 1000) {
-    $resource -= ($most + $resource - 1000);
+  my $destroy = $arch ? 0 : 1;
+  $destroy += $artifact;
+  my $most = $plan + $glyph + $artifact + $destroy;
+  if ($most + $resource > 100) {
+    $resource -= ($most + $resource - 100);
   }
   my $return = {
     plan => $plan,
     glyph => $glyph,
     resource => $resource,
     artifact => $artifact,
-    horror   => $horror,
+    destroy   => $destroy,
   };
   return $return;
 }

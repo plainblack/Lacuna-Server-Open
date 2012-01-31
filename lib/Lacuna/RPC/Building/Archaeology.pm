@@ -103,7 +103,7 @@ sub view_excavators {
     while (my $excav = $excavators->next) {
       my $body = $excav->body;
       my $chances = $building->can_you_dig_it($body, $level, 0);
-      delete $chances->{horror};
+      delete $chances->{destroy};
       my $excav_stat = {
         id      => $excav->id,
         chances => $chances,

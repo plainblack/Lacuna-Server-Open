@@ -1150,19 +1150,21 @@ sub tick_to {
     # Process excavator sites
     if ( my $arch = $self->archaeology) {
       if ($arch->efficiency == 100) {
-        my $dig_sec = $now->epoch - $self->last_dig->epoch;
+        my $dig_sec = $now->epoch - $arch->last_check->epoch;
         if ($dig_sec >= 3600) {
           my $dig_hours = int($dig_sec/3600);
-          my $new_ld = $self->last_dig->add( seconds => ($dig_hours * 3600));
+          my $new_ld = $arch->last_check->add( seconds => ($dig_hours * 3600));
           $dig_hours = 3 if $dig_hours > 3;
           for (1..$dig_hours) {
             $arch->run_excavators;
           }
-          $self->last_dig($new_ld);
+          $arch->last_check($new_ld);
+          $arch->update;
         }
       }
       else {
-        $self->last_dig($now);
+        $arch->last_check($now);
+        $arch->update;
       }
     }
     # happiness
