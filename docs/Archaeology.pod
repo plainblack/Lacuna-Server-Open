@@ -139,10 +139,10 @@ Returns a list of the excavator sites currently controlled by this ministry.
             },
             "excavator" : {
                 "chances" : {
-                   "artifact" : 50,
-                   "glyph" : 301,
-                   "plan" : 70,
-                   "resource" : 528
+                   "artifact" : 5,
+                   "glyph" : 30,
+                   "plan" : 7,
+                   "resource" : 53
                 }
             }
         },
@@ -150,7 +150,7 @@ Returns a list of the excavator sites currently controlled by this ministry.
     ]
  }
  
-The C<chances> numbers give the chances out of 1000 that a certain result is found by your excavator each hour.
+The C<chances> numbers give the chances out of 100 that a certain result is found by your excavator each hour.
  
 =head3 session_id
 
