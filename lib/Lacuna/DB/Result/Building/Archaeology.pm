@@ -70,8 +70,8 @@ sub get_ores_available_for_processing {
 
 sub max_excavators {
   my $self = shift;
-  return 0 if ($self->level < 15);
-  return ($self->level - 14);
+  return 0 if ($self->level < 11);
+  return ($self->level - 10);
 }
 
 sub run_excavators {
@@ -83,7 +83,7 @@ sub run_excavators {
   my $result = $self->dig_it($self->body, $level, 1);
   $result->{id} = $self->id;
   my @results = ($result);
-  if ($level > 14) {
+  if ($level > 10) {
     my $excavators = $self->excavators;
     while (my $excav = $excavators->next) {
       my $body = $excav->body;
@@ -200,8 +200,8 @@ sub dig_it {
       }
     }
     when ("destroy") {
-      if (randint(0,99) < 10) {
-# This should give an excavator a
+      if (randint(0,99) < 5) {
+# This should give an excavator a 1.2% survival each day. Unless on artifact planets.
         my $message = random_element([
                         'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagi fhtagn.',
                         'Klaatu Barada Ni*cough*',
@@ -344,7 +344,7 @@ sub can_you_dig_it {
   my $resource = 2 * $level; # 2-60%
   my $artifact = 0;
   if (!$arch && $body->buildings->count) {
-    $artifact = 5;
+    $artifact = 10;
   }
   my $destroy = $arch ? 0 : 1;
   $destroy += $artifact;
@@ -564,11 +564,11 @@ sub make_plan {
 before 'can_downgrade' => sub {
   my $self = shift;
   my $ecount = $self->excavators->count;
-  if ($ecount > 0 and $ecount > ($self->level - 15)) {
+  if ($ecount > 0 and $ecount > ($self->level - 11)) {
     confess [1013, 'You must abandon one of your Excavator Sites before you can downgrade the Archaeology Ministry.'];
   }
-  if ($ecount > 0 && ($self->level -1) < 15 ) {
-    confess [1013, 'You can not have any Excavator Sites if you are to downgrade your Archaeology Ministry below 15.'];
+  if ($ecount > 0 && ($self->level -1) < 11 ) {
+    confess [1013, 'You can not have any Excavator Sites if you are to downgrade your Archaeology Ministry below 11.'];
   }
 };
 
