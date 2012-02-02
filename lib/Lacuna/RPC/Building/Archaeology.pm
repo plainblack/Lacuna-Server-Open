@@ -103,14 +103,13 @@ sub view_excavators {
     while (my $excav = $excavators->next) {
       my $body = $excav->body;
       my $chances = $building->can_you_dig_it($body, $level, 0);
-      delete $chances->{destroy};
-      my $excav_stat = {
-        id      => $excav->id,
-        chances => $chances,
-      };
       push @sites, {
-        excavator => $excav_stat,
-        body      => $excav->body->get_status,
+        body     => $excav->body->get_status,
+        id       => $excav->id,
+        artifact => $chances->{artifact},
+        glyph    => $chances->{glyph},
+        plan     => $chances->{plan},
+        resource => $chances->{resource},
       };
     }
     return {

@@ -1,3 +1,9 @@
+3.0839:
+ - Mod:  Detonators now destroy excavators.
+ - Mod:  N19 reports on excavators and detonators.
+ - Mod:  Updated Archaeology.pod
+ - Mod:  Adjusted percentages of results.
+
 3.0838:
  - Mod:  Major change to how excavators work.
 

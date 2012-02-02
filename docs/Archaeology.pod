@@ -137,14 +137,10 @@ Returns a list of the excavator sites currently controlled by this ministry.
                 "image" : "a1-5",
                 ...
             },
-            "excavator" : {
-                "chances" : {
-                   "artifact" : 5,
-                   "glyph" : 30,
-                   "plan" : 7,
-                   "resource" : 53
-                }
-            }
+            "artifact" : 5,
+            "glyph" : 30,
+            "plan" : 7,
+            "resource" : 53
         },
         ...
     ]

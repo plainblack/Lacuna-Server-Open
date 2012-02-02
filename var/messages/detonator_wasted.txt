@@ -1,0 +1,7 @@
+Detonator Report
+~~~
+Our Detonator was wasted on {Starmap %s %s %s}.
+
+Regards,
+
+Your Humble Assistant
