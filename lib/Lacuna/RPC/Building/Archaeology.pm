@@ -97,9 +97,18 @@ sub view_excavators {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $excavators = $building->excavators;
     my @sites;
     my $level = $building->level;
+    my $chances = $building->can_you_dig_it($building->body, $level, 1);
+    push @sites, {
+        body     => $building->body->get_status,
+        id       => $building->id,
+        artifact => $chances->{artifact},
+        glyph    => $chances->{glyph},
+        plan     => $chances->{plan},
+        resource => $chances->{resource},
+    };
+    my $excavators = $building->excavators;
     while (my $excav = $excavators->next) {
       my $body = $excav->body;
       my $chances = $building->can_you_dig_it($body, $level, 0);

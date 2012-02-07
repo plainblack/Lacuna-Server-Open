@@ -1,3 +1,6 @@
+3.0840:
+ - Mod:  Include ArchMin is probabilities passed back by view_excavators.
+
 3.0839:
  - Mod:  Detonators now destroy excavators.
  - Mod:  N19 reports on excavators and detonators.
