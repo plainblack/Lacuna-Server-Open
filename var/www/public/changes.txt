@@ -1,14 +1,17 @@
-3.0840:
+3.0841:
  - Mod:  Include ArchMin is probabilities passed back by view_excavators.
 
-3.0839:
+3.0840:
  - Mod:  Detonators now destroy excavators.
  - Mod:  N19 reports on excavators and detonators.
  - Mod:  Updated Archaeology.pod
  - Mod:  Adjusted percentages of results.
 
-3.0838:
+3.0839:
  - Mod:  Major change to how excavators work.
+
+3.0838:
+ - Fix:  Fixed some position errors in rearrange API.
 
 3.0837:
  - Mod:  Trade Ministry now trades within a set distance rather than just within zone
