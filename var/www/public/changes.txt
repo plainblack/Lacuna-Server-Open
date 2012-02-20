@@ -1,3 +1,6 @@
+3.0838:
+ - Fix:  Fixed some position errors in rearrange API.
+
 3.0837:
  - Mod:  Trade Ministry now trades within a set distance rather than just within zone
 
