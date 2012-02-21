@@ -344,9 +344,9 @@ sub can_you_dig_it {
   my $resource = 2 * $level; # 2-60%
   my $artifact = 0;
   if (!$arch && $body->buildings->count) {
-    $artifact = 10;
+    $artifact = 15;
   }
-  my $destroy = $arch ? 0 : 1;
+  my $destroy = $arch ? 0 : 2;
   $destroy += $artifact;
   my $most = $plan + $glyph + $artifact + $destroy;
   if ($most + $resource > 100) {
