@@ -2084,7 +2084,7 @@ sub steal_ships {
         {body_id => $self->on_body->id, task => 'Docked', type => {'in' => \@types}},
         { rows => 1, order_by => 'rand()' }
         )->single;
-    last unless defined $ship;
+    return $self->ship_not_found->id unless (defined $ship);
     $ship->body($self->from_body);
     $ship->send(
         target      => $self->on_body,
@@ -2345,7 +2345,9 @@ sub hack_observatory_probes {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'probe_destroyed.txt',
-        params      => [$probe->star->x,
+        params      => [$probe->body->id,
+                        $probe->body->name,
+                        $probe->star->x,
                         $probe->star->y,
                         $probe->star->name],
     );
@@ -2390,7 +2392,11 @@ sub hack_offending_probes {
     my $message = $probe->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'probe_destroyed.txt',
-        params      => [$probe->star->x, $probe->star->y, $probe->star->name],
+        params      => [$probe->body->id,
+                        $probe->body->name,
+                        $probe->star->x,
+                        $probe->star->y,
+                        $probe->star->name],
     );
     $probe->delete;
     return $message->id;
@@ -2409,7 +2415,9 @@ sub hack_local_probes {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'probe_destroyed.txt',
-        params      => [$probe->star->x,
+        params      => [$probe->body->id,
+                        $probe->body->name,
+                        $probe->star->x,
                         $probe->star->y,
                         $probe->star->name],
     );
