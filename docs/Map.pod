@@ -116,6 +116,14 @@ Retrieves info on a single star.
         "color"         : "yellow",
         "x"             : -41,
         "y"             : 27,
+        "zone"          : "0|0",
+        "id"            : "99",
+        "station" : { # only shows up if this star is under the influence of a space station
+           "id" : "id-goes-here",
+           "x" : 143,
+           "y" : -27,
+           "name" : "The Death Star"
+        },
         "bodies"        : [     # only added if a probe is present
             {
                 same data as get_status() on /body
@@ -146,6 +154,14 @@ Retrieves info on a single star.
         "color"         : "yellow",
         "x"             : -41,
         "y"             : 27,
+        "zone"          : "0|0",
+        "id"            : "99",
+        "station" : { # only shows up if this star is under the influence of a space station
+           "id" : "id-goes-here",
+           "x" : 143,
+           "y" : -27,
+           "name" : "The Death Star"
+        },
         "bodies"        : [     # only added if a probe is present
             {
                 same data as get_status() on /body
@@ -176,6 +192,14 @@ Retrieves info on a single star.
         "color"         : "yellow",
         "x"             : -41,
         "y"             : 27,
+        "zone"          : "0|0",
+        "id"            : "99",
+        "station" : { # only shows up if this star is under the influence of a space station
+           "id" : "id-goes-here",
+           "x" : 143,
+           "y" : -27,
+           "name" : "The Death Star"
+        },
         "bodies"        : [     # only added if a probe is present
             {
                 same data as get_status() on /body
