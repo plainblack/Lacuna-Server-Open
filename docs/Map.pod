@@ -23,6 +23,8 @@ Retrieves a chunk of the map and returns it as an array of hashes. B<Note:> Coor
             "color"         : "yellow",
             "x"             : -41,
             "y"             : 27,
+            "zone"          : "0|0",
+            "id"            : "99",
             "station" : { # only shows up if this star is under the influence of a space station
                 "id" : "id-goes-here",
                 "x" : 143,
@@ -41,6 +43,9 @@ Retrieves a chunk of the map and returns it as an array of hashes. B<Note:> Coor
             "color"         : "green",
             "x"             : -42,
             "y"             : 27
+            "zone"          : "0|0",
+            "id"            : "99",
+            "station" : { ... }
         }
      ],
     "status" : { ... }
