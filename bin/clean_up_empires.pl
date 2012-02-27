@@ -61,8 +61,11 @@ my $inactivity_time_out = Lacuna->config->get('self_destruct_after_inactive_days
 my $inactives = $empires->search({ last_login => { '<' => DateTime->now->subtract( days => $inactivity_time_out ) }, self_destruct_active => 0, id => { '>' => 1}});
 while (my $empire = $inactives->next) {
     if ($empire->essentia >= 1) {
+      unless (Lacuna->cache->get('empire_inactive',$empire->id)) {
         out('Preventing self-destruct by spending essentia.');
         $empire->spend_essentia(1, 'prevent self-destruct')->update;
+        Lacuna->cache->set('empire_inactive',$empire->id,1,60*60*24);
+      }
     }
     else {
         out('Enabling self destruct on '.$empire->name);
