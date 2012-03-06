@@ -134,7 +134,7 @@ sub abandon_excavator {
     my $building = $self->get_building($empire, $building_id);
     my $site = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->find($site_id);
     unless (defined $site) {
-        confess [1002, "Excavator Site not found."];
+        confess [1002, "Excavator Site :".$site_id.": not found."];
     }
     unless ($site->planet_id eq $building->body_id) {
         confess [1013, "You can't abandon an excavator site that is not from this planet."];

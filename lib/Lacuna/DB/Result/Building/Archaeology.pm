@@ -334,14 +334,14 @@ sub can_you_dig_it {
   my ($self, $body, $level, $arch) = @_;
 
   my $mult = $arch + 1;
-  my $plan  = ($level/5+1) * $mult; # 2.4-14%
+  my $plan  = int($level/4 + 1) * $mult; # 1-8% * 2
   my $ore_total = 0;
   for my $ore (ORE_TYPES) {
      $ore_total += $body->$ore;
   }
   $ore_total = 10_000 if $ore_total > 10_000;
   my $glyph = int($mult * $level * $ore_total/15_000)+1; # 1-20% (2x if arch run) +1
-  my $resource = 2 * $level; # 2-60%
+  my $resource = int(5/2 * $level); # 2-75%
   my $artifact = 0;
   if (!$arch && $body->buildings->count) {
     $artifact = 15;
