@@ -52,10 +52,8 @@ after can_send_to_target => sub {
     confess [1013, 'Cannot control excavators without an Archaeology.'] unless (defined $archaeology);
     confess [1013, 'Your Archaeology Ministry must be level 11 or higher in order to send excavators.'] unless ($archaeology->level >= 11);
     $archaeology->can_add_excavator($target);
-# Will need to make this only pertaining to excavation later.
-# MembersOnlyExcavators
     if ($target->star->station_id) {
-        if ($target->star->station->laws->search({type => 'MembersOnlyMiningRights'})->count) {
+        if ($target->star->station->laws->search({type => 'MembersOnlyExcavation'})->count) {
             unless ($target->star->station->alliance_id == $self->body->empire->alliance_id) {
                 confess [1010, 'Only '.$target->star->station->alliance->name.' members can excavate bodies in the jurisdiction of the space station.'];
             }

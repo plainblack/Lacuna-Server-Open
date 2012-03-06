@@ -340,7 +340,7 @@ sub can_you_dig_it {
      $ore_total += $body->$ore;
   }
   $ore_total = 10_000 if $ore_total > 10_000;
-  my $glyph = int($mult * $level * $ore_total/10_000)+1; # 1-30% (2x if arch run)
+  my $glyph = int($mult * $level * $ore_total/15_000)+1; # 1-20% (2x if arch run) +1
   my $resource = 2 * $level; # 2-60%
   my $artifact = 0;
   if (!$arch && $body->buildings->count) {
@@ -349,6 +349,7 @@ sub can_you_dig_it {
   my $destroy = $arch ? 0 : 2;
   $destroy += $artifact;
   my $most = $plan + $glyph + $artifact + $destroy;
+# resources get cut down if over 100%
   if ($most + $resource > 100) {
     $resource -= ($most + $resource - 100);
   }
@@ -442,6 +443,9 @@ sub excavators {
 sub can_add_excavator {
   my ($self, $body, $on_arrival) = @_;
     
+  if (defined($body->empire_id)) {
+    confess [1010, $body->name.' was colonized since we launched our excavator.'];
+  }
   # excavator count for archaeology
   my $count = $self->excavators->count;
   unless ($on_arrival) {

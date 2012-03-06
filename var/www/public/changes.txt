@@ -1,3 +1,9 @@
+3.0842:
+ - Mod:  Tweaked probabilities of glyph returns.
+ - Mod:  Zero is ID of the archeaology ministry itself on returned data.
+ - Fix:  Scanners & Surveyors do not cause an exception when they arrive at an asteroid.
+ - Add:  Space Stations can propose Members Only Excavation Rights.
+
 3.0841:
  - Mod:  Include ArchMin is probabilities passed back by view_excavators.
 

@@ -102,7 +102,7 @@ sub view_excavators {
     my $chances = $building->can_you_dig_it($building->body, $level, 1);
     push @sites, {
         body     => $building->body->get_status,
-        id       => $building->id,
+        id       => 0,  # This makes it easy to tell which ID belongs to the building.
         artifact => $chances->{artifact},
         glyph    => $chances->{glyph},
         plan     => $chances->{plan},
@@ -137,7 +137,7 @@ sub abandon_excavator {
         confess [1002, "Excavator Site not found."];
     }
     unless ($site->planet_id eq $building->body_id) {
-        confess [1013, "You can't abandon an excavator site that is not yours."];
+        confess [1013, "You can't abandon an excavator site that is not from this planet."];
     }
     $building->remove_excavator($site);
     return {

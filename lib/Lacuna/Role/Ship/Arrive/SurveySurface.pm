@@ -8,9 +8,21 @@ after handle_arrival_procedures => sub {
 
     # we're coming home
     return if ($self->direction eq 'in');
-    
-    # do the scan
+
     my $body_attacked = $self->foreign_body;
+
+    # Found an asteroid
+    if ($body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
+      $self->body->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'scan_asteroid.txt',
+            params      => ['Scanner', $body_attacked->x, $body_attacked->y, $body_attacked->name],
+      );
+      $self->delete;
+      confess [-1];
+    }
+
+    # do the scan
     my @map;
     my @table = ([qw(Name Level X Y Efficiency)]);
     my $buildings = $body_attacked->buildings->search(undef,{order_by => ['x','y']});
