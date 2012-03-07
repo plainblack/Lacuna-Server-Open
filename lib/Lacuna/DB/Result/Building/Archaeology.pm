@@ -207,6 +207,12 @@ sub dig_it {
                         'Klaatu Barada Ni*cough*',
                         'The brazen temple doors open...',
                         'It\'s full of stars'
+                        'This is obviously some strange usage of the word safe that I wasn\'t previously aware of.',
+                        'Oh no, not again.',
+                        'That\'s it man, game over man, game over!',
+                        'I say we take off and nuke the site from orbit. It\'s the only way to be sure.',
+                        'Trust me, I\'m trained to do this.',
+                        'Oops? What oops? No oops!',
                                     ]);
         $result = {
           message => $message,
