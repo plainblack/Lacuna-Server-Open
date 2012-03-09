@@ -206,7 +206,7 @@ sub dig_it {
                         'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagi fhtagn.',
                         'Klaatu Barada Ni*cough*',
                         'The brazen temple doors open...',
-                        'It\'s full of stars'
+                        'It\'s full of stars',
                         'This is obviously some strange usage of the word safe that I wasn\'t previously aware of.',
                         'Oh no, not again.',
                         'That\'s it man, game over man, game over!',
