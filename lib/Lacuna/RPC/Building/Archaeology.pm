@@ -93,8 +93,59 @@ sub subsidize_search {
     return $self->view($empire, $building);
 }
 
+sub view_excavators {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my @sites;
+    my $level = $building->level;
+    my $chances = $building->can_you_dig_it($building->body, $level, 1);
+    push @sites, {
+        body     => $building->body->get_status,
+        id       => 0,  # This makes it easy to tell which ID belongs to the building.
+        artifact => $chances->{artifact},
+        glyph    => $chances->{glyph},
+        plan     => $chances->{plan},
+        resource => $chances->{resource},
+    };
+    my $excavators = $building->excavators;
+    while (my $excav = $excavators->next) {
+      my $body = $excav->body;
+      my $chances = $building->can_you_dig_it($body, $level, 0);
+      push @sites, {
+        body     => $excav->body->get_status,
+        id       => $excav->id,
+        artifact => $chances->{artifact},
+        glyph    => $chances->{glyph},
+        plan     => $chances->{plan},
+        resource => $chances->{resource},
+      };
+    }
+    return {
+        excavators       => \@sites,
+        max_excavators   => $building->max_excavators,
+        status          => $self->format_status($empire, $building->body),
+    };
+}
 
-__PACKAGE__->register_rpc_method_names(qw(get_ores_available_for_processing assemble_glyphs search_for_glyph get_glyphs subsidize_search));
+sub abandon_excavator {
+    my ($self, $session_id, $building_id, $site_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my $site = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->find($site_id);
+    unless (defined $site) {
+        confess [1002, "Excavator Site :".$site_id.": not found."];
+    }
+    unless ($site->planet_id eq $building->body_id) {
+        confess [1013, "You can't abandon an excavator site that is not from this planet."];
+    }
+    $building->remove_excavator($site);
+    return {
+        status  => $self->format_status($empire, $building->body),
+    };
+}
+
+__PACKAGE__->register_rpc_method_names(qw(get_ores_available_for_processing assemble_glyphs search_for_glyph get_glyphs subsidize_search view_excavators abandon_excavator));
 
 
 no Moose;

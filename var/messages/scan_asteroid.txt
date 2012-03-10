@@ -1,0 +1,7 @@
+Asteroid Found
+~~~
+Our %s arrived at {Starmap %s %s %s} and found an asteroid.
+
+Regards,
+
+Your Humble Assistant
