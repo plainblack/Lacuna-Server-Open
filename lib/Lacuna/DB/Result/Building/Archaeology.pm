@@ -33,15 +33,15 @@ use constant water_to_build => 190;
 
 use constant waste_to_build => 250;
 
-use constant time_to_build => 500;
+use constant time_to_build => 480;
 
 use constant food_consumption => 20;
 
 use constant energy_consumption => 5;
 
-use constant ore_consumption => 5;
+use constant ore_consumption => 15;
 
-use constant water_consumption => 30;
+use constant water_consumption => 25;
 
 use constant waste_production => 20;
 
@@ -102,7 +102,6 @@ sub run_excavators {
         $result = $self->dig_it($body, $level, 0);
         $result->{id} = $excav->id;
       }
-#N19
       push @results, $result;
       if ($result->{outcome} eq "Destroyed") {
         $self->remove_excavator($excav);
@@ -155,7 +154,7 @@ sub dig_it {
   given ($outcome) {
     when ("resource") {
       my $type = random_element([ORE_TYPES, FOOD_TYPES, qw(water energy)]);
-      my $amount = randint(100 * $level, 1000 * $level);
+      my $amount = randint(10 * $level, 200 * $level);
       $self->body->add_type($type, $amount)->update;
       $result = {
         message => "Found $amount of $type.",
