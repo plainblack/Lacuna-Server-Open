@@ -248,15 +248,20 @@ sub found_plan {
   my $plus = 0;
   if ($rand_cat < 1) {
     $class = random_element($plan_types->{special});
-    $plus = randint(0, int($level/7)) if (randint(0,19) < 1);
+    if (randint(0,100) < int($level/3)) {
+      $plus = randint(0, int($level/8));
+      if ($level == 30 && $plus > 0) {
+        $plus++;
+      }
+    }
   }
   elsif ($rand_cat < 10) {
     $class = random_element($plan_types->{natural});
-    $plus = randint(1, int($level/7)+1) if (randint(0,9) < 1);
+    $plus = randint(1, int($level/6)+1) if (randint(0,100) < int($level/2));
   }
   else {
     $class = random_element($plan_types->{decor});
-    $plus = randint(1, int($level/5)+1) if (randint(0,4) < 1);
+    $plus = randint(1, int($level/5)+1) if (randint(0,100) < $level);
   }
   my $plan = $self->body->add_plan($class, $lvl, $plus);
 
@@ -298,6 +303,8 @@ sub found_artifact {
     $name  = $select->name;
     $destroy = 25;
   }
+  $lvl = 30  if ($lvl > 30);
+  $plus = 30 if ($plus > 30);
   $self->body->add_plan($class, $lvl, $plus);
   if ($select->level == 1 or randint(0,99) < $destroy) {
     $select->delete;
