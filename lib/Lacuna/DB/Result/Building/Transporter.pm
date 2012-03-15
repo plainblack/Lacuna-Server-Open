@@ -49,8 +49,9 @@ use constant waste_production => 1;
 
 sub add_to_market {
     my ($self, $offer, $ask) = @_;
-    unless ($ask >= 0.1 && $ask < 100 ) {
-        confess [1009, "You must ask for between 0.1 and 99 essentia to create a trade."];
+    $ask = sprintf("%0.1f", $ask);
+    unless ($ask >= 0.1 && $ask <= 100 ) {
+        confess [1009, "You must ask for between 0.1 and 100 essentia to create a trade."];
     }
     unless ($self->level > $self->my_market->count) {
         confess [1009, "This Subspace Transporter can only support ".$self->level." trades at one time."];

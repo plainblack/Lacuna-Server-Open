@@ -1,0 +1,7 @@
+Excavator Returning
+~~~
+%s The ship is on its way back from {Starmap %s %s %s} to {Planet %s %s} now.
+
+Regards,
+
+%s Commander

@@ -259,8 +259,9 @@ sub accept_from_market {
 
     $guard->cancel;
 
-    $empire->spend_essentia($trade->ask, 'Trade Price')->update;
-    $trade->body->empire->add_essentia($trade->ask, 'Trade Income')->update;
+    $empire->spend_essentia($trade->ask, 'Trade Price', 0, $trade->body->empire->id, $trade->body->empire->name )->update;
+    $trade->body->empire->add_essentia($trade->ask, 'Trade Income', 0, $empire->id, $empire->name)->update;
+    
     $offer_ship->send(
         target  => $body,
         payload => $trade->payload,

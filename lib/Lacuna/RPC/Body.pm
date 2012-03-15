@@ -216,6 +216,14 @@ sub check_positions {
   my @position_err;
   for my $id (keys %$new_ids) {
     my $spot_chk;
+    if (abs($new_ids->{$id}->{x}) > 5 or abs($new_ids->{$id}->{y}) > 5) {
+      push @position_err,
+               sprintf("Trying to place %s at %d,%d which is outside of bounds",
+                        $new_ids->{$id}->{name},
+                        abs($new_ids->{$id}->{x}),
+                        abs($new_ids->{$id}->{y}) );
+      next;
+    }
     given ($new_ids->{$id}->{class}) {
       when("Lacuna::DB::Result::Building::PlanetaryCommand") {
         unless ($new_ids->{$id}->{x} == 0 &&
@@ -232,10 +240,9 @@ sub check_positions {
         }
       }
       when("Lacuna::DB::Result::Building::SSLa") {
-        if ($new_ids->{$id}->{x} == 5 ||
-            $new_ids->{$id}->{y} == 5 ||
-            $new_ids->{$id}->{y} == 1 ||
-            $new_ids->{$id}->{y} == 0 && ($new_ids->{$id}->{x} == -1 || $new_ids->{$id}->{x} == 0)) {
+        if ($new_ids->{$id}->{x} == 5 || $new_ids->{$id}->{y} == -5 ||
+            ( $new_ids->{$id}->{x} == -1 && ( $new_ids->{$id}->{y} == 0 || $new_ids->{$id}->{y} == 1)) ||
+            ( $new_ids->{$id}->{x} == 0 && $new_ids->{$id}->{y} == 1 ) ) {
           push @position_err,
                sprintf("%s can not be placed in that position", $new_ids->{$id}->{name});
         }

@@ -116,9 +116,11 @@ sub www_view_essentia_log {
     my $transactions = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search({empire_id => $empire_id}, {order_by => { -desc => 'date_stamp' }});
     my $out = '<h1>Essentia Transaction Log</h1>';
     $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $empire_id);
-    $out .= '<table style="width: 100%;"><tr><th>Date</th><th>Amount</th><th>Description</th><th>Transaction ID</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Date</th><th>Amount</th><th>Description</th><th>From ID</th><th>From</th><th>Transaction ID</th></tr>';
     while (my $transaction = $transactions->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $transaction->date_stamp, $transaction->amount, $transaction->description, $transaction->transaction_id);
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%d</td><td>%s</td><td>%s</td></tr>',
+                        $transaction->date_stamp, $transaction->amount, $transaction->description,
+                        $transaction->from_id, $transaction->from_name, $transaction->transaction_id);
     }
     $out .= '</table>';
     return $self->wrap($out);

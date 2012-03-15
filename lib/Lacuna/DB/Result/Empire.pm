@@ -78,6 +78,8 @@ __PACKAGE__->add_columns(
     skip_spy_recovery       => { data_type => 'tinyint', default_value => 0 },
     skip_probe_detected     => { data_type => 'tinyint', default_value => 0 },
     skip_attack_messages    => { data_type => 'tinyint', default_value => 0 },
+    skip_excavator_artifact => { data_type => 'tinyint', default_value => 0 },
+    skip_excavator_destroyed => { data_type => 'tinyint', default_value => 0 },
 );
 
 sub sqlt_deploy_hook {
@@ -219,7 +221,9 @@ sub add_medal {
 }
 
 sub spend_essentia {
-    my ($self, $value, $note, $transaction_id) = @_;
+    my ($self, $value, $note, $transaction_id, $from_id, $from_name) = @_;
+    $from_id   = 0  unless defined($from_id);
+    $from_name = "" unless defined($from_name);
     $self->essentia( $self->essentia - $value );
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
         empire_id       => $self->id,
@@ -228,12 +232,16 @@ sub spend_essentia {
         description     => $note,
         api_key         => (defined $self->current_session) ? $self->current_session->api_key : undef,
         transaction_id  => $transaction_id,
+        from_id         => $from_id,
+        from_name       => $from_name,
     })->insert;
     return $self;
 }
 
 sub add_essentia {
-    my ($self, $value, $note, $transaction_id) = @_;
+    my ($self, $value, $note, $transaction_id, $from_id, $from_name) = @_;
+    $from_id   = 0  unless defined($from_id);
+    $from_name = "" unless defined($from_name);
     $self->essentia( $self->essentia + $value );
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
         empire_id       => $self->id,
@@ -242,6 +250,8 @@ sub add_essentia {
         description     => $note,
         transaction_id  => $transaction_id,
         api_key         => (defined $self->current_session) ? $self->current_session->api_key : undef,
+        from_id         => $from_id,
+        from_name       => $from_name,
     })->insert;
     return $self;
 }

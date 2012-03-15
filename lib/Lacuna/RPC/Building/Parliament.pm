@@ -529,6 +529,31 @@ sub propose_members_only_mining_rights {
     };
 }
 
+sub propose_members_only_excavation {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 20) {
+        confess [1013, 'Parliament must be level 20 to propose members only excavation rights.',20];
+    }
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'MembersOnlyExcavation',
+        name            => 'Members Only Excavation',
+        description     => 'Only members of {Alliance '.$building->body->alliance_id.' '.$building->body->alliance->name.'} should be allowed to excavate bodies in the jurisdiction of {Starmap '.$building->body->x.' '.$building->body->y.' '.$building->body->name.'}.',
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
+
 sub propose_members_only_colonization {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -579,6 +604,42 @@ sub propose_evict_mining_platform {
         name            => 'Evict '.$platform->planet->empire->name.' Mining Platform',
         description     => 'Evict a mining platform on {Starmap '.$platform->asteroid->x.' '.$platform->asteroid->y.' '.$platform->asteroid->name.'} controlled by {Empire '.$platform->planet->empire_id.' '.$platform->planet->empire->name.'}.',
         scratch         => { platform_id => $platform_id },
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
+
+sub propose_evict_excavator {
+    my ($self, $session_id, $building_id, $excav_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 21) {
+        confess [1013, 'Parliament must be level 21 to evict an excavator.',21];
+    }
+    unless ($excav_id) {
+        confess [1002, 'You must specify an excavator id.'];
+    }
+    my $excav = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->find($excav_id);
+    unless (defined $excav) {
+        confess [1002, 'Excavator not found.'];
+    }
+    unless ($excav->body->star->station_id == $building->body_id) {
+        confess [1009, 'That excavator is not in your jurisdiction.'];
+    }
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'EvictExcavator',
+        name            => 'Evict '.$excav->planet->empire->name.' Excavator',
+        description     => 'Evict a excavator on {Starmap '.$excav->body->x.' '.$excav->body->y.' '.$excav->body->name.'} controlled by {Empire '.$excav->planet->empire_id.' '.$excav->planet->empire->name.'}.',
+        scratch         => { excav_id => $excav_id },
         proposed_by_id  => $empire->id,
     });
     $proposition->station($building->body);
@@ -815,7 +876,7 @@ sub view_taxes_collected {
 
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_members_only_colonization propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ propose_elect_new_leader propose_induct_member propose_expel_member propose_taxation view_taxes_collected propose_foreign_aid));
+__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_members_only_colonization propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ propose_elect_new_leader propose_induct_member propose_expel_member propose_taxation view_taxes_collected propose_foreign_aid propose_evict_excavator propose_members_only_excavation));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

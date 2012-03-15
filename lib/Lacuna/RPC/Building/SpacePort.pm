@@ -124,6 +124,17 @@ sub get_ships_for {
             };
         }
     }
+    if ( $target->isa('Lacuna::DB::Result::Map::Body::Asteroid') ||
+         $target->isa('Lacuna::DB::Result::Map::Body::Planet') ) {
+        my $excavators = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->search({body_id => $target->id});
+        while (my $excav = $excavators->next) {
+            my $empire = $excav->planet->empire;
+            push @{$out{excavators}}, {
+                empire_id   => $empire->id,
+                empire_name => $empire->name,
+            };
+        }
+    }
     
     return \%out;
 }

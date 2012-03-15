@@ -408,8 +408,8 @@ sub buy_trade {
         my $offer_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($trade->ship_id);
         return if not defined $offer_ship;
 
-        $self->empire->spend_essentia($trade->ask, 'Trade Price')->update;
-        $trade->body->empire->add_essentia($trade->ask, 'Trade Income')->update;
+        $self->empire->spend_essentia($trade->ask, 'Trade Price', 0, $trade->body->empire->id, $trade->body->empire->name )->update;
+        $trade->body->empire->add_essentia($trade->ask, 'Trade Income', 0, $self->empire->id, $self->empire->name)->update;
 
         $offer_ship->send(
             target  => $colony,

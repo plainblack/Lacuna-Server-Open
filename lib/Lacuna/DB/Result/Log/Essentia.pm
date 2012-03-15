@@ -12,6 +12,8 @@ __PACKAGE__->add_columns(
     amount              => { data_type => 'float', size => [11,1], is_nullable => 0 },
     description         => { data_type => 'varchar', size => 90, is_nullable => 0 },
     transaction_id      => { data_type => 'varchar', size => 32, is_nullable => 1 },
+    from_id             => { data_type => 'int', size => 11, is_nullable => 0 },
+    from_name           => { data_type => 'varchar', size => 30, is_nullable => 0 },
 );
 
 after 'sqlt_deploy_hook' => sub {

@@ -66,8 +66,9 @@ sub available_market {
 sub add_to_market {
     my ($self, $cost, $spy_id, $ask, $ship_id) = @_;
     confess $offer_nothing_exception unless $spy_id;
-    unless ($ask >= 0.1 && $ask < 100 ) {
-        confess [1009, "You must ask for between 0.1 and 99 essentia to create a trade."];
+    $ask = sprintf("%0.1f", $ask);
+    unless ($ask >= 0.1 && $ask <= 100 ) {
+        confess [1009, "You must ask for between 0.1 and 100 essentia to create a trade."];
     }
     my $ship = $self->next_available_trade_ship($ship_id);
     unless (defined $ship) {

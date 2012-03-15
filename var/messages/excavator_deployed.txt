@@ -1,0 +1,8 @@
+Excavator Deployed
+~~~
+The Excavator from {Planet %s %s} has deployed on {Starmap %s %s %s}.
+It is now operational and will start sending back it's results.
+
+Regards,
+
+%s Commander

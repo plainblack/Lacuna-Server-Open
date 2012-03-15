@@ -451,7 +451,7 @@ sub start_attack {
         $seconds = 1;
     }
     my $probe = $db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $attacking_colony->id, type => 'probe', task=>'Docked'},{rows => 1})->single;
-    if (defined $probe) {
+    if (defined $probe and $seconds == 0) {
         say '    Has a probe to launch for '.$target_colony->name.'...';
         $probe->send(target => $target_colony->star);
         $seconds = $probe->date_available->epoch - time();

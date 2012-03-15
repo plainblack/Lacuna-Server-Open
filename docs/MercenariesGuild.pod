@@ -1,6 +1,6 @@
 =head1 Mercenaries Guild Methods
 
-The Mercenaries Guild is accessible via the URL C</mercenariesguild>. It allows you to send spies to other players via spy pods. Due to the vast distance of space, you may only trade with other players in your zone. It costs essentia to use it.
+The Mercenaries Guild is accessible via the URL C</mercenariesguild>. It allows you to send spies to other players via spy pods. It costs essentia to use it.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
