@@ -25,6 +25,7 @@ sub get_status {
         star    => {
             id      => $star->id,
             name    => $star->name,
+            color   => $star->color,
             x       => $star->x,
             y       => $star->y,
         },
