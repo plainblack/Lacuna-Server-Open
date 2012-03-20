@@ -91,6 +91,7 @@ sub sqlt_deploy_hook {
 
 __PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Alliance', 'alliance_id', { on_delete => 'set null' });
 __PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Map::Body', 'home_planet_id');
+__PACKAGE__->has_many('spies', 'Lacuna::DB::Result::Spies', 'empire_id');
 __PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Map::Body', 'empire_id');
 __PACKAGE__->has_many('propositions', 'Lacuna::DB::Result::Propositions', 'proposed_by_id');
 __PACKAGE__->has_many('votes', 'Lacuna::DB::Result::Votes', 'empire_id');
