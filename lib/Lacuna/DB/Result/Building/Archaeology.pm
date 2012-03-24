@@ -202,16 +202,24 @@ sub dig_it {
       if (randint(0,99) < 5) {
 # This should give an excavator a 1.2% survival each day. Unless on artifact planets.
         my $message = random_element([
-                        'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagi fhtagn.',
-                        'Klaatu Barada Ni*cough*',
-                        'The brazen temple doors open...',
-                        'It\'s full of stars',
-                        'This is obviously some strange usage of the word safe that I wasn\'t previously aware of.',
-                        'Oh no, not again.',
-                        'That\'s it man, game over man, game over!',
+                        'Dave, this conversation can serve no purpose anymore. Goodbye.',
+                        'Did you notice anything weird a minute ago?',
+                        'Hasta la vista, baby',
+                        'Houston.. we have a problem',
                         'I say we take off and nuke the site from orbit. It\'s the only way to be sure.',
-                        'Trust me, I\'m trained to do this.',
+                        'It\'s just a harmless little bunny...',
+                        'It\'s full of stars',
+                        'Looks like I picked the wrong week to stop sniffing glue.',
+                        'Klaatu Barada Ni*cough*',
+                        'Oh no, not again.',
                         'Oops? What oops? No oops!',
+                        'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagi fhtagn.',
+                        'That\'s it man, game over man, game over!',
+                        'The brazen temple doors open...',
+                        'There are things in the mist',
+                        'They\'re here already! You\'re next! You\'re next, You\'re next...!',
+                        'This is obviously some strange usage of the word safe that I wasn\'t previously aware of.',
+                        'Trust me, I\'m trained to do this.',
                                     ]);
         $result = {
           message => $message,
@@ -356,9 +364,9 @@ sub can_you_dig_it {
   my $resource = int(5/2 * $level); # 2-75%
   my $artifact = 0;
   if (!$arch && $body->buildings->count) {
-    $artifact = 15;
+    $artifact = 14;
   }
-  my $destroy = $arch ? 0 : 2;
+  my $destroy = $arch ? 0 : 1;
   $destroy += $artifact;
   my $most = $plan + $glyph + $artifact + $destroy;
 # resources get cut down if over 100%
