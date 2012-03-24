@@ -20,6 +20,7 @@ use constant pilotable              => 1;
 use constant build_tags             => ['Mining'];
 
 with "Lacuna::Role::Ship::Send::Asteroid";
+with "Lacuna::Role::Ship::Arrive::TriggerDefense";
 with "Lacuna::Role::Ship::Arrive::DeployMiningPlatform";
 
 no Moose;

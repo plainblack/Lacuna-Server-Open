@@ -444,6 +444,18 @@ has oversight => (
     },
 );
 
+has archaeology => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Archaeology');
+        return undef unless defined $building;
+        $building->body($self);
+        return $building;
+    },
+);
+
 has mining_ministry => (
     is      => 'rw',
     lazy    => 1,
@@ -742,6 +754,7 @@ sub found_colony {
     $self->usable_as_starter_enabled(0);
     $self->last_tick(DateTime->now);
     $self->update;    
+# Excavators get cleared when being checked for results.
 
     # award medal
     my $type = ref $self;
@@ -1065,7 +1078,7 @@ sub tick {
         }
         $i++;
     }
-    
+
     # synchronize completion of tasks
     foreach my $key (sort keys %todo) {
         my ($object, $job) = ($todo{$key}{object}, $todo{$key}{type});
@@ -1128,11 +1141,31 @@ sub tick {
 
 sub tick_to {
     my ($self, $now) = @_;
-    my $seconds = $now->epoch - $self->last_tick->epoch;
+    my $seconds  = $now->epoch - $self->last_tick->epoch;
     my $tick_rate = $seconds / 3600;
     $self->last_tick($now);
     if ($self->needs_recalc) {
         $self->recalc_stats;    
+    }
+    # Process excavator sites
+    if ( my $arch = $self->archaeology) {
+      if ($arch->efficiency == 100) {
+        my $dig_sec = $now->epoch - $arch->last_check->epoch;
+        if ($dig_sec >= 3600) {
+          my $dig_hours = int($dig_sec/3600);
+          my $new_ld = $arch->last_check->add( seconds => ($dig_hours * 3600));
+          $dig_hours = 3 if $dig_hours > 3;
+          for (1..$dig_hours) {
+            $arch->run_excavators;
+          }
+          $arch->last_check($new_ld);
+          $arch->update;
+        }
+      }
+      else {
+        $arch->last_check($now);
+        $arch->update;
+      }
     }
     # happiness
     $self->add_happiness(sprintf('%.0f', $self->happiness_hour * $tick_rate));

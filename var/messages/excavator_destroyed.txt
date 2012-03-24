@@ -1,0 +1,7 @@
+Excavating Site Destroyed
+~~~
+We just lost contact with our excavating site on {Starmap %s %s %s}. Just before it went dark, our excavator transmitted an image of an incoming ship. We've determined it was a Detonator sent by {Empire %s %s}. We must assume the excavator has been destroyed.
+
+Regards,
+
+Your Humble Assistant

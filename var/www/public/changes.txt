@@ -1,3 +1,34 @@
+3.0845:
+ - Mod:  A few more messages added to excavator destroyed.
+ - Mod:  Destruction odds modified down.
+
+3.0844:
+ - Mod:  Excavator plan returns adjusted slightly.
+ - Mod:  Trades are 0.1 to 100.0 inclusive.  Rounding happens after 1 decimal point.
+
+3.0843:
+ - Mod:  Amount of resources returned by excavators brought down to reasonable levels.
+ - Mod:  AIs stop sending redundant probes.
+ - Mod:  Secret stuff.
+
+3.0842:
+ - Mod:  Tweaked probabilities of glyph returns.
+ - Mod:  Zero is ID of the archeaology ministry itself on returned data.
+ - Fix:  Scanners & Surveyors do not cause an exception when they arrive at an asteroid.
+ - Add:  Space Stations can propose Members Only Excavation Rights.
+
+3.0841:
+ - Mod:  Include ArchMin is probabilities passed back by view_excavators.
+
+3.0840:
+ - Mod:  Detonators now destroy excavators.
+ - Mod:  N19 reports on excavators and detonators.
+ - Mod:  Updated Archaeology.pod
+ - Mod:  Adjusted percentages of results.
+
+3.0839:
+ - Mod:  Major change to how excavators work.
+
 3.0838:
  - Fix:  Fixed some position errors in rearrange API.
  - Fix:  Sabotage Probe and Appropriate Resources had text formatting bugs.

@@ -25,6 +25,8 @@ __PACKAGE__->add_columns(
     is_working      => { data_type => 'bit', default => 0 },
     work            => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
     efficiency      => { data_type => 'int', default_value => 100, is_nullable => 0 },
+    last_check      => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+
 );
 
 sub sqlt_deploy_hook {
@@ -860,6 +862,11 @@ sub finish_work {
     $self->is_working(0);
     $self->work({});
     return $self;
+}
+
+sub last_check_formatted {
+    my $self = shift;
+    return format_date($self->last_check);
 }
 
 # EFFICIENCY / REPAIR

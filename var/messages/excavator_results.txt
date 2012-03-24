@@ -1,0 +1,7 @@
+Excavator Results
+~~~
+The Archeology Ministry of {Planet %s %s} has received the following results from it's excavator sites.
+
+Regards,
+
+Your Humble Assistant
