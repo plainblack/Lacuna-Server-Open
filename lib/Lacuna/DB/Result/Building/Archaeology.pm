@@ -335,7 +335,7 @@ sub found_glyph {
     $ore_total += $ores{$ore};
   }
   my $base = 0;
-  my $rnum = randint(1,$ore_total);
+  my $rnum = randint(0,$ore_total);
   my $glyph = "error";
   for my $ore (ORE_TYPES) {
     if ($rnum < $ores{$ore} + $base) {
