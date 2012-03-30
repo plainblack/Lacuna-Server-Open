@@ -467,14 +467,18 @@ sub can_add_excavator {
     confess [1010, $body->name.' was colonized since we launched our excavator.'];
   }
   # excavator count for archaeology
-  my $count = $self->excavators->count;
+  my $digging = $self->excavators->count;
+  my $count = $digging;
+  my $travel;
   unless ($on_arrival) {
-    $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')
+    $travel = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
                 ->search({type=>'excavator', task=>'Travelling',body_id=>$self->body_id})->count;
+    $count += $travel;
   }
   my $max_e = $self->max_excavators;
   if ($count >= $max_e) {
-    confess [1009, 'Already at the maximum number of excavators allowed at this Archaeology level.'];
+    my $string = "Max Excavators allowed at this Archaeology level is $max_e. You have $digging at sites, and $travel on their way.";
+    confess [1009, $string];
   }
     
 # Allowed one per empire per body.
