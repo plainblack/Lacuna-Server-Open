@@ -109,6 +109,8 @@ sub view_excavators {
         resource => $chances->{resource},
     };
     my $excavators = $building->excavators;
+    my $travel = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
+                ->search({type=>'excavator', task=>'Travelling',body_id=>$building->body_id})->count;
     while (my $excav = $excavators->next) {
       my $body = $excav->body;
       my $chances = $building->can_you_dig_it($body, $level, 0);
@@ -124,7 +126,8 @@ sub view_excavators {
     return {
         excavators       => \@sites,
         max_excavators   => $building->max_excavators,
-        status          => $self->format_status($empire, $building->body),
+        travelling       => $travel,
+        status           => $self->format_status($empire, $building->body),
     };
 }
 

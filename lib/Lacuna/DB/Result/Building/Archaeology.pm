@@ -263,7 +263,7 @@ sub found_plan {
       }
     }
   }
-  elsif ($rand_cat < 10) {
+  elsif ($rand_cat < 14) {
     $class = random_element($plan_types->{natural});
     $plus = randint(1, int($level/6)+1) if (randint(0,100) < int($level/2));
   }
@@ -335,7 +335,7 @@ sub found_glyph {
     $ore_total += $ores{$ore};
   }
   my $base = 0;
-  my $rnum = randint(1,$ore_total);
+  my $rnum = randint(0,$ore_total);
   my $glyph = "error";
   for my $ore (ORE_TYPES) {
     if ($rnum < $ores{$ore} + $base) {
@@ -467,14 +467,18 @@ sub can_add_excavator {
     confess [1010, $body->name.' was colonized since we launched our excavator.'];
   }
   # excavator count for archaeology
-  my $count = $self->excavators->count;
+  my $digging = $self->excavators->count;
+  my $count = $digging;
+  my $travel;
   unless ($on_arrival) {
-    $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')
+    $travel = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
                 ->search({type=>'excavator', task=>'Travelling',body_id=>$self->body_id})->count;
+    $count += $travel;
   }
   my $max_e = $self->max_excavators;
   if ($count >= $max_e) {
-    confess [1009, 'Already at the maximum number of excavators allowed at this Archaeology level.'];
+    my $string = "Max Excavators allowed at this Archaeology level is $max_e. You have $digging at sites, and $travel on their way.";
+    confess [1009, $string];
   }
     
 # Allowed one per empire per body.
@@ -566,7 +570,10 @@ before finish_work => sub {
 sub make_plan {
     my ($self, $ids) = @_;
     unless (ref $ids eq 'ARRAY' && scalar(@{$ids}) < 5) {
-        confess [1009, 'It is not possible to combine more than 4 glyphs.'];
+      confess [1009, 'It is not possible to combine more than 4 glyphs.'];
+    }
+    if (grep {/\D/} @{$ids}) {
+      confess [1009, 'Bad data format for glyph ids.'];
     }
 
     my @glyph_names;

@@ -1,3 +1,8 @@
+3.0846:
+ - Fix: Fixed inapproriate use of it is in several files.
+ - Fix: Closed API loophole.
+ - Fix: Added excavators travelling to view_excavator method.
+
 3.0845:
  - Mod:  A few more messages added to excavator destroyed.
  - Mod:  Destruction odds modified down.
