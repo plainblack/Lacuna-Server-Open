@@ -263,7 +263,7 @@ sub found_plan {
       }
     }
   }
-  elsif ($rand_cat < 10) {
+  elsif ($rand_cat < 14) {
     $class = random_element($plan_types->{natural});
     $plus = randint(1, int($level/6)+1) if (randint(0,100) < int($level/2));
   }
@@ -566,7 +566,10 @@ before finish_work => sub {
 sub make_plan {
     my ($self, $ids) = @_;
     unless (ref $ids eq 'ARRAY' && scalar(@{$ids}) < 5) {
-        confess [1009, 'It is not possible to combine more than 4 glyphs.'];
+      confess [1009, 'It is not possible to combine more than 4 glyphs.'];
+    }
+    if (grep {/\D/} @{$ids}) {
+      confess [1009, 'Bad data format for glyph ids.'];
     }
 
     my @glyph_names;

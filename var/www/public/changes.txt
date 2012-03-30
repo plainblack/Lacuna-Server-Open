@@ -1,5 +1,6 @@
 3.0846:
  - Fix: Fixed inapproriate use of it is.
+ - Fix: Closed API loophole.
 
 3.0845:
  - Mod:  A few more messages added to excavator destroyed.
