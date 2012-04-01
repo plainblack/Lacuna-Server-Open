@@ -184,7 +184,7 @@ sub recalc_waste_production {
 before delete => sub {
     my ($self) = @_;
     $self->waste_ships->update({task=>'Docked'});
-    $self->waste_chain->delete_all;
+    $self->waste_chains->delete_all;
     $self->body->needs_recalc(1);
     $self->body->update;
 };

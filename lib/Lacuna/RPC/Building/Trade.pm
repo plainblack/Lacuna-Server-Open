@@ -105,7 +105,7 @@ sub get_waste_ships {
     };
 }
 
-sub view_waste_chain {
+sub view_waste_chains {
     my ($self, $session_id, $building_id) = @_;
     my $empire      = $self->get_empire_by_session($session_id);
     my $building    = $self->get_building($empire, $building_id);
@@ -300,7 +300,7 @@ sub add_to_market {
 
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_waste_ships view_waste_chain add_waste_ship_to_fleet remove_waste_ship_from_fleet update_waste_chain report_abuse view_my_market view_market accept_from_market withdraw_from_market add_to_market push_items get_trade_ships get_stored_resources get_ships get_ship_summary get_prisoners get_plans get_plan_summary get_glyphs get_glyph_summary));
+__PACKAGE__->register_rpc_method_names(qw(get_waste_ships view_waste_chains add_waste_ship_to_fleet remove_waste_ship_from_fleet update_waste_chain report_abuse view_my_market view_market accept_from_market withdraw_from_market add_to_market push_items get_trade_ships get_stored_resources get_ships get_ship_summary get_prisoners get_plans get_plan_summary get_glyphs get_glyph_summary));
 
 
 no Moose;
