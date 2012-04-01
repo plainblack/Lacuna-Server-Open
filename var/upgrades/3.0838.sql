@@ -7,4 +7,4 @@ CREATE TABLE `excavators` (
 );
 alter table empire   add column `skip_excavator_artifact` tinyint NOT NULL default 0;
 alter table empire   add column `skip_excavator_destroyed` tinyint NOT NULL default 0;
-alter table building add column `last_check` datetime NOT NULL default '2012-01-31 15:00:00';
+alter table building add column `last_check` datetime NOT NULL default '2012-03-23 23:00:00';

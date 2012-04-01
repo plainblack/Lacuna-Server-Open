@@ -202,16 +202,24 @@ sub dig_it {
       if (randint(0,99) < 5) {
 # This should give an excavator a 1.2% survival each day. Unless on artifact planets.
         my $message = random_element([
-                        'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagi fhtagn.',
-                        'Klaatu Barada Ni*cough*',
-                        'The brazen temple doors open...',
-                        'It\'s full of stars',
-                        'This is obviously some strange usage of the word safe that I wasn\'t previously aware of.',
-                        'Oh no, not again.',
-                        'That\'s it man, game over man, game over!',
+                        'Dave, this conversation can serve no purpose anymore. Goodbye.',
+                        'Did you notice anything weird a minute ago?',
+                        'Hasta la vista, baby',
+                        'Houston.. we have a problem',
                         'I say we take off and nuke the site from orbit. It\'s the only way to be sure.',
-                        'Trust me, I\'m trained to do this.',
+                        'It\'s just a harmless little bunny...',
+                        'It\'s full of stars',
+                        'Looks like I picked the wrong week to stop sniffing glue.',
+                        'Klaatu Barada Ni*cough*',
+                        'Oh no, not again.',
                         'Oops? What oops? No oops!',
+                        'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagi fhtagn.',
+                        'That\'s it man, game over man, game over!',
+                        'The brazen temple doors open...',
+                        'There are things in the mist',
+                        'They\'re here already! You\'re next! You\'re next, You\'re next...!',
+                        'This is obviously some strange usage of the word safe that I wasn\'t previously aware of.',
+                        'Trust me, I\'m trained to do this.',
                                     ]);
         $result = {
           message => $message,
@@ -255,7 +263,7 @@ sub found_plan {
       }
     }
   }
-  elsif ($rand_cat < 10) {
+  elsif ($rand_cat < 14) {
     $class = random_element($plan_types->{natural});
     $plus = randint(1, int($level/6)+1) if (randint(0,100) < int($level/2));
   }
@@ -327,7 +335,7 @@ sub found_glyph {
     $ore_total += $ores{$ore};
   }
   my $base = 0;
-  my $rnum = randint(1,$ore_total);
+  my $rnum = randint(0,$ore_total);
   my $glyph = "error";
   for my $ore (ORE_TYPES) {
     if ($rnum < $ores{$ore} + $base) {
@@ -356,9 +364,9 @@ sub can_you_dig_it {
   my $resource = int(5/2 * $level); # 2-75%
   my $artifact = 0;
   if (!$arch && $body->buildings->count) {
-    $artifact = 15;
+    $artifact = 14;
   }
-  my $destroy = $arch ? 0 : 2;
+  my $destroy = $arch ? 0 : 1;
   $destroy += $artifact;
   my $most = $plan + $glyph + $artifact + $destroy;
 # resources get cut down if over 100%
@@ -459,14 +467,18 @@ sub can_add_excavator {
     confess [1010, $body->name.' was colonized since we launched our excavator.'];
   }
   # excavator count for archaeology
-  my $count = $self->excavators->count;
+  my $digging = $self->excavators->count;
+  my $count = $digging;
+  my $travel;
   unless ($on_arrival) {
-    $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')
+    $travel = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
                 ->search({type=>'excavator', task=>'Travelling',body_id=>$self->body_id})->count;
+    $count += $travel;
   }
   my $max_e = $self->max_excavators;
   if ($count >= $max_e) {
-    confess [1009, 'Already at the maximum number of excavators allowed at this Archaeology level.'];
+    my $string = "Max Excavators allowed at this Archaeology level is $max_e. You have $digging at sites, and $travel on their way.";
+    confess [1009, $string];
   }
     
 # Allowed one per empire per body.
@@ -558,7 +570,10 @@ before finish_work => sub {
 sub make_plan {
     my ($self, $ids) = @_;
     unless (ref $ids eq 'ARRAY' && scalar(@{$ids}) < 5) {
-        confess [1009, 'It is not possible to combine more than 4 glyphs.'];
+      confess [1009, 'It is not possible to combine more than 4 glyphs.'];
+    }
+    if (grep {/\D/} @{$ids}) {
+      confess [1009, 'Bad data format for glyph ids.'];
     }
 
     my @glyph_names;
