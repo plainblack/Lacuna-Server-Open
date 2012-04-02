@@ -296,9 +296,16 @@ sub prepare_send_spies {
     }
 
     $empire->current_session->check_captcha;
+    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
+            class       => 'Lacuna::DB::Result::Building::SpacePort',
+            body_id     => $on_body_id,
+            efficiency  => 100,
+         } )->get_column('level')->max;
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]}, task=>'Docked', body_id => $on_body_id},
+        {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
+         task=>'Docked', body_id => $on_body_id,
+         dock_size => {'<=' => $max_level } },
         {order_by => 'name', rows=>100}
     );
     my @ships;
@@ -340,6 +347,11 @@ sub send_spies {
     }
 
     $empire->current_session->check_captcha;
+    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
+            class       => 'Lacuna::DB::Result::Building::SpacePort',
+            body_id     => $to_body_id,
+            efficiency  => 100,
+         } )->get_column('level')->max;
 
     # get the ship
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
@@ -348,6 +360,9 @@ sub send_spies {
     }
     unless ($ship->is_available) {
         confess [1010, "That ship is not available."];
+    }
+    unless ($ship->dock_size <= $max_level) {
+        confess [1010, "Your spaceport level is not high enough to support that ship."];
     }
 
     # check size
@@ -409,8 +424,16 @@ sub prepare_fetch_spies {
         confess [1013, "Cannot fetch spies from an uninhabited planet."];
     }
 
+    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
+            class       => 'Lacuna::DB::Result::Building::SpacePort',
+            body_id     => $to_body_id,
+            efficiency  => 100,
+         } )->get_column('level')->max;
+
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {type => { in => [qw(cargo_ship smuggler_ship dory barge)]}, task=>'Docked', body_id => $to_body_id},
+        {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
+         task=>'Docked', body_id => $to_body_id,
+         dock_size => {'<=' => $max_level } },
         {order_by => 'name', rows=>100}
     );
     my @ships;
@@ -453,6 +476,12 @@ sub fetch_spies {
     my $to_body = $self->get_body($empire, $to_body_id);
     my $on_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($on_body_id);
 
+    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
+            class       => 'Lacuna::DB::Result::Building::SpacePort',
+            body_id     => $to_body_id,
+            efficiency  => 100,
+         } )->get_column('level')->max;
+
     # get the ship
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     unless (defined $ship) {
@@ -460,6 +489,10 @@ sub fetch_spies {
     }
     unless ($ship->is_available || ($ship->can_recall && $ship->foreign_body_id == $on_body_id)) {
         confess [1010, "That ship is not available."];
+    }
+
+    unless ($ship->dock_size <= $max_level) {
+        confess [1010, "Your spaceport level is not high enough to support that ship."];
     }
 
     unless ($on_body->empire_id) {

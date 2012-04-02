@@ -37,6 +37,7 @@ __PACKAGE__->add_columns(
     foreign_body_id         => { data_type => 'int', is_nullable => 1 },
     foreign_star_id         => { data_type => 'int', is_nullable => 1 },
     fleet_speed             => { data_type => 'int', is_nullable => 0 },
+    dock_size               => { data_type => 'int', is_nullable => 0 },
 );
 __PACKAGE__->typecast_map(type => {
     'probe'                                 => 'Lacuna::DB::Result::Ships::Probe',
@@ -65,11 +66,16 @@ __PACKAGE__->typecast_map(type => {
     'detonator'                             => 'Lacuna::DB::Result::Ships::Detonator',
     'excavator'                             => 'Lacuna::DB::Result::Ships::Excavator',
     'scow'                                  => 'Lacuna::DB::Result::Ships::Scow',
+    'scow_20'                               => 'Lacuna::DB::Result::Ships::Scow20',
+    'scow_30'                               => 'Lacuna::DB::Result::Ships::Scow30',
+    'scow_fast'                             => 'Lacuna::DB::Result::Ships::ScowFast',
     'freighter'                             => 'Lacuna::DB::Result::Ships::Freighter',
     'dory'                                  => 'Lacuna::DB::Result::Ships::Dory',
     'barge'                                 => 'Lacuna::DB::Result::Ships::Barge',
     'galleon'                               => 'Lacuna::DB::Result::Ships::Galleon',
     'hulk'                                  => 'Lacuna::DB::Result::Ships::Hulk',
+    'hulk_huge'                             => 'Lacuna::DB::Result::Ships::HulkHuge',
+    'hulk_fast'                             => 'Lacuna::DB::Result::Ships::HulkFast',
     'snark'                                 => 'Lacuna::DB::Result::Ships::Snark',
     'snark2'                                => 'Lacuna::DB::Result::Ships::Snark2',
     'snark3'                                => 'Lacuna::DB::Result::Ships::Snark3',
@@ -101,6 +107,7 @@ use constant base_speed             => 1;
 use constant base_combat            => 0;
 use constant base_stealth           => 0;
 use constant base_hold_size         => 0;
+use constant base_dock_size         => 1;
 use constant pilotable              => 0;
 use constant target_building        => [];
 use constant build_tags             => [];
@@ -196,6 +203,7 @@ sub get_status {
         stealth         => $self->stealth,
         combat          => $self->combat,
         hold_size       => $self->hold_size,
+        dock_size       => $self->dock_size,
         date_started    => $self->date_started_formatted,
         date_available  => $self->date_available_formatted,
         max_occupants   => $self->max_occupants,

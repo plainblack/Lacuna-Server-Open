@@ -17,7 +17,9 @@ sub view_ships {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $building->body_id, task => { in => ['Mining', 'Docked']}, type => { 'in' => [qw(cargo_ship dory hulk barge galleon freighter smuggler_ship)] } });
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
+                ->search({ body_id => $building->body_id, task => { in => ['Mining', 'Docked']},
+                           type => { 'in' => [qw(cargo_ship dory hulk hulk_fast hulk_huge barge galleon freighter smuggler_ship)] } });
     my @fleet;
     while (my $ship = $ships->next) {
         push @fleet, {

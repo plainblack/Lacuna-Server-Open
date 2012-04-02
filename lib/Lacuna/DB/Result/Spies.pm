@@ -1956,6 +1956,8 @@ sub steal_resources {
                            'galleon',
                            'freighter',
                            'hulk',
+                           'hulk_fast',
+                           'hulk_huge',
                            'dory',
                            'barge']}},
         { rows => 1, order_by => 'rand()' }

@@ -12,10 +12,11 @@ use constant base_energy_cost       => 32400;
 use constant base_ore_cost          => 28400;
 use constant base_time_cost         => 14600;
 use constant base_waste_cost        => 8400;
-use constant base_speed             => 400;
+use constant base_speed             => 450;
 use constant base_combat            => 500;
 use constant base_stealth           => 0;
-use constant base_hold_size         => 2100;
+use constant base_hold_size         => 2000;
+use constant base_dock_size         => 1;
 use constant build_tags             => [qw(War Trade)];
 
 with "Lacuna::Role::Ship::Send::PlanetAndStar";

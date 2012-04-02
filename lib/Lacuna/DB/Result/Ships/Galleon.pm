@@ -12,9 +12,10 @@ use constant base_energy_cost       => 25000;
 use constant base_ore_cost          => 40200;
 use constant base_time_cost         => 11200;
 use constant base_waste_cost        => 3200;
-use constant base_speed             => 1200;
+use constant base_speed             => 1250;
 use constant base_stealth           => 0;
-use constant base_hold_size         => 1650;
+use constant base_hold_size         => 1750;
+use constant base_dock_size         => 10;
 use constant pilotable              => 1;
 use constant build_tags             => [qw(Trade Mining)];
 
