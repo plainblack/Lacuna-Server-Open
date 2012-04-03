@@ -459,6 +459,7 @@ sub found {
     $home_planet ||= $self->find_home_planet;
     $self->tutorial_scratch($home_planet->name);
     $self->home_planet_id($home_planet->id);
+    $home_planet->size(45);
     $self->stage('founded');
     $self->update;
     $self->home_planet($home_planet);
