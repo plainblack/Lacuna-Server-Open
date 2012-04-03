@@ -37,7 +37,7 @@ __PACKAGE__->add_columns(
     foreign_body_id         => { data_type => 'int', is_nullable => 1 },
     foreign_star_id         => { data_type => 'int', is_nullable => 1 },
     fleet_speed             => { data_type => 'int', is_nullable => 0 },
-    dock_size               => { data_type => 'int', is_nullable => 0 },
+    berth_size               => { data_type => 'int', is_nullable => 0 },
 );
 __PACKAGE__->typecast_map(type => {
     'probe'                                 => 'Lacuna::DB::Result::Ships::Probe',
@@ -107,7 +107,7 @@ use constant base_speed             => 1;
 use constant base_combat            => 0;
 use constant base_stealth           => 0;
 use constant base_hold_size         => 0;
-use constant base_dock_size         => 1;
+use constant base_berth_size         => 1;
 use constant pilotable              => 0;
 use constant target_building        => [];
 use constant build_tags             => [];
@@ -203,7 +203,7 @@ sub get_status {
         stealth         => $self->stealth,
         combat          => $self->combat,
         hold_size       => $self->hold_size,
-        dock_size       => $self->dock_size,
+        berth_size      => $self->berth_size,
         date_started    => $self->date_started_formatted,
         date_available  => $self->date_available_formatted,
         max_occupants   => $self->max_occupants,

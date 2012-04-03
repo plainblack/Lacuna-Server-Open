@@ -122,7 +122,7 @@ sub get_buildable {
                 speed           => $building->set_ship_speed($ship),
                 stealth         => $building->set_ship_stealth($ship),
                 hold_size       => $building->set_ship_hold_size($ship),
-                dock_size       => $ship->base_dock_size,
+                berth_size      => $ship->base_berth_size,
                 combat          => $building->set_ship_combat($ship),
                 max_occupants   => $ship->max_occupants
             },

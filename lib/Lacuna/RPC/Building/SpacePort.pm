@@ -190,7 +190,7 @@ sub send_fleet {
     push @fleet, $ship_id;
   }
   unless ($excavator <= 1) {
-    confess [1010, 'Only one Excavator may be sent to a body in a 30 day period'];
+    confess [1010, 'Only one Excavator may be sent to a body by this empire.'];
   }
   unless ($set_speed <= $speed) {
     confess [1009, 'Set speed cannot exceed the speed of the slowest ship.'];
@@ -305,7 +305,7 @@ sub prepare_send_spies {
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
          task=>'Docked', body_id => $on_body_id,
-         dock_size => {'<=' => $max_level } },
+         berth_size => {'<=' => $max_level } },
         {order_by => 'name', rows=>100}
     );
     my @ships;
@@ -361,7 +361,7 @@ sub send_spies {
     unless ($ship->is_available) {
         confess [1010, "That ship is not available."];
     }
-    unless ($ship->dock_size <= $max_level) {
+    unless ($ship->berth_size <= $max_level) {
         confess [1010, "Your spaceport level is not high enough to support that ship."];
     }
 
@@ -433,7 +433,7 @@ sub prepare_fetch_spies {
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
          task=>'Docked', body_id => $to_body_id,
-         dock_size => {'<=' => $max_level } },
+         berth_size => {'<=' => $max_level } },
         {order_by => 'name', rows=>100}
     );
     my @ships;
@@ -491,7 +491,7 @@ sub fetch_spies {
         confess [1010, "That ship is not available."];
     }
 
-    unless ($ship->dock_size <= $max_level) {
+    unless ($ship->berth_size <= $max_level) {
         confess [1010, "Your spaceport level is not high enough to support that ship."];
     }
 

@@ -16,7 +16,7 @@ use constant base_waste_cost        => 4800;
 use constant base_speed             => 900;
 use constant base_stealth           => 0;
 use constant base_hold_size         => 4000;
-use constant base_dock_size         => 15;
+use constant base_berth_size         => 15;
 use constant pilotable              => 1;
 use constant build_tags             => [qw(Trade Mining)];
 

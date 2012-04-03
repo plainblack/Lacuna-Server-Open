@@ -1,3 +1,7 @@
+3.0848:
+ - Mod: Berth Size less confusing than Dock Size.
+ - Fix: Scows limited to Spaceport Level determined by Berth.
+
 3.0847:
  - Add: New Scow and Hulk types added.
  - Add: New Spaceport requirement added for ships. Will not affect current existing ships.
