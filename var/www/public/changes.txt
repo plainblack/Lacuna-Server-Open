@@ -1,7 +1,7 @@
 3.0848:
  - Mod: Berth Size less confusing than Dock Size.
  - Fix: Scows limited to Spaceport Level determined by Berth.
- - Mod: Scow 20 and 30 changed names.
+ - Mod: Scow 20 and 30 changed names to Large & Mega.
 
 3.0847:
  - Add: New Scow and Hulk types added.
