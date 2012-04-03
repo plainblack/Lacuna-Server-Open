@@ -72,19 +72,31 @@ sub get_ships_for {
         push @incoming, $ship->get_status;
     }
     
+    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
+                      class       => 'Lacuna::DB::Result::Building::SpacePort',
+                      body_id     => $body_id,
+                      efficiency  => 100,
+                    } )->get_column('level')->max;
+
     my @unavailable;
     my @available;
-    my $available_rs = $ships->search({task => 'Docked', body_id=>$body->id });
+    my $available_rs = $ships->search( {task => 'Docked',
+                                        body_id=>$body->id });
     while (my $ship = $available_rs->next) {
-        $ship->body($body);
-        eval{ $ship->can_send_to_target($target) };
-    my $reason = $@;
-        if ($reason) {
-          push @unavailable, { ship => $ship->get_status, reason => $reason };
-            next;
-        }
-        $ship->body($body);
-        push @available, $ship->get_status($target);
+      $ship->body($body);
+      eval{ $ship->can_send_to_target($target) };
+      my $reason = $@;
+      if ($reason) {
+        push @unavailable, { ship => $ship->get_status, reason => $reason };
+        next;
+      }
+      if ($ship->berth_size > $max_level) {
+        $reason = [ 552, 'Max Berth Size from this planet is '.$max_level ];
+        push @unavailable, { ship => $ship->get_status, reason => $reason };
+        next;
+      }
+      $ship->body($body);
+      push @available, $ship->get_status($target);
     }
     
     my $max_ships = Lacuna->config->get('ships_per_fleet') || 20;
