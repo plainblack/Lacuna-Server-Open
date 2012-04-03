@@ -344,7 +344,7 @@ sub bhg_make_planet {
   my $random = randint(0,99);
   if ($random < 5) {
     $class = 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G'.randint(1,5);
-    $size  = randint(70, 121);
+    $size  = randint(90, 121);
   }
   else {
     $class = 'Lacuna::DB::Result::Map::Body::Planet::P'.randint(1,20);
@@ -374,9 +374,11 @@ sub bhg_make_asteroid {
   my $old_class = $body->class;
   my $old_size  = $body->size;
   $body->buildings->delete_all;
+  my $new_size = int($building->level/5);
+  $new_size = 10 if $new_size > 10;
   $body->update({
     class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
-    size                        => int($building->level/5),
+    size                        => $new_size;
     needs_recalc                => 1,
     usable_as_starter_enabled   => 0,
     alliance_id => undef,
@@ -386,7 +388,7 @@ sub bhg_make_asteroid {
     old_class => $old_class,
     class     => $body->class,
     old_size  => $old_size,
-    size      => $body->size,
+    size      => $new_size,
     id        => $body->id,
     name      => $body->name,
   };
@@ -592,6 +594,7 @@ sub bhg_decor {
     $plant = randint(1, int($building->level/3)+1);
     $max_level = $building->level;
   }
+  $max_level = 30 if $max_level > 30;
   my $planted = 0;
   my $now = DateTime->now;
   foreach my $cnt (1..$plant) {
