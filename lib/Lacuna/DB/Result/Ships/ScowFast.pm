@@ -5,8 +5,8 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 
-use constant prereq                 => { class=> 'Lacuna::DB::Result::Building::Waste::Sequestration',  level => 25 };
-# Prop 25 also when we figure it out.
+use constant prereq                 => [{ class=> 'Lacuna::DB::Result::Building::Waste::Sequestration',  level => 25 },
+                                        { class=> 'Lacuna::DB::Result::Building::Propulsion',  level => 25 } ];
 use constant base_food_cost         => 3000;
 use constant base_water_cost        => 10000;
 use constant base_energy_cost       => 100000;
@@ -17,7 +17,7 @@ use constant base_speed             => 700;
 use constant base_combat            => 500;
 use constant base_stealth           => 0;
 use constant base_hold_size         => 2000;
-use constant base_berth_size         => 20;
+use constant base_berth_size        => 20;
 use constant build_tags             => [qw(War Trade)];
 
 with "Lacuna::Role::Ship::Send::PlanetAndStar";

@@ -75,39 +75,53 @@ has max_ships => (
 );
 
 sub can_build_ship {
-    my ($self, $ship, $costs, $quantity) = @_;
-    $quantity = defined $quantity ? $quantity : 1;
+  my ($self, $ship, $costs, $quantity) = @_;
+  $quantity = defined $quantity ? $quantity : 1;
 
-    if (ref $ship eq 'Lacuna::DB::Result::Ships') {
-        confess [1002, 'That is an unknown ship type.'];
-    }
-    $ship->body_id($self->body_id);
-    $ship->shipyard_id($self->id);
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
-    $costs ||= $self->get_ship_costs($ship);
-    if ($self->level < 1) {
-        confess [1013, "You can't build a ship if the shipyard isn't complete."];
-    }
-    my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { body_id => $self->body_id, class => $ship->prereq->{class}, level => {'>=' => $ship->prereq->{level}} } )->count;
+  if (ref $ship eq 'Lacuna::DB::Result::Ships') {
+    confess [1002, 'That is an unknown ship type.'];
+  }
+  $ship->body_id($self->body_id);
+  $ship->shipyard_id($self->id);
+  my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
+  $costs ||= $self->get_ship_costs($ship);
+  if ($self->level < 1) {
+    confess [1013, "You can't build a ship if the shipyard isn't complete."];
+  }
+  my $reason = '';
+  for my $prereq (@{$ship->prereq}) {
+    my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')
+                  ->search( { body_id => $self->body_id,
+                              class => $prereq->{class},
+                              level => {'>=' => $prereq->{level}} } )->count;
     unless ($count) {
-        confess [1013, 'You need a level '.$ship->prereq->{level}.' '.$ship->prereq->{class}->name.' to build this ship.'];
+      if ($reason eq '') {
+        $reason = 'You need a level '.$prereq->{level}.' '.$prereq->{class}->name;
+      }
+      else {
+        $reason .= ' and a level '.$prereq->{level}.' '.$prereq->{class}->name;
+      }
     }
-    my $body = $self->body;
-    foreach my $key (keys %{$costs}) {
-        next if ($key eq 'seconds' || $key eq 'waste');
-        my $cost = $costs->{$key} * $quantity;
-        unless ($cost <= $body->type_stored($key)) {
-            confess [1011, 'Not enough resources.', $key];
-        }
+  }
+  if ($reason ne '') {
+    confess [1013, "$reason" ];
+  }
+  my $body = $self->body;
+  foreach my $key (keys %{$costs}) {
+    next if ($key eq 'seconds' || $key eq 'waste');
+    my $cost = $costs->{$key} * $quantity;
+    unless ($cost <= $body->type_stored($key)) {
+      confess [1011, 'Not enough resources.', $key];
     }
-    my $ships_building = $ships->search({body_id => $self->body_id, task=>'Building'})->count;
-    if ($ships_building + $quantity > $self->max_ships) {
-        confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.'];
-    }
-    unless ($self->body->spaceport->docks_available >= $quantity) {
-        confess [1009, "You do not have $quantity docks available at the Spaceport."];
-    }
-    return 1;
+  }
+  my $ships_building = $ships->search({body_id => $self->body_id, task=>'Building'})->count;
+  if ($ships_building + $quantity > $self->max_ships) {
+    confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.'];
+  }
+  unless ($self->body->spaceport->docks_available >= $quantity) {
+    confess [1009, "You do not have $quantity docks available at the Spaceport."];
+  }
+  return 1;
 }
 
 sub building_ships {

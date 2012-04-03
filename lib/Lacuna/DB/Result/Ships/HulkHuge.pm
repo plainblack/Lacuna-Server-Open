@@ -6,7 +6,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 
 
-use constant prereq                 => { class=> 'Lacuna::DB::Result::Building::Trade',  level => 30 };
+use constant prereq                 => [ { class=> 'Lacuna::DB::Result::Building::Trade',  level => 30 } ];
 use constant base_food_cost         => 90000;
 use constant base_water_cost        => 150000;
 use constant base_energy_cost       => 15000000;

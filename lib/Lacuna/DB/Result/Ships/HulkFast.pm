@@ -6,8 +6,8 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 
 
-use constant prereq                 => { class=> 'Lacuna::DB::Result::Building::Trade',  level => 28 };
-# Figure out how to also add Prop Level 30 to prereq
+use constant prereq                 => [ { class=> 'Lacuna::DB::Result::Building::Trade',  level => 25 },
+                                         { class=> 'Lacuna::DB::Result::Building::Propulsion',  level => 30 } ];
 use constant base_food_cost         => 15000;
 use constant base_water_cost        => 30000;
 use constant base_energy_cost       => 500000;

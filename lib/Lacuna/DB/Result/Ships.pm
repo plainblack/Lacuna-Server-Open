@@ -96,7 +96,7 @@ __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 __PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Result::Map::Star', 'foreign_star_id');
 __PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Result::Map::Body', 'foreign_body_id');
 
-use constant prereq                 => { class=> 'Lacuna::DB::Result::Building::University',  level => 1 };
+use constant prereq                 => [ { class=> 'Lacuna::DB::Result::Building::University',  level => 1 } ];
 use constant base_food_cost         => 1;
 use constant base_water_cost        => 1;
 use constant base_energy_cost       => 1;

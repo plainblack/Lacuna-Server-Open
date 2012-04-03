@@ -5,7 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 
-use constant prereq                 => { class=> 'Lacuna::DB::Result::Building::Trade',  level => 10 };
+use constant prereq                 => [ { class=> 'Lacuna::DB::Result::Building::Trade',  level => 10 } ];
 use constant base_food_cost         => 1200;
 use constant base_water_cost        => 3600;
 use constant base_energy_cost       => 12000;
@@ -15,7 +15,7 @@ use constant base_waste_cost        => 1500;
 use constant base_speed             => 1050;
 use constant base_stealth           => 1500;
 use constant base_hold_size         => 1700;
-use constant base_berth_size         => 5;
+use constant base_berth_size        => 5;
 use constant pilotable              => 1;
 use constant build_tags             => [qw(Trade Mining Intelligence)];
 

@@ -5,7 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 
-use constant prereq                 => { class=> 'Lacuna::DB::Result::Building::PilotTraining',  level => 1 };
+use constant prereq                 => [ { class=> 'Lacuna::DB::Result::Building::PilotTraining',  level => 1 } ];
 use constant base_food_cost         => 1000;
 use constant base_water_cost        => 2600;
 use constant base_energy_cost       => 16200;
@@ -18,7 +18,6 @@ use constant pilotable              => 1;
 use constant build_tags             => ['War'];
 
 with "Lacuna::Role::Ship::Send::Body";
-# with "Lacuna::Role::Ship::Send::NotIsolationist"; #commented out to let fighters to protect iso
 with "Lacuna::Role::Ship::Arrive::Defend";
 
 no Moose;
