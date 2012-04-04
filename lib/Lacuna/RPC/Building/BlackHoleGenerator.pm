@@ -63,6 +63,68 @@ sub find_target {
 return $target;
 }
 
+sub get_actions_for {
+  my ($self, $session_id, $building_id, $target_params) = @_;
+  my $empire   = $self->get_empire_by_session($session_id);
+  my $building = $self->get_building($empire, $building_id);
+  my $body = $building->body;
+  my $target = $self->find_target($target_params);
+  unless (defined $target) {
+    confess [1002, 'Could not locate target.'];
+  }
+  my @tasks = bhg_tasks($building);
+  my @list;
+  for my $task (@tasks) {
+    my $chance = task_chance($building, $target, $task);
+    $task->{body_id} = $chance->{body_id};
+    $task->{dist}    = $chance->{dist};
+    $task->{range}   = $chance->{range};
+    $task->{reason}  = $chance->{reason};
+    $task->{success} = $chance->{success};
+    $task->{throw}   = $chance->{throw};
+  }
+  return {
+    status => $self->format_status($empire, $body),
+    tasks  => \@tasks
+  };
+}
+
+sub task_chance {
+  my ($building, $target, $task) = @_;
+
+  my $dist = sprintf "%0.2f", $building->body->calculate_distance_to_target($target)/100;
+  my $range = $building->level * 10;
+  my $return = {
+    success => 0,
+    body_id => $target->id,
+    dist    => $dist,
+    range   => $range,
+    throw   => 0,
+    reason  => '',
+  };
+  unless ($building->level >= $task->{min_level}) {
+    $return->{throw}  = 1013;
+    $return->{reason} = sprintf("You need a Level %d Black Hole Generator to do that",
+                                 $task->{min_level});
+    return $return;
+  }
+  my $target_type = $target->get_type;
+  unless ( grep { $target_type eq $_ } @{$task->{types}} ) {
+    $return->{throw}   = 1009;
+    $return->{reason}  = $task->{reason};
+    return $return;
+  }
+  unless ($dist < $range) {
+    $return->{throw}  = 1009;
+    $return->{reason} = 'That body is too far away at '.$dist.
+                        ' with a range of '.$range.'.';
+    return $return;
+  }
+  $return->{success} = int((100 - $task->{base_fail}) * sqrt( ($range - $dist)/$range));
+  $return->{success} = 5 if $return->{success} < 5;
+  return $return;
+}
+
 sub generate_singularity {
   my ($self, $session_id, $building_id, $target_params, $task_name, $params) = @_;
   my $empire   = $self->get_empire_by_session($session_id);
@@ -82,24 +144,16 @@ sub generate_singularity {
   unless ($task) {
     confess [1002, 'Could not find task: '.$task_name];
   }
-  unless ($building->level >= $task->{min_level}) {
-    confess [1013, sprintf("You need a Level %d Black Hole Generator to do that",
-                           $task->{min_level})];
-  }
-  my $btype = $target->get_type;
-  unless ( grep { $btype eq $_ } @{$task->{types}} ) {
-    confess [1009, $task->{reason}];
+  my $chance = task_chance($building, $target, $task);
+  if ($chance->{throw} > 0) {
+    confess [ $chance->{throw}, $chance->{reason} ];
   }
 # TEST SETTINGS
 #  $task->{waste_cost} = 1;
 #  $task->{recovery} = 5;
 #  $task->{side_chance} = 95;
 # TEST SETTINGS
-  my $dist = sprintf "%7.2f", $building->body->calculate_distance_to_target($target)/100;
-  my $range = $building->level * 10;
-  unless ($dist < $range) {
-    confess [1009, 'That body is too far away at '.$dist.' with a range of '.$range.'. '.$target->id."\n"];
-  }
+  my $btype = $target->get_type;
   unless ($body->waste_stored >= $task->{waste_cost}) {
     confess [1011, 'You need at least '.$task->{waste_cost}.' waste to run that function of the Black Hole Generator.'];
   }
@@ -155,19 +209,6 @@ sub generate_singularity {
           $allowed = 1;
         }
       }
-#        elsif ($target->star->station->laws->search({type => 'MembersOnlyColonization'})->count) {
-#          if ($target->star->station->alliance_id == $body->empire->alliance_id) {
-#            $allowed = 1;
-#          }
-#          else {
-#            $confess = 'Only '.$target->star->station->alliance->name.
-#              ' members can colonize planets in the jurisdiction of the space station.\n';
-#          }
-#        }
-#      }
-#      else {
-#        $allowed = 1;
-#      }
     }
     else {
       if ($target->star->station_id) {
@@ -197,10 +238,9 @@ sub generate_singularity {
   $building->start_work({}, $task->{recovery})->update;
 # Pass the basic checks
 # Check for startup failure
-  my $fail = randint(0,99) - (30 - sqrt( ($range - $dist) * (300/$range)) * 2.71);
-  if (($task->{fail_chance} > $fail )) {
+  unless (randint(0,99) < $chance->{success}) {
 # Something went wrong with the start
-    $fail = randint(0,19);
+    my $fail = randint(0,19);
     if ($fail == 0) {
       $return_stats = bhg_self_destruct($building);
       $body->add_news(75,
@@ -378,7 +418,7 @@ sub bhg_make_asteroid {
   $new_size = 10 if $new_size > 10;
   $body->update({
     class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
-    size                        => $new_size;
+    size                        => $new_size,
     needs_recalc                => 1,
     usable_as_starter_enabled   => 0,
     alliance_id => undef,
@@ -894,7 +934,7 @@ sub bhg_tasks {
       min_level    => 10,
       recovery     => int($day_sec * 90/$blevel),
       waste_cost   => 50_000_000,
-      fail_chance  => int(100 - $building->level * 3),
+      base_fail    => int(100 - $building->level * 3),
       side_chance  => 25,
     },
     {
@@ -905,7 +945,7 @@ sub bhg_tasks {
       min_level    => 15,
       recovery     => int($day_sec * 90/$blevel),
       waste_cost   => 100_000_000,
-      fail_chance  => int(100 - $building->level * 2.75),
+      base_fail    => int(100 - $building->level * 2.75),
       side_chance  => 40,
     },
     {
@@ -916,7 +956,7 @@ sub bhg_tasks {
       min_level    => 20,
       recovery     => int($day_sec * 180/$blevel),
       waste_cost   => 1_000_000_000,
-      fail_chance  => int(100 - $building->level * 2.5),
+      base_fail    => int(100 - $building->level * 2.5),
       side_chance  => 60,
     },
     {
@@ -927,25 +967,25 @@ sub bhg_tasks {
       min_level    => 25,
       recovery     => int($day_sec * 300/$blevel),
       waste_cost   => 10_000_000_000,
-      fail_chance  => int(100 - $building->level * 2.25),
+      base_fail    => int(100 - $building->level * 2.25),
       side_chance  => 75,
     },
     {
       name         => 'Swap Places',
       types        => ['asteroid', 'habitable planet', 'gas giant', 'space station'],
-      reason       => "Invalid reason.",
+      reason       => "All targets.",
       occupied     => 1,
       min_level    => 30,
       recovery     => int($day_sec * 360/$blevel),
       waste_cost   => 15_000_000_000,
-      fail_chance  => int(100 - $building->level * 2),
+      base_fail    => int(100 - $building->level * 2),
       side_chance  => 90,
     },
   );
   return @tasks;
 }
 
-__PACKAGE__->register_rpc_method_names(qw(generate_singularity));
+__PACKAGE__->register_rpc_method_names(qw(generate_singularity get_actions_for));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
