@@ -210,7 +210,7 @@ sub generate_singularity {
 #  $task->{waste_cost} = 1;
 #  $task->{recovery} = 5;
 #  $task->{side_chance} = 95;
-#  $task->{success} = 100;
+#  $chance->{success} = 100;
 # TEST SETTINGS
   my $btype;
   my $tempire;
@@ -316,7 +316,8 @@ sub generate_singularity {
   $building->start_work({}, $task->{recovery})->update;
 # Pass the basic checks
 # Check for startup failure
-  unless (randint(0,99) < $task->{success}) {
+  my $roll = randint(0,99);
+  unless ($roll < $chance->{success}) {
 # Something went wrong with the start
     my $fail = randint(0,19);
     if ($fail == 0) {
@@ -355,6 +356,8 @@ sub generate_singularity {
              sprintf('Scientists on %s are concerned when their singularity has a malfunction.',
                      $body->name));
     }
+    $return_stats->{perc} = $chance->{success};
+    $return_stats->{roll} = $roll;
     $effect->{fail} = $return_stats;
   }
   else {
@@ -486,7 +489,6 @@ sub bhg_swap {
     id       => $body->id,
     swapname => $new_data->{name},
     swapid   => $new_data->{id},
-    lorbit   => $old_data->{orbit},
     orbit    => $new_data->{orbit},
   };
 }
