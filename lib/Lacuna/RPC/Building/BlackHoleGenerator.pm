@@ -56,9 +56,59 @@ sub find_target {
     $target = Lacuna->db
                 ->resultset('Lacuna::DB::Result::Map::Body')
                 ->search({ x => $target_params->{x}, y => $target_params->{y} }, {rows=>1})->single;
+#Check for empty orbits.
+    unless (defined $target) {
+      my $star = Lacuna->db
+                ->resultset('Lacuna::DB::Result::Map::Star')
+                ->search( { x => { '>=' => ($target_params->{x} -2), '<=' => ($target_params->{x} +2) }, 
+                            y => { '>=' => ($target_params->{y} -2), '<=' => ($target_params->{y} +2) } },
+                          {rows=>1})->single;
+      if (defined $star) {
+        my $sx = $star->x; my $sy = $star->y;
+        my $tx = $target_params->{x}; my $ty = $target_params->{y};
+        my $orbit = 0;
+        if (($sx+1 == $tx) && ($sy+2 == $ty)) {
+          $orbit = 1;
+        }
+        elsif (($sx+2 == $tx) && ($sy+1 == $ty)) {
+          $orbit = 2;
+        }
+        elsif (($sx+2 == $tx) && ($sy-1 == $ty)) {
+          $orbit = 3;
+        }
+        elsif (($sx+1 == $tx) && ($sy-2 == $ty)) {
+          $orbit = 4;
+        }
+        elsif (($sx-1 == $tx) && ($sy-2 == $ty)) {
+          $orbit = 5;
+        }
+        elsif (($sx-2 == $tx) && ($sy-1 == $ty)) {
+          $orbit = 6;
+        }
+        elsif (($sx-2 == $tx) && ($sy+1 == $ty)) {
+          $orbit = 7;
+        }
+        elsif (($sx-1 == $tx) && ($sy+2 == $ty)) {
+          $orbit = 8;
+        }
+        if ($orbit) {
+          $target = {
+            id      => 0,
+            name    => "Empty Space",
+            orbit   => $orbit,
+            type    => 'empty',
+            x       => $tx,
+            y       => $ty,
+            zone    => $star->zone,
+            star    => $star,
+            star_id => $star->id,
+          };
+        }
+      }
+    }
   }
   unless (defined $target) {
-    confess [ 1002, 'Could not find the target.', $target];
+    confess [ 1002, 'Could not find the target.'];
   }
 return $target;
 }
@@ -69,9 +119,6 @@ sub get_actions_for {
   my $building = $self->get_building($empire, $building_id);
   my $body = $building->body;
   my $target = $self->find_target($target_params);
-  unless (defined $target) {
-    confess [1002, 'Could not locate target.'];
-  }
   my @tasks = bhg_tasks($building);
   my @list;
   for my $task (@tasks) {
@@ -92,11 +139,23 @@ sub get_actions_for {
 sub task_chance {
   my ($building, $target, $task) = @_;
 
-  my $dist = sprintf "%0.2f", $building->body->calculate_distance_to_target($target)/100;
+  my $dist; my $target_type; my $target_id;
+  if (ref $target eq 'HASH') {
+    my $bx = $building->body->x;
+    my $by = $building->body->y;
+    $dist = sprintf "%0.2f", sqrt( ($target->{x} - $bx)**2 + ($target->{y} - $by)**2);
+    $target_id = $target->{id};
+    $target_type = $target->{type};
+  }
+  else {
+    $dist = sprintf "%0.2f", $building->body->calculate_distance_to_target($target)/100;
+    $target_id = $target->id;
+    $target_type = $target->get_type;
+  }
   my $range = $building->level * 10;
   my $return = {
     success => 0,
-    body_id => $target->id,
+    body_id => $target_id,
     dist    => $dist,
     range   => $range,
     throw   => 0,
@@ -108,7 +167,6 @@ sub task_chance {
                                  $task->{min_level});
     return $return;
   }
-  my $target_type = $target->get_type;
   unless ( grep { $target_type eq $_ } @{$task->{types}} ) {
     $return->{throw}   = 1009;
     $return->{reason}  = $task->{reason};
@@ -152,8 +210,25 @@ sub generate_singularity {
 #  $task->{waste_cost} = 1;
 #  $task->{recovery} = 5;
 #  $task->{side_chance} = 95;
+#  $task->{success} = 100;
 # TEST SETTINGS
-  my $btype = $target->get_type;
+  my $btype;
+  my $tempire;
+  my $tstar;
+  my $tid;
+  if (ref $target eq 'HASH') {
+    $btype = $target->{type};
+    $tstar = $target->{star};
+    $tid   = $target->{id};
+  }
+  else {
+    $btype = $target->get_type;
+    $tstar   = $target->star;
+    $tid   = $target->id;
+    if (defined($target->empire)) {
+      $tempire = $target->empire;
+    }
+  }
   unless ($body->waste_stored >= $task->{waste_cost}) {
     confess [1011, 'You need at least '.$task->{waste_cost}.' waste to run that function of the Black Hole Generator.'];
   }
@@ -174,7 +249,7 @@ sub generate_singularity {
         };
       }
     }
-    elsif (defined($target->empire)) {
+    elsif (defined($tempire)) {
       $body->add_news(75,
              sprintf('Scientists revolt against %s for trying to turn %s into an asteroid.',
                      $empire->name, $target->name));
@@ -185,40 +260,43 @@ sub generate_singularity {
       };
     }
   }
-  if ( $task->{name} eq "Change Type" && defined ($target->empire) ) {
-    unless ( ($body->empire->id == $target->empire->id) or
+  if ( $task->{name} eq "Change Type" && defined ($tempire) ) {
+    unless ( ($body->empire->id == $tempire->id) or
              ( $body->empire->alliance_id &&
-               ($body->empire->alliance_id == $target->empire->alliance_id))) {
+               ($body->empire->alliance_id == $tempire->alliance_id))) {
       confess [1009, "You can not change type of a body if it is occupied by another alliance!\n"];
     }
   }
   elsif ( $task->{name} eq "Swap Places" ) {
     my $confess = "";
     my $allowed = 0;
-    if (defined($target->empire)) {
-      $confess = "You can not attempt that action on a body if it is occupied by another alliance!\n";
-      if ($body->empire->id == $target->empire->id) {
+    if ($tid == $body->id) {
+      $confess = "Pointless swapping with oneself.";
+    }
+    elsif (defined($tempire)) {
+      $confess = "You can not attempt that action on a body if it is occupied by another alliance!";
+      if ($body->empire->id == $tempire->id) {
         $allowed = 1;
       }
       elsif ($body->empire->alliance_id &&
-            ($body->empire->alliance_id == $target->empire->alliance_id)) {
+            ($body->empire->alliance_id == $tempire->alliance_id)) {
         $allowed = 1;
       }
-      elsif ($target->star->station_id) {
-        if ($body->empire->alliance_id && $target->star->station->alliance_id == $body->empire->alliance_id) {
+      elsif ($tstar->station_id) {
+        if ($body->empire->alliance_id && $tstar->station->alliance_id == $body->empire->alliance_id) {
           $allowed = 1;
         }
       }
     }
     else {
-      if ($target->star->station_id) {
-        if ($target->star->station->laws->search({type => 'MembersOnlyColonization'})->count) {
-          if ($target->star->station->alliance_id == $body->empire->alliance_id) {
+      if ($tstar->station_id) {
+        if ($tstar->station->laws->search({type => 'MembersOnlyColonization'})->count) {
+          if ($tstar->station->alliance_id == $body->empire->alliance_id) {
             $allowed = 1;
           }
           else {
-            $confess = 'Only '.$target->star->station->alliance->name.
-              ' members can colonize planets in the jurisdiction of the space station.\n';
+            $confess = 'Only '.$tstar->station->alliance->name.
+              ' members can colonize planets in the jurisdiction of the space station.';
           }
         }
         else {
@@ -238,7 +316,7 @@ sub generate_singularity {
   $building->start_work({}, $task->{recovery})->update;
 # Pass the basic checks
 # Check for startup failure
-  unless (randint(0,99) < $chance->{success}) {
+  unless (randint(0,99) < $task->{success}) {
 # Something went wrong with the start
     my $fail = randint(0,19);
     if ($fail == 0) {
@@ -301,16 +379,22 @@ sub generate_singularity {
     }
     elsif ($task->{name} eq "Swap Places") {
       $return_stats = bhg_swap($building, $target);
+      my $tname;
+      if (ref $target eq 'HASH') {
+        $tname = $target->{name};
+      }
+      else {
+        $tname = $target->name;
+      }
       $body->add_news(50,
         sprintf('%s has switched places with %s!',
-                $body->name, $target->name));
+                $body->name, $tname));
     }
     else {
       confess [552, "Internal Error"];
     }
     $effect->{target} = $return_stats;
 #And now side effect time
-# If we add swap, swap two random unihabited bodies or possibly current planet with another random?
     my $side = randint(0,99);
     if ($task->{side_chance} > $side) {
       my $side_type = randint(0,99);
@@ -345,33 +429,65 @@ sub bhg_swap {
   my ($building, $target) = @_;
   my $body = $building->body;
   my $return;
-  my $old_x        = $body->x;
-  my $old_y        = $body->y;
-  my $old_zone     = $body->zone;
-  my $old_star     = $body->star_id;
-  my $old_orbit    = $body->orbit;
+  my $old_data = {
+    x        => $body->x,
+    y        => $body->y,
+    zone     => $body->zone,
+    star     => $body->star_id,
+    orbit    => $body->orbit,
+  };
+  my $new_data;
+  if (ref $target eq 'HASH') {
+    $new_data = {
+      id           => $target->{id},
+      name         => $target->{name},
+      orbit        => $target->{orbit},
+      star_id      => $target->{star_id},
+      type         => $target->{type},
+      x            => $target->{x},
+      y            => $target->{y},
+      zone         => $target->{zone},
+    };
+  }
+  else {
+    $new_data = {
+      id           => $target->id,
+      name         => $target->name,
+      orbit        => $target->orbit,
+      star_id      => $target->star_id,
+      type         => $target->get_type,
+      x            => $target->x,
+      y            => $target->y,
+      zone         => $target->zone,
+    };
+  }
   $body->update({
     needs_recalc => 1,
-    x            => $target->x,
-    y            => $target->y,
-    zone         => $target->zone,
-    star_id      => $target->star_id,
-    orbit        => $target->orbit,
+    x            => $new_data->{x},
+    y            => $new_data->{y},
+    zone         => $new_data->{zone},
+    star_id      => $new_data->{star_id},
+    orbit        => $new_data->{orbit},
   });
-  $target->update({
-    needs_recalc => 1,
-    x            => $old_x,
-    y            => $old_y,
-    zone         => $old_zone,
-    star_id      => $old_star,
-    orbit        => $old_orbit,
-  });
+#confess [ 9999, 'in swap!' ];
+  unless ($new_data->{type} eq "empty") {
+    $target->update({
+      needs_recalc => 1,
+      x            => $old_data->{x},
+      y            => $old_data->{y},
+      zone         => $old_data->{zone},
+      star_id      => $old_data->{star},
+      orbit        => $old_data->{orbit},
+    });
+  }
   return {
     message  => "Swapped Places",
     name     => $body->name,
     id       => $body->id,
-    swapname => $target->name,
-    swapid   => $target->id,
+    swapname => $new_data->{name},
+    swapid   => $new_data->{id},
+    lorbit   => $old_data->{orbit},
+    orbit    => $new_data->{orbit},
   };
 }
 
@@ -972,7 +1088,7 @@ sub bhg_tasks {
     },
     {
       name         => 'Swap Places',
-      types        => ['asteroid', 'habitable planet', 'gas giant', 'space station'],
+      types        => ['asteroid', 'habitable planet', 'gas giant', 'space station', 'empty'],
       reason       => "All targets.",
       occupied     => 1,
       min_level    => 30,
