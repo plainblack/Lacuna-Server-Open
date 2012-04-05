@@ -169,7 +169,7 @@ sub dig_it {
         message => "Found level $lvl + $plus $name Plan.",
         outcome => "Plan",
       };
-      $self->body->add_news(5,sprintf("%s uncovered a %s plan on %s.",
+      $self->body->add_news(2,sprintf("%s uncovered a %s plan on %s.",
                           $empire_name, $name, $body->name));
     }
     when ("glyph") {
@@ -178,7 +178,7 @@ sub dig_it {
         message => "Found a $glyph glyph.",
         outcome => "Glyph",
       };
-      $self->body->add_news(5,sprintf("%s uncovered a %s glyph on %s.",
+      $self->body->add_news(1,sprintf("%s uncovered a %s glyph on %s.",
                           $empire_name, $glyph, $body->name));
     }
     when ("artifact") {
@@ -200,32 +200,36 @@ sub dig_it {
     }
     when ("destroy") {
       if (randint(0,99) < 5) {
-# This should give an excavator a 1.2% survival each day. Unless on artifact planets.
         my $message = random_element([
                         'Dave, this conversation can serve no purpose anymore. Goodbye.',
                         'Did you notice anything weird a minute ago?',
+                        'Good. For a moment there, I thought we were in trouble.',
                         'Hasta la vista, baby',
                         'Houston.. we have a problem',
                         'I say we take off and nuke the site from orbit. It\'s the only way to be sure.',
                         'It\'s just a harmless little bunny...',
                         'It\'s full of stars',
+                        'Auntie Em, where\'s Toto? Its a twister! Its a twister!',
                         'Looks like I picked the wrong week to stop sniffing glue.',
                         'Klaatu Barada Ni*cough*',
                         'Oh no, not again.',
                         'Oops? What oops? No oops!',
                         'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagi fhtagn.',
+                        'Push the buttom Max!',
                         'That\'s it man, game over man, game over!',
                         'The brazen temple doors open...',
-                        'There are things in the mist',
+                        'There are things in the mist.',
+                        'They\'re coming for me now, and then they\'ll come for you!',
                         'They\'re here already! You\'re next! You\'re next, You\'re next...!',
                         'This is obviously some strange usage of the word safe that I wasn\'t previously aware of.',
                         'Trust me, I\'m trained to do this.',
+                        'We have top men working on it now.',
                                     ]);
         $result = {
           message => $message,
           outcome => "Destroyed",
         };
-        $self->body->add_news(10, $message);
+        $self->body->add_news(10, "$message");
       }
       else {
         $result = {
@@ -563,7 +567,7 @@ before finish_work => sub {
             }
         );
         $empire->add_medal($ore.'_glyph');
-        $body->add_news(70, sprintf('%s has uncovered a rare and ancient %s glyph on %s.',$empire->name, $ore, $body->name));
+        $body->add_news(30, sprintf('%s has uncovered a rare and ancient %s glyph on %s.',$empire->name, $ore, $body->name));
     }
 };
 
