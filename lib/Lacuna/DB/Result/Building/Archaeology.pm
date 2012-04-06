@@ -201,6 +201,7 @@ sub dig_it {
     when ("destroy") {
       if (randint(0,99) < 5) {
         my $message = random_element([
+                        'Aw, there\'s something behind me, isn\'t there?',
                         'Dave, this conversation can serve no purpose anymore. Goodbye.',
                         'Did you notice anything weird a minute ago?',
                         'Good. For a moment there, I thought we were in trouble.',
@@ -339,10 +340,10 @@ sub found_glyph {
     $ore_total += $ores{$ore};
   }
   my $base = 0;
-  my $rnum = randint(0,$ore_total);
+  my $rnum = randint(1,$ore_total);
   my $glyph = "error";
   for my $ore (ORE_TYPES) {
-    if ($rnum < $ores{$ore} + $base) {
+    if ($rnum <= $ores{$ore} + $base) {
       $glyph = $ore;
       last;
     }
