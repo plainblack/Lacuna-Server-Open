@@ -6,6 +6,7 @@
  - Mod: All starting empires begin on a size 45 planet.
  - Add: Added get_actions_for method for BHG.
  - Add: BHG planets can now move into empty orbits.
+ - Mod: Scows don't have to be full to send.
 
 3.0847:
  - Add: New Scow and Hulk types added.
