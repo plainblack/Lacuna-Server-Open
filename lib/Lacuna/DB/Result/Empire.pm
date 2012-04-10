@@ -450,26 +450,54 @@ sub attach_invite_code {
 }
 
 sub found {
-    my ($self, $home_planet) = @_;
+  my ($self, $home_planet) = @_;
 
-    # lock empire
-    $self->update({stage=>'finding home planet'});
+  # lock empire
+  $self->update({stage=>'finding home planet'});
 
-    # found home planet
-    $home_planet ||= $self->find_home_planet;
-    $self->tutorial_scratch($home_planet->name);
-    $self->home_planet_id($home_planet->id);
-    $home_planet->size(45);
-    $self->stage('founded');
-    $self->update;
-    $self->home_planet($home_planet);
-    $self->add_probe($home_planet->star_id, $home_planet->id);
+  # found home planet
+  $home_planet ||= $self->find_home_planet;
+  $self->tutorial_scratch($home_planet->name);
+  $self->home_planet_id($home_planet->id);
+  $home_planet->size(45);
+  # Clean off everything but decor
+  my $decor   = [qw(
+       Lacuna::DB::Result::Building::Permanent::Beach1
+       Lacuna::DB::Result::Building::Permanent::Beach2
+       Lacuna::DB::Result::Building::Permanent::Beach3
+       Lacuna::DB::Result::Building::Permanent::Beach4
+       Lacuna::DB::Result::Building::Permanent::Beach5
+       Lacuna::DB::Result::Building::Permanent::Beach6
+       Lacuna::DB::Result::Building::Permanent::Beach7
+       Lacuna::DB::Result::Building::Permanent::Beach8
+       Lacuna::DB::Result::Building::Permanent::Beach9
+       Lacuna::DB::Result::Building::Permanent::Beach10
+       Lacuna::DB::Result::Building::Permanent::Beach11
+       Lacuna::DB::Result::Building::Permanent::Beach12
+       Lacuna::DB::Result::Building::Permanent::Beach13
+       Lacuna::DB::Result::Building::Permanent::Crater
+       Lacuna::DB::Result::Building::Permanent::Grove
+       Lacuna::DB::Result::Building::Permanent::Lagoon
+       Lacuna::DB::Result::Building::Permanent::Lake
+       Lacuna::DB::Result::Building::Permanent::RockyOutcrop
+       Lacuna::DB::Result::Building::Permanent::Sand
+                )];
+  my $buildings = $home_planet->buildings->search;
+  while (my $building = $buildings->next) {
+    unless ( grep { $building->class eq $_ } @{$decor}) {
+      $building->delete;
+    }
+  }
+  $self->stage('founded');
+  $self->update;
+  $self->home_planet($home_planet);
+  $self->add_probe($home_planet->star_id, $home_planet->id);
 
-    # found colony
-    $home_planet->found_colony($self);
+  # found colony
+  $home_planet->found_colony($self);
 
-    # send welcome
-    return Lacuna::Tutorial->new(empire=>$self)->start('explore_the_ui');
+  # send welcome
+return Lacuna::Tutorial->new(empire=>$self)->start('explore_the_ui');
 }
 
 

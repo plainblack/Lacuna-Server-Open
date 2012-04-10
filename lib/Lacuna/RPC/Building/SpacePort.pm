@@ -91,7 +91,7 @@ sub get_ships_for {
         next;
       }
       if ($ship->berth_level > $max_level) {
-        $reason = [ 552, 'Max Berth Level to send from this planet is '.$max_level ];
+        $reason = [ 1009, 'Max Berth Level to send from this planet is '.$max_level ];
         push @unavailable, { ship => $ship->get_status, reason => $reason };
         next;
       }
