@@ -490,13 +490,19 @@ sub can_add_excavator {
   $count = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')
              ->search({ body_id => $body->id, empire_id => $self->body->empire->id })->count;
   unless ($on_arrival) {
-    $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
                 ->search( {
                     type=>'excavator',
                     foreign_body_id => $body->id,
                     task=>'Travelling',
-                    body_id=>$self->body_id
-                 })->count;
+                 });
+    while (my $ship = $ships->next) {
+      my $from = $ship->body;
+      if ($from->empire->id == $self->body->empire->id) {
+        $count++;
+        last;
+      }
+    }
   }
   if ($count) {
     confess [1010, $body->name.' already has an excavator from your empire or one is on the way.'];

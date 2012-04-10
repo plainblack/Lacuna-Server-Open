@@ -943,7 +943,8 @@ sub bhg_change_type {
       name       => $body->name,
     };
   }
-  my $starter = (!$body->empire && $body->size >= 40 && $body->size <= 50) ? 1 : 0;
+#  my $starter = (!$body->empire && $body->size >= 40 && $body->size <= 50) ? 1 : 0;
+  my $starter = 0;
   $body->update({
     needs_recalc                => 1,
     class                       => $class,
@@ -1023,7 +1024,8 @@ sub bhg_size {
       name      => $body->name,
     };
   }
-  my $starter = (!$body->empire && $body->size >= 40 && $body->size <= 50) ? 1 : 0;
+#  my $starter = (!$body->empire && $body->size >= 40 && $body->size <= 50) ? 1 : 0;
+  my $starter = 0;
   $body->update({
     needs_recalc                => 1,
     size                        => $current_size,
