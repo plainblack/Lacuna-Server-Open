@@ -42,17 +42,25 @@ sub find_target {
              'The target parameter should be a hash reference. For example { "body_id" : 9999 }.'];
   }
   my $target;
+  my $target_word = join(":", keys %$target_params);
+  if ($target_word eq '') {
+    confess [ -32602,
+             'The target parameter should be a hash reference. For example { "body_id" : 9999 }.'];
+  }
   if (exists $target_params->{body_id}) {
+    $target_word = $target_params->{body_id};
     $target = Lacuna->db
                 ->resultset('Lacuna::DB::Result::Map::Body')
                 ->find($target_params->{body_id});
   }
   elsif (exists $target_params->{body_name}) {
+    $target_word = $target_params->{body_name};
     $target = Lacuna->db
                 ->resultset('Lacuna::DB::Result::Map::Body')
                 ->search({ name => $target_params->{body_name} }, {rows=>1})->single;
   }
   elsif (exists $target_params->{x}) {
+    $target_word = $target_params->{x}.":".$target_params->{y};
     $target = Lacuna->db
                 ->resultset('Lacuna::DB::Result::Map::Body')
                 ->search({ x => $target_params->{x}, y => $target_params->{y} }, {rows=>1})->single;
@@ -108,7 +116,7 @@ sub find_target {
     }
   }
   unless (defined $target) {
-    confess [ 1002, 'Could not find the target.'];
+    confess [ 1002, 'Could not find '.$target_word.' target.'];
   }
 return $target;
 }
