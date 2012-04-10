@@ -90,8 +90,8 @@ sub get_ships_for {
         push @unavailable, { ship => $ship->get_status, reason => $reason };
         next;
       }
-      if ($ship->berth_size > $max_level) {
-        $reason = [ 552, 'Max Berth Size from this planet is '.$max_level ];
+      if ($ship->berth_level > $max_level) {
+        $reason = [ 552, 'Max Berth Level to send from this planet is '.$max_level ];
         push @unavailable, { ship => $ship->get_status, reason => $reason };
         next;
       }
@@ -317,7 +317,7 @@ sub prepare_send_spies {
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
          task=>'Docked', body_id => $on_body_id,
-         berth_size => {'<=' => $max_level } },
+         berth_level => {'<=' => $max_level } },
         {order_by => 'name', rows=>100}
     );
     my @ships;
@@ -373,8 +373,8 @@ sub send_spies {
     unless ($ship->is_available) {
         confess [1010, "That ship is not available."];
     }
-    unless ($ship->berth_size <= $max_level) {
-        confess [1010, "Your spaceport level is not high enough to support that ship."];
+    unless ($ship->berth_level <= $max_level) {
+        confess [1010, "Your spaceport level is not high enough to support a ship with a Berth Level of ".$ship->berth_level."."];
     }
 
     # check size
@@ -445,7 +445,7 @@ sub prepare_fetch_spies {
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
          task=>'Docked', body_id => $to_body_id,
-         berth_size => {'<=' => $max_level } },
+         berth_level => {'<=' => $max_level } },
         {order_by => 'name', rows=>100}
     );
     my @ships;
@@ -503,8 +503,8 @@ sub fetch_spies {
         confess [1010, "That ship is not available."];
     }
 
-    unless ($ship->berth_size <= $max_level) {
-        confess [1010, "Your spaceport level is not high enough to support that ship."];
+    unless ($ship->berth_level <= $max_level) {
+        confess [1010, "Your spaceport level is not high enough to support a ship with a Berth Level of ".$ship->berth_level."."];
     }
 
     unless ($on_body->empire_id) {

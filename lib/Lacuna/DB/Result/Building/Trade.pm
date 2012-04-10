@@ -128,7 +128,7 @@ sub trade_ships {
         task    => 'Docked',
         type    => { 'in' => [qw(dory barge galleon hulk hulk_huge hulk_fast cargo_ship freighter smuggler_ship)] },
         body_id => $self->body_id,
-        berth_size => {'<=' => $max_level }
+        berth_level => {'<=' => $max_level }
     },
     {
         order_by=> {-desc => ['hold_size']}

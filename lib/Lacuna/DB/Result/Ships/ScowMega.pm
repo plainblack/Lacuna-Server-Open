@@ -16,7 +16,7 @@ use constant base_speed             => 100;
 use constant base_combat            => 0;
 use constant base_stealth           => 0;
 use constant base_hold_size         => 300000;
-use constant base_berth_size        => 25;
+use constant base_berth_level       => 25;
 use constant build_tags             => [qw(War Trade)];
 
 with "Lacuna::Role::Ship::Send::PlanetAndStar";

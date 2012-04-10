@@ -1,5 +1,6 @@
 3.0848:
- - Mod: Berth Size less confusing than Dock Size.
+ - Mod: Trade Summaries more compact.
+ - Mod: Berth Level less confusing than Dock Size.
  - Fix: Scows limited to Spaceport Level determined by Berth.
  - Mod: Scow 20 and 30 changed names to Large & Mega.
  - Mod: Possible to have more than one building prereq for ships.

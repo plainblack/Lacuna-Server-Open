@@ -155,7 +155,7 @@ sub build_ship {
     $self->set_ship_speed($ship);
     $self->set_ship_combat($ship);
     $self->set_ship_hold_size($ship);
-    $ship->berth_size($ship->base_berth_size);
+    $ship->berth_level($ship->base_berth_level);
     $self->set_ship_stealth($ship);
     $time ||= $self->get_ship_costs($ship)->{seconds};
     my $latest = $self->building_ships->search(undef, { order_by    => { -desc => 'date_available' }, rows => 1})->single;

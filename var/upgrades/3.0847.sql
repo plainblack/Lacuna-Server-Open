@@ -1,1 +1,1 @@
-alter table ships add column berth_size tinyint default 1;
+alter table ships add column berth_level tinyint default 1;
