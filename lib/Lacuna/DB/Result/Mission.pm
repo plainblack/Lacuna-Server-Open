@@ -331,7 +331,7 @@ sub consolidate {
     $items{$item}++;
   }
   for my $item (sort keys %items) {
-    push @items, sprintf("%5s %s", commify($items{$item}), $item);
+    push @items, sprintf("%5s : %s", commify($items{$item}), $item);
   }
   return \@items;
 }
