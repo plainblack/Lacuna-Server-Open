@@ -603,6 +603,11 @@ sub make_plan {
     return $self->body->add_plan($plan_class, 1);
 }
 
+before delete => sub {
+    my ($self) = @_;
+    $self->excavators->delete_all;
+};
+
 before 'can_downgrade' => sub {
   my $self = shift;
   my $ecount = $self->excavators->count;
