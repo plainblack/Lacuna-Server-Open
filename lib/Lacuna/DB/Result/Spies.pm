@@ -2134,11 +2134,8 @@ sub steal_building {
     my $max = ($self->level > 30) ? 30 : $self->level;
     my $level = randint(1, $max);
     $level = $building->level if ($level > $building->level);
-    $building->level( $building->level - 1 );
-    $building->update;
-    $on_body->needs_recalc(1);
-    $on_body->needs_surface_refresh(1);
-    $on_body->update;
+    $building->body($on_body);
+    $building->downgrade(1);
     $self->from_body->add_plan($building->class, $level);
     $on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
