@@ -2045,7 +2045,7 @@ sub complain_about_lack_of_resources {
                         my $sc = $self->get_building_of_class('Lacuna::DB::Result::Building::Module::StationCommand');
                         if ($sc && $par) {
                             if ($sc->level == $par->level) {
-                                if ($sc->level == 1 && $sc->efficiency == 25 && $par->efficiency == 25) {
+                                if ($sc->level == 1 && $sc->efficiency <= 25 && $par->efficiency <= 25) {
                                     # They go out together with a big bang
                                     $sc->spend_efficiency(25)->update;
                                     $building_name = $par->name;
