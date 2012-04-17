@@ -9,8 +9,6 @@ use constant image => 'a17';
 
 use constant beryl => 4233;
 
-use constant water => 3800;
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

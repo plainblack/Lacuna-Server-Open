@@ -47,8 +47,6 @@ use constant beryl => 313;
 
 use constant magnetite => 296;
 
-use constant water => 289;
-
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
 
