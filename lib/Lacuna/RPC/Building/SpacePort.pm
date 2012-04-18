@@ -347,11 +347,6 @@ sub send_spies {
     }
 
     $empire->current_session->check_captcha;
-    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
-            class       => 'Lacuna::DB::Result::Building::SpacePort',
-            body_id     => $to_body_id,
-            efficiency  => 100,
-         } )->get_column('level')->max;
 
     # get the ship
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
@@ -361,8 +356,13 @@ sub send_spies {
     unless ($ship->is_available) {
         confess [1010, "That ship is not available."];
     }
-    unless ($ship->dock_size <= $max_level) {
-        confess [1010, "Your spaceport level is not high enough to support that ship."];
+    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
+            class       => 'Lacuna::DB::Result::Building::SpacePort',
+            body_id     => $ship->body_id,
+            efficiency  => 100,
+         } )->get_column('level')->max;
+    unless ($ship->berth_level <= $max_level) {
+        confess [1010, "Your spaceport level is not high enough to support a ship with a Berth Level of ".$ship->berth_level."."];
     }
 
     # check size
