@@ -256,10 +256,10 @@ sub found_plan {
 
   my $plan_types = plans_of_type();
   my $class;
-  my $rand_cat = randint(0,19);
+  my $rand_cat = randint(0,99);
   my $lvl = 1;
   my $plus = 0;
-  if ($rand_cat < 1) {
+  if ($rand_cat < 3) {
     $class = random_element($plan_types->{special});
     if (randint(0,100) < int($level/3)) {
       $plus = randint(0, int($level/8));
@@ -268,9 +268,14 @@ sub found_plan {
       }
     }
   }
-  elsif ($rand_cat < 14) {
+  elsif ($rand_cat < 80) {
     $class = random_element($plan_types->{natural});
-    $plus = randint(1, int($level/6)+1) if (randint(0,100) < int($level/2));
+    if (randint(0,100) < int($level/2)) {
+      $plus = randint(0, int($level/6));
+      if ($level == 30 && $plus > 0) {
+        $plus++;
+      }
+    }
   }
   else {
     $class = random_element($plan_types->{decor});
@@ -359,14 +364,14 @@ sub can_you_dig_it {
   my ($self, $body, $level, $arch) = @_;
 
   my $mult = $arch + 1;
-  my $plan  = int($level/4 + 1) * $mult; # 1-8% * 2
+  my $plan  = int($level/4 + 1) * $mult;
   my $ore_total = 0;
   for my $ore (ORE_TYPES) {
      $ore_total += $body->$ore;
   }
   $ore_total = 10_000 if $ore_total > 10_000;
-  my $glyph = int($mult * $level * $ore_total/15_000)+1; # 1-20% (2x if arch run) +1
-  my $resource = int(5/2 * $level); # 2-75%
+  my $glyph = int($mult * $level * $ore_total/20_000)+1; 
+  my $resource = int(5/2 * $level);
   my $artifact = 0;
   if (!$arch && $body->buildings->count) {
     $artifact = 14;

@@ -1,15 +1,15 @@
 3.0848:
  - Add: Hulk Large, Hulk Fast, Scow Fast, Scow Large, and Scow Mega Added.
- - Mod: Berth Level less confusing than Dock Size.
  - Fix: Scows and Trade Ships limited to Spaceport Level determined by Berth.
  - Mod: Possible to have more than one building prereq for ships.
  - Mod: Scows don't have to be full to send.
  - Mod: All starting empires begin on a size 45 planet.
- - Add: Added get_actions_for method for BHG.
+ - Add: Added get_actions_for method with BHG.
  - Add: BHG planets can now move into empty orbits.
  - Mod: Trade Summaries more compact.
  - Mod: Summarize Missions.
  - Fix: Excavators check to see if any excavators from empire are on way to body.
+ - Mod: Berth Level less confusing than Dock Size.
 
 3.0847:
  - Add: New Scow and Hulk types added.
