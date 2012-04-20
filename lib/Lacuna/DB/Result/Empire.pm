@@ -507,6 +507,7 @@ sub find_home_planet {
     my %search = (
         usable_as_starter_enabled   => 1,
         orbit                       => { between => [ $self->min_orbit, $self->max_orbit] },
+        empire_id                   => undef,
     );
     
     # determine search area
