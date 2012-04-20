@@ -215,9 +215,9 @@ sub generate_singularity {
     confess [ $chance->{throw}, $chance->{reason} ];
   }
 # TEST SETTINGS
-  $task->{waste_cost} = 1;
-  $task->{recovery} = 5;
-  $task->{side_chance} = 95;
+#  $task->{waste_cost} = 1;
+#  $task->{recovery} = 5;
+#  $task->{side_chance} = 95;
 #  $chance->{success} = 100;
 # TEST SETTINGS
   my $btype;
