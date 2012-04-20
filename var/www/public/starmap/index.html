@@ -66,7 +66,7 @@ $(function () {
                 var key = keylist[idx];
                 var val = starmap.alliances[key];
                 if (key < '0') {
-                    // by default only check the Saben
+                    // by default only check the AI
                     choiceContainer.append('<br/><input type="checkbox" name="' + key +
                                            '" checked="checked" id="id' + key + '">' +
                                            '<label for="id' + key + '">'
@@ -106,32 +106,32 @@ $(function () {
                 return data;
             }
             var markings = [
-                {xaxis: { from: -245, to: 245 }, yaxis: { from: -248, to: 249 }, color: "#00FFFF"},
-                {xaxis: { from: -499, to: -250 }, yaxis: { from: -498, to: -250}, color: "#888888"},
-                {xaxis: { from: -499, to: -250 }, yaxis: { from: -248, to: 249 }, color: "#dddddd"},
-                {xaxis: { from: -245, to: 245  }, yaxis: { from: -498, to: -250}, color: "#dddddd"},
-                {xaxis: { from: -245, to: 245  }, yaxis: { from: 250 , to: 499 }, color: "#dddddd"},
-                {xaxis: { from: 250 , to: 499  }, yaxis: { from: -248, to: 249 }, color: "#dddddd"},
-                {xaxis: { from: 250 , to: 499  }, yaxis: { from: 250 , to: 499 }, color: "#888888"},
-                {xaxis: { from: -499, to: -250}, yaxis: { from: 250 , to: 499  }, color: "#888888"},
-                {xaxis: { from: 250,  to: 499 }, yaxis: { from: -498, to: -250 }, color: "#888888"},
-                {xaxis: { from: 500,  to: 747 }, yaxis: { from: -498, to: -250 }, color: "#dddddd"},
-                {xaxis: { from: 1250, to: 1497}, yaxis: { from: 1250, to: 1495 }, color: "#888888"},
-                {xaxis: { from: -748, to: -500}, yaxis: { from: -748, to: -500 }, color: "#888888"},
-                {xaxis: { from: -748, to: -500}, yaxis: { from: -248, to: 249  }, color: "#888888"},
-                {xaxis: { from: -748, to: -500}, yaxis: { from: 250 , to: 499  }, color: "#dddddd"},
-                {xaxis: { from: -245, to: 245 }, yaxis: { from: -748, to: -500 }, color: "#888888"},
-                {xaxis: { from: -245, to: 245 }, yaxis: { from: 500 , to: 749  }, color: "#888888"},
-                {xaxis: { from: 250 , to: 499 }, yaxis: { from: -748, to: -500 }, color: "#dddddd"},
-                {xaxis: { from: 500 , to: 747 }, yaxis: { from: -248, to: 249  }, color: "#888888"},
-                {xaxis: { from: 500 , to: 747 }, yaxis: { from: 500 , to: 749  }, color: "#888888"},
-                {xaxis: { from: -499, to: -250}, yaxis: { from: -748, to: -500 }, color: "#dddddd"},
-                {xaxis: { from: -748, to: -500}, yaxis: { from: -498, to: -250 }, color: "#dddddd"},
-                {xaxis: { from: -499, to: -250}, yaxis: { from: 500 , to: 749  }, color: "#dddddd"},
-                {xaxis: { from: -748, to: -500}, yaxis: { from: 500 , to: 749  }, color: "#888888"},
-                {xaxis: { from: 250 , to: 499 }, yaxis: { from: 500 , to: 748  }, color: "#dddddd"},
-                {xaxis: { from: 500 , to: 747 }, yaxis: { from: -748, to: -500 }, color: "#888888"},
-                {xaxis: { from: 500 , to: 747 }, yaxis: { from: 250 , to: 499  }, color: "#dddddd"},
+                {xaxis: { from: -245, to:  245 }, yaxis: { from: -248, to:  249 }, color: "#dddddd"},
+                {xaxis: { from: -499, to: -250 }, yaxis: { from: -498, to: -250 }, color: "#888888"},
+                {xaxis: { from: -499, to: -250 }, yaxis: { from: -248, to:  249 }, color: "#dddddd"},
+                {xaxis: { from: -245, to:  245 }, yaxis: { from: -498, to: -250 }, color: "#dddddd"},
+                {xaxis: { from: -245, to:  245 }, yaxis: { from:  250, to:  499 }, color: "#dddddd"},
+                {xaxis: { from:  250, to:  499 }, yaxis: { from: -248, to:  249 }, color: "#dddddd"},
+                {xaxis: { from:  250, to:  499 }, yaxis: { from:  250, to:  499 }, color: "#888888"},
+                {xaxis: { from: -499, to: -250 }, yaxis: { from:  250, to:  499 }, color: "#888888"},
+                {xaxis: { from:  250, to:  499 }, yaxis: { from: -498, to: -250 }, color: "#888888"},
+                {xaxis: { from:  500, to:  747 }, yaxis: { from: -498, to: -250 }, color: "#dddddd"},
+                {xaxis: { from: 1250, to: 1497 }, yaxis: { from: 1250, to: 1495 }, color: "#888888"},
+                {xaxis: { from: -748, to: -500 }, yaxis: { from: -748, to: -500 }, color: "#888888"},
+                {xaxis: { from: -748, to: -500 }, yaxis: { from: -248, to:  249 }, color: "#888888"},
+                {xaxis: { from: -748, to: -500 }, yaxis: { from:  250, to:  499 }, color: "#dddddd"},
+                {xaxis: { from: -245, to:  245 }, yaxis: { from: -748, to: -500 }, color: "#888888"},
+                {xaxis: { from: -245, to:  245 }, yaxis: { from:  500, to:  749 }, color: "#888888"},
+                {xaxis: { from:  250, to:  499 }, yaxis: { from: -748, to: -500 }, color: "#dddddd"},
+                {xaxis: { from:  500, to:  747 }, yaxis: { from: -248, to:  249 }, color: "#888888"},
+                {xaxis: { from:  500, to:  747 }, yaxis: { from:  500, to:  749 }, color: "#888888"},
+                {xaxis: { from: -499, to: -250 }, yaxis: { from: -748, to: -500 }, color: "#dddddd"},
+                {xaxis: { from: -748, to: -500 }, yaxis: { from: -498, to: -250 }, color: "#dddddd"},
+                {xaxis: { from: -499, to: -250 }, yaxis: { from:  500, to:  749 }, color: "#dddddd"},
+                {xaxis: { from: -748, to: -500 }, yaxis: { from:  500, to:  749 }, color: "#888888"},
+                {xaxis: { from:  250, to:  499 }, yaxis: { from:  500, to:  748 }, color: "#dddddd"},
+                {xaxis: { from:  500, to:  747 }, yaxis: { from: -748, to: -500 }, color: "#888888"},
+                {xaxis: { from:  500, to:  747 }, yaxis: { from:  250, to:  499 }, color: "#dddddd"},
             ];
 
 
