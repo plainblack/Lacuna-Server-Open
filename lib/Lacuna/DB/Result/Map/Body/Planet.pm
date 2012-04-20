@@ -1948,7 +1948,7 @@ sub spend_happiness {
     my ($self, $value) = @_;
     my $new = $self->happiness - $value;
     my $empire = $self->empire;
-    if ($new < 0) {
+    if ($empire and $new < 0) {
         if ($empire->is_isolationist) {
             $new = 0;
         }
