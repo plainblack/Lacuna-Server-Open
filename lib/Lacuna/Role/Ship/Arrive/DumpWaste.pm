@@ -18,6 +18,11 @@ after handle_arrival_procedures => sub {
 
     # dump it!
     my $body_attacked = $self->foreign_body;
+#If a scow crashes into an unclaimed planet, does anyone hear?
+    unless ($body_attacked->empire) {
+      $self->delete;
+      confess [-1];
+    }
     $body_attacked->add_waste($self->hold_size);
     $body_attacked->update;
 
