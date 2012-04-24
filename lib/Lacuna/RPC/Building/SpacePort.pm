@@ -313,6 +313,10 @@ sub prepare_send_spies {
             body_id     => $on_body_id,
             efficiency  => 100,
          } )->get_column('level')->max;
+    unless ($max_level) {
+        $max_level = 1;
+#        confess [1009, "Cannot send spies without any ships."];
+    }
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
@@ -441,6 +445,11 @@ sub prepare_fetch_spies {
             body_id     => $to_body_id,
             efficiency  => 100,
          } )->get_column('level')->max;
+
+    unless ($max_level) {
+        $max_level = 1;
+#        confess [1009, "Cannot fetch spies without any ships."];
+    }
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
