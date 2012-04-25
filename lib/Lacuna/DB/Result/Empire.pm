@@ -243,6 +243,7 @@ sub add_essentia {
     my ($self, $value, $note, $transaction_id, $from_id, $from_name) = @_;
     $from_id   = 0  unless defined($from_id);
     $from_name = "" unless defined($from_name);
+    $self->discard_changes;
     $self->essentia( $self->essentia + $value );
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
         empire_id       => $self->id,
