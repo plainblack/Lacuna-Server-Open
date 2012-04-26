@@ -1,3 +1,21 @@
+3.0848:
+ - Add: Hulk Large, Hulk Fast, Scow Fast, Scow Large, and Scow Mega Added.
+ - Fix: Scows and Trade Ships limited to Spaceport Level determined by Berth.
+ - Mod: Possible to have more than one building prereq for ships.
+ - Mod: Scows don't have to be full to send.
+ - Mod: All starting empires begin on a size 45 planet.
+ - Add: Added get_actions_for method with BHG.
+ - Add: BHG planets can now move into empty orbits.
+ - Mod: Trade Summaries more compact.
+ - Mod: Summarize Missions.
+ - Fix: Excavators check to see if any excavators from empire are on way to body.
+ - Mod: Berth Level less confusing than Dock Size.
+
+3.0847:
+ - Add: New Scow and Hulk types added.
+ - Add: New Spaceport requirement added for ships. Will not affect current existing ships.
+ - Add: BHG Medal image added.
+
 3.0846:
  - Fix: Fixed inapproriate use of it is in several files.
  - Fix: Closed API loophole.
@@ -62,16 +80,16 @@
  - Fix:  Trashed mail older than 7 days will be deleted regularly
  - Mod:  All mail older than 30 days will be deleted regularly
  - Add:  Alliance mapping data available.
- - Mod:  Map now shows the number of incoming ships of enemy,ally and own with the first few of each type
+ - Mod:  Planet map now shows the number of incoming ships of enemy,ally and own with the first few of each type
  - Mod:  Server is more responsive when you have thousands of incoming ships
- - API:  Map Status now shows the number of incoming ships, not every one individually
+ - API:  Map Status now shows the number of incoming ships of each type, not every one individually
 
 3.0830:
  - Mod:  Even more changes to SAWs. (We'll keep banging on these keys.)
  - Fix:  Correspondance school is no longer an acredited option for spies.
- - Fix:  Dillon Forge can not be upgraded with Halls of Vrbansk
- - Note: Dillon Forge cannot be demolished/plan stripped/upgraded
- - Fix:  You cannot now sacrifice Halls of Vrbansk that have not completed their build
+ - Fix:  Dillon Forge can't be upgraded with Halls of Vrbansk
+ - Note: Dillon Forge can't be demolished/plan stripped/upgraded
+ - Fix:  You can't now sacrifice Halls of Vrbansk that have not completed their build
 
 3.0829:
  - Add:  Added bulk trading in plans/glyphs/ships to SST

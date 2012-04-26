@@ -18,6 +18,11 @@ after handle_arrival_procedures => sub {
 
     # dump it!
     my $body_attacked = $self->foreign_body;
+#If a scow crashes into an unclaimed planet, does anyone hear?
+    unless ($body_attacked->empire) {
+      $self->delete;
+      confess [-1];
+    }
     $body_attacked->add_waste($self->hold_size);
     $body_attacked->update;
 
@@ -68,15 +73,23 @@ after handle_arrival_procedures => sub {
 
 after send => sub {
     my $self = shift;
-    $self->body->spend_waste($self->hold_size)->update;
-    $self->payload({ resources => { waste => $self->hold_size } });
+    my $waste_sent;
+    if ($self->body->waste_stored < $self->hold_size) {
+      $waste_sent = $self->body->waste_stored > 0 ? $self->body->waste_stored : 0;
+    }
+    else {
+      $waste_sent = $self->hold_size;
+    }
+    $self->body->spend_waste($waste_sent)->update;
+    $self->payload({ resources => { waste => $waste_sent } });
     $self->update;
 };
 
 after can_send_to_target => sub {
     my ($self, $target) = @_;
     confess [1013, 'Can only be sent to inhabited planets.'] if ($target->isa('Lacuna::DB::Result::Map::Body::Planet') && !$target->empire_id);
-    confess [1011, 'You do not have enough waste to fill this scow. You need '.$self->hold_size.' waste to launch.'] unless ($self->body->waste_stored > $self->hold_size);
+    confess [1011, 'You have no waste to ship' ] unless ($self->body->waste_stored > 0);
+#    confess [1011, 'You do not have enough waste to fill this scow. You need '.$self->hold_size.' waste to launch.'] unless ($self->body->waste_stored > $self->hold_size);
 };
 
 1;

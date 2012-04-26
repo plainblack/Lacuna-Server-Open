@@ -132,7 +132,9 @@ after 'sqlt_deploy_hook' => sub {
     $sqlt_table->add_index(name => 'idx_planet_search', fields => ['usable_as_starter_enabled','usable_as_starter']);
 };
 
-__PACKAGE__->typecast_map(class => {
+{
+  local *ensure_class_loaded = sub {}; # graham's crazy fix for circular dependency, may break if DynamicSubclass gets upgraded
+  __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Map::Body::Asteroid::A1' => 'Lacuna::DB::Result::Map::Body::Asteroid::A1',
     'Lacuna::DB::Result::Map::Body::Asteroid::A2' => 'Lacuna::DB::Result::Map::Body::Asteroid::A2',
     'Lacuna::DB::Result::Map::Body::Asteroid::A3' => 'Lacuna::DB::Result::Map::Body::Asteroid::A3',
@@ -154,6 +156,11 @@ __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Map::Body::Asteroid::A19' => 'Lacuna::DB::Result::Map::Body::Asteroid::A19',
     'Lacuna::DB::Result::Map::Body::Asteroid::A20' => 'Lacuna::DB::Result::Map::Body::Asteroid::A20',
     'Lacuna::DB::Result::Map::Body::Asteroid::A21' => 'Lacuna::DB::Result::Map::Body::Asteroid::A21',
+    'Lacuna::DB::Result::Map::Body::Asteroid::A22' => 'Lacuna::DB::Result::Map::Body::Asteroid::A22',
+    'Lacuna::DB::Result::Map::Body::Asteroid::A23' => 'Lacuna::DB::Result::Map::Body::Asteroid::A23',
+    'Lacuna::DB::Result::Map::Body::Asteroid::A24' => 'Lacuna::DB::Result::Map::Body::Asteroid::A24',
+    'Lacuna::DB::Result::Map::Body::Asteroid::A25' => 'Lacuna::DB::Result::Map::Body::Asteroid::A25',
+    'Lacuna::DB::Result::Map::Body::Asteroid::A26' => 'Lacuna::DB::Result::Map::Body::Asteroid::A26',
     'Lacuna::DB::Result::Map::Body::Planet::P1' => 'Lacuna::DB::Result::Map::Body::Planet::P1',
     'Lacuna::DB::Result::Map::Body::Planet::P2' => 'Lacuna::DB::Result::Map::Body::Planet::P2',
     'Lacuna::DB::Result::Map::Body::Planet::P3' => 'Lacuna::DB::Result::Map::Body::Planet::P3',
@@ -174,13 +181,34 @@ __PACKAGE__->typecast_map(class => {
     'Lacuna::DB::Result::Map::Body::Planet::P18' => 'Lacuna::DB::Result::Map::Body::Planet::P18',
     'Lacuna::DB::Result::Map::Body::Planet::P19' => 'Lacuna::DB::Result::Map::Body::Planet::P19',
     'Lacuna::DB::Result::Map::Body::Planet::P20' => 'Lacuna::DB::Result::Map::Body::Planet::P20',
+    'Lacuna::DB::Result::Map::Body::Planet::P21' => 'Lacuna::DB::Result::Map::Body::Planet::P21',
+    'Lacuna::DB::Result::Map::Body::Planet::P22' => 'Lacuna::DB::Result::Map::Body::Planet::P22',
+    'Lacuna::DB::Result::Map::Body::Planet::P23' => 'Lacuna::DB::Result::Map::Body::Planet::P23',
+    'Lacuna::DB::Result::Map::Body::Planet::P24' => 'Lacuna::DB::Result::Map::Body::Planet::P24',
+    'Lacuna::DB::Result::Map::Body::Planet::P25' => 'Lacuna::DB::Result::Map::Body::Planet::P25',
+    'Lacuna::DB::Result::Map::Body::Planet::P26' => 'Lacuna::DB::Result::Map::Body::Planet::P26',
+    'Lacuna::DB::Result::Map::Body::Planet::P27' => 'Lacuna::DB::Result::Map::Body::Planet::P27',
+    'Lacuna::DB::Result::Map::Body::Planet::P28' => 'Lacuna::DB::Result::Map::Body::Planet::P28',
+    'Lacuna::DB::Result::Map::Body::Planet::P29' => 'Lacuna::DB::Result::Map::Body::Planet::P29',
+    'Lacuna::DB::Result::Map::Body::Planet::P30' => 'Lacuna::DB::Result::Map::Body::Planet::P30',
+    'Lacuna::DB::Result::Map::Body::Planet::P31' => 'Lacuna::DB::Result::Map::Body::Planet::P31',
+    'Lacuna::DB::Result::Map::Body::Planet::P32' => 'Lacuna::DB::Result::Map::Body::Planet::P32',
+    'Lacuna::DB::Result::Map::Body::Planet::P33' => 'Lacuna::DB::Result::Map::Body::Planet::P33',
+    'Lacuna::DB::Result::Map::Body::Planet::P34' => 'Lacuna::DB::Result::Map::Body::Planet::P34',
+    'Lacuna::DB::Result::Map::Body::Planet::P35' => 'Lacuna::DB::Result::Map::Body::Planet::P35',
+    'Lacuna::DB::Result::Map::Body::Planet::P36' => 'Lacuna::DB::Result::Map::Body::Planet::P36',
+    'Lacuna::DB::Result::Map::Body::Planet::P37' => 'Lacuna::DB::Result::Map::Body::Planet::P37',
+    'Lacuna::DB::Result::Map::Body::Planet::P38' => 'Lacuna::DB::Result::Map::Body::Planet::P38',
+    'Lacuna::DB::Result::Map::Body::Planet::P39' => 'Lacuna::DB::Result::Map::Body::Planet::P39',
+    'Lacuna::DB::Result::Map::Body::Planet::P40' => 'Lacuna::DB::Result::Map::Body::Planet::P40',
     'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G1' => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G1',
     'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G2' => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G2',
     'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G3' => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G3',
     'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G4' => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G4',
     'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G5' => 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G5',
     'Lacuna::DB::Result::Map::Body::Planet::Station' => 'Lacuna::DB::Result::Map::Body::Planet::Station',
-});
+  });
+}
 
 # RELATIONSHIPS
 

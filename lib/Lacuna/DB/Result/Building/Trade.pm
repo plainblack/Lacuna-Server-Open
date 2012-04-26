@@ -268,10 +268,16 @@ sub available_market {
 
 sub trade_ships {
     my $self = shift;
+    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
+            class       => 'Lacuna::DB::Result::Building::SpacePort',
+            body_id     => $self->body_id,
+            efficiency  => 100,
+         } )->get_column('level')->max;
     return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
         task    => 'Docked',
-        type    => { 'in' => [qw(dory barge galleon hulk cargo_ship freighter smuggler_ship)] },
+        type    => { 'in' => [qw(dory barge galleon hulk hulk_huge hulk_fast cargo_ship freighter smuggler_ship)] },
         body_id => $self->body_id,
+        berth_level => {'<=' => $max_level }
     },
     {
         order_by=> {-desc => ['hold_size']}

@@ -110,9 +110,24 @@ sub unload {
     return $self;
 }
 
+sub consolidate {
+  my ($items) = @_;
+
+  my %items;
+  my @items;
+  for my $item (@$items) {
+    $items{$item}++;
+  }
+  for my $item (sort keys %items) {
+    push @items, sprintf("%5s %s", commify($items{$item}), $item);
+  }
+  return \@items;
+}
+
 sub format_description_of_payload {
     my ($self) = @_;
     my @items;
+    my @scratch;
     my $payload = $self->payload;
     
     # essentia
@@ -124,53 +139,72 @@ sub format_description_of_payload {
     }
     
     # glyphs
+    @scratch = ();
     foreach my $glyph (@{$payload->{glyphs}}) {
-        push @items, $glyph.' glyph';
+        push @scratch, $glyph.' glyph';
     }
+    push @items, @{consolidate(\@scratch)};
     
     # ships
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
+    
+    @scratch = ();
     foreach my $id (@{ $payload->{ships}}) {
-        my $ship = $ships->find($id);
-        next unless defined $ship;
-        my $pattern = '%s (speed: %s, stealth: %s, hold size: %s, combat: %s)' ;
-        push @items, sprintf($pattern, $ship->type_formatted, commify($ship->speed), commify($ship->stealth), commify($ship->hold_size), commify($ship->combat));
+      my $ship = $ships->find($id);
+      next unless defined $ship;
+      my $pattern = '%s (speed: %s, stealth: %s, hold size: %s, berth: %s, combat: %s)' ;
+      push @scratch,
+           sprintf($pattern,
+                   $ship->type_formatted,
+                   commify($ship->speed),
+                   commify($ship->stealth),
+                   commify($ship->hold_size),
+                   commify($ship->berth_level),
+                   commify($ship->combat));
     }
+    push @items, @{consolidate(\@scratch)};
 
     # plans
+    @scratch = ();
     foreach my $stats (@{ $payload->{plans}}) {
         my $level = $stats->{level};
         if ($stats->{extra_build_level}) {
             $level .= '+'.$stats->{extra_build_level};
         }
         my $pattern = '%s (%s) plan'; 
-        push @items, sprintf($pattern, $stats->{class}->name, $level);
+        push @scratch, sprintf($pattern, $stats->{class}->name, $level);
     }
+    push @items, @{consolidate(\@scratch)};
     
     # spies
+    @scratch = ();
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
     if (exists $payload->{spies}) {
         foreach my $id (@{$payload->{spies}}) {
             my $spy = $spies->find($id);
             next unless defined $spy;
-            push @items, 'Level '.$spy->level.' spy named '.$spy->name . ' (transport)';
+            push @scratch, 'Level '.$spy->level.' spy named '.$spy->name . ' (transport)';
         }
     }
+    push @items, @{consolidate(\@scratch)};
     
     # prisoners
+    @scratch = ();
     if (exists $payload->{prisoners}) {
         foreach my $id (@{$payload->{prisoners}}) {
             my $spy = $spies->find($id);
             next unless defined $spy;
-            push @items, 'Level '.$spy->level.' spy named '.$spy->name . ' (prisoner) sentence expires '.$spy->format_available_on;
+            push @scratch, 'Level '.$spy->level.' spy named '.$spy->name . ' (prisoner) sentence expires '.$spy->format_available_on;
         }
     }
+    push @items, @{consolidate(\@scratch)};
     
     # fetch spies
+    @scratch = ();
     if (exists $payload->{fetch_spies}) {
         foreach my $id (@{$payload->{fetch_spies}}) {
             my $spy = $spies->find($id);
-            push @items, 'Level '.$spy->level.' spy named '.$spy->name . ' (fetch upon arrival)';
+            push @scratch, 'Level '.$spy->level.' spy named '.$spy->name . ' (fetch upon arrival)';
         }
     }
     

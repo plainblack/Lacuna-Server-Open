@@ -97,6 +97,7 @@ sub get_ships {
             name        => $ship->name,
             type        => $ship->type,
             hold_size   => $ship->hold_size,
+            berth_level => $ship->berth_level,
             speed       => $ship->speed,
         };
     }
@@ -116,10 +117,9 @@ sub get_ship_summary {
         {body_id => $building->body_id, task => 'docked'},
         {order_by => [ 'type', 'hold_size', 'speed']}
         );
-
     my $ship_summary = {};
     while (my $ship = $ships->next) {
-        my $key = sprintf("%s~%s~%02u~%02u", $ship->name, $ship->type, $ship->hold_size, $ship->speed);
+        my $key = sprintf("%s~%s~%02u~%02u~%02u", $ship->name, $ship->type, $ship->hold_size, $ship->berth_level, $ship->speed);
         $ship_summary->{$key}++;
     }
 
@@ -129,12 +129,13 @@ sub get_ship_summary {
     my @out;
     for my $ship (@ships) {
         my ($key,$quantity) = %$ship;
-        my ($name,$type,$hold_size,$speed) = split /~/, $key;
+        my ($name,$type,$hold_size,$berth_level,$speed) = split /~/, $key;
 
         push @out, {
             name        => $name,
             type        => $type,
             hold_size   => int($hold_size),
+            berth_level => int($berth_level),
             speed       => int($speed),
             quantity    => $quantity,
         };

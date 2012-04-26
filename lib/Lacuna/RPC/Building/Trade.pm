@@ -25,6 +25,7 @@ sub get_trade_ships {
     my @ships;
     my $ships = $building->trade_ships;
     while (my $ship = $ships->next) {
+
         push @ships, $ship->get_status($target);
     }
     return {

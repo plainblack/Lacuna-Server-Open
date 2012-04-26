@@ -17,7 +17,9 @@ sub view_ships {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $building->body_id, task => { in => ['Mining', 'Docked']}, type => { 'in' => [qw(cargo_ship dory hulk barge galleon freighter smuggler_ship)] } });
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
+                ->search({ body_id => $building->body_id, task => { in => ['Mining', 'Docked']},
+                           type => { 'in' => [qw(cargo_ship dory hulk hulk_fast hulk_huge barge galleon freighter smuggler_ship)] } });
     my @fleet;
     while (my $ship = $ships->next) {
         push @fleet, {
@@ -25,6 +27,7 @@ sub view_ships {
             name        => $ship->name,
             speed       => $ship->speed,
             hold_size   => $ship->hold_size,
+            berth_level => $ship->berth_level,
             task        => $ship->task,
         };
     }
@@ -107,6 +110,14 @@ sub add_cargo_ship_to_fleet {
     }
     unless ($ship->body_id eq $building->body_id) {
         confess [1013, "You can't manage a ship that is not yours."];
+    }
+    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
+                      class       => 'Lacuna::DB::Result::Building::SpacePort',
+                      body_id     => $building->body_id,
+                      efficiency  => 100,
+                    } )->get_column('level')->max;
+    unless ($max_level >= $ship->berth_level) {
+        confess [1009, 'Max Berth Level is '.$max_level.' for ships on this planet.' ];
     }
     $building->add_ship($ship);
     return {

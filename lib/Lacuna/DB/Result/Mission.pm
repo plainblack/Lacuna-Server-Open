@@ -127,6 +127,7 @@ sub add_rewards {
                 combat      => $ship->{combat} || 0,
                 stealth     => $ship->{stealth} || 0,
                 hold_size   => $ship->{hold_size} || 0,
+                berth_level => $ship->{berth_level} || 1,
                 body_id     => $body->id,
                 task        => 'Docked',
             })->insert;
@@ -180,6 +181,7 @@ sub spend_objectives {
                     speed       => {'>=' => $ship->{speed}},
                     stealth     => {'>=' => $ship->{stealth}},
                     hold_size   => {'>=' => $ship->{hold_size}},
+#                    berth_level => {'>=' => $ship->{berth_level}},
                 },
                 {rows => 1, order_by => 'id'}
                 )->single->delete;
@@ -248,6 +250,7 @@ sub check_objectives {
                     speed       => {'>=' => $ship->{speed} || 0},
                     stealth     => {'>=' => $ship->{stealth} || 0},
                     hold_size   => {'>=' => $ship->{hold_size} || 0},
+                    berth_level => {'>=' => $ship->{berth_level} || 0},
                     task        => 'Docked',
                     id          => { 'not in' => \@ids },
                 },{
@@ -319,9 +322,24 @@ sub format_rewards {
     return $self->format_items($self->params->get('mission_reward'));
 }
 
+sub consolidate {
+  my ($items) = @_;
+
+  my %items;
+  my @items;
+  for my $item (@$items) {
+    $items{$item}++;
+  }
+  for my $item (sort keys %items) {
+    push @items, sprintf("%5s : %s", commify($items{$item}), $item);
+  }
+  return \@items;
+}
+
 sub format_items {
     my ($self, $items, $is_objective) = @_;
     my @items;
+    my @scratch;
     
     # essentia
     push @items, sprintf('%s essentia.', commify($items->{essentia})) if ($items->{essentia});
@@ -335,20 +353,25 @@ sub format_items {
     }
     
     # glyphs
+    @scratch = ();
     foreach my $glyph (@{$items->{glyphs}}) {
-        push @items, $glyph.' glyph';
+        push @scratch, $glyph.' glyph';
     }
+    push @items, @{consolidate(\@scratch)};
     
     # ships
+    @scratch = ();
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     foreach my $stats (@{ $items->{ships}}) {
         my $ship = $ships->new({type=>$stats->{type}});
         my $pattern = $is_objective ? '%s (speed >= %s, stealth >= %s, hold size >= %s, combat >= %s)' : '%s (speed: %s, stealth: %s, hold size: %s, combat: %s)' ;
-        push @items, sprintf($pattern, $ship->type_formatted, commify($stats->{speed}), commify($stats->{stealth}), commify($stats->{hold_size}), commify($stats->{combat}));
+        push @scratch, sprintf($pattern, $ship->type_formatted, commify($stats->{speed}), commify($stats->{stealth}), commify($stats->{hold_size}), commify($stats->{combat}));
     }
+    push @items, @{consolidate(\@scratch)};
 
     # fleet movement
     if ($is_objective && exists $items->{fleet_movement}) {
+        @scratch = ();
         my $bodies = Lacuna->db->resultset("Lacuna::DB::Result::Map::Body");
         my $stars = Lacuna->db->resultset("Lacuna::DB::Result::Map::Star");
         my $scratch = $self->scratch || {fleet_movement=>[]};
@@ -363,19 +386,22 @@ sub format_items {
             }
             warn "fleet movement target not found";
             next unless defined $target;
-            push @items, 'Send '.$ship->type_formatted.' to '.$target->name.' ('.$target->x.','.$target->y.').';
+            push @scratch, 'Send '.$ship->type_formatted.' to '.$target->name.' ('.$target->x.','.$target->y.').';
         }
+        push @items, @{consolidate(\@scratch)};
     }
 
     # plans
+    @scratch = ();
     foreach my $stats (@{ $items->{plans}}) {
         my $level = $stats->{level};
         if ($stats->{extra_build_level}) {
             $level .= '+'.$stats->{extra_build_level};
         }
         my $pattern = $is_objective ? '%s (>= %s) plan' : '%s (%s) plan'; 
-        push @items, sprintf($pattern, $stats->{classname}->name, $level);
+        push @scratch, sprintf($pattern, $stats->{classname}->name, $level);
     }
+    push @items, @{consolidate(\@scratch)};
     
     return \@items;
 }

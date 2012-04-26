@@ -5,7 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Ships';
 
-use constant prereq                 => { class=> 'Lacuna::DB::Result::Building::Observatory',  level => 5 };
+use constant prereq                 => [ { class=> 'Lacuna::DB::Result::Building::Observatory',  level => 5 } ];
 use constant base_food_cost         => 45000;
 use constant base_water_cost        => 45000;
 use constant base_energy_cost       => 45000;

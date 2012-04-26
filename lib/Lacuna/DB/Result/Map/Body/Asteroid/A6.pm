@@ -8,8 +8,8 @@ extends 'Lacuna::DB::Result::Map::Body::Asteroid';
 use constant image => 'a6';
 
 use constant galena => 5790;
+
 use constant kerogen => 40;
-use constant water => 13;
 
 
 no Moose;

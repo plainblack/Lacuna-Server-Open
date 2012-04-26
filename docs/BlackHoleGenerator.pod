@@ -13,7 +13,7 @@ This method is extended to include the list of tasks.
     "building" : { ... },
     "tasks" : [
        {
-          "fail_chance" : 15,  #Note, range is not factored in.
+          "base_fail" : 15,  #Note, range is not factored in.
           "min_level" : 10,
           "name" : "Make Asteroid",
           "occupied" : 0,
@@ -28,6 +28,7 @@ This method is extended to include the list of tasks.
        },...
     ]
  }
+
 
 
 =head2 generate_singularity ( session_id, building_id, target, task_name, [ params ] )
@@ -122,5 +123,37 @@ Can swap places with another body within range. Usable at Black Hole Generator l
 Optional hash reference only used for Change Type that looks like this:
 
   { "newtype" : 20 }
+
+=head2 get_actions_for ( session_id, building_id, target )
+
+Returns status and task list with success percentage for defined target.
+
+ {
+    "status" : { ... },
+    "building" : { ... },
+    "tasks" : [
+       {
+          "base_fail" : 15,
+          "body_id" : 973213,
+          "dist" : 134.40,
+          "min_level" : 10,
+          "name" : "Make Asteroid",
+          "occupied" : 0,
+          "range" : 150,
+          "reason" : "You can only make an asteroid from a planet."
+          "recovery" : 129600,
+          "side_chance" : 25,
+          "success" : 0,
+          "throw" : 1009,
+          "types" : [
+             "habitable planet",
+             "gas giant"
+          ],
+          "waste_cost" : 50000000
+       },...
+    ]
+ }
+
+Options are as described for generate_singularity
 
 =cut
