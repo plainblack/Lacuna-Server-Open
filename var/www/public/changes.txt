@@ -1,3 +1,6 @@
+3.0849:
+ - Add: API only, continuous push (waste chain) to local star. Note. no UI support yet.
+
 3.0848:
  - Add: Hulk Large, Hulk Fast, Scow Fast, Scow Large, and Scow Mega Added.
  - Fix: Scows and Trade Ships limited to Spaceport Level determined by Berth.
