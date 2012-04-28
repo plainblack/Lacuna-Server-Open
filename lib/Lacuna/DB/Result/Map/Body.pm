@@ -255,6 +255,16 @@ sub get_type {
     return $type;
 }
 
+sub max_berth {
+    my ($self) = @_;
+
+    my $max_berth = $self->buildings->search({
+        class       => 'Lacuna::DB::Result::Building::SpacePort',
+        efficiency  => 100,
+    } )->get_column('level')->max;
+    return $max_berth ? $max_berth : 0;
+}
+
 sub get_status {
     my ($self) = @_;
     my %out = (

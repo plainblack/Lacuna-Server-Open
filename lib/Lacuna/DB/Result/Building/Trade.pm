@@ -65,15 +65,66 @@ sub waste_chains {
     }
     return Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->search({ planet_id => $self->body_id });
 }
-
 sub supply_ships {
     my $self = shift;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $self->body_id, task => 'Supply Chain' });
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        body_id => $self->body_id,
+        task => 'Supply Chain',
+    });
 }
 
-sub waste_ships {
+sub all_supply_ships {
     my $self = shift;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $self->body_id, task => 'Waste Chain' });
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        body_id => $self->body_id, 
+        -or => {
+            task => 'Supply Chain',
+            -and => [
+                task => 'Docked',
+                type => { '=', [
+                    'cargo_ship',
+                    'smuggler_ship',
+                    'freighter',
+                    'dory',
+                    'barge',
+                    'galleon',
+                    'hulk',
+                    'hulk_fast',
+                    'hulk_huge',
+                ]}
+            ]
+        } 
+    });
+}
+
+# Ships that are currently in a waste chain
+sub waste_ships {
+    my ($self) = @_;
+
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        body_id => $self->body_id,
+        task => 'Waste Chain',
+    });
+}
+
+# All ships that are either in a waste chain, or available to be so
+sub all_waste_ships {
+    my $self = shift;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        body_id => $self->body_id,
+        -or => { 
+            task => 'Waste Chain',
+            -and => [
+                task => 'Docked',
+                type => { '=', [
+                    'scow',
+                    'scow_large',
+                    'scow_mega',
+                    'scow_fast',
+                ]}
+            ]
+        }
+    });
 }
 
 sub max_chains {
@@ -147,32 +198,24 @@ sub recalc_waste_production {
     my ($self) = @_;
     my $body = $self->body;
 
-    my $ship_speed = 0;
-    my $ship_capacity = 0;
+    # Determine the waste/hour/distance for ship
+    my $ship_wphpd = 0;
     my $ships = $self->waste_ships;
     while (my $ship = $ships->next) {
-        $ship_capacity += $ship->hold_size;
-        $ship_speed += $ship->speed;
+        $ship_wphpd += $ship->hold_size * $ship->speed;
     }
 
-    my $waste_chain_count   = $self->waste_chains->count;
+    # Determine the waste/hour for waste chains
+    my $chain_wphpd         = 0;
     my $waste_chains        = $self->waste_chains;
-    my $waste_hour          = 0;
-    my $distance            = 0;
     while (my $waste_chain = $waste_chains->next) {
-        $distance += $body->calculate_distance_to_target($waste_chain->star);
-        $waste_hour += $waste_chain->waist_hour;
+        $chain_wphpd += $body->calculate_distance_to_target($waste_chain->star) * 2 * $waste_chain->waste_hour;
     }
-    $distance *= 2;
-
-    my $trips_per_hour              = $distance ? ($ship_speed / $distance) : 0;
-    my $max_waste_hauled_per_hour   = $trips_per_hour * $ship_capacity;
-    my $waste_hauled_per_hour       = min($waste_hour, $max_waste_hauled_per_hour);
-    my $shipping_capacity           = $max_waste_hauled_per_hour ? sprintf('%.0f',($waste_hour / $max_waste_hauled_per_hour) * 100) : -1;
+    my $shipping_capacity = $chain_wphpd ? sprintf('%.0f',($ship_wphpd / $chain_wphpd) * 100) : 0;
 
     $waste_chains->reset;
     while (my $waste_chain = $waste_chains->next) {
-        $waste_chain->percent_ship_capacity($shipping_capacity);
+        $waste_chain->percent_transferred($shipping_capacity);
         $waste_chain->update;
     }
 

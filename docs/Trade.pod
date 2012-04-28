@@ -561,7 +561,7 @@ A session id.
 
 The unique id of the trade ministry.
 
-=head2 view_waste_chain ( session_id, building_id )
+=head2 view_waste_chains ( session_id, building_id )
 
 Returns a list of the waste chains currently controlled by this Trade Ministry
 
@@ -599,7 +599,7 @@ fully filled.
 
 Change the B<waste_hour> for the Waste Chain specified by B<waste_chain_id>
 
-Returns the same as the call to B<view_waste_chain>
+Returns the same as the call to B<view_waste_chains>
 
 Note, the B<percent_transferred> may be modified as a result of changing the amount of
 B<waste_hour> if you don't have enough ships to transfer the full amount of waste.

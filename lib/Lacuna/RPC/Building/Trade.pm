@@ -51,8 +51,13 @@ sub add_waste_ship_to_fleet {
     unless ($ship->body_id eq $building->body_id) {
         confess [1013, "You can't manage a ship that is not yours."];
     }
-    unless ($ship->type eq 'scow') {
-        confess [1009, 'You can only use a scow to a waste chain.'];
+    unless ($ship->type =~ m/^scow/) {
+        confess [1009, 'You can only add scows to a waste chain.'];
+    }
+    my $max_berth = $building->body->max_berth;
+
+    unless ($ship->berth_level <= $max_berth) {
+        confess [1009, "You don't have a high enough berth for this ship."];
     }
     $building->add_waste_ship($ship);
     return {
@@ -96,7 +101,7 @@ sub get_waste_ships {
     # get the local star
     my $target      = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($body->star_id);
     my @ships;
-    my $ships       = $building->waste_ships;
+    my $ships       = $building->all_waste_ships;
     while (my $ship = $ships->next) {
         push @ships, $ship->get_status($target);
     }
@@ -145,7 +150,7 @@ sub update_waste_chain {
     $chain->update;
     $building->recalc_waste_production;
 
-    return $self->view_waste_chain($session_id, $building_id);
+    return $self->view_waste_chains($session_id, $building_id);
 }
 
 
