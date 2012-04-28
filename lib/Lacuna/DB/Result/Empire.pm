@@ -520,8 +520,10 @@ sub find_home_planet {
         # then order by distance
     }
 
-    # search
-    my $possible_planets = $planets->search(\%search, { rows => 10 });
+    # search FIXME Note, this is temporary, should create a single query
+    # that returns all possible planets. 'rows 100' is not guaranteed to
+    # find a planet.
+    my $possible_planets = $planets->search(\%search, { rows => 100 });
 
     # find an uncontested planet in the possible planets
     my $home_planet;
