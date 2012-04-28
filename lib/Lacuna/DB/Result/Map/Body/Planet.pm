@@ -876,7 +876,7 @@ has total_ore_concentration => (
 sub recalc_stats {
     my ($self) = @_;
 
-    carp "#### recalc_stats ####\n";
+#    carp "#### recalc_stats ####\n";
 
     my %stats = ( needs_recalc => 0 );
     my $buildings = $self->buildings;
