@@ -24,6 +24,8 @@ my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
 });
 $home->build_building($uni);
 $uni->finish_upgrade;
+$empire->university_level(5);
+$empire->update;
 
 my $seq = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,
@@ -118,7 +120,7 @@ $scow2->arrive;
 $scow2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow2->id},{rows=>1})->single; # pull the latest data on this ship
 
 $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
-is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Scow Hit Target", 'Scow2 hit target' );
+is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Ship Shot Down", 'Ship Shot Down' );
 
 is( $scow2, undef, 'scow2 is undef' );
 
@@ -140,11 +142,11 @@ $scow4 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow4-
 $result = $tester->post('spaceport', 'send_fleet', [$session_id, [$scow3->id, $scow4->id], { star_id => $home->star_id }]);
 is(scalar @{$result->{result}{fleet}}, 2, 'fleet sent');
 # waste removed cannot be exact, due to variation in clock tick
-cmp_ok($scow4->body->waste_stored, "<", 4000, 'correct waste removed');
-cmp_ok($scow4->body->waste_stored, ">", 3900, 'correct waste removed');
+cmp_ok($scow4->body->waste_stored, "<", 4200, 'correct waste removed');
+cmp_ok($scow4->body->waste_stored, ">", 4000, 'correct waste removed');
 
 #is($scow4->body->waste_stored, 3983, 'correct waste removed');
 
 END {
-    TestHelper->clear_all_test_empires;
+#    TestHelper->clear_all_test_empires;
 }

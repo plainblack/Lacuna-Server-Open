@@ -1,6 +1,9 @@
 package Lacuna::DB::Result::Building::Trade;
 
 use Moose;
+use List::Util qw(max min);
+use Carp;
+
 use utf8;
 use List::Util qw(max);
 use Data::Dumper;
@@ -46,6 +49,195 @@ use constant ore_consumption => 2;
 use constant water_consumption => 5;
 
 use constant waste_production => 1;
+
+sub waste_chains {
+    my $self = shift;
+
+    # If there is no waste chain, then create a default one
+    my $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->search({ planet_id => $self->body_id });
+    if ($waste_chain->count == 0) {
+        Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->create({
+            planet_id   => $self->body_id,
+            star_id     => $self->body->star_id,
+            waste_hour  => 0,
+            percent_transferred => 0,
+        });
+    }
+    return Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->search({ planet_id => $self->body_id });
+}
+sub supply_ships {
+    my $self = shift;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        body_id => $self->body_id,
+        task => 'Supply Chain',
+    });
+}
+
+sub all_supply_ships {
+    my $self = shift;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        body_id => $self->body_id, 
+        -or => {
+            task => 'Supply Chain',
+            -and => [
+                task => 'Docked',
+                type => { '=', [
+                    'cargo_ship',
+                    'smuggler_ship',
+                    'freighter',
+                    'dory',
+                    'barge',
+                    'galleon',
+                    'hulk',
+                    'hulk_fast',
+                    'hulk_huge',
+                ]}
+            ]
+        } 
+    });
+}
+
+# Ships that are currently in a waste chain
+sub waste_ships {
+    my ($self) = @_;
+
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        body_id => $self->body_id,
+        task => 'Waste Chain',
+    });
+}
+
+# All ships that are either in a waste chain, or available to be so
+sub all_waste_ships {
+    my $self = shift;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        body_id => $self->body_id,
+        -or => { 
+            task => 'Waste Chain',
+            -and => [
+                task => 'Docked',
+                type => { '=', [
+                    'scow',
+                    'scow_large',
+                    'scow_mega',
+                    'scow_fast',
+                ]}
+            ]
+        }
+    });
+}
+
+sub max_chains {
+    my $self = shift;
+    return ceil($self->level);
+}
+
+sub add_waste_ship {
+    my ($self, $ship) = @_;
+    $ship->task('Waste Chain');
+    $ship->update;
+    $self->recalc_waste_production;
+    return $self;
+}
+
+sub add_supply_ship {
+    my ($self, $ship) = @_;
+    $ship->task('Supply Chain');
+    $ship->update;
+    $self->recalc_supply_production;
+    return $self;
+}
+
+sub send_waste_ship_home {
+    my ($self, $star, $ship) = @_;
+    $ship->send(
+        target      => $star,
+        direction   => 'in',
+        task        => 'Travelling',
+    );
+    $self->recalc_waste_production;
+    return $self;
+}
+
+sub send_supply_ship_home {
+    my ($self, $planet, $ship) = @_;
+    $ship->send(
+        target      => $planet,
+        direction   => 'in',
+        task        => 'Travelling',
+    );
+    $self->recalc_supply_production;
+    return $self;
+}
+
+sub add_waste_chain {
+    my ($self, $star, $waste_hour) = @_;
+    Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->new({
+        planet_id   => $self->body_id,
+        star_id     => $star->id,
+        waste_hour  => $waste_hour,
+    })->insert;
+    $self->recalc_waste_production;
+    return $self;
+}
+
+sub remove_waste_chain {
+    my ($self, $waste_chain) = @_;
+    if ($self->waste_chains->count == 1) {
+        my $ships = $self->waste_ships;
+        while (my $ship = $ships->next) {
+            $self->send_waste_ship_home($waste_chain->star, $ship);
+        }
+    }
+    $waste_chain->delete;
+    $self->recalc_waste_production;
+    return $self;
+}
+
+sub recalc_waste_production {
+    my ($self) = @_;
+    my $body = $self->body;
+
+    # Determine the waste/hour/distance for ship
+    my $ship_wphpd = 0;
+    my $ships = $self->waste_ships;
+    while (my $ship = $ships->next) {
+        $ship_wphpd += $ship->hold_size * $ship->speed;
+    }
+
+    # Determine the waste/hour for waste chains
+    my $chain_wphpd         = 0;
+    my $waste_chains        = $self->waste_chains;
+    while (my $waste_chain = $waste_chains->next) {
+        $chain_wphpd += $body->calculate_distance_to_target($waste_chain->star) * 2 * $waste_chain->waste_hour;
+    }
+    my $shipping_capacity = $chain_wphpd ? sprintf('%.0f',($ship_wphpd / $chain_wphpd) * 100) : 0;
+
+    $waste_chains->reset;
+    while (my $waste_chain = $waste_chains->next) {
+        $waste_chain->percent_transferred($shipping_capacity);
+        $waste_chain->update;
+    }
+
+    $body->needs_recalc(1);
+    $body->update;
+    return $self;
+}
+
+before delete => sub {
+    my ($self) = @_;
+    $self->waste_ships->update({task=>'Docked'});
+    $self->waste_chains->delete_all;
+    $self->body->needs_recalc(1);
+    $self->body->update;
+};
+
+before 'can_downgrade' => sub {
+    my $self = shift;
+    if ($self->waste_chains->count >= $self->level) {
+        confess [1013, 'You must cancel one of your supply chains before you can downgrade the Trade Ministry.'];
+    }
+};
 
 sub add_to_market {
     my ($self, $offer, $ask, $options) = @_;

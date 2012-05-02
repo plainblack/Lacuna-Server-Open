@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Map::Body::Planet;
 
 use Moose;
+use Carp;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body';
@@ -874,6 +875,9 @@ has total_ore_concentration => (
 
 sub recalc_stats {
     my ($self) = @_;
+
+#    carp "#### recalc_stats ####\n";
+
     my %stats = ( needs_recalc => 0 );
     my $buildings = $self->buildings;
     #reset foods
@@ -909,6 +913,22 @@ sub recalc_stats {
                 }
             }
         }
+        if ($building->isa('Lacuna::DB::Result::Building::Trade')) {
+            # Calculate the amount of waste to deduct based on the waste_chains
+            my $waste_chains = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->search({planet_id => $self->id});
+            while (my $waste_chain = $waste_chains->next) {
+                my $waste_hour = 0;
+                if ($waste_chain->percent_transferred > 0) {
+                    if ($waste_chain->percent_transferred >= 100) {
+                        $waste_hour = $waste_chain->waste_hour;
+                    }
+                    else {
+                        $waste_hour = sprintf('%.0f',$waste_chain->waste_hour * $waste_chain->percent_transferred / 100);
+                    }
+                }
+                $stats{waste_hour} -= $waste_hour;
+            }
+        }
         if ($building->isa('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform')) {
             $gas_giant_platforms += $building->level;
         }
@@ -932,10 +952,10 @@ sub recalc_stats {
     }
 
     # subtract ore consumption
-	foreach my $type (ORE_TYPES) {
-		my $method = $type.'_hour';
-		$stats{$method} -= sprintf('%.0f', ($total_ore_production_hour) ? $ore_consumption_hour * $stats{$method} / $total_ore_production_hour: 0);
-	}
+    foreach my $type (ORE_TYPES) {
+        my $method = $type.'_hour';
+        $stats{$method} -= sprintf('%.0f', ($total_ore_production_hour) ? $ore_consumption_hour * $stats{$method} / $total_ore_production_hour: 0);
+    }
 
     # overall ore production
     $stats{ore_hour} = $total_ore_production_hour - $ore_consumption_hour;

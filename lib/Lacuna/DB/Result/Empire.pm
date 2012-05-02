@@ -243,6 +243,7 @@ sub add_essentia {
     my ($self, $value, $note, $transaction_id, $from_id, $from_name) = @_;
     $from_id   = 0  unless defined($from_id);
     $from_name = "" unless defined($from_name);
+    $self->discard_changes;
     $self->essentia( $self->essentia + $value );
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
         empire_id       => $self->id,
@@ -519,8 +520,10 @@ sub find_home_planet {
         # then order by distance
     }
 
-    # search
-    my $possible_planets = $planets->search(\%search, { rows => 10 });
+    # search FIXME Note, this is temporary, should create a single query
+    # that returns all possible planets. 'rows 100' is not guaranteed to
+    # find a planet.
+    my $possible_planets = $planets->search(\%search, { rows => 100 });
 
     # find an uncontested planet in the possible planets
     my $home_planet;
