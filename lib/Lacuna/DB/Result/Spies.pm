@@ -1393,6 +1393,23 @@ sub steal_planet {
                       ->search({from_body_id => $self->on_body_id})
                       ->update({from_body_id => $defender_capitol_id });
 
+        my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
+                         ->search({body_id => $self->on_body_id,
+                                   task => { '!=' => 'Docked' } });
+        while (my $ship = $ships->next) {
+          next if ($ship->task eq 'Travelling' and
+                   (grep { $ship->type ne $_ } ['cargo_ship',
+                           'smuggler_ship',
+                           'galleon',
+                           'freighter',
+                           'hulk',
+                           'hulk_fast',
+                           'hulk_huge',
+                           'dory',
+                           'barge']));
+          $ship->delete;
+        }
+
         Lacuna->db->resultset('Lacuna::DB::Result::Probes')
                       ->search({body_id => $self->on_body_id})
                       ->update({empire_id => $self->empire_id, alliance_id => $self->empire->alliance_id});
