@@ -1,3 +1,6 @@
+3.0850:
+ - Fix: All non-trade inflight ships self destruct from an insurrected planet.
+
 3.0849:
  - Add: API only, continuous push (waste chain) to local star. Note. no UI support yet.
 

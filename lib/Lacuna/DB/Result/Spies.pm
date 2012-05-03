@@ -1398,7 +1398,7 @@ sub steal_planet {
                                    task => { '!=' => 'Docked' } });
         while (my $ship = $ships->next) {
           next if ($ship->task eq 'Travelling' and
-                   (grep { $ship->type ne $_ } ['cargo_ship',
+                   (grep { $ship->type eq $_ } ['cargo_ship',
                            'smuggler_ship',
                            'galleon',
                            'freighter',
