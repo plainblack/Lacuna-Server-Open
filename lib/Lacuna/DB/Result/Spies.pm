@@ -1397,6 +1397,7 @@ sub steal_planet {
                          ->search({body_id => $self->on_body_id,
                                    task => { '!=' => 'Docked' } });
         while (my $ship = $ships->next) {
+          next if ($ship->task eq 'Waiting On Trade');
           next if ($ship->task eq 'Travelling' and
                    (grep { $ship->type eq $_ } ['cargo_ship',
                            'smuggler_ship',
