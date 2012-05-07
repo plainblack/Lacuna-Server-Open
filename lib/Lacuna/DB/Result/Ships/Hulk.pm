@@ -18,7 +18,7 @@ use constant base_stealth           => 0;
 use constant base_hold_size         => 7900;
 use constant base_berth_level       => 20;
 use constant pilotable              => 1;
-use constant build_tags             => [qw(Trade Mining)];
+use constant build_tags             => [qw(Trade Mining ResourceChain)];
 
 with "Lacuna::Role::Ship::Send::UsePush";
 with "Lacuna::Role::Ship::Arrive::CargoExchange";

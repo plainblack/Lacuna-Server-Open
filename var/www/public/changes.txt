@@ -1,3 +1,8 @@
+2.0850:
+ - Add: API only, continuous push (resource chain) to any planet or SS. Note. No UI support yet.
+ - Fix: Damaged Trade Ministry reduces the waste transferred in a waste chain.
+ - Fix: Scows are no longer are tagged with 'Trade'
+
 3.0849:
  - Add: API only, continuous push (waste chain) to local star. Note. no UI support yet.
 

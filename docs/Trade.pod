@@ -561,6 +561,79 @@ A session id.
 
 The unique id of the trade ministry.
 
+
+=head2 get_resource_ships ( session_id, building_id )
+
+Returns a list of the ships that are either working to transport resources or available.
+
+ {
+    "status" : { ... },
+    "ships" : [
+        {
+           "id" : "id-goes-here",
+           "type" : "hulk",
+           "task" : "Resource Chain",
+           "name" : "Big Momma 1",
+           "speed" : 1000,
+           "hold_size" : 4000000,
+        },
+        ...
+    ]
+ }
+
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the trade ministry.
+
+
+=head2 view_resource_chains ( session_id, building_id )
+
+Returns a list of the resource chains currently controlled by this Trade Ministry
+
+ {
+    "status" : { ... },
+    "resource_chain" : [
+      {
+        "id" : "id-goes-here",
+        "body" : {
+          "id" : "id-goes-here",
+          "name" : "Mars",
+          "x" : 0,
+          "y" : -123,
+          ...
+        },
+        "building_id" : 1234567,
+        "resource_hour" : 10000000,
+        "resource_type" : 'water',
+        "percent_transferred" : 95,
+      }
+    ]
+ }
+
+You can set up three resource-chains for each level of your Trade Ministry. Each 
+resource-chain can transfer any amount of any one resource (food type, ore type
+energy, waste or water).
+
+The B<building_id> is the identifier for the Trade Ministry that is the source of the
+resource chain.
+
+The B<resource_type> is the name of the resource you wish to transfer (e.g. 'Gold');
+
+The B<resource_hour> is the amount of that resource you wish to transfer each hour.
+
+The B<percent_transferred> is the percentage of B<resource_hour> that is actually transferred.
+This is based on the number of ships you have servicing the chain. If you have no ships then
+the B<percent_transferred> will be zero. If it is below 100 then you need to add ships so that
+it is at or above 100. Above 100 and you have more ship capacity than you need, but you will
+still only transfer the specified B<resource_hour>, it just means some ships will be idle or not
+fully filled.
+
+
 =head2 view_waste_chains ( session_id, building_id )
 
 Returns a list of the waste chains currently controlled by this Trade Ministry
@@ -583,6 +656,8 @@ Returns a list of the waste chains currently controlled by this Trade Ministry
     ]
  }
 
+Note, there is no need to create a waste chain, all planets have a waste chain by default.
+
 There should only be one waste-chain in action, to your local star. There is no point in
 setting up a waste-chain to any other star.
 
@@ -595,14 +670,76 @@ it is at or above 100. Above 100 and you have more ship capacity than you need, 
 still only transfer the specified B<waste_hour>, it just means some ships will be idle or not
 fully filled.
 
+
+=head2 create_resource_chain (session_id, building_id, resource_type, resource_hour)
+
+Create a new resource chain.
+
+B<building_id> is the identifier of the Trade Ministry building.
+
+B<resource_type> is the resource you want to push, e.g. 'waste','water','gold','energy','apple'
+
+B<resource_hour> is the amount of the resource you want to transfer each hour.
+
+Returns the same as the call to B<view_resource_chains>
+
+
+=head2 delete_resource_chain (session_id, building_id, resource_chain_id)
+
+Delete the resource chain identified by the B<resource_chain_id>
+
+Returns the same as the call to B<view_resource_chains>
+
+
+=head2 update_resource_chain ( session_id, building_id, waste_chain_id, resource_type, resource_hour)
+
+Change the B<resource_type> and B<resource_hour> for the Resource Chain specified by B<resource_chain_id>
+
+Returns the same as the call to B<view_waste_chains>
+
+Note, the B<percent_transferred> may drop below 100% as a result of changing the amount of
+B<resource_hour> if you don't have enough ships to transfer the amount of resorces in all
+resource chains.
+
+You may set the resource_hour to zero if you want to suspend the resource chain to the target planet.
+
+If you want to remove the resource chain totally then call B<delete_resource_chain>
+
 =head2 update_waste_chain ( session_id, building_id, waste_chain_id, waste_hour)
 
 Change the B<waste_hour> for the Waste Chain specified by B<waste_chain_id>
 
 Returns the same as the call to B<view_waste_chains>
 
-Note, the B<percent_transferred> may be modified as a result of changing the amount of
+Note, the B<percent_transferred> may drop below 100% as a result of changing the amount of
 B<waste_hour> if you don't have enough ships to transfer the full amount of waste.
+
+Note, there is no B<create_waste_chain> because all planets have a waste chain by default.
+
+You may set the B<waste_hour> to zero if you want to stop transferring waste.
+
+=head2 add_resource_ship_to_fleet (session_id, building_id, ship_id )
+
+Take a ship from your space port and add it to the ships servicing the resource chains.
+
+ {
+   "status" : { ... },
+ }
+
+Throws 1009.
+
+=head3 session_id
+
+A Session ID.
+
+=head3 building_id
+
+The unique ID of the Trade Ministry.
+
+=head3 ship_id
+
+The unique ID of the ship you want to add to the fleet.
+
 
 =head2 add_waste_ship_to_fleet (session_id, building_id, ship_id )
 
@@ -625,6 +762,29 @@ The unique ID of the Trade Ministry.
 =head3 ship_id
 
 The unique ID of the ship you want to add to the fleet.
+
+=head2 remove_resource_ship_from_fleet (session_id, building_id, ship_id )
+
+Remove a ship from servicing your resource chains and tell it to return to the space port.
+
+ {
+   "status" : { ... },
+ }
+
+Throws 1009.
+
+=head3 session_id
+
+A Session ID.
+
+=head3 building_id
+
+The unique ID of the Trade Ministry.
+
+=head3 ship_id
+
+The unique ID of the ship you want to remove from the fleet.
+
 
 =head2 remove_waste_ship_from_fleet (session_id, building_id, ship_id )
 

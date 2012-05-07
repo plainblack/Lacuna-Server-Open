@@ -6,7 +6,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES BUILDABLE_CLASSES SPACE_STATION_MODULES);
-use List::Util qw(shuffle);
+use List::Util qw(shuffle max);
 use Lacuna::Util qw(randint format_date);
 use DateTime;
 no warnings 'uninitialized';
@@ -873,6 +873,35 @@ has total_ore_concentration => (
     },
 );
 
+sub is_food {
+    my ($self, $resource) = @_;
+
+    if (grep {$resource eq $_} (FOOD_TYPES)) {
+        return 1;
+    }
+    return;
+}
+
+sub is_ore {
+    my ($self, $resource) = @_;
+
+    if (grep {$resource eq $_} (ORE_TYPES)) {
+        return 1;
+    }
+    return;
+}
+
+# convert a resource name into a planet attribute name
+#
+sub resource_name {
+    my ($self,$resource) = @_;
+
+    if ($self->is_food($resource)) {
+        return $resource.'_production_hour';
+    }
+    return $resource.'_hour';
+}
+
 sub recalc_stats {
     my ($self) = @_;
 
@@ -883,6 +912,9 @@ sub recalc_stats {
     #reset foods
     foreach my $type (FOOD_TYPES) {
         $stats{$type.'_production_hour'} = 0;
+    }
+    foreach my $type (ORE_TYPES) {
+        $stats{$type.'_hour'} = 0;
     }
     #calculate building production
     my ($gas_giant_platforms, $terraforming_platforms, $station_command, $pantheon_of_hagness, $total_ore_production_hour, $ore_production_hour, $ore_consumption_hour) = 0;
@@ -917,16 +949,24 @@ sub recalc_stats {
             # Calculate the amount of waste to deduct based on the waste_chains
             my $waste_chains = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->search({planet_id => $self->id});
             while (my $waste_chain = $waste_chains->next) {
-                my $waste_hour = 0;
-                if ($waste_chain->percent_transferred > 0) {
-                    if ($waste_chain->percent_transferred >= 100) {
-                        $waste_hour = $waste_chain->waste_hour;
-                    }
-                    else {
-                        $waste_hour = sprintf('%.0f',$waste_chain->waste_hour * $waste_chain->percent_transferred / 100);
-                    }
-                }
+                my $percent = $waste_chain->percent_transferred;
+                $percent = $percent > 100 ? 100 : $percent;
+                $percent *= $building->efficiency;
+                my $waste_hour = sprintf('%.0f',$waste_chain->waste_hour * $percent / 100);
                 $stats{waste_hour} -= $waste_hour;
+            }
+            # calculate the resources being chained *from* this planet
+            my $output_chains = Lacuna->db->resultset('Lacuna::DB::Result::ResourceChain')->search({planet_id => $self->id});
+            while (my $out_chain = $output_chains->next) {
+                my $percent = $out_chain->percent_transferred;
+                $percent = $percent > 100 ? 100 : $percent;
+                $percent *= $building->efficiency / 100;
+                my $resource_hour = sprintf('%.0f',$out_chain->resource_hour * $percent / 100);
+                my $resource_name = $self->resource_name($out_chain->resource_type);
+                $stats{$resource_name} -= $resource_hour;
+                if ($self->is_ore($out_chain->resource_type)) {
+                    $total_ore_production_hour -= $resource_hour;
+                }
             }
         }
         if ($building->isa('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform')) {
@@ -940,6 +980,23 @@ sub recalc_stats {
         }
         if ($building->isa('Lacuna::DB::Result::Building::Module::StationCommand')) {
             $station_command += $building->level;
+        }
+    }
+
+    # resource chains sent *to* this planet
+    my $input_chains = Lacuna->db->resultset('Lacuna::DB::Result::ResourceChain')->search({
+        target_id => $self->id,
+        },{prefetch => 'building'}
+    );
+    while (my $in_chain = $input_chains->next) {
+        my $percent = $in_chain->percent_transferred;
+        $percent = $percent > 100 ? 100 : $percent;
+        $percent *= $in_chain->building->efficiency / 100;
+        my $resource_hour = sprintf('%.0f',$in_chain->resource_hour * $percent / 100);
+        my $resource_name = $self->resource_name($in_chain->resource_type);
+        $stats{$resource_name} += $resource_hour;
+        if ($self->is_ore($in_chain->resource_type)) {
+            $total_ore_production_hour += $resource_hour;
         }
     }
 
@@ -961,12 +1018,8 @@ sub recalc_stats {
     $stats{ore_hour} = $total_ore_production_hour - $ore_consumption_hour;
 
     # deal with negative amounts stored
-    if ($self->water_stored < 0) {
-      $self->water_stored(0);
-    }
-    if ($self->energy_stored < 0) {
-      $self->energy_stored(0);
-    }
+    $self->water_stored = 0 if $self->water_stored < 0;
+    $self->energy_stored = 0 if $self->energy_stored < 0;
     for my $type (FOOD_TYPES, ORE_TYPES) {
       my $stype = $type.'_stored';
       $self->$stype(0) if ($self->$stype < 0);

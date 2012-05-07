@@ -236,7 +236,7 @@ sub get_status {
         $status{from}           = $from;
         $status{date_arrives}   = $status{date_available};
     }
-	elsif ($self->task ~~ [qw(Defend Orbiting)]) {
+    elsif ($self->task ~~ [qw(Defend Orbiting)]) {
         my $body = $self->body;
         my $from = {
             id      => $body->id,
