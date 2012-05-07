@@ -25,7 +25,7 @@ use constant waste_to_build => 95;
 
 use constant time_to_build => 100;
 
-use constant food_consumption => 30;
+use constant food_consumption => 10;
 
 use constant syrup_production => 30;
 
