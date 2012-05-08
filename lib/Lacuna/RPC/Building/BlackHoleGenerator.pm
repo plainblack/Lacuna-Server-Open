@@ -444,7 +444,7 @@ sub bhg_swap {
     x        => $body->x,
     y        => $body->y,
     zone     => $body->zone,
-    star     => $body->star_id,
+    star_id  => $body->star_id,
     orbit    => $body->orbit,
   };
   my $new_data;
@@ -484,7 +484,9 @@ sub bhg_swap {
                       ->search({ planet_id => $body->body_id });
   if ($waste_chain->count > 0) {
    while (my $chain = $waste_chain->next) {
-     $chain->star_id($new_data->{star_id});
+     $chain->update({
+       star_id => $new_data->{star_id}
+     });
    }
   }
   unless ($new_data->{type} eq "empty") {
@@ -493,24 +495,27 @@ sub bhg_swap {
       x            => $old_data->{x},
       y            => $old_data->{y},
       zone         => $old_data->{zone},
-      star_id      => $old_data->{star},
+      star_id      => $old_data->{star_id},
       orbit        => $old_data->{orbit},
     });
     $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
                         ->search({ planet_id => $target->body_id });
     if ($waste_chain->count > 0) {
      while (my $chain = $waste_chain->next) {
-       $chain->star_id($old_data->{star});
+       $chain->update({
+         star_id => $old_data->{star_id}
+       });
      }
     }
   }
   return {
+    id       => $body->id,
     message  => "Swapped Places",
     name     => $body->name,
-    id       => $body->id,
+    orbit    => $new_data->{orbit},
+    star_id  => $new_data->{star_id},
     swapname => $new_data->{name},
     swapid   => $new_data->{id},
-    orbit    => $new_data->{orbit},
   };
 }
 
