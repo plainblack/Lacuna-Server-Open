@@ -5,6 +5,8 @@
  - Fix: Waste Chains have star_id change to current star in moved via BHG.
  - Mod: Stockpile change in testing.
  - Mod: Ships in a fleet will return at their own speed if on return trip.
+ - Mod: Damaged Platforms give plots based on efficiency.
+ - Mod: Having negative plots available makes your people unhappy.
 
 3.0850:
  - Fix: All non-trade inflight ships self destruct from an insurrected planet.

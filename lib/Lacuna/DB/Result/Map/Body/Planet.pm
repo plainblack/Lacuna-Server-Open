@@ -386,10 +386,11 @@ has building_count => (
     lazy    => 1,
     default => sub {
         my $self = shift;
+# Bleeders count toward building count, but supply pods don't since they can't be shot down.
         return $self->buildings->search(
             {
                class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%',
-                          '!=' => 'Lacuna::DB::Result::Building::DeployedBleeder' }, 
+                          '!=' => 'Lacuna::DB::Result::Building::SupplyPod'  }, 
             }
         )->count;
     },
@@ -932,13 +933,13 @@ sub recalc_stats {
             }
         }
         if ($building->isa('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform')) {
-            $gas_giant_platforms += $building->level;
+            $gas_giant_platforms += int($building->level * $building->efficiency/100);
         }
         if ($building->isa('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform')) {
-            $terraforming_platforms += $building->level;
+            $terraforming_platforms += int($building->level * $building->efficiency/100);
         }
         if ($building->isa('Lacuna::DB::Result::Building::Permanent::PantheonOfHagness')) {
-            $pantheon_of_hagness += $building->level;
+            $pantheon_of_hagness += int($building->level * $building->efficiency/100);
         }
         if ($building->isa('Lacuna::DB::Result::Building::Module::StationCommand')) {
             $station_command += $building->level;
@@ -1002,6 +1003,12 @@ sub recalc_stats {
         }
     }
     $stats{plots_available} = $max_plots - $self->building_count;
+# Decrease happiness production if short on plots.
+    if ($stats{plots_available} < 0) {
+      my $plot_tax = int(50 * 1.62 ** (abs($stats{plots_available})-1));
+      $plot_tax = 120_000_000_000 if ($plot_tax > 120_000_000_000);
+      $stats{happiness_hour} -= $plot_tax;
+    }
 
     $self->update(\%stats);
     return $self;
