@@ -1,8 +1,9 @@
 3.0851:
  - Mod: Change in consumption rates for secondary food.
-# - Fix: Colony ships and trade ships in flight away from insurrected planet now switch flag to their own Capitol.
-# - Fix: Bleeders no longer count toward population totals.
+ - Fix: Colony ships and trade ships in flight away from insurrected planet now switch flag to their own Capitol.
+ - Fix: Bleeders no longer count toward population totals.
  - Mod: Stockpile change is testing.
+ - Fix: Waste Chains have star_id change to current star in moved via BHG.
 
 3.0850:
  - Fix: All non-trade inflight ships self destruct from an insurrected planet.

@@ -215,9 +215,9 @@ sub generate_singularity {
     confess [ $chance->{throw}, $chance->{reason} ];
   }
 # TEST SETTINGS
-#  $task->{waste_cost} = 1;
-#  $task->{recovery} = 5;
-#  $task->{side_chance} = 95;
+  $task->{waste_cost} = 1;
+  $task->{recovery} = 5;
+  $task->{side_chance} = 95;
 #  $chance->{success} = 100;
 # TEST SETTINGS
   my $btype;
@@ -480,7 +480,13 @@ sub bhg_swap {
     star_id      => $new_data->{star_id},
     orbit        => $new_data->{orbit},
   });
-#confess [ 9999, 'in swap!' ];
+  my $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
+                      ->search({ planet_id => $body->body_id });
+  if ($waste_chain->count > 0) {
+   while (my $chain = $waste_chain->next) {
+     $chain->star_id($new_data->{star_id});
+   }
+  }
   unless ($new_data->{type} eq "empty") {
     $target->update({
       needs_recalc => 1,
@@ -490,6 +496,13 @@ sub bhg_swap {
       star_id      => $old_data->{star},
       orbit        => $old_data->{orbit},
     });
+    $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
+                        ->search({ planet_id => $target->body_id });
+    if ($waste_chain->count > 0) {
+     while (my $chain = $waste_chain->next) {
+       $chain->star_id($old_data->{star});
+     }
+    }
   }
   return {
     message  => "Swapped Places",
