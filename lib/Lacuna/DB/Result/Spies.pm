@@ -1398,8 +1398,9 @@ sub steal_planet {
                                    task => { '!=' => 'Docked' } });
         while (my $ship = $ships->next) {
           next if ($ship->task eq 'Waiting On Trade');
-          next if ($ship->task eq 'Travelling' and
-                   (grep { $ship->type eq $_ } @{['cargo_ship',
+          if ($ship->task eq 'Travelling' and
+                   (grep { $ship->type eq $_ }
+                        @{['cargo_ship',
                            'smuggler_ship',
                            'galleon',
                            'freighter',
@@ -1407,7 +1408,11 @@ sub steal_planet {
                            'hulk_fast',
                            'hulk_huge',
                            'dory',
-                           'barge']}));
+                           'barge',
+                           'colony_ship',
+                           'short_range_colony_ship',
+                          ]})) {
+          }
           $ship->delete;
         }
 

@@ -264,7 +264,10 @@ sub seconds_remaining {
 sub turn_around {
     my $self = shift;
     $self->direction( ($self->direction eq 'out') ? 'in' : 'out' );
-    $self->date_available(DateTime->now->add_duration( $self->date_available - $self->date_started ));
+#    $self->date_available(DateTime->now->add_duration( $self->date_available - $self->date_started ));
+    $self->fleet_speed(0);
+    my $target = ($self->foreign_body_id) ? $self->foreign_body : $self->foreign_star;
+    $self->date_available(DateTime->now->add(seconds=>$self->calculate_travel_time($target)));
     $self->date_started(DateTime->now);
     return $self;
 }
