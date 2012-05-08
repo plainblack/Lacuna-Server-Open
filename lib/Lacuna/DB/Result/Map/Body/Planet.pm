@@ -374,8 +374,8 @@ has population => (
         my $self = shift;
         return $self->buildings->search(
             {
-               class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%' }, 
-               class => { '!=' => 'Lacuna::DB::Result::Building::DeployedBleeder' }, 
+               class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%',
+                          '!=' => 'Lacuna::DB::Result::Building::DeployedBleeder'  }, 
             }
         )->get_column('level')->sum * 10_000;
     },
@@ -388,8 +388,8 @@ has building_count => (
         my $self = shift;
         return $self->buildings->search(
             {
-               class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%' }, # these don't count against you 
-               class => { '!=' => 'Lacuna::DB::Result::Building::DeployedBleeder' }, 
+               class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%',
+                          '!=' => 'Lacuna::DB::Result::Building::DeployedBleeder' }, 
             }
         )->count;
     },
