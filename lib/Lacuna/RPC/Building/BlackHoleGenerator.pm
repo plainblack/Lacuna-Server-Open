@@ -481,7 +481,7 @@ sub bhg_swap {
     orbit        => $new_data->{orbit},
   });
   my $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
-                      ->search({ planet_id => $body->body_id });
+                      ->search({ planet_id => $body->id });
   if ($waste_chain->count > 0) {
    while (my $chain = $waste_chain->next) {
      $chain->update({
@@ -499,7 +499,7 @@ sub bhg_swap {
       orbit        => $old_data->{orbit},
     });
     $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
-                        ->search({ planet_id => $target->body_id });
+                        ->search({ planet_id => $target->id });
     if ($waste_chain->count > 0) {
      while (my $chain = $waste_chain->next) {
        $chain->update({
