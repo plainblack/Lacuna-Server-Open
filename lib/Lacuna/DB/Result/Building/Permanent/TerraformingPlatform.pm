@@ -6,57 +6,78 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
 around 'build_tags' => sub {
-    my ($orig, $class) = @_;
-    return ($orig->($class), qw(Infrastructure Construction));
+  my ($orig, $class) = @_;
+  return ($orig->($class), qw(Infrastructure Construction));
 };
 
 use constant controller_class => 'Lacuna::RPC::Building::TerraformingPlatform';
 
 around can_build => sub {
-    my ($orig, $self, $body) = @_;
-    if ($body->get_plan(__PACKAGE__, 1)) {
-        return $orig->($self, $body);  
-    }
-    confess [1013,"You can't directly build a Terraforming Platform. You need a terraforming platform ship."];
+  my ($orig, $self, $body) = @_;
+  if ($body->get_plan(__PACKAGE__, 1)) {
+    return $orig->($self, $body);  
+  }
+  confess [1013,"You can't directly build a Terraforming Platform. You need a terraforming platform ship."];
 };
 
 before 'can_demolish' => sub {
-    my $self = shift;
-    my $body = $self->body;
-    my $buildings = $body->buildings;
-    my $terraforming_platforms = 0;
-    my @terraforming_platforms = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform' })->get_column('level')->all;
-    $terraforming_platforms += $_ for @terraforming_platforms;
-    my $excess_plots = $terraforming_platforms - ($self->body->plots_available + $self->body->building_count);
-    my $available = $excess_plots > $self->body->plots_available ? $excess_plots : $self->body->plots_available;
-    if ($available < $self->level && ($body->orbit > $body->empire->max_orbit || $body->orbit < $body->empire->min_orbit)) {
-        confess [1013, 'You need to demolish a building before you can demolish this Terraforming Platform.'];
-    }
+  my $self = shift;
+  my $body = $self->body;
+  my $buildings = $body->buildings;
+  return if ($body->orbit > $body->empire->max_orbit || $body->orbit < $body->empire->min_orbit);
+
+  my $tp_blds = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform' });
+
+  my $tp_plots = 0;
+  my $tp_cnt = 0;
+
+  while (my $tp_bld = $tp_blds->next) {
+    $tp_cnt++;
+    $tp_plots += int($tp_bld->level * $tp_bld->efficiency/100);
+  }
+  return if ($tp_cnt <= 1); # If we only have the one platform, they can destroy it.
+  my $bld_count = $body->building_count;
+  my $excess_plots = $tp_plots - $bld_count;
+  if ($excess_plots < 0) {
+    confess [1013, 'Your planet shows that you are at negative plots.'];
+  }
+  if ($excess_plots < int($self->level * $self->efficiency/100) ) {
+    confess [1013, 'You need to demolish a building before you can demolish this Terraforming Platform.'];
+  }
 };
 
 before 'can_downgrade' => sub {
-    my $self = shift;
-    my $body = $self->body;
-    my $buildings = $body->buildings;
-    my $terraforming_platforms = 0;
-    my @terraforming_platforms = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform' })->get_column('level')->all;
-    $terraforming_platforms += $_ for @terraforming_platforms;
-    my $excess_plots = $terraforming_platforms - ($self->body->plots_available + $self->body->building_count);
-    my $available = $excess_plots > $self->body->plots_available ? $excess_plots : $self->body->plots_available;
-    if ($available < 1 && ($body->orbit > $body->empire->max_orbit || $body->orbit < $body->empire->min_orbit)) {
-        confess [1013, 'You need to demolish a building before you can downgrade this Terraforming Platform.'];
-    }
+  my $self = shift;
+  my $body = $self->body;
+  my $buildings = $body->buildings;
+  return if ($body->orbit > $body->empire->max_orbit || $body->orbit < $body->empire->min_orbit);
+
+  my $tp_blds = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform' });
+
+  my $tp_plots = 0;
+  my $tp_cnt = 0;
+
+  while (my $tp_bld = $tp_blds->next) {
+    $tp_cnt++;
+    $tp_plots += int($tp_bld->level * $tp_bld->efficiency/100);
+  }
+  return if ($tp_cnt <= 1); # If we only have the one platform, they can destroy it.
+  my $bld_count = $body->building_count;
+  my $excess_plots = $tp_plots - $bld_count;
+  if ($excess_plots < 1) {
+    confess [1013, 'You need to demolish at least one building before you can downgrade this Terraforming Platform.'];
+  }
 };
 
 before has_special_resources => sub {
-    my $self = shift;
-    my $planet = $self->body;
-    unless ($planet->get_plan(ref $self, $self->level + 1)) {
-        my $amount_needed = sprintf('%.0f', $self->ore_to_build * $self->upgrade_cost * 0.20);
-        if ($planet->gypsum_stored + $planet->sulfur_stored + $planet->monazite_stored < $amount_needed) {
-            confess [1012,"You do not have a sufficient supply (".$amount_needed.") of phosphorus from sources like Gypsum, Sulfur, and Monazite to create the chemical compounds to terraform a planet."];
-        }
+  my $self = shift;
+  my $planet = $self->body;
+  unless ($planet->get_plan(ref $self, $self->level + 1)) {
+    my $amount_needed = sprintf('%.0f', $self->ore_to_build * $self->upgrade_cost * 0.20);
+    if ($planet->gypsum_stored + $planet->sulfur_stored + $planet->monazite_stored < $amount_needed) {
+      confess [1012,"You do not have a sufficient supply (".$amount_needed.") of phosphorus from sources like Gypsum, Sulfur, and Monazite to create the chemical compounds to terraform a planet."];
     }
+  }
 };
 
 use constant image => 'terraformingplatform';

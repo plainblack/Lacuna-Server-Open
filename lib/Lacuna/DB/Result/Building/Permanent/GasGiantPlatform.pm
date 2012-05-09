@@ -6,8 +6,8 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
 around 'build_tags' => sub {
-    my ($orig, $class) = @_;
-    return ($orig->($class), qw(Infrastructure Construction));
+  my ($orig, $class) = @_;
+  return ($orig->($class), qw(Infrastructure Construction));
 };
 
 use constant controller_class => 'Lacuna::RPC::Building::GasGiantPlatform';
@@ -15,50 +15,73 @@ use constant controller_class => 'Lacuna::RPC::Building::GasGiantPlatform';
 use constant image => 'gas-giant-platform';
 
 around can_build => sub {
-    my ($orig, $self, $body) = @_;
-    if ($body->get_plan(__PACKAGE__, 1)) {
-        return $orig->($self, $body);  
-    }
-    confess [1013,"You can't directly build a Gas Giant Platform. You need a gas giant platform ship."];
+  my ($orig, $self, $body) = @_;
+  if ($body->get_plan(__PACKAGE__, 1)) {
+    return $orig->($self, $body);  
+  }
+  confess [1013,"You can't directly build a Gas Giant Platform. You need a gas giant platform ship."];
 };
 
 before 'can_demolish' => sub {
-    my $self = shift;
-    my $body = $self->body;
-    my $buildings = $body->buildings;
-    my $gas_giant_platforms = 0;
-    my @gas_giant_platforms = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform' })->get_column('level')->all;
-    $gas_giant_platforms += $_ for @gas_giant_platforms;
-    my $excess_plots = $gas_giant_platforms - ($body->plots_available + $body->building_count);
-    my $available = $excess_plots > $body->plots_available ? $excess_plots : $body->plots_available;
-    if ($available < $self->level && $body->get_type eq "gas giant") {
-        confess [1013, 'You need to demolish a building before you can demolish this Gas Giant Settlement Platform.'];
-    }
+  my $self = shift;
+
+  my $body = $self->body;
+  return if ($body->get_type ne "gas giant");
+  my $buildings = $body->buildings;
+
+  my $gg_blds = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform' });
+
+  my $gg_plots = 0;
+  my $gg_cnt = 0;
+  while (my $gg_bld = $gg_blds->next) {
+    $gg_cnt++;
+    $gg_plots += int($gg_bld->level * $gg_bld->efficiency/100);
+  }
+  return if ($gg_cnt <= 1); # If we only have the one platform, they can destroy it.
+  my $bld_count = $body->building_count;
+  my $excess_plots = $gg_plots - $bld_count;
+  if ($excess_plots < 0) {
+    confess [1013, 'Your Gas Giant shows that you are at negative plots.'];
+  }
+  if ($excess_plots < int($self->level * $self->efficiency/100) ) {
+    confess [1013, 'You need to demolish a building before you can demolish this Gas Giant Settlement Platform.'];
+  }
 };
 
 before 'can_downgrade' => sub {
-    my $self = shift;
-    my $body = $self->body;
-    my $buildings = $body->buildings;
-    my $gas_giant_platforms = 0;
-    my @gas_giant_platforms = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform' })->get_column('level')->all;
-    $gas_giant_platforms += $_ for @gas_giant_platforms;
-    my $excess_plots = $gas_giant_platforms - ($body->plots_available + $body->building_count);
-    my $available = $excess_plots > $body->plots_available ? $excess_plots : $body->plots_available;
-    if ($available < 1) {
-        confess [1013, 'You need to demolish a building before you can downgrade this Gas Giant Settlement Platform.'];
-    }
+  my $self = shift;
+  my $body = $self->body;
+  return if ($body->get_type ne "gas giant");
+  my $buildings = $body->buildings;
+
+  my $gg_blds = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform' });
+
+  my $gg_plots = 0;
+  my $gg_cnt = 0;
+  while (my $gg_bld = $gg_blds->next) {
+    $gg_cnt++;
+    $gg_plots += int($gg_bld->level * $gg_bld->efficiency/100);
+  }
+  my $bld_count = $body->building_count;
+  my $excess_plots = $gg_plots - $bld_count;
+  if ($excess_plots < 1) {
+    confess [1013, 'You need to demolish at least one building before you can downgrade this Gas Giant Settlement Platform.'];
+  }
 };
 
 before has_special_resources => sub {
-    my $self = shift;
-    my $planet = $self->body;
-    unless ($planet->get_plan(ref $self, $self->level + 1)) {
-        my $amount_needed = sprintf('%.0f', $self->ore_to_build * $self->upgrade_cost * 0.50);
-        if ($planet->rutile_stored + $planet->chromite_stored + $planet->bauxite_stored + $planet->magnetite_stored + $planet->beryl_stored + $planet->goethite_stored < $amount_needed) {
-            confess [1012,"You do not have a sufficient supply (".$amount_needed.") of structural minerals such as Rutile, Chromite, Bauxite, Magnetite, Beryl, and Goethite to build the components that can handle the stresses of gas giant missions."];
-        }
+  my $self = shift;
+  my $planet = $self->body;
+  unless ($planet->get_plan(ref $self, $self->level + 1)) {
+    my $amount_needed = sprintf('%.0f', $self->ore_to_build * $self->upgrade_cost * 0.50);
+    if ($planet->rutile_stored + $planet->chromite_stored +
+      $planet->bauxite_stored + $planet->magnetite_stored +
+      $planet->beryl_stored + $planet->goethite_stored < $amount_needed) {
+        confess [1012,"You do not have a sufficient supply (".
+          $amount_needed.
+          ") of structural minerals such as Rutile, Chromite, Bauxite, Magnetite, Beryl, and Goethite to build the components that can handle the stresses of gas giant missions."];
     }
+  }
 };
 
 use constant name => 'Gas Giant Settlement Platform';
