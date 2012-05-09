@@ -13,12 +13,13 @@ use constant base_ore_cost          => 15000;
 use constant base_time_cost         => 60 * 60 * 8;
 use constant base_waste_cost        => 7000;
 use constant base_combat            => 1000;
-use constant base_speed             => 10;
+use constant base_speed             => 700;
 use constant base_stealth           => 0;
 use constant base_hold_size         => 0;
 use constant pilotable              => 1;
 use constant build_tags             => ['Colonization'];
 
+with "Lacuna::Role::Ship::Send::Range";
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Uninhabited";
 with "Lacuna::Role::Ship::Send::SpendNextColonyCost";
