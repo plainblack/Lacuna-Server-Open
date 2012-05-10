@@ -224,7 +224,7 @@ sub recalc_supply_production {
     my ($self) = @_;
     my $body = $self->body;
 
-    # Determine the resourc/hour/distance for the ship
+    # Determine the resource/hour/distance for the ship
     my $ship_rphpd = 0;
     my $ships = $self->supply_ships;
     while (my $ship = $ships->next) {

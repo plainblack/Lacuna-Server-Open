@@ -480,6 +480,8 @@ sub bhg_swap {
     star_id      => $new_data->{star_id},
     orbit        => $new_data->{orbit},
   });
+  $body->recalc_chains;
+
 #confess [ 9999, 'in swap!' ];
   unless ($new_data->{type} eq "empty") {
     $target->update({
@@ -490,6 +492,7 @@ sub bhg_swap {
       star_id      => $old_data->{star},
       orbit        => $old_data->{orbit},
     });
+    $target->recalc_chains;
   }
   return {
     message  => "Swapped Places",

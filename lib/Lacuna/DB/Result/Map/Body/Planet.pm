@@ -913,6 +913,21 @@ sub resource_name {
     return $resource.'_hour';
 }
 
+# Recalculate waste and supply chains for this body
+#
+sub recalc_chains {
+    my ($self) = @_;
+
+    # find the Trade Ministry
+    my ($trade_min) = $self->buildings->search({
+        class => 'Lacuna::DB::Result::Building::Trade',
+    });
+    if ($trade_min) {
+        $trade_min->recalc_supply_production;
+        $trade_min->recalc_waste_production;
+    }
+}
+
 sub recalc_stats {
     my ($self) = @_;
 
@@ -1007,8 +1022,6 @@ sub recalc_stats {
         my $resource_hour = sprintf('%.0f',$in_chain->resource_hour * $percent / 100);
         my $resource_name = $self->resource_name($in_chain->resource_type);
         $stats{$resource_name} += $resource_hour;
-carp "###>>> In Chain [$resource_hour][$resource_name] <<<###\n";
-#print STDERR Dumper($in_chain);
         if ($self->is_ore($in_chain->resource_type)) {
             $total_ore_production_hour += $resource_hour;
         }
