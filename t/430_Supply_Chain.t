@@ -86,6 +86,12 @@ $result = $tester->post('trade','create_supply_chain',[$session_id, $trade->id, 
 $result = $tester->post('trade','create_supply_chain',[$session_id, $trade->id, $station->id, 'energy',-$energy_hour]);
 $result = $tester->post('trade','create_supply_chain',[$session_id, $trade->id, $station->id, 'algae', -$food_hour]);
 
+my $supply_chains;
+my @chains = @{$result->{result}{supply_chains}};
+foreach my $chain (@chains) {
+    $supply_chains->{$chain->{resource_type}} = $chain->{id};
+}
+
 # get a single ships to add to the supply chain
 $result = $tester->post('trade','get_supply_ships', [$session_id, $trade->id]);
 my ($ship_id) = map {$_->{id} } grep {$_->{task} eq 'Docked' and $_->{type} eq 'hulk'} @{$result->{result}{ships}};
@@ -108,6 +114,9 @@ is($result->{result}{body}{ore_hour}, 0, "Zero ore");
 is($result->{result}{body}{water_hour}, 0, "Zero water");
 is($result->{result}{body}{energy_hour}, 0, "Zero energy");
 is($result->{result}{body}{food_hour}, 0, "Zero food");
+
+# modify a supply chain
+$result = $tester->post('trade','update_supply_chain', [$session_id, $trade->id, $supply_chains->{water}, 'energy', 100]);
 
 END {
 #    TestHelper->clear_all_test_empires;

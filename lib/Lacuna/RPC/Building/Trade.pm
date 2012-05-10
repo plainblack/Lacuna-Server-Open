@@ -321,7 +321,7 @@ sub update_supply_chain {
     $chain->resource_hour(int($resource_hour));
     $chain->resource_type($resource_type);
     $chain->update;
-    $building->recalc_supply__production;
+    $building->recalc_supply_production;
 
     return $self->view_supply_chains($session_id, $building_id);
 }

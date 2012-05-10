@@ -1,23 +1,9 @@
-=head1 Trade Ministry Diagram
-
-The Trade Ministry is a complex beast, so to help you wrap your brain around it we've created a little flow diagram of how the methods come together.
-
-=begin html
-
-<img src="Trade.png">
-<br>
-<a href="Trade.graffle">OmniGraffle Version</a>
-
-=end html
 
 =head1 Trade Ministry Methods
 
 The Trade Ministry is accessible via the URL C</trade>. It allows you to send cargo ships to other players with trade goods. Due to the vast distance of space, you may only trade with other players in your zone.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
-
-
-
 
 =head2 add_to_market ( session_id, building_id, offer, ask, options )
 
