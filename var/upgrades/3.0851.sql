@@ -4,7 +4,7 @@ create table supply_chain (
     planet_id       int(11) not null,
     building_id     int(11) not null,
     target_id       int(11) not null,
-    resource_hour   int(11) not null default 0,
+    resource_hour   bigint not null default 0,
     resource_type   varchar(32) not null,
     percent_transferred int(11) not null default 0,
     primary key (id),
@@ -15,4 +15,6 @@ create table supply_chain (
     constraint rc_fk_building_id foreign key (building_id) references building (id),
     constraint rc_fk_target_id foreign key (target_id) references planet (id)
 );
+
+alter table waste_chain modify waste_hour bigint;
 
