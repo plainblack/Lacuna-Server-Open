@@ -1,11 +1,11 @@
-package Lacuna::DB::Result::ResourceChain;
+package Lacuna::DB::Result::SupplyChain;
 
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 
-__PACKAGE__->table('resource_chain');
+__PACKAGE__->table('supply_chain');
 __PACKAGE__->add_columns(
     planet_id                       => { data_type => 'int', size => 11, is_nullable => 0 },
     building_id                     => { data_type => 'int', size => 11, is_nullable => 0 },

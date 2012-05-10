@@ -1,5 +1,5 @@
 
-create table resource_chain (
+create table supply_chain (
     id              int(11) not null auto_increment,
     planet_id       int(11) not null,
     building_id     int(11) not null,

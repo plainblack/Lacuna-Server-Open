@@ -14,7 +14,9 @@ no warnings 'uninitialized';
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
 __PACKAGE__->has_many('plans','Lacuna::DB::Result::Plans','body_id');
 __PACKAGE__->has_many('glyphs','Lacuna::DB::Result::Glyphs','body_id');
-
+__PACKAGE__->has_many('waste_chains', 'Lacuna::DB::Result::WasteChain','planet_id');
+__PACKAGE__->has_many('out_supply_chains', 'Lacuna::DB::Result::SupplyChain','planet_id');
+__PACKAGE__->has_many('in_supply_chains', 'Lacuna::DB::Result::SupplyChain','target_id');
 
 sub surface {
     my $self = shift;
@@ -126,6 +128,14 @@ sub sanitize {
     $self->alliance_id(undef);
     $self->plans->delete;
     $self->glyphs->delete;
+    $self->waste_chains->delete;
+    # do indivitual deletes so the remote ends can be titied up too
+    foreach my $chain ($self->out_supply_chains) {
+        $chain->delete;
+    }
+    foreach my $chain ($self->in_supply_chains) {
+        $chain->delete;
+    }
     my $incoming = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_body_id => $self->id, direction => 'out'});
     while (my $ship = $incoming->next) {
         $ship->turn_around->update;
@@ -647,8 +657,8 @@ sub has_resources_to_operate {
     my ($self, $building) = @_;
     
     # get future
-    my $future = $self->future_operating_resources;
-    
+    my $future = $self->future_operating_resources; 
+
     # get change for this building
     my $after = $building->stats_after_upgrade;
 
@@ -956,16 +966,16 @@ sub recalc_stats {
                 $stats{waste_hour} -= $waste_hour;
             }
             # calculate the resources being chained *from* this planet
-            my $output_chains = Lacuna->db->resultset('Lacuna::DB::Result::ResourceChain')->search({planet_id => $self->id});
+            my $output_chains = Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->search({planet_id => $self->id});
             while (my $out_chain = $output_chains->next) {
                 my $percent = $out_chain->percent_transferred;
                 $percent = $percent > 100 ? 100 : $percent;
                 $percent *= $building->efficiency / 100;
-                my $resource_hour = sprintf('%.0f',$out_chain->resource_hour * $percent / 100);
-                my $resource_name = $self->resource_name($out_chain->resource_type);
-                $stats{$resource_name} -= $resource_hour;
-                if ($self->is_ore($out_chain->resource_type)) {
-                    $total_ore_production_hour -= $resource_hour;
+                my $supply_hour = sprintf('%.0f',$out_chain->supply_hour * $percent / 100);
+                my $resource_name = $self->resource_name($out_chain->supply_type);
+                $stats{$resource_name} -= $supply_hour;
+                if ($self->is_ore($out_chain->supply_type)) {
+                    $total_ore_production_hour -= $supply_hour;
                 }
             }
         }
@@ -983,8 +993,8 @@ sub recalc_stats {
         }
     }
 
-    # resource chains sent *to* this planet
-    my $input_chains = Lacuna->db->resultset('Lacuna::DB::Result::ResourceChain')->search({
+    # supply chains sent *to* this planet
+    my $input_chains = Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->search({
         target_id => $self->id,
         },{prefetch => 'building'}
     );
@@ -992,11 +1002,11 @@ sub recalc_stats {
         my $percent = $in_chain->percent_transferred;
         $percent = $percent > 100 ? 100 : $percent;
         $percent *= $in_chain->building->efficiency / 100;
-        my $resource_hour = sprintf('%.0f',$in_chain->resource_hour * $percent / 100);
-        my $resource_name = $self->resource_name($in_chain->resource_type);
-        $stats{$resource_name} += $resource_hour;
-        if ($self->is_ore($in_chain->resource_type)) {
-            $total_ore_production_hour += $resource_hour;
+        my $supply_hour = sprintf('%.0f',$in_chain->supply_hour * $percent / 100);
+        my $resource_name = $self->resource_name($in_chain->supply_type);
+        $stats{$resource_name} += $supply_hour;
+        if ($self->is_ore($in_chain->supply_type)) {
+            $total_ore_production_hour += $supply_hour;
         }
     }
 
