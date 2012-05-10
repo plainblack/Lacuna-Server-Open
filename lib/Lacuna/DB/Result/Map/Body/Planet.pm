@@ -9,6 +9,7 @@ use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES BUILDABLE_CLASSES SPACE_STATION_MO
 use List::Util qw(shuffle max);
 use Lacuna::Util qw(randint format_date);
 use DateTime;
+use Data::Dumper;
 no warnings 'uninitialized';
 
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
@@ -971,11 +972,11 @@ sub recalc_stats {
                 my $percent = $out_chain->percent_transferred;
                 $percent = $percent > 100 ? 100 : $percent;
                 $percent *= $building->efficiency / 100;
-                my $supply_hour = sprintf('%.0f',$out_chain->supply_hour * $percent / 100);
-                my $resource_name = $self->resource_name($out_chain->supply_type);
-                $stats{$resource_name} -= $supply_hour;
-                if ($self->is_ore($out_chain->supply_type)) {
-                    $total_ore_production_hour -= $supply_hour;
+                my $resource_hour = sprintf('%.0f',$out_chain->resource_hour * $percent / 100);
+                my $resource_name = $self->resource_name($out_chain->resource_type);
+                $stats{$resource_name} -= $resource_hour;
+                if ($self->is_ore($out_chain->resource_type)) {
+                    $total_ore_production_hour -= $resource_hour;
                 }
             }
         }
@@ -999,14 +1000,17 @@ sub recalc_stats {
         },{prefetch => 'building'}
     );
     while (my $in_chain = $input_chains->next) {
+
         my $percent = $in_chain->percent_transferred;
         $percent = $percent > 100 ? 100 : $percent;
         $percent *= $in_chain->building->efficiency / 100;
-        my $supply_hour = sprintf('%.0f',$in_chain->supply_hour * $percent / 100);
-        my $resource_name = $self->resource_name($in_chain->supply_type);
-        $stats{$resource_name} += $supply_hour;
-        if ($self->is_ore($in_chain->supply_type)) {
-            $total_ore_production_hour += $supply_hour;
+        my $resource_hour = sprintf('%.0f',$in_chain->resource_hour * $percent / 100);
+        my $resource_name = $self->resource_name($in_chain->resource_type);
+        $stats{$resource_name} += $resource_hour;
+carp "###>>> In Chain [$resource_hour][$resource_name] <<<###\n";
+#print STDERR Dumper($in_chain);
+        if ($self->is_ore($in_chain->resource_type)) {
+            $total_ore_production_hour += $resource_hour;
         }
     }
 

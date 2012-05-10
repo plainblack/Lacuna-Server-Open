@@ -78,6 +78,12 @@ sub use_existing_test_empire {
     my ($empire) = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({
         name => $self->empire_name,
     });
+    if (not $empire) {
+        $self->generate_test_empire;
+        my $home = $self->empire->home_planet;
+        $self->build_big_colony($home);
+        $empire = $self->empire;
+    }
     $self->session($empire->start_session({api_key => 'tester'}));
     $self->empire($empire);
     return $self;

@@ -3,7 +3,7 @@ use lib '../lib';
 use strict;
 use warnings;
 
-use Test::More tests => 25;
+use Test::More tests => 10;
 use Test::Deep;
 use Data::Dumper;
 use 5.010;
@@ -56,21 +56,38 @@ my $trade = Lacuna->db->resultset('Building')->search({
     rows => 1,
 })->single;
 
-diag "Trade id =[".$trade->id."]";
-$result = $tester->post('trade','get_supply_ships', [$session_id, $trade->id]);
-#diag(Dumper($result->{result}{ships}));
-
 # remove any existing ships from the supply chain
+$result = $tester->post('trade','get_supply_ships', [$session_id, $trade->id]);
 my @ship_ids = map {$_->{id} } grep {$_->{task} eq 'Supply Chain'} @{$result->{result}{ships}};
-diag Dumper(\@ship_ids);
-
 foreach my $ship_id ( @ship_ids ) {
     diag "### remove ship [$ship_id] ###";
     $result = $tester->post('trade', 'remove_supply_ship_from_fleet', [$session_id, $trade->id, $ship_id]);
 }
-exit;
+
+# remove any existing supply chains
+$result = $tester->post('trade','view_supply_chains', [$session_id, $trade->id]);
+my @chain_ids = map {$_->{id} } @{$result->{result}{supply_chains}};
+foreach my $chain_id (@chain_ids) {
+    diag "Remove supply chain [$chain_id]";
+    $result = $tester->post('trade', 'delete_supply_chain', [$session_id, $trade->id, $chain_id]);
+}
+
+# Determine the current resource production of the SS
+$result = $tester->post('body','get_status', [$session_id, $station->id]);
+my $ore_hour    = $result->{result}{body}{ore_hour};
+my $water_hour  = $result->{result}{body}{water_hour};
+my $energy_hour = $result->{result}{body}{energy_hour};
+my $food_hour   = $result->{result}{body}{food_hour};
+diag "ore_hour=[$ore_hour] water_hour=[$water_hour] energy_hour=[$energy_hour] food_hour=[$food_hour]";
+
+# Create supply chains to the SS
+$result = $tester->post('trade','create_supply_chain',[$session_id, $trade->id, $station->id, 'water', -$water_hour]);
+$result = $tester->post('trade','create_supply_chain',[$session_id, $trade->id, $station->id, 'trona', -$ore_hour]);
+$result = $tester->post('trade','create_supply_chain',[$session_id, $trade->id, $station->id, 'energy',-$energy_hour]);
+$result = $tester->post('trade','create_supply_chain',[$session_id, $trade->id, $station->id, 'algae', -$food_hour]);
 
 # get a single ships to add to the supply chain
+$result = $tester->post('trade','get_supply_ships', [$session_id, $trade->id]);
 my ($ship_id) = map {$_->{id} } grep {$_->{task} eq 'Docked' and $_->{type} eq 'hulk'} @{$result->{result}{ships}};
 diag("Ship [$ship_id]");
 ok($ship_id, "We have a ship");
@@ -78,15 +95,19 @@ ok($ship_id, "We have a ship");
 $result = $tester->post('trade','add_supply_ship_to_fleet',[$session_id, $trade->id, $ship_id]);
 is(1, 1, "Added a ship to the fleet");
 
+# Check the status of the supply chain
+$result = $tester->post('trade','view_supply_chains', [$session_id, $trade->id]);
+my @chains = @{$result->{result}{supply_chains}};
+foreach my $chain (@chains) {
+    cmp_ok($chain->{percent_transferred}, ">=", 100, "Transfer enough ".$chain->{resource_type});
+}
 
-
-#my @temp = map { {task => $_->{task}, type => $_->{type} } } @{$result->{result}{ships}};
-#my @comp = ({type=>'scow',task=>'Docked'},{type=>'scow_large',task=>'Docked'});
-#cmp_deeply(\@comp,\@temp, "All ships docked");
-#
-#
-
-
+# check that the station is at equilibrium
+$result = $tester->post('body','get_status', [$session_id, $station->id]);
+is($result->{result}{body}{ore_hour}, 0, "Zero ore");
+is($result->{result}{body}{water_hour}, 0, "Zero water");
+is($result->{result}{body}{energy_hour}, 0, "Zero energy");
+is($result->{result}{body}{food_hour}, 0, "Zero food");
 
 END {
 #    TestHelper->clear_all_test_empires;

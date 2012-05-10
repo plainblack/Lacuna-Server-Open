@@ -125,7 +125,7 @@ sub remove_supply_ship_from_fleet {
 
     my $supply_chain = $building->supply_chains->search({},{rows => 1})->single;
     if (defined $supply_chain) {
-        my $from = $supply_chain->target_id;
+        my $from = $supply_chain->target;
         $building->send_supply_ship_home($from, $ship);
     }
     else {
@@ -219,7 +219,7 @@ sub view_supply_chains {
     }
     return {
         status          => $self->format_status($empire, $building->body),
-        supply_chain  => \@supply_chains,
+        supply_chains  => \@supply_chains,
     };
 }
 
@@ -232,19 +232,70 @@ sub view_waste_chains {
         confess [1002, "Cannot find that building."];
     }
     my $body        = $building->body;
-    my @waste_chain;
+    my @waste_chains;
     my $chains      = $building->waste_chains;
     while (my $waste_push = $chains->next) {
-        push @waste_chain, $waste_push->get_status;
+        push @waste_chains, $waste_push->get_status;
     }
     return {
         status          => $self->format_status($empire, $building->body),
-        waste_chain     => \@waste_chain,
+        waste_chain     => \@waste_chains,
     };
 }
 
+sub delete_supply_chain {
+    my ($self, $session_id, $building_id, $supply_chain_id) = @_;
+
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    unless ($building) {
+        confess [1002, "Cannot find that building."];
+    }
+
+    my $chain = Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->find($supply_chain_id);
+    if ($chain) {
+        $chain->delete;
+    }
+    return $self->view_supply_chains($session_id, $building_id);    
+}
+
+sub create_supply_chain {
+    my ($self, $session_id, $building_id, $target_id, $resource_type, $resource_hour) = @_;
+
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    unless ($building) {
+        confess [1002, "Cannot find that building."];
+    }
+    my $body        = $building->body;
+    unless (defined $resource_hour) {
+        confess [1002, "You must specify an amount for resource_hour."];
+    }
+    unless ($resource_hour >= 0) {
+        confess [1002, "Resource per Hour must be positive or zero."];
+    }
+    unless (first {$resource_type eq $_} (FOOD_TYPES, ORE_TYPES, qw(water waste energy))) {
+        confess [1002, "That is not a valid resource_type."];
+    }
+
+    my $chain       = $building->supply_chains->create({
+        planet_id           => $body->id,
+        building_id         => $building_id,
+        target_id           => $target_id,
+        resource_hour       => $resource_hour,
+        resource_type       => $resource_type,
+        percent_transferred => 0,
+    });
+    unless ($chain) {
+        confess [1002, "Cannot create a supply chain."];
+    }
+    $building->recalc_supply_production;
+
+    return $self->view_supply_chains($session_id, $building_id);
+}
+
 sub update_supply_chain {
-    my ($self, $session_id, $building_id, $supply_chain_id, $supply_type, $supply_hour) = @_;
+    my ($self, $session_id, $building_id, $supply_chain_id, $resource_type, $resource_hour) = @_;
     my $empire      = $self->get_empire_by_session($session_id);
     my $building    = $self->get_building($empire, $building_id);
     unless ($building) {
@@ -254,23 +305,23 @@ sub update_supply_chain {
     unless ($supply_chain_id) {
         confess [1002, "You must specify a supply chain id."];
     }
-    unless (defined $supply_hour) {
-        confess [1002, "You must specify an amount for supply_hour."];
+    unless (defined $resource_hour) {
+        confess [1002, "You must specify an amount for resource_hour."];
     }
-    unless ($supply_hour >= 0) {
+    unless ($resource_hour >= 0) {
         confess [1002, "Resource per Hour must be positive or zero."];
     }
-    unless (first {$supply_type eq $_} (FOOD_TYPES, ORE_TYPES, qw(water waste energy))) {
-        confess [1002, "That is not a valid supply type."];
+    unless (first {$resource_type eq $_} (FOOD_TYPES, ORE_TYPES, qw(water waste energy))) {
+        confess [1002, "That is not a valid resource_type."];
     }
     my $chain       = $building->supply_chains->find($supply_chain_id);
     unless ($chain) {
         confess [1002, "That Supply Chain does not exist on this planet."];
     }
-    $chain->supply_hour(int($supply_hour));
-    $chain->supply_type($supply_type);
+    $chain->resource_hour(int($resource_hour));
+    $chain->resource_type($resource_type);
     $chain->update;
-    $building->recalc_resource_production;
+    $building->recalc_supply__production;
 
     return $self->view_supply_chains($session_id, $building_id);
 }

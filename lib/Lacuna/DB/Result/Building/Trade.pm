@@ -232,7 +232,7 @@ sub recalc_supply_production {
     }
     # Determine the resource/hour for supply chains
     my $chain_rphpd = 0;
-    my $supply_chains   = $self->supply_chains;
+    my $supply_chains   = $self->supply_chains->search({},{prefetch => 'target'});
     while (my $supply_chain = $supply_chains->next) {
         $chain_rphpd += $body->calculate_distance_to_target($supply_chain->target) * 2 * $supply_chain->resource_hour;
     }
@@ -242,13 +242,14 @@ sub recalc_supply_production {
     while (my $supply_chain = $supply_chains->next) {
         $supply_chain->percent_transferred($shipping_capacity);
         $supply_chain->update;
+        my $target = $supply_chain->target;
+        $target->needs_recalc(1);
+        $target->update;
     }
 
     $body->needs_recalc(1);
     $body->update;
 
-    # TODO Do we need to recalc all target bodies?
-    #
     return $self;
 }
     

@@ -671,9 +671,11 @@ still only transfer the specified B<waste_hour>, it just means some ships will b
 fully filled.
 
 
-=head2 create_supply_chain (session_id, building_id, resource_type, resource_hour)
+=head2 create_supply_chain (session_id, building_id, target_id, resource_type, resource_hour)
 
 Create a new supply chain.
+
+B<target_id> is the ID of the target planet (or space station).
 
 B<building_id> is the identifier of the Trade Ministry building.
 
