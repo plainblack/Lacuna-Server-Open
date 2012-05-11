@@ -263,19 +263,46 @@ sub create_supply_chain {
     my ($self, $session_id, $building_id, $target_id, $resource_type, $resource_hour) = @_;
 
     my $empire      = $self->get_empire_by_session($session_id);
+    unless (defined $building_id) {
+        confess [1002, "You must specify a building."];
+    }
+
     my $building    = $self->get_building($empire, $building_id);
     unless ($building) {
         confess [1002, "Cannot find that building."];
     }
     my $body        = $building->body;
+    my $max_chains = $building->level * 3;
+    if ($body->supply_chains->count >= $max_chains) {
+        confess [1002, "You cannot create any more supply chains."];
+    }
+
     unless (defined $resource_hour) {
         confess [1002, "You must specify an amount for resource_hour."];
     }
-    unless ($resource_hour >= 0) {
+    if ($resource_hour < 0) {
         confess [1002, "Resource per Hour must be positive or zero."];
     }
     unless (first {$resource_type eq $_} (FOOD_TYPES, ORE_TYPES, qw(water waste energy))) {
         confess [1002, "That is not a valid resource_type."];
+    }
+    if ($self->id == $target_id) {
+        confess [1002, "You can't set up a supply chain to yourself."];
+    }
+    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id);
+    unless ($target) {
+        confess [1002, "Cannot find that target body."];
+    }
+    # Target must be own empire, or alliance SS
+    if ($target->empire_id != $empire->id) {
+        if ($target->class eq 'Lacuna::DB::Result::Map::Body::Planet::Station') {
+            if ($target->alliance_id != $empire->alliance_id) {
+                confess [1002, "You can only target one of your own alliances Space Stations."];
+            }
+        }
+        else {
+            confess [1002, "You must only target one of your own colonies."];
+        }
     }
 
     my $chain       = $building->supply_chains->create({
