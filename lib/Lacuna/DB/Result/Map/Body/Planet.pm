@@ -931,8 +931,6 @@ sub recalc_chains {
 sub recalc_stats {
     my ($self) = @_;
 
-#    carp "#### recalc_stats ####\n";
-
     my %stats = ( needs_recalc => 0 );
     my $buildings = $self->buildings;
     #reset foods
@@ -977,7 +975,7 @@ sub recalc_stats {
             while (my $waste_chain = $waste_chains->next) {
                 my $percent = $waste_chain->percent_transferred;
                 $percent = $percent > 100 ? 100 : $percent;
-                $percent *= $building->efficiency;
+                $percent *= $building->efficiency / 100;
                 my $waste_hour = sprintf('%.0f',$waste_chain->waste_hour * $percent / 100);
                 $stats{waste_hour} -= $waste_hour;
             }
@@ -1009,9 +1007,10 @@ sub recalc_stats {
         }
     }
 
-    # supply chains sent *to* this planet
+    # active supply chains sent *to* this planet
     my $input_chains = Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->search({
-        target_id => $self->id,
+        target_id   => $self->id,
+        stalled	    => 0,
         },{prefetch => 'building'}
     );
     while (my $in_chain = $input_chains->next) {
@@ -1348,17 +1347,50 @@ sub tick_to {
         }
     }
     # deal with negative amounts stored
-    if ($self->water_stored < 0) {
-      $self->water_stored(0);
+    # and deal with any supply-chains
+    if ($self->water_stored <= 0) {
+        $self->water_stored(0);
+        $self->toggle_supply_chain('water', 1)
     }
-    if ($self->energy_stored < 0) {
-      $self->energy_stored(0);
+    else {
+        $self->toggle_supply_chain('water', 0);
     }
+    if ($self->energy_stored <= 0) {
+        $self->energy_stored(0);
+        $self->toggle_supply_chain('energy', 1);
+    }
+    else {
+        $self->toggle_supply_chain('energy', 0);
+    }
+
     for my $type (FOOD_TYPES, ORE_TYPES) {
-      my $stype = $type.'_stored';
-      $self->$stype(0) if ($self->$stype < 0);
+        my $stype = $type.'_stored';
+        if ($self->$stype <= 0) {
+            $self->$stype(0);
+            $self->toggle_supply_chain($type, 1);
+        }
+        else {
+            $self->toggle_supply_chain($type, 0);
+        }
     }
     $self->update;
+}
+
+sub toggle_supply_chain {
+    my ($self, $resource, $new_state) = @_;
+
+    my $chain_rs = $self->out_supply_chains->search({
+        stalled         => $new_state ? 0 : 1,
+        resource_type   => $resource,
+    },{
+        prefetch => 'target',
+    });
+    while (my $chain = $chain_rs->next) {
+        $chain->stalled($new_state);
+        $chain->update;
+        $chain->target->needs_recalc(1);
+        $chain->target->update;
+    }
 }
 
 sub type_stored {

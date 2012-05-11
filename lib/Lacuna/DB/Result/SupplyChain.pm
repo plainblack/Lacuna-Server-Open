@@ -13,6 +13,7 @@ __PACKAGE__->add_columns(
     resource_hour                   => { data_type => 'int', size => 11, default_value => 0 },
     resource_type                   => { data_type => 'varchar', default_value => '' },
     percent_transferred             => { data_type => 'int', size => 11, default_value => 0 },
+    stalled                         => { data_type => 'int', size => 11, default_value => 0 },
 );
 
 __PACKAGE__->belongs_to('target', 'Lacuna::DB::Result::Map::Body', 'target_id');
