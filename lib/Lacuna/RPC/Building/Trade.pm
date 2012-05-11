@@ -211,6 +211,7 @@ sub view_supply_chains {
         confess [1002, "Cannot find that building."];
     }
 
+    my $max_chains = $building->level * 3;
     my $body        = $building->body;
     my @supply_chains;
     my $chains      = $building->supply_chains;
@@ -220,6 +221,7 @@ sub view_supply_chains {
     return {
         status          => $self->format_status($empire, $building->body),
         supply_chains  => \@supply_chains,
+        max_supply_chains => $max_chains,
     };
 }
 

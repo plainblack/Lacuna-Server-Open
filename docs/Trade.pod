@@ -598,12 +598,13 @@ Returns a list of the supply chains currently controlled by this Trade Ministry
         "resource_type" : 'water',
         "percent_transferred" : 95,
       }
-    ]
+    ],
+    "max_supply_chains" : 30
  }
 
-You can set up three supply-chains for each level of your Trade Ministry. Each 
-supply-chain can transfer any amount of any one resource (food type, ore type
-energy, waste or water).
+Each supply-chain can transfer any amount of any one resource (food type, ore type
+energy, waste or water). B<max_supply_chains> shows you how many Supply Chains
+your Trade Ministry can handle.
 
 The B<building_id> is the identifier for the Trade Ministry that is the source of the
 supply chain.
