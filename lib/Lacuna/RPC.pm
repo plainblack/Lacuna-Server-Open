@@ -61,7 +61,7 @@ sub get_body { # makes for uniform error handling, and prevents staleness
     unless (defined $body) {
         confess [1002, 'Body does not exist.', $body_id];
     }
-    unless ($body->empire_id eq $empire->id) {
+    if ($body->empire_id ne $empire->id) {
         if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
             if ($body->empire->alliance_id eq $empire->alliance_id) {
                 $body->tick;

@@ -236,7 +236,7 @@ sub get_status {
         $status{from}           = $from;
         $status{date_arrives}   = $status{date_available};
     }
-	elsif ($self->task ~~ [qw(Defend Orbiting)]) {
+    elsif ($self->task ~~ [qw(Defend Orbiting)]) {
         my $body = $self->body;
         my $from = {
             id      => $body->id,
@@ -349,8 +349,6 @@ sub calculate_travel_time {
     my $seconds = 60 * 60 * $hours;
     return sprintf('%.0f', $seconds);
 }
-
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

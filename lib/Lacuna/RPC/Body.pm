@@ -9,6 +9,7 @@ use Lacuna::Constants qw(BUILDABLE_CLASSES);
 use DateTime;
 use Lacuna::Util qw(randint);
 use List::MoreUtils qw(uniq);
+use Carp;
 use feature 'switch';
 
 sub get_status {
@@ -392,7 +393,6 @@ sub get_buildable {
         push @buildable, $plan->class->controller_class;
         $plans{$plan->class} = $plan->extra_build_level;
     }
-    
     foreach my $class (uniq @buildable) {
         $properties{class} = $class->model_class;
         my $building = $building_rs->new(\%properties);

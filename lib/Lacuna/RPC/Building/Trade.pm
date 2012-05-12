@@ -6,6 +6,8 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Guard;
+use List::Util qw(first);
+use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES SHIP_WASTE_TYPES SHIP_TRADE_TYPES);
 
 with 'Lacuna::Role::TraderRpc','Lacuna::Role::Ship::Trade';
 
@@ -34,10 +36,47 @@ sub get_trade_ships {
     };
 }
 
+sub add_supply_ship_to_fleet {
+    my ($self, $session_id, $building_id, $ship_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    unless (defined $building) {
+        confess [1002, "Building not found."];
+    }
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+    unless (defined $ship) {
+        confess [1002, "Ship not found."];
+    }
+    unless ($ship->task eq 'Docked') {
+        confess [1009, "That ship is not available."];
+    }
+    unless ($ship->hold_size > 0) {
+        confess [1009, 'That ship has no cargo hold.'];
+    }
+    unless ($ship->body_id eq $building->body_id) {
+        confess [1013, "You can't manage a ship that is not yours."];
+    }
+    unless (first {$ship->type eq $_} (SHIP_TRADE_TYPES)) {
+        confess [1009, 'You can only add transport ships to a supply chain.'];
+    }
+    my $max_berth = $building->body->max_berth;
+
+    unless ($ship->berth_level <= $max_berth) {
+        confess [1009, "You don't have a high enough berth for this ship."];
+    }
+    $building->add_supply_ship($ship);
+    return {
+        status  =>$self->format_status($empire, $building->body),
+    };
+}
+
 sub add_waste_ship_to_fleet {
     my ($self, $session_id, $building_id, $ship_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    unless (defined $building) {
+        confess [1002, "Building not found."];
+    }
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     unless (defined $ship) {
         confess [1002, "Ship not found."];
@@ -65,10 +104,46 @@ sub add_waste_ship_to_fleet {
     };
 }
 
+sub remove_supply_ship_from_fleet {
+    my ($self, $session_id, $building_id, $ship_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    unless (defined $building) {
+        confess [1002, "Building not found."];
+    }
+
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+    unless (defined $ship) {
+        confess [1002, "Ship not found."];
+    }
+    unless ($ship->task eq 'Supply Chain') {
+        confess [1009, "That ship is not in a Supply Chain."];
+    }
+    unless ($ship->body_id eq $building->body_id) {
+        confess [1013, "You can't manage a ship that is not yours."];
+    }
+
+    my $supply_chain = $building->supply_chains->search({},{rows => 1})->single;
+    if (defined $supply_chain) {
+        my $from = $supply_chain->target;
+        $building->send_supply_ship_home($from, $ship);
+    }
+    else {
+        $ship->land->update;
+    }
+    return {
+        status  => $self->format_status($empire, $building->body),
+    };
+}
+
 sub remove_waste_ship_from_fleet {
     my ($self, $session_id, $building_id, $ship_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    unless (defined $building) {
+        confess [1002, "Building not found."];
+    }
+
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     unless (defined $ship) {
         confess [1002, "Ship not found."];
@@ -93,6 +168,23 @@ sub remove_waste_ship_from_fleet {
     };
 }
 
+sub get_supply_ships {
+    my ($self, $session_id, $building_id) = @_;
+
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+
+    my @ships;
+    my $ships       = $building->all_supply_ships;
+    while (my $ship = $ships->next) {
+        push @ships, $ship->get_status;
+    }
+    return {
+        status      => $self->format_status($empire, $building->body),
+        ships       => \@ships,
+    };
+}
+
 sub get_waste_ships {
     my ($self, $session_id, $building_id) = @_;
     my $empire      = $self->get_empire_by_session($session_id);
@@ -111,26 +203,165 @@ sub get_waste_ships {
     };
 }
 
+sub view_supply_chains {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    unless ($building) {
+        confess [1002, "Cannot find that building."];
+    }
+
+    my $max_chains = $building->level * 3;
+    my $body        = $building->body;
+    my @supply_chains;
+    my $chains      = $building->supply_chains;
+    while (my $chain = $chains->next) {
+        push @supply_chains, $chain->get_status;
+    }
+    return {
+        status          => $self->format_status($empire, $building->body),
+        supply_chains  => \@supply_chains,
+        max_supply_chains => $max_chains,
+    };
+}
+
+
 sub view_waste_chains {
     my ($self, $session_id, $building_id) = @_;
     my $empire      = $self->get_empire_by_session($session_id);
     my $building    = $self->get_building($empire, $building_id);
+    unless ($building) {
+        confess [1002, "Cannot find that building."];
+    }
     my $body        = $building->body;
-    my @waste_chain;
+    my @waste_chains;
     my $chains      = $building->waste_chains;
     while (my $waste_push = $chains->next) {
-        push @waste_chain, $waste_push->get_status;
+        push @waste_chains, $waste_push->get_status;
     }
     return {
         status          => $self->format_status($empire, $building->body),
-        waste_chain     => \@waste_chain,
+        waste_chain     => \@waste_chains,
     };
+}
+
+sub delete_supply_chain {
+    my ($self, $session_id, $building_id, $supply_chain_id) = @_;
+
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    unless ($building) {
+        confess [1002, "Cannot find that building."];
+    }
+
+    my $chain = Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->find($supply_chain_id);
+    if ($chain) {
+        $chain->delete;
+    }
+    return $self->view_supply_chains($session_id, $building_id);    
+}
+
+sub create_supply_chain {
+    my ($self, $session_id, $building_id, $target_id, $resource_type, $resource_hour) = @_;
+
+    my $empire      = $self->get_empire_by_session($session_id);
+    unless (defined $building_id) {
+        confess [1002, "You must specify a building."];
+    }
+
+    my $building    = $self->get_building($empire, $building_id);
+    unless ($building) {
+        confess [1002, "Cannot find that building."];
+    }
+    my $body        = $building->body;
+    my $max_chains = $building->level * 3;
+    if ($body->supply_chains->count >= $max_chains) {
+        confess [1002, "You cannot create any more supply chains."];
+    }
+
+    unless (defined $resource_hour) {
+        confess [1002, "You must specify an amount for resource_hour."];
+    }
+    if ($resource_hour < 0) {
+        confess [1002, "Resource per Hour must be positive or zero."];
+    }
+    unless (first {$resource_type eq $_} (FOOD_TYPES, ORE_TYPES, qw(water waste energy))) {
+        confess [1002, "That is not a valid resource_type."];
+    }
+    if ($self->id == $target_id) {
+        confess [1002, "You can't set up a supply chain to yourself."];
+    }
+    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id);
+    unless ($target) {
+        confess [1002, "Cannot find that target body."];
+    }
+    # Target must be own empire, or alliance SS
+    if ($target->empire_id != $empire->id) {
+        if ($target->class eq 'Lacuna::DB::Result::Map::Body::Planet::Station') {
+            if ($target->alliance_id != $empire->alliance_id) {
+                confess [1002, "You can only target one of your own alliances Space Stations."];
+            }
+        }
+        else {
+            confess [1002, "You must only target one of your own colonies."];
+        }
+    }
+
+    my $chain       = $building->supply_chains->create({
+        planet_id           => $body->id,
+        building_id         => $building_id,
+        target_id           => $target_id,
+        resource_hour       => $resource_hour,
+        resource_type       => $resource_type,
+        percent_transferred => 0,
+    });
+    unless ($chain) {
+        confess [1002, "Cannot create a supply chain."];
+    }
+    $building->recalc_supply_production;
+
+    return $self->view_supply_chains($session_id, $building_id);
+}
+
+sub update_supply_chain {
+    my ($self, $session_id, $building_id, $supply_chain_id, $resource_type, $resource_hour) = @_;
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    unless ($building) {
+        confess [1002, "Cannot find that building."];
+    }
+    my $body        = $building->body;
+    unless ($supply_chain_id) {
+        confess [1002, "You must specify a supply chain id."];
+    }
+    unless (defined $resource_hour) {
+        confess [1002, "You must specify an amount for resource_hour."];
+    }
+    unless ($resource_hour >= 0) {
+        confess [1002, "Resource per Hour must be positive or zero."];
+    }
+    unless (first {$resource_type eq $_} (FOOD_TYPES, ORE_TYPES, qw(water waste energy))) {
+        confess [1002, "That is not a valid resource_type."];
+    }
+    my $chain       = $building->supply_chains->find($supply_chain_id);
+    unless ($chain) {
+        confess [1002, "That Supply Chain does not exist on this planet."];
+    }
+    $chain->resource_hour(int($resource_hour));
+    $chain->resource_type($resource_type);
+    $chain->update;
+    $building->recalc_supply_production;
+
+    return $self->view_supply_chains($session_id, $building_id);
 }
 
 sub update_waste_chain {
     my ($self, $session_id, $building_id, $waste_chain_id, $waste_hour) = @_;
     my $empire      = $self->get_empire_by_session($session_id);
     my $building    = $self->get_building($empire, $building_id);
+    unless ($building) {
+        confess [1002, "Cannot find that building."];
+    }
     my $body        = $building->body;
     unless ($waste_chain_id) {
         confess [1002, "You must specify a waste chain id."];
@@ -306,7 +537,7 @@ sub add_to_market {
 
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_waste_ships view_waste_chains add_waste_ship_to_fleet remove_waste_ship_from_fleet update_waste_chain report_abuse view_my_market view_market accept_from_market withdraw_from_market add_to_market push_items get_trade_ships get_stored_resources get_ships get_ship_summary get_prisoners get_plans get_plan_summary get_glyphs get_glyph_summary));
+__PACKAGE__->register_rpc_method_names(qw(get_supply_ships view_supply_chains add_supply_ship_to_fleet remove_supply_ship_from_fleet create_supply_chain delete_supply_chain update_supply_chain get_waste_ships view_waste_chains add_waste_ship_to_fleet remove_waste_ship_from_fleet update_waste_chain report_abuse view_my_market view_market accept_from_market withdraw_from_market add_to_market push_items get_trade_ships get_stored_resources get_ships get_ship_summary get_prisoners get_plans get_plan_summary get_glyphs get_glyph_summary));
 
 
 no Moose;

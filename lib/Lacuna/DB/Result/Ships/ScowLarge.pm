@@ -17,7 +17,7 @@ use constant base_combat            => 600;
 use constant base_stealth           => 0;
 use constant base_hold_size         => 12000;
 use constant base_berth_level       => 15;
-use constant build_tags             => [qw(War Trade)];
+use constant build_tags             => [qw(War WasteChain)];
 
 with "Lacuna::Role::Ship::Send::PlanetAndStar";
 with "Lacuna::Role::Ship::Send::MaybeHostile";

@@ -7,6 +7,7 @@ use Carp;
 use utf8;
 use List::Util qw(max);
 use Data::Dumper;
+use Lacuna::Constants qw(SHIP_TRADE_TYPES SHIP_WASTE_TYPES);
 
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
@@ -50,6 +51,13 @@ use constant water_consumption => 5;
 
 use constant waste_production => 1;
 
+sub supply_chains {
+    my ($self) = @_;
+
+    return Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->search({ planet_id => $self->body_id });
+}
+
+    
 sub waste_chains {
     my $self = shift;
 
@@ -65,35 +73,14 @@ sub waste_chains {
     }
     return Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->search({ planet_id => $self->body_id });
 }
+
+# Ships that are currently in a supply chain
 sub supply_ships {
-    my $self = shift;
+    my ($self) = @_;
+
     return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
         body_id => $self->body_id,
         task => 'Supply Chain',
-    });
-}
-
-sub all_supply_ships {
-    my $self = shift;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
-        body_id => $self->body_id, 
-        -or => {
-            task => 'Supply Chain',
-            -and => [
-                task => 'Docked',
-                type => { '=', [
-                    'cargo_ship',
-                    'smuggler_ship',
-                    'freighter',
-                    'dory',
-                    'barge',
-                    'galleon',
-                    'hulk',
-                    'hulk_fast',
-                    'hulk_huge',
-                ]}
-            ]
-        } 
     });
 }
 
@@ -107,23 +94,49 @@ sub waste_ships {
     });
 }
 
+# All ships that are either in a supply chain, or available to be so
+sub all_supply_ships {
+    my $self = shift;
+    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
+        class       => 'Lacuna::DB::Result::Building::SpacePort',
+        body_id     => $self->body_id,
+        efficiency  => 100,
+        })->get_column('level')->max || 0;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+        body_id => $self->body_id,
+        -or => {
+            task => 'Supply Chain',
+            -and => [
+                task => 'Docked',
+                berth_level => {'<=' => $max_level},
+                type => { '=', [SHIP_TRADE_TYPES]},
+            ]
+        }
+    },{
+        order_by => {-desc => [qw(task hold_size)]},
+    });
+}
+
 # All ships that are either in a waste chain, or available to be so
 sub all_waste_ships {
     my $self = shift;
+    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
+        class       => 'Lacuna::DB::Result::Building::SpacePort',
+        body_id     => $self->body_id,
+        efficiency  => 100,
+        })->get_column('level')->max || 0;
     return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
         body_id => $self->body_id,
         -or => { 
             task => 'Waste Chain',
             -and => [
                 task => 'Docked',
-                type => { '=', [
-                    'scow',
-                    'scow_large',
-                    'scow_mega',
-                    'scow_fast',
-                ]}
+                berth_level => {'<=' => $max_level},
+                type => { '=', [SHIP_WASTE_TYPES]},
             ]
         }
+    },{
+        order_by => {-desc => [qw(task hold_size)]},
     });
 }
 
@@ -193,6 +206,53 @@ sub remove_waste_chain {
     $self->recalc_waste_production;
     return $self;
 }
+
+sub remove_supply_chain {
+    my ($self, $supply_chain) = @_;
+    if ($self->supply_chain->count == 1) {
+        my $ships = $self->supply_ships;
+        while (my $ship = $ships->next) {
+            $self->sent_supply_ship_home($supply_chain->target, $ship);
+        }
+    }
+    $supply_chain->delete;
+    $self->recalc_supply_production;
+    return $self;
+}
+
+sub recalc_supply_production {
+    my ($self) = @_;
+    my $body = $self->body;
+
+    # Determine the resource/hour/distance for the ship
+    my $ship_rphpd = 0;
+    my $ships = $self->supply_ships;
+    while (my $ship = $ships->next) {
+        $ship_rphpd += $ship->hold_size * $ship->speed;
+    }
+    # Determine the resource/hour for supply chains
+    my $chain_rphpd = 0;
+    my $supply_chains   = $self->supply_chains->search({},{prefetch => 'target'});
+    while (my $supply_chain = $supply_chains->next) {
+        $chain_rphpd += $body->calculate_distance_to_target($supply_chain->target) * 2 * $supply_chain->resource_hour;
+    }
+    my $shipping_capacity = $chain_rphpd ? sprintf('%.0f',($ship_rphpd / $chain_rphpd) * 100) : 0;
+
+    $supply_chains->reset;
+    while (my $supply_chain = $supply_chains->next) {
+        $supply_chain->percent_transferred($shipping_capacity);
+        $supply_chain->update;
+        my $target = $supply_chain->target;
+        $target->needs_recalc(1);
+        $target->update;
+    }
+
+    $body->needs_recalc(1);
+    $body->update;
+
+    return $self;
+}
+    
 
 sub recalc_waste_production {
     my ($self) = @_;
@@ -315,10 +375,10 @@ sub trade_ships {
             class       => 'Lacuna::DB::Result::Building::SpacePort',
             body_id     => $self->body_id,
             efficiency  => 100,
-         } )->get_column('level')->max;
+         } )->get_column('level')->max || 0;
     return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
         task    => 'Docked',
-        type    => { 'in' => [qw(dory barge galleon hulk hulk_huge hulk_fast cargo_ship freighter smuggler_ship)] },
+        type    => { 'in' => [SHIP_TRADE_TYPES] },
         body_id => $self->body_id,
         berth_level => {'<=' => $max_level }
     },
