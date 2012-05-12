@@ -201,16 +201,19 @@ sub dig_it {
     when ("destroy") {
       if (randint(0,99) < 5) {
         my $message = random_element([
+                        'Auntie Em, where\'s Toto? Its a twister! Its a twister!',
                         'Aw, there\'s something behind me, isn\'t there?',
                         'Dave, this conversation can serve no purpose anymore. Goodbye.',
                         'Did you notice anything weird a minute ago?',
+                        'Doh!',
                         'Good. For a moment there, I thought we were in trouble.',
                         'Hasta la vista, baby',
+                        'Hey, what does this red button do?',
                         'Houston.. we have a problem',
                         'I say we take off and nuke the site from orbit. It\'s the only way to be sure.',
+                        'It\'s dead Jim.',
                         'It\'s just a harmless little bunny...',
-                        'It\'s full of stars',
-                        'Auntie Em, where\'s Toto? Its a twister! Its a twister!',
+                        'It\'s full of stars.',
                         'Looks like I picked the wrong week to stop sniffing glue.',
                         'Klaatu Barada Ni*cough*',
                         'Oh no, not again.',
@@ -227,7 +230,7 @@ sub dig_it {
                         'We have top men working on it now.',
                                     ]);
         $result = {
-          message => $message,
+          message => "$message",
           outcome => "Destroyed",
         };
         $self->body->add_news(10, "$message");
