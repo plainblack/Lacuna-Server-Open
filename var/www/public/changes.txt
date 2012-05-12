@@ -1,12 +1,14 @@
 3.0851:
+ - Add: API only, supply chain to any planet or SS. Note. No UI support yet.
+ - Fix: Damaged Trade Ministry reduces the waste transferred in a waste chain.
+ - Fix: Scows are no longer are tagged with 'Trade'
  - Mod: Change in consumption rates for secondary food.
  - Fix: Colony ships and trade ships in flight away from insurrected planet now switch flag to their own Capitol.
  - Mod: Ships in a fleet will return at their own speed if on return trip.
- - Fix: Waste Chains have star_id change to current star in moved via BHG.
  - Mod: Damaged Platforms give plots based on efficiency.
  - Fix: Deployed Bleeders no longer count toward population totals.
  - Mod: Supply Pods no longer use a plot.
- - Mod: Having negative plots available makes your people unhappy.
+ - Mod: Being at negative plots makes your people unhappy.
  - Mod: Stockpile rules change in testing.
  - Mod: Short Range Colony Ships faster, but limited in range.
 

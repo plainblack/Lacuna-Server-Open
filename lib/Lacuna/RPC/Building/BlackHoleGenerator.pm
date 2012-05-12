@@ -483,12 +483,14 @@ sub bhg_swap {
   my $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
                       ->search({ planet_id => $body->id });
   if ($waste_chain->count > 0) {
-   while (my $chain = $waste_chain->next) {
-     $chain->update({
-       star_id => $new_data->{star_id}
-     });
-   }
+    while (my $chain = $waste_chain->next) {
+      $chain->update({
+        star_id => $new_data->{star_id}
+      });
+    }
   }
+  $body->recalc_chains;
+
   unless ($new_data->{type} eq "empty") {
     $target->update({
       needs_recalc => 1,
@@ -507,6 +509,7 @@ sub bhg_swap {
        });
      }
     }
+    $target->recalc_chains;
   }
   return {
     id       => $body->id,
