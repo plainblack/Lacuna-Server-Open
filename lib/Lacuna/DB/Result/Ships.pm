@@ -174,7 +174,13 @@ sub can_recall {
 
 sub type_formatted {
     my $self = shift;
-    my $type = $self->type;
+
+    return $self->type_human($self->type);
+}
+
+sub type_human {
+    my ($self, $type) = @_;
+
     $type =~ s/_/ /g;
     $type =~ s/\b(\w)/\u$1/g;
     return $type;
@@ -276,7 +282,9 @@ sub send {
     $self->payload($options{payload} || {});
     $self->roundtrip($options{roundtrip} || 0);
     $self->direction($options{direction} || 'out');
-    $self->date_available(DateTime->now->add(seconds=>$self->calculate_travel_time($options{target})));
+    my $arrival = $options{arrival} || DateTime->now->add(seconds=>$self->calculate_travel_time($options{target}));
+    $self->date_available($arrival);
+
     if ($options{target}->isa('Lacuna::DB::Result::Map::Body')) {
         $self->foreign_body_id($options{target}->id);
         $self->foreign_body($options{target});
@@ -336,11 +344,19 @@ sub land {
 
 sub calculate_travel_time {
     my ($self, $target) = @_;
+
     my $distance = $self->body->calculate_distance_to_target($target);
     my $speed = $self->speed;
     if ( $self->fleet_speed > 0 && $self->fleet_speed < $self->speed ) {
         $speed = $self->fleet_speed;
     }
+    return $self->travel_time($self->body, $target, $speed);
+}
+
+sub travel_time {
+    my ($class, $from, $target, $speed) = @_;
+
+    my $distance = $from->calculate_distance_to_target($target);
     $speed ||= 1;
     my $hours = $distance / $speed;
     my $seconds = 60 * 60 * $hours;
