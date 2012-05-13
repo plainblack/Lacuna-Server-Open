@@ -261,7 +261,7 @@ sub find_arrival {
 }
 
 sub send_ship_types {
-    my ($self, $session_id, $from_body_id, $target_params, $type_params, $arrival) = @_;
+    my ($self, $session_id, $body_id, $target_params, $type_params, $arrival) = @_;
 
     my $empire  = $self->get_empire_by_session($session_id);
     my $body    = $self->get_body($empire, $body_id);
@@ -323,7 +323,7 @@ sub send_ship_types {
         $ship->fleet_speed(1);
         $ship->send(target => $target, arrival => $arrival);
     }
-    
+    return $self->get_fleet_for($session, $body_id, $target_params);
 }
 
 sub send_fleet {
