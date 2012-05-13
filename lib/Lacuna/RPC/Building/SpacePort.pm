@@ -230,11 +230,7 @@ sub find_arrival {
     my $second  = $arrival_params->{second};
 
     if (not defined $day or $day < 1 or $day > $mon_end->day) {
-<<<<<<< HEAD
         confess [1009, "Invalid day. [$day][".Dumper($arrival_params)."]"];
-=======
-        confess [1009, 'Invalid day.'];
->>>>>>> Started adding new fleet action API calls
     }
     if (not defined $hour or $hour != int($hour) or $hour < 0 or $hour > 23) {
         confess [1002, 'Invalid hour.'];
@@ -242,13 +238,8 @@ sub find_arrival {
     if (not defined $minute or $minute != int($minute) or $minute < 0 or $minute > 59) {
         confess [1002, 'Invalid minute.'];
     }
-<<<<<<< HEAD
     if (not defined $second or $second != 0 and $second != 15 and $second != 30 and $second != 45) {
         confess [1002, 'Invalid second. Must be 0, 15, 30 or 45'];
-=======
-    if (not defined $second or $second != int($second) or $second < 0 or $second > 59) {
-        confess [1002, 'Invalid second.'];
->>>>>>> Started adding new fleet action API calls
     }
     if ($day < $now->day) {
         # Then it must be a day next month
@@ -268,11 +259,7 @@ sub find_arrival {
 }
 
 sub send_ship_types {
-<<<<<<< HEAD
     my ($self, $session_id, $body_id, $target_params, $type_params, $arrival_params) = @_;
-=======
-    my ($self, $session_id, $from_body_id, $target_params, $type_params, $arrival) = @_;
->>>>>>> Started adding new fleet action API calls
 
     my $empire  = $self->get_empire_by_session($session_id);
     my $body    = $self->get_body($empire, $body_id);
@@ -322,12 +309,7 @@ sub send_ship_types {
             $do_captcha_check = 1;
         }
         foreach my $ship (@ships) {
-<<<<<<< HEAD
             $ship_ref->{$ship->id} = $ship;
-=======
-            my $hash = "${type}#${speed}#${stealth}#${combat}";
-            $ship_ref->{$hash} = $ship;
->>>>>>> Started adding new fleet action API calls
         }
     }
     if ($do_captcha_check) {
@@ -338,11 +320,7 @@ sub send_ship_types {
         $ship->fleet_speed(1);
         $ship->send(target => $target, arrival => $arrival);
     }
-<<<<<<< HEAD
     return $self->get_fleet_for($session_id, $body_id, $target_params);
-=======
-    
->>>>>>> Started adding new fleet action API calls
 }
 
 sub send_fleet {
