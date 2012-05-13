@@ -230,7 +230,7 @@ sub find_arrival {
     my $second  = $arrival_params->{second};
 
     if (not defined $day or $day < 1 or $day > $mon_end->day) {
-        confess [1009, "Invalid day. [$day][".Dumper($arrival_params)."]"];
+        confess [1009, 'Invalid day.'];
     }
     if (not defined $hour or $hour != int($hour) or $hour < 0 or $hour > 23) {
         confess [1002, 'Invalid hour.'];
@@ -1058,7 +1058,6 @@ around 'view' => sub {
 };
  
 __PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for view_foreign_ships get_ships_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_ships_travelling view_all_ships view_battle_logs));
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
