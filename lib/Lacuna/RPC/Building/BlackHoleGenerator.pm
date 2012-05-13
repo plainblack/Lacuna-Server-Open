@@ -162,12 +162,12 @@ sub task_chance {
   }
   my $range = $building->level * 10;
   my $return = {
-    success => 0,
-    body_id => $target_id,
-    dist    => $dist,
-    range   => $range,
-    throw   => 0,
-    reason  => '',
+    success   => 0,
+    body_id   => $target_id,
+    dist      => $dist,
+    range     => $range,
+    throw     => 0,
+    reason    => '',
   };
   unless ($building->level >= $task->{min_level}) {
     $return->{throw}  = 1013;
@@ -186,7 +186,7 @@ sub task_chance {
                         ' with a range of '.$range.'.';
     return $return;
   }
-  $return->{success} = int((100 - $task->{base_fail}) * sqrt( ($range - $dist)/$range));
+  $return->{success} = (100 - $task->{base_fail}) - int( ($dist/$range) * (95-$task->{base_fail}));
   $return->{success} = 5 if $return->{success} < 5;
   return $return;
 }
@@ -214,12 +214,14 @@ sub generate_singularity {
   if ($chance->{throw} > 0) {
     confess [ $chance->{throw}, $chance->{reason} ];
   }
-# TEST SETTINGS
-#  $task->{waste_cost} = 1;
-#  $task->{recovery} = 5;
-#  $task->{side_chance} = 95;
-#  $chance->{success} = 100;
-# TEST SETTINGS
+  my $bhg_test = Lacuna->config->get('bhg_test');
+  if ($bhg_test) {
+    $task->{waste_cost}  = $bhg_test->{waste_cost}  if ($bhg_test->{waste_cost});
+    $task->{recovery}    = $bhg_test->{recovery}    if ($bhg_test->{recovery});
+    $task->{side_chance} = $bhg_test->{side_chance} if ($bhg_test->{side_chance});
+    $chance->{success}   = $bhg_test->{success}     if ($bhg_test->{success});
+  }
+  
   my $btype;
   my $tempire;
   my $tstar;
@@ -1083,7 +1085,7 @@ sub bhg_tasks {
       min_level    => 10,
       recovery     => int($day_sec * 90/$blevel),
       waste_cost   => 50_000_000,
-      base_fail    => int(100 - $building->level * 3),
+      base_fail    => 40 - $building->level, # 10% - 40%
       side_chance  => 25,
     },
     {
@@ -1094,7 +1096,7 @@ sub bhg_tasks {
       min_level    => 15,
       recovery     => int($day_sec * 90/$blevel),
       waste_cost   => 100_000_000,
-      base_fail    => int(100 - $building->level * 2.75),
+      base_fail    => 40 - int(($building->level - 15) * (25/15)),
       side_chance  => 40,
     },
     {
@@ -1103,9 +1105,9 @@ sub bhg_tasks {
       reason       => "You can only increase the sizes of habitable planets and asteroids.",
       occupied     => 1,
       min_level    => 20,
-      recovery     => int($day_sec * 180/$blevel),
+      recovery     => int($day_sec * 120/$blevel),
       waste_cost   => 1_000_000_000,
-      base_fail    => int(100 - $building->level * 2.5),
+      base_fail    => 40 - int( ($building->level - 20) * 2), # 20% - 40%
       side_chance  => 60,
     },
     {
@@ -1114,9 +1116,9 @@ sub bhg_tasks {
       reason       => "You can only change the type of habitable planets.",
       occupied     => 1,
       min_level    => 25,
-      recovery     => int($day_sec * 300/$blevel),
+      recovery     => int($day_sec * 180/$blevel),
       waste_cost   => 10_000_000_000,
-      base_fail    => int(100 - $building->level * 2.25),
+      base_fail    => int(65 - $building->level), # 35% - %40
       side_chance  => 75,
     },
     {
@@ -1125,9 +1127,9 @@ sub bhg_tasks {
       reason       => "All targets.",
       occupied     => 1,
       min_level    => 30,
-      recovery     => int($day_sec * 360/$blevel),
+      recovery     => int($day_sec * 240/$blevel),
       waste_cost   => 15_000_000_000,
-      base_fail    => int(100 - $building->level * 2),
+      base_fail    => int(100 - $building->level * 2), # 40% fail
       side_chance  => 90,
     },
   );
