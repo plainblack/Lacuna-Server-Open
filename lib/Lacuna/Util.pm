@@ -6,7 +6,7 @@ use DateTime::Format::Duration;
 use DateTime::Format::Strptime;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(randint format_date random_element commify);
+@EXPORT_OK = qw(randint format_date random_element commify consolidate_items);
 
 
 sub format_date {
@@ -34,6 +34,20 @@ sub commify {
 	my $text = reverse $_[0];
 	$text =~ s/(\d\d\d)(?=\d)(?!\d*\.)/$1,/g;
 	return scalar reverse $text;
+}
+
+sub consolidate_items {
+  my ($item_arr) = @_;
+
+  my $item_hash = {};
+  for my $item (@{$item_arr}) {
+    $item_hash->{$item}++;
+  }
+  undef $item_arr;
+  for my $item (sort keys %{$item_hash}) {
+    push @{$item_arr}, sprintf("%5s %s", commify($item_hash->{$item}), $item);
+  }
+  return $item_arr;
 }
 
 1;

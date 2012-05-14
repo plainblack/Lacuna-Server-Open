@@ -2,7 +2,7 @@ package Lacuna::Role::Container;
 
 use Moose::Role;
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
-use Lacuna::Util qw(format_date commify);
+use Lacuna::Util qw(format_date commify consolidate_items);
 
 requires "payload";
 
@@ -110,50 +110,36 @@ sub unload {
     return $self;
 }
 
-sub consolidate {
-  my ($items) = @_;
-
-  my %items;
-  my @items;
-  for my $item (@$items) {
-    $items{$item}++;
-  }
-  for my $item (sort keys %items) {
-    push @items, sprintf("%5s %s", commify($items{$item}), $item);
-  }
-  return \@items;
-}
-
 sub format_description_of_payload {
     my ($self) = @_;
-    my @items;
-    my @scratch;
+    my $item_arr;
+    my $scratch;
     my $payload = $self->payload;
     
     # essentia
-    push @items, sprintf('%s essentia.', commify($payload->{essentia})) if ($payload->{essentia});
+    push @{$item_arr}, sprintf('%s essentia.', commify($payload->{essentia})) if ($payload->{essentia});
     
     # resources
     foreach my $resource (keys %{ $payload->{resources}}) {
-        push @items, sprintf('%s %s', commify($payload->{resources}{$resource}), $resource);
+        push @{$item_arr}, sprintf('%s %s', commify($payload->{resources}{$resource}), $resource);
     }
     
     # glyphs
-    @scratch = ();
+    undef $scratch;
     foreach my $glyph (@{$payload->{glyphs}}) {
-        push @scratch, $glyph.' glyph';
+        push @{$scratch}, $glyph.' glyph';
     }
-    push @items, @{consolidate(\@scratch)};
+    push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
     
     # ships
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     
-    @scratch = ();
+    undef $scratch;
     foreach my $id (@{ $payload->{ships}}) {
       my $ship = $ships->find($id);
       next unless defined $ship;
       my $pattern = '%s (speed: %s, stealth: %s, hold size: %s, berth: %s, combat: %s)' ;
-      push @scratch,
+      push @{$scratch},
            sprintf($pattern,
                    $ship->type_formatted,
                    commify($ship->speed),
@@ -162,53 +148,53 @@ sub format_description_of_payload {
                    commify($ship->berth_level),
                    commify($ship->combat));
     }
-    push @items, @{consolidate(\@scratch)};
+    push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
 
     # plans
-    @scratch = ();
+    undef $scratch;
     foreach my $stats (@{ $payload->{plans}}) {
         my $level = $stats->{level};
         if ($stats->{extra_build_level}) {
             $level .= '+'.$stats->{extra_build_level};
         }
         my $pattern = '%s (%s) plan'; 
-        push @scratch, sprintf($pattern, $stats->{class}->name, $level);
+        push @{$scratch}, sprintf($pattern, $stats->{class}->name, $level);
     }
-    push @items, @{consolidate(\@scratch)};
+    push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
     
     # spies
-    @scratch = ();
+    undef $scratch;
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
     if (exists $payload->{spies}) {
         foreach my $id (@{$payload->{spies}}) {
             my $spy = $spies->find($id);
             next unless defined $spy;
-            push @scratch, 'Level '.$spy->level.' spy named '.$spy->name . ' (transport)';
+            push @{$scratch}, 'Level '.$spy->level.' spy named '.$spy->name . ' (transport)';
         }
     }
-    push @items, @{consolidate(\@scratch)};
+    push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
     
     # prisoners
-    @scratch = ();
+    undef $scratch;
     if (exists $payload->{prisoners}) {
         foreach my $id (@{$payload->{prisoners}}) {
             my $spy = $spies->find($id);
             next unless defined $spy;
-            push @scratch, 'Level '.$spy->level.' spy named '.$spy->name . ' (prisoner) sentence expires '.$spy->format_available_on;
+            push @{$scratch}, 'Level '.$spy->level.' spy named '.$spy->name . ' (prisoner) sentence expires '.$spy->format_available_on;
         }
     }
-    push @items, @{consolidate(\@scratch)};
+    push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
     
     # fetch spies
-    @scratch = ();
+    undef $scratch;
     if (exists $payload->{fetch_spies}) {
         foreach my $id (@{$payload->{fetch_spies}}) {
             my $spy = $spies->find($id);
-            push @scratch, 'Level '.$spy->level.' spy named '.$spy->name . ' (fetch upon arrival)';
+            push @{$scratch}, 'Level '.$spy->level.' spy named '.$spy->name . ' (fetch upon arrival)';
         }
     }
     
-    return \@items;
+    return $item_arr;
 }
 
 
