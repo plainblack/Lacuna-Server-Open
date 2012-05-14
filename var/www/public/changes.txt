@@ -1,4 +1,5 @@
 3.0851:
+ - Mod: You don't have to build all Halls of Vrbansk to sacrifice (only one)
  - Add: API only, supply chain to any planet or SS. Note. No UI support yet.
  - Fix: Damaged Trade Ministry reduces the waste transferred in a waste chain.
  - Fix: Scows are no longer are tagged with 'Trade'

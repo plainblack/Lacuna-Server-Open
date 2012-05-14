@@ -2,6 +2,8 @@ package Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk;
 
 use Moose;
 use utf8;
+use List::Util qw(min);
+
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
@@ -42,9 +44,20 @@ sub get_upgradable_buildings {
     my ($self) = @_;
     my $body    = $self->body;
     $body->update;
-    my @halls   = $self->get_halls->get_column('id')->all;
-    my $max_level = scalar @halls;
+    # The max_level is represented by the number of halls already
+    # built, plus the minimum of the number of free building spaces or
+    # the number of hall plans
+    my $halls = $self->get_halls->count;
+    my $plans = Lacuna->db->resultset('Plans')->search({
+        body_id => $body->id,
+        class => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk',
+    })->count;
+    my $buildings = Lacuna->db->resultset('Building')->search({
+        body_id => $body->id,
+    })->count;
+    my $max_level = $halls + min(( 121 - $buildings), $plans);
     $max_level = 30 if $max_level > 30;
+
     my $rs = $body->buildings->search({
         level   => { '<' => $max_level },
         -and    => [
