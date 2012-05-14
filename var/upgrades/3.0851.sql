@@ -16,3 +16,5 @@ create table supply_chain (
 
 alter table waste_chain modify waste_hour bigint;
 
+update waste_chain,body set waste_chain.star_id=body.star_id where waste_chain.planet_id=body.id;
+
