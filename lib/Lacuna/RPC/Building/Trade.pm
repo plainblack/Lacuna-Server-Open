@@ -275,8 +275,8 @@ sub create_supply_chain {
     }
     my $body        = $building->body;
     my $max_chains = $building->level * 3;
-    if ($body->supply_chains->count >= $max_chains) {
-        confess [1002, "You cannot create any more supply chains."];
+    if ($body->out_supply_chains->count >= $max_chains) {
+        confess [1002, "You cannot create any more supply chains outgoing from this planet."];
     }
 
     unless (defined $resource_hour) {
