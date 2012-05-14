@@ -52,9 +52,22 @@ sub sacrifice_to_upgrade {
     my $body = $building->body;
     $upgrade->body($body);
     $upgrade->start_upgrade;
-    my $halls = $building->get_halls;
-    foreach (1..$upgrade->level + 1) {
-        $halls->next->delete;
+    # get the number of built halls
+    my @halls = $building->get_halls->search(undef, {rows => $upgrade->level + 1});
+    # get the remaining plans
+    my $plans_needed = $upgrade->level + 1 - scalar @halls;
+    my @plans;
+    if ($plans_needed > 0) {
+        @plans = $body->plans->search({
+            class => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'
+        },{rows => $plans_needed}
+        );
+    }
+    foreach my $hall (@halls) {
+        $hall->delete;
+    }
+    foreach my $plan (@plans) {
+        $plan->delete;
     }
     $body->needs_surface_refresh(1);
     $body->update;
