@@ -1091,7 +1091,7 @@ sub recalc_stats {
       if ( $stats{happiness_hour} < 0 and $stats{happiness_hour} > $neg_hr) {
         $stats{happiness_hour} = $neg_hr;
       }
-      elsif ( ( $stats{happiness_hour} - $neg_hr) < $plot_tax)) {
+      elsif ( ( $stats{happiness_hour} - $neg_hr) < $plot_tax) {
         $stats{happiness_hour} = $neg_hr;
       }
       else {
