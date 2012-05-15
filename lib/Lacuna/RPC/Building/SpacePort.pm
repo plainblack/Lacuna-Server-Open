@@ -230,7 +230,7 @@ sub find_arrival {
     my $second  = $arrival_params->{second};
 
     if (not defined $day or $day < 1 or $day > $mon_end->day) {
-        confess [1009, 'Invalid day.'];
+        confess [1009, "Invalid day. [$day][".Dumper($arrival_params)."]"];
     }
     if (not defined $hour or $hour != int($hour) or $hour < 0 or $hour > 23) {
         confess [1002, 'Invalid hour.'];
