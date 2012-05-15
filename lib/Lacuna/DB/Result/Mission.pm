@@ -344,7 +344,8 @@ sub format_items {
     push @{$scratch}, $glyph.' glyph';
   }
   if (defined($scratch)) {
-  push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
+    push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
+  }
     
   # ships
   undef $scratch;
