@@ -344,7 +344,7 @@ sub format_items {
     push @{$item_tmp}, $glyph.' glyph';
   }
   if (defined($item_tmp)) {
-    push @{$item_arr}, @{consolidate_items($item_tmp)} if (defined($item_tmp));
+    push @{$item_arr}, @{consolidate_items($item_tmp)};
   }
     
   # ships
@@ -401,7 +401,7 @@ sub format_items {
     push @{$item_arr}, @{consolidate_items($item_tmp)};
   }
     
-  return $items;
+  return $item_arr;
 }
 
 sub sqlt_deploy_hook {
