@@ -343,6 +343,7 @@ sub format_items {
   foreach my $glyph (@{$items->{glyphs}}) {
     push @{$scratch}, $glyph.' glyph';
   }
+  if (defined($scratch)) {
   push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
     
   # ships
@@ -355,7 +356,9 @@ sub format_items {
          sprintf($pattern, $ship->type_formatted, commify($stats->{speed}),
                  commify($stats->{stealth}), commify($stats->{hold_size}), commify($stats->{combat}));
   }
-  push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
+  if (defined($scratch)) {
+    push @{$item_arr}, @{consolidate_items($scratch)};
+  }
 
   # fleet movement
   if ($is_objective && exists $items->{fleet_movement}) {
@@ -378,7 +381,9 @@ sub format_items {
       }
       push @{$scratch}, 'Send '.$ship->type_formatted.' to '.$target->name.' ('.$target->x.','.$target->y.').';
     }
-    push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
+    if (defined($scratch)) {
+      push @{$item_arr}, @{consolidate_items($scratch)};
+    }
   }
 
   # plans
@@ -391,7 +396,9 @@ sub format_items {
     my $pattern = $is_objective ? '%s (>= %s) plan' : '%s (%s) plan'; 
     push @{$scratch}, sprintf($pattern, $stats->{classname}->name, $level);
   }
-  push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
+  if (defined($scratch)) {
+    push @{$item_arr}, @{consolidate_items($scratch)};
+  }
     
   return $items;
 }
