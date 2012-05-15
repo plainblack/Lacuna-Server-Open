@@ -6,6 +6,8 @@ no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Lacuna::Constants qw(SHIP_TYPES);
 use Lacuna::Util qw(format_date);
+use Data::Dumper;
+
 use feature "switch";
 
 sub app_url {
@@ -232,7 +234,7 @@ sub find_arrival {
     my $second  = $arrival_params->{second};
 
     if (not defined $day or $day < 1 or $day > $mon_end->day) {
-        confess [1009, 'Invalid day.'];
+        confess [1009, "Invalid day. [$day][".Dumper($arrival_params)."]"];
     }
     if (not defined $hour or $hour != int($hour) or $hour < 0 or $hour > 23) {
         confess [1002, 'Invalid hour.'];
@@ -240,8 +242,8 @@ sub find_arrival {
     if (not defined $minute or $minute != int($minute) or $minute < 0 or $minute > 59) {
         confess [1002, 'Invalid minute.'];
     }
-    if (not defined $second or $second != int($second) or $second < 0 or $second > 59) {
-        confess [1002, 'Invalid second.'];
+    if (not defined $second or $second != 0 and $second != 15 and $second != 30 and $second != 45) {
+        confess [1002, 'Invalid second. Must be 0, 15, 30 or 45'];
     }
     if ($day < $now->day) {
         # Then it must be a day next month
@@ -261,7 +263,7 @@ sub find_arrival {
 }
 
 sub send_ship_types {
-    my ($self, $session_id, $body_id, $target_params, $type_params, $arrival) = @_;
+    my ($self, $session_id, $body_id, $target_params, $type_params, $arrival_params) = @_;
 
     my $empire  = $self->get_empire_by_session($session_id);
     my $body    = $self->get_body($empire, $body_id);
@@ -323,7 +325,7 @@ sub send_ship_types {
         $ship->fleet_speed(1);
         $ship->send(target => $target, arrival => $arrival);
     }
-    return $self->get_fleet_for($session, $body_id, $target_params);
+    return $self->get_fleet_for($session_id, $body_id, $target_params);
 }
 
 sub send_fleet {
@@ -331,7 +333,7 @@ sub send_fleet {
   $set_speed //= 0;
   my $empire = $self->get_empire_by_session($session_id);
   my $target = $self->find_target($target_params);
-  my $max_ships = Lacuna->config->get('ships_per_fleet') || 20;
+  my $max_ships = Lacuna->config->get('ships_per_fleet') || 50;
   if (@$ship_ids > $max_ships) {
     confess [1009, 'Too many ships for a fleet.'];
   }
@@ -1078,7 +1080,7 @@ around 'view' => sub {
     return $out;
 };
  
-__PACKAGE__->register_rpc_method_names(qw(get_fleet_for view_foreign_ships get_ships_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_ships_travelling view_all_ships view_battle_logs));
+__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for view_foreign_ships get_ships_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_ships_travelling view_all_ships view_battle_logs));
 
 
 no Moose;
