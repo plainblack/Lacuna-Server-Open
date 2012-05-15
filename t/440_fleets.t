@@ -27,6 +27,23 @@ my $space_port = Lacuna->db->resultset('Building')->search({
 
 $result = $tester->post('spaceport','get_fleet_for', [$session_id, $home->id, {body_name => 'DeLambert-5-28'}]);
 
+my ($sweepers) = grep {$_->{type} eq 'sweeper'} @{$result->{result}{ships}};
+
+diag Dumper(\$sweepers);
+
+Lacuna->cache->set('captcha', $session_id, { guid => 1111, solution => 1111 }, 60 * 30 );
+$result = $tester->post('captcha','solve', [$session_id, 1111, 1111]);
+is($result->{result}, 1, 'Solved captcha');
+
+
+$result = $tester->post('spaceport','send_ship_types', [
+    $session_id,
+    $home->id,
+    {body_name => 'DeLambert-5-28'},
+    [{type => 'sweeper', speed => $sweepers->{speed}, stealth => $sweepers->{stealth}, combat => $sweepers->{combat}, quantity => 10}],
+    {day => 10, hour => 1, minute => 1, second => 15},
+]);
+
 END {
 #    TestHelper->clear_all_test_empires;
 }
