@@ -123,7 +123,7 @@ sub run_excavators {
       $result->{message},
     ];
   }
-  if (scalar @{$report}) {
+  if (defined($report)) {
     unshift @{$report}, (['Site','Type','Result']);
     $empire->send_predefined_message(
       tags        => ['Excavator','Alert'],
@@ -301,7 +301,7 @@ sub found_artifact {
       push @{$artifacts}, $building;
     }
   }
-  return (0,0,"Nothing") unless (scalar @{$artifacts});
+  return (0,0,"Nothing") unless (defined($artifacts));
   my $select = random_element($artifacts);
   my $class; my $lvl; my $plus; my $name; my $destroy;
   if ($level > $select->level and randint(1, int(3 * $level/2)) >= $select->level) {
