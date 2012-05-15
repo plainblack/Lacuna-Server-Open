@@ -77,12 +77,13 @@ sub max_excavators {
 sub run_excavators {
   my $self = shift;
 
+  my $results;
   my $level = $self->level;
   my $empire = $self->body->empire;
 # Do once for arch itself.  No chance of destroy or artifacts.
   my $result = $self->dig_it($self->body, $level, 1);
   $result->{id} = $self->id;
-  my @results = ($result);
+  push @{$results}, $result;
   if ($level > 10) {
     my $excavators = $self->excavators;
     while (my $excav = $excavators->next) {
@@ -102,33 +103,33 @@ sub run_excavators {
         $result = $self->dig_it($body, $level, 0);
         $result->{id} = $excav->id;
       }
-      push @results, $result;
+      push @{$results}, $result;
       if ($result->{outcome} eq "Destroyed") {
         $self->remove_excavator($excav);
       }
     }
   }
-  my @report;
-  for $result (sort { $a->{site} cmp $b->{site} } @results) {
+  my $report;
+  for $result (sort { $a->{site} cmp $b->{site} } @{$results}) {
     next if ($empire->skip_found_nothing       and $result->{outcome} eq "Nothing");
     next if ($empire->skip_excavator_artifact  and $result->{outcome} eq "Artifact");
     next if ($empire->skip_excavator_resources and $result->{outcome} eq "Resource");
     next if ($empire->skip_excavator_plan      and $result->{outcome} eq "Plan");
     next if ($empire->skip_excavator_glyph     and $result->{outcome} eq "Glyph");
     next if ($empire->skip_excavator_destroyed and $result->{outcome} eq "Destroyed");
-    push @report, [
+    push @{$report}, [
       $result->{site},
       $result->{outcome},
       $result->{message},
     ];
   }
-  if (@report) {
-    unshift @report, (['Site','Type','Result']);
+  if (scalar @{$report}) {
+    unshift @{$report}, (['Site','Type','Result']);
     $empire->send_predefined_message(
       tags        => ['Excavator','Alert'],
       filename    => 'excavator_results.txt',
       params      => [ $self->body->id, $self->body->name ],
-      attachments => { table => \@report},
+      attachments => { table => $report},
     );
   }
   return 1;
@@ -293,15 +294,15 @@ sub found_artifact {
   my ($self, $body, $level) = @_;
   
   my $plan_types = plans_of_type();
-  my @buildings;
+  my $artifacts;
   my $buildings = $body->buildings;
   while (my $building = $buildings->next) {
     unless ( grep { $building->class eq $_ } @{$plan_types->{disallow}}) {
-      push @buildings, $building;
+      push @{$artifacts}, $building;
     }
   }
-  return (0,0,"Nothing") unless (@buildings);
-  my $select = random_element(\@buildings);
+  return (0,0,"Nothing") unless (scalar @{$artifacts});
+  my $select = random_element($artifacts);
   my $class; my $lvl; my $plus; my $name; my $destroy;
   if ($level > $select->level and randint(1, int(3 * $level/2)) >= $select->level) {
     $class = $select->class;
@@ -341,21 +342,21 @@ sub found_artifact {
 sub found_glyph {
   my ($self, $body) = @_;
 
-  my %ores;
+  my $ores;
   my $ore_total = 0;
   for my $ore (ORE_TYPES) {
-    $ores{$ore} = $body->$ore;
-    $ore_total += $ores{$ore};
+    $ores->{$ore} = $body->$ore;
+    $ore_total += $ores->{$ore};
   }
   my $base = 0;
   my $rnum = randint(1,$ore_total);
   my $glyph = "error";
   for my $ore (ORE_TYPES) {
-    if ($rnum <= $ores{$ore} + $base) {
+    if ($rnum <= $ores->{$ore} + $base) {
       $glyph = $ore;
       last;
     }
-    $base += $ores{$ore};
+    $base += $ores->{$ore};
   }
   if ($glyph ne "error") {
     $self->body->add_glyph($glyph);
