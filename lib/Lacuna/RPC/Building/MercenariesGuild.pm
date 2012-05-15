@@ -141,8 +141,8 @@ sub add_to_market {
     unless ($empire->essentia >= $cost) {
         confess [1011, "You need $cost essentia to make a trade using the Mercenaries Guild."];
     }
-    $empire->spend_essentia($cost, 'Offered Mercenary Trade')->update;
     my $trade = $building->add_to_market($cost, $spy_id, $ask, $ship_id);
+    $empire->spend_essentia($cost, 'Offered Mercenary Trade')->update;
     return {
         trade_id    => $trade->id,
         status      => $self->format_status($empire, $building->body),
