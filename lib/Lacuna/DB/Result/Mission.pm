@@ -353,9 +353,9 @@ sub format_items {
     my $pattern = $is_objective ? '%s (speed >= %s, stealth >= %s, hold size >= %s, combat >= %s)' : '%s (speed: %s, stealth: %s, hold size: %s, combat: %s)' ;
     push @{$scratch},
          sprintf($pattern, $ship->type_formatted, commify($stats->{speed}),
-                 commify($stats->{stealth}), commify($stats->{hold_size}), commify($stats->{combat})) if (defined($scratch));
+                 commify($stats->{stealth}), commify($stats->{hold_size}), commify($stats->{combat}));
   }
-  push @{$item_arr}, @{consolidate_items($scratch)};
+  push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
 
   # fleet movement
   if ($is_objective && exists $items->{fleet_movement}) {
