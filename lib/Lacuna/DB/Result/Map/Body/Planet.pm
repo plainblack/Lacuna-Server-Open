@@ -1085,8 +1085,9 @@ sub recalc_stats {
 # Decrease happiness production if short on plots.
     if ($stats{plots_available} < 0) {
       my $plot_tax = int(50 * 1.62 ** (abs($stats{plots_available})-1));
-      my $max_neg = -2 * abs($stats{happiness_hour});
-      $max_neg = -50_000 if $max_neg > -50_000;
+      my $max_neg = -1 * abs($self->happiness/20);
+      $max_neg = -10_000 if $max_neg > -10_000;
+      $max_neg = -100_000_000_000 if $max_neg < -100_000_000_000;
       $stats{happiness_hour} -= $plot_tax;
       $stats{happiness_hour} = $max_neg if ($stats{happiness_hour} < $max_neg);
     }
