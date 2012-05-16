@@ -288,7 +288,7 @@ sub create_supply_chain {
     unless (first {$resource_type eq $_} (FOOD_TYPES, ORE_TYPES, qw(water waste energy))) {
         confess [1002, "That is not a valid resource_type."];
     }
-    if ($self->id == $target_id) {
+    if ($body->id == $target_id) {
         confess [1002, "You can't set up a supply chain to yourself."];
     }
     my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id);
