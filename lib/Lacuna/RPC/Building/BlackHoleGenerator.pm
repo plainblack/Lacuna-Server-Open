@@ -1036,6 +1036,7 @@ sub bhg_size {
     else {
       $current_size += randint(1,5) - 3;
       $current_size = 30 if ($current_size < 30);
+      $current_size = 70 if ($current_size > 70);
     }
     if ($old_size != $current_size && $body->empire) {
       $body->empire->send_predefined_message(
