@@ -123,7 +123,7 @@ sub run_excavators {
       $result->{message},
     ];
   }
-  if (scalar @{$report}) {
+  if (defined($report)) {
     unshift @{$report}, (['Site','Type','Result']);
     $empire->send_predefined_message(
       tags        => ['Excavator','Alert'],
@@ -301,7 +301,7 @@ sub found_artifact {
       push @{$artifacts}, $building;
     }
   }
-  return (0,0,"Nothing") unless (scalar @{$artifacts});
+  return (0,0,"Nothing") unless (defined($artifacts));
   my $select = random_element($artifacts);
   my $class; my $lvl; my $plus; my $name; my $destroy;
   if ($level > $select->level and randint(1, int(3 * $level/2)) >= $select->level) {
@@ -588,28 +588,63 @@ before finish_work => sub {
 };
 
 sub make_plan {
-    my ($self, $ids) = @_;
-    unless (ref $ids eq 'ARRAY' && scalar(@{$ids}) < 5) {
+    my ($self, $glyphs, $quantity) = @_;
+    unless (ref $glyphs eq 'ARRAY' && scalar(@{$glyphs}) < 5) {
       confess [1009, 'It is not possible to combine more than 4 glyphs.'];
     }
-    if (grep {/\D/} @{$ids}) {
-      confess [1009, 'Bad data format for glyph ids.'];
-    }
 
-    my @glyph_names;
+    my $plan_class;
+    my $ids;
     my $glyphs_rs = $self->body->glyphs;
-    foreach my $id (@{$ids}) {
-        my $glyph = $glyphs_rs->find($id);
-        confess [1002, 'You tried to combine a glyph you do not have.'] unless defined $glyph;
-        push @glyph_names,$glyph->type;
+
+    # types
+    if ( grep /\D/, @{$glyphs} ) {
+        $plan_class = Lacuna::DB::Result::Plans->check_glyph_recipe($glyphs);
+        if (not $plan_class) {
+            confess [1002, 'The glyphs specified do not fit together in that manner.'];
+        }
+
+        my %count;
+        $count{$_} += $quantity for @{$glyphs};
+        for my $type ( sort keys %count ) {
+            my @glyphs = Lacuna->db->resultset('Lacuna::DB::Result::Glyphs')->search({
+                type    => $type,
+                body_id => $self->body_id,
+            }, {
+                rows => $count{$type},
+                page => 1,
+            });
+            confess [1002, "You don't have $count{$type} glyphs of type $type you only have ".scalar(@glyphs)] unless scalar(@glyphs) >= $count{$type};
+            push @{$ids}, map $_->id, @glyphs;
+        }
+    }
+    # ids
+    else {
+        $ids = $glyphs;
+
+        if ($quantity != 1) {
+            confess [1011, 'You can only assemble one plan from specific glyphs'];
+        }
+
+        my @glyph_names;
+        foreach my $id (@{$ids}) {
+            my $glyph = $glyphs_rs->find($id);
+            confess [1002, 'You tried to combine a glyph you do not have.'] unless defined $glyph;
+            push @glyph_names,$glyph->type;
+        }
+
+        $plan_class = Lacuna::DB::Result::Plans->check_glyph_recipe(\@glyph_names);
+        if (not $plan_class) {
+            confess [1002, 'The glyphs specified do not fit together in that manner.'];
+        }
     }
 
-    my $plan_class = Lacuna::DB::Result::Plans->check_glyph_recipe(\@glyph_names);
-    if (not $plan_class) {
-        confess [1002, 'The glyphs specified do not fit together in that manner.'];
-    }
     $glyphs_rs->search({ id => { in => $ids}})->delete;
-    return $self->body->add_plan($plan_class, 1);
+    my $plan;
+    for my $count (1..$quantity) {
+        $plan = $self->body->add_plan($plan_class, 1);
+    }
+    return $plan;
 }
 
 before delete => sub {

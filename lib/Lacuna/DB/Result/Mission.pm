@@ -325,7 +325,7 @@ sub format_rewards {
 sub format_items {
   my ($self, $items, $is_objective) = @_;
   my $item_arr;
-  my $scratch;
+  my $item_tmp;
     
   # essentia
   push @{$item_arr}, sprintf('%s essentia.', commify($items->{essentia})) if ($items->{essentia});
@@ -339,27 +339,31 @@ sub format_items {
   }
     
   # glyphs
-  undef $scratch;
+  undef $item_tmp;
   foreach my $glyph (@{$items->{glyphs}}) {
-    push @{$scratch}, $glyph.' glyph';
+    push @{$item_tmp}, $glyph.' glyph';
   }
-  push @{$item_arr}, @{consolidate_items($scratch)};
+  if (defined($item_tmp)) {
+    push @{$item_arr}, @{consolidate_items($item_tmp)};
+  }
     
   # ships
-  undef $scratch;
+  undef $item_tmp;
   my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
   foreach my $stats (@{ $items->{ships}}) {
     my $ship = $ships->new({type=>$stats->{type}});
     my $pattern = $is_objective ? '%s (speed >= %s, stealth >= %s, hold size >= %s, combat >= %s)' : '%s (speed: %s, stealth: %s, hold size: %s, combat: %s)' ;
-    push @{$scratch},
+    push @{$item_tmp},
          sprintf($pattern, $ship->type_formatted, commify($stats->{speed}),
                  commify($stats->{stealth}), commify($stats->{hold_size}), commify($stats->{combat}));
   }
-  push @{$item_arr}, @{consolidate_items($scratch)};
+  if (defined($item_tmp)) {
+    push @{$item_arr}, @{consolidate_items($item_tmp)};
+  }
 
   # fleet movement
   if ($is_objective && exists $items->{fleet_movement}) {
-    undef $scratch;
+    undef $item_tmp;
     my $bodies = Lacuna->db->resultset("Lacuna::DB::Result::Map::Body");
     my $stars = Lacuna->db->resultset("Lacuna::DB::Result::Map::Star");
     my $scratch = $self->scratch || {fleet_movement=>[]};
@@ -376,24 +380,28 @@ sub format_items {
         warn "fleet movement target not found";
         next;
       }
-      push @{$scratch}, 'Send '.$ship->type_formatted.' to '.$target->name.' ('.$target->x.','.$target->y.').';
+      push @{$item_tmp}, 'Send '.$ship->type_formatted.' to '.$target->name.' ('.$target->x.','.$target->y.').';
     }
-    push @{$item_arr}, @{consolidate_items($scratch)};
+    if (defined($item_tmp)) {
+      push @{$item_arr}, @{consolidate_items($item_tmp)};
+    }
   }
 
   # plans
-  undef $scratch;
+  undef $item_tmp;
   foreach my $stats (@{ $items->{plans}}) {
     my $level = $stats->{level};
     if ($stats->{extra_build_level}) {
       $level .= '+'.$stats->{extra_build_level};
     }
     my $pattern = $is_objective ? '%s (>= %s) plan' : '%s (%s) plan'; 
-    push @{$scratch}, sprintf($pattern, $stats->{classname}->name, $level);
+    push @{$item_tmp}, sprintf($pattern, $stats->{classname}->name, $level);
   }
-  push @{$item_arr}, @{consolidate_items($scratch)};
+  if (defined($item_tmp)) {
+    push @{$item_arr}, @{consolidate_items($item_tmp)};
+  }
     
-  return $items;
+  return $item_arr;
 }
 
 sub sqlt_deploy_hook {

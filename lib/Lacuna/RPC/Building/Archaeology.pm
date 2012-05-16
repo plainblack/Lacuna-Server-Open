@@ -42,6 +42,26 @@ sub get_glyphs {
     };
 }
 
+sub get_glyph_summary {
+    my ($self, $session_id, $building_id) = @_;
+
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    my $glyphs      = $building->body->glyphs;
+
+    my $glyph_summary = {};
+    while (my $glyph = $glyphs->next) {
+        $glyph_summary->{$glyph->type}++;
+    }
+    # sort
+    my @out = map { {name => $_, quantity => $glyph_summary->{$_}}} sort {$a cmp $b} keys %$glyph_summary;
+
+    return {
+        glyphs                  => \@out,
+        status                  => $self->format_status($empire, $building->body),
+    };
+}
+
 sub get_ores_available_for_processing {
     my ($self, $session_id, $building_id, $ore) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -61,10 +81,18 @@ sub search_for_glyph {
 }
 
 sub assemble_glyphs {
-    my ($self, $session_id, $building_id, $ids) = @_;
+    my ($self, $session_id, $building_id, $glyphs, $quantity) = @_;
+    $quantity = defined $quantity ? $quantity : 1;
+    if ($quantity > 50) {
+        confess [1011, "You can only assemble up to 50 plans at a time"];
+    }
+    if ($quantity <= 0 or int($quantity) != $quantity) {
+        confess [1001, "Quantity must be a positive integer"];
+    }
+
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $plan = $building->make_plan($ids);
+    my $plan = $building->make_plan($glyphs, $quantity);
     return {
         item_name           => $plan->class->name,
         status              => $self->format_status($empire, $building->body),
@@ -148,7 +176,7 @@ sub abandon_excavator {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(get_ores_available_for_processing assemble_glyphs search_for_glyph get_glyphs subsidize_search view_excavators abandon_excavator));
+__PACKAGE__->register_rpc_method_names(qw(get_ores_available_for_processing assemble_glyphs search_for_glyph get_glyphs get_glyph_summary subsidize_search view_excavators abandon_excavator));
 
 
 no Moose;
