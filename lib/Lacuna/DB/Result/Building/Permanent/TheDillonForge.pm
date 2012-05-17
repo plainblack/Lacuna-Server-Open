@@ -11,6 +11,8 @@ use Lacuna::Util qw(randint);
 
 use constant controller_class => 'Lacuna::RPC::Building::TheDillonForge';
 
+use constant subsidy_cost => 2;
+
 around can_build => sub {
     my ($orig, $self, $body) = @_;
     confess [1013,"You can't build The Dillon Forge by any known process. How the hell did you manage to get a plan!?"];
