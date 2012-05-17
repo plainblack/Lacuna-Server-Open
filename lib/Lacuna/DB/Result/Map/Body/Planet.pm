@@ -1097,6 +1097,7 @@ sub recalc_stats {
       else {
         $stats{happiness_hour} -= $plot_tax;
       }
+      $stats{happiness_hour} = -100_000_000_000 if ($stats{happiness_hour} < -100_000_000_000);
     }
 
     $self->update(\%stats);
