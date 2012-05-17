@@ -29,6 +29,7 @@ around 'view' => sub {
     else {
         $out->{tasks} = $self->_forge_tasks($building);
     }
+    $out->{subsidy_cost} = $building->subsidy_cost;
     return $out;
 };
 
@@ -135,12 +136,14 @@ sub subsidize {
         confess [1010, "Nothing is being done!"];
     }
 
-    unless ($empire->essentia >= 2) {
+    my $subsidy_cost = $building->subsidy_cost;
+
+    unless ($empire->essentia >= $subsidy_cost) {
         confess [1011, "Not enough essentia."];
     }
 
     $building->finish_work->update;
-    $empire->spend_essentia(2, 'Dillon Forge subsidy after the fact');
+    $empire->spend_essentia($subsidy_cost, 'Dillon Forge subsidy after the fact');
     $empire->update;
 
     return $self->view($empire, $building);
