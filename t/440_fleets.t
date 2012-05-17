@@ -41,7 +41,7 @@ $result = $tester->post('spaceport','send_ship_types', [
     $home->id,
     {body_name => 'DeLambert-5-28'},
     [{type => 'sweeper', speed => $sweepers->{speed}, stealth => $sweepers->{stealth}, combat => $sweepers->{combat}, quantity => 10}],
-    {day => 10, hour => 1, minute => 1, second => 15},
+    {day => 10, hour => 0, minute => 0, second => 0},
 ]);
 
 END {

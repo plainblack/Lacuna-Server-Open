@@ -313,8 +313,7 @@ sub send_ship_types {
             $do_captcha_check = 1;
         }
         foreach my $ship (@ships) {
-            my $hash = "${type}#${speed}#${stealth}#${combat}";
-            $ship_ref->{$hash} = $ship;
+            $ship_ref->{$ship->id} = $ship;
         }
     }
     if ($do_captcha_check) {
