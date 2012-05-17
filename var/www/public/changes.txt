@@ -1,5 +1,5 @@
 3.0851:
- - Mod: Multiple plans buildable in Archaeology Ministry via API.
+ - Mod: Multiple plans buildable in Archaeology Ministry.
  - Mod: view_plans from Planetary and Station Commands consolidated. UI updated to reflect.
  - Mod: You don't have to build all Halls of Vrbansk to sacrifice (only one)
  - Add: Supply chain to any planet or SS.
