@@ -294,7 +294,10 @@ sub www_view_buildings {
         $out .= sprintf('<td><input name="level" type="text" size="5" value="%s"></td>',$building->level);
         $out .= sprintf('<td>%s</td><td><input type="hidden" name="building_id" value="%s">',$building->is_upgrading, $building->id);
         $out .= sprintf('<input name="efficiency" type="text" size="3" value="%s">', $building->efficiency);
-        $out .= sprintf('<input type="submit" value="submit"></td></tr></form>');
+        $out .= sprintf('<input type="submit" value="submit"></td></form>');
+        $out .= sprintf('<form method="post" action="/admin/delete/building">');
+        $out .= sprintf('<input type="hidden" name="building_id" value="%s"/>', $building->id);
+        $out .= sprintf('<td><input type="submit" value="delete"/></td></form></tr>');
     }
     $out .= '</table>';
     return $self->wrap($out);
@@ -309,6 +312,18 @@ sub www_set_efficiency {
         y               => $request->param('y'),
         level           => $request->param('level'),
     });
+    return $self->www_view_buildings($request, $building->body_id);
+}
+
+sub www_delete_building {
+    my ($self, $request) = @_;
+    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->find($request->param('building_id'));
+    my $body = $building->body;
+    $building->delete;
+    $body->needs_recalc(1);
+    $body->needs_surface_refresh(1);
+    $body->update;
+    $body->tick;
     return $self->www_view_buildings($request, $building->body_id);
 }
 

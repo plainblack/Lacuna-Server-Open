@@ -209,10 +209,10 @@ sub remove_waste_chain {
 
 sub remove_supply_chain {
     my ($self, $supply_chain) = @_;
-    if ($self->supply_chain->count == 1) {
+    if ($self->supply_chains->count == 1) {
         my $ships = $self->supply_ships;
         while (my $ship = $ships->next) {
-            $self->sent_supply_ship_home($supply_chain->target, $ship);
+            $self->send_supply_ship_home($supply_chain->target, $ship);
         }
     }
     $supply_chain->delete;

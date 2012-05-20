@@ -1097,6 +1097,7 @@ sub recalc_stats {
       else {
         $stats{happiness_hour} -= $plot_tax;
       }
+      $stats{happiness_hour} = -100_000_000_000 if ($stats{happiness_hour} < -100_000_000_000);
     }
 
     $self->update(\%stats);
@@ -1265,6 +1266,8 @@ sub tick_to {
     my $seconds  = $now->epoch - $self->last_tick->epoch;
     my $tick_rate = $seconds / 3600;
     $self->last_tick($now);
+# Check to see if downward spiral still happening in happiness from negative plots.
+    $self->needs_recalc(1) if ($self->happiness < 0 and $self->happiness_hour < -20_000);
     if ($self->needs_recalc) {
         $self->recalc_stats;    
     }

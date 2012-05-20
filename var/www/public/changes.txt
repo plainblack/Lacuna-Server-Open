@@ -2,9 +2,10 @@
  - Mod: glyphs changed in DB to be more compact.
 
 3.0851:
+ - Mod: Multiple plans buildable with one call from Archaeology Ministry.
  - Mod: view_plans from Planetary and Station Commands consolidated. UI updated to reflect.
  - Mod: You don't have to build all Halls of Vrbansk to sacrifice (only one)
- - Add: API only, supply chain to any planet or SS. Note. No UI support yet.
+ - Add: Supply chain to any planet or SS.
  - Fix: Damaged Trade Ministry reduces the waste transferred in a waste chain.
  - Fix: Scows are no longer tagged with 'Trade'
  - Add: API only, supply chain to any planet or SS. Note. No UI support yet.
@@ -18,7 +19,7 @@
  - Fix: Deployed Bleeders no longer count toward population totals.
  - Mod: Supply Pods no longer use a plot.
  - Mod: Being at negative plots makes your people unhappy.
- - Mod: Stockpile rules change in testing.
+ - Mod: Stockpile rules change.  University levels higher than 25 gives bonus.
  - Mod: Short Range Colony Ships faster, but limited in range.
 
 3.0850:
