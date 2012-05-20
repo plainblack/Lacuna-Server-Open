@@ -1370,44 +1370,42 @@ sub tick_to {
     }
     # deal with negative amounts stored
     # and deal with any supply-chains
+    my @supply_chains = $self->out_supply_chains->all;
+
     if ($self->water_stored <= 0) {
         $self->water_stored(0);
-        $self->toggle_supply_chain('water', 1)
+        $self->toggle_supply_chain(\@supply_chains, 'water', 1)
     }
     else {
-        $self->toggle_supply_chain('water', 0);
+        $self->toggle_supply_chain(\@supply_chains, 'water', 0);
     }
     if ($self->energy_stored <= 0) {
         $self->energy_stored(0);
-        $self->toggle_supply_chain('energy', 1);
+        $self->toggle_supply_chain(\@supply_chains, 'energy', 1);
     }
     else {
-        $self->toggle_supply_chain('energy', 0);
+        $self->toggle_supply_chain(\@supply_chains, 'energy', 0);
     }
 
     for my $type (FOOD_TYPES, ORE_TYPES) {
         my $stype = $type.'_stored';
         if ($self->$stype <= 0) {
             $self->$stype(0);
-            $self->toggle_supply_chain($type, 1);
+            $self->toggle_supply_chain(\@supply_chains, $type, 1);
         }
         else {
-            $self->toggle_supply_chain($type, 0);
+            $self->toggle_supply_chain(\@supply_chains, $type, 0);
         }
     }
     $self->update;
 }
 
 sub toggle_supply_chain {
-    my ($self, $resource, $new_state) = @_;
+    my ($self, $chains_ref, $resource, $new_state) = @_;
 
-    my $chain_rs = $self->out_supply_chains->search({
-        stalled         => $new_state ? 0 : 1,
-        resource_type   => $resource,
-    },{
-        prefetch => 'target',
-    });
-    while (my $chain = $chain_rs->next) {
+    my @chains = grep {$_->stalled == $new_state ? 0 : 1, $_->resource_type eq $resource } @$chains_ref;
+
+    foreach my $chain (@chains) {
         $chain->stalled($new_state);
         $chain->update;
         $chain->target->needs_recalc(1);
