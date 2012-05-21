@@ -407,6 +407,13 @@ has building_count => (
     },
 );
 
+sub _build_building_count {
+    my ($self) = @_;
+# Bleeders count toward building count, but supply pods don't since they can't be shot down.
+    my $count = grep { $_->class !~ /Permanent$|SupplyPod$/} @{$self->building_cache};
+    return $count;
+}
+
 sub get_buildings_of_class {
     my ($self, $class) = @_;
     return Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
