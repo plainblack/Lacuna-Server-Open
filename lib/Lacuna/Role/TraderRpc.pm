@@ -241,43 +241,45 @@ sub get_plans {
 }
 
 sub get_glyphs {
-    my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my $glyphs = $building->body->glyphs;
-    my @out;
-    while (my $glyph = $glyphs->next) {
-        push @out, {
-            id                      => $glyph->id,
-            type                    => $glyph->type,
-        };
-    }
-    return {
-        glyphs                  => \@out,
-        cargo_space_used_each   => 100,
-        status                  => $self->format_status($empire, $building->body),
-    };
+  my ($self, $session_id, $building_id) = @_;
+  my $empire = $self->get_empire_by_session($session_id);
+  my $building = $self->get_building($empire, $building_id);
+  my $glyphs = $building->body->glyph;
+  my @out;
+  while (my $glyph = $glyphs->next) {
+    push @out, {
+           id                      => $glyph->id,
+           type                    => $glyph->type,
+           quantity                => $glyph->quantity,
+      };
+  }
+  return {
+    glyphs                  => \@out,
+    cargo_space_used_each   => 100,
+    status                  => $self->format_status($empire, $building->body),
+  };
 }
 
 sub get_glyph_summary {
-    my ($self, $session_id, $building_id) = @_;
+  my ($self, $session_id, $building_id) = @_;
 
-    my $empire      = $self->get_empire_by_session($session_id);
-    my $building    = $self->get_building($empire, $building_id);
-    my $glyphs      = $building->body->glyphs;
+  my $empire      = $self->get_empire_by_session($session_id);
+  my $building    = $self->get_building($empire, $building_id);
+  my $glyphs      = $building->body->glyph;
 
-    my $glyph_summary = {};
-    while (my $glyph = $glyphs->next) {
-        $glyph_summary->{$glyph->type}++;
-    }
-    # sort
-    my @out = map { {name => $_, quantity => $glyph_summary->{$_}}} sort {$a cmp $b} keys %$glyph_summary;
+  while (my $glyph = $glyphs->next) {
+    push @out, {
+          id                      => $glyph->id,
+          type                    => $glyph->type,
+          quantity                => $glyph->quantity,
+      };
+  }
 
-    return {
-        glyphs                  => \@out,
-        cargo_space_used_each   => 100,
-        status                  => $self->format_status($empire, $building->body),
-    };
+  return {
+    glyphs                  => \@out,
+    cargo_space_used_each   => 100,
+    status                  => $self->format_status($empire, $building->body),
+  };
 }
 
 
