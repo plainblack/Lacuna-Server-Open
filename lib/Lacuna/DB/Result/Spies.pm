@@ -1412,6 +1412,7 @@ sub steal_planet {
                            'colony_ship',
                            'short_range_colony_ship',
                           ]})) {
+            next;
           }
           $ship->delete;
         }
