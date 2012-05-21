@@ -29,11 +29,12 @@ sub get_glyphs {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my @out;
-    my $glyphs = $building->body->glyphs;
+    my $glyphs = $building->body->glyph;
     while (my $glyph = $glyphs->next) {
         push @out, {
             id      => $glyph->id,
             type    => $glyph->type,
+            quantity => $glyph->quantity,
         };
     }
     return {
@@ -47,14 +48,15 @@ sub get_glyph_summary {
 
     my $empire      = $self->get_empire_by_session($session_id);
     my $building    = $self->get_building($empire, $building_id);
-    my $glyphs      = $building->body->glyphs;
-
-    my $glyph_summary = {};
+    my @out;
+    my $glyphs = $building->body->glyph;
     while (my $glyph = $glyphs->next) {
-        $glyph_summary->{$glyph->type}++;
+        push @out, {
+            id      => $glyph->id,
+            type    => $glyph->type,
+            quantity => $glyph->quantity,
+        };
     }
-    # sort
-    my @out = map { {name => $_, quantity => $glyph_summary->{$_}}} sort {$a cmp $b} keys %$glyph_summary;
 
     return {
         glyphs                  => \@out,

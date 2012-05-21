@@ -424,7 +424,7 @@ sub www_add_resources {
 sub www_view_glyphs {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
-    my $glyphs = Lacuna->db->resultset('Lacuna::DB::Result::Glyphs')->search({ body_id => $body_id }, {order_by => ['type'] });
+    my $glyphs = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({ body_id => $body_id }, {order_by => ['type'] });
     my $out = '<h1>View Glyphs</h1>';
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
     $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Type</th><th>Action</th></tr>';
