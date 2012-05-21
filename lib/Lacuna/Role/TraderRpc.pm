@@ -267,6 +267,7 @@ sub get_glyph_summary {
   my $building    = $self->get_building($empire, $building_id);
   my $glyphs      = $building->body->glyph;
 
+  my @out;
   while (my $glyph = $glyphs->next) {
     push @out, {
           id                      => $glyph->id,

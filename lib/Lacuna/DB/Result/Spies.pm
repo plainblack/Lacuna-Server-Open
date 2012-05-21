@@ -1873,7 +1873,7 @@ sub destroy_glyph {
     $self->on_body->add_news(70,
                              'A museum was broken into on %s and a rare artifact was smashed to pieces.',
                              $self->on_body->name);
-    $on_body->use_glyph($glyph->id, $glyph->type, 1);
+    $self->on_body->use_glyph($glyph->id, $glyph->type, 1);
     return $message->id;
 }
 
