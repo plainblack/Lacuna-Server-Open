@@ -112,7 +112,7 @@ sub add_plan {
     my ($self, $class, $level, $extra_build_level) = @_;
 
     # add it
-    my $plan->new({
+    my $plan = $self->plans->new({
         body_id             => $self->id,
         class               => $class,
         level               => $level,
@@ -416,12 +416,15 @@ sub _build_population {
 has building_count => (
     is      => 'rw',
     lazy    => 1,
-    default => sub {
-        my $self = shift;
-# Bleeders count toward building count, but supply pods don't since they can't be shot down.
-        my $count = grep { $_->class !~ /Permanent$|SupplyPod$/} @{$self->building_cache};
-    },
+    builder => '_build_building_count',
 );
+
+sub _build_building_count {
+    my ($self) = @_;
+# Bleeders count toward building count, but supply pods don't since they can't be shot down.
+    my $count = grep { $_->class !~ /Permanent$|SupplyPod$/} @{$self->building_cache};
+    return $count;
+}
 
 sub get_buildings_of_class {
     my ($self, $class) = @_;
