@@ -343,7 +343,7 @@ sub train_spies {
 sub build_ships {
     my ($self, $colony) = @_;
     say 'BUILD SHIPS';
-    my @shipyards = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard')->search(undef,{order_by => 'work_ends'})->all;
+    my @shipyards = sort {$a->work_ends cmp $b->work_ends} $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard');
     my @priorities = $self->ship_building_priorities($colony);
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     foreach my $priority (@priorities) {
@@ -376,7 +376,7 @@ sub build_ships {
 sub build_ships_max {
     my ($self, $colony) = @_;
     say 'BUILD SHIPS';
-    my @ship_yards  = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard')->search(undef,{order_by => 'work_ends'})->all;
+    my @ship_yards  = sort {$a->work_ends cmp $b->work_ends} $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard');
     my $ships 	    = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     my $ship_yard   = shift @ship_yards;
     my $free_docks  = $ship_yard->level - $ships->search({shipyard_id => $ship_yard->id, task => 'Building'});

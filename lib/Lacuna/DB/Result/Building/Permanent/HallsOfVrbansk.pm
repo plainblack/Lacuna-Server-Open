@@ -35,9 +35,8 @@ after finish_upgrade => sub {
 
 sub get_halls {
     my $self = shift;
-    return $self->body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk')->search({
-        is_upgrading => 0,
-    });
+    my @halls = grep {$_->is_upgrading == 0} $self->body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk');
+    return @halls;
 }
 
 sub get_upgradable_buildings {

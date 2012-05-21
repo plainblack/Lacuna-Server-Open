@@ -409,6 +409,9 @@ sub get_buildable {
         if ($can_build) {
             push @tags, 'Now';          
         }
+        elsif (ref $reason ne 'ARRAY') {
+            confess $reason;
+        }
         elsif ($reason->[0] == 1011) {
             push @tags, 'Soon';
         }

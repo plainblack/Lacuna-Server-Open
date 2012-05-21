@@ -53,7 +53,8 @@ sub sacrifice_to_upgrade {
     $upgrade->body($body);
     $upgrade->start_upgrade;
     # get the number of built halls
-    my @halls = $building->get_halls->search(undef, {rows => $upgrade->level + 1});
+    my @halls = $building->get_halls;
+    @halls = splice(@halls, 0, $upgrade->level + 1);
     # get the remaining plans
     my $plans_needed = $upgrade->level + 1 - scalar @halls;
     my @plans;

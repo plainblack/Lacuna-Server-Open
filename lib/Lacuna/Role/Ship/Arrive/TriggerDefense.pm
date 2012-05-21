@@ -347,22 +347,21 @@ sub system_saw_combat {
 }
 
 sub saw_stats {
-  my ($self, $body) = @_;
+    my ($self, $body) = @_;
 
-  my $saws = $body->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
+    my @saws = $body->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
 
-  my $planet_combat = 0;
-  my @saws;
-  my $cnt = 0;
-  while (my $saw = $saws->next) {
-    $cnt++;
-    next if $saw->level < 1;
-    next if $saw->efficiency < 1;
-    $planet_combat += int( (5 * ($saw->level + 1) * ($saw->level+1) * $saw->efficiency)/2 + 0.5);
-    push @saws, $saw;
-    last if $cnt >= 10;
-  }
-  return \@saws, $planet_combat;
+    my $planet_combat = 0;
+    my $cnt = 0;
+    foreach my $saw (@saws) {
+        $cnt++;
+        next if $saw->level < 1;
+        next if $saw->efficiency < 1;
+        $planet_combat += int( (5 * ($saw->level + 1) * ($saw->level+1) * $saw->efficiency)/2 + 0.5);
+        push @saws, $saw;
+        last if $cnt >= 10;
+    }
+    return \@saws, $planet_combat;
 }
 
 sub saw_combat {

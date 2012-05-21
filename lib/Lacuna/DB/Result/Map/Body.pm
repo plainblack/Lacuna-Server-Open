@@ -2,6 +2,8 @@ package Lacuna::DB::Result::Map::Body;
 
 use Moose;
 use utf8;
+use List::Util qw(max);
+
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map';
 
@@ -217,6 +219,19 @@ __PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Alliance', 'alliance_id
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 __PACKAGE__->has_many('buildings','Lacuna::DB::Result::Building','body_id');
 
+has building_cache => (
+    is      => 'rw',
+    lazy    => 1,
+    builder => '_build_building_cache',
+);
+
+sub _build_building_cache {
+    my ($self) = @_;
+
+    my @buildings = $self->buildings;
+    return \@buildings;
+}
+
 sub abandon {
     my $self = shift;
 }
@@ -255,13 +270,26 @@ sub get_type {
     return $type;
 }
 
+sub prereq_buildings {
+    my ($self, $class, $level) = @_;
+
+    my @buildings = grep { $_->class eq $class and $_->level >= $level } @{$self->building_cache};
+    return \@buildings;
+}
+
+sub get_a_building {
+    my ($self,$class) = @_;
+
+    my ($building) = grep { $_->class eq "Lacuna::DB::Result::Building::$class" } @{$self->building_cache};
+    return $building;
+}
+
 sub max_berth {
     my ($self) = @_;
 
-    my $max_berth = $self->buildings->search({
-        class       => 'Lacuna::DB::Result::Building::SpacePort',
-        efficiency  => 100,
-    } )->get_column('level')->max;
+
+    my $max_berth =  max map {$_->level} grep {$_->class eq 'Lacuna::DB::Result::Building::SpacePort' and $_->efficiency == 100} @{$self->building_cache};
+
     return $max_berth ? $max_berth : 0;
 }
 

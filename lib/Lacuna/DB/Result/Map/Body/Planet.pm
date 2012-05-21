@@ -19,6 +19,19 @@ __PACKAGE__->has_many('waste_chains', 'Lacuna::DB::Result::WasteChain','planet_i
 __PACKAGE__->has_many('out_supply_chains', 'Lacuna::DB::Result::SupplyChain','planet_id');
 __PACKAGE__->has_many('in_supply_chains', 'Lacuna::DB::Result::SupplyChain','target_id');
 
+has plan_cache => (
+    is      => 'rw',
+    lazy    => 1,
+    builder => '_build_plan_cache',
+);
+
+sub _build_plan_cache {
+    my ($self) = @_;
+
+    my @plans = $self->plans;
+    return \@plans;
+}
+
 sub surface {
     my $self = shift;
     return 'surface-'.$self->image;
@@ -90,20 +103,24 @@ sub add_glyph {
 # PLANS
 sub get_plan {
     my ($self, $class, $level) = @_;
-    return $self->plans->search({class => $class, level => $level},{order_by => { -desc => 'extra_build_level' },rows => 1})->single;
+
+    my ($plan) = sort {$b->extra_build_level <=> $a->extra_build_level} grep {$_->class eq $class and $_->level == $level} @{$self->plan_cache};
+    return $plan;
 }
 
 sub add_plan {
     my ($self, $class, $level, $extra_build_level) = @_;
-    my $plans = $self->plans;
 
     # add it
-    return $plans->new({
+    my $plan->new({
         body_id             => $self->id,
         class               => $class,
         level               => $level,
         extra_build_level   => $extra_build_level,
     })->insert;
+
+    push @{$self->plan_cache}, $plan;
+    return $plan;
 }
 
 sub sanitize {
@@ -381,16 +398,20 @@ use constant water => 0;
 has population => (
     is      => 'ro',
     lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return $self->buildings->search(
-            {
-               class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%',
-                          '!=' => 'Lacuna::DB::Result::Building::DeployedBleeder'  }, 
-            }
-        )->get_column('level')->sum * 10_000;
-    },
+    builder => '_build_population',
 );
+
+sub _build_population {
+    my ($self) = @_;
+
+    my $population = 0;
+    foreach my $building (@{$self->building_cache}) {
+        next if $building->class =~ /Lacuna::DB::Result::Building::Permanent/;
+        next if $building->class eq 'Lacuna::DB::Result::Building::DeployedBleeder';
+        $population += $building->level * 10_000;
+    }
+    return $population;    
+}
 
 has building_count => (
     is      => 'rw',
@@ -398,43 +419,21 @@ has building_count => (
     default => sub {
         my $self = shift;
 # Bleeders count toward building count, but supply pods don't since they can't be shot down.
-        return $self->buildings->search(
-            {
-               class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%',
-                          '!=' => 'Lacuna::DB::Result::Building::SupplyPod'  }, 
-            }
-        )->count;
+        my $count = grep { $_->class !~ /Permanent$|SupplyPod$/} @{$self->building_cache};
     },
 );
 
 sub get_buildings_of_class {
     my ($self, $class) = @_;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
-        {
-            body_id => $self->id,
-            class   => $class,
-        },
-        {
-            order_by    => { -desc => 'level' },
-        }
-    );
+
+    my @buildings = sort {$b->level <=> $a->level} grep {$_->class eq $class} @{$self->building_cache};
+
+    return @buildings;
 }
 
 sub get_building_of_class {
     my ($self, $class) = @_;
-    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
-        {
-            body_id => $self->id,
-            class   => $class,
-        },
-        {
-            order_by    => { -desc => 'level' },
-            rows        => 1,
-        }
-    )->single;
-    if (defined $building ) {
-        $building->body($self);
-    }
+    my ($building) = sort {$b->level <=> $a->level} grep {$_->class eq $class} @{$self->building_cache};
     return $building;
 }
 
@@ -716,9 +715,10 @@ sub has_resources_to_build {
 sub has_max_instances_of_building {
     my ($self, $building) = @_;
     return 0 if $building->max_instances_per_planet == 9999999;
-    my $count = $self->get_buildings_of_class($building->class)->count;
-    if ($count >= $building->max_instances_per_planet) {
-        confess [1009, sprintf("You are only allowed %s of these buildings per planet.",$building->max_instances_per_planet), [$building->max_instances_per_planet, $count]];
+    my @buildings = grep {$_->class eq $building->class} @{$self->building_cache};
+
+    if (scalar @buildings >= $building->max_instances_per_planet) {
+        confess [1009, sprintf("You are only allowed %s of these buildings per planet.",$building->max_instances_per_planet)];
     }
 }
 
@@ -796,8 +796,8 @@ sub found_colony {
     $self->build_building($command);
     $command->finish_upgrade;
 
-    my $craters = $self->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Crater')->search({ work    => '{}', });
-    while (my $crater = $craters->next) {
+    my @craters = grep {$_->work eq '{}'} $self->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Crater');
+    foreach my $crater (@craters) {
         $crater->finish_work->update;
     }
     
@@ -922,9 +922,8 @@ sub recalc_chains {
     my ($self) = @_;
 
     # find the Trade Ministry
-    my ($trade_min) = $self->buildings->search({
-        class => 'Lacuna::DB::Result::Building::Trade',
-    });
+    my $trade_min = $self->get_a_building('Trade');
+
     if ($trade_min) {
         $trade_min->recalc_supply_production;
         $trade_min->recalc_waste_production;
@@ -935,8 +934,7 @@ sub recalc_stats {
     my ($self) = @_;
 
     my %stats = ( needs_recalc => 0 );
-    my $buildings = $self->buildings;
-    #reset foods
+    #reset foods and ores
     foreach my $type (FOOD_TYPES) {
         $stats{$type.'_production_hour'} = 0;
     }
@@ -945,7 +943,7 @@ sub recalc_stats {
     }
     #calculate building production
     my ($gas_giant_platforms, $terraforming_platforms, $station_command, $pantheon_of_hagness, $total_ore_production_hour, $ore_production_hour, $ore_consumption_hour) = 0;
-    while (my $building = $buildings->next) {
+    foreach my $building (@{$self->building_cache}) {
         $stats{waste_capacity} += $building->waste_capacity;
         $stats{water_capacity} += $building->water_capacity;
         $stats{energy_capacity} += $building->energy_capacity;
@@ -2152,7 +2150,7 @@ sub spend_waste {
         if (!$empire->check_for_repeat_message('complaint_lack_of_waste'.$self->id)) {
             my $building_name;
             foreach my $class (qw(Lacuna::DB::Result::Building::Energy::Waste Lacuna::DB::Result::Building::Waste::Treatment Lacuna::DB::Result::Building::Waste::Digester Lacuna::DB::Result::Building::Water::Reclamation Lacuna::DB::Result::Building::Waste::Exchanger)) {
-                my $building = $self->get_buildings_of_class($class)->search({efficiency => {'>' => 0}},{rows => 1})->single;
+                my ($building) = grep {$_->efficiency > 0} $self->get_buildings_of_class($class);
                 if (defined $building) {
                     $building_name = $building->name;
                     $building->spend_efficiency(25)->update;
@@ -2184,13 +2182,7 @@ sub complain_about_lack_of_resources {
             # Special conditions for space stations
             if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
                 if ($class eq 'Lacuna::DB::Result::Building::Module::Parliament' || $class eq 'Lacuna::DB::Result::Building::Module::StationCommand') {
-                    my $others = $self->buildings->search( {
-                        class => { 'not in' => [
-                            'Lacuna::DB::Result::Building::Module::Parliament',
-                            'Lacuna::DB::Result::Building::Module::StationCommand',
-                            'Lacuna::DB::Result::Building::Permanent::Crater'
-                        ] }
-                    } )->count;
+                    my $others = grep {$_->class !~ /Parliament$|StationCommand$|Crater$/} @{$self->building_cache};
                     if ( $others ) {
                         # If there are other buildings, divert power from them to keep Parliament and Station Command running as long as possible
                         next;
@@ -2242,7 +2234,7 @@ sub complain_about_lack_of_resources {
                     }
                 }
             }
-            my $building = $self->get_buildings_of_class($class)->search({efficiency => {'>' => 0}},{rows => 1})->single;
+            my ($building) = grep {$_->efficiency > 0} self->get_buildings_of_class($class);
             if (defined $building) {
                 $building_name = $building->name;
                 $building->spend_efficiency(25)->update;

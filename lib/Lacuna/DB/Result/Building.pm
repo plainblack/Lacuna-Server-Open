@@ -575,11 +575,13 @@ sub can_build {
         }
     
         # check building prereqs
-        my $buildings = Lacuna->db->resultset('Lacuna::DB::Result::Building');
+#        my $buildings = Lacuna->db->resultset('Lacuna::DB::Result::Building');
         my $prereqs = $self->building_prereq;
         foreach my $key (keys %{$prereqs}) {
-            my $count = $buildings->search({body_id=>$body->id, class=>$key, level=>{'>=',$prereqs->{$key}}});
-            if ($count < 1) {
+            my $prereq_buildings = $body->prereq_buildings($key, $prereqs->{$key});
+            if (@$prereq_buildings < 1) {
+#            my $count = $buildings->search({body_id=>$body->id, class=>$key, level=>{'>=',$prereqs->{$key}}});
+#            if ($count < 1) {
                 confess [1013, "You need a level ".$prereqs->{$key}." ".$key->name.".",[$key->name, $prereqs->{$key}]];
             }
         }
@@ -752,7 +754,8 @@ sub cost_to_upgrade {
     my ($self) = @_;
     my $upgrade_cost = $self->upgrade_cost;
     my $upgrade_cost_reduction = $self->construction_cost_reduction_bonus;
-    my $plan = $self->body->get_plan($self->class, $self->level + 1);
+    my $plan;
+#    my $plan = $self->body->get_plan($self->class, $self->level + 1);
     if (defined $plan) { 
         $upgrade_cost_reduction = 0;
     }
