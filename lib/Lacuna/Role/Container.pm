@@ -23,21 +23,6 @@ sub format_body_stats_for_log {
 sub unload {
     my ($self, $body, $withdraw) = @_;
     my $payload = $self->payload;
-    #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
-    #$cargo_log->new({
-    #    message     => 'payload to unload',
-    #    body_id     => $body->id,
-    #    data        => $payload,
-    #    object_type => ref($self),
-    #    object_id   => $self->id,
-    #})->insert;
-    #$cargo_log->new({
-    #    message     => 'before unload',
-    #    body_id     => $body->id,
-    #    data        => $self->format_body_stats_for_log($body),
-    #    object_type => ref($self),
-    #    object_id   => $self->id,
-    #})->insert;
     if (exists $payload->{prisoners}) {
         foreach my $id (@{$payload->{prisoners}}) {
             my $prisoner = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($id);
@@ -94,18 +79,11 @@ sub unload {
         delete $payload->{plans};
     }
     if (exists $payload->{glyphs}) {
-        foreach my $glyph (@{$payload->{glyphs}}) {
-            $body->add_glyph($glyph);
-        }
-        delete $payload->{glyphs};
+      foreach my $glyph (@{$payload->{glyphs}}) {
+        $body->add_glyph($glyph->{name}, $glyph->{quantity});
+      }
+      delete $payload->{glyphs};
     }
-    #$cargo_log->new({
-    #    message     => 'after unload',
-    #    body_id     => $body->id,
-    #    data        => $self->format_body_stats_for_log($body),
-    #    object_type => ref($self),
-    #    object_id   => $self->id,
-    #})->insert;
     $self->payload($payload);
     return $self;
 }

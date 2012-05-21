@@ -22,40 +22,32 @@ sub my_market {
 }
 
 sub check_payload {
-    my ($self, $items, $available_cargo_space, $space_exception, $transfer_ship) = @_;
-    my $body = $self->body;
-    $space_exception ||= $cargo_exception;
+  my ($self, $items, $available_cargo_space, $space_exception, $transfer_ship) = @_;
+  my $body = $self->body;
+  $space_exception ||= $cargo_exception;
     
-    # validate
-    unless (ref $items eq 'ARRAY') {
-        confess 'The list of items you want to trade needs to be formatted as an array of hashes.';
-    }
+  # validate
+  unless (ref $items eq 'ARRAY') {
+    confess 'The list of items you want to trade needs to be formatted as an array of hashes.';
+  }
     
-    my $space_used;
-    my @expanded_items;
+  my $space_used;
+  my @expanded_items;
 
-    foreach my $item (@{$items}) {
-        given($item->{type}) {
-            when ([qw(water energy waste), ORE_TYPES, FOOD_TYPES]) {
-                 confess $offer_nothing_exception unless ($item->{quantity} > 0);
-                 confess $fractional_offer_exception if ($item->{quantity} != int($item->{quantity}));
-                 confess $have_exception unless ($body->type_stored($item->{type}) >= $item->{quantity});
-                 push @expanded_items, $item;
-                 $space_used += $item->{quantity};
-            }
-            when ('glyph') {
-                if ($item->{glyph_id}) {
-                    my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyphs')->find($item->{glyph_id});
-                    confess $have_exception unless (defined $glyph && $self->body_id eq $glyph->body_id);
-                    push @expanded_items, $item;
-                    $space_used += 100;
-                }
-                elsif ($item->{quantity}) {
-                    confess $offer_nothing_exception unless ($item->{quantity} > 0);
-                    confess $fractional_offer_exception if ($item->{quantity} != int($item->{quantity}));
-
-                    confess [1002, 'you must specify a glyph name if you specify a quantity.'] unless $item->{name};
-                    my @glyphs = Lacuna->db->resultset('Lacuna::DB::Result::Glyphs')->search({
+  foreach my $item (@{$items}) {
+    given($item->{type}) {
+      when ([qw(water energy waste), ORE_TYPES, FOOD_TYPES]) {
+        confess $offer_nothing_exception unless ($item->{quantity} > 0);
+        confess $fractional_offer_exception if ($item->{quantity} != int($item->{quantity}));
+        confess $have_exception unless ($body->type_stored($item->{type}) >= $item->{quantity});
+        push @expanded_items, $item;
+        $space_used += $item->{quantity};
+      }
+      when ('glyph') {
+        confess $offer_nothing_exception unless ($item->{quantity} > 0);
+        confess $fractional_offer_exception if ($item->{quantity} != int($item->{quantity}));
+        confess [1002, 'you must specify a glyph name with a quantity.'] unless $item->{name};
+        my @glyphs = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({
                         type    => $item->{name},
                         body_id => $self->body_id,
                     });

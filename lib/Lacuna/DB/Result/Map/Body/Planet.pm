@@ -14,7 +14,7 @@ no warnings 'uninitialized';
 
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
 __PACKAGE__->has_many('plans','Lacuna::DB::Result::Plans','body_id');
-__PACKAGE__->has_many('glyphs','Lacuna::DB::Result::Glyphs','body_id');
+__PACKAGE__->has_many('glyph','Lacuna::DB::Result::Glyph','body_id');
 __PACKAGE__->has_many('waste_chains', 'Lacuna::DB::Result::WasteChain','planet_id');
 __PACKAGE__->has_many('out_supply_chains', 'Lacuna::DB::Result::SupplyChain','planet_id');
 __PACKAGE__->has_many('in_supply_chains', 'Lacuna::DB::Result::SupplyChain','target_id');
@@ -80,11 +80,26 @@ sub claimed_by {
 # GLYPHS
 
 sub add_glyph {
-    my ($self, $type) = @_;
+  my ($self, $type, $num_add) = @_;
+
+  $num_add = 1 unless defined($num_add);
+
+  my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({
+                 type    => $type,
+                 body_id => $self->id,
+               })->single;
+  if (defined($glyph)) {
+    my $sum = $num_add + $self->glyph->quantity;
+    $self->glyph->quantity($sum);
+    return $self->glyph;
+  }
+  else {
     return $self->glyphs->new({
-        type    => $type,
-        body_id => $self->id,
+      type     => $type,
+      body_id  => $self->id,
+      quantity => $num_add,
     })->insert;
+  }
 }
 
 # PLANS
@@ -128,7 +143,7 @@ sub sanitize {
     }
     $self->alliance_id(undef);
     $self->plans->delete;
-    $self->glyphs->delete;
+    $self->glyph->delete;
     $self->waste_chains->delete;
     # do indivitual deletes so the remote ends can be titied up too
     foreach my $chain ($self->out_supply_chains) {
