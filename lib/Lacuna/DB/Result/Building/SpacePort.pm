@@ -104,10 +104,26 @@ sub find_ship {
 }
 
 before delete => sub {
-    my ($self) = @_;
-    unless (Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { class => $self->class, body_id => $self->body_id, id => {'!=', $self->id } } )->count) {
-        $self->ships->delete_all;
+  my ($self) = @_;
+  unless (Lacuna->db->resultset('Lacuna::DB::Result::Building')
+                ->search( { class => $self->class,
+                            body_id => $self->body_id,
+                            id => {'!=', $self->id } } )->count) {
+    for my $market ( Lacuna->db->resultset('Lacuna::DB::Result::Market') ) {
+      my @to_be_deleted = $market->search({body_id => $self->body_id, transfer_type => 'trade'})->get_column('id')->all;
+      foreach my $id (@to_be_deleted) {
+        my $trade = $market->find($id);
+        next unless defined $trade;
+        $trade->body->empire->send_predefined_message(
+                  filename    => 'trade_withdrawn.txt',
+                  params      => [join("\n",@{$trade->format_description_of_payload}), $trade->ask.' essentia'],
+                  tags        => ['Trade','Alert'],
+        );
+        $trade->withdraw;
+      }
     }
+    $self->ships->delete_all;
+  }
 };
 
 before 'can_downgrade' => sub {
