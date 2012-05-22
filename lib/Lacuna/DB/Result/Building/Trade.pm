@@ -97,18 +97,14 @@ sub waste_ships {
 # All ships that are either in a supply chain, or available to be so
 sub all_supply_ships {
     my $self = shift;
-    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
-        class       => 'Lacuna::DB::Result::Building::SpacePort',
-        body_id     => $self->body_id,
-        efficiency  => 100,
-        })->get_column('level')->max || 0;
+    my $body = $self->planet;
     return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
         body_id => $self->body_id,
         -or => {
             task => 'Supply Chain',
             -and => [
                 task => 'Docked',
-                berth_level => {'<=' => $max_level},
+                berth_level => {'<=' => $body->max_berth},
                 type => { '=', [SHIP_TRADE_TYPES]},
             ]
         }
@@ -120,18 +116,14 @@ sub all_supply_ships {
 # All ships that are either in a waste chain, or available to be so
 sub all_waste_ships {
     my $self = shift;
-    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
-        class       => 'Lacuna::DB::Result::Building::SpacePort',
-        body_id     => $self->body_id,
-        efficiency  => 100,
-        })->get_column('level')->max || 0;
+    my $body = $self->planet;
     return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
         body_id => $self->body_id,
         -or => { 
             task => 'Waste Chain',
             -and => [
                 task => 'Docked',
-                berth_level => {'<=' => $max_level},
+                berth_level => {'<=' => $body->max_berth},
                 type => { '=', [SHIP_WASTE_TYPES]},
             ]
         }
@@ -371,16 +363,12 @@ sub available_market {
 
 sub trade_ships {
     my $self = shift;
-    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
-            class       => 'Lacuna::DB::Result::Building::SpacePort',
-            body_id     => $self->body_id,
-            efficiency  => 100,
-         } )->get_column('level')->max || 0;
+    my $body = $self->body;
     return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
         task    => 'Docked',
         type    => { 'in' => [SHIP_TRADE_TYPES] },
         body_id => $self->body_id,
-        berth_level => {'<=' => $max_level }
+        berth_level => {'<=' => $body->max_berth }
     },
     {
         order_by=> {-desc => ['hold_size']}

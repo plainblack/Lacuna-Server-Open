@@ -72,11 +72,7 @@ sub get_ships_for {
         push @incoming, $ship->get_status;
     }
     
-    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
-                      class       => 'Lacuna::DB::Result::Building::SpacePort',
-                      body_id     => $body_id,
-                      efficiency  => 100,
-                    } )->get_column('level')->max;
+    my $max_berth = $body->max_berth;
 
     my @unavailable;
     my @available;
@@ -90,8 +86,8 @@ sub get_ships_for {
         push @unavailable, { ship => $ship->get_status, reason => $reason };
         next;
       }
-      if ($ship->berth_level > $max_level) {
-        $reason = [ 1009, 'Max Berth Level to send from this planet is '.$max_level ];
+      if ($ship->berth_level > $max_berth) {
+        $reason = [ 1009, 'Max Berth Level to send from this planet is '.$max_berth ];
         push @unavailable, { ship => $ship->get_status, reason => $reason };
         next;
       }
@@ -308,20 +304,16 @@ sub prepare_send_spies {
     }
 
     $empire->current_session->check_captcha;
-    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
-            class       => 'Lacuna::DB::Result::Building::SpacePort',
-            body_id     => $on_body_id,
-            efficiency  => 100,
-         } )->get_column('level')->max;
-    unless ($max_level) {
-        $max_level = 1;
-#        confess [1009, "Cannot send spies without any ships."];
+    
+    my $max_berth = $on_body->max_berth;
+    unless ($max_berth) {
+        $max_berth = 1;
     }
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
          task=>'Docked', body_id => $on_body_id,
-         berth_level => {'<=' => $max_level } },
+         berth_level => {'<=' => $max_berth } },
         {order_by => 'name', rows=>100}
     );
     my @ships;
@@ -372,12 +364,8 @@ sub send_spies {
     unless ($ship->is_available) {
         confess [1010, "That ship is not available."];
     }
-    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
-            class       => 'Lacuna::DB::Result::Building::SpacePort',
-            body_id     => $ship->body_id,
-            efficiency  => 100,
-         } )->get_column('level')->max;
-    unless ($ship->berth_level <= $max_level) {
+    my $max_berth = $on_body->max_berth;
+    unless ($ship->berth_level <= $max_berth) {
         confess [1010, "Your spaceport level is not high enough to support a ship with a Berth Level of ".$ship->berth_level."."];
     }
 
@@ -440,21 +428,15 @@ sub prepare_fetch_spies {
         confess [1013, "Cannot fetch spies from an uninhabited planet."];
     }
 
-    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
-            class       => 'Lacuna::DB::Result::Building::SpacePort',
-            body_id     => $to_body_id,
-            efficiency  => 100,
-         } )->get_column('level')->max;
-
-    unless ($max_level) {
-        $max_level = 1;
-#        confess [1009, "Cannot fetch spies without any ships."];
+    my $max_berth = $to_body->max_berth;
+    unless ($max_berth) {
+        $max_berth = 1;
     }
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
          task=>'Docked', body_id => $to_body_id,
-         berth_level => {'<=' => $max_level } },
+         berth_level => {'<=' => $max_berth } },
         {order_by => 'name', rows=>100}
     );
     my @ships;
@@ -497,11 +479,7 @@ sub fetch_spies {
     my $to_body = $self->get_body($empire, $to_body_id);
     my $on_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($on_body_id);
 
-    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
-            class       => 'Lacuna::DB::Result::Building::SpacePort',
-            body_id     => $to_body_id,
-            efficiency  => 100,
-         } )->get_column('level')->max;
+    my $max_berth = $to_body->max_berth;
 
     # get the ship
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
@@ -512,7 +490,7 @@ sub fetch_spies {
         confess [1010, "That ship is not available."];
     }
 
-    unless ($ship->berth_level <= $max_level) {
+    unless ($ship->berth_level <= $max_berth) {
         confess [1010, "Your spaceport level is not high enough to support a ship with a Berth Level of ".$ship->berth_level."."];
     }
 
