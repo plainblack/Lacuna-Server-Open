@@ -277,24 +277,25 @@ sub recalc_waste_production {
 }
 
 before delete => sub {
-    my ($self) = @_;
-    for my $market ( Lacuna->db->resultset('Lacuna::DB::Result::Market') ) {
-      my @to_be_deleted = $market->search({body_id => $self->body_id, transfer_type => 'trade'})->get_column('id')->all;
-      foreach my $id (@to_be_deleted) {
-        my $trade = $market->find($id);
-        next unless defined $trade;
-        $trade->body->empire->send_predefined_message(
-                  filename    => 'trade_withdrawn.txt',
-                  params      => [join("\n",@{$trade->format_description_of_payload}), $trade->ask.' essentia'],
-                  tags        => ['Trade','Alert'],
-        );
-        $trade->withdraw;
-      }
-    }
-    $self->waste_ships->update({task=>'Docked'});
-    $self->waste_chains->delete_all;
-    $self->body->needs_recalc(1);
-    $self->body->update;
+  my ($self) = @_;
+    
+  my $market = Lacuna->db->resultset('Lacuna::DB::Result::Market');
+  my @to_be_deleted = $market->search( { body_id => $self->body_id,
+                                         transfer_type => 'trade'} )->get_column('id')->all;
+  foreach my $id (@to_be_deleted) {
+    my $trade = $market->find($id);
+    next unless defined $trade;
+    $trade->body->empire->send_predefined_message(
+            filename    => 'trade_withdrawn.txt',
+            params      => [join("\n",@{$trade->format_description_of_payload}), $trade->ask.' essentia'],
+            tags        => ['Trade','Alert'],
+    );
+    $trade->withdraw;
+  }
+  $self->waste_ships->update({task=>'Docked'});
+  $self->waste_chains->delete_all;
+  $self->body->needs_recalc(1);
+  $self->body->update;
 };
 
 before 'can_downgrade' => sub {
