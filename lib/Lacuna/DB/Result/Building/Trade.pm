@@ -97,7 +97,7 @@ sub waste_ships {
 # All ships that are either in a supply chain, or available to be so
 sub all_supply_ships {
     my $self = shift;
-    my $body = $self->planet;
+    my $body = $self->body;
     return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
         body_id => $self->body_id,
         -or => {
@@ -116,7 +116,7 @@ sub all_supply_ships {
 # All ships that are either in a waste chain, or available to be so
 sub all_waste_ships {
     my $self = shift;
-    my $body = $self->planet;
+    my $body = $self->body;
     return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
         body_id => $self->body_id,
         -or => { 
