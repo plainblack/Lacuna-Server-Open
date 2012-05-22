@@ -1406,7 +1406,10 @@ sub steal_planet {
     while (my $ship = $ships->next) {
       next if ($ship->task eq 'Waiting On Trade');
       next if ($ship->task eq 'Waste Chain');
-      if ($ship->task eq 'Travelling' and
+      if ($ship->task eq 'Supply Chain') {
+        $ship->task('Docked')->update;
+      }
+      elsif ($ship->task eq 'Travelling' and
                (grep { $ship->type eq $_ }
                      @{['cargo_ship',
                         'smuggler_ship',
@@ -1418,6 +1421,9 @@ sub steal_planet {
                         'dory',
                         'barge',
                       ]})) {
+        if ($ship->direction eq 'out') {
+          $ship->body_id($defender_capitol_id)->update;
+        }
         next;
       }
       elsif ($ship->task eq 'Travelling' and
@@ -1425,7 +1431,7 @@ sub steal_planet {
                      @{[ 'colony_ship',
                          'short_range_colony_ship',
                        ]})) {
-        $ship->body_id($defender_capitol_id);
+        $ship->body_id($defender_capitol_id)->update;
       }
       else {
         $ship->delete;
