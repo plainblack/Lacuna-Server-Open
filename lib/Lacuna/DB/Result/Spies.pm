@@ -1422,7 +1422,8 @@ sub steal_planet {
                         'barge',
                       ]})) {
         if ($ship->direction eq 'out') {
-          $ship->body_id($defender_capitol_id)->update;
+          $ship->body_id($defender_capitol_id);
+          $ship->update;
         }
         next;
       }
@@ -1431,7 +1432,8 @@ sub steal_planet {
                      @{[ 'colony_ship',
                          'short_range_colony_ship',
                        ]})) {
-        $ship->body_id($defender_capitol_id)->update;
+        $ship->body_id($defender_capitol_id);
+        $ship->update;
       }
       else {
         $ship->delete;
