@@ -114,13 +114,8 @@ sub add_cargo_ship_to_fleet {
     unless ($ship->body_id eq $building->body_id) {
         confess [1013, "You can't manage a ship that is not yours."];
     }
-    my $max_level = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( { 
-                      class       => 'Lacuna::DB::Result::Building::SpacePort',
-                      body_id     => $building->body_id,
-                      efficiency  => 100,
-                    } )->get_column('level')->max;
-    unless ($max_level >= $ship->berth_level) {
-        confess [1009, 'Max Berth Level is '.$max_level.' for ships on this planet.' ];
+    unless ($building->body->max_berth >= $ship->berth_level) {
+        confess [1009, 'Max Berth Level is '.$building->body->max_berth.' for ships on this planet.' ];
     }
     $building->add_ship($ship);
     return {
