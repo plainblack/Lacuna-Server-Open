@@ -109,8 +109,18 @@ before delete => sub {
                 ->search( { class => $self->class,
                             body_id => $self->body_id,
                             id => {'!=', $self->id } } )->count) {
-    for my $market ( Lacuna->db->resultset('Lacuna::DB::Result::Market') ) {
-      my @to_be_deleted = $market->search({body_id => $self->body_id, transfer_type => 'trade'})->get_column('id')->all;
+  my @markets = [
+                  { market => 'Lacuna::DB::Result::Market',
+                    search => { body_id => $self->body_id, transfer_type => 'trade' }
+                  },
+                  { market => 'Lacuna::DB::Result::MercenaryMarket',
+                    search => { body_id => $self->body_id }
+                  },
+                ];
+
+
+    for my $market ( @markets ) {
+      my @to_be_deleted = $market->{market}->search($market->{search})->get_column('id')->all;
       foreach my $id (@to_be_deleted) {
         my $trade = $market->find($id);
         next unless defined $trade;
