@@ -31,8 +31,8 @@ sub view_planet {
     }
     
     my @map;
-    my $buildings = $planet->buildings;
-    while (my $building = $buildings->next) {
+    my @buildings = @{$planet->building_cache};
+    foreach my $building (@buildings) {
         push @map, {
             image   => $building->image_level,
             x       => $building->x,

@@ -6,7 +6,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES BUILDABLE_CLASSES SPACE_STATION_MODULES);
-use List::Util qw(shuffle max);
+use List::Util qw(shuffle max min);
 use Lacuna::Util qw(randint format_date);
 use DateTime;
 use Data::Dumper;
@@ -30,6 +30,25 @@ sub _build_plan_cache {
 
     my @plans = $self->plans;
     return \@plans;
+}
+
+sub delete_building {
+    my ($self, $building) = @_;
+
+    my $index = first_index {$_->id == $building->id} @{$self->building_cache};
+    if (defined $index) {
+        my @buildings = splice(@{$self->building_cache}, $index, 1);   
+        $self->building_cache(\@buildings);
+    }
+    $building->delete;
+}
+
+sub delete_buildings {
+    my ($self, $buildings) = @_;
+
+    foreach my $building (@$buildings) {
+        $self->delete_building($building);
+    }
 }
 
 sub surface {
@@ -125,7 +144,10 @@ sub add_plan {
 
 sub sanitize {
     my ($self) = @_;
-    my $buildings = $self->buildings->search({class => { 'not like' => 'Lacuna::DB::Result::Building::Permanent%' } })->delete_all;
+    my @buildings = grep {$_->class !~ /Permanent$/} @{$self->building_cache};
+    foreach my $building (@buildings) {
+        $self->delete_building($building);
+    }
     my @attributes = qw( happiness_hour happiness waste_hour waste_stored waste_capacity
         energy_hour energy_stored energy_capacity water_hour water_stored water_capacity ore_capacity
         rutile_stored chromite_stored chalcopyrite_stored galena_stored gold_stored uraninite_stored bauxite_stored
@@ -550,7 +572,7 @@ has embassy => (
 
 sub is_space_free {
     my ($self, $x, $y) = @_;
-    my $count = $self->buildings->search({x=>$x, y=>$y})->count;
+    my $count = grep {$_->x == $x and $_->y == $y} @{$self->building_cache};
     return 0 if $count > 0;
     return 1;
 }
@@ -624,7 +646,7 @@ sub has_room_in_build_queue {
     if (defined $dev_ministry) {
         $max += $dev_ministry->level;
     }
-    my $count = $self->builds->count;
+    my $count = @{$self->builds};
     if ($count >= $max) {
         confess [1009, "There's no room left in the build queue.", $max];
     }
@@ -647,8 +669,8 @@ has future_operating_resources => (
         }
         
         # adjust for what's already in build queue
-        my $queued_builds = $self->builds;
-        while (my $build = $queued_builds->next) {
+        my @queued_builds = @{$self->builds};
+        foreach my $build (@queued_builds) {
             $build->body($self);
             my $other = $build->stats_after_upgrade;
             foreach my $method ($self->operating_resource_names) {
@@ -727,19 +749,16 @@ sub has_max_instances_of_building {
 
 sub builds { 
     my ($self, $reverse) = @_;
-    my $order = '-asc';
-    if ($reverse) {
-        $order = '-desc';
-    }
-    return Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
-        { body_id => $self->id, is_upgrading => 1 },       
-        { order_by => { $order => 'upgrade_ends' } }
-    );
+
+
+    my @buildings = sort {$a->upgrade_ends cmp $b->upgrade_ends} grep {$_->is_upgrading == 1} @{$self->building_cache};
+    @buildings = reverse @buildings if $reverse;
+    return \@buildings;
 }
 
 sub get_existing_build_queue_time {
     my $self = shift;
-    my $building = $self->builds(1)->search(undef, {rows=>1})->single;
+    my ($building) = @{$self->builds(1)};
     return (defined $building) ? $building->upgrade_ends : DateTime->now;
 }
 
@@ -766,6 +785,7 @@ sub build_building {
     $building->insert;
     $building->body($self);
     $building->start_upgrade(undef, $in_parallel);
+    $self->building_cache([@{$self->building_cache}, $building]);
 }
 
 sub found_colony {
@@ -782,11 +802,9 @@ sub found_colony {
     $type =~ s/^.*::(\w\d+)$/$1/;
     $empire->add_medal($type);
 
-    my $buildings = $self->buildings;
-    while (my $building = $buildings->next) {
-      if ($building->x == 0 and $building->y == 0) {
+    my ($building) = grep {$_->x == 0 and $_->y == 0} @{$self->building_cache};
+    if (defined $building) {
         $building->delete;
-      }
     }
 
     # add command building
@@ -834,7 +852,9 @@ sub convert_to_station {
     $empire->add_medal('space_station_deployed');
 
     # clean it
-    $self->buildings->delete_all;
+    foreach my $building (@{$self->building_cache}) {
+        $self->delete_building($building);
+    }
     
     # add command building
     my $command = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -935,6 +955,8 @@ sub recalc_chains {
 
 sub recalc_stats {
     my ($self) = @_;
+
+    $self->clear_building_cache;
 
     my %stats = ( needs_recalc => 0 );
     #reset foods and ores
@@ -1072,14 +1094,14 @@ sub recalc_stats {
     # deal with plot usage
     my $max_plots = $self->size + $pantheon_of_hagness;
     if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant')) {
-        $max_plots = $gas_giant_platforms < $max_plots ? $gas_giant_platforms : $max_plots;
+        $max_plots = min($gas_giant_platforms, $max_plots);
     }
     if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         $max_plots = $stats{size} = $station_command * 3;
     }
     elsif ($self->isa('Lacuna::DB::Result::Map::Body::Planet')) {
         if ($self->orbit > $self->empire->max_orbit || $self->orbit < $self->empire->min_orbit) {
-            $max_plots = $terraforming_platforms < $max_plots ? $terraforming_platforms : $max_plots;
+            $max_plots = min($terraforming_platforms, $max_plots);
         }
     }
     $stats{plots_available} = $max_plots - $self->building_count;
@@ -1151,20 +1173,12 @@ sub tick {
     my $i; # in case 2 things finish at exactly the same time
 
     # get building tasks
-    my $buildings = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
-        body_id     => $self->id,
-        -or         => [
-            -and    => [
-                is_upgrading    => 1,
-                upgrade_ends    => {'<=' => $now},
-            ],
-            -and    => [
-                is_working      => 1,
-                work_ends       => {'<=' => $now},
-            ],
-        ],
-    });
-    while (my $building = $buildings->next) {
+    my @buildings = grep {
+        ($_->is_upgrading and $_->upgrade_ends->epoch <= $now_epoch) 
+     or ($_->is_working and $_->work_ends->epoch <= $now_epoch)
+    } @{$self->building_cache};
+
+    foreach my $building (@buildings) {
         if ($building->is_upgrading && $building->upgrade_ends->epoch <= $now_epoch) {
             $todo{format_date($building->upgrade_ends).$i} = {
                 object  => $building,

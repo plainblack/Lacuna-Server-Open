@@ -23,15 +23,13 @@ around can_build => sub {
 before 'can_demolish' => sub {
   my $self = shift;
   my $body = $self->body;
-  my $buildings = $body->buildings;
-  return if ($body->orbit > $body->empire->min_orbit && $body->orbit < $body->empire->max_orbit);
-
-  my $tp_blds = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform' });
+  return if ($body->orbit >= $body->empire->min_orbit && $body->orbit <= $body->empire->max_orbit);
 
   my $tp_plots = 0;
   my $tp_cnt = 0;
 
-  while (my $tp_bld = $tp_blds->next) {
+  my @buildings = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform'} @{$body->building_cache};
+  foreach my $tp_bld (@buildings) {
     $tp_cnt++;
     $tp_plots += int($tp_bld->level * $tp_bld->efficiency/100);
   }
@@ -49,15 +47,13 @@ before 'can_demolish' => sub {
 before 'can_downgrade' => sub {
   my $self = shift;
   my $body = $self->body;
-  my $buildings = $body->buildings;
-  return if ($body->orbit > $body->empire->max_orbit || $body->orbit < $body->empire->min_orbit);
-
-  my $tp_blds = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform' });
+  return if ($body->orbit >= $body->empire->min_orbit && $body->orbit <= $body->empire->max_orbit);
 
   my $tp_plots = 0;
   my $tp_cnt = 0;
 
-  while (my $tp_bld = $tp_blds->next) {
+  my @buildings = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform'} @{$body->building_cache};
+  foreach my $tp_bld (@buildings) {
     $tp_cnt++;
     $tp_plots += int($tp_bld->level * $tp_bld->efficiency/100);
   }

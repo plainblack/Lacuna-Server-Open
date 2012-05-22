@@ -88,8 +88,8 @@ sub get_buildings {
         $body->update;
     }
     my %out;
-    my $buildings = $body->buildings;
-    while (my $building = $buildings->next) {
+    my @buildings = @{$body->building_cache};
+    foreach my $building (@buildings) {
         $out{$building->id} = {
             url     => $building->controller_class->app_url,
             image   => $building->image_level,
@@ -118,7 +118,6 @@ sub rearrange_buildings {
   my ($self, $session_id, $body_id, $arrangement) = @_;
   my $empire = $self->get_empire_by_session($session_id);
   my $body = $self->get_body($empire, $body_id);
-  my $cur_bld = $body->buildings;
   my %cur_lay; my %new_lay;
   my %cur_ids; my %new_ids;
   my @miss_in_new; my @miss_in_cur;
@@ -131,7 +130,7 @@ sub rearrange_buildings {
       y     => $y,
     };
   }
-  while (my $building = $cur_bld->next) {
+  foreach my $building (@{$body->building_cache}) {
     my $id   = $building->id;
     my $x    = $building->x;
     my $y    = $building->y;

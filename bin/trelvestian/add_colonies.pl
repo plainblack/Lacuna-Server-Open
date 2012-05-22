@@ -65,7 +65,7 @@ if ($tournament) {
         }
         else {
             say 'Clearing '.$body->name;
-            $body->buildings->delete_all;
+            $body->delete_buildings(@{$body->building_cache});
             say 'Colonizing '.$body->name;
             $body->found_colony($ai->empire);
             $ai->build_colony($body);

@@ -223,6 +223,7 @@ has building_cache => (
     is      => 'rw',
     lazy    => 1,
     builder => '_build_building_cache',
+    clearer => 'clear_building_cache',
 );
 
 sub _build_building_cache {

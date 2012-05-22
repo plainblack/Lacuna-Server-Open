@@ -18,8 +18,8 @@ sub get_upgradable_buildings {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my @buildings;
-    my $upgradable = $building->get_upgradable_buildings;
-    while (my $building = $upgradable->next) {
+    my @upgradable = @{$building->get_upgradable_buildings};
+    foreach my $building (@upgradable) {
         next if ($building->level > $empire->university_level);
         push @buildings, {
             id      => $building->id,
@@ -41,12 +41,12 @@ sub sacrifice_to_upgrade {
     my ($self, $session_id, $building_id, $upgrade_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $upgrade = $building->body->buildings->find($upgrade_id);
+    my ($upgrade) = grep {$_->id == $upgrade_id} @{$building->body->building_cache};
     unless (defined $upgrade) {
         confess [1002, 'Could not find the building to upgrade.'];
     }
-    my @upgradable = $building->get_upgradable_buildings->get_column('id')->all;
-    unless ($upgrade->id ~~ \@upgradable) {
+    my $is_upgradable = grep {$_->id == $upgrade->id} @{$building->get_upgradable_buildings};
+    unless ($is_upgradable) {
         confess [1009, 'The Halls of Vrbansk do not have the knowledge necessary to upgrade the '.$upgrade->name];
     }
     my $body = $building->body;

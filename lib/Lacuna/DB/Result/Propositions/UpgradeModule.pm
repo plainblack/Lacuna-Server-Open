@@ -8,7 +8,7 @@ extends 'Lacuna::DB::Result::Propositions';
 before pass => sub {
     my ($self) = @_;
     my $station = $self->station;
-    my $building = $station->buildings->find($self->scratch->{building_id});
+    my ($building) = grep {$_->id == $self->scratch->{building_id}} @{$station->building_cache};
     if (defined $building) {
         if ($building->is_upgrading && $building->level < $self->scratch->{to_level}) {
             $building->finish_upgrade;
@@ -22,7 +22,7 @@ before pass => sub {
 before fail => sub {
     my ($self) = @_;
     my $station = $self->station;
-    my $building = $station->buildings->find($self->scratch->{building_id});
+    my ($building) = grep {$_->id == $self->scratch->{building_id}} @{$station->building_cache};
     if (defined $building) {
         $station->add_plan($building->class, $building->level + 1);
         if ($building->level == 0 ) {

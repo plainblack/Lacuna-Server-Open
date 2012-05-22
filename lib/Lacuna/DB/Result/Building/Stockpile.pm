@@ -52,8 +52,7 @@ use constant water_storage => 300;
 
 before 'can_downgrade' => sub {
     my $self = shift;
-    my $buildings = $self->body->buildings;
-    while (my $building = $buildings->next) {
+    foreach my $building (@{$self->building_cache}) {
         if ($building->level > 15 + (($self->level - 1)/3) && 'Resources' ~~ [$building->build_tags] && !('Storage' ~~ [$building->build_tags])) {
             confess [1013, 'You have to downgrade your level '.$building->level.' '.$building->name.' to level 15 before you can downgrade the Stockpile.'];
         }
@@ -62,8 +61,7 @@ before 'can_downgrade' => sub {
 
 before 'can_demolish' => sub {
     my $self = shift;
-    my $buildings = $self->body->buildings;
-    while (my $building = $buildings->next) {
+    foreach my $building (@{$self->building_cache}) {
         if ($building->level > 15 && 'Resources' ~~ [$building->build_tags] && !('Storage' ~~ [$building->build_tags])) {
             confess [1013, 'You have to downgrade your level '.$building->level.' '.$building->name.' to level 15 before you can demolish the Stockpile.'];
         }

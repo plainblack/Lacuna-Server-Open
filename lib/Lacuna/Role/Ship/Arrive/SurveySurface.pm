@@ -25,8 +25,7 @@ after handle_arrival_procedures => sub {
     # do the scan
     my @map;
     my @table = ([qw(Name Level X Y Efficiency)]);
-    my $buildings = $body_attacked->buildings->search(undef,{order_by => ['x','y']});
-    while (my $building = $buildings->next) {
+    foreach my $building (sort {$a->x <=> $b->x || $a->y <=> $b->y} @{$body_attacked->building_cache}) {
         push @map, {
             image   => $building->image_level,
             x       => $building->x,

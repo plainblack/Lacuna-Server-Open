@@ -123,14 +123,25 @@ sub in_jurisdiction {
 has total_influence => (
     is      => 'rw',
     lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return $self->buildings
-            ->search({ class => { in => ['Lacuna::DB::Result::Building::Module::IBS','Lacuna::DB::Result::Building::Module::OperaHouse','Lacuna::DB::Result::Building::Module::CulinaryInstitute','Lacuna::DB::Result::Building::Module::ArtMuseum'] }})
-            ->get_column('level')
-            ->sum;
-    },
+    builder => '_build_total_influence',
 );
+
+sub _build_total_influence {
+    my ($self) = @_;
+
+    my $influence = 0;
+    foreach my $building (@{$self->building_cache}) {
+        if (
+            $building->class eq 'Lacuna::DB::Result::Building::Module::IBS' or
+            $building->class eq 'Lacuna::DB::Result::Building::Module::OperaHouse' or
+            $building->class eq 'Lacuna::DB::Result::Building::Module::CulinaryInstitute' or
+            $building->class eq 'Lacuna::DB::Result::Building::Module::ArtMuseum'
+            ) {
+            $influence += $building->level;
+        }
+    }
+    return $influence;
+}
 
 has influence_spent => (
     is      => 'rw',
@@ -149,15 +160,19 @@ sub influence_remaining {
 has range_of_influence => (
     is      => 'rw',
     lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return $self->buildings
-            ->search({ class => 'Lacuna::DB::Result::Building::Module::IBS'})
-            ->get_column('level')
-            ->sum
-            * 1000;
-    },
+    builder => '_build_range_of_influence',
 );
+
+sub _build_range_of_influence {
+    my ($self) = @_;
+
+    my $range = 0;
+    my ($ibs) = grep {$_->class eq 'Lacuna::DB::Result::Building::Module::IBS'} @{$self->building_cache};
+    if (defined $ibs) {
+        $range = $ibs->level * 1000;
+    }
+    return $range;
+}
 
 sub in_range_of_influence {
     my ($self, $star) = @_;

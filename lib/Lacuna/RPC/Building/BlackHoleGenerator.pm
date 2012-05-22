@@ -562,7 +562,7 @@ sub bhg_make_asteroid {
   my ($building, $body) = @_;
   my $old_class = $body->class;
   my $old_size  = $body->size;
-  $body->buildings->delete_all;
+  $body->delete_buildings(@{$body->building_cache});
   my $new_size = int($building->level/5);
   $new_size = 10 if $new_size > 10;
   $body->update({
@@ -731,23 +731,22 @@ sub bhg_self_destruct {
   my ($building) = @_;
   my $body = $building->body;
   my $return = {
-                 id        => $body->id,
-                 name      => $body->name,
+      id        => $body->id,
+      name      => $body->name,
   };
   $body->waste_stored(0);
-  my $bombed = $body->buildings;
-  my $bombs = $building->level;
 
-  for my $cnt (1..$bombs) {
-    my $placement = $bombed->search(
-                       { class => { 'not in' => [
-                    'Lacuna::DB::Result::Building::Permanent::Crater',
-                    'Lacuna::DB::Result::Building::DeployedBleeder',
-                ],
-            },
-        },
-        {order_by => { -desc => ['efficiency', 'rand()'] }, rows=>1}
-      )->single;
+  for (1..$building->level) {
+    my ($placement) = 
+      sort {
+        $b->efficiency <=> $a->efficiency ||
+        rand() <=> rand()
+      }
+      grep {
+        ($_->class ne 'Lacuna::DB::Result::Building::Permanent::Crater') and
+        ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder')
+    } @{$body->building_cache};
+
     last unless defined($placement);
     my $amount = randint(10, 100);
     $placement->spend_efficiency($amount)->update;
