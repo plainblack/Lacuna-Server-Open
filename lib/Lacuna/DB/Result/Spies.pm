@@ -1404,9 +1404,14 @@ sub steal_planet {
                       ->search({body_id => $self->on_body_id,
                                 task => { '!=' => 'Docked' } });
     while (my $ship = $ships->next) {
-      next if ($ship->task eq 'Waiting On Trade');
       next if ($ship->task eq 'Waste Chain');
-      if ($ship->task eq 'Supply Chain') {
+      if ($ship->task eq 'Waiting On Trade') {
+# Ships being delivered from trades or pushes.
+        $ship->body_id($defender_capitol_id);
+        $ship->update;
+      }
+      elsif ($ship->task eq 'Supply Chain') {
+# Supply chains from planet were deleted so we dock ships
         $ship->task('Docked');
         $ship->update;
       }
@@ -1422,17 +1427,18 @@ sub steal_planet {
                         'dory',
                         'barge',
                       ]})) {
+# Trade ship was outgoing, it will change homeport to capitol
         if ($ship->direction eq 'out') {
           $ship->body_id($defender_capitol_id);
           $ship->update;
         }
-        next;
       }
       elsif ($ship->task eq 'Travelling' and
                (grep { $ship->type eq $_ }
                      @{[ 'colony_ship',
                          'short_range_colony_ship',
                        ]})) {
+# Colony ships show from capitol.
         $ship->body_id($defender_capitol_id);
         $ship->update;
       }
