@@ -1407,7 +1407,8 @@ sub steal_planet {
       next if ($ship->task eq 'Waiting On Trade');
       next if ($ship->task eq 'Waste Chain');
       if ($ship->task eq 'Supply Chain') {
-        $ship->task('Docked')->update;
+        $ship->task('Docked');
+        $ship->update;
       }
       elsif ($ship->task eq 'Travelling' and
                (grep { $ship->type eq $_ }
