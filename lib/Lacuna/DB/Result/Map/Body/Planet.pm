@@ -966,6 +966,7 @@ sub recalc_stats {
     foreach my $type (ORE_TYPES) {
         $stats{$type.'_hour'} = 0;
     }
+    $stats{max_berth} = 1;
     #calculate building production
     my ($gas_giant_platforms, $terraforming_platforms, $station_command, $pantheon_of_hagness, $total_ore_production_hour, $ore_production_hour, $ore_consumption_hour) = 0;
     foreach my $building (@{$self->building_cache}) {
@@ -984,6 +985,9 @@ sub recalc_stats {
         foreach my $type (@{$building->produces_food_items}) {
             my $method = $type.'_production_hour';
             $stats{$method} += $building->$method();
+        }
+        if ($building->isa('Lacuna::DB::Result::Building::SpacePort') and $building->efficiency == 100) {
+          $stats{max_berth} = $building->level if ($building->level > $stats{max_berth});
         }
         if ($building->isa('Lacuna::DB::Result::Building::Ore::Ministry')) {
             my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({planet_id => $self->id});

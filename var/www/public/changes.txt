@@ -1,3 +1,7 @@
+3.0852:
+ - Mod: Efficiency modifications.
+ - Mod: Various bug fixes.
+
 3.0851:
  - Mod: Multiple plans buildable with one call from Archaeology Ministry.
  - Mod: view_plans from Planetary and Station Commands consolidated. UI updated to reflect.

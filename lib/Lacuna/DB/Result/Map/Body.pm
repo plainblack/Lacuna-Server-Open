@@ -124,6 +124,7 @@ __PACKAGE__->add_columns(
     restrict_coverage               => { data_type => 'tinyint', default_value => 0 },
     plots_available                 => { data_type => 'tinyint', default_value => 0 },    
     surface_version                 => { data_type => 'tinyint', default_value => 0 },
+    max_berth                       => { data_type => 'tinyint', default_value => 1 },
 );
 
 after 'sqlt_deploy_hook' => sub {
@@ -308,15 +309,6 @@ sub get_a_building {
 
     my ($building) = grep { $_->class eq "Lacuna::DB::Result::Building::$class" } @{$self->building_cache};
     return $building;
-}
-
-sub max_berth {
-    my ($self) = @_;
-
-
-    my $max_berth =  max map {$_->level} grep {$_->class eq 'Lacuna::DB::Result::Building::SpacePort' and $_->efficiency == 100} @{$self->building_cache};
-
-    return $max_berth ? $max_berth : 0;
 }
 
 sub get_status {
