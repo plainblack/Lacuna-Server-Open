@@ -125,7 +125,7 @@ before delete => sub {
     next unless defined $trade;
     $trade->body->empire->send_predefined_message(
             filename    => 'trade_withdrawn.txt',
-            params      => [$trade->format_description_of_payload, $trade->ask.' essentia'],
+            params      => [join("\n",@{$trade->format_description_of_payload}), $trade->ask.' essentia'],
             tags        => ['Trade','Alert'],
     );
     $trade->withdraw($self->body);
