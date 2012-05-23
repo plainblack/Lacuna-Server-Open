@@ -16,7 +16,7 @@ my $tester_session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
 
-my ($pcc) = $home->buildings->search({class => 'Lacuna::DB::Result::Building::PlanetaryCommand'});
+my ($pcc) = $home->buildings_of_class('PlanetaryCommand');
 
 $tester->post('planetarycommand', 'view_plans', [$tester_session_id, $pcc->id]);
 

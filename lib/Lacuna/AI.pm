@@ -185,8 +185,7 @@ sub run_missions {
 sub repair_buildings {
     my ($self, $colony) = @_;
     say 'REPAIR DAMAGED BUILDINGS';
-    my $buildings = $colony->buildings;
-    while (my $building = $buildings->next) {
+    foreach my $building (@{$colony->building_cache}) {
         if ($building->efficiency < 100) {
             say "    ".$building->name." needs repairing";
             my $costs = $building->get_repair_costs;

@@ -483,8 +483,7 @@ sub found {
        Lacuna::DB::Result::Building::Permanent::RockyOutcrop
        Lacuna::DB::Result::Building::Permanent::Sand
                 )];
-  my $buildings = $home_planet->buildings->search;
-  while (my $building = $buildings->next) {
+  foreach my $building (@{$home_planet->building_cache}) {
     unless ( grep { $building->class eq $_ } @{$decor}) {
       $building->delete;
     }

@@ -199,8 +199,7 @@ sub www_complete_builds {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
-    my $buildings = $body->buildings;
-    while (my $building = $buildings->next) {
+    foreach my $building (@{$body->building_cache}) {
         next unless ( $building->is_upgrading );
         $building->is_upgrading(0);
         $building->upgrade_ends($building->upgrade_started);
@@ -217,8 +216,7 @@ sub www_send_stellar_flare {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
-    my $buildings = $body->buildings;
-    while (my $building = $buildings->next) {
+    foreach my $building (@{$body->building_cache}) {
         next unless ('Infrastructure' ~~ [$building->build_tags]);
         next if ( $building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' );
         $building->efficiency(0);
@@ -240,8 +238,7 @@ sub www_send_meteor_shower {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
-    my $buildings = $body->buildings;
-    while (my $building = $buildings->next) {
+    foreach my $building (@{$body->building_cache}) {
         next unless ('Infrastructure' ~~ [$building->build_tags]);
         next if ( $building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' );
         $building->class('Lacuna::DB::Result::Building::Permanent::Crater');

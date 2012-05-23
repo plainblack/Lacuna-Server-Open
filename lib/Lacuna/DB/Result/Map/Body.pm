@@ -2,7 +2,7 @@ package Lacuna::DB::Result::Map::Body;
 
 use Moose;
 use utf8;
-use List::Util qw(max);
+use List::Util qw(max reduce);
 
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map';
@@ -217,7 +217,7 @@ after 'sqlt_deploy_hook' => sub {
 __PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Map::Star', 'star_id');
 __PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Alliance', 'alliance_id', { on_delete => 'set null' });
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
-__PACKAGE__->has_many('buildings','Lacuna::DB::Result::Building','body_id');
+__PACKAGE__->has_many('_buildings','Lacuna::DB::Result::Building','body_id');
 
 has building_cache => (
     is      => 'rw',
@@ -229,8 +229,33 @@ has building_cache => (
 sub _build_building_cache {
     my ($self) = @_;
 
-    my @buildings = $self->buildings;
+    my @buildings = $self->_buildings;
     return \@buildings;
+}
+
+sub building_max_level {
+    my ($self) = @_;
+
+    return reduce {$a->level > $b->level ? $a->level : $b->level} 0, @{$self->building_cache}
+}
+
+sub building_avg_level {
+    my ($self) = @_;
+
+    if (scalar @{$self->building_cache}) {
+        return (reduce {$a->level + $b->level} 0, @{$self->building_cache} ) / @{$self->building_cache};
+    }
+    return 0;
+}
+
+sub buildings_of_class {
+    my ($self,$class) = @_;
+
+    $class =~ s/Lacuna::DB::Result::Building:://;
+    $class = "Lacuna::DB::Result::Building::$class";
+
+    my @buildings = grep {$_-> class eq $class} @{$self->building_cache};
+    return @buildings;
 }
 
 sub abandon {
