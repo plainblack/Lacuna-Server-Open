@@ -26,21 +26,20 @@ sub date_offered_formatted {
 }
 
 sub format_description_of_payload {
-    my ($self) = @_;
-    my $payload = $self->payload;
+  my ($self) = @_;
+  my $payload = $self->payload;
     
-    my $item = '';
-    if (exists $payload->{mercenary}) {
-        my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($payload->{mercenary});
-        if (defined $spy) {
-            $item = sprintf("Level %d spy named %s (Mercenary Transport) Offense: %d, Defense: %d, Intel: %d, Mayhem: %d, Politics: %d, Theft: %d, Mission Count Offensive: %d Defensive: %d)",
-                $spy->level, $spy->name, $spy->offense, $spy->defense,
-                $spy->intel_xp, $spy->mayhem_xp, $spy->politics_xp, $spy->theft_xp,
-                $spy->offense_mission_count, $spy->defense_mission_count);
-        }
+  my $item_arr = [];
+  if (exists $payload->{mercenary}) {
+    my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($payload->{mercenary});
+    if (defined $spy) {
+      $item_arr = [ sprintf( "Level %d spy named %s (Mercenary Transport) Offense: %d, Defense: %d, Intel: %d, Mayhem: %d, Politics: %d, Theft: %d, Mission Count Offensive: %d Defensive: %d)",
+                    $spy->level, $spy->name, $spy->offense, $spy->defense,
+                     $spy->intel_xp, $spy->mayhem_xp, $spy->politics_xp, $spy->theft_xp,
+                     $spy->offense_mission_count, $spy->defense_mission_count) ];
     }
-
-    return $item;
+  }
+  return $item_arr;
 }
 
 sub withdraw {
