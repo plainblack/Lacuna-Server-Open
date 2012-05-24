@@ -35,7 +35,6 @@ sub _build_plan_cache {
 sub delete_building {
     my ($self, $building) = @_;
 
-    print STDERR "<<< building=[$building] building_id=[".$building->id."]>>>>\n";
     my $i = 0;
     BUILDING:
     foreach my $b (@{$self->building_cache}) {
@@ -237,7 +236,8 @@ around get_status => sub {
                 if ($self->needs_recalc) {
                     $self->tick; # in case what we just did is going to change our stats
                 }
-                if (not $empire->is_isolationist) { # don't need to warn about incoming ships if can't be attacked
+                # ISO empires, and empires who have disabled the option, don't need to see incoming ships
+                if ($empire->see_incoming_ships and not $empire->is_isolationist) {
                     my $now = time;
 
                     my $foreign_bodies;
@@ -753,7 +753,6 @@ sub has_max_instances_of_building {
 
 sub builds { 
     my ($self, $reverse) = @_;
-
 
     my @buildings = sort {$a->upgrade_ends cmp $b->upgrade_ends} grep {$_->is_upgrading == 1} @{$self->building_cache};
     @buildings = reverse @buildings if $reverse;

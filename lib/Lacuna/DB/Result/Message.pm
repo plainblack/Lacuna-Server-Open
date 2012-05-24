@@ -43,6 +43,15 @@ sub date_sent_formatted {
     return format_date($self->date_sent);
 }
 
+for my $func (qw(insert update delete)) {
+    after $func => sub {
+        my $self = shift;
+
+        $self->sender->recalc_messages;
+        $self->receiver->recalc_messages;
+    };
+}
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
