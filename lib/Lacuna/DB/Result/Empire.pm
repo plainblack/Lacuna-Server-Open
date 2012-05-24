@@ -80,6 +80,8 @@ __PACKAGE__->add_columns(
     skip_attack_messages    => { data_type => 'tinyint', default_value => 0 },
     skip_excavator_artifact => { data_type => 'tinyint', default_value => 0 },
     skip_excavator_destroyed => { data_type => 'tinyint', default_value => 0 },
+    most_recent_message     => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => '' },
+    has_new_messages        => { data_type => 'tinyint', default_value => 0 },
 );
 
 sub sqlt_deploy_hook {
@@ -316,6 +318,8 @@ sub get_status {
     while (my $planet = $planet_rs->next) {
         $planets{$planet->id} = $planet->name;
     }
+    my $has_new_messages = 0;
+
     my $status = {
         rpc_count           => $self->rpc_count,
         is_isolationist     => $self->is_isolationist,
@@ -323,8 +327,8 @@ sub get_status {
         name                => $self->name,
         id                  => $self->id,
         essentia            => $self->essentia,
-        has_new_messages    => $self->get_new_message_count,
-        most_recent_message => $self->get_newest_message,
+        has_new_messages    => $self->has_new_messages,
+        most_recent_message => $self->most_recent_message,
         home_planet_id      => $self->home_planet_id,
         planets             => \%planets,
         self_destruct_active=> $self->self_destruct_active,

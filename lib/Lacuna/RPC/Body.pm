@@ -378,6 +378,8 @@ sub get_buildable {
     if (defined $dev) {
         $max_items_in_build_queue += $dev->level;
     }
+
+
     my $items_in_build_queue = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({body_id => $body_id, is_upgrading=>1})->count;
     
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) { 
