@@ -35,12 +35,18 @@ sub _build_plan_cache {
 sub delete_building {
     my ($self, $building) = @_;
 
-    my $index = first_index {$_->id == $building->id} @{$self->building_cache};
-    if (defined $index) {
-        my @buildings = splice(@{$self->building_cache}, $index, 1);   
-        $self->building_cache(\@buildings);
+    print STDERR "<<< building=[$building] building_id=[".$building->id."]>>>>\n";
+    my $i = 0;
+    BUILDING:
+    foreach my $b (@{$self->building_cache}) {
+        if ($b->id == $building->id) {
+            my @buildings = splice(@{$self->building_cache}, $i, 1);
+            $self->building_cache(\@buildings);
+            $b->delete;
+            last BUILDING;
+        }
+        $i++;
     }
-    $building->delete;
 }
 
 sub delete_buildings {
@@ -144,10 +150,8 @@ sub add_plan {
 
 sub sanitize {
     my ($self) = @_;
-    my @buildings = grep {$_->class !~ /Permanent$/} @{$self->building_cache};
-    foreach my $building (@buildings) {
-        $self->delete_building($building);
-    }
+    my @buildings = grep {$_->class !~ /Permanent/} @{$self->building_cache};
+    $self->delete_buildings(\@buildings);
     my @attributes = qw( happiness_hour happiness waste_hour waste_stored waste_capacity
         energy_hour energy_stored energy_capacity water_hour water_stored water_capacity ore_capacity
         rutile_stored chromite_stored chalcopyrite_stored galena_stored gold_stored uraninite_stored bauxite_stored
@@ -852,9 +856,7 @@ sub convert_to_station {
     $empire->add_medal('space_station_deployed');
 
     # clean it
-    foreach my $building (@{$self->building_cache}) {
-        $self->delete_building($building);
-    }
+    $self->delete_buildings($self->building_cache);
     
     # add command building
     my $command = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
