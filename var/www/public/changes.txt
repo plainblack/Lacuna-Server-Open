@@ -19,6 +19,7 @@
  - Mod: Being at negative plots makes your people unhappy.
  - Mod: Stockpile rules change.  University levels higher than 25 gives bonus.
  - Mod: Short Range Colony Ships faster, but limited in range.
+ - Fix: Bleeders no longer count toward population totals.
 
 3.0850:
  - Fix: All non-trade inflight ships self destruct from an insurrected planet.
