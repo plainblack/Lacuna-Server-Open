@@ -57,7 +57,17 @@ sub get_empire_by_session {
 
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $empire, $body_id) = @_;
-    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
+    my $body;
+    if (ref $body_id && $body_id->isa('Lacuna::DB::Result::Map::Body')) {
+        $body = $body_id;
+    }
+    else {
+        ($body) = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
+            body_id => $body_id,
+        },{
+            prefetch => 'empire',
+        });
+    }
     unless (defined $body) {
         confess [1002, 'Body does not exist.', $body_id];
     }
@@ -70,7 +80,6 @@ sub get_body { # makes for uniform error handling, and prevents staleness
         }
         confess [1010, "Can't manipulate a planet you don't inhabit."];
     }
-    $body->empire($empire);
     if ($body->id eq $empire->home_planet_id) {
         $empire->home_planet($body);
     }
@@ -84,7 +93,11 @@ sub get_building { # makes for uniform error handling, and prevents staleness
         return $building_id;
     }
     else {
-        my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->find($building_id);
+        my ($building) = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
+            id => $building_id,
+        },{ prefetch => 'body' }
+        );
+
         unless (defined $building) {
             confess [1002, 'Building does not exist.', $building_id];
         }
@@ -92,18 +105,18 @@ sub get_building { # makes for uniform error handling, and prevents staleness
             confess [1002, 'That building is not a '.$self->model_class->name];
         }
         $building->is_offline unless ($options{skip_offline});
-        my $body = $self->get_body($empire, $building->body_id);        
+        my $body = $self->get_body($empire, $building->body);        
         if ($body->empire_id ne $empire->id) { 
             if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
                 if ($body->empire->alliance_id eq $empire->alliance_id) {
-                    $building->get_from_storage; # in case it changed due to the tick
+                    $building->discard_changes; # in case it changed due to the tick
                     $building->body($body);
                     return $building;
                 }
             }
             confess [1010, "Can't manipulate a building that you don't own.", $building_id];
         }
-        $building->get_from_storage; # in case it changed due to the tick
+        $building->discard_changes; # in case it changed due to the tick
         $building->body($body);
         return $building;
     }
