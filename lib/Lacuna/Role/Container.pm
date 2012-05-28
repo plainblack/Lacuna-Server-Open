@@ -112,7 +112,7 @@ sub unload {
 
 sub format_description_of_payload {
     my ($self) = @_;
-    my $item_arr;
+    my $item_arr = [];
     my $scratch;
     my $payload = $self->payload;
     
@@ -166,32 +166,35 @@ sub format_description_of_payload {
     undef $scratch;
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
     if (exists $payload->{spies}) {
-        foreach my $id (@{$payload->{spies}}) {
-            my $spy = $spies->find($id);
-            next unless defined $spy;
-            push @{$scratch}, 'Level '.$spy->level.' spy named '.$spy->name . ' (transport)';
-        }
+      foreach my $id (@{$payload->{spies}}) {
+        my $spy = $spies->find($id);
+        next unless defined $spy;
+        push @{$scratch}, 'Level '.$spy->level.' spy named '.$spy->name . ' (transport)';
+      }
+      push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
     }
-    push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
     
     # prisoners
     undef $scratch;
     if (exists $payload->{prisoners}) {
-        foreach my $id (@{$payload->{prisoners}}) {
-            my $spy = $spies->find($id);
-            next unless defined $spy;
-            push @{$scratch}, 'Level '.$spy->level.' spy named '.$spy->name . ' (prisoner) sentence expires '.$spy->format_available_on;
-        }
+      foreach my $id (@{$payload->{prisoners}}) {
+        my $spy = $spies->find($id);
+        next unless defined $spy;
+        push @{$scratch}, 
+          'Level '.$spy->level.' spy named '.$spy->name .
+            ' (prisoner) sentence expires '.$spy->format_available_on;
+      }
+      push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
     }
-    push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
     
     # fetch spies
     undef $scratch;
     if (exists $payload->{fetch_spies}) {
-        foreach my $id (@{$payload->{fetch_spies}}) {
-            my $spy = $spies->find($id);
-            push @{$scratch}, 'Level '.$spy->level.' spy named '.$spy->name . ' (fetch upon arrival)';
-        }
+      foreach my $id (@{$payload->{fetch_spies}}) {
+        my $spy = $spies->find($id);
+        push @{$scratch}, 'Level '.$spy->level.' spy named '.$spy->name . ' (fetch upon arrival)';
+      }
+      push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
     }
     
     return $item_arr;

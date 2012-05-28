@@ -1334,101 +1334,132 @@ sub can_conduct_advanced_missions {
 # OUTCOMES
 
 sub steal_planet {
-    my ($self, $defender) = @_;
-    my $next_colony_cost = $self->empire->next_colony_cost;
-    my $planet_happiness = $self->on_body->happiness;
-    my $chance = abs($planet_happiness * 100) / $next_colony_cost;
-    my $failure = randint(1,100) > $chance;
-    if ($planet_happiness > 0 || $failure) { # lose
-        $self->on_body->empire->send_predefined_message(
+  my ($self, $defender) = @_;
+  my $next_colony_cost = $self->empire->next_colony_cost;
+  my $planet_happiness = $self->on_body->happiness;
+  my $chance = abs($planet_happiness * 100) / $next_colony_cost;
+  my $failure = randint(1,100) > $chance;
+  if ($planet_happiness > 0 || $failure) { # lose
+      $self->on_body->empire->send_predefined_message(
             tags        => ['Spies','Alert'],
             filename    => 'insurrection_luck.txt',
             params      => [$self->on_body_id, $self->on_body->name],
-        );
-        return $self->empire->send_predefined_message(
+      );
+      return $self->empire->send_predefined_message(
             tags        => ['Intelligence'],
             filename    => 'insurrection_failed.txt',
             params      => [$self->on_body->x,
                             $self->on_body->y,
                             $self->on_body->name,
                             $self->format_from],
-        )->id;
-    }
-    else { # win
-        $self->on_body->empire->send_predefined_message(
+      )->id;
+  }
+  else { # win
+    $self->on_body->empire->send_predefined_message(
             tags        => ['Spies','Alert'],
             filename    => 'lost_planet_to_insurrection.txt',
             params      => [$self->on_body->name,
                             $self->on_body->x,
                             $self->on_body->y,
                             $self->on_body->name],
+      );
+    $self->on_body->add_news(100,
+                              'Led by %s, the citizens of %s have overthrown %s!',
+                               $self->name,
+                               $self->on_body->name,
+                               $self->on_body->empire->name);
+
+    # withdraw trades
+    for my $market ( Lacuna->db->resultset('Lacuna::DB::Result::Market'),
+                     Lacuna->db->resultset('Lacuna::DB::Result::MercenaryMarket') ) {
+      my @to_be_deleted = $market->search({body_id => $self->on_body_id})->get_column('id')->all;
+      foreach my $id (@to_be_deleted) {
+        my $trade = $market->find($id);
+        next unless defined $trade;
+        $trade->body->empire->send_predefined_message(
+                  filename    => 'trade_withdrawn.txt',
+                  params      => [join("\n",@{$trade->format_description_of_payload}), $trade->ask.' essentia'],
+                  tags        => ['Trade','Alert'],
         );
-        $self->on_body->add_news(100,
-                                 'Led by %s, the citizens of %s have overthrown %s!',
-                                 $self->name,
-                                 $self->on_body->name,
-                                 $self->on_body->empire->name);
-
-        # withdraw trades
-        for my $market ( Lacuna->db->resultset('Lacuna::DB::Result::Market'),
-                         Lacuna->db->resultset('Lacuna::DB::Result::MercenaryMarket') ) {
-            my @to_be_deleted = $market->search({body_id => $self->on_body_id})->get_column('id')->all;
-            foreach my $id (@to_be_deleted) {
-                my $trade = $market->find($id);
-                next unless defined $trade;
-                $trade->body->empire->send_predefined_message(
-                    filename    => 'trade_withdrawn.txt',
-                    params      => [join("\n",@{$trade->format_description_of_payload}), $trade->ask.' essentia'],
-                    tags        => ['Trade','Alert'],
-                );
-                $trade->withdraw;
-            }
-        }
-
-        my $defender_capitol_id = $self->on_body->empire->home_planet_id;
-        Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
-            from_body_id => $self->on_body_id, on_body_id => $self->on_body_id, task => 'Training',
-        })->delete_all; # All spies in training are executed
-        Lacuna->db->resultset('Lacuna::DB::Result::Spies')
-                      ->search({from_body_id => $self->on_body_id})
-                      ->update({from_body_id => $defender_capitol_id });
-
-        my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
-                         ->search({body_id => $self->on_body_id,
-                                   task => { '!=' => 'Docked' } });
-        while (my $ship = $ships->next) {
-          next if ($ship->task eq 'Waiting On Trade');
-          if ($ship->task eq 'Travelling' and
-                   (grep { $ship->type eq $_ }
-                        @{['cargo_ship',
-                           'smuggler_ship',
-                           'galleon',
-                           'freighter',
-                           'hulk',
-                           'hulk_fast',
-                           'hulk_huge',
-                           'dory',
-                           'barge',
-                           'colony_ship',
-                           'short_range_colony_ship',
-                          ]})) {
-          }
-          $ship->delete;
-        }
-
-        Lacuna->db->resultset('Lacuna::DB::Result::Probes')
-                      ->search({body_id => $self->on_body_id})
-                      ->update({empire_id => $self->empire_id, alliance_id => $self->empire->alliance_id});
-
-        $self->on_body->empire_id($self->empire_id);
-        $self->on_body->add_happiness(int(abs($planet_happiness) / 10));
-        $self->on_body->update;
-        return $self->empire->send_predefined_message(
-            tags        => ['Intelligence'],
-            filename    => 'insurrection_complete.txt',
-            params      => [$self->on_body_id, $self->on_body->name, $self->format_from],
-        )->id;
+        $trade->withdraw;
+      }
     }
+# Remove Supply chains to and from planet
+    foreach my $chain ($self->on_body->out_supply_chains) {
+      $chain->delete;
+    }
+    foreach my $chain ($self->on_body->in_supply_chains) {
+      $chain->delete;
+    }
+
+    my $defender_capitol_id = $self->on_body->empire->home_planet_id;
+    Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
+          from_body_id => $self->on_body_id, on_body_id => $self->on_body_id, task => 'Training',
+    })->delete_all; # All spies in training are executed
+    Lacuna->db->resultset('Lacuna::DB::Result::Spies')
+                  ->search({from_body_id => $self->on_body_id})
+                  ->update({from_body_id => $defender_capitol_id });
+
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
+                      ->search({body_id => $self->on_body_id,
+                                task => { '!=' => 'Docked' } });
+    while (my $ship = $ships->next) {
+      next if ($ship->task eq 'Waste Chain');
+      if ($ship->task eq 'Waiting On Trade') {
+# Ships being delivered from trades or pushes.
+        $ship->body_id($defender_capitol_id);
+        $ship->update;
+      }
+      elsif ($ship->task eq 'Supply Chain') {
+# Supply chains from planet were deleted so we dock ships
+        $ship->task('Docked');
+        $ship->update;
+      }
+      elsif ($ship->task eq 'Travelling' and
+               (grep { $ship->type eq $_ }
+                     @{['cargo_ship',
+                        'smuggler_ship',
+                        'galleon',
+                        'freighter',
+                        'hulk',
+                        'hulk_fast',
+                        'hulk_huge',
+                        'dory',
+                        'barge',
+                      ]})) {
+# Trade ship was outgoing, it will change homeport to capitol
+        if ($ship->direction eq 'out') {
+          $ship->body_id($defender_capitol_id);
+          $ship->update;
+        }
+      }
+      elsif ($ship->task eq 'Travelling' and
+               (grep { $ship->type eq $_ }
+                     @{[ 'colony_ship',
+                         'short_range_colony_ship',
+                       ]})) {
+# Colony ships show from capitol.
+        $ship->body_id($defender_capitol_id);
+        $ship->update;
+      }
+      else {
+        $ship->delete;
+      }
+    }
+
+    Lacuna->db->resultset('Lacuna::DB::Result::Probes')
+              ->search({body_id => $self->on_body_id})
+              ->update({empire_id => $self->empire_id, alliance_id => $self->empire->alliance_id});
+
+    $self->on_body->empire_id($self->empire_id);
+    $self->on_body->add_happiness(int(abs($planet_happiness) / 10));
+    $self->on_body->update;
+    return $self->empire->send_predefined_message(
+          tags        => ['Intelligence'],
+          filename    => 'insurrection_complete.txt',
+          params      => [$self->on_body_id, $self->on_body->name, $self->format_from],
+    )->id;
+  }
 }
 
 

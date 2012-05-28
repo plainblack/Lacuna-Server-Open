@@ -116,5 +116,21 @@ sub next_available_trade_ship {
     }
 }
 
+before delete => sub {
+  my ($self) = @_;
+  my $market = Lacuna->db->resultset('Lacuna::DB::Result::MercenaryMarket');
+  my @to_be_deleted = $market->search({body_id => $self->body_id})->get_column('id')->all;
+  foreach my $id (@to_be_deleted) {
+    my $trade = $market->find($id);
+    next unless defined $trade;
+    $trade->body->empire->send_predefined_message(
+            filename    => 'trade_withdrawn.txt',
+            params      => [join("\n",@{$trade->format_description_of_payload}), $trade->ask.' essentia'],
+            tags        => ['Trade','Alert'],
+    );
+    $trade->withdraw($self->body);
+  }
+};
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

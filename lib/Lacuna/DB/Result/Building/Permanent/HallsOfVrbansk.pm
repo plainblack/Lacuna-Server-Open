@@ -47,7 +47,7 @@ sub get_upgradable_buildings {
     # The max_level is represented by the number of halls already
     # built, plus the minimum of the number of free building spaces or
     # the number of hall plans
-    my $halls = $self->get_halls->count;
+    my $halls = $self->get_halls;
     my $plans = Lacuna->db->resultset('Plans')->search({
         body_id => $body->id,
         class => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk',
