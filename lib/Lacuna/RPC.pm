@@ -63,7 +63,7 @@ sub get_body { # makes for uniform error handling, and prevents staleness
     }
     else {
         ($body) = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
-            body_id => $body_id,
+            'me.id' => $body_id,
         },{
             prefetch => 'empire',
         });
@@ -94,7 +94,7 @@ sub get_building { # makes for uniform error handling, and prevents staleness
     }
     else {
         my ($building) = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
-            id => $building_id,
+            'me.id' => $building_id,
         },{ prefetch => 'body' }
         );
 
