@@ -91,11 +91,11 @@ sub accept_from_market {
 
     if ($trade->body->empire->id == $empire->id) {
       # Selling to oneself
-      $empire->spend_essentia(0, 'Mercanary Price', 0, $trade->body->empire->id, $trade->body->empire->name )->update;
+      $empire->spend_essentia(0, 'Mercenary Price', 0, $trade->body->empire->id, $trade->body->empire->name )->update;
     }
     else {
-      $empire->spend_essentia($trade->ask, 'Mercanary Price', 0, $trade->body->empire->id, $trade->body->empire->name )->update;
-      $trade->body->empire->add_essentia($trade->ask, 'Mercanary Income', 0, $empire->id, $empire->name)->update;
+      $empire->spend_essentia($trade->ask, 'Mercenary Price', 0, $trade->body->empire->id, $trade->body->empire->name )->update;
+      $trade->body->empire->add_essentia($trade->ask, 'Mercenary Income', 0, $empire->id, $empire->name)->update;
     }
     #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
     #$cargo_log->new({
@@ -122,7 +122,7 @@ sub accept_from_market {
       $trade->body->empire->send_predefined_message(
         tags        => ['Trade','Alert'],
         filename    => 'trade_accepted.txt',
-        params      => [$trade->format_description_of_payload, $trade->ask.' essentia', $empire->id, $empire->name],
+        params      => [join("\n",@{$trade->format_description_of_payload}),  $trade->ask.' essentia', $empire->id, $empire->name],
       );
     }
     $trade->delete;

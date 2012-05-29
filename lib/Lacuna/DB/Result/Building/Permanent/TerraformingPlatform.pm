@@ -24,7 +24,7 @@ before 'can_demolish' => sub {
   my $self = shift;
   my $body = $self->body;
   my $buildings = $body->buildings;
-  return if ($body->orbit > $body->empire->max_orbit || $body->orbit < $body->empire->min_orbit);
+  return if ($body->orbit > $body->empire->min_orbit && $body->orbit < $body->empire->max_orbit);
 
   my $tp_blds = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform' });
 
