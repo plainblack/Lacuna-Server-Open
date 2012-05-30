@@ -2,13 +2,15 @@ package Lacuna::DB::Result::Propositions::InstallModule;
 
 use Moose;
 use utf8;
+use Data::Dumper;
+
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Propositions';
 
 before pass => sub {
     my ($self) = @_;
     my $station = $self->station;
-    my ($building) = grep {$self->scratch->{building_id}} @{$station->building_cache};
+    my $building = $self->station->find_building($self->scratch->{building_id});
     if (defined $building) {
         if ($building->is_upgrading && $building->level < $self->scratch->{to_level}) {
             $building->finish_upgrade;
@@ -22,7 +24,7 @@ before pass => sub {
 before fail => sub {
     my ($self) = @_;
     my $station = $self->station;
-    my ($building) = grep {$self->scratch->{building_id}} @{$station->building_cache};
+    my $building = $station->find_building($self->scratch->{building_id});
     if (defined $building) {
         $station->add_plan($building->class, 1, $building->level);
         $building->demolish;

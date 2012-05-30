@@ -466,6 +466,13 @@ sub get_building_of_class {
     return $building;
 }
 
+sub find_building {
+    my ($self, $id) = @_;
+
+    my ($building) = grep {$_->id == $id} @{$self->building_cache};
+    return $building;
+}
+
 has command => (
     is      => 'rw',
     lazy    => 1,
@@ -855,7 +862,8 @@ sub convert_to_station {
     $empire->add_medal('space_station_deployed');
 
     # clean it
-    $self->delete_buildings($self->building_cache);
+    my @all_buildings = @{$self->building_cache};
+    $self->delete_buildings(\@all_buildings);
     
     # add command building
     my $command = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -2256,7 +2264,7 @@ sub complain_about_lack_of_resources {
                     }
                 }
             }
-            my ($building) = grep {$_->efficiency > 0} self->get_buildings_of_class($class);
+            my ($building) = grep {$_->efficiency > 0} $self->get_buildings_of_class($class);
             if (defined $building) {
                 $building_name = $building->name;
                 $building->spend_efficiency(25)->update;

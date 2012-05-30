@@ -8,7 +8,7 @@ extends 'Lacuna::DB::Result::Propositions';
 before pass => sub {
     my ($self) = @_;
     my $station = $self->station;
-    my ($building) = grep {$self->scratch->{building_id}} @{$station->building_cache};
+    my $building = $station->find_building($self->scratch->{building_id});
     if (defined $building) {
         my $costs = $building->get_repair_costs;
         if (eval{$building->can_repair($costs)}) {
