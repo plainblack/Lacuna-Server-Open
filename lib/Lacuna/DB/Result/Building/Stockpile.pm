@@ -56,7 +56,7 @@ before 'can_downgrade' => sub {
   if ($self->body->empire->university_level > 25) {
     $max_level += ($self->body->empire->university_level - 25);
   }
-  foreach my $building (@{$self->building_cache}) {
+  foreach my $building (@{$self->body->building_cache}) {
     if ($building->level > $max_level + (($self->level - 1)/3) &&
         'Resources' ~~ [$building->build_tags] &&
         ( !('Storage' ~~ [$self->build_tags]) ||
@@ -74,7 +74,7 @@ before 'can_demolish' => sub {
   if ($self->body->empire->university_level > 25) {
     $max_level += ($self->body->empire->university_level - 25);
   }
-  foreach my $building (@{$self->building_cache}) {
+  foreach my $building (@{$self->body->building_cache}) {
     if ($building->level > $max_level + (($self->level - 1)/3) &&
         'Resources' ~~ [$building->build_tags] &&
         ( !('Storage' ~~ [$self->build_tags]) ||
