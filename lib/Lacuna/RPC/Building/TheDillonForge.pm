@@ -29,7 +29,7 @@ around 'view' => sub {
     else {
         $out->{tasks} = $self->_forge_tasks($building);
     }
-    $out->{subsidy_cost} = $building->subsidy_cost;
+    $out->{tasks}{subsidy_cost} = $building->subsidy_cost;
     return $out;
 };
 
