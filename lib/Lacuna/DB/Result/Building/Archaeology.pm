@@ -195,12 +195,12 @@ sub dig_it {
           message => "Found level $lvl + $plus $name Plan.",
           outcome => "Artifact",
         };
-        $self->body->add_news(20,sprintf("%s uncovered a rare %s plan on %s.",
+        $self->body->add_news(10,sprintf("%s uncovered a rare %s plan on %s.",
                               $empire_name, $name, $body->name));
       }
     }
     when ("destroy") {
-      if (randint(0,99) < 5) {
+      if (randint(0,99) < 3) {
         my $message = random_element([
                         'Auntie Em, where\'s Toto? Its a twister! Its a twister!',
                         'Aw, there\'s something behind me, isn\'t there?',

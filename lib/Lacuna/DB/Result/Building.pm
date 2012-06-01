@@ -752,7 +752,6 @@ sub cost_to_upgrade {
     my ($self) = @_;
     my $upgrade_cost = $self->upgrade_cost;
     my $upgrade_cost_reduction = $self->construction_cost_reduction_bonus;
-    my $plan;
     my $plan = $self->body->get_plan($self->class, $self->level + 1);
     if (defined $plan) { 
         $upgrade_cost_reduction = 0;

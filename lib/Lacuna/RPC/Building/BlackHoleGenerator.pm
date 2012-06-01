@@ -490,8 +490,8 @@ sub bhg_swap {
         star_id => $new_data->{star_id}
       });
     }
+    $body->recalc_chains;
   }
-  $body->recalc_chains;
 
   unless ($new_data->{type} eq "empty") {
     $target->update({
@@ -503,24 +503,15 @@ sub bhg_swap {
       orbit        => $old_data->{orbit},
     });
     $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
-<<<<<<< HEAD
                         ->search({ planet_id => $target->id });
     if ($waste_chain->count > 0) {
-     while (my $chain = $waste_chain->next) {
-       $chain->update({
-         star_id => $old_data->{star_id}
-       });
-     }
+      while (my $chain = $waste_chain->next) {
+        $chain->update({
+          star_id => $old_data->{star_id}
+        });
+      }
+      $target->recalc_chains;
     }
-    $target->recalc_chains;
-=======
-                        ->search({ planet_id => $target->body_id });
-    if ($waste_chain->count > 0) {
-     while (my $chain = $waste_chain->next) {
-       $chain->star_id($old_data->{star});
-     }
-    }
->>>>>>> 8a8af47... Fix for waste chains after bhg swap
   }
   return {
     id       => $body->id,
