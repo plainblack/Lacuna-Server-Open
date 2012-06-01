@@ -236,8 +236,9 @@ around get_status => sub {
                 if ($self->needs_recalc) {
                     $self->tick; # in case what we just did is going to change our stats
                 }
-                # ISO empires, and empires who have disabled the option, don't need to see incoming ships
-                if ($empire->see_incoming_ships and not $empire->is_isolationist) {
+                # empires who have disabled the option, don't see incoming ships
+                $out->{skip_incoming_ships} = $empire->skip_incoming_ships;
+                if (not $empire->skip_incoming_ships) {
                     my $now = time;
 
                     my $foreign_bodies;

@@ -277,6 +277,7 @@ Provides a list of the editable properties of the current empire's profile. See 
        "skip_spy_recovery" : 0,
        "skip_probe_detected" : 0,
        "skip_attack_messages" : 0,
+       "skip_incoming_ships" : 0,
        "email" : "joe@example.com",
        "sitter_password" : "abcdefgh"                   # never give out your real password, use the sitter password
     },
@@ -397,6 +398,10 @@ Defaults to 0. Set to 1 if the user no longers wants to receive messages when a 
 =head4 skip_attack_messages
 
 Defaults to 0. Set to 1 if the user no longers wants to receive messages about attacks.
+
+=head4 skip_incoming_ships
+
+Controls the display of incoming ships (Own, Allied, Foreign) on your map display. Defaults to 0 (shows ships). Set to 1 if you want to hide incoming ships (can improve response of browser).
 
 =head2 view_public_profile (session_id, empire_id)
 
