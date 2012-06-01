@@ -41,7 +41,7 @@ sub damage_in_combat {
     my ($self, $defender, $damage) = @_;
     $self->combat( $self->combat - $damage );
     return unless $self->combat < 1;
-	$self->attacker_shot_down($defender);
+    $self->attacker_shot_down($defender);
     $self->delete;
     confess [-1]
 }
@@ -369,7 +369,7 @@ sub saw_combat {
 
 #  printf "ship:%6d:%5d saw:%6d:%2d:%3d total:%8d ",
 #         $self->id, $self->combat, $saw->id, $saw->level, $saw->efficiency, $saw_combat;
-  if ($self->combat > $saw_combat) {
+  if ($self->combat >= $saw_combat) {
     $saw->spend_efficiency(100);
     $self->saw_disabled($saw);
 #    print "100\n";
