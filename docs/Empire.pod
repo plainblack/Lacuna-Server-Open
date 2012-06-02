@@ -220,16 +220,14 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
         "status_message" : "A spy's work is never done.",
         "home_planet_id" : "id-goes-here",
         "has_new_messages" : 4,
-        "newest_message" : {
-            "id" : "id-goes-here",
-            "date_received" : "01 31 2010 13:09:05 +0600",
-            "subject" : "Boom!"
-        },
+        "latest_message_id" : 1234,
         "essentia" : 0,
         "planets" : {
             "id-goes-here" : "Earth",
             "id-goes-here" : "Mars
-        }
+        },
+        "self_destruct_active" : 0,
+        "self_destruct_date" : ""
     }
  }
 
