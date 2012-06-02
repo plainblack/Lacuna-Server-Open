@@ -279,7 +279,6 @@ sub get_new_message_count {
         has_read        => 0,
     });
 
-    print "[[[[ message count = [$count] ]]]]\n";
     return $count;
 }
 
