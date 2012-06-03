@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Ships;
+package Lacuna::DB::Result::Fleet;
 
 use Moose;
 use utf8;
@@ -18,14 +18,15 @@ has 'hostile_action' => (
 sub _build_hostile_action { 0 }
 
 __PACKAGE__->load_components('DynamicSubclass');
-__PACKAGE__->table('ships');
+__PACKAGE__->table('fleet');
 __PACKAGE__->add_columns(
     body_id                 => { data_type => 'int', is_nullable => 0 },
+    mark                    => { data_type => 'varchar', size => 10, is_nullable => 0 },
     shipyard_id             => { data_type => 'int', is_nullable => 0 },
     date_started            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     date_available          => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    type                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # probe, colony_ship, spy_pod, cargo_ship, space_station, smuggler_ship, mining_platform_ship, terraforming_platform_ship, gas_giant_settlement_ship
-    task                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # Docked, Building, Travelling, Mining, Defend, Orbiting
+    type                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
+    task                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     speed                   => { data_type => 'int', is_nullable => 0 },
     stealth                 => { data_type => 'int', is_nullable => 0 },
@@ -40,54 +41,54 @@ __PACKAGE__->add_columns(
     berth_level             => { data_type => 'int', is_nullable => 0 },
 );
 __PACKAGE__->typecast_map(type => {
-    'probe'                                 => 'Lacuna::DB::Result::Ships::Probe',
-    'stake'                                 => 'Lacuna::DB::Result::Ships::Stake',
-    'supply_pod'                            => 'Lacuna::DB::Result::Ships::SupplyPod',
-    'supply_pod2'                           => 'Lacuna::DB::Result::Ships::SupplyPod2',
-    'supply_pod3'                           => 'Lacuna::DB::Result::Ships::SupplyPod3',
-    'supply_pod4'                           => 'Lacuna::DB::Result::Ships::SupplyPod4',
-    'placebo'                               => 'Lacuna::DB::Result::Ships::Placebo',
-    'placebo2'                              => 'Lacuna::DB::Result::Ships::Placebo2',
-    'placebo3'                              => 'Lacuna::DB::Result::Ships::Placebo3',
-    'placebo4'                              => 'Lacuna::DB::Result::Ships::Placebo4',
-    'placebo5'                              => 'Lacuna::DB::Result::Ships::Placebo5',
-    'placebo6'                              => 'Lacuna::DB::Result::Ships::Placebo6',
-    'short_range_colony_ship'               => 'Lacuna::DB::Result::Ships::ShortRangeColonyShip',
-    'colony_ship'                           => 'Lacuna::DB::Result::Ships::ColonyShip',
-    'spy_pod'                               => 'Lacuna::DB::Result::Ships::SpyPod',
-    'cargo_ship'                            => 'Lacuna::DB::Result::Ships::CargoShip',
-    'space_station'                         => 'Lacuna::DB::Result::Ships::SpaceStation',
-    'smuggler_ship'                         => 'Lacuna::DB::Result::Ships::SmugglerShip',
-    'mining_platform_ship'                  => 'Lacuna::DB::Result::Ships::MiningPlatformShip',
-    'terraforming_platform_ship'            => 'Lacuna::DB::Result::Ships::TerraformingPlatformShip',
-    'gas_giant_settlement_ship'             => 'Lacuna::DB::Result::Ships::GasGiantSettlementPlatformShip',
-    'scanner'                               => 'Lacuna::DB::Result::Ships::Scanner',
-    'surveyor'                              => 'Lacuna::DB::Result::Ships::Surveyor',
-    'detonator'                             => 'Lacuna::DB::Result::Ships::Detonator',
-    'excavator'                             => 'Lacuna::DB::Result::Ships::Excavator',
-    'scow'                                  => 'Lacuna::DB::Result::Ships::Scow',
-    'scow_large'                            => 'Lacuna::DB::Result::Ships::ScowLarge',
-    'scow_mega'                             => 'Lacuna::DB::Result::Ships::ScowMega',
-    'scow_fast'                             => 'Lacuna::DB::Result::Ships::ScowFast',
-    'freighter'                             => 'Lacuna::DB::Result::Ships::Freighter',
-    'dory'                                  => 'Lacuna::DB::Result::Ships::Dory',
-    'barge'                                 => 'Lacuna::DB::Result::Ships::Barge',
-    'galleon'                               => 'Lacuna::DB::Result::Ships::Galleon',
-    'hulk'                                  => 'Lacuna::DB::Result::Ships::Hulk',
-    'hulk_huge'                             => 'Lacuna::DB::Result::Ships::HulkHuge',
-    'hulk_fast'                             => 'Lacuna::DB::Result::Ships::HulkFast',
-    'snark'                                 => 'Lacuna::DB::Result::Ships::Snark',
-    'snark2'                                => 'Lacuna::DB::Result::Ships::Snark2',
-    'snark3'                                => 'Lacuna::DB::Result::Ships::Snark3',
-    'spy_shuttle'                           => 'Lacuna::DB::Result::Ships::SpyShuttle',
-    'drone'                                 => 'Lacuna::DB::Result::Ships::Drone',
-    'fighter'                               => 'Lacuna::DB::Result::Ships::Fighter',
-    'sweeper'                               => 'Lacuna::DB::Result::Ships::Sweeper',
-    'bleeder'                               => 'Lacuna::DB::Result::Ships::Bleeder',
-    'thud'                                  => 'Lacuna::DB::Result::Ships::Thud',
-    'observatory_seeker'                    => 'Lacuna::DB::Result::Ships::ObservatorySeeker',
-    'spaceport_seeker'                      => 'Lacuna::DB::Result::Ships::SpacePortSeeker',
-    'security_ministry_seeker'              => 'Lacuna::DB::Result::Ships::SecurityMinistrySeeker',
+    'probe'                         => 'Lacuna::DB::Result::Fleet::Probe',
+    'stake'                         => 'Lacuna::DB::Result::Fleet::Stake',
+    'supply_pod'                    => 'Lacuna::DB::Result::Fleet::SupplyPod',
+    'supply_pod2'                   => 'Lacuna::DB::Result::Fleet::SupplyPod2',
+    'supply_pod3'                   => 'Lacuna::DB::Result::Fleet::SupplyPod3',
+    'supply_pod4'                   => 'Lacuna::DB::Result::Fleet::SupplyPod4',
+    'placebo'                       => 'Lacuna::DB::Result::Fleet::Placebo',
+    'placebo2'                      => 'Lacuna::DB::Result::Fleet::Placebo2',
+    'placebo3'                      => 'Lacuna::DB::Result::Fleet::Placebo3',
+    'placebo4'                      => 'Lacuna::DB::Result::Fleet::Placebo4',
+    'placebo5'                      => 'Lacuna::DB::Result::Fleet::Placebo5',
+    'placebo6'                      => 'Lacuna::DB::Result::Fleet::Placebo6',
+    'short_range_colony_ship'       => 'Lacuna::DB::Result::Fleet::ShortRangeColonyShip',
+    'colony_ship'                   => 'Lacuna::DB::Result::Fleet::ColonyShip',
+    'spy_pod'                       => 'Lacuna::DB::Result::Fleet::SpyPod',
+    'cargo_ship'                    => 'Lacuna::DB::Result::Fleet::CargoShip',
+    'space_station'                 => 'Lacuna::DB::Result::Fleet::SpaceStation',
+    'smuggler_ship'                 => 'Lacuna::DB::Result::Fleet::SmugglerShip',
+    'mining_platform_ship'          => 'Lacuna::DB::Result::Fleet::MiningPlatformShip',
+    'terraforming_platform_ship'    => 'Lacuna::DB::Result::Fleet::TerraformingPlatformShip',
+    'gas_giant_settlement_ship'     => 'Lacuna::DB::Result::Fleet::GasGiantSettlementPlatformShip',
+    'scanner'                       => 'Lacuna::DB::Result::Fleet::Scanner',
+    'surveyor'                      => 'Lacuna::DB::Result::Fleet::Surveyor',
+    'detonator'                     => 'Lacuna::DB::Result::Fleet::Detonator',
+    'excavator'                     => 'Lacuna::DB::Result::Fleet::Excavator',
+    'scow'                          => 'Lacuna::DB::Result::Fleet::Scow',
+    'scow_large'                    => 'Lacuna::DB::Result::Fleet::ScowLarge',
+    'scow_mega'                     => 'Lacuna::DB::Result::Fleet::ScowMega',
+    'scow_fast'                     => 'Lacuna::DB::Result::Fleet::ScowFast',
+    'freighter'                     => 'Lacuna::DB::Result::Fleet::Freighter',
+    'dory'                          => 'Lacuna::DB::Result::Fleet::Dory',
+    'barge'                         => 'Lacuna::DB::Result::Fleet::Barge',
+    'galleon'                       => 'Lacuna::DB::Result::Fleet::Galleon',
+    'hulk'                          => 'Lacuna::DB::Result::Fleet::Hulk',
+    'hulk_huge'                     => 'Lacuna::DB::Result::Fleet::HulkHuge',
+    'hulk_fast'                     => 'Lacuna::DB::Result::Fleet::HulkFast',
+    'snark'                         => 'Lacuna::DB::Result::Fleet::Snark',
+    'snark2'                        => 'Lacuna::DB::Result::Fleet::Snark2',
+    'snark3'                        => 'Lacuna::DB::Result::Fleet::Snark3',
+    'spy_shuttle'                   => 'Lacuna::DB::Result::Fleet::SpyShuttle',
+    'drone'                         => 'Lacuna::DB::Result::Fleet::Drone',
+    'fighter'                       => 'Lacuna::DB::Result::Fleet::Fighter',
+    'sweeper'                       => 'Lacuna::DB::Result::Fleet::Sweeper',
+    'bleeder'                       => 'Lacuna::DB::Result::Fleet::Bleeder',
+    'thud'                          => 'Lacuna::DB::Result::Fleet::Thud',
+    'observatory_seeker'            => 'Lacuna::DB::Result::Fleet::ObservatorySeeker',
+    'spaceport_seeker'              => 'Lacuna::DB::Result::Fleet::SpacePortSeeker',
+    'security_ministry_seeker'      => 'Lacuna::DB::Result::Fleet::SecurityMinistrySeeker',
 });
 
 with 'Lacuna::Role::Container';
@@ -122,7 +123,7 @@ sub max_occupants {
 sub arrive {
     my $self = shift;
     eval {$self->handle_arrival_procedures}; # throws exceptions to stop subsequent actions from happening
-	my $reason = $@;
+    my $reason = $@;
     if (ref $reason eq 'ARRAY' && $reason->[0] eq -1) {
         # this is an expected exception, it means one of the roles took over
         return;
@@ -166,7 +167,7 @@ sub can_send_to_target {
 
 sub can_recall {
     my $self = shift;
-	unless ($self->task ~~ [qw(Defend Orbiting)]) {
+    unless ($self->task ~~ [qw(Defend Orbiting)]) {
         confess [1010, 'That ship is busy.'];
     }
     return 1;
@@ -249,16 +250,16 @@ sub get_status {
             name    => $body->name,
             type    => 'body',
         };
-		my $orbiting = {
-             id		=> $self->foreign_body_id,
+        my $orbiting = {
+             id        => $self->foreign_body_id,
              name    => $self->foreign_body->name,
-			type	=> 'body',
-			x		=> $self->foreign_body->x,
-			y		=> $self->foreign_body->y,
+            type    => 'body',
+            x        => $self->foreign_body->x,
+            y        => $self->foreign_body->y,
         };
-		$status{from} = $from;
-		$status{orbiting} = $orbiting;
-	}
+        $status{from} = $from;
+        $status{orbiting} = $orbiting;
+    }
     return \%status;
 }
 
@@ -316,15 +317,15 @@ sub finish_construction {
 }
 
 sub orbit {
-	my ($self) = @_;
-	$self->task('Orbiting');
+    my ($self) = @_;
+    $self->task('Orbiting');
     $self->date_available(DateTime->now);
     return $self;
 }
 
 sub defend {
-	my ($self) = @_;
-	$self->task('Defend');
+    my ($self) = @_;
+    $self->task('Defend');
     $self->date_available(DateTime->now);
     return $self;
 }
