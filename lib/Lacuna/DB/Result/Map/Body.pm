@@ -3,6 +3,7 @@ package Lacuna::DB::Result::Map::Body;
 use Moose;
 use utf8;
 use List::Util qw(max reduce);
+use Scalar::Util qw(weaken);
 
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map';
@@ -224,6 +225,7 @@ __PACKAGE__->has_many('foreign_ships','Lacuna::DB::Result::Ships','foreign_body_
 has building_cache => (
     is      => 'rw',
     lazy    => 1,
+    weak_ref => 1,
     builder => '_build_building_cache',
     clearer => 'clear_building_cache',
 );
@@ -231,7 +233,12 @@ has building_cache => (
 sub _build_building_cache {
     my ($self) = @_;
 
-    my @buildings = $self->_buildings;
+    my @buildings_cache = $self->_buildings;
+    my @buildings;
+    for my $building (@buildings_cache) {
+        push @buildings, weaken($building);
+    }
+
     return \@buildings;
 }
 
