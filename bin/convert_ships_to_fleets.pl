@@ -41,6 +41,12 @@ while (my $ship = $ships->next) {
     });
 }
 
+out('Withdraw all trades');
+my $trades = $db->resultset('Lacuna::DB::Result::Market')->search;
+while (my $trade = $trades->next) {
+    $trade->withdraw($trade->body);
+}
+
 out('Do a final tick of all planets');
 my $planets_rs = $db->resultset('Lacuna::DB::Result::Map::Body');
 my $planets = $planets_rs->search({ empire_id   => {'!=' => 0} });
@@ -59,8 +65,9 @@ while (my $planet = $planets->next) {
     }
 }
 
+out('Group ships into fleets');
 $ships = $db->resultset('Lacuna::DB::Result::Ships')->search({},{
-    group_by => [qw(body_id type task name speed stealth combat hold_size)],
+    group_by => [qw(body_id type task name speed stealth combat hold_size berth_level foreign_body_id foreign_star_id)],
 });
 
 my $finish = time;
