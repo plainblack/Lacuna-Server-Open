@@ -225,7 +225,7 @@ __PACKAGE__->has_many('foreign_ships','Lacuna::DB::Result::Ships','foreign_body_
 has building_cache => (
     is      => 'rw',
     lazy    => 1,
-    weak_ref => 1,
+#    weak_ref => 1,
     builder => '_build_building_cache',
     clearer => 'clear_building_cache',
 );
@@ -236,7 +236,8 @@ sub _build_building_cache {
     my @buildings_cache = $self->_buildings;
     my @buildings;
     for my $building (@buildings_cache) {
-        push @buildings, weaken($building);
+#        push @buildings, weaken($building);
+        push @buildings, $building;
     }
 
     return \@buildings;
