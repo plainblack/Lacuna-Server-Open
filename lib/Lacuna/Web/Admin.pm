@@ -199,8 +199,7 @@ sub www_complete_builds {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
-    my $buildings = $body->buildings;
-    while (my $building = $buildings->next) {
+    foreach my $building (@{$body->building_cache}) {
         next unless ( $building->is_upgrading );
         $building->is_upgrading(0);
         $building->upgrade_ends($building->upgrade_started);
@@ -217,8 +216,7 @@ sub www_send_stellar_flare {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
-    my $buildings = $body->buildings;
-    while (my $building = $buildings->next) {
+    foreach my $building (@{$body->building_cache}) {
         next unless ('Infrastructure' ~~ [$building->build_tags]);
         next if ( $building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' );
         $building->efficiency(0);
@@ -240,8 +238,7 @@ sub www_send_meteor_shower {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
-    my $buildings = $body->buildings;
-    while (my $building = $buildings->next) {
+    foreach my $building (@{$body->building_cache}) {
         next unless ('Infrastructure' ~~ [$building->build_tags]);
         next if ( $building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' );
         $building->class('Lacuna::DB::Result::Building::Permanent::Crater');
@@ -335,12 +332,12 @@ sub www_view_ships {
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
     $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>Type</th><th>Stealth</th><th>Hold Size</th><th>Speed</th><th>Combat</th><th>Task</th><th>Delete</td></tr>';
     while (my $ship = $ships->next) {
-		my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($ship->foreign_body_id);
         $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>', $ship->id, $ship->name, $ship->type_formatted, $ship->stealth, $ship->hold_size, $ship->speed, $ship->combat);
         if ($ship->task eq 'Travelling') {
             $out .= sprintf('<td>%s<form method="post" action="/admin/zoom/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="zoom"></form></td>', $ship->task, $ship->id, $body_id);
         }
-		elsif ($ship->task ~~ [qw(Defend Orbiting)]) {
+        elsif ($ship->task ~~ [qw(Defend Orbiting)]) {
+            my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($ship->foreign_body_id);
             $out .= sprintf('<td>%s<br>%s (%d, %d)<form method="post" action="/admin/recall/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="recall"></form></td>', $ship->task, $target->name, $target->x, $target->y, $ship->id, $body_id);
 		}
         elsif ($ship->task ne 'Docked') {

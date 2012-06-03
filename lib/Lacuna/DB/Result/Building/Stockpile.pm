@@ -51,23 +51,40 @@ use constant ore_storage => 300;
 use constant water_storage => 300;
 
 before 'can_downgrade' => sub {
-    my $self = shift;
-    my $buildings = $self->body->buildings;
-    while (my $building = $buildings->next) {
-        if ($building->level > 15 + (($self->level - 1)/3) && 'Resources' ~~ [$building->build_tags] && !('Storage' ~~ [$building->build_tags])) {
-            confess [1013, 'You have to downgrade your level '.$building->level.' '.$building->name.' to level 15 before you can downgrade the Stockpile.'];
-        }
+  my $self = shift;
+  my $max_level = 15;
+  if ($self->body->empire->university_level > 25) {
+    $max_level += ($self->body->empire->university_level - 25);
+  }
+  foreach my $building (@{$self->body->building_cache}) {
+    if ($building->level > $max_level + (($self->level - 1)/3) &&
+        'Resources' ~~ [$building->build_tags] &&
+        ( !('Storage' ~~ [$self->build_tags]) ||
+          $self->isa('Lacuna::DB::Result::Building::Waste::Exchanger'))) {
+      confess [1013, 'You have to downgrade your level '.
+                     $building->level.' '.$building->name.' to level '.
+                     $max_level.' before you can downgrade the Stockpile.'];
     }
+  }
 };
 
 before 'can_demolish' => sub {
-    my $self = shift;
-    my $buildings = $self->body->buildings;
-    while (my $building = $buildings->next) {
-        if ($building->level > 15 && 'Resources' ~~ [$building->build_tags] && !('Storage' ~~ [$building->build_tags])) {
-            confess [1013, 'You have to downgrade your level '.$building->level.' '.$building->name.' to level 15 before you can demolish the Stockpile.'];
-        }
+  my $self = shift;
+  my $max_level = 15;
+  if ($self->body->empire->university_level > 25) {
+    $max_level += ($self->body->empire->university_level - 25);
+  }
+  foreach my $building (@{$self->body->building_cache}) {
+    if ($building->level > $max_level + (($self->level - 1)/3) &&
+        'Resources' ~~ [$building->build_tags] &&
+        ( !('Storage' ~~ [$self->build_tags]) ||
+          $self->isa('Lacuna::DB::Result::Building::Waste::Exchanger'))) {
+     confess [1013, 'You have to downgrade your level '.
+                    $building->level.' '.$building->name.
+                    ' to level '.$max_level.
+                    ' before you can demolish the Stockpile.'];
     }
+  }
 };
 
 sub extra_resource_levels {

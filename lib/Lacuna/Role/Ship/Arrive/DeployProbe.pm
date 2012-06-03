@@ -25,7 +25,7 @@ after can_send_to_target => sub {
     my $count = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({ body_id => $body->id })->count;
     $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $body->id, type=>'probe', task=>'Travelling' })->count;
     my $max_probes = 0;
-    my $observatory = $body->get_buildings_of_class('Lacuna::DB::Result::Building::Observatory')->next;
+    my ($observatory) = $body->get_buildings_of_class('Lacuna::DB::Result::Building::Observatory');
     if (defined $observatory) {
         $max_probes = $observatory->max_probes;
     }

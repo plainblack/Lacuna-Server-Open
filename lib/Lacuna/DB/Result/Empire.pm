@@ -80,6 +80,9 @@ __PACKAGE__->add_columns(
     skip_attack_messages    => { data_type => 'tinyint', default_value => 0 },
     skip_excavator_artifact => { data_type => 'tinyint', default_value => 0 },
     skip_excavator_destroyed => { data_type => 'tinyint', default_value => 0 },
+    has_new_messages        => { data_type => 'tinyint', default_value => 0 },
+    latest_message_id       => { data_type => 'int',  is_nullable => 1 },
+    skip_incoming_ships     => { data_type => 'tinyint', default_value => 0 },
 );
 
 sub sqlt_deploy_hook {
@@ -102,6 +105,7 @@ __PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Result::Message', 'from_id')
 __PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id');
 __PACKAGE__->has_many('medals', 'Lacuna::DB::Result::Medals', 'empire_id');
 __PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
+__PACKAGE__->belongs_to('latest_message', 'Lacuna::DB::Result::Message', 'latest_message_id', { on_delete => 'set null' });
 
 sub self_destruct_date_formatted {
     my $self = shift;
@@ -258,34 +262,38 @@ sub add_essentia {
     return $self;
 }
 
-sub get_new_message_count {
-    my $self = shift;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Message')->search({
-        to_id           => $self->id,
-        has_archived    => 0,
-        has_read        => 0,
-    })->count;
+sub recalc_messages {
+    my ($self) = @_;
+
+    $self->update({
+        has_new_messages    => $self->get_new_message_count,
+        latest_message_id   => $self->get_latest_message_id,
+    });
 }
 
-sub get_newest_message {
-    my $self = shift;
-    my $message = Lacuna->db->resultset('Lacuna::DB::Result::Message')->search(
-        {
-            to_id           => $self->id,
-            has_archived    => 0,
-            has_read        => 0,
-        },
-        {
-            order_by        => { -desc => 'date_sent' },
-            rows            => 1,
-        }
-    )->single;
-    if (defined $message) {
-    	return { id => $message->id, date_received => $message->date_sent_formatted, subject => $message->subject }; 
-    }
-    else {
-        return undef;
-    }
+sub get_new_message_count {
+    my ($self) = @_;
+
+    my $count = $self->received_messages->search({
+        has_archived    => 0,
+        has_read        => 0,
+    });
+
+    return $count;
+}
+
+sub get_latest_message_id {
+    my ($self) = @_;
+
+    my $message = $self->received_messages->search({
+        has_archived    => 0,
+        has_read        => 0,
+        },{
+        order_by        => { -desc => 'date_sent' },
+        rows            => 1,
+    })->single;
+    my $message_id = defined $message ? $message->id : 0;
+    return $message_id;
 }
 
 has rpc_count => (
@@ -316,6 +324,7 @@ sub get_status {
     while (my $planet = $planet_rs->next) {
         $planets{$planet->id} = $planet->name;
     }
+
     my $status = {
         rpc_count           => $self->rpc_count,
         is_isolationist     => $self->is_isolationist,
@@ -323,8 +332,8 @@ sub get_status {
         name                => $self->name,
         id                  => $self->id,
         essentia            => $self->essentia,
-        has_new_messages    => $self->get_new_message_count,
-        most_recent_message => $self->get_newest_message,
+        has_new_messages    => $self->has_new_messages,
+        latest_message_id   => $self->latest_message_id,
         home_planet_id      => $self->home_planet_id,
         planets             => \%planets,
         self_destruct_active=> $self->self_destruct_active,
@@ -483,8 +492,7 @@ sub found {
        Lacuna::DB::Result::Building::Permanent::RockyOutcrop
        Lacuna::DB::Result::Building::Permanent::Sand
                 )];
-  my $buildings = $home_planet->buildings->search;
-  while (my $building = $buildings->next) {
+  foreach my $building (@{$home_planet->building_cache}) {
     unless ( grep { $building->class eq $_ } @{$decor}) {
       $building->delete;
     }

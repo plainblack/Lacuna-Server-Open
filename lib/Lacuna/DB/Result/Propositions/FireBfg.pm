@@ -11,8 +11,7 @@ before pass => sub {
     if (defined $body && $body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
         if (eval {$self->station->in_jurisdiction($body)}) {
             if (defined $body->empire_id && $body->empire_id) {
-                my $buildings = $body->buildings;
-                while (my $building = $buildings->next) {
+                foreach my $building (@{$body->building_cache}) {
                     next unless ('Infrastructure' ~~ [$building->build_tags]);
                     next if ( $building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' );
                     $building->efficiency(0);

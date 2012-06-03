@@ -2,6 +2,8 @@ package Lacuna::DB::Result::Map::Body;
 
 use Moose;
 use utf8;
+use List::Util qw(max reduce);
+
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map';
 
@@ -122,6 +124,7 @@ __PACKAGE__->add_columns(
     restrict_coverage               => { data_type => 'tinyint', default_value => 0 },
     plots_available                 => { data_type => 'tinyint', default_value => 0 },    
     surface_version                 => { data_type => 'tinyint', default_value => 0 },
+    max_berth                       => { data_type => 'tinyint', default_value => 1 },
 );
 
 after 'sqlt_deploy_hook' => sub {
@@ -215,7 +218,37 @@ after 'sqlt_deploy_hook' => sub {
 __PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Map::Star', 'star_id');
 __PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Alliance', 'alliance_id', { on_delete => 'set null' });
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
-__PACKAGE__->has_many('buildings','Lacuna::DB::Result::Building','body_id');
+__PACKAGE__->has_many('_buildings','Lacuna::DB::Result::Building','body_id');
+__PACKAGE__->has_many('foreign_ships','Lacuna::DB::Result::Ships','foreign_body_id');
+
+has building_cache => (
+    is      => 'rw',
+    lazy    => 1,
+    builder => '_build_building_cache',
+    clearer => 'clear_building_cache',
+);
+
+sub _build_building_cache {
+    my ($self) = @_;
+
+    my @buildings = $self->_buildings;
+    return \@buildings;
+}
+
+sub building_max_level {
+    my ($self) = @_;
+
+    return reduce {$a->level > $b->level ? $a->level : $b->level} 0, @{$self->building_cache}
+}
+
+sub building_avg_level {
+    my ($self) = @_;
+
+    if (scalar @{$self->building_cache}) {
+        return (reduce {$a->level + $b->level} 0, @{$self->building_cache} ) / @{$self->building_cache};
+    }
+    return 0;
+}
 
 sub abandon {
     my $self = shift;
@@ -255,14 +288,18 @@ sub get_type {
     return $type;
 }
 
-sub max_berth {
-    my ($self) = @_;
+sub prereq_buildings {
+    my ($self, $class, $level) = @_;
 
-    my $max_berth = $self->buildings->search({
-        class       => 'Lacuna::DB::Result::Building::SpacePort',
-        efficiency  => 100,
-    } )->get_column('level')->max;
-    return $max_berth ? $max_berth : 0;
+    my @buildings = grep { $_->class eq $class and $_->level >= $level } @{$self->building_cache};
+    return \@buildings;
+}
+
+sub get_a_building {
+    my ($self,$class) = @_;
+
+    my ($building) = grep { $_->class eq "Lacuna::DB::Result::Building::$class" } @{$self->building_cache};
+    return $building;
 }
 
 sub get_status {

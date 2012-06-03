@@ -45,7 +45,8 @@ if ($respawn) {
         # First ensure we have demolished all glyph resource buildings
         for my $planet ($empire->planets->all) {
             out("Removing sensitive buildings from ".$planet->name);
-            $planet->buildings->delete_all;
+            $planet->delete_buildings(@{$planet->building_cache});
+
             # Rename the planet 
             $planet->name($planet->star->name." ".$planet->orbit);
             $planet->update;
@@ -183,7 +184,7 @@ for my $level(@build_levels) {
     }
     die "Cannot find a star in zone $add_to_zone" unless $body;
 
-    $body->buildings->delete_all;
+    $body->delete_buildings(@{$body->building_cache});
     $body->found_colony($empire);
     create_colony($level, $body);
     $delamberti_in->{$add_to_zone} = $delamberti_in_lowest_zone + 1;
@@ -242,7 +243,7 @@ sub create_empire {
     },{rows=>1})->single;
 
     $empire->insert;
-    $home->buildings->delete_all;
+    $home->delete_buildings(@{$home->building_cache});
     $empire->found($home);
     $empire->university_level(30);
     $empire->update;

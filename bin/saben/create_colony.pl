@@ -41,8 +41,7 @@ die 'Could not find a colony to occupy.' unless defined $body;
 say $body->name;
 
 out('Clearing unneeded structures...');
-my $buildings = $body->buildings;
-while (my $building = $buildings->next) {
+foreach my $building (@{$body->building_cache}) {
     $building->delete;
 }
 

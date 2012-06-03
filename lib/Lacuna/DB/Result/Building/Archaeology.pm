@@ -195,12 +195,12 @@ sub dig_it {
           message => "Found level $lvl + $plus $name Plan.",
           outcome => "Artifact",
         };
-        $self->body->add_news(20,sprintf("%s uncovered a rare %s plan on %s.",
+        $self->body->add_news(10,sprintf("%s uncovered a rare %s plan on %s.",
                               $empire_name, $name, $body->name));
       }
     }
     when ("destroy") {
-      if (randint(0,99) < 5) {
+      if (randint(0,99) < 3) {
         my $message = random_element([
                         'Auntie Em, where\'s Toto? Its a twister! Its a twister!',
                         'Aw, there\'s something behind me, isn\'t there?',
@@ -220,7 +220,7 @@ sub dig_it {
                         'Oh no, not again.',
                         'Oops? What oops? No oops!',
                         'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagi fhtagn.',
-                        'Push the buttom Max!',
+                        'Push the button Max!',
                         'That\'s it man, game over man, game over!',
                         'The brazen temple doors open...',
                         'There are things in the mist.',
@@ -295,8 +295,7 @@ sub found_artifact {
   
   my $plan_types = plans_of_type();
   my $artifacts;
-  my $buildings = $body->buildings;
-  while (my $building = $buildings->next) {
+  foreach my $building (@{$body->building_cache}) {
     unless ( grep { $building->class eq $_ } @{$plan_types->{disallow}}) {
       push @{$artifacts}, $building;
     }
@@ -377,7 +376,7 @@ sub can_you_dig_it {
   my $glyph = int($mult * $level * $ore_total/20_000)+1; 
   my $resource = int(5/2 * $level);
   my $artifact = 0;
-  if (!$arch && $body->buildings->count) {
+  if (!$arch && $body->building_cache) {
     $artifact = 14;
   }
   my $destroy = $arch ? 0 : 1;
