@@ -405,6 +405,8 @@ sub view_profile {
         skip_excavator_plan     => $empire->skip_excavator_plan,
         skip_excavator_artifact => $empire->skip_excavator_artifact,
         skip_excavator_destroyed => $empire->skip_excavator_destroyed,
+        skip_excavator_replace_msg => $empire->skip_excavator_replace_msg,
+        dont_replace_excavator  => $empire->dont_replace_excavator,
         skip_spy_recovery       => $empire->skip_spy_recovery,
         skip_probe_detected     => $empire->skip_probe_detected,
         skip_attack_messages    => $empire->skip_attack_messages,
@@ -511,6 +513,12 @@ sub edit_profile {
         }
         $empire->skip_found_nothing($profile->{skip_found_nothing});
     }
+    if (exists $profile->{skip_excavator_replace_msg}) {
+        if ($profile->{skip_excavator_replace_msg} < 0 || $profile->{skip_excavator_replace_msg} > 1) {
+            confess [1009, 'Skip Excavator Replacement Message must be a 1 or a 0.', 'skip_excavator_replace_msg']
+        }
+        $empire->skip_excavator_resources($profile->{skip_excavator_replace_msg});
+    }
     if (exists $profile->{skip_excavator_resources}) {
         if ($profile->{skip_excavator_resources} < 0 || $profile->{skip_excavator_resources} > 1) {
             confess [1009, 'Skip Excavator Resources must be a 1 or a 0.', 'skip_excavator_resources']
@@ -540,6 +548,12 @@ sub edit_profile {
             confess [1009, 'Skip Excavator Destroyed must be a 1 or a 0.', 'skip_excavator_destroyed']
         }
         $empire->skip_excavator_destroyed($profile->{skip_excavator_destroyed});
+    }
+    if (exists $profile->{dont_replace_excavator}) {
+        if ($profile->{dont_replace_excavator} < 0 || $profile->{dont_replace_excavator} > 1) {
+            confess [1009, 'Do not replace excavator must be a 1 or a 0.', 'dont_replace_excavator']
+        }
+        $empire->skip_excavator_resources($profile->{dont_replace_excavator});
     }
     if (exists $profile->{skip_spy_recovery}) {
         if ($profile->{skip_spy_recovery} < 0 || $profile->{skip_spy_recovery} > 1) {
