@@ -517,7 +517,7 @@ sub edit_profile {
         if ($profile->{skip_excavator_replace_msg} < 0 || $profile->{skip_excavator_replace_msg} > 1) {
             confess [1009, 'Skip Excavator Replacement Message must be a 1 or a 0.', 'skip_excavator_replace_msg']
         }
-        $empire->skip_excavator_resources($profile->{skip_excavator_replace_msg});
+        $empire->skip_excavator_replace_msg($profile->{skip_excavator_replace_msg});
     }
     if (exists $profile->{skip_excavator_resources}) {
         if ($profile->{skip_excavator_resources} < 0 || $profile->{skip_excavator_resources} > 1) {
@@ -553,7 +553,7 @@ sub edit_profile {
         if ($profile->{dont_replace_excavator} < 0 || $profile->{dont_replace_excavator} > 1) {
             confess [1009, 'Do not replace excavator must be a 1 or a 0.', 'dont_replace_excavator']
         }
-        $empire->skip_excavator_resources($profile->{dont_replace_excavator});
+        $empire->dont_replace_excavator($profile->{dont_replace_excavator});
     }
     if (exists $profile->{skip_spy_recovery}) {
         if ($profile->{skip_spy_recovery} < 0 || $profile->{skip_spy_recovery} > 1) {
