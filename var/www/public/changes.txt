@@ -1,6 +1,6 @@
 3.0853:
  - Mod: Excavator destruction will trigger a replacement excavator to be sent if available.
- - Add: Options in UI for excavator replacement.
+ - Add: Hooks for UI for excavator replacement added.  (UI being updated soon.)
 
 3.0852:
  - Mod: Efficiency modifications.
