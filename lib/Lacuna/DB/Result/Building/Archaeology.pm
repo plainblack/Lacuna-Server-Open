@@ -160,7 +160,7 @@ sub replace_excav {
     eval { $ship->can_send_to_target($body) };
     my $reason = $@;
     if ($reason) {
-      if (ref $reason ne 'ARRAY') {
+      if (ref $reason eq 'ARRAY') {
         $reason = join(":", @{$reason});
       }
       $replace_msg->{message} = sprintf("Fail : Could not send excavator: %s", $reason);
