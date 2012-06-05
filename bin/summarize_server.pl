@@ -434,7 +434,7 @@ sub summarize_colonies {
         my %colony_data = (
             date_stamp             => DateTime->now,
             planet_name            => $planet->name,
-            building_count         => @{ $planet->building_cache },
+            building_count         => scalar @{ $planet->building_cache },
             population             => $planet->population,
             population_delta       => (defined $log ? $log->population_delta + $planet->population - $log->population :  $planet->population ),
             average_building_level => $planet->building_avg_level,

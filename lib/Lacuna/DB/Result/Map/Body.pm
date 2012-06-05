@@ -2,7 +2,7 @@ package Lacuna::DB::Result::Map::Body;
 
 use Moose;
 use utf8;
-use List::Util qw(max reduce);
+use List::Util qw(max sum);
 use Scalar::Util qw(weaken);
 
 no warnings qw(uninitialized);
@@ -246,14 +246,18 @@ sub _build_building_cache {
 sub building_max_level {
     my ($self) = @_;
 
-    return reduce {$a->level > $b->level ? $a->level : $b->level} 0, @{$self->building_cache}
+    if (scalar @{$self->building_cache}) {
+        return max map {$_->level} @{$self->building_cache};
+    }
+    return 0;
 }
 
 sub building_avg_level {
     my ($self) = @_;
 
     if (scalar @{$self->building_cache}) {
-        return (reduce {$a->level + $b->level} 0, @{$self->building_cache} ) / @{$self->building_cache};
+        my $sum = sum map {$_->level} @{$self->building_cache};
+        return $sum / @{$self->building_cache};
     }
     return 0;
 }
