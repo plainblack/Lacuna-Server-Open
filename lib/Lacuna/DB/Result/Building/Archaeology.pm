@@ -154,13 +154,21 @@ sub replace_excav {
 # Check to see if excavs available
   my $avail = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
                 ->search({type=>'excavator', task=>'Docked',body_id=>$self->body_id});
-  if ($avail) {
-    my $count = $avail->count;
-    my $ship = $avail->next; # Just grab first one
-    eval { $ship->can_send_to_target($body) };
-    my $reason = $@;
+  my $count = $avail->count;
+  if ($count > 0) {
+    my $ship;
+    my $reason = "No Ship available";
+    if ($ship = $avail->next) { # Just grab first one
+      my $ok = eval { $ship->can_send_to_target($body) };
+      if ($ok) {
+        $reason = "";
+      }
+      else {
+        $reason = $@;
+      }
+    }
     if ($reason) {
-      if (ref $reason ne 'ARRAY') {
+      if (ref $reason eq 'ARRAY') {
         $reason = join(":", @{$reason});
       }
       $replace_msg->{message} = sprintf("Fail : Could not send excavator: %s", $reason);
