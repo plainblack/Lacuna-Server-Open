@@ -481,7 +481,7 @@ has command => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::PlanetaryCommand');
         return undef unless defined $building;
-        $building->body($self);
+        #$building->body($self);
         return $building;
     },
 );
@@ -493,7 +493,7 @@ has oversight => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Oversight');
         return undef unless defined $building;
-        $building->body($self);
+        #$building->body($self);
         return $building;
     },
 );
@@ -505,7 +505,7 @@ has archaeology => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Archaeology');
         return undef unless defined $building;
-        $building->body($self);
+#        #$building->body($self);
         return $building;
     },
 );
@@ -517,7 +517,7 @@ has mining_ministry => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Ministry');
         return undef unless defined $building;
-        $building->body($self);
+        #$building->body($self);
         return $building;
     },
 );
@@ -529,7 +529,7 @@ has network19 => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Network19');
         return undef unless defined $building;
-        $building->body($self);
+        #$building->body($self);
         return $building;
     },
 );
@@ -541,7 +541,7 @@ has development => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Development');
         return undef unless defined $building;
-        $building->body($self);
+        #$building->body($self);
         return $building;
     },
 );
@@ -553,7 +553,7 @@ has refinery => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Refinery');
         return undef unless defined $building;
-        $building->body($self);
+        #$building->body($self);
         return $building;
     },
 );
@@ -565,7 +565,7 @@ has spaceport => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::SpacePort');
         return undef unless defined $building;
-        $building->body($self);
+        #$building->body($self);
         return $building;
     },
 );    
@@ -577,7 +577,7 @@ has embassy => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Embassy');
         return undef unless defined $building;
-        $building->body($self);
+        #$building->body($self);
         return $building;
     },
 );    
@@ -794,7 +794,7 @@ sub build_building {
     $building->body_id($self->id);
     $building->level(0) unless $building->level;
     $building->insert;
-    $building->body($self);
+    #$building->body($self);
     $building->start_upgrade(undef, $in_parallel);
     $self->building_cache([@{$self->building_cache}, $building]);
 }
