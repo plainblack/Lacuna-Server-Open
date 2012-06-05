@@ -834,6 +834,7 @@ sub found_colony {
     }
     
     # add starting resources
+    $self->needs_recalc(1);
     $self->tick;
     $self->add_algae(700);
     $self->add_energy(700);
