@@ -58,7 +58,8 @@ sub create_empire {
     my $empire  = $db->resultset('Lacuna::DB::Result::Empire')->new(\%attributes)->insert;
     my $zone    = $db->resultset('Lacuna::DB::Result::Map::Body')->get_column('zone')->max;
     my $home    = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
-    $home->delete_buildings(@{$home->building_cache});
+    my @to_demolish = @{$home->building_cache};
+    $home->delete_buildings(\@to_demolish);
     $empire->found($home);
     $self->build_colony($home);
     return $empire;
@@ -149,7 +150,8 @@ sub add_colonies {
                 my $body = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
                 if (defined $body) {
                     say 'Clearing '.$body->name;
-                    $body->delete_buildings(@{$body->building_cache});
+                    my @to_demolish = @{$body->building_cache};
+                    $body->delete_buildings(\@to_demolish);
                     say 'Colonizing '.$body->name;
                     $body->found_colony($empire);
                     $self->build_colony($body);
