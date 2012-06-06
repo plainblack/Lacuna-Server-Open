@@ -19,6 +19,7 @@ create table fleet (
     foreign_body_id int(11),
     foreign_star_id int(11),
     berth_level     tinyint(4) default 1,
+    quantity        int(11) not null default 1,
     primary key (id),
     key f_mark (mark),
     key f_idx_body_id (body_id),
