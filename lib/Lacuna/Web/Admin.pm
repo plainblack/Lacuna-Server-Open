@@ -424,14 +424,14 @@ sub www_view_glyphs {
     my $glyphs = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({ body_id => $body_id }, {order_by => ['type'] });
     my $out = '<h1>View Glyphs</h1>';
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Type</th><th>Action</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Type</th><th>Quantity</th><th>Action</th></tr>';
     while (my $glyph = $glyphs->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td><a href="/admin/delete/glyph?body_id=%s&glyph_id=%s">Delete</a></td></tr>', $glyph->id, $glyph->type, $body_id, $glyph->id);
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/delete/glyph?body_id=%s&glyph_id=%s">Delete</a></td></tr>', $glyph->id, $glyph->type, $glyph->quantity, $body_id, $glyph->id);
     }
     $out .= '<form method="post" action="/admin/add/glyph"><tr>';
     $out .= '<td><input type="hidden" name="body_id" value="'.$body_id.'"></td>';
     $out .= '<td><select name="type">';
-    foreach my $name (ORE_TYPES) {
+    foreach my $name (sort ORE_TYPES) {
         $out .= '<option value="'.$name.'">'.$name.'</option>';
     }
     $out .= '</select></td>';
