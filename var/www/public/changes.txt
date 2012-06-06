@@ -1,5 +1,6 @@
 3.0854:
  - Add: Backend support only for fleet actions. No changes to gameplay at this time.
+ - Fix: None-permanent buildings on abandoned planets have been cleared.
 
 3.0853:
  - Mod: Excavator destruction will trigger a replacement excavator to be sent if available.
