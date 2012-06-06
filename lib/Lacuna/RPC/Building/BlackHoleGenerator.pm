@@ -562,7 +562,8 @@ sub bhg_make_asteroid {
   my ($building, $body) = @_;
   my $old_class = $body->class;
   my $old_size  = $body->size;
-  $body->delete_buildings(@{$body->building_cache});
+  my @to_demolish = @{$body->building_cache};
+  $body->delete_buildings(\@to_demolish);
   my $new_size = int($building->level/5);
   $new_size = 10 if $new_size > 10;
   $body->update({

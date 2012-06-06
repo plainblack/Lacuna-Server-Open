@@ -33,27 +33,32 @@ sub _build_plan_cache {
 }
 
 sub delete_building {
-    my ($self, $building) = @_;
+  my ($self, $building) = @_;
 
-    my $i = 0;
-    BUILDING:
-    foreach my $b (@{$self->building_cache}) {
-        if ($b->id == $building->id) {
-            my @buildings = splice(@{$self->building_cache}, $i, 1);
-            $self->building_cache(\@buildings);
-            $b->delete;
-            last BUILDING;
-        }
-        $i++;
+  my $i = 0;
+  BUILDING:
+  foreach my $b (@{$self->building_cache}) {
+    if ($b->id == $building->id) {
+      my @buildings = splice(@{$self->building_cache}, $i, 1);
+      $self->building_cache(\@buildings);
+#      $b->delete;
+      last BUILDING;
     }
+    $i++;
+  }
+  $self->update;
 }
 
 sub delete_buildings {
-    my ($self, $buildings) = @_;
+  my ($self, $buildings) = @_;
 
-    foreach my $building (@$buildings) {
-        $self->delete_building($building);
-    }
+  foreach my $building (@$buildings) {
+    $self->delete_building($building);
+    $building->delete;
+  }
+  $self->needs_recalc(1);
+  $self->needs_surface_refresh(1);
+  $self->update;
 }
 
 sub surface {

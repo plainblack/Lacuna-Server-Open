@@ -127,6 +127,8 @@ sub destroy_world {
     )->single;
     if (defined $target) {
         say "Found ".$target->name;
+        my @to_demolish = @{$target->building_cache};
+        $target->delete_buildings(\@to_demolish);
         $target->update({
             class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
             size                        => randint(1,10),
