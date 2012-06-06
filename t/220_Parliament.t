@@ -33,7 +33,7 @@ $result = $tester->post('embassy', 'create_alliance', [$session_id, $emb->id, 't
 ok(exists $result->{result}, 'can create alliance');
 $result = $tester->post('embassy', 'get_alliance_status', [$session_id, $emb->id]);
 ok(scalar@{$result->{result}{alliance}{members}}, 'alliance has members');
-$empire = $empire->get_from_storage;
+$empire->discard_changes;
 ok $empire->alliance_id, 'empire has alliance';
 
 $friend->empire->alliance_id($empire->alliance_id);
@@ -41,7 +41,7 @@ $friend->empire->update;
 
 my $station = Lacuna->db->resultset('Map::Body')->search({class => {like => 'Lacuna::DB::Result::Map::Body::Planet::P%'}, empire_id => undef},{rows=>1})->single;
 $station->convert_to_station($empire);
-$station = $station->get_from_storage; # just in case
+$station->discard_changes; # just in case
 
 ok $station->alliance_id, 'alliance assigned to station';
 

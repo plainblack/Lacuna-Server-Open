@@ -15,10 +15,9 @@ after handle_arrival_procedures => sub {
     my $amount = randint(10,70);
     
     # determine target building
-    my $body_attacked = $self->foreign_body;
-    my $buildings = $body_attacked->buildings;
     my $building;
-    my $citadel = $buildings->search({class=>'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope'},{rows=>1})->single;
+    my $body_attacked = $self->foreign_body;
+    my ($citadel) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope'} @{$body_attacked->building_cache};
     if (defined $citadel) {
         $building = $citadel;
     }
@@ -27,18 +26,19 @@ after handle_arrival_procedures => sub {
             $building ||= $body_attacked->get_building_of_class($tb);
         }
     }
-    $building ||= $buildings->search(
-		{
-            class => { 'not in' => [
-                    'Lacuna::DB::Result::Building::Permanent::Crater',
-                    'Lacuna::DB::Result::Building::DeployedBleeder',
-                ],
-            },
-        },
-		{order_by => { -desc => ['efficiency', 'rand()'] }, rows=>1}
-	)->single;
-    return unless defined $building;
-    $building->body($body_attacked);
+    if (not defined $building) {
+        ($building) =
+            sort {
+                $b->efficiency <=> $a->efficiency ||
+                rand() <=> rand()
+            }
+            grep {
+                ($_->class ne 'Lacuna::DB::Result::Building::Permanent::Crater') and
+                ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder') and
+                ($_->class ne 'Lacuna::DB::Result::Building::TheDillonForge')
+            } @{$body_attacked->building_cache};
+    }
+    return if not defined $building;
     
     # let everyone know what's going on
     unless ($body_attacked->empire->skip_attack_messages) {
@@ -108,11 +108,17 @@ after handle_arrival_procedures => sub {
         if ($self->splash_radius) {
             foreach my $i (1..$self->splash_radius) {
                 $amount /= $i + 1;
-                my $splashed = $buildings->search({
-                    x => { between => [$building->x - $i, $building->x + $i] },
-                    y => { between => [$building->y - $i, $building->y + $i] },
-                });
-                while (my $damaged = $splashed->next) {
+                my @splashed = 
+                    grep {
+                        ($_->x > $building->x - $i) and
+                        ($_->x < $building->x + $i) and
+                        ($_->y > $building->y - $i) and
+                        ($_->y < $building->y + $i) and
+                        ($_->class ne 'Lacuna::DB::Result::Building::Permanent::Crater') and
+                        ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder') and
+                        ($_->class ne 'Lacuna::DB::Result::Building::TheDillonForge')
+                    } @{$body_attacked->building_cache};
+                foreach my $damaged (@splashed) {
                     $damaged->body($body_attacked);
                     $damaged->spend_efficiency($amount)->update;
                 }

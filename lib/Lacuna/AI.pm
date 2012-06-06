@@ -58,7 +58,8 @@ sub create_empire {
     my $empire  = $db->resultset('Lacuna::DB::Result::Empire')->new(\%attributes)->insert;
     my $zone    = $db->resultset('Lacuna::DB::Result::Map::Body')->get_column('zone')->max;
     my $home    = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
-    $home->buildings->delete_all;
+    my @to_demolish = @{$home->building_cache};
+    $home->delete_buildings(\@to_demolish);
     $empire->found($home);
     $self->build_colony($home);
     return $empire;
@@ -149,7 +150,8 @@ sub add_colonies {
                 my $body = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
                 if (defined $body) {
                     say 'Clearing '.$body->name;
-                    $body->buildings->delete_all;
+                    my @to_demolish = @{$body->building_cache};
+                    $body->delete_buildings(\@to_demolish);
                     say 'Colonizing '.$body->name;
                     $body->found_colony($empire);
                     $self->build_colony($body);
@@ -185,8 +187,7 @@ sub run_missions {
 sub repair_buildings {
     my ($self, $colony) = @_;
     say 'REPAIR DAMAGED BUILDINGS';
-    my $buildings = $colony->buildings;
-    while (my $building = $buildings->next) {
+    foreach my $building (@{$colony->building_cache}) {
         if ($building->efficiency < 100) {
             say "    ".$building->name." needs repairing";
             my $costs = $building->get_repair_costs;
@@ -343,7 +344,7 @@ sub train_spies {
 sub build_ships {
     my ($self, $colony) = @_;
     say 'BUILD SHIPS';
-    my @shipyards = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard')->search(undef,{order_by => 'work_ends'})->all;
+    my @shipyards = sort {$a->work_ends cmp $b->work_ends} $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard');
     my @priorities = $self->ship_building_priorities($colony);
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     foreach my $priority (@priorities) {
@@ -376,7 +377,7 @@ sub build_ships {
 sub build_ships_max {
     my ($self, $colony) = @_;
     say 'BUILD SHIPS';
-    my @ship_yards  = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard')->search(undef,{order_by => 'work_ends'})->all;
+    my @ship_yards  = sort {$a->work_ends cmp $b->work_ends} $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard');
     my $ships 	    = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     my $ship_yard   = shift @ship_yards;
     my $free_docks  = $ship_yard->level - $ships->search({shipyard_id => $ship_yard->id, task => 'Building'});

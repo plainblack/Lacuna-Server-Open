@@ -21,15 +21,23 @@ my $date_ended = DateTime->now->subtract( days => 7 );
 out('Loading DB');
 our $db = Lacuna->db;
 
-out('Deleting AI Mail Items');
+out('Deleting AI Mail Items older than a day');
+my $date_ended = DateTime->now->subtract( days => 1 );
 my $mail = $db->resultset('Lacuna::DB::Result::Message');
-$mail->search({ to_id => { '<=' => 1 }})->delete;
+$mail->search({ to_id => { '<=' => 1 }, date_sent => { '<' => $date_ended }})->delete;
 
-out('Deleting Outdated Trashed Player Mail Items');
-$mail->search({ has_trashed => 1, date_sent => { '<' => $date_ended }})->delete;
+out('Deleting Trashed Player Mail Items');
+$mail->search({ has_trashed => 1 })->delete;
 
-my $date_ended = DateTime->now->subtract( days => 30 );
+$date_ended = DateTime->now->subtract( days => 3 );
+out('Deleting Outdated Parliament Items');
+$mail->search({ tag => 'Parliament', date_sent => { '<' => $date_ended }})->delete;
 
+$date_ended = DateTime->now->subtract( days => 7 );
+out('Deleting Outdated Player Read Items');
+$mail->search({ has_read => 1, has_archived => 0, date_sent => { '<' => $date_ended }})->delete;
+
+$date_ended = DateTime->now->subtract( days => 30 );
 out('Deleting All Outdated Player Mail Items');
 $mail->search({ date_sent => { '<' => $date_ended }})->delete;
 

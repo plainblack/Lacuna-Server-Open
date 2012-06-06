@@ -5,6 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body::Planet';
 use Lacuna::Util qw(randint);
+use Data::Dumper;
 
 use constant image => 'station';
 __PACKAGE__->has_many('propositions','Lacuna::DB::Result::Propositions','station_id');
@@ -14,15 +15,19 @@ __PACKAGE__->has_many('stars','Lacuna::DB::Result::Map::Star','station_id');
 has parliament => (
     is      => 'rw',
     lazy    => 1,
-    default => sub {
-        my $self = shift;
-        my $parliament = $self->get_building_of_class('Lacuna::DB::Result::Building::Module::Parliament');
-        if (defined $parliament) {
-            $parliament->body($self);
-        }
-        return $parliament;
-    },
+    builder => '_build_parliament',
 );
+
+sub _build_parliament {
+    my ($self) = @_;
+
+    my ($parliament) = grep {$_->class =~ /Parliament$/} @{$self->building_cache};
+
+    if (defined $parliament) {
+        $parliament->body($self);
+    }
+    return $parliament;
+}
 
 around get_status => sub {
     my ($orig, $self, $empire) = @_;
@@ -62,14 +67,16 @@ after sanitize => sub {
 has command => (
     is      => 'rw',
     lazy    => 1,
-    default => sub {
-        my $self = shift;
-        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Module::StationCommand');
-        return undef unless defined $building;
-        $building->body($self);
-        return $building;
-    },
+    builder => '_build_command',
 );
+
+sub _build_command {
+    my ($self) = @_;
+    my ($building) = grep {$_->class =~ /StationCommand$/} @{$self->building_cache};
+    return undef unless defined $building;
+    $building->body($self);
+    return $building;
+}
 
 sub has_resources_to_operate {
     return 1;
@@ -123,14 +130,25 @@ sub in_jurisdiction {
 has total_influence => (
     is      => 'rw',
     lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return $self->buildings
-            ->search({ class => { in => ['Lacuna::DB::Result::Building::Module::IBS','Lacuna::DB::Result::Building::Module::OperaHouse','Lacuna::DB::Result::Building::Module::CulinaryInstitute','Lacuna::DB::Result::Building::Module::ArtMuseum'] }})
-            ->get_column('level')
-            ->sum;
-    },
+    builder => '_build_total_influence',
 );
+
+sub _build_total_influence {
+    my ($self) = @_;
+
+    my $influence = 0;
+    foreach my $building (@{$self->building_cache}) {
+        if (
+            $building->class eq 'Lacuna::DB::Result::Building::Module::IBS' or
+            $building->class eq 'Lacuna::DB::Result::Building::Module::OperaHouse' or
+            $building->class eq 'Lacuna::DB::Result::Building::Module::CulinaryInstitute' or
+            $building->class eq 'Lacuna::DB::Result::Building::Module::ArtMuseum'
+            ) {
+            $influence += $building->level;
+        }
+    }
+    return $influence;
+}
 
 has influence_spent => (
     is      => 'rw',
@@ -149,15 +167,19 @@ sub influence_remaining {
 has range_of_influence => (
     is      => 'rw',
     lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return $self->buildings
-            ->search({ class => 'Lacuna::DB::Result::Building::Module::IBS'})
-            ->get_column('level')
-            ->sum
-            * 1000;
-    },
+    builder => '_build_range_of_influence',
 );
+
+sub _build_range_of_influence {
+    my ($self) = @_;
+
+    my $range = 0;
+    my ($ibs) = grep {$_->class eq 'Lacuna::DB::Result::Building::Module::IBS'} @{$self->building_cache};
+    if (defined $ibs) {
+        $range = $ibs->level * 1000;
+    }
+    return $range;
+}
 
 sub in_range_of_influence {
     my ($self, $star) = @_;

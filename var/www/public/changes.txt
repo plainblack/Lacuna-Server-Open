@@ -1,5 +1,13 @@
-3.0852:
+3.0899:
  - Mod: glyphs changed in DB to be more compact.
+
+3.0853:
+ - Mod: Excavator destruction will trigger a replacement excavator to be sent if available.
+ - Add: Hooks for UI for excavator replacement added.  (UI being updated soon.)
+
+3.0852:
+ - Mod: Efficiency modifications.
+ - Mod: Various bug fixes.
 
 3.0851:
  - Mod: Multiple plans buildable with one call from Archaeology Ministry.
@@ -21,6 +29,7 @@
  - Mod: Being at negative plots makes your people unhappy.
  - Mod: Stockpile rules change.  University levels higher than 25 gives bonus.
  - Mod: Short Range Colony Ships faster, but limited in range.
+ - Fix: Bleeders no longer count toward population totals.
 
 3.0850:
  - Fix: All non-trade inflight ships self destruct from an insurrected planet.

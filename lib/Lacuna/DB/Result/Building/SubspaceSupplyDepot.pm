@@ -93,8 +93,7 @@ sub complete_build_queue {
     }
     $self->work_ends($self->work_ends->subtract(seconds => $time_to_complete));
     $self->update;
-    my $builds = $self->body->builds;
-    while (my $build = $builds->next) {
+    foreach my $build (@{$self->body->builds}) {
         $build->body($self->body);
         $build->finish_upgrade;
     }
