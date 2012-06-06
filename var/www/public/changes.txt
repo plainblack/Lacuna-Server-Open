@@ -1,6 +1,9 @@
 3.0899:
  - Mod: glyphs changed in DB to be more compact.
 
+3.0854:
+ - Add: Backend support only for fleet actions. No changes to gameplay at this time.
+
 3.0853:
  - Mod: Excavator destruction will trigger a replacement excavator to be sent if available.
  - Add: Hooks for UI for excavator replacement added.  (UI being updated soon.)

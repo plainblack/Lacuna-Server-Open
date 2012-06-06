@@ -22,10 +22,6 @@ sub _build_parliament {
     my ($self) = @_;
 
     my ($parliament) = grep {$_->class =~ /Parliament$/} @{$self->building_cache};
-
-    if (defined $parliament) {
-        $parliament->body($self);
-    }
     return $parliament;
 }
 
@@ -73,8 +69,6 @@ has command => (
 sub _build_command {
     my ($self) = @_;
     my ($building) = grep {$_->class =~ /StationCommand$/} @{$self->building_cache};
-    return undef unless defined $building;
-    $building->body($self);
     return $building;
 }
 

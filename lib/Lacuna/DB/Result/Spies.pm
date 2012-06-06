@@ -2146,6 +2146,7 @@ sub steal_building {
             rand() <=> rand()
         }
         grep {
+            ($_->level > 1) and
             ($_->class ne 'Lacuna::DB::Result::Building::Permanent::EssentiaVein') and
             ($_->class ne 'Lacuna::DB::Result::Building::Permanent::TheDillonForge') and
             ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder')
