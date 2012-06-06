@@ -37,8 +37,8 @@ __PACKAGE__->add_columns(
     direction               => { data_type => 'varchar', size => 3, is_nullable => 0 }, # in || out
     foreign_body_id         => { data_type => 'int', is_nullable => 1 },
     foreign_star_id         => { data_type => 'int', is_nullable => 1 },
-    fleet_speed             => { data_type => 'int', is_nullable => 0 },
     berth_level             => { data_type => 'int', is_nullable => 0 },
+    quantity                => { data_type => 'int', is_nullable => 0 },
 );
 __PACKAGE__->typecast_map(type => {
     'probe'                         => 'Lacuna::DB::Result::Fleet::Probe',
@@ -206,7 +206,6 @@ sub get_status {
         type            => $self->type,
         task            => $self->task,
         speed           => $self->speed,
-        fleet_speed     => $self->fleet_speed,
         stealth         => $self->stealth,
         combat          => $self->combat,
         hold_size       => $self->hold_size,
@@ -272,7 +271,6 @@ sub turn_around {
     my $self = shift;
     $self->direction( ($self->direction eq 'out') ? 'in' : 'out' );
 #    $self->date_available(DateTime->now->add_duration( $self->date_available - $self->date_started ));
-    $self->fleet_speed(0);
     my $target = ($self->foreign_body_id) ? $self->foreign_body : $self->foreign_star;
     $self->date_available(DateTime->now->add(seconds=>$self->calculate_travel_time($target)));
     $self->date_started(DateTime->now);
@@ -333,7 +331,6 @@ sub defend {
 sub land {
     my ($self) = @_;
     $self->task('Docked');
-    $self->fleet_speed(0);
     $self->date_available(DateTime->now);
     $self->payload({});
     return $self;
@@ -351,9 +348,6 @@ sub calculate_travel_time {
 
     my $distance = $self->body->calculate_distance_to_target($target);
     my $speed = $self->speed;
-    if ( $self->fleet_speed > 0 && $self->fleet_speed < $self->speed ) {
-        $speed = $self->fleet_speed;
-    }
     return $self->travel_time($self->body, $target, $speed);
 }
 
