@@ -142,7 +142,6 @@ foreach my $method (qw(insert update)) {
             });
             if ($other_fleet) {
                 # Merge the other fleet into this one
-#print STDERR "MERGING FLEETS: [".$self->id."][".$self->quantity."] - [".$other_fleet->id."][".$other_fleet->quantity."]\n";
                 $self->quantity($self->quantity + $other_fleet->quantity);
                 $other_fleet->delete;
             }
@@ -195,15 +194,14 @@ sub split {
     return $fleet;
 }
 
-
 sub max_occupants {
-    my $self = shift;
+    my ($self) = @_;
     return 0 unless $self->pilotable;
     return int($self->hold_size / 350);
 }
 
 sub arrive {
-    my $self = shift;
+    my ($self) = @_;
     eval {$self->handle_arrival_procedures}; # throws exceptions to stop subsequent actions from happening
     my $reason = $@;
     if (ref $reason eq 'ARRAY' && $reason->[0] eq -1) {
@@ -225,12 +223,12 @@ sub arrive {
 }
 
 sub handle_arrival_procedures {
-    my $self = shift;
+    my ($self) = @_;
     $self->note_arrival;
 }
 
 sub note_arrival {
-    my $self = shift;
+    my ($self) = @_;
     Lacuna->cache->increment($self->type.'_arrive_'.$self->foreign_body_id.$self->foreign_star_id, $self->body->empire_id,1, 60*60*24*30);
 }
 
@@ -240,23 +238,23 @@ sub is_available {
 }
 
 sub can_send_to_target {
-    my $self = shift;
-    unless ($self->task eq 'Docked') {
-        confess [1010, 'That ship is busy.'];
+    my ($self) = @_;
+    if ($self->task ne 'Docked') {
+        confess [1010, 'That fleet is busy.'];
     }
     return 1;
 }
 
 sub can_recall {
-    my $self = shift;
+    my ($self) = @_;
     unless ($self->task ~~ [qw(Defend Orbiting)]) {
-        confess [1010, 'That ship is busy.'];
+        confess [1010, 'That fleet is busy.'];
     }
     return 1;
 }
 
 sub type_formatted {
-    my $self = shift;
+    my ($self) = @_;
 
     return $self->type_human($self->type);
 }
@@ -270,12 +268,12 @@ sub type_human {
 }
 
 sub date_started_formatted {
-    my $self = shift;
+    my ($self) = @_;
     return format_date($self->date_started);
 }
 
 sub date_available_formatted {
-    my $self = shift;
+    my ($self) = @_;
     return format_date($self->date_available);
 }
 
@@ -283,7 +281,9 @@ sub get_status {
     my ($self, $target) = @_;
     my %status = (
         id              => $self->id,
+        quantity        => $self->quantity,
         name            => $self->name,
+        mark            => $self->mark,
         type_human      => $self->type_formatted,
         type            => $self->type,
         task            => $self->task,
@@ -302,57 +302,51 @@ sub get_status {
     if ($target) {
         $status{estimated_travel_time} = $self->calculate_travel_time($target);
     }
-    if ($self->task eq 'Travelling') {
+    if ($self->task ~~ [qw(Travelling Defend Orbiting)]) {
         my $body = $self->body;
-        my $target = ($self->foreign_body_id) ? $self->foreign_body : $self->foreign_star;
         my $from = {
             id      => $body->id,
             name    => $body->name,
             type    => 'body',
         };
-        my $to = {
-            id      => $target->id,
-            name    => $target->name,
-            type    => (ref $target eq 'Lacuna::DB::Result::Map::Star') ? 'star' : 'body',
-        };
-        if ($self->direction ne 'out') {
-            my $temp = $from;
-            $from = $to;
-            $to = $temp;
+        if ($self->task eq 'Travelling') {
+            my $target = ($self->foreign_body_id) ? $self->foreign_body : $self->foreign_star;
+            my $to = {
+                id      => $target->id,
+                name    => $target->name,
+                type    => (ref $target eq 'Lacuna::DB::Result::Map::Star') ? 'star' : 'body',
+            };
+            if ($self->direction eq 'in') {
+                my $temp = $from;
+                $from = $to;
+                $to = $temp;
+            }
+            $status{to}             = $to;
+            $status{date_arrives}   = $status{date_available};
         }
-        $status{to}             = $to;
-        $status{from}           = $from;
-        $status{date_arrives}   = $status{date_available};
+        $status{from} = $from;
     }
     elsif ($self->task ~~ [qw(Defend Orbiting)]) {
-        my $body = $self->body;
-        my $from = {
-            id      => $body->id,
-            name    => $body->name,
-            type    => 'body',
-        };
         my $orbiting = {
-             id        => $self->foreign_body_id,
-             name    => $self->foreign_body->name,
+            id      => $self->foreign_body_id,
+            name    => $self->foreign_body->name,
             type    => 'body',
-            x        => $self->foreign_body->x,
-            y        => $self->foreign_body->y,
+            x       => $self->foreign_body->x,
+            y       => $self->foreign_body->y,
         };
-        $status{from} = $from;
         $status{orbiting} = $orbiting;
     }
     return \%status;
 }
 
 sub seconds_remaining {
-    my $self = shift;
+    my ($self) = @_;
     return time - $self->date_available->epoch;
 }
 
 sub turn_around {
-    my $self = shift;
+    my ($self) = @_;
     $self->direction( ($self->direction eq 'out') ? 'in' : 'out' );
-#    $self->date_available(DateTime->now->add_duration( $self->date_available - $self->date_started ));
     my $target = ($self->foreign_body_id) ? $self->foreign_body : $self->foreign_star;
     $self->date_available(DateTime->now->add(seconds=>$self->calculate_travel_time($target)));
     $self->date_started(DateTime->now);
@@ -371,15 +365,15 @@ sub send {
 
     if ($options{target}->isa('Lacuna::DB::Result::Map::Body')) {
         $self->foreign_body_id($options{target}->id);
-        $self->foreign_body($options{target});
+#        $self->foreign_body($options{target});
         $self->foreign_star_id(undef);
-        $self->foreign_star(undef);
+#        $self->foreign_star(undef);
     }
     elsif ($options{target}->isa('Lacuna::DB::Result::Map::Star')) {
         $self->foreign_star_id($options{target}->id);
-        $self->foreign_star($options{target});
+#        $self->foreign_star($options{target});
         $self->foreign_body_id(undef);
-        $self->foreign_body(undef);
+#        $self->foreign_body(undef);
     }
     else {
         confess [1002, 'You cannot send a ship to a non-existant target.'];
@@ -393,6 +387,7 @@ sub finish_construction {
     $self->body->empire->add_medal($self->type);
     $self->task('Docked');
     $self->date_available(DateTime->now);
+    $self->shipyard_id(0);
     $self->update;
 }
 
@@ -418,12 +413,7 @@ sub land {
     return $self;
 }
 
-
-
-
 # DISTANCE
-
-
 
 sub calculate_travel_time {
     my ($self, $target) = @_;
@@ -445,3 +435,4 @@ sub travel_time {
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
+
