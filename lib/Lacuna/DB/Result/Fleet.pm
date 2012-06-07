@@ -2,10 +2,13 @@ package Lacuna::DB::Result::Fleet;
 
 use Moose;
 use utf8;
-no warnings qw(uninitialized);
+#no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date randint);
 use DateTime;
+use Digest::MD4 qw(md4_hex);
+use JSON;
+
 use feature "switch";
 
 has 'hostile_action' => (
@@ -113,6 +116,85 @@ use constant pilotable              => 0;
 use constant target_building        => [];
 use constant build_tags             => [];
 use constant splash_radius          => 0;
+
+foreach my $method (qw(insert update)) {
+    around $method => sub {
+        my $orig = shift;
+        my $self = shift;
+
+        # Recalculate the ship mark
+        my $mark = '';
+        for my $arg (qw(body_id shipyard_id date_started date_available type task name speed stealth
+            combat hold_size roundtrip direction foreign_body_id foreign_star_id berth_level
+            )) {
+            $mark .= $self->$arg || '';
+            $mark .= '#';
+        }
+        $mark .= encode_json $self->payload;
+        $mark = md4_hex($mark);
+        $self->mark(substr $mark,0,10);
+        if ($method eq 'update') {
+            # For an update, see if there is another fleet with the same mark
+            
+            my ($other_fleet) = $self->result_source->resultset->search({
+                mark    => $self->mark,
+                id      => {'!=' => $self->id},
+            });
+            if ($other_fleet) {
+                # Merge the other fleet into this one
+#print STDERR "MERGING FLEETS: [".$self->id."][".$self->quantity."] - [".$other_fleet->id."][".$other_fleet->quantity."]\n";
+                $self->quantity($self->quantity + $other_fleet->quantity);
+                $other_fleet->delete;
+            }
+
+        }
+        # we don't merge on an insert, this is to allow us to 'clone' an existing fleet
+        # and only merge it later when the new clone is updated
+        
+        return $self->$orig(@_);
+    };
+}
+
+# Delete a quantity of ships from a fleet
+sub delete_quantity {
+    my ($self, $quantity) = @_;
+
+    my $new_quantity = $self->quantity - $quantity;
+    if ($new_quantity <= 0) {
+        $self->delete;
+    }
+    else {
+        $self->quantity($new_quantity);
+        $self->update;
+    }
+    return $self;
+}
+
+# split some ships from a fleet to create a new fleet
+sub split {
+    my ($self, $quantity) = @_;
+
+    # check that there are enough ships
+    if ($quantity > $self->quantity) {
+        return;
+    }    
+    # update the original fleet with the reduced quantity
+    $self->quantity($self->quantity - $quantity);
+    $self->update;
+    
+    # create a new fleet (note insert does not automatically merge)
+    my $args;
+    for my $arg (qw(mark body_id shipyard_id date_started date_available type task name speed stealth
+        combat hold_size payload roundtrip direction foreign_body_id foreign_star_id berth_level
+        )) {
+        $args->{$arg} = $self->$arg;
+    }
+    $args->{quantity} = $quantity;
+    $args->{shipyard_id} = 0;
+    my $fleet = $self->result_source->resultset->create($args);
+    return $fleet;
+}
+
 
 sub max_occupants {
     my $self = shift;
