@@ -1015,8 +1015,8 @@ sub _fleet_sort_options {
     my ($self, $sort) = @_;
 
     # return the default if it's not one of the following or is 'name'
-    if ( ! $sort || $sort eq 'name' || ! $sort ~~ [qw(combat speed stealth task type)] ) {
-        return [ 'name' ];
+    if ( ! $sort || $sort eq 'name' || ! $sort ~~ [qw(type task combat speed stealth)] ) {
+        return [ 'type' ];
     }
 
     # append name to the sort options
@@ -1031,7 +1031,7 @@ sub view_all_fleets {
     $sort = $self->_fleet_sort_options( $sort // 'type' );
 
     my $attrs = {
-        sort_by => $sort
+        sort_by => 'type',
     };
     $attrs->{rows} = $paging->{items_per_page} if ( defined $paging->{items_per_page} );
     $attrs->{page} = $paging->{page_number} if ( defined $paging->{page_number} );
@@ -1041,7 +1041,7 @@ sub view_all_fleets {
     my $building = $session->current_building;
     my $body = $building->body;
     my @fleet;
-    my $fleets = $building->fleets->search( $filter, $attrs );
+    my $fleets = $body->fleets->search( $filter, $attrs );
     while (my $fleet = $fleets->next) {
         push @fleet, $fleet->get_status;
     }
