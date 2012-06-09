@@ -347,12 +347,12 @@ sub system_saw_combat {
 sub saw_stats {
     my ($self, $body) = @_;
 
-    my $saws = $body->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
+    my @planet_saws = $body->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
 
     my $planet_combat = 0;
     my $cnt = 0;
     my @defending_saws;
-    while (my $saw = $saws->next) {
+    for my $saw (@planet_saws) {
         $cnt++;
         next if $saw->level < 1;
         next if $saw->efficiency < 1;
