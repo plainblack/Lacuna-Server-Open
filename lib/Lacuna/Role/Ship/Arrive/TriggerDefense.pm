@@ -27,8 +27,6 @@ after handle_arrival_procedures => sub {
     $body_attacked->set_last_attacked_by($ship_body->id);
 
     # get SAWs
-#    $self->saw_combat($body_attacked) if $is_planet;
-
     $self->system_saw_combat;
 
     # get allies
@@ -349,33 +347,35 @@ sub system_saw_combat {
 sub saw_stats {
     my ($self, $body) = @_;
 
-    my @saws = $body->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
+    my $saws = $body->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
 
     my $planet_combat = 0;
     my $cnt = 0;
-    foreach my $saw (@saws) {
+    my @defending_saws;
+    while (my $saw = $saws->next) {
         $cnt++;
         next if $saw->level < 1;
         next if $saw->efficiency < 1;
         $planet_combat += int( (5 * ($saw->level + 1) * ($saw->level+1) * $saw->efficiency)/2 + 0.5);
-        push @saws, $saw;
+        push @defending_saws, $saw;
         last if $cnt >= 10;
     }
-    return \@saws, $planet_combat;
+    return \@defending_saws, $planet_combat;
 }
 
 sub saw_combat {
-  my ($self, $saw, $saw_combat) = @_;
+  my ($self, $saw, $total_combat) = @_;
 
+  return if ($saw->combat == 0);
 #  printf "ship:%6d:%5d saw:%6d:%2d:%3d total:%8d ",
-#         $self->id, $self->combat, $saw->id, $saw->level, $saw->efficiency, $saw_combat;
-  if ($self->combat >= $saw_combat) {
+#         $self->id, $self->combat, $saw->id, $saw->level, $saw->efficiency, $total_combat;
+  if ($self->combat >= $total_combat) {
     $saw->spend_efficiency(100);
     $self->saw_disabled($saw);
 #    print "100\n";
   }
   else {
-    my $perc_1 = int( ($self->combat * 100)/$saw_combat + 0.5);
+    my $perc_1 = int( ($self->combat * 100)/$total_combat + 0.5);
     my $perc_2 = int( $self->combat * 100/
                        (5 * ($saw->level + 1) * ($saw->level+1) * $saw->efficiency));
     $perc_2 = 100 if $perc_2 > 99;
@@ -391,7 +391,7 @@ sub saw_combat {
     $saw->start_work({}, 60 * 15);
   }
   $saw->update;
-  $self->damage_in_combat($saw, $saw_combat);
+  $self->damage_in_combat($saw, $total_combat);
 }
 
 1;
