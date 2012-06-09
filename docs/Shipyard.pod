@@ -4,33 +4,54 @@ Ship descriptions are bulky, and are the same every time. As such we've created 
 
  https://servername.lacunaexpanse.com/resources.json
 
+=head1 Fleets
+
+Ships with the same attributes can be built in bulk in a Shipyard. The fleet will appear once in your Shipyard
+build queue but it will represent a quantity of ships.
+
 =head1 Shipyard Methods
 
 Shipyard is accessible via the URL C</shipyard>.
 
-The shipyard is where you build ships. However, you'll need other building types to enable the different kinds of ships that are available. The higher the level of the shipyard, faster your ships will be built.
+The shipyard is where you construct ships. However, there are pre-requisites, such as other buildings or university
+level for certain ships. The higher the level of the shipyard, the faster your ships will be built.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+
 
  
 =head2 view_build_queue ( session_id, building_id, [page_number])
 
-Retrieves what is already being built at this shipyard.
+Retrieves what ships are being constructed at this shipyard.
 
  {
-     "status" : { ... },
-     "number_of_ships_building" : 30,
-     "cost_to_subsidize" : 30,
-     "ships_building" : [
-         {
-             "id" : "1234",
-             "type" : "spy_pod",
-             "type_human" : "Spy Pod",
-             "date_completed" : "01 31 2010 13:09:05 +0600"
-         }
-         ...
-     ]
+   "status" : { ... },
+   "number_of_fleets_building" : 10,
+   "cost_to_subsidize" :  30,
+   "fleets_building" : [
+     {
+       "id" :             "1234",
+       "type" :           "spy_pod",
+       "type_human" :     "Spy Pod",
+       "date_completed" : "01 31 2010 13:09:05 +0600",
+       "quantity" :       "10"
+     }
+     ...
+   ]
  }
+
+The response gives the B<number_of_fleets_building> and the B<cost_to_subsidize>, note that the
+cost is based on the total number of ships being constructed, not the number of fleets.
+
+B<fleets_building> is an array of the fleets in the build queue sorted from first to complete
+to last.
+
+Note, no ships in a fleet will become available until all ships in the fleet have been completed.
+
+Because of efficiency of scale, building a fleet of several ships is quicker than building the
+same number of ships individually.
+
 
 =head3 session_id
 
@@ -44,11 +65,14 @@ The unique id of this shipyard.
 
 Defaults to 1. An integer representing the page of data to view. There are 25 items per page.
  
- 
- 
+
+
+
 =head2 subsidize_build_queue ( session_id, building_id )
 
-Will spend 1 essentia per ship to complete the current build queue immediately. Returns C<view>.
+Will spend 1 essentia per ship to complete the current build queue immediately.
+
+Returns B<view>
 
 Throws 1011.
 
@@ -60,69 +84,53 @@ A session id.
 
 The unique id of the Shipyard.
 
- 
-=head2 subsidize_ship ( parameter_hash )
-
-Will spend 1 essentia to complete the build of the specified ship.
-
-This accepts a hash of named arguments.
-
-  {
-    "session_id"    : 1234-123-123,
-    "building_id"   : 4567,
-    "ship_id"       : 88478,
-  }
-
-Throws 1011.
-
-=head3 session_id (required)
-
-A session id.
-
-=head3 building_id (required)
-
-The unique id of the Shipyard.
-
-=head3 ship_id (required)
-
-The unique id of the Ship, as returned in C<view_build_queue>
-
-=head3 RESPONSE
-
-Returns the same as C<view_build_queue>
-
 =head2 get_buildable ( session_id, building_id, [ tag ] )
 
-Returns a list of buildable ships and their costs, and if they're not buildable, gives a reason why not in the form of an exception.
+Returns a list of ships that can be constructed and their costs, and if they're not buildable, 
+gives a reason why not in the form of an exception.
 
  {
-    "buildable" : {
-        "probe" : {
-            "can" : 1,             # can it be built or not
-            "reason" : null,       # if it can't an array ref will be here with the exception for why not
-            "cost" : {
-                "seconds" : 900,
-                "food" : 1100,
-                "water" : 1000,
-                "energy" : 1200,
-                "ore" : 1200,
-                "waste" : 100,
-            },
-            attributes : {
-                "speed" : 1000,    # 100 roughly equals 1 star in 1 hour
-                "hold_size" : 1000,
-                "max_occupants" : 2,
-                "combat" : 0,
-                "stealth" : 1500
-            }
-        },
+   "buildable" : {
+     "probe" : {
+       "type_human" :    "Probe",
+       "can" :           1,
+       "reason" :        null,
+       "cost" : {
+         "seconds" :       900,
+         "food" :          1100,
+         "water" :         1000,
+         "energy" :        1200,
+         "ore" :           1200,
+         "waste" :         100,
+       },
+       "attributes" : {
+         "speed" :         1000, # 100 roughly equals 1 star in 1 hour
+         "hold_size" :     1000,
+         "max_occupants" : 2,
+         "combat" :        0,
+         "stealth" :       1500,
+         "berth_level" :   5
+       },
+       "tags" : [
+         "Exploration",
+         "Intelligence",
+       ]
+     },
         ...
-    },
-    "docks_available" : 7,         # you can only build ships up to the number of docks you have available
-    "build_queue_max" : 60,        # maximum queueable ships
-    "build_queue_used" : 3,        # ships in queue for all shipyards
-    "status" : { ... },
+   },
+   "docks_available" :   7,
+   "status" : { ... },
  }
+
+The response gives a list of ships, whether the B<can> be build or not, and if not, the B<reason> it cannot
+be built (an arrayref).
+
+The B<cost> represents the cost of producing one ship. B<seconds> is the time it would take to produce one
+ship, but due to efficiency of scale the cost reduces if you build a fleet of ships, the more ships in the
+fleet, the quicker each one is built. 
+
+B<docks_available> returns the number of remaining empty Spaceport docks available. You can't build more ships
+that would fit in your docks.
 
 =head3 session_id
 
@@ -134,7 +142,8 @@ The unique id of the shipyard.
 
 =head3 tag
 
-An optional tag to limit the list of available ships to something shorter. If no tag is specified, then all ships will be displayed.
+An optional tag to limit the list of available ships to something shorter. If no tag is specified, 
+then all ships will be displayed.
 
 =over
 
@@ -164,9 +173,15 @@ Ships that are used to gather resources from space.
 
 =back
 
-=head2 build_ship ( session_id, building_id, type, [ quantity ] )
 
-Adds ships to the build queue. Returns the same thing as C<view_build_queue()>.
+
+
+
+=head2 build_fleet ( session_id, building_id, type, [ quantity ] )
+
+Adds ships to the build queue. 
+
+Returns the same as B<view_build_queue>.
 
 =head3 session_id
 
@@ -182,10 +197,22 @@ A ship type. Get from C<get_buildable>.
 
 =head3 quantity
 
-An optional quantity, if left blank it defaults to 1, otherwise specify the number
-of ships to build up to a maximum of 600. You must have the shipyard capacity, the
-space port capacity and the resources required to build the specified quantity of
-ships.
+An optional quantity, if left blank it defaults to 1 ship.
+
+You may specify any number of ships subject to the following:-
+
+You must have that number of Shipyard construction slots available.
+
+You must have that number of Space Port docks available.
+
+You must have the resources available to build the specified quantity of ships.
+
+Note that by constructing a fleet of multiple ships means that construction is more efficient due to the
+economy of scale, so the total time to construct each ship in the fleet is reduced accordingly. The more
+ships, the quicker each ship is built.
+
+Also note that by constructing a fleet, none of the ships become available until all ships in the fleet 
+are completed.
 
 =head2 build_ships ( session_id, options )
 
@@ -264,3 +291,4 @@ using this option.
 =back
 
 =cut
+
