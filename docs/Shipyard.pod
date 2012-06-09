@@ -132,6 +132,28 @@ fleet, the quicker each one is built.
 B<docks_available> returns the number of remaining empty Spaceport docks available. You can't build more ships
 that would fit in your docks.
 
+B<tags> represent attributes about ships that can be used to filter them. The list is.
+
+=over
+
+=item Trade
+
+=item Colonization
+
+=item SupplyChain
+
+=item WasteChain
+
+=item Intelligence
+
+=item Exploration
+
+=item War
+
+=item Mining
+
+=back
+
 =head3 session_id
 
 A session id.

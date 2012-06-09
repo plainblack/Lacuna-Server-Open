@@ -913,27 +913,28 @@ sub fetch_spies {
 
 
 
-sub view_ships_travelling {
+sub view_fleets_travelling {
     my ($self, $session_id, $building_id, $page_number) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
+
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
     $page_number ||= 1;
     my $body = $building->body;
     my @travelling;
-    my $ships = $body->ships_travelling->search(undef, {rows=>25, page=>$page_number});
-    while (my $ship = $ships->next) {
-        $ship->body($body);
-        push @travelling, $ship->get_status;
+    my $fleets = $body->fleets_travelling->search(undef, {rows=>25, page=>$page_number});
+    while (my $fleet = $fleets->next) {
+        $fleet->body($body);
+        push @travelling, $fleet->get_status;
     }
     return {
-        status                      => $self->format_status($session, $body),
-        number_of_ships_travelling  => $ships->pager->total_entries,
+        status                      => $self->format_status($empire, $body),
+        number_of_fleets_travelling => $fleets->pager->total_entries,
+        number_of_ships_travelling  => 666, # TODO 
         ships_travelling            => \@travelling,
     };
 }
 
-sub _ship_paging_options {
+sub _fleet_paging_options {
     my ($self, $paging) = @_;
 #    for my $key ( keys %{ $paging } ) {
 #        # Throw away bad keys
@@ -952,23 +953,21 @@ sub _ship_paging_options {
     return $paging;
 }
 
-sub _ship_filter_options {
+sub _fleet_filter_options {
     my ($self, $filter) = @_;
 
     # Valid filter options include...
     my $options = {
-        task    => [("Building", "Defend", "Docked", "Mining",
-                     "Orbiting", "Supply Chain", "Travelling",
-                     "Waiting on Trade", "Waste Chain")],
-        tag     => [qw(Trade Colonization Intelligence Exploration War Mining)],
+        task    => [qw(Docked Building Mining Travelling Defend Orbiting),'Waiting On Trade','Supply Chain','Waste Chain'],
+        tag     => [qw(Trade Colonization Intelligence Exploration War Mining SupplyChain WasteChain)],
         type    => [SHIP_TYPES],
     };
 
-    # Pull in the list of ship types by tag
+    # Pull in the list of fleet types by tag
     my %tag;
     for my $type ( SHIP_TYPES ) {
-        my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({ type => $type });
-        for my $tag ( @{$ship->build_tags} ) {
+        my $fleet = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->new({ type => $type });
+        for my $tag ( @{$fleet->build_tags} ) {
             push @{ $tag{$tag} }, $type;
         }
     }
@@ -1012,7 +1011,7 @@ sub _ship_filter_options {
     return $filter;
 }
 
-sub _ship_sort_options {
+sub _fleet_sort_options {
     my ($self, $sort) = @_;
 
     # return the default if it's not one of the following or is 'name'
@@ -1024,12 +1023,12 @@ sub _ship_sort_options {
     return [ $sort, 'name' ];
 }
 
-sub view_all_ships {
+sub view_all_fleets {
     my ($self, $session_id, $building_id, $paging, $filter, $sort) = @_;
 
-    $paging = $self->_ship_paging_options( (defined $paging && ref $paging eq 'HASH') ? $paging : {} );
-    $filter = $self->_ship_filter_options( (defined $filter && ref $filter eq 'HASH') ? $filter : {} );
-    $sort = $self->_ship_sort_options( $sort // 'type' );
+    $paging = $self->_fleet_paging_options( (defined $paging && ref $paging eq 'HASH') ? $paging : {} );
+    $filter = $self->_fleet_filter_options( (defined $filter && ref $filter eq 'HASH') ? $filter : {} );
+    $sort = $self->_fleet_sort_options( $sort // 'type' );
 
     my $attrs = {
         sort_by => $sort
@@ -1042,16 +1041,15 @@ sub view_all_ships {
     my $building = $session->current_building;
     my $body = $building->body;
     my @fleet;
-    my $ships = $building->ships->search( $filter, $attrs );
-    while (my $ship = $ships->next) {
-        $ship->body($body);
-        push @fleet, $ship->get_status;
+    my $fleets = $building->fleets->search( $filter, $attrs );
+    while (my $fleet = $fleets->next) {
+        push @fleet, $fleet->get_status;
     }
 
     return {
-        status                      => $self->format_status($session, $body),
-        number_of_ships             => defined $paging->{page_number} ? $ships->pager->total_entries : $ships->count,
-        ships                       => \@fleet,
+        status                      => $self->format_status($empire, $body),
+        number_of_fleets            => defined $paging->{page_number} ? $fleets->pager->total_entries : $fleets->count,
+        fleets                      => \@fleet,
     };
 }
 
@@ -1333,7 +1331,7 @@ around 'view' => sub {
     return $out;
 };
  
-__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for view_foreign_ships get_ships_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_ships_travelling view_all_ships view_battle_logs mass_scuttle_ship));
+__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for view_foreign_ships get_ships_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

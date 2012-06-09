@@ -873,36 +873,41 @@ Reference to an array of ship ids
 
 
  
-=head2 view_ships_travelling ( session_id, building_id, [ page_number ])
+=head2 view_fleets_travelling ( session_id, building_id, [ page_number ])
 
-Returns a list of the ships that are travelling to or from this planet.
+Returns a list of the fleets that are travelling to or from this planet.
 
-B<NOTE:> All inbound/outbound ships are shown regardless of which space port they will eventually land at.
+B<NOTE:> All inbound/outbound fleetss are shown regardless of which space port they will eventually land at.
 
  {
-    "status" : { ... },
-    "number_of_ships_travelling" : 30,
-    "ships_travelling" : [
-       {
+   "status" : { ... },
+   "number_of_fleets_travelling" : 30,
+   "number_of_ships_travelling" :55,
+   "fleets_travelling" : [
+      {
+        "id" : "id-goes-here",
+        "quantity" : 1,
+        "type" : "probe",
+        "type_human" : "Probe",
+        "date_arrives" : "01 31 2010 13:09:05 +0600",
+        "from" : {
+          "id" : "id-goes-here",
+          "type" : "body",
+          "name" : "Earth",
+         },
+         "to" : {
            "id" : "id-goes-here",
-           "type" : "probe",
-            "type_human" : "Probe",
-           "date_arrives" : "01 31 2010 13:09:05 +0600",
-           "from" : {
-               "id" : "id-goes-here",
-               "type" : "body",
-               "name" : "Earth",
-           },
-           "to" : {
-               "id" : "id-goes-here",
-               "type" : "star",
-               "name" : "Sol",
-           }
+           "type" : "star",
+           "name" : "Sol",
+         }
        },
        ...
     ]
  }
 
+The total B<number_of_fleets_travelling> and the total B<number_of_ships_travelling> in those fleets are returned.
+
+The array reference B<fleets_travelling> shows the number of fleets, and the B<quantity> of ships of each B<type> in each fleet.
 
 =head3 session_id
 
@@ -914,7 +919,7 @@ The unique id of the space port.
 
 =head3 page_number
 
-Defaults to 1. An integer representing which page of ships travelling to view. Each page shows 25 ships.
+Defaults to 1. An integer representing which page of fleets travelling to view. Each page shows 25 fleets.
 
 
 
