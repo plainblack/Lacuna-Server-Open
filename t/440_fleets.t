@@ -14,7 +14,7 @@ my $tester = TestHelper->new->use_existing_test_empire;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
-my $command = $home->command;
+my $command = $home->planetary_command;
 
 my $result;
 

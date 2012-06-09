@@ -1557,7 +1557,7 @@ sub tick {
     }
 
     # get fleet tasks
-    my $fleets = Lacuna->db->resultset('Lacuna::DB::Result::Fleets')->search({
+    my $fleets = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
         body_id         => $self->id,
         date_available  => { '<=' => $now },
         task            => { '!=' => 'Docked' },
