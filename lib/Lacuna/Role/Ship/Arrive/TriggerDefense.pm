@@ -366,7 +366,7 @@ sub saw_stats {
 sub saw_combat {
   my ($self, $saw, $total_combat) = @_;
 
-  return if ($saw->combat == 0);
+  return if ($saw->efficiency == 0);
 #  printf "ship:%6d:%5d saw:%6d:%2d:%3d total:%8d ",
 #         $self->id, $self->combat, $saw->id, $saw->level, $saw->efficiency, $total_combat;
   if ($self->combat >= $total_combat) {
