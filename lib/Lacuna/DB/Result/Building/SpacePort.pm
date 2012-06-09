@@ -143,37 +143,21 @@ before 'can_downgrade' => sub {
     }
 };
 
-
-
-use constant controller_class => 'Lacuna::RPC::Building::SpacePort';
-
-use constant university_prereq => 3;
-
-use constant image => 'spaceport';
-
-use constant name => 'Space Port';
-
-use constant food_to_build => 160;
-
-use constant energy_to_build => 180;
-
-use constant ore_to_build => 220;
-
-use constant water_to_build => 160;
-
-use constant waste_to_build => 100;
-
-use constant time_to_build => 150;
-
-use constant food_consumption => 10;
-
+use constant controller_class   => 'Lacuna::RPC::Building::SpacePort';
+use constant university_prereq  => 3;
+use constant image              => 'spaceport';
+use constant name               => 'Space Port';
+use constant food_to_build      => 160;
+use constant energy_to_build    => 180;
+use constant ore_to_build       => 220;
+use constant water_to_build     => 160;
+use constant waste_to_build     => 100;
+use constant time_to_build      => 150;
+use constant food_consumption   => 10;
 use constant energy_consumption => 70;
-
-use constant ore_consumption => 20;
-
-use constant water_consumption => 12;
-
-use constant waste_production => 20;
+use constant ore_consumption    => 20;
+use constant water_consumption  => 12;
+use constant waste_production   => 20;
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

@@ -6,39 +6,54 @@ no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Lacuna::Constants qw(SHIP_TYPES);
 
+
 sub app_url {
     return '/shipyard';
 }
+
 
 sub model_class {
     return 'Lacuna::DB::Result::Building::Shipyard';
 }
 
+
 sub view_build_queue {
     my ($self, $session_id, $building_id, $page_number) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my $body = $building->body;
+
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    my $body        = $building->body;
     $page_number ||= 1;
-    my @building;
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+    my @constructing;
+    my $fleets = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search(
         { shipyard_id => $building->id, task => 'Building' },
+    );
+    my ($sum) = $fleets->search(undef, {
+        "+select" => [
+            { count => 'id' },
+            { sum   => 'quantity' },
+        ],
+        "+as" => [qw(number_of_fleets number_of_ships)],
+    });
+    $fleets = $fleets->Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search(
         { order_by    => 'date_available', rows => 25, page => $page_number },
-        );
-    while (my $ship = $ships->next) {
-        push @building, {
-            id              => $ship->id,
-            type            => $ship->type,
-            type_human      => $ship->type_formatted,
-            date_completed  => $ship->date_available_formatted,
+    );
+
+    while (my $fleet = $fleets->next) {
+        push @constructing, {
+            id              => $fleet->id,
+            type            => $fleet->type,
+            type_human      => $fleet->type_formatted,
+            date_completed  => $fleet->date_available_formatted,
+            quantity        => $fleet->quantity,
         }
     }
-    my $number_of_ships = $ships->pager->total_entries;
+
     return {
         status                      => $self->format_status($empire, $body),
-        number_of_ships_building    => $number_of_ships,
-        ships_building              => \@building,
-        cost_to_subsidize           => $number_of_ships,
+        number_of_fleets_building   => $sum->get_column('number_of_fleets'),
+        fleets_building             => \@constructing,
+        cost_to_subsidize           => $sum->get_column('number_of_ships'),
         building                    => {
             work        => {
                 seconds_remaining   => $building->work_seconds_remaining,
@@ -52,13 +67,13 @@ sub view_build_queue {
 
 sub subsidize_build_queue {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my $body = $building->body;
 
-    my $ships = $building->building_ships;
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    my $body        = $building->body;
+    my $ships       = $building->building_ships;
+    my $cost        = $ships->count;
 
-    my $cost = $ships->count;
     unless ($empire->essentia >= $cost) {
         confess [1011, "Not enough essentia."];    
     }
@@ -75,62 +90,59 @@ sub subsidize_build_queue {
 }
 
 
-sub build_ship {
+sub build_fleet {
     my ($self, $session_id, $building_id, $type, $quantity) = @_;
+
     $quantity = defined $quantity ? $quantity : 1;
-    if ($quantity > 50) {
-        confess [1011, "You can only build up to 50 ships at a time"];
-    }
     if ($quantity <= 0 or int($quantity) != $quantity) {
         confess [1001, "Quantity must be a positive integer"];
     }
-    my $costs;
     my $empire      = $self->get_empire_by_session($session_id);
     my $building    = $self->get_building($empire, $building_id);
     my $body_id     = $building->body_id;
 
-    for (1..$quantity) {
-        my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type => $type});
-        if (not defined $costs) {
-            $costs = $building->get_ship_costs($ship);
-            $building->can_build_ship($ship, $costs, $quantity);
-        }
-        $building->spend_resources_to_build_ship($costs);
-        $building->build_ship($ship, $costs->{seconds});
-        $ship->body_id($body_id);
-        $ship->update;
-    }
+    my $fleet = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->new({
+        type        => $type, 
+        quantity    => $quantity,
+        body_id     => $body_id,
+    });
+    my $costs = $building->get_fleet_costs($fleet);
+    $building->can_build_fleet($fleet, $costs);
+    $building->spend_resources_to_build_fleet($costs);
+    $fleet->update;
+
     return $self->view_build_queue($empire, $building);
 }
 
 
 sub get_buildable {
     my ($self, $session_id, $building_id, $tag) = @_;
+
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my %buildable;
     foreach my $type (SHIP_TYPES) {
-        my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>$type});
-        my @tags = @{$ship->build_tags};
+        my $fleet = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->new({ type => $type, quantity => 1 });
+        my @tags = @{$fleet->build_tags};
         if ($tag) {
             next unless ($tag ~~ \@tags);
         }
-        my $can = eval{$building->can_build_ship($ship)};
+        my $can = eval{$building->can_build_fleet($fleet)};
         my $reason = $@;
         $buildable{$type} = {
             attributes  => {
-                speed           => $building->set_ship_speed($ship),
-                stealth         => $building->set_ship_stealth($ship),
-                hold_size       => $building->set_ship_hold_size($ship),
-                berth_level     => $ship->base_berth_level,
-                combat          => $building->set_ship_combat($ship),
-                max_occupants   => $ship->max_occupants
+                speed           => $building->set_fleet_speed($fleet),
+                stealth         => $building->set_fleet_stealth($fleet),
+                hold_size       => $building->set_fleet_hold_size($fleet),
+                berth_level     => $fleet->base_berth_level,
+                combat          => $building->set_fleet_combat($fleet),
+                max_occupants   => $fleet->max_occupants
             },
             tags        => \@tags,
-            cost        => $building->get_ship_costs($ship),
+            cost        => $building->get_fleet_costs($fleet),
             can         => ($can) ? 1 : 0,
             reason      => $reason,
-            type_human  => $ship->type_formatted,
+            type_human  => $fleet->type_formatted,
         };
     }
     my $docks = 0;
@@ -146,7 +158,7 @@ sub get_buildable {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_buildable build_ship view_build_queue subsidize_build_queue));
+__PACKAGE__->register_rpc_method_names(qw(get_buildable build_fleet view_build_queue subsidize_build_queue));
 
 
 no Moose;

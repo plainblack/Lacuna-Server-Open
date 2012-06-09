@@ -307,13 +307,6 @@ sub prereq_buildings {
     return \@buildings;
 }
 
-sub get_a_building {
-    my ($self,$class) = @_;
-
-    my ($building) = grep { $_->class eq "Lacuna::DB::Result::Building::$class" } @{$self->building_cache};
-    return $building;
-}
-
 sub get_status {
     my ($self) = @_;
     my %out = (
