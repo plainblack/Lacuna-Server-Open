@@ -804,7 +804,7 @@ sub view_all_fleets {
     $sort = $self->_fleet_sort_options( $sort // 'type' );
 
     my $attrs = {
-        sort_by => 'type',
+        order_by => $sort,
     };
     $attrs->{rows} = $paging->{items_per_page} if ( defined $paging->{items_per_page} );
     $attrs->{page} = $paging->{page_number} if ( defined $paging->{page_number} );
@@ -812,6 +812,7 @@ sub view_all_fleets {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my $body = $building->body;
+
     my @fleet;
     my $fleets = $body->fleets->search( $filter, $attrs );
     while (my $fleet = $fleets->next) {
