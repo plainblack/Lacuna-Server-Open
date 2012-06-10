@@ -29,3 +29,5 @@ create table fleet (
     constraint wc_f_foreign_star_id foreign key (foreign_star_id) references star (id)
 );
 
+delete building from body,building where building.body_id=body.id and building.class not like "%Perm%" and body.empire_id is null;
+

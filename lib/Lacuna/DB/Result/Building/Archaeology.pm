@@ -346,51 +346,59 @@ sub found_plan {
 }
 
 sub found_artifact {
-  my ($self, $body, $level) = @_;
+    my ($self, $body, $amlevel) = @_;
   
-  my $plan_types = plans_of_type();
-  my $artifacts;
-  foreach my $building (@{$body->building_cache}) {
-    unless ( grep { $building->class eq $_ } @{$plan_types->{disallow}}) {
-      push @{$artifacts}, $building;
+    my $plan_types = plans_of_type();
+    my $artifacts;
+    foreach my $building (@{$body->building_cache}) {
+        unless ( grep { $building->class eq $_ } @{$plan_types->{disallow}}) {
+            push @{$artifacts}, $building;
+        }
     }
-  }
-  return (0,0,"Nothing") unless (defined($artifacts));
-  my $select = random_element($artifacts);
-  my $class; my $lvl; my $plus; my $name; my $bld_destroy;
-  if ($level > $select->level and randint(1, int(3 * $level/2)) >= $select->level) {
-    $class = $select->class;
-    $lvl   = 1;
-    $plus  = int( ($select->level - 1) * 2/3); #Max doable would be 1+18
-    $name  = $select->name;
-    $bld_destroy = 100;
-  }
-  elsif (randint(1,2) == 1) {
-    $class = $select->class;
-    $lvl   = 1;
-    $plus  = 0;
-    $name  = $select->name;
-    $bld_destroy = 10;
-  }
-  else {
-    $class = $select->class;
-    $lvl   = randint(1,$select->level); # Slight chance of getting a level 30 plan.
-    $plus  = 0;
-    $name  = $select->name;
-    $bld_destroy = 25;
-  }
-  $lvl = 30  if ($lvl > 30);
-  $plus = 30 if ($plus > 30);
-  $self->body->add_plan($class, $lvl, $plus);
-  if ($select->level == 1 or randint(0,99) < $bld_destroy) {
-    $select->delete;
-  }
-  else {
-    $select->level($select->level - 1);
-    $select->update;
-  }
+    return (0,0,"Nothing") unless (defined($artifacts));
+    my $select = random_element($artifacts);
+    my $class; my $plan_level; my $plus = 0; my $name; my $bld_destroy;
+    if ($amlevel > $select->level and randint(1, int(3 * $amlevel/2)) >= $select->level) {
+        $class = $select->class;
+        $plan_level   = 1;
+        $plus  = int( ($select->level - 1) * 3/5); #Max doable would be 1+17
+        $name  = $select->name;
+        $bld_destroy = 100;
+    }
+    elsif (randint(1,2) == 1) {
+        $class = $select->class;
+        if ($select->level == 1 and (randint(0,99) < 50) ) {
+            $plan_level   = 0;
+            $bld_destroy = 100;
+            $name = "Nothing";
+        }
+        else {
+            $plan_level   = 1;
+            $bld_destroy = 10;
+            $name  = $select->name;
+        }
+        $plus  = 0;
+    }
+    else {
+        $class = $select->class;
+        $plan_level   = randint(1,$amlevel); # Slight chance of getting a level 30 plan.
+        $plan_level = $select->level if ($plan_level > $select->level);
+        $plus  = 0;
+        $name  = $select->name;
+        $bld_destroy = 35;
+    }
+    $plan_level = 30  if ($plan_level > 30);
+    $plus = 30 if ($plus > 30);
+    $self->body->add_plan($class, $plan_level, $plus) if ($plan_level >= 1);
+    if ($select->level == 1 or randint(0,99) < $bld_destroy) {
+        $select->delete;
+    }
+    else {
+        $select->level($select->level - 1);
+        $select->update;
+    }
 
-  return ($lvl, $plus, $name);
+    return ($plan_level, $plus, $name);
 }
 
 sub found_glyph {
