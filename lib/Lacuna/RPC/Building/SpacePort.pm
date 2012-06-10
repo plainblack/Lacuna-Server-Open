@@ -1048,9 +1048,9 @@ sub view_all_fleets {
     }
 
     return {
-        status                      => $self->format_status($empire, $body),
-        number_of_fleets            => defined $paging->{page_number} ? $fleets->pager->total_entries : $fleets->count,
-        fleets                      => \@fleet,
+        status              => $self->format_status($empire, $body),
+        number_of_fleets    => defined $paging->{page_number} ? $fleets->pager->total_entries : $fleets->count,
+        fleets              => \@fleet,
     };
 }
 
@@ -1316,21 +1316,23 @@ sub view_battle_logs {
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    my $out = $orig->($self, $session, $building);
-    return $out unless $building->effective_level > 0;
-    my $docked = $building->ships->search({ task => 'Docked' });
+
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id, skip_offline => 1);
+    my $out         = $orig->($self, $empire, $building);
+    return $out unless $building->level > 0;
+
+    my $docked = $building->body->fleets->search({ task => 'Docked' });
     my %ships;
-    while (my $ship = $docked->next) {
-        $ships{$ship->type}++;
+    while (my $fleet = $docked->next) {
+        $ships{$fleet->type} += $fleet->quantity;
     }
     $out->{docked_ships} = \%ships;
     $out->{max_ships} = $building->max_ships;
     $out->{docks_available} = $building->docks_available;
     return $out;
 };
+
  
 __PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for view_foreign_ships get_ships_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
 
