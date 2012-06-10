@@ -4,6 +4,7 @@
  - Mod: Where previously you referred to a single ship, you now refer to a collection
  - Mod: The maximum level of Shipyard on a colony is now used in calculating a new ships attributes
  - Mod: 'own' and 'ally' on the incoming report for a Space Station now are in relation to your own empire.
+ - Fix: Ships now correctly sort in type/name order in Space Port view tab
 
 3.0859:
  - Mod: Web UI, arch min has better display of glyphs, can produce multiple plans in one go
