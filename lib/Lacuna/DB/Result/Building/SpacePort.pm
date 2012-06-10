@@ -19,9 +19,10 @@ sub ships {
     });
 }
 
-sub foreign_ships {
+# show all ships incoming to this planet
+sub incoming_fleets {
     my ($self) = @_;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+    return Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search(
         {
             foreign_body_id => $self->body_id,
             direction       => 'out',
