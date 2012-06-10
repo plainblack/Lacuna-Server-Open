@@ -1,6 +1,8 @@
 3.0854:
  - Add: Backend support only for fleet actions. No changes to gameplay at this time.
  - Fix: None-permanent buildings on abandoned planets have been cleared.
+ - Fix: Spies no longer stealing level 1 buildings.
+ - Fix: 0% Efficiency Saws will no longer shoot down zero combat ships.
 
 3.0853:
  - Mod: Excavator destruction will trigger a replacement excavator to be sent if available.
