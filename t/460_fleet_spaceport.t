@@ -50,6 +50,9 @@ while (my $fleet = $fleets->next) {
     is($result_fleet->{quantity}, $fleet->quantity, "Quantities are the same");
 }
 
+$result = $tester->post('spaceport','view_incoming_fleets', [$session_id, $space_port->id]);
+
+
 
 done_testing;
 

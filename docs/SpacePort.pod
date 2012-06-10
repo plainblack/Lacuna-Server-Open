@@ -133,7 +133,8 @@ Optional. A hash reference that contains the filter criteria. Valid filter optio
 
 =head4 task
 
-Optional. An array reference or string with the task(s) to filter on. Valid tasks include Building, Defend, Docked, Mining, Orbiting, Supply Chain, Travelling, Waiting on Trade, and Waste Chain
+Optional. An array reference or string with the task(s) to filter on. Valid tasks include Docked, Building, 
+Mining, Travelling, Defend, Orbiting, 'Waiting On Trade', 'Supply Chain' and 'Waste Chain'.
 
 =head4 type
 
@@ -141,7 +142,8 @@ Optional. An array reference or string with the type(s) to filter on. Valid type
 
 =head4 tag
 
-Optional. An array reference or string with the tag(s) to filter on. Valid tags include Trade, Colonization, Intelligence, Exploration, War, and Mining.
+Optional. An array reference or string with the tag(s) to filter on. Valid tags include Trade, Colonization, 
+Intelligence, Exploration, War, Mining, SupplyChain WasteChain.
 
 Note: Tags will be converted to types prior to filtering and any types that were passed will be replaced.
 
@@ -158,42 +160,58 @@ Note: Tags will be converted to types prior to filtering and any types that were
 Optional. A string with the column to sort on. Defaults to 'type'. (A second sort column, 'name', is added to your chosen sort column.) Valid columns to sort on include: combat, name, speed, stealth, task, and type.
 
 
-=head2 view_foreign_ships ( session_id, building_id, page_number )
 
-Shows you all the foreign ships that are incoming. However, the list is filtered by the stealth of the ship vs the level of the SpacePort. The formula is:
+=head2 view_incoming_fleets ( session_id, building_id, page_number )
 
- 350 * SpacePort Level >= Ship Stealth
+Shows you all fleets not based on this colony which are incoming.
 
-If your SpacePort exceeds the Ship's Stealth, then you'll see it incoming. Otherwise you won't.
+However the list is filtered depending upon the stealth of the ship vs the level of the spaceport.
+
+To see the C<from> block :-
+
+ SpacePort Level * 450 >= Fleet Stealth
+
+To see the ship type and name :-
+
+ SpacePort level * 350 >= Fleet Stealth
+
+Note that you will always see full info for your own, or allied incoming ships.
 
  {
-    "ships" : [
-        {
-            "id" : "id-goes-here",
-            "name" : "CS3",
-            "type_human" : "Cargo Ship",
-            "type" : "cargo_ship",
-            "date_arrives" : "02 01 2010 10:08:33 +0600",
-            "can_recall" : "0",
-            "can_scuttle" : "0",
-            "from" : {
-                "id" : "id-goes-here",
-                "name" : "Earth",
-                "empire" : {
-                    "id" : "id-goes-here",
-                    "name" : "Earthlings"
-                }
-            }
-        },
-        ...
-    ],
-    "number_of_ships" : 13,
-    "status" : { ... }
+   "fleets" : [
+     {
+       "id" : "id-goes-here",
+       "quantity" : 2,
+       "name" : "CS3",
+       "type_human" : "Cargo Ship",
+       "type" : "cargo_ship",
+       "date_arrives" : "02 01 2010 10:08:33 +0600",
+       "from" : {
+         "id" : "id-goes-here",
+         "name" : "Earth",
+         "empire" : {
+           "id" : "id-goes-here",
+           "name" : "Earthlings"
+         }
+       }
+     },
+     {
+       "id" : "id-goes-here",
+       "quantity" : 5,
+       "name" : "Unknown",
+       "type" : "Unknown",
+       "type_human" : "Unknown",
+       "date_arrives" : "02 01 2010 14:33:01 +0600",
+       "from" : {},
+     }
+     ...
+   ],
+   "number_of_fleets" : 13,
+   "status" : { ... }
  }
 
-The C<from> block is only included if
 
- 450 * SpacePort Level >= Ship Stealth
+The fleets are ordered with the one's due to arrive first at the top of the list
 
 =head3 session_id
 
@@ -206,6 +224,8 @@ The unique id of the space port.
 =head3 page_number
 
 Defaults to page 1. Shows 25 at a time.
+
+
 
 =head2 get_fleet_for ( session_id, from_body_id, target )
 

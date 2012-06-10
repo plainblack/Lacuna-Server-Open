@@ -228,7 +228,7 @@ __PACKAGE__->belongs_to('star', 'Lacuna::DB::Result::Map::Star', 'star_id');
 __PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Alliance', 'alliance_id', { join_type => 'left', on_delete => 'set null' });
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id', {join_type => 'left'});
 __PACKAGE__->has_many('_buildings','Lacuna::DB::Result::Building','body_id');
-__PACKAGE__->has_many('foreign_ships','Lacuna::DB::Result::Ships','foreign_body_id');
+__PACKAGE__->has_many('foreign_fleets','Lacuna::DB::Result::Fleet','foreign_body_id');
 __PACKAGE__->has_many('fleets','Lacuna::DB::Result::Fleet','body_id');
 
 has building_cache => (

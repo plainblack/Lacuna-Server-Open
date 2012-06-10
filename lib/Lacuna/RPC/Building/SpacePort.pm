@@ -1054,59 +1054,103 @@ sub view_all_fleets {
     };
 }
 
-sub view_foreign_ships {
+# View incoming fleets (not own returning fleets)
+sub view_incoming_fleets {
     my ($self, $session_id, $building_id, $page_number) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    $page_number ||= 1;
+
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
+    my $body        = $building->body;
+    my $now         = time;
+    my $alliance_id = $empire->alliance_id;
+
+    $page_number    ||= 1;
     my @fleet;
-    my $now = time;
-    my $ships = $building->foreign_ships->search({}, {rows=>25, page=>$page_number, join => 'body', order_by => 'date_available'});
-    my $see_ship_type = ($building->effective_level * 350) * ( $building->effective_efficiency / 100 );
-    my $see_ship_path = ($building->effective_level * 450) * ( $building->effective_efficiency / 100 );
-    my @my_planets = $empire->planets->get_column('id')->all;
-    while (my $ship = $ships->next) {
-        if ($ship->date_available->epoch <= $now) {
-            # it might be more efficient to move this out of the loop and just remember those bodies
-            # that need to be ticked. Rather than ticking the same body (potentially) many times
-            $ship->body->tick;
+
+    my $fleets = $building->incoming_fleets->search({}, {
+        rows        => 25, 
+        page        => $page_number, 
+        join        => 'body',
+        prefetch    => 'body',
+        order_by    => 'date_available',
+	});
+
+    my $see_fleet_info  = ($building->level * 350) * ( $building->efficiency / 100 );
+    my $see_fleet_path  = ($building->level * 450) * ( $building->efficiency / 100 );
+    my @my_planets      = $empire->planets->get_column('id')->all;
+
+    # First tick foreign planets (once only irrespective of the number of fleets sent from there)
+    my $foreign_body;
+    # cache for foreign empires
+    my $empires;
+    while (my $fleet = $fleets->next) {
+        if ($fleet->date_available->epoch <= $now) {
+            $foreign_body->{$fleet->body_id} = $fleet;
         }
-        else {
-            my %ship_info = (
-                    id              => $ship->id,
-                    name            => 'Unknown',
-                    type_human      => 'Unknown',
-                    type            => 'unknown',
-                    date_arrives    => $ship->date_available_formatted,
-                    from            => {},
-                    image           => 'unknown',
-                );
-            if ($ship->body_id ~~ \@my_planets || $see_ship_path >= $ship->stealth) {
-                $ship_info{from} = {
-                    id      => $ship->body->id,
-                    name    => $ship->body->name,
-                    empire  => {
-                        id      => $ship->body->empire->id,
-                        name    => $ship->body->empire->name,
-                    },
-                };
-                if ($ship->body_id ~~ \@my_planets || $see_ship_type >= $ship->stealth) {
-                    $ship_info{name} = $ship->name;
-                    $ship_info{type} = $ship->type;
-                    $ship_info{type_human} = $ship->type_formatted;
-                    $ship_info{image}      = $ship->image;
-                }
-            }
-            push @fleet, \%ship_info;
+        $empires->{$fleet->body_id} ||= $fleet->body->empire;
+    }
+    foreach my $foreign_body_id (keys %$foreign_body) {
+        $foreign_body->{$foreign_body_id}->body->tick;
+    }
+
+
+    $fleets->reset;
+    FLEET:
+    while (my $fleet = $fleets->next) {
+        next FLEET if $fleet->date_available->epoch <= $now;
+
+        my $show_fleet_info = 0;
+        my $show_fleet_path = 0;
+        my %fleet_info = (
+            id              => $fleet->id,
+            name            => 'Unknown',
+            type_human      => 'Unknown',
+            type            => 'unknown',
+            date_arrives    => $fleet->date_available_formatted,
+            quantity        => $fleet->quantity,
+            from            => {},
+        );
+        # show all ship details if the fleet is our own or allied
+        if (    $fleet->body_id ~~ \@my_planets
+            or  $see_fleet_path >= $fleet->stealth
+            or  $alliance_id and $empires->{$fleet->body_id}->alliance_id == $alliance_id
+            ) {
+            $show_fleet_info = 1;
+            $show_fleet_path = 1;
         }
+        # show fleet info if the space port is a high enough level
+        if ($see_fleet_path >= $fleet->stealth) {
+            $show_fleet_path = 1;
+        }
+        # see the fleet details if the space port is a high enough level
+        if ($see_fleet_info >= $fleet->stealth) {
+            $show_fleet_info = 1;
+        }
+
+        if ($see_fleet_path) {
+            $fleet_info{from} = {
+                id      => $fleet->body_id,
+                name    => $fleet->body->name,
+                empire  => {
+                    id      => $fleet->body->empire_id,
+                    name    => $empires->{$fleet->body_id}->name,
+                },
+            };
+        }
+        if ($see_fleet_info) {
+            $fleet_info{name} = $fleet->name;
+            $fleet_info{type} = $fleet->type;
+            $fleet_info{type_human} = $fleet->type_formatted;
+        }
+        push @fleet, \%fleet_info;
     }
     return {
-        status                      => $self->format_status($session, $building->body),
-        number_of_ships             => $ships->pager->total_entries,
-        ships                       => \@fleet,
+        status              => $self->format_status($empire, $building->body),
+        number_of_fleets    => $fleets->pager->total_entries,
+        fleets              => \@fleet,
     };
 }
+
 
 sub view_ships_orbiting {
     my ($self, $session_id, $building_id, $page_number) = @_;
@@ -1334,7 +1378,7 @@ around 'view' => sub {
 };
 
  
-__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for view_foreign_ships get_ships_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
+__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for view_incoming_fleets get_ships_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
