@@ -11,94 +11,93 @@ The list of methods below represents changes and additions to the methods that a
 This method is extended to include a list of docked ships.
 
  {
-    "building" : { ... },
-    "status" : { ... },
-    "max_ships" : 8,
-    "docks_available" : 4,
-    "docked_ships" : {
-        "probe" : 3,
-        "cargo_ship" : 0,
-        "spy_pod" : 1,
-        "colony_ship" : 0,
-        "terraforming_platform_ship": 0,
-        "gas_giant_settlement_platform_ship" : 0,
-        "mining_platform_ship" : 0,
-        "smuggler_ship" : 1,
-        "space_station" : 0,
-    }
+   "building" : { ... },
+   "status" : { ... },
+   "max_ships" : 8,
+   "docks_available" : 4,
+   "docked_ships" : {
+     "probe" : 3,
+     "cargo_ship" : 0,
+     "spy_pod" : 1,
+     "colony_ship" : 0,
+     "terraforming_platform_ship": 0,
+     "gas_giant_settlement_platform_ship" : 0,
+     "mining_platform_ship" : 0,
+     "smuggler_ship" : 1,
+     "space_station" : 0,
+   }
  }
  
 
-=head2 view_all_ships ( session_id, building_id, [ paging, filter, sort ] )
+=head2 view_all_fleets ( session_id, building_id, [ paging, filter, sort ] )
 
-Shows you all your ships whatever they are doing.
+Shows you all your fleets whatever they are doing.
 
  {
-    "ships" : [
-        {
-            "id" : "id-goes-here",
-            "name" : "CS3",
-            "type_human" : "Cargo Ship",
-            "type" : "cargo_ship",
-            "task" : "Travelling",
-            "speed" : "400",
-            "fleet_speed" : "0",
-            "stealth" : "0",
-            "hold_size" : "1200",
-            "berth_level" : "1",
-            "date_started" : "01 31 2010 13:09:05 +0600",
-            "date_available" : "02 01 2010 10:08:33 +0600",
-            "date_arrives" : "02 01 2010 10:08:33 +0600",
-            "can_recall" : "0",
-            "can_scuttle" : "1",
-            "from" : {
-               "id" : "id-goes-here",
-               "type" : "body",
-               "name" : "Earth"
-            },
-            "to" : {
-               "id" : "id-goes-here",
-               "type" : "body",
-               "name" : "Mars"
-            }
-        },
-        {
-            "id" : "id-goes-here",
-            "name" : "F13",
-            "type_human" : "Fighter",
-            "type" : "fighter",
-            "task" : "Defend",
-            "speed" : "2000",
-            "fleet_speed" : "0",
-            "stealth" : "0",
-            "hold_size" : "0",
-            "berth_level" : "1",
-            "date_started" : "01 31 2010 13:09:05 +0600",
-            "date_available" : "02 01 2010 10:08:33 +0600",
-            "date_arrives" : "02 01 2010 10:08:33 +0600",
-            "can_recall" : "0",
-            "can_scuttle" : "1",
-            "from" : {
-               "id" : "id-goes-here",
-               "type" : "body",
-               "name" : "Earth"
-            },
-            "orbiting" : {
-               "id" : "id-goes-here",
-               "type" : "body",
-               "name" : "Mars",
-               "x" : 4,
-               "y" : -3
-            }
-
-        },
+   "fleets" : [
+     {
+       "id" : "id-goes-here",
+       "quantity" : 35,
+       "name" : "CS3",
+       "type_human" : "Cargo Ship",
+       "type" : "cargo_ship",
+       "task" : "Travelling",
+       "speed" : "400",
+       "fleet_speed" : "0",
+       "stealth" : "0",
+       "hold_size" : "1200",
+       "date_started" : "01 31 2010 13:09:05 +0600",
+       "date_available" : "02 01 2010 10:08:33 +0600",
+       "date_arrives" : "02 01 2010 10:08:33 +0600",
+       "can_recall" : "0",
+       "can_scuttle" : "1",
+       "from" : {
+         "id" : "id-goes-here",
+         "type" : "body",
+         "name" : "Earth"
+       },
+       "to" : {
+         "id" : "id-goes-here",
+         "type" : "body",
+         "name" : "Mars"
+       }
+     },
+     {
+       "id" : "id-goes-here",
+       "quantity" : 100,
+       "name" : "F13",
+       "type_human" : "Fighter",
+       "type" : "fighter",
+       "task" : "Defend",
+       "speed" : "2000",
+       "fleet_speed" : "0",
+       "stealth" : "0",
+       "hold_size" : "0",
+       "date_started" : "01 31 2010 13:09:05 +0600",
+       "date_available" : "02 01 2010 10:08:33 +0600",
+       "date_arrives" : "02 01 2010 10:08:33 +0600",
+       "can_recall" : "0",
+       "can_scuttle" : "1",
+       "from" : {
+         "id" : "id-goes-here",
+         "type" : "body",
+         "name" : "Earth"
+       },
+       "orbiting" : {
+         "id" : "id-goes-here",
+         "type" : "body",
+         "name" : "Mars",
+         "x" : 4,
+         "y" : -3
+       }
+     },
         ...
-    ],
-    "number_of_ships" : 13,
-    "status" : { ... }
+   ],
+   "number_of_fleets" : 13,
+   "status" : { ... }
  }
 
-Travelling ships will have a from and to block. Defending fighters will have a from and orbiting block.
+Travelling fleets will have a from and to block. Defending fighters will have a from and orbiting block.
 
 =head3 session_id
 
