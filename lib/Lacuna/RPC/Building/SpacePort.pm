@@ -328,7 +328,7 @@ sub send_fleet {
   $set_speed //= 0;
   my $empire = $self->get_empire_by_session($session_id);
   my $target = $self->find_target($target_params);
-  my $max_ships = Lacuna->config->get('ships_per_fleet') || 50;
+  my $max_ships = Lacuna->config->get('ships_per_fleet') || 20;
   if (@$ship_ids > $max_ships) {
     confess [1009, 'Too many ships for a fleet.'];
   }
