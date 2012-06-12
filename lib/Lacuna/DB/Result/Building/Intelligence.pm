@@ -124,7 +124,8 @@ has training_multiplier => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $multiplier = $self->level
+#        my $multiplier = $self->level
+        my $multiplier = 1
             - $self->body->empire->deception_affinity
             + $self->espionage_level
             + $self->security_level;

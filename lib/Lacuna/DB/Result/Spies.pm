@@ -380,10 +380,14 @@ sub burn {
     my $self = shift;
     my $old_empire = $self->empire;
     my $body = $self->from_body;
-    if ($body->add_news(10, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $old_empire->name)) {
-        $body->spend_happiness(5000);
-        $body->update;
+    my $unhappy = int($self->level * 1000 * 200/75); # Not factoring in Deception, always costs this much happiness.
+    $unhappy = 2000 if ($unhappy < 2000);
+    $body->spend_happiness($unhappy);
+    if ($body->add_news(25, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $old_empire->name)) {
+# If the media finds out, even more unhappy.
+        $body->spend_happiness(int($unhappy/2));
     }
+    $body->update;
     if ($self->on_body->empire_id != $old_empire->id) {
         if (randint(1,100) < $self->level) {
             my $new_empire = $self->on_body->empire;
