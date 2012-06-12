@@ -19,8 +19,6 @@ level for certain ships. The higher the level of the shipyard, the faster your s
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
 
-
- 
 =head2 view_build_queue ( session_id, building_id, [page_number])
 
 Retrieves what ships are being constructed at this shipyard.

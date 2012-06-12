@@ -89,7 +89,6 @@ sub use_existing_test_empire {
         $self->generate_test_empire;
         my $home = $self->empire->home_planet;
 
-print STDERR "### about to build a big colony\n";
         $self->build_big_colony($home);
         $empire = $self->empire;
         # Generate a colony
@@ -102,6 +101,8 @@ print STDERR "### about to build a big colony\n";
         $colony->found_colony($empire);
         $self->build_big_colony($colony);
     }
+    $empire->essentia(1_000_000);
+    $empire->update;
     $self->session($empire->start_session({api_key => 'tester'}));
     $self->empire($empire);
     return $self;
@@ -258,18 +259,9 @@ sub cleanup {
     }
 }
 
-sub finish_fleets {
-    my ( $self, $shipyard ) = @_;
-
-    foreach my $fleet ($shipyard->fleets_under_construction) {
-        $fleet->finish_construction;
-    }
-}
-
 sub build_big_colony {
     my ($self, $planet) = @_;
 
-print STDERR "### Building a big colony\n";
     my $empire = $planet->empire;
     $planet->delete_buildings($planet->building_cache);
     $planet->fleets->delete_all;
@@ -412,6 +404,7 @@ print STDERR "### Building a big colony\n";
             $building->finish_upgrade;
         }
     }
+    $planet->size(121);
     $planet->needs_recalc(1);
     $planet->tick;
     $planet->add_bauxite(10_000_000_000);
@@ -440,12 +433,20 @@ print STDERR "### Building a big colony\n";
         supply_pod4             => 10,
 
     };
-    for my $fleet (keys %$fleets) {
-        my $quantity = $fleets->{$fleet};
+    for my $fleet_type (keys %$fleets) {
+        my $quantity = $fleets->{$fleet_type};
         while ($quantity) {
             my $to_build = min($quantity, 1000);
-            my $result = $self->post('shipyard', 'build_fleet', [$self->session->id, $shipyard->id, $fleet, $to_build]);
-            $self->finish_fleets( $shipyard );
+
+            my $fleet = Lacuna->db->resultset('Fleet')->new({
+                type        => $fleet_type,
+                quantity    => $to_build,
+            });
+            $shipyard->build_fleet($fleet, 1);
+            $fleet->body_id($planet->id);
+            $fleet->insert;
+            $fleet->finish_construction;
+
             $quantity -= $to_build;
         }
     }

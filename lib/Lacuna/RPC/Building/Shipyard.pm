@@ -36,7 +36,7 @@ sub view_build_queue {
         ],
         "+as" => [qw(number_of_fleets number_of_ships)],
     });
-    $fleets = Lacuna->db->resultset('Fleet')->search({},
+    $fleets = $fleets->search({},
         { order_by    => 'date_available', rows => 25, page => $page_number },
     );
 
@@ -51,10 +51,10 @@ sub view_build_queue {
     }
 
     return {
-        status                      => $self->format_status($empire, $body),
+# TODO TODO TODO        status                      => $self->format_status($empire, $body),
         number_of_fleets_building   => $sum->get_column('number_of_fleets'),
         fleets_building             => \@constructing,
-        cost_to_subsidize           => $sum->get_column('number_of_ships'),
+        cost_to_subsidize           => $sum->get_column('number_of_ships') || 0,
         building                    => {
             work        => {
                 seconds_remaining   => $building->work_seconds_remaining,
@@ -72,8 +72,8 @@ sub subsidize_build_queue {
     my $empire      = $self->get_empire_by_session($session_id);
     my $building    = $self->get_building($empire, $building_id);
     my $body        = $building->body;
-    my $ships       = $building->building_ships;
-    my $cost        = $ships->count;
+    my $fleets      = $building->fleets_under_construction;
+    my $cost        = $fleets->count;
 
     unless ($empire->essentia >= $cost) {
         confess [1011, "Not enough essentia."];
@@ -85,8 +85,8 @@ sub subsidize_build_queue {
     });    
     $empire->update;
 
-    while (my $ship = $ships->next) {
-        $ship->finish_construction;
+    while (my $fleet = $fleets->next) {
+        $fleet->finish_construction;
     }
     $building->finish_work->update;
  
