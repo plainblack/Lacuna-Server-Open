@@ -233,14 +233,12 @@ has building_cache => (
 sub _build_building_cache {
     my ($self) = @_;
 
-    my @buildings_cache = $self->_buildings;
-    my @buildings;
-    for my $building (@buildings_cache) {
-#        push @buildings, weaken($building);
-        push @buildings, $building;
+    my $buildings = [];
+    my $bld_rs = $self->_buildings->search({},{prefetch => 'body'});
+    while (my $building = $bld_rs->next) {
+        push @$buildings, $building;
     }
-
-    return \@buildings;
+    return $buildings;
 }
 
 sub building_max_level {
