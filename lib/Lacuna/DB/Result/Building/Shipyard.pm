@@ -13,6 +13,16 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Infrastructure Ships));
 };
 
+# get fleets under construction at this shipyard resultset
+sub fleets_under_construction {
+    my ($self) = @_;
+
+    return Lacuna->db->resultset('Fleet')->search({
+        shipyard_id => $self->id,
+        task        => 'Building',
+    });
+}
+
 # get the costs to construct a fleet
 sub get_fleet_costs {
     my ($self, $fleet) = @_;
@@ -248,7 +258,7 @@ sub shipyard_level {
 sub css_level {
     my ($self, $fleet) = @_;
 
-    return (defined $self->crashed_ship_site) ? $self->crashed_ship_site->level : 0;
+    return (defined $self->body->crashed_ship_site) ? $self->body->crashed_ship_site->level : 0;
 }
 
 # get the propulsion lab level

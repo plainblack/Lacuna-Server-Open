@@ -6,6 +6,103 @@ The Space Port is where all the ships you build will be docked once they have be
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+=head2 target
+
+Some of the Space Port methods allow ships to be sent to targets. This parameter is described here.
+
+A hash reference that can contain one of five items to identify a star or body.
+
+ { "body_name" : "Earth" }
+ 
+ { "body_id" : "id-goes-here" }
+ 
+ { "star_name" : "Sol" }
+ 
+ { "star_id" : "id-goes-here" }
+ 
+ { "x" : 4, "y" : -3 }
+
+=head4 body_name
+
+A string with the body's name. Case insensitive, but will throw an exception for misspelling.
+
+=head4 body_id
+
+The unique id of the body.
+
+=head4 star_name
+
+A string with the star's name. Case insensitive, but will throw an exception for misspelling.
+
+=head4 star_id
+
+The unique id of the star.
+
+=head4 x | y
+
+A set of x,y coordinates to locate the star or body.
+
+=head2 paging
+
+Some of the Space Port methods allow the results to be paged. This parameter is described here.
+
+=head3 paging
+
+Optional. A hash reference that contains the paging criteria. Valid paging option keys include page_number, items_per page and no_paging.
+
+=head4 page_number
+
+Optional. An integer representing the page of ships to return. Defaults to 1.
+
+=head4 items_per_page
+
+Optional. An integer representing the number of items per page to return. Defaults to 25.
+
+=head4 no_paging
+
+Optional. If set to 1, all other paging options are ignored and all results will be retured.
+
+  { "no_paging" : 1 }
+
+  { "page_number" : 2, "items_per_page" : 30 }
+
+=head2 filter
+
+Optional. A hash reference that contains the filter criteria. Valid filter option keys include task, type and tag.
+
+=head3 task
+
+Optional. An array reference or string with the task(s) to filter on. Valid tasks include Docked, Building,
+Mining, Travelling, Defend, Orbiting, 'Waiting On Trade', 'Supply Chain' and 'Waste Chain'.
+
+=head3 type
+
+Optional. An array reference or string with the type(s) to filter on. Valid types are the existing ship types.
+
+=head3 tag
+
+Optional. An array reference or string with the tag(s) to filter on. Valid tags include Trade, Colonization,
+Intelligence, Exploration, War, Mining, SupplyChain WasteChain.
+
+Note: Tags will be converted to types prior to filtering and any types that were passed will be replaced.
+
+  { "task" : "Defend" }
+
+  { "tag" : "Mining" }
+
+  { "task" : "Docked", "type" : "freighter" }
+
+  { "tag" : [ "Colonization", "Exploration" ], "task" : "Travelling" }
+
+=head2 sort
+
+Optional. A string with the column to sort on. Defaults to 'type'. 
+
+Valid columns to sort on are combat, name, speed, stealth, task and type.
+
+A second sort colomn, 'name', is added to your chosen sort column (unless it happened to also be 'name')
+
+
 =head2 view ( session_id, building_id )
 
 This method is extended to include a list of docked ships.
@@ -109,59 +206,18 @@ The unique id of the space port.
 
 =head3 paging
 
-Optional. A hash reference that contains the paging criteria. Valid paging option keys include page_number, items_per page and no_paging.
-
-=head4 page_number
-
-Optional. An integer representing the page of ships to return. Defaults to 1.
-
-=head4 items_per_page
-
-Optional. An integer representing the number of items per page to return. Defaults to 25.
-
-=head4 no_paging
-
-Optional. If set to 1, all other paging options are ignored and all results will be retured.
-
-  { "no_paging" : 1 }
-
-  { "page_number" : 2, "items_per_page" : 30 }
+Optional. See above.
 
 =head3 filter
 
-Optional. A hash reference that contains the filter criteria. Valid filter option keys include task, type and tag.
-
-=head4 task
-
-Optional. An array reference or string with the task(s) to filter on. Valid tasks include Docked, Building, 
-Mining, Travelling, Defend, Orbiting, 'Waiting On Trade', 'Supply Chain' and 'Waste Chain'.
-
-=head4 type
-
-Optional. An array reference or string with the type(s) to filter on. Valid types are the existing ship types.
-
-=head4 tag
-
-Optional. An array reference or string with the tag(s) to filter on. Valid tags include Trade, Colonization, 
-Intelligence, Exploration, War, Mining, SupplyChain WasteChain.
-
-Note: Tags will be converted to types prior to filtering and any types that were passed will be replaced.
-
-  { "task" : "Defend" }
-
-  { "tag" : "Mining" }
-
-  { "task" : "Docked", "type" : "freighter" }
-
-  { "tag" : [ "Colonization", "Exploration" ], "task" : "Travelling" }
+Optional. See above.
 
 =head3 sort
 
-Optional. A string with the column to sort on. Defaults to 'type'. (A second sort column, 'name', is added to your chosen sort column.) Valid columns to sort on include: combat, name, speed, stealth, task, and type.
+Optional. See above.
 
 
-
-=head2 view_incoming_fleets ( session_id, building_id, page_number )
+=head2 view_incoming_fleets ( session_id, building_id, [ paging, filter, sort ] )
 
 Shows you all fleets not based on this colony which are incoming.
 
@@ -211,7 +267,8 @@ Note that you will always see full info for your own, or allied incoming ships.
  }
 
 
-The fleets are ordered with the one's due to arrive first at the top of the list
+The fleets are sorted to show the earliest to arrive at the top of the list.
+ordered with the ones due to arrive first at the top of the list
 
 =head3 session_id
 
@@ -227,96 +284,195 @@ Defaults to page 1. Shows 25 at a time.
 
 
 
-=head2 get_fleet_for ( session_id, from_body_id, target )
 
-Provides a summary of ships that can be included in a fleet action
+=head2 get_available_for
 
-  {
-    "ships" : [
-      {
-        "type" : "sweeper",
-        "type_human" : "Sweeper",
-        "speed" : 10166,
-        "stealth" : 10948,
-        "combat" : 33372,
-        "name"   : "Sweepit",
-        "hold_size" : 0,
-        "quantity" : 103,
-        "estimated_travel_time" : "3654",
-      },
-      {
-        "type" : "sweeper",
-        "type_human" : "Sweeper",
-        "speed" : 10166,
-        "stealth" : 10948,
-        "combat" : 25000,
-        "name"   : "Swifer",
-        "hold_size" : 0,
-        "quantity" : 26,
-        "estimated_travel_time" : "3745",
-      },
-      {
-        "type" : "surveyor",
-        "type_human" : "Surveyor",
-        "speed" : 9030,
-        "stealth" : 9030,
-        "combat" : 3220,
-        "name"   : "Electric Eye",
-        "hold_size" : 0,
-        "quantity" : 24,
-        "estimated_travel_time" : "4123",
-      }
-      ...
-    ],
-    "status" : { ... }
-  }
+=head2 get_unavailable_for
 
-Ships are grouped according to type,speed,stealth and combat, the number of ships in each group is given.
+
+=head2 get_incoming_for ( session_id, target, [ paging, filter, sort ] )
+
+Shows a list of all fleets incoming to the target, either from your own empire or from your allies.
+
+If the target is a colony or Space Station of yours or one of your allies, then it will also show
+all foreign incoming fleets.
+
+ {
+   "incoming" : [
+     {
+       "id" : "id-goes-here",
+       "quantity" : 1,
+       "task" : "Travelling",
+       "details" {
+         "name" : "P13",
+         "mark" : "A3123AB8ED",
+         "type_human" : "Probe",
+         "type" : "probe",
+         "speed" : "1200",
+         "stealth" : "0",
+         "combat" : "0",
+         "hold_size" : "0",
+         "berth_level" : "1",
+         "date_started" : "01 31 2010 13:09:05 +0600",
+         "date_available" : "02 01 2010 10:08:33 +0600",
+         "max_occupants" : "0",
+         "payload" : "{}",
+         "can_scuttle" : "0",
+         "can_recall" : "0",
+       },
+       "date_arrives" : "02 01 2010 10:08:33 +0600",
+       "from" : {
+         "id" : "id-goes-here",
+         "type" : "body",
+         "name" : "Earth",
+         "association" : "Allied",
+         "empire" : {
+           "id" : "id-goes-here",
+           "name" : "Earthlings"
+         }
+       },
+       "to" : {
+         "id" : "id-goes-here",
+         "type" : "star",
+         "name" : "Sol"
+       }
+     },
+     ...
+   ],
+   "status" : { ... }
+ }
+
+B<association> in the B<from> section specifies either 'Own', 'Allied" or "Foreign" depending upon
+who the fleet is from.
+
+You will only see 'foreign' ships if the target is one of your own, or an allies planet, and then
+the fleet information will be filtered depending upon the highest level of Spaceport on the target.
+
+To see the C<from> block :-
+
+ SpacePort Level * 450 >= Fleet Stealth
+
+To see the C<details> block  :-
+
+ SpacePort level * 350 >= Fleet Stealth
+
+Note that you will always see full info for your own, or allied incoming ships.
 
 =head3 session_id
 
 A session id.
 
-=head3 from_body_id
+=head3 target
 
-The unique id of the planet that should send the ships.
+The target to send the fleet to. See above.
+
+=head3 paging
+
+Optional. see above
+
+=head3 filter
+
+Optional. see above
+
+=head3 sort
+
+Optional. see above
+
+
+=head2 get_orbiting_for ( session_id, target, [ paging, filter, sort ] )
+
+Show a list of all fleets orbiting the target, either from your own empire or from your allies.
+
+ {
+   "orbiting" : [
+     {
+       "id" : "id-goes-here",
+       "quantity" : 1,
+       "name" : "P13",
+       "mark" : "A3123AB8ED",
+       "type_human" : "Probe",
+       "type" : "probe",
+       "task" : "Travelling",
+       "speed" : "1200",
+       "fleet_speed" : "0",
+       "stealth" : "0",
+       "combat" : "0",
+       "hold_size" : "0",
+       "berth_level" : "1",
+       "date_started" : "01 31 2010 13:09:05 +0600",
+       "date_available" : "02 01 2010 10:08:33 +0600",
+       "from" : {
+         "id" : "id-goes-here",
+         "type" : "body",
+         "name" : "Earth"
+       },
+       "orbiting" : {
+         "id" : "id-goes-here",
+         "type" : "star",
+         "name" : "Sol",
+         "x" : -123,
+         "y" : 45,
+       }
+       "max_occupants" : "0",
+       "payload" : "{}",
+       "can_scuttle" : "0",
+       "can_recall" : "0",
+     },
+     ...
+   ],
+   "status" : { ... }
+ }
+
+
+=head3 session_id
+
+A session id.
 
 =head3 target
 
-A hash reference that can contain one of five items to identify a star or body.
+The target to check for orbiting fleets. See above.
 
- { "body_name" : "Earth" }
+=head3 paging
 
- { "body_id" : "id-goes-here" }
+Optional. see above
 
- { "star_name" : "Sol" }
+=head3 filter
 
- { "star_id" : "id-goes-here" }
+Optional. see above
 
- { "x" : 4, "y" : -3 }
+=head3 sort
 
-=head4 body_name
-
-A string with the body's name. Case insensitive, but will throw an exception for misspelling.
-
-=head4 body_id
-
-The unique id of the body.
-
-=head4 star_name
-
-A string with the star's name. Case insensitive, but will throw an exception for misspelling.
-
-=head4 star_id
-
-The unique id of the star.
-
-=head4 x | y
-
-A set of x,y coordinates to locate the star or body.
+Optional. see above
 
 
-=head2 get_ships_for ( session_id, from_body_id, target )
+=head2 get_mining_for ( session_id, target )
+
+Show a list of all mining platforms on this asteroid.
+
+ {
+   "mining_platforms" : [
+     {
+       empire_id   =>  "id-goes-here",
+       empire_name => "The Peeps From Across The Street"
+     },
+     ...
+   ],
+   "status" : { ... }
+ }
+
+
+=head3 session_id
+
+A session id.
+
+=head3 target
+
+The target to check for mining platforms. See above.
+
+
+
+
+
 
 Provides a list of incoming ships and ships that are available to send to a specific target. Use with C<send_ship>.
 

@@ -10,6 +10,7 @@ use JSON qw(to_json from_json);
 use Data::Dumper;
 use 5.010;
 use Test::More;
+use List::Util qw(min max);
 
 has ua => (
     is  => 'ro',
@@ -57,7 +58,7 @@ sub clear_all_test_empires {
 
     $name = 'TLE Test%' unless $name;
 
-    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({
+    my $empires = Lacuna->db->resultset('Empire')->search({
         name => {like => $name},
     });
     while (my $empire = $empires->next) {
@@ -72,7 +73,9 @@ sub clear_all_test_empires {
             $planet->delete_buildings(\@buildings);
         }
 
+        Lacuna->db->resultset('Log::Essentia')->search({empire_id => $empire->id})->delete;
         $empire->delete;
+
     }
 }
 
@@ -85,8 +88,19 @@ sub use_existing_test_empire {
     if (not $empire) {
         $self->generate_test_empire;
         my $home = $self->empire->home_planet;
+
+print STDERR "### about to build a big colony\n";
         $self->build_big_colony($home);
         $empire = $self->empire;
+        # Generate a colony
+        my ($colony) = Lacuna->db->resultset('Map::Body')->search({
+            empire_id => undef,
+            size      => {'>' => 100},
+            orbit     => $home->orbit,
+            zone      => $home->zone,
+        });
+        $colony->found_colony($empire);
+        $self->build_big_colony($colony);
     }
     $self->session($empire->start_session({api_key => 'tester'}));
     $self->empire($empire);
@@ -244,19 +258,21 @@ sub cleanup {
     }
 }
 
-sub finish_ships {
-	my ( $self, $shipyard_id ) = @_;
-	my $finish = DateTime->now;
+sub finish_fleets {
+    my ( $self, $shipyard ) = @_;
 
-	Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id=>$shipyard_id})->update({date_available=>$finish, task=>'Docked'});
+    foreach my $fleet ($shipyard->fleets_under_construction) {
+        $fleet->finish_construction;
+    }
 }
 
 sub build_big_colony {
     my ($self, $planet) = @_;
 
+print STDERR "### Building a big colony\n";
     my $empire = $planet->empire;
-    $planet->delete_buildings(@{$planet->building_cache});
-    $planet->ships->delete_all;
+    $planet->delete_buildings($planet->building_cache);
+    $planet->fleets->delete_all;
     Lacuna->db->resultset('Spies')->search({from_body_id => $planet->id})->delete_all;
 
     my $layout = {
@@ -396,17 +412,20 @@ sub build_big_colony {
             $building->finish_upgrade;
         }
     }
-    $planet->bauxite_stored(19,000,000,000);
-    $planet->algae_stored(19,000,000,000);
-    $planet->energy_stored(19,000,000,000);
-    $planet->water_stored(19,000,000,000);
     $planet->needs_recalc(1);
-    $planet->update;
     $planet->tick;
+    $planet->add_bauxite(10_000_000_000);
+    $planet->add_algae(10_000_000_000);
+    $planet->add_energy(10_000_000_000);
+    $planet->add_water(10_000_000_000);
+    $planet->update;
+
+
+    $planet->discard_changes;
 
     my ($shipyard) = grep {$_->class eq 'Lacuna::DB::Result::Building::Shipyard'} @{$planet->building_cache};
     diag("Generating ships [".$self->session->id."][".$shipyard->id."]");
-    my $ships = {
+    my $fleets = {
         excavator               => 30,
         probe                   => 20,
         sweeper                 => 1300,
@@ -421,35 +440,13 @@ sub build_big_colony {
         supply_pod4             => 10,
 
     };
-    for my $ship (keys %$ships) {
-        my $result = $self->post('shipyard', 'build_ship', [$self->session->id, $shipyard->id, $ship]);
-        $self->finish_ships( $shipyard->id );
-        if ($ships->{$ship} > 1) {
-            my $ship_id = $result->{result}{ships_building}[0]{id};
-            my $example = Lacuna->db->resultset('Ships')->find($ship_id);
-            diag("Building more ships of type [$ship] id [$ship_id][$example]");
-
-            for (1..$ships->{$ship}) {
-                Lacuna->db->resultset('Ships')->create({
-                    body_id         => $example->body_id,
-                    shipyard_id     => $example->shipyard_id,
-                    date_started    => $example->date_started,
-                    date_available  => $example->date_available,
-                    type            => $example->type,
-                    task            => $example->task,
-                    name            => $example->name,
-                    speed           => $example->speed,
-                    stealth         => $example->stealth,
-                    combat          => $example->combat,
-                    hold_size       => $example->hold_size,
-                    payload         => $example->payload,
-                    roundtrip       => $example->roundtrip,
-                    direction       => $example->direction,
-                    foreign_body_id => $example->foreign_body_id,
-                    foreign_star_id => $example->foreign_star_id,
-                    fleet_speed     => $example->fleet_speed,
-                });
-            }
+    for my $fleet (keys %$fleets) {
+        my $quantity = $fleets->{$fleet};
+        while ($quantity) {
+            my $to_build = min($quantity, 1000);
+            my $result = $self->post('shipyard', 'build_fleet', [$self->session->id, $shipyard->id, $fleet, $to_build]);
+            $self->finish_fleets( $shipyard );
+            $quantity -= $to_build;
         }
     }
     diag("Generating Spies");

@@ -130,7 +130,8 @@ foreach my $method (qw(insert update)) {
             $mark .= $self->$arg || '';
             $mark .= '#';
         }
-        $mark .= encode_json $self->payload;
+        $mark .= $self->payload ? encode_json($self->payload) : '{}';
+ 
         $mark = md4_hex($mark);
         $self->mark(substr $mark,0,10);
         if ($method eq 'update') {
@@ -149,7 +150,7 @@ foreach my $method (qw(insert update)) {
         }
         # we don't merge on an insert, this is to allow us to 'clone' an existing fleet
         # and only merge it later when the new clone is updated
-        
+
         return $self->$orig(@_);
     };
 }

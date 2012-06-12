@@ -48,68 +48,77 @@ sub find_target {
     return $target;
 }
 
-sub get_fleet_for {
-    my ($self, $session_id, $body_id, $target_params) = @_;
 
-    my $session  = $self->get_session({session_id => $session_id, body_id => $body_id });
-    my $empire   = $session->current_empire;
-    my $body     = $session->current_body;
+# Get incoming fleets for a target
+sub get_incoming_for {
+    my ($self, $session_id, $target_params, $paging, $filter, $sort) = @_;
+
+    $paging = $self->_fleet_paging_options( (defined $paging && ref $paging eq 'HASH') ? $paging : {} );
+    $filter = $self->_fleet_filter_options( (defined $filter && ref $filter eq 'HASH') ? $filter : {} );
+    $sort   = $self->_fleet_sort_options( $sort // 'type' );
+
+    my $attrs = {
+        order_by    => $sort,
+        prefetch    => { body => 'empire' },
+    };
+    $attrs->{rows} = $paging->{items_per_page} if ( defined $paging->{items_per_page} );
+    $attrs->{page} = $paging->{page_number} if ( defined $paging->{page_number} );
+
+    my $empire  = $self->get_empire_by_session($session_id);
     my $target  = $self->find_target($target_params);
 
-    my $max_berth   = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( {
-        class       => 'Lacuna::DB::Result::Building::SpacePort',
-        body_id     => $body_id,
-        efficiency  => 100,
-    } )->get_column('level')->max;
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {
-            body_id => $body->id, 
-            task => 'docked',
-            berth_level => {'<=' => $max_berth },
-        },{
-            '+select'   => [{count => 'id'}],
-            '+as'       => [ qw(quantity) ],
-            group_by    => [ qw(type speed stealth combat hold_size name) ],
-        },
-    );
-    my $summary;
-    while (my $ship_group = $ships->next) {
-        eval{ $ship_group->can_send_to_target($target) };
-        my $reason = $@;
-        next if $reason;
-        my $travel_time = Lacuna::DB::Result::Ships->travel_time($body,$target,$ship_group->speed);
-        my $type_human  = Lacuna::DB::Result::Ships->type_human($ship_group->type);
-        my $summation = {
-            type        => $ship_group->type,
-            type_human  => $type_human,
-            speed       => int($ship_group->speed),
-            stealth     => int($ship_group->stealth),
-            combat      => int($ship_group->combat),
-            name        => $ship_group->name,
-            hold_size   => $ship_group->hold_size,
-            quantity    => $ship_group->get_column('quantity'),
-            estimated_travel_time => $travel_time,
-            image       => $ship_group->image,
-        };
-        push @$summary, $summation;
+    my $incoming_rs = Lacuna->db->resultset('Fleet')->search($filter, $attrs);
+    $incoming_rs = $incoming_rs->search({
+        task        => 'Travelling',
+        direction   => 'out',
+    });
+
+    if ($empire->alliance_id) {
+        $incoming_rs = $incoming_rs->search({
+            -or => {
+                'body.empire_id'  => $empire->id,
+                'empire.alliance_id' => $empire->alliance_id,
+            }
+        });
     }
+    else {
+        $incoming_rs = $incoming_rs->search({
+            'body.empire_id' => $empire->id,
+        });
+    }
+    if ($target->isa('Lacuna::DB::Result::Map::Star')) {
+        $incoming_rs = $incoming_rs->search({ foreign_star_id => $target->id });
+    }
+    else {
+        $incoming_rs = $incoming_rs->search({ foreign_body_id => $target->id });
+    }
+    my @incoming;
+    while (my $fleet = $incoming_rs->next) {
+        push @incoming, $fleet->get_status;
+    }
+        
     my %out = (
-        status  => $self->format_status($session, $body),
-        ships   => $summary,
+        status      => $self->format_status($empire),
+        incoming    => \@incoming,
     );
+
     return \%out;
 }
 
-sub get_ships_for {
+
+
+
+# Get a list of fleets that can be sent to a target
+sub get_fleets_for {
     my ($self, $session_id, $body_id, $target_params) = @_;
-    my $session  = $self->get_session({session_id => $session_id, body_id => $body_id });
-    my $empire   = $session->current_empire;
-    my $body     = $session->current_body;
-    my $target = $self->find_target($target_params);
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
+
+    my $empire  = $self->get_empire_by_session($session_id);
+    my $body    = $self->get_body($empire, $body_id);
+    my $target  = $self->find_target($target_params);
+    my $fleets  = Lacuna->db->resultset('Lacuna::DB::Result::Fleet');
     
     my @incoming;
-    my $incoming_rs = $ships->search({
+    my $incoming_rs = $fleets->search({
         task                => 'Travelling', 
         direction           => 'out',
         'body.empire_id'    => $empire->id,
@@ -131,7 +140,7 @@ sub get_ships_for {
 
     my @unavailable;
     my @available;
-    my $available_rs = $ships->search( {task => 'Docked',
+    my $available_rs = $fleets->search( {task => 'Docked',
                                         body_id=>$body->id });
     while (my $ship = $available_rs->next) {
       $ship->body($body);
@@ -163,22 +172,22 @@ sub get_ships_for {
         fleet_send_limit    => $max_ships,
     );
     
-  unless ($target->isa('Lacuna::DB::Result::Map::Star')) {
-    my @orbiting;
-    my $orbiting_rs = $ships->search({task => [qw(Defend Orbiting)], body_id => $body->id, foreign_body_id => $target->id });
-    while (my $ship = $orbiting_rs->next) {
-      $ship->body($body);
-      eval{ $ship->can_recall() };
-      my $reason = $@;
-      if ($reason) {
-        push @unavailable, { ship => $ship->get_status, reason => $reason };
-        next;
-      }
-      $ship->body($body);
-      push @orbiting, $ship->get_status($target);
+    unless ($target->isa('Lacuna::DB::Result::Map::Star')) {
+        my @orbiting;
+        my $orbiting_rs = $fleets->search({task => [qw(Defend Orbiting)], body_id => $body->id, foreign_body_id => $target->id });
+        while (my $ship = $orbiting_rs->next) {
+            $ship->body($body);
+            eval{ $ship->can_recall() };
+                my $reason = $@;
+                if ($reason) {
+                    push @unavailable, { ship => $ship->get_status, reason => $reason };
+                    next;
+                }
+            $ship->body($body);
+            push @orbiting, $ship->get_status($target);
+        }
+        $out{orbiting} = \@orbiting;
     }
-    $out{orbiting} = \@orbiting;
-  }
 
     if ($target->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
         my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({asteroid_id => $target->id});
@@ -1364,7 +1373,10 @@ around 'view' => sub {
     my $empire      = $self->get_empire_by_session($session_id);
     my $building    = $self->get_building($empire, $building_id, skip_offline => 1);
     my $out         = $orig->($self, $empire, $building);
+print STDERR "###### FLEET VIEW [".$building->level."] #######\n";
+
     return $out unless $building->level > 0;
+
 
     my $docked = $building->body->fleets->search({ task => 'Docked' });
     my %ships;
@@ -1378,7 +1390,7 @@ around 'view' => sub {
 };
 
  
-__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for view_incoming_fleets get_ships_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
+__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for get_incoming_for view_incoming_fleets get_fleets_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

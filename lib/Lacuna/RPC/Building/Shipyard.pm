@@ -27,9 +27,8 @@ sub view_build_queue {
     my $body        = $building->body;
     $page_number ||= 1;
     my @constructing;
-    my $fleets = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search(
-        { shipyard_id => $building->id, task => 'Building' },
-    );
+    my $fleets = $building->fleets_under_construction;
+
     my ($sum) = $fleets->search(undef, {
         "+select" => [
             { count => 'id' },
@@ -37,7 +36,7 @@ sub view_build_queue {
         ],
         "+as" => [qw(number_of_fleets number_of_ships)],
     });
-    $fleets = $fleets->Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search(
+    $fleets = Lacuna->db->resultset('Fleet')->search({},
         { order_by    => 'date_available', rows => 25, page => $page_number },
     );
 
@@ -183,15 +182,16 @@ sub build_fleet {
     my $building    = $self->get_building($empire, $building_id);
     my $body_id     = $building->body_id;
 
-    my $fleet = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->new({
+    my $fleet = Lacuna->db->resultset('Fleet')->new({
         type        => $type, 
         quantity    => $quantity,
-        body_id     => $body_id,
     });
     my $costs = $building->get_fleet_costs($fleet);
     $building->can_build_fleet($fleet, $costs);
     $building->spend_resources_to_build_fleet($costs);
-    $fleet->update;
+    $building->build_fleet($fleet, $costs->{seconds});
+    $fleet->body_id($body_id);
+    $fleet->insert;
 
     return $self->view_build_queue($empire, $building);
 }
