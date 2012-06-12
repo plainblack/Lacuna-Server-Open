@@ -788,9 +788,9 @@ before delete => sub {
     $self->votes->delete_all;
     $self->taxes->delete_all;
     $self->propositions->delete_all;
-    Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({ -or => {invitee_id => $self->id, inviter_id => $self->id }})->delete;
+    Lacuna->db->resultset('Invite')->search({ -or => {invitee_id => $self->id, inviter_id => $self->id }})->delete;
     $self->probes->delete;
-    Lacuna->db->resultset('Lacuna::DB::Result::AllianceInvite')->search({empire_id => $self->id})->delete;
+    Lacuna->db->resultset('AllianceInvite')->search({empire_id => $self->id})->delete;
     if ($self->alliance_id) {
         my $alliance = $self->alliance;
         if (defined $alliance && $alliance->leader_id == $self->id) {

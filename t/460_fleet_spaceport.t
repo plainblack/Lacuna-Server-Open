@@ -10,7 +10,13 @@ use 5.010;
 use DateTime;
 
 use TestHelper;
+
+#TestHelper->clear_all_test_empires;
+#diag("Cleared all test empires");
+
 my $tester = TestHelper->new->use_existing_test_empire;
+#diag("Created a test empire");
+
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
@@ -25,10 +31,11 @@ my $space_port = Lacuna->db->resultset('Building')->search({
     rows => 1,
 })->single;
 
-$result = $tester->post('spaceport','view', [$session_id, $space_port->id]);
+diag("Space Port [$space_port] id [".$space_port->id."] level [".$space_port->level."]");
 
-my $sweepers = $result->{result}{docked_ships}{sweeper};
-diag("Sweepers = [$sweepers]");
+## spaceport - view
+##
+$result = $tester->post('spaceport','view', [$session_id, $space_port->id]);
 
 my $fleets = $home->fleets->search({
     task => 'Docked',
@@ -41,6 +48,13 @@ foreach my $ship (sort keys %{$result->{result}{docked_ships}} ) {
     is($result->{result}{docked_ships}{$ship}, $ships->{$ship}, "Correct number of docked $ship");
 }
 
+## spaceport - get_incoming_for
+##      for our homeworld
+$result = $tester->post('spaceport','get_incoming_for', [$session_id, {body_id => $home->id}, {no_paging => 1}]);
+
+
+## spaceport - view_all_fleets
+##
 $result = $tester->post('spaceport','view_all_fleets', [$session_id, $space_port->id, {no_paging => 1}]);
 $fleets = $home->fleets->search;
 while (my $fleet = $fleets->next) {
@@ -50,6 +64,9 @@ while (my $fleet = $fleets->next) {
     is($result_fleet->{quantity}, $fleet->quantity, "Quantities are the same");
 }
 
+
+## spaceport - view_incoming_fleets
+##
 $result = $tester->post('spaceport','view_incoming_fleets', [$session_id, $space_port->id]);
 
 
