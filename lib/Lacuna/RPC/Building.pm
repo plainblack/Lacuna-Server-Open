@@ -78,14 +78,29 @@ sub upgrade {
 }
 
 sub view {
-    my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
-    my $cost = $building->cost_to_upgrade;
-    my $can_upgrade = eval{$building->can_upgrade($cost)};
-    my $upgrade_reason = $@;
-    my $can_downgrade = eval{$building->can_downgrade};
+    my $self = shift;
+    my $args = shift;
+        
+    if (ref($args) ne "HASH") {
+        $args = {
+            session         => $args,
+            building        => shift,
+        };
+    }
+    if ($args->{no_status}) {
+        return {};
+    }
+
+    my $empire          = $self->get_empire_by_session($args->{session});
+    my $building        = $self->get_building($empire, $args->{building}, skip_offline => 1);
+    my $cost            = $building->cost_to_upgrade;
+
+    my $can_upgrade     = eval{$building->can_upgrade($cost)};
+    my $upgrade_reason  = $@;
+
+    my $can_downgrade   = eval{$building->can_downgrade};
     my $downgrade_reason = $@;
+
     my $image_after_upgrade = $building->image_level($building->level + 1);
     my $image_after_downgrade = $building->image_level($building->level > 0 ? $building->level - 1 : 0);
 
