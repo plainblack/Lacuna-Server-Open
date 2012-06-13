@@ -1,6 +1,8 @@
 =head1 Ship Descriptions
 
-Ship descriptions are bulky, and are the same every time. As such we've created a file you can download to include ship descriptions in your client. You should cache this file once you've downloaded and only get it again if it has changed.
+Ship descriptions are bulky, and are the same every time. As such we've created a file you can download 
+to include ship descriptions in your client. You should cache this file once you've downloaded and only 
+get it again if it has changed.
 
  https://servername.lacunaexpanse.com/resources.json
 
@@ -19,9 +21,36 @@ level for certain ships. The higher the level of the shipyard, the faster your s
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
 
-=head2 view_build_queue ( session_id, building_id, [page_number])
+=head2 view_build_queue
 
-Retrieves what ships are being constructed at this shipyard.
+View all fleets currently under construction at this shipyard.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session, building, page_number )
+ ( parameter_hash )
+
+=head3 session (required)
+
+A session ID
+
+=head3 building (required)
+
+This buildings ID
+
+=head3 page_number (optional)
+
+The page number of the results
+
+=head3 items_per_page (optional)
+
+How many items per page. Defaults to 25
+
+=head3 no_paging (optional)
+
+If set to 1, it over-rides items_per_page and page_number and returns all results. Defaults to 0.
+
+=head3 RESPONSE
 
  {
    "status" : { ... },
@@ -42,8 +71,8 @@ Retrieves what ships are being constructed at this shipyard.
 The response gives the B<number_of_fleets_building> and the B<cost_to_subsidize>, note that the
 cost is based on the total number of ships being constructed, not the number of fleets.
 
-B<fleets_building> is an array of the fleets in the build queue sorted from first to complete
-to last.
+B<fleets_building> is an array of the fleets in the build queue sorted with the first fleet to
+complete at the start of the list.
 
 Note, no ships in a fleet will become available until all ships in the fleet have been completed.
 
@@ -51,41 +80,82 @@ Because of efficiency of scale, building a fleet of several ships is quicker tha
 same number of ships individually.
 
 
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of this shipyard.
-
-=head3 page_number.
-
-Defaults to 1. An integer representing the page of data to view. There are 25 items per page.
- 
-
-
-
-=head2 subsidize_build_queue ( session_id, building_id )
+=head2 subsidize_build_queue
 
 Will spend 1 essentia per ship to complete the current build queue immediately.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session, building, page_number )
+ ( parameter_hash )
+  
+=head3 session (required)
+  
+A session ID
+  
+=head3 building (required)
+  
+This buildings ID
+  
+=head3 RESPONSE
 
 Returns B<view>
 
 Throws 1011.
 
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the Shipyard.
-
-=head2 get_buildable ( session_id, building_id, [ tag ] )
+ 
+=head2 get_buildable
 
 Returns a list of ships that can be constructed and their costs, and if they're not buildable, 
-gives a reason why not in the form of an exception.
+gives a reason why not.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session, building, [tag] )
+ ( parameter_hash )
+
+=head3 session (required)
+
+A session ID
+
+=head3 building (required)
+
+This buildings ID
+
+=head3 tag (optional)
+
+An optional tag to limit the list of available ships to something shorter. If no tag is specified,
+then all ships will be displayed.
+
+=over
+
+=item Trade
+
+Ships that can be used to carry resources between colonies.
+
+=item Colonization
+
+Ships used to get more planets.
+
+=item Intelligence
+
+Ships that deal with spies or intelligence gathering.
+
+=item Exploration
+
+Ships that allow the user to go out and explore the Expanse.
+
+=item War
+
+Ships that are used to attack or defend.
+
+=item Mining
+
+Ships that are used to gather resources from space.
+
+=back
+
+=head3 RESPONSE
 
  {
    "buildable" : {
@@ -151,50 +221,6 @@ B<tags> represent attributes about ships that can be used to filter them. The li
 =item Mining
 
 =back
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the shipyard.
-
-=head3 tag
-
-An optional tag to limit the list of available ships to something shorter. If no tag is specified, 
-then all ships will be displayed.
-
-=over
-
-=item Trade
-
-Ships that can be used to carry resources between colonies.
-
-=item Colonization
-
-Ships used to get more planets.
-
-=item Intelligence
-
-Ships that deal with spies or intelligence gathering.
-
-=item Exploration
-
-Ships that allow the user to go out and explore the Expanse.
-
-=item War
-
-Ships that are used to attack or defend.
-
-=item Mining
-
-Ships that are used to gather resources from space.
-
-=back
-
-
-
 
 
 =head2 build_fleet ( session_id, building_id, type, [ quantity ] )

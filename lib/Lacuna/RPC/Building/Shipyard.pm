@@ -20,12 +20,22 @@ sub model_class {
 
 
 sub view_build_queue {
-    my ($self, $session_id, $building_id, $page_number) = @_;
+    my $self = shift;
+    my $args = shift;
 
-    my $empire      = $self->get_empire_by_session($session_id);
-    my $building    = $self->get_building($empire, $building_id);
+    if (ref($args) ne "HASH") {
+        $args = {
+            session         => $args,
+            building        => shift,
+            page_number     => shift,
+            items_per_page  => 25,
+            no_paging       => 0,            
+        };
+    }
+    my $empire      = $self->get_empire_by_session($args->{session});
+    my $building    = $self->get_building($empire, $args->{building});
     my $body        = $building->body;
-    $page_number ||= 1;
+
     my @constructing;
     my $fleets = $building->fleets_under_construction;
 
@@ -36,9 +46,11 @@ sub view_build_queue {
         ],
         "+as" => [qw(number_of_fleets number_of_ships)],
     });
-    $fleets = $fleets->search({},
-        { order_by    => 'date_available', rows => 25, page => $page_number },
-    );
+    $fleets = $fleets->search({},{ order_by => 'date_available'});
+    my $page_number = $args->{page_number} || 1;
+    if (not $args->{no_paging}) {
+        $fleets = $fleets->search({}, {rows => $args->{items_per_page}, page => $page_number} );
+    }
 
     while (my $fleet = $fleets->next) {
         push @constructing, {
@@ -51,7 +63,7 @@ sub view_build_queue {
     }
 
     return {
-# TODO TODO TODO        status                      => $self->format_status($empire, $body),
+        status                      => $args->{no_status} ? {} : $self->format_status($empire, $body),
         number_of_fleets_building   => $sum->get_column('number_of_fleets'),
         fleets_building             => \@constructing,
         cost_to_subsidize           => $sum->get_column('number_of_ships') || 0,
@@ -67,12 +79,20 @@ sub view_build_queue {
 
 
 sub subsidize_build_queue {
-    my ($self, $session_id, $building_id) = @_;
+    my $self = shift;
+    my $args = shift;
 
-    my $empire      = $self->get_empire_by_session($session_id);
-    my $building    = $self->get_building($empire, $building_id);
+    if (ref($args) ne "HASH") {
+        $args = {
+            session         => $args,
+            building        => shift,
+        };
+    }
+    my $empire      = $self->get_empire_by_session($args->{session});
+    my $building    = $self->get_building($empire, $args->{building});
     my $body        = $building->body;
     my $fleets      = $building->fleets_under_construction;
+# TODO TODO
     my $cost        = $fleets->count;
 
     unless ($empire->essentia >= $cost) {
@@ -166,8 +186,7 @@ sub subsidize_ship {
     $scheduled_ship->reschedule_queue;
     $scheduled_ship->finish_construction;
 
-    return $self->view_build_queue($session, $building);
-
+    return $self->view({session => $empire, building => $building, no_status => $args->{no_status}});
 }
 
 
@@ -198,16 +217,26 @@ sub build_fleet {
 
 
 sub get_buildable {
-    my ($self, $session_id, $building_id, $tag) = @_;
+    my $self = shift;
+    my $args = shift;
+        
+    if (ref($args) ne "HASH") {
+        $args = {
+            session         => $args,
+            building        => shift,
+            tag             => shift,
+        };
+    }
+    my $empire      = $self->get_empire_by_session($args->{session});
+    my $building    = $self->get_building($empire, $args->{building});
+    my $body        = $building->body;
 
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
     my %buildable;
     foreach my $type (SHIP_TYPES) {
-        my $fleet = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->new({ type => $type, quantity => 1 });
+        my $fleet = Lacuna->db->resultset('Fleet')->new({ type => $type, quantity => 1 });
         my @tags = @{$fleet->build_tags};
-        if ($tag) {
-            next unless ($tag ~~ \@tags);
+        if ($args->{tag}) {
+            next unless ($args->{tag} ~~ \@tags);
         }
         my $can = eval{$building->can_build_fleet($fleet)};
         my $reason = $@;
@@ -228,7 +257,7 @@ sub get_buildable {
         };
     }
     my $docks = 0;
-    my $port = $building->body->spaceport;
+    my $port = $body->spaceport;
     if (defined $port) {
         $docks = $port->docks_available;
     }
@@ -240,8 +269,8 @@ sub get_buildable {
         docks_available => $docks,
         build_queue_max => $max_ships,
         build_queue_used => $total_ships_building,
-        status          => $self->format_status($session, $building->body),
-        };
+        status          => $args->{no_status} ? {} : $self->format_status($empire, $body),
+    };
 }
 
 

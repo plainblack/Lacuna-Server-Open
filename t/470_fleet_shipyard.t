@@ -25,13 +25,36 @@ my $result;
 
 my $test_shipyard   = $test_home->shipyard;
 
-$result = $tester->post('shipyard', 'subsidize_build_queue', [$test_session_id, $test_shipyard->id]);
+$result = $tester->post('shipyard','view', [{
+    session     => $test_session_id,
+    building    => $test_shipyard->id,
+    no_status   => 1,
+}]);
 
+$result = $tester->post('shipyard', 'view_build_queue', [{
+    session     => $test_session_id, 
+    building    => $test_shipyard->id,
+    no_status   => 1,
+}]);
 
-$result = $tester->post('shipyard', 'view_build_queue', [$test_session_id, $test_shipyard->id]);
+$result = $tester->post('shipyard', 'subsidize_build_queue', [{
+    session     => $test_session_id, 
+    building    => $test_shipyard->id,
+    no_status   => 1,
+}]);
 
-#if ($result->{result}{}) {
-#}
+$result = $tester->post('shipyard', 'get_buildable', [{
+    session     => $test_session_id, 
+    building    => $test_shipyard->id,
+    no_status   => 1,
+}]);
+
+$result = $tester->post('shipyard', 'get_buildable', [{
+    session     => $test_session_id, 
+    building    => $test_shipyard->id, 
+    tag         => 'Trade',
+    no_status   => 1,
+}]);
 
 #$result = $tester->post('spaceport','view', [$test_session_id, $test_spaceport->id]);
 
