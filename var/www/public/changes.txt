@@ -601,15 +601,18 @@
 
 4.0001:
  - Add: Major reworking of ships into fleets.
- - Mod: A fleet is a collection of ships all having the same attributes and task
- - Mod: Where previously you referred to a single ship, you now refer to a collection
  - Mod: Most API calls involving ships have changed, if you use external scripts these will most likely need to be modified.
+ - Mod: Most other API calls now have the option of named arguments as well as supporting the existing scheme for backwards compatibility
+ - Mod: A fleet is a collection of ships all having the same attributes and task
+ - Mod: Where previously you referred to a single ship, you now refer to a fleet
  - Mod: The maximum level of Shipyard on a colony is now used in calculating a new ships attributes, not the current Shipyard
  - Mod: 'own' and 'ally' on the incoming report for a Space Station now are in relation to your own empire.
  - Fix: Fleets sort correctly in type/name order in Space Port view tab
+ - Mod: You can build any number of ships in a fleet in the Shipyard, subject to available building slots, resources and free docks
  - Mod: You can now see all details of incoming allied ships in the Space Port incoming tab.
  - Mod: You can now see details of incoming allied ships on the Star Map planet/star incoming tab
  - Mod: You can now see details (subject to the local Space Port level) of incoming foreign ships on the Star Map planet incoming tab for allied planets or Space Stations
+ - Fix: Number of docks available now decrements correctly when building multiple ships in Shipyard
 
 3.0859:
  - Mod: Web UI, arch min has better display of glyphs, can produce multiple plans in one go

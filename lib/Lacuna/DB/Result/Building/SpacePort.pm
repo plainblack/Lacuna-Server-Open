@@ -64,7 +64,16 @@ sub send_ship {
 
 sub number_of_ships {
     my $self = shift;
-    return $self->ships->get_column('number_of_docks')->sum;
+
+    my ($sum) = $self->body->fleets->search(undef, {
+        "+select" => [
+            { count => 'id' },
+            { sum   => 'quantity' },
+        ],
+        "+as" => [qw(number_of_fleets number_of_ships)],
+    });
+                                                    
+    return $sum->get_column('number_of_ships');
 }
 
 has max_ships => (

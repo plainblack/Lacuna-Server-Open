@@ -6,8 +6,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Lacuna::Constants qw(SHIP_TYPES);
-use List::Util qw(none max min any sum reduce);
-
+use Data::Dumper;
 
 sub app_url {
     return '/shipyard';
@@ -25,15 +24,16 @@ sub view_build_queue {
 
     if (ref($args) ne "HASH") {
         $args = {
-            session         => $args,
-            building        => shift,
+            session_id      => $args,
+            building_id     => shift,
             page_number     => shift,
             items_per_page  => 25,
             no_paging       => 0,            
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session});
-    my $building    = $self->get_building($empire, $args->{building});
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
     my $body        = $building->body;
 
     my @constructing;
@@ -84,16 +84,19 @@ sub subsidize_build_queue {
 
     if (ref($args) ne "HASH") {
         $args = {
-            session         => $args,
-            building        => shift,
+            session_id      => $args,
+            building_id     => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session});
-    my $building    = $self->get_building($empire, $args->{building});
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
     my $body        = $building->body;
     my $fleets      = $building->fleets_under_construction;
-# TODO TODO
-    my $cost        = $fleets->count;
+    my $ships       = 0;
+    while (my $fleet = $fleets->next) {
+        $ships += $fleet->quantity;
+    }
+    my $cost        = $ships;
 
     unless ($empire->essentia >= $cost) {
         confess [1011, "Not enough essentia."];
@@ -105,11 +108,13 @@ sub subsidize_build_queue {
     });    
     $empire->update;
 
+    $fleets->reset;
     while (my $fleet = $fleets->next) {
         $fleet->finish_construction;
     }
     $building->finish_work->update;
  
+<<<<<<< HEAD
     return $self->view($session, $building);
 }
 
@@ -187,23 +192,41 @@ sub subsidize_ship {
     $scheduled_ship->finish_construction;
 
     return $self->view({session => $empire, building => $building, no_status => $args->{no_status}});
+=======
+    return $self->view_build_queue({
+        session_id  => $empire, 
+        building_id => $building, 
+        no_status   => $args->{no_status},
+    });
+>>>>>>> Shipyard now seems to work completely with fleets. Yay!
 }
 
 
 sub build_fleet {
-    my ($self, $session_id, $building_id, $type, $quantity) = @_;
+    my $self = shift;
+    my $args = shift;
+        
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            building_id => shift,
+            type        => shift,
+            quantity    => shift,
+        };
+    }
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    my $body        = $building->body;
 
-    $quantity = defined $quantity ? $quantity : 1;
+    my $quantity    = defined $args->{quantity} ? $args->{quantity} : 1;
     if ($quantity <= 0 or int($quantity) != $quantity) {
         confess [1001, "Quantity must be a positive integer"];
     }
-    my $empire      = $self->get_empire_by_session($session_id);
-    my $building    = $self->get_building($empire, $building_id);
     my $body_id     = $building->body_id;
 
     my $fleet = Lacuna->db->resultset('Fleet')->new({
-        type        => $type, 
-        quantity    => $quantity,
+        type        => $args->{type}, 
+        quantity    => $args->{quantity},
     });
     my $costs = $building->get_fleet_costs($fleet);
     $building->can_build_fleet($fleet, $costs);
@@ -212,7 +235,11 @@ sub build_fleet {
     $fleet->body_id($body_id);
     $fleet->insert;
 
-    return $self->view_build_queue($empire, $building);
+    return $self->view_build_queue({ 
+        no_status   => $args->{no_status}, 
+        session_id  => $empire, 
+        building_id => $building },
+    );
 }
 
 
@@ -222,13 +249,13 @@ sub get_buildable {
         
     if (ref($args) ne "HASH") {
         $args = {
-            session         => $args,
-            building        => shift,
-            tag             => shift,
+            session_id  => $args,
+            building_id => shift,
+            tag         => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session});
-    my $building    = $self->get_building($empire, $args->{building});
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
     my $body        = $building->body;
 
     my %buildable;
