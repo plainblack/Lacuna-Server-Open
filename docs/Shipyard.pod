@@ -27,14 +27,14 @@ View all fleets currently under construction at this shipyard.
 
 Accepts either fixed arguments or a hash of named parameters
 
- ( session, building, page_number )
+ ( session_id, building_id, page_number )
  ( parameter_hash )
 
-=head3 session (required)
+=head3 session_id (required)
 
 A session ID
 
-=head3 building (required)
+=head3 building_id (required)
 
 This buildings ID
 
@@ -44,7 +44,7 @@ The page number of the results
 
 =head3 items_per_page (optional)
 
-How many items per page. Defaults to 25
+hOW many items per page. Defaults to 25
 
 =head3 no_paging (optional)
 
@@ -86,20 +86,20 @@ Will spend 1 essentia per ship to complete the current build queue immediately.
 
 Accepts either fixed arguments or a hash of named parameters
 
- ( session, building, page_number )
+ ( session_id, building_id )
  ( parameter_hash )
   
-=head3 session (required)
+=head3 session_id (required)
   
 A session ID
   
-=head3 building (required)
+=head3 building_id (required)
   
 This buildings ID
   
 =head3 RESPONSE
 
-Returns B<view>
+Returns B<view_build_queue>
 
 Throws 1011.
 
@@ -111,14 +111,14 @@ gives a reason why not.
 
 Accepts either fixed arguments or a hash of named parameters
 
- ( session, building, [tag] )
+ ( session_id, building_id, [tag] )
  ( parameter_hash )
 
-=head3 session (required)
+=head3 session_id (required)
 
 A session ID
 
-=head3 building (required)
+=head3 building_id (required)
 
 This buildings ID
 
@@ -223,27 +223,30 @@ B<tags> represent attributes about ships that can be used to filter them. The li
 =back
 
 
-=head2 build_fleet ( session_id, building_id, type, [ quantity ] )
+=head2 build_fleet
 
-Adds ships to the build queue. 
+Build a fleet of ships.
 
-Returns the same as B<view_build_queue>.
+Accepts either fixed arguments or a hash of named parameters
 
-=head3 session_id
+ ( session_id, building_id, type, quantity )
+ ( parameter_hash )
 
-A session id.
+=head3 session_id (required)
 
-=head3 building_id
+A session_id ID
 
-The unique id of the shipyard.
+=head3 building_id (required)
 
-=head3 type
+This buildings ID
 
-A ship type. Get from C<get_buildable>.
+=head3 type (required)
 
-=head3 quantity
+The type of ship to build, as specified by the B<get_buildable> call.
 
-An optional quantity, if left blank it defaults to 1 ship.
+=head3 quantity (optional)
+
+The number of ships to build in the fleet. Defaults to 1.
 
 You may specify any number of ships subject to the following:-
 
@@ -257,8 +260,12 @@ Note that by constructing a fleet of multiple ships means that construction is m
 economy of scale, so the total time to construct each ship in the fleet is reduced accordingly. The more
 ships, the quicker each ship is built.
 
-Also note that by constructing a fleet, none of the ships become available until all ships in the fleet 
+Also note that by constructing a fleet, none of the ships become available until all ships in the fleet
 are completed.
+
+=head3 RESPONSE
+
+Returns the same as B<view_build_queue>.
 
 =cut
 
