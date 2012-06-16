@@ -29,7 +29,11 @@ my $test_spaceport = $test_home->spaceport;
 
 ## spaceport - view
 ##
-$result = $tester->post('spaceport','view', [$test_session_id, $test_spaceport->id]);
+$result = $tester->post('spaceport','view', [{
+    session_id  => $test_session_id, 
+    building_id => $test_spaceport->id,
+    no_status   => 1,
+}]);
 
 my $fleets = $test_home->fleets->search({
     task => 'Docked',
@@ -44,7 +48,12 @@ foreach my $ship (sort keys %{$result->{result}{docked_ships}} ) {
 
 ## spaceport - view_all_fleets
 ##
-$result = $tester->post('spaceport','view_all_fleets', [$test_session_id, $test_spaceport->id, {no_paging => 1}]);
+$result = $tester->post('spaceport','view_all_fleets', [{
+    session_id  => $test_session_id, 
+    building_id => $test_spaceport->id, 
+    paging      => {no_paging => 1},
+    no_status   => 1,
+}]);
 $fleets = $test_home->fleets->search;
 while (my $fleet = $fleets->next) {
     my ($result_fleet) = grep {$_->{id} == $fleet->id} @{$result->{result}{fleets}};
@@ -52,6 +61,7 @@ while (my $fleet = $fleets->next) {
     is($result_fleet->{task},     $fleet->task, "Tasks are the same");
     is($result_fleet->{quantity}, $fleet->quantity, "Quantities are the same");
 }
+exit;
 
 ## spaceport - get_incoming_for
 ###      for our homeworld
