@@ -1072,24 +1072,46 @@ sub name_ship {
     };    
 }
 
-sub scuttle_ship {
-    my ($self, $session_id, $building_id, $ship_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    unless (defined $ship) {
-        confess [1002, "Ship not found."];
-    }    
-    unless ($ship->task eq 'Docked') {
-        confess [1013, "You can't scuttle a ship that's not docked."];
-    }    
-    unless ($ship->body_id eq $building->body_id) {
-        confess [1013, "You can't manage a ship that is not yours."];
+sub scuttle_fleet {
+    my $self = shift;
+    my $args = shift;
+        
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            fleet_id        => shift,
+            quantity        => shift,
+        };
     }
-    $ship->delete;
-    return {
-        status                      => $self->format_status($empire, $building->body),
-    };    
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+
+    my $fleet       = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
+    if (not defined $fleet) {
+        confess [1002, "Fleet not found."];
+    }    
+    if ($fleet->task ne 'Docked') {
+        confess [1013, "You can't scuttle ships that are not docked."];
+    }    
+    if ($fleet->body_id != $building->body_id) {
+        confess [1013, "You can't manage a fleet that is not yours."];
+    }
+    my $qty = $args->{quantity};
+    if ($qty < 0 or int($qty) != $qty) {
+        confess [1013, "Quantity of ships to delete must be a positive integer."];
+    }
+    if ($qty > $fleet->quantity) {
+        confess [1013, "Quantity of ships to delete must be smaller than the fleet size."];
+    }
+    if ($qty == $fleet->quantity) {
+        $fleet->delete;
+    }
+    else {
+        $fleet->quantity($fleet->quantity - $qty);
+        $fleet->update;
+    }
+    return $self->view($args);
 }
 
 sub view_battle_logs {
@@ -1159,7 +1181,7 @@ around 'view' => sub {
 };
 
  
-__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for get_incoming_for view_incoming_fleets get_fleets_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
+__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for get_incoming_for view_incoming_fleets get_fleets_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_fleet name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
