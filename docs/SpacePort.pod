@@ -91,7 +91,7 @@ Note: Tags will be converted to types prior to filtering and any types that were
 
   { "tag" : "Mining" }
 
-  { "task" : "Docked", "type" : "freighter" }
+{ "task" : "Docked", "type" : "freighter" }
 
   { "tag" : [ "Colonization", "Exploration" ], "task" : "Travelling" }
 
@@ -1049,21 +1049,38 @@ The name you want to give the ship. 1 to 30 characters. No profanity. No funky c
 
 
 
-=head2 scuttle_ship ( session_id, building_id, ship_id )
+=head2 scuttle_fleet
 
-Destroy a ship that you no longer need. It must be docked to scuttle it.
+Destroy ships from a fleet that you no longer need. It must be Docked before you can scuttle it.
 
-=head3 session_id
+Accepts either fixed arguments or a hash of named parameters
 
-A session id.
+ ( session_id, building_id )
+ ( parameter_hash )
 
-=head3 building_id
+=head3 session_id (required)
 
-The unique id for the space port.
+A session ID
 
-=head3 ship_id
+=head3 building_id (required)
 
-The unique id of the ship you want to destroy.
+This buildings ID
+
+=head3 fleet_id (required)
+
+The ID of the fleet to be scuttled.
+
+=head3 quantity (required)
+
+The number of ships in the fleet to be scuttled.
+
+If you specify a quantity less than the number of ships currently in the fleet then the fleet
+will be reduced by that amount. If you specify the total number of ships then the whole fleet
+will be destroyed.
+
+=head3 RESPONSE
+
+Returns the same response as B<view>
 
 
 
