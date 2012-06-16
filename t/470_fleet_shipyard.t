@@ -73,7 +73,7 @@ $result = $tester->post('shipyard', 'build_fleet', [{
     quantity    => $fleet_quantity,
     no_status   => 1,
 }]);
-is($result->{result}{fleets_building}, 1, "One fleet building");
+is($result->{result}{number_of_fleets_building}, 1, "One fleet building");
 
 $result = $tester->post('shipyard', 'subsidize_build_queue', [{
     session_id  => $test_session_id,

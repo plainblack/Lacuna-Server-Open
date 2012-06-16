@@ -2,6 +2,8 @@ package Lacuna::RPC::Building;
 
 use Moose;
 use utf8;
+use Data::Dumper;
+
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
 
@@ -71,7 +73,9 @@ sub view {
     my $self = shift;
     my $args = shift;
         
-    if (ref($args) ne "HASH") {
+print STDERR Dumper($args);
+
+if (ref($args) ne "HASH") {
         $args = {
             session         => $args,
             building        => shift,

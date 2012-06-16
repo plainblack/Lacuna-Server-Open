@@ -117,11 +117,22 @@ use constant target_building        => [];
 use constant build_tags             => [];
 use constant splash_radius          => 0;
 
+# It's a little dangerous modifying data in the insert and update
+# methods since it is akin to 'modifying data at a distance',
+# however, the other option is to ensure that everywhere that 
+# does an insert or update handles it correctly, which is even more
+# dangerous and error prone.
+#
 foreach my $method (qw(insert update)) {
     around $method => sub {
         my $orig = shift;
         my $self = shift;
 
+        # over-ride the dates if Docked so we can have common 'mark's
+        if ($self->task eq "Docked") {
+            $self->date_started("2000-01-01 00:00:00");
+            $self->date_available("2000-01-01 00:00:00");
+        }
         # Recalculate the ship mark
         my $mark = '';
         for my $arg (qw(body_id shipyard_id date_started date_available type task name speed stealth

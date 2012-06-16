@@ -612,7 +612,7 @@
  - Mod: You can now see all details of incoming allied ships in the Space Port incoming tab.
  - Mod: You can now see details of incoming allied ships on the Star Map planet/star incoming tab
  - Mod: You can now see details (subject to the local Space Port level) of incoming foreign ships on the Star Map planet incoming tab for allied planets or Space Stations
- - Fix: Number of docks available now decrements correctly when building multiple ships in Shipyard
+ - Fix: UI - Number of docks available now decrements correctly when building multiple ships in Shipyard
 
 3.0859:
  - Mod: Web UI, arch min has better display of glyphs, can produce multiple plans in one go

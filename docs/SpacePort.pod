@@ -2,7 +2,8 @@
 
 Space Port is accessible via the URL C</spaceport>.
 
-The Space Port is where all the ships you build will be docked once they have been built from the L<Shipyard>. You can dock twice as many ships as the level of the Space Port.
+The Space Port is where all the ships you build will be docked once they have been built from the L<Shipyard>.
+You can dock twice as many ships as the level of the Space Port.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
@@ -102,10 +103,26 @@ Valid columns to sort on are combat, name, speed, stealth, task and type.
 
 A second sort colomn, 'name', is added to your chosen sort column (unless it happened to also be 'name')
 
+######################
 
-=head2 view ( session_id, building_id )
+=head2 view
 
 This method is extended to include a list of docked ships.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 RESPONSE
 
  {
    "building" : { ... },
@@ -124,11 +141,31 @@ This method is extended to include a list of docked ships.
      "space_station" : 0,
    }
  }
- 
 
-=head2 view_all_fleets ( session_id, building_id, [ paging, filter, sort ] )
+
+
+=head2 view_all_fleets
 
 Shows you all your fleets whatever they are doing.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, paging, filter, sort )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 paging, filter, sort (optional)
+
+See above for these options.
+
+=head3 RESPONSE
 
  {
    "fleets" : [

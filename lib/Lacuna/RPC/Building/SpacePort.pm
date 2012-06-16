@@ -1033,11 +1033,24 @@ sub _fleet_sort_options {
 }
 
 sub view_all_fleets {
-    my ($self, $session_id, $building_id, $paging, $filter, $sort) = @_;
-
-    $paging = $self->_fleet_paging_options( (defined $paging && ref $paging eq 'HASH') ? $paging : {} );
-    $filter = $self->_fleet_filter_options( (defined $filter && ref $filter eq 'HASH') ? $filter : {} );
-    $sort = $self->_fleet_sort_options( $sort // 'type' );
+    my $self = shift;
+    my $args = shift;
+            
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            paging          => shift,
+            filter          => shift,
+            sort            => shift,
+        };
+    }
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+                                                                    
+    my $paging = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
+    my $filter = $self->_fleet_filter_options( (defined $args->{filter} && ref $args->{filter} eq 'HASH') ? $args->{filter} : {} );
+    my $sort = $self->_fleet_sort_options( $args->{sort} // 'type' );
 
     my $attrs = {
         order_by => $sort,
@@ -1045,9 +1058,6 @@ sub view_all_fleets {
     $attrs->{rows} = $paging->{items_per_page} if ( defined $paging->{items_per_page} );
     $attrs->{page} = $paging->{page_number} if ( defined $paging->{page_number} );
 
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
     my $body = $building->body;
 
     my @fleet;
@@ -1057,7 +1067,7 @@ sub view_all_fleets {
     }
 
     return {
-        status              => $self->format_status($empire, $body),
+        status              => $args->{no_status} ? {} : $self->format_status($empire, $body),
         number_of_fleets    => defined $paging->{page_number} ? $fleets->pager->total_entries : $fleets->count,
         fleets              => \@fleet,
     };
@@ -1368,16 +1378,24 @@ sub view_battle_logs {
 }
 
 around 'view' => sub {
-    my ($orig, $self, $session_id, $building_id) = @_;
+    my $orig = shift;
+    my $self = shift;
+    my $args = shift;
 
-    my $empire      = $self->get_empire_by_session($session_id);
-    my $building    = $self->get_building($empire, $building_id, skip_offline => 1);
-    my $out         = $orig->($self, $empire, $building);
-print STDERR "###### FLEET VIEW [".$building->level."] #######\n";
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+        };
+    }
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id}, skip_offline => 1);
+                                                                
+    my $out         = $orig->($self, $args->{session_id}, $args->{building_id});
 
     return $out unless $building->level > 0;
 
-
+    # TODO Replace this with a single database query and 'group by'
     my $docked = $building->body->fleets->search({ task => 'Docked' });
     my %ships;
     while (my $fleet = $docked->next) {
