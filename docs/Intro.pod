@@ -26,7 +26,7 @@ You can access these methods either as HTTP POSTs or GETs.
 
 =head2 HTTP GET
 
-You can simply access any method using HTTP GET. Here's an example URL:
+Many of the methods can be accessed using an HTTP GET request. Here's an example URL:
 
  https://game.lacunaexpanse.com/empire?jsonrpc=2.0&id=1&method=is_name_available&params=["Lacuna Expanse Corp"]
 
@@ -106,6 +106,55 @@ If an exception is thrown you'll get an error response. It's a hash containing a
 
 B<NOTE:> If you get a JSON-RPC error, then the web server will also give you a 500 HTTP error code. 
 
+=head2 Named parameter requests
+
+Starting in Version 4.000 of the server code, named arguments have been introduced. Where possible the original 
+positional argument calling method has been retained, but this is now deprecated. Future enhancement to methods
+will only be supported in the named argument methods.
+
+As an example, the following is a call to the shipyard API to find out what fleets are buildable
+using both the original positional arguments and the new named argument calling conventions.
+
+Both of these will return the same results.
+
+=head3 original positional calling convention
+
+ {
+   "jsonrpc" : "2.0",
+   "id" : 1,
+   "method" : "get_buildable",
+   "params" : [
+     "329da49c-7e88-4897-9d8c-3e5f6309d9b7",
+     "127894",
+     "Trade",
+   ]
+ }
+
+This method has the advantage that it is slightly more consise, the disadvantage is that
+it is less flexible to expansion and with large numbers of parameters difficult to remember
+what each parameter represents.
+
+Although this convention will be retained for now, any future additions to methods (which
+require additional parameters) will not be supported by this calling convention.
+
+=head3 new named argument calling convention
+
+ {
+   "jsonrpc" : "2.0",
+   "id" : 1,
+   "method" : "get_buildable",
+   "params" : [{
+     "session_id" : "329da49c-7e88-4897-9d8c-3e5f6309d9b7",
+     "tag" : "Trade",
+     "building_id" : "127894"
+   }]
+ }
+
+This is the preferred calling convention, parameters are named and can be in any order,
+if a parameter is optional, then just don't include it. This convention allows future
+enhancements to methods without breaking backwards compatibility or having long lists
+of fixed place arguments.
+
 
 =head2 RPC Limit
 
@@ -117,37 +166,30 @@ If you find yourself needing more RPC calls than the limit allows then you are l
 
 =head1 Status
 
-Most methods will provide a status block as part of the response. This is used to update the user interface and alert the user to things. The status block looks like this:
+Most methods will provide a status block as part of the response. This is used to update 
+the user interface and alert the user to things. The status block looks like this:
 
  {
-    ...
-    "status" : {
-        "server" : {
-            "time" : "01 31 2010 13:09:05 +0600",
-            "version" : 2.0604,
-            "announcement" : 1, # see the Announcement API
-            "rpc_limit" : 2500, # max calls per day, compare to empire rpc_count
-            "star_map_size" : {
-                "x" : [ -15, 15 ],
-                "y" : [ -15, 15 ],
-                "z" : [ -15, 15 ]
-            },
-            "promotions" : [
-                {
-                    "description" : "With any purchase of essentia, receive a 50% bonus!",
-                    "end_date" : "31 10 2015 00:00:00 +0000",
-                    "start_date : "01 10 2015 00:00:00 +0000",
-                    "type" : "Bonus50",
-                }
-            ]
-        },
-        "empire" : { # this block is not always included
-            See get_status() in Empire
-        },
-        "body" : { # this block is not always included
-            See get_status() in Body
+   ...
+   "status" : {
+     "server" : {
+       "time" : "01 31 2010 13:09:05 +0600",
+       "version" : 2.0604,
+       "announcement" : 1, # see the Announcement API
+       "rpc_limit" : 2500, # max calls per day, compare to empire rpc_count
+       "star_map_size" : {
+         "x" : [ -15, 15 ],
+         "y" : [ -15, 15 ],
+         "z" : [ -15, 15 ]
         }
-    }
+      },
+      "empire" : { # this block is not always included
+        See get_status() in Empire
+      },
+      "body" : { # this block is not always included
+        See get_status() in Body
+      }
+   }
  }
 
 =head1 Modules
@@ -209,3 +251,4 @@ Request and solve CAPTCHAs
 =back
 
 =cut
+

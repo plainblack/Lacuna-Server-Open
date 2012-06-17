@@ -87,13 +87,13 @@ Intelligence, Exploration, War, Mining, SupplyChain WasteChain.
 
 Note: Tags will be converted to types prior to filtering and any types that were passed will be replaced.
 
-  { "task" : "Defend" }
+ { "task" : "Defend" }
 
-  { "tag" : "Mining" }
+ { "tag" : "Mining" }
 
-{ "task" : "Docked", "type" : "freighter" }
+ { "task" : "Docked", "type" : "freighter" }
 
-  { "tag" : [ "Colonization", "Exploration" ], "task" : "Travelling" }
+ { "tag" : [ "Colonization", "Exploration" ], "task" : "Travelling" }
 
 =head2 sort
 
@@ -254,86 +254,33 @@ Optional. See above.
 Optional. See above.
 
 
-=head2 view_incoming_fleets ( session_id, building_id, [ paging, filter, sort ] )
+=head2 view_incoming_fleets 
 
-Shows you all fleets not based on this colony which are incoming.
+This method has been superceded by the more generic C<get_incoming_for> method call. See below.
 
-However the list is filtered depending upon the stealth of the ship vs the level of the spaceport.
+=head2 get_incoming_for
 
-To see the C<from> block :-
+Shows incoming fleets for a specific target.
 
- SpacePort Level * 450 >= Fleet Stealth
+Accepts either fixed arguments or a hash of named parameters
 
-To see the ship type and name :-
+ ( session_id, target, paging, filter, sort )
+ ( parameter_hash )
 
- SpacePort level * 350 >= Fleet Stealth
+=head3 session_id (required)
 
-Note that you will always see full info for your own, or allied incoming ships.
+A session ID
 
- {
-   "fleets" : [
-     {
-       "id" : "id-goes-here",
-       "quantity" : 2,
-       "name" : "CS3",
-       "type_human" : "Cargo Ship",
-       "type" : "cargo_ship",
-       "date_arrives" : "02 01 2010 10:08:33 +0600",
-       "from" : {
-         "id" : "id-goes-here",
-         "name" : "Earth",
-         "empire" : {
-           "id" : "id-goes-here",
-           "name" : "Earthlings"
-         }
-       }
-     },
-     {
-       "id" : "id-goes-here",
-       "quantity" : 5,
-       "name" : "Unknown",
-       "type" : "Unknown",
-       "type_human" : "Unknown",
-       "date_arrives" : "02 01 2010 14:33:01 +0600",
-       "from" : {},
-     }
-     ...
-   ],
-   "number_of_fleets" : 13,
-   "status" : { ... }
- }
+=head3 target (required)
 
+The target of the incoming fleets. See above for this option.
 
-The fleets are sorted to show the earliest to arrive at the top of the list.
-ordered with the ones due to arrive first at the top of the list
+=head3 paging, filter, sort (optional)
 
-=head3 session_id
+See above for these options.
 
-A session id.
-
-=head3 building_id
-
-The unique id of the space port.
-
-=head3 page_number
-
-Defaults to page 1. Shows 25 at a time.
-
-
-
-
-=head2 get_available_for
-
-=head2 get_unavailable_for
-
-
-=head2 get_incoming_for ( session_id, target, [ paging, filter, sort ] )
-
-Shows a list of all fleets incoming to the target, either from your own empire or from your allies.
-
-If the target is a colony or Space Station of yours or one of your allies, then it will also show
-all foreign incoming fleets.
-
+=head3 RESPONSE
+  
  {
    "incoming" : [
      {
@@ -393,27 +340,13 @@ To see the C<details> block  :-
 
  SpacePort level * 350 >= Fleet Stealth
 
-Note that you will always see full info for your own, or allied incoming ships.
+Note that you will always see full info for your own, or allied incoming fleets.
 
-=head3 session_id
 
-A session id.
 
-=head3 target
+=head2 get_available_for
 
-The target to send the fleet to. See above.
-
-=head3 paging
-
-Optional. see above
-
-=head3 filter
-
-Optional. see above
-
-=head3 sort
-
-Optional. see above
+=head2 get_unavailable_for
 
 
 =head2 get_orbiting_for ( session_id, target, [ paging, filter, sort ] )
@@ -1025,27 +958,56 @@ The unique id for the space port.
 
 
 
+=head2 rename_fleet
 
+Change the name for a number of ships in a fleet
 
-=head2 name_ship ( session_id, building_id, ship_id, name )
+Accepts either fixed arguments or a hash of named parameters
 
-Set the name of a ship.
+ ( session_id, building_id, fleet_id, name )
+ ( parameter_hash )
 
-=head3 session_id
+=head3 session_id (required)
 
-A session id.
+A session ID
 
-=head3 building_id
+=head3 building_id (required)
 
 The unique id for the space port.
 
-=head3 ship_id
+=head3 fleet_id (required)
 
-The unique id of the ship you want to name.
+The unique id of the fleet you want to name.
 
-=head3 name
+=head3 name (required)
 
 The name you want to give the ship. 1 to 30 characters. No profanity. No funky characters.
+
+=head3 quantity (optional)
+
+The number of ships in the fleet you want to rename, defaults to all ships.
+
+Note. this argument is only available for the named parameter calling method
+
+If you specify a quantity less than the number of ships currently in the fleet then that
+number of ships will be split off to form a new fleet with the new name. The original fleet
+will retain it's original name but a reduced number of ships.
+
+Note also that if either fleet matches an existing fleet in all respects (attributes, task,
+start/available time) then such fleets will be merged into a single fleet with the combined
+quantity.
+
+This gives you a means of creating or merging fleets of ships with the same attributes, just
+give them different names. However, it will be much easier to manage fleets if you don't
+split them in this way but allow the system to split and merge fleets based on their tasks.
+
+=head3 RESPONSE
+
+Returns the same response as B<view>
+
+
+
+
 
 
 

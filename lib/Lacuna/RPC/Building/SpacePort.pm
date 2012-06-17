@@ -51,11 +51,24 @@ sub find_target {
 
 # Get incoming fleets for a target
 sub get_incoming_for {
-    my ($self, $session_id, $target_params, $paging, $filter, $sort) = @_;
+    my $self = shift;
+    my $args = shift;
 
-    $paging = $self->_fleet_paging_options( (defined $paging && ref $paging eq 'HASH') ? $paging : {} );
-    $filter = $self->_fleet_filter_options( (defined $filter && ref $filter eq 'HASH') ? $filter : {} );
-    $sort   = $self->_fleet_sort_options( $sort // 'type' );
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            target          => shift,
+            paging          => shift,
+            filter          => shift,
+            sort            => shift,
+        };
+    }
+    my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $target  = $self->find_target($args->{target});
+
+    my $paging  = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
+    my $filter  = $self->_fleet_filter_options( (defined $args->{filter} && ref $args->{filter} eq 'HASH') ? $args->{filter} : {} );
+    my $sort    = $self->_fleet_sort_options( $args->{sort} // 'type' );
 
     my $attrs = {
         order_by    => $sort,
@@ -63,9 +76,6 @@ sub get_incoming_for {
     };
     $attrs->{rows} = $paging->{items_per_page} if ( defined $paging->{items_per_page} );
     $attrs->{page} = $paging->{page_number} if ( defined $paging->{page_number} );
-
-    my $empire  = $self->get_empire_by_session($session_id);
-    my $target  = $self->find_target($target_params);
 
     my $incoming_rs = Lacuna->db->resultset('Fleet')->search($filter, $attrs);
     $incoming_rs = $incoming_rs->search({
@@ -98,7 +108,7 @@ sub get_incoming_for {
     }
         
     my %out = (
-        status      => $self->format_status($empire),
+        status      => $self->format_status($args),
         incoming    => \@incoming,
     );
 
@@ -1272,28 +1282,65 @@ sub _view_ships {
     };
 }
 
-sub name_ship {
-    my ($self, $session_id, $building_id, $ship_id, $name) = @_;
-    Lacuna::Verify->new(content=>\$name, throws=>[1005, 'Invalid name for a ship.'])
+# rename some, or all, ships in a fleet
+#
+sub rename_fleet {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            fleet_id        => shift,
+            name            => shift,
+        };
+    }
+
+    Lacuna::Verify->new(content=>\$args->{name}, throws=>[1005, 'Invalid name for a fleet.'])
         ->not_empty
         ->no_profanity
         ->length_lt(31)
+        ->only_ascii
         ->no_restricted_chars;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    unless (defined $ship) {
-        confess [1002, "Ship not found."];
-    }    
-    unless ($ship->body_id eq $building->body_id) {
-        confess [1013, "You can't manage a ship that is not yours."];
+
+    my $name    = $args->{name};
+    $name       =~ s/^\s+//;
+    $name       =~ s/\s+$//;
+    my $quantity = $args->{quantity};
+    if (defined $quantity) {
+        if ($quantity <= 0 or $quantity != int($quantity)) {
+            confess [1009, "Quantity must be a positive integer."];
+        }
     }
-    $ship->name($name);
-    $ship->update;
-    return {
-        status                      => $self->format_status($session, $building->body),
-    };
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    my $fleet       = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
+    if (not defined $fleet) {
+        confess [1002, "Fleet not found."];
+    }
+    if (not defined $quantity) {
+        $quantity = $fleet->quantity;
+    }
+    if ($quantity > $fleet->quantity) {
+        confess [1009, "Quantity must be less than or equal to the number of ships in the fleet."];
+    }
+    if ($fleet->body_id != $building->body_id) {
+        confess [1010, "You can't manage a fleet that is not yours."];
+    }
+    if ($quantity == $fleet->quantity) {
+        $fleet->name($name);
+        $fleet->update;
+    }
+    else {
+        my $new_fleet = $fleet->split($quantity);
+        if (not defined $new_fleet) {
+            confess [1002, "Fleet not big enough."];
+        }
+        $new_fleet->name($name);
+        $new_fleet->update;
+    }
+    return $self->view($args);
 }
 
 sub scuttle_fleet {
@@ -1406,7 +1453,7 @@ around 'view' => sub {
 };
 
  
-__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for get_incoming_for view_incoming_fleets get_fleets_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_fleet name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
+__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for get_incoming_for view_incoming_fleets get_fleets_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_fleet rename_fleet prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
