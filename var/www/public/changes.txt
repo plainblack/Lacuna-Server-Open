@@ -613,6 +613,13 @@
  - Mod: You can now see details of incoming allied ships on the Star Map planet/star incoming tab
  - Mod: You can now see details (subject to the local Space Port level) of incoming foreign ships on the Star Map planet incoming tab for allied planets or Space Stations
  - Fix: UI - Number of docks available now decrements correctly when building multiple ships in Shipyard
+ - TODO: If you have a probe at a star, you can now see all other 'orbiting' probes at that star
+ - TODO: Allow ships to be sent to allied colonies to 'stay' and be directed by that empire
+ - TODO: Ships sent to 'stay' at an ally can be recalled
+ - TODO: Ships sent to 'stay' at an ally can be evicted by the empire they are staying at.
+ - TODO: Allow ships (and perhaps resources) to be 'push'ed to allied planets
+ - TODO: Allow supply chains to be set up to allied planets.
+ - TODO: When viewing 'available' or 'unavailable' fleets to send to a body, select from all possible colonies.
 
 3.0859:
  - Mod: Web UI, arch min has better display of glyphs, can produce multiple plans in one go
