@@ -1,6 +1,10 @@
 3.0899:
  - Mod: glyphs changed in DB to be more compact.
 
+3.0855:
+ - Mod: Intelligence Building Level doesn't factor into training costs.
+ - Mod: Burning a spy has more consequences.
+
 3.0854:
  - Add: Backend support only for fleet actions. No changes to gameplay at this time.
  - Fix: None-permanent buildings on abandoned planets have been cleared.
