@@ -49,8 +49,22 @@ Command extends the view method to include a C<planet> section.
         "waste_capacity" : 13000,
         "water_stored" : 9929,
         "water_hour" : 295,
-        "water_capacity" : 51050
-    }
+        "water_capacity" : 51050,
+        "food" : {
+          "algae_hour" : 24,
+          "algae_stored" :1322,
+          "bean_hour" : 1,
+          "bean_stored" :42,
+          ..
+        }
+        "ore" : {
+          "anthracite_hour" : 333,
+          "anthracite_stored" : 34444,
+          "bauxite_hour" : 22,
+          "bauxite_stored" : 1235,
+          ...
+        }
+   }
  }
 
 
