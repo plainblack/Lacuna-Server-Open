@@ -37,6 +37,7 @@ sub get_status {
         resource_hour  => $self->resource_hour,
         resource_type  => $self->resource_type,
         percent_transferred => $self->percent_transferred,
+        stalled        => $self->stalled,
     };
 }
 
