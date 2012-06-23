@@ -1,10 +1,11 @@
 3.0855:
  - Mod: Intelligence Building Level doesn't factor into training costs.
  - Mod: Burning a spy has more consequences.
+ - Fix: No burning spies while they're being transported.
 
 3.0854:
  - Add: Backend support only for fleet actions. No changes to gameplay at this time.
- - Fix: None-permanent buildings on abandoned planets have been cleared.
+ - Fix: Non-permanent buildings on abandoned planets have been cleared.
  - Fix: Spies no longer stealing level 1 buildings.
  - Fix: 0% Efficiency Saws will no longer shoot down zero combat ships.
 
