@@ -27,7 +27,7 @@ $home->add_plan('Lacuna::DB::Result::Building::Permanent::Ravine', 1,1);
 $home->add_plan('Lacuna::DB::Result::Building::Permanent::Lake', 1);
 $home->add_plan('Lacuna::DB::Result::Building::Permanent::AlgaePond', 1);
 
-my ($pcc) = $home->buildings->search({class => 'Lacuna::DB::Result::Building::PlanetaryCommand'});
+my ($pcc) = $home->buildings_of_class('PlanetaryCommand');
 
 $tester->post('planetarycommand', 'view_plans', [$session_id, $shipyard->id, 'dory']);
 

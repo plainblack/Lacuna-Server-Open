@@ -89,6 +89,7 @@ sub run_excavators {
     while (my $excav = $excavators->next) {
       my $body = $excav->body;
       my $result;
+      my $new_colony = 0;
       if ($body->empire_id) {
 # Clean off the excav if planet gets settled.
         $result = {
@@ -98,6 +99,7 @@ sub run_excavators {
           message => sprintf "Dig wiped out by new Colony from %s.",
                       $body->empire->name,
         };
+        $new_colony = 1;
       }
       else {
         $result = $self->dig_it($body, $level, 0);
@@ -106,17 +108,23 @@ sub run_excavators {
       push @{$results}, $result;
       if ($result->{outcome} eq "Destroyed") {
         $self->remove_excavator($excav);
+# If not a result from colony, send replacement excav if option is chosen.
+        unless ($new_colony or $empire->dont_replace_excavator) {
+          my $replacement = $self->replace_excav($body);
+          push @{$results}, $replacement;
+        }
       }
     }
   }
   my $report;
   for $result (sort { $a->{site} cmp $b->{site} } @{$results}) {
-    next if ($empire->skip_found_nothing       and $result->{outcome} eq "Nothing");
-    next if ($empire->skip_excavator_artifact  and $result->{outcome} eq "Artifact");
-    next if ($empire->skip_excavator_resources and $result->{outcome} eq "Resource");
-    next if ($empire->skip_excavator_plan      and $result->{outcome} eq "Plan");
-    next if ($empire->skip_excavator_glyph     and $result->{outcome} eq "Glyph");
-    next if ($empire->skip_excavator_destroyed and $result->{outcome} eq "Destroyed");
+    next if ($empire->skip_found_nothing         and $result->{outcome} eq "Nothing");
+    next if ($empire->skip_excavator_artifact    and $result->{outcome} eq "Artifact");
+    next if ($empire->skip_excavator_resources   and $result->{outcome} eq "Resource");
+    next if ($empire->skip_excavator_plan        and $result->{outcome} eq "Plan");
+    next if ($empire->skip_excavator_glyph       and $result->{outcome} eq "Glyph");
+    next if ($empire->skip_excavator_destroyed   and $result->{outcome} eq "Destroyed");
+    next if ($empire->skip_excavator_replace_msg and $result->{outcome} eq "Replace");
     push @{$report}, [
       $result->{site},
       $result->{outcome},
@@ -133,6 +141,52 @@ sub run_excavators {
     );
   }
   return 1;
+}
+
+sub replace_excav {
+  my ($self, $body) = @_;
+
+  my $replace_msg = {
+        id => -1,
+        site => $body->name,
+        outcome => "Replace",
+  };
+# Check to see if excavs available
+  my $avail = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
+                ->search({type=>'excavator', task=>'Docked',body_id=>$self->body_id});
+  my $count = $avail->count;
+  if ($count > 0) {
+    my $ship;
+    my $reason = "No Ship available";
+    if ($ship = $avail->next) { # Just grab first one
+      my $ok = eval { $ship->can_send_to_target($body) };
+      if ($ok) {
+        $reason = "";
+      }
+      else {
+        $reason = $@;
+      }
+    }
+    if ($reason) {
+      if (ref $reason eq 'ARRAY') {
+        $reason = join(":", @{$reason});
+      }
+      $replace_msg->{message} = sprintf("Fail : Could not send excavator: %s", $reason);
+    }
+    else {
+      if (eval{$ship->send(target => $body)}) {
+        $count--;
+        $replace_msg->{message} = sprintf("Success : Excavator launched. %d left.", $count);
+      }
+      else {
+        $replace_msg->{message} = "Fail : Target Failure";
+      }
+    }
+  }
+  else {
+    $replace_msg->{message} = "Fail : No excavators to send";
+  }
+  return $replace_msg;
 }
 
 sub dig_it {
@@ -200,7 +254,8 @@ sub dig_it {
       }
     }
     when ("destroy") {
-      if (randint(0,99) < 3) {
+# Most destruction choices result in nothing found.
+      if (randint(0,99) < 5) {
         my $message = random_element([
                         'Auntie Em, where\'s Toto? Its a twister! Its a twister!',
                         'Aw, there\'s something behind me, isn\'t there?',
@@ -215,12 +270,12 @@ sub dig_it {
                         'It\'s dead Jim.',
                         'It\'s just a harmless little bunny...',
                         'It\'s full of stars.',
-                        'Looks like I picked the wrong week to stop sniffing glue.',
+                        'Looks like I picked the wrong week to stop drinking coffee.',
                         'Klaatu Barada Ni*cough*',
                         'Oh no, not again.',
                         'Oops? What oops? No oops!',
                         'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagi fhtagn.',
-                        'Push the buttom Max!',
+                        'Push the button Max!',
                         'That\'s it man, game over man, game over!',
                         'The brazen temple doors open...',
                         'There are things in the mist.',
@@ -291,52 +346,59 @@ sub found_plan {
 }
 
 sub found_artifact {
-  my ($self, $body, $level) = @_;
+    my ($self, $body, $amlevel) = @_;
   
-  my $plan_types = plans_of_type();
-  my $artifacts;
-  my $buildings = $body->buildings;
-  while (my $building = $buildings->next) {
-    unless ( grep { $building->class eq $_ } @{$plan_types->{disallow}}) {
-      push @{$artifacts}, $building;
+    my $plan_types = plans_of_type();
+    my $artifacts;
+    foreach my $building (@{$body->building_cache}) {
+        unless ( grep { $building->class eq $_ } @{$plan_types->{disallow}}) {
+            push @{$artifacts}, $building;
+        }
     }
-  }
-  return (0,0,"Nothing") unless (defined($artifacts));
-  my $select = random_element($artifacts);
-  my $class; my $lvl; my $plus; my $name; my $destroy;
-  if ($level > $select->level and randint(1, int(3 * $level/2)) >= $select->level) {
-    $class = $select->class;
-    $lvl   = 1;
-    $plus  = int( ($select->level - 1) * 2/3); #Max doable would be 1+18
-    $name  = $select->name;
-    $destroy = 100;
-  }
-  elsif (randint(1,2) == 1) {
-    $class = $select->class;
-    $lvl   = 1;
-    $plus  = 0;
-    $name  = $select->name;
-    $destroy = 10;
-  }
-  else {
-    $class = $select->class;
-    $lvl   = randint(1,$select->level); # Slight chance of getting a level 30 plan.
-    $plus  = 0;
-    $name  = $select->name;
-    $destroy = 25;
-  }
-  $lvl = 30  if ($lvl > 30);
-  $plus = 30 if ($plus > 30);
-  $self->body->add_plan($class, $lvl, $plus);
-  if ($select->level == 1 or randint(0,99) < $destroy) {
-    $select->delete;
-  }
-  else {
-    $select->level($select->level - 1);
-    $select->update;
-  }
+    return (0,0,"Nothing") unless (defined($artifacts));
+    my $select = random_element($artifacts);
+    my $class; my $plan_level; my $plus = 0; my $name; my $bld_destroy;
+    if ($amlevel > $select->level and randint(1, int(3 * $amlevel/2)) >= $select->level) {
+        $class = $select->class;
+        $plan_level   = 1;
+        $plus  = int( ($select->level - 1) * 3/5); #Max doable would be 1+17
+        $name  = $select->name;
+        $bld_destroy = 100;
+    }
+    elsif (randint(1,2) == 1) {
+        $class = $select->class;
+        if ($select->level == 1 and (randint(0,99) < 50) ) {
+            $plan_level   = 0;
+            $bld_destroy = 100;
+            $name = "Nothing";
+        }
+        else {
+            $plan_level   = 1;
+            $bld_destroy = 10;
+            $name  = $select->name;
+        }
+        $plus  = 0;
+    }
+    else {
+        $class = $select->class;
+        $plan_level   = randint(1,$amlevel); # Slight chance of getting a level 30 plan.
+        $plan_level = $select->level if ($plan_level > $select->level);
+        $plus  = 0;
+        $name  = $select->name;
+        $bld_destroy = 35;
+    }
+    $plan_level = 30  if ($plan_level > 30);
+    $plus = 30 if ($plus > 30);
+    $self->body->add_plan($class, $plan_level, $plus) if ($plan_level >= 1);
+    if ($select->level == 1 or randint(0,99) < $bld_destroy) {
+        $select->delete;
+    }
+    else {
+        $select->level($select->level - 1);
+        $select->update;
+    }
 
-  return ($lvl, $plus, $name);
+    return ($plan_level, $plus, $name);
 }
 
 sub found_glyph {
@@ -368,7 +430,7 @@ sub can_you_dig_it {
   my ($self, $body, $level, $arch) = @_;
 
   my $mult = $arch + 1;
-  my $plan  = int($level/4 + 1) * $mult;
+  my $plan  = int($level/4 + 1);
   my $ore_total = 0;
   for my $ore (ORE_TYPES) {
      $ore_total += $body->$ore;
@@ -377,13 +439,13 @@ sub can_you_dig_it {
   my $glyph = int($mult * $level * $ore_total/20_000)+1; 
   my $resource = int(5/2 * $level);
   my $artifact = 0;
-  if (!$arch && $body->buildings->count) {
-    $artifact = 14;
+  if (!$arch && (scalar @{$body->building_cache})) {
+    $artifact = 15;
   }
-  my $destroy = $arch ? 0 : 1;
+  my $destroy = $arch ? 0 : 5;
   $destroy += $artifact;
   my $most = $plan + $glyph + $artifact + $destroy;
-# resources get cut down if over 100%
+# resource chance gets cut down if over 100%
   if ($most + $resource > 100) {
     $resource -= ($most + $resource - 100);
   }

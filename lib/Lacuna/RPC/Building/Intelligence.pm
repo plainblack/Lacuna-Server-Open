@@ -101,7 +101,7 @@ sub burn_spy {
     if ($spy->task eq 'Waiting On Trade' || $spy->task eq 'Mercenary Transport') {
         confess [1010, "You can't burn a spy involved in a trade. You must wait for the trade to complete."];
     }
-    if ($spy->task eq 'Captured') {
+    if ($spy->task eq 'Captured' or $spy->task eq 'Prisoner Transport') {
         confess [1010, "You can't burn a spy that has been captured. If you did he would have no reason not to tell your enemy all your secrets."];
     }
     if ($spy->task eq 'Killed In Action') {

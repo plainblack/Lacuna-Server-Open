@@ -380,10 +380,14 @@ sub burn {
     my $self = shift;
     my $old_empire = $self->empire;
     my $body = $self->from_body;
-    if ($body->add_news(10, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $old_empire->name)) {
-        $body->spend_happiness(5000);
-        $body->update;
+    my $unhappy = int($self->level * 1000 * 200/75); # Not factoring in Deception, always costs this much happiness.
+    $unhappy = 2000 if ($unhappy < 2000);
+    $body->spend_happiness($unhappy);
+    if ($body->add_news(25, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $old_empire->name)) {
+# If the media finds out, even more unhappy.
+        $body->spend_happiness(int($unhappy/2));
     }
+    $body->update;
     if ($self->on_body->empire_id != $old_empire->id) {
         if (randint(1,100) < $self->level) {
             my $new_empire = $self->on_body->empire;
@@ -1755,15 +1759,12 @@ sub thwart_rebel {
 
 sub destroy_infrastructure {
     my ($self, $defender) = @_;
-    my $building = $self->on_body->buildings->search(
-        { efficiency => { '>' => 0 },
-#          class => { 'not like' => 'Lacuna::DB::Result::Bulding::Permanent%' },
-        },
-        { rows=>1, order_by => 'rand()' }
-        )->single;
+
+    my ($building) = sort {rand() <=> rand()} grep {$_->efficiency > 0} @{$self->on_body->building_cache};
+
     return $self->building_not_found->id unless defined $building;
     return $self->building_not_found->id if ($building->class eq 'Lacuna::DB::Result::PlanetaryCommand');
-    $building->body($self->on_body);
+
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'building_kablooey.txt',
@@ -1787,36 +1788,6 @@ sub destroy_infrastructure {
                         $self->from_body->name],
     )->id;
 }
-
-#sub destroy_upgrade {
-#    my ($self, $defender) = @_;
-#    my $builds = $self->on_body->builds(1);
-#    my $building = $builds->next;
-#    return $self->building_not_found->id unless defined $building;
-#    $building->body($self->on_body);
-#    $self->on_body->empire->send_predefined_message(
-#        tags        => ['Spies','Alert'],
-#        filename    => 'building_kablooey.txt',
-#        params      => [$building->level + 1, $building->name, $self->on_body->id, $self->on_body->name],
-#    );
-#    $self->things_destroyed( $self->things_destroyed + 1 );
-#    $self->empire->send_predefined_message(
-#        tags        => ['Intelligence'],
-#        filename    => 'sabotage_report.txt',
-#        params      => ['a level of their level '.($building->level + 1).' '.$building->name, $self->on_body->x, $self->on_body->y, $self->on_body->name, $self->name, $self->from_body->id, $self->from_body->name],
-#    );
-#    $self->on_body->add_news(90,'%s was rocked today when a construction crane toppled into the %s.', $self->on_body->name, $building->name);
-#    if ($building->level == 0) {
-#        $building->delete;
-#    }
-#    else {
-#        $building->is_upgrading(0);
-#        $building->update;
-#    }
-#    $self->on_body->needs_surface_refresh(1);
-#    $self->on_body->needs_recalc(1);
-#    $self->on_body->update;
-#}
 
 sub destroy_ship {
     my ($self, $defender) = @_;
@@ -2171,24 +2142,23 @@ sub steal_ships {
 sub steal_building {
     my ($self, $defender) = @_;
     my $on_body = $self->on_body;
-    my $building = $on_body->buildings->search(
-        {
-            level => { '>' => 1 }, 
-            class => { 'not in' => [
-                    'Lacuna::DB::Result::Building::Permanent::EssentiaVein',
-                    'Lacuna::DB::Result::Building::Permanent::TheDillonForge',
-                    'Lacuna::DB::Result::Building::DeployedBleeder',
-                ],
-            },
-        },
-        { rows=>1, order_by => 'rand()' }
-        )->single;
+    my ($building) = sort {
+            rand() <=> rand()
+        }
+        grep {
+            ($_->level > 1) and
+            ($_->class ne 'Lacuna::DB::Result::Building::Permanent::EssentiaVein') and
+            ($_->class ne 'Lacuna::DB::Result::Building::Permanent::TheDillonForge') and
+            ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder')
+        }
+        @{$on_body->building_cache};
+
     return $self->building_not_found->id unless defined $building;
     $self->things_stolen( $self->things_stolen + 1 );
     my $max = ($self->level > 30) ? 30 : $self->level;
     my $level = randint(1, $max);
     $level = $building->level if ($level > $building->level);
-    $building->body($on_body);
+
     $building->downgrade(1);
     $self->from_body->add_plan($building->class, $level);
     $on_body->empire->send_predefined_message(
@@ -2521,8 +2491,7 @@ sub colony_report {
 sub surface_report {
     my ($self, $defender) = @_;
     my @map;
-    my $buildings = $self->on_body->buildings;
-    while (my $building = $buildings->next) {
+    foreach my $building (@{$self->on_body->building_cache}) {
         push @map, {
             image   => $building->image_level,
             x       => $building->x,
@@ -2664,8 +2633,7 @@ sub ship_report {
 sub build_queue_report {
     my ($self, $defender) = @_;
     my @report = (['Building', 'Level', 'Expected Completion']);
-    my $builds = $self->on_body->builds;
-    while (my $build = $builds->next) {
+    foreach my $build (@{$self->on_body->builds}) {
         push @report, [
             $build->name,
             $build->level + 1,
