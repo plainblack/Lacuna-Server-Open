@@ -3,6 +3,7 @@
  - Mod: Burning a spy has more consequences.
  - Fix: No burning spies while they're being transported.
  - Grr: Space Stations shouldn't turn into asteroids.  However, they won't die if you want them until we fix the bug.
+ - Add: Supply chain now shows 'stalled' status (API only)
 
 3.0854:
  - Add: Backend support only for fleet actions. No changes to gameplay at this time.
