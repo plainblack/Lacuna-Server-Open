@@ -57,7 +57,7 @@ $result = $tester->post('spaceport','view_all_fleets', [{
 $fleets = $test_home->fleets->search;
 while (my $fleet = $fleets->next) {
     my ($result_fleet) = grep {$_->{id} == $fleet->id} @{$result->{result}{fleets}};
-    ok($result_fleet, "Fleet (".$result_fleet->{type}.")is in the results");
+    ok($result_fleet, "Fleet (".$result_fleet->{details}{type}.") is in the results");
     is($result_fleet->{task},     $fleet->task, "Tasks are the same");
     is($result_fleet->{quantity}, $fleet->quantity, "Quantities are the same");
 }
