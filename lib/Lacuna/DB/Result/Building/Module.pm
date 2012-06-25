@@ -90,7 +90,7 @@ around demolish => sub {
             filename    => 'space_station_destroyed.txt',
             params      => [$body->id, $body->name],
         );
-        $body->sanitize;
+#        $body->sanitize;
     }
 };
 

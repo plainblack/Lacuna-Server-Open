@@ -2,6 +2,7 @@
  - Mod: Intelligence Building Level doesn't factor into training costs.
  - Mod: Burning a spy has more consequences.
  - Fix: No burning spies while they're being transported.
+ - Grr: Space Stations shouldn't turn into asteroids.  However, they won't die if you want them until we fix the bug.
 
 3.0854:
  - Add: Backend support only for fleet actions. No changes to gameplay at this time.
