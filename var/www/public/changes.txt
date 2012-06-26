@@ -1,3 +1,6 @@
+3.0856:
+ - Mod: DeLambert now offer glyph trades with all the same type
+
 3.0855:
  - Mod: Intelligence Building Level doesn't factor into training costs.
  - Mod: Burning a spy has more consequences.

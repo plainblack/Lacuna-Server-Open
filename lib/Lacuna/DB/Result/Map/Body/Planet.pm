@@ -10,6 +10,7 @@ use List::Util qw(shuffle max min);
 use Lacuna::Util qw(randint format_date);
 use DateTime;
 use Data::Dumper;
+use Scalar::Util qw(weaken);
 no warnings 'uninitialized';
 
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
@@ -486,7 +487,8 @@ has command => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::PlanetaryCommand');
         return undef unless defined $building;
-        #$building->body($self);
+        $building->body($self);
+        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );
@@ -498,7 +500,9 @@ has oversight => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Oversight');
         return undef unless defined $building;
-        #$building->body($self);
+        $building->body($self);
+        weaken($building->{_relationship_data}{body});
+        
         return $building;
     },
 );
@@ -510,7 +514,8 @@ has archaeology => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Archaeology');
         return undef unless defined $building;
-#        #$building->body($self);
+        $building->body($self);
+        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );
@@ -522,7 +527,8 @@ has mining_ministry => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Ministry');
         return undef unless defined $building;
-        #$building->body($self);
+        $building->body($self);
+        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );
@@ -534,7 +540,8 @@ has network19 => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Network19');
         return undef unless defined $building;
-        #$building->body($self);
+        $building->body($self);
+        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );
@@ -546,7 +553,8 @@ has development => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Development');
         return undef unless defined $building;
-        #$building->body($self);
+        $building->body($self);
+        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );
@@ -558,7 +566,8 @@ has refinery => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Refinery');
         return undef unless defined $building;
-        #$building->body($self);
+        $building->body($self);
+        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );
@@ -570,7 +579,8 @@ has spaceport => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::SpacePort');
         return undef unless defined $building;
-        #$building->body($self);
+        $building->body($self);
+        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );    
@@ -582,7 +592,8 @@ has embassy => (
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Embassy');
         return undef unless defined $building;
-        #$building->body($self);
+        $building->body($self);
+        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );    
@@ -688,19 +699,18 @@ has future_operating_resources => (
         # adjust for what's already in build queue
         my @queued_builds = @{$self->builds};
         foreach my $build (@queued_builds) {
-            $build->body($self);
-            my $other = $build->stats_after_upgrade;
-            foreach my $method ($self->operating_resource_names) {
-                $future{$method} += $other->{$method} - $build->$method;
-            }
+        my $other = $build->stats_after_upgrade;
+        foreach my $method ($self->operating_resource_names) {
+        $future{$method} += $other->{$method} - $build->$method;
+        }
         }
         return \%future;
     },
-);
+    );
 
 sub has_resources_to_operate {
     my ($self, $building) = @_;
-    
+
     # get future
     my $future = $self->future_operating_resources; 
 
@@ -710,7 +720,7 @@ sub has_resources_to_operate {
     # check our ability to sustain ourselves
     foreach my $method ($self->operating_resource_names) {
         my $delta = $after->{$method} - $building->$method;
-        # don't allow it if it sucks resources && its sucking more than we're producing
+    # don't allow it if it sucks resources && its sucking more than we're producing
         if ($delta < 0 && $future->{$method} + $delta < 0) {
             my $resource = $method;
             $resource =~ s/(\w+)_hour/$1/;
@@ -722,13 +732,13 @@ sub has_resources_to_operate {
 
 sub has_resources_to_operate_after_building_demolished {
     my ($self, $building) = @_;
-    
+
     # get future
     my $planet = $self->future_operating_resources;
 
     # check our ability to sustain ourselves
     foreach my $method ($self->operating_resource_names) {
-        # don't allow it if it sucks resources && its sucking more than we're producing
+    # don't allow it if it sucks resources && its sucking more than we're producing
         if ($planet->{$method} - $building->$method < 0) {
             my $resource = $method;
             $resource =~ s/(\w+)_hour/$1/;
@@ -799,7 +809,8 @@ sub build_building {
     $building->body_id($self->id);
     $building->level(0) unless $building->level;
     $building->insert;
-    #$building->body($self);
+    $building->body($self);
+    weaken($building->{_relationship_data}{body});
     $building->start_upgrade(undef, $in_parallel);
     $self->building_cache([@{$self->building_cache}, $building]);
 }
@@ -808,10 +819,11 @@ sub found_colony {
     my ($self, $empire) = @_;
     $self->empire_id($empire->id);
     $self->empire($empire);
+    weaken($self->{_relationship_data}{empire});
     $self->usable_as_starter_enabled(0);
     $self->last_tick(DateTime->now);
     $self->update;    
-# Excavators get cleared when being checked for results.
+    # Excavators get cleared when being checked for results.
 
     # award medal
     my $type = ref $self;
@@ -859,6 +871,8 @@ sub convert_to_station {
     $self->plots_available(0);
     $self->empire_id($empire->id);
     $self->empire($empire);
+    weaken($self->{_relationship_data}{empire});
+
     $self->usable_as_starter_enabled(0);
     $self->last_tick(DateTime->now);
     $self->alliance_id($empire->alliance_id);
@@ -1240,6 +1254,7 @@ sub tick {
     foreach my $key (sort keys %todo) {
         my ($object, $job) = ($todo{$key}{object}, $todo{$key}{type});
         $object->body($self);
+        weaken($object->{_relationship_data}{body});
         if ($job eq 'ship built') {
             $self->tick_to($object->date_available);
             $object->finish_construction;
