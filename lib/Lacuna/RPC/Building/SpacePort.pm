@@ -172,10 +172,15 @@ sub get_ships_for {
         my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({asteroid_id => $target->id});
         while (my $platform = $platforms->next) {
             my $empire = $platform->planet->empire;
-            push @{$out{mining_platforms}}, {
-                empire_id   => $empire->id,
-                empire_name => $empire->name,
-            };
+            if (defined $empire) {
+                push @{$out{mining_platforms}}, {
+                    empire_id   => $empire->id,
+                    empire_name => $empire->name,
+                };
+            }
+            else {
+                $platform->delete;
+            }
         }
     }
     if ( $target->isa('Lacuna::DB::Result::Map::Body::Asteroid') ||
@@ -183,10 +188,15 @@ sub get_ships_for {
         my $excavators = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->search({body_id => $target->id});
         while (my $excav = $excavators->next) {
             my $empire = $excav->planet->empire;
-            push @{$out{excavators}}, {
-                empire_id   => $empire->id,
-                empire_name => $empire->name,
-            };
+            if (defined $empire) {
+                push @{$out{excavators}}, {
+                  empire_id   => $empire->id,
+                  empire_name => $empire->name,
+                };
+            }
+            else {
+                $excav->delete;
+            }
         }
     }
     
