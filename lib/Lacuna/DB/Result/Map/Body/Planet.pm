@@ -10,6 +10,7 @@ use List::Util qw(shuffle max min);
 use Lacuna::Util qw(randint format_date);
 use DateTime;
 use Data::Dumper;
+use Scalar::Util qw(weaken);
 no warnings 'uninitialized';
 
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');

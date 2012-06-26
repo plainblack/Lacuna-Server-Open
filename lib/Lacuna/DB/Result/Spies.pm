@@ -7,6 +7,8 @@ extends 'Lacuna::DB::Result';
 use List::Util qw(shuffle);
 use Lacuna::Util qw(format_date randint random_element);
 use DateTime;
+use Scalar::Util qw(weaken);
+
 use feature "switch";
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES SHIP_TYPES);
 
