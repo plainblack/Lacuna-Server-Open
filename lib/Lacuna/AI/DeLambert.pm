@@ -230,9 +230,11 @@ sub sell_glyph_trade {
             $quantity = int(100 / $cost_per);
         }
         my @glyphs;
+        my @glyph_types = split(/,/, $scratchpad->{sell_glyph_type});
+        my $glyph_type = random_element(\@glyph_types);
+
         for (1..$quantity) {
-            my $ore = random_element([ORE_TYPES]);
-            push @glyphs, $ore;
+            push @glyphs, $glyph_type;
         }
         if ($quantity) {
             say "Creating a trade for $quantity glyphs";

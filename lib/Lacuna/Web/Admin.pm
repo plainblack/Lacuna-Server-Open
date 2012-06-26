@@ -24,8 +24,8 @@ sub www_send_test_message {
     }
 
     $empire->send_message(
-	from		=> $empire,
-	body		=> 'This is a test message that contains all the components possible in a message.
+    from        => $empire,
+    body        => 'This is a test message that contains all the components possible in a message.
      {food} {water} {ore} {energy} {waste} {happiness} {essentia} {build} {time}
     {Empire 1 Lacuna Expanse Corp}
     {Planet '.$empire->home_planet->id.' '.$empire->home_planet->name.'}
@@ -33,38 +33,38 @@ sub www_send_test_message {
     {Starmap 0 0 The Center of the Map}
     [http://www.lacunaexpanse.com]
     ',
-	subject		=> 'Test Message',
-	tags		=> ['Alert'],
-	attachments => {
+    subject        => 'Test Message',
+    tags        => ['Alert'],
+    attachments => {
         table => [
-				['Header 1', 'Header 2'],
-				['Row 1 Field 1', 'Row 1 Field 2'],
-				['Row 2 Field 1', 'Row 2 Field 2'],
-				],
+                ['Header 1', 'Header 2'],
+                ['Row 1 Field 1', 'Row 1 Field 2'],
+                ['Row 2 Field 1', 'Row 2 Field 2'],
+                ],
         image => {
-				url => 'http://bloximages.chicago2.vip.townnews.com/host.madison.com/content/tncms/assets/editorial/8/ec/604/8ec6048a-998e-11de-b821-001cc4c002e0.preview-300.jpg',
-				title => 'JT Rocks',
-				link => 'http://host.madison.com/wsj/business/article_bd9f8c96-998d-11de-87d3-001cc4c002e0.html',
-				},
+                url => 'http://bloximages.chicago2.vip.townnews.com/host.madison.com/content/tncms/assets/editorial/8/ec/604/8ec6048a-998e-11de-b821-001cc4c002e0.preview-300.jpg',
+                title => 'JT Rocks',
+                link => 'http://host.madison.com/wsj/business/article_bd9f8c96-998d-11de-87d3-001cc4c002e0.html',
+                },
         link => {
-				url => 'http://www.plainblack.com/',
-				label => 'Plain Black',
-				},
+                url => 'http://www.plainblack.com/',
+                label => 'Plain Black',
+                },
         map => {
-				surface => 'surface-p12',
-				buildings => [
-						{
-							x => 0,
-							y => 0,
-							image => 'command4',
-						},
-						{
-							x => -4,
-							y => 2,
-							image => 'apples9',
-						},
-					]
-				}
+                surface => 'surface-p12',
+                buildings => [
+                        {
+                            x => 0,
+                            y => 0,
+                            image => 'command4',
+                        },
+                        {
+                            x => -4,
+                            y => 2,
+                            image => 'apples9',
+                        },
+                    ]
+                }
        }
     );
 
@@ -339,7 +339,7 @@ sub www_view_ships {
         elsif ($ship->task ~~ [qw(Defend Orbiting)]) {
             my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($ship->foreign_body_id);
             $out .= sprintf('<td>%s<br>%s (%d, %d)<form method="post" action="/admin/recall/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="recall"></form></td>', $ship->task, $target->name, $target->x, $target->y, $ship->id, $body_id);
-		}
+        }
         elsif ($ship->task ne 'Docked') {
             $out .= sprintf('<td>%s<form method="post" action="/admin/dock/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="dock" onclick="return confirm(\'Doing this without knowing the implications can cause unintended side effects. Are you sure?\');"></form></td>', $ship->task, $ship->id, $body_id);            
         }
@@ -366,7 +366,7 @@ sub www_recall_ship {
     my ($self, $request) = @_;
     my $ship_id = $request->param('ship_id');
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-	my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($ship->foreign_body_id);
+    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($ship->foreign_body_id);
 
     my $body = $ship->body;
     $ship->send(
@@ -1186,6 +1186,7 @@ sub www_delambert {
         $scratchpad->{buy_max_price_per_plan}    = $request->param('buy_max_price_per_plan');
         $scratchpad->{buy_trades_probability}    = $request->param('buy_trades_probability');
         $scratchpad->{sell_glyph_probability}    = $request->param('sell_glyph_probability');
+        $scratchpad->{sell_glyph_type}           = $request->param('sell_glyph_type');
         $scratchpad->{sell_glyph_min_e}          = $request->param('sell_glyph_min_e');
         $scratchpad->{sell_glyph_max_e}          = $request->param('sell_glyph_max_e');
         $scratchpad->{sell_glyph_max_batch}      = $request->param('sell_glyph_max_batch');
@@ -1216,6 +1217,7 @@ sub www_delambert {
     $out   .= '<tr><td><b>Minimum selling price per glyph</b></td><td><input name="sell_glyph_min_e" value="'.$scratchpad->{sell_glyph_min_e}.'"></td></tr>';
     $out   .= '<tr><td><b>Maximum selling price per glyph</b></td><td><input name="sell_glyph_max_e" value="'.$scratchpad->{sell_glyph_max_e}.'"></td></tr>';
     $out   .= '<tr><td><b>Maximum number of glyphs to batch in sale</b></td><td><input name="sell_glyph_max_batch" value="'.$scratchpad->{sell_glyph_max_batch}.'"></td></tr>';
+    $out   .= '<tr><td><b>Glyphs to sell, comma separate</b></td><td><input name="sell_glyph_type" value="'.$scratchpad->{sell_glyph_type}.'"></td></tr>';
     $out   .= '<tr><td><b>Probability of Colony selling plans each hour (%)</b></td><td><input name="sell_plan_probability" value="'.$scratchpad->{sell_plan_probability}.'"></td></tr>';
     $out   .= '<tr><td><b>Minimum plan level to sell</b></td><td><input name="sell_plan_min_level" value="'.$scratchpad->{sell_plan_min_level}.'"></td></tr>';
     $out   .= '<tr><td><b>Maximum plan level to sell</b></td><td><input name="sell_plan_max_level" value="'.$scratchpad->{sell_plan_max_level}.'"></td></tr>';
