@@ -9,7 +9,6 @@ sub subsidize_build_queue {
     my ($self) = @_;
     $self->body->tick;
     foreach my $build (@{$self->body->builds}) {
-        $build->body($self->body);
         $build->finish_upgrade;
     }
 }

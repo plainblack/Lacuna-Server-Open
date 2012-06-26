@@ -3,6 +3,7 @@ package Lacuna::DB::Result::Building::Trade;
 use Moose;
 use List::Util qw(max min);
 use Carp;
+use Scalar::Util qw(weaken);
 
 use utf8;
 use List::Util qw(max);
@@ -423,6 +424,7 @@ sub push_items {
     if ($options->{stay}) {
         $ship->body_id($target->id);
         $ship->body($target);
+        weaken($ship->{_relationship_data}{body});
         $ship->send(
             target      => $self->body,
             direction   => 'in',
