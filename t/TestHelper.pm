@@ -61,12 +61,14 @@ sub clear_all_test_empires {
         name => {like => $name},
     });
     while (my $empire = $empires->next) {
+        $empire->essentia(0);
+        $empire->update;
 
         my $planets = $empire->planets;
         while ( my $planet = $planets->next ) {
-            $planet->buildings->search({class => { 'like' => 'Lacuna::DB::Result::Building::Permanent%' } })->delete_all;
+            my @buildings = grep {$_->class =~ /Permanent/} @{$planet->building_cache};
+            $planet->delete_buildings(\@buildings);
         }
-
 
         $empire->delete;
     }
@@ -234,7 +236,8 @@ sub cleanup {
         
         my $planets = $empire->planets;
         while ( my $planet = $planets->next ) {
-            $planet->buildings->search({class => { 'like' => 'Lacuna::DB::Result::Building::Permanent%' } })->delete_all;
+            my @buildings = grep {$_->class =~ /Permanent/} @{$planet->building_cache};
+            $planet->delete_buildings(\@buildings);
         }
 
         $empire->delete;
@@ -252,7 +255,7 @@ sub build_big_colony {
     my ($self, $planet) = @_;
 
     my $empire = $planet->empire;
-    $planet->buildings->search({})->delete_all;
+    $planet->delete_buildings(@{$planet->building_cache});
     $planet->ships->delete_all;
     Lacuna->db->resultset('Spies')->search({from_body_id => $planet->id})->delete_all;
 
@@ -401,7 +404,7 @@ sub build_big_colony {
     $planet->update;
     $planet->tick;
 
-    my ($shipyard) = $planet->buildings->search({ class => 'Lacuna::DB::Result::Building::Shipyard' });
+    my ($shipyard) = grep {$_->class eq 'Lacuna::DB::Result::Building::Shipyard'} @{$planet->building_cache};
     diag("Generating ships [".$self->session->id."][".$shipyard->id."]");
     my $ships = {
         excavator               => 30,

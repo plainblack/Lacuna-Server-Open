@@ -6,6 +6,8 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use Lacuna::Constants ':all';
 use List::Util qw(shuffle);
+use List::MoreUtils qw(first_index);
+
 use Lacuna::Util qw(format_date);
 
 __PACKAGE__->load_components('DynamicSubclass');
@@ -575,11 +577,10 @@ sub can_build {
         }
     
         # check building prereqs
-        my $buildings = Lacuna->db->resultset('Lacuna::DB::Result::Building');
         my $prereqs = $self->building_prereq;
         foreach my $key (keys %{$prereqs}) {
-            my $count = $buildings->search({body_id=>$body->id, class=>$key, level=>{'>=',$prereqs->{$key}}});
-            if ($count < 1) {
+            my $prereq_buildings = $body->prereq_buildings($key, $prereqs->{$key});
+            if (@$prereq_buildings < 1) {
                 confess [1013, "You need a level ".$prereqs->{$key}." ".$key->name.".",[$key->name, $prereqs->{$key}]];
             }
         }
@@ -612,6 +613,13 @@ sub demolish {
     my $body = $self->body;
     $body->add_waste(sprintf('%.0f',$self->ore_to_build * $self->upgrade_cost));
     $body->spend_happiness(sprintf('%.0f',$self->food_to_build * $self->upgrade_cost));
+
+    # Remove the building from the cache
+    my $idx = first_index {$_->id == $self->id} @{$body->building_cache};
+    if (defined $idx) {
+        my @buildings = splice @{$body->building_cache},$idx,1;
+        $body->building_cache(\@buildings);
+    }
     $self->delete;
     $body->needs_recalc(1);
     $body->needs_surface_refresh(1);
@@ -697,8 +705,9 @@ sub is_not_max_level {
             }
             else {
                 confess [1013,
-                         sprintf("The  maximum level of this building is %d with your University level and stockpile.",
-                                 $max_level + $stockpile->extra_resource_levels) ];
+                    sprintf("The maximum level of this building is %d with your University level and stockpile.",
+                    $max_level + $stockpile->extra_resource_levels),
+                ];
             }
         }
         confess [1013, 'Resource buildings cannot upgrade above level '.$max_level.' without a Stockpile.'];
@@ -752,7 +761,6 @@ sub cost_to_upgrade {
     my ($self) = @_;
     my $upgrade_cost = $self->upgrade_cost;
     my $upgrade_cost_reduction = $self->construction_cost_reduction_bonus;
-    my $plan;
     my $plan = $self->body->get_plan($self->class, $self->level + 1);
     if (defined $plan) { 
         $upgrade_cost_reduction = 0;

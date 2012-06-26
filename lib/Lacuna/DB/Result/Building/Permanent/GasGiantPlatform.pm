@@ -27,13 +27,11 @@ before 'can_demolish' => sub {
 
   my $body = $self->body;
   return if ($body->get_type ne "gas giant");
-  my $buildings = $body->buildings;
-
-  my $gg_blds = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform' });
 
   my $gg_plots = 0;
   my $gg_cnt = 0;
-  while (my $gg_bld = $gg_blds->next) {
+  my @buildings = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform'} @{$body->building_cache};
+  foreach my $gg_bld (@buildings) {
     $gg_cnt++;
     $gg_plots += int($gg_bld->level * $gg_bld->efficiency/100);
   }
@@ -52,13 +50,11 @@ before 'can_downgrade' => sub {
   my $self = shift;
   my $body = $self->body;
   return if ($body->get_type ne "gas giant");
-  my $buildings = $body->buildings;
-
-  my $gg_blds = $buildings->search({ class => 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform' });
 
   my $gg_plots = 0;
   my $gg_cnt = 0;
-  while (my $gg_bld = $gg_blds->next) {
+  my @buildings = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform'} @{$body->building_cache};
+  foreach my $gg_bld (@buildings) {
     $gg_cnt++;
     $gg_plots += int($gg_bld->level * $gg_bld->efficiency/100);
   }

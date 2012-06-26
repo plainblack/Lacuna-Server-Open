@@ -490,8 +490,8 @@ sub bhg_swap {
         star_id => $new_data->{star_id}
       });
     }
+    $body->recalc_chains;
   }
-  $body->recalc_chains;
 
   unless ($new_data->{type} eq "empty") {
     $target->update({
@@ -503,24 +503,15 @@ sub bhg_swap {
       orbit        => $old_data->{orbit},
     });
     $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
-<<<<<<< HEAD
                         ->search({ planet_id => $target->id });
     if ($waste_chain->count > 0) {
-     while (my $chain = $waste_chain->next) {
-       $chain->update({
-         star_id => $old_data->{star_id}
-       });
-     }
+      while (my $chain = $waste_chain->next) {
+        $chain->update({
+          star_id => $old_data->{star_id}
+        });
+      }
+      $target->recalc_chains;
     }
-    $target->recalc_chains;
-=======
-                        ->search({ planet_id => $target->body_id });
-    if ($waste_chain->count > 0) {
-     while (my $chain = $waste_chain->next) {
-       $chain->star_id($old_data->{star});
-     }
-    }
->>>>>>> 8a8af47... Fix for waste chains after bhg swap
   }
   return {
     id       => $body->id,
@@ -571,7 +562,8 @@ sub bhg_make_asteroid {
   my ($building, $body) = @_;
   my $old_class = $body->class;
   my $old_size  = $body->size;
-  $body->buildings->delete_all;
+  my @to_demolish = @{$body->building_cache};
+  $body->delete_buildings(\@to_demolish);
   my $new_size = int($building->level/5);
   $new_size = 10 if $new_size > 10;
   $body->update({
@@ -740,23 +732,22 @@ sub bhg_self_destruct {
   my ($building) = @_;
   my $body = $building->body;
   my $return = {
-                 id        => $body->id,
-                 name      => $body->name,
+      id        => $body->id,
+      name      => $body->name,
   };
   $body->waste_stored(0);
-  my $bombed = $body->buildings;
-  my $bombs = $building->level;
 
-  for my $cnt (1..$bombs) {
-    my $placement = $bombed->search(
-                       { class => { 'not in' => [
-                    'Lacuna::DB::Result::Building::Permanent::Crater',
-                    'Lacuna::DB::Result::Building::DeployedBleeder',
-                ],
-            },
-        },
-        {order_by => { -desc => ['efficiency', 'rand()'] }, rows=>1}
-      )->single;
+  for (1..$building->level) {
+    my ($placement) = 
+      sort {
+        $b->efficiency <=> $a->efficiency ||
+        rand() <=> rand()
+      }
+      grep {
+        ($_->class ne 'Lacuna::DB::Result::Building::Permanent::Crater') and
+        ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder')
+    } @{$body->building_cache};
+
     last unless defined($placement);
     my $amount = randint(10, 100);
     $placement->spend_efficiency($amount)->update;

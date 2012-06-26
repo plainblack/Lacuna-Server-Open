@@ -35,9 +35,8 @@ after finish_upgrade => sub {
 
 sub get_halls {
     my $self = shift;
-    return $self->body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk')->search({
-        is_upgrading => 0,
-    });
+    my @halls = grep {$_->is_upgrading == 0} $self->body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk');
+    return @halls;
 }
 
 sub get_upgradable_buildings {
@@ -52,22 +51,19 @@ sub get_upgradable_buildings {
         body_id => $body->id,
         class => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk',
     })->count;
-    my $buildings = Lacuna->db->resultset('Building')->search({
-        body_id => $body->id,
-    })->count;
-    my $max_level = $halls + min(( 121 - $buildings), $plans);
+
+    my $building_count = @{$self->body->building_cache};
+    my $max_level = $halls + min(( 121 - $building_count), $plans);
     $max_level = 30 if $max_level > 30;
 
-    my $rs = $body->buildings->search({
-        level   => { '<' => $max_level },
-        -and    => [
-            class => {like => 'Lacuna::DB::Result::Building::Permanent::%'},
-            class => {'!=' => 'Lacuna::DB::Result::Building::Permanent::TheDillonForge'},
-            class => {'!=' => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'},
-        ],
-        is_upgrading    => 0,
-    });
-    return $rs;
+    my @buildings = grep {
+        ($_->level  < $max_level) and
+        ($_->class  =~ /Permanent/) and
+        ($_->class  ne 'Lacuna::DB::Result::Building::Permanent::TheDillonForge') and
+        ($_->class  ne 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk') and
+        ($_->is_upgrading == 0)
+    } @{$self->body->building_cache};
+    return \@buildings;
 }
 
 use constant name => 'Halls of Vrbansk';

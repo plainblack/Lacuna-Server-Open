@@ -64,7 +64,8 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
         "water_stored" : 9929,
         "water_hour" : 295,
         "water_capacity" : 51050,   
-        "num_incoming_enemy" : 10,   # total number of incoming enemy ships
+        "skip_incoming_ships" : 0,   # if set, then the following incoming data is missing.
+        "num_incoming_enemy" : 10,   # total number of incoming foreign ships
         "num_incoming_ally" : 1,     # total number of incoming allied ships
         "num_incoming_own : 0,       # total number of incoming own ships from other colonies
         "incoming_enemy_ships" : [ # will only be included when enemy ships are coming to your planet (only the first 20 will be shown)

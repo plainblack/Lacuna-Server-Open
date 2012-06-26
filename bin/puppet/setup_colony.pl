@@ -59,6 +59,7 @@ our $quiet;
 
   say "Adding to ".$body->name;
   for my $build (@$builds) {
+    next if ($build->{level} < 1 or $build->{level} > 30);
     my ($x, $y) = $body->find_free_space;
 #    next if $y > -1;
     my $bld = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({

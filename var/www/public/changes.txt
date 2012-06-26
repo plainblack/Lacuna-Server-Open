@@ -1,3 +1,20 @@
+3.0855:
+ - Mod: Intelligence Building Level doesn't factor into training costs.
+ - Mod: Burning a spy has more consequences.
+ - Fix: No burning spies while they're being transported.
+ - Grr: Space Stations shouldn't turn into asteroids.  However, they won't die if you want them until we fix the bug.
+ - Add: Supply chain now shows 'stalled' status (API only)
+
+3.0854:
+ - Add: Backend support only for fleet actions. No changes to gameplay at this time.
+ - Fix: Non-permanent buildings on abandoned planets have been cleared.
+ - Fix: Spies no longer stealing level 1 buildings.
+ - Fix: 0% Efficiency Saws will no longer shoot down zero combat ships.
+
+3.0853:
+ - Mod: Excavator destruction will trigger a replacement excavator to be sent if available.
+ - Add: Hooks for UI for excavator replacement added.  (UI being updated soon.)
+
 3.0852:
  - Mod: Efficiency modifications.
  - Mod: Various bug fixes.

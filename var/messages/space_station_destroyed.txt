@@ -1,6 +1,7 @@
 Space Station Destroyed
 ~~~
 We have just received word that our station named {Planet %s %s} has been destroyed.
+Dev Note: Temporary fix for seeing if we can track down the SS destruction bug. Contact an admin, so we can check the state of your station if you got this message.
 
 Regards,
 

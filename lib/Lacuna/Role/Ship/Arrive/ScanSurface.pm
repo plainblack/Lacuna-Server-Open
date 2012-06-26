@@ -23,8 +23,7 @@ after handle_arrival_procedures => sub {
     
     # do the scan
     my @map;
-    my $buildings = $body_attacked->buildings;
-    while (my $building = $buildings->next) {
+    foreach my $building (@{$body_attacked->building_cache}) {
         push @map, {
             image   => $building->image_level,
             x       => $building->x,
