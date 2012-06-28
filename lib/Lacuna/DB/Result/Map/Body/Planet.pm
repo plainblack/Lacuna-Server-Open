@@ -486,9 +486,6 @@ has command => (
     default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::PlanetaryCommand');
-        return undef unless defined $building;
-        $building->body($self);
-        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );
@@ -499,10 +496,6 @@ has oversight => (
     default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Oversight');
-        return undef unless defined $building;
-        $building->body($self);
-        weaken($building->{_relationship_data}{body});
-        
         return $building;
     },
 );
@@ -513,9 +506,6 @@ has archaeology => (
     default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Archaeology');
-        return undef unless defined $building;
-        $building->body($self);
-        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );
@@ -526,9 +516,6 @@ has mining_ministry => (
     default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Ministry');
-        return undef unless defined $building;
-        $building->body($self);
-        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );
@@ -539,9 +526,6 @@ has network19 => (
     default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Network19');
-        return undef unless defined $building;
-        $building->body($self);
-        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );
@@ -552,9 +536,6 @@ has development => (
     default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Development');
-        return undef unless defined $building;
-        $building->body($self);
-        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );
@@ -565,9 +546,6 @@ has refinery => (
     default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Refinery');
-        return undef unless defined $building;
-        $building->body($self);
-        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );
@@ -578,9 +556,6 @@ has spaceport => (
     default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::SpacePort');
-        return undef unless defined $building;
-        $building->body($self);
-        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );    
@@ -591,9 +566,6 @@ has embassy => (
     default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Embassy');
-        return undef unless defined $building;
-        $building->body($self);
-        weaken($building->{_relationship_data}{body});
         return $building;
     },
 );    
@@ -818,8 +790,8 @@ sub build_building {
 sub found_colony {
     my ($self, $empire) = @_;
     $self->empire_id($empire->id);
-    $self->empire($empire);
-    weaken($self->{_relationship_data}{empire});
+#    $self->empire($empire);
+#    weaken($self->{_relationship_data}{empire});
     $self->usable_as_starter_enabled(0);
     $self->last_tick(DateTime->now);
     $self->update;    
@@ -870,8 +842,8 @@ sub convert_to_station {
     $self->size(3);
     $self->plots_available(0);
     $self->empire_id($empire->id);
-    $self->empire($empire);
-    weaken($self->{_relationship_data}{empire});
+#    $self->empire($empire);
+#    weaken($self->{_relationship_data}{empire});
 
     $self->usable_as_starter_enabled(0);
     $self->last_tick(DateTime->now);
