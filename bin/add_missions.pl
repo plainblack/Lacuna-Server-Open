@@ -40,13 +40,29 @@ if ($mission ne '' && $zone ne '') {
 }
 else {
     out('Adding missions...');
+    out(scalar @mission_files. " mission files");
     my @zones = $db->resultset('Lacuna::DB::Result::Map::Body')->search(
         { empire_id => { '>' => 0 }},
         { distinct => 1 })->get_column('zone')->all;
     foreach my $zone (@zones) {
         out($zone);
+        my $current_missions = $db->resultset('Lacuna::DB::Result::Mission')->search(
+            { zone => "$zone" });
+        my @current;
+        while (my $mission = $current_missions->next) {
+          push @current, $mission->mission_file_name;
+        }
+        out(scalar @current. " current missions");
+        my @avail;
+        for my $mission (@mission_files) {
+          push @avail, $mission unless ( grep { $mission eq $_ } @current);
+        }
+        out(scalar @avail. " to pick from");
+
         foreach (1..3) {
-            my $mission = Lacuna::DB::Result::Mission->initialize($zone, $mission_files[rand @mission_files]);
+            last unless scalar @avail > 0;
+            my $mission_file = splice(@avail, rand(@avail), 1);
+            my $mission = Lacuna::DB::Result::Mission->initialize($zone, $mission_file);
             say $mission->params->get('name');
         }
     }
