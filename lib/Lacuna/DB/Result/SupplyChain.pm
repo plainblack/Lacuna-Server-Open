@@ -40,6 +40,27 @@ sub get_status {
     };
 }
 
+sub get_incoming_status {
+    my ($self) = @_;
+
+    my $planet = $self->planet;
+    return {
+        id      => $self->id,
+        from_body   => {
+            id      => $planet->id,
+            name    => $planet->name,
+            x       => $planet->x,
+            y       => $planet->y,
+            image   => $planet->image,
+        },
+        building_id    => $self->building_id,
+        resource_hour  => $self->resource_hour,
+        resource_type  => $self->resource_type,
+        stalled        => $self->stalled,
+        percent_transferred => $self->percent_transferred,
+    };
+}
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

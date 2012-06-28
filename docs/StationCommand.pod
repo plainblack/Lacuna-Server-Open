@@ -80,4 +80,39 @@ A session id.
 The unique id of the PCC.
 
 
+=head2 view_incoming_supply_chains ( session_id, building_id )
+
+Returns a list of all incoming supply chains feeding this planet.
+
+ {
+    "status" : { ... },
+    "incoming_supply_chains" : [
+        {
+            "id" : "id-goes-here",
+            "from_body" : {
+              "id" : "id-goes-here",
+              "name" : "Mars",
+              "x" : 0,
+              "y" : -123,
+              "image" : "station"
+            },
+            "resource_hour" : 10000000,
+            "resource_type" : 'water',
+            "percent_transferred" : 95,
+            "stalled" : 0,
+        },
+        ...
+    ]
+ }
+
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the PCC.
+
+
 =cut

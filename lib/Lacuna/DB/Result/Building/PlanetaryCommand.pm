@@ -65,6 +65,12 @@ around produces_food_items => sub {
     return $foods;
 };
 
+sub incoming_supply_chains {
+    my ($self) = @_;
+
+    return Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->search({ target_id => $self->body_id });
+}
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
