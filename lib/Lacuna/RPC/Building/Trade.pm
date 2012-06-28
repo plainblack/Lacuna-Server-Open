@@ -212,7 +212,6 @@ sub view_supply_chains {
     }
 
     my $max_chains = $building->level * 3;
-    my $body        = $building->body;
     my @supply_chains;
     my $chains      = $building->supply_chains;
     while (my $chain = $chains->next) {
@@ -233,7 +232,6 @@ sub view_waste_chains {
     unless ($building) {
         confess [1002, "Cannot find that building."];
     }
-    my $body        = $building->body;
     my @waste_chains;
     my $chains      = $building->waste_chains;
     while (my $waste_push = $chains->next) {
