@@ -65,10 +65,10 @@ sub alliance_rank {
         };
     }
     return {
-        status  	=> $self->format_status($empire),
-        alliances 	=> \@alliances,
-        total_alliances	=> $ranks->pager->total_entries,
-        page_number	=> $page_number,
+        status  => $self->format_status($empire),
+        alliances => \@alliances,
+        total_alliances => $ranks->pager->total_entries,
+        page_number => $page_number,
     };
 }
 
@@ -139,10 +139,10 @@ sub empire_rank {
         };
     }
     return {
-        status  	=> $self->format_status($empire),
-        empires 	=> \@empires,
-        total_empires	=> $ranks->pager->total_entries,
-        page_number	=> $page_number,
+        status  => $self->format_status($empire),
+        empires => \@empires,
+        total_empires => $ranks->pager->total_entries,
+        page_number => $page_number,
     };
 }
 
@@ -196,8 +196,8 @@ sub colony_rank {
         }
     }
     return {
-        status      	=> $self->format_status($empire),
-        colonies    	=> \@colonies,
+        status      => $self->format_status($empire),
+        colonies    => \@colonies,
     };
 }
 
@@ -225,8 +225,8 @@ sub spy_rank {
         }
     }
     return {
-        status      	=> $self->format_status($empire),
-        spies       	=> \@spies,
+        status      => $self->format_status($empire),
+        spies       => \@spies,
     };
 }
     
@@ -245,8 +245,8 @@ sub weekly_medal_winners {
         }
     }
     return {
-        status      	=> $self->format_status($empire),
-        winners       	=> \@winners,
+        status      => $self->format_status($empire),
+        winners       => \@winners,
     };
 }
     

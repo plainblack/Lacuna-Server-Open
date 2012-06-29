@@ -7,7 +7,7 @@ use Lacuna::Util qw(format_date);
 use Getopt::Long;
 use JSON;
 use SOAP::Amazon::S3;
-use Lacuna::Constants qw(SHIP_TYPES);
+use Lacuna::Constants qw(SHIP_TYPES ORE_TYPES);
 use utf8;
 
 
@@ -53,6 +53,7 @@ sub generate_overview {
     my $bodies      = $db->resultset('Lacuna::DB::Result::Map::Body');
     my @off_limits  = $bodies->search({empire_id => {'<' => 2}})->get_column('id')->all;
     my $ships       = $db->resultset('Lacuna::DB::Result::Ships')->search({body_id => { 'not in' => \@off_limits}});
+    my $glyphs      = $db->resultset('Glyphs')->search({body_id => { 'not in' => \@off_limits}});
     my $spies       = $db->resultset('Lacuna::DB::Result::Spies')->search({empire_id => { '>' => 1}});
     my $buildings   = $db->resultset('Lacuna::DB::Result::Building')->search({body_id => { 'not in' => \@off_limits}});
     my $empires     = $db->resultset('Lacuna::DB::Result::Empire')->search({id => { '>' => 1}});
@@ -164,6 +165,14 @@ sub generate_overview {
             slowest_speed       => $type_rs->get_column('speed')->min,
             count               => $count
         };
+    }
+
+    # flesh out glyphs
+    out('Flesh Out Glyphs Stats');
+    foreach my $type (ORE_TYPES) {
+        my $type_rs = $glyphs->search({type => $type});
+        my $count = $type_rs->count;
+        $out{glyphs}{types}{$type} = $count;
     }
 
     out('Write To S3');
