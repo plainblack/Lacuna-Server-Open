@@ -34,7 +34,7 @@ $result = $tester->post('spaceport','view', [{
     building_id => $test_spaceport->id,
     no_status   => 1,
 }]);
-
+exit;
 my $fleets = $test_home->fleets->search({
     task => 'Docked',
 });
