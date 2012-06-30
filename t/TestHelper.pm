@@ -82,23 +82,30 @@ sub clear_all_test_empires {
 sub use_existing_test_empire {
     my ($self) = @_;
 
-    my ($empire) = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({
+    say "use_existing_test_empire [".$self->empire_name."]";
+    my ($empire) = Lacuna->db->resultset('Empire')->search({
         name => $self->empire_name,
     });
+    #print STDERR "EMPIRE = [$empire]\n";
     if (not $empire) {
+        say "No existing empire found";
         $self->generate_test_empire;
         my $home = $self->empire->home_planet;
-
+        say "Home planet ID is ".$self->empire->home_planet_id;
+        say "Home planet is ".$home->name;
         $self->build_big_colony($home);
         $empire = $self->empire;
         # Generate a colony
+        say "Generate a colony orbit [".$home->orbit."] zone [".$home->zone."]";
         my ($colony) = Lacuna->db->resultset('Map::Body')->search({
             empire_id => undef,
             size      => {'>' => 100},
             orbit     => $home->orbit,
             zone      => $home->zone,
         });
-        $colony->found_colony($empire);
+    say "Colony = [$colony]";
+        
+$colony->found_colony($empire);
         $self->build_big_colony($colony);
     }
     $empire->essentia(1_000_000);
@@ -111,15 +118,14 @@ sub use_existing_test_empire {
 sub generate_test_empire {
     my $self = shift;
     # Make sure no other test empires are still around
-    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({
+    my $empires = Lacuna->db->resultset('Empire')->search({
         name                => $self->empire_name,
     });
     while (my $empire = $empires->next) {
         $empire->delete;
     }
 
-
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new({
+    my $empire = Lacuna->db->resultset('Empire')->new({
         name                => $self->empire_name,
         date_created        => DateTime->now,
         status_message      => 'Making Lacuna a better Expanse.',

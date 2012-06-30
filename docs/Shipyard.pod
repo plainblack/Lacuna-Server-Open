@@ -190,8 +190,8 @@ Ships that are used to gather resources from space.
    "status" : { ... },
  }
 
-The response gives a list of ships, whether the B<can> be build or not, and if not, the B<reason> it cannot
-be built (an arrayref).
+The response gives a list of ships, whether they B<can> be build or not, and if not, the B<reason> 
+they cannot be built (an arrayref).
 
 The B<cost> represents the cost of producing one ship. B<seconds> is the time it would take to produce one
 ship, but due to efficiency of scale the cost reduces if you build a fleet of ships, the more ships in the
