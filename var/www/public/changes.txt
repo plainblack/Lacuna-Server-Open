@@ -1,3 +1,9 @@
+3.0858:
+ - Add: Resources per hour for all food/ore types now shown in PCC and SCC
+ - Add: PCC and SCC now show all incoming supply chains
+ - Fix: Planet plan and starmap should now scroll correctly in IE9
+ - Mod: Supply chain type can now be modified
+
 3.0857:
  - Add: Number of glyphs of each type are now shown in Stats/General
 
