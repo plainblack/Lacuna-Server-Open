@@ -192,11 +192,15 @@ See above for these options.
          "speed" : "400",
          "fleet_speed" : "0",
          "stealth" : "0",
+         "combat" : "0",
          "hold_size" : "1200",
          "date_started" : "01 31 2010 13:09:05 +0600",
          "date_available" : "02 01 2010 10:08:33 +0600",
          "can_recall" : "0",
+         "payload" : "{}",
          "can_scuttle" : "1",
+         "max_occupants" : 120,
+         "berth_level" : 1
        },
        "date_arrives" : "02 01 2010 10:08:33 +0600",
        "from" : {

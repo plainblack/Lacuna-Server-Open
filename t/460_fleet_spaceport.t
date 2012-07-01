@@ -34,7 +34,6 @@ $result = $tester->post('spaceport','view', [{
     building_id => $test_spaceport->id,
     no_status   => 1,
 }]);
-exit;
 my $fleets = $test_home->fleets->search({
     task => 'Docked',
 });
@@ -54,6 +53,10 @@ $result = $tester->post('spaceport','view_all_fleets', [{
     paging      => {no_paging => 1},
     no_status   => 1,
 }]);
+exit;
+
+
+
 $fleets = $test_home->fleets->search;
 while (my $fleet = $fleets->next) {
     my ($result_fleet) = grep {$_->{id} == $fleet->id} @{$result->{result}{fleets}};
