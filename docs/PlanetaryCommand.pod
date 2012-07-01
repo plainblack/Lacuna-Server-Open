@@ -14,6 +14,20 @@ Command extends the view method to include a C<planet> section.
     "building" : { ... },
     "status" : { ... },
     "next_colony_cost" : 750000,        # the amount of happiness required to settle your next colony
+    "food" : {
+      "algae_hour" : 24,
+      "algae_stored" :1322,
+      "bean_hour" : 1,
+      "bean_stored" :42,
+      ..
+    },
+    "ore" : {
+      "anthracite_hour" : 333,
+      "anthracite_stored" : 34444,
+      "bauxite_hour" : 22,
+      "bauxite_stored" : 1235,
+      ...
+    },
     "planet" : {
         "id" : "id-goes-here",
         "x" : -4,
@@ -72,6 +86,41 @@ Returns a list of all the plans you've collected through various means.
  }
 
 If the C<level> is 1, and there is an C<extra_build_level>, that means that the building will be built up to 1 plus the extra build level when complete. So in the example above, it would be a level 6 directly after being built.
+
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the PCC.
+
+
+=head2 view_incoming_supply_chains ( session_id, building_id )
+
+Returns a list of all incoming supply chains feeding this planet.
+
+ {
+    "status" : { ... },
+    "incoming_supply_chains" : [
+        {
+            "id" : "id-goes-here",
+            "from_body" : {
+              "id" : "id-goes-here",
+              "name" : "Mars",
+              "x" : 0,
+              "y" : -123,
+              "image" : "station"
+            },
+            "resource_hour" : 10000000,
+            "resource_type" : 'water',
+            "percent_transferred" : 95,
+            "stalled" : 0,
+        },
+        ...
+    ]
+ }
 
 
 =head3 session_id

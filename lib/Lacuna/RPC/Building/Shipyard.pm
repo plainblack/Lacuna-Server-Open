@@ -116,7 +116,7 @@ sub get_buildable {
             next unless ($tag ~~ \@tags);
         }
         my $can = eval{$building->can_build_ship($ship)};
-		my $reason = $@;
+        my $reason = $@;
         $buildable{$type} = {
             attributes  => {
                 speed           => $building->set_ship_speed($ship),

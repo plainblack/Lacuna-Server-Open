@@ -14,6 +14,12 @@ use constant ore_consumption    =>  90;
 use constant water_consumption  => 110;
 use constant energy_consumption => 110;
 
+sub incoming_supply_chains {
+    my ($self) = @_;
+
+    return Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->search({ target_id => $self->body_id });
+}
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

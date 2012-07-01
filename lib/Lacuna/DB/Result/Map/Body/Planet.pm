@@ -218,14 +218,40 @@ before abandon => sub {
     $self->sanitize;
 };
 
+sub get_ore_status {
+    my ($self) = @_;
+
+    my $out;
+    foreach my $type (ORE_TYPES) {
+        my $arg = "${type}_hour";
+        $out->{$arg} = $self->$arg;
+        $arg = "${type}_stored";
+        $out->{$arg} = $self->$arg;
+    }
+    return $out;
+}
+
+sub get_food_status {
+    my ($self) = @_;
+
+    my $out;
+    foreach my $type (FOOD_TYPES) {
+        my $arg = "${type}_production_hour";
+        $out->{"${type}_hour"} = $self->$arg;
+        $arg = "${type}_stored";
+        $out->{$arg} = $self->$arg;
+    }
+    return $out;
+}
+
 around get_status => sub {
     my ($orig, $self, $empire) = @_;
     my $out = $orig->($self);
-    my %ore;
+    my $ore;
     foreach my $type (ORE_TYPES) {
-        $ore{$type} = $self->$type();
+        $ore->{$type} = $self->$type();
     }
-    $out->{ore}             = \%ore;
+    $out->{ore}             = $ore;
     $out->{water}           = $self->water;
     if ($self->empire_id) {
         $out->{empire} = {
@@ -429,10 +455,10 @@ use constant water => 0;
 # BUILDINGS
 
 has population => (
-    is      => 'ro',
-    lazy    => 1,
-    builder => '_build_population',
-);
+        is      => 'ro',
+        lazy    => 1,
+        builder => '_build_population',
+        );
 
 sub _build_population {
     my ($self) = @_;
@@ -447,10 +473,10 @@ sub _build_population {
 }
 
 has building_count => (
-    is      => 'rw',
-    lazy    => 1,
-    builder => '_build_building_count',
-);
+        is      => 'rw',
+        lazy    => 1,
+        builder => '_build_building_count',
+        );
 
 sub _build_building_count {
     my ($self) = @_;
@@ -481,94 +507,94 @@ sub find_building {
 }
 
 has command => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
+        is      => 'rw',
+        lazy    => 1,
+        default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::PlanetaryCommand');
         return $building;
-    },
-);
+        },
+        );
 
 has oversight => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
+        is      => 'rw',
+        lazy    => 1,
+        default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Oversight');
         return $building;
-    },
-);
+        },
+        );
 
 has archaeology => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Archaeology');
-        return $building;
-    },
-);
+        is      => 'rw',
+        lazy    => 1,
+        default => sub {
+            my $self = shift;
+            my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Archaeology');
+            return $building;
+        },
+        );
 
 has mining_ministry => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
+        is      => 'rw',
+        lazy    => 1,
+        default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Ministry');
         return $building;
-    },
-);
+        },
+        );
 
 has network19 => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
+        is      => 'rw',
+        lazy    => 1,
+        default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Network19');
         return $building;
-    },
-);
+        },
+        );
 
 has development => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
+        is      => 'rw',
+        lazy    => 1,
+        default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Development');
         return $building;
-    },
-);
+        },
+        );
 
 has refinery => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
+        is      => 'rw',
+        lazy    => 1,
+        default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Refinery');
         return $building;
-    },
-);
+        },
+        );
 
 has spaceport => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
+        is      => 'rw',
+        lazy    => 1,
+        default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::SpacePort');
         return $building;
-    },
-);    
+        },
+        );    
 
 has embassy => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
+        is      => 'rw',
+        lazy    => 1,
+        default => sub {
         my $self = shift;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Embassy');
         return $building;
-    },
-);    
+        },
+        );    
 
 sub is_space_free {
     my ($self, $x, $y) = @_;
@@ -656,18 +682,18 @@ sub has_room_in_build_queue {
 use constant operating_resource_names => qw(food_hour energy_hour ore_hour water_hour);
 
 has future_operating_resources => (
-    is      => 'rw',
-    clearer => 'clear_future_operating_resources',
-    lazy    => 1,
-    default => sub {
+        is      => 'rw',
+        clearer => 'clear_future_operating_resources',
+        lazy    => 1,
+        default => sub {
         my $self = shift;
-        
+
         # get current
         my %future;
         foreach my $method ($self->operating_resource_names) {
-            $future{$method} = $self->$method;
+        $future{$method} = $self->$method;
         }
-        
+
         # adjust for what's already in build queue
         my @queued_builds = @{$self->builds};
         foreach my $build (@queued_builds) {
@@ -809,11 +835,11 @@ sub found_colony {
 
     # add command building
     my $command = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-        x               => 0,
-        y               => 0,
-        class           => 'Lacuna::DB::Result::Building::PlanetaryCommand',
-        level           => $empire->growth_affinity - 1,
-    });
+            x               => 0,
+            y               => 0,
+            class           => 'Lacuna::DB::Result::Building::PlanetaryCommand',
+            level           => $empire->growth_affinity - 1,
+            });
     $self->build_building($command);
     $command->finish_upgrade;
 
@@ -821,7 +847,7 @@ sub found_colony {
     foreach my $crater (@craters) {
         $crater->finish_work->update;
     }
-    
+
     # add starting resources
     $self->needs_recalc(1);
     $self->tick;
@@ -830,10 +856,10 @@ sub found_colony {
     $self->add_water(700);
     $self->add_ore(700);
     $self->update;
-    
+
     # newsworthy
     $self->add_news(75,'%s founded a new colony on %s.', $empire->name, $self->name);
-        
+
     return $self;
 }
 
@@ -857,34 +883,34 @@ sub convert_to_station {
     # clean it
     my @all_buildings = @{$self->building_cache};
     $self->delete_buildings(\@all_buildings);
-    
+
     # add command building
     my $command = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-        x               => 0,
-        y               => 0,
-        class           => 'Lacuna::DB::Result::Building::Module::StationCommand',
-    });
+            x               => 0,
+            y               => 0,
+            class           => 'Lacuna::DB::Result::Building::Module::StationCommand',
+            });
     $self->build_building($command);
     $command->finish_upgrade;
-    
+
     # add parliament
     my $parliament = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-        x               => -1,
-        y               => 0,
-        class           => 'Lacuna::DB::Result::Building::Module::Parliament',
-    });
+            x               => -1,
+            y               => 0,
+            class           => 'Lacuna::DB::Result::Building::Module::Parliament',
+            });
     $self->build_building($parliament);
     $parliament->finish_upgrade;
-    
+
     # add warehouse
     my $warehouse = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-        x               => 1,
-        y               => 0,
-        class           => 'Lacuna::DB::Result::Building::Module::Warehouse',
-    });
+            x               => 1,
+            y               => 0,
+            class           => 'Lacuna::DB::Result::Building::Module::Warehouse',
+            });
     $self->build_building($warehouse);
     $warehouse->finish_upgrade;
-    
+
     # add starting resources
     $self->tick;
     $self->add_algae(2500);
@@ -892,25 +918,25 @@ sub convert_to_station {
     $self->add_water(2500);
     $self->add_rutile(2500);
     $self->update;
-    
+
     # newsworthy
     $self->add_news(100,'%s deployed a space station at %s.', $empire->name, $self->name);
-        
+
     return $self;
 }
 
 has total_ore_concentration => (
-    is          => 'ro',  
-    lazy        => 1,
-    default     => sub {
+        is          => 'ro',  
+        lazy        => 1,
+        default     => sub {
         my $self = shift;
         my $tally = 0;
         foreach my $type (ORE_TYPES) {
-            $tally += $self->$type;
+        $tally += $self->$type;
         }
         return $tally;
-    },
-);
+        },
+        );
 
 sub is_food {
     my ($self, $resource) = @_;
@@ -970,7 +996,7 @@ sub recalc_stats {
     }
     $stats{max_berth} = 1;
     #calculate building production
-    my ($gas_giant_platforms, $terraforming_platforms, $station_command, $pantheon_of_hagness, $total_ore_production_hour, $ore_production_hour, $ore_consumption_hour) = 0;
+    my ($gas_giant_platforms, $terraforming_platforms, $station_command, $pantheon_of_hagness, $ore_production_hour, $ore_consumption_hour) = 0;
     foreach my $building (@{$self->building_cache}) {
         $stats{waste_capacity} += $building->waste_capacity;
         $stats{water_capacity} += $building->water_capacity;
@@ -989,7 +1015,7 @@ sub recalc_stats {
             $stats{$method} += $building->$method();
         }
         if ($building->isa('Lacuna::DB::Result::Building::SpacePort') and $building->efficiency == 100) {
-          $stats{max_berth} = $building->level if ($building->level > $stats{max_berth});
+            $stats{max_berth} = $building->level if ($building->level > $stats{max_berth});
         }
         if ($building->isa('Lacuna::DB::Result::Building::Ore::Ministry')) {
             my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({planet_id => $self->id});
@@ -997,7 +1023,6 @@ sub recalc_stats {
                 foreach my $type (ORE_TYPES) {
                     my $method = $type.'_hour';
                     $stats{$method} += $platform->$method();
-                    $total_ore_production_hour += $platform->$method();
                 }
             }
         }
@@ -1015,14 +1040,12 @@ sub recalc_stats {
             my $output_chains = Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->search({planet_id => $self->id});
             while (my $out_chain = $output_chains->next) {
                 my $percent = $out_chain->percent_transferred;
-                $percent = $percent > 100 ? 100 : $percent;
-                $percent *= $building->efficiency / 100;
+                $percent    = $percent > 100 ? 100 : $percent;
+                $percent    *= $building->efficiency / 100;
+
                 my $resource_hour = sprintf('%.0f',$out_chain->resource_hour * $percent / 100);
-                my $resource_name = $self->resource_name($out_chain->resource_type);
+                my $resource_name   = $self->resource_name($out_chain->resource_type);
                 $stats{$resource_name} -= $resource_hour;
-                if ($self->is_ore($out_chain->resource_type)) {
-                    $total_ore_production_hour -= $resource_hour;
-                }
             }
         }
         if ($building->isa('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform')) {
@@ -1041,10 +1064,10 @@ sub recalc_stats {
 
     # active supply chains sent *to* this planet
     my $input_chains = Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->search({
-        target_id   => $self->id,
-        stalled	    => 0,
-        },{prefetch => 'building'}
-    );
+            target_id   => $self->id,
+            stalled     => 0,
+            },{prefetch => 'building'}
+            );
     while (my $in_chain = $input_chains->next) {
 
         my $percent = $in_chain->percent_transferred;
@@ -1053,9 +1076,6 @@ sub recalc_stats {
         my $resource_hour = sprintf('%.0f',$in_chain->resource_hour * $percent / 100);
         my $resource_name = $self->resource_name($in_chain->resource_type);
         $stats{$resource_name} += $resource_hour;
-        if ($self->is_ore($in_chain->resource_type)) {
-            $total_ore_production_hour += $resource_hour;
-        }
     }
 
     # local ore production
@@ -1063,17 +1083,27 @@ sub recalc_stats {
         my $method = $type.'_hour';
         my $domestic_ore_hour = sprintf('%.0f',$self->$type * $ore_production_hour / $self->total_ore_concentration);
         $stats{$method} += $domestic_ore_hour;
-        $total_ore_production_hour += $domestic_ore_hour;
     }
 
-    # subtract ore consumption
+    # For all ore production that is positive, deduct a percentage for ore consumption
+    my $positive_ore_hour = 0;
     foreach my $type (ORE_TYPES) {
-        my $method = $type.'_hour';
-        $stats{$method} -= sprintf('%.0f', ($total_ore_production_hour) ? $ore_consumption_hour * $stats{$method} / $total_ore_production_hour: 0);
+        my $resource_name = $self->resource_name($type);
+        if ($stats{$resource_name} > 0) {
+            $positive_ore_hour += $stats{$resource_name};
+        }
     }
-
-    # overall ore production
-    $stats{ore_hour} = $total_ore_production_hour - $ore_consumption_hour;
+    my $reduce_factor = 1;
+    if ($positive_ore_hour >= $ore_consumption_hour) {
+        $reduce_factor = $ore_consumption_hour / $positive_ore_hour;
+    }
+    foreach my $type (ORE_TYPES) {
+        my $resource_name = $self->resource_name($type);
+        if ($stats{$resource_name} > 0) {
+            $stats{$resource_name} -= $stats{$resource_name} * $reduce_factor;
+        }
+    }
+    $stats{ore_hour} = $positive_ore_hour - $ore_consumption_hour;
 
     # deal with negative amounts stored
     $self->water_stored = 0 if $self->water_stored < 0;
@@ -1111,10 +1141,10 @@ sub recalc_stats {
         }
     }
     $stats{plots_available} = $max_plots - $self->building_count;
-# Decrease happiness production if short on plots.
+    # Decrease happiness production if short on plots.
     if ($stats{plots_available} < 0) {
       my $plot_tax = int(50 * 1.62 ** (abs($stats{plots_available})-1));
-# Set max to at least -10k
+    # Set max to at least -10k
       my $neg_hr = $self->happiness > 100_000 ? -1 * $self->happiness/10 : -10_000;
  
       if ( $stats{happiness_hour} < 0 and $stats{happiness_hour} > $neg_hr) {
@@ -1288,7 +1318,7 @@ sub tick_to {
     my $seconds  = $now->epoch - $self->last_tick->epoch;
     my $tick_rate = $seconds / 3600;
     $self->last_tick($now);
-# Check to see if downward spiral still happening in happiness from negative plots.
+    # Check to see if downward spiral still happening in happiness from negative plots.
     $self->needs_recalc(1) if ($self->happiness < 0 and $self->happiness_hour < -20_000);
     if ($self->needs_recalc) {
         $self->recalc_stats;    
@@ -1310,8 +1340,7 @@ sub tick_to {
       }
       else {
         $arch->last_check($now);
-        $arch->update;
-      }
+        }
     }
     # happiness
     $self->add_happiness(sprintf('%.0f', $self->happiness_hour * $tick_rate));
@@ -1340,27 +1369,53 @@ sub tick_to {
         $self->add_water(sprintf('%.0f', $self->water_hour * $tick_rate));
     }
     
+
+    # OK, tricky stuff coming up!
+    #
+    # TERMS:
+    #
+    # $self->ore_hour
+    # $self->ore_hour - the net amount of ore produced on this colony per hour
+    #   it also includes any ore imported via supply chains and any exported by supply chains.
+    #
+    # $ore_consumption_hour - the amount of generic ore type consumed by buildings
+    # consumption comes out of stored ore.
+    #
+    # $self->xxx_hour - the net amount of a specific ore (e.g. xxx = gold) produced/consumed by
+    # this colony. Includes all local production, platform production, incoming supply
+    # chains and outgoing supply chains.
+    #
+    # ALGORITHM:
+    #
+    # Every tick, we need to calculate the amount of each ore
+    #
+    # Where a xxx_hour ore rate is specified then calculate the resulting +ve or -ve change in
+    # the amount of ore stored for that specific ore type. If -ve and ore stored goes to zero
+    # then don't 'complain', this just means that a supply chain will become stalled which is
+    # handled elsewhere.
+    #
+    # For $ore_consumption_hour we remove from stored ore proportionate to the amount of ore
+    # stored of each type. In this case if a stored ore goes to zero then we *do* complain
+    # and part of that complaint might be to damage buildings.
+    #
+
     # ore
-    my $ore_hour = 0;
     foreach my $type (ORE_TYPES) {
         my $hour_method = $type.'_hour';
-        $ore_hour += $self->$hour_method;
-        if ($self->$hour_method < 0 ) { # if it gets negative, spend out of storage
+        if ($self->$hour_method < 0 ) {
             $self->spend_ore_type($type, sprintf('%.0f',abs($self->$hour_method) * $tick_rate));
         }
-        else {
+        elsif ($self->$hour_method > 0 ) {
             $self->add_ore_type($type, sprintf('%.0f', $self->$hour_method * $tick_rate));
         }
     }
-    if ($ore_hour == 0 && $self->ore_hour != 0) {
-        if ($self->ore_hour < 0) {
-            $self->spend_ore(sprintf('%.0f', abs($self->ore_hour) * $tick_rate));
-        }
-        else {
-            $self->add_ore(sprintf('%.0f', $self->ore_hour * $tick_rate));
-        }
+    if ($self->ore_hour > 0) {
+        $self->add_ore(sprintf('%.0f', $self->ore_hour * $tick_rate));
     }
-    
+    if ($self->ore_hour < 0) {
+        $self->spend_ore(sprintf('%.0f', abs($self->ore_hour) * $tick_rate, 'complain'));
+    }
+
     # food
     my %food;
     my $food_produced;
@@ -1484,13 +1539,13 @@ sub add_type {
         my $empire = $self->empire;
         if (defined $empire && !$empire->skip_resource_warnings && !$empire->check_for_repeat_message('complaint_overflow'.$self->id)) {
             $empire->send_predefined_message(
-                filename    => 'complaint_overflow.txt',
-                params      => [$type, $self->id, $self->name],
-                repeat_check=> 'complaint_overflow'.$self->id,
-                tags        => ['Complaint','Alert'],
-            );
+                    filename    => 'complaint_overflow.txt',
+                    params      => [$type, $self->id, $self->name],
+                    repeat_check=> 'complaint_overflow'.$self->id,
+                    tags        => ['Complaint','Alert'],
+                    );
         }
-        
+
     }
     $self->$method($value);
     return $self;
@@ -1526,13 +1581,18 @@ sub add_ore_type {
 }
 
 sub spend_ore_type {
-    my ($self, $type, $amount_spent) = @_;
+    my ($self, $type, $amount_spent, $complain) = @_;
     my $amount_stored = $self->type_stored($type);
     if ($amount_spent > $amount_stored && $amount_spent > 0) {
         my $difference = $amount_spent - $amount_stored;
         $self->spend_happiness($difference);
         $self->type_stored($type, 0);
-        $self->complain_about_lack_of_resources('ore') if ((($difference * 100) / $amount_spent) > 5); # help avoid rounding errors causing messages
+
+        if ($complain &&
+            ($difference * 100) / $amount_spent > 5) {
+           
+            $self->complain_about_lack_of_resources('ore');
+        }
     }
     else {
         $self->type_stored($type, $amount_stored - $amount_spent );
@@ -1748,11 +1808,11 @@ sub spend_ore {
     foreach my $type (ORE_TYPES) {
         $ore_stored += $self->type_stored($type);
     }
-    
+
     # spend proportionally and save
     if ($ore_stored) {
         foreach my $type (ORE_TYPES) {
-            $self->spend_ore_type($type, sprintf('%.0f', ($ore_consumed * $self->type_stored($type)) / $ore_stored));
+            $self->spend_ore_type($type, sprintf('%.0f', ($ore_consumed * $self->type_stored($type)) / $ore_stored),'complain');
         }
     }
     return $self;
@@ -1789,13 +1849,19 @@ sub add_food_type {
 }
 
 sub spend_food_type {
-    my ($self, $type, $amount_spent) = @_;
+    my ($self, $type, $amount_spent, $complain) = @_;
     my $amount_stored = $self->type_stored($type);
     if ($amount_spent > 0 && $amount_spent > $amount_stored) {
         my $difference = $amount_spent - $amount_stored;
         $self->spend_happiness($difference);
         $self->type_stored($type, 0);
-        $self->complain_about_lack_of_resources('food') if ((($difference * 100) / $amount_spent) > 5); # help avoid rounding errors causing messages
+
+        # Complain about lack of resources if required but avoid rounding errors
+        if ($complain &&
+            ($difference * 100) / $amount_spent > 5) {
+
+            $self->complain_about_lack_of_resources('food');
+        }
     }
     else {
         $self->type_stored($type, $amount_stored - $amount_spent );
@@ -2039,7 +2105,9 @@ sub spend_food {
     # spend proportionally and save
     if ($food_stored) {
         foreach my $type (FOOD_TYPES) {
-            $self->spend_food_type($type, sprintf('%.0f', ($food_consumed * $self->type_stored($type)) / $food_stored));
+            # We 'complain' about lack of food if we are spending out of generic food
+            # we don't complain about specific foods, because we can always substitute.
+            $self->spend_food_type($type, sprintf('%.0f', ($food_consumed * $self->type_stored($type)) / $food_stored),'complain');
         }
     }
     
