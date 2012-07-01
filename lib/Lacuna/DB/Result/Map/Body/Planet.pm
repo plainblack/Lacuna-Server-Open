@@ -14,7 +14,7 @@ use Scalar::Util qw(weaken);
 no warnings 'uninitialized';
 
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
-__PACKAGE__->has_many('plans','Lacuna::DB::Result::Plans','body_id');
+__PACKAGE__->has_many('plans','Lacuna::DB::Result::Plan','body_id');
 __PACKAGE__->has_many('glyphs','Lacuna::DB::Result::Glyphs','body_id');
 __PACKAGE__->has_many('waste_chains', 'Lacuna::DB::Result::WasteChain','planet_id');
 __PACKAGE__->has_many('out_supply_chains', 'Lacuna::DB::Result::SupplyChain','planet_id');
@@ -142,14 +142,25 @@ sub add_plan {
     my ($self, $class, $level, $extra_build_level) = @_;
 
     # add it
-    my $plan = $self->plans->new({
-        body_id             => $self->id,
-        class               => $class,
-        level               => $level,
-        extra_build_level   => $extra_build_level,
-    })->insert;
-
-    push @{$self->plan_cache}, $plan;
+    my ($plan) = grep {
+            $_->class eq $class 
+        and $_->level == $level 
+        and $_->extra_build_level == $extra_build_level,
+        } @{$self->plan_cache};
+    if ($plan) {
+        $plan->quantity($plan->quantity + 1);
+        $plan->update;
+    }
+    else {
+        $plan = $self->plans->create({
+            body_id             => $self->id,
+            class               => $class,
+            level               => $level,
+            extra_build_level   => $extra_build_level,
+            quantity            => 1,
+        });
+        push @{$self->plan_cache}, $plan;
+    }
     return $plan;
 }
 
