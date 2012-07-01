@@ -5,7 +5,6 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 
-__PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('glyph');
 __PACKAGE__->add_columns(
     body_id                 => { data_type => 'int', is_nullable => 0 },
