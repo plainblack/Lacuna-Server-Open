@@ -597,6 +597,7 @@ Returns a list of the supply chains currently controlled by this Trade Ministry
         "resource_hour" : 10000000,
         "resource_type" : 'water',
         "percent_transferred" : 95,
+        "stalled" : 0,
       }
     ],
     "max_supply_chains" : 30
@@ -619,6 +620,8 @@ the B<percent_transferred> will be zero. If it is below 100 then you need to add
 it is at or above 100. Above 100 and you have more ship capacity than you need, but you will
 still only transfer the specified B<resource_hour>, it just means some ships will be idle or not
 fully filled.
+
+B<stalled> is true if there are no more of the chain's resource available in storage to push.
 
 
 =head2 view_waste_chains ( session_id, building_id )

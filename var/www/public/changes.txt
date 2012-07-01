@@ -1,13 +1,27 @@
 3.0899:
  - Mod: glyphs changed in DB to be more compact.
+3.0858:
+ - Add: Resources per hour for all food/ore types now shown in PCC and SCC
+ - Add: PCC and SCC now show all incoming supply chains
+ - Fix: Planet plan and starmap should now scroll correctly in IE9
+ - Mod: Supply chain type can now be modified
+
+3.0857:
+ - Add: Number of glyphs of each type are now shown in Stats/General
+
+3.0856:
+ - Mod: DeLambert now offer glyph trades with all the same type
 
 3.0855:
  - Mod: Intelligence Building Level doesn't factor into training costs.
  - Mod: Burning a spy has more consequences.
+ - Fix: No burning spies while they're being transported.
+ - Grr: Space Stations shouldn't turn into asteroids.  However, they won't die if you want them until we fix the bug.
+ - Add: Supply chain now shows 'stalled' status (API only)
 
 3.0854:
  - Add: Backend support only for fleet actions. No changes to gameplay at this time.
- - Fix: None-permanent buildings on abandoned planets have been cleared.
+ - Fix: Non-permanent buildings on abandoned planets have been cleared.
  - Fix: Spies no longer stealing level 1 buildings.
  - Fix: 0% Efficiency Saws will no longer shoot down zero combat ships.
 

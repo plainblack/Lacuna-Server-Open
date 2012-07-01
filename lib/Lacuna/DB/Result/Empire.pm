@@ -5,6 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use DateTime;
+use Scalar::Util qw(weaken);
 use Lacuna::Util qw(format_date);
 use Digest::SHA;
 use List::MoreUtils qw(uniq);
@@ -502,6 +503,8 @@ sub found {
   $self->stage('founded');
   $self->update;
   $self->home_planet($home_planet);
+  weaken($self->{_relationship_data}{home_planet});
+
   $self->add_probe($home_planet->star_id, $home_planet->id);
 
   # found colony

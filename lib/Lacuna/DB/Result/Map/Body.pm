@@ -232,11 +232,12 @@ has building_cache => (
 
 sub _build_building_cache {
     my ($self) = @_;
-
     my $buildings = [];
-    my $bld_rs = $self->_buildings->search({},{prefetch => 'body'});
+    my $bld_rs = $self->_buildings->search({});
     while (my $building = $bld_rs->next) {
-        push @$buildings, $building;
+        $building->body($self);
+        weaken($building->{_relationship_data}{body});
+        push @$buildings,$building;
     }
     return $buildings;
 }

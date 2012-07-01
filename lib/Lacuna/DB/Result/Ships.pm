@@ -6,6 +6,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use Lacuna::Util qw(format_date randint);
 use DateTime;
+use Scalar::Util qw(weaken);
 use feature "switch";
 
 has 'hostile_action' => (
@@ -291,6 +292,7 @@ sub send {
     if ($options{target}->isa('Lacuna::DB::Result::Map::Body')) {
         $self->foreign_body_id($options{target}->id);
         $self->foreign_body($options{target});
+        weaken($self->{_relationship_data}{foreign_body});
         $self->foreign_star_id(undef);
         $self->foreign_star(undef);
     }

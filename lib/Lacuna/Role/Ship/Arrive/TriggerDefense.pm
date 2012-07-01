@@ -349,7 +349,11 @@ sub saw_stats {
 
     my @planet_saws = $body->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
 
-    my $planet_combat = 0;
+    # unweaken body
+    map {$_->body($_->body)} @planet_saws;
+
+
+my $planet_combat = 0;
     my $cnt = 0;
     my @defending_saws;
     for my $saw (@planet_saws) {

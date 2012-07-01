@@ -7,6 +7,8 @@ extends 'Lacuna::DB::Result';
 use List::Util qw(shuffle);
 use Lacuna::Util qw(format_date randint random_element);
 use DateTime;
+use Scalar::Util qw(weaken);
+
 use feature "switch";
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES SHIP_TYPES);
 
@@ -647,7 +649,10 @@ sub get_defender {
               empire_id => { 'not_in' => \@member_ids } },
             { rows => 1, order_by => 'rand()' }
         )->single;
-    $defender->on_body($self->on_body) if defined $defender;
+    if (defined $defender) {
+        $defender->on_body($self->on_body);
+        weaken($defender->{_relationship_data}{on_body});
+    }
     return $defender;
 }
 
@@ -674,7 +679,10 @@ sub get_attacker {
             { rows => 1, order_by => 'rand()' }
         )
         ->single;
-    $attacker->on_body($self->on_body) if defined $attacker;
+    if (defined $attacker) {
+        $attacker->on_body($self->on_body);
+        weaken($attacker->{_relationship_data}{on_body});
+    }
     return $attacker;
 }
 
@@ -702,7 +710,10 @@ sub get_idle_attacker {
 
     my $attacker = random_element(\@attackers);
 
-    $attacker->on_body($self->on_body) if defined $attacker;
+    if (defined $attacker) {
+        $attacker->on_body($self->on_body);
+        weaken($attacker->{_relationship_data}{on_body});
+    }
     return $attacker;
 }
 
@@ -716,7 +727,10 @@ sub get_random_prisoner {
         )
         ->all;
     my $prisoner = random_element(\@prisoners);
-    $prisoner->on_body($self->on_body) if defined $prisoner;
+    if (defined $prisoner) {
+        $prisoner->on_body($self->on_body);
+        weaken($prisoner->{_relationship_data}{on_body});
+    }
     return $prisoner;
 }
 
@@ -1713,6 +1727,7 @@ sub abduct_operative {
     return $self->ship_not_found->id unless (defined $ship);
     return $self->no_contact->id unless (defined $defender);
     $ship->body($self->from_body);
+    weaken($ship->{_relationship_data}{from_body});
     $ship->send(
         target      => $self->on_body,
         direction   => 'in',
@@ -2018,6 +2033,7 @@ sub steal_resources {
     }
     $on_body->update;
     $ship->body($self->from_body);
+    weaken($ship->{_relationship_data}{body});
     $ship->send(
         target      => $self->on_body,
         direction   => 'in',
@@ -2067,6 +2083,7 @@ sub steal_glyph {
     my $glyph = $on_body->glyphs->search(undef, {rows => 1, order_by => 'rand()'})->single;
     return $self->mission_objective_not_found('glyph')->id unless defined $glyph;
     $ship->body($self->from_body);
+    weaken($ship->{_relationship_data}{body});
     $ship->send(
         target      => $self->on_body,
         direction   => 'in',
@@ -2117,6 +2134,7 @@ sub steal_ships {
         )->single;
     return $self->ship_not_found->id unless (defined $ship);
     $ship->body($self->from_body);
+    weaken($ship->{_relationship_data}{body});
     $ship->send(
         target      => $self->on_body,
         direction   => 'in',
@@ -2259,7 +2277,6 @@ sub shut_down_building {
         filename    => 'building_loss_of_power.txt',
         params      => [$building->name, $self->on_body->id, $self->on_body->name],
     );
-    $building->body($self->on_body);
     $building->spend_efficiency($self->level)->update;
     $self->on_body->add_news(25,
                              'Employees at the %s on %s were left in the dark today during a power outage.',

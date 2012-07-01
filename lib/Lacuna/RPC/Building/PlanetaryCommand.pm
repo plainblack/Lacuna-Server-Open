@@ -5,6 +5,8 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 
+with 'Lacuna::Role::IncomingSupplyChains';
+
 sub app_url {
     return '/planetarycommand';
 }
@@ -19,6 +21,8 @@ around 'view' => sub {
     my $building = $self->get_building($empire, $building_id, skip_offline => 1);
     my $out = $orig->($self, $empire, $building);
     $out->{planet} = $building->body->get_status($empire);
+    $out->{ore} = $building->body->get_ore_status;
+    $out->{food} = $building->body->get_food_status;
     $out->{next_colony_cost} = $empire->next_colony_cost;
     return $out;
 };
@@ -52,7 +56,7 @@ sub view_plans {
     }
 }
 
-__PACKAGE__->register_rpc_method_names(qw(view_plans));
+__PACKAGE__->register_rpc_method_names(qw(view_plans view_incoming_supply_chains));
 
 
 

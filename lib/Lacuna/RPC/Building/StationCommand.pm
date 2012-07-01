@@ -5,6 +5,8 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 
+with 'Lacuna::Role::IncomingSupplyChains';
+
 sub app_url {
     return '/stationcommand';
 }
@@ -52,7 +54,7 @@ sub view_plans {
     }
 }
 
-__PACKAGE__->register_rpc_method_names(qw(view_plans));
+__PACKAGE__->register_rpc_method_names(qw(view_plans view_incoming_supply_chains));
 
 
 
