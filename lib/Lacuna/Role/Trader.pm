@@ -54,10 +54,11 @@ sub check_payload {
         confess [1002, "You don't have ".$item->{quantity}." glyphs of type ".
                         $item->{name}." you only have ".$glyph->quantity]
                       unless $glyph->quantity >= $item->{quantity};
-        push (@expanded_items, {
-            name => $item->{name},
-            quantity => $item->{quantity},
-        });
+        push @expanded_items, $item;
+#        push (@expanded_items, {
+#            name => $item->{name},
+#            quantity => $item->{quantity},
+#        });
         $space_used += 100 * $item->{quantity};
       }
       when ('plan') {

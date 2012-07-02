@@ -33,6 +33,7 @@ sub get_glyphs {
     while (my $glyph = $glyphs->next) {
         push @out, {
             id      => $glyph->id,
+            name    => $glyph->name,
             type    => $glyph->type,
             quantity => $glyph->quantity,
         };
@@ -54,6 +55,7 @@ sub get_glyph_summary {
         push @out, {
             id      => $glyph->id,
             type    => $glyph->type,
+            name    => $glyph->name,
             quantity => $glyph->quantity,
         };
     }
