@@ -25,12 +25,10 @@ use utf8;
   out('Loading DB');
   our $db = Lacuna->db;
 
-  summarize_spies();
   summarize_colonies();
   my $mapping = summarize_empires();
   summarize_alliances();
   delete_old_records($start);
-  rank_spies();
   rank_colonies();
   rank_empires();
   rank_alliances();
@@ -53,7 +51,6 @@ sub generate_overview {
     my $bodies      = $db->resultset('Lacuna::DB::Result::Map::Body');
     my @off_limits  = $bodies->search({empire_id => {'<' => 2}})->get_column('id')->all;
     my $ships       = $db->resultset('Lacuna::DB::Result::Ships')->search({body_id => { 'not in' => \@off_limits}});
-    my $spies       = $db->resultset('Lacuna::DB::Result::Spies')->search({empire_id => { '>' => 1}});
     my $buildings   = $db->resultset('Lacuna::DB::Result::Building')->search({body_id => { 'not in' => \@off_limits}});
     my $empires     = $db->resultset('Lacuna::DB::Result::Empire')->search({id => { '>' => 1}});
     my $probes      = $db->resultset('Lacuna::DB::Result::Probes')->search({empire_id => { '>' => 1}});
@@ -72,24 +69,6 @@ sub generate_overview {
         },
         ships       => {
             count           => $ships->count,
-        },
-        spies       => {
-            count                           => $spies->count,
-            average_defense                 => $spies->get_column('defense')->func('avg'),
-            average_offense                 => $spies->get_column('offense')->func('avg'),
-            highest_defense                 => $spies->get_column('defense')->max,
-            highest_offense                 => $spies->get_column('offense')->max,
-            gathering_intelligence_count    => $spies->search({task => 'Gather Intelligence'})->count,
-            hacking_networks_count          => $spies->search({task => 'Hack Networks'})->count,
-            countering_espionage_count      => $spies->search({task => 'Counter Espionage'})->count,
-            inciting_rebellion_count        => $spies->search({task => 'Incite Rebellion'})->count,
-            sabotaging_infrastructure_count => $spies->search({task => 'Sabotage Infrastructure'})->count,
-            appropriating_technology_count  => $spies->search({task => 'Appropriate Technology'})->count,
-            travelling_count                => $spies->search({task => 'Travelling'})->count,
-            training_count                  => $spies->search({task => 'Training'})->count,
-            in_prison_count                 => $spies->search({task => 'Captured'})->count,
-            unconscious_count               => $spies->search({task => 'Unconscious'})->count,
-            idle_count                      => $spies->search({task => 'Idle'})->count,
         },
         buildings   => {
             count           => $buildings->count,
@@ -170,22 +149,16 @@ sub generate_overview {
     my $config = Lacuna->config;
     my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
     my $bucket = $s3->bucket($config->get('feeds/bucket'));
+    # fetch existing overview
+    my $old_object = $bucket->object('server_overview.json');
+    my $old_stats  = from_json( $old_object->getdata );
+    # add old spies data to new data
+    $out{spies} = $old_stats->{spies};
+    # save updated data
     my $object = $bucket->putobject('server_overview.json', to_json(\%out), { 'Content-Type' => 'application/json' });
     $object->acl('public');
 }
 
-
-sub rank_spies {
-    out('Ranking Spies');
-    my $spies = $db->resultset('Lacuna::DB::Result::Log::Spies');
-    foreach my $field (qw(level success_rate dirtiest)) {
-        my $ranked = $spies->search(undef, {order_by => {-desc => $field}});
-        my $counter = 1;
-        while (my $spy = $ranked->next) {
-            $spy->update({$field.'_rank' => $counter++});
-        }
-    }
-}
 
 sub rank_colonies {
     out('Ranking Colonies');
@@ -229,7 +202,6 @@ sub delete_old_records {
     $db->resultset('Lacuna::DB::Result::Log::Alliance')->search({date_stamp => { '<' => $start}})->delete;
     $db->resultset('Lacuna::DB::Result::Log::Empire')->search({date_stamp => { '<' => $start}})->delete;
     $db->resultset('Lacuna::DB::Result::Log::Colony')->search({date_stamp => { '<' => $start}})->delete;
-    $db->resultset('Lacuna::DB::Result::Log::Spies')->search({date_stamp => { '<' => $start}})->delete;
 }
 
 sub summarize_alliances { 
@@ -476,59 +448,6 @@ sub summarize_colonies {
         else {
             $colony_data{planet_id}    = $planet->id;
             $logs->new(\%colony_data)->insert;
-        }
-    }
-}
-
-sub summarize_spies {
-    out('Summarizing Spies');
-    my $spies = $db->resultset('Lacuna::DB::Result::Spies')->search({ empire_id   => {'>' => 1} });
-    my $logs = $db->resultset('Lacuna::DB::Result::Log::Spies');
-    while (my $spy = $spies->next) {
-        out($spy->name);
-        my $log = $logs->search({ spy_id => $spy->id },{ rows => 1 } )->single;
-        my $offense_success_rate = ($spy->offense_mission_count) ? 100 * $spy->offense_mission_successes / $spy->offense_mission_count : 0;
-        my $defense_success_rate = ($spy->defense_mission_count) ? 100 * $spy->defense_mission_successes / $spy->defense_mission_count : 0;
-        my $success_rate = $offense_success_rate + $defense_success_rate;
-        my $planet = $db->resultset('Lacuna::DB::Result::Map::Body')->find($spy->from_body_id);
-        my %spy_data = (
-            date_stamp                  => DateTime->now,
-            spy_name                    => $spy->name,
-            planet_id                   => $spy->from_body_id,
-            planet_name                 => $planet->name,
-            level                       => $spy->level,
-            level_delta                 => 0,
-            offense_success_rate        => $offense_success_rate,
-            offense_success_rate_delta  => 0,
-            defense_success_rate        => $defense_success_rate,
-            defense_success_rate_delta  => 0,
-            success_rate                => $success_rate,
-            success_rate_delta          => 0,
-            age                         => time - $spy->date_created->epoch,
-            times_captured              => $spy->times_captured,
-            times_turned                => $spy->times_turned,
-            seeds_planted               => $spy->seeds_planted,
-            spies_killed                => $spy->spies_killed,
-            spies_captured              => $spy->spies_captured,
-            spies_turned                => $spy->spies_turned,
-            things_destroyed            => $spy->things_destroyed,
-            things_stolen               => $spy->things_stolen,
-            dirtiest                    => ($spy->seeds_planted + $spy->spies_killed + $spy->spies_captured + $spy->spies_turned + $spy->things_destroyed + $spy->things_stolen),
-            dirtiest_delta              => 0,
-            empire_id                   => $spy->empire_id,
-            empire_name                 => $spy->empire->name,
-        );
-        if (defined $log) {
-            $spy_data{dirtiest_delta}               = $spy_data{dirtiest} - $log->dirtiest + $log->dirtiest_delta;
-            $spy_data{level_delta}                  = $spy->level - $log->level;
-            $spy_data{defense_success_rate_delta}   = $defense_success_rate - $log->defense_success_rate + $log->defense_success_rate_delta;
-            $spy_data{offense_success_rate_delta}   = $offense_success_rate - $log->offense_success_rate + $log->offense_success_rate_delta;
-            $spy_data{success_rate_delta}           = $success_rate - $log->success_rate + $log->success_rate_delta;
-            $log->update(\%spy_data);
-        }
-        else {
-            $spy_data{spy_id}       = $spy->id;
-            $logs->new(\%spy_data)->insert;
         }
     }
 }
