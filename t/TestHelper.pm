@@ -116,11 +116,13 @@ sub generate_test_empire {
 
 sub get_building { 
     my ($self, $building_id) = @_;
-    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->find($building_id);
+
+    $self->empire->home_planet->clear_building_cache;
+
+    my ($building) = grep {$_->id == $building_id} @{$self->empire->home_planet->building_cache};
     unless (defined $building) {
         confess 'Building does not exist.';
     }
-    $building->body($self->empire->home_planet);
     return $building;
 }
 
@@ -132,13 +134,9 @@ sub find_empty_plot {
      # Ensure we only build on an empty plot
      EXISTING_BUILDING:
      while (1) {
-          my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
-               x       => $self->x,
-               y       => $self->y,
-               body_id => $home->id,
-          });
+        my ($building) = grep {$_->x == $self->x and $_->y == $self->y} @{$home->building_cache};
 
-          last EXISTING_BUILDING if $building == 0;
+          last EXISTING_BUILDING if not $building;
           $self->x($self->x + 1);
           if ($self->x == 6) {
                $self->x(-5);

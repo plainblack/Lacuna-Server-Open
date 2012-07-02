@@ -32,23 +32,21 @@ sub view_plans {
 
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $item_hash;
-    my $plans = $building->body->plans;
-    while (my $plan = $plans->next) {
-        my $key = sprintf("%s-%s-%s", $plan->class->name, $plan->level, $plan->extra_build_level);
-        $item_hash->{$key} = {
+
+    my @out;
+    my $sorted_plans = $building->body->sorted_plans;
+    foreach my $plan (@$sorted_plans) {
+        my $item = {
             quantity            => $plan->quantity,
             name                => $plan->class->name,
             level               => $plan->level,
             extra_build_level   => $plan->extra_build_level,
         };
+        push @out, $item;
     }
-    my $out;
-    @{$out} = sort {$a->{name} cmp $b->{name} || $a->{level} <=> $b->{level} || $b->{extra_build_level} <=> $a->{extra_build_level} } values %{$item_hash};
-
     return {
         status  => $self->format_status($empire, $building->body),
-        plans   => $out,
+        plans   => \@out,
     }
 }
 

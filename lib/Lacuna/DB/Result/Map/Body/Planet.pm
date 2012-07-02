@@ -33,6 +33,14 @@ sub _build_plan_cache {
     return \@plans;
 }
 
+# Sort plans by name (asc), by level (asc), by extra_build_level (desc)
+sub sorted_plans {
+    my ($self) = @_;
+
+    my @sorted_plans = sort {$a->class->name cmp $b->class->name || $a->level cmp $b->level || $b->extra_build_level cmp $a->extra_build_level } @{$self->plan_cache};
+    return \@sorted_plans;
+}
+
 sub delete_building {
   my ($self, $building) = @_;
 
@@ -1266,8 +1274,8 @@ sub tick {
     # synchronize completion of tasks
     foreach my $key (sort keys %todo) {
         my ($object, $job) = ($todo{$key}{object}, $todo{$key}{type});
-        $object->body($self);
-        weaken($object->{_relationship_data}{body});
+#        $object->body($self);
+#        weaken($object->{_relationship_data}{body});
         if ($job eq 'ship built') {
             $self->tick_to($object->date_available);
             $object->finish_construction;

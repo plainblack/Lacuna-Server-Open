@@ -177,33 +177,19 @@ sub get_plan_summary {
 
     my $empire      = $self->get_empire_by_session($session_id);
     my $building    = $self->get_building($empire, $building_id);
-    my $plans = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search(
-        {body_id => $building->body_id}
-    );
-
-    my $plan_summary = {};
-    while (my $plan = $plans->next) {
-        my $key = sprintf("%s~%s~%02u~%02u", $plan->class->name, $plan->class, $plan->level, $plan->extra_build_level);
-        $plan_summary->{$key}++;
-    }
-
-    # Sort
-    my @plans = map { {$_ => $plan_summary->{$_}} } sort {$a cmp $b} keys %$plan_summary;
 
     my @out;
-    for my $plan (@plans) {
-        my ($key,$quantity) = %$plan;
-        my ($name,$class,$level,$extra) = split /~/, $key;
-        my $plan_type = $class;
+    my $sorted_plans = $building->body->sorted_plans;
+    foreach my $plan (@$sorted_plans) {
+        my $plan_type = $plan->class->name;
         $plan_type =~ s/Lacuna::DB::Result::Building:://;
         $plan_type =~ s/::/_/g;
-
         push @out, {
-            name                => $name,
+            name                => $plan->class->name,
             plan_type           => $plan_type,
-            level               => int($level),
-            extra_build_level   => int($extra),
-            quantity            => $quantity,
+            level               => int($plan->level),
+            extra_build_level   => int($plan->extra_build_level),
+            quantity            => $plan->quantity,
         };
     }
     return {
@@ -214,7 +200,7 @@ sub get_plan_summary {
 }
 
 
-sub get_plans {
+sub get_plans_delete_me_i_am_not_used {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
@@ -240,7 +226,7 @@ sub get_plans {
     };
 }
 
-sub get_glyphs {
+sub get_glyphs_delete_me_i_am_not_used {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);

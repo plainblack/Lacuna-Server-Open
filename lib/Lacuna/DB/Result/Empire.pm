@@ -503,7 +503,7 @@ sub found {
   $self->stage('founded');
   $self->update;
   $self->home_planet($home_planet);
-  weaken($self->{_relationship_data}{home_planet});
+#  weaken($self->{_relationship_data}{home_planet});
 
   $self->add_probe($home_planet->star_id, $home_planet->id);
 

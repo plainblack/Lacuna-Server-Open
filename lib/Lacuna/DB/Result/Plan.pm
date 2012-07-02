@@ -100,6 +100,18 @@ sub check_glyph_recipe {
     return $plan_class;
 }
 
+# Delete one plan
+sub delete_one_plan {
+    my ($self) = @_;
+
+    if ($self->quantity <= 1) {
+        $self->delete;
+    }
+    else {
+        $self->quantity($self->quantity - 1);
+        $self->update;
+    }
+}
 
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 

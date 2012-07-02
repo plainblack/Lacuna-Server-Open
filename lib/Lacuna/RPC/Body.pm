@@ -386,12 +386,14 @@ sub get_buildable {
     }
 
     # plans
+    #
     my %plans;
-    my $plan_rs = $body->plans->search({level => 1},{ order_by => { -asc => 'extra_build_level' }});
-    while (my $plan = $plan_rs->next) {
+    my @buildable_plans = sort {$a->extra_build_level <=> $b->extra_build_level} grep{$_->level == 1} @{$body->plan_cache};
+    for my $plan (@buildable_plans) {
         push @buildable, $plan->class->controller_class;
         $plans{$plan->class} = $plan->extra_build_level;
     }
+
     foreach my $class (uniq @buildable) {
         $properties{class} = $class->model_class;
         my $building = $building_rs->new(\%properties);

@@ -173,7 +173,7 @@ sub build {
         if ($plan->extra_build_level) {
             $building->level( $plan->extra_build_level);
         }
-        $plan->delete;
+        $plan->delete_one_plan;
     }
     else {
         $body->spend_food($cost->{food}, 0);
