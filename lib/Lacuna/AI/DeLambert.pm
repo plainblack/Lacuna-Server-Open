@@ -231,10 +231,10 @@ sub sell_glyph_trade {
         }
 # Instead of random assortment, quantity of one glyph
         my $ore = random_element([ORE_TYPES]);
-        my @glyphs = [ {
+        my $glyphs = [ {
           name => $ore,
           quantity => $quantity,
-          glyph_id => 0,
+#          glyph_id => 0,
         } ];
         if ($quantity) {
             say "Creating a trade for $quantity glyphs";
@@ -243,7 +243,7 @@ sub sell_glyph_trade {
             my %trade = (
                 offer_cargo_space_needed  => $quantity * 100,
                 has_glyph       => 1,
-                payload         => {glyphs => \@glyphs},
+                payload         => {glyphs => $glyphs},
                 ask             => $cost_per * $quantity,
                 ship_id         => $ship->id,
                 body_id         => $colony->id,

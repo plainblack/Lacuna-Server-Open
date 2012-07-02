@@ -63,14 +63,7 @@ The amount of the resource that you want to trade.
 
 =item glyphs
 
-The hash reference for glyphs can either look like this:
-
- {
-    "type" : "glyph",
-    "glyph_id" : "id-goes-here"
- }
-
-Or it can look like this:
+The hash reference for glyphs looks like this:
 
  {
     "type" : "glyph",
@@ -83,10 +76,6 @@ Or it can look like this:
 =item type
 
 Must be exactly C<glyph>.
-
-=item glyph_id
-
-The unique id of the glyph you want to trade. See the C<get_glyphs> method for a list of your glyphs.
 
 =item name
 

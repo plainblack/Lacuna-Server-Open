@@ -104,7 +104,7 @@ sub format_description_of_payload {
     
   # glyphs
   foreach my $glyph (@{$payload->{glyphs}}) {
-    push @{$item_arr}, sprintf('%s %s', commify($glyph->{quantity}), $glyph->{name});
+    push @{$item_arr}, sprintf('%s %s glyph', commify($glyph->{quantity}), $glyph->{name});
   }
     
   # ships

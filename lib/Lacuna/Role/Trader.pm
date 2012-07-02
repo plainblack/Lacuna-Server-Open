@@ -52,12 +52,11 @@ sub check_payload {
                         body_id => $self->body_id,
                        })->single;
         confess [1002, "You don't have ".$item->{quantity}." glyphs of type ".
-                        $item->{name}." you only have ".$glyph->{quantity}]
-                      unless $glyph->{quantity} >= $item->{quantity};
+                        $item->{name}." you only have ".$glyph->quantity]
+                      unless $glyph->quantity >= $item->{quantity};
         push (@expanded_items, {
             name => $item->{name},
             quantity => $item->{quantity},
-            glyph_id => $glyph->{id},
         });
         $space_used += 100 * $item->{quantity};
       }
@@ -172,14 +171,16 @@ sub structure_payload {
         $meta{has_food} = 1;
       }
       when ('glyph') {
-        if ($item->{glyph_id}) {
-          my $num_used = $body->use_glyph($item->{glyph_id}, $item->{name}, $item->{quantity});
-          push @{$payload->{glyphs}}, {
-            name     => $item->{name},
-            quantity => $item->{quantity},
-            glyph_id => $item->{glyph_id},
-          };
-          $meta{has_glyph} = 1;
+        if ($item->{name}) {
+          my $num_used = $body->use_glyph($item->{name}, $item->{quantity});
+say('No glyphs used!') unless $num_used;
+          if ($num_used) {
+              push @{$payload->{glyphs}}, {
+                name     => $item->{name},
+                quantity => $num_used,
+              };
+              $meta{has_glyph} = 1;
+          }
         }
       }
       when ('plan') {

@@ -132,12 +132,12 @@ sub add_glyph {
                  body_id => $self->id,
                })->single;
   if (defined($glyph)) {
-    my $sum = $num_add + $self->glyph->quantity;
+    my $sum = $num_add + $glyph->quantity;
     $glyph->quantity($sum);
-    return $self->glyph;
+    $glyph->update;
   }
   else {
-    return $self->glyph->new({
+    $self->glyph->new({
       type     => $type,
       body_id  => $self->id,
       quantity => $num_add,
@@ -146,18 +146,18 @@ sub add_glyph {
 }
 
 sub use_glyph {
-  my ($self, $glyph_id, $type, $num_used) = @_;
+  my ($self, $type, $num_used) = @_;
 
   $num_used = 1 unless (defined($num_used));
   my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({
-#                 id      => $glyph_id,
                  type    => $type,
                  body_id => $self->id,
                })->single;
   return 0 unless defined($glyph);
   if ($glyph->quantity > $num_used) {
-    my $sum = $self->glyph->quantity - $num_used;
+    my $sum = $glyph->quantity - $num_used;
     $glyph->quantity($sum);
+    $glyph->update;
   }
   else {
     $num_used = $glyph->quantity;
