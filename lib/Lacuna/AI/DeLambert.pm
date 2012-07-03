@@ -229,13 +229,13 @@ sub sell_glyph_trade {
         if ($quantity * $cost_per > 100) {
             $quantity = int(100 / $cost_per);
         }
-        my @glyphs;
-        my @glyph_types = split(/,/, $scratchpad->{sell_glyph_type});
-        my $glyph_type = random_element(\@glyph_types);
-
-        for (1..$quantity) {
-            push @glyphs, $glyph_type;
-        }
+# Instead of random assortment, quantity of one glyph
+        my $ore = random_element([ORE_TYPES]);
+        my $glyphs = [ {
+          name => $ore,
+          quantity => $quantity,
+#          glyph_id => 0,
+        } ];
         if ($quantity) {
             say "Creating a trade for $quantity glyphs";
             $ship->task('Waiting On Trade');
@@ -243,7 +243,7 @@ sub sell_glyph_trade {
             my %trade = (
                 offer_cargo_space_needed  => $quantity * 100,
                 has_glyph       => 1,
-                payload         => {glyphs => \@glyphs},
+                payload         => {glyphs => $glyphs},
                 ask             => $cost_per * $quantity,
                 ship_id         => $ship->id,
                 body_id         => $colony->id,
@@ -605,9 +605,11 @@ sub process_email {
                     $asked_for_too_many = 1;
                 }
                 $quantity = 0 if $quantity < 0;
-                for (1..$quantity) {
-                    push @{$payload->{glyphs}}, lc $glyph;
-                }
+                push @{$payload->{glyphs}}, [{
+                  name => lc $glyph,
+                  quantity => $quantity,
+                  glyph_id => 0,
+                }];
                 $total_glyphs += $quantity;
             }
 

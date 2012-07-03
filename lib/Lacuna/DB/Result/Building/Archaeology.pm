@@ -651,59 +651,57 @@ before finish_work => sub {
 
 sub make_plan {
     my ($self, $glyphs, $quantity) = @_;
+    $quantity = 1 unless defined($quantity);
     unless (ref $glyphs eq 'ARRAY' && scalar(@{$glyphs}) < 5) {
       confess [1009, 'It is not possible to combine more than 4 glyphs.'];
     }
 
     my $plan_class;
     my $ids;
-    my $glyphs_rs = $self->body->glyphs;
 
     # types
+    my %count;
     if ( grep /\D/, @{$glyphs} ) {
         $plan_class = Lacuna::DB::Result::Plans->check_glyph_recipe($glyphs);
         if (not $plan_class) {
             confess [1002, 'The glyphs specified do not fit together in that manner.'];
         }
 
-        my %count;
         $count{$_} += $quantity for @{$glyphs};
         for my $type ( sort keys %count ) {
-            my @glyphs = Lacuna->db->resultset('Lacuna::DB::Result::Glyphs')->search({
+            my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({
                 type    => $type,
                 body_id => $self->body_id,
-            }, {
-                rows => $count{$type},
-                page => 1,
-            });
-            confess [1002, "You don't have $count{$type} glyphs of type $type you only have ".scalar(@glyphs)] unless scalar(@glyphs) >= $count{$type};
-            push @{$ids}, map $_->id, @glyphs;
+            })->single;
+            unless (defined($glyph)) {
+                confess [ 1002, "You don't have any glyphs of type $type."];
+            }
+            if ($glyph->quantity < $count{$type}) {
+                confess [ 1002,
+                    "You don't have $count{$type} glyphs of type $type you only have ".$glyph->quantity];
+            }
         }
     }
-    # ids
     else {
-        $ids = $glyphs;
-
-        if ($quantity != 1) {
-            confess [1011, 'You can only assemble one plan from specific glyphs'];
-        }
-
-        my @glyph_names;
-        foreach my $id (@{$ids}) {
-            my $glyph = $glyphs_rs->find($id);
-            confess [1002, 'You tried to combine a glyph you do not have.'] unless defined $glyph;
-            push @glyph_names,$glyph->type;
-        }
-
-        $plan_class = Lacuna::DB::Result::Plans->check_glyph_recipe(\@glyph_names);
-        if (not $plan_class) {
-            confess [1002, 'The glyphs specified do not fit together in that manner.'];
+      confess [1009, "Malformed glyph ARRAY."];
+    }
+    my $min_used = $quantity;
+    for my $type (@{$glyphs}) {
+        $count{$type} = $self->body->use_glyph($type, $quantity);
+        $min_used = $count{$type} if ($min_used < $count{$type});
+    }
+# Check if all glyphs were used
+    if ($min_used < $quantity) {
+        for my $type (@{$glyphs}) {
+            if ($min_used < $count{$type}) {
+                $self->body->add_glyph($type, ($count{$type}));
+            }
         }
     }
+    confess [1002, "Glyphs used before they could be combined!"] if ($min_used == 0);
 
-    $glyphs_rs->search({ id => { in => $ids}})->delete;
     my $plan;
-    for my $count (1..$quantity) {
+    for my $count (1..$min_used) {
         $plan = $self->body->add_plan($plan_class, 1);
     }
     return $plan;

@@ -1899,7 +1899,7 @@ sub destroy_glyph {
     $self->on_body->add_news(70,
                              'A museum was broken into on %s and a rare artifact was smashed to pieces.',
                              $self->on_body->name);
-    $glyph->delete;
+    $self->on_body->use_glyph($glyph->type, 1);
     return $message->id;
 }
 
@@ -2098,11 +2098,15 @@ sub steal_glyph {
         direction   => 'in',
         payload     => {
             spies => [ $self->id ],
-            glyphs   => [$glyph->type],
+            glyphs   => [ {
+			    name => $glyph->type,
+                            quantity => $glyph->quantity,
+                            glyph_id => $glyph->id,
+                        } ],
         },
     );
     my @table = (['Glyph'],[$glyph->type]);
-    $glyph->delete;
+    $on_body->use_glyph($glyph->type, 1);
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'ship_stolen.txt',

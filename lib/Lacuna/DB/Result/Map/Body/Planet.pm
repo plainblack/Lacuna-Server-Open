@@ -15,7 +15,7 @@ no warnings 'uninitialized';
 
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
 __PACKAGE__->has_many('_plans','Lacuna::DB::Result::Plan','body_id');
-__PACKAGE__->has_many('glyphs','Lacuna::DB::Result::Glyphs','body_id');
+__PACKAGE__->has_many('glyph','Lacuna::DB::Result::Glyph','body_id');
 __PACKAGE__->has_many('waste_chains', 'Lacuna::DB::Result::WasteChain','planet_id');
 __PACKAGE__->has_many('out_supply_chains', 'Lacuna::DB::Result::SupplyChain','planet_id');
 __PACKAGE__->has_many('in_supply_chains', 'Lacuna::DB::Result::SupplyChain','target_id');
@@ -179,11 +179,47 @@ sub claimed_by {
 # GLYPHS
 
 sub add_glyph {
-    my ($self, $type) = @_;
-    return $self->glyphs->new({
-        type    => $type,
-        body_id => $self->id,
+  my ($self, $type, $num_add) = @_;
+
+  $num_add = 1 unless defined($num_add);
+
+  my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({
+                 type    => $type,
+                 body_id => $self->id,
+               })->single;
+  if (defined($glyph)) {
+    my $sum = $num_add + $glyph->quantity;
+    $glyph->quantity($sum);
+    $glyph->update;
+  }
+  else {
+    $self->glyph->new({
+      type     => $type,
+      body_id  => $self->id,
+      quantity => $num_add,
     })->insert;
+  }
+}
+
+sub use_glyph {
+  my ($self, $type, $num_used) = @_;
+
+  $num_used = 1 unless (defined($num_used));
+  my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({
+                 type    => $type,
+                 body_id => $self->id,
+               })->single;
+  return 0 unless defined($glyph);
+  if ($glyph->quantity > $num_used) {
+    my $sum = $glyph->quantity - $num_used;
+    $glyph->quantity($sum);
+    $glyph->update;
+  }
+  else {
+    $num_used = $glyph->quantity;
+    $glyph->delete;
+  }
+  return $num_used;
 }
 
 # PLANS
@@ -244,7 +280,7 @@ sub sanitize {
     }
     $self->alliance_id(undef);
     $self->plans->delete;
-    $self->glyphs->delete;
+    $self->glyph->delete;
     $self->waste_chains->delete;
     # do individual deletes so the remote ends can be tidied up too
     foreach my $chain ($self->out_supply_chains) {

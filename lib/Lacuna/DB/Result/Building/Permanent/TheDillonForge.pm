@@ -157,12 +157,15 @@ before finish_work => sub {
         my $total_glyphs = 0;
         for my $glyph (@many_glyphs) {
             if ($success_percent > rand(100)) {
-                $self->body->add_to_glyphs({
-                    type => $glyph,
-                });
+#                $self->body->add_glyph({
+#                    type => $glyph,
+#                });
                 $glyphs_built->{$glyph} = $glyphs_built->{$glyph} ? $glyphs_built->{$glyph}+1 : 1;
                 $total_glyphs++;
             }
+        }
+        for my $glyph (keys %{$glyphs_built}) {
+          $self->body->add_glyph($glyph, $glyphs_built->{$glyph});
         }
         my @report = map { [ $glyphs_built->{$_}, $_ ]} keys %$glyphs_built;
         unshift (@report, ['Quantity','Glyph']);

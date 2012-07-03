@@ -1,4 +1,5 @@
 3.0859:
+ - Mod: Web UI, arch min has better display of glyphs, can produce multiple plans in one go
  - Mod: Spies now have a higher chance of stealing or destroying a 'useful' plan
  - Mod: Spies may now steal or destroy more than one plan of a type
  - Mod: Missions that require a plan, now take the lowest level/extra that meet the criteria
@@ -44,6 +45,9 @@
  - Add: Supply chain to any planet or SS.
  - Fix: Damaged Trade Ministry reduces the waste transferred in a waste chain.
  - Fix: Scows are no longer tagged with 'Trade'
+ - Add: API only, supply chain to any planet or SS. Note. No UI support yet.
+ - Fix: Damaged Trade Ministry reduces the waste transferred in a waste chain.
+ - Fix: Scows are no longer are tagged with 'Trade'
  - Mod: Change in consumption rates for secondary food.
  - Fix: Colony ships and trade ships in flight away from insurrected planet now switch flag to their own Capitol.
  - Mod: Ships in a fleet will return at their own speed if on return trip.

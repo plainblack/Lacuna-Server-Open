@@ -58,6 +58,7 @@ Returns a list of glyphs that have been found by this archaeology ministry.
         {
             "id" : "id-goes-here",
             "type" : "bauxite",
+            "quantity" : 2
         },
         ...
     ]
@@ -71,6 +72,7 @@ Returns a summary of all glyphs that may be assembled in this archaeology minist
  {
     "glyphs" : [
         {
+            "id" : "id-goes-here",
             "type" : "bauxite",
             "quantity" : 2
         },
@@ -109,11 +111,11 @@ The unique id of the Archaeology Ministry.
 
 =head3 glyphs
 
-An array reference containing an ordered list of up to four glyph ids or up to four glyph types.
+An array reference containing an ordered list of up to four glyph types.
 
 =head3 quantity
 
-An optional quantity; if left blank it defaults to 1, otherwise specify the number of times to assemble the indicated glyphs up to a maximum of 50.  If greater than one, glyphs must specify types, not ids.
+An optional quantity; if left blank it defaults to 1, otherwise specify the number of times to assemble the indicated glyphs up to a maximum of 50.
 
 
 
