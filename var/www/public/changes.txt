@@ -1,5 +1,6 @@
-3.0899:
+3.0859:
  - Mod: glyphs changed in DB to be more compact.
+
 3.0858:
  - Add: Resources per hour for all food/ore types now shown in PCC and SCC
  - Add: PCC and SCC now show all incoming supply chains
