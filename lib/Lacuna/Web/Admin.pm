@@ -464,20 +464,14 @@ sub www_delete_glyph {
 sub www_view_plans {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
-    my $plans = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search({
-        body_id => $body_id,
-    }, {
-        order_by => ['class'],
-        group_by => ['class','level','extra_build_level'],
-        select   => ['class','level','extra_build_level', {count => 'id', -as => 'count_plans'}],
-        as       => ['class','level','extra_build_level','no_of_plans'],
-    });
+    my $body = Lacuna->db->resultset('Body')->find($request->param('body_id'));
+    my @plans = $body->sorted_plans;
 
     my $out = '<h1>View Plans</h1>';
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
     $out .= '<table style="width: 100%;"><tr><th>Level</th><th>Name</th><th>Extra Build Level</th><th>Quantity</th><th>Action</th></tr>';
-    while (my $plan = $plans->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>',$plan->level, $plan->class->name, $plan->extra_build_level, $plan->get_column('no_of_plans'));
+    for my $plan (@plans) {
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>',$plan->level, $plan->class->name, $plan->extra_build_level, $plan->quantity);
         $out .= sprintf('<form method="get" action="/admin/delete/plan">');
         $out .= sprintf('<input type="hidden" name="level" value="%s">',$plan->level);
         $out .= sprintf('<input type="hidden" name="class" value="%s">',$plan->class);
@@ -519,28 +513,25 @@ sub www_add_plan {
 
 sub www_delete_plan {
     my ($self, $request) = @_;
-    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($request->param('body_id'));
+    my $body = Lacuna->db->resultset('Body')->find($request->param('body_id'));
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
     # Find a plan
-    my $plan_rs = $body->plans->search({
-        level               => $request->param('level'),
-        class               => $request->param('class'),
-        extra_build_level   => $request->param('extra'),
-    });
-    if ($plan_rs < 1 and $request->param('delete_one')) {
+    my $plan = grep {
+            $_->level               == $request->param('level')
+        and $_->class               eq $request->param('class')
+        and $_->extra_build_level   == $request->param('extra')
+    } @{$body->plan_cache};
+    
+    if (not defined $plan) {
         confess [404, 'Plan not found.'];
     }
     if ($request->param('delete_one')) {
-        if ($plan_rs < 1) {
-            confess [404, 'Plan not found.'];
-        }
-        my $plan = $plan_rs->next;
-        $plan->delete;
+        $body->delete_one_plan($plan);
     }
     if ($request->param('delete_all')) {
-        $plan_rs->delete_all;
+        $body->delete_many_plans($plan, $plan->quantity);
     }
     return $self->www_view_plans($request, $body->id);
 }

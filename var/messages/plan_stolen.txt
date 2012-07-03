@@ -1,6 +1,6 @@
 Plan Stolen
 ~~~
-Thieves have our level %s %s plan from {Planet %s %s}.
+Thieves have stolen %s from {Planet %s %s}.
 
 Regards,
 

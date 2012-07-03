@@ -191,10 +191,17 @@ sub spend_objectives {
     # plans
     if (exists $objectives->{plans}) {
         foreach my $plan (@{$objectives->{plans}}) {
-            $body->plans->search(
-                { class => $plan->{classname}, level => {'>=' => $plan->{level}}, extra_build_level => {'>=' => $plan->{extra_build_level}} },
-                {rows => 1, order_by => 'id'},
-                )->single->delete;
+            # Get the lowest level/extra plan that meet the criteria
+            my ($plan) = sort {
+                        $a->level               <=> $b->level
+                    ||  $a->extra_build_level   <=> $b->extra_build_level
+                    }
+                grep {
+                    $_->class               eq $plan->{classname}
+                and $_->level               >= $plan->{level}
+                and $_->extra_build_level   >= $plan->{extra_build_level}
+            } @{$body->plan_cache};
+            $body->delete_one_plan($plan);
         }
     }
 }
@@ -290,21 +297,25 @@ sub check_objectives {
 
     # plans
     if (exists $objectives->{plans}) {
-        my @ids;
+        # Count how many plans of each type are needed
+        my $requirements;
         foreach my $plan (@{$objectives->{plans}}) {
-            my $this = $body->plans->search({
-                    class => $plan->{classname},
-                    level => {'>=' => $plan->{level}},
-                    extra_build_level => {'>=' => $plan->{extra_build_level}},
-                    id  => { 'not in' => \@ids },
-                },{
-                    rows => 1, order_by => 'id'
-                })->single;
-            if (defined $this) {
-                push @ids, $this->id;
-            }
-            else {
-                confess [1013, 'You do not have the '.$plan->{classname}->name.' plan needed to complete this mission.'];
+            $requirements->{$plan->{classname}.'#'.$plan->{level}.'#'.$plan->{extra_build_level}}++;
+        }
+        foreach my $key (keys %$requirements) {
+            my ($class,$level,$extra) = split('#', $key);
+            # Get the lowest level/extra plan that meet the criteria
+            my ($plan) = sort {
+                    $a->level               <=> $b->level
+                ||  $a->extra_build_level   <=> $b->extra_build_level
+                }
+            grep {
+                    $_->class               eq $class
+                and $_->level               >= $level
+                and $_->extra_build_level   >= $extra
+            } @{$body->plan_cache};
+            if (not defined $plan or $requirements->{$key} > $plan->quantity) {
+                confess [1013, 'You do not have the '.$class->name.' plan needed to complete this mission.'];
             }
         }
     }

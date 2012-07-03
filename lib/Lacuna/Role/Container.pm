@@ -23,21 +23,6 @@ sub format_body_stats_for_log {
 sub unload {
     my ($self, $body, $withdraw) = @_;
     my $payload = $self->payload;
-    #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
-    #$cargo_log->new({
-    #    message     => 'payload to unload',
-    #    body_id     => $body->id,
-    #    data        => $payload,
-    #    object_type => ref($self),
-    #    object_id   => $self->id,
-    #})->insert;
-    #$cargo_log->new({
-    #    message     => 'before unload',
-    #    body_id     => $body->id,
-    #    data        => $self->format_body_stats_for_log($body),
-    #    object_type => ref($self),
-    #    object_id   => $self->id,
-    #})->insert;
     if (exists $payload->{prisoners}) {
         foreach my $id (@{$payload->{prisoners}}) {
             my $prisoner = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($id);
@@ -89,7 +74,7 @@ sub unload {
     }
     if (exists $payload->{plans}) {
         foreach my $plan (@{$payload->{plans}}) {
-            $body->add_plan($plan->{class}, $plan->{level}, $plan->{extra_build_level});
+            $body->add_plan($plan->{class}, $plan->{level}, $plan->{extra_build_level}, $plan->{quantity});
         }
         delete $payload->{plans};
     }
@@ -158,9 +143,8 @@ sub format_description_of_payload {
             $level .= '+'.$stats->{extra_build_level};
         }
         my $pattern = '%s (%s) plan'; 
-        push @{$scratch}, sprintf($pattern, $stats->{class}->name, $level);
+        push @{$item_arr}, sprintf('%s %s (%s) plan', $stats->{quantity}, $stats->{class}->name, $level);
     }
-    push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
     
     # spies
     undef $scratch;

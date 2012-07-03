@@ -52,13 +52,15 @@ use constant max_instances_per_planet => 1;
 sub split_plan {
     my ($self, $plan_class, $level, $extra_build_level) = @_;
 
-    my $halls = $self->equivalent_halls($level, $extra_build_level);
-    my $class = 'Lacuna::DB::Result::Building::'.$plan_class;
-    my ($plan) = $self->body->plans->search({
-        level               => $level,
-        extra_build_level   => $extra_build_level,
-        class               => $class,
-    });
+    my $halls   = $self->equivalent_halls($level, $extra_build_level);
+    my $class   = 'Lacuna::DB::Result::Building::'.$plan_class;
+    my $body    = $self->body;
+    my ($plan) = grep {
+            $_->level               == $level
+        and $_->class               eq $class
+        and $_->extra_build_level   == $extra_build_level
+    } @{$body->plan_cache};
+
     if (not $plan) {
         confess [1002, 'You cannot split a plan you do not have.'];
     }
@@ -67,9 +69,10 @@ sub split_plan {
         confess [1002, 'You can only split plans that have a glyph recipe.'];
     }
     if ($class =~ m/Platform$/) {
-        confess [1002, 'You cannot split a plan for a Platform.'];
+        confess [1002, 'You cannot split a Platform plan.'];
     }
-    $plan->delete;
+    $body->delete_one_plan($plan);
+
     my $build_secs = int($halls * 30 * 3600 / $self->level);
     $self->start_work({task => 'split_plan', class => $class, level => $level, extra_build_level => $extra_build_level}, $build_secs)->update;
 }
@@ -77,28 +80,30 @@ sub split_plan {
 sub make_plan {
     my ($self, $plan_class, $level) = @_;
 
-    # Do we have the requisite number of level 1 plans?
-    my $class = 'Lacuna::DB::Result::Building::'.$plan_class;
-
-    my $plans_rs = $self->body->plans->search({
-        level               => 1,
-        extra_build_level   => 0,
-        class               => $class,
-    });
-    my $have_plans = $plans_rs->count;
-    if ($have_plans < $level * 2) {
-        confess [1002, 'You do not have enough level 1+0 plans.'];
-    }
     if ($level > $self->level) {
         confess [1002, 'Your Dillon Forge level is not high enough to build that high a plan level.'];
     }
-    if ($class =~ m/HallsOfVrbansk/) {
+    if ($plan_class =~ m/HallsOfVrbansk/) {
         confess [1002, 'It is not a good idea to create a plan you cannot use.'];
     }
 
-    $plans_rs->search({},{
-        rows => $level * 2,
-    })->delete_all;
+    my $body = $self->body;
+    # Do we have the requisite number of level 1 plans?
+    my $class = 'Lacuna::DB::Result::Building::'.$plan_class;
+
+    my ($plan) = grep {
+        $_->level               => 1,
+        $_->extra_build_level   => 0,
+        $_->class               eq $class
+    } @{$body->plan_cache};
+
+    my $quantity_to_delete = $level * 2;
+
+    if (not defined $plan or $plan->quantity < $quantity_to_delete) {
+        confess [1002, 'You do not have enough level 1+0 plans.'];
+    }
+
+    $body->delete_many_plans($plan, $quantity_to_delete);
     
     $self->start_work({task => 'make_plan', level => $level, class => $class}, ($level * 5000))->update;
 }

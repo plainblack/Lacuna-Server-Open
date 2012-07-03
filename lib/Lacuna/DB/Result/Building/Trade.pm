@@ -337,7 +337,7 @@ sub add_to_market {
         speed           => $ship->speed,
         trade_range     => max (250, $self->level * 20),
     );
-    return Lacuna->db->resultset('Lacuna::DB::Result::Market')->new(\%trade)->insert;
+    return Lacuna->db->resultset('Market')->new(\%trade)->insert;
 }
 
 sub transfer_type {

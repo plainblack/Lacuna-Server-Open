@@ -14,7 +14,7 @@ use Scalar::Util qw(weaken);
 no warnings 'uninitialized';
 
 __PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
-__PACKAGE__->has_many('plans','Lacuna::DB::Result::Plan','body_id');
+__PACKAGE__->has_many('_plans','Lacuna::DB::Result::Plan','body_id');
 __PACKAGE__->has_many('glyphs','Lacuna::DB::Result::Glyphs','body_id');
 __PACKAGE__->has_many('waste_chains', 'Lacuna::DB::Result::WasteChain','planet_id');
 __PACKAGE__->has_many('out_supply_chains', 'Lacuna::DB::Result::SupplyChain','planet_id');
@@ -24,52 +24,100 @@ has plan_cache => (
     is      => 'rw',
     lazy    => 1,
     builder => '_build_plan_cache',
+    clearer => 'clear_plan_cache',
 );
 
 sub _build_plan_cache {
     my ($self) = @_;
-
-    my @plans = $self->plans;
-    return \@plans;
+    my $plans = [];
+    my $plan_rs = $self->_plans->search({});
+    while (my $plan = $plan_rs->next) {
+        $plan->body($self);
+        weaken($plan->{_relationship_data}{body});
+        push @$plans,$plan;
+    }
+    return $plans;
 }
 
 # Sort plans by name (asc), by level (asc), by extra_build_level (desc)
 sub sorted_plans {
     my ($self) = @_;
 
-    my @sorted_plans = sort {$a->class->name cmp $b->class->name || $a->level cmp $b->level || $b->extra_build_level cmp $a->extra_build_level } @{$self->plan_cache};
+    my @sorted_plans = sort {
+            $a->class->name cmp $b->class->name 
+        ||  $a->level cmp $b->level 
+        ||  $b->extra_build_level cmp $a->extra_build_level 
+        } @{$self->plan_cache};
     return \@sorted_plans;
 }
 
-sub delete_building {
-  my ($self, $building) = @_;
+sub _delete_building {
+    my ($self, $building) = @_;
 
-  my $i = 0;
-  BUILDING:
-  foreach my $b (@{$self->building_cache}) {
-    if ($b->id == $building->id) {
-      my @buildings = splice(@{$self->building_cache}, $i, 1);
-      $self->building_cache(\@buildings);
-#      $b->delete;
-      last BUILDING;
+    my $i = 0;
+    BUILDING:
+    foreach my $b (@{$self->building_cache}) {
+        if ($b->id == $building->id) {
+            my @buildings = splice(@{$self->building_cache}, $i, 1);
+            $self->building_cache(\@buildings);
+            last BUILDING;
+        }
+        $i++;
     }
-    $i++;
-  }
-  $self->update;
+    $self->update;
 }
 
 sub delete_buildings {
-  my ($self, $buildings) = @_;
+    my ($self, $buildings) = @_;
 
-  foreach my $building (@$buildings) {
-    $self->delete_building($building);
-    $building->delete;
-  }
-  $self->needs_recalc(1);
-  $self->needs_surface_refresh(1);
-  $self->update;
+    foreach my $building (@$buildings) {
+        $self->_delete_building($building);
+        $building->delete;
+    }
+    $self->needs_recalc(1);
+    $self->needs_surface_refresh(1);
+    $self->update;
 }
 
+sub delete_one_plan {
+    my ($self, $plan) = @_;
+
+    $self->delete_many_plans($plan, 1);
+}
+
+sub delete_many_plans {
+    my ($self, $plan, $quantity) = @_;
+
+    if ($plan->quantity > $quantity) {
+        $plan->quantity($plan->quantity - $quantity);
+        $plan->update;
+    }
+    else {
+        my $i = 0;
+        BUILDING:
+        foreach my $p (@{$self->plan_cache}) {
+            if ($p->id == $plan->id) {
+                my @plans = splice(@{$self->plan_cache}, $i, 1);
+                $self->plan_cache(\@plans);
+                $p->delete;
+                last BUILDING;
+            }
+            $i++;
+        }
+        $self->update;
+    }
+}
+
+sub delete_plans {
+    my ($self, $plans) = @_;
+
+    foreach my $plan (@$plans) {
+        $self->delete_plan($plan);
+        $plan->delete;
+    }
+    $self->update;
+}
+                                        
 sub surface {
     my $self = shift;
     return 'surface-'.$self->image;
@@ -147,7 +195,8 @@ sub get_plan {
 }
 
 sub add_plan {
-    my ($self, $class, $level, $extra_build_level) = @_;
+    my ($self, $class, $level, $extra_build_level, $quantity) = @_;
+    $quantity = 1 unless defined $quantity;
 
     # add it
     my ($plan) = grep {
@@ -156,16 +205,16 @@ sub add_plan {
         and $_->extra_build_level == $extra_build_level,
         } @{$self->plan_cache};
     if ($plan) {
-        $plan->quantity($plan->quantity + 1);
+        $plan->quantity($plan->quantity + $quantity);
         $plan->update;
     }
     else {
-        $plan = $self->plans->create({
+        $plan = $self->_plans->create({
             body_id             => $self->id,
             class               => $class,
             level               => $level,
             extra_build_level   => $extra_build_level,
-            quantity            => 1,
+            quantity            => $quantity,
         });
         push @{$self->plan_cache}, $plan;
     }
@@ -197,7 +246,7 @@ sub sanitize {
     $self->plans->delete;
     $self->glyphs->delete;
     $self->waste_chains->delete;
-    # do indivitual deletes so the remote ends can be titied up too
+    # do individual deletes so the remote ends can be tidied up too
     foreach my $chain ($self->out_supply_chains) {
         $chain->delete;
     }

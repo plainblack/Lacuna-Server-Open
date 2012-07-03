@@ -59,16 +59,16 @@ sub sacrifice_to_upgrade {
     my $plans_needed = $upgrade->level + 1 - scalar @halls;
     my @plans;
     if ($plans_needed > 0) {
-        @plans = $body->plans->search({
-            class => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'
-        },{rows => $plans_needed}
-        );
+        my ($plan) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'} @{$body->plans_cache};
+        if ($plan) {
+            if ($plan->quantity < $plans_needed) {
+                confess [1009, 'The Halls of Vrbansk do not have the knowledge necessary to upgrade the '.$upgrade->name];
+            }
+            $plan->delete_many($plans_needed);
+        }
     }
     foreach my $hall (@halls) {
         $hall->delete;
-    }
-    foreach my $plan (@plans) {
-        $plan->delete;
     }
     $body->needs_surface_refresh(1);
     $body->update;

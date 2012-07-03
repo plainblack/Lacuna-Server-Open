@@ -181,7 +181,7 @@ sub get_plan_summary {
     my @out;
     my $sorted_plans = $building->body->sorted_plans;
     foreach my $plan (@$sorted_plans) {
-        my $plan_type = $plan->class->name;
+        my $plan_type = $plan->class;
         $plan_type =~ s/Lacuna::DB::Result::Building:://;
         $plan_type =~ s/::/_/g;
         push @out, {

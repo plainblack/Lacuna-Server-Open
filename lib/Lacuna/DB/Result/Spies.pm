@@ -1838,10 +1838,16 @@ sub destroy_ship {
 
 sub destroy_plan {
     my ($self, $defender) = @_;
-    my $plan = $self->on_body->plans->search(undef, {rows => 1, order_by => 'rand()'})->single;
-    return $self->mission_objective_not_found('plan')->id unless defined $plan;
+
+    my $number_of_plans = @{$self->on_body->plan_cache};
+    return $self->mission_objective_not_found('plan')->id unless $number_of_plans;
+
+    my $destroyed_plan = random_element($self->on_body->plan_cache);
+    my $destroyed_quantity = int(rand($destroyed_plan->quantity / 10)) + 1;
+
     $self->things_destroyed( $self->things_destroyed + 1 );
-    my $stolen = 'level '.$plan->level_formatted.' '.$plan->class->name.' plan';
+    my $plural = $destroyed_quantity > 1 ? 's' : '';
+    my $stolen = $destroyed_quantity.' level '.$destroyed_plan->level_formatted.' '.$destroyed_plan->class->name." plan$plural";
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'item_destroyed.txt',
@@ -1850,18 +1856,21 @@ sub destroy_plan {
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'sabotage_report.txt',
-        params      => [$stolen,
-                        $self->on_body->x,
-                        $self->on_body->y,
-                        $self->on_body->name,
-                        $self->name,
-                        $self->from_body->id,
-                        $self->from_body->name],
+        params      => [
+            $stolen,
+            $self->on_body->x,
+            $self->on_body->y,
+            $self->on_body->name,
+            $self->name,
+            $self->from_body->id,
+            $self->from_body->name],
     );
-    $self->on_body->add_news(70,
-                             'The Planetary Command on %s was torched. While the building itself survived a critical plan was lost.',
-                             $self->on_body->name);
-    $plan->delete;
+    $self->on_body->add_news(
+        70,
+        'The Planetary Command on %s was torched. While the building itself survived, critical plans were lost.',
+        $self->on_body->name,
+    );
+    $self->on_body->delete_many_plans($destroyed_plan, $destroyed_quantity);
     return $message->id;
 }
 
@@ -2197,27 +2206,33 @@ sub steal_building {
 
 sub steal_plan {
     my ($self, $defender) = @_;
-    my $plan = $self->on_body->plans->search(
-        { class => { '!=' => 'Lacuna::DB::Result::Building::DeployedBleeder' } },
-        { rows=>1, order_by => 'rand()' }
-    )->single;
-    return $self->mission_objective_not_found('plan')->id unless defined $plan;
+
+    my $number_of_plans = @{$self->on_body->plan_cache};
+    return $self->mission_objective_not_found('plan')->id unless $number_of_plans;
+
+    my $stolen_plan = random_element($self->on_body->plan_cache);
+    my $stolen_quantity = int(rand($stolen_plan->quantity / 10)) + 1;
+
     $self->things_stolen( $self->things_stolen + 1 );
-    $plan->body_id($self->from_body_id);
-    $plan->update;
+    my $plural = $stolen_quantity > 1 ? 's' : '';
+ 
+    my $stolen = $stolen_quantity.' level '.$stolen_plan->level_formatted.' '.$stolen_plan->class->name." plan$plural";
+
+    $self->from_body->add_plan($stolen_plan->class, $stolen_plan->level, $stolen_plan->extra_build_level, $stolen_quantity);
+    
+    $self->on_body->delete_many_plans($stolen_plan, $stolen_quantity);
+
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'plan_stolen.txt',
-        params      => [$plan->level_formatted,
-                        $plan->class->name,
+        params      => [$stolen,
                         $self->on_body->id,
                         $self->on_body->name],
     );
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
-        filename    => 'building_theft_report.txt',
-        params      => [$plan->level_formatted,
-                        $plan->class->name,
+        filename    => 'plan_theft_report.txt',
+        params      => [$stolen,
                         $self->name,
                         $self->from_body->id,
                         $self->from_body->name],

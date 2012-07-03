@@ -69,10 +69,7 @@ sub check_payload {
             }
             when ('plan') {
                 if ($item->{plan_id}) {
-                    my $plan = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->find($item->{plan_id});
-                    confess $have_exception unless (defined $plan && $self->body_id eq $plan->body_id);
-                    push @expanded_items, $item;
-                    $space_used += 10000;
+                    confess [1002, 'Plan IDs are no longer supported'];
                 }
                 elsif ($item->{quantity}) {
                     confess $offer_nothing_exception unless ($item->{quantity} > 0);
@@ -84,19 +81,19 @@ sub check_payload {
                     my $plan_class = $item->{plan_type};
                     $plan_class =~ s/_/::/g;
                     $plan_class = "Lacuna::DB::Result::Building::$plan_class";
-                    my @plans = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search({
-                        class   => $plan_class,
-                        body_id => $self->body_id,
-                        level   => $item->{level},
-                        extra_build_level   => $item->{extra_build_level},
-                    });
-                    confess [1002, "You don't have ".$item->{quantity}." plans of type ".$item->{plan_type}." you only have ".scalar(@plans)] unless scalar(@plans) >= $item->{quantity};
-                    push @expanded_items, map { {type => 'plan',plan_id => $_->id} } splice @plans, 0, $item->{quantity};
+print STDERR "###### [$plan_class] ######\n";
+                    my ($plan) = grep {
+                            $_->class eq $plan_class 
+                        and $_->level == $item->{level} 
+                        and $_->extra_build_level == $item->{extra_build_level}
+                        } @{$body->plan_cache};
+                    confess [1002, "You don't have ".$item->{quantity}." plans of type ".$item->{plan_type}] unless defined $plan and $plan->quantity >= $item->{quantity};
+                    
+                    push @expanded_items, {type => 'plan', plan_id => $plan->id, quantity => $item->{quantity} };
                     $space_used += 10000 * $item->{quantity};
-
                 }
                 else {
-                    confess [1002, 'You must specify either a plan_id, or a quantity if you are pushing a plan.'];
+                    confess [1002, 'You must specify a quantity if you are pushing a plan.'];
                 }
             }
             when ('prisoner') {
@@ -145,7 +142,6 @@ sub check_payload {
             }
         }
     }
-#    push @$items, @expanded_items;
     $items = \@expanded_items;
     confess $offer_nothing_exception unless $space_used;
     confess [1011, sprintf($space_exception,$space_used)] unless ($space_used <= $available_cargo_space);
@@ -187,9 +183,14 @@ sub structure_payload {
             }
             when ('plan') {
                 if ($item->{plan_id}) {
-                    my $plan = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->find($item->{plan_id});
-                    $plan->delete;
-                    push @{$payload->{plans}}, { class => $plan->class, level => $plan->level, extra_build_level => $plan->extra_build_level };
+                    my ($plan) = grep {$_->id == $item->{plan_id}} @{$body->plan_cache};
+                    $body->delete_many_plans($plan, $item->{quantity});
+                    push @{$payload->{plans}}, {
+                        class               => $plan->class,
+                        level               => $plan->level,
+                        extra_build_level   => $plan->extra_build_level,
+                        quantity            => $item->{quantity},
+                        };
                     $meta{has_plan} = 1;
                 }
             }

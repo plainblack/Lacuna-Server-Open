@@ -101,14 +101,22 @@ sub check_glyph_recipe {
 }
 
 # Delete one plan
-sub delete_one_plan {
+sub delete_one {
     my ($self) = @_;
 
-    if ($self->quantity <= 1) {
+    $self->delete_many(1);
+}
+
+# Delete many plans
+sub delete_many {
+    my ($self, $quantity) = @_;
+
+    if ($self->quantity <= $quantity) {
+        plan_cache 
         $self->delete;
     }
     else {
-        $self->quantity($self->quantity - 1);
+        $self->quantity($self->quantity - $quantity);
         $self->update;
     }
 }
