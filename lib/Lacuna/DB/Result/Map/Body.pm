@@ -2,7 +2,7 @@ package Lacuna::DB::Result::Map::Body;
 
 use Moose;
 use utf8;
-use List::Util qw(first max sum);
+use List::Util qw(max sum);
 use Scalar::Util qw(weaken);
 
 no warnings qw(uninitialized);
@@ -309,7 +309,7 @@ sub prereq_buildings {
 sub get_a_building {
     my ($self,$class) = @_;
 
-    my $building = first { $_->class eq "Lacuna::DB::Result::Building::$class" } @{$self->building_cache};
+    my ($building) = grep { $_->class eq "Lacuna::DB::Result::Building::$class" } @{$self->building_cache};
     return $building;
 }
 

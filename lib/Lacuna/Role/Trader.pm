@@ -4,7 +4,6 @@ use Moose::Role;
 use feature "switch";
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
 use Lacuna::Util qw(randint);
-use List::Util qw(first);
 use Data::Dumper;
 
   my $have_exception = [1011, 'You cannot offer to trade something you do not have.'];
@@ -72,7 +71,7 @@ sub check_payload {
                     my $plan_class = $item->{plan_type};
                     $plan_class =~ s/_/::/g;
                     $plan_class = "Lacuna::DB::Result::Building::$plan_class";
-                    my $plan = first {
+                    my ($plan) = grep {
                             $_->class eq $plan_class 
                         and $_->level == $item->{level} 
                         and $_->extra_build_level == $item->{extra_build_level}
@@ -176,7 +175,7 @@ sub structure_payload {
             }
             when ('plan') {
                 if ($item->{plan_id}) {
-                    my $plan = first {$_->id == $item->{plan_id}} @{$body->plan_cache};
+                    my ($plan) = grep {$_->id == $item->{plan_id}} @{$body->plan_cache};
                     $body->delete_many_plans($plan, $item->{quantity});
                     push @{$payload->{plans}}, {
                         class               => $plan->class,

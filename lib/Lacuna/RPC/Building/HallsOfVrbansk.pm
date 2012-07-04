@@ -4,8 +4,6 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
-use List::Util qw(first);
-use List::MoreUtils qw(any);
 
 sub app_url {
     return '/hallsofvrbansk';
@@ -43,11 +41,11 @@ sub sacrifice_to_upgrade {
     my ($self, $session_id, $building_id, $upgrade_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $upgrade = first {$_->id == $upgrade_id} @{$building->body->building_cache};
+    my ($upgrade) = grep {$_->id == $upgrade_id} @{$building->body->building_cache};
     unless (defined $upgrade) {
         confess [1002, 'Could not find the building to upgrade.'];
     }
-    my $is_upgradable = any {$_->id == $upgrade->id} @{$building->get_upgradable_buildings};
+    my $is_upgradable = grep {$_->id == $upgrade->id} @{$building->get_upgradable_buildings};
     unless ($is_upgradable) {
         confess [1009, 'The Halls of Vrbansk do not have the knowledge necessary to upgrade the '.$upgrade->name];
     }
@@ -61,7 +59,7 @@ sub sacrifice_to_upgrade {
     my $plans_needed = $upgrade->level + 1 - scalar @halls;
     my @plans;
     if ($plans_needed > 0) {
-        my $plan = first {$_->class eq 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'} @{$body->plans_cache};
+        my ($plan) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'} @{$body->plans_cache};
         if ($plan) {
             if ($plan->quantity < $plans_needed) {
                 confess [1009, 'The Halls of Vrbansk do not have the knowledge necessary to upgrade the '.$upgrade->name];

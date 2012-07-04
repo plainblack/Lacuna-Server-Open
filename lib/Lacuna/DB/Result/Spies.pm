@@ -5,7 +5,6 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use List::Util qw(shuffle);
-use List::MoreUtils qw(any);
 use Lacuna::Util qw(format_date randint random_element);
 use DateTime;
 use Scalar::Util qw(weaken);
@@ -1435,7 +1434,7 @@ sub steal_planet {
         $ship->update;
       }
       elsif ($ship->task eq 'Travelling' and
-               (any { $ship->type eq $_ }
+               (grep { $ship->type eq $_ }
                      @{['cargo_ship',
                         'smuggler_ship',
                         'galleon',
@@ -1453,7 +1452,7 @@ sub steal_planet {
         }
       }
       elsif ($ship->task eq 'Travelling' and
-               (any { $ship->type eq $_ }
+               (grep { $ship->type eq $_ }
                      @{[ 'colony_ship',
                          'short_range_colony_ship',
                        ]})) {

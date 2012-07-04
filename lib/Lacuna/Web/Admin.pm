@@ -9,7 +9,7 @@ use feature "switch";
 use Module::Find;
 use UUID::Tiny ':std';
 use Lacuna::Util qw(format_date);
-use List::Util qw(first sum);
+use List::Util qw(sum);
 use Data::Dumper;
 
 sub www_send_test_message {
@@ -516,7 +516,7 @@ sub www_delete_plan {
         confess [404, 'Body not found.'];
     }
     # Find a plan
-    my $plan = first {
+    my ($plan) = grep {
             $_->level               == $request->param('level')
         and $_->class               eq $request->param('class')
         and $_->extra_build_level   == $request->param('extra')

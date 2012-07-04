@@ -6,8 +6,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES BUILDABLE_CLASSES SPACE_STATION_MODULES);
-use List::Util qw(first shuffle max min);
-use List::MoreUtils qw(any);
+use List::Util qw(shuffle max min);
 use Lacuna::Util qw(randint format_date);
 use DateTime;
 use Data::Dumper;
@@ -236,7 +235,7 @@ sub add_plan {
     $quantity = 1 unless defined $quantity;
 
     # add it
-    my $plan = first {
+    my ($plan) = grep {
             $_->class eq $class 
         and $_->level == $level 
         and $_->extra_build_level == $extra_build_level,
@@ -607,7 +606,7 @@ sub get_building_of_class {
 sub find_building {
     my ($self, $id) = @_;
 
-    my $building = first {$_->id == $id} @{$self->building_cache};
+    my ($building) = grep {$_->id == $id} @{$self->building_cache};
     return $building;
 }
 
@@ -933,7 +932,7 @@ sub found_colony {
     $type =~ s/^.*::(\w\d+)$/$1/;
     $empire->add_medal($type);
 
-    my $building = first {$_->x == 0 and $_->y == 0} @{$self->building_cache};
+    my ($building) = grep {$_->x == 0 and $_->y == 0} @{$self->building_cache};
     if (defined $building) {
         $building->delete;
     }
@@ -1046,7 +1045,7 @@ has total_ore_concentration => (
 sub is_food {
     my ($self, $resource) = @_;
 
-    if (any {$resource eq $_} (FOOD_TYPES)) {
+    if (grep {$resource eq $_} (FOOD_TYPES)) {
         return 1;
     }
     return;
@@ -1055,7 +1054,7 @@ sub is_food {
 sub is_ore {
     my ($self, $resource) = @_;
 
-    if (any {$resource eq $_} (ORE_TYPES)) {
+    if (grep {$resource eq $_} (ORE_TYPES)) {
         return 1;
     }
     return;
@@ -2347,7 +2346,7 @@ sub spend_waste {
         if (!$empire->check_for_repeat_message('complaint_lack_of_waste'.$self->id)) {
             my $building_name;
             foreach my $class (qw(Lacuna::DB::Result::Building::Energy::Waste Lacuna::DB::Result::Building::Waste::Treatment Lacuna::DB::Result::Building::Waste::Digester Lacuna::DB::Result::Building::Water::Reclamation Lacuna::DB::Result::Building::Waste::Exchanger)) {
-                my $building = first {$_->efficiency > 0} $self->get_buildings_of_class($class);
+                my ($building) = grep {$_->efficiency > 0} $self->get_buildings_of_class($class);
                 if (defined $building) {
                     $building_name = $building->name;
                     $building->spend_efficiency(25)->update;
@@ -2379,7 +2378,7 @@ sub complain_about_lack_of_resources {
             # Special conditions for space stations
             if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
                 if ($class eq 'Lacuna::DB::Result::Building::Module::Parliament' || $class eq 'Lacuna::DB::Result::Building::Module::StationCommand') {
-                    my $others = any {$_->class !~ /Parliament$|StationCommand$|Crater$/} @{$self->building_cache};
+                    my $others = grep {$_->class !~ /Parliament$|StationCommand$|Crater$/} @{$self->building_cache};
                     if ( $others ) {
                         # If there are other buildings, divert power from them to keep Parliament and Station Command running as long as possible
                         next;
@@ -2431,7 +2430,7 @@ sub complain_about_lack_of_resources {
                     }
                 }
             }
-            my $building = first {$_->efficiency > 0} $self->get_buildings_of_class($class);
+            my ($building) = grep {$_->efficiency > 0} $self->get_buildings_of_class($class);
             if (defined $building) {
                 $building_name = $building->name;
                 $building->spend_efficiency(25)->update;

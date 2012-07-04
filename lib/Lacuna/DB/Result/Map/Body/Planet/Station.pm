@@ -5,7 +5,6 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body::Planet';
 use Lacuna::Util qw(randint);
-use List::Util qw(first);
 use Data::Dumper;
 
 use constant image => 'station';
@@ -22,7 +21,7 @@ has parliament => (
 sub _build_parliament {
     my ($self) = @_;
 
-    my $parliament = first {$_->class =~ /Parliament$/} @{$self->building_cache};
+    my ($parliament) = grep {$_->class =~ /Parliament$/} @{$self->building_cache};
     return $parliament;
 }
 
@@ -69,7 +68,7 @@ has command => (
 
 sub _build_command {
     my ($self) = @_;
-    my $building = first {$_->class =~ /StationCommand$/} @{$self->building_cache};
+    my ($building) = grep {$_->class =~ /StationCommand$/} @{$self->building_cache};
     return $building;
 }
 
@@ -169,7 +168,7 @@ sub _build_range_of_influence {
     my ($self) = @_;
 
     my $range = 0;
-    my $ibs = first {$_->class eq 'Lacuna::DB::Result::Building::Module::IBS'} @{$self->building_cache};
+    my ($ibs) = grep {$_->class eq 'Lacuna::DB::Result::Building::Module::IBS'} @{$self->building_cache};
     if (defined $ibs) {
         $range = $ibs->level * 1000;
     }

@@ -1,7 +1,7 @@
 package Lacuna::DB::Result::Building::Permanent::TheDillonForge;
 
 use Moose;
-use List::Util qw(first shuffle);
+use List::Util qw(shuffle);
 use Data::Dumper;
 
 use utf8;
@@ -55,7 +55,7 @@ sub split_plan {
     my $halls   = $self->equivalent_halls($level, $extra_build_level);
     my $class   = 'Lacuna::DB::Result::Building::'.$plan_class;
     my $body    = $self->body;
-    my $plan = first {
+    my ($plan) = grep {
             $_->level               == $level
         and $_->class               eq $class
         and $_->extra_build_level   == $extra_build_level
