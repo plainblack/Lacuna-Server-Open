@@ -518,7 +518,7 @@ sub www_delete_plan {
         confess [404, 'Body not found.'];
     }
     # Find a plan
-    my $plan = grep {
+    my ($plan) = grep {
             $_->level               == $request->param('level')
         and $_->class               eq $request->param('class')
         and $_->extra_build_level   == $request->param('extra')
