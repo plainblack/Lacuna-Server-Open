@@ -92,7 +92,7 @@ sub trash_messages {
 sub send_message {
     my ($self, $session_id, $recipients, $subject, $body, $options) = @_;
     Lacuna::Verify->new(content=>\$subject, throws=>[1005,'Message subject cannot be empty.',$subject])->not_empty;
-    Lacuna::Verify->new(content=>\$subject, throws=>[1005,'Message subject cannot contain any of these characters: {}<>&;@',$subject])->no_restricted_chars;
+    Lacuna::Verify->new(content=>\$subject, throws=>[1005,'Message subject cannot contain any of these characters: (){}<>&;@',$subject])->no_restricted_chars;
     Lacuna::Verify->new(content=>\$subject, throws=>[1005,'Message subject must be less than 100 characters.',$subject])->length_lt(100);
     Lacuna::Verify->new(content=>\$subject, throws=>[1005,'Message subject cannot contain profanity.',$subject])->no_profanity;
     Lacuna::Verify->new(content=>\$body, throws=>[1005,'Message body cannot be empty.',$body])->not_empty;
