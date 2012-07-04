@@ -99,12 +99,12 @@ sub delete_many_plans {
             if ($p->id == $plan->id) {
                 my @plans = splice(@{$self->plan_cache}, $i, 1);
                 $self->plan_cache(\@plans);
-                $p->delete;
+                $plan->delete;
                 last BUILDING;
             }
             $i++;
         }
-        $self->update;
+#        $self->update;
     }
 }
 
