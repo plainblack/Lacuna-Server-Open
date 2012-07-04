@@ -295,7 +295,7 @@ sub www_view_buildings {
         $out .= sprintf('<form method="post" action="/admin/delete/building">');
         $out .= sprintf('<input type="hidden" name="building_id" value="%s"/>', $building->id);
         $out .= sprintf('<td><input type="submit" value="delete"/></td></form></tr>');
-    }
+    }   
     $out .= '</table>';
     return $self->wrap($out);
 }
@@ -464,13 +464,13 @@ sub www_delete_glyph {
 sub www_view_plans {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
-    my $body = Lacuna->db->resultset('Body')->find($request->param('body_id'));
-    my @plans = $body->sorted_plans;
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($request->param('body_id'));
+    my $plans = $body->sorted_plans;
 
     my $out = '<h1>View Plans</h1>';
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
     $out .= '<table style="width: 100%;"><tr><th>Level</th><th>Name</th><th>Extra Build Level</th><th>Quantity</th><th>Action</th></tr>';
-    for my $plan (@plans) {
+    for my $plan (@$plans) {
         $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>',$plan->level, $plan->class->name, $plan->extra_build_level, $plan->quantity);
         $out .= sprintf('<form method="get" action="/admin/delete/plan">');
         $out .= sprintf('<input type="hidden" name="level" value="%s">',$plan->level);
@@ -513,7 +513,7 @@ sub www_add_plan {
 
 sub www_delete_plan {
     my ($self, $request) = @_;
-    my $body = Lacuna->db->resultset('Body')->find($request->param('body_id'));
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($request->param('body_id'));
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
