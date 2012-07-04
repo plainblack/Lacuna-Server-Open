@@ -130,11 +130,11 @@ sub check_payload {
         }
       }
     }
-    $items = \@expanded_items;
-    confess $offer_nothing_exception unless $space_used;
-    confess [1011, sprintf($space_exception,$space_used)] unless ($space_used <= $available_cargo_space);
-    return $space_used, $items;
   }
+  $items = \@expanded_items;
+  confess $offer_nothing_exception unless $space_used;
+  confess [1011, sprintf($space_exception,$space_used)] unless ($space_used <= $available_cargo_space);
+  return $space_used, $items;
 }
 
 sub structure_payload {
