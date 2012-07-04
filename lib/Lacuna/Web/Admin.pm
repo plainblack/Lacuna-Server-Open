@@ -501,13 +501,11 @@ sub www_view_plans {
 
 sub www_add_plan {
     my ($self, $request) = @_;
-    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($request->param('body_id'));
+    my $body = Lacuna->db->resultset('Body')->find($request->param('body_id'));
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
-    for (1..$request->param('quantity')) {
-        $body->add_plan($request->param('class'), $request->param('level'), $request->param('extra_build_level'));
-    }
+    $body->add_plan($request->param('class'), $request->param('level'), $request->param('extra_build_level'), $request->param('quantity');
     return $self->www_view_plans($request, $body->id);
 }
 
