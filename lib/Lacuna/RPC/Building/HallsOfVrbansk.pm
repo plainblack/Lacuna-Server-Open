@@ -64,7 +64,7 @@ sub sacrifice_to_upgrade {
             if ($plan->quantity < $plans_needed) {
                 confess [1009, 'The Halls of Vrbansk do not have the knowledge necessary to upgrade the '.$upgrade->name];
             }
-            $plan->delete_many($plans_needed);
+            $body->delete_many_plans($plan, $plans_needed);
         }
     }
     foreach my $hall (@halls) {

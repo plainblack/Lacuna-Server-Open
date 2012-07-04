@@ -39,7 +39,7 @@ sub upgrade {
     my $body = $building->body;
     my $plan = $body->get_plan($building->class, $building->level + 1);
     if (defined $plan) {
-        $plan->delete_one;
+        $body->delete_one_plan($plan);
     }
     else {
         $body->spend_water($cost->{water});
@@ -173,7 +173,7 @@ sub build {
         if ($plan->extra_build_level) {
             $building->level( $plan->extra_build_level);
         }
-        $plan->delete_one;
+        $body->delete_one_plan($plan);
     }
     else {
         $body->spend_food($cost->{food}, 0);

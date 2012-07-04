@@ -100,27 +100,6 @@ sub check_glyph_recipe {
     return $plan_class;
 }
 
-# Delete one plan
-sub delete_one {
-    my ($self) = @_;
-
-    $self->delete_many(1);
-}
-
-# Delete many plans
-sub delete_many {
-    my ($self, $quantity) = @_;
-
-    if ($self->quantity <= $quantity) {
-        plan_cache 
-        $self->delete;
-    }
-    else {
-        $self->quantity($self->quantity - $quantity);
-        $self->update;
-    }
-}
-
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 
 no Moose;
