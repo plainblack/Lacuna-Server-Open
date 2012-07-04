@@ -431,7 +431,7 @@ sub www_view_glyphs {
     $out .= '<form method="post" action="/admin/add/glyph"><tr>';
     $out .= '<td><input type="hidden" name="body_id" value="'.$body_id.'"></td>';
     $out .= '<td><select name="type">';
-    foreach my $name (sort(ORE_TYPES()) {
+    foreach my $name (sort(ORE_TYPES)) {
         $out .= '<option value="'.$name.'">'.$name.'</option>';
     }
     $out .= '</select></td>';
@@ -505,7 +505,7 @@ sub www_add_plan {
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
-    $body->add_plan($request->param('class'), $request->param('level'), $request->param('extra_build_level'), $request->param('quantity');
+    $body->add_plan($request->param('class'), $request->param('level'), $request->param('extra_build_level'), $request->param('quantity'));
     return $self->www_view_plans($request, $body->id);
 }
 
