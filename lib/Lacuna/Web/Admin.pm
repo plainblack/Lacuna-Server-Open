@@ -431,7 +431,7 @@ sub www_view_glyphs {
     $out .= '<form method="post" action="/admin/add/glyph"><tr>';
     $out .= '<td><input type="hidden" name="body_id" value="'.$body_id.'"></td>';
     $out .= '<td><select name="type">';
-    foreach my $name (sort ORE_TYPES) {
+    foreach my $name (sort(ORE_TYPES()) {
         $out .= '<option value="'.$name.'">'.$name.'</option>';
     }
     $out .= '</select></td>';
