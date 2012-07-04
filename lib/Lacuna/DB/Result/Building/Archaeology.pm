@@ -7,6 +7,7 @@ extends 'Lacuna::DB::Result::Building';
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
 use Lacuna::Util qw(randint random_element);
 use Clone qw(clone);
+use List::MoreUtils qw(any);
 use feature 'switch';
 
 around 'build_tags' => sub {
@@ -351,7 +352,7 @@ sub found_artifact {
     my $plan_types = plans_of_type();
     my $artifacts;
     foreach my $building (@{$body->building_cache}) {
-        unless ( grep { $building->class eq $_ } @{$plan_types->{disallow}}) {
+        unless ( any { $building->class eq $_ } @{$plan_types->{disallow}}) {
             push @{$artifacts}, $building;
         }
     }
@@ -661,7 +662,7 @@ sub make_plan {
 
     # types
     my %count;
-    if ( grep /\D/, @{$glyphs} ) {
+    if ( any { /\D/ } @{$glyphs} ) {
         $plan_class = Lacuna::DB::Result::Plans->check_glyph_recipe($glyphs);
         if (not $plan_class) {
             confess [1002, 'The glyphs specified do not fit together in that manner.'];

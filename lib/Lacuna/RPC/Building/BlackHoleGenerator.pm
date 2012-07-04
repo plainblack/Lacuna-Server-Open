@@ -8,6 +8,8 @@ no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Lacuna::Util qw(randint random_element);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
+use List::Util qw(first);
+use List::MoreUtils qw(any);
 
 sub app_url {
     return '/blackholegenerator';
@@ -175,7 +177,7 @@ sub task_chance {
                                  $task->{min_level});
     return $return;
   }
-  unless ( grep { $target_type eq $_ } @{$task->{types}} ) {
+  unless ( any { $target_type eq $_ } @{$task->{types}} ) {
     $return->{throw}   = 1009;
     $return->{reason}  = $task->{reason};
     return $return;
@@ -206,7 +208,7 @@ sub generate_singularity {
     confess [1002, 'Could not locate target.'];
   }
   my @tasks = bhg_tasks($building);
-  my ($task) = grep { $task_name eq $_->{name} } @tasks;
+  my $task = first { $task_name eq $_->{name} } @tasks;
   unless ($task) {
     confess [1002, 'Could not find task: '.$task_name];
   }

@@ -5,6 +5,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
+use List::Util qw(first);
 use Lacuna::Util qw(format_date);
 use DateTime;
 
@@ -91,7 +92,7 @@ sub get_glyph_recipe {
 sub check_glyph_recipe {
     my ($class, $glyphs) = @_;
 
-    my ($plan_class) = grep {@{$recipes->{$_}} ~~ @$glyphs} keys %$recipes;
+    my ($plan_class) = first {@{$recipes->{$_}} ~~ @$glyphs} keys %$recipes;
     if (defined $plan_class) {
         # Sort out different Halls recipes
         $plan_class =~ s/HallsOfVrbansk.*$/HallsOfVrbansk/;

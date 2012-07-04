@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
+use List::MoreUtils qw(any);
 extends 'Lacuna::DB::Result::Building';
 
 around 'build_tags' => sub {
@@ -121,8 +122,8 @@ before finish_work => sub {
     my $ore_reserve  = 0;
     my $resource;
     for $resource ( @$resources ) {
-      $food_reserve += $resource->{quantity} if (grep { $resource->{type} eq $_ } FOOD_TYPES);
-      $ore_reserve  += $resource->{quantity} if (grep { $resource->{type} eq $_ } ORE_TYPES);
+      $food_reserve += $resource->{quantity} if (any { $resource->{type} eq $_ } FOOD_TYPES);
+      $ore_reserve  += $resource->{quantity} if (any { $resource->{type} eq $_ } ORE_TYPES);
     }
     my $food_res = ($food_reserve + $body->food_stored) - $body->food_capacity;
     if ($food_res > 0) { $body->spend_food($food_res + 100, 1) };

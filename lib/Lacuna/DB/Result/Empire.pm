@@ -8,7 +8,7 @@ use DateTime;
 use Scalar::Util qw(weaken);
 use Lacuna::Util qw(format_date);
 use Digest::SHA;
-use List::MoreUtils qw(uniq);
+use List::MoreUtils qw(any uniq);
 use Email::Stuff;
 use Email::Valid;
 use UUID::Tiny ':std';
@@ -496,7 +496,7 @@ sub found {
        Lacuna::DB::Result::Building::Permanent::Sand
                 )];
   foreach my $building (@{$home_planet->building_cache}) {
-    unless ( grep { $building->class eq $_ } @{$decor}) {
+    unless ( any { $building->class eq $_ } @{$decor}) {
       $building->delete;
     }
   }

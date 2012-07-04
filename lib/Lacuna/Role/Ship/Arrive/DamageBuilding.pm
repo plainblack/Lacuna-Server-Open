@@ -3,6 +3,7 @@ package Lacuna::Role::Ship::Arrive::DamageBuilding;
 use strict;
 use Moose::Role;
 use Lacuna::Util qw(randint);
+use List::Util qw(first);
 use DateTime;
 
 after handle_arrival_procedures => sub {
@@ -17,7 +18,7 @@ after handle_arrival_procedures => sub {
     # determine target building
     my $building;
     my $body_attacked = $self->foreign_body;
-    my ($citadel) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope'} @{$body_attacked->building_cache};
+    my $citadel = first {$_->class eq 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope'} @{$body_attacked->building_cache};
     if (defined $citadel) {
         $building = $citadel;
     }
