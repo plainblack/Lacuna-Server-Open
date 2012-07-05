@@ -24,8 +24,7 @@ MySQL will depend on the system and how you installed it.
 
 Step 3: Config Files
 
-You'll need to create lacuna.conf, nginx.conf, and log.conf in your Lacuna-Server/etc folder. The best way to do this
-is probably to just get them off one of the play testers server.
+You'll need to create lacuna.conf, nginx.conf, and log.conf in your Lacuna-Server/etc folder. Start with the example files provided in the root of this repository.
 
 
 
@@ -42,8 +41,7 @@ exit;
 
 cd bin/setup
 perl init_lacuna.pl
-mysql -uroot -pyourrootpassword lacuna < ../var/captcha.sql
-
+perl generate_captcha.pl
 
 
 Step 5: Start The Server
