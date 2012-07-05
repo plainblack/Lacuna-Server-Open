@@ -279,7 +279,7 @@ sub sanitize {
         $self->$attribute(0);
     }
     $self->alliance_id(undef);
-    $self->plans->delete;
+    $self->_plans->delete;
     $self->glyph->delete;
     $self->waste_chains->delete;
     # do individual deletes so the remote ends can be tidied up too
