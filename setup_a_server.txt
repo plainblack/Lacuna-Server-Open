@@ -1,3 +1,10 @@
+Step 0: Get this Repo
+
+mkdir /data
+cd /data
+git clone https://github.com/plainblack/Lacuna-Server-Open.git
+
+
 Step 1: Prereqs
 
 First you need to have all the prereqs installed. If you're on a CentOS / RHEL environment you can do the following:
