@@ -176,6 +176,7 @@ sub structure_payload {
             when ('plan') {
                 if ($item->{plan_id}) {
                     my ($plan) = grep {$_->id == $item->{plan_id}} @{$body->plan_cache};
+
                     $body->delete_many_plans($plan, $item->{quantity});
                     push @{$payload->{plans}}, {
                         class               => $plan->class,
