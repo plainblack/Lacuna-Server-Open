@@ -5,5 +5,5 @@ This code is distributed under the terms set forth in license.txt.
 
 For more information about The Lacuna Expanse visit http://www.lacunaexpanse.com/
 
-For mmore information about The Lacuna Expanse Developers Program visit
+For more information about The Lacuna Expanse Developers Program visit
 http://www.lacunaexpanse.com/developers
