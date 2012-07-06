@@ -31,7 +31,9 @@ MySQL will depend on the system and how you installed it.
 
 Step 3: Config Files
 
-You'll need to create lacuna.conf, nginx.conf, and log.conf in your Lacuna-Server/etc folder. Start with the example files provided in the root of this repository.
+You'll need to create lacuna.conf, nginx.conf, and log4perl.conf
+in your Lacuna-Server/etc folder. Templates exist in the etc
+directory.
 
 
 
