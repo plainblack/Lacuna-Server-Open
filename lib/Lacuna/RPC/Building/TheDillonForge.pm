@@ -49,19 +49,11 @@ sub _forge_tasks {
     my ($self, $building) = @_;
 
     my $building_level = $building->level ? $building->level : 1;
+    my $body = $building->body;
 
-    # How many plans do we have?
-    my $plans_rs = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search({
-        body_id             => $building->body_id,
-    }, {
-        order_by => [qw(class)],
-        group_by => [qw(class level extra_build_level)],
-        select   => ['class','level','extra_build_level',{count => 'id', -as => 'count_plans'}],
-        as       => ['class','level','extra_build_level','no_of_plans'],
-    });
     my @split_plans;
 PLAN:
-    while (my $plan = $plans_rs->next) {
+    for my $plan (@{$body->plan_cache}) {
         # Can only split plans with recipes
         next PLAN if not Lacuna::DB::Result::Plans->get_glyph_recipe($plan->class);
 
@@ -78,17 +70,13 @@ PLAN:
             reset_seconds       => $halls * 30 * 3600 / $building->level,
         };
     }
-    # now refine the search for level 1 plans only
-    $plans_rs = $plans_rs->search({
-        body_id             => $building->body_id,
-        level               => 1,
-        extra_build_level   => 0,
-    });
 
+    my @plans = grep {$_->level == 1 and $_->extra_build_level == 0} @{$body->plan_cache};
+    
     my @make_plans;
-    while (my $plan = $plans_rs->next) {
+    foreach my $plan (@plans) {
         # It takes 2 level 1 plans for each level we are constructing.
-        my $max_level = min(int($plan->get_column('no_of_plans') / 2), $building_level);
+        my $max_level = min(int($plan->quantity / 2), $building_level);
         if ($max_level >= 2) {
             my ($class) = $plan->class =~ m/Lacuna::DB::Result::Building::(.*)$/;
             push @make_plans, {

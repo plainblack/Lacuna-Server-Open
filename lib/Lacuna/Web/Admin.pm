@@ -501,7 +501,7 @@ sub www_view_plans {
 
 sub www_add_plan {
     my ($self, $request) = @_;
-    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($request->param('body_id'));
+    my $body = Lacuna->db->resultset('Map::Body')->find($request->param('body_id'));
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
