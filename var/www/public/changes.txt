@@ -4,6 +4,7 @@
  - Mod: Spies may now steal or destroy more than one plan of a type
  - Mod: Missions that require a plan, now take the lowest level/extra that meet the criteria
  - Mod: Improved efficiency on planets with lots of glyphs and plans
+ -
 
 3.0858:
  - Add: Resources per hour for all food/ore types now shown in PCC and SCC
