@@ -42,12 +42,6 @@ make
 make install
 cd ..
 
-cd git-1.7.2.2
-./configure --without-tcltk --prefix=/data/apps
-make
-make install
-cd ..
-
 cpan App::cpanminus
 
 

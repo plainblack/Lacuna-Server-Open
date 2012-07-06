@@ -1,6 +1,3 @@
-wget http://rocky.eld.leidenuniv.nl/arno-iptables-firewall/arno-iptables-firewall_1.9.2l.tar.gz
-tar xfz arno-iptables-firewall_1.9.2l.tar.gz
-
 wget http://www.cpan.org/src/5.0/perl-5.12.1.tar.gz
 tar xfz perl-5.12.1.tar.gz
 
@@ -23,12 +20,9 @@ wget http://www.percona.com/redir/downloads/XtraBackup/XtraBackup-1.4/RPM/rhel5/
 wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.10.tar.gz 
 tar xfz pcre-8.10.tar.gz
 wget http://openssl.org/source/openssl-1.0.0c.tar.gz
-tar xvz openssl-1.0.0c.tar.gz
+tar xfz openssl-1.0.0c.tar.gz
 wget http://nginx.org/download/nginx-0.7.67.tar.gz
 tar xfz nginx-0.7.67.tar.gz
-
-wget http://kernel.org/pub/software/scm/git/git-1.7.2.2.tar.gz
-tar xfz git-1.7.2.2.tar.gz
 
 wget ftp://anonymous@xmlsoft.org/libxml2/libxml2-sources-2.7.7.tar.gz
 tar xfz libxml2-sources-2.7.7.tar.gz
