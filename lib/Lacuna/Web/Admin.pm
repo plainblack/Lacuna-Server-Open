@@ -431,7 +431,7 @@ sub www_view_glyphs {
     $out .= '<form method="post" action="/admin/add/glyph"><tr>';
     $out .= '<td><input type="hidden" name="body_id" value="'.$body_id.'"></td>';
     $out .= '<td><select name="type">';
-    foreach my $name (sort(ORE_TYPES)) {
+    foreach my $name (sort(ORE_TYPES())) {
         $out .= '<option value="'.$name.'">'.$name.'</option>';
     }
     $out .= '</select></td>';
@@ -501,7 +501,7 @@ sub www_view_plans {
 
 sub www_add_plan {
     my ($self, $request) = @_;
-    my $body = Lacuna->db->resultset('Body')->find($request->param('body_id'));
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($request->param('body_id'));
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
