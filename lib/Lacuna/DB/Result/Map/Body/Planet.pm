@@ -1195,7 +1195,7 @@ sub recalc_stats {
         }
     }
     my $reduce_factor = 1;
-    if ($positive_ore_hour >= $ore_consumption_hour) {
+    if ($positive_ore_hour and $positive_ore_hour >= $ore_consumption_hour) {
         $reduce_factor = $ore_consumption_hour / $positive_ore_hour;
     }
     foreach my $type (ORE_TYPES) {
