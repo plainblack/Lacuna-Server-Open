@@ -58,8 +58,25 @@ sub _delete_building {
     BUILDING:
     foreach my $b (@{$self->building_cache}) {
         if ($b->id == $building->id) {
-            my @buildings = splice(@{$self->building_cache}, $i, 1);
+            my @buildings = @{$self->building_cache};
+            splice(@buildings, $i, 1);
             $self->building_cache(\@buildings);
+            last BUILDING;
+        }
+        $i++;
+    }
+    $self->update;
+}
+sub _delete_plan {
+    my ($self, $plan) = @_;
+
+    my $i = 0;
+    BUILDING:
+    foreach my $p (@{$self->plan_cache}) {
+        if ($p->id == $plan->id) {
+            my @plans = @{$self->plan_cache};
+            splice(@plans, $i, 1);
+            $self->plan_cache(\@plans);
             last BUILDING;
         }
         $i++;
@@ -93,31 +110,11 @@ sub delete_many_plans {
         $plan->update;
     }
     else {
-        my $i = 0;
-        BUILDING:
-        foreach my $p (@{$self->plan_cache}) {
-            if ($p->id == $plan->id) {
-                my @plans = splice(@{$self->plan_cache}, $i, 1);
-                $self->plan_cache(\@plans);
-                $plan->delete;
-                last BUILDING;
-            }
-            $i++;
-        }
-#        $self->update;
-    }
-}
-
-sub delete_plans {
-    my ($self, $plans) = @_;
-
-    foreach my $plan (@$plans) {
-        $self->delete_plan($plan);
+        $self->_delete_plan($plan);
         $plan->delete;
     }
-    $self->update;
 }
-                                        
+
 sub surface {
     my $self = shift;
     return 'surface-'.$self->image;
@@ -279,7 +276,7 @@ sub sanitize {
         $self->$attribute(0);
     }
     $self->alliance_id(undef);
-    $self->plans->delete;
+    $self->_plans->delete;
     $self->glyph->delete;
     $self->waste_chains->delete;
     # do individual deletes so the remote ends can be tidied up too
@@ -1198,7 +1195,7 @@ sub recalc_stats {
         }
     }
     my $reduce_factor = 1;
-    if ($positive_ore_hour >= $ore_consumption_hour) {
+    if ($positive_ore_hour and $positive_ore_hour >= $ore_consumption_hour) {
         $reduce_factor = $ore_consumption_hour / $positive_ore_hour;
     }
     foreach my $type (ORE_TYPES) {

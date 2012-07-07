@@ -47,10 +47,8 @@ sub get_upgradable_buildings {
     # built, plus the minimum of the number of free building spaces or
     # the number of hall plans
     my $halls = $self->get_halls;
-    my $plans = Lacuna->db->resultset('Plans')->search({
-        body_id => $body->id,
-        class => 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk',
-    })->count;
+    my ($plan) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'} @{$body->plan_cache};
+    my $plans = defined $plan ? $plan->quantity : 0;
 
     my $building_count = @{$self->body->building_cache};
     my $max_level = $halls + min(( 121 - $building_count), $plans);

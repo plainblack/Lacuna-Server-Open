@@ -51,7 +51,7 @@ sub generate_overview {
     my $bodies      = $db->resultset('Lacuna::DB::Result::Map::Body');
     my @off_limits  = $bodies->search({empire_id => {'<' => 2}})->get_column('id')->all;
     my $ships       = $db->resultset('Lacuna::DB::Result::Ships')->search({body_id => { 'not in' => \@off_limits}});
-    my $glyphs      = $db->resultset('Glyphs')->search({body_id => { 'not in' => \@off_limits}});
+    my $glyphs      = $db->resultset('Glyph')->search({body_id => { 'not in' => \@off_limits}});
     my $buildings   = $db->resultset('Lacuna::DB::Result::Building')->search({body_id => { 'not in' => \@off_limits}});
     my $empires     = $db->resultset('Lacuna::DB::Result::Empire')->search({id => { '>' => 1}});
     my $probes      = $db->resultset('Lacuna::DB::Result::Probes')->search({empire_id => { '>' => 1}});
@@ -148,10 +148,16 @@ sub generate_overview {
 
     # flesh out glyphs
     out('Flesh Out Glyphs Stats');
-    foreach my $type (ORE_TYPES) {
-        my $type_rs = $glyphs->search({type => $type});
-        my $count = $type_rs->count;
-        $out{glyphs}{types}{$type} = $count;
+    my $glyph_rs = $glyphs->search(undef, {
+        group_by => 'type',
+        select => [
+            'type',
+            { sum => 'quantity' },
+        ],
+        as => [qw(type quantity)],
+    });
+    while (my $glyph = $glyph_rs->next) {
+        $out{glyphs}{types}{$glyph->type} = $glyph->quantity;
     }
 
     out('Write To S3');

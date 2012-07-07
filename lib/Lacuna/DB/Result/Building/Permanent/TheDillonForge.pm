@@ -122,17 +122,13 @@ sub equivalent_halls {
 before finish_work => sub {
     my $self = shift;
 
-    my $work   	= $self->work;
-    my $body    = $self->body;
-    my $empire  = $body->empire;
+    my $work        = $self->work;
+    my $body        = $self->body;
+    my $empire      = $body->empire;
     my $plan_class  = $work->{class};
 
     if ($work->{task} eq 'make_plan') {
-        $self->body->add_to_plans({
-            level               => $work->{level},
-            class               => $plan_class,
-            extra_build_level   => 0,
-        });
+        $body->add_plan($plan_class, $work->{level}, 0, 1);
         $empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'plan_created_by_forge.txt',
@@ -157,9 +153,6 @@ before finish_work => sub {
         my $total_glyphs = 0;
         for my $glyph (@many_glyphs) {
             if ($success_percent > rand(100)) {
-#                $self->body->add_glyph({
-#                    type => $glyph,
-#                });
                 $glyphs_built->{$glyph} = $glyphs_built->{$glyph} ? $glyphs_built->{$glyph}+1 : 1;
                 $total_glyphs++;
             }
