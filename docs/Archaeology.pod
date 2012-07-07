@@ -50,20 +50,7 @@ The unique id of the Archaeology Ministry.
 
 =head2 get_glyphs ( session_id, building_id )
 
-Returns a list of glyphs that have been found by this archaeology ministry.
-
- {
-    "status" : { ... },
-    "glyphs" : [
-        {
-            "id" : "id-goes-here",
-            "type" : "bauxite",
-            "quantity" : 2
-        },
-        ...
-    ]
- }
-
+This API call is now deprecated, please use get_glyph_summary instead.
 
 =head2 get_glyph_summary ( session_id, building_id )
 
@@ -73,6 +60,7 @@ Returns a summary of all glyphs that may be assembled in this archaeology minist
     "glyphs" : [
         {
             "id" : "id-goes-here",
+            "type: : "bauxite",
             "type" : "bauxite",
             "quantity" : 2
         },
@@ -116,8 +104,6 @@ An array reference containing an ordered list of up to four glyph types.
 =head3 quantity
 
 An optional quantity; if left blank it defaults to 1, otherwise specify the number of times to assemble the indicated glyphs up to a maximum of 50.
-
-
 
 
 =head2 get_ores_available_for_processing (session_id, building_id)
