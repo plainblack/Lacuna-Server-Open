@@ -61,8 +61,8 @@ sub get_glyph_summary {
     }
 
     return {
-        glyphs                  => \@out,
-        status                  => $self->format_status($empire, $building->body),
+        glyphs  => \@out,
+        status  => $self->format_status($empire, $building->body),
     };
 }
 
