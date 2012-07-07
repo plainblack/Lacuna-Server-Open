@@ -1,6 +1,7 @@
 package Lacuna::DB::Result::Spies;
 
 use Moose;
+use 5.010;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
@@ -271,6 +272,32 @@ sub seconds_remaining_on_assignment {
     }
     else {
         return 0;
+    }
+}
+
+# A more efficient routine to tick all spies
+sub tick_all_spies {
+    my ($class,$verbose) = @_;
+
+    my $spies = Lacuna->db->resultset('Spies')->search({
+        -and => [{task => {'!=' => 'Idle'}},{task => {'!=' => 'Counter Espionage'}},{task => {'!=' => 'Mercenary Transport'}}],
+    });
+    # TODO further efficiencies could be made by ignoring spies not yet 'available'
+    while (my $spy = $spies->next) {
+        if ($verbose) {
+            say format_date(DateTime->now), " ", "Tick spy ".$spy->name." task ".$spy->task;
+        }
+        my $starting_task = $spy->task;
+        $spy->is_available;
+        if ($spy->task eq 'Idle' && $starting_task ne 'Idle') {
+            if (!$spy->empire->skip_spy_recovery) {
+                $spy->empire->send_predefined_message(
+                    tags        => ['Intelligence'],
+                    filename    => 'ready_for_assignment.txt',
+                    params      => [$spy->name, $spy->from_body->id, $spy->from_body->name],
+                );
+            }
+        }
     }
 }
 
