@@ -4,7 +4,7 @@ LACUNA EXPANSE COMMUNITY CONSTITUTION
 Preamble
 ========
 
-The players of the Lacuna Expanse are its citizens. Their rights are defined and protected by this document. 
+The players of the Lacuna Expanse (http://www.lacunaexpanse.com) are its citizens. Their rights are defined and protected by this document. 
 
 Lacuna Expanse Corp, a corporation registered in Madison, Wisconsin, in the United States of America owns the intellectual property and trademarks of the Lacuna Expanse. Through this document it cedes some of its authority to the citizens of the Lacuna Expanse, and in so doing grants its citizens rights as defined by this document.
 
@@ -88,11 +88,11 @@ Article V
 ---------
 The Council shall maintain a staff of volunteers to help manage the community operations to maintain maximum continuity for the citizens. Staff positions shall be at-will and made on a volunteer basis.
 
-i. There shall be no fewer than three in-game administrators. 
+i. There shall be no fewer than three in-game administrators. These staff members shall be responsible for the day to day operations of the game, to resolve disputes, and to support citizens in their endeavors.
 
-ii. There shall be no fewer than two code repository administrators. 
+ii. There shall be no fewer than two code repository administrators. These staff members shall be responsible for managing the code base, applying bug and security patches expediently, and accepting patches as directed by the council.
 
-iii. There shall be no fewer than two web site administrators.
+iii. There shall be no fewer than two web site administrators. These staff members shall be responsible for managing the web site, wiki, forums, and news announcements. 
 
 
 Article VI
