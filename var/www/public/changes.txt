@@ -1,3 +1,6 @@
+3.0860:
+ - Fix: Scows deliver the amount of waste in their payload, not capacity.
+
 3.0859:
  - Mod: Web UI, arch min has better display of glyphs, can produce multiple plans in one go
  - Mod: Spies now have a higher chance of stealing or destroying a 'useful' plan
