@@ -1,6 +1,13 @@
 # config-file-type: JSON 1
 {
    "access_key" : "XXXX",
+    "bhg_param" : {
+# If any are set to 0, use default.
+        "success" : 0,
+        "waste_cost" : 0,
+        "recovery" : 0,
+        "side_chance" : 0,
+    },
    "db" : {
       "dsn" : "DBI:mysql:XXXX",
       "password" : "XXXX",
@@ -51,6 +58,26 @@
          "port" : "11211"
       }
    ],
+   "neutral_zone" : {
+# If zone is set to a valid zone, x & y are confined to within that zone.
+# Coord set to 1 will further narrow Neutral area.
+# Setting zone to 0 will only use x & y.
+# Setting x & y outside of the zone, will result in nothing be within the NZ.
+      "active" : 1,
+      "zone" : 1,
+      "zone_list" : [
+         "-3|0"
+      ],
+      "coord" : 0,
+      "x" : [
+         -1000,
+         -750
+      ],
+      "y" : [
+         -250,
+         250
+      ]
+   },
    "offline" : 0,
    "paypal" : {
       "APIPassword" : "XXXX",
