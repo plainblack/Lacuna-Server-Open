@@ -1,5 +1,6 @@
 3.0860:
  - Fix: Scows deliver the amount of waste in their payload, not capacity.
+ - Fix: Space Station Command accessible via UI.
 
 3.0859:
  - Mod: Web UI, arch min has better display of glyphs, can produce multiple plans in one go
