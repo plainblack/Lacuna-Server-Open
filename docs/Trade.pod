@@ -854,7 +854,8 @@ The hash reference for glyphs looks like:
 
  {
     "type" : "glyph",
-    "glyph_id" : "id-goes-here"
+    "name : "bauxite",
+    "quantity" : 3
  }
  
 =over
@@ -863,20 +864,30 @@ The hash reference for glyphs looks like:
 
 Must be exactly C<glyph>.
 
-=item glyph_id
+=item name
 
-The unique id of the glyph you want to push. See the C<get_glyphs> method for a list of your glyphs.
- 
+The type of glyph you want to trade (must be an ore type name).
+
+=item quantity
+
+The number of glyphs of type C<name> that you want to push.
+
+See the C<get_glyph_summary> method for a list of your glyphs.
+
 =back
 
 =item plans
 
-The hash reference for plans looks like:
+The hash reference for plans looks like this:
 
  {
     "type" : "plan",
-    "plan_id" : "id-goes-here"
+    "plan_type" : "Permanent_AlgaePond",
+    "level" : 1,
+    "extra_build_level" : 5,
+    "quantity" : 4,
  }
+
 
 =over
 
@@ -884,9 +895,23 @@ The hash reference for plans looks like:
 
 Must be exactly C<plan>.
 
-=item plan_id
+=item plan_type
 
-The unique id of the plan that you want to push. See the C<get_plans> method for a list of your plans.
+Same as returned by get_plan_summary.
+
+=item level
+
+Level of the plan being pushed.
+
+=item extra_build_level
+
+Level of plus to plan.  Note this will be 0 except possibly when the base level is 1.
+
+=item quantity
+
+The number of plans of that you want to push.
+
+See the C<get_plan_summary> method for a list of your plans.
 
 =back
 
