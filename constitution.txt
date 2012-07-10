@@ -1,0 +1,111 @@
+LACUNA EXPANSE COMMUNITY CONSTITUTION
+
+========
+Preamble
+========
+
+The players of the Lacuna Expanse (http://www.lacunaexpanse.com) are its citizens. Their rights are defined and protected by this document. 
+
+Lacuna Expanse Corp, a corporation registered in Madison, Wisconsin, in the United States of America owns the intellectual property and trademarks of the Lacuna Expanse. Through this document it cedes some of its authority to the citizens of the Lacuna Expanse, and in so doing grants its citizens rights as defined by this document.
+
+
+======
+Edicts
+======
+
+Edicts are directives issued by Lacuna Expanse Corp.
+
+Edict I
+-------
+No amendments may be made to the Edicts in this document by anyone other than Lacuna Expanse Corp.
+
+Edict II
+--------
+No changes may be made to the Lacuna Expanse code base or community that would harm Lacuna Expanse Corp's ability to monetize the Lacuna Expanse.
+
+Edict III
+---------
+No amendments may be ratified to the Constitution that would harm Lacuna Expanse Corp's ability to monetize the Lacuna Expanse; or that would take rights away from Lacuna Expanse Corp.
+
+Edict IV
+--------
+No alterations may be made to the Lacuna Expanse code base that would compromise the security of citizen information, Lacuna Expanse Corp, or Lacuna Expanse Corp's partners and vendors.
+
+
+========
+Articles
+========
+
+Articles are the basic tenants upon which the Constitution is founded.
+
+
+Article I
+---------
+
+A governing body known as the Lacuna Council, or just Council, shall be the ultimate authority over the Lacuna Expanse and its citizens in the absence of Lacuna Expanse Corp. 
+
+i. The Council shall be formed of no fewer than three citizens and no greater than nine citizens; and shall be known as Council Members.
+
+ii. Council Members shall be appointed by Lacuna Expanse Corp; or nominated by any citizen and installed by a majority vote of existing Council Members.
+
+iii. Council Members may be impeached from their post by a majority vote of Council Members, or by direct intervention of Lacuna Expanse Corp.
+
+iv. In the event that there are not enough Council Members to reach quorum, the citizens shall hold a popular vote to elect members to the Council.
+
+
+Article II
+----------
+
+The Council shall implement any decisions it deems necessary to promote the advancement of the Lacuna Expanse game and community.  Decisions shall be made by passing a majority vote.
+
+
+Article III
+-----------
+
+The Constitution is just a document and is therefore imperfect; it may need to be changed from time to time to suit the needs of its citizens. The Constitution may be amended by the Council by the following process:
+
+i. A citizen proposes an amendment on a public forum.
+
+ii. That citizen gathers the backing of 25 named citizens for the amendment.
+
+iii. Reaching the prescribed number of backers described in Article III.ii shall force the Council to consider the amendment as described in Article II, except that the vote must pass by a two-thirds majority for ratification.
+
+iv. In the event that an amendment passes, it shall modify this document by being appended and enumerated in the section entitled "Amendments". 
+
+
+Article IV
+----------
+Any citizen may petition the Council to overturn a decision by the following process:
+
+i. A citizen authors a petition on a public forum.
+
+ii. That citizen gathers the backing of 25 named citizens for the petition.
+
+iii. Reaching the prescribed number of backers described in Article IV.ii shall trigger a decision as described in Article II.
+
+
+Article V
+---------
+The Council shall maintain a staff of volunteers to help manage the community operations to maintain maximum continuity for the citizens. Staff positions shall be at-will and made on a volunteer basis.
+
+i. There shall be no fewer than three in-game administrators. These staff members shall be responsible for the day to day operations of the game, to resolve disputes, and to support citizens in their endeavors.
+
+ii. There shall be no fewer than two code repository administrators. These staff members shall be responsible for managing the code base, applying bug and security patches expediently, and accepting patches as directed by the council.
+
+iii. There shall be no fewer than two web site administrators. These staff members shall be responsible for managing the web site, wiki, forums, and news announcements. 
+
+
+Article VI
+----------
+Citizens shall have the right to view the code base of the Lacuna Expanse, and to offer suggestions to alter its function. Suggestions shall be ratified by the process described in Article II. These suggestions shall take the form of a patch or a pull request to the repository located at: 
+
+	https://github.com/plainblack/Lacuna-Server-Open
+
+
+
+===========
+Amendments
+===========
+
+Amendments are decisions the Council has made to modify the Constitution.
+
