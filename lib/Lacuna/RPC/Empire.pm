@@ -75,6 +75,7 @@ sub login {
     }
     my $throttle = Lacuna->config->get('rpc_throttle') || 30;
     if ($empire->rpc_rate > $throttle) {
+        Lacuna->cache->increment('rpc_limit_'.format_date(undef,'%d'), $self->id, 1, 60 * 60 * 30);
         confess [1010, 'Slow down! No more than '.$throttle.' requests per minute.'];
     }
     my $max = Lacuna->config->get('rpc_limit') || 2500;
