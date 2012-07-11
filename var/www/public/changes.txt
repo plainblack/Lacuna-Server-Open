@@ -2,6 +2,7 @@
  - Fix: Scows deliver the amount of waste in their payload, not capacity.
  - Fix: Space Station Command accessible via UI.
  - Fix: Updated API Docs for Trade, Archaeology, PCC, and SCC.
+ - Add: Record each Empire's daily RPC use and RPC-throttles for later 'name and shame' reports
 
 3.0859:
  - Mod: Web UI, arch min has better display of glyphs, can produce multiple plans in one go
