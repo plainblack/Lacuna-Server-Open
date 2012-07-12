@@ -7,7 +7,5 @@ create table empire_rpc_log (
     limits          int(11) not null default 0,
     primary key (id),
     key erl_idx_empire_id (empire_id),
-    key erl_idx_date_stamp (date_stamp),
-    constraint wc_erl_empire_id foreign key (empire_id) references empire (id)
+    key erl_idx_date_stamp (date_stamp)
 );
-
