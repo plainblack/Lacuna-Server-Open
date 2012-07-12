@@ -18,6 +18,7 @@ use constant base_stealth           => 2700;
 use constant target_building        => ['Lacuna::DB::Result::Building::SpacePort'];
 use constant build_tags             => ['War'];
 
+with "Lacuna::Role::Ship::Send::NeutralZone";
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Inhabited";
 with "Lacuna::Role::Ship::Send::NotIsolationist";
