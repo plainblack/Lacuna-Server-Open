@@ -23,7 +23,12 @@ after handle_arrival_procedures => sub {
       $self->delete;
       confess [-1];
     }
-    $body_attacked->add_waste($self->hold_size);
+    my $payload = $self->payload;
+    my $waste_dumped = 0;
+    if (defined($payload->{resources})) {
+      $waste_dumped = $payload->{resources}{waste} if defined($payload->{resources}{waste});
+    }
+    $body_attacked->add_waste($waste_dumped);
     $body_attacked->update;
 
     unless ($self->body->empire->skip_attack_messages) {
