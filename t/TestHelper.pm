@@ -10,6 +10,7 @@ use JSON qw(to_json from_json);
 use Data::Dumper;
 use 5.010;
 use Test::More;
+use List::Util qw(min max);
 
 has ua => (
     is  => 'ro',
@@ -57,7 +58,7 @@ sub clear_all_test_empires {
 
     $name = 'TLE Test%' unless $name;
 
-    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({
+    my $empires = Lacuna->db->resultset('Empire')->search({
         name => {like => $name},
     });
     while (my $empire = $empires->next) {
@@ -70,22 +71,43 @@ sub clear_all_test_empires {
             $planet->delete_buildings(\@buildings);
         }
 
+        Lacuna->db->resultset('Log::Essentia')->search({empire_id => $empire->id})->delete;
         $empire->delete;
+
     }
 }
 
 sub use_existing_test_empire {
     my ($self) = @_;
 
-    my ($empire) = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({
+    say "use_existing_test_empire [".$self->empire_name."]";
+    my ($empire) = Lacuna->db->resultset('Empire')->search({
         name => $self->empire_name,
     });
+    #print STDERR "EMPIRE = [$empire]\n";
     if (not $empire) {
+        say "No existing empire found";
         $self->generate_test_empire;
         my $home = $self->empire->home_planet;
+        say "Home planet ID is ".$self->empire->home_planet_id;
+        say "Home planet is ".$home->name;
         $self->build_big_colony($home);
         $empire = $self->empire;
+        # Generate a colony
+        say "Generate a colony orbit [".$home->orbit."] zone [".$home->zone."]";
+        my ($colony) = Lacuna->db->resultset('Map::Body')->search({
+            empire_id => undef,
+            size      => {'>' => 100},
+            orbit     => $home->orbit,
+            zone      => $home->zone,
+        });
+    say "Colony = [$colony]";
+        
+$colony->found_colony($empire);
+        $self->build_big_colony($colony);
     }
+    $empire->essentia(1_000_000);
+    $empire->update;
     $self->session($empire->start_session({api_key => 'tester'}));
     $self->empire($empire);
     return $self;
@@ -94,15 +116,14 @@ sub use_existing_test_empire {
 sub generate_test_empire {
     my $self = shift;
     # Make sure no other test empires are still around
-    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({
+    my $empires = Lacuna->db->resultset('Empire')->search({
         name                => $self->empire_name,
     });
     while (my $empire = $empires->next) {
         $empire->delete;
     }
 
-
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new({
+    my $empire = Lacuna->db->resultset('Empire')->new({
         name                => $self->empire_name,
         date_created        => DateTime->now,
         status_message      => 'Making Lacuna a better Expanse.',
@@ -242,19 +263,12 @@ sub cleanup {
     }
 }
 
-sub finish_ships {
-	my ( $self, $shipyard_id ) = @_;
-	my $finish = DateTime->now;
-
-	Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id=>$shipyard_id})->update({date_available=>$finish, task=>'Docked'});
-}
-
 sub build_big_colony {
     my ($self, $planet) = @_;
 
     my $empire = $planet->empire;
-    $planet->delete_buildings(@{$planet->building_cache});
-    $planet->ships->delete_all;
+    $planet->delete_buildings($planet->building_cache);
+    $planet->fleets->delete_all;
     Lacuna->db->resultset('Spies')->search({from_body_id => $planet->id})->delete_all;
 
     my $layout = {
@@ -394,17 +408,21 @@ sub build_big_colony {
             $building->finish_upgrade;
         }
     }
-    $planet->bauxite_stored(19,000,000,000);
-    $planet->algae_stored(19,000,000,000);
-    $planet->energy_stored(19,000,000,000);
-    $planet->water_stored(19,000,000,000);
+    $planet->size(121);
     $planet->needs_recalc(1);
-    $planet->update;
     $planet->tick;
+    $planet->add_bauxite(10_000_000_000);
+    $planet->add_algae(10_000_000_000);
+    $planet->add_energy(10_000_000_000);
+    $planet->add_water(10_000_000_000);
+    $planet->update;
+
+
+    $planet->discard_changes;
 
     my ($shipyard) = grep {$_->class eq 'Lacuna::DB::Result::Building::Shipyard'} @{$planet->building_cache};
     diag("Generating ships [".$self->session->id."][".$shipyard->id."]");
-    my $ships = {
+    my $fleets = {
         excavator               => 30,
         probe                   => 20,
         sweeper                 => 1300,
@@ -419,35 +437,21 @@ sub build_big_colony {
         supply_pod4             => 10,
 
     };
-    for my $ship (keys %$ships) {
-        my $result = $self->post('shipyard', 'build_ship', [$self->session->id, $shipyard->id, $ship]);
-        $self->finish_ships( $shipyard->id );
-        if ($ships->{$ship} > 1) {
-            my $ship_id = $result->{result}{ships_building}[0]{id};
-            my $example = Lacuna->db->resultset('Ships')->find($ship_id);
-            diag("Building more ships of type [$ship] id [$ship_id][$example]");
+    for my $fleet_type (keys %$fleets) {
+        my $quantity = $fleets->{$fleet_type};
+        while ($quantity) {
+            my $to_build = min($quantity, 1000);
 
-            for (1..$ships->{$ship}) {
-                Lacuna->db->resultset('Ships')->create({
-                    body_id         => $example->body_id,
-                    shipyard_id     => $example->shipyard_id,
-                    date_started    => $example->date_started,
-                    date_available  => $example->date_available,
-                    type            => $example->type,
-                    task            => $example->task,
-                    name            => $example->name,
-                    speed           => $example->speed,
-                    stealth         => $example->stealth,
-                    combat          => $example->combat,
-                    hold_size       => $example->hold_size,
-                    payload         => $example->payload,
-                    roundtrip       => $example->roundtrip,
-                    direction       => $example->direction,
-                    foreign_body_id => $example->foreign_body_id,
-                    foreign_star_id => $example->foreign_star_id,
-                    fleet_speed     => $example->fleet_speed,
-                });
-            }
+            my $fleet = Lacuna->db->resultset('Fleet')->new({
+                type        => $fleet_type,
+                quantity    => $to_build,
+            });
+            $shipyard->build_fleet($fleet, 1);
+            $fleet->body_id($planet->id);
+            $fleet->insert;
+            $fleet->finish_construction;
+
+            $quantity -= $to_build;
         }
     }
     diag("Generating Spies");

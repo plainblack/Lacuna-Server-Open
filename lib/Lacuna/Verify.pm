@@ -59,6 +59,14 @@ sub no_restricted_chars {
     return $self->ok(${$self->content} !~ m/[@&<>;\{\}\(\)]/);
 }
 
+sub only_ascii {
+    my $self = shift;
+    my %good  = map {$_ => 1} (32..126);
+    my $filtered = ${$self->content};
+    $filtered =~ s/(.)/$good{ord($1)} ? $1 : ''/eg;
+    return $self->ok($filtered eq ${$self->content});
+}
+
 sub no_padding {
     my $self = shift;
     return $self->ok(${$self->content} !~ m/^\s/ && ${$self->content} !~ m/\s\s/ && ${$self->content} !~ m/\s$/);

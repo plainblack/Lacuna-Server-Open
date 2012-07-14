@@ -2,270 +2,25 @@
 
 Space Port is accessible via the URL C</spaceport>.
 
-The Space Port is where all the ships you build will be docked once they have been built from the L<Shipyard>. You can dock twice as many ships as the level of the Space Port.
+The Space Port is where all the ships you build will be docked once they have been built from the L<Shipyard>.
+You can dock twice as many ships as the level of the Space Port.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
-=head2 view ( session_id, building_id )
+=head2 target
 
-This method is extended to include a list of docked ships.
-
- {
-    "building" : { ... },
-    "status" : { ... },
-    "max_ships" : 8,
-    "docks_available" : 4,
-    "docked_ships" : {
-        "probe" : 3,
-        "cargo_ship" : 0,
-        "spy_pod" : 1,
-        "colony_ship" : 0,
-        "terraforming_platform_ship": 0,
-        "gas_giant_settlement_platform_ship" : 0,
-        "mining_platform_ship" : 0,
-        "smuggler_ship" : 1,
-        "space_station" : 0,
-    }
- }
- 
-
-=head2 view_all_ships ( session_id, building_id, [ paging, filter, sort ] )
-
-Shows you all your ships whatever they are doing.
-
- {
-    "ships" : [
-        {
-            "id" : "id-goes-here",
-            "name" : "CS3",
-            "type_human" : "Cargo Ship",
-            "type" : "cargo_ship",
-            "task" : "Travelling",
-            "speed" : "400",
-            "fleet_speed" : "0",
-            "stealth" : "0",
-            "hold_size" : "1200",
-            "date_started" : "01 31 2010 13:09:05 +0600",
-            "date_available" : "02 01 2010 10:08:33 +0600",
-            "date_arrives" : "02 01 2010 10:08:33 +0600",
-            "can_recall" : "0",
-            "can_scuttle" : "1",
-            "from" : {
-               "id" : "id-goes-here",
-               "type" : "body",
-               "name" : "Earth"
-            },
-            "to" : {
-               "id" : "id-goes-here",
-               "type" : "body",
-               "name" : "Mars"
-            }
-        },
-        {
-            "id" : "id-goes-here",
-            "name" : "F13",
-            "type_human" : "Fighter",
-            "type" : "fighter",
-            "task" : "Defend",
-            "speed" : "2000",
-            "fleet_speed" : "0",
-            "stealth" : "0",
-            "hold_size" : "0",
-            "date_started" : "01 31 2010 13:09:05 +0600",
-            "date_available" : "02 01 2010 10:08:33 +0600",
-            "date_arrives" : "02 01 2010 10:08:33 +0600",
-            "can_recall" : "0",
-            "can_scuttle" : "1",
-            "from" : {
-               "id" : "id-goes-here",
-               "type" : "body",
-               "name" : "Earth"
-            },
-            "orbiting" : {
-               "id" : "id-goes-here",
-               "type" : "body",
-               "name" : "Mars",
-               "x" : 4,
-               "y" : -3
-            }
-
-        },
-        ...
-    ],
-    "number_of_ships" : 13,
-    "status" : { ... }
- }
-
-Travelling ships will have a from and to block. Defending fighters will have a from and orbiting block.
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the space port.
-
-=head3 paging
-
-Optional. A hash reference that contains the paging criteria. Valid paging option keys include page_number, items_per page and no_paging.
-
-=head4 page_number
-
-Optional. An integer representing the page of ships to return. Defaults to 1.
-
-=head4 items_per_page
-
-Optional. An integer representing the number of items per page to return. Defaults to 25.
-
-=head4 no_paging
-
-Optional. If set to 1, all other paging options are ignored and all results will be retured.
-
-  { "no_paging" : 1 }
-
-  { "page_number" : 2, "items_per_page" : 30 }
-
-=head3 filter
-
-Optional. A hash reference that contains the filter criteria. Valid filter option keys include task, type and tag.
-
-=head4 task
-
-Optional. An array reference or string with the task(s) to filter on. Valid tasks include Docked, Building, Mining, Travelling, and Defend.
-
-=head4 type
-
-Optional. An array reference or string with the type(s) to filter on. Valid types are the existing ship types.
-
-=head4 tag
-
-Optional. An array reference or string with the tag(s) to filter on. Valid tags include Trade, Colonization, Intelligence, Exploration, War, and Mining.
-
-Note: Tags will be converted to types prior to filtering and any types that were passed will be replaced.
-
-  { "task" : "Defend" }
-
-  { "tag" : "Mining" }
-
-  { "task" : "Docked", "type" : "freighter" }
-
-  { "tag" : [ "Colonization", "Exploration" ], "task" : "Travelling" }
-
-=head3 sort
-
-Optional. A string with the column to sort on. Defaults to 'type'. (A second sort column, 'name', is added to your chosen sort column.) Valid columns to sort on include: combat, name, speed, stealth, task, and type.
-
-
-=head2 view_foreign_ships ( session_id, building_id, page_number )
-
-Shows you all the foreign ships that are incoming. However, the list is filtered by the stealth of the ship vs the level of the SpacePort. The formula is:
-
- 350 * SpacePort Level >= Ship Stealth
-
-If your SpacePort exceeds the Ship's Stealth, then you'll see it incoming. Otherwise you won't.
-
- {
-    "ships" : [
-        {
-            "id" : "id-goes-here",
-            "name" : "CS3",
-            "type_human" : "Cargo Ship",
-            "type" : "cargo_ship",
-            "date_arrives" : "02 01 2010 10:08:33 +0600",
-            "can_recall" : "0",
-            "can_scuttle" : "0",
-            "from" : {
-                "id" : "id-goes-here",
-                "name" : "Earth",
-                "empire" : {
-                    "id" : "id-goes-here",
-                    "name" : "Earthlings"
-                }
-            }
-        },
-        ...
-    ],
-    "number_of_ships" : 13,
-    "status" : { ... }
- }
-
-The C<from> block is only included if
-
- 450 * SpacePort Level >= Ship Stealth
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the space port.
-
-=head3 page_number
-
-Defaults to page 1. Shows 25 at a time.
-
-=head2 get_fleet_for ( session_id, from_body_id, target )
-
-Provides a summary of ships that can be included in a fleet action
-
-  {
-    "ships" : [
-      {
-        "type" : "sweeper",
-        "type_human" : "Sweeper",
-        "speed" : 10166,
-        "stealth" : 10948,
-        "combat" : 33372,
-        "quantity" : 103,
-        "estimated_travel_time" : "3654",
-      },
-      {
-        "type" : "sweeper",
-        "type_human" : "Sweeper",
-        "speed" : 10166,
-        "stealth" : 10948,
-        "combat" : 25000,
-        "quantity" : 26,
-        "estimated_travel_time" : "3745",
-      },
-      {
-        "type" : "surveyor",
-        "type_human" : "Surveyor",
-        "speed" : 9030,
-        "stealth" : 9030,
-        "combat" : 3220,
-        "quantity" : 24,
-        "estimated_travel_time" : "4123",
-      }
-      ...
-    ],
-    "status" : { ... }
-  }
-
-Ships are grouped according to type,speed,stealth and combat, the number of ships in each group is given.
-
-=head3 session_id
-
-A session id.
-
-=head3 from_body_id
-
-The unique id of the planet that should send the ships.
-
-=head3 target
+Some of the Space Port methods allow ships to be sent to targets. This parameter is described here.
 
 A hash reference that can contain one of five items to identify a star or body.
 
  { "body_name" : "Earth" }
-
+ 
  { "body_id" : "id-goes-here" }
-
+ 
  { "star_name" : "Sol" }
-
+ 
  { "star_id" : "id-goes-here" }
-
+ 
  { "x" : 4, "y" : -3 }
 
 =head4 body_name
@@ -288,14 +43,530 @@ The unique id of the star.
 
 A set of x,y coordinates to locate the star or body.
 
+=head2 paging
 
-=head2 get_ships_for ( session_id, from_body_id, target )
+Some of the Space Port methods allow the results to be paged. This parameter is described here.
+
+If no paging options are selected, then it defaults to 25 items_per_page and page_number 1
+
+=head3 paging
+
+Optional. A hash reference that contains the paging criteria. Valid paging option keys include page_number, items_per page and no_paging.
+
+=head4 page_number
+
+Optional. An integer representing the page of ships to return. Defaults to 1.
+
+=head4 items_per_page
+
+Optional. An integer representing the number of items per page to return. Defaults to 25.
+
+=head4 no_paging
+
+Optional. If set to 1, all other paging options are ignored and all results will be retured.
+
+  { "no_paging" : 1 }
+
+  { "page_number" : 2, "items_per_page" : 30 }
+
+=head2 filter
+
+Some of the SpacePort methods allow the fleets to be filtered. This parameter is described here.
+
+If no filter option is selected, then it defaults to returning all entries.
+
+=head3 filter
+
+Optional: A hash reference that contains the filter criteria. 
+Valid filter option keys include task, type and tag.
+
+=head3 task
+
+Optional. An array reference or string with the task(s) to filter on. Valid tasks include Docked, Building,
+Mining, Travelling, Defend, Orbiting, 'Waiting On Trade', 'Supply Chain' and 'Waste Chain'.
+
+=head3 type
+
+Optional. An array reference or string with the type(s) to filter on. Valid types are the existing ship types.
+
+=head3 tag
+
+Optional. An array reference or string with the tag(s) to filter on. Valid tags include Trade, Colonization,
+Intelligence, Exploration, War, Mining, SupplyChain WasteChain.
+
+Note: Tags will be converted to types prior to filtering and any types that were passed will be replaced.
+
+ { "task" : "Defend" }
+
+ { "tag" : "Mining" }
+
+ { "task" : "Docked", "type" : "freighter" }
+
+ { "tag" : [ "Colonization", "Exploration" ], "task" : "Travelling" }
+
+=head2 sort
+
+Some of the SpacePort methods allow the list of fleets to be sorted.
+
+Optional. A string with the column to sort on. Defaults to 'type'. 
+
+Valid columns to sort on are combat, name, speed, stealth, task and type.
+
+A second sort colomn, 'name', is added to your chosen sort column (unless it happened to also be 'name')
+
+-----------------------------------------------------------------------------------------
+
+
+=head2 view
+
+This method is extended to include a list of docked ships.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 RESPONSE
+
+ {
+   "building" : { ... },
+   "status" : { ... },
+   "max_ships" : 8,
+   "docks_available" : 4,
+   "docked_ships" : {
+     "probe" : 3,
+     "cargo_ship" : 0,
+     "spy_pod" : 1,
+     "colony_ship" : 0,
+     "terraforming_platform_ship": 0,
+     "gas_giant_settlement_platform_ship" : 0,
+     "mining_platform_ship" : 0,
+     "smuggler_ship" : 1,
+     "space_station" : 0,
+   }
+ }
+
+
+
+=head2 view_all_fleets
+
+Shows you all your fleets whatever they are doing.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, paging, filter, sort )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 paging, filter, sort (optional)
+
+See above for these options.
+
+=head3 RESPONSE
+
+ {
+   "fleets" : [
+     {
+       "id" : "id-goes-here",
+       "quantity" : 35,
+       "task" : "Travelling",
+       "details" : {
+         "name" : "CS3",
+         "type_human" : "Cargo Ship",
+         "type" : "cargo_ship",
+         "speed" : "400",
+         "fleet_speed" : "0",
+         "stealth" : "0",
+         "combat" : "0",
+         "hold_size" : "1200",
+         "date_started" : "01 31 2010 13:09:05 +0600",
+         "date_available" : "02 01 2010 10:08:33 +0600",
+         "can_recall" : "0",
+         "payload" : "{}",
+         "can_scuttle" : "1",
+         "max_occupants" : 120,
+         "berth_level" : 1
+       },
+       "date_arrives" : "02 01 2010 10:08:33 +0600",
+       "from" : {
+         "id" : "id-goes-here",
+         "type" : "body",
+         "name" : "Earth"
+         "owner" : "Own",
+         "empire" : {
+           "id" : "id-goes-here",
+           "name" : "Earthlings"
+         }
+       },
+       "to" : {
+         "id" : "id-goes-here",
+         "type" : "body",
+         "name" : "Mars"
+       }
+     },
+     {
+       "id" : "id-goes-here",
+       "quantity" : 100,
+       "task" : "Defend",
+       "details" : {
+         "name" : "F13",
+         "type_human" : "Fighter",
+         "type" : "fighter",
+         "speed" : "2000",
+         "fleet_speed" : "0",
+         "stealth" : "0",
+         "hold_size" : "0",
+         "date_started" : "01 31 2010 13:09:05 +0600",
+         "date_available" : "02 01 2010 10:08:33 +0600",
+         "can_recall" : "0",
+         "can_scuttle" : "1",
+       },   
+       "from" : {
+         "id" : "id-goes-here",
+         "type" : "body",
+         "name" : "Earth"
+         "owner" : "Own",
+         "empire" : {
+           "id" : "id-goes-here",
+           "name" : "Earthlings"
+         }
+       },
+       "orbiting" : {
+         "id" : "id-goes-here",
+         "type" : "body",
+         "name" : "Mars",
+         "x" : 4,
+         "y" : -3
+       }
+
+     },
+        ...
+   ],
+   "number_of_fleets" : 13,
+   "status" : { ... }
+ }
+
+Travelling fleets will have a B<from> and B<to> block and a B<date_arrives> value. 
+
+Defending fighters will have a B<from> and B<orbiting> block.
+
+
+=head2 view_incoming_fleets
+
+Shows incoming fleets for a specific target.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, target, paging, filter, sort )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 target (required)
+
+The target of the incoming fleets. See above for this option.
+
+=head3 paging, filter, sort (optional)
+
+See above for these options.
+
+=head3 RESPONSE
+  
+ {
+   "number_of_incoming" : 26,
+   "incoming" : [
+     {
+       "id" : "id-goes-here",
+       "quantity" : 1,
+       "task" : "Travelling",
+       "details" {
+         "name" : "P13",
+         "mark" : "A3123AB8ED",
+         "type_human" : "Probe",
+         "type" : "probe",
+         "speed" : "1200",
+         "stealth" : "0",
+         "combat" : "0",
+         "hold_size" : "0",
+         "berth_level" : "1",
+         "date_started" : "01 31 2010 13:09:05 +0600",
+         "date_available" : "02 01 2010 10:08:33 +0600",
+         "max_occupants" : "0",
+         "payload" : "{}",
+         "can_scuttle" : "0",
+         "can_recall" : "0",
+       },
+       "date_arrives" : "02 01 2010 10:08:33 +0600",
+       "from" : {
+         "id" : "id-goes-here",
+         "type" : "body",
+         "name" : "Earth",
+         "owner" : "Allied",
+         "empire" : {
+           "id" : "id-goes-here",
+           "name" : "Earthlings"
+         }
+       },
+       "to" : {
+         "id" : "id-goes-here",
+         "type" : "star",
+         "name" : "Sol"
+       }
+     },
+     ...
+   ],
+   "status" : { ... }
+ }
+
+The B<number_of_incoming> is the total number of incoming fleets. (Not all fleets will be
+seen in the B<incoming> section if paging is in effect).
+
+B<owner> in the B<from> section specifies either 'Own', 'Allied" or "Foreign" depending upon
+who the fleet is from.
+
+You will only see 'foreign' ships if the target is one of your own, or an allies planet, and then
+the fleet information will be filtered depending upon the highest level of Spaceport on the target.
+
+To see the C<from> block :-
+
+ SpacePort Level * 450 >= Fleet Stealth
+
+To see the C<details> block  :-
+
+ SpacePort level * 350 >= Fleet Stealth
+
+Note that you will always see full info for your own, or allied incoming fleets.
+
+
+
+=head2 view_available_fleets
+
+Get a list of fleets that are available to send to a specified target.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, target, paging, filter, sort )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 target (required)
+
+The target to send a fleet to. See above for this option.
+
+=head3 paging, filter, sort (optional)
+
+See above for these options.
+
+=head3 RESPONSE
+ 
+ {
+   "orbiting" : [
+     {
+       "id" : "id-goes-here",
+       "quantity" : 120,
+       "task" : "Defend",
+       "details" {
+         "name" : "P13",
+         "mark" : "A3123AB8ED",
+         "type_human" : "Fighter",
+         "type" : "Fighter",
+         "speed" : "1200",
+         "stealth" : "1200",
+         "combat" : "12000",
+         "hold_size" : "0",
+         "berth_level" : "1",
+         "date_started" : "01 31 2010 13:09:05 +0600",
+         "date_available" : "02 01 2010 10:08:33 +0600",
+         "max_occupants" : "0",
+         "payload" : "{}",
+         "can_scuttle" : "0",
+         "can_recall" : "0",
+       },
+       "from" : {
+         "id" : "id-goes-here",
+         "type" : "body",
+         "name" : "Earth"
+         "owner" : "Allied",
+         "empire" : {
+           "id" : "id-goes-here",
+           "name" : "Earthlings"
+         }
+       },
+       "max_occupants" : "0",
+       "payload" : "{}",
+       "can_scuttle" : "0",
+       "can_recall" : "0",
+     },
+     ...
+   ],
+   "status" : { ... }
+ }
+
+
+=head2 view_unavailable_fleets
+
+Get a list of fleets that are not available to send to a specified target.
+
+
+
+=head2 view_orbiting_fleets
+
+View orbiting fleets at the target body. At any target you will see full details of your own
+or allied fleets. At any body owned by yourself or an ally you will also see foreign orbiting
+fleets.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, target, paging, filter, sort )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 target (required)
+
+The target of the incoming fleets. See above for this option.
+
+=head3 paging, filter, sort (optional)
+
+See above for these options.
+
+=head3 RESPONSE
+ 
+ {
+   "orbiting" : [
+     {
+       "id" : "id-goes-here",
+       "quantity" : 120,
+       "task" : "Defend",
+       "details" {
+         "name" : "P13",
+         "mark" : "A3123AB8ED",
+         "type_human" : "Fighter",
+         "type" : "Fighter",
+         "speed" : "1200",
+         "stealth" : "1200",
+         "combat" : "12000",
+         "hold_size" : "0",
+         "berth_level" : "1",
+         "date_started" : "01 31 2010 13:09:05 +0600",
+         "date_available" : "02 01 2010 10:08:33 +0600",
+         "max_occupants" : "0",
+         "payload" : "{}",
+         "can_scuttle" : "0",
+         "can_recall" : "0",
+       },
+       "from" : {
+         "id" : "id-goes-here",
+         "type" : "body",
+         "name" : "Earth"
+         "owner" : "Allied",
+         "empire" : {
+           "id" : "id-goes-here",
+           "name" : "Earthlings"
+         }
+       },
+       "max_occupants" : "0",
+       "payload" : "{}",
+       "can_scuttle" : "0",
+       "can_recall" : "0",
+     },
+     ...
+   ],
+   "status" : { ... }
+ }
+
+B<owner> in the B<from> section specifies either 'Own', 'Allied" or "Foreign" depending upon
+who the fleet is from.
+
+You will only see 'foreign' ships if the target is one of your own, or an allies planet, and then
+the fleet information will be filtered depending upon the highest level of Spaceport on the target.
+
+To see the C<from> block :-
+
+ SpacePort Level * 450 >= Fleet Stealth
+
+To see the C<details> block  :-
+
+ SpacePort level * 350 >= Fleet Stealth
+
+Note that you will always see full info for your own, or allied orbiting fleets.
+
+
+
+=head2 view_mining_platforms
+
+View mining platforms on the specified target (asteroid).
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, target )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 target (required)
+
+The target body to check.
+
+=head3 RESPONSE
+ 
+Show a list of all mining platforms on this asteroid.
+
+ {
+   "mining_platforms" : [
+     {
+       empire_id   =>  "id-goes-here",
+       empire_name => "The Peeps From Across The Street"
+     },
+     ...
+   ],
+   "status" : { ... }
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Provides a list of incoming ships and ships that are available to send to a specific target. Use with C<send_ship>.
 
  {
     "incoming" : [
-        {
+       
             "id" : "id-goes-here",
             "name" : "P13",
             "type_human" : "Probe",
@@ -790,96 +1061,174 @@ The unique id for the space port.
 
 
 
+=head2 rename_fleet
 
+Change the name for a number of ships in a fleet
 
-=head2 name_ship ( session_id, building_id, ship_id, name )
+Accepts either fixed arguments or a hash of named parameters
 
-Set the name of a ship.
+ ( session_id, building_id, fleet_id, name )
+ ( parameter_hash )
 
-=head3 session_id
+=head3 session_id (required)
 
-A session id.
+A session ID
 
-=head3 building_id
+=head3 building_id (required)
 
 The unique id for the space port.
 
-=head3 ship_id
+=head3 fleet_id (required)
 
-The unique id of the ship you want to name.
+The unique id of the fleet you want to name.
 
-=head3 name
+=head3 name (required)
 
 The name you want to give the ship. 1 to 30 characters. No profanity. No funky characters.
 
+=head3 quantity (optional)
+
+The number of ships in the fleet you want to rename, defaults to all ships.
+
+Note. this argument is only available for the named parameter calling method
+
+If you specify a quantity less than the number of ships currently in the fleet then that
+number of ships will be split off to form a new fleet with the new name. The original fleet
+will retain it's original name but a reduced number of ships.
+
+Note also that if either fleet matches an existing fleet in all respects (attributes, task,
+start/available time) then such fleets will be merged into a single fleet with the combined
+quantity.
+
+This gives you a means of creating or merging fleets of ships with the same attributes, just
+give them different names. However, it will be much easier to manage fleets if you don't
+split them in this way but allow the system to split and merge fleets based on their tasks.
+
+=head3 RESPONSE
+
+Returns the same response as B<view>
 
 
-=head2 scuttle_ship ( session_id, building_id, ship_id )
 
-Destroy a ship that you no longer need. It must be docked to scuttle it.
 
-=head3 session_id
 
-A session id.
 
-=head3 building_id
 
-The unique id for the space port.
+=head2 scuttle_fleet
 
-=head3 ship_id
+Destroy ships from a fleet that you no longer need. It must be Docked before you can scuttle it.
 
-The unique id of the ship you want to destroy.
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 fleet_id (required)
+
+The ID of the fleet to be scuttled.
+
+=head3 quantity (required)
+
+The number of ships in the fleet to be scuttled.
+
+If you specify a quantity less than the number of ships currently in the fleet then the fleet
+will be reduced by that amount. If you specify the total number of ships then the whole fleet
+will be destroyed.
+
+=head3 RESPONSE
+
+Returns the same response as B<view>
 
 
  
-=head2 view_ships_travelling ( session_id, building_id, [ page_number ])
+=head2 view_fleets_travelling
 
-Returns a list of the ships that are travelling to or from this planet.
+Returns a list of all ships based at this colony that are currently travelling.
 
-B<NOTE:> All inbound/outbound ships are shown regardless of which space port they will eventually land at.
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+  
+=head3 session_id (required)
+  
+A session ID
+  
+=head3 building_id (required)
+  
+This buildings ID
+
+=head3 paging, filter, sort (optional)
+
+See above for these options.
+
+=head3 RESPONSE
 
  {
-    "status" : { ... },
-    "number_of_ships_travelling" : 30,
-    "ships_travelling" : [
-       {
+   "status" : { ... },
+   "number_of_fleets_travelling" : 30,
+   "number_of_ships_travelling" :55,
+   "travelling" : [
+      {
+        "id" : "id-goes-here",
+        "quantity" : 1,
+        "type" : "probe",
+        "type_human" : "Probe",
+        "date_arrives" : "01 31 2010 13:09:05 +0600",
+        "from" : {
+          "id" : "id-goes-here",
+          "type" : "body",
+          "name" : "Earth",
+         },
+         "to" : {
            "id" : "id-goes-here",
-           "type" : "probe",
-            "type_human" : "Probe",
-           "date_arrives" : "01 31 2010 13:09:05 +0600",
-           "from" : {
-               "id" : "id-goes-here",
-               "type" : "body",
-               "name" : "Earth",
-           },
-           "to" : {
-               "id" : "id-goes-here",
-               "type" : "star",
-               "name" : "Sol",
-           }
+           "type" : "star",
+           "name" : "Sol",
+         }
        },
        ...
     ]
  }
 
+The total B<number_of_fleets_travelling> and the total B<number_of_ships_travelling> 
+in those fleets are returned.
 
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the space port.
-
-=head3 page_number
-
-Defaults to 1. An integer representing which page of ships travelling to view. Each page shows 25 ships.
+The array reference B<travelling> shows each fleet and the B<quantity> of ships in each fleet.
 
 
 
-=head2 view_ships_orbiting ( session_id, building_id, [ page_number ])
+=head2 view_fleets_orbiting
 
-Shows you all the foreign ships that are orbiting this planet. However, the list is filtered by the stealth of the ship vs the level of the SpacePort. The formula is:
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+  
+=head3 session_id (required)
+  
+A session ID
+  
+=head3 building_id (required)
+  
+This buildings ID
+  
+=head3 paging, filter, sort (optional)
+  
+See above for these options.
+  
+=head3 RESPONSE
+
+Shows you all the foreign ships that are orbiting this planet. 
+However, the list is filtered by the stealth of the ship vs the level of the SpacePort. 
+The formula is:
 
  350 * SpacePort Level >= Ship Stealth
 
