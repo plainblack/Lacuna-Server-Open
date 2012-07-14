@@ -1,3 +1,15 @@
+3.0860:
+ - Fix: Scows deliver the amount of waste in their payload, not capacity.
+ - Fix: Space Station Command accessible via UI.
+ - Fix: Updated API Docs for Trade, Archaeology, PCC, and SCC.
+
+3.0859:
+ - Mod: Web UI, arch min has better display of glyphs, can produce multiple plans in one go
+ - Mod: Spies now have a higher chance of stealing or destroying a 'useful' plan
+ - Mod: Spies may now steal or destroy more than one plan of a type
+ - Mod: Missions that require a plan, now take the lowest level/extra that meet the criteria
+ - Mod: Improved efficiency on planets with lots of glyphs and plans
+
 3.0859:
  - Mod: Web UI, arch min has better display of glyphs, can produce multiple plans in one go
  - Mod: Spies now have a higher chance of stealing or destroying a 'useful' plan
