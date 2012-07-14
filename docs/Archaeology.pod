@@ -60,7 +60,7 @@ Returns a summary of all glyphs that may be assembled in this archaeology minist
     "glyphs" : [
         {
             "id" : "id-goes-here",
-            "type: : "bauxite",
+            "name: : "bauxite",
             "type" : "bauxite",
             "quantity" : 2
         },
