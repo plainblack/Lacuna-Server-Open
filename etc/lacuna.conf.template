@@ -58,11 +58,12 @@
          "port" : "11211"
       }
    ],
-   "neutral_zone" : {
+   "neutral_area" : {
 # If zone is set to a valid zone, x & y are confined to within that zone.
 # Coord set to 1 will further narrow Neutral area.
 # Setting zone to 0 will only use x & y.
 # Setting x & y outside of the zone, will result in nothing be within the NZ.
+# If only coord is set, then zone boundries are ignored.
       "active" : 1,
       "zone" : 1,
       "zone_list" : [

@@ -19,7 +19,7 @@ use constant base_hold_size         => 12000;
 use constant base_berth_level       => 15;
 use constant build_tags             => [qw(War WasteChain)];
 
-with "Lacuna::Role::Ship::Send::NeutralZone";
+with "Lacuna::Role::Ship::Send::NeutralArea";
 with "Lacuna::Role::Ship::Send::PlanetAndStar";
 with "Lacuna::Role::Ship::Send::MaybeHostile";
 with "Lacuna::Role::Ship::Arrive::TriggerDefense";

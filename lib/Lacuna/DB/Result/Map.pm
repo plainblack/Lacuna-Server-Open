@@ -73,39 +73,39 @@ sub determine_zone_coord_from_xy_coord {
     return int($coord / zone_size);
 }
 
-sub in_neutral_zone {
+sub in_neutral_area {
     my ($self) = shift;
 
-    my $nz_param = Lacuna->config->get('neutral_zone');
-    if ($nz_param) {
-        return 0 unless $nz_param->{active};
+    my $na_param = Lacuna->config->get('neutral_area');
+    if ($na_param) {
+        return 0 unless $na_param->{active};
         my $zone = $self->zone;
         my $x    = $self->x;
         my $y    = $self->y;
-        if ($nz_param->{zone} and $nz_param->{coord}) {
+        if ($na_param->{zone} and $na_param->{coord}) {
 # Needs to be in both to qualify as in         
             my $in_zone = 0;
-            for my $z_test (@{$nz_param->{zone_list}}) {
+            for my $z_test (@{$na_param->{zone_list}}) {
                 $in_zone = 1 if ($zone eq $z_test);
             }
             return 0 unless $in_zone;
-            if ($x >= $nz_param->{x}[0] and
-                $x <= $nz_param->{x}[1] and
-                $y >= $nz_param->{y}[0] and
-                $y <= $nz_param->{y}[1]) {
+            if ($x >= $na_param->{x}[0] and
+                $x <= $na_param->{x}[1] and
+                $y >= $na_param->{y}[0] and
+                $y <= $na_param->{y}[1]) {
                 return 1;
             }
         }
-        elsif ($nz_param->{zone}) {
-            for my $z_test (@{$nz_param->{zone_list}}) {
+        elsif ($na_param->{zone}) {
+            for my $z_test (@{$na_param->{zone_list}}) {
                 return 1 if ($zone eq $z_test);
             }
         }
-        elsif ($nz_param->{coord}) {
-            if ($x >= $nz_param->{x}[0] and
-                $x <= $nz_param->{x}[1] and
-                $y >= $nz_param->{y}[0] and
-                $y <= $nz_param->{y}[1]) {
+        elsif ($na_param->{coord}) {
+            if ($x >= $na_param->{x}[0] and
+                $x <= $na_param->{x}[1] and
+                $y >= $na_param->{y}[0] and
+                $y <= $na_param->{y}[1]) {
                 return 1;
             }
         }

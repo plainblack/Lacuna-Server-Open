@@ -18,7 +18,7 @@ use constant base_combat            => 2000;
 use constant base_hold_size         => 0;
 use constant build_tags             => ['War'];
 
-with "Lacuna::Role::Ship::Send::NeutralZone";
+with "Lacuna::Role::Ship::Send::NeutralArea";
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Inhabited";
 with "Lacuna::Role::Ship::Send::NotIsolationist";

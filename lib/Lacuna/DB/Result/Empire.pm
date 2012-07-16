@@ -299,15 +299,27 @@ sub get_latest_message_id {
     return $message_id;
 }
 
+# The number if times a RPC has been made to this empire
 has rpc_count => (
     is      => 'ro',
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return Lacuna->cache->increment('rpc_count_'.format_date(undef,'%d'), $self->id, 1, 60 * 60 * 26);
+        return Lacuna->cache->increment('rpc_count_'.format_date(undef,'%d'), $self->id, 1, 60 * 60 * 30);
     }
 );
 
+# The number of times the rate limit has been exceeded
+has rpc_limit => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub {
+        my ($self) = @_;
+        return Lacuna->cache->get('rpc_count_'.format_date(undef,'%d'), $self->id, 1, 60 * 60 * 30);
+    }
+);
+
+# The one minute RPC rate
 has rpc_rate => (
     is      => 'ro',
     lazy    => 1,

@@ -46,7 +46,6 @@ while (my $attacking_colony = $colonies->next) {
     my $targets = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
         empire_id                   => { '>' => 1 },
         'empire.is_isolationist'    => 0,
-        zone                        => { '!=' => '-3|0' },
     },
     {
         order_by    => 'rand()',
@@ -55,6 +54,10 @@ while (my $attacking_colony = $colonies->next) {
     });
     my @ships = qw(thud placebo placebo2 placebo3);
     while (my $target_colony = $targets->next) {
+        if ($target_colony->in_neutral_area) {
+            out($target_colony->name." in Neutral Area, skipping.");
+            next;
+        }
         out('Attacking '.$target_colony->name);
         push @attacks, $ai->start_attack($attacking_colony, $target_colony, [shift @ships]);
     }
