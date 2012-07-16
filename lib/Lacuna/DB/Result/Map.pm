@@ -86,26 +86,26 @@ sub in_neutral_zone {
 # Needs to be in both to qualify as in         
             my $in_zone = 0;
             for my $z_test (@{$nz_param->{zone_list}}) {
-                $in_zone = 1 if ($zone == $z_test);
+                $in_zone = 1 if ($zone eq $z_test);
             }
             return 0 unless $in_zone;
             if ($x >= $nz_param->{x}[0] and
                 $x <= $nz_param->{x}[1] and
                 $y >= $nz_param->{y}[0] and
-                $y <= $nz_param->{y}[1])) {
+                $y <= $nz_param->{y}[1]) {
                 return 1;
             }
         }
         elsif ($nz_param->{zone}) {
-            for my $z_test (@zones) {
-                return 1 if ($zone == $z_test);
+            for my $z_test (@{$nz_param->{zone_list}}) {
+                return 1 if ($zone eq $z_test);
             }
         }
         elsif ($nz_param->{coord}) {
             if ($x >= $nz_param->{x}[0] and
                 $x <= $nz_param->{x}[1] and
                 $y >= $nz_param->{y}[0] and
-                $y <= $nz_param->{y}[1])) {
+                $y <= $nz_param->{y}[1]) {
                 return 1;
             }
         }

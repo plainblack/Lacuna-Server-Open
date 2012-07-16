@@ -9,10 +9,12 @@ after can_send_to_target => sub {
     return 1 if ($target->isa('Lacuna::DB::Result::Map::Star'));
 
     if (defined $target->empire_id) {
-      return 1 if ($target->empire_id == $self->empire_id);  # We don't care if people hit themselves.
+      return 1 if ($target->empire_id == $self->body->empire_id);  # We don't care if people hit themselves.
     }
 
-    confess [1009, 'Can not be sent from the Neutral Zone.'] if $self->in_neutral_zone;
+    confess [1009, 'Can not be sent from the Neutral Zone.'] if $self->body->in_neutral_zone;
     confess [1009, 'Can not be sent to the Neutral Zone.']   if $target->in_neutral_zone;
+
+};
 
 1;
