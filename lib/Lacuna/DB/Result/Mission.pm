@@ -111,6 +111,7 @@ sub add_rewards {
     $body->update;
 
     # glyphs
+# Need to restructure glyphs in Missions to account for quantity
     if (exists $rewards->{glyphs}) {
         foreach my $glyph (@{$rewards->{glyphs}}) {
             $body->add_glyph($glyph);
@@ -135,6 +136,7 @@ sub add_rewards {
     }
 
     # plans
+# Need to restructure plans in Missions to account for quantity
     if (exists $rewards->{plans}) {
         foreach my $plan (@{$rewards->{plans}}) {
             $body->add_plan($plan->{classname}, $plan->{level}, $plan->{extra_build_level});
@@ -166,7 +168,7 @@ sub spend_objectives {
     # glyphs
     if (exists $objectives->{glyphs}) {
         foreach my $glyph (@{$objectives->{glyphs}}) {
-            $body->glyphs->search({ type => $glyph },{rows => 1})->single->delete;
+            $body->use_glyph( $type, 1);
         }
     }
 
