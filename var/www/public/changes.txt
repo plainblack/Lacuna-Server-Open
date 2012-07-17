@@ -1,3 +1,6 @@
+3.0861:
+ - Fix: Glyphs for missions properly checked and used.
+
 3.0860:
  - Fix: Scows deliver the amount of waste in their payload, not capacity.
  - Fix: Space Station Command accessible via UI.
