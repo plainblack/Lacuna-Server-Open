@@ -1,5 +1,6 @@
-xxxxxx:
- - Add: Added water and energy to PCC and SCC Resources details
+3.0861:
+- Add: Added water and energy to PCC and SCC Resources details
+- Fix: Glyphs for missions properly checked and used.
 
 3.0860:
  - Fix: Scows deliver the amount of waste in their payload, not capacity.

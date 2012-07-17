@@ -1140,9 +1140,8 @@ sub recalc_stats {
                 $stats{waste_hour} -= $waste_hour;
             }
             # calculate the resources being chained *from* this planet
-            my $output_chains = Lacuna->db->resultset('SupplyChain')->search({
-                planet_id   => $self->id,
-                stalled     => {"!=" => 1},
+            my $output_chains = $self->out_supply_chains->search({
+                stalled     => 0,
             });
             while (my $out_chain = $output_chains->next) {
                 my $percent = $out_chain->percent_transferred;
@@ -1170,8 +1169,7 @@ sub recalc_stats {
     $stats{food_consumption_hour} = $food_consumption_hour;
 
     # active supply chains sent *to* this planet
-    my $input_chains = Lacuna->db->resultset('SupplyChain')->search({
-        target_id   => $self->id,
+    my $input_chains = $self->in_supply_chains->search({
         stalled     => 0,
     },{
         prefetch => 'building',
@@ -1475,36 +1473,6 @@ sub tick_to {
         $self->add_water(sprintf('%.0f', $self->water_hour * $tick_rate));
     }
     
-
-    # OK, tricky stuff coming up!
-    #
-    # TERMS:
-    #
-    # $self->ore_hour
-    # $self->ore_hour - the net amount of ore produced on this colony per hour
-    #   it also includes any ore imported via supply chains and any exported by supply chains.
-    #
-    # $ore_consumption_hour - the amount of generic ore type consumed by buildings
-    # consumption comes out of stored ore.
-    #
-    # $self->xxx_hour - the net amount of a specific ore (e.g. xxx = gold) produced/consumed by
-    # this colony. Includes all local production, platform production, incoming supply
-    # chains and outgoing supply chains.
-    #
-    # ALGORITHM:
-    #
-    # Every tick, we need to calculate the amount of each ore
-    #
-    # Where a xxx_hour ore rate is specified then calculate the resulting +ve or -ve change in
-    # the amount of ore stored for that specific ore type. If -ve and ore stored goes to zero
-    # then don't 'complain', this just means that a supply chain will become stalled which is
-    # handled elsewhere.
-    #
-    # For $ore_consumption_hour we remove from stored ore proportionate to the amount of ore
-    # stored of each type. In this case if a stored ore goes to zero then we *do* complain
-    # and part of that complaint might be to damage buildings.
-    #
-
     # ore
     foreach my $type (ORE_TYPES) {
         my $hour_method = $type.'_hour';
@@ -1539,7 +1507,6 @@ sub tick_to {
             if ($food{$type} > 0) {
                 $food{$type} -= sprintf('%.0f', $food{$type} * $food_consumed / $food_produced);
             }
-#            $self->add_food_type($type, $food{$type}) if $food{$type} > 0;
         }
     }
     else {
@@ -1617,13 +1584,16 @@ sub tick_to {
 sub toggle_supply_chain {
     my ($self, $chains_ref, $resource, $stalled) = @_;
 
-    my @chains = grep {$_->stalled != $stalled, $_->resource_type eq $resource } @$chains_ref;
+    my @chains = grep {$_->stalled != $stalled and $_->resource_type eq $resource } @$chains_ref;
 
     foreach my $chain (@chains) {
+        print STDERR "@@@ Toggle supply chain for [$resource] to [$stalled]\n";
         $chain->stalled($stalled);
         $chain->update;
         $chain->target->needs_recalc(1);
         $chain->target->update;
+        $self->needs_recalc(1);
+        $self->update;
     }
 }
 
