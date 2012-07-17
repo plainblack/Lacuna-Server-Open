@@ -72,7 +72,7 @@ __PACKAGE__->add_columns(
     fluorite_hour                   => { data_type => 'bigint', default_value => 0 },
     beryl_hour                      => { data_type => 'bigint', default_value => 0 },
     magnetite_hour                  => { data_type => 'bigint', default_value => 0 },
-    ore_hour                        => { data_type => 'bigint', default_value => 0 },
+    ore_consumption_hour            => { data_type => 'bigint', default_value => 0 },
     food_capacity                   => { data_type => 'bigint', default_value => 0 },
     food_consumption_hour           => { data_type => 'bigint', default_value => 0 },
     lapis_production_hour           => { data_type => 'bigint', default_value => 0 },

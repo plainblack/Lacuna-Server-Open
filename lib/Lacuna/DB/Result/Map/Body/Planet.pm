@@ -262,7 +262,7 @@ sub sanitize {
         energy_hour energy_stored energy_capacity water_hour water_stored water_capacity ore_capacity
         rutile_stored chromite_stored chalcopyrite_stored galena_stored gold_stored uraninite_stored bauxite_stored
         goethite_stored halite_stored gypsum_stored trona_stored kerogen_stored methane_stored anthracite_stored
-        sulfur_stored zircon_stored monazite_stored fluorite_stored beryl_stored magnetite_stored ore_hour
+        sulfur_stored zircon_stored monazite_stored fluorite_stored beryl_stored magnetite_stored 
         food_capacity food_consumption_hour lapis_production_hour potato_production_hour apple_production_hour
         root_production_hour corn_production_hour cider_production_hour wheat_production_hour bread_production_hour
         soup_production_hour chip_production_hour pie_production_hour pancake_production_hour milk_production_hour
@@ -1167,6 +1167,7 @@ sub recalc_stats {
         }
     }
     $stats{food_consumption_hour} = $food_consumption_hour;
+    $stats{ore_consumption_hour} = $ore_consumption_hour;
 
     # active supply chains sent *to* this planet
     my $input_chains = $self->in_supply_chains->search({
@@ -1190,26 +1191,6 @@ sub recalc_stats {
         my $domestic_ore_hour = sprintf('%.0f',$self->$type * $ore_production_hour / $self->total_ore_concentration);
         $stats{$method} += $domestic_ore_hour;
     }
-
-#    # For all ore production that is positive, deduct a percentage for ore consumption
-#    my $positive_ore_hour = 0;
-#    foreach my $type (ORE_TYPES) {
-#        my $resource_name = $self->resource_name($type);
-#        if ($stats{$resource_name} > 0) {
-#            $positive_ore_hour += $stats{$resource_name};
-#        }
-#    }
-#    my $reduce_factor = 1;
-#    if ($positive_ore_hour and $positive_ore_hour >= $ore_consumption_hour) {
-#        $reduce_factor = $ore_consumption_hour / $positive_ore_hour;
-#    }
-#    foreach my $type (ORE_TYPES) {
-#        my $resource_name = $self->resource_name($type);
-#        if ($stats{$resource_name} > 0) {
-#            $stats{$resource_name} -= $stats{$resource_name} * $reduce_factor;
-#        }
-#    }
-#    $stats{ore_hour} = $positive_ore_hour - $ore_consumption_hour;
 
     # deal with negative amounts stored
     $self->water_stored(0) if $self->water_stored < 0;
@@ -1474,21 +1455,64 @@ sub tick_to {
     }
     
     # ore
+    my %ore;
+    my $ore_produced   = 0;
     foreach my $type (ORE_TYPES) {
-        my $hour_method = $type.'_hour';
-        if ($self->$hour_method < 0 ) {
-            $self->spend_ore_type($type, sprintf('%.0f',abs($self->$hour_method) * $tick_rate));
-        }
-        elsif ($self->$hour_method > 0 ) {
-            $self->add_ore_type($type, sprintf('%.0f', $self->$hour_method * $tick_rate));
+        my $method = $type.'_hour';
+        $ore{$type} = sprintf('%.0f', $self->$method() * $tick_rate);
+        if ($ore{$type} > 0) {
+            $ore_produced += $ore{$type};
         }
     }
-    if ($self->ore_hour > 0) {
-        $self->add_ore(sprintf('%.0f', $self->ore_hour * $tick_rate));
+    my $ore_consumed = sprintf('%.0f', $self->ore_consumption_hour * $tick_rate);
+    if ($ore_produced > 0 and $ore_produced >= $ore_consumed) {
+        # then consumption comes out of production
+        foreach my $type (ORE_TYPES) {
+            if ($ore{$type} > 0) {
+                $ore{$type} -= sprintf('%.0f', $ore{$type} * $ore_consumed / $ore_produced);
+            }
+        }
     }
-    if ($self->ore_hour < 0) {
-        $self->spend_ore(sprintf('%.0f', abs($self->ore_hour) * $tick_rate, 'complain'));
+    else {
+        # We are consuming more than we are producing
+        # The difference between consumed and produced comes out of storage
+        $ore_consumed -= $ore_produced;
+        if ($ore_consumed > 0) {
+            my $total_ore = $self->ore_stored;
+            if ($total_ore > 0) {
+                my $deduct_ratio = $ore_consumed / $total_ore;
+                foreach my $type (ORE_TYPES) {
+                    my $type_stored = $self->type_stored($type);
+                    $ore{$type} = 0 if $ore{$type} > 0;
+                    if ($deduct_ratio > 1) {
+                        $self->spend_ore_type($type, $type_stored);
+                        $ore_consumed -= $type_stored;
+                    }
+                    else {
+                        $self->spend_ore_type($type, $type_stored * $deduct_ratio);
+                        $ore_consumed -= $type_stored * $deduct_ratio;
+                    }
+                }
+
+            }
+            # if we *still* have ore to consume when we have nothing then we are in trouble!
+            if ($ore_consumed > 0) {
+                # deduct an arbitrary ore-stuff
+                $self->spend_ore_type('gold', $ore_consumed);
+            }
+        }
     }
+    # Now deal with remaining individual ore stuffs
+    foreach my $type (ORE_TYPES) {
+        if ($ore{$type} > 0) {
+            $self->add_ore_type($type, $ore{$type});
+        }
+        elsif ($ore{$type} < 0) {
+            $self->spend_ore_type($type, abs($ore{$type}));
+            print STDERR "#### SPEND ORE [$type] QUANTITY [".$ore{$type}."]\n";
+        }
+    }
+
 
     # food
     my %food;
@@ -1925,6 +1949,16 @@ sub spend_ore {
     return $self;
 }
 
+sub ore_hour {
+    my ($self) = @_;
+    my $tally = 0;
+    foreach my $ore (ORE_TYPES) {
+        my $method = $ore."_hour";
+        $tally += $self->$method;
+    }
+    $tally -= $self->ore_consumption_hour;
+    return $tally;
+}
 
 sub food_hour {
     my ($self) = @_;
