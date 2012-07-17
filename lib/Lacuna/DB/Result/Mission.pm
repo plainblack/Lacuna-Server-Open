@@ -168,7 +168,7 @@ sub spend_objectives {
     # glyphs
     if (exists $objectives->{glyphs}) {
         foreach my $glyph (@{$objectives->{glyphs}}) {
-            $body->use_glyph( $type, 1);
+            $body->use_glyph( $glyph, 1);
         }
     }
 
@@ -241,9 +241,17 @@ sub check_objectives {
         foreach my $glyph (@{$objectives->{glyphs}}) {
             $glyphs{$glyph}++;
         }
-        foreach my $glyph (keys %glyphs) {
-            if ($body->glyphs->search({ type => $glyph })->count < $glyphs{$glyph} ) {
-                confess [1013, 'You do not have enough '.$glyph.' glyphs needed to complete this mission.'];
+        foreach my $type (keys %glyphs) {
+            my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({
+                type    => $type,
+                body_id => $body->id,
+            })->single;
+            unless (defined($glyph)) {
+                confess [ 1002, "You don't have any glyphs of $type."];
+            }
+            if ($glyph->quantity < $glyphs{$type}) {
+                confess [ 1002,
+                    "You don't have $glyphs{$type} glyphs of $type, you only have ".$glyph->quantity];
             }
         }
     }

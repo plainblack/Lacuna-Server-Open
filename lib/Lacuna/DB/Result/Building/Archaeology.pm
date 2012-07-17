@@ -690,7 +690,7 @@ sub make_plan {
         $count{$type} = $self->body->use_glyph($type, $quantity);
         $min_used = $count{$type} if ($min_used < $count{$type});
     }
-# Check if all glyphs were used
+# Check if all glyphs were used in case of timing issues.
     if ($min_used < $quantity) {
         for my $type (@{$glyphs}) {
             if ($min_used < $count{$type}) {
