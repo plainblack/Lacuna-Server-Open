@@ -135,18 +135,25 @@ sub add_colonies {
     say 'getting existing colonies';
     my $colonies = $empire->planets;
     my @existing_zones = $colonies->get_column('zone')->all;
+    say 'getting neutral zones';
+    my $na_param = Lacuna->config->get('neutral_area');
+    my @neutral_zones = ();
+    if ($na_param->{zone}) {
+      @neutral_zones = @{$na_param->{zone_list}};
+    }
     
     say 'Adding colonies...';
     X: foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map_size/x')->[1]/250)) {
         Y: foreach my $y (int($config->get('map_size/y')->[0]/250) .. int($config->get('map_size/y')->[1]/250)) {
             my $zone = $x.'|'.$y;
-            next if $zone eq '-3|0';
+            next if ($zone ~~ \@neutral_zones);
             say $zone;
             if ($zone ~~ \@existing_zones) {
                 say "nothing needed";
             }
             else {
                 say 'Finding colony in '.$zone.'...';
+# Need to narrow search if neutral area defined by coordinates.
                 my $body = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
                 if (defined $body) {
                     say 'Clearing '.$body->name;
