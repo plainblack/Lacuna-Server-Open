@@ -1509,7 +1509,6 @@ sub tick_to {
         }
         elsif ($ore{$type} < 0) {
             $self->spend_ore_type($type, abs($ore{$type}));
-            print STDERR "#### SPEND ORE [$type] QUANTITY [".$ore{$type}."]\n";
         }
     }
 
@@ -1571,7 +1570,6 @@ sub tick_to {
         }
         elsif ($food{$type} < 0) {
             $self->spend_food_type($type, abs($food{$type}));
-            print STDERR "#### SPEND FOOD [$type] QUANTITY [".$food{$type}."]\n";
         }
     }
     # deal with negative amounts stored
@@ -1611,7 +1609,6 @@ sub toggle_supply_chain {
     my @chains = grep {$_->stalled != $stalled and $_->resource_type eq $resource } @$chains_ref;
 
     foreach my $chain (@chains) {
-        print STDERR "@@@ Toggle supply chain for [$resource] to [$stalled]\n";
         $chain->stalled($stalled);
         $chain->update;
         $chain->target->needs_recalc(1);
