@@ -1,5 +1,7 @@
 3.0861:
 - Add: Added water and energy to PCC and SCC Resources details
+- Mod: Resource calculations now work correctly, but the proof is too large to fit in the margin.
+- Mod: Supply chains that stall should no longer cause damage on the sending colony
 - Fix: Glyphs for missions properly checked and used.
 
 3.0860:
