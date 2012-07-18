@@ -262,7 +262,7 @@ sub sanitize {
         energy_hour energy_stored energy_capacity water_hour water_stored water_capacity ore_capacity
         rutile_stored chromite_stored chalcopyrite_stored galena_stored gold_stored uraninite_stored bauxite_stored
         goethite_stored halite_stored gypsum_stored trona_stored kerogen_stored methane_stored anthracite_stored
-        sulfur_stored zircon_stored monazite_stored fluorite_stored beryl_stored magnetite_stored ore_hour
+        sulfur_stored zircon_stored monazite_stored fluorite_stored beryl_stored magnetite_stored 
         food_capacity food_consumption_hour lapis_production_hour potato_production_hour apple_production_hour
         root_production_hour corn_production_hour cider_production_hour wheat_production_hour bread_production_hour
         soup_production_hour chip_production_hour pie_production_hour pancake_production_hour milk_production_hour
@@ -1097,29 +1097,31 @@ sub recalc_stats {
     }
     $stats{max_berth} = 1;
     #calculate building production
-    my ($gas_giant_platforms, $terraforming_platforms, $station_command, $pantheon_of_hagness, $ore_production_hour, $ore_consumption_hour) = 0;
+    my ($gas_giant_platforms, $terraforming_platforms, $station_command, $pantheon_of_hagness, $ore_production_hour, $ore_consumption_hour, $food_production_hour, $food_consumption_hour) = 0;
     foreach my $building (@{$self->building_cache}) {
-        $stats{waste_capacity} += $building->waste_capacity;
-        $stats{water_capacity} += $building->water_capacity;
+        $stats{waste_capacity}  += $building->waste_capacity;
+        $stats{water_capacity}  += $building->water_capacity;
         $stats{energy_capacity} += $building->energy_capacity;
-        $stats{food_capacity} += $building->food_capacity;
-        $stats{ore_capacity} += $building->ore_capacity;
-        $stats{happiness_hour} += $building->happiness_hour;
-        $stats{waste_hour} += $building->waste_hour;               
-        $stats{energy_hour} += $building->energy_hour;
-        $stats{water_hour} += $building->water_hour;
-        $ore_consumption_hour += $building->ore_consumption_hour;
-        $ore_production_hour += $building->ore_production_hour;
-        $stats{food_consumption_hour} += $building->food_consumption_hour;
+        $stats{food_capacity}   += $building->food_capacity;
+        $stats{ore_capacity}    += $building->ore_capacity;
+        $stats{happiness_hour}  += $building->happiness_hour;
+        $stats{waste_hour}      += $building->waste_hour;               
+        $stats{energy_hour}     += $building->energy_hour;
+        $stats{water_hour}      += $building->water_hour;
+        $ore_consumption_hour   += $building->ore_consumption_hour;
+        $ore_production_hour    += $building->ore_production_hour;
+        $food_consumption_hour  += $building->food_consumption_hour;
+        
         foreach my $type (@{$building->produces_food_items}) {
             my $method = $type.'_production_hour';
-            $stats{$method} += $building->$method();
+            $stats{$method}         += $building->$method();
+            $food_production_hour   += $building->$method();
         }
         if ($building->isa('Lacuna::DB::Result::Building::SpacePort') and $building->efficiency == 100) {
             $stats{max_berth} = $building->level if ($building->level > $stats{max_berth});
         }
         if ($building->isa('Lacuna::DB::Result::Building::Ore::Ministry')) {
-            my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({planet_id => $self->id});
+            my $platforms = Lacuna->db->resultset('MiningPlatforms')->search({planet_id => $self->id});
             while (my $platform = $platforms->next) {
                 foreach my $type (ORE_TYPES) {
                     my $method = $type.'_hour';
@@ -1129,7 +1131,7 @@ sub recalc_stats {
         }
         if ($building->isa('Lacuna::DB::Result::Building::Trade')) {
             # Calculate the amount of waste to deduct based on the waste_chains
-            my $waste_chains = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->search({planet_id => $self->id});
+            my $waste_chains = Lacuna->db->resultset('WasteChain')->search({planet_id => $self->id});
             while (my $waste_chain = $waste_chains->next) {
                 my $percent = $waste_chain->percent_transferred;
                 $percent = $percent > 100 ? 100 : $percent;
@@ -1138,7 +1140,9 @@ sub recalc_stats {
                 $stats{waste_hour} -= $waste_hour;
             }
             # calculate the resources being chained *from* this planet
-            my $output_chains = Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->search({planet_id => $self->id});
+            my $output_chains = $self->out_supply_chains->search({
+                stalled     => 0,
+            });
             while (my $out_chain = $output_chains->next) {
                 my $percent = $out_chain->percent_transferred;
                 $percent    = $percent > 100 ? 100 : $percent;
@@ -1162,15 +1166,17 @@ sub recalc_stats {
             $station_command += $building->level;
         }
     }
+    $stats{food_consumption_hour} = $food_consumption_hour;
+    $stats{ore_consumption_hour} = $ore_consumption_hour;
 
     # active supply chains sent *to* this planet
-    my $input_chains = Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->search({
-            target_id   => $self->id,
-            stalled     => 0,
-            },{prefetch => 'building'}
-            );
-    while (my $in_chain = $input_chains->next) {
+    my $input_chains = $self->in_supply_chains->search({
+        stalled     => 0,
+    },{
+        prefetch => 'building',
+    });
 
+    while (my $in_chain = $input_chains->next) {
         my $percent = $in_chain->percent_transferred;
         $percent = $percent > 100 ? 100 : $percent;
         $percent *= $in_chain->building->efficiency / 100;
@@ -1186,32 +1192,12 @@ sub recalc_stats {
         $stats{$method} += $domestic_ore_hour;
     }
 
-    # For all ore production that is positive, deduct a percentage for ore consumption
-    my $positive_ore_hour = 0;
-    foreach my $type (ORE_TYPES) {
-        my $resource_name = $self->resource_name($type);
-        if ($stats{$resource_name} > 0) {
-            $positive_ore_hour += $stats{$resource_name};
-        }
-    }
-    my $reduce_factor = 1;
-    if ($positive_ore_hour and $positive_ore_hour >= $ore_consumption_hour) {
-        $reduce_factor = $ore_consumption_hour / $positive_ore_hour;
-    }
-    foreach my $type (ORE_TYPES) {
-        my $resource_name = $self->resource_name($type);
-        if ($stats{$resource_name} > 0) {
-            $stats{$resource_name} -= $stats{$resource_name} * $reduce_factor;
-        }
-    }
-    $stats{ore_hour} = $positive_ore_hour - $ore_consumption_hour;
-
     # deal with negative amounts stored
-    $self->water_stored = 0 if $self->water_stored < 0;
-    $self->energy_stored = 0 if $self->energy_stored < 0;
+    $self->water_stored(0) if $self->water_stored < 0;
+    $self->energy_stored(0) if $self->energy_stored < 0;
     for my $type (FOOD_TYPES, ORE_TYPES) {
-      my $stype = $type.'_stored';
-      $self->$stype(0) if ($self->$stype < 0);
+        my $stype = $type.'_stored';
+        $self->$stype(0) if ($self->$stype < 0);
     }
     
     # deal with storage overages
@@ -1244,20 +1230,20 @@ sub recalc_stats {
     $stats{plots_available} = $max_plots - $self->building_count;
     # Decrease happiness production if short on plots.
     if ($stats{plots_available} < 0) {
-      my $plot_tax = int(50 * 1.62 ** (abs($stats{plots_available})-1));
-    # Set max to at least -10k
-      my $neg_hr = $self->happiness > 100_000 ? -1 * $self->happiness/10 : -10_000;
+        my $plot_tax = int(50 * 1.62 ** (abs($stats{plots_available})-1));
+        # Set max to at least -10k
+        my $neg_hr = $self->happiness > 100_000 ? -1 * $self->happiness/10 : -10_000;
  
-      if ( $stats{happiness_hour} < 0 and $stats{happiness_hour} > $neg_hr) {
-        $stats{happiness_hour} = $neg_hr;
-      }
-      elsif ( ( $stats{happiness_hour} - $neg_hr) < $plot_tax) {
-        $stats{happiness_hour} = $neg_hr;
-      }
-      else {
-        $stats{happiness_hour} -= $plot_tax;
-      }
-      $stats{happiness_hour} = -100_000_000_000 if ($stats{happiness_hour} < -100_000_000_000);
+        if ( $stats{happiness_hour} < 0 and $stats{happiness_hour} > $neg_hr) {
+            $stats{happiness_hour} = $neg_hr;
+        }
+        elsif ( ( $stats{happiness_hour} - $neg_hr) < $plot_tax) {
+            $stats{happiness_hour} = $neg_hr;
+        }
+        else {
+            $stats{happiness_hour} -= $plot_tax;
+        }
+        $stats{happiness_hour} = -100_000_000_000 if ($stats{happiness_hour} < -100_000_000_000);
     }
 
     $self->update(\%stats);
@@ -1356,8 +1342,6 @@ sub tick {
     # synchronize completion of tasks
     foreach my $key (sort keys %todo) {
         my ($object, $job) = ($todo{$key}{object}, $todo{$key}{type});
-#        $object->body($self);
-#        weaken($object->{_relationship_data}{body});
         if ($job eq 'ship built') {
             $self->tick_to($object->date_available);
             $object->finish_construction;
@@ -1426,21 +1410,21 @@ sub tick_to {
     }
     # Process excavator sites
     if ( my $arch = $self->archaeology) {
-      if ($arch->efficiency == 100) {
-        my $dig_sec = $now->epoch - $arch->last_check->epoch;
-        if ($dig_sec >= 3600) {
-          my $dig_hours = int($dig_sec/3600);
-          my $new_ld = $arch->last_check->add( seconds => ($dig_hours * 3600));
-          $dig_hours = 3 if $dig_hours > 3;
-          for (1..$dig_hours) {
-            $arch->run_excavators;
-          }
-          $arch->last_check($new_ld);
-          $arch->update;
+        if ($arch->efficiency == 100) {
+            my $dig_sec = $now->epoch - $arch->last_check->epoch;
+            if ($dig_sec >= 3600) {
+                my $dig_hours = int($dig_sec/3600);
+                my $new_ld = $arch->last_check->add( seconds => ($dig_hours * 3600));
+                $dig_hours = 3 if $dig_hours > 3;
+                for (1..$dig_hours) {
+                    $arch->run_excavators;
+                }
+                $arch->last_check($new_ld);
+                $arch->update;
+            }
         }
-      }
-      else {
-        $arch->last_check($now);
+        else {
+            $arch->last_check($now);
         }
     }
     # happiness
@@ -1470,84 +1454,128 @@ sub tick_to {
         $self->add_water(sprintf('%.0f', $self->water_hour * $tick_rate));
     }
     
-
-    # OK, tricky stuff coming up!
-    #
-    # TERMS:
-    #
-    # $self->ore_hour
-    # $self->ore_hour - the net amount of ore produced on this colony per hour
-    #   it also includes any ore imported via supply chains and any exported by supply chains.
-    #
-    # $ore_consumption_hour - the amount of generic ore type consumed by buildings
-    # consumption comes out of stored ore.
-    #
-    # $self->xxx_hour - the net amount of a specific ore (e.g. xxx = gold) produced/consumed by
-    # this colony. Includes all local production, platform production, incoming supply
-    # chains and outgoing supply chains.
-    #
-    # ALGORITHM:
-    #
-    # Every tick, we need to calculate the amount of each ore
-    #
-    # Where a xxx_hour ore rate is specified then calculate the resulting +ve or -ve change in
-    # the amount of ore stored for that specific ore type. If -ve and ore stored goes to zero
-    # then don't 'complain', this just means that a supply chain will become stalled which is
-    # handled elsewhere.
-    #
-    # For $ore_consumption_hour we remove from stored ore proportionate to the amount of ore
-    # stored of each type. In this case if a stored ore goes to zero then we *do* complain
-    # and part of that complaint might be to damage buildings.
-    #
-
     # ore
+    my %ore;
+    my $ore_produced   = 0;
     foreach my $type (ORE_TYPES) {
-        my $hour_method = $type.'_hour';
-        if ($self->$hour_method < 0 ) {
-            $self->spend_ore_type($type, sprintf('%.0f',abs($self->$hour_method) * $tick_rate));
-        }
-        elsif ($self->$hour_method > 0 ) {
-            $self->add_ore_type($type, sprintf('%.0f', $self->$hour_method * $tick_rate));
+        my $method = $type.'_hour';
+        $ore{$type} = sprintf('%.0f', $self->$method() * $tick_rate);
+        if ($ore{$type} > 0) {
+            $ore_produced += $ore{$type};
         }
     }
-    if ($self->ore_hour > 0) {
-        $self->add_ore(sprintf('%.0f', $self->ore_hour * $tick_rate));
-    }
-    if ($self->ore_hour < 0) {
-        $self->spend_ore(sprintf('%.0f', abs($self->ore_hour) * $tick_rate, 'complain'));
-    }
-
-    # food
-    my %food;
-    my $food_produced;
-    my $food_hour = 0;
-    foreach my $type (FOOD_TYPES) {
-        my $production_hour_method = $type.'_production_hour';
-        $food_hour += $self->$production_hour_method;
-        $food{$type} = sprintf('%.0f', $self->$production_hour_method() * $tick_rate);
-        $food_produced += $food{$type};
-    }
-    # subtract food consumption and save
-    if ($food_produced > 0) {
-        my $food_consumed = sprintf('%.0f', $self->food_consumption_hour * $tick_rate);
-        foreach my $type (FOOD_TYPES) {
-            $food{$type} -= sprintf('%.0f', ($food{$type} * $food_consumed) / $food_produced);
-            $self->add_food_type($type, $food{$type});
+    my $ore_consumed = sprintf('%.0f', $self->ore_consumption_hour * $tick_rate);
+    if ($ore_produced > 0 and $ore_produced >= $ore_consumed) {
+        # then consumption comes out of production
+        foreach my $type (ORE_TYPES) {
+            if ($ore{$type} > 0) {
+                $ore{$type} -= sprintf('%.0f', $ore{$type} * $ore_consumed / $ore_produced);
+            }
         }
     }
     else {
-        $self->spend_food(abs($food_produced), 0);
-    }
-    if ($food_hour == 0 && $self->food_hour != 0) {
-        if ($self->food_hour < 0) {
-            $self->spend_food(sprintf('%.0f', abs($self->food_hour) * $tick_rate), 1);
+        # We are consuming more than we are producing
+        # The difference between consumed and produced comes out of storage
+        $ore_consumed -= $ore_produced;
+        if ($ore_consumed > 0) {
+            my $total_ore = $self->ore_stored;
+            if ($total_ore > 0) {
+                my $deduct_ratio = $ore_consumed / $total_ore;
+                foreach my $type (ORE_TYPES) {
+                    my $type_stored = $self->type_stored($type);
+                    $ore{$type} = 0 if $ore{$type} > 0;
+                    if ($deduct_ratio > 1) {
+                        $self->spend_ore_type($type, $type_stored);
+                        $ore_consumed -= $type_stored;
+                    }
+                    else {
+                        $self->spend_ore_type($type, $type_stored * $deduct_ratio);
+                        $ore_consumed -= $type_stored * $deduct_ratio;
+                    }
+                }
+
+            }
+            # if we *still* have ore to consume when we have nothing then we are in trouble!
+            if ($ore_consumed > 0) {
+                # deduct an arbitrary ore-stuff
+                $self->spend_ore_type('gold', $ore_consumed);
+            }
         }
-        else {
-            $self->add_food(sprintf('%.0f', $self->food_hour * $tick_rate));
+    }
+    # Now deal with remaining individual ore stuffs
+    foreach my $type (ORE_TYPES) {
+        if ($ore{$type} > 0) {
+            $self->add_ore_type($type, $ore{$type});
+        }
+        elsif ($ore{$type} < 0) {
+            $self->spend_ore_type($type, abs($ore{$type}));
+            print STDERR "#### SPEND ORE [$type] QUANTITY [".$ore{$type}."]\n";
+        }
+    }
+
+
+    # food
+    my %food;
+    my $food_produced   = 0;
+    foreach my $type (FOOD_TYPES) {
+        my $production_hour_method = $type.'_production_hour';
+        $food{$type} = sprintf('%.0f', $self->$production_hour_method() * $tick_rate);
+        if ($food{$type} > 0) {
+            $food_produced += $food{$type};
+        }
+    }
+    my $food_consumed = sprintf('%.0f', $self->food_consumption_hour * $tick_rate);
+    if ($food_produced > 0 and $food_produced >= $food_consumed) {
+        # Then consumption just comes out of production
+        foreach my $type (FOOD_TYPES) {
+            if ($food{$type} > 0) {
+                $food{$type} -= sprintf('%.0f', $food{$type} * $food_consumed / $food_produced);
+            }
+        }
+    }
+    else {
+        # We are consuming more than we are producing
+        # The difference between consumed and produced comes out of storage
+        $food_consumed -= $food_produced;
+        if ($food_consumed > 0) {
+            my $total_food = $self->food_stored;
+            if ($total_food > 0) {
+                # 
+                my $deduct_ratio = $food_consumed / $total_food;
+                foreach my $type (FOOD_TYPES) {
+                    my $type_stored = $self->type_stored($type);
+                    $food{$type} = 0 if $food{$type} > 0;
+                    if ($deduct_ratio > 1) {
+                        # then spend it all
+                        $self->spend_food_type($type, $type_stored);
+                        $food_consumed -= $type_stored;
+                    }
+                    else {
+                        $self->spend_food_type($type, $type_stored * $deduct_ratio);
+                        $food_consumed -= $type_stored * $deduct_ratio;
+                    }
+                }
+                
+            }
+            # if we *still* have food to consume when we have nothing then we are in trouble!
+            if ($food_consumed > 0) {
+                # deduct an arbitrary food-stuff
+                $self->spend_food_type('algae', $food_consumed);
+            }
+        }
+    }
+    # Now deal with remaining individual food stuffs
+    foreach my $type (FOOD_TYPES) {
+        if ($food{$type} > 0) {
+            $self->add_food_type($type, $food{$type});
+        }
+        elsif ($food{$type} < 0) {
+            $self->spend_food_type($type, abs($food{$type}));
+            print STDERR "#### SPEND FOOD [$type] QUANTITY [".$food{$type}."]\n";
         }
     }
     # deal with negative amounts stored
-    # and deal with any supply-chains
+    # and stall/unstall any supply-chains
     my @supply_chains = $self->out_supply_chains->all;
 
     if ($self->water_stored <= 0) {
@@ -1566,9 +1594,8 @@ sub tick_to {
     }
 
     for my $type (FOOD_TYPES, ORE_TYPES) {
-        my $stype = $type.'_stored';
-        if ($self->$stype <= 0) {
-            $self->$stype(0);
+        if ($self->type_stored($type) <= 0) {
+            $self->type_stored($type, 0);
             $self->toggle_supply_chain(\@supply_chains, $type, 1);
         }
         else {
@@ -1579,15 +1606,18 @@ sub tick_to {
 }
 
 sub toggle_supply_chain {
-    my ($self, $chains_ref, $resource, $new_state) = @_;
+    my ($self, $chains_ref, $resource, $stalled) = @_;
 
-    my @chains = grep {$_->stalled == $new_state ? 0 : 1, $_->resource_type eq $resource } @$chains_ref;
+    my @chains = grep {$_->stalled != $stalled and $_->resource_type eq $resource } @$chains_ref;
 
     foreach my $chain (@chains) {
-        $chain->stalled($new_state);
+        print STDERR "@@@ Toggle supply chain for [$resource] to [$stalled]\n";
+        $chain->stalled($stalled);
         $chain->update;
         $chain->target->needs_recalc(1);
         $chain->target->update;
+        $self->needs_recalc(1);
+        $self->update;
     }
 }
 
@@ -1919,6 +1949,16 @@ sub spend_ore {
     return $self;
 }
 
+sub ore_hour {
+    my ($self) = @_;
+    my $tally = 0;
+    foreach my $ore (ORE_TYPES) {
+        my $method = $ore."_hour";
+        $tally += $self->$method;
+    }
+    $tally -= $self->ore_consumption_hour;
+    return $tally;
+}
 
 sub food_hour {
     my ($self) = @_;
