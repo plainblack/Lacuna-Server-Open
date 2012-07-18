@@ -20,6 +20,12 @@
  - TODO: Allow supply chains to be set up to allied planets.
  - TODO: When viewing 'available' or 'unavailable' fleets to send to a body, select from all possible colonies.
 
+3.0861:
+- Add: Added water and energy to PCC and SCC Resources details
+- Mod: Resource calculations now work correctly, but the proof is too large to fit in the margin.
+- Mod: Supply chains that stall should no longer cause damage on the sending colony
+- Fix: Glyphs for missions properly checked and used.
+
 3.0860:
  - Fix: Scows deliver the amount of waste in their payload, not capacity.
  - Fix: Space Station Command accessible via UI.
