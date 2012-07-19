@@ -11,6 +11,9 @@ after handle_arrival_procedures => sub {
     # no defense at stars
     return unless $self->foreign_body_id;
 
+    # No defense in Neutral Area.  (Can't stop colonization, mining, etc...)
+    return if $self->in_neutral_area;
+
     my $body_attacked = $self->foreign_body;
     my $ship_body = $self->body;
     my $is_planet = $body_attacked->isa('Lacuna::DB::Result::Map::Body::Planet');
