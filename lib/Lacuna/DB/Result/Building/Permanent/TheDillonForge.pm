@@ -64,7 +64,7 @@ sub split_plan {
     if (not $plan) {
         confess [1002, 'You cannot split a plan you do not have.'];
     }
-    my $glyphs = Lacuna::DB::Result::Plans->get_glyph_recipe($class);
+    my $glyphs = Lacuna::DB::Result::Plan->get_glyph_recipe($class);
     if (not $glyphs) {
         confess [1002, 'You can only split plans that have a glyph recipe.'];
     }
@@ -147,7 +147,7 @@ before finish_work => sub {
             my $hall_type = $hall_types[randint(0,4)];
             $plan_class .= " $hall_type";
         }
-        my $glyphs = Lacuna::DB::Result::Plans->get_glyph_recipe($plan_class);
+        my $glyphs = Lacuna::DB::Result::Plan->get_glyph_recipe($plan_class);
         my @many_glyphs = shuffle map { @$glyphs } (1..$halls);
         my $glyphs_built;
         my $total_glyphs = 0;
