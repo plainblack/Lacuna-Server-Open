@@ -1469,7 +1469,7 @@ sub tick_to {
             # if we *still* have ore to consume when we have nothing then we are in trouble!
             if ($ore_consumed > 0) {
                 # deduct an arbitrary ore-stuff
-                $self->spend_ore_type('gold', $ore_consumed);
+                $self->spend_ore_type('gold', $ore_consumed, 'complain');
             }
         }
     }
@@ -1530,7 +1530,7 @@ sub tick_to {
             # if we *still* have food to consume when we have nothing then we are in trouble!
             if ($food_consumed > 0) {
                 # deduct an arbitrary food-stuff
-                $self->spend_food_type('algae', $food_consumed);
+                $self->spend_food_type('algae', $food_consumed, 'complain');
             }
         }
     }
