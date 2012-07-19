@@ -12,7 +12,7 @@ after handle_arrival_procedures => sub {
     return unless $self->foreign_body_id;
 
     # No defense in Neutral Area.  (Can't stop colonization, mining, etc...)
-    return if $self->in_neutral_area;
+    return if $self->foreign_body->in_neutral_area;
 
     my $body_attacked = $self->foreign_body;
     my $ship_body = $self->body;
