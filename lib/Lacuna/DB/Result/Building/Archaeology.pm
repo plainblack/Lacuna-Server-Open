@@ -662,7 +662,7 @@ sub make_plan {
     # types
     my %count;
     if ( grep /\D/, @{$glyphs} ) {
-        $plan_class = Lacuna::DB::Result::Plans->check_glyph_recipe($glyphs);
+        $plan_class = Lacuna::DB::Result::Plan->check_glyph_recipe($glyphs);
         if (not $plan_class) {
             confess [1002, 'The glyphs specified do not fit together in that manner.'];
         }

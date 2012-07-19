@@ -241,6 +241,10 @@ sub get_possible_assignments {
     if ($self->on_body->empire_id == $self->from_body->empire_id) {
         push @assignments, $self->defensive_assignments;
     }
+    # In or from the Neutral Area, defense only
+    elsif ($self->on_body->in_neutral_area or $self->from_body->in_neutral_area) {
+        push @assignments, $self->defensive_assignments;
+    }
     
     # at allies you can defend and attack
     elsif ($self->on_body->empire->alliance_id && $self->on_body->empire->alliance_id == $self->from_body->empire->alliance_id) {
@@ -1903,7 +1907,7 @@ sub destroy_plan {
 
 sub destroy_glyph {
     my ($self, $defender) = @_;
-    my $glyph = $self->on_body->glyphs->search(undef, {rows => 1, order_by => 'rand()'})->single;
+    my $glyph = $self->on_body->glyph->search(undef, {rows => 1, order_by => 'rand()'})->single;
     return $self->mission_objective_not_found('glyph')->id unless defined $glyph;
     $self->things_destroyed( $self->things_destroyed + 1 );
     my $stolen = $glyph->type.' glyph';
@@ -2116,7 +2120,7 @@ sub steal_glyph {
         { rows => 1, order_by => 'rand()' }
         )->single;
     return $self->ship_not_found->id unless defined $ship;
-    my $glyph = $on_body->glyphs->search(undef, {rows => 1, order_by => 'rand()'})->single;
+    my $glyph = $on_body->glyph->search(undef, {rows => 1, order_by => 'rand()'})->single;
     return $self->mission_objective_not_found('glyph')->id unless defined $glyph;
     $ship->body($self->from_body);
     weaken($ship->{_relationship_data}{body});
@@ -2127,8 +2131,7 @@ sub steal_glyph {
             spies => [ $self->id ],
             glyphs   => [ {
 			    name => $glyph->type,
-                            quantity => $glyph->quantity,
-                            glyph_id => $glyph->id,
+                            quantity => 1,
                         } ],
         },
     );

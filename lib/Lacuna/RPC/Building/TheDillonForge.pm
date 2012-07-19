@@ -55,7 +55,7 @@ sub _forge_tasks {
 PLAN:
     for my $plan (@{$body->plan_cache}) {
         # Can only split plans with recipes
-        next PLAN if not Lacuna::DB::Result::Plans->get_glyph_recipe($plan->class);
+        next PLAN if not Lacuna::DB::Result::Plan->get_glyph_recipe($plan->class);
 
         my ($class) = $plan->class =~ m/Lacuna::DB::Result::Building::(.*)$/;
 
