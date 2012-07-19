@@ -8,3 +8,5 @@ perl rotate_taxes_paid.pl
 perl diablotin/send_attack.pl&
 perl saben/send_attack.pl&
 perl clean_up_mail.pl
+perl record_rpc.pl
+
