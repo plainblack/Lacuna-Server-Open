@@ -1603,6 +1603,17 @@ sub toggle_supply_chain {
         $chain->target->update;
         $self->needs_recalc(1);
         $self->update;
+        my $empire = $self->empire;
+        if ($stalled
+            and defined $empire 
+            and not $empire->check_for_repeat_message('supply_stalled'.$chain->id)) {
+            $empire->send_predefined_message(
+                filename    => 'stalled_chain.txt',
+                params      => [$self->id, $self->name, $chain->resource_type],
+                repeat_check=> 'supply_stalled'.$chain->id,
+                tags        => ['Complaint','Alert'],
+            );
+        }
     }
 }
 
