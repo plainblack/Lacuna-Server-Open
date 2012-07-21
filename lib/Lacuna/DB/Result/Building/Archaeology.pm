@@ -662,7 +662,7 @@ sub make_plan {
     # types
     my %count;
     if ( grep /\D/, @{$glyphs} ) {
-        $plan_class = Lacuna::DB::Result::Plans->check_glyph_recipe($glyphs);
+        $plan_class = Lacuna::DB::Result::Plan->check_glyph_recipe($glyphs);
         if (not $plan_class) {
             confess [1002, 'The glyphs specified do not fit together in that manner.'];
         }
@@ -690,7 +690,7 @@ sub make_plan {
         $count{$type} = $self->body->use_glyph($type, $quantity);
         $min_used = $count{$type} if ($min_used < $count{$type});
     }
-# Check if all glyphs were used
+# Check if all glyphs were used in case of timing issues.
     if ($min_used < $quantity) {
         for my $type (@{$glyphs}) {
             if ($min_used < $count{$type}) {
