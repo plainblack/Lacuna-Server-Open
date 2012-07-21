@@ -917,8 +917,6 @@ sub build_building {
 sub found_colony {
     my ($self, $empire) = @_;
     $self->empire_id($empire->id);
-#    $self->empire($empire);
-#    weaken($self->{_relationship_data}{empire});
     $self->usable_as_starter_enabled(0);
     $self->last_tick(DateTime->now);
     $self->update;    
@@ -1481,17 +1479,13 @@ sub tick_to {
             my $total_ore = $self->ore_stored;
             if ($total_ore > 0) {
                 my $deduct_ratio = $ore_consumed / $total_ore;
+                $deduct_ratio = 1 if $deduct_ratio > 1;
                 foreach my $type (ORE_TYPES) {
                     my $type_stored = $self->type_stored($type);
                     $ore{$type} = 0 if $ore{$type} > 0;
-                    if ($deduct_ratio > 1) {
-                        $self->spend_ore_type($type, $type_stored);
-                        $ore_consumed -= $type_stored;
-                    }
-                    else {
-                        $self->spend_ore_type($type, $type_stored * $deduct_ratio);
-                        $ore_consumed -= $type_stored * $deduct_ratio;
-                    }
+                    my $to_deduct = sprintf('%.0f', $type_stored * $deduct_ratio);
+                    $self->spend_ore_type($type, $to_deduct);
+                    $ore_consumed -= $to_deduct;
                 }
 
             }
@@ -1541,20 +1535,14 @@ sub tick_to {
             if ($total_food > 0) {
                 # 
                 my $deduct_ratio = $food_consumed / $total_food;
+                $deduct_ratio = 1 if $deduct_ratio > 1;
                 foreach my $type (FOOD_TYPES) {
                     my $type_stored = $self->type_stored($type);
                     $food{$type} = 0 if $food{$type} > 0;
-                    if ($deduct_ratio > 1) {
-                        # then spend it all
-                        $self->spend_food_type($type, $type_stored);
-                        $food_consumed -= $type_stored;
-                    }
-                    else {
-                        $self->spend_food_type($type, $type_stored * $deduct_ratio);
-                        $food_consumed -= $type_stored * $deduct_ratio;
-                    }
+                    my $to_deduct = sprintf('%.0f', $type_stored * $deduct_ratio);
+                    $self->spend_food_type($type, $to_deduct);
+                    $food_consumed -= $to_deduct;
                 }
-                
             }
             # if we *still* have food to consume when we have nothing then we are in trouble!
             if ($food_consumed > 0) {
@@ -1615,6 +1603,17 @@ sub toggle_supply_chain {
         $chain->target->update;
         $self->needs_recalc(1);
         $self->update;
+        my $empire = $self->empire;
+        if ($stalled
+            and defined $empire 
+            and not $empire->check_for_repeat_message('supply_stalled'.$chain->id)) {
+            $empire->send_predefined_message(
+                filename    => 'stalled_chain.txt',
+                params      => [$self->id, $self->name, $chain->resource_type],
+                repeat_check=> 'supply_stalled'.$chain->id,
+                tags        => ['Complaint','Alert'],
+            );
+        }
     }
 }
 
