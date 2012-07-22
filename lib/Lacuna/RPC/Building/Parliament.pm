@@ -279,7 +279,7 @@ sub propose_seize_star {
     unless ($star_id) {
         confess [1002, 'Must specify a star id to seize.'];
     }
-    if ($self->in_neutral_area) {
+    if ($building->body->in_neutral_area) {
         confess [1009, 'Your station is in the Neutral Area and is not allowed to seize any star.'];
     }
     my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id);
