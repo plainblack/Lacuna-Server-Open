@@ -1546,7 +1546,7 @@ sub tick_to {
             }
             # if we *still* have food to consume when we have nothing then we are in trouble!
             if ($food_consumed > 20) {
-                # deduct an arbitrary food-stuff
+                # deduct an arbitrary food-stuff, but allow for rounding errors (hence the 20)
                 $self->spend_food_type('algae', $food_consumed, 'complain');
             }
         }
