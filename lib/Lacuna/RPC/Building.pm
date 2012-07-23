@@ -73,9 +73,7 @@ sub view {
     my $self = shift;
     my $args = shift;
         
-print STDERR Dumper($args);
-
-if (ref($args) ne "HASH") {
+    if (ref($args) ne "HASH") {
         $args = {
             session         => $args,
             building        => shift,

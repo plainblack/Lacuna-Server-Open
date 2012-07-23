@@ -2020,11 +2020,11 @@ sub spend_ore_type {
 
 # Created methods for ore, e.g. 'add_magnetite', 'spend_magnetite'
 for my $ore (ORE_TYPES) {
-    $meta->add_method("add_$ore" => sub {
+    __PACKAGE__->meta->add_method("add_$ore" => sub {
         my ($self, $value) = @_;
         return $self->add_ore_type($ore, $value);
     });
-    $meta->add_method("spend_$ore" => sub {
+    __PACKAGE__->meta->add_method("spend_$ore" => sub {
         my ($self, $value) = @_;
         return $self->spend_ore_type($ore, $value);
     });
@@ -2117,11 +2117,11 @@ sub spend_food_type {
 
 # add methods for all food types, such as 'add_algae' and 'spend_algae'
 for my $food (FOOD_TYPES) {
-    $meta->add_method("add_$food" => sub {
+    __PACKAGE__->meta->add_method("add_$food" => sub {
         my ($self, $value) = @_;
         return $self->add_food_type($food, $value);
     });
-    $meta->add_method("spend_$food" => sub {
+    __PACKAGE__->meta->add_method("spend_$food" => sub {
         my ($self, $value) = @_;
         return $self->spend_food_type($food, $value);
     });
