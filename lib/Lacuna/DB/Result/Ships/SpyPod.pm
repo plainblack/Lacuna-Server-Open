@@ -19,6 +19,7 @@ use constant pilotable              => 1;
 use constant build_tags             => ['Intelligence'];
 use constant max_occupants          => 1;
 
+with "Lacuna::Role::Ship::Send::NeutralArea";
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Inhabited";
 with "Lacuna::Role::Ship::Send::NotIsolationist";

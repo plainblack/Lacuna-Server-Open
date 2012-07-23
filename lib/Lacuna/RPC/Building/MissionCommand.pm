@@ -27,12 +27,16 @@ sub get_missions {
         next if $params->get('max_university_level') < $empire->university_level;
         next if Lacuna->cache->get($mission->mission_file_name, $empire->id);
         push @listed, $mission->mission_file_name;
+        my $objectives = $mission->format_objectives;
+        next unless defined($objectives);
+        my $rewards = $mission->format_rewards;
+        next unless defined($rewards);
         push @missions, {
             id                      => $mission->id,
             name                    => $params->get('name'),
             description             => $params->get('description'),
-            objectives              => $mission->format_objectives,
-            rewards                 => $mission->format_rewards,
+            objectives              => $objectives,
+            rewards                 => $rewards,
             max_university_level    => $params->get('max_university_level'),
             date_posted             => $mission->date_posted_formatted,
         };

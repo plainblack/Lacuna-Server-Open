@@ -214,12 +214,12 @@ sub generate_singularity {
   if ($chance->{throw} > 0) {
     confess [ $chance->{throw}, $chance->{reason} ];
   }
-  my $bhg_test = Lacuna->config->get('bhg_test');
-  if ($bhg_test) {
-    $task->{waste_cost}  = $bhg_test->{waste_cost}  if ($bhg_test->{waste_cost});
-    $task->{recovery}    = $bhg_test->{recovery}    if ($bhg_test->{recovery});
-    $task->{side_chance} = $bhg_test->{side_chance} if ($bhg_test->{side_chance});
-    $chance->{success}   = $bhg_test->{success}     if ($bhg_test->{success});
+  my $bhg_param = Lacuna->config->get('bhg_param');
+  if ($bhg_param) {
+    $task->{waste_cost}  = $bhg_param->{waste_cost}  if ($bhg_param->{waste_cost});
+    $task->{recovery}    = $bhg_param->{recovery}    if ($bhg_param->{recovery});
+    $task->{side_chance} = $bhg_param->{side_chance} if ($bhg_param->{side_chance});
+    $chance->{success}   = $bhg_param->{success}     if ($bhg_param->{success});
   }
   
   my $btype;

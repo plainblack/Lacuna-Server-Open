@@ -1,0 +1,7 @@
+Transport Workers Strike
+~~~
+Transport workers on {Planet %s %s} went on strike today when stocks of %s ran out. A spokesman from the union said that Supply chains would not be restarted until such time as stocks were replenished and that furthermore the union would not be held responsible for any damage caused.
+
+Regards,
+
+Your Humble Assistant

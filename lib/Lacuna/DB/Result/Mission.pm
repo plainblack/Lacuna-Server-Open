@@ -394,11 +394,11 @@ sub format_items {
       if ($movement->{target_body_id}) {
         $target = $bodies->find($movement->{target_body_id});
       }
-      else {
+      elsif ($movement->{target_star_id}) {
         $target = $stars->find($movement->{target_star_id});
       }
       unless (defined($target)) {
-        warn "fleet movement target not found";
+#        warn "fleet movement target not found";
         next;
       }
       push @{$item_tmp}, 'Send '.$ship->type_formatted.' to '.$target->name.' ('.$target->x.','.$target->y.').';
@@ -421,7 +421,7 @@ sub format_items {
   if (defined($item_tmp)) {
     push @{$item_arr}, @{consolidate_items($item_tmp)};
   }
-    
+
   return $item_arr;
 }
 
