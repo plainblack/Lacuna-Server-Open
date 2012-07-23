@@ -394,7 +394,7 @@ sub format_items {
       if ($movement->{target_body_id}) {
         $target = $bodies->find($movement->{target_body_id});
       }
-      else {
+      elsif ($movement->{target_star_id}) {
         $target = $stars->find($movement->{target_star_id});
       }
       unless (defined($target)) {
