@@ -617,8 +617,9 @@ sub demolish {
     # Remove the building from the cache
     my $idx = first_index {$_->id == $self->id} @{$body->building_cache};
     if (defined $idx) {
-        my @buildings = splice @{$body->building_cache},$idx,1;
-        $body->building_cache(\@buildings);
+        my @blist = @{$body->building_cache};
+        my @buildings = splice @blist,$idx,1;
+        $body->building_cache(\@blist);
     }
     $self->delete;
     $body->needs_recalc(1);
