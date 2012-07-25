@@ -136,6 +136,15 @@ sub generate_overview {
 
 sub rank_spies {
     out('Ranking Spies');
+
+
+    # @rank=0;
+    # update spy_log set level_rank=(@rank:=@rank+1) order by level desc;
+    # @rank=0;
+    # update spy_log set success_rate_rank=(@rank:=@rank+1) order by success_rate desc;
+    # @rank=0;
+    # update spy_log set dirtiest_rank=(@rank:=@rank+1) order by dirtiest desc;
+    #
     my $spies = $db->resultset('Lacuna::DB::Result::Log::Spies');
     foreach my $field (qw(level success_rate dirtiest)) {
         my $ranked = $spies->search(undef, {order_by => {-desc => $field}});
@@ -148,6 +157,10 @@ sub rank_spies {
 
 sub delete_old_records {
     out('Deleting old records');
+
+    # delete spy_log where not exists(select 1 from spy_log,spies where spy_log.spy_id = spies.id);
+    # 
+
     my $start = shift;
     $db->resultset('Lacuna::DB::Result::Log::Spies')->search({date_stamp => { '<' => $start}})->delete;
 }
@@ -156,6 +169,13 @@ sub delete_old_records {
 
 sub summarize_spies {
     out('Summarizing Spies');
+
+    # For the set of spies where there is no previous spy_log
+    # select id from spies where empire_id > 1 and not exists(select 1 from spy_log where spy_log.spy_id = spies.id);
+    #
+    # For the set of spies where there *is* a previous spy_log
+    # select id from spies,spy_log where empire_id > 1 and spy_log.spy_id = spies.id;
+    # 
     my $spies = $db->resultset('Lacuna::DB::Result::Spies')->search({ empire_id   => {'>' => 1} });
     my $logs = $db->resultset('Lacuna::DB::Result::Log::Spies');
     while (my $spy = $spies->next) {
@@ -194,7 +214,7 @@ sub summarize_spies {
             empire_id                   => $spy->empire_id,
             empire_name                 => $spy->empire->name,
         );
-        if (defined $log) {
+        if ($log) {
             $spy_data{dirtiest_delta}               = $spy_data{dirtiest} - $log->dirtiest + $log->dirtiest_delta;
             $spy_data{level_delta}                  = $spy->level - $log->level;
             $spy_data{defense_success_rate_delta}   = $defense_success_rate - $log->defense_success_rate + $log->defense_success_rate_delta;
@@ -204,6 +224,7 @@ sub summarize_spies {
         }
         else {
             $spy_data{spy_id}       = $spy->id;
+            out("Creating [".$spy_data{spy_id}."]");
             $logs->new(\%spy_data)->insert;
         }
     }
