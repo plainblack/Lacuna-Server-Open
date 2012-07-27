@@ -1,3 +1,6 @@
+3.0863:
+ - Fix: Stakes no longer will attempt to stake asteroids.
+
 3.0862:
  - Fix: Fixed broken seize method for Parliament.
  - Fix: Checked for an empty argument SQL call.
