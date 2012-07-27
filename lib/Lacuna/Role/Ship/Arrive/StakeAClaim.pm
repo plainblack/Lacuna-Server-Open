@@ -15,7 +15,11 @@ after handle_arrival_procedures => sub {
     my $claimed = 0;
     my $claimer_id = 0;
     my $claimed_by = 'Unknown';
-    if ($planet->is_locked) {
+    my $asteroid = 0;
+    if ($planet->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
+        $asteroid = 1;
+    }
+    elsif ($planet->is_locked) {
         $claimed = 1;
     }
     elsif ($planet->empire_id) {
@@ -35,7 +39,13 @@ after handle_arrival_procedures => sub {
             params      => [$self->name, $planet->x, $planet->y, $planet->name, $claimer_id, $claimed_by],
         );        
     }
-    
+    elsif ($asteroid) {
+        $empire->send_predefined_message(
+            tags        => ['Colonization','Alert'],
+            filename    => 'cannot_stake_asteroid.txt',
+            params      => [$self->name, $planet->x, $planet->y, $planet->name],
+        );
+    }
     # let's claim this for our very own!
     else {
         $planet->claim($empire->id);
