@@ -2210,7 +2210,7 @@ sub steal_building {
             ($_->level > 1) and
             ($_->class ne 'Lacuna::DB::Result::Building::Permanent::EssentiaVein') and
             ($_->class ne 'Lacuna::DB::Result::Building::Permanent::TheDillonForge') and
-            !($_->class =~ /^Lacuna::DB::Result::Building::LCOT?/) and
+            !($_->class =~ /^Lacuna::DB::Result::Building::LCOT/) and
             ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder')
         }
         @{$on_body->building_cache};
