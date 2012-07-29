@@ -1,5 +1,9 @@
-3.0863:
+3.0864:
  - Mod: LCOT cheaper to build, longer to build, and spy proofed.
+
+3.0863:
+ - Fix: Stakes no longer will attempt to stake asteroids.
+ - Fix: Correctly record empires that exceed rpc/minute
 
 3.0862:
  - Fix: Fixed broken seize method for Parliament.
