@@ -306,6 +306,7 @@ sub sell_plan_trade {
             push @plans, {
                 class               => "Lacuna::DB::Result::Building::Permanent::$type",
                 level               => $level,
+                quantity            => 1,
                 extra_build_level   => 0,
             };
         }
