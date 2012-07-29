@@ -1,3 +1,7 @@
+3.0863:
+ - Fix: Stakes no longer will attempt to stake asteroids.
+ - Fix: Correctly record empires that exceed rpc/minute
+
 3.0862:
  - Fix: Fixed broken seize method for Parliament.
  - Fix: Checked for an empty argument SQL call.
