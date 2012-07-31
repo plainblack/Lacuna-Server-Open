@@ -20,6 +20,16 @@
  - TODO: Allow supply chains to be set up to allied planets.
  - TODO: When viewing 'available' or 'unavailable' fleets to send to a body, select from all possible colonies.
 
+3.0865:
+ - Mod: Removed option to disable display of incoming ships. (To see if it fixes some resource issues)
+
+3.0864:
+ - Mod: LCOT cheaper to build, longer to build, and spy proofed.
+
+3.0863:
+ - Fix: Stakes no longer will attempt to stake asteroids.
+ - Fix: Correctly record empires that exceed rpc/minute
+
 3.0862:
  - Fix: Fixed broken seize method for Parliament.
  - Fix: Checked for an empty argument SQL call.
