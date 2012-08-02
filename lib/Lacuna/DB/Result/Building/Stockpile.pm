@@ -52,15 +52,15 @@ use constant water_storage => 300;
 
 before 'can_downgrade' => sub {
   my $self = shift;
-  my $max_level = 15;
+  my $max_level = 15 + int(($self->level-1)/3);
   if ($self->body->empire->university_level > 25) {
     $max_level += ($self->body->empire->university_level - 25);
   }
   foreach my $building (@{$self->body->building_cache}) {
-    if ($building->level > $max_level + (($self->level - 1)/3) &&
+    if ($building->level > $max_level &&
         'Resources' ~~ [$building->build_tags] &&
-        ( !('Storage' ~~ [$self->build_tags]) ||
-          $self->isa('Lacuna::DB::Result::Building::Waste::Exchanger'))) {
+        ( !('Storage' ~~ [$building->build_tags]) ||
+          $building->isa('Lacuna::DB::Result::Building::Waste::Exchanger'))) {
       confess [1013, 'You have to downgrade your level '.
                      $building->level.' '.$building->name.' to level '.
                      $max_level.' before you can downgrade the Stockpile.'];
@@ -75,10 +75,10 @@ before 'can_demolish' => sub {
     $max_level += ($self->body->empire->university_level - 25);
   }
   foreach my $building (@{$self->body->building_cache}) {
-    if ($building->level > $max_level + (($self->level - 1)/3) &&
+    if ($building->level > $max_level &&
         'Resources' ~~ [$building->build_tags] &&
-        ( !('Storage' ~~ [$self->build_tags]) ||
-          $self->isa('Lacuna::DB::Result::Building::Waste::Exchanger'))) {
+        ( !('Storage' ~~ [$building->build_tags]) ||
+          $building->isa('Lacuna::DB::Result::Building::Waste::Exchanger'))) {
      confess [1013, 'You have to downgrade your level '.
                     $building->level.' '.$building->name.
                     ' to level '.$max_level.
