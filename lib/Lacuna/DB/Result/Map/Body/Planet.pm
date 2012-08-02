@@ -371,7 +371,8 @@ around get_status => sub {
                 }
                 # empires who have disabled the option, don't see incoming ships
                 $out->{skip_incoming_ships} = $empire->skip_incoming_ships;
-                if (not $empire->skip_incoming_ships) {
+                if (1) {
+#                if (not $empire->skip_incoming_ships) {
                     my $now = time;
 
                     my $foreign_bodies;
