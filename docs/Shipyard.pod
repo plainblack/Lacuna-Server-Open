@@ -8,8 +8,10 @@ get it again if it has changed.
 
 =head1 Fleets
 
-Ships with the same attributes can be built in bulk in a Shipyard. The fleet will appear once in your Shipyard
-build queue but it will represent a quantity of ships.
+Ships with the same attributes are now grouped into a 'Fleet' which can be handled as a single unit, for
+example you can send a fleet of ships to another planet. If you specify a smaller number of ships than
+there are in the fleet, then this forms two fleets, one part of the fleet stays home, the other goes to the
+planet. When fleets with the same attribute gather, they automatically form a single larger fleet.
 
 =head1 Shipyard Methods
 
