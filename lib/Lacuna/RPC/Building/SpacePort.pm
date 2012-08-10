@@ -1086,7 +1086,24 @@ sub view_all_fleets {
 }
 
 # View incoming fleets (not own returning fleets)
-#sub view_incoming_fleets {
+sub view_incoming_fleets {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            target          => shift,
+            paging          => shift,
+            filter          => shift,
+            sort            => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+
+
 #    my ($self, $session_id, $building_id, $page_number) = @_;
 #
 #    my $empire      = $self->get_empire_by_session($session_id);
@@ -1180,7 +1197,7 @@ sub view_all_fleets {
 #        number_of_fleets    => $fleets->pager->total_entries,
 #        fleets              => \@fleet,
 #    };
-#}
+}
 
 
 sub view_ships_orbiting {
