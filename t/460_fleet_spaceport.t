@@ -53,6 +53,22 @@ $result = $tester->post('spaceport','view_all_fleets', [{
     paging      => {no_paging => 1},
     no_status   => 1,
 }]);
+
+$result = $tester->post('spaceport','view_incoming_fleets', [{
+    session_id  => $test_session_id,
+    paging      => {no_paging => 1},
+    target      => { body_id => $test_home->id},
+    no_status   => 1,
+}]);
+
+$result = $tester->post('spaceport','view_available_fleets', [{
+    session_id  => $test_session_id,
+    body_id     => $test_home->id,
+    target      => { body_id => $test_home->id},
+    no_status   => 1,
+}]);
+
+
 exit;
 
 

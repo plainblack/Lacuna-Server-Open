@@ -298,6 +298,16 @@ around update => sub {
     $self->$orig(@_);
 };
 
+# Return all allies (including ones-self)
+sub allies {
+    my ($self) = @_;
+
+    if ($self->alliance_id) {
+        return $self->alliance->members->all;
+    }
+    return ($self);
+}
+
 sub update_species {
     my ($self, $me) = @_;
     $self->species_name($me->{name});

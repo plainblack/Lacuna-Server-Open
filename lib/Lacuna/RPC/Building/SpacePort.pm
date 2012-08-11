@@ -25,21 +25,21 @@ sub find_target {
     }
     my $target;
     if (exists $target_params->{star_id}) {
-        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($target_params->{star_id});
+        $target = Lacuna->db->resultset('Map::Star')->find($target_params->{star_id});
     }
     elsif (exists $target_params->{star_name}) {
-        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ name => $target_params->{star_name} })->first;
+        $target = Lacuna->db->resultset('Map::Star')->search({ name => $target_params->{star_name} }, {rows=>1})->single;
     }
     if (exists $target_params->{body_id}) {
-        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_params->{body_id});
+        $target = Lacuna->db->resultset('Map::Body')->find($target_params->{body_id});
     }
     elsif (exists $target_params->{body_name}) {
-        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ name => $target_params->{body_name} })->first;
+        $target = Lacuna->db->resultset('Map::Body')->search({ name => $target_params->{body_name} }, {rows=>1})->single;
     }
     elsif (exists $target_params->{x}) {
-        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ x => $target_params->{x}, y => $target_params->{y} })->first;
+        $target = Lacuna->db->resultset('Map::Body')->search({ x => $target_params->{x}, y => $target_params->{y} }, {rows=>1})->single;
         unless (defined $target) {
-            $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ x => $target_params->{x}, y => $target_params->{y} })->first;
+            $target = Lacuna->db->resultset('Map::Star')->search({ x => $target_params->{x}, y => $target_params->{y} }, {rows=>1})->single;
         }
     }
     unless (defined $target) {
@@ -49,71 +49,53 @@ sub find_target {
 }
 
 
-# Get incoming fleets for a target
-#sub get_incoming_for {
-#    my $args = shift;
-#
-#
-#    if (ref($args) ne "HASH") {
-#        $args = {
-#            session_id      => $args,
-#            target          => shift,
-#            paging          => shift,
-#            filter          => shift,
-#            sort            => shift,
-#        };
-#    }
-#    my $empire  = $self->get_empire_by_session($args->{session_id});
-#    my $target  = $self->find_target($args->{target});
-#
-#    my $paging  = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
-#    my $filter  = $self->_fleet_filter_options( (defined $args->{filter} && ref $args->{filter} eq 'HASH') ? $args->{filter} : {} );
-#    my $sort    = $self->_fleet_sort_options( $args->{sort} // 'type' );
-#
-#    my $attrs = {
-#        order_by    => $sort,
-#        prefetch    => { body => 'empire' },
-#    };
-#    $attrs->{rows} = $paging->{items_per_page} if ( defined $paging->{items_per_page} );
-#    $attrs->{page} = $paging->{page_number} if ( defined $paging->{page_number} );
-#
-#    my $incoming_rs = Lacuna->db->resultset('Fleet')->search($filter, $attrs);
-#    $incoming_rs = $incoming_rs->search({
-#        task        => 'Travelling',
-#        direction   => 'out',
-#    });
-#
-#    if ($empire->alliance_id) {
-#        $incoming_rs = $incoming_rs->search({
-#            -or => {
-#                'body.empire_id'  => $empire->id,
-#                'empire.alliance_id' => $empire->alliance_id,
-#            }
-#        });
-#    }
-#    else {
-#        $incoming_rs = $incoming_rs->search({
-#            'body.empire_id' => $empire->id,
-#        });
-#    }
-#    if ($target->isa('Lacuna::DB::Result::Map::Star')) {
-#        $incoming_rs = $incoming_rs->search({ foreign_star_id => $target->id });
-#    }
-#    else {
-#        $incoming_rs = $incoming_rs->search({ foreign_body_id => $target->id });
-#    }
-#    my @incoming;
-#    while (my $fleet = $incoming_rs->next) {
-#        push @incoming, $fleet->get_status;
-#    }
-#        
-#    my %out = (
-#        status      => $self->format_status($empire),
-#        incoming    => \@incoming,
-#    );
-#
-#    return \%out;
-#}
+# Get fleets available to send to a target
+sub view_available_fleets {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            body_id         => shift,
+            target          => shift,
+            filter          => shift,
+            sort            => shift,
+        };
+    }
+    my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $body    = $self->get_body($empire, $args->{body_id});
+    my $target  = $self->find_target($args->{target});
+
+    my $filter  = $self->_fleet_filter_options( (defined $args->{filter} && ref $args->{filter} eq 'HASH') ? $args->{filter} : {} );
+    my $sort    = $self->_fleet_sort_options( $args->{sort} // 'type' );
+
+    my $attrs = {
+        order_by    => $sort,
+        prefetch    => { body => 'empire' },
+    };
+
+    my $fleet_rs = Lacuna->db->resultset('Fleet')->search($filter, $attrs);
+    $fleet_rs = $fleet_rs->search({
+        task        => 'Docked',
+        berth_level => {'<' => ($body->max_berth + 1)},
+    });
+    my @available;
+    while (my $fleet = $fleet_rs->next) {
+        $fleet->body($body);
+        eval{ $fleet->can_send_to_target($target) };
+        if (! $@) {
+            push @available, $fleet->get_status;
+        }
+    }
+        
+    my %out = (
+        status      => $self->format_status($empire),
+        available   => \@available,
+    );
+
+    return \%out;
+}
 
 
 
@@ -1101,8 +1083,45 @@ sub view_incoming_fleets {
     }
 
     my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
+    # see all incoming ships from own empire, or from any alliance member
+    # if the target is an allied colony, see all incoming ships dependent upon the highest
+    # level of space-port on the target
+    
+    my $target = $self->find_target($args->{target});
+    my $fleet_rs = Lacuna->db->resultset('Fleet');
+    my @ally_ids = map {$_->id} $empire->allies;
+    
+    $fleet_rs = $fleet_rs->search({
+        task            => 'Travelling',
+        direction       => 'out',
+        },{
+        join            => 'body',
+    });
+    if ($target->isa('Lacuna::DB::Result::Map::Star')) {
+        $fleet_rs = $fleet_rs->search({ foreign_star_id => $target->id });
+    }
+    else {
+        $fleet_rs = $fleet_rs->search({ foreign_body_id => $target->id });
+    }
 
+    if ($target->isa('Lacuna::DB::Result::Map::Planet') and first {$_->id == $target->empire_id} @ally_ids) {
+        # It is our own planet/SS or an allied one
+        # so see all incoming
+    }
+    else {
+        # otherwise only see own or allied incoming
+        $fleet_rs = $fleet_rs->search({ 'body.empire_id' => \@ally_ids });
+    }
+    my @incoming;
+    while (my $fleet = $fleet_rs->next) {
+        push @incoming, $fleet->get_status;
+    }
+    my %out = (
+        status      => $self->format_status($empire),
+        incoming    => \@incoming,
+    );
+    return \%out;
+}
 
 #    my ($self, $session_id, $building_id, $page_number) = @_;
 #
@@ -1197,7 +1216,7 @@ sub view_incoming_fleets {
 #        number_of_fleets    => $fleets->pager->total_entries,
 #        fleets              => \@fleet,
 #    };
-}
+#}
 
 
 sub view_ships_orbiting {
@@ -1405,13 +1424,31 @@ sub scuttle_fleet {
 }
 
 sub view_battle_logs {
-    my ($self, $session_id, $building_id, $page_number) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    $page_number ||= 1;
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            paging          => shift,
+            filter          => shift,
+            sort            => shift,
+        };
+    }
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+
+    my $paging = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
+
+    my $attrs = {
+        order_by => { -desc => 'date_stamp' },
+    };
+    $attrs->{rows} = defined $paging->{items_per_page} ? $paging->{items_per_page} : 25;
+    $attrs->{page} = defined $paging->{page_number} ? $paging->{page_number} : 1;
+
     my @logs;
-    my $battle_logs = $building->battle_logs->search({}, { rows=>25, page=>$page_number, order_by => => { -desc => 'date_stamp' } });
+    my $battle_logs = $building->battle_logs->search({}, $attrs);
     while (my $log = $battle_logs->next) {
         push @logs, {
             date                => format_date($log->date_stamp),
@@ -1472,7 +1509,7 @@ around 'view' => sub {
 };
 
  
-__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for get_incoming_for view_incoming_fleets get_fleets_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_fleet rename_fleet prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
+__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_incoming_for view_incoming_fleets view_available_fleets get_fleets_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_fleet rename_fleet prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -361,29 +361,33 @@ Get a list of fleets that are available to send to a specified target.
 
 Accepts either fixed arguments or a hash of named parameters
 
- ( session_id, target, paging, filter, sort )
+ ( session_id, body_id, target, filter, sort )
  ( parameter_hash )
 
 =head3 session_id (required)
 
 A session ID
 
+=head3 body_id (required)
+
+The ID of the body you are sending fleets from
+
 =head3 target (required)
 
 The target to send a fleet to. See above for this option.
 
-=head3 paging, filter, sort (optional)
+=head3 filter, sort (optional)
 
 See above for these options.
 
 =head3 RESPONSE
  
  {
-   "orbiting" : [
+   "available" : [
      {
        "id" : "id-goes-here",
        "quantity" : 120,
-       "task" : "Defend",
+       "task" : "Docked",
        "details" {
          "name" : "P13",
          "mark" : "A3123AB8ED",
@@ -393,28 +397,15 @@ See above for these options.
          "stealth" : "1200",
          "combat" : "12000",
          "hold_size" : "0",
+         "max_occupants" : "0",
          "berth_level" : "1",
          "date_started" : "01 31 2010 13:09:05 +0600",
          "date_available" : "02 01 2010 10:08:33 +0600",
          "max_occupants" : "0",
          "payload" : "{}",
-         "can_scuttle" : "0",
+         "can_scuttle" : "1",
          "can_recall" : "0",
        },
-       "from" : {
-         "id" : "id-goes-here",
-         "type" : "body",
-         "name" : "Earth"
-         "owner" : "Allied",
-         "empire" : {
-           "id" : "id-goes-here",
-           "name" : "Earthlings"
-         }
-       },
-       "max_occupants" : "0",
-       "payload" : "{}",
-       "can_scuttle" : "0",
-       "can_recall" : "0",
      },
      ...
    ],
@@ -486,10 +477,6 @@ See above for these options.
            "name" : "Earthlings"
          }
        },
-       "max_occupants" : "0",
-       "payload" : "{}",
-       "can_scuttle" : "0",
-       "can_recall" : "0",
      },
      ...
    ],
@@ -718,7 +705,7 @@ A set of x,y coordinates to locate the star or body.
 
 =head2 send_ship ( session_id, ship_id, target )
 
-Sends a ship to a specified body or star. Use with C<get_ships_for>.
+Sends a ship to a specified body or star. Use with C<get_fleet_for>.
 
  {
     "status" : { ... },
@@ -898,7 +885,7 @@ They may still be grouped together by the server into an attack group.
 
 =head2 send_fleet ( session_id, ship_ids, target, [ set_speed ] )
 
-Sends a fleet of ships to a specified body or star. Use with C<get_ships_for>.
+Sends a fleet of ships to a specified body or star. Use with C<get_fleet_for>.
 
   {
     "status" : { ... },
@@ -1507,10 +1494,29 @@ An array reference of spy ids to send.
 
 
 
-=head2 view_battle_logs ( session_id, building_id, [ page_number ] )
+=head2 view_battle_logs
 
-Shows you the battle logs for your empire with the most recent action listed first. This data will be cleaned out every seven days.
+Shows you the battle logs with the most recent action listed first. Data older than seven days will be cleaned out.
 
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, target, paging, filter, sort )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+The ID of the space port.
+
+=head3 paging (optional)
+
+See above for this option.
+
+=head3 RESPONSE
+ 
  {
    "battle_log" : [
      {
@@ -1528,18 +1534,5 @@ Shows you the battle logs for your empire with the most recent action listed fir
    "number_of_logs" : 57,
    "status" : { ... }
  }
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the space port.
-
-=head3 page_number
-
-Defaults to 1. An integer representing which page of battle logs to view. Each page shows 25 entries.
-
 
 =cut
