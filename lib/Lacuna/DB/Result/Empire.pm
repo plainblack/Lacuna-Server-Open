@@ -120,6 +120,15 @@ has current_session => (
     predicate           => 'has_current_session',
 );
 
+# Return all allies (including ones-self)
+sub allies {
+    my ($self) = @_;
+
+    if ($self->alliance_id) {
+        return $self->alliance->members->all;
+    }
+    return ($self);
+}
 
 sub update_species {
     my ($self, $me) = @_;
