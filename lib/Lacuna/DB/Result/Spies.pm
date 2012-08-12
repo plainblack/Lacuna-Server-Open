@@ -901,8 +901,8 @@ sub turn_a_spy {
     $self->spies_turned( $self->spies_turned + 1 );
     my $old_empire_id   = $traitor->empire->id;
     my $old_empire_name = $traitor->empire->name;
-    $traitor->turn($self->from_body);
-    return $self->empire->send_predefined_message(
+    my $goodbye_message = $traitor->turn($self->from_body);
+    my $new_recruit_message = $self->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'new_recruit.txt',
         params      => [$old_empire_id,
@@ -912,6 +912,10 @@ sub turn_a_spy {
                         $self->from_body->id,
                         $self->from_body->name],
     );
+    return {
+        'goodbye' => $goodbye_message,
+        'new_recruit' => $new_recruit_message,
+    };
 }
 
 sub knock_out {
@@ -1567,7 +1571,7 @@ sub turn_defender {
     $self->on_body->add_news(70,
                              'Military leaders on %s are calling for a no confidence vote about the Governor.',
                              $self->on_body->name);
-    return $self->turn_a_spy($defender)->id;
+    return $self->turn_a_spy($defender)->{'new_recruit'}->id;
 }
 
 sub turn_riot_cop {
@@ -1576,7 +1580,7 @@ sub turn_riot_cop {
     $self->on_body->add_news(70,
                              'In a shocking turn of events, police could be seen leaving their posts to join the protesters on %s today.',
                              $self->on_body->name);
-    return $self->turn_a_spy($defender)->id;
+    return $self->turn_a_spy($defender)->{'new_recruit'}->id;
 }
 
 sub small_rebellion {
@@ -1666,7 +1670,7 @@ sub turn_defector {
                              $self->name,
                              $self->empire->name,
                              $defender->empire->name);
-    return $defender->turn_a_spy($self)->id;
+    return $defender->turn_a_spy($self)->{'goodbye'}->id;
 }
 
 sub turn_rebel {
@@ -1675,7 +1679,7 @@ sub turn_rebel {
     $self->on_body->add_news(70,
                              'The %s Governor\'s call for peace appears to be working. Several rebels told this reporter they are going home.',
                              $self->on_body->name);
-    return $defender->turn_a_spy($self)->id;
+    return $defender->turn_a_spy($self)->{'goodbye'}->id;
 }
 
 sub capture_rebel {
