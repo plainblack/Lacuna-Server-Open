@@ -380,6 +380,8 @@ use constant assignments => (
 sub assign {
     my ($self, $assignment) = @_;
 
+    my $is_available = $self->is_available;
+
     # determine mission
     my $mission;
     foreach my $possible (@{$self->get_possible_assignments}) {
@@ -387,7 +389,7 @@ sub assign {
             $mission = $possible;
         }
     }
-    if (!$mission->{skill} || !$self->is_available) {
+    if (!$mission->{skill} || !$is_available) {
         return { result =>'Failure', reason => random_element(['I am busy just now.','It will have to wait.','Can\'t right now.','Maybe later.','Negative.']) };
     }
     
