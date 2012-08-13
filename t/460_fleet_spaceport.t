@@ -5,7 +5,7 @@ use warnings;
 
 use Test::More;
 use Test::Deep;
-use Data::Dumper;
+use Data::Dumper::Perltidy;
 use 5.010;
 use DateTime;
 
@@ -53,6 +53,7 @@ $result = $tester->post('spaceport','view_all_fleets', [{
     paging      => {no_paging => 1},
     no_status   => 1,
 }]);
+exit;
 
 $result = $tester->post('spaceport','view_incoming_fleets', [{
     session_id  => $test_session_id,
@@ -67,6 +68,27 @@ $result = $tester->post('spaceport','view_available_fleets', [{
     target      => { body_id => $test_home->id},
     no_status   => 1,
 }]);
+
+my @available = @{$result->{result}{available}};
+for my $fleet (@available) {
+    diag "Available [".$fleet->{id}."][".$fleet->{details}{type}."][".$fleet->{quantity}."]\n";
+    #diag Dumper $fleet;
+}
+
+$result = $tester->post('spaceport','view_unavailable_fleets', [{
+    session_id  => $test_session_id,
+    body_id     => $test_home->id,
+    target      => { body_id => $test_home->id},
+    no_status   => 1,
+}]);
+
+diag Dumper $result;
+my @unavailable = @{$result->{result}{unavailable}};
+for my $fleet (@unavailable) {
+    diag "Unavailable [".$fleet->{id}."][".$fleet->{details}{type}."][".$fleet->{quantity}."][".$fleet->{reason}."]\n";
+    #diag Dumper $fleet;
+}
+
 
 
 exit;
