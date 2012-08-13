@@ -271,7 +271,7 @@ Shows incoming fleets for a specific target.
 
 Accepts either fixed arguments or a hash of named parameters
 
- ( session_id, target, paging, filter, sort )
+ ( session_id, target, filter, sort )
  ( parameter_hash )
 
 =head3 session_id (required)
@@ -282,7 +282,7 @@ A session ID
 
 The target of the incoming fleets. See above for this option.
 
-=head3 paging, filter, sort (optional)
+=head3 filter, sort (optional)
 
 See above for these options.
 
@@ -417,7 +417,65 @@ See above for these options.
 
 Get a list of fleets that are not available to send to a specified target.
 
+Accepts either fixed arguments or a hash of named parameters
 
+ ( session_id, body_id, target, filter, sort )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 body_id (required)
+
+The ID of the body you are sending fleets from
+
+=head3 target (required)
+
+The target to send a fleet to. See above for this option.
+
+=head3 filter, sort (optional)
+
+See above for these options.
+
+=head3 RESPONSE
+ 
+ {
+   "unavailable" : [
+     {
+       "id" : "id-goes-here",
+       "quantity" : 120,
+       "task" : "Docked",
+       "reason" : [
+          1009,
+          "Can only be sent to bodies.",
+       ],
+       "details" {
+         "name" : "P13",
+         "mark" : "A3123AB8ED",
+         "type_human" : "sweeper",
+         "type" : "Sweeper",
+         "speed" : "14066",
+         "stealth" : "15148",
+         "combat" : "45522",
+         "hold_size" : "0",
+         "max_occupants" : "0",
+         "berth_level" : "1",
+         "date_started" : "01 31 2010 13:09:05 +0600",
+         "date_available" : "02 01 2010 10:08:33 +0600",
+         "max_occupants" : "0",
+         "payload" : "{}",
+         "can_scuttle" : "1",
+         "can_recall" : "0",
+       },
+     },
+     ...
+   ],
+   "status" : { ... }
+ }
+
+B<reason> gives the reason why the ship cannot be sent to a target, both as a numeric code
+and as a human readable text string.
 
 =head2 view_orbiting_fleets
 
@@ -449,12 +507,12 @@ See above for these options.
      {
        "id" : "id-goes-here",
        "quantity" : 120,
-       "task" : "Defend",
+       "task" : "Orbiting",
        "details" {
          "name" : "P13",
          "mark" : "A3123AB8ED",
          "type_human" : "Fighter",
-         "type" : "Fighter",
+         "type" : "fighter",
          "speed" : "1200",
          "stealth" : "1200",
          "combat" : "12000",

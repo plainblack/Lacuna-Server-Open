@@ -49,6 +49,24 @@ sub find_target {
 }
 
 
+# Get fleets not available to send to a target
+sub view_unavailable_fleets {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            body_id         => shift,
+            target          => shift,
+            filter          => shift,
+            sort            => shift,
+        };
+    }
+    return $self->_view_fleets($args, 'unavailable');
+}
+
+
 # Get fleets available to send to a target
 sub view_available_fleets {
     my $self = shift;
@@ -63,6 +81,12 @@ sub view_available_fleets {
             sort            => shift,
         };
     }
+    return $self->_view_fleets($args, 'available');
+}
+
+sub _view_fleets {
+    my ($self, $args, $option) = @_;
+
     my $empire  = $self->get_empire_by_session($args->{session_id});
     my $body    = $self->get_body($empire, $args->{body_id});
     my $target  = $self->find_target($args->{target});
@@ -72,26 +96,32 @@ sub view_available_fleets {
 
     my $attrs = {
         order_by    => $sort,
-        prefetch    => { body => 'empire' },
     };
 
     my $fleet_rs = Lacuna->db->resultset('Fleet')->search($filter, $attrs);
     $fleet_rs = $fleet_rs->search({
         task        => 'Docked',
-        berth_level => {'<' => ($body->max_berth + 1)},
+        body_id     => $body->id,
     });
     my @available;
+    my @unavailable;
     while (my $fleet = $fleet_rs->next) {
         $fleet->body($body);
+        my $status = $fleet->get_status;
         eval{ $fleet->can_send_to_target($target) };
-        if (! $@) {
-            push @available, $fleet->get_status;
+        my $reason = $@;
+        if ($reason) {
+            $status->{reason} = $reason;
+            push @unavailable, $status;
+        }
+        else {
+            push @available, $status;
         }
     }
         
     my %out = (
         status      => $self->format_status($empire),
-        available   => \@available,
+        available   => $option eq 'available' ? \@available : \@unavailable,
     );
 
     return \%out;
@@ -1067,6 +1097,34 @@ sub view_all_fleets {
     };
 }
 
+# View orbiting fleets
+sub view_orbiting_fleets {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            target          => shift,
+            paging          => shift,
+            filter          => shift,
+            sort            => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+ 
+    my $target = $self->find_target($args->{target});
+    my $fleet_rs = Lacuna->db->resultset('Fleet');
+    my @ally_ids = map {$_->id} $empire->allies;
+    
+    $fleet_rs = $fleet_rs->search({
+        task            => { in => ['Defend','Orbiting'] },
+        },{
+        join            => {body => 'empire'},
+    });
+}
+
 # View incoming fleets (not own returning fleets)
 sub view_incoming_fleets {
     my $self = shift;
@@ -1509,7 +1567,7 @@ around 'view' => sub {
 };
 
  
-__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_incoming_for view_incoming_fleets view_available_fleets get_fleets_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_fleet rename_fleet prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
+__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_incoming_for view_incoming_fleets view_unavailable_fleets view_available_fleets get_fleets_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_fleet rename_fleet prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_orbiting_fleets view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

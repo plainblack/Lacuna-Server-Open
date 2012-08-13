@@ -587,7 +587,8 @@
  - TODO: Allow resources/ships/glyphs/plans to be pushed to ally planets (at a cost of 0.1E/ship)
  - TODO: Allow supply chain to be set up to allied planets
  - TODO: Allow ships to 'stay' at allied planets during a push, they are then owned by that empire.
-
+ - TODO: Can send fighters to orbit stars, so that they can destroy incoming detonators.
+ - TODO: ? Should we treat probes as combat, so that we can destroy them with orbiting fighters?
 
  - TODO: When viewing 'available' or 'unavailable' fleets to send to a body, select from all possible colonies.
  - TODO: Filter foreign incoming ships status by level of space-port
