@@ -27,6 +27,15 @@ has plan_cache => (
     clearer => 'clear_plan_cache',
 );
 
+sub fleets_travelling {
+    my ($self) = @_;
+
+    my $fleets_rs = $self->fleets->search_rs({
+        task    => 'Travelling',
+    });
+    return $fleets_rs;
+}
+
 sub _build_plan_cache {
     my ($self) = @_;
     my $plans = [];
@@ -122,7 +131,7 @@ sub surface {
 }
 
 # return resultset for all fleets travelling
-sub fleets_travelling { 
+sub fleets_travelling_old { 
     my ($self, $where, $reverse) = @_;
 
     my $order = '-asc';
@@ -130,7 +139,7 @@ sub fleets_travelling {
         $order = '-desc';
     }
     $where->{task} = 'Travelling';
-    return $self-fleets->search(
+    return $self->fleets->search(
         $where,
         {
             order_by    => { $order => 'date_available' },

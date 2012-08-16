@@ -155,7 +155,6 @@ This buildings ID
  }
 
 
-
 =head2 view_all_fleets
 
 Shows you all your fleets whatever they are doing.
@@ -388,6 +387,13 @@ See above for these options.
        "id" : "id-goes-here",
        "quantity" : 120,
        "task" : "Docked",
+       "earliest_arrival" : {
+         "month" : "03",
+         "day" : "01",
+         "hour" : "13",
+         "minute" : "34",
+         "second" : "15",
+       },
        "details" {
          "name" : "P13",
          "mark" : "A3123AB8ED",
@@ -412,6 +418,9 @@ See above for these options.
    "status" : { ... }
  }
 
+B<earliest_arrival> gives the date and time at which the fleet could arrive, if 
+travelling at it's top speed. Time is given as server time (UTC). (It is assumed
+that no ship will take more than a year to arrive!)
 
 =head2 view_unavailable_fleets
 
@@ -941,9 +950,66 @@ then an exception is raised.
 If earliest is set, all other values are ignored and ships are sent at fastest speed possible.
 They may still be grouped together by the server into an attack group.
 
-=head2 send_fleet ( session_id, ship_ids, target, [ set_speed ] )
+=head2 send_fleet
 
-Sends a fleet of ships to a specified body or star. Use with C<get_fleet_for>.
+Send a fleet of ships to a specified target body.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, fleet_id, quantity, target, arrival_date )
+ ( parameter_hash )
+  
+=head3 session_id (required)
+  
+A session ID
+  
+=head3 fleet_id (required)
+
+The ID of the fleet to send
+
+=head3 quantity (required)
+
+The number of ships in the fleet to send
+
+=head3 target (required)
+  
+The target body to check.
+
+=head3 arrival_date (optional)
+
+A hash ref giving the arrival date/time
+  {
+    "soonest" : "1",
+  }
+
+  or
+
+  {
+    "month" : "08",
+    "date" : "13",
+    "hour" : "01",
+    "minute" : "59",
+    "second" : "45",
+  }
+
+The earliest arrival time is determined by the fleet's maximum speed,
+to specify this use the B<soonest> option.
+
+If B<arrival_date> is not specified then it defaults to B<soonest>.
+
+Otherwise specify the month/day/hour/minute/second for the fleet to
+arrive. You cannot specify an arrival date sooner than the earliest
+arrival time.
+
+Note that the estimated arrival time in the B<view_available_fleets>
+call assumes that the fleet will be travelling at top speed from the 
+instant at which the call was made. Make allowance when setting the
+arrival time for the delay between that call and this one.
+
+The B<second> can only be one of '00', '15', '30', or '45'.
+
+=head3 RESPONSE
+  
 
   {
     "status" : { ... },
@@ -1001,74 +1067,35 @@ An exception will be thrown if this is less than zero or exceeds the speed of th
 
 
 
+=head2 recall_fleet
 
-=head2 recall_ship ( session_id, building_id, ship_id )
-
-Recalls an orbiting ship (task of 'Defend' or 'Orbiting') to the body of origin.
-
-Throws 1002, 1010.
-
- {
-    "status" : { ... },
-    "ship" : {
-        "id" : "id-goes-here",
-        "name" : "F13",
-        "type_human" : "Fighter",
-        "type" : "fighter",
-        "task" : "Travelling",
-        "speed" : "2000",
-        "stealth" : "0",
-        "hold_size" : "0",
-        "berth_level" : "1",
-        "date_started" : "01 31 2010 13:09:05 +0600",
-        "date_available" : "02 01 2010 10:08:33 +0600",
-        "date_arrives" : "02 01 2010 10:08:33 +0600",
-        "can_recall" : "0",
-        "can_scuttle" : "0",
-        "from" : {
-           "id" : "id-goes-here",
-           "type" : "body",
-           "name" : "Earth"
-        },
-        "to" : {
-           "id" : "id-goes-here",
-           "type" : "star",
-           "name" : "Sol"
-        }
-    }
- }
+Recall all, or part of a fleet that have the task of 'Defend'
+or 'Orbiting' back to their body of origin.
 
 Recalling an orbiting Spy Shuttle also fetches as many idle spies as will fit from the planet it was orbiting.
 
 Throws 1002, 1010, 1013.
 
- {
-     "ship" : {
-        "id" : "id-goes-here",
-        "name" : "SS4",
-        "hold_size" : 0,
-        "berth_level" : "1",
-        "speed" : 3400,
-        "type" : "spy_shuttle",
-        "date_arrives" : "01 31 2010 13:09:05 +0600",
-        ...
-     },
-     "status" : { ... }
- }
+Accepts either fixed arguments or a hash of named parameters
 
-=head3 session_id
+ ( session_id, fleet_id, quantity )
+ ( parameter_hash )
+  
+=head3 session_id (required)
+  
+A session ID
+  
+=head3 fleet_id (required)
 
-A session id.
+The ID of the fleet to send
 
-=head3 building_id
+=head3 quantity (required)
 
-The unique id for the space port.
+The number of ships in the fleet to recall
 
-=head3 ship_id
+=head3 RESPONSE
 
-The unique id of a ship to recall.
-
-
+Returns the same as B<view>
 
 =head2 recall_all ( session_id, building_id )
 
@@ -1264,14 +1291,14 @@ See above for these options.
           "id" : "id-goes-here",
           "type" : "body",
           "name" : "Earth",
-         },
-         "to" : {
-           "id" : "id-goes-here",
-           "type" : "star",
-           "name" : "Sol",
-         }
-       },
-       ...
+        },
+        "to" : {
+          "id" : "id-goes-here",
+          "type" : "star",
+          "name" : "Sol",
+        }
+      },
+      ...
     ]
  }
 

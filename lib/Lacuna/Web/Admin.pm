@@ -571,80 +571,72 @@ sub www_delete_building {
     return $self->www_view_buildings($request, $building->body_id);
 }
 
-sub www_view_ships {
+sub www_view_fleets {
     my ($self, $request, $body_id) = @_;
     $body_id ||= $request->param('body_id');
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $body_id });
-    my $out = '<h1>View Ships</h1>';
+    my $fleets = Lacuna->db->resultset('Fleet')->search({ body_id => $body_id });
+    my $out = '<h1>View Fleets</h1>';
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>Type</th><th>Stealth</th><th>Hold Size</th><th>Speed</th><th>Combat</th><th>Task</th><th>Delete</td></tr>';
-    while (my $ship = $ships->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>', $ship->id, $ship->name, $ship->type_formatted, $ship->stealth, $ship->hold_size, $ship->speed, $ship->combat);
-        if ($ship->task eq 'Travelling') {
-            $out .= sprintf('<td>%s<form method="post" action="/admin/zoom/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="zoom"></form></td>', $ship->task, $ship->id, $body_id);
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>Quantity</th><th>Type</th><th>Stealth</th><th>Hold Size</th><th>Speed</th><th>Combat</th><th>Task</th><th>Delete</td></tr>';
+    while (my $fleet = $fleets->next) {
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>', $fleet->id, $fleet->name, $fleet->quantity, $fleet->type_formatted, $fleet->stealth, $fleet->hold_size, $fleet->speed, $fleet->combat);
+        if ($fleet->task eq 'Travelling') {
+            $out .= sprintf('<td>%s<form method="post" action="/admin/zoom/fleet"><input type="hidden" name="fleet_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="zoom"></form></td>', $fleet->task, $fleet->id, $body_id);
         }
-        elsif ($ship->task ~~ [qw(Defend Orbiting)]) {
-            my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($ship->foreign_body_id);
-            $out .= sprintf('<td>%s<br>%s (%d, %d)<form method="post" action="/admin/recall/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="recall"></form></td>', $ship->task, $target->name, $target->x, $target->y, $ship->id, $body_id);
+        elsif ($fleet->task ~~ [qw(Defend Orbiting)]) {
+            my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($fleet->foreign_body_id);
+            $out .= sprintf('<td>%s<br>%s (%d, %d)<form method="post" action="/admin/recall/fleet"><input type="hidden" name="fleet_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="recall"></form></td>', $fleet->task, $target->name, $target->x, $target->y, $fleet->id, $body_id);
         }
-        elsif ($ship->task ne 'Docked') {
-            $out .= sprintf('<td>%s<form method="post" action="/admin/dock/ship"><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="dock" onclick="return confirm(\'Doing this without knowing the implications can cause unintended side effects. Are you sure?\');"></form></td>', $ship->task, $ship->id, $body_id);            
+        elsif ($fleet->task ne 'Docked') {
+            $out .= sprintf('<td>%s<form method="post" action="/admin/dock/fleet"><input type="hidden" name="fleet_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="dock" onclick="return confirm(\'Doing this without knowing the implications can cause unintended side effects. Are you sure?\');"></form></td>', $fleet->task, $fleet->id, $body_id);            
         }
         else {
-            $out .= sprintf('<td>%s</td>', $ship->task);            
+            $out .= sprintf('<td>%s</td>', $fleet->task);            
         }
-        $out .= sprintf('<form method="post" action="/admin/delete/ship"><td><input type="hidden" name="ship_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="delete"></td></form></tr>', $ship->id, $body_id);
+        $out .= sprintf('<form method="post" action="/admin/delete/fleet"><td><input type="hidden" name="fleet_id" value="%s"><input type="hidden" name="body_id" value="%s"><input type="submit" value="delete"></td></form></tr>', $fleet->id, $body_id);
     }
     $out .= '</table>';
     return $self->wrap($out);
 }
 
-sub www_zoom_ship {
+sub www_zoom_fleet {
     my ($self, $request) = @_;
-    my $ship_id = $request->param('ship_id');
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    if ($ship)
-    {
-#    my $body = $ship->body;
-
-#    $ship->re_schedule(DateTime->now);
-        $ship->date_available(DateTime->now);
-        $ship->update;
-#    $ship->update({date_available => DateTime->now});
-#    $body->tick;
-    }
-
-    return $self->www_view_ships($request);
+    my $fleet_id = $request->param('fleet_id');
+    my $fleet = Lacuna->db->resultset('Fleet')->find($fleet_id);
+    my $body = $fleet->body;
+    $fleet->update({date_available => DateTime->now});
+    $body->tick;
+    return $self->www_view_fleets($request);
 }
 
-sub www_recall_ship {
+sub www_recall_fleet {
     my ($self, $request) = @_;
-    my $ship_id = $request->param('ship_id');
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($ship->foreign_body_id);
+    my $fleet_id = $request->param('fleet_id');
+    my $fleet = Lacuna->db->resultset('Fleet')->find($fleet_id);
+    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($fleet->foreign_body_id);
 
-    my $body = $ship->body;
-    $ship->send(
+    my $body = $fleet->body;
+    $fleet->send(
         target      => $target,
         direction   => 'in',
     );
     $body->tick;
-    return $self->www_view_ships($request);
+    return $self->www_view_fleets($request);
 }
 
-sub www_dock_ship {
+sub www_dock_fleet {
     my ($self, $request) = @_;
-    my $ship_id = $request->param('ship_id');
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    $ship->land->update;
-    return $self->www_view_ships($request);
+    my $fleet_id = $request->param('fleet_id');
+    my $fleet = Lacuna->db->resultset('Fleet')->find($fleet_id);
+    $fleet->land->update;
+    return $self->www_view_fleets($request);
 }
 
-sub www_delete_ship {
+sub www_delete_fleet {
     my ($self, $request) = @_;
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($request->param('ship_id'));
-    $ship->delete;
-    return $self->www_view_ships($request);
+    my $fleet = Lacuna->db->resultset('Fleet')->find($request->param('fleet_id'));
+    $fleet->delete;
+    return $self->www_view_fleets($request);
 }
 
 sub www_view_resources {
@@ -1139,7 +1131,7 @@ sub www_view_body {
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/view/resources?body_id=%s">View Resources</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/buildings?body_id=%s">View Buildings</a></li>', $body->id);
-    $out .= sprintf('<li><a href="/admin/view/ships?body_id=%s">View Ships</a></li>', $body->id);
+    $out .= sprintf('<li><a href="/admin/view/fleets?body_id=%s">View Fleets</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/plans?body_id=%s">View Plans</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/glyphs?body_id=%s">View Glyphs</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/recalc/body?body_id=%s">Recalculate Body Stats</a></li>', $body->id);

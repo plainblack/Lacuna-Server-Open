@@ -116,6 +116,14 @@ sub _view_fleets {
         }
         else {
             push @available, $status;
+            my $earliest_arrival = $fleet->earliest_arrival($target);
+            $status->{earliest_arrival} = {
+                month       => sprintf("%02d", $earliest_arrival->month),
+                day         => sprintf("%02d", $earliest_arrival->day),
+                hour        => sprintf("%02d", $earliest_arrival->hour),
+                minute      => sprintf("%02d", $earliest_arrival->minute),
+                second      => sprintf("%02d", $earliest_arrival->second),
+            };
         }
     }
         
@@ -503,115 +511,134 @@ sub send_ship_types {
 }
 
 sub send_fleet {
-  my ($self, $session_id, $ship_ids, $target_params, $set_speed) = @_;
-  $set_speed //= 0;
-  my $session  = $self->get_session({session_id => $session_id});
-  my $empire   = $session->current_empire;
-  my $target = $self->find_target($target_params);
-  my $max_ships = Lacuna->config->get('ships_per_fleet') || 600;
-  if (@$ship_ids > $max_ships) {
-      confess [1009, 'Too many ships for a fleet.'];
-  }
-  my @fleet;
-  my $speed = 999999999;
-
-  my $excavator = 0;
-  my $supply_pod = 0;
-  for my $ship_id (@$ship_ids) {
-      my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-      unless (defined $ship) {
-          confess [1002, 'Could not locate that ship.'];
-      }
-      unless ($ship->body->empire_id == $empire->id) {
-          confess [1010, 'You do not own that ship.'];
-      }
-      $excavator++ if ($ship->type eq 'excavator');
-      $supply_pod++ if ($ship->type =~ /supply_pod/);
-      $speed = $ship->speed if ( $speed > $ship->speed );
-      push @fleet, $ship_id;
-  }
-
-  my $tmp_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($fleet[0]);
-  my $body = $tmp_ship->body;
-  my $distance = $body->calculate_distance_to_target($target);
-  my $max_speed = $distance  * 12;  # Minimum time to arrive is five minutes
-  my $min_speed = int($distance/1440 + 0.5); # Max time to arrive is two months
-  $min_speed = 1 if $min_speed < 1;
-
-  unless ($excavator <= 1) {
-      confess [1010, 'Only one Excavator may be sent to a body by this empire.'];
-  }
-  unless ($set_speed <= $speed) {
-      confess [1009, 'Set speed cannot exceed the speed of the slowest ship.'];
-  }
-  unless ($set_speed >= 0) {
-      confess [1009, 'Set speed cannot be less than zero.'];
-  }
-#If time to target is longer than 60 days, fail.
-  $speed = $set_speed if ($set_speed > 0 && $set_speed < $speed);
-  $speed = $max_speed if ($speed > $max_speed);
-
-  unless ($speed >= $min_speed) {
-      confess [1009, 'Set speed cannot be set so that ships arrive after 60 days.'];
-  }
-
-  my @ret;
-  my $captcha_check = 1;
-
-# Check captcha if needed
-# Create attack_group
-
-  for my $ship_id (@fleet) {
-      my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-      my $body = $ship->body;
-      $body->empire($empire);
-      $ship->can_send_to_target($target);
-      if ($captcha_check && $ship->hostile_action ) {
-          $empire->current_session->check_captcha;
-          $captcha_check = 0;
-      }
-      confess [1009, "Sitters cannot send this type of ship."] if $empire->current_session->is_sitter and not $ship->sitter_can_send;
-      $body->add_to_neutral_entry($ship->combat);
-      $ship->fleet_speed($speed);
-      $ship->send(target => $target);
-      push @ret, {
-          ship    => $ship->get_status,
-      }
-  }
-  return {
-      fleet  => \@ret,
-      status  => $self->format_status($session),
-  };
-}
-
-sub recall_ship {
-  my ($self, $session_id, $building_id, $ship_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    unless (defined $ship) {
-        confess [1002, 'Could not locate that ship.'];
+    my $self = shift;
+    my $args = shift;
+        
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            fleet_id    => shift,
+            quantity    => shift,
+            target      => shift,
+            arrival_date=> shift,
+        };
     }
-    unless ($ship->body->empire_id == $empire->id) {
+    $args->{arrival_date} = {soonest => 1} if not defined $args->{arrival_date};
+    
+    my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $target  = $self->find_target($args->{target});
+    my $qty     = $args->{quantity};
+    my $fleet   = Lacuna->db->resultset('Fleet')->find({id => $args->{fleet_id}},{prefetch => 'body'});
+    if (! defined $fleet) {
+        confess [1002, 'Could not locate that fleet.'];
+    }
+    if ($fleet->body->empire->id != $empire->id) {
         confess [1010, 'You do not own that ship.'];
     }
-    my $body = $building->body;
-    $body->empire($empire);
-    $ship->can_recall();
-
-    $ship->fleet_speed(0);
-
-    my $target = $self->find_target({body_id => $ship->foreign_body_id});
-    $ship->send(
-    target    => $target,
-    direction  => 'in',
-  );
-    $ship->body->update;
-    return {
-        ship    => $ship->get_status,
-        status  => $self->format_status($session),
+    if (not defined $qty or $qty < 0 or int($qty) != $qty) {
+        confess [1009, 'Quantity must be a positive integer'];
     }
+    if ($qty > $fleet->quantity) {
+        confess [1009, "You don't have that many ships in the fleet"];
+    }
+    if ($fleet->type eq 'excavator' and $qty > 1) {
+        confess [1009, 'You can only send one excavator to a body'];
+    }
+    $fleet->can_send_to_target($target);
+    if ($fleet->hostile_action) {
+        $empire->current_session->check_captcha;
+    }
+    my $new_fleet = $fleet->split($qty); 
+
+    if ($args->{arrival_date}{soonest}) {
+        $new_fleet->send(target => $target);
+    }
+    else {
+        my $month   = $args->{arrival_date}{month};
+        my $date    = $args->{arrival_date}{date};
+        my $hour    = $args->{arrival_date}{hour};
+        my $minute  = $args->{arrival_date}{minute};
+        my $second  = $args->{arrival_date}{second};
+        if ($second != 0 and $second != 15 and $second != 30 and $second != 45) {
+            confess [1009, 'Seconds can only be one of 0,15,30 or 45'];
+        }
+        if ($minute < 0 or $minute > 59 or $minute != int($minute)) {
+            confess [1009, 'Minutes must be an integer between 0 and 59'];
+        }
+        if ($hour < 0 or $hour > 23 or $hour != int($hour)) {
+            confess [1009, 'Hours must be an integer between 0 and 23'];
+        }
+        if ($month < 1 or $month > 12 or $month != int($month)) {
+            confess [1009, 'Month must be an integer between 1 and 12'];
+        }
+        my $now = DateTime->now;
+        my $month_now   = $now->month;
+        my $year_now    = $now->year;
+        my $year        = $year_now;
+        # if it is for a date next year
+        if ($month < $month_now) {
+            $year = $year_now + 1;
+        }
+        my $arrival_date = DateTime->new(
+            year        => $year,
+            month       => $month,
+            day         => $date,
+            hour        => $hour,
+            minute      => $minute,
+            second      => $second,
+        );
+        my $earliest_arrival = DateTime->now->add(seconds=>$fleet->calculate_travel_time($target));
+        if ($arrival_date < $earliest_arrival) {
+            confess [1009, 'The fleet is not fast enough to arrive by that date'];
+        }
+        $new_fleet->send(target => $target, arrival => $arrival_date);
+    }
+    return {
+        fleet   => $fleet->get_status,
+        status  => $self->format_status($empire),
+    };
+}
+
+sub recall_fleet {
+    my $self = shift;
+    my $args = shift;
+        
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            fleet_id    => shift,
+            quantity    => shift,
+        };
+    }
+    my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $qty     = $args->{quantity};
+    my $fleet   = Lacuna->db->resultset('Fleet')->find({id => $args->{fleet_id}},{prefetch => 'body'});
+    if (! defined $fleet) {
+        confess [1002, 'Could not locate that fleet.'];
+    }
+    if ($fleet->body->empire->id != $empire->id) {
+        confess [1010, 'You do not own that fleet.'];
+    }
+    if ($qty < 0 or int($qty) != $qty) {
+        confess [1009, 'Quantity must be a positive integer'];
+    }
+    if ($qty > $fleet->quantity) {
+        confess [1009, "You don't have that many ships in the fleet"];
+    }
+    $fleet->can_recall;
+
+    my $target = $self->find_target({body_id => $fleet->foreign_body_id});
+
+    my $new_fleet = $fleet->split($qty);
+    $new_fleet->send(
+        target      => $target,
+        direction   => 'in',
+    );
+    my $body = $new_fleet->body;
+    $body->update;
+    # to satisfy 'view' get a Space Port
+    $args->{building_id} = $body->spaceport->id;
+    return $self->view($args);
 }
 
 sub recall_all {
@@ -943,25 +970,45 @@ sub fetch_spies {
 }
 
 
-
 sub view_fleets_travelling {
-    my ($self, $session_id, $building_id, $page_number) = @_;
+    my $self = shift;
+    my $args = shift;
 
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    $page_number ||= 1;
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+                                                                    
+    my $paging = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
+    my $filter = $self->_fleet_filter_options( (defined $args->{filter} && ref $args->{filter} eq 'HASH') ? $args->{filter} : {} );
+    my $sort = $self->_fleet_sort_options( $args->{sort} // 'type' );
+
+    my $attrs = {
+        order_by => $sort,
+    };
+    $attrs->{rows} = $paging->{items_per_page} if ( defined $paging->{items_per_page} );
+    $attrs->{page} = $paging->{page_number} if ( defined $paging->{page_number} );
+
     my $body = $building->body;
+
     my @travelling;
-    my $fleets = $body->fleets_travelling->search(undef, {rows=>25, page=>$page_number});
+    my $fleets = $body->fleets_travelling->search($filter, $attrs);
+    my $ships_travelling = 0;
     while (my $fleet = $fleets->next) {
         $fleet->body($body);
         push @travelling, $fleet->get_status;
+        $ships_travelling += $fleet->quantity;
     }
     return {
         status                      => $self->format_status($empire, $body),
         number_of_fleets_travelling => $fleets->pager->total_entries,
-        number_of_ships_travelling  => 666, # TODO 
-        ships_travelling            => \@travelling,
+        number_of_ships_travelling  => $ships_travelling,
+        travelling                  => \@travelling,
     };
 }
 
@@ -1567,7 +1614,7 @@ around 'view' => sub {
 };
 
  
-__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_incoming_for view_incoming_fleets view_unavailable_fleets view_available_fleets get_fleets_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_fleet rename_fleet prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_orbiting_fleets view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
+__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_incoming_for view_incoming_fleets view_unavailable_fleets view_available_fleets get_fleets_for send_ship send_fleet recall_fleet recall_all recall_spies scuttle_fleet rename_fleet prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_orbiting_fleets view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

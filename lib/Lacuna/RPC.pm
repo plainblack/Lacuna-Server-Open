@@ -192,6 +192,11 @@ sub get_building { # makes for uniform error handling, and prevents staleness
         $log->trace(Carp::longmess "internal error: building_id is a ref, but not blessed?");
         confess [ 552, "Internal Error [get_building]" ];
     }
+    else {
+        my ($building) = Lacuna->db->resultset('Building')->search({
+            'me.id' => $building_id,
+        },{ prefetch => 'body' }
+        );
 
     my $join = $session->_is_sitter ? 'empire' : { 'empire' => 'sitterauths' };
 
