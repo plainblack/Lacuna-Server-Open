@@ -70,10 +70,45 @@ $result = $tester->post('spaceport','view_available_fleets', [{
 }]);
 
 my @available = @{$result->{result}{available}};
-for my $fleet (@available) {
-    diag "Available [".$fleet->{id}."][".$fleet->{details}{type}."][".$fleet->{quantity}."]\n";
-    #diag Dumper $fleet;
+#for my $fleet (@available) {
+#    diag "Available [".$fleet->{id}."][".$fleet->{details}{type}."][".$fleet->{quantity}."]\n";
+#    diag Dumper $fleet->{earliest_arrival};
+#}
+my $fleet = $available[0];
+diag "Available [".$fleet->{id}."][".$fleet->{details}{type}."][".$fleet->{quantity}."]\n";
+diag Dumper $fleet->{earliest_arrival};
+
+$result = $tester->post('spaceport','send_fleet', [{
+    session_id  => $test_session_id,
+    fleet_id    => $fleet->{id},
+    quantity    => 1,
+    target      => { body_id => $test_home->id},
+    arrival_date    => {
+        month   => 12,
+        day     => 25,
+        hour    => 8,
+        minute  => 0,
+        second  => 0,
+    },
+    no_status   => 1,
+}]);                
+
+my $fleets = $test_home->fleets->search({
+    task => 'Defend',
+});
+while (my $fleet = $fleets->next) {
+    diag "Fleet defending [".$fleet->id."]";
+    $result = $tester->post('spaceport','recall_fleet', [{
+        session_id  => $test_session_id,
+        fleet_id    => $fleet->id,
+        quantity    => 1,
+        no_status   => 1,
+    }]);
+    exit;
+        
 }
+
+exit;
 
 $result = $tester->post('spaceport','view_unavailable_fleets', [{
     session_id  => $test_session_id,
