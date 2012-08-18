@@ -15,10 +15,38 @@ has 'hostile_action' => (
     is      => 'rw',
     isa     => 'Bool',
     lazy    => 1,
-    builder => '_build_hostile_action',
+    default => 0,
 );
 
-sub _build_hostile_action { 0 }
+sub has_that_quantity {
+    my ($self, $qty) = @_;
+
+    if ($qty < 0 or int($qty) != $qty) {
+        confess [1009, 'Quantity must be a positive integer'];
+    }
+    if ($qty > $self->quantity) {
+        confess [1009, "You don't have that many ships in the fleet"];
+    }
+    return 1;                              
+}
+
+sub can_recall {
+    my ($self) = @_;
+    
+    if ($self->task ~~ [qw(Defend Orbiting)]) {
+        return 1;
+    }
+    confess [1010, 'That fleet is busy.'];
+}
+
+sub can_scuttle {
+    my ($self) = @_;
+
+    if ($self->task eq 'Docked') {
+        return 1;
+    }
+    confess [1010, 'That fleet is busy.'];
+}
 
 __PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('fleet');
@@ -260,14 +288,6 @@ sub can_send_to_target {
     return 1;
 }
 
-sub can_recall {
-    my ($self) = @_;
-    unless ($self->task ~~ [qw(Defend Orbiting)]) {
-        confess [1010, 'That fleet is busy.'];
-    }
-    return 1;
-}
-
 sub type_formatted {
     my ($self) = @_;
 
@@ -294,6 +314,7 @@ sub date_available_formatted {
 
 sub get_status {
     my ($self, $target) = @_;
+
     my %status = (
         id              => $self->id,
         quantity        => $self->quantity,
@@ -312,8 +333,8 @@ sub get_status {
             date_available  => $self->date_available_formatted,
             max_occupants   => $self->max_occupants,
             payload         => $self->format_description_of_payload,
-            can_scuttle     => ($self->task eq 'Docked') ? 1 : 0,
-            can_recall      => ($self->task ~~ [qw(Defend Orbiting)]) ? 1 : 0,
+            can_scuttle     => eval {$self->can_scuttle} ? 1 : 0,
+            can_recall      => eval {$self->can_recall} ? 1 : 0,
         },
     );
     if ($target) {
@@ -370,8 +391,27 @@ sub turn_around {
     return $self;
 }
 
+sub recall {
+    my ($self) = @_;
+    
+    # The time to get back is the same as the time to get here.
+    # TODO (we could allow return to be a full fleet speed, but I can't be bothered
+    # to work out how to do that yet)
+
+    my $now = DateTime->now;
+    my $duration = $now - $self->date_started;
+    my $options = {
+        payload     => $self->payload,
+        arrival     => $now + $duration,
+        direction   => 'in',
+        target      => $self->body,
+    };
+    $self->send(%$options);
+}
+
 sub send {
     my ($self, %options ) = @_;
+
     $self->date_started(DateTime->now);
     $self->task('Travelling');
     $self->payload($options{payload} || {});
@@ -422,6 +462,8 @@ sub land {
     my ($self) = @_;
     $self->task('Docked');
     $self->date_available(DateTime->now);
+    $self->foreign_body_id(undef);
+    $self->foreign_star_id(undef);
     $self->payload({});
     return $self;
 }
