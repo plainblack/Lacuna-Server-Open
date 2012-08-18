@@ -371,7 +371,8 @@ around get_status => sub {
                 }
                 # empires who have disabled the option, don't see incoming ships
                 $out->{skip_incoming_ships} = $empire->skip_incoming_ships;
-                if (not $empire->skip_incoming_ships) {
+                if (1) {
+#                if (not $empire->skip_incoming_ships) {
                     my $now = time;
 
                     my $foreign_bodies;
@@ -783,29 +784,29 @@ sub has_room_in_build_queue {
 use constant operating_resource_names => qw(food_hour energy_hour ore_hour water_hour);
 
 has future_operating_resources => (
-        is      => 'rw',
-        clearer => 'clear_future_operating_resources',
-        lazy    => 1,
-        default => sub {
+    is      => 'rw',
+    clearer => 'clear_future_operating_resources',
+    lazy    => 1,
+    default => sub {
         my $self = shift;
 
-        # get current
+    # get current
         my %future;
         foreach my $method ($self->operating_resource_names) {
-        $future{$method} = $self->$method;
+            $future{$method} = $self->$method;
         }
 
-        # adjust for what's already in build queue
+    # adjust for what's already in build queue
         my @queued_builds = @{$self->builds};
         foreach my $build (@queued_builds) {
-        my $other = $build->stats_after_upgrade;
-        foreach my $method ($self->operating_resource_names) {
-        $future{$method} += $other->{$method} - $build->$method;
-        }
+            my $other = $build->stats_after_upgrade;
+            foreach my $method ($self->operating_resource_names) {
+                $future{$method} += $other->{$method} - $build->$method;
+            }
         }
         return \%future;
     },
-    );
+);
 
 sub has_resources_to_operate {
     my ($self, $building) = @_;
@@ -1285,7 +1286,7 @@ sub tick {
         return undef;
     }
     else {
-        $cache->set('ticking',$self->id, 1, 60);
+        $cache->set('ticking',$self->id, 1, 300);
     }
     
     my $now = DateTime->now;
