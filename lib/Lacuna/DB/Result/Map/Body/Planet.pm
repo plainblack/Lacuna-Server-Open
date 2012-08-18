@@ -750,7 +750,7 @@ has future_operating_resources => (
         # get current
         my %future;
         foreach my $method ($self->operating_resource_names) {
-        $future{$method} = $self->$method;
+            $future{$method} = $self->$method;
         }
 
         # adjust for what's already in build queue
@@ -763,7 +763,7 @@ has future_operating_resources => (
         }
         return \%future;
     },
-    );
+);
 
 # would we have enough resources to operate this building in the future?
 sub has_resources_to_operate {
@@ -1259,7 +1259,7 @@ sub tick {
         return undef;
     }
     else {
-        $cache->set('ticking',$self->id, 1, 60);
+        $cache->set('ticking',$self->id, 1, 300);
     }
     
     my $now = DateTime->now;
