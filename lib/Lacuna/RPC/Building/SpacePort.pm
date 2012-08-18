@@ -619,23 +619,15 @@ sub recall_fleet {
     if ($fleet->body->empire->id != $empire->id) {
         confess [1010, 'You do not own that fleet.'];
     }
-    if ($qty < 0 or int($qty) != $qty) {
-        confess [1009, 'Quantity must be a positive integer'];
-    }
-    if ($qty > $fleet->quantity) {
-        confess [1009, "You don't have that many ships in the fleet"];
-    }
+    $fleet->has_that_quantity($qty);
     $fleet->can_recall;
 
     my $target = $self->find_target({body_id => $fleet->foreign_body_id});
 
     my $new_fleet = $fleet->split($qty);
-    $new_fleet->send(
-        target      => $target,
-        direction   => 'in',
-    );
+    $new_fleet->recall;
     my $body = $new_fleet->body;
-    $body->update;
+    #$body->update;
     # to satisfy 'view' get a Space Port
     $args->{building_id} = $body->spaceport->id;
     return $self->view($args);
@@ -1504,19 +1496,13 @@ sub scuttle_fleet {
     my $fleet       = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
     if (not defined $fleet) {
         confess [1002, "Fleet not found."];
-    }    
-    if ($fleet->task ne 'Docked') {
-        confess [1013, "You can't scuttle ships that are not docked."];
-    }    
-    if ($fleet->body_id != $building->body_id) {
-        confess [1013, "You can't manage a fleet that is not yours."];
     }
     my $qty = $args->{quantity};
-    if ($qty < 0 or int($qty) != $qty) {
-        confess [1013, "Quantity of ships to delete must be a positive integer."];
-    }
-    if ($qty > $fleet->quantity) {
-        confess [1013, "Quantity of ships to delete must be smaller than the fleet size."];
+    $fleet->has_that_quantity($qty);
+    $fleet->can_scuttle;
+
+    if ($fleet->body_id != $building->body_id) {
+        confess [1013, "You can't manage a fleet that is not yours."];
     }
     if ($qty == $fleet->quantity) {
         $fleet->delete;

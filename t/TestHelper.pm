@@ -7,7 +7,7 @@ use Lacuna::DB;
 use Lacuna;
 use LWP::UserAgent;
 use JSON qw(to_json from_json);
-use Data::Dumper;
+use Data::Dumper::Perltidy;
 use 5.010;
 use Test::More;
 use List::Util qw(min max);
@@ -244,9 +244,10 @@ sub post {
         Content         => to_json($content),
         Accept          => 'application/json',
         );
-    say "RESPONSE: ".$response->content;
-    sleep 2;
-    return from_json($response->content);
+    my $response = from_json($response->content);
+    say "RESPONSE: ".Dumper($response);
+#    sleep 2;
+    return $response;
 }
 
 sub cleanup {

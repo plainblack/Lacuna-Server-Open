@@ -53,7 +53,6 @@ $result = $tester->post('spaceport','view_all_fleets', [{
     paging      => {no_paging => 1},
     no_status   => 1,
 }]);
-exit;
 
 $result = $tester->post('spaceport','view_incoming_fleets', [{
     session_id  => $test_session_id,
@@ -85,7 +84,7 @@ $result = $tester->post('spaceport','send_fleet', [{
     target      => { body_id => $test_home->id},
     arrival_date    => {
         month   => 12,
-        day     => 25,
+        date    => 25,
         hour    => 8,
         minute  => 0,
         second  => 0,
@@ -93,7 +92,15 @@ $result = $tester->post('spaceport','send_fleet', [{
     no_status   => 1,
 }]);                
 
-my $fleets = $test_home->fleets->search({
+$result = $tester->post('spaceport','view_fleets_travelling', [{
+    session_id  => $test_session_id,
+    building_id => $test_spaceport->id,
+    no_status   => 1,
+}]);
+exit;
+ 
+
+$fleets = $test_home->fleets->search({
     task => 'Defend',
 });
 while (my $fleet = $fleets->next) {

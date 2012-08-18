@@ -585,12 +585,11 @@
  - Fix: Added description of new ship types in Shipyard
  - Mod: When sending a fleet you can now specify the arrival date/time not the speed
  - Mod: The limit of sending no more than 20 ships in a fleet has been removed.
+ - Mod: Travelling ships not involved in a trade or an attack can be recalled
+ - Mod: Travelling ships not involved in an attack can be scuttled
 
- - TODO: When ships arrive (fighters to Defend) set their available date to null
  - TODO: Stop being able to send fighters to their home colony to 'Defend'.
- - TODO: Allow attacking ships to be scuttled in flight
  - TODO: N19 messages when ships in flight are detonated (suspect faulty engines or human error)
- - TODO: Allow none-attacking ships (not involved in a trade) to be recalled
  - TODO: If you have a probe at a star, you can now see all other 'orbiting' probes at that star
  - TODO: Allow resources/ships/glyphs/plans to be pushed to ally planets (at a cost of 0.1E/ship)
  - TODO: Allow supply chain to be set up to allied planets
@@ -603,6 +602,8 @@
  - TODO: When removing a scow from a waste chain, it removes waste equivalent to the size of the scow.
  - TODO: Battle logs should show fleets, not ships
 
+ - done: When ships arrive (fighters to Defend) set their available date to null
+ 
 3.0865:
  - Mod: Removed option to disable display of incoming ships. (To see if it fixes some resource issues)
  - Mod: Attempt to make Counter Espionage tutorial message clearer since people don't read the entire email.
