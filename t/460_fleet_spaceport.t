@@ -53,7 +53,7 @@ $result = $tester->post('spaceport','view_all_fleets', [{
     paging      => {no_paging => 1},
     no_status   => 1,
 }]);
-
+exit;
 $result = $tester->post('spaceport','view_incoming_fleets', [{
     session_id  => $test_session_id,
     paging      => {no_paging => 1},

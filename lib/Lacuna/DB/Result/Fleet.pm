@@ -313,7 +313,9 @@ sub date_available_formatted {
 }
 
 sub get_status {
-    my ($self, $target) = @_;
+    my ($self, $target, $empire_id) = @_;
+
+    $empire_id = defined $empire_id ? $empire_id : 0;
 
     my %status = (
         id              => $self->id,
