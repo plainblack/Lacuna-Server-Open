@@ -978,7 +978,7 @@ sub view_fleets_travelling {
                                                                     
     my $paging = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
     my $filter = $self->_fleet_filter_options( (defined $args->{filter} && ref $args->{filter} eq 'HASH') ? $args->{filter} : {} );
-    my $sort = $self->_fleet_sort_options( $args->{sort} // 'type' );
+    my $sort = $self->_fleet_sort_options( $args->{sort} // 'date_available' );
 
     my $attrs = {
         order_by => $sort,
