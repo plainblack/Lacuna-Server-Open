@@ -1,3 +1,9 @@
+3.0865:
+ - Mod: Removed option to disable display of incoming ships. (To see if it fixes some resource issues)
+ - Mod: Attempt to make Counter Espionage tutorial message clearer since people don't read the entire email.
+ - Fix: Stockpile wasn't checking levels properly on downgrade and demolish.
+ - Fix: Chains were being recalculated at the wrong time if a swap was being done with it's target.
+
 3.0864:
  - Mod: LCOT cheaper to build, longer to build, and spy proofed.
 
