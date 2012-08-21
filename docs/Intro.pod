@@ -155,6 +155,10 @@ if a parameter is optional, then just don't include it. This convention allows f
 enhancements to methods without breaking backwards compatibility or having long lists
 of fixed place arguments.
 
+If an API states that it can use 'a hash of named parameters' then it supports the new
+calling convention.
+
+Over time it is hoped that all API calls will support the new convention.
 
 =head2 RPC Limit
 
@@ -191,6 +195,10 @@ the user interface and alert the user to things. The status block looks like thi
       }
    }
  }
+
+Methods using the 'hash of named parameters' method can specify a 'no_status : 1' argument
+which will inhibit the return of a status block. This can be slightly more efficient for those
+cases where you don't care to check the status.
 
 =head1 Modules
 

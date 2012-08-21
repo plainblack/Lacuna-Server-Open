@@ -7,41 +7,16 @@ If you are looking for the methods to manage an alliance, they can be found in t
 The following methods are available from C</alliance>.
 
 
-
-
-=head2 view_profile (session_id, alliance_id)
+=head2 view_profile
 
 Provides a list of the data that's publicly known about this alliance.
 
- {
-    "profile" : {
-        "id" : "id-goes-here",
-        "name" : "Lacuna Expanse Allies",
-        "description" : "Blah blah blah blah...",
-        "leader_id" : "id-goes-here",
-        "date_created" : "01 31 2010 13:09:05 +0600",
-        "members" : [
-            {
-                "id" : "id-goes-here",
-                "name" : "Lacuna Expanse Corp"
-            },
-            ...
-        ],
-        "space_stations" : [
-            {
-                "id" : "id-goes-here",
-                "name" : "The Life Star",
-                "x" : -342,
-                "y" : 128
-            },
-            ...
-        ],
-        "influence" : 0
-    },
-    "status" : { ... }
- }
- 
-Throws 1002.
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, alliance_id )
+ ( parameter_hash )
+
+Throws 1002
 
 =head3 session_id
 
@@ -49,37 +24,69 @@ A session id.
 
 =head3 alliance_id
 
-The id of the alliance for which you'd like to retrieve the public profile.
-
-
-
-
-=head2 find ( session_id, name )
-
-Find an alliance by name. Returns a hash reference containing alliance ids and alliance names. So if you searched for "Lacuna" you might get back a result set that looks like this:
+The id of the alliance you want to obtain data on.
 
  {
-    "alliances" : [
-        {
-            "id" : "id-goes-here",
-            "name" : "Lacuna Expanse Allies"
-        },
-        {    
-            "id" : "id-goes-here2",
-            "name" : "Lacuna Pirates"
-        }
-    ],
-    "status" : { ... }
+   "profile" : {
+     "id" : "id-goes-here",
+     "name" : "Lacuna Expanse Allies",
+     "description" : "Blah blah blah blah...",
+     "leader_id" : "id-goes-here",
+     "date_created" : "01 31 2010 13:09:05 +0600",
+     "members" : [
+       {
+         "id" : "id-goes-here",
+         "name" : "Lacuna Expanse Corp"
+       },
+       ...
+     ],
+     "space_stations" : [
+       {
+         "id" : "id-goes-here",
+         "name" : "The Life Star",
+         "x" : -342,
+         "y" : 128
+       },
+       ...
+     ],
+     "influence" : 0
+   },
+   "status" : { ... }
  }
  
+=head2 find ( session_id, name )
+
+Find an alliance by name. Returns a hash reference containing alliance ids and alliance names. 
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, name )
+ ( parameter_hash )
+
 =head3 session_id
 
 A session id.
 
 =head3 name
 
-The name your searching for. It's case insensitive, and partial names work fine. Must be at least 3 characters.
+The name you are searching for. It's case insensitive, and partial names work fine. Must be at least 3 characters.
 
+=head3 RESPONSE
 
+So if you searched for "Lacuna" you might get back a result set that looks like this:
 
+ {
+   "alliances" : [
+     {
+       "id" : "id-goes-here",
+       "name" : "Lacuna Expanse Allies"
+     },
+     {    
+       "id" : "id-goes-here2",
+       "name" : "Lacuna Pirates"
+     }
+   ],
+   "status" : { ... }
+ }
+ 
 =cut
