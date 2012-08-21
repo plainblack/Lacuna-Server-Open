@@ -21,10 +21,18 @@ sub to_app_with_url {
 }
 
 sub upgrade {
-    my ($self, $session_id, $building_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id});
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            building_id => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
 
     # check the upgrade lock
     if ($building->is_upgrade_locked) {
@@ -57,8 +65,21 @@ sub upgrade {
 
     $building->start_upgrade($cost);
     
-    # The cache needs clearing so the build queue length can be set properly
-    $body->clear_building_cache;
+    # add vote
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        my $name = $building->name.' ('.$building->x.','.$building->y.')';
+        my $proposition = Lacuna->db->resultset('Propositions')->new({
+            type            => 'UpgradeModule',
+            name            => 'Upgrade '.$name,
+            description     => 'Upgrade '.$name.' on {Planet '.$body->id.' '.$body->name.'} from level '.$building->level.' to '.($building->level + 1).'.',
+            scratch         => { building_id => $building->id, to_level => $building->level + 1 },
+            proposed_by_id  => $empire->id,
+        });
+        $proposition->station($body);
+        $proposition->proposed_by($empire);
+        $proposition->insert;
+    }
+    
     return {
         status      => $self->format_status($session, $body),
         building    => {
@@ -144,16 +165,25 @@ sub view {
 }
 
 sub build {
-    my ($self, $session_id, $body_id, $unclean_x, $unclean_y) = @_;
-    my $session  = $self->get_session({session_id => $session_id, body_id => $body_id });
-    my $empire   = $session->current_empire;
-    my $body     = $session->current_body;
+    my $self = shift;
+    my $args = shift;
+        
+    if (ref($args) ne "HASH") {
+        $args = {
+            session         => $args,
+            body_id         => shift,
+            x               => shift,
+            y               => shift,
+        };
+    }
 
-    my $x = int( $unclean_x );
-    my $y = int( $unclean_y );
+    my $empire  = $self->get_empire_by_session($args->{session});
+    my $body    = $self->get_body($empire, $args->{body_id});
+    my $x       = $args->{x};
+    my $y       = $args->{y};
 
     if ($x eq '' || $y eq '' || $x < -5 || $y < -5 || $x > 5 || $y > 5) {
-            confess [1009, "You must specify an x,y coordinate to place the building that is between -5 and 5.", [$x, $y]];
+        confess [1009, "You must specify an x,y coordinate to place the building that is between -5 and 5.", [$x, $y]];
     }
 
     # check the plot lock
@@ -165,7 +195,7 @@ sub build {
     }
 
     # create dummy building
-    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+    my $building = Lacuna->db->resultset('Building')->new({
         x               => $x,
         y               => $y,
         level           => 0,
@@ -199,11 +229,22 @@ sub build {
 
     # build it
     $body->build_building($building);
-    $building->finish_building();
-
-    # The cache needs clearing so the plots counts are updated correctly
-    $body->clear_building_cache;
-    $body->clear_building_count;
+    
+    # add vote
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        my $name = $building->name.' ('.$building->x.','.$building->y.')';
+        my $proposition = Lacuna->db->resultset('Propositions')->new({
+            type            => 'InstallModule',
+            name            => 'Install '.$name,
+            description     => 'Install '.$name.' on {Planet '.$body->id.' '.$body->name.'}.',
+            scratch         => { building_id => $building->id, to_level => $building->level + 1 },
+            proposed_by_id  => $empire->id,
+        });
+        $proposition->station($body);
+        $proposition->proposed_by($empire);
+        $proposition->insert;
+    }
+    
     # show the user
     my %out = (
         status      => $self->format_status($session, $body),
@@ -225,10 +266,20 @@ sub build {
 }
 
 sub demolish {
-    my ($self, $session_id, $building_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1});
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            building_id => shift,
+        };
+    }
+                                                                                            
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+
     my $body = $building->body;
     $building->can_demolish;
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
@@ -237,7 +288,7 @@ sub demolish {
         }
         if ($building->class =~ /^Lacuna::DB::Result::Building::Module::/) {
             my $name = $building->name.' ('.$building->x.','.$building->y.')';
-            my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+            my $proposition = Lacuna->db->resultset('Propositions')->new({
                 type            => 'DemolishModule',
                 name            => 'Demolish '.$name,
                 description     => 'Demolish '.$name.' on {Planet '.$body->id.' '.$body->name.'}.',
@@ -258,10 +309,20 @@ sub demolish {
 }
 
 sub downgrade {
-    my ($self, $session_id, $building_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id});
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            building_id => shift,
+        };
+    }
+                                                                                            
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+
     my $body = $building->body;
 
     $building->can_downgrade;
@@ -271,7 +332,7 @@ sub downgrade {
         }
         if ($building->class =~ /^Lacuna::DB::Result::Building::Module::/) {
             my $name = $building->name.' ('.$building->x.','.$building->y.')';
-            my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+            my $proposition = Lacuna->db->resultset('Propositions')->new({
                 type            => 'DowngradeModule',
                 name            => 'Downgrade '.$name,
                 description     => 'Downgrade '.$name.' on {Planet '.$body->id.' '.$body->name.'} from level '.$building->level.' to '.($building->level - 1).'.',
@@ -290,10 +351,22 @@ sub downgrade {
 }
 
 sub get_stats_for_level {
-    my ($self, $session_id, $building_id, $level) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id});
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            building_id => shift,
+            level       => shift,
+        };
+    }
+                                                                                            
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    my $level       = $args->{level};
+    
     if ($level < 0 || $level > 100) {
         confess [1009, 'Level must be an integer between 1 and 100.'];
     }
@@ -328,21 +401,52 @@ sub get_stats_for_level {
 }
 
 sub repair {
-    my ($self, $session_id, $building_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1});
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            building_id => shift,
+        };
+    }
+                                                                                            
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+
     my $costs = $building->get_repair_costs;
     $building->can_repair($costs);
     my $body = $building->body;
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        my $name = $building->name.' ('.$building->x.','.$building->y.')';
+        my $proposition = Lacuna->db->resultset('Propositions')->new({
+            type            => 'RepairModule',
+            name            => 'Repair '.$name,
+            description     => 'Repair '.$name.' on {Planet '.$body->id.' '.$body->name.'}.',
+            scratch         => { building_id => $building->id },
+            proposed_by_id  => $empire->id,
+        });
+        $proposition->station($body);
+        $proposition->proposed_by($empire);
+        $proposition->insert;
+        confess [1017, 'The repair order has been delayed pending a parliamentary vote.'];
+    }
+>>>>>>> Updated docs, added code to view incoming in SpacePort
     $building->repair($costs);
     return $self->view($empire, $building);
 }
 
-
-
-
-__PACKAGE__->register_rpc_method_names(qw(repair downgrade get_repair_costs demolish upgrade view build get_stats_for_level));
+__PACKAGE__->register_rpc_method_names(qw(
+    repair 
+    downgrade 
+    get_repair_costs 
+    demolish 
+    upgrade 
+    view 
+    build 
+    get_stats_for_level
+));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

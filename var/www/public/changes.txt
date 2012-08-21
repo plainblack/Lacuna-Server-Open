@@ -583,12 +583,19 @@
  - Mod: You can now see details (subject to the local Space Port level) of incoming foreign ships on the Star Map planet incoming tab for allied planets or Space Stations
  - Fix: UI - Number of docks available now decrements correctly when building multiple ships in Shipyard
  - Fix: Added description of new ship types in Shipyard
- - Mod: When sending a fleet you can now specify the arrival date/time not the speed
+ - Mod: When sending a fleet you now specify the arrival date/time not the speed
  - Mod: The limit of sending no more than 20 ships in a fleet has been removed.
  - Mod: Travelling ships not involved in a trade or an attack can be recalled
  - Mod: Travelling ships not involved in an attack can be scuttled
+ - Mod: Removed option to skip incoming ships messages
 
- - TODO: Display the owner,body of orbiting/defending ships
+ - TEST: view_incoming_fleet: for visibility of foreign fleets.
+ - TODO: _view_fleets and _view_ships seem to do different things
+ - TODO: view_ships_orbiting seems to be redundant
+
+ - TODO: Ability to 'delay' a fleet that is already in flight.
+ - TODO: Display the owner,body of orbiting/defending fleets
+
  - TODO: Stop being able to send fighters to their home colony to 'Defend'.
  - TODO: N19 messages when ships in flight are detonated (suspect faulty engines or human error)
  - TODO: If you have a probe at a star, you can now see all other 'orbiting' probes at that star

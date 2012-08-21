@@ -491,7 +491,6 @@ sub view_profile {
         skip_spy_recovery       => $empire->skip_spy_recovery,
         skip_probe_detected     => $empire->skip_probe_detected,
         skip_attack_messages    => $empire->skip_attack_messages,
-        skip_incoming_ships     => $empire->skip_incoming_ships,
     );
 
     return { profile => \%out, status => $self->format_status($session) };    
@@ -654,12 +653,6 @@ sub edit_profile {
             confess [1009, 'Skip Attack Messages must be a 1 or a 0.', 'skip_attack_messages']
         }
         $empire->skip_attack_messages($profile->{skip_attack_messages});
-    }
-    if (exists $profile->{skip_incoming_ships}) {
-        if ($profile->{skip_incoming_ships} != 0 && $profile->{skip_incoming_ships} != 1) {
-            confess [1009, 'Skip Incoming Ships must be a 1 or a 0.', 'skip_incoming_ships']
-        }
-        $empire->skip_incoming_ships($profile->{skip_incoming_ships});
     }
 
     if (exists $profile->{skype}) {

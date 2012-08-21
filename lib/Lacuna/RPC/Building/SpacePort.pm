@@ -84,6 +84,9 @@ sub view_available_fleets {
     return $self->_view_fleets($args, 'available');
 }
 
+# Routine to go through all docked ships and determine if they are
+# 'available' or 'unavailable' to be sent to a target.
+#
 sub _view_fleets {
     my ($self, $args, $option) = @_;
 
@@ -135,380 +138,6 @@ sub _view_fleets {
     return \%out;
 }
 
-
-
-
-# Get a list of fleets that can be sent to a target
-sub get_fleets_for {
-    my ($self, $session_id, $body_id, $target_params) = @_;
-
-    my $empire  = $self->get_empire_by_session($session_id);
-    my $body    = $self->get_body($empire, $body_id);
-    my $target  = $self->find_target($target_params);
-    my $fleets  = Lacuna->db->resultset('Lacuna::DB::Result::Fleet');
-    
-    my @incoming;
-    my $incoming_rs = $fleets->search({
-        task                => 'Travelling', 
-        direction           => 'out',
-        'body.empire_id'    => $empire->id,
-        },{ 
-        join => 'body',
-    });
-    if ($target->isa('Lacuna::DB::Result::Map::Star')) {
-        $incoming_rs = $incoming_rs->search({foreign_star_id => $target->id});
-    }
-    else {
-        $incoming_rs = $incoming_rs->search({foreign_body_id => $target->id});
-    }
-    while (my $ship = $incoming_rs->next) {
-        $ship->body($body) if ($ship->body_id == $body->id);
-        push @incoming, $ship->get_status;
-    }
-    
-    my $max_berth = $body->max_berth;
-
-    my @unavailable;
-    my @available;
-    my $available_rs = $fleets->search( {task => 'Docked',
-                                        body_id=>$body->id });
-    while (my $ship = $available_rs->next) {
-      $ship->body($body);
-      eval{ 
-          $ship->can_send_to_target($target);
-          confess [1009, "Sitters cannot send this type of ship."] if $empire->current_session->is_sitter and not $ship->sitter_can_send;
-      };
-      my $reason = $@;
-      if ($reason) {
-        push @unavailable, { ship => $ship->get_status, reason => $reason };
-        next;
-      }
-      if ($ship->berth_level > $max_berth) {
-        $reason = [ 1009, 'Max Berth Level to send from this planet is '.$max_berth ];
-        push @unavailable, { ship => $ship->get_status, reason => $reason };
-        next;
-      }
-      $ship->body($body);
-      push @available, $ship->get_status($target);
-    }
-    
-    my $max_ships = Lacuna->config->get('ships_per_fleet') || 600;
-
-    my %out = (
-        status              => $self->format_status($session, $body),
-        incoming            => \@incoming,
-        available           => \@available,
-        unavailable         => \@unavailable,
-        fleet_send_limit    => $max_ships,
-    );
-    
-    unless ($target->isa('Lacuna::DB::Result::Map::Star')) {
-        my @orbiting;
-        my $orbiting_rs = $fleets->search({task => [qw(Defend Orbiting)], body_id => $body->id, foreign_body_id => $target->id });
-        while (my $ship = $orbiting_rs->next) {
-            $ship->body($body);
-            eval{ $ship->can_recall() };
-                my $reason = $@;
-                if ($reason) {
-                    push @unavailable, { ship => $ship->get_status, reason => $reason };
-                    next;
-                }
-            $ship->body($body);
-            push @orbiting, $ship->get_status($target);
-        }
-        $out{orbiting} = \@orbiting;
-    }
-
-    if ($target->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
-        my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({asteroid_id => $target->id});
-        while (my $platform = $platforms->next) {
-            my $empire = $platform->planet->empire;
-            if (defined $empire) {
-                push @{$out{mining_platforms}}, {
-                    empire_id   => $empire->id,
-                    empire_name => $empire->name,
-                };
-            }
-            else {
-                $platform->delete;
-            }
-        }
-    }
-    if ( $target->isa('Lacuna::DB::Result::Map::Body::Asteroid') ||
-         $target->isa('Lacuna::DB::Result::Map::Body::Planet') ) {
-        my $excavators = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->search({body_id => $target->id});
-        while (my $excav = $excavators->next) {
-            my $empire = $excav->planet->empire;
-            if (defined $empire) {
-                push @{$out{excavators}}, {
-                  empire_id   => $empire->id,
-                  empire_name => $empire->name,
-                };
-            }
-            else {
-                $excav->delete;
-            }
-        }
-    }
-    
-    return \%out;
-}
-
-sub send_ship {
-    my ($self, $session_id, $ship_id, $target_params) = @_;
-    my $session  = $self->get_session({session_id => $session_id});
-    my $empire   = $session->current_empire;
-    my $target = $self->find_target($target_params);
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    unless (defined $ship) {
-        confess [1002, 'Could not locate that ship.'];
-    }
-    unless ($ship->body->empire_id == $empire->id) {
-        confess [1010, 'You do not own that ship.'];
-    }
-    my $body = $ship->body;
-    $body->empire($empire);
-    $ship->can_send_to_target($target);
-    if ($ship->hostile_action) {
-        $empire->current_session->check_captcha;
-    }
-    confess [1009, "Sitters cannot send this type of ship."] if $empire->current_session->is_sitter and not $ship->sitter_can_send;
-    $ship->send(target => $target);
-    $body->add_to_neutral_entry($ship->combat);
-    return {
-        ship    => $ship->get_status,
-        status  => $self->format_status($session),
-    }
-}
-
-sub find_arrival {
-    my ($self, $arrival_params) = @_;
-
-    my $now     = DateTime->now;
-    my $year = $arrival_params->{year} ? $arrival_params->{year} : $now->year;
-    my $month = $arrival_params->{month} ? $arrival_params->{month} : $now->month;
-
-    if ($month < 1 or 12 < $month) {
-        confess [1002, 'Invalid month'];
-    }
-
-    my $mon_end = DateTime->last_day_of_month(year => $year, month => $month);
-    my $day     = $arrival_params->{day};
-    my $hour    = $arrival_params->{hour};
-    my $minute  = $arrival_params->{minute};
-    my $second  = $arrival_params->{second};
-
-    if (not defined $day or $day < 1 or $day > $mon_end->day) {
-        confess [1009, "Invalid day. [$day][".Dumper($arrival_params)."]"];
-    }
-    if (not defined $hour or $hour != int($hour) or $hour < 0 or $hour > 23) {
-        confess [1002, 'Invalid hour.'];
-    }
-    if (not defined $minute or $minute != int($minute) or $minute < 0 or $minute > 59) {
-        confess [1002, 'Invalid minute.'];
-    }
-    if (not defined $second or $second != 0 and $second != 15 and $second != 30 and $second != 45) {
-        confess [1002, 'Invalid second. Must be 0, 15, 30 or 45'];
-    }
-    if ($day < $now->day and $month == $now->month) {
-        # Then it must be a day next month
-        $mon_end->add( days => $day);
-        $year    = $mon_end->year;
-        $month   = $mon_end->month;
-    }
-    my $arrival = DateTime->new(
-        year    => $year,
-        month   => $month,
-        day     => $day,
-        hour    => $hour,
-        minute  => $minute,
-        second  => $second,
-    );
-    return $arrival;
-}
-
-sub send_ship_types {
-    my ($self, $session_id, $body_id, $target_params, $type_params, $arrival_params) = @_;
-
-    my $session  = $self->get_session({session_id => $session_id, body_id => $body_id});
-    my $empire   = $session->current_empire;
-    my $body     = $session->current_body;
-    my $target  = $self->find_target($target_params);
-    my $arrival;
-    if ($arrival_params->{earliest}) {
-    }
-    else {
-        $arrival_params->{seconds} = 0 unless (defined $arrival_params->{seconds});
-        $arrival = $self->find_arrival($arrival_params);
-    }
-
-    # calculate the total ships before the expense of any database operations.
-    my $total_ships = 0;
-    map {$total_ships += $_->{quantity}} @$type_params;
-    my $max_ships = Lacuna->config->get('ships_per_fleet') || 600;
-    if ($total_ships > $max_ships) {
-        confess [1009, sprintf("Too many ships for a fleet, number must be less than or equal to %d.", $max_ships)];
-    }
-
-    my $ship_ref;
-    my $do_captcha_check = 0;
-    my $ag_chk = 0;
-    my @ag_list = ("sweeper","snark","snark2","snark3",
-                   "observatory_seeker","spaceport_seeker","security_ministry_seeker",
-                   "scanner","surveyor","detonator","bleeder","thud",
-                   "scow","scow_large","scow_fast","scow_mega");
-    foreach my $type_param (@$type_params) {
-        foreach my $arg (qw(speed stealth combat quantity)) {
-            confess [1002, "$arg cannot be negative."] if $type_param->{$arg} < 0;
-            confess [1002, "$arg must be an integer."] if $type_param->{$arg} != int($type_param->{$arg});
-        }
-        my $type        = $type_param->{type};
-        my $quantity    = $type_param->{quantity};
-        confess [1009, "You must send at least one ship"] if ($quantity < 1);
-        confess [1009, "Cannot send more than one excavator"] if ($type eq 'excavator' and $quantity > 1);
-        confess [1009, "Cannot send more than one supply pod"] if ($type =~ /supply_pod/ and $quantity > 1);
-
-        my $max_berth = $body->max_berth;
-        unless ($max_berth) {
-            $max_berth = 1;
-        }
-        my $ships_rs    = Lacuna->db->resultset('Ships')->search({
-            body_id => $body->id,
-            task    => 'Docked',
-            type    => $type,
-            berth_level => {'<=' => $max_berth },
-        });
-        # handle optional parameters
-        $ships_rs = $ships_rs->search({ speed =>   $type_param->{speed}}) if defined $type_param->{speed};
-        $ships_rs = $ships_rs->search({ stealth => $type_param->{stealth}}) if defined $type_param->{stealth};
-        $ships_rs = $ships_rs->search({ combat =>  $type_param->{combat}}) if defined $type_param->{combat};
-        $ships_rs = $ships_rs->search({ name =>    $type_param->{name}}) if defined $type_param->{name};
-        if ($ships_rs->count < $quantity) {
-            confess [1009, "Cannot find $quantity of $type ships."];
-        }
-        if (grep { $type eq $_ } @ag_list) {
-            $ag_chk += $quantity;
-        }
-        my @ships = $ships_rs->search( undef,
-                                      {order_by => 'speed', rows => $quantity }
-                                      );
-        my $ship = $ships[0]; #Need to grab slowest ship
-        confess [1009, "Sitters cannot send this type of ship."] if $session->is_sitter and not $ship->sitter_can_send;
-        # We only need to check one of the ships
-        $ship->can_send_to_target($target);
-
-#Check speed of ship.  If it can not make it to the target in time, fail
-#If time to target is longer than 60 days, fail.
-        my $seconds_to_target = $ship->calculate_travel_time($target);
-        my $earliest = DateTime->now->add(seconds=>$seconds_to_target);
-        if ($arrival_params->{earliest}) {
-            $arrival = $earliest;
-        }
-        elsif ($earliest > $arrival) {
-            confess [1009, "Cannot set a speed earlier than possible arrival time."];
-        }
-        my $two_months  = DateTime->now->add(days=>60);
-        if ($arrival > $two_months) {
-            confess [1009, "Cannot send a ship that will take longer than 60 days to arrive."];
-        }
-
-        if (not $do_captcha_check and $ship->hostile_action) {
-            $do_captcha_check = 1;
-        }
-        foreach my $ship (@ships) {
-            $ship_ref->{$ship->id} = $ship;
-        }
-    }
-    if ($do_captcha_check) {
-        $empire->current_session->check_captcha;
-    }
-    # If we get here without exceptions, then all ships can be sent
-
-# Create attack_group
-    my $cnt = 0;
-    my %ag_hash = map { $_ => $cnt++ } @ag_list;
-    my $attack_group = {
-        speed       => 50_000,
-        stealth     => 50_000,
-        hold_size   => 0,
-        combat      => 0,
-        number_of_docks => 0,
-    };
-    my $payload;
-    $ag_chk = 0 if ($target->isa('Lacuna::DB::Result::Map::Star'));
-    
-    foreach my $ship (values %$ship_ref) {
-        if ($ag_chk > 1 and grep { $ship->type eq $_ } @ag_list) {
-            my $sort_val = $ag_hash{$ship->type};
-            if ($ship->speed < $attack_group->{speed}) {
-                $attack_group->{speed} = $ship->speed;
-            }
-            if ($ship->speed < $attack_group->{stealth}) {
-                $attack_group->{stealth} = $ship->stealth;
-            }
-            $attack_group->{combat} += $ship->combat;
-            $attack_group->{hold_size} += $ship->hold_size; #This really is only good for scows
-            $attack_group->{number_of_docks}++;
-            my $key = sprintf("%02d:%s:%05d:%05d:%05d:%09d",
-                              $sort_val,
-                              $ship->type, 
-                              $ship->combat, 
-                              $ship->speed, 
-                              $ship->stealth, 
-                              $ship->hold_size);
-            if ($payload->{fleet}->{$key}) {
-                $payload->{fleet}->{$key}->{quantity}++;
-            }
-            else {
-                $payload->{fleet}->{$key} = {
-                    type      => $ship->type, 
-                    name      => $ship->name,
-                    speed     => $ship->speed, 
-                    combat    => $ship->combat, 
-                    stealth   => $ship->stealth, 
-                    hold_size => $ship->hold_size,
-                    target_building => $ship->target_building,
-                    damage_taken => 0,
-                    quantity  => 1,
-                };
-            }
-            $ship->delete;
-        }
-        else {
-            my $distance = $body->calculate_distance_to_target($target);
-            my $transit_time = $arrival->subtract_datetime_absolute(DateTime->now)->seconds;
-            my $fleet_speed = int( $distance / ($transit_time/3600) + 0.5);
-
-            $ship->fleet_speed($fleet_speed);
-            $ship->send(target => $target, arrival => $arrival);
-            $body->add_to_neutral_entry($ship->combat);
-        }
-    }
-    if ($attack_group->{number_of_docks} > 0) {
-        my $distance = $body->calculate_distance_to_target($target);
-        my $transit_time = $arrival->subtract_datetime_absolute(DateTime->now)->seconds;
-        my $fleet_speed = int( $distance / ($transit_time/3600) + 0.5);
-        my $ag = $body->ships->new({
-            type            => "attack_group",
-            name            => "Attack Group SP",
-            shipyard_id     => "23",
-            speed           => $attack_group->{speed},
-            combat          => $attack_group->{combat},
-            stealth         => $attack_group->{stealth},
-            hold_size       => $attack_group->{hold_size},
-            date_available  => DateTime->now,
-            date_started    => DateTime->now,
-            fleet_speed     => $fleet_speed,
-            berth_level     => 1,
-            body_id         => $body->id,
-            task            => 'Docked',
-            number_of_docks => $attack_group->{number_of_docks},
-          })->insert;
-        $ag->send(target => $target, arrival => $arrival, payload => $payload);
-        $body->add_to_neutral_entry($attack_group->{combat});
-    }
-    return $self->get_fleet_for($session_id, $body_id, $target_params);
-}
 
 sub send_fleet {
     my $self = shift;
@@ -631,41 +260,6 @@ sub recall_fleet {
     # to satisfy 'view' get a Space Port
     $args->{building_id} = $body->spaceport->id;
     return $self->view($args);
-}
-
-sub recall_all {
-  my ($self, $session_id, $building_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    my $body = $building->body;
-    my @ships = $body->ships_orbiting->search(undef)->all;
-    my @ret;
-    for my $ship (@ships) {
-        unless (defined $ship) {
-            confess [1002, 'Could not locate that ship.'];
-        }
-        unless ($ship->body->empire_id == $empire->id) {
-            confess [1010, 'You do not own that ship.'];
-        }
-        $body->empire($empire);
-        $ship->can_recall();
-        $ship->fleet_speed(0);
-
-        my $target = $self->find_target({body_id => $ship->foreign_body_id});
-        $ship->send(
-            target    => $target,
-            direction  => 'in',
-        );
-        $ship->body->update;
-    push @ret, {
-      ship    => $ship->get_status,
-    }
-    }
-    return {
-    ships  => \@ret,
-        status  => $self->format_status($session),
-    }
 }
 
 sub prepare_send_spies {
@@ -962,7 +556,7 @@ sub fetch_spies {
 }
 
 
-sub view_fleets_travelling {
+sub view_travelling_fleets {
     my $self = shift;
     my $args = shift;
 
@@ -1187,7 +781,7 @@ sub view_incoming_fleets {
     my $target = $self->find_target($args->{target});
     my $fleet_rs = Lacuna->db->resultset('Fleet');
     my @ally_ids = map {$_->id} $empire->allies;
-    
+    print STDERR "@@@@@@@@@ ".Dumper(\@ally_ids)."@@@@@@@\n";    
     $fleet_rs = $fleet_rs->search({
         task            => 'Travelling',
         direction       => 'out',
@@ -1201,9 +795,17 @@ sub view_incoming_fleets {
         $fleet_rs = $fleet_rs->search({ foreign_body_id => $target->id });
     }
 
-    if ($target->isa('Lacuna::DB::Result::Map::Planet') and first {$_->id == $target->empire_id} @ally_ids) {
+    my $status_args;
+    $status_args->{ally_ids} = \@ally_ids;
+    $status_args->{own_empire_id} = $empire->id;
+    if ($target->isa('Lacuna::DB::Result::Map::Planet') and $target->empire_id ~~ \@ally_ids) {
         # It is our own planet/SS or an allied one
-        # so see all incoming
+        # so see all incoming subject to level of spaceport
+        my $spaceport = $target->spaceport;
+        if (defined $spaceport) {
+            $status_args->{fleet_details_level} = ($spaceport->level * 350) * ( $spaceport->efficiency / 100 );
+            $status_args->{fleet_from_level} = ($spaceport->level * 450) * ( $spaceport->efficiency / 100 );
+        }
     }
     else {
         # otherwise only see own or allied incoming
@@ -1211,7 +813,7 @@ sub view_incoming_fleets {
     }
     my @incoming;
     while (my $fleet = $fleet_rs->next) {
-        push @incoming, $fleet->get_status;
+        push @incoming, $fleet->get_status($target, $status_args);
     }
     my %out = (
         status      => $self->format_status($empire),
@@ -1599,8 +1201,25 @@ around 'view' => sub {
     return $out;
 };
 
- 
-__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_incoming_for view_incoming_fleets view_unavailable_fleets view_available_fleets get_fleets_for send_ship send_fleet recall_fleet recall_all recall_spies scuttle_fleet rename_fleet prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_orbiting_fleets view_ships_orbiting view_fleets_travelling view_all_fleets view_battle_logs));
+__PACKAGE__->register_rpc_method_names(qw(
+    view
+    view_all_fleets
+    view_incoming_fleets
+    view_available_fleets
+    view_unavailable_fleets
+    view_orbiting_fleets
+    view_mining_platforms
+    send_fleet
+    recall_fleet
+    rename_fleet
+    scuttle_fleet
+    view_travelling_fleets
+    prepare_send_spies
+    send_spies
+    prepare_fetch_spies
+    fetch_spies
+    view_battle_logs
+));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

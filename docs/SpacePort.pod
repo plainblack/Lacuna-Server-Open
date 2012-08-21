@@ -157,11 +157,9 @@ This buildings ID
 
 =head2 view_all_fleets
 
-Shows you all your fleets whatever they are doing.
-
 Accepts either fixed arguments or a hash of named parameters
 
- ( session_id, building_id, paging, filter, sort )
+ ( session_id, building_id )
  ( parameter_hash )
 
 =head3 session_id (required)
@@ -172,96 +170,100 @@ A session ID
 
 This buildings ID
 
-=head3 paging, filter, sort (optional)
-
-See above for these options.
-
 =head3 RESPONSE
 
  {
-   "fleets" : [
+   'number_of_fleets' => '25',
+   'status'           => { ... },
+   'fleets'           => [
      {
-       "id" : "id-goes-here",
-       "quantity" : 35,
-       "task" : "Travelling",
-       "details" : {
-         "name" : "CS3",
-         "type_human" : "Cargo Ship",
-         "type" : "cargo_ship",
-         "speed" : "400",
-         "fleet_speed" : "0",
-         "stealth" : "0",
-         "combat" : "0",
-         "hold_size" : "1200",
-         "date_started" : "01 31 2010 13:09:05 +0600",
-         "date_available" : "02 01 2010 10:08:33 +0600",
-         "can_recall" : "0",
-         "payload" : "{}",
-         "can_scuttle" : "1",
-         "max_occupants" : 120,
-         "berth_level" : 1
-       },
-       "date_arrives" : "02 01 2010 10:08:33 +0600",
-       "from" : {
-         "id" : "id-goes-here",
-         "type" : "body",
-         "name" : "Earth"
-         "owner" : "Own",
-         "empire" : {
-           "id" : "id-goes-here",
-           "name" : "Earthlings"
-         }
-       },
-       "to" : {
-         "id" : "id-goes-here",
-         "type" : "body",
-         "name" : "Mars"
+       'quantity' => '10',
+       'id'       => '1414',
+       'task'     => 'Docked',
+       'details'  => {
+         'can_recall'     => 0,
+         'name'           => 'Detonator',
+         'date_available' => '01 01 2000 00:00:00 +0000',
+         'stealth'        => '0',
+         'combat'         => '5624',
+         'max_occupants'  => 0,
+         'mark'           => 'f1795e49c0',
+         'can_scuttle'    => 1,
+         'speed'          => '2920',
+         'hold_size'      => '0',
+         'berth_level'    => '1',
+         'payload'        => [],
+         'type'           => 'detonator',
+         'type_human'     => 'Detonator',
+         'date_started'   => '01 01 2000 00:00:00 +0000'
        }
      },
      {
-       "id" : "id-goes-here",
-       "quantity" : 100,
-       "task" : "Defend",
-       "details" : {
-         "name" : "F13",
-         "type_human" : "Fighter",
-         "type" : "fighter",
-         "speed" : "2000",
-         "fleet_speed" : "0",
-         "stealth" : "0",
-         "hold_size" : "0",
-         "date_started" : "01 31 2010 13:09:05 +0600",
-         "date_available" : "02 01 2010 10:08:33 +0600",
-         "can_recall" : "0",
-         "can_scuttle" : "1",
-       },   
-       "from" : {
-         "id" : "id-goes-here",
-         "type" : "body",
-         "name" : "Earth"
-         "owner" : "Own",
-         "empire" : {
-           "id" : "id-goes-here",
-           "name" : "Earthlings"
+       'to' => {
+         'name'   => 'Mars',
+         'id'     => '224',
+         'type'   => 'body',
+         'owner'  => 'Foreign',
+         'empire' => {
+           'id'     => '332',
+           'name'   => 'Martian'
          }
        },
-       "orbiting" : {
-         "id" : "id-goes-here",
-         "type" : "body",
-         "name" : "Mars",
-         "x" : 4,
-         "y" : -3
+       'from' => {
+         'name'   => 'Earth',
+         'id'     => '221',
+         'type'   => 'body',
+         'owner'  => 'Own',
+         'empire' => {
+           'id'     => '323',
+           'name'   => 'Man'
+         }
+       },
+       'quantity'     => '1',
+       'id'           => '1548',
+       'task'         => 'Travelling',
+       'date_arrives' => '25 12 2012 08:00:00 +0000',
+       'details'      => {
+         'can_recall'     => 1,
+         'name'           => 'Fighter',
+         'date_available' => '25 12 2012 08:00:00 +0000',
+         'stealth'        => '0',
+         'combat'         => '15760',
+         'max_occupants'  => 0,
+         'mark'           => '7d8870d975',
+         'can_scuttle'    => 1,
+         'speed'          => '7640',
+         'hold_size'      => '0',
+         'berth_level'    => '1',
+         'payload'        => [],
+         'type'           => 'fighter',
+         'type_human'     => 'Fighter',
+         'date_started'   => '17 08 2012 15:58:48 +0000'
        }
-     },
-        ...
-   ],
-   "number_of_fleets" : 13,
-   "status" : { ... }
+     }
+   ]
  }
 
-Travelling fleets will have a B<from> and B<to> block and a B<date_arrives> value. 
+The B<number_of_fleets> is the total number of fleets. (Not all fleets will be
+seen in the B<incoming> section if paging is in effect).
 
-Defending fighters will have a B<from> and B<orbiting> block.
+B<owner> in the B<from> section specifies either 'Own', 'Allied" or "Foreign" depending upon
+who the fleet is from.
+
+The B<from> and B<to> sections will only be displayed for ships that are travelling, orbiting or defending.
+
+You will only see fleets from 'foreign' empires if the target is either your own or an allies planet, and then
+the fleet information will be filtered depending upon the highest level of Spaceport on the target.
+
+To see the C<from> block :-
+
+ SpacePort Level * 450 >= Fleet Stealth
+
+To see the C<details> block  :-
+
+ SpacePort level * 350 >= Fleet Stealth
+
+Note that you will always see full info for your own, or allied incoming fleets.
 
 
 =head2 view_incoming_fleets
@@ -325,7 +327,7 @@ See above for these options.
        "to" : {
          "id" : "id-goes-here",
          "type" : "star",
-         "name" : "Sol"
+         "name" : "Sol",
        }
      },
      ...
@@ -339,7 +341,7 @@ seen in the B<incoming> section if paging is in effect).
 B<owner> in the B<from> section specifies either 'Own', 'Allied" or "Foreign" depending upon
 who the fleet is from.
 
-You will only see 'foreign' ships if the target is one of your own, or an allies planet, and then
+You will only see 'foreign' ships if the target is either your own or an allies planet, and then
 the fleet information will be filtered depending upon the highest level of Spaceport on the target.
 
 To see the C<from> block :-
@@ -534,10 +536,11 @@ See above for these options.
          "can_scuttle" : "0",
          "can_recall" : "0",
        },
-       "orbiting" : {
+       "to" : {
          "id" : "body-id-goes-here",
          "type" : "body",
          "name" : "mars",
+         "owner" : "Foreign",
          "empire" : {
            "id" : "empire-id-here",
            "name" : "Martians"
@@ -559,10 +562,10 @@ See above for these options.
    "status" : { ... }
  }
 
-B<owner> in the B<from> section specifies either 'Own', 'Allied" or "Foreign" depending upon
-who the fleet is from.
+B<owner> in the B<from> and B<to> section specifies either 'Own', 'Allied" or "Foreign" depending upon
+who the fleet is coming from or going to.
 
-You will only see 'foreign' ships if the target is one of your own, or an allies planet, and then
+You will only see fleets from 'Foreign' empires if the target is either your own or an allies planet, and then
 the fleet information will be filtered depending upon the highest level of Spaceport on the target.
 
 To see the C<from> block :-
@@ -668,69 +671,61 @@ arrival time for the delay between that call and this one.
 
 The B<second> can only be one of '00', '15', '30', or '45'.
 
+Throws 1002, 1009, 1010, 1016.
+
 =head3 RESPONSE
   
 
-  {
-    "status" : { ... },
-      "fleet" : [
-        "ship" : {
-          "id" : "id-goes-here",
-          "name" : "P13",
-          "type_human" : "Probe",
-          "type" : "probe",
-          "task" : "Travelling",
-          "speed" : "1200",
-          "fleet_speed" : "250",
-          "stealth" : "0",
-          "hold_size" : "0",
-          "berth_level" : "1",
-          "date_started" : "01 31 2010 13:09:05 +0600",
-          "date_available" : "02 01 2010 10:08:33 +0600",
-          "date_arrives" : "02 01 2010 10:08:33 +0600",
-          "can_recall" : "0",
-          "can_scuttle" : "0",
-          "from" : {
-            "id" : "id-goes-here",
-            "type" : "body",
-            "name" : "Earth"
-          },
-          "to" : {
-            "id" : "id-goes-here",
-            "type" : "star",
-            "name" : "Sol"
-          }
-        },
-        ...
-      ]
-}
+ {
+   "status" : { ... },
+   "fleet" : {
 
-Throws 1002, 1009, 1010, 1016.
+     "id" : "id-goes-here",
+     "quantity" : 1,
+     "task" : "Travelling",
+     "details" {
+       "name" : "P13",
+       "mark" : "A3123AB8ED",
+       "type_human" : "Probe",
+       "type" : "probe",
+       "speed" : "1200",
+       "stealth" : "0",
+       "combat" : "0",
+       "hold_size" : "0",
+       "berth_level" : "1",
+       "date_started" : "01 31 2010 13:09:05 +0600",
+       "date_available" : "02 01 2010 10:08:33 +0600",
+       "max_occupants" : "0",
+       "payload" : "{}",
+       "can_scuttle" : "0",
+       "can_recall" : "0",
+     },
+     "date_arrives" : "02 01 2010 10:08:33 +0600",
+     "from" : {
+       "id" : "id-goes-here",
+       "type" : "body",
+       "name" : "Earth",
+       "owner" : "Allied",
+       "empire" : {
+         "id" : "id-goes-here",
+         "name" : "Earthlings"
+       }
+     },
+     "to" : {
+       "id" : "id-goes-here",
+       "type" : "star",
+       "name" : "Sol",
+     }
+   }
+ }
 
-=head3 session_id
-
-A session id.
-
-=head3 ship_ids
-
-An array reference of ship ids to send.
-
-=head3 target
-
-A hash reference that can contain one of five items to identify a star or body. Same as C<send_ship>.
-
-=head3 set_speed
-
-Optional. An integer specifying the speed at which all ships in the fleet should travel. When set to 0, the speed of the slowest ship will be used.
-
-An exception will be thrown if this is less than zero or exceeds the speed of the slowest ship in the fleet.
-
+The response returns the details about the single fleet that was sent, including confirmation of
+it's arrival time.
 
 
 =head2 recall_fleet
 
-Recall all, or part of a fleet that have the task of 'Defend'
-or 'Orbiting' back to their body of origin.
+Recall all, or part of a fleet, back to it's body of origin.
 
 Recalling an orbiting Spy Shuttle also fetches as many idle spies as will fit from the planet it was orbiting.
 
@@ -757,54 +752,10 @@ The number of ships in the fleet to recall
 
 Returns the same as B<view>
 
-=head2 recall_all ( session_id, building_id )
+=head2 recall_all
 
-Recalls all of this planet's ships that are orbiting (task of 'Defend' or 'Orbiting') to their spaceport of origin. This behaves like C<recall_ship> in all other aspects.
-
-Throws 1002, 1010.
-
- {
-    "status" : { ... },
-    "ships" : [
-        {
-            "id" : "id-goes-here",
-            "name" : "F13",
-            "type_human" : "Fighter",
-            "type" : "fighter",
-            "task" : "Travelling",
-            "speed" : "2000",
-            "stealth" : "0",
-            "hold_size" : "0",
-            "berth_level" : "1",
-            "date_started" : "01 31 2010 13:09:05 +0600",
-            "date_available" : "02 01 2010 10:08:33 +0600",
-            "date_arrives" : "02 01 2010 10:08:33 +0600",
-            "can_recall" : "0",
-            "can_scuttle" : "0",
-            "from" : {
-               "id" : "id-goes-here",
-               "type" : "body",
-               "name" : "Earth"
-            },
-            "to" : {
-               "id" : "id-goes-here",
-               "type" : "star",
-               "name" : "Sol"
-            }
-        },
-        ...
-    ],
- }
-
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id for the space port.
-
+This API call is no longer supported since it will indiscriminately recall all ships, Orbiting, Defending or
+Travelling.
 
 
 =head2 rename_fleet
@@ -840,7 +791,7 @@ Note. this argument is only available for the named parameter calling method
 
 If you specify a quantity less than the number of ships currently in the fleet then that
 number of ships will be split off to form a new fleet with the new name. The original fleet
-will retain it's original name but a reduced number of ships.
+will retain it's original name but with a reduced number of ships.
 
 Note also that if either fleet matches an existing fleet in all respects (attributes, task,
 start/available time) then such fleets will be merged into a single fleet with the combined
@@ -853,11 +804,6 @@ split them in this way but allow the system to split and merge fleets based on t
 =head3 RESPONSE
 
 Returns the same response as B<view>
-
-
-
-
-
 
 
 =head2 scuttle_fleet
@@ -914,7 +860,7 @@ Reference to an array of ship ids
 
 
  
-=head2 view_fleets_travelling
+=head2 view_travelling_fleets
 
 Returns a list of all ships based at this colony that are currently travelling.
 
@@ -967,90 +913,6 @@ The total B<number_of_fleets_travelling> and the total B<number_of_ships_travell
 in those fleets are returned.
 
 The array reference B<travelling> shows each fleet and the B<quantity> of ships in each fleet.
-
-
-
-=head2 view_fleets_orbiting
-
-Accepts either fixed arguments or a hash of named parameters
-
- ( session_id, building_id )
- ( parameter_hash )
-  
-=head3 session_id (required)
-  
-A session ID
-  
-=head3 building_id (required)
-  
-This buildings ID
-  
-=head3 paging, filter, sort (optional)
-  
-See above for these options.
-  
-=head3 RESPONSE
-
-Shows you all the foreign ships that are orbiting this planet. 
-However, the list is filtered by the stealth of the ship vs the level of the SpacePort. 
-The formula is:
-
- 350 * SpacePort Level >= Ship Stealth
-
-If your SpacePort exceeds the Ship's Stealth, then you'll see it orbiting. Otherwise you won't.
-
- {
-    "ships" : [
-       {
-           "id" : "id-goes-here",
-           "name" : "SS3",
-           "type" : "spy_shuttle",
-           "type_human" : "Spy Shuttle",
-           "date_arrived" : "02 01 2010 10:08:33 +0600",
-           "from" : {
-               "id" : "id-goes-here",
-               "name" : "Mars",
-               "empire" : {
-                   "id" : "id-goes-here",
-                   "name" : "Martians"
-               }
-           }
-       },
-       {
-           "id" : "id-goes-here",
-           "name" : "F3",
-           "type" : "fighter",
-           "type_human" : "Fighter",
-           "from" : {
-               "id" : "id-goes-here",
-               "name" : "Earth",
-               "empire" : {
-                   "id" : "id-goes-here",
-                   "name" : "Earthlings"
-               }
-           }
-       },
-        ...
-    ],
-    "number_of_ships" : 13,
-    "status" : { ... }
- }
-
-The C<from> block is only included if
-
- 450 * SpacePort Level >= Ship Stealth
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the space port.
-
-=head3 page_number
-
-Defaults to page 1. Shows 25 at a time.
 
 
 

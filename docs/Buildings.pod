@@ -6,24 +6,19 @@ Your app can download a copy of the building descriptions from C<http://serverna
 
 All buildings have some methods in common. This is a description of the methods available from each building.
 
-B<NOTE:> To use these methods, you must use the URL of the individual building types. You can find the list of building types at the bottom of this page.
+B<NOTE:> To use these methods, you must use the URL of the individual building types. 
+You can find the list of building types at the bottom of this page.
 
-=head2 build ( session_id, body_id, x, y )
 
-Adds this building to the planet's build queue. Returns:
+=head2 build
 
- {
-    "building" : {
-        "id" : "id-goes-here",
-        "pending_build" : {
-            "seconds_remaining" : 430,
-            "start" : "01 31 2010 13:09:05 +0600",
-            "end" : "01 31 2010 18:09:05 +0600"
-        },
-        "level" : 0,
-    "status" : { ... }
- }
+Adds this building to the planet's build queue.
 
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, planet_id, x, y )
+ ( parameter_hash )
+  
 Throws 1002, 1010, 1011, and 1012, and 1013.
 
 =head3 session_id
@@ -42,82 +37,30 @@ The x axis of the area on the planet you wish to place the building. Valid value
 
 The y axis of the area on the planet you wish to place the building. Valid values are between -5 and 5 inclusive.
 
-
-
-
-=head2 view ( session_id, building_id )
-
-Retrieves the properties of the building.
+=head3 RESPONSE
 
  {
-    "building" : {
-        "id" : "id-goes-here",
-        "name" : "Planetary Command",
-        "image" : "command6",
-        "level" : 6,
-        "x" : 0,
-        "y", 0,
-        "food_hour" : 500,
-        "food_capacity" : 500,
-        "energy_hour" : -44,
-        "energy_capacity" : 500,
-        "ore_hour" : -310,
-        "ore_capacity" : 500,
-        "water_hour" : -100,
-        "water_capacity" : 500,
-        "waste_hour" : 33,
-        "waste_capacity" : 500,
-        "happiness_hour" : 0,
-        "efficiency" : 100,
-        "repair_costs" : {
-            "food" : 0,
-            "water" : 0,
-            "energy" : 0,
-            "ore" : 0
-        },
-        "pending_build" : {                            # only included when building is building/upgrading
-            "seconds_remaining" : 430,
-            "start" : "01 31 2010 13:09:05 +0600",
-            "end" : "01 31 2010 18:09:05 +0600"
-        },
-        "work" : {                                     # only included when building is working (Parks, Waste Recycling, etc)
-            "seconds_remaining" : 49,
-            "start" : "01 31 2010 13:09:05 +0600",
-            "end" : "01 31 2010 18:09:05 +0600"
-        },
-        "downgrade" : {
-            "can" : 1,
-            "reason" : "",
-            "image" : "command5",
-        },
-        "upgrade" : {
-            "can" : 0,
-            "reason" : [1011, "Not enough resources.", "food"],
-            "cost" : {
-                "food" : 500,
-                "water" : 500,
-                "energy" : 500,
-                "waste" : 500,
-                "ore" : 1000,
-                "time" : 1200,
-            },
-            "production" : {
-                "food_hour" : 1500,
-                "food_capacity" : 500,
-                "energy_hour" : -144,
-                "energy_capacity" : 500,
-                "ore_hour" : -1310,
-                "ore_capacity" : 500,
-                "water_hour" : -1100,
-                "water_capacity" : 500,
-                "waste_hour" : 133,
-                "waste_capacity" : 500,
-                "happiness_hour" : 0,
-            },
-            "image" : "command7"
-    },
-    "status" : { ... }
+   "building" : {
+     "id" : "id-goes-here",
+     "pending_build" : {
+       "seconds_remaining" : 430,
+       "start" : "01 31 2010 13:09:05 +0600",
+       "end" : "01 31 2010 18:09:05 +0600"
+     },
+     "level" : 0,
+   "status" : { ... }
  }
+
+
+=head2 view
+
+Retrieves the propertios of the building
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+  
 
 Throws 1002 and 1010.
 
@@ -127,25 +70,98 @@ A session id.
 
 =head3 building_id
 
-The id of the building you wish to retrieve.
+The id of the building.
 
-
-
-=head2 upgrade ( session_id, building_id )
-
-Adds the requested upgrade to the build queue. Returns:
+=head3 RESPONSE
 
  {
-    "building" : {
-        "id" : "id-goes-here",
-        "pending_build" : {
-            "seconds_remaining" : 430,
-            "start" : "01 31 2010 13:09:05 +0600",
-            "end" : "01 31 2010 18:09:05 +0600"
-        },
-        "level" : 1,
-    "status" : { ... }
+   "building" : {
+     "id" : "id-goes-here",
+     "name" : "Planetary Command",
+     "image" : "command6",
+     "level" : 6,
+     "x" : 0,
+     "y", 0,
+     "food_hour" : 500,
+     "food_capacity" : 500,
+     "energy_hour" : -44,
+     "energy_capacity" : 500,
+     "ore_hour" : -310,
+     "ore_capacity" : 500,
+     "water_hour" : -100,
+     "water_capacity" : 500,
+     "waste_hour" : 33,
+     "waste_capacity" : 500,
+     "happiness_hour" : 0,
+     "efficiency" : 100,
+     "repair_costs" : {
+       "food" : 0,
+       "water" : 0,
+       "energy" : 0,
+       "ore" : 0
+     },
+     "pending_build" : {
+       "seconds_remaining" : 430,
+       "start" : "01 31 2010 13:09:05 +0600",
+       "end" : "01 31 2010 18:09:05 +0600"
+     },
+     "work" : {
+       "seconds_remaining" : 49,
+       "start" : "01 31 2010 13:09:05 +0600",
+       "end" : "01 31 2010 18:09:05 +0600"
+     },
+     "downgrade" : {
+       "can" : 1,
+       "reason" : "",
+       "image" : "command5",
+     },
+     "upgrade" : {
+       "can" : 0,
+       "reason" : [1011, "Not enough resources.", "food"],
+       "cost" : {
+         "food" : 500,
+         "water" : 500,
+         "energy" : 500,
+         "waste" : 500,
+         "ore" : 1000,
+         "time" : 1200,
+       },
+       "production" : {
+         "food_hour" : 1500,
+         "food_capacity" : 500,
+         "energy_hour" : -144,
+         "energy_capacity" : 500,
+         "ore_hour" : -1310,
+         "ore_capacity" : 500,
+         "water_hour" : -1100,
+         "water_capacity" : 500,
+         "waste_hour" : 133,
+         "waste_capacity" : 500,
+         "happiness_hour" : 0,
+       },
+       "image" : "command7"
+     }
+   }
+   "status" : { ... }
  }
+
+
+B<pending_build> is only returned when a building is building or upgrading.
+
+B<work> is only returned when a building is working (Parks, Waste Recycling etc).
+
+
+
+=head2 upgrade
+
+Adds the requested upgrade to the build queue.
+
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+  
 
 Throws 1002, 1010, 1011, and 1012, and 1013.
 
@@ -157,33 +173,64 @@ A session id.
 
 The id of the building you wish to retrieve.
 
+=head3 RESPONSE
+
+ {
+   "building" : {
+     "id" : "id-goes-here",
+     "pending_build" : {
+       "seconds_remaining" : 430,
+       "start" : "01 31 2010 13:09:05 +0600",
+       "end" : "01 31 2010 18:09:05 +0600"
+     },
+     "level" : 1
+   }
+   "status" : { ... }
+ }
 
 
-=head2 demolish ( session_id, building_id )
+
+=head2 demolish
 
 Allows you to instantly destroy a building.
 
- {
-    "status" : { ... }
- }
- 
-B<SPECIAL EXCEPTION:> If the user downgrades a level 1 building, then the Client needs to eliminate that object from the user's view. This method will return the view of the level 1 building, because that's it's intended course of action, but the client needs to handle this gracefully for the user.
- 
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+  
+
 Throws 1012.
 
 =head3 session_id
 
 A session id.
 
-=head3
+=head3 building_id
 
-The unique id of the building.
+The id of the building you wish to demolish.
 
+=head3 RESPONSE
+
+ {
+   "status" : { ... }
+ }
+ 
+B<SPECIAL EXCEPTION:> If the user downgrades a level 1 building, then the Client needs to eliminate that 
+object from the user's view. This method will return the view of the level 1 building, because that's 
+it's intended course of action, but the client needs to handle this gracefully for the user.
+ 
 
 
 =head2 downgrade ( session_id, building_id )
 
-Downgrades a building by one level and then returns C<view>.
+Downgrades a building by one level.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+  
 
 Throws 1012.
 
@@ -191,60 +238,27 @@ Throws 1012.
 
 A session id.
 
-=head3
+=head3 building_id
 
-The unique id of the building.
+The id of the building you wish to demolish.
 
+=head3 RESPONSE
+
+Returns the same as C<view>
 
 
 
 =head2 get_stats_for_level ( session_id, building_id, level )
 
-This method is for power users and script writers. It will return the projected stats of a building at a certain level. The building must already exist on the planet, because where it exists and who it is owned by affects the stats of the building. It returns
+This method is for power users and script writers. It will return the projected stats of a building 
+at a certain level. The building must already exist on the planet, because where it exists and who 
+it is owned by affects the stats of the building.
 
- {
-    "building" : {
-        "id" : "id-goes-here",
-        "name" : "Planetary Command",
-        "image" : "command6",
-        "level" : 6,
-        "food_hour" : 500,
-        "food_capacity" : 500,
-        "energy_hour" : -44,
-        "energy_capacity" : 500,
-        "ore_hour" : -310,
-        "ore_capacity" : 500,
-        "water_hour" : -100,
-        "water_capacity" : 500,
-        "waste_hour" : 33,
-        "waste_capacity" : 500,
-        "happiness_hour" : 0,
-        "upgrade" : {
-            "cost" : {
-                "food" : 500,
-                "water" : 500,
-                "energy" : 500,
-                "waste" : 500,
-                "ore" : 1000,
-                "time" : 1200,
-            },
-            "production" : {
-                "food_hour" : 1500,
-                "food_capacity" : 500,
-                "energy_hour" : -144,
-                "energy_capacity" : 500,
-                "ore_hour" : -1310,
-                "ore_capacity" : 500,
-                "water_hour" : -1100,
-                "water_capacity" : 500,
-                "waste_hour" : 133,
-                "waste_capacity" : 500,
-                "happiness_hour" : 0,
-            },
-            "image" : "command7"
-    },
-    "status" : { ... }
- }
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, level )
+ ( parameter_hash )
+  
 
 Throws 1009.
 
@@ -254,17 +268,73 @@ A session id.
 
 =head3 building_id
 
-The unique id of the building you want to get the stats for.
+The id of the building you wish to get stats for.
 
 =head3 level
 
-An integer between 1 and 100. This represents the stats that you want to see for the building.
+The level that you want stats of the building for, between 1 and 30
+
+=head3 RESPONSE
+
+ {
+   "building" : {
+     "id" : "id-goes-here",
+     "name" : "Planetary Command",
+     "image" : "command6",
+     "level" : 6,
+     "food_hour" : 500,
+     "food_capacity" : 500,
+     "energy_hour" : -44,
+     "energy_capacity" : 500,
+     "ore_hour" : -310,
+     "ore_capacity" : 500,
+     "water_hour" : -100,
+     "water_capacity" : 500,
+     "waste_hour" : 33,
+     "waste_capacity" : 500,
+     "happiness_hour" : 0,
+     "upgrade" : {
+       "cost" : {
+         "food" : 500,
+         "water" : 500,
+         "energy" : 500,
+         "waste" : 500,
+         "ore" : 1000,
+         "time" : 1200,
+       },
+       "production" : {
+         "food_hour" : 1500,
+         "food_capacity" : 500,
+         "energy_hour" : -144,
+         "energy_capacity" : 500,
+         "ore_hour" : -1310,
+         "ore_capacity" : 500,
+         "water_hour" : -1100,
+         "water_capacity" : 500,
+         "waste_hour" : 133,
+         "waste_capacity" : 500,
+         "happiness_hour" : 0,
+       },
+       "image" : "command7"
+     }
+   }
+   "status" : { ... }
+ }
 
 
 
-=head2 repair ( session_id, building_id )
+=head2 repair
 
-Restores a building's efficiency to 100%. See the C<repair_costs> section of the C<view> method to see how many resources will be spent in this process. Returns C<view>.
+Restores a building's efficiency to 100%. See the C<repair_costs> section of the C<view> method to see how 
+many resources will be spent in this process.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+  
+
+Throws 1009.
 
 =head3 session_id
 
@@ -272,15 +342,24 @@ A session id.
 
 =head3 building_id
 
-The unique id of the building.
+The id of the building you wish to get stats for.
+
+=head3 RESPONSE
+
+Returns B<view>
+
+
 
 =head1 Space Station Modules
 
-Space stations have buildings too (called Modules), but they don't behave exactly the same as ground based buildings. See the L<Modules> documentation for more information.
+Space stations have buildings too (called Modules), but they don't behave exactly the same as ground 
+based buildings. See the L<Modules> documentation for more information.
+
 
 =head1 Building Types
 
-Below is a list of the different types of structures that can be built on planets in Lacuna. They all share the above methods, but many have additional methods available.
+Below is a list of the different types of structures that can be built on planets in Lacuna. They all 
+share the above methods, but many have additional methods available.
 
 =over
 
@@ -537,3 +616,4 @@ Below is a list of the different types of structures that can be built on planet
 =back
 
 =cut
+

@@ -313,15 +313,21 @@ sub date_available_formatted {
 }
 
 sub get_status {
-    my ($self, $target, $empire_id) = @_;
-
-    $empire_id = defined $empire_id ? $empire_id : 0;
+    my ($self, $target, $args) = @_;
 
     my %status = (
         id              => $self->id,
         quantity        => $self->quantity,
         task            => $self->task,
-        details         => {
+    );
+
+    my $date_available = $self->date_available_formatted;
+    # show details block if it is from own or allied fleet
+    # or the fleet_details_level is high enough
+    if ( not defined $args
+        or ($self->body->empire_id ~~ $args->{ally_ids} ) 
+        or ($args->{fleet_details_level} and $args->{fleet_details_level} >= $self->stealth)) {    
+        $status{details} = {
             name            => $self->name,
             mark            => $self->mark,
             type_human      => $self->type_formatted,
@@ -332,49 +338,57 @@ sub get_status {
             hold_size       => $self->hold_size,
             berth_level     => $self->berth_level,
             date_started    => $self->date_started_formatted,
-            date_available  => $self->date_available_formatted,
+            date_available  => $date_available,
             max_occupants   => $self->max_occupants,
             payload         => $self->format_description_of_payload,
             can_scuttle     => eval {$self->can_scuttle} ? 1 : 0,
             can_recall      => eval {$self->can_recall} ? 1 : 0,
-        },
-    );
+        };
+    }
+    
     if ($target) {
         $status{estimated_travel_time} = $self->calculate_travel_time($target);
     }
     if ($self->task ~~ [qw(Travelling Defend Orbiting)]) {
         my $body = $self->body;
-        my $from = {
-            id      => $body->id,
-            name    => $body->name,
-            type    => 'body',
-        };
-        if ($self->task eq 'Travelling') {
-            my $target = ($self->foreign_body_id) ? $self->foreign_body : $self->foreign_star;
-            my $to = {
-                id      => $target->id,
-                name    => $target->name,
-                type    => (ref $target eq 'Lacuna::DB::Result::Map::Star') ? 'star' : 'body',
+        my $from = {};
+
+        # only show 'from' block if the stealth is low enough
+        #
+        if ( not defined $args
+            or ($self->body->empire_id ~~ $args->{ally_ids} ) 
+            or ($args->{fleet_from_level} and $args->{fleet_from_level} >= $self->stealth)) {    
+            $from = {
+                id      => $body->id,
+                name    => $body->name,
+                type    => 'body',
+                owner   => 'Foreign',
+                empire  => {
+                    id      => $body->empire_id,
+                    name    => $body->empire->name,
+                }
             };
+        }
+        my $target = ($self->foreign_body_id) ? $self->foreign_body : $self->foreign_star;
+
+        my $to = {
+            id      => $target->id,
+            name    => $target->name,
+            type    => (ref $target eq 'Lacuna::DB::Result::Map::Star') ? 'star' : 'body',
+            x       => $target->x,
+            y       => $target->y,
+        };
+
+        if ($self->task eq 'Travelling') {
             if ($self->direction eq 'in') {
                 my $temp = $from;
                 $from = $to;
                 $to = $temp;
             }
-            $status{to}             = $to;
-            $status{date_arrives}   = $status{details}{date_available};
+            $status{date_arrives} = $date_available;
         }
-        $status{from} = $from;
-    }
-    elsif ($self->task ~~ [qw(Defend Orbiting)]) {
-        my $orbiting = {
-            id      => $self->foreign_body_id,
-            name    => $self->foreign_body->name,
-            type    => 'body',
-            x       => $self->foreign_body->x,
-            y       => $self->foreign_body->y,
-        };
-        $status{orbiting} = $orbiting;
+        $status{from}   = $from;
+        $status{to}     = $to;
     }
     return \%status;
 }

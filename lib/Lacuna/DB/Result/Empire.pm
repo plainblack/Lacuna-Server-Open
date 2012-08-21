@@ -303,7 +303,8 @@ sub allies {
     my ($self) = @_;
 
     if ($self->alliance_id) {
-        return $self->alliance->members->all;
+        my @all = $self->alliance->members->all;
+        return @all;
     }
     return ($self);
 }
