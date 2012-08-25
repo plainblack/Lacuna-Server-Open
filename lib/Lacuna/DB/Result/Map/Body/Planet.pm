@@ -1409,7 +1409,7 @@ sub tick_to {
     }
     # Process excavator sites
     if ( my $arch = $self->archaeology) {
-        if ($arch->efficiency == 100) {
+        if ($arch->efficiency == 100 and $arch->level > 0) {
             my $dig_sec = $now->epoch - $arch->last_check->epoch;
             if ($dig_sec >= 3600) {
                 my $dig_hours = int($dig_sec/3600);
