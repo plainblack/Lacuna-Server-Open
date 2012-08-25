@@ -37,8 +37,10 @@ after finish_upgrade => sub {
 
 sub can_build_on {
     my $self = shift;
-    unless ($self->body->isa('Lacuna::DB::Result::Map::Body::Planet') &&
-            !$self->body->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant')) {
+
+    if ( !$self->body->isa('Lacuna::DB::Result::Map::Body::Planet') ||
+          $self->body->isa('Lacuna::DB::Result::Map::Body::Planet::Station') ||
+          $self->body->isa('Lacuna::DB::Result::Map::Body::Planet::Gas Giant')) {
         confess [1009, 'Can only be built on habitable planets.'];
     }
     return 1;
