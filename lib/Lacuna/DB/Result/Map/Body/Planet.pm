@@ -899,7 +899,7 @@ sub is_plot_locked {
 }
 
 sub build_building {
-    my ($self, $building, $in_parallel) = @_;
+    my ($self, $building, $in_parallel, $no_upgrade) = @_;
     unless ($building->isa('Lacuna::DB::Result::Building::Permanent')) {
         $self->building_count( $self->building_count + 1 );
         $self->plots_available( $self->plots_available - 1 );
@@ -911,7 +911,9 @@ sub build_building {
     $building->insert;
     $building->body($self);
     weaken($building->{_relationship_data}{body});
-    $building->start_upgrade(undef, $in_parallel);
+    unless ($no_upgrade) {
+        $building->start_upgrade(undef, $in_parallel);
+    }
     $self->building_cache([@{$self->building_cache}, $building]);
 }
 
