@@ -35,7 +35,6 @@ Tou Re Ell
 Lacuna Expanse Corp};
 
 out('Sending Messages');
-my @types = ORE_TYPES;
 while (my $empire = $empires->next) {
     my $home = $empire->home_planet;
     next unless defined $home;

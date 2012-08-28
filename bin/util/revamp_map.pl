@@ -3,7 +3,7 @@ use strict;
 use lib '/data/Lacuna-Server/lib';
 use Lacuna::DB;
 use Lacuna;
-use Lacuna::Util qw(randint format_date);
+use Lacuna::Util qw(randint format_date random_element);
 use Getopt::Long;
 use List::MoreUtils qw(uniq);
 $|=1;
@@ -24,15 +24,15 @@ my @asteroid_types = qw(A1 A2 A3 A4 A5 A6 A7 A8 A9 A10 A11 A12 A13 A14 A15 A16 A
 my @habital_types = qw(P1 P2 P3 P4 P5 P6 P7 P8 P9 P10 P11 P12 P13 P14 P15 P16 P17 P18 P19 P20 P21 P22 P23 P24 P25 P26 P27 P28 P29 P30 P31 P32 P33 P34 P35 P36 P37 P38 P39 P40);
 my @gas_giant_types = qw(G1 G2 G3 G4 G5);
 
-my @zones = $stars->search(undef, {distinct => 1, order_by => 'zone'})->get_column(zone)->all;
+my @zones = $stars->search(undef, {distinct => 1, order_by => 'zone'})->get_column('zone')->all;
 my %zone_details;
 
 foreach my $zone (@zones) {
     out('Working on zone '.$zone);
     my $first_in_zone = 1;
-    my $zone_bodies = $bodies->search({zone => 1},{order_by => ['x','y']});
+    my $zone_bodies = $bodies->search({zone => $zone},{order_by => ['x','y']});
+    determine_zone_details();
     while (my $body = $zone_bodies->next) {
-        determine_zone_details();
         if ($body->empire_id > 1) {
             if ($first_in_zone) {
                 $first_in_zone = 0;
@@ -96,25 +96,25 @@ sub determine_zone_details {
     my %asteroid;
     $asteroid{min_size} = randint(1,6);
     $asteroid{max_size} = $asteroid{min_size} + 6;
-    push @{$asteroid{types}}, element_rarity(\@@asteroid_types, 1, 1); # rare
-    push @{$asteroid{types}}, element_rarity(\@@asteroid_types, 2, 3); # uncommon
-    push @{$asteroid{types}}, element_rarity(\@@asteroid_types, 3, 6); # common
+    push @{$asteroid{types}}, element_rarity(\@asteroid_types, 1, 1); # rare
+    push @{$asteroid{types}}, element_rarity(\@asteroid_types, 2, 3); # uncommon
+    push @{$asteroid{types}}, element_rarity(\@asteroid_types, 3, 6); # common
 
     # habitals
     my %habital;
     $habital{min_size} = randint(30,50);
     $habital{max_size} = $habital{min_size} + 20;
-    push @{$habital{types}}, element_rarity(\@@habital_types, 1, 1); # rare
-    push @{$habital{types}}, element_rarity(\@@habital_types, 2, 3); # uncommon
-    push @{$habital{types}}, element_rarity(\@@habital_types, 4, 6); # common
+    push @{$habital{types}}, element_rarity(\@habital_types, 1, 1); # rare
+    push @{$habital{types}}, element_rarity(\@habital_types, 2, 3); # uncommon
+    push @{$habital{types}}, element_rarity(\@habital_types, 4, 6); # common
 
     # gas giants
     my %gas_giant;
     $gas_giant{min_size} = randint(80,100);
     $gas_giant{max_size} = $gas_giant{min_size} + 21;
-    push @{$gas_giant{types}}, element_rarity(\@@gas_giant_types, 1, 1); # rare
-    push @{$gas_giant{types}}, element_rarity(\@@gas_giant_types, 1, 3); # uncommon
-    push @{$gas_giant{types}}, element_rarity(\@@gas_giant_types, 1, 6); # common
+    push @{$gas_giant{types}}, element_rarity(\@gas_giant_types, 1, 1); # rare
+    push @{$gas_giant{types}}, element_rarity(\@gas_giant_types, 1, 3); # uncommon
+    push @{$gas_giant{types}}, element_rarity(\@gas_giant_types, 1, 6); # common
 
     %zone_details = (
         'asteroid'          => \%asteroid,
@@ -145,39 +145,6 @@ out((($finish - $start)/60)." minutes have elapsed");
 ###############
 ## SUBROUTINES
 ###############
-
-
-sub move_body {
-    my ($body, $star) = @_;
-    say "\tMoving body ".$body->name;
-    $unique_empires{$body->empire_id}=1 if ($body->empire_id);
-    if ($body->orbit == 1) {
-        $body->x($star->x + 1); $body->y($star->y + 2);
-    }
-    elsif ($body->orbit == 2) {
-        $body->x($star->x + 2); $body->y($star->y + 1);
-    }
-    elsif ($body->orbit == 3) {
-        $body->x($star->x + 2); $body->y($star->y - 1);
-    }
-    elsif ($body->orbit == 4) {
-        $body->x($star->x + 1); $body->y($star->y - 2);
-    }
-    elsif ($body->orbit == 5) {
-        $body->x($star->x - 1); $body->y($star->y - 2);
-    }
-    elsif ($body->orbit == 6) {
-        $body->x($star->x - 2); $body->y($star->y - 1);
-    }
-    elsif ($body->orbit == 7) {
-        $body->x($star->x - 2); $body->y($star->y + 1);
-    }
-    elsif ($body->orbit == 8) {
-        $body->x($star->x - 1); $body->y($star->y + 2);
-    }
-    $body->zone($star->zone);
-    $body->update;
-}
 
 
 sub out {
