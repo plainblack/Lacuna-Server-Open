@@ -789,18 +789,18 @@ sub bhg_decor {
   }
   $max_level = 30 if $max_level > 30;
   my $planted = 0;
-  my $now = DateTime->now;
   foreach my $cnt (1..$plant) {
     my ($x, $y) = eval { $body->find_free_space};
     unless ($@) {
-        my $deployed = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-            date_created => $now,
-            class        => random_element(\@decor),
+        my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
             x            => $x,
             y            => $y,
             level        => randint(1, $max_level),
             body_id      => $body->id,
-        })->insert;
+            body         => $body,
+            class        => random_element(\@decor),
+        });
+        $body->build_building($building, undef, 1);
         $planted++;
     }
     else {
