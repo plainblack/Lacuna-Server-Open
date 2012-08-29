@@ -84,6 +84,7 @@ if ($x > $x_max) {
 $z_config->value("$x|$y");
 $z_config->update;
 
+# Wreck a planet by converting BHG into Fissure, and damaging all other buildings!
 sub wreck_planet {
     my $body = shift;
     out('Wrecking planet '.$body->name);
@@ -98,6 +99,7 @@ sub wreck_planet {
         }
     }
 }
+
 
 sub convert_body {
     my $body = shift;
