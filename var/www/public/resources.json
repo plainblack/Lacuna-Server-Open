@@ -39,6 +39,7 @@
         "/crashedshipsite" : { "description" : "Harvest technology from a crashed ship to make your own ships better.", "wiki" : "http://community.lacunaexpanse.com/wiki/crashed-ship-site" },
         "/citadelofknope" : { "description" : "Defends your planet from incoming hostile ships by absorbing the damage onto itself.", "wiki" : "http://community.lacunaexpanse.com/wiki/citadel-of-knope" },
         "/ravine" : { "description" : "A natural place to store waste.", "wiki" : "http://community.lacunaexpanse.com/wiki/ravine" },
+        "/fissure" : { "description" : "The first sign of a dying planet.", "wiki" : "http://community.lacunaexpanse.com/wiki/fissure" },
         "/amalgusmeadow" : { "description" : "A wild meadow filled with wild amalgus beans.", "wiki" : "http://community.lacunaexpanse.com/wiki/amalgus-meadow" },
         "/dentonbrambles" : { "description" : "A thorny patch of brambles, who's roots happen to be the delicious denton roots.", "wiki" : "http://community.lacunaexpanse.com/wiki/denton-brambles" },
         "/malcudfield" : { "description" : "A natural source of food.", "wiki" : "http://community.lacunaexpanse.com/wiki/malcud-field" },
