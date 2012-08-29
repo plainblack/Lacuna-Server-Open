@@ -91,6 +91,7 @@ sub wreck_planet {
     foreach my $building (@{$body->building_cache}) {
         if ($building->class eq 'Lacuna::DB::Result::Building::Permanent::BlackHoleGenerator') {
             $building->class('Lacuna::DB::Result::Building::Permanent::Fissure');
+            $building->update;
         }
         else {
             $building->spend_efficiency(randint(1,25));
