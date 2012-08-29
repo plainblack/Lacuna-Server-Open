@@ -477,6 +477,7 @@ sub bhg_swap {
         star_id     => $body->star_id,
         orbit       => $body->orbit,
     };
+<<<<<<< HEAD
     my $new_data;
     if (ref $target eq 'HASH') {
         $new_data = {
@@ -550,6 +551,73 @@ sub bhg_swap {
         swapname => $new_data->{name},
         swapid   => $new_data->{id},
     };
+=======
+  }
+  else {
+    $new_data = {
+      id           => $target->id,
+      name         => $target->name,
+      orbit        => $target->orbit,
+      star_id      => $target->star_id,
+      type         => $target->get_type,
+      x            => $target->x,
+      y            => $target->y,
+      zone         => $target->zone,
+    };
+  }
+  $body->update({
+    needs_recalc => 1,
+    x            => $new_data->{x},
+    y            => $new_data->{y},
+    zone         => $new_data->{zone},
+    star_id      => $new_data->{star_id},
+    orbit        => $new_data->{orbit},
+  });
+
+  unless ($new_data->{type} eq "empty") {
+      $target->update({
+        needs_recalc => 1,
+        x            => $old_data->{x},
+        y            => $old_data->{y},
+        zone         => $old_data->{zone},
+        star_id      => $old_data->{star_id},
+        orbit        => $old_data->{orbit},
+      });
+      if ($new_data->{type} ne 'asteroid') {
+          my $target_waste = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
+                              ->search({ planet_id => $target->id });
+          if ($target_waste->count > 0) {
+              while (my $chain = $target_waste->next) {
+                  $chain->update({
+                  star_id => $old_data->{star_id}
+                });
+              }
+          }
+          $target->recalc_chains; # Recalc all chains
+      }
+  }
+
+  my $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
+                      ->search({ planet_id => $body->id });
+  if ($waste_chain->count > 0) {
+    while (my $chain = $waste_chain->next) {
+      $chain->update({
+        star_id => $new_data->{star_id}
+      });
+    }
+  }
+  $body->recalc_chains; # Recalc all chains
+
+  return {
+    id       => $body->id,
+    message  => "Swapped Places",
+    name     => $body->name,
+    orbit    => $new_data->{orbit},
+    star_id  => $new_data->{star_id},
+    swapname => $new_data->{name},
+    swapid   => $new_data->{id},
+  };
+>>>>>>> develop
 }
 
 
@@ -817,6 +885,7 @@ sub bhg_self_destruct {
 
 sub bhg_decor {
     my ($building, $body, $variance) = @_;
+
     my @decor = qw(
         Lacuna::DB::Result::Building::Permanent::Crater
         Lacuna::DB::Result::Building::Permanent::Lake
@@ -824,8 +893,9 @@ sub bhg_decor {
         Lacuna::DB::Result::Building::Permanent::Grove
         Lacuna::DB::Result::Building::Permanent::Sand
         Lacuna::DB::Result::Building::Permanent::Lagoon
-    );
-    my $plant; my $max_level;
+              );
+    my $plant;
+    my $max_level;
     if ($variance == -1) {
         $plant = randint(1, int($building->level/10)+1);
         $max_level = 3;
@@ -840,22 +910,20 @@ sub bhg_decor {
     }
     $max_level = 30 if $max_level > 30;
     my $planted = 0;
-    my $now = DateTime->now;
-
-    DECOR:
     foreach my $cnt (1..$plant) {
         my ($x, $y) = eval { $body->find_free_space};
-        last DECOR if $@;
-
-        my $deployed = Lacuna->db->resultset('Building')->new({
-            date_created => $now,
-            class        => random_element(\@decor),
-            x            => $x,
-            y            => $y,
-            level        => randint(1, $max_level),
-            body_id      => $body->id,
-        })->insert;
-        $planted++;
+        unless ($@) {
+            my $building = Lacuna->db->resultset('Building')->new({
+                x            => $x,
+                y            => $y,
+                level        => randint(1, $max_level),
+                body_id      => $body->id,
+                body         => $body,
+                class        => random_element(\@decor),
+            });
+            $body->build_building($building, undef, 1);
+            $planted++;
+        }
     }
 
     if ($planted) {
