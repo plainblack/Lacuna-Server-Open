@@ -16,50 +16,79 @@ out('Started');
 my $start = time;
 
 out('Loading DB');
-our $db = Lacuna->db;
-my $bodies = $db->resultset('Lacuna::DB::Result::Map::Body');
-my $stars = $db->resultset('Lacuna::DB::Result::Map::Star');
-my $empire = $db->resultset('Lacuna::DB::Result::Empire');
-my @asteroid_types = qw(A1 A2 A3 A4 A5 A6 A7 A8 A9 A10 A11 A12 A13 A14 A15 A16 A17 A18 A19 A20 A21 A22 A23 A24 A25 A26);
-my @habital_types = qw(P1 P2 P3 P4 P5 P6 P7 P8 P9 P10 P11 P12 P13 P14 P15 P16 P17 P18 P19 P20 P21 P22 P23 P24 P25 P26 P27 P28 P29 P30 P31 P32 P33 P34 P35 P36 P37 P38 P39 P40);
+our $db     = Lacuna->db;
+my $bodies  = $db->resultset('Map::Body');
+my $stars   = $db->resultset('Map::Star');
+my $empire  = $db->resultset('Empire');
+my $db_config  = $db->resultset('Config');
+my $config = Lacuna->config;
+
+my @asteroid_types  = qw(A1 A2 A3 A4 A5 A6 A7 A8 A9 A10 A11 A12 A13 A14 A15 A16 A17 A18 A19 A20 A21 A22 A23 A24 A25 A26);
+my @habital_types   = qw(P1 P2 P3 P4 P5 P6 P7 P8 P9 P10 P11 P12 P13 P14 P15 P16 P17 P18 P19 P20 P21 P22 P23 P24 P25 P26 P27 P28 P29 P30 P31 P32 P33 P34 P35 P36 P37 P38 P39 P40);
 my @gas_giant_types = qw(G1 G2 G3 G4 G5);
 
-my @zones = $stars->search(undef, {distinct => 1, order_by => 'zone'})->get_column('zone')->all;
+my $z_config = $db_config->search({name => 'revamp_zone'})->single;
+my $x_min = int($config->get('map_size/x')->[0]/250);
+my $y_min = int($config->get('map_size/y')->[0]/250);
+my $x_max = int($config->get('map_size/x')->[1]/250);
+my $y_max = int($config->get('map_size/y')->[1]/250);
+
+if (not defined $z_config) {
+    my $starting_zone = "$x_min|$y_min";
+    out("Starting on zone $starting_zone. Good Luck!");
+
+    $z_config = $db_config->create({
+        name    => 'revamp_zone',
+        value   => $starting_zone,
+    });
+}
+my $zone = $z_config->value;
+my ($x,$y) = $zone =~ m/(-?\d+)\|(-?\d+)/;
+
 my %zone_details;
 
-foreach my $zone (@zones) {
-    out('Working on zone '.$zone);
-    my $first_in_zone = 1;
-    my $zone_bodies = $bodies->search({zone => $zone},{order_by => ['x','y']});
-    determine_zone_details();
-    while (my $body = $zone_bodies->next) {
-        if ($body->empire_id > 1) {
-            if ($first_in_zone) {
-                $first_in_zone = 0;
-                $body->add_news(100,'... --- ...');
-                $body->add_news(100,'- .... .  .-. .. -... -... --- -.  .. ...  .... . .-. .');
-                $body->add_news(100,'a$'.randint(1111,9999).' ribbon ha$ ajd..a# zone '.$zone.'___23kkd..');
-                $body->add_news(100,'9990()(destroyed much of|||938....');
-                $body->add_news(100,'.-- .... .- -   .... .- ...- .   .-- .   -.. --- -. . ..--.. ');
-            }
-            wreck_planet($body);
-        }
-        elsif ($body->get_type eq 'space station') {
-            #skip it
-        }
-        else {
-            convert_body($body);
-        }
-    }
-    #sleep 15;
+out('Working on zone '.$zone);
+my $first_in_zone = 1;
+my $zone_bodies = $bodies->search({zone => $zone},{order_by => ['x','y']});
+determine_zone_details();
+if ($x > $x_max || $y > $y_max) {
+    out('All done! You may stop the cron job!');
+    exit;
 }
+while (my $body = $zone_bodies->next) {
+    if ($body->empire_id > 1) {
+        if ($first_in_zone) {
+            $first_in_zone = 0;
+            $body->add_news(100,'... --- ...');
+            $body->add_news(100,'- .... .  .-. .. -... -... --- -.  .. ...  .... . .-. .');
+            $body->add_news(100,'a$'.randint(1111,9999).' ribbon ha$ ajd..a# zone '.$zone.'___23kkd..');
+            $body->add_news(100,'9990()(destroyed much of|||938....');
+            $body->add_news(100,'.-- .... .- -   .... .- ...- .   .-- .   -.. --- -. . ..--.. ');
+        }
+        wreck_planet($body);
+    }
+    elsif ($body->get_type eq 'space station') {
+        #skip it
+    }
+    else {
+        convert_body($body);
+    }
+}
+
+$x = $x + 1;
+if ($x > $x_max) {
+    $x = $x_min;
+    $y = $y + 1;
+}
+
+$z_config->value("$x|$y");
+$z_config->update;
 
 sub wreck_planet {
     my $body = shift;
     out('Wrecking planet '.$body->name);
     $body->needs_surface_refresh(1);
-    my $buildings = $body->buildings;
-    while (my $building = $buildings->next) {
+    foreach my $building (@{$body->building_cache}) {
         if ($building->class eq 'Lacuna::DB::Result::Building::Permanent::BlackHoleGenerator') {
             $building->class('Lacuna::DB::Result::Building::Permanent::Fissure');
         }
