@@ -4,52 +4,18 @@ Black Hole Generator is accessible via the URL C</blackholegenerator>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
-=head2 view ( session_id, building_id )
+
+
+=head2 view
 
 This method is extended to include the list of tasks.
 
- {
-    "status" : { ... },
-    "building" : { ... },
-    "tasks" : [
-       {
-          "base_fail" : 15,  #Note, range is not factored in.
-          "min_level" : 10,
-          "name" : "Make Asteroid",
-          "occupied" : 0,
-          "recovery" : 129600,
-          "side_chance" : 10,
-          "types" : [
-             "habitable planet",
-             "gas giant"
-          ],
-          "waste_cost" : 50000000
-          "reason" : "You can only make an asteroid from a planet."
-       },...
-    ],
-    "task_options" : {
-        "asteroid_types" : [
-            1,
-            2,
-            ...
-            26
-        ],
-        "planet_types" : [
-            1,
-            2,
-            ...
-            40
-        ],
-        "zones" : [
-            "-5|-5",
-            "-5|-4",
-            ...
-            "5|5"
-        ]
-    }
- }
+Accepts either fixed arguments or a hash of named parameters
 
+ ( session_id, building_id )
+ ( parameter_hash )
 
+Throws 1002, 1009, 1010, 1013
 
 =head2 generate_singularity 
 
@@ -78,44 +44,57 @@ Note that named arguments can be in any order. If optional then they can be omit
 the C<subsidize> argument will cost E to achieve 'perfection' of 100% reliability, if
 omitted then you accept the risk of failure.
 
+=head3 session_id (required)
 
-Returns success, failure, and side effect results.
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 RESPONSE
 
  {
-    "status" : { ... },
-    "fail" : { ... },
-    "side" : { ... },
-    "target" : {
-        "class" : "Lacuna::DB::Result::Map::Body::Asteroid::A2",
-        "id" : "body id",
-        "name" : "name of planet effected",
-        "old_class" : "Lacuna::DB::Result::Map::Body::Planet::P9",
-        "old_size" : Size before change,
-        "message" : "Made Asteroid",
-        "size" : Size of body after effect
-        "type" : "asteroid", "gas giant", "habitable planet", or "space station"
-        "variance" : -1, 0, or 1
-        "waste" : "Zero", "Random", or "Filled"
-    }
+  "status" : { ... },
+  "building" : { ... },
+  "tasks" : [
+    {
+      "base_fail" : 15,  #Note, range is not factored in.
+      "min_level" : 10,
+      "name" : "Make Asteroid",
+      "occupied" : 0,
+      "recovery" : 129600,
+      "side_chance" : 10,
+      "types" : [
+        "habitable planet",
+        "gas giant"
+      ],
+      "waste_cost" : 50000000
+      "reason" : "You can only make an asteroid from a planet."
+    },...
+  ]
  }
 
-Not all fields are used for every result or task.
+
+
+=head2 generate_singularity
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
 
 Throws 1002, 1009, 1010, 1013
 
-Failure rates for the Blackhole Generator increases with range.
+=head3 session_id (required)
 
-Side Effects happen fairly random, but occur more often the more difficult the task.
+A session ID
 
-=head3 session_id
+=head3 building_id (required)
 
-A session id.
+This buildings ID
 
-=head3 building_id
-
-The unique id of your Black Hole Generator.
-
-=head3 target
+=head3 target (required)
 
 A hash reference that can contain one of three items to identify a body.
 
@@ -154,7 +133,9 @@ whether occupied or not, about the given star.
 
 Zone name as a target.  ie: '-1|4' ; Only useful for Jump Zone.
 
-=head3 task_name
+=head3 task_name (required)
+
+The Task that the BHG is to perform. One of.
 
 =over
 
@@ -190,41 +171,93 @@ Moves entire system of bodies to target star. Moves bodies at target star to ori
 
 =back
 
-=head3 params
-
-Optional hash reference only used for Change Type that looks like this:
+=head3 params (only required for C<Change Type>)
 
   { "newtype" : 20 }
 
-=head2 get_actions_for ( session_id, building_id, target )
+=head3 RESPONSE
 
-Returns status and task list with success percentage for defined target.
+Returns success, failure, and side effect results.
 
  {
-    "status" : { ... },
-    "building" : { ... },
-    "tasks" : [
-       {
-          "base_fail" : 15,
-          "body_id" : 973213,
-          "dist" : 134.40,
-          "min_level" : 10,
-          "name" : "Make Asteroid",
-          "occupied" : 0,
-          "range" : 150,
-          "reason" : "You can only make an asteroid from a planet."
-          "recovery" : 129600,
-          "side_chance" : 25,
-          "success" : 50,
-          "essentia_cost" : 0,
-          "throw" : 1009,
-          "types" : [
-             "habitable planet",
-             "gas giant"
-          ],
-          "waste_cost" : 50000000
-       },...
-    ]
+  "status" : { ... },
+  "fail" : { ... },
+  "side" : { ... },
+  "target" : {
+    "class" : "Lacuna::DB::Result::Map::Body::Asteroid::A2",
+    "id" : "body id",
+    "name" : "name of planet effected",
+    "old_class" : "Lacuna::DB::Result::Map::Body::Planet::P9",
+    "old_size" : Size before change,
+    "message" : "Made Asteroid",
+    "size" : Size of body after effect
+    "type" : "asteroid", "gas giant", "habitable planet", or "space station"
+    "variance" : -1, 0, or 1
+    "waste" : "Zero", "Random", or "Filled"
+  }
+ }
+
+Not all fields are used for every result or task.
+
+Failure rates for the Blackhole Generator increases with range.
+
+Side Effects happen fairly randomly, but occur more often the more difficult the task.
+
+
+
+=head2 get_actions_for
+
+Get a task list with success percentage for defined target.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+
+Throws 1002, 1009, 1010, 1013
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 target (required)
+
+A hash reference that can contain one of three items to identify a body.
+
+ { "body_name" : "Earth" }
+ { "body_id" : "id-goes-here" }
+ { "x" : 4, "y" : -3 }
+
+=head3 RESPONSE
+
+ {
+  "status" : { ... },
+  "building" : { ... },
+  "tasks" : [
+    {
+      "base_fail" : 15,
+      "body_id" : 973213,
+      "dist" : 134.40,
+      "min_level" : 10,
+      "name" : "Make Asteroid",
+      "occupied" : 0,
+      "range" : 150,
+      "reason" : "You can only make an asteroid from a planet."
+      "recovery" : 129600,
+      "side_chance" : 25,
+      "success" : 0,
+      "throw" : 1009,
+      "types" : [
+        "habitable planet",
+        "gas giant"
+      ],
+      "waste_cost" : 50000000
+    },...
+  ]
  }
 
 Options are as described for generate_singularity

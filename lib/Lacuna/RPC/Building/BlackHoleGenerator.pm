@@ -16,10 +16,19 @@ sub model_class {
 }
 
 around 'view' => sub {
-    my ($orig, $self, $session_id, $building_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
+    my $orig = shift;
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+        };
+    }
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id}, skip_offline => 1);
+
     my $out = $orig->($self, $session, $building);
     my $body = $building->body;
     
@@ -80,65 +89,44 @@ my @orbits = (
 my %orbit_for; $orbit_for{$orbits[$_][0]}{$orbits[$_][1]} = $_ for 1..8;
 
 sub find_target {
-    my ($self, $empire, $target_params) = @_;
+    my ($self, $target_params) = @_;
     unless (ref $target_params eq 'HASH') {
-        confess [-32602,
-            'The target parameter should be a hash reference. For example { "body_id" : 9999 }.'];
+        confess [-32602, 'The target parameter should be a hash reference. For example { "body_id" : 9999 }.'];
     }
-    my $db = Lacuna->db;
     my $target;
-    my $target_type;
     my $target_word = join(":", keys %$target_params);
     if ($target_word eq '') {
-        confess [ -32602,
-            'The target parameter should be a hash reference. For example { "body_id" : 9999 }.'];
+        confess [ -32602, 'The target parameter should be a hash reference. For example { "body_id" : 9999 }.'];
     }
     if (exists $target_params->{body_id}) {
         $target_word = $target_params->{body_id};
-        $target = $db->resultset('Lacuna::DB::Result::Map::Body')->find($target_params->{body_id});
-        if (defined $target) {
-            $target_type = $target->get_type;
-        }
+        $target = Lacuna->db->resultset('Map::Body')->find($target_params->{body_id});
     }
     elsif (exists $target_params->{body_name}) {
         $target_word = $target_params->{body_name};
-        $target = $db->resultset('Lacuna::DB::Result::Map::Body')
-            ->search(
-                { name => $target_params->{body_name} }
-            )->first;
-        if (defined $target) {
-            $target_type = $target->get_type;
-        }
+        $target = Lacuna->db->resultset('Map::Body')->search({ 
+            name => $target_params->{body_name},
+        }, {rows    => 1,})->single;
     }
     elsif (exists $target_params->{x}) {
         $target_word = $target_params->{x}.":".$target_params->{y};
-        $target = $db->resultset('Lacuna::DB::Result::Map::Body')
-            ->search(
-                { x => $target_params->{x}, y => $target_params->{y} }
-            )->first;
-        unless (defined $target) {
-            $target = $db->resultset('Lacuna::DB::Result::Map::Star')
-                ->search(
-                    { x => $target_params->{x}, y => $target_params->{y} }
-                )->first;
-            $target_type = "star" if (defined $target);
-        }
-        else {
-            $target_type = $target->get_type;
-        }
+        $target = Lacuna->db->resultset('Map::Body')->search({ 
+            x => $target_params->{x}, 
+            y => $target_params->{y},
+        }, {rows=>1})->single;
         #Check for empty orbits.
-        unless (defined $target) {
-            my $star = $db->resultset('Lacuna::DB::Result::Map::Star')
-                ->search(
-                    {
-                        x => { '>=' => ($target_params->{x} -2),
-                               '<=' => ($target_params->{x} +2)
-                              }, 
-                        y => { '>=' => ($target_params->{y} -2),
-                               '<=' => ($target_params->{y} +2)
-                              }
-                    }
-                )->first;
+        if (not defined $target) {
+            my $star = Lacuna->db->resultset('Map::Star')->search( { 
+                x => { 
+                    '>=' => ($target_params->{x} -2), 
+                    '<=' => ($target_params->{x} +2), 
+                }, 
+                y => { 
+                    '>=' => ($target_params->{y} -2), 
+                    '<=' => ($target_params->{y} +2),
+                }
+            },
+            {rows => 1})->single;
             if (defined $star) {
                 my $sx = $star->x; my $sy = $star->y;
                 my $tx = $target_params->{x}; my $ty = $target_params->{y};
@@ -258,24 +246,34 @@ sub find_target {
             }
         }
     }
-    unless (defined $target) {
+    if (not defined $target) {
         confess [ 1002, 'Could not find '.$target_word.' target.'];
     }
     return $target, $target_type;
 }
 
+
 sub get_actions_for {
-    my ($self, $session_id, $building_id, $target_params) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    my $body = $building->body;
-    my ($target, $target_type) = $self->find_target($empire, $target_params);
-    my @tasks = bhg_tasks($building);
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            target          => shift,
+        };
+    }
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    my $body        = $building->body;
+    my $target      = $self->find_target($args->{target});
+    my @tasks       = bhg_tasks($building);
     my @list;
+ 
     for my $task (@tasks) {
-        my $chance;
-        $chance = task_chance($building, $target, $target_type, $task);
+        my $chance = task_chance($building, $target, $task);
+        $task->{body_id} = $chance->{body_id};
         $task->{dist}    = $chance->{dist};
         $task->{range}   = $chance->{range};
         $task->{reason}  = $chance->{reason};
@@ -292,21 +290,32 @@ sub get_actions_for {
         }
     }
     return {
-        status => $self->format_status($session, $body),
+        status => $self->format_status($empire, $body),
         tasks  => \@tasks
     };
 }
 
 sub task_chance {
-    my ($building, $target, $target_type, $task) = @_;
-    
-    my $dist; my $target_id;
-    my $range = $task->{range};
-    my $body = $building->body;
+    my ($building, $target, $task) = @_;
+
+    my $dist; my $target_type; my $target_id;
+    if (ref $target eq 'HASH') {
+        my $bx = $building->body->x;
+        my $by = $building->body->y;
+        $dist = sprintf "%0.2f", sqrt( ($target->{x} - $bx)**2 + ($target->{y} - $by)**2);
+        $target_id = $target->{id};
+        $target_type = $target->{type};
+    }
+    else {
+        $dist = sprintf "%0.2f", $building->body->calculate_distance_to_target($target)/100;
+        $target_id = $target->id;
+        $target_type = $target->get_type;
+    }
+    my $range = $building->level * 10;
     my $return = {
         success   => 0,
-        body_id   => 0,
-        dist      => -1,
+        body_id   => $target_id,
+        dist      => $dist,
         range     => $range,
         throw     => 0,
         reason    => '',
@@ -336,6 +345,14 @@ sub task_chance {
         }
     }
     unless ( grep { $target_type eq $_ } @{$task->{types}} ) {
+    
+    if ($building->level < $task->{min_level}) {
+        $return->{throw}  = 1013;
+        $return->{reason} = sprintf("You need a Level %d Black Hole Generator to do that",
+            $task->{min_level});
+        return $return;
+    }
+    if (not grep { $target_type eq $_ } @{$task->{types}} ) {
         $return->{throw}   = 1009;
         $return->{reason}  = $task->{reason};
         return $return;
@@ -1136,6 +1153,7 @@ sub generate_singularity {
         }
         elsif ($task->{name} eq "Swap Places") {
             $return_stats = bhg_swap($building->body, $target);
+
             my $tname;
             if (ref $target eq 'HASH') {
                 $tname = $target->{name};
@@ -1551,6 +1569,8 @@ sub drop_stars_beyond_range {
     return 1;
 }
 
+
+
 sub bhg_make_planet {
     my ($building, $body) = @_;
     my $class;
@@ -1584,6 +1604,8 @@ sub bhg_make_planet {
         name      => $body->name,
     };
 }
+
+
 
 sub bhg_make_asteroid {
     my ($building, $body) = @_;
@@ -1656,6 +1678,7 @@ sub bhg_random_make {
     return $return;
 }
 
+
 sub bhg_random_type {
     my ($building) = @_;
     my $body = $building->body;
@@ -1694,6 +1717,7 @@ sub bhg_random_type {
     return $return;
 }
 
+
 sub bhg_random_size {
     my ($building) = @_;
     my $body = $building->body;
@@ -1729,6 +1753,7 @@ sub bhg_random_size {
     }
     return $return;
 }
+
 
 sub bhg_random_resource {
     my ($building) = @_;
@@ -1851,14 +1876,17 @@ sub bhg_random_fissure {
     return $return;
 }
 
+
 sub bhg_random_decor {
     my ($building) = @_;
     my $body = $building->body;
-    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
-        ->search(
-            {zone => $body->zone },
-            { order_by => 'rand()' }
-        )->first;
+    my $target = Lacuna->db->resultset('Map::Body')->search({ 
+        zone        => $body->zone,
+    },{
+        rows        => 1, 
+        order_by    => 'rand()',
+    })->single;
+
     my $btype = $target->get_type;
     my $return = {
         id        => $target->id,
@@ -1893,6 +1921,7 @@ sub bhg_random_decor {
     return $return;
 }
 
+
 sub bhg_self_destruct {
     my ($building) = @_;
     my $body = $building->body;
@@ -1913,7 +1942,7 @@ sub bhg_self_destruct {
                 ($_->class ne 'Lacuna::DB::Result::Building::Permanent::Crater') and
                 ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder')
             } @{$body->building_cache};
-        
+
         last unless defined($placement);
         my $amount = randint(10, 100);
         $placement->spend_efficiency($amount)->update;
@@ -1926,6 +1955,7 @@ sub bhg_self_destruct {
     $return->{message} = "Black Hole Generator Destroyed";
     return $return;
 }
+
 
 sub bhg_decor {
     my ($building, $body, $variance) = @_;
@@ -1997,6 +2027,7 @@ sub bhg_decor {
     }
 }
 
+
 sub bhg_resource {
     my ($body, $variance) = @_;
     # If -1 deduct resources, if 0 randomize, if 1 add
@@ -2009,6 +2040,7 @@ sub bhg_resource {
         name      => $body->name,
         message   => "Resource Shuffle",
     };
+
     # Waste always reacts oddly
     my $waste_msg;
     my $waste_rnd = randint(1,5);
@@ -2027,6 +2059,7 @@ sub bhg_resource {
         $return->{waste} = "Random";
         $waste_msg = "randomized our waste storage";
     }
+
     # Other resources
     my $resource_msg;
     if ($variance == 1) {
@@ -2035,7 +2068,7 @@ sub bhg_resource {
         my $arr = rand_perc(scalar @food);
         my $food_stored = 0;
         for my $attrib (@food) {
-            $food_stored += $body->$attrib;
+            $food_stored += $body->$attrib; 
         }
         my $food_room = $body->food_capacity - $food_stored;
         for (0..(scalar @food - 1)) {
@@ -2044,6 +2077,7 @@ sub bhg_resource {
         }
         $arr = rand_perc(scalar @ore);
         my $ore_stored = 0;
+
         for my $attrib (@ore) {
             $ore_stored += $body->$attrib;
         }
@@ -2089,6 +2123,7 @@ sub bhg_resource {
     return $return;
 }
 
+
 sub rand_perc {
     my ($num) = @_;
     
@@ -2111,6 +2146,7 @@ sub recalc_miners {
         $building->recalc_ore_production;
     }
 }
+
 
 sub bhg_change_type {
     my ($body, $params) = @_;
@@ -2175,6 +2211,7 @@ sub bhg_change_type {
         name      => $body->name,
     };
 }
+
 
 sub bhg_size {
     my ($building, $body, $variance) = @_;
@@ -2259,6 +2296,7 @@ sub bhg_size {
         type     => $btype,
     };
 }
+
 
 sub bhg_tasks {
     my ($building) = @_;
@@ -2389,7 +2427,11 @@ sub subsidize_cooldown {
     return $self->view($session, $building);
 }
 
-__PACKAGE__->register_rpc_method_names(qw(generate_singularity get_actions_for subsidize_cooldown));
+__PACKAGE__->register_rpc_method_names(qw(
+    generate_singularity 
+    get_actions_for
+    subsidize_cooldown
+));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

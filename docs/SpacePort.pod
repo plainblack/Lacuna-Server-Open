@@ -138,20 +138,20 @@ This buildings ID
 
  {
    "building" : { ... },
-   "status" : { ... },
-   "max_ships" : 8,
-   "docks_available" : 4,
-   "docked_ships" : {
-     "probe" : 3,
-     "cargo_ship" : 0,
-     "spy_pod" : 1,
-     "colony_ship" : 0,
-     "terraforming_platform_ship": 0,
-     "gas_giant_settlement_platform_ship" : 0,
-     "mining_platform_ship" : 0,
-     "smuggler_ship" : 1,
-     "space_station" : 0,
-   }
+     "status" : { ... },
+     "max_ships" : 8,
+     "docks_available" : 4,
+     "docked_ships" : {
+       "probe" : 3,
+       "cargo_ship" : 0,
+       "spy_pod" : 1,
+       "colony_ship" : 0,
+       "terraforming_platform_ship": 0,
+       "gas_giant_settlement_platform_ship" : 0,
+       "mining_platform_ship" : 0,
+       "smuggler_ship" : 1,
+       "space_station" : 0,
+     }
  }
 
 

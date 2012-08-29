@@ -3,37 +3,54 @@
 The following methods are available from C</captcha>.
 
 
-=head2 fetch ( session_id )
+=head2 fetch
 
-Retrieves a captcha that is required in order to call the C<solve> method. Display the resulting captcha in your creation form and then call C<solve> with the user's response.
+Retrieves a captcha that is required in order to call the C<solve> method. 
+Display the resulting captcha in your creation form and then call C<solve> with the user's response.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id)
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 RESPONSE
 
  {
-    "guid" : "id-goes-here",
-    "url" : "'https://extras.lacunaexpanse.com.s3.amazonaws.com/captcha/id/id-goes-here.png" 
+   "guid" : "id-goes-here",
+   "url" : "'https://extras.lacunaexpanse.com.s3.amazonaws.com/captcha/id/id-goes-here.png" 
  }
 
-=head3 session_id
 
-A session id.
+=head2 solve
 
+Validates the user's solution against the known solution for the given guid. 
+If the solution validates, the captcha will be valid for thirty minutes (an expiration timestamp is set 
+in the session) and it returns a value of 1.
 
-=head2 solve ( session_id, captcha_guid, captcha_solution )
-
-Validates the user's solution against the known solution for the given guid. If the solution validates, the captcha will be valid for thirty minutes (an expiration timestamp is set in the session) and it returns a value of 1.
+B<NOTE:> If either C<captcha_guid> or C<captcha_solution> don't match what the server is expecting it 
+will throw a 1014 error, and the data portion of the error message will contain new captcha information. 
+You must use this. A captcha cannot be used more than once.
 
 Throws 1014.
 
-B<NOTE:> If either C<captcha_guid> or C<captcha_solution> don't match what the server is expecting it will throw a 1014 error, and the data portion of the error message will contain new captcha information. You must use this. A captcha cannot be used more than once.
+Accepts either fixed arguments or a hash of named parameters
 
-=head3 session_id
+ ( session_id, guid, solution)
+ ( parameter_hash )
 
-A session id.
+=head3 session_id (required)
 
-=head3 captcha_guid
+A session ID
+
+=head3 guid (required)
 
 This must match the C<guid> field returned by the C<fetch> method.
 
-=head3 captcha_solution
+=head3 solution (required)
 
 This is the text typed in by the user as the solution of the captcha.
 

@@ -1,6 +1,8 @@
 =head1 Chat
 
-The chat system is overlayed onto the web client in a way that makes it impossible for other apps to use it. However, through this API you can pop open a web browser from your app that will allow the users to participate in the conversation.
+The chat system is overlayed onto the web client in a way that makes it impossible for other apps to use it. 
+However, through this API you can pop open a web browser from your app that will allow the users to participate 
+in the conversation.
 
 B<NOTE:> This API is B<not> JSON-RPC based.
 

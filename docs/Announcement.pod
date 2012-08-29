@@ -7,18 +7,19 @@ B<NOTE:> This API is B<not> JSON-RPC based. It just returns an HTML document.
 The client should call this URI to fetch the announcement whenever the C<server> status block contains C<announcement> like this:
 
  {
-    "status" : {
-        "server" : {
-            "announcement" : 1,
-            ...
-        }
-        ...
+  "status" : {
+    "server" : {
+      "announcement" : 1,
+      ...
     }
+    ...
+  }
  }
 
  http://servername.lacunaexpanse.com/announcement?session_id=xxxxxxxxxxxxxxxx
 
-By calling this method to fetch the announcement, it will automatically remove the announcement from the C<server> block so that you know you don't have to fetch it again. 
+By calling this method to fetch the announcement, it will automatically remove the announcement from the 
+C<server> block so that you know you don't have to fetch it again. 
 
 The target dialog window size should be 200x200px, but scrollable.
 

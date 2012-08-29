@@ -7,6 +7,7 @@ extends 'Lacuna::RPC';
 use Lacuna::Util qw(format_date randint);
 use DateTime;
 
+
 sub fetch {
     my ($self, $session_id) = @_;
 
@@ -34,17 +35,28 @@ sub fetch {
     };
 }
 
+
 sub solve {
-    my ($self, $session_id, $guid, $solution) = @_;
-    my $session  = $self->get_session({session_id => $session_id });
-    my $empire   = $session->current_empire;
-    my $cache = Lacuna->cache;
-    if (defined $guid && defined $solution) {                                               # offered a solution
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            guid            => shift,
+            solution        => shift,
+        };
+    }
+    my $session_id  = $args->{session_id};
+    my $guid        = $args->{guid};
+    my $solution    = $args->{solution};
+
+    if (defined $guid && defined $solution) {
         my $captcha = Lacuna->cache->get_and_deserialize('captcha', $session_id);
-        if (ref $captcha eq 'HASH') {                                                       # a captcha has been set
-            if ($captcha->{guid} eq $guid) {                                                # the guid is the one set
-                if ($captcha->{solution} eq $solution) {                                    # the solution is correct
-                    $cache->set('captcha_valid', $session_id, 1, 60 * 30 );
+        if (ref $captcha eq 'HASH') {
+            if ($captcha->{guid} eq $guid) {
+                if ($captcha->{solution} eq $solution) {
+                    Lacuna->cache->set('captcha_valid', $session_id, 1, 60 * 30 );
                     return 1;
                 }
             }
@@ -64,7 +76,7 @@ sub solve {
 
 __PACKAGE__->register_rpc_method_names(
     { name => "fetch", },
-	{ name => "solve", },
+    { name => "solve", },
 );
 
 

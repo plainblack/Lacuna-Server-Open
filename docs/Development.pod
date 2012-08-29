@@ -6,7 +6,7 @@ The higher the development ministry, the more builds you can put in your build q
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
-=head2 view ( session_id, building_id )
+=head2 view ( session, building_id )
 
 This method is extended to include details about what's in your build queue.
 
@@ -27,25 +27,17 @@ The ID of the development ministry
      {
        "building_id" : "building-id-goes-here",
        "name" : "Planetary Commmand",
-       "to_level" : 8,
+       "subsidy_cost" : 3 # the essentia cost to subsidize just this building
+       "to_level" : 9,
        "seconds_remaining" : 537,
        "x" : 0,
-       "y" : 0,
-       "subsidy_cost" : 3 # the essentia cost to subsidize just this building
-     },
-     {
-       "building_id" : "building-id-goes-here",
-       "name" : "Wheat Farm",
-       "to_level" : 4,
-       "seconds_remaining" : 9748,
-       "x" : -1,
-       "y" : 5,
-       "subsidy_cost" : 2
+       "y" : 0
      }
    ],
-   "subsidy_cost" : 4 # the essentia cost to subsidize the whele build queue
+   "subsidy_cost" : 8 # the essentia cost to subsidize the build queue
  }
  
+
 =head2 subsidize_build_queue ( session_id, building_id )
 
 Allows a player to instantly finish all buildings in their build queue. The cost is returned by the C<view> method.

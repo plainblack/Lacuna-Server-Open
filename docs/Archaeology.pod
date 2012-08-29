@@ -5,110 +5,177 @@ Archaeology Ministry is accessible via the URL C</archaeology>.
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
 
-=head2 view ( session_id, building_id )
+=head2 view
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 RESPONSE
 
  {
     "status" : { ... },
     "building" : { ... },
  }
 
-If a search is active, the work block will be included. In the work block, there is an additional item not included in other work blocks: searching. c<searching> will contain the name of the ore being searched.
+If a search is active, the work block will be included. In the work block, there is an additional item not 
+included in other work blocks: searching. c<searching> will contain the name of the ore being searched.
  
 
 =head2 search_for_glyph ( session_id, building_id, ore_type )
 
-Searches through ore looking for glyphs left behind by the ancient race. Takes 10,000 of one type of ore to search. Returns C<view>.
+Searches through ore looking for glyphs left behind by the ancient race. Takes 10,000 of one type of ore to 
+search.
 
-=head3 session_id
+Accepts either fixed arguments or a hash of named parameters
 
-A session id.
+ ( session_id, building_id, ore_type)
+ ( parameter_hash )
 
-=head3 building_id
+=head3 session_id (required)
 
-The unique id of the Archaeology Ministry.
+A session ID
 
-=head3 ore_type
+=head3 building_id (required)
 
-One of the 20 types of ore. Choose from: rutile, chromite, chalcopyrite, galena, gold, uraninite, bauxite, goethite, halite, gypsum, trona, kerogen, methane, anthracite, sulfur, zircon, monazite, fluorite, beryl, magnetite
+This buildings ID
+
+=head3 ore_type (required)
+
+One of the 20 types of ore. Choose from: rutile, chromite, chalcopyrite, galena, gold, uraninite, 
+bauxite, goethite, halite, gypsum, trona, kerogen, methane, anthracite, sulfur, zircon, monazite, 
+fluorite, beryl or magnetite
+
+=head3 RESPONSE
+
+Returns B<view>.
+
 
 
 =head2 subsidize_search ( session_id, building_id )
 
-Will spend 2 essentia to complete the current glyph search immediately. Returns C<view>.
+Will spend 2 essentia to complete the current glyph search immediately.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
 
 Throws 1011.
 
-=head3 session_id
+=head3 session_id (required)
 
-A session id.
+A session ID
 
-=head3 building_id
+=head3 building_id (required)
 
-The unique id of the Archaeology Ministry.
+This buildings ID
+
+=head3 RESPONSE
+
+Returns B<view>
 
 
 
-=head2 get_glyphs ( session_id, building_id )
+=head2 get_glyph_summary
 
-This API call is now deprecated, please use get_glyph_summary instead.
+Returns a summary of all glyphs that may be assembled in this archaeology ministry.  Used with the 
+C<assemble_glyphs> method.
 
-=head2 get_glyph_summary ( session_id, building_id )
+Accepts either fixed arguments or a hash of named parameters
 
-Returns a summary of all glyphs that may be assembled in this archaeology ministry.  Used with the C<assemble_glyphs> method.
+ ( session_id, building_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+
+=head3 RESPONSE
 
  {
-    "glyphs" : [
-        {
-            "id" : "id-goes-here",
-            "name: : "bauxite",
-            "type" : "bauxite",
-            "quantity" : 2
-        },
-        ...
-    ],
-    "status" : { ... }
+  "glyphs" : [
+    {
+      "id" : "id-goes-here",
+      "name: : "bauxite",
+      "type" : "bauxite",
+      "quantity" : 2
+    },
+    ...
+  ],
+  "status" : { ... }
  }
 
 
-=head3 session_id
 
-A session id.
+=head2 assemble_glyphs
 
-=head3 building_id
+Turns glyphs into rare and ancient items.
 
-The unique id of the Archaeology Ministry.
+Accepts either fixed arguments or a hash of named parameters
 
+ ( session_id, building_id )
+ ( parameter_hash )
 
+=head3 session_id (required)
 
-=head2 assemble_glyphs ( session_id, building_id, glyphs, [ quantity ] )
+A session ID
 
-Turns glyphs into rare ancient items. Returns:
+=head3 building_id (required)
 
- {
-    "status" : { ... },
-    "item_name" : "Volcano"
- }
+This buildings ID
 
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the Archaeology Ministry.
-
-=head3 glyphs
+=head3 glyphs (required)
 
 An array reference containing an ordered list of up to four glyph types.
 
-=head3 quantity
+=head3 quantity (optional)
 
-An optional quantity; if left blank it defaults to 1, otherwise specify the number of times to assemble the indicated glyphs.
+Defaults to 1, otherwise specify the number of times to assemble the indicated glyphs up to a maximum of 50.
+
+=head3 RESPONSE
+
+ {
+  "status" : { ... },
+  "item_name" : "Volcano"
+ }
 
 
-=head2 get_ores_available_for_processing (session_id, building_id)
+
+=head2 get_ores_available_for_processing
 
 Returns a list of ore names that the user has enough of to process for glyphs.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+
+Throws 1011.
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 RESPONSE
 
  {
     "status" : { ... },
@@ -118,78 +185,85 @@ Returns a list of ore names that the user has enough of to process for glyphs.
         }
  }
 
-=head3 session_id
 
-A session id.
-
-=head3 building_id
-
-The unique id of the Archaeology Ministry.
-
-
-=head2 view_excavators ( session_id, building_id )
+=head2 view_excavators
 
 Returns a list of the excavator sites currently controlled by this ministry.
 
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+
+Throws 1011.
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 RESPONSE
+
  {
-    "status" : { ... },
-    "max_excavators" : 2,
-    "travelling" : 1,
-    "excavators" : [
-        {
-            "id" : "id-goes-here",
-            "body" : {
-                "id" : "id-goes-here",
-                "name" : "Kuiper",
-                "x" : 0,
-                "y" : -444,
-                "image" : "a1-5",
-                ...
-            },
-            "artifact" : 5,
-            "glyph" : 30,
-            "plan" : 7,
-            "resource" : 53
-            "date_landed" : Date excav started at location
-        },
+  "status" : { ... },
+  "max_excavators" : 1,
+  "excavators" : [
+    {
+      "id" : "id-goes-here",
+      "body" : {
+        "id" : "id-goes-here",
+        "name" : "Kuiper",
+        "x" : 0,
+        "y" : -444,
+        "image" : "a1-5",
         ...
-    ]
+      },
+      "artifact" : 5,
+      "glyph" : 30,
+      "plan" : 7,
+      "resource" : 53
+    },
+    ...
+  ]
  }
  
-The C<chances> numbers give the chances out of 100 that a certain result is found by your excavator each hour.
+The C<artifact>, C<glyph>, C<plan> and C<resource> numbers give the chances out of 100 that a certain result 
+will be found by your excavator every hour.
  
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the archaeology ministry.
 
 
 =head2 abandon_excavator ( session_id, building_id, site_id )
 
 Close down an existing excavator site.
 
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+
+Throws 1002.
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 site_id (required)
+
+The unique id of the excavator site you wish to abandon.
+
+=head3 RESPONSE
+
  {
     "status" : { ... }
  }
  
-Throws 1002.
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the archaeology ministry.
-
-=head3 site_id
-
-The unique id of the excavator site you wish to abandon.
-
-
 =head2 mass_abandon_excavator ( session_id, building_id )
 
 Destroy all excavators.
@@ -201,6 +275,5 @@ A session id.
 =head3 building_id
 
 The unique id for the archaeology ministry.
-
 
 =cut

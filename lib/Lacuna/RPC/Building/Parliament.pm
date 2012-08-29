@@ -41,7 +41,7 @@ sub get_stars_in_jurisdiction {
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
     my @out;
-    my $stars = $building->body->stars->search({},{order_by => "name"});
+    my $stars = $building->body->stars->search({},{order_by => 'name'});
     while (my $star = $stars->next) {
         push @out, $star->get_status;
     }

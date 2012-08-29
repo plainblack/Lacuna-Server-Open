@@ -588,9 +588,9 @@
  - Mod: Travelling ships not involved in a trade or an attack can be recalled
  - Mod: Travelling ships not involved in an attack can be scuttled
  - Mod: Removed option to skip incoming ships messages
+ - Fix: Stars now list in alphabetic order in Parliament, rename stars.
 
  - TEST: view_incoming_fleet: for visibility of foreign fleets.
- - TODO: _view_fleets and _view_ships seem to do different things
  - TODO: view_ships_orbiting seems to be redundant
 
  - TODO: Ability to 'delay' a fleet that is already in flight.
