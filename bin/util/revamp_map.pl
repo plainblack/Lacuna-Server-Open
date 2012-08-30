@@ -90,12 +90,19 @@ sub wreck_planet {
     $body->needs_surface_refresh(1);
     foreach my $building (@{$body->building_cache}) {
         if ($building->class eq 'Lacuna::DB::Result::Building::Permanent::BlackHoleGenerator') {
+            my $now = DateTime->now;
             $building->class('Lacuna::DB::Result::Building::Permanent::Fissure');
+            if ($building->is_working) {
+                $building->is_working(0);
+                $building->work_ends($now);
+            }
+            $building->is_upgrading(0);
+            $building->efficiency(100);
         }
         else {
             $building->spend_efficiency(randint(1,25));
-            $building->update;
         }
+        $building->update;
     }
 }
 
