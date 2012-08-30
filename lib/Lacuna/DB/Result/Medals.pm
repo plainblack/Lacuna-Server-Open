@@ -271,7 +271,6 @@ use constant MEDALS => {
     SSLc                            => 'Built Space Station Lab (C)',
     SSLd                            => 'Built Space Station Lab (D)',
     MalcudField                     => 'Discovered a Malcud Field',
-    Fissure                         => 'Caused a Fissure',
     Ravine                          => 'Discovered a Ravine',
     AlgaePond                       => 'Discovered a Algae Pond',
     LapisForest                     => 'Discovered a Lapis Forest',

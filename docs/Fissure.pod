@@ -1,7 +1,0 @@
-=head1 Fissure Methods
-
-Fissure is accessible via the URL C</fissure>.
-
-The list of methods below represents changes and additions to the methods that all L<Buildings> share.
-
-=cut

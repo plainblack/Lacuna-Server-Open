@@ -1,7 +1,3 @@
-3.0866:
- - Add: Fissure.
- - Mod: BHG creates a Fissure instead of a Crater when it explodes.
-
 3.0865:
  - Mod: Removed option to disable display of incoming ships. (To see if it fixes some resource issues)
  - Mod: Attempt to make Counter Espionage tutorial message clearer since people don't read the entire email.

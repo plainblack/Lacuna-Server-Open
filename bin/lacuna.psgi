@@ -205,7 +205,6 @@ my $app = builder {
         Lacuna::RPC::Building::CloakingLab
         Lacuna::RPC::Building::MunitionsLab
         Lacuna::RPC::Building::LuxuryHousing
-        Lacuna::RPC::Building::Fissure
         Lacuna::RPC::Building::Ravine
         Lacuna::RPC::Building::AlgaePond
         Lacuna::RPC::Building::LapisForest

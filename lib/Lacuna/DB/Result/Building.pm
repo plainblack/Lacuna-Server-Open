@@ -1118,7 +1118,6 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Permanent::LapisForest' => 'Lacuna::DB::Result::Building::Permanent::LapisForest',
         'Lacuna::DB::Result::Building::Permanent::AlgaePond' => 'Lacuna::DB::Result::Building::Permanent::AlgaePond',
         'Lacuna::DB::Result::Building::Permanent::Ravine' => 'Lacuna::DB::Result::Building::Permanent::Ravine',
-        'Lacuna::DB::Result::Building::Permanent::Fissure' => 'Lacuna::DB::Result::Building::Permanent::Fissure',
         'Lacuna::DB::Result::Building::Permanent::PantheonOfHagness' => 'Lacuna::DB::Result::Building::Permanent::PantheonOfHagness',
         'Lacuna::DB::Result::Building::SubspaceSupplyDepot' => 'Lacuna::DB::Result::Building::SubspaceSupplyDepot',
         'Lacuna::DB::Result::Building::ThemePark' => 'Lacuna::DB::Result::Building::ThemePark',
