@@ -1466,6 +1466,7 @@ sub bhg_swap {
                     star_id => $new_data->{star_id}
                 });
             }
+            $target->recalc_chains; # Recalc all chains
         }
         if ($body->get_type eq 'space station') {
             drop_stars_beyond_range($body);
