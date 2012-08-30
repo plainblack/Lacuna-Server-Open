@@ -1,3 +1,9 @@
+3.0866:
+ - Fix: Freshly built ArchMin were returning results before completing their build.
+ - Fix: No longer will recalculate a supply chain on an asteroid.
+ - Fix: Minimum training times in spy training buildings.
+ - Fix: Can no longer place a useless BHG on a space station.
+
 3.0865:
  - Mod: Removed option to disable display of incoming ships. (To see if it fixes some resource issues)
  - Mod: Attempt to make Counter Espionage tutorial message clearer since people don't read the entire email.
