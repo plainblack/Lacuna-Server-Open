@@ -6,6 +6,8 @@ use Lacuna;
 use Lacuna::Util qw(randint format_date random_element);
 use Getopt::Long;
 use List::MoreUtils qw(uniq);
+use Data::Rand;
+
 $|=1;
 our $quiet;
 GetOptions(
@@ -62,22 +64,31 @@ if ($revamp_x->value > $x_max) {
 
 my $colonies_requiring_update;
 
+my $news_1 = "ALERT: From Deep Space Monitoring Station %d, co-ordinates %d|%d";
+my $news_2 = "Automatic sensors detect a cosmic string with energy readings of %d Ancrons.";
+my $news_3 = "Cosmic String leaving vast areas of destruction in it's wake.";
+my $news_4 = "Deep Space Monitoring station %d, co-ordinates %d|%d shutting down due to sensor overload";
+
 while (my $body = $bodies->next) {
     # I know it is inefficient to calculate this for every body, but we are only doing it once!
     my $zone = $body->zone;
-    my ($x,$y) = $zone =~ m/(-?\d+)|(-?\d+)/;
+    my ($x,$y) = $zone =~ m/(-?\d+)\|(-?\d+)/;
     # seed the random number generator so it starts at the same point for every zone
-    srand($x*10000+$y);
+    my $seed = $x*10000+$y;
+    srand($seed);
     determine_zone_details();
 
     if ($body->empire_id > 1) {
         if ($first_in_ribbon) {
+            my $seed = $body->x*10000+$body->y;
+            out("ZONE $zone, x ".$body->x.", y ".$body->y.", seed $seed");
+            srand($seed);
             $first_in_ribbon = 0;
-            $body->add_news(100,'... --- ...');
-            $body->add_news(100,'- .... .  .-. .. -... -... --- -.  .. ...  .... . .-. .');
-            $body->add_news(100,'a$'.randint(1111,9999).' ribbon ha$ ajd..a# zone '.$zone.'___23kkd..');
-            $body->add_news(100,'9990()(destroyed much of|||938....');
-            $body->add_news(100,'.-- .... .- -   .... .- ...- .   .-- .   -.. --- -. . ..--.. ');
+            out("About to add news item");
+            $body->add_news(100, corrupt_string(sprintf($news_1, rand(1000), $body->x, $body->y)));
+            $body->add_news(100, corrupt_string(sprintf($news_2, rand(10000)+80000)));
+            $body->add_news(100, corrupt_string(sprintf($news_3, rand(1000))));
+            $body->add_news(100, corrupt_string(sprintf($news_4, rand(1000), $body->x, $body->y)));
         }
         wreck_planet($body);
     }
@@ -114,6 +125,26 @@ for my $body_id (keys %$colonies_requiring_update) {
 
 $revamp_x->value($revamp_x->value + $band_width);
 $revamp_x->update;
+
+sub corrupt_string {
+    my ($str) = @_;
+
+    # generate an array, the length of the string, with random 'bits'
+    # 1 in 5 characters is 'corrupted'
+    my $error_bits = rand_data(length($str), [0,0,0,0,1]);
+    my $error_char = rand_data(length($str), [0..9,'a'..'z','A'..'Z','$','!','@','^','(','.',',',')']);
+    # combine everything to create the corrupt string
+    my $out = '';
+    while ($str) {
+        my $good    = substr $str, 0, 1, '';
+        my $bad     = substr $error_char, 0, 1, '';
+        my $bit     = substr $error_bits, 0, 1, '';
+        $out .= $bit ? $bad : $good;
+    }
+
+    out("$out");
+    return $out;
+}
 
 sub wreck_planet {
     my $body = shift;
