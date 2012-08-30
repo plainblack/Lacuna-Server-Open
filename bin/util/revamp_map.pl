@@ -59,6 +59,9 @@ if ($revamp_x->value > $x_max) {
     out('All done! You may stop the cron job!');
     exit;
 }
+
+my $colonies_requiring_update;
+
 while (my $body = $bodies->next) {
     # I know it is inefficient to calculate this for every body, but we are only doing it once!
     my $zone = $body->zone;
@@ -82,9 +85,32 @@ while (my $body = $bodies->next) {
         #skip it
     }
     else {
+        # are there any mining platforms on this body?
+        my $platforms = $db->resultset('MiningPlatforms')->search({
+            asteroid_id => $body->id,
+        });
+        while (my $platform = $platforms->next) {
+            $colonies_requiring_update->{$platform->planet_id} = 1;
+        }
+
         convert_body($body);
     }
 }
+
+out('Recalculating for affected mining platforms');
+
+# Recalculate all bodies that have mining platforms in the affected strip
+for my $body_id (keys %$colonies_requiring_update) {
+    my $body = $db->resultset('Body')->find($body_id);
+    out("Recalculating mining platforms for ".$body->name);
+
+    my $ministry = $body->mining_ministry;
+    if ($ministry) {
+        $ministry->recalc_ore_production;
+        $body->recalc_stats;
+    }
+}
+
 
 $revamp_x->value($revamp_x->value + $band_width);
 $revamp_x->update;
@@ -113,7 +139,7 @@ sub wreck_planet {
 
 sub convert_body {
     my $body = shift;
-    out('Converting body '.$body->name);
+#    out('Converting body '.$body->name);
     my $type = $body->get_type;
     my $class_prefix = 'Lacuna::DB::Result::Map::Body::';
     if ($type eq 'gas giant') {
@@ -132,7 +158,7 @@ sub convert_body {
 }
 
 sub determine_zone_details {
-    out('determining zone details');
+#    out('determining zone details');
     # asteroids
     my %asteroid;
     $asteroid{min_size} = randint(1,6);
