@@ -7,18 +7,24 @@ use Lacuna::Util qw(randint format_date);
 use Getopt::Long;
 $|=1;
 our $quiet;
+our $all;
 GetOptions(
-    'quiet'         => \$quiet,  
+    'quiet' => \$quiet,    'all'   => \$all,
 );
-
 
 out('Started');
 my $start = time;
-
 out('Loading DB');
 our $db = Lacuna->db;
 my $empires = $db->resultset('Lacuna::DB::Result::Empire');
+
 my $lec = $empires->find(1);
+
+if (not $all) {
+    $empires = $empires->search({ is_admin => 1 });
+}
+
+$empires = $empires->search({ id => {'>' => 1}});
 
 my $message = q{Luckily we appear to have weathered the storm, but it appears that the Expanse is forever changed. 
 

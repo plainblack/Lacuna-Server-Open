@@ -9,8 +9,10 @@ use List::MoreUtils qw(uniq);
 $|=1;
 our $quiet;
 GetOptions(
-    'quiet'         => \$quiet,  
+    'quiet'     => \$quiet,  
 );
+
+my $band_width = 20;
 
 out('Started');
 my $start = time;
@@ -27,38 +29,47 @@ my @asteroid_types  = qw(A1 A2 A3 A4 A5 A6 A7 A8 A9 A10 A11 A12 A13 A14 A15 A16 
 my @habital_types   = qw(P1 P2 P3 P4 P5 P6 P7 P8 P9 P10 P11 P12 P13 P14 P15 P16 P17 P18 P19 P20 P21 P22 P23 P24 P25 P26 P27 P28 P29 P30 P31 P32 P33 P34 P35 P36 P37 P38 P39 P40);
 my @gas_giant_types = qw(G1 G2 G3 G4 G5);
 
-my $z_config = $db_config->search({name => 'revamp_zone'})->single;
-my $x_min = int($config->get('map_size/x')->[0]/250);
-my $y_min = int($config->get('map_size/y')->[0]/250);
-my $x_max = int($config->get('map_size/x')->[1]/250);
-my $y_max = int($config->get('map_size/y')->[1]/250);
+my $revamp_x = $db_config->search({name => 'revamp_x'})->single;
+my $x_min = int($config->get('map_size/x')->[0]);
+my $x_max = int($config->get('map_size/x')->[1]);
 
-if (not defined $z_config) {
-    my $starting_zone = "$x_min|$y_min";
-    out("Starting on zone $starting_zone. Good Luck!");
+if (not defined $revamp_x) {
+    out("Starting at x = $x_min. Good Luck!");
 
-    $z_config = $db_config->create({
-        name    => 'revamp_zone',
-        value   => $starting_zone,
+    $revamp_x = $db_config->create({
+        name    => 'revamp_x',
+        value   => $x_min,
     });
 }
-my $zone = $z_config->value;
-my ($x,$y) = $zone =~ m/(-?\d+)\|(-?\d+)/;
+my $ribben_from = $revamp_x->value;
+my $ribben_to   = $revamp_x->value + $band_width;
 
 my %zone_details;
 
-out('Working on zone '.$zone);
-my $first_in_zone = 1;
-my $zone_bodies = $bodies->search({zone => $zone},{order_by => ['x','y']});
-determine_zone_details();
-if ($x > $x_max || $y > $y_max) {
+out("Ribbon is between x=$ribben_from and x=$ribben_to");
+my $first_in_ribbon = 1;
+my $bodies = $bodies->search({ -and => [
+    { x => {'>=' => $ribben_from }},
+    { x => {'<'  => $ribben_to }},
+    ]},
+    { order_by => 'y' }
+    );
+
+if ($revamp_x->value > $x_max) {
     out('All done! You may stop the cron job!');
     exit;
 }
-while (my $body = $zone_bodies->next) {
+while (my $body = $bodies->next) {
+    # I know it is inefficient to calculate this for every body, but we are only doing it once!
+    my $zone = $body->zone;
+    my ($x,$y) = $zone =~ m/(-?\d+)|(-?\d+)/;
+    # seed the random number generator so it starts at the same point for every zone
+    srand($x*10000+$y);
+    determine_zone_details();
+
     if ($body->empire_id > 1) {
-        if ($first_in_zone) {
-            $first_in_zone = 0;
+        if ($first_in_ribbon) {
+            $first_in_ribbon = 0;
             $body->add_news(100,'... --- ...');
             $body->add_news(100,'- .... .  .-. .. -... -... --- -.  .. ...  .... . .-. .');
             $body->add_news(100,'a$'.randint(1111,9999).' ribbon ha$ ajd..a# zone '.$zone.'___23kkd..');
@@ -75,14 +86,8 @@ while (my $body = $zone_bodies->next) {
     }
 }
 
-$x = $x + 1;
-if ($x > $x_max) {
-    $x = $x_min;
-    $y = $y + 1;
-}
-
-$z_config->value("$x|$y");
-$z_config->update;
+$revamp_x->value($revamp_x->value + $band_width);
+$revamp_x->update;
 
 sub wreck_planet {
     my $body = shift;
