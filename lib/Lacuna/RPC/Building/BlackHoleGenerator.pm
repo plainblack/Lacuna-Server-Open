@@ -476,63 +476,68 @@ sub bhg_swap {
         zone        => $body->zone,
         star_id     => $body->star_id,
         orbit       => $body->orbit,
-    };
-<<<<<<< HEAD
+        };
     my $new_data;
     if (ref $target eq 'HASH') {
         $new_data = {
-            id          => $target->{id},
-            name        => $target->{name},
-            orbit       => $target->{orbit},
-            star_id     => $target->{star_id},
-            type        => $target->{type},
-            x           => $target->{x},
-            y           => $target->{y},
-            zone        => $target->{zone},
+            id           => $target->{id},
+            name         => $target->{name},
+            orbit        => $target->{orbit},
+            star_id      => $target->{star_id},
+            type         => $target->{get_type},
+            x            => $target->{x},
+            y            => $target->{y},
+            zone         => $target->{zone},
         };
     }
     else {
         $new_data = {
-            id          => $target->id,
-            name        => $target->name,
-            orbit       => $target->orbit,
-            star_id     => $target->star_id,
-            type        => $target->get_type,
-            x           => $target->x,
-            y           => $target->y,
-            zone        => $target->zone,
+            id           => $target->id,
+            name         => $target->name,
+            orbit        => $target->orbit,
+            star_id      => $target->star_id,
+            type         => $target->get_type,
+            x            => $target->x,
+            y            => $target->y,
+            zone         => $target->zone,
         };
     }
     $body->update({
-        needs_recalc    => 1,
-        x               => $new_data->{x},
-        y               => $new_data->{y},
-        zone            => $new_data->{zone},
-        star_id         => $new_data->{star_id},
-        orbit           => $new_data->{orbit},
+        needs_recalc => 1,
+        x            => $new_data->{x},
+        y            => $new_data->{y},
+        zone         => $new_data->{zone},
+        star_id      => $new_data->{star_id},
+        orbit        => $new_data->{orbit},
     });
 
     if ($new_data->{type} ne "empty") {
         $target->update({
-            needs_recalc    => 1,
-            x               => $old_data->{x},
-            y               => $old_data->{y},
-            zone            => $old_data->{zone},
-            star_id         => $old_data->{star_id},
-            orbit           => $old_data->{orbit},
+            needs_recalc => 1,
+            x            => $old_data->{x},
+            y            => $old_data->{y},
+            zone         => $old_data->{zone},
+            star_id      => $old_data->{star_id},
+            orbit        => $old_data->{orbit},
         });
-        my $target_waste = Lacuna->db->resultset('WasteChain')->search({ planet_id => $target->id });
-        if ($target_waste->count > 0) {
-            while (my $chain = $target_waste->next) {
-                $chain->update({
-                    star_id => $old_data->{star_id}
-                });
+        if ($new_data->{type} ne 'asteroid') {
+            my $target_waste = Lacuna->db->resultset('WasteChain')->search({ 
+                planet_id => $target->id,
+            });
+            if ($target_waste->count > 0) {
+                while (my $chain = $target_waste->next) {
+                    $chain->update({
+                        star_id => $old_data->{star_id}
+                    });
+                }
             }
+            $target->recalc_chains; # Recalc all chains
         }
-        $target->recalc_chains; # Recalc all chains
     }
 
-    my $waste_chain = Lacuna->db->resultset('WasteChain')->search({ planet_id => $body->id });
+    my $waste_chain = Lacuna->db->resultset('WasteChain')->search({ 
+        planet_id => $body->id,
+    });
     if ($waste_chain->count > 0) {
         while (my $chain = $waste_chain->next) {
             $chain->update({
@@ -551,73 +556,6 @@ sub bhg_swap {
         swapname => $new_data->{name},
         swapid   => $new_data->{id},
     };
-=======
-  }
-  else {
-    $new_data = {
-      id           => $target->id,
-      name         => $target->name,
-      orbit        => $target->orbit,
-      star_id      => $target->star_id,
-      type         => $target->get_type,
-      x            => $target->x,
-      y            => $target->y,
-      zone         => $target->zone,
-    };
-  }
-  $body->update({
-    needs_recalc => 1,
-    x            => $new_data->{x},
-    y            => $new_data->{y},
-    zone         => $new_data->{zone},
-    star_id      => $new_data->{star_id},
-    orbit        => $new_data->{orbit},
-  });
-
-  unless ($new_data->{type} eq "empty") {
-      $target->update({
-        needs_recalc => 1,
-        x            => $old_data->{x},
-        y            => $old_data->{y},
-        zone         => $old_data->{zone},
-        star_id      => $old_data->{star_id},
-        orbit        => $old_data->{orbit},
-      });
-      if ($new_data->{type} ne 'asteroid') {
-          my $target_waste = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
-                              ->search({ planet_id => $target->id });
-          if ($target_waste->count > 0) {
-              while (my $chain = $target_waste->next) {
-                  $chain->update({
-                  star_id => $old_data->{star_id}
-                });
-              }
-          }
-          $target->recalc_chains; # Recalc all chains
-      }
-  }
-
-  my $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
-                      ->search({ planet_id => $body->id });
-  if ($waste_chain->count > 0) {
-    while (my $chain = $waste_chain->next) {
-      $chain->update({
-        star_id => $new_data->{star_id}
-      });
-    }
-  }
-  $body->recalc_chains; # Recalc all chains
-
-  return {
-    id       => $body->id,
-    message  => "Swapped Places",
-    name     => $body->name,
-    orbit    => $new_data->{orbit},
-    star_id  => $new_data->{star_id},
-    swapname => $new_data->{name},
-    swapid   => $new_data->{id},
-  };
->>>>>>> develop
 }
 
 
@@ -697,7 +635,7 @@ sub bhg_random_make {
         order_by    => 'rand()',
     })->single;
 
-    my $btype = $target->get_type
+    my $btype = $target->get_type;
     if ($btype eq 'habitable planet' or $btype eq 'gas giant') {
         $body->add_news(75, sprintf('%s has been destroyed!', $target->name));
         $return = bhg_make_asteroid($building, $target);
