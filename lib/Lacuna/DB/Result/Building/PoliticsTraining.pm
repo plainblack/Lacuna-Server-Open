@@ -96,15 +96,19 @@ sub training_costs {
     };
     if ($spy_id) {
         my $spy = $self->get_spy($spy_id);
-        $costs->{time} = sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
+        my $train_time = sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
+        $train_time = 3600 if ($train_time < 3600);
+        $costs->{time} = $train_time;
     }
     else {
         my $spies = $self->get_spies->search({ task => { in => ['Counter Espionage','Idle'] } });
         while (my $spy = $spies->next) {
+            my $train_time = sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
+            $train_time = 3600 if ($train_time < 3600);
             push @{$costs->{time}}, {
                 spy_id  => $spy->id,
                 name    => $spy->name,
-                time    => sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100)),
+                time    => $train_time,
             };
         }
     }
@@ -136,8 +140,8 @@ sub train_spy {
     my ($self, $spy_id, $time_to_train) = @_;
     my $empire = $self->body->empire;
     my $spy = $self->get_spy($spy_id);
-    unless ($time_to_train) {
-        $time_to_train = $self->training_costs($spy)->{time};
+    unless (defined $time_to_train) {
+        $time_to_train = $self->training_costs($spy_id)->{time};
     }
     unless ($spy->task ~~ ['Counter Espionage','Idle']) {
         confess [1011, 'Spy must be idle to train.'];
