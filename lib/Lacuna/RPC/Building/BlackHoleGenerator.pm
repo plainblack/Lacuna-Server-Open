@@ -484,24 +484,26 @@ sub bhg_swap {
   });
 
   unless ($new_data->{type} eq "empty") {
-    $target->update({
-      needs_recalc => 1,
-      x            => $old_data->{x},
-      y            => $old_data->{y},
-      zone         => $old_data->{zone},
-      star_id      => $old_data->{star_id},
-      orbit        => $old_data->{orbit},
-    });
-    my $target_waste = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
-                        ->search({ planet_id => $target->id });
-    if ($target_waste->count > 0) {
-      while (my $chain = $target_waste->next) {
-        $chain->update({
-          star_id => $old_data->{star_id}
-        });
+      $target->update({
+        needs_recalc => 1,
+        x            => $old_data->{x},
+        y            => $old_data->{y},
+        zone         => $old_data->{zone},
+        star_id      => $old_data->{star_id},
+        orbit        => $old_data->{orbit},
+      });
+      if ($new_data->{type} ne 'asteroid') {
+          my $target_waste = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
+                              ->search({ planet_id => $target->id });
+          if ($target_waste->count > 0) {
+              while (my $chain = $target_waste->next) {
+                  $chain->update({
+                  star_id => $old_data->{star_id}
+                });
+              }
+          }
+          $target->recalc_chains; # Recalc all chains
       }
-    }
-    $target->recalc_chains; # Recalc all chains
   }
 
   my $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
@@ -787,18 +789,18 @@ sub bhg_decor {
   }
   $max_level = 30 if $max_level > 30;
   my $planted = 0;
-  my $now = DateTime->now;
   foreach my $cnt (1..$plant) {
     my ($x, $y) = eval { $body->find_free_space};
     unless ($@) {
-        my $deployed = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-            date_created => $now,
-            class        => random_element(\@decor),
+        my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
             x            => $x,
             y            => $y,
             level        => randint(1, $max_level),
             body_id      => $body->id,
-        })->insert;
+            body         => $body,
+            class        => random_element(\@decor),
+        });
+        $body->build_building($building, undef, 1);
         $planted++;
     }
     else {
