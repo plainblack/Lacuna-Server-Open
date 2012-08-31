@@ -7,6 +7,7 @@ use Lacuna::Util qw(randint format_date random_element);
 use Getopt::Long;
 use List::MoreUtils qw(uniq);
 use Data::Rand;
+use Data::Dumper;
 
 $|=1;
 our $quiet;
@@ -170,7 +171,8 @@ sub wreck_planet {
 
 sub convert_body {
     my $body = shift;
-#    out('Converting body '.$body->name);
+    srand($body->id);
+
     my $type = $body->get_type;
     my $class_prefix = 'Lacuna::DB::Result::Map::Body::';
     if ($type eq 'gas giant') {
@@ -183,8 +185,11 @@ sub convert_body {
         $class_prefix .= 'Planet::';
     }
     my $details = $zone_details{$type};
+
     $body->size(randint($details->{min_size}, $details->{max_size}));
-    $body->class($class_prefix.random_element($details->{types}));
+
+    my $t = random_element($details->{types});
+    $body->class("$class_prefix$t");
     $body->update;
 }
 
@@ -216,7 +221,7 @@ sub determine_zone_details {
 
     %zone_details = (
         'asteroid'          => \%asteroid,
-        'habital planet'    => \%habital,
+        'habitable planet'  => \%habital,
         'gas giant'         => \%gas_giant,
     );
 }
