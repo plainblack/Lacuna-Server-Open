@@ -44,8 +44,8 @@ before 'can_demolish' => sub {
 
 before 'can_downgrade' => sub {
   my $self = shift;
-  if ($self->has_resources_to_fill_in_fissure) {
-    confess [1013, 'You need '.$self->cost_to_fill_in_fissure.' in ore to fill in the fissure.'];
+  unless ($self->has_resources_to_fill_in_fissure) {
+    confess [1013, 'You need '.int($self->cost_to_fill_in_fissure).' in ore to fill in the fissure.'];
   }
 };
 
