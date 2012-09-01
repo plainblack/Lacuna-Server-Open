@@ -51,24 +51,45 @@ my %zone_details;
 
 out("Ribbon is between x=$ribben_from and x=$ribben_to");
 my $first_in_ribbon = 1;
-my $bodies = $bodies->search({ -and => [
+my $search_criteria = { -and => [
     { x => {'>=' => $ribben_from }},
     { x => {'<'  => $ribben_to }},
-    ]},
-    { order_by => 'y' }
-    );
+    ]};
+my $bodies = $bodies->search($search_criteria, { order_by => 'y' });
+my $stars = $stars->search($search_criteria, { order_by => 'y' });
 
 if ($revamp_x->value > $x_max) {
     out('All done! You may stop the cron job!');
     exit;
 }
 
+out('Destroying probes.');
+while (my $star = $stars->next) {
+    my $probes = $star->probes;
+    while (my $probe = $probes->next) {
+        out('Destroying '.$probe->empire->name.'s probe attached to '.$star->name);
+        $probe->empire->send_predefined_message(
+            tags        => ['Spies','Alert'],
+            filename    => 'probe_destroyed.txt',
+            params      => [$probe->body->id,
+                            $probe->body->name,
+                            $star->x,
+                            $star->y,
+                            $star->name],
+        );
+        $probe->delete;
+    }
+}
+
 my $colonies_requiring_update;
 
+my $news_a = '... --- ...';
+my $news_b = '- .... .  .-. .. -... -... --- -.  .. ...  .... . .-. .';
+my $news_c = '.-- .... .- -   .... .- ...- .   .-- .   -.. --- -. . ..--.. ';
 my $news_1 = "ALERT: From Deep Space Monitoring Station %d, co-ordinates %d|%d";
 my $news_2 = "Automatic sensors detect a cosmic string with energy readings of %d Ancrons.";
 my $news_3 = "Cosmic String leaving vast areas of destruction in it's wake.";
-my $news_4 = "Deep Space Monitoring station %d, co-ordinates %d|%d shutting down due to sensor overload";
+my $news_4 = "Deep Space Monitoring station %d, co-ordinates %d|%d shutting down due to sensor overload.";
 
 while (my $body = $bodies->next) {
     # I know it is inefficient to calculate this for every body, but we are only doing it once!
@@ -86,10 +107,13 @@ while (my $body = $bodies->next) {
             srand($seed);
             $first_in_ribbon = 0;
             out("About to add news item");
+            $body->add_news(100, $news_a);
+            $body->add_news(100, $news_b);
             $body->add_news(100, corrupt_string(sprintf($news_1, rand(1000), $body->x, $body->y)));
             $body->add_news(100, corrupt_string(sprintf($news_2, rand(10000)+80000)));
             $body->add_news(100, corrupt_string(sprintf($news_3, rand(1000))));
             $body->add_news(100, corrupt_string(sprintf($news_4, rand(1000), $body->x, $body->y)));
+            $body->add_news(100, $news_c);
         }
         wreck_planet($body);
     }
@@ -171,6 +195,7 @@ sub wreck_planet {
 
 sub convert_body {
     my $body = shift;
+    out('Converting planet '.$body->name);
     srand($body->id);
 
     my $type = $body->get_type;
@@ -194,7 +219,7 @@ sub convert_body {
 }
 
 sub determine_zone_details {
-#    out('determining zone details');
+    out('determining zone details');
     # asteroids
     my %asteroid;
     $asteroid{min_size} = randint(1,6);
