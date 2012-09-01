@@ -15,7 +15,7 @@ GetOptions(
     'quiet'     => \$quiet,  
 );
 
-my $band_width = 125; # 125 ensures that a -1500 - 1500 map will be complete in 24 cycles
+my $band_width = 50; # 50 ensures that a -1500 - 1500 map will be complete in 60
 
 out('Started');
 my $start = time;
