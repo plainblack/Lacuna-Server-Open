@@ -51,6 +51,7 @@ my %zone_details;
 
 out("Ribbon is between x=$ribben_from and x=$ribben_to");
 my $first_in_ribbon = 1;
+my %zone_news_cache;
 my $search_criteria = { -and => [
     { x => {'>=' => $ribben_from }},
     { x => {'<'  => $ribben_to }},
@@ -91,6 +92,8 @@ my $news_2 = "Automatic sensors detect a cosmic string with energy readings of %
 my $news_3 = "Cosmic String leaving vast areas of destruction in it's wake.";
 my $news_4 = "Deep Space Monitoring station %d, co-ordinates %d|%d shutting down due to sensor overload.";
 
+my $cache = Lacuna->cache;
+
 while (my $body = $bodies->next) {
     # I know it is inefficient to calculate this for every body, but we are only doing it once!
     my $zone = $body->zone;
@@ -100,12 +103,8 @@ while (my $body = $bodies->next) {
     srand($seed);
     determine_zone_details();
 
-    if ($body->empire_id > 1) {
-        if ($first_in_ribbon) {
-            my $seed = $body->x*10000+$body->y;
-            out("ZONE $zone, x ".$body->x.", y ".$body->y.", seed $seed");
-            srand($seed);
-            $first_in_ribbon = 0;
+    unless ($zone_news_cache{$zone}) {
+        unless ($cache->get('revamp_news', $zone)) {
             out("About to add news item");
             $body->add_news(100, $news_a);
             $body->add_news(100, $news_b);
@@ -114,6 +113,17 @@ while (my $body = $bodies->next) {
             $body->add_news(100, corrupt_string(sprintf($news_3, rand(1000))));
             $body->add_news(100, corrupt_string(sprintf($news_4, rand(1000), $body->x, $body->y)));
             $body->add_news(100, $news_c);
+            $cache->set('revamp_news', $zone, 1, 60 * 60 * 24 * 7);
+        }
+        $zone_news_cache{$zone} = 1;
+    }
+
+    if ($body->empire_id > 1) {
+        if ($first_in_ribbon) { # no idea what this is, icy added it, but i don't understand what it does
+            my $seed = $body->x*10000+$body->y;
+            out("ZONE $zone, x ".$body->x.", y ".$body->y.", seed $seed");
+            srand($seed);
+            $first_in_ribbon = 0;
         }
         wreck_planet($body);
     }
