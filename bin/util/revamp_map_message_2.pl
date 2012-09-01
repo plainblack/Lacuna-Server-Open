@@ -30,7 +30,7 @@ $empires = $empires->search({ id => {'>' => 1}});
 
 my $message = q{You didn't heed our warning. The storm has been unleashed. All we can do is brace ourselves and hope that the Expanse doesn't tear itself apart as the storm washes over us.
 
-The use of these singularities has created a cosmic string, a ribbon of energy that is passing over the entire Expanse. The discharge is so great that all ships and probes we've sent to investigate were instantly destroyed. Our sensors cannot see beyond the ribbon, so we are unable to see if the Expanse remains behind it in any form, or if it has been completely destroyed.
+The use of these singularities has created a cosmic string, a ribbon of energy, that is passing over the entire Expanse. The discharge is so great that all ships and probes we've sent to investigate were instantly destroyed. Our sensors cannot see beyond the ribbon, so we are unable to see if the Expanse remains behind it in any form, or if it has been completely destroyed.
 
 We suggest you do what you can to fortify your empire. With any luck the ribbon will not ignite your atmosphere as it washes over your planet. Good luck. Hope to see you on the other side.
 

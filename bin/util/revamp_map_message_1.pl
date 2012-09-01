@@ -33,7 +33,7 @@ my $message = q{Over the past three years the Expanse has seen an explosion of n
     
 It has come to my attention that some of you have been experimenting with singularities through devices you call Black Hole Generators. These technologies are barely within your comprehension, yet you use them as freely as you peel a Beeldeban! These devices are dangerous. I'm sure you've experienced some of their side-effects, but what you do not understand can kill us all. 
 
-A storm approaches. Those of you manipulating these singularities have built up a form of energy on the entire expanse. It's like the static electricity that's built up on your body when you walk across carpet in wool socks; only in this case, the energy envelops the entire expanse. When this energy discharges, it could form a cosmic string, ripping a hole in the fabric of space and time itself! 
+A storm approaches. Those of you manipulating these singularities have built up a form of energy on the entire Expanse. It's like the static electricity that's built up on your body when you walk across carpet in wool socks; only in this case, the energy envelops the entire Expanse. When this energy discharges, it could form a cosmic string, ripping a hole in the fabric of space and time itself! 
 
 Stop using these blasted devices now, while we try to sort out how to resolve this mess. 
 

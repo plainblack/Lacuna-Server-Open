@@ -28,7 +28,7 @@ $empires = $empires->search({ id => {'>' => 1}});
 
 my $message = q{Luckily we appear to have weathered the storm, but it appears that the Expanse is forever changed. 
 
-Early sensor data indicates that the energy ribbon did not in-fact destroy the Expanse, but rather evolved it. Many bodies have changed their very composition. In many ways this is an entirely new Expanse. While I'm sure that adventure seekers will love the opportunities for exploration, but we stand reserved.
+Early sensor data indicates that the energy ribbon did not in-fact destroy the Expanse, but rather evolved it. Many bodies have changed their very composition. In many ways this is an entirely new Expanse. I'm sure that adventure seekers will love the opportunities for exploration, but we stand reserved.
 
 Your immaturity as a species is showing. You rush to use the latest technologies without fully understanding the implications of that usage. Your decisions affect not only your empire, but the whole Expanse. You didn't destroy us this time, but we were pushed to the brink of annihilation. Please pursue a higher aptitude with the technologies you acquire before putting them to use in the future.
 
