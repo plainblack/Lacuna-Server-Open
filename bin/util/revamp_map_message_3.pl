@@ -32,7 +32,7 @@ Early sensor data indicates that the energy ribbon did not in-fact destroy the E
 
 Your immaturity as a species is showing. You rush to use the latest technologies without fully understanding the implications of that usage. Your decisions affect not only your empire, but the whole Expanse. You didn't destroy us this time, but we were pushed to the brink of annihilation. Please pursue a higher aptitude with the technologies you acquire before putting them to use in the future.
 
-Now that we know there is a future, we look forward to hearing your reports about what you find in this new Expanse. Our probes are showing some anomalous readings. They're indicating that there are entirely new planetary compositions in the Expanse. This seems unlikely, but perhaps you would be so kind to verify our readings. 
+Now that we know there is a future, we look forward to hearing your reports about what you find in this new Expanse. Our probes are showing some anomalous readings. They're indicating that there are entirely new planetary compositions in the Expanse. This seems unlikely, but perhaps you would be so kind as to verify our readings. 
 
 Good luck. And please be careful.
     

@@ -50,7 +50,6 @@ my $ribben_to   = $revamp_x->value + $band_width;
 my %zone_details;
 
 out("Ribbon is between x=$ribben_from and x=$ribben_to");
-my $first_in_ribbon = 1;
 my %zone_news_cache;
 my $search_criteria = { -and => [
     { x => {'>=' => $ribben_from }},
@@ -105,6 +104,10 @@ while (my $body = $bodies->next) {
 
     unless ($zone_news_cache{$zone}) {
         unless ($cache->get('revamp_news', $zone)) {
+            # This ensures that each time a zone receives a news item, it is 'corrupted' differently
+            my $seed = $body->x*10000+$body->y;
+            srand($seed);
+
             out("About to add news item");
             $body->add_news(100, $news_a);
             $body->add_news(100, $news_b);
@@ -119,13 +122,7 @@ while (my $body = $bodies->next) {
     }
 
     if ($body->empire_id > 1) {
-        if ($first_in_ribbon) { # no idea what this is, icy added it, but i don't understand what it does
-            my $seed = $body->x*10000+$body->y;
-            out("ZONE $zone, x ".$body->x.", y ".$body->y.", seed $seed");
-            srand($seed);
-            $first_in_ribbon = 0;
-        }
-        wreck_planet($body);
+       wreck_planet($body);
     }
     elsif ($body->get_type eq 'space station') {
         #skip it
@@ -147,7 +144,7 @@ out('Recalculating for affected mining platforms');
 
 # Recalculate all bodies that have mining platforms in the affected strip
 for my $body_id (keys %$colonies_requiring_update) {
-    my $body = $db->resultset('Map::Body')->find($body_id);
+    my $body = $db->resultset('Map::Body::Planet')->find($body_id);
     out("Recalculating mining platforms for ".$body->name);
 
     my $ministry = $body->mining_ministry;

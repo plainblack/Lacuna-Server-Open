@@ -65,7 +65,7 @@ before downgrade => sub {
 
 sub cost_to_fill_in_fissure {
     my $self = shift;
-    return $self->current_level_cost * 1350;
+    return int($self->current_level_cost * 1350);
 }
 
 sub has_resources_to_fill_in_fissure {
