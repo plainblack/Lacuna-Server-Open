@@ -1,4 +1,4 @@
-future:
+3.0867:
  - Add: Fissure.
  - Mod: BHG creates a Fissure instead of a Crater when it explodes.
 
