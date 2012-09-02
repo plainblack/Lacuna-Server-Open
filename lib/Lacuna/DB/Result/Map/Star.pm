@@ -13,6 +13,7 @@ __PACKAGE__->add_columns(
 );
 
 __PACKAGE__->has_many('bodies', 'Lacuna::DB::Result::Map::Body', 'star_id');
+__PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'star_id');
 __PACKAGE__->has_many('laws', 'Lacuna::DB::Result::Laws', 'star_id');
 __PACKAGE__->belongs_to('station', 'Lacuna::DB::Result::Map::Body', 'station_id', { on_delete => 'set null' });
 

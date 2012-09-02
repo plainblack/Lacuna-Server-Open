@@ -759,7 +759,7 @@ sub bhg_self_destruct {
   $body->needs_surface_refresh(1);
   $body->needs_recalc(1);
   $body->update;
-  $building->update({class=>'Lacuna::DB::Result::Building::Permanent::Crater'});
+  $building->update({class=>'Lacuna::DB::Result::Building::Permanent::Fissure'});
   $return->{message} = "Black Hole Generator Destroyed";
   return $return;
 }
