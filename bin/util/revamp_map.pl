@@ -113,7 +113,7 @@ out('Recalculating for affected mining platforms');
 
 # Recalculate all bodies that have mining platforms in the affected strip
 for my $body_id (keys %$colonies_requiring_update) {
-    my $body = $db->resultset('Body')->find($body_id);
+    my $body = $db->resultset('Map::Body::Planet')->find($body_id);
     out("Recalculating mining platforms for ".$body->name);
 
     my $ministry = $body->mining_ministry;
