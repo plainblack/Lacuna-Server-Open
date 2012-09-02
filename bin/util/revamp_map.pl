@@ -15,7 +15,7 @@ GetOptions(
     'quiet'     => \$quiet,  
 );
 
-my $band_width = 20;
+my $band_width = 50; # 50 ensures that a -1500 - 1500 map will be complete in 60
 
 out('Started');
 my $start = time;
@@ -50,25 +50,48 @@ my $ribben_to   = $revamp_x->value + $band_width;
 my %zone_details;
 
 out("Ribbon is between x=$ribben_from and x=$ribben_to");
-my $first_in_ribbon = 1;
-my $bodies = $bodies->search({ -and => [
+my %zone_news_cache;
+my $search_criteria = { -and => [
     { x => {'>=' => $ribben_from }},
     { x => {'<'  => $ribben_to }},
-    ]},
-    { order_by => 'y' }
-    );
+    ]};
+my $bodies = $bodies->search($search_criteria, { order_by => 'y' });
+my $stars = $stars->search($search_criteria, { order_by => 'y' });
 
 if ($revamp_x->value > $x_max) {
     out('All done! You may stop the cron job!');
     exit;
 }
 
+out('Destroying probes.');
+while (my $star = $stars->next) {
+    my $probes = $star->probes;
+    while (my $probe = $probes->next) {
+        out('Destroying '.$probe->empire->name.'s probe attached to '.$star->name);
+        $probe->empire->send_predefined_message(
+            tags        => ['Spies','Alert'],
+            filename    => 'probe_destroyed.txt',
+            params      => [$probe->body->id,
+                            $probe->body->name,
+                            $star->x,
+                            $star->y,
+                            $star->name],
+        );
+        $probe->delete;
+    }
+}
+
 my $colonies_requiring_update;
 
+my $news_a = '... --- ...';
+my $news_b = '- .... .  .-. .. -... -... --- -.  .. ...  .... . .-. .';
+my $news_c = '.-- .... .- -   .... .- ...- .   .-- .   -.. --- -. . ..--.. ';
 my $news_1 = "ALERT: From Deep Space Monitoring Station %d, co-ordinates %d|%d";
 my $news_2 = "Automatic sensors detect a cosmic string with energy readings of %d Ancrons.";
 my $news_3 = "Cosmic String leaving vast areas of destruction in it's wake.";
-my $news_4 = "Deep Space Monitoring station %d, co-ordinates %d|%d shutting down due to sensor overload";
+my $news_4 = "Deep Space Monitoring station %d, co-ordinates %d|%d shutting down due to sensor overload.";
+
+my $cache = Lacuna->cache;
 
 while (my $body = $bodies->next) {
     # I know it is inefficient to calculate this for every body, but we are only doing it once!
@@ -79,19 +102,27 @@ while (my $body = $bodies->next) {
     srand($seed);
     determine_zone_details();
 
-    if ($body->empire_id > 1) {
-        if ($first_in_ribbon) {
+    unless ($zone_news_cache{$zone}) {
+        unless ($cache->get('revamp_news', $zone)) {
+            # This ensures that each time a zone receives a news item, it is 'corrupted' differently
             my $seed = $body->x*10000+$body->y;
-            out("ZONE $zone, x ".$body->x.", y ".$body->y.", seed $seed");
             srand($seed);
-            $first_in_ribbon = 0;
+
             out("About to add news item");
+            $body->add_news(100, $news_a);
+            $body->add_news(100, $news_b);
             $body->add_news(100, corrupt_string(sprintf($news_1, rand(1000), $body->x, $body->y)));
             $body->add_news(100, corrupt_string(sprintf($news_2, rand(10000)+80000)));
             $body->add_news(100, corrupt_string(sprintf($news_3, rand(1000))));
             $body->add_news(100, corrupt_string(sprintf($news_4, rand(1000), $body->x, $body->y)));
+            $body->add_news(100, $news_c);
+            $cache->set('revamp_news', $zone, 1, 60 * 60 * 24 * 7);
         }
-        wreck_planet($body);
+        $zone_news_cache{$zone} = 1;
+    }
+
+    if ($body->empire_id > 1) {
+       wreck_planet($body);
     }
     elsif ($body->get_type eq 'space station') {
         #skip it
@@ -113,7 +144,7 @@ out('Recalculating for affected mining platforms');
 
 # Recalculate all bodies that have mining platforms in the affected strip
 for my $body_id (keys %$colonies_requiring_update) {
-    my $body = $db->resultset('Body')->find($body_id);
+    my $body = $db->resultset('Map::Body::Planet')->find($body_id);
     out("Recalculating mining platforms for ".$body->name);
 
     my $ministry = $body->mining_ministry;
@@ -171,6 +202,7 @@ sub wreck_planet {
 
 sub convert_body {
     my $body = shift;
+    out('Converting planet '.$body->name);
     srand($body->id);
 
     my $type = $body->get_type;
@@ -194,7 +226,7 @@ sub convert_body {
 }
 
 sub determine_zone_details {
-#    out('determining zone details');
+    out('determining zone details');
     # asteroids
     my %asteroid;
     $asteroid{min_size} = randint(1,6);
