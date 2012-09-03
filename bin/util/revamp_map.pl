@@ -104,19 +104,22 @@ while (my $body = $bodies->next) {
 
     unless ($zone_news_cache{$zone}) {
         unless ($cache->get('revamp_news', $zone)) {
-            # This ensures that each time a zone receives a news item, it is 'corrupted' differently
-            my $seed = $body->x*10000+$body->y;
-            srand($seed);
+            # we can only 'add_news' to an occupied planet
+            if ($body->empire_id) {
+                # This ensures that each time a zone receives a news item, it is 'corrupted' differently
+                my $seed = $body->x*10000+$body->y;
+                srand($seed);
 
-            out("About to add news item");
-            $body->add_news(100, $news_a);
-            $body->add_news(100, $news_b);
-            $body->add_news(100, corrupt_string(sprintf($news_1, rand(1000), $body->x, $body->y)));
-            $body->add_news(100, corrupt_string(sprintf($news_2, rand(10000)+80000)));
-            $body->add_news(100, corrupt_string(sprintf($news_3, rand(1000))));
-            $body->add_news(100, corrupt_string(sprintf($news_4, rand(1000), $body->x, $body->y)));
-            $body->add_news(100, $news_c);
-            $cache->set('revamp_news', $zone, 1, 60 * 60 * 24 * 7);
+                out("About to add news item");
+                $body->add_news(100, $news_a);
+                $body->add_news(100, $news_b);
+                $body->add_news(100, corrupt_string(sprintf($news_1, rand(1000), $body->x, $body->y)));
+                $body->add_news(100, corrupt_string(sprintf($news_2, rand(10000)+80000)));
+                $body->add_news(100, corrupt_string(sprintf($news_3, rand(1000))));
+                $body->add_news(100, corrupt_string(sprintf($news_4, rand(1000), $body->x, $body->y)));
+                $body->add_news(100, $news_c);
+                $cache->set('revamp_news', $zone, 1, 60 * 60 * 24 * 7);
+            }
         }
         $zone_news_cache{$zone} = 1;
     }

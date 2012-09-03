@@ -1,3 +1,6 @@
+3.0868:
+ - Fix: No longer try to send N19 news from an asteroid
+
 3.0867:
  - Add: Fissure.
  - Mod: BHG creates a Fissure instead of a Crater when it explodes.
