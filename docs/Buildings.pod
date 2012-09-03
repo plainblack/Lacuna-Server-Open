@@ -433,6 +433,8 @@ share the above methods, but many have additional methods available.
 
 =item L<Fission>
 
+=item L<Fissure>
+
 =item L<FoodReserve>
 
 =item L<Fusion>
