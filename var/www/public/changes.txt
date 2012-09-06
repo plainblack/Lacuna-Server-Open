@@ -1,3 +1,6 @@
+3.0869:
+ - Fix: Black Hole Generator now creates all new planet/asteroid types
+
 3.0868:
  - Fix: No longer try to send N19 news from an asteroid
 
