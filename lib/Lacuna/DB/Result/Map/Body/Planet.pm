@@ -1656,7 +1656,7 @@ sub can_add_type {
     my $capacity = $type.'_capacity';
     my $stored = $type.'_stored';
     my $available_storage = $self->$capacity - $self->$stored;
-    unless ($available_storage >= $value) {
+    if ($available_storage < $value) {
         confess [1009, "You don't have enough available storage."];
     }
     return 1;
@@ -1665,17 +1665,21 @@ sub can_add_type {
 sub add_type {
     my ($self, $type, $value) = @_;
     my $method = 'add_'.$type;
-    unless (eval{$self->can_add_type($type, $value)}) {
+    eval {
+        $self->can_add_type($type, $value);
+    };
+    if ($@) {
         my $empire = $self->empire;
-        if (defined $empire && !$empire->skip_resource_warnings && !$empire->check_for_repeat_message('complaint_overflow'.$self->id)) {
+        if (defined $empire 
+            && !$empire->skip_resource_warnings 
+            && !$empire->check_for_repeat_message('complaint_overflow'.$self->id)) {
             $empire->send_predefined_message(
-                    filename    => 'complaint_overflow.txt',
-                    params      => [$type, $self->id, $self->name],
-                    repeat_check=> 'complaint_overflow'.$self->id,
-                    tags        => ['Complaint','Alert'],
-                    );
+                filename        => 'complaint_overflow.txt',
+                params          => [$type, $self->id, $self->name],
+                repeat_check    => 'complaint_overflow'.$self->id,
+                tags            => ['Complaint','Alert'],
+            );
         }
-
     }
     $self->$method($value);
     return $self;
