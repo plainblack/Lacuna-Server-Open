@@ -1192,7 +1192,9 @@ sub recalc_stats {
         my $domestic_ore_hour = sprintf('%.0f',$self->$type * $ore_production_hour / $self->total_ore_concentration);
         $stats{$method} += $domestic_ore_hour;
     }
-
+    $self->update;
+    $self->discard_changes;
+    
     # deal with negative amounts stored
     $self->water_stored(0) if $self->water_stored < 0;
     $self->energy_stored(0) if $self->energy_stored < 0;
@@ -1200,6 +1202,8 @@ sub recalc_stats {
         my $stype = $type.'_stored';
         $self->$stype(0) if ($self->$stype < 0);
     }
+    $self->update;
+    $self->discard_changes;
     
     # deal with storage overages
     if ($self->ore_stored > $stats{ore_capacity}) {
@@ -1246,7 +1250,8 @@ sub recalc_stats {
         }
         $stats{happiness_hour} = -100_000_000_000 if ($stats{happiness_hour} < -100_000_000_000);
     }
-
+    $self->update;
+    $self->discard_changes;
     $self->update(\%stats);
     return $self;
 }

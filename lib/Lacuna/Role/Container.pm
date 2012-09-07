@@ -66,9 +66,12 @@ sub unload {
     }
     if (exists $payload->{resources}) {
         my %resources = %{$payload->{resources}};
+        $body->update;
+        $body->discard_changes;
         foreach my $type (keys %resources) {
-            $body->add_type($type, $resources{$type})->update;
+            $body->add_type($type, $resources{$type});
         }
+        $body->update;
         delete $payload->{resources};
     }
     if (exists $payload->{plans}) {
