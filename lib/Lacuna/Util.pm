@@ -18,11 +18,11 @@ sub format_date {
 
 # Return a random integer between $low and $high inclusive
 sub randint {
-	my ($low, $high) = @_;
-	$low = 0 unless defined $low;
-	$high = 1 unless defined $high;
-	($low, $high) = ($high,$low) if $low > $high;
-	return $low + int( rand( $high - $low + 1 ) );
+    my ($low, $high) = @_;
+    $low = 0 unless defined $low;
+    $high = 1 unless defined $high;
+    ($low, $high) = ($high,$low) if $low > $high;
+    return $low + int( rand( $high - $low + 1 ) );
 }
 
 sub random_element {
@@ -31,23 +31,23 @@ sub random_element {
 }
 
 sub commify {
-	my $text = reverse $_[0];
-	$text =~ s/(\d\d\d)(?=\d)(?!\d*\.)/$1,/g;
-	return scalar reverse $text;
+    my $text = reverse $_[0];
+    $text =~ s/(\d\d\d)(?=\d)(?!\d*\.)/$1,/g;
+    return scalar reverse $text;
 }
 
 sub consolidate_items {
-  my ($item_arr) = @_;
+    my ($item_arr) = @_;
 
-  my $item_hash = {};
-  for my $item (@{$item_arr}) {
-    $item_hash->{$item}++;
-  }
-  undef $item_arr;
-  for my $item (sort keys %{$item_hash}) {
-    push @{$item_arr}, sprintf("%5s %s", commify($item_hash->{$item}), $item);
-  }
-  return $item_arr;
+    my $item_hash = {};
+    for my $item (@{$item_arr}) {
+        $item_hash->{$item}++;
+    }
+    undef $item_arr;
+    for my $item (sort keys %{$item_hash}) {
+        push @{$item_arr}, sprintf("%5s %s", commify($item_hash->{$item}), $item);
+    }
+    return $item_arr;
 }
 
 1;
