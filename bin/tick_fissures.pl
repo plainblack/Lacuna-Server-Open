@@ -4,7 +4,7 @@ use lib '/data/Lacuna-Server/lib';
 use Data::Dumper;
 use Lacuna::DB;
 use Lacuna;
-use Lacuna::Util qw(randint format_date);
+use Lacuna::Util qw(randint format_date random_element);
 use Getopt::Long;
 $|=1;
 our $quiet;
@@ -93,10 +93,9 @@ for my $body_id (sort keys %has_fissures) {
                     # then any random building (except the PCC)
                     my @buildings = grep {
                             ($_->x != 0 or $_->y != 0)            # anything except the PCC
-                        and ($_->class != 'Lacuna::DB::Result::Building::Permanent::Fissure')   # Not a Fissure!
-                        and ($_->class != 'Lacuna::DB::Result::Building::Permanent::BlackHoleGenerator"')
+                        and ($_->class ne 'Lacuna::DB::Result::Building::Permanent::Fissure')   # Not a Fissure!
                     } @{$body->building_cache};
-                    $building = random_element(@buildings);                                       
+                    $building = random_element(\@buildings);                                       
                     out("    Using the existing ".$building->class." building!");
                 }
                 if (not $building) {
@@ -120,10 +119,13 @@ for my $body_id (sort keys %has_fissures) {
                     level       => $fissure_level,
                     class       => 'Lacuna::DB::Result::Building::Permanent::Fissure',
                     efficiency  => 100,
-                    available   => DateTime->now,
                     is_working  => 0,
                 });
                 out("    Created a level ".$building->level." Fissure");
+            }
+            if ($body->empire_id) {
+                $body->needs_recalc(1);
+                $body->tick;
             }
         }
         else {
