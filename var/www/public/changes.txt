@@ -1,3 +1,6 @@
+3.0969:
+ - Fix: Fissure now has repair costs for stabilization equipment
+
 3.0868:
  - Fix: No longer try to send N19 news from an asteroid
 
