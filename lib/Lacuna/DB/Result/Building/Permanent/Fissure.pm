@@ -36,17 +36,24 @@ after finish_upgrade => sub {
 };
 
 before 'can_demolish' => sub {
-  my $self = shift;
-  unless ($self->level == 1) {
-    confess [1013, 'You must fill in the fissure by spending resources to downgrade it before you can demolish it.'];
-  }
+    my $self = shift;
+    unless ($self->efficiency >= 100) {
+        confess [1013, 'Unless your Fissure maintenance equipment is 100% operational, it is just too dangerous to attempt'];
+    }
+    unless ($self->level == 1) {
+        confess [1013, 'You must fill in the fissure by spending resources to downgrade it before you can demolish it.'];
+    }
 };
 
 before 'can_downgrade' => sub {
-  my $self = shift;
-  unless ($self->has_resources_to_fill_in_fissure) {
-    confess [1013, 'You need '.int($self->cost_to_fill_in_fissure).' in ore to fill in the fissure.'];
-  }
+    my $self = shift;
+
+    unless ($self->efficiency >= 100) {
+        confess [1013, 'Unless your Fissure maintenance equipment is 100% operational, it is just too dangerous to attempt.'];
+    }
+    unless ($self->has_resources_to_fill_in_fissure) {
+        confess [1013, 'You need '.int($self->cost_to_fill_in_fissure).' in ore to fill in the fissure.'];
+    }
 };
 
 before downgrade => sub {
@@ -58,9 +65,9 @@ before downgrade => sub {
         $body->spend_ore($cost);
     }
     else {
-        $cost -= $stored;
         $body->spend_ore($stored);
     }
+    $self->body->add_news(30, sprintf('Scientists on %s successfully downgraded a Fissure today.', $self->body->name));
 };
 
 sub cost_to_fill_in_fissure {
@@ -77,6 +84,11 @@ sub has_resources_to_fill_in_fissure {
 
 use constant name => 'Fissure';
 use constant time_to_build => 0;
+use constant food_to_build => 18;
+use constant energy_to_build => 20;
+use constant ore_to_build => 21;
+use constant water_to_build => 20;
+use constant waste_to_build => 10;
 
 
 no Moose;

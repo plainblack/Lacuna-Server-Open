@@ -9,12 +9,12 @@ after handle_arrival_procedures => sub {
     # no defense at stars
     return unless $self->foreign_body_id;
 
-	# only defend on arrival to the foreign body
-	return if $self->direction eq 'in';
+    # only defend on arrival to the foreign body
+    return if $self->direction eq 'in';
 
-	$self->defend->update;
+    $self->defend->update;
 
-	confess [-1];
+    confess [-1];
 };
 
 1;

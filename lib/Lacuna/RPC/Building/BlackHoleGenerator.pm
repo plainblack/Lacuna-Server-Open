@@ -536,11 +536,11 @@ sub bhg_make_planet {
   my $old_size  = $body->size;
   my $random = randint(0,99);
   if ($random < 5) {
-    $class = 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G'.randint(1,5);
+    $class = 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G'.randint(1,Lacuna::DB::Result::Map::Body->gas_giant_types);
     $size  = randint(90, 121);
   }
   else {
-    $class = 'Lacuna::DB::Result::Map::Body::Planet::P'.randint(1,20);
+    $class = 'Lacuna::DB::Result::Map::Body::Planet::P'.randint(1,Lacuna::DB::Result::Map::Body->planet_types);
     $size  = 30;
   }
  
@@ -571,7 +571,7 @@ sub bhg_make_asteroid {
   my $new_size = int($building->level/5);
   $new_size = 10 if $new_size > 10;
   $body->update({
-    class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
+    class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,Lacuna::DB::Result::Map::Body->asteroid_types),
     size                        => $new_size,
     needs_recalc                => 1,
     usable_as_starter_enabled   => 0,
@@ -629,12 +629,12 @@ sub bhg_random_type {
   my $btype = $target->get_type;
   my $return;
   if ($btype eq 'habitable planet') {
-    my $params = { newtype => randint(1,20) };
+    my $params = { newtype => randint(1,Lacuna::DB::Result::Map::Body->planet_types) };
     $body->add_news(50, sprintf('%s has gone thru extensive changes.', $target->name));
     $return = bhg_change_type($target, $params);
   }
   elsif ($btype eq 'asteroid') {
-    my $params = { newtype => randint(1,21) };
+    my $params = { newtype => randint(1,Lacuna::DB::Result::Map::Body->asteroid_types) };
     $body->add_news(50, sprintf('%s has gone thru extensive changes.', $target->name));
     $return = bhg_change_type($target, $params);
   }
@@ -939,7 +939,7 @@ sub bhg_change_type {
   my $old_class = $class;
   my $btype = $body->get_type;
   if ($btype eq 'asteroid') {
-    if ($params->{newtype} >= 1 and $params->{newtype} <= 21) {
+    if ($params->{newtype} >= 1 and $params->{newtype} <= Lacuna::DB::Result::Map::Body->asteroid_types) {
       $class = 'Lacuna::DB::Result::Map::Body::Asteroid::A'.$params->{newtype};
     }
     else {
@@ -950,7 +950,7 @@ sub bhg_change_type {
     confess [1013, "We can't change the type of that body"];
   }
   elsif ($btype eq 'habitable planet') {
-    if ($params->{newtype} >= 1 and $params->{newtype} <= 20) {
+    if ($params->{newtype} >= 1 and $params->{newtype} <= Lacuna::DB::Result::Map::Body->planet_types) {
       $class = 'Lacuna::DB::Result::Map::Body::Planet::P'.$params->{newtype};
       $old_class =~ /::(P\d+)/;
       my $old_type = $1;
