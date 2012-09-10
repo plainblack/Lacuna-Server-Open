@@ -6,19 +6,25 @@ The higher the development ministry, the more builds you can put in your build q
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
-=head2 view ( session, building_id )
+=head2 view
 
 This method is extended to include details about what's in your build queue.
 
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+
 =head3 session_id (required)
 
-A session id.
+A session ID
 
 =head3 building_id (required)
 
-The ID of the development ministry
+This buildings ID
 
 =head3 RESPONSE
+
 
  {
    "building" : { ... },
@@ -38,17 +44,23 @@ The ID of the development ministry
  }
  
 
-=head2 subsidize_build_queue ( session_id, building_id )
+=head2 subsidize_build_queue
 
-Allows a player to instantly finish all buildings in their build queue. The cost is returned by the C<view> method.
+Allows a player to instantly finish any buildings in their build queue. 
+The cost is returned by the C<view> method.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
 
 =head3 session_id (required)
 
-A session id.
+A session ID
 
 =head3 building_id (required)
 
-The id of the development ministry.
+This buildings ID
 
 =head3 RESPONSE
 
