@@ -14,20 +14,38 @@ sub model_class {
 }
 
 around 'view' => sub {
-    my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
-    my $out = $orig->($self, $empire, $building);
-    $out->{build_queue} = $building->format_build_queue;
-    $out->{subsidy_cost} = $building->calculate_subsidy;
+    my $orig = shift;
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+        };
+    }
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id}, skip_offline => 1);
+    my $out         = $orig->($self, $empire, $building);
+    $out->{build_queue}     = $building->format_build_queue;
+    $out->{subsidy_cost}    = $building->calculate_subsidy;
     return $out;
 };
 
 sub subsidize_build_queue {
-    my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my $subsidy = $building->calculate_subsidy;
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+        };
+    }
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    my $subsidy     = $building->calculate_subsidy;
+
     if ($empire->essentia < $subsidy) {
         confess [1011, "You don't have enough essentia."];
     }
@@ -40,7 +58,9 @@ sub subsidize_build_queue {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(subsidize_build_queue));
+__PACKAGE__->register_rpc_method_names(qw(
+    subsidize_build_queue
+));
 
 
 no Moose;
