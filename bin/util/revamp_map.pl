@@ -96,27 +96,26 @@ my $cache = Lacuna->cache;
 while (my $body = $bodies->next) {
     # I know it is inefficient to calculate this for every body, but we are only doing it once!
     my $zone = $body->zone;
-    my ($x,$y) = $zone =~ m/(-?\d+)\|(-?\d+)/;
-    # seed the random number generator so it starts at the same point for every zone
-    my $seed = $x*10000+$y;
-    srand($seed);
-    determine_zone_details();
+    determine_zone_details($zone);
 
     unless ($zone_news_cache{$zone}) {
         unless ($cache->get('revamp_news', $zone)) {
-            # This ensures that each time a zone receives a news item, it is 'corrupted' differently
-            my $seed = $body->x*10000+$body->y;
-            srand($seed);
+            # we can only 'add_news' to an occupied planet
+            if ($body->empire_id) {
+                # This ensures that each time a zone receives a news item, it is 'corrupted' differently
+                my $seed = $body->x*10000+$body->y;
+                srand($seed);
 
-            out("About to add news item");
-            $body->add_news(100, $news_a);
-            $body->add_news(100, $news_b);
-            $body->add_news(100, corrupt_string(sprintf($news_1, rand(1000), $body->x, $body->y)));
-            $body->add_news(100, corrupt_string(sprintf($news_2, rand(10000)+80000)));
-            $body->add_news(100, corrupt_string(sprintf($news_3, rand(1000))));
-            $body->add_news(100, corrupt_string(sprintf($news_4, rand(1000), $body->x, $body->y)));
-            $body->add_news(100, $news_c);
-            $cache->set('revamp_news', $zone, 1, 60 * 60 * 24 * 7);
+                out("About to add news item");
+                $body->add_news(100, $news_a);
+                $body->add_news(100, $news_b);
+                $body->add_news(100, corrupt_string(sprintf($news_1, rand(1000), $body->x, $body->y)));
+                $body->add_news(100, corrupt_string(sprintf($news_2, rand(10000)+80000)));
+                $body->add_news(100, corrupt_string(sprintf($news_3, rand(1000))));
+                $body->add_news(100, corrupt_string(sprintf($news_4, rand(1000), $body->x, $body->y)));
+                $body->add_news(100, $news_c);
+                $cache->set('revamp_news', $zone, 1, 60 * 60 * 24 * 7);
+            }
         }
         $zone_news_cache{$zone} = 1;
     }
@@ -202,7 +201,6 @@ sub wreck_planet {
 
 sub convert_body {
     my $body = shift;
-    out('Converting planet '.$body->name);
     srand($body->id);
 
     my $type = $body->get_type;
@@ -222,18 +220,26 @@ sub convert_body {
 
     my $t = random_element($details->{types});
     $body->class("$class_prefix$t");
+    out("Converting ".$body->name." to $class_prefix$t");
     $body->update;
 }
 
 sub determine_zone_details {
-    out('determining zone details');
+    my ($zone) = @_;
+
+    my ($x,$y) = $zone =~ m/(-?\d+)\|(-?\d+)/;
+    # seed the random number generator so it starts at the same point for every zone
+    my $seed = $x*10000+$y;
+    srand($seed);
+    out("determining zone details for $zone seed $seed");
+
     # asteroids
     my %asteroid;
     $asteroid{min_size} = randint(1,6);
     $asteroid{max_size} = $asteroid{min_size} + 6;
     push @{$asteroid{types}}, element_rarity(\@asteroid_types, 1, 1); # rare
     push @{$asteroid{types}}, element_rarity(\@asteroid_types, 2, 3); # uncommon
-    push @{$asteroid{types}}, element_rarity(\@asteroid_types, 3, 6); # common
+    push @{$asteroid{types}}, element_rarity(\@asteroid_types, 4, 6); # common
 
     # habitals
     my %habital;
@@ -241,7 +247,7 @@ sub determine_zone_details {
     $habital{max_size} = $habital{min_size} + 20;
     push @{$habital{types}}, element_rarity(\@habital_types, 1, 1); # rare
     push @{$habital{types}}, element_rarity(\@habital_types, 2, 3); # uncommon
-    push @{$habital{types}}, element_rarity(\@habital_types, 4, 6); # common
+    push @{$habital{types}}, element_rarity(\@habital_types, 6, 6); # common
 
     # gas giants
     my %gas_giant;
