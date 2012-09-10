@@ -1170,7 +1170,7 @@ sub recalc_stats {
             # A fissure is controlled by maintenance equipment. The less efficient
             # the equipment, the more energy the Fissure will suck in.
             # Fissure affect on energy_hour is 1% per level subject to efficiency
-            $fissure_percent += $building->level * ($building->efficiency - 100) / 100;
+            $fissure_percent += $building->level * (100 - $building->efficiency) / 100;
         }
     }
     # Energy reduced by Fissure action
