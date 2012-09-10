@@ -517,6 +517,7 @@ sub plans_of_type {
                 )];
   my $disallow = [qw(
        Lacuna::DB::Result::Building::Permanent::EssentiaVein
+       Lacuna::DB::Result::Building::Permanent::Fissure
        Lacuna::DB::Result::Building::Permanent::KasternsKeep
        Lacuna::DB::Result::Building::Permanent::MassadsHenge
        Lacuna::DB::Result::Building::Permanent::TheDillonForge
