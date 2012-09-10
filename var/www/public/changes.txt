@@ -44,6 +44,9 @@
  - done: When ships arrive (fighters to Defend) set their available date to null
  - done: Travelling ships should be sorted in arrival date order
  
+3.0969:
+ - Fix: Fissure now has repair costs for stabilization equipment
+
 3.0868:
  - Fix: No longer try to send N19 news from an asteroid
 
