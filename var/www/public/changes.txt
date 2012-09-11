@@ -3,6 +3,7 @@
  - Add: Fissure now sucks in energy from your planet based on it's level and efficiency
  - Add: You can now repair the fissure stabilization equipment at a Fissure.
  - Add: You can only downgrade or demolish a Fissure which is 100% maintained.
+ - Mod: Increase size on habitables can now get to new max.  Soft Cap 70, Hard Cap 75.
 
 3.0868:
  - Fix: No longer try to send N19 news from an asteroid
