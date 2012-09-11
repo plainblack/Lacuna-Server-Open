@@ -38,7 +38,7 @@ after finish_upgrade => sub {
 sub can_build_on {
     my $self = shift;
 
-    my $btype = $self->body->type;
+    my $btype = $self->body->get_type;
     unless ($btype eq 'habitable planet') {
         confess [1009, 'Can only be built on habitable planets.'];
     }
