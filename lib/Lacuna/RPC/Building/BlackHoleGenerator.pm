@@ -1006,7 +1006,7 @@ sub bhg_size {
     }
     elsif ($variance == 1) {
       if ($current_size >= 10) {
-        $current_size++ if (randint(0,99) < 10);
+        $current_size++ if (randint(0,99) < 25);
         $current_size = 20 if ($current_size > 20);
       }
       else {
@@ -1017,6 +1017,7 @@ sub bhg_size {
     else {
       $current_size += randint(1,5) - 3;
       $current_size = 1 if ($current_size < 1);
+      $current_size = 20 if ($current_size > 20);
     }
   }
   elsif ($btype eq 'gas giant') {
@@ -1028,19 +1029,19 @@ sub bhg_size {
       $current_size = 30 if ($current_size < 30);
     }
     elsif ($variance == 1) {
-      if ($current_size >= 65) {
-        $current_size++ if (randint(0,99) < 10);
-        $current_size = 70 if ($current_size > 70);
+      if ($current_size >= 70) {
+        $current_size++ if (randint(0,99) < 25);
+        $current_size = 75 if ($current_size > 75);
       }
       else {
         $current_size += $building->level;
-        $current_size = 65 if ($current_size > 65);
+        $current_size = 70 if ($current_size > 70);
       }
     }
     else {
       $current_size += randint(1,5) - 3;
       $current_size = 30 if ($current_size < 30);
-      $current_size = 70 if ($current_size > 70);
+      $current_size = 75 if ($current_size > 75);
     }
     if ($old_size != $current_size && $body->empire) {
       $body->empire->send_predefined_message(
