@@ -5,9 +5,11 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body::Planet';
 
+with "Lacuna::Role::Planet::Weather";
+
 use constant image => 'p35';
 
-use constant water          => 5885;
+sub water           { return 11500; };
 use constant rutile         => 500;
 use constant chromite       => 500;
 use constant chalcopyrite   => 500;

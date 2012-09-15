@@ -1,9 +1,9 @@
-
 3.0870:
  - Fix: Black Hole Generator now creates all new planet/asteroid types
  - Add: Fissure now sucks in energy from your planet based on it's level and efficiency
  - Add: You can now repair the fissure stabilization equipment at a Fissure.
  - Add: You can only downgrade or demolish a Fissure which is 100% maintained.
+ - Add: Some planets now have seasons.
 
 3.0869:
  - Add: Fissure now has repair cost
