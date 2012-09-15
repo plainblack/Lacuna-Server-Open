@@ -32,6 +32,7 @@ sub view_foreign_spies {
             name                => $spy->name,
             level               => $spy->level,
             next_mission        => $available_on,
+            task                => $spy->task,
         };
     }
     return {
@@ -111,6 +112,7 @@ sub view_prisoners {
             id                  => $spy->id,
             name                => $spy->name,
             level               => $spy->level,
+            task                => $spy->task,
             sentence_expires    => $available_on,
         };
     }
