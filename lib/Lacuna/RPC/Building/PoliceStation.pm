@@ -31,6 +31,7 @@ sub view_foreign_spies {
         push @out, {
             name                => $spy->name,
             level               => $spy->level,
+            task                => $spy->task,
             next_mission        => $available_on,
         };
     }
@@ -110,6 +111,7 @@ sub view_prisoners {
             id                  => $spy->id,
             name                => $spy->name,
             level               => $spy->level,
+            task                => $spy->task,
             sentence_expires    => $available_on,
         };
     }

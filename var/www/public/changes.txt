@@ -5,6 +5,7 @@
  - Add: You can only downgrade or demolish a Fissure which is 100% maintained.
  - Mod: Increase size on habitables can now get to new max.  Soft Cap 70, Hard Cap 75.
  - Fix: Check body type closely for building BHG.
+ - Fix: Spies that are being transported or sold are listed as prisoners in Security and Police Station.
 
 3.0868:
  - Fix: No longer try to send N19 news from an asteroid
