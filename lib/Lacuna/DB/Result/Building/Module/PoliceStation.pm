@@ -20,7 +20,7 @@ sub foreign_spies {
         ->db
         ->resultset('Lacuna::DB::Result::Spies')
         ->search({ level => { '<=' => int($self->level * 1.25)},
-                   task => { 'not in' => [ 'Captured', 'Prisoner Transport' },
+                   task => { 'not in' => [ 'Captured', 'Prisoner Transport' ] },
                    on_body_id => $self->body_id, empire_id => { '!=' => $self->body->empire_id } });
 }
 
