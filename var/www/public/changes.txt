@@ -1,4 +1,4 @@
-3.0869:
+3.0870:
  - Fix: Black Hole Generator now creates all new planet/asteroid types
  - Add: Fissure now sucks in energy from your planet based on it's level and efficiency
  - Add: You can now repair the fissure stabilization equipment at a Fissure.
@@ -6,6 +6,11 @@
  - Mod: Increase size on habitables can now get to new max.  Soft Cap 70, Hard Cap 75.
  - Fix: Check body type closely for building BHG.
  - Fix: Spies that are being transported or sold are listed as prisoners in Security and Police Station.
+ - Add: Some planets now have seasons.
+
+3.0869:
+ - Add: Fissure now has repair cost
+>>>>>>> 15d0510606e1e85d05d9dd480752b4d870874c0d
 
 3.0868:
  - Fix: No longer try to send N19 news from an asteroid
