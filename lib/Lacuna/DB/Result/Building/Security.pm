@@ -50,7 +50,9 @@ sub foreign_spies {
     return Lacuna
         ->db
         ->resultset('Lacuna::DB::Result::Spies')
-        ->search({ level => { '<=' => $self->level}, task => { '!=' => 'Captured'}, on_body_id => $self->body_id, empire_id => { '!=' => $self->body->empire_id } });
+        ->search({ level => { '<=' => $self->level },
+                   task => { 'not in' => [ 'Captured', 'Prisoner Transport' },
+                   on_body_id => $self->body_id, empire_id => { '!=' => $self->body->empire_id } });
 }
 
 sub prisoners {
@@ -61,7 +63,7 @@ sub prisoners {
         ->search(
             {
                 on_body_id  => $self->body_id,
-                task        => 'Captured',
+                task        => { 'in' => [ 'Captured', 'Prisoner Transport' ] },
                 available_on=> { '>' => DateTime->now },
             }
         );

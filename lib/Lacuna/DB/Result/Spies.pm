@@ -1713,7 +1713,7 @@ sub prevent_insurrection {
     my $conspirators = Lacuna->db
                         ->resultset('Lacuna::DB::Result::Spies')
                         ->search( { on_body_id => $self->on_body_id,
-                                    task => { 'not in' => ['Killed in Action', 'Travelling','Captured'] },
+                                    task => { 'not in' => ['Killed in Action', 'Travelling','Captured', 'Prisoner Transport'] },
                                     empire_id => { 'in' => \@member_ids } });
     my $max_cnt = $defender->level;
     $max_cnt = ($max_cnt < 3) ? 6 : $max_cnt * 2;
