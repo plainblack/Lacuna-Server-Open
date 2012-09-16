@@ -4,6 +4,7 @@ use strict;
 use base 'Exporter';
 
 use constant INFLATION => 1.75;
+use constant SECONDS_IN_A_DAY => 60 * 60 * 24;
 use constant GROWTH => 1.55;
 use constant FOOD_TYPES => (qw(cheese bean lapis potato apple root corn cider wheat bread soup chip pie pancake milk meal algae syrup fungus burger shake beetle));
 use constant ORE_TYPES => (qw(rutile chromite chalcopyrite galena gold uraninite bauxite goethite halite gypsum trona kerogen methane anthracite sulfur zircon monazite fluorite beryl magnetite));
@@ -124,6 +125,7 @@ use constant SHIP_WASTE_TYPES => (qw(
 
 our @EXPORT_OK = qw(
     INFLATION
+    SECONDS_IN_A_DAY
     GROWTH
     FOOD_TYPES
     ORE_TYPES
@@ -137,6 +139,7 @@ our @EXPORT_OK = qw(
 our %EXPORT_TAGS = (
     all =>  [qw(
         INFLATION
+        SECONDS_IN_A_DAY
         GROWTH
         FOOD_TYPES
         ORE_TYPES
