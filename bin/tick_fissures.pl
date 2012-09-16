@@ -52,7 +52,7 @@ for my $body_id (sort keys %has_fissures) {
 
                 # damage energy and BHG buildings.
                 my @energy_buildings = grep {$_->class =~ /::Energy::/ || $_->class =~ /::Black/} @{$body->building_cache};
-                foreach $bld (@energy_buildings) {
+                foreach my $bld (@energy_buildings) {
                     my $rnd = randint(5,15);
                     $bld->efficiency($bld->efficiency - $rnd);
                     $bld->efficiency(0) if $bld->efficiency < 0;
@@ -109,6 +109,12 @@ for my $body_id (sort keys %has_fissures) {
             if ($building) {
                 my $now = DateTime->now;
 
+                out("    Converted building ".$building->class." into a level $fissure_level Fissure!");
+                $body->empire->send_predefined_message(
+                    tags        => ['Alert'],
+                    filename    => 'fissure_replaced_energy.txt',
+                    params      => [$body->name, $building->x,$building->y, $fissure_level],
+                );
                 $building->update({
                     level           => $fissure_level,
                     class           => 'Lacuna::DB::Result::Building::Permanent::Fissure',
@@ -118,12 +124,6 @@ for my $body_id (sort keys %has_fissures) {
                     is_upgrading    => 0,
 
                 });
-                out("    Converted building ".$building->class." into a level $fissure_level Fissure!");
-                # send email to empire and N19 news
-                #
-                #
-                #
-                #
             }
             else {
                 # otherwise any free space
@@ -133,20 +133,24 @@ for my $body_id (sort keys %has_fissures) {
                     $x = 1;
                 }
                 out("    using free plot $x,$y");
+
                 $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-                    x       => $x,
-                    y       => $y,
-                    class   => 'Lacuna::DB::Result::Building::Permanent::Fissure',
-                    level   => $fissure_level - 1,
+                    x               => $x,
+                    y               => $y,
+                    class           => 'Lacuna::DB::Result::Building::Permanent::Fissure',
+                    level           => $fissure_level - 1,
+                    is_upgrading    => 0,
                 });
-                $body->build_building($building);
-                $building->finish_upgrade;
+                $body->build_building($building,0,1);
                 # send email to empire and N19 news
                 #
-                #
-                #
-                #
-                # 
+                if ($body->empire_id) {
+                    $body->empire->send_predefined_message(
+                        tags        => ['Alert'],
+                        filename    => 'fissure_spawned.txt',
+                        params      => [$body->name],
+                    );
+                }
             }
 
 
@@ -173,31 +177,114 @@ for my $body_id (sort keys %has_fissures) {
                         my $new_capitol = random_element(\@colonies);
                         $empire->home_planet_id($new_capitol->id);
                         $empire->update;
-                        $body->sanitize;
-                        
                         #
                         # Send the empire an email
-                        # Put out news on N19
+                        $empire->send_predefined_message(
+                            tags        => ['Colonization','Alert'],
+                            filename    => 'fissure_capitol_moved.txt',
+                            params      => [$new_capitol->name],
+                        );
                     }
                     else {
                         # No more colonies, found a new empire on a remote planet
                         #
+                        my @zones = $db->resultset('Map::Star')->search(
+                            undef,
+                            { distinct => 1 })->get_column('zone')->all;
+                        @zones = grep {@_ !~ m/0/} @zones;
+                        my $zone = random_element(@zones);
+
+                        my @bodies = $db->resultset('Map::Body')->search({
+                            'me.zone'           => $zone,
+                            'me.empire_id'      => undef,
+                            'stars.station_id'   => undef,
+                            'me.class'          => { like => 'Lacuna::DB::Result::Map::Body::Planet::P%' },
+                            'me.orbit'          => { between => [$empire->min_orbit, $empire->max_orbit] },
+                        },{
+                            join                => 'stars',
+                            rows                => 100,
+                            order_by            => 'me.name',
+                        });
+                        my $new_capitol = random_element(@bodies);
+                        $empire->found($new_capitol);
+
                         # Send an email with the new planet
-                        # Send out N19 news about the survivors.
+                        $empire->send_predefined_message(
+                            tags        => ['Colonization','Alert'],
+                            filename    => 'fissure_capitol_moved.txt',
+                            params      => [$body->name],
+                        );
                     }
                 }
                 else {
                     # else it is 'just' a colony
 
                     # Send an email about the destruction
-
-                    # Put something on N19
+                    $empire->send_predefined_message(
+                        tags        => ['Colonization','Alert'],
+                        filename    => 'fissure_colony_destroyed.txt',
+                        params      => [$body->name],
+                    );
                 }
+                # Send out N19 news about the lost colony.
+                $body->add_news(10, sprintf('A huge ripple in space-time was felt, caused by the implosion of %s, millions feared dead.',$body->name));
+                $body->sanitize;
             }
-            # demolish the planet
+            # demolish the planet (convert it into an asteroid)
+            $body->delete_buildings($body->building_cache);
+            my $new_size = randint(1,10);
+            $body->update({
+                class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,Lacuna::DB::Result::Map::Body->asteroid_types),
+                size                        => $new_size,
+                needs_recalc                => 1,
+                usable_as_starter_enabled   => 0,
+                alliance_id => undef,
+            });
 
             # Damage planets in range (damage depends upon distance from the event)
+            # get 10 closest planets
+            my $minus_x = 0 - $body->x;
+            my $minus_y = 0 - $body->y;
+            my $closest = Lacuna->db->resultset('Map::Body')->search({
+                -and => [
+                    { empire_id => { '>'    => 1 }},
+                    { empire_id => { '!='   => $body->id }},
+                ],
+            },{
+                '+select' => [
+                    { ceil => \"pow(pow(me.x + $minus_x,2) + pow(me.y + $minus_y,2), 0.5)", '-as' => 'distance' },
+                ],
+                '+as' => [
+                    'distance',
+                ],
+                order_by    => 'distance',
+            });
+            my $damaged = 0;
+            DAMAGED:
+            while (my $to_damage = $closest->next) {
+                # damage planet
+                out("Damaging planet ".$to_damage->name." at distance ".$to_damage->get_column('distance'));
 
+                my $distance = $to_damage->get_column('distance');
+                # scale so a distance of 100 causes 1% damage and a distance of 0 causes 50% damage
+                my $distance = $to_damage->get_column('distance');
+                $distance = 1 if $distance < 1;
+                my $damage  = $distance / 100;
+                foreach my $building (@{$body->building_cache}) {
+                    my $bld_damage / randint(1,$damage);
+                    $building->efficiency(int($building->efficiency - $bld_damage));
+                    $building->efficiency(0) if $building->efficiency < 0;
+                }
+                
+                $to_damage->empire->send_predefined_message(
+                    tags        => ['Colonization','Alert'],
+                    filename    => 'fissure_collateral_damage.txt',
+                    params      => [$body->name, $to_damage->name],
+                );
+                if (++$damaged == 10) {
+                    last DAMAGED;
+                }
+            }
         }
     }
 }

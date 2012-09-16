@@ -1,0 +1,7 @@
+Colony Lost to Fissure
+~~~
+Due to gross negligence the Fissure Containment System on your colony, %s,  failed today. As a result the planet imploded and all of the population was lost.
+
+Regards,
+
+Your Humble Assistant
