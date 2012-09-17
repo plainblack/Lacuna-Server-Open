@@ -10,7 +10,6 @@
 
 3.0869:
  - Add: Fissure now has repair cost
->>>>>>> 15d0510606e1e85d05d9dd480752b4d870874c0d
 
 3.0868:
  - Fix: No longer try to send N19 news from an asteroid
