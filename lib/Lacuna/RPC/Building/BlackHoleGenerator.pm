@@ -137,6 +137,7 @@ sub get_actions_for {
     $task->{reason}  = $chance->{reason};
     $task->{success} = $chance->{success};
     $task->{throw}   = $chance->{throw};
+    $task->{essentia_cost} = $chance->{essentia_cost};
   }
   return {
     status => $self->format_status($empire, $body),
@@ -187,20 +188,38 @@ sub task_chance {
     return $return;
   }
   $return->{success} = (100 - $task->{base_fail}) - int( ($dist/$range) * (95-$task->{base_fail}));
-  $return->{success} = 5 if $return->{success} < 5;
+  $return->{success} = 0 if $return->{success} < 1;
+
+  $return->{essentia_cost} = $return->{success} ? int(2000 / $return->{success})/10 : 0;
+
   return $return;
 }
 
 sub generate_singularity {
-  my ($self, $session_id, $building_id, $target_params, $task_name, $params) = @_;
-  my $empire   = $self->get_empire_by_session($session_id);
-  my $building = $self->get_building($empire, $building_id);
-  my $body = $building->body;
-  my $target = $self->find_target($target_params);
-  my $effect = {};
+  my $self  = shift;
+  my $args  = shift;
+
+  if (ref($args) ne "HASH") {
+    $args = {
+      session_id    => $args,
+      building_id   => shift,
+      target        => shift,
+      task_name     => shift,
+      params        => shift,
+    };
+  }
+  my $empire    = $self->get_empire_by_session($args->{session_id});
+  my $building  = $self->get_building($empire, $args->{building_id});
+  my $task_name = $args->{task_name};
+  my $subsidize = $args->{subsidize};
+
+  my $body      = $building->body;
+  my $target    = $self->find_target($args->{target});
+  my $effect    = {};
+
   my $return_stats = {};
   if ($building->is_working) {
-    confess [1010, 'The Black Hole Generator is cooling down from the last use.']
+    confess [1010, 'The Black Hole Generator is cooling down from the last use.'];
   }
   unless (defined $target) {
     confess [1002, 'Could not locate target.'];
@@ -220,6 +239,12 @@ sub generate_singularity {
     $task->{recovery}    = $bhg_param->{recovery}    if ($bhg_param->{recovery});
     $task->{side_chance} = $bhg_param->{side_chance} if ($bhg_param->{side_chance});
     $chance->{success}   = $bhg_param->{success}     if ($bhg_param->{success});
+  }
+  if ($subsidize) {
+    if ($empire->essentia < $chance->{essentia_cost}) {
+      confess [1011, "Not enough essentia."];
+    }
+    $chance->{success} = 100;
   }
   
   my $btype;
@@ -324,11 +349,11 @@ sub generate_singularity {
 
   $body->spend_waste($task->{waste_cost})->update;
   $building->start_work({}, $task->{recovery})->update;
-# Pass the basic checks
-# Check for startup failure
+  # Pass the basic checks
+  # Check for startup failure
   my $roll = randint(0,99);
-  unless ($roll < $chance->{success}) {
-# Something went wrong with the start
+  if ($roll >= $chance->{success}) {
+    # Something went wrong with the start
     my $fail = randint(0,19);
     if ($fail == 0) {
       $return_stats = bhg_self_destruct($building);
@@ -371,7 +396,7 @@ sub generate_singularity {
     $effect->{fail} = $return_stats;
   }
   else {
-# We have a working BHG!
+    # We have a working BHG!
     if ($task->{name} eq "Make Planet") {
       $return_stats = bhg_make_planet($building, $target);
       $body->add_news(50,
@@ -387,7 +412,7 @@ sub generate_singularity {
       $body->add_news(50, sprintf('%s has expanded %s.', $empire->name, $target->name));
     }
     elsif ($task->{name} eq "Change Type") {
-      $return_stats = bhg_change_type($target, $params);
+      $return_stats = bhg_change_type($target, $args->{params});
       $body->add_news(50, sprintf('The geology of %s has been extensively altered by powers unknown', $target->name));
     }
     elsif ($task->{name} eq "Swap Places") {
@@ -432,6 +457,9 @@ sub generate_singularity {
       $effect->{side} = $return_stats;
     }
   }
+  if ($subsidize) {
+  }
+
   return {
     status => $self->format_status($empire, $body),
     effect => $effect,
@@ -1142,7 +1170,27 @@ sub bhg_tasks {
   return @tasks;
 }
 
-__PACKAGE__->register_rpc_method_names(qw(generate_singularity get_actions_for));
+sub subsidize_cooldown {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+
+    unless ($building->is_working) {
+        confess [1010, "No one is searching."];
+    }
+
+    unless ($empire->essentia >= 2) {
+        confess [1011, "Not enough essentia."];
+    }
+
+    $building->finish_work->update;
+    $empire->spend_essentia(2, 'BHG cooldown subsidy after the fact');
+    $empire->update;
+
+    return $self->view($empire, $building);
+}
+
+__PACKAGE__->register_rpc_method_names(qw(generate_singularity get_actions_for subsidize_cooldown));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
