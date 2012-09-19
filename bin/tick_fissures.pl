@@ -227,7 +227,7 @@ for my $body_id (sort keys %has_fissures) {
                     );
                 }
                 # Send out N19 news about the lost colony.
-                $body->add_news(10, sprintf('A huge ripple in space-time was felt, caused by the implosion of %s, millions feared dead.',$body->name));
+                $body->add_news(100, sprintf('A huge ripple in space-time was felt, caused by the implosion of %s, millions feared dead.',$body->name));
                 $body->sanitize;
             }
             # demolish the planet (convert it into an asteroid)
@@ -266,14 +266,20 @@ for my $body_id (sort keys %has_fissures) {
                 out("Damaging planet ".$to_damage->name." at distance ".$to_damage->get_column('distance'));
 
                 my $distance = $to_damage->get_column('distance');
-                # scale so a distance of 100 causes 1% damage and a distance of 0 causes 50% damage
+                # scale so a distance of 100 causes 1% damage and a distance of 0 causes 
+                # an average of 50% damage
                 my $distance = $to_damage->get_column('distance');
-                $distance = 1 if $distance < 1;
-                my $damage  = $distance / 100;
-                foreach my $building (@{$body->building_cache}) {
-                    my $bld_damage / randint(1,$damage);
+                my $damage  = int(100 - $distance);
+                $damage = 1 if $damage < 1;
+                out("   Causing an average of $damage damage to each building");
+                my @all_buildings = @{$to_damage->building_cache};
+                out("   there are ".scalar(@all_buildings)." buildings");
+                foreach my $building (@all_buildings) {
+                    my $bld_damage = randint(1,$damage);
+                    out("Damaging ".$building->name." by ${bld_damage}%");
                     $building->efficiency(int($building->efficiency - $bld_damage));
                     $building->efficiency(0) if $building->efficiency < 0;
+                    $building->update;
                 }
                 
                 $to_damage->empire->send_predefined_message(
