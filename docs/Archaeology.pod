@@ -133,7 +133,8 @@ Returns a list of the excavator sites currently controlled by this ministry.
 
  {
     "status" : { ... },
-    "max_excavators" : 1,
+    "max_excavators" : 2,
+    "travelling" : 1,
     "excavators" : [
         {
             "id" : "id-goes-here",
