@@ -13,7 +13,7 @@ use Lacuna;
 use TestHelper;
 
 my $empire_name     = 'TLE Test Empire';
-my $station_name    = 'TLE Test SS';
+my $station_name    = 'TLE Test Station';
 
 my $tester  = TestHelper->new({empire_name => $empire_name});
 my $empire  = $tester->empire;
@@ -21,7 +21,7 @@ my $session = $empire->start_session({api_key => 'tester'});
 
 my ($station) = Lacuna->db->resultset('Map::Body::Planet')->search({name => $station_name});
 
-my $stars   = Lacuna->db->resultset('Star')->search;
+my $stars   = Lacuna->db->resultset('Map::Star')->search;
 
 # get all stars in this stations jurisdiction
 # give them a name we can sort by
@@ -44,8 +44,8 @@ my $influence_remaining = $station->influence_remaining;
 my $minus_x = 0 - $station->x;
 my $minus_y = 0 - $station->y;
 
-my $closest = Lacuna->db->resultset('Star')->search({
-    station_id => 0,
+my $closest = Lacuna->db->resultset('Map::Star')->search({
+    station_id => undef,
 },{
     '+select' => [
         { ceil => \"pow(pow(me.x + $minus_x,2) + pow(me.y + $minus_y,2), 0.5)", '-as' => 'distance' },
@@ -60,7 +60,7 @@ my $closest = Lacuna->db->resultset('Star')->search({
 while ($influence_remaining) {
     my $star = $closest->next;
 
-    diag("Propose seizing star ".$star->name);    
+    diag("Propose seizing\t".$star->x."\t".$star->y."\t ".$star->name);
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'SeizeStar',
         name            => 'Seize '.$star->name,
