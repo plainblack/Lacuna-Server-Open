@@ -139,7 +139,7 @@ sub get_buildable {
         $docks = $port->docks_available;
     }
     my $max_ships = $building->max_ships;
-    my $total_ships_building = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $self->body_id, task=>'Building'})->count;
+    my $total_ships_building = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $building->body_id, task=>'Building'})->count;
 
     return {
         buildable       => \%buildable,
