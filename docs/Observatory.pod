@@ -26,7 +26,9 @@ Returns a list of the stars that have been probed by this planet.
             ...
         ]
 	],
-    "star_count" : 37
+    "star_count" : 37,
+    "max_probes" : 90,
+    "travelling" : 2
  }
 
 
