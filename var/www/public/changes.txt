@@ -8,7 +8,11 @@
  - Mod: Increase size on habitables can now get to new max.  Soft Cap 70, Hard Cap 75.
  - Fix: Check body type closely for building BHG.
  - Fix: Spies that are being transported or sold are listed as prisoners in Security and Police Station.
+ - Add: Last task of Foreign Spies listed and prisoners have a status of Captured or Prisoner Transport.
  - Add: Some planets now have seasons.
+ - Add: Available Shipyard Queue now returned.
+ - UI : Shipyard Queue available displayed.
+ - UI : Prisoners being transported or sold displayed as prisoners.
 
 3.0869:
  - Add: Fissure now has repair cost
