@@ -11,6 +11,7 @@
  - Add: Last task of Foreign Spies listed and prisoners have a status of Captured or Prisoner Transport.
  - Add: Some planets now have seasons.
  - Add: Available Shipyard Queue now returned.
+ - Add: Observatory get probed stars: report count of probes en route
  - UI : Shipyard Queue available displayed.
  - UI : Prisoners being transported or sold displayed as prisoners.
 
