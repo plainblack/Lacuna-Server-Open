@@ -123,7 +123,7 @@ sub max_occupants {
 sub arrive {
     my $self = shift;
     eval {$self->handle_arrival_procedures}; # throws exceptions to stop subsequent actions from happening
-	my $reason = $@;
+    my $reason = $@;
     if (ref $reason eq 'ARRAY' && $reason->[0] eq -1) {
         # this is an expected exception, it means one of the roles took over
         return;
@@ -167,7 +167,7 @@ sub can_send_to_target {
 
 sub can_recall {
     my $self = shift;
-	unless ($self->task ~~ [qw(Defend Orbiting)]) {
+    unless ($self->task ~~ [qw(Defend Orbiting)]) {
         confess [1010, 'That ship is busy.'];
     }
     return 1;
@@ -250,16 +250,16 @@ sub get_status {
             name    => $body->name,
             type    => 'body',
         };
-		my $orbiting = {
-             id		=> $self->foreign_body_id,
+        my $orbiting = {
+             id        => $self->foreign_body_id,
              name    => $self->foreign_body->name,
-			type	=> 'body',
-			x		=> $self->foreign_body->x,
-			y		=> $self->foreign_body->y,
+            type    => 'body',
+            x        => $self->foreign_body->x,
+            y        => $self->foreign_body->y,
         };
-		$status{from} = $from;
-		$status{orbiting} = $orbiting;
-	}
+        $status{from} = $from;
+        $status{orbiting} = $orbiting;
+    }
     return \%status;
 }
 
@@ -318,15 +318,15 @@ sub finish_construction {
 }
 
 sub orbit {
-	my ($self) = @_;
-	$self->task('Orbiting');
+    my ($self) = @_;
+    $self->task('Orbiting');
     $self->date_available(DateTime->now);
     return $self;
 }
 
 sub defend {
-	my ($self) = @_;
-	$self->task('Defend');
+    my ($self) = @_;
+    $self->task('Defend');
     $self->date_available(DateTime->now);
     return $self;
 }

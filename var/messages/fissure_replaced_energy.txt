@@ -1,0 +1,8 @@
+Fissure spawns!
+~~~
+The bad maintenance of the Fissure Containment System on %s resulted in the building at %s,%s being converted into a level %s Fissure. Take immediate steps to remove both the new and the original Fissure before your planet implodes!
+
+Regards,
+
+Your Humble Assistant
+

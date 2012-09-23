@@ -44,8 +44,25 @@
  - done: When ships arrive (fighters to Defend) set their available date to null
  - done: Travelling ships should be sorted in arrival date order
  
-3.0969:
- - Fix: Fissure now has repair costs for stabilization equipment
+3.0870:
+ - Add: Black Hole Generator can now be subsidized both for accuracy and cooldown
+ - Fix: List of stars to rename in Parliament are now sorted
+ - Fix: Black Hole Generator now creates all new planet/asteroid types
+ - Add: Fissure now sucks in energy from your planet based on its level and efficiency
+ - Add: You can now repair the fissure stabilization equipment at a Fissure.
+ - Add: You can only downgrade or demolish a Fissure which is 100% maintained.
+ - Mod: Increase size on habitables can now get to new max.  Soft Cap 70, Hard Cap 75.
+ - Fix: Check body type closely for building BHG.
+ - Fix: Spies that are being transported or sold are listed as prisoners in Security and Police Station.
+ - Add: Last task of Foreign Spies listed and prisoners have a status of Captured or Prisoner Transport.
+ - Add: Some planets now have seasons.
+ - Add: Available Shipyard Queue now returned.
+ - Add: Observatory get probed stars: report count of probes en route
+ - UI : Shipyard Queue available displayed.
+ - UI : Prisoners being transported or sold displayed as prisoners.
+
+3.0869:
+ - Add: Fissure now has repair cost
 
 3.0868:
  - Fix: No longer try to send N19 news from an asteroid
@@ -85,7 +102,7 @@
  - Mod: Supply chains that stall should no longer cause damage on the sending colony
  - Fix: Glyphs for missions properly checked and used.
  - Add: Supply chains that stall send a message
- 
+
 3.0860:
  - Fix: Scows deliver the amount of waste in their payload, not capacity.
  - Fix: Space Station Command accessible via UI.

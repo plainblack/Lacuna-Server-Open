@@ -160,6 +160,7 @@ sub get_actions_for {
         $task->{reason}  = $chance->{reason};
         $task->{success} = $chance->{success};
         $task->{throw}   = $chance->{throw};
+        $task->{essentia_cost} = $chance->{essentia_cost};
     }
     return {
         status => $self->format_status($empire, $body),
@@ -210,7 +211,8 @@ sub task_chance {
         return $return;
     }
     $return->{success} = (100 - $task->{base_fail}) - int( ($dist/$range) * (95-$task->{base_fail}));
-    $return->{success} = 5 if $return->{success} < 5;
+    $return->{success} = 0 if $return->{success} < 1;
+    $return->{essentia_cost} = $return->{success} ? int(2000 / $return->{success})/10 : 0;
     return $return;
 }
 
@@ -227,23 +229,25 @@ sub generate_singularity {
             params          => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
-    my $task_name   = $args->{task_name};
+    my $empire    = $self->get_empire_by_session($args->{session_id});
+    my $building  = $self->get_building($empire, $args->{building_id});
+    my $task_name = $args->{task_name};
+    my $subsidize = $args->{subsidize};
 
-    my $body = $building->body;
-    my $target = $self->find_target($args->{target});
-    my $effect = {};
+    my $body      = $building->body;
+    my $target    = $self->find_target($args->{target});
+    my $effect    = {};
+
     my $return_stats = {};
     if ($building->is_working) {
-        confess [1010, 'The Black Hole Generator is cooling down from the last use.']
+        confess [1010, 'The Black Hole Generator is cooling down from the last use.'];
     }
-    if (not defined $target) {
+    unless (defined $target) {
         confess [1002, 'Could not locate target.'];
     }
     my @tasks = bhg_tasks($building);
     my ($task) = grep { $task_name eq $_->{name} } @tasks;
-    if (not $task) {
+    unless ($task) {
         confess [1002, 'Could not find task: '.$task_name];
     }
     my $chance = task_chance($building, $target, $task);
@@ -256,6 +260,12 @@ sub generate_singularity {
         $task->{recovery}    = $bhg_param->{recovery}    if ($bhg_param->{recovery});
         $task->{side_chance} = $bhg_param->{side_chance} if ($bhg_param->{side_chance});
         $chance->{success}   = $bhg_param->{success}     if ($bhg_param->{success});
+    }
+    if ($subsidize) {
+        if ($empire->essentia < $chance->{essentia_cost}) {
+            confess [1011, "Not enough essentia."];
+        }
+        $chance->{success} = 100;
     }
   
     my $btype;
@@ -275,14 +285,13 @@ sub generate_singularity {
             $tempire = $target->empire;
         }
     }
-    if ($body->waste_stored < $task->{waste_cost}) {
+    unless ($body->waste_stored >= $task->{waste_cost}) {
         confess [1011, 'You need at least '.$task->{waste_cost}.' waste to run that function of the Black Hole Generator.'];
     }
     if (not $task->{occupied}) {
         if ($btype eq 'asteroid') {
-            my $platforms = Lacuna->db->resultset('MiningPlatforms')->search({
-                asteroid_id => $target->id,
-            });
+            my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->
+                      search({asteroid_id => $target->id });
             my $count = 0;
             while (my $platform = $platforms->next) {
                 $count++;
@@ -295,168 +304,167 @@ sub generate_singularity {
                     effect => $effect,
                 };
             }
-        }
-        elsif (defined($tempire)) {
-            $body->add_news(75,
-                sprintf('Scientists revolt against %s for trying to turn %s into an asteroid.',
-                $empire->name, $target->name)
-            );
-            $effect->{fail} = bhg_self_destruct($building);
-            return {
-                status => $self->format_status($empire, $body),
-                effect => $effect,
-            };
-        }
-    }
-    if ( $task->{name} eq "Change Type" && defined ($tempire) ) {
-        unless (
-                $body->empire->id == $tempire->id
-            or  ( $body->empire->alliance_id &&
-                ( $body->empire->alliance_id == $tempire->alliance_id))) {
-            confess [1009, "You can not change type of a body if it is occupied by another alliance!\n"];
-        }
-    }
-    elsif ( $task->{name} eq "Swap Places" ) {
-        my $confess = "";
-        my $allowed = 0;
-        if ($tid == $body->id) {
-            $confess = "Pointless swapping with oneself.";
-        }
-        elsif (defined($tempire)) {
-            $confess = "You can not attempt that action on a body if it is occupied by another alliance!";
-            if ($body->empire->id == $tempire->id) {
-                $allowed = 1;
+            elsif (defined($tempire)) {
+                $body->add_news(75,
+                    sprintf('Scientists revolt against %s for trying to turn %s into an asteroid.',
+                    $empire->name, $target->name)
+                );
+                $effect->{fail} = bhg_self_destruct($building);
+                return {
+                    status => $self->format_status($empire, $body),
+                    effect => $effect,
+                };
             }
-            elsif ($body->empire->alliance_id &&
-                ($body->empire->alliance_id == $tempire->alliance_id)) {
-                $allowed = 1;
+        }
+        if ( $task->{name} eq "Change Type" && defined ($tempire) ) {
+            unless (
+                    $body->empire->id == $tempire->id
+                or  ( $body->empire->alliance_id &&
+                    ( $body->empire->alliance_id == $tempire->alliance_id))) {
+                confess [1009, "You can not change type of a body if it is occupied by another alliance!\n"];
             }
-            elsif ($tstar->station_id) {
-                if ($body->empire->alliance_id && $tstar->station->alliance_id == $body->empire->alliance_id) {
+        }
+        elsif ( $task->{name} eq "Swap Places" ) {
+            my $confess = "";
+            my $allowed = 0;
+            if ($tid == $body->id) {
+                $confess = "Pointless swapping with oneself.";
+            }
+            elsif (defined($tempire)) {
+                $confess = "You can not attempt that action on a body if it is occupied by another alliance!";
+                if ($body->empire->id == $tempire->id) {
                     $allowed = 1;
                 }
-            }
-        }
-        else {
-            if ($tstar->station_id) {
-                if ($tstar->station->laws->search({type => 'MembersOnlyColonization'})->count) {
-                    if ($tstar->station->alliance_id == $body->empire->alliance_id) {
+                elsif ($body->empire->alliance_id &&
+                    ($body->empire->alliance_id == $tempire->alliance_id)) {
+                    $allowed = 1;
+                }
+                elsif ($tstar->station_id) {
+                    if ($body->empire->alliance_id && $tstar->station->alliance_id == $body->empire->alliance_id) {
                         $allowed = 1;
                     }
+                }
+            }
+            else {
+                if ($tstar->station_id) {
+                    if ($tstar->station->laws->search({type => 'MembersOnlyColonization'})->count) {
+                        if ($tstar->station->alliance_id == $body->empire->alliance_id) {
+                            $allowed = 1;
+                        }
+                        else {
+                            $confess = 'Only '.$tstar->station->alliance->name.
+                                ' members can colonize planets in the jurisdiction of the space station.';
+                        }
+                    }
                     else {
-                        $confess = 'Only '.$tstar->station->alliance->name.
-                            ' members can colonize planets in the jurisdiction of the space station.';
+                        $allowed = 1;
                     }
                 }
                 else {
                     $allowed = 1;
                 }
             }
-            else {
-                $allowed = 1;
+            unless ($allowed) {
+                  confess [ 1010, $confess ];        
             }
         }
-        unless ($allowed) {
-              confess [ 1010, $confess ];        
-        }
-    }
-
-    $body->spend_waste($task->{waste_cost})->update;
-    $building->start_work({}, $task->{recovery})->update;
-
-    # Pass the basic checks
-    # Check for startup failure
-    my $roll = randint(0,99);
-    if ($roll >= $chance->{success}) {
-        # Something went wrong with the start
-        my $fail = randint(0,19);
-        if ($fail == 0) {
-            $return_stats = bhg_self_destruct($building);
-            $body->add_news(75, sprintf('%s finds a decimal point out of place.', $empire->name));
-        }
-        elsif ($fail <  6) {
-            $return_stats = bhg_decor($building, $body, -1);
-            $body->add_news(30, sprintf('%s is wracked with changes.', $body->name));
-        }
-        elsif ($fail < 11) {
-            $return_stats = bhg_resource($body, -1);
-            $body->add_news(50, sprintf('%s opens up a wormhole near their storage area.', $body->name));
-        }
-        elsif ($fail < 16) {
-            $return_stats = bhg_size($building, $body, -1);
-            $body->add_news(50, sprintf('%s deforms after an expirement goes wild.', $body->name));
-        }
-        elsif ($fail < 19) {
-            $return_stats = bhg_random_make($building);
-            $body->add_news(50, sprintf('Scientists on %s are concerned when their singularity has a malfunction.', $body->name));
-        }
-        else {
-            $return_stats = bhg_random_type($building);
-            $body->add_news(50, sprintf('Scientists on %s are concerned when their singularity has a malfunction.', $body->name));
-        }
-
-        $return_stats->{perc} = $chance->{success};
-        $return_stats->{roll} = $roll;
-        $effect->{fail} = $return_stats;
-    }
-    else {
-        # We have a working BHG!
-        if ($task->{name} eq "Make Planet") {
-            $return_stats = bhg_make_planet($building, $target);
-            $body->add_news(50, sprintf('%s has expanded %s into a habitable world!', $empire->name, $target->name));
-        }
-        elsif ($task->{name} eq "Make Asteroid") {
-            $return_stats = bhg_make_asteroid($building, $target);
-            $body->add_news(75, sprintf('%s has destroyed %s.', $empire->name, $target->name));
-        }
-        elsif ($task->{name} eq "Increase Size") {
-            $return_stats = bhg_size($building, $target, 1);
-            $body->add_news(50, sprintf('%s has expanded %s.', $empire->name, $target->name));
-        }
-        elsif ($task->{name} eq "Change Type") {
-            $return_stats = bhg_change_type($target, $args->{params});
-            $body->add_news(50, sprintf('The geology of %s has been extensively altered by powers unknown', $target->name));
-        }
-        elsif ($task->{name} eq "Swap Places") {
-            $return_stats = bhg_swap($building, $target);
-            my $tname;
-            if (ref $target eq 'HASH') {
-                $tname = $target->{name};
+    
+        $body->spend_waste($task->{waste_cost})->update;
+        $building->start_work({}, $task->{recovery})->update;
+        # Pass the basic checks
+        # Check for startup failure
+        my $roll = randint(0,99);
+        if ($roll >= $chance->{success}) {
+            # Something went wrong with the start
+            my $fail = randint(0,19);
+            if ($fail == 0) {
+                $return_stats = bhg_self_destruct($building);
+                $body->add_news(75,
+                sprintf('%s finds a decimal point out of place.', $empire->name));
             }
-            else {
-                $tname = $target->name;
+            elsif ($fail <  6) {
+                $return_stats = bhg_decor($building, $body, -1);
+                $body->add_news(30, sprintf('%s is wracked with changes.', $body->name));
             }
-            $body->add_news(50,
-            sprintf('%s has switched places with %s!', $body->name, $tname));
-        }
-        else {
-            confess [552, "Internal Error"];
-        }
-        $effect->{target} = $return_stats;
-
-        #And now side effect time
-        my $side = randint(0,99);
-        if ($task->{side_chance} > $side) {
-            my $side_type = randint(0,99);
-            if ($side_type < 25) {
-                $return_stats = bhg_random_size($building);
+            elsif ($fail < 11) {
+                $return_stats = bhg_resource($body, -1);
+                $body->add_news(50, sprintf('%s opens up a wormhole near their storage area.', $body->name));
             }
-            elsif ($side_type < 40) {
+            elsif ($fail < 16) {
+                $return_stats = bhg_size($building, $body, -1);
+                $body->add_news(50, sprintf('%s deforms after an expirement goes wild.', $body->name));
+            }   
+            elsif ($fail < 19) {
                 $return_stats = bhg_random_make($building);
-            }
-            elsif ($side_type < 50) {
-                $return_stats = bhg_random_type($building);
-            }
-            elsif ($side_type < 75) {
-                $return_stats = bhg_random_resource($building);
-            }
-            elsif ($side_type < 95) {
-                $return_stats = bhg_random_decor($building);
+                $body->add_news(50,
+                sprintf('Scientists on %s are concerned when their singularity has a malfunction.', $body->name));
             }
             else {
-                $return_stats = bhg_size($building, $body, 0);
+                $return_stats = bhg_random_type($building);
+                $body->add_news(50, sprintf('Scientists on %s are concerned when their singularity has a malfunction.', $body->name));
             }
-            $effect->{side} = $return_stats;
+            $return_stats->{perc} = $chance->{success};
+            $return_stats->{roll} = $roll;
+            $effect->{fail} = $return_stats;
+        }
+        else {
+            # We have a working BHG!
+            if ($task->{name} eq "Make Planet") {
+                $return_stats = bhg_make_planet($building, $target);
+                $body->add_news(50, sprintf('%s has expanded %s into a habitable world!', $empire->name, $target->name));
+            }
+            elsif ($task->{name} eq "Make Asteroid") {
+                $return_stats = bhg_make_asteroid($building, $target);
+                $body->add_news(75, sprintf('%s has destroyed %s.', $empire->name, $target->name));
+            }
+            elsif ($task->{name} eq "Increase Size") {
+                $return_stats = bhg_size($building, $target, 1);
+                $body->add_news(50, sprintf('%s has expanded %s.', $empire->name, $target->name));
+            }
+            elsif ($task->{name} eq "Change Type") {
+                $return_stats = bhg_change_type($target, $args->{params});
+                $body->add_news(50, sprintf('The geology of %s has been extensively altered by powers unknown', $target->name));
+            }
+            elsif ($task->{name} eq "Swap Places") {
+                $return_stats = bhg_swap($building, $target);
+                my $tname;
+                if (ref $target eq 'HASH') {
+                    $tname = $target->{name};
+                }
+                else {
+                    $tname = $target->name;
+                }
+                $body->add_news(50,
+                sprintf('%s has switched places with %s!', $body->name, $tname));
+            }
+            else {
+                confess [552, "Internal Error"];
+            }
+            $effect->{target} = $return_stats;
+            #And now side effect time
+            my $side = randint(0,99);
+            if ($task->{side_chance} > $side) {
+                my $side_type = randint(0,99);
+                if ($side_type < 25) {
+                    $return_stats = bhg_random_size($building);
+                }
+                elsif ($side_type < 40) {
+                    $return_stats = bhg_random_make($building);
+                }
+                elsif ($side_type < 50) {
+                    $return_stats = bhg_random_type($building);
+                }
+                elsif ($side_type < 75) {
+                    $return_stats = bhg_random_resource($building);
+                }
+                elsif ($side_type < 95) {
+                    $return_stats = bhg_random_decor($building);
+                }
+                else {
+                    $return_stats = bhg_size($building, $body, 0);
+                }
+                $effect->{side} = $return_stats;
+            }
         }
     }
     return {
@@ -464,7 +472,6 @@ sub generate_singularity {
         effect => $effect,
     };
 }
-
 
 sub bhg_swap {
     my ($building, $target) = @_;
@@ -568,11 +575,11 @@ sub bhg_make_planet {
     my $old_size  = $body->size;
     my $random = randint(0,99);
     if ($random < 5) {
-        $class = 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G'.randint(1,5);
+        $class = 'Lacuna::DB::Result::Map::Body::Planet::GasGiant::G'.randint(1,Lacuna::DB::Result::Map::Body->gas_giant_types);
         $size  = randint(90, 121);
     }
     else {
-        $class = 'Lacuna::DB::Result::Map::Body::Planet::P'.randint(1,20);
+        $class = 'Lacuna::DB::Result::Map::Body::Planet::P'.randint(1,Lacuna::DB::Result::Map::Body->planet_types);
         $size  = 30;
     }
  
@@ -606,7 +613,7 @@ sub bhg_make_asteroid {
     my $new_size = int($building->level/5);
     $new_size = 10 if $new_size > 10;
     $body->update({
-        class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
+        class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,Lacuna::DB::Result::Map::Body->asteroid_types),
         size                        => $new_size,
         needs_recalc                => 1,
         usable_as_starter_enabled   => 0,
@@ -662,22 +669,19 @@ sub bhg_random_make {
 sub bhg_random_type {
     my ($building) = @_;
     my $body = $building->body;
-    my $target = Lacuna->db->resultset('Map::Body')->search({
-        zone        => $body->zone, 
-        empire_id   => undef, 
-        },{
-        rows        => 1, 
-        order_by    => 'rand()',
-    })->single;
+    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
+                  { zone => $body->zone, empire_id => undef, },
+                  {rows => 1, order_by => 'rand()' }
+                )->single;
     my $btype = $target->get_type;
     my $return;
     if ($btype eq 'habitable planet') {
-        my $params = { newtype => randint(1,20) };
+        my $params = { newtype => randint(1,Lacuna::DB::Result::Map::Body->planet_types) };
         $body->add_news(50, sprintf('%s has gone thru extensive changes.', $target->name));
         $return = bhg_change_type($target, $params);
     }
     elsif ($btype eq 'asteroid') {
-        my $params = { newtype => randint(1,21) };
+        my $params = { newtype => randint(1,Lacuna::DB::Result::Map::Body->asteroid_types) };
         $body->add_news(50, sprintf('%s has gone thru extensive changes.', $target->name));
         $return = bhg_change_type($target, $params);
     }
@@ -1006,7 +1010,7 @@ sub bhg_change_type {
     my $old_class = $class;
     my $btype = $body->get_type;
     if ($btype eq 'asteroid') {
-        if ($params->{newtype} >= 1 and $params->{newtype} <= 21) {
+        if ($params->{newtype} >= 1 and $params->{newtype} <= Lacuna::DB::Result::Map::Body->asteroid_types) {
             $class = 'Lacuna::DB::Result::Map::Body::Asteroid::A'.$params->{newtype};
         }
         else {
@@ -1017,13 +1021,12 @@ sub bhg_change_type {
         confess [1013, "We can't change the type of that body"];
     }
     elsif ($btype eq 'habitable planet') {
-        if ($params->{newtype} >= 1 and $params->{newtype} <= 20) {
+        if ($params->{newtype} >= 1 and $params->{newtype} <= Lacuna::DB::Result::Map::Body->planet_types) {
             $class = 'Lacuna::DB::Result::Map::Body::Planet::P'.$params->{newtype};
             $old_class =~ /::(P\d+)/;
             my $old_type = $1;
             $class =~ /::(P\d+)/;
             my $new_type = $1;
-
             if ($body->empire and $old_type ne $new_type) {
                 $body->empire->send_predefined_message(
                     tags        => ['Alert'],
@@ -1077,7 +1080,7 @@ sub bhg_size {
         }
         elsif ($variance == 1) {
             if ($current_size >= 10) {
-                $current_size++ if (randint(0,99) < 10);
+                $current_size++ if (randint(0,99) < 25);
                 $current_size = 20 if ($current_size > 20);
             }
             else {
@@ -1088,6 +1091,7 @@ sub bhg_size {
         else {
             $current_size += randint(1,5) - 3;
             $current_size = 1 if ($current_size < 1);
+            $current_size = 20 if ($current_size > 20);
         }
     }
     elsif ($btype eq 'gas giant') {
@@ -1099,19 +1103,19 @@ sub bhg_size {
             $current_size = 30 if ($current_size < 30);
         }
         elsif ($variance == 1) {
-            if ($current_size >= 65) {
-                $current_size++ if (randint(0,99) < 10);
-                $current_size = 70 if ($current_size > 70);
+            if ($current_size >= 70) {
+                $current_size++ if (randint(0,99) < 25);
+                $current_size = 75 if ($current_size > 75);
             }
             else {
                 $current_size += $building->level;
-                $current_size = 65 if ($current_size > 65);
+                $current_size = 70 if ($current_size > 70);
             }
         }
         else {
             $current_size += randint(1,5) - 3;
             $current_size = 30 if ($current_size < 30);
-            $current_size = 70 if ($current_size > 70);
+            $current_size = 75 if ($current_size > 75);
         }
         if ($old_size != $current_size && $body->empire) {
             $body->empire->send_predefined_message(
@@ -1208,9 +1212,30 @@ sub bhg_tasks {
     return @tasks;
 }
 
+sub subsidize_cooldown {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+
+    unless ($building->is_working) {
+        confess [1010, "No one is searching."];
+    }
+
+    unless ($empire->essentia >= 2) {
+        confess [1011, "Not enough essentia."];
+    }
+
+    $building->finish_work->update;
+    $empire->spend_essentia(2, 'BHG cooldown subsidy after the fact');
+    $empire->update;
+
+    return $self->view($empire, $building);
+}
+
 __PACKAGE__->register_rpc_method_names(qw(
-    generate_singularity 
+    generate_singularity
     get_actions_for
+    subsidize_cooldown
 ));
 
 no Moose;

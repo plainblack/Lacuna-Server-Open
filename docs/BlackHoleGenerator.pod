@@ -49,13 +49,32 @@ This buildings ID
  }
 
 
+=head2 generate_singularity 
 
-=head2 generate_singularity
+Note: this method call now supports both the fixed argument list and the new
+named argument call method (to be introduced into V4.000). For backwards compatibility
+the original fixed argument list will continue to be supported but will not support 
+any new arguments (in this case the subsidize option). You will need to use the named
+argument calling convention if you want to subsidize the BHG and achieve 'perfection'.
 
-Accepts either fixed arguments or a hash of named parameters
+=head3 fixed argument list (original calling method)
 
- ( session_id, building_id )
- ( parameter_hash )
+  session_id, building_id, target, task_name, [ params ]
+
+=head3 named arguments
+
+  {
+    "session_id"    : "329da49c-7e88-4897-9d8c-3e5f6309d9b7",
+    "building_id"   : 124333,
+    "target"        : { "body_name" : "mars" },
+    "task_name"     : "Change Type",
+    "params"        : { "newtype" : 33 },
+    "subsidize"     : 1
+  }
+
+Note that named arguments can be in any order. If optional then they can be omitted
+the C<subsidize> argument will cost E to achieve 'perfection' of 100% reliability, if
+omitted then you accept the risk of failure.
 
 Throws 1002, 1009, 1010, 1013
 
@@ -108,7 +127,7 @@ Can increase the size of a habitable planet up to size 65 or an asteroid up to s
 
 =item Change Type
 
-Can change the type of a habitable planet to any of the basic 20 types. Usable at Black Hole Generator level 25.
+Can change the type of a habitable planet to any of the basic 40 types. Usable at Black Hole Generator level 25.
 
 Only allowed to change occupied planets that share your alliance.
 
@@ -197,6 +216,7 @@ A hash reference that can contain one of three items to identify a body.
       "recovery" : 129600,
       "side_chance" : 25,
       "success" : 0,
+      "essentia_cost" : 0,
       "throw" : 1009,
       "types" : [
         "habitable planet",
@@ -208,5 +228,25 @@ A hash reference that can contain one of three items to identify a body.
  }
 
 Options are as described for generate_singularity
+
+B<cost> is the amount in Essentia which will make the task 'perfect' (i.e. 100% success) the lower
+the probability of success, the higher the cost. The minimum is 2E.
+
+If the chance of success is zero, then no amount of Essentia will make it succeed.
+
+
+=head2 subsidize_cooldown ( session_id, building_id )
+
+Will spend 2 essentia to cool down the BHG immediately. Returns C<view>.
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Black Hole Generator.
 
 =cut

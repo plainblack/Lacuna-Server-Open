@@ -209,7 +209,8 @@ This buildings ID
 
  {
   "status" : { ... },
-  "max_excavators" : 1,
+  "max_excavators" : 2,
+  "travelling" : 1,
   "excavators" : [
     {
       "id" : "id-goes-here",

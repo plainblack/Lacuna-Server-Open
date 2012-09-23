@@ -204,11 +204,16 @@ sub get_buildable {
     if (defined $port) {
         $docks = $port->docks_available;
     }
+    my $max_ships = $building->max_ships;
+    my $total_ships_building = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $building->body_id, task=>'Building'})->count;
+
     return {
         buildable       => \%buildable,
         docks_available => $docks,
         status          => $args->{no_status} ? {} : $self->format_status($empire, $body),
-    };
+        build_queue_max => $max_ships,
+        build_queue_used => $total_ships_building,
+     };
 }
 
 

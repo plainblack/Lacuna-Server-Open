@@ -188,7 +188,9 @@ Ships that are used to gather resources from space.
      },
         ...
    },
-   "docks_available" :   7,
+   "docks_available" : 7,         # you can only build ships up to the number of docks you have available
+   "build_queue_max" : 60,        # maximum queueable ships
+   "build_queue_used" : 3,        # ships in queue for all shipyards
    "status" : { ... },
  }
 
