@@ -467,6 +467,10 @@ sub generate_singularity {
             }
         }
     }
+    if ($subsidize) {
+        $empire->spend_essentia($chance->{essentia_cost},'BHG perfection subsidy after the fact');
+        $empire->update;
+    }
     return {
         status => $self->format_status($empire, $body),
         effect => $effect,
