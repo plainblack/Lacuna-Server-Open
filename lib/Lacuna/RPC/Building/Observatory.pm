@@ -45,12 +45,14 @@ sub get_probed_stars {
     while (my $probe = $probes->next) {
         push @stars, $probe->star->get_status($empire);
     }
+    my $travelling = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $building->body_id, type=>'probe', task=>'Travelling' })->count;
     return {
         stars       => \@stars,
         star_count  => $probes->pager->total_entries,
         status      => $self->format_status($empire, $building->body),
         max_probes  => $building->max_probes,
-        };
+        travelling  => $travelling,
+    };
 }
 
 __PACKAGE__->register_rpc_method_names(qw(get_probed_stars abandon_probe));

@@ -1,0 +1,9 @@
+Capitol Lost to Fissure
+~~~
+Due to gross negligence the Fissure Containment System on your capitol failed today. As a result the planet imploded and most of the population was lost.
+
+Luckily the legislature was able to flee the planet in time, take a fast ship, and re-establish your capitol on %s, Hurrah!
+
+Regards,
+
+Your Humble Assistant

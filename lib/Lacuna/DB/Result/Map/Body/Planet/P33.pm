@@ -6,29 +6,32 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body::Planet';
 use Lacuna::Util qw(randint);
 
+with "Lacuna::Role::Planet::Weather";
+with "Lacuna::Role::Planet::GeoChaos";
+
 use constant image => 'p33';
 
-sub water          { randint(1000,10000) }
-sub rutile         { randint(1,1000) }
-sub chromite       { randint(1,1000) }
-sub chalcopyrite   { randint(1,1000) }
-sub galena         { randint(1,1000) }
-sub gold           { randint(1,1000) }
-sub uraninite      { randint(1,1000) }
-sub bauxite        { randint(1,1000) }
-sub goethite       { randint(1,1000) }
-sub halite         { randint(1,1000) }
-sub gypsum         { randint(1,1000) }
-sub trona          { randint(1,1000) }
-sub sulfur         { randint(1,1000) }
-sub methane        { randint(1,1000) }
-sub kerogen        { randint(1,1000) }
-sub anthracite     { randint(1,1000) }
-sub magnetite      { randint(1,1000) }
-sub fluorite       { randint(1,1000) }
-sub beryl          { randint(1,1000) }
-sub zircon         { randint(1,1000) }
-sub monazite       { randint(1,1000) }
+sub water           { return 6000; };
+sub anthracite      { return 1000; };
+sub bauxite         { return 1000; };
+sub beryl           { return 1000; };
+sub chalcopyrite    { return 1000; };
+sub chromite        { return 1000; };
+sub fluorite        { return 1000; };
+sub galena          { return 1000; };
+sub goethite        { return 1000; };
+sub gold            { return 1000; };
+sub gypsum          { return 1000; };
+sub halite          { return 1000; };
+sub kerogen         { return 1000; };
+sub magnetite       { return 1000; };
+sub methane         { return 1000; };
+sub monazite        { return 1000; };
+sub rutile          { return 1000; };
+sub sulfur          { return 1000; };
+sub trona           { return 1000; };
+sub uraninite       { return 1000; };
+sub zircon          { return 1000; };
 
 
 no Moose;

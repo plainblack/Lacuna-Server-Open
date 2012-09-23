@@ -7,7 +7,7 @@ extends 'Lacuna::DB::Result::Map::Body::Planet';
 
 use constant image => 'p36';
 
-use constant water          => 15000;
+use constant water          => 30000;
 use constant rutile         => 100;
 use constant chromite       => 100;
 use constant chalcopyrite   => 100;

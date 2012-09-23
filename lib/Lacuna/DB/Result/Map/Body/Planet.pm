@@ -582,7 +582,7 @@ has building_count => (
 
 sub _build_building_count {
     my ($self) = @_;
-    # Bleeders count toward building count, but supply pods don't since they can't be shot down.
+# Bleeders count toward building count, but supply pods don't since they can't be shot down.
     my $count = grep {$_->class !~ /Permanent/ and $_->class !~ /SupplyPod/} @{$self->building_cache}; 
     return $count;
 }
@@ -632,9 +632,9 @@ has archaeology => (
         is      => 'rw',
         lazy    => 1,
         default => sub {
-            my $self = shift;
-            my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Archaeology');
-            return $building;
+        my $self = shift;
+        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Archaeology');
+        return $building;
         },
         );
 
@@ -784,43 +784,43 @@ sub has_room_in_build_queue {
 use constant operating_resource_names => qw(food_hour energy_hour ore_hour water_hour);
 
 has future_operating_resources => (
-    is      => 'rw',
-    clearer => 'clear_future_operating_resources',
-    lazy    => 1,
-    default => sub {
+        is      => 'rw',
+        clearer => 'clear_future_operating_resources',
+        lazy    => 1,
+        default => sub {
         my $self = shift;
 
-    # get current
+# get current
         my %future;
         foreach my $method ($self->operating_resource_names) {
-            $future{$method} = $self->$method;
+        $future{$method} = $self->$method;
         }
 
-    # adjust for what's already in build queue
+# adjust for what's already in build queue
         my @queued_builds = @{$self->builds};
         foreach my $build (@queued_builds) {
-            my $other = $build->stats_after_upgrade;
-            foreach my $method ($self->operating_resource_names) {
-                $future{$method} += $other->{$method} - $build->$method;
-            }
+        my $other = $build->stats_after_upgrade;
+        foreach my $method ($self->operating_resource_names) {
+        $future{$method} += $other->{$method} - $build->$method;
+        }
         }
         return \%future;
-    },
-);
+        },
+        );
 
 sub has_resources_to_operate {
     my ($self, $building) = @_;
 
-    # get future
+# get future
     my $future = $self->future_operating_resources; 
 
-    # get change for this building
+# get change for this building
     my $after = $building->stats_after_upgrade;
 
-    # check our ability to sustain ourselves
+# check our ability to sustain ourselves
     foreach my $method ($self->operating_resource_names) {
         my $delta = $after->{$method} - $building->$method;
-    # don't allow it if it sucks resources && its sucking more than we're producing
+# don't allow it if it sucks resources && its sucking more than we're producing
         if ($delta < 0 && $future->{$method} + $delta < 0) {
             my $resource = $method;
             $resource =~ s/(\w+)_hour/$1/;
@@ -833,12 +833,12 @@ sub has_resources_to_operate {
 sub has_resources_to_operate_after_building_demolished {
     my ($self, $building) = @_;
 
-    # get future
+# get future
     my $planet = $self->future_operating_resources;
 
-    # check our ability to sustain ourselves
+# check our ability to sustain ourselves
     foreach my $method ($self->operating_resource_names) {
-    # don't allow it if it sucks resources && its sucking more than we're producing
+# don't allow it if it sucks resources && its sucking more than we're producing
         if ($planet->{$method} - $building->$method < 0) {
             my $resource = $method;
             $resource =~ s/(\w+)_hour/$1/;
@@ -1098,7 +1098,7 @@ sub recalc_stats {
     }
     $stats{max_berth} = 1;
     #calculate building production
-    my ($gas_giant_platforms, $terraforming_platforms, $station_command, $pantheon_of_hagness, $ore_production_hour, $ore_consumption_hour, $food_production_hour, $food_consumption_hour) = 0;
+    my ($gas_giant_platforms, $terraforming_platforms, $station_command, $pantheon_of_hagness, $ore_production_hour, $ore_consumption_hour, $food_production_hour, $food_consumption_hour, $fissure_percent) = 0;
     foreach my $building (@{$self->building_cache}) {
         $stats{waste_capacity}  += $building->waste_capacity;
         $stats{water_capacity}  += $building->water_capacity;
@@ -1166,7 +1166,16 @@ sub recalc_stats {
         if ($building->isa('Lacuna::DB::Result::Building::Module::StationCommand')) {
             $station_command += $building->level;
         }
+        if ($building->isa('Lacuna::DB::Result::Building::Permanent::Fissure')) {
+            # A fissure is controlled by maintenance equipment. The less efficient
+            # the equipment, the more energy the Fissure will suck in.
+            # Fissure affect on energy_hour is 1% per level subject to efficiency
+            $fissure_percent += $building->level * (100 - $building->efficiency) / 100;
+        }
     }
+    # Energy reduced by Fissure action
+    $stats{energy_hour} -= $stats{energy_hour} * $fissure_percent / 100;
+    
     $stats{food_consumption_hour} = $food_consumption_hour;
     $stats{ore_consumption_hour} = $ore_consumption_hour;
 
@@ -1192,7 +1201,9 @@ sub recalc_stats {
         my $domestic_ore_hour = sprintf('%.0f',$self->$type * $ore_production_hour / $self->total_ore_concentration);
         $stats{$method} += $domestic_ore_hour;
     }
-
+    $self->update;
+    $self->discard_changes;
+    
     # deal with negative amounts stored
     $self->water_stored(0) if $self->water_stored < 0;
     $self->energy_stored(0) if $self->energy_stored < 0;
@@ -1200,6 +1211,8 @@ sub recalc_stats {
         my $stype = $type.'_stored';
         $self->$stype(0) if ($self->$stype < 0);
     }
+    $self->update;
+    $self->discard_changes;
     
     # deal with storage overages
     if ($self->ore_stored > $stats{ore_capacity}) {
@@ -1246,7 +1259,8 @@ sub recalc_stats {
         }
         $stats{happiness_hour} = -100_000_000_000 if ($stats{happiness_hour} < -100_000_000_000);
     }
-
+    $self->update;
+    $self->discard_changes;
     $self->update(\%stats);
     return $self;
 }
@@ -1656,7 +1670,7 @@ sub can_add_type {
     my $capacity = $type.'_capacity';
     my $stored = $type.'_stored';
     my $available_storage = $self->$capacity - $self->$stored;
-    unless ($available_storage >= $value) {
+    if ($available_storage < $value) {
         confess [1009, "You don't have enough available storage."];
     }
     return 1;
@@ -1665,17 +1679,21 @@ sub can_add_type {
 sub add_type {
     my ($self, $type, $value) = @_;
     my $method = 'add_'.$type;
-    unless (eval{$self->can_add_type($type, $value)}) {
+    eval {
+        $self->can_add_type($type, $value);
+    };
+    if ($@) {
         my $empire = $self->empire;
-        if (defined $empire && !$empire->skip_resource_warnings && !$empire->check_for_repeat_message('complaint_overflow'.$self->id)) {
+        if (defined $empire 
+            && !$empire->skip_resource_warnings 
+            && !$empire->check_for_repeat_message('complaint_overflow'.$self->id)) {
             $empire->send_predefined_message(
-                    filename    => 'complaint_overflow.txt',
-                    params      => [$type, $self->id, $self->name],
-                    repeat_check=> 'complaint_overflow'.$self->id,
-                    tags        => ['Complaint','Alert'],
-                    );
+                filename        => 'complaint_overflow.txt',
+                params          => [$type, $self->id, $self->name],
+                repeat_check    => 'complaint_overflow'.$self->id,
+                tags            => ['Complaint','Alert'],
+            );
         }
-
     }
     $self->$method($value);
     return $self;

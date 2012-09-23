@@ -213,6 +213,9 @@ after 'sqlt_deploy_hook' => sub {
     'Lacuna::DB::Result::Map::Body::Planet::Station' => 'Lacuna::DB::Result::Map::Body::Planet::Station',
   });
 }
+sub asteroid_types {return 26;}
+sub planet_types {return 40;}
+sub gas_giant_types {return 5;};
 
 # RELATIONSHIPS
 

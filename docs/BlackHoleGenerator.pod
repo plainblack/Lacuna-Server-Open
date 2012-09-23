@@ -31,7 +31,33 @@ This method is extended to include the list of tasks.
 
 
 
-=head2 generate_singularity ( session_id, building_id, target, task_name, [ params ] )
+=head2 generate_singularity 
+
+Note: this method call now supports both the fixed argument list and the new
+named argument call method (to be introduced into V4.000). For backwards compatibility
+the original fixed argument list will continue to be supported but will not support 
+any new arguments (in this case the subsidize option). You will need to use the named
+argument calling convention if you want to subsidize the BHG and achieve 'perfection'.
+
+=head3 fixed argument list (original calling method)
+
+  session_id, building_id, target, task_name, [ params ]
+
+=head3 named arguments
+
+  {
+    "session_id"    : "329da49c-7e88-4897-9d8c-3e5f6309d9b7",
+    "building_id"   : 124333,
+    "target"        : { "body_name" : "mars" },
+    "task_name"     : "Change Type",
+    "params"        : { "newtype" : 33 },
+    "subsidize"     : 1
+  }
+
+Note that named arguments can be in any order. If optional then they can be omitted
+the C<subsidize> argument will cost E to achieve 'perfection' of 100% reliability, if
+omitted then you accept the risk of failure.
+
 
 Returns success, failure, and side effect results.
 
@@ -108,7 +134,7 @@ Can increase the size of a habitable planet up to size 65 or an asteroid up to s
 
 =item Change Type
 
-Can change the type of a habitable planet to any of the basic 20 types. Usable at Black Hole Generator level 25.
+Can change the type of a habitable planet to any of the basic 40 types. Usable at Black Hole Generator level 25.
 
 Only allowed to change occupied planets that share your alliance.
 
@@ -143,7 +169,8 @@ Returns status and task list with success percentage for defined target.
           "reason" : "You can only make an asteroid from a planet."
           "recovery" : 129600,
           "side_chance" : 25,
-          "success" : 0,
+          "success" : 50,
+          "essentia_cost" : 0,
           "throw" : 1009,
           "types" : [
              "habitable planet",
@@ -155,5 +182,25 @@ Returns status and task list with success percentage for defined target.
  }
 
 Options are as described for generate_singularity
+
+B<cost> is the amount in Essentia which will make the task 'perfect' (i.e. 100% success) the lower
+the probability of success, the higher the cost. The minimum is 2E.
+
+If the chance of success is zero, then no amount of Essentia will make it succeed.
+
+
+=head2 subsidize_cooldown ( session_id, building_id )
+
+Will spend 2 essentia to cool down the BHG immediately. Returns C<view>.
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Black Hole Generator.
 
 =cut

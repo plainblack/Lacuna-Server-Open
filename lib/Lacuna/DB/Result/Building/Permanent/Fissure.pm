@@ -40,7 +40,7 @@ before 'can_demolish' => sub {
     unless ($self->efficiency >= 100) {
         confess [1013, 'Unless your Fissure maintenance equipment is 100% operational, it is just too dangerous to attempt'];
     }
-    unless ($self->level == 1) {
+    if ($self->level > 1) {
         confess [1013, 'You must fill in the fissure by spending resources to downgrade it before you can demolish it.'];
     }
 };

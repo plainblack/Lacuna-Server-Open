@@ -199,56 +199,6 @@ sub get_plan_summary {
     };
 }
 
-
-sub get_plans_delete_me_i_am_not_used {
-    my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my $plans = Lacuna->db->resultset('Lacuna::DB::Result::Plans')->search(
-        {body_id => $building->body_id},
-        {order_by => [ 'class', 'level']}
-        );
-    my @out;
-    while (my $plan = $plans->next) {
-        push @out, {
-            id                      => $plan->id,
-            name                    => $plan->class->name,
-            level                   => $plan->level,
-            extra_build_level       => $plan->extra_build_level,
-        };
-    }
-    # Put plans in a sensible order
-    @out = sort {$a->{name} cmp $b->{name} || $a->{level} <=> $b->{level} || $b->{extra_build_level} <=> $a->{extra_build_level} } @out;
-    return {
-        plans                   => \@out,
-        cargo_space_used_each   => 10_000,
-        status                  => $self->format_status($empire, $building->body),
-    };
-}
-
-sub get_glyphs_delete_me_i_am_not_used {
-    my ($self, $session_id, $building_id) = @_;
-
-    my $empire   = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my $glyphs   = $building->body->glyph;
-
-    my @out;
-    while (my $glyph = $glyphs->next) {
-        push @out, {
-            id       => $glyph->id,
-            name     => $glyph->type,
-            type     => $glyph->type,
-            quantity => $glyph->quantity,
-        };
-    }
-    return {
-        glyphs                => \@out,
-        cargo_space_used_each => 100,
-        status                => $self->format_status($empire, $building->body),
-    };
-}
-
 sub get_glyph_summary {
     my ($self, $session_id, $building_id) = @_;
 
