@@ -44,6 +44,10 @@
  - done: When ships arrive (fighters to Defend) set their available date to null
  - done: Travelling ships should be sorted in arrival date order
  
+3.0871:
+ - Fix: Gratches Gauntlet now takes into account efficiency
+ - Fix: Minor spelling and text fixes
+
 3.0870:
  - Add: Black Hole Generator can now be subsidized both for accuracy and cooldown
  - Fix: List of stars to rename in Parliament are now sorted

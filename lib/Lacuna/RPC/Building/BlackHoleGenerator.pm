@@ -1222,7 +1222,7 @@ sub subsidize_cooldown {
     my $building = $self->get_building($empire, $building_id);
 
     unless ($building->is_working) {
-        confess [1010, "No one is searching."];
+        confess [1010, "BHG is not in cooldown mode."];
     }
 
     unless ($empire->essentia >= 2) {
