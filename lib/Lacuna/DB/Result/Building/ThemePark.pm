@@ -81,7 +81,7 @@ sub can_operate {
     if ($self->is_working) {
         my $current_types = $self->work->{food_type_count};
         if ($types < $current_types) {
-            confess [1011, "This Theme Park was started with ".$current_types." types of food so you need at least ".$current_types." types of food to continue it's operation."];
+            confess [1011, "This Theme Park was started with ".$current_types." types of food so you need at least ".$current_types." types of food to continue its operation."];
         }
     }
     elsif ($types < 5) {
