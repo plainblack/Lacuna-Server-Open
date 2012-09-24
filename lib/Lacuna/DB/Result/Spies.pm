@@ -336,7 +336,7 @@ sub is_available {
                     my $hours = 1;
                     my $gauntlet = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::GratchsGauntlet');
                     if (defined $gauntlet) {
-                        $hours += $gauntlet->level * 3;
+                        $hours += int(($gauntlet->level * 3 * $gauntlet->efficiency)/100 + 1);
                     }
                     my $infiltration_time = $self->available_on->clone->add(hours => $hours);
                     if ($infiltration_time->epoch > time) {
