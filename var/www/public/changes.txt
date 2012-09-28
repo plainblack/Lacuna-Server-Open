@@ -1,3 +1,5 @@
+ - Fix: Insurrected planet will keep ships building
+
 3.0870:
  - Add: Black Hole Generator can now be subsidized both for accuracy and cooldown
  - Fix: List of stars to rename in Parliament are now sorted
