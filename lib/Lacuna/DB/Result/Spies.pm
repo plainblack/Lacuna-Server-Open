@@ -1457,7 +1457,7 @@ sub steal_planet {
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
                       ->search({body_id => $self->on_body_id,
-                                task => { '!=' => 'Docked' } });
+                                task => { not_in => ['Docked','Building'] } });
     while (my $ship = $ships->next) {
       next if ($ship->task eq 'Waste Chain');
       if ($ship->task eq 'Waiting On Trade') {
