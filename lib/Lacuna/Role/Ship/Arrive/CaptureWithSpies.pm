@@ -38,7 +38,7 @@ after handle_arrival_procedures => sub {
     # lets see if we can detect the ship
     my $security_detection = ($security->level * 700) * ( $security->efficiency / 100 );
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-        $security_detection *= 1.25;
+        $security_detection *= 1.5;
     }
     return unless $security_detection > $self->stealth;
     
