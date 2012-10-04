@@ -1510,7 +1510,7 @@ sub steal_planet {
         }
         @{$self->on_body->building_cache};
     for my $shipyard (@shipyards) {
-      $shipyard->is_working = 0;
+      $shipyard->is_working(0);
       $shipyard->update;
     }
 

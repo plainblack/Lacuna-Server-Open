@@ -1,3 +1,8 @@
+3.0871:
+ - Mod: Police Stations get an upgrade.
+ - Fix: Shipyards on captured planets have is_working flag turned off.
+ - Fix: Dev note taken out of space station destroyed email.
+
 3.0870:
  - Add: Black Hole Generator can now be subsidized both for accuracy and cooldown
  - Fix: List of stars to rename in Parliament are now sorted
