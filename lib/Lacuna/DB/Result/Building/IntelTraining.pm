@@ -98,7 +98,12 @@ sub training_costs {
         my $spy = $self->get_spy($spy_id);
         my $train_time = sprintf('%.0f', 3600 * $spy->level *
                                 ((100 - (5 * $self->body->empire->management_affinity)) / 100));
-        $train_time = 3600 if ($train_time < 3600);
+        if ($self->body->happiness < 0) {
+            my $unhappy_workers = abs($self->body->happiness)/100_000;
+            $train_time = int($train_time * $unhappy_workers);
+        }
+        $train_time = 5184000 if ($train_time > 5184000); # Max time per spy is 60 days
+        $train_time = 3600 if ($train_time < 3600); # Min time is 5 min
         $costs->{time} = $train_time;
     }
     else {
@@ -106,7 +111,12 @@ sub training_costs {
         while (my $spy = $spies->next) {
             my $train_time = sprintf('%.0f', 3600 * $spy->level *
                                 ((100 - (5 * $self->body->empire->management_affinity)) / 100));
-            $train_time = 3600 if ($train_time < 3600);
+            if ($self->body->happiness < 0) {
+                my $unhappy_workers = abs($self->body->happiness)/100_000;
+                $train_time = int($train_time * $unhappy_workers);
+            }
+            $train_time = 5184000 if ($train_time > 5184000); # Max time per spy is 60 days
+            $train_time = 3600 if ($train_time < 3600); # Min time is 5 min
             push @{$costs->{time}}, {
                 spy_id  => $spy->id,
                 name    => $spy->name,

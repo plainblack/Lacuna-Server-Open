@@ -178,6 +178,11 @@ sub train_spy {
         unless ($time_to_train) {
             $time_to_train = $self->training_costs->{time};
         }
+        if ($self->body->happiness < 0) {
+            my $unhappy_workers = abs($self->body->happiness)/100_000;
+            $time_to_train = int($time_to_train * $unhappy_workers);
+        }
+        $time_to_train = 5184000 if ($time_to_train > 5184000); # Max time per spy is 60 days
         my $latest = $self->latest_spy;
         my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
         $available_on->add(seconds => $time_to_train );
