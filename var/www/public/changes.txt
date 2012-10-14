@@ -1,6 +1,10 @@
 3.0871:
  - Fix: Gratches Gauntlet now takes into account efficiency
  - Fix: Minor spelling and text fixes
+ - Mod: Police Stations get an upgrade.
+ - Fix: Shipyards on captured planets have is_working flag turned off.
+ - Fix: Dev note taken out of space station destroyed email.
+ - Fix: Unhappy spies take longer to train.
 
 3.0870:
  - Add: Black Hole Generator can now be subsidized both for accuracy and cooldown

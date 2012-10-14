@@ -137,13 +137,20 @@ has training_multiplier => (
 sub training_costs {
     my $self = shift;
     my $multiplier = $self->training_multiplier;
+    my $time_to_train = sprintf('%.0f', 2060 * $multiplier / $self->body->empire->management_affinity);
+    if ($self->body->happiness < 0) {
+      my $unhappy_workers = abs($self->body->happiness)/100_000;
+      $time_to_train = int($time_to_train * $unhappy_workers);
+    }
+    $time_to_train = 5184000 if ($time_to_train > 5184000); # Max time per spy is 60 days
+    $time_to_train = 300 if ($time_to_train < 300); # Min time is 5 minutes
     return {
         water   => 1100 * $multiplier,
         waste   => 40 * $multiplier,
         energy  => 100 * $multiplier,
         food    => 1000 * $multiplier,
         ore     => 10 * $multiplier,
-        time    => sprintf('%.0f', 2060 * $multiplier / $self->body->empire->management_affinity),
+        time    => $time_to_train,
     };
 }
 
