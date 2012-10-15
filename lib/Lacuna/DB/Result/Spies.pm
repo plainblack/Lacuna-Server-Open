@@ -485,12 +485,14 @@ has home_field_advantage => (
         my $self = shift;
         my $body = $self->on_body;
         my $building = 'Security';
+        my $div = 2;
         if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
             $building = 'Module::PoliceStation';
+           $div = 1;
         }
         my $hq = $body->get_building_of_class('Lacuna::DB::Result::Building::'.$building);
         if (defined $hq) {
-            return $hq->level * $hq->efficiency / 2;
+            return $hq->level * $hq->efficiency / $div;
         }
         else {
             return 0;
@@ -1501,7 +1503,18 @@ sub steal_planet {
         $ship->delete;
       }
     }
+# Shipyards have had all ships that were building destroyed, so stop timers.
+    my $on_body = $self->on_body;
+    my @shipyards = grep {
+            ($_->class eq 'Lacuna::DB::Result::Building::Shipyard')
+        }
+        @{$self->on_body->building_cache};
+    for my $shipyard (@shipyards) {
+      $shipyard->is_working(0);
+      $shipyard->update;
+    }
 
+# Probes
     Lacuna->db->resultset('Lacuna::DB::Result::Probes')
               ->search({body_id => $self->on_body_id})
               ->update({empire_id => $self->empire_id, alliance_id => $self->empire->alliance_id});
