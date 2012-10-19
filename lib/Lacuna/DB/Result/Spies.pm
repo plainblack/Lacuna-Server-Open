@@ -922,7 +922,10 @@ sub turn_a_spy {
         $new_recruit_message = $self->empire->send_predefined_message(
             tags        => ['Spies','Alert'],
             filename    => 'convince_to_quit.txt',
-            params      => [$self->name,
+            params      => [$old_empire_id,
+                            $old_empire_name,
+                            $traitor->name,
+                            $self->name,
                             $self->from_body->id,
                             $self->from_body->name],
         );
