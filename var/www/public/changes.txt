@@ -1,3 +1,7 @@
+3.0872:
+ - Fix: Spies need working infrastructure.
+ - Fix: Tutorial doesn't restart if fissure blows up capitol.
+
 3.0871:
  - Mod: Police Stations get an upgrade.
  - Fix: Shipyards on captured planets have is_working flag turned off.
