@@ -1,0 +1,8 @@
+Convincing Argument.
+~~~
+While I couldn't convince the agent from {Empire %s %s} that goes by %s, I did convince him to retire early.
+
+More to come,
+
+%s of {Planet %s %s}
+
