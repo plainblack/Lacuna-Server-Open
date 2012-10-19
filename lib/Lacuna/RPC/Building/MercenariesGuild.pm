@@ -69,6 +69,12 @@ sub accept_from_market {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     confess [1013, 'You cannot use a mercenaries guild that has not yet been built.'] unless $building->level > 0;
+    confess [1013, 'You cannot use a mercenaries guild that has not yet been built.'] unless $building->efficiency == 100;
+
+    my $int_min = $building->body->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
+    unless (defined($int_min) and $int_min->spy_count < $int_min->max_spies) {
+        confess [1009, 'You are already at the maximum number of spies for the Intelligence Ministry.'];
+    }
 
     $empire->current_session->check_captcha;
 
