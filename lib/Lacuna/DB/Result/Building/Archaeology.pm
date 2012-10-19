@@ -274,7 +274,7 @@ sub dig_it {
                         'Klaatu Barada Ni*cough*',
                         'Oh no, not again.',
                         'Oops? What oops? No oops!',
-                        'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagi fhtagn.',
+                        'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagl fhtagn.',
                         'Push the button Max!',
                         'That\'s it man, game over man, game over!',
                         'The brazen temple doors open...',

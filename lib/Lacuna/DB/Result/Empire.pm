@@ -482,7 +482,10 @@ sub found {
 
   # found home planet
   $home_planet ||= $self->find_home_planet;
-  $self->tutorial_scratch($home_planet->name);
+  my $current_tutorial_stage = $self->tutorial_stage;
+  unless ($current_tutorial_stage) {
+    $self->tutorial_scratch($home_planet->name);
+  }
   $self->home_planet_id($home_planet->id);
   $home_planet->size(45);
   # Clean off everything but decor
@@ -523,7 +526,10 @@ sub found {
   $home_planet->found_colony($self);
 
   # send welcome
-return Lacuna::Tutorial->new(empire=>$self)->start('explore_the_ui');
+  unless ($current_tutorial_stage) {
+    return Lacuna::Tutorial->new(empire=>$self)->start('explore_the_ui');
+  }
+  return 1;
 }
 
 
