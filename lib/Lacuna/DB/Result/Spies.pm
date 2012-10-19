@@ -894,9 +894,18 @@ sub turn {
                         $self->from_body->id,
                         $self->from_body->name],
     );
-    $self->task('Idle');
-    $self->empire_id($new_home->empire_id);
-    $self->from_body_id($new_home->id);
+# Check to see if new home has room
+    my $new_int_min = $new_home->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
+    if (defined($new_int_min) and $new_int_min->spy_count < $new_int_min->max_spies) {
+      $self->task('Idle');
+      $self->empire_id($new_home->empire_id);
+      $self->from_body_id($new_home->id);
+    }
+    else {
+      $self->offense_mission_count(150);
+      $self->defense_mission_count(150);
+    }
+
     return $message;
 }
 

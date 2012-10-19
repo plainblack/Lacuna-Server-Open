@@ -44,7 +44,8 @@ use constant waste_production => 1;
 
 sub max_spies {
     my ($self) = @_;
-    return $self->level;
+# Just temporary until the major change
+    return ($self->level * 3);
 }
 
 has spy_count => (
