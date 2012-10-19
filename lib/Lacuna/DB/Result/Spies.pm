@@ -887,25 +887,27 @@ sub format_from {
 sub turn {
     my ($self, $new_home) = @_;
     $self->times_turned( $self->times_turned + 1 );
-    my $message = $self->empire->send_predefined_message(
-        tags        => ['Spies','Alert'],
-        filename    => 'goodbye.txt',
-        params      => [$self->name,
-                        $self->from_body->id,
-                        $self->from_body->name],
-    );
 # Check to see if new home has room
+    my $message;
     my $new_int_min = $new_home->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
     if (defined($new_int_min) and $new_int_min->spy_count < $new_int_min->max_spies) {
-      $self->task('Idle');
-      $self->empire_id($new_home->empire_id);
-      $self->from_body_id($new_home->id);
+        $message = $self->empire->send_predefined_message(
+            tags        => ['Spies','Alert'],
+            filename    => 'goodbye.txt',
+            params      => [$self->name,
+                            $self->from_body->id,
+                            $self->from_body->name],
+        );
+        $self->task('Idle');
+        $self->empire_id($new_home->empire_id);
+        $self->from_body_id($new_home->id);
     }
     else {
-      $self->offense_mission_count(150);
-      $self->defense_mission_count(150);
+        $message = { filename => 'none' };
+        $self->offense_mission_count(150);
+        $self->defense_mission_count(150);
+        $self->available_on(DateTime->now->add(hours => 12));
     }
-
     return $message;
 }
 
@@ -915,20 +917,35 @@ sub turn_a_spy {
     my $old_empire_id   = $traitor->empire->id;
     my $old_empire_name = $traitor->empire->name;
     my $goodbye_message = $traitor->turn($self->from_body);
-    my $new_recruit_message = $self->empire->send_predefined_message(
-        tags        => ['Spies','Alert'],
-        filename    => 'new_recruit.txt',
-        params      => [$old_empire_id,
-                        $old_empire_name,
-                        $traitor->name,
-                        $self->name,
-                        $self->from_body->id,
-                        $self->from_body->name],
-    );
-    return {
-        'goodbye' => $goodbye_message,
-        'new_recruit' => $new_recruit_message,
-    };
+    my $new_recruit_message;
+    if ($goodbye_message->{filename} eq 'none') {
+        $new_recruit_message = $self->empire->send_predefined_message(
+            tags        => ['Spies','Alert'],
+            filename    => 'convince_to_quit.txt',
+            params      => [$self->name,
+                            $self->from_body->id,
+                            $self->from_body->name],
+        );
+        return {
+            'new_recruit' => $new_recruit_message,
+        };
+    }
+    else {
+        $new_recruit_message = $self->empire->send_predefined_message(
+            tags        => ['Spies','Alert'],
+            filename    => 'new_recruit.txt',
+            params      => [$old_empire_id,
+                            $old_empire_name,
+                            $traitor->name,
+                            $self->name,
+                            $self->from_body->id,
+                            $self->from_body->name],
+        );
+        return {
+            'goodbye' => $goodbye_message,
+            'new_recruit' => $new_recruit_message,
+        };
+    }
 }
 
 sub knock_out {
