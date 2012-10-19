@@ -1,3 +1,7 @@
+3.0872:
+ - Fix: Spies need working infrastructure.
+ - Fix: Tutorial doesn't restart if fissure blows up capitol.
+
 3.0871:
  - Fix: Gratches Gauntlet now takes into account efficiency
  - Fix: Minor spelling and text fixes
