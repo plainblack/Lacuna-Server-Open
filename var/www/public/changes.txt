@@ -1,6 +1,7 @@
 3.0872:
  - Fix: Spies need working infrastructure.
  - Fix: Tutorial doesn't restart if fissure blows up capitol.
+ - Fix: Enforcement of spy limits.
 
 3.0871:
  - Mod: Police Stations get an upgrade.
