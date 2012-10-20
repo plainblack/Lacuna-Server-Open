@@ -105,7 +105,7 @@ sub training_costs {
     };
     if ($spy_id) {
         my $spy = $self->get_spy($spy_id);
-        my $xp_level = int(($self->intel_xp + $self->mayhem_xp + $self->politics_xp + $self->theft_xp)/200) + 1;
+        my $xp_level = int(($spy->intel_xp + $spy->mayhem_xp + $spy->politics_xp + $spy->theft_xp)/200) + 1;
         my $train_time = sprintf('%.0f', 3600 * $xp_level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
         if ($self->body->happiness < 0) {
             my $unhappy_workers = abs($self->body->happiness)/100_000;
@@ -118,7 +118,7 @@ sub training_costs {
     else {
         my $spies = $self->get_spies->search({ task => { in => ['Counter Espionage','Idle'] } });
         while (my $spy = $spies->next) {
-            my $xp_level = int(($self->intel_xp + $self->mayhem_xp + $self->politics_xp + $self->theft_xp)/200) + 1;
+            my $xp_level = int(($spy->intel_xp + $spy->mayhem_xp + $spy->politics_xp + $spy->theft_xp)/200) + 1;
             my $train_time = sprintf('%.0f', 3600 * $xp_level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
             if ($self->body->happiness < 0) {
                 my $unhappy_workers = abs($self->body->happiness)/100_000;
