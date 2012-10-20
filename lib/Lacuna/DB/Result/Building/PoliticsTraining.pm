@@ -55,7 +55,7 @@ sub get_spies {
     my ($self) = @_;
     return Lacuna->db->resultset('Lacuna::DB::Result::Spies')
                  ->search({ empire_id => $self->body->empire_id,
-                            on_body_id => $self->body_id });
+                            on_body_id => $self->body_id,
                             politics_xp => {'<', 2600} });
 }
 
