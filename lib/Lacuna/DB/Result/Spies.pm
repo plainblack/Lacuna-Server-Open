@@ -243,7 +243,9 @@ sub get_possible_assignments {
     }
     # In or from the Neutral Area, defense only
     elsif ($self->on_body->in_neutral_area or $self->from_body->in_neutral_area) {
-        push @assignments, $self->defensive_assignments;
+        if ($self->on_body->empire->alliance_id && $self->on_body->empire->alliance_id == $self->from_body->empire->alliance_id) {
+            push @assignments, $self->defensive_assignments;
+        }
     }
     
     # at allies you can defend and attack
@@ -488,7 +490,7 @@ has home_field_advantage => (
         my $div = 2;
         if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
             $building = 'Module::PoliceStation';
-           $div = 1;
+            $div = 1;
         }
         my $hq = $body->get_building_of_class('Lacuna::DB::Result::Building::'.$building);
         if (defined $hq) {
@@ -1266,6 +1268,8 @@ sub sabotage_resources {
         when (5) { return $self->destroy_resources(@_) }
         when (6) { return $self->destroy_plan(@_) }
         when (7) { return $self->destroy_glyph(@_) }
+        when (8) { return $self->destroy_chain_ship(@_) }
+        when (9) { return $self->destroy_excavator(@_) }
     }
 }
 
@@ -1877,7 +1881,8 @@ sub destroy_infrastructure {
     my ($building) = sort {rand() <=> rand()} grep {$_->efficiency > 0} @{$self->on_body->building_cache};
 
     return $self->building_not_found->id unless defined $building;
-    return $self->building_not_found->id if ($building->class eq 'Lacuna::DB::Result::PlanetaryCommand');
+    return $self->building_not_found->id if ($building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' or
+                                             $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand');
 
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
@@ -2030,6 +2035,44 @@ sub destroy_resources {
                              $resource,
                              $self->on_body->name);
     return $message->id;
+}
+
+sub destroy_chain_ship {
+    my ($self, $defender) = @_;
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        {body_id => $self->on_body->id,
+         task => {'in' => ['Supply Chain', 'Waste Chain'] },
+        { rows => 1, order_by => 'rand()' }
+        )->single;
+    return $self->ship_not_found->id unless $ship;
+    my $stype = "supply chain";
+    if ($ship->task eq "Waste Chain") {
+        $stype = "waste chain";
+    }
+    $ship->delete;
+    $self->on_body->recalc_chains;
+    $self->on_body->empire->send_predefined_message(
+        tags        => ['Spies','Alert'],
+        filename    => 'ship_blew_up_at_port.txt',
+        params      => [$stype.' '.$ship->type_formatted,
+                        $self->on_body->id,
+                        $self->on_body->name],
+    );
+    $self->things_destroyed( $self->things_destroyed + 1 );
+    $self->on_body->add_news(90,
+                             'Today, officials on %s are investigating the explosion of a %s ship at the Space Port.',
+                             $self->on_body->name, $stype);
+    return $self->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'sabotage_report.txt',
+        params      => [$stype.' ship',
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
+    )->id;
 }
 
 sub destroy_mining_ship {
@@ -2376,11 +2419,14 @@ sub thwart_thief {
 sub shut_down_building {
     my ($self, $defender) = @_;
     my @classnames = (
+        'Lacuna::DB::Result::Building::Archaeology',
         'Lacuna::DB::Result::Building::Shipyard',
         'Lacuna::DB::Result::Building::Park',
         'Lacuna::DB::Result::Building::Waste::Recycling',
         'Lacuna::DB::Result::Building::Development',
         'Lacuna::DB::Result::Building::Intelligence',
+        'Lacuna::DB::Result::Building::Observatory',
+        'Lacuna::DB::Result::Building::SAW',
         'Lacuna::DB::Result::Building::Trade',
         'Lacuna::DB::Result::Building::Transporter',
     );
@@ -2445,6 +2491,40 @@ sub take_control_of_probe {
     $probe->alliance_id($self->empire->alliance_id);
     $probe->update;
     return $message->id;
+}
+
+sub destroy_excavator {
+    my $arch = $self->on_body->archaeology;
+    return $self->building_not_found->id unless defined $arch;
+    my $excavator = Lacuna->db
+                     ->resultset('Lacuna::DB::Result::Excavators')
+                     ->search({planet_id => $self->on_body->id},
+                              { rows => 1, order_by => 'rand()' }
+                              )->single;
+    return $self->mission_objective_not_found('excavator')->id unless defined $excavator;
+    my $body = $excavator->body;
+    return $self->mission_objective_not_found('excavator')->id unless defined $body;
+    $arch->remove_excavator($excavator);
+    $self->on_body->empire->send_predefined_message(
+        tags        => ['Spies','Alert'],
+        filename    => 'we_lost_contact_with_an_excavator.txt',
+        params      => [$body->x, $body->y, $body->name],
+    );
+    $self->things_destroyed( $self->things_destroyed + 1 );
+    $self->on_body->add_news(50,
+                             'The %s excavator on %s exploded.',
+                             $self->on_body->empire->name,
+                             $asteroid->name);    
+    return $self->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'we_disabled_an_excavator.txt',
+        params      => [$asteroid->x,
+                        $asteroid->y,
+                        $asteroid->name,
+                        $self->on_body->empire->id,
+                        $self->on_body->empire->name,
+                        $self->format_from],
+    )->id;
 }
 
 sub kill_contact_with_mining_platform {
@@ -2663,7 +2743,9 @@ sub spy_report {
         unless (exists $planets{$spook->from_body_id}) {
             $planets{$spook->from_body_id} = $spook->from_body->name;
         }
-        push @peeps, [$spook->name, $planets{$spook->from_body_id}, $spook->task, $spook->level];
+        unless ($spook->task eq 'Travelling') {
+          push @peeps, [$spook->name, $planets{$spook->from_body_id}, $spook->task, $spook->level];
+        }
     }
     unless (scalar @peeps > 1) {
         $peeps[0] = ["No", "Enemy", "Spies", "Found" ];
