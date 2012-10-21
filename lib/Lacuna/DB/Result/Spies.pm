@@ -2738,14 +2738,13 @@ sub spy_report {
     my $spies = Lacuna->db
                   ->resultset('Lacuna::DB::Result::Spies')
                   ->search( {empire_id => {'!=' => $self->empire_id},
+                             task => {'!=' => 'Travelling'},
                              on_body_id=>$self->on_body_id});
     while (my $spook = $spies->next) {
         unless (exists $planets{$spook->from_body_id}) {
             $planets{$spook->from_body_id} = $spook->from_body->name;
         }
-        unless ($spook->task eq 'Travelling') {
-          push @peeps, [$spook->name, $planets{$spook->from_body_id}, $spook->task, $spook->level];
-        }
+        push @peeps, [$spook->name, $planets{$spook->from_body_id}, $spook->task, $spook->level];
     }
     unless (scalar @peeps > 1) {
         $peeps[0] = ["No", "Enemy", "Spies", "Found" ];
