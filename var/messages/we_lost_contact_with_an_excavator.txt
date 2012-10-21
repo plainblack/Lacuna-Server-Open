@@ -1,0 +1,7 @@
+Excavator Lost
+~~~
+I'm sorry to say we have lost contact with the excavator on {Starmap %s %s %s}. Our technicians do not believe this is a recoverable situation.
+
+Regards,
+
+Your Humble Assistant
