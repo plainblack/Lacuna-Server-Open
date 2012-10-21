@@ -19,14 +19,16 @@ my $start = DateTime->now;
 
 out('Loading DB');
 our $db = Lacuna->db;
-my $empires = $db->resultset('Lacuna::DB::Result::Empire');
-my $spies   = $db->resultset('Lacuna::DB::Result::Spies');
+my $empires = $db->resultset('Lacuna::DB::Result::Empire')->search({id => 408});
 my $bodies  = $db->resultset('Lacuna::DB::Result::Map::Body');
 
 # Going to redo the level calc to account for training, more than base.
+my $spies   = $db->resultset('Lacuna::DB::Result::Spies')->search({empire_id => 408});
 out('Updating spy level');
 while (my $spy = $spies->next) {
-  $spy->calculate_level;
+  my $xp_level = int(($spy->intel_xp + $spy->mayhem_xp + $spy->politics_xp + $spy->theft_xp)/200);
+  $spy->level($xp_level);
+  $spy->update;
 }
 out('wee!');
 $spies   = $db->resultset('Lacuna::DB::Result::Spies');
@@ -42,18 +44,96 @@ while (my $empire = $empires->next) {
         $total_allowed_spies += $int_min->max_spies if (defined($int_min));
         $total_spies += $int_min->spy_count if (defined($int_min));
     }
-    if ($total_spies > $total_allowed_spies) {
-        out($empire->name.' limited to '.$total_allowed_spies.' of '.$total_spies);
-        my $count = 1;
-        while (my $spy = $emp_spies->next) {
-            if ($count++ > $total_allowed_spies) {
-                $spy->update({
-                              task => 'Debriefing',
-                              defense_mission_count => 150,
-                              available_on => DateTime->now->add(days => 14),
-                             });
+    out($empire->name.' limited to '.$total_allowed_spies.' of '.$total_spies);
+    my $excess = {
+         intel => 0,
+         mayhem => 0,
+         politics => 0,
+         theft => 0,
+    };
+    my $count = 0;
+    while (my $spy = $emp_spies->next) {
+        if ($count++ <= $total_allowed_spies) {
+            my $tot_excess = 0;
+            my @spread;
+            for my $type (qw(intel mayhem politics theft)) {
+                my $arg = "${type}_xp";
+                if ($spy->$arg > 2600) {
+                    $tot_excess += ($spy->$arg - 2600);
+                    $spy->$arg(2600);
+                }
+                else {
+                  push @spread, $type;
+                }
+            }
+            if ($tot_excess > 0) {
+                my $extra;
+                if (scalar @spread) {
+                    my %room;
+                    my $tot_room = 0;
+                    for my $type (@spread) {
+                        my $arg = "${type}_xp";
+                        $room{$type} = 2600 - $spy->$arg;
+                        $tot_room += $room{$type};
+                    }
+                    if ($tot_room > $tot_excess) {
+                        my $extra = int($tot_excess/scalar @spread)+1;
+                        $tot_excess = 0;
+                        for my $type (@spread) {
+                            my $arg = "${type}_xp";
+                            my $total = $spy->$arg + $extra;
+                            if ($total > 2600) {
+                                $tot_excess += $total - 2600;
+                                $total = 2600;
+                            }
+                            $spy->$arg($total);
+                        }
+                    }
+                    else {
+                        $tot_excess -= $tot_room;
+                        for my $type (@spread) {
+                            my $arg = "${type}_xp";
+                            $spy->$arg(2600);
+                        }
+                    }
+                }
+                if ($tot_excess) {
+                    for my $type (qw(intel mayhem politics theft)) {
+                        $excess->{$type} += int($tot_excess/4)+1;
+                    }
+                }
             }
         }
+        else {
+            $spy->update({
+                          task => 'Retiring',
+#                          defense_mission_count => 150,
+                          available_on => DateTime->now->add(days => 14),
+                         });
+            for my $type (qw(intel mayhem politics theft)) {
+                my $arg = "${type}_xp";
+                $excess->{$type} += $spy->$arg;
+                $spy->$arg(0);
+            }
+        }
+        $spy->update;
+    }
+    my $kept_spies = $spies->search({empire_id=>$empire->id},
+                                    {task => {'!=' => 'Retiring'}},
+                                    {order_by => { -desc => 'level'}});
+    while (my $spy = $kept_spies->next) {
+        for my $type (qw(intel mayhem politics theft)) {
+            my $arg = "${type}_xp";
+            next unless ($excess->{$type} > 0);
+            my $curxp = $spy->$arg;
+            my $room = 2600 - $curxp;
+            next unless $room > 0;
+            $room = $room > $excess->{$type} ? $excess->{$type} : $room;
+            $excess->{$type} -= $room;
+            $spy->$arg($room + $curxp);
+        }
+        $spy->update_level;
+        $spy->update;
     }
 }
 
