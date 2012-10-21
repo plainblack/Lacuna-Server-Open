@@ -19,11 +19,11 @@ my $start = DateTime->now;
 
 out('Loading DB');
 our $db = Lacuna->db;
-my $empires = $db->resultset('Lacuna::DB::Result::Empire')->search({id => 408});
+my $empires = $db->resultset('Lacuna::DB::Result::Empire');
 my $bodies  = $db->resultset('Lacuna::DB::Result::Map::Body');
 
 # Going to redo the level calc to account for training, more than base.
-my $spies   = $db->resultset('Lacuna::DB::Result::Spies')->search({empire_id => 408});
+my $spies   = $db->resultset('Lacuna::DB::Result::Spies');
 out('Updating spy level');
 while (my $spy = $spies->next) {
   my $xp_level = int(($spy->intel_xp + $spy->mayhem_xp + $spy->politics_xp + $spy->theft_xp)/200);
@@ -107,7 +107,7 @@ while (my $empire = $empires->next) {
         else {
             $spy->update({
                           task => 'Retiring',
-#                          defense_mission_count => 150,
+                          defense_mission_count => 150,
                           available_on => DateTime->now->add(days => 14),
                          });
             for my $type (qw(intel mayhem politics theft)) {
