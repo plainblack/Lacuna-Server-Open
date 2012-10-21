@@ -2737,9 +2737,10 @@ sub spy_report {
     my %planets = ( $self->on_body->id => $self->on_body->name );
     my $spies = Lacuna->db
                   ->resultset('Lacuna::DB::Result::Spies')
-                  ->search( {empire_id => {'!=' => $self->empire_id},
-                             task => {'!=' => 'Travelling'},
-                             on_body_id=>$self->on_body_id});
+                  ->search( { empire_id  => {'!=' => $self->empire_id },
+                              task       => {'!=' => 'Travelling' },
+                              on_body_id => $self->on_body_id } );
+
     while (my $spook = $spies->next) {
         unless (exists $planets{$spook->from_body_id}) {
             $planets{$spook->from_body_id} = $spook->from_body->name;
