@@ -2,7 +2,8 @@
  - Fix: Spies need working infrastructure.
  - Fix: Tutorial doesn't restart if fissure blows up capitol.
  - Fix: Enforcement of spy limits.
- - Mod: merc spy id assigned on acceptance.
+ - Mod: Merc spy id assigned on acceptance.
+ - Fix: Excavators and ships on chain duty are targets for spies.
 
 3.0871:
  - Mod: Police Stations get an upgrade.
