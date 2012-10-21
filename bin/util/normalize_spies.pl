@@ -39,10 +39,18 @@ while (my $empire = $empires->next) {
     my $emp_bodies = $bodies->search({empire_id=>$empire->id});
     my $total_allowed_spies = 0;
     my $total_spies = 0;
+    my $int_min_stat = {};
     while (my $body = $emp_bodies->next) {
+        my $bid = $body->id;
         my $int_min = $body->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
-        $total_allowed_spies += $int_min->max_spies if (defined($int_min));
-        $total_spies += $int_min->spy_count if (defined($int_min));
+        if (defined($int_min)) {
+            $total_allowed_spies += $int_min->max_spies;
+            $total_spies += $int_min->spy_count;
+            $int_min_stat->{$bid} = {
+                max_spies => $int_min->max_spies,
+                cur_spies => 0,
+            };
+        }
     }
     out($empire->name.' limited to '.$total_allowed_spies.' of '.$total_spies);
     my $excess = {
@@ -53,7 +61,7 @@ while (my $empire = $empires->next) {
     };
     my $count = 0;
     while (my $spy = $emp_spies->next) {
-        if ($count++ <= $total_allowed_spies) {
+        if ($count++ < $total_allowed_spies) {
             my $tot_excess = 0;
             my @spread;
             for my $type (qw(intel mayhem politics theft)) {
@@ -107,7 +115,7 @@ while (my $empire = $empires->next) {
         else {
             $spy->update({
                           task => 'Retiring',
-                          defense_mission_count => 150,
+#                          defense_mission_count => 150,
                           available_on => DateTime->now->add(days => 14),
                          });
             for my $type (qw(intel mayhem politics theft)) {
@@ -132,6 +140,20 @@ while (my $empire = $empires->next) {
             $excess->{$type} -= $room;
             $spy->$arg($room + $curxp);
         }
+        my $home_id = $spy->from_body_id;
+        if ($int_min_stat->{$home_id}->{cur_spies} < $int_min_stat->{$home_id}->{max_spies}) {
+            $int_min_stat->{$home_id}->{cur_spies}++;
+        }
+        else {
+            for my $bid (keys %{$int_min_stat}) {
+                if ($int_min_stat->{$bid}->{cur_spies} < $int_min_stat->{$bid}->{max_spies}) {
+                    $int_min_stat->{$bid}->{cur_spies}++;
+                    $spy->from_body_id($bid);
+                    last;
+                }
+            }
+        }
+        
         $spy->update_level;
         $spy->update;
     }
