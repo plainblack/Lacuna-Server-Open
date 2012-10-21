@@ -115,6 +115,15 @@ sub accept_from_market {
         target  => $body,
         payload => $trade->payload,
     );
+    my $id = $trade->payload->{mercenary};
+    my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($id);
+    if (defined($spy)) {
+        unless ($spy->empire_id == $body->empire_id) {
+                $spy->empire_id($body->empire_id);
+        }
+        $spy->from_body_id($body->id);
+    }
+    
     #$cargo_log->new({
     #    message     => 'send offer',
     #    body_id     => $offer_ship->foreign_body_id,
