@@ -130,6 +130,8 @@ while (my $empire = $empires->next) {
                                     {task => {'!=' => 'Retiring'}},
                                     {order_by => { -desc => 'level'}});
     while (my $spy = $kept_spies->next) {
+        $spy->offense_mission_count(0);
+        $spy->defense_mission_count(0);
         for my $type (qw(intel mayhem politics theft)) {
             my $arg = "${type}_xp";
             next unless ($excess->{$type} > 0);
@@ -153,6 +155,7 @@ while (my $empire = $empires->next) {
                 }
             }
         }
+        $spy->on_body_id($spy->from_body_id);
         
         $spy->update_level;
         $spy->update;
