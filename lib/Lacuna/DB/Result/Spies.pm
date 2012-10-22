@@ -613,6 +613,7 @@ sub run_security_sweep {
     }
   }
   my $breakthru = ($power - $toughness + $self->home_field_advantage) + $self->luck;
+  $breakthru = ( randint(0,99) < 5) ? $breakthru * -1 : $breakthru;
     
   # handle outcomes and xp
   my $out;
