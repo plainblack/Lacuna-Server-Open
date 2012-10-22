@@ -2431,6 +2431,11 @@ sub shut_down_building {
         'Lacuna::DB::Result::Building::SAW',
         'Lacuna::DB::Result::Building::Trade',
         'Lacuna::DB::Result::Building::Transporter',
+        'Lacuna::DB::Result::Building::Module::ArtMuseum',
+        'Lacuna::DB::Result::Building::Module::CulinaryInstitute',
+        'Lacuna::DB::Result::Building::Module::OperaHouse',
+        'Lacuna::DB::Result::Building::Module::IBS',
+        'Lacuna::DB::Result::Building::Module::Warehouse',
     );
     my $building_class = random_element(\@classnames);
     my $building = $self->on_body->get_building_of_class($building_class);
