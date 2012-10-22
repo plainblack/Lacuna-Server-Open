@@ -1883,7 +1883,8 @@ sub destroy_infrastructure {
 
     return $self->building_not_found->id unless defined $building;
     return $self->building_not_found->id if ($building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' or
-                                             $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand');
+                                             $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand' or
+                                             $building->class eq 'Lacuna::DB::Result::Building::Module::Parliament');
 
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
@@ -2430,6 +2431,11 @@ sub shut_down_building {
         'Lacuna::DB::Result::Building::SAW',
         'Lacuna::DB::Result::Building::Trade',
         'Lacuna::DB::Result::Building::Transporter',
+        'Lacuna::DB::Result::Building::Module::ArtMuseum',
+        'Lacuna::DB::Result::Building::Module::CulinaryInstitute',
+        'Lacuna::DB::Result::Building::Module::OperaHouse',
+        'Lacuna::DB::Result::Building::Module::IBS',
+        'Lacuna::DB::Result::Building::Module::Warehouse',
     );
     my $building_class = random_element(\@classnames);
     my $building = $self->on_body->get_building_of_class($building_class);
