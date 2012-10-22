@@ -1883,7 +1883,8 @@ sub destroy_infrastructure {
 
     return $self->building_not_found->id unless defined $building;
     return $self->building_not_found->id if ($building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' or
-                                             $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand');
+                                             $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand' or
+                                             $building->class eq 'Lacuna::DB::Result::Building::Module::Parliament');
 
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
