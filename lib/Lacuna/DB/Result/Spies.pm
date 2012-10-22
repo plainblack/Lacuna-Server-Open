@@ -1260,7 +1260,7 @@ sub abduct_operatives_loss {
 
 sub sabotage_resources {
     my $self = shift;
-    given (randint(1,7)) {
+    given (randint(1,9)) {
         when (1) { return $self->destroy_mining_ship(@_) }
         when (2) { return $self->destroy_ship(@_) }
         when (3) { return $self->kill_contact_with_mining_platform(@_) }
@@ -2041,7 +2041,7 @@ sub destroy_chain_ship {
     my ($self, $defender) = @_;
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         {body_id => $self->on_body->id,
-         task => {'in' => ['Supply Chain', 'Waste Chain'] },
+         task => {'in' => ['Supply Chain', 'Waste Chain'] }},
         { rows => 1, order_by => 'rand()' }
         )->single;
     return $self->ship_not_found->id unless $ship;
