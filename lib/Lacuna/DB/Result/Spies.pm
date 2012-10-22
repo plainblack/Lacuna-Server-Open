@@ -2494,6 +2494,7 @@ sub take_control_of_probe {
 }
 
 sub destroy_excavator {
+    my ($self, $defender) = @_;
     my $arch = $self->on_body->archaeology;
     return $self->building_not_found->id unless defined $arch;
     my $excavator = Lacuna->db
