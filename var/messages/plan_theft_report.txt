@@ -1,6 +1,6 @@
 Appropriation Report
 ~~~
-I have just acquired %.
+I have just acquired %s.
 
 More to come,
 
