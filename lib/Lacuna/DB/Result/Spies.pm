@@ -2515,13 +2515,13 @@ sub destroy_excavator {
     $self->on_body->add_news(50,
                              'The %s excavator on %s exploded.',
                              $self->on_body->empire->name,
-                             $asteroid->name);    
+                             $body->name);    
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'we_disabled_an_excavator.txt',
-        params      => [$asteroid->x,
-                        $asteroid->y,
-                        $asteroid->name,
+        params      => [$body->x,
+                        $body->y,
+                        $body->name,
                         $self->on_body->empire->id,
                         $self->on_body->empire->name,
                         $self->format_from],
