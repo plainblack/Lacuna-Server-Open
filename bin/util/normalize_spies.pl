@@ -22,17 +22,34 @@ our $db = Lacuna->db;
 my $empires = $db->resultset('Lacuna::DB::Result::Empire');
 my $bodies  = $db->resultset('Lacuna::DB::Result::Map::Body');
 
-# Going to redo the level calc to account for training, more than base.
+out('Withdrawing all spies in merc market');
+my $merc_market = $db->resultset('Lacuna::DB::Result::MercenaryMarket')->search;
+while (my $offer = $merc_market->next) {
+    $offer->withdraw($offer->body);
+}
+my $now = DateTime->now;
+my $spy_pods = $db->resultset('Lacuna::DB::Result::Ships')->search(type => 'spy_pod', task => 'Travelling');
+while (my $pod = $spy_pods->next) {
+    out('Zooming ship '.$pod->id);
+    $pod->update({
+        date_available => $now,
+    });
+}
+# Might need to bump something else for arrival?
+
 my $spies   = $db->resultset('Lacuna::DB::Result::Spies');
 out('Updating spy level');
 while (my $spy = $spies->next) {
+  if ($spy->task eq 'Captured') {
+      $spy->delete;
+      next;
+  }
   my $xp_level = int(($spy->intel_xp + $spy->mayhem_xp + $spy->politics_xp + $spy->theft_xp)/200);
   $spy->level($xp_level);
   $spy->update;
 }
-out('wee!');
+out('Culling Spies');
 $spies   = $db->resultset('Lacuna::DB::Result::Spies');
-
 while (my $empire = $empires->next) {
     next if $empire->id < 2;
     my $emp_spies = $spies->search({empire_id=>$empire->id}, {order_by => { -desc => 'level'}});
@@ -116,7 +133,7 @@ while (my $empire = $empires->next) {
             $spy->update({
                           task => 'Retiring',
 #                          defense_mission_count => 150,
-                          available_on => DateTime->now->add(days => 14),
+                          available_on => DateTime->now->add(days => 30),
                          });
             for my $type (qw(intel mayhem politics theft)) {
                 my $arg = "${type}_xp";
