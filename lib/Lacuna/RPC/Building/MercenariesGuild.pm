@@ -122,6 +122,7 @@ sub accept_from_market {
                 $spy->empire_id($body->empire_id);
         }
         $spy->from_body_id($body->id);
+        $spy->on_body_id($body->id);
         $spy->update;
     }
     
