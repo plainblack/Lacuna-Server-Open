@@ -29,13 +29,34 @@ while (my $offer = $merc_market->next) {
 }
 my $now = DateTime->now;
 my $spy_pods = $db->resultset('Lacuna::DB::Result::Ships')->search({type => 'spy_pod', task => 'Travelling'});
+my %ship_involved;
 while (my $pod = $spy_pods->next) {
     out('Zooming ship '.$pod->id);
+    my $dest_id = $pod->foreign_body_id;
+    my $from_id = $pod->body_id;
+    $ship_involved{$dest_id} = 1 unless (defined($ship_involved{$dest_id}));
+    $ship_involved{$from_id} = 1 unless (defined($ship_involved{$from_id}));
     $pod->update({
         date_available => $now,
     });
 }
-# Might need to bump something else for arrival?
+out('Tick of all planets that have spies going or coming via spy_pods.');
+my $planets = $bodies->search({ empire_id   => {'!=' => 0} });
+while (my $planet = $planets->next) {
+    next unless $ship_involved{$planet->id};
+    out('Ticking '.$planet->name);
+    eval{$planet->tick};
+    my $reason = $@;
+    if (ref $reason eq 'ARRAY' && $reason->[0] eq -1) {
+        # this is an expected exception, it means one of the roles took over
+    }
+    elsif ( ref $reason eq 'ARRAY') {
+        out(sprintf("Ticking %s resulted in errno: %d, %s\n", $planet->name, $reason->[0], $reason->[1]));
+    }
+    elsif ( $reason ) {
+        out(sprintf("Ticking %s resulted in: %s\n", $planet->name, $reason));
+    }
+}
 
 my $spies   = $db->resultset('Lacuna::DB::Result::Spies');
 out('Updating spy level');
@@ -186,7 +207,16 @@ while (my $empire = $empires->next) {
         $spy->update_level;
         $spy->update;
     }
+    if ($excess->{intel} > 0 or
+        $excess->{mayhem} > 0 or
+        $excess->{politics} > 0 or
+        $excess->{theft} > 0) {
+        out(sprintf('%s : %d intel %d mayhem %d politics %d theft excess',
+                    $empire->name, $excess->{intel},$excess->{mayhem},$excess->{politics},$excess->{theft}));
+    }
+# Write out excess training
 }
+out('All done');
 
 ###############
 ## SUBROUTINES
