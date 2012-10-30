@@ -63,6 +63,7 @@ sub generate_overview {
             count           => $stars->count,
             probes_count    => $probes->count,
             probed_count    => $probes->search(undef, { group_by => ['star_id'] })->count,
+            seized_count    => $stars->search({station_id => { '!=' => 'Null' }})->count,
         },
         bodies      => {
             count           => $bodies->count,

@@ -940,8 +940,9 @@ sub turn {
     $self->times_turned( $self->times_turned + 1 );
 # Check to see if new home has room
     my $message;
+    my $new_emp = $new_home->empire_id;
     my $new_int_min = $new_home->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
-    if (defined($new_int_min) and $new_int_min->spy_count < $new_int_min->max_spies) {
+    if ($new_emp < 0 or (defined($new_int_min) and $new_int_min->spy_count < $new_int_min->max_spies)) {
         $message = $self->empire->send_predefined_message(
             tags        => ['Spies','Alert'],
             filename    => 'goodbye.txt',
@@ -955,9 +956,10 @@ sub turn {
     }
     else {
         $message = { filename => 'none' };
+        $self->task('Retiring');
         $self->offense_mission_count(150);
         $self->defense_mission_count(150);
-        $self->available_on(DateTime->now->add(hours => 12));
+        $self->available_on(DateTime->now->add(days => 30));
     }
     return $message;
 }
@@ -1544,17 +1546,18 @@ sub steal_planet {
 
     my $def_int_cap = $def_capitol->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
     my $def_room = defined($def_int_cap) ? 0 : $def_int_cap->max_spies - $def_int_cap->spy_count;
+    my $empire_id = $self->on_body->empire->id;
     my $moved_spies = 0;
     while (my $spy = $spies->next) {
-        if ($moved_spies++ < $def_room) {
+        if ($moved_spies++ < $def_room or $empire_id < 0) {
           $spy->update({from_body_id => $defender_capitol_id });
         }
         else {
           $spy->update({
                         from_body_id => $defender_capitol_id,
-                        task => 'Debriefing',
+                        task => 'Retiring',
                         defense_mission_count => 150,
-                        available_on => DateTime->now->add(hours => 12),
+                        available_on => DateTime->now->add(days => 30),
                        });
         }
     }
