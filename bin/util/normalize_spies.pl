@@ -28,7 +28,7 @@ while (my $offer = $merc_market->next) {
     $offer->withdraw($offer->body);
 }
 my $now = DateTime->now;
-my $spy_pods = $db->resultset('Lacuna::DB::Result::Ships')->search(type => 'spy_pod', task => 'Travelling');
+my $spy_pods = $db->resultset('Lacuna::DB::Result::Ships')->search({type => 'spy_pod', task => 'Travelling'});
 while (my $pod = $spy_pods->next) {
     out('Zooming ship '.$pod->id);
     $pod->update({
@@ -69,7 +69,9 @@ while (my $empire = $empires->next) {
             };
         }
     }
-    out($empire->name.' limited to '.$total_allowed_spies.' of '.$total_spies);
+    next unless $total_spies > 0;
+    my $cull = $total_spies > $total_allowed_spies ? sprintf(" Culling %d spies", $total_spies - $total_allowed_spies) : '';
+    out($empire->name.' limited to '.$total_allowed_spies.' of '.$total_spies.'.'.$cull);
     my $excess = {
          intel => 0,
          mayhem => 0,
@@ -143,9 +145,10 @@ while (my $empire = $empires->next) {
         }
         $spy->update;
     }
-    my $kept_spies = $spies->search({empire_id=>$empire->id},
-                                    {task => {'!=' => 'Retiring'}},
+    my $kept_spies = $spies->search({empire_id=>$empire->id,
+                                    task => {'!=' => 'Retiring'}},
                                     {order_by => { -desc => 'level'}});
+
     while (my $spy = $kept_spies->next) {
         $spy->offense_mission_count(0);
         $spy->defense_mission_count(0);
@@ -160,8 +163,14 @@ while (my $empire = $empires->next) {
             $spy->$arg($room + $curxp);
         }
         my $home_id = $spy->from_body_id;
+        my $assign_id = $spy->on_body_id;
         if ($int_min_stat->{$home_id}->{cur_spies} < $int_min_stat->{$home_id}->{max_spies}) {
             $int_min_stat->{$home_id}->{cur_spies}++;
+        }
+        elsif (defined($int_min_stat->{$assign_id}) and
+               ($int_min_stat->{$assign_id}->{cur_spies} < $int_min_stat->{$assign_id}->{max_spies})) {
+            $int_min_stat->{$assign_id}->{cur_spies}++;
+            $spy->from_body_id($assign_id);
         }
         else {
             for my $bid (keys %{$int_min_stat}) {

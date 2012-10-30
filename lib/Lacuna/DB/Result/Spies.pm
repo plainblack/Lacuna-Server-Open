@@ -532,7 +532,13 @@ sub run_mission {
     my $out;
     if ($breakthru <= 0) {
       if (defined $defender) {
-        $defender->$mission_skill( $defender->$mission_skill + 10 );
+        my $def_xp = $defender->$mission_skill + 10;
+        if ($def_xp > 2600) {
+          $defender->$mission_skill( 2600 );
+        }
+        else {
+          $defender->$mission_skill( $def_xp );
+        }
         $defender->update_level;
         $defender->defense_mission_successes( $defender->defense_mission_successes + 1 );
         if ( randint(0,99) < 5) {
@@ -541,7 +547,13 @@ sub run_mission {
           $defender->available_on(DateTime->now->add(seconds => int($mission->{recovery} / 4)));
         }
       }
-      $self->$mission_skill( $self->$mission_skill + 6 );
+      my $off_xp = $self->$mission_skill + 6;
+      if ($off_xp > 2600) {
+        $self->$mission_skill( 2600 );
+      }
+      else {
+        $self->$mission_skill( $off_xp );
+      }
       $self->update_level;
       my $outcome = $outcomes{$self->task} . '_loss';
       my $message_id = $self->$outcome($defender);
@@ -563,11 +575,23 @@ sub run_mission {
             $defender->task('Debriefing');
             $defender->started_assignment(DateTime->now);
             $defender->available_on(DateTime->now->add(seconds => int($mission->{recovery} / 2)));
-            $defender->$mission_skill( $defender->$mission_skill + 6 );
+            my $def_xp = $defender->$mission_skill + 6;
+            if ($def_xp > 2600) {
+                $defender->$mission_skill( 2600 );
+            }
+            else {
+                $defender->$mission_skill( $def_xp );
+            }
             $defender->update_level;
         }
         $self->offense_mission_successes( $self->offense_mission_successes + 1 );
-        $self->$mission_skill( $self->$mission_skill + 10 );
+        my $off_xp = $self->$mission_skill + 10;
+        if ($off_xp > 2600) {
+            $self->$mission_skill( 2600 );
+        }
+        else {
+            $self->$mission_skill( $off_xp );
+        }
         $self->update_level;
         my $outcome = $outcomes{$self->task};
         my $message_id = $self->$outcome($defender);
@@ -620,7 +644,13 @@ sub run_security_sweep {
   if ($breakthru < 0) {
     my $message_id;
     if (defined $attacker) {
-      $attacker->$mission_skill( $attacker->$mission_skill + 10 );
+      my $off_xp = $attacker->$mission_skill + 10;
+      if ($off_xp > 2600) {
+          $attacker->$mission_skill( 2600 );
+      }
+      else {
+          $attacker->$mission_skill( $off_xp );
+      }
       $attacker->update_level;
       $attacker->defense_mission_successes( $attacker->defense_mission_successes + 1 );
       $message_id = $attacker->kill_attacking_spy($self)->id;
@@ -628,7 +658,13 @@ sub run_security_sweep {
     else {
       $self->no_target->id;
     }
-    $self->$mission_skill( $self->$mission_skill + 6 );
+    my $def_xp = $self->$mission_skill + 6;
+    if ($def_xp > 2600) {
+        $self->$mission_skill( 2600 );
+    }
+    else {
+        $self->$mission_skill( $def_xp );
+    }
     $self->update_level;
     $out = { result => 'Failure',
              message_id => $message_id,
@@ -641,7 +677,13 @@ sub run_security_sweep {
     my $message_id;
     if (defined $attacker) {
       $message_id = $self->detain_a_spy($attacker)->id;
-      $attacker->$mission_skill( $attacker->$mission_skill + 6);
+      my $off_xp = $attacker->$mission_skill + 6;
+      if ($off_xp > 2600) {
+          $attacker->$mission_skill( 2600 );
+      }
+      else {
+          $attacker->$mission_skill( $off_xp );
+      }
       $attacker->update_level;
     }
     else {
@@ -649,7 +691,13 @@ sub run_security_sweep {
 #      $message_id = $self->no_target->id;
     }
     $self->offense_mission_successes( $self->offense_mission_successes + 1 );
-    $self->$mission_skill( $self->$mission_skill + 10 );
+    my $def_xp = $self->$mission_skill + 10;
+    if ($def_xp > 2600) {
+        $self->$mission_skill( 2600 );
+    }
+    else {
+        $self->$mission_skill( $def_xp );
+    }
     $self->update_level;
     $out = { result => 'Success',
              message_id => $message_id,
