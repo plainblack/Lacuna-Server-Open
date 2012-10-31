@@ -56,7 +56,9 @@ sub xp {
 
 sub calculate_level {
     my $self = shift;
-    return sprintf('%.0f', ($self->xp) / 200);
+    my $xp = sprintf('%.0f', ($self->xp) / 200);
+    $xp = 1 if $xp < 1;
+    return $xp;
 }
 
 sub update_level {
@@ -134,7 +136,7 @@ sub offensive_assignments {
         },
         {
             task        =>'Hack Network 19',
-            recovery    => $self->recovery_time(60 * 60 * 2),
+            recovery    => $self->recovery_time(60 * 60 * 1),
             skill       => 'politics',
         },
         {
@@ -144,17 +146,17 @@ sub offensive_assignments {
         },
         {
             task        =>'Rescue Comrades',
-            recovery    => $self->recovery_time(60 * 60 * 6),
+            recovery    => $self->recovery_time(60 * 60 * 4),
             skill       => 'intel',
         },
         {
             task        =>'Sabotage Resources',
-            recovery    => $self->recovery_time(60 * 60 * 8),
+            recovery    => $self->recovery_time(60 * 60 * 6),
             skill       => 'mayhem',
         },
         {
             task        =>'Appropriate Resources',
-            recovery    => $self->recovery_time(60 * 60 * 8),
+            recovery    => $self->recovery_time(60 * 60 * 6),
             skill       => 'theft',
         },
         {
@@ -426,7 +428,10 @@ sub burn {
     }
     $body->update;
     if ($self->on_body->empire_id != $old_empire->id) {
-        if (randint(1,100) < $self->level) {
+        my $new_emp = $self->on_body->empire_id;
+        my $new_int_min = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
+        if ( (randint(1,100) < $self->level) and
+             ($new_emp < 0 or (defined($new_int_min) and $new_int_min->spy_count < $new_int_min->max_spies))) {
             my $new_empire = $self->on_body->empire;
             $old_empire->send_predefined_message(
                 tags        => ['Spies','Alert'],
@@ -633,7 +638,7 @@ sub run_security_sweep {
     $attacker = $self->get_idle_attacker;
     if (defined $attacker) {
 # Would prefer to have it easier the longer the spy has been inactive, but...
-      $toughness = $attacker->offense + $attacker->$mission_skill - randint(500,2000);
+      $toughness = $attacker->offense + $attacker->$mission_skill - randint(100,2600);
     }
   }
   my $breakthru = ($power - $toughness + $self->home_field_advantage) + $self->luck;
@@ -975,14 +980,15 @@ sub turn_a_spy {
         $new_recruit_message = $self->empire->send_predefined_message(
             tags        => ['Spies','Alert'],
             filename    => 'convince_to_quit.txt',
-            params      => [$old_empire_id,
+            params      => [$traitor->name,
+                            $old_empire_id,
                             $old_empire_name,
-                            $traitor->name,
                             $self->name,
                             $self->from_body->id,
                             $self->from_body->name],
         );
         return {
+            'goodbye' => $goodbye_message,
             'new_recruit' => $new_recruit_message,
         };
     }
@@ -1355,17 +1361,20 @@ sub appropriate_resources_loss {
 
 sub assassinate_operatives {
     my $self = shift;
-    given (randint(1,2)) {
+    given (randint(1,4)) {
         when (1) { return $self->kill_cop(@_) }
-        when (2) { return $self->knock_defender_unconscious(@_) }
+        when (2) { return $self->kill_cop(@_) }
+        when (3) { return $self->kill_cop(@_) }
+        when (4) { return $self->knock_defender_unconscious(@_) }
     }
 }
 
 sub assassinate_operatives_loss {
     my $self = shift;
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { return $self->kill_intelligence(@_) }
-        when (2) { return $self->knock_attacker_unconscious(@_) }
+        when (2) { return $self->kill_intelligence(@_) }
+        when (3) { return $self->knock_attacker_unconscious(@_) }
     }
 }
 
@@ -1381,28 +1390,28 @@ sub sabotage_infrastructure {
 
 sub sabotage_infrastructure_loss {
     my $self = shift;
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { return $self->capture_saboteur(@_) }
         when (2) { return $self->knock_attacker_unconscious(@_) }
-        #when (2) { return $self->kill_saboteur(@_) }
+        when (3) { return $self->kill_saboteur(@_) }
     }
 }
 
 sub incite_mutiny {
     my $self = shift;
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { return $self->turn_defender(@_) }
         when (2) { return $self->knock_defender_unconscious(@_) }
-        #when (2) { return $self->kill_cop(@_) }
+        when (3) { return $self->kill_cop(@_) }
     }
 }
 
 sub incite_mutiny_loss {
     my $self = shift;
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { return $self->turn_defector(@_) }
         when (2) { return $self->knock_attacker_unconscious(@_) }
-        #when (2) { return $self->kill_mutaneer(@_) }
+        when (3) { return $self->kill_mutaneer(@_) }
     }
 }
 
@@ -1639,7 +1648,7 @@ sub steal_planet {
 sub uprising {
     my ($self, $defender) = @_;
     $self->seeds_planted( $self->seeds_planted + 1 );
-    my $loss = sprintf('%.0f', $self->on_body->happiness * 0.10 );
+    my $loss = sprintf('%.0f', $self->on_body->happiness * ($self->level/100) );
     $loss *= -1 if ($loss < 0);
     $loss = 15000 unless ($loss > 15000);
     $self->on_body->spend_happiness( $loss )->update;
@@ -1708,7 +1717,8 @@ sub small_rebellion {
     $self->on_body->add_news(100,
                              'Hundreds are dead at this hour after a protest turned into a small, but violent, rebellion on %s.',
                              $self->on_body->name);
-    return $self->sow_discontent(13000)->id;
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 15_000, 2_000_000, 4);
+    return $self->sow_discontent($loss)->id;
 }
 
 sub march_on_capitol {
@@ -1716,13 +1726,15 @@ sub march_on_capitol {
     $self->on_body->add_news(100,
                              'Protesters now march on the %s Planetary Command Center, asking for the Governor\'s resignation.',
                              $self->on_body->name);
-    return $self->sow_discontent(11000)->id;
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 11_000, 1_500_000, 4);
+    return $self->sow_discontent($loss)->id;
 }
 
 sub violent_protest {
     my ($self, $defender) = @_;
     $self->on_body->add_news(100,'The protests at the %s Ministries have turned violent. An official was rushed to hospital in critical condition.', $self->on_body->name);
-    return $self->sow_discontent(9000)->id;
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 9_000, 1_200_000, 4);
+    return $self->sow_discontent($loss)->id;
 }
 
 sub protest {
@@ -1730,7 +1742,8 @@ sub protest {
     $self->on_body->add_news(100,
                              'Protesters can be seen jeering outside nearly every Ministry at this hour on %s.',
                              $self->on_body->name);
-    return $self->sow_discontent(7000)->id;
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 7_000, 1_000_000, 5);
+    return $self->sow_discontent($loss)->id;
 }
 
 sub civil_unrest {
@@ -1738,13 +1751,15 @@ sub civil_unrest {
     $self->on_body->add_news(100,
                              'In recent weeks there have been rumblings of political discontent on %s.',
                              $self->on_body->name);
-    return $self->sow_discontent(5000)->id;
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 5_000, 750_000, 6);
+    return $self->sow_discontent($loss)->id;
 }
 
 sub calm_the_rebels {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
-    $self->sow_bliss(randint(250,2500));
+    my $add = happy_mod($self->level, $self->on_body->happiness, 2_000, 500_000, 5);
+    $self->sow_bliss($add);
     $self->on_body->add_news(100,
                              'In an effort to bring an swift end to the rebellion, the %s Governor delivered an eloquent speech about hope.',
                              $self->on_body->name);
@@ -1754,7 +1769,8 @@ sub calm_the_rebels {
 sub peace_talks {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
-    $self->sow_bliss(randint(500,5000));
+    my $add = happy_mod($self->level, $self->on_body->happiness, 5_000, 500_000, 5);
+    $self->sow_bliss($add);
     $self->on_body->add_news(100,
                              'Officials from both sides of the rebellion are at the Planetary Command Center on %s today to discuss peace.',
                              $self->on_body->name);
@@ -1764,7 +1780,8 @@ sub peace_talks {
 sub day_of_rest {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
-    $self->sow_bliss(randint(2500,25000));
+    my $add = happy_mod($self->level, $self->on_body->happiness, 25_000, 1_500_000, 5);
+    $self->sow_bliss($add);
     $self->on_body->add_news(100,
                              'The Governor of %s declares a day of rest and peace. Citizens rejoice.',
                              $self->on_body->name);
@@ -1774,7 +1791,8 @@ sub day_of_rest {
 sub festival {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
-    $self->sow_bliss(randint(1000,10000));
+    my $add = happy_mod($self->level, $self->on_body->happiness, 10_000, 1_000_000, 5);
+    $self->sow_bliss($add);
     $self->on_body->add_news(100,
                              'The %s Governor calls it the %s festival. Whatever you call it, people are happy.',
                              $self->on_body->name,
@@ -1785,21 +1803,32 @@ sub festival {
 sub turn_defector {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(60,
+
+    my $goodbye = $defender->turn_a_spy($self)->{'goodbye'};
+    if ($goodbye->{filename} eq 'none') {
+        $self->on_body->add_news(60,
+                             '%s has just taken early retirement from %s.',
+                             $self->name,
+                             $self->empire->name);
+    }
+    else {
+        $self->on_body->add_news(60,
                              '%s has just announced plans to defect from %s to %s.',
                              $self->name,
                              $self->empire->name,
                              $defender->empire->name);
-    return $defender->turn_a_spy($self)->{'goodbye'}->id;
+    }
+    return $defender->id;
 }
 
 sub turn_rebel {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
+    my $goodbye = $defender->turn_a_spy($self)->{'goodbye'};
     $self->on_body->add_news(70,
                              'The %s Governor\'s call for peace appears to be working. Several rebels told this reporter they are going home.',
                              $self->on_body->name);
-    return $defender->turn_a_spy($self)->{'goodbye'}->id;
+    return $defender->id;
 }
 
 sub capture_rebel {
@@ -1831,10 +1860,13 @@ sub prevent_insurrection {
     my $conspirators = Lacuna->db
                         ->resultset('Lacuna::DB::Result::Spies')
                         ->search( { on_body_id => $self->on_body_id,
-                                    task => { 'not in' => ['Killed in Action', 'Travelling','Captured', 'Prisoner Transport'] },
+                                    task => { 'not in' => ['Killed in Action',
+                                                           'Travelling',
+                                                           'Captured',
+                                                           'Prisoner Transport'] },
                                     empire_id => { 'in' => \@member_ids } });
     my $max_cnt = $defender->level;
-    $max_cnt = ($max_cnt < 3) ? 6 : $max_cnt * 2;
+    $max_cnt = ($max_cnt < 3) ? 6 : $max_cnt;
     my $count = randint(5,$max_cnt);
     while (my $conspirator = $conspirators->next ) {
        $count--;
@@ -1909,12 +1941,15 @@ sub abduct_operative {
 #    $self->on_body->add_news(80,'The leader of the rebellion to overthrow %s was killed in a firefight today on %s.', $self->on_body->empire->name, $self->on_body->name);
 #}
 #
-#sub kill_mutaneer {
-#    my ($self, $defender) = @_;
-#    return $self->get_spooked->id unless (defined $defender);
-#    kill_a_spy($self->on_body, $self, $defender);
-#    $self->on_body->add_news(80,'Double agent %s of %s was executed on %s today.', $self->name, $self->empire->name, $self->on_body->name);
-#}
+sub kill_mutaneer {
+    my ($self, $defender) = @_;
+    return $self->get_spooked->id unless (defined $defender);
+    $self->on_body
+      ->add_news(60,
+                 'Double agent %s of %s was executed on %s today.',
+                 $self->name, $self->empire->name, $self->on_body->name);
+    return $defender->kill_attacking_spy($self)->id;
+}
 
 sub thwart_rebel {
     my ($self, $defender) = @_;
@@ -2173,12 +2208,15 @@ sub capture_saboteur {
     return $defender->capture_a_spy($self)->id;
 }
 
-#sub kill_saboteur {
-#    my ($self, $defender) = @_;
-#    return $self->get_spooked->id unless (defined $defender);
-#    kill_a_spy($self->on_body, $self, $defender);
-#    $self->on_body->add_news(70,'%s told us that a lone saboteur was killed on %s before he could carry out his plot.', $self->on_body->empire->name, $self->on_body->name);
-#}
+sub kill_saboteur {
+    my ($self, $defender) = @_;
+    return $self->get_spooked->id unless (defined $defender);
+    $self->on_body
+      ->add_news(60,
+                 '%s told us that a lone saboteur was killed on %s before he could carry out his plot.',
+                  $self->on_body->empire->name, $self->on_body->name);
+    return $defender->kill_attacking_spy($self)->id;
+}
 
 sub thwart_saboteur {
     my ($self, $defender) = @_;
@@ -3167,15 +3205,26 @@ sub thwart_hacker {
     return $defender->thwart_a_spy($self)->id;
 }
 
+sub happy_mod {
+  my ($level, $bhappy, $min, $max, $mod) = @_;
+
+    my $numb = sprintf('%.0f', $bhappy * ($level/$mod)/100 );
+    $numb *= -1 if ($numb < 0);
+    $numb = $min unless ($numb > $min);
+    $numb = $max if ($numb > $max);
+    return $numb;
+}
+
 sub network19_propaganda1 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
+    my $add = happy_mod($defender->level, $self->on_body->happiness, 250, 25_000, 10);
     if ($self->on_body
           ->add_news(50,
                      'A resident of %s has won the Lacuna Expanse talent competition.',
                      $self->on_body->name)) {
-        $self->on_body->add_happiness(250)->update;
+        $self->on_body->add_happiness($add)->update;
     }
     return undef;
 }
@@ -3184,11 +3233,12 @@ sub network19_propaganda2 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
+    my $add = happy_mod($defender->level, $self->on_body->happiness, 500, 50_000, 10);
     if ($self->on_body
           ->add_news(50,
                      'The economy of %s is looking strong, showing GDP growth of nearly 10%% for the past quarter.',
                      $self->on_body->name)) {
-        $self->on_body->add_happiness(500)->update;
+        $self->on_body->add_happiness($add)->update;
     }
     return undef;
 }
@@ -3197,11 +3247,12 @@ sub network19_propaganda3 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
+    my $add = happy_mod($defender->level, $self->on_body->happiness, 750, 75_000, 10);
     if ($self->on_body
           ->add_news(50,
                      'The Governor of %s has set aside 1000 square kilometers as a nature preserve.',
                       $self->on_body->name)) {
-        $self->on_body->add_happiness(750)->update;
+        $self->on_body->add_happiness($add)->update;
     }
     return undef;
 }
@@ -3210,12 +3261,13 @@ sub network19_propaganda4 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
+    my $add = happy_mod($defender->level, $self->on_body->happiness, 1000, 100_000, 10);
     if ($self->on_body
           ->add_news(50,
                      'If %s had not inhabited %s, the planet would likely have reverted to a barren rock.',
                       $self->on_body->empire->name,
                       $self->on_body->name)) {
-        $self->on_body->add_happiness(1000)->update;
+        $self->on_body->add_happiness($add)->update;
     }
     return undef;
 }
@@ -3224,12 +3276,13 @@ sub network19_propaganda5 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
+    my $add = happy_mod($defender->level, $self->on_body->happiness, 1250, 125_000, 10);
     if ($self->on_body
           ->add_news(50,
                      'The benevolent leader of %s is a gift to the people of %s.',
                       $self->on_body->empire->name,
                       $self->on_body->name)) {
-        $self->on_body->add_happiness(1250)->update;
+        $self->on_body->add_happiness($add)->update;
     }
     return undef;
 }
@@ -3238,11 +3291,12 @@ sub network19_propaganda6 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
+    my $add = happy_mod($defender->level, $self->on_body->happiness, 1500, 150_000, 10);
     if ($self->on_body
           ->add_news(50,
                      '%s is the greatest, best, most free empire in the Expanse, ever.',
                       $self->on_body->empire->name)) {
-        $self->on_body->add_happiness(1500)->update;
+        $self->on_body->add_happiness($add)->update;
     }
     return undef;
 }
@@ -3251,11 +3305,12 @@ sub network19_propaganda7 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
+    my $add = happy_mod($defender->level, $self->on_body->happiness, 1750, 175_000, 10);
     if ($self->on_body
           ->add_news(50,
                      '%s is the ultimate power in the Expanse right now. It is unlikely to be challenged any time soon.',
                       $self->on_body->empire->name)) {
-        $self->on_body->add_happiness(1750)->update;
+        $self->on_body->add_happiness($add)->update;
     }
     return undef;
 }
@@ -3263,11 +3318,12 @@ sub network19_propaganda7 {
 sub network19_defamation1 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 1000, 100_000, 8);
     if ($self->on_body
           ->add_news(50,
                      'A financial report for %s shows that many people are out of work as the unemployment rate approaches 10%%.',
                       $self->on_body->name)) {
-        return $self->hack_successful(1000)->id;
+        return $self->hack_successful($loss)->id;
     }
     return $self->hack_filtered->id;
 }
@@ -3275,11 +3331,12 @@ sub network19_defamation1 {
 sub network19_defamation2 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 2000, 200_000, 8);
     if ($self->on_body
           ->add_news(50,
                      'An outbreak of the Dultobou virus was announced on %s today. Citizens are encouraged to stay home from work and school.',
                       $self->on_body->name)) {
-        return $self->hack_successful(2000)->id;
+        return $self->hack_successful($loss)->id;
     }
     return $self->hack_filtered->id;
 }
@@ -3287,11 +3344,12 @@ sub network19_defamation2 {
 sub network19_defamation3 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 3000, 300_000, 8);
     if ($self->on_body
           ->add_news(50,
                      '%s is unable to keep its economy strong. Sources inside say it will likely fold in a few days.',
                       $self->on_body->empire->name)) {
-        return $self->hack_successful(3000)->id;
+        return $self->hack_successful($loss)->id;
     }
     return $self->hack_filtered->id
 }
@@ -3299,11 +3357,12 @@ sub network19_defamation3 {
 sub network19_defamation4 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 4000, 400_000, 8);
     if ($self->on_body
           ->add_news(50,
                      'The Governor of %s has lost her mind. She is a raving mad lunatic! The Emperor could not be reached for comment.',
                       $self->on_body->name)) {
-        return $self->hack_successful(4000)->id;
+        return $self->hack_successful($loss)->id;
     }
     return $self->hack_filtered->id;
 }
@@ -3311,11 +3370,12 @@ sub network19_defamation4 {
 sub network19_defamation5 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 5000, 500_000, 8);
     if ($self->on_body
           ->add_news(50,
                      '%s is the smallest, worst, least free empire in the Expanse, ever.',
                       $self->on_body->empire->name)) {
-        return $self->hack_successful(5000)->id;
+        return $self->hack_successful($loss)->id;
     }
     return $self->hack_filtered->id;
 }
