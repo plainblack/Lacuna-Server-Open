@@ -137,9 +137,6 @@ sub training_costs {
 
 sub can_train_spy {
     my ($self, $costs) = @_;
-    unless ($self->intel_xp < 2600) {
-        confess [1011, 'This spy has already learned all there is to know.'];
-    }
     my $body = $self->body;
     foreach my $resource (qw(water ore food energy)) {
         unless ($body->type_stored($resource) >= $costs->{$resource}) {
@@ -163,6 +160,9 @@ sub train_spy {
     my ($self, $spy_id, $time_to_train) = @_;
     my $empire = $self->body->empire;
     my $spy = $self->get_spy($spy_id);
+    unless ($spy->intel_xp < 2600) {
+        confess [1013, $spy->name." has already learned all there is to know about Intelligence."];
+    }
     unless (defined $time_to_train) {
         $time_to_train = $self->training_costs($spy_id)->{time};
     }
