@@ -161,7 +161,7 @@ sub train_spy {
     my ($self, $spy_id, $time_to_train) = @_;
     my $empire = $self->body->empire;
     my $spy = $self->get_spy($spy_id);
-    unless ($self->mayhem_xp < 2600) {
+    unless ($spy->mayhem_xp < 2600) {
         confess [1013, $spy->name." has already learned all there is to know about Mayhem."];
     }
     unless (defined $time_to_train) {
