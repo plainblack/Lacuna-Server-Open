@@ -28,10 +28,14 @@ sub train_spy {
     my $spy = $building->get_spy($spy_id);
     my $trained = 0;
     my $costs = $building->training_costs($spy_id);
+    my $reason;
     if (eval{$building->can_train_spy($costs)}) {
         $building->spend_resources_to_train_spy($costs);
         $building->train_spy($spy_id, $costs->{time});
         $trained++;
+    }
+    else {
+        $reason = $@;
     }
     if ($trained) {
         $body->update;
@@ -41,6 +45,7 @@ sub train_spy {
         status  => $self->format_status($empire, $body),
         trained => $trained,
         not_trained => $quantity - $trained,
+        reason_not_trained => $reason,
     };
 }
 
