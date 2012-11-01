@@ -1971,13 +1971,13 @@ sub destroy_infrastructure {
             rand() <=> rand()
         }
         grep {
-            ($_->efficiency > 0) and
-            ($_->class ne 'Lacuna::DB::Result::Building::PlanetaryCommand' and
-            ($_->class ne 'Lacuna::DB::Result::Building::Module::StationCommand' and
-            ($_->class ne 'Lacuna::DB::Result::Building::Module::Parliament' and
-            ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder')
+            $_->efficiency > 0 and
+            $_->class ne 'Lacuna::DB::Result::Building::PlanetaryCommand' and
+            $_->class ne 'Lacuna::DB::Result::Building::Module::StationCommand' and
+            $_->class ne 'Lacuna::DB::Result::Building::Module::Parliament' and
+            $_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder'
         }
-        @{$on_body->building_cache};
+        @{$self->on_body->building_cache};
 # Future: Multi destruction (grab a few buildings)
     return $self->building_not_found->id unless defined $building;
 
@@ -2524,9 +2524,9 @@ sub shut_down_building {
         }
         grep {
             ($_->efficiency > 0) and (
-              $_->class eq 'Lacuna::DB::Result::Building::Archaeology') or
+              $_->class eq 'Lacuna::DB::Result::Building::Archaeology' or
               $_->class eq 'Lacuna::DB::Result::Building::Shipyard' or
-              $_->class eq 'Lacuna::DB::Result::Building::Park') or
+              $_->class eq 'Lacuna::DB::Result::Building::Park' or
               $_->class eq 'Lacuna::DB::Result::Building::Waste::Recycling' or
               $_->class eq 'Lacuna::DB::Result::Building::Development' or
               $_->class eq 'Lacuna::DB::Result::Building::Intelligence' or
@@ -2541,8 +2541,7 @@ sub shut_down_building {
               $_->class eq 'Lacuna::DB::Result::Building::Module::Warehouse' or
               $_->class eq 'Lacuna::DB::Result::Building::DeployedBleeder')
             }
-        }
-        @{$on_body->building_cache};
+            @{$self->on_body->building_cache};
 
     return $self->building_not_found->id unless defined $building;
     $self->on_body->empire->send_predefined_message(
