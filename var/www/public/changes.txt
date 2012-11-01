@@ -7,6 +7,7 @@
  - Add: Seized Stars and various spy diciplines now in stats.
  - Fix: Fissures have work timers turned off on creation.
  - Mod: Observatory can only abandon a probe it controls.
+ - Add: New Observatory abandon_all_probes API method.
 
 3.0871:
  - Fix: Gratches Gauntlet now takes into account efficiency
