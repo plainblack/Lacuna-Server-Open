@@ -21,10 +21,9 @@ sub abandon_probe {
     unless (defined $star) {
         confess [ 1002, 'Star does not exist.', $star_id];
     }
-    my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search(
+    my $probe = $building->probes->search(
         {
-            empire_id   => $empire->id,
-            star_id     => $star->id,
+            star_id => $star->id,
         },
         {rows => 1}
     )->single;

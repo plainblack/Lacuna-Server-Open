@@ -6,6 +6,7 @@
  - Mod: Excavators and ships on chain duty are targets for spies.
  - Add: Seized Stars and various spy diciplines now in stats.
  - Fix: Fissures have work timers turned off on creation.
+ - Mod: Observatory can only abandon a probe it controls.
 
 3.0871:
  - Fix: Gratches Gauntlet now takes into account efficiency
