@@ -56,7 +56,9 @@ sub xp {
 
 sub calculate_level {
     my $self = shift;
-    return sprintf('%.0f', ($self->xp) / 200);
+    my $xp = sprintf('%.0f', ($self->xp) / 200);
+    $xp = 1 if $xp < 1;
+    return $xp;
 }
 
 sub update_level {
@@ -134,7 +136,7 @@ sub offensive_assignments {
         },
         {
             task        =>'Hack Network 19',
-            recovery    => $self->recovery_time(60 * 60 * 2),
+            recovery    => $self->recovery_time(60 * 60 * 1),
             skill       => 'politics',
         },
         {
@@ -144,17 +146,17 @@ sub offensive_assignments {
         },
         {
             task        =>'Rescue Comrades',
-            recovery    => $self->recovery_time(60 * 60 * 6),
+            recovery    => $self->recovery_time(60 * 60 * 4),
             skill       => 'intel',
         },
         {
             task        =>'Sabotage Resources',
-            recovery    => $self->recovery_time(60 * 60 * 8),
+            recovery    => $self->recovery_time(60 * 60 * 6),
             skill       => 'mayhem',
         },
         {
             task        =>'Appropriate Resources',
-            recovery    => $self->recovery_time(60 * 60 * 8),
+            recovery    => $self->recovery_time(60 * 60 * 6),
             skill       => 'theft',
         },
         {
@@ -243,7 +245,9 @@ sub get_possible_assignments {
     }
     # In or from the Neutral Area, defense only
     elsif ($self->on_body->in_neutral_area or $self->from_body->in_neutral_area) {
-        push @assignments, $self->defensive_assignments;
+        if ($self->on_body->empire->alliance_id && $self->on_body->empire->alliance_id == $self->from_body->empire->alliance_id) {
+            push @assignments, $self->defensive_assignments;
+        }
     }
     
     # at allies you can defend and attack
@@ -424,7 +428,10 @@ sub burn {
     }
     $body->update;
     if ($self->on_body->empire_id != $old_empire->id) {
-        if (randint(1,100) < $self->level) {
+        my $new_emp = $self->on_body->empire_id;
+        my $new_int_min = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
+        if ( (randint(1,100) < $self->level) and
+             ($new_emp < 0 or (defined($new_int_min) and $new_int_min->spy_count < $new_int_min->max_spies))) {
             my $new_empire = $self->on_body->empire;
             $old_empire->send_predefined_message(
                 tags        => ['Spies','Alert'],
@@ -488,7 +495,7 @@ has home_field_advantage => (
         my $div = 2;
         if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
             $building = 'Module::PoliceStation';
-           $div = 1;
+            $div = 1;
         }
         my $hq = $body->get_building_of_class('Lacuna::DB::Result::Building::'.$building);
         if (defined $hq) {
@@ -503,6 +510,7 @@ has home_field_advantage => (
 sub run_mission {
     my ($self, $mission) = @_;
 
+    $self->on_body->update;
     # can't run missions on your own planets
     if ($self->empire_id == $self->on_body->empire_id) {
         return { result => 'Failure',
@@ -530,7 +538,13 @@ sub run_mission {
     my $out;
     if ($breakthru <= 0) {
       if (defined $defender) {
-        $defender->$mission_skill( $defender->$mission_skill + 10 );
+        my $def_xp = $defender->$mission_skill + 10;
+        if ($def_xp > 2600) {
+          $defender->$mission_skill( 2600 );
+        }
+        else {
+          $defender->$mission_skill( $def_xp );
+        }
         $defender->update_level;
         $defender->defense_mission_successes( $defender->defense_mission_successes + 1 );
         if ( randint(0,99) < 5) {
@@ -539,7 +553,13 @@ sub run_mission {
           $defender->available_on(DateTime->now->add(seconds => int($mission->{recovery} / 4)));
         }
       }
-      $self->$mission_skill( $self->$mission_skill + 6 );
+      my $off_xp = $self->$mission_skill + 6;
+      if ($off_xp > 2600) {
+        $self->$mission_skill( 2600 );
+      }
+      else {
+        $self->$mission_skill( $off_xp );
+      }
       $self->update_level;
       my $outcome = $outcomes{$self->task} . '_loss';
       my $message_id = $self->$outcome($defender);
@@ -561,11 +581,23 @@ sub run_mission {
             $defender->task('Debriefing');
             $defender->started_assignment(DateTime->now);
             $defender->available_on(DateTime->now->add(seconds => int($mission->{recovery} / 2)));
-            $defender->$mission_skill( $defender->$mission_skill + 6 );
+            my $def_xp = $defender->$mission_skill + 6;
+            if ($def_xp > 2600) {
+                $defender->$mission_skill( 2600 );
+            }
+            else {
+                $defender->$mission_skill( $def_xp );
+            }
             $defender->update_level;
         }
         $self->offense_mission_successes( $self->offense_mission_successes + 1 );
-        $self->$mission_skill( $self->$mission_skill + 10 );
+        my $off_xp = $self->$mission_skill + 10;
+        if ($off_xp > 2600) {
+            $self->$mission_skill( 2600 );
+        }
+        else {
+            $self->$mission_skill( $off_xp );
+        }
         $self->update_level;
         my $outcome = $outcomes{$self->task};
         my $message_id = $self->$outcome($defender);
@@ -589,6 +621,7 @@ sub run_mission {
         $defender->defense_mission_count( $defender->defense_mission_count + 1); 
         $defender->update;
     }
+    $self->on_body->update;
     return $out;
 }
 
@@ -607,17 +640,24 @@ sub run_security_sweep {
     $attacker = $self->get_idle_attacker;
     if (defined $attacker) {
 # Would prefer to have it easier the longer the spy has been inactive, but...
-      $toughness = $attacker->offense + $attacker->$mission_skill - randint(500,2000);
+      $toughness = $attacker->offense + $attacker->$mission_skill - randint(100,2600);
     }
   }
   my $breakthru = ($power - $toughness + $self->home_field_advantage) + $self->luck;
+  $breakthru = ( randint(0,99) < 5) ? $breakthru * -1 : $breakthru;
     
   # handle outcomes and xp
   my $out;
   if ($breakthru < 0) {
     my $message_id;
     if (defined $attacker) {
-      $attacker->$mission_skill( $attacker->$mission_skill + 10 );
+      my $off_xp = $attacker->$mission_skill + 10;
+      if ($off_xp > 2600) {
+          $attacker->$mission_skill( 2600 );
+      }
+      else {
+          $attacker->$mission_skill( $off_xp );
+      }
       $attacker->update_level;
       $attacker->defense_mission_successes( $attacker->defense_mission_successes + 1 );
       $message_id = $attacker->kill_attacking_spy($self)->id;
@@ -625,7 +665,13 @@ sub run_security_sweep {
     else {
       $self->no_target->id;
     }
-    $self->$mission_skill( $self->$mission_skill + 6 );
+    my $def_xp = $self->$mission_skill + 6;
+    if ($def_xp > 2600) {
+        $self->$mission_skill( 2600 );
+    }
+    else {
+        $self->$mission_skill( $def_xp );
+    }
     $self->update_level;
     $out = { result => 'Failure',
              message_id => $message_id,
@@ -638,7 +684,13 @@ sub run_security_sweep {
     my $message_id;
     if (defined $attacker) {
       $message_id = $self->detain_a_spy($attacker)->id;
-      $attacker->$mission_skill( $attacker->$mission_skill + 6);
+      my $off_xp = $attacker->$mission_skill + 6;
+      if ($off_xp > 2600) {
+          $attacker->$mission_skill( 2600 );
+      }
+      else {
+          $attacker->$mission_skill( $off_xp );
+      }
       $attacker->update_level;
     }
     else {
@@ -646,7 +698,13 @@ sub run_security_sweep {
 #      $message_id = $self->no_target->id;
     }
     $self->offense_mission_successes( $self->offense_mission_successes + 1 );
-    $self->$mission_skill( $self->$mission_skill + 10 );
+    my $def_xp = $self->$mission_skill + 10;
+    if ($def_xp > 2600) {
+        $self->$mission_skill( 2600 );
+    }
+    else {
+        $self->$mission_skill( $def_xp );
+    }
     $self->update_level;
     $out = { result => 'Success',
              message_id => $message_id,
@@ -887,16 +945,29 @@ sub format_from {
 sub turn {
     my ($self, $new_home) = @_;
     $self->times_turned( $self->times_turned + 1 );
-    my $message = $self->empire->send_predefined_message(
-        tags        => ['Spies','Alert'],
-        filename    => 'goodbye.txt',
-        params      => [$self->name,
-                        $self->from_body->id,
-                        $self->from_body->name],
-    );
-    $self->task('Idle');
-    $self->empire_id($new_home->empire_id);
-    $self->from_body_id($new_home->id);
+# Check to see if new home has room
+    my $message;
+    my $new_emp = $new_home->empire_id;
+    my $new_int_min = $new_home->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
+    if ($new_emp < 0 or (defined($new_int_min) and $new_int_min->spy_count < $new_int_min->max_spies)) {
+        $message = $self->empire->send_predefined_message(
+            tags        => ['Spies','Alert'],
+            filename    => 'goodbye.txt',
+            params      => [$self->name,
+                            $self->from_body->id,
+                            $self->from_body->name],
+        );
+        $self->task('Idle');
+        $self->empire_id($new_home->empire_id);
+        $self->from_body_id($new_home->id);
+    }
+    else {
+        $message = { filename => 'none' };
+        $self->task('Retiring');
+        $self->offense_mission_count(150);
+        $self->defense_mission_count(150);
+        $self->available_on(DateTime->now->add(days => 30));
+    }
     return $message;
 }
 
@@ -906,20 +977,39 @@ sub turn_a_spy {
     my $old_empire_id   = $traitor->empire->id;
     my $old_empire_name = $traitor->empire->name;
     my $goodbye_message = $traitor->turn($self->from_body);
-    my $new_recruit_message = $self->empire->send_predefined_message(
-        tags        => ['Spies','Alert'],
-        filename    => 'new_recruit.txt',
-        params      => [$old_empire_id,
-                        $old_empire_name,
-                        $traitor->name,
-                        $self->name,
-                        $self->from_body->id,
-                        $self->from_body->name],
-    );
-    return {
-        'goodbye' => $goodbye_message,
-        'new_recruit' => $new_recruit_message,
-    };
+    my $new_recruit_message;
+    if ($goodbye_message->{filename} eq 'none') {
+        $new_recruit_message = $self->empire->send_predefined_message(
+            tags        => ['Spies','Alert'],
+            filename    => 'convince_to_quit.txt',
+            params      => [$traitor->name,
+                            $old_empire_id,
+                            $old_empire_name,
+                            $self->name,
+                            $self->from_body->id,
+                            $self->from_body->name],
+        );
+        return {
+            'goodbye' => $goodbye_message,
+            'new_recruit' => $new_recruit_message,
+        };
+    }
+    else {
+        $new_recruit_message = $self->empire->send_predefined_message(
+            tags        => ['Spies','Alert'],
+            filename    => 'new_recruit.txt',
+            params      => [$old_empire_id,
+                            $old_empire_name,
+                            $traitor->name,
+                            $self->name,
+                            $self->from_body->id,
+                            $self->from_body->name],
+        );
+        return {
+            'goodbye' => $goodbye_message,
+            'new_recruit' => $new_recruit_message,
+        };
+    }
 }
 
 sub knock_out {
@@ -1229,7 +1319,7 @@ sub abduct_operatives_loss {
 
 sub sabotage_resources {
     my $self = shift;
-    given (randint(1,7)) {
+    given (randint(1,9)) {
         when (1) { return $self->destroy_mining_ship(@_) }
         when (2) { return $self->destroy_ship(@_) }
         when (3) { return $self->kill_contact_with_mining_platform(@_) }
@@ -1237,6 +1327,8 @@ sub sabotage_resources {
         when (5) { return $self->destroy_resources(@_) }
         when (6) { return $self->destroy_plan(@_) }
         when (7) { return $self->destroy_glyph(@_) }
+        when (8) { return $self->destroy_chain_ship(@_) }
+        when (9) { return $self->destroy_excavator(@_) }
     }
 }
 
@@ -1271,17 +1363,20 @@ sub appropriate_resources_loss {
 
 sub assassinate_operatives {
     my $self = shift;
-    given (randint(1,2)) {
+    given (randint(1,4)) {
         when (1) { return $self->kill_cop(@_) }
-        when (2) { return $self->knock_defender_unconscious(@_) }
+        when (2) { return $self->kill_cop(@_) }
+        when (3) { return $self->kill_cop(@_) }
+        when (4) { return $self->knock_defender_unconscious(@_) }
     }
 }
 
 sub assassinate_operatives_loss {
     my $self = shift;
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { return $self->kill_intelligence(@_) }
-        when (2) { return $self->knock_attacker_unconscious(@_) }
+        when (2) { return $self->kill_intelligence(@_) }
+        when (3) { return $self->knock_attacker_unconscious(@_) }
     }
 }
 
@@ -1297,28 +1392,28 @@ sub sabotage_infrastructure {
 
 sub sabotage_infrastructure_loss {
     my $self = shift;
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { return $self->capture_saboteur(@_) }
         when (2) { return $self->knock_attacker_unconscious(@_) }
-        #when (2) { return $self->kill_saboteur(@_) }
+        when (3) { return $self->kill_saboteur(@_) }
     }
 }
 
 sub incite_mutiny {
     my $self = shift;
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { return $self->turn_defender(@_) }
         when (2) { return $self->knock_defender_unconscious(@_) }
-        #when (2) { return $self->kill_cop(@_) }
+        when (3) { return $self->kill_cop(@_) }
     }
 }
 
 sub incite_mutiny_loss {
     my $self = shift;
-    given (randint(1,2)) {
+    given (randint(1,3)) {
         when (1) { return $self->turn_defector(@_) }
         when (2) { return $self->knock_attacker_unconscious(@_) }
-        #when (2) { return $self->kill_mutaneer(@_) }
+        when (3) { return $self->kill_mutaneer(@_) }
     }
 }
 
@@ -1391,127 +1486,148 @@ sub can_conduct_advanced_missions {
 # OUTCOMES
 
 sub steal_planet {
-  my ($self, $defender) = @_;
-  my $next_colony_cost = $self->empire->next_colony_cost;
-  my $planet_happiness = $self->on_body->happiness;
-  my $chance = abs($planet_happiness * 100) / $next_colony_cost;
-  my $failure = randint(1,100) > $chance;
-  if ($planet_happiness > 0 || $failure) { # lose
-      $self->on_body->empire->send_predefined_message(
-            tags        => ['Spies','Alert'],
-            filename    => 'insurrection_luck.txt',
-            params      => [$self->on_body_id, $self->on_body->name],
-      );
-      return $self->empire->send_predefined_message(
-            tags        => ['Intelligence'],
-            filename    => 'insurrection_failed.txt',
-            params      => [$self->on_body->x,
-                            $self->on_body->y,
-                            $self->on_body->name,
-                            $self->format_from],
-      )->id;
-  }
-  else { # win
-    $self->on_body->empire->send_predefined_message(
-            tags        => ['Spies','Alert'],
-            filename    => 'lost_planet_to_insurrection.txt',
-            params      => [$self->on_body->name,
-                            $self->on_body->x,
-                            $self->on_body->y,
-                            $self->on_body->name],
-      );
-    $self->on_body->add_news(100,
-                              'Led by %s, the citizens of %s have overthrown %s!',
-                               $self->name,
-                               $self->on_body->name,
-                               $self->on_body->empire->name);
-
-    # withdraw trades
-    for my $market ( Lacuna->db->resultset('Lacuna::DB::Result::Market'),
-                     Lacuna->db->resultset('Lacuna::DB::Result::MercenaryMarket') ) {
-      my @to_be_deleted = $market->search({body_id => $self->on_body_id})->get_column('id')->all;
-      foreach my $id (@to_be_deleted) {
-        my $trade = $market->find($id);
-        next unless defined $trade;
-        $trade->body->empire->send_predefined_message(
-                  filename    => 'trade_withdrawn.txt',
-                  params      => [join("\n",@{$trade->format_description_of_payload}), $trade->ask.' essentia'],
-                  tags        => ['Trade','Alert'],
+    my ($self, $defender) = @_;
+    my $next_colony_cost = $self->empire->next_colony_cost;
+    my $planet_happiness = $self->on_body->happiness;
+    my $chance = abs($planet_happiness * 100) / $next_colony_cost;
+    my $failure = randint(1,100) > $chance;
+    if ($planet_happiness > 0 || $failure) { # lose
+        $self->on_body->empire->send_predefined_message(
+              tags        => ['Spies','Alert'],
+              filename    => 'insurrection_luck.txt',
+              params      => [$self->on_body_id, $self->on_body->name],
         );
-        $trade->withdraw;
-      }
+        return $self->empire->send_predefined_message(
+              tags        => ['Intelligence'],
+              filename    => 'insurrection_failed.txt',
+              params      => [$self->on_body->x,
+                              $self->on_body->y,
+                              $self->on_body->name,
+                              $self->format_from],
+        )->id;
+    }
+    else { # win
+        $self->on_body->empire->send_predefined_message(
+                tags        => ['Spies','Alert'],
+                filename    => 'lost_planet_to_insurrection.txt',
+                params      => [$self->on_body->name,
+                                $self->on_body->x,
+                                $self->on_body->y,
+                                $self->on_body->name],
+        );
+        $self->on_body->add_news(100,
+                                  'Led by %s, the citizens of %s have overthrown %s!',
+                                   $self->name,
+                                   $self->on_body->name,
+                                   $self->on_body->empire->name);
+
+# withdraw trades
+        for my $market ( Lacuna->db->resultset('Lacuna::DB::Result::Market'),
+                         Lacuna->db->resultset('Lacuna::DB::Result::MercenaryMarket') ) {
+            my @to_be_deleted = $market->search({body_id => $self->on_body_id})->get_column('id')->all;
+            foreach my $id (@to_be_deleted) {
+                my $trade = $market->find($id);
+                next unless defined $trade;
+                $trade->body->empire->send_predefined_message(
+                    filename    => 'trade_withdrawn.txt',
+                    params      => [join("\n",@{$trade->format_description_of_payload}), $trade->ask.' essentia'],
+                    tags        => ['Trade','Alert'],
+                );
+                $trade->withdraw;
+        }
     }
 # Remove Supply chains to and from planet
     foreach my $chain ($self->on_body->out_supply_chains) {
-      $chain->delete;
+        $chain->delete;
     }
     foreach my $chain ($self->on_body->in_supply_chains) {
-      $chain->delete;
+        $chain->delete;
     }
 
     my $defender_capitol_id = $self->on_body->empire->home_planet_id;
     Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
-          from_body_id => $self->on_body_id, on_body_id => $self->on_body_id, task => 'Training',
+        from_body_id => $self->on_body_id, on_body_id => $self->on_body_id, task => 'Training',
     })->delete_all; # All spies in training are executed
-    Lacuna->db->resultset('Lacuna::DB::Result::Spies')
-                  ->search({from_body_id => $self->on_body_id})
-                  ->update({from_body_id => $defender_capitol_id });
+    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')
+                  ->search({from_body_id => $self->on_body_id});
+
+    my $def_capitol = Lacuna->db
+                            ->resultset('Lacuna::DB::Result::Map::Body')
+                            ->find($defender_capitol_id);
+
+    my $def_int_cap = $def_capitol->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
+    my $def_room = defined($def_int_cap) ? 0 : $def_int_cap->max_spies - $def_int_cap->spy_count;
+    my $empire_id = $self->on_body->empire->id;
+    my $moved_spies = 0;
+    while (my $spy = $spies->next) {
+        if ($moved_spies++ < $def_room or $empire_id < 0) {
+          $spy->update({from_body_id => $defender_capitol_id });
+        }
+        else {
+          $spy->update({
+                        from_body_id => $defender_capitol_id,
+                        task => 'Retiring',
+                        defense_mission_count => 150,
+                        available_on => DateTime->now->add(days => 30),
+                       });
+        }
+    }
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
                       ->search({body_id => $self->on_body_id,
                                 task => { '!=' => 'Docked' } });
     while (my $ship = $ships->next) {
-      next if ($ship->task eq 'Waste Chain');
-      if ($ship->task eq 'Waiting On Trade') {
+        next if ($ship->task eq 'Waste Chain');
+        if ($ship->task eq 'Waiting On Trade') {
 # Ships being delivered from trades or pushes.
-        $ship->body_id($defender_capitol_id);
-        $ship->update;
-      }
-      elsif ($ship->task eq 'Supply Chain') {
-# Supply chains from planet were deleted so we dock ships
-        $ship->task('Docked');
-        $ship->update;
-      }
-      elsif ($ship->task eq 'Travelling' and
-               (grep { $ship->type eq $_ }
-                     @{['cargo_ship',
-                        'smuggler_ship',
-                        'galleon',
-                        'freighter',
-                        'hulk',
-                        'hulk_fast',
-                        'hulk_huge',
-                        'dory',
-                        'barge',
-                      ]})) {
-# Trade ship was outgoing, it will change homeport to capitol
-        if ($ship->direction eq 'out') {
-          $ship->body_id($defender_capitol_id);
-          $ship->update;
+            $ship->body_id($defender_capitol_id);
+            $ship->update;
         }
-      }
-      elsif ($ship->task eq 'Travelling' and
+        elsif ($ship->task eq 'Supply Chain') {
+# Supply chains from planet were deleted so we dock ships
+            $ship->task('Docked');
+            $ship->update;
+        }
+        elsif ($ship->task eq 'Travelling' and
+             (grep { $ship->type eq $_ }
+                   @{['cargo_ship',
+                      'smuggler_ship',
+                      'galleon',
+                      'freighter',
+                      'hulk',
+                      'hulk_fast',
+                      'hulk_huge',
+                      'dory',
+                      'barge',
+                    ]})) {
+# Trade ship was outgoing, it will change homeport to capitol
+            if ($ship->direction eq 'out') {
+                $ship->body_id($defender_capitol_id);
+                $ship->update;
+            }
+        }
+        elsif ($ship->task eq 'Travelling' and
                (grep { $ship->type eq $_ }
                      @{[ 'colony_ship',
                          'short_range_colony_ship',
                        ]})) {
 # Colony ships show from capitol.
-        $ship->body_id($defender_capitol_id);
-        $ship->update;
-      }
-      else {
-        $ship->delete;
-      }
+            $ship->body_id($defender_capitol_id);
+            $ship->update;
+        }
+        else {
+            $ship->delete;
+        }
     }
 # Shipyards have had all ships that were building destroyed, so stop timers.
     my $on_body = $self->on_body;
     my @shipyards = grep {
             ($_->class eq 'Lacuna::DB::Result::Building::Shipyard')
         }
-        @{$self->on_body->building_cache};
+    @{$self->on_body->building_cache};
     for my $shipyard (@shipyards) {
-      $shipyard->is_working(0);
-      $shipyard->update;
+        $shipyard->is_working(0);
+        $shipyard->update;
     }
 
 # Probes
@@ -1526,15 +1642,15 @@ sub steal_planet {
           tags        => ['Intelligence'],
           filename    => 'insurrection_complete.txt',
           params      => [$self->on_body_id, $self->on_body->name, $self->format_from],
-    )->id;
-  }
+      )->id;
+    }
 }
 
 
 sub uprising {
     my ($self, $defender) = @_;
     $self->seeds_planted( $self->seeds_planted + 1 );
-    my $loss = sprintf('%.0f', $self->on_body->happiness * 0.10 );
+    my $loss = sprintf('%.0f', $self->on_body->happiness * ($self->level/100) );
     $loss *= -1 if ($loss < 0);
     $loss = 15000 unless ($loss > 15000);
     $self->on_body->spend_happiness( $loss )->update;
@@ -1603,7 +1719,8 @@ sub small_rebellion {
     $self->on_body->add_news(100,
                              'Hundreds are dead at this hour after a protest turned into a small, but violent, rebellion on %s.',
                              $self->on_body->name);
-    return $self->sow_discontent(13000)->id;
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 15_000, 2_000_000, 4);
+    return $self->sow_discontent($loss)->id;
 }
 
 sub march_on_capitol {
@@ -1611,13 +1728,15 @@ sub march_on_capitol {
     $self->on_body->add_news(100,
                              'Protesters now march on the %s Planetary Command Center, asking for the Governor\'s resignation.',
                              $self->on_body->name);
-    return $self->sow_discontent(11000)->id;
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 11_000, 1_500_000, 4);
+    return $self->sow_discontent($loss)->id;
 }
 
 sub violent_protest {
     my ($self, $defender) = @_;
     $self->on_body->add_news(100,'The protests at the %s Ministries have turned violent. An official was rushed to hospital in critical condition.', $self->on_body->name);
-    return $self->sow_discontent(9000)->id;
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 9_000, 1_200_000, 4);
+    return $self->sow_discontent($loss)->id;
 }
 
 sub protest {
@@ -1625,7 +1744,8 @@ sub protest {
     $self->on_body->add_news(100,
                              'Protesters can be seen jeering outside nearly every Ministry at this hour on %s.',
                              $self->on_body->name);
-    return $self->sow_discontent(7000)->id;
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 7_000, 1_000_000, 5);
+    return $self->sow_discontent($loss)->id;
 }
 
 sub civil_unrest {
@@ -1633,13 +1753,15 @@ sub civil_unrest {
     $self->on_body->add_news(100,
                              'In recent weeks there have been rumblings of political discontent on %s.',
                              $self->on_body->name);
-    return $self->sow_discontent(5000)->id;
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 5_000, 750_000, 6);
+    return $self->sow_discontent($loss)->id;
 }
 
 sub calm_the_rebels {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
-    $self->sow_bliss(randint(250,2500));
+    my $add = happy_mod($self->level, $self->on_body->happiness, 2_000, 500_000, 5);
+    $self->sow_bliss($add);
     $self->on_body->add_news(100,
                              'In an effort to bring an swift end to the rebellion, the %s Governor delivered an eloquent speech about hope.',
                              $self->on_body->name);
@@ -1649,7 +1771,8 @@ sub calm_the_rebels {
 sub peace_talks {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
-    $self->sow_bliss(randint(500,5000));
+    my $add = happy_mod($self->level, $self->on_body->happiness, 5_000, 500_000, 5);
+    $self->sow_bliss($add);
     $self->on_body->add_news(100,
                              'Officials from both sides of the rebellion are at the Planetary Command Center on %s today to discuss peace.',
                              $self->on_body->name);
@@ -1659,7 +1782,8 @@ sub peace_talks {
 sub day_of_rest {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
-    $self->sow_bliss(randint(2500,25000));
+    my $add = happy_mod($self->level, $self->on_body->happiness, 25_000, 1_500_000, 5);
+    $self->sow_bliss($add);
     $self->on_body->add_news(100,
                              'The Governor of %s declares a day of rest and peace. Citizens rejoice.',
                              $self->on_body->name);
@@ -1669,7 +1793,8 @@ sub day_of_rest {
 sub festival {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
-    $self->sow_bliss(randint(1000,10000));
+    my $add = happy_mod($self->level, $self->on_body->happiness, 10_000, 1_000_000, 5);
+    $self->sow_bliss($add);
     $self->on_body->add_news(100,
                              'The %s Governor calls it the %s festival. Whatever you call it, people are happy.',
                              $self->on_body->name,
@@ -1680,21 +1805,32 @@ sub festival {
 sub turn_defector {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
-    $self->on_body->add_news(60,
+
+    my $goodbye = $defender->turn_a_spy($self)->{'goodbye'};
+    if ($goodbye->{filename} eq 'none') {
+        $self->on_body->add_news(60,
+                             '%s has just taken early retirement from %s.',
+                             $self->name,
+                             $self->empire->name);
+    }
+    else {
+        $self->on_body->add_news(60,
                              '%s has just announced plans to defect from %s to %s.',
                              $self->name,
                              $self->empire->name,
                              $defender->empire->name);
-    return $defender->turn_a_spy($self)->{'goodbye'}->id;
+    }
+    return $defender->id;
 }
 
 sub turn_rebel {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
+    my $goodbye = $defender->turn_a_spy($self)->{'goodbye'};
     $self->on_body->add_news(70,
                              'The %s Governor\'s call for peace appears to be working. Several rebels told this reporter they are going home.',
                              $self->on_body->name);
-    return $defender->turn_a_spy($self)->{'goodbye'}->id;
+    return $defender->id;
 }
 
 sub capture_rebel {
@@ -1726,10 +1862,13 @@ sub prevent_insurrection {
     my $conspirators = Lacuna->db
                         ->resultset('Lacuna::DB::Result::Spies')
                         ->search( { on_body_id => $self->on_body_id,
-                                    task => { 'not in' => ['Killed in Action', 'Travelling','Captured', 'Prisoner Transport'] },
+                                    task => { 'not in' => ['Killed in Action',
+                                                           'Travelling',
+                                                           'Captured',
+                                                           'Prisoner Transport'] },
                                     empire_id => { 'in' => \@member_ids } });
     my $max_cnt = $defender->level;
-    $max_cnt = ($max_cnt < 3) ? 6 : $max_cnt * 2;
+    $max_cnt = ($max_cnt < 3) ? 6 : $max_cnt;
     my $count = randint(5,$max_cnt);
     while (my $conspirator = $conspirators->next ) {
        $count--;
@@ -1804,12 +1943,15 @@ sub abduct_operative {
 #    $self->on_body->add_news(80,'The leader of the rebellion to overthrow %s was killed in a firefight today on %s.', $self->on_body->empire->name, $self->on_body->name);
 #}
 #
-#sub kill_mutaneer {
-#    my ($self, $defender) = @_;
-#    return $self->get_spooked->id unless (defined $defender);
-#    kill_a_spy($self->on_body, $self, $defender);
-#    $self->on_body->add_news(80,'Double agent %s of %s was executed on %s today.', $self->name, $self->empire->name, $self->on_body->name);
-#}
+sub kill_mutaneer {
+    my ($self, $defender) = @_;
+    return $self->get_spooked->id unless (defined $defender);
+    $self->on_body
+      ->add_news(60,
+                 'Double agent %s of %s was executed on %s today.',
+                 $self->name, $self->empire->name, $self->on_body->name);
+    return $defender->kill_attacking_spy($self)->id;
+}
 
 sub thwart_rebel {
     my ($self, $defender) = @_;
@@ -1825,10 +1967,19 @@ sub thwart_rebel {
 sub destroy_infrastructure {
     my ($self, $defender) = @_;
 
-    my ($building) = sort {rand() <=> rand()} grep {$_->efficiency > 0} @{$self->on_body->building_cache};
-
+    my ($building) = sort {
+            rand() <=> rand()
+        }
+        grep {
+            $_->efficiency > 0 and
+            $_->class ne 'Lacuna::DB::Result::Building::PlanetaryCommand' and
+            $_->class ne 'Lacuna::DB::Result::Building::Module::StationCommand' and
+            $_->class ne 'Lacuna::DB::Result::Building::Module::Parliament' and
+            $_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder'
+        }
+        @{$self->on_body->building_cache};
+# Future: Multi destruction (grab a few buildings)
     return $self->building_not_found->id unless defined $building;
-    return $self->building_not_found->id if ($building->class eq 'Lacuna::DB::Result::PlanetaryCommand');
 
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
@@ -1983,6 +2134,44 @@ sub destroy_resources {
     return $message->id;
 }
 
+sub destroy_chain_ship {
+    my ($self, $defender) = @_;
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        {body_id => $self->on_body->id,
+         task => {'in' => ['Supply Chain', 'Waste Chain'] }},
+        { rows => 1, order_by => 'rand()' }
+        )->single;
+    return $self->ship_not_found->id unless $ship;
+    my $stype = "supply chain";
+    if ($ship->task eq "Waste Chain") {
+        $stype = "waste chain";
+    }
+    $ship->delete;
+    $self->on_body->recalc_chains;
+    $self->on_body->empire->send_predefined_message(
+        tags        => ['Spies','Alert'],
+        filename    => 'ship_blew_up_at_port.txt',
+        params      => [$stype.' '.$ship->type_formatted,
+                        $self->on_body->id,
+                        $self->on_body->name],
+    );
+    $self->things_destroyed( $self->things_destroyed + 1 );
+    $self->on_body->add_news(90,
+                             'Today, officials on %s are investigating the explosion of a %s ship at the Space Port.',
+                             $self->on_body->name, $stype);
+    return $self->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'sabotage_report.txt',
+        params      => [$stype.' ship',
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
+    )->id;
+}
+
 sub destroy_mining_ship {
     my ($self, $defender) = @_;
     my $ministry = $self->on_body->mining_ministry;
@@ -2028,12 +2217,15 @@ sub capture_saboteur {
     return $defender->capture_a_spy($self)->id;
 }
 
-#sub kill_saboteur {
-#    my ($self, $defender) = @_;
-#    return $self->get_spooked->id unless (defined $defender);
-#    kill_a_spy($self->on_body, $self, $defender);
-#    $self->on_body->add_news(70,'%s told us that a lone saboteur was killed on %s before he could carry out his plot.', $self->on_body->empire->name, $self->on_body->name);
-#}
+sub kill_saboteur {
+    my ($self, $defender) = @_;
+    return $self->get_spooked->id unless (defined $defender);
+    $self->on_body
+      ->add_news(60,
+                 '%s told us that a lone saboteur was killed on %s before he could carry out his plot.',
+                  $self->on_body->empire->name, $self->on_body->name);
+    return $defender->kill_attacking_spy($self)->id;
+}
 
 sub thwart_saboteur {
     my ($self, $defender) = @_;
@@ -2326,24 +2518,38 @@ sub thwart_thief {
 
 sub shut_down_building {
     my ($self, $defender) = @_;
-    my @classnames = (
-        'Lacuna::DB::Result::Building::Shipyard',
-        'Lacuna::DB::Result::Building::Park',
-        'Lacuna::DB::Result::Building::Waste::Recycling',
-        'Lacuna::DB::Result::Building::Development',
-        'Lacuna::DB::Result::Building::Intelligence',
-        'Lacuna::DB::Result::Building::Trade',
-        'Lacuna::DB::Result::Building::Transporter',
-    );
-    my $building_class = random_element(\@classnames);
-    my $building = $self->on_body->get_building_of_class($building_class);
+
+    my ($building) = sort {
+            rand() <=> rand()
+        }
+        grep {
+            ($_->efficiency > 0) and (
+              $_->class eq 'Lacuna::DB::Result::Building::Archaeology' or
+              $_->class eq 'Lacuna::DB::Result::Building::Shipyard' or
+              $_->class eq 'Lacuna::DB::Result::Building::Park' or
+              $_->class eq 'Lacuna::DB::Result::Building::Waste::Recycling' or
+              $_->class eq 'Lacuna::DB::Result::Building::Development' or
+              $_->class eq 'Lacuna::DB::Result::Building::Intelligence' or
+              $_->class eq 'Lacuna::DB::Result::Building::Observatory' or
+              $_->class eq 'Lacuna::DB::Result::Building::SAW' or
+              $_->class eq 'Lacuna::DB::Result::Building::Trade' or
+              $_->class eq 'Lacuna::DB::Result::Building::Transporter' or
+              $_->class eq 'Lacuna::DB::Result::Building::Module::ArtMuseum' or
+              $_->class eq 'Lacuna::DB::Result::Building::Module::CulinaryInstitute' or
+              $_->class eq 'Lacuna::DB::Result::Building::Module::OperaHouse' or
+              $_->class eq 'Lacuna::DB::Result::Building::Module::IBS' or
+              $_->class eq 'Lacuna::DB::Result::Building::Module::Warehouse' or
+              $_->class eq 'Lacuna::DB::Result::Building::DeployedBleeder')
+            }
+            @{$self->on_body->building_cache};
+
     return $self->building_not_found->id unless defined $building;
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'building_loss_of_power.txt',
         params      => [$building->name, $self->on_body->id, $self->on_body->name],
     );
-    $building->spend_efficiency($self->level)->update;
+    $building->spend_efficiency(2 * $self->level)->update;
     $self->on_body->add_news(25,
                              'Employees at the %s on %s were left in the dark today during a power outage.',
                              $building->name,
@@ -2396,6 +2602,41 @@ sub take_control_of_probe {
     $probe->alliance_id($self->empire->alliance_id);
     $probe->update;
     return $message->id;
+}
+
+sub destroy_excavator {
+    my ($self, $defender) = @_;
+    my $arch = $self->on_body->archaeology;
+    return $self->building_not_found->id unless defined $arch;
+    my $excavator = Lacuna->db
+                     ->resultset('Lacuna::DB::Result::Excavators')
+                     ->search({planet_id => $self->on_body->id},
+                              { rows => 1, order_by => 'rand()' }
+                              )->single;
+    return $self->mission_objective_not_found('excavator')->id unless defined $excavator;
+    my $body = $excavator->body;
+    return $self->mission_objective_not_found('excavator')->id unless defined $body;
+    $arch->remove_excavator($excavator);
+    $self->on_body->empire->send_predefined_message(
+        tags        => ['Spies','Alert'],
+        filename    => 'we_lost_contact_with_an_excavator.txt',
+        params      => [$body->x, $body->y, $body->name],
+    );
+    $self->things_destroyed( $self->things_destroyed + 1 );
+    $self->on_body->add_news(50,
+                             'The %s excavator on %s exploded.',
+                             $self->on_body->empire->name,
+                             $body->name);    
+    return $self->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'we_disabled_an_excavator.txt',
+        params      => [$body->x,
+                        $body->y,
+                        $body->name,
+                        $self->on_body->empire->id,
+                        $self->on_body->empire->name,
+                        $self->format_from],
+    )->id;
 }
 
 sub kill_contact_with_mining_platform {
@@ -2608,8 +2849,10 @@ sub spy_report {
     my %planets = ( $self->on_body->id => $self->on_body->name );
     my $spies = Lacuna->db
                   ->resultset('Lacuna::DB::Result::Spies')
-                  ->search( {empire_id => {'!=' => $self->empire_id},
-                             on_body_id=>$self->on_body_id});
+                  ->search( { empire_id  => {'!=' => $self->empire_id },
+                              task       => {'!=' => 'Travelling' },
+                              on_body_id => $self->on_body_id } );
+
     while (my $spook = $spies->next) {
         unless (exists $planets{$spook->from_body_id}) {
             $planets{$spook->from_body_id} = $spook->from_body->name;
@@ -2977,15 +3220,26 @@ sub thwart_hacker {
     return $defender->thwart_a_spy($self)->id;
 }
 
+sub happy_mod {
+  my ($level, $bhappy, $min, $max, $mod) = @_;
+
+    my $numb = sprintf('%.0f', $bhappy * ($level/$mod)/100 );
+    $numb *= -1 if ($numb < 0);
+    $numb = $min unless ($numb > $min);
+    $numb = $max if ($numb > $max);
+    return $numb;
+}
+
 sub network19_propaganda1 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
+    my $add = happy_mod($defender->level, $self->on_body->happiness, 250, 25_000, 10);
     if ($self->on_body
           ->add_news(50,
                      'A resident of %s has won the Lacuna Expanse talent competition.',
                      $self->on_body->name)) {
-        $self->on_body->add_happiness(250)->update;
+        $self->on_body->add_happiness($add)->update;
     }
     return undef;
 }
@@ -2994,11 +3248,12 @@ sub network19_propaganda2 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
+    my $add = happy_mod($defender->level, $self->on_body->happiness, 500, 50_000, 10);
     if ($self->on_body
           ->add_news(50,
                      'The economy of %s is looking strong, showing GDP growth of nearly 10%% for the past quarter.',
                      $self->on_body->name)) {
-        $self->on_body->add_happiness(500)->update;
+        $self->on_body->add_happiness($add)->update;
     }
     return undef;
 }
@@ -3007,11 +3262,12 @@ sub network19_propaganda3 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
+    my $add = happy_mod($defender->level, $self->on_body->happiness, 750, 75_000, 10);
     if ($self->on_body
           ->add_news(50,
                      'The Governor of %s has set aside 1000 square kilometers as a nature preserve.',
                       $self->on_body->name)) {
-        $self->on_body->add_happiness(750)->update;
+        $self->on_body->add_happiness($add)->update;
     }
     return undef;
 }
@@ -3020,12 +3276,13 @@ sub network19_propaganda4 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
+    my $add = happy_mod($defender->level, $self->on_body->happiness, 1000, 100_000, 10);
     if ($self->on_body
           ->add_news(50,
                      'If %s had not inhabited %s, the planet would likely have reverted to a barren rock.',
                       $self->on_body->empire->name,
                       $self->on_body->name)) {
-        $self->on_body->add_happiness(1000)->update;
+        $self->on_body->add_happiness($add)->update;
     }
     return undef;
 }
@@ -3034,12 +3291,13 @@ sub network19_propaganda5 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
+    my $add = happy_mod($defender->level, $self->on_body->happiness, 1250, 125_000, 10);
     if ($self->on_body
           ->add_news(50,
                      'The benevolent leader of %s is a gift to the people of %s.',
                       $self->on_body->empire->name,
                       $self->on_body->name)) {
-        $self->on_body->add_happiness(1250)->update;
+        $self->on_body->add_happiness($add)->update;
     }
     return undef;
 }
@@ -3048,11 +3306,12 @@ sub network19_propaganda6 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
+    my $add = happy_mod($defender->level, $self->on_body->happiness, 1500, 150_000, 10);
     if ($self->on_body
           ->add_news(50,
                      '%s is the greatest, best, most free empire in the Expanse, ever.',
                       $self->on_body->empire->name)) {
-        $self->on_body->add_happiness(1500)->update;
+        $self->on_body->add_happiness($add)->update;
     }
     return undef;
 }
@@ -3061,11 +3320,12 @@ sub network19_propaganda7 {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless defined $defender;
     $defender->seeds_planted($defender->seeds_planted + 1);
+    my $add = happy_mod($defender->level, $self->on_body->happiness, 1750, 175_000, 10);
     if ($self->on_body
           ->add_news(50,
                      '%s is the ultimate power in the Expanse right now. It is unlikely to be challenged any time soon.',
                       $self->on_body->empire->name)) {
-        $self->on_body->add_happiness(1750)->update;
+        $self->on_body->add_happiness($add)->update;
     }
     return undef;
 }
@@ -3073,11 +3333,12 @@ sub network19_propaganda7 {
 sub network19_defamation1 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 1000, 100_000, 8);
     if ($self->on_body
           ->add_news(50,
                      'A financial report for %s shows that many people are out of work as the unemployment rate approaches 10%%.',
                       $self->on_body->name)) {
-        return $self->hack_successful(1000)->id;
+        return $self->hack_successful($loss)->id;
     }
     return $self->hack_filtered->id;
 }
@@ -3085,11 +3346,12 @@ sub network19_defamation1 {
 sub network19_defamation2 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 2000, 200_000, 8);
     if ($self->on_body
           ->add_news(50,
                      'An outbreak of the Dultobou virus was announced on %s today. Citizens are encouraged to stay home from work and school.',
                       $self->on_body->name)) {
-        return $self->hack_successful(2000)->id;
+        return $self->hack_successful($loss)->id;
     }
     return $self->hack_filtered->id;
 }
@@ -3097,11 +3359,12 @@ sub network19_defamation2 {
 sub network19_defamation3 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 3000, 300_000, 8);
     if ($self->on_body
           ->add_news(50,
                      '%s is unable to keep its economy strong. Sources inside say it will likely fold in a few days.',
                       $self->on_body->empire->name)) {
-        return $self->hack_successful(3000)->id;
+        return $self->hack_successful($loss)->id;
     }
     return $self->hack_filtered->id
 }
@@ -3109,11 +3372,12 @@ sub network19_defamation3 {
 sub network19_defamation4 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 4000, 400_000, 8);
     if ($self->on_body
           ->add_news(50,
                      'The Governor of %s has lost her mind. She is a raving mad lunatic! The Emperor could not be reached for comment.',
                       $self->on_body->name)) {
-        return $self->hack_successful(4000)->id;
+        return $self->hack_successful($loss)->id;
     }
     return $self->hack_filtered->id;
 }
@@ -3121,11 +3385,12 @@ sub network19_defamation4 {
 sub network19_defamation5 {
     my ($self, $defender) = @_;
     $self->seeds_planted($self->seeds_planted + 1);
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 5000, 500_000, 8);
     if ($self->on_body
           ->add_news(50,
                      '%s is the smallest, worst, least free empire in the Expanse, ever.',
                       $self->on_body->empire->name)) {
-        return $self->hack_successful(5000)->id;
+        return $self->hack_successful($loss)->id;
     }
     return $self->hack_filtered->id;
 }

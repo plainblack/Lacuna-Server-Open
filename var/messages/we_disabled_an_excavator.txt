@@ -1,0 +1,8 @@
+Excavator Disabled
+~~~
+We have destroyed an excavator on {Starmap %s %s %s}, which was controlled by {Empire %s %s}.
+
+More to come,
+
+%s
+

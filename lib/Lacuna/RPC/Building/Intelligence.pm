@@ -49,6 +49,9 @@ sub subsidize_training {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    unless ($building->efficiency == 100) {
+        confess [1010, "You can not subsidize spies when the Intelligence Ministry is in need of repair."];
+    }
     my $body = $building->body;
 
     my $spies = $building->get_spies->search({ task => 'Training' });
@@ -77,6 +80,9 @@ sub assign_spy {
     my ($self, $session_id, $building_id, $spy_id, $assignment) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    unless ($building->efficiency == 100) {
+        confess [1010, "You can not communicate with your spy when the Intelligence Ministry is in need of repair."];
+    }
     $empire->current_session->check_captcha;
     my $spy = $building->get_spy($spy_id);
     unless (defined $spy) {
@@ -117,6 +123,9 @@ sub train_spy {
     my ($self, $session_id, $building_id, $quantity) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    unless ($building->efficiency == 100) {
+        confess [1010, "You can not train spies when the Intelligence Ministry is in need of repair."];
+    }
     $quantity ||= 1;
     if ($quantity > 5) {
         confess [1009, "You can only train 5 spies at a time."];

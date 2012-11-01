@@ -44,6 +44,15 @@
  - done: When ships arrive (fighters to Defend) set their available date to null
  - done: Travelling ships should be sorted in arrival date order
  
+3.0872:
+ - Fix: Spies need working infrastructure.
+ - Fix: Tutorial doesn't restart if fissure blows up capitol.
+ - Fix: Enforcement of spy limits.
+ - Mod: Mercenaries assigned when bought.
+ - Mod: Excavators and ships on chain duty are targets for spies.
+ - Add: Seized Stars and various spy diciplines now in stats.
+ - Fix: Fissures have work timers turned off on creation.
+
 3.0871:
  - Fix: Gratches Gauntlet now takes into account efficiency
  - Fix: Minor spelling and text fixes

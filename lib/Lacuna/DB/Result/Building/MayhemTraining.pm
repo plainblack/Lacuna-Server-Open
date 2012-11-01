@@ -53,7 +53,10 @@ has spies_in_training_count => (
 
 sub get_spies {
     my ($self) = @_;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ empire_id => $self->body->empire_id, on_body_id => $self->body_id });
+    return Lacuna->db->resultset('Lacuna::DB::Result::Spies')
+                 ->search({ empire_id => $self->body->empire_id,
+                            on_body_id => $self->body_id,
+                            mayhem_xp => {'<', 2600} });
 }
 
 sub get_spy {
@@ -70,6 +73,9 @@ sub get_spy {
     }
     if ($spy->on_body_id != $self->body->id) {
         confess [1013, "Spy must be on planet to train."];
+    }
+    if ($spy->mayhem_xp >= 2600) {
+        confess [1013, $spy->name." has already learned all there is to know about Mayhem."];
     }
     return $spy;
 }
@@ -99,25 +105,27 @@ sub training_costs {
     };
     if ($spy_id) {
         my $spy = $self->get_spy($spy_id);
-        my $train_time = sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
+        my $xp_level = int(($spy->intel_xp + $spy->mayhem_xp + $spy->politics_xp + $spy->theft_xp)/200) + 1;
+        my $train_time = sprintf('%.0f', 3600 * $xp_level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
         if ($self->body->happiness < 0) {
             my $unhappy_workers = abs($self->body->happiness)/100_000;
             $train_time = int($train_time * $unhappy_workers);
         }
         $train_time = 5184000 if ($train_time > 5184000); # Max time per spy is 60 days
-        $train_time = 3600 if ($train_time < 3600); # Min time is 5 min
+        $train_time = 3600 if ($train_time < 3600); # Min time is 1 hour
         $costs->{time} = $train_time;
     }
     else {
         my $spies = $self->get_spies->search({ task => { in => ['Counter Espionage','Idle'] } });
         while (my $spy = $spies->next) {
-            my $train_time = sprintf('%.0f', 3600 * $spy->level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
+            my $xp_level = int(($spy->intel_xp + $spy->mayhem_xp + $spy->politics_xp + $spy->theft_xp)/200) + 1;
+            my $train_time = sprintf('%.0f', 3600 * $xp_level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
             if ($self->body->happiness < 0) {
                 my $unhappy_workers = abs($self->body->happiness)/100_000;
                 $train_time = int($train_time * $unhappy_workers);
             }
             $train_time = 5184000 if ($train_time > 5184000); # Max time per spy is 60 days
-            $train_time = 3600 if ($train_time < 3600); # Min time is 5 min
+            $train_time = 3600 if ($train_time < 3600); # Min time is 1 hour
             push @{$costs->{time}}, {
                 spy_id  => $spy->id,
                 name    => $spy->name,
@@ -153,6 +161,9 @@ sub train_spy {
     my ($self, $spy_id, $time_to_train) = @_;
     my $empire = $self->body->empire;
     my $spy = $self->get_spy($spy_id);
+    unless ($spy->mayhem_xp < 2600) {
+        confess [1013, $spy->name." has already learned all there is to know about Mayhem."];
+    }
     unless (defined $time_to_train) {
         $time_to_train = $self->training_costs($spy_id)->{time};
     }
@@ -161,7 +172,9 @@ sub train_spy {
     }
     my $available_on = DateTime->now;
     $available_on->add(seconds => $time_to_train );
-    $spy->mayhem_xp($spy->mayhem_xp + $self->level);
+    my $total = $spy->mayhem_xp + $self->level;
+    $total = 2600 if $total > 2600;
+    $spy->mayhem_xp($total);
     $spy->update_level;
     $spy->task('Training');
     $spy->available_on($available_on);
