@@ -21,16 +21,24 @@ sub abandon_probe {
     unless (defined $star) {
         confess [ 1002, 'Star does not exist.', $star_id];
     }
-    my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search(
+    my $probe = $building->probes->search(
         {
-            empire_id   => $empire->id,
-            star_id     => $star->id,
+            star_id => $star->id,
         },
         {rows => 1}
     )->single;
     if (defined $probe) {
         $probe->delete;
     }
+    $empire->clear_probed_stars;
+    return {status => $self->format_status($empire, $building->body)};
+}
+
+sub abandon_all_probes {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    $building->probes->delete;
     $empire->clear_probed_stars;
     return {status => $self->format_status($empire, $building->body)};
 }
@@ -55,7 +63,7 @@ sub get_probed_stars {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(get_probed_stars abandon_probe));
+__PACKAGE__->register_rpc_method_names(qw(get_probed_stars abandon_probe abandon_all_probes));
 
 
 no Moose;
