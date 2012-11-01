@@ -510,6 +510,7 @@ has home_field_advantage => (
 sub run_mission {
     my ($self, $mission) = @_;
 
+    $self->on_body->update;
     # can't run missions on your own planets
     if ($self->empire_id == $self->on_body->empire_id) {
         return { result => 'Failure',
@@ -620,6 +621,7 @@ sub run_mission {
         $defender->defense_mission_count( $defender->defense_mission_count + 1); 
         $defender->update;
     }
+    $self->on_body->update;
     return $out;
 }
 
@@ -1965,12 +1967,19 @@ sub thwart_rebel {
 sub destroy_infrastructure {
     my ($self, $defender) = @_;
 
-    my ($building) = sort {rand() <=> rand()} grep {$_->efficiency > 0} @{$self->on_body->building_cache};
-
+    my ($building) = sort {
+            rand() <=> rand()
+        }
+        grep {
+            ($_->efficiency > 0) and
+            ($_->class ne 'Lacuna::DB::Result::Building::PlanetaryCommand' and
+            ($_->class ne 'Lacuna::DB::Result::Building::Module::StationCommand' and
+            ($_->class ne 'Lacuna::DB::Result::Building::Module::Parliament' and
+            ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder')
+        }
+        @{$on_body->building_cache};
+# Future: Multi destruction (grab a few buildings)
     return $self->building_not_found->id unless defined $building;
-    return $self->building_not_found->id if ($building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' or
-                                             $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand' or
-                                             $building->class eq 'Lacuna::DB::Result::Building::Module::Parliament');
 
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
@@ -2509,32 +2518,39 @@ sub thwart_thief {
 
 sub shut_down_building {
     my ($self, $defender) = @_;
-    my @classnames = (
-        'Lacuna::DB::Result::Building::Archaeology',
-        'Lacuna::DB::Result::Building::Shipyard',
-        'Lacuna::DB::Result::Building::Park',
-        'Lacuna::DB::Result::Building::Waste::Recycling',
-        'Lacuna::DB::Result::Building::Development',
-        'Lacuna::DB::Result::Building::Intelligence',
-        'Lacuna::DB::Result::Building::Observatory',
-        'Lacuna::DB::Result::Building::SAW',
-        'Lacuna::DB::Result::Building::Trade',
-        'Lacuna::DB::Result::Building::Transporter',
-        'Lacuna::DB::Result::Building::Module::ArtMuseum',
-        'Lacuna::DB::Result::Building::Module::CulinaryInstitute',
-        'Lacuna::DB::Result::Building::Module::OperaHouse',
-        'Lacuna::DB::Result::Building::Module::IBS',
-        'Lacuna::DB::Result::Building::Module::Warehouse',
-    );
-    my $building_class = random_element(\@classnames);
-    my $building = $self->on_body->get_building_of_class($building_class);
+
+    my ($building) = sort {
+            rand() <=> rand()
+        }
+        grep {
+            ($_->efficiency > 0) and (
+              $_->class eq 'Lacuna::DB::Result::Building::Archaeology') or
+              $_->class eq 'Lacuna::DB::Result::Building::Shipyard' or
+              $_->class eq 'Lacuna::DB::Result::Building::Park') or
+              $_->class eq 'Lacuna::DB::Result::Building::Waste::Recycling' or
+              $_->class eq 'Lacuna::DB::Result::Building::Development' or
+              $_->class eq 'Lacuna::DB::Result::Building::Intelligence' or
+              $_->class eq 'Lacuna::DB::Result::Building::Observatory' or
+              $_->class eq 'Lacuna::DB::Result::Building::SAW' or
+              $_->class eq 'Lacuna::DB::Result::Building::Trade' or
+              $_->class eq 'Lacuna::DB::Result::Building::Transporter' or
+              $_->class eq 'Lacuna::DB::Result::Building::Module::ArtMuseum' or
+              $_->class eq 'Lacuna::DB::Result::Building::Module::CulinaryInstitute' or
+              $_->class eq 'Lacuna::DB::Result::Building::Module::OperaHouse' or
+              $_->class eq 'Lacuna::DB::Result::Building::Module::IBS' or
+              $_->class eq 'Lacuna::DB::Result::Building::Module::Warehouse' or
+              $_->class eq 'Lacuna::DB::Result::Building::DeployedBleeder')
+            }
+        }
+        @{$on_body->building_cache};
+
     return $self->building_not_found->id unless defined $building;
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'building_loss_of_power.txt',
         params      => [$building->name, $self->on_body->id, $self->on_body->name],
     );
-    $building->spend_efficiency($self->level)->update;
+    $building->spend_efficiency(2 * $self->level)->update;
     $self->on_body->add_news(25,
                              'Employees at the %s on %s were left in the dark today during a power outage.',
                              $building->name,
