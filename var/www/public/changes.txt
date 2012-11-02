@@ -1,3 +1,7 @@
+3.0873:
+ - Mod: Observatory can only abandon a probe it controls.
+ - Add: New Observatory abandon_all_probes API method.
+
 3.0872:
  - Fix: Spies need working infrastructure.
  - Fix: Tutorial doesn't restart if fissure blows up capitol.
@@ -6,8 +10,6 @@
  - Mod: Excavators and ships on chain duty are targets for spies.
  - Add: Seized Stars and various spy diciplines now in stats.
  - Fix: Fissures have work timers turned off on creation.
- - Mod: Observatory can only abandon a probe it controls.
- - Add: New Observatory abandon_all_probes API method.
 
 3.0871:
  - Fix: Gratches Gauntlet now takes into account efficiency
