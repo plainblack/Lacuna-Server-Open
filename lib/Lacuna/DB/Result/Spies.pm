@@ -1650,9 +1650,7 @@ sub steal_planet {
 sub uprising {
     my ($self, $defender) = @_;
     $self->seeds_planted( $self->seeds_planted + 1 );
-    my $loss = sprintf('%.0f', $self->on_body->happiness * ($self->level/100) );
-    $loss *= -1 if ($loss < 0);
-    $loss = 15000 unless ($loss > 15000);
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 15_000, 0, 2);
     $self->on_body->spend_happiness( $loss )->update;
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
@@ -3226,7 +3224,7 @@ sub happy_mod {
     my $numb = sprintf('%.0f', $bhappy * ($level/$mod)/100 );
     $numb *= -1 if ($numb < 0);
     $numb = $min unless ($numb > $min);
-    $numb = $max if ($numb > $max);
+    $numb = $max if ($max and $numb > $max);
     return $numb;
 }
 
