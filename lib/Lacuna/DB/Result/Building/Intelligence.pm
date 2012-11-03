@@ -88,6 +88,11 @@ sub get_spies {
     return Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ from_body_id => $self->body_id });
 }
 
+sub get_empire_spies {
+    my ($self) = @_;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ empire_id => $self->body->empire_id });
+}
+
 sub get_spy {
     my ($self, $spy_id) = @_;
     my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($spy_id);
