@@ -552,7 +552,7 @@ sub send_spies {
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
     foreach my $id (@{$spy_ids}) {
         my $spy = $spies->find($id);
-        if ($spy->is_available) {
+        if ($spy->is_available and $spy->on_body_id == $on_body_id) {
             if ($spy->empire_id == $empire->id) {
                 my $arrives = DateTime->now->add(seconds=>$ship->calculate_travel_time($to_body));
                 push @ids_sent, $spy->id;
@@ -566,13 +566,13 @@ sub send_spies {
             push @ids_not_sent, $spy->id;
         }
     }
-
-    # send it
-    $ship->send(
-        target      => $to_body,
-        payload     => {spies => \@ids_sent }, # add the spies to the payload when we send, otherwise they'll get added again
-    );
-
+    if (scalar @ids_sent) {
+        # send it
+        $ship->send(
+            target      => $to_body,
+            payload     => {spies => \@ids_sent }, # add the spies to the payload when we send, otherwise they'll get added again
+        );
+    }
     return {
         ship            => $ship->get_status,
         spies_sent      => \@ids_sent,

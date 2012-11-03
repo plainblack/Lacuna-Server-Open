@@ -88,6 +88,12 @@ sub get_status {
             x       => $self->on_body->x,
             y       => $self->on_body->y,
         },
+        based_from         => {
+            body_id => $self->from_body_id,
+            name    => $self->from_body->name,
+            x       => $self->from_body->x,
+            y       => $self->from_body->y,
+        },
         available_on        => $self->format_available_on,
         started_assignment  => $self->format_started_assignment,
         seconds_remaining   => $self->seconds_remaining_on_assignment,
