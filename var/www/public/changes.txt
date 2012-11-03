@@ -1,8 +1,10 @@
 3.0873:
  - Mod: Observatory can only abandon a probe it controls.
  - Add: New Observatory abandon_all_probes API method.
- - Add: view_all_spies and view_empire_spies API Methods.
+ - Add: view_all_spies and view_empire_spies API Methods added.
  - Add: spy status includes based_from data.
+ - Mod: Paging for spies increased to 30 per page.
+ - Fix: send_spies validates better.
 
 3.0872:
  - Fix: Spies need working infrastructure.
