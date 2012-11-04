@@ -5,6 +5,8 @@
  - Add: spy status includes based_from data.
  - Mod: Paging for spies increased to 30 per page.
  - Fix: send_spies validates better.
+ - Mod: Even less reporting on archeologists.
+ - Mod: Captcha not needed for sending spies to owned planets.
 
 3.0872:
  - Fix: Spies need working infrastructure.

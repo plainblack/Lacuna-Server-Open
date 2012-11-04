@@ -215,8 +215,10 @@ sub dig_it {
         message => "Found $amount of $type.",
         outcome => "Resource",
       };
-      $self->body->add_news(1,sprintf("%s uncovered a cache of %s on %s.",
+      if (randint(0,99) < 1) {
+        $self->body->add_news(1,sprintf("%s uncovered a cache of %s on %s.",
                           $empire_name, $type, $body->name));
+      }
     }
     when ("plan") {
       my ($lvl, $plus, $name) = $self->found_plan($level);
@@ -224,8 +226,10 @@ sub dig_it {
         message => "Found level $lvl + $plus $name Plan.",
         outcome => "Plan",
       };
-      $self->body->add_news(2,sprintf("%s uncovered a %s plan on %s.",
+      if (randint(0,99) < 1) {
+        $self->body->add_news(10,sprintf("%s uncovered a %s plan on %s.",
                           $empire_name, $name, $body->name));
+      }
     }
     when ("glyph") {
       my $glyph = $self->found_glyph($body);
@@ -233,8 +237,10 @@ sub dig_it {
         message => "Found a $glyph glyph.",
         outcome => "Glyph",
       };
-      $self->body->add_news(1,sprintf("%s uncovered a %s glyph on %s.",
+      if (randint(0,99) < 1) {
+        $self->body->add_news(1,sprintf("%s uncovered a %s glyph on %s.",
                           $empire_name, $glyph, $body->name));
+      }
     }
     when ("artifact") {
       my ($lvl, $plus, $name) = $self->found_artifact($body, $level);
