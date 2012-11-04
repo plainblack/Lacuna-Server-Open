@@ -465,7 +465,9 @@ sub prepare_send_spies {
         confess [ 1013, sprintf('%s is an isolationist empire, and must be left alone.',$to_body->empire->name)];
     }
 
-    $empire->current_session->check_captcha;
+    unless ($on_body->empire_id == $to_body->empire_id) {
+        $empire->current_session->check_captcha;
+    }
     
     my $max_berth = $on_body->max_berth;
     unless ($max_berth) {
@@ -516,7 +518,9 @@ sub send_spies {
         confess [ 1013, sprintf('%s is an isolationist empire, and must be left alone.',$to_body->empire->name)];
     }
 
-    $empire->current_session->check_captcha;
+    unless ($on_body->empire_id == $to_body->empire_id) {
+        $empire->current_session->check_captcha;
+    }
 
     # get the ship
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
