@@ -36,7 +36,7 @@ return $out;
 };
 
 sub find_target {
-  my ($self, $target_params) = @_;
+  my ($self, $empire, $target_params) = @_;
   unless (ref $target_params eq 'HASH') {
     confess [-32602,
              'The target parameter should be a hash reference. For example { "body_id" : 9999 }.'];
@@ -115,6 +115,36 @@ sub find_target {
       }
     }
   }
+  elsif (exists $target_params->{zone}) {
+      my @zones = Lacuna->db
+                  ->resultset('Map::Star')->search(
+                  undef,
+                  { distinct => 1 })->get_column('zone')->all;
+      unless ($target_params->{zone} ~~ @zones) {
+          confess [ 1002, 'Could not find '.$target_word.' target.'];
+      }
+      my @bodies = Lacuna->db->resultset('Map::Body')->search({
+          'me.zone'           => $target_params->{zone},
+          'me.empire_id'      => undef,
+          'stars.station_id'  => undef,
+          'me.class'          => { like => 'Lacuna::DB::Result::Map::Body::Planet::%' },
+          'me.orbit'          => { between => [$empire->min_orbit, $empire->max_orbit] },
+      },{
+          join                => 'stars',
+          rows                => 100,
+          order_by            => 'me.name',
+      });
+      $target = random_element(\@bodies);
+  }
+  elsif (exists $target_params->{star_name}) {
+      $target = Lacuna->db->
+                    resultset('Lacuna::DB::Result::Map::Star')->search(
+                        { name => $target_params->{star_name} }, {rows=>1})->single;
+  }
+  elsif (exists $target_params->{star_id}) {
+      $target = Lacuna->db->
+                    resultset('Lacuna::DB::Result::Map::Star')->find($target_params->{star_id});
+  }
   unless (defined $target) {
     confess [ 1002, 'Could not find '.$target_word.' target.'];
   }
@@ -126,18 +156,49 @@ sub get_actions_for {
   my $empire   = $self->get_empire_by_session($session_id);
   my $building = $self->get_building($empire, $building_id);
   my $body = $building->body;
-  my $target = $self->find_target($target_params);
+  my $target = $self->find_target($empire, $target_params);
   my @tasks = bhg_tasks($building);
   my @list;
   for my $task (@tasks) {
-    my $chance = task_chance($building, $target, $task);
-    $task->{body_id} = $chance->{body_id};
+    my $chance;
+    if (defined($target_params->{zone})) {
+      if ($task->{name} eq "Jump Zone") {
+        $chance = task_chance($building, $target, $task);
+        $task->{body_id} = 0;
+      }
+      else {
+        $chance->{throw}   = 1009;
+        $chance->{reason}  = $task->{reason};
+        $chance->{success} = 0;
+        $chance->{body_id} = 0;
+        $chance->{dist}    = 0;
+        $chance->{range}   = 0;
+      }
+    }
+    else {
+      if ($task->{name} eq "Jump Zone") {
+        $chance->{throw}   = 1009;
+        $chance->{reason}  = $task->{reason};
+        $chance->{success} = 0;
+        $chance->{body_id} = 0;
+        $chance->{dist}    = 0;
+        $chance->{range}   = 0;
+      }
+      else {
+        $chance = task_chance($building, $target, $task);
+      }
+    }
     $task->{dist}    = $chance->{dist};
     $task->{range}   = $chance->{range};
     $task->{reason}  = $chance->{reason};
     $task->{success} = $chance->{success};
     $task->{throw}   = $chance->{throw};
     $task->{essentia_cost} = $chance->{essentia_cost};
+    for my $mod ("waste_cost", "recovery", "side_chance") {
+      if (defined($chance->{$mod})) {
+        $task->{$mod} = $chance->{$mod};
+      }
+    }
   }
   return {
     status => $self->format_status($empire, $body),
@@ -149,7 +210,21 @@ sub task_chance {
   my ($building, $target, $task) = @_;
 
   my $dist; my $target_type; my $target_id;
-  if (ref $target eq 'HASH') {
+  if ($task->{name} eq "Jump Zone") {
+    my $szone = $building->body->zone;
+    my $tzone = $target->zone;
+    my ($sz_x, $sz_y) = $szone =~ m/(-?\d+)\|(-?\d+)/;
+    my ($tz_x, $tz_y) = $tzone =~ m/(-?\d+)\|(-?\d+)/;
+    $dist = sprintf "%0.2f", sqrt( ($sz_x - $tz_x)**2 + ($sz_y - $tz_y)**2);
+    $target_id = $target->id;
+    $target_type = 'zone';
+  }
+  elsif ($task->{name} eq "Move System") {
+    $dist = sprintf "%0.2f", $building->body->calculate_distance_to_target($target)/100;
+    $target_id = $target->id;
+    $target_type = 'star';
+  }
+  elsif (ref $target eq 'HASH') {
     my $bx = $building->body->x;
     my $by = $building->body->y;
     $dist = sprintf "%0.2f", sqrt( ($target->{x} - $bx)**2 + ($target->{y} - $by)**2);
@@ -161,7 +236,7 @@ sub task_chance {
     $target_id = $target->id;
     $target_type = $target->get_type;
   }
-  my $range = $building->level * 10;
+  my $range = $task->{range};
   my $return = {
     success   => 0,
     body_id   => $target_id,
@@ -183,12 +258,21 @@ sub task_chance {
   }
   unless ($dist < $range) {
     $return->{throw}  = 1009;
-    $return->{reason} = 'That body is too far away at '.$dist.
+    $return->{reason} = 'That target is too far away at '.$dist.
                         ' with a range of '.$range.'.';
     return $return;
   }
+#  $return->{success} = 95; #until we figure out rmod, etc...
   $return->{success} = (100 - $task->{base_fail}) - int( ($dist/$range) * (95-$task->{base_fail}));
   $return->{success} = 0 if $return->{success} < 1;
+
+  my $bhg_param = Lacuna->config->get('bhg_param');
+  if ($bhg_param) {
+    $return->{waste_cost}  = $bhg_param->{waste_cost}  if ($bhg_param->{waste_cost});
+    $return->{recovery}    = $bhg_param->{recovery}    if ($bhg_param->{recovery});
+    $return->{side_chance} = $bhg_param->{side_chance} if ($bhg_param->{side_chance});
+    $return->{success}     = $bhg_param->{success}     if ($bhg_param->{success});
+  }
 
   $return->{essentia_cost} = $return->{success} ? int(2000 / $return->{success})/10 : 0;
 
@@ -214,7 +298,7 @@ sub generate_singularity {
   my $subsidize = $args->{subsidize};
 
   my $body      = $building->body;
-  my $target    = $self->find_target($args->{target});
+  my $target    = $self->find_target($empire, $args->{target});
   my $effect    = {};
 
   my $return_stats = {};
@@ -230,15 +314,17 @@ sub generate_singularity {
     confess [1002, 'Could not find task: '.$task_name];
   }
   my $chance = task_chance($building, $target, $task);
+  if ($task->{name} eq "Move System") {
+    $chance->{throw} = 552;
+    $chance->{reason} = "Not ready yet";
+  }
   if ($chance->{throw} > 0) {
     confess [ $chance->{throw}, $chance->{reason} ];
   }
-  my $bhg_param = Lacuna->config->get('bhg_param');
-  if ($bhg_param) {
-    $task->{waste_cost}  = $bhg_param->{waste_cost}  if ($bhg_param->{waste_cost});
-    $task->{recovery}    = $bhg_param->{recovery}    if ($bhg_param->{recovery});
-    $task->{side_chance} = $bhg_param->{side_chance} if ($bhg_param->{side_chance});
-    $chance->{success}   = $bhg_param->{success}     if ($bhg_param->{success});
+  for my $mod ("waste_cost", "recovery", "side_chance") {
+    if (defined($chance->{$mod})) {
+        $task->{$mod} = $chance->{$mod};
+    }
   }
   if ($subsidize) {
     if ($empire->essentia < $chance->{essentia_cost}) {
@@ -247,10 +333,12 @@ sub generate_singularity {
     $chance->{success} = 100;
   }
   
+# Check Target Status
   my $btype;
   my $tempire;
   my $tstar;
   my $tid;
+# Handle Stars
   if (ref $target eq 'HASH') {
     $btype = $target->{type};
     $tstar = $target->{star};
@@ -415,6 +503,20 @@ sub generate_singularity {
       $return_stats = bhg_change_type($target, $args->{params});
       $body->add_news(50, sprintf('The geology of %s has been extensively altered by powers unknown', $target->name));
     }
+    elsif ($task->{name} eq "Jump Zone") {
+      $return_stats = bhg_swap($building, $target);
+      $return_stats->{message}  = "Jumped Zone",
+      my $tname;
+      if (ref $target eq 'HASH') {
+        $tname = $target->{name};
+      }
+      else {
+        $tname = $target->name;
+      }
+      $body->add_news(50,
+        sprintf('%s has switched places with %s!',
+                $body->name, $tname));
+    }
     elsif ($task->{name} eq "Swap Places") {
       $return_stats = bhg_swap($building, $target);
       my $tname;
@@ -427,6 +529,9 @@ sub generate_singularity {
       $body->add_news(50,
         sprintf('%s has switched places with %s!',
                 $body->name, $tname));
+    }
+    elsif ($task->{name} eq "Move System") {
+      confess [552, "Internal Error"];
     }
     else {
       confess [552, "Internal Error"];
@@ -468,7 +573,12 @@ sub generate_singularity {
   };
 }
 
+sub bhg_system_swap {
+  my ($body, $target) = @_;
+}
+
 sub bhg_swap {
+# Needs to make sure SS have influence range redone.
   my ($building, $target) = @_;
   my $body = $building->body;
   my $return;
@@ -790,7 +900,6 @@ sub bhg_self_destruct {
   $body->needs_recalc(1);
   $body->update;
   $building->update({class=>'Lacuna::DB::Result::Building::Permanent::Fissure'});
-  $building->finish_work->update;
   $return->{message} = "Black Hole Generator Destroyed";
   return $return;
 }
@@ -1113,6 +1222,10 @@ sub bhg_tasks {
   my ($building) = @_;
   my $day_sec = 60 * 60 * 24;
   my $blevel = $building->level == 0 ? 1 : $building->level;
+  my $map_size = Lacuna->config->get('map_size');
+  my $max_dist = sprintf "%0.2f", sqrt(($map_size->{x}[0] - $map_size->{x}[1])**2 +
+                                       ($map_size->{y}[0] - $map_size->{y}[1])**2);
+  my $zone_dist = int($max_dist/250 + 0.5);
   my @tasks = (
     {
       name         => 'Make Asteroid',
@@ -1120,6 +1233,8 @@ sub bhg_tasks {
       reason       => "You can only make an asteroid from a planet.",
       occupied     => 0,
       min_level    => 10,
+      range        => 15 * $building->level,
+      rmod         => 20,
       recovery     => int($day_sec * 90/$blevel),
       waste_cost   => 50_000_000,
       base_fail    => 40 - $building->level, # 10% - 40%
@@ -1131,6 +1246,8 @@ sub bhg_tasks {
       reason       => "You can only make a planet from an asteroid.",
       occupied     => 0,
       min_level    => 15,
+      range        => 10 * $building->level,
+      rmod         => 20,
       recovery     => int($day_sec * 90/$blevel),
       waste_cost   => 100_000_000,
       base_fail    => 40 - int(($building->level - 15) * (25/15)),
@@ -1142,6 +1259,8 @@ sub bhg_tasks {
       reason       => "You can only increase the sizes of habitable planets and asteroids.",
       occupied     => 1,
       min_level    => 20,
+      range        => 20 * $building->level,
+      rmod         => 20,
       recovery     => int($day_sec * 120/$blevel),
       waste_cost   => 1_000_000_000,
       base_fail    => 40 - int( ($building->level - 20) * 2), # 20% - 40%
@@ -1149,10 +1268,12 @@ sub bhg_tasks {
     },
     {
       name         => 'Change Type',
-      types        => ['habitable planet'],
-      reason       => "You can only change the type of habitable planets.",
+      types        => ['asteroid', 'habitable planet'],
+      reason       => "You can only change the type of habitable planets and asteroids.",
       occupied     => 1,
       min_level    => 25,
+      range        => 10 * $building->level,
+      rmod         => 20,
       recovery     => int($day_sec * 180/$blevel),
       waste_cost   => 10_000_000_000,
       base_fail    => int(65 - $building->level), # 35% - %40
@@ -1164,10 +1285,38 @@ sub bhg_tasks {
       reason       => "All targets.",
       occupied     => 1,
       min_level    => 30,
+      range        => 10 * $building->level,
+      rmod         => 20,
       recovery     => int($day_sec * 240/$blevel),
       waste_cost   => 15_000_000_000,
-      base_fail    => int(100 - $building->level * 2), # 40% fail
+      base_fail    => 40,
       side_chance  => 90,
+    },
+    {
+      name         => 'Jump Zone',
+      types        => ['zone'],
+      reason       => "Zones only.",
+      occupied     => 0,
+      min_level    => 15,
+      range        => int($building->level * $zone_dist/30),
+      rmod         => $zone_dist,
+      recovery     => int($day_sec * 600/$blevel),
+      waste_cost   => 5_000_000,
+      base_fail    => int(50 - $building->level), # 20% - %45
+      side_chance  => 95,
+    },
+    {
+      name         => 'Move System',
+      types        => ['star'],
+      reason       => "Target by Star.",
+      occupied     => 0,
+      min_level    => 30,
+      range        => 5 * $building->level,
+      rmod         => 20,
+      recovery     => int($day_sec * 1200/$blevel),
+      waste_cost   => 30_000_000_000,
+      base_fail    => 60,
+      side_chance  => 95,
     },
   );
   return @tasks;

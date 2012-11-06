@@ -957,6 +957,7 @@ sub found_colony {
     $self->add_energy(700);
     $self->add_water(700);
     $self->add_ore(700);
+    $self->happiness(0);
     $self->update;
 
     # newsworthy
