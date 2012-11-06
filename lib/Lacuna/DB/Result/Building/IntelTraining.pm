@@ -166,6 +166,7 @@ sub train_spy {
     unless (defined $time_to_train) {
         $time_to_train = $self->training_costs($spy_id)->{time};
     }
+    $spy->is_available;
     unless ($spy->task ~~ ['Counter Espionage','Idle']) {
         confess [1011, 'Spy must be idle to train.'];
     }
