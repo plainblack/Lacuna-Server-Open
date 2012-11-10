@@ -9,7 +9,7 @@
  - Mod: Captcha not needed for sending spies to your own planets.
  - Fix: Happiness initialized to zero on new colonies.
  - Add: BHG can now jump a body to a different zone.
- - Add: BHG can exchange an entire system of bodies with another system. (Not functional yet)
+ - Add: BHG can exchange an entire system of bodies with another system.
 
 3.0872:
  - Fix: Spies need working infrastructure.
