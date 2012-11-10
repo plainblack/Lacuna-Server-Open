@@ -679,14 +679,15 @@ sub target_orbit {
   my $x = $star->x;
   my $y = $star->y;
   my $offset = [
-    [ $x + 1, $y + 2 ],
-    [ $x + 2, $y + 1 ],
-    [ $x + 2, $y - 1 ],
-    [ $x + 1, $y - 2 ],
-    [ $x - 1, $y - 2 ],
-    [ $x - 2, $y - 1 ],
-    [ $x - 2, $y + 1 ],
-    [ $x - 1, $y + 2 ],
+    [ $x    , $y     ],  # Not an orbit.
+    [ $x + 1, $y + 2 ],  # 1
+    [ $x + 2, $y + 1 ],  # 2
+    [ $x + 2, $y - 1 ],  # 3
+    [ $x + 1, $y - 2 ],  # 4
+    [ $x - 1, $y - 2 ],  # 5
+    [ $x - 2, $y - 1 ],  # 6
+    [ $x - 2, $y + 1 ],  # 7
+    [ $x - 1, $y + 2 ],  # 8
   ];
   my $target = {
             id      => 0,
@@ -782,7 +783,11 @@ sub bhg_swap {
         $target->empire->send_predefined_message(
             tags        => ['Alert'],
             filename    => 'planet_moved.txt',
-            params      => [$target->x,
+            params      => [
+                            $target->x,
+                            $target->y,
+                            $target->name,
+                            $target->x,
                             $target->y,
                             $target->orbit,
                             $target->star->x,
@@ -809,6 +814,9 @@ sub bhg_swap {
         tags        => ['Alert'],
         filename    => 'planet_moved.txt',
         params      => [$body->x,
+                        $body->y,
+                        $body->name,
+                        $body->x,
                         $body->y,
                         $body->orbit,
                         $body->star->x,
