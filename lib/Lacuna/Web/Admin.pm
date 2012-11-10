@@ -164,9 +164,9 @@ sub www_search_bodies {
     }
     my $out = '<h1>Search Bodies</h1>';
     $out .= '<form method="post" action="/admin/search/bodies"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Zone</th><th>Star</th><th>Empire</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>O</th><th>Zone</th><th>Star</th><th>Empire</th></tr>';
     while (my $body = $bodies->next) {
-        $out .= sprintf('<tr><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/empire?id=%s">%s</a></td></tr>', $body->id, $body->id, $body->name, $body->x, $body->y, $body->zone, $body->star_id, $body->empire_id || '', $body->empire_id || '');
+        $out .= sprintf('<tr><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/empire?id=%s">%s</a></td></tr>', $body->id, $body->id, $body->name, $body->x, $body->y, $body->orbit, $body->zone, $body->star_id, $body->empire_id || '', $body->empire_id || '');
     }
     $out .= '</table>';
     $out .= $self->format_paginator('search/bodies', 'name', $name, $page_number);
