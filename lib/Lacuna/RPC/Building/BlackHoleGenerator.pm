@@ -217,12 +217,22 @@ sub task_chance {
     my ($tz_x, $tz_y) = $tzone =~ m/(-?\d+)\|(-?\d+)/;
     $dist = sprintf "%0.2f", sqrt( ($sz_x - $tz_x)**2 + ($sz_y - $tz_y)**2);
     $target_id = $target->id;
-    $target_type = 'zone';
+    if ($target->isa('Lacuna::DB::Result::Map::Star')) {
+      $target_type = 'star';
+    }
+    else {
+      $target_type = 'zone';
+    }
   }
   elsif ($task->{name} eq "Move System") {
     $dist = sprintf "%0.2f", $building->body->calculate_distance_to_target($target)/100;
     $target_id = $target->id;
-    $target_type = 'star';
+    if ($target->isa('Lacuna::DB::Result::Map::Star')) {
+      $target_type = 'star';
+    }
+    else {
+      $target_type = $target->get_type;
+    }
   }
   elsif (ref $target eq 'HASH') {
     my $bx = $building->body->x;
@@ -234,7 +244,12 @@ sub task_chance {
   else {
     $dist = sprintf "%0.2f", $building->body->calculate_distance_to_target($target)/100;
     $target_id = $target->id;
-    $target_type = $target->get_type;
+    if ($target->isa('Lacuna::DB::Result::Map::Star')) {
+      $target_type = 'star';
+    }
+    else {
+      $target_type = $target->get_type;
+    }
   }
   my $range = $task->{range};
   my $return = {
@@ -314,10 +329,6 @@ sub generate_singularity {
     confess [1002, 'Could not find task: '.$task_name];
   }
   my $chance = task_chance($building, $target, $task);
-  if ($task->{name} eq "Move System") {
-    $chance->{throw} = 552;
-    $chance->{reason} = "Not ready yet";
-  }
   if ($chance->{throw} > 0) {
     confess [ $chance->{throw}, $chance->{reason} ];
   }
@@ -345,12 +356,18 @@ sub generate_singularity {
     $tid   = $target->{id};
   }
   else {
-    $btype = $target->get_type;
-    $tstar   = $target->star;
-    $tid   = $target->id;
-    if (defined($target->empire)) {
-      $tempire = $target->empire;
+    if ($target->isa('Lacuna::DB::Result::Map::Star')) {
+      $btype = 'star';
+      $tstar   = $target;
     }
+    else {
+      $btype = $target->get_type;
+      $tstar   = $target->star;
+      if (defined($target->empire)) {
+        $tempire = $target->empire;
+      }
+    }
+    $tid   = $target->id;
   }
   unless ($body->waste_stored >= $task->{waste_cost}) {
     confess [1011, 'You need at least '.$task->{waste_cost}.' waste to run that function of the Black Hole Generator.'];
@@ -419,7 +436,7 @@ sub generate_singularity {
           }
           else {
             $confess = 'Only '.$tstar->station->alliance->name.
-              ' members can colonize planets in the jurisdiction of the space station.';
+              ' members can colonize planets in the jurisdiction of that space station.';
           }
         }
         else {
@@ -433,6 +450,18 @@ sub generate_singularity {
     unless ($allowed) {
       confess [ 1010, $confess ];
     }
+  }
+  elsif ( $task->{name} eq 'Move System' ) {
+    unless ($target->isa('Lacuna::DB::Result::Map::Star')) {
+      confess [1009, "You can not attempt that action on non-stars!\n"];
+    }
+    if ($target->station_id) {
+      unless ($body->empire->alliance_id && $target->station->alliance_id == $body->empire->alliance_id) {
+        confess [1009, 'That star system is claimed by '.$tstar->station->alliance->name.'.\n'];
+      }
+    }
+# Let's check all planets in our system and target system
+    qualify_moving_sys($building, $target);
   }
 
   $body->spend_waste($task->{waste_cost})->update;
@@ -504,7 +533,7 @@ sub generate_singularity {
       $body->add_news(50, sprintf('The geology of %s has been extensively altered by powers unknown', $target->name));
     }
     elsif ($task->{name} eq "Jump Zone") {
-      $return_stats = bhg_swap($building, $target);
+      $return_stats = bhg_swap($building->body, $target);
       $return_stats->{message}  = "Jumped Zone",
       my $tname;
       if (ref $target eq 'HASH') {
@@ -518,7 +547,7 @@ sub generate_singularity {
                 $body->name, $tname));
     }
     elsif ($task->{name} eq "Swap Places") {
-      $return_stats = bhg_swap($building, $target);
+      $return_stats = bhg_swap($building->body, $target);
       my $tname;
       if (ref $target eq 'HASH') {
         $tname = $target->{name};
@@ -531,7 +560,10 @@ sub generate_singularity {
                 $body->name, $tname));
     }
     elsif ($task->{name} eq "Move System") {
-      confess [552, "Internal Error"];
+      $return_stats = bhg_move_system($building, $target);
+      $body->add_news(50,
+        sprintf('Astromers are perplexed about the change of the orbiting bodies around %s.',
+                $target->name));
     }
     else {
       confess [552, "Internal Error"];
@@ -556,6 +588,7 @@ sub generate_singularity {
       elsif ($side_type < 95) {
         $return_stats = bhg_random_decor($building);
       }
+# More side effects (Create some fissures for instance...)
       else {
         $return_stats = bhg_size($building, $body, 0);
       }
@@ -573,14 +606,115 @@ sub generate_singularity {
   };
 }
 
-sub bhg_system_swap {
-  my ($body, $target) = @_;
+sub qualify_moving_sys {
+  my ($building, $target_star) = @_;
+  my $current_body = $building->body;
+  my $current_star = $current_body->star;
+  my $current_empire = $current_body->empire;
+  my $ceid = $current_empire->id;
+  my $caid = $current_empire->alliance_id;
+
+  my $bodies = Lacuna->db->resultset('Map::Body')->search({star_id => [ $current_star->id, $target_star->id]});
+  
+  while (my $body = $bodies->next) {
+    if (defined($body->empire)) {
+      my $body_empire = $body->empire;
+      unless ($body_empire->id == $ceid) {
+        unless ((defined($caid) and defined($body_empire->alliance_id)) and
+            ($caid == $body_empire->alliance_id)) {
+          confess [1009, 'You can only move your own alliance member bodies.'];
+        }
+      }
+    }
+  }
+  return 1;
+}
+
+sub bhg_move_system {
+  my ($building, $target_star) = @_;
+  my $current_body = $building->body;
+  my $current_star = $current_body->star;
+
+  my $current_bodies = make_orbit_array($current_star);
+  my $target_bodies  = make_orbit_array($target_star);
+
+  my $return_stats = {};
+  my @orbiting;
+  for my $orbit (1..8) {
+    my $return;
+    if ($current_bodies->[$orbit] and $target_bodies->[$orbit]) {
+      $return = bhg_swap($current_bodies->[$orbit], $target_bodies->[$orbit]);
+    }
+    elsif ($current_bodies->[$orbit] and !($target_bodies->[$orbit])) {
+      my $targeted = target_orbit($target_star, $orbit);
+      $return = bhg_swap($current_bodies->[$orbit], $targeted);
+    }
+    elsif (!($current_bodies->[$orbit]) and $target_bodies->[$orbit]) {
+      my $targeted = target_orbit($current_star, $orbit);
+      $return = bhg_swap($target_bodies->[$orbit], $targeted);
+    }
+    else {
+      $return = {
+        id       => 0,
+        message  => "Swapped Places",
+        name     => "Empty Orbit",
+        orbit    => $orbit,
+      };
+    }
+    push @orbiting, $return;
+  }
+  return {
+    id       => $target_star->id,
+    message  => "Moved System",
+    name     => $target_star->name,
+    orbits   => \@orbiting,
+    swapname => $current_star->name,
+    swapid   => $current_star->id,
+  };
+}
+
+sub target_orbit {
+  my ($star, $orbit) = @_;
+
+  my $x = $star->x;
+  my $y = $star->y;
+  my $offset = [
+    [ $x + 1, $y + 2 ],
+    [ $x + 2, $y + 1 ],
+    [ $x + 2, $y - 1 ],
+    [ $x + 1, $y - 2 ],
+    [ $x - 1, $y - 2 ],
+    [ $x - 2, $y - 1 ],
+    [ $x - 2, $y + 1 ],
+    [ $x - 1, $y + 2 ],
+  ];
+  my $target = {
+            id      => 0,
+            name    => "Empty Space",
+            orbit   => $orbit,
+            type    => 'empty',
+            x       => $offset->[$orbit]->[0],
+            y       => $offset->[$orbit]->[1],
+            zone    => $star->zone,
+            star    => $star,
+            star_id => $star->id,
+  };
+  return $target;
+}
+
+sub make_orbit_array {
+  my ($star) = @_;
+  my $bodies = Lacuna->db->resultset('Map::Body')->search({star_id => $star->id});
+  my @orbits;
+  while (my $body = $bodies->next) {
+    $orbits[$body->orbit] = $body;
+  }
+  return \@orbits;
 }
 
 sub bhg_swap {
 # Needs to make sure SS have influence range redone.
-  my ($building, $target) = @_;
-  my $body = $building->body;
+  my ($body, $target) = @_;
   my $return;
   my $old_data = {
     x        => $body->x,
@@ -644,18 +778,45 @@ sub bhg_swap {
           }
           $target->recalc_chains; # Recalc all chains
       }
+      if (defined($target->empire)) {
+        $target->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'planet_moved.txt',
+            params      => [$target->x,
+                            $target->y,
+                            $target->orbit,
+                            $target->star->x,
+                            $target->star->y,
+                            $target->star->name,
+                           ],
+        );
+      }
   }
-
-  my $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
-                      ->search({ planet_id => $body->id });
-  if ($waste_chain->count > 0) {
-    while (my $chain = $waste_chain->next) {
-      $chain->update({
-        star_id => $new_data->{star_id}
-      });
+  if ($body->get_type ne 'asteroid') {
+    my $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')
+                        ->search({ planet_id => $body->id });
+    if ($waste_chain->count > 0) {
+      while (my $chain = $waste_chain->next) {
+        $chain->update({
+          star_id => $new_data->{star_id}
+        });
+      }
     }
+    $body->recalc_chains; # Recalc all chains
   }
-  $body->recalc_chains; # Recalc all chains
+  if (defined($body->empire)) {
+    $body->empire->send_predefined_message(
+        tags        => ['Alert'],
+        filename    => 'planet_moved.txt',
+        params      => [$body->x,
+                        $body->y,
+                        $body->orbit,
+                        $body->star->x,
+                        $body->star->y,
+                        $body->star->name,
+                       ],
+    );
+  }
 
   return {
     id       => $body->id,
@@ -1282,7 +1443,7 @@ sub bhg_tasks {
     {
       name         => 'Swap Places',
       types        => ['asteroid', 'habitable planet', 'gas giant', 'space station', 'empty'],
-      reason       => "All targets.",
+      reason       => "Bodies and empty orbits as targets.",
       occupied     => 1,
       min_level    => 30,
       range        => 10 * $building->level,
