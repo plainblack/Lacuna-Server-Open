@@ -1,6 +1,6 @@
 We have moved!
 ~~~
-A blackhole generator must have moved us to %s/%s in orbit %s around {Starmap %s %s %s}.
+A blackhole generator must have moved {Starmap %s %s %s} to %s/%s in orbit %s around {Starmap %s %s %s}.
 
 
 Regards,
