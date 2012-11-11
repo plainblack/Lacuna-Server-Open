@@ -1,6 +1,6 @@
 package Lacuna::RPC::Building::BlackHoleGenerator;
 # Upcoming enhancements
-# Email empires of planets modified.
+# Play balance mods for hopping planets.
 
 use Moose;
 use utf8;
@@ -573,7 +573,10 @@ sub generate_singularity {
     my $side = randint(0,99);
     if ($task->{side_chance} > $side) {
       my $side_type = randint(0,99);
-      if ($side_type < 25) {
+      if ($side_type < 5) {
+        $return_stats = bhg_random_fissure($building);
+      }
+      elsif ($side_type < 25) {
         $return_stats = bhg_random_size($building);
       }
       elsif ($side_type < 40) {
@@ -1004,6 +1007,44 @@ sub bhg_random_resource {
       id      => $target->id,
       name    => $target->name,
     };
+  }
+  return $return;
+}
+
+sub bhg_random_fissure {
+  my ($building) = @_;
+  my $body = $building->body;
+  my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
+                  { zone => $body->zone, empire_id => undef },
+                  {rows => 1, order_by => 'rand()' }
+                )->single;
+  my $btype = $target->get_type;
+  my $return = {
+                 id        => $target->id,
+                 name      => $target->name,
+                 type    => $btype,
+  };
+  if ($btype eq 'habitable planet') {
+    my ($x, $y) = eval { $body->find_free_space};
+    unless ($@) {
+        my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+            x            => $x,
+            y            => $y,
+            level        => randint(1, 30),
+            body_id      => $target->id,
+            body         => $target,
+            class        => 
+        });
+        $body->build_building($building, undef, 1);
+        $body->add_news(50, sprintf('Astromers detect a gravitational anomoly on %s.', $target->name));
+        $return->{message} = "Fissure formed";
+    }
+    else {
+        $return->{message} = "No warp";
+    }
+  }
+  else {
+    $return->{message} = "No warp";
   }
   return $return;
 }

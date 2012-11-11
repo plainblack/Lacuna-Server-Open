@@ -1419,8 +1419,20 @@ sub tick_to {
     my $seconds  = $now->epoch - $self->last_tick->epoch;
     my $tick_rate = $seconds / 3600;
     $self->last_tick($now);
+    if ($self->happiness < 0) {
+        $self->needs_recalc if ($self->happiness_hour < -20_000);
+        if ($self->depressed) {
+# Nothing for now...
+        }
+        else {
+            $self->depressed(1);
+            $self->depression($now);
+        }
+    }
+    else {
+        $self->depressed(0);
+    }
     # Check to see if downward spiral still happening in happiness from negative plots.
-    $self->needs_recalc(1) if ($self->happiness < 0 and $self->happiness_hour < -20_000);
     if ($self->needs_recalc) {
         $self->recalc_stats;    
     }
