@@ -43,6 +43,7 @@ __PACKAGE__->add_columns(
     politics_xp             => { data_type => 'int', default_value => 0 },
     theft_xp                => { data_type => 'int', default_value => 0 },
     level                   => { data_type => 'tinyint', default_value => 0 },
+    next_task               => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'Idle' },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
