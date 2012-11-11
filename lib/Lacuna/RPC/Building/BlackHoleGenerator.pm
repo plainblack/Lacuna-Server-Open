@@ -1015,7 +1015,10 @@ sub bhg_random_fissure {
   my ($building) = @_;
   my $body = $building->body;
   my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
-                  { zone => $body->zone, empire_id => undef },
+                  { zone      => $body->zone,
+                    empire_id => undef,
+                    class      => { like => 'Lacuna::DB::Result::Map::Body::Planet::P%' },
+                  },
                   {rows => 1, order_by => 'rand()' }
                 )->single;
   my $btype = $target->get_type;
@@ -1025,7 +1028,7 @@ sub bhg_random_fissure {
                  type    => $btype,
   };
   if ($btype eq 'habitable planet') {
-    my ($x, $y) = eval { $body->find_free_space};
+    my ($x, $y) = eval { $target->find_free_space};
     unless ($@) {
         my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
             x            => $x,
@@ -1033,9 +1036,9 @@ sub bhg_random_fissure {
             level        => randint(1, 30),
             body_id      => $target->id,
             body         => $target,
-            class        => 
+            class        => 'Lacuna::DB::Result::Building::Permanent::Fissure',
         });
-        $body->build_building($building, undef, 1);
+        $target->build_building($building, undef, 1);
         $body->add_news(50, sprintf('Astromers detect a gravitational anomoly on %s.', $target->name));
         $return->{message} = "Fissure formed";
     }
