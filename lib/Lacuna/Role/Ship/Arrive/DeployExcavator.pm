@@ -24,10 +24,10 @@ after handle_arrival_procedures => sub {
   if ($can && !$reason) {
     $archaeology->add_excavator($foreign_body)->update;
     $empire->send_predefined_message(
-      tags        => ['Alert'],
+      tags        => ['Excavator','Alert'],
       filename    => 'excavator_deployed.txt',
       params      => [$body->id, $body->name, $foreign_body->x, $foreign_body->y, $foreign_body->name, $self->name],
-    );
+    ) unless ( $empire->skip_excavator_replace_msg );
     $self->delete;
 #        my $type = ref $foreign_body;
 #        $type =~ s/^.*::(\w\d+)$/$1/;
@@ -38,7 +38,7 @@ after handle_arrival_procedures => sub {
   else {
     my $message = (ref $reason eq 'ARRAY') ? $reason->[1] : 'We have encountered a glitch.';
     $empire->send_predefined_message(
-      tags        => ['Alert'],
+      tags        => ['Excavator','Alert'],
       filename    => 'cannot_deploy_excavator.txt',
       params      => [$message, $foreign_body->x, $foreign_body->y, $foreign_body->name, $body->id, $body->name, $self->name],
     );
