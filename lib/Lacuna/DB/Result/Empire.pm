@@ -483,7 +483,7 @@ sub found {
   # found home planet
   $home_planet ||= $self->find_home_planet;
   my $current_tutorial_stage = $self->tutorial_stage;
-  unless ($current_tutorial_stage) {
+  if ($current_tutorial_stage eq 'explore_the_ui') {
     $self->tutorial_scratch($home_planet->name);
   }
   $self->home_planet_id($home_planet->id);
@@ -526,7 +526,7 @@ sub found {
   $home_planet->found_colony($self);
 
   # send welcome
-  unless ($current_tutorial_stage) {
+  if ($current_tutorial_stage eq 'explore_the_ui') {
     return Lacuna::Tutorial->new(empire=>$self)->start('explore_the_ui');
   }
   return 1;
