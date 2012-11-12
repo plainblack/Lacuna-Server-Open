@@ -126,8 +126,8 @@ __PACKAGE__->add_columns(
     plots_available                 => { data_type => 'tinyint', default_value => 0 },    
     surface_version                 => { data_type => 'tinyint', default_value => 0 },
     max_berth                       => { data_type => 'tinyint', default_value => 1 },
-    depression                      => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    depressed                       => { data_type => 'tinyint', default_value => 0 },
+    unhappy_date                    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    unhappy                         => { data_type => 'tinyint', default_value => 0 },
 );
 
 after 'sqlt_deploy_hook' => sub {
