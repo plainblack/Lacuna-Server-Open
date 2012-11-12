@@ -110,11 +110,13 @@ for my $body_id (sort keys %has_fissures) {
                 my $now = DateTime->now;
 
                 out("    Converted building ".$building->class." into a level $fissure_level Fissure!");
-                $body->empire->send_predefined_message(
-                    tags        => ['Alert'],
-                    filename    => 'fissure_replaced_energy.txt',
-                    params      => [$body->name, $building->x,$building->y, $fissure_level],
-                );
+                if ($body->empire_id) {
+                    $body->empire->send_predefined_message(
+                        tags        => ['Alert'],
+                        filename    => 'fissure_replaced_energy.txt',
+                        params      => [$body->name, $building->x,$building->y, $fissure_level],
+                    );
+                }
                 $building->update({
                     level           => $fissure_level,
                     class           => 'Lacuna::DB::Result::Building::Permanent::Fissure',
