@@ -1421,16 +1421,16 @@ sub tick_to {
     $self->last_tick($now);
     if ($self->happiness < 0) {
         $self->needs_recalc if ($self->happiness_hour < -20_000);
-        if ($self->depressed) {
+        if ($self->unhappy) {
 # Nothing for now...
         }
         else {
-            $self->depressed(1);
-            $self->depression($now);
+            $self->unhappy(1);
+            $self->unhappy_date($now);
         }
     }
     else {
-        $self->depressed(0);
+        $self->unhappy(0);
     }
     # Check to see if downward spiral still happening in happiness from negative plots.
     if ($self->needs_recalc) {
