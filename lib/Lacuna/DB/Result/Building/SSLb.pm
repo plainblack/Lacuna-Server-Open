@@ -10,7 +10,7 @@ around 'build_tags' => sub {
     return ($orig->($class), qw(Construction Ships));
 };
 
-use constant building_prereq => {'Lacuna::DB::Result::Building::SSLa'=>1};
+use constant building_prereq => {'Lacuna::DB::Result::Building::SSLa'=>0};
 use constant max_instances_per_planet => 1;
 
 use constant controller_class => 'Lacuna::RPC::Building::SSLb';
