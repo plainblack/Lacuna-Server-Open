@@ -278,6 +278,7 @@ sub dig_it {
                         'It\'s full of stars.',
                         'Looks like I picked the wrong week to stop drinking coffee.',
                         'Klaatu Barada Ni*cough*',
+                        'No, Mr. Excav, I expect you to die.',
                         'Oh no, not again.',
                         'Oops? What oops? No oops!',
                         'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagl fhtagn.',

@@ -39,7 +39,7 @@ for my $body_id (sort keys %has_fissures) {
     # The level of the second Fissure is the same level as the BHG (if there is one) otherwise it is level 1
     #
     for my $fissure (@fissures) {
-        out("Fissure at ".$fissure->x.",".$fissure->y." co-ordinates");
+        out("Level ".$fissure->level." fissure at ".$fissure->x.",".$fissure->y." co-ordinates");
         my $damage = randint(2,6);
         if ($fissure->efficiency > 0) {
             $fissure->efficiency($fissure->efficiency - $damage);

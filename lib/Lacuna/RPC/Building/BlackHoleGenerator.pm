@@ -404,7 +404,7 @@ sub generate_singularity {
     unless ( ($body->empire->id == $tempire->id) or
              ( $body->empire->alliance_id &&
                ($body->empire->alliance_id == $tempire->alliance_id))) {
-      confess [1009, "You can not change type of a body if it is occupied by another alliance!\n"];
+      confess [1009, "You can not change type of a body if it is occupied by another alliance!"];
     }
   }
   elsif ( $task->{name} eq "Swap Places" ) {
@@ -453,11 +453,11 @@ sub generate_singularity {
   }
   elsif ( $task->{name} eq 'Move System' ) {
     unless ($target->isa('Lacuna::DB::Result::Map::Star')) {
-      confess [1009, "You can not attempt that action on non-stars!\n"];
+      confess [1009, "You can not attempt that action on non-stars!"];
     }
     if ($target->station_id) {
       unless ($body->empire->alliance_id && $target->station->alliance_id == $body->empire->alliance_id) {
-        confess [1009, 'That star system is claimed by '.$tstar->station->alliance->name.'.\n'];
+        confess [1009, 'That star system is claimed by '.$tstar->station->alliance->name.'.'];
       }
     }
 # Let's check all planets in our system and target system
