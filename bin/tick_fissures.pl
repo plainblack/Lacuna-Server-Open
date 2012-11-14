@@ -76,7 +76,7 @@ for my $body_id (sort keys %has_fissures) {
     }
 
     # get number of Fissures at 0% efficiency and maximum level
-    my $max_fissures = grep { $_->efficiency == 0 and $_->level == 30 } @fissures;
+    my $max_fissures = grep { $_->efficiency == 0 and $_->level >= 30 } @fissures;
     if (($max_fissures == @fissures) or (scalar @fissures == 3)) {
         if (scalar @fissures == 1) {
             out("    adding a second fissure!!!");
@@ -190,14 +190,14 @@ for my $body_id (sort keys %has_fissures) {
                     else {
                         # No more colonies, found a new empire on a remote planet
                         #
-                        my @zones = $db->resultset('Map::Star')->search(
-                            undef,
-                            { distinct => 1 })->get_column('zone')->all;
-                        @zones = grep {@_ !~ m/0/} @zones;
-                        my $zone = random_element(@zones);
+#                        my @zones = $db->resultset('Map::Star')->search(
+#                            undef,
+#                            { distinct => 1 })->get_column('zone')->all;
+#                        @zones = grep {@_ !~ m/0/} @zones;
+#                        my $zone = random_element(@zones);
 
                         my @bodies = $db->resultset('Map::Body')->search({
-                            'me.zone'           => $zone,
+#                            'me.zone'           => $zone,
                             'me.empire_id'      => undef,
                             'stars.station_id'   => undef,
                             'me.class'          => { like => 'Lacuna::DB::Result::Map::Body::Planet::P%' },
@@ -207,14 +207,16 @@ for my $body_id (sort keys %has_fissures) {
                             rows                => 100,
                             order_by            => 'me.name',
                         });
-                        my $new_capitol = random_element(@bodies);
+# Need error checking for no suitable body found.
+                        my $new_capitol = random_element(\@bodies);
                         $empire->found($new_capitol);
+                        out($new_capitol->name.' new cap');
 
                         # Send an email with the new planet
                         $empire->send_predefined_message(
                             tags        => ['Colonization','Alert'],
                             filename    => 'fissure_capitol_moved.txt',
-                            params      => [$body->name],
+                            params      => [$new_capitol->name],
                         );
                     }
                 }
