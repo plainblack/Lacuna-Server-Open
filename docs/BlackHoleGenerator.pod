@@ -26,7 +26,27 @@ This method is extended to include the list of tasks.
           "waste_cost" : 50000000
           "reason" : "You can only make an asteroid from a planet."
        },...
-    ]
+    ],
+    "task_options" : {
+        "asteroid_types" : [
+            1,
+            2,
+            ...
+            26
+        ],
+        "planet_types" : [
+            1,
+            2,
+            ...
+            40
+        ],
+        "zones" : [
+            "-5|-5",
+            "-5|-4",
+            ...
+            "5|5"
+        ]
+    }
  }
 
 
@@ -204,6 +224,9 @@ Options are as described for generate_singularity
 
 B<cost> is the amount in Essentia which will make the task 'perfect' (i.e. 100% success) the lower
 the probability of success, the higher the cost. The minimum is 2E.
+
+If B<name> is B<Change Type>, a B<body_type> parameter is provided which will be either
+B<asteroid> or B<habitable planet>.
 
 If the chance of success is zero, then no amount of Essentia will make it succeed.
 

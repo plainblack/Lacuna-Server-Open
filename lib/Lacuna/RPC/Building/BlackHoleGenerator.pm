@@ -32,6 +32,14 @@ around 'view' => sub {
   else {
     $out->{tasks} = \@tasks;
   }
+  my @zones = Lacuna->db->resultset('Map::Star')->search(
+    undef,
+    { distinct => 1 })->get_column('zone')->all;
+  $out->{task_options} = {
+    asteroid_types => [ 1 .. Lacuna::DB::Result::Map::Body->asteroid_types ],
+    planet_types   => [ 1 .. Lacuna::DB::Result::Map::Body->planet_types ],
+    zones          => [ sort @zones ],
+  }
 return $out;
 };
 
@@ -195,6 +203,9 @@ sub get_actions_for {
         $task->{$mod} = $chance->{$mod};
       }
     }
+    if ( 'Change Type' eq $task->{name} && $task->{success} > 0 ) {
+        $task->{body_type} = $target->type;
+    }
   }
   return {
     status => $self->format_status($empire, $body),
@@ -286,9 +297,9 @@ sub generate_singularity {
   my $task_name = $args->{task_name};
   my $subsidize = $args->{subsidize};
 
-  my $body      = $building->body;
-  my $target    = $self->find_target($empire, $args->{target});
-  my $effect    = {};
+  my $body                   = $building->body;
+  my ($target, $target_type) = $self->find_target($empire, $args->{target});
+  my $effect                 = {};
 
   my $return_stats = {};
   if ($building->is_working) {
@@ -302,7 +313,7 @@ sub generate_singularity {
   unless ($task) {
     confess [1002, 'Could not find task: '.$task_name];
   }
-  my $chance = task_chance($building, $target, $task);
+  my $chance = task_chance($building, $target, $target_type, $task);
   if ($chance->{throw} > 0) {
     confess [ $chance->{throw}, $chance->{reason} ];
   }
