@@ -32,6 +32,14 @@ around 'view' => sub {
   else {
     $out->{tasks} = \@tasks;
   }
+  my @zones = Lacuna->db->resultset('Map::Star')->search(
+    undef,
+    { distinct => 1 })->get_column('zone')->all;
+  $out->{task_options} = {
+    asteroid_types => [ 1 .. Lacuna::DB::Result::Map::Body->asteroid_types ],
+    planet_types   => [ 1 .. Lacuna::DB::Result::Map::Body->planet_types ],
+    zones          => [ sort @zones ],
+  }
 return $out;
 };
 

@@ -26,7 +26,27 @@ This method is extended to include the list of tasks.
           "waste_cost" : 50000000
           "reason" : "You can only make an asteroid from a planet."
        },...
-    ]
+    ],
+    "task_options" : {
+        "asteroid_types" : [
+            1,
+            2,
+            ...
+            26
+        ],
+        "planet_types" : [
+            1,
+            2,
+            ...
+            40
+        ],
+        "zones" : [
+            "-5|-5",
+            "-5|-4",
+            ...
+            "5|5"
+        ]
+    }
  }
 
 
