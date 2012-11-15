@@ -50,6 +50,7 @@ sub sacrifice_to_upgrade {
         confess [1009, 'The Halls of Vrbansk do not have the knowledge necessary to upgrade the '.$upgrade->name];
     }
     my $body = $building->body;
+    $body->has_room_in_build_queue;
     $upgrade->body($body);
     $upgrade->start_upgrade;
     # get the number of built halls
