@@ -42,6 +42,7 @@ sub find_target {
              'The target parameter should be a hash reference. For example { "body_id" : 9999 }.'];
   }
   my $target;
+  my $target_type;
   my $target_word = join(":", keys %$target_params);
   if ($target_word eq '') {
     confess [ -32602,
@@ -52,18 +53,33 @@ sub find_target {
     $target = Lacuna->db
                 ->resultset('Lacuna::DB::Result::Map::Body')
                 ->find($target_params->{body_id});
+    if (defined $target) {
+      $target_type = $target->get_type;
+    }
   }
   elsif (exists $target_params->{body_name}) {
     $target_word = $target_params->{body_name};
     $target = Lacuna->db
                 ->resultset('Lacuna::DB::Result::Map::Body')
                 ->search({ name => $target_params->{body_name} }, {rows=>1})->single;
+    if (defined $target) {
+      $target_type = $target->get_type;
+    }
   }
   elsif (exists $target_params->{x}) {
     $target_word = $target_params->{x}.":".$target_params->{y};
     $target = Lacuna->db
                 ->resultset('Lacuna::DB::Result::Map::Body')
                 ->search({ x => $target_params->{x}, y => $target_params->{y} }, {rows=>1})->single;
+    unless (defined $target) {
+      $target = Lacuna->db
+                ->resultset('Lacuna::DB::Result::Map::Star')
+                ->search({ x => $target_params->{x}, y => $target_params->{y} }, {rows=>1})->single;
+      $target_type = "star" if (defined $target);
+    }
+    else {
+      $target_type = $target->get_type;
+    }
 #Check for empty orbits.
     unless (defined $target) {
       my $star = Lacuna->db
@@ -111,6 +127,7 @@ sub find_target {
             star    => $star,
             star_id => $star->id,
           };
+          $target_type = "empty";
         }
       }
     }
@@ -135,20 +152,25 @@ sub find_target {
           order_by            => 'me.name',
       });
       $target = random_element(\@bodies);
+      if (defined $target) {
+        $target_type = "zone";
+      }
   }
   elsif (exists $target_params->{star_name}) {
       $target = Lacuna->db->
                     resultset('Lacuna::DB::Result::Map::Star')->search(
                         { name => $target_params->{star_name} }, {rows=>1})->single;
+      $target_type = "star";
   }
   elsif (exists $target_params->{star_id}) {
       $target = Lacuna->db->
                     resultset('Lacuna::DB::Result::Map::Star')->find($target_params->{star_id});
+      $target_type = "star";
   }
   unless (defined $target) {
     confess [ 1002, 'Could not find '.$target_word.' target.'];
   }
-return $target;
+return $target, $target_type;
 }
 
 sub get_actions_for {
@@ -156,38 +178,12 @@ sub get_actions_for {
   my $empire   = $self->get_empire_by_session($session_id);
   my $building = $self->get_building($empire, $building_id);
   my $body = $building->body;
-  my $target = $self->find_target($empire, $target_params);
+  my ($target, $target_type) = $self->find_target($empire, $target_params);
   my @tasks = bhg_tasks($building);
   my @list;
   for my $task (@tasks) {
     my $chance;
-    if (defined($target_params->{zone})) {
-      if ($task->{name} eq "Jump Zone") {
-        $chance = task_chance($building, $target, $task);
-        $task->{body_id} = 0;
-      }
-      else {
-        $chance->{throw}   = 1009;
-        $chance->{reason}  = $task->{reason};
-        $chance->{success} = 0;
-        $chance->{body_id} = 0;
-        $chance->{dist}    = 0;
-        $chance->{range}   = 0;
-      }
-    }
-    else {
-      if ($task->{name} eq "Jump Zone") {
-        $chance->{throw}   = 1009;
-        $chance->{reason}  = $task->{reason};
-        $chance->{success} = 0;
-        $chance->{body_id} = 0;
-        $chance->{dist}    = 0;
-        $chance->{range}   = 0;
-      }
-      else {
-        $chance = task_chance($building, $target, $task);
-      }
-    }
+    $chance = task_chance($building, $target, $target_type, $task);
     $task->{dist}    = $chance->{dist};
     $task->{range}   = $chance->{range};
     $task->{reason}  = $chance->{reason};
@@ -207,9 +203,29 @@ sub get_actions_for {
 }
 
 sub task_chance {
-  my ($building, $target, $task) = @_;
+  my ($building, $target, $target_type, $task) = @_;
 
-  my $dist; my $target_type; my $target_id;
+  my $dist; my $target_id;
+  my $range = $task->{range};
+  my $return = {
+    success   => 0,
+    body_id   => 0,
+    dist      => -1,
+    range     => $range,
+    throw     => 0,
+    reason    => '',
+  };
+  unless ( grep { $target_type eq $_ } @{$task->{types}} ) {
+    $return->{throw}   = 1009;
+    $return->{reason}  = $task->{reason};
+    return $return;
+  }
+  unless ($building->level >= $task->{min_level}) {
+    $return->{throw}  = 1013;
+    $return->{reason} = sprintf("You need a Level %d Black Hole Generator to do that",
+                                 $task->{min_level});
+    return $return;
+  }
   if ($task->{name} eq "Jump Zone") {
     my $szone = $building->body->zone;
     my $tzone = $target->zone;
@@ -217,68 +233,26 @@ sub task_chance {
     my ($tz_x, $tz_y) = $tzone =~ m/(-?\d+)\|(-?\d+)/;
     $dist = sprintf "%0.2f", sqrt( ($sz_x - $tz_x)**2 + ($sz_y - $tz_y)**2);
     $target_id = $target->id;
-    if ($target->isa('Lacuna::DB::Result::Map::Star')) {
-      $target_type = 'star';
-    }
-    else {
-      $target_type = 'zone';
-    }
-  }
-  elsif ($task->{name} eq "Move System") {
-    $dist = sprintf "%0.2f", $building->body->calculate_distance_to_target($target)/100;
-    $target_id = $target->id;
-    if ($target->isa('Lacuna::DB::Result::Map::Star')) {
-      $target_type = 'star';
-    }
-    else {
-      $target_type = $target->get_type;
-    }
   }
   elsif (ref $target eq 'HASH') {
     my $bx = $building->body->x;
     my $by = $building->body->y;
     $dist = sprintf "%0.2f", sqrt( ($target->{x} - $bx)**2 + ($target->{y} - $by)**2);
     $target_id = $target->{id};
-    $target_type = $target->{type};
   }
   else {
     $dist = sprintf "%0.2f", $building->body->calculate_distance_to_target($target)/100;
     $target_id = $target->id;
-    if ($target->isa('Lacuna::DB::Result::Map::Star')) {
-      $target_type = 'star';
-    }
-    else {
-      $target_type = $target->get_type;
-    }
   }
-  my $range = $task->{range};
-  my $return = {
-    success   => 0,
-    body_id   => $target_id,
-    dist      => $dist,
-    range     => $range,
-    throw     => 0,
-    reason    => '',
-  };
-  unless ($building->level >= $task->{min_level}) {
-    $return->{throw}  = 1013;
-    $return->{reason} = sprintf("You need a Level %d Black Hole Generator to do that",
-                                 $task->{min_level});
-    return $return;
-  }
-  unless ( grep { $target_type eq $_ } @{$task->{types}} ) {
-    $return->{throw}   = 1009;
-    $return->{reason}  = $task->{reason};
-    return $return;
-  }
+  $return->{dist} = $dist;
+  $return->{body_id} = $target_id;
   unless ($dist < $range) {
     $return->{throw}  = 1009;
     $return->{reason} = 'That target is too far away at '.$dist.
                         ' with a range of '.$range.'.';
     return $return;
   }
-#  $return->{success} = 95; #until we figure out rmod, etc...
-  $return->{success} = (100 - $task->{base_fail}) - int( ($dist/$range) * (95-$task->{base_fail}));
+  $return->{success} = (100 - $task->{base_fail}) - int( ($dist/$range) * (99-$task->{base_fail})+0.5);
   $return->{success} = 0 if $return->{success} < 1;
 
   my $bhg_param = Lacuna->config->get('bhg_param');
@@ -289,7 +263,7 @@ sub task_chance {
     $return->{success}     = $bhg_param->{success}     if ($bhg_param->{success});
   }
 
-  $return->{essentia_cost} = $return->{success} ? int(2000 / $return->{success})/10 : 0;
+  $return->{essentia_cost} = $return->{success} ? int($task->{subsidy_mult} * 2000 / $return->{success})/10 : 0;
 
   return $return;
 }
@@ -1438,7 +1412,8 @@ sub bhg_tasks {
   my $map_size = Lacuna->config->get('map_size');
   my $max_dist = sprintf "%0.2f", sqrt(($map_size->{x}[0] - $map_size->{x}[1])**2 +
                                        ($map_size->{y}[0] - $map_size->{y}[1])**2);
-  my $zone_dist = int($max_dist/250 + 0.5);
+  my $zone_dist = int($max_dist/250 - 0.5);
+  $zone_dist = 1 if $zone_dist < 1;  # Would only happen if a game is setup less than 250 units across
   my @tasks = (
     {
       name         => 'Make Asteroid',
@@ -1446,12 +1421,12 @@ sub bhg_tasks {
       reason       => "You can only make an asteroid from a planet.",
       occupied     => 0,
       min_level    => 10,
-      range        => 15 * $building->level,
-      rmod         => 20,
+      range        => 15 * $blevel,
       recovery     => int($day_sec * 90/$blevel),
       waste_cost   => 50_000_000,
       base_fail    => 40 - $building->level, # 10% - 40%
       side_chance  => 25,
+      subsidy_mult => .5,
     },
     {
       name         => 'Make Planet',
@@ -1459,12 +1434,12 @@ sub bhg_tasks {
       reason       => "You can only make a planet from an asteroid.",
       occupied     => 0,
       min_level    => 15,
-      range        => 10 * $building->level,
-      rmod         => 20,
+      range        => 10 * $blevel,
       recovery     => int($day_sec * 90/$blevel),
       waste_cost   => 100_000_000,
-      base_fail    => 40 - int(($building->level - 15) * (25/15)),
+      base_fail    => 40 - int(($blevel - 15) * (25/15)),
       side_chance  => 40,
+      subsidy_mult => .75,
     },
     {
       name         => 'Increase Size',
@@ -1472,12 +1447,12 @@ sub bhg_tasks {
       reason       => "You can only increase the sizes of habitable planets and asteroids.",
       occupied     => 1,
       min_level    => 20,
-      range        => 20 * $building->level,
-      rmod         => 20,
+      range        => 20 * $blevel,
       recovery     => int($day_sec * 120/$blevel),
       waste_cost   => 1_000_000_000,
-      base_fail    => 40 - int( ($building->level - 20) * 2), # 20% - 40%
+      base_fail    => 40 - int( ($blevel - 20) * 2), # 20% - 40%
       side_chance  => 60,
+      subsidy_mult => 1,
     },
     {
       name         => 'Change Type',
@@ -1485,12 +1460,12 @@ sub bhg_tasks {
       reason       => "You can only change the type of habitable planets and asteroids.",
       occupied     => 1,
       min_level    => 25,
-      range        => 10 * $building->level,
-      rmod         => 20,
+      range        => 10 * $blevel,
       recovery     => int($day_sec * 180/$blevel),
       waste_cost   => 10_000_000_000,
-      base_fail    => int(65 - $building->level), # 35% - %40
+      base_fail    => int(65 - $blevel), # 35% - %40
       side_chance  => 75,
+      subsidy_mult => 1,
     },
     {
       name         => 'Swap Places',
@@ -1498,12 +1473,12 @@ sub bhg_tasks {
       reason       => "Bodies and empty orbits as targets.",
       occupied     => 1,
       min_level    => 30,
-      range        => 10 * $building->level,
-      rmod         => 20,
+      range        => 10 * $blevel,
       recovery     => int($day_sec * 240/$blevel),
       waste_cost   => 15_000_000_000,
       base_fail    => 40,
       side_chance  => 90,
+      subsidy_mult => 1.25,
     },
     {
       name         => 'Jump Zone',
@@ -1511,12 +1486,12 @@ sub bhg_tasks {
       reason       => "Zones only.",
       occupied     => 0,
       min_level    => 15,
-      range        => int($building->level * $zone_dist/30),
-      rmod         => $zone_dist,
+      range        => int($blevel * $zone_dist/30),
       recovery     => int($day_sec * 600/$blevel),
       waste_cost   => 5_000_000,
-      base_fail    => int(50 - $building->level), # 20% - %45
+      base_fail    => int(50 - $blevel), # 20% - %45
       side_chance  => 95,
+      subsidy_mult => 2,
     },
     {
       name         => 'Move System',
@@ -1524,12 +1499,12 @@ sub bhg_tasks {
       reason       => "Target by Star.",
       occupied     => 0,
       min_level    => 30,
-      range        => 5 * $building->level,
-      rmod         => 20,
+      range        => 5 * $blevel,
       recovery     => int($day_sec * 1200/$blevel),
       waste_cost   => 30_000_000_000,
       base_fail    => 60,
       side_chance  => 95,
+      subsidy_mult => 3,
     },
   );
   return @tasks;
