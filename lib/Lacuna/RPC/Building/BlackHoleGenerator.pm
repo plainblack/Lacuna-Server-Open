@@ -39,7 +39,7 @@ around 'view' => sub {
     asteroid_types => [ 1 .. Lacuna::DB::Result::Map::Body->asteroid_types ],
     planet_types   => [ 1 .. Lacuna::DB::Result::Map::Body->planet_types ],
     zones          => [ sort @zones ],
-  }
+  };
 return $out;
 };
 
