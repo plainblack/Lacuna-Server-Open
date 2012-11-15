@@ -294,9 +294,9 @@ sub generate_singularity {
   my $task_name = $args->{task_name};
   my $subsidize = $args->{subsidize};
 
-  my $body      = $building->body;
-  my $target    = $self->find_target($empire, $args->{target});
-  my $effect    = {};
+  my $body                   = $building->body;
+  my ($target, $target_type) = $self->find_target($empire, $args->{target});
+  my $effect                 = {};
 
   my $return_stats = {};
   if ($building->is_working) {
@@ -310,7 +310,7 @@ sub generate_singularity {
   unless ($task) {
     confess [1002, 'Could not find task: '.$task_name];
   }
-  my $chance = task_chance($building, $target, $task);
+  my $chance = task_chance($building, $target, $target_type, $task);
   if ($chance->{throw} > 0) {
     confess [ $chance->{throw}, $chance->{reason} ];
   }
