@@ -203,6 +203,9 @@ sub get_actions_for {
         $task->{$mod} = $chance->{$mod};
       }
     }
+    if ( 'Change Type' eq $task->{name} && $task->{success} > 0 ) {
+        $task->{body_type} = $target->type;
+    }
   }
   return {
     status => $self->format_status($empire, $body),
