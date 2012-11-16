@@ -204,7 +204,7 @@ sub get_actions_for {
       }
     }
     if ( 'Change Type' eq $task->{name} && $task->{success} > 0 ) {
-        $task->{body_type} = $target->type;
+        $task->{body_type} = $target_type;
     }
   }
   return {
@@ -272,6 +272,12 @@ sub task_chance {
     $return->{recovery}    = $bhg_param->{recovery}    if ($bhg_param->{recovery});
     $return->{side_chance} = $bhg_param->{side_chance} if ($bhg_param->{side_chance});
     $return->{success}     = $bhg_param->{success}     if ($bhg_param->{success});
+  }
+  unless ($building->body->waste_stored >= $task->{waste_cost}) {
+    $return->{throw}  = 1011;
+    $return->{reason} = sprintf("You need at least %d waste to run that function of the Black Hole Generator.",$task->{waste_cost});
+    $return->{success} = 0;
+    return $return;
   }
 
   $return->{essentia_cost} = $return->{success} ? int($task->{subsidy_mult} * 2000 / $return->{success})/10 : 0;
@@ -1437,7 +1443,7 @@ sub bhg_tasks {
       waste_cost   => 50_000_000,
       base_fail    => 40 - $building->level, # 10% - 40%
       side_chance  => 25,
-      subsidy_mult => .5,
+      subsidy_mult => .75,
     },
     {
       name         => 'Make Planet',
@@ -1499,7 +1505,7 @@ sub bhg_tasks {
       min_level    => 15,
       range        => int($blevel * $zone_dist/30),
       recovery     => int($day_sec * 600/$blevel),
-      waste_cost   => 5_000_000,
+      waste_cost   => 15_000_000,
       base_fail    => int(50 - $blevel), # 20% - %45
       side_chance  => 95,
       subsidy_mult => 2,
@@ -1507,7 +1513,7 @@ sub bhg_tasks {
     {
       name         => 'Move System',
       types        => ['star'],
-      reason       => "Target by Star.",
+      reason       => "Target action by Star.",
       occupied     => 0,
       min_level    => 30,
       range        => 5 * $blevel,
