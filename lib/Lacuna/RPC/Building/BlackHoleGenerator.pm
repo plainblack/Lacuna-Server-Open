@@ -397,6 +397,18 @@ sub generate_singularity {
                ($body->empire->alliance_id == $tempire->alliance_id))) {
       confess [1009, "You can not change type of a body if it is occupied by another alliance!"];
     }
+    my $class = $body->class;
+    my $btype = $body->get_type;
+    my $ntype = $args->{params}->{newtype};
+    if ($btype eq 'asteroid' and $class eq 'Lacuna::DB::Result::Map::Body::Asteroid::A'.$ntype) {
+      confess [1013, "That body is already that type."];
+    }
+    elsif ($btype eq 'habitable planet' and $class eq 'Lacuna::DB::Result::Map::Body::Planet::P'.$ntype) {
+      confess [1013, "That body is already that type."];
+    }
+    else {
+      confess [1013, "We can't change the type of that body"];
+    }
   }
   elsif ( $task->{name} eq "Swap Places" ) {
     my $confess = "";
@@ -445,6 +457,9 @@ sub generate_singularity {
   elsif ( $task->{name} eq 'Move System' ) {
     unless ($target->isa('Lacuna::DB::Result::Map::Star')) {
       confess [1009, "You can not attempt that action on non-stars!"];
+    }
+    if ($target->id == $body->star->id) {
+      confess [1009, "You are already in that system"];
     }
     if ($target->station_id) {
       unless ($body->empire->alliance_id && $target->station->alliance_id == $body->empire->alliance_id) {
