@@ -26,7 +26,7 @@ around 'view' => sub {
   my $throw = 0; my $reason = '';
   ($throw, $reason) = check_bhg_neutralized($body);
   if ($throw > 0) {
-    $out->{tasks} = {
+    $out->{tasks} = [ {
       can          => 0,
       name         => 'Black Hole Generator Neutralized',
       types        => ['none'],
@@ -40,13 +40,13 @@ around 'view' => sub {
       seconds_remaining   => 0,
       side_chance  => 0,
       subsidy_mult => 1,
-    };
+    } ];
   }
   elsif ($building->is_working) {
-    $out->{tasks} = {
+    $out->{tasks} = [ {
       seconds_remaining   => $building->work_seconds_remaining,
       can                 => 0,
-      };
+      } ];
   }
   else {
     my @tasks = bhg_tasks($building);
