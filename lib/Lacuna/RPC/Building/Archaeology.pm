@@ -99,6 +99,7 @@ sub assemble_glyphs {
     my $plan = $building->make_plan($glyphs, $quantity);
     return {
         item_name           => $plan->class->name,
+        quantity            => $quantity,
         status              => $self->format_status($empire, $building->body),
     };
 }

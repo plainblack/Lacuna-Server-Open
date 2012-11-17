@@ -709,10 +709,7 @@ sub make_plan {
     }
     confess [1002, "Glyphs used before they could be combined!"] if ($min_used == 0);
 
-    my $plan;
-    for my $count (1..$min_used) {
-        $plan = $self->body->add_plan($plan_class, 1);
-    }
+    my $plan = $self->body->add_plan($plan_class, 1, 0, $min_used);
     return $plan;
 }
 
