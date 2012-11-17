@@ -14,6 +14,7 @@
  - Add: BHG calibrated to be able to change asteroid types.
  - Mod: "Stop Excavator Replace Alert" now also stops Excavator Deployed Alert.
  - Fix: Updated resources.json
+ - Add: BHG can be neutralized in certain areas.
 
 3.0872:
  - Fix: Spies need working infrastructure.

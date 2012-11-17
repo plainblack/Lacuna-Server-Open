@@ -22,14 +22,34 @@ around 'view' => sub {
   my $empire = $self->get_empire_by_session($session_id);
   my $building = $self->get_building($empire, $building_id, skip_offline => 1);
   my $out = $orig->($self, $empire, $building);
-  my @tasks = bhg_tasks($building);
-  if ($building->is_working) {
+  my $body = $building->body;
+  my $throw = 0; my $reason = '';
+  ($throw, $reason) = check_bhg_neutralized($body);
+  if ($throw > 0) {
+    $out->{tasks} = {
+      can          => 0,
+      name         => 'Black Hole Generator Neutralized',
+      types        => ['none'],
+      reason       => $reason,
+      occupied     => 0,
+      min_level    => 0,
+      range        => 0,
+      recovery     => 0,
+      waste_cost   => 0,
+      base_fail    => 0,
+      seconds_remaining   => 0,
+      side_chance  => 0,
+      subsidy_mult => 1,
+    };
+  }
+  elsif ($building->is_working) {
     $out->{tasks} = {
       seconds_remaining   => $building->work_seconds_remaining,
       can                 => 0,
       };
   }
   else {
+    my @tasks = bhg_tasks($building);
     $out->{tasks} = \@tasks;
   }
   my @zones = Lacuna->db->resultset('Map::Star')->search(
@@ -218,6 +238,7 @@ sub task_chance {
 
   my $dist; my $target_id;
   my $range = $task->{range};
+  my $body = $building->body;
   my $return = {
     success   => 0,
     body_id   => 0,
@@ -226,6 +247,14 @@ sub task_chance {
     throw     => 0,
     reason    => '',
   };
+  ($return->{throw}, $return->{reason}) = check_bhg_neutralized($body);
+  if ($return->{throw} > 0) {
+    return $return;
+  }
+  ($return->{throw}, $return->{reason}) = check_bhg_neutralized($target);
+  if ($return->{throw} > 0) {
+    return $return;
+  }
   unless ( grep { $target_type eq $_ } @{$task->{types}} ) {
     $return->{throw}   = 1009;
     $return->{reason}  = $task->{reason};
@@ -238,7 +267,7 @@ sub task_chance {
     return $return;
   }
   if ($task->{name} eq "Jump Zone") {
-    my $szone = $building->body->zone;
+    my $szone = $body->zone;
     my $tzone = $target->zone;
     my ($sz_x, $sz_y) = $szone =~ m/(-?\d+)\|(-?\d+)/;
     my ($tz_x, $tz_y) = $tzone =~ m/(-?\d+)\|(-?\d+)/;
@@ -246,13 +275,13 @@ sub task_chance {
     $target_id = $target->id;
   }
   elsif (ref $target eq 'HASH') {
-    my $bx = $building->body->x;
-    my $by = $building->body->y;
+    my $bx = $body->x;
+    my $by = $body->y;
     $dist = sprintf "%0.2f", sqrt( ($target->{x} - $bx)**2 + ($target->{y} - $by)**2);
     $target_id = $target->{id};
   }
   else {
-    $dist = sprintf "%0.2f", $building->body->calculate_distance_to_target($target)/100;
+    $dist = sprintf "%0.2f", $body->calculate_distance_to_target($target)/100;
     $target_id = $target->id;
   }
   $return->{dist} = $dist;
@@ -283,6 +312,36 @@ sub task_chance {
   $return->{essentia_cost} = $return->{success} ? int($task->{subsidy_mult} * 2000 / $return->{success})/10 : 0;
 
   return $return;
+}
+
+sub check_bhg_neutralized {
+  my ($check) = @_;
+  my $tstar; my $tname;
+  if (ref $check eq 'HASH') {
+    $tstar = $check->{star};
+    $tname = $check->{name};
+  }
+  else {
+    if ($check->isa('Lacuna::DB::Result::Map::Star')) {
+      $tstar   = $check;
+      $tname   = $check->name;
+    }
+    else {
+      $tstar   = $check->star;
+      $tname   = $check->name;
+    }
+  }
+  my $sname = $tstar->name;
+  my $throw; my $reason;
+  if ($tstar->station_id) {
+    if ($tstar->station->laws->search({type => 'BHGNeutralized'})->count) {
+      my $ss_name = $tstar->station->name;
+      $throw = 1009;
+      $reason = sprintf("The star, %s is under BHG Neutralization from %s", $sname, $ss_name),
+      return $throw, $reason;
+    }
+  }
+  return 0, "";
 }
 
 sub generate_singularity {
@@ -397,6 +456,18 @@ sub generate_singularity {
                ($body->empire->alliance_id == $tempire->alliance_id))) {
       confess [1009, "You can not change type of a body if it is occupied by another alliance!"];
     }
+    my $class = $body->class;
+    my $btype = $body->get_type;
+    my $ntype = $args->{params}->{newtype};
+    if ($btype eq 'asteroid' and $class eq 'Lacuna::DB::Result::Map::Body::Asteroid::A'.$ntype) {
+      confess [1013, "That body is already that type."];
+    }
+    elsif ($btype eq 'habitable planet' and $class eq 'Lacuna::DB::Result::Map::Body::Planet::P'.$ntype) {
+      confess [1013, "That body is already that type."];
+    }
+    else {
+      confess [1013, "We can't change the type of that body"];
+    }
   }
   elsif ( $task->{name} eq "Swap Places" ) {
     my $confess = "";
@@ -445,6 +516,9 @@ sub generate_singularity {
   elsif ( $task->{name} eq 'Move System' ) {
     unless ($target->isa('Lacuna::DB::Result::Map::Star')) {
       confess [1009, "You can not attempt that action on non-stars!"];
+    }
+    if ($target->id == $body->star->id) {
+      confess [1009, "You are already in that system"];
     }
     if ($target->station_id) {
       unless ($body->empire->alliance_id && $target->station->alliance_id == $body->empire->alliance_id) {
@@ -900,7 +974,15 @@ sub bhg_random_make {
                   {rows => 1, order_by => 'rand()' }
                 )->single;
   my $btype = $target->get_type;
-  if ($btype eq 'habitable planet' or $btype eq 'gas giant') {
+  my ($throw, $reason) = check_bhg_neutralized($target);
+  if ($throw > 0) {
+    $return = {
+      message => "Side effect neutralized",
+      id      => $target->id,
+      name    => $target->name,
+    };
+  }
+  elsif ($btype eq 'habitable planet' or $btype eq 'gas giant') {
     $body->add_news(75, sprintf('%s has been destroyed!', $target->name));
     $return = bhg_make_asteroid($building, $target);
   }
@@ -925,13 +1007,21 @@ sub bhg_random_make {
 sub bhg_random_type {
   my ($building) = @_;
   my $body = $building->body;
+  my $return;
   my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
                   { zone => $body->zone, empire_id => undef, },
                   {rows => 1, order_by => 'rand()' }
                 )->single;
   my $btype = $target->get_type;
-  my $return;
-  if ($btype eq 'habitable planet') {
+  my ($throw, $reason) = check_bhg_neutralized($target);
+  if ($throw > 0) {
+    $return = {
+      message => "Side effect neutralized",
+      id      => $target->id,
+      name    => $target->name,
+    };
+  }
+  elsif ($btype eq 'habitable planet') {
     my $params = { newtype => randint(1,Lacuna::DB::Result::Map::Body->planet_types) };
     $body->add_news(50, sprintf('%s has gone thru extensive changes.', $target->name));
     $return = bhg_change_type($target, $params);
@@ -960,7 +1050,15 @@ sub bhg_random_size {
                 )->single;
   my $return;
   my $btype = $target->get_type;
-  if ($btype eq 'habitable planet') {
+  my ($throw, $reason) = check_bhg_neutralized($target);
+  if ($throw > 0) {
+    $return = {
+      message => "Side effect neutralized",
+      id      => $target->id,
+      name    => $target->name,
+    };
+  }
+  elsif ($btype eq 'habitable planet') {
     $body->add_news(50, sprintf('%s has deformed.', $target->name));
     $return = bhg_size($building, $target, 0);
   }
@@ -987,7 +1085,15 @@ sub bhg_random_resource {
                 )->single;
   my $return;
   my $btype = $target->get_type;
-  if ($btype eq 'habitable planet' or $btype eq 'gas giant') {
+  my ($throw, $reason) = check_bhg_neutralized($target);
+  if ($throw > 0) {
+    $return = {
+      message => "Side effect neutralized",
+      id      => $target->id,
+      name    => $target->name,
+    };
+  }
+  elsif ($btype eq 'habitable planet' or $btype eq 'gas giant') {
     $body->add_news(50, sprintf('A wormhole briefly appeared on %s.', $target->name));
     my $variance =  (randint(0,9) < 2) ? 1 : 0;
     $return = bhg_resource($target, $variance);
@@ -1018,7 +1124,15 @@ sub bhg_random_fissure {
                  name      => $target->name,
                  type    => $btype,
   };
-  if ($btype eq 'habitable planet') {
+  my ($throw, $reason) = check_bhg_neutralized($target);
+  if ($throw > 0) {
+    $return = {
+      message => "Side effect neutralized",
+      id      => $target->id,
+      name    => $target->name,
+    };
+  }
+  elsif ($btype eq 'habitable planet') {
     my ($x, $y) = eval { $target->find_free_space};
     unless ($@) {
         my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -1055,7 +1169,15 @@ sub bhg_random_decor {
                  id        => $target->id,
                  name      => $target->name,
   };
-  if ($btype eq 'habitable planet') {
+  my ($throw, $reason) = check_bhg_neutralized($target);
+  if ($throw > 0) {
+    $return = {
+      message => "Side effect neutralized",
+      id      => $target->id,
+      name    => $target->name,
+    };
+  }
+  elsif ($btype eq 'habitable planet') {
     if ($target->empire_id) {
       $body->add_news(75, sprintf('The population of %s marvels at the new terrain.', $target->name));
     }
