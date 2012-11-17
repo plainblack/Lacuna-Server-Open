@@ -585,6 +585,31 @@ sub propose_members_only_colonization {
     };
 }
 
+sub propose_neutralize_bhg {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot create propositions.'];
+    }
+    my $building = $self->get_building($empire, $building_id);
+    unless ($building->level >= 23) {
+        confess [1013, 'Parliament must be level 23 to propose to neutralize black hole generators.',23];
+    }
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        type            => 'BHGNeutralized',
+        name            => 'BHG Neutralized',
+        description     => 'All Black Hole Generators will cease to operate within and on planets in the jurisdiction of {Starmap '.$building->body->x.' '.$building->body->y.' '.$building->body->name.'}.',
+        proposed_by_id  => $empire->id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
+
 sub propose_evict_mining_platform {
     my ($self, $session_id, $building_id, $platform_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);

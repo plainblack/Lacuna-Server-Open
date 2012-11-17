@@ -15,6 +15,7 @@
  - Mod: "Stop Excavator Replace Alert" now also stops Excavator Deployed Alert.
  - Fix: Updated resources.json
  - Add: BHG can be neutralized in certain areas.
+ - Add: Space Stations can emit a field to neutralize BHGs.
 
 3.0872:
  - Fix: Spies need working infrastructure.

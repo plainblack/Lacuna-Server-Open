@@ -25,6 +25,7 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->typecast_map(type => {
     AbandonStation          => 'Lacuna::DB::Result::Propositions::AbandonStation',
+    BHGNeutralized          => 'Lacuna::DB::Result::Propositions::BHGNeutralized',
     BroadcastOnNetwork19    => 'Lacuna::DB::Result::Propositions::BroadcastOnNetwork19',
     DemolishModule          => 'Lacuna::DB::Result::Propositions::DemolishModule',
     DowngradeModule         => 'Lacuna::DB::Result::Propositions::DowngradeModule',
