@@ -16,6 +16,7 @@
  - Fix: Updated resources.json
  - Add: BHG can be neutralized in certain areas.
  - Add: Space Stations can emit a field to neutralize BHGs.
+ - Mod: Assembly of glyphs can take up to 5000.
 
 3.0872:
  - Fix: Spies need working infrastructure.
