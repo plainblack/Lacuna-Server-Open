@@ -266,6 +266,7 @@ for my $body_id (sort keys %has_fissures) {
             my $damaged = 0;
             DAMAGED:
             while (my $to_damage = $closest->next) {
+                next if ($to_damage->in_neutral_area);
                 # damage planet
                 out("Damaging planet ".$to_damage->name." at distance ".$to_damage->get_column('distance'));
 
