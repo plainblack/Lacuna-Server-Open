@@ -73,34 +73,35 @@ sub view_all_spies {
     };
 }
 
-sub view_empire_spies {
-    my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my @spies;
-    my $body = $building->body;
-    my %planets = ( $body->id => $body );
-    my $spy_list = $building->get_empire_spies->search();
-    my $cost_to_subsidize = 0;
-    while (my $spy = $spy_list->next) {
-        if (exists $planets{$spy->on_body_id}) {
-            $spy->on_body($planets{$spy->on_body_id});
-        }
-        else {
-            $planets{$spy->on_body_id} = $spy->on_body;
-        }
-        $cost_to_subsidize++ if ($spy->task eq 'Training');
-        push @spies, $spy->get_status;
-    }
-    my @assignments = Lacuna::DB::Result::Spies->assignments;
-    return {
-        status                  => $self->format_status($empire, $body),
-        spies                   => \@spies,
-        possible_assignments    => \@assignments,
-        spy_count               => scalar @spies,
-        cost_to_subsidize       => $cost_to_subsidize,
-    };
-}
+# This call is too intensive for server at this time. Disabled
+# sub view_empire_spies {
+#     my ($self, $session_id, $building_id) = @_;
+#     my $empire = $self->get_empire_by_session($session_id);
+#     my $building = $self->get_building($empire, $building_id);
+#     my @spies;
+#     my $body = $building->body;
+#     my %planets = ( $body->id => $body );
+#     my $spy_list = $building->get_empire_spies->search();
+#     my $cost_to_subsidize = 0;
+#     while (my $spy = $spy_list->next) {
+#         if (exists $planets{$spy->on_body_id}) {
+#             $spy->on_body($planets{$spy->on_body_id});
+#         }
+#         else {
+#             $planets{$spy->on_body_id} = $spy->on_body;
+#         }
+#         $cost_to_subsidize++ if ($spy->task eq 'Training');
+#         push @spies, $spy->get_status;
+#     }
+#     my @assignments = Lacuna::DB::Result::Spies->assignments;
+#     return {
+#         status                  => $self->format_status($empire, $body),
+#         spies                   => \@spies,
+#         possible_assignments    => \@assignments,
+#         spy_count               => scalar @spies,
+#         cost_to_subsidize       => $cost_to_subsidize,
+#     };
+# }
 
 sub subsidize_training {
     my ($self, $session_id, $building_id) = @_;
@@ -261,7 +262,7 @@ sub name_spy {
     
 }
 
-__PACKAGE__->register_rpc_method_names(qw(view_spies view_all_spies view_empire_spies assign_spy train_spy burn_spy name_spy subsidize_training));
+__PACKAGE__->register_rpc_method_names(qw(view_spies view_all_spies assign_spy train_spy burn_spy name_spy subsidize_training));
 
 
 no Moose;
