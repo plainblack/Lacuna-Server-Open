@@ -290,6 +290,7 @@ sub sanitize {
     while (my $ship = $incoming->next) {
         $ship->turn_around->update;
     }
+#Need to put something here to deal with ships being delivered elsewhere.
     $self->ships->delete_all;
     my $enemy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $self->id});
     while (my $spy = $enemy->next) {
