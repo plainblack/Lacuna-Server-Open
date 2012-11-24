@@ -456,14 +456,17 @@ sub generate_singularity {
                ($body->empire->alliance_id == $tempire->alliance_id))) {
       confess [1009, "You can not change type of a body if it is occupied by another alliance!"];
     }
-    my $class = $body->class;
-    my $btype = $body->get_type;
+    my $class = $target->class;
     my $ntype = $args->{params}->{newtype};
-    if ($btype eq 'asteroid' and $class eq 'Lacuna::DB::Result::Map::Body::Asteroid::A'.$ntype) {
-      confess [1013, "That body is already that type."];
+    if ($btype eq 'asteroid') {
+      if ($class eq 'Lacuna::DB::Result::Map::Body::Asteroid::A'.$ntype) {
+        confess [1013, "That body is already that type."];
+      }
     }
-    elsif ($btype eq 'habitable planet' and $class eq 'Lacuna::DB::Result::Map::Body::Planet::P'.$ntype) {
-      confess [1013, "That body is already that type."];
+    elsif ($btype eq 'habitable planet') {
+      if ($class eq 'Lacuna::DB::Result::Map::Body::Planet::P'.$ntype) {
+        confess [1013, "That body is already that type."];
+      }
     }
     else {
       confess [1013, "We can't change the type of that body"];
