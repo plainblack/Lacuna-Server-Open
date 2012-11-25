@@ -105,20 +105,20 @@ sub training_costs {
     };
     if ($spy_id) {
         my $spy = $self->get_spy($spy_id);
-        my $xp_level = int(($spy->intel_xp + $spy->mayhem_xp + $spy->politics_xp + $spy->theft_xp)/200) + 1;
+        my $xp_level = int(($spy->intel_xp + $spy->mayhem_xp + $spy->politics_xp + $spy->theft_xp)/100) + 1;
         my $train_time = sprintf('%.0f', 3600 * $xp_level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
         if ($self->body->happiness < 0) {
             my $unhappy_workers = abs($self->body->happiness)/100_000;
             $train_time = int($train_time * $unhappy_workers);
         }
         $train_time = 5184000 if ($train_time > 5184000); # Max time per spy is 60 days
-        $train_time = 3600 if ($train_time < 3600); # Min time is 1 hour
+        $train_time = 21600 if ($train_time < 21600); # Min time is 6 hour
         $costs->{time} = $train_time;
     }
     else {
         my $spies = $self->get_spies->search({ task => { in => ['Counter Espionage','Idle'] } });
         while (my $spy = $spies->next) {
-            my $xp_level = int(($spy->intel_xp + $spy->mayhem_xp + $spy->politics_xp + $spy->theft_xp)/200) + 1;
+            my $xp_level = int(($spy->intel_xp + $spy->mayhem_xp + $spy->politics_xp + $spy->theft_xp)/100) + 1;
             my $train_time = sprintf('%.0f', 3600 * $xp_level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
             if ($self->body->happiness < 0) {
                 my $unhappy_workers = abs($self->body->happiness)/100_000;
@@ -167,6 +167,7 @@ sub train_spy {
     unless (defined $time_to_train) {
         $time_to_train = $self->training_costs($spy_id)->{time};
     }
+    $spy->is_available;
     unless ($spy->task ~~ ['Counter Espionage','Idle']) {
         confess [1011, 'Spy must be idle to train.'];
     }

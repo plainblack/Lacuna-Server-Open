@@ -20,6 +20,7 @@ __PACKAGE__->add_columns(
 ); 
 
 __PACKAGE__->typecast_map(type => {
+    BHGNeutralized          => 'Lacuna::DB::Result::Laws::BHGNeutralized',
     Jurisdiction            => 'Lacuna::DB::Result::Laws::Jurisdiction',
     MembersOnlyColonization => 'Lacuna::DB::Result::Laws::MembersOnlyColonization',
     MembersOnlyMiningRights => 'Lacuna::DB::Result::Laws::MembersOnlyMiningRights',

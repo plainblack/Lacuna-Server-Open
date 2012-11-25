@@ -39,7 +39,7 @@ for my $body_id (sort keys %has_fissures) {
     # The level of the second Fissure is the same level as the BHG (if there is one) otherwise it is level 1
     #
     for my $fissure (@fissures) {
-        out("Fissure at ".$fissure->x.",".$fissure->y." co-ordinates");
+        out("Level ".$fissure->level." fissure at ".$fissure->x.",".$fissure->y." co-ordinates");
         my $damage = randint(2,6);
         if ($fissure->efficiency > 0) {
             $fissure->efficiency($fissure->efficiency - $damage);
@@ -76,7 +76,7 @@ for my $body_id (sort keys %has_fissures) {
     }
 
     # get number of Fissures at 0% efficiency and maximum level
-    my $max_fissures = grep { $_->efficiency == 0 and $_->level == 30 } @fissures;
+    my $max_fissures = grep { $_->efficiency == 0 and $_->level >= 30 } @fissures;
     if (($max_fissures == @fissures) or (scalar @fissures == 3)) {
         if (scalar @fissures == 1) {
             out("    adding a second fissure!!!");
@@ -110,11 +110,13 @@ for my $body_id (sort keys %has_fissures) {
                 my $now = DateTime->now;
 
                 out("    Converted building ".$building->class." into a level $fissure_level Fissure!");
-                $body->empire->send_predefined_message(
-                    tags        => ['Alert'],
-                    filename    => 'fissure_replaced_energy.txt',
-                    params      => [$body->name, $building->x,$building->y, $fissure_level],
-                );
+                if ($body->empire_id) {
+                    $body->empire->send_predefined_message(
+                        tags        => ['Alert'],
+                        filename    => 'fissure_replaced_energy.txt',
+                        params      => [$body->name, $building->x,$building->y, $fissure_level],
+                    );
+                }
                 $building->update({
                     level           => $fissure_level,
                     class           => 'Lacuna::DB::Result::Building::Permanent::Fissure',
@@ -188,14 +190,14 @@ for my $body_id (sort keys %has_fissures) {
                     else {
                         # No more colonies, found a new empire on a remote planet
                         #
-                        my @zones = $db->resultset('Map::Star')->search(
-                            undef,
-                            { distinct => 1 })->get_column('zone')->all;
-                        @zones = grep {@_ !~ m/0/} @zones;
-                        my $zone = random_element(@zones);
+#                        my @zones = $db->resultset('Map::Star')->search(
+#                            undef,
+#                            { distinct => 1 })->get_column('zone')->all;
+#                        @zones = grep {@_ !~ m/0/} @zones;
+#                        my $zone = random_element(@zones);
 
                         my @bodies = $db->resultset('Map::Body')->search({
-                            'me.zone'           => $zone,
+#                            'me.zone'           => $zone,
                             'me.empire_id'      => undef,
                             'stars.station_id'   => undef,
                             'me.class'          => { like => 'Lacuna::DB::Result::Map::Body::Planet::P%' },
@@ -205,14 +207,16 @@ for my $body_id (sort keys %has_fissures) {
                             rows                => 100,
                             order_by            => 'me.name',
                         });
-                        my $new_capitol = random_element(@bodies);
+# Need error checking for no suitable body found.
+                        my $new_capitol = random_element(\@bodies);
                         $empire->found($new_capitol);
+                        out($new_capitol->name.' new cap');
 
                         # Send an email with the new planet
                         $empire->send_predefined_message(
                             tags        => ['Colonization','Alert'],
                             filename    => 'fissure_capitol_moved.txt',
-                            params      => [$body->name],
+                            params      => [$new_capitol->name],
                         );
                     }
                 }
@@ -262,6 +266,7 @@ for my $body_id (sort keys %has_fissures) {
             my $damaged = 0;
             DAMAGED:
             while (my $to_damage = $closest->next) {
+                next if ($to_damage->in_neutral_area);
                 # damage planet
                 out("Damaging planet ".$to_damage->name." at distance ".$to_damage->get_column('distance'));
 

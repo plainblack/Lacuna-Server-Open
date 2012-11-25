@@ -43,6 +43,7 @@ __PACKAGE__->add_columns(
     politics_xp             => { data_type => 'int', default_value => 0 },
     theft_xp                => { data_type => 'int', default_value => 0 },
     level                   => { data_type => 'tinyint', default_value => 0 },
+    next_task               => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'Idle' },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
@@ -87,6 +88,12 @@ sub get_status {
             name    => $self->on_body->name,
             x       => $self->on_body->x,
             y       => $self->on_body->y,
+        },
+        based_from         => {
+            body_id => $self->from_body_id,
+            name    => $self->from_body->name,
+            x       => $self->from_body->x,
+            y       => $self->from_body->y,
         },
         available_on        => $self->format_available_on,
         started_assignment  => $self->format_started_assignment,
@@ -796,7 +803,9 @@ sub get_idle_attacker {
         ->resultset('Lacuna::DB::Result::Spies')
         ->search(
             { on_body_id  => $self->on_body_id,
-              task => 'Idle', empire_id => { 'not in' => \@member_ids },
+              task => 'Idle',
+              empire_id => { 'not in' => \@member_ids },
+# Any non-allied spy that calls home the NZ
               started_assignment => { '<' => DateTime->now->subtract(days => 7) } },
         )
         ->all;
@@ -1650,9 +1659,7 @@ sub steal_planet {
 sub uprising {
     my ($self, $defender) = @_;
     $self->seeds_planted( $self->seeds_planted + 1 );
-    my $loss = sprintf('%.0f', $self->on_body->happiness * ($self->level/100) );
-    $loss *= -1 if ($loss < 0);
-    $loss = 15000 unless ($loss > 15000);
+    my $loss = happy_mod($self->level, $self->on_body->happiness, 15_000, 0, 2);
     $self->on_body->spend_happiness( $loss )->update;
     my $message = $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
@@ -3226,7 +3233,7 @@ sub happy_mod {
     my $numb = sprintf('%.0f', $bhappy * ($level/$mod)/100 );
     $numb *= -1 if ($numb < 0);
     $numb = $min unless ($numb > $min);
-    $numb = $max if ($numb > $max);
+    $numb = $max if ($max and $numb > $max);
     return $numb;
 }
 

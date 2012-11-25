@@ -308,6 +308,8 @@ sub sanitize {
     $self->fleets->delete_all;
     my $enemy_spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $self->id});
     while (my $spy = $enemy_spies->next) {
+    
+        #Need to put something here to deal with ships being delivered elsewhere.
         $spy->on_body_id($spy->from_body_id);
         $spy->update;
     }
@@ -931,6 +933,7 @@ sub found_colony {
     $self->add_energy(700);
     $self->add_water(700);
     $self->add_ore(700);
+    $self->happiness(0);
     $self->update;
 
     # newsworthy
@@ -1397,8 +1400,20 @@ sub tick_to {
     my $tick_rate = $seconds / 3600;
     $self->last_tick($now);
 
+    if ($self->happiness < 0) {
+        $self->needs_recalc if ($self->happiness_hour < -20_000);
+        if ($self->unhappy) {
+# Nothing for now...
+        }
+        else {
+            $self->unhappy(1);
+            $self->unhappy_date($now);
+        }
+    }
+    else {
+        $self->unhappy(0);
+    }
     # Check to see if downward spiral still happening in happiness from negative plots.
-    $self->needs_recalc(1) if ($self->happiness < 0 and $self->happiness_hour < -20_000);
     if ($self->needs_recalc) {
         $self->recalc_stats;    
     }

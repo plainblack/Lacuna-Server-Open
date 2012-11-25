@@ -45,7 +45,27 @@ This buildings ID
       "waste_cost" : 50000000
       "reason" : "You can only make an asteroid from a planet."
     },...
-  ]
+  ],
+  "task_options" : {
+     "asteroid_types" : [
+        1,
+        2,
+        ...
+        26
+     ],
+     "planet_types" : [
+        1,
+        2,
+        ...
+        40
+     ],
+     "zones" : [
+        "-5|-5",
+        "-5|-4",
+        ...
+        "5|5"
+     ]
+   }
  }
 
 
@@ -106,6 +126,17 @@ The unique id of the body.
 
 A set of x,y coordinates to locate the star or body.
 
+=head4 star_name
+
+A string with the star's name. Case insensitive, but will throw an exception for misspelling.
+
+=head4 star_id
+
+The unique id of the star.
+
+=head4 zone
+
+Zone name as a target.  ie: '-1|4' ; Only useful for Jump Zone.
 
 =head3 task_name (required)
 
@@ -134,6 +165,14 @@ Only allowed to change occupied planets that share your alliance.
 =item Swap Places
 
 Can swap places with another body within range. Usable at Black Hole Generator level 30.
+
+=item Jump Zone
+
+Target is a zone, BHG planet swaps with a random unoccupied habitable in target zone. Usable at level 15.
+
+=item Move System
+
+Moves entire system of bodies to target star. Moves bodies at target star to origin.  Target star needs to not be occupied by another alliance and not seized by another alliance.
 
 =back
 
@@ -231,6 +270,9 @@ Options are as described for generate_singularity
 
 B<cost> is the amount in Essentia which will make the task 'perfect' (i.e. 100% success) the lower
 the probability of success, the higher the cost. The minimum is 2E.
+
+If B<name> is B<Change Type>, a B<body_type> parameter is provided which will be either
+B<asteroid> or B<habitable planet>.
 
 If the chance of success is zero, then no amount of Essentia will make it succeed.
 

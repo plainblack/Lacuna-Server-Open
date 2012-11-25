@@ -13,6 +13,8 @@ GetOptions(
     'quiet'         => \$quiet,  
 );
 
+die "Not a good idea to run now."
+# Worked well, except it didn't do anything with spy shuttles that were in orbit.
 
 out('Started');
 my $start = DateTime->now;

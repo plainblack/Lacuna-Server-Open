@@ -215,8 +215,10 @@ sub dig_it {
         message => "Found $amount of $type.",
         outcome => "Resource",
       };
-      $self->body->add_news(1,sprintf("%s uncovered a cache of %s on %s.",
+      if (randint(0,99) < 1) {
+        $self->body->add_news(1,sprintf("%s uncovered a cache of %s on %s.",
                           $empire_name, $type, $body->name));
+      }
     }
     when ("plan") {
       my ($lvl, $plus, $name) = $self->found_plan($level);
@@ -224,8 +226,10 @@ sub dig_it {
         message => "Found level $lvl + $plus $name Plan.",
         outcome => "Plan",
       };
-      $self->body->add_news(2,sprintf("%s uncovered a %s plan on %s.",
+      if (randint(0,99) < 1) {
+        $self->body->add_news(10,sprintf("%s uncovered a %s plan on %s.",
                           $empire_name, $name, $body->name));
+      }
     }
     when ("glyph") {
       my $glyph = $self->found_glyph($body);
@@ -233,8 +237,10 @@ sub dig_it {
         message => "Found a $glyph glyph.",
         outcome => "Glyph",
       };
-      $self->body->add_news(1,sprintf("%s uncovered a %s glyph on %s.",
+      if (randint(0,99) < 1) {
+        $self->body->add_news(1,sprintf("%s uncovered a %s glyph on %s.",
                           $empire_name, $glyph, $body->name));
+      }
     }
     when ("artifact") {
       my ($lvl, $plus, $name) = $self->found_artifact($body, $level);
@@ -270,8 +276,10 @@ sub dig_it {
                         'It\'s dead Jim.',
                         'It\'s just a harmless little bunny...',
                         'It\'s full of stars.',
+                        'Just once, I wish we would encounter an alien menace that was\'t immune to bullets.',
                         'Looks like I picked the wrong week to stop drinking coffee.',
                         'Klaatu Barada Ni*cough*',
+                        'No, Mr. Excav, I expect you to die.',
                         'Oh no, not again.',
                         'Oops? What oops? No oops!',
                         'Ph\'nglui Mglw\'nafh Cthulhu R\'lyeh wgah\'nagl fhtagn.',
@@ -701,10 +709,7 @@ sub make_plan {
     }
     confess [1002, "Glyphs used before they could be combined!"] if ($min_used == 0);
 
-    my $plan;
-    for my $count (1..$min_used) {
-        $plan = $self->body->add_plan($plan_class, 1);
-    }
+    my $plan = $self->body->add_plan($plan_class, 1, 0, $min_used);
     return $plan;
 }
 

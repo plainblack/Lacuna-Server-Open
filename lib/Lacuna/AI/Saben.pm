@@ -130,7 +130,7 @@ sub destroy_world {
         my @to_demolish = @{$target->building_cache};
         $target->delete_buildings(\@to_demolish);
         $target->update({
-            class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
+            class                       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,Lacuna::DB::Result::Map::Body->asteroid_types),
             size                        => randint(1,10),
             usable_as_starter_enabled   => 0,
         });

@@ -44,6 +44,26 @@
  - done: When ships arrive (fighters to Defend) set their available date to null
  - done: Travelling ships should be sorted in arrival date order
  
+3.0873:
+ - Mod: Observatory can only abandon a probe it controls.
+ - Add: New Observatory abandon_all_probes API method.
+ - Add: view_all_spies API Methods added.
+ - Add: spy status includes based_from data.
+ - Mod: Paging for spies increased to 30 per page.
+ - Fix: send_spies validates better.
+ - Mod: Even less reporting on archeologists.
+ - Mod: Captcha not needed for sending spies to your own planets.
+ - Fix: Happiness initialized to zero on new colonies.
+ - Add: BHG can now jump a body to a different zone.
+ - Add: BHG can exchange an entire system of bodies with another system.
+ - Add: Every occupied body that gets moved by a BHG generates an email.
+ - Add: BHG calibrated to be able to change asteroid types.
+ - Mod: "Stop Excavator Replace Alert" now also stops Excavator Deployed Alert.
+ - Fix: Updated resources.json
+ - Add: BHG can be neutralized in certain areas.
+ - Add: Space Stations can emit a field to neutralize BHGs.
+ - Mod: Assembly of glyphs can make up to 5000 at a time.
+
 3.0872:
  - Fix: Spies need working infrastructure.
  - Fix: Tutorial doesn't restart if fissure blows up capitol.

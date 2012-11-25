@@ -130,8 +130,8 @@ sub assemble_glyphs {
     my $building    = $self->get_building($empire, $args->{building_id});
     my $quantity    = defined $args->{quantity} ? $args->{quantity} : 1;
 
-    if ($quantity > 50) {
-        confess [1011, "You can only assemble up to 50 plans at a time"];
+    if ($quantity > 5000) {
+        confess [1011, "You can only assemble up to 5000 plans at a time"];
     }
     if ($quantity <= 0 or int($quantity) != $quantity) {
         confess [1001, "Quantity must be a positive integer"];
@@ -140,6 +140,7 @@ sub assemble_glyphs {
     my $plan = $building->make_plan($args->{glyphs}, $quantity);
     return {
         item_name           => $plan->class->name,
+        quantity            => $quantity,
         status              => $self->format_status($empire, $building->body),
     };
 }

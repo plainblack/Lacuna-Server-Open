@@ -103,6 +103,12 @@ Returns the list of spies you have on your roster.
                 "x" : 40,
                 "y" : -71
             },
+            "based_from" : {
+                "body_id" : "id-goes-here",
+                "name" : "Earth",
+                "x" : 40,
+                "y" : -71
+            },
             "is_available" : 1, # can be reassigned
             "available_on" : "01 31 2010 13:09:05 +0600", # if can't be reassigned, this is when will be available
             "started_assignment" : "01 31 2010 13:09:05 +0600",
@@ -133,7 +139,13 @@ The unique id of your Intelligence Ministry.
 
 Defaults to 1. An integer representing which page to view. Shows 25 spies per page.
 
+=head2 view_all_spies ( session_id, building_id )
 
+Returns the list of spies you have on your roster from that Intelligence Ministy. Otherwise identical to view_spies.
+
+=head2 view_empire_spies ( session_id, building_id )
+
+Returns the list of spies you have on your roster from your empire. Otherwise identical to view_spies.
 
 =head2 subsidize_training ( session_id, building_id )
 
