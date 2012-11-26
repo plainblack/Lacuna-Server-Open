@@ -124,6 +124,7 @@ for my $body_id (sort keys %has_fissures) {
                     is_working      => 0,
                     work_ends       => $now,
                     is_upgrading    => 0,
+                    date_created    => $now,
 
                 });
             }
@@ -245,10 +246,43 @@ for my $body_id (sort keys %has_fissures) {
                 alliance_id => undef,
             });
 
-            # Damage planets in range (damage depends upon distance from the event)
-            # get 10 closest planets
             my $minus_x = 0 - $body->x;
             my $minus_y = 0 - $body->y;
+            my $gas_giants = Lacuna->db->resultset('Map::Body')->search({
+                -and => [
+                    { class     => { like => 'Lacuna::DB::Result::Map::Body::Planet::G%' }},
+                ],
+            },{
+                '+select' => [
+                    { ceil => \"pow(pow(me.x + $minus_x,2) + pow(me.y + $minus_y,2), 0.5)", '-as' => 'distance' },
+                ],
+                '+as' => [
+                    'distance',
+                ],
+                order_by    => 'distance',
+            });
+            my $grown = 0;
+            GASSY:
+            while (my $to_grab_mass = $gas_giants->next) {
+                my $size = $to_grab_mass->size;
+                next if $size >= 121;
+                my $new_size = $size + randint(1,5);
+                $new_size = 121 if $new_size > 121;
+                $to_grab_mass->size($new_size);
+                $to_grab_mass->update;
+                out("Growing ".$to_grab_mass->name." to ".$size.".");
+                if ($to_grab_mass->empire) {
+                    $to_grab_mass->empire->send_predefined_message(
+                        tags        => ['Colonization','Alert'],
+                        filename    => 'changed_size.txt',
+                        params      => [$to_grab_mass->name, $size, $new_size],
+                    );
+                }
+                last GASSY if (++$grown >= 5);
+            }
+
+            # Damage planets in range (damage depends upon distance from the event)
+            # get 10 closest planets
             my $closest = Lacuna->db->resultset('Map::Body')->search({
                 -and => [
                     { empire_id => { '>'    => 1 }},
