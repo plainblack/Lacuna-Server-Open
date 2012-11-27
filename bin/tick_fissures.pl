@@ -19,10 +19,12 @@ my $start = time;
 out('Loading DB');
 our $db = Lacuna->db;
 
-out('Ticking fissures');
 my %has_fissures = map { $_->body_id => 1 } $db->resultset('Building')->search({
     class => 'Lacuna::DB::Result::Building::Permanent::Fissure',
     })->all;
+
+my $num_body = scalar keys %has_fissures;
+out('Ticking '.$num_body.' bodies with fissures');
 
 for my $body_id (sort keys %has_fissures) {
     my $body = $db->resultset('Map::Body')->find($body_id);
@@ -77,7 +79,7 @@ for my $body_id (sort keys %has_fissures) {
 
     # get number of Fissures at 0% efficiency and maximum level
     my $max_fissures = grep { $_->efficiency == 0 and $_->level >= 30 } @fissures;
-    if (($max_fissures == @fissures) or (scalar @fissures == 3)) {
+    if (($max_fissures == @fissures) or (scalar @fissures >= 3)) {
         if (scalar @fissures == 1) {
             out("    adding a second fissure!!!");
             # Then add a second fissure
@@ -301,7 +303,7 @@ for my $body_id (sort keys %has_fissures) {
             DAMAGED:
             while (my $to_damage = $closest->next) {
                 next if ($to_damage->in_neutral_area);
-                next if ($to_damage->type eq "space station");  # Since supply chains etc, will probably be damaged, they'll still be threatened.
+                next if ($to_damage->get_type eq "space station");  # Since supply chains etc, will probably be damaged, they'll still be threatened.
                 # damage planet
                 out("Damaging planet ".$to_damage->name." at distance ".$to_damage->get_column('distance'));
 
