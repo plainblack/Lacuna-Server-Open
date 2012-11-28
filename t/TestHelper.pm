@@ -99,13 +99,13 @@ sub use_existing_test_empire {
         say "Generate a colony orbit [".$home->orbit."] zone [".$home->zone."]";
         my ($colony) = Lacuna->db->resultset('Map::Body')->search({
             empire_id => undef,
-            size      => {'>' => 100},
+            size      => {'>' => 45},
             orbit     => $home->orbit,
             zone      => $home->zone,
         });
-    say "Colony = [$colony]";
+        say "Colony = [$colony]";
         
-$colony->found_colony($empire);
+        $colony->found_colony($empire);
         $self->build_big_colony($colony);
     }
     $empire->essentia(1_000_000);

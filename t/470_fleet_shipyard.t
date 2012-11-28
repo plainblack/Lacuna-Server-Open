@@ -71,7 +71,6 @@ $result = $tester->post('shipyard', 'get_buildable', [
     $test_shipyard->id,
     "Trade",
 ]);
-exit;
 
 $result = $tester->post('shipyard', 'build_fleet', [{
     session_id  => $test_session_id,
