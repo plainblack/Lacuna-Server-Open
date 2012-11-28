@@ -11,8 +11,8 @@ use DateTime;
 
 use TestHelper;
 
-#TestHelper->clear_all_test_empires;
-#diag("Cleared all test empires");
+TestHelper->clear_all_test_empires;
+diag("Cleared all test empires");
 
 my $tester = TestHelper->new->use_existing_test_empire;
 my $enemy  = TestHelper->new({empire_name => 'TLE Test Enemy'})->use_existing_test_empire;
