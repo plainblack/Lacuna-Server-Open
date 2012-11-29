@@ -18,7 +18,8 @@ sub www_view_stats {
     my $row = sub {
         return '<tr><td>'.$_[0].'</td><td>'.$_[1].'</td><td>'.$_[2].'</td></tr>';
     };
-    my $thirty_days_ago = DateTime->now->subtract(days=>30);
+    my $dt_parser = Lacuna->db->storage->datetime_parser;
+    my $thirty_days_ago = $dt_parser->format_datetime( DateTime->now->subtract(days=>30) );
     my $out = "<h1>Stats for $name</h1><table style=\"width: 100%;\"><tr><th>Statistic</th><th>Past 30 Days</th><th>All Time</th></tr>";
     my $login = Lacuna->db->resultset('Lacuna::DB::Result::Log::Login')->search({api_key => $pair->public_key});
     $out .= $row->('Empires Using',

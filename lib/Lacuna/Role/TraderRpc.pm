@@ -152,8 +152,11 @@ sub get_prisoners {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    my $dt_parser = Lacuna->db->storage->datetime_parser;
+    my $now = $dt_parser->format_datetime( DateTime->now );
+
     my $prisoners = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-        { on_body_id => $building->body_id, task => 'Captured', available_on => { '>' => DateTime->now } },
+        { on_body_id => $building->body_id, task => 'Captured', available_on => { '>' => $now } },
         {order_by => [ 'name' ]}
         );
     my @out;

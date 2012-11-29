@@ -26,6 +26,10 @@ sub foreign_spies {
 
 sub prisoners {
     my $self = shift;
+
+    my $dt_parser = Lacuna->db->storage->datetime_parser;
+    my $now = $dt_parser->format_datetime( DateTime->now );
+
     return  Lacuna
         ->db
         ->resultset('Lacuna::DB::Result::Spies')
@@ -33,7 +37,7 @@ sub prisoners {
             {
                 on_body_id  => $self->body_id,
                 task        => { 'in' => [ 'Captured', 'Prisoner Transport' ] },
-                available_on=> { '>' => DateTime->now },
+                available_on=> { '>' => $now },
             }
         );
 }

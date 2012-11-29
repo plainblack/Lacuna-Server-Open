@@ -34,7 +34,9 @@ sub www_add_essentia {
         body    => 'I have approved a mission pack for '.$empire->name.'.',
         tags    => ['Mission','Correspondence'],
     );
-    my $recent = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search({ empire_id => $curator->id, description => 'Mission Curator', date_stamp => { '>' => DateTime->now->subtract(days => 7)}})->count;
+    my $dt_parser = Lacuna->db->storage->datetime_parser;
+    my $seven_days_ago = $dt_parser->format_datetime( DateTime->now->subtract(days => 7) );
+    my $recent = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search({ empire_id => $curator->id, description => 'Mission Curator', date_stamp => { '>' => $seven_days_ago}})->count;
     $curator->add_essentia(100, 'Mission Curator')->update unless $recent;
     return $self->www_default($request, 'Essentia Added');
 }
