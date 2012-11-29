@@ -123,8 +123,8 @@ sub rearrange_buildings {
   my @miss_in_new; my @miss_in_cur;
   for my $building (@$arrangement) {
     my $id = $building->{id};
-    my $x  = $building->{x};
-    my $y  = $building->{y};
+    my $x  = int( $building->{x} );
+    my $y  = int( $building->{y} );
     $new_ids{$id} = {
       x     => $x,
       y     => $y,
