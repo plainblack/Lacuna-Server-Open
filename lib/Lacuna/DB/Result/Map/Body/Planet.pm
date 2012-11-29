@@ -374,16 +374,17 @@ around get_status => sub {
                 $out->{skip_incoming_ships} = $empire->skip_incoming_ships;
                 if (1) {
 #                if (not $empire->skip_incoming_ships) {
-                    my $now = time;
-
                     my $foreign_bodies;
                     # Process all ships that have already arrived
+
+                    my $dt_parser = Lacuna->db->storage->datetime_parser;
+                    my $now = $dt_parser->format_datetime( DateTime->now );
 
                     my $incoming_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
                         foreign_body_id     => $self->id,
                         direction           => 'out',
                         task                => 'Travelling',
-                        date_available      => {'<' => DateTime->now.''},
+                        date_available      => {'<' => $now},
                     });
                     while (my $ship = $incoming_rs->next) {
                         $foreign_bodies->{$ship->body_id} = 1;
@@ -1313,6 +1314,7 @@ sub tick {
     
     my $now = DateTime->now;
     my $now_epoch = $now->epoch;
+    my $dt_parser = Lacuna->db->storage->datetime_parser;
     my %todo;
     my $i; # in case 2 things finish at exactly the same time
 
@@ -1341,7 +1343,7 @@ sub tick {
     # get ship tasks
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
         body_id         => $self->id,
-        date_available  => { '<=' => $now },
+        date_available  => { '<=' => $dt_parser->format_datetime($now) },
         task            => { '!=' => 'Docked' },
     });
     while (my $ship = $ships->next ) {

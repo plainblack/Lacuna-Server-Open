@@ -609,6 +609,9 @@ sub prepare_fetch_spies {
     while (my $ship = $ships->next) {
         push @ships, $ship->get_status($on_body);
     }
+
+    my $dt_parser = Lacuna->db->storage->datetime_parser;
+    my $now = $dt_parser->format_datetime( DateTime->now );
     
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
         {
@@ -618,7 +621,7 @@ sub prepare_fetch_spies {
                 task => { in => [ 'Idle', 'Counter Espionage' ], },
                 -and => [
                     task => { in => [ 'Unconscious', 'Debriefing' ], },
-                    available_on => { '<' => '\NOW()' }, 
+                    available_on => { '<' => $now }, 
                 ],
             ],
         },
