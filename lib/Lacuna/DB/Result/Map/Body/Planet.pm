@@ -700,7 +700,9 @@ has embassy => (
         );    
 
 sub is_space_free {
-    my ($self, $x, $y) = @_;
+    my ($self, $unclean_x, $unclean_y) = @_;
+    my $x = int( $unclean_x );
+    my $y = int( $unclean_y );
     my $count = grep {$_->x == $x and $_->y == $y} @{$self->building_cache};
     return 0 if $count > 0;
     return 1;
@@ -732,7 +734,9 @@ sub find_free_space {
 }
 
 sub check_for_available_build_space {
-    my ($self, $x, $y) = @_;
+    my ($self, $unclean_x, $unclean_y) = @_;
+    my $x = int( $unclean_x );
+    my $y = int( $unclean_y );
     if ($x > 5 || $x < -5 || $y > 5 || $y < -5) {
         confess [1009, "That's not a valid space for a building.", [$x, $y]];
     }
