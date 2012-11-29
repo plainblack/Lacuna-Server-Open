@@ -137,9 +137,12 @@ sub view {
 }
 
 sub build {
-    my ($self, $session_id, $body_id, $x, $y) = @_;
+    my ($self, $session_id, $body_id, $unclean_x, $unclean_y) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
+
+    my $x = int( $unclean_x );
+    my $y = int( $unclean_y );
 
     if ($x eq '' || $y eq '' || $x < -5 || $y < -5 || $x > 5 || $y > 5) {
             confess [1009, "You must specify an x,y coordinate to place the building that is between -5 and 5.", [$x, $y]];
