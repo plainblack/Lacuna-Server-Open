@@ -21,7 +21,6 @@ use constant build_tags             => ['Exploration'];
 
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Uninhabited";
-with "Lacuna::Role::Ship::Send::IsHostile";
 with "Lacuna::Role::Ship::Arrive::SealFissure";
 
 no Moose;

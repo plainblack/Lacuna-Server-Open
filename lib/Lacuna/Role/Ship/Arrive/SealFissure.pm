@@ -24,26 +24,34 @@ after handle_arrival_procedures => sub {
 
     # handle fissure
     if (defined $fissure) {
-        my $curr_eff = $fissure->efficiency + randint(1,7);
+        my $curr_eff = $fissure->efficiency + randint(1,5);
         $curr_eff = 100 if $curr_eff > 100;
         my $curr_lev = $fissure->level;
 
-        if ( int(5.5 + $curr_eff/10) > randint(0,99) ) {
+        my $down_chance = $curr_eff;
+	$down_chance = 5 if ($down_chance < 5);
+        $down_chance = 95 if ($down_chance > 95);
+
+        if ( $down_chance > randint(0,99) ) {
             $curr_lev--;
         }
         if ($curr_lev < 1) {
             $fissure->delete;
+            $self->body->empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'we_destroyed_a_fissure.txt',
+                params      => [$self->type_formatted, $body_hit->x, $body_hit->y, $body_hit->name ],
         }
         else {
             $fissure->level($curr_lev);
             $fissure->efficiency($curr_eff);
             $fissure->update;
+            $self->body->empire->send_predefined_message(
+                tags        => ['Alert'],
+                filename    => 'our_ship_hit_fissure.txt',
+                params      => [$self->type_formatted, $body_hit->x, $body_hit->y, $body_hit->name, $curr_lev, $curr_eff ],
+            );
         }
-        $self->body->empire->send_predefined_message(
-            tags        => ['Alert'],
-            filename    => 'our_ship_hit_fissure.txt',
-            params      => [$self->type_formatted, $body_hit->x, $body_hit->y, $body_hit->name, $curr_lev, $curr_eff ],
-        );
         $self->delete;
         $body_hit->needs_surface_refresh(1);
         $body_hit->update;
