@@ -7,6 +7,7 @@ extends 'Lacuna::RPC::Building';
 use Lacuna::Constants qw(SHIP_TYPES);
 use Lacuna::Util qw(format_date);
 use Data::Dumper;
+use POSIX qw(ceil);
 
 use feature "switch";
 
@@ -183,49 +184,59 @@ sub send_fleet {
         $new_fleet->send(target => $target);
     }
     else {
-        my $month   = $args->{arrival_date}{month};
-        my $date    = $args->{arrival_date}{date};
-        my $hour    = $args->{arrival_date}{hour};
-        my $minute  = $args->{arrival_date}{minute};
-        my $second  = $args->{arrival_date}{second};
-        if ($second != 0 and $second != 15 and $second != 30 and $second != 45) {
-            confess [1009, 'Seconds can only be one of 0,15,30 or 45'];
-        }
-        if ($minute < 0 or $minute > 59 or $minute != int($minute)) {
-            confess [1009, 'Minutes must be an integer between 0 and 59'];
-        }
-        if ($hour < 0 or $hour > 23 or $hour != int($hour)) {
-            confess [1009, 'Hours must be an integer between 0 and 23'];
-        }
-        if ($month < 1 or $month > 12 or $month != int($month)) {
-            confess [1009, 'Month must be an integer between 1 and 12'];
-        }
-        my $now = DateTime->now;
-        my $month_now   = $now->month;
-        my $year_now    = $now->year;
-        my $year        = $year_now;
-        # if it is for a date next year
-        if ($month < $month_now) {
-            $year = $year_now + 1;
-        }
-        my $arrival_date = DateTime->new(
-            year        => $year,
-            month       => $month,
-            day         => $date,
-            hour        => $hour,
-            minute      => $minute,
-            second      => $second,
-        );
-        my $earliest_arrival = DateTime->now->add(seconds=>$fleet->calculate_travel_time($target));
-        if ($arrival_date < $earliest_arrival) {
-            confess [1009, 'The fleet is not fast enough to arrive by that date'];
-        }
+        my $arrival_date = $self->calculate_arrival($fleet, $target, $args->{arrival_date});
         $new_fleet->send(target => $target, arrival => $arrival_date);
     }
     return {
         fleet   => $fleet->get_status,
         status  => $self->format_status($empire),
     };
+}
+
+
+# calculate arrival time
+#
+sub calculate_arrival {
+    my ($self, $fleet, $target, $args) = @_;
+
+    my $month   = $args->{month};
+    my $date    = $args->{date};
+    my $hour    = $args->{hour};
+    my $minute  = $args->{minute};
+    my $second  = $args->{second};
+    if ($second != 0 and $second != 15 and $second != 30 and $second != 45) {
+        confess [1009, 'Seconds can only be one of 0,15,30 or 45'];
+    }
+    if ($minute < 0 or $minute > 59 or $minute != int($minute)) {
+        confess [1009, 'Minutes must be an integer between 0 and 59'];
+    }
+    if ($hour < 0 or $hour > 23 or $hour != int($hour)) {
+        confess [1009, 'Hours must be an integer between 0 and 23'];
+    }
+    if ($month < 1 or $month > 12 or $month != int($month)) {
+        confess [1009, 'Month must be an integer between 1 and 12'];
+    }
+    my $now = DateTime->now;
+    my $month_now   = $now->month;
+    my $year_now    = $now->year;
+    my $year        = $year_now;
+    # if it is for a date next year
+    if ($month < $month_now) {
+        $year = $year_now + 1;
+    }
+    my $arrival_date = DateTime->new(
+        year        => $year,
+        month       => $month,
+        day         => $date,
+        hour        => $hour,
+        minute      => $minute,
+        second      => $second,
+    );
+    my $earliest_arrival = DateTime->now->add(seconds => $fleet->calculate_travel_time($target));
+    if ($arrival_date < $earliest_arrival) {
+        confess [1009, 'The fleet is not fast enough to arrive by that date'];
+    }
+    return $arrival_date;
 }
 
 sub recall_fleet {
@@ -263,16 +274,26 @@ sub recall_fleet {
 }
 
 sub prepare_send_spies {
-    my ($self, $session_id, $on_body_id, $to_body_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, body_id => $on_body_id});
-    my $empire   = $session->current_empire;
-    my $on_body  = $session->current_body;
-    if ($on_body_id == $to_body_id) {
-        confess [1013, "Cannot send spies to one self."];
-    }
-    my $to_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($to_body_id);
+    my $self = shift;
+    my $args = shift;
 
-    unless ($to_body->empire_id) {
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            on_body_id  => shift,
+            to_body_id  => shift,
+        };
+    }
+    my $empire  = $self->get_empire_by_session($args->{session_id});
+    if ($args->{to_body_id}) {
+        $args->{to_body} = { body_id => $args->{to_body_id}};
+    }
+    my $on_body = $self->get_body($empire, $args->{on_body_id});
+    my $to_body = $self->find_target($args->{to_body});
+    if (not $to_body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
+        confess [1009, "Can only send spies to a planet."];
+    }
+    if (not $to_body->empire_id) {
         confess [1009, "Cannot send spies to an uninhabited body."];
     }
     if ($to_body->empire->is_isolationist) {
@@ -288,39 +309,27 @@ sub prepare_send_spies {
         $max_berth = 1;
     }
 
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
-         task=>'Docked', body_id => $on_body_id,
-         berth_level => {'<=' => $max_berth } },
-        {order_by => 'name', rows=>100}
-    );
-    my @ships;
-    while (my $ship = $ships->next) {
-        push @ships, $ship->get_status($to_body);
+    my $fleets_rs = Lacuna->db->resultset('Fleet')->search({
+        type        => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
+        task        => 'Docked', 
+        body_id     => $on_body->id,
+        berth_level => {'<=' => $max_berth },
+        },{
+        order_by    => 'name', 
+        rows        => 100,
+    });
+    my @fleets;
+    while (my $fleet = $fleets_rs->next) {
+        push @fleets, $fleet->get_status($to_body);
     }
-
-    my $dt_parser = Lacuna->db->storage->datetime_parser;
-    my $now = $dt_parser->format_datetime( DateTime->now );
-
-    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-        {
-            on_body_id => $on_body->id, 
-            empire_id => $empire->id,
-            -or => [
-                task => { in => [ 'Idle', 'Counter Espionage' ], },
-                -and => [
-                    task => { in => [ 'Unconscious', 'Debriefing' ], },
-                    available_on => { '<' => $now }, 
-                ],
-            ],
-        },
-        {
-            # match the order_by in L::RPC::B::Intelligence::view_spies
-            order_by => {
-                -asc => [ qw/name id/ ],
-            }
-        },
-    );
+    # TODO factor out the 'available spies' code
+    my $spies = Lacuna->db->resultset('Spies')->search({
+        on_body_id  => $on_body->id, 
+        empire_id   => $empire->id,
+        },{
+        order_by    => 'name', 
+        rows        => 100,
+    });
     my @spies;
     while (my $spy = $spies->next) {
         $spy->on_body($on_body);
@@ -332,25 +341,39 @@ sub prepare_send_spies {
     undef $spies;
 
     return {
-        status  => $self->format_status($session),
-        ships   => \@ships,
+        status  => $self->format_status($empire),
+        fleets  => \@fleets,
         spies   => \@spies,
     };
 }
 
 sub send_spies {
-    my ($self, $session_id, $on_body_id, $to_body_id, $ship_id, $spy_ids) = @_;
-    my $session  = $self->get_session({session_id => $session_id, body_id => $on_body_id});
-    my $empire   = $session->current_empire;
-    if ($on_body_id == $to_body_id) {
-        confess [1013, "Cannot send spies to one self."];
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            on_body_id  => shift,
+            to_body_id  => shift,
+            fleet_id    => shift,
+            spy_ids     => shift,
+        };
     }
-    my $on_body = $session->current_body();
-    my $to_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($to_body_id);
-    
-    # make sure it's a valid target
-    unless ($to_body->empire_id) {
-        confess [ 1009, 'Cannot send spies to an uninhabited body.'];
+    $args->{ship_quantity} = $args->{ship_quantity} || 1;
+    $args->{arrival_date} = {soonest => 1} if not defined $args->{arrival_date};
+ 
+    my $empire  = $self->get_empire_by_session($args->{session_id});
+    if ($args->{to_body_id}) {
+        $args->{to_body} = { body_id => $args->{to_body_id}};
+    }
+    my $on_body = $self->get_body($empire, $args->{on_body_id});
+    my $to_body = $self->find_target($args->{to_body});
+    if (not $to_body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
+        confess [1009, "Can only send spies to a planet."];
+    }
+    if (not $to_body->empire_id) {
+        confess [1009, "Cannot send spies to an uninhabited body."];
     }
     if ($to_body->empire->is_isolationist) {
         confess [ 1013, sprintf('%s is an isolationist empire, and must be left alone.',$to_body->empire->name)];
@@ -360,43 +383,50 @@ sub send_spies {
         $empire->current_session->check_captcha;
     }
 
-    # get the ship
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    unless (defined $ship) {
-        confess [1002, "Ship not found."];
+    # get the fleet
+    my $fleet = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
+    if (not defined $fleet) {
+        confess [1002, "Fleet not found."];
     }
-    unless ($ship->is_available) {
-        confess [1010, "That ship is not available."];
+    if (not $fleet->is_available) {
+        confess [1010, "That fleet is not available."];
     }
     my $max_berth = $on_body->max_berth;
-    unless ($ship->berth_level <= $max_berth) {
-        confess [1010, "Your spaceport level is not high enough to support a ship with a Berth Level of ".$ship->berth_level."."];
+    if ($fleet->berth_level > $max_berth) {
+        confess [1010, "Your spaceport level is not high enough to support a fleet with a Berth Level of ".$fleet->berth_level."."];
+    }
+    if ($fleet->quantity < $args->{ship_quantity}) {
+        confess [1009, "That fleet does not have ".$args->{ship_quantity}." ships in it."];
     }
 
     # check size
-    unless (scalar(@{$spy_ids})) {
-        confess [1013, "You can't send a ship with no spies."];
+    my $spies_to_send = scalar(@{$args->{spy_ids}});
+
+    if ($spies_to_send < 1) {
+        confess [1013, "You can't send a fleet with no spies."];
     }
-    
-    if ($ship->type eq 'spy_pod' && scalar(@{$spy_ids}) == 1) {
-        # we're ok
+   
+    if ($fleet->max_occupants * $args->{ship_quantity} < $spies_to_send) {
+        confess [1010, "That number of ships cannot hold the spies selected."];
     }
-    elsif ($ship->type eq 'spy_shuttle' && scalar(@{$spy_ids}) <= 4) {
-        # we're ok
-    }
-    elsif ($ship->hold_size <= (scalar(@{$spy_ids}) * 350)) {
-        confess [1010, "The ship cannot hold the spies selected."];
-    }
-    
-    # get a spies
+
+    # get the spies
     my @ids_sent;
     my @ids_not_sent;
-    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
-    foreach my $id (@{$spy_ids}) {
+    my $spies = Lacuna->db->resultset('Spies');
+    my $arrives;
+    
+    if ($args->{arrival_date}{soonest}) {
+        $arrives = DateTime->now->add(seconds => $fleet->calculate_travel_time($to_body));
+    }
+    else {
+        $arrives = $self->calculate_arrival($fleet, $to_body, $args->{arrival_date});
+    }
+
+    foreach my $id (@{$args->{spy_ids}}) {
         my $spy = $spies->find($id);
-        if ($spy->is_available and $spy->on_body_id == $on_body_id) {
+        if ($spy->is_available and $spy->on_body_id == $on_body->id) {
             if ($spy->empire_id == $empire->id) {
-                my $arrives = DateTime->now->add(seconds=>$ship->calculate_travel_time($to_body));
                 push @ids_sent, $spy->id;
                 $spy->send($to_body->id, $arrives)->update;
             }
@@ -410,13 +440,14 @@ sub send_spies {
     }
     if (scalar @ids_sent) {
         # send it
-        $ship->send(
+        my $fleet = $fleet->split($args->{ship_quantity});
+        $fleet->send(
             target      => $to_body,
             payload     => {spies => \@ids_sent }, # add the spies to the payload when we send, otherwise they'll get added again
         );
     }
     return {
-        ship            => $ship->get_status,
+        fleet           => $fleet->get_status,
         spies_sent      => \@ids_sent,
         spies_not_sent  => \@ids_not_sent,
         status          => $self->format_status($session, $on_body)
@@ -424,53 +455,64 @@ sub send_spies {
 }
 
 sub prepare_fetch_spies {
-    my ($self, $session_id, $on_body_id, $to_body_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, body_id => $to_body_id});
-    my $empire   = $session->current_empire;
-    if ($on_body_id == $to_body_id) {
-        confess [1013, "Cannot fetch spies to one self."];
-    }
-    my $to_body = $session->current_body;
-    my $on_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($on_body_id);
-    unless ($on_body->empire_id) {
-        confess [1013, "Cannot fetch spies from an uninhabited planet."];
-    }
+    my $self = shift;
+    my $args = shift;
 
-    my $max_berth = $to_body->max_berth;
-    unless ($max_berth) {
-        $max_berth = 1;
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            on_body_id  => shift,
+            to_body_id  => shift,
+        };
     }
-
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {type => { in => [qw(cargo_ship smuggler_ship dory spy_shuttle barge)]},
-         task=>'Docked', body_id => $to_body_id,
-         berth_level => {'<=' => $max_berth } },
-        {order_by => 'name', rows=>100}
-    );
-    my @ships;
-    while (my $ship = $ships->next) {
-        push @ships, $ship->get_status($on_body);
+    my $empire  = $self->get_empire_by_session($args->{session_id});
+    if ($args->{on_body_id}) {
+        $args->{on_body} = { body_id => $args->{on_body_id}};
+    }
+    my $to_body = $self->get_body($empire, $args->{to_body_id});
+    my $on_body = $self->find_target($args->{on_body});
+    if (not $on_body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
+        confess [1009, "Can only fetch spies from a planet."];
+    }
+    if (not $on_body->empire_id) {
+        confess [1013, "Cannot fetch spies from an uninhabited body."];
     }
 
-    my $dt_parser = Lacuna->db->storage->datetime_parser;
-    my $now = $dt_parser->format_datetime( DateTime->now );
+    my $max_berth = $to_body->max_berth || 1;
 
-    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-        {
-            on_body_id => $on_body->id, 
-            empire_id => $empire->id,
-            -or => [
-                task => { in => [ 'Idle', 'Counter Espionage' ], },
-                -and => [
-                    task => { in => [ 'Unconscious', 'Debriefing' ], },
-                    available_on => { '<' => $now }, 
-                ],
+    my $fleets_rs = Lacuna->db->resultset('Fleet')->search({
+        type        => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
+        task        => 'Docked', 
+        body_id     => $to_body->id,
+        berth_level => {'<=' => $max_berth },
+        },{
+        order_by    => 'name', 
+        rows        => 100,
+    });
+    my @fleets;
+    while (my $fleet = $fleets_rs->next) {
+        push @fleets, $fleet->get_status($on_body);
+    }
+
+    # Get all available spies (is this common enough to code in Spies?)
+    my $spies_rs = Lacuna->db->resultset('Spies')->search({
+        on_body_id  => $on_body->id, 
+        empire_id   => $empire->id,
+        -or => [
+            task        => { in => [ 'Idle', 'Counter Espionage' ], },
+            -and        => [
+                task            => { in => [ 'Unconscious', 'Debriefing' ], },
+                available_on    => { '<' => '\NOW()' }, 
             ],
-        },
-        {order_by => 'name'}
+        ],
+        },{
+            order_by    => 'name', 
+            rows        => 100,
+        }
     );
+
     my @spies;
-    while (my $spy = $spies->next) {
+    while (my $spy = $spies_rs->next) {
         $spy->on_body($on_body);
         if ($spy->is_available) {
             push @spies, $spy->get_status;
@@ -480,25 +522,40 @@ sub prepare_fetch_spies {
     undef $spies;
     
     return {
-        status  => $self->format_status($session),
-        ships   => \@ships,
+        status  => $self->format_status($empire),
+        fleets  => \@fleets,
         spies   => \@spies,
     };
 }
 
 sub fetch_spies {
-    my ($self, $session_id, $on_body_id, $to_body_id, $ship_id, $spy_ids) = @_;
-    my $session  = $self->get_session({session_id => $session_id, body_id => $to_body_id});
-    my $empire   = $session->current_empire;
-    if ($on_body_id == $to_body_id) {
-        confess [1013, "Cannot fetch spies to one self."];
-    }
-    my $to_body = $session->current_body;
-    my $on_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($on_body_id);
+    my $self = shift;
+    my $args = shift;
 
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            on_body_id  => shift,
+            to_body_id  => shift,
+            fleet_id    => shift,
+            spy_ids     => shift,
+        };
+    }
+    my $empire  = $self->get_empire_by_session($args->{session_id});
+    if ($args->{on_body_id}) {
+        $args->{on_body} = { body_id => $args->{on_body_id}};
+    }
+    my $to_body = $self->get_body($empire, $args->{to_body_id});
+    my $on_body = $self->find_target($args->{on_body});
+    if (not $on_body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
+        confess [1009, "Can only fetch spies from a planet."];
+    }
+    if (not $on_body->empire_id) {
+        confess [1013, "Cannot fetch spies from an uninhabited body."];
+    }
     my $max_berth = $to_body->max_berth;
 
-    # get a spies
+    # get spies
     my @ids_fetched;
     my @ids_not_fetched;
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
@@ -512,46 +569,45 @@ sub fetch_spies {
         }
     }
 
-    # get the ship
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    unless (defined $ship) {
-        confess [1002, "Ship not found."];
+    # get the fleet
+    my $fleet = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
+    unless (defined $fleet) {
+        confess [1002, "Fleet not found."];
     }
-    unless ($ship->is_available || ($ship->can_recall && $ship->foreign_body_id == $on_body_id)) {
-        confess [1010, "That ship is not available."];
-    }
-
-    unless ($ship->berth_level <= $max_berth) {
-        confess [1010, "Your spaceport level is not high enough to support a ship with a Berth Level of ".$ship->berth_level."."];
+    unless ($fleet->is_available || ($fleet->can_recall && $fleet->foreign_body_id == $on_body->id)) {
+        confess [1010, "That fleet is not available."];
     }
 
-    unless ($on_body->empire_id) {
+    if ($fleet->berth_level > $max_berth) {
+        confess [1010, "Your spaceport level is not high enough to support a fleet with a Berth Level of ".$fleet->berth_level."."];
+    }
+
+    if (not $on_body->empire_id) {
         confess [1013, "Cannot fetch spies from an uninhabited planet."];
     }
 
-    unless (scalar(@ids_fetched)) {
-        confess [1013, "You can't send a ship to collect no one."];
+    if (not scalar(@{$args->{spy_ids}})) {
+        confess [1013, "You can't send a fleet to collect no spies."];
     }
     
     # check size
-    if ($ship->type eq 'spy_shuttle' && scalar(@ids_fetched) <= 4) {
-        # we're ok
-    }
-    elsif ($ship->hold_size <= (scalar(@ids_fetched) * 350)) {
-        confess [1013, "The ship cannot hold the spies selected."];
+    my $no_of_ships = ceil(scalar(@{$args->{spy_ids}}) / $fleet->max_occupants);
+    if ($fleet->quantity < $no_of_ships) {
+        confess [1013, "The fleet cannot hold the spies selected."];
     }
     
     # send it
-    $ship->send(
+    $fleet = $fleet->split($no_of_ships);
+    $fleet->send(
         target      => $on_body,
         payload     => { fetch_spies => \@ids_fetched },
     );
 
     return {
-        ship    => $ship->get_status,
+        fleet   => $fleet->get_status,
         spies_fetched      => \@ids_fetched,
         spies_not_fetched  => \@ids_not_fetched,
-        status  => $self->format_status($session, $to_body),
+        status  => $self->format_status($empire, $to_body),
     };
 }
 
@@ -768,6 +824,40 @@ sub view_orbiting_fleets {
     return $self->_view_fleets($args);
 }
 
+sub view_mining_platforms {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            target          => shift,
+        };
+    }
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $target = $self->find_target($args->{target});
+    my $platform_rs = Lacuna->db->resultset('MiningPlatforms');
+    if (not $target->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
+        confess [1002, 'Target is not an Asteroid.'];
+    }
+    $platform_rs = $platform_rs->search({
+        asteroid_id     => $target->id,
+        },{
+        prefetch        => {planet => 'empire'},
+    });
+    my @platforms;
+    while (my $platform = $platform_rs->next) {
+        push @platforms, {
+            empire_id   => $platform->planet->empire_id,
+            empire_name => $platform->planet->empire->name,
+        };
+    }
+    my %out = (
+        status              => $self->format_status($empire),
+        mining_platforms    => \@platforms,
+    );
+    return \%out;
+}
 
 
 

@@ -916,191 +916,250 @@ The array reference B<travelling> shows each fleet and the B<quantity> of ships 
 
 
 
-=head2 prepare_send_spies ( session_id, on_body_id, to_body_id )
+=head2 prepare_send_spies
 
 Gathers the information needed to call the C<send_spies> method.
 
- {
-    "status" : { ... },
-    "ships" : [
-        {
-            "id" : "id-goes-here",
-            "name" : "CS4",
-            "hold_size" : 1100,
-            "berth_level" : 1,
-            "speed" : 400,
-            "type" : "cargo_ship",
-            "estimated_travel_time" : 3600, # in seconds
-            ...
-        },
-        ...
-    ],
-    "spies" : [
-        {
-            "id" : "id-goes-here",
-            "level" : 12,
-            "name" : "Jack Bauer",
-            "assigned_to" : {
-               "body_id" : "id-goes-here",
-               "name" : "Earth"
-            },
-            ...
-        },
-        ...
-    ]
- }
- 
-B<NOTE:> Only a certain number of spies can fit in each type of ship. Spy Pods can hold 1. Spy Shuttles can hold 4. And ships with a cargo hold can hold 1 for every 350 units of hold size.
+Accepts either fixed arguments or a hash of named parameters
 
-=head3 session_id
-
-A session id.
-
-=head3 on_body_id
+ ( session_id, on_body_id, to_body_id )
+ ( parameter_hash )
+  
+=head3 session_id (required)
+  
+A session ID
+  
+=head3 on_body_id (required)
 
 The unique id of the planet that the spies are on and ship will be dispatched from.
 
 =head3 to_body_id
 
-The unique id of the planet that the spies should be sent to.
+The unique id of the planet that the spies should be sent to. This is a required parameter
+if using fixed arguments. With named arguments you can use either C<to_body_id> or C<target>
 
+=head3 to_body
 
+The planet where you want to send spies to. This can be used instead of C<to_body_id> if
+you are using named arguments. This is a hash reference. See C<target> for examples although the
+target may only be an occupied Planet. (named, by ID or by x,y)
 
-
-=head2 send_spies ( session_id, on_body_id, to_body_id, ship_id, spy_ids )
-
-Sends one or more of spies to a planet using a selected ship. See also C<prepare_send_spies>.
+=head3 RESPONSE
 
  {
-     "ship" : {
-        "id" : "id-goes-here",
-        "name" : "CS4",
-        "hold_size" : 1100,
-        "berth_level" : 1,
-        "speed" : 400,
-        "type" : "cargo_ship",
-        "date_arrives" : "01 31 2010 13:09:05 +0600",
-        ...
+   "status" : { ... },
+   "fleets" : [
+     {
+       "id" :           "id-goes-here",
+       "quantity" :     1,
+       "name" :         "CS4",
+       "hold_size" :    1100,
+       "speed" :        400,
+       "type" :         "cargo_ship",
+       "estimated_travel_time" : 3600, # in seconds
+       ...
      },
-    "spies_sent" : ["id-goes-here","id-goes-here","id-goes-here"],     # should be identical to "spy_ids"
-    "spies_not_sent" : ["id-goes-here","id-goes-here","id-goes-here"],  # should only contain something if you're cheating, or a spy dies/turns between RPC calls
-    "status" : { ... }
+     ...
+   ],
+   "spies" : [
+     {
+       "id" :           "id-goes-here",
+       "level" :        12,
+       "name" :         "Jack Bauer",
+       "assigned_to" : {
+         "body_id" :        "id-goes-here",
+         "name" :           "Earth"
+       },
+       ...
+     },
+     ...
+   ]
  }
+ 
+B<NOTE:> Only a certain number of spies can fit in each type of ship. Spy Pods can hold 1. Spy Shuttles can hold 4. 
+and ships with a cargo hold can hold 1 for every 350 units of hold size. Note however that a fleet of (say) 10 spy pods
+can hold 10 spies.
 
-=head3 session_id
 
-A session id.
+=head2 send_spies
 
-=head3 on_body_id
+Send one or more spies to a target using a selected fleet. See also C<prepare_send_spies>
 
-The unique id of the planet that should send the ship and that has the spies.
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, on_body_id, to_body_id, fleet_id, spy_ids )
+ ( parameter_hash )
+  
+=head3 session_id (required)
+  
+A session ID
+  
+=head3 on_body_id (required)
+
+The unique id of the planet that the spies are on and fleet will be dispatched from.
 
 =head3 to_body_id
 
-The unique id of the planet that the spies should be sent to.
+The unique id of the planet that the spies should be sent to. This is a required parameter
+if using fixed arguments. With named arguments you can use either C<to_body_id> or C<to_body>
 
-=head3 ship_id
+=head3 fleet_id (required)
 
-The unique id of the ship to send.
+The unique ID of the fleet.
 
-=head3 spy_ids
+=head3 spy_ids (required)
 
-An array reference of spy ids to send. 
+An array reference of spy ids to send
+
+=head3 ship_quantity
+
+The number of ships to send from the fleet (defaults to 1)
+
+=head3 to_body
+
+The planet where you want to send spies to. This can be used instead of C<to_body_id> if
+you are using named arguments. See
+
+=head3 arrival_date (optional)
+
+See C<send_fleet> for details. If not specified will send fleet to arrive at the soonest time.
+May only be specified with the named arguments calling convention.
+
+=head3 RESPONSE
+
+ {
+   "fleet" : {
+     "id" :             "id-goes-here",
+     "quantity" :       1,
+     "name" :           "CS4",
+     "hold_size" :      1100,
+     "speed" :          400,
+     "type" :           "cargo_ship",
+     "date_arrives" :   "01 31 2010 13:09:05 +0600",
+     ...
+   },
+   "spies_sent" :       ["id-goes-here","id-goes-here","id-goes-here"],     # should be identical to "spy_ids"
+   "spies_not_sent" :   ["id-goes-here","id-goes-here","id-goes-here"],  # should only contain something if you're cheating, or a spy dies/turns between RPC calls
+   "status" :           { ... }
+ }
 
 
-
-
-=head2 prepare_fetch_spies ( session_id, on_body_id, to_body_id )
+=head2 prepare_fetch_spies
 
 Gathers the information needed to call the C<fetch_spies> method.
 
- {
-    "status" : { ... },
-    "ships" : [
-        {
-            "id" : "id-goes-here",
-            "name" : "CS4",
-            "hold_size" : 1100,
-            "berth_level" : 1,
-            "speed" : 400,
-            "type" : "cargo_ship",
-            "estimated_travel_time" : 3600, # in seconds
-            ...
-        },
-        ...
-    ],
-    "spies" : [
-        {
-            "id" : "id-goes-here",
-            "level" : 12,
-            "name" : "Jack Bauer",
-            "assigned_to" : {
-               "body_id" : "id-goes-here",
-               "name" : "Earth"
-            },
-            ...
-        },
-        ...
-    ]
- }
+Accepts either fixed arguments or a hash of named parameters
 
-=head3 session_id
-
-A session id.
-
+ ( session_id, on_body_id, to_body_id)
+ ( parameter_hash )
+  
+=head3 session_id (required)
+  
+A session ID
+  
 =head3 on_body_id
 
-The unique id of the planet that the spies are on.
+The unique id of the planet that the spies are on. This is a required parameter if using
+fixed argument call. With named arguments you can either use C<on_body_id> or C<on_body>
 
 =head3 to_body_id
 
-The unique id of the planet that the spies should be sent to, and the ship will be dispatched from.
+The unique ID of the planet to return the spies to. This is the planet from which the fleet
+is sent from.
+
+=head3 on_body
+
+This is an alternative way of specifying C<on_body_id> using a hash ref (see C<target>) but
+you can only specify the ID, name or x,y of an occupied Planet. Not available when using the
+fixed argument call method.
+
+=head3 RESPONSE
+
+ {
+   "status" : { ... },
+   "fleets" : [
+     {
+       "id" : "id-goes-here",
+       "name" : "CS4",
+       "hold_size" : 1100,
+       "speed" : 400,
+       "type" : "cargo_ship",
+       "estimated_travel_time" : 3600, # in seconds
+       ...
+     },
+     ...
+   ],
+   "spies" : [
+     {
+       "id" : "id-goes-here",
+       "level" : 12,
+       "name" : "Jack Bauer",
+       "assigned_to" : {
+         "body_id" : "id-goes-here",
+         "name" : "Earth"
+       },
+       ...
+     },
+     ...
+   ]
+ }
 
 
+=head2 fetch_spies
 
+Sends a specified fleet to fetch specified spies from C<on_body_id> or C<on_body>, and bring them
+back to C<to_body_id>. See also C<prepare_fetch_spies>
 
+Accepts either fixed arguments or a hash of named parameters
 
-=head2 fetch_spies ( session_id, on_body_id, to_body_id, ship_id, spy_ids )
+ ( session_id, on_body_id, to_body_id, fleet_id, spy_ids)
+ ( parameter_hash )
+  
+=head3 session_id (required)
+  
+A session ID
+  
+=head3 on_body_id
 
-Sends a specified ship to fetch specified spies from C<on_body_id>, and bring them back to C<to_body_id>. See also C<prepare_fetch_spies>.
+The unique id of the planet that the spies are on. This is a required parameter if using
+fixed argument call. With named arguments you can either use C<on_body_id> or C<on_body>
 
+=head3 to_body_id (required)
+
+The unique ID of the planet to return the spies to. This is the planet from which the fleet
+is sent from.
+
+=head3 on_body
+
+This is an alternative way of specifying C<on_body_id> using a hash ref (see C<target>) but
+you can only specify the ID, name or x,y of an occupied Planet. Not available when using the
+fixed argument call method.
+
+=head3 fleet_id (required)
+
+The unique ID of the fleet to send. The number of ships sent will be calculated based on the
+number of spies to fetch and the max occupants of the ship type.
+
+=head3 spy_ids (required)
+
+An array reference of unique spy IDs to fetch.
 B<NOTE:> If the spies are not Idle when the ship arrives, they will not be picked up.
 
+=head3 RESPONSE
+
  {
-     "ship" : {
-        "id" : "id-goes-here",
-        "name" : "CS4",
-        "hold_size" : 1100,
-        "berth_level" : 1,
-        "speed" : 400,
-        "type" : "cargo_ship",
-        "date_arrives" : "01 31 2010 13:09:05 +0600",
-        ...
-     },
-     "status" : { ... }
+   "fleet" : {
+     "id" :         "id-goes-here",
+     "quantity" :   3,
+     "name" :       "CS4",
+     "hold_size" :  1100,
+     "speed" :      400,
+     "type" :       "cargo_ship",
+     "date_arrives" : "01 31 2010 13:09:05 +0600",
+     ...
+   },
+   "status" : { ... }
  }
-
-=head3 session_id
-
-A session id.
-
-=head3 on_body_id
-
-The unique id of the planet that the spies are on.
-
-=head3 to_body_id
-
-The unique id of the planet that the spies should be sent to, and the ship will be dispatched from.
-
-=head3 ship_id
-
-The unique id of the ship to use to fetch the spies.
-
-=head3 spy_ids
-
-An array reference of spy ids to send. 
-
-
 
 =head2 view_battle_logs
 
@@ -1144,3 +1203,4 @@ See above for this option.
  }
 
 =cut
+
