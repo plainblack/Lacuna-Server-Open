@@ -67,6 +67,7 @@ use constant MEDALS => {
     spy_shuttle                     => 'Built Spy Shuttle',
     observatory_seeker              => 'Built Observatory Seeker',
     security_ministry_seeker        => 'Built Security Ministry Seeker',
+    fissure_sealer                  => 'Built Fissure Sealer',
     spaceport_seeker                => 'Built SpacePort Seeker',
     excavator                       => 'Built Excavator',
     detonator                       => 'Built Detonator',
