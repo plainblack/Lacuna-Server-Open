@@ -1,6 +1,8 @@
 3.0874:
  - Mod: Fissures have an interesting effect on gas giants.
  - Add: Fissure Healer Ship added.
+ - Fix: N19 coverage restriction turned off if N19 demolished on body.
+ - Fix: Corrected emails for deploying mining platforms A22-A25.
 
 3.0873:
  - Mod: Observatory can only abandon a probe it controls.
