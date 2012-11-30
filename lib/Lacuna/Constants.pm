@@ -114,7 +114,7 @@ use constant SHIP_TYPES => (qw( probe short_range_colony_ship colony_ship spy_po
                              supply_pod supply_pod2 supply_pod3 supply_pod4
                              drone fighter spy_shuttle observatory_seeker security_ministry_seeker 
                              spaceport_seeker excavator detonator scanner barge hulk hulk_fast hulk_huge galleon stake
-                             placebo placebo2 placebo3 placebo4 placebo5 placebo6 bleeder sweeper
+                             placebo placebo2 placebo3 placebo4 placebo5 placebo6 bleeder sweeper fissure_healer
                              ));
 use constant SHIP_TRADE_TYPES => (qw(
     cargo_ship smuggler_ship freighter dory barge galleon hulk hulk_huge hulk_fast
