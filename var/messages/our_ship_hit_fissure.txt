@@ -1,0 +1,7 @@
+Fissure Hit
+~~~
+Our %s reached {Starmap %s %s %s} and left the fissure at level %s and %s%% efficiency.
+
+Regards,
+
+Your Humble Assistant
