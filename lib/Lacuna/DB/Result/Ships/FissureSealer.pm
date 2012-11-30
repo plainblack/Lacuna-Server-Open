@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Ships::FissureHealer;
+package Lacuna::DB::Result::Ships::FissureSealer;
 
 use Moose;
 use utf8;
@@ -15,7 +15,7 @@ use constant base_waste_cost        => 50_000;
 use constant base_combat            => 0;
 use constant base_speed             => 250;
 use constant base_stealth           => 0;
-use constant base_hold_size         => 50_000;
+use constant base_hold_size         => 100_000;
 use constant pilotable              => 0;
 use constant build_tags             => ['Exploration'];
 
