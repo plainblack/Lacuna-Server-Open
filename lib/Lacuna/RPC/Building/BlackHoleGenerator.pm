@@ -368,7 +368,7 @@ sub check_bhg_neutralized {
         if ($tstar->station->laws->search({type => 'BHGNeutralized'})->count) {
             my $ss_name = $tstar->station->name;
             $throw = 1009;
-            $reason = sprintf("The star, %s is under BHG Neutralization from %s", $sname, $ss_name),
+            $reason = sprintf("The star, %s is under BHG Neutralization from %s", $sname, $ss_name);
             return $throw, $reason;
         }
     }
