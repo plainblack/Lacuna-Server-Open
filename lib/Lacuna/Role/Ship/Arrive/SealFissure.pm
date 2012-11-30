@@ -26,7 +26,7 @@ after handle_arrival_procedures => sub {
     if (defined $fissure) {
         my $curr_eff = $fissure->efficiency + randint(1,7);
         $curr_eff = 100 if $curr_eff > 100;
-        $curr_lev = $fissure->level;
+        my $curr_lev = $fissure->level;
 
         if ( int(5.5 + $curr_eff/10) > randint(0,99) ) {
             $curr_lev--;
