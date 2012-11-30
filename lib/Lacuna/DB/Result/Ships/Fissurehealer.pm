@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Ships::ColonyShip;
+package Lacuna::DB::Result::Ships::FissureHealer;
 
 use Moose;
 use utf8;
