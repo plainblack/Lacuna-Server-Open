@@ -1,5 +1,6 @@
 3.0874:
  - Mod: Fissures have an interesting effect on gas giants.
+ - Add: Fissure Healer Ship added.
 
 3.0873:
  - Mod: Observatory can only abandon a probe it controls.
