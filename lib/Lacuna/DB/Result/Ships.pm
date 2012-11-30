@@ -89,7 +89,7 @@ __PACKAGE__->typecast_map(type => {
     'observatory_seeker'                    => 'Lacuna::DB::Result::Ships::ObservatorySeeker',
     'spaceport_seeker'                      => 'Lacuna::DB::Result::Ships::SpacePortSeeker',
     'security_ministry_seeker'              => 'Lacuna::DB::Result::Ships::SecurityMinistrySeeker',
-    'fissure_healer'                        => 'Lacuna::DB::Result::Ships::FissureHealer',
+    'fissure_sealer'                        => 'Lacuna::DB::Result::Ships::FissureSealer',
 });
 
 with 'Lacuna::Role::Container';
