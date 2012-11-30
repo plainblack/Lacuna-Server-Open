@@ -1,4 +1,4 @@
-package Lacuna::Role::Ship::Arrive::DamageBuilding;
+package Lacuna::Role::Ship::Arrive::SealFissure;
 
 use strict;
 use Moose::Role;
