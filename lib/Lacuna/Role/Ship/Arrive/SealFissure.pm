@@ -10,7 +10,9 @@ after handle_arrival_procedures => sub {
     my ($self) = @_;
 
     # we're coming home
-    return if ($self->direction eq 'in');
+    if ($self->direction eq 'in') {
+        $self->unload($self->body);
+    }
 
     # Turn around if occupied
     return if ($self->foreign_body->empire_id);
