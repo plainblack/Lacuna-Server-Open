@@ -1,0 +1,7 @@
+Fissure Destroyed
+~~~
+Our %s reached {Starmap %s %s %s} and destroyed a fissure.
+
+Regards,
+
+Your Humble Assistant
