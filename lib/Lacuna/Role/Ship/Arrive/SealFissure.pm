@@ -32,7 +32,7 @@ after handle_arrival_procedures => sub {
 
     # handle fissure
     if (defined $fissure) {
-        my $curr_eff = $fissure->efficiency + randint(1,5) + int($amount/1_000_000);
+        my $curr_eff = $fissure->efficiency + int($amount/1_000_000) + 1;
         $curr_eff = 100 if $curr_eff > 100;
         my $curr_lev = $fissure->level;
 
