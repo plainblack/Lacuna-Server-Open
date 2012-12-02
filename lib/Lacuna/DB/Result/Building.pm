@@ -916,24 +916,25 @@ sub can_repair {
     my ($self, $costs) = @_;
     $costs ||= $self->get_repair_costs;
     my $body = $self->body;
-    my $fix = 100;
+    my $damage = 100 - $self->efficiency;
+    my $fix = $damage;
     if ($body->food_stored < $costs->{food} and $costs->{food} > 0) {
-        my $teff = int(($body->food_stored-50)*100/$costs->{food});
+        my $teff = int($body->food_stored * $damage / $costs->{food});
         $fix = $teff if ($teff < $fix);
     }
     if ($body->water_stored < $costs->{water} and $costs->{water} > 0) {
-        my $teff = int($body->water_stored*100/$costs->{water});
+        my $teff = int($body->water_stored * $damage / $costs->{water});
         $fix = $teff if ($teff < $fix);
     }
     if ($body->ore_stored < $costs->{ore} and $costs->{ore} > 0) {
-        my $teff = int(($body->ore_stored-50)*100/$costs->{ore});
+        my $teff = int($body->ore_stored * $damage / $costs->{ore});
         $fix = $teff if ($teff < $fix);
     }
     if ($body->energy_stored < $costs->{energy} and $costs->{energy} > 0) {
-        my $teff = int($body->energy_stored*100/$costs->{energy});
+        my $teff = int($body->energy_stored * $damage / $costs->{energy});
         $fix = $teff if ($teff < $fix);
     }
-    if ($fix <= 0) {
+    if ($damage && $fix <= 0) {
         confess [1011, 'Not enough resources to do a partial repair.'];
     }
     return 1;
@@ -943,39 +944,35 @@ sub repair {
     my ($self, $costs) = @_;
     $costs ||= $self->get_repair_costs;
     my $body = $self->body;
-    my $fix = 100;
-    my $c_eff = $self->efficiency;
+    my $damage = 100 - $self->efficiency;
+    if ($damage <= 0) {
+        return 0;
+    }
+    my $fix = $damage;
     if ($body->food_stored < $costs->{food} and $costs->{food} > 0) {
-        my $teff = int(($body->food_stored-50)*100/$costs->{food});
+        my $teff = int($body->food_stored * $damage / $costs->{food});
         $fix = $teff if ($teff < $fix);
     }
     if ($body->water_stored < $costs->{water} and $costs->{water} > 0) {
-        my $teff = int($body->water_stored*100/$costs->{water});
+        my $teff = int($body->water_stored * $damage / $costs->{water});
         $fix = $teff if ($teff < $fix);
     }
     if ($body->ore_stored < $costs->{ore} and $costs->{ore} > 0) {
-        my $teff = int(($body->ore_stored-50)*100/$costs->{ore});
+        my $teff = int($body->ore_stored * $damage / $costs->{ore});
         $fix = $teff if ($teff < $fix);
     }
     if ($body->energy_stored < $costs->{energy} and $costs->{energy} > 0) {
-        my $teff = int($body->energy_stored*100/$costs->{energy});
+        my $teff = int($body->energy_stored * $damage / $costs->{energy});
         $fix = $teff if ($teff < $fix);
     }
     if ($fix <= 0) {
-#        confess [1011, 'Not enough resources to do a partial repair.'];
-      return 0;
+        return 0;
     }
-    $costs->{food}   = int($fix*$costs->{food}/100);
-    $costs->{water}  = int($fix*$costs->{water}/100);
-    $costs->{ore}    = int($fix*$costs->{ore}/100);
-    $costs->{energy} = int($fix*$costs->{energy}/100);
-    my $n_eff = 100;
-    if ($fix < 100) {
-        my $p_add = int( (100 - $c_eff) * $fix/100 + 0.5);
-        $p_add = 1 if $p_add < 1;
-        $n_eff = $c_eff + $p_add;
-        $n_eff = 100 if ($n_eff > 100);
-    }
+    $costs->{food}   = int($fix*$costs->{food}/$damage);
+    $costs->{water}  = int($fix*$costs->{water}/$damage);
+    $costs->{ore}    = int($fix*$costs->{ore}/$damage);
+    $costs->{energy} = int($fix*$costs->{energy}/$damage);
+    my $n_eff = $self->efficiency + $fix;
     $self->efficiency($n_eff);
     $self->update;
     $body->spend_food($costs->{food}, 0);
