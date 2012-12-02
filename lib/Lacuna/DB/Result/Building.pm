@@ -918,16 +918,16 @@ sub can_repair {
     my $body = $self->body;
     my $damage = 100 - $self->efficiency;
     my $fix = $damage;
-    if ($body->food_stored < $costs->{food} and $costs->{food} > 0) {
-        my $teff = int($body->food_stored * $damage / $costs->{food});
+    if ($body->food_stored-50 < $costs->{food} and $costs->{food} > 0) {
+        my $teff = int(($body->food_stored-50) * $damage / $costs->{food});
         $fix = $teff if ($teff < $fix);
     }
     if ($body->water_stored < $costs->{water} and $costs->{water} > 0) {
         my $teff = int($body->water_stored * $damage / $costs->{water});
         $fix = $teff if ($teff < $fix);
     }
-    if ($body->ore_stored < $costs->{ore} and $costs->{ore} > 0) {
-        my $teff = int($body->ore_stored * $damage / $costs->{ore});
+    if ($body->ore_stored-50 < $costs->{ore} and $costs->{ore} > 0) {
+        my $teff = int(($body->ore_stored-50) * $damage / $costs->{ore});
         $fix = $teff if ($teff < $fix);
     }
     if ($body->energy_stored < $costs->{energy} and $costs->{energy} > 0) {
@@ -949,16 +949,16 @@ sub repair {
         return 0;
     }
     my $fix = $damage;
-    if ($body->food_stored < $costs->{food} and $costs->{food} > 0) {
-        my $teff = int($body->food_stored * $damage / $costs->{food});
+    if ($body->food_stored-50 < $costs->{food} and $costs->{food} > 0) {
+        my $teff = int(($body->food_stored-50) * $damage / $costs->{food});
         $fix = $teff if ($teff < $fix);
     }
     if ($body->water_stored < $costs->{water} and $costs->{water} > 0) {
         my $teff = int($body->water_stored * $damage / $costs->{water});
         $fix = $teff if ($teff < $fix);
     }
-    if ($body->ore_stored < $costs->{ore} and $costs->{ore} > 0) {
-        my $teff = int($body->ore_stored * $damage / $costs->{ore});
+    if ($body->ore_stored-50 < $costs->{ore} and $costs->{ore} > 0) {
+        my $teff = int(($body->ore_stored-50) * $damage / $costs->{ore});
         $fix = $teff if ($teff < $fix);
     }
     if ($body->energy_stored < $costs->{energy} and $costs->{energy} > 0) {
