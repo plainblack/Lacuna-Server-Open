@@ -1,0 +1,11 @@
+Current status of fleet-action code in the API
+
+Shipyard:
+ - I am fairly sure that all APIs for the shipyard are complete
+
+Spaceport:
+ - All API calls to the Spaceport are working and at least return something sensible
+ - look at 460_fleet_spaceport.t for example calls to the API
+ - there are a few minor issues, but these will be easier to test once the UI is working
+
+

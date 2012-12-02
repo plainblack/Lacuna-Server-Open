@@ -1,9 +1,9 @@
 4.0001:
  - Add: Major reworking of ships into fleets.
  - Mod: Most API calls involving ships have changed, if you use external scripts these will most likely need to be modified.
- - Mod: Most other API calls now have the option of named arguments as well as supporting the existing scheme for backwards compatibility
+ - Mod: Most API calls now have the option of named arguments as well as supporting the existing scheme for backwards compatibility
  - Mod: A fleet is a collection of ships all having the same attributes and task
- - Mod: Where previously you referred to a single ship, you now refer to a fleet
+ - Mod: Where previously you referred to a single ship, you now refer to a fleet (and perhaps a quantity of ships)
  - Mod: The maximum level of Shipyard on a colony is now used in calculating a new ships attributes, not the current Shipyard
  - Mod: 'own' and 'ally' on the incoming report for a Space Station now are in relation to your own empire.
  - Fix: Fleets sort correctly in type/name order in Space Port view tab
@@ -14,6 +14,7 @@
  - Fix: UI - Number of docks available now decrements correctly when building multiple ships in Shipyard
  - Fix: Added description of new ship types in Shipyard
  - Mod: When sending a fleet you now specify the arrival date/time not the speed
+ - Mod: Spaceport, when sending spies, you can specify the arrival date/time
  - Mod: The limit of sending no more than 20 ships in a fleet has been removed.
  - Mod: Travelling ships not involved in a trade or an attack can be recalled
  - Mod: Travelling ships not involved in an attack can be scuttled
@@ -43,7 +44,12 @@
 
  - done: When ships arrive (fighters to Defend) set their available date to null
  - done: Travelling ships should be sorted in arrival date order
- 
+
+KNOWN BUGS:
+ - bug: Fleet format currently shows 'Foreign' for all fleets
+
+
+
 3.0873:
  - Mod: Observatory can only abandon a probe it controls.
  - Add: New Observatory abandon_all_probes API method.

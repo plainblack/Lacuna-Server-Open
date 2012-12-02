@@ -21,7 +21,7 @@ has 'hostile_action' => (
 sub has_that_quantity {
     my ($self, $qty) = @_;
 
-    if ($qty < 0 or int($qty) != $qty) {
+    if (not defined $qty or $qty < 0 or int($qty) != $qty) {
         confess [1009, 'Quantity must be a positive integer'];
     }
     if ($qty > $self->quantity) {
