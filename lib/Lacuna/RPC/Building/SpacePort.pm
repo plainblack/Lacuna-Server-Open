@@ -133,7 +133,7 @@ sub _view_available_fleets {
         
     my %out = (
         status      => $self->format_status($empire),
-        available   => $option eq 'available' ? \@available : \@unavailable,
+        $option     => $option eq 'available' ? \@available : \@unavailable,
     );
 
     return \%out;
@@ -188,7 +188,7 @@ sub send_fleet {
         $new_fleet->send(target => $target, arrival => $arrival_date);
     }
     return {
-        fleet   => $fleet->get_status,
+        fleet   => $new_fleet->get_status,
         status  => $self->format_status($empire),
     };
 }
@@ -360,7 +360,6 @@ sub send_spies {
             spy_ids     => shift,
         };
     }
-    $args->{ship_quantity} = $args->{ship_quantity} || 1;
     $args->{arrival_date} = {soonest => 1} if not defined $args->{arrival_date};
  
     my $empire  = $self->get_empire_by_session($args->{session_id});
@@ -379,7 +378,7 @@ sub send_spies {
         confess [ 1013, sprintf('%s is an isolationist empire, and must be left alone.',$to_body->empire->name)];
     }
 
-    unless ($on_body->empire_id == $to_body->empire_id) {
+    if ($on_body->empire_id != $to_body->empire_id) {
         $empire->current_session->check_captcha;
     }
 
@@ -395,9 +394,6 @@ sub send_spies {
     if ($fleet->berth_level > $max_berth) {
         confess [1010, "Your spaceport level is not high enough to support a fleet with a Berth Level of ".$fleet->berth_level."."];
     }
-    if ($fleet->quantity < $args->{ship_quantity}) {
-        confess [1009, "That fleet does not have ".$args->{ship_quantity}." ships in it."];
-    }
 
     # check size
     my $spies_to_send = scalar(@{$args->{spy_ids}});
@@ -406,10 +402,6 @@ sub send_spies {
         confess [1013, "You can't send a fleet with no spies."];
     }
    
-    if ($fleet->max_occupants * $args->{ship_quantity} < $spies_to_send) {
-        confess [1010, "That number of ships cannot hold the spies selected."];
-    }
-
     # get the spies
     my @ids_sent;
     my @ids_not_sent;
@@ -438,9 +430,13 @@ sub send_spies {
             push @ids_not_sent, $spy->id;
         }
     }
+    my $qty = ceil(scalar(@ids_sent) / $fleet->max_occupants);
+    if ($fleet->quantity < $qty) {
+        confess [1010, "That fleet is not big enough to hold the spies selected."];
+    }
     if (scalar @ids_sent) {
         # send it
-        my $fleet = $fleet->split($args->{ship_quantity});
+        $fleet = $fleet->split($qty);
         $fleet->send(
             target      => $to_body,
             payload     => {spies => \@ids_sent }, # add the spies to the payload when we send, otherwise they'll get added again
@@ -803,6 +799,7 @@ sub view_incoming_fleets {
     }
 
     $args->{task} = 'travelling';
+    $args->{task_title} = 'incoming';
     return $self->_view_fleets($args);
 }
 
@@ -821,6 +818,7 @@ sub view_orbiting_fleets {
     }
 
     $args->{task} = 'orbiting';
+    $args->{task_title} = 'orbiting';
     return $self->_view_fleets($args);
 }
 
@@ -864,7 +862,7 @@ sub view_mining_platforms {
 sub _view_fleets {
     my ($self, $args) = @_;
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $empire  = $self->get_empire_by_session($args->{session_id});
     # see all incoming ships from own empire, or from any alliance member
     # if the target is an allied colony, see all incoming ships dependent upon the highest
     # level of space-port on the target
@@ -877,14 +875,14 @@ sub _view_fleets {
             task            => 'Travelling',
             direction       => 'out',
             },{
-            join            => 'body',
+            prefetch        => 'body',
         });
     }
     if ($args->{task} eq 'orbiting') {
         $fleet_rs = $fleet_rs->search({
             task            => ['Orbit','Defend'],
             },{
-            join            => 'body',
+            prefetch        => 'body',
         });
     }
 
@@ -912,13 +910,19 @@ sub _view_fleets {
         $fleet_rs = $fleet_rs->search({ 'body.empire_id' => \@ally_ids });
     }
     my @fleets;
+    my $no_ships = 0;
     while (my $fleet = $fleet_rs->next) {
         push @fleets, $fleet->get_status($target, $status_args);
+        $no_ships += $fleet->quantity;
     }
     my %out = (
         status          => $self->format_status($empire),
-        $args->{task}   => \@fleets,
+        $args->{task_title}   => \@fleets,
     );
+    if ($args->{task_title} eq 'incoming') {
+        $out{number_of_incoming_fleets} = scalar(@fleets);
+        $out{number_of_incoming_ships} = $no_ships;
+    }
     return \%out;
 }
 

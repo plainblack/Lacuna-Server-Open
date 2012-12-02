@@ -11,8 +11,8 @@ use DateTime;
 
 use TestHelper;
 
-TestHelper->clear_all_test_empires;
-diag("Cleared all test empires");
+#TestHelper->clear_all_test_empires;
+#diag("Cleared all test empires");
 
 my $tester = TestHelper->new->use_existing_test_empire;
 my $enemy  = TestHelper->new({empire_name => 'TLE Test Enemy'})->use_existing_test_empire;
@@ -47,18 +47,30 @@ foreach my $ship (sort keys %{$result->{result}{docked_ships}} ) {
 
 ## spaceport - view_all_fleets
 ##
+$result = $tester->post('spaceport','view', [{
+    session_id  => $test_session_id,
+    building_id => $test_spaceport->id,
+}]);
+ok($result->{result}{docked_ships}, "Has docked ships");
+ok($result->{result}{docked_ships}{sweeper} > 1000, "Has sweepers");
+
 $result = $tester->post('spaceport','view_all_fleets', [{
     session_id  => $test_session_id, 
     building_id => $test_spaceport->id, 
     paging      => {no_paging => 1},
     no_status   => 1,
 }]);
+
+my ($sweepers) = grep {$_->{details}{type} eq 'sweeper'} @{$result->{result}{fleets}};
+ok($sweepers->{quantity} > 1000, "view_all_fleets sweepers");
+
 $result = $tester->post('spaceport','view_incoming_fleets', [{
     session_id  => $test_session_id,
     paging      => {no_paging => 1},
     target      => { body_id => $test_home->id},
     no_status   => 1,
 }]);
+ok($result->{result}{incoming}, "Has incoming");
 
 $result = $tester->post('spaceport','view_available_fleets', [{
     session_id  => $test_session_id,
@@ -82,22 +94,20 @@ $result = $tester->post('spaceport','send_fleet', [{
     quantity    => 1,
     target      => { body_id => $test_home->id},
     arrival_date    => {
-        month   => 12,
-        date    => 25,
-        hour    => 8,
+        month   => 1,
+        date    => 1,
+        hour    => 0,
         minute  => 0,
         second  => 0,
     },
     no_status   => 1,
 }]);                
 
-$result = $tester->post('spaceport','view_fleets_travelling', [{
+$result = $tester->post('spaceport','view_travelling_fleets', [{
     session_id  => $test_session_id,
     building_id => $test_spaceport->id,
     no_status   => 1,
 }]);
-exit;
- 
 
 $fleets = $test_home->fleets->search({
     task => 'Defend',
@@ -110,11 +120,8 @@ while (my $fleet = $fleets->next) {
         quantity    => 1,
         no_status   => 1,
     }]);
-    exit;
-        
+    last;
 }
-
-exit;
 
 $result = $tester->post('spaceport','view_unavailable_fleets', [{
     session_id  => $test_session_id,
@@ -123,13 +130,52 @@ $result = $tester->post('spaceport','view_unavailable_fleets', [{
     no_status   => 1,
 }]);
 
-diag Dumper $result;
 my @unavailable = @{$result->{result}{unavailable}};
 for my $fleet (@unavailable) {
     diag "Unavailable [".$fleet->{id}."][".$fleet->{details}{type}."][".$fleet->{quantity}."][".$fleet->{reason}."]\n";
     #diag Dumper $fleet;
 }
 
+$result = $tester->post('spaceport','view_orbiting_fleets', [{
+    session_id  => $test_session_id,
+    target      => { body_id => $test_home->id},
+}]);
+
+$result = $tester->post('spaceport','view_all_fleets', [{
+    session_id  => $test_session_id,
+    building_id => $test_spaceport->id,
+    no_status   => 1,
+}]);
+my @fleets = @{$result->{result}{fleets}};
+($fleet) = grep {$_->{details}{can_scuttle}} @fleets;
+
+diag "Can scuttle [".$fleet->{details}{type}."]";
+
+$result = $tester->post('spaceport','scuttle_fleet', [{
+    session_id  => $test_session_id,
+    building_id => $test_spaceport->id,
+    fleet_id    => $fleet->{id},
+}]);
+
+$result = $tester->post('spaceport', 'prepare_send_spies', [{
+    session_id  => $test_session_id,
+    on_body_id  => $test_home->id,
+    to_body     => { body_id => $test_home->id},
+}]);
+
+my $spy = $result->{result}{spies}[0];
+$fleet = $result->{result}{fleets}[0];
+
+diag(Dumper($spy));
+diag(Dumper($fleet));
+
+$result = $tester->post('spaceport', 'send_spies', [{
+    session_id  => $test_session_id,
+    on_body_id  => $test_home->id,
+    to_body_id  => $test_home->id,
+    fleet_id    => $fleet->{id},
+    spy_ids     => [$spy->{id}],
+}]);
 
 
 exit;

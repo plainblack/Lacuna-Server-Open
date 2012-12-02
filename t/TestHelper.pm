@@ -244,7 +244,7 @@ sub post {
         Content         => to_json($content),
         Accept          => 'application/json',
         );
-    my $response = from_json($response->content);
+    $response = from_json($response->content);
     say "RESPONSE: ".Dumper($response);
 #    sleep 2;
     return $response;

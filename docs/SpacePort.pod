@@ -290,7 +290,8 @@ See above for these options.
 =head3 RESPONSE
   
  {
-   "number_of_incoming" : 26,
+   "number_of_incoming_fleets" : 3,
+   "number_of_incoming_ships" : 25,
    "incoming" : [
      {
        "id" : "id-goes-here",
@@ -813,7 +814,7 @@ that report the B<can_scuttle> status of '1'.
 
 Accepts either fixed arguments or a hash of named parameters
 
- ( session_id, building_id )
+ ( session_id, building_id, fleet_id, quantity )
  ( parameter_hash )
 
 =head3 session_id (required)
@@ -936,7 +937,7 @@ The unique id of the planet that the spies are on and ship will be dispatched fr
 =head3 to_body_id
 
 The unique id of the planet that the spies should be sent to. This is a required parameter
-if using fixed arguments. With named arguments you can use either C<to_body_id> or C<target>
+if using fixed arguments. With named arguments you can use either C<to_body_id> or C<to_body>
 
 =head3 to_body
 
@@ -1005,15 +1006,13 @@ if using fixed arguments. With named arguments you can use either C<to_body_id> 
 
 =head3 fleet_id (required)
 
-The unique ID of the fleet.
+The unique ID of the fleet. The number of ships from the fleet actually sent will depend
+upon the number of spies and the number of passengers each ship can carry. The minimum number
+of ships required will be sent. The rest of the fleet will stay at home.
 
 =head3 spy_ids (required)
 
 An array reference of spy ids to send
-
-=head3 ship_quantity
-
-The number of ships to send from the fleet (defaults to 1)
 
 =head3 to_body
 
@@ -1031,11 +1030,16 @@ May only be specified with the named arguments calling convention.
    "fleet" : {
      "id" :             "id-goes-here",
      "quantity" :       1,
-     "name" :           "CS4",
-     "hold_size" :      1100,
-     "speed" :          400,
-     "type" :           "cargo_ship",
-     "date_arrives" :   "01 31 2010 13:09:05 +0600",
+     "task" :           "Travelling",
+     "date_arrives" :   "02 12 2012 12:08:33 +0000",
+     "details" : {
+        "name" :           "CS4",
+        "can_recall" :      0,
+        "hold_size" :      1100,
+        "speed" :          400,
+        "type" :           "cargo_ship",
+        "date_available" : "01 31 2010 13:09:05 +0600",
+        ...
      ...
    },
    "spies_sent" :       ["id-goes-here","id-goes-here","id-goes-here"],     # should be identical to "spy_ids"
