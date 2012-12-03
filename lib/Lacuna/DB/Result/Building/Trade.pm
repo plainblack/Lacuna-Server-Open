@@ -264,7 +264,7 @@ sub recalc_waste_production {
     while (my $waste_chain = $waste_chains->next) {
         $chain_wphpd += $body->calculate_distance_to_target($waste_chain->star) * 2 * $waste_chain->waste_hour;
     }
-    my $shipping_capacity = $chain_wphpd ? sprintf('%.0f',($ship_wphpd / $chain_wphpd) * 100) : 0;
+    my $shipping_capacity = $chain_wphpd ? int(100 * $ship_wphpd / $chain_wphpd) : 0;
 
     $waste_chains->reset;
     while (my $waste_chain = $waste_chains->next) {
