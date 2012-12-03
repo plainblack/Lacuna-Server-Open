@@ -49,5 +49,10 @@ sub happiness_consumption {
     return ($self->body->restrict_coverage) ? 30 : 0;
 }
 
+before delete => sub {
+    my ($self) = @_;
+    $self->body->restrict_coverage(0);
+};
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
