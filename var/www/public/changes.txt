@@ -1,3 +1,6 @@
+3.0875:
+ - Fix: Spy count check on insurrection.
+
 3.0874:
  - Mod: Fissures have an interesting effect on gas giants.
  - Add: Fissure Healer Ship added.
