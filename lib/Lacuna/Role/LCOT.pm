@@ -25,6 +25,13 @@ sub image_level {
     return $self->image;
 }
 
+around can_build => sub {
+    my ($orig, $self, $body) = @_;
+    if ($body->get_plan(ref $self, 1)) {
+        return $orig->($self, $body);
+    }
+    confess [1013,"You can't build the Lost City of Tyleon without knowledge left behind by the Great Race."];
+};
 
 
 
