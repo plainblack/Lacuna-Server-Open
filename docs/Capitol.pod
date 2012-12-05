@@ -5,36 +5,58 @@ Capitol is accessible via the URL C</capitol>.
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
 
-=head2 view ( session_id, building_id )
+=head2 view
 
-Same as view in L<Buildings> except:
+This method is extended to return the cost to rename your empire
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 RESPONSE
 
  {
-    "status" : { ... },
-    "rename_empire_cost" : 29,
+   "status" : { ... },
+   "rename_empire_cost" : 29,
  }
 
 
-=head2 rename_empire ( session_id, building_id, name )
+=head2 rename_empire
 
-Spend some essentia to rename your empire.
+Spend some essentia to rename your empire. The cost is given in the C<rename_empire_cost> field
+as returned by C<view>
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, name )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 name (required)
+
+The new name of your empire
+
+=head3 RESPONSE
 
  {
-    "status" : { ... }
+   "status" : { ... }
  }
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the building.
-
-=head3 name
-
-The new name of your empire.
-
 
 
 =cut

@@ -18,6 +18,8 @@ use constant pilotable              => 1;
 use constant build_tags             => ['War'];
 
 with "Lacuna::Role::Ship::Send::Body";
+with "Lacuna::Role::Ship::Send::RecallWhileTravelling";
+with "Lacuna::Role::Ship::Send::ScuttleWhileTravelling";
 with "Lacuna::Role::Ship::Arrive::Defend";
 
 no Moose;

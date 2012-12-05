@@ -120,6 +120,16 @@ has current_session => (
     predicate           => 'has_current_session',
 );
 
+# Return all allies (including ones-self)
+sub allies {
+    my ($self) = @_;
+
+    if ($self->alliance_id) {
+        my @all = $self->alliance->members->all;
+        return @all;
+    }
+    return ($self);
+}
 
 sub update_species {
     my ($self, $me) = @_;
@@ -518,7 +528,6 @@ sub found {
   $self->stage('founded');
   $self->update;
   $self->home_planet($home_planet);
-#  weaken($self->{_relationship_data}{home_planet});
 
   $self->add_probe($home_planet->star_id, $home_planet->id);
 
@@ -806,9 +815,9 @@ before delete => sub {
     $self->votes->delete_all;
     $self->taxes->delete_all;
     $self->propositions->delete_all;
-    Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({ -or => {invitee_id => $self->id, inviter_id => $self->id }})->delete;
+    Lacuna->db->resultset('Invite')->search({ -or => {invitee_id => $self->id, inviter_id => $self->id }})->delete;
     $self->probes->delete;
-    Lacuna->db->resultset('Lacuna::DB::Result::AllianceInvite')->search({empire_id => $self->id})->delete;
+    Lacuna->db->resultset('AllianceInvite')->search({empire_id => $self->id})->delete;
     if ($self->alliance_id) {
         my $alliance = $self->alliance;
         if (defined $alliance && $alliance->leader_id == $self->id) {

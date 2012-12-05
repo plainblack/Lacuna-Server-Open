@@ -94,7 +94,7 @@ sub get_building { # makes for uniform error handling, and prevents staleness
         return $building_id;
     }
     else {
-        my ($building) = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
+        my ($building) = Lacuna->db->resultset('Building')->search({
             'me.id' => $building_id,
         },{ prefetch => 'body' }
         );

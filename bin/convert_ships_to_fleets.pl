@@ -67,8 +67,39 @@ while (my $planet = $planets->next) {
 
 out('Group ships into fleets');
 $ships = $db->resultset('Lacuna::DB::Result::Ships')->search({},{
-    group_by => [qw(body_id type task name speed stealth combat hold_size berth_level foreign_body_id foreign_star_id)],
+    group_by    => [qw(body_id type task name speed stealth combat hold_size berth_level foreign_body_id foreign_star_id)],
+    '+select'   => [{count => 'id'}],
+    '+as'       => [ qw(quantity) ],
 });
+
+out('Delete existing fleets');
+my $fleet = $db->resultset('Lacuna::DB::Result::Fleet')->delete_all;
+
+out('Create new fleets');
+while (my $ship = $ships->next) {
+    my $mark = 'one';
+    my $fleet = $db->resultset('Lacuna::DB::Result::Fleet')->create({
+        body_id	        => $ship->body_id,
+        shipyard_id     => 0,
+        date_started    => $now,
+        date_available  => $now,
+        mark            => $mark,
+        type            => $ship->type,
+        task            => $ship->task,
+        name            => $ship->name,
+        speed           => $ship->speed,
+        stealth         => $ship->stealth,
+        combat          => $ship->combat,
+        hold_size       => $ship->hold_size,
+        payload         => "{}",
+        roundtrip       => 0,
+        direction       => 'in',
+        foreign_body_id => $ship->foreign_body_id,
+        foreign_star_id => $ship->foreign_star_id,
+        berth_level     => $ship->berth_level,
+        quantity        => $ship->get_column('quantity'),
+    });
+}
 
 my $finish = time;
 out('Finished');

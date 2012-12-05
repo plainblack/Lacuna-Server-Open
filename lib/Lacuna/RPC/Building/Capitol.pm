@@ -14,18 +14,39 @@ sub model_class {
 }
 
 around 'view' => sub {
-    my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
+    my $orig = shift;
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+        };
+    }
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id}, skip_offline => 1);
+
     my $out = $orig->($self, $empire, $building);
     $out->{rename_empire_cost} = $building->rename_empire_cost;
     return $out;
 };
 
+
 sub rename_empire {
-    my ($self, $session_id, $building_id, $name) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            name            => shift,
+        };
+    }
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    my $name        = $args->{name};
 
     if ($empire->essentia < $building->rename_empire_cost) {
         confess [1011, "You don't have enough essentia. You need ".$building->rename_empire_cost."."];
@@ -38,11 +59,13 @@ sub rename_empire {
     $empire->update;
 
     return {
-        status          => $self->format_status($empire, $building->body),
+        status => $self->format_status($empire, $building->body),
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(rename_empire));
+__PACKAGE__->register_rpc_method_names(qw(
+    rename_empire
+));
 
 
 no Moose;

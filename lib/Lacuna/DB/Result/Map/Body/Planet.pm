@@ -13,7 +13,7 @@ use Data::Dumper;
 use Scalar::Util qw(weaken);
 no warnings 'uninitialized';
 
-__PACKAGE__->has_many('ships','Lacuna::DB::Result::Ships','body_id');
+__PACKAGE__->has_many('fleets','Lacuna::DB::Result::Fleet','body_id');
 __PACKAGE__->has_many('_plans','Lacuna::DB::Result::Plan','body_id');
 __PACKAGE__->has_many('glyph','Lacuna::DB::Result::Glyph','body_id');
 __PACKAGE__->has_many('waste_chains', 'Lacuna::DB::Result::WasteChain','planet_id');
@@ -26,6 +26,15 @@ has plan_cache => (
     builder => '_build_plan_cache',
     clearer => 'clear_plan_cache',
 );
+
+sub fleets_travelling {
+    my ($self) = @_;
+
+    my $fleets_rs = $self->fleets->search_rs({
+        task    => 'Travelling',
+    });
+    return $fleets_rs;
+}
 
 sub _build_plan_cache {
     my ($self) = @_;
@@ -84,6 +93,7 @@ sub _delete_plan {
     $self->update;
 }
 
+# delete buildings passed in as an array reference
 sub delete_buildings {
     my ($self, $buildings) = @_;
 
@@ -120,15 +130,16 @@ sub surface {
     return 'surface-'.$self->image;
 }
 
-
-sub ships_travelling { 
+# return resultset for all fleets travelling
+sub fleets_travelling_old { 
     my ($self, $where, $reverse) = @_;
+
     my $order = '-asc';
     if ($reverse) {
         $order = '-desc';
     }
     $where->{task} = 'Travelling';
-    return $self->ships->search(
+    return $self->fleets->search(
         $where,
         {
             order_by    => { $order => 'date_available' },
@@ -136,14 +147,16 @@ sub ships_travelling {
     );
 }
 
-sub ships_orbiting {
+# return result-set for all fleets defending or orbiting
+sub fleets_orbiting {
     my ($self, $where, $reverse) = @_;
+
     my $order = '-asc';
     if ($reverse) {
         $order = '-desc';
     }
     $where->{task} = { in => ['Defend','Orbiting'] };
-    return $self->ships->search(
+    return $self->fleets->search(
         $where,
         {
             order_by    => { $order => 'date_available' },
@@ -151,13 +164,14 @@ sub ships_orbiting {
     );
 }
 
-# CLAIM
-
+# claim the planet
 sub claim {
     my ($self, $empire_id) = @_;
     return Lacuna->cache->set('planet_claim_lock', $self->id, $empire_id, 60 * 60 * 24 * 3); # lock it
 }
 
+# I suspect that making this a 'default' acts as a sort of cache
+# which ensures that we only see the first empire to claim this planet
 has is_claimed => (
     is      => 'ro',
     lazy    => 1,
@@ -173,8 +187,7 @@ sub claimed_by {
     return $empire_id ? Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id) : undef;    
 }
 
-# GLYPHS
-
+# add a glyph to this planet
 sub add_glyph {
   my ($self, $type, $num_add) = @_;
 
@@ -219,7 +232,7 @@ sub use_glyph {
   return $num_used;
 }
 
-# PLANS
+# get a plan with the highest extra build level
 sub get_plan {
     my ($self, $class, $level) = @_;
 
@@ -227,6 +240,7 @@ sub get_plan {
     return $plan;
 }
 
+# create a new plan for this planet
 sub add_plan {
     my ($self, $class, $level, $extra_build_level, $quantity) = @_;
     $quantity = 1 unless defined $quantity;
@@ -254,6 +268,7 @@ sub add_plan {
     return $plan;
 }
 
+# clean up the planet prior to abandoning it
 sub sanitize {
     my ($self) = @_;
     my @buildings = grep {$_->class !~ /Permanent/} @{$self->building_cache};
@@ -286,14 +301,15 @@ sub sanitize {
     foreach my $chain ($self->in_supply_chains) {
         $chain->delete;
     }
-    my $incoming = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_body_id => $self->id, direction => 'out'});
-    while (my $ship = $incoming->next) {
-        $ship->turn_around->update;
+    my $incoming = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({foreign_body_id => $self->id, direction => 'out'});
+    while (my $fleet = $incoming->next) {
+        $fleet->turn_around->update;
     }
-#Need to put something here to deal with ships being delivered elsewhere.
-    $self->ships->delete_all;
-    my $enemy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $self->id});
-    while (my $spy = $enemy->next) {
+    $self->fleets->delete_all;
+    my $enemy_spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $self->id});
+    while (my $spy = $enemy_spies->next) {
+    
+        #Need to put something here to deal with ships being delivered elsewhere.
         $spy->on_body_id($spy->from_body_id);
         $spy->update;
     }
@@ -313,7 +329,8 @@ sub sanitize {
 }
 
 before abandon => sub {
-    my $self = shift;
+    my ($self) = @_;
+
     if ($self->id eq $self->empire->home_planet_id) {
         confess [1010, 'You cannot abandon your home colony.'];
     }
@@ -348,6 +365,7 @@ sub get_food_status {
 
 around get_status => sub {
     my ($orig, $self, $empire) = @_;
+
     my $out = $orig->($self);
     my $ore;
     foreach my $type (ORE_TYPES) {
@@ -375,22 +393,22 @@ around get_status => sub {
                 if (1) {
 #                if (not $empire->skip_incoming_ships) {
                     my $foreign_bodies;
-                    # Process all ships that have already arrived
+                    # Process all fleets that have already arrived
 
                     my $dt_parser = Lacuna->db->storage->datetime_parser;
                     my $now = $dt_parser->format_datetime( DateTime->now );
 
-                    my $incoming_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+                    my $incoming_rs = Lacuna->db->resultset('Fleet')->search({
                         foreign_body_id     => $self->id,
                         direction           => 'out',
                         task                => 'Travelling',
                         date_available      => {'<' => $now},
                     });
-                    while (my $ship = $incoming_rs->next) {
-                        $foreign_bodies->{$ship->body_id} = 1;
+                    while (my $fleet = $incoming_rs->next) {
+                        $foreign_bodies->{$fleet->body_id} = 1;
                     }
                     foreach my $body_id (keys %$foreign_bodies) {
-                        my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
+                        my $body = Lacuna->db->resultset('Map::Body')->find($body_id);
                         if ($body) {
                             $body->tick;
                         }
@@ -398,14 +416,14 @@ around get_status => sub {
 
                     my $num_incoming_ally = 0;
                     my @incoming_ally;
-                    # If we are in an alliance, all ships coming from ally (which are not ourself)
+                    # If we are in an alliance, all fleets coming from ally (which are not ourself)
                     if ($self->empire->alliance_id) {
-                        my $incoming_ally_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+                        my $incoming_ally_rs = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
                             foreign_body_id     => $self->id,
                             direction           => 'out',
                             task                => 'Travelling',
-                            'body.empire_id'    => {'!=' => $self->empire_id},
-                            'empire.alliance_id'  => $self->empire->alliance_id,
+                            'body.empire_id'    => {'!=' => $empire->id},
+                            'empire.alliance_id'  => $empire->alliance_id,
                         },{
                             join                => {body => 'empire'},
                             order_by            => 'date_available',
@@ -413,12 +431,12 @@ around get_status => sub {
                         $num_incoming_ally = $incoming_ally_rs->count;
                         @incoming_ally = $incoming_ally_rs->search({},{rows => 10});
                     }
-                    # All ships coming from ourself
-                    my $incoming_own_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+                    # All fleets coming from ourself
+                    my $incoming_own_rs = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
                         foreign_body_id     => $self->id,
                         direction           => 'out',
                         task                => 'Travelling',
-                        'body.empire_id'    => $self->empire_id,
+                        'body.empire_id'    => $empire->id,
                     },{
                         join                => 'body',
                         order_by            => 'date_available',
@@ -426,52 +444,55 @@ around get_status => sub {
                     my $num_incoming_own = $incoming_own_rs->count;
                     my @incoming_own = $incoming_own_rs->search({},{rows => 10});
 
-                    # All enemy incoming
-                    my $incoming_enemy_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+                    # All foreign incoming
+                    my $incoming_foreign_rs = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
                         foreign_body_id     => $self->id,
                         direction           => 'out',
                         task                => 'Travelling',
-                        'body.empire_id'    => {'!=' => $self->empire_id},
+                        'body.empire_id'    => {'!=' => $empire->id},
                     },{
                         join                => {body => 'empire'},
                         order_by            => 'date_available',
                     });
                     if ($self->empire->alliance_id) {
-                        $incoming_enemy_rs = $incoming_enemy_rs->search({
+                        $incoming_foreign_rs = $incoming_foreign_rs->search({
                             'empire.alliance_id' => [
-                                {'!=' => $self->empire->alliance_id},
+                                {'!=' => $empire->alliance_id},
                                 undef,
                             ]
                         });
                     }
-                    my $num_incoming_enemy = $incoming_enemy_rs->count;
-                    my @incoming_enemy = $incoming_enemy_rs->search({},{rows => 20});
+                    my $num_incoming_foreign = $incoming_foreign_rs->count;
+                    my @incoming_foreign = $incoming_foreign_rs->search({},{rows => 20});
 
-                    $out->{num_incoming_enemy} = $num_incoming_enemy;
-                    foreach my $ship (@incoming_enemy) {
-                        push @{$out->{incoming_enemy_ships}}, {
-                            date_arrives    => $ship->date_available_formatted,
+                    $out->{num_incoming_foreign} = $num_incoming_foreign;
+                    foreach my $fleet (@incoming_foreign) {
+                        push @{$out->{incoming_foreign_fleets}}, {
+                            date_arrives    => $fleet->date_available_formatted,
                             is_own          => 0,
                             is_ally         => 0,
-                            id              => $ship->id,
+                            ships           => $fleet->quantity,
+                            id              => $fleet->id,
                         };
                     }
                     $out->{num_incoming_ally} = $num_incoming_ally;
-                    foreach my $ship (@incoming_ally) {
-                        push @{$out->{incoming_ally_ships}}, {
-                            date_arrives    => $ship->date_available_formatted,
+                    foreach my $fleet (@incoming_ally) {
+                        push @{$out->{incoming_ally_fleets}}, {
+                            date_arrives    => $fleet->date_available_formatted,
                             is_own          => 0,
                             is_ally         => 1,
-                            id              => $ship->id,
+                            ships           => $fleet->quantity,
+                            id              => $fleet->id,
                         };
                     }
                     $out->{num_incoming_own} = $num_incoming_own;
-                    foreach my $ship (@incoming_own) {
-                        push @{$out->{incoming_own_ships}}, {
-                            date_arrives    => $ship->date_available_formatted,
+                    foreach my $fleet (@incoming_own) {
+                        push @{$out->{incoming_own_fleets}}, {
+                            date_arrives    => $fleet->date_available_formatted,
                             is_own          => 1,
                             is_ally         => 0,
-                            id              => $ship->id,
+                            ships           => $fleet->quantity,
+                            id              => $fleet->id,
                         };
                     }
                 }
@@ -513,48 +534,27 @@ around get_status => sub {
 };
 
 # resource concentrations
-use constant rutile => 1;
-
-use constant chromite => 1;
-
-use constant chalcopyrite => 1;
-
-use constant galena => 1;
-
-use constant gold => 1;
-
-use constant uraninite => 1;
-
-use constant bauxite => 1;
-
-use constant goethite => 1;
-
-use constant halite => 1;
-
-use constant gypsum => 1;
-
-use constant trona => 1;
-
-use constant kerogen => 1;
-
-use constant methane => 1;
-
-use constant anthracite => 1;
-
-use constant sulfur => 1;
-
-use constant zircon => 1;
-
-use constant monazite => 1;
-
-use constant fluorite => 1;
-
-use constant beryl => 1;
-
-use constant magnetite => 1;
-
-use constant water => 0;
-
+use constant rutile         => 1;
+use constant chromite       => 1;
+use constant chalcopyrite   => 1;
+use constant galena         => 1;
+use constant gold           => 1;
+use constant uraninite      => 1;
+use constant bauxite        => 1;
+use constant goethite       => 1;
+use constant halite         => 1;
+use constant gypsum         => 1;
+use constant trona          => 1;
+use constant kerogen        => 1;
+use constant methane        => 1;
+use constant anthracite     => 1;
+use constant sulfur         => 1;
+use constant zircon         => 1;
+use constant monazite       => 1;
+use constant fluorite       => 1;
+use constant beryl          => 1;
+use constant magnetite      => 1;
+use constant water          => 0;
 
 # BUILDINGS
 
@@ -589,6 +589,7 @@ sub _build_building_count {
     return $count;
 }
 
+# Get buildings of a specified class, ranked highest level first
 sub get_buildings_of_class {
     my ($self, $class) = @_;
 
@@ -597,12 +598,14 @@ sub get_buildings_of_class {
     return @buildings;
 }
 
+# Get the highest level building of a specified class
 sub get_building_of_class {
     my ($self, $class) = @_;
     my ($building) = sort {$b->level <=> $a->level} grep {$_->class eq $class} @{$self->building_cache};
     return $building;
 }
 
+# Find a building based on it's ID
 sub find_building {
     my ($self, $id) = @_;
 
@@ -610,107 +613,53 @@ sub find_building {
     return $building;
 }
 
-has command => (
+# Accessor methods for specific buildings
+foreach my $arg (
+    [qw(trade Trade)],
+    [qw(propulsion Propulsion)],
+    [qw(munitions_lab MunitionsLab)],
+    [qw(cloaking_lab CloakingLab)],
+    [qw(pilot_training PilotTraining)],
+    [qw(crashed_ship_site CrashedShipSite)],
+    [qw(shipyard Shipyard)],
+    [qw(planetary_command PlanetaryCommand)],
+    [qw(oversight Oversight)],
+    [qw(archaeology Archaeology)],
+    ['mining_ministry','Ore::Ministry'],
+    [qw(network19 Network19)],
+    [qw(development Development)],
+    ['refinery', 'Ore::Refinery'],
+    [qw(spaceport SpacePort)],
+    [qw(embassy Embassy)],
+    [qw(command PlanetaryCommand)],
+    [qw(network19 Network19)],
+    ) {
+    my $method = $arg->[0];
+    my $class  = $arg->[1];
+
+    has $method => (
         is      => 'rw',
         lazy    => 1,
         default => sub {
-        my $self = shift;
-        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::PlanetaryCommand');
-        return $building;
+            my ($self) = @_;
+            return $self->get_building_of_class("Lacuna::DB::Result::Building::$class");
         },
-        );
+    );
+}
 
-has oversight => (
-        is      => 'rw',
-        lazy    => 1,
-        default => sub {
-        my $self = shift;
-        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Oversight');
-        return $building;
-        },
-        );
-
-has archaeology => (
-        is      => 'rw',
-        lazy    => 1,
-        default => sub {
-        my $self = shift;
-        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Archaeology');
-        return $building;
-        },
-        );
-
-has mining_ministry => (
-        is      => 'rw',
-        lazy    => 1,
-        default => sub {
-        my $self = shift;
-        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Ministry');
-        return $building;
-        },
-        );
-
-has network19 => (
-        is      => 'rw',
-        lazy    => 1,
-        default => sub {
-        my $self = shift;
-        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Network19');
-        return $building;
-        },
-        );
-
-has development => (
-        is      => 'rw',
-        lazy    => 1,
-        default => sub {
-        my $self = shift;
-        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Development');
-        return $building;
-        },
-        );
-
-has refinery => (
-        is      => 'rw',
-        lazy    => 1,
-        default => sub {
-        my $self = shift;
-        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Ore::Refinery');
-        return $building;
-        },
-        );
-
-has spaceport => (
-        is      => 'rw',
-        lazy    => 1,
-        default => sub {
-        my $self = shift;
-        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::SpacePort');
-        return $building;
-        },
-        );    
-
-has embassy => (
-        is      => 'rw',
-        lazy    => 1,
-        default => sub {
-        my $self = shift;
-        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Embassy');
-        return $building;
-        },
-        );    
-
+# is a specific plot free
 sub is_space_free {
     my ($self, $unclean_x, $unclean_y) = @_;
     my $x = int( $unclean_x );
     my $y = int( $unclean_y );
     my $count = grep {$_->x == $x and $_->y == $y} @{$self->building_cache};
-    return 0 if $count > 0;
-    return 1;
+    return $count == 0;
 }
 
+# find a free building plot
 sub find_free_space {
-    my $self = shift;
+    my ($self) = @_;
+
     my $x = randint(-5,5);
     my $y = randint(-5,5);
 
@@ -734,6 +683,7 @@ sub find_free_space {
     confess [1009, 'No free space found.'];
 }
 
+# Check if the given co-ordinates are a valid building spot
 sub check_for_available_build_space {
     my ($self, $unclean_x, $unclean_y) = @_;
     my $x = int( $unclean_x );
@@ -747,16 +697,20 @@ sub check_for_available_build_space {
     return 1;
 }
 
+# Are there any free building plots available
 sub check_plots_available {
     my ($self, $building) = @_;
+
     if (!$building->isa('Lacuna::DB::Result::Building::Permanent') && $self->plots_available < 1) {
         confess [1009, "You've already reached the maximum number of buildings for this planet.", $self->size];
     }
     return 1;
 }
 
+# have we met all the pre-requisites to build this building?
 sub has_met_building_prereqs {
     my ($self, $building, $cost) = @_;
+
     $building->can_build($self);
     $self->has_resources_to_build($building, $cost);
     $self->has_max_instances_of_building($building);
@@ -764,8 +718,10 @@ sub has_met_building_prereqs {
     return 1;
 }
 
+# can we build this building at this time? 
 sub can_build_building {
     my ($self, $building) = @_;
+
     $self->check_for_available_build_space($building->x, $building->y);
     $self->check_plots_available($building);
     $self->has_room_in_build_queue;
@@ -773,12 +729,13 @@ sub can_build_building {
     return $self;
 }
 
+# is there room left in the build queue?
 sub has_room_in_build_queue {
-    my ($self) = shift;
+    my ($self) = @_;
+
     my $max = 1;
-    my $dev_ministry = $self->development;
-    if (defined $dev_ministry) {
-        $max += $dev_ministry->level;
+    if (defined $self->development) {
+        $max += $self->development->level;
     }
     my $count = @{$self->builds};
     if ($count >= $max) {
@@ -789,31 +746,33 @@ sub has_room_in_build_queue {
 
 use constant operating_resource_names => qw(food_hour energy_hour ore_hour water_hour);
 
+# Get the operating costs when all builds are complete
 has future_operating_resources => (
-        is      => 'rw',
-        clearer => 'clear_future_operating_resources',
-        lazy    => 1,
-        default => sub {
-        my $self = shift;
-
-# get current
+    is      => 'rw',
+    clearer => 'clear_future_operating_resources',
+    lazy    => 1,
+    default => sub {
+        my ($self) = @_;
+        
+        # get current
         my %future;
         foreach my $method ($self->operating_resource_names) {
-        $future{$method} = $self->$method;
+            $future{$method} = $self->$method;
         }
 
-# adjust for what's already in build queue
+        # adjust for what's already in build queue
         my @queued_builds = @{$self->builds};
         foreach my $build (@queued_builds) {
-        my $other = $build->stats_after_upgrade;
-        foreach my $method ($self->operating_resource_names) {
-        $future{$method} += $other->{$method} - $build->$method;
-        }
+            my $other = $build->stats_after_upgrade;
+            foreach my $method ($self->operating_resource_names) {
+                $future{$method} += $other->{$method} - $build->$method;
+            }
         }
         return \%future;
-        },
-        );
+    },
+);
 
+# would we have enough resources to operate this building in the future?
 sub has_resources_to_operate {
     my ($self, $building) = @_;
 
@@ -836,6 +795,7 @@ sub has_resources_to_operate {
     return 1;
 }
 
+# would we have enough resources to operate everything after this building is demolished?
 sub has_resources_to_operate_after_building_demolished {
     my ($self, $building) = @_;
 
@@ -854,11 +814,13 @@ sub has_resources_to_operate_after_building_demolished {
     return 1;
 }
 
+# do we have sufficient resources to construct this building?
 sub has_resources_to_build {
     my ($self, $building, $cost) = @_;
+
     $cost ||= $building->cost_to_upgrade;
     foreach my $resource (qw(food energy ore water)) {
-        unless ($self->type_stored($resource) >= $cost->{$resource}) {
+        if ($self->type_stored($resource) < $cost->{$resource}) {
             confess [1011, "Not enough $resource in storage to build this.", $resource];
         }
     }
@@ -870,16 +832,19 @@ sub has_resources_to_build {
     return 1;
 }
 
+# do we already have the maximum number of this type of building?
 sub has_max_instances_of_building {
     my ($self, $building) = @_;
-    return 0 if $building->max_instances_per_planet == 9999999;
-    my @buildings = grep {$_->class eq $building->class} @{$self->building_cache};
 
-    if (scalar @buildings >= $building->max_instances_per_planet) {
+    return 0 if $building->max_instances_per_planet == 9999999; # TODO what's this all about?
+    my $buildings = grep {$_->class eq $building->class} @{$self->building_cache};
+
+    if ($buildings >= $building->max_instances_per_planet) {
         confess [1009, sprintf("You are only allowed %s of these buildings per planet.",$building->max_instances_per_planet)];
     }
 }
 
+# return all buildings currently being upgraded
 sub builds { 
     my ($self, $reverse) = @_;
 
@@ -888,8 +853,10 @@ sub builds {
     return \@buildings;
 }
 
+# get the time when the build queue will be completed 
 sub get_existing_build_queue_time {
-    my $self = shift;
+    my ($self) = @_;
+
     my ($building) = @{$self->builds(1)};
     return (defined $building) ? $building->upgrade_ends : DateTime->now;
 }
@@ -904,8 +871,10 @@ sub is_plot_locked {
     return Lacuna->cache->get('plot_contention_lock', $self->id.'|'.$x.'|'.$y);
 }
 
+# put a building on the build queue
 sub build_building {
     my ($self, $building, $in_parallel, $no_upgrade) = @_;
+
     $building->date_created(DateTime->now);
     $building->body_id($self->id);
     $building->level(0) unless $building->level;
@@ -923,12 +892,15 @@ sub build_building {
     }
 }
 
+# create a new colony on this planet
 sub found_colony {
     my ($self, $empire) = @_;
+
     $self->empire_id($empire->id);
     $self->usable_as_starter_enabled(0);
     $self->last_tick(DateTime->now);
     $self->update;    
+
     # Excavators get cleared when being checked for results.
 
     # award medal
@@ -936,6 +908,7 @@ sub found_colony {
     $type =~ s/^.*::(\w\d+)$/$1/;
     $empire->add_medal($type);
 
+    # delete anything that may be on the PCC plot
     my ($building) = grep {$_->x == 0 and $_->y == 0} @{$self->building_cache};
     if (defined $building) {
         $building->delete;
@@ -943,11 +916,11 @@ sub found_colony {
 
     # add command building
     my $command = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-            x               => 0,
-            y               => 0,
-            class           => 'Lacuna::DB::Result::Building::PlanetaryCommand',
-            level           => $empire->growth_affinity - 1,
-            });
+        x       => 0,
+        y       => 0,
+        class   => 'Lacuna::DB::Result::Building::PlanetaryCommand',
+        level   => $empire->growth_affinity - 1,
+    });
     $self->build_building($command);
     $command->finish_upgrade;
 
@@ -972,8 +945,10 @@ sub found_colony {
     return $self;
 }
 
+# convert this planet into a station
 sub convert_to_station {
     my ($self, $empire) = @_;
+
     $self->size(3);
     $self->plots_available(0);
     $self->empire_id($empire->id);
@@ -995,28 +970,28 @@ sub convert_to_station {
 
     # add command building
     my $command = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-            x               => 0,
-            y               => 0,
-            class           => 'Lacuna::DB::Result::Building::Module::StationCommand',
-            });
+        x       => 0,
+        y       => 0,
+        class   => 'Lacuna::DB::Result::Building::Module::StationCommand',
+    });
     $self->build_building($command);
     $command->finish_upgrade;
 
     # add parliament
     my $parliament = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-            x               => -1,
-            y               => 0,
-            class           => 'Lacuna::DB::Result::Building::Module::Parliament',
-            });
+        x       => -1,
+        y       => 0,
+        class   => 'Lacuna::DB::Result::Building::Module::Parliament',
+    });
     $self->build_building($parliament);
     $parliament->finish_upgrade;
 
     # add warehouse
     my $warehouse = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-            x               => 1,
-            y               => 0,
-            class           => 'Lacuna::DB::Result::Building::Module::Warehouse',
-            });
+        x       => 1,
+        y       => 0,
+        class   => 'Lacuna::DB::Result::Building::Module::Warehouse',
+    });
     $self->build_building($warehouse);
     $warehouse->finish_upgrade;
 
@@ -1034,11 +1009,13 @@ sub convert_to_station {
     return $self;
 }
 
+# total ore concentration of this planet
 has total_ore_concentration => (
-        is          => 'ro',  
-        lazy        => 1,
-        default     => sub {
-        my $self = shift;
+    is          => 'ro',  
+    lazy        => 1,
+    default     => sub {
+        my ($self) = @_;
+
         my $tally = 0;
         foreach my $type (ORE_TYPES) {
         $tally += $self->$type;
@@ -1047,6 +1024,7 @@ has total_ore_concentration => (
         },
         );
 
+# Check if a resource is a food type
 sub is_food {
     my ($self, $resource) = @_;
 
@@ -1056,6 +1034,7 @@ sub is_food {
     return;
 }
 
+# Check if a resource is an ore type
 sub is_ore {
     my ($self, $resource) = @_;
 
@@ -1066,7 +1045,6 @@ sub is_ore {
 }
 
 # convert a resource name into a planet attribute name
-#
 sub resource_name {
     my ($self,$resource) = @_;
 
@@ -1077,23 +1055,20 @@ sub resource_name {
 }
 
 # Recalculate waste and supply chains for this body
-#
 sub recalc_chains {
     my ($self) = @_;
 
-    # find the Trade Ministry
-    my $trade_min = $self->get_a_building('Trade');
-
-    if ($trade_min) {
-        $trade_min->recalc_supply_production;
-        $trade_min->recalc_waste_production;
+    if ($self->trade) {
+        $self->trade->recalc_supply_production;
+        $self->trade->recalc_waste_production;
     }
 }
 
+# recalculate all stats for this body
 sub recalc_stats {
     my ($self) = @_;
 
-    $self->clear_building_cache;
+#    $self->clear_building_cache;
 
     my %stats = ( needs_recalc => 0 );
     #reset foods and ores
@@ -1119,7 +1094,7 @@ sub recalc_stats {
         $ore_consumption_hour   += $building->ore_consumption_hour;
         $ore_production_hour    += $building->ore_production_hour;
         $food_consumption_hour  += $building->food_consumption_hour;
-        
+
         foreach my $type (@{$building->produces_food_items}) {
             my $method = $type.'_production_hour';
             $stats{$method}         += $building->$method();
@@ -1249,9 +1224,11 @@ sub recalc_stats {
         }
     }
     $stats{plots_available} = $max_plots - $self->building_count;
+
     # Decrease happiness production if short on plots.
     if ($stats{plots_available} < 0) {
         my $plot_tax = int(50 * 1.62 ** (abs($stats{plots_available})-1));
+
         # Set max to at least -10k
         my $neg_hr = $self->happiness > 100_000 ? -1 * $self->happiness/10 : -10_000;
  
@@ -1273,16 +1250,14 @@ sub recalc_stats {
 }
 
 # NEWS
-
 sub add_news {
-    my $self = shift;
-    my $chance = shift;
-    my $headline = shift;
+    my ($self, $chance, $headline) = @_;
+
     if ($self->restrict_coverage) {
         my $network19 = $self->network19;
         if (defined $network19) {
             $chance += $network19->level * 2;
-            $chance = $chance / $self->command->level; 
+            $chance = $chance / $self->planetary_command->level; 
         }
     }
     if (randint(1,100) <= $chance) {
@@ -1299,7 +1274,6 @@ sub add_news {
 
 
 # RESOURCE MANGEMENT
-
 sub tick {
     my ($self) = @_;
     
@@ -1340,23 +1314,23 @@ sub tick {
         $i++;
     }
 
-    # get ship tasks
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+    # get fleet tasks
+    my $fleets = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
         body_id         => $self->id,
         date_available  => { '<=' => $dt_parser->format_datetime($now) },
         task            => { '!=' => 'Docked' },
     });
-    while (my $ship = $ships->next ) {
-        if ($ship->task eq 'Travelling') {
-            $todo{format_date($ship->date_available).$i} = {
-                object  => $ship,
-                type    => 'ship arrives',
+    while (my $fleet = $fleets->next ) {
+        if ($fleet->task eq 'Travelling') {
+            $todo{format_date($fleet->date_available).$i} = {
+                object  => $fleet,
+                type    => 'fleet arrives',
             };
         }
-        elsif ($ship->task eq 'Building') {
-            $todo{format_date($ship->date_available).$i} = {
-                object  => $ship,
-                type    => 'ship built',
+        elsif ($fleet->task eq 'Building') {
+            $todo{format_date($fleet->date_available).$i} = {
+                object  => $fleet,
+                type    => 'fleet built',
             };
         }
         $i++;
@@ -1365,11 +1339,11 @@ sub tick {
     # synchronize completion of tasks
     foreach my $key (sort keys %todo) {
         my ($object, $job) = ($todo{$key}{object}, $todo{$key}{type});
-        if ($job eq 'ship built') {
+        if ($job eq 'fleet built') {
             $self->tick_to($object->date_available);
             $object->finish_construction;
         }
-        elsif ($job eq 'ship arrives') {
+        elsif ($job eq 'fleet arrives') {
             $self->tick_to($object->date_available);
             $object->arrive;            
         }
@@ -1398,7 +1372,8 @@ sub tick {
                 }
             }
             unless ($still_enabled) {
-                if (!$self->empire->check_for_repeat_message('boosts_expired')) {  # because each planet could send the message
+                # avoid each planet sending the same boost expired message
+                if (!$self->empire->check_for_repeat_message('boosts_expired')) {
                     $self->empire->send_predefined_message(
                         tags        => ['Alert'],
                         filename    => 'boosts_expired.txt',
@@ -1421,11 +1396,14 @@ sub tick {
     $cache->delete('ticking', $self->id);
 }
 
+# Catch up on all ticks until now
 sub tick_to {
     my ($self, $now) = @_;
+
     my $seconds  = $now->epoch - $self->last_tick->epoch;
     my $tick_rate = $seconds / 3600;
     $self->last_tick($now);
+
     if ($self->happiness < 0) {
         $self->needs_recalc if ($self->happiness_hour < -20_000);
         if ($self->unhappy) {
@@ -1443,6 +1421,7 @@ sub tick_to {
     if ($self->needs_recalc) {
         $self->recalc_stats;    
     }
+    
     # Process excavator sites
     if ( my $arch = $self->archaeology) {
         if ($arch->efficiency == 100 and $arch->level > 0) {
@@ -1460,8 +1439,10 @@ sub tick_to {
         }
         else {
             $arch->last_check($now);
+            $arch->update;
         }
     }
+
     # happiness
     $self->add_happiness(sprintf('%.0f', $self->happiness_hour * $tick_rate));
     
@@ -1597,6 +1578,7 @@ sub tick_to {
             $self->spend_food_type($type, abs($food{$type}));
         }
     }
+
     # deal with negative amounts stored
     # and stall/unstall any supply-chains
     my @supply_chains = $self->out_supply_chains->all;
@@ -1628,6 +1610,7 @@ sub tick_to {
     $self->update;
 }
 
+# Change the state of a supply chain (stalled/not-stalled)
 sub toggle_supply_chain {
     my ($self, $chains_ref, $resource, $stalled) = @_;
 
@@ -1654,8 +1637,11 @@ sub toggle_supply_chain {
     }
 }
 
+# Return the amount of a resource type stored
+# or modify the amount stored if '$value' is specified
 sub type_stored {
     my ($self, $type, $value) = @_;
+
     my $stored_method = $type.'_stored';
     if (defined $value) {
         $self->$stored_method($value);
@@ -1663,8 +1649,10 @@ sub type_stored {
     return $self->$stored_method;
 }
 
+# Do we have enough of a resource to spend?
 sub can_spend_type {
     my ($self, $type, $value) = @_;
+
     my $stored = $type.'_stored';
     if ($self->$stored < $value) {
         confess [1009, "You don't have enough $type in storage."];
@@ -1672,15 +1660,19 @@ sub can_spend_type {
     return 1;
 }
 
+# Spend $value amount of a resource $type
 sub spend_type {
     my ($self, $type, $value) = @_;
+
     my $method = 'spend_'.$type;
     $self->$method($value);
     return $self;
 }
 
+# Can we add $value more of a $type of resource?
 sub can_add_type {
     my ($self, $type, $value) = @_;
+
     if ($type ~~ [ORE_TYPES]) {
         $type = 'ore';
     }
@@ -1696,8 +1688,10 @@ sub can_add_type {
     return 1;
 }
 
+# Add $value amound of a resource $type
 sub add_type {
     my ($self, $type, $value) = @_;
+
     my $method = 'add_'.$type;
     eval {
         $self->can_add_type($type, $value);
@@ -1719,6 +1713,7 @@ sub add_type {
     return $self;
 }
 
+# How much ore is stored?
 sub ore_stored {
     my ($self) = @_;
     my $tally = 0;
@@ -1728,10 +1723,11 @@ sub ore_stored {
     return $tally;
 }
 
+# add a random ore type
 sub add_ore {
     my ($self, $value) = @_;
     foreach my $type (shuffle ORE_TYPES) {
-        next unless $self->$type >= 100; 
+        next if $self->$type < 100; 
         my $add_method = 'add_'.$type;
         $self->$add_method($value);
         last;
@@ -1739,8 +1735,10 @@ sub add_ore {
     return $self;
 }
 
+# add a specific $type of ore
 sub add_ore_type {
     my ($self, $type, $amount_requested) = @_;
+
     my $available_storage = $self->ore_capacity - $self->ore_stored;
     $available_storage = 0 if ($available_storage < 0);
     my $amount_to_add = ($amount_requested <= $available_storage) ? $amount_requested : $available_storage;
@@ -1748,6 +1746,7 @@ sub add_ore_type {
     return $self;
 }
 
+# spend a specific $type of ore
 sub spend_ore_type {
     my ($self, $type, $amount_spent, $complain) = @_;
     my $amount_stored = $self->type_stored($type);
@@ -1768,206 +1767,19 @@ sub spend_ore_type {
     return $self;
 }
 
-sub add_magnetite {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('magnetite', $value);
+# Created methods for ore, e.g. 'add_magnetite', 'spend_magnetite'
+for my $ore (ORE_TYPES) {
+    __PACKAGE__->meta->add_method("add_$ore" => sub {
+        my ($self, $value) = @_;
+        return $self->add_ore_type($ore, $value);
+    });
+    __PACKAGE__->meta->add_method("spend_$ore" => sub {
+        my ($self, $value) = @_;
+        return $self->spend_ore_type($ore, $value);
+    });
 }
 
-sub spend_magnetite {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('magnetite', $value);
-}
-
-sub add_beryl {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('beryl', $value);
-}
-
-sub spend_beryl {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('beryl', $value);
-}
-
-sub add_fluorite {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('fluorite', $value);
-}
-
-sub spend_fluorite {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('fluorite', $value);
-}
-
-sub add_monazite {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('monazite', $value);
-}
-
-sub spend_monazite {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('monazite', $value);
-}
-
-sub add_zircon {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('zircon', $value);
-}
-
-sub spend_zircon {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('zircon', $value);
-}
-
-sub add_sulfur {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('sulfur', $value);
-}
-
-sub spend_sulfur {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('sulfur', $value);
-}
-
-sub add_anthracite {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('anthracite', $value);
-}
-
-sub spend_anthracite {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('anthracite', $value);
-}
-
-sub add_methane {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('methane', $value);
-}
-
-sub spend_methane {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('methane', $value);
-}
-
-sub add_kerogen {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('kerogen', $value);
-}
-
-sub spend_kerogen {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('kerogen', $value);
-}
-
-sub add_trona {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('trona', $value);
-}
-
-sub spend_trona {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('trona', $value);
-}
-
-sub add_gypsum {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('gypsum', $value);
-}
-
-sub spend_gypsum {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('gypsum', $value);
-}
-
-sub add_halite {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('halite', $value);
-}
-
-sub spend_halite {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('halite', $value);
-}
-
-sub add_goethite {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('goethite', $value);
-}
-
-sub spend_goethite {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('goethite', $value);
-}
-
-sub add_bauxite {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('bauxite', $value);
-}
-
-sub spend_bauxite {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('bauxite', $value);
-}
-
-sub add_uraninite {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('uraninite', $value);
-}
-
-sub spend_uraninite {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('uraninite', $value);
-}
-
-sub add_gold {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('gold', $value);
-}
-
-sub spend_gold {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('gold', $value);
-}
-
-sub add_galena {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('galena', $value);
-}
-
-sub spend_galena {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('galena', $value);
-}
-
-sub add_chalcopyrite {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('chalcopyrite', $value);
-}
-
-sub spend_chalcopyrite {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('chalcopyrite', $value);
-}
-
-sub add_chromite {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('chromite', $value);
-}
-
-sub spend_chromite {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('chromite', $value);
-}
-
-sub add_rutile {
-    my ($self, $value) = @_;
-    return $self->add_ore_type('rutile', $value);
-}
-
-sub spend_rutile {
-    my ($self, $value) = @_;
-    return $self->spend_ore_type('rutile', $value);
-}
-
+# Spend proportionally from all ore
 sub spend_ore {
     my ($self, $ore_consumed) = @_;
 
@@ -2008,6 +1820,7 @@ sub food_hour {
     return $tally;
 }
 
+# determine the total food stored
 sub food_stored {
     my ($self) = @_;
     my $tally = 0;
@@ -2017,8 +1830,10 @@ sub food_stored {
     return $tally;
 }
 
+# add to a specific $type of food stored
 sub add_food_type {
     my ($self, $type, $amount_requested) = @_;
+
     my $available_storage = $self->food_capacity - $self->food_stored;
     $available_storage = 0 if ($available_storage < 0);
     my $amount_to_add = ($amount_requested <= $available_storage) ? $amount_requested : $available_storage;
@@ -2026,6 +1841,7 @@ sub add_food_type {
     return $self;
 }
 
+# spend from a specific $type of food
 sub spend_food_type {
     my ($self, $type, $amount_spent, $complain) = @_;
     my $amount_stored = $self->type_stored($type);
@@ -2047,230 +1863,23 @@ sub spend_food_type {
     return $self;
 }
 
-sub add_beetle {
-    my ($self, $value) = @_;
-    return $self->add_food_type('beetle', $value);
+# add methods for all food types, such as 'add_algae' and 'spend_algae'
+for my $food (FOOD_TYPES) {
+    __PACKAGE__->meta->add_method("add_$food" => sub {
+        my ($self, $value) = @_;
+        return $self->add_food_type($food, $value);
+    });
+    __PACKAGE__->meta->add_method("spend_$food" => sub {
+        my ($self, $value) = @_;
+        return $self->spend_food_type($food, $value);
+    });
 }
 
-sub spend_beetle {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('beetle', $value);
-}
-
-sub add_shake {
-    my ($self, $value) = @_;
-    return $self->add_food_type('shake', $value);
-}
-
-sub spend_shake {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('shake', $value);
-}
-
-sub add_burger {
-    my ($self, $value) = @_;
-    return $self->add_food_type('burger', $value);
-}
-
-sub spend_burger {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('burger', $value);
-}
-
-sub add_fungus {
-    my ($self, $value) = @_;
-    return $self->add_food_type('fungus', $value);
-}
-
-sub spend_fungus {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('fungus', $value);
-}
-
-sub add_syrup {
-    my ($self, $value) = @_;
-    return $self->add_food_type('syrup', $value);
-}
-
-sub spend_syrup {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('syrup', $value);
-}
-
-sub add_algae {
-    my ($self, $value) = @_;
-    return $self->add_food_type('algae', $value);
-}
-
-sub spend_algae {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('algae', $value);
-}
-
-sub add_meal {
-    my ($self, $value) = @_;
-    return $self->add_food_type('meal', $value);
-}
-
-sub spend_meal {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('meal', $value);
-}
-
-sub add_milk {
-    my ($self, $value) = @_;
-    return $self->add_food_type('milk', $value);
-}
-
-sub spend_milk {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('milk', $value);
-}
-
-sub add_pancake {
-    my ($self, $value) = @_;
-    return $self->add_food_type('pancake', $value);
-}
-
-sub spend_pancake {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('pancake', $value);
-}
-
-sub add_pie {
-    my ($self, $value) = @_;
-    return $self->add_food_type('pie', $value);
-}
-
-sub spend_pie {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('pie', $value);
-}
-
-sub add_chip {
-    my ($self, $value) = @_;
-    return $self->add_food_type('chip', $value);
-}
-
-sub spend_chip {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('chip', $value);
-}
-
-sub add_soup {
-    my ($self, $value) = @_;
-    return $self->add_food_type('soup', $value);
-}
-
-sub spend_soup {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('soup', $value);
-}
-
-sub add_bread {
-    my ($self, $value) = @_;
-    return $self->add_food_type('bread', $value);
-}
-
-sub spend_bread {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('bread', $value);
-}
-
-sub add_wheat {
-    my ($self, $value) = @_;
-    return $self->add_food_type('wheat', $value);
-}
-
-sub spend_wheat {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('wheat', $value);
-}
-
-sub add_cider {
-    my ($self, $value) = @_;
-    return $self->add_food_type('cider', $value);
-}
-
-sub spend_cider {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('cider', $value);
-}
-
-sub add_corn {
-    my ($self, $value) = @_;
-    return $self->add_food_type('corn', $value);
-}
-
-sub spend_corn {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('corn', $value);
-}
-
-sub add_root {
-    my ($self, $value) = @_;
-    return $self->add_food_type('root', $value);
-}
-
-sub spend_root {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('root', $value);
-}
-
-sub add_bean {
-    my ($self, $value) = @_;
-    return $self->add_food_type('bean', $value);
-}
-
-sub spend_bean {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('bean', $value);
-}
-
-sub add_cheese {
-    my ($self, $value) = @_;
-    return $self->add_food_type('cheese', $value);
-}
-
-sub spend_cheese {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('cheese', $value);
-}
-
-sub add_apple {
-    my ($self, $value) = @_;
-    return $self->add_food_type('apple', $value);
-}
-
-sub spend_apple {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('apple', $value);
-}
-
-sub add_potato {
-    my ($self, $value) = @_;
-    return $self->add_food_type('potato', $value);
-}
-
-sub spend_potato {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('potato', $value);
-}
-
-sub add_lapis {
-    my ($self, $value) = @_;
-    return $self->add_food_type('lapis', $value);
-}
-
-sub spend_lapis {
-    my ($self, $value) = @_;
-    return $self->spend_food_type('lapis', $value);
-}
-
+# Spend proportionally from all foods
 sub spend_food {
     my ($self, $food_consumed, $loss) = @_;
     
-   $loss = 0 unless defined($loss);
+    $loss = 0 unless defined($loss);
     # take inventory
     my $food_stored;
     my $food_type_count = 0;
@@ -2310,16 +1919,20 @@ sub spend_food {
     return $self;
 }
 
+# add to energy stored
 sub add_energy {
     my ($self, $value) = @_;
+
     my $store = $self->energy_stored + $value;
     my $storage = $self->energy_capacity;
     $self->energy_stored( ($store < $storage) ? $store : $storage );
     return $self;
 }
 
+# spend from energy reserve
 sub spend_energy {
     my ($self, $amount_spent) = @_;
+
     my $amount_stored = $self->energy_stored;
     if ($amount_spent > $amount_stored) {
         $self->spend_happiness($amount_spent - $amount_stored);
@@ -2332,16 +1945,20 @@ sub spend_energy {
     return $self;
 }
 
+# add to water stored
 sub add_water {
     my ($self, $value) = @_;
+
     my $store = $self->water_stored + $value;
     my $storage = $self->water_capacity;
     $self->water_stored( ($store < $storage) ? $store : $storage );
     return $self;
 }
 
+# spend from water reserve
 sub spend_water {
     my ($self, $amount_spent) = @_;
+
     my $amount_stored = $self->water_stored;
     if ($amount_spent > $amount_stored) {
         $self->spend_happiness($amount_spent - $amount_stored);
@@ -2354,8 +1971,10 @@ sub spend_water {
     return $self;
 }
 
+# increase the amount of happiness
 sub add_happiness {
     my ($self, $value) = @_;
+
     my $new = $self->happiness + $value;
     if ($new < 0 && $self->empire->is_isolationist) {
         $new = 0;
@@ -2364,8 +1983,10 @@ sub add_happiness {
     return $self;
 }
 
+# decrease the amount of happiness
 sub spend_happiness {
     my ($self, $value) = @_;
+
     my $new = $self->happiness - $value;
     my $empire = $self->empire;
     if ($empire and $new < 0) {
@@ -2385,8 +2006,10 @@ sub spend_happiness {
     return $self;
 }
 
+# add to the amount of waste stored
 sub add_waste {
     my ($self, $value) = @_;
+
     my $store = $self->waste_stored + $value;
     my $storage = $self->waste_capacity;
     if ($store < $storage) {
@@ -2408,6 +2031,8 @@ sub add_waste {
     return $self;
 }
 
+# reduce the amount of waste
+# if waste goes negative, strip waste using buildings
 sub spend_waste {
     my ($self, $value) = @_;
     if ($self->waste_stored >= $value) {
@@ -2440,6 +2065,7 @@ sub spend_waste {
     return $self;
 }
 
+# the title says it all
 sub complain_about_lack_of_resources {
     my ($self, $resource) = @_;
     my $empire = $self->empire;
