@@ -543,6 +543,7 @@
  - done: When ships arrive (fighters to Defend) set their available date to null
  - done: Travelling ships should be sorted in arrival date order
 
+ - change to see how git-pull requests work
 KNOWN BUGS:
  - bug: Fleet format currently shows 'Foreign' for all fleets
 
