@@ -544,6 +544,7 @@
  - done: Travelling ships should be sorted in arrival date order
 
  - change to pb-ls-open.
+ - change to my-ls-open.
 
 KNOWN BUGS:
  - bug: Fleet format currently shows 'Foreign' for all fleets
