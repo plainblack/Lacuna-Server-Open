@@ -543,8 +543,7 @@
  - done: When ships arrive (fighters to Defend) set their available date to null
  - done: Travelling ships should be sorted in arrival date order
 
- - change to pb-ls-open.
- - change to my-ls-open.
+ - change to my-ls-open to check pull request
 
 KNOWN BUGS:
  - bug: Fleet format currently shows 'Foreign' for all fleets
