@@ -9,7 +9,7 @@ use Guard;
 use List::Util qw(first);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES SHIP_WASTE_TYPES SHIP_TRADE_TYPES);
 
-with 'Lacuna::Role::TraderRpc','Lacuna::Role::Ship::Trade';
+with 'Lacuna::Role::TraderRpc','Lacuna::Role::Fleet::Trade';
 
 sub app_url {
     return '/trade';
@@ -18,6 +18,222 @@ sub app_url {
 sub model_class {
     return 'Lacuna::DB::Result::Building::Trade';
 }
+
+sub accept_from_market {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            trade_id        => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    my $trade_id    = $args->{trade_id};
+
+    if (not $trade_id) {
+        confess [1002, 'You have not specified a trade to accept.'];
+    }
+    my $cache = Lacuna->cache;
+    if (! $cache->add('trade_lock', $trade_id, 1, 5)) {
+        confess [1013, 'Another buyer has placed an offer on this trade. Please wait a few moments and try again.'];
+    }
+    my $guard = guard {
+        $cache->delete('trade_lock',$trade_id);
+    };
+
+    if ($building->level < 1) {
+        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
+    }
+
+    $empire->current_session->check_captcha;
+
+    my $trade = $building->market->find($trade_id);
+    if (not defined $trade) {
+        confess [1002, 'Could not find that trade. Perhaps it has already been accepted.',$trade_id];
+    }
+    my $offer_fleet = Lacuna->db->resultset('Fleet')->find($trade->fleet_id);
+    if (not defined $offer_fleet) {
+        $trade->withdraw;
+        confess [1009, 'Trade no longer available.'];
+    }
+
+    my $body = $building->body;
+    if ($empire->essentia < $trade->ask) {
+        confess [1011, 'You need at least '.$trade->ask.' essentia to make this trade.']
+    }
+
+    $self->check_payload_fleet_id($trade->payload->{fleets}, $body);
+
+    $guard->cancel;
+
+    $empire->spend_essentia($trade->ask, 'Trade Price', 0, $trade->body->empire->id, $trade->body->empire->name )->update;
+    $trade->body->empire->add_essentia($trade->ask, 'Trade Income', 0, $empire->id, $empire->name)->update;
+    
+    $offer_fleet->send(
+        target  => $body,
+        payload => $trade->payload,
+    );
+    
+    $trade->body->empire->send_predefined_message(
+        tags        => ['Trade','Alert'],
+        filename    => 'trade_accepted.txt',
+        params      => [join("; ",@{$trade->format_description_of_payload}), $trade->ask.' essentia', $empire->id, $empire->name],
+    );
+    $trade->delete;
+
+    return {
+        status      => $self->format_status($empire, $building->body),
+    };
+}
+
+
+sub add_fleet_to_supply_duty {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            fleet_id        => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    my $fleet_id    = $args->{fleet_id};
+    my $quantity    = $args->{quantity} || 1;
+
+    if (not defined $building) {
+        confess [1002, "Building not found."];
+    }
+    my $fleet = Lacune->db->resultset('Fleet')->find($fleet_id);
+    if (not defined $fleet) {
+        confess [1002, "Fleet not found."];
+    }
+    if ($fleet->task ne 'Docked') {
+        confess [1009, "That fleet is not available."];
+    }
+    if ($fleet->hold_size <= 0) {
+        confess [1009, 'That fleet has no cargo hold.'];
+    }
+    if ($fleet->body_id != $building->body_id) {
+        confess [1013, "You can't manage a fleet that is not yours."];
+    }
+    if (not first {$fleet->type eq $_} (SHIP_TRADE_TYPES)) {
+        confess [1009, 'You can only add transport ships to a supply chain.'];
+    }
+    my $max_berth = $building->body->max_berth;
+
+    if ($fleet->berth_level > $max_berth) {
+        confess [1009, "You don't have a high enough berth for this fleet."];
+    }
+    $fleet = $fleet->split($quantity);
+    
+    $building->add_fleet_to_supply_duty($fleet);
+    return {
+        status  =>$self->format_status($empire, $building->body),
+    };
+}
+
+sub add_fleet_to_waste_duty {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            fleet_id        => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    my $fleet_id    = $args->{fleet_id};
+    my $quantity    = $args->{quantity} || 1;
+
+    if (not defined $building) {
+        confess [1002, "Building not found."];
+    }
+    my $fleet = Lacune->db->resultset('Fleet')->find($fleet_id);
+    if (not defined $fleet) {
+        confess [1002, "Fleet not found."];
+    }
+    if ($fleet->task ne 'Docked') {
+        confess [1009, "That fleet is not available."];
+    }
+    if ($fleet->hold_size <= 0) {
+        confess [1009, 'That fleet has no cargo hold.'];
+    }
+    if ($fleet->body_id != $building->body_id) {
+        confess [1013, "You can't manage a fleet that is not yours."];
+    }
+    if ($fleet->type !~ m/^scow/) {
+        confess [1009, 'You can only add scows to a supply chain.'];
+    }
+    my $max_berth = $building->body->max_berth;
+
+    if ($fleet->berth_level > $max_berth) {
+        confess [1009, "You don't have a high enough berth for this fleet."];
+    }
+    $fleet = $fleet->split($quantity);
+    $building->add_fleet_to_waste_duty($fleet);
+    return {
+        status  =>$self->format_status($empire, $building->body),
+    };
+}
+
+sub add_to_market {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            fleet_id        => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+
+
+
+
+
+    my ($self, $session_id, $building_id, $offer, $ask, $options) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
+    my $cache = Lacuna->cache;
+    if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
+        confess [1013, 'You have a trade setup in progress.  Please wait a few moments and try again.'];
+    }
+    my $guard = guard {
+        $cache->delete('trade_add_lock',$building_id);
+    };
+    my $trade = $building->add_to_market($offer, $ask, $options);
+    return {
+        trade_id    => $trade->id,
+        status      => $self->format_status($empire, $building->body),
+    };
+}
+
+
+#------------------------------------------------------------------------------
+
+
+
+
+
+
 
 sub get_trade_ships {
     my ($self, $session_id, $building_id, $target_id) = @_;
@@ -33,74 +249,6 @@ sub get_trade_ships {
     return {
         status      => $self->format_status($empire, $building->body),
         ships       => \@ships,
-    };
-}
-
-sub add_supply_ship_to_fleet {
-    my ($self, $session_id, $building_id, $ship_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    unless (defined $building) {
-        confess [1002, "Building not found."];
-    }
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    unless (defined $ship) {
-        confess [1002, "Ship not found."];
-    }
-    unless ($ship->task eq 'Docked') {
-        confess [1009, "That ship is not available."];
-    }
-    unless ($ship->hold_size > 0) {
-        confess [1009, 'That ship has no cargo hold.'];
-    }
-    unless ($ship->body_id eq $building->body_id) {
-        confess [1013, "You can't manage a ship that is not yours."];
-    }
-    unless (first {$ship->type eq $_} (SHIP_TRADE_TYPES)) {
-        confess [1009, 'You can only add transport ships to a supply chain.'];
-    }
-    my $max_berth = $building->body->max_berth;
-
-    unless ($ship->berth_level <= $max_berth) {
-        confess [1009, "You don't have a high enough berth for this ship."];
-    }
-    $building->add_supply_ship($ship);
-    return {
-        status  =>$self->format_status($empire, $building->body),
-    };
-}
-
-sub add_waste_ship_to_fleet {
-    my ($self, $session_id, $building_id, $ship_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    unless (defined $building) {
-        confess [1002, "Building not found."];
-    }
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    unless (defined $ship) {
-        confess [1002, "Ship not found."];
-    }
-    unless ($ship->task eq 'Docked') {
-        confess [1009, "That ship is not available."];
-    }
-    unless ($ship->hold_size > 0) {
-        confess [1009, 'That ship has no cargo hold.'];
-    }
-    unless ($ship->body_id eq $building->body_id) {
-        confess [1013, "You can't manage a ship that is not yours."];
-    }
-    unless ($ship->type =~ m/^scow/) {
-        confess [1009, 'You can only add scows to a waste chain.'];
-    }
-    my $max_berth = $building->body->max_berth;
-
-    unless ($ship->berth_level <= $max_berth) {
-        confess [1009, "You don't have a high enough berth for this ship."];
-    }
-    $building->add_waste_ship($ship);
-    return {
-        status  =>$self->format_status($empire, $building->body),
     };
 }
 
@@ -456,87 +604,38 @@ sub withdraw_from_market {
 }
 
 
-sub accept_from_market {
-    my ($self, $session_id, $building_id, $trade_id) = @_;
-    unless ($trade_id) {
-        confess [1002, 'You have not specified a trade to accept.'];
-    }
-    my $cache = Lacuna->cache;
-    if (! $cache->add('trade_lock', $trade_id, 1, 5)) {
-        confess [1013, 'Another buyer has placed an offer on this trade. Please wait a few moments and try again.'];
-    }
-    my $guard = guard {
-        $cache->delete('trade_lock',$trade_id);
-    };
-
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
-
-    $empire->current_session->check_captcha;
-
-    my $trade = $building->market->find($trade_id);
-    unless (defined $trade) {
-        confess [1002, 'Could not find that trade. Perhaps it has already been accepted.',$trade_id];
-    }
-    my $offer_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($trade->ship_id);
-    unless (defined $offer_ship) {
-        $trade->withdraw;
-        confess [1009, 'Trade no longer available.'];
-    }
-
-    my $body = $building->body;
-    unless ($empire->essentia >= $trade->ask) {
-        confess [1011, 'You need at least '.$trade->ask.' essentia to make this trade.']
-    }
-
-    $self->check_payload_ships_id($trade->payload->{ships}, $body);
-
-    $guard->cancel;
-
-    $empire->spend_essentia($trade->ask, 'Trade Price', 0, $trade->body->empire->id, $trade->body->empire->name )->update;
-    $trade->body->empire->add_essentia($trade->ask, 'Trade Income', 0, $empire->id, $empire->name)->update;
-    
-    $offer_ship->send(
-        target  => $body,
-        payload => $trade->payload,
-    );
-    
-    $trade->body->empire->send_predefined_message(
-        tags        => ['Trade','Alert'],
-        filename    => 'trade_accepted.txt',
-        params      => [join("; ",@{$trade->format_description_of_payload}), $trade->ask.' essentia', $empire->id, $empire->name],
-    );
-    $trade->delete;
-
-    return {
-        status      => $self->format_status($empire, $building->body),
-    };
-}
-
-sub add_to_market {
-    my ($self, $session_id, $building_id, $offer, $ask, $options) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
-    my $cache = Lacuna->cache;
-    if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
-        confess [1013, 'You have a trade setup in progress.  Please wait a few moments and try again.'];
-    }
-    my $guard = guard {
-        $cache->delete('trade_add_lock',$building_id);
-    };
-    my $trade = $building->add_to_market($offer, $ask, $options);
-    return {
-        trade_id    => $trade->id,
-        status      => $self->format_status($empire, $building->body),
-    };
-}
 
 
-
-__PACKAGE__->register_rpc_method_names(qw(get_supply_ships view_supply_chains add_supply_ship_to_fleet remove_supply_ship_from_fleet create_supply_chain delete_supply_chain update_supply_chain get_waste_ships view_waste_chains add_waste_ship_to_fleet remove_waste_ship_from_fleet update_waste_chain report_abuse view_my_market view_market accept_from_market withdraw_from_market add_to_market push_items get_trade_ships get_stored_resources get_ships get_ship_summary get_prisoners get_plans get_plan_summary get_glyphs get_glyph_summary));
-
+__PACKAGE__->register_rpc_method_names(qw(
+    accept_from_market
+    add_fleet_to_supply_duty
+    add_fleet_to_waste_duty
+    add_to_market
+    create_supply_chain
+    delete_supply_chain
+    get_glyph_summary
+    get_glyphs
+    get_plan_summary
+    get_plans
+    get_ship_summary
+    get_ships
+    get_stored_resources
+    get_supply_ships
+    get_prisoners
+    get_trade_ships
+    get_waste_ships
+    push_items
+    remove_supply_ship_from_fleet
+    remove_waste_ship_from_fleet
+    report_abuse
+    update_supply_chains
+    update_waste_chains
+    view_market
+    view_my_market
+    view_supply_chains 
+    view_waste_chains 
+    withdraw_from_market 
+));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

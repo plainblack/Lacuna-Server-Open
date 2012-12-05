@@ -489,6 +489,9 @@ sub prepare_fetch_spies {
         push @fleets, $fleet->get_status($on_body);
     }
 
+    my $dt_parser = Lacuna->db->storage->datetime_parser;
+    my $now = $dt_parser->format_datetime( DateTime->now );
+
     # Get all available spies (is this common enough to code in Spies?)
     my $spies_rs = Lacuna->db->resultset('Spies')->search({
         on_body_id  => $on_body->id, 
@@ -497,7 +500,7 @@ sub prepare_fetch_spies {
             task        => { in => [ 'Idle', 'Counter Espionage' ], },
             -and        => [
                 task            => { in => [ 'Unconscious', 'Debriefing' ], },
-                available_on    => { '<' => '\NOW()' }, 
+                available_on    => { '<' => $now }, 
             ],
         ],
         },{
