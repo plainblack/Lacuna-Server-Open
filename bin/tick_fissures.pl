@@ -19,10 +19,12 @@ my $start = time;
 out('Loading DB');
 our $db = Lacuna->db;
 
-out('Ticking fissures');
 my %has_fissures = map { $_->body_id => 1 } $db->resultset('Building')->search({
     class => 'Lacuna::DB::Result::Building::Permanent::Fissure',
     })->all;
+
+my $num_body = scalar keys %has_fissures;
+out('Ticking '.$num_body.' bodies with fissures');
 
 for my $body_id (sort keys %has_fissures) {
     my $body = $db->resultset('Map::Body')->find($body_id);
@@ -77,7 +79,7 @@ for my $body_id (sort keys %has_fissures) {
 
     # get number of Fissures at 0% efficiency and maximum level
     my $max_fissures = grep { $_->efficiency == 0 and $_->level >= 30 } @fissures;
-    if (($max_fissures == @fissures) or (scalar @fissures == 3)) {
+    if (($max_fissures == @fissures) or (scalar @fissures >= 3)) {
         if (scalar @fissures == 1) {
             out("    adding a second fissure!!!");
             # Then add a second fissure
@@ -124,6 +126,7 @@ for my $body_id (sort keys %has_fissures) {
                     is_working      => 0,
                     work_ends       => $now,
                     is_upgrading    => 0,
+                    date_created    => $now,
 
                 });
             }
@@ -245,10 +248,43 @@ for my $body_id (sort keys %has_fissures) {
                 alliance_id => undef,
             });
 
-            # Damage planets in range (damage depends upon distance from the event)
-            # get 10 closest planets
             my $minus_x = 0 - $body->x;
             my $minus_y = 0 - $body->y;
+            my $gas_giants = Lacuna->db->resultset('Map::Body')->search({
+                -and => [
+                    { class     => { like => 'Lacuna::DB::Result::Map::Body::Planet::G%' }},
+                ],
+            },{
+                '+select' => [
+                    { ceil => \"pow(pow(me.x + $minus_x,2) + pow(me.y + $minus_y,2), 0.5)", '-as' => 'distance' },
+                ],
+                '+as' => [
+                    'distance',
+                ],
+                order_by    => 'distance',
+            });
+            my $grown = 0;
+            GASSY:
+            while (my $to_grab_mass = $gas_giants->next) {
+                my $size = $to_grab_mass->size;
+                next if $size >= 121;
+                my $new_size = $size + randint(1,5);
+                $new_size = 121 if $new_size > 121;
+                $to_grab_mass->size($new_size);
+                $to_grab_mass->update;
+                out("Growing ".$to_grab_mass->name." to ".$size.".");
+                if ($to_grab_mass->empire) {
+                    $to_grab_mass->empire->send_predefined_message(
+                        tags        => ['Colonization','Alert'],
+                        filename    => 'changed_size.txt',
+                        params      => [$to_grab_mass->name, $size, $new_size],
+                    );
+                }
+                last GASSY if (++$grown >= 5);
+            }
+
+            # Damage planets in range (damage depends upon distance from the event)
+            # get 10 closest planets
             my $closest = Lacuna->db->resultset('Map::Body')->search({
                 -and => [
                     { empire_id => { '>'    => 1 }},
@@ -267,6 +303,7 @@ for my $body_id (sort keys %has_fissures) {
             DAMAGED:
             while (my $to_damage = $closest->next) {
                 next if ($to_damage->in_neutral_area);
+                next if ($to_damage->get_type eq "space station");  # Since supply chains etc, will probably be damaged, they'll still be threatened.
                 # damage planet
                 out("Damaging planet ".$to_damage->name." at distance ".$to_damage->get_column('distance'));
 

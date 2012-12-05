@@ -1118,6 +1118,7 @@ sub bhg_random_fissure {
                   { zone      => $body->zone,
                     empire_id => undef,
                     class      => { like => 'Lacuna::DB::Result::Map::Body::Planet::P%' },
+                    usable_as_starter_enabled   => 0,
                   },
                   {rows => 1, order_by => 'rand()' }
                 )->single;

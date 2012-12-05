@@ -45,10 +45,16 @@
  - done: When ships arrive (fighters to Defend) set their available date to null
  - done: Travelling ships should be sorted in arrival date order
 
+ - change to see how git-pull requests work
 KNOWN BUGS:
  - bug: Fleet format currently shows 'Foreign' for all fleets
 
 
+3.0874:
+ - Mod: Fissures have an interesting effect on gas giants.
+ - Add: Fissure Healer Ship added.
+ - Fix: N19 coverage restriction turned off if N19 demolished on body.
+ - Fix: Corrected emails for deploying mining platforms A22-A25.
 
 3.0873:
  - Mod: Observatory can only abandon a probe it controls.
@@ -69,6 +75,7 @@ KNOWN BUGS:
  - Add: BHG can be neutralized in certain areas.
  - Add: Space Stations can emit a field to neutralize BHGs.
  - Mod: Assembly of glyphs can make up to 5000 at a time.
+ - Mod: Fissures imploding do not harm colonies in a neutral zone.
 
 3.0872:
  - Fix: Spies need working infrastructure.
