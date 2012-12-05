@@ -416,7 +416,7 @@ sub push_items {
 
     my $space_used;
     ($space_used, $items) = $self->check_payload($items, $ship->hold_size, undef, $ship);
-    $self->check_payload_ships($items, $target, $options->{stay});
+    $self->check_payload_fleet_size($items, $target, $options->{stay});
 
     my ($payload, $meta) = $self->structure_payload($items, $space_used);
     foreach my $item (@{$items}) {

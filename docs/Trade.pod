@@ -5,58 +5,130 @@ The Trade Ministry is accessible via the URL C</trade>. It allows you to send ca
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
-=head2 view ( session_id, building_id )
+=head2 accept_from_market
 
- {
-   "building" : { ... },
-   "status" : { ... },
-   "transport" : {
-     "max" : 2500,
-     "pushable" : [
-         "id" : 1234, # body ID
-         "name" : "Planet Name",
-         "x" : -35,
-         "y" : 47,
-         "zone" : "0|0",
-     ]
-   }
- }
+Accept a trade offer from the list of available trades. See C<view_market>.
 
-The alphabetical (on name) pushable list will only include planets and stations that this planet
-can push to, even if being sat (correct list of stations for their alliance).
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, trade_id)
+ ( parameter_hash )
+    
+=head3 session_id (required)
+
+A session ID.
+
+=head3 building_id (required)
+
+This building's ID
+
+=head3 trade_id (required)
+
+The unique ID of the trade being accepted.
+
+=head3 RESPONSE
+
+Returns the same as C<view>
+
+
+=head2 add_fleet_to_supply_duty
+
+Take a fleet from your space port and put them on duty supporting your supply chains.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, fleet_id )
+ ( parameter_hash )
+
+Throws 1009.
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 fleet_id (required)
+
+The unique ID of the ship you want to add to the fleet.
+
+=head3 quantity (optional)
+
+Only available in the named argument call method. The number of ships to put on duty.
+Defaults to 1 ship.
+
+=head3 RESPONSE
+
+Returns the same as C<view>
+
+
+=head2 add_fleet_to_waste_duty
+
+Take a fleet from your space port and put them on duty supporting your waste chains.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, fleet_id )
+ ( parameter_hash )
+
+Throws 1009.
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 fleet_id (required)
+
+The unique ID of the ship you want to add to the fleet.
+
+=head3 quantity (optional)
+
+Only available in the named argument call method. The number of ships to put on duty.
+Defaults to 1 ship.
+
+=head3 RESPONSE
+
+Returns the same as C<view>
 
 =head2 add_to_market ( session_id, building_id, offer, ask, options )
 
-Queues a trade for others to see. Returns:
+Adds a trade to the market for others to see.
 
- {
-    "trade_id" : "id-goes-here",
-    "status" : { ... },
- }
+Accepts either fixed arguments or a hash of named parameters
 
-=head3 session_id
+ ( session_id, building_id, offer, ask, options )
+ ( parameter_hash )
 
-A session id.
+=head3 session_id (required)
 
-=head3 building_id
+A Session ID.
 
-The unique id of the trade ministry.
+=head3 building_id (required)
 
-=head3 offer
+The unique ID of the Trade Ministry.
 
-An array reference of hash references of items you wish to trade. There are five types of items that can be traded via this mechanism. They are resources, glyphs, plans, prisoners, and ships.
+=head3 offer (required)
+
+An array reference of hash references of items you wish to trade.
+There are five types of items you can trade via this mechanism.
+They are C<resources> C<glyphs> C<plans> C<prisoners> and C<fleets>
 
  [
-    {
-       "type" : "bauxite",
-       "quantity" : 10000
-    },
-    {
-       "type" : "prisoner",
-       "prisoner_id" : "id-goes-here"
-    }
+   {
+     "type" : "bauxite",
+     "quantity" : 10000
+   },
+   {
+     "type" : "prisoner",
+     "prisoner_id" : "id-goes-here"
+   }
  ]
-
 
 =over
 
@@ -65,8 +137,8 @@ An array reference of hash references of items you wish to trade. There are five
 The hash reference for resources looks like:
 
  {
-    "type" : "bauxite",
-    "quantity" : 10000
+   "type" : "bauxite",
+   "quantity" : 10000
  }
 
 =over
@@ -81,14 +153,15 @@ The amount of the resource that you want to trade.
 
 =back
 
+
 =item glyphs
 
 The hash reference for glyphs looks like this:
 
  {
-    "type" : "glyph",
-    "name : "bauxite",
-    "quantity" : 3
+   "type" : "glyph",
+   "name : "bauxite",
+   "quantity" : 3
  }
  
 =over
@@ -113,13 +186,12 @@ The number of glyphs of type C<name> that you want to trade
 The hash reference for plans looks like this:
 
  {
-    "type" : "plan",
-    "plan_type" : "Permanent_AlgaePond",
-    "level" : 1,
-    "extra_build_level" : 5,
-    "quantity" : 4,
+   "type" : "plan",
+   "plan_type" : "Permanent_AlgaePond",
+   "level" : 1,
+   "extra_build_level" : 5,
+   "quantity" : 4,
  }
-
 
 =over
 
@@ -137,7 +209,7 @@ Level of the plan being added.
 
 =item extra_build_level
 
-Level of plus to plan.  Note this will be 0 except possibly when the base level is 1.
+Extra level of plan to build to. Note this will be 0 except possibly where the level is 1.
 
 =item quantity
 
@@ -151,8 +223,8 @@ Number of plans to add.
 The hash reference for prisoners looks like:
 
  {
-    "type" : "prisoner",
-    "prisoner_id" : "id-goes-here"
+   "type" : "prisoner",
+   "prisoner_id" : "id-goes-here"
  }
 
 =over
@@ -168,24 +240,25 @@ The unique id of the spy that you want to trade. See the C<get_prisoners> method
 =back
 
 
-=item ships
+=item fleets
 
 The hash reference for ships looks like:
 
  {
-    "type" : "ship",
-    "ship_id" : "id-goes-here"
+    "type" : "fleet",
+    "fleet_id" : "id-goes-here",
+    "quantity" : 3
  }
 
 =over
 
 =item type
 
-Must be exactly C<ship>.
+Must be exactly C<fleet>.
 
-=item ship_id
+=item fleet_id
 
-The unique id of the ship that you want to trade. See the C<get_prisoners> method for a list of your prisoners.
+The unique id of the fleet that you want to trade. See the C<get_fleets> method for a list of your fleets.
 
 =back
 
@@ -193,19 +266,42 @@ The unique id of the ship that you want to trade. See the C<get_prisoners> metho
 
 =head3 ask
 
-An number representing the amount of essentia you are asking for in this trade. Must be between 0.1 and 100.
+A number representing the amount of essentia you are asking for this trade. Must be a number between 0.1 and 99.9.
 
-=head3 options
+=head3 options (optional)
 
 A hash reference of options to modify the trade.
 
 =over
 
-=item ship_id
+=item fleet_id
 
-The specific id of a ship you want to use for this trade. See C<get_trade_ships> for details.
+The ID of the fleet you want to use to transport this trade. See C<get_trade_fleets> for details.
+
+If you don't specify a fleet_id then it will take the first available fleet for the trade.
+
+The quantity of ships to send will be based on the number of ships in the fleet and the cargo capacity
+of each ship in the fleet.
 
 =back
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 =head2 get_ships ( session_id, building_id )
@@ -685,50 +781,6 @@ Note, there is no B<create_waste_chain> because all planets have a waste chain b
 
 You may set the B<waste_hour> to zero if you want to stop transferring waste.
 
-=head2 add_supply_ship_to_fleet (session_id, building_id, ship_id )
-
-Take a ship from your space port and add it to the ships servicing the supply chains.
-
- {
-   "status" : { ... },
- }
-
-Throws 1009.
-
-=head3 session_id
-
-A Session ID.
-
-=head3 building_id
-
-The unique ID of the Trade Ministry.
-
-=head3 ship_id
-
-The unique ID of the ship you want to add to the fleet.
-
-
-=head2 add_waste_ship_to_fleet (session_id, building_id, ship_id )
-
-Take a scow from your space port and add it to the ships servicing the waste pushes.
-
- {
-   "status" : { ... },
- }
-
-Throws 1009.
-
-=head3 session_id
-
-A Session ID.
-
-=head3 building_id
-
-The unique ID of the Trade Ministry.
-
-=head3 ship_id
-
-The unique ID of the ship you want to add to the fleet.
 
 =head2 remove_supply_ship_from_fleet (session_id, building_id, ship_id )
 
