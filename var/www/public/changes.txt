@@ -543,7 +543,8 @@
  - done: When ships arrive (fighters to Defend) set their available date to null
  - done: Travelling ships should be sorted in arrival date order
 
- - change to see how merge --ff-only works instead of pull requests
+ - change to see how merge --ff-only works instead of pull requests (test 2)
+
 KNOWN BUGS:
  - bug: Fleet format currently shows 'Foreign' for all fleets
 
