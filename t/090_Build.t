@@ -202,6 +202,12 @@ $water1->finish_upgrade;
 $water2->finish_upgrade;
 $water3->finish_upgrade;
 
+# Make sure non-integer coordinates don't work
+$result = $tester->post('waterpurification', 'build', [$session_id, $home_planet, '3.1', -3]);
+ok(exists $result->{error}, 'non-integer string attack thwarted!');
+$result = $tester->post('waterpurification', 'build', [$session_id, $home_planet, 3.2, -3]);
+ok(exists $result->{error}, 'non-integer number attack thwarted!');
+
 $home->add_plan('Lacuna::DB::Result::Building::SpacePort',1,4);
 $home->add_plan('Lacuna::DB::Result::Building::SpacePort',1);
 $home->add_plan('Lacuna::DB::Result::Building::SpacePort',1,3);

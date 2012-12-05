@@ -36,11 +36,15 @@ sub view_plans {
     my @out;
     my $sorted_plans = $building->body->sorted_plans;
     foreach my $plan (@$sorted_plans) {
+        my $plan_type = $plan->class;
+        $plan_type =~ s/Lacuna::DB::Result::Building:://;
+        $plan_type =~ s/::/_/g;
         my $item = {
-            quantity            => $plan->quantity,
             name                => $plan->class->name,
-            level               => $plan->level,
-            extra_build_level   => $plan->extra_build_level,
+            plan_type           => $plan_type,
+            level               => int($plan->level),
+            extra_build_level   => int($plan->extra_build_level),
+            quantity            => $plan->quantity,
         };
         push @out, $item;
     }

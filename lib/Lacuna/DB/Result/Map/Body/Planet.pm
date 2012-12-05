@@ -392,22 +392,23 @@ around get_status => sub {
                 $out->{skip_incoming_ships} = $empire->skip_incoming_ships;
                 if (1) {
 #                if (not $empire->skip_incoming_ships) {
-                    my $now = time;
-
                     my $foreign_bodies;
                     # Process all fleets that have already arrived
 
-                    my $incoming_rs = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
+                    my $dt_parser = Lacuna->db->storage->datetime_parser;
+                    my $now = $dt_parser->format_datetime( DateTime->now );
+
+                    my $incoming_rs = Lacuna->db->resultset('Fleet')->search({
                         foreign_body_id     => $self->id,
                         direction           => 'out',
                         task                => 'Travelling',
-                        date_available      => {'<' => DateTime->now.''},
+                        date_available      => {'<' => $now},
                     });
                     while (my $fleet = $incoming_rs->next) {
                         $foreign_bodies->{$fleet->body_id} = 1;
                     }
                     foreach my $body_id (keys %$foreign_bodies) {
-                        my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
+                        my $body = Lacuna->db->resultset('Map::Body')->find($body_id);
                         if ($body) {
                             $body->tick;
                         }
@@ -648,8 +649,9 @@ foreach my $arg (
 
 # is a specific plot free
 sub is_space_free {
-    my ($self, $x, $y) = @_;
-
+    my ($self, $unclean_x, $unclean_y) = @_;
+    my $x = int( $unclean_x );
+    my $y = int( $unclean_y );
     my $count = grep {$_->x == $x and $_->y == $y} @{$self->building_cache};
     return $count == 0;
 }
@@ -683,8 +685,9 @@ sub find_free_space {
 
 # Check if the given co-ordinates are a valid building spot
 sub check_for_available_build_space {
-    my ($self, $x, $y) = @_;
-
+    my ($self, $unclean_x, $unclean_y) = @_;
+    my $x = int( $unclean_x );
+    my $y = int( $unclean_y );
     if ($x > 5 || $x < -5 || $y > 5 || $y < -5) {
         confess [1009, "That's not a valid space for a building.", [$x, $y]];
     }
@@ -1285,6 +1288,7 @@ sub tick {
     
     my $now = DateTime->now;
     my $now_epoch = $now->epoch;
+    my $dt_parser = Lacuna->db->storage->datetime_parser;
     my %todo;
     my $i; # in case 2 things finish at exactly the same time
 
@@ -1313,7 +1317,7 @@ sub tick {
     # get fleet tasks
     my $fleets = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
         body_id         => $self->id,
-        date_available  => { '<=' => $now },
+        date_available  => { '<=' => $dt_parser->format_datetime($now) },
         task            => { '!=' => 'Docked' },
     });
     while (my $fleet = $fleets->next ) {
