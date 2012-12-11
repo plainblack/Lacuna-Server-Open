@@ -114,9 +114,11 @@ sub subsidize_build_queue {
     }
     $building->finish_work->update;
  
-<<<<<<< HEAD
-    return $self->view($session, $building);
-}
+    return $self->view_build_queue({
+        session_id  => $empire, 
+        building_id => $building, 
+        no_status   => $args->{no_status},
+    });
 
 sub delete_build {
     my ($self, $session_id, $building_id, $ship_id) = @_;
@@ -192,13 +194,6 @@ sub subsidize_ship {
     $scheduled_ship->finish_construction;
 
     return $self->view({session => $empire, building => $building, no_status => $args->{no_status}});
-=======
-    return $self->view_build_queue({
-        session_id  => $empire, 
-        building_id => $building, 
-        no_status   => $args->{no_status},
-    });
->>>>>>> Shipyard now seems to work completely with fleets. Yay!
 }
 
 

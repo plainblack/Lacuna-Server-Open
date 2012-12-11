@@ -518,18 +518,21 @@
  - Mod: Travelling ships not involved in an attack can be scuttled
  - Mod: Removed option to skip incoming ships messages
  - Fix: Stars now list in alphabetic order in Parliament, rename stars.
+ - Mod: Supply chains can now be set up to allied planets
 
  - TEST: view_incoming_fleet: for visibility of foreign fleets.
  - TODO: view_ships_orbiting seems to be redundant
 
  - TODO: Ability to 'delay' a fleet that is already in flight.
  - TODO: Display the owner,body of orbiting/defending fleets
-
+ - TODO: Retrieve spies, should be able to specify 'own colony' spies, not retriev all 'own empire' spies
  - TODO: Stop being able to send fighters to their home colony to 'Defend'.
+ - TODO: Make sure 'soonest' rounds up to the nearest 15 seconds.
+ - TODO: Allow for a timestring to specify the arrival time as well as the individual arguments
  - TODO: N19 messages when ships in flight are detonated (suspect faulty engines or human error)
  - TODO: If you have a probe at a star, you can now see all other 'orbiting' probes at that star
  - TODO: Allow resources/ships/glyphs/plans to be pushed to allied planets
- - TODO: ? Allow supply chain to be set up to allied planets
+ - TODO: Supply chains can be cancelled either from the supplying or the receiving body.
  - TODO: ? Allow ships to 'stay' at allied planets during a push, they are then owned by that empire.
  - TODO: Can send fighters to orbit stars, so that they can destroy incoming detonators.
  - TODO: ? Should we treat probes as combat, so that we can destroy them with orbiting fighters?
@@ -542,8 +545,7 @@
 
  - done: When ships arrive (fighters to Defend) set their available date to null
  - done: Travelling ships should be sorted in arrival date order
-
- - change to my-ls-open to check pull request
+ - done: Cannot set up a supply chain to oneself
 
 KNOWN BUGS:
  - bug: Fleet format currently shows 'Foreign' for all fleets

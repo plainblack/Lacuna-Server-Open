@@ -94,7 +94,6 @@ sub delete {
     return;
 }
 
-
 # DRY Principle
 my $meta = __PACKAGE__->meta;
 

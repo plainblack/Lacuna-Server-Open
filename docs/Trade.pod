@@ -96,7 +96,9 @@ Defaults to 1 ship.
 
 Returns the same as C<view>
 
-=head2 add_to_market ( session_id, building_id, offer, ask, options )
+
+
+=head2 add_to_market
 
 Adds a trade to the market for others to see.
 
@@ -260,6 +262,10 @@ Must be exactly C<fleet>.
 
 The unique id of the fleet that you want to trade. See the C<get_fleets> method for a list of your fleets.
 
+=item quantity
+
+The number of ships in the fleet to offer in trade.
+
 =back
 
 =back
@@ -285,9 +291,57 @@ of each ship in the fleet.
 
 =back
 
+=head3 RESPONSE
+
+Returns the ID of the trade just created.
+
+ {
+   "trade_id" : "id-goes-here",
+ n  "status" : { ... }
+ }
 
 
+=head2 create_supply_chain (session_id, building_id, target_id, resource_type, resource_hour)
 
+Adds a trade to the market for others to see.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, target_id resource_type resource_hour )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 target_id (required)
+
+The ID of the target planet (or space station). Note this is required for fixed arguments
+method, but may be replaced by C<target> with named arguments.
+
+=head3 target (optional)
+
+You can specify a target, for example by name or x,y co-ordinates. (see above). Only inhabited bodies
+or Space Stations can be specified. Do not use together with c<target_id>.
+
+=head3 resource_type (required)
+
+Is the resource you want to push, e.g. 'waste','water','gold','energy','apple', etc.
+
+=head3 resource_hour (required)
+
+The amount of the resource you want to transfer each hour.
+
+=head3 RESPONSE
+
+Returns the same as the call to B<view_supply_chains>
+
+
+---------------
 
 
 
@@ -731,20 +785,6 @@ it is at or above 100. Above 100 and you have more ship capacity than you need, 
 still only transfer the specified B<waste_hour>, it just means some ships will be idle or not
 fully filled.
 
-
-=head2 create_supply_chain (session_id, building_id, target_id, resource_type, resource_hour)
-
-Create a new supply chain.
-
-B<target_id> is the ID of the target planet (or space station).
-
-B<building_id> is the identifier of the Trade Ministry building.
-
-B<resource_type> is the resource you want to push, e.g. 'waste','water','gold','energy','apple'
-
-B<resource_hour> is the amount of the resource you want to transfer each hour.
-
-Returns the same as the call to B<view_supply_chains>
 
 
 =head2 delete_supply_chain (session_id, building_id, supply_chain_id)

@@ -50,7 +50,6 @@ before 'delete' => sub {
     }
 };
 
-
 # Put this entry onto the beanstalk queue
 #
 sub queue_for_delivery {

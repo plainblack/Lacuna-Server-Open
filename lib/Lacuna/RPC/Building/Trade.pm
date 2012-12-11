@@ -9,7 +9,7 @@ use Guard;
 use List::Util qw(first);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES SHIP_WASTE_TYPES SHIP_TRADE_TYPES);
 
-with 'Lacuna::Role::TraderRpc','Lacuna::Role::Fleet::Trade';
+with 'Lacuna::Role::TraderRpc','Lacuna::Role::Fleet::Trade','Lacuna::Role::Navigation';
 
 sub app_url {
     return '/trade';
@@ -244,33 +244,101 @@ sub add_to_market {
         $args = {
             session_id      => $args,
             building_id     => shift,
-            fleet_id        => shift,
+            offer           => shift,
+            ask             => shift,
+            options         => shift,
         };
     }
 
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
-
-
-
-
-
-    my ($self, $session_id, $building_id, $offer, $ask, $options) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
+    if ($building->level < 1) {
+        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
+    }
     my $cache = Lacuna->cache;
-    if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
+    if (not $cache->add('trade_add_lock', $building->id, 1, 5)) {
         confess [1013, 'You have a trade setup in progress.  Please wait a few moments and try again.'];
     }
     my $guard = guard {
-        $cache->delete('trade_add_lock',$building_id);
+        $cache->delete('trade_add_lock',$building->id);
     };
-    my $trade = $building->add_to_market($offer, $ask, $options);
+    my $trade = $building->add_to_market($args->{offer}, $args->{ask}, $args->{options});
     return {
         trade_id    => $trade->id,
         status      => $self->format_status($empire, $building->body),
     };
+}
+
+sub create_supply_chain {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            target_id       => shift,
+            resource_type   => shift,
+            resource_hour   => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    if (not defined $building) {
+        confess [1002, "You must specify a building."];
+    }
+    if ($building->level < 1) {
+        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
+    }
+    # 'target_id' over-rides 'target'
+    if ($args->{target_id}) {
+        $args->{target} = { body_id => $args->{target_id}};
+    }
+    my $body        = $building->body;
+    my $max_chains  = $building->level * 3;
+    if ($body->out_supply_chains->count >= $max_chains) {
+        confess [1002, "You cannot create any more supply chains outgoing from this planet."];
+    }
+
+    my $resource_hour = $args->{resource_hour};
+    if (not defined $resource_hour) {
+        confess [1002, "You must specify an amount for resource_hour."];
+    }
+    if ($resource_hour < 0) {
+        confess [1002, "Resource per hour must be positive or zero."];
+    }
+    my $resource_type = $args->{resource_hour};
+    if (not first {$resource_type eq $_} (FOOD_TYPES, ORE_TYPES, qw(water waste energy))) {
+        confess [1002, "That is not a valid resource_type."];
+    }
+    my $target = $self->find_target($args->{target});
+
+    if ($body->id == $target->id) {
+        confess [1002, "You can't set up a supply chain to yourself."];
+    }
+
+    # Target must be own empire or an allies
+    if ($target->empire_id != $empire->id) {
+        if ($target->alliance_id != $empire->alliance_id) {
+            confess [1002, "You can only target one of your own or an allies colony or Space Station."];
+        }
+    }
+
+    my $chain       = $building->supply_chains->create({
+        planet_id           => $body->id,
+        building_id         => $building->id,
+        target_id           => $target->id,
+        resource_hour       => $resource_hour,
+        resource_type       => $resource_type,
+        percent_transferred => 0,
+    });
+    unless ($chain) {
+        confess [1002, "Cannot create a supply chain."];
+    }
+    $building->recalc_supply_production;
+
+    return $self->view_supply_chains($args->{session_id}, $building->id);
 }
 
 

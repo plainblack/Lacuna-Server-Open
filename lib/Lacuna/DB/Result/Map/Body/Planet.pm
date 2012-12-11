@@ -1585,27 +1585,28 @@ sub tick {
             };
         }
 
-    # synchronize completion of tasks
-    foreach my $key (sort keys %todo) {
-        my ($object, $job) = ($todo{$key}{object}, $todo{$key}{type});
-        if ($job eq 'fleet built') {
-            $self->tick_to($object->date_available);
-            $object->finish_construction;
-        }
-        elsif ($job eq 'fleet arrives') {
-            $self->tick_to($object->date_available);
-            $object->arrive;            
-        }
-        elsif ($job eq 'building work complete') {
-            $self->tick_to($object->work_ends);
-            $object->finish_work->update;
-        }
-        elsif ($job eq 'building upgraded') {
-            $self->tick_to($object->upgrade_ends);
-            $object->finish_upgrade;
-        }
-    }    
-
+        # synchronize completion of tasks
+        foreach my $key (sort keys %todo) {
+            my ($object, $job) = ($todo{$key}{object}, $todo{$key}{type});
+            if ($job eq 'fleet built') {
+                $self->tick_to($object->date_available);
+                $object->finish_construction;
+            }
+            elsif ($job eq 'fleet arrives') {
+                $self->tick_to($object->date_available);
+                $object->arrive;            
+            }
+            elsif ($job eq 'building work complete') {
+                $self->tick_to($object->work_ends);
+                $object->finish_work->update;
+            }
+            elsif ($job eq 'building upgraded') {
+                $self->tick_to($object->upgrade_ends);
+                $object->finish_upgrade;
+            }
+        }    
+    }
+    
     # check / clear boosts
     if ($self->boost_enabled) {
         my $empire = $self->empire;

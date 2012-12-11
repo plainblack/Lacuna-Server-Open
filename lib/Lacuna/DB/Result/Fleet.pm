@@ -194,6 +194,24 @@ foreach my $method (qw(insert update)) {
     };
 }
 
+# Schedule a future call to handle a fleet action
+#
+sub schedule {
+    my ($self, $args) = @_;
+
+    my $schedule = Lacuna->db->resultset('Schedule')->create({
+        queue       => 'fleet',
+        delivery    => $args->{delivery},
+        priority    => $args->{priority} ? $args->{priority} : 0,
+        parent_table=> 'fleet',
+        row_id      => $self->id,
+        task        => $args->{task},
+        args        => $args->{args} ? $args->{args} : {},
+    });
+    return $schedule;    
+}
+
+
 # Delete a quantity of ships from a fleet
 sub delete_quantity {
     my ($self, $quantity) = @_;
