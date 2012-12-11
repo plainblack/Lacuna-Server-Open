@@ -11,6 +11,7 @@ use Data::Dumper;
 __PACKAGE__->table('schedule');
 __PACKAGE__->add_columns(
     queue        => {data_type => 'varchar', size => 30, is_nullable => 0},
+    job_id       => {data_type => 'int', size => 11, is_nullable => 0},
     delivery     => {data_type => 'datetime', is_nullable => 0},
     priority     => {data_type => 'int', size => 11, is_nullable => 0, default => 1000},
     parent_table => {data_type => 'varchar', size => 30, is_nullable => 0},
@@ -44,7 +45,7 @@ sub queue_for_delivery {
     my $queue   = Lacuna->queue || 'default';
     my $priority    = $self->priority || 1000;
 
-    $queue->publish($self->queue,
+    my $job = $queue->publish($self->queue,
         {
             id              => $self->id,
             parent_table    => $self->parent_table,
@@ -56,6 +57,8 @@ sub queue_for_delivery {
             priority        => $priority,
         }
     );
+    $self->job_id($job->id);
+    $self->update;
 }
 
 no Moose;
