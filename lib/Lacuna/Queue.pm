@@ -84,15 +84,24 @@ sub peek {
     return;
 }
 
+sub delete {
+    my ($self, $job_id) = @_;
+
+    my $beanstalk = $self->_beanstalk;
+
+    $beanstalk->delete($job_id);
+    return;
+}
+
+
 # DRY Principle
 my $meta = __PACKAGE__->meta;
 
 foreach my $proc (qw(peek_buried peek_ready peek_delayed)) {
     $meta->add_method($proc => sub {
-            my ($self) = @_;
+        my ($self) = @_;
 
-            my $beanstalk   = $self->_beanstalk;
-        my $job = $beanstalk->$proc;
+        my $job = $self->_beanstalk->$proc;
         if ($job) {
             return Lacuna::Queue::Job->new({job => $job});
         }
