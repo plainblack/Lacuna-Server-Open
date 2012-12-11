@@ -30,5 +30,15 @@ create table fleet (
     constraint wc_f_foreign_star_id foreign key (foreign_star_id) references star (id)
 );
 
-delete building from body,building where building.body_id=body.id and building.class not like "%Perm%" and body.empire_id is null;
+create table schedule (
+    id              int(11) not null auto_increment,
+    queue           varchar(30) not null,
+    delivery        datetime not null,
+    priority        int(11) not null default 0,
+    parent_table    varchar(30) not null,
+    parent_id       int(11) not null,
+    task            varchar(30) not null, 
+    args            mediumblob,
+    primary key (id)
+);
 

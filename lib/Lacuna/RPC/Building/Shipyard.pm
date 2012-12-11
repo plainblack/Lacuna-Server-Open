@@ -217,8 +217,12 @@ sub get_buildable {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_buildable build_fleet view_build_queue subsidize_build_queue));
-
+__PACKAGE__->register_rpc_method_names(qw(
+    get_buildable 
+    build_fleet 
+    view_build_queue 
+    subsidize_build_queue
+));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

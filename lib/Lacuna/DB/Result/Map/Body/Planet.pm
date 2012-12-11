@@ -1299,12 +1299,12 @@ sub tick {
     } @{$self->building_cache};
 
     foreach my $building (@buildings) {
-        if ($building->is_upgrading && $building->upgrade_ends->epoch <= $now_epoch) {
-            $todo{format_date($building->upgrade_ends).$i} = {
-                object  => $building,
-                type    => 'building upgraded',
-            };
-        }
+#        if ($building->is_upgrading && $building->upgrade_ends->epoch <= $now_epoch) {
+#            $todo{format_date($building->upgrade_ends).$i} = {
+#                object  => $building,
+#                type    => 'building upgraded',
+#            };
+#        }
         if ($building->is_working && $building->work_ends->epoch <= $now_epoch) {
             $todo{format_date($building->work_ends).$i} = {
                 object  => $building,
@@ -1351,10 +1351,10 @@ sub tick {
             $self->tick_to($object->work_ends);
             $object->finish_work->update;
         }
-        elsif ($job eq 'building upgraded') {
-            $self->tick_to($object->upgrade_ends);
-            $object->finish_upgrade;
-        }
+#        elsif ($job eq 'building upgraded') {
+#            $self->tick_to($object->upgrade_ends);
+#            $object->finish_upgrade;
+#        }
     }
     
     # check / clear boosts
@@ -1407,7 +1407,7 @@ sub tick_to {
     if ($self->happiness < 0) {
         $self->needs_recalc if ($self->happiness_hour < -20_000);
         if ($self->unhappy) {
-# Nothing for now...
+            # Nothing for now...
         }
         else {
             $self->unhappy(1);

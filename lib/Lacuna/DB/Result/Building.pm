@@ -825,6 +825,13 @@ sub start_upgrade {
         upgrade_started => DateTime->now,
         upgrade_ends    => $time_to_build,
     });
+
+    my $schedule = Lacuna->db->resultset('Schedule')->create({
+        delivery        => $time_to_build,
+        parent_table    => 'Building',
+        parent_id       => $self->id,
+        task            => 'finish_upgrade',
+    });
 }
 
 sub finish_upgrade {
