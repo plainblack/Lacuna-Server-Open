@@ -823,9 +823,9 @@ sub start_upgrade {
     }
 
     my $time_to_add = $body->isa('Lacuna::DB::Result::Map::Body::Planet::Station') ? 60 * 60 * 72 : $cost->{time};
-#    print STDERR "start_upgrade, building=[$self] time_to_add=$time_to_add upgrade_ends=$upgrade_ends\n";
+    print STDERR "start_upgrade, building=[$self] time_to_add=$time_to_add upgrade_ends=$upgrade_ends\n";
     $upgrade_ends->add(seconds=>$time_to_add);
-#    print STDERR "start_upgrade, building=[$self] new upgrade_ends=$upgrade_ends now=".DateTime->now."\n";
+    print STDERR "start_upgrade, building=[$self] new upgrade_ends=$upgrade_ends now=".DateTime->now."\n";
     # add to queue
     $self->update({
         is_upgrading    => 1,
@@ -895,7 +895,8 @@ sub start_work {
     my $now = DateTime->now;
     $self->is_working(1);
     $self->work_started($now);
-    $self->work_ends($now->clone->add(seconds=>$duration));
+    my $ends = DateTime->now->add(seconds => $duration);
+    $self->work_ends($ends);
     $self->work($work);
 
     # add to queue

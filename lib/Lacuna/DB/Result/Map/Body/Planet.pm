@@ -1322,27 +1322,29 @@ sub tick {
     my $i; # in case 2 things finish at exactly the same time
 
     # get building tasks
-#    my @buildings = grep {
-#        ($_->is_upgrading and $_->upgrade_ends->epoch <= $now_epoch) 
-#     or ($_->is_working and $_->work_ends->epoch <= $now_epoch)
-#    } @{$self->building_cache};
-#
-#    foreach my $building (@buildings) {
-#        if ($building->is_upgrading && $building->upgrade_ends->epoch <= $now_epoch) {
-#            $todo{format_date($building->upgrade_ends).$i} = {
-#                object  => $building,
-#                type    => 'building upgraded',
-#            };
-#        }
-#        if ($building->is_working && $building->work_ends->epoch <= $now_epoch) {
-#            $todo{format_date($building->work_ends).$i} = {
-#                object  => $building,
-#                type    => 'building work complete',
-#            };
-#        }
-#        $i++;
-#    }
+    if (not Lacuna->config->get('beanstalk')) {
+        my @buildings = grep {
+            ($_->is_upgrading and $_->upgrade_ends->epoch <= $now_epoch) 
+         or ($_->is_working and $_->work_ends->epoch <= $now_epoch)
+        } @{$self->building_cache};
 
+        foreach my $building (@buildings) {
+            if ($building->is_upgrading && $building->upgrade_ends->epoch <= $now_epoch) {
+                $todo{format_date($building->upgrade_ends).$i} = {
+                    object  => $building,
+                    type    => 'building upgraded',
+                };
+            }
+            if ($building->is_working && $building->work_ends->epoch <= $now_epoch) {
+                $todo{format_date($building->work_ends).$i} = {
+                    object  => $building,
+                    type    => 'building work complete',
+                };
+            }
+            $i++;
+        }
+    }
+    
     # get ship tasks
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
         body_id         => $self->id,
@@ -1368,6 +1370,8 @@ sub tick {
     # synchronize completion of tasks
     foreach my $key (sort keys %todo) {
         my ($object, $job) = ($todo{$key}{object}, $todo{$key}{type});
+        my $beanstalk = Lacuna->config->get('beanstalk');
+
         if ($job eq 'ship built') {
             $self->tick_to($object->date_available);
             $object->finish_construction;
@@ -1376,14 +1380,14 @@ sub tick {
             $self->tick_to($object->date_available);
             $object->arrive;            
         }
-#        elsif ($job eq 'building work complete') {
-#            $self->tick_to($object->work_ends);
-#            $object->finish_work->update;
-#        }
-#        elsif ($job eq 'building upgraded') {
-#            $self->tick_to($object->upgrade_ends);
-#            $object->finish_upgrade;
-#        }
+        elsif (not $beanstalk and $job eq 'building work complete') {
+            $self->tick_to($object->work_ends);
+            $object->finish_work->update;
+        }
+        elsif (not $beanstalk and $job eq 'building upgraded') {
+            $self->tick_to($object->upgrade_ends);
+            $object->finish_upgrade;
+        }
     }
     
     # check / clear boosts
