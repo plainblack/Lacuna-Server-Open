@@ -64,6 +64,7 @@ sub publish {
     my ($self, $queue, $payload, $options) = @_;
 
     my $beanstalk   = $self->_beanstalk;
+    $queue          = $queue || 'default';
     $options        = defined $options ? $options : {},
     $beanstalk->use($queue);
 

@@ -32,6 +32,13 @@ after 'insert' => sub {
     return $self;
 };
 
+before 'delete' => sub {
+    my $self = shift;
+
+    my $queue = Lacuna->queue;
+    # Delete the job off the queue
+    $queue->delete($self->job_id);
+};
 
 # Put this entry onto the beanstalk queue
 #
@@ -44,7 +51,7 @@ sub queue_for_delivery {
 
     my $queue   = Lacuna->queue || 'default';
     my $priority    = $self->priority || 1000;
-
+#print STDERR "DELAY: $delay table: ".$self->parent_table." task: ".$self->task."\n";
     my $job = $queue->publish($self->queue,
         {
             id              => $self->id,

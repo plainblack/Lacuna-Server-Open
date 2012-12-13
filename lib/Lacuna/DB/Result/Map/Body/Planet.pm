@@ -790,43 +790,43 @@ sub has_room_in_build_queue {
 use constant operating_resource_names => qw(food_hour energy_hour ore_hour water_hour);
 
 has future_operating_resources => (
-        is      => 'rw',
-        clearer => 'clear_future_operating_resources',
-        lazy    => 1,
-        default => sub {
+    is      => 'rw',
+    clearer => 'clear_future_operating_resources',
+    lazy    => 1,
+    default => sub {
         my $self = shift;
 
-# get current
+        # get current
         my %future;
         foreach my $method ($self->operating_resource_names) {
-        $future{$method} = $self->$method;
+            $future{$method} = $self->$method;
         }
 
-# adjust for what's already in build queue
+        # adjust for what's already in build queue
         my @queued_builds = @{$self->builds};
         foreach my $build (@queued_builds) {
-        my $other = $build->stats_after_upgrade;
-        foreach my $method ($self->operating_resource_names) {
-        $future{$method} += $other->{$method} - $build->$method;
-        }
+            my $other = $build->stats_after_upgrade;
+            foreach my $method ($self->operating_resource_names) {
+                $future{$method} += $other->{$method} - $build->$method;
+            }
         }
         return \%future;
-        },
-        );
+    },
+);
 
 sub has_resources_to_operate {
     my ($self, $building) = @_;
 
-# get future
+    # get future
     my $future = $self->future_operating_resources; 
 
-# get change for this building
+    # get change for this building
     my $after = $building->stats_after_upgrade;
 
-# check our ability to sustain ourselves
+    # check our ability to sustain ourselves
     foreach my $method ($self->operating_resource_names) {
         my $delta = $after->{$method} - $building->$method;
-# don't allow it if it sucks resources && its sucking more than we're producing
+        # don't allow it if it sucks resources && its sucking more than we're producing
         if ($delta < 0 && $future->{$method} + $delta < 0) {
             my $resource = $method;
             $resource =~ s/(\w+)_hour/$1/;
@@ -839,12 +839,12 @@ sub has_resources_to_operate {
 sub has_resources_to_operate_after_building_demolished {
     my ($self, $building) = @_;
 
-# get future
+    # get future
     my $planet = $self->future_operating_resources;
 
-# check our ability to sustain ourselves
+    # check our ability to sustain ourselves
     foreach my $method ($self->operating_resource_names) {
-# don't allow it if it sucks resources && its sucking more than we're producing
+        # don't allow it if it sucks resources && its sucking more than we're producing
         if ($planet->{$method} - $building->$method < 0) {
             my $resource = $method;
             $resource =~ s/(\w+)_hour/$1/;
@@ -891,6 +891,9 @@ sub builds {
 sub get_existing_build_queue_time {
     my $self = shift;
     my ($building) = @{$self->builds(1)};
+
+#print STDERR "GET_EXISTING_BUILD_QUEUE_TIME: building=[$building]\n";
+
     return (defined $building) ? $building->upgrade_ends : DateTime->now;
 }
 
@@ -1319,26 +1322,26 @@ sub tick {
     my $i; # in case 2 things finish at exactly the same time
 
     # get building tasks
-    my @buildings = grep {
-        ($_->is_upgrading and $_->upgrade_ends->epoch <= $now_epoch) 
-     or ($_->is_working and $_->work_ends->epoch <= $now_epoch)
-    } @{$self->building_cache};
-
-    foreach my $building (@buildings) {
+#    my @buildings = grep {
+#        ($_->is_upgrading and $_->upgrade_ends->epoch <= $now_epoch) 
+#     or ($_->is_working and $_->work_ends->epoch <= $now_epoch)
+#    } @{$self->building_cache};
+#
+#    foreach my $building (@buildings) {
 #        if ($building->is_upgrading && $building->upgrade_ends->epoch <= $now_epoch) {
 #            $todo{format_date($building->upgrade_ends).$i} = {
 #                object  => $building,
 #                type    => 'building upgraded',
 #            };
 #        }
-        if ($building->is_working && $building->work_ends->epoch <= $now_epoch) {
-            $todo{format_date($building->work_ends).$i} = {
-                object  => $building,
-                type    => 'building work complete',
-            };
-        }
-        $i++;
-    }
+#        if ($building->is_working && $building->work_ends->epoch <= $now_epoch) {
+#            $todo{format_date($building->work_ends).$i} = {
+#                object  => $building,
+#                type    => 'building work complete',
+#            };
+#        }
+#        $i++;
+#    }
 
     # get ship tasks
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
@@ -1373,10 +1376,10 @@ sub tick {
             $self->tick_to($object->date_available);
             $object->arrive;            
         }
-        elsif ($job eq 'building work complete') {
-            $self->tick_to($object->work_ends);
-            $object->finish_work->update;
-        }
+#        elsif ($job eq 'building work complete') {
+#            $self->tick_to($object->work_ends);
+#            $object->finish_work->update;
+#        }
 #        elsif ($job eq 'building upgraded') {
 #            $self->tick_to($object->upgrade_ends);
 #            $object->finish_upgrade;

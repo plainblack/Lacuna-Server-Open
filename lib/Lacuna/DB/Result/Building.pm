@@ -816,22 +816,30 @@ sub start_upgrade {
     $cost ||= $self->cost_to_upgrade;
     
     # set time to build, plus what's in the queue
-    my $time_to_build = $in_parallel ? DateTime->now : $body->get_existing_build_queue_time;
+    my $now = DateTime->now;
+    my $upgrade_ends = $in_parallel ? $now : $body->get_existing_build_queue_time;
+    if ($upgrade_ends < $now) {
+        $upgrade_ends = $now;
+    }
+
     my $time_to_add = $body->isa('Lacuna::DB::Result::Map::Body::Planet::Station') ? 60 * 60 * 72 : $cost->{time};
-    $time_to_build->add(seconds=>$time_to_add);
+#    print STDERR "start_upgrade, building=[$self] time_to_add=$time_to_add upgrade_ends=$upgrade_ends\n";
+    $upgrade_ends->add(seconds=>$time_to_add);
+#    print STDERR "start_upgrade, building=[$self] new upgrade_ends=$upgrade_ends now=".DateTime->now."\n";
     # add to queue
     $self->update({
         is_upgrading    => 1,
         upgrade_started => DateTime->now,
-        upgrade_ends    => $time_to_build,
+        upgrade_ends    => $upgrade_ends,
     });
 
     my $schedule = Lacuna->db->resultset('Schedule')->create({
-        delivery        => $time_to_build,
+        delivery        => $upgrade_ends,
         parent_table    => 'Building',
         parent_id       => $self->id,
         task            => 'finish_upgrade',
     });
+    return $self;
 }
 
 sub finish_upgrade {
@@ -853,7 +861,13 @@ sub finish_upgrade {
         my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'a magical');
         $self->body->add_news($self->level*4,"In %s ceremony, %s unveiled its newly augmented %s.", $levels{$self->level}, $empire->name, $self->name);
     }
-
+    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Building',
+        parent_id       => $self->id,
+        task            => 'finish_upgrade',
+    });
+    $schedule->delete if defined $schedule;
+    return $self;
 }
 
 
@@ -883,6 +897,15 @@ sub start_work {
     $self->work_started($now);
     $self->work_ends($now->clone->add(seconds=>$duration));
     $self->work($work);
+
+    # add to queue
+    my $schedule = Lacuna->db->resultset('Schedule')->create({
+        delivery        => $self->work_ends,
+        parent_table    => 'Building',
+        parent_id       => $self->id,
+        task            => 'finish_work',
+    });
+ 
     return $self;
 }
 
@@ -890,6 +913,13 @@ sub finish_work {
     my ($self) = @_;
     $self->is_working(0);
     $self->work({});
+
+    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Building',
+        parent_id       => $self->id,
+        task            => 'finish_work',
+    });
+    $schedule->delete if defined $schedule;
     return $self;
 }
 
