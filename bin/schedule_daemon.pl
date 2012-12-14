@@ -17,19 +17,58 @@ $|=1;
 #
 my $daemonise   = 1;
 my $loop        = 1;
+my $initialize  = 1;
 our $quiet      = 1;
 
 GetOptions(
     'daemonise!'    => \$daemonise,
     'loop!'         => \$loop,
     'quiet!'        => \$quiet,
+    'initialize!'   => \$initialize,
 );
 
-# Catch SIG INT
-#
-#my $sig_int = 0;
-#local $SIG{'INT'} = sub { $sig_int = 1; };
 my $start = time;
+
+if ($initialize) {
+    # (re)initialize all the jobs on the queues, replacing any 
+    # existing jobs
+    out('Reinitializing all jobs');
+    out('Deleting existing jobs');
+    my $schedule_rs = Lacuna->db->resultset('Schedule')->search;
+    while (my $schedule = $schedule_rs->next) {
+        # note. deleting the DB entry also deletes the entry on beanstalk
+        $schedule->delete;
+    }
+
+    out('Adding building upgrades');
+    my $building_rs = Lacuna->db->resultset('Building')->search({
+        is_working => 1,
+    });
+    while (my $building = $building_rs->next) {
+        # add to queue
+        my $schedule = Lacuna->db->resultset('Schedule')->create({
+            delivery        => $building->work_ends,
+            parent_table    => 'Building',
+            parent_id       => $building->id,
+            task            => 'finish_work',
+        });
+    }
+
+    out('Adding building working end');
+    $building_rs = Lacuna->db->resultset('Building')->search({
+        is_upgrading => 1,
+    });
+    while (my $building = $building_rs->next) {
+        # add to queue
+        my $schedule = Lacuna->db->resultset('Schedule')->create({
+            delivery        => $building->upgrade_ends,
+            parent_table    => 'Building',
+            parent_id       => $building->id,
+            task            => 'finish_upgrade',
+        });
+    }
+
+}
 
 # --------------------------------------------------------------------
 # Daemonise
