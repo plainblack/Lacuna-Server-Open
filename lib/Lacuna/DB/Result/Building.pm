@@ -816,43 +816,62 @@ sub start_upgrade {
     $cost ||= $self->cost_to_upgrade;
     
     # set time to build, plus what's in the queue
-    my $time_to_build = $in_parallel ? DateTime->now : $body->get_existing_build_queue_time;
+    my $now = DateTime->now;
+    my $upgrade_ends = $in_parallel ? $now : $body->get_existing_build_queue_time;
+    if ($upgrade_ends < $now) {
+        $upgrade_ends = $now;
+    }
+
     my $time_to_add = $body->isa('Lacuna::DB::Result::Map::Body::Planet::Station') ? 60 * 60 * 72 : $cost->{time};
-    $time_to_build->add(seconds=>$time_to_add);
+    print STDERR "start_upgrade, building=[$self] time_to_add=$time_to_add upgrade_ends=$upgrade_ends\n";
+    $upgrade_ends->add(seconds=>$time_to_add);
+    print STDERR "start_upgrade, building=[$self] new upgrade_ends=$upgrade_ends now=".DateTime->now."\n";
     # add to queue
     $self->update({
         is_upgrading    => 1,
         upgrade_started => DateTime->now,
-        upgrade_ends    => $time_to_build,
+        upgrade_ends    => $upgrade_ends,
     });
 
     my $schedule = Lacuna->db->resultset('Schedule')->create({
-        delivery        => $time_to_build,
+        delivery        => $upgrade_ends,
         parent_table    => 'Building',
         parent_id       => $self->id,
         task            => 'finish_upgrade',
     });
+    return $self;
 }
 
 sub finish_upgrade {
     my ($self) = @_;
-    my $body = $self->body;    
-    $self->level($self->level + 1);
-    $self->is_upgrading(0);
-    $self->update;
-    Lacuna->cache->delete('upgrade_contention_lock', $self->id);
-    $body->needs_recalc(1);
-    $body->needs_surface_refresh(1);
-    $body->update;
-    my $empire = $body->empire; 
-    $empire->add_medal('building'.$self->level);
-    my $type = $self->controller_class;
-    $type =~ s/^Lacuna::RPC::Building::(\w+)$/$1/;
-    $empire->add_medal($type);
-    if ($self->level % 5 == 0) {
-        my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'a magical');
-        $self->body->add_news($self->level*4,"In %s ceremony, %s unveiled its newly augmented %s.", $levels{$self->level}, $empire->name, $self->name);
+
+    if ($self->is_upgrading) {
+        my $body = $self->body;    
+        $self->level($self->level + 1);
+        $self->is_upgrading(0);
+        $self->update;
+        $body->needs_recalc(1);
+        $body->needs_surface_refresh(1);
+        $body->update;
+        my $empire = $body->empire; 
+        $empire->add_medal('building'.$self->level);
+        my $type = $self->controller_class;
+        $type =~ s/^Lacuna::RPC::Building::(\w+)$/$1/;
+        $empire->add_medal($type);
+        if ($self->level % 5 == 0) {
+            my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'a magical');
+            $self->body->add_news($self->level*4,"In %s ceremony, %s unveiled its newly augmented %s.", $levels{$self->level}, $empire->name, $self->name);
+        }
     }
+    Lacuna->cache->delete('upgrade_contention_lock', $self->id);
+
+    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Building',
+        parent_id       => $self->id,
+        task            => 'finish_upgrade',
+    });
+    $schedule->delete if defined $schedule;
+    return $self;
 }
 
 
@@ -880,15 +899,33 @@ sub start_work {
     my $now = DateTime->now;
     $self->is_working(1);
     $self->work_started($now);
-    $self->work_ends($now->clone->add(seconds=>$duration));
+    my $ends = DateTime->now->add(seconds => $duration);
+    $self->work_ends($ends);
     $self->work($work);
+
+    # add to queue
+    my $schedule = Lacuna->db->resultset('Schedule')->create({
+        delivery        => $self->work_ends,
+        parent_table    => 'Building',
+        parent_id       => $self->id,
+        task            => 'finish_work',
+    });
+ 
     return $self;
 }
 
 sub finish_work {
     my ($self) = @_;
+    
     $self->is_working(0);
     $self->work({});
+
+    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Building',
+        parent_id       => $self->id,
+        task            => 'finish_work',
+    });
+    $schedule->delete if defined $schedule;
     return $self;
 }
 
@@ -923,24 +960,25 @@ sub can_repair {
     my ($self, $costs) = @_;
     $costs ||= $self->get_repair_costs;
     my $body = $self->body;
-    my $fix = 100;
-    if ($body->food_stored < $costs->{food} and $costs->{food} > 0) {
-        my $teff = int(($body->food_stored-50)*100/$costs->{food});
+    my $damage = 100 - $self->efficiency;
+    my $fix = $damage;
+    if ($body->food_stored-50 < $costs->{food} and $costs->{food} > 0) {
+        my $teff = int(($body->food_stored-50) * $damage / $costs->{food});
         $fix = $teff if ($teff < $fix);
     }
     if ($body->water_stored < $costs->{water} and $costs->{water} > 0) {
-        my $teff = int($body->water_stored*100/$costs->{water});
+        my $teff = int($body->water_stored * $damage / $costs->{water});
         $fix = $teff if ($teff < $fix);
     }
-    if ($body->ore_stored < $costs->{ore} and $costs->{ore} > 0) {
-        my $teff = int(($body->ore_stored-50)*100/$costs->{ore});
+    if ($body->ore_stored-50 < $costs->{ore} and $costs->{ore} > 0) {
+        my $teff = int(($body->ore_stored-50) * $damage / $costs->{ore});
         $fix = $teff if ($teff < $fix);
     }
     if ($body->energy_stored < $costs->{energy} and $costs->{energy} > 0) {
-        my $teff = int($body->energy_stored*100/$costs->{energy});
+        my $teff = int($body->energy_stored * $damage / $costs->{energy});
         $fix = $teff if ($teff < $fix);
     }
-    if ($fix <= 0) {
+    if ($damage && $fix <= 0) {
         confess [1011, 'Not enough resources to do a partial repair.'];
     }
     return 1;
@@ -950,39 +988,35 @@ sub repair {
     my ($self, $costs) = @_;
     $costs ||= $self->get_repair_costs;
     my $body = $self->body;
-    my $fix = 100;
-    my $c_eff = $self->efficiency;
-    if ($body->food_stored < $costs->{food} and $costs->{food} > 0) {
-        my $teff = int(($body->food_stored-50)*100/$costs->{food});
+    my $damage = 100 - $self->efficiency;
+    if ($damage <= 0) {
+        return 0;
+    }
+    my $fix = $damage;
+    if ($body->food_stored-50 < $costs->{food} and $costs->{food} > 0) {
+        my $teff = int(($body->food_stored-50) * $damage / $costs->{food});
         $fix = $teff if ($teff < $fix);
     }
     if ($body->water_stored < $costs->{water} and $costs->{water} > 0) {
-        my $teff = int($body->water_stored*100/$costs->{water});
+        my $teff = int($body->water_stored * $damage / $costs->{water});
         $fix = $teff if ($teff < $fix);
     }
-    if ($body->ore_stored < $costs->{ore} and $costs->{ore} > 0) {
-        my $teff = int(($body->ore_stored-50)*100/$costs->{ore});
+    if ($body->ore_stored-50 < $costs->{ore} and $costs->{ore} > 0) {
+        my $teff = int(($body->ore_stored-50) * $damage / $costs->{ore});
         $fix = $teff if ($teff < $fix);
     }
     if ($body->energy_stored < $costs->{energy} and $costs->{energy} > 0) {
-        my $teff = int($body->energy_stored*100/$costs->{energy});
+        my $teff = int($body->energy_stored * $damage / $costs->{energy});
         $fix = $teff if ($teff < $fix);
     }
     if ($fix <= 0) {
-#        confess [1011, 'Not enough resources to do a partial repair.'];
-      return 0;
+        return 0;
     }
-    $costs->{food}   = int($fix*$costs->{food}/100);
-    $costs->{water}  = int($fix*$costs->{water}/100);
-    $costs->{ore}    = int($fix*$costs->{ore}/100);
-    $costs->{energy} = int($fix*$costs->{energy}/100);
-    my $n_eff = 100;
-    if ($fix < 100) {
-        my $p_add = int( (100 - $c_eff) * $fix/100 + 0.5);
-        $p_add = 1 if $p_add < 1;
-        $n_eff = $c_eff + $p_add;
-        $n_eff = 100 if ($n_eff > 100);
-    }
+    $costs->{food}   = int($fix*$costs->{food}/$damage);
+    $costs->{water}  = int($fix*$costs->{water}/$damage);
+    $costs->{ore}    = int($fix*$costs->{ore}/$damage);
+    $costs->{energy} = int($fix*$costs->{energy}/$damage);
+    my $n_eff = $self->efficiency + $fix;
     $self->efficiency($n_eff);
     $self->update;
     $body->spend_food($costs->{food}, 0);

@@ -52,6 +52,14 @@
 KNOWN BUGS:
  - bug: Fleet format currently shows 'Foreign' for all fleets
 
+3.0875:
+ - Fix: Spy count check on insurrection.
+ - Fix: Partial repair cost now calculated correctly.
+ - Fix: Waste chain capacity now correct for small percentages
+ - Fix: Building repair no longer runs food or ore down to zero
+ - Mod: Credits now to fireartist, Winton-Akagane, Ysthane
+ - Add: Fissure N19 news items added.
+ - Mod: Code for Building upgrade and working completion tasks refactored
 
 3.0874:
  - Mod: Fissures have an interesting effect on gas giants.

@@ -40,6 +40,7 @@ for my $body_id (sort keys %has_fissures) {
     #   and finally a spare space or a building at random (excluding the PCC).
     # The level of the second Fissure is the same level as the BHG (if there is one) otherwise it is level 1
     #
+    my $fcnt_30;
     for my $fissure (@fissures) {
         out("Level ".$fissure->level." fissure at ".$fissure->x.",".$fissure->y." co-ordinates");
         my $damage = randint(2,6);
@@ -71,6 +72,15 @@ for my $body_id (sort keys %has_fissures) {
         out("    set to ".$fissure->efficiency."% containment efficiency");
         $fissure->is_working(0);
         $fissure->update;
+        $fcnt_30++ if ($fissure->level >= 30);
+        if ($fcnt_30 == 2) {  #If it's more than 2, then we're doomed anyway
+            if ($body->empire_id) {
+                $body->add_news(100, sprintf('Scientists have detected a critical mass of Illudium Q-36 on %s.',$body->name));
+            }
+            else {
+                $body->add_news(100, sprintf('Neighbors of %s,  fear the planet will implode soon.',$body->name));
+            }
+        }
     }
     if ($body->empire_id) {
         $body->needs_recalc(1);
@@ -158,7 +168,7 @@ for my $body_id (sort keys %has_fissures) {
                 }
             }
 
-
+            $body->add_news(100, sprintf('Scientists fear that %s is starting to tear itself apart.',$body->name));
             if ($body->empire_id) {
                 $body->needs_recalc(1);
                 $body->tick;
