@@ -1565,7 +1565,7 @@ sub steal_planet {
                             ->find($defender_capitol_id);
 
     my $def_int_cap = $def_capitol->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
-    my $def_room = defined($def_int_cap) ? 0 : $def_int_cap->max_spies - $def_int_cap->spy_count;
+    my $def_room = defined($def_int_cap) ? ($def_int_cap->max_spies - $def_int_cap->spy_count) : 0;
     my $empire_id = $self->on_body->empire->id;
     my $moved_spies = 0;
     while (my $spy = $spies->next) {

@@ -7,16 +7,20 @@ use Config::JSON;
 
 useall __PACKAGE__;
 
-our $VERSION = 3.0874;
+our $VERSION = 3.0875;
 
 my $config = Config::JSON->new('/data/Lacuna-Server/etc/lacuna.conf');
 my $db = Lacuna::DB->connect($config->get('db/dsn'),$config->get('db/username'),$config->get('db/password'), { mysql_enable_utf8 => 1});
 my $cache = Lacuna::Cache->new(servers => $config->get('memcached'));
+my $queue;
 
-#use IO::File;
-# $db->storage->debug(1);
-# $db->storage->debugfh(IO::File->new('/tmp/dbic.trace.out', 'w'));
-
+if ($config->get('beanstalk')) {
+    $queue = Lacuna::Queue->new({
+        server      => $config->get('beanstalk/server'),
+        ttr         => $config->get('beanstalk/ttr'),
+        debug       => $config->get('beanstalk/debug'),
+    });
+}
 
 sub version {
     return $VERSION;
@@ -34,5 +38,8 @@ sub cache {
     return $cache;
 }
 
+sub queue {
+    return $queue;
+}
 
 1;
