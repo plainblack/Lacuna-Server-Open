@@ -66,7 +66,8 @@ if ($initialize) {
     });
     while (my $building = $building_rs->next) {
         # add to queue
-        my $schedule = Lacuna->db->resultset('Schedule')->create({
+        out('Building - finish_work at '.$building->work_ends);
+        Lacuna->db->resultset('Schedule')->create({
             delivery        => $building->work_ends,
             parent_table    => 'Building',
             parent_id       => $building->id,
@@ -80,7 +81,8 @@ if ($initialize) {
     });
     while (my $building = $building_rs->next) {
         # add to queue
-        my $schedule = Lacuna->db->resultset('Schedule')->create({
+        out('Building - finish_upgrade at '.$building->upgrade_ends);
+        Lacuna->db->resultset('Schedule')->create({
             delivery        => $building->upgrade_ends,
             parent_table    => 'Building',
             parent_id       => $building->id,
@@ -88,18 +90,32 @@ if ($initialize) {
         });
     }
 
-    out('Adding ship builds');
-    my $ship_rs = Lacuna->db->resultset('Ships')->search({
-        task => 'Building',
+    out('Adding ship building ends');
+    my $dt_parser   = Lacuna->db->storage->datetime_parser;
+    my $now         = $dt_parser->format_datetime( DateTime->now );
+    my $fleets = Lacuna->db->resultset('Fleet')->search({
+        date_available  => { '<=' => $now },
+        task            => 'Travelling',
     });
-    while (my $ship = $ship_rs->next) {
-        # add to queue
-        my $schedule = Lacuna->db->resultset('Schedule')->create({
-            delivery        => $ship->date_available,
-            parent_table    => 'Ships',
-            parent_id       => $ship->id,
-            task            => 'finish_construction',
-        });
+    while (my $fleet = $fleets->next ) {
+        if ($fleet->task eq 'Travelling') {
+            out('Fleet - arrive at '.$fleet->date_available);
+            Lacuna->db->resultset('Schedule')->create({
+                delivery        => $fleet->date_available,
+                parent_table    => 'Fleet',
+                parent_id       => $fleet->id,
+                task            => 'arrive',
+            });
+        }
+        elsif ($fleet->task eq 'Building') {
+            out('Fleet - finish_work at '.$fleet->date_available);
+            Lacuna->db->resultset('Schedule')->create({
+                delivery        => $fleet->date_available,
+                parent_table    => 'Fleet',
+                parent_id       => $fleet->id,
+                task            => 'finish_work',
+            });
+        }
     }
 }
 
@@ -130,7 +146,6 @@ out("queue = $queue");
 # Main processing loop
 
 out('Started');
-# Timeout after an hour
 eval {
     
     LOOP: do {

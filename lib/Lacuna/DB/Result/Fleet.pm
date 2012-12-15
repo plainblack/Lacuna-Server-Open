@@ -263,24 +263,34 @@ sub max_occupants {
 
 sub arrive {
     my ($self) = @_;
-    eval {$self->handle_arrival_procedures}; # throws exceptions to stop subsequent actions from happening
-    my $reason = $@;
-    if (ref $reason eq 'ARRAY' && $reason->[0] eq -1) {
-        # this is an expected exception, it means one of the roles took over
-        return;
-    }
-    elsif ($reason) {
-        # this is unexpected, so let's rethrow
-        confess $reason;
-    }
+
+    if ($self->task eq 'Travelling') {
+        eval {$self->handle_arrival_procedures}; # throws exceptions to stop subsequent actions from happening
+        my $reason = $@;
+        if (ref $reason eq 'ARRAY' && $reason->[0] eq -1) {
+            # this is an expected exception, it means one of the roles took over
+            return;
+        }
+        elsif ($reason) {
+            # this is unexpected, so let's rethrow
+            confess $reason;
+        }
     
-    # no exceptions, so we either need to go home or land
-    if ($self->direction eq 'out') {
-        $self->turn_around->update;
+        # no exceptions, so we either need to go home or land
+        if ($self->direction eq 'out') {
+            $self->turn_around;
+        }
+        else {
+            $self->land;
+        }
+        $self->update;
     }
-    else {
-        $self->land->update;
-    }
+    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Fleet',
+        parent_id       => $self->id,
+        task            => 'arrive',
+    });
+    $schedule->delete if defined $schedule;
 }
 
 sub handle_arrival_procedures {
