@@ -1317,40 +1317,38 @@ sub tick {
             }
             $i++;
         }
-    }
-
-    # get fleet tasks
-    my $fleets = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
-        body_id         => $self->id,
-        date_available  => { '<=' => $dt_parser->format_datetime($now) },
-        task            => { '!=' => 'Docked' },
-    });
-    while (my $fleet = $fleets->next ) {
-        if ($fleet->task eq 'Travelling') {
-            $todo{format_date($fleet->date_available).$i} = {
-                object  => $fleet,
-                type    => 'fleet arrives',
-            };
+        # get fleet tasks
+        my $fleets = Lacuna->db->resultset('Fleet')->search({
+            body_id         => $self->id,
+            date_available  => { '<=' => $dt_parser->format_datetime($now) },
+            task            => [qw(Travelling Building)],
+        });
+        while (my $fleet = $fleets->next ) {
+            if ($fleet->task eq 'Travelling') {
+                $todo{format_date($fleet->date_available).$i} = {
+                    object  => $fleet,
+                    type    => 'fleet arrives',
+                };
+            }
+            elsif ($fleet->task eq 'Building') {
+                $todo{format_date($fleet->date_available).$i} = {
+                    object  => $fleet,
+                    type    => 'fleet built',
+                };
+            }
+            $i++;
         }
-        elsif ($fleet->task eq 'Building') {
-            $todo{format_date($fleet->date_available).$i} = {
-                object  => $fleet,
-                type    => 'fleet built',
-            };
-        }
-        $i++;
     }
-
     # synchronize completion of tasks
     foreach my $key (sort keys %todo) {
         my ($object, $job) = ($todo{$key}{object}, $todo{$key}{type});
         my $beanstalk = Lacuna->config->get('beanstalk');
 
-        if ($job eq 'fleet built') {
+        if (not $beanstalk and $job eq 'fleet built') {
             $self->tick_to($object->date_available);
             $object->finish_construction;
         }
-        elsif ($job eq 'fleet arrives') {
+        elsif (not $beanstalk and $job eq 'fleet arrives') {
             $self->tick_to($object->date_available);
             $object->arrive;            
         }

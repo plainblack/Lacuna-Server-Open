@@ -46,7 +46,8 @@ if ($initialize) {
     });
     while (my $building = $building_rs->next) {
         # add to queue
-        my $schedule = Lacuna->db->resultset('Schedule')->create({
+        out('Building - finish_work at '.$building->work_ends);
+        Lacuna->db->resultset('Schedule')->create({
             delivery        => $building->work_ends,
             parent_table    => 'Building',
             parent_id       => $building->id,
@@ -60,7 +61,8 @@ if ($initialize) {
     });
     while (my $building = $building_rs->next) {
         # add to queue
-        my $schedule = Lacuna->db->resultset('Schedule')->create({
+        out('Building - finish_upgrade at '.$building->upgrade_ends);
+        Lacuna->db->resultset('Schedule')->create({
             delivery        => $building->upgrade_ends,
             parent_table    => 'Building',
             parent_id       => $building->id,
@@ -68,6 +70,33 @@ if ($initialize) {
         });
     }
 
+    out('Adding ship building ends');
+    my $dt_parser   = Lacuna->db->storage->datetime_parser;
+    my $now         = $dt_parser->format_datetime( DateTime->now );
+    my $fleets = Lacuna->db->resultset('Fleet')->search({
+        date_available  => { '<=' => $now },
+        task            => 'Travelling',
+    });
+    while (my $fleet = $fleets->next ) {
+        if ($fleet->task eq 'Travelling') {
+            out('Fleet - arrive at '.$fleet->date_available);
+            Lacuna->db->resultset('Schedule')->create({
+                delivery        => $fleet->date_available,
+                parent_table    => 'Fleet',
+                parent_id       => $fleet->id,
+                task            => 'arrive',
+            });
+        }
+        elsif ($fleet->task eq 'Building') {
+            out('Fleet - finish_work at '.$fleet->date_available);
+            Lacuna->db->resultset('Schedule')->create({
+                delivery        => $fleet->date_available,
+                parent_table    => 'Fleet',
+                parent_id       => $fleet->id,
+                task            => 'finish_work',
+            });
+        }
+    }
 }
 
 # --------------------------------------------------------------------
@@ -120,10 +149,6 @@ do {
         out("Job ".$job->id." failed: $_");
         $job->bury;
     };
-#    if ($sig_int) {
-#        out('Received INT signal, jumping out of polling loop');
-#        undef $loop;
-#    }
 } while ($loop);
 
 my $finish = time;
