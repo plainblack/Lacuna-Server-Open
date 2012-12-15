@@ -919,6 +919,7 @@ sub finish_work {
     
     $self->is_working(0);
     $self->work({});
+    $self->update;
 
     my ($schedule) = Lacuna->db->resultset('Schedule')->search({
         parent_table    => 'Building',
