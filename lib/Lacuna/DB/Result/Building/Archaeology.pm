@@ -429,7 +429,6 @@ sub found_glyph {
     $base += $ores->{$ore};
   }
   if ($glyph ne "error") {
-    $empire->add_medal($ore.'_glyph');
     $self->body->add_glyph($glyph);
     $empire->add_medal($glyph.'_glyph');
   }
