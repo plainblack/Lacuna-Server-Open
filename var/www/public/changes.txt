@@ -1,6 +1,7 @@
 3.0876:
  - Add: Seasonal gift
  - Fix: Deployed bleeders
+ - Fix: Add glyph medals for excav finds.
 
 3.0875:
  - Fix: Spy count check on insurrection.
