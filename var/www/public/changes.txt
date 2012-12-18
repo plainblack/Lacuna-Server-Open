@@ -2,6 +2,8 @@
  - Add: Seasonal gift
  - Fix: Deployed bleeders
  - Fix: Add glyph medals for excav finds.
+ - Fix: Compare vs max spies, not level when downgrading IntMin.
+ - Fix: Downgrading your capitol should be possible to level 10 if you have a stockpile.
 
 3.0875:
  - Fix: Spy count check on insurrection.
