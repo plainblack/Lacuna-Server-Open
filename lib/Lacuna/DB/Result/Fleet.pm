@@ -69,7 +69,7 @@ __PACKAGE__->add_columns(
     foreign_body_id         => { data_type => 'int', is_nullable => 1 },
     foreign_star_id         => { data_type => 'int', is_nullable => 1 },
     berth_level             => { data_type => 'int', is_nullable => 0 },
-    quantity                => { data_type => 'int', is_nullable => 0 },
+    quantity                => { data_type => 'float', size => [11,1], is_nullable => 0}
 );
 __PACKAGE__->typecast_map(type => {
     'probe'                         => 'Lacuna::DB::Result::Fleet::Probe',
@@ -212,18 +212,46 @@ sub schedule {
 }
 
 
+# Return the total combat strength of the fleet
+#
+sub fleet_combat {
+    my ($self) = @_;
+
+    return $self->combat * $self->quantity;
+}
+
+# In a battle, if the fleet_combat is reduced, then the number of
+# ships is adjusted accordingly
+#   returns undef if destroyed utterly
+#   
+sub survives_damage {
+    my ($self, $damage) = @_;
+
+    my $ships_lost = $damage / $self->combat;
+    if ($self->delete_quantity($ships_lost)) {
+        # then some ships remain in the fleet
+        return $self;
+    }
+    # the fleet was destroyed
+}
+
+
 # Delete a quantity of ships from a fleet
+# We allow 'tenths' of a ship but always round down.
+# Returns undef if we remove more ships than are in the fleet
+# and it deletes the fleet
+#
 sub delete_quantity {
     my ($self, $quantity) = @_;
 
     my $new_quantity = $self->quantity - $quantity;
-    if ($new_quantity <= 0) {
+    if ($new_quantity < 0.1) {
         $self->delete;
+        return;
     }
-    else {
-        $self->quantity($new_quantity);
-        $self->update;
-    }
+    $new_quantity = int($new_quantity * 10) / 10;
+    $self->quantity($new_quantity);
+    $self->update;
     return $self;
 }
 
