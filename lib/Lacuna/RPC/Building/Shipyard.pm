@@ -238,6 +238,84 @@ sub build_fleet {
 }
 
 
+sub repair_fleet {
+    my ($self, $args) = @_;
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    my $body        = $building->body;
+    my $fleet       = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
+
+    if (not $fleet) {
+        confess [1010, "Fleet cannot be found"];
+    }
+    my $quantity    = $fleet->quantity;
+    if ($quantity == int($quantity)) {
+        confess [1010, "That fleet has no damaged ships"];
+    }
+    my $costs = $building->get_fleet_repair_costs($fleet);
+    $building->can_repair_fleet($fleet, $costs);
+    $building->spend_resources_to_repair_fleet($costs);
+    $building->repair_fleet($fleet, $costs->{seconds});
+
+
+
+}
+
+
+sub get_repairable {
+    my ($self, $args) = @_;
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    my $body        = $building->body;
+
+    my %repairable;
+    my $fleet_rs = Lacuna->db->resultset('Fleet')->search({
+        body_id     => $body->id,
+        task        => 'Docked',
+    });
+    # Find all fleets with fractional quantity
+    my $fleets;
+    FLEET:
+    foreach my $fleet ($fleet_rs->next) {
+        next FLEET ($fleet->quantity == int($fleet->quantity);
+        my $item = {
+            attributes => {
+                speed           => $fleet->speed,
+                stealth         => $fleet->stealth,
+                hold_size       => $fleet->hold_size,
+                berth_level     => $fleet->base_berth_level,
+                combat          => $fleet->combat,
+                max_occupants   => $fleet->max_occupants,
+            }
+            id              => $fleet->id,
+            type            => $fleet->type,
+            type_human      => $fleet->type_human,
+            cost            => $building->get_fleet_repair_costs($fleet),
+        }
+        push @$fleets, $item;
+    }
+    my $docks = 0;
+    my $port = $body->spaceport;
+    if (defined $port) {
+        $docks = $port->docks_available;
+    }
+    my $max_ships = $building->max_ships;
+    my $total_ships_building = Lacuna->db->resultset('Fleet')->search({
+        body_id => $building->body_id, 
+        task    => ['Building','Repairing'],
+    })->count;
+
+    return {
+        repairable      => $fleets,
+        docks_available => $docks,
+        status          => $args->{no_status} ? {} : $self->format_status($empire, $body),
+        build_queue_max => $max_ships,
+        build_queue_used => $total_ships_building,
+     };
+}}
+
 sub get_buildable {
     my $self = shift;
     my $args = shift;
@@ -284,7 +362,10 @@ sub get_buildable {
         $docks = $port->docks_available;
     }
     my $max_ships = $building->max_ships;
-    my $total_ships_building = Lacuna->db->resultset('Ships')->search({body_id => $building->body_id, task=>'Building'})->count;
+    my $total_ships_building = Lacuna->db->resultset('Fleet')->search({
+        body_id => $building->body_id, 
+        task    => ['Building','Repairing'],
+    })->count;
 
     return {
         buildable       => \%buildable,
@@ -298,7 +379,9 @@ sub get_buildable {
 
 __PACKAGE__->register_rpc_method_names(qw(
     get_buildable 
+    get_repairable
     build_fleet 
+    repair_fleet
     view_build_queue 
     subsidize_build_queue
     subsidize_fleet

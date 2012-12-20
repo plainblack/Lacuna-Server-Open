@@ -130,23 +130,6 @@ sub surface {
     return 'surface-'.$self->image;
 }
 
-# return resultset for all fleets travelling
-sub fleets_travelling_old { 
-    my ($self, $where, $reverse) = @_;
-
-    my $order = '-asc';
-    if ($reverse) {
-        $order = '-desc';
-    }
-    $where->{task} = 'Travelling';
-    return $self->fleets->search(
-        $where,
-        {
-            order_by    => { $order => 'date_available' },
-        }
-    );
-}
-
 # return result-set for all fleets defending or orbiting
 sub fleets_orbiting {
     my ($self, $where, $reverse) = @_;
@@ -163,6 +146,26 @@ sub fleets_orbiting {
         }
     );
 }
+
+# return the number of ships and fleets being built on this planet
+sub fleets_building {
+    my ($self) = @_;
+
+    my ($sum) = Lacuna->db->resultset('Fleet')->search({
+        body_id => $self->id,
+        task    => ['Building','Repairing'],
+        }, {
+        "+select" => [
+            { count => 'id' },
+            { sum   => 'quantity' },
+        ],
+        "+as" => [qw(number_of_fleets number_of_ships)],
+    });
+
+    return ($sum->get_column('number_of_fleets'), $sum->get_column('number_of_ships'));
+}
+
+
 
 # claim the planet
 sub claim {

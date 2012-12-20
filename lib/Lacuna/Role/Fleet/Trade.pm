@@ -3,8 +3,8 @@ package Lacuna::Role::Fleet::Trade;
 use Moose::Role;
 use feature "switch";
 
-my $no_docks_exception = [1011, 'There are not enough docks available to receive the ships.'];
-my $no_spaceport_exception = [1011, 'There is no space port available to receive the ships.'];
+my $no_docks_exception      = [1011, 'There are not enough docks available to receive the fleet.'];
+my $no_spaceport_exception  = [1011, 'There is no space port available to receive the fleet.'];
 
 # Check if the payload has ships and if so if the target has room for them
 #

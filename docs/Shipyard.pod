@@ -56,24 +56,33 @@ If set to 1, it over-rides items_per_page and page_number and returns all result
 
  {
    "status" : { ... },
-   "number_of_fleets_building" : 10,
+   "number_of_fleets" : 10,
    "cost_to_subsidize" :  30,
-   "fleets_building" : [
+   "fleets" : [
      {
        "id" :             "1234",
+       "task" :           "Building",
        "type" :           "spy_pod",
        "type_human" :     "Spy Pod",
        "date_completed" : "01 31 2010 13:09:05 +0600",
        "quantity" :       "10"
-     }
+     },
+     {
+       "id" :             "1245",
+       "task" :           "Repairing",
+       "type" :           "sweeper",
+       "type_human" :     "Sweeper",
+       "date_completed" : "01 31 2010 14:09:00 +0600",
+       "quantity" :       "1"
      ...
    ]
  }
 
-The response gives the B<number_of_fleets_building> and the B<cost_to_subsidize>, note that the
-cost is based on the total number of ships being constructed, not the number of fleets.
+The response gives the B<number_of_fleets> that are either B<Building> or B<Repairing> and 
+the B<cost_to_subsidize>, note that the
+cost is based on the total number of ships being constructed or repaired, not the number of fleets.
 
-B<fleets_building> is an array of the fleets in the build queue sorted with the first fleet to
+B<fleets> is an array of the fleets in the build queue sorted with the first fleet to
 complete at the start of the list.
 
 Note, no ships in a fleet will become available until all ships in the fleet have been completed.
@@ -225,6 +234,67 @@ B<tags> represent attributes about ships that can be used to filter them. The li
 =back
 
 
+=head2 get_repairable
+
+Returns a list of ships that require repair. Any fleet that is involved in a battle may be
+damaged. This is represented by a fractional quantity, e.g. B<10.1> ships.
+
+When the fleet returns to Dock, the fractional Ship is available to be repaired.
+
+Accepts a hash of named parameters
+
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 RESPONSE
+
+ {
+   "repairable" : [
+     {
+       "id" :              1234,
+       "type" :            "sweeper",
+       "type_human" :      "Sweeper",
+       "cost" : {
+         "seconds" :       900,
+         "food" :          1100,
+         "water" :         1000,
+         "energy" :        1200,
+         "ore" :           1200,
+         "waste" :         100,
+       },
+       "attributes" : {
+         "speed" :         1000, # 100 roughly equals 1 star in 1 hour
+         "hold_size" :     0,
+         "max_occupants" : 0,
+         "combat" :        9000,
+         "stealth" :       1500,
+         "berth_level" :   1
+       },
+     },
+        ...
+   ],
+   "docks_available" : 7,         # you can only build ships up to the number of docks you have available
+   "build_queue_max" : 60,        # maximum queueable ships
+   "build_queue_used" : 3,        # ships in queue for all shipyards
+   "status" : { ... },
+ }
+
+This response gives a list of ships that require repair.
+
+The B<cost> represents the cost of repairing the ship. The repair cost will be based on a percentage of the
+cost to produce a new ship. e.g. if there is only 0.1 of a ship, then it requires 90% of the cost of a new
+ship to repair it.
+
+B<docks_available> returns the number of remaining empty Spaceport docks available. You can't build or
+repair more ships than would fit in your docks.
+
 =head2 build_fleet
 
 Build a fleet of ships.
@@ -268,6 +338,34 @@ are completed.
 =head3 RESPONSE
 
 Returns the same as B<view_build_queue>.
+
+
+=head2 repair_fleet
+
+Repair a ship in a fleet.
+
+Accepts a hash of named parameters
+
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session_id ID
+
+=head3 building_id (required)
+
+This buildings ID
+
+=head3 fleet_id (required)
+
+The ID of the fleet requiring repair.
+
+=head3 RESPONSE
+
+Returns the same as B<view_build_queue>.
+
+Note that the single (fractional) ship that requires repair will be taken out of the fleet
+during it's repair and returned to the fleet when the repair is complete.
 
 =cut
 

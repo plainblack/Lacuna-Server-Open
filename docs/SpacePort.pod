@@ -7,6 +7,10 @@ You can dock twice as many ships as the level of the Space Port.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+Note that a fleet comprises a number of ships, all of the same type, speed, stealth, name and task. A fleet
+that is involved in a battle may be damaged in which case some of the ships will be damaged or destroyed.
+This is shown by the B<quantity> having a none integer value, e.g. B<10.1>
+
 =head2 target
 
 Some of the Space Port methods allow ships to be sent to targets. This parameter is described here.
@@ -177,7 +181,7 @@ This buildings ID
    'status'           => { ... },
    'fleets'           => [
      {
-       'quantity' => '10',
+       'quantity' => '10.1',
        'id'       => '1414',
        'task'     => 'Docked',
        'details'  => {
@@ -219,7 +223,7 @@ This buildings ID
            'name'   => 'Man'
          }
        },
-       'quantity'     => '1',
+       'quantity'     => '1.0',
        'id'           => '1548',
        'task'         => 'Travelling',
        'date_arrives' => '25 12 2012 08:00:00 +0000',
@@ -295,7 +299,7 @@ See above for these options.
    "incoming" : [
      {
        "id" : "id-goes-here",
-       "quantity" : 1,
+       "quantity" : 1.0,
        "task" : "Travelling",
        "details" {
          "name" : "P13",
@@ -388,7 +392,7 @@ See above for these options.
    "available" : [
      {
        "id" : "id-goes-here",
-       "quantity" : 120,
+       "quantity" : 120.3,
        "task" : "Docked",
        "earliest_arrival" : {
          "month" : "03",
@@ -456,7 +460,7 @@ See above for these options.
    "unavailable" : [
      {
        "id" : "id-goes-here",
-       "quantity" : 120,
+       "quantity" : 120.3,
        "task" : "Docked",
        "reason" : [
           1009,
@@ -518,7 +522,7 @@ See above for these options.
    "orbiting" : [
      {
        "id" : "id-goes-here",
-       "quantity" : 120,
+       "quantity" : 120.3,
        "task" : "Orbiting",
        "details" {
          "name" : "P13",
@@ -633,7 +637,7 @@ The ID of the fleet to send
 
 =head3 quantity (required)
 
-The number of ships in the fleet to send
+The number of ships in the fleet to send.
 
 =head3 target (required)
   

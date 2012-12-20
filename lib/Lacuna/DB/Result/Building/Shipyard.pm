@@ -7,6 +7,22 @@ extends 'Lacuna::DB::Result::Building';
 use Lacuna::Util qw(format_date);
 use DateTime;
 
+
+# The maximum number of ships that can be in a ship building queue
+has max_ships => (
+    is  => 'ro',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+
+        return Lacuna->db->resultset('Building')->search( {
+            class       => $self->class, 
+            body_id     => $self->body_id,
+            efficiency  => 100,
+        } )->get_column('level')->sum;
+    },
+);
+
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
 
@@ -23,8 +39,29 @@ sub fleets_under_construction {
     });
 }
 
-# get the costs to construct a fleet
-sub get_fleet_costs {
+# get fleets under repair at this shipyard resultset
+sub fleets_under_repair {
+    my ($self) = @_;
+
+    return Lacuna->db->resultset('Fleet')->search({
+        shipyard_id => $self->id,
+        task        => 'Repair',
+    });
+}
+
+# get fleets being built or repaired at this shipyard
+sub fleets_under_construction_or_repair {
+    my ($self) = @_;
+
+    return Lacuna->db->resultset('Fleet')->search({
+        shipyard_id => $self->id,
+        task        => ['Building','Repair'],
+    });
+}
+
+# get the percentage of the cost of a build
+#
+sub percentage_of_cost {
     my ($self, $fleet) = @_;
 
     my $body = $self->body;
@@ -58,6 +95,18 @@ sub get_fleet_costs {
         $percentage_of_cost += $propulsion->effective_level * 3;
     }
     $percentage_of_cost /= 100;
+    return $percentage_of_cost;
+}
+
+
+# get the costs to construct a fleet
+sub get_fleet_costs {
+    my ($self, $fleet) = @_;
+
+    my $body = $self->body;
+    my $percentage_of_cost = $self->percentage_of_cost($fleet);
+
+    
     my $throttle = Lacuna->config->get('ship_build_speed') || 0;
     my $seconds = $fleet->quantity
         * (1 - ($fleet->quantity / 50 * 0.03))
@@ -72,28 +121,71 @@ sub get_fleet_costs {
     my $bonus = $self->manufacturing_cost_reduction_bonus;
     return {
         seconds => $seconds,
-        food    => sprintf('%0.f', $fleet->quantity * $fleet->base_food_cost * $percentage_of_cost * $bonus),
-        water   => sprintf('%0.f', $fleet->quantity * $fleet->base_water_cost * $percentage_of_cost * $bonus),
-        ore     => sprintf('%0.f', $fleet->quantity * $fleet->base_ore_cost * $percentage_of_cost * $bonus),
-        energy  => sprintf('%0.f', $fleet->quantity * $fleet->base_energy_cost * $percentage_of_cost * $bonus),
-        waste   => sprintf('%0.f', $fleet->quantity * $fleet->base_waste_cost * $percentage_of_cost),
+        food    => sprintf('%0.f', $fleet->quantity * $fleet->base_food_cost    * $percentage_of_cost * $bonus),
+        water   => sprintf('%0.f', $fleet->quantity * $fleet->base_water_cost   * $percentage_of_cost * $bonus),
+        ore     => sprintf('%0.f', $fleet->quantity * $fleet->base_ore_cost     * $percentage_of_cost * $bonus),
+        energy  => sprintf('%0.f', $fleet->quantity * $fleet->base_energy_cost  * $percentage_of_cost * $bonus),
+        waste   => sprintf('%0.f', $fleet->quantity * $fleet->base_waste_cost   * $percentage_of_cost),
     };
 }
 
-# The maximum number of ships that can be in a ship building queue
-has max_ships => (
-    is  => 'ro',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
+# get the costs to repair a fleet
+sub get_fleet_repair_costs {
+    my ($self, $fleet) = @_;
 
-        return Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( {
-            class       => $self->class, 
-            body_id     => $self->body_id,
-            efficiency  => 100,
-        } )->get_column('level')->sum + 0;
-    },
-);
+    my $body = $self->body;
+    my $percentage_of_cost = $self->percentage_of_costs($fleet);
+    my $damage = 1 - $fleet->quantity + int($fleet->quantity);
+
+    my $throttle = Lacuna->config->get('ship_build_speed') || 0;
+    my $seconds = $damage 
+        * $fleet->base_time_cost 
+        * $self->time_cost_reduction_bonus(($self->level * 3) + $throttle);
+
+    $seconds = sprintf('%0.f', $seconds);
+    $seconds = 15 if $seconds < 15;
+    $seconds = 5184000 if ($seconds > 5184000); # 60 Days
+    my $bonus = $self->manufacturing_cost_reduction_bonus;
+    return {
+        seconds => $seconds,
+        food    => sprintf('%0.f', $fleet->base_food_cost   * $percentage_of_cost * $bonus),
+        water   => sprintf('%0.f', $fleet->base_water_cost  * $percentage_of_cost * $bonus),
+        ore     => sprintf('%0.f', $fleet->base_ore_cost    * $percentage_of_cost * $bonus),
+        energy  => sprintf('%0.f', $fleet->base_energy_cost * $percentage_of_cost * $bonus),
+        waste   => sprintf('%0.f', $fleet->base_waste_cost  * $percentage_of_cost),
+    };
+}
+
+
+# Check if we can repair this fleet
+sub can_repair_fleet {
+    my ($self, $fleet, $costs) = @_;
+
+    if ($self->level < 1) {
+        confess [1013, "You can't build a fleet if the shipyard isn't complete."];
+    }
+    my $partial = $fleet->quantity - int($fleet->quantity);
+    if ($partial < 0.1) {
+        confess [1001, 'There is not enough of that fleet left for repair'];
+    }
+
+    my $body = $self->body;
+    foreach my $key (keys %$costs) {
+        next if ($key eq 'seconds' || $key eq 'waste');
+        if ($costs->{$key} > $body->type_stored($key)) {
+            confess [1011, 'Not enough resources.', $key];
+        }
+    }
+    my ($fleets_building, $ships_building) = $body->fleets_building);
+    if ($ships_building + 1 > $self->max_ships) {
+        confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.'];
+    }
+    if ($self->body->spaceport->docks_available < 1) {
+        confess [1009, "You do not have ".$fleet->quantity." docks available at the Spaceport."];
+    }
+    return 1;
+}
+
 
 # Check if we can build this fleet
 sub can_build_fleet {
@@ -104,14 +196,14 @@ sub can_build_fleet {
     }
     $fleet->body_id($self->body_id);
     $fleet->shipyard_id($self->id);
-    my $fleets = Lacuna->db->resultset('Lacuna::DB::Result::Fleet');
+
     $costs ||= $self->get_fleet_costs($fleet);
     if ($self->level < 1) {
         confess [1013, "You can't build a fleet if the shipyard isn't complete."];
     }
     my $reason = '';
     for my $prereq (@{$fleet->prereq}) {
-        my $count = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
+        my $count = Lacuna->db->resultset('Building')->search({
             body_id => $self->body_id,
             class   => $prereq->{class},
             level   => { '>=' => $prereq->{level} },
@@ -137,18 +229,9 @@ sub can_build_fleet {
         }
     }
     
-    my ($sum) = $fleets->search({
-        body_id => $self->body_id,
-        task    => 'Building',
-        }, {
-        "+select" => [
-            { count => 'id' },
-            { sum   => 'quantity' },
-        ],
-        "+as" => [qw(number_of_fleets number_of_ships)],
-    });
+    my ($fleets_building, $ships_building) = $body->fleets_building);
 
-    if ($sum->get_column('number_of_ships') + $fleet->quantity > $self->max_ships) {
+    if ($ships_building + $fleet->quantity > $self->max_ships) {
         confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.'];
     }
     if ($self->body->spaceport->docks_available < $fleet->quantity) {
@@ -157,15 +240,7 @@ sub can_build_fleet {
     return 1;
 }
 
-# Return a result set of all fleets building at this Shipyard
-sub building_fleets {
-    my ($self) = @_;
 
-    return Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
-        shipyard_id => $self->id, 
-        task        => 'Building',
-    });
-}
 
 # deduct the cost of the fleet from the colony
 sub spend_resources_to_build_fleet {
@@ -219,6 +294,34 @@ sub build_fleet {
     $self->start_work({}, $date_completed->epoch - time())->update;
     return $fleet;
 }
+
+
+# Repair a fleet
+sub repair_fleet {
+    my ($self, $fleet, $time) = @_;
+
+    my $partial         = $fleet->quantity - int($fleet->quantity);
+    my $damaged_fleet   = $fleet->split($partial);
+    $damaged_fleet->task('Repairing');
+    
+    my $latest = $self->building_fleets->search(undef, {
+        order_by    => { -desc => 'data_available' },
+        rows        => 1,
+    })->single;
+
+    my $now = DateTime->now;
+    my $date_completed = $now
+    if (defined $latest) {
+        $date_completed = $latest->data_available->clone;
+    }
+    $date_completed->add( seconds => $time );
+    $damaged_fleet->date_available($date_completed);
+    $damaged_fleet->date_started($now);
+    $damaged_fleet->update;
+    $self->start_work({}, $date_completed->epoch - time())->update;
+    $return $damaged_fleet;
+}
+
 
 use constant controller_class               => 'Lacuna::RPC::Building::Shipyard';
 use constant building_prereq                => {'Lacuna::DB::Result::Building::SpacePort'=>1};
