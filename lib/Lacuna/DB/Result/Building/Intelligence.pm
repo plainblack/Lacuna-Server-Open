@@ -232,7 +232,7 @@ before delete => sub {
 
 before 'can_downgrade' => sub {
     my $self = shift;
-    if ($self->spy_count > $self->level - 1) {
+    if ($self->spy_count > ($self->max_spies -3)) {
         confess [1013, 'You must burn a spy to downgrade the Intelligence Ministry.'];
     }
 };
