@@ -8,7 +8,6 @@
  - Fix: BHG Jump Zone checks alliance id's of seized stars on target.
  - Fix: Target planet SAWs will not fire on incoming allied ships.
 
-
 3.0875:
  - Fix: Spy count check on insurrection.
  - Fix: Partial repair cost now calculated correctly.
