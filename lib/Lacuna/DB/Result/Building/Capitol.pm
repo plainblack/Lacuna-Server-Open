@@ -55,8 +55,8 @@ before 'can_demolish' => sub {
 before 'can_downgrade' => sub {
     my $self = shift;
     my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
-    if (defined $stockpile) {
-        confess [1013, 'You have to demolish your Stockpile before you can downgrade your Capitol.'];
+    if (defined $stockpile and $self->level < 11) {
+        confess [1013, 'You have to demolish your Stockpile before you can downgrade your Capitol lower than level 10.'];
     }
 };
 

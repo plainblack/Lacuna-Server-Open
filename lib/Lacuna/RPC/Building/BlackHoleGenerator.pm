@@ -1,7 +1,4 @@
 package Lacuna::RPC::Building::BlackHoleGenerator;
-# Upcoming enhancements
-# Play balance mods for hopping planets.
-
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
@@ -188,22 +185,22 @@ sub find_target {
                 { distinct => 1 }
             )->get_column('zone')->all;
         unless ($target_params->{zone} ~~ @zones) {
-            confess [ 1002, 'Could not find '.$target_word.' target.'];
+            confess [ 1002, 'Could not find '.$target_word.' zone.'];
         }
         my @bodies = Lacuna->db->resultset('Map::Body')->search(
             {
                 'me.zone'           => $target_params->{zone},
                 'me.empire_id'      => undef,
-                'stars.station_id'  => undef,
                 'me.class'          => { like => 'Lacuna::DB::Result::Map::Body::Planet::%' },
                 'me.orbit'          => { between => [$empire->min_orbit, $empire->max_orbit] },
             },
             {
                 join                => 'stars',
-                rows                => 100,
+                rows                => 250,
                 order_by            => 'me.name',
             });
-        $target = random_element(\@bodies);
+        my $tref = no_occ_or_nonally(\@bodies, $empire->alliance_id);
+        $target = random_element($tref);
         if (defined $target) {
             $target_type = "zone";
         }
@@ -225,6 +222,25 @@ sub find_target {
         confess [ 1002, 'Could not find '.$target_word.' target.'];
     }
     return $target, $target_type;
+}
+
+sub no_occ_or_nonally {
+    my ($checking, $aid) = @_;
+
+    $aid = 0 unless defined($aid);
+    my @stripped;
+    for my $check (@$checking) {
+        next if $check->empire_id;
+        if ( defined($check->star->station_id)) {
+            if ($check->star->station->empire->alliance_id == $aid) {
+                push @stripped, $check;
+            }
+        }
+        else {
+            push @stripped, $check;
+        }
+    }
+    return \@stripped;
 }
 
 sub get_actions_for {
@@ -710,7 +726,6 @@ sub generate_singularity {
             elsif ($side_type < 95) {
                 $return_stats = bhg_random_decor($building);
             }
-            # More side effects (Create some fissures for instance...)
             else {
                 $return_stats = bhg_size($building, $body, 0);
             }
@@ -765,18 +780,23 @@ sub bhg_move_system {
     
     my $return_stats = {};
     my @orbiting;
+    my @recalcs;
     for my $orbit (1..8) {
         my $return;
         if ($current_bodies->[$orbit] and $target_bodies->[$orbit]) {
             $return = bhg_swap($current_bodies->[$orbit], $target_bodies->[$orbit]);
+            push @recalcs, $current_bodies->[$orbit];
+            push @recalcs, $target_bodies->[$orbit];
         }
         elsif ($current_bodies->[$orbit] and !($target_bodies->[$orbit])) {
             my $targeted = target_orbit($target_star, $orbit);
             $return = bhg_swap($current_bodies->[$orbit], $targeted);
+            push @recalcs, $current_bodies->[$orbit];
         }
         elsif (!($current_bodies->[$orbit]) and $target_bodies->[$orbit]) {
             my $targeted = target_orbit($current_star, $orbit);
             $return = bhg_swap($target_bodies->[$orbit], $targeted);
+            push @recalcs, $target_bodies->[$orbit];
         }
         else {
             $return = {
@@ -787,6 +807,9 @@ sub bhg_move_system {
             };
         }
         push @orbiting, $return;
+    }
+    for my $bod (@recalcs) {
+        $bod->recalc_chains; # We need to redo all the chains of the moved planets in one go.
     }
     return {
         id       => $target_star->id,
