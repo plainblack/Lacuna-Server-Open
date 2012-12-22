@@ -809,7 +809,10 @@ sub bhg_move_system {
         push @orbiting, $return;
     }
     for my $bod (@recalcs) {
-        $bod->recalc_chains; # We need to redo all the chains of the moved planets in one go.
+# We need to redo all the chains of the moved planets in one go.
+        if ($bod->empire and $bod->get_type ne 'asteroid') {
+            $bod->recalc_chains;
+        }
     }
     return {
         id       => $target_star->id,
