@@ -6,6 +6,7 @@
  - Fix: Downgrading your capitol should be possible to level 10 if you have a stockpile.
  - Fix: Recalc chains properly on Move System.
  - Fix: BHG Jump Zone checks alliance id's of seized stars on target.
+ - Fix: Target planet SAWs will not fire on incoming allied ships.
 
 3.0875:
  - Fix: Spy count check on insurrection.
