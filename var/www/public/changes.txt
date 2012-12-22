@@ -1,5 +1,6 @@
 3.0876:
  - Add: Seasonal gift
+ - Fix: Deployed bleeders
 
 3.0875:
  - Fix: Spy count check on insurrection.
