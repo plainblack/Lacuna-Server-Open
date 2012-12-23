@@ -698,7 +698,7 @@ sub is_not_max_level {
     if ($self->level >= $max_level &&
         'Resources' ~~ [ $self->build_tags] && (!('Storage' ~~ [$self->build_tags])
                                                 || $self->isa('Lacuna::DB::Result::Building::Waste::Exchanger'))) {
-# resource buildings except storage buildings (treat a Waste Exchanger as if it were not a storage building)
+        # resource buildings except storage buildings (treat a Waste Exchanger as if it were not a storage building)
         my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
         if (defined $stockpile) {
             if ($max_level + $stockpile->extra_resource_levels > $self->level) {
@@ -893,6 +893,33 @@ sub work_seconds_remaining {
     my $seconds = $self->work_ends->epoch - time;
     return ($seconds > 0) ? $seconds : 0;
 }
+
+
+# Reschedule work to end at a different time
+#
+sub reschedule_work {
+    my ($self, $new_work_ends) = @_;
+
+    $self->is_working(1);
+    $self->work_ends($new_work_ends);
+    $self->update;
+
+    my $schedule = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Building',
+        parent_id       => $self->id,
+        task            => 'finish_work',
+    });
+    $schedule->delete if defined $schedule;
+
+    Lacuna->db->resultset('Schedule')->create({
+        delivery        => $new_work_ends,
+        parent_table    => 'Building',
+        parent_id       => $self->id,
+        task            => 'finish_work',
+    });
+    return $self;
+}
+
 
 sub start_work {
     my ($self, $work, $duration) = @_;
