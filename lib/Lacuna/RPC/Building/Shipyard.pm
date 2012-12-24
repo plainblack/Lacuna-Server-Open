@@ -279,7 +279,7 @@ sub get_repairable {
     my $fleets;
     FLEET:
     foreach my $fleet ($fleet_rs->next) {
-        next FLEET ($fleet->quantity == int($fleet->quantity);
+        next FLEET if $fleet->quantity == int($fleet->quantity);
         my $item = {
             attributes => {
                 speed           => $fleet->speed,
@@ -288,12 +288,12 @@ sub get_repairable {
                 berth_level     => $fleet->base_berth_level,
                 combat          => $fleet->combat,
                 max_occupants   => $fleet->max_occupants,
-            }
+            },
             id              => $fleet->id,
             type            => $fleet->type,
             type_human      => $fleet->type_human,
             cost            => $building->get_fleet_repair_costs($fleet),
-        }
+        };
         push @$fleets, $item;
     }
     my $docks = 0;
@@ -314,7 +314,7 @@ sub get_repairable {
         build_queue_max => $max_ships,
         build_queue_used => $total_ships_building,
      };
-}}
+}
 
 sub get_buildable {
     my $self = shift;

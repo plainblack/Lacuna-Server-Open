@@ -176,7 +176,7 @@ sub can_repair_fleet {
             confess [1011, 'Not enough resources.', $key];
         }
     }
-    my ($fleets_building, $ships_building) = $body->fleets_building);
+    my ($fleets_building, $ships_building) = $body->fleets_building;
     if ($ships_building + 1 > $self->max_ships) {
         confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.'];
     }
@@ -229,7 +229,7 @@ sub can_build_fleet {
         }
     }
     
-    my ($fleets_building, $ships_building) = $body->fleets_building);
+    my ($fleets_building, $ships_building) = $body->fleets_building;
 
     if ($ships_building + $fleet->quantity > $self->max_ships) {
         confess [1013, 'You can only have '.$self->max_ships.' ships in the queue at this shipyard. Upgrade the shipyard to support more ships.'];
@@ -310,7 +310,7 @@ sub repair_fleet {
     })->single;
 
     my $now = DateTime->now;
-    my $date_completed = $now
+    my $date_completed = $now;
     if (defined $latest) {
         $date_completed = $latest->data_available->clone;
     }
@@ -319,7 +319,7 @@ sub repair_fleet {
     $damaged_fleet->date_started($now);
     $damaged_fleet->update;
     $self->start_work({}, $date_completed->epoch - time())->update;
-    $return $damaged_fleet;
+    return $damaged_fleet;
 }
 
 
