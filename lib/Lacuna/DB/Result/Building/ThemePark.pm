@@ -106,9 +106,9 @@ sub operate {
     $body->update;
     
     if ($self->is_working) {
-        $self->work_ends($self->work_ends->add(seconds=>60 * 60));
+        my $new_work_ends = $self->work_ends->add(seconds => 3600);
         $self->work({ food_type_count => $types });
-        $self->update;
+        $self->reschedule_work($new_work_ends);
     }
     else {
         $self->start_work({ food_type_count => $types }, 60*60)->update;

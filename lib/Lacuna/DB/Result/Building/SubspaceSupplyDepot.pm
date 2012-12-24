@@ -33,7 +33,8 @@ use constant name => 'Subspace Supply Depot';
 use constant time_to_build => 0;
 
 after finish_upgrade => sub {
-    my $self = shift;
+    my ($self) = @_;
+
     $self->start_work({}, 60 * 60 * 24 * 5)->update;
     $self->body->empire->send_predefined_message(
         tags        => ['Alert'],
@@ -44,62 +45,73 @@ after finish_upgrade => sub {
 };
 
 sub transmit_food {
-    my $self = shift;
-    unless ($self->work_ends->epoch - time  > 3600 ) {
+    my ($self) = @_;
+
+    if ($self->work_ends->epoch - time  <= 3600 ) {
         confess [1011, 'Not enough energy remaining to transmit resources.']
     }
-    $self->work_ends($self->work_ends->subtract(seconds => 3600));
-    $self->update;
+    my $new_work_ends = $self->work_ends->subtract(seconds => 3600);
+    $self->reschedule_work($new_work_ends);
+
     my @types = (FOOD_TYPES);
     $self->body->add_type($types[ rand @types ], 3600)->update;
 }
 
 sub transmit_ore {
-    my $self = shift;
+    my ($self) = @_;
+
     unless ($self->work_ends->epoch - time  > 3600 ) {
         confess [1011, 'Not enough energy remaining to transmit resources.']
     }
-    $self->work_ends($self->work_ends->subtract(seconds => 3600));
-    $self->update;
+    my $new_work_ends = $self->work_ends->subtract(seconds => 3600);
+    $self->reschedule_work($new_work_ends);
+
     my @types = (ORE_TYPES);
     $self->body->add_type($types[ rand @types ], 3600)->update;
 }
 
 sub transmit_water {
-    my $self = shift;
+    my ($self) = @_;
+
     unless ($self->work_ends->epoch - time  > 3600 ) {
         confess [1011, 'Not enough energy remaining to transmit resources.']
     }
-    $self->work_ends($self->work_ends->subtract(seconds => 3600));
-    $self->update;
+    my $new_work_ends = $self->work_ends->subtract(seconds => 3600);
+    $self->reschedule_work($new_work_ends);
+
     $self->body->add_type('water', 3600)->update;
 }
 
 sub transmit_energy {
-    my $self = shift;
+    my ($self) = @_;
+
     unless ($self->work_ends->epoch - time  > 3600 ) {
         confess [1011, 'Not enough energy remaining to transmit resources.']
     }
-    $self->work_ends($self->work_ends->subtract(seconds => 3600));
-    $self->update;
+    my $new_work_ends = $self->work_ends->subtract(seconds => 3600);
+    $self->reschedule_work($new_work_ends);
+
     $self->body->add_type('energy', 3600)->update;
 }
 
 sub complete_build_queue {
-    my $self = shift;
+    my ($self) = @_;
+
     my $time_to_complete = $self->body->get_existing_build_queue_time->epoch - time;
     if ($time_to_complete > $self->work_ends->epoch - time) {
         confess [1011, 'Not enough time remaining to complete the build queue.'];
     }
-    $self->work_ends($self->work_ends->subtract(seconds => $time_to_complete));
-    $self->update;
+    my $new_work_ends = $self->work_ends->subtract(seconds => $time_to_complete);
+    $self->reschedule_work($new_work_ends);
+
     foreach my $build (@{$self->body->builds}) {
         $build->finish_upgrade;
     }
 }
 
 after finish_work => sub {
-    my $self = shift;
+    my ($self) = @_;
+
     my $body = $self->body;
     $body->needs_surface_refresh(1);
     $body->needs_recalc(1);

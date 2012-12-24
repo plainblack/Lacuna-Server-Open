@@ -62,8 +62,6 @@ sub queue_for_delivery {
     $delay = 0 if $delay < 0;
     my $now         = DateTime->now;
 
-    print STDERR "DELIVERY: now: $now delivery: $delivery delay: $delay table: ".$self->parent_table." task: ".$self->task."\n";
-
     my $queue   = Lacuna->queue || 'default';
     my $priority    = $self->priority || 1000;
     my $job = $queue->publish($self->queue,

@@ -19,8 +19,8 @@ after handle_arrival_procedures => sub {
             x           => $x,
             y           => $y,
         });
-        $deployed->start_work({},3600 * randint(24,168));
         $body_attacked->build_building($deployed, 1);
+        $deployed->start_work({},3600 * randint(24,168))->update;
         $body_attacked->needs_surface_refresh(1);
         $body_attacked->update;
     }
