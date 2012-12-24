@@ -519,6 +519,7 @@
  - Mod: Removed option to skip incoming ships messages
  - Fix: Stars now list in alphabetic order in Parliament, rename stars.
  - Mod: Supply chains can now be set up to allied planets
+ - Mod: Fleets on defence no longer have a reset after a battle.
 
  - TEST: view_incoming_fleet: for visibility of foreign fleets.
  - TODO: view_ships_orbiting seems to be redundant
