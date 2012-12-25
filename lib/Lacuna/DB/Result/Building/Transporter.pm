@@ -6,7 +6,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 
-with 'Lacuna::Role::Trader','Lacuna::Role::Ship::Trade';
+with 'Lacuna::Role::Trader','Lacuna::Role::Fleet::Trade';
 
 
 around 'build_tags' => sub {

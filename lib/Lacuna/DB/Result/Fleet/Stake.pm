@@ -19,11 +19,11 @@ use constant base_hold_size         => 0;
 use constant pilotable              => 0;
 use constant build_tags             => ['Colonization'];
 
-with "Lacuna::Role::Ship::Send::Planet";
-with "Lacuna::Role::Ship::Send::Uninhabited";
-with "Lacuna::Role::Ship::Send::IsHostile";
-with "Lacuna::Role::Ship::Arrive::TriggerDefense";
-with "Lacuna::Role::Ship::Arrive::StakeAClaim";
+with "Lacuna::Role::Fleet::Send::Planet";
+with "Lacuna::Role::Fleet::Send::Uninhabited";
+with "Lacuna::Role::Fleet::Send::IsHostile";
+with "Lacuna::Role::Fleet::Arrive::TriggerDefense";
+with "Lacuna::Role::Fleet::Arrive::StakeAClaim";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

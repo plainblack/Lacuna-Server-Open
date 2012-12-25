@@ -18,11 +18,11 @@ use constant base_stealth           => 2800;
 use constant pilotable              => 1;
 use constant build_tags             => ['War'];
 
-with "Lacuna::Role::Ship::Send::Body";
-with "Lacuna::Role::Ship::Send::NotIsolationist";
-with "Lacuna::Role::Ship::Send::IsHostile";
-with "Lacuna::Role::Ship::Send::RecallWhileTravelling";
-with "Lacuna::Role::Ship::Arrive::TriggerDefense";
+with "Lacuna::Role::Fleet::Send::Body";
+with "Lacuna::Role::Fleet::Send::NotIsolationist";
+with "Lacuna::Role::Fleet::Send::IsHostile";
+with "Lacuna::Role::Fleet::Send::RecallWhileTravelling";
+with "Lacuna::Role::Fleet::Arrive::TriggerDefense";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

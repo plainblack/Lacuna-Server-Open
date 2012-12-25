@@ -17,10 +17,10 @@ use constant base_speed             => 2000;
 use constant pilotable              => 1;
 use constant build_tags             => ['War'];
 
-with "Lacuna::Role::Ship::Send::Body";
-with "Lacuna::Role::Ship::Send::RecallWhileTravelling";
-with "Lacuna::Role::Ship::Send::ScuttleWhileTravelling";
-with "Lacuna::Role::Ship::Arrive::Defend";
+with "Lacuna::Role::Fleet::Send::Body";
+with "Lacuna::Role::Fleet::Send::RecallWhileTravelling";
+with "Lacuna::Role::Fleet::Send::ScuttleWhileTravelling";
+with "Lacuna::Role::Fleet::Arrive::Defend";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Fleet::GasGiantSettlementPlatformShip;
+package Lacuna::DB::Result::Fleet::GasGiantSettlementPlatformFleet;
 
 use Moose;
 use utf8;
@@ -18,8 +18,8 @@ use constant base_hold_size         => 0;
 use constant pilotable              => 1;
 use constant build_tags             => ['Colonization']; 
 
-with "Lacuna::Role::Ship::Send::GasGiant";
-with "Lacuna::Role::Ship::Arrive::AddGasGiantPlatform";
+with "Lacuna::Role::Fleet::Send::GasGiant";
+with "Lacuna::Role::Fleet::Arrive::AddGasGiantPlatform";
 
 
 no Moose;

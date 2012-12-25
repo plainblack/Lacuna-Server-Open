@@ -19,10 +19,10 @@ use constant base_hold_size         => 12000;
 use constant base_berth_level       => 15;
 use constant build_tags             => [qw(War WasteChain)];
 
-with "Lacuna::Role::Ship::Send::PlanetAndStar";
-with "Lacuna::Role::Ship::Send::MaybeHostile";
-with "Lacuna::Role::Ship::Arrive::TriggerDefense";
-with "Lacuna::Role::Ship::Arrive::DumpWaste";
+with "Lacuna::Role::Fleet::Send::PlanetAndStar";
+with "Lacuna::Role::Fleet::Send::MaybeHostile";
+with "Lacuna::Role::Fleet::Arrive::TriggerDefense";
+with "Lacuna::Role::Fleet::Arrive::DumpWaste";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

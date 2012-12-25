@@ -1,15 +1,11 @@
-package Lacuna::Role::Fleet::Send::MaybeHostile;
+package Lacuna::Role::Fleet::Send::MemberOfAlliance;
 
 use strict;
 use Moose::Role;
 
 after can_send_to_target => sub {
     my ($self, $target ) = @_;
-    if ($target->isa('Lacuna::DB::Result::Map::Body')) {
-        if ($target->empire_id && $target->empire_id != $self->body->empire_id) {
-            $self->hostile_action(1);
-        }
-    }
+    confess [1013, 'You must be part of an alliance.'] unless ($self->body->empire->alliance_id);
 };
 
 1;

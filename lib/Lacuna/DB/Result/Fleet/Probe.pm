@@ -17,8 +17,8 @@ use constant base_stealth           => 0;
 use constant base_hold_size         => 0;
 use constant build_tags             => [qw(Exploration Intelligence)];
 
-with "Lacuna::Role::Ship::Send::Star";
-with "Lacuna::Role::Ship::Arrive::DeployProbe";
+with "Lacuna::Role::Fleet::Send::Star";
+with "Lacuna::Role::Fleet::Arrive::DeployProbe";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

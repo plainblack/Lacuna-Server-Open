@@ -19,10 +19,10 @@ use constant pilotable              => 0;
 use constant build_tags             => [qw(Colonization)];
 use constant supply_pod_level       => 5;
 
-with "Lacuna::Role::Ship::Send::Planet";
-with "Lacuna::Role::Ship::Send::Inhabited";
-with "Lacuna::Role::Ship::Send::LoadSupplyPod";
-with "Lacuna::Role::Ship::Arrive::DeploySupplyPod";
+with "Lacuna::Role::Fleet::Send::Planet";
+with "Lacuna::Role::Fleet::Send::Inhabited";
+with "Lacuna::Role::Fleet::Send::LoadSupplyPod";
+with "Lacuna::Role::Fleet::Arrive::DeploySupplyPod";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

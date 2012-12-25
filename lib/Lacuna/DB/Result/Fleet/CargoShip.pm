@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Fleet::CargoShip;
+package Lacuna::DB::Result::Fleet::CargoFleet;
 
 use Moose;
 use utf8;
@@ -19,10 +19,10 @@ use constant base_berth_level       => 5;
 use constant pilotable              => 1;
 use constant build_tags             => [qw(Trade Mining Intelligence SupplyChain)];
 
-with "Lacuna::Role::Ship::Send::UsePush";
-with "Lacuna::Role::Ship::Arrive::CaptureWithSpies";
-with "Lacuna::Role::Ship::Arrive::CargoExchange";
-with "Lacuna::Role::Ship::Arrive::PickUpSpies";
+with "Lacuna::Role::Fleet::Send::UsePush";
+with "Lacuna::Role::Fleet::Arrive::CaptureWithSpies";
+with "Lacuna::Role::Fleet::Arrive::CargoExchange";
+with "Lacuna::Role::Fleet::Arrive::PickUpSpies";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

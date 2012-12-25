@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Fleet::MiningPlatformShip;
+package Lacuna::DB::Result::Fleet::MiningPlatformFleet;
 
 use Moose;
 use utf8;
@@ -19,9 +19,9 @@ use constant base_hold_size         => 0;
 use constant pilotable              => 1;
 use constant build_tags             => ['Mining'];
 
-with "Lacuna::Role::Ship::Send::Asteroid";
-with "Lacuna::Role::Ship::Arrive::TriggerDefense";
-with "Lacuna::Role::Ship::Arrive::DeployMiningPlatform";
+with "Lacuna::Role::Fleet::Send::Asteroid";
+with "Lacuna::Role::Fleet::Arrive::TriggerDefense";
+with "Lacuna::Role::Fleet::Arrive::DeployMiningPlatform";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

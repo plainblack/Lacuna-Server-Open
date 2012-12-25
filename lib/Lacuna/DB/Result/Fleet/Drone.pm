@@ -18,7 +18,7 @@ use constant base_stealth           => 0;
 use constant base_hold_size         => 0;
 use constant build_tags             => ['War'];
 
-with "Lacuna::Role::Ship::Send::NotAllowed";
+with "Lacuna::Role::Fleet::Send::NotAllowed";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
