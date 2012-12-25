@@ -6,7 +6,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Guard;
 
-with 'Lacuna::Role::TraderRpc','Lacuna::Role::Ship::Trade';
+with 'Lacuna::Role::TraderRpc','Lacuna::Role::Fleet::Trade';
 
 sub app_url {
     return '/transporter';

@@ -18,13 +18,13 @@ use constant base_combat            => 1700;
 use constant base_hold_size         => 0;
 use constant build_tags             => ['War'];
 
-with "Lacuna::Role::Ship::Send::Planet";
-with "Lacuna::Role::Ship::Send::Inhabited";
-with "Lacuna::Role::Ship::Send::NotIsolationist";
-with "Lacuna::Role::Ship::Send::ScuttleWhileTravelling";
-with "Lacuna::Role::Ship::Send::IsHostile";
-with "Lacuna::Role::Ship::Arrive::TriggerDefense";
-with "Lacuna::Role::Ship::Arrive::DeployBleeder";
+with "Lacuna::Role::Fleet::Send::Planet";
+with "Lacuna::Role::Fleet::Send::Inhabited";
+with "Lacuna::Role::Fleet::Send::NotIsolationist";
+with "Lacuna::Role::Fleet::Send::ScuttleWhileTravelling";
+with "Lacuna::Role::Fleet::Send::IsHostile";
+with "Lacuna::Role::Fleet::Arrive::TriggerDefense";
+with "Lacuna::Role::Fleet::Arrive::DeployBleeder";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

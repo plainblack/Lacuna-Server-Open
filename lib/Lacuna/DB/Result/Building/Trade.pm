@@ -13,7 +13,7 @@ use Lacuna::Constants qw(SHIP_TRADE_TYPES SHIP_WASTE_TYPES);
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 
-with 'Lacuna::Role::Trader','Lacuna::Role::Ship::Trade';
+with 'Lacuna::Role::Trader','Lacuna::Role::Fleet::Trade';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;

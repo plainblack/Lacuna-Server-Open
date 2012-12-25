@@ -17,9 +17,9 @@ use constant base_stealth           => 0;
 use constant base_hold_size         => 0;
 use constant build_tags             => ['Exploration'];
 
-with "Lacuna::Role::Ship::Send::AsteroidAndUninhabited";
-with "Lacuna::Role::Ship::Arrive::TriggerDefense";
-with "Lacuna::Role::Ship::Arrive::DeployExcavator";
+with "Lacuna::Role::Fleet::Send::AsteroidAndUninhabited";
+with "Lacuna::Role::Fleet::Arrive::TriggerDefense";
+with "Lacuna::Role::Fleet::Arrive::DeployExcavator";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

@@ -18,12 +18,12 @@ use constant base_stealth           => 2700;
 use constant target_building        => ['Lacuna::DB::Result::Building::SpacePort'];
 use constant build_tags             => ['War'];
 
-with "Lacuna::Role::Ship::Send::Planet";
-with "Lacuna::Role::Ship::Send::Inhabited";
-with "Lacuna::Role::Ship::Send::NotIsolationist";
-with "Lacuna::Role::Ship::Send::IsHostile";
-with "Lacuna::Role::Ship::Arrive::TriggerDefense";
-with "Lacuna::Role::Ship::Arrive::DamageBuilding";
+with "Lacuna::Role::Fleet::Send::Planet";
+with "Lacuna::Role::Fleet::Send::Inhabited";
+with "Lacuna::Role::Fleet::Send::NotIsolationist";
+with "Lacuna::Role::Fleet::Send::IsHostile";
+with "Lacuna::Role::Fleet::Arrive::TriggerDefense";
+with "Lacuna::Role::Fleet::Arrive::DamageBuilding";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

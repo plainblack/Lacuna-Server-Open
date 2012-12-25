@@ -18,11 +18,11 @@ use constant base_stealth           => 0;
 use constant base_hold_size         => 0;
 use constant build_tags             => ['War'];
 
-with "Lacuna::Role::Ship::Send::AsteroidStarUninhabited";
-with "Lacuna::Role::Ship::Send::IsHostile";
-with "Lacuna::Role::Ship::Send::ScuttleWhileTravelling";
-with "Lacuna::Role::Ship::Arrive::TriggerDefense";
-with "Lacuna::Role::Ship::Arrive::DestroyProbes";
-with "Lacuna::Role::Ship::Arrive::DestroyMinersExcavators";
+with "Lacuna::Role::Fleet::Send::AsteroidStarUninhabited";
+with "Lacuna::Role::Fleet::Send::IsHostile";
+with "Lacuna::Role::Fleet::Send::ScuttleWhileTravelling";
+with "Lacuna::Role::Fleet::Arrive::TriggerDefense";
+with "Lacuna::Role::Fleet::Arrive::DestroyProbes";
+with "Lacuna::Role::Fleet::Arrive::DestroyMinersExcavators";
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

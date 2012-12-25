@@ -18,10 +18,10 @@ use constant base_stealth           => 3000;
 use constant base_hold_size         => 0;
 use constant build_tags             => [qw(Exploration Intelligence)];
 
-with "Lacuna::Role::Ship::Send::Planet";
-with "Lacuna::Role::Ship::Send::MaybeHostile";
-with "Lacuna::Role::Ship::Arrive::TriggerDefense";
-with "Lacuna::Role::Ship::Arrive::SurveySurface";
+with "Lacuna::Role::Fleet::Send::Planet";
+with "Lacuna::Role::Fleet::Send::MaybeHostile";
+with "Lacuna::Role::Fleet::Arrive::TriggerDefense";
+with "Lacuna::Role::Fleet::Arrive::SurveySurface";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

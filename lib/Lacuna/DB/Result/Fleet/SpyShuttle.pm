@@ -19,13 +19,13 @@ use constant pilotable              => 1;
 use constant build_tags             => ['Intelligence'];
 use constant max_occupants          => 4;
 
-with "Lacuna::Role::Ship::Send::Planet";
-with "Lacuna::Role::Ship::Send::Inhabited";
-with "Lacuna::Role::Ship::Send::NotIsolationist";
-with "Lacuna::Role::Ship::Send::LoadWithSpies";
-with "Lacuna::Role::Ship::Send::IsHostile";
-with "Lacuna::Role::Ship::Arrive::CaptureWithSpies";
-with "Lacuna::Role::Ship::Arrive::Orbit";
+with "Lacuna::Role::Fleet::Send::Planet";
+with "Lacuna::Role::Fleet::Send::Inhabited";
+with "Lacuna::Role::Fleet::Send::NotIsolationist";
+with "Lacuna::Role::Fleet::Send::LoadWithSpies";
+with "Lacuna::Role::Fleet::Send::IsHostile";
+with "Lacuna::Role::Fleet::Arrive::CaptureWithSpies";
+with "Lacuna::Role::Fleet::Arrive::Orbit";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

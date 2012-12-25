@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Fleet::TerraformingPlatformShip;
+package Lacuna::DB::Result::Fleet::TerraformingPlatformFleet;
 
 use Moose;
 use utf8;
@@ -18,8 +18,8 @@ use constant base_hold_size         => 0;
 use constant pilotable              => 1;
 use constant build_tags             => ['Colonization'];
 
-with "Lacuna::Role::Ship::Send::Planet";
-with "Lacuna::Role::Ship::Arrive::AddTerraformingPlatform";
+with "Lacuna::Role::Fleet::Send::Planet";
+with "Lacuna::Role::Fleet::Arrive::AddTerraformingPlatform";
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

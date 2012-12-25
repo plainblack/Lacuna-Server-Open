@@ -20,8 +20,8 @@ use constant base_berth_level       => 30;
 use constant pilotable              => 1;
 use constant build_tags             => [qw(Trade Mining SupplyChain)];
 
-with "Lacuna::Role::Ship::Send::UsePush";
-with "Lacuna::Role::Ship::Arrive::CargoExchange";
+with "Lacuna::Role::Fleet::Send::UsePush";
+with "Lacuna::Role::Fleet::Arrive::CargoExchange";
 
 
 no Moose;
