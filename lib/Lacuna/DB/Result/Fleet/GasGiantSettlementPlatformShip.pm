@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Fleet::GasGiantSettlementPlatformFleet;
+package Lacuna::DB::Result::Fleet::GasGiantSettlementPlatformShip;
 
 use Moose;
 use utf8;

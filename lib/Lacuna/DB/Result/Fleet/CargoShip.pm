@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Fleet::CargoFleet;
+package Lacuna::DB::Result::Fleet::CargoShip;
 
 use Moose;
 use utf8;
