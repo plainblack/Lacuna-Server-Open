@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Fleet::TerraformingPlatformFleet;
+package Lacuna::DB::Result::Fleet::TerraformingPlatformShip;
 
 use Moose;
 use utf8;

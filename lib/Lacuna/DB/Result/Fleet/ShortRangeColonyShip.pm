@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Fleet::ShortRangeColonyFleet;
+package Lacuna::DB::Result::Fleet::ShortRangeColonyShip;
 
 use Moose;
 use utf8;
