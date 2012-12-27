@@ -8,9 +8,9 @@ use List::Util qw(max);
 
 sub subsidize_build_queue {
     my ($self, $building) = @_;
-
+    
     $self->body->tick;
-
+    
     if ($building) {
         $building->finish_upgrade;
     }
@@ -24,11 +24,15 @@ sub subsidize_build_queue {
 
 sub calculate_subsidy {
     my ($self, $building) = @_;
-
-    my $cost    = 0;
+    
+    my $levels = 0;
     if ($building) {
-        $cost = 1 + # premium for targeting a single building
-            max(1, int(($building->level + 1) / 3));
+        $levels = $building->level + 1;
+    }
+    else {
+        foreach my $build (@{$self->body->builds}) {
+            $levels += $build->level + 1;
+        }
     }
     else {
         foreach my $build (@{$self->body->builds}) {

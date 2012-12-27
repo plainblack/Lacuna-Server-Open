@@ -37,10 +37,20 @@ This buildings ID
        "to_level" : 9,
        "seconds_remaining" : 537,
        "x" : 0,
-       "y" : 0
+       "y" : 0,
+       "subsidy_cost" : 3 # the essentia cost to subsidize this building
+     },
+     {
+       "building_id" : "building-id-goes-here",
+       "name" : "Wheat Farm",
+       "to_level" : 15,
+       "seconds_remaining" : 9748,
+       "x" : -1,
+       "y" : 4,
+       "subsidy_cost" : 5
      }
    ],
-   "subsidy_cost" : 8 # the essentia cost to subsidize the build queue
+   "subsidy_cost" : 8 # the essentia cost to subsidize the whole build queue
  }
  
 
@@ -69,66 +79,55 @@ This buildings ID
    "essentia_spent" : 8
  }
 
+=head2 subsidize_one_build
 
-=head2 subsidize_one_build ( parameter_hash )
+Subsidize any one building on the build queue to be completed immediately.
 
-Subsidize the immediate build of one job on the build queue. All later jobs (if any)
-will be brought forward by the (remaining) time of the subsidized build.
+Only a hash of named parameters is accepted
 
-The cost is returned with the building details in the C<view> method.
-
-Note that subsidizing all builds in the queue can often be cheaper than subsidizing each
-build separately.
-
-This accepts a hash of named arguments.
-
- {
-   "session_id" : 1234-123-123,
-   "building_id" : 4566,
-   "scheduled_id" : 56767,
- }
+  { parameter_hash }
 
 =head3 session_id (required)
 
-A session ID,
+A session ID
 
 =head3 building_id (required)
 
-The ID of the development ministry.
+This buildings ID
 
 =head3 scheduled_id (required)
 
-The ID of the building scheduled to be build/upgraded that you wish to subsidize.
+The ID of the building to subsidize
 
 =head3 RESPONSE
 
  {
    "status" : { ... },
-   "essentia_spent" : 8
+   "essentia_spent" : 2
  }
 
 
-=head2 cancel_build ( parameter hash )
+=head2 cancel_build
 
-Cancel a build. All following builds in the build queue will be brought forward.
-Any resources or plan used when the build/upgrade was requested will B<not> be
-returned.
+Allows a building, which is either building or scheduled to be built, to 
+be removed from the build queue.
 
-This accepts a hash of named arguments.
+Builds scheduled on the build queue after the  building which is removed will
+automatically be brought forward in time.
 
- {
-   "session_id" : 1234-123-123,
-   "building_id" : 4566,
-   "scheduled_id" : 56767,
- }
+Resources scheduled for the build will not be returned.
+
+Only a hash of named parameters is accepted
+
+  { parameter_hash }
 
 =head3 session_id (required)
 
-A session ID,
+A session ID
 
 =head3 building_id (required)
 
-The ID of the development ministry.
+This buildings ID
 
 =head3 scheduled_id (optional)
 
@@ -139,6 +138,7 @@ The ID, or array of IDs, of the building(s) scheduled to be build/upgraded that 
 If set to a true value, cancels all builds currently scheduled.
 
 One of C<scheduled_id> and C<cancel_all> is required.
+
 
 =head3 RESPONSE
 

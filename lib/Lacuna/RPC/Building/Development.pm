@@ -61,44 +61,36 @@ sub subsidize_build_queue {
     };
 }
 
-sub subsidize_one_build {
+sub subsidize_one_building {
+
     my ($self, $args) = @_;
 
     if (ref($args) ne "HASH") {
-        confess [1000, "You have not supplied a hash reference"];
+        confess [1003, "You have not supplied a hash reference"];
     }
-    my $session  = $self->get_session({session_id => $args->{session_id}, building_id => $args->{building_id} });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
-        confess [1003, "You must have a functional development ministry!"];
-    }
-    my $scheduled_building  = Lacuna->db->resultset('Building')->find({id => $args->{scheduled_id}});
-    if (not $scheduled_building) {
-        confess [1003, "Cannot find that building."];
-    }
+    my $empire              = $self->get_empire_by_session($args->{session_id});
+    my $building            = $self->get_building($empire, $args->{building_id});
+    my $scheduled_building  = Lacuna->db->resultset('Building')->find($args->{scheduled_id});
     if ($scheduled_building->body_id != $building->body_id) {
         confess [1003, "That building is not on the same planet as your development ministry."];
     }
     if (not $scheduled_building->is_upgrading) {
-        confess [1000, "That building is not currently being ugraded."];
+        confess [1000, "That building is not currently being upgraded."];
     }
-    my $subsidy = $building->calculate_subsidy($scheduled_building);
+    my $subsidy             = $building->calculate_subsidy($scheduled_building);
 
     if ($empire->essentia < $subsidy) {
         confess [1011, "You don't have enough essentia."];
     }
-    $empire->spend_essentia({
-        amount  => $subsidy, 
-        reason  => 'construction subsidy',
-    });
+    $empire->spend_essentia($subsidy, 'construction subsidy');
     $empire->update;
     $building->subsidize_build_queue($scheduled_building);
 
     return {
-        status          => $self->format_status($session, $building->body),
+        status          => $self->format_status($empire, $building->body),
         essentia_spent  => $subsidy,
     };
+
 }
 
 my %non_cancel = map { $_=>1 } ('Lacuna::DB::Result::Building::DeployedBleeder');
@@ -107,15 +99,13 @@ sub cancel_build {
     my ($self, $args) = @_;
 
     if (ref($args) ne "HASH") {
-        confess [1000, "You have not supplied a hash reference"];
+        confess [1003, "You have not supplied a hash reference"];
     }
-    my $session  = $self->get_session({session_id => $args->{session_id}, building_id => $args->{building_id} });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-
-    my $ids = $args->{scheduled_id};
-    if ($ids && not ref $ids) {
-        $ids = [ $ids ];
+    my $empire              = $self->get_empire_by_session($args->{session_id});
+    my $building            = $self->get_building($empire, $args->{building_id});
+    my $scheduled_building  = Lacuna->db->resultset('Building')->find($args->{scheduled_id});
+    if ($scheduled_building->body_id != $building->body_id) {
+        confess [1003, "That building is not on the same planet as your development ministry."];
     }
 
     my @order;
@@ -149,7 +139,6 @@ sub cancel_build {
     return $self->view($args->{session_id}, $args->{building_id});
 
 }
-
 
 __PACKAGE__->register_rpc_method_names(qw(
     subsidize_build_queue
