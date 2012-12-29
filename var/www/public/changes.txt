@@ -1,3 +1,6 @@
+3.0877:
+ - Fix: Shipyard,Intelligence,ThemePark work time now correctly updated
+
 3.0876:
  - Add: Seasonal gift
  - Fix: Add glyph medals for excav finds.
