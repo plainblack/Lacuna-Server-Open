@@ -170,7 +170,13 @@ sub build_ship {
     $ship->date_available($date_completed);
     $ship->date_started(DateTime->now);
     $ship->insert;
-    $self->start_work({}, $date_completed->epoch - time())->update;
+    if ($self->is_working) {
+        $self->reschedule_work($date_completed);
+    }
+    else {
+        $self->start_work({}, $date_completed->epoch - time());
+    }
+    $self->update;
     return $ship;
 }
 

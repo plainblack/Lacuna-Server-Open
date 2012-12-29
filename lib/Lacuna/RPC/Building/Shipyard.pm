@@ -21,7 +21,7 @@ sub view_build_queue {
     my $body = $building->body;
     $page_number ||= 1;
     my @building;
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+    my $ships = Lacuna->db->resultset('Ships')->search(
         { shipyard_id => $building->id, task => 'Building' },
         { order_by    => 'date_available', rows => 25, page => $page_number },
         );
@@ -90,7 +90,7 @@ sub build_ship {
     my $body_id     = $building->body_id;
 
     for (1..$quantity) {
-        my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type => $type});
+        my $ship = Lacuna->db->resultset('Ships')->new({type => $type});
         if (not defined $costs) {
             $costs = $building->get_ship_costs($ship);
             $building->can_build_ship($ship, $costs, $quantity);
@@ -110,7 +110,7 @@ sub get_buildable {
     my $building = $self->get_building($empire, $building_id);
     my %buildable;
     foreach my $type (SHIP_TYPES) {
-        my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({type=>$type});
+        my $ship = Lacuna->db->resultset('Ships')->new({type=>$type});
         my @tags = @{$ship->build_tags};
         if ($tag) {
             next unless ($tag ~~ \@tags);
@@ -139,7 +139,7 @@ sub get_buildable {
         $docks = $port->docks_available;
     }
     my $max_ships = $building->max_ships;
-    my $total_ships_building = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $building->body_id, task=>'Building'})->count;
+    my $total_ships_building = Lacuna->db->resultset('Ships')->search({body_id => $building->body_id, task=>'Building'})->count;
 
     return {
         buildable       => \%buildable,
@@ -151,7 +151,12 @@ sub get_buildable {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_buildable build_ship view_build_queue subsidize_build_queue));
+__PACKAGE__->register_rpc_method_names(qw(
+    get_buildable 
+    build_ship 
+    view_build_queue 
+    subsidize_build_queue
+));
 
 
 no Moose;

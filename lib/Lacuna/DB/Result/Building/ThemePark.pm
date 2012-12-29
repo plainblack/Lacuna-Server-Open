@@ -106,7 +106,7 @@ sub operate {
     $body->update;
     
     if ($self->is_working) {
-        my $new_work_ends = $self->work_ends->add(seconds => 3600);
+        my $new_work_ends = $self->work_ends->clone->add(seconds => 3600);
         $self->work({ food_type_count => $types });
         $self->reschedule_work($new_work_ends);
     }
