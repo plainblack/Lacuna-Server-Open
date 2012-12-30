@@ -23,9 +23,11 @@ sub subsidize_build_queue {
 sub calculate_subsidy {
     my ($self, $building) = @_;
 
-    my $levels = 0;
+    my $levels  = 0;
+    my $premium = 0;
     if ($building) {
         $levels = $building->level + 1;
+        $premium = 1;
     }
     else {
         foreach my $build (@{$self->body->builds}) {
@@ -34,6 +36,8 @@ sub calculate_subsidy {
     }
     my $cost = int($levels / 3);
     $cost = 1 if $cost < 1;
+    $cost += $premium;
+
     return $cost;
 }
 
