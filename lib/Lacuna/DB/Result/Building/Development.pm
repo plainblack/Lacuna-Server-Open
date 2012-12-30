@@ -6,18 +6,31 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 
 sub subsidize_build_queue {
-    my ($self) = @_;
+    my ($self, $building) = @_;
+
     $self->body->tick;
-    foreach my $build (@{$self->body->builds}) {
-        $build->finish_upgrade;
+
+    if ($building) {
+        $building->finish_upgrade;
+    }
+    else {
+        foreach my $build (@{$self->body->builds}) {
+            $build->finish_upgrade;
+        }
     }
 }
 
 sub calculate_subsidy {
-    my ($self) = @_;
+    my ($self, $building) = @_;
+
     my $levels = 0;
-    foreach my $build (@{$self->body->builds}) {
-        $levels += $build->level + 1;
+    if ($building) {
+        $levels = $building->level + 1;
+    }
+    else {
+        foreach my $build (@{$self->body->builds}) {
+            $levels += $build->level + 1;
+        }
     }
     my $cost = int($levels / 3);
     $cost = 1 if $cost < 1;
@@ -36,6 +49,7 @@ sub format_build_queue {
             seconds_remaining   => $build->upgrade_ends->epoch - $now,
             x                   => $build->x,
             y                   => $build->y,
+            subsidy_cost        => $self->calculate_subsidy($build),
         };
     }
     return \@queue;
