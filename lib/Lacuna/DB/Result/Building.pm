@@ -849,10 +849,11 @@ sub finish_upgrade {
         $body->needs_surface_refresh(1);
         $body->update;
         my $empire = $body->empire; 
-        if ($self->level >= 1 and $self->level <= 30) {
+#31 is the actual Max level for the Terra & Gas Platforms.
+        if ($self->level >= 1 and $self->level <= 31) {
             $empire->add_medal('building'.$self->level);
         }
-        elsif ($self->level > 30) {
+        elsif ($self->level > 31) {
             $empire->add_medal('buildingX');
         }
         my $type = $self->controller_class;

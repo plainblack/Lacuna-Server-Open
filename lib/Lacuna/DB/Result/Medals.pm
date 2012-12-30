@@ -216,6 +216,7 @@ use constant MEDALS => {
     building28                      => 'Built Level 28 Building',
     building29                      => 'Built Level 29 Building',
     building30                      => 'Built Level 30 Building',
+    building31                      => 'Built Level 31 Building',
     SAW                             => 'Built Shield Against Weapons',
     OperaHouse                      => 'Installed Opera House',
     ArtMuseum                       => 'Installed Art Museum',
