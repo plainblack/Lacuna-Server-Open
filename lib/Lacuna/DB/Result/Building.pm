@@ -852,7 +852,7 @@ sub finish_upgrade {
         if ($self->level >= 1 and $self->level <= 30) {
             $empire->add_medal('building'.$self->level);
         }
-        else {
+        elsif ($self->level > 30) {
             $empire->add_medal('buildingX');
         }
         my $type = $self->controller_class;
