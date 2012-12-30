@@ -61,12 +61,13 @@ for my $body_id (sort keys %has_fissures) {
                     $bld->efficiency(0) if $bld->efficiency < 0;
                     $bld->update;
                 }
-                # Send email to empire and N19 news
-                #
-                #
-                #
-                # 
-                
+                if ($body->empire_id) {
+                    $body->empire->send_predefined_message(
+                        tags        => ['Alert'],
+                        filename    => 'fissure_damaged_energy.txt',
+                        params      => [$body->name, $building->x,$building->y, $fissure_level],
+                    );
+                }
             }
         }
         out("    set to ".$fissure->efficiency."% containment efficiency");
@@ -75,10 +76,10 @@ for my $body_id (sort keys %has_fissures) {
         $fcnt_30++ if ($fissure->level >= 30);
         if ($fcnt_30 == 2) {  #If it's more than 2, then we're doomed anyway
             if ($body->empire_id) {
-                $body->add_news(100, sprintf('Scientists have detected a critical mass of Illudium Q-36 on %s.',$body->name));
+                $body->add_news(50, sprintf('Scientists have detected a critical mass of Illudium Q-36 on %s.',$body->name));
             }
             else {
-                $body->add_news(100, sprintf('Neighbors of %s,  fear the planet will implode soon.',$body->name));
+                $body->add_news(50, sprintf('Neighbors of %s,  fear the planet will implode soon.',$body->name));
             }
         }
     }
@@ -168,7 +169,7 @@ for my $body_id (sort keys %has_fissures) {
                 }
             }
 
-            $body->add_news(100, sprintf('Scientists fear that %s is starting to tear itself apart.',$body->name));
+            $body->add_news(50, sprintf('Scientists fear that %s is starting to tear itself apart.',$body->name));
             if ($body->empire_id) {
                 $body->needs_recalc(1);
                 $body->tick;
