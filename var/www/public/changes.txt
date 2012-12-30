@@ -1,5 +1,7 @@
 3.0877:
  - Fix: Shipyard,Intelligence,ThemePark work time now correctly updated
+ - Mod: When a Fissure levels up, owning empire is warned.
+ - Fix: Medals for buildings over level 31 and Asteroid A26 added.
 
 3.0876:
  - Add: Seasonal gift
