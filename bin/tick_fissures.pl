@@ -65,7 +65,7 @@ for my $body_id (sort keys %has_fissures) {
                     $body->empire->send_predefined_message(
                         tags        => ['Alert'],
                         filename    => 'fissure_damaged_energy.txt',
-                        params      => [$body->name, $building->x,$building->y, $fissure_level],
+                        params      => [$body->name, $fissure->x,$fissure->y, $fissure->level],
                     );
                 }
             }
@@ -154,7 +154,7 @@ for my $body_id (sort keys %has_fissures) {
                     x               => $x,
                     y               => $y,
                     class           => 'Lacuna::DB::Result::Building::Permanent::Fissure',
-                    level           => $fissure_level - 1,
+                    level           => $fissure_level,
                     is_upgrading    => 0,
                 });
                 $body->build_building($building,0,1);
@@ -249,6 +249,7 @@ for my $body_id (sort keys %has_fissures) {
                 $body->sanitize;
             }
             # demolish the planet (convert it into an asteroid)
+            out($body->name." at ".$body->x.",".$body->y." blows up.");
             $body->delete_buildings($body->building_cache);
             my $new_size = randint(1,10);
             $body->update({
