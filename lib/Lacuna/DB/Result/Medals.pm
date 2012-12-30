@@ -184,6 +184,7 @@ use constant MEDALS => {
     A23                             => 'Mined A23 Type Asteroid',
     A24                             => 'Mined A24 Type Asteroid',
     A25                             => 'Mined A25 Type Asteroid',
+    buildingX                       => 'Built Building outside range',
     building1                       => 'Built Level 1 Building',
     building2                       => 'Built Level 2 Building',
     building3                       => 'Built Level 3 Building',

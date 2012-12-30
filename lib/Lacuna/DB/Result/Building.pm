@@ -849,7 +849,12 @@ sub finish_upgrade {
         $body->needs_surface_refresh(1);
         $body->update;
         my $empire = $body->empire; 
-        $empire->add_medal('building'.$self->level);
+        if ($self->level >= 1 and $self->level <= 30) {
+            $empire->add_medal('building'.$self->level);
+        }
+        else {
+            $empire->add_medal('buildingX');
+        }
         my $type = $self->controller_class;
         $type =~ s/^Lacuna::RPC::Building::(\w+)$/$1/;
 
