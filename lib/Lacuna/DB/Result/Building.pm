@@ -850,7 +850,7 @@ sub finish_upgrade {
         $body->needs_surface_refresh(1);
         $body->update;
         my $empire = $body->empire; 
-#31 is the actual Max level for the Terra & Gas Platforms.
+        # 31 is the actual Max level for the Terra & Gas Platforms.
         if ($new_level >= 1 and $new_level <= 31) {
             $empire->add_medal('building'.$new_level);
         }

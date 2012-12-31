@@ -64,7 +64,7 @@ sub subsidize_one_build {
     }
     $empire->spend_essentia($subsidy, 'construction subsidy');
     $empire->update;
-    $scheduled_building->reschedule_queue;
+#    $scheduled_building->reschedule_queue;
     $building->subsidize_build_queue($scheduled_building);
 
     return {
@@ -81,7 +81,7 @@ sub cancel_build {
     }
     my $empire              = $self->get_empire_by_session($args->{session_id});
     my $building            = $self->get_building($empire, $args->{building_id});
-    my $scheduled_building  = Lacuna->db->resultset('Building')->find($args->{scheduled_id});
+    my $scheduled_building  = Lacuna->db->resultset('Building')->find({id => $args->{scheduled_id}});
     if ($scheduled_building->body_id != $building->body_id) {
         confess [1003, "That building is not on the same planet as your development ministry."];
     }
