@@ -1,0 +1,7 @@
+No Fissure Found
+~~~
+Our %s reached {Starmap %s %s %s} but no fissure was found.  Ship is now returning to base.
+
+Regards,
+
+Your Humble Assistant

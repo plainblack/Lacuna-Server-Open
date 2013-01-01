@@ -1,0 +1,7 @@
+Fissure Target Occupied
+~~~
+Our %s reached {Starmap %s %s %s} but planet is now occupied.  Ship is now returning to base.
+
+Regards,
+
+Your Humble Assistant

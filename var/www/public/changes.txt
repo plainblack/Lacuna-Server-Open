@@ -4,6 +4,7 @@
  - Fix: Medals for buildings over level 31 and Asteroid A26 added.
  - Add: Upgrades can be cancelled from the Development Ministry
  - Add: Individual builds can be subsidized in the Development Ministry
+ - Add: Fissures send email if they don't find a fissure at target.
 
 3.0876:
  - Add: Seasonal gift

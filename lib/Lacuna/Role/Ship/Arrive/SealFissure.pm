@@ -9,13 +9,34 @@ use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 after handle_arrival_procedures => sub {
     my ($self) = @_;
 
+    my $body_hit = $self->foreign_body;
+
     # we're coming home
     if ($self->direction eq 'in') {
         $self->unload($self->body);
     }
 
     # Turn around if occupied
-    return if ($self->foreign_body->empire_id);
+    if ($self->foreign_body->empire_id) {
+        $self->body->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'occupied_fissure.txt',
+            params      => [$self->type_formatted, $body_hit->x, $body_hit->y, $body_hit->name ],
+        );
+        return;
+    }
+
+    # determine target building
+    my $building;
+    my ($fissure) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::Fissure'} @{$body_hit->building_cache};
+    if (not defined($fissure)) {
+        $self->body->empire->send_predefined_message(
+            tags        => ['Alert'],
+            filename    => 'no_fissure_found.txt',
+            params      => [$self->type_formatted, $body_hit->x, $body_hit->y, $body_hit->name ],
+        );
+        return;
+    }
 
     my $amount = 0;
     my $payload = $self->payload;
@@ -24,11 +45,6 @@ after handle_arrival_procedures => sub {
             $amount += $payload->{resources}{$type};
         }
     }
-    # determine target building
-    my $building;
-    my $body_hit = $self->foreign_body;
-    my ($fissure) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::Fissure'} @{$body_hit->building_cache};
-    return if not defined $fissure;
     
     $body_hit->add_news(10, sprintf('An attempt to fix the fissure on %s happened today.', $body_hit->name));
 
