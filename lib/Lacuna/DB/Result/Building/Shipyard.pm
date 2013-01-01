@@ -160,7 +160,9 @@ sub build_ship {
     $time ||= $self->get_ship_costs($ship)->{seconds};
     my $latest = $self->building_ships->search(undef, { order_by    => { -desc => 'date_available' }, rows => 1})->single;
     my $date_completed;
+    my $is_working;
     if (defined $latest) {
+        $is_working=1;
         $date_completed = $latest->date_available->clone;
     }
     else {
@@ -170,7 +172,7 @@ sub build_ship {
     $ship->date_available($date_completed);
     $ship->date_started(DateTime->now);
     $ship->insert;
-    if ($self->is_working) {
+    if ($is_working) {
         $self->reschedule_work($date_completed);
     }
     else {

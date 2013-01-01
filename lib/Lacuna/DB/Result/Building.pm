@@ -973,7 +973,7 @@ sub reschedule_work {
     $self->work_ends($new_work_ends);
     $self->update;
 
-    my $schedule = Lacuna->db->resultset('Schedule')->search({
+    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
         parent_table    => 'Building',
         parent_id       => $self->id,
         task            => 'finish_work',
