@@ -85,17 +85,17 @@ has latest_spy => (
 
 sub get_spies {
     my ($self) = @_;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ from_body_id => $self->body_id });
+    return Lacuna->db->resultset('Spies')->search({ from_body_id => $self->body_id });
 }
 
 sub get_empire_spies {
     my ($self) = @_;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({ empire_id => $self->body->empire_id });
+    return Lacuna->db->resultset('Spies')->search({ empire_id => $self->body->empire_id });
 }
 
 sub get_spy {
     my ($self, $spy_id) = @_;
-    my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($spy_id);
+    my $spy = Lacuna->db->resultset('Spies')->find($spy_id);
     unless (defined $spy) {
         confess [1002, 'No such spy.'];
     }
@@ -195,7 +195,7 @@ sub train_spy {
         my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
         $available_on->add(seconds => $time_to_train );
         my $deception = $empire->deception_affinity * 50;
-        my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
+        my $spy = Lacuna->db->resultset('Spies')->new({
             from_body_id    => $self->body_id,
             on_body_id      => $self->body_id,
             task            => 'Training',
@@ -212,7 +212,12 @@ sub train_spy {
         if ($count < $self->level) {
             $self->body->add_news(20,'A source inside %s admitted that they are underprepared for the threats they face.', $empire->name);
         }
-        $self->start_work({}, $available_on->epoch - time())->update;
+        if ($self->is_working) {
+            $self->reschedule_work($available_on);
+        }
+        else {
+            $self->start_work({}, $available_on->epoch - time())->update;
+        }
     }
     else {
         $empire->send_predefined_message(

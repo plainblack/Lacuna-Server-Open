@@ -33,23 +33,23 @@ This buildings ID
      {
        "building_id" : "building-id-goes-here",
        "name" : "Planetary Commmand",
-       "to_level" : 9,
+       "to_level" : 8,
        "seconds_remaining" : 537,
        "x" : 0,
        "y" : 0,
-       "subsidy_cost" : 3 # the essentia cost to subsidize this building
+       "subsidy_cost" : 3 # the essentia cost to subsidize just this building
      },
      {
        "building_id" : "building-id-goes-here",
        "name" : "Wheat Farm",
-       "to_level" : 15,
+       "to_level" : 4,
        "seconds_remaining" : 9748,
        "x" : -1,
-       "y" : 4,
-       "subsidy_cost" : 5
+       "y" : 5,
+       "subsidy_cost" : 2
      }
    ],
-   "subsidy_cost" : 8 # the essentia cost to subsidize the whole build queue
+   "subsidy_cost" : 4 # the essentia cost to subsidize the whele build queue
  }
  
 
@@ -78,25 +78,36 @@ This buildings ID
    "essentia_spent" : 8
  }
 
-=head2 subsidize_one_build
+=head2 subsidize_one_build ( parameter_hash )
 
-Subsidize any one building on the build queue to be completed immediately.
+Subsidize the immediate build of one job on the build queue. All later jobs (if any)
+will be brought forward by the (remaining) time of the subsidized build.
 
-Only a hash of named parameters is accepted
+The cost is returned with the building details in the C<view> method.
 
-  { parameter_hash }
+Note that subsidizing all builds in the queue can often be cheaper than subsidizing each
+build separately.
+
+This accepts a hash of named arguments.
+
+ {
+   "session_id" : 1234-123-123,
+   "building_id" : 4566,
+   "scheduled_id" : 56767,
+ }
 
 =head3 session_id (required)
 
-A session ID
+A session ID,
 
 =head3 building_id (required)
 
-This buildings ID
+The ID of the development ministry.
 
 =head3 scheduled_id (required)
 
-The ID of the building to subsidize
+The ID of the building scheduled to be build/upgraded that you wish to subsidize.
+>>>>>>> master
 
 =head3 RESPONSE
 

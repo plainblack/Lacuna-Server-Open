@@ -58,23 +58,23 @@ sub subsidize_build_queue {
     };
 }
 
-sub subsidize_one_building {
-
+sub subsidize_one_build {
     my ($self, $args) = @_;
 
     if (ref($args) ne "HASH") {
-        confess [1003, "You have not supplied a hash reference"];
+        confess [1000, "You have not supplied a hash reference"];
     }
     my $empire              = $self->get_empire_by_session($args->{session_id});
     my $building            = $self->get_building($empire, $args->{building_id});
-    my $scheduled_building  = Lacuna->db->resultset('Building')->find($args->{scheduled_id});
+    my $scheduled_building  = Lacuna->db->resultset('Building')->find({id => $args->{scheduled_id}});
+
     if ($scheduled_building->body_id != $building->body_id) {
         confess [1003, "That building is not on the same planet as your development ministry."];
     }
     if (not $scheduled_building->is_upgrading) {
-        confess [1000, "That building is not currently being upgraded."];
+        confess [1000, "That building is not currently being ugraded."];
     }
-    my $subsidy             = $building->calculate_subsidy($scheduled_building);
+    my $subsidy = $building->calculate_subsidy($scheduled_building);
 
     if ($empire->essentia < $subsidy) {
         confess [1011, "You don't have enough essentia."];
@@ -87,30 +87,29 @@ sub subsidize_one_building {
         status          => $self->format_status($empire, $building->body),
         essentia_spent  => $subsidy,
     };
-
-
 }
 
 sub cancel_build {
     my ($self, $args) = @_;
 
     if (ref($args) ne "HASH") {
-        confess [1003, "You have not supplied a hash reference"];
+        confess [1000, "You have not supplied a hash reference"];
     }
     my $empire              = $self->get_empire_by_session($args->{session_id});
     my $building            = $self->get_building($empire, $args->{building_id});
-    my $scheduled_building  = Lacuna->db->resultset('Building')->find($args->{scheduled_id});
+    my $scheduled_building  = Lacuna->db->resultset('Building')->find({id => $args->{scheduled_id}});
     if ($scheduled_building->body_id != $building->body_id) {
         confess [1003, "That building is not on the same planet as your development ministry."];
     }
     if (not $scheduled_building->is_upgrading) {
-        confess [1000, "That building is not currently being upgraded."];
+        confess [1000, "That building is not currently being ugraded."];
     }
-
     $scheduled_building->cancel_upgrade;
 
-    return $self->view($args);
+    return $self->view($args->{session_id}, $args->{building_id});
+
 }
+
 
 __PACKAGE__->register_rpc_method_names(qw(
     subsidize_build_queue

@@ -1,0 +1,8 @@
+Fissure grows!
+~~~
+The bad maintenance of the Fissure Containment System on %s resulted in the fissure at %s,%s growing to a level %s Fissure. It also caused damage to your energy buildings on planet.  Take immediate steps to remove the Fissure before your planet implodes!
+
+Regards,
+
+Your Humble Assistant
+

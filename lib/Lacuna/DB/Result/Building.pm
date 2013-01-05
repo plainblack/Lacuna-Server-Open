@@ -844,21 +844,30 @@ sub finish_upgrade {
     my ($self) = @_;
 
     if ($self->is_upgrading) {
-        my $body = $self->body;    
-        $self->level($self->level + 1);
-        $self->is_upgrading(0);
-        $self->update;
+        my $body = $self->body;
+        my $new_level = $self->level+1;
         $body->needs_recalc(1);
         $body->needs_surface_refresh(1);
         $body->update;
         my $empire = $body->empire; 
-        $empire->add_medal('building'.$self->level);
+        # 31 is the actual Max level for the Terra & Gas Platforms.
+        if ($new_level >= 1 and $new_level <= 31) {
+            $empire->add_medal('building'.$new_level);
+        }
+        elsif ($new_level > 31) {
+            $empire->add_medal('buildingX');
+        }
         my $type = $self->controller_class;
         $type =~ s/^Lacuna::RPC::Building::(\w+)$/$1/;
+
+        $self->reschedule_queue;
+        $self->level($new_level);
+        $self->is_upgrading(0);
+        $self->update;
         $empire->add_medal($type);
-        if ($self->level % 5 == 0) {
+        if ($new_level % 5 == 0) {
             my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'a magical');
-            $self->body->add_news($self->level*4,"In %s ceremony, %s unveiled its newly augmented %s.", $levels{$self->level}, $empire->name, $self->name);
+            $self->body->add_news($new_level*4,"In %s ceremony, %s unveiled its newly augmented %s.", $levels{$new_level}, $empire->name, $self->name);
         }
         $self->reschedule_queue;
     }
@@ -868,14 +877,14 @@ sub finish_upgrade {
     return $self;
 }
 
-# Cancel the upgrade of any any one build on the build queue
+# Cancel the upgrade of any one build on the build queue
 #
 sub cancel_upgrade {
     my ($self) = @_;
 
     if ($self->is_upgrading) {
         $self->reschedule_queue;
-        if ($self->level <= 1) {
+        if ($self->level < 1) {
             $self->delete;
         }
         else {
@@ -888,50 +897,50 @@ sub cancel_upgrade {
     return $self;
 }
 
+# Remove one building from the queue, reschedule all other following buildings
+#
 sub reschedule_queue {
     my ($self) = @_;
 
-    my $start_time  = DateTime->now;
+    my $start_time = DateTime->now;
     my $end_time;
     my @build_queue = @{$self->body->builds};
-    BUILD:
     my $build;
+    BUILD:
     while ($build = shift @build_queue) {
+        $end_time = $build->upgrade_ends;
         if ($build->id == $self->id) {
-            $end_time   = $build->upgrade_ends;
             last BUILD;
         }
         # Start time of the next build is the end time of this one
-        $start_time = $build->upgrade_ends;
+        $start_time = $end_time;
     }
     if ($build) {
         # Remove this scheduled event
         my $duration = $end_time->epoch - $start_time->epoch;
-        my ($schedule) = Lacuna->db->resultset('Schedule')->search({
-            parent_table    => 'Building',
-            parent_id       => $self->id,
-            task            => 'finish_upgrade',
-        });
-        $schedule->delete if defined $schedule;
-
-        # Change the scheduled time for all subsequent builds (if any)
-        while (my $build = shift @build_queue) {
+        # Don't bother to reschedule if it is a small period
+        if ($duration > 5) {
             my ($schedule) = Lacuna->db->resultset('Schedule')->search({
                 parent_table    => 'Building',
                 parent_id       => $self->id,
                 task            => 'finish_upgrade',
             });
             $schedule->delete if defined $schedule;
-            my $upgrade_ends = $build->upgrade_ends->subtract(seconds => $duration);
-            $build->upgrade_ends($upgrade_ends);
-            $build->update;
-
-            $schedule = Lacuna->db->resultset('Schedule')->create({
-                delivery        => $upgrade_ends,
-                parent_table    => 'Building',
-                parent_id       => $build->id,
-                task            => 'finish_upgrade',
-            });
+    
+            # Change the scheduled time for all subsequent builds (if any)
+            while (my $build = shift @build_queue) {
+    
+                my $upgrade_ends = $build->upgrade_ends->clone->subtract(seconds => $duration);
+                $build->upgrade_ends($upgrade_ends);
+                $build->update;
+            
+                Lacuna->db->resultset('Schedule')->reschedule({
+                    parent_table    => 'Building',
+                    parent_id       => $build->id,
+                    task            => 'finish_upgrade',
+                    delivery        => $upgrade_ends,
+                });
+            }
         }
     }
 }
@@ -965,7 +974,7 @@ sub reschedule_work {
     $self->work_ends($new_work_ends);
     $self->update;
 
-    my $schedule = Lacuna->db->resultset('Schedule')->search({
+    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
         parent_table    => 'Building',
         parent_id       => $self->id,
         task            => 'finish_work',

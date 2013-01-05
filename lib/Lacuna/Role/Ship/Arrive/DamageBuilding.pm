@@ -21,12 +21,24 @@ after handle_arrival_procedures => sub {
     if (defined $citadel) {
         $building = $citadel;
     }
-    if ($self->target_building) {
+    elsif ($self->target_building) {
+        my @builds;
         for my $tb ( @{$self->target_building} ) {
-            $building ||= $body_attacked->get_building_of_class($tb);
+            my @temp = $body_attacked->get_buildings_of_class($tb);
+            if (@temp) {
+              push @builds, @temp;
+            }
         }
+        ($building) = 
+            sort {
+                $b->efficiency <=> $a->efficiency ||
+                rand() <=> rand()
+            }
+            grep {
+                ($_->efficiency > 0)
+            } @builds;
     }
-    if (not defined $building) {
+    else {
         ($building) =
             sort {
                 $b->efficiency <=> $a->efficiency ||

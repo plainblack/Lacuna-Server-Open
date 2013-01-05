@@ -7,7 +7,9 @@ extends 'Lacuna::DB::Result::Building';
 
 sub subsidize_build_queue {
     my ($self, $building) = @_;
+
     $self->body->tick;
+
     if ($building) {
         $building->finish_upgrade;
     }
@@ -20,9 +22,12 @@ sub subsidize_build_queue {
 
 sub calculate_subsidy {
     my ($self, $building) = @_;
-    my $levels = 0;
+
+    my $levels  = 0;
+    my $premium = 0;
     if ($building) {
         $levels = $building->level + 1;
+        $premium = 1;
     }
     else {
         foreach my $build (@{$self->body->builds}) {
@@ -31,6 +36,8 @@ sub calculate_subsidy {
     }
     my $cost = int($levels / 3);
     $cost = 1 if $cost < 1;
+    $cost += $premium;
+
     return $cost;
 }
 
@@ -46,6 +53,7 @@ sub format_build_queue {
             seconds_remaining   => $build->upgrade_ends->epoch - $now,
             x                   => $build->x,
             y                   => $build->y,
+            subsidy_cost        => $self->calculate_subsidy($build),
         };
     }
     return \@queue;

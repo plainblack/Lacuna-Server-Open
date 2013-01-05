@@ -124,7 +124,7 @@ sub training_costs {
                 $train_time = int($train_time * $unhappy_workers);
             }
             $train_time = 5184000 if ($train_time > 5184000); # Max time per spy is 60 days
-            $train_time = 3600 if ($train_time < 3600); # Min time is 1 hour
+            $train_time = 21600 if ($train_time < 21600); # Min time is 6 hour
             push @{$costs->{time}}, {
                 spy_id  => $spy->id,
                 name    => $spy->name,

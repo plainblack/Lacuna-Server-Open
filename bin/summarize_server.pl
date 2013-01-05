@@ -288,6 +288,7 @@ sub summarize_empires {
         empire_name      => $empire->name,
         alliance_id      => $empire->alliance_id,
         space_station_count => 0,
+        influence        => 0,
         );
     my %map_data = (
         empire_id        => $empire->id,

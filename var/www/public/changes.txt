@@ -55,6 +55,17 @@
 KNOWN BUGS:
  - bug: Fleet format currently shows 'Foreign' for all fleets
 
+3.0877:
+ - Fix: Shipyard,Intelligence,ThemePark work time now correctly updated
+ - Mod: When a Fissure levels up, owning empire is warned.
+ - Fix: Medals for buildings over level 31 and Asteroid A26 added.
+ - Add: Upgrades can be cancelled from the Development Ministry
+ - Add: Individual builds can be subsidized in the Development Ministry
+ - Add: Fissures send email if they don't find a fissure at target.
+ - Fix: Influence no longer left from dead SS added into stats.
+ - Fix: Minimum extra spy training time made consistant.
+ - Fix: Spaceport Seekers hit a random Spaceport, not just the same one.
+
 3.0876:
  - Add: Seasonal gift
  - Fix: Add glyph medals for excav finds.

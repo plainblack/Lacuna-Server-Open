@@ -281,13 +281,23 @@ sub build_fleet {
     my $now = DateTime->now;
     my $date_completed = $now;
     if (defined $latest) {
+        $is_working=1;
         $date_completed = $latest->date_available->clone;
     }
-    $date_completed->add( seconds => $time );
+    else {
+        $date_completed = DateTime->now;
+    }
+    $date_completed->add(seconds=>$time);
     $fleet->date_available($date_completed);
-    $fleet->date_started($now);
+    $fleet->date_started(DateTime->now);
     $fleet->insert;
-    $self->start_work({}, $date_completed->epoch - time())->update;
+    if ($is_working) {
+        $self->reschedule_work($date_completed);
+    }
+    else {
+        $self->start_work({}, $date_completed->epoch - time());
+    }
+    $self->update;
     return $fleet;
 }
 
