@@ -1,3 +1,6 @@
+3.0878:
+ - Fix: Fissure Sealers were sending extra email on home arrival.
+
 3.0877:
  - Fix: Shipyard,Intelligence,ThemePark work time now correctly updated
  - Mod: When a Fissure levels up, owning empire is warned.

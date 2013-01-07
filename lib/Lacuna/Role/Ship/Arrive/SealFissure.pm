@@ -14,6 +14,7 @@ after handle_arrival_procedures => sub {
     # we're coming home
     if ($self->direction eq 'in') {
         $self->unload($self->body);
+        return;
     }
 
     # Turn around if occupied
