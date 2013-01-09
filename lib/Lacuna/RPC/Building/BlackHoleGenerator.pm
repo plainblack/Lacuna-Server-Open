@@ -695,7 +695,7 @@ sub generate_singularity {
             $body->add_news(
                 50,
                 sprintf(
-                    'Astromers are perplexed about the change of the orbiting bodies around %s.',
+                    'Astronomers are perplexed about the change of the orbiting bodies around %s.',
                     $target->name
                 )
             );
@@ -1234,7 +1234,7 @@ sub bhg_random_fissure {
                 class        => 'Lacuna::DB::Result::Building::Permanent::Fissure',
             });
             $target->build_building($building, undef, 1);
-            $body->add_news(50, sprintf('Astromers detect a gravitational anomoly on %s.', $target->name));
+            $body->add_news(50, sprintf('Astronomers detect a gravitational anomoly on %s.', $target->name));
             $return->{message} = "Fissure formed";
         }
         else {
@@ -1273,7 +1273,7 @@ sub bhg_random_decor {
             $body->add_news(75, sprintf('The population of %s marvels at the new terrain.', $target->name));
         }
         else {
-            $body->add_news(30, sprintf('Astromers claim that the surface of %s has changed.', $target->name));
+            $body->add_news(30, sprintf('Astronomers claim that the surface of %s has changed.', $target->name));
         }
         my $variance =  (randint(0,9) < 2) ? 1 : 0;
         $return = bhg_decor($building, $target, $variance);
