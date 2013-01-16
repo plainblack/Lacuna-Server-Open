@@ -734,7 +734,10 @@ sub generate_singularity {
         }
     }
     if ($subsidize) {
-        $empire->spend_essentia($chance->{essentia_cost},'BHG perfection subsidy after the fact');
+        $empire->spend_essentia({
+            amount  => $chance->{essentia_cost},
+            reason  => 'BHG perfection subsidy after the fact',
+        });
         $empire->update;
     }
     
@@ -1824,7 +1827,10 @@ sub subsidize_cooldown {
     }
     
     $building->finish_work->update;
-    $empire->spend_essentia(2, 'BHG cooldown subsidy after the fact');
+    $empire->spend_essentia({
+        amount  => 2, 
+        reason  => 'BHG cooldown subsidy after the fact',
+    });
     $empire->update;
     
     return $self->view($empire, $building);

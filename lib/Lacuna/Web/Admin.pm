@@ -736,7 +736,11 @@ sub www_add_essentia {
     unless (defined $empire) {
         confess [404, 'Empire not found.'];
     }
-    $empire->add_essentia($request->param('amount'), $request->param('description'))->update;
+    $empire->add_essentia({
+        amount  => $request->param('amount'), 
+        reason  => $request->param('description'),
+    });
+    $empire->update;
     return $self->www_view_empire($request, $id);
 }
 

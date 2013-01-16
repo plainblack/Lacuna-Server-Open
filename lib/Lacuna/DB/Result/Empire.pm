@@ -229,27 +229,43 @@ sub add_medal {
 }
 
 sub spend_essentia {
-    my ($self, $value, $note, $transaction_id, $from_id, $from_name) = @_;
-    $from_id   = 0  unless defined($from_id);
-    $from_name = "" unless defined($from_name);
-    $self->essentia( $self->essentia - $value );
-    Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
-        empire_id       => $self->id,
-        empire_name     => $self->name,
-        amount          => $value * -1,
-        description     => $note,
-        api_key         => (defined $self->current_session) ? $self->current_session->api_key : undef,
-        transaction_id  => $transaction_id,
-        from_id         => $from_id,
-        from_name       => $from_name,
-    })->insert;
-    return $self;
+    my ($self, $args) = @_;
+
+    $args->{amount} *= -1;
+    $self->_adjust_essentia($args);
 }
 
 sub add_essentia {
-    my ($self, $value, $note, $transaction_id, $from_id, $from_name) = @_;
-    $from_id   = 0  unless defined($from_id);
-    $from_name = "" unless defined($from_name);
+    my ($self, $args) = @_;
+
+    $self->_adjust_essentia($args);
+}
+
+sub transfer_essentia {
+    my ($self, $args) = @_;
+
+    $self->spend_essentia({
+        amount          => $args->{amount},
+        reason          => $args->{from_reason},
+        other_empire    => $args->{to_empire},
+    });
+    $to_empire->add_essentia({
+        amount          => $args->{amount},
+        reason          => $args->{to_reason},
+        other_empire    => $self,
+    });
+}
+
+sub _adjust_essentia {
+    my ($self, $args) = @_;
+
+    my $value           = $args->{amount};
+    my $note            = $args->{reason};
+    my $transaction_id  = $args->{transaction_id};
+    my $other_empire    = $args->{other_empire};
+    my $other_id        = $from_empire ? $from_empire->id : 0;
+    my $other_name      = $from_empire ? $from_empire->name : '';
+
     $self->discard_changes;
     $self->essentia( $self->essentia + $value );
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
@@ -259,8 +275,8 @@ sub add_essentia {
         description     => $note,
         transaction_id  => $transaction_id,
         api_key         => (defined $self->current_session) ? $self->current_session->api_key : undef,
-        from_id         => $from_id,
-        from_name       => $from_name,
+        from_id         => $other_id,
+        from_name       => $other_name,
     })->insert;
     return $self;
 }
@@ -904,7 +920,11 @@ sub redeem_essentia_code {
             $code_string,
         ],
     );
-    $self->add_essentia($amount, 'Essentia Code Redemption', $code_string);
+    $self->add_essentia({
+        amount          => $amount, 
+        reason          => 'Essentia Code Redemption', 
+        transaction_id  => $code_string,
+    });
     $self->update;
     return $self;
 }

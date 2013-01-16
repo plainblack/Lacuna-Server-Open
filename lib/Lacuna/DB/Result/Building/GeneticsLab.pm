@@ -136,7 +136,10 @@ sub experiment {
     if ($empire->essentia < 2) {
         confess [1011, 'You need 2 essentia to perform a graft experiment.'];
     }
-    $empire->spend_essentia(2, 'genetics lab graft experiment');
+    $empire->spend_essentia({
+        amount  => 2, 
+        reason  => 'genetics lab graft experiment',
+    });
     my $graft = 0;
     my $survival = 0;
     my $message;

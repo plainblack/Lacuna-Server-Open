@@ -144,7 +144,10 @@ sub subsidize {
     }
 
     $building->finish_work->update;
-    $empire->spend_essentia($subsidy_cost, 'Dillon Forge subsidy after the fact');
+    $empire->spend_essentia({
+        amount  => $subsidy_cost, 
+        reason  => 'Dillon Forge subsidy after the fact',
+    });
     $empire->update;
 
     return $self->view($empire, $building);

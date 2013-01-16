@@ -53,7 +53,10 @@ sub subsidize_plan {
     }
 
     $building->finish_work->update;
-    $empire->spend_essentia(2, 'ssl plan subsidy after the fact');    
+    $empire->spend_essentia({
+        amount      => 2,
+        reason      => 'ssl plan subsidy after the fact',
+    });
     $empire->update;
 
     return $self->view($empire, $building);

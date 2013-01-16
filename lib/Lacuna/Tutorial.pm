@@ -457,7 +457,11 @@ sub fool {
     if ($finish) {
         if ($home->food_hour >= $empire->tutorial_scratch) {
             $home->add_plan('Lacuna::DB::Result::Building::Food::Reserve', 2);
-            $empire->add_essentia(35, 'tutorial')->update;
+            $empire->add_essentia({
+                amount  => 35, 
+                reason  => 'tutorial',
+            });
+            $empire->update;
             $self->start('essentia');
             return undef;
         }

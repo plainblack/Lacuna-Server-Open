@@ -55,7 +55,12 @@ after finish_upgrade => sub {
             if (defined $invite) {
                 my $inviter = $invite->inviter;
                 if (defined $inviter) {
-                    $inviter->add_essentia(5, 'invited friend university upgrade', 0, $empire->id, $empire->name)->update;
+                    $inviter->add_essentia({
+                        amount          => 5, 
+                        reason          => 'invited friend university upgrade',
+                        other_empire    => $empire,
+                    });
+                    $inviter->update;
                     $inviter->send_predefined_message(
                         filename    => 'friend_essentia.txt',
                         params      => [$empire->id, $empire->name],

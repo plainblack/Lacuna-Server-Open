@@ -21,7 +21,11 @@ sub www_add_essentia {
     }
     my $curator = $empires->search({name=>$request->user},{rows=>1})->single;
     my $jt = $empires->find(2);
-    $empire->add_essentia(100, 'Mission Pack Approved By '.$curator->name)->update;
+    $empire->add_essentia({
+        amount  => 100, 
+        reason  => 'Mission Pack Approved By '.$curator->name,
+    });
+    $empire->update;
     $empire->send_message(
         from    => $curator,
         subject => 'Mission Bounty',
@@ -36,8 +40,18 @@ sub www_add_essentia {
     );
     my $dt_parser = Lacuna->db->storage->datetime_parser;
     my $seven_days_ago = $dt_parser->format_datetime( DateTime->now->subtract(days => 7) );
-    my $recent = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search({ empire_id => $curator->id, description => 'Mission Curator', date_stamp => { '>' => $seven_days_ago}})->count;
-    $curator->add_essentia(100, 'Mission Curator')->update unless $recent;
+    my $recent = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search({
+        empire_id => $curator->id, 
+        description => 'Mission Curator', 
+        date_stamp => { '>' => $seven_days_ago},
+    })->count;
+    if (not $recent) {
+        $curator->add_essentia({
+            amount  => 100, 
+            reason  => 'Mission Curator',
+        });
+        $curator->update;
+    }
     return $self->www_default($request, 'Essentia Added');
 }
 

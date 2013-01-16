@@ -52,7 +52,10 @@ sub subsidize_party {
     }
 
     $building->finish_work->update;
-    $empire->spend_essentia(2, 'party subsidy after the fact');    
+    $empire->spend_essentia({
+        amount  => 2, 
+        reason  => 'party subsidy after the fact',
+    });
     $empire->update;
 
     return $self->view($empire, $building);

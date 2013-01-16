@@ -13,7 +13,8 @@ my $session_id = $tester->session->id;
 
 my $result;
 
-$tester->empire->add_essentia(30, 'test rename')->update;
+$tester->empire->add_essentia({ amount => 30, reason => 'test rename' });
+$tester->empire->update;
 my $capitol = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     class   => 'Lacuna::DB::Result::Building::Capitol',
     x       => 1,

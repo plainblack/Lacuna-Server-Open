@@ -63,7 +63,11 @@ while (my $empire = $inactives->next) {
     if ($empire->essentia >= 1) {
       unless (Lacuna->cache->get('empire_inactive',$empire->id)) {
         out('Preventing self-destruct by spending essentia.');
-        $empire->spend_essentia(1, 'prevent self-destruct')->update;
+        $empire->spend_essentia({
+            amount      => 1,
+            reason      => 'prevent self-destruct',
+        });
+        $empire->update;
         Lacuna->cache->set('empire_inactive',$empire->id,1,60*60*24);
       }
     }

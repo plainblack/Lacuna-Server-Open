@@ -91,11 +91,12 @@ sub www_jambool_postback {
     
     # add essentia and alert user
     my $amount = $request->param('premium_currency_amount') / 100;
-    $empire->add_essentia(
-        $amount,
-        'Purchased via Social Gold',
-        $transaction_id,
-    )->update;
+    $empire->add_essentia({
+        amount          => $amount,
+        reason          => 'Purchased via Social Gold',
+        transaction_id  => $transaction_id,
+    });
+    $empire->update;
     $empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'purchase_essentia.txt',
@@ -147,12 +148,14 @@ sub www_jambool_reversal {
     
     # reverse the transaction
     my $amount = $transaction->amount;
-    $empire->add_essentia(
-        $amount,
-        'Reversed via Social Gold',
-        $transaction_id,
-    );
-
+    # NOTE Should this be 'spend_essentia'?
+    #
+    $empire->add_essentia({
+        amount          => $amount,
+        reason          => 'Reversed via Social Gold',
+        transaction_id  => $transaction_id,
+    });
+    $empire->update;
         
     return ['OK'];
 }
@@ -708,11 +711,12 @@ sub www_buy_currency_cc {
             
             # add essentia and alert user
             my $amount = $request->param('premium_currency_amount');
-            $empire->add_essentia(
-                $amount,
-                'Purchased via iTransact',
-                $transaction_id,
-            )->update;
+            $empire->add_essentia({
+                amount          => $amount,
+                reason          => 'Purchased via iTransact',
+                transaction_id  => $transaction_id,
+            });
+            $empire->update;
             $empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'purchase_essentia.txt',
@@ -873,11 +877,12 @@ sub www_paypal_ec_checkout {
 
     # add essentia and alert user
     my $amount = $order->{currency};
-    $empire->add_essentia(
-        $amount,
-        'Purchased via PayPal',
-        $transaction_id,
-    )->update;
+    $empire->add_essentia({
+        amount          => $amount,
+        reason          => 'Purchased via PayPal',
+        transaction_id  => $transaction_id,
+    });
+    $empire->update;
     $empire->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'purchase_essentia.txt',

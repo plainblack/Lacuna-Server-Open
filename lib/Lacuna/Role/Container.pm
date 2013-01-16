@@ -60,7 +60,10 @@ sub unload {
         delete $payload->{ships};
     }
     if (exists $payload->{essentia}) {
-        $body->empire->add_essentia($payload->{essentia}, 'Trade Unloaded');
+        $body->empire->add_essentia({
+            amount  => $payload->{essentia}, 
+            reason  => 'Trade Unloaded',
+        });
         $body->empire->update;
         delete $payload->{essentia};
     }

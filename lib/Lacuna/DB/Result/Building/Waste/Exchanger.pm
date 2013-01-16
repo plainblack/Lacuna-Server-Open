@@ -102,7 +102,10 @@ sub recycle {
     # spend
     $body->spend_waste($total);
     if ($use_essentia) {
-        $body->empire->spend_essentia(2, 'recycling subsidy')->update;
+        $body->empire->spend_essentia({
+            amount  => 2, 
+            reason  => 'recycling subsidy',
+        })->update;
         $self->finish_work;
     }
     else {

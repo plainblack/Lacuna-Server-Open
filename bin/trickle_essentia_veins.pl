@@ -39,8 +39,12 @@ sub trickle {
         if ($body->empire_id) {
             my $empire = $body->empire;
             if (defined $empire) {
-		out($empire->name);
-                $empire->add_essentia(4, 'Essentia Vein')->update;
+                out($empire->name);
+                $empire->add_essentia({
+                    amount  => 4, 
+                    reason  => 'Essentia Vein',
+                });
+                $empire->update;
             }
         }
     }

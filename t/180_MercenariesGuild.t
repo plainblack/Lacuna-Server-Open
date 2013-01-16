@@ -74,7 +74,7 @@ $result = $tester->post('mercenariesguild', 'add_to_market', [$session_id, $merc
 is($result->{error}{code}, 1011, 'can call add_to_market');
 ok($result->{error}{message} =~ / 2\.9 essentia /, 'requires 2.9 essentia to add_to_market');
 
-$empire->add_essentia(100, 'Topping up');
+$empire->add_essentia({amount => 100, reason => 'Topping up'});
 $empire->update();
 
 $result = $tester->post('mercenariesguild', 'add_to_market', [$session_id, $merc->id, undef, 1]); 

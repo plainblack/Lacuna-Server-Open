@@ -99,7 +99,8 @@ is_deeply($result->{error}, {
     code    => 1011,
 });
 
-$empire->add_essentia(100,'testing The Dillon Forge')->update;
+$empire->add_essentia({ amount => 100, reason => 'testing The Dillon Forge'});
+$empire->update;
 
 $result = $tester->post('thedillonforge', 'subsidize', [$session_id, $forge->id]);
 
