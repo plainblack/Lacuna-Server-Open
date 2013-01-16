@@ -21,7 +21,7 @@ after handle_arrival_procedures => sub {
     if (defined $citadel) {
         $building = $citadel;
     }
-    elsif ($self->target_building) {
+    elsif (scalar @{$self->target_building} > 0) {
         my @builds;
         for my $tb ( @{$self->target_building} ) {
             my @temp = $body_attacked->get_buildings_of_class($tb);
@@ -45,6 +45,7 @@ after handle_arrival_procedures => sub {
                 rand() <=> rand()
             }
             grep {
+                ($_->efficiency > 0) and
                 ($_->class ne 'Lacuna::DB::Result::Building::Permanent::Crater') and
                 ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder') and
                 ($_->class ne 'Lacuna::DB::Result::Building::TheDillonForge')

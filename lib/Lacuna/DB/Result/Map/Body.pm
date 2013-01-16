@@ -365,6 +365,25 @@ sub delete_last_attacked_by {
     Lacuna->cache->delete('last_attacked_by',$self->id);
 }
 
+sub is_bhg_neutralized {
+    my ($check) = @_;
+    my $tstar; my $tname;
+    if ($check->isa('Lacuna::DB::Result::Map::Star')) {
+        $tstar = $check;
+        $tname = $check->name;
+    }
+    else {
+        $tstar = $check->star;
+        $tname = $check->name;
+    }
+    my $sname = $tstar->name;
+    if ($tstar->station_id) {
+        if ($tstar->station->laws->search({type => 'BHGNeutralized'})->count) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
