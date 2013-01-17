@@ -4,6 +4,8 @@
  - Fix: Snarks will actually hit planet instead of doing a flyby.
  - Fix: Renaming a star will update the seizure law.
  - Fix: A moved space station will lose jurisdiction of stars out of range.
+ - Fix: Burned spies don't get fetched.
+ - Fix: Parliament doesn't trip on multiple inductions.
 
 3.0877:
  - Fix: Shipyard,Intelligence,ThemePark work time now correctly updated
