@@ -19,6 +19,25 @@ before pass => sub {
     else {
         $star->name($name);
         $star->update;
+        my $elaw = $station->laws->search({type => 'Jurisdiction', star_id => $star->id})->single;
+        if ($elaw) {
+            $elaw->name('Seize '.$name);
+            $elaw->description('Seize control of {Starmap '.$star->x.' '.$star->y.' '.$name.'} by {Planet '.$station->id.' '.
+                              $station->name.'}, and apply all present laws to said star and its inhabitants.');
+            $elaw->update;
+        }
+        else {
+            my $law = Lacuna->db->resultset('Lacuna::DB::Result::Laws')->new({
+                name        => 'Seize '.$name,
+                description => 'Seize control of {Starmap '.$star->x.' '.$star->y.' '.$name.'} by {Planet '.$station->id.' '.
+                              $station->name.'}, and apply all present laws to said star and its inhabitants.',
+                type        => 'Jurisdiction',
+                station_id  => $station->id,
+                star_id     => $star->id,
+            });
+            $law->star($star);
+            $law->insert;
+        }
     }
 };
 
