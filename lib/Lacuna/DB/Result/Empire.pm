@@ -249,6 +249,7 @@ sub transfer_essentia {
         reason          => $args->{from_reason},
         other_empire    => $args->{to_empire},
     });
+    my $to_empire = $args->{to_empire};
     $to_empire->add_essentia({
         amount          => $args->{amount},
         reason          => $args->{to_reason},
@@ -263,8 +264,8 @@ sub _adjust_essentia {
     my $note            = $args->{reason};
     my $transaction_id  = $args->{transaction_id};
     my $other_empire    = $args->{other_empire};
-    my $other_id        = $from_empire ? $from_empire->id : 0;
-    my $other_name      = $from_empire ? $from_empire->name : '';
+    my $other_id        = $other_empire ? $other_empire->id : 0;
+    my $other_name      = $other_empire ? $other_empire->name : '';
 
     $self->discard_changes;
     $self->essentia( $self->essentia + $value );
