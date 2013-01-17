@@ -62,13 +62,13 @@ sub colony_structures {
         ['Lacuna::DB::Result::Building::SAW',20],
         ['Lacuna::DB::Result::Building::SAW',20],
         ['Lacuna::DB::Result::Building::SAW',20],
-        ['Lacuna::DB::Result::Building::Permanent::Volcano',21],
-        ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',20],
-        ['Lacuna::DB::Result::Building::Permanent::InterDimensionalRift',20],
-        ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',21],
-        ['Lacuna::DB::Result::Building::Permanent::KalavianRuins',13],
-        ['Lacuna::DB::Result::Building::Permanent::MalcudField',19],
-        ['Lacuna::DB::Result::Building::Permanent::AlgaePond',19],
+        ['Lacuna::DB::Result::Building::Permanent::Volcano',25],
+        ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',25],
+        ['Lacuna::DB::Result::Building::Permanent::InterDimensionalRift',25],
+        ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',25],
+        ['Lacuna::DB::Result::Building::Permanent::KalavianRuins',10],
+        ['Lacuna::DB::Result::Building::Permanent::MalcudField',24],
+        ['Lacuna::DB::Result::Building::Permanent::AlgaePond',24],
         ['Lacuna::DB::Result::Building::Permanent::BlackHoleGenerator',30],
         ['Lacuna::DB::Result::Building::Permanent::Ravine',30],
         ['Lacuna::DB::Result::Building::Water::Storage',30],
@@ -78,7 +78,7 @@ sub colony_structures {
         ['Lacuna::DB::Result::Building::Food::Corn',15],
         ['Lacuna::DB::Result::Building::Food::Wheat',15],
         ['Lacuna::DB::Result::Building::Food::Dairy',15],
-]
+);
 }
 
 sub spy_missions {
