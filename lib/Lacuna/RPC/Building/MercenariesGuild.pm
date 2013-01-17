@@ -145,7 +145,8 @@ sub add_to_market {
     $empire->spend_essentia({
         amount      => $cost,
         reason      => 'Offered Mercenary Trade',
-    )->update;
+    });
+    $empire->update;
     return {
         trade_id    => $trade->id,
         status      => $self->format_status($empire, $building->body),

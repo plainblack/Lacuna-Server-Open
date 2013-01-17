@@ -411,7 +411,7 @@ sub buy_trade {
         my $offer_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($trade->ship_id);
         return if not defined $offer_ship;
 
-        $empire->transfer_essentia({
+        $self->empire->transfer_essentia({
             amount      => $trade->ask,
             from_reason => 'Trade Price',
             to_empire   => $trade->body->empire,

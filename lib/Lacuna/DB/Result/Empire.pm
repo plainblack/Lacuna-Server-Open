@@ -249,12 +249,14 @@ sub transfer_essentia {
         reason          => $args->{from_reason},
         other_empire    => $args->{to_empire},
     });
+    $self->update;
     my $to_empire = $args->{to_empire};
     $to_empire->add_essentia({
         amount          => $args->{amount},
         reason          => $args->{to_reason},
         other_empire    => $self,
     });
+    $to_empire->update;
 }
 
 sub _adjust_essentia {
