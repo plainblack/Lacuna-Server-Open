@@ -169,6 +169,7 @@ sub format_description_of_payload {
     if (exists $payload->{fetch_spies}) {
         foreach my $id (@{$payload->{fetch_spies}}) {
             my $spy = $spies->find($id);
+            next unless defined $spy;
             push @{$scratch}, 'Level '.$spy->level.' spy named '.$spy->name . ' (fetch upon arrival)';
         }
         push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
