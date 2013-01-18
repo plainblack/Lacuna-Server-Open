@@ -1544,6 +1544,19 @@ sub rand_perc {
     return \@arr;
 }
 
+sub recalc_miners {
+    my ($asteroid) = @_;
+
+    my %mining_bodies = map { $_->planet_id => 1 }
+                        Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({
+                            asteroid_id => $asteroid->id})->all;
+    for my $body_id (keys %mining_bodies) {
+        my $body = Lacuna->db->resultset('Map::Body')->find($body_id);
+        my $building = $body->get_building_of_class('Lacuna::DB::Result::Building::Ore::Ministry');
+        $building->recalc_ore_production;
+    }
+}
+
 sub bhg_change_type {
     my ($body, $params) = @_;
     my $class = $body->class;
@@ -1596,6 +1609,9 @@ sub bhg_change_type {
         class                     => $class,
         usable_as_starter_enabled => $starter,
     });
+    if ($btype eq "asteroid") {
+        recalc_miners($body);
+    }
     return {
         message   => "Changed Type",
         old_class => $old_class,

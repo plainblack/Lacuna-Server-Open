@@ -7,6 +7,7 @@
  - Fix: Burned spies don't get fetched.
  - Fix: Parliament doesn't trip on multiple inductions.
  - Add: TheDillonForge view method returns what it is working on.
+ - Fix: Recalculate mining platforms if asteroid type is changed.
 
 3.0877:
  - Fix: Shipyard,Intelligence,ThemePark work time now correctly updated
