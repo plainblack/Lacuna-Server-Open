@@ -940,7 +940,7 @@ sub bhg_swap {
             my $fbody = Lacuna->db
                 ->resultset('Lacuna::DB::Result::Map::Body')
                 ->find($body->id);
-            my $mess = sprintf("{Starmap %s %s %s} at %s/%s in orbit %s around {Starmap %s %s %s}",
+            my $mess = sprintf("{Starmap %s %s %s} is now at %s/%s in orbit %s around {Starmap %s %s %s}.",
                     $fbody->x, $fbody->y, $fbody->name,
                     $fbody->x, $fbody->y, $fbody->orbit,
                     $fbody->star->x, $fbody->star->y, $fbody->star->name);
