@@ -176,7 +176,7 @@ sub create_colony {
         'Permanent::AlgaePond'            => {qty => 1, level => 24},
         'Permanent::BlackHoleGenerator'   => {qty => 1, level => 30},
         'Permanent::Ravine'               => {qty => 1, level => 30},
-        'Permanent::TerraformingPlatform' => {qty => 1, level => 27},
+        'Permanent::TerraformingPlatform' => {qty => 5, level => 10},
     };
 
     my $buildings = $db->resultset('Lacuna::DB::Result::Building');

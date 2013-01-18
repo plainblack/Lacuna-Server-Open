@@ -12,7 +12,7 @@ has viable_colonies => (
     lazy        => 1,
     default     => sub {
         return Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
-            { empire_id => undef, orbit => 3, size => { between => [30,55]}},
+            { empire_id => undef, orbit => 3, size => { between => [30,50]}},
             );
     }
 );
@@ -102,7 +102,7 @@ sub ship_building_priorities {
 
 sub run_hourly_colony_updates {
     my ($self, $colony) = @_;
-#    $self->demolish_bleeders($colony);
+    $self->demolish_bleeders($colony);
     $self->set_defenders($colony);
     $self->pod_check($colony, 10);
     $self->repair_buildings($colony);
