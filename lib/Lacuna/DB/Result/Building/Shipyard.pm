@@ -275,14 +275,19 @@ sub build_fleet {
     $self->set_fleet_stealth($fleet);
     $time ||= $self->get_fleet_costs($fleet)->{seconds};
 
-    my $latest = $self->building_fleets->search(
-        undef, { 
+    my $latest = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search(
+    {
+        shipyard_id => $self->id,
+        task        => 'Building',
+    },
+    { 
         order_by    => { -desc => 'date_available' }, 
         rows        => 1,
     })->single;
 
     my $now = DateTime->now;
     my $date_completed = $now;
+    my $is_working;
     if (defined $latest) {
         $is_working=1;
         $date_completed = $latest->date_available->clone;
