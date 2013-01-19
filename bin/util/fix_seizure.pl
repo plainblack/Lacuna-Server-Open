@@ -30,24 +30,26 @@ my $laws = $db->resultset('Lacuna::DB::Result::Laws')->search({
 while ( my $law = $laws->next) {
     my $station = $db->resultset('Map::Body')->find($law->station_id);
     if ($station) {
+        $seized_stars{$law->star_id} = 1 if ($seized_stars{$law->star_id} == '');
         if ($station->in_range_of_influence($law->star)) {
             my $star = $law->star;
             if ($seized_stars{$law->star_id} == 1) {
                 my $name = 'Seize '.$star->name;
+                $name = substr($name,0,30);
                 my $desc = 'Seize control of {Starmap '.$star->x.' '.$star->y.' '.$star->name.'} by {Planet '.$station->id.' '.
                         $station->name.'}, and apply all present laws to said star and its inhabitants.',
                 $seized_stars{$law->star_id} = 2;
                 if ($law->name ne $name or $law->description ne $desc) {
-                    out($name." - ".$desc.".");
+                    out($law->id." ".$name." - ".$desc.".");
                     $seized_stars{$law->star_id} = 3;
-                    $law->name($name);
-                    $law->description($desc);
+                    $law->name("$name");
+                    $law->description("$desc");
                     $law->update;
                 }
             }
             else {
                 out("Law #".$law->id." is a duplicate from ".$law->station_id.".");
-                $law->delete;
+#                $law->delete;
             }
         }
         else {
@@ -87,7 +89,7 @@ for my $star_id (sort keys %seized_stars) {
         $law->insert;
     }
     elsif ($seized_stars{$star_id} == 2) {
-        out($star_id." was in no need of change.");
+#        out($star_id." was in no need of change.");
     }
     elsif ($seized_stars{$star_id} == 3) {
         out($star_id." needed the name and desc to be updated.");
