@@ -72,10 +72,9 @@ for my $star_id (sort keys %seized_stars) {
     }
     elsif ($seized_stars{$star_id} == 1) {
         out($star_id." needs a law to be inserted.");
-        my $star = $db->resultset('Map::Star')->search({
-                      id => $star_id,
-                     });
-        my $station = $db->resultset('Map::Body')->find($star->station_id);
+        my $star = $db->resultset('Map::Star')->find($star_id);
+        my $station_id = $star->station_id;
+        my $station = $db->resultset('Map::Body')->find($station_id);
         my $law = Lacuna->db->resultset('Lacuna::DB::Result::Laws')->new({
             name        => 'Seize '.$star->name,
             description => 'Seize control of {Starmap '.$star->x.' '.$star->y.' '.$star->name.'} by {Planet '.$station->id.' '.
@@ -84,6 +83,8 @@ for my $star_id (sort keys %seized_stars) {
             station_id  => $station->id,
             star_id     => $star->id,
         });
+        $law->star($star);
+        $law->insert;
     }
     elsif ($seized_stars{$star_id} == 2) {
         out($star_id." was in no need of change.");
