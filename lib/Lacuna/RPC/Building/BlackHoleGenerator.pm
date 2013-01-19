@@ -187,6 +187,7 @@ sub find_target {
         unless ($target_params->{zone} ~~ @zones) {
             confess [ 1002, 'Could not find '.$target_word.' zone.'];
         }
+#Need to find all non-seized via better DB call.
         my @bodies = Lacuna->db->resultset('Map::Body')->search(
             {
                 'me.zone'           => $target_params->{zone},
@@ -695,7 +696,7 @@ sub generate_singularity {
             $body->add_news(
                 50,
                 sprintf(
-                    'Astromers are perplexed about the change of the orbiting bodies around %s.',
+                    'Astronomers are perplexed about the change of the orbiting bodies around %s.',
                     $target->name
                 )
             );
@@ -865,7 +866,6 @@ sub make_orbit_array {
 }
 
 sub bhg_swap {
-    # Needs to make sure SS have influence range redone.
     my ($body, $target) = @_;
     my $return;
     my $old_data = {
@@ -929,21 +929,35 @@ sub bhg_swap {
                 }
             }
             $target->recalc_chains; # Recalc all chains
+            if ($new_data->{type} eq 'space station') {
+                drop_stars_beyond_range($target);
+            }
         }
         if (defined($target->empire)) {
+            my $mbody = Lacuna->db
+                ->resultset('Lacuna::DB::Result::Map::Body')
+                ->find($target->id);
+            my $fbody = Lacuna->db
+                ->resultset('Lacuna::DB::Result::Map::Body')
+                ->find($body->id);
+            my $mess = sprintf("{Starmap %s %s %s} is now at %s/%s in orbit %s around {Starmap %s %s %s}.",
+                    $fbody->x, $fbody->y, $fbody->name,
+                    $fbody->x, $fbody->y, $fbody->orbit,
+                    $fbody->star->x, $fbody->star->y, $fbody->star->name);
             $target->empire->send_predefined_message(
                 tags     => ['Alert'],
                 filename => 'planet_moved.txt',
                 params   => [
-                    $target->x,
-                    $target->y,
-                    $target->name,
-                    $target->x,
-                    $target->y,
-                    $target->orbit,
-                    $target->star->x,
-                    $target->star->y,
-                    $target->star->name,
+                    $mbody->x,
+                    $mbody->y,
+                    $mbody->name,
+                    $mbody->x,
+                    $mbody->y,
+                    $mbody->orbit,
+                    $mbody->star->x,
+                    $mbody->star->y,
+                    $mbody->star->name,
+                    $mess,
                 ],
             );
         }
@@ -959,20 +973,45 @@ sub bhg_swap {
             }
         }
         $body->recalc_chains; # Recalc all chains
+        if ($body->get_type eq 'space station') {
+            drop_stars_beyond_range($target);
+        }
     }
     if (defined($body->empire)) {
+        my $mbody = Lacuna->db
+            ->resultset('Lacuna::DB::Result::Map::Body')
+            ->find($body->id);
+        my $mess;
+        unless ($new_data->{type} eq "empty") {
+            my $fbody = Lacuna->db
+                ->resultset('Lacuna::DB::Result::Map::Body')
+                ->find($target->id);
+            $mess = sprintf("{Starmap %s %s %s} took our place at %s/%s in orbit %s around {Starmap %s %s %s}.",
+                    $fbody->x, $fbody->y, $fbody->name,
+                    $fbody->x, $fbody->y, $fbody->orbit,
+                    $fbody->star->x, $fbody->star->y, $fbody->star->name);
+        }
+        else {
+            my $star = Lacuna->db->
+                       resultset('Lacuna::DB::Result::Map::Star')->find($old_data->{star_id});
+            $mess = sprintf("There is now an empty orbit at %s/%s in orbit %s around {Starmap %s %s %s}",
+                    $old_data->{x}, $old_data->{y}, $old_data->{orbit},
+                    $star->x, $star->y, $star->name);
+        }
         $body->empire->send_predefined_message(
             tags     => ['Alert'],
             filename => 'planet_moved.txt',
-            params   => [$body->x,
-                $body->y,
-                $body->name,
-                $body->x,
-                $body->y,
-                $body->orbit,
-                $body->star->x,
-                $body->star->y,
-                $body->star->name,
+            params   => [
+                    $mbody->x,
+                    $mbody->y,
+                    $mbody->name,
+                    $mbody->x,
+                    $mbody->y,
+                    $mbody->orbit,
+                    $mbody->star->x,
+                    $mbody->star->y,
+                    $mbody->star->name,
+                    $mess,
             ],
         );
     }
@@ -986,6 +1025,19 @@ sub bhg_swap {
         swapname => $new_data->{name},
         swapid   => $new_data->{id},
     };
+}
+
+sub drop_stars_beyond_range {
+    my ($station) = @_;
+
+    return 0 if ($station->get_type ne 'space station');
+    my $laws = $station->laws->search({type => 'Jurisdiction'});
+    while (my $law = $laws->next) {
+        unless ($station->in_range_of_influence($law->star)) {
+            $law->delete;
+        }
+    }
+    return 1;
 }
 
 sub bhg_make_planet {
@@ -1234,7 +1286,7 @@ sub bhg_random_fissure {
                 class        => 'Lacuna::DB::Result::Building::Permanent::Fissure',
             });
             $target->build_building($building, undef, 1);
-            $body->add_news(50, sprintf('Astromers detect a gravitational anomoly on %s.', $target->name));
+            $body->add_news(50, sprintf('Astronomers detect a gravitational anomoly on %s.', $target->name));
             $return->{message} = "Fissure formed";
         }
         else {
@@ -1273,7 +1325,7 @@ sub bhg_random_decor {
             $body->add_news(75, sprintf('The population of %s marvels at the new terrain.', $target->name));
         }
         else {
-            $body->add_news(30, sprintf('Astromers claim that the surface of %s has changed.', $target->name));
+            $body->add_news(30, sprintf('Astronomers claim that the surface of %s has changed.', $target->name));
         }
         my $variance =  (randint(0,9) < 2) ? 1 : 0;
         $return = bhg_decor($building, $target, $variance);
@@ -1492,6 +1544,19 @@ sub rand_perc {
     return \@arr;
 }
 
+sub recalc_miners {
+    my ($asteroid) = @_;
+
+    my %mining_bodies = map { $_->planet_id => 1 }
+                        Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->search({
+                            asteroid_id => $asteroid->id})->all;
+    for my $body_id (keys %mining_bodies) {
+        my $body = Lacuna->db->resultset('Map::Body')->find($body_id);
+        my $building = $body->get_building_of_class('Lacuna::DB::Result::Building::Ore::Ministry');
+        $building->recalc_ore_production;
+    }
+}
+
 sub bhg_change_type {
     my ($body, $params) = @_;
     my $class = $body->class;
@@ -1544,6 +1609,9 @@ sub bhg_change_type {
         class                     => $class,
         usable_as_starter_enabled => $starter,
     });
+    if ($btype eq "asteroid") {
+        recalc_miners($body);
+    }
     return {
         message   => "Changed Type",
         old_class => $old_class,

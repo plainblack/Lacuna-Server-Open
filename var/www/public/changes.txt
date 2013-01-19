@@ -55,6 +55,17 @@
 KNOWN BUGS:
  - bug: Fleet format currently shows 'Foreign' for all fleets
 
+3.0878:
+ - Fix: Fissure Sealers were sending extra email on home arrival.
+ - Add: Cult of the Fissure added into code base.
+ - Fix: Snarks will actually hit planet instead of doing a flyby.
+ - Fix: Renaming a star will update the seizure law.
+ - Fix: A moved space station will lose jurisdiction of stars out of range.
+ - Fix: Burned spies don't get fetched.
+ - Fix: Parliament doesn't trip on multiple inductions.
+ - Add: TheDillonForge view method returns what it is working on.
+ - Fix: Recalculate mining platforms if asteroid type is changed.
+
 3.0877:
  - Fix: Shipyard,Intelligence,ThemePark work time now correctly updated
  - Mod: When a Fissure levels up, owning empire is warned.

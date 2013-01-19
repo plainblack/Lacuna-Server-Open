@@ -1,0 +1,9 @@
+Cult Makes Fissure!
+~~~
+Before our security forces could intervene, the Cult of the Fissure created a new fissure on {Starmap %s %s %s}
+by somehow converting the old %s at %s/%s.  We must get our populace happy enough to reject them soon!
+
+Regards,
+
+Your Humble Assistant
+

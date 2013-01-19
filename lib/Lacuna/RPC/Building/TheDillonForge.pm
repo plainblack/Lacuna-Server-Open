@@ -21,9 +21,22 @@ around 'view' => sub {
     my $building = $self->get_building($empire, $building_id, skip_offline => 1);
     my $out = $orig->($self, $empire, $building);
     if ($building->is_working) {
+        my $work = $building->work;
+        my $plan_class = $work->{class};
+        my $desc;
+        if ($work->{task} eq 'split_plan') {
+            $desc = sprintf("Splitting %s %s+%s", $plan_class->name, $work->{level},$work->{extra_build_level}),
+        }
+        elsif ($work->{task} eq 'make_plan') {
+            $desc = sprintf("Making %s %s", $plan_class->name, $work->{level}),
+        }
+        else {
+            $desc = "Error!";
+        }
         $out->{tasks} = {
             seconds_remaining  => $building->work_seconds_remaining,
             can                => 0,
+            working            => $desc,
         };
     }
     else {

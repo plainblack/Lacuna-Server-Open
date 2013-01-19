@@ -31,7 +31,10 @@ before pass => sub {
         my $max_members = ( $building->level >= $embassy->level ) ? 2 * $building->level : 2 * $embassy->level;
 
         if ($count < $max_members ) {
-            $alliance->send_invite($invite_empire, $self->scratch->{message});
+            my $can = eval{$alliance->send_invite($invite_empire, $self->scratch->{message})};
+            unless ($can) {
+                $self->pass_extra_message('Empire has already accepted an invite, effectively wasting Parliaments time.');
+            }
         }
         else {
             $self->pass_extra_message('Unfortunately, by the time the proposition passed, the alliance had reached maximum membership, effectively nullifying the vote.');
