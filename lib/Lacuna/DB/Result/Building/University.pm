@@ -57,6 +57,7 @@ after finish_upgrade => sub {
                 if (defined $inviter) {
                     $inviter->add_essentia({
                         amount          => 5, 
+                        type            => 'free',
                         reason          => 'invited friend university upgrade',
                         other_empire    => $empire,
                     });

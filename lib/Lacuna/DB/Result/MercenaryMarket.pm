@@ -51,6 +51,7 @@ sub withdraw {
     $body->empire->add_essentia({
         amount  => $self->cost, 
         reason  => 'Withdrew Mercenary Trade',
+        type    => 'free',
     });
     $body->empire->update;
     $self->delete;

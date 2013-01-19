@@ -459,6 +459,7 @@ sub fool {
             $home->add_plan('Lacuna::DB::Result::Building::Food::Reserve', 2);
             $empire->add_essentia({
                 amount  => 35, 
+                type    => 'free',
                 reason  => 'tutorial',
             });
             $empire->update;

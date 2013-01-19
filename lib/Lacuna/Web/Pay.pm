@@ -94,6 +94,7 @@ sub www_jambool_postback {
     $empire->add_essentia({
         amount          => $amount,
         reason          => 'Purchased via Social Gold',
+        type            => 'paid',
         transaction_id  => $transaction_id,
     });
     $empire->update;
@@ -153,6 +154,7 @@ sub www_jambool_reversal {
     $empire->add_essentia({
         amount          => $amount,
         reason          => 'Reversed via Social Gold',
+        type            => 'paid',
         transaction_id  => $transaction_id,
     });
     $empire->update;
@@ -714,6 +716,7 @@ sub www_buy_currency_cc {
             $empire->add_essentia({
                 amount          => $amount,
                 reason          => 'Purchased via iTransact',
+                type            => 'paid',
                 transaction_id  => $transaction_id,
             });
             $empire->update;
@@ -880,6 +883,7 @@ sub www_paypal_ec_checkout {
     $empire->add_essentia({
         amount          => $amount,
         reason          => 'Purchased via PayPal',
+        type            => 'paid',
         transaction_id  => $transaction_id,
     });
     $empire->update;

@@ -739,6 +739,7 @@ sub www_add_essentia {
     $empire->add_essentia({
         amount  => $request->param('amount'), 
         reason  => $request->param('description'),
+        type    => 'free',
     });
     $empire->update;
     return $self->www_view_empire($request, $id);
