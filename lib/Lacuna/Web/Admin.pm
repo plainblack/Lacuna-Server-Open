@@ -126,6 +126,23 @@ sub www_view_essentia_log {
     return $self->wrap($out);
 }
 
+sub www_view_login_log {
+    my ($self, $request) = @_;
+    my $empire_id = $request->param('empire_id');
+    my $date_query = $request->param('old') ? {'=' => undef} : { '!=' => undef };
+    my $logins = Lacuna->db->resultset('Lacuna::DB::Result::Log::Login')->search({empire_id => $empire_id},{order_by => { -desc => 'date_stamp' }});
+    my $out = '<h1>Login Log</h1>';
+    $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $empire_id);
+    $out .= '<table style="width: 100%;"><tr><th>Empire Name</th><th>Log-in Date</th><th>Log-out Date</th><th>Extended</th><th>IP Address</th><th>API Key</th></tr>';
+    while (my $login = $logins->next) {
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
+                        $login->empire_name, $login->date_stamp, $login->log_out_date,
+                        $login->extended, $login->ip_address, $login->api_key);
+    }
+    $out .= '</table>';
+    return $self->wrap($out);
+}
+
 sub www_search_empires {
     my ($self, $request) = @_;
     my $page_number = $request->param('page_number') || 1;
@@ -657,7 +674,8 @@ sub www_view_empire {
     $out .= sprintf('<tr><th>Email</th><td>%s</td><td></td></tr>', $empire->email);
     $out .= sprintf('<tr><th>Created</th><td>%s</td><td></td></tr>', $empire->date_created);
     $out .= sprintf('<tr><th>Stage</th><td>%s</td><td></td></tr>', $empire->stage);
-    $out .= sprintf('<tr><th>Last Login</th><td>%s</td><td></td></tr>', $empire->last_login);
+    $out .= sprintf('<tr><th>Last Login</th><td>%s</td><td>', $empire->last_login);
+    $out .= sprintf('<a href="/admin/view/login/log?empire_id=%s">View Log</a></td></tr>',$empire->id);
     $out .= sprintf('<tr><th>Essentia</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/add/essentia">
 <input type="hidden" name="id" value="%s">
 <input name="amount" style="width: 30px;" value="0">
