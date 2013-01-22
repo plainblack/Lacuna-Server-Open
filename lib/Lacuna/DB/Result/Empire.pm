@@ -424,8 +424,13 @@ sub get_status {
 
 sub start_session {
     my ($self, $options) = @_;
-    $self->last_login(DateTime->now);
-    $self->update;
+    if (   $options
+        && $options->{api_key}
+        && $options->{api_key} ne 'admin_console' )
+    {
+        $self->last_login(DateTime->now);
+        $self->update;
+    }
     return Lacuna::Session->new->start($self, $options);
 }
 
