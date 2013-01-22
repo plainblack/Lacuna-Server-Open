@@ -13,6 +13,7 @@ __PACKAGE__->add_columns(
     ip_address          => { data_type => 'varchar', size => 15, is_nullable => 1 },
     log_out_date        => { data_type => 'datetime', is_nullable => 1 },
     extended            => { data_type => 'int', size => 11, default_value => 0 },
+    is_sitter           => { data_type => 'int', size => 1, is_nullable => 0, default_value => 0 },
 );
 
 after 'sqlt_deploy_hook' => sub {

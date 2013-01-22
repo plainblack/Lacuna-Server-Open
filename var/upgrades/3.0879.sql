@@ -4,3 +4,4 @@ alter table empire add column essentia_paid float(11,1) not null default 0 after
 
 update empire set essentia_game=essentia;
 
+alter table login_log add column is_sitter int(1) not null default 0;

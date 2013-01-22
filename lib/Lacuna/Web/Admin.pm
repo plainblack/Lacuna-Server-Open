@@ -137,11 +137,12 @@ sub www_view_login_log {
     my $logins = Lacuna->db->resultset('Lacuna::DB::Result::Log::Login')->search({empire_id => $empire_id},{order_by => { -desc => 'date_stamp' }});
     my $out = '<h1>Login Log</h1>';
     $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $empire_id);
-    $out .= '<table style="width: 100%;"><tr><th>Empire Name</th><th>Log-in Date</th><th>Log-out Date</th><th>Extended</th><th>IP Address</th><th>API Key</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Empire Name</th><th>Log-in Date</th><th>Log-out Date</th><th>Extended</th><th>IP Address</th><th>Sitter</th><th>API Key</th></tr>';
     while (my $login = $logins->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
+        my $sitter = $login->is_sitter ? 'Sitter' : '';
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
                         $login->empire_name, $login->date_stamp, $login->log_out_date,
-                        $login->extended, $login->ip_address, $login->api_key);
+                        $login->extended, $login->ip_address, $sitter, $login->api_key);
     }
     $out .= '</table>';
     return $self->wrap($out);

@@ -119,6 +119,7 @@ sub start {
         api_key         => $options->{api_key},
         ip_address      => $ip,
         session_id      => $self->id,
+        is_sitter       => $options->{is_sitter} ? 1 : 0,
     })->insert;
     return $self->extend;
 }
