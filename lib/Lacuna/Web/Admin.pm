@@ -687,7 +687,7 @@ sub www_view_empire {
 <input type="submit" value="add essentia"></form>', $empire->essentia, $empire->id); 
     $out .= sprintf('<a href="/admin/view/essentia/log?empire_id=%s">View Log</a></td></tr>',$empire->id);
     $out .= sprintf('<tr><th>Species</th><td>%s</td><td></td></tr>', $empire->species_name);
-    $out .= sprintf('<tr><th>Home</th><td>%s</td><td></td></tr>', $empire->home_planet_id);
+    $out .= sprintf('<tr><th>Home</th><td><a href="/admin/view/body?id=%s">%s</a></td><td></td></tr>', $empire->home_planet_id, $empire->home_planet_id);
     $out .= sprintf('<tr><th>Description</th><td>%s</td><td></td></tr>', $empire->description);
     $out .= sprintf('<tr><th>University Level</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/change/university/level"><input type="hidden" name="id" value="%s"><input name="university_level" style="width: 30px;" value="0"><input type="submit" value="change"></form></td></tr>', $empire->university_level, $empire->id);
     $out .= sprintf('<tr><th>Isolationist</th><td>%s</td><td><a href="/admin/toggle/isolationist?id=%s">Toggle</a></td></tr>', $empire->is_isolationist, $empire->id);
