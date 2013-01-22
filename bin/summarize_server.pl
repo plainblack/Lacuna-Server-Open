@@ -55,6 +55,7 @@ sub generate_overview {
     my $buildings   = $db->resultset('Lacuna::DB::Result::Building')->search({body_id => { 'not in' => \@off_limits}});
     my $empires     = $db->resultset('Lacuna::DB::Result::Empire')->search({id => { '>' => 1}});
     my $probes      = $db->resultset('Lacuna::DB::Result::Probes')->search({empire_id => { '>' => 1}});
+    my $dtformatter = $db->storage->datetime_parser;
     
     # basics
     out('Getting Basic Counts');
@@ -81,9 +82,9 @@ sub generate_overview {
             highest_university_level    => $empires->get_column('university_level')->max,
             isolationist_count          => $empires->search({is_isolationist => 1})->count,
             essentia_using_count        => $empires->search({essentia => { '>' => 0 }})->count,
-            currently_active_count      => $empires->search({last_login => {'>=' => DateTime->now->subtract(hours=>1)}})->count,
-            active_today_count          => $empires->search({last_login => {'>=' => DateTime->now->subtract(hours=>24)}})->count,
-            active_this_week_count      => $empires->search({last_login => {'>=' => DateTime->now->subtract(days=>7)}})->count,
+            currently_active_count      => $empires->search({last_login => {'>=' => $dtformatter->format_datetime(DateTime->now->subtract(hours=>1))}})->count,
+            active_today_count          => $empires->search({last_login => {'>=' => $dtformatter->format_datetime(DateTime->now->subtract(hours=>24))}})->count,
+            active_this_week_count      => $empires->search({last_login => {'>=' => $dtformatter->format_datetime(DateTime->now->subtract(days=>7))}})->count,
         },
     );
     
