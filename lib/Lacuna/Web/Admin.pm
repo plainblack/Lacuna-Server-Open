@@ -133,7 +133,9 @@ sub www_search_empires {
     my $field = $request->param('field') || 'name';
     my $name  = $request->param('name') || '';
     if ($name) {
-        $empires = $empires->search({$field => { like => '%'.$name.'%' }});
+        my $query = "$name%";
+        $query =~ s/\*/%/;
+        $empires = $empires->search({$field => { like => $query }});
     }
     my $out = '<h1>Search Empires</h1>';
     $out .= '<form method="post" action="/admin/search/empires"><input name="name" value="'.$name.'">';
@@ -156,7 +158,9 @@ sub www_search_bodies {
     my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(undef, {order_by => ['name'], rows => 25, page => $page_number });
     my $name = $request->param('name') || '';
     if ($name) {
-        $bodies = $bodies->search({name => { like => '%'.$name.'%' }});
+        my $query = "$name%";
+        $query =~ s/\*/%/;
+        $bodies = $bodies->search({name => { like => $query }});
     }
     if ($request->param('empire_id')) {
         $bodies = $bodies->search({empire_id => $request->param('empire_id')});
@@ -184,7 +188,9 @@ sub www_search_stars {
     my $stars = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search(undef, {order_by => ['name'], rows => 25, page => $page_number });
     my $name = $request->param('name') || '';
     if ($name) {
-        $stars = $stars->search({name => { like => '%'.$name.'%' }});
+        my $query = "$name%";
+        $query =~ s/\*/%/;
+        $stars = $stars->search({name => { like => $query }});
     }
     if ($request->param('zone')) {
         $stars = $stars->search({zone => $request->param('zone')});
