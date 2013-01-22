@@ -233,14 +233,8 @@ sub www_complete_builds {
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
     foreach my $building (@{$body->building_cache}) {
         next unless ( $building->is_upgrading );
-        $building->is_upgrading(0);
-        $building->upgrade_ends($building->upgrade_started);
-        $building->level($building->level + 1);
-        $building->update;
+        $building->finish_upgrade;
     }
-    $body->needs_recalc(1);
-    $body->needs_surface_refresh(1);
-    $body->update;
     return $self->wrap(sprintf('All building constuction completed! <a href="/admin/view/body?id=%s">Back To Body</a>', $request->param('body_id')));
 }
 
