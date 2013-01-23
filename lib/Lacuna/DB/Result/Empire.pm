@@ -131,6 +131,36 @@ sub essentia {
     return $self->essentia_free + $self->essentia_game + $self->essentia_paid;
 }
 
+around name => sub {
+    my ($orig, $self) = (shift, shift);
+    
+    if (@_) {
+        my $new_name = $_[0];
+        
+        Lacuna->db->resultset('Lacuna::DB::Result::Log::EmpireNameChange')->new({
+            empire_id       => $self->id,
+            empire_name     => $new_name,
+            old_empire_name => $self->$orig,
+        })->insert;
+    }
+    
+    $self->$orig(@_);
+};
+
+around update => sub {
+    my ($orig, $self) = (shift, shift);
+    
+    if ( @_ && exists $_[0]->{name} ) {
+        Lacuna->db->resultset('Lacuna::DB::Result::Log::EmpireNameChange')->new({
+            empire_id       => $self->id,
+            empire_name     => $_[0]->{name},
+            old_empire_name => $self->name,
+        })->insert;
+    }
+    
+    $self->$orig(@_);
+};
+
 sub update_species {
     my ($self, $me) = @_;
     $self->species_name($me->{name});

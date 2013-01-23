@@ -148,6 +148,22 @@ sub www_view_login_log {
     return $self->wrap($out);
 }
 
+sub www_view_empire_name_change_log {
+    my ($self, $request) = @_;
+    my $empire_id = $request->param('empire_id');
+    my $date_query = $request->param('old') ? {'=' => undef} : { '!=' => undef };
+    my $history = Lacuna->db->resultset('Lacuna::DB::Result::Log::EmpireNameChange')->search({empire_id => $empire_id},{order_by => { -desc => 'date_stamp' }});
+    my $out = '<h1>Empire Name-Change Log</h1>';
+    $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $empire_id);
+    $out .= '<table style="width: 100%;"><tr><th>Date</th><th>New Name</th><th>Old Name</th></tr>';
+    while (my $log = $history->next) {
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td></tr>',
+                        $log->date_stamp, $log->empire_name, $log->old_empire_name);
+    }
+    $out .= '</table>';
+    return $self->wrap($out);
+}
+
 sub www_search_empires {
     my ($self, $request) = @_;
     my $page_number = $request->param('page_number') || 1;
@@ -744,7 +760,8 @@ sub www_view_empire {
     $out .= '<table style="width: 100%">';
     $out .= sprintf('<tr><th>Id</th><td>%s</td><td></td></tr>', $empire->id);
     $out .= sprintf('<tr><th>RPC Requests</th><td>%s</td><td></td></tr>', $empire->rpc_count);
-    $out .= sprintf('<tr><th>Name</th><td>%s</td><td></td></tr>', $empire->name);
+    $out .= sprintf('<tr><th>Name</th><td>%s</td><td>', $empire->name);
+    $out .= sprintf('<a href="/admin/view/empire/name/change/log?empire_id=%s">View History</a></td></tr>',$empire->id);
     $out .= sprintf('<tr><th>Email</th><td>%s</td><td></td></tr>', $empire->email);
     $out .= sprintf('<tr><th>Created</th><td>%s</td><td></td></tr>', $empire->date_created);
     $out .= sprintf('<tr><th>Stage</th><td>%s</td><td></td></tr>', $empire->stage);
