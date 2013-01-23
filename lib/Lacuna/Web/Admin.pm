@@ -324,7 +324,57 @@ sub www_view_buildings {
         $out .= sprintf('<td><input type="submit" value="delete"/></td></form></tr>');
     }   
     $out .= '</table>';
+    $out .= '<h2>Add Building</h2>';
+    $out .= '<p>This costs no resources or plans, and bypasses normal restrictions ';
+    $out .= 'such as tech-level, plot-count, etc.<br>';
+    $out .= '<b>Level</b> is the final level <b>after</b> the build is complete.</br>';
+    $out .= '<b>X</b> and <b>Y</b> are not required.</p>';
+    $out .= '<form method="post" action="/admin/add/building"><tr>';
+    $out .= '<table><tr><th>Type</th><th>X</th><th>Y</th><th>Level</th><th>Skip build queue</th><th></th></tr>';
+    $out .= '<input type="hidden" name="body_id" value="'.$body_id.'">';
+    $out .= '<tr><td><select name="class">';
+    my %buildings = map { $_->name => $_ } findallmod Lacuna::DB::Result::Building;
+    foreach my $name (sort keys %buildings) {
+        next if $name eq 'Building';
+        $out .= '<option value="'.$buildings{$name}.'">'.$name.'</option>';
+    }
+    $out .= '</select></td>';
+    $out .= '<td><input name="x" value="" size="2"></td>';
+    $out .= '<td><input name="y" value="" size="2"></td>';
+    $out .= '<td><input name="level" value="1" size="2"></td>';
+    $out .= '<td><input name="skip_build_queue" type="checkbox" value="1"></td>';
+    $out .= '<td><input type="submit" value="add building"></td>';
+    $out .= '</tr></table></form>';
     return $self->wrap($out);
+}
+
+sub www_add_building {
+    my ($self, $request) = @_;
+    my $body = Lacuna->db->resultset('Map::Body')->find($request->param('body_id'));
+    unless (defined $body) {
+        confess [404, 'Body not found.'];
+    }
+    my $class = $request->param('class');
+    my $x     = $request->param('x');
+    my $y     = $request->param('y');
+    my $level = $request->param('level') || 1;
+    $level--;
+    if ( !length $x || !length $y ) {
+        ($x, $y) = $body->find_free_space;
+    }
+    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+        x               => $x,
+        y               => $y,
+        level           => $level,
+        body_id         => $body->id,
+        body            => $body,
+        class           => $class,
+    });
+    $body->build_building( $building );
+    if ( $request->param('skip_build_queue') ) {
+        $building->finish_upgrade;
+    }
+    return $self->www_view_buildings($request, $body->id);
 }
 
 sub www_set_efficiency {
