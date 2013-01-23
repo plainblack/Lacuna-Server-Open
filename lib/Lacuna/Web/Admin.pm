@@ -362,6 +362,17 @@ sub www_add_building {
     if ( !length $x || !length $y ) {
         ($x, $y) = $body->find_free_space;
     }
+
+    # check the plot lock
+    if ($body->is_plot_locked($x, $y)) {
+        confess [1013, "That plot is reserved for another building.", [$x,$y]];
+    }
+    else {
+        $body->lock_plot($x,$y);
+    }
+    # is the plot empty?
+    $body->check_for_available_build_space( $x, $y );
+
     my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
         x               => $x,
         y               => $y,
