@@ -391,10 +391,24 @@ sub www_add_building {
 sub www_set_efficiency {
     my ($self, $request) = @_;
     my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->find($request->param('building_id'));
+    my $body = Lacuna->db->resultset('Map::Body')->find($building->body_id);
+    my $x = $request->param('x');
+    my $y = $request->param('y');
+    
+    # check the plot lock
+    if ($body->is_plot_locked($x, $y)) {
+        confess [1013, "That plot is reserved for another building.", [$x,$y]];
+    }
+    else {
+        $body->lock_plot($x,$y);
+    }
+    # is the plot empty?
+    $body->check_for_available_build_space( $x, $y );
+    
     $building->update({
         efficiency      => $request->param('efficiency'),
-        x               => $request->param('x'),
-        y               => $request->param('y'),
+        x               => $x,
+        y               => $y,
         level           => $request->param('level'),
     });
     return $self->www_view_buildings($request, $building->body_id);
