@@ -132,9 +132,15 @@ sub www_view_essentia_log {
 
 sub www_view_login_log {
     my ($self, $request) = @_;
-    my $empire_id = $request->param('empire_id');
+    my $empire_id   = $request->param('empire_id');
+    my $page_number = $request->param('page_number') || 1;
     my $date_query = $request->param('old') ? {'=' => undef} : { '!=' => undef };
-    my $logins = Lacuna->db->resultset('Lacuna::DB::Result::Log::Login')->search({empire_id => $empire_id},{order_by => { -desc => 'date_stamp' }});
+    my $logins = Lacuna->db->resultset('Lacuna::DB::Result::Log::Login')->search(
+        { empire_id => $empire_id },
+        { order_by => { -desc => 'date_stamp' },
+          rows     => 25,
+          page     => $page_number,
+        });
     my $out = '<h1>Login Log</h1>';
     $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $empire_id);
     $out .= '<table style="width: 100%;"><tr><th>Empire Name</th><th>Log-in Date</th><th>Log-out Date</th><th>Extended</th><th>IP Address</th><th>Sitter</th><th>API Key</th></tr>';
@@ -145,6 +151,7 @@ sub www_view_login_log {
                         $login->extended, $login->ip_address, $sitter, $login->api_key);
     }
     $out .= '</table>';
+    $out .= $self->format_paginator('view/login/log', 'empire_id', $empire_id, $page_number);
     return $self->wrap($out);
 }
 
