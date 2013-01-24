@@ -767,12 +767,15 @@ sub www_view_empire {
     $out .= sprintf('<tr><th>Stage</th><td>%s</td><td></td></tr>', $empire->stage);
     $out .= sprintf('<tr><th>Last Login</th><td>%s</td><td>', $empire->last_login);
     $out .= sprintf('<a href="/admin/view/login/log?empire_id=%s">View Log</a></td></tr>',$empire->id);
-    $out .= sprintf('<tr><th>Essentia</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/add/essentia">
+    $out .= sprintf('<tr><th>Essentia</th><td>%.1f</td><td>', $empire->essentia);
+    $out .= sprintf('<a href="/admin/view/essentia/log?empire_id=%s">View Log</a></td></tr>',$empire->id);
+    $out .= sprintf('<tr><th>Essentia Types</th><td>Free: %.1f; Game: %.1f; Paid: %.1f</td><td></td></tr>', $empire->essentia_free, $empire->essentia_game, $empire->essentia_paid);
+    $out .= sprintf('<th>Add Essentia</th><td colspan="2">
+<form method="post" style="display: inline" action="/admin/add/essentia">
 <input type="hidden" name="id" value="%s">
 <input name="amount" style="width: 30px;" value="0">
 <input name="description" value="Administrative Privilege">
-<input type="submit" value="add essentia"></form>', $empire->essentia, $empire->id); 
-    $out .= sprintf('<a href="/admin/view/essentia/log?empire_id=%s">View Log</a></td></tr>',$empire->id);
+<input type="submit" value="add essentia"></form></td></tr>', $empire->essentia, $empire->id);
     $out .= sprintf('<tr><th>Species</th><td>%s</td><td></td></tr>', $empire->species_name);
     $out .= sprintf('<tr><th>Home</th><td><a href="/admin/view/body?id=%s">%s</a></td><td></td></tr>', $empire->home_planet_id, $empire->home_planet_id);
     $out .= sprintf('<tr><th>Description</th><td>%s</td><td></td></tr>', $empire->description);
