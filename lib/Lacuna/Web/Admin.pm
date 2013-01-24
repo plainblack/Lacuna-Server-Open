@@ -132,33 +132,46 @@ sub www_view_essentia_log {
 
 sub www_view_login_log {
     my ($self, $request) = @_;
-    my $empire_id   = $request->param('empire_id');
+    my ( $search_field, $search_value );
+    for my $field (qw( empire_id ip_address api_key )) {
+        if ( my $value = $request->param($field) ) {
+            $search_field = $field;
+            $search_value = $value;
+            last;
+        }
+    }
     my $page_number = $request->param('page_number') || 1;
-    my $date_query = $request->param('old') ? {'=' => undef} : { '!=' => undef };
     my $logins = Lacuna->db->resultset('Lacuna::DB::Result::Log::Login')->search(
-        { empire_id => $empire_id },
+        { $search_field => $search_value },
         { order_by => { -desc => 'date_stamp' },
           rows     => 25,
           page     => $page_number,
         });
     my $out = '<h1>Login Log</h1>';
-    $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $empire_id);
-    $out .= '<table style="width: 100%;"><tr><th>Empire Name</th><th>Log-in Date</th><th>Log-out Date</th><th>Extended</th><th>IP Address</th><th>Sitter</th><th>API Key</th></tr>';
+    if ( $search_field eq 'empire_id' ) {
+        $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $search_value);
+    }
+    $out .= '<table style="width: 100%;"><tr><th>ID</th><th>Empire Name</th><th>Log-in Date</th><th>Log-out Date</th><th>Extended</th><th>IP Address</th><th>Sitter</th><th>API Key</th></tr>';
     while (my $login = $logins->next) {
         my $sitter = $login->is_sitter ? 'Sitter' : '';
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
-                        $login->empire_name, $login->date_stamp, $login->log_out_date,
-                        $login->extended, $login->ip_address, $sitter, $login->api_key);
+        $out .= sprintf('<tr><td><a href="/admin/view/empire?id=%d">%d</a></td>',
+                        $login->empire_id, $login->empire_id);
+        $out .= sprintf('<td>%s</td><td>%s</td><td>%s</td><td>%s</td>',
+                        $login->empire_name, $login->date_stamp, $login->log_out_date, $login->extended );
+        $out .= sprintf('<td><a href="/admin/view/login/log?ip_address=%s" title="Search for all users logging in with this IP address">%s</a></td>',
+                        $login->ip_address, $login->ip_address );
+        $out .= sprintf('<td>%s</td>', $sitter);
+        $out .= sprintf('<td><a href="/admin/view/login/log?api_key=%s" title="Search for all users logging in with this API key">%s</a></td></tr>',
+                        $login->api_key, $login->api_key );
     }
     $out .= '</table>';
-    $out .= $self->format_paginator('view/login/log', 'empire_id', $empire_id, $page_number);
+    $out .= $self->format_paginator('view/login/log', $search_field, $search_value, $page_number);
     return $self->wrap($out);
 }
 
 sub www_view_empire_name_change_log {
     my ($self, $request) = @_;
     my $empire_id = $request->param('empire_id');
-    my $date_query = $request->param('old') ? {'=' => undef} : { '!=' => undef };
     my $history = Lacuna->db->resultset('Lacuna::DB::Result::Log::EmpireNameChange')->search({empire_id => $empire_id},{order_by => { -desc => 'date_stamp' }});
     my $out = '<h1>Empire Name-Change Log</h1>';
     $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $empire_id);
