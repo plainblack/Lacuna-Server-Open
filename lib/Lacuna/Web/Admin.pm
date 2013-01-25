@@ -184,6 +184,73 @@ sub www_view_empire_name_change_log {
     return $self->wrap($out);
 }
 
+sub www_search_similar_empire {
+    my ($self, $request) = @_;
+    my $empire_id   = $request->param('empire_id');
+    my $page_number = $request->param('page_number') || 1;
+    my $type        = $request->param('type');
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    unless (defined $empire) {
+        confess [404, 'Empire not found.'];
+    }
+    my @query = (
+        id => { '!=' => $empire_id },
+    );
+    if ( $type eq 'name' ) {
+        my @words = $empire->name =~ /(\p{Alpha}+)/g;
+        if ( @words ) {
+            push @query, -or => [
+                map { my %x = ( LIKE => "%$_%" ); name => \%x } @words
+            ];
+        }
+        else {
+            my $name = $empire->name;
+            push @query, name => { 'LIKE' => "%$name%" };
+        }
+    }
+    elsif ( $type eq 'email_user' ) {
+        my ($user) = $empire->email =~ /([^@]+)/;
+        if ( !defined $user ) {
+            confess [ 400, 'Failed to parse email address' ];
+        }
+        my @words = $user =~ /(\p{Alpha}+)/g;
+        if ( @words ) {
+            push @query, -or => [
+                map { my %x = ( LIKE => "%$_%\@%" ); email => \%x } @words
+            ];
+        }
+        else {
+            my $email = $empire->email;
+            push @query, email => { 'LIKE' => "%$email%" };
+        }
+    }
+    elsif ( $type eq 'email_domain' ) {
+        my ($domain) = $empire->email =~ /@([^@]+)/;
+        if ( !defined $domain ) {
+            confess [ 400, 'Failed to parse email address' ];
+        }
+        push @query, email => { 'LIKE' => "%\@$domain" };
+    }
+    my $search = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search(
+        { -and => \@query },
+        { order_by => { -desc => 'id' },
+          rows     => 25,
+          page     => $page_number,
+        });
+    my $out = '<h1>Similar Empires</h1>';
+    $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $empire_id);
+    $out .= '<table style="width: 100%;"><tr><th>ID</th><th>Empire Name</th><th>Email</th><th>Created</th><th>Last Login</th></tr>';
+    while (my $match = $search->next) {
+        $out .= sprintf('<tr><td><a href="/admin/view/empire?id=%d">%d</a></td>',
+                        $match->id, $match->id);
+        $out .= sprintf('<td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
+                        $match->name, $match->email, $match->date_created, $match->last_login );
+    }
+    $out .= '</table>';
+    $out .= $self->format_complex_paginator('search/similar/empire', { empire_id => $empire_id, type => $type }, $page_number);
+    return $self->wrap($out);
+}
+
 sub www_search_empires {
     my ($self, $request) = @_;
     my $page_number = $request->param('page_number') || 1;
@@ -684,10 +751,21 @@ sub www_recalc_body {
 
 sub format_paginator {
     my ($self, $method, $key, $value, $page_number) = @_;
+    
+    return $self->format_complex_paginator( $method, { $key => $value }, $page_number );
+}
+
+sub format_complex_paginator {
+    my ($self, $method, $query, $page_number) = @_;
     my $out = '<fieldset><legend>Page: '.$page_number.'</legend>';
-    $out .= '<a href="/admin/'.$method.'?'.$key.'='.$value.';page_number='.($page_number - 1).'">&lt; Previous</a> | ';
-    $out .= '<a href="/admin/'.$method.'?'.$key.'='.$value.';page_number='.($page_number + 1).'">Next &gt;</a> ';
-    $out .= '<form method="post" style="display: inline;" action="/admin/'.$method.'"><input name="page_number" value="'.$page_number.'" style="width: 30px;"><input type="hidden" name="'.$key.'" value="'.$value.'"><input type="submit" value="go"></form>';
+    my $query_str = join ';', map { sprintf "%s=%s", $_, $query->{$_} } keys %$query;
+    $out .= '<a href="/admin/'.$method.'?'.$query_str.';page_number='.($page_number - 1).'">&lt; Previous</a> | ';
+    $out .= '<a href="/admin/'.$method.'?'.$query_str.';page_number='.($page_number + 1).'">Next &gt;</a> ';
+    $out .= '<form method="post" style="display: inline;" action="/admin/'.$method.'"><input name="page_number" value="'.$page_number.'" style="width: 30px;">';
+    for my $key ( keys %$query ) {
+        $out .= sprintf '<input type="hidden" name="%s" value="%s">', $key, $query->{$key};
+    }
+    $out .= '<input type="submit" value="go"></form>';
     $out .= '</fieldset>';
     return $out;
 }
@@ -781,8 +859,14 @@ sub www_view_empire {
     $out .= sprintf('<tr><th>Id</th><td>%s</td><td></td></tr>', $empire->id);
     $out .= sprintf('<tr><th>RPC Requests</th><td>%s</td><td></td></tr>', $empire->rpc_count);
     $out .= sprintf('<tr><th>Name</th><td>%s</td><td>', $empire->name);
-    $out .= sprintf('<a href="/admin/view/empire/name/change/log?empire_id=%s">View History</a></td></tr>',$empire->id);
-    $out .= sprintf('<tr><th>Email</th><td>%s</td><td></td></tr>', $empire->email);
+    $out .= sprintf('<a href="/admin/view/empire/name/change/log?empire_id=%s">View History</a>',$empire->id);
+    $out .= sprintf(' | <a href="/admin/search/similar/empire?empire_id=%s&type=name">Find Similar Empire Names</a></td></tr>',$empire->id);
+    $out .= sprintf('<tr><th>Email</th><td>%s</td><td>', $empire->email);
+    if ( $empire->email ) {
+        $out .= sprintf('<a href="/admin/search/similar/empire?empire_id=%s&type=email_user">Find Similar Email Usernames</a>',$empire->id);
+        $out .= sprintf(' | <a href="/admin/search/similar/empire?empire_id=%s&type=email_domain">Find Same Email Domains</a>',$empire->id);
+    }
+    $out .= '</td></tr>';
     $out .= sprintf('<tr><th>Created</th><td>%s</td><td></td></tr>', $empire->date_created);
     $out .= sprintf('<tr><th>Stage</th><td>%s</td><td></td></tr>', $empire->stage);
     $out .= sprintf('<tr><th>Last Login</th><td>%s</td><td>', $empire->last_login);
