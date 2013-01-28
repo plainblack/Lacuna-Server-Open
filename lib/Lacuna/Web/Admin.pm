@@ -856,6 +856,9 @@ sub www_view_empire {
     }
     my $out = '<h1>Manage Empire</h1>';
     $out .= '<table style="width: 100%">';
+    if ( $empire->self_destruct_active ) {
+        $out .= sprintf('<tr class="admin_highlight"><th>Self Destruct Active!</th><td>Expires: %s</td><td></td></tr>', $empire->self_destruct_date);
+    }
     $out .= sprintf('<tr><th>Id</th><td>%s</td><td></td></tr>', $empire->id);
     $out .= sprintf('<tr><th>RPC Requests</th><td>%s</td><td></td></tr>', $empire->rpc_count);
     $out .= sprintf('<tr><th>Name</th><td>%s</td><td>', $empire->name);
