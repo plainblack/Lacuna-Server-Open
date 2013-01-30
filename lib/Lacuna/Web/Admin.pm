@@ -929,9 +929,9 @@ sub www_view_body {
     $out .= sprintf('<li><a href="/admin/view/glyphs?body_id=%s">View Glyphs</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/recalc/body?body_id=%s">Recalculate Body Stats</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/complete/builds?body_id=%s">Complete All Builds</a></li>', $body->id);
-    $out .= sprintf('<li><a href="/admin/send/stellar/flare?body_id=%s" onclick="return confirm(\'Are you sure?\')">Send Stellar Flare</a></li>', $body->id);
-    $out .= sprintf('<li><a href="/admin/send/meteor/shower?body_id=%s" onclick="return confirm(\'Are you sure?\')">Send Meteor Shower</a></li>', $body->id);
-    $out .= sprintf('<li><a href="/admin/send/pestilence?body_id=%s" onclick="return confirm(\'Are you sure?\')">Send Pestilence</a></li>', $body->id);
+    $out .= sprintf('<li><a href="/admin/send/stellar/flare?body_id=%s" onclick="return confirm(\'Set all buildings on planet (except PCC) to zero efficiency - Are you sure?\')" title="Set all buildings on planet (except PCC) to zero efficiency">Send Stellar Flare</a></li>', $body->id);
+    $out .= sprintf('<li><a href="/admin/send/meteor/shower?body_id=%s" onclick="return confirm(\'Replace all infrastructure buildings on planet (except PCC) with level 1 craters - Are you sure?\')" title="Replace all infrastructure buildings on planet (except PCC) with level 1 craters">Send Meteor Shower</a></li>', $body->id);
+    $out .= sprintf('<li><a href="/admin/send/pestilence?body_id=%s" onclick="return confirm(\'Abandon colony and remove all non-permanent buildings - Are you sure?\')" title="Abandon colony and remove all non-permanent buildings">Send Pestilence</a></li>', $body->id);
     $out .= '</ul>';
     return $self->wrap($out);
 }
