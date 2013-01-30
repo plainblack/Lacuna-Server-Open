@@ -1048,8 +1048,9 @@ sub www_view_virality {
     my ($self, $request) = @_;
     my $out = '<h1>Virality</h1>';
 
+    my $dt_formatter = Lacuna->db->storage->datetime_parser;
     my (@accepts, @abandons, @creates, @invites, @dates, @deletes, @users, @stay, @vc, @gr, @cr, $previous, $max_viral, $max_change, $max_users, $max_stay);
-    my $past30 = Lacuna->db->resultset('Lacuna::DB::Result::Log::Viral')->search({date_stamp => { '>=' => DateTime->now->subtract(days => 31)}}, { order_by => 'date_stamp'});
+    my $past30 = Lacuna->db->resultset('Lacuna::DB::Result::Log::Viral')->search({date_stamp => { '>=' => $dt_formatter->format_datetime(DateTime->now->subtract(days => 31))}}, { order_by => 'date_stamp'});
     while (my $day = $past30->next) {
         unless (defined $previous) {
             $previous = $day;
@@ -1175,10 +1176,11 @@ sub www_view_economy {
     my ($self, $request) = @_;
     my $out = '<h1>Economy</h1>';
 
+    my $dt_formatter = Lacuna->db->storage->datetime_parser;
     my (@dates, $previous, @arpu, $max_purchases, @p30, @p100, @p200, @p600, @p1300, $max_revenue, @revenue, @r30, @r100, @r200, @r600, @r1300);
     my ($max_out, @out_boost, @out_mission, @out_recycle, @out_ship, @out_spy, @out_glyph, @out_party, @out_building, @out_trade, @out_delete, @out_other);        
     my ($max_in, @in_mission, @in_purchase, @in_trade, @in_redemption, @in_vein, @in_vote, @in_tutorial, @in_other);
-    my $past30 = Lacuna->db->resultset('Lacuna::DB::Result::Log::Economy')->search({date_stamp => { '>=' => DateTime->now->subtract(days => 31)}}, { order_by => 'date_stamp'});
+    my $past30 = Lacuna->db->resultset('Lacuna::DB::Result::Log::Economy')->search({date_stamp => { '>=' => $dt_formatter->format_datetime(DateTime->now->subtract(days => 31))}}, { order_by => 'date_stamp'});
     while (my $day = $past30->next) {
         unless (defined $previous) {
             $previous = $day;
