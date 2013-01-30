@@ -75,14 +75,19 @@ sub www_send_test_message {
 sub www_search_essentia_codes {
     my ($self, $request) = @_;
     my $page_number = $request->param('page_number') || 1;
-    my $codes = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search(undef, {order_by => { -desc => 'amount' }, rows => 25, page => $page_number });
+    my $codes = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search(undef, {order_by => { -desc => 'date_created' }, rows => 25, page => $page_number });
     my $code = $request->param('code') || '';
     if ($code) {
         $codes = $codes->search({code => { like => $code.'%' }});
     }
+    my $used = $request->param('used');
+    if ( defined $used && length $used ) {
+        $codes = $codes->search({used => $used});
+    }
+    my $toggle_used = $used ? '0' : 1;
     my $out = '<h1>Search Essentia Codes</h1>';
     $out .= '<form method="post" action="/admin/search/essentia/codes"><input name="code" value="'.$code.'"><input type="submit" value="search"></form>';
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><td>Used</td></tr>';
+    $out .= sprintf('<table style="width: 100%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><th><a href="/admin/search/essentia/codes?code=%s;used=%d" title="Toggle">Used</a></th></tr>', $code, $toggle_used );
     while (my $code = $codes->next) {
         $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $code->id, $code->code, $code->amount, $code->description, $code->date_created, $code->used);
     }
@@ -95,7 +100,11 @@ sub www_search_essentia_codes {
     $out .= '<td><input type="submit" value="add code"></td>';
     $out .= '</tr></form>';
     $out .= '</table>';
-    $out .= $self->format_paginator('search/essentia/codes', 'code', $code, $page_number);
+    my %page_query = (
+        code => $code,
+        used => $used,
+    );
+    $out .= $self->format_complex_paginator('search/essentia/codes', \%page_query, $page_number);
     return $self->wrap($out);
 }
 
