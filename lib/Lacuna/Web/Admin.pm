@@ -347,7 +347,7 @@ sub www_send_stellar_flare {
     $body_id ||= $request->param('body_id');
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
     foreach my $building (@{$body->building_cache}) {
-        next unless ('Infrastructure' ~~ [$building->build_tags]);
+#        next unless ('Infrastructure' ~~ [$building->build_tags]);
         next if ( $building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' );
         $building->efficiency(0);
         $building->update;
@@ -498,15 +498,15 @@ sub www_set_efficiency {
     my $x = $request->param('x');
     my $y = $request->param('y');
     
-    # check the plot lock
-    if ($body->is_plot_locked($x, $y)) {
-        confess [1013, "That plot is reserved for another building.", [$x,$y]];
-    }
-    else {
-        $body->lock_plot($x,$y);
-    }
-    # is the plot empty?
-    $body->check_for_available_build_space( $x, $y );
+#    # check the plot lock
+#    if ($body->is_plot_locked($x, $y)) {
+#        confess [1013, "That plot is reserved for another building.", [$x,$y]];
+#    }
+#    else {
+#        $body->lock_plot($x,$y);
+#    }
+#    # is the plot empty?
+#    $body->check_for_available_build_space( $x, $y );
     
     $building->update({
         efficiency      => $request->param('efficiency'),

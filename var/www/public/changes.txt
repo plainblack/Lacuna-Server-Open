@@ -2,6 +2,9 @@
  - Fix: Eveins should no longer destruct after an upgrade
  - Add: Upgrading and evein adds the remaining time for this level to the next
  - Mod: Admin changes to track Essentia. To detect multi-accounting abuses.
+ - Mod: Admin changes to track more stuff.
+ - Mod: Trel colonies get a slight boost.
+ - Mod: Cult becomes active.
 
 3.0878:
  - Fix: Fissure Sealers were sending extra email on home arrival.
