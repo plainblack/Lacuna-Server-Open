@@ -5,6 +5,7 @@
  - Mod: Admin changes to track more stuff.
  - Mod: Trel colonies get a slight boost.
  - Mod: Cult becomes active.
+ - Fix: BHG recalculates incoming chains.
 
 3.0878:
  - Fix: Fissure Sealers were sending extra email on home arrival.
