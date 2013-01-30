@@ -498,15 +498,18 @@ sub www_set_efficiency {
     my $x = $request->param('x');
     my $y = $request->param('y');
     
-#    # check the plot lock
-#    if ($body->is_plot_locked($x, $y)) {
-#        confess [1013, "That plot is reserved for another building.", [$x,$y]];
-#    }
-#    else {
-#        $body->lock_plot($x,$y);
-#    }
-#    # is the plot empty?
-#    $body->check_for_available_build_space( $x, $y );
+    # is the building being moved?
+    if ( $x != $building->x || $y != $building->y ) {
+        # check the plot lock
+        if ($body->is_plot_locked($x, $y)) {
+            confess [1013, "That plot is reserved for another building.", [$x,$y]];
+        }
+        else {
+            $body->lock_plot($x,$y);
+        }
+        # is the plot empty?
+        $body->check_for_available_build_space( $x, $y );
+    }
     
     $building->update({
         efficiency      => $request->param('efficiency'),
