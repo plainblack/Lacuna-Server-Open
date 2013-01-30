@@ -263,7 +263,7 @@ sub www_search_similar_empire {
 sub www_search_empires {
     my ($self, $request) = @_;
     my $page_number = $request->param('page_number') || 1;
-    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search(undef, {order_by => ['name'], rows => 25, page => $page_number });
+    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search(undef, { rows => 25, page => $page_number });
     my $field = $request->param('field') || 'name';
     my $name  = $request->param('name') || '';
     if ($name) {
@@ -271,18 +271,33 @@ sub www_search_empires {
         $query =~ s/\*/%/;
         $empires = $empires->search({$field => { like => $query }});
     }
+    my $order = $request->param('order') || 'name';
+    my $desc  = $request->param('desc') || 0;
+    if ( $order ~~ [qw( id name last_login )] ) {
+        my $sort = $desc ? "-desc" : "-asc";
+        $empires = $empires->search(undef, { order_by => {$sort => $order} });
+    }
     my $out = '<h1>Search Empires</h1>';
     $out .= '<form method="post" action="/admin/search/empires"><input name="name" value="'.$name.'">';
     $out .= '<select name="field">';
     $out .= '<option value="name"'.( $field eq 'name'  ? ' selected="selected"' : '' ).'">Name</option>';
     $out .= '<option value="email"'.( $field eq 'email'  ? ' selected="selected"' : '' ).'">Email</option>';
     $out .= '</select><input type="submit" value="search"></form>';
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>Species</th><th>Home</th><th>Last Login</th></tr>';
+    $out .= '<table style="width: 100%;"><tr>';
+    $out .= sprintf('<th>Id <a href="/admin/search/empires?name=%s;order=id;desc=0" title="Order by Id, Ascending">&dArr;</a> <a href="/admin/search/empires?name=%s;order=id;desc=1" title="Order by Id, Descending">&uArr;</a></th>', $name, $name );
+    $out .= sprintf('<th>Name <a href="/admin/search/empires?name=%s;order=name;desc=0" title="Order by Name, Ascending">&dArr;</a> <a href="/admin/search/empires?name=%s;order=name;desc=1" title="Order by Name, Descending">&uArr;</a></th>', $name, $name );
+    $out .= '<th>Species</th><th>Home</th>';
+    $out .= sprintf('<th>Last Login <a href="/admin/search/empires?name=%s;order=last_login;desc=0" title="Order by Last Login, Ascending">&dArr;</a> <a href="/admin/search/empires?name=%s;order=last_login;desc=1" title="Order by Last Login, Descending">&uArr;</a></th></tr>', $name, $name );
     while (my $empire = $empires->next) {
         $out .= sprintf('<tr><td><a href="/admin/view/empire?id=%s">%s</a></td><td>%s</td><td>%s</td><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td></tr>', $empire->id, $empire->id, $empire->name, $empire->species_name, $empire->home_planet_id, $empire->home_planet_id, $empire->last_login);
     }
     $out .= '</table>';
-    $out .= $self->format_paginator('search/empires', 'name', $name, $page_number);
+    my %page_query = (
+        name  => $name,
+        order => $order,
+        desc  => $desc,
+    );
+    $out .= $self->format_complex_paginator('search/empires', \%page_query, $page_number);
     return $self->wrap($out);
 }
 
