@@ -912,6 +912,11 @@ sub www_view_empire {
 <input type="submit" value="add essentia"></form></td></tr>', $empire->essentia, $empire->id);
     $out .= sprintf('<tr><th>Species</th><td>%s</td><td></td></tr>', $empire->species_name);
     $out .= sprintf('<tr><th>Home</th><td><a href="/admin/view/body?id=%s">%s</a></td><td></td></tr>', $empire->home_planet_id, $empire->home_planet_id);
+    $out .= sprintf('<tr><th>Alliance</th><td>');
+    if ( my $alliance = $empire->alliance ) {
+        $out .= sprintf('<a href="/admin/view/alliance?id=%d">%s</a>', $alliance->id, $alliance->name);
+    }
+    $out .= sprintf('</td></tr>');
     $out .= '<tr><th>Invites Sent To</th><td>';
     my $invites_sent = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({inviter_id => $empire->id});
     $out .= join ' ; ',
@@ -940,6 +945,28 @@ sub www_view_empire {
     $out .= sprintf('<li><a href="/admin/send/test/message?empire_id=%s">Send Developer Test Email</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/delete/empire?empire_id=%s" onclick="return confirm(\'Are you sure?\')">Delete Empire</a> (Be Careful)</li>', $empire->id);
     $out .= '</ul>';
+    return $self->wrap($out);
+}
+
+sub www_view_alliance {
+    my ($self, $request, $id) = @_;
+    $id ||= $request->param('id');
+    my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($id);
+    unless (defined $alliance) {
+        confess [404, 'Alliance not found.'];
+    }
+    my $leader = $alliance->leader;
+    my $out = '<h1>Manage Alliance</h1>';
+    $out .= '<table style="width: 100%">';
+    $out .= '<tr><th>Id</th><th>Name</th><th>Home</th><th>Last Login</th></tr>';
+    $out .= sprintf('<tr><td><b><a href="/admin/view/empire?id=%d">%d</a></b></td><td><b>%s</b></td><td><b><a href="/admin/view/body?id=%d">%s</a></b></td><td><b>%s</b></td></tr>',
+                    $leader->id, $leader->id, $leader->name, $leader->home_planet_id, $leader->home_planet_id, $leader->last_login);
+    for my $member( $alliance->members ) {
+        next if $member->id == $leader->id;
+        $out .= sprintf('<tr><td><a href="/admin/view/empire?id=%d">%d</a></td><td>%s</td><td><a href="/admin/view/body?id=%d">%s</a></td><td>%s</td></tr>',
+                    $member->id, $member->id, $member->name, $member->home_planet_id, $member->home_planet_id, $member->last_login);
+    }
+    $out .= '</table>';
     return $self->wrap($out);
 }
 
