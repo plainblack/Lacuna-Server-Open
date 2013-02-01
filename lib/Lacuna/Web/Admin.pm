@@ -909,7 +909,7 @@ sub www_view_empire {
 <input type="hidden" name="id" value="%s">
 <input name="amount" style="width: 30px;" value="0">
 <input name="description" value="Administrative Privilege">
-<input type="submit" value="add essentia"></form></td></tr>', $empire->essentia, $empire->id);
+<input type="submit" value="add essentia"></form></td></tr>', $empire->id);
     $out .= sprintf('<tr><th>Species</th><td>%s</td><td></td></tr>', $empire->species_name);
     $out .= sprintf('<tr><th>Home</th><td><a href="/admin/view/body?id=%s">%s</a></td><td></td></tr>', $empire->home_planet_id, $empire->home_planet_id);
     $out .= sprintf('<tr><th>Alliance</th><td>');
