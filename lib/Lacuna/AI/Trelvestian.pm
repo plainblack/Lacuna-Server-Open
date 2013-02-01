@@ -45,6 +45,7 @@ sub colony_structures {
     return (
         ['Lacuna::DB::Result::Building::Permanent::EssentiaVein',1],
         ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',21],
+        ['Lacuna::DB::Result::Building::Permanent::GratchsGauntlet',12],
         ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',21],
         ['Lacuna::DB::Result::Building::Permanent::Volcano',21],
         ['Lacuna::DB::Result::Building::Permanent::AlgaePond',21],

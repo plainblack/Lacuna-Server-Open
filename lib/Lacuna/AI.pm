@@ -154,7 +154,15 @@ sub add_colonies {
             else {
                 say 'Finding colony in '.$zone.'...';
 # Need to narrow search if neutral area defined by coordinates.
-                my $body = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
+                my @bodies = $self->viable_colonies->search({
+                            'me.zone' => $zone,
+                            'stars.station_id'   => undef,
+                         },{
+                           join       => 'stars',
+                           rows       => 100,
+                   });
+                my $body = random_element(\@bodies);
+
                 if (defined $body) {
                     say 'Clearing '.$body->name;
                     my @to_demolish = @{$body->building_cache};
