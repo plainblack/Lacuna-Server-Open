@@ -923,9 +923,9 @@ sub www_view_empire {
         map {
             sprintf('<a href="/admin/view/empire?id=%d">%s</a>', $_->id, $_->name )
         }
-        map {
-            $_->invitee
-        } $invites_sent->all;
+        map  { $_->invitee }
+        grep { $_->invitee_id } 
+            $invites_sent->all;
     $out .= '</td></tr>';
     $out .= '<tr><th>Invite Accepted From</th><td>';
     my $invite_accepted = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $empire->id},{rows=>1})->single;
