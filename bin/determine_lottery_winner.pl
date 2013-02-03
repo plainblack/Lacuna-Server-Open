@@ -32,7 +32,11 @@ X: foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('
             my $empire = $empires->find($empire_id);
             if ($empire) {
                 out('Winner: '.$empire->name);
-                $empire->add_essentia(10, 'Entertainment District Lottery')->update;
+                $empire->add_essentia({
+                    amount  => 10, 
+                    reason  => 'Entertainment District Lottery',
+                });
+                $empire->update;
                 $empire->send_predefined_message(
                     tags        => ['Alert'],
                     filename    => 'we_won_the_lottery.txt',

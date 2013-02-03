@@ -101,7 +101,10 @@ sub subsidize_build_queue {
         confess [1011, "Not enough essentia."];    
     }
 
-    $empire->spend_essentia($cost, 'fleet build subsidy after the fact');
+    $empire->spend_essentia({
+        amount      => $cost, 
+        reason      => 'ship build subsidy after the fact',
+    });    
     $empire->update;
 
     $fleets->reset;

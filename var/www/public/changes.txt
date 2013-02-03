@@ -55,6 +55,15 @@
 KNOWN BUGS:
  - bug: Fleet format currently shows 'Foreign' for all fleets
 
+3.0879:
+ - Fix: Eveins should no longer destruct after an upgrade
+ - Add: Upgrading and evein adds the remaining time for this level to the next
+ - Mod: Admin changes to track Essentia. To detect multi-accounting abuses.
+ - Mod: Admin changes to track more stuff.
+ - Mod: Trel colonies get a slight boost.
+ - Mod: Cult becomes active.
+ - Fix: BHG recalculates incoming chains.
+
 3.0878:
  - Fix: Fissure Sealers were sending extra email on home arrival.
  - Add: Cult of the Fissure added into code base.

@@ -12,7 +12,8 @@ my $session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
 my $result;
-$empire->add_essentia(10,'testing development')->update;
+$empire->add_essentia({ amount => 10, reason => 'testing development'});
+$empire->update;
 
 my $uni = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
     x               => 0,

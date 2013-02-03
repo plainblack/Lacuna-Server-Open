@@ -718,7 +718,10 @@ sub boost {
     unless ($empire->essentia >= 5) {
         confess [1011, 'Not enough essentia.'];
     }
-    $empire->spend_essentia(5, $type.' boost');
+    $empire->spend_essentia({
+        amount  => 5, 
+        reason  => $type.' boost',
+    });
     my $start = DateTime->now;
     $start = $empire->$type if ($empire->$type > $start);
     $start->add(days=>7);
@@ -891,7 +894,10 @@ sub redefine_species {
         confess [1009, 'Your minimum growth affinity is '.$limits->{min_growth}.'.'];
     }
     
-    $empire->spend_essentia(100, 'redefine species');
+    $empire->spend_essentia({
+        amount  => 100, 
+        reason  => 'redefine species',
+    });
     $empire->update_species($me);
     $empire->update;
     $empire->planets->update({needs_recalc=>1});

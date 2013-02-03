@@ -18,7 +18,8 @@ my $tester = TestHelper->new({ big_producer => 1 })->generate_test_empire->build
 my $tester_session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
-$empire->add_essentia(100, 'testing transporter')->update;
+$empire->add_essentia({ amount => 100, reason => 'testing transporter'});
+$empire->update;
 
 # Build an SST and a space port
 

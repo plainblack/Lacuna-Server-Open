@@ -15,11 +15,13 @@ my $tester = TestHelper->new({ big_producer => 1 })->generate_test_empire->build
 my $tester_session_id = $tester->session->id;
 my $empire = $tester->empire;
 my $home = $empire->home_planet;
-$empire->add_essentia(100, 'testing transporter')->update;
+$empire->add_essentia({ amount => 100, reason => 'testing transporter'});
+$empire->update;
 
 my $trader = TestHelper->new({empire_name => 'TLE Test Trader', big_producer => 1})->generate_test_empire->build_infrastructure;
 my $trader_session_id = $trader->session->id;
-$trader->empire->add_essentia(100, 'testing transporter')->update;
+$trader->empire->add_essentia({ amount => 100, reason => 'testing transporter'});
+$trader->empire->update;
 
 # Build an SST and a space port on both the tester and the trader empires
 

@@ -169,7 +169,10 @@ sub subsidize_search {
     }
 
     $building->finish_work->update;
-    $empire->spend_essentia(2, 'glyph search subsidy after the fact');    
+    $empire->spend_essentia({
+        amount      => 2, 
+        reason      => 'glyph search subsidy after the fact',
+    });
     $empire->update;
 
     return $self->view($empire, $building);

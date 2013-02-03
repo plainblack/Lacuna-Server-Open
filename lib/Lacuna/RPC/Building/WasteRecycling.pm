@@ -57,7 +57,10 @@ sub subsidize_recycling {
     }
 
     $building->finish_work->update;
-    $empire->spend_essentia(2, 'recycling subsidy after the fact');    
+    $empire->spend_essentia({
+        amount      => 2,
+        reason      => 'recycling subsidy after the fact',
+    });
     $empire->update;
 
     return $self->view($empire, $building);

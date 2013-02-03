@@ -11,7 +11,8 @@ TestHelper->clear_all_test_empires;
 my $tester = TestHelper->new->generate_test_empire->build_infrastructure;
 my $session_id = $tester->session->id;
 my $empire = $tester->empire;
-$empire->add_essentia(100,'testing transporter')->update;
+$empire->add_essentia({ amount => 100, reason => 'testing transporter'});
+$empire->update;
 my $home = $empire->home_planet;
 
 my $result;

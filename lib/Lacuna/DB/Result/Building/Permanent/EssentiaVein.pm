@@ -32,8 +32,22 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
+
     $self->body->add_news(30, sprintf('Though officials on %s tried to keep it secret, news of the discovery of an Essentia vein broke.', $self->body->name));
-    $self->start_work({}, 60 * 60 * 24 * 60)->update;
+    # Removed any scheduled work that is already running
+    # Reschedule work.
+    #
+    my $work_ends;
+    if ($self->is_working) {
+        $work_ends = $self->work_ends->clone;
+    }
+    else {
+        $work_ends = DateTime->now;
+    }
+    $work_ends = $work_ends->add(seconds => 60 * 60 * 24 * 60);
+    $self->reschedule_work($work_ends);
+    $self->update;
+
 };
 
 after finish_work => sub {

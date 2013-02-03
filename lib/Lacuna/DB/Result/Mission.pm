@@ -94,7 +94,11 @@ sub add_rewards {
     my $rewards = $self->params->get('mission_reward');
     # essentia
     if (exists $rewards->{essentia}) {
-        $body->empire->add_essentia($rewards->{essentia}, 'mission reward')->update;
+        $body->empire->add_essentia({
+            amount  => $rewards->{essentia}, 
+            reason  => 'mission reward',
+        });
+        $body->empire->update;
     }
     
     # happiness
@@ -149,7 +153,11 @@ sub spend_objectives {
     my $objectives = $self->params->get('mission_objective');
     # essentia
     if (exists $objectives->{essentia}) {
-        $body->empire->spend_essentia($objectives->{essentia},'mission objective')->update;
+        $body->empire->spend_essentia({
+            amount  => $objectives->{essentia},
+            reason  => 'mission objective',
+        });
+        $body->empire->update;
     }
     
     # happiness

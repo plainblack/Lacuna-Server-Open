@@ -95,22 +95,15 @@ sub accept_from_market {
 
     $guard->cancel;
 
-    if ($trade->body->empire->id == $empire->id) {
-      # Selling to oneself
-      $empire->spend_essentia(0, 'Mercenary Price', 0, $trade->body->empire->id, $trade->body->empire->name )->update;
+    if ($trade->body->empire->id != $empire->id) {
+        $empire->transfer_essentia({
+            amount      => $trade->ask,
+            from_reason => 'Mercenary Price',
+            to_empire   => $trade->body->empire,
+            to_reason   => 'Mercenary Income',
+        });
     }
-    else {
-      $empire->spend_essentia($trade->ask, 'Mercenary Price', 0, $trade->body->empire->id, $trade->body->empire->name )->update;
-      $trade->body->empire->add_essentia($trade->ask, 'Mercenary Income', 0, $empire->id, $empire->name)->update;
-    }
-    #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
-    #$cargo_log->new({
-    #    message     => 'mercenaries guild offer accepted',
-    #    body_id     => $trade->body_id,
-    #    data        => $trade->payload,
-    #    object_type => ref($trade),
-    #    object_id   => $trade->id,
-    #})->insert;
+    
     $offer_ship->send(
         target  => $body,
         payload => $trade->payload,
@@ -118,29 +111,19 @@ sub accept_from_market {
     my $id = $trade->payload->{mercenary};
     my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($id);
     if (defined($spy)) {
-        unless ($spy->empire_id == $body->empire_id) {
-                $spy->empire_id($body->empire_id);
-        }
+        $spy->empire_id($body->empire_id);
         $spy->from_body_id($body->id);
         $spy->on_body_id($body->id);
         $spy->update;
     }
     
-    #$cargo_log->new({
-    #    message     => 'send offer',
-    #    body_id     => $offer_ship->foreign_body_id,
-    #    data        => $offer_ship->payload,
-    #    object_type => ref($offer_ship),
-    #    object_id   => $offer_ship->id,
-    #})->insert;
-    
     if ($trade->body->empire->id != $empire->id) {
-      # Don't notify yourself
-      $trade->body->empire->send_predefined_message(
-        tags        => ['Trade','Alert'],
-        filename    => 'trade_accepted.txt',
-        params      => [join("\n",@{$trade->format_description_of_payload}),  $trade->ask.' essentia', $empire->id, $empire->name],
-      );
+        # Don't notify yourself
+        $trade->body->empire->send_predefined_message(
+            tags        => ['Trade','Alert'],
+            filename    => 'trade_accepted.txt',
+            params      => [join("\n",@{$trade->format_description_of_payload}),  $trade->ask.' essentia', $empire->id, $empire->name],
+        );
     }
     $trade->delete;
 
@@ -159,7 +142,11 @@ sub add_to_market {
         confess [1011, "You need $cost essentia to make a trade using the Mercenaries Guild."];
     }
     my $trade = $building->add_to_market($cost, $spy_id, $ask, $ship_id);
-    $empire->spend_essentia($cost, 'Offered Mercenary Trade')->update;
+    $empire->spend_essentia({
+        amount      => $cost,
+        reason      => 'Offered Mercenary Trade',
+    });
+    $empire->update;
     return {
         trade_id    => $trade->id,
         status      => $self->format_status($empire, $building->body),

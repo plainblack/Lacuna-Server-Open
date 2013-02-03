@@ -55,7 +55,11 @@ sub push_items {
         confess [1010, 'You cannot push items to a planet that does not have a transporter.'];
     }
     $building->push_items($target, $transporter, $items);
-    $empire->spend_essentia(2, 'Transporter Push')->update; # has to go after due to validation in push_goods
+    $empire->spend_essentia({
+        amount  => 2, 
+        reason  => 'Transporter Push',
+    });
+    $empire->update; # has to go after due to validation in push_goods
     return {
         status      => $self->format_status($empire, $building->body),
     };
@@ -77,7 +81,11 @@ sub add_to_market {
         confess [1011, "You need 1 essentia to make a trade using the Subspace Transporter."];
     }
     my $trade = $building->add_to_market($offer, $ask);
-    $empire->spend_essentia(1, 'Offered Transporter Trade')->update;
+    $empire->spend_essentia({
+        amount  => 1, 
+        reason  => 'Offered Transporter Trade',
+    });
+    $empire->update;
     return {
         trade_id    => $trade->id,
         status      => $self->format_status($empire, $building->body),
@@ -142,16 +150,18 @@ sub accept_from_market {
 
     $guard->cancel;
 
-    $empire->spend_essentia($trade->ask + 1, 'Trade Price and Transporter Cost', 0, $trade->body->empire->id, $trade->body->empire->name)->update;
-    $trade->body->empire->add_essentia($trade->ask, 'Trade Income', 0, $empire->id, $empire->name)->update;
-    #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
-    #$cargo_log->new({
-    #    message     => 'transporter offer accepted',
-    #    body_id     => $trade->body_id,
-    #    data        => $trade->payload,
-    #    object_type => ref($trade),
-    #    object_id   => $trade->id,
-    #})->insert;
+    $empire->transfer_essentia({
+        amount      => $trade->ask,
+        from_reason => 'Trade Price',
+        to_empire   => $trade->body->empire,
+        to_reason   => 'Trade Income',
+    });
+    $empire->spend_essentia({
+        amount  => 1, 
+        reason  => 'Transporter Cost',
+    });
+    $empire->update;
+
     $trade->body->empire->send_predefined_message(
         tags        => ['Trade','Alert'],
         filename    => 'trade_accepted.txt',

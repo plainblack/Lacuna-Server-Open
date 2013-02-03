@@ -112,15 +112,11 @@ sub trade_one_for_one {
         confess [1011, 'You need 3 essentia to conduct this trade.'];
     }
     $body->can_add_type($want, $quantity);
-    $empire->spend_essentia(3, 'Lacunans Trade')->update;
-    #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
-    #$cargo_log->new({
-    #    message     => 'transporter one for one',
-    #    body_id     => $self->body_id,
-    #    data        => { have => $have, want => $want, quantity => $quantity },
-    #    object_type => ref($self),
-    #    object_id   => $self->id,
-    #})->insert;
+    $empire->spend_essentia({
+        amount  => 3, 
+        reason  => 'Lacunans Trade',
+    });
+    $empire->update;
     $body->spend_type($have, $quantity);
     $body->add_type($want, $quantity);
     $body->update;

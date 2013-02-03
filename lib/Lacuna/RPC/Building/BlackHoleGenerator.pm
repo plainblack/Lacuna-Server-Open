@@ -734,7 +734,10 @@ sub generate_singularity {
         }
     }
     if ($subsidize) {
-        $empire->spend_essentia($chance->{essentia_cost},'BHG perfection subsidy after the fact');
+        $empire->spend_essentia({
+            amount  => $chance->{essentia_cost},
+            reason  => 'BHG perfection subsidy after the fact',
+        });
         $empire->update;
     }
     
@@ -813,6 +816,7 @@ sub bhg_move_system {
 # We need to redo all the chains of the moved planets in one go.
         if ($bod->empire and $bod->get_type ne 'asteroid') {
             $bod->recalc_chains;
+            recalc_incoming_supply($bod);
         }
     }
     return {
@@ -929,6 +933,7 @@ sub bhg_swap {
                 }
             }
             $target->recalc_chains; # Recalc all chains
+            recalc_incoming_supply($target);
             if ($new_data->{type} eq 'space station') {
                 drop_stars_beyond_range($target);
             }
@@ -973,6 +978,7 @@ sub bhg_swap {
             }
         }
         $body->recalc_chains; # Recalc all chains
+        recalc_incoming_supply($body);
         if ($body->get_type eq 'space station') {
             drop_stars_beyond_range($target);
         }
@@ -1025,6 +1031,25 @@ sub bhg_swap {
         swapname => $new_data->{name},
         swapid   => $new_data->{id},
     };
+}
+
+sub recalc_incoming_supply {
+    my ($body) = @_;
+
+    my $all_chains = $body->in_supply_chains;
+
+    my %bids;
+    while (my $chain = $all_chains->next) {
+        my $bid = $chain->planet_id;
+        next if defined($bids{$bid});
+        $bids{$bid} = 1;
+        my $sender = Lacuna->db
+            ->resultset('Lacuna::DB::Result::Map::Body')
+            ->find($bid);
+        if (defined($sender->empire)) {
+            $sender->recalc_chains; # Recalc all chains
+        }
+    }
 }
 
 sub drop_stars_beyond_range {
@@ -1824,7 +1849,10 @@ sub subsidize_cooldown {
     }
     
     $building->finish_work->update;
-    $empire->spend_essentia(2, 'BHG cooldown subsidy after the fact');
+    $empire->spend_essentia({
+        amount  => 2, 
+        reason  => 'BHG cooldown subsidy after the fact',
+    });
     $empire->update;
     
     return $self->view($empire, $building);

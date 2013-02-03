@@ -66,7 +66,8 @@ $home->update;
 $result = $tester->post('ssla', 'make_plan', [$session_id, $ssla->id, 'ibs', 1]);
 is($result->{result}{make_plan}{making}, 'Interstellar Broadcast System (1+0)', 'making plan');
 
-$empire->add_essentia(10,'testing')->update;
+$empire->add_essentia({ amount => 10, reason => 'testing'});
+$empire->update;
 
 $result = $tester->post('ssla', 'subsidize_plan', [$session_id, $ssla->id]);
 ok(!exists $result->{result}{make_plan}{making}, 'subsidize making plan');

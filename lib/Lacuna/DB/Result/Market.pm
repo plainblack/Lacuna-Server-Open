@@ -55,7 +55,14 @@ sub withdraw {
         $ship->land->update if defined $ship;
     }
     elsif ($self->transfer_type eq 'transporter') {
-        $body->empire->add_essentia(1, 'Withdrew Transporter Trade')->update;
+        # Note, we  refund 'free' to stop people essentia-laundering 'free' into 'game'
+        # by multiple adding/removing trades
+        $body->empire->add_essentia({
+            amount      => 1,
+            reason      => 'Withdrew Transporter Trade',
+            type        => 'free',
+        });
+        $body->empire->update;
     }
     $self->delete;
 }

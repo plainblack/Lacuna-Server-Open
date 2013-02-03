@@ -54,7 +54,10 @@ sub rename_empire {
     Lacuna::RPC::Empire->new->is_name_available($name);
 
     $building->body->add_news(100, '%s has officially changed its name to %s.', $empire->name, $name);
-    $empire->spend_essentia($building->rename_empire_cost, 'rename empire');
+    $empire->spend_essentia({
+        amount  => $building->rename_empire_cost, 
+        reason  => 'rename empire',
+    });
     $empire->name($name);
     $empire->update;
 

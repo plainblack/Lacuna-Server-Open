@@ -35,7 +35,9 @@ __PACKAGE__->add_columns(
     player_name             => { data_type => 'varchar', size => 100, is_nullable => 1 },
     password_recovery_key   => { data_type => 'varchar', size => 36, is_nullable => 1 },
     last_login              => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    essentia                => { data_type => 'float', size => [11,1], default_value => 0 },
+    essentia_free           => { data_type => 'float', size => [11,1], default_value => 0 },
+    essentia_game           => { data_type => 'float', size => [11,1], default_value => 0 },
+    essentia_paid           => { data_type => 'float', size => [11,1], default_value => 0 },
     university_level        => { data_type => 'tinyint', default_value => 0 },
     tutorial_stage          => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'explore_the_ui' },
     tutorial_scratch        => { data_type => 'text', is_nullable => 1 },
@@ -130,6 +132,45 @@ sub allies {
     }
     return ($self);
 }
+
+sub essentia {
+    my ($self, $amount) = @_;
+
+    if (defined $amount) {
+        die "Cannot set essentia";
+    }
+    return $self->essentia_free + $self->essentia_game + $self->essentia_paid;
+}
+
+around name => sub {
+    my ($orig, $self) = (shift, shift);
+    
+    if (@_) {
+        my $new_name = $_[0];
+        
+        Lacuna->db->resultset('Lacuna::DB::Result::Log::EmpireNameChange')->new({
+            empire_id       => $self->id,
+            empire_name     => $new_name,
+            old_empire_name => $self->$orig,
+        })->insert;
+    }
+    
+    $self->$orig(@_);
+};
+
+around update => sub {
+    my ($orig, $self) = (shift, shift);
+    
+    if ( @_ && exists $_[0]->{name} ) {
+        Lacuna->db->resultset('Lacuna::DB::Result::Log::EmpireNameChange')->new({
+            empire_id       => $self->id,
+            empire_name     => $_[0]->{name},
+            old_empire_name => $self->name,
+        })->insert;
+    }
+    
+    $self->$orig(@_);
+};
 
 sub update_species {
     my ($self, $me) = @_;
@@ -239,29 +280,81 @@ sub add_medal {
 }
 
 sub spend_essentia {
-    my ($self, $value, $note, $transaction_id, $from_id, $from_name) = @_;
-    $from_id   = 0  unless defined($from_id);
-    $from_name = "" unless defined($from_name);
-    $self->essentia( $self->essentia - $value );
-    Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
-        empire_id       => $self->id,
-        empire_name     => $self->name,
-        amount          => $value * -1,
-        description     => $note,
-        api_key         => (defined $self->current_session) ? $self->current_session->api_key : undef,
-        transaction_id  => $transaction_id,
-        from_id         => $from_id,
-        from_name       => $from_name,
-    })->insert;
-    return $self;
+    my ($self, $args) = @_;
+
+    $args->{amount} *= -1;
+    $args->{type} = 'free' unless $args->{type};
+    $self->_adjust_essentia($args);
 }
 
 sub add_essentia {
-    my ($self, $value, $note, $transaction_id, $from_id, $from_name) = @_;
-    $from_id   = 0  unless defined($from_id);
-    $from_name = "" unless defined($from_name);
+    my ($self, $args) = @_;
+
+    $args->{type} = 'game' unless $args->{type};
+    $self->_adjust_essentia($args);
+}
+
+sub transfer_essentia {
+    my ($self, $args) = @_;
+
+    my $type = $self->spend_essentia({
+        amount          => $args->{amount},
+        reason          => $args->{from_reason},
+        other_empire    => $args->{to_empire},
+    });
+    $self->update;
+    my $to_empire = $args->{to_empire};
+    $to_empire->add_essentia({
+        amount          => $args->{amount},
+        reason          => $args->{to_reason},
+        type            => $type,
+        other_empire    => $self,
+    });
+    $to_empire->update;
+}
+
+sub _adjust_essentia {
+    my ($self, $args) = @_;
+
+    my $value           = $args->{amount};
+    my $type            = $args->{type} || 'game';
+    my $note            = $args->{reason};
+    my $transaction_id  = $args->{transaction_id};
+    my $other_empire    = $args->{other_empire};
+    my $other_id        = $other_empire ? $other_empire->id : 0;
+    my $other_name      = $other_empire ? $other_empire->name : '';
+    my $return_type;
+
+    $type = "essentia_$type";
     $self->discard_changes;
-    $self->essentia( $self->essentia + $value );
+    if ($value >= 0) {
+        # Adding does not matter what type
+        $self->$type($self->$type + $value);
+        $return_type = $type;
+    }
+    else {
+        # Negative, deduct what we can from the $type
+        $return_type = $return_type || $type if $self->$type > 0;
+        my $residual = $self->$type + $value;
+        if ($residual < 0) {
+            $self->$type(0);
+            TYPE:
+            foreach my $type (qw(essentia_free essentia_game essentia_paid)) {
+                # Now deduct from any other types
+                $residual = $self->$type + $residual;
+                if ($residual >= 0) {
+                    $self->$type($residual);
+                    last TYPE;
+                }
+                else {
+                    $self->$type(0);
+                }
+            }
+        }
+        else {
+            $self->$type($residual);
+        }
+    }
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
         empire_id       => $self->id,
         empire_name     => $self->name,
@@ -269,10 +362,13 @@ sub add_essentia {
         description     => $note,
         transaction_id  => $transaction_id,
         api_key         => (defined $self->current_session) ? $self->current_session->api_key : undef,
-        from_id         => $from_id,
-        from_name       => $from_name,
+        from_id         => $other_id,
+        from_name       => $other_name,
     })->insert;
-    return $self;
+
+    # Return the type of essentia spent or paid
+    $return_type =~ s/essentia_//;
+    return $return_type;
 }
 
 sub recalc_messages {
@@ -369,8 +465,13 @@ sub get_status {
 
 sub start_session {
     my ($self, $options) = @_;
-    $self->last_login(DateTime->now);
-    $self->update;
+    if (   $options
+        && $options->{api_key}
+        && $options->{api_key} ne 'admin_console' )
+    {
+        $self->last_login(DateTime->now);
+        $self->update;
+    }
     return Lacuna::Session->new->start($self, $options);
 }
 
@@ -913,7 +1014,11 @@ sub redeem_essentia_code {
             $code_string,
         ],
     );
-    $self->add_essentia($amount, 'Essentia Code Redemption', $code_string);
+    $self->add_essentia({
+        amount          => $amount, 
+        reason          => 'Essentia Code Redemption', 
+        transaction_id  => $code_string,
+    });
     $self->update;
     return $self;
 }

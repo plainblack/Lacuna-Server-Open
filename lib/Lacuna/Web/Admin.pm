@@ -75,14 +75,19 @@ sub www_send_test_message {
 sub www_search_essentia_codes {
     my ($self, $request) = @_;
     my $page_number = $request->param('page_number') || 1;
-    my $codes = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search(undef, {order_by => { -desc => 'amount' }, rows => 25, page => $page_number });
+    my $codes = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search(undef, {order_by => { -desc => 'date_created' }, rows => 25, page => $page_number });
     my $code = $request->param('code') || '';
     if ($code) {
         $codes = $codes->search({code => { like => $code.'%' }});
     }
+    my $used = $request->param('used');
+    if ( defined $used && length $used ) {
+        $codes = $codes->search({used => $used});
+    }
+    my $toggle_used = $used ? '0' : 1;
     my $out = '<h1>Search Essentia Codes</h1>';
     $out .= '<form method="post" action="/admin/search/essentia/codes"><input name="code" value="'.$code.'"><input type="submit" value="search"></form>';
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><td>Used</td></tr>';
+    $out .= sprintf('<table style="width: 100%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><th><a href="/admin/search/essentia/codes?code=%s;used=%d" title="Toggle">Used</a></th></tr>', $code, $toggle_used );
     while (my $code = $codes->next) {
         $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $code->id, $code->code, $code->amount, $code->description, $code->date_created, $code->used);
     }
@@ -95,7 +100,11 @@ sub www_search_essentia_codes {
     $out .= '<td><input type="submit" value="add code"></td>';
     $out .= '</tr></form>';
     $out .= '</table>';
-    $out .= $self->format_paginator('search/essentia/codes', 'code', $code, $page_number);
+    my %page_query = (
+        code => $code,
+        used => $used,
+    );
+    $out .= $self->format_complex_paginator('search/essentia/codes', \%page_query, $page_number);
     return $self->wrap($out);
 }
 
@@ -118,22 +127,155 @@ sub www_view_essentia_log {
     $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $empire_id);
     $out .= '<table style="width: 100%;"><tr><th>Date</th><th>Amount</th><th>Description</th><th>From ID</th><th>From</th><th>Transaction ID</th></tr>';
     while (my $transaction = $transactions->next) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%d</td><td>%s</td><td>%s</td></tr>',
+        my $empire_link = '';
+        if ( my $from_empire_id = $transaction->from_id ) {
+            $empire_link = sprintf '<a href="/admin/view_empire?id=%d">%d</a>', $from_empire_id, $from_empire_id;
+        }
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
                         $transaction->date_stamp, $transaction->amount, $transaction->description,
-                        $transaction->from_id, $transaction->from_name, $transaction->transaction_id);
+                        $empire_link, $transaction->from_name, $transaction->transaction_id);
     }
     $out .= '</table>';
+    return $self->wrap($out);
+}
+
+sub www_view_login_log {
+    my ($self, $request) = @_;
+    my ( $search_field, $search_value );
+    for my $field (qw( empire_id ip_address api_key )) {
+        if ( my $value = $request->param($field) ) {
+            $search_field = $field;
+            $search_value = $value;
+            last;
+        }
+    }
+    my $page_number = $request->param('page_number') || 1;
+    my $logins = Lacuna->db->resultset('Lacuna::DB::Result::Log::Login')->search(
+        { $search_field => $search_value },
+        { order_by => { -desc => 'date_stamp' },
+          rows     => 25,
+          page     => $page_number,
+        });
+    my $out = '<h1>Login Log</h1>';
+    if ( $search_field eq 'empire_id' ) {
+        $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $search_value);
+    }
+    $out .= '<table style="width: 100%;"><tr><th>ID</th><th>Empire Name</th><th>Log-in Date</th><th>Log-out Date</th><th>Extended</th><th>IP Address</th><th>Sitter</th><th>API Key</th></tr>';
+    while (my $login = $logins->next) {
+        my $sitter = $login->is_sitter ? 'Sitter' : '';
+        $out .= sprintf('<tr><td><a href="/admin/view/empire?id=%d">%d</a></td>',
+                        $login->empire_id, $login->empire_id);
+        $out .= sprintf('<td>%s</td><td>%s</td><td>%s</td><td>%s</td>',
+                        $login->empire_name, $login->date_stamp, $login->log_out_date, $login->extended );
+        $out .= sprintf('<td><a href="/admin/view/login/log?ip_address=%s" title="Search for all users logging in with this IP address">%s</a></td>',
+                        $login->ip_address, $login->ip_address );
+        $out .= sprintf('<td>%s</td>', $sitter);
+        $out .= sprintf('<td><a href="/admin/view/login/log?api_key=%s" title="Search for all users logging in with this API key">%s</a></td></tr>',
+                        $login->api_key, $login->api_key );
+    }
+    $out .= '</table>';
+    $out .= $self->format_paginator('view/login/log', $search_field, $search_value, $page_number);
+    return $self->wrap($out);
+}
+
+sub www_view_empire_name_change_log {
+    my ($self, $request) = @_;
+    my $empire_id = $request->param('empire_id');
+    my $history = Lacuna->db->resultset('Lacuna::DB::Result::Log::EmpireNameChange')->search({empire_id => $empire_id},{order_by => { -desc => 'date_stamp' }});
+    my $out = '<h1>Empire Name-Change Log</h1>';
+    $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $empire_id);
+    $out .= '<table style="width: 100%;"><tr><th>Date</th><th>New Name</th><th>Old Name</th></tr>';
+    while (my $log = $history->next) {
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td></tr>',
+                        $log->date_stamp, $log->empire_name, $log->old_empire_name);
+    }
+    $out .= '</table>';
+    return $self->wrap($out);
+}
+
+sub www_search_similar_empire {
+    my ($self, $request) = @_;
+    my $empire_id   = $request->param('empire_id');
+    my $page_number = $request->param('page_number') || 1;
+    my $type        = $request->param('type');
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    unless (defined $empire) {
+        confess [404, 'Empire not found.'];
+    }
+    my @query = (
+        id => { '!=' => $empire_id },
+    );
+    if ( $type eq 'name' ) {
+        my @words = $empire->name =~ /(\p{Alpha}+)/g;
+        if ( @words ) {
+            push @query, -or => [
+                map { my %x = ( LIKE => "%$_%" ); name => \%x } @words
+            ];
+        }
+        else {
+            my $name = $empire->name;
+            push @query, name => { 'LIKE' => "%$name%" };
+        }
+    }
+    elsif ( $type eq 'email_user' ) {
+        my ($user) = $empire->email =~ /([^@]+)/;
+        if ( !defined $user ) {
+            confess [ 400, 'Failed to parse email address' ];
+        }
+        my @words = $user =~ /(\p{Alpha}+)/g;
+        if ( @words ) {
+            push @query, -or => [
+                map { my %x = ( LIKE => "%$_%\@%" ); email => \%x } @words
+            ];
+        }
+        else {
+            my $email = $empire->email;
+            push @query, email => { 'LIKE' => "%$email%" };
+        }
+    }
+    elsif ( $type eq 'email_domain' ) {
+        my ($domain) = $empire->email =~ /@([^@]+)/;
+        if ( !defined $domain ) {
+            confess [ 400, 'Failed to parse email address' ];
+        }
+        push @query, email => { 'LIKE' => "%\@$domain" };
+    }
+    my $search = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search(
+        { -and => \@query },
+        { order_by => { -desc => 'id' },
+          rows     => 25,
+          page     => $page_number,
+        });
+    my $out = '<h1>Similar Empires</h1>';
+    $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $empire_id);
+    $out .= '<table style="width: 100%;"><tr><th>ID</th><th>Empire Name</th><th>Email</th><th>Created</th><th>Last Login</th></tr>';
+    while (my $match = $search->next) {
+        $out .= sprintf('<tr><td><a href="/admin/view/empire?id=%d">%d</a></td>',
+                        $match->id, $match->id);
+        $out .= sprintf('<td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
+                        $match->name, $match->email, $match->date_created, $match->last_login );
+    }
+    $out .= '</table>';
+    $out .= $self->format_complex_paginator('search/similar/empire', { empire_id => $empire_id, type => $type }, $page_number);
     return $self->wrap($out);
 }
 
 sub www_search_empires {
     my ($self, $request) = @_;
     my $page_number = $request->param('page_number') || 1;
-    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search(undef, {order_by => ['name'], rows => 25, page => $page_number });
+    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search(undef, { rows => 25, page => $page_number });
     my $field = $request->param('field') || 'name';
     my $name  = $request->param('name') || '';
     if ($name) {
-        $empires = $empires->search({$field => { like => '%'.$name.'%' }});
+        my $query = "$name%";
+        $query =~ s/\*/%/;
+        $empires = $empires->search({$field => { like => $query }});
+    }
+    my $order = $request->param('order') || 'name';
+    my $desc  = $request->param('desc') || 0;
+    if ( $order ~~ [qw( id name last_login )] ) {
+        my $sort = $desc ? "-desc" : "-asc";
+        $empires = $empires->search(undef, { order_by => {$sort => $order} });
     }
     my $out = '<h1>Search Empires</h1>';
     $out .= '<form method="post" action="/admin/search/empires"><input name="name" value="'.$name.'">';
@@ -141,12 +283,21 @@ sub www_search_empires {
     $out .= '<option value="name"'.( $field eq 'name'  ? ' selected="selected"' : '' ).'">Name</option>';
     $out .= '<option value="email"'.( $field eq 'email'  ? ' selected="selected"' : '' ).'">Email</option>';
     $out .= '</select><input type="submit" value="search"></form>';
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>Species</th><th>Home</th><th>Last Login</th></tr>';
+    $out .= '<table style="width: 100%;"><tr>';
+    $out .= sprintf('<th>Id <a href="/admin/search/empires?name=%s;order=id;desc=0" title="Order by Id, Ascending">&dArr;</a> <a href="/admin/search/empires?name=%s;order=id;desc=1" title="Order by Id, Descending">&uArr;</a></th>', $name, $name );
+    $out .= sprintf('<th>Name <a href="/admin/search/empires?name=%s;order=name;desc=0" title="Order by Name, Ascending">&dArr;</a> <a href="/admin/search/empires?name=%s;order=name;desc=1" title="Order by Name, Descending">&uArr;</a></th>', $name, $name );
+    $out .= '<th>Species</th><th>Home</th>';
+    $out .= sprintf('<th>Last Login <a href="/admin/search/empires?name=%s;order=last_login;desc=0" title="Order by Last Login, Ascending">&dArr;</a> <a href="/admin/search/empires?name=%s;order=last_login;desc=1" title="Order by Last Login, Descending">&uArr;</a></th></tr>', $name, $name );
     while (my $empire = $empires->next) {
         $out .= sprintf('<tr><td><a href="/admin/view/empire?id=%s">%s</a></td><td>%s</td><td>%s</td><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td></tr>', $empire->id, $empire->id, $empire->name, $empire->species_name, $empire->home_planet_id, $empire->home_planet_id, $empire->last_login);
     }
     $out .= '</table>';
-    $out .= $self->format_paginator('search/empires', 'name', $name, $page_number);
+    my %page_query = (
+        name  => $name,
+        order => $order,
+        desc  => $desc,
+    );
+    $out .= $self->format_complex_paginator('search/empires', \%page_query, $page_number);
     return $self->wrap($out);
 }
 
@@ -156,7 +307,9 @@ sub www_search_bodies {
     my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(undef, {order_by => ['name'], rows => 25, page => $page_number });
     my $name = $request->param('name') || '';
     if ($name) {
-        $bodies = $bodies->search({name => { like => '%'.$name.'%' }});
+        my $query = "$name%";
+        $query =~ s/\*/%/;
+        $bodies = $bodies->search({name => { like => $query }});
     }
     if ($request->param('empire_id')) {
         $bodies = $bodies->search({empire_id => $request->param('empire_id')});
@@ -184,7 +337,9 @@ sub www_search_stars {
     my $stars = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search(undef, {order_by => ['name'], rows => 25, page => $page_number });
     my $name = $request->param('name') || '';
     if ($name) {
-        $stars = $stars->search({name => { like => '%'.$name.'%' }});
+        my $query = "$name%";
+        $query =~ s/\*/%/;
+        $stars = $stars->search({name => { like => $query }});
     }
     if ($request->param('zone')) {
         $stars = $stars->search({zone => $request->param('zone')});
@@ -206,14 +361,8 @@ sub www_complete_builds {
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
     foreach my $building (@{$body->building_cache}) {
         next unless ( $building->is_upgrading );
-        $building->is_upgrading(0);
-        $building->upgrade_ends($building->upgrade_started);
-        $building->level($building->level + 1);
-        $building->update;
+        $building->finish_upgrade;
     }
-    $body->needs_recalc(1);
-    $body->needs_surface_refresh(1);
-    $body->update;
     return $self->wrap(sprintf('All building constuction completed! <a href="/admin/view/body?id=%s">Back To Body</a>', $request->param('body_id')));
 }
 
@@ -222,7 +371,7 @@ sub www_send_stellar_flare {
     $body_id ||= $request->param('body_id');
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
     foreach my $building (@{$body->building_cache}) {
-        next unless ('Infrastructure' ~~ [$building->build_tags]);
+#        next unless ('Infrastructure' ~~ [$building->build_tags]);
         next if ( $building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' );
         $building->efficiency(0);
         $building->update;
@@ -302,16 +451,94 @@ sub www_view_buildings {
         $out .= sprintf('<td><input type="submit" value="delete"/></td></form></tr>');
     }   
     $out .= '</table>';
+    $out .= '<h2>Add Building</h2>';
+    $out .= '<p>This costs no resources or plans, and bypasses normal restrictions ';
+    $out .= 'such as tech-level, plot-count, etc.<br>';
+    $out .= '<b>Level</b> is the final level <b>after</b> the build is complete.</br>';
+    $out .= '<b>X</b> and <b>Y</b> are not required.</p>';
+    $out .= '<form method="post" action="/admin/add/building"><tr>';
+    $out .= '<table><tr><th>Type</th><th>X</th><th>Y</th><th>Level</th><th>Skip build queue</th><th></th></tr>';
+    $out .= '<input type="hidden" name="body_id" value="'.$body_id.'">';
+    $out .= '<tr><td><select name="class">';
+    my %buildings = map { $_->name => $_ } findallmod Lacuna::DB::Result::Building;
+    foreach my $name (sort keys %buildings) {
+        next if $name eq 'Building';
+        $out .= '<option value="'.$buildings{$name}.'">'.$name.'</option>';
+    }
+    $out .= '</select></td>';
+    $out .= '<td><input name="x" value="" size="2"></td>';
+    $out .= '<td><input name="y" value="" size="2"></td>';
+    $out .= '<td><input name="level" value="1" size="2"></td>';
+    $out .= '<td><input name="skip_build_queue" type="checkbox" value="1"></td>';
+    $out .= '<td><input type="submit" value="add building"></td>';
+    $out .= '</tr></table></form>';
     return $self->wrap($out);
+}
+
+sub www_add_building {
+    my ($self, $request) = @_;
+    my $body = Lacuna->db->resultset('Map::Body')->find($request->param('body_id'));
+    unless (defined $body) {
+        confess [404, 'Body not found.'];
+    }
+    my $class = $request->param('class');
+    my $x     = $request->param('x');
+    my $y     = $request->param('y');
+    my $level = $request->param('level') || 1;
+    $level--;
+    if ( !length $x || !length $y ) {
+        ($x, $y) = $body->find_free_space;
+    }
+
+    # check the plot lock
+    if ($body->is_plot_locked($x, $y)) {
+        confess [1013, "That plot is reserved for another building.", [$x,$y]];
+    }
+    else {
+        $body->lock_plot($x,$y);
+    }
+    # is the plot empty?
+    $body->check_for_available_build_space( $x, $y );
+
+    my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+        x               => $x,
+        y               => $y,
+        level           => $level,
+        body_id         => $body->id,
+        body            => $body,
+        class           => $class,
+    });
+    $body->build_building( $building );
+    if ( $request->param('skip_build_queue') ) {
+        $building->finish_upgrade;
+    }
+    return $self->www_view_buildings($request, $body->id);
 }
 
 sub www_set_efficiency {
     my ($self, $request) = @_;
     my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->find($request->param('building_id'));
+    my $body = Lacuna->db->resultset('Map::Body')->find($building->body_id);
+    my $x = $request->param('x');
+    my $y = $request->param('y');
+    
+    # is the building being moved?
+    if ( $x != $building->x || $y != $building->y ) {
+        # check the plot lock
+        if ($body->is_plot_locked($x, $y)) {
+            confess [1013, "That plot is reserved for another building.", [$x,$y]];
+        }
+        else {
+            $body->lock_plot($x,$y);
+        }
+        # is the plot empty?
+        $body->check_for_available_build_space( $x, $y );
+    }
+    
     $building->update({
         efficiency      => $request->param('efficiency'),
-        x               => $request->param('x'),
-        y               => $request->param('y'),
+        x               => $x,
+        y               => $y,
         level           => $request->param('level'),
     });
     return $self->www_view_buildings($request, $building->body_id);
@@ -551,10 +778,21 @@ sub www_recalc_body {
 
 sub format_paginator {
     my ($self, $method, $key, $value, $page_number) = @_;
+    
+    return $self->format_complex_paginator( $method, { $key => $value }, $page_number );
+}
+
+sub format_complex_paginator {
+    my ($self, $method, $query, $page_number) = @_;
     my $out = '<fieldset><legend>Page: '.$page_number.'</legend>';
-    $out .= '<a href="/admin/'.$method.'?'.$key.'='.$value.';page_number='.($page_number - 1).'">&lt; Previous</a> | ';
-    $out .= '<a href="/admin/'.$method.'?'.$key.'='.$value.';page_number='.($page_number + 1).'">Next &gt;</a> ';
-    $out .= '<form method="post" style="display: inline;" action="/admin/'.$method.'"><input name="page_number" value="'.$page_number.'" style="width: 30px;"><input type="hidden" name="'.$key.'" value="'.$value.'"><input type="submit" value="go"></form>';
+    my $query_str = join ';', map { sprintf "%s=%s", $_, $query->{$_} } keys %$query;
+    $out .= '<a href="/admin/'.$method.'?'.$query_str.';page_number='.($page_number - 1).'">&lt; Previous</a> | ';
+    $out .= '<a href="/admin/'.$method.'?'.$query_str.';page_number='.($page_number + 1).'">Next &gt;</a> ';
+    $out .= '<form method="post" style="display: inline;" action="/admin/'.$method.'"><input name="page_number" value="'.$page_number.'" style="width: 30px;">';
+    for my $key ( keys %$query ) {
+        $out .= sprintf '<input type="hidden" name="%s" value="%s">', $key, $query->{$key};
+    }
+    $out .= '<input type="submit" value="go"></form>';
     $out .= '</fieldset>';
     return $out;
 }
@@ -645,21 +883,57 @@ sub www_view_empire {
     }
     my $out = '<h1>Manage Empire</h1>';
     $out .= '<table style="width: 100%">';
+    if ( $empire->self_destruct_active ) {
+        $out .= sprintf('<tr class="admin_highlight"><th>Self Destruct Active!</th><td>Expires: %s</td><td></td></tr>', $empire->self_destruct_date);
+    }
     $out .= sprintf('<tr><th>Id</th><td>%s</td><td></td></tr>', $empire->id);
     $out .= sprintf('<tr><th>RPC Requests</th><td>%s</td><td></td></tr>', $empire->rpc_count);
-    $out .= sprintf('<tr><th>Name</th><td>%s</td><td></td></tr>', $empire->name);
-    $out .= sprintf('<tr><th>Email</th><td>%s</td><td></td></tr>', $empire->email);
+    $out .= sprintf('<tr><th>Name</th><td>%s</td><td>', $empire->name);
+    $out .= sprintf('<a href="/admin/view/empire/name/change/log?empire_id=%s">View History</a>',$empire->id);
+    $out .= sprintf(' | <a href="/admin/search/similar/empire?empire_id=%s&type=name">Find Similar Empire Names</a></td></tr>',$empire->id);
+    $out .= sprintf('<tr><th>Email</th><td>%s</td><td>', $empire->email);
+    if ( $empire->email ) {
+        $out .= sprintf('<a href="/admin/search/similar/empire?empire_id=%s&type=email_user">Find Similar Email Usernames</a>',$empire->id);
+        $out .= sprintf(' | <a href="/admin/search/similar/empire?empire_id=%s&type=email_domain">Find Same Email Domains</a>',$empire->id);
+    }
+    $out .= '</td></tr>';
     $out .= sprintf('<tr><th>Created</th><td>%s</td><td></td></tr>', $empire->date_created);
     $out .= sprintf('<tr><th>Stage</th><td>%s</td><td></td></tr>', $empire->stage);
-    $out .= sprintf('<tr><th>Last Login</th><td>%s</td><td></td></tr>', $empire->last_login);
-    $out .= sprintf('<tr><th>Essentia</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/add/essentia">
+    $out .= sprintf('<tr><th>Last Login</th><td>%s</td><td>', $empire->last_login);
+    $out .= sprintf('<a href="/admin/view/login/log?empire_id=%s">View Log</a></td></tr>',$empire->id);
+    $out .= sprintf('<tr><th>Essentia</th><td>%.1f</td><td>', $empire->essentia);
+    $out .= sprintf('<a href="/admin/view/essentia/log?empire_id=%s">View Log</a></td></tr>',$empire->id);
+    $out .= sprintf('<tr><th>Essentia Types</th><td>Free: %.1f; Game: %.1f; Paid: %.1f</td><td></td></tr>', $empire->essentia_free, $empire->essentia_game, $empire->essentia_paid);
+    $out .= sprintf('<th>Add Essentia</th><td colspan="2">
+<form method="post" style="display: inline" action="/admin/add/essentia">
 <input type="hidden" name="id" value="%s">
 <input name="amount" style="width: 30px;" value="0">
 <input name="description" value="Administrative Privilege">
-<input type="submit" value="add essentia"></form>', $empire->essentia, $empire->id); 
-    $out .= sprintf('<a href="/admin/view/essentia/log?empire_id=%s">View Log</a></td></tr>',$empire->id);
+<input type="submit" value="add essentia"></form></td></tr>', $empire->id);
     $out .= sprintf('<tr><th>Species</th><td>%s</td><td></td></tr>', $empire->species_name);
-    $out .= sprintf('<tr><th>Home</th><td>%s</td><td></td></tr>', $empire->home_planet_id);
+    $out .= sprintf('<tr><th>Home</th><td><a href="/admin/view/body?id=%s">%s</a></td><td></td></tr>', $empire->home_planet_id, $empire->home_planet_id);
+    $out .= sprintf('<tr><th>Alliance</th><td>');
+    if ( my $alliance = $empire->alliance ) {
+        $out .= sprintf('<a href="/admin/view/alliance?id=%d">%s</a>', $alliance->id, $alliance->name);
+    }
+    $out .= sprintf('</td></tr>');
+    $out .= '<tr><th>Invites Sent To</th><td>';
+    my $invites_sent = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({inviter_id => $empire->id});
+    $out .= join ' ; ',
+        map {
+            sprintf('<a href="/admin/view/empire?id=%d">%s</a>', $_->id, $_->name )
+        }
+        map  { $_->invitee }
+        grep { $_->invitee_id } 
+            $invites_sent->all;
+    $out .= '</td></tr>';
+    $out .= '<tr><th>Invite Accepted From</th><td>';
+    my $invite_accepted = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $empire->id},{rows=>1})->single;
+    if ( $invite_accepted && $invite_accepted->inviter_id ) {
+        my $inviter = $invite_accepted->inviter;
+        $out .= sprintf('<a href="/admin/view/empire?id=%d">%s</a>', $inviter->id, $inviter->name);
+    }
+    $out .= '</td></tr>';
     $out .= sprintf('<tr><th>Description</th><td>%s</td><td></td></tr>', $empire->description);
     $out .= sprintf('<tr><th>University Level</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/change/university/level"><input type="hidden" name="id" value="%s"><input name="university_level" style="width: 30px;" value="0"><input type="submit" value="change"></form></td></tr>', $empire->university_level, $empire->id);
     $out .= sprintf('<tr><th>Isolationist</th><td>%s</td><td><a href="/admin/toggle/isolationist?id=%s">Toggle</a></td></tr>', $empire->is_isolationist, $empire->id);
@@ -671,6 +945,28 @@ sub www_view_empire {
     $out .= sprintf('<li><a href="/admin/send/test/message?empire_id=%s">Send Developer Test Email</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/delete/empire?empire_id=%s" onclick="return confirm(\'Are you sure?\')">Delete Empire</a> (Be Careful)</li>', $empire->id);
     $out .= '</ul>';
+    return $self->wrap($out);
+}
+
+sub www_view_alliance {
+    my ($self, $request, $id) = @_;
+    $id ||= $request->param('id');
+    my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($id);
+    unless (defined $alliance) {
+        confess [404, 'Alliance not found.'];
+    }
+    my $leader = $alliance->leader;
+    my $out = '<h1>Manage Alliance</h1>';
+    $out .= '<table style="width: 100%">';
+    $out .= '<tr><th>Id</th><th>Name</th><th>Home</th><th>Last Login</th></tr>';
+    $out .= sprintf('<tr><td><b><a href="/admin/view/empire?id=%d">%d</a></b></td><td><b>%s</b></td><td><b><a href="/admin/view/body?id=%d">%s</a></b></td><td><b>%s</b></td></tr>',
+                    $leader->id, $leader->id, $leader->name, $leader->home_planet_id, $leader->home_planet_id, $leader->last_login);
+    for my $member( $alliance->members ) {
+        next if $member->id == $leader->id;
+        $out .= sprintf('<tr><td><a href="/admin/view/empire?id=%d">%d</a></td><td>%s</td><td><a href="/admin/view/body?id=%d">%s</a></td><td>%s</td></tr>',
+                    $member->id, $member->id, $member->name, $member->home_planet_id, $member->home_planet_id, $member->last_login);
+    }
+    $out .= '</table>';
     return $self->wrap($out);
 }
 
@@ -701,9 +997,9 @@ sub www_view_body {
     $out .= sprintf('<li><a href="/admin/view/glyphs?body_id=%s">View Glyphs</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/recalc/body?body_id=%s">Recalculate Body Stats</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/complete/builds?body_id=%s">Complete All Builds</a></li>', $body->id);
-    $out .= sprintf('<li><a href="/admin/send/stellar/flare?body_id=%s" onclick="return confirm(\'Are you sure?\')">Send Stellar Flare</a></li>', $body->id);
-    $out .= sprintf('<li><a href="/admin/send/meteor/shower?body_id=%s" onclick="return confirm(\'Are you sure?\')">Send Meteor Shower</a></li>', $body->id);
-    $out .= sprintf('<li><a href="/admin/send/pestilence?body_id=%s" onclick="return confirm(\'Are you sure?\')">Send Pestilence</a></li>', $body->id);
+    $out .= sprintf('<li><a href="/admin/send/stellar/flare?body_id=%s" onclick="return confirm(\'Set all buildings on planet (except PCC) to zero efficiency - Are you sure?\')" title="Set all buildings on planet (except PCC) to zero efficiency">Send Stellar Flare</a></li>', $body->id);
+    $out .= sprintf('<li><a href="/admin/send/meteor/shower?body_id=%s" onclick="return confirm(\'Replace all infrastructure buildings on planet (except PCC) with level 1 craters - Are you sure?\')" title="Replace all infrastructure buildings on planet (except PCC) with level 1 craters">Send Meteor Shower</a></li>', $body->id);
+    $out .= sprintf('<li><a href="/admin/send/pestilence?body_id=%s" onclick="return confirm(\'Abandon colony and remove all non-permanent buildings - Are you sure?\')" title="Abandon colony and remove all non-permanent buildings">Send Pestilence</a></li>', $body->id);
     $out .= '</ul>';
     return $self->wrap($out);
 }
@@ -736,7 +1032,12 @@ sub www_add_essentia {
     unless (defined $empire) {
         confess [404, 'Empire not found.'];
     }
-    $empire->add_essentia($request->param('amount'), $request->param('description'))->update;
+    $empire->add_essentia({
+        amount  => $request->param('amount'), 
+        reason  => $request->param('description'),
+        type    => 'free',
+    });
+    $empire->update;
     return $self->www_view_empire($request, $id);
 }
 
@@ -791,8 +1092,9 @@ sub www_view_virality {
     my ($self, $request) = @_;
     my $out = '<h1>Virality</h1>';
 
+    my $dt_formatter = Lacuna->db->storage->datetime_parser;
     my (@accepts, @abandons, @creates, @invites, @dates, @deletes, @users, @stay, @vc, @gr, @cr, $previous, $max_viral, $max_change, $max_users, $max_stay);
-    my $past30 = Lacuna->db->resultset('Lacuna::DB::Result::Log::Viral')->search({date_stamp => { '>=' => DateTime->now->subtract(days => 31)}}, { order_by => 'date_stamp'});
+    my $past30 = Lacuna->db->resultset('Lacuna::DB::Result::Log::Viral')->search({date_stamp => { '>=' => $dt_formatter->format_datetime(DateTime->now->subtract(days => 31))}}, { order_by => 'date_stamp'});
     while (my $day = $past30->next) {
         unless (defined $previous) {
             $previous = $day;
@@ -918,10 +1220,11 @@ sub www_view_economy {
     my ($self, $request) = @_;
     my $out = '<h1>Economy</h1>';
 
+    my $dt_formatter = Lacuna->db->storage->datetime_parser;
     my (@dates, $previous, @arpu, $max_purchases, @p30, @p100, @p200, @p600, @p1300, $max_revenue, @revenue, @r30, @r100, @r200, @r600, @r1300);
     my ($max_out, @out_boost, @out_mission, @out_recycle, @out_ship, @out_spy, @out_glyph, @out_party, @out_building, @out_trade, @out_delete, @out_other);        
     my ($max_in, @in_mission, @in_purchase, @in_trade, @in_redemption, @in_vein, @in_vote, @in_tutorial, @in_other);
-    my $past30 = Lacuna->db->resultset('Lacuna::DB::Result::Log::Economy')->search({date_stamp => { '>=' => DateTime->now->subtract(days => 31)}}, { order_by => 'date_stamp'});
+    my $past30 = Lacuna->db->resultset('Lacuna::DB::Result::Log::Economy')->search({date_stamp => { '>=' => $dt_formatter->format_datetime(DateTime->now->subtract(days => 31))}}, { order_by => 'date_stamp'});
     while (my $day = $past30->next) {
         unless (defined $previous) {
             $previous = $day;
