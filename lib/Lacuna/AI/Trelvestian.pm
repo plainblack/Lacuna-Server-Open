@@ -82,7 +82,7 @@ sub colony_structures {
         ['Lacuna::DB::Result::Building::Food::Root',20],
         ['Lacuna::DB::Result::Building::Food::Beeldeban',20],
         ['Lacuna::DB::Result::Building::Food::Root',20],
-        ['Lacuna::DB::Result::Building::Ore::Refinery',25],
+        ['Lacuna::DB::Result::Building::Ore::Refinery',20],
         ['Lacuna::DB::Result::Building::Ore::Mine',20],
         ['Lacuna::DB::Result::Building::Ore::Mine',20],
         ['Lacuna::DB::Result::Building::Ore::Mine',20],
