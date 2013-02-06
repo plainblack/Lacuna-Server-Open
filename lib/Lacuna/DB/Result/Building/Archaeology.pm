@@ -273,6 +273,7 @@ sub dig_it {
                         'Hey, what does this red button do?',
                         'Houston.. we have a problem',
                         'I say we take off and nuke the site from orbit. It\'s the only way to be sure.',
+                        'It\'s better to burn out, than to fade away',
                         'It\'s dead Jim.',
                         'It\'s just a harmless little bunny...',
                         'It\'s full of stars.',
