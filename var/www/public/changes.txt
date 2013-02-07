@@ -1,3 +1,6 @@
+3.0880:
+ - Fix: Glyphs should now show in alpha order in the TM and SST
+
 3.0879:
  - Fix: Eveins should no longer destruct after an upgrade
  - Add: Upgrading and evein adds the remaining time for this level to the next
