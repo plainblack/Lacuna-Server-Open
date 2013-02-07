@@ -2749,7 +2749,7 @@ sub hack_offending_probes {
                              $self->on_body->star->name);    
     my $message = $probe->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
-        filename    => 'probe_destroyed.txt',
+        filename    => 'probe_lost.txt',
         params      => [$probe->body->id,
                         $probe->body->name,
                         $probe->star->x,

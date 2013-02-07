@@ -1,5 +1,6 @@
 3.0880:
  - Fix: Glyphs should now show in alpha order in the TM and SST
+ - Fix: Different message if defending spy destroys a probe in the system.
 
 3.0879:
  - Fix: Eveins should no longer destruct after an upgrade
