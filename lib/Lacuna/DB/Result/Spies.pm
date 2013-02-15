@@ -1870,7 +1870,7 @@ sub prevent_insurrection {
     my $conspirators = Lacuna->db
                         ->resultset('Lacuna::DB::Result::Spies')
                         ->search( { on_body_id => $self->on_body_id,
-                                    task => { 'not in' => ['Killed in Action',
+                                    task => { 'not in' => ['Killed In Action',
                                                            'Travelling',
                                                            'Captured',
                                                            'Prisoner Transport'] },
