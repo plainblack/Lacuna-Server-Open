@@ -290,7 +290,8 @@ sub sanitize {
     while (my $ship = $incoming->next) {
         $ship->turn_around->update;
     }
-#Need to put something here to deal with ships being delivered elsewhere.
+    
+    #Need to put something here to deal with ships being delivered elsewhere.
     $self->ships->delete_all;
     my $enemy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $self->id});
     while (my $spy = $enemy->next) {
@@ -366,7 +367,7 @@ around get_status => sub {
             if ($empire->id eq $self->empire_id or (
                 $self->isa('Lacuna::DB::Result::Map::Body::Planet::Station') &&
                 $empire->alliance_id && $self->empire->alliance_id == $empire->alliance_id )
-            ) {
+                ) {
                 if ($self->needs_recalc) {
                     $self->tick; # in case what we just did is going to change our stats
                 }

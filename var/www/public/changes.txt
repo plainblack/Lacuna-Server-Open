@@ -1,5 +1,9 @@
 3.0881:
  - Fix: DevMin fix.
+ - Fix: When upgrade of building ends, planet stats are now correctly calculated
+ - Fix: When colony is destroyed, all scheduled tasks for that colony are removed
+ - Mod: Some changes to the admin screen
+ - Fix: Building upgrade/work scheduler now auto restarts every hour.
 
 3.0880:
  - Fix: Glyphs should now show in alpha order in the TM and SST
