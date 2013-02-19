@@ -87,6 +87,33 @@ if ($initialize) {
         });
     }
 
+    out('Adding ship builds');
+    my $ship_rs = Lacuna->db->resultset('Ships')->search({
+        task => 'Building',
+    });
+    while (my $ship = $ship_rs->next) {
+        # add to queue
+        my $schedule = Lacuna->db->resultset('Schedule')->create({
+            delivery        => $ship->date_available,
+            parent_table    => 'Ships',
+            parent_id       => $ship->id,
+            task            => 'finish_construction',
+        });
+    }
+    
+    out('Adding ship arrivals');
+    $ship_rs = Lacuna->db->resultset('Ships')->search({
+        task => 'Travelling',
+    });
+    while (my $ship = $ship_rs->next) {
+        # add to queue
+        my $schedule = Lacuna->db->resultset('Schedule')->create({
+            delivery        => $ship->date_available,
+            parent_table    => 'Ships',
+            parent_id       => $ship->id,
+            task            => 'arrive',
+        });
+    }
 }
 
 # --------------------------------------------------------------------

@@ -169,9 +169,12 @@ sub build_ship {
         $date_completed = DateTime->now;
     }
     $date_completed->add(seconds=>$time);
+
     $ship->date_available($date_completed);
     $ship->date_started(DateTime->now);
     $ship->insert;
+    $ship->start_construction;
+
     if ($is_working) {
         $self->reschedule_work($date_completed);
     }

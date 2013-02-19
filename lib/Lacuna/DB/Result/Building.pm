@@ -555,7 +555,7 @@ sub waste_capacity {
 before delete => sub {
     my ($self) = @_;
 
-    # delete any scheduled work or upgrade
+    # delete any scheduled work or upgrade jobs
     #
     my $schedule_rs = Lacuna->db->resultset('Schedule')->search({
         parent_table    => 'Building',

@@ -121,9 +121,75 @@ sub max_occupants {
     return int($self->hold_size / 350);
 }
 
+before delete => sub {
+    my ($self) = @_;
+
+    # delete any arrival or finish_construction jobs
+    #
+    my $schedule_rs = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Ships',
+        parent_id       => $self->id,
+    });
+    while (my $schedule = $schedule_rs->next) {
+        $schedule->delete;
+    }
+};
+
+before task => sub {
+    my ($self, $arg) = @_;
+
+    if ($arg) {
+        # to be safe, if a ship changes *from* either 'Travelling' or 'Building' we
+        # delete any Schedule (and hence any beanstalk job) for it.
+        # 
+        if (($self->task eq 'Travelling' or $self->task eq 'Building') and $arg ne $self->task) {
+            # Then we need to delete the 'schedule' and beanstalk job
+            my $schedule_rs = Lacuna->db->resultset('Schedule')->search({
+                parent_table    => 'Ships',
+                parent_id       => $self->id,
+            });
+            while (my $schedule = $schedule_rs->next) {
+                $schedule->delete;
+            }
+        }
+    }
+};
+
+# Change the date_available of the ship
+sub re_schedule {
+    my ($self, $date_available) = @_;
+
+    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Ships',
+        parent_id       => $self->id,
+    });
+    if ($schedule) {
+        my $new_schedule = Lacuna->db->resultset('Schedule')->create({
+            parent_table    => 'Ships',
+            parent_id       => $self->id,
+            task            => $schedule->task,
+            delivery        => $date_available,
+        });
+        $schedule->delete;
+    }
+}
+
 sub arrive {
     my $self = shift;
-    eval {$self->handle_arrival_procedures}; # throws exceptions to stop subsequent actions from happening
+
+    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Ships',
+        parent_id       => $self->id,
+        task            => 'arrive',
+    });
+    $schedule->delete if defined $schedule;
+
+
+    eval {
+        # Throws exceptions to stop subsequent actions from happening
+        $self->handle_arrival_procedures;
+    };
+
     my $reason = $@;
     if (ref $reason eq 'ARRAY' && $reason->[0] eq -1) {
         # this is an expected exception, it means one of the roles took over
@@ -270,13 +336,22 @@ sub seconds_remaining {
 }
 
 sub turn_around {
-    my $self = shift;
+    my ($self) = @_;
+
     $self->direction( ($self->direction eq 'out') ? 'in' : 'out' );
-#    $self->date_available(DateTime->now->add_duration( $self->date_available - $self->date_started ));
     $self->fleet_speed(0);
     my $target = ($self->foreign_body_id) ? $self->foreign_body : $self->foreign_star;
-    $self->date_available(DateTime->now->add(seconds=>$self->calculate_travel_time($target)));
+    my $arrival = DateTime->now->add(seconds => $self->calculate_travel_time($target));
+    $self->date_available($arrival);
     $self->date_started(DateTime->now);
+
+    my $schedule = Lacuna->db->resultset('Schedule')->create({
+        parent_table    => 'Ships',
+        parent_id       => $self->id,
+        task            => 'arrive',
+        delivery        => $arrival,
+    });
+
     return $self;
 }
 
@@ -307,6 +382,27 @@ sub send {
         confess [1002, 'You cannot send a ship to a non-existant target.'];
     }
     $self->update;
+
+    my $schedule = Lacuna->db->resultset('Schedule')->create({
+        delivery        => $arrival,
+        parent_table    => 'Ships',
+        parent_id       => $self->id,
+        task            => 'arrive',
+    });
+
+    return $self;
+}
+
+sub start_construction {
+    my ($self) = @_;
+
+    my $schedule = Lacuna->db->resultset('Schedule')->create({
+        delivery        => $self->date_available,
+        parent_table    => 'Ships',
+        parent_id       => $self->id,
+        task            => 'finish_construction',
+    });
+
     return $self;
 }
 
@@ -316,6 +412,15 @@ sub finish_construction {
     $self->task('Docked');
     $self->date_available(DateTime->now);
     $self->update;
+
+    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Ships',
+        parent_id       => $self->id,
+        task            => 'finish_construction',
+    });
+    $schedule->delete if defined $schedule;
+
+    return $self;
 }
 
 sub orbit {

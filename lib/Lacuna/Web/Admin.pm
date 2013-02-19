@@ -588,9 +588,11 @@ sub www_zoom_ship {
     my ($self, $request) = @_;
     my $ship_id = $request->param('ship_id');
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    my $body = $ship->body;
-    $ship->update({date_available => DateTime->now});
-    $body->tick;
+#    my $body = $ship->body;
+
+    $ship->re_schedule(DateTime->now);
+#    $ship->update({date_available => DateTime->now});
+#    $body->tick;
     return $self->www_view_ships($request);
 }
 
