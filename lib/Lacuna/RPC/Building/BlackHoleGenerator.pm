@@ -980,7 +980,7 @@ sub bhg_swap {
         $body->recalc_chains; # Recalc all chains
         recalc_incoming_supply($body);
         if ($body->get_type eq 'space station') {
-            drop_stars_beyond_range($target);
+            drop_stars_beyond_range($body);
         }
     }
     if (defined($body->empire)) {
