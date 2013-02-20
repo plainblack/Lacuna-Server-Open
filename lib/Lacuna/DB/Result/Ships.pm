@@ -155,15 +155,23 @@ before task => sub {
     }
 };
 
+before date_available => sub {
+    my ($self, $arg) = @_;
+
+    if ($arg and $self->id) {
+        $self->re_schedule($arg);
+    }
+};
+
 # Change the date_available of the ship
 sub re_schedule {
     my ($self, $date_available) = @_;
 
-    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+    my $schedule_rs = Lacuna->db->resultset('Schedule')->search({
         parent_table    => 'Ships',
         parent_id       => $self->id,
     });
-    if ($schedule) {
+    while (my $schedule = $schedule_rs->next) {
         my $new_schedule = Lacuna->db->resultset('Schedule')->create({
             parent_table    => 'Ships',
             parent_id       => $self->id,
