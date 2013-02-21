@@ -174,6 +174,7 @@ sub re_schedule {
     while (my $schedule = $schedule_rs->next) {
         my $new_schedule = Lacuna->db->resultset('Schedule')->create({
             parent_table    => 'Ships',
+            queue           => $schedule->queue,
             parent_id       => $self->id,
             task            => $schedule->task,
             delivery        => $date_available,
@@ -355,6 +356,7 @@ sub turn_around {
 
     my $schedule = Lacuna->db->resultset('Schedule')->create({
         parent_table    => 'Ships',
+        queue           => 'arrive_queue',
         parent_id       => $self->id,
         task            => 'arrive',
         delivery        => $arrival,
@@ -393,6 +395,7 @@ sub send {
 
     my $schedule = Lacuna->db->resultset('Schedule')->create({
         delivery        => $arrival,
+        queue           => 'arrive_queue',
         parent_table    => 'Ships',
         parent_id       => $self->id,
         task            => 'arrive',

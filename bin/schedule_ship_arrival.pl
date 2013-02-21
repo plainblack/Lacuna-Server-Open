@@ -30,7 +30,7 @@ GetOptions(
 chdir '/data/Lacuna-Server/bin';
 
 my $timeout     = 60 * 60; # (one hour)
-my $pid_file    = '/data/Lacuna-Server/bin/schedule_daemon.pid';
+my $pid_file    = '/data/Lacuna-Server/bin/schedule_ship_arrival.pid';
 
 my $start = time;
 
@@ -53,54 +53,15 @@ if ($initialize) {
     # existing jobs
     out('Reinitializing all jobs');
     out('Deleting existing jobs');
-    my $schedule_rs = Lacuna->db->resultset('Schedule')->search;
+    my $schedule_rs = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Ships',
+        task            => 'arrive',
+    });
     while (my $schedule = $schedule_rs->next) {
         # note. deleting the DB entry also deletes the entry on beanstalk
         $schedule->delete;
     }
 
-    out('Adding building upgrades');
-    my $building_rs = Lacuna->db->resultset('Building')->search({
-        is_working => 1,
-    });
-    while (my $building = $building_rs->next) {
-        # add to queue
-        my $schedule = Lacuna->db->resultset('Schedule')->create({
-            delivery        => $building->work_ends,
-            parent_table    => 'Building',
-            parent_id       => $building->id,
-            task            => 'finish_work',
-        });
-    }
-
-    out('Adding building working end');
-    $building_rs = Lacuna->db->resultset('Building')->search({
-        is_upgrading => 1,
-    });
-    while (my $building = $building_rs->next) {
-        # add to queue
-        my $schedule = Lacuna->db->resultset('Schedule')->create({
-            delivery        => $building->upgrade_ends,
-            parent_table    => 'Building',
-            parent_id       => $building->id,
-            task            => 'finish_upgrade',
-        });
-    }
-
-    out('Adding ship builds');
-    my $ship_rs = Lacuna->db->resultset('Ships')->search({
-        task => 'Building',
-    });
-    while (my $ship = $ship_rs->next) {
-        # add to queue
-        my $schedule = Lacuna->db->resultset('Schedule')->create({
-            delivery        => $ship->date_available,
-            parent_table    => 'Ships',
-            parent_id       => $ship->id,
-            task            => 'finish_construction',
-        });
-    }
-    
     out('Adding ship arrivals');
     $ship_rs = Lacuna->db->resultset('Ships')->search({
         task => 'Travelling',
@@ -109,6 +70,7 @@ if ($initialize) {
         # add to queue
         my $schedule = Lacuna->db->resultset('Schedule')->create({
             delivery        => $ship->date_available,
+            queue           => 'arrive_queue',
             parent_table    => 'Ships',
             parent_id       => $ship->id,
             task            => 'arrive',
@@ -149,8 +111,7 @@ eval {
     alarm $timeout;
     
     do {
-        out('In Main Processing Loop');
-        my $job     = $queue->consume('default');
+        my $job     = $queue->consume('arrive_queue');
         my $args    = $job->args;
         my $task    = $args->{task};
         my $task_args = $args->{args};
