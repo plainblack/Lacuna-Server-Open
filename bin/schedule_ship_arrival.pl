@@ -63,7 +63,7 @@ if ($initialize) {
     }
 
     out('Adding ship arrivals');
-    $ship_rs = Lacuna->db->resultset('Ships')->search({
+    my $ship_rs = Lacuna->db->resultset('Ships')->search({
         task => 'Travelling',
     });
     while (my $ship = $ship_rs->next) {
