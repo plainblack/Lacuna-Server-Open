@@ -434,6 +434,69 @@ sub finish_construction {
     return $self;
 }
 
+
+# Remove one ship from the build queue, reschedule all other following ships
+#
+sub reschedule_queue {
+    my ($self) = @_;
+
+    my $start_time = DateTime->now;
+    my $ship_end_time;          # when the current ship completes
+    my $building_time;          # The end time of the building working
+
+    my @ships_queue = Lacuna->db->resultset('Ships')->search({
+        task        => 'Building',
+        shipyard_id => $self->shipyard_id,
+    },{
+        order_by    => { -asc => 'date_available'},
+    })->all;
+
+    my $ship;
+    $building_time = DateTime->now;
+    BUILD:
+    while ($ship = shift @ships_queue) {
+        $ship_end_time = $ship->date_available;
+        if ($ship->id == $self->id) {
+            last BUILD;
+        }
+        # Start time of the next ship is the end time of this one
+        $start_time = $ship_end_time;
+    }
+    if ($ship) {
+        # Remove this scheduled event
+        my $duration = $ship_end_time->epoch - $start_time->epoch;
+        # Don't bother to reschedule if it is a small period
+        if ($duration > 5) {
+            my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+                parent_table    => 'Ships',
+                parent_id       => $self->id,
+                task            => 'finish_construction',
+            });
+            $schedule->delete if defined $schedule;
+            $building_time = $start_time;
+
+            # Change the scheduled time for all subsequent builds (if any)
+            while (my $ship = shift @ships_queue) {
+                my $construction_ends = $ship->date_available->clone->subtract(seconds => $duration);
+                $building_time = $construction_ends;
+
+                $ship->date_available($construction_ends);
+                $ship->update;
+                Lacuna->db->resultset('Schedule')->reschedule({
+                    parent_table    => 'Ships',
+                    parent_id       => $ship->id,
+                    task            => 'finish_construction',
+                    delivery        => $construction_ends,
+                });
+            }
+        }
+    }
+    # Set shipyard end time
+    my $shipyard = Lacuna->db->resultset('Building')->find({ id => $self->shipyard_id });
+    $shipyard->reschedule_work($building_time);
+}
+
+
 sub orbit {
     my ($self) = @_;
     $self->task('Orbiting');

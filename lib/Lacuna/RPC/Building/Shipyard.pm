@@ -78,6 +78,44 @@ sub subsidize_build_queue {
 }
 
 
+sub subsidize_ship {
+    my ($self, $args) = @_;
+
+    if (ref($args) ne "HASH") {
+        confess [1000, "You have not supplied a hash reference"];
+    }
+    my $empire              = $self->get_empire_by_session($args->{session_id});
+    my $building            = $self->get_building($empire, $args->{building_id});
+    unless ($building->level > 0 and $building->efficiency == 100) {
+        confess [1003, "You must have a functional Space Port!"];
+    }
+    my $scheduled_ship = Lacuna->db->resultset('Ships')->find({id => $args->{ship_id}});
+
+    if (not $scheduled_ship) {
+        confess [1003, "Cannot find that ship!"];
+    }
+    if ($scheduled_ship->shipyard_id != $building->id or $scheduled_ship->task ne 'Building') {
+        confess [1003, "That ship is not in construction at this shipyard!"];
+    }
+
+    my $cost = 1;
+    unless ($empire->essentia >= $cost) {
+        confess [1011, "Not enough essentia."];
+    }
+    $empire->spend_essentia({
+        amount  => $cost,
+        reason  => 'ship build subsidy after the fact',
+    });
+    $empire->update;
+
+    $scheduled_ship->reschedule_queue;
+    $scheduled_ship->finish_construction;
+
+    return $self->view_build_queue($empire, $building);
+
+}
+
+
 sub build_ship {
     my ($self, $session_id, $building_id, $type, $quantity) = @_;
     $quantity = defined $quantity ? $quantity : 1;
@@ -159,6 +197,7 @@ __PACKAGE__->register_rpc_method_names(qw(
     build_ship 
     view_build_queue 
     subsidize_build_queue
+    subsidize_ship
 ));
 
 

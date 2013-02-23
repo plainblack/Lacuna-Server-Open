@@ -7,6 +7,7 @@
  - Fix: Make sure body condition current when spies arrive.
  - Fix: Use proper planet names for incoming on Spy Travel report.
  - Fix: resources.json water-reclamation-facility
+ - Add: Ability to subsidize individual ships in the shipyard build queue
 
 3.0880:
  - Fix: Glyphs should now show in alpha order in the TM and SST

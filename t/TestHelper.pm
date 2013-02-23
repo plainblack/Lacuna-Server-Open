@@ -35,7 +35,7 @@ has empire => (
 
 has session => (
     is => 'rw',
-);
+    );
 
 has x => (
     is => 'rw',
@@ -61,7 +61,9 @@ sub clear_all_test_empires {
         name => {like => $name},
     });
     while (my $empire = $empires->next) {
-        $empire->essentia(0);
+        $empire->essentia_game(0);
+        $empire->essentia_free(0);
+        $empire->essentia_paid(0);
         $empire->update;
 
         my $planets = $empire->planets;

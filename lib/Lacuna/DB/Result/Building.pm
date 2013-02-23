@@ -879,7 +879,6 @@ sub finish_upgrade {
         
         $body->needs_recalc(1);
         $body->needs_surface_refresh(1);
-#        $body->tick;
         $body->update;
 
         $empire->add_medal($type);

@@ -61,8 +61,25 @@ A session id.
 The unique id of the Shipyard.
 
  
- 
- 
+=head2 subsidize_ship ( session_id, building_id, ship_id )
+
+Will spend 1 essentia to complete the build of the specified ship immediately. Returns C<view>.
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Shipyard.
+
+=head3 ship_id
+
+The unique id of the Ship, as returned in C<view_build_queue>
+
+
 =head2 get_buildable ( session_id, building_id, [ tag ] )
 
 Returns a list of buildable ships and their costs, and if they're not buildable, gives a reason why not in the form of an exception.
