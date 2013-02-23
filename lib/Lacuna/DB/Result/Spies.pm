@@ -343,6 +343,7 @@ sub is_available {
         }
         elsif ($task eq 'Travelling') {
             if ($self->empire_id ne $self->on_body->empire_id) {
+                $self->on_body->update;
                 if (!$self->empire->alliance_id || $self->empire->alliance_id != $self->on_body->empire->alliance_id ) {
                     my $hours = 1;
                     my $gauntlet = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::GratchsGauntlet');
@@ -2925,8 +2926,8 @@ sub travel_report {
         push @travelling, [
             $ship->name,
             $ship->type_formatted,
-            $self->on_body->name,
-            $target->name,
+            $from,
+            $to,
             $ship->date_available_formatted,
         ];
     }

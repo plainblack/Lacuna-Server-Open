@@ -4,6 +4,9 @@
  - Fix: When colony is destroyed, all scheduled tasks for that colony are removed
  - Mod: Some changes to the admin screen
  - Fix: Building upgrade/work scheduler now auto restarts every hour.
+ - Fix: Make sure body condition current when spies arrive.
+ - Fix: Use proper planet names for incoming on Spy Travel report.
+ - Fix: resources.json water-reclamation-facility
 
 3.0880:
  - Fix: Glyphs should now show in alpha order in the TM and SST
