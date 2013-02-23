@@ -66,7 +66,7 @@ __PACKAGE__->add_columns(
     environmental_affinity  => { data_type => 'tinyint', default_value => 4 }, # waste and water
     political_affinity      => { data_type => 'tinyint', default_value => 4 }, # happiness
     trade_affinity          => { data_type => 'tinyint', default_value => 4 }, # speed of cargoships, and amount of cargo hauled
-    growth_affinity         => { data_type => 'tinyint', default_value => 4 }, # price and speed of colony ships, and planetary command center start level
+    growth_affinity         => { data_type => 'tinyint', default_value => 4 }, # planetary command center start level and next colony cost
     skip_medal_messages     => { data_type => 'tinyint', default_value => 0 },
     skip_pollution_warnings => { data_type => 'tinyint', default_value => 0 },
     skip_resource_warnings  => { data_type => 'tinyint', default_value => 0 },
@@ -394,7 +394,7 @@ sub get_latest_message_id {
     return $message_id;
 }
 
-# The number if times a RPC has been made to this empire
+# The number of times a RPC has been made to this empire
 has rpc_count => (
     is      => 'ro',
     lazy    => 1,
@@ -652,9 +652,9 @@ sub find_home_planet {
     }
 
     # search FIXME Note, this is temporary, should create a single query
-    # that returns all possible planets. 'rows 100' is not guaranteed to
+    # that returns all possible planets. 'rows 250' is not guaranteed to
     # find a planet.
-    my $possible_planets = $planets->search(\%search, { rows => 100 });
+    my $possible_planets = $planets->search(\%search, { rows => 250 });
 
     # find an uncontested planet in the possible planets
     my $home_planet;
