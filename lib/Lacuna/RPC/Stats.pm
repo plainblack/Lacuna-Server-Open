@@ -11,13 +11,13 @@ sub credits {
             { 'Game Design'         => ['JT Smith','Jamie Vrbsky']},
             { 'Web Client'          => ['John Rozeske','Graham Knop','Matthew Musgrove']},
             { 'iPhone Client'       => ['Kevin Runde']},
-            { 'Game Server'         => ['JT Smith','Graham Knop','Matthew Musgrove','Ian C. Docherty (icydee)', 'Mark Lemming (Norway)', '(fireartist)', '(Winton-Akagane)', '(Ysthane)']},
+            { 'Game Server'         => ['JT Smith','Graham Knop','Matthew Musgrove','Iain C Docherty (icydee)', 'Mark Lemming (Norway)', '(fireartist)', '(Winton-Akagane)', '(Ysthane)']},
             { 'Art and Icons'       => ['Ryan Knope','JT Smith','Joseph Wain / glyphish.com','Keegan Runde']},
             { 'Geology Consultant'  => ['Geofuels, LLC / geofuelsllc.com']},
             { 'Play Testers'         => ['John Oettinger','Jamie Vrbsky','Mike Kastern','Chris Burr','Eric Patterson','Frank Dillon','Kristi McCombs','Ryan McCombs','Mike Helfman','Tavis Parker','Sarah Bownds','Rob Dicke','Gemma Blair','Bev Smith','Mike Vrbsky']},
             { 'Game Support'        => ['Plain Black Corporation / plainblack.com','Mary Hoerr', 'United Federation']},
             { 'Lost City of Tyleon' => ['Steven Binns','Owen Ferguson','Garloo','Mark Lemming (Norway)','Saint','Shadow','JT Smith','Noel Sorensen','James T']},
-            { 'AI Design'           => ['JT Smith','Ian C. Docherty (icydee)']},
+            { 'AI Design'           => ['JT Smith','Iain C Docherty (icydee)']},
             ];
 }
 
