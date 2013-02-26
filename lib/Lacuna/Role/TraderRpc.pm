@@ -207,10 +207,10 @@ sub get_glyph_summary {
 
     my $empire   = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $glyphs   = $building->body->glyph;
+    my @glyphs   = sort {$a->type cmp $b->type} $building->body->glyph->all;
 
     my @out;
-    while (my $glyph = $glyphs->next) {
+    foreach my $glyph (@glyphs) {
         push @out, {
             id       => $glyph->id,
             name     => $glyph->type,

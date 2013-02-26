@@ -343,6 +343,7 @@ sub is_available {
         }
         elsif ($task eq 'Travelling') {
             if ($self->empire_id ne $self->on_body->empire_id) {
+                $self->on_body->update;
                 if (!$self->empire->alliance_id || $self->empire->alliance_id != $self->on_body->empire->alliance_id ) {
                     my $hours = 1;
                     my $gauntlet = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::GratchsGauntlet');
@@ -1477,6 +1478,7 @@ sub can_conduct_advanced_missions {
         confess [1010, 'You cannot use this assignment on a capitol planet.'];
     }
     return 1 if ($self->on_body->empire_id < 2); # you can hit AI's all day long
+    return 1 if ($self->empire_id < 2); # AI's can hit back all day long
     return 1 if (Lacuna->config->get('ignore_advanced_mission_limits'));
     if ($self->on_body->empire->alliance_id && $self->on_body->empire->alliance_id == $self->empire->alliance_id) {
         confess [1010, 'You cannot attack your alliance mates.'];
@@ -1869,7 +1871,7 @@ sub prevent_insurrection {
     my $conspirators = Lacuna->db
                         ->resultset('Lacuna::DB::Result::Spies')
                         ->search( { on_body_id => $self->on_body_id,
-                                    task => { 'not in' => ['Killed in Action',
+                                    task => { 'not in' => ['Killed In Action',
                                                            'Travelling',
                                                            'Captured',
                                                            'Prisoner Transport'] },
@@ -2749,7 +2751,7 @@ sub hack_offending_probes {
                              $self->on_body->star->name);    
     my $message = $probe->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
-        filename    => 'probe_destroyed.txt',
+        filename    => 'probe_lost.txt',
         params      => [$probe->body->id,
                         $probe->body->name,
                         $probe->star->x,
@@ -2924,8 +2926,8 @@ sub travel_report {
         push @travelling, [
             $ship->name,
             $ship->type_formatted,
-            $self->on_body->name,
-            $target->name,
+            $from,
+            $to,
             $ship->date_available_formatted,
         ];
     }

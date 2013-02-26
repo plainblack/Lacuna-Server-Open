@@ -15,7 +15,9 @@ after handle_arrival_procedures => sub {
     return if $self->foreign_body->in_neutral_area;
 
     my $body_attacked = $self->foreign_body;
-    my $ship_body = $self->body;
+    my $ship_body = Lacuna->db->resultset('Map::Body::Planet')->find({id => $self->body_id});
+    $self->body($ship_body);
+
     my $is_planet = $body_attacked->isa('Lacuna::DB::Result::Map::Body::Planet');
     my $is_asteroid = $body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid');
     return unless ( $is_planet || $is_asteroid );
@@ -354,13 +356,12 @@ sub system_saw_combat {
 sub saw_stats {
     my ($self, $body) = @_;
 
-    my @planet_saws = $body->get_buildings_of_class('Lacuna::DB::Result::Building::SAW');
+    my @planet_saws = Lacuna->db->resultset('Building')->search({
+        body_id     => $body->id,
+        class       => 'Lacuna::DB::Result::Building::SAW',
+    });
 
-    # unweaken body
-    map {$_->body($_->body)} @planet_saws;
-
-
-my $planet_combat = 0;
+    my $planet_combat = 0;
     my $cnt = 0;
     my @defending_saws;
     for my $saw (@planet_saws) {

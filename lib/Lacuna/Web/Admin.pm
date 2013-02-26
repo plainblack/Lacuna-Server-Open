@@ -586,11 +586,12 @@ sub www_view_fleets {
 
 sub www_zoom_fleet {
     my ($self, $request) = @_;
+
     my $fleet_id = $request->param('fleet_id');
     my $fleet = Lacuna->db->resultset('Fleet')->find($fleet_id);
-    my $body = $fleet->body;
-    $fleet->update({date_available => DateTime->now});
-    $body->tick;
+    $ship->date_available(DateTime->now);
+    $ship->update;
+
     return $self->www_view_fleets($request);
 }
 
@@ -702,17 +703,7 @@ sub www_view_plans {
     my $out = '<h1>View Plans</h1>';
     $out .= sprintf('<a href="/admin/view/body?id=%s">Back To Body</a>', $body_id);
     $out .= '<table style="width: 100%;"><tr><th>Level</th><th>Name</th><th>Extra Build Level</th><th>Quantity</th><th>Action</th></tr>';
-    for my $plan (@$plans) {
-        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>',$plan->level, $plan->class->name, $plan->extra_build_level, $plan->quantity);
-        $out .= sprintf('<form method="get" action="/admin/delete/plan">');
-        $out .= sprintf('<input type="hidden" name="level" value="%s">',$plan->level);
-        $out .= sprintf('<input type="hidden" name="class" value="%s">',$plan->class);
-        $out .= sprintf('<input type="hidden" name="extra" value="%s">',$plan->extra_build_level);
-        $out .= sprintf('<input type="hidden" name="body_id" value="%s">',$body_id);
-        $out .= sprintf('<input type="submit" name="delete_one" value="Delete One">');
-        $out .= sprintf('<input type="submit" name="delete_all" value="Delete All">');
-        $out .= sprintf('</form>');
-    }
+
     $out .= '<form method="post" action="/admin/add/plan"><tr>';
     $out .= '<input type="hidden" name="body_id" value="'.$body_id.'">';
     $out .= '<td><input name="level" value="1" size="2"></td>';
@@ -727,6 +718,18 @@ sub www_view_plans {
     $out .= '<td><input name="quantity" value="1" size="2"></td>';
     $out .= '<td><input type="submit" value="add plan"></td>';
     $out .= '</tr></form>';
+
+    for my $plan (@$plans) {
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>',$plan->level, $plan->class->name, $plan->extra_build_level, $plan->quantity);
+        $out .= sprintf('<form method="get" action="/admin/delete/plan">');
+        $out .= sprintf('<input type="hidden" name="level" value="%s">',$plan->level);
+        $out .= sprintf('<input type="hidden" name="class" value="%s">',$plan->class);
+        $out .= sprintf('<input type="hidden" name="extra" value="%s">',$plan->extra_build_level);
+        $out .= sprintf('<input type="hidden" name="body_id" value="%s">',$body_id);
+        $out .= sprintf('<input type="submit" name="delete_one" value="Delete One">');
+        $out .= sprintf('<input type="submit" name="delete_all" value="Delete All">');
+        $out .= sprintf('</form>');
+    }
     $out .= '</table>';
     return $self->wrap($out);
 }

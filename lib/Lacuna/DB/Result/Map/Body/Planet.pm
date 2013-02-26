@@ -309,10 +309,9 @@ sub sanitize {
         $fleet->turn_around->update;
     }
     $self->fleets->delete_all;
-    my $enemy_spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $self->id});
-    while (my $spy = $enemy_spies->next) {
-    
-        #Need to put something here to deal with ships being delivered elsewhere.
+    my $enemy = Lacuna->db->resultset('Spies')->search({on_body_id => $self->id});
+    while (my $spy = $enemy->next) {
+        # Need to put something here to deal with ships being delivered elsewhere.
         $spy->on_body_id($spy->from_body_id);
         $spy->update;
     }
@@ -387,118 +386,114 @@ around get_status => sub {
             if ($empire->id eq $self->empire_id or (
                 $self->isa('Lacuna::DB::Result::Map::Body::Planet::Station') &&
                 $empire->alliance_id && $self->empire->alliance_id == $empire->alliance_id )
-            ) {
+                ) {
                 if ($self->needs_recalc) {
                     $self->tick; # in case what we just did is going to change our stats
                 }
-                # empires who have disabled the option, don't see incoming ships
-                $out->{skip_incoming_ships} = $empire->skip_incoming_ships;
-                if (1) {
-#                if (not $empire->skip_incoming_ships) {
-                    my $foreign_bodies;
-                    # Process all fleets that have already arrived
+                my $foreign_bodies;
+                # Process all fleets that have already arrived
 
-                    my $dt_parser = Lacuna->db->storage->datetime_parser;
-                    my $now = $dt_parser->format_datetime( DateTime->now );
+                my $dt_parser = Lacuna->db->storage->datetime_parser;
+                my $now = $dt_parser->format_datetime( DateTime->now );
 
-                    my $incoming_rs = Lacuna->db->resultset('Fleet')->search({
-                        foreign_body_id     => $self->id,
-                        direction           => 'out',
-                        task                => 'Travelling',
-                        date_available      => {'<' => $now},
-                    });
-                    while (my $fleet = $incoming_rs->next) {
-                        $foreign_bodies->{$fleet->body_id} = 1;
+                my $incoming_rs = Lacuna->db->resultset('Fleet')->search({
+                    foreign_body_id     => $self->id,
+                    direction           => 'out',
+                    task                => 'Travelling',
+                    date_available      => {'<' => $now},
+                });
+                while (my $fleet = $incoming_rs->next) {
+                    $foreign_bodies->{$fleet->body_id} = 1;
+                }
+                foreach my $body_id (keys %$foreign_bodies) {
+                    my $body = Lacuna->db->resultset('Map::Body')->find($body_id);
+                    if ($body) {
+                        $body->tick;
                     }
-                    foreach my $body_id (keys %$foreign_bodies) {
-                        my $body = Lacuna->db->resultset('Map::Body')->find($body_id);
-                        if ($body) {
-                            $body->tick;
-                        }
-                    }
+                }
 
-                    my $num_incoming_ally = 0;
-                    my @incoming_ally;
-                    # If we are in an alliance, all fleets coming from ally (which are not ourself)
-                    if ($self->empire->alliance_id) {
-                        my $incoming_ally_rs = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
-                            foreign_body_id     => $self->id,
-                            direction           => 'out',
-                            task                => 'Travelling',
-                            'body.empire_id'    => {'!=' => $empire->id},
-                            'empire.alliance_id'  => $empire->alliance_id,
-                        },{
-                            join                => {body => 'empire'},
-                            order_by            => 'date_available',
-                        });
-                        $num_incoming_ally = $incoming_ally_rs->count;
-                        @incoming_ally = $incoming_ally_rs->search({},{rows => 10});
-                    }
-                    # All fleets coming from ourself
-                    my $incoming_own_rs = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
-                        foreign_body_id     => $self->id,
-                        direction           => 'out',
-                        task                => 'Travelling',
-                        'body.empire_id'    => $empire->id,
-                    },{
-                        join                => 'body',
-                        order_by            => 'date_available',
-                    });
-                    my $num_incoming_own = $incoming_own_rs->count;
-                    my @incoming_own = $incoming_own_rs->search({},{rows => 10});
-
-                    # All foreign incoming
-                    my $incoming_foreign_rs = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
+                my $num_incoming_ally = 0;
+                my @incoming_ally;
+                # If we are in an alliance, all fleets coming from ally (which are not ourself)
+                if ($self->empire->alliance_id) {
+                    my $incoming_ally_rs = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
                         foreign_body_id     => $self->id,
                         direction           => 'out',
                         task                => 'Travelling',
                         'body.empire_id'    => {'!=' => $empire->id},
+                        'empire.alliance_id'  => $empire->alliance_id,
                     },{
                         join                => {body => 'empire'},
                         order_by            => 'date_available',
                     });
-                    if ($self->empire->alliance_id) {
-                        $incoming_foreign_rs = $incoming_foreign_rs->search({
-                            'empire.alliance_id' => [
-                                {'!=' => $empire->alliance_id},
-                                undef,
-                            ]
-                        });
-                    }
-                    my $num_incoming_foreign = $incoming_foreign_rs->count;
-                    my @incoming_foreign = $incoming_foreign_rs->search({},{rows => 20});
-
-                    $out->{num_incoming_foreign} = $num_incoming_foreign;
-                    foreach my $fleet (@incoming_foreign) {
-                        push @{$out->{incoming_foreign_fleets}}, {
-                            date_arrives    => $fleet->date_available_formatted,
-                            is_own          => 0,
-                            is_ally         => 0,
-                            ships           => $fleet->quantity,
-                            id              => $fleet->id,
-                        };
-                    }
-                    $out->{num_incoming_ally} = $num_incoming_ally;
-                    foreach my $fleet (@incoming_ally) {
-                        push @{$out->{incoming_ally_fleets}}, {
-                            date_arrives    => $fleet->date_available_formatted,
-                            is_own          => 0,
-                            is_ally         => 1,
-                            ships           => $fleet->quantity,
-                            id              => $fleet->id,
-                        };
-                    }
-                    $out->{num_incoming_own} = $num_incoming_own;
-                    foreach my $fleet (@incoming_own) {
-                        push @{$out->{incoming_own_fleets}}, {
-                            date_arrives    => $fleet->date_available_formatted,
-                            is_own          => 1,
-                            is_ally         => 0,
-                            ships           => $fleet->quantity,
-                            id              => $fleet->id,
-                        };
-                    }
+                    $num_incoming_ally = $incoming_ally_rs->count;
+                    @incoming_ally = $incoming_ally_rs->search({},{rows => 10});
                 }
+                # All fleets coming from ourself
+                my $incoming_own_rs = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
+                    foreign_body_id     => $self->id,
+                    direction           => 'out',
+                    task                => 'Travelling',
+                    'body.empire_id'    => $empire->id,
+                },{
+                    join                => 'body',
+                    order_by            => 'date_available',
+                });
+                my $num_incoming_own = $incoming_own_rs->count;
+                my @incoming_own = $incoming_own_rs->search({},{rows => 10});
+
+                # All foreign incoming
+                my $incoming_foreign_rs = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->search({
+                    foreign_body_id     => $self->id,
+                    direction           => 'out',
+                    task                => 'Travelling',
+                    'body.empire_id'    => {'!=' => $empire->id},
+                },{
+                    join                => {body => 'empire'},
+                    order_by            => 'date_available',
+                });
+                if ($self->empire->alliance_id) {
+                    $incoming_foreign_rs = $incoming_foreign_rs->search({
+                        'empire.alliance_id' => [
+                            {'!=' => $empire->alliance_id},
+                            undef,
+                        ]
+                    });
+                }
+                my $num_incoming_foreign = $incoming_foreign_rs->count;
+                my @incoming_foreign = $incoming_foreign_rs->search({},{rows => 20});
+
+                $out->{num_incoming_foreign} = $num_incoming_foreign;
+                foreach my $fleet (@incoming_foreign) {
+                    push @{$out->{incoming_foreign_fleets}}, {
+                        date_arrives    => $fleet->date_available_formatted,
+                        is_own          => 0,
+                        is_ally         => 0,
+                        ships           => $fleet->quantity,
+                        id              => $fleet->id,
+                    };
+                }
+                $out->{num_incoming_ally} = $num_incoming_ally;
+                foreach my $fleet (@incoming_ally) {
+                    push @{$out->{incoming_ally_fleets}}, {
+                        date_arrives    => $fleet->date_available_formatted,
+                        is_own          => 0,
+                        is_ally         => 1,
+                        ships           => $fleet->quantity,
+                        id              => $fleet->id,
+                    };
+                }
+                $out->{num_incoming_own} = $num_incoming_own;
+                foreach my $fleet (@incoming_own) {
+                    push @{$out->{incoming_own_fleets}}, {
+                        date_arrives    => $fleet->date_available_formatted,
+                        is_own          => 1,
+                        is_ally         => 0,
+                        ships           => $fleet->quantity,
+                        id              => $fleet->id,
+                    };
+                }
+
                 $out->{needs_surface_refresh} = $self->needs_surface_refresh;
                 if ($self->needs_surface_refresh) {
                     $self->surface_version($self->surface_version+1);
@@ -1363,8 +1358,8 @@ sub tick {
             $self->tick_to($object->upgrade_ends);
             $object->finish_upgrade;
         }
-    }
-    
+    }    
+
     # check / clear boosts
     if ($self->boost_enabled) {
         my $empire = $self->empire;

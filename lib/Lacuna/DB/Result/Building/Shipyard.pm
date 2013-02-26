@@ -296,6 +296,8 @@ sub build_fleet {
     $fleet->date_available($date_completed);
     $fleet->date_started(DateTime->now);
     $fleet->insert;
+    $fleet->start_construction;
+
     if ($is_working) {
         $self->reschedule_work($date_completed);
     }

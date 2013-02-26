@@ -552,6 +552,20 @@ sub waste_capacity {
 
 # BUILD
 
+before delete => sub {
+    my ($self) = @_;
+
+    # delete any scheduled work or upgrade jobs
+    #
+    my $schedule_rs = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Building',
+        parent_id       => $self->id,
+    });
+    while (my $schedule = $schedule_rs->next) {
+        $schedule->delete;
+    }
+};
+
 sub has_special_resources {
     return 1;
 }
@@ -846,9 +860,7 @@ sub finish_upgrade {
     if ($self->is_upgrading) {
         my $body = $self->body;
         my $new_level = $self->level+1;
-        $body->needs_recalc(1);
-        $body->needs_surface_refresh(1);
-        $body->update;
+
         my $empire = $body->empire; 
         # 31 is the actual Max level for the Terra & Gas Platforms.
         if ($new_level >= 1 and $new_level <= 31) {
@@ -864,6 +876,11 @@ sub finish_upgrade {
         $self->level($new_level);
         $self->is_upgrading(0);
         $self->update;
+        
+        $body->needs_recalc(1);
+        $body->needs_surface_refresh(1);
+        $body->update;
+
         $empire->add_medal($type);
         if ($new_level % 5 == 0) {
             my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'a magical');

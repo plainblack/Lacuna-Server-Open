@@ -1,0 +1,7 @@
+Probe Lost
+~~~
+We have just lost contact with the probe from {Planet %s %s} tasked to the {Starmap %s %s %s} system. Before losing contact, a conflict broke out in the system. Perhaps our probe was caught in a general sweep?
+
+Regards,
+
+Your Humble Assistant

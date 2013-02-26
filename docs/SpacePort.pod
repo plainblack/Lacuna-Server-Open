@@ -728,7 +728,6 @@ Throws 1002, 1009, 1010, 1016.
 The response returns the details about the single fleet that was sent, including confirmation of
 it's arrival time.
 
-
 =head2 recall_fleet
 
 Recall all, or part of a fleet, back to it's body of origin.

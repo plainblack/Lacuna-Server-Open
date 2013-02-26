@@ -13,6 +13,8 @@ around 'build_tags' => sub {
 
 use constant controller_class => 'Lacuna::RPC::Building::GeneticsLab';
 
+use constant max_instances_per_planet => 1;
+
 use constant university_prereq => 20;
 
 use constant image => 'geneticslab';

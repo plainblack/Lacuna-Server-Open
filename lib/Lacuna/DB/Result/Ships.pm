@@ -121,9 +121,84 @@ sub max_occupants {
     return int($self->hold_size / 350);
 }
 
+before delete => sub {
+    my ($self) = @_;
+
+    # delete any arrival or finish_construction jobs
+    #
+    my $schedule_rs = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Ships',
+        parent_id       => $self->id,
+    });
+    while (my $schedule = $schedule_rs->next) {
+        $schedule->delete;
+    }
+};
+
+before task => sub {
+    my ($self, $arg) = @_;
+
+    if ($arg) {
+        # to be safe, if a ship changes *from* either 'Travelling' or 'Building' we
+        # delete any Schedule (and hence any beanstalk job) for it.
+        # 
+        if (($self->task eq 'Travelling' or $self->task eq 'Building') and $arg ne $self->task) {
+            # Then we need to delete the 'schedule' and beanstalk job
+            my $schedule_rs = Lacuna->db->resultset('Schedule')->search({
+                parent_table    => 'Ships',
+                parent_id       => $self->id,
+            });
+            while (my $schedule = $schedule_rs->next) {
+                $schedule->delete;
+            }
+        }
+    }
+};
+
+before date_available => sub {
+    my ($self, $arg) = @_;
+
+    if ($arg and $self->id) {
+        $self->re_schedule($arg);
+    }
+};
+
+# Change the date_available of the ship
+sub re_schedule {
+    my ($self, $date_available) = @_;
+
+    my $schedule_rs = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Ships',
+        parent_id       => $self->id,
+    });
+    while (my $schedule = $schedule_rs->next) {
+        my $new_schedule = Lacuna->db->resultset('Schedule')->create({
+            parent_table    => 'Ships',
+            queue           => $schedule->queue,
+            parent_id       => $self->id,
+            task            => $schedule->task,
+            delivery        => $date_available,
+        });
+        $schedule->delete;
+    }
+}
+
 sub arrive {
     my $self = shift;
-    eval {$self->handle_arrival_procedures}; # throws exceptions to stop subsequent actions from happening
+
+    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Ships',
+        parent_id       => $self->id,
+        task            => 'arrive',
+    });
+    $schedule->delete if defined $schedule;
+
+
+    eval {
+        # Throws exceptions to stop subsequent actions from happening
+        $self->handle_arrival_procedures;
+    };
+
     my $reason = $@;
     if (ref $reason eq 'ARRAY' && $reason->[0] eq -1) {
         # this is an expected exception, it means one of the roles took over
@@ -270,13 +345,23 @@ sub seconds_remaining {
 }
 
 sub turn_around {
-    my $self = shift;
+    my ($self) = @_;
+
     $self->direction( ($self->direction eq 'out') ? 'in' : 'out' );
-#    $self->date_available(DateTime->now->add_duration( $self->date_available - $self->date_started ));
     $self->fleet_speed(0);
     my $target = ($self->foreign_body_id) ? $self->foreign_body : $self->foreign_star;
-    $self->date_available(DateTime->now->add(seconds=>$self->calculate_travel_time($target)));
+    my $arrival = DateTime->now->add(seconds => $self->calculate_travel_time($target));
+    $self->date_available($arrival);
     $self->date_started(DateTime->now);
+
+    my $schedule = Lacuna->db->resultset('Schedule')->create({
+        parent_table    => 'Ships',
+        queue           => 'arrive_queue',
+        parent_id       => $self->id,
+        task            => 'arrive',
+        delivery        => $arrival,
+    });
+
     return $self;
 }
 
@@ -307,6 +392,28 @@ sub send {
         confess [1002, 'You cannot send a ship to a non-existant target.'];
     }
     $self->update;
+
+    my $schedule = Lacuna->db->resultset('Schedule')->create({
+        delivery        => $arrival,
+        queue           => 'arrive_queue',
+        parent_table    => 'Ships',
+        parent_id       => $self->id,
+        task            => 'arrive',
+    });
+
+    return $self;
+}
+
+sub start_construction {
+    my ($self) = @_;
+
+    my $schedule = Lacuna->db->resultset('Schedule')->create({
+        delivery        => $self->date_available,
+        parent_table    => 'Ships',
+        parent_id       => $self->id,
+        task            => 'finish_construction',
+    });
+
     return $self;
 }
 
@@ -316,7 +423,79 @@ sub finish_construction {
     $self->task('Docked');
     $self->date_available(DateTime->now);
     $self->update;
+
+    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Ships',
+        parent_id       => $self->id,
+        task            => 'finish_construction',
+    });
+    $schedule->delete if defined $schedule;
+
+    return $self;
 }
+
+
+# Remove one ship from the build queue, reschedule all other following ships
+#
+sub reschedule_queue {
+    my ($self) = @_;
+
+    my $start_time = DateTime->now;
+    my $ship_end_time;          # when the current ship completes
+    my $building_time;          # The end time of the building working
+
+    my @ships_queue = Lacuna->db->resultset('Ships')->search({
+        task        => 'Building',
+        shipyard_id => $self->shipyard_id,
+    },{
+        order_by    => { -asc => 'date_available'},
+    })->all;
+
+    my $ship;
+    $building_time = DateTime->now;
+    BUILD:
+    while ($ship = shift @ships_queue) {
+        $ship_end_time = $ship->date_available;
+        if ($ship->id == $self->id) {
+            last BUILD;
+        }
+        # Start time of the next ship is the end time of this one
+        $start_time = $ship_end_time;
+    }
+    if ($ship) {
+        # Remove this scheduled event
+        my $duration = $ship_end_time->epoch - $start_time->epoch;
+        # Don't bother to reschedule if it is a small period
+        if ($duration > 5) {
+            my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+                parent_table    => 'Ships',
+                parent_id       => $self->id,
+                task            => 'finish_construction',
+            });
+            $schedule->delete if defined $schedule;
+            $building_time = $start_time;
+
+            # Change the scheduled time for all subsequent builds (if any)
+            while (my $ship = shift @ships_queue) {
+                my $construction_ends = $ship->date_available->clone->subtract(seconds => $duration);
+                $building_time = $construction_ends;
+
+                $ship->date_available($construction_ends);
+                $ship->update;
+                Lacuna->db->resultset('Schedule')->reschedule({
+                    parent_table    => 'Ships',
+                    parent_id       => $ship->id,
+                    task            => 'finish_construction',
+                    delivery        => $construction_ends,
+                });
+            }
+        }
+    }
+    # Set shipyard end time
+    my $shipyard = Lacuna->db->resultset('Building')->find({ id => $self->shipyard_id });
+    $shipyard->reschedule_work($building_time);
+}
+
 
 sub orbit {
     my ($self) = @_;

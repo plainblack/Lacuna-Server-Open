@@ -62,7 +62,7 @@ sub queue_for_delivery {
     $delay = 0 if $delay < 0;
     my $now         = DateTime->now;
 
-    my $queue   = Lacuna->queue || 'default';
+    my $queue       = Lacuna->queue;
     my $priority    = $self->priority || 1000;
     my $job = $queue->publish($self->queue,
         {

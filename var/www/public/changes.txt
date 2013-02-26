@@ -55,6 +55,22 @@
 KNOWN BUGS:
  - bug: Fleet format currently shows 'Foreign' for all fleets
 
+3.0881:
+ - Fix: DevMin fix.
+ - Fix: When upgrade of building ends, planet stats are now correctly calculated.
+ - Fix: When colony is destroyed, all scheduled tasks for that colony are removed.
+ - Mod: Some changes to the admin screen.
+ - Fix: Building upgrade/work scheduler now auto restarts every hour.
+ - Fix: Make sure body condition current when spies arrive.
+ - Fix: Use proper planet names for incoming on Spy Travel report.
+ - Fix: resources.json water-reclamation-facility.
+ - Add: Ability to subsidize individual ships in the shipyard build queue.
+ - Fix: Genetic labs, max one per planet.
+
+3.0880:
+ - Fix: Glyphs should now show in alpha order in the TM and SST
+ - Fix: Different message if defending spy destroys a probe in the system.
+
 3.0879:
  - Fix: Eveins should no longer destruct after an upgrade
  - Add: Upgrading and evein adds the remaining time for this level to the next

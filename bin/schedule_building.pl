@@ -15,19 +15,38 @@ $|=1;
 # --------------------------------------------------------------------
 # command line arguments:
 #
-my $daemonise   = 1;
+my $daemonize   = 1;
 my $loop        = 1;
 my $initialize  = 1;
 our $quiet      = 1;
 
 GetOptions(
-    'daemonise!'    => \$daemonise,
+    'daemonize!'    => \$daemonize,
     'loop!'         => \$loop,
     'quiet!'        => \$quiet,
     'initialize!'   => \$initialize,
 );
 
+chdir '/data/Lacuna-Server/bin';
+
+my $timeout     = 60 * 60; # (one hour)
+my $pid_file    = '/data/Lacuna-Server/bin/schedule_building.pid';
+
 my $start = time;
+
+# kill any existing processes
+#
+if (-f $pid_file) {
+    open(PIDFILE, $pid_file);
+    my $PID = <PIDFILE>;
+    chomp $PID;
+    if (grep /$PID/, `ps -p $PID`) {
+        close (PIDFILE);
+        out("Killing previous job, PID=$PID");
+        kill 9, $PID;
+        sleep 5;
+    }
+}
 
 if ($initialize) {
     # (re)initialize all the jobs on the queues, replacing any 
@@ -46,8 +65,7 @@ if ($initialize) {
     });
     while (my $building = $building_rs->next) {
         # add to queue
-        out('Building - finish_work at '.$building->work_ends);
-        Lacuna->db->resultset('Schedule')->create({
+        my $schedule = Lacuna->db->resultset('Schedule')->create({
             delivery        => $building->work_ends,
             parent_table    => 'Building',
             parent_id       => $building->id,
@@ -61,8 +79,7 @@ if ($initialize) {
     });
     while (my $building = $building_rs->next) {
         # add to queue
-        out('Building - finish_upgrade at '.$building->upgrade_ends);
-        Lacuna->db->resultset('Schedule')->create({
+        my $schedule = Lacuna->db->resultset('Schedule')->create({
             delivery        => $building->upgrade_ends,
             parent_table    => 'Building',
             parent_id       => $building->id,
@@ -70,39 +87,25 @@ if ($initialize) {
         });
     }
 
-    out('Adding ship building ends');
-    my $dt_parser   = Lacuna->db->storage->datetime_parser;
-    my $now         = $dt_parser->format_datetime( DateTime->now );
-    my $fleets = Lacuna->db->resultset('Fleet')->search({
-        date_available  => { '<=' => $now },
-        task            => 'Travelling',
+    out('Adding ship builds');
+    my $ship_rs = Lacuna->db->resultset('Ships')->search({
+        task => 'Building',
     });
-    while (my $fleet = $fleets->next ) {
-        if ($fleet->task eq 'Travelling') {
-            out('Fleet - arrive at '.$fleet->date_available);
-            Lacuna->db->resultset('Schedule')->create({
-                delivery        => $fleet->date_available,
-                parent_table    => 'Fleet',
-                parent_id       => $fleet->id,
-                task            => 'arrive',
-            });
-        }
-        elsif ($fleet->task eq 'Building') {
-            out('Fleet - finish_work at '.$fleet->date_available);
-            Lacuna->db->resultset('Schedule')->create({
-                delivery        => $fleet->date_available,
-                parent_table    => 'Fleet',
-                parent_id       => $fleet->id,
-                task            => 'finish_work',
-            });
-        }
+    while (my $ship = $ship_rs->next) {
+        # add to queue
+        my $schedule = Lacuna->db->resultset('Schedule')->create({
+            delivery        => $ship->date_available,
+            parent_table    => 'Ships',
+            parent_id       => $ship->id,
+            task            => 'finish_construction',
+        });
     }
 }
 
 # --------------------------------------------------------------------
-# Daemonise
+# Daemonize
 
-if ($daemonise) {
+if ($daemonize) {
     daemonize();
     out('Running as a daemon');
 }
@@ -126,30 +129,40 @@ out("queue = $queue");
 # Main processing loop
 
 out('Started');
-do {
-    out('In Main Processing Loop');
-    my $job     = $queue->consume('default');
-    my $args    = $job->args;
-    my $task    = $args->{task};
-    my $task_args = $args->{args};
+# Timeout after an hour
+eval {
+    local $SIG{ALRM} = sub { die "alarm\n" };
+    alarm $timeout;
+    
+    do {
+        out('In Main Processing Loop');
+        my $job     = $queue->consume('default');
+        my $args    = $job->args;
+        my $task    = $args->{task};
+        my $task_args = $args->{args};
+    
+        out('job received ['.$job->id.']');
 
-    out('job received ['.$job->id.']');
+        my $payload = $job->payload;
 
-    my $payload = $job->payload;
-
-    try {
-        # process the job
-        out("Process class=$payload task=$task");
-        $payload->$task($task_args);
-        out("Processing done. Delete job ".$job->id);
-        $job->delete;
-    }
-    catch {
-        # bury the job, it failed
-        out("Job ".$job->id." failed: $_");
-        $job->bury;
-    };
-} while ($loop);
+        try {
+            # process the job
+            out("Process class=$payload task=$task");
+            $payload->$task($task_args);
+            out("Processing done. Delete job ".$job->id);
+            $job->delete;
+        }
+        catch {
+            # bury the job, it failed
+            out("Job ".$job->id." failed: $_");
+            $job->bury;
+        };
+    } while ($loop);
+};
+if ($@) {
+    die unless $@ eq "alarm\n"; # propagate unexpected errors
+    # timed out
+}
 
 my $finish = time;
 out('Finished');
