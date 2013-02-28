@@ -1559,6 +1559,7 @@ sub steal_planet {
     Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
         from_body_id => $self->on_body_id, on_body_id => $self->on_body_id, task => 'Training',
     })->delete_all; # All spies in training are executed
+
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')
                   ->search({from_body_id => $self->on_body_id});
 
@@ -1630,15 +1631,16 @@ sub steal_planet {
             $ship->delete;
         }
     }
-# Shipyards have had all ships that were building destroyed, so stop timers.
+# Shipyards and Intelligence ministries have had all new items deleted, so get rid of timers.
     my $on_body = $self->on_body;
-    my @shipyards = grep {
-            ($_->class eq 'Lacuna::DB::Result::Building::Shipyard')
+    my @bld_timers = grep {
+            ($_->class eq 'Lacuna::DB::Result::Building::Shipyard') ||
+            ($_->class eq 'Lacuna::DB::Result::Building::Intelligence')
         }
     @{$self->on_body->building_cache};
-    for my $shipyard (@shipyards) {
-        $shipyard->is_working(0);
-        $shipyard->update;
+    for my $btimer (@bld_timers) {
+        $btimer->is_working(0);
+        $btimer->update;
     }
 
 # Probes
