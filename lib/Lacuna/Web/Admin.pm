@@ -606,6 +606,7 @@ sub www_zoom_fleet {
     my $body = $fleet->body;
     $fleet->update({date_available => DateTime->now});
     $body->tick;
+    
     return $self->www_view_fleets($request);
 }
 

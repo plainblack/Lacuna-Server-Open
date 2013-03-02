@@ -711,7 +711,6 @@ sub withdraw_from_market {
     };
 }
 
-
 sub accept_from_market {
     my ($self, $session_id, $building_id, $trade_id) = @_;
     unless ($trade_id) {
