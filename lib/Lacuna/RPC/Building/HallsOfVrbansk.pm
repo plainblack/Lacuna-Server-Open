@@ -2,6 +2,8 @@ package Lacuna::RPC::Building::HallsOfVrbansk;
 
 use Moose;
 use utf8;
+use List::Util qw(min);
+
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 
@@ -49,28 +51,32 @@ sub sacrifice_to_upgrade {
     unless ($is_upgradable) {
         confess [1009, 'The Halls of Vrbansk do not have the knowledge necessary to upgrade the '.$upgrade->name];
     }
+    my $needed = $upgrade->level + 1;
+    
     my $body = $building->body;
     $body->has_room_in_build_queue;
     $upgrade->body($body);
     $upgrade->start_upgrade;
     # get the number of built halls
     my @halls = $building->get_halls;
-    @halls = splice(@halls, 0, $upgrade->level + 1);
-
-    # get the remaining plans
-    my $plans_needed = $upgrade->level + 1 - scalar @halls;
-    my @plans;
-    if ($plans_needed > 0) {
-        my ($plan) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'} @{$body->plan_cache};
-        if ($plan) {
-            if ($plan->quantity < $plans_needed) {
-                confess [1009, 'The Halls of Vrbansk do not have the knowledge necessary to upgrade the '.$upgrade->name];
-            }
-            $body->delete_many_plans($plan, $plans_needed);
-        }
+    my $total = scalar @halls;
+    # and the number of plans
+    my ($plans) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'} @{$body->plan_cache};
+    if ($plans) {
+        $total += $plans->quantity;
     }
-    foreach my $hall (@halls) {
-        $hall->delete;
+    if ($total < $needed) {
+        confess [1009, 'The Halls of Vrbansk do not have the knowledge necessary to upgrade the '.$upgrade->name];
+    }
+    if ($plans) {
+        my $to_delete = min($plans->quantity, $needed);
+        $body->delete_many_plans($plans, $to_delete);
+        $needed -= $to_delete;
+    }
+    while ($needed) {
+        my $hall = shift(@halls);
+        $hall->delete if $hall;
+        $needed--;
     }
     $body->needs_surface_refresh(1);
     $body->update;
