@@ -1015,6 +1015,7 @@ sub start_work {
     my $ends = DateTime->now->add(seconds => $duration);
     $self->work_ends($ends);
     $self->work($work);
+    $self->update;
 
     # add to queue
     my $schedule = Lacuna->db->resultset('Schedule')->create({
