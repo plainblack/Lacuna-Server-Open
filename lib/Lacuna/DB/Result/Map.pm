@@ -113,5 +113,45 @@ sub in_neutral_area {
     return 0;
 }
 
+sub in_starter_zone {
+    my ($self) = shift;
+
+    my $sz_param = Lacuna->config->get('starter_zone');
+    if ($sz_param) {
+        return 0 unless $sz_param->{active};
+        my $zone = $self->zone;
+        my $x    = $self->x;
+        my $y    = $self->y;
+        if ($sz_param->{zone} and $sz_param->{coord}) {
+# Needs to be in both to qualify as in         
+            my $in_zone = 0;
+            for my $z_test (@{$sz_param->{zone_list}}) {
+                $in_zone = 1 if ($zone eq $z_test);
+            }
+            return 0 unless $in_zone;
+            if ($x >= $sz_param->{x}[0] and
+                $x <= $sz_param->{x}[1] and
+                $y >= $sz_param->{y}[0] and
+                $y <= $sz_param->{y}[1]) {
+                return 1;
+            }
+        }
+        elsif ($sz_param->{zone}) {
+            for my $z_test (@{$sz_param->{zone_list}}) {
+                return 1 if ($zone eq $z_test);
+            }
+        }
+        elsif ($sz_param->{coord}) {
+            if ($x >= $sz_param->{x}[0] and
+                $x <= $sz_param->{x}[1] and
+                $y >= $sz_param->{y}[0] and
+                $y <= $sz_param->{y}[1]) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
