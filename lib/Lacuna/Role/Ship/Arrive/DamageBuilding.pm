@@ -17,7 +17,14 @@ after handle_arrival_procedures => sub {
     # determine target building
     my $building;
     my $body_attacked = $self->foreign_body;
-    my ($citadel) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope'} @{$body_attacked->building_cache};
+    my ($citadel) = grep {
+            $_->class eq 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope'
+        and $_->efficiency == 100
+        and $_->is_working == 0
+        and $_->level > 0
+        and $_->is_building == 0
+    } @{$body_attacked->building_cache};
+
     if (defined $citadel) {
         $building = $citadel;
     }
@@ -48,7 +55,8 @@ after handle_arrival_procedures => sub {
                 ($_->efficiency > 0) and
                 ($_->class ne 'Lacuna::DB::Result::Building::Permanent::Crater') and
                 ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder') and
-                ($_->class ne 'Lacuna::DB::Result::Building::TheDillonForge')
+                ($_->class ne 'Lacuna::DB::Result::Building::TheDillonForge') and
+                ($_->class ne 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope')
             } @{$body_attacked->building_cache};
     }
     return if not defined $building;
@@ -70,8 +78,7 @@ after handle_arrival_procedures => sub {
     }
     $body_attacked->add_news(70, sprintf('An attack ship screamed out of the sky and damaged the %s on %s.',$building->name, $body_attacked->name));
 
-    my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
-    $logs->new({
+    my $log = Lacuna->db->resultset('Log::Battles')->new({
         date_stamp => DateTime->now,
         attacking_empire_id     => $self->body->empire_id,
         attacking_empire_name   => $self->body->empire->name,
@@ -90,33 +97,21 @@ after handle_arrival_procedures => sub {
         attacked_body_id        => $body_attacked->id,
         attacked_body_name      => $body_attacked->name,
         victory_to              => 'attacker',
-    })->insert;
+    });
 
-    # handle citadel damage
     if (defined $citadel) {
-        if ($citadel->level < 2) {
-            $citadel->delete;
-            $self->delete;
-        }
-        else {
-            $citadel->level($citadel->level - 1);
-            $citadel->update;
-            if ($citadel->efficiency) {
-                $self->body_id($body_attacked->id);
-                $self->direction('in');
-                $self->land;
-                $self->update;
-            }
-            else {
-                $self->delete;
-            }
-        }
-        $body_attacked->needs_surface_refresh(1);
-        $body_attacked->update;
+        # handle citadel defence
+        #
+        $log->victory_to('defender');
+        
+        $citadel->start_work({}, 900 / $citadel->level);
+
+        # Repel the ship at quarter speed
+        $self->turn_around(int($self->speed / 4));
     }
-    
-    # handle regular building damage
     else {
+        # Handle regular building damage
+        #
         $building->spend_efficiency($amount)->update;
         if ($self->splash_radius) {
             foreach my $i (1..$self->splash_radius) {
@@ -129,7 +124,8 @@ after handle_arrival_procedures => sub {
                         ($_->y < $building->y + $i) and
                         ($_->class ne 'Lacuna::DB::Result::Building::Permanent::Crater') and
                         ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder') and
-                        ($_->class ne 'Lacuna::DB::Result::Building::TheDillonForge')
+                        ($_->class ne 'Lacuna::DB::Result::Building::TheDillonForge') and
+                        ($_->class ne 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope')
                     } @{$body_attacked->building_cache};
                 foreach my $damaged (@splashed) {
                     $damaged->body($body_attacked);
@@ -139,6 +135,7 @@ after handle_arrival_procedures => sub {
         }
         $self->delete;
     }
+    $log->insert;
     confess [-1];
 };
 

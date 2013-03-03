@@ -2,6 +2,8 @@
  - Fix: Timers on int ministries get zeroed on flipped planets.
  - Mod: Halls no longer need x+1 free spaces to upgrade a level x building
  - Mod: Hall buildings will no longer be sacrificed if there are enough plans
+ - Mod: Added better logging to building upgrade and ship arrival queues
+ - Mod: Increased range of Trade Ministry
 
 3.0881:
  - Fix: DevMin fix.
