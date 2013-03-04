@@ -95,7 +95,7 @@
       "XXXX"
    ],
    "server_url" : "http://localhost:5000/",
-   "starter_zones" : {
+   "starter_zone" : {
 # If zone is set to a valid zone, x & y are confined to within that zone.
 # Coord set to 1 will further narrow area.
 # Setting zone to 0 will only use x & y.
