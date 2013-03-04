@@ -6,6 +6,7 @@
  - Mod: Increased range of Trade Ministry
  - Mod: Citadel of Knope is now more effective
  - Add: Starter zones enabled via configuration.
+ - Add: When a planet implodes from fissures, empires newer than 60 days will not be damaged.
 
 3.0881:
  - Fix: DevMin fix.

@@ -446,6 +446,7 @@ sub check_starter_zone {
     elsif ($task->{name} eq "Swap Places") {
         if ($body_in and !$target_in) {
             if (defined ($target->empire)) {
+                return 0,"" if (defined($body->empire) and $body->empire_id == $target->empire_id);
                 my $sz_colonies = 0;
                 my $planets = $target->empire->planets;
                 while (my $planet = $planets->next) {
@@ -460,6 +461,7 @@ sub check_starter_zone {
         }
         elsif (!$body_in and $target_in) {
             if (defined ($body->empire)) {
+                return 0,"" if (defined($target->empire) and $body->empire_id == $target->empire_id);
                 my $sz_colonies = 0;
                 my $planets = $body->empire->planets;
                 while (my $planet = $planets->next) {
