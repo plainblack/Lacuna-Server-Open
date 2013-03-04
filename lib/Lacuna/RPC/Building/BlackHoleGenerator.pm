@@ -301,7 +301,7 @@ sub task_chance {
     if ($task->{name} eq 'Jump Zone' or
         $task->{name} eq 'Swap Places' or
         $task->{name} eq 'Move System') {
-        ($return->{throw}, $return->{reason}) = check_starter_zone($body, $target, $task, $target_type);
+        ($return->{throw}, $return->{reason}) = check_starter_zone($body, $target, $task);
         if ($return->{throw} > 0) {
             return $return;
         }
@@ -401,24 +401,36 @@ sub check_bhg_neutralized {
 }
 
 sub check_starter_zone {
-    my ($body, $target, $task, $target_type) = @_;
+    my ($body, $target, $task) = @_;
 
     my $throw; my $reason;
     my $sz_param = Lacuna->config->get('starter_zone');
-    return 0,"" unless defined($sz_param);
-    return 0,"" unless defined($sz_param->{max_colonies});
-
-    if ($task eq "Move System") {
-        $throw = 1009;
-        $reason = sprintf("Move System isn't allowed to & from starter zones for now.");
-        return $throw, $reason;
+    return 0,"" unless $sz_param;
+    return 0,"" unless $sz_param->{max_colonies};
+    my $body_in = $body->in_starter_zone;
+    my $target_in = 0;
+    if (ref $target eq 'HASH') {
+        my $tstar = $target->{star};
+        $target_in = $tstar->in_starter_zone;
+        $target = $tstar;
     }
-    elsif ($task eq "Jump Zone") {
-        if ($body->in_starter_zone) {
-# If we start in a starter, we don't care where they go.
+    else {
+        $target_in = $target->in_starter_zone;
+    }
+
+    if ($task->{name} eq "Move System") {
+        if ($body_in or $target_in) {
+            $throw = 1009;
+            $reason = sprintf("Move System isn't allowed to & from starter zones for now.");
+            return $throw, $reason;
+        }
+    }
+    elsif ($task->{name} eq "Jump Zone") {
+        if ($body_in) {
+# If we start in a starter zone, we don't care where they go.
             return 0, "";
         }
-        if ($target->in_starter_zone) {
+        if ($target_in) {
             my $sz_colonies = 0;
             my $planets = $body->empire->planets;
             while (my $planet = $planets->next) {
@@ -431,17 +443,7 @@ sub check_starter_zone {
             }
         }
     }
-    elsif ($task eq "Swap Places") {
-        my $body_in = $body->in_starter_zone;
-        my $target_in = 0;
-        if (ref $target eq 'HASH') {
-            my $tstar = $target->{star};
-            $target_in = $tstar->in_starter_zone;
-            $target = $tstar;
-        }
-        else {
-            $target_in = $target->in_starter_zone;
-        }
+    elsif ($task->{name} eq "Swap Places") {
         if ($body_in and !$target_in) {
             if (defined ($target->empire)) {
                 my $sz_colonies = 0;

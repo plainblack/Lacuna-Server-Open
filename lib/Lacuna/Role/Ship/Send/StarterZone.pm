@@ -10,11 +10,11 @@ after can_send_to_target => sub {
     if ($sz_param) {
         return 1 unless $target->in_starter_zone;
 
-        confess [1009, 'Can not establish Space Stations in starter zones'] if ($self->type eq 'space station');
+        confess [1009, 'Can not establish Space Stations in starter zones'] if ($self->type eq 'space_station');
 
         if ($sz_param->{max_colonies}) {
             my $sz_colonies = 0;
-            my $planets = $self->empire->planets;
+            my $planets = $self->body->empire->planets;
             while (my $planet = $planets->next) {
                 $sz_colonies++ if $planet->in_starter_zone;
             }
