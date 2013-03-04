@@ -403,6 +403,7 @@ sub check_bhg_neutralized {
 sub check_starter_zone {
     my ($body, $target, $task, $target_type) = @_;
 
+    my $throw; my $reason;
     my $sz_param = Lacuna->config->get('starter_zone');
     return 0,"" unless defined($sz_param);
     return 0,"" unless defined($sz_param->{max_colonies});
@@ -431,8 +432,8 @@ sub check_starter_zone {
         }
     }
     elsif ($task eq "Swap Places") {
-        $body_in = $body->in_starter_zone;
-        $target_in = 0;
+        my $body_in = $body->in_starter_zone;
+        my $target_in = 0;
         if (ref $target eq 'HASH') {
             my $tstar = $target->{star};
             $target_in = $tstar->in_starter_zone;
