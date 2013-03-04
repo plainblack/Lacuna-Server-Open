@@ -44,14 +44,12 @@ sub get_upgradable_buildings {
     my $body    = $self->body;
     $body->update;
     # The max_level is represented by the number of halls already
-    # built, plus the minimum of the number of free building spaces or
-    # the number of hall plans
+    # built, plus the number of hall plans
     my $halls = $self->get_halls;
     my ($plan) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'} @{$body->plan_cache};
     my $plans = defined $plan ? $plan->quantity : 0;
 
-    my $building_count = @{$self->body->building_cache};
-    my $max_level = $halls + min(( 121 - $building_count), $plans);
+    my $max_level = $halls + $plans;
     $max_level = 30 if $max_level > 30;
 
     my @buildings = grep {
