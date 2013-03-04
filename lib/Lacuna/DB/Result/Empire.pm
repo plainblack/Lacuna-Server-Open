@@ -641,6 +641,16 @@ sub find_home_planet {
         orbit                       => { between => [ $self->min_orbit, $self->max_orbit] },
         empire_id                   => undef,
     );
+    my $sz_param = Lacuna->config->get('starter_zone');
+    if ($sz_param and $sz_param->{active}) {
+       if ($sz_param->{zone}) {
+           $search{zone} = { in => $sz_param->{zone_list} };
+       }
+       if ($sz_param->{coord}) {
+           $search{x} = { between => $sz_param->{x} };
+           $search{y} = { between => $sz_param->{y} };
+       }
+    }
     
     # determine search area
     my $invite = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $self->id},{rows=>1})->single;

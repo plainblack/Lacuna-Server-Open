@@ -298,6 +298,14 @@ sub task_chance {
     if ($return->{throw} > 0) {
         return $return;
     }
+    if ($task->{name} eq 'Jump Zone' or
+        $task->{name} eq 'Swap Places' or
+        $task->{name} eq 'Move System') {
+        ($return->{throw}, $return->{reason}) = check_starter_zone($body, $target, $task, $target_type);
+        if ($return->{throw} > 0) {
+            return $return;
+        }
+    }
     unless ( grep { $target_type eq $_ } @{$task->{types}} ) {
         $return->{throw}   = 1009;
         $return->{reason}  = $task->{reason};
@@ -387,6 +395,79 @@ sub check_bhg_neutralized {
             $throw = 1009;
             $reason = sprintf("The star, %s is under BHG Neutralization from %s", $sname, $ss_name);
             return $throw, $reason;
+        }
+    }
+    return 0, "";
+}
+
+sub check_starter_zone {
+    my ($body, $target, $task, $target_type) = @_;
+
+    my $sz_param = Lacuna->config->get('starter_zone');
+    return 0,"" unless defined($sz_param);
+    return 0,"" unless defined($sz_param->{max_colonies});
+
+    if ($task eq "Move System") {
+        $throw = 1009;
+        $reason = sprintf("Move System isn't allowed to & from starter zones for now.");
+        return $throw, $reason;
+    }
+    elsif ($task eq "Jump Zone") {
+        if ($body->in_starter_zone) {
+# If we start in a starter, we don't care where they go.
+            return 0, "";
+        }
+        if ($target->in_starter_zone) {
+            my $sz_colonies = 0;
+            my $planets = $body->empire->planets;
+            while (my $planet = $planets->next) {
+                $sz_colonies++ if $planet->in_starter_zone;
+            }
+            if ($sz_colonies >= $sz_param->{max_colonies}) {
+                $throw = 1009;
+                $reason = sprintf("You already have the maximum allowed colonies in starter zones.");
+                return $throw, $reason;
+            }
+        }
+    }
+    elsif ($task eq "Swap Places") {
+        $body_in = $body->in_starter_zone;
+        $target_in = 0;
+        if (ref $target eq 'HASH') {
+            my $tstar = $target->{star};
+            $target_in = $tstar->in_starter_zone;
+            $target = $tstar;
+        }
+        else {
+            $target_in = $target->in_starter_zone;
+        }
+        if ($body_in and !$target_in) {
+            if (defined ($target->empire)) {
+                my $sz_colonies = 0;
+                my $planets = $target->empire->planets;
+                while (my $planet = $planets->next) {
+                    $sz_colonies++ if $planet->in_starter_zone;
+                }
+                if ($sz_colonies >= $sz_param->{max_colonies}) {
+                    $throw = 1009;
+                    $reason = sprintf("You already have the maximum allowed colonies in starter zones.");
+                    return $throw, $reason;
+                }
+            }
+        }
+        elsif (!$body_in and $target_in) {
+            if (defined ($body->empire)) {
+                my $sz_colonies = 0;
+                my $planets = $body->empire->planets;
+                while (my $planet = $planets->next) {
+                    $sz_colonies++ if $planet->in_starter_zone;
+                }
+                if ($sz_colonies >= $sz_param->{max_colonies}) {
+                    $throw = 1009;
+                    $reason = sprintf("You already have the maximum allowed colonies in starter zones.");
+                    return $throw, $reason;
+                }
+            }
         }
     }
     return 0, "";

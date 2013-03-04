@@ -21,6 +21,7 @@ use constant type_formatted         => 'Space Station Hull';
 
 with "Lacuna::Role::Ship::Send::Planet";
 with 'Lacuna::Role::Ship::Send::Uninhabited';
+with "Lacuna::Role::Ship::Send::StarterZone";
 with 'Lacuna::Role::Ship::Send::MemberOfAlliance';
 with "Lacuna::Role::Ship::Send::SpendNextColonyCost";
 with "Lacuna::Role::Ship::Send::IsHostile";

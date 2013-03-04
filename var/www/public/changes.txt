@@ -5,7 +5,7 @@
  - Mod: Added better logging to building upgrade and ship arrival queues
  - Mod: Increased range of Trade Ministry
  - Mod: Citadel of Knope is now more effective
- - Add: Starter zones enabled.
+ - Add: Starter zones enabled via configuration.
 
 3.0881:
  - Fix: DevMin fix.

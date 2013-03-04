@@ -102,6 +102,7 @@
 # Setting x & y outside of the zone, will result in nothing be within the NZ.
 # If only coord is set, then zone boundries are ignored.
       "active" : 1,
+      "max_colonies" : 2,
       "zone" : 1,
       "zone_list" : [
          "-1|-1",
@@ -110,8 +111,8 @@
          "1|1"
       ],
       "coord" : 0,
-      "x" : [ -350, 350 ],
-      "y" : [ -350, 350 ]
+      "x" : [ -50, 50 ],
+      "y" : [ -50, 50 ]
    },
    "voting_sites" : [
       {
