@@ -59,7 +59,8 @@ sub sacrifice_to_upgrade {
     $upgrade->start_upgrade;
     # get the number of built halls
     my @halls = $building->get_halls;
-    my $total = scalar @halls;
+    my $halls_placed = scalar @halls;
+    my $total = $halls_placed;
     # and the number of plans
     my ($plans) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'} @{$body->plan_cache};
     if ($plans) {
@@ -68,15 +69,21 @@ sub sacrifice_to_upgrade {
     if ($total < $needed) {
         confess [1009, 'The Halls of Vrbansk do not have the knowledge necessary to upgrade the '.$upgrade->name];
     }
+    shift @halls if ($total > $needed); # Leave one hall standing if not needed for upgrade.
+    while ($needed) {
+        my $hall = shift(@halls);
+        if ($hall) {
+            $hall->delete
+        }
+        else {
+            last;
+        }
+        $needed--;
+    }
     if ($plans) {
         my $to_delete = min($plans->quantity, $needed);
         $body->delete_many_plans($plans, $to_delete);
         $needed -= $to_delete;
-    }
-    while ($needed) {
-        my $hall = shift(@halls);
-        $hall->delete if $hall;
-        $needed--;
     }
     $body->needs_surface_refresh(1);
     $body->update;
