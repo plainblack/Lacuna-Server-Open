@@ -25,6 +25,19 @@ The list of methods below represents changes and additions to the methods that a
                 {
                     "spy_id" : "1",
                     "time" : "18720",
+                    "level" : 26,
+                    "offense_rating" : 2600,
+                    "defense_rating" : 2600,
+                    "intel"          : 10,
+                    "mayhem"         : 60,
+                    "politics"       : 40,
+                    "theft"          :  0,
+                    "based_from"     : {
+                                         "body_id" :
+                                         "name"    => "Planet Name",
+                                         "x"       => 15,
+                                         "y"       => 4,
+                    },
                 },
                 ...
             ],

@@ -129,6 +129,19 @@ sub training_costs {
                 spy_id  => $spy->id,
                 name    => $spy->name,
                 time    => $train_time,
+                level   => $spy->level,
+                offense_rating => $spy->offense,
+                defense_rating => $spy->offense,
+                intel          => $spy->intel_xp,
+                mayhem         => $spy->mayhem_xp,
+                politics       => $spy->politics_xp,
+                theft          => $spy->theft_xp,
+                based_from     => {
+                    body_id => $spy->from_body_id,
+                    name    => $spy->from_body->name,
+                    x       => $spy->from_body->x,
+                    y       => $spy->from_body->y,
+                },
             };
         }
     }
