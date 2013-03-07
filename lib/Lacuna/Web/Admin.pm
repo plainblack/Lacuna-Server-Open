@@ -589,8 +589,7 @@ sub www_zoom_fleet {
 
     my $fleet_id = $request->param('fleet_id');
     my $fleet = Lacuna->db->resultset('Fleet')->find($fleet_id);
-    $fleet->date_available(DateTime->now);
-    $fleet->update;
+    $fleet->arrive;
 
     return $self->www_view_fleets($request);
 }
