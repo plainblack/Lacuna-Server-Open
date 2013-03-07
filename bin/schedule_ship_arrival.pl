@@ -9,8 +9,7 @@ use Getopt::Long;
 use App::Daemon qw(daemonize );
 use Data::Dumper;
 use Try::Tiny;
-
-$|=1;
+use Log::Log4perl qw(:levels);
 
 # --------------------------------------------------------------------
 # command line arguments:
@@ -26,6 +25,9 @@ GetOptions(
     'quiet!'        => \$quiet,
     'initialize!'   => \$initialize,
 );
+
+$App::Daemon::loglevel = $quiet ? $WARN : $DEBUG;
+$App::Daemon::logfile  = '/tmp/schedule_ship_arrival.log';
 
 chdir '/data/Lacuna-Server/bin';
 
@@ -150,8 +152,7 @@ exit 0;
 
 sub out {
     my ($message) = @_;
-    if (not $quiet) {
-        say format_date(DateTime->now), " ", $message;
-    }
+    my $logger = Log::Log4perl->get_logger;
+    $logger->info($message);
 }
 

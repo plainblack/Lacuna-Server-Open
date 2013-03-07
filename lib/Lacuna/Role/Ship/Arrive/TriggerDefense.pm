@@ -304,6 +304,10 @@ sub system_saw_combat {
       return if ($attacked_alliance == $ship_alliance);
   }
 
+  if ($attacked_body->in_starter_zone and !$attacked_body->empire) {
+      return;
+  }
+
   my $defending_bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
       { id => { '!=' => $attacked_body->id}, star_id => $attacked_body->star_id }
   );

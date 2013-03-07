@@ -95,6 +95,25 @@
       "XXXX"
    ],
    "server_url" : "http://localhost:5000/",
+   "starter_zone" : {
+# If zone is set to a valid zone, x & y are confined to within that zone.
+# Coord set to 1 will further narrow area.
+# Setting zone to 0 will only use x & y.
+# Setting x & y outside of the zone, will result in nothing be within the NZ.
+# If only coord is set, then zone boundries are ignored.
+      "active" : 1,
+      "max_colonies" : 2,
+      "zone" : 1,
+      "zone_list" : [
+         "-1|-1",
+         "-1|1",
+         "1|-1",
+         "1|1"
+      ],
+      "coord" : 0,
+      "x" : [ -50, 50 ],
+      "y" : [ -50, 50 ]
+   },
    "voting_sites" : [
       {
          "name" : "XXXX",

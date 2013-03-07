@@ -316,6 +316,8 @@ for my $body_id (sort keys %has_fissures) {
             while (my $to_damage = $closest->next) {
                 next if ($to_damage->in_neutral_area);
                 next if ($to_damage->get_type eq "space station");  # Since supply chains etc, will probably be damaged, they'll still be threatened.
+                next unless ($to_damage->empire->date_created < DateTime->now->subtract(days => 60));
+
                 # damage planet
                 out("Damaging planet ".$to_damage->name." at distance ".$to_damage->get_column('distance'));
 

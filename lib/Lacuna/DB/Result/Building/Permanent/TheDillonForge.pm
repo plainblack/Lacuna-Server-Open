@@ -92,9 +92,9 @@ sub make_plan {
     my $class = 'Lacuna::DB::Result::Building::'.$plan_class;
 
     my ($plan) = grep {
-        $_->level               => 1,
-        $_->extra_build_level   => 0,
-        $_->class               eq $class
+            $_->level               == 1
+        and $_->extra_build_level   == 0
+        and $_->class               eq $class
     } @{$body->plan_cache};
 
     my $quantity_to_delete = $level * 2;

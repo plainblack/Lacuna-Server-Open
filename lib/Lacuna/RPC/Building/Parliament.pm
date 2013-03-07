@@ -282,12 +282,18 @@ sub propose_seize_star {
     if ($building->body->in_neutral_area) {
         confess [1009, 'Your station is in the Neutral Area and is not allowed to seize any star.'];
     }
+    if ($building->body->in_starter_zone) {
+        confess [1009, 'Your station is in a Starter Zone and is not allowed to seize any star.'];
+    }
     my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id);
     unless (defined $star) {
         confess [1002, 'Could not find the star.'];
     }
     if ($star->in_neutral_area) {
         confess [1009, 'That star is in the Neutral Area and can not be seized.'];
+    }
+    if ($star->in_starter_zone) {
+        confess [1009, 'That star is in a Starter Zone and can not be seized.'];
     }
     if ($star->station_id) {
         confess [1009, 'That star is already controlled by a station.'];

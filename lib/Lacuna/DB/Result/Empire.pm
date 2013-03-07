@@ -6,7 +6,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use DateTime;
 use Scalar::Util qw(weaken);
-use Lacuna::Util qw(format_date);
+use Lacuna::Util qw(format_date randint);
 use Digest::SHA;
 use List::MoreUtils qw(uniq);
 use Email::Stuff;
@@ -651,6 +651,16 @@ sub find_home_planet {
         orbit                       => { between => [ $self->min_orbit, $self->max_orbit] },
         empire_id                   => undef,
     );
+    my $sz_param = Lacuna->config->get('starter_zone');
+    if ($sz_param and $sz_param->{active}) {
+       if ($sz_param->{zone}) {
+           $search{zone} = { in => $sz_param->{zone_list} };
+       }
+       if ($sz_param->{coord}) {
+           $search{x} = { between => $sz_param->{x} };
+           $search{y} = { between => $sz_param->{y} };
+       }
+    }
     
     # determine search area
     my $invite = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $self->id},{rows=>1})->single;
@@ -662,13 +672,20 @@ sub find_home_planet {
     }
 
     # search FIXME Note, this is temporary, should create a single query
-    # that returns all possible planets. 'rows 250' is not guaranteed to
+    # that returns all possible planets. 'rows 100' is not guaranteed to
     # find a planet.
-    my $possible_planets = $planets->search(\%search, { rows => 250 });
+    # Slightly better scheme.  At least we're likely to get a different group of planets.
+    my $possible_count   = $planets->search(\%search);
+    my $offset = 0;
+    if ($possible_count > 100) {
+        $offset = randint(0,$possible_count-100);
+    }
+    my @possible_planets = $planets->search(\%search, { offset => $offset, rows => 100 });
 
     # find an uncontested planet in the possible planets
     my $home_planet;
-    while (my $planet = $possible_planets->next) {
+    while (scalar @possible_planets > 0) {
+        my $planet = splice (@possible_planets, randint(0,scalar @possible_planets), 1);
         # skip planets with member's only colonization
         next if ($planet->empire);  # If a planet is qualified, but inhabited.
         if ($planet->star->station_id) {

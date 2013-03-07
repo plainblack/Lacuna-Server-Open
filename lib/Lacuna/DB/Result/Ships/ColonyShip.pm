@@ -21,6 +21,7 @@ use constant build_tags             => ['Colonization'];
 
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Uninhabited";
+with "Lacuna::Role::Ship::Send::StarterZone";
 with "Lacuna::Role::Ship::Send::SpendNextColonyCost";
 with "Lacuna::Role::Ship::Send::IsHostile";
 with "Lacuna::Role::Ship::Arrive::TriggerDefense";

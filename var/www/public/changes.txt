@@ -55,6 +55,17 @@
 KNOWN BUGS:
  - bug: Fleet format currently shows 'Foreign' for all fleets
 
+3.0882:
+ - Fix: Timers on int ministries get zeroed on flipped planets.
+ - Mod: Halls no longer need x+1 free spaces to upgrade a level x building
+ - Mod: Hall buildings will sacrifice all but one unless needed.
+ - Mod: Added better logging to building upgrade and ship arrival queues
+ - Mod: Increased range of Trade Ministry
+ - Mod: Citadel of Knope is now more effective
+ - Add: Starter zones enabled via configuration.
+ - Add: When a planet implodes from fissures, empires newer than 60 days will not be damaged.
+ - Add: More info on available spies returned by training buildings.
+
 3.0881:
  - Fix: DevMin fix.
  - Fix: When upgrade of building ends, planet stats are now correctly calculated.
