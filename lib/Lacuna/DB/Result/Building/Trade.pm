@@ -335,7 +335,7 @@ sub add_to_market {
         x               => $body->x,
         y               => $body->y,
         speed           => $ship->speed,
-        trade_range     => max (500, $self->level * 30),
+        trade_range     => int(500 + 400 * ($self->level - 1) / 29),
     );
     return Lacuna->db->resultset('Market')->new(\%trade)->insert;
 }
