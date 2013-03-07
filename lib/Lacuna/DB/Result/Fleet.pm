@@ -507,6 +507,19 @@ sub send {
     return $self;
 }
 
+sub start_construction {
+    my ($self) = @_;
+
+    my $schedule = Lacuna->db->resultset('Schedule')->create({
+        delivery        => $self->date_available,
+        parent_table    => 'Fleet',
+        parent_id       => $self->id,
+        task            => 'finish_construction',
+    });
+
+    return $self;
+}
+
 sub finish_construction {
     my ($self) = @_;
     $self->body->empire->add_medal($self->type);
@@ -514,6 +527,13 @@ sub finish_construction {
     $self->date_available(DateTime->now);
     $self->shipyard_id(0);
     $self->update;
+    
+    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Fleet',
+        parent_id       => $self->id,
+        task            => 'finish_construction',
+    });
+    $schedule->delete if defined $schedule;
 }
 
 sub orbit {
