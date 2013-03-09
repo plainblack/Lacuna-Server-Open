@@ -78,6 +78,7 @@ $result = $tester->post('spaceport','view_available_fleets', [{
     target      => { body_id => $test_home->id},
     no_status   => 1,
 }]);
+exit;
 
 my @available = @{$result->{result}{available}};
 #for my $fleet (@available) {

@@ -108,7 +108,7 @@ sub use_existing_test_empire {
         $colony->found_colony($empire);
         $self->build_big_colony($colony);
     }
-    $empire->essentia(1_000_000);
+    $empire->essentia_free(1_000_000);
     $empire->update;
     $self->session($empire->start_session({api_key => 'tester'}));
     $self->empire($empire);
