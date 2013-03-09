@@ -10,6 +10,7 @@ The list of methods below represents changes and additions to the methods that a
 Returns a list of buildings that can be upgraded by the Halls of Vrbansk.
 
  {
+    "halls_available" : 231,  # Includes total of plans and built Halls.
     "status" : { ... },
     "buildings" : [
         {

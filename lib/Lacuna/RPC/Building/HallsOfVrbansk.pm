@@ -15,6 +15,24 @@ sub model_class {
     return 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk';
 }
 
+around 'view' => sub {
+    my ($orig, $self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
+    my $out = $orig->($self, $empire, $building);
+    my $body = $building->body;
+
+    my @halls = $building->get_halls;
+    my $halls_placed = scalar @halls;
+    my $total = $halls_placed;
+    my ($plans) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'} @{$body->plan_cache};
+    if ($plans) {
+        $total += $plans->quantity;
+    }
+    $out->{halls_available} = $total;
+    return $out;
+};
+
 sub get_upgradable_buildings {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -33,9 +51,17 @@ sub get_upgradable_buildings {
             url     => $building->controller_class->app_url,
         };
     }
+    my @halls = $building->get_halls;
+    my $halls_placed = scalar @halls;
+    my $total = $halls_placed;
+    my ($plans) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'} @{$body->plan_cache};
+    if ($plans) {
+        $total += $plans->quantity;
+    }
     return {
-        buildings   => \@buildings,
-        status      => $self->format_status($empire, $building->body),
+        buildings       => \@buildings,
+        status          => $self->format_status($empire, $building->body),
+        halls_available => $total,
     };
 }
 
