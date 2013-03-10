@@ -55,7 +55,9 @@ if ($initialize) {
     # existing jobs
     out('Reinitializing all jobs');
     out('Deleting existing jobs');
-    my $schedule_rs = Lacuna->db->resultset('Schedule')->search;
+    my $schedule_rs = Lacuna->db->resultset('Schedule')->search({
+        task    => [qw(finish_work finish_upgrade finish_construction)],
+    });
     while (my $schedule = $schedule_rs->next) {
         # note. deleting the DB entry also deletes the entry on beanstalk
         $schedule->delete;
@@ -90,14 +92,14 @@ if ($initialize) {
     }
 
     out('Adding ship builds');
-    my $ship_rs = Lacuna->db->resultset('Ships')->search({
+    my $ship_rs = Lacuna->db->resultset('Fleet')->search({
         task => 'Building',
     });
     while (my $ship = $ship_rs->next) {
         # add to queue
         my $schedule = Lacuna->db->resultset('Schedule')->create({
             delivery        => $ship->date_available,
-            parent_table    => 'Ships',
+            parent_table    => 'Fleet',
             parent_id       => $ship->id,
             task            => 'finish_construction',
         });

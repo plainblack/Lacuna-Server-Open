@@ -26,8 +26,9 @@
  - Add: Ability to cancel individual builds on the build queue
 
  - TEST: view_incoming_fleet: for visibility of foreign fleets.
- - TODO: view_ships_orbiting seems to be redundant
- - TODO: Ability to subsidize individual builds on the ship build queue
+ - TODO: remove view_ships_orbiting from Police Station module
+ - TODO: Ability to subsidize individual fleet builds on the ship build queue
+
  - TODO: Ability to 'delay' a fleet that is already in flight.
  - TODO: Display the owner,body of orbiting/defending fleets
  - TODO: Retrieve spies, should be able to specify 'own colony' spies, not retriev all 'own empire' spies
@@ -54,17 +55,6 @@
 
 KNOWN BUGS:
  - bug: Fleet format currently shows 'Foreign' for all fleets
-
-3.0882:
- - Fix: Timers on int ministries get zeroed on flipped planets.
- - Mod: Halls no longer need x+1 free spaces to upgrade a level x building
- - Mod: Hall buildings will sacrifice all but one unless needed.
- - Mod: Added better logging to building upgrade and ship arrival queues
- - Mod: Increased range of Trade Ministry
- - Mod: Citadel of Knope is now more effective
- - Add: Starter zones enabled via configuration.
- - Add: When a planet implodes from fissures, empires newer than 60 days will not be damaged.
- - Add: More info on available spies returned by training buildings.
 
 3.0881:
  - Fix: DevMin fix.

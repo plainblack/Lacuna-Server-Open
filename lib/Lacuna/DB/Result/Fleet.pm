@@ -606,19 +606,6 @@ sub start_construction {
     return $self;
 }
 
-sub start_construction {
-    my ($self) = @_;
-
-    my $schedule = Lacuna->db->resultset('Schedule')->create({
-        delivery        => $self->date_available,
-        parent_table    => 'Fleet',
-        parent_id       => $self->id,
-        task            => 'finish_construction',
-    });
-
-    return $self;
-}
-
 sub finish_construction {
     my ($self) = @_;
     $self->body->empire->add_medal($self->type);
