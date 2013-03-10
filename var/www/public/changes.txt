@@ -412,16 +412,63 @@
  - Mod: The Halls of Vrbansk can no longer be built from a plan.
  - Mod: Disable upgrade button on Permanent E-Veins
 
-3.0882:
- - Fix: Timers on int ministries get zeroed on flipped planets.
- - Mod: Halls no longer need x+1 free spaces to upgrade a level x building
- - Mod: Hall buildings will sacrifice all but one unless needed.
- - Mod: Added better logging to building upgrade and ship arrival queues
- - Mod: Increased range of Trade Ministry
- - Mod: Citadel of Knope is now more effective
- - Add: Starter zones enabled via configuration.
- - Add: When a planet implodes from fissures, empires newer than 60 days will not be damaged.
- - Add: More info on available spies returned by training buildings.
+4.0001:
+ - Add: Major reworking of ships into fleets.
+ - Mod: Most API calls involving ships have changed, if you use external scripts these will most likely need to be modified.
+ - Mod: Most API calls now have the option of named arguments as well as supporting the existing scheme for backwards compatibility
+ - Mod: A fleet is a collection of ships all having the same attributes and task
+ - Mod: Where previously you referred to a single ship, you now refer to a fleet (and perhaps a quantity of ships)
+ - Mod: The maximum level of Shipyard on a colony is now used in calculating a new ships attributes, not the current Shipyard
+ - Mod: 'own' and 'ally' on the incoming report for a Space Station now are in relation to your own empire.
+ - Fix: Fleets sort correctly in type/name order in Space Port view tab
+ - Mod: You can build any number of ships in a fleet in the Shipyard, subject to available building slots, resources and free docks
+ - Mod: You can now see all details of incoming allied ships in the Space Port incoming tab.
+ - Mod: You can now see details of incoming allied ships on the Star Map planet/star incoming tab
+ - Mod: You can now see details (subject to the local Space Port level) of incoming foreign ships on the Star Map planet incoming tab for allied planets or Space Stations
+ - Fix: UI - Number of docks available now decrements correctly when building multiple ships in Shipyard
+ - Fix: Added description of new ship types in Shipyard
+ - Mod: When sending a fleet you now specify the arrival date/time not the speed
+ - Mod: Spaceport, when sending spies, you can specify the arrival date/time
+ - Mod: The limit of sending no more than 20 ships in a fleet has been removed.
+ - Mod: Travelling ships not involved in a trade or an attack can be recalled
+ - Mod: Travelling ships not involved in an attack can be scuttled
+ - Mod: Removed option to skip incoming ships messages
+ - Fix: Stars now list in alphabetic order in Parliament, rename stars.
+ - Mod: Supply chains can now be set up to allied planets
+ - Mod: Fleets on defence no longer have a reset after a battle.
+ - Add: Ability to subsidize individual builds on the build queue
+ - Add: Ability to cancel individual builds on the build queue
+
+ - TEST: view_incoming_fleet: for visibility of foreign fleets.
+ - TODO: remove view_ships_orbiting from Police Station module
+ - TODO: Ability to subsidize individual fleet builds on the ship build queue
+
+ - TODO: Ability to 'delay' a fleet that is already in flight.
+ - TODO: Display the owner,body of orbiting/defending fleets
+ - TODO: Retrieve spies, should be able to specify 'own colony' spies, not retriev all 'own empire' spies
+ - TODO: Stop being able to send fighters to their home colony to 'Defend'.
+ - TODO: Make sure 'soonest' rounds up to the nearest 15 seconds.
+ - TODO: Allow for a timestring to specify the arrival time as well as the individual arguments
+ - TODO: N19 messages when ships in flight are detonated (suspect faulty engines or human error)
+ - TODO: If you have a probe at a star, you can now see all other 'orbiting' probes at that star
+ - TODO: Allow resources/ships/glyphs/plans to be pushed to allied planets
+ - TODO: Supply chains can be cancelled either from the supplying or the receiving body.
+ - TODO: ? Allow ships to 'stay' at allied planets during a push, they are then owned by that empire.
+ - TODO: Can send fighters to orbit stars, so that they can destroy incoming detonators.
+ - TODO: ? Should we treat probes as combat, so that we can destroy them with orbiting fighters?
+
+ - TODO: When viewing 'available' or 'unavailable' fleets to send to a body, select from all possible colonies.
+ - TODO: Filter foreign incoming ships status by level of space-port
+ - TODO: When removing a scow from a waste chain, it removes waste equivalent to the size of the scow.
+ - TODO: Battle logs should show fleets, not ships
+ - TODO: Give the Del both offensive and defensive spies.
+
+ - done: When ships arrive (fighters to Defend) set their available date to null
+ - done: Travelling ships should be sorted in arrival date order
+ - done: Cannot set up a supply chain to oneself
+
+KNOWN BUGS:
+ - bug: Fleet format currently shows 'Foreign' for all fleets
 
 3.0881:
  - Fix: DevMin fix.

@@ -796,7 +796,6 @@ sub add_to_market {
 }
 
 
-
 __PACKAGE__->register_rpc_method_names(qw(
     get_supply_ships 
     view_supply_chains 

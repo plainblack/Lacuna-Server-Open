@@ -96,16 +96,16 @@ sub view {
         
     if (ref($args) ne "HASH") {
         $args = {
-            session         => $args,
-            building        => shift,
+            session_id   => $args,
+            building_id  => shift,
         };
     }
     if ($args->{no_status}) {
         return {};
     }
 
-    my $empire          = $self->get_empire_by_session($args->{session});
-    my $building        = $self->get_building($empire, $args->{building}, skip_offline => 1);
+    my $empire          = $self->get_empire_by_session($args->{session_id});
+    my $building        = $self->get_building($empire, $args->{building_id}, skip_offline => 1);
     my $cost            = $building->cost_to_upgrade;
 
     my $can_upgrade     = eval{$building->can_upgrade($cost)};
@@ -413,7 +413,7 @@ sub repair {
                                                                                             
 
     my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
+    my $building    = $self->get_building($empire, $args->{building_id}, skip_offline => 1);
 
     my $costs = $building->get_repair_costs;
     $building->can_repair($costs);

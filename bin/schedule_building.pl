@@ -54,7 +54,9 @@ if ($initialize) {
     # existing jobs
     out('Reinitializing all jobs');
     out('Deleting existing jobs');
-    my $schedule_rs = Lacuna->db->resultset('Schedule')->search;
+    my $schedule_rs = Lacuna->db->resultset('Schedule')->search({
+        task    => [qw(finish_work finish_upgrade finish_construction)],
+    });
     while (my $schedule = $schedule_rs->next) {
         # note. deleting the DB entry also deletes the entry on beanstalk
         $schedule->delete;
@@ -90,32 +92,18 @@ if ($initialize) {
         });
     }
 
-    out('Adding ship building ends');
-    my $dt_parser   = Lacuna->db->storage->datetime_parser;
-    my $now         = $dt_parser->format_datetime( DateTime->now );
-    my $fleets = Lacuna->db->resultset('Fleet')->search({
-        date_available  => { '<=' => $now },
-        task            => 'Travelling',
+    out('Adding ship builds');
+    my $ship_rs = Lacuna->db->resultset('Fleet')->search({
+        task => 'Building',
     });
-    while (my $fleet = $fleets->next ) {
-        if ($fleet->task eq 'Travelling') {
-            out('Fleet - arrive at '.$fleet->date_available);
-            Lacuna->db->resultset('Schedule')->create({
-                delivery        => $fleet->date_available,
-                parent_table    => 'Fleet',
-                parent_id       => $fleet->id,
-                task            => 'arrive',
-            });
-        }
-        elsif ($fleet->task eq 'Building') {
-            out('Fleet - finish_work at '.$fleet->date_available);
-            Lacuna->db->resultset('Schedule')->create({
-                delivery        => $fleet->date_available,
-                parent_table    => 'Fleet',
-                parent_id       => $fleet->id,
-                task            => 'finish_work',
-            });
-        }
+    while (my $ship = $ship_rs->next) {
+        # add to queue
+        my $schedule = Lacuna->db->resultset('Schedule')->create({
+            delivery        => $ship->date_available,
+            parent_table    => 'Fleet',
+            parent_id       => $ship->id,
+            task            => 'finish_construction',
+        });
     }
 }
 

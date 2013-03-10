@@ -55,7 +55,7 @@ if ($initialize) {
     out('Reinitializing all jobs');
     out('Deleting existing jobs');
     my $schedule_rs = Lacuna->db->resultset('Schedule')->search({
-        parent_table    => 'Ships',
+        parent_table    => 'Fleet',
         task            => 'arrive',
     });
     while (my $schedule = $schedule_rs->next) {
@@ -64,16 +64,16 @@ if ($initialize) {
     }
 
     out('Adding ship arrivals');
-    my $ship_rs = Lacuna->db->resultset('Ships')->search({
+    my $fleet_rs = Lacuna->db->resultset('Fleet')->search({
         task => 'Travelling',
     });
-    while (my $ship = $ship_rs->next) {
+    while (my $fleet = $fleet_rs->next) {
         # add to queue
         my $schedule = Lacuna->db->resultset('Schedule')->create({
-            delivery        => $ship->date_available,
+            delivery        => $fleet->date_available,
             queue           => 'arrive_queue',
-            parent_table    => 'Ships',
-            parent_id       => $ship->id,
+            parent_table    => 'Fleet',
+            parent_id       => $fleet->id,
             task            => 'arrive',
         });
     }

@@ -15,7 +15,7 @@ use TestHelper;
 #diag("Cleared all test empires");
 
 my $tester = TestHelper->new->use_existing_test_empire;
-my $enemy  = TestHelper->new({empire_name => 'TLE Test Enemy'})->use_existing_test_empire;
+#my $enemy  = TestHelper->new({empire_name => 'TLE Test Enemy'})->use_existing_test_empire;
 
 my $test_session_id = $tester->session->id;
 my $test_empire     = $tester->empire;
@@ -34,6 +34,7 @@ $result = $tester->post('spaceport','view', [{
     building_id => $test_spaceport->id,
     no_status   => 1,
 }]);
+
 my $fleets = $test_home->fleets->search({
     task => 'Docked',
 });
@@ -45,14 +46,17 @@ foreach my $ship (sort keys %{$result->{result}{docked_ships}} ) {
     is($result->{result}{docked_ships}{$ship}, $ships->{$ship}, "Correct number of docked $ship");
 }
 
+
+
+
 ## spaceport - view_all_fleets
 ##
-$result = $tester->post('spaceport','view', [{
-    session_id  => $test_session_id,
-    building_id => $test_spaceport->id,
-}]);
-ok($result->{result}{docked_ships}, "Has docked ships");
-ok($result->{result}{docked_ships}{sweeper} > 1000, "Has sweepers");
+#$result = $tester->post('spaceport','view', [{
+#    session_id  => $test_session_id,
+#    building_id => $test_spaceport->id,
+#}]);
+#ok($result->{result}{docked_ships}, "Has docked ships");
+#ok($result->{result}{docked_ships}{sweeper} > 1000, "Has sweepers");
 
 $result = $tester->post('spaceport','view_all_fleets', [{
     session_id  => $test_session_id, 
@@ -60,6 +64,7 @@ $result = $tester->post('spaceport','view_all_fleets', [{
     paging      => {no_paging => 1},
     no_status   => 1,
 }]);
+exit;
 
 my ($sweepers) = grep {$_->{details}{type} eq 'sweeper'} @{$result->{result}{fleets}};
 ok($sweepers->{quantity} > 1000, "view_all_fleets sweepers");
