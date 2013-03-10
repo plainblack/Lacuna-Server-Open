@@ -39,18 +39,19 @@ sub get_upgradable_buildings {
     my $building = $self->get_building($empire, $building_id);
     my @buildings;
     my @upgradable = @{$building->get_upgradable_buildings};
-    foreach my $building (@upgradable) {
-        next if ($building->level > $empire->university_level);
+    foreach my $building_chk (@upgradable) {
+        next if ($building_chk->level > $empire->university_level);
         push @buildings, {
-            id      => $building->id,
-            name    => $building->name,
-            x       => $building->x,
-            y       => $building->y,
-            level   => $building->level,
-            image   => $building->image_level,
-            url     => $building->controller_class->app_url,
+            id      => $building_chk->id,
+            name    => $building_chk->name,
+            x       => $building_chk->x,
+            y       => $building_chk->y,
+            level   => $building_chk->level,
+            image   => $building_chk->image_level,
+            url     => $building_chk->controller_class->app_url,
         };
     }
+    my $body = $building->body;
     my @halls = $building->get_halls;
     my $halls_placed = scalar @halls;
     my $total = $halls_placed;
