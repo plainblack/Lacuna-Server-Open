@@ -676,6 +676,7 @@ sub find_home_planet {
     my $home_planet;
     while (scalar @possible_planets > 0) {
         my $planet = splice (@possible_planets, randint(0,scalar @possible_planets), 1);
+        next unless (defined($planet));
         # skip planets with member's only colonization
         next if ($planet->empire);  # If a planet is qualified, but inhabited.
         if ($planet->star->station_id) {
