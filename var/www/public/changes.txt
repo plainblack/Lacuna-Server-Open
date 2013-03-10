@@ -2,6 +2,7 @@
  - Fix: Library timer was too excessive.
  - Mod: Gradual increase in TM range from 465 to 900.
  - Mod: Number of halls available passed pack by Halls API.
+ - Mod: Spies can steal more than one glyph.
 
 3.0882:
  - Fix: Timers on int ministries get zeroed on flipped planets.
