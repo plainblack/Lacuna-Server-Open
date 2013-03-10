@@ -96,7 +96,11 @@ sub sacrifice_to_upgrade {
     if ($total < $needed) {
         confess [1009, 'The Halls of Vrbansk do not have the knowledge necessary to upgrade the '.$upgrade->name];
     }
-    shift @halls if ($total > $needed); # Leave one hall standing if not needed for upgrade.
+    # Leave one hall standing if not needed for upgrade.
+    if ($total > $needed) {
+        @halls = sort { ($a->id != $building_id) <=> ($b->id != $building_id) } @halls;
+        shift(@halls);
+    }
     while ($needed) {
         my $hall = shift(@halls);
         if ($hall) {
