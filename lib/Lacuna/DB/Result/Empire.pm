@@ -656,6 +656,8 @@ sub find_home_planet {
     my $invite = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $self->id},{rows=>1})->single;
     if (defined $invite) {
         $search{zone} = $invite->zone;
+        delete $search{x};
+        delete $search{y};
         # other possible solution
         #   (SQRT( POW(5-x,2) + POW(8-y,2) )) as distance
         # then order by distance
