@@ -127,7 +127,7 @@ sub add_rewards {
         foreach my $ship (@{$rewards->{ships}}) {
             $body->ships->new({
                 type        => $ship->{type},
-                name        => $ship->{type},
+                name        => $ship->{name},
                 speed       => $ship->{speed} || 0,
                 combat      => $ship->{combat} || 0,
                 stealth     => $ship->{stealth} || 0,
