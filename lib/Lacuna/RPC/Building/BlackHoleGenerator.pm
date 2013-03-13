@@ -715,7 +715,7 @@ sub generate_singularity {
             $return_stats = bhg_size($building, $body, -1);
             $body->add_news(
                 50,
-                sprintf('%s deforms after an expirement goes wild.', $body->name)
+                sprintf('%s deforms after an experiment goes wild.', $body->name)
             );
         }
         elsif ($fail < 19) {
