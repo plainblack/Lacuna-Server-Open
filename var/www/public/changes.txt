@@ -3,6 +3,7 @@
  - Mod: Gradual increase in TM range from 465 to 900.
  - Mod: Number of halls available passed pack by Halls API.
  - Mod: Spies can steal more than one glyph.
+ - Mod: Glyph buildings can now be upgraded (with halls) via update button
 
 3.0882:
  - Fix: Timers on int ministries get zeroed on flipped planets.
