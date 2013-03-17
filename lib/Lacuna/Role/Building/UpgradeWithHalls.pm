@@ -9,8 +9,8 @@ around can_upgrade => sub {
     my $self = shift;
 
     my $body = $self->body;
-    if ($body->get_plan(__PACKAGE__, $self->level + 1)) {
-        return $orig->$self(@_);
+    if ($body->get_plan(ref $self, $self->level + 1)) {
+        return $self->$orig(@_);
     }
 
     # Do we have enough hall (plans) to upgrade?
