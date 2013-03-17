@@ -7,13 +7,7 @@ extends 'Lacuna::DB::Result::Building::Permanent';
 
 use constant controller_class => 'Lacuna::RPC::Building::Crater';
 
-around can_build => sub {
-    my ($orig, $self, $body) = @_;
-    if ($body->get_plan(__PACKAGE__, 1)) {
-        return $orig->($self, $body);  
-    }
-    confess [1013,"You can't build a crater. It forms naturally."];
-};
+with "Lacuna::Role::Building::CantBuildWithoutPlan";
 
 sub can_upgrade {
     confess [1013, "You can't upgrade a crater. It forms naturally."];

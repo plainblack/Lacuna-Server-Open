@@ -7,17 +7,8 @@ extends 'Lacuna::DB::Result::Building::Permanent';
 
 use constant controller_class => 'Lacuna::RPC::Building::EssentiaVein';
 
-around can_build => sub {
-    my ($orig, $self, $body) = @_;
-    if ($body->get_plan(__PACKAGE__, 1)) {
-        return $orig->($self, $body);  
-    }
-    confess [1013,"You can't build an Essentia Vein. It forms naturally."];
-};
-
-sub can_upgrade {
-    confess [1013, "You can't upgrade an Essentia Vein. It forms naturally."];
-}
+with "Lacuna::Role::Building::UpgradeWithHalls";
+with "Lacuna::Role::Building::CantBuildWithoutPlan";
 
 sub can_downgrade {
     confess [1013, "You can't downgrade an Essentia Vein."];

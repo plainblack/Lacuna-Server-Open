@@ -75,93 +75,56 @@ sub image_level {
 
 sub produces_food_items { [] };
 
-use constant time_to_build => 60;
+use constant time_to_build          => 60;
 
-use constant energy_to_build => 0;
+use constant build_with_halls       => 0;
 
-use constant food_to_build => 0;
+use constant energy_to_build        => 0;
+use constant food_to_build          => 0;
+use constant ore_to_build           => 0;
+use constant water_to_build         => 0;
+use constant waste_to_build         => 0;
 
-use constant ore_to_build => 0;
+use constant happiness_consumption  => 0;
+use constant energy_consumption     => 0;
+use constant water_consumption      => 0;
+use constant waste_consumption      => 0;
+use constant food_consumption       => 0;
+use constant ore_consumption        => 0;
 
-use constant water_to_build => 0;
+use constant happiness_production   => 0;
+use constant energy_production      => 0;
+use constant water_production       => 0;
+use constant waste_production       => 0;
+use constant beetle_production      => 0;
+use constant shake_production       => 0;
+use constant burger_production      => 0;
+use constant fungus_production      => 0;
+use constant syrup_production       => 0;
+use constant algae_production       => 0;
+use constant meal_production        => 0;
+use constant milk_production        => 0;
+use constant pancake_production     => 0;
+use constant pie_production         => 0;
+use constant chip_production        => 0;
+use constant soup_production        => 0;
+use constant bread_production       => 0;
+use constant wheat_production       => 0;
+use constant cider_production       => 0;
+use constant corn_production        => 0;
+use constant root_production        => 0;
+use constant bean_production        => 0;
+use constant cheese_production      => 0;
+use constant apple_production       => 0;
+use constant lapis_production       => 0;
+use constant potato_production      => 0;
+use constant ore_production         => 0;
 
-use constant waste_to_build => 0;
-
-use constant happiness_consumption => 0;
-
-use constant energy_consumption => 0;
-
-use constant water_consumption => 0;
-
-use constant waste_consumption => 0;
-
-use constant food_consumption => 0;
-
-use constant ore_consumption => 0;
-
-use constant happiness_production => 0;
-
-use constant energy_production => 0;
-
-use constant water_production => 0;
-
-use constant waste_production => 0;
-
-use constant beetle_production => 0;
-
-use constant shake_production => 0;
-
-use constant burger_production => 0;
-
-use constant fungus_production => 0;
-
-use constant syrup_production => 0;
-
-use constant algae_production => 0;
-
-use constant meal_production => 0;
-
-use constant milk_production => 0;
-
-use constant pancake_production => 0;
-
-use constant pie_production => 0;
-
-use constant chip_production => 0;
-
-use constant soup_production => 0;
-
-use constant bread_production => 0;
-
-use constant wheat_production => 0;
-
-use constant cider_production => 0;
-
-use constant corn_production => 0;
-
-use constant root_production => 0;
-
-use constant bean_production => 0;
-
-use constant cheese_production => 0;
-
-use constant apple_production => 0;
-
-use constant lapis_production => 0;
-
-use constant potato_production => 0;
-
-use constant ore_production => 0;
-
-use constant water_storage => 0;
-
-use constant energy_storage => 0;
-
-use constant food_storage => 0;
-
-use constant ore_storage => 0;
-
-use constant waste_storage => 0;
+use constant water_storage          => 0;
+use constant energy_storage         => 0;
+use constant food_storage           => 0;
+use constant ore_storage            => 0;
+use constant waste_storage          => 0;
 
 # BASE FORMULAS
 
@@ -791,14 +754,22 @@ sub cost_to_upgrade {
     $time_cost = 5184000 if ($time_cost > 5184000); # 60 Days
     $time_cost = 15 if ($time_cost < 15);
 
-    return {
-        food    => sprintf('%.0f',$self->food_to_build * $upgrade_cost * $upgrade_cost_reduction),
-        energy  => sprintf('%.0f',$self->energy_to_build * $upgrade_cost * $upgrade_cost_reduction),
-        ore     => sprintf('%.0f',$self->ore_to_build * $upgrade_cost * $upgrade_cost_reduction),
-        water   => sprintf('%.0f',$self->water_to_build * $upgrade_cost * $upgrade_cost_reduction),
-        waste   => sprintf('%.0f',$self->waste_to_build * $upgrade_cost * $upgrade_cost_reduction),
-        time    => sprintf('%.0f',$time_cost),
-    };
+    if ($self->build_with_halls) {
+        return {
+            halls   => $self->level + 1,
+            time    => sprintf('%.0f',$time_cost),
+        };
+    }
+    else {
+        return {
+            food    => sprintf('%.0f',$self->food_to_build * $upgrade_cost * $upgrade_cost_reduction),
+            energy  => sprintf('%.0f',$self->energy_to_build * $upgrade_cost * $upgrade_cost_reduction),
+            ore     => sprintf('%.0f',$self->ore_to_build * $upgrade_cost * $upgrade_cost_reduction),
+            water   => sprintf('%.0f',$self->water_to_build * $upgrade_cost * $upgrade_cost_reduction),
+            waste   => sprintf('%.0f',$self->waste_to_build * $upgrade_cost * $upgrade_cost_reduction),
+            time    => sprintf('%.0f',$time_cost),
+        };
+    }
 }
 
 sub stats_after_upgrade {
@@ -856,6 +827,13 @@ sub start_upgrade {
 
 sub finish_upgrade {
     my ($self) = @_;
+
+    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+        parent_table    => 'Building',
+        parent_id       => $self->id,
+        task            => 'finish_upgrade',
+    });
+    $schedule->delete if defined $schedule;
 
     if ($self->is_upgrading) {
         my $body = $self->body;

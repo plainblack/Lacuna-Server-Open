@@ -7,15 +7,9 @@ use List::Util qw(min);
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
-use constant controller_class => 'Lacuna::RPC::Building::HallsOfVrbansk';
+with "Lacuna::Role::Building::CantBuildWithoutPlan";
 
-around can_build => sub {
-    my ($orig, $self, $body) = @_;
-    if ($body->get_plan(__PACKAGE__, 1)) {
-        return $orig->($self, $body);  
-    }
-    confess [1013,"You can't build the Halls of Vrbansk."];
-};
+use constant controller_class => 'Lacuna::RPC::Building::HallsOfVrbansk';
 
 sub can_upgrade {
     confess [1013, "You can't upgrade the Halls of Vrbansk."];

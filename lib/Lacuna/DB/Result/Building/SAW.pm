@@ -35,18 +35,6 @@ before finish_work => sub {
     $self->repair($costs);
 };
 
-# Since we now just spend efficiency and self repair, commented out
-# around spend_efficiency => sub {
-#     my ($orig, $self, $amount) = @_;
-#     if ($amount * 100 < $self->body->water_stored) {
-#         $self->body->spend_water($amount * 100);
-#     }
-#     else {
-#         $orig->($self, $amount);
-#     }
-#     return $self;
-# };
-
 use constant max_instances_per_planet => 10;
 
 use constant controller_class => 'Lacuna::RPC::Building::SAW';
