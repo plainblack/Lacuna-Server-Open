@@ -22,6 +22,7 @@ sub view_news {
     my @all = ($body->zone, $body->adjacent_zones);
     my @zones;
     foreach (1..(($building->level + 1) / 2)) {
+        last if !@all;
         push @zones, shift @all;
     }
     my $news = Lacuna->db->resultset('Lacuna::DB::Result::News')->search(
