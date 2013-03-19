@@ -852,7 +852,7 @@ sub _view_fleets {
     }
     if ($args->{task} eq 'orbiting') {
         $fleet_rs = $fleet_rs->search({
-            task            => ['Orbit','Defend'],
+            task            => ['Orbiting','Defend'],
             },{
             prefetch        => 'body',
         });
