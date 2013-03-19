@@ -115,6 +115,37 @@ Returns B<view_build_queue>
 Throws 1011.
 
  
+=head2 subsidize_fleet ( parameter_hash )
+
+Will spend 1 essentia to complete the build of the specified ship.
+
+This accepts a hash of named arguments.
+
+  {
+    "session_id"    : 1234-123-123,
+    "building_id"   : 4567,
+    "fleet_id"      : 88478,
+  }
+
+Throws 1011.
+
+=head3 session_id (required)
+
+A session id.
+
+=head3 building_id (required)
+
+The unique id of the Shipyard.
+
+=head3 ship_id (required)
+
+The unique id of the Ship, as returned in C<view_build_queue>
+
+=head3 RESPONSE
+
+Returns the same as C<view_build_queue>
+
+
 =head2 get_buildable
 
 Returns a list of ships that can be constructed and their costs, and if they're not buildable, 

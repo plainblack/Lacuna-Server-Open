@@ -159,7 +159,7 @@ sub delete_build {
 }
 
 
-sub subsidize_ship {
+sub subsidize_fleet {
     my ($self, $args) = @_;
 
     if (ref($args) ne "HASH") {
@@ -171,22 +171,27 @@ sub subsidize_ship {
     unless ($building->effective_level > 0 and $building->efficiency == 100) {
         confess [1003, "You must have a functional Space Port!"];
     }
-    my $scheduled_ship = Lacuna->db->resultset('Ships')->find({id => $args->{ship_id}});
+    my $fleet = Lacuna->db->resultset('Fleet')->search({
+        id          => $args->{fleet_id},
+        shipyard_id => $building->id,
+        task        => 'Building',
+    })->single;
 
-    if (not $scheduled_ship) {
-        confess [1003, "Cannot find that ship!"];
-    }
-    if ($scheduled_ship->shipyard_id != $building->id or $scheduled_ship->task ne 'Building') {
-        confess [1003, "That ship is not in construction at this shipyard!"];
+    if (not $fleet) {
+        confess [1003, "Cannot find that fleet!"];
     }
 
-    my $cost = 1;
+    my $cost = $fleet->quantity;
     unless ($empire->essentia >= $cost) {
         confess [1011, "Not enough essentia."];
     }
+
+    $fleet->reschedule_queue;
+    $fleet->finish_construction;
+
     $empire->spend_essentia({
         amount  => $cost,
-        reason  => 'ship build subsidy after the fact',
+        reason  => 'fleet build subsidy after the fact',
     });
     $empire->update;
 
