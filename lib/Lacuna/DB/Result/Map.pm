@@ -32,15 +32,36 @@ use constant zone_size => 250;
 sub adjacent_zones {
     my ($self) = @_;
     my ($x,$y) = $self->parse_zone_into_zone_coords;
+    my $map_size = Lacuna->config->get('map_size');
+    my $bottom_max = $self->determine_zone_coord_from_xy_coord( $map_size->{y}[0] );
+    my $top_max    = $self->determine_zone_coord_from_xy_coord( $map_size->{y}[1] );
+    my $left_max   = $self->determine_zone_coord_from_xy_coord( $map_size->{x}[0] );
+    my $right_max  = $self->determine_zone_coord_from_xy_coord( $map_size->{x}[1] );
     my @zones;
-    push @zones, $self->format_zone_coords_into_zone($x + 1, $y);
-    push @zones, $self->format_zone_coords_into_zone($x - 1, $y);
-    push @zones, $self->format_zone_coords_into_zone($x, $y + 1);
-    push @zones, $self->format_zone_coords_into_zone($x, $y - 1);
-    push @zones, $self->format_zone_coords_into_zone($x - 1, $y - 1);
-    push @zones, $self->format_zone_coords_into_zone($x + 1, $y + 1);
-    push @zones, $self->format_zone_coords_into_zone($x - 1, $y + 1);
-    push @zones, $self->format_zone_coords_into_zone($x + 1, $y - 1);
+    if ( $x < $right_max ) {
+        push @zones, $self->format_zone_coords_into_zone($x + 1, $y);
+    }
+    if ( $x > $left_max ) {
+        push @zones, $self->format_zone_coords_into_zone($x - 1, $y);
+    }
+    if ( $y < $top_max ) {
+        push @zones, $self->format_zone_coords_into_zone($x, $y + 1);
+    }
+    if ( $y > $bottom_max ) {
+        push @zones, $self->format_zone_coords_into_zone($x, $y - 1);
+    }
+    if ( $x > $left_max && $y > $bottom_max ) {
+        push @zones, $self->format_zone_coords_into_zone($x - 1, $y - 1);
+    }
+    if ( $x < $right_max && $y < $top_max ) {
+        push @zones, $self->format_zone_coords_into_zone($x + 1, $y + 1);
+    }
+    if ( $x > $left_max && $y < $top_max ) {
+        push @zones, $self->format_zone_coords_into_zone($x - 1, $y + 1);
+    }
+    if ( $x < $right_max && $y > $bottom_max ) {
+        push @zones, $self->format_zone_coords_into_zone($x + 1, $y - 1);
+    }
     return @zones;
 }
 
