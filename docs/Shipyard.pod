@@ -115,7 +115,7 @@ Returns B<view_build_queue>
 Throws 1011.
 
  
-=head2 subsidize_ship ( parameter_hash )
+=head2 subsidize_fleet ( parameter_hash )
 
 Will spend 1 essentia to complete the build of the specified ship.
 
@@ -124,7 +124,7 @@ This accepts a hash of named arguments.
   {
     "session_id"    : 1234-123-123,
     "building_id"   : 4567,
-    "ship_id"       : 88478,
+    "fleet_id"      : 88478,
   }
 
 Throws 1011.

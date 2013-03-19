@@ -624,40 +624,40 @@ sub finish_construction {
     return $self;
 }
 
-# Remove one ship from the build queue, reschedule all other following ships
+# Remove one fleet from the build queue, reschedule all other following fleet
 #
 sub reschedule_queue {
     my ($self) = @_;
 
     my $start_time = DateTime->now;
-    my $ship_end_time;          # when the current ship completes
+    my $fleet_end_time;         # when the current fleet completes
     my $building_time;          # The end time of the building working
 
-    my @ships_queue = Lacuna->db->resultset('Ships')->search({
+    my @fleets_queue = Lacuna->db->resultset('Fleet')->search({
         task        => 'Building',
         shipyard_id => $self->shipyard_id,
     },{
         order_by    => { -asc => 'date_available'},
     })->all;
 
-    my $ship;
+    my $fleet;
     $building_time = DateTime->now;
     BUILD:
-    while ($ship = shift @ships_queue) {
-        $ship_end_time = $ship->date_available;
-        if ($ship->id == $self->id) {
+    while ($fleet = shift @fleets_queue) {
+        $fleet_end_time = $fleet->date_available;
+        if ($fleet->id == $self->id) {
             last BUILD;
         }
         # Start time of the next ship is the end time of this one
-        $start_time = $ship_end_time;
+        $start_time = $fleet_end_time;
     }
-    if ($ship) {
+    if ($fleet) {
         # Remove this scheduled event
-        my $duration = $ship_end_time->epoch - $start_time->epoch;
+        my $duration = $fleet_end_time->epoch - $start_time->epoch;
         # Don't bother to reschedule if it is a small period
         if ($duration > 5) {
             my ($schedule) = Lacuna->db->resultset('Schedule')->search({
-                parent_table    => 'Ships',
+                parent_table    => 'Fleet',
                 parent_id       => $self->id,
                 task            => 'finish_construction',
             });
@@ -665,15 +665,15 @@ sub reschedule_queue {
             $building_time = $start_time;
 
             # Change the scheduled time for all subsequent builds (if any)
-            while (my $ship = shift @ships_queue) {
-                my $construction_ends = $ship->date_available->clone->subtract(seconds => $duration);
+            while (my $fleet = shift @fleets_queue) {
+                my $construction_ends = $fleet->date_available->clone->subtract(seconds => $duration);
                 $building_time = $construction_ends;
 
-                $ship->date_available($construction_ends);
-                $ship->update;
+                $fleet->date_available($construction_ends);
+                $fleet->update;
                 Lacuna->db->resultset('Schedule')->reschedule({
-                    parent_table    => 'Ships',
-                    parent_id       => $ship->id,
+                    parent_table    => 'Fleet',
+                    parent_id       => $fleet->id,
                     task            => 'finish_construction',
                     delivery        => $construction_ends,
                 });

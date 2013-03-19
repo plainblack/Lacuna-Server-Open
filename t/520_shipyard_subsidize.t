@@ -16,5 +16,5 @@ my $session_id  = $tester->session->id;
 my $empire      = $tester->empire;
 my $home        = $empire->home_planet;
 
-$result = $tester->post('shipyard', 'subsidize_ship', [{session_id => $session_id, building_id => 131851, ship_id => 83668}]);
+$result = $tester->post('shipyard', 'subsidize_fleet', [{session_id => $session_id, building_id => 131851, ship_id => 83668}]);
 
