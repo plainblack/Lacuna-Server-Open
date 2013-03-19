@@ -306,7 +306,7 @@ before delete => sub {
 before task => sub {
     my ($self, $arg) = @_;
 
-    if ($arg) {
+    if ( $arg && $self->task ) {
         # to be safe, if a ship changes *from* either 'Travelling' or 'Building' we
         # delete any Schedule (and hence any beanstalk job) for it.
         #
