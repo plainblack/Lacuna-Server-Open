@@ -394,6 +394,7 @@ sub handle_arrival_procedures {
 
 sub note_arrival {
     my ($self) = @_;
+    no warnings 'uninitialized';
     Lacuna->cache->increment($self->type.'_arrive_'.$self->foreign_body_id.$self->foreign_star_id, $self->body->empire_id,1, 60*60*24*30);
 }
 
