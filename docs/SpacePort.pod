@@ -616,6 +616,41 @@ Show a list of all mining platforms on this asteroid.
    ],
    "status" : { ... }
  }
+ 
+ 
+ 
+ =head2 view_excavators
+
+View excavators on the specified target.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, target )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A session ID
+
+=head3 target (required)
+
+The target body to check.
+
+=head3 RESPONSE
+ 
+Show a list of all mining platforms on this asteroid.
+
+ {
+   "excavators" : [
+     {
+       empire_id   =>  "id-goes-here",
+       empire_name => "The Peeps From Across The Street"
+     },
+     ...
+   ],
+   "status" : { ... }
+ }
+
 
 
 =head2 send_fleet

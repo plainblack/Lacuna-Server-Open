@@ -829,7 +829,37 @@ sub view_mining_platforms {
     return \%out;
 }
 
+sub view_excavators {
+    my $self = shift;
+    my $args = shift;
 
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id => $args,
+            target     => shift,
+        };
+    }
+    my $empire = $self->get_empire_by_session($args->{session_id});
+    my $target = $self->find_target($args->{target});
+    my $excavator_rs = Lacuna->db->resultset('Excavators');
+    $excavator_rs = $excavator_rs->search({
+        body_id => $target->id,
+        },{
+        prefetch => {planet => 'empire'},
+    });
+    my @excavators;
+    while (my $excavator = $excavator_rs->next) {
+        push @excavators, {
+            empire_id   => $excavator->planet->empire_id,
+            empire_name => $excavator->planet->empire->name,
+        };
+    }
+    my %out = (
+        status     => $self->format_status($empire),
+        excavators => \@excavators,
+    );
+    return \%out;
+}
 
 sub _view_fleets {
     my ($self, $args) = @_;
@@ -1088,6 +1118,7 @@ __PACKAGE__->register_rpc_method_names(qw(
     view_unavailable_fleets
     view_orbiting_fleets
     view_mining_platforms
+    view_excavators
     send_fleet
     recall_fleet
     rename_fleet
