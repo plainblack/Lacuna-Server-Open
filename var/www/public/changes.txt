@@ -1,3 +1,6 @@
+3.0885:
+ - Fix: Spies disabling buildings have more targets, but not bleeders.
+
 3.0884:
  - Fix: Bug when upgrading Glyph buildings, but with no hall plans
 
