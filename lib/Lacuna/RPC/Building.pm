@@ -40,6 +40,7 @@ sub upgrade {
     my $plan = $body->get_plan($building->class, $building->level + 1);
     if (defined $plan) {
         $body->delete_one_plan($plan);
+        $cost->{halls} = 0;
     }
     else {
         $body->spend_water($cost->{water});
@@ -48,6 +49,7 @@ sub upgrade {
         $body->spend_ore($cost->{ore});
         $body->add_waste($cost->{waste});
         $body->update;
+        $cost->{halls} = $building->level + 1;
     }
 
     $building->start_upgrade($cost);

@@ -1,3 +1,6 @@
+3.0884:
+ - Fix: Bug when upgrading Glyph buildings, but with no hall plans
+
 3.0883:
  - Fix: Library timer was too excessive.
  - Mod: Gradual increase in TM range from 465 to 900.

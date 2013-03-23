@@ -41,9 +41,10 @@ before start_upgrade => sub {
     my ($self, $cost) = @_;
 
     my ($plans) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'} @{$self->body->plan_cache};
-    $self->body->delete_many_plans($plans, $self->level + 1);
+    if ($cost->{halls}) {
+        $self->body->delete_many_plans($plans, $cost->{halls});
+    }
 };
-
 
 use constant image => 'essentiavein';
 
