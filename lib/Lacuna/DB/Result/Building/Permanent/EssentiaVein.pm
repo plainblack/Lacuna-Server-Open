@@ -7,12 +7,43 @@ extends 'Lacuna::DB::Result::Building::Permanent';
 
 use constant controller_class => 'Lacuna::RPC::Building::EssentiaVein';
 
-with "Lacuna::Role::Building::UpgradeWithHalls";
 with "Lacuna::Role::Building::CantBuildWithoutPlan";
 
 sub can_downgrade {
     confess [1013, "You can't downgrade an Essentia Vein."];
 }
+
+around can_upgrade => sub {
+    my $orig = shift;
+    my $self = shift;
+
+    # Can't upgrade a permanent e-vein (i.e. one that is not working
+    if (not $self->is_working) {
+        confess [1013, "You can't upgrade a permanent Essentia Vein."];
+    }
+
+    my $body = $self->body;
+    if ($body->get_plan(ref $self, $self->level + 1)) {
+        return $self->$orig(@_);
+    }
+
+    # Do we have enough hall (plans) to upgrade?
+    my ($plan) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'} @{$body->plan_cache};
+    my $plans = defined $plan ? $plan->quantity : 0;
+
+    if ($plans < $self->level + 1) {
+        confess [1013, "You can't upgrade ".$self->name.", you don't have enough Halls of Vrbansk plans."];
+    }
+    return $self->$orig(@_);
+};
+
+before start_upgrade => sub {
+    my ($self, $cost) = @_;
+
+    my ($plans) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk'} @{$self->body->plan_cache};
+    $self->body->delete_many_plans($plans, $self->level + 1);
+};
+
 
 use constant image => 'essentiavein';
 

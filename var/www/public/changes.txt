@@ -5,6 +5,7 @@
  - Mod: Glyph buildings can now be upgraded (with halls) via update button
  - Mod: All Halls of Vrbansk building have been replaced with hall plans
  - Mod: The Halls of Vrbansk can no longer be built from a plan.
+ - Mod: Disable upgrade button on Permanent E-Veins
 
 3.0882:
  - Fix: Timers on int ministries get zeroed on flipped planets.
