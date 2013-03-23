@@ -5,20 +5,14 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
+with "Lacuna::Role::Building::CantBuildWithoutPlan";
+
 around 'build_tags' => sub {
   my ($orig, $class) = @_;
   return ($orig->($class), qw(Infrastructure Construction));
 };
 
 use constant controller_class => 'Lacuna::RPC::Building::TerraformingPlatform';
-
-around can_build => sub {
-  my ($orig, $self, $body) = @_;
-  if ($body->get_plan(__PACKAGE__, 1)) {
-    return $orig->($self, $body);  
-  }
-  confess [1013,"You can't directly build a Terraforming Platform. You need a terraforming platform ship."];
-};
 
 before 'can_demolish' => sub {
   my $self = shift;

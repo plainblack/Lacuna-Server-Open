@@ -6,14 +6,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
 use constant controller_class => 'Lacuna::RPC::Building::Beach10';
-
-around can_build => sub {
-    my ($orig, $self, $body) = @_;
-    if ($body->get_plan(__PACKAGE__, 1)) {
-        return $orig->($self, $body);  
-    }
-    confess [1013,"You can't build a beach. It forms naturally."];
-};
+with "Lacuna::Role::Building::FormsNaturally";
 
 sub can_upgrade {
     confess [1013, "You can't upgrade a beach. It forms naturally."];

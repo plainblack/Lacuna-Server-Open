@@ -430,6 +430,9 @@ sub check_starter_zone {
 # If we start in a starter zone, we don't care where they go.
             return 0, "";
         }
+        if ($target->isa('Lacuna::DB::Result::Map::Star')) {
+            return 0, "";
+        }
         if ($target_in) {
             my $sz_colonies = 0;
             my $planets = $body->empire->planets;
@@ -444,6 +447,9 @@ sub check_starter_zone {
         }
     }
     elsif ($task->{name} eq "Swap Places") {
+        if ($target->isa('Lacuna::DB::Result::Map::Star')) {
+            return 0, "";
+        }
         if ($body_in and !$target_in) {
             if (defined ($target->empire)) {
                 return 0,"" if (defined($body->empire) and $body->empire_id == $target->empire_id);
@@ -709,7 +715,7 @@ sub generate_singularity {
             $return_stats = bhg_size($building, $body, -1);
             $body->add_news(
                 50,
-                sprintf('%s deforms after an expirement goes wild.', $body->name)
+                sprintf('%s deforms after an experiment goes wild.', $body->name)
             );
         }
         elsif ($fail < 19) {

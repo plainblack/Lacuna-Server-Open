@@ -5,19 +5,13 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
+with "Lacuna::Role::Building::UpgradeWithHalls";
+
 use constant controller_class => 'Lacuna::RPC::Building::MetalJunkArches';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
     return ($orig->($class), qw(Waste Happiness));
-};
-
-around can_upgrade => sub {
-    my ($orig, $self) = @_;
-    if ($self->body->get_plan(__PACKAGE__, $self->level + 1)) {
-        return $orig->($self);  
-    }
-    confess [1013,"You can't upgrade a monument."];
 };
 
 use constant image => 'metaljunkarches';

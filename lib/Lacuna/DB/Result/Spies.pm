@@ -2335,16 +2335,23 @@ sub steal_glyph {
         {task => 'Docked',
          type => {'in' => ['cargo_ship',
                            'smuggler_ship',
+                           'dory',
                            'galleon',
                            'freighter',
                            'hulk',
+                           'hulk_fast',
+                           'hulk_huge',
                            'barge']}},
         { rows => 1, order_by => 'rand()' }
         )->single;
     return $self->ship_not_found->id unless defined $ship;
-    my $glyph = $on_body->glyph->search(undef, {rows => 1, order_by => 'rand()'})->single;
-    return $self->mission_objective_not_found('glyph')->id unless defined $glyph;
+
+    my @glyphs = $on_body->glyph;
+    return $self->mission_objective_not_found('glyph')->id unless scalar @glyphs > 0;
     $ship->body($self->from_body);
+    my $glyph = random_element(\@glyphs);
+    my $glyphs_q = $glyph->quantity;
+    my $glyphs_stolen = $self->level > ($glyphs_q/10) ? ($glyphs_q/10) : randint($self->level, $glyphs_q/10);
     weaken($ship->{_relationship_data}{body});
     $ship->send(
         target      => $self->on_body,
@@ -2353,12 +2360,12 @@ sub steal_glyph {
             spies => [ $self->id ],
             glyphs   => [ {
 			    name => $glyph->type,
-                            quantity => 1,
+                            quantity => $glyphs_stolen,
                         } ],
         },
     );
-    my @table = (['Glyph'],[$glyph->type]);
-    $on_body->use_glyph($glyph->type, 1);
+    my @table = (['Glyph'],[$glyph->type],[$glyphs_stolen]);
+    $on_body->use_glyph($glyph->type, $glyphs_stolen);
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'ship_stolen.txt',
@@ -2366,7 +2373,7 @@ sub steal_glyph {
         attachments=> { table => \@table},
     );
     $self->on_body->add_news(50,
-                             'In a daring robbery today a thief absconded with a %s carrying a glyph from %s.',
+                             'In a daring robbery today a thief absconded with a %s carrying glyphs from %s.',
                              $ship->type_formatted,
                              $self->on_body->name);
     $self->send($self->from_body_id, $ship->date_available); 

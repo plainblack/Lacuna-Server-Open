@@ -7,21 +7,8 @@ extends 'Lacuna::DB::Result::Building::Permanent';
 
 use constant controller_class => 'Lacuna::RPC::Building::DentonBrambles';
 
-around can_build => sub {
-    my ($orig, $self, $body) = @_;
-    if ($body->get_plan(__PACKAGE__, 1)) {
-        return $orig->($self, $body);  
-    }
-    confess [1013,"You can't build Denton Brambles. They form naturally."];
-};
-
-around can_upgrade => sub {
-    my ($orig, $self) = @_;
-    if ($self->body->get_plan(__PACKAGE__, $self->level + 1)) {
-        return $orig->($self);  
-    }
-    confess [1013,"You can't upgrade Denton Brambles. They form naturally."];
-};
+with "Lacuna::Role::Building::UpgradeWithHalls";
+with "Lacuna::Role::Building::CantBuildWithoutPlan";
 
 use constant image => 'dentonbrambles';
 

@@ -56,6 +56,30 @@
 KNOWN BUGS:
  - bug: Fleet format currently shows 'Foreign' for all fleets
 
+3.0884:
+ - Fix: Bug when upgrading Glyph buildings, but with no hall plans
+
+3.0883:
+ - Fix: Library timer was too excessive.
+ - Mod: Gradual increase in TM range from 465 to 900.
+ - Mod: Spies can steal more than one glyph.
+ - Mod: Glyph buildings can now be upgraded (with halls) via update button
+ - Mod: All Halls of Vrbansk building have been replaced with hall plans
+ - Mod: The Halls of Vrbansk can no longer be built from a plan.
+ - Mod: Disable upgrade button on Permanent E-Veins
+
+3.0882:
+ - Fix: Timers on int ministries get zeroed on flipped planets.
+ - Mod: Halls no longer need x+1 free spaces to upgrade a level x building
+ - Mod: Hall buildings will sacrifice all but one unless needed.
+ - Mod: Added better logging to building upgrade and ship arrival queues
+ - Mod: Increased range of Trade Ministry
+ - Mod: Citadel of Knope is now more effective
+ - Add: Starter zones enabled via configuration.
+ - Add: When a planet implodes from fissures, empires newer than 60 days will not be damaged.
+ - Add: More info on available spies returned by training buildings.
+>>>>>>> master
+
 3.0881:
  - Fix: DevMin fix.
  - Fix: When upgrade of building ends, planet stats are now correctly calculated.

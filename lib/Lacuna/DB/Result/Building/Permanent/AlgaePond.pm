@@ -8,21 +8,8 @@ use Lacuna::Util qw(randint);
 
 use constant controller_class => 'Lacuna::RPC::Building::AlgaePond';
 
-around can_build => sub {
-    my ($orig, $self, $body) = @_;
-    if ($body->get_plan(__PACKAGE__, 1)) {
-        return $orig->($self, $body);  
-    }
-    confess [1013,"You can't build an Algae Pond. It forms naturally."];
-};
-
-around can_upgrade => sub {
-    my ($orig, $self) = @_;
-    if ($self->body->get_plan(__PACKAGE__, $self->level + 1)) {
-        return $orig->($self);  
-    }
-    confess [1013,"You can't upgrade an Algae Pond. It forms naturally."];
-};
+with "Lacuna::Role::Building::UpgradeWithHalls";
+with "Lacuna::Role::Building::FormsNaturally";
 
 use constant image => 'algaepond';
 
@@ -36,10 +23,10 @@ after finish_upgrade => sub {
     $self->body->add_news(30, sprintf('This is no fisherman\'s tale. A local fisherman caught a '.randint(1,9).' meter Rakl out of an algae pond on %s.', $self->body->name));
 };
 
-use constant name => 'Algae Pond';
-use constant time_to_build => 0;
-use constant max_instances_per_planet => 1;
-use constant algae_production => 4000; 
+use constant name                       => 'Algae Pond';
+use constant time_to_build              => 0;
+use constant max_instances_per_planet   => 1;
+use constant algae_production           => 4000; 
 
 around produces_food_items => sub {
     my ($orig, $class) = @_;

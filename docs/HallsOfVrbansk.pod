@@ -4,56 +4,5 @@ Halls Of Vrbansk is accessible via the URL C</hallsofvrbansk>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
-
-=head2 get_upgradable_buildings ( session_id, building_id )
-
-Returns a list of buildings that can be upgraded by the Halls of Vrbansk.
-
- {
-    "status" : { ... },
-    "buildings" : [
-        {
-            "name" : "Oracle of Anid",
-            "id" : "id-goes-here",
-            "x" : -3,
-            "y" : 2,
-            "image" : "oracleanid1",
-            "level" : 1,
-            "url" : "/oracleofanid"
-        },
-        ...
-    ]
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the Halls of Vrbansk.
-
-
-=head2 sacrifice_to_upgrade ( session_id, building_id, upgrade_building_id )
-
-Sacrifices a number of the Halls of Vrbansk to upgrade a building. 
-
- {
-    "status" : { ... }
- }
- 
-B<NOTE:> In all likelyhood the Halls of Vrbansk that the player is looking at when they call this method will be destroyed. The building will return a status, but then you should close whatever screen you have open for it and refresh the planet surface. The C<needs_surface_refresh> flag will be set in the body status on the return. You should wait for the return to close the building though, in case of an exception.
- 
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the Halls of Vrbansk.
-
-=head3 upgrade_building_id
-
-The unique id of the building you wish to upgrade.
-
 =cut
+

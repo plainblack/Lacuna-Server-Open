@@ -6,23 +6,9 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
 use constant controller_class => 'Lacuna::RPC::Building::CrashedShipSite';
-use Lacuna::Util qw(randint);
 
-around can_build => sub {
-    my ($orig, $self, $body) = @_;
-    if ($body->get_plan(__PACKAGE__, 1)) {
-        return $orig->($self, $body);  
-    }
-    confess [1013,"You can't build the Crashed Ship Site. It was left behind by the Great Race."];
-};
-
-around can_upgrade => sub {
-    my ($orig, $self) = @_;
-    if ($self->body->get_plan(__PACKAGE__, $self->level + 1)) {
-        return $orig->($self);  
-    }
-    confess [1013,"You can't upgrade the Crashed Ship Site. It was left behind by the Great Race."];
-};
+with "Lacuna::Role::Building::UpgradeWithHalls";
+with "Lacuna::Role::Building::CantBuildWithoutPlan";
 
 use constant image => 'crashedshipsite';
 

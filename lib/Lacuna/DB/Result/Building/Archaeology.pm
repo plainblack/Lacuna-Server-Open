@@ -263,7 +263,7 @@ sub dig_it {
 # Most destruction choices result in nothing found.
       if (randint(0,99) < 5) {
         my $message = random_element([
-                        'Auntie Em, where\'s Toto? Its a twister! Its a twister!',
+                        'Auntie Em, where\'s Toto? It\'s a twister! It\'s a twister!',
                         'Aw, there\'s something behind me, isn\'t there?',
                         'Dave, this conversation can serve no purpose anymore. Goodbye.',
                         'Did you notice anything weird a minute ago?',
@@ -271,6 +271,7 @@ sub dig_it {
                         'Good. For a moment there, I thought we were in trouble.',
                         'Hasta la vista, baby',
                         'Hey, what does this red button do?',
+                        'Hey! Watch this!',
                         'Houston.. we have a problem',
                         'I say we take off and nuke the site from orbit. It\'s the only way to be sure.',
                         'It\'s better to burn out, than to fade away',

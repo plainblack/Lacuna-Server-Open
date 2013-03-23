@@ -6,8 +6,13 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 use Lacuna::Util qw(randint);
 
+#with "Lacuna::Role::Building::UpgradeWithHalls";
+#with "Lacuna::Role::Building::CantBuildWithoutPlan";
+
 use constant controller_class => 'Lacuna::RPC::Building::KasternsKeep';
 
+# delete the around can_build and can_upgrade when we enable the Keep
+# TODO
 around can_build => sub {
     my ($orig, $self, $body) = @_;
     confess [1013,"You can't build Kastern's Keep."];
