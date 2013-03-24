@@ -2560,7 +2560,7 @@ sub shut_down_building {
               $_->class eq 'Lacuna::DB::Result::Building::Module::CulinaryInstitute' or
               $_->class eq 'Lacuna::DB::Result::Building::Module::OperaHouse' or
               $_->class eq 'Lacuna::DB::Result::Building::Module::IBS' or
-              $_->class eq 'Lacuna::DB::Result::Building::Module::Warehouse'
+              $_->class eq 'Lacuna::DB::Result::Building::Module::Warehouse' )
             }
             @{$self->on_body->building_cache};
 
