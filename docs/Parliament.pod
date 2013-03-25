@@ -16,7 +16,7 @@ Returns a list of the laws.
     "laws" : [
         {
             "id" : "id-goes-here",
-            "name" : "Centure of Jamie Vrbsky",
+            "name" : "Censure of Jamie Vrbsky",
             "description" : "Jamie Vrbsky is bad at playing Lacuna!",
             "date_enacted" : "01 31 2010 13:09:05 +0600"
         },
@@ -255,7 +255,7 @@ B<NOTE:> See the C<writ_templates> section of C<resources.json>. These should be
     "status" : { ... },
     "proposition" : {
         "id" : "id-goes-here",
-        "name" : "Centure of Jamie Vrbsky",
+        "name" : "Censure of Jamie Vrbsky",
         "description" : "Jamie Vrbsky is bad at playing Lacuna!",
         "votes_needed" : 7,
         "votes_yes" : 0,
@@ -295,7 +295,7 @@ Repeal an existing law. Usable at parliament level 5.
     "status" : { ... },
     "proposition" : {
         "id" : "id-goes-here",
-        "name" : "Repeal Writ of Centure",
+        "name" : "Repeal Writ of Censure",
         "description" : "Repeal this law: Jamie Vrbsky is bad at playing Lacuna!",
         "votes_needed" : 7,
         "votes_yes" : 0,
