@@ -525,7 +525,6 @@ sub turn_around {
     my ($self) = @_;
 
     $self->direction( ($self->direction eq 'out') ? 'in' : 'out' );
-    $self->fleet_speed(0);
     my $target = ($self->foreign_body_id) ? $self->foreign_body : $self->foreign_star;
     my $arrival = DateTime->now->add(seconds => $self->calculate_travel_time($target));
     $self->date_available($arrival);
