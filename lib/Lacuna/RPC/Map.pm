@@ -130,6 +130,7 @@ sub search_stars {
 
 __PACKAGE__->register_rpc_method_names(qw(
     get_star_map
+    get_body_status
     get_stars 
     get_star_by_name
     get_star 
