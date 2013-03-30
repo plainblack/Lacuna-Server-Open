@@ -445,7 +445,7 @@ sub get_status {
         has_new_messages    => $self->has_new_messages,
         latest_message_id   => $self->latest_message_id,
         home_planet_id      => $self->home_planet_id,
-        university_level    => $self->university_level,
+        tech_level          => $self->university_level,
         planets             => \%planets,
         self_destruct_active=> $self->self_destruct_active,
         self_destruct_date  => $self->self_destruct_date_formatted,
