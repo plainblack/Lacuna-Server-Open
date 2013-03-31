@@ -34,6 +34,7 @@ sub get_status_lite {
         name    => $self->name,
         x       => $self->x,
         y       => $self->y,
+        zone    => $self->zone,
     };
     if ($self->station_id) {
         my $station     = $self->station;
