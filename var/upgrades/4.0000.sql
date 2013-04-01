@@ -30,3 +30,5 @@ create table fleet (
     constraint wc_f_foreign_star_id foreign key (foreign_star_id) references star (id)
 );
 
+drop table trades;
+alter table market add column `fleet_id` int(11) NOT NULL default 0;

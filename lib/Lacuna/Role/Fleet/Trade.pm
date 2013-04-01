@@ -13,7 +13,7 @@ sub check_payload_fleet_size {
 
     return if not $items;
 
-    my $ship_count = $fleet_stay ? $self->quantity : 0;
+    my $ship_count = defined $fleet_stay ? $fleet_stay : 0;
     my @fleets;
 
     if (ref $items eq 'HASH') {

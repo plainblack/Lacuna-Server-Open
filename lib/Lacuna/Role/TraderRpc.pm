@@ -82,6 +82,7 @@ sub view_market {
     };
 }
 
+
 sub get_ships {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -176,6 +177,13 @@ sub get_prisoners {
 }
 
 sub get_plan_summary {
+    my ($self, $session_id, $building_id) = @_;
+
+    return $self->get_plans($session_id, $building_id);
+}
+
+
+sub get_plans {
     my ($self, $session_id, $building_id) = @_;
 
     my $empire      = $self->get_empire_by_session($session_id);
