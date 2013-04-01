@@ -84,6 +84,7 @@ sub view_market {
     };
 }
 
+
 sub get_ships {
     my ($self, $session_id, $building_id) = @_;
     my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
@@ -183,9 +184,15 @@ sub get_prisoners {
 sub get_plan_summary {
     my ($self, $session_id, $building_id) = @_;
 
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
+    return $self->get_plans($session_id, $building_id);
+}
+
+
+sub get_plans {
+    my ($self, $session_id, $building_id) = @_;
+
+    my $empire      = $self->get_empire_by_session($session_id);
+    my $building    = $self->get_building($empire, $building_id);
 
     my @out;
     my $sorted_plans = $building->body->sorted_plans;

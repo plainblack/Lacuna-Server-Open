@@ -1,9 +1,28 @@
 
 =head1 Trade Ministry Methods
 
-The Trade Ministry is accessible via the URL C</trade>. It allows you to send cargo ships to other players with trade goods. Due to the vast distance of space, you may only trade with other players in your zone.
+The Trade Ministry is accessible via the URL C</trade>. It allows you to send cargo ships to other 
+players with trade goods. Due to the vast distance of space, your trade ministry can only announce
+trades within a certain distance, based on your TM level.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
+
+=head2 General arguments
+
+Some arguments are used in similar ways in several calls. They are described here in more detail.
+
+=head3 target
+
+Typically the Target for a fleet.
+
+
+
+
+TODO 
+
+
+
+
 
 =head2 accept_from_market
 
@@ -100,7 +119,12 @@ Returns the same as C<view>
 
 =head2 add_to_market
 
-Adds a trade to the market for others to see.
+Adds a trade to the market for others to see. This now only takes named arguments.
+
+The fixed argument method is no longer supported.
+
+ {
+
 
 Accepts either fixed arguments or a hash of named parameters
 
@@ -297,13 +321,14 @@ Returns the ID of the trade just created.
 
  {
    "trade_id" : "id-goes-here",
- n  "status" : { ... }
+   "status" : { ... }
  }
 
 
-=head2 create_supply_chain (session_id, building_id, target_id, resource_type, resource_hour)
+=head2 create_supply_chain
 
-Adds a trade to the market for others to see.
+Adds a new supply chain. Note. This creates the supply chain but does not allocate ships to service
+the supply chains.
 
 Accepts either fixed arguments or a hash of named parameters
 
@@ -341,142 +366,170 @@ The amount of the resource you want to transfer each hour.
 Returns the same as the call to B<view_supply_chains>
 
 
----------------
+=head2 get_fleets
 
+Accepts either fixed arguments or a hash of named parameters
 
+ ( session_id, building_id )
+ ( parameter_hash )
 
+=head3 session_id (required)
 
+A Session ID.
 
+=head3 building_id (required)
 
+The unique ID of the Trade Ministry.
 
+=head3 RESPONSE
 
-
-
-
-
-
-
-
-
-=head2 get_ships ( session_id, building_id )
-
-Returns a list of ships that may be traded. Used with the C<add_trade> method.
+Returns a list of fleets that may be traded. Used with the C<add_to_market> method.
 
  {
-    "ships" : [
-        {
-            "id" : "id-goes-here",
-            "name" : "Enterprise",
-            "type" : "probe",
-            "hold_size" : 0,
-            "speed" : 3900
-        },
-        ...
-    ],
-    "cargo_space_used_each" : 50000,
-    "status" : { ... }
+   "fleets" : [
+     {
+       "id"        : "id-goes-here",
+       "name"      : "Fast Probes",
+       "type"      : "probe",
+       "hold_size" : 0,
+       "speed"     : 7900,
+       "quantity"  : 32,
+     },
+     ...
+   ],
+   "cargo_space_used_each" : 10000,
+   "status" : { ... }
  }
 
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of this building.
+B<cargo_space_used_each> is the amount of cargo space each ship takes.
 
 
-=head2 get_prisoners ( session_id, building_id )
+=head2 get_prisoners
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 RESPONSE
 
 Returns a list of prisoners that may be traded. Used with the C<add_trade> method.
 
  {
-    "prisoners" : [
-        {
-            "id" : "id-goes-here",
-            "name" : "Jack Bauer",
-            "level" : "5",
-            "sentence_expires" : "01 31 2010 13:09:05 +0600"
-        },
-        ...
-    ],
-    "cargo_space_used_each" : 350,
-    "status" : { ... }
+   "prisoners" : [
+     {
+       "id"                 : "id-goes-here",
+       "name"               : "Jack Bauer",
+       "level"              : "5",
+       "sentence_expires"   : "01 31 2010 13:09:05 +0600"
+     },
+     ...
+   ],
+   "cargo_space_used_each" : 350,
+   "status" : { ... }
  }
 
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of this building.
+B<cargo_space_used_each> is the amount of cargo space each prisoner takes.
 
 
-=head2 get_plans ( session_id, building_id )
+=head2 get_plans
 
-Deprecated Method.  Please use get_plan_summary instead
+Accepts either fixed arguments or a hash of named parameters
 
-=head2 get_plan_summary ( session_id, building_id )
+ ( session_id, building_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 RESPONSE
 
 Returns a list of plans that may be traded in summary form.
-Used with the C<add_trade> method.
 
  {
-    "plans" : [
-        {
-            "name" : "Intelligence Ministry",
-            "plan_type" : "Intelligence",
-            "level" : "7",
-            "extra_build_level" : "0",
-            "quantity" : "2"
-        },
-        ...
-    ],
-    "cargo_space_used_each" : 1000,
-    "status" : { ... }
+   "plans" : [
+     {
+       "name"               : "Intelligence Ministry",
+       "plan_type"          : "Intelligence",
+       "level"              : "7",
+       "extra_build_level"  : "0",
+       "quantity"           : "2"
+     },
+     ...
+   ],
+   "cargo_space_used_each" : 10000,
+   "status" : { ... }
  }
 
-=head3 session_id
+B<cargo_space_used_each> is the amount of cargo space each prisoner takes.
 
-A session id.
+=head2 get_glyphs
 
-=head3 building_id
+Accepts either fixed arguments or a hash of named parameters
 
-The unique id of this building
+ ( session_id, building_id )
+ ( parameter_hash )
 
+=head3 session_id (required)
 
-=head2 get_glyphs ( session_id, building_id )
+A Session ID.
 
-This API call is now deprecated, please use get_glyph_summary instead.
+=head3 building_id (required)
 
-=head2 get_glyph_summary ( session_id, building_id )
+The unique ID of the Trade Ministry.
 
-Returns a summary of all glyphs that may be traded. Used with the C<add_trade> method.
+=head3 RESPONSE
+
+Returns a summary of all glyphs that may be traded.
 
  {
-    "glyphs" : [
-        {
-            "id" : "id-goes-here",
-            "name: : "bauxite",
-            "type" : "bauxite",
-            "quantity" : 2
-        },
-        ...
-    ],
-    "status" : { ... }
+   "glyphs" : [
+     {
+       "id"         : "id-goes-here",
+       "name:       : "bauxite",
+       "type"       : "bauxite",
+       "quantity"   : 2
+     },
+     ...
+   ],
+   "cargo_space_used_each" : 100,
+   "status" : { ... }
  }
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of this building.
 
 
 =head2 withdraw_from_market ( session_id, building_id, trade_id )
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, trade_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 trade_id (required)
+
+The unique ID of the trade to be withdrawn.
+
+=head3 RESPONSE
 
 Remove a trade that you have offered and collect the items up for trade.
 
@@ -484,24 +537,29 @@ Remove a trade that you have offered and collect the items up for trade.
     "status" : { ... }
  }
 
-=head3 session_id
 
-A session id.
-
-=head3 building_id
-
-The unique id of this building.
-
-=head3 trade_id
-
-The unique id of the trade.
-
-
-
-
-=head2 accept_from_market ( session_id, building_id, trade_id )
+=head2 accept_from_market
 
 Accept a trade offer from the list of available trades. See C<view_market>.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, trade_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 trade_id (required)
+
+The unique ID of the trade to be accepted.
+
+=head3 RESPONSE
 
 Throws 1016.
 
@@ -509,223 +567,265 @@ Throws 1016.
     "status" : { ... }
  }
 
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of this building.
-
-=head3 trade_id
-
-The unique id of the trade.
 
 
+=head2 view_market
 
-=head2 view_market ( session_id, building_id, [ page_number, filter ] )
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, trade_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 page_number (optional)
+
+Optional. An integer representing the page of trades (25 per page) to return. Defaults to 1.
+
+=head3 filter (optional)
+
+Optional. A string which will narrow the offered trades to those who are offering a specific kind of object. 
+Filter options include: food ore water waste energy glyph prisoner ships plan
+
+=head3 RESPONSE
 
 Displays a list of trades available at the present time.
 
  {
-    "trades" : [
-        {
-            "date_offered" : "01 31 2010 13:09:05 +0600",
-            "id" : "id-goes-here",
-            "ask" : 25,     # essentia
-            "offer" : [
-                "Level 21 spy named Jack Bauer (prisoner)",
-                "4,000 bauxite",
-                "gold glyph"
-            ],
-            "body" : {
-                "id" : "id-goes-here"
-            },
-            "empire" : {
-                "id" : "id-goes-here",
-                "name" : "Earthlings"
-            },
-            "delivery: : {
-                "duration" : 3600,            # travel time in seconds
-            }
-        },
-        ...
-    ],
-    "trade_count" : 1047,
-    "page_number" : 1,
-    "status" : { ... }
+   "trades" : [
+     {
+       "date_offered" : "01 31 2010 13:09:05 +0600",
+       "id" : "id-goes-here",
+       "ask" : 25,     # essentia
+       "offer" : [
+         "Level 21 spy named Jack Bauer (prisoner)",
+         "4,000 bauxite",
+         "32 gold glyph",
+         "2 Algae Pond (1) plan",
+         "1 Smuggler Ship (speed: 5984, stealth: 13,850, hold_size: 207,371, berth: 10, combat: 2)"
+       ],
+       "body" : {
+         "id" : "id-goes-here"
+       },
+       "empire" : {               "id" : "id-goes-here",
+         "name" : "Earthlings"
+       },
+       "delivery: : {
+         "duration" : 3600,            # travel time in seconds
+       }
+     },
+     ...
+   ],
+   "trade_count" : 1047,
+   "page_number" : 1,
+   "status" : { ... }
  }
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of this building.
-
-=head3 page_number
-
-Optional. An integer representing the page of trades (25 per page) to return. Defaults to 1.
 
 =head3 filter
 
-Optional. A string which will narrow the offered trades to those who are offering a specific kind of object, such as ships. Filter options include: food ore water waste energy glyph prisoner ship plan
+Optional. A string which will narrow the offered trades to those who are offering a specific kind of object. 
+Filter options include: food ore water waste energy glyph prisoner ship plan
 
 
+=head2 view_my_market
 
+Accepts either fixed arguments or a hash of named parameters
 
-=head2 view_my_market ( session_id, building_id, [ page_number ] )
+ ( session_id, building_id, trade_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 page_number (optional)
+
+Optional. An integer representing the page of trades (25 per page) to return. Defaults to 1.
+
+=head3 RESPONSE
 
 Displays a list of trades the current user has posted.
 
  {
-    "trades" : [
-        {
-            "date_offered" : "01 31 2010 13:09:05 +0600",
-            "id" : "id-goes-here",
-            "ask" : 25,     # essentia
-            "offer" : [
-                "Level 21 spy named Jack Bauer (prisoner)",
-                "4,000 bauxite",
-                "gold glyph"
-            ]
-        },
-        ...
-    ],
-    "trade_count" : 17,
-    "page_number" : 1,
-    "status" : { ... }
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of this building.
-
-=head3 page_number
-
-An integer representing the page of trades (25 per page) to return. Defaults to 1.
-
-
-
-=head2 get_trade_ships ( session_id, building_id, [ target_body_id ] )
-
-Returns a list of the ships that could be used to do a trade.
-
- {
-    "status" : { ... },
-    "ships" : [
-        {
-           "id" : "id-goes-here",
-           "type" : "cargo_ship",
-           "name" : "SS Minnow",
-           "estimated_travel_time" : 3600, # in seconds, one way
-           ...
-        },
-        ...
-    ]
+   "trades" : [
+     {
+       "date_offered"   : "01 31 2010 13:09:05 +0600",
+       "id"             : "id-goes-here",
+       "ask"            : 25,     # essentia
+       "offer"          : [
+         "Level 21 spy named Jack Bauer (prisoner)",
+         "4,000 bauxite",
+         "gold glyph"
+       ]
+     },
+     ...
+   ],
+   "trade_count" : 17,
+   "page_number" : 1,
+   "status" : { ... }
  }
 
 
-=head3 session_id
+=head2 get_trade_fleets
 
-A session id.
+Accepts either fixed arguments or a hash of named parameters
 
-=head3 building_id
+ ( session_id, building_id, target_body_id )
+ ( parameter_hash )
 
-The unique id of the trade ministry.
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
 
 =head3 target_body_id
 
-The unique id of the body you'll be shipping to. Optional. If included it will calculate the estimated travel time of the ships to this body.
+The unique id of the body you'll be shipping to. Optional. If included it will calculate the estimated travel time of the fleets to this body.
 
+=head3 RESPONSE
 
-=head2 get_waste_ships ( session_id, building_id )
-
-Returns a list of the ships that are either working to transport waste or available.
+Returns a list of the fleets that could be used to do a trade.
 
  {
-    "status" : { ... },
-    "ships" : [
-        {
-           "id" : "id-goes-here",
-           "type" : "scow",
-           "task" : "Docked",
-           "name" : "Dumper Truck 1",
-           "speed" : 600,
-           "hold_size" : 1234800,
-        },
-        ...
-    ]
+   "status" : { ... },
+   "fleets" : [
+     {
+       "id"                     : "id-goes-here",
+       "type"                   : "cargo_ship",
+       "name"                   : "SS Minnow",
+       "quantity"               : 130,
+       "estimated_travel_time" : 3600,
+       ...
+     },
+     ...
+   ]
  }
 
 
-=head3 session_id
+=head2 get_waste_fleets
 
-A session id.
+Accepts either fixed arguments or a hash of named parameters
 
-=head3 building_id
+ ( session_id, building_id )
+ ( parameter_hash )
 
-The unique id of the trade ministry.
+=head3 session_id (required)
 
+A Session ID.
 
-=head2 get_supply_ships ( session_id, building_id )
+=head3 building_id (required)
 
-Returns a list of the ships that are either working to transport supplies or available.
+The unique ID of the Trade Ministry.
+
+=head3 RESPONSE
+
+Returns a list of the fleets that are either working to transport waste or available.
 
  {
-    "status" : { ... },
-    "ships" : [
-        {
-           "id" : "id-goes-here",
-           "type" : "hulk",
-           "task" : "Resource Chain",
-           "name" : "Big Momma 1",
-           "speed" : 1000,
-           "hold_size" : 4000000,
-        },
-        ...
-    ]
+   "status" : { ... },
+   "fleet" : [
+     {
+       "id"         : "id-goes-here",
+       "type"       : "scow",
+       "task"       : "Docked",
+       "quantity"   : 32,
+       "name"       : "Dumper Truck 1",
+       "speed"      : 600,
+       "hold_size"  : 1234800,
+     },
+     ...
+   ]
  }
 
 
-=head3 session_id
+=head2 get_supply_fleets
 
-A session id.
+Accepts either fixed arguments or a hash of named parameters
 
-=head3 building_id
+ ( session_id, building_id )
+ ( parameter_hash )
 
-The unique id of the trade ministry.
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 RESPONSE
+
+Returns a list of the fleets that are either working to transport supplies or available.
+
+ {
+   "status" : { ... },
+   "ships" : [
+     {
+       "id"         : "id-goes-here",
+       "type"       : "hulk",
+       "task"       : "Resource Chain",
+       "quantity"   : 32,
+       "name"       : "Big Momma 1",
+       "speed"      : 1000,
+       "hold_size"  : 4000000,
+     },
+     ...
+   ]
+ }
 
 
-=head2 view_supply_chains ( session_id, building_id )
+=head2 view_supply_chains
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 RESPONSE
 
 Returns a list of the supply chains currently controlled by this Trade Ministry
 
  {
-    "status" : { ... },
-    "supply_chains" : [
-      {
-        "id" : "id-goes-here",
-        "body" : {
-          "id" : "id-goes-here",
-          "name" : "Mars",
-          "x" : 0,
-          "y" : -123,
-          ...
-        },
-        "building_id" : 1234567,
-        "resource_hour" : 10000000,
-        "resource_type" : 'water',
-        "percent_transferred" : 95,
-        "stalled" : 0,
-      }
-    ],
-    "max_supply_chains" : 30
+   "status" : { ... },
+   "supply_chains" : [
+     {
+       "id"     : "id-goes-here",
+       "body"   : {
+         "id"   : "id-goes-here",
+         "name" : "Mars",
+         "x"    : 0,
+         "y"    : -123,
+         ...
+       },
+       "building_id"            : 1234567,
+       "resource_hour"          : 10000000,
+       "resource_type"          : 'water',
+       "percent_transferred"    : 95,
+       "stalled"                : 0,
+     }
+   ],
+   "max_supply_chains" : 30
  }
 
 Each supply-chain can transfer any amount of any one resource (food type, ore type
@@ -735,9 +835,9 @@ your Trade Ministry can handle.
 The B<building_id> is the identifier for the Trade Ministry that is the source of the
 supply chain.
 
-The B<resource_type> is the name of the resource you wish to transfer (e.g. 'Gold');
+The B<resource_type> is the name of the resource being transferred (e.g. 'Gold');
 
-The B<resource_hour> is the amount of that resource you wish to transfer each hour.
+The B<resource_hour> is the amount of that resource being transferred each hour.
 
 The B<percent_transferred> is the percentage of B<resource_hour> that is actually transferred.
 This is based on the number of ships you have servicing the chain. If you have no ships then
@@ -749,26 +849,41 @@ fully filled.
 B<stalled> is true if there are no more of the chain's resource available in storage to push.
 
 
-=head2 view_waste_chains ( session_id, building_id )
+=head2 view_waste_chains
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 RESPONSE
 
 Returns a list of the waste chains currently controlled by this Trade Ministry
 
  {
-    "status" : { ... },
-    "waste_chain" : [
-      {
-        "id" : "id-goes-here",
-        "star" : {
-          "id" : "id-goes-here",
-          "name" : "Sol",
-          "x" : 0,
-          "y" : -123,
-          ...
-        },
-        "waste_hour" : 10000000,
-        "percent_transferred" : 95,
-      }
-    ]
+   "status" : { ... },
+   "waste_chain" : [
+     {
+       "id"     : "id-goes-here",
+       "star"   : {
+         "id"   : "id-goes-here",
+         "name" : "Sol",
+         "x"    : 0,
+         "y"    : -123,
+         ...
+       },
+       "waste_hour" : 10000000,
+       "percent_transferred" : 95,
+     }
+   ]
  }
 
 Note, there is no need to create a waste chain, all planets have a waste chain by default.
@@ -787,14 +902,59 @@ fully filled.
 
 
 
-=head2 delete_supply_chain (session_id, building_id, supply_chain_id)
+=head2 delete_supply_chain
 
-Delete the supply chain identified by the B<supply_chain_id>
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 supply_chain_id (required)
+
+The unique iD of the supply chain you wish to delete.
+
+=head3 RESPONSE
 
 Returns the same as the call to B<view_supply_chains>
 
 
+
 =head2 update_supply_chain ( session_id, building_id, supply_chain_id, resource_type, resource_hour)
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, supply_chain_id, resource_type, resource_hour )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 supply_chain_id (required)
+
+The unique iD of the supply chain you wish to update.
+
+=head3 resource_type (optional)
+
+Change the chain to this resource type. If not specified, the resource type remains unchanged.
+
+=head3 resource_hour (optional)
+
+Change the chain to this amount per hour. If not specified, the resource per hour remains unchanged.
+
+=head3 RESPONSE
 
 Change the B<resource_type> and B<resource_hour> for the supply Chain specified by B<supply_chain_id>
 
@@ -808,7 +968,32 @@ You may set the resource_hour to zero if you want to suspend the supply chain to
 
 If you want to remove the supply chain totally then call B<delete_supply_chain>
 
-=head2 update_waste_chain ( session_id, building_id, waste_chain_id, waste_hour)
+
+
+=head2 update_waste_chain
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, waste_chain_id, waste_hour )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 waste_chain_id (required)
+
+The unique iD of the supply chain you wish to update.
+
+=head3 waste_hour (optional)
+
+Change the waste chain to this amount per hour. If not specified, the waste/hr remains unchanged.
+
+=head3 RESPONSE
 
 Change the B<waste_hour> for the Waste Chain specified by B<waste_chain_id>
 
@@ -822,120 +1007,148 @@ Note, there is no B<create_waste_chain> because all planets have a waste chain b
 You may set the B<waste_hour> to zero if you want to stop transferring waste.
 
 
-=head2 remove_supply_ship_from_fleet (session_id, building_id, ship_id )
+=head2 remove_supply_fleet
 
-Remove a ship from servicing your supply chains and tell it to return to the space port.
+Remove a number of ships from a fleet which is servicing your supply chains and tell
+them to return to port.
 
- {
-   "status" : { ... },
- }
+Accepts either fixed arguments or a hash of named parameters
 
-Throws 1009.
+ ( session_id, building_id, building_id, fleet_id, quantity )
+ ( parameter_hash )
 
-=head3 session_id
-
-A Session ID.
-
-=head3 building_id
-
-The unique ID of the Trade Ministry.
-
-=head3 ship_id
-
-The unique ID of the ship you want to remove from the fleet.
-
-
-=head2 remove_waste_ship_from_fleet (session_id, building_id, ship_id )
-
-Remove a ship from servicing you waste management and tell it to return to the space port.
-
- {
-   "status" : { ... },
- }
-
-Throws 1009.
-
-=head3 session_id
+=head3 session_id (required)
 
 A Session ID.
 
-=head3 building_id
+=head3 building_id (required)
 
 The unique ID of the Trade Ministry.
 
-=head3 ship_id
+=head3 fleet_id (required)
 
-The unique ID of the ship you want to remove from the fleet.
+The unique ID of the fleet.
+
+=head3 quantity (optional)
+
+The number of ships to remove from the fleet. If not specified, the whole fleet is removed.
+
+=head3 RESPONSE
+
+Returns the same as the call to B<view_supply_chains>
+
+Throws 1009.
 
 
-=head2 get_stored_resources ( session_id, building_id )
+=head2 remove_waste_fleet
+
+Remove a number of ships from a fleet which is servicing your waste management and tell
+them to return to port.
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, building_id, fleet_id, quantity )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 fleet_id (required)
+
+The unique ID of the fleet.
+
+=head3 quantity (optional)
+
+The number of ships to remove from the fleet. If not specified, the whole fleet is removed.
+
+=head3 RESPONSE
+
+Returns the same as the call to B<view_waste_chains>
+
+Throws 1009.
+
+
+=head2 get_stored_resources
+
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, building_id )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 RESPONSE
 
 Returns a list of the resources you have stored to make it easier to identify what you want to trade.
 
  {
-    "status" : { ... },
-    "cargo_space_used_each" : 1,
-    "resources" : {
-            "water" : 14000,
-            "waste" : 393,
-            "bauxite" : 47,
-            "cheese" : 1193,
-            ...
-    }
+   "status" : { ... },
+   "cargo_space_used_each" : 1,
+   "resources"  : {
+     "water"    : 14000,
+     "waste"    : 393,
+     "bauxite"  : 47,
+     "cheese"   : 1193,
+     ...
+   }
  }
  
-=head3 session_id
 
-A session id.
+=head2 push_items
 
-=head3 building_id
-
-The unique id of this building.
-
-
-=head2 push_items ( session_id, building_id, target_id, items, options )
-
-Allows you to push items between your colonies.
+This now only takes a hash of named arguments due to the complexity of the call.
 
  {
-    "status" : { ... },
-    "ship" : {
-        "name" : "SS Minnow",
-        "type" : "cargo_ship",
-        "date_arrives" : "01 31 2010 13:09:05 +0600",
-        ...
-    }
+   "session_id"     : "session-id-here",
+   "building_id"    : "building-id-here",
+   "target"         : { "body_name" : "Earch" },
+   "items"          : [ {"type" : "bauxite"}, {"type" : "prisoner", "prisoner_id" : 434}],
+   "fleet"          : {
+     id               : 334,
+     quantity         : 2,
+     stay             : 2,
+   }
  }
 
-=head3 session_id
+=head3 session_id (required)
 
-A session id.
+A Session ID.
 
-=head3 building_id
+=head3 building_id (required)
 
-The unique id of this building.
+The unique ID of the Trade Ministry.
 
-=head3 target_id
+=head3 target (required)
 
-The unqiue id of the planet that you control, that you want to send resources to.
+The target ID, x|y, name as described in SpacePort - target.
 
-B<NOTE:> The list of your planets comes back with every empire status message.
+Only inhabited bodies or Space Stations can be specified.
 
 =head3 items
 
 An array reference of hash references of items you wish to ship to the target planet. There are five types of items that can be shipped via this mechanism. They are resources, glyphs, plans, prisoners, and ships.
 
  [
-    {
-       "type" : "bauxite",
-       "quantity" : 10000
-    },
-    {
-       "type" : "prisoner",
-       "prisoner_id" : "id-goes-here"
-    }
+   {
+     "type"         : "bauxite",
+     "quantity"     : 10000
+   },
+   {
+     "type"         : "prisoner",
+     "prisoner_id"  : "id-goes-here"
+   }
  ]
-
 
 =over
 
@@ -944,15 +1157,18 @@ An array reference of hash references of items you wish to ship to the target pl
 The hash reference for resources looks like:
 
  {
-    "type" : "bauxite",
-    "quantity" : 10000
+    "type"      : "bauxite",
+    "quantity"  : 10000
  }
 
 =over
 
 =item type
 
-The type of resource you want to push. Available types are: water, energy, waste, essentia, bean, lapis, potato, apple, root, corn, cider, wheat, bread, soup, chip, pie, pancake, milk, meal, algae, syrup, fungus, burger, shake, beetle, rutile, chromite, chalcopyrite, galena, gold, uraninite, bauxite, goethite, halite, gypsum, trona, kerogen, methane, anthracite, sulfur, zircon, monazite, fluorite, beryl, or magnetite.
+The type of resource you want to push. Available types are: water, energy, waste, essentia, bean, lapis, potato, apple, 
+root, corn, cider, wheat, bread, soup, chip, pie, pancake, milk, meal, algae, syrup, fungus, burger, shake, beetle, 
+rutile, chromite, chalcopyrite, galena, gold, uraninite, bauxite, goethite, halite, gypsum, trona, kerogen, methane, 
+anthracite, sulfur, zircon, monazite, fluorite, beryl, or magnetite.
 
 =item quantity
 
@@ -965,9 +1181,9 @@ The amount of the resource that you want to push.
 The hash reference for glyphs looks like:
 
  {
-    "type" : "glyph",
-    "name : "bauxite",
-    "quantity" : 3
+    "type"      : "glyph",
+    "name       : "bauxite",
+    "quantity"  : 3
  }
  
 =over
@@ -993,13 +1209,12 @@ See the C<get_glyph_summary> method for a list of your glyphs.
 The hash reference for plans looks like this:
 
  {
-    "type" : "plan",
-    "plan_type" : "Permanent_AlgaePond",
-    "level" : 1,
-    "extra_build_level" : 5,
-    "quantity" : 4,
+   "type"              : "plan",
+   "plan_type"         : "Permanent_AlgaePond",
+   "level"             : 1,
+   "extra_build_level" : 5,
+   "quantity"          : 4,
  }
-
 
 =over
 
@@ -1027,14 +1242,13 @@ See the C<get_plan_summary> method for a list of your plans.
 
 =back
 
-
 =item prisoners
 
 The hash reference for prisoners looks like:
 
  {
-    "type" : "prisoner",
-    "prisoner_id" : "id-goes-here"
+    "type"          : "prisoner",
+    "prisoner_id"   : "id-goes-here"
  }
 
 =over
@@ -1050,72 +1264,97 @@ The unique id of the spy that you want to push. See the C<get_prisoners> method 
 =back
 
 
-=item ships
+=item fleets
 
-The hash reference for ships looks like:
+The hash reference for fleets looks like:
 
  {
-    "type" : "ship",
-    "ship_id" : "id-goes-here"
+   "type"       : "ship",
+   "fleet_id"   : "id-goes-here",
+   "quantity"   : 23,
  }
 
 =over
 
 =item type
 
-Must be exactly C<ship>.
+Must be exactly C<fleet>.
 
 =item ship_id
 
-The unique id of the ship that you want to push. See the C<get_prisoners> method for a list of your prisoners.
+The unique id of the fleet that you want to push. See the C<get_fleets> method for a list of your fleets.
 
 =back
 
 
-
 =back
 
 
-=head3 options
+=head3 fleet
 
-A hash reference of options to modify the trade.
+A hash reference to define what fleet should be used to transport the trade.
 
 =over
 
-=item ship_id
+=item id (required)
 
-The specific id of a ship you want to use for this push. See C<get_trade_ships> for details.
+The specific id of a fleet you want to use for this push. See C<get_trade_fleets> for details.
 
-=item stay
+=item quantity (optional)
 
-If set to 1 the ship will remain at the target planet instead of making a round trip. However, this requires an available spaceport dock on the target planet.
+The number of ships in the fleet to transport the cargo. If not specified the minimum number of ships will be split from the fleet and sent.
+
+=item stay (optional)
+
+The number of ships in the fleet to remain at the target planet instead of making a round trip. 
+This does however require there to be available spaceport docks on the target planet.
+
+Note. In a change from previous releases, the fleet, on it's outward journey, remains under control of the B<sending> colony. From this release
+the fleet remains under the control of the sending colony until it arrives.
 
 =back
 
+=head3 RESPONSE
+
+ {
+   "status" : { ... },
+   "fleet" : {
+     "id"           : 34234,
+     "name"         : "SS Minnow",
+     "type"         : "cargo_ship",
+     "quantity"     : 2,
+     "stay"         : 0,
+     "date_arrives" : "01 31 2010 13:09:05 +0600",
+     ...
+   }
+ }
 
 
+=head2 report_abuse
 
-=head2 report_abuse ( session_id, building_id, trade_id )
+Accepts either fixed arguments or a hash of named parameters
+
+ ( session_id, building_id, waste_chain_id, waste_hour )
+ ( parameter_hash )
+
+=head3 session_id (required)
+
+A Session ID.
+
+=head3 building_id (required)
+
+The unique ID of the Trade Ministry.
+
+=head3 trade_id (required)
+
+The ID of the trade you wish to report.
+
+=head3 RESPONSE
 
 Report a trade that you think is abusing the trade system.
 
  {
     "status" : { ... }
  }
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of this building.
-
-=head3 trade_id
-
-The unique id of the trade.
-
-
-
 
 =cut

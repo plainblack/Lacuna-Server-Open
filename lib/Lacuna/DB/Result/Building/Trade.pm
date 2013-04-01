@@ -55,7 +55,7 @@ use constant waste_production => 1;
 sub supply_chains {
     my ($self) = @_;
 
-    return Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->search({ planet_id => $self->body_id });
+    return Lacuna->db->resultset('SupplyChain')->search({ planet_id => $self->body_id });
 }
 
     
@@ -63,49 +63,49 @@ sub waste_chains {
     my $self = shift;
 
     # If there is no waste chain, then create a default one
-    my $waste_chain = Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->search({ planet_id => $self->body_id });
+    my $waste_chain = Lacuna->db->resultset('WasteChain')->search({ planet_id => $self->body_id });
     if ($waste_chain->count == 0) {
-        Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->create({
+        Lacuna->db->resultset('WasteChain')->create({
             planet_id   => $self->body_id,
             star_id     => $self->body->star_id,
             waste_hour  => 0,
             percent_transferred => 0,
         });
     }
-    return Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->search({ planet_id => $self->body_id });
+    return Lacuna->db->resultset('WasteChain')->search({ planet_id => $self->body_id });
 }
 
-# Ships that are currently in a supply chain
-sub supply_ships {
+# Fleets that are currently in a supply chain
+sub supply_fleets {
     my ($self) = @_;
 
-    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
-        body_id => $self->body_id,
-        task => 'Supply Chain',
+    return Lacuna->db->resultset('Fleet')->search({
+        body_id     => $self->body_id,
+        task        => 'Supply Chain',
     });
 }
 
-# Ships that are currently in a waste chain
-sub waste_ships {
+# Fleets that are currently in a waste chain
+sub waste_fleetss {
     my ($self) = @_;
 
-    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
-        body_id => $self->body_id,
-        task => 'Waste Chain',
+    return Lacuna->db->resultset('Fleet')->search({
+        body_id     => $self->body_id,
+        task        => 'Waste Chain',
     });
 }
 
-# All ships that are either in a supply chain, or available to be so
-sub all_supply_ships {
-    my $self = shift;
-    my $body = $self->body;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+# All fleets that are either in a supply chain, or available to be so
+sub all_supply_fleets {
+    my ($self) = @_;
+
+    return Lacuna->db->resultset('Fleet')->search({
         body_id => $self->body_id,
         -or => {
             task => 'Supply Chain',
             -and => [
                 task => 'Docked',
-                berth_level => {'<=' => $body->max_berth},
+                berth_level => {'<=' => $self->body->max_berth},
                 type => { '=', [SHIP_TRADE_TYPES]},
             ]
         }
@@ -114,17 +114,17 @@ sub all_supply_ships {
     });
 }
 
-# All ships that are either in a waste chain, or available to be so
-sub all_waste_ships {
-    my $self = shift;
-    my $body = $self->body;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+# All fleets that are either in a waste chain, or available to be so
+sub all_waste_fleets {
+    my ($self) = @_;
+
+    return Lacuna->db->resultset('Fleet')->search({
         body_id => $self->body_id,
         -or => { 
             task => 'Waste Chain',
             -and => [
                 task => 'Docked',
-                berth_level => {'<=' => $body->max_berth},
+                berth_level => {'<=' => $self->body->max_berth},
                 type => { '=', [SHIP_WASTE_TYPES]},
             ]
         }
@@ -134,26 +134,31 @@ sub all_waste_ships {
 }
 
 sub max_chains {
-    my $self = shift;
+    my ($self) = @_;
+
     return ceil($self->effective_level);
 }
 
-sub add_waste_ship {
-    my ($self, $ship) = @_;
-    $ship->task('Waste Chain');
-    $ship->update;
+sub add_fleet_to_waste_duty {
+    my ($self, $fleet) = @_;
+    
+    $fleet->task('Waste Chain');
+    $fleet->update;
     $self->recalc_waste_production;
     return $self;
 }
 
-sub add_supply_ship {
-    my ($self, $ship) = @_;
-    $ship->task('Supply Chain');
-    $ship->update;
+sub add_fleet_to_supply_duty {
+    my ($self, $fleet) = @_;
+
+    $fleet->task('Supply Chain');
+    $fleet->update;
     $self->recalc_supply_production;
     return $self;
 }
 
+sub remove_waste_fleet {
+    my ($self, 
 sub send_waste_ship_home {
     my ($self, $star, $ship) = @_;
     $ship->send(
@@ -179,7 +184,7 @@ sub send_supply_ship_home {
 
 sub add_waste_chain {
     my ($self, $star, $waste_hour) = @_;
-    Lacuna->db->resultset('Lacuna::DB::Result::WasteChain')->new({
+    Lacuna->db->resultset('WasteChain')->new({
         planet_id   => $self->body_id,
         star_id     => $star->id,
         waste_hour  => $waste_hour,
@@ -284,7 +289,7 @@ sub recalc_waste_production {
 before delete => sub {
     my ($self) = @_;
     
-    my $market = Lacuna->db->resultset('Lacuna::DB::Result::Market');
+    my $market = Lacuna->db->resultset('Market');
     my @to_be_deleted = $market->search( { body_id => $self->body_id,
                                          transfer_type => 'trade'} )->get_column('id')->all;
     foreach my $id (@to_be_deleted) {
@@ -383,10 +388,13 @@ sub available_market {
     });
 }
 
-sub trade_ships {
-    my $self = shift;
+# TODO Order by hold_size * quantity
+# 
+sub trade_fleets {
+    my ($self) = @_;
+
     my $body = $self->body;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+    return Lacuna->db->resultset('Fleet')->search({
         task    => 'Docked',
         type    => { 'in' => [SHIP_TRADE_TYPES] },
         body_id => $self->body_id,
@@ -397,58 +405,58 @@ sub trade_ships {
     });
 }
 
-sub next_available_trade_ship {
-    my ($self, $ship_id) = @_;
-    if ($ship_id) {
-        return $self->trade_ships->find($ship_id);
+sub next_available_trade_fleet {
+    my ($self, $fleet_id) = @_;
+    if ($fleet_id) {
+        return $self->trade_ships->find($fleet_id);
     }
     else {
-        return $self->trade_ships->search(undef)->first;
+        return $self->trade_fleets->search(undef, {rows => 1})->single;
     }
 }
 
 sub push_items {
-    my ($self, $target, $items, $options) = @_;
-    my $ship = $self->next_available_trade_ship($options->{ship_id});
-    unless (defined $ship) {
-        confess [1011, 'You do not have a ship available to transport cargo.'];
+    my ($self, $target, $items, $fleet_options) = @_;
+
+    my $fleet = $self->next_available_trade_fleet($fleet_options->{id});
+
+    unless (defined $fleet) {
+        confess [1011, 'You do not have a fleet available to transport cargo.'];
     }
 
     my $space_used;
     ($space_used, $items) = $self->check_payload($items, $ship->hold_size, undef, $ship);
-    $self->check_payload_fleet_size($items, $target, $options->{stay});
+    $self->check_payload_fleet_size($items, $target, $fleet_options->{stay});
 
     my ($payload, $meta) = $self->structure_payload($items, $space_used);
     foreach my $item (@{$items}) {
-        if ( $item->{type} eq 'ship' ) {
-            my $pship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($item->{ship_id});
-            next unless defined $pship;
-            $pship->body_id($target->id);
-            $pship->update;
+        if ( $item->{type} eq 'fleet' ) {
+            my $push_fleet = Lacuna->db->resultset('Fleet')->find($item->{fleet_id});
+            next unless defined $push_fleet;
+            $push_fleet->body_id($target->id);
+            $push_fleet->update;
         }
     }
 
-    if ($options->{stay}) {
-        $ship->body_id($target->id);
-        $ship->body($target);
-        weaken($ship->{_relationship_data}{body});
-        $ship->send(
+    if ($fleet_options->{stay}) {
+        $fleet->body_id($target->id);
+        $fleet->body($target);
+        weaken($fleet->{_relationship_data}{body});
+        $fleet->send(
             target      => $self->body,
             direction   => 'in',
             payload     => $payload,
         );
     }
     else {
-        $ship->send(
+        $fleet->send(
             target  => $target,
             payload => $payload,
         );
     }
-    return $ship;
+    return $fleet;
 }
-
-
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
+

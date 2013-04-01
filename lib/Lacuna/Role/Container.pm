@@ -51,11 +51,11 @@ sub unload {
     }
     if (exists $payload->{ships}) {
         foreach my $id (@{$payload->{ships}}) {
-            my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($id);
-            next unless defined $ship;
-            $ship->body_id($body->id);
-            $ship->task('Docked');
-            $ship->land->update;
+            my $fleet = Lacuna->db->resultset('Fleet')->find($id);
+            next unless defined $fleet;
+            $fleet->body_id($body->id);
+            $fleet->task('Docked');
+            $fleet->land->update;
         }
         delete $payload->{ships};
     }
@@ -113,23 +113,21 @@ sub format_description_of_payload {
     }
     
     # ships
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
-    
-    undef $scratch;
-    foreach my $id (@{ $payload->{ships}}) {
-        my $ship = $ships->find($id);
-        next unless defined $ship;
+    my $fleets = Lacuna->db->resultset('Fleet');
+    foreach my $fleet (@{$payload->{ships}}) {
+        my $fleet = $fleets->find($id);
+        next unless defined $fleet;
         my $pattern = '%s (speed: %s, stealth: %s, hold size: %s, berth: %s, combat: %s)' ;
-        push @{$scratch},
+        push @{$item_arr}, 
             sprintf($pattern,
-                $ship->type_formatted,
-                commify($ship->speed),
-                commify($ship->stealth),
-                commify($ship->hold_size),
-                commify($ship->berth_level),
-                commify($ship->combat));
+                $fleet->type_formatted,
+                commify($fleet->speed),
+                commify($fleet->stealth),
+                commify($fleet->hold_size),
+                commify($fleet->berth_level),
+                commify($fleet->combat),
+            );
     }
-    push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
 
     #fleets
     undef $scratch;

@@ -12,7 +12,8 @@ __PACKAGE__->add_columns(
     date_offered            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     body_id                 => { data_type => 'int', is_nullable => 0 },
     transfer_type           => { data_type => 'varchar', size => 16, is_nullable => 0 }, # zone | transporter
-    ship_id                 => { data_type => 'int', is_nullable => 1 },
+    ship_id                 => { data_type => 'int', is_nullable => 1 }, # TODO Delete after netx release
+    fleet_id                => { data_type => 'int', is_nullable => 1 },
     ask                     => { data_type => 'float', size => [11,1], is_nullable => 0},
     payload                 => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
     offer_cargo_space_needed=> { data_type => 'int', default_value => 0 },
@@ -33,7 +34,8 @@ __PACKAGE__->add_columns(
 );
 
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
-__PACKAGE__->belongs_to('ship', 'Lacuna::DB::Result::Ships', 'ship_id');
+__PACKAGE__->belongs_to('ship', 'Lacuna::DB::Result::Ships', 'ship_id'); # TODO Delete after next release
+__PACKAGE__->belongs_to('fleet', 'Lacuna::DB::Result::Fleet', 'fleet_id');
 
 sub sqlt_deploy_hook {
     my ($self, $sqlt_table) = @_;
@@ -51,9 +53,9 @@ sub withdraw {
     my ($self, $body) = @_;
     $body ||= $self->body;
     $self->unload($body);
-    if ($self->ship_id) {
-        my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($self->ship_id);
-        $ship->land->update if defined $ship;
+    if ($self->fleet_id) {
+        my $fleet = Lacuna->db->resultset('Fleet')->find($self->fleet_id);
+        $fleet->land->update if defined $fleet;
     }
     elsif ($self->transfer_type eq 'transporter') {
         # Note, we  refund 'free' to stop people essentia-laundering 'free' into 'game'

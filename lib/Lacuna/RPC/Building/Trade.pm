@@ -342,141 +342,121 @@ sub create_supply_chain {
 }
 
 
-#------------------------------------------------------------------------------
+sub get_trade_fleets {
+    my $self = shift;
+    my $args = shift;
 
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            target_id       => shift,
+        };
+    }
 
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    if (not defined $building) {
+        confess [1002, "You must specify a building."];
+    }
+    if ($building->level < 1) {
+        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
+    }
 
-
-
-
-
-sub get_trade_ships {
-    my ($self, $session_id, $building_id, $target_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id) if $target_id;
-    my @ships;
-    my $ships = $building->trade_ships;
-    while (my $ship = $ships->next) {
-
-        push @ships, $ship->get_status($target);
+    my $target = Lacuna->db->resultset('Map::Body')->find($args->{target_id}) if $args->{target_id};
+    my @fleets;
+    my $fleets = $building->trade_fleets;
+    while (my $fleet = $fleets->next) {
+        push @fleets, $fleet->get_status($target);
     }
     return {
         status      => $self->format_status($empire, $building->body),
-        ships       => \@ships,
+        fleets      => \@ships,
     };
 }
 
-sub remove_supply_ship_from_fleet {
-    my ($self, $session_id, $building_id, $ship_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    unless (defined $building) {
-        confess [1002, "Building not found."];
+sub get_waste_fleets {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+        };
     }
 
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    unless (defined $ship) {
-        confess [1002, "Ship not found."];
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    if (not defined $building) {
+        confess [1002, "You must specify a building."];
     }
-    unless ($ship->task eq 'Supply Chain') {
-        confess [1009, "That ship is not in a Supply Chain."];
-    }
-    unless ($ship->body_id eq $building->body_id) {
-        confess [1013, "You can't manage a ship that is not yours."];
+    if ($building->level < 1) {
+        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
     }
 
-    my $supply_chain = $building->supply_chains->search({})->first;
-    if (defined $supply_chain) {
-        my $from = $supply_chain->target;
-        $building->send_supply_ship_home($from, $ship);
-    }
-    else {
-        $ship->land->update;
-    }
-    return {
-        status  => $self->format_status($session, $building->body),
-    };
-}
-
-sub remove_waste_ship_from_fleet {
-    my ($self, $session_id, $building_id, $ship_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    unless (defined $building) {
-        confess [1002, "Building not found."];
-    }
-
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    unless (defined $ship) {
-        confess [1002, "Ship not found."];
-    }
-    unless ($ship->task eq 'Waste Chain') {
-        confess [1009, "That ship is not in a Waste Chain."];
-    }
-    unless ($ship->body_id eq $building->body_id) {
-        confess [1013, "You can't manage a ship that is not yours."];
-    }
-
-    my $waste_chain = $building->waste_chains->search({})->first;
-    if (defined $waste_chain) {
-        my $from = $building->body->star;
-        $building->send_waste_ship_home($from, $ship);
-    }
-    else {
-        $ship->land->update;
-    }
-    return {
-        status  => $self->format_status($session, $building->body),
-    };
-}
-
-sub get_supply_ships {
-    my ($self, $session_id, $building_id) = @_;
-
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-
-    my @ships;
-    my $ships       = $building->all_supply_ships;
-    while (my $ship = $ships->next) {
-        push @ships, $ship->get_status;
-    }
-    return {
-        status      => $self->format_status($session, $building->body),
-        ships       => \@ships,
-    };
-}
-
-sub get_waste_ships {
-    my ($self, $session_id, $building_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    my $body        = $building->body;
     # get the local star
-    my $target      = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($body->star_id);
-    my @ships;
-    my $ships       = $building->all_waste_ships;
-    while (my $ship = $ships->next) {
-        push @ships, $ship->get_status($target);
+    my $target      = Lacuna->db->resultset('Map::Star')->find($building->body->star_id);
+    my @fleets;
+    my $fleets      = $building->all_waste_ships;
+    while (my $fleet = $fleets->next) {
+        push @fleets, $fleet->get_status($target);
     }
     return {
-        status      => $self->format_status($session, $building->body),
-        ships       => \@ships,
+        status      => $self->format_status($empire, $building->body),
+        fleets      => \@fleets,
+    };
+}
+
+sub get_supply_fleets {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    if (not defined $building) {
+        confess [1002, "You must specify a building."];
+    }
+    if ($building->level < 1) {
+        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
+    }
+
+    my @fleets;
+    my $fleets      = $building->all_supply_fleets;
+    while (my $fleet = $fleets->next) {
+        push @fleets, $fleet->get_status;
+    }
+    return {
+        status      => $self->format_status($empire, $building->body),
+        fleets      => \@fleets,
     };
 }
 
 sub view_supply_chains {
-    my ($self, $session_id, $building_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    unless ($building) {
-        confess [1002, "Cannot find that building."];
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    if (not defined $building) {
+        confess [1002, "You must specify a building."];
+    }
+    if ($building->level < 1) {
+        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
     }
 
     my $max_chains = $building->effective_level * 3;
@@ -492,12 +472,26 @@ sub view_supply_chains {
     };
 }
 
-
 sub view_waste_chains {
-    my ($self, $session_id, $building_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    if (not defined $building) {
+        confess [1002, "You must specify a building."];
+    }
+    if ($building->level < 1) {
+        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
+    }
+
     my @waste_chains;
     my $chains      = $building->waste_chains;
     while (my $waste_push = $chains->next) {
@@ -510,17 +504,31 @@ sub view_waste_chains {
 }
 
 sub delete_supply_chain {
-    my ($self, $session_id, $building_id, $supply_chain_id) = @_;
+    my $self = shift;
+    my $args = shift;
 
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            supply_chain_id => shift,
+        };
+    }
 
-    my $chain = Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->find($supply_chain_id);
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    if (not defined $building) {
+        confess [1002, "You must specify a building."];
+    }
+    if ($building->level < 1) {
+        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
+    }
+
+    my $chain = Lacuna->db->resultset('SupplyChain')->find($args->{supply_chain_id});
     if ($chain) {
         $building->remove_supply_chain($chain);
     }
-    return $self->view_supply_chains($session_id, $building_id);    
+    return $self->view_supply_chains($session_id, $building_id);
 }
 
 sub create_supply_chain {
@@ -580,26 +588,43 @@ sub create_supply_chain {
 }
 
 sub update_supply_chain {
-    my ($self, $session_id, $building_id, $supply_chain_id, $resource_type, $resource_hour) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    my $body        = $building->body;
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            supply_chain_id => shift,
+            resource_type   => shift,
+            resource_hour   => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    my $supply_chain_id = $args->{supply_chain_id};
+    my $chain       = $building->supply_chains->find($supply_chain_id);
+    unless ($chain) {
+        confess [1002, "That Supply Chain does not exist on this planet."];
+    }
+    my $resource_type   = defined $args->{resource_type} ? $args->{resource_type} : $chain->resource_type;
+    my $resource_hour   = defined $args->{resource_hour} ? $args->{resource_hour} : $chain->resource_hour;
+
+    if (not defined $building) {
+        confess [1002, "You must specify a building."];
+    }
+    if ($building->level < 1) {
+        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
+    }
     unless ($supply_chain_id) {
         confess [1002, "You must specify a supply chain id."];
-    }
-    unless (defined $resource_hour) {
-        confess [1002, "You must specify an amount for resource_hour."];
     }
     unless ($resource_hour >= 0) {
         confess [1002, "Resource per Hour must be positive or zero."];
     }
     unless (first {$resource_type eq $_} (FOOD_TYPES, ORE_TYPES, qw(water waste energy))) {
         confess [1002, "That is not a valid resource_type."];
-    }
-    my $chain       = $building->supply_chains->find($supply_chain_id);
-    unless ($chain) {
-        confess [1002, "That Supply Chain does not exist on this planet."];
     }
     $chain->resource_hour(int($resource_hour));
     $chain->resource_type($resource_type);
@@ -610,25 +635,42 @@ sub update_supply_chain {
 }
 
 sub update_waste_chain {
-    my ($self, $session_id, $building_id, $waste_chain_id, $waste_hour) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    my $body        = $building->body;
-    unless ($waste_chain_id) {
-        confess [1002, "You must specify a waste chain id."];
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            waste_chain_id  => shift,
+            waste_hour      => shift,
+        };
     }
-    unless (defined $waste_hour && length $waste_hour) {
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    if (not defined $building) {
+        confess [1002, "You must specify a building."];
+    }
+    if ($building->level < 1) {
+        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
+    }
+
+    my $waste_chain_id = $args->{waste_chain_id};
+    my $waste_hour  = $args->{waste_hour};
+
+    my $chain       = $building->waste_chains->find($waste_chain_id);
+    unless ($chain) {
+        confess [1002, "That Waste Chain does not exist on this planet."];
+    }
+
+    unless (defined $waste_hour) {
         confess [1002, "You must specify an amount for waste_hour."];
     }
     unless ($waste_hour >= 0) {
         confess [1002, "Waste per Hour must be positive or zero."];
     }
 
-    my $chain       = $building->waste_chains->find($waste_chain_id);
-    unless ($chain) {
-        confess [1002, "That Waste Chain does not exist on this planet."];
-    }
     $chain->waste_hour(int($waste_hour));
     $chain->update;
     $building->recalc_waste_production;
@@ -636,13 +678,131 @@ sub update_waste_chain {
     return $self->view_waste_chains($session_id, $building_id);
 }
 
+sub remove_supply_fleet {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            fleet_id        => shift,
+            quantity        => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    if (not defined $building) {
+        confess [1002, "You must specify a building."];
+    }
+    if ($building->level < 1) {
+        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
+    }
+
+    my $fleet       = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
+    unless (defined $fleet) {
+        confess [1002, "Fleet not found."];
+    }
+    my $quantity    = defined $args->{quantity} ? $args->{quantity} : $fleet->quantity;
+
+    unless ($fleet->task eq 'Supply Chain') {
+        confess [1009, "That fleet is not in a Supply Chain."];
+    }
+    unless ($fleet->body_id eq $building->body_id) {
+        confess [1013, "You can't manage a fleet that is not yours."];
+    }
+
+    my $supply_chain = $building->supply_chains->search({},{rows => 1})->single;
+
+    $fleet = $fleet->split($quantity);
+
+    if (defined $supply_chain) {
+        my $from = $supply_chain->target;
+        $building->send_supply_fleet_home($from, $fleet);
+    }
+    else {
+        $fleet->land->update;
+    }
+    return $self->view_supply_chains($session_id, $building_id);
+}
+
+sub remove_waste_fleet {
+    my $self = shift;
+    my $args = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            fleet_id        => shift,
+            quantity        => shift,
+        };
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    if (not defined $building) {
+        confess [1002, "You must specify a building."];
+    }
+    if ($building->level < 1) {
+        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
+    }
+
+    my $fleet       = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
+    unless (defined $fleet) {
+        confess [1002, "Fleet not found."];
+    }
+    my $quantity    = defined $args->{quantity} ? $args->{quantity} : $fleet->quantity;
+
+    unless ($fleet->task eq 'Waste Chain') {
+        confess [1009, "That fleet is not in a Waste Chain."];
+    }
+    unless ($fleet->body_id eq $building->body_id) {
+        confess [1013, "You can't manage a fleet that is not yours."];
+    }
+
+    $fleet = $fleet->split($quantity);
+
+    my $waste_chain = $building->waste_chains->search({},{rows => 1})->single;
+
+    if (defined $waste_chain) {
+        my $from = $building->body->star;
+        $building->send_waste_fleet_home($from, $ship);
+    }
+    else {
+        $fleet->land->update;
+    }
+    return $self->view_waste_chains($session_id, $building_id);
+}
+
+
+#------------------------------------------------------------------------------
+#
+#
+#
+#
+
 
 sub push_items {
-    my ($self, $session_id, $building_id, $target_id, $items, $options) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->effective_level > 0;
+    my ($self, $args) = @_;
+
+    if (ref($args) ne "HASH") {
+        confess [1000,"Must call push_items with a hash ref"];
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+    if (not defined $building) {
+        confess [1002, "You must specify a building."];
+    }
+    if ($building->level < 1) {
+        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
+    }
+
+    # Target
+    my $target = $self->find_target($args->{target});
+
     my $cache = Lacuna->cache;
     if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
         confess [1013, 'You have a trade setup in progress.  Please wait a few moments and try again.'];
@@ -650,13 +810,7 @@ sub push_items {
     my $guard = guard {
         $cache->delete('trade_add_lock',$building_id);
     };
-    unless ($target_id) {
-        confess [1002, "You must specify a target body id."];
-    }
-    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id);
-    if (not defined $target) {
-        confess [1002, 'The target body you specified could not be found.'];
-    }
+
     if ($target->class eq 'Lacuna::DB::Result::Map::Body::Planet::Station') {
         my $planet = $building->body;
         if ($target->alliance_id == $empire->alliance_id) {
@@ -682,10 +836,12 @@ sub push_items {
             confess [1010, 'You cannot push items to a planet that is not your own.'];
         }
     }
-    my $ship = $building->push_items($target, $items, $options);
+
+    my $fleet = $building->push_items($target, $items, $args->{fleet});
+
     return {
-        status      => $self->format_status($session, $building->body),
-        ship        => $ship->get_status,
+        status      => $self->format_status($empire, $building->body),
+        fleet       => $fleet->get_status,
     };
 }
 
