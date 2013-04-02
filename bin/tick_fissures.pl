@@ -295,6 +295,10 @@ for my $body_id (sort keys %has_fissures) {
                 last GASSY if (++$grown >= 5);
             }
 
+            if ($body->in_neutral_area) {
+                out("Skipping damage to other planets because origin in Neutral Area.");
+                next;
+            }
             # Damage planets in range (damage depends upon distance from the event)
             # get 10 closest planets
             my $closest = Lacuna->db->resultset('Map::Body')->search({

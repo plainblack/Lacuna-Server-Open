@@ -137,6 +137,7 @@ sub training_costs {
                 mayhem         => $spy->mayhem_xp,
                 politics       => $spy->politics_xp,
                 theft          => $spy->theft_xp,
+                task           => $spy->task,  # Should only be Idle or Counter Espionage
                 based_from     => {
                     body_id => $spy->from_body_id,
                     name    => $spy->from_body->name,

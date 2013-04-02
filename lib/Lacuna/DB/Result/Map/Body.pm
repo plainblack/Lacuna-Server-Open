@@ -318,6 +318,21 @@ sub get_a_building {
     return $building;
 }
 
+sub get_status_lite {
+    my ($self) = @_;
+
+    my %out = (
+        name            => $self->name,
+        image           => $self->image_name,
+        x               => $self->x,
+        y               => $self->y,
+        orbit           => $self->orbit,
+        size            => $self->size,
+        id              => $self->id,
+    );
+    return \%out;
+}
+
 sub get_status {
     my ($self) = @_;
     my %out = (

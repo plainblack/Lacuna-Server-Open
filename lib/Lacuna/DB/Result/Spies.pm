@@ -2543,21 +2543,24 @@ sub shut_down_building {
         grep {
             ($_->efficiency > 0) and (
               $_->class eq 'Lacuna::DB::Result::Building::Archaeology' or
-              $_->class eq 'Lacuna::DB::Result::Building::Shipyard' or
-              $_->class eq 'Lacuna::DB::Result::Building::Park' or
-              $_->class eq 'Lacuna::DB::Result::Building::Waste::Recycling' or
               $_->class eq 'Lacuna::DB::Result::Building::Development' or
+              $_->class eq 'Lacuna::DB::Result::Building::Embassy' or
+              $_->class eq 'Lacuna::DB::Result::Building::EntertainmentDistrict' or
               $_->class eq 'Lacuna::DB::Result::Building::Intelligence' or
               $_->class eq 'Lacuna::DB::Result::Building::Observatory' or
+              $_->class eq 'Lacuna::DB::Result::Building::Park' or
               $_->class eq 'Lacuna::DB::Result::Building::SAW' or
+              $_->class eq 'Lacuna::DB::Result::Building::Shipyard' or
+              $_->class eq 'Lacuna::DB::Result::Building::SpacePort' or
+              $_->class eq 'Lacuna::DB::Result::Building::ThemePark' or
               $_->class eq 'Lacuna::DB::Result::Building::Trade' or
               $_->class eq 'Lacuna::DB::Result::Building::Transporter' or
+              $_->class eq 'Lacuna::DB::Result::Building::Waste::Recycling' or
               $_->class eq 'Lacuna::DB::Result::Building::Module::ArtMuseum' or
               $_->class eq 'Lacuna::DB::Result::Building::Module::CulinaryInstitute' or
               $_->class eq 'Lacuna::DB::Result::Building::Module::OperaHouse' or
               $_->class eq 'Lacuna::DB::Result::Building::Module::IBS' or
-              $_->class eq 'Lacuna::DB::Result::Building::Module::Warehouse' or
-              $_->class eq 'Lacuna::DB::Result::Building::DeployedBleeder')
+              $_->class eq 'Lacuna::DB::Result::Building::Module::Warehouse' )
             }
             @{$self->on_body->building_cache};
 
