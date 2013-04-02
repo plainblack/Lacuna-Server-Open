@@ -1648,6 +1648,9 @@ sub steal_planet {
               ->search({body_id => $self->on_body_id})
               ->update({empire_id => $self->empire_id, alliance_id => $self->empire->alliance_id});
 
+    if ($self->empire_id < 1) {
+        $self->unhappy_date(DateTime->now);
+    }
     $self->on_body->empire_id($self->empire_id);
     $self->on_body->add_happiness(int(abs($planet_happiness) / 10));
     $self->on_body->update;
