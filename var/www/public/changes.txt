@@ -6,6 +6,7 @@
  - Mod: If a plan is available, build time is reduced 25%. 0.75 final build time after other modifications.
  - Fix: Supply chain targets were not being recalculated on removal and would only happen after some ticks.
  - Add: Lottery winning email mentions zone you won in.
+ - Mod: When flipping AI planets, unhappiness date is reset.
 
 3.0884:
  - Fix: Bug when upgrading Glyph buildings, but with no hall plans
