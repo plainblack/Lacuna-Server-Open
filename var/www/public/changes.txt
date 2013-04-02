@@ -4,6 +4,7 @@
  - Add: Spy task returned from training query.  (Should only Idle or Counter Espionage).
  - Fix: Junk buildings cost waste to build again.
  - Mod: If a plan is available, build time is reduced 25%. 0.75 final build time after other modifications.
+ - Fix: Supply chain targets were not being recalculated on removal.
 
 3.0884:
  - Fix: Bug when upgrading Glyph buildings, but with no hall plans
