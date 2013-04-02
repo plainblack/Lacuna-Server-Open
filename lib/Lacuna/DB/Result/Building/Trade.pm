@@ -208,8 +208,11 @@ sub remove_supply_chain {
             $self->send_supply_ship_home($supply_chain->target, $ship);
         }
     }
+    my $target = $supply_chain->target;
     $supply_chain->delete;
     $self->recalc_supply_production;
+    $target->needs_recalc(1);
+    $target->update;
     return $self;
 }
 
