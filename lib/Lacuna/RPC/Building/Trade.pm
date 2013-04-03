@@ -499,7 +499,8 @@ sub accept_from_market {
         from_reason => 'Trade Price',
         to_empire   => $trade->body->empire,
         to_reason   => 'Trade Income',
-    })->update;
+    });
+    $empire->update;
 
     $offer_ship->send(
         target  => $body,
