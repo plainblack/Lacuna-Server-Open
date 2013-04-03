@@ -76,7 +76,7 @@ The unique ID of the ship you want to add to the fleet.
 =head3 quantity (optional)
 
 Only available in the named argument call method. The number of ships to put on duty.
-Defaults to 1 ship.
+Defaults to all ships in the fleet.
 
 =head3 RESPONSE
 
@@ -109,7 +109,7 @@ The unique ID of the ship you want to add to the fleet.
 =head3 quantity (optional)
 
 Only available in the named argument call method. The number of ships to put on duty.
-Defaults to 1 ship.
+Defaults to all ships in a fleet.
 
 =head3 RESPONSE
 
@@ -119,16 +119,9 @@ Returns the same as C<view>
 
 =head2 add_to_market
 
-Adds a trade to the market for others to see. This now only takes named arguments.
-
-The fixed argument method is no longer supported.
-
- {
-
-
 Accepts either fixed arguments or a hash of named parameters
 
- ( session_id, building_id, offer, ask, options )
+ ( session_id, building_id, offer, ask, fleet_id )
  ( parameter_hash )
 
 =head3 session_id (required)
@@ -284,7 +277,7 @@ Must be exactly C<fleet>.
 
 =item fleet_id
 
-The unique id of the fleet that you want to trade. See the C<get_fleets> method for a list of your fleets.
+The unique id of the fleet that you want to trade. See the C<get_tradeable_fleets> method for a list of your fleets.
 
 =item quantity
 
@@ -298,20 +291,14 @@ The number of ships in the fleet to offer in trade.
 
 A number representing the amount of essentia you are asking for this trade. Must be a number between 0.1 and 99.9.
 
-=head3 options (optional)
-
-A hash reference of options to modify the trade.
-
-=over
-
-=item fleet_id
+=head3 fleet_id (optional)
 
 The ID of the fleet you want to use to transport this trade. See C<get_trade_fleets> for details.
 
 If you don't specify a fleet_id then it will take the first available fleet for the trade.
 
 The quantity of ships to send will be based on the number of ships in the fleet and the cargo capacity
-of each ship in the fleet.
+of each ship in the fleet. You do not need to specify this, it will be calculated for you.
 
 =back
 
@@ -332,7 +319,7 @@ the supply chains.
 
 Accepts either fixed arguments or a hash of named parameters
 
- ( session_id, building_id, target_id resource_type resource_hour )
+ ( session_id, building_id, target resource_type resource_hour )
  ( parameter_hash )
 
 =head3 session_id (required)
@@ -366,7 +353,7 @@ The amount of the resource you want to transfer each hour.
 Returns the same as the call to B<view_supply_chains>
 
 
-=head2 get_fleets
+=head2 get_tradeable_fleets
 
 Accepts either fixed arguments or a hash of named parameters
 
@@ -691,13 +678,13 @@ A Session ID.
 
 The unique ID of the Trade Ministry.
 
-=head3 target_body_id
+=head3 target_body_id (optional)
 
 The unique id of the body you'll be shipping to. Optional. If included it will calculate the estimated travel time of the fleets to this body.
 
 =head3 RESPONSE
 
-Returns a list of the fleets that could be used to do a trade.
+Returns a list of the fleets that could be used to transport a trade.
 
  {
    "status" : { ... },
@@ -1269,7 +1256,7 @@ The unique id of the spy that you want to push. See the C<get_prisoners> method 
 The hash reference for fleets looks like:
 
  {
-   "type"       : "ship",
+   "type"       : "fleet",
    "fleet_id"   : "id-goes-here",
    "quantity"   : 23,
  }
@@ -1280,9 +1267,9 @@ The hash reference for fleets looks like:
 
 Must be exactly C<fleet>.
 
-=item ship_id
+=item fleet_id
 
-The unique id of the fleet that you want to push. See the C<get_fleets> method for a list of your fleets.
+The unique id of the fleet that you want to push. See the C<get_tradeable_fleets> method for a list of your fleets.
 
 =back
 
