@@ -1653,6 +1653,7 @@ sub steal_planet {
     }
     $self->on_body->empire_id($self->empire_id);
     $self->on_body->add_happiness(int(abs($planet_happiness) / 10));
+    $self->on_body->needs_recalc(1);
     $self->on_body->update;
     return $self->empire->send_predefined_message(
           tags        => ['Intelligence'],
