@@ -158,8 +158,6 @@ sub add_fleet_to_supply_duty {
 }
 
 sub remove_waste_fleet {
-    my ($self, 
-sub send_waste_ship_home {
     my ($self, $star, $ship) = @_;
     $ship->send(
         target      => $star,
@@ -425,7 +423,7 @@ sub push_items {
     }
 
     my $space_used;
-    ($space_used, $items) = $self->check_payload($items, $ship->hold_size, undef, $ship);
+    ($space_used, $items) = $self->check_payload($items, $fleet->hold_size, undef, $fleet);
     $self->check_payload_fleet_size($items, $target, $fleet_options->{stay});
 
     my ($payload, $meta) = $self->structure_payload($items, $space_used);

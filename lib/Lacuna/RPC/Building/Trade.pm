@@ -376,7 +376,7 @@ sub get_trade_fleets {
     }
     return {
         status      => $self->format_status($empire, $building->body),
-        fleets      => \@ships,
+        fleets      => \@fleets,
     };
 }
 
@@ -533,7 +533,7 @@ sub delete_supply_chain {
     if ($chain) {
         $building->remove_supply_chain($chain);
     }
-    return $self->view_supply_chains($session_id, $building_id);
+    return $self->view_supply_chains($args->{session_id}, $args->{building_id});
 }
 
 sub create_supply_chain {
@@ -636,7 +636,7 @@ sub update_supply_chain {
     $chain->update;
     $building->recalc_supply_production;
 
-    return $self->view_supply_chains($session_id, $building_id);
+    return $self->view_supply_chains($args->{session_id}, $args->{building_id});
 }
 
 sub update_waste_chain {
@@ -680,7 +680,7 @@ sub update_waste_chain {
     $chain->update;
     $building->recalc_waste_production;
 
-    return $self->view_waste_chains($session_id, $building_id);
+    return $self->view_waste_chains($args->{session_id}, $args->{building_id});
 }
 
 sub remove_supply_fleet {
@@ -729,7 +729,7 @@ sub remove_supply_fleet {
     else {
         $fleet->land->update;
     }
-    return $self->view_supply_chains($session_id, $building_id);
+    return $self->view_supply_chains($args->{session_id}, $args->{building_id});
 }
 
 sub remove_waste_fleet {
@@ -773,12 +773,12 @@ sub remove_waste_fleet {
 
     if (defined $waste_chain) {
         my $from = $building->body->star;
-        $building->send_waste_fleet_home($from, $ship);
+        $building->send_waste_fleet_home($from, $fleet);
     }
     else {
         $fleet->land->update;
     }
-    return $self->view_waste_chains($session_id, $building_id);
+    return $self->view_waste_chains($args->{session_id}, $args->{building_id});
 }
 
 
@@ -798,6 +798,9 @@ sub push_items {
 
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
+    my $building_id = $building->id;
+    my $items       = $args->{items};
+
     if (not defined $building) {
         confess [1002, "You must specify a building."];
     }
