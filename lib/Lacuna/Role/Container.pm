@@ -114,7 +114,7 @@ sub format_description_of_payload {
     
     # ships
     my $fleets = Lacuna->db->resultset('Fleet');
-    foreach my $fleet (@{$payload->{ships}}) {
+    foreach my $id (@{$payload->{fleets}}) {
         my $fleet = $fleets->find($id);
         next unless defined $fleet;
         my $pattern = '%s (speed: %s, stealth: %s, hold size: %s, berth: %s, combat: %s)' ;
