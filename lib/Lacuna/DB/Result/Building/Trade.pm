@@ -316,8 +316,8 @@ before 'can_downgrade' => sub {
 };
 
 sub add_to_market {
-    my ($self, $offer, $ask, $options, $internal_options) = @_;
-    my $ship = $self->next_available_trade_ship($options->{ship_id});
+    my ($self, $offer, $ask, $fleet_id, $internal_options) = @_;
+    my $ship = $self->next_available_trade_ship($fleet_id);
     unless (defined $ship) {
         confess [1011, "You do not have any ships available that can carry trade goods."];
     }
@@ -408,7 +408,7 @@ sub trade_fleets {
 sub next_available_trade_fleet {
     my ($self, $fleet_id) = @_;
     if ($fleet_id) {
-        return $self->trade_ships->find($fleet_id);
+        return $self->trade_fleets->find($fleet_id);
     }
     else {
         return $self->trade_fleets->search(undef, {rows => 1})->single;

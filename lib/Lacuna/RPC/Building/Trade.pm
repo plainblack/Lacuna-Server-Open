@@ -153,7 +153,6 @@ sub add_fleet_to_supply_duty {
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
     my $fleet_id    = $args->{fleet_id};
-    my $quantity    = $args->{quantity} || 1;
 
     if (not defined $building) {
 >>>>>>> Started to modify Trade Ministry for fleets
@@ -175,6 +174,8 @@ sub add_fleet_to_supply_duty {
     if (not first {$fleet->type eq $_} (SHIP_TRADE_TYPES)) {
         confess [1009, 'You can only add transport ships to a supply chain.'];
     }
+    my $quantity = $args->{quantity} || $fleet->quantity;
+
     my $max_berth = $building->body->max_berth;
 
     if ($fleet->berth_level > $max_berth) {
@@ -203,7 +204,6 @@ sub add_fleet_to_waste_duty {
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
     my $fleet_id    = $args->{fleet_id};
-    my $quantity    = $args->{quantity} || 1;
 
     if (not defined $building) {
         confess [1002, "Building not found."];
@@ -224,6 +224,8 @@ sub add_fleet_to_waste_duty {
     if ($fleet->type !~ m/^scow/) {
         confess [1009, 'You can only add scows to a supply chain.'];
     }
+    my $quantity = $args->{quantity} || $fleet->quantity;
+
     my $max_berth = $building->body->max_berth;
 
     if ($fleet->berth_level > $max_berth) {
@@ -246,7 +248,7 @@ sub add_to_market {
             building_id     => shift,
             offer           => shift,
             ask             => shift,
-            options         => shift,
+            fleet_id        => shift,
         };
     }
 
@@ -262,7 +264,7 @@ sub add_to_market {
     my $guard = guard {
         $cache->delete('trade_add_lock',$building->id);
     };
-    my $trade = $building->add_to_market($args->{offer}, $args->{ask}, $args->{options});
+    my $trade = $building->add_to_market($args->{offer}, $args->{ask}, $args->{fleet_id});
     return {
         trade_id    => $trade->id,
         status      => $self->format_status($empire, $building->body),
@@ -319,6 +321,8 @@ sub create_supply_chain {
     }
 
     # Target must be own empire or an allies
+    # TODO Allow supply chains to other empires?
+    #
     if ($target->empire_id != $empire->id) {
         if ($target->alliance_id != $empire->alliance_id) {
             confess [1002, "You can only target one of your own or an allies colony or Space Station."];
@@ -341,7 +345,8 @@ sub create_supply_chain {
     return $self->view_supply_chains($args->{session_id}, $building->id);
 }
 
-
+# Get fleets that are available to transport a trade
+#
 sub get_trade_fleets {
     my $self = shift;
     my $args = shift;
