@@ -2355,7 +2355,8 @@ sub steal_glyph {
     $ship->body($self->from_body);
     my $glyph = random_element(\@glyphs);
     my $glyphs_q = $glyph->quantity;
-    my $glyphs_stolen = $self->level > ($glyphs_q/10) ? ($glyphs_q/10) : randint($self->level, $glyphs_q/10);
+    return $self->mission_objective_not_found('glyph')->id unless $glyphs_q > 0;
+    my $glyphs_stolen = $self->level > ($glyphs_q/10) ? int($glyphs_q/10)+1 : randint($self->level, int($glyphs_q/10));
     weaken($ship->{_relationship_data}{body});
     $ship->send(
         target      => $self->on_body,
