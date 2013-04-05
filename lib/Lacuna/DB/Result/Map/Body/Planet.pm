@@ -365,6 +365,32 @@ sub get_food_status {
     return $out;
 }
 
+around get_status_lite => sub {
+    my ($orig, $self, $empire) = @_;
+
+    my $out = $self->$orig;
+
+    if ($self->empire_id) {
+        $out->{empire} = {
+            name            => $self->empire->name,
+            id              => $self->empire_id,
+            alignment       => $self->empire->is_isolationist ? 'hostile-isolationist' : 'hostile',
+            is_isolationist => $self->empire->is_isolationist,
+        };
+        if (defined $empire) {
+            if ($empire->id eq $self->empire_id or (
+                $self->isa('Lacuna::DB::Result::Map::Body::Planet::Station') and
+                $empire->alliance_id and $self->empire->alliance_id == $empire->alliance_id )) {
+                $out->{empire}{alignment} = 'self',
+            }
+            elsif ($empire->alliance_id and $self->empire->alliance_id == $empire->alliance_id) {
+                $out->{empire}{alignment} = $self->empire->is_isolationist ? 'ally-isolationist' : 'ally';
+            }
+        }
+    }
+    return $out;
+};
+
 around get_status => sub {
     my ($orig, $self, $empire) = @_;
 

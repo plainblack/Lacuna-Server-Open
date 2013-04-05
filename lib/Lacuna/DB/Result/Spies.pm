@@ -1648,8 +1648,12 @@ sub steal_planet {
               ->search({body_id => $self->on_body_id})
               ->update({empire_id => $self->empire_id, alliance_id => $self->empire->alliance_id});
 
+    if ($self->on_body->empire_id < 1) {
+        $self->on_body->unhappy_date(DateTime->now);
+    }
     $self->on_body->empire_id($self->empire_id);
     $self->on_body->add_happiness(int(abs($planet_happiness) / 10));
+    $self->on_body->needs_recalc(1);
     $self->on_body->update;
     return $self->empire->send_predefined_message(
           tags        => ['Intelligence'],
@@ -2351,7 +2355,8 @@ sub steal_glyph {
     $ship->body($self->from_body);
     my $glyph = random_element(\@glyphs);
     my $glyphs_q = $glyph->quantity;
-    my $glyphs_stolen = $self->level > ($glyphs_q/10) ? ($glyphs_q/10) : randint($self->level, $glyphs_q/10);
+    return $self->mission_objective_not_found('glyph')->id unless $glyphs_q > 0;
+    my $glyphs_stolen = $self->level > ($glyphs_q/10) ? int($glyphs_q/10)+1 : randint($self->level, int($glyphs_q/10));
     weaken($ship->{_relationship_data}{body});
     $ship->send(
         target      => $self->on_body,
@@ -2543,21 +2548,24 @@ sub shut_down_building {
         grep {
             ($_->efficiency > 0) and (
               $_->class eq 'Lacuna::DB::Result::Building::Archaeology' or
-              $_->class eq 'Lacuna::DB::Result::Building::Shipyard' or
-              $_->class eq 'Lacuna::DB::Result::Building::Park' or
-              $_->class eq 'Lacuna::DB::Result::Building::Waste::Recycling' or
               $_->class eq 'Lacuna::DB::Result::Building::Development' or
+              $_->class eq 'Lacuna::DB::Result::Building::Embassy' or
+              $_->class eq 'Lacuna::DB::Result::Building::EntertainmentDistrict' or
               $_->class eq 'Lacuna::DB::Result::Building::Intelligence' or
               $_->class eq 'Lacuna::DB::Result::Building::Observatory' or
+              $_->class eq 'Lacuna::DB::Result::Building::Park' or
               $_->class eq 'Lacuna::DB::Result::Building::SAW' or
+              $_->class eq 'Lacuna::DB::Result::Building::Shipyard' or
+              $_->class eq 'Lacuna::DB::Result::Building::SpacePort' or
+              $_->class eq 'Lacuna::DB::Result::Building::ThemePark' or
               $_->class eq 'Lacuna::DB::Result::Building::Trade' or
               $_->class eq 'Lacuna::DB::Result::Building::Transporter' or
+              $_->class eq 'Lacuna::DB::Result::Building::Waste::Recycling' or
               $_->class eq 'Lacuna::DB::Result::Building::Module::ArtMuseum' or
               $_->class eq 'Lacuna::DB::Result::Building::Module::CulinaryInstitute' or
               $_->class eq 'Lacuna::DB::Result::Building::Module::OperaHouse' or
               $_->class eq 'Lacuna::DB::Result::Building::Module::IBS' or
-              $_->class eq 'Lacuna::DB::Result::Building::Module::Warehouse' or
-              $_->class eq 'Lacuna::DB::Result::Building::DeployedBleeder')
+              $_->class eq 'Lacuna::DB::Result::Building::Module::Warehouse' )
             }
             @{$self->on_body->building_cache};
 

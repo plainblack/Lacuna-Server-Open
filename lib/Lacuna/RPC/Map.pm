@@ -6,6 +6,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
 use Lacuna::Verify;
 use Lacuna::Constants qw(ORE_TYPES);
+use List::Util qw(max min);
 
 sub check_star_for_incoming_probe {
     my ($self, $session_id, $star_id) = @_;
@@ -19,6 +20,50 @@ sub check_star_for_incoming_probe {
     return {
         status  => $self->format_status($empire),
         incoming_probe  => $date,
+    };
+}
+
+sub get_star_map {
+    my ($self, $args) = @_;
+
+    my $map_size = Lacuna->config->get('map_size');
+
+    foreach my $bound (qw(top left right bottom)) {
+        confess [1002, 'co-ordinates must be integers'] if $args->{$bound} != int($args->{$bound});
+    }
+    foreach my $bound (qw(left right)) {
+        $args->{$bound} = max($args->{$bound}, $map_size->{x}[0]);
+        $args->{$bound} = min($args->{$bound}, $map_size->{x}[1]);
+    }
+    foreach my $bound (qw(top bottom)) {
+        $args->{$bound} = max($args->{$bound}, $map_size->{y}[0]);
+        $args->{$bound} = min($args->{$bound}, $map_size->{y}[1]);
+    }
+    if ($args->{left} > $args->{right}) {
+        my $temp = $args->{right};
+        $args->{right} = $args->{left};
+        $args->{left} = $temp;
+    }
+    if ($args->{top} < $args->{bottom}) {
+        my $temp = $args->{bottom};
+        $args->{bottom} = $args->{top};
+        $args->{top} = $temp;
+    }
+    if ((abs($args->{top} - $args->{bottom}) * abs($args->{right} - $args->{left})) > 1001) {
+        confess [1003, 'Requested area larger than 1001.'];
+    }
+    my $empire = $self->get_empire_by_session($args->{session_id});
+    my $stars = Lacuna->db->resultset('Map::Star')->search({
+        x => {between => [$args->{left}, $args->{right}]},
+        y => {between => [$args->{bottom}, $args->{top}]},
+    });
+    my @out;
+    while (my $star = $stars->next) {
+        push @out, $star->get_status_lite($empire);
+    }
+    return { 
+        stars   => \@out,
+        status  => $self->format_status($empire),
     };
 }
 
@@ -83,7 +128,16 @@ sub search_stars {
     return { stars => \@out , status => $self->format_status($empire) };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(get_stars get_star_by_name get_star get_star_by_xy search_stars check_star_for_incoming_probe));
+__PACKAGE__->register_rpc_method_names(qw(
+    get_star_map
+    get_body_status
+    get_stars 
+    get_star_by_name
+    get_star 
+    get_star_by_xy 
+    search_stars 
+    check_star_for_incoming_probe
+));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

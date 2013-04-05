@@ -416,7 +416,8 @@ sub buy_trade {
             from_reason => 'Trade Price',
             to_empire   => $trade->body->empire,
             to_reason   => 'Trade Income',
-        })->update;
+        });
+        $self->empire->update;
        
         $offer_ship->send(
             target  => $colony,

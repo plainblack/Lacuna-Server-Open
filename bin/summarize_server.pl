@@ -181,7 +181,7 @@ sub rank_colonies {
     out('Ranking Colonies');
     my $colonies = $db->resultset('Lacuna::DB::Result::Log::Colony');
     foreach my $field (qw(population)) {
-        my $ranked = $colonies->search(undef, {order_by => {-desc => $field}});
+        my $ranked = $colonies->search(undef, {order_by => [ {-desc => $field}, 'rand()']});
         my $counter = 1;
         while (my $colony = $ranked->next) {
             $colony->update({$field.'_rank' => $counter++});
@@ -193,7 +193,7 @@ sub rank_empires {
     out('Ranking Empires');
     my $empires = $db->resultset('Lacuna::DB::Result::Log::Empire');
     foreach my $field (qw(empire_size university_level offense_success_rate defense_success_rate dirtiest)) {
-        my $ranked = $empires->search(undef, {order_by => {-desc => $field}});
+        my $ranked = $empires->search(undef, {order_by => [ {-desc => $field}, 'rand()']});
         my $counter = 1;
         while (my $empire = $ranked->next) {
             $empire->update({$field.'_rank' => $counter++});
@@ -205,7 +205,7 @@ sub rank_alliances {
     out('Ranking Alliances');
     my $alliances = $db->resultset('Lacuna::DB::Result::Log::Alliance');
     foreach my $field (qw(influence population space_station_count average_empire_size offense_success_rate defense_success_rate dirtiest)) {
-        my $ranked = $alliances->search(undef, {order_by => {-desc => $field}});
+        my $ranked = $alliances->search(undef, {order_by => [{-desc => $field},'rand()']});
         my $counter = 1;
         while (my $alliance = $ranked->next) {
             $alliance->update({$field.'_rank' => $counter++});

@@ -117,6 +117,17 @@
  - KNOWN BUGS:
    - bug: Fleet format currently shows 'Foreign' for all fleets
 
+3.0885:
+ - Mod: Star-view is now using a 'lite' API call so should be a little more responsive
+ - Fix: Spies disabling buildings have more targets, but not bleeders.
+ - Fix: Fissure implosions originating in Neutral Area do no damage.
+ - Add: Spy task returned from training query.  (Should only be Idle or Counter Espionage).
+ - Fix: Junk buildings cost waste to build again.
+ - Mod: If a plan is available, build time is reduced 25%. 0.75 final build time after other modifications.
+ - Fix: Supply chain targets were not being recalculated on removal and would only happen after some ticks.
+ - Add: Lottery winning email mentions zone you won in.
+ - Mod: When flipping AI planets, unhappiness date is reset.
+ - Fix: Force recalc on insurrection to make sure plot count is updated.
 
 3.0884:
  - Fix: Bug when upgrading Glyph buildings, but with no hall plans

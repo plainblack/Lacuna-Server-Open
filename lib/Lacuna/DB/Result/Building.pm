@@ -740,8 +740,17 @@ sub cost_to_upgrade {
     my $upgrade_cost = $self->upgrade_cost;
     my $upgrade_cost_reduction = $self->construction_cost_reduction_bonus;
     my $plan = $self->body->get_plan($self->class, $self->level + 1);
+    my $build_with_halls = 0;
+    my $time_with_plan   = 1;
+    if ($self->build_with_halls) {
+        if ($self->level > 0) {
+            $build_with_halls = 1;
+        }
+    }
     if (defined $plan) { 
         $upgrade_cost_reduction = 0;
+        $build_with_halls = 0;
+        $time_with_plan   = 0.75;
     }
     my $oversight_reduction = 1;
     if (defined $self->body->oversight) {
@@ -750,11 +759,13 @@ sub cost_to_upgrade {
     my $time_inflator = ($self->level * 2) - 1;
     $time_inflator = 1 if ($time_inflator < 1);
     my $throttle = Lacuna->config->get('building_build_speed') || 6;
-    my $time_cost = (($self->level+1)/$throttle * $self->time_to_build * $time_inflator ** INFLATION) * $self->building_reduction_bonus * $self->time_cost_reduction_bonus * $oversight_reduction;
+    my $time_cost = (( $self->level+1)/$throttle * $self->time_to_build * $time_inflator ** INFLATION) *
+                       $self->building_reduction_bonus * $self->time_cost_reduction_bonus *
+                       $oversight_reduction * $time_with_plan;
     $time_cost = 5184000 if ($time_cost > 5184000); # 60 Days
     $time_cost = 15 if ($time_cost < 15);
 
-    if ($self->build_with_halls) {
+    if ($build_with_halls) {
         return {
             halls   => $self->level + 1,
             time    => sprintf('%.0f',$time_cost),

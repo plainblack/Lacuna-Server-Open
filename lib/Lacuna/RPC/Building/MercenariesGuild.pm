@@ -102,6 +102,7 @@ sub accept_from_market {
             to_empire   => $trade->body->empire,
             to_reason   => 'Mercenary Income',
         });
+        $empire->update;
     }
     
     $offer_ship->send(

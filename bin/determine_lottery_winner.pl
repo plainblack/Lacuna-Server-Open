@@ -40,6 +40,7 @@ X: foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('
                 $empire->send_predefined_message(
                     tags        => ['Alert'],
                     filename    => 'we_won_the_lottery.txt',
+                    params      => [ $zone ],
                 );
                 $news->new({
                     headline    => sprintf('And the winning numbers are...'.randint(10,99).', '.randint(10,99).', and '.randint(10,99).'...%s has won today\'s lottery!', $empire->name),

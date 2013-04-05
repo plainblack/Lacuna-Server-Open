@@ -19,6 +19,19 @@ sub get_status {
     return $self->format_status($empire, $body);
 }
 
+sub get_body_status {
+    my ($self, $args) = @_;
+
+    my $empire = $self->get_empire_by_session($args->{session_id});
+    my $body = Lacuna->db->resultset('Map::Body')->find($args->{body_id});
+    confess [1000, 'Cannot find that body.'] unless $body;
+
+    return {
+        body    => $body->get_status,
+        status  => $self->format_status($empire),
+    };
+}
+
 sub abandon {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -444,7 +457,7 @@ sub get_buildable {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(abandon rename get_buildings get_buildable get_status rearrange_buildings));
+__PACKAGE__->register_rpc_method_names(qw(abandon rename get_buildings get_buildable get_status get_body_status rearrange_buildings));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

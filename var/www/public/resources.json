@@ -261,13 +261,13 @@
     "writ_templates" : [
         { "title" : "Non-Agression Mandate", "description" : "Planets in this jurisdiction may not attack anyone inside the jurisdiction." },
         { "title" : "No Munitions", "description" : "Planets in this jurisdiction, except for members of ______ alliance are not allowed to build a Munitions Lab. If you are found with one the penalty shall be _______." },
-        { "title" : "No Operatives", "description" : "Planets in this jurisdiction, except for members of ______ alliance are not allowed to build a Espionage Ministry. If you are found with one the penalty shall be _______." },
+        { "title" : "No Operatives", "description" : "Planets in this jurisdiction, except for members of ______ alliance are not allowed to build an Espionage Ministry. If you are found with one the penalty shall be _______." },
         { "title" : "Defense Mandate", "description" : "Planets in this jurisdiction are required to come to the aid of the other planets in this jurisdiction when under attack from both foreign and domestic enemies." },
-        { "title" : "Confederacy with ______", "description" : "_______ alliance declares a mutual conferation with _______ alliance." },
+        { "title" : "Confederacy with ______", "description" : "_______ alliance declares a mutual confederation with _______ alliance." },
         { "title" : "NAP with ______", "description" : "_______ alliance declares a non-aggression pact with _______ alliance." },
         { "title" : "Declaration of War", "description" : "_______ alliance declares war on ______ alliance. All citizens in this jurisdiction are required to supply the war effort with all available ships, operatives, and aid packages." },
-        { "title" : "Centure of ______", "description" : "We, the members of _______ alliance, hereby declare a formal repremand of _______ for __________________." },
-        { "title" : "Glyph Heresy", "description" : "_______ alliance hereby denounces the existence of the Great Race. Anyone in our jurisdiction found using glyph technology shall be treated cruely and without mercy." }
+        { "title" : "Censure of ______", "description" : "We, the members of _______ alliance, hereby declare a formal reprimand of _______ for __________________." },
+        { "title" : "Glyph Heresy", "description" : "_______ alliance hereby denounces the existence of the Great Race. Anyone in our jurisdiction found using glyph technology shall be treated cruelly and without mercy." }
     ]
 }
 
