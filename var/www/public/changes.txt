@@ -1,6 +1,7 @@
 3.0886:
  - Fix: Better error if trying to build ships at damaged shipyards
  - Fix: Correct display of planet type code letters if starmap planet images are turned off
+ - Fix: Stupid typo fix on seizure.
 
 3.0885:
  - Mod: Star-view is now using a 'lite' API call so should be a little more responsive
