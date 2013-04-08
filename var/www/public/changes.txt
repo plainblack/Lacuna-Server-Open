@@ -1,3 +1,7 @@
+3.0887:
+ - Fix: Fissures no longer cost happiness to downgrade.
+ - Fix: Fissures can not be upgraded.
+
 3.0886:
  - Fix: Better error if trying to build ships at damaged shipyards
  - Fix: Correct display of planet type code letters if starmap planet images are turned off
