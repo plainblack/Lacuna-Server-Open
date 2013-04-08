@@ -13,7 +13,7 @@ sub check_star_for_incoming_probe {
     my $empire = $self->get_empire_by_session($session_id);
     my $date = 0;
     my @bodies = $empire->planets->get_column('id')->all;
-    my $incoming = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({foreign_star_id=>$star_id, task=>'Travelling', type=>'probe', body_id => {in => \@bodies }}, {rows=>1})->single;
+    my $incoming = Lacuna->db->resultset('Ships')->search({foreign_star_id=>$star_id, task=>'Travelling', type=>'probe', body_id => {in => \@bodies }}, {rows=>1})->single;
     if (defined $incoming) {
         $date = $incoming->date_available_formatted;
     }
@@ -76,7 +76,7 @@ sub get_stars {
         confess [1003, 'Requested area too large.'];
     }
     my $empire = $self->get_empire_by_session($session_id);
-    my $stars = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({y=> {between => [$starty, $endy]}, x=>{between => [$startx, $endx]}});
+    my $stars = Lacuna->db->resultset('Map::Star')->search({y=> {between => [$starty, $endy]}, x=>{between => [$startx, $endx]}});
     my @out;
     while (my $star = $stars->next) {
         push @out, $star->get_status($empire);
@@ -87,7 +87,7 @@ sub get_stars {
 sub get_star {
     my ($self, $session_id, $star_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id);
+    my $star = Lacuna->db->resultset('Map::Star')->find($star_id);
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
     }
@@ -97,7 +97,7 @@ sub get_star {
 sub get_star_by_name {
     my ($self, $session_id, $star_name) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({name => $star_name}, {rows=>1})->single;
+    my $star = Lacuna->db->resultset('Map::Star')->search({name => $star_name}, {rows=>1})->single;
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
     }
@@ -107,7 +107,7 @@ sub get_star_by_name {
 sub get_star_by_xy {
     my ($self, $session_id, $x, $y) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({x=>$x, y=>$y}, {rows=>1})->single;
+    my $star = Lacuna->db->resultset('Map::Star')->search({x=>$x, y=>$y}, {rows=>1})->single;
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
     }
@@ -121,12 +121,41 @@ sub search_stars {
     }
     my $empire = $self->get_empire_by_session($session_id);
     my @out;
-    my $stars = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({name => { like => $name.'%' }},{rows => 25});
+    my $stars = Lacuna->db->resultset('Map::Star')->search({name => { like => $name.'%' }},{rows => 25});
     while (my $star = $stars->next) {
         push @out, $star->get_status; # planet data left out on purpose
     }
     return { stars => \@out , status => $self->format_status($empire) };
 }
+
+sub probe_summary_fissures {
+    my ($self, $args) = @_;
+
+    my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $zone    = $args->{zone};
+    unless (defined $zone) {
+        confess [1009, "You must specify a zone."];
+    }
+    my $fissure_rs = Lacuna->db->resultset('Building')->search({
+            'me.class'          => 'Lacuna::DB::Result::Building::Permanent::Fissure',
+            'star.zone'         => $zone,
+            'probes.alliance_id' => $empire->alliance_id,
+        },{
+            prefetch    => [
+                { body => { star => 'probes'} },
+            ]
+        }
+    );
+    my @fissures;
+    while (my $fissure = $fissure_rs->next) {
+        my $row = {
+            id => $fissure->id,
+        };
+        push @fissures, $row;
+    }
+    return { fissures => \@fissures};
+}
+
 
 __PACKAGE__->register_rpc_method_names(qw(
     get_star_map
@@ -137,6 +166,7 @@ __PACKAGE__->register_rpc_method_names(qw(
     get_star_by_xy 
     search_stars 
     check_star_for_incoming_probe
+    probe_summary_fissures
 ));
 
 no Moose;

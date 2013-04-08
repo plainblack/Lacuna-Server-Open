@@ -58,6 +58,7 @@ Returns a chunk of the map as an array of hashes.
            "orbit"  : 1,
            "x"      : -40,
            "y"      : 29,
+           "type"   : "habitable planet",
            "image"  : "p13",
            "size"   : 58,
            "empire" {
@@ -68,13 +69,14 @@ Returns a chunk of the map as an array of hashes.
            }
          },
          {
-           "name"   : "Venus",
+           "name"   : "Vesta",
            "id"     : 346,
            "orbit"  : 2,
            "x"      : -39,
            "y"      : 28,
+           "type"   : "asteroid",
            "image"  : "p33",
-           "size"   : 34
+           "size"   : 3
          },
          ...
        ]
@@ -343,6 +345,59 @@ A session id.
 
 A partial name of a star. Case insensitive. Must be at least 3 characters.
 
+
+=head2 probe_summary_fissures
+
+Obtain a summary of all bodies with fissures, known to yours, or your alliances probes within a specified zone.
+
+This takes named arguments only
+
+ {
+   "session_id" : "1234-0A34-333F-21",
+   "zone"       : "0|0",
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 zone
+
+A string defining the zone, e.g "-1|0", "5|-5" or "0|0"
+
+=head3 RESPONSE
+
+ {
+   "fissures" : [
+     {
+       {
+         "name"   : "Mercury",
+         "id"     : 345,
+         "orbit"  : 1,
+         "x"      : -40,
+         "y"      : 29,
+         "type"   : "habitable planet",
+         "image"  : "p13",
+         "size"   : 58,
+         "empire" {
+           "id"     : 945,
+           "name"   : "Earthlings",
+           "alignment"  : "ally",
+           "is_isolationist" : 1
+         }
+       },
+     },
+     {
+       ...
+     }
+   ]
+ }
+     
+Brief information about each body in the zone which contains a fissure (or two) is returned in a list.
+
+If there are no fissures on any of the bodies which you have probed then an empty list is returned;
+
+If the body is occupied then enough information to identify the empire is returned.
 
 
 =head1 FAQ
