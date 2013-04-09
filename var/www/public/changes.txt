@@ -2,6 +2,7 @@
  - Fix: Fissures no longer cost happiness to downgrade.
  - Fix: Fissures can not be upgraded.
  - Fix: Turning rebels works.
+ - Mod: Fissure explosions are easier on GGs.
 
 3.0886:
  - Fix: Better error if trying to build ships at damaged shipyards
