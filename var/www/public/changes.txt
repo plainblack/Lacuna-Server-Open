@@ -1,6 +1,7 @@
 3.0887:
  - Fix: Fissures no longer cost happiness to downgrade.
  - Fix: Fissures can not be upgraded.
+ - Fix: Turning rebels works.
 
 3.0886:
  - Fix: Better error if trying to build ships at damaged shipyards

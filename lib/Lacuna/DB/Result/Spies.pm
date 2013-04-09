@@ -1841,10 +1841,19 @@ sub turn_defector {
 sub turn_rebel {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
+
     my $goodbye = $defender->turn_a_spy($self)->{'goodbye'};
-    $self->on_body->add_news(70,
+    if ($goodbye->{filename} eq 'none') {
+        $self->on_body->add_news(60,
+                             '%s has just taken early retirement from %s.',
+                             $self->name,
+                             $self->empire->name);
+    }
+    else {
+        $self->on_body->add_news(70,
                              'The %s Governor\'s call for peace appears to be working. Several rebels told this reporter they are going home.',
                              $self->on_body->name);
+    }
     return $defender->id;
 }
 
