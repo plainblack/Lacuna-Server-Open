@@ -671,6 +671,7 @@ sub www_view_glyphs {
         $out .= '<option value="'.$name.'">'.$name.'</option>';
     }
     $out .= '</select></td>';
+    $out .= '<td><input name="quantity" value="1" size="2"></td>';
     $out .= '<td><input type="submit" value="add glyph"></td>';
     $out .= '</tr></form>';
     $out .= '</table>';
@@ -683,7 +684,7 @@ sub www_add_glyph {
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
-    $body->add_glyph($request->param('type'));
+    $body->add_glyph($request->param('type'), $request->param('quantity'));
     return $self->www_view_glyphs($request, $body->id);
 }
 
