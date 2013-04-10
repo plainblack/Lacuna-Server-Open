@@ -70,7 +70,7 @@ has max_ships => (
             class       => $self->class, 
             body_id     => $self->body_id,
             efficiency  => 100,
-        } )->get_column('level')->sum ++ 0;
+        } )->get_column('level')->sum + 0;
     },
 );
 
