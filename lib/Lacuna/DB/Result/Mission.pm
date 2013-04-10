@@ -8,6 +8,7 @@ use UUID::Tiny ':std';
 use Config::JSON;
 use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
 use feature 'switch';
+use List::Util qw(sum);
 
 __PACKAGE__->table('mission');
 __PACKAGE__->add_columns(
@@ -323,7 +324,7 @@ sub check_objectives {
         foreach my $key (keys %$requirements) {
             my ($class,$level,$extra) = split('#', $key);
             # Get the lowest level/extra plan that meet the criteria
-            my ($plan) = sort {
+            my @plan = sort {
                     $a->level               <=> $b->level
                 ||  $a->extra_build_level   <=> $b->extra_build_level
                 }
@@ -332,7 +333,7 @@ sub check_objectives {
                 and $_->level               >= $level
                 and $_->extra_build_level   >= $extra
             } @{$body->plan_cache};
-            if (not defined $plan or $requirements->{$key} > $plan->quantity) {
+            if (not @plan or $requirements->{$key} > sum(map {$_->quantity} @plan)) {
                 confess [1013, 'You do not have the '.$class->name.' plan needed to complete this mission.'];
             }
         }
