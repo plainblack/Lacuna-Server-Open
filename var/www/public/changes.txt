@@ -3,6 +3,7 @@
  - Fix: Fissures can not be upgraded.
  - Fix: Turning rebels works.
  - Mod: Fissure explosions are easier on GGs.
+ - Fix: Plans for missions can be taken from multiple buckets.
 
 3.0886:
  - Fix: Better error if trying to build ships at damaged shipyards
