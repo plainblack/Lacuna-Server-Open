@@ -694,7 +694,7 @@ sub www_delete_glyph {
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
-    $body->glyphs->find($request->param('glyph_id'))->delete;
+    $body->glyph->find($request->param('glyph_id'))->delete;
     return $self->www_view_glyphs($request, $body->id);
 }
 

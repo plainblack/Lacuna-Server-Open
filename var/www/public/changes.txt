@@ -4,6 +4,7 @@
  - Fix: Turning rebels works.
  - Mod: Fissure explosions are easier on GGs.
  - Fix: Plans for missions can be taken from multiple buckets.
+ - Fix: Admin glyph adding and deletion works.
 
 3.0886:
  - Fix: Better error if trying to build ships at damaged shipyards
