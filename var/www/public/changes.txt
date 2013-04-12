@@ -8,6 +8,7 @@
  - Mod: Fissure explosions are easier on GGs.
  - Fix: Plans for missions can be taken from multiple buckets.
  - Fix: Admin glyph adding and deletion works.
+ - Mod: Plans when being taken for missions, go by the equivalent hall cost.
 
 3.0886:
  - Fix: Better error if trying to build ships at damaged shipyards
