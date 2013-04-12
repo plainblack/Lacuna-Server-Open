@@ -357,47 +357,40 @@ This takes named arguments only
    "zone"       : "0|0",
  }
 
-=head3 session_id
+=head3 session_id (required)
 
 A session id.
 
-=head3 zone
+=head3 zone (optional)
 
 A string defining the zone, e.g "-1|0", "5|-5" or "0|0"
+
+If not specified, all zones are searched.
 
 =head3 RESPONSE
 
  {
-   "fissures" : [
-     {
-       {
-         "name"   : "Mercury",
-         "id"     : 345,
-         "orbit"  : 1,
-         "x"      : -40,
-         "y"      : 29,
-         "type"   : "habitable planet",
-         "image"  : "p13",
-         "size"   : 58,
-         "empire" {
-           "id"     : 945,
-           "name"   : "Earthlings",
-           "alignment"  : "ally",
-           "is_isolationist" : 1
-         }
-       },
-     },
-     {
+   "fissures" : {
+     "345" : {
+       "name"   : "Mercury",
+       "id"     : 345,
+       "orbit"  : 1,
+       "x"      : -40,
+       "y"      : 29,
+       "type"   : "habitable planet",
+       "image"  : "p13",
+       "size"   : 58,
+      },
+    "735" : {
        ...
-     }
-   ]
+      }
+    }
  }
      
-Brief information about each body in the zone which contains a fissure (or two) is returned in a list.
+This returns a hash of body-ids and for each one a brief description of the body on which is at least
+one fissure;
 
 If there are no fissures on any of the bodies which you have probed then an empty list is returned;
-
-If the body is occupied then enough information to identify the empire is returned.
 
 
 =head1 FAQ

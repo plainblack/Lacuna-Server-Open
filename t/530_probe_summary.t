@@ -17,6 +17,6 @@ my $empire      = $tester->empire;
 my $home        = $empire->home_planet;
 
 
-$result = $tester->post('map', 'probe_summary_fissures', [{session_id => $session_id, zone => '0|0'}]);
+$result = $tester->post('map', 'probe_summary_fissures', [{session_id => $session_id}]);
 
 

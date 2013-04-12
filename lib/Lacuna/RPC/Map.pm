@@ -53,14 +53,9 @@ sub get_star_map {
         confess [1003, 'Requested area larger than 1001.'];
     }
     my $empire = $self->get_empire_by_session($args->{session_id});
-    my $stars = Lacuna->db->resultset('Map::Star')->search({
-        x => {between => [$args->{left}, $args->{right}]},
-        y => {between => [$args->{bottom}, $args->{top}]},
-    });
-    my @out;
-    while (my $star = $stars->next) {
-        push @out, $star->get_status_lite($empire);
-    }
+    my $alliance_id = $empire->alliance_id || 0;
+
+    my @out = Lacuna->db->resultset('Map::StarLite')->get_star_map( $alliance_id, $empire->id, $args->{left}, $args->{right}, $args->{bottom}, $args->{top} );
     return { 
         stars   => \@out,
         status  => $self->format_status($empire),
@@ -133,27 +128,34 @@ sub probe_summary_fissures {
 
     my $empire  = $self->get_empire_by_session($args->{session_id});
     my $zone    = $args->{zone};
-    unless (defined $zone) {
-        confess [1009, "You must specify a zone."];
-    }
     my $fissure_rs = Lacuna->db->resultset('Building')->search({
             'me.class'          => 'Lacuna::DB::Result::Building::Permanent::Fissure',
-            'star.zone'         => $zone,
-            'probes.alliance_id' => $empire->alliance_id,
         },{
             prefetch    => [
                 { body => { star => 'probes'} },
             ]
         }
     );
-    my @fissures;
-    while (my $fissure = $fissure_rs->next) {
-        my $row = {
-            id => $fissure->id,
-        };
-        push @fissures, $row;
+    if ($args->{zone}) {
+        $fissure_rs = $fissure_rs->search({
+            'star.zone' => $args->{zone},
+        });
     }
-    return { fissures => \@fissures};
+    if ($empire->alliance_id) {
+        $fissure_rs = $fissure_rs->search({
+            'probes.alliance_id' => $empire->alliance_id,
+        });
+    }
+    else {
+        $fissure_rs = $fissure_rs->search({
+            'probes.empire_id' => $empire->id,
+        });
+    }
+    my $fissures;
+    while (my $fissure = $fissure_rs->next) {
+        $fissures->{$fissure->body_id} = $fissure->body->get_status_lite;
+    }
+    return { fissures => $fissures};
 }
 
 
