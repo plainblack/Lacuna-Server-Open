@@ -57,6 +57,16 @@ http {
             root   /data/Lacuna-Assets;
             index  README.txt;
         }
+        location ^~ /starmap/ {
+            root   /data/Lacuna-Server/var/www/public;
+            index  index.html;
+        }
+
+        location /starmap.json {
+            proxy_set_header Authorization "";
+            proxy_pass http://s3.amazonaws.com/pt.SERVERNAME.com/starmap.json;
+        }
+
         location ^~ /captcha/ {
             root   /data/Lacuna-Captcha/public;
             rewrite ^/captcha/(.*)$ /$1 break;
@@ -64,7 +74,7 @@ http {
 
         location /server_overview.json {
             proxy_set_header Authorization "";
-            proxy_pass http://s3.amazonaws.com/pt.lacunaexpanse.com/server_overview.json;
+            proxy_pass http://s3.amazonaws.com/pt.SERVERNAME.com/server_overview.json;
         }
 
         location ~ /.* {
