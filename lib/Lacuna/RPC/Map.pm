@@ -55,11 +55,10 @@ sub get_star_map {
     my $empire = $self->get_empire_by_session($args->{session_id});
     my $alliance_id = $empire->alliance_id || 0;
 
-    my @out = Lacuna->db->resultset('Map::StarLite')->get_star_map( $alliance_id, $empire->id, $args->{left}, $args->{right}, $args->{bottom}, $args->{top} );
-    return { 
-        stars   => \@out,
-        status  => $self->format_status($empire),
-    };
+    my $out = Lacuna->db->resultset('Map::StarLite')->get_star_map( $alliance_id, $empire->id, $args->{left}, $args->{right}, $args->{bottom}, $args->{top} );
+    $out->{status} = $self->format_status($empire);
+
+    return $out;
 }
 
 sub get_stars {

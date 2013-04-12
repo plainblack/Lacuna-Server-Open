@@ -77,7 +77,7 @@ __PACKAGE__->result_source_instance->view_definition(q[
 sub body_image {
     my ($self) = @_;
 
-    my ($image) = $self->body_class =~ m/:(\d+)$/;
+    my ($image) = $self->body_class =~ m/:(\w+)$/;
     $image =~ s/G/pg/;
     $image =~ s/P/p/;
     $image =~ s/A/a/;

@@ -46,7 +46,7 @@ sub get_star_map {
             push @{$star->{bodies}}, $body;
         }
     }
-    push @out, $star;
+    push @out, $star if defined $star;
 
     return {
         stars => \@out,
