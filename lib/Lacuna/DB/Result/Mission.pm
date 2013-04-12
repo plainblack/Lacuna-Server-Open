@@ -204,8 +204,7 @@ sub spend_objectives {
         foreach my $plan (@{$objectives->{plans}}) {
             # Get the lowest level/extra plan that meet the criteria
             my ($plan) = sort {
-                        $a->level               <=> $b->level
-                    ||  $a->extra_build_level   <=> $b->extra_build_level
+                        equivalent_halls($a) <=> equivalent_halls($b)
                     }
                 grep {
                     $_->class               eq $plan->{classname}
@@ -215,6 +214,18 @@ sub spend_objectives {
             $body->delete_one_plan($plan);
         }
     }
+}
+
+# Think consolidating this and Dillon Forge into DB::Plan
+sub equivalent_halls {
+    my ($plan) = @_;
+
+    my $arg_k   = int($plan->extra_build_level / 2 + 0.5);
+    my $arg_l   = $plan->level * 2 + $plan->extra_build_level;
+    my $arg_m   = ($plan->extra_build_level % 2) ? 0 : $plan->level + $plan->extra_build_level / 2;
+    my $halls   = $arg_k * $arg_l + $arg_m;
+
+    return $halls;
 }
 
 sub check_objectives {
