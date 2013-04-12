@@ -1,4 +1,7 @@
 3.0887:
+ - Mod: Star-view should now be a little more responsive again
+ - Mod: get_star_map now includes alliance details for seized stars
+ - Mod: get_star_map now has a 'fissure' flag to indicate planets with fissures
  - Fix: Fissures no longer cost happiness to downgrade.
  - Fix: Fissures can not be upgraded.
  - Fix: Turning rebels works.
