@@ -49,8 +49,8 @@ sub get_star_map {
         $args->{bottom} = $args->{top};
         $args->{top} = $temp;
     }
-    if ((abs($args->{top} - $args->{bottom}) * abs($args->{right} - $args->{left})) > 1001) {
-        confess [1003, 'Requested area larger than 1001.'];
+    if ((abs($args->{top} - $args->{bottom}) * abs($args->{right} - $args->{left})) > 3001) {
+        confess [1003, 'Requested area larger than 3001.'];
     }
     my $empire = $self->get_empire_by_session($args->{session_id});
     my $alliance_id = $empire->alliance_id || 0;
