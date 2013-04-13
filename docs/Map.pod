@@ -49,6 +49,7 @@ Returns a chunk of the map as an array of hashes.
          "alliance" : {
            "name"     : "The Borg Collective",
            "id"       : 23,
+           "image"    : 'my_logo_v001',
          }
        }
        "bodies" : [
@@ -76,7 +77,8 @@ Returns a chunk of the map as an array of hashes.
            "y"      : 28,
            "type"   : "asteroid",
            "image"  : "p33",
-           "size"   : 3
+           "size"   : 3,
+           "body_has_fissure"  : 1,
          },
          ...
        ]
