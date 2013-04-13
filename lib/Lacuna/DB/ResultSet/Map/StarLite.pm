@@ -3,7 +3,7 @@ package Lacuna::DB::ResultSet::Map::StarLite;
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
-use Lacuna;
+#use Lacuna;
 
 extends 'Lacuna::DB::ResultSet';
 
