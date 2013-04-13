@@ -9,9 +9,9 @@ use Lacuna::Constants qw(SHIP_TYPES);
 sub credits {
     return [
             { 'Game Design'         => ['JT Smith','Jamie Vrbsky']},
-            { 'Web Client'          => ['John Rozeske','Graham Knop','Matthew Musgrove','vaelxon (Spy Training GUI)']},
+            { 'Web Client'          => ['John Rozeske','Graham Knop','Matthew Musgrove','vaelxon (Spy Training GUI)', 'Nathan McCallum (The New Vasari Collective)']},
             { 'iPhone Client'       => ['Kevin Runde','RedOrion']},
-            { 'Game Server'         => ['JT Smith','Graham Knop','Matthew Musgrove','Iain C Docherty (icydee)', 'Mark Lemming (Norway)', '(fireartist)', '(Winton-Akagane)', '(Ysthane)', 'Nathan McCallum (The New Vasari Collective)']},
+            { 'Game Server'         => ['JT Smith','Graham Knop','Matthew Musgrove','Iain C Docherty (icydee)', 'Mark Lemming (Norway)', '(fireartist)', '(Winton-Akagane)', '(Ysthane)']},
             { 'Art and Icons'       => ['Ryan Knope','JT Smith','Joseph Wain / glyphish.com','Keegan Runde']},
             { 'Geology Consultant'  => ['Geofuels, LLC / geofuelsllc.com']},
             { 'Play Testers'         => ['John Oettinger','Jamie Vrbsky','Mike Kastern','Chris Burr','Eric Patterson','Frank Dillon','Kristi McCombs','Ryan McCombs','Mike Helfman','Tavis Parker','Sarah Bownds','Rob Dicke','Gemma Blair','Bev Smith','Mike Vrbsky']},
