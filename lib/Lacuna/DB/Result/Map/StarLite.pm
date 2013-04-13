@@ -70,9 +70,9 @@ __PACKAGE__->result_source_instance->view_definition(q[
       ON body.id = building.body_id 
       AND building.class='Lacuna::DB::Result::Building::Permanent::Fissure'
     WHERE star.x >= ?
-    AND star.x < ?
+    AND star.x <= ?
     AND star.y >= ?
-    AND star.y < ?
+    AND star.y <= ?
     ORDER BY star.id
 ]);
 # bind variables are alliance_id,empire_id,left,right,bottom,top
