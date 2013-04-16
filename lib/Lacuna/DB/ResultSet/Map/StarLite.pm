@@ -39,7 +39,7 @@ sub get_star_map {
         }
         if (defined $row->station_id) {
             my $station = $cache->get_and_deserialize('starlite_station',$row->station_id);
-#            if (not $station) {
+            if (not $station) {
                 my $station = {
                     id          => $row->station->id,
                     name        => $row->station->name,
@@ -53,7 +53,7 @@ sub get_star_map {
                 };
                 # set the expiry to 1hr
                 $cache->set('starlite_station',$row->station_id, $station, 60 * 60);
-#            }
+            }
             $star->{station} = $station;
         }
         if (defined $row->body_id) {
