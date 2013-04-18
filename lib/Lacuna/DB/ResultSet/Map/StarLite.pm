@@ -72,6 +72,8 @@ sub get_star_map {
                 my $alignment   = 'hostile';
                 $alignment      = 'ally' if $row->empire_alliance_id == $alliance_id;
                 $alignment      = 'self' if $row->empire_id == $empire_id;
+                $alignment .= '-isolationist' if $row->empire_is_isolationist;
+
                 my $empire = {
                     id              => $row->empire_id,
                     name            => $row->empire_name,

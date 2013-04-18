@@ -4,7 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
-use WWW::Firebase::TokenGenerate;
+use WWW::Firebase::TokenGenerator;
 
 sub get_token {
     my ($self, $session_id) = @_;
@@ -14,11 +14,11 @@ sub get_token {
     unless ($firebase_secret) {
         return { token => '', status => $self->format_status($empire)};
     }
-    my $token_generator = WWW::Firebase::TokenGenerate->new({
+    my $token_generator = WWW::Firebase::TokenGenerator->new({
         secret  => $firebase_secret,
+        admin   => $empire->is_admin,
+        debug   => Lacuna->config->get('firebase/debug'),
     });
-    $token_generator->admin(1) if $empire->is_admin;
-    $token_generator->debug(1) if Lacuna->config->get('firebase/debug');
     
     my $token = $token_generator->create_token({
         empire_id       => $empire->id,
