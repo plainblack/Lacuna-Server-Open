@@ -259,7 +259,7 @@
         "You can make a new planet your home planet by building a Capitol building."
     ],
     "writ_templates" : [
-        { "title" : "Non-Agression Mandate", "description" : "Planets in this jurisdiction may not attack anyone inside the jurisdiction." },
+        { "title" : "Non-Aggression Mandate", "description" : "Planets in this jurisdiction may not attack anyone inside the jurisdiction." },
         { "title" : "No Munitions", "description" : "Planets in this jurisdiction, except for members of ______ alliance are not allowed to build a Munitions Lab. If you are found with one the penalty shall be _______." },
         { "title" : "No Operatives", "description" : "Planets in this jurisdiction, except for members of ______ alliance are not allowed to build an Espionage Ministry. If you are found with one the penalty shall be _______." },
         { "title" : "Defense Mandate", "description" : "Planets in this jurisdiction are required to come to the aid of the other planets in this jurisdiction when under attack from both foreign and domestic enemies." },
