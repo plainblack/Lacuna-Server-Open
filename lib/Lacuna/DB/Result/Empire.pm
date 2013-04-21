@@ -112,8 +112,23 @@ __PACKAGE__->has_many('sent_messages',      'Lacuna::DB::Result::Message',      
 __PACKAGE__->has_many('received_messages',  'Lacuna::DB::Result::Message',      'to_id');
 __PACKAGE__->has_many('medals',             'Lacuna::DB::Result::Medals',       'empire_id');
 __PACKAGE__->has_many('all_probes',         'Lacuna::DB::Result::Probes',       'empire_id');
-__PACKAGE__->has_many('observatory_probes', 'Lacuna::DB::Result::Probes',       {'foreign.empire_id' => 'self.id' and 'self.virtual' => 0});
-__PACKAGE__->has_many('oracle_probes',      'Lacuna::DB::Result::Probes',       {'foreign.empire_id' => 'self.id' and 'self.virtual' => 1});
+
+
+sub observatory_probes {
+    my ($self,$args) = @_;
+
+    $args = {} unless defined $args;
+    $args->{virtual} = 0;
+    return $self->search($args);
+}
+
+sub oracle_probes {
+    my ($self,$args) = @_;
+
+    $args = {} unless defined $args;
+    $args->{virtual} = 1;
+    return $self->search($args);
+}
 
 sub self_destruct_date_formatted {
     my $self = shift;
@@ -914,7 +929,7 @@ has probed_stars => (
                 alliance_id => $self->alliance_id,
             );
         }
-        my @stars = Lacuna->db->resultset('Probes')->search_all(\%search)->get_column('star_id')->all;
+        my @stars = Lacuna->db->resultset('Probes')->search_any(\%search)->get_column('star_id')->all;
         return \@stars;
     },
 );
