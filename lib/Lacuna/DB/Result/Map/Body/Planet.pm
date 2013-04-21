@@ -726,6 +726,16 @@ has embassy => (
         },
         );    
 
+has oracle => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
+        return $building;
+    },
+);
+
 sub is_space_free {
     my ($self, $unclean_x, $unclean_y) = @_;
     my $x = int( $unclean_x );
@@ -917,8 +927,6 @@ sub builds {
 sub get_existing_build_queue_time {
     my $self = shift;
     my ($building) = @{$self->builds(1)};
-
-#print STDERR "GET_EXISTING_BUILD_QUEUE_TIME: building=[$building]\n";
 
     return (defined $building) ? $building->upgrade_ends : DateTime->now;
 }

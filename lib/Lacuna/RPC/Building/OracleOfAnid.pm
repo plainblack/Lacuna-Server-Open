@@ -21,13 +21,42 @@ sub get_star {
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
     }
-    unless ($building->body->calculate_distance_to_target($star) < $building->level * 1000) {
+    unless ($building->body->calculate_distance_to_target($star) < $building->range) {
         confess [1009, 'That star is too far away.'];
     }
     return { star=>$star->get_status($empire, 1), status=>$self->format_status($empire, $building->body) };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(get_star));
+sub get_probed_stars {
+    my ($self, $args) = @_;
+
+    my $page_number = $args->{page_number} || 1;
+    my $page_size   = $args->{page_size} || 25;
+
+    if ($page_size > 200) {
+        confess [1002, "Page size cannot exceed 200."];
+    }
+
+    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $building    = $self->get_building($empire, $args->{building_id});
+
+    my @stars;
+    my $probes = $building->probes->search(undef,{ rows => $page_size, page => $page_number });
+    while (my $probe = $probes->next) {
+        push @stars, $probe->star->get_status($empire);
+    }
+    return {
+        stars           => \@stars,
+        star_count      => $probes->pager->total_entries,
+        status          => $self->format_status($empire, $building->body),
+        max_distance    => $building->level * 10,
+    };
+}
+
+__PACKAGE__->register_rpc_method_names(qw(
+    get_star
+    get_probed_stars    
+));
 
 
 no Moose;
