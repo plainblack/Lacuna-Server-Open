@@ -1,3 +1,6 @@
+3.0888:
+ - Mod: Oracle now shows planets in star map if in range
+
 3.0887:
  - Mod: UI star map now shows alliance logos over seized stars
  - Mod: UI star map now shows fissure logo over planets with fissures on them

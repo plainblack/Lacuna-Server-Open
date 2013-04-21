@@ -253,7 +253,7 @@ $building->finish_upgrade;
 $home->tick;
 is($empire->tutorial_stage, 'explore', 'observatory');
 
-$empire->add_probe($home->star_id, $home->id);
+$empire->add_observatory_probe($home->star_id, $home->id);
 $home->tick;
 
 is($empire->tutorial_stage, 'the_end', 'explore');

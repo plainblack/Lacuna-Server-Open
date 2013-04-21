@@ -17,7 +17,7 @@ sub find {
         confess [1009, 'Empire name too short. Your search must be at least 3 characters.'];
     }
     my $empire = $self->get_empire_by_session($session_id);
-    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => {'like' => $name.'%'}}, {rows=>100});
+    my $empires = Lacuna->db->resultset('Empire')->search({name => {'like' => $name.'%'}}, {rows=>100});
     my @list_of_empires;
     my $limit = 100;
     while (my $empire = $empires->next) {
@@ -52,7 +52,7 @@ sub is_name_valid {
 
 sub is_name_unique {
     my ($self, $name) = @_;
-    if (Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->count) {
+    if (Lacuna->db->resultset('Empire')->search({name=>$name})->count) {
         confess [1000, 'Empire name is in use by another player.', 'name'];
     }
     return 1;
@@ -69,7 +69,7 @@ sub login {
     unless ($api_key) {
         confess [1002, 'You need an API Key.'];
     }
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->next;
+    my $empire = Lacuna->db->resultset('Empire')->search({name=>$name})->next;
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
     }
@@ -82,7 +82,7 @@ sub login {
     if ($empire->rpc_count > $max) {
         confess [1010, $empire->name.' has already made the maximum number of requests ('.$max.') you can make for one day.'];
     }
-    #Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
+    #Lacuna->db->resultset('Log::RPC')->new({
     #   empire_id    => $empire->id,
     #   empire_name  => $empire->name,
     #   module       => ref $self,
@@ -115,7 +115,7 @@ sub benchmark {
 
     my %out;
     my $t = [Time::HiRes::gettimeofday];
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->next;
+    my $empire = Lacuna->db->resultset('Empire')->search({name=>$name})->next;
     $out{empire} = Time::HiRes::tv_interval($t);
 
     $t = [Time::HiRes::gettimeofday];
@@ -157,7 +157,7 @@ sub benchmark {
 sub fetch_captcha {
     my ($self, $plack_request) = @_;
     my $ip = $plack_request->address;
-    my $captcha = Lacuna->db->resultset('Lacuna::DB::Result::Captcha')->find(randint(1,Lacuna->config->get('captcha/total')));
+    my $captcha = Lacuna->db->resultset('Captcha')->find(randint(1,Lacuna->config->get('captcha/total')));
     Lacuna->cache->set('create_empire_captcha', $ip, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 15 );
     return {
         guid    => $captcha->guid,
@@ -194,7 +194,7 @@ sub change_password {
 sub send_password_reset_message {
     my ($self, %options) = @_;
     my $empire;
-    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire');
+    my $empires = Lacuna->db->resultset('Empire');
     if (exists $options{empire_id} && $options{empire_id} ne '') {
         $empire = $empires->find($options{empire_id});
     }
@@ -231,7 +231,7 @@ sub reset_password {
     unless (defined $key && $key ne '') {
         confess [1002, 'You need a key to reset a password.'];
     }
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({password_recovery_key => $key}, { rows=>1 })->single;
+    my $empire = Lacuna->db->resultset('Empire')->search({password_recovery_key => $key}, { rows=>1 })->single;
     unless (defined $empire) {
         confess [1002, 'The key you provided is invalid. Password not reset.'];
     }
@@ -278,7 +278,7 @@ sub create {
     # verify username
     eval { $self->is_name_unique($account{name}) };
     if ($@) { # maybe they're trying to finish an incomplete empire
-        my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$account{name}})->next;
+        my $empire = Lacuna->db->resultset('Empire')->search({name=>$account{name}})->next;
         if (defined $empire) {
             if ($empire->stage eq 'new') {
                 if ($empire->is_password_valid($account{password})) {
@@ -303,14 +303,14 @@ sub create {
     if (exists $account{email} && $account{email} ne '') {
         Lacuna::Verify->new(content=>\$account{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
             ->is_email;
-        if (Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({email=>$account{email}})->count > 0) {
+        if (Lacuna->db->resultset('Empire')->search({email=>$account{email}})->count > 0) {
             confess [1005, 'That email address is already in use by another empire.', 'email'];
         }
         $params{email} = $account{email};
     }
 
     # create account
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new(\%params)->insert;
+    my $empire = Lacuna->db->resultset('Empire')->new(\%params)->insert;
     Lacuna->cache->increment('empires_created', format_date(undef,'%F'), 1, 60 * 60 * 26);
 
     # handle invitation
@@ -343,7 +343,7 @@ sub found {
     if ($empire_id eq '') {
         confess [1002, "You must specify an empire id."];
     }
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    my $empire = Lacuna->db->resultset('Empire')->find($empire_id);
     unless (defined $empire) {
         confess [1002, "Invalid empire.", $empire_id];
     }
@@ -591,7 +591,7 @@ sub edit_profile {
     if (exists $profile->{email} && $profile->{email} ne '') {
         Lacuna::Verify->new(content=>\$profile->{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
             ->is_email if ($profile->{email});
-        if (Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({email=>$profile->{email}, id=>{ '!=' => $empire->id}})->count > 0) {
+        if (Lacuna->db->resultset('Empire')->search({email=>$profile->{email}, id=>{ '!=' => $empire->id}})->count > 0) {
             confess [1005, 'That email address is already in use by another empire.', 'email'];
         }
         $empire->email($profile->{email});
@@ -635,7 +635,7 @@ sub set_status_message {
 sub view_public_profile {
     my ($self, $session_id, $empire_id) = @_;
     my $viewer_empire = $self->get_empire_by_session($session_id);
-    my $viewed_empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    my $viewed_empire = Lacuna->db->resultset('Empire')->find($empire_id);
     unless (defined $viewed_empire) {
         confess [1002, 'The empire you wish to view does not exist.', $empire_id];
     }
@@ -672,7 +672,7 @@ sub view_public_profile {
         };
     }
     my @colonies;
-    my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({empire_id => $viewer_empire->id});
+    my $probes = Lacuna->db->resultset('Probes')->search_any({empire_id => $viewer_empire->id});
     my $planets = $viewed_empire->planets->search(undef,{order_by => 'name'});
     while (my $colony = $planets->next) {
         if ($colony->id == $viewed_empire->home_planet_id || $probes->search({star_id=>$colony->star_id})->count) {
@@ -922,7 +922,7 @@ sub update_species {
     unless ($empire_id ne '') {
         confess [1002, "You must specify an empire id."];
     }
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    my $empire = Lacuna->db->resultset('Empire')->find($empire_id);
     unless (defined $empire) {
         confess [1002, "Not a valid empire.",'empire_id'];
     }

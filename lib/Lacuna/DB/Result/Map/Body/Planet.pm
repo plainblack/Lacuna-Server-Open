@@ -301,7 +301,8 @@ sub sanitize {
     Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->id})->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::Market')->search({body_id => $self->id})->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::MercenaryMarket')->search({body_id => $self->id})->delete_all;
-    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->id})->delete;
+    # We will delete all probes (observatory or oracle), note, must recreate oracle probes if the planet is recolonised
+    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search_any({body_id => $self->id})->delete;
     $self->empire_id(undef);
     if ($self->get_type eq 'habitable planet' &&
         $self->size >= 40 && $self->size <= 50 &&
