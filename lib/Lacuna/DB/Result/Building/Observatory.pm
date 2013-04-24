@@ -17,7 +17,7 @@ around 'build_tags' => sub {
 
 sub probes {
     my $self = shift;
-    return Lacuna->db->resultset('Probes')->search_observatory;
+    return Lacuna->db->resultset('Probes')->search_observatory( { body_id => $self->body->id } );
 }
 
 use constant controller_class => 'Lacuna::RPC::Building::Observatory';

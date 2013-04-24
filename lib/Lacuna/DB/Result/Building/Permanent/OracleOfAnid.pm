@@ -22,7 +22,7 @@ sub image_level {
 
 sub probes {
     my $self = shift;
-    return Lacuna->db->resultset('Probes')->search_oracle;
+    return Lacuna->db->resultset('Probes')->search_oracle( { body_id => $self->body->id } );
 }
 
 after finish_upgrade => sub {
@@ -61,7 +61,7 @@ sub recalc_probes {
     my ($self) = @_;
 
     # It's easier to delete all the virtual probes, then recreate them.
-    $self->probes->delete_all;
+    $self->probes->search->delete_all;
 
     my $range = $self->range / 100;
 
