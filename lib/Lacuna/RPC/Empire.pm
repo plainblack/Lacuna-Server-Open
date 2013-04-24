@@ -157,7 +157,7 @@ sub benchmark {
 sub fetch_captcha {
     my ($self, $plack_request) = @_;
     my $ip = $plack_request->address;
-    my $captcha = Lacuna->db->resultset('Lacuna::DB::Result::Captcha')->find(randint(1,65664));
+    my $captcha = Lacuna->db->resultset('Lacuna::DB::Result::Captcha')->find(randint(1,Lacuna->config->get('captcha/total')));
     Lacuna->cache->set('create_empire_captcha', $ip, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 15 );
     return {
         guid    => $captcha->guid,

@@ -9,7 +9,7 @@ before pass => sub {
     my ($self) = @_;
     my $station = $self->station;
     my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($self->scratch->{star_id});
-    if ($star->in_starter) {
+    if ($star->in_starter_zone) {
         $self->pass_extra_message('This star is in a starter zone and cannot be seized.');
     }
     elsif (!$star->station_id) {

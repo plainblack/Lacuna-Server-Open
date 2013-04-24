@@ -330,6 +330,7 @@ sub get_status_lite {
         orbit           => $self->orbit,
         size            => $self->size,
         id              => $self->id,
+        type            => $self->get_type,
     );
     return \%out;
 }

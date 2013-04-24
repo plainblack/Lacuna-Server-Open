@@ -20,7 +20,7 @@ sub fetch {
 
     my $session_id = $args->{session_id};
 
-    my $captcha = Lacuna->db->resultset('Lacuna::DB::Result::Captcha')->find(randint(1,65664));
+    my $captcha = Lacuna->db->resultset('Lacuna::DB::Result::Captcha')->find(randint(1,Lacuna->config->get('captcha/total')||65664));
     Lacuna->cache->set('captcha', $session_id, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 30 );
     Lacuna->cache->delete('captcha_valid', $session_id);
     return {

@@ -319,7 +319,7 @@ for my $body_id (sort keys %has_fissures) {
             DAMAGED:
             while (my $to_damage = $closest->next) {
                 next if ($to_damage->in_neutral_area);
-                next if ($to_damage->get_type eq "space station");  # Since supply chains etc, will probably be damaged, they'll still be threatened.
+                next if ($to_damage->get_type eq 'space station');  # Since supply chains etc, will probably be damaged, they'll still be threatened.
                 next unless ($to_damage->empire->date_created < DateTime->now->subtract(days => 60));
 
                 # damage planet
@@ -330,6 +330,7 @@ for my $body_id (sort keys %has_fissures) {
                 # an average of 50% damage
                 my $distance = $to_damage->get_column('distance');
                 my $damage  = int(100 - $distance);
+                $damage = int($damage/2) if ($to_damage->get_type eq 'gas giant'); # Gas Giants are more resiliant or more spread out.
                 $damage = 1 if $damage < 1;
                 out("   Causing an average of $damage damage to each building");
                 my @all_buildings = @{$to_damage->building_cache};

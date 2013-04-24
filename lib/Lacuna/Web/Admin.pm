@@ -87,7 +87,7 @@ sub www_search_essentia_codes {
     my $toggle_used = $used ? '0' : 1;
     my $out = '<h1>Search Essentia Codes</h1>';
     $out .= '<form method="post" action="/admin/search/essentia/codes"><input name="code" value="'.$code.'"><input type="submit" value="search"></form>';
-    $out .= sprintf('<table style="width: 100%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><th><a href="/admin/search/essentia/codes?code=%s;used=%d" title="Toggle">Used</a></th></tr>', $code, $toggle_used );
+    $out .= sprintf('<table style="width: 100%%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><th><a href="/admin/search/essentia/codes?code=%s;used=%d" title="Toggle">Used</a></th></tr>', $code, $toggle_used );
     while (my $code = $codes->next) {
         $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $code->id, $code->code, $code->amount, $code->description, $code->date_created, $code->used);
     }
@@ -667,6 +667,7 @@ sub www_view_glyphs {
         $out .= '<option value="'.$name.'">'.$name.'</option>';
     }
     $out .= '</select></td>';
+    $out .= '<td><input name="quantity" value="1" size="2"></td>';
     $out .= '<td><input type="submit" value="add glyph"></td>';
     $out .= '</tr></form>';
     $out .= '</table>';
@@ -679,7 +680,7 @@ sub www_add_glyph {
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
-    $body->add_glyph($request->param('type'));
+    $body->add_glyph($request->param('type'), $request->param('quantity'));
     return $self->www_view_glyphs($request, $body->id);
 }
 
@@ -689,7 +690,7 @@ sub www_delete_glyph {
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
-    $body->glyphs->find($request->param('glyph_id'))->delete;
+    $body->glyph->find($request->param('glyph_id'))->delete;
     return $self->www_view_glyphs($request, $body->id);
 }
 

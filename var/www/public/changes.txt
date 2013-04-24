@@ -117,6 +117,26 @@
  - KNOWN BUGS:
    - bug: Fleet format currently shows 'Foreign' for all fleets
 
+3.0887:
+ - Mod: UI star map now shows alliance logos over seized stars
+ - Mod: UI star map now shows fissure logo over planets with fissures on them
+ - Mod: Star-view should now be a little more responsive again
+ - Mod: get_star_map now allows an area up to 3001 units (scan the whole expanse in 1400 RPC anyone?)
+ - Mod: get_star_map now includes alliance details for seized stars
+ - Mod: get_star_map now has a 'fissure' flag to indicate planets with fissures
+ - Fix: Fissures no longer cost happiness to downgrade.
+ - Fix: Fissures can not be upgraded.
+ - Fix: Turning rebels works.
+ - Mod: Fissure explosions are easier on GGs.
+ - Fix: Plans for missions can be taken from multiple buckets.
+ - Fix: Admin glyph adding and deletion works.
+ - Mod: Plans when being taken for missions, go by the equivalent hall cost.
+
+3.0886:
+ - Fix: Better error if trying to build ships at damaged shipyards
+ - Fix: Correct display of planet type code letters if starmap planet images are turned off
+ - Fix: Stupid typo fix on seizure.
+
 3.0885:
  - Mod: Star-view is now using a 'lite' API call so should be a little more responsive
  - Fix: Spies disabling buildings have more targets, but not bleeders.
