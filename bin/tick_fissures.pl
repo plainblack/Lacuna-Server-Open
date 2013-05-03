@@ -69,6 +69,8 @@ for my $body_id (sort keys %has_fissures) {
                 $fissure->efficiency(0);
                 $f_at_0++;
             }
+            $fissure->is_working(0);
+            $fissure->update;
         }
         if ($f_at_0 > 2) {
             $body_boom{$body_id} = 1;
@@ -76,8 +78,6 @@ for my $body_id (sort keys %has_fissures) {
     }
     else {
         for my $fissure (@fissures) {
-            out(sprintf("Level %02d:%03d fissures at %2d/%2d coordinates.",
-                         $fissure->level, $fissure->efficiency, $fissure->x, $fissure->y));
             my $damage = randint(1,10);
             if ($fissure->efficiency > 0) {
                 $fissure->efficiency($fissure->efficiency - $damage);
@@ -85,6 +85,8 @@ for my $body_id (sort keys %has_fissures) {
             if ($fissure->efficiency <= 0) {
                 $fissure->efficiency(0);
                 if ($fissure->level < 30) {
+                    out(sprintf("Level %02d:%03d fissures at %2d/%2d coordinates levels up.",
+                         $fissure->level, $fissure->efficiency, $fissure->x, $fissure->y));
                     fissure_level($body, $fissure);
 #Level fissure, Send minor alert $body_alert = level achieved.
                     if ($body_alert{$body_id}) {
@@ -98,6 +100,10 @@ for my $body_id (sort keys %has_fissures) {
                         };
                     }
                 }
+            }
+            else {
+                out(sprintf("Level %02d:%03d fissures at %2d/%2d coordinates.",
+                         $fissure->level, $fissure->efficiency, $fissure->x, $fissure->y));
             }
             $fissure->is_working(0);
             $fissure->update;
@@ -155,24 +161,25 @@ sub fissure_alert {
     while (my $to_alert = $alert->next) {
         my $distance = $to_alert->get_column('distance');
         last if ($distance > $range);
-        unless ($already{$to_alert->id}) {
-            $already{$to_alert->id} = 1;
+        my $eid = $to_alert->empire_id;
+        unless ($already{$eid} == 1) {
+            $already{$eid} = 1;
             if ($type eq "spawn") {
-                $body->empire->send_predefined_message(
+                $to_alert->empire->send_predefined_message(
                     tags        => ['Alert'],
                     filename    => 'fissure_alert_spawn.txt',
                     params      => [$body->x, $body->y, $body->name],
                 );
             }
             elsif ($type eq "level") {
-                $body->empire->send_predefined_message(
+                $to_alert->empire->send_predefined_message(
                     tags        => ['Alert'],
                     filename    => 'fissure_alert_level.txt',
                     params      => [$body->x, $body->y, $body->name],
                 );
             }
             elsif ($type eq "critical") {
-                $body->empire->send_predefined_message(
+                $to_alert->empire->send_predefined_message(
                     tags        => ['Alert'],
                     filename    => 'fissure_alert_critical.txt',
                     params      => [$body->x, $body->y, $body->name],
