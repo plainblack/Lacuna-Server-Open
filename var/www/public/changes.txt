@@ -1,6 +1,6 @@
 3.0888:
  - Mod: Oracle now shows planets in star map if in range.
- - Mod: Fissures alert nearby empires while degrading.
+ - Mod: Fissures alert via email to nearby empires.
 
 3.0887:
  - Mod: UI star map now shows alliance logos over seized stars

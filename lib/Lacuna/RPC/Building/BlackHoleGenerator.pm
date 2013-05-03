@@ -1394,10 +1394,11 @@ sub bhg_random_fissure {
     elsif ($btype eq 'habitable planet') {
         my ($x, $y) = eval { $target->find_free_space};
         unless ($@) {
+            my $level = randint(1,30);
             my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
                 x            => $x,
                 y            => $y,
-                level        => randint(1, 30),
+                level        => $level,
                 body_id      => $target->id,
                 body         => $target,
                 class        => 'Lacuna::DB::Result::Building::Permanent::Fissure',
@@ -1405,6 +1406,35 @@ sub bhg_random_fissure {
             $target->build_building($building, undef, 1);
             $body->add_news(50, sprintf('Astronomers detect a gravitational anomoly on %s.', $target->name));
             $return->{message} = "Fissure formed";
+            my $minus_x = 0 - $target->x;
+            my $minus_y = 0 - $target->y;
+            my $alert = Lacuna->db->resultset('Map::Body')->search({
+                -and => [
+                    {empire_id => { '!=' => 'Null' }}
+                ],
+            },{
+                '+select' => [
+                    { ceil => \"pow(pow(me.x + $minus_x,2) + pow(me.y + $minus_y,2), 0.5)", '-as' => 'distance' },
+                ],
+                '+as' => [
+                    'distance',
+                ],
+                order_by    => 'distance',
+            });
+            my %already;
+            while (my $to_alert = $alert->next) {
+                my $distance = $to_alert->get_column('distance');
+                last if ($distance > ($level*10+30));
+                my $eid = $to_alert->empire_id;
+                unless ($already{$eid} == 1) {
+                    $already{$eid} = 1;
+                    $to_alert->empire->send_predefined_message(
+                        tags        => ['Alert'],
+                        filename    => 'fissure_alert_spawn.txt',
+                        params      => [$target->x, $target->y, $target->name],
+                    );
+                }
+            }
         }
         else {
             $return->{message} = "No warp";
