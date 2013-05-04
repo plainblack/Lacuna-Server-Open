@@ -119,7 +119,7 @@ sub observatory_probes {
 
     $args = {} unless defined $args;
     $args->{virtual} = 0;
-    return $self->search($args);
+    return $self->all_probes->search($args);
 }
 
 sub oracle_probes {
@@ -127,7 +127,7 @@ sub oracle_probes {
 
     $args = {} unless defined $args;
     $args->{virtual} = 1;
-    return $self->search($args);
+    return $self->all_probes->search($args);
 }
 
 sub self_destruct_date_formatted {
@@ -941,7 +941,7 @@ has count_probed_stars => (
     lazy        => 1,
     default     => sub {    
         my $self = shift;
-        return $self->probes->count;
+        return $self->all_probes->count;
     },
 );
 
@@ -954,7 +954,7 @@ before delete => sub {
     $self->taxes->delete_all;
     $self->propositions->delete_all;
     Lacuna->db->resultset('Invite')->search({ -or => {invitee_id => $self->id, inviter_id => $self->id }})->delete;
-    $self->probes->delete;
+    $self->all_probes->delete;
     Lacuna->db->resultset('AllianceInvite')->search({empire_id => $self->id})->delete;
     if ($self->alliance_id) {
         my $alliance = $self->alliance;

@@ -22,7 +22,9 @@ sub image_level {
 
 sub probes {
     my $self = shift;
-    return Lacuna->db->resultset('Probes')->search_oracle( { body_id => $self->body->id } );
+    return Lacuna->db->resultset('Probes')->search_oracle( {
+        body_id     => $self->body->id,
+    } );
 }
 
 after finish_upgrade => sub {
