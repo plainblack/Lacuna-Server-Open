@@ -83,7 +83,6 @@ sub recalc_probes {
         ],
         order_by    => 'distance',
     });
-    print STDERR "THERE ARE [".$stars->count."] STARS IN RANGE\n";    
 
     # Add a virtual probe at each star
     my $body = $self->body;
