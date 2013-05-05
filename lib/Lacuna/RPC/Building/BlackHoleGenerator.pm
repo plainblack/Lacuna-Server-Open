@@ -452,6 +452,11 @@ sub check_starter_zone {
         }
         if ($body_in and !$target_in) {
             if (defined ($target->empire)) {
+                if ($target->get_type eq 'space station') {
+                    $throw = 1009;
+                    $reason = sprintf("You can not move a space station into a starter zone.");
+                    return $throw, $reason;
+                }
                 return 0,"" if (defined($body->empire) and $body->empire_id == $target->empire_id);
                 my $sz_colonies = 0;
                 my $planets = $target->empire->planets;
@@ -460,7 +465,7 @@ sub check_starter_zone {
                 }
                 if ($sz_colonies >= $sz_param->{max_colonies}) {
                     $throw = 1009;
-                    $reason = sprintf("You already have the maximum allowed colonies in starter zones.");
+                    $reason = sprintf("Target already have the maximum allowed colonies in starter zones.");
                     return $throw, $reason;
                 }
             }

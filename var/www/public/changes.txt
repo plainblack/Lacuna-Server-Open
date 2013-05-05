@@ -1,5 +1,7 @@
 3.0889:
  - Mod: More Fissure Fun.
+ - Mod: Boosted SRCS
+ - Mod: Scanners & Surveyors can be sent to uninhabited planets in neutral area.
 
 3.0888:
  - Mod: Oracle now shows planets in star map if in range.
