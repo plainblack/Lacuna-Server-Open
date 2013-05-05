@@ -32,7 +32,6 @@ my %body_alert;
 
 for my $body_id (sort keys %has_fissures) {
     my $body = $db->resultset('Map::Body')->find($body_id);
-    out('Ticking Fissures on '.$body->name);
     my @fissures = $body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure');
 
 # First check to see how many fissures we have active.
@@ -48,20 +47,22 @@ for my $body_id (sort keys %has_fissures) {
 #   and finally a spare space or a building at random (excluding the PCC).
 # The level of the second Fissure is the same level as the BHG (if there is one) otherwise it is level 1
     my $fissure_cnt = scalar @fissures;
+    out(sprintf("Ticking %d Fissures on %s",$fissure_cnt,$body->name));
     if ($fissure_cnt >= 3) {
         my $f_at_0;
         for my $fissure (@fissures) {
-            out(sprintf("Level %02d:%03d fissures at %2d/%2d coordinates.",
+            out(sprintf("Level %02d:%03d fissure at %2d/%2d coordinates.",
                          $fissure->level, $fissure->efficiency, $fissure->x, $fissure->y));
             if ($fissure->efficiency > 0) {
-                if ($fissure->efficiency > 50) {
-                    $fissure->efficiency($fissure->efficiency - 50);
+                if ($fissure->efficiency > 40) {
+                    $fissure->efficiency($fissure->efficiency - 40);
                 }
                 else {
                     $fissure->efficiency(0);
+                    $f_at_0++;
                 }
                 $body_alert{$body_id} = {
-                    range => 100,
+                    range => 120,
                     type  => "critical",
                 };
             }
@@ -89,13 +90,14 @@ for my $body_id (sort keys %has_fissures) {
                          $fissure->level, $fissure->efficiency, $fissure->x, $fissure->y));
                     fissure_level($body, $fissure);
 #Level fissure, Send minor alert $body_alert = level achieved.
+                    my $range = ($fissure->level * 5) * $fissure_cnt;
                     if ($body_alert{$body_id}) {
-                        $body_alert{$body_id}->{range} = $fissure->level
-                            if ($body_alert{$body_id}->{range} < $fissure->level);
+                        $body_alert{$body_id}->{range} = $range
+                            if ($body_alert{$body_id}->{range} < $range);
                     }
                     else {
                         $body_alert{$body_id} = {
-                            range => $fissure->level,
+                            range => $range,
                             type  => "level",
                         };
                     }
@@ -123,14 +125,14 @@ for my $body_id (sort keys %has_fissures) {
         }
     }
 }
-out("We have explosive");
+out(sprintf("We have explosive on %2d bodies", scalar keys %body_boom));
 for my $body_id (sort keys %body_boom) {
     my $body = $db->resultset('Map::Body')->find($body_id);
     out('Exploding '.$body->name);
     delete $body_alert{$body_id} if ($body_alert{$body_id});
     fissure_explode($body);
 }
-out("Warn people");
+out(sprintf("Warn people from %2d bodies", scalar keys %body_alert));
 for my $body_id (sort keys %body_alert) {
     my $body = $db->resultset('Map::Body')->find($body_id);
 #Alert empires once for each body within the alert range that had an event.

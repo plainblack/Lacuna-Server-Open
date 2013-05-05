@@ -1,3 +1,6 @@
+3.0889:
+ - Mod: More Fissure Fun.
+
 3.0888:
  - Mod: Oracle now shows planets in star map if in range.
  - Mod: Fissures alert via email to nearby empires.

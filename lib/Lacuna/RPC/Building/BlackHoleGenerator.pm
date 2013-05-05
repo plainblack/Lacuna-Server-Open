@@ -799,7 +799,13 @@ sub generate_singularity {
         $effect->{target} = $return_stats;
         #And now side effect time
         my $side = randint(0,99);
-        if ($task->{side_chance} > $side) {
+        if ($return_stats->{fissures}) {
+            for my $count (1 .. $return_stats->{fissures}) {
+                $return_stats = bhg_random_fissure($building);
+                $effect->{side} = $return_stats;
+            }
+        }
+        elsif ($task->{side_chance} > $side) {
             my $side_type = randint(0,99);
             if ($side_type < 5) {
                 $return_stats = bhg_random_fissure($building);
@@ -1195,6 +1201,7 @@ sub bhg_make_asteroid {
     my ($building, $body) = @_;
     my $old_class = $body->class;
     my $old_size  = $body->size;
+    my @fissures = $body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure');
     my @to_demolish = @{$body->building_cache};
     $body->delete_buildings(\@to_demolish);
     my $new_size = int($building->level/5);
@@ -1206,7 +1213,7 @@ sub bhg_make_asteroid {
         usable_as_starter_enabled => 0,
         alliance_id => undef,
     });
-    return {
+    my $rstat =  {
         message   => "Made Asteroid",
         old_class => $old_class,
         class     => $body->class,
@@ -1215,6 +1222,10 @@ sub bhg_make_asteroid {
         id        => $body->id,
         name      => $body->name,
     };
+    if (scalar @fissures) {
+        $rstat->{fissures} = scalar @fissures;
+    }
+    return $rstat;
 }
 
 sub bhg_random_make {
