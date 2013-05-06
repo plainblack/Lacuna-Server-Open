@@ -51,8 +51,6 @@ for my $body_id (sort keys %has_fissures) {
     if ($fissure_cnt >= 3) {
         my $f_at_0;
         for my $fissure (@fissures) {
-            out(sprintf("Level %02d:%03d fissure at %2d/%2d coordinates.",
-                         $fissure->level, $fissure->efficiency, $fissure->x, $fissure->y));
             if ($fissure->efficiency > 0) {
                 if ($fissure->efficiency > 40) {
                     $fissure->efficiency($fissure->efficiency - 40);
@@ -72,7 +70,10 @@ for my $body_id (sort keys %has_fissures) {
             }
             $fissure->is_working(0);
             $fissure->update;
+            out(sprintf("Level %02d:%03d fissure at %2d/%2d coordinates.",
+                         $fissure->level, $fissure->efficiency, $fissure->x, $fissure->y));
         }
+        out(sprintf("%d of %d Fissures at critical.",$f_at_0, $fissure_cnt));
         if ($f_at_0 > 2) {
             $body_boom{$body_id} = 1;
         }
@@ -102,6 +103,10 @@ for my $body_id (sort keys %has_fissures) {
                         };
                     }
                 }
+                else {
+                    out(sprintf("Level %02d:%03d fissures at %2d/%2d coordinates.",
+                         $fissure->level, $fissure->efficiency, $fissure->x, $fissure->y));
+                }
             }
             else {
                 out(sprintf("Level %02d:%03d fissures at %2d/%2d coordinates.",
@@ -116,7 +121,7 @@ for my $body_id (sort keys %has_fissures) {
         }
         my $max_fissures = grep { $_->efficiency == 0 and $_->level >= 30 } @fissures;
         if ($max_fissures == $fissure_cnt) {
-#Spawn Fissure, set alert $body_alert = 30 * $number of fissures, this will replace a leveling fissure.
+#Spawn Fissure, set alert $body_alert = 30 * $number of fissures, this will replace a leveling fissure alert.
             fissure_spawn($body);
             $body_alert{$body_id} = {
                 range => 30 * $fissure_cnt + 30,
