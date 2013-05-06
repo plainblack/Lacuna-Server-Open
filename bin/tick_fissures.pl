@@ -51,14 +51,10 @@ for my $body_id (sort keys %has_fissures) {
     if ($fissure_cnt >= 3) {
         my $f_at_0;
         for my $fissure (@fissures) {
-            if ($fissure->efficiency > 0) {
-                if ($fissure->efficiency > 40) {
-                    $fissure->efficiency($fissure->efficiency - 40);
-                }
-                else {
-                    $fissure->efficiency(0);
-                    $f_at_0++;
-                }
+            my $fiss_e = $fissure->efficiency;
+            if ($fiss_e > 0) {
+                $fissure->spend_efficiency(40);
+                $f_at_0++ if ($fissure->efficiency == 0);
                 $body_alert{$body_id} = {
                     range => 120,
                     type  => "critical",
@@ -70,8 +66,8 @@ for my $body_id (sort keys %has_fissures) {
             }
             $fissure->is_working(0);
             $fissure->update;
-            out(sprintf("Level %02d:%03d fissure at %2d/%2d coordinates.",
-                         $fissure->level, $fissure->efficiency, $fissure->x, $fissure->y));
+            out(sprintf("Level %02d:%03d/%02d fissure at %2d/%2d coordinates.",
+                         $fissure->level, $fiss_e, $fissure->efficiency, $fissure->x, $fissure->y));
         }
         out(sprintf("%d of %d Fissures at critical.",$f_at_0, $fissure_cnt));
         if ($f_at_0 > 2) {
@@ -82,7 +78,7 @@ for my $body_id (sort keys %has_fissures) {
         for my $fissure (@fissures) {
             my $damage = randint(1,10);
             if ($fissure->efficiency > 0) {
-                $fissure->efficiency($fissure->efficiency - $damage);
+                $fissure->spend_efficiency($damage);
             }
             if ($fissure->efficiency <= 0) {
                 $fissure->efficiency(0);
@@ -117,6 +113,7 @@ for my $body_id (sort keys %has_fissures) {
         }
         if ($body->empire_id) {
             $body->needs_recalc(1);
+            $body->needs_surface_refresh(1);
             $body->tick;
         }
         my $max_fissures = grep { $_->efficiency == 0 and $_->level >= 30 } @fissures;
@@ -292,9 +289,7 @@ sub fissure_level {
     my @energy_buildings = grep {$_->class =~ /::Energy::/ || $_->class =~ /::Black/} @{$body->building_cache};
     foreach my $bld (@energy_buildings) {
         my $rnd = randint(5,15);
-        $bld->efficiency($bld->efficiency - $rnd);
-        $bld->efficiency(0) if $bld->efficiency < 0;
-        $bld->update;
+        $bld->spend_efficiency($rnd);
     }
     if ($body->empire_id) {
         $body->empire->send_predefined_message(
@@ -453,9 +448,7 @@ sub fissure_explode {
         foreach my $building (@all_buildings) {
             my $bld_damage = randint(1,$damage);
             out("Damaging ".$building->name." by ${bld_damage}%");
-            $building->efficiency(int($building->efficiency - $bld_damage));
-            $building->efficiency(0) if $building->efficiency < 0;
-            $building->update;
+            $building->spend_efficiency($bld_damage);
         }
                 
         $to_damage->empire->send_predefined_message(
