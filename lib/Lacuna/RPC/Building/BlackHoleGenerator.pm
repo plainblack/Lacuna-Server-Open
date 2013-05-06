@@ -1015,6 +1015,10 @@ sub bhg_swap {
         star_id => $new_data->{star_id},
         orbit   => $new_data->{orbit},
     });
+    my $boracle = $body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
+    if ($boracle) {
+        $boracle->recalc_probes;
+    }
     
     unless ($new_data->{type} eq "empty") {
         $target->update({
@@ -1042,6 +1046,10 @@ sub bhg_swap {
             }
         }
         if (defined($target->empire)) {
+            my $toracle = $body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
+            if ($toracle) {
+                $toracle->recalc_probes;
+            }
             my $mbody = Lacuna->db
                 ->resultset('Lacuna::DB::Result::Map::Body')
                 ->find($target->id);
