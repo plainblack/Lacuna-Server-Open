@@ -1,3 +1,6 @@
+3.0890:
+ - Fix: Decord placement by BHG causes recalc.
+
 3.0889:
  - Mod: More Fissure Fun.
  - Mod: Boosted SRCS
