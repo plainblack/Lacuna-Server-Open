@@ -1589,6 +1589,7 @@ sub bhg_decor {
     }
     if ($planted) {
         $body->needs_surface_refresh(1);
+        $body->needs_recalc(1);
         $body->update;
         if ($body->empire) {
             my $plural = ($planted > 1) ? "s" : "";
