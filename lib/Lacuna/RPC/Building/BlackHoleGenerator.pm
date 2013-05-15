@@ -827,11 +827,11 @@ sub generate_singularity {
             elsif ($side_type < 75) {
                 $return_stats = bhg_random_resource($building);
             }
-            elsif ($side_type < 95) {
+            elsif ($side_type < 97) {
                 $return_stats = bhg_random_decor($building);
             }
             else {
-                $return_stats = bhg_size($building, $body, 0);
+                $return_stats = bhg_resource($body, 0);
             }
             $effect->{side} = $return_stats;
         }
@@ -1324,7 +1324,7 @@ sub bhg_random_size {
     my $body = $building->body;
     my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
         ->search(
-            {zone => $body->zone, empire_id => undef },
+            {zone => $body->zone, id => { '!=' => $body->id } },
             {rows => 1, order_by => 'rand()' }
         )->single;
     my $return;
