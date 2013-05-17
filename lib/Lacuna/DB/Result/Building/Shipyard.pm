@@ -148,7 +148,7 @@ sub spend_resources_to_build_ship {
 sub build_ship {
     my ($self, $ship, $time) = @_;
     $ship->task('Building');
-    my $name = $ship->type_formatted . ' '. $self->level;
+    my $name = $ship->type_formatted;
     $ship->name($name);
     $ship->body_id($self->body_id);
     $ship->shipyard_id($self->id);

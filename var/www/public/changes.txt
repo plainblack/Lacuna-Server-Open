@@ -1,5 +1,6 @@
 3.0890:
- - Fix: Decord placement by BHG causes recalc.
+ - Fix: Decor placement by BHG now causes recalc.
+ - Mod: Drop Shipyard level on default ship names.
 
 3.0889:
  - Mod: More Fissure Fun.
