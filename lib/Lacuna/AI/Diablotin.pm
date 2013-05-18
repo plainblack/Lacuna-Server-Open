@@ -95,11 +95,35 @@ sub colony_structures {
 }
 
 sub extra_glyph_buildings {
-    return {
+    my $return = {
         quantity    => 1,
-        min_level   => 1,
+        min_level   => 10,
         max_level   => 30,
-    }
+    };
+    $return->{findable} = [
+        "Lacuna::DB::Result::Building::Permanent::AmalgusMeadow",
+        "Lacuna::DB::Result::Building::Permanent::BeeldebanNest",
+        "Lacuna::DB::Result::Building::Permanent::DentonBrambles",
+        "Lacuna::DB::Result::Building::Permanent::GeoThermalVent",
+        "Lacuna::DB::Result::Building::Permanent::GratchsGauntlet",
+        "Lacuna::DB::Result::Building::Permanent::GreatBallOfJunk",
+        "Lacuna::DB::Result::Building::Permanent::InterDimensionalRift",
+        "Lacuna::DB::Result::Building::Permanent::NaturalSpring",
+        "Lacuna::DB::Result::Building::Permanent::Volcano",
+        "Lacuna::DB::Result::Building::Permanent::AlgaePond",
+        "Lacuna::DB::Result::Building::Permanent::BlackHoleGenerator",
+        "Lacuna::DB::Result::Building::Permanent::CitadelOfKnope",
+        "Lacuna::DB::Result::Building::Permanent::CrashedShipSite",
+        "Lacuna::DB::Result::Building::Permanent::KalavianRuins",
+        "Lacuna::DB::Result::Building::Permanent::LapisForest",
+        "Lacuna::DB::Result::Building::Permanent::LibraryOfJith",
+        "Lacuna::DB::Result::Building::Permanent::MalcudField",
+        "Lacuna::DB::Result::Building::Permanent::OracleOfAnid",
+        "Lacuna::DB::Result::Building::Permanent::PantheonOfHagness",
+        "Lacuna::DB::Result::Building::Permanent::Ravine",
+        "Lacuna::DB::Result::Building::Permanent::TempleOfTheDrajilites",
+    ];
+    return $return;
 }
 
 sub spy_missions {
