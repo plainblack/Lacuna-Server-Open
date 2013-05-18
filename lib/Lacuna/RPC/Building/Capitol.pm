@@ -31,6 +31,10 @@ sub rename_empire {
         confess [1011, "You don't have enough essentia. You need ".$building->rename_empire_cost."."];
     }
     Lacuna::RPC::Empire->new->is_name_available($name);
+    my $cache = Lacuna->cache;
+    if ($cache->get('rename_empire_lock', $empire->id)) {
+        confess [1010, 'You cannot rename your empire more than once in a 24 hour period. Please wait 24 hours and try again.'];
+    }
 
     $building->body->add_news(100, '%s has officially changed its name to %s.', $empire->name, $name);
     $empire->spend_essentia({
@@ -39,6 +43,7 @@ sub rename_empire {
     });
     $empire->name($name);
     $empire->update;
+    $cache->set('rename_empire_lock', $empire->id, 1, 60 * 60 * 24);
 
     return {
         status          => $self->format_status($empire, $building->body),
