@@ -6,6 +6,7 @@ use Lacuna;
 use Lacuna::Util qw(randint format_date);
 use Getopt::Long;
 use List::MoreUtils qw(uniq);
+use Module::Find;
 $|=1;
 our $quiet;
 our $add_one;
@@ -85,58 +86,63 @@ sub build_colony {
 
     out('Placing structures on '.$body->name);
     my @plans = (
-        ['Lacuna::DB::Result::Building::Waste::Sequestration', 15],
-        ['Lacuna::DB::Result::Building::Waste::Sequestration', 15],
-        ['Lacuna::DB::Result::Building::Intelligence', 15],
-        ['Lacuna::DB::Result::Building::Security', 15],
-        ['Lacuna::DB::Result::Building::LuxuryHousing',10],
+        ['Lacuna::DB::Result::Building::Archaeology',10],
         ['Lacuna::DB::Result::Building::CloakingLab', 15],
-        ['Lacuna::DB::Result::Building::MunitionsLab', 3],
-        ['Lacuna::DB::Result::Building::Shipyard', 4],
-        ['Lacuna::DB::Result::Building::Shipyard', 4],
-        ['Lacuna::DB::Result::Building::Shipyard', 4],
-        ['Lacuna::DB::Result::Building::SpacePort', 15],
-        ['Lacuna::DB::Result::Building::SpacePort', 15],
-        ['Lacuna::DB::Result::Building::SpacePort', 15],
-        ['Lacuna::DB::Result::Building::Observatory',15],
-        ['Lacuna::DB::Result::Building::Food::Syrup',15],
+        ['Lacuna::DB::Result::Building::Energy::Hydrocarbon',15],
+        ['Lacuna::DB::Result::Building::Energy::Singularity',15],
+        ['Lacuna::DB::Result::Building::Energy::Waste',15],
+        ['Lacuna::DB::Result::Building::Food::Algae',15],
+        ['Lacuna::DB::Result::Building::Food::Algae',15],
+        ['Lacuna::DB::Result::Building::Food::Algae',15],
         ['Lacuna::DB::Result::Building::Food::Burger',15],
         ['Lacuna::DB::Result::Building::Food::Malcud',15],
         ['Lacuna::DB::Result::Building::Food::Malcud',15],
         ['Lacuna::DB::Result::Building::Food::Malcud',15],
         ['Lacuna::DB::Result::Building::Food::Malcud',15],
-        ['Lacuna::DB::Result::Building::Food::Malcud',15],
-        ['Lacuna::DB::Result::Building::Food::Malcud',15],
-        ['Lacuna::DB::Result::Building::Food::Malcud',15],
-        ['Lacuna::DB::Result::Building::Food::Malcud',15],
-        ['Lacuna::DB::Result::Building::Food::Malcud',15],
-        ['Lacuna::DB::Result::Building::Food::Malcud',15],
-        ['Lacuna::DB::Result::Building::Food::Malcud',15],
-        ['Lacuna::DB::Result::Building::Ore::Refinery',13],
+        ['Lacuna::DB::Result::Building::Food::Syrup',15],
+        ['Lacuna::DB::Result::Building::Intelligence', 10],
+        ['Lacuna::DB::Result::Building::LuxuryHousing',15],
+        ['Lacuna::DB::Result::Building::MunitionsLab', 3],
+        ['Lacuna::DB::Result::Building::Observatory',10],
+        ['Lacuna::DB::Result::Building::Ore::Mine',15],
+        ['Lacuna::DB::Result::Building::Ore::Mine',15],
+        ['Lacuna::DB::Result::Building::Ore::Refinery',15],
+        ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
+        ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
+        ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
+        ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
+        ['Lacuna::DB::Result::Building::SAW',10],
+        ['Lacuna::DB::Result::Building::SAW',10],
+        ['Lacuna::DB::Result::Building::SAW',10],
+        ['Lacuna::DB::Result::Building::SAW',10],
+        ['Lacuna::DB::Result::Building::SAW',10],
+        ['Lacuna::DB::Result::Building::SAW',10],
+        ['Lacuna::DB::Result::Building::Security', 15],
+        ['Lacuna::DB::Result::Building::Shipyard', 6],
+        ['Lacuna::DB::Result::Building::Shipyard', 6],
+        ['Lacuna::DB::Result::Building::Shipyard', 6],
+        ['Lacuna::DB::Result::Building::SpacePort', 15],
+        ['Lacuna::DB::Result::Building::SpacePort', 15],
+        ['Lacuna::DB::Result::Building::SpacePort', 15],
+        ['Lacuna::DB::Result::Building::SpacePort', 15],
         ['Lacuna::DB::Result::Building::Waste::Digester',15],
         ['Lacuna::DB::Result::Building::Waste::Digester',15],
         ['Lacuna::DB::Result::Building::Waste::Digester',15],
-        ['Lacuna::DB::Result::Building::Waste::Digester',15],
-        ['Lacuna::DB::Result::Building::Energy::Singularity',15],
-        ['Lacuna::DB::Result::Building::Energy::Singularity',12],
-        ['Lacuna::DB::Result::Building::Water::Reclamation',15],
-        ['Lacuna::DB::Result::Building::Water::Reclamation',15],
-        ['Lacuna::DB::Result::Building::Water::Reclamation',15],
+        ['Lacuna::DB::Result::Building::Waste::Sequestration', 20],
+        ['Lacuna::DB::Result::Building::Waste::Treatment',15],
         ['Lacuna::DB::Result::Building::Water::AtmosphericEvaporator',14],
-        ['Lacuna::DB::Result::Building::Archaeology',10],
-        ['Lacuna::DB::Result::Building::SAW',10],
-        ['Lacuna::DB::Result::Building::SAW',10],
-        ['Lacuna::DB::Result::Building::SAW',10],
-        ['Lacuna::DB::Result::Building::SAW',10],
-        ['Lacuna::DB::Result::Building::SAW',10],
-        ['Lacuna::DB::Result::Building::SAW',10],
+        ['Lacuna::DB::Result::Building::Water::Reclamation',15],
+        ['Lacuna::DB::Result::Building::Water::Reclamation',15],
+        ['Lacuna::DB::Result::Building::Water::Reclamation',15],
     );
     
+    my $nodiab_bld = get_non_builds();
     my @findable;
     foreach my $module (findallmod Lacuna::DB::Result::Building::Permanent) {
-        push @findable, $module unless $module =~ m/Platform$/ || $module =~ m/Beach/;
+        next if (grep { $module eq $_ } @{$nodiab_bld});
+        push @findable, $module;
     }
-    push @plans, [$findable[rand @findable], randint(1,30)];
+    push @plans, [$findable[rand @findable], randint(10,30)];
     
     my $buildings = $db->resultset('Lacuna::DB::Result::Building');
     foreach my $plan (@plans) {
@@ -153,6 +159,44 @@ sub build_colony {
         $body->build_building($building);
         $building->finish_upgrade;
     }
+}
+
+sub get_non_builds {
+    my $bld_mods = [
+        "Lacuna::DB::Result::Building::Permanent::Beach1",
+        "Lacuna::DB::Result::Building::Permanent::Beach10",
+        "Lacuna::DB::Result::Building::Permanent::Beach11",
+        "Lacuna::DB::Result::Building::Permanent::Beach12",
+        "Lacuna::DB::Result::Building::Permanent::Beach13",
+        "Lacuna::DB::Result::Building::Permanent::Beach2",
+        "Lacuna::DB::Result::Building::Permanent::Beach3",
+        "Lacuna::DB::Result::Building::Permanent::Beach4",
+        "Lacuna::DB::Result::Building::Permanent::Beach5",
+        "Lacuna::DB::Result::Building::Permanent::Beach6",
+        "Lacuna::DB::Result::Building::Permanent::Beach7",
+        "Lacuna::DB::Result::Building::Permanent::Beach8",
+        "Lacuna::DB::Result::Building::Permanent::Beach9",
+        "Lacuna::DB::Result::Building::Permanent::Crater",
+        "Lacuna::DB::Result::Building::Permanent::EssentiaVein",
+        "Lacuna::DB::Result::Building::Permanent::Fissure",
+        "Lacuna::DB::Result::Building::Permanent::GasGiantPlatform",
+        "Lacuna::DB::Result::Building::Permanent::GreatBallOfJunk",
+        "Lacuna::DB::Result::Building::Permanent::Grove",
+        "Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk",
+        "Lacuna::DB::Result::Building::Permanent::JunkHengeSculpture",
+        "Lacuna::DB::Result::Building::Permanent::KasternsKeep",
+        "Lacuna::DB::Result::Building::Permanent::Lagoon",
+        "Lacuna::DB::Result::Building::Permanent::Lake",
+        "Lacuna::DB::Result::Building::Permanent::MassadsHenge",
+        "Lacuna::DB::Result::Building::Permanent::MetalJunkArches",
+        "Lacuna::DB::Result::Building::Permanent::PyramidJunkSculpture",
+        "Lacuna::DB::Result::Building::Permanent::RockyOutcrop",
+        "Lacuna::DB::Result::Building::Permanent::Sand",
+        "Lacuna::DB::Result::Building::Permanent::SpaceJunkPark",
+        "Lacuna::DB::Result::Building::Permanent::TerraformingPlatform",
+        "Lacuna::DB::Result::Building::Permanent::TheDillonForge",
+    ];
+    return $bld_mods;
 }
 
 sub create_empire {

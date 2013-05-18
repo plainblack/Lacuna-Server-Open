@@ -2,6 +2,7 @@
  - Fix: Decor placement by BHG now causes recalc.
  - Mod: Drop Shipyard level on default ship names.
  - Mod: 24 hour timer between renaming empire.
+ - Mod: First pass of restructure of Diab.
 
 3.0889:
  - Mod: More Fissure Fun.
