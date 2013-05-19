@@ -449,7 +449,11 @@ sub fissure_explode {
             my $bld_damage = randint(1,$damage);
             out("Damaging ".$building->name." by ${bld_damage}%");
             $building->spend_efficiency($bld_damage);
+            $building->update;
         }
+        $to_damage->needs_recalc(1);
+        $to_damage->needs_surface_refresh(1);
+        $to_damage->tick;
                 
         $to_damage->empire->send_predefined_message(
             tags        => ['Colonization','Alert'],
