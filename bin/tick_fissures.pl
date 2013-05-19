@@ -290,6 +290,7 @@ sub fissure_level {
     foreach my $bld (@energy_buildings) {
         my $rnd = randint(5,15);
         $bld->spend_efficiency($rnd);
+        $bld->update;
     }
     if ($body->empire_id) {
         $body->empire->send_predefined_message(
