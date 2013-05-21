@@ -1281,8 +1281,10 @@ sub recalc_stats {
         $max_plots = $stats{size} = $station_command * 3;
     }
     elsif ($self->isa('Lacuna::DB::Result::Map::Body::Planet')) {
-        if ($self->orbit > $self->empire->max_orbit || $self->orbit < $self->empire->min_orbit) {
-            $max_plots = min($terraforming_platforms, $max_plots);
+        if ($self->empire) {
+            if ($self->orbit > $self->empire->max_orbit || $self->orbit < $self->empire->min_orbit) {
+                $max_plots = min($terraforming_platforms, $max_plots);
+            }
         }
     }
     $stats{plots_available} = $max_plots - $self->building_count;
