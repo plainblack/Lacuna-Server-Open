@@ -1573,7 +1573,11 @@ sub steal_planet {
     my $moved_spies = 0;
     while (my $spy = $spies->next) {
         if ($moved_spies++ < $def_room or $empire_id < 0) {
-          $spy->update({from_body_id => $defender_capitol_id });
+          $spy->update({
+                        from_body_id => $defender_capitol_id,
+                        task => 'Idle',
+                        available_on => DateTime->now,
+                       });
         }
         else {
           $spy->update({
