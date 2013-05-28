@@ -4,6 +4,7 @@
  - Mod: 24 hour timer between renaming empire.
  - Mod: First pass of restructure of Diab.
  - Mod: Make sure spies owned by flipped planet don't defend.
+ - Mod: Max range of fissure alert reduced to 120 units.
 
 3.0889:
  - Mod: More Fissure Fun.
