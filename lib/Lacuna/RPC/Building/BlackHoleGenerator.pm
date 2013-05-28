@@ -1446,9 +1446,12 @@ sub bhg_random_fissure {
                 order_by    => 'distance',
             });
             my %already;
+            my $max_alert = $level*5;
+            $max_alert = 100 if ($max_alert > 100);
+            $max_alert = 20 if ($max_alert < 20);
             while (my $to_alert = $alert->next) {
                 my $distance = $to_alert->get_column('distance');
-                last if ($distance > ($level*10+30));
+                last if ($distance > $max_alert);
                 my $eid = $to_alert->empire_id;
                 unless ($already{$eid} == 1) {
                     $already{$eid} = 1;
