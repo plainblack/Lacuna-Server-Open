@@ -13,12 +13,12 @@ GetOptions(
     'quiet'         => \$quiet,  
 );
 
-
 out('Started');
 my $start = DateTime->now;
 
 out('Loading DB');
 our $db = Lacuna->db;
+our $dtf = $db->storage->datetime_parser;
 my $empires = $db->resultset('Lacuna::DB::Result::Empire');
 
 
@@ -37,7 +37,7 @@ while (my $spy = $retiring_spies->next) {
 
 
 out('Deleting Expired Self Destruct Empires');
-my $to_be_deleted = $empires->search({ self_destruct_date => { '<' => $start }, self_destruct_active => 1});
+my $to_be_deleted = $empires->search({ self_destruct_date => { '<' => $dtf->format_datetime($start) }, self_destruct_active => 1});
 my $delete_tally = 0;
 my $active_duration = 0;
 while (my $empire = $to_be_deleted->next) {
@@ -48,8 +48,9 @@ while (my $empire = $to_be_deleted->next) {
 
 out('Deleting Half Created Empires');
 my $old_half_created = $start->clone->subtract(hours => 2);
-$to_be_deleted = $empires->search({ stage => 'new', date_created => { '<' => $old_half_created }});
+$to_be_deleted = $empires->search({ stage => 'new', date_created => { '<' => $dtf->format_datetime($old_half_created) }});
 while (my $empire = $to_be_deleted->next) {
+    out("$empire->name");
     $delete_tally++;
     $active_duration += $start->epoch - $empire->date_created->epoch;
     $empire->delete;    
@@ -58,7 +59,7 @@ while (my $empire = $to_be_deleted->next) {
 out('Enabling Self Destruct For Inactivity');
 my $abandons_tally;
 my $inactivity_time_out = Lacuna->config->get('self_destruct_after_inactive_days') || 20;
-my $inactives = $empires->search({ last_login => { '<' => DateTime->now->subtract( days => $inactivity_time_out ) }, self_destruct_active => 0, id => { '>' => 1}});
+my $inactives = $empires->search({ last_login => { '<' => $dtf->format_datetime(DateTime->now->subtract( days => $inactivity_time_out) ) }, self_destruct_active => 0, id => { '>' => 1}});
 while (my $empire = $inactives->next) {
     if ($empire->essentia >= 1) {
       unless (Lacuna->cache->get('empire_inactive',$empire->id)) {

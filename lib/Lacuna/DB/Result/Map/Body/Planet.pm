@@ -318,7 +318,8 @@ sub sanitize {
     Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->id})->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::Market')->search({body_id => $self->id})->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::MercenaryMarket')->search({body_id => $self->id})->delete_all;
-    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->id})->delete;
+    # We will delete all probes (observatory or oracle), note, must recreate oracle probes if the planet is recolonised
+    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search_any({body_id => $self->id})->delete;
     $self->empire_id(undef);
     if ($self->get_type eq 'habitable planet' &&
         $self->size >= 40 && $self->size <= 50 &&
@@ -671,7 +672,16 @@ foreach my $arg (
     );
 }
 
-# is a specific plot free
+has oracle => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
+        return $building;
+    },
+);
+
 sub is_space_free {
     my ($self, $unclean_x, $unclean_y) = @_;
     my $x = int( $unclean_x );
@@ -882,8 +892,6 @@ sub get_existing_build_queue_time {
     my ($self) = @_;
 
     my ($building) = @{$self->builds(1)};
-
-#print STDERR "GET_EXISTING_BUILD_QUEUE_TIME: building=[$building]\n";
 
     return (defined $building) ? $building->upgrade_ends : DateTime->now;
 }

@@ -11,6 +11,9 @@ after can_send_to_target => sub {
     if (defined $target->empire_id) {
       return 1 if ($target->empire_id == $self->body->empire_id);  # We don't care if people hit themselves.
     }
+    else {
+      return if ($self->type eq 'scanner' or $self->type eq 'surveyor');  # Allows Scanners & Surveyors to be sent to uninhabited planets.
+    }
 
     confess [1009, 'Can not be sent from the Neutral Area.'] if $self->body->in_neutral_area;
     confess [1009, 'Can not be sent to the Neutral Area.']   if $target->in_neutral_area;

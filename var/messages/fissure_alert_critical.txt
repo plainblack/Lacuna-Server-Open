@@ -1,0 +1,9 @@
+Nearby planet about to explode!
+~~~
+Our astronomers are very worried about {Starmap %s %s %s}.
+Multiple fissures on that planet are about to implode it. There isn't much time left.
+
+Regards,
+
+Your Humble Assistant
+

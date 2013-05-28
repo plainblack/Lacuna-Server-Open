@@ -47,14 +47,15 @@ exit;
 
 sub generate_overview {
     out('Generating Overview');
-    my $stars       = $db->resultset('Lacuna::DB::Result::Map::Star');
-    my $bodies      = $db->resultset('Lacuna::DB::Result::Map::Body');
+    my $stars       = $db->resultset('Map::Star');
+    my $bodies      = $db->resultset('Map::Body');
     my @off_limits  = $bodies->search({empire_id => {'<' => 2}})->get_column('id')->all;
-    my $ships       = $db->resultset('Lacuna::DB::Result::Ships')->search({body_id => { 'not in' => \@off_limits}});
+    my $ships       = $db->resultset('Ships')->search({body_id => { 'not in' => \@off_limits}});
     my $glyphs      = $db->resultset('Glyph')->search({body_id => { 'not in' => \@off_limits}});
-    my $buildings   = $db->resultset('Lacuna::DB::Result::Building')->search({body_id => { 'not in' => \@off_limits}});
-    my $empires     = $db->resultset('Lacuna::DB::Result::Empire')->search({id => { '>' => 1}});
-    my $probes      = $db->resultset('Lacuna::DB::Result::Probes')->search({empire_id => { '>' => 1}});
+    my $buildings   = $db->resultset('Building')->search({body_id => { 'not in' => \@off_limits}});
+    my $empires     = $db->resultset('Empire')->search({id => { '>' => 1}});
+    # Get all probes, either observatory or oracle
+    my $probes      = $db->resultset('Probes')->search({empire_id => { '>' => 1} });
     my $dtformatter = $db->storage->datetime_parser;
     
     # basics
@@ -62,7 +63,9 @@ sub generate_overview {
     my %out = (
         stars       => {
             count           => $stars->count,
-            probes_count    => $probes->count,
+            # number of probes (observatory)
+            probes_count    => $probes->search({virtual => 0})->count,
+            # number of probed stars (either observatory or oracle)
             probed_count    => $probes->search(undef, { group_by => ['star_id'] })->count,
             seized_count    => $stars->search({station_id => { '!=' => 'Null' }})->count,
         },
@@ -179,7 +182,7 @@ sub generate_overview {
 
 sub rank_colonies {
     out('Ranking Colonies');
-    my $colonies = $db->resultset('Lacuna::DB::Result::Log::Colony');
+    my $colonies = $db->resultset('Log::Colony');
     foreach my $field (qw(population)) {
         my $ranked = $colonies->search(undef, {order_by => [ {-desc => $field}, 'rand()']});
         my $counter = 1;
@@ -191,7 +194,7 @@ sub rank_colonies {
 
 sub rank_empires {
     out('Ranking Empires');
-    my $empires = $db->resultset('Lacuna::DB::Result::Log::Empire');
+    my $empires = $db->resultset('Log::Empire');
     foreach my $field (qw(empire_size university_level offense_success_rate defense_success_rate dirtiest)) {
         my $ranked = $empires->search(undef, {order_by => [ {-desc => $field}, 'rand()']});
         my $counter = 1;
@@ -203,7 +206,7 @@ sub rank_empires {
 
 sub rank_alliances {
     out('Ranking Alliances');
-    my $alliances = $db->resultset('Lacuna::DB::Result::Log::Alliance');
+    my $alliances = $db->resultset('Log::Alliance');
     foreach my $field (qw(influence population space_station_count average_empire_size offense_success_rate defense_success_rate dirtiest)) {
         my $ranked = $alliances->search(undef, {order_by => [{-desc => $field},'rand()']});
         my $counter = 1;
@@ -216,16 +219,16 @@ sub rank_alliances {
 sub delete_old_records {
     out('Deleting old records');
     my $start = shift;
-    $db->resultset('Lacuna::DB::Result::Log::Alliance')->search({date_stamp => { '<' => $start}})->delete;
-    $db->resultset('Lacuna::DB::Result::Log::Empire')->search({date_stamp => { '<' => $start}})->delete;
-    $db->resultset('Lacuna::DB::Result::Log::Colony')->search({date_stamp => { '<' => $start}})->delete;
+    $db->resultset('Log::Alliance')->search({date_stamp => { '<' => $start}})->delete;
+    $db->resultset('Log::Empire')->search({date_stamp => { '<' => $start}})->delete;
+    $db->resultset('Log::Colony')->search({date_stamp => { '<' => $start}})->delete;
 }
 
 sub summarize_alliances { 
   out('Summarizing Alliances');
-  my $logs = $db->resultset('Lacuna::DB::Result::Log::Alliance');
-  my $alliances = $db->resultset('Lacuna::DB::Result::Alliance');
-  my $empire_logs = $db->resultset('Lacuna::DB::Result::Log::Empire');
+  my $logs = $db->resultset('Log::Alliance');
+  my $alliances = $db->resultset('Alliance');
+  my $empire_logs = $db->resultset('Log::Empire');
   while (my $alliance = $alliances->next) {
     next if ! defined $alliance->leader_id; # until Alliances get deleted...
       out($alliance->name);
@@ -276,9 +279,9 @@ sub summarize_alliances {
 
 sub summarize_empires { 
   out('Summarizing Empires');
-  my $logs = $db->resultset('Lacuna::DB::Result::Log::Empire');
-  my $empires = $db->resultset('Lacuna::DB::Result::Empire')->search({ id   => {'>' => 1} });
-  my $colony_logs = $db->resultset('Lacuna::DB::Result::Log::Colony');
+  my $logs = $db->resultset('Log::Empire');
+  my $empires = $db->resultset('Empire')->search({ id   => {'>' => 1} });
+  my $colony_logs = $db->resultset('Log::Colony');
   my %mapping;
   while (my $empire = $empires->next) {
     out($empire->name);
@@ -374,7 +377,7 @@ sub summarize_empires {
       $logs->new(\%empire_data)->insert;
     }
   }
-  my $ai = $db->resultset('Lacuna::DB::Result::Empire')->search({ id   => {'<' => 0} });
+  my $ai = $db->resultset('Empire')->search({ id   => {'<' => 0} });
   out('Summarizing AI for map');
   while (my $empire = $ai->next) {
     my %map_data = (
@@ -385,7 +388,7 @@ sub summarize_empires {
         home_id          => $empire->home_planet_id,
     );
     my @map_colonies;
-    my $colonies = $db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id   => $empire->id});
+    my $colonies = $db->resultset('Map::Body')->search({ empire_id   => $empire->id});
     while ( my $colony = $colonies->next) {
       my %map_col = (
         x    => $colony->x,
@@ -415,9 +418,9 @@ sub summarize_empires {
 
 sub summarize_colonies { 
     out('Summarizing Planets');
-    my $logs = $db->resultset('Lacuna::DB::Result::Log::Colony');
-    my $planets = $db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id   => {'>' => 1} },{order_by => 'name'});
-    my $spy_logs = $db->resultset('Lacuna::DB::Result::Log::Spies');
+    my $logs = $db->resultset('Log::Colony');
+    my $planets = $db->resultset('Map::Body')->search({ empire_id   => {'>' => 1} },{order_by => 'name'});
+    my $spy_logs = $db->resultset('Log::Spies');
     while (my $planet = $planets->next) {
         out($planet->name);
         my $log = $logs->search({planet_id => $planet->id},{rows=>1})->single;

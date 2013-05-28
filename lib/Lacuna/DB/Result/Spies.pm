@@ -743,7 +743,7 @@ sub get_defender {
 
     my $defender = Lacuna
         ->db
-        ->resultset('Lacuna::DB::Result::Spies')
+        ->resultset('Spies')
         ->search(
             { on_body_id  => $self->on_body_id,
               task => 'Counter Espionage',
@@ -773,7 +773,7 @@ sub get_attacker {
     }
     my $attacker = Lacuna
         ->db
-        ->resultset('Lacuna::DB::Result::Spies')
+        ->resultset('Spies')
         ->search(
             { on_body_id  => $self->on_body_id,
               task => {  in => \@tasks }, empire_id => { 'not in' => \@member_ids } },
@@ -801,7 +801,7 @@ sub get_idle_attacker {
 
     my @attackers = Lacuna
         ->db
-        ->resultset('Lacuna::DB::Result::Spies')
+        ->resultset('Spies')
         ->search(
             { on_body_id  => $self->on_body_id,
               task => 'Idle',
@@ -824,7 +824,7 @@ sub get_random_prisoner {
     my $self = shift;
     my @prisoners = Lacuna
         ->db
-        ->resultset('Lacuna::DB::Result::Spies')
+        ->resultset('Spies')
         ->search(
             { on_body_id  => $self->on_body_id, task => 'Captured' },
         )
@@ -1483,7 +1483,7 @@ sub can_conduct_advanced_missions {
     if ($self->on_body->empire->alliance_id && $self->on_body->empire->alliance_id == $self->empire->alliance_id) {
         confess [1010, 'You cannot attack your alliance mates.'];
     }
-    my $ranks = Lacuna->db->resultset('Lacuna::DB::Result::Log::Empire');
+    my $ranks = Lacuna->db->resultset('Log::Empire');
     my $defender_rank = $ranks->search( { empire_id => $self->on_body->empire_id },
                                         {rows => 1})->get_column('empire_size_rank')->single;
     my $attacker_rank = $ranks->search( {empire_id => $self->empire_id },
@@ -1532,9 +1532,9 @@ sub steal_planet {
                                    $self->on_body->name,
                                    $self->on_body->empire->name);
 
-# withdraw trades
-        for my $market ( Lacuna->db->resultset('Lacuna::DB::Result::Market'),
-                         Lacuna->db->resultset('Lacuna::DB::Result::MercenaryMarket') ) {
+        # withdraw trades
+        for my $market ( Lacuna->db->resultset('Market'),
+                         Lacuna->db->resultset('MercenaryMarket') ) {
             my @to_be_deleted = $market->search({body_id => $self->on_body_id})->get_column('id')->all;
             foreach my $id (@to_be_deleted) {
                 my $trade = $market->find($id);
@@ -1547,7 +1547,7 @@ sub steal_planet {
                 $trade->withdraw;
         }
     }
-# Remove Supply chains to and from planet
+    # Remove Supply chains to and from planet
     foreach my $chain ($self->on_body->out_supply_chains) {
         $chain->delete;
     }
@@ -1556,15 +1556,15 @@ sub steal_planet {
     }
 
     my $defender_capitol_id = $self->on_body->empire->home_planet_id;
-    Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
+    Lacuna->db->resultset('Spies')->search({
         from_body_id => $self->on_body_id, on_body_id => $self->on_body_id, task => 'Training',
     })->delete_all; # All spies in training are executed
 
-    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')
+    my $spies = Lacuna->db->resultset('Spies')
                   ->search({from_body_id => $self->on_body_id});
 
     my $def_capitol = Lacuna->db
-                            ->resultset('Lacuna::DB::Result::Map::Body')
+                            ->resultset('Map::Body')
                             ->find($defender_capitol_id);
 
     my $def_int_cap = $def_capitol->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
@@ -1585,18 +1585,18 @@ sub steal_planet {
         }
     }
 
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
+    my $ships = Lacuna->db->resultset('Ships')
                       ->search({body_id => $self->on_body_id,
                                 task => { '!=' => 'Docked' } });
     while (my $ship = $ships->next) {
         next if ($ship->task eq 'Waste Chain');
         if ($ship->task eq 'Waiting On Trade') {
-# Ships being delivered from trades or pushes.
+            # Ships being delivered from trades or pushes.
             $ship->body_id($defender_capitol_id);
             $ship->update;
         }
         elsif ($ship->task eq 'Supply Chain') {
-# Supply chains from planet were deleted so we dock ships
+            # Supply chains from planet were deleted so we dock ships
             $ship->task('Docked');
             $ship->update;
         }
@@ -1612,7 +1612,7 @@ sub steal_planet {
                       'dory',
                       'barge',
                     ]})) {
-# Trade ship was outgoing, it will change homeport to capitol
+            # Trade ship was outgoing, it will change homeport to capitol
             if ($ship->direction eq 'out') {
                 $ship->body_id($defender_capitol_id);
                 $ship->update;
@@ -1623,7 +1623,7 @@ sub steal_planet {
                      @{[ 'colony_ship',
                          'short_range_colony_ship',
                        ]})) {
-# Colony ships show from capitol.
+            # Colony ships show from capitol.
             $ship->body_id($defender_capitol_id);
             $ship->update;
         }
@@ -1631,7 +1631,7 @@ sub steal_planet {
             $ship->delete;
         }
     }
-# Shipyards and Intelligence ministries have had all new items deleted, so get rid of timers.
+    # Shipyards and Intelligence ministries have had all new items deleted, so get rid of timers.
     my $on_body = $self->on_body;
     my @bld_timers = grep {
             ($_->class eq 'Lacuna::DB::Result::Building::Shipyard') ||
@@ -1643,9 +1643,9 @@ sub steal_planet {
         $btimer->update;
     }
 
-# Probes
-    Lacuna->db->resultset('Lacuna::DB::Result::Probes')
-              ->search({body_id => $self->on_body_id})
+    # Probes
+    Lacuna->db->resultset('Probes')
+              ->search_any({body_id => $self->on_body_id})
               ->update({empire_id => $self->empire_id, alliance_id => $self->empire->alliance_id});
 
     if ($self->on_body->empire_id < 1) {
@@ -1884,7 +1884,7 @@ sub prevent_insurrection {
        $member_ids[0] = $self->empire->id;
     }
     my $conspirators = Lacuna->db
-                        ->resultset('Lacuna::DB::Result::Spies')
+                        ->resultset('Spies')
                         ->search( { on_body_id => $self->on_body_id,
                                     task => { 'not in' => ['Killed In Action',
                                                            'Travelling',
@@ -1924,7 +1924,7 @@ sub capture_kidnapper {
 sub abduct_operative {
     my ($self, $defender) = @_;
     my @types;
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
+    my $ships = Lacuna->db->resultset('Ships');
     foreach my $type (SHIP_TYPES) {
         my $ship = $ships->new({type => $type});
         if ($ship->pilotable) {
@@ -2160,7 +2160,7 @@ sub destroy_resources {
 
 sub destroy_chain_ship {
     my ($self, $defender) = @_;
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+    my $ship = Lacuna->db->resultset('Ships')->search(
         {body_id => $self->on_body->id,
          task => {'in' => ['Supply Chain', 'Waste Chain'] }},
         { rows => 1, order_by => 'rand()' }
@@ -2200,7 +2200,7 @@ sub destroy_mining_ship {
     my ($self, $defender) = @_;
     my $ministry = $self->on_body->mining_ministry;
     return $self->building_not_found->id unless defined $ministry;
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+    my $ship = Lacuna->db->resultset('Ships')->search(
         {body_id => $self->on_body->id, task => 'Mining'},
         { rows => 1, order_by => 'rand()' }
         )->single;
@@ -2403,7 +2403,7 @@ sub steal_glyph {
 sub steal_ships {
     my ($self, $defender) = @_;
     my @types;
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
+    my $ships = Lacuna->db->resultset('Ships');
     foreach my $type (SHIP_TYPES) {
         my $ship = $ships->new({type => $type});
         if ($ship->pilotable) {
@@ -2602,9 +2602,10 @@ sub shut_down_building {
 
 sub take_control_of_probe {
     my ($self, $defender) = @_;
+    # we can only take control of an observatory probe
     my $probe = Lacuna->db
-                  ->resultset('Lacuna::DB::Result::Probes')
-                  ->search({body_id => $self->on_body_id },
+                  ->resultset('Probes')
+                  ->search_observatory({body_id => $self->on_body_id },
                            { rows => 1, order_by => 'rand()' }
                            )->single;
     return $self->probe_not_found->id unless defined $probe;
@@ -2644,7 +2645,7 @@ sub destroy_excavator {
     my $arch = $self->on_body->archaeology;
     return $self->building_not_found->id unless defined $arch;
     my $excavator = Lacuna->db
-                     ->resultset('Lacuna::DB::Result::Excavators')
+                     ->resultset('Excavators')
                      ->search({planet_id => $self->on_body->id},
                               { rows => 1, order_by => 'rand()' }
                               )->single;
@@ -2679,7 +2680,7 @@ sub kill_contact_with_mining_platform {
     my $ministry = $self->on_body->mining_ministry;
     return $self->building_not_found->id unless defined $ministry;
     my $platform = Lacuna->db
-                     ->resultset('Lacuna::DB::Result::MiningPlatforms')
+                     ->resultset('MiningPlatforms')
                      ->search({planet_id => $self->on_body->id},
                               { rows => 1, order_by => 'rand()' }
                               )->single;
@@ -2711,9 +2712,10 @@ sub kill_contact_with_mining_platform {
 
 sub hack_observatory_probes {
     my ($self, $defender) = @_;
+
     my $probe = Lacuna->db
-                  ->resultset('Lacuna::DB::Result::Probes')
-                  ->search({body_id => $self->on_body->id },
+                  ->resultset('Probes')
+                  ->search_observatory({body_id => $self->on_body->id },
                            { rows => 1, order_by => 'rand()' }
                            )->single;
     return $self->probe_not_found->id unless defined $probe;
@@ -2749,13 +2751,14 @@ sub hack_offending_probes {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
     my @safe = Lacuna->db
-                 ->resultset('Lacuna::DB::Result::Spies')
+                 ->resultset('Spies')
                  ->search( {task=>'Counter Espionage',
                             on_body_id=>$defender->on_body_id})
                  ->get_column('empire_id')->all;
+    # we can only hack observatory probes
     my $probe = Lacuna->db
-                 ->resultset('Lacuna::DB::Result::Probes')
-                 ->search({star_id => $self->on_body->star_id,
+                 ->resultset('Probes')
+                 ->search_observatory({star_id => $self->on_body->star_id,
                            empire_id => {'not in' => \@safe} },
                           { rows => 1, order_by => 'rand()' }
                           )->single;
@@ -2791,8 +2794,8 @@ sub hack_offending_probes {
 sub hack_local_probes {
     my ($self, $defender) = @_;
     my $probe = Lacuna->db
-                  ->resultset('Lacuna::DB::Result::Probes')
-                  ->search( {star_id => $self->on_body->star_id,
+                  ->resultset('Probes')
+                  ->search_observatory( {star_id => $self->on_body->star_id,
                              empire_id => $self->on_body->empire_id },
                             { rows => 1, order_by => 'rand()' }
                           )->single;
@@ -2883,7 +2886,7 @@ sub spy_report {
     my @peeps = (['Name','From','Assignment','Level']);
     my %planets = ( $self->on_body->id => $self->on_body->name );
     my $spies = Lacuna->db
-                  ->resultset('Lacuna::DB::Result::Spies')
+                  ->resultset('Spies')
                   ->search( { empire_id  => {'!=' => $self->empire_id },
                               task       => {'!=' => 'Travelling' },
                               on_body_id => $self->on_body_id } );
@@ -2974,7 +2977,7 @@ sub travel_report {
 sub ship_report {
     my ($self, $defender) = @_;
     my $ships = Lacuna->db
-                  ->resultset('Lacuna::DB::Result::Ships')
+                  ->resultset('Ships')
                   ->search( {body_id => $self->on_body->id,
                              task => 'Docked'});
     my @ships = (['Name', 'Type', 'Speed', 'Hold Size']);
@@ -3182,7 +3185,7 @@ sub counter_intel_report {
     my @peeps = (['Name','From','Assignment','Level']);
     my %planets = ( $self->on_body->id => $self->on_body->name );
     my $spies = Lacuna->db
-                  ->resultset('Lacuna::DB::Result::Spies')
+                  ->resultset('Spies')
                   ->search( {empire_id => {'!=' => $defender->empire_id},
                              on_body_id=>$self->on_body_id});
     while (my $spook = $spies->next) {

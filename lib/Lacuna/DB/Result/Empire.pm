@@ -99,18 +99,36 @@ sub sqlt_deploy_hook {
 }
 
 
-__PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Alliance', 'alliance_id', { on_delete => 'set null' });
-__PACKAGE__->belongs_to('home_planet', 'Lacuna::DB::Result::Map::Body', 'home_planet_id');
-__PACKAGE__->has_many('spies', 'Lacuna::DB::Result::Spies', 'empire_id');
-__PACKAGE__->has_many('planets', 'Lacuna::DB::Result::Map::Body', 'empire_id');
-__PACKAGE__->has_many('propositions', 'Lacuna::DB::Result::Propositions', 'proposed_by_id');
-__PACKAGE__->has_many('votes', 'Lacuna::DB::Result::Votes', 'empire_id');
-__PACKAGE__->has_many('taxes', 'Lacuna::DB::Result::Taxes', 'empire_id');
-__PACKAGE__->has_many('sent_messages', 'Lacuna::DB::Result::Message', 'from_id');
-__PACKAGE__->has_many('received_messages', 'Lacuna::DB::Result::Message', 'to_id');
-__PACKAGE__->has_many('medals', 'Lacuna::DB::Result::Medals', 'empire_id');
-__PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'empire_id');
-__PACKAGE__->belongs_to('latest_message', 'Lacuna::DB::Result::Message', 'latest_message_id', { on_delete => 'set null' });
+__PACKAGE__->belongs_to('alliance',         'Lacuna::DB::Result::Alliance',     'alliance_id', { on_delete => 'set null' });
+__PACKAGE__->belongs_to('home_planet',      'Lacuna::DB::Result::Map::Body',    'home_planet_id');
+__PACKAGE__->belongs_to('latest_message',   'Lacuna::DB::Result::Message',      'latest_message_id', { on_delete => 'set null' });
+
+__PACKAGE__->has_many('spies',              'Lacuna::DB::Result::Spies',        'empire_id');
+__PACKAGE__->has_many('planets',            'Lacuna::DB::Result::Map::Body',    'empire_id');
+__PACKAGE__->has_many('propositions',       'Lacuna::DB::Result::Propositions', 'proposed_by_id');
+__PACKAGE__->has_many('votes',              'Lacuna::DB::Result::Votes',        'empire_id');
+__PACKAGE__->has_many('taxes',              'Lacuna::DB::Result::Taxes',        'empire_id');
+__PACKAGE__->has_many('sent_messages',      'Lacuna::DB::Result::Message',      'from_id');
+__PACKAGE__->has_many('received_messages',  'Lacuna::DB::Result::Message',      'to_id');
+__PACKAGE__->has_many('medals',             'Lacuna::DB::Result::Medals',       'empire_id');
+__PACKAGE__->has_many('all_probes',         'Lacuna::DB::Result::Probes',       'empire_id');
+
+
+sub observatory_probes {
+    my ($self,$args) = @_;
+
+    $args = {} unless defined $args;
+    $args->{virtual} = 0;
+    return $self->all_probes->search($args);
+}
+
+sub oracle_probes {
+    my ($self,$args) = @_;
+
+    $args = {} unless defined $args;
+    $args->{virtual} = 1;
+    return $self->all_probes->search($args);
+}
 
 sub self_destruct_date_formatted {
     my $self = shift;
@@ -148,7 +166,7 @@ around name => sub {
     if (@_) {
         my $new_name = $_[0];
         
-        Lacuna->db->resultset('Lacuna::DB::Result::Log::EmpireNameChange')->new({
+        Lacuna->db->resultset('Log::EmpireNameChange')->new({
             empire_id       => $self->id,
             empire_name     => $new_name,
             old_empire_name => $self->$orig,
@@ -162,7 +180,7 @@ around update => sub {
     my ($orig, $self) = (shift, shift);
     
     if ( @_ && exists $_[0]->{name} ) {
-        Lacuna->db->resultset('Lacuna::DB::Result::Log::EmpireNameChange')->new({
+        Lacuna->db->resultset('Log::EmpireNameChange')->new({
             empire_id       => $self->id,
             empire_name     => $_[0]->{name},
             old_empire_name => $self->name,
@@ -195,7 +213,7 @@ sub update_species {
 sub determine_species_limits {
     my ($self) = @_;
     my @colony_ids = $self->planets->get_column('id')->all;
-    my $colonies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ empire_id => $self->id });
+    my $colonies = Lacuna->db->resultset('Map::Body')->search({ empire_id => $self->id });
     my $min_orbit = $colonies->get_column('orbit')->min;
     my $max_orbit = $colonies->get_column('orbit')->max;
     $max_orbit    = 7 if $max_orbit > 7;
@@ -240,7 +258,7 @@ sub get_species_stats {
 
 sub has_medal {
     my ($self, $type) = @_;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Medals')->search({empire_id => $self->id, type => $type},{rows=>1})->single;
+    return Lacuna->db->resultset('Medals')->search({empire_id => $self->id, type => $type},{rows=>1})->single;
 }
 
 sub add_medal {
@@ -251,7 +269,7 @@ sub add_medal {
         $medal->update;
     }
     else {
-        $medal = Lacuna->db->resultset('Lacuna::DB::Result::Medals')->new({
+        $medal = Lacuna->db->resultset('Medals')->new({
             datestamp   => DateTime->now,
             public      => 1,
             empire_id   => $self->id,
@@ -355,7 +373,7 @@ sub _adjust_essentia {
             $self->$type($residual);
         }
     }
-    Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->new({
+    Lacuna->db->resultset('Log::Essentia')->new({
         empire_id       => $self->id,
         empire_name     => $self->name,
         amount          => $value,
@@ -489,7 +507,7 @@ sub encrypt_password {
 
 sub attach_invite_code {
     my ($self, $invite_code) = @_;
-    my $invites = Lacuna->db->resultset('Lacuna::DB::Result::Invite');
+    my $invites = Lacuna->db->resultset('Invite');
     if (defined $invite_code && $invite_code ne '') {
         my $invite = $invites->search(
             {code    => $invite_code },
@@ -631,7 +649,7 @@ sub found {
   $self->update;
   $self->home_planet($home_planet);
 
-  $self->add_probe($home_planet->star_id, $home_planet->id);
+  $self->add_observatory_probe($home_planet->star_id, $home_planet->id);
 
   # found colony
   $home_planet->found_colony($self);
@@ -646,7 +664,7 @@ sub found {
 
 sub find_home_planet {
     my ($self) = @_;
-    my $planets = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body');
+    my $planets = Lacuna->db->resultset('Map::Body');
     my %search = (
         usable_as_starter_enabled   => 1,
         orbit                       => { between => [ $self->min_orbit, $self->max_orbit] },
@@ -664,7 +682,7 @@ sub find_home_planet {
     }
     
     # determine search area
-    my $invite = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $self->id},{rows=>1})->single;
+    my $invite = Lacuna->db->resultset('Invite')->search({invitee_id => $self->id},{rows=>1})->single;
     if (defined $invite) {
         $search{zone} = $invite->zone;
         delete $search{x};
@@ -726,7 +744,7 @@ sub find_home_planet {
 sub get_invite_friend_url {
     my ($self) = @_;
     my $code = create_uuid_as_string(UUID_MD5, $self->id);
-    my $invites = Lacuna->db->resultset('Lacuna::DB::Result::Invite');
+    my $invites = Lacuna->db->resultset('Invite');
     my $invite = $invites->search({code => $code},{rows=>1})->single;
     unless (defined $invite) {
         $invites->new({
@@ -744,7 +762,7 @@ sub invite_friend {
     unless (Email::Valid->address($email)) {
         confess [1009, $email.' does not appear to be a valid email address.'];
     }
-    my $invites = Lacuna->db->resultset('Lacuna::DB::Result::Invite');
+    my $invites = Lacuna->db->resultset('Invite');
     if ($invites->search({email => $email, inviter_id => $self->id })->count) {
         confess [1009, 'You have already invited '.$email.'.'];
     }
@@ -786,7 +804,7 @@ sub send_message {
     unless (ref $recipients eq 'ARRAY' && @{$recipients}) {
         push @{$recipients}, $self->name;
     }
-    my $message = Lacuna->db->resultset('Lacuna::DB::Result::Message')->new({
+    my $message = Lacuna->db->resultset('Message')->new({
         date_sent   => DateTime->now,
         subject     => $params{subject},
         body        => $params{body},
@@ -804,7 +822,7 @@ sub send_message {
         Lacuna->cache->set($params{repeat_check}, int(DateTime->now->hour / 6), 1, 60 * 60 * 6);
     }
     if (exists $params{in_reply_to} && defined $params{in_reply_to} && $params{in_reply_to} ne '') {
-        my $original =  Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($params{in_reply_to});
+        my $original =  Lacuna->db->resultset('Message')->find($params{in_reply_to});
         if (defined $original && !$original->has_replied) {
             $original->update({has_replied=>1});
         }
@@ -851,24 +869,28 @@ sub send_predefined_message {
 
 sub lacuna_expanse_corp {
     my $self = shift;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find(1);
+    return Lacuna->db->resultset('Empire')->find(1);
 }
 
-sub add_probe {
+# Add a 'real' probe. One sent from an observatory.
+#
+sub add_observatory_probe {
     my ($self, $star_id, $body_id) = @_;
 
     # add probe
-    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->new({
+    Lacuna->db->resultset('Probes')->new({
         empire_id   => $self->id,
         star_id     => $star_id,
         body_id     => $body_id,
         alliance_id => $self->alliance_id,
+        virtual     => 0,
     })->insert;
     
     # send notifications
     # this could be a performance problem in the future depending upon the number of probes in a star system
-    my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id);
-    my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({ star_id => $star_id, empire_id => {'!=', $self->id } });
+    my $star = Lacuna->db->resultset('Map::Star')->find($star_id);
+    # Get all systems that are probed (real or virtual)
+    my $probes = Lacuna->db->resultset('Probes')->search_any({ star_id => $star_id, empire_id => {'!=', $self->id } });
     while (my $probe = $probes->next) {
         my $that_empire = $probe->empire;
         next unless defined $that_empire;
@@ -889,7 +911,7 @@ sub add_probe {
 sub next_colony_cost {
     my ($self, $adjustment) = @_;
     my $count = $self->planets->count + $adjustment;
-    $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+    $count += Lacuna->db->resultset('Ships')->search(
         { type=> { in => [qw(colony_ship short_range_colony_ship space_station)]}, task=>'travelling', direction=>'out', 'body.empire_id' => $self->id},
         { join => 'body' }
     )->count;
@@ -901,6 +923,8 @@ sub next_colony_cost {
     return sprintf('%.0f', $tally);
 }
 
+# Get all probes, either observatory or oracle
+#
 has probed_stars => (
     is          => 'rw',
     clearer     => 'clear_probed_stars',
@@ -915,17 +939,19 @@ has probed_stars => (
                 alliance_id => $self->alliance_id,
             );
         }
-        my @stars = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search(\%search)->get_column('star_id')->all;
+        my @stars = Lacuna->db->resultset('Probes')->search_any(\%search)->get_column('star_id')->all;
         return \@stars;
     },
 );
 
+# Get number of probed stars, either observatory or oracle
+#
 has count_probed_stars => (
     is          => 'rw',
     lazy        => 1,
     default     => sub {    
         my $self = shift;
-        return $self->probes->count;
+        return $self->all_probes->count;
     },
 );
 
@@ -938,7 +964,7 @@ before delete => sub {
     $self->taxes->delete_all;
     $self->propositions->delete_all;
     Lacuna->db->resultset('Invite')->search({ -or => {invitee_id => $self->id, inviter_id => $self->id }})->delete;
-    $self->probes->delete;
+    $self->all_probes->delete;
     Lacuna->db->resultset('AllianceInvite')->search({empire_id => $self->id})->delete;
     if ($self->alliance_id) {
         my $alliance = $self->alliance;
@@ -953,7 +979,7 @@ before delete => sub {
     while ( my $planet = $planets->next ) {
         $planet->sanitize;
     }
-    my $essentia_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia');
+    my $essentia_log = Lacuna->db->resultset('Log::Essentia');
     my $essentia_code;
     my $config = Lacuna->config;
     my $sum = $self->essentia - $essentia_log->search({empire_id => $self->id, description => 'tutorial' })->get_column('amount')->sum;
@@ -1046,13 +1072,13 @@ sub redeem_essentia_code {
 
 sub pay_taxes {
     my ($self, $station_id, $amount) = @_;
-    my $taxes = Lacuna->db->resultset('Lacuna::DB::Result::Taxes')->search({empire_id=>$self->id,station_id=>$station_id})->single;
+    my $taxes = Lacuna->db->resultset('Taxes')->search({empire_id=>$self->id,station_id=>$station_id})->single;
     if (defined $taxes) {
         $taxes->{paid_0} += $amount;
         $taxes->update;
     }
     else {
-        Lacuna->db->resultset('Lacuna::DB::Result::Taxes')->new({
+        Lacuna->db->resultset('Taxes')->new({
             empire_id   => $self->id,
             station_id  => $station_id,
             paid_0      => $amount,

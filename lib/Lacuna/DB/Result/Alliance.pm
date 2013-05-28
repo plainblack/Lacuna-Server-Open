@@ -170,7 +170,7 @@ sub send_invite {
     elsif ($empire->alliance_id == $self->id) {
         confess [1010, 'Already a member of this alliance.']
     }
-    my $invite = Lacuna->db->resultset('Lacuna::DB::Result::AllianceInvite')->new({
+    my $invite = Lacuna->db->resultset('AllianceInvite')->new({
         alliance_id => $self->id,
         empire_id   => $empire->id,
     })->insert;
@@ -214,8 +214,9 @@ sub add_member {
     }
     $empire->alliance_id($self->id);
     $empire->update;
-    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({empire_id => $empire->id})->update({alliance_id => $self->id});
-    Lacuna->db->resultset('Lacuna::DB::Result::AllianceInvite')->search({empire_id => $empire->id})->delete;
+    # I has your probes!
+    Lacuna->db->resultset('Probes')->search({empire_id => $empire->id})->update({alliance_id => $self->id});
+    Lacuna->db->resultset('AllianceInvite')->search({empire_id => $empire->id})->delete;
     return $self;
 }
 
@@ -235,7 +236,7 @@ sub remove_member {
     }
     $empire->alliance_id(undef);
     $empire->update;
-    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({empire_id => $empire->id})->update({alliance_id => undef});
+    Lacuna->db->resultset('Probes')->search({empire_id => $empire->id})->update({alliance_id => undef});
     return $self;
 }
 

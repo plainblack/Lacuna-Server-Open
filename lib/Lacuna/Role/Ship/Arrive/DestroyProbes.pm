@@ -9,14 +9,14 @@ after handle_arrival_procedures => sub {
     # we're coming home
     return if ($self->direction eq 'in');
 
-	# not a star
-	return unless $self->foreign_star_id;
+    # not a star
+    return unless $self->foreign_star_id;
 
-    # find probes to destroy
-    my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({star_id => $self->foreign_star_id });
+    # find observatory probes to destroy
+    my $probes = Lacuna->db->resultset('Probes')->search_observatory({star_id => $self->foreign_star_id });
     my $count;
 
-    my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
+    my $logs = Lacuna->db->resultset('Log::Battles');
     # destroy those suckers
     while (my $probe = $probes->next) {
 

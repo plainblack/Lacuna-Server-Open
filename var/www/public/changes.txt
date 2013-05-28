@@ -117,6 +117,15 @@
  - KNOWN BUGS:
    - bug: Fleet format currently shows 'Foreign' for all fleets
 
+3.0889:
+ - Mod: More Fissure Fun.
+ - Mod: Boosted SRCS
+ - Mod: Scanners & Surveyors can be sent to uninhabited planets in neutral area.
+
+3.0888:
+ - Mod: Oracle now shows planets in star map if in range.
+ - Mod: Fissures alert via email to nearby empires.
+
 3.0887:
  - Mod: UI star map now shows alliance logos over seized stars
  - Mod: UI star map now shows fissure logo over planets with fissures on them

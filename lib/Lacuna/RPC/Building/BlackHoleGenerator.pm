@@ -452,6 +452,11 @@ sub check_starter_zone {
         }
         if ($body_in and !$target_in) {
             if (defined ($target->empire)) {
+                if ($target->get_type eq 'space station') {
+                    $throw = 1009;
+                    $reason = sprintf("You can not move a space station into a starter zone.");
+                    return $throw, $reason;
+                }
                 return 0,"" if (defined($body->empire) and $body->empire_id == $target->empire_id);
                 my $sz_colonies = 0;
                 my $planets = $target->empire->planets;
@@ -460,7 +465,7 @@ sub check_starter_zone {
                 }
                 if ($sz_colonies >= $sz_param->{max_colonies}) {
                     $throw = 1009;
-                    $reason = sprintf("You already have the maximum allowed colonies in starter zones.");
+                    $reason = sprintf("Target already have the maximum allowed colonies in starter zones.");
                     return $throw, $reason;
                 }
             }
@@ -799,7 +804,13 @@ sub generate_singularity {
         $effect->{target} = $return_stats;
         #And now side effect time
         my $side = randint(0,99);
-        if ($task->{side_chance} > $side) {
+        if ($return_stats->{fissures}) {
+            for my $count (1 .. $return_stats->{fissures}) {
+                $return_stats = bhg_random_fissure($building);
+                $effect->{side} = $return_stats;
+            }
+        }
+        elsif ($task->{side_chance} > $side) {
             my $side_type = randint(0,99);
             if ($side_type < 5) {
                 $return_stats = bhg_random_fissure($building);
@@ -1004,6 +1015,10 @@ sub bhg_swap {
         star_id => $new_data->{star_id},
         orbit   => $new_data->{orbit},
     });
+    my $boracle = $body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
+    if ($boracle) {
+        $boracle->recalc_probes;
+    }
     
     unless ($new_data->{type} eq "empty") {
         $target->update({
@@ -1031,6 +1046,10 @@ sub bhg_swap {
             }
         }
         if (defined($target->empire)) {
+            my $toracle = $body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
+            if ($toracle) {
+                $toracle->recalc_probes;
+            }
             my $mbody = Lacuna->db
                 ->resultset('Lacuna::DB::Result::Map::Body')
                 ->find($target->id);
@@ -1195,6 +1214,7 @@ sub bhg_make_asteroid {
     my ($building, $body) = @_;
     my $old_class = $body->class;
     my $old_size  = $body->size;
+    my @fissures = $body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure');
     my @to_demolish = @{$body->building_cache};
     $body->delete_buildings(\@to_demolish);
     my $new_size = int($building->level/5);
@@ -1206,7 +1226,7 @@ sub bhg_make_asteroid {
         usable_as_starter_enabled => 0,
         alliance_id => undef,
     });
-    return {
+    my $rstat =  {
         message   => "Made Asteroid",
         old_class => $old_class,
         class     => $body->class,
@@ -1215,6 +1235,10 @@ sub bhg_make_asteroid {
         id        => $body->id,
         name      => $body->name,
     };
+    if (scalar @fissures) {
+        $rstat->{fissures} = scalar @fissures;
+    }
+    return $rstat;
 }
 
 sub bhg_random_make {
@@ -1394,10 +1418,11 @@ sub bhg_random_fissure {
     elsif ($btype eq 'habitable planet') {
         my ($x, $y) = eval { $target->find_free_space};
         unless ($@) {
+            my $level = randint(1,30);
             my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
                 x            => $x,
                 y            => $y,
-                level        => randint(1, 30),
+                level        => $level,
                 body_id      => $target->id,
                 body         => $target,
                 class        => 'Lacuna::DB::Result::Building::Permanent::Fissure',
@@ -1405,6 +1430,35 @@ sub bhg_random_fissure {
             $target->build_building($building, undef, 1);
             $body->add_news(50, sprintf('Astronomers detect a gravitational anomoly on %s.', $target->name));
             $return->{message} = "Fissure formed";
+            my $minus_x = 0 - $target->x;
+            my $minus_y = 0 - $target->y;
+            my $alert = Lacuna->db->resultset('Map::Body')->search({
+                -and => [
+                    {empire_id => { '!=' => 'Null' }}
+                ],
+            },{
+                '+select' => [
+                    { ceil => \"pow(pow(me.x + $minus_x,2) + pow(me.y + $minus_y,2), 0.5)", '-as' => 'distance' },
+                ],
+                '+as' => [
+                    'distance',
+                ],
+                order_by    => 'distance',
+            });
+            my %already;
+            while (my $to_alert = $alert->next) {
+                my $distance = $to_alert->get_column('distance');
+                last if ($distance > ($level*10+30));
+                my $eid = $to_alert->empire_id;
+                unless ($already{$eid} == 1) {
+                    $already{$eid} = 1;
+                    $to_alert->empire->send_predefined_message(
+                        tags        => ['Alert'],
+                        filename    => 'fissure_alert_spawn.txt',
+                        params      => [$target->x, $target->y, $target->name],
+                    );
+                }
+            }
         }
         else {
             $return->{message} = "No warp";
