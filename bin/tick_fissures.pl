@@ -121,7 +121,7 @@ for my $body_id (sort keys %has_fissures) {
         my $max_fissures = grep { $_->efficiency == 0 and $_->level >= 30 } @fissures;
         if ($max_fissures == $fissure_cnt) {
             fissure_spawn($body);
-            my $range = ($fissure->level * 10) * $fissure_cnt;
+            my $range = 30 * $fissure_cnt;
             $range = 120 if $range > 120;
             $range = 25 if $range < 25;
             $body_alert{$body_id} = {
