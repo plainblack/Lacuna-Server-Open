@@ -72,17 +72,43 @@ sub build_colony {
     my $pcc = $body->command;
     $pcc->level(15);
     $pcc->update;
+    my $decor   = [qw(
+        Lacuna::DB::Result::Building::Permanent::Beach1
+        Lacuna::DB::Result::Building::Permanent::Beach2
+        Lacuna::DB::Result::Building::Permanent::Beach3
+        Lacuna::DB::Result::Building::Permanent::Beach4
+        Lacuna::DB::Result::Building::Permanent::Beach5
+        Lacuna::DB::Result::Building::Permanent::Beach6
+        Lacuna::DB::Result::Building::Permanent::Beach7
+        Lacuna::DB::Result::Building::Permanent::Beach8
+        Lacuna::DB::Result::Building::Permanent::Beach9
+        Lacuna::DB::Result::Building::Permanent::Beach10
+        Lacuna::DB::Result::Building::Permanent::Beach11
+        Lacuna::DB::Result::Building::Permanent::Beach12
+        Lacuna::DB::Result::Building::Permanent::Beach13
+        Lacuna::DB::Result::Building::Permanent::Crater
+        Lacuna::DB::Result::Building::Permanent::Grove
+        Lacuna::DB::Result::Building::Permanent::Lagoon
+        Lacuna::DB::Result::Building::Permanent::Lake
+        Lacuna::DB::Result::Building::Permanent::RockyOutcrop
+        Lacuna::DB::Result::Building::Permanent::Sand
+        Lacuna::DB::Result::Building::PlanetaryCommand
+    )];
+    foreach my $building (@{$body->building_cache}) {
+        unless ( grep { $building->class eq $_ } @{$decor}) {
+            $building->delete;
+        }
+    }
 
     say 'Placing structures on '.$body->name;
     my @plans = $self->colony_structures;
     
-    my @findable;
-    foreach my $module (findallmod Lacuna::DB::Result::Building::Permanent) {
-        push @findable, $module unless $module =~ m/Platform$/ || $module =~ m/Beach/;
-    }
-    
     my $extras = $self->extra_glyph_buildings;
+
+    my @findable;
+    
     if ($extras->{quantity}) {
+        push @findable, @{$extras->{findable}};
         foreach (1..$extras->{quantity}) {
             push @plans, [$findable[rand @findable], randint($extras->{min_level}, $extras->{max_level})];
         }

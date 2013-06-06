@@ -155,6 +155,7 @@ sub consumption_hour {
 sub farming_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
+    return 1 unless defined $empire;
     my $boost = (time < $empire->food_boost->epoch) ? 25 : 0;
     return (100 + $boost + $empire->farming_affinity * 4) / 100;
 }
@@ -162,6 +163,7 @@ sub farming_production_bonus {
 sub manufacturing_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
+    return 1 unless defined $empire;
     return (100 + $empire->manufacturing_affinity * 4) / 100;
 }
 
@@ -342,12 +344,14 @@ sub food_hour {
 sub building_reduction_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
+    return 1 unless defined $empire;
     return (time < $empire->building_boost->epoch) ? 0.75 : 1;
 }
  
 sub energy_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
+    return 1 unless defined $empire;
     my $boost = (time < $empire->energy_boost->epoch) ? 25 : 0;
     return (100 + $boost + $empire->science_affinity * 4) / 100;
 }
@@ -371,9 +375,10 @@ sub energy_hour {
 
 sub mining_production_bonus {
     my ($self) = @_;
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
     my $refinery = $self->body->refinery;
     my $refinery_bonus = (defined $refinery) ? $refinery->level * 5 : 0;
-    my $empire = $self->body->empire;
     my $boost = (time < $empire->ore_boost->epoch) ? 25 : 0;
     return (100 + $boost + $refinery_bonus + $empire->mining_affinity * 4) / 100;
 }
@@ -398,6 +403,7 @@ sub ore_hour {
 sub water_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
+    return 1 unless defined $empire;
     my $boost = (time < $empire->water_boost->epoch) ? 25 : 0;
     return (100 + $boost + $empire->environmental_affinity * 4) / 100;
 }
@@ -421,7 +427,9 @@ sub water_hour {
 
 sub waste_consumption_bonus {
     my ($self) = @_;
-    return (100 + $self->body->empire->environmental_affinity * 4) / 100;
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return (100 + $empire->environmental_affinity * 4) / 100;
 }
 
 sub waste_production_hour {
@@ -444,6 +452,7 @@ sub waste_hour {
 sub happiness_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
+    return 1 unless defined $empire;
     my $boost = (time < $empire->happiness_boost->epoch) ? 25 : 0;
     return (100 + $boost + ($empire->political_affinity * 10)) / 100;
 }
@@ -473,6 +482,7 @@ has storage_bonus => (
     default => sub {
         my ($self) = @_;
         my $empire = $self->body->empire;
+        return 1 unless defined $empire;
         my $boost = (time < $empire->storage_boost->epoch) ? 25 : 0;
         return (100 + $boost) / 100;
     },
@@ -482,35 +492,45 @@ sub food_capacity {
     my ($self) = @_;
     my $base = $self->food_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->farming_affinity * 4 / 100) ));
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->farming_affinity * 4 / 100) ));
 }
 
 sub energy_capacity {
     my ($self) = @_;
     my $base = $self->energy_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->science_affinity * 4 / 100) ));
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->science_affinity * 4 / 100) ));
 }
 
 sub ore_capacity {
     my ($self) = @_;
     my $base = $self->ore_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->mining_affinity * 4 / 100) ));
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->mining_affinity * 4 / 100) ));
 }
 
 sub water_capacity {
     my ($self) = @_;
     my $base = $self->water_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->environmental_affinity * 4 / 100) ));
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->environmental_affinity * 4 / 100) ));
 }
 
 sub waste_capacity {
     my ($self) = @_;
     my $base = $self->waste_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->environmental_affinity * 4 / 100) ));
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->environmental_affinity * 4 / 100) ));
 }
 
 # BUILD
@@ -711,18 +731,24 @@ sub can_upgrade {
 
 sub construction_cost_reduction_bonus {
     my $self = shift;
-    return (100 - $self->body->empire->research_affinity * 5) / 100;
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return (100 - $empire->research_affinity * 5) / 100;
 }
 
 sub manufacturing_cost_reduction_bonus {
     my $self = shift;
-    return (100 - $self->body->empire->manufacturing_affinity * 5) / 100;
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return (100 - $empire->manufacturing_affinity * 5) / 100;
 }
 
 sub time_cost_reduction_bonus {
     my ($self, $extra) = @_;
     $extra ||= 0;
     my $body = $self->body;
+    my $empire = $body->empire;
+    return 1 unless defined $empire;
     my $unhappy_workers = 0;
     if ($body->happiness < 0 ) {
         $unhappy_workers = abs($body->happiness) / 1000;
@@ -848,9 +874,9 @@ sub finish_upgrade {
 
     if ($self->is_upgrading) {
         my $body = $self->body;
+        my $empire = $body->empire;
         my $new_level = $self->level+1;
 
-        my $empire = $body->empire; 
         if ($empire) {
             # 31 is the actual Max level for the Terra & Gas Platforms.
             if ($new_level >= 1 and $new_level <= 31) {
@@ -859,9 +885,14 @@ sub finish_upgrade {
             elsif ($new_level > 31) {
                 $empire->add_medal('buildingX');
             }
+            my $type = $self->controller_class;
+            $type =~ s/^Lacuna::RPC::Building::(\w+)$/$1/;
+            $empire->add_medal($type);
+            if ($new_level % 5 == 0) {
+                my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'a magical');
+                $self->body->add_news($new_level*4,"In %s ceremony, %s unveiled its newly augmented %s.", $levels{$new_level}, $empire->name, $self->name);
+            }
         }
-        my $type = $self->controller_class;
-        $type =~ s/^Lacuna::RPC::Building::(\w+)$/$1/;
 
         $self->reschedule_queue;
         $self->level($new_level);
@@ -871,15 +902,6 @@ sub finish_upgrade {
         $body->needs_recalc(1);
         $body->needs_surface_refresh(1);
         $body->update;
-
-        if ($empire) {
-            $empire->add_medal($type);
-            if ($new_level % 5 == 0) {
-                my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'a magical');
-                $self->body->add_news($new_level*4,"In %s ceremony, %s unveiled its newly augmented %s.", $levels{$new_level}, $empire->name, $self->name);
-            }
-        }
-        $self->reschedule_queue;
     }
     
     Lacuna->cache->delete('upgrade_contention_lock', $self->id);

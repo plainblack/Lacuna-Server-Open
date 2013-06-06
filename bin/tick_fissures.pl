@@ -88,6 +88,8 @@ for my $body_id (sort keys %has_fissures) {
                     fissure_level($body, $fissure);
 #Level fissure, Send minor alert $body_alert = level achieved.
                     my $range = ($fissure->level * 5) * $fissure_cnt;
+                    $range = 120 if $range > 120;
+                    $range = 25 if $range < 25;
                     if ($body_alert{$body_id}) {
                         $body_alert{$body_id}->{range} = $range
                             if ($body_alert{$body_id}->{range} < $range);
@@ -118,10 +120,12 @@ for my $body_id (sort keys %has_fissures) {
         }
         my $max_fissures = grep { $_->efficiency == 0 and $_->level >= 30 } @fissures;
         if ($max_fissures == $fissure_cnt) {
-#Spawn Fissure, set alert $body_alert = 30 * $number of fissures, this will replace a leveling fissure alert.
             fissure_spawn($body);
+            my $range = 30 * $fissure_cnt;
+            $range = 120 if $range > 120;
+            $range = 25 if $range < 25;
             $body_alert{$body_id} = {
-                range => 30 * $fissure_cnt + 30,
+                range => $range,
                 type  => "spawn",
             };
         }
@@ -290,6 +294,7 @@ sub fissure_level {
     foreach my $bld (@energy_buildings) {
         my $rnd = randint(5,15);
         $bld->spend_efficiency($rnd);
+        $bld->update;
     }
     if ($body->empire_id) {
         $body->empire->send_predefined_message(
@@ -449,7 +454,11 @@ sub fissure_explode {
             my $bld_damage = randint(1,$damage);
             out("Damaging ".$building->name." by ${bld_damage}%");
             $building->spend_efficiency($bld_damage);
+            $building->update;
         }
+        $to_damage->needs_recalc(1);
+        $to_damage->needs_surface_refresh(1);
+        $to_damage->tick;
                 
         $to_damage->empire->send_predefined_message(
             tags        => ['Colonization','Alert'],

@@ -827,11 +827,11 @@ sub generate_singularity {
             elsif ($side_type < 75) {
                 $return_stats = bhg_random_resource($building);
             }
-            elsif ($side_type < 95) {
+            elsif ($side_type < 97) {
                 $return_stats = bhg_random_decor($building);
             }
             else {
-                $return_stats = bhg_size($building, $body, 0);
+                $return_stats = bhg_resource($body, 0);
             }
             $effect->{side} = $return_stats;
         }
@@ -1324,7 +1324,7 @@ sub bhg_random_size {
     my $body = $building->body;
     my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
         ->search(
-            {zone => $body->zone, empire_id => undef },
+            {zone => $body->zone, id => { '!=' => $body->id } },
             {rows => 1, order_by => 'rand()' }
         )->single;
     my $return;
@@ -1446,9 +1446,12 @@ sub bhg_random_fissure {
                 order_by    => 'distance',
             });
             my %already;
+            my $max_alert = $level*5;
+            $max_alert = 100 if ($max_alert > 100);
+            $max_alert = 20 if ($max_alert < 20);
             while (my $to_alert = $alert->next) {
                 my $distance = $to_alert->get_column('distance');
-                last if ($distance > ($level*10+30));
+                last if ($distance > $max_alert);
                 my $eid = $to_alert->empire_id;
                 unless ($already{$eid} == 1) {
                     $already{$eid} = 1;
@@ -1589,6 +1592,7 @@ sub bhg_decor {
     }
     if ($planted) {
         $body->needs_surface_refresh(1);
+        $body->needs_recalc(1);
         $body->update;
         if ($body->empire) {
             my $plural = ($planted > 1) ? "s" : "";
