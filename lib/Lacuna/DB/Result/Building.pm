@@ -670,7 +670,7 @@ sub has_met_upgrade_prereqs {
     my ($self) = @_;
 #    if (!$self->isa('Lacuna::DB::Result::Building::University') && $self->level >= $self->body->empire->university_level + 1) {
     if ($self->level >= $self->body->empire->university_level + 1) {
-        confess [1013, "You cannot upgrade a building past your university level."];
+        confess [1013, sprintf("You cannot upgrade a building past level %s (university level + 1).",$self->body->empire->university_level+1)];
     }
     return 1;
 }
