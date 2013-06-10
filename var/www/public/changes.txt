@@ -1,5 +1,8 @@
 3.0891:
  - Mod: Clarified max building level for university in return message.
+ - Mod: Gas Giants produce more energy, and consume less energy.
+ - Mod: Gas Giants produce less water.
+ - Mod: Gas Giants consume more waste and can store more waste.
 
 3.0890:
  - Fix: Decor placement by BHG now causes recalc.
