@@ -65,13 +65,26 @@ sub logout {
 }
 
 sub login {
-    my ($self, $plack_request, $name, $password, $api_key) = @_;
-    unless ($api_key) {
+    my $self            = shift;
+    my $plack_request   = shift;
+    my $args            = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            name        => $args,
+            password    => shift,
+            api_key     => shift,
+        };
+    }
+
+    unless ($args->{api_key}) {
         confess [1002, 'You need an API Key.'];
     }
-    my $empire = Lacuna->db->resultset('Empire')->search({name=>$name})->next;
+    my $empire = Lacuna->db->resultset('Empire')->search({
+        name    =>  $args->{name},
+    })->next;
     unless (defined $empire) {
-         confess [1002, 'Empire does not exist.', $name];
+         confess [1002, 'Empire does not exist.', $args->{name}];
     }
     my $throttle = Lacuna->config->get('rpc_throttle') || 30;
     if ($empire->rpc_rate > $throttle) {
@@ -82,26 +95,30 @@ sub login {
     if ($empire->rpc_count > $max) {
         confess [1010, $empire->name.' has already made the maximum number of requests ('.$max.') you can make for one day.'];
     }
-    #Lacuna->db->resultset('Log::RPC')->new({
-    #   empire_id    => $empire->id,
-    #   empire_name  => $empire->name,
-    #   module       => ref $self,
-    #   api_key      => $api_key,
-    #})->insert;
-    if ($empire->is_password_valid($password)) {
+    if ($empire->is_password_valid($args->{password})) {
         if ($empire->stage eq 'new') {
             confess [1100, "Your empire has not been completely created. You must complete it in order to play the game.", { empire_id => $empire->id } ];
         }
         else {
-            return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request })->id, status => $self->format_status($empire) };
+            return { session_id => $empire->start_session({
+                api_key     => $args->{api_key}, 
+                request     => $plack_request,
+                })->id, status => $self->format_status($empire) };
         }
     }
     else {
-        if ($password ne '' && $empire->sitter_password eq $password) {
-            return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request, is_sitter => 1 })->id, status => $self->format_status($empire) };
+        if ($args->{password} ne '' && $empire->sitter_password eq $args->{password}) {
+            return {
+                session_id  => $empire->start_session({
+                    api_key     => $args->{api_key}, 
+                    request     => $plack_request, 
+                    is_sitter   => 1,
+                })->id, 
+                status      => $self->format_status($empire),
+            };
         }
         else {
-            confess [1004, 'Password incorrect.', $password];            
+            confess [1004, 'Password incorrect.', $args->{password}];            
         }
     }
 }

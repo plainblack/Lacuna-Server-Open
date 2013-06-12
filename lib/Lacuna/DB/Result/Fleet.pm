@@ -18,7 +18,25 @@ has 'hostile_action' => (
     default => 0,
 );
 
+# Fleet has that quantity of ships, or fractional
+# e.g. if fleet has 3.1 ships, quantity can be any of
+# 1,2,3,0.1,1.1,2.1,3.1, but nothing else.
+#
 sub has_that_quantity {
+    my ($self, $qty) = @_;
+    if ($qty > $self->quantity) {
+        confess [1009, "You don't have that many ships in the fleet"];
+    }
+    my $fleet_frac  = (($self->quantity * 10) % 10) / 10;
+    my $req_frac    = (($qty * 10) % 10) / 10;
+    if ($req_frac > 0 and $req_frac != $fleet_frac) {
+        confess [1009, "You must specify either whole numbers, or the fractional part of the fleet"];
+    }
+}
+
+# Fleet has that (integer) quantity of ships
+#
+sub has_that_quantity_int {
     my ($self, $qty) = @_;
 
     if (not defined $qty or $qty < 0 or int($qty) != $qty) {
