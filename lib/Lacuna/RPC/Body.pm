@@ -13,12 +13,21 @@ use List::MoreUtils qw(uniq);
 use Carp;
 use feature 'switch';
 
+
 sub get_status {
-    my ($self, $session_id, $body_id) = @_;
-    my $session = $self->get_session({session_id => $session_id, body_id => $body_id});
-    my $empire = $session->current_empire;
-    my $body =   $session->current_body;
-    return $self->format_status($session, $body);
+    my $self        = shift;
+    my $args        = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            body_id     => shift,
+        };
+    }
+
+    my $empire = $self->get_empire_by_session($args->{session_id});
+    my $body = $self->get_body($empire, $args->{body_id});
+    return $self->format_status($empire, $body);
 }
 
 sub get_body_status {
@@ -100,10 +109,18 @@ sub rename {
 }
 
 sub get_buildings {
-    my ($self, $session_id, $body_id) = @_;
-    my $session = $self->get_session({session_id => $session_id, body_id => $body_id});
-    my $empire = $session->current_empire;
-    my $body   = $session->current_body;
+    my $self        = shift;
+    my $args        = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            body_id     => shift,
+        };
+    }
+
+    my $empire = $self->get_empire_by_session($args->{session_id});
+    my $body = $self->get_body($empire, $args->{body_id});
     if ($body->needs_surface_refresh) {
         $body->needs_surface_refresh(0);
         $body->update;

@@ -35,31 +35,43 @@ A session id.
 
 
 
-=head2 login ( name, password, api_key )
+=head2 login
 
-Returns a hash like the following after confirming the password matches the empire.
+Accepts either fixed arguments, or a hash of named arguments.
 
-B<NOTE:> Once established, this session will stick around for up to 2 hours of inactivity. Therefore, you need not login again if you still have a valid session.
+  ( name, password, api_key )
 
- {
-    "session_id" : "id-goes-here",
-    "status" : { ... }
- }
+  ({
+    "name"      : "my_empire",
+    "password"  : "highly_secret",
+    "api_key"   : "3564d04f-8c36-4717-aa8d-e680502e0ed5",
+  })
 
-Throws 1004 and 1005.
+=head3 name (required)
 
-=head3 name
+The name of your empire.
 
-The name of the empire.
+=head3 password (required)
 
-=head3 password
+Your secret password (don't share your empire password with anyone!)
 
-The password to authenticate to the empire.
-
-=head3 api_key
+=head3 api_key (required)
 
 Your client's unique API key, identifiying it from all other clients. See L<ApiKeys> for details.
 
+=head3 RETURNS
+
+If your credentials are correct, it returns the following.
+
+ {
+    "session_id"    : "id-goes-here",
+    "status"        : { ... }
+ }
+
+B<NOTE:> Once established, this session will stick around for up to 2 hours of inactivity. 
+Therefore, you need not login again if you still have a valid session.
+
+Throws 1004 and 1005.
 
 =head2 fetch_captcha ( )
 

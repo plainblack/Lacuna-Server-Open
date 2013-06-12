@@ -161,10 +161,28 @@ This buildings ID
 
 =head2 view_all_fleets
 
-Accepts either fixed arguments or a hash of named parameters
+View all of your fleets, on this planet, whatever they are doing.
 
- ( session_id, building_id )
- ( parameter_hash )
+Accepts either positional inputs or named arguments.
+
+  ( <session_id>, <building_id> )
+
+  ({
+    "session_id"    : "e6ebd970-7036-4aa2-a80f-1ae67109fb4e",
+    "building_id"   : 23454,
+    "paging"        : {
+        "page_number"       : 1,
+        "items_per_page"    : 20
+    },
+    "filter"    : {
+        task :  "Docked",
+        tag  :  "War"
+    },
+    "sort"      : "combat"
+  })
+
+Note that the optional, pagin, filter and sort options are only
+available with the named arguments calling convention.
 
 =head3 session_id (required)
 
@@ -173,6 +191,18 @@ A session ID
 =head3 building_id (required)
 
 This buildings ID
+
+=head3 paging (optional)
+
+See above.
+
+=head3 filter (optional)
+
+See above
+
+=head3 sort (optional)
+
+See above
 
 =head3 RESPONSE
 
@@ -208,6 +238,8 @@ This buildings ID
          'id'     => '224',
          'type'   => 'body',
          'owner'  => 'Foreign',
+         'x'      => '388',
+         'y'      => '-22',
          'empire' => {
            'id'     => '332',
            'name'   => 'Martian'
@@ -218,6 +250,8 @@ This buildings ID
          'id'     => '221',
          'type'   => 'body',
          'owner'  => 'Own',
+         'x'      => '344',
+         'y'      => '12',
          'empire' => {
            'id'     => '323',
            'name'   => 'Man'
@@ -242,7 +276,11 @@ This buildings ID
          'payload'        => [],
          'type'           => 'fighter',
          'type_human'     => 'Fighter',
-         'date_started'   => '17 08 2012 15:58:48 +0000'
+         'date_started'   => '17 08 2012 15:58:48 +0000',
+         'current_location' => {
+           'x'  => '332.5',
+           'y'  => '20.2',
+         }
        }
      }
    ]
@@ -251,23 +289,20 @@ This buildings ID
 The B<number_of_fleets> is the total number of fleets. (Not all fleets will be
 seen in the B<incoming> section if paging is in effect).
 
-B<owner> in the B<from> section specifies either 'Own', 'Allied" or "Foreign" depending upon
-who the fleet is from.
+B<owner> in the B<from> section should all be 'Own' since this API call only
+shows ships from our own planet.
 
-The B<from> and B<to> sections will only be displayed for ships that are travelling, orbiting or defending.
-
-You will only see fleets from 'foreign' empires if the target is either your own or an allies planet, and then
-the fleet information will be filtered depending upon the highest level of Spaceport on the target.
-
-To see the C<from> block :-
-
- SpacePort Level * 450 >= Fleet Stealth
-
-To see the C<details> block  :-
-
- SpacePort level * 350 >= Fleet Stealth
+The B<from> and B<to> sections will only be displayed for ships that are 
+travelling, orbiting or defending.
 
 Note that you will always see full info for your own, or allied incoming fleets.
+
+The B<current_location> section will only occur for ships which have task
+'Travelling', 'Defend' or 'Orbiting'; For a ship that is travelling, it shows
+the estimated location of the ship based on it's speed and direction.
+
+
+
 
 
 =head2 view_incoming_fleets
@@ -800,12 +835,21 @@ Travelling.
 
 =head2 rename_fleet
 
+Rename some, or all ships, in a fleet.
+
+Accepts either positional inputs or named arguments.
+
+  ( <session_id>, <building_id>, <fleet_id>, <name> )
+
+  ({
+    "session_id"    : "e6ebd970-7036-4aa2-a80f-1ae67109fb4e",
+    "building_id"   : 23454,
+    "fleet_id"      : 334133,
+    "name"          : "New Name",
+    "quantity"      : 3
+  })
+
 Change the name for a number of ships in a fleet
-
-Accepts either fixed arguments or a hash of named parameters
-
- ( session_id, building_id, fleet_id, name )
- ( parameter_hash )
 
 =head3 session_id (required)
 
@@ -834,7 +878,7 @@ number of ships will be split off to form a new fleet with the new name. The ori
 will retain it's original name but with a reduced number of ships.
 
 Note also that if either fleet matches an existing fleet in all respects (attributes, task,
-start/available time) then such fleets will be merged into a single fleet with the combined
+start/available time, name) then such fleets will be merged into a single fleet with the combined
 quantity.
 
 This gives you a means of creating or merging fleets of ships with the same attributes, just
@@ -848,13 +892,19 @@ Returns the same response as B<view>
 
 =head2 scuttle_fleet
 
-Destroy ships from a fleet that you no longer need. You can only scuttle ships
-that report the B<can_scuttle> status of '1'.
+Scuttle some, or all ships, in a fleet. You can only scuttle ships that
+report the B<can_scuttle> status of '1'.
 
-Accepts either fixed arguments or a hash of named parameters
+Accepts either positional inputs or named arguments.
 
- ( session_id, building_id, fleet_id, quantity )
- ( parameter_hash )
+  ( <session_id>, <building_id>, <fleet_id>, <quantity> )
+
+  ({
+    "session_id"    : "e6ebd970-7036-4aa2-a80f-1ae67109fb4e",
+    "building_id"   : 23454,
+    "fleet_id"      : 334133,
+    "quantity"      : 3
+  })
 
 =head3 session_id (required)
 
@@ -874,7 +924,8 @@ The number of ships in the fleet to be scuttled.
 
 If you specify a quantity less than the number of ships currently in the fleet then the fleet
 will be reduced by that amount. If you specify the total number of ships then the whole fleet
-will be destroyed.
+will be destroyed. If the fleet is damaged (it has a fractional part, e.g. 3.1) then you can
+specify any whole number, or a number including the fractional part.
 
 =head3 RESPONSE
 

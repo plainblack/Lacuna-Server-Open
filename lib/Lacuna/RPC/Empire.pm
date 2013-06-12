@@ -76,14 +76,27 @@ sub logout {
 }
 
 sub login {
-    my ($self, $plack_request, $name, $password, $api_key, $browser) = @_;
-    unless ($api_key) {
+    my $self            = shift;
+    my $plack_request   = shift;
+    my $args            = shift;
+
+    if (ref($args) ne "HASH") {
+        $args = {
+            name        => $args,
+            password    => shift,
+            api_key     => shift,
+            browser     => shift,
+        };
+    }
+
+    unless ($args->{api_key}) {
         confess [1002, 'You need an API Key.'];
     }
-    my $empire;
-    if ($name =~ /^#(-?\d+)$/)
-    {
-        $empire = Lacuna->db->resultset('Empire')->find({id=>$1});
+    my $empire = Lacuna->db->resultset('Empire')->search({
+        name    =>  $args->{name},
+    })->next;
+    unless (defined $empire) {
+         confess [1002, 'Empire does not exist.', $args->{name}];
     }
     else
     {
