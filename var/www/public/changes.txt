@@ -3,6 +3,7 @@
  - Mod: Gas Giants produce more energy, and consume less energy.
  - Mod: Gas Giants produce less water.
  - Mod: Gas Giants consume more waste and can store more waste.
+ - Fix: Fissures cost resources to fix again.
 
 3.0890:
  - Fix: Decor placement by BHG now causes recalc.

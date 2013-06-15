@@ -70,6 +70,19 @@ before downgrade => sub {
     $self->body->add_news(30, sprintf('Scientists on %s successfully downgraded a Fissure today.', $self->body->name));
 };
 
+sub get_repair_costs {
+    my $self = shift;
+    my $level_cost = $self->current_level_cost;
+    my $damage = 100 - $self->efficiency;
+    my $damage_cost = $level_cost * $damage / 100;
+    return {
+        ore     => sprintf('%.0f', 150 * $damage_cost),
+        water   => sprintf('%.0f',  50 * $damage_cost),
+        food    => sprintf('%.0f',   0 * $damage_cost),
+        energy  => sprintf('%.0f', 100 * $damage_cost),
+    };
+}
+
 sub cost_to_fill_in_fissure {
     my $self = shift;
     return int($self->current_level_cost * 1350);
