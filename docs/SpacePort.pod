@@ -125,10 +125,14 @@ A second sort colomn, 'name', is added to your chosen sort column (unless it hap
 
 This method is extended to include a list of docked ships.
 
-Accepts either fixed arguments or a hash of named parameters
+Accepts either positional inputs or named arguments.
 
- ( session_id, building_id )
- ( parameter_hash )
+  ( <session_id>, <building_id> )
+
+  ({
+    "session_id"    : "e6ebd970-7036-4aa2-a80f-1ae67109fb4e",
+    "building_id"   : 23454,
+  })
 
 =head3 session_id (required)
 
@@ -300,9 +304,6 @@ Note that you will always see full info for your own, or allied incoming fleets.
 The B<current_location> section will only occur for ships which have task
 'Travelling', 'Defend' or 'Orbiting'; For a ship that is travelling, it shows
 the estimated location of the ship based on it's speed and direction.
-
-
-
 
 
 =head2 view_incoming_fleets
