@@ -102,6 +102,10 @@ sub cancel_build {
     if (not $scheduled_building->is_upgrading) {
         confess [1000, "That building is not currently being ugraded."];
     }
+    my @non_cancel = ('Lacuna::DB::Result::Building::DeployedBleeder');
+    if (grep { $scheduled_building->class eq "$_" } @non_cancel) {
+        confess [1003, "That building can not have an upgrade cancelled."];
+    }
     $scheduled_building->cancel_upgrade;
 
     return $self->view($args->{session_id}, $args->{building_id});
