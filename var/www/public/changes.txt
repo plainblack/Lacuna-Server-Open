@@ -1,3 +1,6 @@
+3.0892:
+ - Fix: Fix schedule to remove past jobs when rescheduling.
+
 3.0891:
  - Mod: Clarified max building level for university in return message.
  - Mod: Gas Giants produce more energy, and consume less energy.

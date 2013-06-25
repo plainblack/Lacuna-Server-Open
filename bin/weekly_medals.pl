@@ -146,7 +146,9 @@ sub spies {
 
 sub add_medal {
     my ($empire_id, $medal_name) = @_;
+    printf "%s -> %s\n", $empire_id, $medal_name;
     my $empire = $db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    return 0 unless $empire;
     my $medal = $empire->add_medal($medal_name, 1);
     $winners->new({
         empire_id   => $empire->id,

@@ -1652,7 +1652,7 @@ sub steal_planet {
               ->search_any({body_id => $self->on_body_id})
               ->update({empire_id => $self->empire_id, alliance_id => $self->empire->alliance_id});
 
-    if ($self->on_body->empire_id < 1) {
+    if ($self->on_body->empire_id < 1 and $self->on_body->empire_id != -5) {
         $self->on_body->unhappy_date(DateTime->now);
     }
     $self->on_body->empire_id($self->empire_id);

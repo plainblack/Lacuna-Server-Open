@@ -1013,14 +1013,16 @@ sub reschedule_work {
     $self->work_ends($new_work_ends);
     $self->update;
 
-    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+    my $schedules = Lacuna->db->resultset('Schedule')->search({
         parent_table    => 'Building',
         parent_id       => $self->id,
         task            => 'finish_work',
     });
-    $schedule->delete if defined $schedule;
+    while (my $schedule = $schedules->next) {
+        $schedule->delete if defined $schedule;
+    }
 
-    Lacuna->db->resultset('Schedule')->create({
+    my $new_sched = Lacuna->db->resultset('Lacuna::DB::Result::Schedule')->create({
         delivery        => $new_work_ends,
         parent_table    => 'Building',
         parent_id       => $self->id,
