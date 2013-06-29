@@ -15,7 +15,7 @@ This is shown by the B<quantity> having a none integer value, e.g. B<10.1>
 
 Some of the Space Port methods allow ships to be sent to targets. This parameter is described here.
 
-A hash reference that can contain one of five items to identify a star or body.
+A hash reference that can contain one of the following items to identify a star or body.
 
  { "body_name" : "Earth" }
  
@@ -26,6 +26,8 @@ A hash reference that can contain one of five items to identify a star or body.
  { "star_id" : "id-goes-here" }
  
  { "x" : 4, "y" : -3 }
+
+ { "bookmark" : "Enemy Target 1" }
 
 =head4 body_name
 
@@ -46,6 +48,10 @@ The unique id of the star.
 =head4 x | y
 
 A set of x,y coordinates to locate the star or body.
+
+=head4 bookmark
+
+A string containing a bookmark which locates a star or body.
 
 =head2 paging
 
@@ -401,10 +407,20 @@ Note that you will always see full info for your own, or allied incoming fleets.
 
 Get a list of fleets that are available to send to a specified target.
 
-Accepts either fixed arguments or a hash of named parameters
+Only accepts named arguments.
 
- ( session_id, body_id, target, filter, sort )
- ( parameter_hash )
+  ({
+    "session_id"    : "e6ebd970-7036-4aa2-a80f-1ae67109fb4e",
+    "body_id"       : 23235,
+    "target"        : {
+        "body_name" : "Earth"        
+    },
+    "filter"    : {
+        "tag"   :  "War"
+    },
+    "sort"      : "combat"
+  })
+
 
 =head3 session_id (required)
 
@@ -469,10 +485,19 @@ that no ship will take more than a year to arrive!)
 
 Get a list of fleets that are not available to send to a specified target.
 
-Accepts either fixed arguments or a hash of named parameters
+Only accepts named arguments.
 
- ( session_id, body_id, target, filter, sort )
- ( parameter_hash )
+  ({
+    "session_id"    : "e6ebd970-7036-4aa2-a80f-1ae67109fb4e",
+    "body_id"       : 23235,
+    "target"        : {
+        "body_name" : "Earth"
+    },
+    "filter"    : {
+        "tag"   :  "War"
+    },
+    "sort"      : "combat"
+  })
 
 =head3 session_id (required)
 
