@@ -24,36 +24,16 @@ sub model_class {
 
 # Get fleets not available to send to a target
 sub view_unavailable_fleets {
-    my $self = shift;
-    my $args = shift;
+    my ($self, $args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id      => $args,
-            body_id         => shift,
-            target          => shift,
-            filter          => shift,
-            sort            => shift,
-        };
-    }
     return $self->_view_available_fleets($args, 'unavailable');
 }
 
 
 # Get fleets available to send to a target
 sub view_available_fleets {
-    my $self = shift;
-    my $args = shift;
+    my ($self, $args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id      => $args,
-            body_id         => shift,
-            target          => shift,
-            filter          => shift,
-            sort            => shift,
-        };
-    }
     return $self->_view_available_fleets($args, 'available');
 }
 

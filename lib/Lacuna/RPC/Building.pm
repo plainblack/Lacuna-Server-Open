@@ -139,6 +139,7 @@ sub view {
             happiness_hour      => $building->happiness_hour,
             efficiency          => $building->efficiency,
             repair_costs        => $building->get_repair_costs,
+            body_id             => $building->body_id,
             upgrade             => {
                 can             => ($can_upgrade ? 1 : 0),
                 reason          => $upgrade_reason,
