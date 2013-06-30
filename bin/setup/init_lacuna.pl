@@ -6,10 +6,27 @@ use Lacuna;
 use Lacuna::Util qw(randint);
 use DateTime;
 use Time::HiRes;
+use List::Util qw(max);
+use GD::Image;
 
-my $config = Lacuna->config;
-my $db = Lacuna->db;
+my $config  = Lacuna->config;
+my $db      = Lacuna->db;
+
+# This might need adjusting to get optimum results
+my $fudge_factor = 2;
+
 my $lacunans_have_been_placed = 0;
+my $mask;
+my $density;
+my @stars;
+my $density_factor;
+
+# These will come from the lacuna config
+my $min_x       = -1500;
+my $max_x       = 1499;
+my $min_y       = -1500;
+my $max_y       = 1499;
+my $max_stars   = 80000;
 
 my $t = [Time::HiRes::tv_interval];
 create_database();
@@ -19,248 +36,227 @@ create_database();
 # /data/Lacuna-Server/etc/lacuna.conf's db->dsn field to a new db first.
 exit 0 if $ENV{CREATE_DB_ONLY};
 
-open my $star_names, "<", "../../var/starnames.txt";
-create_star_map();
-close $star_names;
+setup();
+generate_stars();
+
+generate_png();
+
 say "Time Elapsed: ".Time::HiRes::tv_interval($t);
 
+exit;
+
+
 sub create_database {
-    $db->deploy({ add_drop_table => 1 });
+    say "Deploying database";
+#    $db->deploy({ add_drop_table => 1 });
 }
 
+# Break the map down into chunks, so that there are 90x90 chunks
+# Randomly choose a chunk and 'stamp' a density mask
+# on it and the chunks adjacent to it, incrementing each chunks value
+# by the level of the mask.
+# With the right choice of numbers, this will produce voids and high
+# density chunks which we can then populate with stars in proportion
+# to the value of the chunk.
+#
+#
+sub setup {
+    say "Creating density map";
+    # create a density mask
+    for (my $y=-4; $y<5; $y++) {
+        for (my $x=-4; $x<5; $x++) {
+            my $dist = max(0, 5 - int(sqrt($x * $x + $y * $y)));
+            $mask->{$x}{$y} = $dist;
+        }
+    }
+    for (my $x=0; $x<90; $x++) {
+        for (my $y=0; $y<90; $y++) {
+            $density->{"$x:$y"} = 0;
+        }
+    }
+    # 'stamp' the mask over the density grid a number of times
+    # '220' is an arbitrary number that seems to work well.
+    for (my $i=0; $i<220; $i++) {
+        my $x = randint(0,89);
+        my $y = randint(0,89);
 
-sub create_star_map {
-    my $map_size = $config->get('map_size');
-    my ($start_x, $end_x) = @{$map_size->{x}};
-    my ($start_y, $end_y) = @{$map_size->{y}};
-    
-    # account for orbits
-    $start_x += 2;
-    $start_y += 2;
-    $end_x -= 2;
-    $end_y -= 2;
-    
-    my @star_colors = (qw(magenta red green blue yellow white));
-    my $made_lacuna = 0;
-    say "Adding stars.";
-    my $star_toggle = 1;
-    my $real_y = $start_y;
-    my $y;
-    while ($real_y + 3 < $end_y) {
-        say "Start Y $real_y";
-        my $shim = ($star_toggle) ? randint(0,3) : randint(8,10);
-        for (my $x = $start_x + $shim; $x < $end_x; $x += 15) {
-            $y = $real_y + randint(0,3);
-            say "Start X $x";            
-            #if (rand(100) <= 15) { # 15% chance of no star
-            if (0) {
-                say "No star at $x, $y!";
+        for (my $delta_y = -4; $delta_y < 5; $delta_y++) {
+            for (my $delta_x = -4; $delta_x < 5; $delta_x++) {
+                my $p = $x + $delta_x;
+                my $q = $y + $delta_y;
+                if ($p >= 90) { $p -= 90; };
+                if ($p < 0) { $p += 90; };
+                if ($q >= 90) { $q -= 90; };
+                if ($q < 0) { $q += 90; };
+                $density->{"$p:$q"} += $mask->{$delta_x}{$delta_y};
+            }
+        }
+    }
+
+    # as a test, print the chunk map. We should see some voids '.' and some high density regions '*'
+    # the map should also wrap left/right and top/bottom
+    #
+    $density_factor = 0;
+    my $max_density = 0;
+    for (my $y=0; $y<90; $y++) {
+        for (my $x=0; $x<90; $x++) {
+            my $d = $density->{"$x:$y"};
+            print $d > 9 ? "* " : $d == 0 ? ". " :$d." ";
+            $density_factor += $d;
+            $max_density = $d if $d > $max_density;
+        }
+        print " ... $y\n";
+    }
+    print "density_factor=$density_factor max_density=$max_density\n";
+}
+
+# now create the stars.
+#
+sub generate_stars {
+    say "Generating stars";
+
+    # 'density_factor' tells us the sum of all the chunks density.
+    # from this we determine how many stars each density_factor units represent.
+    my $stars_per_density = $max_stars / $density_factor;
+
+    # sort the chunks, highest density first
+    my @density_sorted = sort {$density->{$b} <=> $density->{$a}} keys %$density;
+    my $star_id = 1;
+    my $chunks_processed = 0;
+    my $chunk_x = ($max_x - $min_x) / 90;
+    my $chunk_y = ($max_y - $min_y) / 90;
+
+    CHUNK:
+    foreach my $ds (@density_sorted) {
+        my $stars_per_chunk = int($density->{$ds} * $stars_per_density);
+        $stars_per_chunk += $fudge_factor;
+        # let's add a few stars to make up for chunks where we don't have enough room
+#        say "ds [$ds] density [".$density->{$ds}."] stars_per_density [$stars_per_density] producing $star_id : $stars_per_chunk stars";
+
+        # Calculate the TLE unit co-ordinates of this chunk.
+        my ($p,$q)  = split(":", $ds);
+        my $x_chunk_min = $min_x + $p * $chunk_x;
+        my $x_chunk_max = int($x_chunk_min + $chunk_x);
+        $x_chunk_min    = int($x_chunk_min);
+
+        my $y_chunk_min = $min_y + $q * $chunk_y;
+        my $y_chunk_max = int($y_chunk_min + $chunk_y);
+        $y_chunk_min    = int($y_chunk_min);
+
+        #say "x [$x_chunk_min][$x_chunk_max] y [$y_chunk_min][$y_chunk_max]"; 
+        # see how many stars we can actually put in this chunk.
+        my $retry = 0;
+        my $stars_in_chunk = 0;
+        STAR:
+        while ($stars_in_chunk < $stars_per_chunk) {
+            my $rand_x = randint($x_chunk_min, $x_chunk_max);
+            my $rand_y = randint($y_chunk_min, $y_chunk_max);
+            # Is this location suitable?
+            #
+            # Find all stars 'close' to this one
+            if (room_for_star($p, $q, $rand_x, $rand_y)) {
+                push @stars, {x => $rand_x, y => $rand_y};
+                $stars_in_chunk++;
+#                say "Adding star [$star_id] to $rand_x:$rand_y";
+                $star_id++;
+                last CHUNK if $star_id > $max_stars;
+                $retry = 0;
             }
             else {
-                my $name = get_star_name();
-                if (!$made_lacuna && $x >= 0 && $y >= 0) {
-                    $made_lacuna = 1;
-                    $name = 'Lacuna';
+                if (++$retry > 30) {
+#                    say "RETRY EXCEEDED";
+                    # Give up, we can't find a place for another star in this chunk.
+                    last STAR;
                 }
-                say "Creating star $name at $x, $y.";
-                my $star = $db->resultset('Lacuna::DB::Result::Map::Star')->new({
-                    name        => $name,
-                    color       => $star_colors[rand(scalar(@star_colors))],
-                    x           => $x,
-                    y           => $y,
-                });
-                $star->set_zone_from_xy;
-                $star->insert;
-                add_bodies($star);
             }
-            say "End X $x";
         }
-        $star_toggle = ($star_toggle) ? 0 : 1;
-        say "End Y $y";
-        $real_y += 5;
+        say "Stars ($star_id) in chunk [$p][$q] = $stars_in_chunk/$stars_per_chunk";
+        $chunks_processed++;
     }
+    if ($star_id < $max_stars) {
+        say "not enough stars generated, try increasing 'fudge_factor'";
+    }
+    if ($chunks_processed < 90 * 90) {
+        my $n = 90 * 90 - $chunks_processed;
+        say "$n chunks left empty. You might decrease 'fudge_factor' but better to have some empty chunks rather than too few stars";
+    }
+
 }
 
+# Check if this location is good for a star
+#
+my $ds_stars;
+sub room_for_star {
+    my ($p, $q, $x, $y) = @_;
 
-sub add_bodies {
-    my $star = shift;
-    my @body_types = ('habitable', 'asteroid', 'gas giant');
-    my @body_type_weights = (qw(70 10 10));
-    my @planet_classes = qw(Lacuna::DB::Result::Map::Body::Planet::P1 Lacuna::DB::Result::Map::Body::Planet::P2 Lacuna::DB::Result::Map::Body::Planet::P3 Lacuna::DB::Result::Map::Body::Planet::P4
-        Lacuna::DB::Result::Map::Body::Planet::P5 Lacuna::DB::Result::Map::Body::Planet::P6 Lacuna::DB::Result::Map::Body::Planet::P7 Lacuna::DB::Result::Map::Body::Planet::P8 Lacuna::DB::Result::Map::Body::Planet::P9
-        Lacuna::DB::Result::Map::Body::Planet::P10 Lacuna::DB::Result::Map::Body::Planet::P11 Lacuna::DB::Result::Map::Body::Planet::P12 Lacuna::DB::Result::Map::Body::Planet::P13
-        Lacuna::DB::Result::Map::Body::Planet::P14 Lacuna::DB::Result::Map::Body::Planet::P15 Lacuna::DB::Result::Map::Body::Planet::P16 Lacuna::DB::Result::Map::Body::Planet::P17
-        Lacuna::DB::Result::Map::Body::Planet::P18 Lacuna::DB::Result::Map::Body::Planet::P19 Lacuna::DB::Result::Map::Body::Planet::P20);
-    my @gas_giant_classes = qw(Lacuna::DB::Result::Map::Body::Planet::GasGiant::G1 Lacuna::DB::Result::Map::Body::Planet::GasGiant::G2 Lacuna::DB::Result::Map::Body::Planet::GasGiant::G3
-        Lacuna::DB::Result::Map::Body::Planet::GasGiant::G4 Lacuna::DB::Result::Map::Body::Planet::GasGiant::G5);
-    my @asteroid_classes = qw(Lacuna::DB::Result::Map::Body::Asteroid::A1 Lacuna::DB::Result::Map::Body::Asteroid::A2
-        Lacuna::DB::Result::Map::Body::Asteroid::A3 Lacuna::DB::Result::Map::Body::Asteroid::A4
-        Lacuna::DB::Result::Map::Body::Asteroid::A5 Lacuna::DB::Result::Map::Body::Asteroid::A6
-        Lacuna::DB::Result::Map::Body::Asteroid::A7 Lacuna::DB::Result::Map::Body::Asteroid::A8
-        Lacuna::DB::Result::Map::Body::Asteroid::A9 Lacuna::DB::Result::Map::Body::Asteroid::A10
-        Lacuna::DB::Result::Map::Body::Asteroid::A11 Lacuna::DB::Result::Map::Body::Asteroid::A12
-        Lacuna::DB::Result::Map::Body::Asteroid::A13 Lacuna::DB::Result::Map::Body::Asteroid::A14
-        Lacuna::DB::Result::Map::Body::Asteroid::A15 Lacuna::DB::Result::Map::Body::Asteroid::A16
-        Lacuna::DB::Result::Map::Body::Asteroid::A17 Lacuna::DB::Result::Map::Body::Asteroid::A18
-        Lacuna::DB::Result::Map::Body::Asteroid::A19 Lacuna::DB::Result::Map::Body::Asteroid::A20 Lacuna::DB::Result::Map::Body::Asteroid::A21
-        );
-    say "\tAdding bodies.";
-    for my $orbit (1..8) {
-        my $name = $star->name." ".$orbit;
-        if (randint(1,100) <= 10) { # 10% chance of no body in an orbit
-            say "\tNo body at $name!";
-        } 
-        else {
-            my ($x, $y);
-            if ($orbit == 1) {
-                $x = $star->x + 1; $y = $star->y + 2;
-            }
-            elsif ($orbit == 2) {
-                $x = $star->x + 2; $y = $star->y + 1;
-            }
-            elsif ($orbit == 3) {
-                $x = $star->x + 2; $y = $star->y - 1;
-            }
-            elsif ($orbit == 4) {
-                $x = $star->x + 1; $y = $star->y - 2;
-            }
-            elsif ($orbit == 5) {
-                $x = $star->x - 1; $y = $star->y - 2;
-            }
-            elsif ($orbit == 6) {
-                $x = $star->x - 2; $y = $star->y - 1;
-            }
-            elsif ($orbit == 7) {
-                $x = $star->x - 2; $y = $star->y + 1;
-            }
-            elsif ($orbit == 8) {
-                $x = $star->x - 1; $y = $star->y + 2;
-            }
-            my $type = ($orbit == 3) ? 'habitable' : choose_weighted(\@body_types, \@body_type_weights); # orbit 3 should always be habitable
-            say "\tAdding a $type at $name (".$x.",".$y.").";
-            my $params = {
-                name                => $name,
-                orbit               => $orbit,
-                x                   => $x,
-                y                   => $y,
-                star_id             => $star->id,
-                zone                => $star->zone,
-                usable_as_starter   => 0,
-                usable_as_starter_enabled => 0,
-            };
-            my $body;
-            if ($type eq 'habitable') {
-                $params->{class} = $planet_classes[rand(scalar(@planet_classes))];
-                $params->{size} = ($params->{orbit} == 3) ? randint(35,55) : randint(30,60);
-                if ($params->{size} >= 40 && $params->{size} <= 50) {
-                    $params->{usable_as_starter} = randint(8000,9000) + ($params->{size} * 10) - abs($params->{y}) - abs($params->{x});
-                    $params->{usable_as_starter_enabled} = 1;
+    # Some useful values, compute them out of the inner loop
+    # 
+    my $tle_width       = $max_x - $min_x;
+    my $tle_height      = $max_y - $min_y;
+    my $half_tle_width  = $tle_width/2;
+    my $half_tle_height = $tle_height/2;
+    #say "testing chunk [$p][$q]";
+
+    # checking every other star is too computationally expensive
+    # however we can just look at the adjacent chunks.
+    CHUNK:
+    foreach my $delta_chunk ([-1,1],[0,1],[1,1],[-1,0],[0,0],[1,0],[-1,-1],[0,-1],[1,-1]) {
+        my $chunk_p = $p + $delta_chunk->[0];
+        my $chunk_q = $q + $delta_chunk->[1];
+        $chunk_p += 90 if $chunk_p < 0;
+        $chunk_p -= 90 if $chunk_p >= 90;
+        $chunk_q += 90 if $chunk_q < 0;
+        $chunk_q -= 90 if $chunk_q >= 90;
+        #say "chunk [$chunk_p][$chunk_q]";
+        next CHUNK if not defined $ds_stars->{"$chunk_p:$chunk_q"};
+
+        # check all the stars in this chunk
+        foreach my $s (@{$ds_stars->{"$chunk_p:$chunk_q"}}) {
+            my $x_dist = $s->{x} - $x;
+            $x_dist -= $tle_width if $x_dist > $half_tle_width;
+            my $y_dist = $s->{y} - $y;
+            $y_dist -= $tle_height if $y_dist > $half_tle_height;
+            $x_dist = abs($x_dist);
+            $y_dist = abs($y_dist);
+            #say "checking [$x][$y] and [".$s->{x}."][".$s->{y}."] dist [$x_dist][$y_dist]";
+            if ($x_dist < 6 and $y_dist < 6) {
+#                say "conflict [$x][$y] and [".$s->{x}."][".$s->{y}."]";
+                # we checked the linear distance, no check the pythagorean distance
+                my $dist = sqrt($x_dist * $x_dist + $y_dist * $y_dist);
+                if ($dist < 6) {
+    #                say "definately too close";
+                    return;
                 }
-            }
-            elsif ($type eq 'asteroid') {
-                $params->{class} = $asteroid_classes[rand(scalar(@asteroid_classes))];
-                $params->{size} = randint(1,10);
-            }
-            else {
-                $params->{class} = $gas_giant_classes[rand(scalar(@gas_giant_classes))];
-                $params->{size} = randint(70,121);
-            }
-            $body = $db->resultset('Lacuna::DB::Result::Map::Body')->new($params);
-            $body->insert;
-            if ($body->isa('Lacuna::DB::Result::Map::Body::Planet') && !$body->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant')) {
-                if ($star->name eq 'Lacuna' && !$lacunans_have_been_placed) {
-                    create_lacunan_home_world($body);
-                    next;
-                }
-                else {
-                    add_features($body);
-                }
+    #            say "pythagorean distance is OK";
             }
         }
     }
+    #say "Add star to [$p][$q] [$x][$y]";
+    push @{$ds_stars->{"$p:$q"}}, {x => $x, y => $y};
+    return 1;
 }
 
-sub add_features {
-    my $body = shift;
-    say "\t\tAdding features to body.";
-    my $now = DateTime->now;
-    foreach  my $x (-3, -1, 2, 4, 1) {
-        my $chance = randint(1,100);
-        my $y = randint(-5,5);
-        if ($chance <= 5) {
-            say "\t\t\tAdding lake.";
-            $db->resultset('Lacuna::DB::Result::Building')->new({
-                date_created    => $now,
-                level           => 1,
-                x               => $x,
-                y               => $y,
-                class           => 'Lacuna::DB::Result::Building::Permanent::Lake',
-                body_id         => $body->id,
-            })->insert;
-        }
-        elsif ($chance > 45 && $chance <= 50) {
-            say "\t\t\tAdding rocky outcropping.";
-            $db->resultset('Lacuna::DB::Result::Building')->new({
-                date_created    => $now,
-                level           => 1,
-                x               => $x,
-                y               => $y,
-                class           => 'Lacuna::DB::Result::Building::Permanent::RockyOutcrop',
-                body_id         => $body->id,
-            })->insert;
-        }
-        elsif ($chance > 95) {
-            say "\t\t\tAdding crater.";
-            $db->resultset('Lacuna::DB::Result::Building')->new({
-                date_created    => $now,
-                level           => 1,
-                x               => $x,
-                y               => $y,
-                class           => 'Lacuna::DB::Result::Building::Permanent::Crater',
-                body_id         => $body->id,
-            })->insert;
+sub generate_png() {
+
+    my $im = new GD::Image(3000,3000);
+    my $white = $im->colorAllocate(255,255,255);
+    my $black = $im->colorAllocate(0,0,0);
+    $im->transparent($white);
+    $im->interlaced('true');
+
+    foreach my $ds (keys %$ds_stars) {
+        my ($p,$q)  = split(":", $ds);
+#        say "chunk $ds has ".scalar(@{$ds_stars->{$ds}})." stars";
+        foreach my $s (@{$ds_stars->{$ds}}) {
+            my $x = $s->{x} + 1500;
+            my $y = $s->{y} + 1500;
+            $im->filledEllipse($x, $y, 3, 3, $black);
         }
     }
-}
-
-
-sub create_lacunan_home_world {
-    my $body = shift;
-    $body->update({name=>'Lacuna'});
-    say "\t\t\tMaking this the Lacunans home world.";
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new({
-        id                  => 1,
-        name                => 'Lacuna Expanse Corp',
-        date_created        => DateTime->now,
-        stage               => 'founded',
-        status_message      => 'Will trade for Essentia.',
-        password            => Lacuna::DB::Result::Empire->encrypt_password(rand(99999999)),
-        species_name            => 'Lacunan',
-        species_description     => 'The economic dieties that control the Lacuna Expanse.',
-        min_orbit               => 1,
-        max_orbit               => 7,
-        manufacturing_affinity  => 1, # cost of building new stuff
-        deception_affinity      => 7, # spying ability
-        research_affinity       => 1, # cost of upgrading
-        management_affinity     => 4, # speed to build
-        farming_affinity        => 1, # food
-        mining_affinity         => 1, # minerals
-        science_affinity        => 1, # energy, propultion, and other tech
-        environmental_affinity  => 1, # waste and water
-        political_affinity      => 7, # happiness
-        trade_affinity          => 7, # speed of cargoships, and amount of cargo hauled
-        growth_affinity         => 7, # price and speed of colony ships, and planetary command center start level
-    });
-    $empire->insert;
-    $empire->found($body);
-    $lacunans_have_been_placed = 1;    
-}
-
-
-
-sub get_star_name {
-    my $name = <$star_names>;
-    chomp $name;
-    return $name;
+    open(my $fh, '>',  'starmap.png') || die "Cannot create star image file $!";
+    binmode $fh;
+    print $fh $im->png;
+    close $fh;
+    
 }
 
