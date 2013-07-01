@@ -4,6 +4,10 @@ use 5.010;
 use List::Util::WeightedChoice qw( choose_weighted );
 use Lacuna;
 use Lacuna::Util qw(randint);
+use Lacuna::Constants qw(ORE_TYPES);
+use Lacuna::DB::Result::Building::Waste;
+
+
 use DateTime;
 use Time::HiRes;
 use List::Util qw(max);
@@ -13,13 +17,20 @@ my $config  = Lacuna->config;
 my $db      = Lacuna->db;
 
 # This might need adjusting to get optimum results
-my $fudge_factor = 2;
+my $fudge_factor    = 1.8;              # Can be used to adjust the number of stars/size of voids.
+my $seed            = 3.14159;          # So we can reproduce the starmap
+my $ore_stamps      = 4;                # How many pockets of high ore concentration are there for each ore
+srand($seed);
 
 my $lacunans_have_been_placed = 0;
-my $mask;
-my $density;
-my @stars;
-my $density_factor;
+my $mask;                               # masks to 'stamp' a pattern of star density on the density map
+my $ore_mask;                           # mask used to create a pattern of ore density in TLE
+my $density;                            # TLE is split into 90x90 chunks, each of which has a density of stars
+my $ores;                               # 90x90 density of each type of ore.
+my $density_factor;                     # a value used to help compute the number of stars
+my $ore_asteroid;                       # hash of each asteroid type, and ore composition
+my $ore_planet;                         # hash of each planet type, and ore composition
+my $ore_gg;                             # hash of each Gas Giant type, and ore composition
 
 # These will come from the lacuna config
 my $min_x       = -1500;
@@ -37,9 +48,9 @@ create_database();
 exit 0 if $ENV{CREATE_DB_ONLY};
 
 setup();
-generate_stars();
+#generate_stars();
 
-generate_png();
+#generate_png();
 
 say "Time Elapsed: ".Time::HiRes::tv_interval($t);
 
@@ -61,37 +72,121 @@ sub create_database {
 #
 #
 sub setup {
-    say "Creating density map";
-    # create a density mask
-    for (my $y=-4; $y<5; $y++) {
-        for (my $x=-4; $x<5; $x++) {
-            my $dist = max(0, 5 - int(sqrt($x * $x + $y * $y)));
-            $mask->{$x}{$y} = $dist;
+    say "Creating planet Ore data";
+
+    my $test = Lacuna::DB::Result::Map::Body->new({});
+    bless $test, 'Lacuna::DB::Result::Map::Body::Planet::P1';
+    print "test = [$test]";
+
+    foreach my $a (1..26) {
+        my $name = "Lacuna::DB::Result::Map::Body::Asteroid::A$a";
+        my $asteroid = $name->new();
+        bless $asteroid, $name;
+
+        foreach my $ore (ORE_TYPES) {
+            $ore_asteroid->{"A$a"}{$ore} = $asteroid->$ore();
         }
     }
+    foreach my $p (1..40) {
+        next if $p == 33;
+        my $name = "Lacuna::DB::Result::Map::Body::Planet::P$p";
+        my $planet = $name->new();
+        bless $planet, $name;
+        foreach my $ore (ORE_TYPES) {
+            $ore_planet->{"P$p"}{$ore} = $planet->$ore();
+        }
+    }
+    foreach my $g (1..5) {
+        my $name = "Lacuna::DB::Result::Map::Body::Planet::GasGiant::G$g";
+        my $gas_giant = $name->new();
+        bless $gas_giant, $name;
+        foreach my $ore (ORE_TYPES) {
+            $ore_gg->{"G$g"}{$ore} = $gas_giant->$ore();
+        }
+    }
+
+
+    foreach my $p (1..40) {
+    }
+
+    say "Creating density map";
+    # create some density masks
+
+    foreach my $size (3,5,7) {
+        for (my $y=1-$size; $y<$size; $y++) {
+            for (my $x=1-$size; $x<$size; $x++) {
+                my $dist = max(0, $size - int(sqrt($x * $x + $y * $y)));
+                $mask->{$size}{$x}{$y} = $dist / 2;
+            }
+        }
+    }
+    # larger ore density mask
+    for (my $y=-29; $y< 30; $y++) {
+        for (my $x=-29; $x< 30; $x++) {
+            my $dist = max(0, 30 - int(sqrt($x * $x + $y * $y)));
+            $ore_mask->{$x}{$y} = $dist;
+        }
+    }
+    
+    # clear the density and ore distribution hashes
     for (my $x=0; $x<90; $x++) {
         for (my $y=0; $y<90; $y++) {
             $density->{"$x:$y"} = 0;
+            foreach my $ore (ORE_TYPES) {
+                $ores->{"$x:$y"}{$ore} = 0;
+            }
         }
     }
-    # 'stamp' the mask over the density grid a number of times
+    # 'stamp' the masks over the density grid a number of times
     # '220' is an arbitrary number that seems to work well.
     for (my $i=0; $i<220; $i++) {
         my $x = randint(0,89);
         my $y = randint(0,89);
-
-        for (my $delta_y = -4; $delta_y < 5; $delta_y++) {
-            for (my $delta_x = -4; $delta_x < 5; $delta_x++) {
+        # chose a random mask.
+        my $size = randint(1,3) * 2 + 1;
+        for (my $delta_y = 1-$size; $delta_y < $size; $delta_y++) {
+            for (my $delta_x = 1-$size; $delta_x < $size; $delta_x++) {
                 my $p = $x + $delta_x;
                 my $q = $y + $delta_y;
                 if ($p >= 90) { $p -= 90; };
                 if ($p < 0) { $p += 90; };
                 if ($q >= 90) { $q -= 90; };
                 if ($q < 0) { $q += 90; };
-                $density->{"$p:$q"} += $mask->{$delta_x}{$delta_y};
+                $density->{"$p:$q"} += $mask->{$size}{$delta_x}{$delta_y};
             }
         }
     }
+
+    # Create a density map for the different ores. This will determine the
+    # type of planets to put in these chunks
+    foreach my $ore (ORE_TYPES) {
+        for (my $i=0; $i<$ore_stamps; $i++) {
+            my $x = randint(0,89);
+            my $y = randint(0,89);
+            for (my $delta_y = -29; $delta_y < 30; $delta_y++) {
+                for (my $delta_x = -29; $delta_x < 30; $delta_x++) {
+                    my $p = $x + $delta_x;
+                    my $q = $y + $delta_y;
+                    if ($p >= 90) { $p -= 90; };
+                    if ($p < 0) { $p += 90; };
+                    if ($q >= 90) { $q -= 90; };
+                    if ($q < 0) { $q += 90; };
+                    $ores->{"$p:$q"}{$ore} += $ore_mask->{$delta_x}{$delta_y} * 2;
+                }
+            }
+        }
+    }
+
+    # Print the ore types for each planet type
+    foreach my $p (1..40) {
+        next if $p==33;
+        print "P$p :\t";
+        foreach my $ore (sort keys %{$ore_planet->{"P$p"}}) {
+            print $ore_planet->{"P$p"}{$ore}."\t";
+        }
+        print "\n";
+    }
+
 
     # as a test, print the chunk map. We should see some voids '.' and some high density regions '*'
     # the map should also wrap left/right and top/bottom
@@ -101,12 +196,31 @@ sub setup {
     for (my $y=0; $y<90; $y++) {
         for (my $x=0; $x<90; $x++) {
             my $d = $density->{"$x:$y"};
-            print $d > 9 ? "* " : $d == 0 ? ". " :$d." ";
+#            print $d > 9 ? "* " : $d == 0 ? ". " :$d." ";
             $density_factor += $d;
             $max_density = $d if $d > $max_density;
         }
-        print " ... $y\n";
+#        print " ... $y\n";
     }
+
+    # Print the density map for 'chromite'
+    for (my $y=0; $y<90; $y++) {
+        for (my $x=0; $x<90; $x++) {
+            my $d = $ores->{"$x:$y"}{chromite};
+#            print $d > 9 ? "* " : $d == 0 ? ". " :$d." ";
+        }
+#        print " ... $y\n";
+    }
+    # Print the ore density for zone 0|0
+    for my $z ([0,30],[50,80],[39,39]) {
+        my $x = $z->[0];
+        my $y = $z->[1];
+        say "$x:$y";
+        for my $ore (ORE_TYPES) {
+#            say "$ore\t".$ores->{"$x:$y"}{$ore};
+        }
+    }
+
     print "density_factor=$density_factor max_density=$max_density\n";
 }
 
@@ -128,10 +242,7 @@ sub generate_stars {
 
     CHUNK:
     foreach my $ds (@density_sorted) {
-        my $stars_per_chunk = int($density->{$ds} * $stars_per_density);
-        $stars_per_chunk += $fudge_factor;
-        # let's add a few stars to make up for chunks where we don't have enough room
-#        say "ds [$ds] density [".$density->{$ds}."] stars_per_density [$stars_per_density] producing $star_id : $stars_per_chunk stars";
+        my $stars_per_chunk = int($density->{$ds} * $stars_per_density + $fudge_factor);
 
         # Calculate the TLE unit co-ordinates of this chunk.
         my ($p,$q)  = split(":", $ds);
@@ -155,16 +266,13 @@ sub generate_stars {
             #
             # Find all stars 'close' to this one
             if (room_for_star($p, $q, $rand_x, $rand_y)) {
-                push @stars, {x => $rand_x, y => $rand_y};
                 $stars_in_chunk++;
-#                say "Adding star [$star_id] to $rand_x:$rand_y";
                 $star_id++;
                 last CHUNK if $star_id > $max_stars;
                 $retry = 0;
             }
             else {
                 if (++$retry > 30) {
-#                    say "RETRY EXCEEDED";
                     # Give up, we can't find a place for another star in this chunk.
                     last STAR;
                 }
@@ -184,7 +292,10 @@ sub generate_stars {
 }
 
 # Check if this location is good for a star
-#
+# The linear distance between stars must be at least 6 units othewise the
+# planets will overlap.
+# Ensure that this star does not conflict with any other stars
+# 
 my $ds_stars;
 sub room_for_star {
     my ($p, $q, $x, $y) = @_;
@@ -212,6 +323,8 @@ sub room_for_star {
 
         # check all the stars in this chunk
         foreach my $s (@{$ds_stars->{"$chunk_p:$chunk_q"}}) {
+            # Check the distance, allowing for the TLE map wrap-around effect
+            # 
             my $x_dist = $s->{x} - $x;
             $x_dist -= $tle_width if $x_dist > $half_tle_width;
             my $y_dist = $s->{y} - $y;
@@ -220,18 +333,15 @@ sub room_for_star {
             $y_dist = abs($y_dist);
             #say "checking [$x][$y] and [".$s->{x}."][".$s->{y}."] dist [$x_dist][$y_dist]";
             if ($x_dist < 6 and $y_dist < 6) {
-#                say "conflict [$x][$y] and [".$s->{x}."][".$s->{y}."]";
-                # we checked the linear distance, no check the pythagorean distance
+                # we checked the linear distance, now check the pythagorean distance
                 my $dist = sqrt($x_dist * $x_dist + $y_dist * $y_dist);
                 if ($dist < 6) {
-    #                say "definately too close";
                     return;
                 }
-    #            say "pythagorean distance is OK";
+                # pythagorean distance is OK
             }
         }
     }
-    #say "Add star to [$p][$q] [$x][$y]";
     push @{$ds_stars->{"$p:$q"}}, {x => $x, y => $y};
     return 1;
 }
@@ -239,18 +349,23 @@ sub room_for_star {
 sub generate_png() {
 
     my $im = new GD::Image(3000,3000);
-    my $white = $im->colorAllocate(255,255,255);
-    my $black = $im->colorAllocate(0,0,0);
-    $im->transparent($white);
-    $im->interlaced('true');
+    my $white   = $im->colorAllocate(255,255,255);
+    my $grey    =$im->colorAllocate(72,72,72);
+    my $black   = $im->colorAllocate(0,0,0);
+    my $star_colour = $im->colorAllocate(127,255,212);
 
+    $im->filledRectangle(0,0,2999,2999,$grey);
+    # draw the zone boundaries
+    for (my $z=-3000; $z < 3000; $z += 250) {
+        $im->line($z,-3000,$z,2999,$white);
+        $im->line(-3000,$z,2999,$z,$white);
+    }
     foreach my $ds (keys %$ds_stars) {
         my ($p,$q)  = split(":", $ds);
-#        say "chunk $ds has ".scalar(@{$ds_stars->{$ds}})." stars";
         foreach my $s (@{$ds_stars->{$ds}}) {
             my $x = $s->{x} + 1500;
             my $y = $s->{y} + 1500;
-            $im->filledEllipse($x, $y, 3, 3, $black);
+            $im->filledEllipse($x, $y, 5.5, 5.5, $star_colour);
         }
     }
     open(my $fh, '>',  'starmap.png') || die "Cannot create star image file $!";
