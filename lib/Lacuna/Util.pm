@@ -22,7 +22,7 @@ sub randint {
     $low = 0 unless defined $low;
     $high = 1 unless defined $high;
     ($low, $high) = ($high,$low) if $low > $high;
-    return $low + int( rand( $high - $low + 1 ) );
+    return int($low + int( rand( $high - $low + 1 ) ));
 }
 
 sub random_element {
