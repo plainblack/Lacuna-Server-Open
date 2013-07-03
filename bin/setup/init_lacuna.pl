@@ -14,7 +14,7 @@ use GD::Image;
 
 # Generate a 'more natural' layout of stars where stars are clustered and there are voids
 # Generate a distribution of ores within the expanse so that we have abundance and rarity
-# This is achieved by splitting the expanse into 8100 chunks (90x90) which is used to calculate star density and ore distribution
+# This is achieved by splitting the expanse into chunks which is used to calculate star density and ore distribution
 # Once we have the density of stars in each chunk we randomly place stars
 # Once we have the relative amount of ore in each chunk we try to use a variation of the back-packers algorithm to place planets
 
@@ -31,17 +31,25 @@ my $quick_test      = 1;                # For testing purposes, set to 0 for pro
 my $lacunans_have_been_placed = 0;
 my $mask;                               # masks to 'stamp' a pattern of star density on the density map
 my $ore_mask;                           # mask used to create a pattern of ore density in TLE
-my $density;                            # TLE is split into 90x90 chunks, each of which has a density of stars
-my $ores;                               # 90x90 density of each type of ore.
+my $density;                            # TLE is split into chunks, each of which has a density of stars
+my $ores;                               # chunks for density of each type of ore.
 my $density_factor;                     # a value used to help compute the number of stars
 my $body_ore;                           # ore composition for each body type
 
-# These will come from the lacuna config
-my $min_x       = -1500;
-my $max_x       = 1499;
-my $min_y       = -1500;
-my $max_y       = 1499;
-my $max_stars   = 80000;
+
+# Set up some variables which determine the size of the expanse
+# 
+my $map_size    = $config->get('map_size');
+my ($map_min_x, $map_max_x) = @{$map_size->{x}};
+my ($map_min_y, $map_max_y) = @{$map_size->{y}};
+my $map_width   = ($map_max_x - $map_min_x);
+my $map_height  = ($map_max_y - $map_min_y);
+
+# max stars and chunk size depends on the area
+my $max_stars   = int($map_width * $map_height / 112.5);
+my $chunks      = int($map_width * 3 / 100);
+my $odm_size    = int($chunks / 3);
+say "We are going to generate $max_stars stars in chunks of $chunks and ore density mask size of $odm_size";
 
 my $t = [Time::HiRes::tv_interval];
 create_database();
@@ -135,16 +143,16 @@ sub setup {
         }
     }
     # A larger ore density mask
-    for (my $y=-29; $y< 30; $y++) {
-        for (my $x=-29; $x< 30; $x++) {
-            my $dist = max(0, 30 - int(sqrt($x * $x + $y * $y)));
+    for (my $y=1-$odm_size; $y< $odm_size; $y++) {
+        for (my $x=1-$odm_size; $x< $odm_size; $x++) {
+            my $dist = max(0, $odm_size - int(sqrt($x * $x + $y * $y)));
             $ore_mask->{$x}{$y} = $dist;
         }
     }
     
     # clear the density and ore distribution hashes
-    for (my $x=0; $x<90; $x++) {
-        for (my $y=0; $y<90; $y++) {
+    for (my $x=0; $x<$chunks; $x++) {
+        for (my $y=0; $y<$chunks; $y++) {
             $density->{"$x:$y"} = 0;
             foreach my $ore (ORE_TYPES) {
                 $ores->{$x}{$y}{$ore} = 0;
@@ -156,18 +164,18 @@ sub setup {
     # create a 'natural' distribution of stars
     #
     for (my $i=0; $i<220; $i++) {
-        my $x = randint(0,89);
-        my $y = randint(0,89);
+        my $x = randint(0,$chunks-1);
+        my $y = randint(0,$chunks-1);
         # chose a random mask.
         my $size = randint(1,3) * 2 + 1;
         for (my $delta_y = 1-$size; $delta_y < $size; $delta_y++) {
             for (my $delta_x = 1-$size; $delta_x < $size; $delta_x++) {
                 my $p = $x + $delta_x;
                 my $q = $y + $delta_y;
-                if ($p >= 90) { $p -= 90; };
-                if ($p < 0) { $p += 90; };
-                if ($q >= 90) { $q -= 90; };
-                if ($q < 0) { $q += 90; };
+                if ($p >= $chunks) { $p -= $chunks; };
+                if ($p < 0) { $p += $chunks; };
+                if ($q >= $chunks) { $q -= $chunks; };
+                if ($q < 0) { $q += $chunks; };
                 $density->{"$p:$q"} += $mask->{$size}{$delta_x}{$delta_y};
             }
         }
@@ -177,16 +185,16 @@ sub setup {
     # type of planets to put in these chunks
     foreach my $ore (ORE_TYPES) {
         for (my $i=0; $i<$ore_stamps; $i++) {
-            my $x = randint(0,89);
-            my $y = randint(0,89);
+            my $x = randint(0,$chunks-1);
+            my $y = randint(0,$chunks-1);
             for (my $delta_y = -29; $delta_y < 30; $delta_y++) {
                 for (my $delta_x = -29; $delta_x < 30; $delta_x++) {
                     my $p = $x + $delta_x;
                     my $q = $y + $delta_y;
-                    if ($p >= 90) { $p -= 90; };
-                    if ($p < 0) { $p += 90; };
-                    if ($q >= 90) { $q -= 90; };
-                    if ($q < 0) { $q += 90; };
+                    if ($p >= $chunks) { $p -= $chunks; };
+                    if ($p < 0) { $p += $chunks; };
+                    if ($q >= $chunks) { $q -= $chunks; };
+                    if ($q < 0) { $q += $chunks; };
                     $ores->{$p}{$q}{$ore} += $ore_mask->{$delta_x}{$delta_y} * 2;
                 }
             }
@@ -195,8 +203,8 @@ sub setup {
 
     # Normalize each chunk so that the ores sum to 100
     $density_factor = 0;
-    for (my $y=0; $y<90; $y++) {
-        for (my $x=0; $x<90; $x++) {
+    for (my $y=0; $y<$chunks; $y++) {
+        for (my $x=0; $x<$chunks; $x++) {
             $density_factor += $density->{"$x:$y"};
             my $sum = 0;
             foreach my $ore (ORE_TYPES) {
@@ -219,8 +227,8 @@ sub generate_planets {
         planets_for_chunk(0,0);
     }
     else {
-        for (my $x=0; $x<90; $x++) {
-            for (my $y=0; $y<90; $y++) {
+        for (my $x=0; $x<$chunks; $x++) {
+            for (my $y=0; $y<$chunks; $y++) {
                 planets_for_chunk($x,$y);
             }
         }
@@ -321,8 +329,8 @@ sub generate_stars {
     my @density_sorted = sort {$density->{$b} <=> $density->{$a}} keys %$density;
     my $star_id = 1;
     my $chunks_processed = 0;
-    my $chunk_x = ($max_x - $min_x) / 90;
-    my $chunk_y = ($max_y - $min_y) / 90;
+    my $chunk_x = ($map_max_x - $map_min_x) / $chunks;
+    my $chunk_y = ($map_max_y - $map_min_y) / $chunks;
 
     CHUNK:
     foreach my $ds (@density_sorted) {
@@ -330,11 +338,11 @@ sub generate_stars {
 
         # Calculate the TLE unit co-ordinates of this chunk.
         my ($p,$q)  = split(":", $ds);
-        my $x_chunk_min = $min_x + $p * $chunk_x;
+        my $x_chunk_min = $map_min_x + $p * $chunk_x;
         my $x_chunk_max = int($x_chunk_min + $chunk_x);
         $x_chunk_min    = int($x_chunk_min);
 
-        my $y_chunk_min = $min_y + $q * $chunk_y;
+        my $y_chunk_min = $map_min_y + $q * $chunk_y;
         my $y_chunk_max = int($y_chunk_min + $chunk_y);
         $y_chunk_min    = int($y_chunk_min);
 
@@ -368,8 +376,8 @@ sub generate_stars {
     if ($star_id < $max_stars) {
         say "not enough stars generated, try increasing 'fudge_factor'";
     }
-    if ($chunks_processed < 90 * 90) {
-        my $n = 90 * 90 - $chunks_processed;
+    if ($chunks_processed < $chunks * $chunks) {
+        my $n = $chunks * $chunks - $chunks_processed;
         say "$n chunks left empty. You might decrease 'fudge_factor' but better to have some empty chunks rather than too few stars";
     }
 }
@@ -385,8 +393,8 @@ sub room_for_star {
 
     # Some useful values, compute them out of the inner loop
     # 
-    my $tle_width       = $max_x - $min_x;
-    my $tle_height      = $max_y - $min_y;
+    my $tle_width       = $map_max_x - $map_min_x;
+    my $tle_height      = $map_max_y - $map_min_y;
     my $half_tle_width  = $tle_width/2;
     my $half_tle_height = $tle_height/2;
     #say "testing chunk [$p][$q]";
@@ -397,10 +405,10 @@ sub room_for_star {
     foreach my $delta_chunk ([-1,1],[0,1],[1,1],[-1,0],[0,0],[1,0],[-1,-1],[0,-1],[1,-1]) {
         my $chunk_p = $p + $delta_chunk->[0];
         my $chunk_q = $q + $delta_chunk->[1];
-        $chunk_p += 90 if $chunk_p < 0;
-        $chunk_p -= 90 if $chunk_p >= 90;
-        $chunk_q += 90 if $chunk_q < 0;
-        $chunk_q -= 90 if $chunk_q >= 90;
+        $chunk_p += $chunks if $chunk_p < 0;
+        $chunk_p -= $chunks if $chunk_p >= $chunks;
+        $chunk_q += $chunks if $chunk_q < 0;
+        $chunk_q -= $chunks if $chunk_q >= $chunks;
         #say "chunk [$chunk_p][$chunk_q]";
         next CHUNK if not defined $ds_stars->{"$chunk_p:$chunk_q"};
 
@@ -466,7 +474,7 @@ sub generate_ores_png() {
 
     foreach my $ore (ORE_TYPES) {
         say "Generating ore distribution map for $ore";
-        my $im = new GD::Image(3000,3000);
+        my $im = new GD::Image($map_width,$map_height);
         my $white   = $im->colorAllocate(255,255,255);
         my $grey    =$im->colorAllocate(72,72,72);
         my $black   = $im->colorAllocate(0,0,0);
@@ -474,19 +482,19 @@ sub generate_ores_png() {
         my $colour = generate_colour();
         my $ore_colour = $im->colorAllocate(@$colour);
 
-        $im->filledRectangle(0,0,2999,2999,$grey);
+        $im->filledRectangle(0,0,$map_width,$map_height,$grey);
         # draw the zone boundaries
-        for (my $z=-3000; $z < 3000; $z += 250) {
-            $im->line($z,-3000,$z,2999,$white);
-            $im->line(-3000,$z,2999,$z,$white);
+        for (my $z=0; $z < $map_width; $z += 250) {
+            $im->line($z,0,$z,$map_height,$white);
+            $im->line(0,$z,$map_width,$z,$white);
         }
 
-        my $chunk_x = ($max_x - $min_x) / 90;
-        my $chunk_y = ($max_y - $min_y) / 90;
+        my $chunk_x = ($map_max_x - $map_min_x) / $chunks;
+        my $chunk_y = ($map_max_y - $map_min_y) / $chunks;
         
         CHUNK:
-        for (my $p=0; $p<90; $p++) {
-            for (my $q=0; $q<90; $q++) {
+        for (my $p=0; $p<$chunks; $p++) {
+            for (my $q=0; $q<$chunks; $q++) {
                 # Calculate the TLE unit co-ordinates of this chunk.
                 my $x_chunk_min = $p * $chunk_x;
                 my $x_chunk_max = int($x_chunk_min + $chunk_x);
@@ -516,23 +524,23 @@ sub generate_ores_png() {
 # 
 sub generate_stars_png() {
 
-    my $im = new GD::Image(3000,3000);
+    my $im = new GD::Image($map_width,$map_height);
     my $white   = $im->colorAllocate(255,255,255);
     my $grey    =$im->colorAllocate(72,72,72);
     my $black   = $im->colorAllocate(0,0,0);
     my $star_colour = $im->colorAllocate(127,255,212);
 
-    $im->filledRectangle(0,0,2999,2999,$grey);
+    $im->filledRectangle(0,0,$map_width,$map_height,$grey);
     # draw the zone boundaries
-    for (my $z=-3000; $z < 3000; $z += 250) {
-        $im->line($z,-3000,$z,2999,$white);
-        $im->line(-3000,$z,2999,$z,$white);
+    for (my $z=0; $z < $map_width; $z += 250) {
+        $im->line($z,0,$z,$map_height,$white);
+        $im->line(0,$z,$map_width,$z,$white);
     }
     foreach my $ds (keys %$ds_stars) {
         my ($p,$q)  = split(":", $ds);
         foreach my $s (@{$ds_stars->{$ds}}) {
-            my $x = $s->{x} + 1500;
-            my $y = $s->{y} + 1500;
+            my $x = $s->{x} - $map_min_x;
+            my $y = $s->{y} - $map_min_y;
             $im->filledEllipse($x, $y, 5.5, 5.5, $star_colour);
         }
     }
