@@ -7,19 +7,24 @@ use Lacuna::Util qw(randint);
 use Lacuna::Constants qw(ORE_TYPES);
 use Lacuna::DB::Result::Building::Waste;
 
-
 use DateTime;
 use Time::HiRes;
 use List::Util qw(max);
 use GD::Image;
 
+# Generate a 'more natural' layout of stars where stars are clustered and there are voids
+# Generate a distribution of ores within the expanse so that we have abundance and rarity
+# This is achieved by splitting the expanse into 8100 chunks (90x90) which is used to calculate star density and ore distribution
+# Once we have the density of stars in each chunk we randomly place stars
+# Once we have the relative amount of ore in each chunk we try to use a variation of the back-packers algorithm to place planets
+
 my $config  = Lacuna->config;
 my $db      = Lacuna->db;
 
-# This might need adjusting to get optimum results
+# These might need adjusting to get optimum results
 my $fudge_factor    = 1.8;              # Can be used to adjust the number of stars/size of voids.
-my $seed            = 3.14159;          # So we can reproduce the starmap
-my $ore_stamps      = 4;                # How many pockets of high ore concentration are there for each ore
+my $seed            = 3.14159;          # So we can reproduce the starmap.
+my $ore_stamps      = 4;                # How many pockets of high ore concentration are there for each ore type.
 srand($seed);
 
 my $lacunans_have_been_placed = 0;
@@ -28,9 +33,7 @@ my $ore_mask;                           # mask used to create a pattern of ore d
 my $density;                            # TLE is split into 90x90 chunks, each of which has a density of stars
 my $ores;                               # 90x90 density of each type of ore.
 my $density_factor;                     # a value used to help compute the number of stars
-my $ore_asteroid;                       # hash of each asteroid type, and ore composition
-my $ore_planet;                         # hash of each planet type, and ore composition
-my $ore_gg;                             # hash of each Gas Giant type, and ore composition
+my $body_ore;                           # ore composition for each body type
 
 # These will come from the lacuna config
 my $min_x       = -1500;
@@ -49,6 +52,7 @@ exit 0 if $ENV{CREATE_DB_ONLY};
 
 setup();
 #generate_stars();
+generate_planets();
 
 #generate_png();
 
@@ -62,14 +66,10 @@ sub create_database {
 #    $db->deploy({ add_drop_table => 1 });
 }
 
-# Break the map down into chunks, so that there are 90x90 chunks
-# Randomly choose a chunk and 'stamp' a density mask
-# on it and the chunks adjacent to it, incrementing each chunks value
-# by the level of the mask.
-# With the right choice of numbers, this will produce voids and high
-# density chunks which we can then populate with stars in proportion
-# to the value of the chunk.
-#
+# Break the map down into chunks.
+# Randomly 'stamp' the density mask over the chunks to create areas
+# of high and low density which can then be used to distribute the
+# stars and the ores.
 #
 sub setup {
     say "Creating planet Ore data";
@@ -78,40 +78,49 @@ sub setup {
     bless $test, 'Lacuna::DB::Result::Map::Body::Planet::P1';
     print "test = [$test]";
 
+    # Read the default ore values for each planet/asteroid/GG type
+
     foreach my $a (1..26) {
         my $name = "Lacuna::DB::Result::Map::Body::Asteroid::A$a";
-        my $asteroid = $name->new();
-        bless $asteroid, $name;
+        my $body = $name->new();
+        # this is a bit of a cludge!
+        bless $body, $name;
 
         foreach my $ore (ORE_TYPES) {
-            $ore_asteroid->{"A$a"}{$ore} = $asteroid->$ore();
+            $body_ore->{"A$a"}{$ore} = $body->$ore();
         }
     }
     foreach my $p (1..40) {
         next if $p == 33;
         my $name = "Lacuna::DB::Result::Map::Body::Planet::P$p";
-        my $planet = $name->new();
-        bless $planet, $name;
+        my $body = $name->new();
+        bless $body, $name;
         foreach my $ore (ORE_TYPES) {
-            $ore_planet->{"P$p"}{$ore} = $planet->$ore();
+            $body_ore->{"P$p"}{$ore} = $body->$ore();
         }
     }
     foreach my $g (1..5) {
         my $name = "Lacuna::DB::Result::Map::Body::Planet::GasGiant::G$g";
-        my $gas_giant = $name->new();
-        bless $gas_giant, $name;
+        my $body = $name->new();
+        bless $body, $name;
         foreach my $ore (ORE_TYPES) {
-            $ore_gg->{"G$g"}{$ore} = $gas_giant->$ore();
+            $body_ore->{"G$g"}{$ore} = $body->$ore();
         }
     }
 
-
-    foreach my $p (1..40) {
+    # Normalize ore for each planet type to sum to 100
+    foreach my $p (sort keys %$body_ore) {
+        my $max = 0;
+        foreach my $ore (keys %{$body_ore->{$p}}) {
+            $max += $body_ore->{$p}{$ore};
+        }
+        foreach my $ore (keys %{$body_ore->{$p}}) {
+            $body_ore->{$p}{$ore} = int($body_ore->{$p}{$ore} * (100 / $max) + 0.5);
+        }
     }
 
-    say "Creating density map";
-    # create some density masks
-
+    say "Creating star density map";
+    # Create some different sized density masks
     foreach my $size (3,5,7) {
         for (my $y=1-$size; $y<$size; $y++) {
             for (my $x=1-$size; $x<$size; $x++) {
@@ -120,7 +129,7 @@ sub setup {
             }
         }
     }
-    # larger ore density mask
+    # A larger ore density mask
     for (my $y=-29; $y< 30; $y++) {
         for (my $x=-29; $x< 30; $x++) {
             my $dist = max(0, 30 - int(sqrt($x * $x + $y * $y)));
@@ -133,12 +142,14 @@ sub setup {
         for (my $y=0; $y<90; $y++) {
             $density->{"$x:$y"} = 0;
             foreach my $ore (ORE_TYPES) {
-                $ores->{"$x:$y"}{$ore} = 0;
+                $ores->{$x}{$y}{$ore} = 0;
             }
         }
     }
     # 'stamp' the masks over the density grid a number of times
-    # '220' is an arbitrary number that seems to work well.
+    # '220' is an arbitrary number that seems to work well to
+    # create a 'natural' distribution of stars
+    #
     for (my $i=0; $i<220; $i++) {
         my $x = randint(0,89);
         my $y = randint(0,89);
@@ -171,7 +182,7 @@ sub setup {
                     if ($p < 0) { $p += 90; };
                     if ($q >= 90) { $q -= 90; };
                     if ($q < 0) { $q += 90; };
-                    $ores->{"$p:$q"}{$ore} += $ore_mask->{$delta_x}{$delta_y} * 2;
+                    $ores->{$p}{$q}{$ore} += $ore_mask->{$delta_x}{$delta_y} * 2;
                 }
             }
         }
@@ -181,11 +192,25 @@ sub setup {
     foreach my $p (1..40) {
         next if $p==33;
         print "P$p :\t";
-        foreach my $ore (sort keys %{$ore_planet->{"P$p"}}) {
-            print $ore_planet->{"P$p"}{$ore}."\t";
+        foreach my $ore (sort keys %{$body_ore->{"P$p"}}) {
+            print $body_ore->{"P$p"}{$ore}."\t";
         }
         print "\n";
     }
+
+    # Normalize each chunk so that the ores sum to 100
+    for (my $y=0; $y<90; $y++) {
+        for (my $x=0; $x<90; $x++) {
+            my $sum = 0;
+            foreach my $ore (ORE_TYPES) {
+                $sum += $ores->{$x}{$y}{$ore};
+            }
+            foreach my $ore (ORE_TYPES) {
+                $ores->{$x}{$y}{$ore} *= (100 / $sum);
+            }
+        }
+    }
+
 
 
     # as a test, print the chunk map. We should see some voids '.' and some high density regions '*'
@@ -206,23 +231,109 @@ sub setup {
     # Print the density map for 'chromite'
     for (my $y=0; $y<90; $y++) {
         for (my $x=0; $x<90; $x++) {
-            my $d = $ores->{"$x:$y"}{chromite};
+            my $d = $ores->{$x}{$y}{chromite};
 #            print $d > 9 ? "* " : $d == 0 ? ". " :$d." ";
         }
 #        print " ... $y\n";
     }
     # Print the ore density for zone 0|0
-    for my $z ([0,30],[50,80],[39,39]) {
+#    for my $z ([0,30],[50,80],[39,39]) {
+    for my $z ([0,0]) {
         my $x = $z->[0];
         my $y = $z->[1];
         say "$x:$y";
         for my $ore (ORE_TYPES) {
-#            say "$ore\t".$ores->{"$x:$y"}{$ore};
+            say "$ore\t".$ores->{$x}{$y}{$ore};
         }
     }
 
     print "density_factor=$density_factor max_density=$max_density\n";
 }
+
+# Now create the planets
+#
+sub generate_planets {
+    say "Generating Planets";
+
+    for my $z ([0,0]) {
+        my $x = $z->[0];
+        my $y = $z->[1];
+        print "$x:$y\t";
+        my $target_ores = $ores->{$x}{$y};
+        foreach my $ore (ORE_TYPES) {
+            print int($target_ores->{$ore})."\t";
+        }
+        print "\n";
+
+        # counter for each body type
+        my $body_qty;
+        foreach my $body (keys %{$body_ore}) {
+            $body_qty->{$body} = 0;
+        }
+        my $total_bodies = 0;           # Number of bodies added to the list
+        my $best_sum = 999999999999999;
+
+        while ($total_bodies < 1000) {
+            my $best_body   = '';
+            my $best_found  = 0;
+
+            # For each body, test the new sum of errors when increasing the number of that body by 1
+            # Whichever body (if any) improves the sum the most, should be used.
+
+            foreach my $body (keys %{$body_ore}) {
+                my $sum = 0;
+                print "$body\t";
+                foreach my $ore ( keys %$target_ores) {
+                    my $ore_sum = $body_ore->{$body}{$ore};
+                    foreach my $body (keys %$body_ore) {
+                        $ore_sum += $body_ore->{$body}{$ore} * $body_qty->{$body};
+                    }
+                    $ore_sum / ($total_bodies + 1);
+                    $sum += abs($target_ores->{$ore} - $ore_sum);
+                    print int($ore_sum)."\t";
+                }
+                print "... $sum\n";
+                if ($sum < $best_sum) {
+                    $best_sum   = $sum;
+                    $best_body  = $body;
+                    $best_found = 1;
+                }
+            }
+
+            if ($best_found) {
+                print "$best_body ";
+                for my $ore (ORE_TYPES) {
+                    print $body_ore->{$best_body}{$ore}."\t";
+                }
+                print "... error $best_sum\n";
+
+                # add in this planets ore
+                $body_qty->{$best_body}++;
+                $total_bodies++;
+            }
+            else {
+                say "COULD NOT FIND A BETTER PLANET. DOUBLING UP.";
+                # double up all the existing body quantities.
+                $total_bodies = 0;
+                foreach my $body (keys %$body_ore) {
+                    $body_qty->{$body} *= 2;
+                    $total_bodies += $body_qty->{$body};
+                }
+            }
+        }
+        foreach my $body (keys %{$body_ore}) {
+            if ($body_qty->{$body}) {
+                print "$body - ".$body_qty->{$body}."\t";
+                for my $ore (ORE_TYPES) {
+                    print $body_ore->{$body}{$ore}."\t";
+                }
+                print "\n";
+            }
+        }
+    }
+
+}
+
 
 # now create the stars.
 #
