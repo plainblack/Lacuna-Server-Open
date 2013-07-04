@@ -301,11 +301,14 @@ sub update_database_chunk {
                 my $i = 0;
                 my $body_name = 'A1';
                 BODY:
-                foreach $body_name (sort keys %$body_numbers) {
+                foreach my $bn (sort keys %$body_numbers) {
+                    $body_name = $bn;
                     last BODY if $i >= $body_i;
                     $i += $body_numbers->{$body_name};
                 }
+
                 # convert body_name into a Class
+                my $add_features;
                 my $class = 'Lacuna::DB::Result::Map::Body::';
                 my $size = 0;
                 if ($body_name =~ m/^A/) {
@@ -315,11 +318,13 @@ sub update_database_chunk {
                 if ($body_name =~ m/^P/) {
                     $class .= "Planet::$body_name";
                     $size = randint(30,65);
+                    $add_features = 1;
                 }
                 if ($body_name =~ m/^G/) {
                     $class .= "Planet::GasGiant::$body_name";
                     $size = randint(70,121);
                 }
+                say "\t\tAdding body type $body_name named $name";
                 my $body = $db->resultset('Lacuna::DB::Result::Map::Body')->create({
                     name        => $name,
                     orbit       => $orbit,
@@ -329,16 +334,93 @@ sub update_database_chunk {
                     class       => $class,
                     size        => $size,
                 });
-                add_features($body);
+                if ($add_features) {
+                    if ($star->name eq 'Lacuna' && ! $lacunans_have_been_placed) {
+                        create_lacunan_home_world($body);
+                    }
+                    else {
+                        add_features($body);
+                    }
+                }
             }
         }
     }
 }
 
+sub create_lacunan_home_world {
+    my $body = shift;
+    $body->update({name=>'Lacuna'});
+    say "\t\t\tMaking this the Lacunans home world.";
+    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new({
+        id                  => 1,
+        name                => 'Lacuna Expanse Corp',
+        date_created        => DateTime->now,
+        stage               => 'founded',
+        status_message      => 'Will trade for Essentia.',
+        password            => Lacuna::DB::Result::Empire->encrypt_password(rand(99999999)),
+        species_name            => 'Lacunan',
+        species_description     => 'The economic deities that control the Lacuna Expanse.',
+        min_orbit               => 1,
+        max_orbit               => 7,
+        manufacturing_affinity  => 1, # cost of building new stuff
+        deception_affinity      => 7, # spying ability
+        research_affinity       => 1, # cost of upgrading
+        management_affinity     => 4, # speed to build
+        farming_affinity        => 1, # food
+        mining_affinity         => 1, # minerals
+        science_affinity        => 1, # energy, propultion, and other tech
+        environmental_affinity  => 1, # waste and water
+        political_affinity      => 7, # happiness
+        trade_affinity          => 7, # speed of cargoships, and amount of cargo hauled
+        growth_affinity         => 7, # price and speed of colony ships, and planetary command center start level
+    });
+    $empire->insert;
+    $empire->found($body);
+    $lacunans_have_been_placed = 1;
+}
+
 sub add_features {
     my ($body) = @_;
 
-    # If body is a Planet or Gas Giant then add features
+    say "\t\tAdding features to body.";
+    my $now = DateTime->now;
+    foreach  my $x (-3, -1, 2, 4, 1) {
+        my $chance = randint(1,100);
+        my $y = randint(-5,5);
+        if ($chance <= 5) {
+            say "\t\t\tAdding lake.";
+            $db->resultset('Lacuna::DB::Result::Building')->new({
+                date_created    => $now,
+                level           => 1,
+                x               => $x,
+                y               => $y,
+                class           => 'Lacuna::DB::Result::Building::Permanent::Lake',
+                body_id         => $body->id,
+            })->insert;
+        }
+        elsif ($chance > 45 && $chance <= 50) {
+            say "\t\t\tAdding rocky outcropping.";
+            $db->resultset('Lacuna::DB::Result::Building')->new({
+                date_created    => $now,
+                level           => 1,
+                x               => $x,
+                y               => $y,
+                class           => 'Lacuna::DB::Result::Building::Permanent::RockyOutcrop',
+                body_id         => $body->id,
+            })->insert;
+        }
+        elsif ($chance > 95) {
+            say "\t\t\tAdding crater.";
+            $db->resultset('Lacuna::DB::Result::Building')->new({
+                date_created    => $now,
+                level           => 1,
+                x               => $x,
+                y               => $y,
+                class           => 'Lacuna::DB::Result::Building::Permanent::Crater',
+                body_id         => $body->id,
+            })->insert;
+        }
+    }
 }
 
 sub get_star_name {
