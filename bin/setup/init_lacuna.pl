@@ -18,6 +18,9 @@ use GD::Image;
 # Once we have the density of stars in each chunk we randomly place stars
 # Once we have the relative amount of ore in each chunk we try to use a variation of the back-packers algorithm to place planets
 
+# I have tried to use 'x' and 'y' to refer to co-ordinates in the TLE map
+# 'p' and 'q' refer to co-ordinates in the (courser grained) chunk map
+
 my $config  = Lacuna->config;
 my $db      = Lacuna->db;
 
@@ -35,6 +38,7 @@ my $density;                            # TLE is split into chunks, each of whic
 my $ores;                               # chunks for density of each type of ore.
 my $density_factor;                     # a value used to help compute the number of stars
 my $body_ore;                           # ore composition for each body type
+my $ds_stars;                           # The x,y co-ordinate of stars to place in each chunk
 
 
 # Set up some variables which determine the size of the expanse
@@ -52,6 +56,10 @@ my $odm_size    = int($chunks / 3);
 say "We are going to generate $max_stars stars in chunks of $chunks and ore density mask size of $odm_size";
 
 my $t = [Time::HiRes::tv_interval];
+
+# This allows you to create up to 1.2M stars
+open my $star_names, "<", "../../var/starnames.txt";
+
 create_database();
 
 # to test create db only, set env var, useful for testing db changes without
@@ -71,11 +79,11 @@ say "Then press enter if you wish to continue";
 say "If you don't want to continue, but wish to try another seed value (currently $seed) then hit <ctrl>C";
 my $input = <>;
 
-generate_planets();
+update_database();
 
+close $star_names;
 
 say "Time Elapsed: ".Time::HiRes::tv_interval($t);
-
 exit;
 
 
@@ -135,27 +143,27 @@ sub setup {
     say "Creating star density map";
     # Create some different sized density masks
     foreach my $size (3,5,7) {
-        for (my $y=1-$size; $y<$size; $y++) {
-            for (my $x=1-$size; $x<$size; $x++) {
-                my $dist = max(0, $size - int(sqrt($x * $x + $y * $y)));
-                $mask->{$size}{$x}{$y} = $dist / 2;
+        for (my $v=1-$size; $v<$size; $v++) {
+            for (my $u=1-$size; $u<$size; $u++) {
+                my $dist = max(0, $size - int(sqrt($u * $u + $v * $v)));
+                $mask->{$size}{$u}{$v} = $dist / 2;
             }
         }
     }
     # A larger ore density mask
-    for (my $y=1-$odm_size; $y< $odm_size; $y++) {
-        for (my $x=1-$odm_size; $x< $odm_size; $x++) {
-            my $dist = max(0, $odm_size - int(sqrt($x * $x + $y * $y)));
-            $ore_mask->{$x}{$y} = $dist;
+    for (my $v=1-$odm_size; $v< $odm_size; $v++) {
+        for (my $u=1-$odm_size; $u< $odm_size; $u++) {
+            my $dist = max(0, $odm_size - int(sqrt($u * $u + $v * $v)));
+            $ore_mask->{$u}{$v} = $dist;
         }
     }
     
     # clear the density and ore distribution hashes
-    for (my $x=0; $x<$chunks; $x++) {
-        for (my $y=0; $y<$chunks; $y++) {
-            $density->{"$x:$y"} = 0;
+    for (my $p=0; $p<$chunks; $p++) {
+        for (my $q=0; $q<$chunks; $q++) {
+            $density->{"$p:$q"} = 0;
             foreach my $ore (ORE_TYPES) {
-                $ores->{$x}{$y}{$ore} = 0;
+                $ores->{$p}{$q}{$ore} = 0;
             }
         }
     }
@@ -203,38 +211,102 @@ sub setup {
 
     # Normalize each chunk so that the ores sum to 100
     $density_factor = 0;
-    for (my $y=0; $y<$chunks; $y++) {
-        for (my $x=0; $x<$chunks; $x++) {
-            $density_factor += $density->{"$x:$y"};
+    for (my $q=0; $q<$chunks; $q++) {
+        for (my $p=0; $p<$chunks; $p++) {
+            $density_factor += $density->{"$p:$q"};
             my $sum = 0;
             foreach my $ore (ORE_TYPES) {
-                $sum += $ores->{$x}{$y}{$ore};
+                $sum += $ores->{$p}{$q}{$ore};
             }
             foreach my $ore (ORE_TYPES) {
-                $ores->{$x}{$y}{$ore} *= (100 / $sum);
+                $ores->{$p}{$q}{$ore} *= (100 / $sum);
             }
         }
     }
 }
 
-# Now create the planets
+# Now create the planets and put the stars and planets into the database
 #
-sub generate_planets {
+sub update_database {
     say "Generating planets";
 
     if ($quick_test) {
         say "WARNING: Only doing a small test. Not for production!";
-        planets_for_chunk(0,0);
+        update_database_chunk(0,0);
     }
     else {
-        for (my $x=0; $x<$chunks; $x++) {
-            for (my $y=0; $y<$chunks; $y++) {
-                planets_for_chunk($x,$y);
+        for (my $p=0; $p<$chunks; $p++) {
+            for (my $q=0; $q<$chunks; $q++) {
+                update_database_chunk($p,$q);
             }
         }
     }
 }
 
+# Put the stars and bodies for a single chunk
+#
+sub update_database_chunk {
+    my ($p,$q) = @_;
+
+    my @star_colors = (qw(magenta red green blue yellow white));
+    my $orbit_deltas = {
+        1   => [1,  2],
+        2   => [2,  1],
+        3   => [2,  -1],
+        4   => [1,  -2],
+        5   => [-1, -2],
+        6   => [-2, -1],
+        7   => [-2, 1],
+        8   => [-1, 2],
+    };
+    
+    # Relative numbers of planets for this chunk.
+    my $body_numbers = planets_for_chunk($p,$q);
+    my $total_bodies = 0;
+    map { $total_bodies += $body_numbers->{$_} } keys %$body_numbers;
+
+    say "Adding bodies to chunk $p:$q total_bodies=$total_bodies";
+    # all the stars for this chunk.
+    my @stars_xy = @{$ds_stars->{"$p:$q"}};
+    foreach my $star_xy (@stars_xy) {
+        my $x = $star_xy->{x};
+        my $y = $star_xy->{y};
+        my $name = get_star_name();
+
+        say "Adding star $name to $x:$y";
+
+        my $star = $db->resultset('Lacuna::DB::Result::Map::Star')->new({
+            name        => $name,
+            color       => $star_colors[rand(scalar(@star_colors))],
+            x           => $x,
+            y           => $y,
+        });
+        $star->set_zone_from_xy;
+        $star->insert;
+
+        # Add bodies to this star
+        #
+        for my $orbit (1..8) {
+            my $name = $star->name." ".$orbit;
+            if (randint(1,100) <= 10) {
+                # 10% chance of no body in this orbit
+                say "\tNo body at $name!";
+            }
+            else {
+                my ($x_delta, $y_delta) = @{$orbit_deltas->{$orbit}};
+                
+            }
+        }
+    }
+}
+
+
+
+sub get_star_name {
+    my $name = <$star_names>;
+    chomp $name;
+    return $name;
+}
 
 
 # Generate the list of bodies (and their relative quantity) to
@@ -244,14 +316,14 @@ sub generate_planets {
 # approximates the distribution of ores in that chunk as calculated in
 # the setup.
 #
-# Input the x and y co-ordinate of the chunk
+# Input the p and q co-ordinate of the chunk
 # 
 sub planets_for_chunk {
-    my ($x, $y) = @_;
-    say "Calculating bodies for chunk $x:$y";
+    my ($p, $q) = @_;
+    say "Calculating bodies for chunk $p:$q";
 
-    print "$x:$y\t\t";
-    my $target_ores = $ores->{$x}{$y};
+    print "$p:$q\t\t";
+    my $target_ores = $ores->{$p}{$q};
     foreach my $ore (ORE_TYPES) {
         print int($target_ores->{$ore})."\t";
     }
@@ -374,7 +446,7 @@ sub generate_stars {
         $chunks_processed++;
     }
     if ($star_id < $max_stars) {
-        say "not enough stars generated, try increasing 'fudge_factor'";
+        say "not enough stars generated, we recommend increasing the 'fudge_factor'";
     }
     if ($chunks_processed < $chunks * $chunks) {
         my $n = $chunks * $chunks - $chunks_processed;
@@ -387,7 +459,8 @@ sub generate_stars {
 # planets will overlap.
 # Ensure that this star does not conflict with any other stars
 # 
-my $ds_stars;
+# $ds_stars contains the x,y co-ordinate of all stars in a chunk, for use later
+# 
 sub room_for_star {
     my ($p, $q, $x, $y) = @_;
 
@@ -436,6 +509,10 @@ sub room_for_star {
     push @{$ds_stars->{"$p:$q"}}, {x => $x, y => $y};
     return 1;
 }
+
+#############################
+# Image generation routines #
+#############################
 
 # Get next RGB colour
 #
