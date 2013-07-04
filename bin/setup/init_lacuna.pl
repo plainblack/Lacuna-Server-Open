@@ -89,7 +89,7 @@ exit;
 
 sub create_database {
     say "Deploying database";
-#    $db->deploy({ add_drop_table => 1 });
+    $db->deploy({ add_drop_table => 1 });
 }
 
 # Break the map down into chunks.
@@ -294,13 +294,52 @@ sub update_database_chunk {
             }
             else {
                 my ($x_delta, $y_delta) = @{$orbit_deltas->{$orbit}};
-                
+                my $x_body = $x + $x_delta;
+                my $y_body = $y + $y_delta;
+
+                my $body_i = randint(0, $total_bodies - 1);
+                my $i = 0;
+                my $body_name = 'A1';
+                BODY:
+                foreach $body_name (sort keys %$body_numbers) {
+                    last BODY if $i >= $body_i;
+                    $i += $body_numbers->{$body_name};
+                }
+                # convert body_name into a Class
+                my $class = 'Lacuna::DB::Result::Map::Body::';
+                my $size = 0;
+                if ($body_name =~ m/^A/) {
+                    $class .= "Asteroid::$body_name";
+                    $size = randint(1,10);
+                }
+                if ($body_name =~ m/^P/) {
+                    $class .= "Planet::$body_name";
+                    $size = randint(30,65);
+                }
+                if ($body_name =~ m/^G/) {
+                    $class .= "Planet::GasGiant::$body_name";
+                    $size = randint(70,121);
+                }
+                my $body = $db->resultset('Lacuna::DB::Result::Map::Body')->create({
+                    name        => $name,
+                    orbit       => $orbit,
+                    x           => $x_body,
+                    y           => $y_body,
+                    star_id     => $star->id,
+                    class       => $class,
+                    size        => $size,
+                });
+                add_features($body);
             }
         }
     }
 }
 
+sub add_features {
+    my ($body) = @_;
 
+    # If body is a Planet or Gas Giant then add features
+}
 
 sub get_star_name {
     my $name = <$star_names>;
