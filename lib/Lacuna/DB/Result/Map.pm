@@ -21,46 +21,65 @@ sub sqlt_deploy_hook {
     $sqlt_table->add_index(name => 'idx_name', fields => ['name']);
 }
 
+has 'map_size' => (
+    is      => 'ro',
+    default => sub {return Lacuna->config->get('map_size')},
+    lazy    => 1,
+);
 
+# distance from object to target. Allows for 'wrap-around' nature of the map
+# where distance can never be greater than half the width,height of the map.
+#
 sub calculate_distance_to_target {
     my ($self, $target) = @_;
-    return sqrt(abs($self->x - $target->x)**2 + abs($self->y - $target->y)**2) * 100;
+    my $x_dist = abs($self->x - $target->x);
+    my $y_dist = abs($self->y - $target->y);
+    $x_dist = $x_dist > $self->map_width / 2 ? abs($x_dist - $self->map_width) : $x_dist;
+    $y_dist = $y_dist > $self->map_height / 2 ? abs($y_dist - $self->map_height) : $y_dist;
+    return sqrt($x_dist**2 + $y_dist**2) * 100;
 }
 
 use constant zone_size => 250;
 
+sub map_width {
+    my ($self) = @_;
+    return $self->map_size->{x}[1] - $self->map_size->{x}[0];
+}
+
+sub map_height {
+    my ($self) = @_;
+    return $self->map_size->{y}[1] - $self->map_size->{y}[0];
+}
+
+sub zones_wide {
+    my ($self) = @_;
+    return $self->map_width / zone_size;
+}
+
+sub zones_high {
+    my ($self) = @_;
+    return $self->map_height / zone_size;
+}
+
 sub adjacent_zones {
     my ($self) = @_;
+
     my ($x,$y) = $self->parse_zone_into_zone_coords;
-    my $map_size = Lacuna->config->get('map_size');
-    my $bottom_max = $self->determine_zone_coord_from_xy_coord( $map_size->{y}[0] );
-    my $top_max    = $self->determine_zone_coord_from_xy_coord( $map_size->{y}[1] );
-    my $left_max   = $self->determine_zone_coord_from_xy_coord( $map_size->{x}[0] );
-    my $right_max  = $self->determine_zone_coord_from_xy_coord( $map_size->{x}[1] );
+    my $zone_deltas = [
+        {x => 1, y => 0},
+        {x => 1, y => 1},
+        {x => 1, y => -1},
+        {x => 0, y => 1},
+        {x => 0, y => -1},
+        {x => -1, y => 0},
+        {x => -1, y => 1},
+        {x => -1, y => -1},
+    ];
     my @zones;
-    if ( $x < $right_max ) {
-        push @zones, $self->format_zone_coords_into_zone($x + 1, $y);
-    }
-    if ( $x > $left_max ) {
-        push @zones, $self->format_zone_coords_into_zone($x - 1, $y);
-    }
-    if ( $y < $top_max ) {
-        push @zones, $self->format_zone_coords_into_zone($x, $y + 1);
-    }
-    if ( $y > $bottom_max ) {
-        push @zones, $self->format_zone_coords_into_zone($x, $y - 1);
-    }
-    if ( $x > $left_max && $y > $bottom_max ) {
-        push @zones, $self->format_zone_coords_into_zone($x - 1, $y - 1);
-    }
-    if ( $x < $right_max && $y < $top_max ) {
-        push @zones, $self->format_zone_coords_into_zone($x + 1, $y + 1);
-    }
-    if ( $x > $left_max && $y < $top_max ) {
-        push @zones, $self->format_zone_coords_into_zone($x - 1, $y + 1);
-    }
-    if ( $x < $right_max && $y > $bottom_max ) {
-        push @zones, $self->format_zone_coords_into_zone($x + 1, $y - 1);
+    for my $delta (@$zone_deltas) {
+        my $p = ($x + $delta->{x}) % $self->zones_wide;
+        my $q = ($y + $delta->{y}) % $self->zones_high;
+        push @zones, $self->format_zone_coords_into_zone($p, $q);
     }
     return @zones;
 }
@@ -84,14 +103,22 @@ sub set_zone_from_xy {
 sub format_zone_from_xy {
     my ($self) = @_;
     return $self->format_zone_coords_into_zone(
-        $self->determine_zone_coord_from_xy_coord($self->x),
-        $self->determine_zone_coord_from_xy_coord($self->y),
+        $self->determine_zone_coord_from_xy_coord($self->x, $self->y)
         );
 }
-
+#
+# 0     to  249    = 0
+# 250   to  499    = 1
+# -250  to  -1     = -1
+# -1500 to -1249   = -6
+# 1250  to 1499    = 5
+#
 sub determine_zone_coord_from_xy_coord {
     my ($self, $coord) = @_;
-    return int($coord / zone_size);
+
+    my $p = int(($coord - $self->map_size->{x}[0]) / zone_size) - int((0 - $self->map_size->{x}[0]) / zone_size); 
+    my $q = int(($coord - $self->map_size->{y}[0]) / zone_size) - int((0 - $self->map_size->{y}[0]) / zone_size);
+    return ($p, $q);
 }
 
 sub in_neutral_area {
@@ -104,7 +131,7 @@ sub in_neutral_area {
         my $x    = $self->x;
         my $y    = $self->y;
         if ($na_param->{zone} and $na_param->{coord}) {
-# Needs to be in both to qualify as in         
+            # Needs to be in both to qualify as in         
             my $in_zone = 0;
             for my $z_test (@{$na_param->{zone_list}}) {
                 $in_zone = 1 if ($zone eq $z_test);
