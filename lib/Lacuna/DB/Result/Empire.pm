@@ -833,21 +833,21 @@ sub attach_invite_code {
 }
 
 sub found {
-  my ($self, $home_planet) = @_;
+    my ($self, $home_planet) = @_;
 
-  # lock empire
-  $self->update({stage=>'finding home planet'});
+    # lock empire
+    $self->update({stage=>'finding home planet'});
 
-  # found home planet
-  $home_planet ||= $self->find_home_planet;
-  my $current_tutorial_stage = $self->tutorial_stage;
-  if ($current_tutorial_stage eq 'explore_the_ui') {
-    $self->tutorial_scratch($home_planet->name);
-  }
-  $self->home_planet_id($home_planet->id);
-  $home_planet->size(45);
-  # Clean off everything but decor
-  my $decor   = [qw(
+    # found home planet
+    $home_planet ||= $self->find_home_planet;
+    my $current_tutorial_stage = $self->tutorial_stage;
+    if ($current_tutorial_stage eq 'explore_the_ui') {
+        $self->tutorial_scratch($home_planet->name);
+    }
+    $self->home_planet_id($home_planet->id);
+    $home_planet->size(45);
+    # Clean off everything but decor
+    my $decor   = [qw(
        Lacuna::DB::Result::Building::Permanent::Beach1
        Lacuna::DB::Result::Building::Permanent::Beach2
        Lacuna::DB::Result::Building::Permanent::Beach3
@@ -867,91 +867,60 @@ sub found {
        Lacuna::DB::Result::Building::Permanent::Lake
        Lacuna::DB::Result::Building::Permanent::RockyOutcrop
        Lacuna::DB::Result::Building::Permanent::Sand
-                )];
-  foreach my $building (@{$home_planet->building_cache}) {
-    unless ( grep { $building->class eq $_ } @{$decor}) {
-      $building->delete;
+    )];
+    foreach my $building (@{$home_planet->building_cache}) {
+        unless ( grep { $building->class eq $_ } @{$decor}) {
+            $building->delete;
+        }
     }
-  }
-  $self->stage('founded');
-  $self->update;
-  $self->home_planet($home_planet);
+    $self->stage('founded');
+    $self->update;
+    $self->home_planet($home_planet);
 
-  $self->add_observatory_probe($home_planet->star_id, $home_planet->id);
+    $self->add_observatory_probe($home_planet->star_id, $home_planet->id);
 
-  # found colony
-  $home_planet->found_colony($self);
+    # found colony
+    $home_planet->found_colony($self);
 
-  # send welcome
-  if ($current_tutorial_stage eq 'explore_the_ui') {
-    return Lacuna::Tutorial->new(empire=>$self)->start('explore_the_ui');
-  }
-  return 1;
+    # send welcome
+    if ($current_tutorial_stage eq 'explore_the_ui') {
+        return Lacuna::Tutorial->new(empire=>$self)->start('explore_the_ui');
+    }
+    return 1;
 }
 
 
 sub find_home_planet {
     my ($self) = @_;
-    my $planets = Lacuna->db->resultset('Map::Body');
-    my %body_search = (
-        'me.orbit'     => { between => [ $self->min_orbit, $self->max_orbit] },
-        'me.empire_id' => undef,
-        'me.class'     => { like => 'Lacuna::DB::Result::Map::Body::Planet::P%' }, 
-    );
-    my %star_search = (
-        station_id => undef,
-    );
-    my $invite = Lacuna->db->resultset('Invite')->search({invitee_id => $self->id})->first;
-    my $sz_param = Lacuna->config->get('starter_zone');
-    my @stars;
-    if (defined $invite) {
-        $body_search{'me.zone'} = $invite->zone;
-        $star_search{zone} = $invite->zone;
-    }
-    elsif ($sz_param and $sz_param->{active}) {
-       if ($sz_param->{zone}) {
-           $body_search{'me.zone'} = { in => $sz_param->{zone_list} };
-           $star_search{zone} = { in => $sz_param->{zone_list} };
-       }
-       if ($sz_param->{coord}) {
-           $body_search{'me.x'} = { between => $sz_param->{x} };
-           $body_search{'me.y'} = { between => $sz_param->{y} };
-           $star_search{x} = { between => $sz_param->{x} };
-           $star_search{y} = { between => $sz_param->{y} };
-       }
-    }
-    else {
-         $body_search{'me.usable_as_starter_enabled'} = 1;
-    }
-    @stars  = Lacuna->db->resultset('Map::Star')->search(\%star_search)->get_column('id')->all;
-    $body_search{'me.star_id'} = { 'in' => \@stars };
-    my @bodies = shuffle $planets->search( \%body_search, { join => 'star' } );
-    
-    my $home_planet;
-    for my $planet (@bodies) {
-      next unless (defined $planet);
-      next if ($planet->empire);
-      next if ($planet->is_claimed);
-      next if ($planet->x == -4 && $planet->y == -444); #Unlucky Planet
-      next if ($planet->is_locked);
-      $planet->lock;
-      $home_planet = $planet;
-      last;
-    }
 
-    # didn't find one
-    unless (defined $home_planet) {
-        # unlock
-        $self->update({stage => 'new'});
-        if (defined $invite) {
-            $invite->update({invitee_id => undef});
-        }
-        confess [1002, 'Could not find a home planet. Try again in a few moments.'];
-    }
-    
-    return $home_planet;
+    # available planets in unseized systems
+    # only planets in the range P1-P20 can be used as starter planets.
+    # it's easier to check for unseized systems rather than systems that might be seized with a
+    # 'members only' enacted law.
+    #
+    my $planets = Lacuna->db->resultset('Map::Body')->search({
+        orbit               => { between => [ $self->min_orbit, $self->max_orbit] },
+        empire_id           => undef,
+        'star.station_id'   => undef,
+        'me.class'          => {
+            -like           => ['Lacuna::DB::Result::Map::Body::Planet::P1%', 'Lacuna::DB::Result::Map::Body::Planet::P2%'],
+        },
+        -or                 => [
+            -and            => ['me.x' => {between => [0,100]},      'me.y' => {between => [0, 100]} ],
+            -and            => ['me.x' => {between => [150,250]},    'me.y' => {between => [150, 250]} ],
+        ],
+    },{
+        join        => 'star',
+    });
+    my $total = $planets->count;
+    print STDERR "Total planets = $total\n";
+    $planets = $planets->search({},{
+        offset  => randint(0, $total - 1),
+    });
+    return $planets->next;
 }
 
+   
 sub get_invite_friend_url {
     my ($self) = @_;
     my $code = create_uuid_as_string(UUID_MD5, $self->id);

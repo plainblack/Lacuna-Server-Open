@@ -29,7 +29,7 @@ my $fudge_factor    = 1.8;              # Can be used to adjust the number of st
 my $seed            = 3.14159;          # So we can reproduce the starmap.
 my $ore_stamps      = 4;                # How many pockets of high ore concentration are there for each ore type.
 srand($seed);
-my $quick_test      = 1;                # For testing purposes, set to 0 for production
+my $quick_test      = 0;                # For testing purposes, set to 0 for production
 
 my $lacunans_have_been_placed = 0;
 my $mask;                               # masks to 'stamp' a pattern of star density on the density map
@@ -265,6 +265,10 @@ sub update_database_chunk {
     my $total_bodies = 0;
     map { $total_bodies += $body_numbers->{$_} } keys %$body_numbers;
 
+    if (not defined $ds_stars->{"$p:$q"}) {
+        say "Empty chunk!";
+        return;
+    }
     say "Adding bodies to chunk $p:$q total_bodies=$total_bodies";
     # all the stars for this chunk.
     my @stars_xy = @{$ds_stars->{"$p:$q"}};
@@ -357,7 +361,7 @@ sub create_lacunan_home_world {
         date_created        => DateTime->now,
         stage               => 'founded',
         status_message      => 'Will trade for Essentia.',
-        password            => Lacuna::DB::Result::Empire->encrypt_password(rand(99999999)),
+        password            => Lacuna::DB::Result::Empire->encrypt_password('secret56'),
         species_name            => 'Lacunan',
         species_description     => 'The economic deities that control the Lacuna Expanse.',
         min_orbit               => 1,
