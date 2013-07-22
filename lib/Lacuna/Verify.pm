@@ -5,6 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 use Regexp::Common qw(RE_profanity);
 use Email::Valid;
+use Bad::Words;
 
 has content => (
     is          => 'ro',
@@ -52,6 +53,15 @@ sub not_empty {
 sub no_profanity {
     my $self = shift;
     return $self->ok(lc(${$self->content}) !~ RE_profanity());
+}
+
+sub no_bad_words {
+    my ($self) = @_;
+    
+    my $wordref = new Bad::Words;
+    my $badwords = join('|', @$wordref);
+
+    return $self->ok(lc(${$self->content}) !~ /\b($badwords)\b/oi);
 }
 
 sub no_restricted_chars {
