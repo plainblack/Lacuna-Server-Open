@@ -20,7 +20,7 @@ require Exporter;
 sub format_date {
     my ($date, $format) = @_;
     $date ||= DateTime->now;
-    $format ||= '%d %m %Y %H:%M:%S %z';
+    $format ||= '%Y %m %d %H:%M:%S %z';
     return DateTime::Format::Strptime::strftime($format,$date);
 }
 

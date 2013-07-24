@@ -1,25 +1,31 @@
 
 =head1 Founding an empire.
 
-When founding an empire the order of operations is first to C<fetch_captcha>. Then C<create> the empire. Then optionally C<update_species> (default is human). Then finally call the C<found> method to set up the empire on it's new home planet.
-
+Founding an empire is now done in one step using the C<create> method.
 
 =head1 Empire Methods
 
 The following methods are available from C</empire>.
 
+=head2 is_name_available
 
-
-
-=head2 is_name_available ( name ) 
-
-Returns a 1 if the name is available, or a throws an exception if it is not.
-
-Throws 1000.
+  ({
+    "name"      : "My Empire",
+  })
 
 =head3 name
 
-The name of the empire to search for.
+The name of the empire to check.
+
+=head3 RESPONSE
+
+Throws 1000 (Name not available)
+
+Returns 1 if the name is valid and available.
+
+
+
+
 
 
 
@@ -215,12 +221,21 @@ After the message, the user's empire name in the game, the friend code, and URI 
 
 
 
-=head2 get_status ( session_id )
+=head2 get_status
+
+  {
+    "session_id"    : "session-goes-here",
+  }
 
 Returns information about the current state of the empire.
 
 B<NOTE:> You should probably B<never> call this method directly, as it is a wasted call since the data it returns comes back in the status block of every relevant request. See L<Intro/"Status"> for details.
 
+=head3 session_id (required)
+
+A session id.
+
+=head3 RESPONSE
 
  {
     "server" : { ... },

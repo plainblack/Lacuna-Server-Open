@@ -20,7 +20,11 @@ use Data::Dumper;
 # logging features are new in this level.
 use JSON::RPC::Dispatcher 0.0508;
 
+
+# Find an empire by name
+#
 sub find {
+<<<<<<< HEAD
     my ($self, $session_id, $name) = @_;
     unless (length($name) >= 3) {
         confess [1009, 'Empire name too short. Your search must be at least 3 characters.'];
@@ -28,27 +32,44 @@ sub find {
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     my $empires = Lacuna->db->resultset('Empire')->search({name => {'like' => $name.'%'}}, {rows=>100});
+=======
+    my ($self, $args) = @_;
+
+    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
+    confess [1009, 'Empire name too short. Your search must be at least 3 characters.'] if length($args->{name}) < 3;
+    
+    my $empire = $self->get_empire_by_session($args->{session_id});
+
+    my $empires = Lacuna->db->resultset('Empire')->search({
+        name    => {'like' => $args->{name}.'%'},
+    },{
+        rows    => 100
+    });
+>>>>>>> Changed some Empire API calls
     my @list_of_empires;
     my $limit = 100;
-    while (my $empire = $empires->next) {
+    while (my $emp = $empires->next && $limit) {
         push @list_of_empires, {
-            id      => $empire->id,
-            name    => $empire->name,
-            };
+            id      => $emp->id,
+            name    => $emp->name,
+        };
         $limit--;
-        last unless $limit;
     }
+<<<<<<< HEAD
     return { empires => \@list_of_empires, status => $self->format_status($session) };
+=======
+    return {
+        empires => \@list_of_empires, 
+        status  => $self->format_status($empire) };
+>>>>>>> Changed some Empire API calls
 }
 
+# Check if a proposed empire name is both valid and not already taken
+#
 sub is_name_available {
-    my $self            = shift;
-    my $args            = shift;
-    if (ref($args) ne "HASH") {
-        $args = {
-            name    => $args,
-        };
-    }
+    my ($self, $args) = @_;
+    
+    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
     $self->is_name_valid($args->{name});
     $self->is_name_unique($args->{name});
     return 1; 
@@ -407,6 +428,7 @@ sub create {
     $empire->attach_invite_code($args->{invite_code});
 
     my $welcome = $empire->found;
+
     return {
         session_id          => $empire->start_session({ api_key => $args->{api_key}, request => $plack_request })->id,
         status              => $self->format_status($empire),
@@ -461,9 +483,17 @@ sub found_old {
 }
 
 sub get_status {
+<<<<<<< HEAD
     my ($self, $session_id) = @_;
     my $session  = $self->get_session({session_id => $session_id});
     return $self->format_status($session);
+=======
+    my ($self, $args) = @_;
+
+    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
+
+    return $self->format_status($self->get_empire_by_session($args->{session_id}));
+>>>>>>> Changed some Empire API calls
 }
 
 sub view_profile {
@@ -1351,6 +1381,7 @@ sub _rewrite_request_for_logging
 }
 
 __PACKAGE__->register_rpc_method_names(
+<<<<<<< HEAD
     { name => "create", options => { with_plack_request => 1, log_request_as => \&_rewrite_request_for_logging } },
     { name => "fetch_captcha", options => { with_plack_request => 1 } },
     { name => "login", options => { with_plack_request => 1, log_request_as => \&_rewrite_request_for_logging } },

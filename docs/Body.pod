@@ -123,10 +123,6 @@ See L<Intro/"Status"> for details.
  
 =head2 get_buildings
 
-Accepts either fixed arguments, or a hash of named arguments.
-
-  [ session_id, body_id ]
-
   [{
     "session_id"    : "69627076-34c3-4bb4-8ad4-61c2c6ec2973",
     "body_id"       : "123456"
@@ -142,7 +138,7 @@ The id of the body you wish to retrieve.
 
 =head3 RESPONSE
 
-Retrieves a list of the buildings on a planet. The surface of all planet's 
+Retrieves a list of the buildings on a planet. The surface of the planet
 is made up of an 11x11 tile grid stretching from -5 to 5 in both an x and y 
 axis. The planetary command centre (or Station Command Centre) is always built at 0,0. 
 
@@ -157,40 +153,42 @@ The list of building's retreived by this method should be placed on the 11x11 gr
 and the extra space should be filled in by blank ground tiles. 
 
  {
-    "buildings" : {
-        "id-goes-here" : {
-            "name" : "Apple Orchard",
-            "x" : 1,
-            "y" : -1,
-            "url" : "/apple",
-            "level" : 3,
-            "image" : "apples3",
-            "efficiency" : 95,
-            "pending_build" : {                            # only included when building is building/upgrading
-                "seconds_remaining" : 430,
-                "start" : "01 31 2010 13:09:05 +0600",
-                "end" : "01 31 2010 18:09:05 +0600"
-            },
-            "work" : {                                     # only included when building is working (Parks, Waste Recycling, etc)
-                "seconds_remaining" : 49,
-                "start" : "01 31 2010 13:09:05 +0600",
-                "end" : "01 31 2010 18:09:05 +0600"
-            }
-        },
-        "id-goes-here2" : {
-            "name" : "Planetary Command",
-            "x" : 0,
-            "y" : 0,
-            "url" : "/command",
-            "level" : 1,
-            "efficiency" : 100,
-            "image" : "command1"
-        }
-    },
-    "body" : {
-        "surface_image" : "surface-e"
-    },
-    "status" : { ... }
+   "buildings" : [
+     {
+       "id"         : "id-goes-here",
+       "name"       : "Apple Orchard",
+       "x"          : 1,
+       "y"          : -1,
+       "url"        : "/apple",
+       "level"      : 3,
+       "image"      : "apples3",
+       "efficiency" : 95,
+       "pending_build"  : {                            # only included when building is building/upgrading
+         "seconds_remaining"    : 430,
+         "start"    : "2013 01 31 13:09:05 +0600",
+         "end"      : "2013 01 31 18:09:05 +0600"
+       },
+       "work" : {                                     # only included when building is working (Parks, Waste Recycling, etc)
+         "seconds_remaining"    : 49,
+         "start"    : "2013 01 31 13:09:05 +0600",
+         "end"      : "2013 01 31 18:09:05 +0600"
+       }
+     },
+     {
+       "id"         : "id-goes-here",
+       "name"       : "Planetary Command",
+       "x"          : 0,
+       "y"          : 0,
+       "url"        : "/command",
+       "level"      : 1,
+       "efficiency" : 100,
+       "image"      : "command1"
+     }
+   ],
+   "body" : {
+     "surface_image" : "surface-e"
+   },
+   "status" : { ... }
  }
 
 Throws 1002 and 1010.
