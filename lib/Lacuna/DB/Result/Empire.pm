@@ -86,7 +86,7 @@ __PACKAGE__->add_columns(
     skip_excavator_replace_msg => { data_type => 'tinyint', default_value => 0 },
     dont_replace_excavator  => { data_type => 'tinyint', default_value => 0 },
     has_new_messages        => { data_type => 'tinyint', default_value => 0 },
-    latest_message_id       => { data_type => 'int',  is_nullable => 1 },
+    latest_message_id       => { data_type => 'int',  is_nullable => 1, default_value => 0 },
     skip_incoming_ships     => { data_type => 'tinyint', default_value => 0 },
 );
 
@@ -459,9 +459,13 @@ sub get_status {
     if ($self->alliance_id) {
         $planet_rs = Lacuna->db->resultset('Map::Body')->search({-or => { empire_id => $self->id, alliance_id => $self->alliance_id }});
     }
-    my %planets;
+    my $planets;
     while (my $planet = $planet_rs->next) {
-        $planets{$planet->id} = $planet->name;
+        my $row = {
+            id      => $planet->id,
+            name    => $planet->name,
+        };
+        push @$planets, $row;
     }
 
     my $status = {
@@ -472,10 +476,10 @@ sub get_status {
         id                  => $self->id,
         essentia            => $self->essentia,
         has_new_messages    => $self->has_new_messages,
-        latest_message_id   => $self->latest_message_id,
+        latest_message_id   => $self->latest_message_id || 0,
         home_planet_id      => $self->home_planet_id,
         tech_level          => $self->university_level,
-        planets             => \%planets,
+        planets             => $planets,
         self_destruct_active=> $self->self_destruct_active,
         self_destruct_date  => $self->self_destruct_date_formatted,
     };

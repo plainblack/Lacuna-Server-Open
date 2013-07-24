@@ -103,15 +103,9 @@ sub rename {
 }
 
 sub get_buildings {
-    my $self        = shift;
-    my $args        = shift;
+    my ($self, $args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id  => $args,
-            body_id     => shift,
-        };
-    }
+    confess [1019, 'Use of positional arguments is illegal.'] if ! ref $args;
 
     my $empire = $self->get_empire_by_session($args->{session_id});
     my $body = $self->get_body($empire, $args->{body_id});
@@ -119,10 +113,11 @@ sub get_buildings {
         $body->needs_surface_refresh(0);
         $body->update;
     }
-    my %out;
+    my $out;
     my @buildings = @{$body->building_cache};
     foreach my $building (@buildings) {
-        $out{$building->id} = {
+        my $row = {
+            id      => $building->id,
             url     => $building->controller_class->app_url,
             image   => $building->image_level,
             name    => $building->name,
@@ -132,18 +127,19 @@ sub get_buildings {
             efficiency => $building->efficiency,
         };
         if ($building->is_upgrading) {
-            $out{$building->id}{pending_build} = $building->upgrade_status;
+            $row->{pending_build} = $building->upgrade_status;
         }
         if ($building->is_working) {
-            $out{$building->id}{work} = {
+            $row->{work} = {
                 seconds_remaining   => $building->work_seconds_remaining,
                 start               => $building->work_started_formatted,
                 end                 => $building->work_ends_formatted,
             };
         }
+        push @$out, $row;
     }
     
-    return {buildings=>\%out, body=>{surface_image => $body->surface}, status=>$self->format_status($empire, $body)};
+    return {buildings => $out, body=>{surface_image => $body->surface}, status=>$self->format_status($empire, $body)};
 }
 
 sub rearrange_buildings {

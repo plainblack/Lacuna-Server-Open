@@ -12,34 +12,42 @@ use Time::HiRes;
 use Text::CSV_XS;
 use Captcha::reCAPTCHA;
 
+
+# Find an empire by name
+#
 sub find {
-    my ($self, $session_id, $name) = @_;
-    unless (length($name) >= 3) {
-        confess [1009, 'Empire name too short. Your search must be at least 3 characters.'];
-    }
-    my $empire = $self->get_empire_by_session($session_id);
-    my $empires = Lacuna->db->resultset('Empire')->search({name => {'like' => $name.'%'}}, {rows=>100});
+    my ($self, $args) = @_;
+
+    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
+    confess [1009, 'Empire name too short. Your search must be at least 3 characters.'] if length($args->{name}) < 3;
+    
+    my $empire = $self->get_empire_by_session($args->{session_id});
+
+    my $empires = Lacuna->db->resultset('Empire')->search({
+        name    => {'like' => $args->{name}.'%'},
+    },{
+        rows    => 100
+    });
     my @list_of_empires;
     my $limit = 100;
-    while (my $empire = $empires->next) {
+    while (my $emp = $empires->next && $limit) {
         push @list_of_empires, {
-            id      => $empire->id,
-            name    => $empire->name,
-            };
+            id      => $emp->id,
+            name    => $emp->name,
+        };
         $limit--;
-        last unless $limit;
     }
-    return { empires => \@list_of_empires, status => $self->format_status($empire) };
+    return {
+        empires => \@list_of_empires, 
+        status  => $self->format_status($empire) };
 }
 
+# Check if a proposed empire name is both valid and not already taken
+#
 sub is_name_available {
-    my $self            = shift;
-    my $args            = shift;
-    if (ref($args) ne "HASH") {
-        $args = {
-            name    => $args,
-        };
-    }
+    my ($self, $args) = @_;
+    
+    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
     $self->is_name_valid($args->{name});
     $self->is_name_unique($args->{name});
     return 1; 
@@ -277,6 +285,7 @@ sub create {
     $empire->attach_invite_code($args->{invite_code});
 
     my $welcome = $empire->found;
+
     return {
         session_id          => $empire->start_session({ api_key => $args->{api_key}, request => $plack_request })->id,
         status              => $self->format_status($empire),
@@ -330,8 +339,11 @@ sub found_old {
 }
 
 sub get_status {
-    my ($self, $session_id) = @_;
-    return $self->format_status($self->get_empire_by_session($session_id));
+    my ($self, $args) = @_;
+
+    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
+
+    return $self->format_status($self->get_empire_by_session($args->{session_id}));
 }
 
 sub view_profile {
@@ -1031,10 +1043,19 @@ sub get_species_templates {
 
 __PACKAGE__->register_rpc_method_names(
     { name => "create", options => { with_plack_request => 1 } },
+
+
+    qw(
+        is_name_available
+        find
+    ),
     { name => "login", options => { with_plack_request => 1 } },
     { name => "benchmark", options => { with_plack_request => 1 } },
     { name => "reset_password", options => { with_plack_request => 1 } },
-    qw(redefine_species redefine_species_limits get_invite_friend_url get_species_templates view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_building boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+
+
+
+qw(redefine_species redefine_species_limits get_invite_friend_url get_species_templates view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message view_profile edit_profile view_public_profile logout get_full_status get_status boost_building boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
 );
 
 

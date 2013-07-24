@@ -7,13 +7,13 @@ This document can introduce you to interacting with the Lacuna Expanse game serv
 The list of playable servers can be read from L<http://www.lacunaexpanse.com/servers.json>.
 
  [
-  {
-   "name" : "NA1",
-   "uri" : "https://na1.lacunaexpanse.com/",
-   "status" : "Open",
-   "location" : "United States"
-  }
-  ...
+   {
+     "name"     : "NA1",
+     "uri"      : "https://na1.lacunaexpanse.com/",
+     "status"   : "Open",
+     "location" : "United States"
+   }
+   ...
  ]
 
 Each server in this list is an instance of the game, an individual universe separated from the others. Your app will need to allow users to select which server they want to interact with form this list.
@@ -46,13 +46,13 @@ B<NOTE:> You must URL encode the params. If you don't, you'll get a parse error 
 
 Most programming languages will have a JSON-RPC 2.0 client you can either use directly, or download from the internet. These will use HTTP POST. If you need to manually create a POST, it would look like:
 
- POST,https://game.lacunaexpanse.com/species
- {
-    "jsonrpc":"2.0",
-    "id":1,
-    "method":"is_name_available",
-    "params":["Human"]
- }
+  POST,https://game.lacunaexpanse.com/species
+  {
+    "jsonrpc"   :"2.0",
+    "id"        :1,
+    "method"    :"is_name_available",
+    "params"    :["Human"]
+  }
 
 B<NOTE:> It's important to make the distinction here that when you're sending a POST, you're not sending URL parameters. You're sending a full POST body. If you format it with parameters like a GET request you'll get a parse error in response.
 
@@ -84,81 +84,90 @@ Either way you'll get a response back with either a result or an error message.
 
 If you make a successful request you'll get a response like:
 
- { 
-    "jsonrpc" : "2.0", 
-    "id" : 1, 
-    "result" : 0 
- }
+  { 
+    "jsonrpc"   : "2.0", 
+    "id"        : 1, 
+    "result"    : 0 
+  }
 
 =head3 Error
 
 If an exception is thrown you'll get an error response. It's a hash containing a code, message, and data section.
 
- { 
-    "jsonrpc" : "2.0", 
-    "id" : 1, 
-    "error" : {
-        "code" : 1000, 
-        "message" : "Name not available.", 
-        "data" : null
+  { 
+    "jsonrpc"   : "2.0", 
+    "id"        : 1, 
+    "error"     : {
+        "code"      : 1000, 
+        "message"   : "Name not available.", 
+        "data"      : null
     } 
- }
+  }
 
 B<NOTE:> If you get a JSON-RPC error, then the web server will also give you a 500 HTTP error code. 
 
 =head2 Named parameter requests
 
-Starting in Version 4.000 of the server code, named arguments have been introduced. Where possible the original 
-positional argument calling method has been retained, but this is now deprecated. Future enhancement to methods
-will only be supported in the named argument methods.
+Starting in Version 4.000 of the server code, named arguments have been introduced. The use of positional
+arguments is no longer supported.
 
 As an example, the following is a call to the shipyard API to find out what fleets are buildable
 using both the original positional arguments and the new named argument calling conventions.
 
-Both of these will return the same results.
+=head3 original positional calling convention (no longer supported)
 
-=head3 original positional calling convention
+  {
+    "jsonrpc"   : "2.0",
+    "id"        : 1,
+    "method"    : "get_buildable",
+    "params"    : [
+      "329da49c-7e88-4897-9d8c-3e5f6309d9b7",
+      "127894",
+      "Trade",
+    ]
+  }
 
- {
-   "jsonrpc" : "2.0",
-   "id" : 1,
-   "method" : "get_buildable",
-   "params" : [
-     "329da49c-7e88-4897-9d8c-3e5f6309d9b7",
-     "127894",
-     "Trade",
-   ]
- }
-
-This method has the advantage that it is slightly more consise, the disadvantage is that
-it is less flexible to expansion and with large numbers of parameters difficult to remember
-what each parameter represents.
-
-Although this convention will be retained for now, any future additions to methods (which
-require additional parameters) will not be supported by this calling convention.
+This method is no longer supported. It is shown in case you have any scripts which need
+to be modified and for comparison with the following.
 
 =head3 new named argument calling convention
 
- {
-   "jsonrpc" : "2.0",
-   "id" : 1,
-   "method" : "get_buildable",
-   "params" : [{
-     "session_id" : "329da49c-7e88-4897-9d8c-3e5f6309d9b7",
-     "tag" : "Trade",
-     "building_id" : "127894"
-   }]
- }
+  {
+    "jsonrpc"   : "2.0",
+    "id"        : 1,
+    "method"    : "get_buildable",
+    "params"    : [{
+      "session_id"  : "329da49c-7e88-4897-9d8c-3e5f6309d9b7",
+      "tag"         : "Trade",
+      "building_id" : "127894"
+    }]
+  }
 
-This is the preferred calling convention, parameters are named and can be in any order,
+Parameters are named and can be in any order,
 if a parameter is optional, then just don't include it. This convention allows future
 enhancements to methods without breaking backwards compatibility or having long lists
 of fixed place arguments.
 
-If an API states that it can use 'a hash of named parameters' then it supports the new
-calling convention.
+=head2 Date Format
 
-Over time it is hoped that all API calls will support the new convention.
+As of Version 4.00 the date format has changed.
+
+=head3 original date format (no longer supported)
+
+  "MM DD YYYY hh:mm:ss +zone"
+  e.g.
+  "01 31 2013 13:15:59 +0000"
+
+This has been discontinued due to ambiguity of dates such as 7th Apr 2013 which was previously "04 07 2013" and in most parts of
+the world would be interpreted as 4th July 2013.
+
+=head3 New date format
+
+  "YYYY MM DD hh:mm:ss +zone"
+  e.g.
+  "2013 01 31 13:15:59 +0000"
+      
+This format is unambiguous in all parts of the world.
 
 =head2 RPC Limit
 
@@ -173,28 +182,28 @@ If you find yourself needing more RPC calls than the limit allows then you are l
 Most methods will provide a status block as part of the response. This is used to update 
 the user interface and alert the user to things. The status block looks like this:
 
- {
-   ...
-   "status" : {
-     "server" : {
-       "time" : "01 31 2010 13:09:05 +0600",
-       "version" : 2.0604,
-       "announcement" : 1, # see the Announcement API
-       "rpc_limit" : 2500, # max calls per day, compare to empire rpc_count
-       "star_map_size" : {
-         "x" : [ -15, 15 ],
-         "y" : [ -15, 15 ],
-         "z" : [ -15, 15 ]
-        }
-      },
-      "empire" : { # this block is not always included
-        See get_status() in Empire
-      },
-      "body" : { # this block is not always included
-        See get_status() in Body
-      }
-   }
- }
+  {
+    ...
+    "status" : {
+      "server" : {
+        "time" : "01 31 2010 13:09:05 +0600",
+        "version" : 2.0604,
+        "announcement" : 1, # see the Announcement API
+        "rpc_limit" : 2500, # max calls per day, compare to empire rpc_count
+        "star_map_size" : {
+          "x" : [ -15, 15 ],
+          "y" : [ -15, 15 ],
+          "z" : [ -15, 15 ]
+         }
+       },
+       "empire" : { # this block is not always included
+         See get_status() in Empire
+       },
+       "body" : { # this block is not always included
+         See get_status() in Body
+       }
+    }
+  }
 
 Methods using the 'hash of named parameters' method can specify a 'no_status : 1' argument
 which will inhibit the return of a status block. This can be slightly more efficient for those
