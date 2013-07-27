@@ -88,7 +88,7 @@ __PACKAGE__->add_columns(
     skip_excavator_replace_msg => { data_type => 'tinyint', default_value => 0 },
     dont_replace_excavator  => { data_type => 'tinyint', default_value => 0 },
     has_new_messages        => { data_type => 'tinyint', default_value => 0 },
-    latest_message_id       => { data_type => 'int',  is_nullable => 1, default_value => 0 },
+    latest_message_id       => { data_type => 'int',  is_nullable => 1},
     skip_incoming_ships     => { data_type => 'tinyint', default_value => 0 },
     chat_admin              => { data_type => 'int', default_value => 0 },
     in_stasis               => { data_type => 'tinyint', default_value => 0 },
@@ -312,21 +312,21 @@ sub allies {
 
 sub update_species {
     my ($self, $me) = @_;
-    $self->species_name($me->{name});
-    $self->species_description($me->{description});
-    $self->min_orbit($me->{min_orbit});
-    $self->max_orbit($me->{max_orbit});
-    $self->manufacturing_affinity($me->{manufacturing_affinity});
-    $self->deception_affinity($me->{deception_affinity});
-    $self->research_affinity($me->{research_affinity});
-    $self->management_affinity($me->{management_affinity});
-    $self->farming_affinity($me->{farming_affinity});
-    $self->mining_affinity($me->{mining_affinity});
-    $self->science_affinity($me->{science_affinity});
-    $self->environmental_affinity($me->{environmental_affinity});
-    $self->political_affinity($me->{political_affinity});
-    $self->trade_affinity($me->{trade_affinity});
-    $self->growth_affinity($me->{growth_affinity});
+    $self->species_name($me->{species_name});
+    $self->species_description($me->{species_description});
+    $self->min_orbit($me->{species_min_orbit});
+    $self->max_orbit($me->{species_max_orbit});
+    $self->manufacturing_affinity($me->{species_manufacturing});
+    $self->deception_affinity($me->{species_deception});
+    $self->research_affinity($me->{species_research});
+    $self->management_affinity($me->{species_management});
+    $self->farming_affinity($me->{species_farming});
+    $self->mining_affinity($me->{species_mining});
+    $self->science_affinity($me->{species_science});
+    $self->environmental_affinity($me->{species_environmental});
+    $self->political_affinity($me->{species_political});
+    $self->trade_affinity($me->{species_trade});
+    $self->growth_affinity($me->{species_growth});
     return $self;
 }
 

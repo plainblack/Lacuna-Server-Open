@@ -21,18 +21,7 @@ use Data::Dumper;
 use JSON::RPC::Dispatcher 0.0508;
 
 
-# Find an empire by name
-#
-sub find {
-<<<<<<< HEAD
-    my ($self, $session_id, $name) = @_;
-    unless (length($name) >= 3) {
-        confess [1009, 'Empire name too short. Your search must be at least 3 characters.'];
-    }
-    my $session  = $self->get_session({session_id => $session_id});
-    my $empire   = $session->current_empire;
-    my $empires = Lacuna->db->resultset('Empire')->search({name => {'like' => $name.'%'}}, {rows=>100});
-=======
+sub find_empire {
     my ($self, $args) = @_;
 
     confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
@@ -45,7 +34,7 @@ sub find {
     },{
         rows    => 100
     });
->>>>>>> Changed some Empire API calls
+
     my @list_of_empires;
     my $limit = 100;
     while (my $emp = $empires->next && $limit) {
@@ -55,13 +44,9 @@ sub find {
         };
         $limit--;
     }
-<<<<<<< HEAD
-    return { empires => \@list_of_empires, status => $self->format_status($session) };
-=======
     return {
         empires => \@list_of_empires, 
         status  => $self->format_status($empire) };
->>>>>>> Changed some Empire API calls
 }
 
 # Check if a proposed empire name is both valid and not already taken
@@ -97,12 +82,18 @@ sub is_name_unique {
     return 1;
 }
 
+# Logout and lose the session
+#
 sub logout {
-    my ($self, $session_id) = @_;
-    $self->get_session($session_id)->end;
+    my ($self, $args) = @_;
+
+    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
+    $self->get_session($args->{session_id})->end;
     return 1;
 }
 
+# Login with credentials
+# 
 sub login {
     my $self            = shift;
     my $plack_request   = shift;
@@ -117,6 +108,8 @@ sub login {
         };
     }
 
+    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
+    
     unless ($args->{api_key}) {
         confess [1002, 'You need an API Key.'];
     }
@@ -280,17 +273,18 @@ sub fetch_captcha {
     };
 }
 
+# Change the empires password
+#
 sub change_password {
-    #my ($self, $session_id, $password, $password1, $password2) = @_;
-    my $self = shift;
-    my $session_id = shift;
-    my ($current_password, $password1, $password2);
-    if (scalar(@_) == 2) {
-        ($password1, $password2) = @_;
-    }
-    else { # backward compatibility mode
-        ($current_password, $password1, $password2) = @_;
-    }
+    my ($self, $args) = @_;
+
+    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
+
+    my $session_id = $args->{session_id};
+    my $current_password = $args->{current_password};
+    my $password1 = $args->{password1};
+    my $password2 = $args->{password2};
+
     Lacuna::Verify->new(content=>\$password1, throws=>[1001,'Invalid password.', $password1])
         ->length_gt(5)
         ->eq($password2);
@@ -306,19 +300,23 @@ sub change_password {
     return { status => $self->format_status($session) };
 }
 
-
+# Allow the user to request that a new password is sent
+#
 sub send_password_reset_message {
-    my ($self, %options) = @_;
+    my ($self, $args) = @_;
+    
+    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
+        
     my $empire;
     my $empires = Lacuna->db->resultset('Empire');
-    if (exists $options{empire_id} && $options{empire_id} ne '') {
-        $empire = $empires->find($options{empire_id});
+    if (exists $args->{empire_id} && $args->{empire_id} ne '') {
+        $empire = $empires->find($args->{empire_id});
     }
-    elsif (exists $options{empire_name}) {
-        $empire = $empires->search({ name => $options{empire_name} })->first;
+    elsif (exists $args->{empire_name}) {
+        $empire = $empires->search({ name => $args->{empire_name} }, { rows => 1 })->single;
     }
-    elsif (exists $options{email}) {
-        $empire = $empires->search({ email => $options{email} })->first;
+    elsif (exists $args->{email}) {
+        $empire = $empires->search({ email => $args->{email} }, { rows => 1 })->single;
     }
     unless (defined $empire) {
         confess [1002, 'Empire not found.'];
@@ -337,9 +335,18 @@ sub send_password_reset_message {
     return { sent => 1 };
 }
 
-
+# Respond to a request to reset the password
+#
 sub reset_password {
-    my ($self, $plack_request, $key, $password1, $password2, $api_key) = @_;
+    my ($self, $plack_request, $args) = @_;
+
+    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
+
+    my $key         = $args->{reset_key};
+    my $password1   = $args->{password1};
+    my $password2   = $args->{password2};
+    my $api_key     = $args->{api_key};
+
     unless ($api_key) {
         confess [1002, 'You need an API Key.'];
     }
@@ -365,7 +372,9 @@ sub reset_password {
     return { session_id => $session->id, status => $self->format_status($session) };
 }
 
+
 # Create, defined species and found all in one go
+# 
 sub create {
     my ($self, $plack_request, $args) = @_;
 
@@ -436,12 +445,13 @@ sub create {
     }
 }
 
-
+# Validate the recaptcha
+#
 sub validate_recaptcha {
     my ($self, $plack_request, $challange, $response) = @_;
 
     my $c = Captcha::reCAPTCHA->new;
-    print STDERR "CHALLANGE: [$challange] RESPONSE [$response] ADDRESS [".$plack_request->address."]\n";
+#    print STDERR "CHALLANGE: [$challange] RESPONSE [$response] ADDRESS [".$plack_request->address."]\n";
     my $result = $c->check_answer(
         Lacuna->config->get('recaptcha/private_key'),
         $plack_request->address,
@@ -454,46 +464,14 @@ sub validate_recaptcha {
     confess [1014, 'Captcha not valid.', $result->{error}];
 }
 
-sub found_old {
-    my ($self, $plack_request, $empire_id, $api_key, $invite_code) = @_;
-    unless ($api_key) {
-        confess [1002, 'You need an API Key.'];
-    }
-    if ($empire_id eq '') {
-        confess [1002, "You must specify an empire id."];
-    }
-    my $empire = Lacuna->db->resultset('Empire')->find($empire_id);
-    unless (defined $empire) {
-        confess [1002, "Invalid empire.", $empire_id];
-    }
-    unless ($empire->stage eq 'new') {
-        confess [1010, "This empire cannot be founded again.", $empire_id];
-    }
-
-    # handle invitation
-    $empire->attach_invite_code($invite_code);
-    
-    my $welcome = $empire->found;
-    my $session = $empire->start_session({ api_key => $api_key, request => $plack_request });
-    return {
-        session_id          => $session->id,
-        status              => $self->format_status($session),
-        welcome_message_id  => $welcome->id,
-    };
-}
-
+# Get  the status of the empire
+#
 sub get_status {
-<<<<<<< HEAD
-    my ($self, $session_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id});
-    return $self->format_status($session);
-=======
     my ($self, $args) = @_;
 
     confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
 
     return $self->format_status($self->get_empire_by_session($args->{session_id}));
->>>>>>> Changed some Empire API calls
 }
 
 sub view_profile {
@@ -503,18 +481,22 @@ sub view_profile {
     if ($empire->has_current_session && $empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot modify preferences.'];
     }
+    my $my_medals;
     my $medals = $empire->medals;
-    my %my_medals;
     while (my $medal = $medals->next) {
-        $my_medals{$medal->id} = {
+        my $m = {
+            id              => $medal->id,
             name            => $medal->name,
             image           => $medal->image,
             date            => $medal->format_datestamp,
             public          => $medal->public,
             times_earned    => $medal->times_earned,
         };
+        push @$my_medals, $m;
     }
     my %out = (
+        id                          => $empire->id,
+        name                        => $empire->name,
         description                 => $empire->description,
         notes                       => $empire->notes,
         status_message              => $empire->status_message,
@@ -529,7 +511,7 @@ sub view_profile {
         skip_resource_warnings      => $empire->skip_resource_warnings,
         skip_happiness_warnings     => $empire->skip_happiness_warnings,
         skip_facebook_wall_posts    => $empire->skip_facebook_wall_posts,
-        medals                      => \%my_medals,
+        medals                      => $my_medals,
         skip_found_nothing          => $empire->skip_found_nothing,
         skip_excavator_resources    => $empire->skip_excavator_resources,
         skip_excavator_glyph        => $empire->skip_excavator_glyph,
@@ -555,190 +537,102 @@ sub edit_profile {
     if ($empire->has_current_session && $empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot modify preferences.'];
     }
-    if (exists $profile->{description}) {
-        Lacuna::Verify->new(content=>\$profile->{description}, throws=>[1005,'Description must be less than 1024 characters and cannot contain special characters or profanity.', 'description'])
+    if (exists $args->{description}) {
+        Lacuna::Verify->new(content=>\$args->{description}, throws=>[1005,'Description must be less than 1024 characters and cannot contain special characters or profanity.', 'description'])
             ->length_lt(1025)
             ->no_restricted_chars
             ->no_profanity
             ->no_bad_words;
-        $empire->description($profile->{description});
+        $empire->description($args->{description});
         if ($empire->tutorial_stage ne 'turing') {
             Lacuna::Tutorial->new(empire=>$empire)->finish;
         }
     }
-    if (exists $profile->{notes}) {
-        Lacuna::Verify->new(content=>\$profile->{notes}, throws=>[1005,'Notes must be less than 1024 characters and cannot contain special characters or profanity.', 'notes'])
+    if (exists $args->{notes}) {
+        Lacuna::Verify->new(content=>\$args->{notes}, throws=>[1005,'Notes must be less than 1024 characters and cannot contain special characters or profanity.', 'notes'])
             ->length_lt(1025)
             ->no_restricted_chars
             ->no_profanity
             ->no_bad_words;
-        $empire->notes($profile->{notes});
+        $empire->notes($args->{notes});
     }
-    if (exists $profile->{status_message}) {
-        Lacuna::Verify->new(content=>\$profile->{status_message}, throws=>[1005,'Status cannot be empty, must be no longer than 100 characters, and cannot contain special characters or profanity.', 'status_message'])
+    if (exists $args->{status_message}) {
+        Lacuna::Verify->new(content=>\$args->{status_message}, throws=>[1005,'Status cannot be empty, must be no longer than 100 characters, and cannot contain special characters or profanity.', 'status_message'])
             ->length_lt(101)
             ->not_empty
             ->no_restricted_chars
             ->no_profanity
             ->no_bad_words;
-        $empire->status_message($profile->{status_message});
+        $empire->status_message($args->{status_message});
     }
-    if (exists $profile->{sitter_password}) {
-        Lacuna::Verify->new(content=>\$profile->{sitter_password}, throws=>[1005,'Sitter password must be between 6 and 30 characters.', 'sitter_password'])
+    if (exists $args->{sitter_password}) {
+        Lacuna::Verify->new(content=>\$args->{sitter_password}, throws=>[1005,'Sitter password must be between 6 and 30 characters.', 'sitter_password'])
             ->length_lt(31)
             ->length_gt(5);
-        $empire->sitter_password($profile->{sitter_password});
+        $empire->sitter_password($args->{sitter_password});
     }
-    if (exists $profile->{city}) {
-        Lacuna::Verify->new(content=>\$profile->{city}, throws=>[1005,'City must be no longer than 100 characters, and cannot contain special characters or profanity.', 'city'])
+    if (exists $args->{city}) {
+        Lacuna::Verify->new(content=>\$args->{city}, throws=>[1005,'City must be no longer than 100 characters, and cannot contain special characters or profanity.', 'city'])
             ->length_lt(101)
             ->no_restricted_chars
             ->no_profanity
             ->no_bad_words;
-        $empire->city($profile->{city});
+        $empire->city($args->{city});
     }
-    if (exists $profile->{country}) {
-        Lacuna::Verify->new(content=>\$profile->{country}, throws=>[1005,'Country must be no longer than 100 characters, and cannot contain special characters or profanity.', 'country'])
+    if (exists $args->{country}) {
+        Lacuna::Verify->new(content=>\$args->{country}, throws=>[1005,'Country must be no longer than 100 characters, and cannot contain special characters or profanity.', 'country'])
             ->length_lt(101)
             ->no_restricted_chars
             ->no_profanity
             ->no_bad_words;
-        $empire->country($profile->{country});
+        $empire->country($args->{country});
     }
-    if (exists $profile->{player_name}) {
-        Lacuna::Verify->new(content=>\$profile->{player_name}, throws=>[1005,'Player name must be no longer than 100 characters, and cannot contain special characters or profanity.', 'player_name'])
+    if (exists $args->{player_name}) {
+        Lacuna::Verify->new(content=>\$args->{player_name}, throws=>[1005,'Player name must be no longer than 100 characters, and cannot contain special characters or profanity.', 'player_name'])
             ->length_lt(101)
             ->no_restricted_chars
             ->no_profanity
             ->no_bad_words;
-        $empire->player_name($profile->{player_name});
+        $empire->player_name($args->{player_name});
     }
-    # TODO We can rewrite all this boilerplate!
-
-    if (exists $profile->{skip_medal_messages}) {
-        if ($profile->{skip_medal_messages} < 0 || $profile->{skip_medal_messages} > 1) {
-            confess [1009, 'Skip Medal Messages must be a 1 or a 0.', 'skip_medal_messages']
+    for my $skip (qw(skip_medal_messages skip_happiness_warnings skip_facebook_wall_posts skip_resource_warnings skip_pollution_warnings
+            skip_found_nothing skip_excavator_replace_msg skip_excavator_resources skip_excavator_glyph skip_excavator_plan skip_excavator_artifact
+            skip_excavator_destroyed skip_spy_recovery dont_replace_excavator skip_probe_detected skip_attack_messages
+        )) {
+        if (exists $args->{$skip}) {
+            if ($args->{$skip} != 0 and $args->{$skip} != 1) {
+                confess [1009, "$skip must be a 1 or a 0", $skip];
+            }
+            $empire->$skip($args->{$skip});
         }
-        $empire->skip_medal_messages($profile->{skip_medal_messages});
-    }
-    if (exists $profile->{skip_happiness_warnings}) {
-        if ($profile->{skip_happiness_warnings} < 0 || $profile->{skip_happiness_warnings} > 1) {
-            confess [1009, 'Skip Happiness Warnings must be a 1 or a 0.', 'skip_happiness_warnings']
-        }
-        $empire->skip_happiness_warnings($profile->{skip_happiness_warnings});
-    }
-    if (exists $profile->{skip_facebook_wall_posts}) {
-        if ($profile->{skip_facebook_wall_posts} < 0 || $profile->{skip_facebook_wall_posts} > 1) {
-            confess [1009, 'Skip Facebook Wall Posts must be a 1 or a 0.', 'skip_facebook_wall_posts']
-        }
-        $empire->skip_facebook_wall_posts($profile->{skip_facebook_wall_posts});
-    }
-    if (exists $profile->{skip_resource_warnings}) {
-        if ($profile->{skip_resource_warnings} < 0 || $profile->{skip_resource_warnings} > 1) {
-            confess [1009, 'Skip Resource Warnings must be a 1 or a 0.', 'skip_resource_warnings']
-        }
-        $empire->skip_resource_warnings($profile->{skip_resource_warnings});
-    }
-    if (exists $profile->{skip_pollution_warnings}) {
-        if ($profile->{skip_pollution_warnings} < 0 || $profile->{skip_pollution_warnings} > 1) {
-            confess [1009, 'Skip Pollution Warnings must be a 1 or a 0.', 'skip_pollution_warnings']
-        }
-        $empire->skip_pollution_warnings($profile->{skip_pollution_warnings});
     }
 
-    if (exists $profile->{skip_found_nothing}) {
-        if ($profile->{skip_found_nothing} < 0 || $profile->{skip_found_nothing} > 1) {
-            confess [1009, 'Skip Found Nothing must be a 1 or a 0.', 'skip_found_nothing']
-        }
-        $empire->skip_found_nothing($profile->{skip_found_nothing});
-    }
-    if (exists $profile->{skip_excavator_replace_msg}) {
-        if ($profile->{skip_excavator_replace_msg} < 0 || $profile->{skip_excavator_replace_msg} > 1) {
-            confess [1009, 'Skip Excavator Replacement Message must be a 1 or a 0.', 'skip_excavator_replace_msg']
-        }
-        $empire->skip_excavator_replace_msg($profile->{skip_excavator_replace_msg});
-    }
-    if (exists $profile->{skip_excavator_resources}) {
-        if ($profile->{skip_excavator_resources} < 0 || $profile->{skip_excavator_resources} > 1) {
-            confess [1009, 'Skip Excavator Resources must be a 1 or a 0.', 'skip_excavator_resources']
-        }
-        $empire->skip_excavator_resources($profile->{skip_excavator_resources});
-    }
-    if (exists $profile->{skip_excavator_glyph}) {
-        if ($profile->{skip_excavator_glyph} < 0 || $profile->{skip_excavator_glyph} > 1) {
-            confess [1009, 'Skip Excavator Glyph must be a 1 or a 0.', 'skip_excavator_glyph']
-        }
-        $empire->skip_excavator_glyph($profile->{skip_excavator_glyph});
-    }
-    if (exists $profile->{skip_excavator_plan}) {
-        if ($profile->{skip_excavator_plan} < 0 || $profile->{skip_excavator_plan} > 1) {
-            confess [1009, 'Skip Excavator Plan must be a 1 or a 0.', 'skip_excavator_plan']
-        }
-        $empire->skip_excavator_plan($profile->{skip_excavator_plan});
-    }
-    if (exists $profile->{skip_excavator_artifact}) {
-        if ($profile->{skip_excavator_artifact} < 0 || $profile->{skip_excavator_artifact} > 1) {
-            confess [1009, 'Skip Excavator Artifact must be a 1 or a 0.', 'skip_excavator_artifact']
-        }
-        $empire->skip_excavator_artifact($profile->{skip_excavator_artifact});
-    }
-    if (exists $profile->{skip_excavator_destroyed}) {
-        if ($profile->{skip_excavator_destroyed} < 0 || $profile->{skip_excavator_destroyed} > 1) {
-            confess [1009, 'Skip Excavator Destroyed must be a 1 or a 0.', 'skip_excavator_destroyed']
-        }
-        $empire->skip_excavator_destroyed($profile->{skip_excavator_destroyed});
-    }
-    if (exists $profile->{dont_replace_excavator}) {
-        if ($profile->{dont_replace_excavator} < 0 || $profile->{dont_replace_excavator} > 1) {
-            confess [1009, 'Do not replace excavator must be a 1 or a 0.', 'dont_replace_excavator']
-        }
-        $empire->dont_replace_excavator($profile->{dont_replace_excavator});
-    }
-    if (exists $profile->{skip_spy_recovery}) {
-        if ($profile->{skip_spy_recovery} < 0 || $profile->{skip_spy_recovery} > 1) {
-            confess [1009, 'Skip Spy Recovery must be a 1 or a 0.', 'skip_spy_recovery']
-        }
-        $empire->skip_spy_recovery($profile->{skip_spy_recovery});
-    }
-    if (exists $profile->{skip_probe_detected}) {
-        if ($profile->{skip_probe_detected} < 0 || $profile->{skip_probe_detected} > 1) {
-            confess [1009, 'Skip Probe Detected must be a 1 or a 0.', 'skip_probe_detected']
-        }
-        $empire->skip_probe_detected($profile->{skip_probe_detected});
-    }
-    if (exists $profile->{skip_attack_messages}) {
-        if ($profile->{skip_attack_messages} < 0 || $profile->{skip_attack_messages} > 1) {
-            confess [1009, 'Skip Attack Messages must be a 1 or a 0.', 'skip_attack_messages']
-        }
-        $empire->skip_attack_messages($profile->{skip_attack_messages});
-    }
-
-    if (exists $profile->{skype}) {
-        Lacuna::Verify->new(content=>\$profile->{skype}, throws=>[1005,'Skype must be no longer than 100 characters, and cannot contain special characters or profanity.', 'skype'])
+    if (exists $args->{skype}) {
+        Lacuna::Verify->new(content=>\$args->{skype}, throws=>[1005,'Skype must be no longer than 100 characters, and cannot contain special characters or profanity.', 'skype'])
             ->length_lt(101)
             ->no_restricted_chars
             ->no_profanity
             ->no_bad_words;
-        $empire->skype($profile->{skype});
+        $empire->skype($args->{skype});
     }
-    if (exists $profile->{email} && $profile->{email} ne '') {
-        Lacuna::Verify->new(content=>\$profile->{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
-            ->is_email if ($profile->{email});
-        if (Lacuna->db->resultset('Empire')->search({email=>$profile->{email}, id=>{ '!=' => $empire->id}})->count > 0) {
+    if (exists $args->{email} && $args->{email} ne '') {
+        Lacuna::Verify->new(content=>\$args->{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
+            ->is_email if ($args->{email});
+        if (Lacuna->db->resultset('Empire')->search({email=>$args->{email}, id=>{ '!=' => $empire->id}})->count > 0) {
             confess [1005, 'That email address is already in use by another empire.', 'email'];
         }
-        $empire->email($profile->{email});
+        $empire->email($args->{email});
     }
     $empire->update;    
 
     # medals
-    if (exists $profile->{public_medals}) {
-        unless (ref $profile->{public_medals} eq  'ARRAY') {
+    if (exists $args->{public_medals}) {
+        unless (ref $args->{public_medals} eq  'ARRAY') {
             confess [1009, 'Medals list needs to be an array reference.', 'public_medals'];
         }    
         my $medals = $empire->medals;
         while (my $medal = $medals->next) {
-            if ($medal->id ~~ $profile->{public_medals}) {
+            if ($medal->id ~~ $args->{public_medals}) {
                 $medal->public(1);
                 $medal->update;
             }
@@ -749,11 +643,19 @@ sub edit_profile {
         }
     }
     
-    return $self->view_profile($empire);
+    return $self->get_own_profile($empire);
 }
 
+# Set your own empires status message
+#
 sub set_status_message {
-    my ($self, $session_id, $message) = @_;
+    my ($self, $args) = @_;
+    
+    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
+        
+    my $session_id  = $args->{session_id};
+    my $message     = $args->{message};            
+            
     Lacuna::Verify->new(content=>\$message, throws=>[1005,'Status message invalid.', 'status_message'])
         ->length_lt(101)
         ->not_empty
@@ -776,29 +678,31 @@ sub view_public_profile {
         confess [1002, 'The empire you wish to view does not exist.', $empire_id];
     }
     my $medals = $viewed_empire->medals->search( { public => 1 } );
-    my %public_medals;
+    my $public_medals;
     while (my $medal = $medals->next) {
-        $public_medals{$medal->id} = {
+        my $row = {
+            id      => $medal->id,
             image   => $medal->image,
             name    => $medal->name,
             date    => $medal->format_datestamp,
             times_earned => $medal->times_earned,
         };
+        push @$public_medals, $row;
     }
     my %out = (
         id              => $viewed_empire->id,
         name            => $viewed_empire->name,
-        description     => $viewed_empire->description,
-        status_message  => $viewed_empire->status_message,
+        description     => $viewed_empire->description || '',,
+        status_message  => $viewed_empire->status_message || '',,
         species         => $viewed_empire->species_name,
         date_founded    => format_date($viewed_empire->date_created),
         last_login      => format_date($viewed_empire->last_login),
-        city            => $viewed_empire->city,
-        country         => $viewed_empire->country,
-        skype           => $viewed_empire->skype,
-        player_name     => $viewed_empire->player_name,
+        city            => $viewed_empire->city || '',
+        country         => $viewed_empire->country || '',
+        skype           => $viewed_empire->skype  || '',,
+        player_name     => $viewed_empire->player_name || '',,
         colony_count    => $viewed_empire->planets->count,
-        medals          => \%public_medals,
+        medals          => $public_medals,
     );
     if ($viewed_empire->alliance_id) {
         my $alliance = $viewed_empire->alliance;
@@ -882,8 +786,6 @@ sub boost {
         unless $weeks >=0 and int($weeks) == $weeks;
 
     unless ($empire->essentia >= 5 * $weeks) {
-        confess [1011, 'Not enough essentia.'];
-    }
     $empire->spend_essentia({
         amount  => 5 * $weeks,
         reason  => $type.' boost',
@@ -904,6 +806,18 @@ sub view_boosts {
     my ($self, $session_id) = @_;
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
+    return $self->get_boosts($args);
+}
+
+# View the current empire's boosts
+#
+sub get_boosts {
+    my ($self, $args) = @_;
+    
+    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
+        
+    my $session_id = $args->{session_id};
+    my $empire = $self->get_empire_by_session($session_id);
     return {
         status  => $self->format_status($session),
         boosts  => {
@@ -915,10 +829,14 @@ sub view_boosts {
             storage      => format_date($empire->storage_boost),
             building     => format_date($empire->building_boost),
             spy_training => format_date($empire->spy_training_boost),
+            ship_build  => format_date($empire->ship_build_boost),
+            ship_speed  => format_date($empire->ship_speed),
         }
     };
 }
 
+# Start the countdown for the empires destruction
+#
 sub enable_self_destruct {
     my ($self, $session_id) = @_;
     my $session  = $self->get_session({session_id => $session_id});
@@ -930,6 +848,8 @@ sub enable_self_destruct {
     return { status => $self->format_status($session) };
 }
 
+# Stop the destruction count-down. Phew!
+#
 sub disable_self_destruct {
     my ($self, $session_id) = @_;
     my $session  = $self->get_session({session_id => $session_id});
@@ -941,6 +861,8 @@ sub disable_self_destruct {
     return { status => $self->format_status($session) };
 }
 
+# Increase your empires Essentia by using a code
+#
 sub redeem_essentia_code {
     my ($self, $session_id, $code) = @_;
     my $session  = $self->get_session({session_id => $session_id});
@@ -949,6 +871,8 @@ sub redeem_essentia_code {
     return { amount => $amount, status => $self->format_status($session) };
 }
 
+# Get a URL that you can use to invite a friend to the game
+#
 sub get_invite_friend_url {
     my ($self, $session_id) = @_;
     my $session  = $self->get_session({session_id => $session_id});
@@ -959,6 +883,8 @@ sub get_invite_friend_url {
     };
 }
 
+# Get the system to send an email to a friend, inviting them to join the game
+#
 sub invite_friend {
     my ($self, $session_id, $addresses, $custom_message) = @_;
     my $session  = $self->get_session({session_id => $session_id});
@@ -990,6 +916,8 @@ sub invite_friend {
     return { status => $self->format_status($session), sent => \@sent, not_sent => \@not_sent };
 }
 
+# Check that the species configuration is valid
+#
 sub vet_species {
     my ($self, $args) = @_;
 
@@ -1035,52 +963,55 @@ sub vet_species {
     }
 }
 
+
+
 sub redefine_species_limits {
     my ($self, $session_id) = @_;
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
 
-    # TODO
-    confess [9999, 'not yet rewritten'];
+    my $session_id      = $args->{session_id};
 
     my $out = $empire->determine_species_limits($empire);
     $out->{status} = $self->format_status($session);
     return $out;
 }
 
+
+
 sub redefine_species {
     my ($self, $session_id, $me) = @_;
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
 
-    # TODO
-    confess [9999, 'not yet rewritten'];
+    my $session_id      = $args->{session_id};
+    
+    my $empire = $self->get_empire_by_session($session_id);
 
     unless ($empire->essentia >= 100) {
         confess [1011, 'You need at least 100 essentia to redefine your species.'];
     }
 
-    $self->vet_species($me);
+    $self->vet_species($args);
 
     my $limits = $empire->determine_species_limits($empire);
     unless ($limits->{can}) {
         confess [1010, $limits->{reason}];
     }
-    if ($me->{min_orbit} > $limits->{min_orbit}) {
-        confess [1009, 'Your minimum orbit is '.$limits->{min_orbit}.'.'];
+    if ($args->{species_min_orbit} > $limits->{species_min_orbit}) {
+        confess [1009, 'Your minimum orbit is '.$limits->{species_min_orbit}.'.'];
     }
-    if ($me->{max_orbit} < $limits->{max_orbit}) {
-        confess [1009, 'Your maximum orbit is '.$limits->{max_orbit}.'.'];
-    }
-    if ($me->{growth_affinity} < $limits->{min_growth}) {
-        confess [1009, 'Your minimum growth affinity is '.$limits->{min_growth}.'.'];
+    if ($args->{species_growth} < $limits->{species_min_growth}) {
+        confess [1009, 'Your minimum growth affinity is '.$limits->{species_in_growth}.'.'];
     }
     
     $empire->spend_essentia({
         amount  => 100, 
         reason  => 'redefine species',
     });
-    $empire->update_species($me);
+    confess [9999, 'not yet implemented. TODO'];
+
+    $empire->update_species($args);
     $empire->update;
     $empire->planets->update({needs_recalc=>1});
     
@@ -1104,123 +1035,123 @@ sub view_species_stats {
 sub get_species_templates {
     return [
         {
-            name                    => 'Average',
-            description             => 'A race of average intellect, and weak constitution.',
-            min_orbit               => 3,
-            max_orbit               => 3,
-            manufacturing_affinity  => 4,
-            deception_affinity      => 4,
-            research_affinity       => 4,
-            management_affinity     => 4,
-            farming_affinity        => 4,
-            mining_affinity         => 4,
-            science_affinity        => 4,
-            environmental_affinity  => 4,
-            political_affinity      => 4,
-            trade_affinity          => 4,
-            growth_affinity         => 4,
+            species_name                    => 'Average',
+            species_description             => 'A race of average intellect, and weak constitution.',
+            species_min_orbit               => 3,
+            species_max_orbit               => 3,
+            species_manufacturing  => 4,
+            species_deception      => 4,
+            species_research       => 4,
+            species_management     => 4,
+            species_farming        => 4,
+            species_mining         => 4,
+            species_science        => 4,
+            species_environmental  => 4,
+            species_political      => 4,
+            species_trade          => 4,
+            species_growth         => 4,
         },
         {
-            name                    => 'Resiliant',
-            description             => 'Resiliant, somewhat docile, but very quick learners and above average at producing any resource.',
-            min_orbit               => 2,
-            max_orbit               => 5,
-            manufacturing_affinity  => 3,
-            deception_affinity      => 3,
-            research_affinity       => 3,
-            management_affinity     => 5,
-            farming_affinity        => 5,
-            mining_affinity         => 5,
-            science_affinity        => 5,
-            environmental_affinity  => 5,
-            political_affinity      => 2,
-            trade_affinity          => 2,
-            growth_affinity         => 3,
+            species_name                    => 'Resiliant',
+            species_description             => 'Resiliant, somewhat docile, but very quick learners and above average at producing any resource.',
+            species_min_orbit               => 2,
+            species_max_orbit               => 5,
+            species_manufacturing  => 3,
+            species_deception      => 3,
+            species_research       => 3,
+            species_management     => 5,
+            species_farming        => 5,
+            species_mining         => 5,
+            species_science        => 5,
+            species_environmental  => 5,
+            species_political      => 2,
+            species_trade          => 2,
+            species_growth         => 3,
         },
         {
-            name                    => 'Builder',
-            description             => 'Adept at building a colony to maximum levels quickly.',
-            min_orbit               => 4,
-            max_orbit               => 4,
-            manufacturing_affinity  => 4,
-            deception_affinity      => 2,
-            research_affinity       => 6,
-            management_affinity     => 6,
-            farming_affinity        => 4,
-            mining_affinity         => 4,
-            science_affinity        => 4,
-            environmental_affinity  => 4,
-            political_affinity      => 2,
-            trade_affinity          => 2,
-            growth_affinity         => 6,
+            species_name                    => 'Builder',
+            species_description             => 'Adept at building a colony to maximum levels quickly.',
+            species_min_orbit               => 4,
+            species_max_orbit               => 4,
+            species_manufacturing  => 4,
+            species_deception      => 2,
+            species_research       => 6,
+            species_management     => 6,
+            species_farming        => 4,
+            species_mining         => 4,
+            species_science        => 4,
+            species_environmental  => 4,
+            species_political      => 2,
+            species_trade          => 2,
+            species_growth         => 6,
         },
         {
-            name                    => 'Producer',
-            description             => 'No resource is a struggle for this species.',
-            min_orbit               => 2,
-            max_orbit               => 5,
-            manufacturing_affinity  => 5,
-            deception_affinity      => 2,
-            research_affinity       => 2,
-            management_affinity     => 2,
-            farming_affinity        => 6,
-            mining_affinity         => 6,
-            science_affinity        => 6,
-            environmental_affinity  => 6,
-            political_affinity      => 2,
-            trade_affinity          => 2,
-            growth_affinity         => 2,
+            species_name                    => 'Producer',
+            species_description             => 'No resource is a struggle for this species.',
+            species_min_orbit               => 2,
+            species_max_orbit               => 5,
+            species_manufacturing  => 5,
+            species_deception      => 2,
+            species_research       => 2,
+            species_management     => 2,
+            species_farming        => 6,
+            species_mining         => 6,
+            species_science        => 6,
+            species_environmental  => 6,
+            species_political      => 2,
+            species_trade          => 2,
+            species_growth         => 2,
         },
         {
-            name                    => 'Warmonger',
-            description             => 'Adept at ship building and espionage, they are bent on domination.',
-            min_orbit               => 4,
-            max_orbit               => 5,
-            manufacturing_affinity  => 4,
-            deception_affinity      => 7,
-            research_affinity       => 2,
-            management_affinity     => 4,
-            farming_affinity        => 2,
-            mining_affinity         => 2,
-            science_affinity        => 7,
-            environmental_affinity  => 2,
-            political_affinity      => 7,
-            trade_affinity          => 1,
-            growth_affinity         => 5,
+            species_name                    => 'Warmonger',
+            species_description             => 'Adept at ship building and espionage, they are bent on domination.',
+            species_min_orbit               => 4,
+            species_max_orbit               => 5,
+            species_manufacturing  => 4,
+            species_deception      => 7,
+            species_research       => 2,
+            species_management     => 4,
+            species_farming        => 2,
+            species_mining         => 2,
+            species_science        => 7,
+            species_environmental  => 2,
+            species_political      => 7,
+            species_trade          => 1,
+            species_growth         => 5,
         },
         {
-            name                    => 'Viral',
-            description             => 'Proficient at growing at a most expedient pace, like a virus.',
-            min_orbit               => 1,
-            max_orbit               => 7,
-            manufacturing_affinity  => 1,
-            deception_affinity      => 4,
-            research_affinity       => 7,
-            management_affinity     => 7,
-            farming_affinity        => 1,
-            mining_affinity         => 1,
-            science_affinity        => 1,
-            environmental_affinity  => 1,
-            political_affinity      => 7,
-            trade_affinity          => 1,
-            growth_affinity         => 7,
+            species_name                    => 'Viral',
+            species_description             => 'Proficient at growing at a most expedient pace, like a virus.',
+            species_min_orbit               => 1,
+            species_max_orbit               => 7,
+            species_manufacturing  => 1,
+            species_deception      => 4,
+            species_research       => 7,
+            species_management     => 7,
+            species_farming        => 1,
+            species_mining         => 1,
+            species_science        => 1,
+            species_environmental  => 1,
+            species_political      => 7,
+            species_trade          => 1,
+            species_growth         => 7,
         },
         {
-            name                    => 'Trade',
-            description             => 'Masters of commerce and ship building.',
-            min_orbit               => 2,
-            max_orbit               => 3,
-            manufacturing_affinity  => 5,
-            deception_affinity      => 4,
-            research_affinity       => 7,
-            management_affinity     => 7,
-            farming_affinity        => 1,
-            mining_affinity         => 1,
-            science_affinity        => 7,
-            environmental_affinity  => 1,
-            political_affinity      => 1,
-            trade_affinity          => 7,
-            growth_affinity         => 2,
+            species_name                    => 'Trade',
+            species_description             => 'Masters of commerce and ship building.',
+            species_min_orbit               => 2,
+            species_max_orbit               => 3,
+            species_manufacturing  => 5,
+            species_deception      => 4,
+            species_research       => 7,
+            species_management     => 7,
+            species_farming        => 1,
+            species_mining         => 1,
+            species_science        => 7,
+            species_environmental  => 1,
+            species_political      => 1,
+            species_trade          => 7,
+            species_growth         => 2,
         },
     ]
 }
@@ -1381,7 +1312,6 @@ sub _rewrite_request_for_logging
 }
 
 __PACKAGE__->register_rpc_method_names(
-<<<<<<< HEAD
     { name => "create", options => { with_plack_request => 1, log_request_as => \&_rewrite_request_for_logging } },
     { name => "fetch_captcha", options => { with_plack_request => 1 } },
     { name => "login", options => { with_plack_request => 1, log_request_as => \&_rewrite_request_for_logging } },
@@ -1399,7 +1329,7 @@ __PACKAGE__->register_rpc_method_names(
     redeem_essentia_code
     enable_self_destruct disable_self_destruct
     set_status_message
-    find
+    find_empire
     view_profile view_public_profile
     is_name_available
     logout
