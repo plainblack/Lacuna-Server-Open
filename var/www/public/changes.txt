@@ -1,3 +1,6 @@
+3.0893:
+ - Fix: Closed starter zone loophole.
+
 3.0892:
  - Fix: Fix schedule to remove past jobs when rescheduling.
 
