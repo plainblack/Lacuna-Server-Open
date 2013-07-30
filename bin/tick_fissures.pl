@@ -411,8 +411,8 @@ sub fissure_explode {
         }
         last GASSY if (++$grown >= 5);
     }
-    if ($body->in_neutral_area) {
-        out("Skipping damage to other planets because origin in Neutral Area.");
+    if ($body->in_neutral_area or $body->in_starter_zone) {
+        out("Skipping damage to other planets because origin in Neutral or Starting Area.");
         return;
     }
 # Damage planets in range (damage depends upon distance from the event)
@@ -434,7 +434,7 @@ sub fissure_explode {
     my $damaged = 0;
     DAMAGED:
     while (my $to_damage = $closest->next) {
-        next if ($to_damage->in_neutral_area);
+        next if ($to_damage->in_neutral_area or $to_damage->in_starter_zone);
         next if ($to_damage->get_type eq 'space station');  # Since supply chains etc, will probably be damaged, they'll still be threatened.
         next unless ($to_damage->empire->date_created < DateTime->now->subtract(days => 60));
 # damage planet
@@ -446,6 +446,16 @@ sub fissure_explode {
         my $distance = $to_damage->get_column('distance');
         my $damage  = int(100 - $distance);
         $damage = int($damage/2) if ($to_damage->get_type eq 'gas giant'); # Gas Giants are more resiliant or more spread out.
+        my $citadel = $to_damage->get_building_of_class("Lacuna::DB::Result::Building::Permanent::CitadelOfKnope");
+        if ($citadel) {
+            my $reduction = 2 * $citadel->level;
+            $damage -= $reduction;
+            if ($damage < 1) {
+                out("   Citadel causes all debris to bypass.");
+                next;
+            }
+            out ("   Citadel reduces damage by $reduction.");
+        }
         $damage = 1 if $damage < 1;
         out("   Causing an average of $damage damage to each building");
         my @all_buildings = @{$to_damage->building_cache};

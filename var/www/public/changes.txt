@@ -1,5 +1,8 @@
 3.0893:
  - Fix: Closed starter zone loophole.
+ - Mod: Citadel now repels planetary debris.
+ - Mod: Fissures are too unstable to move.
+ - Mod: Fissures in starter zones don't cause damage.
 
 3.0892:
  - Fix: Fix schedule to remove past jobs when rescheduling.

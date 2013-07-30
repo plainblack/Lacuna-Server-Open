@@ -232,6 +232,7 @@ sub no_occ_or_nonally {
     my @stripped;
     for my $check (@$checking) {
         next if $check->empire_id;
+        next if ($check->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure'));
         if ( defined($check->star->station_id)) {
             if ($check->star->station->empire->alliance_id == $aid) {
                 push @stripped, $check;
@@ -667,6 +668,14 @@ sub generate_singularity {
                 $allowed = 1;
             }
         }
+        if ($body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure')) {
+            $confess = sprintf("%s can not be moved without tearing apart from the fissure on it.", $body->name);
+            $allowed = 0;
+        }
+        elsif ($target->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure')) {
+            $confess = sprintf("%s can not be moved without tearing apart from the fissure on it.", $target->name);
+            $allowed = 0;
+        }
         unless ($allowed) {
             confess [ 1010, $confess ];
         }
@@ -685,6 +694,11 @@ sub generate_singularity {
         }
         # Let's check all planets in our system and target system
         qualify_moving_sys($building, $target);
+    }
+    elsif ( $task->{name} eq 'Jump Zone' ) {
+        if ($body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure')) {
+            confess [1009, sprintf("%s can not be moved without tearing apart from the fissure on it.", $body->name) ];
+        }
     }
     
     $body->spend_waste($task->{waste_cost})->update;
@@ -872,6 +886,9 @@ sub qualify_moving_sys {
                     confess [1009, 'You can only move your own alliance member bodies.'];
                 }
             }
+        }
+        if ($body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure')) {
+            confess [1009, 'You can not move a body with a fissure on it.'];
         }
     }
     return 1;
