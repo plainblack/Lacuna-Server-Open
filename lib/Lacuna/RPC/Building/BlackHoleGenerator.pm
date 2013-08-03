@@ -672,7 +672,7 @@ sub generate_singularity {
             $confess = sprintf("%s can not be moved without tearing apart from the fissure on it.", $body->name);
             $allowed = 0;
         }
-        elsif ($target->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure')) {
+        elsif ($btype eq 'habitable planet' and $target->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure')) {
             $confess = sprintf("%s can not be moved without tearing apart from the fissure on it.", $target->name);
             $allowed = 0;
         }
