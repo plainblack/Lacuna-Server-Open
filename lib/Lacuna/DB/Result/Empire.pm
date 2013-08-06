@@ -959,7 +959,13 @@ before delete => sub {
     if ($self->alliance_id) {
         my $alliance = $self->alliance;
         if (defined $alliance && $alliance->leader_id == $self->id) {
-            $alliance->delete;
+            my @members = $alliance->members;
+            if (scalar @members == 1) {
+                $alliance->delete;
+            }
+            else {
+                $alliance->remove_member($self, 1);
+            }
         }
     }
     $self->sent_messages->delete;
