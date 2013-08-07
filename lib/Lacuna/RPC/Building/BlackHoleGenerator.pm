@@ -887,7 +887,7 @@ sub qualify_moving_sys {
                 }
             }
         }
-        if ($body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure')) {
+        if ($body->get_type ne 'asteroid' and $body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure')) {
             confess [1009, 'You can not move a body with a fissure on it.'];
         }
     }
@@ -1032,10 +1032,6 @@ sub bhg_swap {
         star_id => $new_data->{star_id},
         orbit   => $new_data->{orbit},
     });
-    my $boracle = $body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
-    if ($boracle) {
-        $boracle->recalc_probes;
-    }
     
     unless ($new_data->{type} eq "empty") {
         $target->update({
@@ -1109,6 +1105,10 @@ sub bhg_swap {
         recalc_incoming_supply($body);
         if ($body->get_type eq 'space station') {
             drop_stars_beyond_range($body);
+        }
+        my $boracle = $body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
+        if ($boracle) {
+            $boracle->recalc_probes;
         }
     }
     if (defined($body->empire)) {
@@ -1991,7 +1991,7 @@ sub bhg_tasks {
             reason       => "Target action by Star.",
             occupied     => 0,
             min_level    => 30,
-            range        => 5 * $blevel,
+            range        => 8 * $blevel,
             recovery     => int($day_sec * 1200/$blevel),
             waste_cost   => 30_000_000_000,
             base_fail    => 60,
