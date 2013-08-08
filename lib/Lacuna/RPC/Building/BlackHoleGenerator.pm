@@ -516,6 +516,7 @@ sub generate_singularity {
     if ($building->is_working) {
         confess [1010, 'The Black Hole Generator is cooling down from the last use.'];
     }
+    $building->start_work({}, 600)->update;
     unless (defined $target) {
         confess [1002, 'Could not locate target.'];
     }
@@ -702,7 +703,11 @@ sub generate_singularity {
     }
     
     $body->spend_waste($task->{waste_cost})->update;
-    $building->start_work({}, $task->{recovery})->update;
+#    $building->start_work({}, $task->{recovery})->update;
+    my $work_ends = DateTime->now;
+    $work_ends->add(seconds => $task->{recovery});
+    $building->reschedule_work($work_ends);
+    $building->update;
     # Pass the basic checks
     # Check for startup failure
     my $roll = randint(0,99);

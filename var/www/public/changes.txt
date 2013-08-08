@@ -6,6 +6,7 @@
  - Fix: Supply Chains to Space Stations are halted if supplier leaves alliance.
  - Mod: If alliance leader quits game, alliance leadership is transferred.
  - Mod: If a member of an alliance leaves, space stations of member turned over to leader of alliance.
+ - Fix: BHG cooldown time of 5 minutes during warmup.
 
 3.0892:
  - Fix: Fix schedule to remove past jobs when rescheduling.
