@@ -7,6 +7,8 @@
  - Mod: If alliance leader quits game, alliance leadership is transferred.
  - Mod: If a member of an alliance leaves, space stations of member turned over to leader of alliance.
  - Fix: BHG cooldown time of 5 minutes during warmup.
+ - API: get_buildings now returns repair costs if building is damaged.
+ - API: Api call repair_list from Body will attempt to repair buildings supplied to function in order of list.
 
 3.0892:
  - Fix: Fix schedule to remove past jobs when rescheduling.
