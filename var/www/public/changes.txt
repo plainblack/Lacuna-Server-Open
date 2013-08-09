@@ -9,6 +9,7 @@
  - Fix: BHG cooldown time of 5 minutes during warmup.
  - API: get_buildings now returns repair costs if building is damaged.
  - API: Api call repair_list from Body will attempt to repair buildings supplied to function in order of list.
+ - Mod: FIssure tag added to fissure related emails.
 
 3.0892:
  - Fix: Fix schedule to remove past jobs when rescheduling.
