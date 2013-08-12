@@ -174,21 +174,21 @@ sub fissure_alert {
             $already{$eid} = 1;
             if ($type eq "spawn") {
                 $to_alert->empire->send_predefined_message(
-                    tags        => ['Alert', 'Fissure'],
+                    tags        => ['Fissure', 'Alert'],
                     filename    => 'fissure_alert_spawn.txt',
                     params      => [$body->x, $body->y, $body->name],
                 );
             }
             elsif ($type eq "level") {
                 $to_alert->empire->send_predefined_message(
-                    tags        => ['Alert', 'Fissure'],
+                    tags        => ['Fissure', 'Alert'],
                     filename    => 'fissure_alert_level.txt',
                     params      => [$body->x, $body->y, $body->name],
                 );
             }
             elsif ($type eq "critical") {
                 $to_alert->empire->send_predefined_message(
-                    tags        => ['Alert', 'Fissure'],
+                    tags        => ['Fissure', 'Alert'],
                     filename    => 'fissure_alert_critical.txt',
                     params      => [$body->x, $body->y, $body->name],
                 );
@@ -234,7 +234,7 @@ sub fissure_spawn {
         out("    Converted building ".$building->class." into a level $fissure_level Fissure!");
         if ($body->empire_id) {
             $body->empire->send_predefined_message(
-                tags        => ['Alert', 'Fissure'],
+                tags        => ['Fissure', 'Alert'],
                 filename    => 'fissure_replaced_energy.txt',
                 params      => [$body->name, $building->x,$building->y, $fissure_level],
             );
@@ -269,7 +269,7 @@ sub fissure_spawn {
 # send email to empire and N19 news
         if ($body->empire_id) {
             $body->empire->send_predefined_message(
-                tags        => ['Alert', 'Fissure'],
+                tags        => ['Fissure', 'Alert'],
                 filename    => 'fissure_spawned.txt',
                 params      => [$body->name],
             );
@@ -298,7 +298,7 @@ sub fissure_level {
     }
     if ($body->empire_id) {
         $body->empire->send_predefined_message(
-            tags        => ['Alert', 'Fissure'],
+            tags        => ['Fissure', 'Alert'],
             filename    => 'fissure_damaged_energy.txt',
             params      => [$body->name, $fissure->x,$fissure->y, $fissure->level],
         );

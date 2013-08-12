@@ -1478,7 +1478,7 @@ sub bhg_random_fissure {
                 unless ($already{$eid} == 1) {
                     $already{$eid} = 1;
                     $to_alert->empire->send_predefined_message(
-                        tags        => ['Alert', 'Fissure'],
+                        tags        => ['Fissure', 'Alert'],
                         filename    => 'fissure_alert_spawn.txt',
                         params      => [$target->x, $target->y, $target->name],
                     );
