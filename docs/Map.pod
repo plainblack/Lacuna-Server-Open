@@ -4,9 +4,9 @@ An export of the public map data (ie the Stars), is available to download in an 
 
  http://gameservername.lacunaexpanse.com.s3.amazonaws.com/stars.csv
 
-So if the server name is "us-east-1", then the the URL would be
+So if the server name is "us1", then the the URL would be
 
- http://us-east-1.lacunaexpanse.com.s3.amazonaws.com/stars.csv
+ http://us1.lacunaexpanse.com.s3.amazonaws.com/stars.csv
 
 =head1 Map Methods
 
@@ -14,22 +14,17 @@ These methods are accessible via the C</map> URL.
 
 =head2 get_star_map
 
-This takes a hashref of named arguments.
-
  {
-   "session_id" : "session-id-here",
-   "left" : -900,
-   "top" : 50,
-   "right" : -850,
-   "bottom" : 30
+   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e"
+   "left"       : -900,
+   "top"        : 50,
+   "right"      : -850,
+   "bottom"     : 30
  }
-
-This is the preferred call to obtain star data. It is a 'lite' version of B<get_stars> which just returns 
-enough data to draw the starmap.
 
 Where B<left>, B<top>, B<right>, B<bottom> represent the sides of the bounding rectangle.
 
-The maximum area that can be returned is 1001 units (e.g 50 x 20 or 1001 x 1)
+The maximum area that can be returned is 3001 units (e.g 50 x 60 or 3001 x 1)
 
 Returns a chunk of the map as an array of hashes. 
 
@@ -90,18 +85,125 @@ Returns a chunk of the map as an array of hashes.
    ]
  }
 
-Note. This data is a cut-down version of that returned by get_stars, in particular it does not
-return most of the data for planets you occupy (ore, water etc.), does not return the 'station' 
-data if the planet in under the influence of a space-station and does not return the water or
-ore for the planet. You can make separate calls to the /body get_status for that information.
-
 The B<station> section is only returned if the star is under the influence of a Space station.
 
 The B<empire> section is only returned if the body is occupied by an empire.
 
-=head2 get_stars ( session_id, x1, y1, x2, y2 )
 
-Retrieves a chunk of the map and returns it as an array of hashes. B<Note:> Coordinates without a star will not be returned in the results.
+
+=head2 check_star_for_incoming_probe
+
+ {
+   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e"
+   "star_id"    : "334"
+ }
+
+If the star has a status of "unprobed", call this method to find out if there is an incoming probe from this empire. 
+
+=head3 session_id (required)
+
+A session id.
+
+=head3 star_id (required)
+
+The unique id for a star.
+
+=head3 RESPONSE
+
+ {
+    "status"            : { ... },
+    "incoming_probe"    : "2012 01 31 13:09:05"
+ }
+
+Date of arrival will be present if there is an incoming probe
+
+
+
+=head2 get_star
+
+ {
+   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e"
+   "star_id"    : "334"
+ }
+
+Retrieves info on a single star.
+
+=head3 session_id (required)
+
+A session id.
+
+=head3 options
+
+You can specify the star by one of the following methods, C<star_id>, C<star_name>, C<star_x>+C<star_y>
+and you must specify one of these methods only.
+
+=head3 star_id (optional)
+
+The unique id of the star.
+
+=head3 star_name (optional)
+
+The full name of the star.
+
+=head3 x (optional)
+
+The X co-ordinate of the star
+
+=head3 y (optional)
+
+The Y co-ordinate of the star
+
+
+=head3 RESPONSE
+
+ { 
+   "star" : {
+     "name"          : "Sol",
+     "color"         : "yellow",
+     "x"             : -41,
+     "y"             : 27,
+     "zone"          : "0|0",
+     "id"            : "99",
+     "station" : { # only shows up if this star is under the influence of a space station
+       "id" : "id-goes-here",
+       "x" : 143,
+       "y" : -27,
+       "name" : "The Death Star"
+     },
+     "bodies" : [
+        {
+               same data as get_status() on /body
+        },
+        ...
+     ]
+   }    
+   "status" : { ... }
+ }
+
+C<station> section will only show up if this star is under the influence of a space station
+
+C<bodies> will only show up if you or your alliance has a probe, or is within range of an
+Oracle.
+
+
+=head2 find_star
+
+If you know a partial name of a star you can search for it.
+
+ {
+   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e"
+   "name"       : "lac"
+ }
+
+=head3 session_id (required)
+
+A session id.
+
+=head3 name (required)
+
+A partial name of a star. Case insensitive. Must be at least 3 characters.
+
+=head3 RESPONSE
 
  { 
     "stars" : [
@@ -110,289 +212,81 @@ Retrieves a chunk of the map and returns it as an array of hashes. B<Note:> Coor
             "color"         : "yellow",
             "x"             : -41,
             "y"             : 27,
-            "zone"          : "0|0",
-            "id"            : "99",
-            "station" : { # only shows up if this star is under the influence of a space station
-                "id" : "id-goes-here",
-                "x" : 143,
-                "y" : -27,
-                "name" : "The Death Star"
-            },
-            "bodies"        : [     # only added if a probe is present
-                {
-                    same data as get_status() on /body
-                },
-                ...
-            ]
-        },
-        {
-            "name"          : "X143S",
-            "color"         : "green",
-            "x"             : -42,
-            "y"             : 27
-            "zone"          : "0|0",
-            "id"            : "99",
-            "station" : { ... }
-        }
-     ],
-    "status" : { ... }
- }
-
-The data you retrieve will allow you to draw a standard cartesian plane like the following. 
-
-              y
-              
-              |
-              |
-     (-3,3)   |  (3,3)
-              |
- -x ----------+---------- x
-              |
-     (-3,-3)  |  (3,-3)
-              |
-              |
-
-             -y
-
-
-The requested area can be no larger than 900 spaces (30x30). Throws 1003 when the area is too large. 
-
-
-=head3 session_id
-
-A session id.
-
-=head3 x1
-
-The top left x coord.
-
-=head3 y1
-
-The top left y coord.
-
-=head3 x2
-
-The bottom right x coord.
-
-=head3 y2
-
-The bottom right y coord.
-
-
-=head2 check_star_for_incoming_probe ( session_id, star_id )
-
-If the star has a status of "unprobed", call this method to find out if there is an incoming probe from this empire. 
-
- {
-    "status" : { ... },
-    "incoming_probe" : "01 31 2010 13:09:05 +0600" # date of arrival will be present if there is an incoming probe
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 star_id
-
-The unique id for a star.
-
-
-
-=head2 get_star (session_id, star_id)
-
-Retrieves info on a single star.
-
- { 
-    "star" : {
-        "name"          : "Sol",
-        "color"         : "yellow",
-        "x"             : -41,
-        "y"             : 27,
-        "zone"          : "0|0",
-        "id"            : "99",
-        "station" : { # only shows up if this star is under the influence of a space station
-           "id" : "id-goes-here",
-           "x" : 143,
-           "y" : -27,
-           "name" : "The Death Star"
-        },
-        "bodies"        : [     # only added if a probe is present
-            {
-                same data as get_status() on /body
-            },
-            ...
-        ]
-    }    
-    "status" : { ... }
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 star_id
-
-The unique id of the star.
-
-
-
-=head2 get_star_by_name (session_id, name)
-
-Retrieves info on a single star.
-
- { 
-    "star" : {
-        "name"          : "Sol",
-        "color"         : "yellow",
-        "x"             : -41,
-        "y"             : 27,
-        "zone"          : "0|0",
-        "id"            : "99",
-        "station" : { # only shows up if this star is under the influence of a space station
-           "id" : "id-goes-here",
-           "x" : 143,
-           "y" : -27,
-           "name" : "The Death Star"
-        },
-        "bodies"        : [     # only added if a probe is present
-            {
-                same data as get_status() on /body
-            },
-            ...
-        ]
-    }    
-    "status" : { ... }
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 name
-
-The exact name of a star. Case insensitive.
-
-
-
-=head2 get_star_by_xy (session_id, x, y)
-
-Retrieves info on a single star.
-
- { 
-    "star" : {
-        "name"          : "Sol",
-        "color"         : "yellow",
-        "x"             : -41,
-        "y"             : 27,
-        "zone"          : "0|0",
-        "id"            : "99",
-        "station" : { # only shows up if this star is under the influence of a space station
-           "id" : "id-goes-here",
-           "x" : 143,
-           "y" : -27,
-           "name" : "The Death Star"
-        },
-        "bodies"        : [     # only added if a probe is present
-            {
-                same data as get_status() on /body
-            },
-            ...
-        ]
-    }    
-    "status" : { ... }
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 x
-
-The x coordinate of a star.
-
-=head3 y
-
-The y coordinate of a star.
-
-
-
-=head2 search_stars (session_id, name)
-
-If you know a partial name of a star you can search for it. Returns up to 25 results. No body data is returned with this search.
-
- { 
-    "stars" : [
-        {
-            "name"          : "Sol",
-            "color"         : "yellow",
-            "x"             : -41,
-            "y"             : 27
+            "id"            : 333
         },
         {
             "name"          : "Minsol",
             "color"         : "green",
             "x"             : -42,
-            "y"             : 27
+            "y"             : 27,
+            "id"            : 376
         }
      ],
     "status" : { ... }
  }
 
+Returns up to 25 names. No body data is returned.
 
-=head3 session_id
-
-A session id.
-
-=head3 name
-
-A partial name of a star. Case insensitive. Must be at least 3 characters.
 
 
 =head2 probe_summary_fissures
 
-Obtain a summary of all bodies with fissures, known to yours, or your alliances probes within a specified zone.
-
-This takes named arguments only
-
  {
-   "session_id" : "1234-0A34-333F-21",
-   "zone"       : "0|0",
+   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e"
+   "star_id"    : "334"
  }
 
-=head3 session_id (required)
+Obtain a summary of all bodies with fissures, known by yours, or your alliances's probes closest to a location.
 
-A session id.
+=head3 options
 
-=head3 zone (optional)
+You can specify the location by one of the following methods, C<star_id>, C<star_name>, C<x>+C<y>, C<body_id>, C<body_name>
+and you must specify one of these methods only.
 
-A string defining the zone, e.g "-1|0", "5|-5" or "0|0"
+=head3 star_id (optional)
 
-If not specified, all zones are searched.
+The unique id of the star.
+
+=head3 star_name (optional)
+
+The full name of the star.
+
+=head3 body_id (optional)
+
+The unique id of the star.
+
+=head3 body_name (optional)
+
+The full name of the star.
+
+=head3 x (optional)
+
+The X co-ordinate in the expanse
+
+=head3 y (optional)
+
+The Y co-ordinate in the expanse
 
 =head3 RESPONSE
 
  {
-   "fissures" : {
-     "345" : {
-       "name"   : "Mercury",
-       "id"     : 345,
-       "orbit"  : 1,
-       "x"      : -40,
-       "y"      : 29,
-       "type"   : "habitable planet",
-       "image"  : "p13",
-       "size"   : 58,
-      },
-    "735" : {
+   "fissures" : [
+     {
+       "name"     : "Mercury",
+       "id"       : 345,
+       "orbit"    : 1,
+       "x"        : -40,
+       "y"        : 29,
+       "type"     : "habitable planet",
+       "image"    : "p13",
+       "size"     : 58,
+       "distance" : 35,
+     },
+     {
        ...
-      }
-    }
+     }
+   ]
  }
-     
-This returns a hash of body-ids and for each one a brief description of the body on which is at least
-one fissure;
-
-If there are no fissures on any of the bodies which you have probed then an empty list is returned;
 
 =head2 view_laws (session_id, star_id )
 
@@ -421,14 +315,12 @@ A session id.
 
 The unique id of the star
 
+Up to 25 fissures are returned sorted by distance, closest first.
 
-=head1 FAQ
-
-These are common questions about this API.
-
-=head2 What is a body?
-
-A body is any object that orbits a star. In Lacuna terms this means a body is a habitable planet, gas giant planet, space station, or asteroid.
+Note. If there are fissures on bodies which are in systems for which neither you nor your
+alliance have probes, then this data will not be returned.
+     
+If there are no fissures on any of the bodies which you have probed, then an empty list is returned;
 
 =cut
 
