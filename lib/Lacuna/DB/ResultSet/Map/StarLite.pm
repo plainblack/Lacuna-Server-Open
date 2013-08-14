@@ -18,6 +18,7 @@ sub get_star_map {
         bind        => [$alliance_id, $empire_id, $left, $right, $bottom, $top],
     });
 
+print STDERR "GET_STAR_MAP: $left,$right,$bottom,$top\n";
     my $star_id=0;
     my $star;
     my @out;

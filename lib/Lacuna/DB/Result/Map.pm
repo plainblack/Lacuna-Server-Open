@@ -27,16 +27,22 @@ has 'map_size' => (
     lazy    => 1,
 );
 
+sub calculate_distance_to_xy {
+    my ($self, $x, $y) = @_;
+
+    my $x_dist = abs($self->x - $x);
+    my $y_dist = abs($self->y - $y);
+    $x_dist = $x_dist > $self->map_width / 2 ? abs($x_dist - $self->map_width) : $x_dist;
+    $y_dist = $y_dist > $self->map_height / 2 ? abs($y_dist - $self->map_height) : $y_dist;
+    return sqrt($x_dist**2 + $y_dist**2) * 100;
+}
+
 # distance from object to target. Allows for 'wrap-around' nature of the map
 # where distance can never be greater than half the width,height of the map.
 #
 sub calculate_distance_to_target {
     my ($self, $target) = @_;
-    my $x_dist = abs($self->x - $target->x);
-    my $y_dist = abs($self->y - $target->y);
-    $x_dist = $x_dist > $self->map_width / 2 ? abs($x_dist - $self->map_width) : $x_dist;
-    $y_dist = $y_dist > $self->map_height / 2 ? abs($y_dist - $self->map_height) : $y_dist;
-    return sqrt($x_dist**2 + $y_dist**2) * 100;
+    return $self->calculate_distance_to_xy($target->x, $target->i);
 }
 
 use constant zone_size => 250;
