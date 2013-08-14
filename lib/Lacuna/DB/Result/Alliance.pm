@@ -231,9 +231,35 @@ sub remove_member {
     elsif ($empire->id == $self->leader_id && !$delete_leader) {
         confess [1010, 'The leader of the alliance cannot be removed from the alliance.'];
     }
-    elsif ($empire->planets->search({ class => 'Lacuna::DB::Result::Map::Body::Planet::Station'})->count) {
-        confess [1010, 'A member who owns a space station cannot leave an alliance.'];
+    elsif ($empire->id == $self->leader_id) {
+# Leader is probably self destructing, choose another leader.
+        my $members = $self->members;
+        my $last_log = DateTime->now->subtract( years => 5 );
+        my $new_lead = $empire;
+        while (my $member = $members->next) {
+            if ($member->id != $self->leader_id and $member->last_login > $last_log) {
+                $new_lead = $member;
+                $last_log = $member->last_login;
+            }
+        }
+        $self->leader_id($new_lead->id);
+        $self->update;
+#Send email to all alliance members notifying them of change in leadership.
     }
+
+    my $stations = $self->stations;
+    while (my $station = $stations->next) {
+        if ($station->empire_id == $empire->id) {
+            $station->empire_id($self->leader_id);
+        }
+        foreach my $chain ($station->in_supply_chains) {
+            if ($chain->planet->empire_id == $empire->id) {
+                $chain->delete;
+            }
+        }
+        $station->update;
+    }
+
     $empire->alliance_id(undef);
     $empire->update;
     Lacuna->db->resultset('Probes')->search({empire_id => $empire->id})->update({alliance_id => undef});

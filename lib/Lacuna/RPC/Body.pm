@@ -136,10 +136,61 @@ sub get_buildings {
                 end                 => $building->work_ends_formatted,
             };
         }
+        if ($building->efficiency < 100) {
+            $row->{repair_costs} = $building->get_repair_costs;
+        }
         push @$out, $row;
     }
     
     return {buildings => $out, body=>{surface_image => $body->surface}, status=>$self->format_status($empire, $body)};
+}
+
+sub repair_list {
+    my ($self, $session_id, $body_id, $building_ids) = @_;
+
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $self->get_body($empire, $body_id);
+    
+    if ($body->needs_surface_refresh) {
+        $body->needs_surface_refresh(0);
+        $body->update;
+    }
+    my @buildings = @{$body->building_cache};
+
+    my %out;
+    for my $bld_id (@{$building_ids}) {
+        my ( $building ) = grep { $_->id == $bld_id } @buildings;
+        next unless $building;
+        next unless $building->efficiency < 100;
+        my $return;
+        my $ok = eval { $return = $building->repair };
+        $out{$building->id} = {
+            url     => $building->controller_class->app_url,
+            image   => $building->image_level,
+            name    => $building->name,
+            x       => $building->x,
+            y       => $building->y,
+            level   => $building->level,
+            efficiency => $building->efficiency,
+        };
+        if ($building->is_upgrading) {
+            $out{$building->id}{pending_build} = $building->upgrade_status;
+        }
+        if ($building->is_working) {
+            $out{$building->id}{work} = {
+                seconds_remaining   => $building->work_seconds_remaining,
+                start               => $building->work_started_formatted,
+                end                 => $building->work_ends_formatted,
+            };
+        }
+        if ($building->efficiency < 100) {
+            $out{$building->id}{repair_costs} = $building->get_repair_costs;
+        }
+    }
+    return {
+        buildings=>\%out,
+        status=>$self->format_status($empire, $body)
+    };
 }
 
 sub rearrange_buildings {
@@ -472,7 +523,7 @@ sub get_buildable {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(abandon rename get_buildings get_buildable get_status get_body_status rearrange_buildings));
+__PACKAGE__->register_rpc_method_names(qw(abandon rename get_buildings get_buildable get_status get_body_status repair_list rearrange_buildings));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

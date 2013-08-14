@@ -116,6 +116,29 @@
  - KNOWN BUGS:
    - bug: Fleet format currently shows 'Foreign' for all fleets
 
+3.0893:
+ - Fix: Closed starter zone loophole.
+ - Mod: Citadel now repels planetary debris.
+ - Mod: Fissures cause instability, preventing planets from moving.
+ - Mod: Fissures in starter zones don't cause damage.
+ - Fix: Supply Chains to Space Stations are halted if supplier leaves alliance.
+ - Mod: If alliance leader quits game, alliance leadership is transferred.
+ - Mod: If a member of an alliance leaves, space stations of member turned over to leader of alliance.
+ - Fix: BHG cooldown time of 5 minutes during warmup.
+ - API: get_buildings now returns repair costs if building is damaged.
+ - API: Api call repair_list from Body will attempt to repair buildings supplied to function in order of list.
+ - Mod: FIssure tag added to fissure related emails.
+
+3.0892:
+ - Fix: Fix schedule to remove past jobs when rescheduling.
+
+3.0891:
+ - Mod: Clarified max building level for university in return message.
+ - Mod: Gas Giants produce more energy, and consume less energy.
+ - Mod: Gas Giants produce less water.
+ - Mod: Gas Giants consume more waste and can store more waste.
+ - Fix: Fissures cost resources to fix again.
+
 3.0890:
  - Fix: Decor placement by BHG now causes recalc.
  - Mod: Drop Shipyard level on default ship names.

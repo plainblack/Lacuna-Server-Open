@@ -935,11 +935,9 @@ sub next_colony_cost {
         { type=> { in => [qw(colony_ship short_range_colony_ship space_station)]}, task=>'travelling', direction=>'out', 'body.empire_id' => $self->id},
         { join => 'body' }
     )->count;
-    my $inflation = INFLATION - ($self->growth_affinity / 100);
-    my $tally = 100_000;
-    for (2..$count) {
-        $tally += $tally * $inflation;
-    }
+#    my $inflation = 1 + INFLATION - ($self->growth_affinity * 5 / 100); Future Enhancement to make Growth more worth it.
+    my $inflation = 1 + INFLATION - ($self->growth_affinity / 100);
+    my $tally = 100_000 * ($inflation**($count-1));
     return sprintf('%.0f', $tally);
 }
 
@@ -989,7 +987,13 @@ before delete => sub {
     if ($self->alliance_id) {
         my $alliance = $self->alliance;
         if (defined $alliance && $alliance->leader_id == $self->id) {
-            $alliance->delete;
+            my @members = $alliance->members;
+            if (scalar @members == 1) {
+                $alliance->delete;
+            }
+            else {
+                $alliance->remove_member($self, 1);
+            }
         }
     }
     $self->sent_messages->delete;

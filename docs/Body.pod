@@ -189,6 +189,24 @@ and the extra space should be filled in by blank ground tiles.
 Throws 1002 and 1010.
 
 
+=head2 repair_list ( session_id, body_id, building_ids)
+
+Repairs buildings in order of ids gived in array.
+
+Returns similar output to get_buildings, but only ones identified in building_ids
+
+=head3 session_id
+
+A session id.
+
+=head3 body_id
+
+The id of the body you wish to retrieve the buildings on.
+
+=head3 building_ids
+
+An array reference to a list of building ids to be repaired.
+
 =head2 rearrange_buildings ( session_id, body_id, arrangement)
 
 Rearranges all buildings to the coordinates supplied via the arrangment array of hashes.

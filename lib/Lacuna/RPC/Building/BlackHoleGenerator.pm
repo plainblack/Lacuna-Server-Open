@@ -232,6 +232,7 @@ sub no_occ_or_nonally {
     my @stripped;
     for my $check (@$checking) {
         next if $check->empire_id;
+        next if ($check->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure'));
         if ( defined($check->star->station_id)) {
             if ($check->star->station->empire->alliance_id == $aid) {
                 push @stripped, $check;
@@ -515,6 +516,7 @@ sub generate_singularity {
     if ($building->is_working) {
         confess [1010, 'The Black Hole Generator is cooling down from the last use.'];
     }
+    $building->start_work({}, 600)->update;
     unless (defined $target) {
         confess [1002, 'Could not locate target.'];
     }
@@ -667,6 +669,14 @@ sub generate_singularity {
                 $allowed = 1;
             }
         }
+        if ($body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure')) {
+            $confess = sprintf("%s can not be moved without tearing apart from the fissure on it.", $body->name);
+            $allowed = 0;
+        }
+        elsif ($btype eq 'habitable planet' and $target->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure')) {
+            $confess = sprintf("%s can not be moved without tearing apart from the fissure on it.", $target->name);
+            $allowed = 0;
+        }
         unless ($allowed) {
             confess [ 1010, $confess ];
         }
@@ -686,9 +696,18 @@ sub generate_singularity {
         # Let's check all planets in our system and target system
         qualify_moving_sys($building, $target);
     }
+    elsif ( $task->{name} eq 'Jump Zone' ) {
+        if ($body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure')) {
+            confess [1009, sprintf("%s can not be moved without tearing apart from the fissure on it.", $body->name) ];
+        }
+    }
     
     $body->spend_waste($task->{waste_cost})->update;
-    $building->start_work({}, $task->{recovery})->update;
+#    $building->start_work({}, $task->{recovery})->update;
+    my $work_ends = DateTime->now;
+    $work_ends->add(seconds => $task->{recovery});
+    $building->reschedule_work($work_ends);
+    $building->update;
     # Pass the basic checks
     # Check for startup failure
     my $roll = randint(0,99);
@@ -873,6 +892,9 @@ sub qualify_moving_sys {
                 }
             }
         }
+        if ($body->get_type ne 'asteroid' and $body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure')) {
+            confess [1009, 'You can not move a body with a fissure on it.'];
+        }
     }
     return 1;
 }
@@ -1015,10 +1037,6 @@ sub bhg_swap {
         star_id => $new_data->{star_id},
         orbit   => $new_data->{orbit},
     });
-    my $boracle = $body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
-    if ($boracle) {
-        $boracle->recalc_probes;
-    }
     
     unless ($new_data->{type} eq "empty") {
         $target->update({
@@ -1092,6 +1110,10 @@ sub bhg_swap {
         recalc_incoming_supply($body);
         if ($body->get_type eq 'space station') {
             drop_stars_beyond_range($body);
+        }
+        my $boracle = $body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
+        if ($boracle) {
+            $boracle->recalc_probes;
         }
     }
     if (defined($body->empire)) {
@@ -1456,7 +1478,7 @@ sub bhg_random_fissure {
                 unless ($already{$eid} == 1) {
                     $already{$eid} = 1;
                     $to_alert->empire->send_predefined_message(
-                        tags        => ['Alert'],
+                        tags        => ['Fissure', 'Alert'],
                         filename    => 'fissure_alert_spawn.txt',
                         params      => [$target->x, $target->y, $target->name],
                     );
@@ -1974,7 +1996,7 @@ sub bhg_tasks {
             reason       => "Target action by Star.",
             occupied     => 0,
             min_level    => 30,
-            range        => 5 * $blevel,
+            range        => 8 * $blevel,
             recovery     => int($day_sec * 1200/$blevel),
             waste_cost   => 30_000_000_000,
             base_fail    => 60,

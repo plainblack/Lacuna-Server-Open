@@ -174,21 +174,21 @@ sub fissure_alert {
             $already{$eid} = 1;
             if ($type eq "spawn") {
                 $to_alert->empire->send_predefined_message(
-                    tags        => ['Alert'],
+                    tags        => ['Fissure', 'Alert'],
                     filename    => 'fissure_alert_spawn.txt',
                     params      => [$body->x, $body->y, $body->name],
                 );
             }
             elsif ($type eq "level") {
                 $to_alert->empire->send_predefined_message(
-                    tags        => ['Alert'],
+                    tags        => ['Fissure', 'Alert'],
                     filename    => 'fissure_alert_level.txt',
                     params      => [$body->x, $body->y, $body->name],
                 );
             }
             elsif ($type eq "critical") {
                 $to_alert->empire->send_predefined_message(
-                    tags        => ['Alert'],
+                    tags        => ['Fissure', 'Alert'],
                     filename    => 'fissure_alert_critical.txt',
                     params      => [$body->x, $body->y, $body->name],
                 );
@@ -234,7 +234,7 @@ sub fissure_spawn {
         out("    Converted building ".$building->class." into a level $fissure_level Fissure!");
         if ($body->empire_id) {
             $body->empire->send_predefined_message(
-                tags        => ['Alert'],
+                tags        => ['Fissure', 'Alert'],
                 filename    => 'fissure_replaced_energy.txt',
                 params      => [$body->name, $building->x,$building->y, $fissure_level],
             );
@@ -269,7 +269,7 @@ sub fissure_spawn {
 # send email to empire and N19 news
         if ($body->empire_id) {
             $body->empire->send_predefined_message(
-                tags        => ['Alert'],
+                tags        => ['Fissure', 'Alert'],
                 filename    => 'fissure_spawned.txt',
                 params      => [$body->name],
             );
@@ -298,7 +298,7 @@ sub fissure_level {
     }
     if ($body->empire_id) {
         $body->empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Fissure', 'Alert'],
             filename    => 'fissure_damaged_energy.txt',
             params      => [$body->name, $fissure->x,$fissure->y, $fissure->level],
         );
@@ -323,7 +323,7 @@ sub fissure_explode {
                 $empire->update;
 # Send the empire an email
                 $empire->send_predefined_message(
-                    tags        => ['Colonization','Alert'],
+                    tags        => ['Colonization','Alert', 'Fissure'],
                     filename    => 'fissure_capitol_moved.txt',
                     params      => [$new_capitol->name],
                 );
@@ -346,7 +346,7 @@ sub fissure_explode {
                 out($new_capitol->name.' new cap');
 # Send an email with the new planet
                 $empire->send_predefined_message(
-                    tags        => ['Colonization','Alert'],
+                    tags        => ['Colonization','Alert', 'Fissure'],
                     filename    => 'fissure_capitol_moved.txt',
                     params      => [$new_capitol->name],
                 );
@@ -356,7 +356,7 @@ sub fissure_explode {
 # else it is 'just' a colony
 # Send an email about the destruction
             $empire->send_predefined_message(
-                tags        => ['Colonization','Alert'],
+                tags        => ['Colonization','Alert', 'Fissure'],
                 filename    => 'fissure_colony_destroyed.txt',
                 params      => [$body->name],
             );
@@ -404,15 +404,15 @@ sub fissure_explode {
         out("Growing ".$to_grab_mass->name." to ".$size.".");
         if ($to_grab_mass->empire) {
             $to_grab_mass->empire->send_predefined_message(
-                tags        => ['Colonization','Alert'],
+                tags        => ['Colonization','Alert', 'Fissure'],
                 filename    => 'changed_size.txt',
                 params      => [$to_grab_mass->name, $size, $new_size],
             );
         }
         last GASSY if (++$grown >= 5);
     }
-    if ($body->in_neutral_area) {
-        out("Skipping damage to other planets because origin in Neutral Area.");
+    if ($body->in_neutral_area or $body->in_starter_zone) {
+        out("Skipping damage to other planets because origin in Neutral or Starting Area.");
         return;
     }
 # Damage planets in range (damage depends upon distance from the event)
@@ -434,7 +434,7 @@ sub fissure_explode {
     my $damaged = 0;
     DAMAGED:
     while (my $to_damage = $closest->next) {
-        next if ($to_damage->in_neutral_area);
+        next if ($to_damage->in_neutral_area or $to_damage->in_starter_zone);
         next if ($to_damage->get_type eq 'space station');  # Since supply chains etc, will probably be damaged, they'll still be threatened.
         next unless ($to_damage->empire->date_created < DateTime->now->subtract(days => 60));
 # damage planet
@@ -446,6 +446,16 @@ sub fissure_explode {
         my $distance = $to_damage->get_column('distance');
         my $damage  = int(100 - $distance);
         $damage = int($damage/2) if ($to_damage->get_type eq 'gas giant'); # Gas Giants are more resiliant or more spread out.
+        my $citadel = $to_damage->get_building_of_class("Lacuna::DB::Result::Building::Permanent::CitadelOfKnope");
+        if ($citadel) {
+            my $reduction = 2 * $citadel->level;
+            $damage -= $reduction;
+            if ($damage < 1) {
+                out("   Citadel causes all debris to bypass.");
+                next;
+            }
+            out ("   Citadel reduces damage by $reduction.");
+        }
         $damage = 1 if $damage < 1;
         out("   Causing an average of $damage damage to each building");
         my @all_buildings = @{$to_damage->building_cache};
@@ -461,7 +471,7 @@ sub fissure_explode {
         $to_damage->tick;
                 
         $to_damage->empire->send_predefined_message(
-            tags        => ['Colonization','Alert'],
+            tags        => ['Colonization','Alert', 'Fissure'],
             filename    => 'fissure_collateral_damage.txt',
             params      => [$body->name, $to_damage->name],
         );
