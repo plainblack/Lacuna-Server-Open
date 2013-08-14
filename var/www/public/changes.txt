@@ -1,3 +1,6 @@
+3.0894:
+ - API: repair_list checks number of fed building ids, rejection is over max building count
+
 3.0893:
  - Fix: Closed starter zone loophole.
  - Mod: Citadel now repels planetary debris.

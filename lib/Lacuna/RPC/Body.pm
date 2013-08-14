@@ -135,6 +135,10 @@ sub repair_list {
 
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
+
+    if (scalar @$building_ids > 121) {
+        confess [1002, 'Invalid number of buildings in argument.'];
+    }
     
     if ($body->needs_surface_refresh) {
         $body->needs_surface_refresh(0);
