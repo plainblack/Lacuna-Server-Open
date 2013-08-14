@@ -85,6 +85,7 @@ sub add_next_part {
     }
     else {
         $ext =~ m/^part(\d+)$/;
+        my $part = $1 + 1;
         $name .= '.part'.$1;
     }
     return Lacuna::DB::Result::Mission->initialize($self->zone, $name);
