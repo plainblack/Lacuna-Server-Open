@@ -1982,7 +1982,7 @@ sub bhg_resource {
     $body->empire->send_predefined_message(
         tags     => ['Alert'],
         filename => 'wormhole.txt',
-        params   => [$body->name, $waste_msg, $resource_msg],
+        params   => [$body->x, $body->y, $body->name, $waste_msg, $resource_msg],
     );
     $body->update({
         needs_recalc => 1,
