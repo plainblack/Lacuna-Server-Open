@@ -2040,7 +2040,7 @@ sub bhg_change_type {
                 $body->empire->send_predefined_message(
                     tags     => ['Alert'],
                     filename => 'changed_type.txt',
-                    params   => [$body->name, $old_type, $new_type],
+                    params   => [$body->x, $body->y, $body->name, $old_type, $new_type],
                 );
             }
         }
