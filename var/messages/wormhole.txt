@@ -1,6 +1,6 @@
 Wormhole Opens!
 ~~~
-A Wormhole opened up on %s, %s and %s!
+A Wormhole opened up on {Starmap %s %s %s}, %s and %s!
 
 
 Regards,
