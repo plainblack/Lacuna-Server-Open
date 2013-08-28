@@ -1,6 +1,6 @@
 Changed Type
 ~~~
-Geologists are puzzled.  %s's planetary classification has gone from %s to %s.
+Geologists are puzzled.  {Starmap %s %s %s}'s planetary classification has gone from %s to %s.
 
 Regards,
 
