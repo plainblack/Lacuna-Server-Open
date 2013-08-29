@@ -1175,11 +1175,12 @@ sub kill_defending_spy {
 
 sub gather_resource_intel {
     my $self = shift;
-    given (randint(1,4)) {
+    given (randint(1,5)) {
         when (1) { return $self->ship_report(@_) }
         when (2) { return $self->travel_report(@_) }
         when (3) { return $self->economic_report(@_) }
-        when (4) { return $self->knock_defender_unconscious(@_) }
+        when (4) { return $self->supply_report(@_) }
+        when (5) { return $self->knock_defender_unconscious(@_) }
     }
 }
 
@@ -2943,6 +2944,50 @@ sub economic_report {
     )->id;
 }
 
+sub supply_report {
+    my ($self, $defender) = @_;
+    my @chains = (['Planet', 'Dir', 'Resource', 'Per Hour', '%']);
+    foreach my $chain ($self->on_body->out_supply_chains) {
+        push @chains,
+             [ $chain->target->name,
+               'Out',
+               $chain->resource_type,
+               $chain->resource_hour,
+               $chain->percent_transferred ];
+    }
+    foreach my $chain ($self->on_body->in_supply_chains) {
+        push @chains,
+             [ $chain->planet->name,
+               'In',
+               $chain->resource_type,
+               $chain->resource_hour,
+               $chain->percent_transferred ];
+    }
+    foreach my $chain ($self->on_body->waste_chains) {
+        push @chains,
+             [ $chain->star->name,
+               'Out',
+               'waste',
+               $chain->waste_hour,
+               $chain->percent_transferred ];
+    }
+    if (scalar @chains == 1) {
+        $chains[0] = "No chains to or from $self->on_body->name";
+    }
+    return $self->empire->send_predefined_message(
+        tags        => ['Intelligence'],
+        filename    => 'supply_report.txt',
+        params      => ['Supply Chain Report',
+                        $self->on_body->x,
+                        $self->on_body->y,
+                        $self->on_body->name,
+                        $self->name,
+                        $self->from_body->id,
+                        $self->from_body->name],
+        attachments => { table => \@chains},
+    )->id;
+}
+
 sub travel_report {
     my ($self, $defender) = @_;
     my @travelling = (['Ship Name','Type','From','To','Arrival']);
@@ -2964,6 +3009,18 @@ sub travel_report {
             $ship->date_available_formatted,
         ];
     }
+    $ships = Lacuna->db->resultset('Ships')->search(
+        {body_id => $self->on_body->id,
+         task => {'in' => ['Supply Chain', 'Waste Chain'] }},
+        );
+    while (my $ship = $ships->next) {
+        push @travelling, [
+            $ship->name,
+            $ship->type_formatted,
+            $ship->task,
+        ];
+    }
+    
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
         filename    => 'intel_report.txt',
