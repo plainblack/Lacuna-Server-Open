@@ -4,6 +4,8 @@
  - Mod: Atmospheric Evaporators adjusted up.
  - Mod: Evaporators and Purifiers water cost reduced to zero.
  - Add: Spies report on Supply Chains via Resource intelligence.
+ - Mod: Mission files now use a quantity field instead of listed multiples.
+ - Fix: Berth Levels added to missions.
 
 3.0893:
  - Fix: Closed starter zone loophole.
