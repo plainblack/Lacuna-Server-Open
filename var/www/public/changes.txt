@@ -6,6 +6,7 @@
  - Add: Spies report on Supply Chains via Resource intelligence.
  - Mod: Mission files now use a quantity field instead of listed multiples.
  - Fix: Berth Levels added to missions.
+ - Mod: Missions take ship in name, combat, hold_size, speed, stealth, id order
 
 3.0893:
  - Fix: Closed starter zone loophole.
