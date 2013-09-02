@@ -422,7 +422,7 @@ sub check_starter_zone {
     if ($task->{name} eq "Move System") {
         if ($body_in or $target_in) {
             $throw = 1009;
-            $reason = sprintf("Move System isn't allowed to & from starter zones for now.");
+            $reason = sprintf("Move System isn't allowed to & from starter zones.");
             return $throw, $reason;
         }
     }

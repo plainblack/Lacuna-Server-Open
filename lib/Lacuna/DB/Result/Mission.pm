@@ -196,7 +196,7 @@ sub spend_objectives {
                         hold_size   => {'>=' => $ship->{hold_size}},
                         berth_level => {'>=' => $ship->{berth_level}},
                     },
-                    {rows => 1, order_by => 'id'}
+                    {rows => 1, order_by => [ 'name', 'combat', 'hold_size', 'speed', 'stealth', 'id']}
                     )->single->delete;
             }
         }
