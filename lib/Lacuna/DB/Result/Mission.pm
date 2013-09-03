@@ -296,7 +296,7 @@ sub check_objectives {
     if (exists $objectives->{ships}) {
         my $ship_ref = get_ship_list($body, $objectives->{ships});
         unless ($ship_ref->{pass}) {
-            confess [1002, sprintf('%s', $ship_ref->{message})];
+            confess [1002, sprintf('%s', join("\n", @{$ship_ref->{message}}))];
         }
     }
 
@@ -354,7 +354,6 @@ sub get_ship_list {
     my ($body, $ship_obj_arr) = @_;
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
-#    confess [1013, 'You do not have the '.$ship->type_formatted.' needed to complete this mission.'];
     my @error_msgs;
     my $pass = 1;
 
@@ -389,14 +388,15 @@ sub get_ship_list {
                              task        => 'Docked',
                           }, {
                               rows     => $total_needed,
-                              order_by => 'name',
+                              order_by => [ 'name', 'id' ],
                           });
         if (scalar @ship_q < $ship_obj_hash{$skey}->{quantity}) {
             $pass = 0;
+            my $ship = $ships->new({type=> $ship_obj_hash{$skey}->{type} });
             push @error_msgs,
                 sprintf("Need %d of %s (speed >= %s, stealth >= %s, hold size >= %s, combat >= %s, berth >= %s)",
                         $ship_obj_hash{$skey}->{quantity},
-                        $ship_obj_hash{$skey}->{type},
+                        $ship->type_formatted,
                         $ship_obj_hash{$skey}->{speed} || 0,
                         $ship_obj_hash{$skey}->{stealth} || 0,
                         $ship_obj_hash{$skey}->{hold_size} || 0,
@@ -422,6 +422,13 @@ sub get_ship_list {
             }
             delete $ship_obj_hash{$skey};
             push @id_list, @temp_id;
+            for my $lkey (keys %ship_obj_hash) {
+                my @new_ship_q;
+                for my $elem (@{$ship_obj_hash{$lkey}->{ship_ref}}) {
+                    push @new_ship_q, $elem unless (grep { $elem->id == $_} @temp_id);
+                }
+                $ship_obj_hash{$lkey}->{ship_ref} = \@new_ship_q;
+            }
             last unless (%ship_obj_hash);
         }
         if ($total_needed > scalar @id_list) {
