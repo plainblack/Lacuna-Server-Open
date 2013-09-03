@@ -444,6 +444,10 @@ sub fissure_explode {
 # scale so a distance of 100 causes 1% damage and a distance of 0 causes 
 # an average of 50% damage
         my $distance = $to_damage->get_column('distance');
+        if ($distance > 200) {
+            out("At a distance of $distance, the debris is to dispersed. Only $damaged planets hit.");
+            last;
+        }
         my $damage  = int(100 - $distance);
         $damage = int($damage/2) if ($to_damage->get_type eq 'gas giant'); # Gas Giants are more resiliant or more spread out.
         my $citadel = $to_damage->get_building_of_class("Lacuna::DB::Result::Building::Permanent::CitadelOfKnope");

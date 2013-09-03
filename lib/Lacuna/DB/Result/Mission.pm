@@ -2,13 +2,13 @@ package Lacuna::DB::Result::Mission;
 
 use Moose;
 no warnings qw(uninitialized);
- extends 'Lacuna::DB::Result';
- use Lacuna::Util qw(format_date commify randint consolidate_items);
- use UUID::Tiny ':std';
- use Config::JSON;
- use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
+extends 'Lacuna::DB::Result';
+use Lacuna::Util qw(format_date commify randint consolidate_items);
+use UUID::Tiny ':std';
+use Config::JSON;
+use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
 use feature 'switch';
- use List::Util qw(sum);
+use List::Util qw(sum first);
 
 __PACKAGE__->table('mission');
 __PACKAGE__->add_columns(
@@ -184,21 +184,16 @@ sub spend_objectives {
 
     # ships
     if (exists $objectives->{ships}) {
-        foreach my $ship (@{$objectives->{ships}}) {
-            foreach (1..$ship->{quantity}) {
-                $body->ships->search(
-                    {
-                        task        => 'Docked',
-                        type        => $ship->{type},
-                        combat      => {'>=' => $ship->{combat}},
-                        speed       => {'>=' => $ship->{speed}},
-                        stealth     => {'>=' => $ship->{stealth}},
-                        hold_size   => {'>=' => $ship->{hold_size}},
-                        berth_level => {'>=' => $ship->{berth_level}},
-                    },
-                    {rows => 1, order_by => [ 'name', 'combat', 'hold_size', 'speed', 'stealth', 'id']}
-                    )->single->delete;
-            }
+        my $ship_ref = get_ship_list($body, $objectives->{ships});
+        if ($ship_ref->{pass}) {
+            eval {
+                $body->ships->search( {
+                    id => { 'in' => $ship_ref->{id_list} },
+                } )->delete;
+            };
+        }
+        else {
+#ERROR MESSAGE NEEDED HERE with clean exit.
         }
     }
 
@@ -298,37 +293,16 @@ sub check_objectives {
     }
 
     # ships
-    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     if (exists $objectives->{ships}) {
-        my @ids;
-        foreach my $ship (@{$objectives->{ships}}) {
-            for (1..$ship->{quantity}) {
-                my $this = $body->ships->search({
-                        type        => $ship->{type},
-                        combat      => {'>=' => $ship->{combat} || 0},
-                        speed       => {'>=' => $ship->{speed} || 0},
-                        stealth     => {'>=' => $ship->{stealth} || 0},
-                        hold_size   => {'>=' => $ship->{hold_size} || 0},
-                        berth_level => {'>=' => $ship->{berth_level} || 0},
-                        task        => 'Docked',
-                        id          => { 'not in' => \@ids },
-                    },{
-                       rows     =>1,
-                       order_by => 'id',
-                    })->single;
-                if (defined $this) {
-                    push @ids, $this->id;
-                }
-                else {
-                    my $ship = $ships->new({type=>$ship->{type}});
-                    confess [1013, 'You do not have the '.$ship->type_formatted.' needed to complete this mission.'];
-                }
-            }
+        my $ship_ref = get_ship_list($body, $objectives->{ships});
+        unless ($ship_ref->{pass}) {
+            confess [1002, sprintf('%s', $ship_ref->{message})];
         }
     }
 
     # fleet movement
     if (exists $objectives->{fleet_movement}) {
+        my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
         my $bodies = Lacuna->db->resultset("Lacuna::DB::Result::Map::Body");
         my $stars = Lacuna->db->resultset("Lacuna::DB::Result::Map::Star");
         my $scratch = $self->scratch || {fleet_movement=>[]};
@@ -374,6 +348,94 @@ sub check_objectives {
     }
 
     return 1;
+}
+
+sub get_ship_list {
+    my ($body, $ship_obj_arr) = @_;
+
+    my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
+#    confess [1013, 'You do not have the '.$ship->type_formatted.' needed to complete this mission.'];
+    my @error_msgs;
+    my $pass = 1;
+
+    my $total_needed = 0;
+    my %ship_obj_hash;
+    foreach my $ship_obj (@{$ship_obj_arr}) {
+        my $ship_key = sprintf("%s#%05d#%05d#%05d#%05d#%010d#%02d",
+                               $ship_obj->{type},
+                               $ship_obj->{combat} || 0,
+                               $ship_obj->{speed} || 0,
+                               $ship_obj->{stealth} || 0,
+                               $ship_obj->{hold_size} || 0,
+                               $ship_obj->{berth_level} || 0,
+                       );
+        if ($ship_obj_hash{$ship_key}) {
+            $ship_obj_hash{$ship_key}->{quantity} += $ship_obj->{quantity};
+        }
+        else {
+            $ship_obj_hash{$ship_key} = $ship_obj;
+        }
+        $total_needed += $ship_obj_hash{$ship_key}->{quantity};
+    }
+# Check if we have enough of any one type
+    for my $skey (sort keys %ship_obj_hash) {
+        my @ship_q = $body->ships->search({
+                             type        => $ship_obj_hash{$skey}->{type},
+                             combat      => {'>=' => $ship_obj_hash{$skey}->{combat} || 0},
+                             speed       => {'>=' => $ship_obj_hash{$skey}->{speed} || 0},
+                             stealth     => {'>=' => $ship_obj_hash{$skey}->{stealth} || 0},
+                             hold_size   => {'>=' => $ship_obj_hash{$skey}->{hold_size} || 0},
+                             berth_level => {'>=' => $ship_obj_hash{$skey}->{berth_level} || 0},
+                             task        => 'Docked',
+                          }, {
+                              rows     => $total_needed,
+                              order_by => 'name',
+                          });
+        if (scalar @ship_q < $ship_obj_hash{$skey}->{quantity}) {
+            $pass = 0;
+            push @error_msgs,
+                sprintf("Need %d of %s (speed >= %s, stealth >= %s, hold size >= %s, combat >= %s, berth >= %s)",
+                        $ship_obj_hash{$skey}->{quantity},
+                        $ship_obj_hash{$skey}->{type},
+                        $ship_obj_hash{$skey}->{speed} || 0,
+                        $ship_obj_hash{$skey}->{stealth} || 0,
+                        $ship_obj_hash{$skey}->{hold_size} || 0,
+                        $ship_obj_hash{$skey}->{combat} || 0,
+                        $ship_obj_hash{$skey}->{berth_level} || 0);
+        }
+        else {
+            $ship_obj_hash{$skey}->{ship_ref} = \@ship_q;
+            $ship_obj_hash{$skey}->{total_found} = scalar @ship_q;
+        }
+    }
+    my @id_list;
+    if ($pass) {
+        while(1) {
+            my $skey = first {defined($_)} sort { $ship_obj_hash{$a}->{total_found} - $ship_obj_hash{$a}->{quantity} <=>
+                                 $ship_obj_hash{$b}->{total_found} - $ship_obj_hash{$b}->{quantity} } keys %ship_obj_hash;
+            my @temp_id;
+            for my $ship (@{$ship_obj_hash{$skey}->{ship_ref}}) {
+                my $id = $ship->id;
+                if ( (scalar @temp_id < $ship_obj_hash{$skey}->{quantity}) and (not grep {$id == $_} @id_list ) ){
+                    push @temp_id, $id
+                }
+            }
+            delete $ship_obj_hash{$skey};
+            push @id_list, @temp_id;
+            last unless (%ship_obj_hash);
+        }
+        if ($total_needed > scalar @id_list) {
+            $pass = 0;
+            push @error_msgs,
+                sprintf("Total qualifying ships, came up short.");
+        }
+    }
+
+    return {
+        pass => $pass,
+        message => \@error_msgs,
+        id_list => \@id_list,
+    };
 }
 
 sub format_objectives {
