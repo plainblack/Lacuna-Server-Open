@@ -287,7 +287,7 @@ sub check_objectives {
             }
             if ($glyph_on_body->quantity < $ghash{$glyph->{type}}) {
                 confess [ 1002,
-                    "You don't have ".$ghash{$glyph->{type}}.' glyphs of '.$glyph->{type}.', you only have '.$glyph->quantity.'.'];
+                    "You don't have ".$ghash{$glyph->{type}}.' glyphs of '.$glyph->{type}.', you only have '.$glyph_on_body->quantity.'.'];
             }
         }
     }
