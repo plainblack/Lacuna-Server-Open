@@ -650,6 +650,20 @@ sub fetch_spies {
 
     my $max_berth = $to_body->max_berth;
 
+    # get a spies
+    my @ids_fetched;
+    my @ids_not_fetched;
+    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
+    foreach my $id (@{$spy_ids}) {
+        my $spy = $spies->find($id);
+        if ($spy->on_body_id == $on_body_id) {
+            push @ids_fetched, $id;
+        }
+        else {
+            push @ids_not_fetched, $id;
+        }
+    }
+
     # get the ship
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     unless (defined $ship) {
@@ -667,26 +681,28 @@ sub fetch_spies {
         confess [1013, "Cannot fetch spies from an uninhabited planet."];
     }
 
-    unless (scalar(@{$spy_ids})) {
-        confess [1013, "You can't send a ship to collect no spies."];
+    unless (scalar(@ids_fetched)) {
+        confess [1013, "You can't send a ship to collect no one."];
     }
     
     # check size
-    if ($ship->type eq 'spy_shuttle' && scalar(@{$spy_ids}) <= 4) {
+    if ($ship->type eq 'spy_shuttle' && scalar(@ids_fetched) <= 4) {
         # we're ok
     }
-    elsif ($ship->hold_size <= (scalar(@{$spy_ids}) * 350)) {
+    elsif ($ship->hold_size <= (scalar(@ids_fetched) * 350)) {
         confess [1013, "The ship cannot hold the spies selected."];
     }
     
     # send it
     $ship->send(
         target      => $on_body,
-        payload     => { fetch_spies => $spy_ids },
+        payload     => { fetch_spies => \@ids_fetched },
     );
 
     return {
         ship    => $ship->get_status,
+        spies_fetched      => \@ids_fetched,
+        spies_not_fetched  => \@ids_not_fetched,
         status  => $self->format_status($empire, $to_body),
     };
 }

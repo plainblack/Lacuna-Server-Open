@@ -46,6 +46,7 @@ after handle_arrival_procedures => sub {
         #    object_type => ref($self),
         #    object_id   => $self->id,
         #})->insert;
+        next unless ($spy->on_body_id == $self->foreign_body_id);
         push @riding, $spy->id;
         my $duration = $self->date_available - $self->date_started;
         $spy->send($self->body_id, $self->date_available->clone->add_duration($duration))->update;
