@@ -172,6 +172,11 @@ sub offensive_assignments {
             skill       => 'mayhem',
         },
         {
+            task        =>'Sabotage BHG',
+            recovery    => 0,
+            skill       => 'mayhem',
+        },
+        {
             task        =>'Assassinate Operatives',
             recovery    => $self->recovery_time(60 * 60 * 8),
             skill       => 'mayhem',
@@ -240,7 +245,7 @@ sub get_possible_assignments {
     my $self = shift;
     
     # can't be assigned anything right now
-    unless ($self->task ~~ ['Counter Espionage','Idle']) {
+    unless ($self->task ~~ ['Counter Espionage','Idle','Sabotage BHG']) {
         return [{ task => $self->task, recovery => $self->seconds_remaining_on_assignment }];
     }
     
@@ -319,7 +324,7 @@ sub tick_all_spies {
 sub is_available {
     my ($self) = @_;
     my $task = $self->task;
-    if ($task ~~ ['Idle','Counter Espionage']) {
+    if ($task ~~ ['Idle','Counter Espionage','Sabotage BHG']) {
         return 1;
     }
     elsif ($task eq 'Mercenary Transport') {
@@ -381,6 +386,7 @@ use constant assignments => (
     'Sabotage Resources',
     'Appropriate Resources',
     'Sabotage Infrastructure',
+    'Sabotage BHG',
     'Assassinate Operatives',
     'Incite Mutiny',
     'Abduct Operatives',
@@ -411,7 +417,7 @@ sub assign {
     $self->available_on(DateTime->now->add(seconds => $mission->{recovery}));
     
     # run mission
-    if ($assignment ~~ ['Idle','Counter Espionage']) {
+    if ($assignment ~~ ['Idle','Counter Espionage','Sabotage BHG']) {
         $self->update;
         return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
     }
@@ -1558,8 +1564,8 @@ sub steal_planet {
 
     my $defender_capitol_id = $self->on_body->empire->home_planet_id;
     Lacuna->db->resultset('Spies')->search({
-        from_body_id => $self->on_body_id, on_body_id => $self->on_body_id, task => 'Training',
-    })->delete_all; # All spies in training are executed
+        on_body_id => $self->on_body_id, task => 'Training',
+    })->delete_all; # All spies in training are executed including those training in intel,mayhem,politics, and theft
 
     my $spies = Lacuna->db->resultset('Spies')
                   ->search({from_body_id => $self->on_body_id});

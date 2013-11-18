@@ -150,6 +150,7 @@ Returns a list of the excavator sites currently controlled by this ministry.
             "glyph" : 30,
             "plan" : 7,
             "resource" : 53
+            "date_landed" : Date excav started at location
         },
         ...
     ]

@@ -143,6 +143,7 @@ sub view_excavators {
         glyph    => $chances->{glyph},
         plan     => $chances->{plan},
         resource => $chances->{resource},
+        date_landed => $building->date_created,
     };
     my $excavators = $building->excavators;
     my $travel = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
@@ -157,6 +158,7 @@ sub view_excavators {
         glyph    => $chances->{glyph},
         plan     => $chances->{plan},
         resource => $chances->{resource},
+        date_landed => $excav->date_landed,
       };
     }
     return {

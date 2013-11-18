@@ -540,7 +540,6 @@ sub generate_singularity {
         }
         $chance->{success} = 100;
     }
-    
     # Check Target Status
     my $btype;
     my $tempire;
@@ -703,12 +702,181 @@ sub generate_singularity {
     }
     
     $body->spend_waste($task->{waste_cost})->update;
-#    $building->start_work({}, $task->{recovery})->update;
     my $work_ends = DateTime->now;
     $work_ends->add(seconds => $task->{recovery});
     $building->reschedule_work($work_ends);
     $building->update;
-    # Pass the basic checks
+    # Passed basic checks
+#Check for enemy spies.
+    my $lock_down = Lacuna
+                    ->db
+                    ->resultset('Spies')
+                    ->search(
+                        { on_body_id  => $body->id,
+                          empire_id => { '!=' => $body->empire_id },
+                          task => 'Sabotage BHG'  },
+                          { rows => 1, order_by => 'rand()' }
+                            )->single;
+    if (defined $lock_down) {
+        my $power = $lock_down->mayhem_xp + $lock_down->offensive
+        my $defense = 0;
+        my $hq = $body->get_building_of_class('Lacuna::DB::Result::Building::Security');
+        if (defined $hq) {
+            $defense = int($hq->level * $hq->efficiency /2 + 0.5);
+        }
+        my $breakthru = int(($power - $defense + $lock_down->luck)/100 + 0.5);
+        $breakthru = 5 if $breakthru < 5;
+        $breakthru = 95 if $breakthru > 95;
+        my $failure = 0;
+        my $spy_cond;
+#See if spy successfully blocks BHG.
+        if (randint(0,99) < $breakthru) { # Success!
+            $subsidize = 0;  # Turn off E cost
+            $chance->{success} = 0;
+            $failure = 1;
+        }
+        else {
+            $breakthru = $breaktru/2;
+        }
+        my $caught = randint(0,99);
+        if ($caught > $breakthru) {
+            if (randint(0,2) == 0) {
+                $spy_cond = "Killed";
+            }
+            else {
+                $spy_cond = "Captured";
+            }
+        }
+        elsif ($breakthru - $caught < 10) {
+            my $rand = randint(0,4);
+            if ($rand == 0) {
+                $spy_cond = "Killed";
+            }
+            elsif ($rand < 3) {
+                $spy_cond = "Captured";
+            }
+            else {
+                $spy_cond = "Squeek";
+            }
+        }
+        else {
+            my $rand = randint(0,9);
+            if ($rand == 0) {
+                $spy_cond = "Killed";
+            }
+            elsif ($rand < 3) {
+                $spy_cond = "Unconscious";
+            }
+            else {
+                $spy_cond = "Escaped";
+            }
+        }
+#Post news
+#Send emails
+        my $o_message;
+        my $e_message;
+        my $add_skill = 6;
+        if ($failure == 1) {
+            $add_skill = 10;
+            $lock_down->offense_mission_successes($lock_down->offense_mission_successes + 1 );
+            $body->add_news(100, 'Enemy agents prevented the Black Hole Generator on %s to be used!',
+                            $body->name);
+            if ($spy_cond eq "Killed") {
+                $o_message = sprintf("We had a security breach with our BHG on %s, causing a misfire, we killed the enemy agent responsible.",
+                                     $body->name);
+                $e_message = sprintf("%s was successful on %s in preventing the BHG to be used, but was killed trying to escape.",
+                                     $lock_down->name, $body->name);
+            }
+            elsif ($spy_cond eq "Captured") {
+                $o_message = sprintf("We had a security breach with our BHG on %s, causing a misfire, but we caught %s before they could get away.",
+                                     $body->name, $lock_down->name);
+                $e_message = sprintf("%s was successful on %s in preventing the BHG to be used, but was captured.",
+                                     $lock_down->name, $body->name);
+            }
+            elsif ($spy_cond eq "Squeek") {
+                $o_message = sprintf("We had a security breach with our BHG on %s, causing a misfire, the agent responsible got away.",
+                                     $body->name);
+                $e_message = sprintf("%s was successful on %s in preventing the BHG to be used, but was spotted getting away.",
+                                     $lock_down->name, $body->name);
+            }
+            elsif ($spy_cond eq "Escaped") {
+                $o_message = sprintf("Our BHG on %s misfired today.  We suspect enemy action.",
+                                     $body->name);
+                $e_message = sprintf("%s was successful on %s in preventing the BHG to be used, %s suspect nothing.",
+                                     $lock_down->name, $body->name, $body->empire->name);
+            }
+            elsif ($spy_cond eq "Unconscious") {
+                $o_message = sprintf("Our BHG on %s misfired today causing many of our scientists to be sent to the hospital.",
+                                     $body->name);
+                $e_message = sprintf("%s was successful on %s in preventing the BHG to be used, but has not reported back. He may be in the hospital.",
+                                     $lock_down->name, $body->name);
+            }
+        }
+        else {
+            if ($spy_cond eq "Killed") {
+                $o_message = sprintf("Our security spotted an enemy agent before he could cause a problem on %s. He was shot trying to resist arrest.",
+                                     $body->name);
+                $e_message = sprintf("%s was killed trying to stop the BHG on %s.",
+                                     $lock_down->name, $body->name);
+            }
+            elsif ($spy_cond eq "Captured") {
+                $o_message = sprintf("Our security spotted an enemy agent before they could cause a problem on %s. They are currently under going interrogation.",
+                                     $body->name);
+                $e_message = sprintf("%s was captured trying to stop the BHG on %s.",
+                                     $lock_down->name, $body->name);
+            }
+            elsif ($spy_cond eq "Squeek") {
+                $o_message = sprintf("Our security spotted an enemy agent before they could cause a problem on %s. Regrettfully, they got away.",
+                                     $body->name);
+                $e_message = sprintf("%s was almost captured trying to stop the BHG on %s.",
+                                     $lock_down->name, $body->name);
+            }
+            elsif ($spy_cond eq "Escaped") {
+                $o_message = sprintf("We noticed an odd power fluctuation with our BHG on %s, but everything worked as expected.",
+                                     $body->name);
+                $e_message = sprintf("%s was almost captured trying to stop the BHG on %s.",
+                                     $lock_down->name, $body->name);
+            }
+            elsif ($spy_cond eq "Unconscious") {
+                $o_message = sprintf("We need to have a meeting about safety concerns at the BHG on %s. We found another unconsious worker there.",
+                                     $body->name);
+                $e_message = sprintf("%s was knocked out trying to sabotage the BHG on %s.",
+                                     $lock_down->name, $body->name);
+            }
+        }
+        $body->empire->send_predefined_message(
+                tags        => ['Spies','Alert'],
+                filename    => 'bhg_sabotage_us.txt',
+                params      => [$o_message],
+        );
+        $lock_down->empire->send_predefined_message(
+                tags        => ['Spies','Alert'],
+                filename    => 'bhg_sabotage_them.txt',
+                params      => [$o_message],
+        );
+        if ($spy_cond eq "Killed") {
+            $lock_down->available_on(DateTime->now->add(years => 5));
+            $lock_down->task('Killed In Action');
+        }
+        elsif ($spy_cond eq "Captured") {
+            $lock_down->available_on(DateTime->now->add(days=>7));
+            $lock_down->task('Captured');
+            $lock_down->started_assignment(DateTime->now);
+            $lock_down->times_captured( $self->times_captured + 1 );
+        }
+        elsif ($spy_cond eq "Squeek" or $spy_cond eq "Escaped") {
+        }
+        elsif ($spy_cond eq "Unconscious") {
+            $lock_down->available_on(DateTime->now->add(seconds => randint(120, 60 * 60 * 48)));
+            $lock_down->task('Unconscious');
+        }
+        my $off_skill = $lock_down->mayhem_xp + $add_skill;
+        $off_skill = 2600 if ($off_skill > 2600);
+        $lock_down->mayhem_xp($off_skill);
+        $lock_down->offense_mission_count( $lock_down->offense_mission_count + 1);
+        $lock_down->update;
+    }
+###
     # Check for startup failure
     my $roll = randint(0,99);
     if ($roll >= $chance->{success}) {
