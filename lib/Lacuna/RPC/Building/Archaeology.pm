@@ -1,5 +1,6 @@
 package Lacuna::RPC::Building::Archaeology;
 
+use Lacuna::Util qw(format_date);
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
@@ -143,7 +144,7 @@ sub view_excavators {
         glyph    => $chances->{glyph},
         plan     => $chances->{plan},
         resource => $chances->{resource},
-        date_landed => $building->date_created,
+        date_landed => format_date($building->date_created),
     };
     my $excavators = $building->excavators;
     my $travel = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
@@ -158,7 +159,7 @@ sub view_excavators {
         glyph    => $chances->{glyph},
         plan     => $chances->{plan},
         resource => $chances->{resource},
-        date_landed => $excav->date_landed,
+        date_landed => format_date($excav->date_landed),
       };
     }
     return {

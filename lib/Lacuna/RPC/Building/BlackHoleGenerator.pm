@@ -718,13 +718,13 @@ sub generate_singularity {
                           { rows => 1, order_by => 'rand()' }
                             )->single;
     if (defined $lock_down) {
-        my $power = $lock_down->mayhem_xp + $lock_down->offensive
+        my $power = $lock_down->mayhem_xp + $lock_down->offense;
         my $defense = 0;
         my $hq = $body->get_building_of_class('Lacuna::DB::Result::Building::Security');
         if (defined $hq) {
-            $defense = int($hq->level * $hq->efficiency /2 + 0.5);
+            $defense = $hq->level * $hq->efficiency;
         }
-        my $breakthru = int(($power - $defense + $lock_down->luck)/100 + 0.5);
+        my $breakthru = int(($power - $defense + $lock_down->luck)/100 + 0.5)+50;
         $breakthru = 5 if $breakthru < 5;
         $breakthru = 95 if $breakthru > 95;
         my $failure = 0;
@@ -736,7 +736,7 @@ sub generate_singularity {
             $failure = 1;
         }
         else {
-            $breakthru = $breaktru/2;
+            $breakthru = $breakthru/2;
         }
         my $caught = randint(0,99);
         if ($caught > $breakthru) {
@@ -802,7 +802,7 @@ sub generate_singularity {
             elsif ($spy_cond eq "Escaped") {
                 $o_message = sprintf("Our BHG on %s misfired today.  We suspect enemy action.",
                                      $body->name);
-                $e_message = sprintf("%s was successful on %s in preventing the BHG to be used, %s suspect nothing.",
+                $e_message = sprintf("%s was successful on %s in preventing the BHG to be used, %s suspects nothing.",
                                      $lock_down->name, $body->name, $body->empire->name);
             }
             elsif ($spy_cond eq "Unconscious") {
@@ -852,7 +852,7 @@ sub generate_singularity {
         $lock_down->empire->send_predefined_message(
                 tags        => ['Spies','Alert'],
                 filename    => 'bhg_sabotage_them.txt',
-                params      => [$o_message],
+                params      => [$e_message],
         );
         if ($spy_cond eq "Killed") {
             $lock_down->available_on(DateTime->now->add(years => 5));
@@ -862,7 +862,7 @@ sub generate_singularity {
             $lock_down->available_on(DateTime->now->add(days=>7));
             $lock_down->task('Captured');
             $lock_down->started_assignment(DateTime->now);
-            $lock_down->times_captured( $self->times_captured + 1 );
+            $lock_down->times_captured( $lock_down->times_captured + 1 );
         }
         elsif ($spy_cond eq "Squeek" or $spy_cond eq "Escaped") {
         }
