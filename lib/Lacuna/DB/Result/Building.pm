@@ -131,7 +131,9 @@ use constant waste_storage          => 0;
 sub production_hour {
     my $self = shift;
     return 0 unless  $self->level;
-    my $production = (GROWTH ** (  $self->level - 1));
+    my $prod_level = ($self->level > $self->body->empire->university_level + 1) ?
+                          $self->body->empire->university_level + 1 : $self->level;
+    my $production = (GROWTH ** (  $prod_level - 1));
     $production = ($production * $self->efficiency) / 100;
     return $production;
 }

@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
+use Lacuna::Constants qw(GROWTH);
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
@@ -42,6 +43,14 @@ around spend_efficiency => sub {
     }
     return $self;
 };
+
+sub production_hour {
+    my $self = shift;
+    return 0 unless  $self->level;
+    my $production = (GROWTH ** (  $self->level - 1));
+    $production = ($production * $self->efficiency) / 100;
+    return $production;
+}
 
 sub cost_to_upgrade {
     return {
