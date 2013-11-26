@@ -12,7 +12,7 @@ has viable_colonies => (
     lazy        => 1,
     default     => sub {
         return Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
-            { empire_id => undef, orbit => 7, size => { between => [45,49]}},
+            { empire_id => undef, orbit => 7, size => { between => [45,70]}},
             );
     }
 );

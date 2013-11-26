@@ -7,6 +7,7 @@
  - Mod: Uni level also determines top production levels.
  - Fix: SS Modules drop a level if at 0% for any reason.
  - Add: Empire named in exploding planets.
+ - Mod: AI Tuning.
 
 3.0894:
  - API: repair_list checks number of fed building ids, rejection of call if over max building count.
