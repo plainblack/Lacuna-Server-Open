@@ -1029,6 +1029,8 @@ sub convert_to_station {
     # clean it
     my @all_buildings = @{$self->building_cache};
     $self->delete_buildings(\@all_buildings);
+    $self->_plans->delete;
+    $self->glyph->delete;
 
     # add command building
     my $command = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -1665,6 +1667,14 @@ sub tick_to {
         }
         else {
             $self->toggle_supply_chain(\@supply_chains, $type, 0);
+        }
+    }
+    if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        my @buildings = grep {
+            $_->efficiency == 0
+        } @{$self->building_cache};
+        foreach my $building (@buildings) {
+            $building->downgrade;
         }
     }
     $self->update;
@@ -2488,14 +2498,11 @@ sub complain_about_lack_of_resources {
     # if they run out of resources in storage, then the citizens start bitching
     if (!$empire->check_for_repeat_message('complaint_lack_of_'.$resource.$self->id)) {
         my $building_name;
-        foreach my $rpcclass (shuffle (BUILDABLE_CLASSES,SPACE_STATION_MODULES)) {
-            my $class = $rpcclass->model_class;
-            next unless ('Infrastructure' ~~ [$class->build_tags]);
-            # Special conditions for space stations
-            if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-                if ($class eq 'Lacuna::DB::Result::Building::Module::Parliament' || $class eq 'Lacuna::DB::Result::Building::Module::StationCommand') {
+        if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+            foreach my $building ( sort { $b->efficiency <=> $a->efficiency || rand() <=> rand() } @{$self->building_cache} ) {
+                if ($building->class eq 'Lacuna::DB::Result::Building::Module::Parliament' || $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand') {
                     my $others = grep {$_->class !~ /Parliament$|StationCommand$|Crater$/} @{$self->building_cache};
-                    if ( $others ) {
+                    if ($others) {
                         # If there are other buildings, divert power from them to keep Parliament and Station Command running as long as possible
                         next;
                     }
@@ -2545,6 +2552,18 @@ sub complain_about_lack_of_resources {
                         }
                     }
                 }
+                else {
+                    $building_name = $building->name;
+                    $building->spend_efficiency(25)->update;
+                    last;
+                }
+            }
+        }
+        else {
+             my $class;
+            foreach my $rpcclass (shuffle (BUILDABLE_CLASSES)) {
+                $class = $rpcclass->model_class;
+                next unless ('Infrastructure' ~~ [$class->build_tags]);
             }
             my ($building) = grep {$_->efficiency > 0} $self->get_buildings_of_class($class);
             if (defined $building) {
@@ -2563,7 +2582,6 @@ sub complain_about_lack_of_resources {
         }
     }
 }
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
