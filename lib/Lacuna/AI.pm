@@ -251,7 +251,7 @@ sub demolish_bleeders {
   say 'DEMOLISH BLEEDERS';
   my @bleeders = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::DeployedBleeder');
   foreach my $bleeder (@bleeders) {
-    if (randint(0,9) < 2) {
+    if (randint(0,9) < 5) {
       say '    missed bleeder';
     }
     else {
@@ -321,10 +321,6 @@ sub pod_check {
   $colony->update;
 }
 
-# empires can have more spies now than their intelligence ministry could
-# normally supply. Put a limit of 3 times the level of the Intelligence ministry
-# if 'subsidise' is set
-#
 sub train_spies {
     my ($self, $colony, $subsidise) = @_;
     say 'TRAIN SPIES';
@@ -351,10 +347,10 @@ sub train_spies {
                 empire_id       => $colony->empire_id,
                 offense         => ($intelligence->espionage_level * 75) + $deception,
                 defense         => ($intelligence->security_level * 75) + $deception,
-                intel_xp        => randint(10,40),
-                mayhem_xp       => randint(10,40),
-                politics_xp     => randint(10,40),
-                theft_xp        => randint(10,40),
+                intel_xp        => randint(10,400),
+                mayhem_xp       => randint(10,400),
+                politics_xp     => randint(10,400),
+                theft_xp        => randint(10,400),
             })
             ->update_level
             ->insert;
@@ -468,9 +464,15 @@ sub set_defenders {
     my ($self, $colony) = @_;
     say 'SET DEFENDERS';
     my $local_spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $colony->id, on_body_id => $colony->id});
+    my $on_sweep = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $colony->id, on_body_id => $colony->id, task => "Security Sweep"})->count;
     while (my $spy = $local_spies->next) {
         if ($spy->is_available) {
-            if ($spy->task ne 'Counter Espionage') {
+            if ($spy->task eq 'Security Sweep' or $on_sweep < 10) {
+                $spy->task('Security Sweep');
+                $spy->update;
+                $on_sweep++;
+            }
+            elsif ($spy->task ne 'Counter Espionage') {
                 say "    Spy ID: ".$spy->id." setting to defend";
                 $spy->task('Counter Espionage');
                 $spy->update;
