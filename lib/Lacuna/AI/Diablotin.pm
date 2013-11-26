@@ -141,6 +141,7 @@ sub ship_building_priorities {
         ['placebo2', 18],
         ['placebo3', 18],
         ['placebo', 18],
+        ['bleeder', 18],
     );
 }
 
@@ -148,7 +149,7 @@ sub run_hourly_colony_updates {
     my ($self, $colony) = @_;
     $self->demolish_bleeders($colony);
     $self->set_defenders($colony);
-    $self->pod_check($colony, 10);
+    $self->pod_check($colony, 15);
     $self->repair_buildings($colony);
     $self->train_spies($colony);
     $self->build_ships($colony);

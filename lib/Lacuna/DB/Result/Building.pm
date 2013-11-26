@@ -648,6 +648,7 @@ sub downgrade {
         return $self->demolish;
     }
     $self->level( $self->level - 1);
+    $self->efficiency(100);
     $self->update;
     my $body = $self->body;
     if (!$theft) {

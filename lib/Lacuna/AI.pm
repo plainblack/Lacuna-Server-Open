@@ -213,6 +213,7 @@ sub run_missions {
     my $mission = $missions[rand @missions];
     my $infiltrated_spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $colony->id, on_body_id => {'!=', $colony->id}});
     while (my $spy = $infiltrated_spies->next) {
+        next if $spy->task eq "Sabotage BHG";
         if ($spy->is_available) {
             say "    Spy ID: ".$spy->id." running mission...";
             my $result = eval{$spy->assign($mission)};
