@@ -308,8 +308,10 @@ sub fissure_level {
 sub fissure_explode {
     my ($body) = @_;
 # If it is an empire.
+    my $ename;
     if ($body->empire_id) {
         my $empire = $body->empire;
+        $ename = $empire->name;
 
 # If it is the empires home world
         if ($body->id == $empire->home_planet_id) {
@@ -473,11 +475,19 @@ sub fissure_explode {
         $to_damage->needs_recalc(1);
         $to_damage->needs_surface_refresh(1);
         $to_damage->tick;
+
+        my $outrage;
+        if ($ename) {
+            $outrage = sprintf("We currently investigating why %s let this happen to their people.", $ename);
+        }
+        else {
+            $outrage = "Local empires are investigating who is responsible for this outrage."
+        }
                 
         $to_damage->empire->send_predefined_message(
             tags        => ['Colonization','Alert', 'Fissure'],
             filename    => 'fissure_collateral_damage.txt',
-            params      => [$body->name, $to_damage->name],
+            params      => [$body->name, $to_damage->name, $outrage],
         );
         if (++$damaged == 10) {
             last DAMAGED;

@@ -1,10 +1,12 @@
 3.0895:
  - Fix: Bad error message when not enough glyphs for a mission fixed.
  - Fix: Fetch Spies exploit filled in.
- - Add: BHG Sabotage option available
+ - Add: BHG Sabotage option available.
  - Add: Date Landed returned from excavation sites.
  - Fix: All spies in training on a planet are executed on new management.
  - Mod: Uni level also determines top production levels.
+ - Fix: SS Modules drop a level if at 0% for any reason.
+ - Add: Empire named in exploding planets.
 
 3.0894:
  - API: repair_list checks number of fed building ids, rejection of call if over max building count.
