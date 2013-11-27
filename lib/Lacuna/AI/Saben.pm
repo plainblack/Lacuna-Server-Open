@@ -74,6 +74,7 @@ sub colony_structures {
     ['Lacuna::DB::Result::Building::MunitionsLab', 25],
     ['Lacuna::DB::Result::Building::Propulsion', 25],
     ['Lacuna::DB::Result::Building::Trade', 20],
+    ['Lacuna::DB::Result::Building::Observatory', 10],
     ['Lacuna::DB::Result::Building::Permanent::CrashedShipSite',25],
     ['Lacuna::DB::Result::Building::Permanent::Volcano',30],
     ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',30],
@@ -127,7 +128,7 @@ sub run_hourly_colony_updates {
     $self->set_defenders($colony);
     $self->pod_check($colony, 25);
     $self->repair_buildings($colony);
-    $self->train_spies($colony);
+    $self->train_spies($colony,1);
     $self->build_ships($colony);
     $self->run_missions($colony);
 }
