@@ -358,47 +358,6 @@ sub tick_all_spies {
                 );
             }
         }
-#Check to see how long spy has been training and that the correct buildings are there.
-#If so, build them up.
-        elsif ($starting_task eq 'Intel Training') {
-            $train_bld = $spy->on_body->get_building_of_class('Lacuna::DB::Result::Building::IntelTraining');
-            $tr_skill = "intel_xp";
-        }
-        elsif ($starting_task eq 'Mayhem Training') {
-            $train_bld = $spy->on_body->get_building_of_class('Lacuna::DB::Result::Building::MayhemTraining');
-            $tr_skill = "mayhem_xp";
-        }
-        elsif ($starting_task eq 'Politics Training') {
-            $train_bld = $spy->on_body->get_building_of_class('Lacuna::DB::Result::Building::PoliticsTraining');
-            $tr_skill = "politics_xp";
-        }
-        elsif ($starting_task eq 'Theft Training') {
-            $train_bld = $spy->on_body->get_building_of_class('Lacuna::DB::Result::Building::TheftTraining');
-            $tr_skill = "theft_xp";
-        }
-        if ($train_bld) {
-            my $max_points  = 350 + $train_bld->level * 75;
-            if ($spy->$tr_skill >= $max_points) {
-                $spy->task('Idle');
-                $spy->update;
-            }
-            else {
-                my $train_time = DateTime->now->subtract_datetime($spy->started_assignment);
-                my $minutes = $train_time->minutes();
-                my $train_cnt  = $db->resultset('Spies')->search({task => "$starting_task"})->count;
-                my $boost = (time < $spy->empire->spy_training_boost->epoch) ? 1.25 : 1;
-                my $points_hour = $train_bld->level * 2 * $boost;
-                my $points_to_add = int( ($points_hour * $minutes)/60/$train_cnt);
-                my $remain_min = $minutes - int(($points_to_add * 60 * $train_cnt)/$points_hour);
-                if ($points_to_add > 0) {
-                    my $fskill = $spy->$tr_skill + $points_to_add;
-                    $fskill = $max_points if ($fskill > $max_points);
-                    $spy->$tr_skill($fskill);
-                    $spy->started_assignment(DateTime->now->subtract(minutes => $remain_min)); #Subtract remainder of minutes
-                    $spy->update;
-                }
-            }
-        }
     }
 }
 
@@ -407,11 +366,60 @@ sub is_available {
     my $task = $self->task;
     if ($task ~~ ['Idle',
                   'Counter Espionage',
-                  'Sabotage BHG',
-                  'Intel Training',
+                  'Sabotage BHG']) {
+        return 1;
+    }
+    elsif ($task ~~ ['Intel Training',
                   'Mayhem Training',
                   'Politics Training',
                   'Theft Training']) {
+        my $train_bld;
+        my $tr_skill;
+        if ($task eq 'Intel Training') {
+            $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::IntelTraining');
+            $tr_skill = "intel_xp";
+        }
+        elsif ($task eq 'Mayhem Training') {
+            $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::MayhemTraining');
+            $tr_skill = "mayhem_xp";
+        }
+        elsif ($task eq 'Politics Training') {
+            $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::PoliticsTraining');
+            $tr_skill = "politics_xp";
+        }
+        elsif ($task eq 'Theft Training') {
+            $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::TheftTraining');
+            $tr_skill = "theft_xp";
+        }
+        if ($train_bld) {
+            my $max_points  = 350 + $train_bld->level * 75;
+            if ($self->$tr_skill >= $max_points) {
+                $self->task('Idle');
+                $self->update;
+            }
+            else {
+                my $db = Lacuna->db;
+                my $dtf = $db->storage->datetime_parser;
+                my $train_time = DateTime->now->subtract_datetime($self->started_assignment);
+                my $minutes = $train_time->minutes();
+                my $train_cnt  = $db->resultset('Spies')->search({task => "$task"})->count;
+                my $boost = (time < $self->empire->spy_training_boost->epoch) ? 1.25 : 1;
+                my $points_hour = $train_bld->level * 2 * $boost;
+                my $points_to_add = int( ($points_hour * $minutes)/60/$train_cnt);
+                my $remain_min = $minutes - int(($points_to_add * 60 * $train_cnt)/$points_hour);
+                if ($points_to_add > 0) {
+                    my $fskill = $self->$tr_skill + $points_to_add;
+                    $fskill = $max_points if ($fskill > $max_points);
+                    $self->$tr_skill($fskill);
+                    $self->started_assignment(DateTime->now->subtract(minutes => $remain_min)); #Subtract remainder of minutes
+                    $self->update;
+                }
+            }
+        }
+        else {
+            $self->task('Idle');
+            $self->update;
+        }
         return 1;
     }
     elsif ($task eq 'Mercenary Transport') {
@@ -432,6 +440,9 @@ sub is_available {
                 params      => [$self->format_from],
             );
             return 1;
+        }
+        elsif ($task eq "Political Propaganda") {
+            $self->reset_political_propaganda;
         }
         elsif ($task eq 'Travelling') {
             if ($self->empire_id ne $self->on_body->empire_id) {
@@ -748,20 +759,44 @@ sub run_political_propaganda {
     my $mission_skill = 'politics_xp';
     my $oratory = int( ($self->defense + $self->$mission_skill)/500 + 0.5);;
 
-    my $sboost = $self->body->spy_happy_boost;
+    my $sboost = $self->on_body->spy_happy_boost;
     $sboost += $oratory;
-    $self->body->spy_happy_boost($sboost);
+    $self->on_body->spy_happy_boost($sboost);
     my $mission_count_add = int($sboost/$oratory);
     
-    my $bhappy = $self->body->happiness;
+    my $bhappy = $self->on_body->happiness;
     if ($bhappy < 0) {
         $mission_count_add += length(abs($bhappy/1000));
     }
     $mission_count_add = 15 if $mission_count_add > 15;
     $self->defense_mission_count( $self->defense_mission_count + $mission_count_add);
-    $self->body->needs_recalc(1);
-    $self->body->update;
+    $self->on_body->needs_recalc(1);
+    $self->on_body->update;
     $self->update;
+    return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
+}
+
+sub reset_political_propaganda {
+    my $self = shift;
+    my $mission_skill = 'politics_xp';
+    my $oratory = int( ($self->defense + $self->$mission_skill)/500 + 0.5);;
+
+    my $sboost = $self->on_body->spy_happy_boost;
+    $sboost -= $oratory;
+    $sboost = 0 if ($sboost < 0);
+    $self->on_body->spy_happy_boost($sboost);
+    my $skill_xp = $self->$mission_skill + 10;
+    if ($skill_xp > 2600) {
+        $self->$mission_skill( 2600 );
+    }
+    else {
+        $self->$mission_skill( $skill_xp );
+    }
+    $self->update_level;
+    $self->on_body->needs_recalc(1);
+    $self->on_body->update;
+    $self->update;
+    return 1;
 }
 
 sub run_security_sweep {
@@ -2096,7 +2131,7 @@ sub abduct_operative {
         direction   => 'in',
         payload     => { spies => [ $self->id ], prisoners => [$defender->id] }
     );
-    $defender->send($self->from_body_id, DateTime->now->add(days => 7), 'Waiting On Trade');
+    $defender->send($self->from_body_id, DateTime->now->add(days => 7), 'Prisoner Transport');
     $self->send($self->from_body_id, $ship->date_available);
     $defender->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
