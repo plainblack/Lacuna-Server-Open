@@ -1,3 +1,10 @@
+3.0896:
+ - Mod: New method to training spies in Intel, Mayhem, Politics, and Theft. Less clicking.
+ - Add: Spy training boost
+ - Add: New spy "defense" skill of Political Propaganda.  Maximize happiness recovery.
+ - Mod: AI's deal with captured spies. (not active yet)
+ - Mod: Growth Affinity more effective.
+
 3.0895:
  - Fix: Bad error message when not enough glyphs for a mission fixed.
  - Fix: Fetch Spies exploit filled in.

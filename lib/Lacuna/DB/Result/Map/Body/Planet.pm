@@ -1289,6 +1289,16 @@ sub recalc_stats {
             }
         }
     }
+    # Adjust happiness_hour to maximum of 1/(30 * 24) if needed.
+    # If using spies to boost happiness rate, best rate will still take 30 days to dig out of.
+    if ($self->unhappy == 1) {
+        my $happy = $self->happiness;
+        my $max_rate = 150_000_000_000;
+        if ($happy < -1_080_000_000) {
+           $max_rate = abs($self->happiness/(24 * 30)); #Calculate what would take 30 days to dig out of
+        }
+        $stats{happiness_hour} = $max_rate if ($stats{happiness_hour} > $max_rate);
+    }
     $stats{plots_available} = $max_plots - $self->building_count;
     # Decrease happiness production if short on plots.
     if ($stats{plots_available} < 0) {
@@ -1478,6 +1488,7 @@ sub tick_to {
         else {
             $self->unhappy(1);
             $self->unhappy_date($now);
+            $self->happiness(-10_000);
         }
     }
     else {
