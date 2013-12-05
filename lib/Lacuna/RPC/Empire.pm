@@ -752,14 +752,14 @@ sub view_boosts {
     return {
         status  => $self->format_status($empire),
         boosts  => {
-            food        => format_date($empire->food_boost),
-            happiness   => format_date($empire->happiness_boost),
-            water       => format_date($empire->water_boost),
-            ore         => format_date($empire->ore_boost),
-            energy      => format_date($empire->energy_boost),
-            storage     => format_date($empire->storage_boost),
-            building    => format_date($empire->building_boost),
-            building    => format_date($empire->spy_training_boost),
+            food         => format_date($empire->food_boost),
+            happiness    => format_date($empire->happiness_boost),
+            water        => format_date($empire->water_boost),
+            ore          => format_date($empire->ore_boost),
+            energy       => format_date($empire->energy_boost),
+            storage      => format_date($empire->storage_boost),
+            building     => format_date($empire->building_boost),
+            spy_training => format_date($empire->spy_training_boost),
         }
     };
 }

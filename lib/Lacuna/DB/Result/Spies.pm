@@ -403,8 +403,8 @@ sub is_available {
                 my $train_time = DateTime->now->subtract_datetime($self->started_assignment);
                 my $minutes = $train_time->minutes();
                 my $train_cnt  = $db->resultset('Spies')->search({task => "$task"})->count;
-                my $boost = (time < $self->empire->spy_training_boost->epoch) ? 1.25 : 1;
-                my $points_hour = $train_bld->level * 2 * $boost;
+                my $boost = (time < $self->empire->spy_training_boost->epoch) ? 1.5 : 1;
+                my $points_hour = $train_bld->level * $boost;
                 my $points_to_add = int( ($points_hour * $minutes)/60/$train_cnt);
                 my $remain_min = $minutes - int(($points_to_add * 60 * $train_cnt)/$points_hour);
                 if ($points_to_add > 0) {

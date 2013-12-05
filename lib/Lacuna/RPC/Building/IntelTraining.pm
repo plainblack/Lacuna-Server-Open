@@ -54,8 +54,8 @@ around 'view' => sub {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id, skip_offline => 1);
     my $out = $orig->($self, $empire, $building);
-    my $boost = (time < $empire->spy_training_boost->epoch) ? 1.25 : 1;
-    my $points_per = $building->level * 2 * $boost;
+    my $boost = (time < $empire->spy_training_boost->epoch) ? 1.5 : 1;
+    my $points_per = $building->level * $boost;
     $out->{spies} = {
         points_per  => $points_per, 
         in_training => $building->spies_in_training_count,
