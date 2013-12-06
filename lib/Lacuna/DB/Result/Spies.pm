@@ -963,15 +963,15 @@ sub get_idle_attacker {
        $member_ids[0] = $self->empire->id;
     }
 
-    my @attackers = Lacuna
-        ->db
-        ->resultset('Spies')
+    my $db = Lacuna->db;
+    my $dtf = $db->storage->datetime_parser;
+    my @attackers = $db->resultset('Spies')
         ->search(
             { on_body_id  => $self->on_body_id,
               task => 'Idle',
               empire_id => { 'not in' => \@member_ids },
 # Any non-allied spy that calls home the NZ
-              started_assignment => { '<' => DateTime->now->subtract(days => 7) } },
+              started_assignment => { '<' => $dtf->format_datetime(DateTime->now->subtract(days => 7)) } },
         )
         ->all;
 

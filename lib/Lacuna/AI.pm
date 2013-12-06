@@ -465,12 +465,26 @@ sub set_defenders {
     say 'SET DEFENDERS';
     my $local_spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $colony->id, on_body_id => $colony->id});
     my $on_sweep = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $colony->id, on_body_id => $colony->id, task => "Security Sweep"})->count;
+    my $enemies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $colony->id, task => { '!=' => 'Captured'}, empire_id => { '!=' => $self->empire_id }})->count;
+    $on_sweep = 10 if ($enemies == 0);
     while (my $spy = $local_spies->next) {
         if ($spy->is_available) {
             if ($spy->task eq 'Security Sweep' or $on_sweep < 10) {
                 say "    Spy ID: ".$spy->id." sweeping";
-                $spy->assign('Security Sweep');
+                my $spy_result = $spy->assign('Security Sweep');
                 $spy->update;
+                if ($spy_result->{message_id}) {
+                    my $message = Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($spy_result->{message_id});
+                    say "message: ".$message->subject;
+                    if ($message && $message->subject eq "Spy Report") {
+                        $on_sweep += 10; #No spies to find
+                        say "        spy report, no more sweeps.";
+                    }
+                    elsif ($message && $message->subject eq "Enemy Captured") {
+                        $on_sweep--;
+                        say "        caught someone, more sweeps.";
+                    }
+                }
                 $on_sweep++;
             }
             elsif ($spy->task ne 'Counter Espionage') {

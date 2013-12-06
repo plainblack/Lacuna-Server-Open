@@ -145,14 +145,16 @@ sub run_hourly_colony_updates {
 sub destroy_world {
     my ($self, $colony) = @_;
     say "Looking for world to destroy...";
-    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
+    my $targets = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
             zone        => $colony->zone,
             size        => { between => [46, 75] },
             empire_id   => undef,
         },
-        { rows => 1}
-    )->single;
-    if (defined $target) {
+        { rows => 20}
+    );
+    my $blownup = 0;
+    while (my $target = $targets->next) {
+        next if $target->is_bhg_neutralized;
         say "Found ".$target->name;
         my @to_demolish = @{$target->building_cache};
         $target->delete_buildings(\@to_demolish);
@@ -163,8 +165,10 @@ sub destroy_world {
         });
         say "Turned into ".$target->class;
         $colony->add_news(100, 'We are Sābēn. We have destroyed '.$target->name.'. Leave now.');
+        $blownup = 1;
+        last;
     }
-    else {
+    if ($blownup == 0) {
         say "Nothing to destroy.";
     }
 }
