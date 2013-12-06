@@ -1143,8 +1143,24 @@ sub recalc_stats {
         $stats{$type.'_hour'} = 0;
     }
     $stats{max_berth} = 1;
+    #calculate propaganda bonus
+    my $propaganda = Lacuna->db->resultset('Lacuna::DB::Result::Spies')
+                       ->search({ on_body_id => $self->id,
+                                  task => 'Political Propaganda',
+                                  empire_id => $self->empire_id},
+                                  {rows => 50},
+                               );
+    my $spy_boost = 0;
+    while (my $spy = $propaganda->next) {
+        my $oratory = int( ($spy->defense + $spy->politics_xp)/500 + 0.5);
+        $spy_boost += $oratory;
+    }
+    $self->spy_happy_boost($spy_boost);
+    $self->update;
     #calculate building production
-    my ($gas_giant_platforms, $terraforming_platforms, $station_command, $pantheon_of_hagness, $ore_production_hour, $ore_consumption_hour, $food_production_hour, $food_consumption_hour, $fissure_percent) = 0;
+    my ($gas_giant_platforms, $terraforming_platforms, $station_command,
+        $pantheon_of_hagness, $ore_production_hour, $ore_consumption_hour,
+        $food_production_hour, $food_consumption_hour, $fissure_percent) = 0;
     foreach my $building (@{$self->building_cache}) {
         $stats{waste_capacity}  += $building->waste_capacity;
         $stats{water_capacity}  += $building->water_capacity;
@@ -1294,11 +1310,12 @@ sub recalc_stats {
     if ($self->unhappy == 1) {
         my $happy = $self->happiness;
         my $max_rate =    150_000_000_000;
-        if ($happy < -108_000_000_000_000) {
-           $max_rate = abs($self->happiness/(24 * 30)); #Calculate what would take 30 days to dig out of
+        if ($happy < -1 * (24 * 30 * $max_rate)) {
+           $max_rate = int(abs($self->happiness/(24 * 30))); #Calculate what would take 30 days to dig out of
         }
         $stats{happiness_hour} = $max_rate if ($stats{happiness_hour} > $max_rate);
     }
+
     $stats{plots_available} = $max_plots - $self->building_count;
     # Decrease happiness production if short on plots.
     if ($stats{plots_available} < 0) {
@@ -1442,7 +1459,7 @@ sub tick {
         my $empire = $self->empire;
         if ($empire) {
             my $still_enabled = 0;
-            foreach my $resource (qw(energy water ore happiness food storage building)) {
+            foreach my $resource (qw(energy water ore happiness food storage building spy_training)) {
                 my $boost = $resource.'_boost';
                 if ($now_epoch > $empire->$boost->epoch) {
                     $self->needs_recalc(1);

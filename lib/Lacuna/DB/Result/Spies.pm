@@ -336,7 +336,6 @@ sub tick_all_spies {
     my ($class,$verbose) = @_;
 
     my $db = Lacuna->db;
-    my $dtf = $db->storage->datetime_parser;
     my $spies = $db->resultset('Spies')->search({
         -and => [{task => {'!=' => 'Idle'}},{task => {'!=' => 'Counter Espionage'}},{task => {'!=' => 'Mercenary Transport'}}],
     });
@@ -399,9 +398,9 @@ sub is_available {
             }
             else {
                 my $db = Lacuna->db;
-                my $dtf = $db->storage->datetime_parser;
-                my $train_time = DateTime->now->subtract_datetime($self->started_assignment);
-                my $minutes = $train_time->minutes();
+                my $now = DateTime->now;
+                my $train_time = $now->subtract_datetime_absolute($self->started_assignment);
+                my $minutes = int($train_time->seconds/60);
                 my $train_cnt  = $db->resultset('Spies')->search({task => "$task"})->count;
                 my $boost = (time < $self->empire->spy_training_boost->epoch) ? 1.5 : 1;
                 my $points_hour = $train_bld->level * $boost;
@@ -411,7 +410,7 @@ sub is_available {
                     my $fskill = $self->$tr_skill + $points_to_add;
                     $fskill = $max_points if ($fskill > $max_points);
                     $self->$tr_skill($fskill);
-                    $self->started_assignment(DateTime->now->subtract(minutes => $remain_min)); #Subtract remainder of minutes
+                    $self->started_assignment($now->clone->subtract(minutes => $remain_min)); # Put time at now with remainder
                     $self->update;
                 }
             }
@@ -548,7 +547,12 @@ sub burn {
     my $unhappy = int($self->level * 1000 * 200/75); # Not factoring in Deception, always costs this much happiness.
     $unhappy = 2000 if ($unhappy < 2000);
     $body->spend_happiness($unhappy);
-    if ($body->add_news(25, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $old_empire->name)) {
+    if ($self->task eq 'Political Propaganda') {
+        $body->add_news(200, 'The government of %s made the mistake of trying to burn one of their own loyal propaganda ministers.', $old_empire->name);
+        $self->on_body->spy_happy_boost(0);
+        $self->uprising();
+    }
+    elsif ($body->add_news(25, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $old_empire->name)) {
 # If the media finds out, even more unhappy.
         $body->spend_happiness(int($unhappy/2));
     }
@@ -761,7 +765,6 @@ sub run_political_propaganda {
 
     my $sboost = $self->on_body->spy_happy_boost;
     $sboost += $oratory;
-    $self->on_body->spy_happy_boost($sboost);
     my $mission_count_add = int($sboost/$oratory);
     
     my $bhappy = $self->on_body->happiness;
@@ -770,21 +773,16 @@ sub run_political_propaganda {
     }
     $mission_count_add = 15 if $mission_count_add > 15;
     $self->defense_mission_count( $self->defense_mission_count + $mission_count_add);
+    $self->update;
     $self->on_body->needs_recalc(1);
     $self->on_body->update;
-    $self->update;
     return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
 }
 
 sub reset_political_propaganda {
     my $self = shift;
     my $mission_skill = 'politics_xp';
-    my $oratory = int( ($self->defense + $self->$mission_skill)/500 + 0.5);;
 
-    my $sboost = $self->on_body->spy_happy_boost;
-    $sboost -= $oratory;
-    $sboost = 0 if ($sboost < 0);
-    $self->on_body->spy_happy_boost($sboost);
     my $skill_xp = $self->$mission_skill + 10;
     if ($skill_xp > 2600) {
         $self->$mission_skill( 2600 );
@@ -793,9 +791,9 @@ sub reset_political_propaganda {
         $self->$mission_skill( $skill_xp );
     }
     $self->update_level;
+    $self->update;
     $self->on_body->needs_recalc(1);
     $self->on_body->update;
-    $self->update;
     return 1;
 }
 
