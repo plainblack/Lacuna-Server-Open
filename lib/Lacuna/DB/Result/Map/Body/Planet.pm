@@ -2597,7 +2597,6 @@ sub complain_about_lack_of_resources {
             if (defined $building) {
                 $building_name = $building->name;
                 $building->spend_efficiency(25)->update;
-                last;
             }
         }
         if ($building_name && !$empire->skip_resource_warnings) {

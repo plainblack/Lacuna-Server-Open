@@ -134,6 +134,7 @@ sub ship_building_priorities {
 sub run_hourly_colony_updates {
     my ($self, $colony) = @_;
     $self->demolish_bleeders($colony);
+    $self->kill_prisoners($colony, 24);
     $self->set_defenders($colony);
     $self->pod_check($colony, 25);
     $self->repair_buildings($colony);
@@ -144,6 +145,18 @@ sub run_hourly_colony_updates {
 
 sub destroy_world {
     my ($self, $colony) = @_;
+    if ($colony->is_bhg_neutralized) {
+        say "BHG is neutralized by a space station.";
+        return;
+    }
+    my $enemies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')
+                         ->search({on_body_id => $colony->id,
+                                   task => 'Sabotage BHG',
+                                   empire_id => { '!=' => $self->empire_id }})->count;
+    if ($enemies) {
+        say "Annoying non-saben on planet trying to Sabotage our BHG";
+        return;
+    }
     say "Looking for world to destroy...";
     my $targets = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
             zone        => $colony->zone,

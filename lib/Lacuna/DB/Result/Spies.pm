@@ -811,8 +811,9 @@ sub run_security_sweep {
   else {
     $attacker = $self->get_idle_attacker;
     if (defined $attacker) {
-# Would prefer to have it easier the longer the spy has been inactive, but...
-      $toughness = $attacker->offense + $attacker->$mission_skill - randint(100,2600);
+      my $idle_time = DateTime->now->subtract_datetime_absolute($self->started_assignment);
+      my $minutes = int($idle_time->seconds/60) -7*24*60; #minutes idle past one week
+      $toughness = $attacker->offense + $attacker->$mission_skill - int(3 * $minutes/60);
     }
   }
   my $breakthru = ($power - $toughness + $self->home_field_advantage) + $self->luck;
@@ -970,7 +971,6 @@ sub get_idle_attacker {
             { on_body_id  => $self->on_body_id,
               task => 'Idle',
               empire_id => { 'not in' => \@member_ids },
-# Any non-allied spy that calls home the NZ
               started_assignment => { '<' => $dtf->format_datetime(DateTime->now->subtract(days => 7)) } },
         )
         ->all;
