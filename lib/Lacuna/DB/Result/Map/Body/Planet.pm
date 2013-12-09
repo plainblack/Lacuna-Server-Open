@@ -1148,7 +1148,7 @@ sub recalc_stats {
                        ->search({ on_body_id => $self->id,
                                   task => 'Political Propaganda',
                                   empire_id => $self->empire_id},
-                                  {rows => 50},
+                                  {rows => 250},
                                );
     my $spy_boost = 0;
     while (my $spy = $propaganda->next) {
