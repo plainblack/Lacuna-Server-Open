@@ -12,57 +12,11 @@ The list of methods below represents changes and additions to the methods that a
     "status" : { ... },
     "building" : { ... },
     "spies" : {
-        "maximum" : 5,
-        "current" : 1,
-        "in_training" : 1,
-        "training_costs" : {
-            "food" : 100,
-            "water" : 120,
-            "energy" : 20,
-            "ore" : 5,
-            "waste" : 10,
-            "time" : [
-                {
-                    "spy_id" : "1",
-                    "time" : "18720",
-                    "level" : 26,
-                    "offense_rating" : 2600,
-                    "defense_rating" : 2600,
-                    "intel"          : 10,
-                    "mayhem"         : 60,
-                    "politics"       : 40,
-                    "theft"          :  0,
-                    "based_from"     : {
-                                         "body_id" :
-                                         "name"    => "Planet Name",
-                                         "x"       => 15,
-                                         "y"       => 4,
-                    },
-                },
-                ...
-            ],
-        }
+        "max_points" : 2600,
+        "points_per" : 45,
+        "in_training" : 4,
     },
  }
- 
-
-The list of spies available to train shows up under training_costs in the time section since that varies from spy to spy. 
-
-=head2 train_spy ( session_id, building_id, spy_id )
-
-Allows you to train an idle spy in the dark art of social engineering.
-
-The trained spy will receive 1 politics per level of the building.
-
- {
-    "status" : { ... },
-    "trained" : 1,
-    "not_trained" : 0
- }
- 
-The only reason C<not_trained> might be over 0 is if you specify training more spies than you have resources to spend.
-
-Throws 1013, 1009.
 
 =head3 session_id
 
@@ -71,11 +25,5 @@ A session id.
 =head3 building_id
 
 The unique id of your Politics Training Facility.
-
-=head3 spy_id
-
-The unique id of the spy to train.
-
-
 
 =cut

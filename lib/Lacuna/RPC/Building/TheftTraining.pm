@@ -57,6 +57,7 @@ around 'view' => sub {
     my $boost = (time < $empire->spy_training_boost->epoch) ? 1.5 : 1;
     my $points_per = $building->level * $boost;
     $out->{spies} = {
+        max_points  => 350 + $building->level * 75,
         points_per => $points_per,
         in_training     => $building->spies_in_training_count,
     };
