@@ -1305,7 +1305,7 @@ sub recalc_stats {
             }
         }
     }
-    # Adjust happiness_hour to maximum of 1/(30 * 24) if needed.
+    # Adjust happiness_hour to maximum of 1/(30 * 24) if at negative. Different max for positive happiness.
     # If using spies to boost happiness rate, best rate will still take 30 days to dig out of.
     if ($self->unhappy == 1) {
         my $happy = $self->happiness;
@@ -1497,21 +1497,24 @@ sub tick_to {
     my $seconds  = $now->epoch - $self->last_tick->epoch;
     my $tick_rate = $seconds / 3600;
     $self->last_tick($now);
+#If we crossed zero happiness, either way, we need to recalc.
     if ($self->happiness < 0) {
-        $self->needs_recalc if ($self->happiness_hour < -20_000);
         if ($self->unhappy) {
 # Nothing for now...
         }
         else {
+            $self->needs_recalc(1);
             $self->unhappy(1);
             $self->unhappy_date($now);
-            $self->happiness(-10_000);
         }
     }
     else {
-        $self->unhappy(0);
+        if ($self->unhappy) {
+            $self->unhappy(0);
+            $self->needs_recalc(1);
+        }
+        $self->needs_recalc(1) if ($self->spy_happy_boost > 50);
     }
-    # Check to see if downward spiral still happening in happiness from negative plots.
     if ($self->needs_recalc) {
         $self->recalc_stats;    
     }

@@ -503,10 +503,12 @@ sub kill_prisoners {
     my ($self, $colony, $when) = @_;
 #When is in hours from prisoner being released.
 
+    say 'KILL PRISONERS';
     my $prisoners = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $colony->id, task => 'Captured', empire_id => { '!=' => $self->empire_id }});
     my $now = DateTime->now;
+    my $prisoner_cnt = 0;
     while (my $prisoner = $prisoners->next) {
-        my $sentence = $now->subtract_datetime_absolute($self->available_on);
+        my $sentence = $now->subtract_datetime_absolute($prisoner->available_on);
         my $hours = int($sentence->seconds/(60*60));
         if ($hours < $when) {
             $prisoner->empire->send_predefined_message(
@@ -516,8 +518,10 @@ sub kill_prisoners {
                 params      => [$prisoner->name, $prisoner->from_body->id, $prisoner->from_body->name, $colony->x, $colony->y, $colony->name, $colony->empire->id, $colony->empire->name],
             );
             $prisoner->delete;
+            $prisoner_cnt++;
         }
     }
+    say $prisoner_cnt." prisoners executed.";
 }
 
 sub start_attack {
