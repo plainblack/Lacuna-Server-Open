@@ -401,12 +401,17 @@ sub is_available {
                 my $now = DateTime->now;
                 my $train_time = $now->subtract_datetime_absolute($self->started_assignment);
                 my $minutes = int($train_time->seconds/60);
-                my $train_cnt  = $db->resultset('Spies')->search({task => "$task"})->count;
+                my $train_cnt  = $db->resultset('Spies')->search({task => "$task",
+                                                                  on_body_id => $train_bld->body_id,
+                                                                  empire_id => $train_bld->body->empire_id})->count;
                 my $boost = (time < $self->empire->spy_training_boost->epoch) ? 1.5 : 1;
                 my $points_hour = $train_bld->level * $boost;
-                my $points_to_add = int( ($points_hour * $minutes)/60/$train_cnt);
-                my $remain_min = $minutes - int(($points_to_add * 60 * $train_cnt)/$points_hour);
+                my $points_to_add = 0;
+                if ($points_hour > 0 and $train_cnt > 0) {
+                    $points_to_add = int( ($points_hour * $minutes)/60/$train_cnt);
+                }
                 if ($points_to_add > 0) {
+                    my $remain_min = $minutes - int(($points_to_add * 60 * $train_cnt)/$points_hour);
                     my $fskill = $self->$tr_skill + $points_to_add;
                     $fskill = $max_points if ($fskill > $max_points);
                     $self->$tr_skill($fskill);
