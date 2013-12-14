@@ -406,7 +406,7 @@ sub fissure_explode {
         out("Growing ".$to_grab_mass->name." to ".$size.".");
         if ($to_grab_mass->empire) {
             $to_grab_mass->empire->send_predefined_message(
-                tags        => ['Colonization','Alert', 'Fissure'],
+                tags        => ['Fissure','Colonization','Alert'],
                 filename    => 'changed_size.txt',
                 params      => [$to_grab_mass->name, $size, $new_size],
             );
@@ -421,8 +421,7 @@ sub fissure_explode {
 # get 10 closest planets
     my $closest = Lacuna->db->resultset('Map::Body')->search({
         -and => [
-            { empire_id => { '>'    => 1 }},
-            { empire_id => { '!='   => $body->id }},
+            { empire_id => { '!=' => undef}},
         ],
     },{
         '+select' => [
@@ -447,7 +446,7 @@ sub fissure_explode {
 # an average of 50% damage
         my $distance = $to_damage->get_column('distance');
         if ($distance > 200) {
-            out("At a distance of $distance, the debris is to dispersed. Only $damaged planets hit.");
+            out("At a distance of $distance, the debris is too dispersed. Only $damaged planets hit.");
             last;
         }
         my $damage  = int(100 - $distance);
@@ -485,7 +484,7 @@ sub fissure_explode {
         }
                 
         $to_damage->empire->send_predefined_message(
-            tags        => ['Colonization','Alert', 'Fissure'],
+            tags        => ['Fissure','Colonization','Alert'],
             filename    => 'fissure_collateral_damage.txt',
             params      => [$body->name, $to_damage->name, $outrage],
         );

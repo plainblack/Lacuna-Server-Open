@@ -1,3 +1,8 @@
+3.0897:
+ - Fix: SupplyPods ignore University Level.
+ - Fix: Deployed Bleeders ignore University Level.
+ - Mod: Pods & Bleeders get a boost.
+
 3.0896:
  - Mod: New method to training spies in Intel, Mayhem, Politics, and Theft. Less clicking.
  - Add: Spy training boost

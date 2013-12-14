@@ -5,7 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Util qw(randint);
-use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
+use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES GROWTH);
 
 use constant controller_class => 'Lacuna::RPC::Building::SupplyPod';
 
@@ -46,15 +46,24 @@ after finish_work => sub {
     $self->update({class=>'Lacuna::DB::Result::Building::Permanent::Crater'});
 };
 
+sub production_hour {
+    my $self = shift;
+    return 0 unless  $self->level;
+    my $prod_level = $self->level;
+    my $production = (GROWTH ** (  $prod_level - 1));
+    $production = ($production * $self->efficiency) / 100;
+    return $production;
+}
+
 # allow demolishing even when working
 sub can_demolish {
     return 1;
 }
 
-use constant food_storage => 1000;
-use constant energy_storage => 1000;
-use constant ore_storage => 1000;
-use constant water_storage => 1000;
+use constant food_storage => 2000;
+use constant energy_storage => 2000;
+use constant ore_storage => 2000;
+use constant water_storage => 2000;
 
 
 no Moose;
