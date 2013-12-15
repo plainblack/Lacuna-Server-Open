@@ -1305,13 +1305,20 @@ sub recalc_stats {
             }
         }
     }
-    # Adjust happiness_hour to maximum of 1/(30 * 24) if at negative. Different max for positive happiness.
-    # If using spies to boost happiness rate, best rate will still take 30 days to dig out of.
+    # Adjust happiness_hour to maximum of 30 days from where body went negative. Different max for positive happiness.
+    # If using spies to boost happiness rate, best rate can be a bit variable.
     if ($self->unhappy == 1) {
         my $happy = $self->happiness;
         my $max_rate =    150_000_000_000;
-        if ($happy < -1 * (24 * 30 * $max_rate)) {
-           $max_rate = int(abs($self->happiness/(24 * 30))); #Calculate what would take 30 days to dig out of
+        if ($happy < -1 * (120 * $max_rate)) {
+            my $div = 1;
+            my $unhappy_time = DateTime->now->subtract_datetime_absolute($self->unhappy_date);
+            my $unh_hours = $unhappy_time->seconds/(3600);
+            if ($unh_hours < 720) {
+                $div = 720 - $unh_hours;
+            }
+            my $new_rate = int(abs($self->happiness)/$div);
+            $max_rate = $new_rate if $new_rate > $max_rate;
         }
         $stats{happiness_hour} = $max_rate if ($stats{happiness_hour} > $max_rate);
     }

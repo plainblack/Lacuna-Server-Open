@@ -526,13 +526,49 @@ sub assign {
     # run mission
     if ($assignment ~~ ['Idle',
                         'Counter Espionage',
-                        'Sabotage BHG',
-                        'Intel Training',
-                        'Mayhem Training',
-                        'Politics Training',
-                        'Theft Training']) {
+                        'Sabotage BHG']) {
         $self->update;
         return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
+    }
+    elsif ($assignment eq 'Intel Training') {
+        my $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::IntelTraining');
+        if ($train_bld) {
+            $self->update;
+            return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
+        }
+        else {
+            return { result =>'Failure', reason => random_element(['I can\'t find the classroom!','I need to be on a different planet.','I know more than these guys already']) };
+        }
+    }
+    elsif ($assignment eq 'Mayhem Training') {
+        my $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::MayhemTraining');
+        if ($train_bld) {
+            $self->update;
+            return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
+        }
+        else {
+            return { result =>'Failure', reason => random_element(['I can\'t find the classroom!','I need to be on a different planet.','I know more than these guys already']) };
+        }
+    }
+    elsif ($assignment eq 'Politics Training') {
+        my $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::PoliticsTraining');
+        if ($train_bld) {
+            $self->update;
+            return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
+        }
+        else {
+            return { result =>'Failure', reason => random_element(['I can\'t find the classroom!','I need to be on a different planet.','I know more than these guys already']) };
+        }
+    }
+    elsif ($assignment eq 'Theft Training') {
+        my $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::TheftTraining');
+        if ($train_bld) {
+            $self->update;
+            return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
+        }
+        else {
+            return { result =>'Failure', reason => random_element(['I can\'t find the classroom!','I need to be on a different planet.','I know more than these guys already']) };
+        }
     }
     elsif ($assignment eq 'Security Sweep') {
         return $self->run_security_sweep($mission);
