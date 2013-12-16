@@ -455,6 +455,9 @@ sub recall_all {
 sub prepare_send_spies {
     my ($self, $session_id, $on_body_id, $to_body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
+    if ($on_body_id == $to_body_id) {
+        confess [1013, "Cannot send spies to one self."];
+    }
     my $on_body = $self->get_body($empire, $on_body_id);
     my $to_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($to_body_id);
     
@@ -507,6 +510,9 @@ sub prepare_send_spies {
 sub send_spies {
     my ($self, $session_id, $on_body_id, $to_body_id, $ship_id, $spy_ids) = @_;
     my $empire = $self->get_empire_by_session($session_id);
+    if ($on_body_id == $to_body_id) {
+        confess [1013, "Cannot send spies to one self."];
+    }
     my $on_body = $self->get_body($empire, $on_body_id);
     my $to_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($to_body_id);
     
@@ -588,6 +594,9 @@ sub send_spies {
 sub prepare_fetch_spies {
     my ($self, $session_id, $on_body_id, $to_body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
+    if ($on_body_id == $to_body_id) {
+        confess [1013, "Cannot fetch spies to one self."];
+    }
     my $to_body = $self->get_body($empire, $to_body_id);
     my $on_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($on_body_id);
     unless ($on_body->empire_id) {
@@ -645,6 +654,9 @@ sub prepare_fetch_spies {
 sub fetch_spies {
     my ($self, $session_id, $on_body_id, $to_body_id, $ship_id, $spy_ids) = @_;
     my $empire = $self->get_empire_by_session($session_id);
+    if ($on_body_id == $to_body_id) {
+        confess [1013, "Cannot fetch spies to one self."];
+    }
     my $to_body = $self->get_body($empire, $to_body_id);
     my $on_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($on_body_id);
 

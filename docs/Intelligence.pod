@@ -315,7 +315,27 @@ Passively defend against all attackers.
 
 =item Security Sweep
 
-Round up all attackers.
+Round up attackers.
+
+=item Intel Training
+
+Train in Intelligence skill
+
+=item Mayhem Training
+
+Train in Mayhem skill
+
+=item Politics Training
+
+Train in Politics skill
+
+=item Theft Training
+
+Train in Theft skill
+
+=item Political Propaganda
+
+Give happiness generation a boost.  Especially effective on unhappy colonies, but hastens an agent toward retirement.
 
 =item Gather Resource Intelligence
 
@@ -356,6 +376,10 @@ Kill spies.
 =item Sabotage Infrastructure
 
 Destroy buildings.
+
+=item Sabotage BHG
+
+Prevent enemy planet from using Black Hole Generator.
 
 =item Incite Mutiny
 

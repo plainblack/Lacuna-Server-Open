@@ -461,7 +461,13 @@ sub happiness_production_bonus {
     my $empire = $self->body->empire;
     return 1 unless defined $empire;
     my $boost = (time < $empire->happiness_boost->epoch) ? 25 : 0;
-    return (100 + $boost + ($empire->political_affinity * 10)) / 100;
+    my $sboost = $self->body->spy_happy_boost;
+    if ($self->body->happiness > 0 and $sboost > 50) {
+        $sboost = 50;
+    }
+    $boost += $sboost;
+    return (100 + $boost) * (100 + $empire->political_affinity * 10)/10000;
+#    return (100 + $boost + ($empire->political_affinity * 10)) / 100; #Old Way
 }
 
 sub happiness_production_hour {

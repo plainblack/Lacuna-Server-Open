@@ -1,3 +1,14 @@
+3.0896:
+ - Mod: New method to training spies in Intel, Mayhem, Politics, and Theft. Less clicking.
+ - Add: Spy training boost
+ - Add: New spy "defense" skill of Political Propaganda.  Maximize happiness recovery.
+ - Mod: AI's deal with captured spies.
+ - Mod: Growth Affinity more effective.
+ - Mod: Kidnap Operatives can use an orbiting spy shuttle for the getaway vehicle.
+ - Fix: Tick planets could error out.
+ - Mod: Saben planets respect neutralized BHG areas and certain spy tasks.
+ - Mod: Captcha added to certain areas.
+
 3.0895:
  - Fix: Bad error message when not enough glyphs for a mission fixed.
  - Fix: Fetch Spies exploit filled in.

@@ -216,7 +216,7 @@ sub offensive_assignments {
 
 sub defensive_assignments {
     my $self = shift;
-    return (
+    my @assignments = (
         {
             task        => 'Counter Espionage',
             recovery    => 0,
@@ -228,6 +228,36 @@ sub defensive_assignments {
             skill       => 'intel',
         },
     );
+    if ($self->on_body->empire_id eq $self->empire_id) {
+        push @assignments, (
+            {
+                task        =>'Intel Training',
+                recovery    => 0,
+                skill       => '*',
+            },
+            {
+                task        =>'Mayhem Training',
+                recovery    => 0,
+                skill       => '*',
+            },
+            {
+                task        =>'Politics Training',
+                recovery    => 0,
+                skill       => '*',
+            },
+            {
+                task        =>'Theft Training',
+                recovery    => 0,
+                skill       => '*',
+            },
+            {
+                task        =>'Political Propaganda',
+                recovery    => $self->recovery_time(60 * 60 * 24),
+                skill       => 'politics',
+            },
+        );    
+    }
+    return @assignments;
 }
 
 sub neutral_assignments {
@@ -245,7 +275,13 @@ sub get_possible_assignments {
     my $self = shift;
     
     # can't be assigned anything right now
-    unless ($self->task ~~ ['Counter Espionage','Idle','Sabotage BHG']) {
+    unless ($self->task ~~ ['Counter Espionage',
+                            'Idle',
+                            'Sabotage BHG',
+                            'Intel Training',
+                            'Mayhem Training',
+                            'Politics Training',
+                            'Theft Training']) {
         return [{ task => $self->task, recovery => $self->seconds_remaining_on_assignment }];
     }
     
@@ -299,7 +335,8 @@ sub seconds_remaining_on_assignment {
 sub tick_all_spies {
     my ($class,$verbose) = @_;
 
-    my $spies = Lacuna->db->resultset('Spies')->search({
+    my $db = Lacuna->db;
+    my $spies = $db->resultset('Spies')->search({
         -and => [{task => {'!=' => 'Idle'}},{task => {'!=' => 'Counter Espionage'}},{task => {'!=' => 'Mercenary Transport'}}],
     });
     # TODO further efficiencies could be made by ignoring spies not yet 'available'
@@ -309,6 +346,8 @@ sub tick_all_spies {
         }
         my $starting_task = $spy->task;
         $spy->is_available;
+        my $train_bld;
+        my $tr_skill;
         if ($spy->task eq 'Idle' && $starting_task ne 'Idle') {
             if (!$spy->empire->skip_spy_recovery) {
                 $spy->empire->send_predefined_message(
@@ -324,7 +363,67 @@ sub tick_all_spies {
 sub is_available {
     my ($self) = @_;
     my $task = $self->task;
-    if ($task ~~ ['Idle','Counter Espionage','Sabotage BHG']) {
+    if ($task ~~ ['Idle',
+                  'Counter Espionage',
+                  'Sabotage BHG']) {
+        return 1;
+    }
+    elsif ($task ~~ ['Intel Training',
+                  'Mayhem Training',
+                  'Politics Training',
+                  'Theft Training']) {
+        my $train_bld;
+        my $tr_skill;
+        if ($task eq 'Intel Training') {
+            $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::IntelTraining');
+            $tr_skill = "intel_xp";
+        }
+        elsif ($task eq 'Mayhem Training') {
+            $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::MayhemTraining');
+            $tr_skill = "mayhem_xp";
+        }
+        elsif ($task eq 'Politics Training') {
+            $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::PoliticsTraining');
+            $tr_skill = "politics_xp";
+        }
+        elsif ($task eq 'Theft Training') {
+            $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::TheftTraining');
+            $tr_skill = "theft_xp";
+        }
+        if ($train_bld) {
+            my $max_points  = 350 + $train_bld->level * 75;
+            if ($self->$tr_skill >= $max_points) {
+                $self->task('Idle');
+                $self->update;
+            }
+            else {
+                my $db = Lacuna->db;
+                my $now = DateTime->now;
+                my $train_time = $now->subtract_datetime_absolute($self->started_assignment);
+                my $minutes = int($train_time->seconds/60);
+                my $train_cnt  = $db->resultset('Spies')->search({task => "$task",
+                                                                  on_body_id => $train_bld->body_id,
+                                                                  empire_id => $train_bld->body->empire_id})->count;
+                my $boost = (time < $self->empire->spy_training_boost->epoch) ? 1.5 : 1;
+                my $points_hour = $train_bld->level * $boost;
+                my $points_to_add = 0;
+                if ($points_hour > 0 and $train_cnt > 0) {
+                    $points_to_add = int( ($points_hour * $minutes)/60/$train_cnt);
+                }
+                if ($points_to_add > 0) {
+                    my $remain_min = $minutes - int(($points_to_add * 60 * $train_cnt)/$points_hour);
+                    my $fskill = $self->$tr_skill + $points_to_add;
+                    $fskill = $max_points if ($fskill > $max_points);
+                    $self->$tr_skill($fskill);
+                    $self->started_assignment($now->clone->subtract(minutes => $remain_min)); # Put time at now with remainder
+                    $self->update;
+                }
+            }
+        }
+        else {
+            $self->task('Idle');
+            $self->update;
+        }
         return 1;
     }
     elsif ($task eq 'Mercenary Transport') {
@@ -345,6 +444,9 @@ sub is_available {
                 params      => [$self->format_from],
             );
             return 1;
+        }
+        elsif ($task eq "Political Propaganda") {
+            $self->reset_political_propaganda;
         }
         elsif ($task eq 'Travelling') {
             if ($self->empire_id ne $self->on_body->empire_id) {
@@ -393,6 +495,11 @@ use constant assignments => (
     'Incite Rebellion',
     'Appropriate Technology',
     'Incite Insurrection',
+    'Intel Training',
+    'Mayhem Training',
+    'Politics Training',
+    'Theft Training',
+    'Political Propaganda',
 );
 
 sub assign {
@@ -417,12 +524,21 @@ sub assign {
     $self->available_on(DateTime->now->add(seconds => $mission->{recovery}));
     
     # run mission
-    if ($assignment ~~ ['Idle','Counter Espionage','Sabotage BHG']) {
+    if ($assignment ~~ ['Idle',
+                        'Counter Espionage',
+                        'Sabotage BHG',
+                        'Intel Training',
+                        'Mayhem Training',
+                        'Politics Training',
+                        'Theft Training']) {
         $self->update;
         return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
     }
     elsif ($assignment eq 'Security Sweep') {
         return $self->run_security_sweep($mission);
+    }
+    elsif ($assignment eq 'Political Propaganda') {
+        return $self->run_political_propaganda($mission);
     }
     else {
         return $self->run_mission($mission);
@@ -436,7 +552,12 @@ sub burn {
     my $unhappy = int($self->level * 1000 * 200/75); # Not factoring in Deception, always costs this much happiness.
     $unhappy = 2000 if ($unhappy < 2000);
     $body->spend_happiness($unhappy);
-    if ($body->add_news(25, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $old_empire->name)) {
+    if ($self->task eq 'Political Propaganda') {
+        $body->add_news(200, 'The government of %s made the mistake of trying to burn one of their own loyal propaganda ministers.', $old_empire->name);
+        $self->on_body->spy_happy_boost(0);
+        $self->uprising();
+    }
+    elsif ($body->add_news(25, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $old_empire->name)) {
 # If the media finds out, even more unhappy.
         $body->spend_happiness(int($unhappy/2));
     }
@@ -642,6 +763,45 @@ sub run_mission {
     return $out;
 }
 
+sub run_political_propaganda {
+    my $self = shift;
+    my $mission_skill = 'politics_xp';
+    my $oratory = int( ($self->defense + $self->$mission_skill)/500 + 0.5);;
+
+    my $sboost = $self->on_body->spy_happy_boost;
+    $sboost += $oratory;
+    my $mission_count_add = int($sboost/$oratory);
+    
+    my $bhappy = $self->on_body->happiness;
+    if ($bhappy < 0) {
+        $mission_count_add += length(abs($bhappy/1000));
+    }
+    $mission_count_add = 15 if $mission_count_add > 15;
+    $self->defense_mission_count( $self->defense_mission_count + $mission_count_add);
+    $self->update;
+    $self->on_body->needs_recalc(1);
+    $self->on_body->update;
+    return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
+}
+
+sub reset_political_propaganda {
+    my $self = shift;
+    my $mission_skill = 'politics_xp';
+
+    my $skill_xp = $self->$mission_skill + 10;
+    if ($skill_xp > 2600) {
+        $self->$mission_skill( 2600 );
+    }
+    else {
+        $self->$mission_skill( $skill_xp );
+    }
+    $self->update_level;
+    $self->update;
+    $self->on_body->needs_recalc(1);
+    $self->on_body->update;
+    return 1;
+}
+
 sub run_security_sweep {
   my $self = shift;
 
@@ -656,8 +816,9 @@ sub run_security_sweep {
   else {
     $attacker = $self->get_idle_attacker;
     if (defined $attacker) {
-# Would prefer to have it easier the longer the spy has been inactive, but...
-      $toughness = $attacker->offense + $attacker->$mission_skill - randint(100,2600);
+      my $idle_time = DateTime->now->subtract_datetime_absolute($self->started_assignment);
+      my $minutes = int($idle_time->seconds/60) -7*24*60; #minutes idle past one week
+      $toughness = $attacker->offense + $attacker->$mission_skill - int(3 * $minutes/60);
     }
   }
   my $breakthru = ($power - $toughness + $self->home_field_advantage) + $self->luck;
@@ -808,15 +969,14 @@ sub get_idle_attacker {
        $member_ids[0] = $self->empire->id;
     }
 
-    my @attackers = Lacuna
-        ->db
-        ->resultset('Spies')
+    my $db = Lacuna->db;
+    my $dtf = $db->storage->datetime_parser;
+    my @attackers = $db->resultset('Spies')
         ->search(
             { on_body_id  => $self->on_body_id,
               task => 'Idle',
               empire_id => { 'not in' => \@member_ids },
-# Any non-allied spy that calls home the NZ
-              started_assignment => { '<' => DateTime->now->subtract(days => 7) } },
+              started_assignment => { '<' => $dtf->format_datetime(DateTime->now->subtract(days => 7)) } },
         )
         ->all;
 
@@ -1567,7 +1727,12 @@ sub steal_planet {
 
     my $defender_capitol_id = $self->on_body->empire->home_planet_id;
     Lacuna->db->resultset('Spies')->search({
-        on_body_id => $self->on_body_id, task => 'Training',
+        on_body_id => $self->on_body_id,
+        task => { 'not in' => [ 'Training',
+                                'Intel Training',
+                                'Mayhem Training',
+                                'Politics Training',
+                                'Theft Training'] },
     })->delete_all; # All spies in training are executed including those training in intel,mayhem,politics, and theft
 
     my $spies = Lacuna->db->resultset('Spies')
@@ -1939,18 +2104,27 @@ sub abduct_operative {
     my ($self, $defender) = @_;
     my @types;
     my $ships = Lacuna->db->resultset('Ships');
-    foreach my $type (SHIP_TYPES) {
-        my $ship = $ships->new({type => $type});
-        if ($ship->pilotable) {
-            push @types, $type;
+    my $ship;
+    $ship = $ships->search( { body_id => $self->from_body->id,
+                              foreign_body_id => $self->on_body->id,
+                              task => 'Orbiting',
+                              type => 'spy_shuttle'},
+                            { rows => 1, order_by => 'rand()' }
+                          )->single;
+    unless (defined($ship)) {
+        foreach my $type (SHIP_TYPES) {
+            my $ship = $ships->new({type => $type});
+            if ($ship->pilotable) {
+                push @types, $type;
+            }
         }
+        $ship = $ships->search(
+            {body_id => $self->on_body->id,
+             task => 'Docked',
+             hold_size => { '>=' => 700 }, type => {'in' => \@types}},
+            { rows => 1, order_by => 'rand()' }
+          )->single;
     }
-    my $ship = $ships->search(
-        {body_id => $self->on_body->id,
-                    task => 'Docked',
-                    hold_size => { '>=' => 700 }, type => {'in' => \@types}},
-        { rows => 1, order_by => 'rand()' }
-        )->single;
     return $self->ship_not_found->id unless (defined $ship);
     return $self->no_contact->id unless (defined $defender);
     $ship->body($self->from_body);
@@ -1960,7 +2134,7 @@ sub abduct_operative {
         direction   => 'in',
         payload     => { spies => [ $self->id ], prisoners => [$defender->id] }
     );
-    $defender->send($self->from_body_id, DateTime->now->add(days => 7), 'Waiting On Trade');
+    $defender->send($self->from_body_id, DateTime->now->add(days => 7), 'Prisoner Transport');
     $self->send($self->from_body_id, $ship->date_available);
     $defender->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
@@ -2981,7 +3155,7 @@ sub supply_report {
                $chain->percent_transferred ];
     }
     if (scalar @chains == 1) {
-        $chains[0] = "No chains to or from $self->on_body->name";
+        $chains[0] = "No chains to or from ".$self->on_body->name;
     }
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],

@@ -28,7 +28,7 @@ $spies->search({task=>'Killed In Action'})->delete_all;
 my $retiring_spies = $spies->search({ -or => { offense_mission_count => { '>=' => 150 }, defense_mission_count => { '>=' => 150 } }});
 while (my $spy = $retiring_spies->next) {
     $spy->empire->send_predefined_message(
-        tags        => ['Correspondence'],
+        tags        => ['Spies'],
         filename    => 'retiring.txt',
         params      => [$spy->format_from],
     );

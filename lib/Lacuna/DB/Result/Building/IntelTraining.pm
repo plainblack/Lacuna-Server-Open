@@ -47,7 +47,7 @@ has spies_in_training_count => (
     lazy        => 1,
     default     => sub {
         my $self = shift;
-        return $self->get_spies->search({task=>'Training'})->count;
+        return $self->get_spies->search({task=>'Intel Training'})->count;
     },
 );
 

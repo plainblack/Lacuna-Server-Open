@@ -55,7 +55,7 @@ sub colony_structures {
         ['Lacuna::DB::Result::Building::Permanent::JunkHengeSculpture',12],
         ['Lacuna::DB::Result::Building::Permanent::MetalJunkArches',9],
         ['Lacuna::DB::Result::Building::Permanent::KalavianRuins',18],
-        ['Lacuna::DB::Result::Building::Permanent::OracleOfAnid',18],
+        ['Lacuna::DB::Result::Building::Permanent::OracleOfAnid',10],
         ['Lacuna::DB::Result::Building::Intelligence', 25],
         ['Lacuna::DB::Result::Building::Security', 30],
         ['Lacuna::DB::Result::Building::MunitionsLab', 25],
@@ -72,7 +72,7 @@ sub colony_structures {
         ['Lacuna::DB::Result::Building::SpacePort', 25],
         ['Lacuna::DB::Result::Building::SpacePort', 25],
         ['Lacuna::DB::Result::Building::SpacePort', 25],
-        ['Lacuna::DB::Result::Building::PilotTraining',10],
+        ['Lacuna::DB::Result::Building::PilotTraining',25],
         ['Lacuna::DB::Result::Building::Energy::Reserve', 30],
         ['Lacuna::DB::Result::Building::Food::Reserve', 30],
         ['Lacuna::DB::Result::Building::Ore::Storage', 30],
@@ -81,8 +81,6 @@ sub colony_structures {
         ['Lacuna::DB::Result::Building::Waste::Exchanger', 20],
         ['Lacuna::DB::Result::Building::Waste::Exchanger', 20],
         ['Lacuna::DB::Result::Building::Food::Beeldeban',20],
-        ['Lacuna::DB::Result::Building::Food::Malcud',20],
-        ['Lacuna::DB::Result::Building::Food::Algae',20],
         ['Lacuna::DB::Result::Building::Food::Root',20],
         ['Lacuna::DB::Result::Building::Food::Beeldeban',20],
         ['Lacuna::DB::Result::Building::Food::Root',20],
@@ -107,6 +105,7 @@ sub colony_structures {
         ['Lacuna::DB::Result::Building::SAW',25],
         ['Lacuna::DB::Result::Building::SAW',25],
         ['Lacuna::DB::Result::Building::SAW',25],
+        ['Lacuna::DB::Result::Building::Observatory', 10],
         ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
         ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
         ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
@@ -144,6 +143,7 @@ sub ship_building_priorities {
 sub run_hourly_colony_updates {
     my ($self, $colony) = @_;
     $self->demolish_bleeders($colony);
+    $self->kill_prisoners($colony, 96);
     $self->set_defenders($colony);
     $self->pod_check($colony, 25);
     $self->repair_buildings($colony);

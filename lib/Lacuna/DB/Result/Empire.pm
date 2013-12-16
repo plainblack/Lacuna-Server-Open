@@ -49,6 +49,7 @@ __PACKAGE__->add_columns(
     energy_boost            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     happiness_boost         => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     building_boost          => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    spy_training_boost      => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     facebook_uid            => { data_type => 'bigint', is_nullable => 1 },
     facebook_token          => { data_type => 'varchar', size => 100, is_nullable => 1 },
     alliance_id             => { data_type => 'int', is_nullable => 1 },
@@ -905,8 +906,8 @@ sub next_colony_cost {
         { type=> { in => [qw(colony_ship short_range_colony_ship space_station)]}, task=>'travelling', direction=>'out', 'body.empire_id' => $self->id},
         { join => 'body' }
     )->count;
-#    my $inflation = 1 + INFLATION - ($self->growth_affinity * 5 / 100); Future Enhancement to make Growth more worth it.
-    my $inflation = 1 + INFLATION - ($self->growth_affinity / 100);
+    my $inflation = 1 + INFLATION - ($self->growth_affinity * 5 / 100);
+#    my $inflation = 1 + INFLATION - ($self->growth_affinity / 100);
     my $tally = 100_000 * ($inflation**($count-1));
     return sprintf('%.0f', $tally);
 }

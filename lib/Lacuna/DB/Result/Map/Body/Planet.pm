@@ -1143,8 +1143,24 @@ sub recalc_stats {
         $stats{$type.'_hour'} = 0;
     }
     $stats{max_berth} = 1;
+    #calculate propaganda bonus
+    my $propaganda = Lacuna->db->resultset('Lacuna::DB::Result::Spies')
+                       ->search({ on_body_id => $self->id,
+                                  task => 'Political Propaganda',
+                                  empire_id => $self->empire_id},
+                                  {rows => 250},
+                               );
+    my $spy_boost = 0;
+    while (my $spy = $propaganda->next) {
+        my $oratory = int( ($spy->defense + $spy->politics_xp)/500 + 0.5);
+        $spy_boost += $oratory;
+    }
+    $self->spy_happy_boost($spy_boost);
+    $self->update;
     #calculate building production
-    my ($gas_giant_platforms, $terraforming_platforms, $station_command, $pantheon_of_hagness, $ore_production_hour, $ore_consumption_hour, $food_production_hour, $food_consumption_hour, $fissure_percent) = 0;
+    my ($gas_giant_platforms, $terraforming_platforms, $station_command,
+        $pantheon_of_hagness, $ore_production_hour, $ore_consumption_hour,
+        $food_production_hour, $food_consumption_hour, $fissure_percent) = 0;
     foreach my $building (@{$self->building_cache}) {
         $stats{waste_capacity}  += $building->waste_capacity;
         $stats{water_capacity}  += $building->water_capacity;
@@ -1289,6 +1305,17 @@ sub recalc_stats {
             }
         }
     }
+    # Adjust happiness_hour to maximum of 1/(30 * 24) if at negative. Different max for positive happiness.
+    # If using spies to boost happiness rate, best rate will still take 30 days to dig out of.
+    if ($self->unhappy == 1) {
+        my $happy = $self->happiness;
+        my $max_rate =    150_000_000_000;
+        if ($happy < -1 * (24 * 30 * $max_rate)) {
+           $max_rate = int(abs($self->happiness/(24 * 30))); #Calculate what would take 30 days to dig out of
+        }
+        $stats{happiness_hour} = $max_rate if ($stats{happiness_hour} > $max_rate);
+    }
+
     $stats{plots_available} = $max_plots - $self->building_count;
     # Decrease happiness production if short on plots.
     if ($stats{plots_available} < 0) {
@@ -1432,7 +1459,7 @@ sub tick {
         my $empire = $self->empire;
         if ($empire) {
             my $still_enabled = 0;
-            foreach my $resource (qw(energy water ore happiness food storage building)) {
+            foreach my $resource (qw(energy water ore happiness food storage building spy_training)) {
                 my $boost = $resource.'_boost';
                 if ($now_epoch > $empire->$boost->epoch) {
                     $self->needs_recalc(1);
@@ -1470,20 +1497,24 @@ sub tick_to {
     my $seconds  = $now->epoch - $self->last_tick->epoch;
     my $tick_rate = $seconds / 3600;
     $self->last_tick($now);
+#If we crossed zero happiness, either way, we need to recalc.
     if ($self->happiness < 0) {
-        $self->needs_recalc if ($self->happiness_hour < -20_000);
         if ($self->unhappy) {
 # Nothing for now...
         }
         else {
+            $self->needs_recalc(1);
             $self->unhappy(1);
             $self->unhappy_date($now);
         }
     }
     else {
-        $self->unhappy(0);
+        if ($self->unhappy) {
+            $self->unhappy(0);
+            $self->needs_recalc(1);
+        }
+        $self->needs_recalc(1) if ($self->spy_happy_boost > 50);
     }
-    # Check to see if downward spiral still happening in happiness from negative plots.
     if ($self->needs_recalc) {
         $self->recalc_stats;    
     }
@@ -2569,7 +2600,6 @@ sub complain_about_lack_of_resources {
             if (defined $building) {
                 $building_name = $building->name;
                 $building->spend_efficiency(25)->update;
-                last;
             }
         }
         if ($building_name && !$empire->skip_resource_warnings) {

@@ -17,7 +17,7 @@ sub credits {
             { 'Play Testers'         => ['John Oettinger','Jamie Vrbsky','Mike Kastern','Chris Burr','Eric Patterson','Frank Dillon','Kristi McCombs','Ryan McCombs','Mike Helfman','Tavis Parker','Sarah Bownds','Rob Dicke','Gemma Blair','Bev Smith','Mike Vrbsky']},
             { 'Game Support'        => ['Plain Black Corporation / plainblack.com','Mary Hoerr', 'United Federation']},
             { 'Lost City of Tyleon' => ['Steven Binns','Owen Ferguson','Garloo','Mark Lemming (Norway)','Saint','Shadow','JT Smith','Noel Sorensen','James T']},
-            { 'AI Design'           => ['JT Smith','Iain C Docherty (icydee)']},
+            { 'AI Design'           => ['JT Smith','Iain C Docherty (icydee)', 'Mark Lemming (Norway)']},
             ];
 }
 

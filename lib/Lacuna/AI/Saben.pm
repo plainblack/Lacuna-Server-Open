@@ -71,13 +71,23 @@ sub colony_structures {
     ['Lacuna::DB::Result::Building::SpacePort',25],
     ['Lacuna::DB::Result::Building::SpacePort',25],
     ['Lacuna::DB::Result::Building::SpacePort',25],
+    ['Lacuna::DB::Result::Building::SAW',25],
+    ['Lacuna::DB::Result::Building::SAW',25],
+    ['Lacuna::DB::Result::Building::SAW',25],
+    ['Lacuna::DB::Result::Building::SAW',25],
+    ['Lacuna::DB::Result::Building::SAW',25],
+    ['Lacuna::DB::Result::Building::SAW',25],
+    ['Lacuna::DB::Result::Building::SAW',25],
+    ['Lacuna::DB::Result::Building::SAW',25],
     ['Lacuna::DB::Result::Building::MunitionsLab', 25],
     ['Lacuna::DB::Result::Building::Propulsion', 25],
     ['Lacuna::DB::Result::Building::Trade', 20],
+    ['Lacuna::DB::Result::Building::Observatory', 10],
     ['Lacuna::DB::Result::Building::Permanent::CrashedShipSite',25],
     ['Lacuna::DB::Result::Building::Permanent::Volcano',30],
     ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',30],
     ['Lacuna::DB::Result::Building::Permanent::InterDimensionalRift',30],
+    ['Lacuna::DB::Result::Building::Permanent::GratchsGauntlet',20],
     ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',30],
     ['Lacuna::DB::Result::Building::Permanent::KalavianRuins',25],
     ['Lacuna::DB::Result::Building::Permanent::MalcudField',30],
@@ -124,25 +134,40 @@ sub ship_building_priorities {
 sub run_hourly_colony_updates {
     my ($self, $colony) = @_;
     $self->demolish_bleeders($colony);
+    $self->kill_prisoners($colony, 24);
     $self->set_defenders($colony);
     $self->pod_check($colony, 25);
     $self->repair_buildings($colony);
-    $self->train_spies($colony);
+    $self->train_spies($colony,1);
     $self->build_ships($colony);
     $self->run_missions($colony);
 }
 
 sub destroy_world {
     my ($self, $colony) = @_;
+    if ($colony->is_bhg_neutralized) {
+        say "BHG is neutralized by a space station.";
+        return;
+    }
+    my $enemies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')
+                         ->search({on_body_id => $colony->id,
+                                   task => 'Sabotage BHG',
+                                   empire_id => { '!=' => $self->empire_id }})->count;
+    if ($enemies) {
+        say "Annoying non-saben on planet trying to Sabotage our BHG";
+        return;
+    }
     say "Looking for world to destroy...";
-    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
+    my $targets = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
             zone        => $colony->zone,
             size        => { between => [46, 75] },
             empire_id   => undef,
         },
-        { rows => 1}
-    )->single;
-    if (defined $target) {
+        { rows => 20}
+    );
+    my $blownup = 0;
+    while (my $target = $targets->next) {
+        next if $target->is_bhg_neutralized;
         say "Found ".$target->name;
         my @to_demolish = @{$target->building_cache};
         $target->delete_buildings(\@to_demolish);
@@ -153,8 +178,10 @@ sub destroy_world {
         });
         say "Turned into ".$target->class;
         $colony->add_news(100, 'We are Sābēn. We have destroyed '.$target->name.'. Leave now.');
+        $blownup = 1;
+        last;
     }
-    else {
+    if ($blownup == 0) {
         say "Nothing to destroy.";
     }
 }

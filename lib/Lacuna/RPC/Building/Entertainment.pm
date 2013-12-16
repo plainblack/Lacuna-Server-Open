@@ -27,6 +27,7 @@ around 'view' => sub {
 sub get_lottery_voting_options {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
+    $empire->current_session->check_captcha;
     my $cache = Lacuna->cache;
     my $building = $self->get_building($empire, $building_id); 
     my @list;
