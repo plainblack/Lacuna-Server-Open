@@ -394,6 +394,7 @@ sub is_available {
             my $max_points  = 350 + $train_bld->level * 75;
             if ($self->$tr_skill >= $max_points) {
                 $self->task('Idle');
+                $self->update_level;
                 $self->update;
             }
             else {
@@ -416,12 +417,14 @@ sub is_available {
                     $fskill = $max_points if ($fskill > $max_points);
                     $self->$tr_skill($fskill);
                     $self->started_assignment($now->clone->subtract(minutes => $remain_min)); # Put time at now with remainder
+                    $self->update_level;
                     $self->update;
                 }
             }
         }
         else {
             $self->task('Idle');
+            $self->update_level;
             $self->update;
         }
         return 1;
@@ -1764,7 +1767,7 @@ sub steal_planet {
     my $defender_capitol_id = $self->on_body->empire->home_planet_id;
     Lacuna->db->resultset('Spies')->search({
         on_body_id => $self->on_body_id,
-        task => { 'not in' => [ 'Training',
+        task => { 'in' => [ 'Training',
                                 'Intel Training',
                                 'Mayhem Training',
                                 'Politics Training',
