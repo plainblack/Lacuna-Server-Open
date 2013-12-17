@@ -389,7 +389,7 @@ sub build_ships {
     my ($self, $colony) = @_;
     say 'BUILD SHIPS';
     if ($colony->happiness < -1_000_000) {
-        say "Too unhappy to build ships."
+        say "Too unhappy to build ships.";
         return;
     }
     my @shipyards = sort {$a->work_ends cmp $b->work_ends} $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard');
@@ -426,7 +426,7 @@ sub build_ships_max {
     my ($self, $colony) = @_;
     say 'BUILD SHIPS';
     if ($colony->happiness < -1_000_000) {
-        say "Too unhappy to build ships."
+        say "Too unhappy to build ships.";
         return;
     }
     my @ship_yards  = sort {$a->work_ends cmp $b->work_ends} $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard');
