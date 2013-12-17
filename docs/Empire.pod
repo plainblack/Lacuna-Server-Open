@@ -710,7 +710,7 @@ Throws 1011.
 
 =head2 spy_training_boost ( session_id )
 
-Spends 5 essentia, and boosts spy training speed on all planets for 7 days. If a boost is already underway, calling again will add 7 more days. It will not boost builds currently under way, only new builds added to a build queue.
+Spends 5 essentia, and boosts spy training speed on all planets 50% for 7 days. If a boost is already underway, calling again will add 7 more days. Unlike other boosts, this one will boost spies currently in specialist training.
 
  {
     "status" : { ... },

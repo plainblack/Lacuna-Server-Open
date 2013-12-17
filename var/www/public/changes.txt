@@ -3,6 +3,8 @@
  - Fix: Deployed Bleeders ignore University Level.
  - Mod: Pods & Bleeders get a boost.
  - Mod: AI don't bother building ships if build time exceeds X time.
+ - Add: API call added to docs for spy_training_boost.
+ - Fix: Spy training immediately recalculates levels.
 
 3.0896:
  - Mod: New method to training spies in Intel, Mayhem, Politics, and Theft. Less clicking.
