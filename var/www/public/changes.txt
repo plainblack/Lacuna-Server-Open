@@ -2,7 +2,7 @@
  - Fix: SupplyPods ignore University Level.
  - Fix: Deployed Bleeders ignore University Level.
  - Mod: Pods & Bleeders get a boost.
- - Mod: AI don't bother building ships if build time exceeds X time (not implemented)
+ - Mod: AI don't bother building ships if build time exceeds X time.
 
 3.0896:
  - Mod: New method to training spies in Intel, Mayhem, Politics, and Theft. Less clicking.

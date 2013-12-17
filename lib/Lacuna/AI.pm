@@ -215,9 +215,15 @@ sub run_missions {
     while (my $spy = $infiltrated_spies->next) {
         next if $spy->task eq "Sabotage BHG";
         if ($spy->is_available) {
-            say "    Spy ID: ".$spy->id." running mission...";
-            my $result = eval{$spy->assign($mission)};
-            say "        ".$result->{result};
+            if ($spy->on_body->in_neutral_area) {
+# Check if spy is in neutral zone, if it is, send someone to fetch?
+                say "    Spy ID: ".$spy->id." stuck in neutral zone...";
+            }
+            else {
+                say "    Spy ID: ".$spy->id." running mission...";
+                my $result = eval{$spy->assign($mission)};
+                say "        ".$result->{result};
+            }
         }
         else {
             say "    Spy ID: ".$spy->id." not available";
@@ -382,6 +388,10 @@ sub train_spies {
 sub build_ships {
     my ($self, $colony) = @_;
     say 'BUILD SHIPS';
+    if ($colony->happiness < -1_000_000) {
+        say "Too unhappy to build ships."
+        return;
+    }
     my @shipyards = sort {$a->work_ends cmp $b->work_ends} $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard');
     my @priorities = $self->ship_building_priorities($colony);
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
@@ -415,6 +425,10 @@ sub build_ships {
 sub build_ships_max {
     my ($self, $colony) = @_;
     say 'BUILD SHIPS';
+    if ($colony->happiness < -1_000_000) {
+        say "Too unhappy to build ships."
+        return;
+    }
     my @ship_yards  = sort {$a->work_ends cmp $b->work_ends} $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard');
     my $ships 	    = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     my $ship_yard   = shift @ship_yards;
