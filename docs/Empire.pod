@@ -589,6 +589,7 @@ Shows the dates at which boosts have expired or will expire. Boosts are subsidie
         "happiness" : "01 31 2010 13:09:05 +0600",
         "storage" : "01 31 2010 13:09:05 +0600",
         "building" : ""01 31 2010 13:09:05 +0600"
+        "spy_training_boost" : ""01 31 2010 13:09:05 +0600"
     }
  }
 
@@ -706,12 +707,25 @@ Spends 5 essentia, and boosts build queues on all planets for 7 days. If a boost
 
 Throws 1011.
 
+
+=head2 spy_training_boost ( session_id )
+
+Spends 5 essentia, and boosts spy training speed on all planets for 7 days. If a boost is already underway, calling again will add 7 more days. It will not boost builds currently under way, only new builds added to a build queue.
+
+ {
+    "status" : { ... },
+    "spy_training_boost" : "01 31 2010 13:09:05 +0600"
+ }
+
+Throws 1011.
+
+
 =head3 session_id
 
 A session id.
 
 
-head2 enable_self_destruct ( session_id )
+=head2 enable_self_destruct ( session_id )
 
 Enables a destruction countdown of 24 hours. Sometime after the timer runs out, the empire will vaporize.
 
