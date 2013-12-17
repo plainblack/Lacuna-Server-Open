@@ -707,6 +707,10 @@ Spends 5 essentia, and boosts build queues on all planets for 7 days. If a boost
 
 Throws 1011.
 
+=head3 session_id
+
+A session id.
+
 
 =head2 spy_training_boost ( session_id )
 
@@ -718,7 +722,6 @@ Spends 5 essentia, and boosts spy training speed on all planets 50% for 7 days. 
  }
 
 Throws 1011.
-
 
 =head3 session_id
 
