@@ -1,3 +1,9 @@
+3.0898:
+ - Mod: The Dillon Forge can now take a quantity of plans for splitting.
+ - Fix: GG & Terra Platforms ignore University Level.
+ - Fix: Archeology Level is limited by University Level.
+ - Fix: The Dillon Forge is limited by University Level.
+
 3.0897:
  - Fix: SupplyPods ignore University Level.
  - Fix: Deployed Bleeders ignore University Level.

@@ -76,6 +76,9 @@ sub split_plan {
         and $_->extra_build_level   == $extra_build_level
     } @{$body->plan_cache};
 
+    my $effective_level = ($self->level > $self->body->empire->university_level + 1) ?
+                           $self->body->empire->university_level + 1 : $self->level;
+
     if (not $plan) {
         confess [1002, 'You cannot split a plan you do not have.'];
     }
@@ -92,8 +95,7 @@ sub split_plan {
     $body->delete_many_plans($plan, $quantity);
     my $num_glyphs = scalar @$glyphs;
 
-    my $base = ($num_glyphs * $halls * 30 * 3600) / ($self->level * 4);
-#    my $pow_two = int(log($work->{quantity})/log(2)+0.5);
+    my $base = ($num_glyphs * $halls * 30 * 3600) / ($effective_level * 4);
     my $build_secs = int($base * (1.5 ** (log($quantity)/log(2))) + 0.5);
     $self->start_work({task => 'split_plan', class => $class, level => $level, extra_build_level => $extra_build_level, quantity => $quantity}, $build_secs)->update;
 }
@@ -101,8 +103,10 @@ sub split_plan {
 sub make_plan {
     my ($self, $plan_class, $level) = @_;
 
-    if ($level > $self->level) {
-        confess [1002, 'Your Dillon Forge level is not high enough to build that high a plan level.'];
+    my $effective_level = ($self->level > $self->body->empire->university_level + 1) ?
+                           $self->body->empire->university_level + 1 : $self->level;
+    if ($level > $effective_level) {
+        confess [1002, 'Your Dillon Forge or your tech level is not high enough to build that high a plan level.'];
     }
     if ($plan_class =~ m/HallsOfVrbansk/) {
         confess [1002, 'It is not a good idea to create a plan you cannot use.'];
@@ -158,8 +162,10 @@ before finish_work => sub {
         $body->add_news(100, sprintf('%s used the Dillon Forge to create a %s plan level %s on %s.', $empire->name, $plan_class->name, $work->{level}, $body->name));
     }
     if ($work->{task} eq 'split_plan') {
+        my $effective_level = ($self->level > $self->body->empire->university_level + 1) ?
+                               $self->body->empire->university_level + 1 : $self->level;
         # calculate the probability of success
-        my $success_percent = $self->level * 3;
+        my $success_percent = $effective_level * 3;
         my $halls = $self->equivalent_halls($work->{level}, $work->{extra_build_level});
 
         my $pow_two = int(log($work->{quantity})/log(2)+0.5);
