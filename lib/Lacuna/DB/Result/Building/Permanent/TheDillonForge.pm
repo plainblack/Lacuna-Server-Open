@@ -93,7 +93,8 @@ sub split_plan {
     my $num_glyphs = scalar @$glyphs;
 
     my $base = ($num_glyphs * $halls * 30 * 3600) / ($self->level * 4);
-    my $build_secs = int($base + ($base * log($quantity))/log(2) + 0.5);
+#    my $pow_two = int(log($work->{quantity})/log(2)+0.5);
+    my $build_secs = int($base * (1.5 ** (log($quantity)/log(2))) + 0.5);
     $self->start_work({task => 'split_plan', class => $class, level => $level, extra_build_level => $extra_build_level, quantity => $quantity}, $build_secs)->update;
 }
 
@@ -160,6 +161,10 @@ before finish_work => sub {
         # calculate the probability of success
         my $success_percent = $self->level * 3;
         my $halls = $self->equivalent_halls($work->{level}, $work->{extra_build_level});
+
+        my $pow_two = int(log($work->{quantity})/log(2)+0.5);
+        $success_percent -= 2 * $pow_two;
+        $success_percent = 5 if ($success_percent < 5);
         
         if ($plan_class =~ m/HallsOfVrbansk$/) {
             # create a random A,B,C or D hall
@@ -197,11 +202,12 @@ before finish_work => sub {
         my @report = map { [ $glyphs_built->{$_}, $_ ]} keys %$glyphs_built;
         unshift (@report, ['Quantity','Glyph']);
 
+        my $s_place = $work->{quantity} > 1 ? "s" : "";
         if ($total_glyphs > 0) {
             $empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'plan_split_by_forge.txt',
-                params      => [$body->id, $body->name, $work->{level}, $work->{extra_build_level}, $plan_class->name],
+                params      => [$body->id, $body->name, $work->{quantity}, $work->{level}, $work->{extra_build_level}, $plan_class->name, $s_place],
                 attachments => { table  => \@report },
             );
             $body->add_news(100, sprintf('%s used the Dillon Forge to split a %s level %s + %s plan into %s glyphs today on %s', $empire->name, $plan_class->name, $work->{level}, $work->{extra_build_level}, $total_glyphs, $body->name));
@@ -210,7 +216,7 @@ before finish_work => sub {
             $empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'plan_split_by_forge_failure.txt',
-                params      => [$body->id, $body->name, $work->{level}, $work->{extra_build_level}, $plan_class->name],
+                params      => [$body->id, $body->name, $work->{quantity}, $work->{level}, $work->{extra_build_level}, $plan_class->name, $s_place],
             );
             $body->add_news(100, sprintf('%s failed miserably in an attempt to run the Dillon Forge today on %s', $empire->name, $body->name));
         }

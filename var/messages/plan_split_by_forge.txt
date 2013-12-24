@@ -1,6 +1,6 @@
 Dillon Forge Splits Plan
 ~~~
-The Dillon Forge on {Planet %s %s} today split a level %s+%s %s plan and created the following glyphs.
+The Dillon Forge on {Planet %s %s} today split %s level %s+%s %s plan%s and created the following glyphs.
 
 Regards,
 

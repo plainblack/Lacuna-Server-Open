@@ -87,6 +87,7 @@ PLAN:
             class               => $class,
             level               => $plan->level,
             extra_build_level   => $plan->extra_build_level,
+            quantity            => $plan->quantity,
             fail_chance         => 100 - ($building->level * 3),
             reset_seconds       => int(($num_glyphs * $halls * 30 * 3600) / ($building->level * 4)),
         };
