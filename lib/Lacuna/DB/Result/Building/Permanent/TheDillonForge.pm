@@ -11,7 +11,7 @@ use Lacuna::Util qw(randint);
 
 use constant controller_class => 'Lacuna::RPC::Building::TheDillonForge';
 
-use constant subsidy_cost => 2;
+#use constant subsidy_cost => 2;
 
 around can_build => sub {
     my ($orig, $self, $body) = @_;
@@ -49,9 +49,24 @@ use constant name => 'The Dillon Forge';
 use constant time_to_build => 0;
 use constant max_instances_per_planet => 1;
 
-sub split_plan {
-    my ($self, $plan_class, $level, $extra_build_level) = @_;
+sub subsidy_cost {
+    my ($self) = @_;
 
+    my $sub = 2;
+    if ($self->is_working) {
+        my $work = $self->work;
+        if ($work->{task} eq "split_plan" and $work->{quantity} > 1) {
+            my $pow_two = int(log($work->{quantity})/log(2)+0.5);
+            $sub = 2 + $sub * $pow_two;
+        }
+    }
+    return $sub;
+}
+
+sub split_plan {
+    my ($self, $plan_class, $level, $extra_build_level, $quantity) = @_;
+
+    $quantity = $quantity || 1;
     my $halls   = $self->equivalent_halls($level, $extra_build_level);
     my $class   = 'Lacuna::DB::Result::Building::'.$plan_class;
     my $body    = $self->body;
@@ -64,6 +79,9 @@ sub split_plan {
     if (not $plan) {
         confess [1002, 'You cannot split a plan you do not have.'];
     }
+    if ($plan->quantity < $quantity) {
+        confess [1002, 'You only have '.$plan->quantity.' of the '.$quantity.' you wish to split.'];
+    }
     my $glyphs = Lacuna::DB::Result::Plan->get_glyph_recipe($class);
     if (not $glyphs) {
         confess [1002, 'You can only split plans that have a glyph recipe.'];
@@ -71,10 +89,12 @@ sub split_plan {
     if ($class =~ m/Platform$/) {
         confess [1002, 'You cannot split a Platform plan.'];
     }
-    $body->delete_one_plan($plan);
+    $body->delete_many_plans($plan, $quantity);
+    my $num_glyphs = scalar @$glyphs;
 
-    my $build_secs = int($halls * 30 * 3600 / $self->level);
-    $self->start_work({task => 'split_plan', class => $class, level => $level, extra_build_level => $extra_build_level}, $build_secs)->update;
+    my $base = ($num_glyphs * $halls * 30 * 3600) / ($self->level * 4);
+    my $build_secs = int($base + ($base * log($quantity))/log(2) + 0.5);
+    $self->start_work({task => 'split_plan', class => $class, level => $level, extra_build_level => $extra_build_level, quantity => $quantity}, $build_secs)->update;
 }
 
 sub make_plan {
@@ -148,15 +168,29 @@ before finish_work => sub {
             $plan_class .= " $hall_type";
         }
         my $glyphs = Lacuna::DB::Result::Plan->get_glyph_recipe($plan_class);
-        my @many_glyphs = shuffle map { @$glyphs } (1..$halls);
         my $glyphs_built;
         my $total_glyphs = 0;
-        for my $glyph (@many_glyphs) {
-            if ($success_percent > rand(100)) {
-                $glyphs_built->{$glyph} = $glyphs_built->{$glyph} ? $glyphs_built->{$glyph}+1 : 1;
-                $total_glyphs++;
+        for my $glyph (@$glyphs) {
+            my $potential = $halls * $work->{quantity};
+            my $slice = 0;
+            my $reward = 0;
+            if ($potential > 100) {
+                $slice = $potential - 100;
+                $potential = 100;
+            }
+            for (1..$potential) {
+                if ($success_percent > rand(100)) {
+                    $glyphs_built->{$glyph} = $glyphs_built->{$glyph} ? $glyphs_built->{$glyph}+1 : 1;
+                    $total_glyphs++;
+                }
+            }
+            if ($slice > 0) {
+                my $avg_num = int($slice * $success_percent/100 + 0.5);
+                $glyphs_built->{$glyph} += $avg_num;
+                $total_glyphs += $avg_num;
             }
         }
+
         for my $glyph (keys %{$glyphs_built}) {
           $self->body->add_glyph($glyph, $glyphs_built->{$glyph});
         }

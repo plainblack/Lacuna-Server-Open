@@ -62,7 +62,7 @@ specified class to build a level x+0 plan.
 
 The B<seconds_per_level> is how long it will take to build a plan per level.
 
-=head2 split_plan ( session_id, building_id, plan_class, level, extra_build_level )
+=head2 split_plan ( session_id, building_id, plan_class, level, extra_build_level, quantity )
 
 Split a plan into it's constituant glyphs. The glyph types that can be returned
 depend upon the recipe to build that type of plan. The maximum number of glyphs
@@ -97,9 +97,13 @@ The level of the plan to be split.
 
 The extra build levels (if any) for that plan.
 
+=head3 quantity
+
+Number of plans to feed into the forge.  Time does not go up linearly, but the more plans fed in, the more efficient.
+
 =head2 subsidize ( session_id, building_id )
 
-Will spend 2 essentia to complete the current task immediately. Returns B<view>
+Will spend essentia to complete the current task immediately. Cost is 2e unless splitting multiple plans. Returns B<view>
 
 Throws 1011.
 

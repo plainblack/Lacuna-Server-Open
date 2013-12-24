@@ -25,7 +25,12 @@ around 'view' => sub {
         my $plan_class = $work->{class};
         my $desc;
         if ($work->{task} eq 'split_plan') {
-            $desc = sprintf("Splitting %s %s+%s", $plan_class->name, $work->{level},$work->{extra_build_level}),
+            if ($work->{quantity} > 1) {
+                $desc = sprintf("Splitting %d %s %s+%s", $work->{quantity}, $plan_class->name, $work->{level},$work->{extra_build_level}),
+            }
+            else {
+                $desc = sprintf("Splitting %s %s+%s", $plan_class->name, $work->{level},$work->{extra_build_level}),
+            }
         }
         elsif ($work->{task} eq 'make_plan') {
             $desc = sprintf("Making %s %s", $plan_class->name, $work->{level}),
@@ -68,11 +73,14 @@ sub _forge_tasks {
 PLAN:
     for my $plan (@{$body->plan_cache}) {
         # Can only split plans with recipes
-        next PLAN if not Lacuna::DB::Result::Plan->get_glyph_recipe($plan->class);
+        my $glyphs = Lacuna::DB::Result::Plan->get_glyph_recipe($plan->class);
+        next PLAN if not $glyphs;
 
         my ($class) = $plan->class =~ m/Lacuna::DB::Result::Building::(.*)$/;
 
         my $halls = $self->equivalent_halls($plan);
+
+        my $num_glyphs = scalar @$glyphs;
 
         push @split_plans, {
             name                => $plan->class->name,
@@ -80,7 +88,7 @@ PLAN:
             level               => $plan->level,
             extra_build_level   => $plan->extra_build_level,
             fail_chance         => 100 - ($building->level * 3),
-            reset_seconds       => $halls * 30 * 3600 / $building->level,
+            reset_seconds       => int(($num_glyphs * $halls * 30 * 3600) / ($building->level * 4)),
         };
     }
 
@@ -109,11 +117,12 @@ PLAN:
 }
 
 sub split_plan {
-    my ($self, $session_id, $building_id, $plan_class, $level, $extra_build_level) = @_;
+    my ($self, $session_id, $building_id, $plan_class, $level, $extra_build_level, $quantity) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    $quantity = $quantity || 1;
 
-    $building->split_plan($plan_class, $level, $extra_build_level);
+    $building->split_plan($plan_class, $level, $extra_build_level, $quantity);
 
     return $self->view($empire, $building);
 }
