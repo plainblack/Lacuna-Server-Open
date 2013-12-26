@@ -807,6 +807,14 @@ sub run_political_propaganda {
     my $mission_skill = 'politics_xp';
     my $oratory = int( ($self->defense + $self->$mission_skill)/500 + 0.5);;
 
+    if ($oratory < 1) {
+        return { result => 'Failure',
+                 reason => random_element(['I have no idea what you mean.',
+                                           'Gabba Gabba Hey!',
+                                           'They\'re laughing at me!',
+                                           'I have morale objections.']) };
+    }
+
     my $sboost = $self->on_body->spy_happy_boost;
     $sboost += $oratory;
     my $mission_count_add = int($sboost/$oratory);

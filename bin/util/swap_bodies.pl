@@ -106,8 +106,6 @@ sub bhg_swap {
                     });
                 }
             }
-            $target->recalc_chains; # Recalc all chains
-            recalc_incoming_supply($target);
             if ($new_data->{type} eq 'space station') {
                 drop_stars_beyond_range($target);
             }
@@ -151,8 +149,6 @@ sub bhg_swap {
                 });
             }
         }
-        $body->recalc_chains; # Recalc all chains
-        recalc_incoming_supply($body);
         if ($body->get_type eq 'space station') {
             drop_stars_beyond_range($body);
         }
@@ -195,6 +191,16 @@ sub bhg_swap {
             ],
         );
     }
+    unless ($new_data->{type} eq "empty" or $new_data->{type} eq 'asteroid') {
+        $target->recalc_chains; # Recalc all chains
+        recalc_incoming_supply($target);
+    }
+    if ($body->get_type ne 'asteroid') {
+        $body->recalc_chains; # Recalc all chains
+        recalc_incoming_supply($body);
+    }
+    $body->update({needs_recalc => 1});
+    $target->update({needs_recalc => 1});
     
     return {
         id       => $body->id,
