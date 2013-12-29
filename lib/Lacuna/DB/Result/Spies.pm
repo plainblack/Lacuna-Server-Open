@@ -471,6 +471,8 @@ sub is_available {
                 }
             }
         }
+        elsif ($task eq 'Prisoner Transport') {
+        }
         $self->task('Idle');
         $self->update;
         return 1;
@@ -2181,7 +2183,11 @@ sub abduct_operative {
         direction   => 'in',
         payload     => { spies => [ $self->id ], prisoners => [$defender->id] }
     );
-    $defender->send($self->from_body_id, DateTime->now->add(days => 7), 'Prisoner Transport');
+    $defender->available_on(DateTime->now->add(days => 7));
+    $defender->on_body_id($self->from_body_id);
+    $defender->task("Prisoner Transport");
+    $defender->started_assignment(DateTime->now);
+
     $self->send($self->from_body_id, $ship->date_available);
     $defender->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
