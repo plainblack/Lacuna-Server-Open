@@ -135,7 +135,8 @@ sub view_excavators {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my @sites;
-    my $level = $building->level;
+    my $level = ($building->level > $building->body->empire->university_level + 1) ?
+                  $building->body->empire->university_level + 1 : $building->level;
     my $chances = $building->can_you_dig_it($building->body, $level, 1);
     push @sites, {
         body     => $building->body->get_status,
