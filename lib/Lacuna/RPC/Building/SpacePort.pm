@@ -1049,6 +1049,28 @@ sub scuttle_ship {
     };    
 }
 
+sub mass_scuttle_ship {
+    my ($self, $session_id, $building_id, $ship_ids) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+
+    if (scalar @{$ship_ids} > 6000) {
+        confess [ 1099, "More ships than can be docked on one planet!" ];
+    }
+    my %shash = map { $_ => 1 } grep { !($_ =~ m/\D/) } @{$ship_ids};
+    my @ship_ids = sort keys %shash;
+    Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+        {id      => { in => \@ship_ids },
+         task    =>'Docked',
+         body_id => $building->body_id,
+        }
+    )->delete;
+
+    return {
+        status                      => $self->format_status($empire, $building->body),
+    };    
+}
+
 sub view_battle_logs {
     my ($self, $session_id, $building_id, $page_number) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -1102,7 +1124,7 @@ around 'view' => sub {
     return $out;
 };
  
-__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for view_foreign_ships get_ships_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_ships_travelling view_all_ships view_battle_logs));
+__PACKAGE__->register_rpc_method_names(qw(send_ship_types get_fleet_for view_foreign_ships get_ships_for send_ship send_fleet recall_ship recall_all recall_spies scuttle_ship name_ship prepare_fetch_spies fetch_spies prepare_send_spies send_spies view_ships_orbiting view_ships_travelling view_all_ships view_battle_logs mass_scuttle_ship));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -3,6 +3,10 @@
  - Fix: GG & Terra Platforms ignore University Level.
  - Fix: Archeology Level is limited by University Level.
  - Fix: The Dillon Forge is limited by University Level.
+ - Fix: Oversight Ministry is limited by University Level.
+ - Fix: Citadels now generate Battle Log reports and better email.
+ - Mod: Security Ministry Seekers also hit Gratch's Gauntlet.
+ - Mod: Observatory Seekers also hit Oracle of Anid and Temple of the Drajilites.
 
 3.0897:
  - Fix: SupplyPods ignore University Level.

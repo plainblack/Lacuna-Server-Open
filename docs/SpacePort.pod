@@ -842,6 +842,24 @@ The unique id for the space port.
 The unique id of the ship you want to destroy.
 
 
+
+=head2 mass_scuttle_ship ( session_id, building_id, ship_ids )
+
+Destroy a ship that you no longer need. It must be docked to scuttle it.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id for the space port.
+
+=head3 ship_ids
+
+Reference to an array of ship ids
+
+
  
 =head2 view_ships_travelling ( session_id, building_id, [ page_number ])
 

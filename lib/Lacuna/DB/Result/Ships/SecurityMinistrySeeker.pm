@@ -15,7 +15,10 @@ use constant base_waste_cost        => 40000;
 use constant base_speed             => 1000;
 use constant base_combat            => 3500;
 use constant base_stealth           => 2700;
-use constant target_building        => ['Lacuna::DB::Result::Building::Security','Lacuna::DB::Result::Building::Module::PoliceStation'];
+use constant target_building        => ['Lacuna::DB::Result::Building::Security',
+                                        'Lacuna::DB::Result::Building::Module::PoliceStation',
+                                        'Lacuna::DB::Result::Building::Permanent::GratchsGauntlet',
+                                       ];
 use constant build_tags             => ['War'];
 
 with "Lacuna::Role::Ship::Send::NeutralArea";

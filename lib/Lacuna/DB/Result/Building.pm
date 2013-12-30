@@ -795,7 +795,9 @@ sub cost_to_upgrade {
     }
     my $oversight_reduction = 1;
     if (defined $self->body->oversight) {
-        $oversight_reduction = (100 - ($self->body->oversight->level * 3)) / 100;
+        my $om_level = ($self->body->oversight->level > $self->body->empire->university_level + 1) ?
+                          $self->body->empire->university_level + 1 : $self->body->oversight->level;
+        $oversight_reduction = (100 - ($om_level * 3)) / 100;
     }
     my $time_inflator = ($self->level * 2) - 1;
     $time_inflator = 1 if ($time_inflator < 1);
