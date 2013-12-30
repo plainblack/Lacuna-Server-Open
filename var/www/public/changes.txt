@@ -7,6 +7,7 @@
  - Fix: Citadels now generate Battle Log reports and better email.
  - Mod: Security Ministry Seekers also hit Gratch's Gauntlet.
  - Mod: Observatory Seekers also hit Oracle of Anid and Temple of the Drajilites.
+ - API: mass_scuttle_ship available.
 
 3.0897:
  - Fix: SupplyPods ignore University Level.

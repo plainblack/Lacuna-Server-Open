@@ -95,16 +95,16 @@ after handle_arrival_procedures => sub {
         if (defined $citadel) {
             $self->body->empire->send_predefined_message(
                 tags        => ['Attack','Alert'],
-                filename    => 'our_ship_hit_building.txt',
-                params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y,
-                                $body_attacked->name, $building->name, $amount],
+                filename    => 'ship_repelled_by_citadel.txt',
+                params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name],
             );
         }
         else {
             $self->body->empire->send_predefined_message(
                 tags        => ['Attack','Alert'],
-                filename    => 'ship_repelled_by_citadel.txt',
-                params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y, $body_attacked->name],
+                filename    => 'our_ship_hit_building.txt',
+                params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y,
+                                $body_attacked->name, $building->name, $amount],
             );
         }
     }
