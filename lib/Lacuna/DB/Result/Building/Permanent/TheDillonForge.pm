@@ -67,6 +67,7 @@ sub split_plan {
     my ($self, $plan_class, $level, $extra_build_level, $quantity) = @_;
 
     $quantity = $quantity || 1;
+    $quantity = 2_000_000 if $quantity > 2_000_000;
     my $halls   = $self->equivalent_halls($level, $extra_build_level);
     my $class   = 'Lacuna::DB::Result::Building::'.$plan_class;
     my $body    = $self->body;
@@ -96,7 +97,7 @@ sub split_plan {
     my $num_glyphs = scalar @$glyphs;
 
     my $base = ($num_glyphs * $halls * 30 * 3600) / ($effective_level * 4);
-    my $build_secs = int($base * (1.5 ** (log($quantity)/log(2))) + 0.5);
+    my $build_secs = int($base * (2.72 ** (log($quantity)/log(2))) + 0.5);
     $self->start_work({task => 'split_plan', class => $class, level => $level, extra_build_level => $extra_build_level, quantity => $quantity}, $build_secs)->update;
 }
 
