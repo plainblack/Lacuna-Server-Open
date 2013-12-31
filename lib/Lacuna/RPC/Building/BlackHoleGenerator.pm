@@ -1321,13 +1321,13 @@ sub bhg_swap {
     unless ($new_data->{type} eq "empty" or $new_data->{type} eq 'asteroid') {
         $target->recalc_chains; # Recalc all chains
         recalc_incoming_supply($target);
+        $target->update({needs_recalc => 1});
     }
     if ($body->get_type ne 'asteroid') {
         $body->recalc_chains; # Recalc all chains
         recalc_incoming_supply($body);
+        $body->update({needs_recalc => 1});
     }
-    $body->update({needs_recalc => 1});
-    $target->update({needs_recalc => 1});
     
     return {
         id       => $body->id,
