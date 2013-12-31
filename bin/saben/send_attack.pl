@@ -49,6 +49,7 @@ while (my $attacking_colony = $colonies->next) {
     out('Finding target body to attack...');
     my $targets = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
         empire_id                   => { '>' => 1 },
+        is_isolationist             => 0,
         university_level            => { '>=' => 16 },
         zone                        => $attacking_colony->zone,
     },

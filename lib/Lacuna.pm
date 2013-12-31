@@ -7,7 +7,7 @@ use Config::JSON;
 
 useall __PACKAGE__;
 
-our $VERSION = 3.0898;
+our $VERSION = 3.0899;
 
 my $config = Config::JSON->new('/data/Lacuna-Server/etc/lacuna.conf');
 my $db = Lacuna::DB->connect($config->get('db/dsn'),$config->get('db/username'),$config->get('db/password'), { mysql_enable_utf8 => 1});
