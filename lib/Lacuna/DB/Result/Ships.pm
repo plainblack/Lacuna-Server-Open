@@ -47,6 +47,7 @@ __PACKAGE__->typecast_map(type => {
     'supply_pod2'                           => 'Lacuna::DB::Result::Ships::SupplyPod2',
     'supply_pod3'                           => 'Lacuna::DB::Result::Ships::SupplyPod3',
     'supply_pod4'                           => 'Lacuna::DB::Result::Ships::SupplyPod4',
+    'supply_pod5'                           => 'Lacuna::DB::Result::Ships::SupplyPod5',
     'placebo'                               => 'Lacuna::DB::Result::Ships::Placebo',
     'placebo2'                              => 'Lacuna::DB::Result::Ships::Placebo2',
     'placebo3'                              => 'Lacuna::DB::Result::Ships::Placebo3',

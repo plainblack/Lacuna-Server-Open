@@ -165,6 +165,7 @@
         "supply_pod2" : { "description" : "A larger version of the Supply Pod.", "wiki" : "http://community.lacunaexpanse.com/wiki/supply-pod" },
         "supply_pod3" : { "description" : "A very large version of the Supply Pod.", "wiki" : "http://community.lacunaexpanse.com/wiki/supply-pod" },
         "supply_pod4" : { "description" : "A huge version of the Supply Pod.", "wiki" : "http://community.lacunaexpanse.com/wiki/supply-pod" },
+        "supply_pod5" : { "description" : "Largest version of the Supply Pod.", "wiki" : "http://community.lacunaexpanse.com/wiki/supply-pod" },
         "placebo" : { "description" : "Use to fake an attack on another player.", "wiki" : "http://community.lacunaexpanse.com/wiki/placebo" },
         "placebo2" : { "description" : "A faster and more stealthed version of the Placebo.", "wiki" : "http://community.lacunaexpanse.com/wiki/placebo" },
         "placebo3" : { "description" : "A faster and more stealthed version of the Placebo II.", "wiki" : "http://community.lacunaexpanse.com/wiki/placebo" },
