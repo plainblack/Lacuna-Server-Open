@@ -1,3 +1,9 @@
+3.0899:
+ - Add: Supply Pod V
+ - Mod: Different speeds for the various Supply Pods.  Smaller the pod, the faster.
+ - Mod: Saben no longer waste attacks on Isolationists.
+ - Fix: Stealing planets no longer resets "defenders".
+
 3.0898:
  - Mod: The Dillon Forge can now take a quantity of plans for splitting.
  - Fix: GG & Terra Platforms ignore University Level.
