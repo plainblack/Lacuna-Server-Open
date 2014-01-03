@@ -336,9 +336,16 @@ sub tick_all_spies {
     my ($class,$verbose) = @_;
 
     my $db = Lacuna->db;
-    my $spies = $db->resultset('Spies')->search({
-        -and => [{task => {'!=' => 'Idle'}},{task => {'!=' => 'Counter Espionage'}},{task => {'!=' => 'Mercenary Transport'}}],
-    });
+    my $dtf = $db->storage->datetime_parser;
+    my $spies = Lacuna->db
+                    ->resultset('Spies')
+                    ->search( { available_on  => { '<' => $dtf->format_datetime(DateTime->now) },
+                                task => { 'not in' => ['Idle',
+                                                       'Counter Espionage',
+                                                       'Mercenary Transport',
+                                                       'Prisoner Transport'] },
+                              });
+
     # TODO further efficiencies could be made by ignoring spies not yet 'available'
     while (my $spy = $spies->next) {
         if ($verbose) {
