@@ -965,7 +965,8 @@ sub get_defender {
         ->resultset('Spies')
         ->search(
             { on_body_id  => $self->on_body_id,
-              task => 'Counter Espionage',
+              task => { 'in' => [ 'Counter Espionage',
+                                  'Security Sweep',] },
               empire_id => { 'not_in' => \@member_ids } },
             { rows => 1, order_by => 'rand()' }
         )->single;
@@ -1086,8 +1087,8 @@ sub thwart_a_spy {
 
 sub escape {
     my ($self) = shift;
-    $self->available_on(DateTime->now);
-    $self->task('Idle');
+    $self->task('Escaped');
+    $self->available_on(DateTime->now->add(seconds => $self->recovery_time(60*60*4)));
     $self->update;
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
