@@ -565,9 +565,7 @@ __PACKAGE__->register_rpc_method_names(qw(
     get_ships 
     get_ship_summary
     get_prisoners 
-    get_plans 
     get_plan_summary 
-    get_glyphs 
     get_glyph_summary
 ));
 

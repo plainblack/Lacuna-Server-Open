@@ -173,7 +173,7 @@ The unique id of the ship that you want to trade. See the C<get_prisoners> metho
 
 =head3 ask
 
-An integer representing the amount of essentia you are asking for in this trade. Must be between 1 and 99.
+An number representing the amount of essentia you are asking for in this trade. Must be between 0.1 and 100.
 
 =head3 options
 

@@ -174,7 +174,7 @@ The unique id of the ship that you want to trade. See the C<get_prisoners> metho
 
 =head3 ask
 
-An integer which represents how much essentia you are asking for in this trade. Must be between 1 and 99.
+An number which represents how much essentia you are asking for in this trade. Must be between 0.1 and 100.
 
 
 
@@ -237,30 +237,7 @@ The unique id of this building.
 
 =head2 get_plans ( session_id, building_id )
 
-Returns a list of plans that may be traded. Used with the C<add_trade> method.
-
- {
-    "plans" : [
-        {
-            "id" : "id-goes-here",
-            "name" : "Intelligence Ministry",
-            "level" : "7",
-            "extra_build_level" : "0"        # some special plans will build a building from their level all the way to this number
-        },
-        ...
-    ],
-    "cargo_space_used_each" : 100,
-    "status" : { ... }
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of this building.
-
+Deprecated Method.  Please use get_plan_summary instead
 
 =head2 get_plan_summary ( session_id, building_id )
 
@@ -292,28 +269,7 @@ The unique id of this building
 
 =head2 get_glyphs ( session_id, building_id )
 
-Returns a list of glyphs that may be traded. Used with the C<add_trade> method.
-
- {
-    "glyphs" : [
-        {
-            "id" : "id-goes-here",
-            "type" : "bauxite"
-        },
-        ...
-    ],
-    "cargo_space_used_each" : 100,
-    "status" : { ... }
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of this building.
-
+This API call is now deprecated, please use get_glyph_summary instead.
 
 =head2 get_glyph_summary ( session_id, building_id )
 

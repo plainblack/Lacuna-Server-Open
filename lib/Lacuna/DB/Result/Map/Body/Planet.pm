@@ -2530,6 +2530,7 @@ sub spend_waste {
     return $self;
 }
 
+#Checks for damage need to be seperated from email warnings.
 sub complain_about_lack_of_resources {
     my ($self, $resource) = @_;
     my $empire = $self->empire;
@@ -2537,7 +2538,7 @@ sub complain_about_lack_of_resources {
     if (!$empire->check_for_repeat_message('complaint_lack_of_'.$resource.$self->id)) {
         my $building_name;
         if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-            foreach my $building ( sort { $b->efficiency <=> $a->efficiency || rand() <=> rand() } @{$self->building_cache} ) {
+            foreach my $building ( sort { $b->level <=> $a->level || $b->efficiency <=> $a->efficiency || rand() <=> rand() } @{$self->building_cache} ) {
                 if ($building->class eq 'Lacuna::DB::Result::Building::Module::Parliament' || $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand') {
                     my $others = grep {$_->class !~ /Parliament$|StationCommand$|Crater$/} @{$self->building_cache};
                     if ($others) {
