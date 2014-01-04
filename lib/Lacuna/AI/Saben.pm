@@ -50,7 +50,6 @@ sub colony_structures {
     ['Lacuna::DB::Result::Building::Security', 30],
     ['Lacuna::DB::Result::Building::Espionage', 30],
     ['Lacuna::DB::Result::Building::Permanent::CitadelOfKnope',30],
-    ['Lacuna::DB::Result::Building::Permanent::OracleOfAnid',30],
     ['Lacuna::DB::Result::Building::Shipyard',30],
     ['Lacuna::DB::Result::Building::Shipyard',30],
     ['Lacuna::DB::Result::Building::Shipyard',30],
@@ -99,6 +98,7 @@ sub colony_structures {
     ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
     ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
     ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
+    ['Lacuna::DB::Result::Building::Permanent::OracleOfAnid',15],
     );
 }
 
