@@ -2507,9 +2507,9 @@ sub spend_waste {
         $self->spend_happiness($value - $self->waste_stored);
         $self->waste_stored(0);
         my $empire = $self->empire;
-        if (!$empire->check_for_repeat_message('complaint_lack_of_waste'.$self->id)) {
+        if (!Lacuna->cache->get('lack_of_waste',$self->id)) {
             my $building_name;
-            Lacuna->cache->set('complaint_lack_of_waste'.$self->id, int(DateTime->now->hour / 6), 1, 60 * 60 * 6);
+            Lacuna->cache->set('lack_of_waste',$self->id, 1, 60 * 60 * 2);
             foreach my $class (qw(Lacuna::DB::Result::Building::Energy::Waste Lacuna::DB::Result::Building::Waste::Treatment Lacuna::DB::Result::Building::Waste::Digester Lacuna::DB::Result::Building::Water::Reclamation Lacuna::DB::Result::Building::Waste::Exchanger)) {
                 my ($building) = grep {$_->efficiency > 0} $self->get_buildings_of_class($class);
                 if (defined $building) {
@@ -2518,11 +2518,11 @@ sub spend_waste {
                     last;
                 }
             }
-            if ($building_name && !$empire->skip_resource_warnings) {
+            if ($building_name && !$empire->skip_resource_warnings && !$empire->check_for_repeat_message('complaint_lack_of_waste'.$self->id)) {
                 $empire->send_predefined_message(
                     filename    => 'complaint_lack_of_waste.txt',
                     params      => [$building_name, $self->id, $self->name, $building_name],
-#                    repeat_check=> 'complaint_lack_of_waste'.$self->id,
+                    repeat_check=> 'complaint_lack_of_waste'.$self->id,
                     tags        => ['Complaint','Alert'],
                 );
             }
@@ -2536,9 +2536,9 @@ sub complain_about_lack_of_resources {
     my ($self, $resource) = @_;
     my $empire = $self->empire;
     # if they run out of resources in storage, then the citizens start bitching
-    if (!$empire->check_for_repeat_message('complaint_lack_of_'.$resource.$self->id)) {
+    if (!Lacuna->cache->get('lack_of_'.$resource,$self->id)) {
         my $building_name;
-        Lacuna->cache->set('complaint_lack_of_'.$resource.$self->id, int(DateTime->now->hour / 6), 1, 60 * 60 * 6);
+        Lacuna->cache->set('lack_of_'.$resource,$self->id, 1, 60 * 60 * 2);
         if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
             foreach my $building ( sort { $b->level <=> $a->level || $b->efficiency <=> $a->efficiency || rand() <=> rand() } @{$self->building_cache} ) {
                 if ($building->class eq 'Lacuna::DB::Result::Building::Module::Parliament' || $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand') {
@@ -2612,11 +2612,11 @@ sub complain_about_lack_of_resources {
                 $building->spend_efficiency(25)->update;
             }
         }
-        if ($building_name && !$empire->skip_resource_warnings) {
+        if ($building_name && !$empire->skip_resource_warnings && !$empire->check_for_repeat_message('lack_of_'.$resource.$self->id)) {
             $empire->send_predefined_message(
                 filename    => 'complaint_lack_of_'.$resource.'.txt',
                 params      => [$self->id, $self->name, $building_name],
-#                repeat_check=> 'complaint_lack_of_'.$resource.$self->id,
+                repeat_check=> 'complaint_lack_of_'.$resource.$self->id,
                 tags        => ['Complaint','Alert'],
             );
         }
