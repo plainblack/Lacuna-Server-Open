@@ -1,6 +1,7 @@
 3.0900:
  - Fix: Gratch's Gauntlet on repair, checks spies current status.
  - Mod: Redid Political Propaganda as a constant task.
+ - Mod: Cult less effective against planets running propaganda campaigns.
 
 3.0899:
  - Mod: Different speeds for the various Supply Pods.  Smaller the pod, the faster.
