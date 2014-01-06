@@ -252,7 +252,7 @@ sub defensive_assignments {
             },
             {
                 task        =>'Political Propaganda',
-                recovery    => $self->recovery_time(60 * 60 * 24),
+                recovery    => 0,
                 skill       => 'politics',
             },
         );    
@@ -281,7 +281,8 @@ sub get_possible_assignments {
                             'Intel Training',
                             'Mayhem Training',
                             'Politics Training',
-                            'Theft Training']) {
+                            'Theft Training',
+                            'Political Propaganda']) {
         return [{ task => $self->task, recovery => $self->seconds_remaining_on_assignment }];
     }
     
@@ -433,6 +434,26 @@ sub is_available {
         }
         return 1;
     }
+    elsif ($task eq "Political Propaganda") {
+        my $db = Lacuna->db;
+        my $now = DateTime->now;
+        my $pol_time = $now->subtract_datetime_absolute($self->started_assignment);
+        my $minutes = int($pol_time->seconds/60);
+        my $mission_count_add = int($minutes/240);
+        if ($mission_count_add > 0) {
+            my $remain_min = $minutes - ($mission_count_add * 240);
+            $self->started_assignment($now->clone->subtract(minutes => $remain_min)); # Put time at now with remainder
+            my $fskill = $self->politics_xp + $mission_count_add;
+            $fskill = 2600 if ($fskill > 2600);
+            $self->politics_xp($fskill);
+            $self->defense_mission_count( $self->defense_mission_count + $mission_count_add);
+            $self->update_level;
+            $self->update;
+            $self->on_body->needs_recalc(1);
+            $self->on_body->update;
+        }
+        return 1;
+    }
     elsif ($task eq 'Mercenary Transport') {
         return 0;
     }
@@ -451,9 +472,6 @@ sub is_available {
                 params      => [$self->format_from],
             );
             return 1;
-        }
-        elsif ($task eq "Political Propaganda") {
-            $self->reset_political_propaganda;
         }
         elsif ($task eq 'Travelling') {
             if ($self->empire_id ne $self->on_body->empire_id) {
@@ -535,6 +553,7 @@ sub assign {
     # run mission
     if ($assignment ~~ ['Idle',
                         'Counter Espionage',
+                        'Political Propaganda',
                         'Sabotage BHG']) {
         $self->update;
         return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
@@ -581,9 +600,6 @@ sub assign {
     }
     elsif ($assignment eq 'Security Sweep') {
         return $self->run_security_sweep($mission);
-    }
-    elsif ($assignment eq 'Political Propaganda') {
-        return $self->run_political_propaganda($mission);
     }
     else {
         return $self->run_mission($mission);
@@ -806,53 +822,6 @@ sub run_mission {
     }
     $self->on_body->update;
     return $out;
-}
-
-sub run_political_propaganda {
-    my $self = shift;
-    my $mission_skill = 'politics_xp';
-    my $oratory = int( ($self->defense + $self->$mission_skill)/500 + 0.5);;
-
-    if ($oratory < 1) {
-        return { result => 'Failure',
-                 reason => random_element(['I have no idea what you mean.',
-                                           'Gabba Gabba Hey!',
-                                           'They\'re laughing at me!',
-                                           'I have morale objections.']) };
-    }
-
-    my $sboost = $self->on_body->spy_happy_boost;
-    $sboost += $oratory;
-    my $mission_count_add = int($sboost/$oratory);
-    
-    my $bhappy = $self->on_body->happiness;
-    if ($bhappy < 0) {
-        $mission_count_add += length(abs($bhappy/1000));
-    }
-    $mission_count_add = 15 if $mission_count_add > 15;
-    $self->defense_mission_count( $self->defense_mission_count + $mission_count_add);
-    $self->update;
-    $self->on_body->needs_recalc(1);
-    $self->on_body->update;
-    return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
-}
-
-sub reset_political_propaganda {
-    my $self = shift;
-    my $mission_skill = 'politics_xp';
-
-    my $skill_xp = $self->$mission_skill + 10;
-    if ($skill_xp > 2600) {
-        $self->$mission_skill( 2600 );
-    }
-    else {
-        $self->$mission_skill( $skill_xp );
-    }
-    $self->update_level;
-    $self->update;
-    $self->on_body->needs_recalc(1);
-    $self->on_body->update;
-    return 1;
 }
 
 sub run_security_sweep {

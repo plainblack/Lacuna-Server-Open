@@ -1152,7 +1152,7 @@ sub recalc_stats {
                                );
     my $spy_boost = 0;
     while (my $spy = $propaganda->next) {
-        my $oratory = int( ($spy->defense + $spy->politics_xp)/500 + 0.5);
+        my $oratory = int( ($spy->defense + $spy->politics_xp)/250 + 0.5);
         $spy_boost += $oratory;
     }
     $self->spy_happy_boost($spy_boost);
