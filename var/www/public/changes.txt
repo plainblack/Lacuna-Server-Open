@@ -1,3 +1,6 @@
+3.0900:
+ - Fix: Gratch's Gauntlet on repair, checks spies current status.
+
 3.0899:
  - Mod: Different speeds for the various Supply Pods.  Smaller the pod, the faster.
  - Add: Supply Pod V
@@ -5,6 +8,7 @@
  - Fix: Stealing planets no longer resets "defenders".
  - Fix: Better checking on lack of resource damage.
  - Mod: Added more spy statistics.
+ - Mod: Rescued Comrades have same cooldown as rescuer.
 
 3.0898:
  - Mod: The Dillon Forge can now take a quantity of plans for splitting.

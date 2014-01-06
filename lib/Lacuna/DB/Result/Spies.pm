@@ -337,8 +337,7 @@ sub tick_all_spies {
 
     my $db = Lacuna->db;
     my $dtf = $db->storage->datetime_parser;
-    my $spies = Lacuna->db
-                    ->resultset('Spies')
+    my $spies = $db->resultset('Spies')
                     ->search( { available_on  => { '<' => $dtf->format_datetime(DateTime->now) },
                                 task => { 'not in' => ['Idle',
                                                        'Counter Espionage',
@@ -353,8 +352,6 @@ sub tick_all_spies {
         }
         my $starting_task = $spy->task;
         $spy->is_available;
-        my $train_bld;
-        my $tr_skill;
         if ($spy->task eq 'Idle' && $starting_task ne 'Idle') {
             if (!$spy->empire->skip_spy_recovery) {
                 $spy->empire->send_predefined_message(
@@ -1520,9 +1517,10 @@ sub sabotage_probes_loss {
 
 sub rescue_comrades {
     my $self = shift;
-    given (randint(1,2)) {
+    given (randint(1,4)) {
         when (1) { return $self->escape_prison(@_) }
-        when (2) { return $self->knock_defender_unconscious(@_) }
+        when (2) { return $self->escape_prison(@_) }
+        when (3) { return $self->knock_defender_unconscious(@_) }
 #        when (2) { return $self->kill_guard_and_escape_prison(@_) }
     }
 }
