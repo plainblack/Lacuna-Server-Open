@@ -922,7 +922,7 @@ sub run_security_sweep {
 }
 
 sub get_defender {
-    my $self = shift;
+    my ($self, $mission) = @_;
 
     my $alliance_id = $self->empire->alliance_id;
     my @member_ids;
@@ -932,14 +932,17 @@ sub get_defender {
     else {
        $member_ids[0] = $self->empire->id;
     }
+    my @tasks = 'Counter Espionage';
+    if ($mission eq "Abduct Operatives" or $mission eq "Assassinate Operatives") {
+        push @$tasks, "Security Sweep", "Political Propaganda";
+    }
 
     my $defender = Lacuna
         ->db
         ->resultset('Spies')
         ->search(
             { on_body_id  => $self->on_body_id,
-              task => { 'in' => [ 'Counter Espionage',
-                                  'Security Sweep',] },
+              task => { 'in' => \@tasks },
               empire_id => { 'not_in' => \@member_ids } },
             { rows => 1, order_by => 'rand()' }
         )->single;
@@ -1552,8 +1555,9 @@ sub appropriate_resources {
         when (1) { return $self->steal_ships(@_) }
         when (2) { return $self->steal_resources(@_) }
         when (3) { return $self->take_control_of_probe(@_) }
-        when (4) { return $self->knock_defender_unconscious(@_) }
-        when (5) { return $self->steal_glyph(@_) }
+        when (4) { return $self->steal_plan(@_) }
+        when (5) { return $self->knock_defender_unconscious(@_) }
+        when (6) { return $self->steal_glyph(@_) }
     }
 }
 
