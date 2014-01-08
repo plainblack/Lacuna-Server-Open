@@ -934,7 +934,7 @@ sub get_defender {
     }
     my @tasks = 'Counter Espionage';
     if ($mission eq "Abduct Operatives" or $mission eq "Assassinate Operatives") {
-        push @$tasks, "Security Sweep", "Political Propaganda";
+        push @tasks, "Security Sweep", "Political Propaganda";
     }
 
     my $defender = Lacuna
