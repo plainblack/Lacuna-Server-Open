@@ -529,9 +529,13 @@ around get_status => sub {
                 $out->{waste_hour}      = $self->waste_hour;
                 $out->{happiness}       = $self->happiness;
                 $out->{happiness_hour}  = $self->happiness_hour;
-                $out->{propaganda_boost} = $self->propaganda_boost;
                 if ($self->unhappy) {
                     $out->{unhappy_date} = format_date($self->unhappy_date);
+                    $out->{propaganda_boost} = $self->propaganda_boost;
+                }
+                else {
+                    $out->{propaganda_boost} = $self->propaganda_boost;
+                    $out->{propaganda_boost} = 50 if ($out->{propaganda_boost} > 50);
                 }
             }
             elsif ($empire->alliance_id && $self->empire->alliance_id == $empire->alliance_id) {
