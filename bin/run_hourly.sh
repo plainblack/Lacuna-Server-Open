@@ -6,7 +6,7 @@ perl sanitize_ss.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 # perl summarize_server.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl summarize_economy.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl generate_news_feeds.pl >>/tmp/news_feeds.log 2>>/tmp/news_feeds.log
-perl tick_spies.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
+#perl tick_spies.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl tick_parliament.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl add_missions.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl clean_up_market.pl >>/tmp/hourly.log 2>>/tmp/hourly.log

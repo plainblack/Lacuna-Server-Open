@@ -343,7 +343,12 @@ sub tick_all_spies {
                                 task => { 'not in' => ['Idle',
                                                        'Counter Espionage',
                                                        'Mercenary Transport',
-                                                       'Prisoner Transport'] },
+                                                       'Prisoner Transport',
+                                                       'Intel Training',
+                                                       'Mayhem Training',
+                                                       'Politics Training',
+                                                       'Theft Training',
+                                                       'Political Propaganda'] },
                               });
 
     # TODO further efficiencies could be made by ignoring spies not yet 'available'
