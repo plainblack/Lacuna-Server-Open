@@ -217,7 +217,15 @@ before finish_work => sub {
                 params      => [$body->id, $body->name, $work->{quantity}, $work->{level}, $work->{extra_build_level}, $plan_class->name, $s_place],
                 attachments => { table  => \@report },
             );
-            $body->add_news(100, sprintf('%s used the Dillon Forge to split a %s level %s + %s plan into %s glyphs today on %s', $empire->name, $plan_class->name, $work->{level}, $work->{extra_build_level}, $total_glyphs, $body->name));
+            $body->add_news(100, sprintf('%s used the Dillon Forge to split %d %s level %s + %s plan%s into %s glyphs today on %s',
+                                          $empire->name,
+                                          $work->{quantity},
+                                          $plan_class->name,
+                                          $work->{level},
+                                          $work->{extra_build_level},
+                                          $s_place,
+                                          $total_glyphs,
+                                          $body->name));
         }
         else {
             $empire->send_predefined_message(
