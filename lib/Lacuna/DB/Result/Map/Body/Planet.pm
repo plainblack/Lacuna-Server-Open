@@ -44,7 +44,7 @@ sub sorted_plans {
     my ($self) = @_;
 
     my @sorted_plans = sort {
-            $a->class->name cmp $b->class->name 
+            $a->class->sortable_name cmp $b->class->sortable_name 
         ||  $a->level cmp $b->level 
         ||  $b->extra_build_level cmp $a->extra_build_level 
         } @{$self->plan_cache};

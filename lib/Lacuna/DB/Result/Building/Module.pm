@@ -25,6 +25,10 @@ use constant food_to_build => 100;
 use constant ore_to_build => 500;
 use constant water_to_build => 150;
 
+sub sortable_name {
+    '75'.shift->name
+}
+
 around spend_efficiency => sub {
     my ($orig, $self, $amount) = @_;
     if ($self->efficiency <= $amount) {

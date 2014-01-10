@@ -62,6 +62,10 @@ use constant building_prereq => {};
 
 use constant name => 'Building';
 
+sub sortable_name {
+    '50'.shift->name
+}
+
 sub image {
     confess 'override me';
 }
