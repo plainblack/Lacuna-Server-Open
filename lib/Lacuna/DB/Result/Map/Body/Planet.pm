@@ -529,6 +529,10 @@ around get_status => sub {
                 $out->{waste_hour}      = $self->waste_hour;
                 $out->{happiness}       = $self->happiness;
                 $out->{happiness_hour}  = $self->happiness_hour;
+                $out->{propaganda_boost} = $self->propaganda_boost;
+                if ($self->unhappy) {
+                    $out->{unhappy_date} = format_date($self->unhappy_date);
+                }
             }
             elsif ($empire->alliance_id && $self->empire->alliance_id == $empire->alliance_id) {
                 $out->{empire}{alignment} = $self->empire->is_isolationist ? 'ally-isolationist' : 'ally';
@@ -1155,7 +1159,7 @@ sub recalc_stats {
         my $oratory = int( ($spy->defense + $spy->politics_xp)/250 + 0.5);
         $spy_boost += $oratory;
     }
-    $self->spy_happy_boost($spy_boost);
+    $self->propaganda_boost($spy_boost);
     $self->update;
     #calculate building production
     my ($gas_giant_platforms, $terraforming_platforms, $station_command,
@@ -1520,7 +1524,7 @@ sub tick_to {
             $self->unhappy(0);
             $self->needs_recalc(1);
         }
-        $self->needs_recalc(1) if ($self->spy_happy_boost > 50);
+        $self->needs_recalc(1) if ($self->propaganda_boost > 50);
     }
     if ($self->needs_recalc) {
         $self->recalc_stats;    

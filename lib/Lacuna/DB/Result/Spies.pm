@@ -615,7 +615,7 @@ sub burn {
     $body->spend_happiness($unhappy);
     if ($self->task eq 'Political Propaganda') {
         $body->add_news(200, 'The government of %s made the mistake of trying to burn one of their own loyal propaganda ministers.', $old_empire->name);
-        $self->on_body->spy_happy_boost(0);
+        $self->on_body->propaganda_boost(0);
         $self->uprising();
     }
     elsif ($body->add_news(25, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $old_empire->name)) {

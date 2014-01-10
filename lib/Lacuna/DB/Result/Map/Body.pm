@@ -128,7 +128,7 @@ __PACKAGE__->add_columns(
     max_berth                       => { data_type => 'tinyint', default_value => 1 },
     unhappy_date                    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     unhappy                         => { data_type => 'tinyint', default_value => 0 },
-    spy_happy_boost                 => { data_type => 'int',  default_value => 0 },
+    propaganda_boost                => { data_type => 'int',  default_value => 0 },
 );
 
 after 'sqlt_deploy_hook' => sub {

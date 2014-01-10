@@ -465,7 +465,7 @@ sub happiness_production_bonus {
     my $empire = $self->body->empire;
     return 1 unless defined $empire;
     my $boost = (time < $empire->happiness_boost->epoch) ? 25 : 0;
-    my $sboost = $self->body->spy_happy_boost;
+    my $sboost = $self->body->propaganda_boost;
     if ($self->body->happiness > 0 and $sboost > 50) {
         $sboost = 50;
     }
