@@ -6,7 +6,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use List::Util qw(shuffle);
-use Lacuna::Util qw(format_date randint random_element);
+use Lacuna::Util qw(format_date randint random_element commify);
 use DateTime;
 use Scalar::Util qw(weaken);
 
@@ -1231,8 +1231,8 @@ sub sow_discontent {
         tags        => ['Spies','Alert'],
         filename    => 'created_disturbance.txt',
         params      => [$self->on_body->name,
-                        $amount,
-                        $self->on_body->happiness,
+                        commify($amount),
+                        commify($self->on_body->happiness),
                         $self->format_from],
     );
 }
@@ -1320,8 +1320,8 @@ sub hack_successful {
         tags        => ['Spies','Alert'],
         filename    => 'hack_successful.txt',
         params      => [$self->on_body->name,
-                        $amount,
-                        $self->on_body->happiness,
+                        commify($amount),
+                        commify($self->on_body->happiness),
                         $self->format_from],
     );
 }
@@ -1882,8 +1882,8 @@ sub uprising {
                         $self->on_body->x,
                         $self->on_body->y,
                         $self->on_body->name,
-                        $loss,
-                        $self->on_body->happiness,
+                        commify($loss),
+                        commify($self->on_body->happiness),
                         $self->format_from],
     );
     $self->on_body->empire->send_predefined_message(
