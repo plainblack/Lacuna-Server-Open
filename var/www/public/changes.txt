@@ -1,3 +1,6 @@
+3.0901:
+ - API: Spaceport ship filter includes all relevant tasks.
+
 3.0900:
  - Fix: Gratch's Gauntlet on repair, checks spies current status.
  - Mod: Redid Political Propaganda as a constant task.

@@ -764,7 +764,9 @@ sub _ship_filter_options {
 
     # Valid filter options include...
     my $options = {
-        task    => [qw(Docked Building Mining Travelling Defend Orbiting)],
+        task    => [("Building", "Defend", "Docked", "Mining",
+                     "Orbiting", "Supply Chain", "Travelling",
+                     "Waiting on Trade", "Waste Chain")],
         tag     => [qw(Trade Colonization Intelligence Exploration War Mining)],
         type    => [SHIP_TYPES],
     };
