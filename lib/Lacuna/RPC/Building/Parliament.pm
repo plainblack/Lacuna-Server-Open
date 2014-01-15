@@ -18,7 +18,7 @@ sub max_members {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $leader_emp = $building->body->empire;
+    my $leader_emp = $building->body->alliance->leader;
     my $leader_planets = $leader_emp->planets;
     my @planet_ids;
     while ( my $planet = $leader_planets->next ) {

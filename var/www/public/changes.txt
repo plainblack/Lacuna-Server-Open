@@ -1,5 +1,6 @@
 3.0901:
  - API: Spaceport ship filter includes all relevant tasks.
+ - Fix: Parliament actually looks at leader's embassy for max members.
 
 3.0900:
  - Fix: Gratch's Gauntlet on repair, checks spies current status.
