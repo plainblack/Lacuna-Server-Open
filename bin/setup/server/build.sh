@@ -1,4 +1,4 @@
-. dataapps.sh
+./dataapps.sh
 
 cp dataapps.sh /etc/profile.d/
 
