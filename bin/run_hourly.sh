@@ -11,11 +11,10 @@ perl tick_parliament.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl add_missions.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl clean_up_market.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl trelvestian/hourly_update.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
-perl trelvestian/send_attack.pl >>/tmp/hourly.log 2>>/tmp/hourly.log &
 perl diablotin/hourly_update.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl saben/hourly_update.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl delambert/hourly_update.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl cult/hourly_update.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl tick_fissures.pl >>/tmp/tick_fissures.log 2>>/tmp/tick_fissures.log
 perl test_weather.pl >>/tmp/test_weather.csv 2>/tmp/test_weather.log
-
+perl trelvestian/send_attack.pl >>/tmp/attack_trel.log 2>>/tmp/attack_trel.log &

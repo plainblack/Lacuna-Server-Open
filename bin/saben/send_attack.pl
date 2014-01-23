@@ -26,9 +26,9 @@ unless (flock(DATA, LOCK_EX|LOCK_NB)) {
 out('Started');
 my $start = time;
 
-if ($randomize) {
-    sleep randint(0, 60*60*12); # attack anytime in the next 12 hours.
-}
+#if ($randomize) {
+#    sleep randint(0, 60*60*12); # attack anytime in the next 12 hours.
+#}
 
 
 out('Loading DB');
@@ -47,6 +47,10 @@ while (my $attacking_colony = $colonies->next) {
     $ai->destroy_world($attacking_colony);
 
     out('Finding target body to attack...');
+    if ($attacking_colony->in_neutral_area or $attacking_colony->in_starter_zone) {
+        out($attacking_colony->name." in Neutral Area or a Starting Zone, skipping.");
+        next;
+    }
     my $targets = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
         empire_id                   => { '>' => 1 },
         is_isolationist             => 0,
@@ -68,7 +72,7 @@ while (my $attacking_colony = $colonies->next) {
     if (defined $target_colony && !$cache->get('saben'.$attacking_colony->id.'-'.$target_colony->empire_id)) {
         out('Attacking '.$target_colony->name.' with sweepers and bleeders and snarks');
         push @attacks, $ai->start_attack($attacking_colony, $target_colony, [qw(sweeper bleeder snark1 snark2 snark3)]);
-        $cache->set('saben_attack',$attacking_colony->id.'-'.$target_colony->empire_id, 1, 60 * 60 * 48);
+        $cache->set('saben_attack',$attacking_colony->id.'-'.$target_colony->empire_id, 1, 60 * 60 * 72);
     }
 }
 
