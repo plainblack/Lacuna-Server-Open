@@ -1894,7 +1894,7 @@ sub uprising {
     $self->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
         filename    => 'uprising.txt',
-        params      => [$self->name, $self->on_body->id, $self->on_body->name, $loss],
+        params      => [$self->name, $self->on_body->id, $self->on_body->name, commify($loss)],
     );
     $self->on_body->add_news(100,
                              'Led by %s, the citizens of %s are rebelling against %s.',
@@ -3141,12 +3141,12 @@ sub economic_report {
     my ($self, $defender) = @_;
     my @resources = (
         ['Resource', 'Per Hour', 'Stored'],
-        [ 'Food', $self->on_body->food_hour, $self->on_body->food_stored ],
-        [ 'Water', $self->on_body->water_hour, $self->on_body->water_stored ],
-        [ 'Energy', $self->on_body->energy_hour, $self->on_body->energy_stored ],
-        [ 'Ore', $self->on_body->ore_hour, $self->on_body->ore_stored ],
-        [ 'Waste', $self->on_body->waste_hour, $self->on_body->waste_stored ],
-        [ 'Happiness', $self->on_body->happiness_hour, $self->on_body->happiness ],
+        [ 'Food',      commify($self->on_body->food_hour),      commify($self->on_body->food_stored) ],
+        [ 'Water',     commify($self->on_body->water_hour),     commify($self->on_body->water_stored) ],
+        [ 'Energy',    commify($self->on_body->energy_hour),    commify($self->on_body->energy_stored) ],
+        [ 'Ore',       commify($self->on_body->ore_hour),       commify($self->on_body->ore_stored) ],
+        [ 'Waste',     commify($self->on_body->waste_hour),     commify($self->on_body->waste_stored) ],
+        [ 'Happiness', commify($self->on_body->happiness_hour), commify($self->on_body->happiness) ],
     );
     return $self->empire->send_predefined_message(
         tags        => ['Intelligence'],
@@ -3170,7 +3170,7 @@ sub supply_report {
              [ $chain->target->name,
                'Out',
                $chain->resource_type,
-               $chain->resource_hour,
+               commify($chain->resource_hour),
                $chain->percent_transferred ];
     }
     foreach my $chain ($self->on_body->in_supply_chains) {
@@ -3178,7 +3178,7 @@ sub supply_report {
              [ $chain->planet->name,
                'In',
                $chain->resource_type,
-               $chain->resource_hour,
+               commify($chain->resource_hour),
                $chain->percent_transferred ];
     }
     foreach my $chain ($self->on_body->waste_chains) {
@@ -3186,7 +3186,7 @@ sub supply_report {
              [ $chain->star->name,
                'Out',
                'waste',
-               $chain->waste_hour,
+               commify($chain->waste_hour),
                $chain->percent_transferred ];
     }
     if (scalar @chains == 1) {
