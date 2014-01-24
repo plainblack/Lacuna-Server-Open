@@ -44,6 +44,10 @@ my @attacks;
 while (my $attacking_colony = $colonies->next) {
     out('Found colony to attack from named '.$attacking_colony->name);
 
+    if ($cache->get('saben_attack',$attacking_colony->id)) {
+        out('Attacked recently from '.$attacking_colony->name);
+        next;
+    }
     $ai->destroy_world($attacking_colony);
 
     out('Finding target body to attack...');
@@ -74,6 +78,8 @@ while (my $attacking_colony = $colonies->next) {
         push @attacks, $ai->start_attack($attacking_colony, $target_colony, [qw(sweeper bleeder snark1 snark2 snark3)]);
         $cache->set('saben_attack',$attacking_colony->id.'-'.$target_colony->empire_id, 1, 60 * 60 * 72);
     }
+    my $rest = randint(18,36);
+    $cache->set('saben_attack',$attacking_colony->id, 1, 60 * 60 * $rest);
 }
 
 out("Waiting on attacks...");
