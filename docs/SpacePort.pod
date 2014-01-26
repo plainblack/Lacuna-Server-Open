@@ -134,7 +134,7 @@ Optional. A hash reference that contains the filter criteria. Valid filter optio
 
 =head4 task
 
-Optional. An array reference or string with the task(s) to filter on. Valid tasks include Docked, Building, Mining, Travelling, and Defend.
+Optional. An array reference or string with the task(s) to filter on. Valid tasks include Building, Defend, Docked, Mining, Orbiting, Supply Chain, Travelling, Waiting on Trade, and Waste Chain
 
 =head4 type
 
