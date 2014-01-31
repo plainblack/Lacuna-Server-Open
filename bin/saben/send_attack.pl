@@ -73,7 +73,7 @@ while (my $attacking_colony = $colonies->next) {
         $cache->set('saben_attack',$attacking_colony->id.'-'.$target_colony->empire_id, 1, 60 * 60 * 48);
     }
     $target_colony = $targets->next;
-    if (defined $target_colony && !$cache->get('saben'.$attacking_colony->id.'-'.$target_colony->empire_id)) {
+    if (defined $target_colony && !$cache->get('saben_attack'.$attacking_colony->id.'-'.$target_colony->empire_id)) {
         out('Attacking '.$target_colony->name.' with sweepers and bleeders and snarks');
         push @attacks, $ai->start_attack($attacking_colony, $target_colony, [qw(sweeper bleeder snark1 snark2 snark3)]);
         $cache->set('saben_attack',$attacking_colony->id.'-'.$target_colony->empire_id, 1, 60 * 60 * 72);
