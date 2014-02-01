@@ -45,9 +45,11 @@ sub empire_defaults {
 sub colony_structures {
     return (
         ['Lacuna::DB::Result::Building::Waste::Sequestration', 20],
-        ['Lacuna::DB::Result::Building::Intelligence', 10],
+        ['Lacuna::DB::Result::Building::Intelligence', 15],
         ['Lacuna::DB::Result::Building::Security', 15],
-        ['Lacuna::DB::Result::Building::Shipyard', 10],
+        ['Lacuna::DB::Result::Building::Shipyard', 15],
+        ['Lacuna::DB::Result::Building::Shipyard', 15],
+        ['Lacuna::DB::Result::Building::Shipyard', 15],
         ['Lacuna::DB::Result::Building::SpacePort', 15],
         ['Lacuna::DB::Result::Building::SpacePort', 15],
         ['Lacuna::DB::Result::Building::SpacePort', 15],
@@ -56,10 +58,10 @@ sub colony_structures {
         ['Lacuna::DB::Result::Building::Observatory',15],
         ['Lacuna::DB::Result::Building::Archaeology',10],
         ['Lacuna::DB::Result::Building::Trade', 15],
-        ['Lacuna::DB::Result::Building::SAW',20],
-        ['Lacuna::DB::Result::Building::SAW',20],
-        ['Lacuna::DB::Result::Building::SAW',20],
-        ['Lacuna::DB::Result::Building::SAW',20],
+        ['Lacuna::DB::Result::Building::SAW',15],
+        ['Lacuna::DB::Result::Building::SAW',15],
+        ['Lacuna::DB::Result::Building::SAW',15],
+        ['Lacuna::DB::Result::Building::SAW',15],
         ['Lacuna::DB::Result::Building::Permanent::Volcano',15],
         ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',15],
         ['Lacuna::DB::Result::Building::Permanent::GratchsGauntlet',15],
@@ -109,6 +111,7 @@ sub run_hourly_colony_updates {
     $self->set_defenders($colony);
     $self->pod_check($colony, 10);
     $self->reset_stuff($colony);
+    $self->repair_buildings($colony);
     $self->train_spies($colony);
     $self->build_ships($colony);
     $self->run_missions($colony);
@@ -198,29 +201,23 @@ return ([
   { "class" => "Lacuna::DB::Result::Building::Permanent::GasGiantPlatform", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::GeoThermalVent", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::GratchsGauntlet", "level" => "1", "extra" => "0", "quantity" => "25" },
-  { "class" => "Lacuna::DB::Result::Building::Permanent::GreatBallOfJunk", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::Grove", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::HallsOfVrbansk", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::InterDimensionalRift", "level" => "1", "extra" => "0", "quantity" => "25" },
-  { "class" => "Lacuna::DB::Result::Building::Permanent::JunkHengeSculpture", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::KalavianRuins", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::Lagoon", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::Lake", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::LapisForest", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::LibraryOfJith", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::MalcudField", "level" => "1", "extra" => "0", "quantity" => "25" },
-  { "class" => "Lacuna::DB::Result::Building::Permanent::MetalJunkArches", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::NaturalSpring", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::OracleOfAnid", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::PantheonOfHagness", "level" => "1", "extra" => "0", "quantity" => "25" },
-  { "class" => "Lacuna::DB::Result::Building::Permanent::PyramidJunkSculpture", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::Ravine", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::RockyOutcrop", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::Sand", "level" => "1", "extra" => "0", "quantity" => "25" },
-  { "class" => "Lacuna::DB::Result::Building::Permanent::SpaceJunkPark", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::TempleOfTheDrajilites", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::TerraformingPlatform", "level" => "1", "extra" => "0", "quantity" => "25" },
-  { "class" => "Lacuna::DB::Result::Building::Permanent::TheDillonForge", "level" => "1", "extra" => "0", "quantity" => "25" },
   { "class" => "Lacuna::DB::Result::Building::Permanent::Volcano", "level" => "1", "extra" => "0", "quantity" => "25" }
 ]);
 }

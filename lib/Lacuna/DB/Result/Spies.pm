@@ -1556,7 +1556,7 @@ sub sabotage_resources_loss {
 
 sub appropriate_resources {
     my $self = shift;
-    given (randint(1,5)) {
+    given (randint(1,6)) {
         when (1) { return $self->steal_ships(@_) }
         when (2) { return $self->steal_resources(@_) }
         when (3) { return $self->take_control_of_probe(@_) }
