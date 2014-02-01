@@ -15,7 +15,7 @@ out('Started');
 my $start = time;
 
 out('Loading AI');
-my $ai = Lacuna::AI::Saben->new;
+my $ai = Lacuna::AI::Jackpot->new;
 
 out('Running Updates');
 $ai->run_all_hourly_colony_updates; 

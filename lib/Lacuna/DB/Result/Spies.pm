@@ -197,7 +197,7 @@ sub offensive_assignments {
             skill       => 'politics',
         },
     );
-    if (eval{$self->can_conduct_advanced_missions}) {
+    if (eval{$self->can_conduct_advanced_missions} or $self->on_body->empire_id == -4) {
         push @assignments, (
             {
                 task        =>'Appropriate Technology',
