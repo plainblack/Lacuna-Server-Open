@@ -56,8 +56,9 @@ sub create_empire {
     );
     my $db      = Lacuna->db;
     my $empire  = $db->resultset('Lacuna::DB::Result::Empire')->new(\%attributes)->insert;
-    my $zone    = $db->resultset('Lacuna::DB::Result::Map::Body')->get_column('zone')->max;
-    my $home    = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
+#    my $zone    = $db->resultset('Lacuna::DB::Result::Map::Body')->get_column('zone')->max;
+#    my $home    = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
+    my $home    = $self->viable_colonies->search(undef,{rows=>1})->single;
     my @to_demolish = @{$home->building_cache};
     $home->delete_buildings(\@to_demolish);
     $empire->found($home);
@@ -186,6 +187,7 @@ sub add_colonies {
                          },{
                            join       => 'stars',
                            rows       => 100,
+                           order_by => 'rand()'
                    });
                 my $body = random_element(\@bodies);
 
