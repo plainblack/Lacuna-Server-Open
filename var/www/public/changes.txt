@@ -1,5 +1,6 @@
 3.0902:
  - Add: Jackpot AI
+ - Fix: Idle spies that hit max training on check.
 
 3.0901:
  - API: Spaceport ship filter includes all relevant tasks.
