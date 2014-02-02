@@ -426,6 +426,7 @@ sub is_available {
                     my $fskill = $self->$tr_skill + $points_to_add;
                     $fskill = $max_points if ($fskill > $max_points);
                     $self->$tr_skill($fskill);
+                    $self->task('Idle') if ($fskill >= $max_points);
                     $self->started_assignment($now->clone->subtract(minutes => $remain_min)); # Put time at now with remainder
                     $self->update_level;
                     $self->update;
