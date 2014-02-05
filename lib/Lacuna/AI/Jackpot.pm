@@ -56,6 +56,7 @@ sub colony_structures {
         ['Lacuna::DB::Result::Building::SpacePort', 15],
         ['Lacuna::DB::Result::Building::SpacePort', 15],
         ['Lacuna::DB::Result::Building::Observatory',15],
+        ['Lacuna::DB::Result::Building::Oversight',15],
         ['Lacuna::DB::Result::Building::Archaeology',10],
         ['Lacuna::DB::Result::Building::Trade', 15],
         ['Lacuna::DB::Result::Building::SAW',15],
@@ -120,6 +121,12 @@ sub run_hourly_colony_updates {
 sub reset_stuff {
     my ($self, $colony) = @_;
 
+    print "Resetting Happiness\n";
+    if ($colony->happiness < 1_000_000_000_000) {
+        $colony->happiness(1_000_000_000_000);
+        $colony->update;
+    }
+
     print "Resetting Buildings\n";
     my %structures = map { $_->[0] => $_->[1] } $self->colony_structures;
 
@@ -166,6 +173,10 @@ sub reject_badspy {
     my $spies = Lacuna->db->resultset('Spies')->search({
                     'me.on_body_id' => $colony->id,
                     'me.empire_id'  => {'!=' => $colony->empire_id },
+                    'me.task'       => { 'not in' => ['Killed In Action',
+                                                      'Travelling',
+                                                      'Captured',
+                                                      'Prisoner Transport'] },
                     'empire.university_level' => { '>' => 15 },
                 },{
                     join                      => 'empire',
