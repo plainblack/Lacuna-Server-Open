@@ -182,6 +182,10 @@ Methods for interacting with planets and other stellar bodies.
 
 Methods for interacting with the buildings on a body.
 
+=item L<Modules>
+
+Similar to the buildings on a body but with methods specific to space stations.
+
 =item L<Payments>
 
 How to allow users to purchase Essentia from your app.
