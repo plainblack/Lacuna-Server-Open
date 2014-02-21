@@ -12,7 +12,7 @@ before pass => sub {
     if ($star->in_starter_zone) {
         $self->pass_extra_message('This star is in a starter zone and cannot be seized.');
     }
-    if ($star->in_neutral_area) {
+    elsif ($star->in_neutral_area) {
         $self->pass_extra_message('This star is in the neutral area and cannot be seized.');
     }
     elsif (!$star->station_id) {
