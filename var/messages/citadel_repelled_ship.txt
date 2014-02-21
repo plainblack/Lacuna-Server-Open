@@ -1,4 +1,4 @@
-Citadel Reppeled Ship
+Citadel Repelled Ship
 ~~~
 We just tracked a %s as it broke through the atmosphere on {Planet %s %s}. Our Citadel of Knope repelled it and sent it back from where it came from.
 
