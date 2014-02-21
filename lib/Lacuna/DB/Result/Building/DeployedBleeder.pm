@@ -40,6 +40,15 @@ after finish_upgrade => sub {
     }
 };
 
+sub finish_upgrade_news
+{
+    my ($self, $new_level, $empire) = @_;
+    if ($new_level % 5 == 0) {
+        my %levels = (5=>'shocked',10=>'stunned into silence',15=>'bewildered',20=>'dumbfounded',25=>'depressed',30=>'in great fear');
+        $self->body->add_news($new_level*4,"Standing around %s, the citizens of %s watched as their %s grew on its own.", $levels{$new_level}, $empire->name, $self->name);
+    }
+}
+
 sub production_hour {
     my $self = shift;
     return 0 unless  $self->level;

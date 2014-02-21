@@ -909,10 +909,7 @@ sub finish_upgrade {
             my $type = $self->controller_class;
             $type =~ s/^Lacuna::RPC::Building::(\w+)$/$1/;
             $empire->add_medal($type);
-            if ($new_level % 5 == 0) {
-                my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'a magical');
-                $self->body->add_news($new_level*4,"In %s ceremony, %s unveiled its newly augmented %s.", $levels{$new_level}, $empire->name, $self->name);
-            }
+            $self->finish_upgrade_news($new_level, $empire);
         }
 
         $self->reschedule_queue;
@@ -928,6 +925,15 @@ sub finish_upgrade {
     Lacuna->cache->delete('upgrade_contention_lock', $self->id);
 
     return $self;
+}
+
+sub finish_upgrade_news
+{
+    my ($self, $new_level, $empire) = @_;
+    if ($new_level % 5 == 0) {
+        my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'a magical');
+        $self->body->add_news($new_level*4,"In %s ceremony, %s unveiled its newly augmented %s.", $levels{$new_level}, $empire->name, $self->name);
+    }
 }
 
 # Cancel the upgrade of any one build on the build queue
