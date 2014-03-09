@@ -315,6 +315,11 @@ sub send_ship_types {
         my $ship = $ships[0];
         # We only need to check one of the ships
         $ship->can_send_to_target($target);
+#Check speed of ship.  If it can not make it to the target in time, fail
+        my $earliest = DateTime->now->add(seconds=>$ship->calculate_travel_time($target));
+        if ($earliest > $arrival) {
+            confess [1009, "Cannot set a speed earlier than possible arrival time."];
+        }
         if (not $do_captcha_check and $ship->hostile_action) {
             $do_captcha_check = 1;
         }

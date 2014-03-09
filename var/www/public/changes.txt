@@ -3,6 +3,7 @@
  - Fix: Idle spies that hit max training on check.
  - Fix: Seizing in Neutral Area fails if passed. (Thanks RO)
  - Add: Custom message for upgrades in code.  (so far, just bleeders. Thanks Tower)
+ - Fix: No shortcuts via the forbidden zone.
 
 3.0901:
  - API: Spaceport ship filter includes all relevant tasks.
