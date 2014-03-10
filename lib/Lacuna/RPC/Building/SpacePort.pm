@@ -412,7 +412,7 @@ sub recall_ship {
     $body->empire($empire);
     $ship->can_recall();
 
-    $ship->fleet_speed($fleet_speed || 0);
+    $ship->fleet_speed(0);
 
     my $target = $self->find_target({body_id => $ship->foreign_body_id});
     $ship->send(
@@ -442,7 +442,7 @@ sub recall_all {
         }
         $body->empire($empire);
         $ship->can_recall();
-        $ship->fleet_speed($fleet_speed || 0);
+        $ship->fleet_speed(0);
 
         my $target = $self->find_target({body_id => $ship->foreign_body_id});
         $ship->send(
