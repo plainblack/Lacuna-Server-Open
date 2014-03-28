@@ -1,3 +1,8 @@
+3.0903:
+ - Fix: Have spies set on propaganda start work immediately.
+ - Fix: Stakes no longer go into Members Only Colony Space.
+ - Fix: Crater gets cleared if AI is out of space.
+
 3.0902:
  - Add: Jackpot AI
  - Fix: Idle spies that hit max training on check.

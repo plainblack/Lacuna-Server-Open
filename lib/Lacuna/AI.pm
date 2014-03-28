@@ -300,7 +300,7 @@ sub pod_check {
     else {
       my @craters = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Crater');
       if (@craters) {
-        my $crater =  random_element @craters;
+        my $crater =  random_element \@craters;
         $crater->demolish;
       }
     }
