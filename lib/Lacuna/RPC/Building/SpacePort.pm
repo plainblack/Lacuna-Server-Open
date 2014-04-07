@@ -496,9 +496,22 @@ sub prepare_send_spies {
         push @ships, $ship->get_status($to_body);
     }
 
+    my $dt_parser = Lacuna->db->storage->datetime_parser;
+    my $now = $dt_parser->format_datetime( DateTime->now );
+
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-        {on_body_id => $on_body->id, empire_id => $empire->id },
-        {order_by => 'name', rows=>100}
+        {
+            on_body_id => $on_body->id, 
+            empire_id => $empire->id,
+            -or => [
+                task => { in => [ 'Idle', 'Counter Espionage' ], },
+                -and => [
+                    task => { in => [ 'Unconscious', 'Debriefing' ], },
+                    available_on => { '<' => $now }, 
+                ],
+            ],
+        },
+        {order_by => 'name'}
     );
     my @spies;
     while (my $spy = $spies->next) {
@@ -506,7 +519,9 @@ sub prepare_send_spies {
         if ($spy->is_available) {
             push @spies, $spy->get_status;
         }
+        last if (scalar @spies >= 100);
     }
+    undef $spies;
 
     return {
         status  => $self->format_status($empire),
@@ -642,7 +657,7 @@ sub prepare_fetch_spies {
                 ],
             ],
         },
-        {order_by => 'name', rows=>100}
+        {order_by => 'name'}
     );
     my @spies;
     while (my $spy = $spies->next) {
@@ -650,7 +665,9 @@ sub prepare_fetch_spies {
         if ($spy->is_available) {
             push @spies, $spy->get_status;
         }
+        last if (scalar @spies >= 100);
     }
+    undef $spies;
     
     return {
         status  => $self->format_status($empire),

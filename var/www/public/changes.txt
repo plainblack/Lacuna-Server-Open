@@ -2,6 +2,7 @@
  - Fix: Have spies set on propaganda start work immediately.
  - Fix: Stakes no longer go into Members Only Colony Space.
  - Fix: Crater gets cleared if AI is out of space.
+ - Fix: Get first 100 spies via prepare_send or fetch that are available.
 
 3.0902:
  - Add: Jackpot AI
