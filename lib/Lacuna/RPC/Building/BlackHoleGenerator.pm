@@ -1232,7 +1232,15 @@ sub bhg_swap {
         if (defined($target->empire)) {
             my $toracle = $body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
             if ($toracle) {
-                $toracle->recalc_probes;
+                if ($toracle->is_working) {
+                    my $work_ends = $toracle->work_ends->clone;
+                    $work_ends = $work_ends->add(seconds => 60 * 15);
+                    $toracle->reschedule_work($work_ends);
+                }
+                else {
+                    $toracle->start_work({}, 60 * 15);
+                }
+                $toracle->update;
             }
             my $mbody = Lacuna->db
                 ->resultset('Lacuna::DB::Result::Map::Body')
@@ -1277,7 +1285,15 @@ sub bhg_swap {
         }
         my $boracle = $body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
         if ($boracle) {
-            $boracle->recalc_probes;
+            if ($boracle->is_working) {
+                my $work_ends = $boracle->work_ends->clone;
+                $work_ends = $work_ends->add(seconds => 60 * 15);
+                $boracle->reschedule_work($work_ends);
+            }
+            else {
+                $boracle->start_work({}, 60 * 15);
+            }
+            $boracle->update;
         }
     }
     if (defined($body->empire)) {

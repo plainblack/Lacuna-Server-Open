@@ -30,8 +30,18 @@ sub probes {
 after finish_upgrade => sub {
     my $self = shift;
 
-    $self->recalc_probes;
     $self->body->add_news(30, sprintf('A warning to all enemies foreign and domestic. The government of %s sees all.', $self->body->name));
+
+    my $work_secs = 60;
+    if ($self->is_working) {
+        my $work_ends = $self->work_ends->clone;
+        $work_ends = $work_ends->add(seconds => $work_secs);
+        $self->reschedule_work($work_ends);
+    }
+    else {
+        $self->start_work({}, $work_secs);
+    }
+    $self->update;
 };
 
 before demolish => sub {
@@ -42,8 +52,12 @@ before demolish => sub {
 
 after update => sub {
     my $self = shift;
+};
 
+after finish_work => sub {
+    my $self = shift;
     $self->recalc_probes;
+    $self->update;
 };
 
 sub range {
