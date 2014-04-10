@@ -315,6 +315,11 @@ sub send_ship_types {
         my $ship = $ships[0];
         # We only need to check one of the ships
         $ship->can_send_to_target($target);
+#Check speed of ship.  If it can not make it to the target in time, fail
+        my $earliest = DateTime->now->add(seconds=>$ship->calculate_travel_time($target));
+        if ($earliest > $arrival) {
+            confess [1009, "Cannot set a speed earlier than possible arrival time."];
+        }
         if (not $do_captcha_check and $ship->hostile_action) {
             $do_captcha_check = 1;
         }
@@ -407,6 +412,8 @@ sub recall_ship {
     $body->empire($empire);
     $ship->can_recall();
 
+    $ship->fleet_speed(0);
+
     my $target = $self->find_target({body_id => $ship->foreign_body_id});
     $ship->send(
     target    => $target,
@@ -435,6 +442,7 @@ sub recall_all {
         }
         $body->empire($empire);
         $ship->can_recall();
+        $ship->fleet_speed(0);
 
         my $target = $self->find_target({body_id => $ship->foreign_body_id});
         $ship->send(
@@ -488,9 +496,22 @@ sub prepare_send_spies {
         push @ships, $ship->get_status($to_body);
     }
 
+    my $dt_parser = Lacuna->db->storage->datetime_parser;
+    my $now = $dt_parser->format_datetime( DateTime->now );
+
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
-        {on_body_id => $on_body->id, empire_id => $empire->id },
-        {order_by => 'name', rows=>100}
+        {
+            on_body_id => $on_body->id, 
+            empire_id => $empire->id,
+            -or => [
+                task => { in => [ 'Idle', 'Counter Espionage' ], },
+                -and => [
+                    task => { in => [ 'Unconscious', 'Debriefing' ], },
+                    available_on => { '<' => $now }, 
+                ],
+            ],
+        },
+        {order_by => 'name'}
     );
     my @spies;
     while (my $spy = $spies->next) {
@@ -498,7 +519,9 @@ sub prepare_send_spies {
         if ($spy->is_available) {
             push @spies, $spy->get_status;
         }
+        last if (scalar @spies >= 100);
     }
+    undef $spies;
 
     return {
         status  => $self->format_status($empire),
@@ -634,7 +657,7 @@ sub prepare_fetch_spies {
                 ],
             ],
         },
-        {order_by => 'name', rows=>100}
+        {order_by => 'name'}
     );
     my @spies;
     while (my $spy = $spies->next) {
@@ -642,7 +665,9 @@ sub prepare_fetch_spies {
         if ($spy->is_available) {
             push @spies, $spy->get_status;
         }
+        last if (scalar @spies >= 100);
     }
+    undef $spies;
     
     return {
         status  => $self->format_status($empire),

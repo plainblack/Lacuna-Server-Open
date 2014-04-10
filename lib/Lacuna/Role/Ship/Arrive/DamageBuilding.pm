@@ -159,14 +159,14 @@ after handle_arrival_procedures => sub {
                 $amount /= $i + 1;
                 my @splashed = 
                     grep {
-                        ($_->x > $building->x - $i) and
-                        ($_->x < $building->x + $i) and
-                        ($_->y > $building->y - $i) and
-                        ($_->y < $building->y + $i) and
+                        ($_->x >= $building->x - $i) and
+                        ($_->x <= $building->x + $i) and
+                        ($_->y >= $building->y - $i) and
+                        ($_->y <= $building->y + $i) and
                         ($_->class ne 'Lacuna::DB::Result::Building::Permanent::Crater') and
                         ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder') and
-                        ($_->class ne 'Lacuna::DB::Result::Building::TheDillonForge') and
-                        ($_->class ne 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope')
+                        ($_->class ne 'Lacuna::DB::Result::Building::TheDillonForge') # and
+#                        ($_->class ne 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope')
                     } @{$body_attacked->building_cache};
                 foreach my $damaged (@splashed) {
                     $damaged->body($body_attacked);

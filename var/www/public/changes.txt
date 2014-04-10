@@ -1,6 +1,18 @@
+3.0903:
+ - Fix: Have spies set on propaganda start work immediately.
+ - Fix: Stakes no longer go into Members Only Colony Space.
+ - Fix: Crater gets cleared if AI is out of space.
+ - Fix: Get first 100 spies via prepare_send or fetch that are available.
+ - Mod: Oracle of Anid schedules recalculation after a period of work instead of immediately.
+
 3.0902:
  - Add: Jackpot AI
  - Fix: Idle spies that hit max training on check.
+ - Fix: Seizing in Neutral Area fails if passed. (Thanks RO)
+ - Add: Custom message for upgrades in code.  (so far, just bleeders. Thanks Tower)
+ - Fix: No shortcuts via the forbidden zone.
+ - Fix: Recalled ships ignore fleet speed.
+ - Fix: Snarks splash damage now splash as advertised.
 
 3.0901:
  - API: Spaceport ship filter includes all relevant tasks.

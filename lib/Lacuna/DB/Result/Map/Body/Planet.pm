@@ -1499,7 +1499,7 @@ sub tick {
     $self->tick_to($now);
 
     # advance tutorial
-    if ($self->empire->tutorial_stage ne 'turing') {
+    if ($self->empire and $self->empire->tutorial_stage ne 'turing') {
         Lacuna::Tutorial->new(empire=>$self->empire)->finish;
     }
     # clear caches
@@ -2492,6 +2492,7 @@ sub add_waste {
     }
     else {
         my $empire = $self->empire;
+        return $self unless $empire;
         $self->waste_stored( $storage );
         $self->spend_happiness( $store - $storage ); # pollution
         if (!$empire->skip_pollution_warnings && $empire->university_level > 2 && !$empire->check_for_repeat_message('complaint_pollution'.$self->id)) {

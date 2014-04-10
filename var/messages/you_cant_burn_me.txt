@@ -2,6 +2,6 @@ I Quit!
 ~~~
 You can't burn me. I quit! In fact, I'm going to do better than quit, I'm going to go offer my services to {Empire %s %s}.
 
-Good Riddence,
+Good Riddance,
 
 %s

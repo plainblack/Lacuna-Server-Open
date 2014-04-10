@@ -562,6 +562,8 @@ sub assign {
                         'Political Propaganda',
                         'Sabotage BHG']) {
         $self->update;
+        $self->on_body->needs_recalc(1);
+        $self->on_body->update;
         return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
     }
     elsif ($assignment eq 'Intel Training') {
