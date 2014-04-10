@@ -483,12 +483,13 @@ sub is_available {
             if ($self->empire_id ne $self->on_body->empire_id) {
                 $self->on_body->update;
                 if (!$self->empire->alliance_id || $self->empire->alliance_id != $self->on_body->empire->alliance_id ) {
-                    my $hours = 1;
+                    my $seconds = 3600;
                     my $gauntlet = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::GratchsGauntlet');
                     if (defined $gauntlet) {
-                        $hours += int(($gauntlet->level * 3 * $gauntlet->efficiency)/100 + 1);
+                        $seconds += int(3600 * (($gauntlet->level * 3 * $gauntlet->efficiency)/100 + 1));
                     }
-                    my $infiltration_time = $self->available_on->clone->add(hours => $hours);
+
+                    my $infiltration_time = $self->available_on->clone->add(seconds => $seconds);
                     if ($infiltration_time->epoch > time) {
                         $self->task('Infiltrating');
                         $self->started_assignment(DateTime->now);
