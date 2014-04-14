@@ -4,6 +4,7 @@
 3.0904:
  - Fix: Removed cronic duplication in starmap API, hopefully reducing lag
  - Mod: Gratch now more granualar for infiltration times when damaged
+ - Mod: If planet is abandoned, spies from elsewhere will be set to Idle when ported home.
 
 3.0903:
  - Fix: Have spies set on propaganda start work immediately.

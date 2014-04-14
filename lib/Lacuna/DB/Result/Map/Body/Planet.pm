@@ -296,6 +296,7 @@ sub sanitize {
     my $enemy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $self->id});
     while (my $spy = $enemy->next) {
         $spy->on_body_id($spy->from_body_id);
+        $spy->task("Idle");
         $spy->update;
     }
     Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->id})->delete_all;
