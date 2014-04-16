@@ -1,5 +1,6 @@
 use strict;
 use 5.010;
+use lib 'lib';
 use lib '../lib';
 use Lacuna::DB;
 use Lacuna;
