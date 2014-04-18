@@ -9,9 +9,3 @@ etc/log4perl.conf
 etc/mime.types
 etc/nginx.conf
 var/www/public/index.html
-<<<<<<< HEAD
-=======
-
-bin/schedule_building.pid
-bin/schedule_ship_arrival.pid
->>>>>>> Backfit chiselchat changes from pt back to develop.
