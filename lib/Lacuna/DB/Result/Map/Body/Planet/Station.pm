@@ -10,7 +10,6 @@ use Data::Dumper;
 use constant image => 'station';
 __PACKAGE__->has_many('propositions','Lacuna::DB::Result::Propositions','station_id');
 __PACKAGE__->has_many('laws','Lacuna::DB::Result::Laws','station_id');
-__PACKAGE__->has_many('stars','Lacuna::DB::Result::Map::Star','station_id');
 
 has parliament => (
     is      => 'rw',

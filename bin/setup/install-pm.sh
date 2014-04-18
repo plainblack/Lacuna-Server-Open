@@ -43,4 +43,5 @@ cpanm Log::Log4perl
 cpanm Log::Any::Adapter
 cpanm Log::Any::Adapter::Log4perl
 cpanm Plack::Middleware::CrossOrigin
+cpanm GD
 

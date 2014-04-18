@@ -1,6 +1,6 @@
 use 5.010;
 use strict;
-use lib 'lib';
+use lib '/data/Lacuna-Server/lib';
 use Lacuna;
 
 use Getopt::Long;
@@ -10,8 +10,6 @@ our $quiet;
 GetOptions(
     'quiet'         => \$quiet,  
 );
-
-die "temporarily disabled";
 
 out('Started');
 my $start = time;
