@@ -1,4 +1,4 @@
-var/www/public/api
 etc/lacuna.conf
 bin/schedule_building.pid
 bin/schedule_ship_arrival.pid
+bin/setup/server/*.gz
