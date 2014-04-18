@@ -1,2 +1,2 @@
-var/www/public/api
 etc/lacuna.conf
+bin/setup/server/*.gz
