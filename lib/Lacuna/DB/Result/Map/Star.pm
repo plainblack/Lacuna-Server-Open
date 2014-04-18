@@ -10,12 +10,16 @@ __PACKAGE__->table('star');
 __PACKAGE__->add_columns(
     color                   => { data_type => 'varchar', size => 7, is_nullable => 0 },
     station_id              => { data_type => 'int', is_nullable => 1 },
+    alliance_id             => { data_type => 'int', is_nullable => 1 },
+    seize_strength          => { data_type => 'int', is_nullable => 0, default => 0 },
 );
+
+__PACKAGE__->belongs_to('station', 'Lacuna::DB::Result::Map::Body', 'station_id', { join_type => 'left', on_delete => 'set null' });
+__PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Alliance', 'alliance_id', { join_type => 'left', on_delete => 'set null' });
 
 __PACKAGE__->has_many('bodies', 'Lacuna::DB::Result::Map::Body', 'star_id');
 __PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'star_id');
 __PACKAGE__->has_many('laws', 'Lacuna::DB::Result::Laws', 'star_id');
-__PACKAGE__->belongs_to('station', 'Lacuna::DB::Result::Map::Body', 'station_id', { on_delete => 'set null' });
 
 sub send_predefined_message {
     my ($self, %options) = @_;

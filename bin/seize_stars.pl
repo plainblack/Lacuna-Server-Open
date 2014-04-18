@@ -1,6 +1,6 @@
 use 5.010;
 use strict;
-use lib 'lib';
+use lib '/data/Lacuna-Server/lib';
 use Lacuna;
 
 use Getopt::Long;
@@ -11,6 +11,13 @@ GetOptions(
     'quiet'         => \$quiet,  
 );
 
+# This is a one-off script which runs and populates all the seize_star table
+# with the results of the SS which are in range of each star.
+#
+# It is not indended that it is run in production, there should be a script
+# which will update the stars and the seize_star table automatically whenever
+# there is a significant change to a SS
+#
 
 out('Started');
 my $start = time;

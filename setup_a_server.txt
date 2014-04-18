@@ -37,7 +37,7 @@ Remove SSH root login.
 
 Install a few repos.
 
-  [root@myserver /]# yum install git mysql mysql-devel cpan
+  [root@myserver /]# yum install git mysql mysql-devel cpan gd gd-devel
 
 Create a directory for the repos and get them
 

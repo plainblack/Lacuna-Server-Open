@@ -7,7 +7,7 @@ use GD;
 use Lacuna::DB;
 use Lacuna;
 
-my $img_file        = '/home/icydee/space-bot-war-client/public/img/starmap.png';
+my $img_file        = '/data/Lacuna-Server/var/www/public/alliancemap/today.png';
 my $img             = GD::Image->new(3500,3000);
 my $clr_background  = $img->colorAllocate(0,0,0);
 my $clr_grid        = $img->colorAllocate(75,75,75);
