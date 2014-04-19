@@ -1,5 +1,6 @@
 alter table star add column alliance_id int(11);
 alter table star add column seize_strength int(11);
+alter table star add column recalc int(11) default 1;
 
 alter table star add foreign key (alliance_id) references alliance(id);
 
