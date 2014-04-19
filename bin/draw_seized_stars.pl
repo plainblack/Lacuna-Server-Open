@@ -8,11 +8,10 @@ use Lacuna::DB;
 use Lacuna;
 
 my $img_file        = '/data/Lacuna-Server/var/www/public/alliancemap/today.png';
-my $img             = GD::Image->new(3500,3000);
-my $clr_background  = $img->colorAllocate(0,0,0);
-my $clr_grid        = $img->colorAllocate(75,75,75);
-my $clr_star        = $img->colorAllocate(50,50,50);
-my $clr_red         = $img->colorAllocate(255,0,0);
+my $img             = GD::Image->newTrueColor(3500,3000);
+my $clr_background  = $img->colorAllocateAlpha(0,0,0,0);
+my $clr_grid        = $img->colorAllocateAlpha(75,75,75,0);
+my $clr_star        = $img->colorAllocateAlpha(50,50,50,0);
 
 my $alliance_ref;
 my $alliance_color;
@@ -70,12 +69,13 @@ my $index = 0;
 foreach (1..30) {
     my ($r, $g, $b) = get_rgb();
     push @colors, [$r, $g, $b];
-#    print "$index\t$r\t$g\t$b\n";
     $index++;
 }
 # the next colour grey to use for Alliances which we don't have
 # a pre-defined colour for
 my $grey = 88;
+
+$img->alphaBlending(1);
 
 $img->filledRectangle(0,0,3499,2999,$clr_background);
 # draw the grid
@@ -101,7 +101,7 @@ while (my $star = $stars_rs->next) {
     my $clr = $clr_star;
 
     my $alliance_id = $star->alliance_id;
-    my $star_size = 1;
+    my $star_size = 0;
 
     if ($alliance_id and $star->seize_strength > 0) {
         if (not $alliance_ref->{$alliance_id}) {
@@ -115,23 +115,35 @@ while (my $star = $stars_rs->next) {
                 $grey++;
             }
             $alliance_ref->{$alliance->id} = $alliance;
-            $alliance_color->{$alliance->id} = $img->colorAllocate($r, $g, $b);
+            $alliance_color->{$alliance_id} = {
+                4 => $img->colorAllocateAlpha($r, $g, $b, 0),  # opaque
+                3 => $img->colorAllocateAlpha($r, $g, $b, 32),
+                2 => $img->colorAllocateAlpha($r, $g, $b, 64),
+                1 => $img->colorAllocateAlpha($r, $g, $b, 96), # nearly transparent
+            };
         }
-        $clr = $alliance_color->{$alliance_id};
+        my $alpha_color = $alliance_color->{$alliance_id};
         if ($star->seize_strength > 200) {
             $star_size = 4;
+            $clr = $alpha_color->{4};
         }
         elsif ($star->seize_strength > 100) {
             $star_size = 3;
+            $clr = $alpha_color->{3};
         }
         elsif ($star->seize_strength > 50) {
             $star_size = 2;
+            $clr = $alpha_color->{2};
+        }
+        elsif ($star->seize_strength > 0) {
+            $star_size = 1;
+            $clr = $alpha_color->{1};
         }
     }
     if ($star->zone eq "-3|0" || $star->zone eq "-1|1" || $star->zone eq "-1|-1" || $star->zone eq "1|1" || $star->zone eq "1|-1") {
         # neutral and starter zones 
         $clr = $clr_star;
-        $star_size = 2;
+        $star_size = 0;
     }
     draw_star($x, $y, $clr, $star_size);            
 }
@@ -146,31 +158,13 @@ close FILE;
 sub draw_star {
     my ($x, $y, $color, $size) = @_;
 
-    print "Draw star color [$color]\n";
-    # Drawe base star.
-    if ($size == 1 ) {
-        draw_star_1($x, $y, $clr_star);
-        $img->setPixel(1500+$x,1500-$y,$color);
-        $img->setPixel(1500+$x,1501-$y,$color);
-        $img->setPixel(1501+$x,1500-$y,$color);
-        $img->setPixel(1501+$x,1501-$y,$color);
-
-    }
-    elsif ($size == 2) {
-        draw_star_1($x, $y, $color);
-    }
-    elsif ($size == 3) {
-        draw_star_2($x, $y, $color, 6.5);
-    }
-    else {
-        draw_star_2($x, $y, $color, 13);
-    }
+    draw_star_1($x, $y, $clr_star);
+    draw_star_2($x, $y, $color, 15) if $size;
 }
 
 sub draw_star_1 {
     my ($x, $y, $color) = @_;
 
-    print "Draw star color $color\n";
     foreach my $v (0..3) {
         foreach my $w (0..3) {
             if ($v==1 or $v==2 or $w==1 or $w==2) {
