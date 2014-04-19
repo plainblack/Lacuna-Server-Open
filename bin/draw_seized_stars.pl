@@ -94,12 +94,16 @@ my $stars_rs = $db->resultset('Map::Star')->search({}, {
 
 print "processing star data\n";
 while (my $star = $stars_rs->next) {
+    print($star->id."\tProcessing star ".$star->name."\n");
+
     my $x   = $star->x;
     my $y   = $star->y;
     my $clr = $clr_star;
 
     my $alliance_id = $star->alliance_id;
-    if ($alliance_id and $star->seize_strength > 50) {
+    my $star_size = 1;
+
+    if ($alliance_id and $star->seize_strength > 0) {
         if (not $alliance_ref->{$alliance_id}) {
             my ($alliance) = $db->resultset('Alliance')->search({id => $alliance_id});
             my ($r, $g, $b);
@@ -114,12 +118,22 @@ while (my $star = $stars_rs->next) {
             $alliance_color->{$alliance->id} = $img->colorAllocate($r, $g, $b);
         }
         $clr = $alliance_color->{$alliance_id};
+        if ($star->seize_strength > 200) {
+            $star_size = 4;
+        }
+        elsif ($star->seize_strength > 100) {
+            $star_size = 3;
+        }
+        elsif ($star->seize_strength > 50) {
+            $star_size = 2;
+        }
     }
     if ($star->zone eq "-3|0" || $star->zone eq "-1|1" || $star->zone eq "-1|-1" || $star->zone eq "1|1" || $star->zone eq "1|-1") {
         # neutral and starter zones 
         $clr = $clr_star;
+        $star_size = 2;
     }
-    draw_star($x, $y, $clr);            
+    draw_star($x, $y, $clr, $star_size);            
 }
 
 # output the image
@@ -130,8 +144,33 @@ print FILE $png_data;
 close FILE;
 
 sub draw_star {
+    my ($x, $y, $color, $size) = @_;
+
+    print "Draw star color [$color]\n";
+    # Drawe base star.
+    if ($size == 1 ) {
+        draw_star_1($x, $y, $clr_star);
+        $img->setPixel(1500+$x,1500-$y,$color);
+        $img->setPixel(1500+$x,1501-$y,$color);
+        $img->setPixel(1501+$x,1500-$y,$color);
+        $img->setPixel(1501+$x,1501-$y,$color);
+
+    }
+    elsif ($size == 2) {
+        draw_star_1($x, $y, $color);
+    }
+    elsif ($size == 3) {
+        draw_star_2($x, $y, $color, 6.5);
+    }
+    else {
+        draw_star_2($x, $y, $color, 13);
+    }
+}
+
+sub draw_star_1 {
     my ($x, $y, $color) = @_;
 
+    print "Draw star color $color\n";
     foreach my $v (0..3) {
         foreach my $w (0..3) {
             if ($v==1 or $v==2 or $w==1 or $w==2) {
@@ -142,6 +181,13 @@ sub draw_star {
         }
     }
 }
+
+sub draw_star_2 {
+    my ($x, $y, $color, $radius) = @_;
+
+    $img->filledEllipse(1500+$x,1500-$y,$radius,$radius,$color);
+}
+
 
 # use golden ratio
 

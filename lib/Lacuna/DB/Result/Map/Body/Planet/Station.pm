@@ -10,6 +10,7 @@ use Data::Dumper;
 use constant image => 'station';
 __PACKAGE__->has_many('propositions','Lacuna::DB::Result::Propositions','station_id');
 __PACKAGE__->has_many('laws','Lacuna::DB::Result::Laws','station_id');
+__PACKAGE__->has_many('seize_stars', 'Lacuna::DB::Result::SeizeStar','station_id');
 
 has parliament => (
     is      => 'rw',
@@ -53,9 +54,10 @@ before sanitize => sub {
 after sanitize => sub {
     my $self = shift;
     $self->update({
-        size        => randint(1,10),
-        class       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
-        alliance_id => undef,
+        size            => randint(1,10),
+        class           => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
+        alliance_id     => undef,
+        seize_strength  => 0,
     });
 };
 
@@ -102,11 +104,11 @@ sub add_waste {
 sub in_jurisdiction {
     my ($self, $target) = @_;
     if (ref $target eq 'Lacuna::DB::Result::Map::Star') {
-        my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($target->id);
+        my $star = Lacuna->db->resultset('Map::Star')->find($target->id);
         unless (defined $star) {
             confess [1009, 'Invalid star'];
         }
-        unless ($star->station_id == $self->id) {
+        unless ($star->alliance_id == $self->alliance_id) {
             confess [1009, 'Target star is not in the station\'s jurisdiction.'];
         }
     } else {
@@ -143,20 +145,6 @@ sub _build_total_influence {
     return $influence;
 }
 
-has influence_spent => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return $self->stars->count;
-    },
-);
-
-sub influence_remaining {
-    my $self = shift;
-    return $self->total_influence - $self->influence_spent;
-}
-
 has range_of_influence => (
     is      => 'rw',
     lazy    => 1,
@@ -182,6 +170,60 @@ sub in_range_of_influence {
     return 1;
 }
 
+# Recalculate the influence of this station, this needs to be done when anything
+# affecting the SS influence takes place, examples include.
+#   Moving the SS
+#   Building/Upgrading/Downgrading a module
+#   Destroying it
+#   Modules changing efficiency
+#
+# We are using 'raw' SQL here since it is far more efficient than processing records
+# one-by-one using DBIx::Class
+#
+sub recalc_influence {
+    my ($self) = @_;
+
+    my ($ibs) = grep {$_->class eq 'Lacuna::DB::Result::Building::Module::IBS'} @{$self->building_cache};
+    my $ibs_level = defined $ibs ? $ibs->level : 0;
+    
+    # Mark all stars as 'recalc' currently linked to this station via the seize_star table
+    #
+    my $dbh = $self->result_source->storage->dbh;
+    my $sth_star = $dbh->prepare('update star join seize_star on star.id = seize_star.star_id set recalc=1 where seize_star.station_id=?');
+    $sth_star->execute($self->id);
+
+
+    # Delete all the existing seize_star records
+    #
+    my $sth = $dbh->prepare('delete seize_star where station_id=?');
+    $sth->execute($self->id);
+
+
+    # Recalculate all the new seize_star records
+    #
+    my $sql = <<END_SQL;
+insert into seize_star (station_id,star_id,alliance_id,seize_strength) (
+  select
+    ? as station_id,
+    star.id as star_id,
+    ? as alliance_id,
+    ceil(? * ? * 7.5 / (pow(star.x - body.x, 2) + pow(star.y - body.y, 2))) as seize_strength
+    from star, body
+    where body.id=?
+    and ceil(pow(pow(star.x - body.x, 2) + pow(star.y - body.y, 2), 0.5)) < ?
+  )
+;
+END_SQL
+    $sth = $dbh->do($sql, undef, $self->id, $self->alliance_id, $ibs_level, $self->total_influence, $self->id, $self->range_of_influence / 100);
+
+    # Mark all the 'new' stars as 'recalc' linked to this station via the seize_star table (we can use the earlier prepared statement)
+    #
+    $sth_star->execute($self->id);
+
+    # Now recalculate the allegience of all such marked stars
+    #    
+    $self->result_source->schema->resultset('Map::Star')->recalc_all;
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

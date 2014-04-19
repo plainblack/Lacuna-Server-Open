@@ -11,10 +11,11 @@ GetOptions(
     'quiet'         => \$quiet,  
 );
 
-# This is a one-off script which runs and populates all the seize_star table
-# with the results of the SS which are in range of each star.
+# This script is a one-off script which calculates the result of all Stations
+# which have an influence on each star and updates it with the alliance and
+# seize_strength.
 #
-# It is not indended that it is run in production, there should be a script
+# It is not intended that it is run in production, there should be a script
 # which will update the stars and the seize_star table automatically whenever
 # there is a significant change to a SS
 #
