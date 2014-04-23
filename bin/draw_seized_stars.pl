@@ -14,7 +14,6 @@ my $clr_grid        = $img->colorAllocateAlpha(75,75,75,0);
 my $clr_star        = $img->colorAllocateAlpha(50,50,50,0);
 
 my $alliance_ref;
-my $alliance_color;
 
 # Pre-defined alliance colours.
 # Anything not defined here will be given an arbitrary shade of grey
@@ -80,13 +79,6 @@ $img->alphaBlending(1);
 $img->filledRectangle(0,0,3499,2999,$clr_background);
 # draw the grid
 
-GRID: foreach my $i (0..12) {
-    next GRID if $i == 6;
-    my $offset = $i * 250;
-    $img->filledRectangle($offset,0,$offset+2,2999,$clr_grid);
-    $img->filledRectangle(0,$offset,2999,$offset+2,$clr_grid);
-}
-
 my $db = Lacuna->db;
 my $stars_rs = $db->resultset('Map::Star')->search({}, {
     prefetch => {station => 'alliance'},
@@ -101,51 +93,43 @@ while (my $star = $stars_rs->next) {
     my $clr = $clr_star;
 
     my $alliance_id = $star->alliance_id;
-    my $star_size = 0;
+    my $star_seized = 0;
 
     if ($alliance_id and $star->seize_strength > 0) {
-        if (not $alliance_ref->{$alliance_id}) {
-            my ($alliance) = $db->resultset('Alliance')->search({id => $alliance_id});
-            my ($r, $g, $b);
-            if ($alliance_rgb->{$alliance->id}) {
-                ($r, $g, $b) = @{$alliance_rgb->{$alliance->id}};
-            }
-            else {
-                ($r, $g, $b) = ($grey, $grey, $grey);
-                $grey++;
-            }
-            $alliance_ref->{$alliance->id} = $alliance;
-            $alliance_color->{$alliance_id} = {
-                4 => $img->colorAllocateAlpha($r, $g, $b, 0),  # opaque
-                3 => $img->colorAllocateAlpha($r, $g, $b, 32),
-                2 => $img->colorAllocateAlpha($r, $g, $b, 64),
-                1 => $img->colorAllocateAlpha($r, $g, $b, 96), # nearly transparent
-            };
+        if (not $alliance_rgb->{$alliance_id}) {
+            $alliance_rgb->{$alliance_id} = [$grey, $grey, $grey];
+            $grey++;
         }
-        my $alpha_color = $alliance_color->{$alliance_id};
-        if ($star->seize_strength > 200) {
-            $star_size = 4;
-            $clr = $alpha_color->{4};
-        }
-        elsif ($star->seize_strength > 100) {
-            $star_size = 3;
-            $clr = $alpha_color->{3};
-        }
-        elsif ($star->seize_strength > 50) {
-            $star_size = 2;
-            $clr = $alpha_color->{2};
-        }
-        elsif ($star->seize_strength > 0) {
-            $star_size = 1;
-            $clr = $alpha_color->{1};
-        }
+        
+        my $alpha = 127 - ($star->seize_strength / 2);
+        $alpha = 0 if $alpha < 0;
+        $alpha = 127 if $alpha > 127;
+
+        my ($r, $g, $b) = @{$alliance_rgb->{$alliance_id}};
+        $clr = $img->colorAllocateAlpha($r, $g, $b, $alpha);
+        $star_seized = 1;
+
     }
     if ($star->zone eq "-3|0" || $star->zone eq "-1|1" || $star->zone eq "-1|-1" || $star->zone eq "1|1" || $star->zone eq "1|-1") {
         # neutral and starter zones 
         $clr = $clr_star;
-        $star_size = 0;
+        $star_seized = 0;
     }
-    draw_star($x, $y, $clr, $star_size);            
+    draw_star($x, $y, $clr, $star_seized);            
+}
+
+# Draw the stars over the influence
+$stars_rs->reset;
+while (my $star = $stars_rs->next) {
+    draw_star_1($star->x, $star->y, $clr_star);
+}
+
+
+GRID: foreach my $i (0..12) {
+    next GRID if $i == 6;
+    my $offset = $i * 250;
+    $img->filledRectangle($offset,0,$offset+2,2999,$clr_grid);
+    $img->filledRectangle(0,$offset,2999,$offset+2,$clr_grid);
 }
 
 # output the image
@@ -156,10 +140,9 @@ print FILE $png_data;
 close FILE;
 
 sub draw_star {
-    my ($x, $y, $color, $size) = @_;
+    my ($x, $y, $color, $siezed) = @_;
 
-    draw_star_1($x, $y, $clr_star);
-    draw_star_2($x, $y, $color, 15) if $size;
+    draw_star_2($x, $y, $color, 15) if $siezed;
 }
 
 sub draw_star_1 {

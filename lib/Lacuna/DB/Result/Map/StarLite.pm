@@ -21,7 +21,9 @@ __PACKAGE__->add_columns(
     star_x                  => { data_type => 'int', size => 11, default_value => 0 },
     star_y                  => { data_type => 'int', size => 11, default_value => 0 },
     star_zone               => { data_type => 'varchar', size => 16, is_nullable => 0 },
-    station_id              => { data_type => 'int', size => 11}, 
+    alliance_id             => { data_type => 'int', size => 11}, 
+    seize_strength          => { data_type => 'int', size => 11},
+    seized                  => { data_type => 'int', size => 11},
     body_id                 => { data_type => 'int', size => 11},
     body_name               => { data_type => 'varchar', size => 30, is_nullable => 0 },
     body_orbit              => { data_type => 'int', default_value => 0 },
@@ -46,7 +48,9 @@ __PACKAGE__->result_source_instance->view_definition(q[
         star.x AS star_x,
         star.y AS star_y,
         star.zone as star_zone,
-        star.station_id AS station_id,
+        star.alliance_id AS alliance_id,
+        star.seize_strength as seize_strength,
+        IF (star.seize_strength > 50, 1, 0) as seized,
         body.id AS body_id,
         body.name AS body_name,
         body.orbit AS body_orbit,
@@ -77,7 +81,7 @@ __PACKAGE__->result_source_instance->view_definition(q[
 ]);
 # bind variables are alliance_id,empire_id,left,right,bottom,top
 
-__PACKAGE__->belongs_to('station', 'Lacuna::DB::Result::Map::Body', 'station_id');
+__PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Map::Body', 'alliance_id');
 
 # get the planet image name 
 # NOTE: This is not good, since image name generation is now duplicated.

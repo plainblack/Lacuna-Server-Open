@@ -1,5 +1,6 @@
 package TestHelper;
 
+use lib "../lib";
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
@@ -79,7 +80,7 @@ sub clear_all_test_empires {
 sub use_existing_test_empire {
     my ($self) = @_;
 
-    my ($empire) = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({
+    my ($empire) = Lacuna->db->resultset('Empire')->search({
         name => $self->empire_name,
     });
     if (not $empire) {
