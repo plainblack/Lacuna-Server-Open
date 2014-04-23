@@ -62,20 +62,7 @@ sub get_star_map {
 }
 
 sub get_stars {
-    my ($self, $session_id, $x1, $y1, $x2, $y2) = @_;
-    my ($startx,$starty,$endx,$endy);
-    if ($x1 > $x2) { $startx = $x2; $endx = $x1; } else { $startx = $x1; $endx = $x2; } # organize x
-    if ($y1 > $y2) { $starty = $y2; $endy = $y1; } else { $starty = $y1; $endy = $y2; } # organize y
-    if ((abs($endx - $startx) * abs($endy - $starty)) > 900) {
-        confess [1003, 'Requested area too large.'];
-    }
-    my $empire = $self->get_empire_by_session($session_id);
-    my $stars = Lacuna->db->resultset('Map::Star')->search({y=> {between => [$starty, $endy]}, x=>{between => [$startx, $endx]}});
-    my @out;
-    while (my $star = $stars->next) {
-        push @out, $star->get_status($empire);
-    }
-    return { stars=>\@out, status=>$self->format_status($empire) };
+    confess [1003, 'get_stars API is no longer supported. use get_star_map instead'];
 }
 
 sub get_star {

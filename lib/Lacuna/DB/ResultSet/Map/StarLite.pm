@@ -33,28 +33,24 @@ sub get_star_map {
                 y       => $row->star_y,
                 id      => $row->star_id,
                 zone    => $row->star_zone,
+                seized  => $row->seized,
+                seize_strength => $row->seize_strength,
             };
 
             $star_id = $row->star_id;
         }
-        if (defined $row->station_id) {
-            my $station = $cache->get_and_deserialize('starlite_station',$row->station_id);
-            if (not $station) {
-                my $station = {
-                    id          => $row->station->id,
-                    name        => $row->station->name,
-                    x           => $row->station->x,
-                    y           => $row->station->y,
-                    alliance    => {
-                        name    => $row->station->alliance->name,
-                        id      => $row->station->alliance_id,
-                        image   => $row->station->alliance->image,
-                    }
+        if (defined $row->alliance_id) {
+            my $alliance = $cache->get_and_deserialize('starlite_alliance',$row->alliance_id);
+            if (not $alliance) {
+                my $alliance = {
+                    id          => $row->alliance_id,
+                    name        => $row->alliance->name,
+                    image       => $row->alliance->image,
                 };
                 # set the expiry to 1hr
-                $cache->set('starlite_station',$row->station_id, $station, 60 * 60);
+                $cache->set('starlite_alliance',$row->alliance_id, $alliance, 60 * 60);
             }
-            $star->{station} = $station;
+            $star->{alliance} = $alliance;
         }
         if (defined $row->body_id) {
             my $body = {

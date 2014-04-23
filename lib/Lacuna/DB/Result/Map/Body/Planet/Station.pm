@@ -34,8 +34,8 @@ around get_status => sub {
             name    => $self->alliance->name,
         };
         $out->{influence} = {
-            spent => $self->influence_spent,
             total => $self->total_influence,
+            range => $self->range_of_influence,
         };
     }
     return $out;
@@ -53,6 +53,11 @@ before sanitize => sub {
 
 after sanitize => sub {
     my $self = shift;
+
+    # All buildings should be demolished, so no influence.
+    #  
+    $self->recalc_influence;
+
     $self->update({
         size            => randint(1,10),
         class           => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
@@ -61,6 +66,11 @@ after sanitize => sub {
     });
 };
 
+after recalc_stats => sub {
+    my $self = shift;
+    $self->recalc_influence;
+};
+	
 has command => (
     is      => 'rw',
     lazy    => 1,
@@ -139,7 +149,7 @@ sub _build_total_influence {
             $building->class eq 'Lacuna::DB::Result::Building::Module::CulinaryInstitute' or
             $building->class eq 'Lacuna::DB::Result::Building::Module::ArtMuseum'
             ) {
-            $influence += $building->level;
+            $influence += ($building->level * $building->efficiency) / 100;
         }
     }
     return $influence;
@@ -157,7 +167,7 @@ sub _build_range_of_influence {
     my $range = 0;
     my ($ibs) = grep {$_->class eq 'Lacuna::DB::Result::Building::Module::IBS'} @{$self->building_cache};
     if (defined $ibs) {
-        $range = $ibs->level * 1000;
+        $range = $ibs->level * $ibs->efficiency * 1000 / 100;
     }
     return $range;
 }
@@ -201,7 +211,8 @@ sub recalc_influence {
 
     # Recalculate all the new seize_star records
     #
-    my $sql = <<END_SQL;
+    if ($ibs_level and $self->total_influence > 0) {
+        my $sql = <<END_SQL;
 insert into seize_star (station_id,star_id,alliance_id,seize_strength) (
   select
     ? as station_id,
@@ -214,11 +225,12 @@ insert into seize_star (station_id,star_id,alliance_id,seize_strength) (
   )
 ;
 END_SQL
-    $sth = $dbh->do($sql, undef, $self->id, $self->alliance_id, $ibs_level, $self->total_influence, $self->id, $self->range_of_influence / 100);
+        $sth = $dbh->do($sql, undef, $self->id, $self->alliance_id, $ibs_level, $self->total_influence, $self->id, $self->range_of_influence / 100);
 
-    # Mark all the 'new' stars as 'recalc' linked to this station via the seize_star table (we can use the earlier prepared statement)
-    #
-    $sth_star->execute($self->id);
+        # Mark all the 'new' stars as 'recalc' linked to this station via the seize_star table (we can use the earlier prepared statement)
+        #
+        $sth_star->execute($self->id);
+    }
 
     # Now recalculate the allegience of all such marked stars
     #    

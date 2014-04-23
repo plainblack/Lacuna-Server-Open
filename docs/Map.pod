@@ -24,12 +24,11 @@ This takes a hashref of named arguments.
    "bottom" : 30
  }
 
-This is the preferred call to obtain star data. It is a 'lite' version of B<get_stars> which just returns 
-enough data to draw the starmap.
+This just returns enough data to draw the starmap.
 
 Where B<left>, B<top>, B<right>, B<bottom> represent the sides of the bounding rectangle.
 
-The maximum area that can be returned is 1001 units (e.g 50 x 20 or 1001 x 1)
+The maximum area that can be returned is 3001 units (e.g 50 x 60 or 3001 x 1)
 
 Returns a chunk of the map as an array of hashes. 
 
@@ -41,17 +40,13 @@ Returns a chunk of the map as an array of hashes.
        "x"          : -41,
        "y"          : 27,
        "id"         : 99,
-       "station" : {
-         "id"       : 2001,
-         "x"        : 143,
-         "y"        : -27,
-         "name"     : "The Death Star",
-         "alliance" : {
-           "name"     : "The Borg Collective",
-           "id"       : 23,
-           "image"    : 'my_logo_v001',
-         }
+       "alliance" : {
+         "id"       : 26,
+         "name"     : "Culture",
+         "image"    : "logo_26_002.png",
        }
+       "seize_strength" : 56,
+       "seized" : 1,
        "bodies" : [
          {
            "name"   : "Mercury",
@@ -91,92 +86,20 @@ Returns a chunk of the map as an array of hashes.
  }
 
 Note. This data is a cut-down version of that returned by get_stars, in particular it does not
-return most of the data for planets you occupy (ore, water etc.), does not return the 'station' 
-data if the planet in under the influence of a space-station and does not return the water or
-ore for the planet. You can make separate calls to the /body get_status for that information.
+return most of the data for planets you occupy (ore, water etc.) 
+You can make separate calls to the /body get_status for that information.
 
-The B<station> section is only returned if the star is under the influence of a Space station.
+The B<alliance> section is only returned if the star is influenced by an Alliance.
+
+B<seized> indicates if the star is seized by the B<alliance> which has the most influence.
+Note that a star may be under the influence of an alliance, but if it is less than 50 it
+will not be enough to seize it.
 
 The B<empire> section is only returned if the body is occupied by an empire.
 
 =head2 get_stars ( session_id, x1, y1, x2, y2 )
 
-Retrieves a chunk of the map and returns it as an array of hashes. B<Note:> Coordinates without a star will not be returned in the results.
-
- { 
-    "stars" : [
-        {
-            "name"          : "Sol",
-            "color"         : "yellow",
-            "x"             : -41,
-            "y"             : 27,
-            "zone"          : "0|0",
-            "id"            : "99",
-            "station" : { # only shows up if this star is under the influence of a space station
-                "id" : "id-goes-here",
-                "x" : 143,
-                "y" : -27,
-                "name" : "The Death Star"
-            },
-            "bodies"        : [     # only added if a probe is present
-                {
-                    same data as get_status() on /body
-                },
-                ...
-            ]
-        },
-        {
-            "name"          : "X143S",
-            "color"         : "green",
-            "x"             : -42,
-            "y"             : 27
-            "zone"          : "0|0",
-            "id"            : "99",
-            "station" : { ... }
-        }
-     ],
-    "status" : { ... }
- }
-
-The data you retrieve will allow you to draw a standard cartesian plane like the following. 
-
-              y
-              
-              |
-              |
-     (-3,3)   |  (3,3)
-              |
- -x ----------+---------- x
-              |
-     (-3,-3)  |  (3,-3)
-              |
-              |
-
-             -y
-
-
-The requested area can be no larger than 900 spaces (30x30). Throws 1003 when the area is too large. 
-
-
-=head3 session_id
-
-A session id.
-
-=head3 x1
-
-The top left x coord.
-
-=head3 y1
-
-The top left y coord.
-
-=head3 x2
-
-The bottom right x coord.
-
-=head3 y2
-
-The bottom right y coord.
+Note: use of this API is no longer supported.
 
 
 =head2 check_star_for_incoming_probe ( session_id, star_id )
