@@ -40,7 +40,7 @@ __PACKAGE__->result_source_instance->is_virtual(1);
 
 __PACKAGE__->result_source_instance->view_definition(q[
     select 
-        star.id AS star_id,
+        distinct(star.id) AS star_id,
         star.name AS star_name,
         star.color AS star_color,
         star.x AS star_x,
