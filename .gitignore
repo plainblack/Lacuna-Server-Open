@@ -8,4 +8,4 @@ etc/log4perl.conf
 etc/mime.types
 etc/nginx.conf
 var/www/public/index.html
-var/www/public/alliancemap/
+var/www/public/influencemap
