@@ -42,7 +42,7 @@ sub get_star_map {
         if (defined $row->alliance_id) {
             my $alliance = $cache->get_and_deserialize('starlite_alliance',$row->alliance_id);
             if (not $alliance) {
-                my $alliance = {
+                $alliance = {
                     id          => $row->alliance_id,
                     name        => $row->alliance->name,
                     image       => $row->alliance->image,
