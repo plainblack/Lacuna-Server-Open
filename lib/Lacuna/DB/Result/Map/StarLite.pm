@@ -81,7 +81,8 @@ __PACKAGE__->result_source_instance->view_definition(q[
 ]);
 # bind variables are alliance_id,empire_id,left,right,bottom,top
 
-__PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Map::Body', 'alliance_id');
+__PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Alliance', 'alliance_id');
+__PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 
 # get the planet image name 
 # NOTE: This is not good, since image name generation is now duplicated.
