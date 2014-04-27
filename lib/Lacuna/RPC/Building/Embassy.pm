@@ -33,7 +33,7 @@ sub assign_alliance_leader {
     unless ($empire_id) {
         confess [1002, 'You must specify which empire you want to take over leadership.'];
     }
-    my $new_leader = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    my $new_leader = Lacuna->db->resultset('Empire')->find($empire_id);
     unless (defined $new_leader) {
         confess [1002, 'The empire you specified to take over as leader does not exist.'];
     }
@@ -89,7 +89,7 @@ sub expel_member {
     my ($self, $session_id, $building_id, $member_id, $message) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $member = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($member_id);
+    my $member = Lacuna->db->resultset('Empire')->find($member_id);
     $building->expel_member($member, $message);
     return $self->get_alliance_status($empire, $building);
 }
@@ -101,7 +101,7 @@ sub accept_invite {
     unless ($invite_id) {
         confess [1002, 'You must specify an invite id.'];
     }
-    my $invite = Lacuna->db->resultset('Lacuna::DB::Result::AllianceInvite')->find($invite_id);
+    my $invite = Lacuna->db->resultset('AllianceInvite')->find($invite_id);
     unless (defined $invite) {
         confess [1002, 'Invitation not found.'];
     }
@@ -121,7 +121,7 @@ sub reject_invite {
     unless ($invite_id) {
         confess [1002, 'You must specify an invite id.'];
     }
-    my $invite = Lacuna->db->resultset('Lacuna::DB::Result::AllianceInvite')->find($invite_id);
+    my $invite = Lacuna->db->resultset('AllianceInvite')->find($invite_id);
     unless (defined $invite) {
         confess [1002, 'Invitation not found.'];
     }
@@ -138,7 +138,7 @@ sub withdraw_invite {
     unless ($invite_id) {
         confess [1002, 'You must specify an invite id.'];
     }
-    my $invite = Lacuna->db->resultset('Lacuna::DB::Result::AllianceInvite')->find($invite_id);
+    my $invite = Lacuna->db->resultset('AllianceInvite')->find($invite_id);
     unless (defined $invite) {
         confess [1002, 'Invitation not found.'];
     }
@@ -155,7 +155,7 @@ sub send_invite {
     unless ($empire_id) {
         confess [1002, 'You must specify which empire you want to invite.'];
     }
-    my $invitee = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    my $invitee = Lacuna->db->resultset('Empire')->find($empire_id);
     unless (defined $invitee) {
         confess [1002, 'The empire you specified to invite does not exist.'];
     }

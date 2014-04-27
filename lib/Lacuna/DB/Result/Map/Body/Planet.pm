@@ -1524,7 +1524,7 @@ sub tick_to {
             $self->unhappy_date($now);
         }
     }
-    else {
+    elsif ($self->happiness > 0) {
         if ($self->unhappy) {
             $self->unhappy(0);
             $self->needs_recalc(1);

@@ -52,10 +52,10 @@ sub get_stars_in_jurisdiction {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     my @out;
-    my $stars = $building->body->stars->search({},{order_by => "name"});
-    while (my $star = $stars->next) {
-        push @out, $star->get_status;
-    }
+#    my $stars = $building->body->stars->search({},{order_by => "name"});
+#    while (my $star = $stars->next) {
+#        push @out, $star->get_status;
+#    }
     return {
         status          => $self->format_status($empire, $building->body),
         stars           => \@out,

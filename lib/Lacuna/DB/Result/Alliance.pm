@@ -122,26 +122,46 @@ sub exchange {
 
 
 sub get_status {
-    my $self = shift;
+    my ($self, $private) = @_;
+
     my $members = $self->members;
     my @members_list;
     while (my $member = $members->next) {
         push @members_list, {
-            empire_id   => $member->id,
+            id          => $member->id,
             name        => $member->name,
         };
     }
-    return {
+    my $stations = $self->stations;
+    my @stations_list;
+    my $influence = 0;
+    while (my $station = $stations->next) {
+        push @stations_list, {
+            id          => $station->id,
+            name        => $station->name,
+            x           => $station->x,
+            y           => $station->y,
+        };
+        $influence += $station->total_influence;
+    }
+
+    my $out = {
         id              => $self->id,
-        members         => \@members_list,
-        leader_id       => $self->leader_id,
-        forum_uri       => $self->forum_uri,
-        description     => $self->description,
         name            => $self->name,
-        announcements   => $self->announcements,
+        description     => $self->description,
         date_created    => $self->date_created_formatted,
+        leader_id       => $self->leader_id,
+        members         => \@members_list,
+        space_stations  => \@stations_list,
+        influence       => $influence,
     };
+    if ($private) {
+        $out->{forum_uri} = $self->forum_uri;
+        $out->{announcements} = $self->announcements;
+    }
+    return $out;
 }
+
 
 sub get_invites {
     my $self = shift;

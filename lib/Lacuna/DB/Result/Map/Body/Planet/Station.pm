@@ -205,7 +205,7 @@ sub recalc_influence {
 
     # Delete all the existing seize_star records
     #
-    my $sth = $dbh->prepare('delete seize_star where station_id=?');
+    my $sth = $dbh->prepare('delete from seize_star where station_id=?');
     $sth->execute($self->id);
 
 

@@ -31,7 +31,6 @@ sub find {
 }
 
 
-
 sub view_profile {
     my ($self, $session_id, $alliance_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -39,37 +38,9 @@ sub view_profile {
     unless (defined $alliance) {
         confess [1002, 'The alliance you wish to view does not exist.', $alliance_id];
     }
-    my $members = $alliance->members;
-    my @members_list;
-    while (my $member = $members->next) {
-        push @members_list, {
-            id          => $member->id,
-            name        => $member->name,
-        };
-    }
-    my $stations = $alliance->stations;
-    my @stations_list;
-    my $influence = 0;
-    while (my $station = $stations->next) {
-        push @stations_list, {
-            id          => $station->id,
-            name        => $station->name,
-            x           => $station->x,
-            y           => $station->y,
-        };
-        $influence += $station->total_influence;
-    }
-    my %out = (
-        id              => $alliance->id,
-        name            => $alliance->name,
-        description     => $alliance->description,
-        date_created    => $alliance->date_created_formatted,
-        leader_id       => $alliance->leader_id,
-        members         => \@members_list,
-        space_stations  => \@stations_list,
-        influence       => $influence,
-    );
-    return { profile => \%out, status => $self->format_status($empire) };
+    my $out = $alliance->get_status;
+
+    return { profile => $out, status => $self->format_status($empire) };
 }
 
 
