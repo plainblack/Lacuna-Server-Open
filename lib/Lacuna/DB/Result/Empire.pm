@@ -451,9 +451,15 @@ sub get_status {
     if ($self->alliance_id) {
         $planet_rs = Lacuna->db->resultset('Map::Body')->search({-or => { empire_id => $self->id, alliance_id => $self->alliance_id }});
     }
-    my %planets;
+    my $planets;
+    my $stations;
     while (my $planet = $planet_rs->next) {
-        $planets{$planet->id} = $planet->name;
+        if ($planet->class =~ m/Station$/) {
+            $stations->{$planet->id} = $planet->name;
+        }
+        else {
+            $planets->{$planet->id} = $planet->name;
+        }
     }
     my $embassy     = $self->highest_embassy;
     my $embassy_id  = defined $embassy ? $embassy->id : undef;
@@ -469,7 +475,8 @@ sub get_status {
         latest_message_id   => $self->latest_message_id,
         home_planet_id      => $self->home_planet_id,
         tech_level          => $self->university_level,
-        planets             => \%planets,
+        planets             => $planets,
+        space_stations      => $stations,
         self_destruct_active=> $self->self_destruct_active,
         self_destruct_date  => $self->self_destruct_date_formatted,
         primary_embassy_id  => $embassy_id,
