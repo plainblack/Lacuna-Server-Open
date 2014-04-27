@@ -2,6 +2,7 @@
  - Mod: Gratch now more granualar for infiltration times when damaged
  - Mod: If planet is abandoned, spies from elsewhere will be set to Idle when ported home.
  - Fix: Removed any possibility of inter-alliance voting.
+ - UI:  Planet menu now sorts planets above space stations.
  - API: map/get_stars is no longer supported. use map/get_star_map instead
  - API: map/get_star_map changed to show alliance influence, not station
  - Mod: Space Stations influence is now automatic

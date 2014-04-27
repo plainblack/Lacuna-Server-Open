@@ -226,11 +226,18 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
             "id-goes-here" : "Earth",
             "id-goes-here" : "Mars
         },
+        "space_stations" : {
+            "id-goes-here" : "SS Alpha",
+            "id-goes-here" : "SS Gamma"
+        },
         "tech_level"           : 20,  # Highests level university has gotten to.
         "self_destruct_active" : 0,
         "self_destruct_date" : ""
     }
  }
+
+NOTE: Space Stations are no longer returned in 'planets' but are returned in a separate
+section called 'space_stations'
 
 Throws 1002.
 
@@ -239,7 +246,15 @@ Throws 1002.
 A session id.
 
 
+=head2 get_planets ( session_id )
 
+Returns information about the planets held by this empire.
+
+ {
+    "planets" : {
+    },
+    "status" : {}
+ }
 
 =head2 view_profile ( session_id )
 

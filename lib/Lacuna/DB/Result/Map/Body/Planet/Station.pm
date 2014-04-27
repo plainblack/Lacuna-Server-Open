@@ -193,6 +193,7 @@ sub in_range_of_influence {
 sub recalc_influence {
     my ($self) = @_;
 
+    return;
     my ($ibs) = grep {$_->class eq 'Lacuna::DB::Result::Building::Module::IBS'} @{$self->building_cache};
     my $ibs_level = defined $ibs ? $ibs->level : 0;
     
