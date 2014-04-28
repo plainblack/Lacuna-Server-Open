@@ -106,8 +106,8 @@ __PACKAGE__->belongs_to('latest_message',   'Lacuna::DB::Result::Message',      
 
 __PACKAGE__->has_many('spies',              'Lacuna::DB::Result::Spies',        'empire_id');
 __PACKAGE__->has_many('planets',            'Lacuna::DB::Result::Map::Body',    'empire_id');
-__PACKAGE__->has_many('propositions',       'Lacuna::DB::Result::Propositions', 'proposed_by_id');
-__PACKAGE__->has_many('votes',              'Lacuna::DB::Result::Votes',        'empire_id');
+__PACKAGE__->has_many('propositions',       'Lacuna::DB::Result::Proposition',  'proposed_by_id');
+__PACKAGE__->has_many('votes',              'Lacuna::DB::Result::Vote',         'empire_id');
 __PACKAGE__->has_many('taxes',              'Lacuna::DB::Result::Taxes',        'empire_id');
 __PACKAGE__->has_many('sent_messages',      'Lacuna::DB::Result::Message',      'from_id');
 __PACKAGE__->has_many('received_messages',  'Lacuna::DB::Result::Message',      'to_id');

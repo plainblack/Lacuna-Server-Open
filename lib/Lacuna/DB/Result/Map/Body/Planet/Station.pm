@@ -8,9 +8,8 @@ use Lacuna::Util qw(randint);
 use Data::Dumper;
 
 use constant image => 'station';
-__PACKAGE__->has_many('propositions','Lacuna::DB::Result::Propositions','station_id');
-__PACKAGE__->has_many('laws','Lacuna::DB::Result::Laws','station_id');
-__PACKAGE__->has_many('seize_stars', 'Lacuna::DB::Result::SeizeStar','station_id');
+#__PACKAGE__->has_many('propositions','Lacuna::DB::Result::Proposition','station_id');
+#__PACKAGE__->has_many('seize_stars', 'Lacuna::DB::Result::SeizeStar','station_id');
 
 has parliament => (
     is      => 'rw',
@@ -47,8 +46,8 @@ sub has_room_in_build_queue {
 
 before sanitize => sub {
     my $self = shift;
-    $self->propositions->delete_all;
-    $self->laws->delete_all;
+#    $self->propositions->delete_all;
+#    $self->laws->delete_all;
 };
 
 after sanitize => sub {

@@ -19,7 +19,6 @@ __PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Alliance', 'alliance_id
 
 __PACKAGE__->has_many('bodies', 'Lacuna::DB::Result::Map::Body', 'star_id');
 __PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'star_id');
-__PACKAGE__->has_many('laws', 'Lacuna::DB::Result::Laws', 'star_id');
 
 sub send_predefined_message {
     my ($self, %options) = @_;

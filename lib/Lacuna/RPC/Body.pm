@@ -37,7 +37,7 @@ sub abandon {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) { 
-        my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        my $proposition = Lacuna->db->resultset('Proposition')->new({
             type            => 'AbandonStation',
             name            => 'Abandon Station',
             description     => 'Abandon the station named {Planet '.$body->id.' '.$body->name.'}.',            
@@ -60,7 +60,7 @@ sub rename {
         ->no_restricted_chars
         ->no_profanity
         ->no_padding
-        ->not_ok(Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({name=>$name, 'id'=>{'!='=>$body_id}})->count); # name available
+        ->not_ok(Lacuna->db->resultset('Map::Body')->search({name=>$name, 'id'=>{'!='=>$body_id}})->count); # name available
     
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
@@ -68,7 +68,7 @@ sub rename {
         unless ($body->parliament->level >= 3) {
             confess [1013, 'You need to have a level 3 Parliament to rename a station.'];
         }
-        my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+        my $proposition = Lacuna->db->resultset('Proposition')->new({
             type            => 'RenameStation',
             name            => 'Rename Station',
             scratch         => { name => $name },
@@ -258,7 +258,7 @@ sub rearrange_buildings {
     my $old_spot = sprintf("%d:%d", $cur_ids{$id}->{x}, $cur_ids{$id}->{y});
     if ($new_spot ne $old_spot) {
       my $building =
-           Lacuna->db->resultset('Lacuna::DB::Result::Building')->
+           Lacuna->db->resultset('Building')->
            find({body_id => $body_id, id => $id});
       $building->update({
         x => $new_ids{$id}->{x},
@@ -422,7 +422,7 @@ sub get_buildable {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
     
-    my $building_rs = Lacuna->db->resultset('Lacuna::DB::Result::Building');
+    my $building_rs = Lacuna->db->resultset('Building');
 
     $body->check_for_available_build_space($x, $y);
 
