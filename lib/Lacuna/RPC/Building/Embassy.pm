@@ -231,8 +231,32 @@ sub exchange_with_stash {
     return $self->view_stash($empire, $building);
 }
 
-__PACKAGE__->register_rpc_method_names(qw(exchange_with_stash view_stash donate_to_stash expel_member update_alliance get_pending_invites get_my_invites assign_alliance_leader create_alliance dissolve_alliance send_invite accept_invite withdraw_invite reject_invite leave_alliance get_alliance_status));
+### Methods moved from Parliament
 
+sub view_laws {
+    my ($self, $session_id, $body_id) = @_;
+
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $self->get_body($empire, $body_id);
+
+    my @out;
+    my $laws = $body->laws;
+    while (my $law = $laws->next) {
+        push @out, $law->get_status($empire);
+    }
+    return {
+        status          => $self->format_status($empire, $body),
+        laws            => \@out,
+    };
+}
+
+__PACKAGE__->register_rpc_method_names(qw(
+    exchange_with_stash view_stash donate_to_stash expel_member update_alliance get_pending_invites 
+    get_my_invites assign_alliance_leader create_alliance dissolve_alliance send_invite 
+    accept_invite withdraw_invite reject_invite leave_alliance get_alliance_status
+
+    view_laws
+));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
