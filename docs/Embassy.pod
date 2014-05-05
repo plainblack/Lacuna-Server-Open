@@ -529,7 +529,7 @@ A session id.
 
 =head3 building_id
 
-The unique id of the Embassy
+The unique ID of the Embassy.
 
 =head3 filter (Optional)
 
@@ -537,7 +537,7 @@ The unique id of the Embassy
      "zone" : "2|0"
  }
 
-Return laws just for this zone. If not supplied laws for all zones will
+Return laws just for one zone. If not supplied laws for all zones will
 be returned.
 
 =head3 RESPONSE
@@ -1250,7 +1250,7 @@ The unique id of a mining platform. See C<get_platforms_for_asteroid_in_jurisdic
     "proposition" : {
         "id" : "id-goes-here",
         "name" : "Evict Bjoran Mining Platform",
-        "description" : "Evict a mining platform on Big Rock that is controlled by Bjoran.",
+        "description" : "Evict a mining platform from Big Rock.",
         "votes_needed" : 7,
         "votes_yes" : 0,
         "votes_no" : 0,
@@ -1290,7 +1290,7 @@ The zone to which the law applies.
     "proposition" : {
         "id" : "id-goes-here",
         "name" : "Members Only Colonization",
-        "description" : "Only members of The Federation of Planets should be allowed to colonize planets in the jurisdiction of this station.",
+        "description" : "Only members of The Federation of Planets should be allowed to colonize planets in the jurisdiction of this alliance in zone 2|0.",
         "votes_needed" : 7,
         "votes_yes" : 0,
         "votes_no" : 0,
@@ -1329,7 +1329,7 @@ The zone in which this law applies.
     "proposition" : {
         "id" : "id-goes-here",
         "name" : "BHG Neutralized",
-        "description" : "Black Hole Generators will not function in the jurisdiction of this station.",
+        "description" : "Black Hole Generators will not function in the jurisdiction of this alliance in zone 2|0.",
         "votes_needed" : 7,
         "votes_yes" : 0,
         "votes_no" : 0,
@@ -1389,11 +1389,14 @@ The id of an empire within the alliance that wants control over the station.
 
 
 
-=head2 propose_fire_bfg ( session_id, building_id, station_id, body_id, reason )
+=head2 propose_fire_bfg ( session_id, building_id, body_id, reason )
 
 Fires the BFG equipped on all space stations at an occupied planet of Parliament's choosing 
-as long as it is within range of the Space Station and the planet is in a system seized
-by the alliance.
+as long as the system the planet is in is seized by the alliance.
+
+The amount of damage to the buildings depends upon the seize strength of that system.
+
+Note, no-one Space Station fires, it is the combined output of all Stations within range.
 
 Requires Embassy level 25 or above.
 
@@ -1407,10 +1410,6 @@ A session id.
 =head3 building_id
 
 The unique id of the Embassy.
-
-=head3 station_id
-
-The unique id of the Space station which is to fire the BFG.
 
 =head3 body_id
 
@@ -1427,11 +1426,10 @@ An explict reason why the BFG should be fired upon the target. Same rules as an 
     "proposition" : {
         "id" : "id-goes-here",
         "name" : "Fire BFG",
-        "description" : "Fire BFG at Alderaan from The Death Star. Reason cited: The princess isn't talking!",
+        "description" : "Fire Alliance BFG at Alderaan. Reason cited: The princess isn't talking!",
         "votes_needed" : 7,
         "votes_yes" : 0,
         "votes_no" : 0,
-        "station_id" : "123456",
         "status" : "Pending",
         "date_ends" : "01 31 2010 13:09:05 +0600",
         "proposed_by" : {

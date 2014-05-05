@@ -407,16 +407,6 @@ sub push_items {
         if ($target->alliance_id == $empire->alliance_id) {
             # You can push anything to your Alliance's Space Stations
         }
-        elsif ($target->in_jurisdiction($planet)) {
-            # Allowed to push food, ore, water and energy only to SS that control your star
-            foreach my $item (@{$items}) {
-                given($item->{type}) {
-                    when([qw(waste glyph plan prisoner ship)]) {
-                        confess [1010, "You cannot push $item->{type} to that space station."];
-                    }
-                }
-            }
-        }
         else {
             confess [1010, 'You cannot push items to that space station.'];
         }

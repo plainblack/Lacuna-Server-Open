@@ -92,7 +92,7 @@ sub notify_zone_inhabitants {
 
 
 sub get_status {
-    my ($self, $empire) = @_;
+    my ($self) = @_;
     my $out = {
         id          => $self->id,
         name        => $self->name,
