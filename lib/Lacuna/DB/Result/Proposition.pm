@@ -11,7 +11,8 @@ __PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('proposition');
 __PACKAGE__->add_columns(
     name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
-    station_id              => { data_type => 'int', size => 11, is_nullable => 0 },
+    alliance_id             => { data_type => 'int', size => 11, is_nullable => 0 },
+    station_id              => { data_type => 'int', size => 11 },
     votes_needed            => { data_type => 'int', is_nullable => 0, default_value => 1 },
     votes_yes               => { data_type => 'int', is_nullable => 0, default_value => 0 },
     votes_no                => { data_type => 'int', is_nullable => 0, default_value => 0 },
@@ -55,6 +56,8 @@ __PACKAGE__->typecast_map(type => {
 
 __PACKAGE__->belongs_to('proposed_by', 'Lacuna::DB::Result::Empire', 'proposed_by_id');
 __PACKAGE__->belongs_to('station', 'Lacuna::DB::Result::Map::Body', 'station_id');
+__PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Alliance', 'alliance_id');
+
 __PACKAGE__->has_many('votes', 'Lacuna::DB::Result::Vote', 'proposition_id');
 
 sub sqlt_deploy_hook {
