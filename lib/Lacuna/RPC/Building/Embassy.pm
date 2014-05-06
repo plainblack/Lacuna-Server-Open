@@ -349,7 +349,7 @@ sub propose_repeal_law {
     confess [1013, 'Embassy must be level 5 to repeal a law.',5] if $building->level < 5;
     confess [1002, 'Must specify a law id to repeal.'] unless $law_id;
 
-    my $law = $building->body->laws->find($law_id);
+    my $law = $empire->alliance->laws->find($law_id);
     confess [1002, 'Could not find the law.'] unless defined $law;
     
     my $proposition = Lacuna->db->resultset('Proposition')->new({

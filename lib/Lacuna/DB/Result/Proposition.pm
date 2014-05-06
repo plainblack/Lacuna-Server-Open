@@ -97,7 +97,7 @@ before delete => sub {
 sub check_status {
     my $self = shift;
     if ($self->status eq 'Pending') {
-        $self->votes_needed( int( ( $self->station->alliance->members->count + 1 ) / 2 ) );
+        $self->votes_needed( int( ( $self->alliance->members->count + 1 ) / 2 ) );
     }
     if ($self->status ne 'Pending') {
     }
@@ -116,7 +116,7 @@ sub check_status {
 
 sub pass {
     my $self = shift;
-    $self->station->alliance->send_predefined_message(
+    $self->alliance->send_predefined_message(
         filename    => 'parliament_vote_passed.txt',
         tags        => ['Parliament','Correspondence'],
         params      => [
@@ -138,7 +138,7 @@ has pass_extra_message => (
 
 sub fail {
     my $self = shift;
-    $self->station->alliance->send_predefined_message(
+    $self->alliance->send_predefined_message(
         filename    => 'parliament_vote_failed.txt',
         tags        => ['Parliament','Correspondence'],
         params      => [
@@ -160,7 +160,7 @@ has fail_extra_message  => (
 
 before insert => sub {
     my $self = shift;
-    $self->votes_needed( int( ( $self->station->alliance->members->count + 1 ) / 2 ) );
+    $self->votes_needed( int( ( $self->alliance->members->count + 1 ) / 2 ) );
     $self->date_ends( DateTime->now->add(hours => 72) );
 };
 
@@ -196,24 +196,22 @@ sub get_status {
 
 sub send_vote {
     my $self = shift;
-    my $station = $self->station;
-    my $parliament = $station->parliament;
-    $station->alliance->send_predefined_message(
-        filename    => 'parliament_vote.txt',
-        tags        => ['Parliament','Correspondence'],
-        from        => $self->proposed_by,
-        params      => [
-            $self->name,
-            $self->name,
-            $self->description,
-            $station->id,
-            $parliament->id,
-            $self->id,
-            $station->id,
-            $parliament->id,
-            $self->id,
-        ],
-    );
+#    $alliance->send_predefined_message(
+#        filename    => 'parliament_vote.txt',
+#        tags        => ['Parliament','Correspondence'],
+#        from        => $self->proposed_by,
+#        params      => [
+#            $self->name,
+#            $self->name,
+#            $self->description,
+#            0,
+#            0,
+#            $self->id,
+#            0,
+#            0,
+#            $self->id,
+#        ],
+#    );
 }
 
 sub date_ends_formatted {
