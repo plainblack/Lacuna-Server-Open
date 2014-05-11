@@ -13,8 +13,8 @@ __PACKAGE__->add_columns(
     date_landed => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
 );
 
-__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
-__PACKAGE__->belongs_to('planet', 'Lacuna::DB::Result::Map::Body', 'planet_id');
+__PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');      # The body it is on
+__PACKAGE__->belongs_to('planet', 'Lacuna::DB::Result::Map::Body', 'planet_id');  # The planet it is from
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 
 no Moose;

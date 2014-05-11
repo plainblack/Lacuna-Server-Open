@@ -822,9 +822,9 @@ The unique id of a star in jurisdiction. See c<get_stars_in_jurisdiction>.
  }
 
 
-=head2 get_mining_platforms_for_asteroid_in_jurisdiction (session_id, building_id, asteroid_id )
+=head2 get_mining_platforms_for_star_in_jurisdiction (session_id, building_id, star_id )
 
-Returns a list of the platforms for an asteroid in the jurisdiction of the alliance.
+Returns a list of the platforms which are in a star system within the jurisdiction of the alliance.
 
 =head3 session_id
 
@@ -834,15 +834,47 @@ A session id.
 
 The unique id of the embassy.
 
-=head3 asteroid_id
+=head3 star_id
 
-The unique id of an asteroid in jurisdiction. See c<get_bodies_for_star_in_jurisdiction>.
+The unique id of a star in jurisdiction. See c<get_stars_in_jurisdiction>.
 
 =head3 RESPONSE
 
  {
     "status" : { ... },
     "platforms" : [
+        {
+            "id"        : "id-goes-here",
+            "empire"    : {
+                "id"       : "id-goes-here",
+                "name"     : "Klingons"
+            }
+        },
+        ...
+    ]
+ }
+
+=head2 get_excavators_for_star_in_jurisdiction (session_id, building_id, star_id )
+
+Returns a list of the excavators which are in a star system within the jurisdiction of the alliance.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 star_id
+
+The unique id of a star in jurisdiction. See c<get_stars_in_jurisdiction>.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "excavator" : [
         {
             "id"        : "id-goes-here",
             "empire"    : {

@@ -422,22 +422,63 @@ sub get_bodies_for_star_in_jurisdiction {
     };
 }
 
-sub get_mining_platforms_for_asteroid_in_jurisdiction {
-    my ($self, $session_id, $building_id, $asteroid_id) = @_;
+sub get_excavators_for_star_in_jurisdiction {
+    my ($self, $session_id, $building_id, $star_id) = @_;
 
     my $empire   = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
 
-    confess [1002, 'You must specify an asteroid id.'] if not $asteroid_id;
-    my $asteroid = Lacuna->db->resultset('Map::Body')->find($asteroid_id);
-    confess [1002, 'Asteroid not found.'] if not $asteroid;
-    my $star = $asteroid->star;
-    if ($star->alliance_id != $empire->alliance_id or $star->seize_strength < 50) {
-        confess [1009, 'That asteroid is not in your jurisdiction.'];
-    }
+    confess [1002, 'You have to specify a star id.'] unless $star_id;
+    my ($star) = Lacuna->db->resultset('Map::Star')->search({
+        id              => $star_id,
+        alliance_id     => $empire->alliance_id,
+        seize_strength  => {'>=' => 50},
+    });
+    confess [1009, 'That star is not in your jurisdiction.'] unless $star;
+
+    my $excavators = Lacuna->db->resultset('Excavator')->search({
+        'body.star_id'  => $star_id,
+    },{
+        prefetch => ['body', 'planet'],
+    });
     
     my @out;
-    my $platforms = Lacuna->db->resultset('MiningPlatforms')->search({asteroid_id => $asteroid->id});
+    while (my $excavator = $excavators->next) {
+        push @out, {
+            id          => $excavator->id,
+            empire      => {
+                name    => $excavator->planet->empire->name,
+                id      => $excavator->planet->empire->id,
+            }
+        };
+    }
+    return {
+        status          => $self->format_status($empire, $building->body),
+        platforms       => \@out,
+    };
+}
+
+sub get_mining_platforms_for_star_in_jurisdiction {
+    my ($self, $session_id, $building_id, $star_id) = @_;
+
+    my $empire   = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+
+    confess [1002, 'You have to specify a star id.'] unless $star_id;
+    my ($star) = Lacuna->db->resultset('Map::Star')->search({
+        id              => $star_id,
+        alliance_id     => $empire->alliance_id,
+        seize_strength  => {'>=' => 50},
+    });
+    confess [1009, 'That star is not in your jurisdiction.'] unless $star;
+
+    my $platforms = Lacuna->db->resultset('MiningPlatform')->search({
+        'asteroid.star_id'  => $star_id,
+    },{
+        prefetch => ['asteroid','planet'],
+    });
+    
+    my @out;
     while (my $platform = $platforms->next) {
         push @out, {
             id          => $platform->id,
@@ -926,12 +967,12 @@ __PACKAGE__->register_rpc_method_names(qw(
     accept_invite withdraw_invite reject_invite leave_alliance get_alliance_status
 
     view_laws view_propositions cast_vote propose_writ propose_repeal_law get_stars_in_jurisdiction
-    get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction
+    get_bodies_for_star_in_jurisdiction get_mining_platforms_for_star_in_jurisdiction
     propose_focus_influence_on_star propose_rename_star propose_broadcast_on_network19
     propose_induct_member propose_expel_member propose_elect_new_leader propose_rename_asteroid
     propose_rename_uninhabited propose_members_only_mining_rights propose_evict_mining_platform
     propose_members_only_colonization propose_neutralize_bhg propose_transfer_station_ownership
-    propose_fire_bfg
+    propose_fire_bfg get_excavators_for_star_in_jurisdiction
 ));
 
 no Moose;
