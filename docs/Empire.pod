@@ -221,6 +221,7 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
         "home_planet_id" : "id-goes-here",
         "has_new_messages" : 4,
         "latest_message_id" : 1234,
+        "alliance_id" : 26,
         "essentia" : 0,
         "planets" : {
             "id-goes-here" : "Earth",

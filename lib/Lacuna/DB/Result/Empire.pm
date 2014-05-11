@@ -470,6 +470,7 @@ sub get_status {
         status_message      => $self->status_message,
         name                => $self->name,
         id                  => $self->id,
+        alliance_id         => $self->alliance_id,
         essentia            => $self->essentia,
         has_new_messages    => $self->has_new_messages,
         latest_message_id   => $self->latest_message_id,
