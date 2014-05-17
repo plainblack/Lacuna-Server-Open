@@ -147,6 +147,10 @@ sub cast_vote {
     unless (defined $proposition) {
         confess [1002, 'Proposition not found.'];
     }
+    if ($proposition->station->alliance_id != $empire->alliance_id) {
+        confess [1003, 'You cannot vote for another alliances propositions!'];
+    }
+
     $proposition->cast_vote($empire, $vote);
     return {
         status      => $self->format_status($empire, $building->body),
