@@ -83,7 +83,7 @@ sub notify_zone_inhabitants {
     my $stars = Lacuna->db->resultset('Map::Star')->search({
         zone        => $zone,
         alliance_id => $self->alliance_id,
-        seize_strength => {'>' => 50},
+        influence => {'>' => 50},
     });
     while (my $star = $stars->next) {
         $self->notify_stellar_inhabitants($star, $filename);

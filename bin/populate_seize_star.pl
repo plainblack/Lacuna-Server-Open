@@ -19,7 +19,7 @@ our $db = Lacuna->db;
 
 out('Ticking Space Stations');
 
-$db->resultset('SeizeStar')->delete;
+$db->resultset('Influence')->delete;
 
 
 my $stations_rs = $db->resultset('Map::Body')->search({
@@ -77,11 +77,11 @@ while (my $station = $stations_rs->next) {
 
 #        out('Processing star '.$star->name." at distance $star_distance and influence $star_influence") if $star_influence > 0;
         if ($star_influence > 0) {
-            $db->resultset('SeizeStar')->create({
+            $db->resultset('Influence')->create({
                 station_id      => $station->id,
                 star_id         => $star->id,
                 alliance_id     => $station->alliance_id,
-                seize_strength  => $star_influence,
+                influence       => $star_influence,
             });
             if ($star_influence >= 50) {
                 $seized++;

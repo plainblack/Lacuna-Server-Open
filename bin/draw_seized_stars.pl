@@ -1,13 +1,12 @@
 use strict;
 use 5.010;
-use lib 'lib';
+use lib '/data/Lacuna-Server/lib';
 
 use GD;
 
-use Lacuna::DB;
 use Lacuna;
 
-my $img_file        = '/data/Lacuna-Server/var/www/public/alliancemap/today.png';
+my $img_file        = '/data/Lacuna-Server/var/www/public/influencemap/today.png';
 my $img             = GD::Image->newTrueColor(3500,3000);
 my $clr_background  = $img->colorAllocateAlpha(0,0,0,0);
 my $clr_grid        = $img->colorAllocateAlpha(75,75,75,0);
@@ -16,7 +15,7 @@ my $clr_star        = $img->colorAllocateAlpha(50,50,50,0);
 my $alliance_ref;
 
 # Pre-defined alliance colours.
-# Anything not defined here will be given an arbitrary shade of grey
+# Anything not defined here will be given one of 50 shades of grey
 #
 my $alliance_rgb = {
     690     => [253, 201, 76],   # S.M.A.
@@ -79,8 +78,7 @@ $img->alphaBlending(1);
 $img->filledRectangle(0,0,3499,2999,$clr_background);
 # draw the grid
 
-my $db = Lacuna->db;
-my $stars_rs = $db->resultset('Map::Star')->search({}, {
+my $stars_rs = Lacuna->db->resultset('Map::Star')->search({},{
     prefetch => {station => 'alliance'},
 });
 
@@ -95,13 +93,13 @@ while (my $star = $stars_rs->next) {
     my $alliance_id = $star->alliance_id;
     my $star_seized = 0;
 
-    if ($alliance_id and $star->seize_strength > 0) {
+    if ($alliance_id and $star->influence > 0) {
         if (not $alliance_rgb->{$alliance_id}) {
             $alliance_rgb->{$alliance_id} = [$grey, $grey, $grey];
             $grey++;
         }
         
-        my $alpha = 127 - ($star->seize_strength / 2);
+        my $alpha = 127 - ($star->influence / 2);
         $alpha = 0 if $alpha < 0;
         $alpha = 127 if $alpha > 127;
 

@@ -34,7 +34,7 @@ sub get_star_map {
                 id      => $row->star_id,
                 zone    => $row->star_zone,
                 seized  => $row->seized,
-                seize_strength => $row->seize_strength,
+                influence => $row->influence,
             };
 
             $star_id = $row->star_id;
