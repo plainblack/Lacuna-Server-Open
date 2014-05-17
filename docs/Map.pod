@@ -45,7 +45,7 @@ Returns a chunk of the map as an array of hashes.
          "name"     : "Culture",
          "image"    : "logo_26_002.png",
        }
-       "seize_strength" : 56,
+       "influence" : 56,
        "seized" : 1,
        "bodies" : [
          {

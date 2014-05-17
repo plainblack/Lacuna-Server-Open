@@ -132,10 +132,10 @@ sub view_laws {
 }
 
 sub cast_vote {
-    my ($self, $session_id, $building_id, $proposition_id, $vote) = @_;
+    my ($self, $session_id, $body_id, $proposition_id, $vote) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    
-    my $building = $self->get_building($empire, $building_id);
+    my $body = $self->get_body($empire, $body_id);
+
     my $cache = Lacuna->cache;
     my $lock = 'vote_lock_'.$empire->id;
     if ($cache->get($lock, $proposition_id)) {
@@ -153,7 +153,7 @@ sub cast_vote {
 
     $proposition->cast_vote($empire, $vote);
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($empire, $body),
         proposition => $proposition->get_status($empire),
     };
 }

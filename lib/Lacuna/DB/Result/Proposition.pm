@@ -118,7 +118,7 @@ sub pass {
     my $self = shift;
     $self->alliance->send_predefined_message(
         filename    => 'parliament_vote_passed.txt',
-        tags        => ['Parliament','Correspondence'],
+        tags        => ['Parliament'],
         params      => [
             $self->name,
             $self->name,
@@ -140,7 +140,7 @@ sub fail {
     my $self = shift;
     $self->alliance->send_predefined_message(
         filename    => 'parliament_vote_failed.txt',
-        tags        => ['Parliament','Correspondence'],
+        tags        => ['Parliament'],
         params      => [
             $self->name,
             $self->name,
@@ -196,22 +196,23 @@ sub get_status {
 
 sub send_vote {
     my $self = shift;
-#    $alliance->send_predefined_message(
-#        filename    => 'parliament_vote.txt',
-#        tags        => ['Parliament','Correspondence'],
-#        from        => $self->proposed_by,
-#        params      => [
-#            $self->name,
-#            $self->name,
-#            $self->description,
-#            0,
-#            0,
-#            $self->id,
-#            0,
-#            0,
-#            $self->id,
-#        ],
-#    );
+
+    $self->alliance->send_predefined_message(
+        filename    => 'parliament_vote.txt',
+        tags        => ['Parliament'],
+        from        => $self->proposed_by,
+        params      => [
+            $self->name,
+            $self->name,
+            $self->description,
+            0,
+            0,
+            $self->id,
+            0,
+            0,
+            $self->id,
+        ],
+    );
 }
 
 sub date_ends_formatted {

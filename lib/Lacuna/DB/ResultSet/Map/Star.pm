@@ -19,17 +19,17 @@ sub recalc_all {
     $sth->execute();
     while (my $star_ref = $sth->fetchrow_arrayref) {
         my ($star_id, $alliances) = @$star_ref;
-        my $seize_strength;
+        my $influence;
         my $alliance_id;
         if ($alliances == 1) {
             # Then one alliance has all the influence
-            ($alliance_id, $seize_strength) = $dbh->selectrow_array('select alliance_id,sum(seize_strength) from seize_star where star_id=?',undef,$star_id) or die $dbh->errstr;
+            ($alliance_id, $influence) = $dbh->selectrow_array('select alliance_id,sum(influence) from seize_star where star_id=?',undef,$star_id) or die $dbh->errstr;
         }
         else {
             # We need to get the alliance with the most influence
             my $alliance_strength;
-            ($alliance_id, $alliance_strength) = $dbh->selectrow_array('select alliance_id,sum(seize_strength) as best from seize_star where star_id=? group by alliance_id order by best desc limit 1', undef, $star_id);
-            ($seize_strength) = $dbh->selectrow_array('select ? - sum(seize_strength) from seize_star where star_id=? and alliance_id != ?', undef, $alliance_strength, $star_id, $alliance_id) or die $dbh->errstr;
+            ($alliance_id, $alliance_strength) = $dbh->selectrow_array('select alliance_id,sum(influence) as best from seize_star where star_id=? group by alliance_id order by best desc limit 1', undef, $star_id);
+            ($influence) = $dbh->selectrow_array('select ? - sum(influence) from seize_star where star_id=? and alliance_id != ?', undef, $alliance_strength, $star_id, $alliance_id) or die $dbh->errstr;
         }
 
         # Record the strongest alliance, and their strength on the star
@@ -37,7 +37,7 @@ sub recalc_all {
             id     => $star_id,
         });
         $star->alliance_id($alliance_id);
-        $star->seize_strength($seize_strength);
+        $star->influence($influence);
         $star->update;
     }
 }

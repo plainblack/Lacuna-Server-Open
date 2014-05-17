@@ -8,8 +8,6 @@ use Lacuna::Util qw(randint);
 use Data::Dumper;
 
 use constant image => 'station';
-#__PACKAGE__->has_many('propositions','Lacuna::DB::Result::Proposition','station_id');
-#__PACKAGE__->has_many('seize_stars', 'Lacuna::DB::Result::SeizeStar','station_id');
 
 has parliament => (
     is      => 'rw',
@@ -61,7 +59,7 @@ after sanitize => sub {
         size            => randint(1,10),
         class           => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
         alliance_id     => undef,
-        seize_strength  => 0,
+        influence       => 0,
     });
 };
 
@@ -196,29 +194,29 @@ sub recalc_influence {
     my ($ibs) = grep {$_->class eq 'Lacuna::DB::Result::Building::Module::IBS'} @{$self->building_cache};
     my $ibs_level = defined $ibs ? $ibs->level : 0;
     
-    # Mark all stars as 'recalc' currently linked to this station via the seize_star table
+    # Mark all stars as 'recalc' currently linked to this station via the influence table
     #
     my $dbh = $self->result_source->storage->dbh;
-    my $sth_star = $dbh->prepare('update star join seize_star on star.id = seize_star.star_id set recalc=1 where seize_star.station_id=?');
+    my $sth_star = $dbh->prepare('update star join influence on star.id = influence.star_id set recalc=1 where influence.station_id=?');
     $sth_star->execute($self->id);
 
 
-    # Delete all the existing seize_star records
+    # Delete all the existing influence records
     #
-    my $sth = $dbh->prepare('delete from seize_star where station_id=?');
+    my $sth = $dbh->prepare('delete from influence where station_id=?');
     $sth->execute($self->id);
 
 
-    # Recalculate all the new seize_star records
+    # Recalculate all the new influence records
     #
     if ($ibs_level and $self->total_influence > 0) {
         my $sql = <<END_SQL;
-insert into seize_star (station_id,star_id,alliance_id,seize_strength) (
+insert into influence (station_id,star_id,alliance_id,influence) (
   select
     ? as station_id,
     star.id as star_id,
     ? as alliance_id,
-    ceil(? * ? * 7.5 / (pow(star.x - body.x, 2) + pow(star.y - body.y, 2))) as seize_strength
+    ceil(? * ? * 7.5 / (pow(star.x - body.x, 2) + pow(star.y - body.y, 2))) as influence 
     from star, body
     where body.id=?
     and ceil(pow(pow(star.x - body.x, 2) + pow(star.y - body.y, 2), 0.5)) < ?
@@ -227,7 +225,7 @@ insert into seize_star (station_id,star_id,alliance_id,seize_strength) (
 END_SQL
         $sth = $dbh->do($sql, undef, $self->id, $self->alliance_id, $ibs_level, $self->total_influence, $self->id, $self->range_of_influence / 100);
 
-        # Mark all the 'new' stars as 'recalc' linked to this station via the seize_star table (we can use the earlier prepared statement)
+        # Mark all the 'new' stars as 'recalc' linked to this station via the influence table (we can use the earlier prepared statement)
         #
         $sth_star->execute($self->id);
     }

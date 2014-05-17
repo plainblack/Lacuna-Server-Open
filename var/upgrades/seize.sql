@@ -1,15 +1,20 @@
+alter table star drop column alliance_id;
+alter table star drop column recalc;
+alter table star drop column influence;
+
 alter table star add column alliance_id int(11);
-alter table star add column seize_strength int(11);
+alter table star add column influence int(11);
 alter table star add column recalc int(11) default 1;
 
 alter table star add foreign key (alliance_id) references alliance(id);
 
-create table seize_star (
+drop table influence;
+create table influence (
     id              int(11) not null auto_increment,
     station_id      int(11) not null,
     star_id         int(11) not null,
     alliance_id     int(11) not null,
-    seize_strength  int(11) not null default 0,
+    influence       int(11) not null default 0,
     primary key (id),
     key ssf_idx_body_id (station_id),
     key ssf_idx_star_id (star_id),
@@ -19,6 +24,7 @@ create table seize_star (
     constraint ss_f_alliance_id foreign key (alliance_id) references alliance(id)
 );
 
+drop table law;
 create table law (
     id              int(11) not null auto_increment,
     name            varchar(30) not null,
@@ -38,6 +44,7 @@ create table law (
     constraint law_f_star_id foreign key (star_id) references star(id)
 );
 
+drop table proposition;
 create table proposition (
     id              int(11) not null auto_increment,
     name            varchar(30) not null,
@@ -62,6 +69,7 @@ create table proposition (
     constraint prop_f_proposed_by_id foreign key (proposed_by_id) references empire(id)
 );
 
+drop table vote;
 create table vote (
     id              int(11) not null auto_increment,
     proposition_id  int(11) not null,

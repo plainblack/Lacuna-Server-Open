@@ -4,6 +4,8 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
+use Guard qw(guard);
+
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use Lacuna::Verify;
 
@@ -260,8 +262,11 @@ sub view_propositions {
 
     my $empire   = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+    my $alliance = $empire->alliance;
+    confess [1002, 'You are not in an alliance.'] if not $alliance;
+
     my @out;
-    my $propositions = $building->propositions->search({ status => 'Pending'});
+    my $propositions = $alliance->propositions->search({ status => 'Pending'});
     if ($filter and $filter->{station_id}) {
         $propositions = $propositions->search({station_id => $filter->{station_id}});
     }
@@ -378,7 +383,7 @@ sub get_stars_in_jurisdiction {
     my @out;
     my $stars = Lacuna->db->resultset('Map::Star')->search({
         alliance_id => $empire->alliance_id,
-        seize_strength  => {'>=' => 50},
+        influence  => {'>=' => 50},
     },{
         order_by        => 'name'
     });
@@ -407,7 +412,7 @@ sub get_bodies_for_star_in_jurisdiction {
     my ($star) = Lacuna->db->resultset('Map::Star')->search({
         id              => $star_id,
         alliance_id     => $empire->alliance_id,
-        seize_strength  => {'>=' => 50},
+        influence  => {'>=' => 50},
     });
     confess [1009, 'That star is not in your jurisdiction.'] unless $star;
 
@@ -432,7 +437,7 @@ sub get_excavators_for_star_in_jurisdiction {
     my ($star) = Lacuna->db->resultset('Map::Star')->search({
         id              => $star_id,
         alliance_id     => $empire->alliance_id,
-        seize_strength  => {'>=' => 50},
+        influence  => {'>=' => 50},
     });
     confess [1009, 'That star is not in your jurisdiction.'] unless $star;
 
@@ -468,11 +473,11 @@ sub get_mining_platforms_for_star_in_jurisdiction {
     my ($star) = Lacuna->db->resultset('Map::Star')->search({
         id              => $star_id,
         alliance_id     => $empire->alliance_id,
-        seize_strength  => {'>=' => 50},
+        influence  => {'>=' => 50},
     });
     confess [1009, 'That star is not in your jurisdiction.'] unless $star;
 
-    my $platforms = Lacuna->db->resultset('MiningPlatform')->search({
+    my $platforms = Lacuna->db->resultset('MiningPlatforms')->search({
         'asteroid.star_id'  => $star_id,
     },{
         prefetch => ['asteroid','planet'],
@@ -512,7 +517,7 @@ sub propose_rename_star {
     my ($star) = Lacuna->db->resultset('Map::Star')->search({
         id              => $star_id,
         alliance_id     => $empire->alliance_id,
-        seize_strength  => {'>=' => 50},
+        influence  => {'>=' => 50},
     });
     confess [1009, 'That star is not in your jurisdiction.'] unless $star;
     
@@ -711,7 +716,7 @@ sub propose_rename_asteroid {
     my ($star) = Lacuna->db->resultset('Map::Star')->search({
         id              => $asteroid->star_id,
         alliance_id     => $empire->alliance_id,
-        seize_strength  => {'>=' => 50},
+        influence  => {'>=' => 50},
     });
     confess [1009, 'That asteroid is not in your jurisdiction.'] unless $star;
 
@@ -754,7 +759,7 @@ sub propose_rename_uninhabited {
     my ($star) = Lacuna->db->resultset('Map::Star')->search({
         id              => $planet->star_id,
         alliance_id     => $empire->alliance_id,
-        seize_strength  => {'>=' => 50},
+        influence  => {'>=' => 50},
     });
     confess [1009, 'That asteroid is not in your jurisdiction.'] unless $star;
     confess [1013, 'That planet is inhabited.'] if $planet->empire_id;
@@ -795,7 +800,7 @@ sub propose_members_only_mining_rights {
     my $proposition = Lacuna->db->resultset('Proposition')->new({
         type            => 'MembersOnlyMiningRights',
         name            => 'Members Only Mining Rights',
-        description     => 'Only members of {Alliance '.$building->body->alliance_id.' '.$building->body->alliance->name.'} should be allowed to mine asteroids in zone $zone',
+        description     => 'Only members of {Alliance '.$empire->alliance_id.' '.$empire->alliance->name.'} should be allowed to mine asteroids in zone $zone',
         proposed_by_id  => $empire->id,
         alliance_id     => $empire->alliance_id,
     });
@@ -820,16 +825,16 @@ sub propose_evict_mining_platform {
     confess [1002, 'Platform not found.'] if not defined $platform;
 
     my ($star) = Lacuna->db->resultset('Map::Star')->search({
-        id              => $platform->planet->star_id,
+        id              => $platform->asteroid->star_id,
         alliance_id     => $empire->alliance_id,
-        seize_strength  => {'>=' => 50},
+        influence  => {'>=' => 50},
     });
     confess [1009, 'That platform is not in your jurisdiction.'] unless $star;
 
     my $proposition = Lacuna->db->resultset('Proposition')->new({
         type            => 'EvictMiningPlatform',
         name            => 'Evict '.$platform->planet->empire->name.' Mining Platform',
-        description     => 'Evict a mining platform on {Starmap '.$platform->asteroid->x.' '.$platform->asteroid->y.' '.$platform->asteroid->name.'} controlled by Alliance '.$building->body->alliance->name.'.',
+        description     => 'Evict a mining platform on {Starmap '.$platform->asteroid->x.' '.$platform->asteroid->y.' '.$platform->asteroid->name.'} controlled by {Alliance '.$empire->alliance_id.' '.$empire->alliance->name.'}.',
         scratch         => { platform_id => $platform_id },
         proposed_by_id  => $empire->id,
         alliance_id     => $empire->alliance_id,
@@ -854,7 +859,7 @@ sub propose_members_only_colonization {
     my $proposition = Lacuna->db->resultset('Proposition')->new({
         type            => 'MembersOnlyColonization',
         name            => 'Members Only Colonization',
-        description     => 'Only members of {Alliance '.$building->body->alliance_id.' '.$building->body->alliance->name.'} should be allowed to colonize planets in their jurisdiction in zone '.$zone,
+        description     => 'Only members of {Alliance '.$empire->alliance_id.' '.$empire->alliance->name.'} should be allowed to colonize planets in their jurisdiction in zone '.$zone,
         proposed_by_id  => $empire->id,
         alliance_id     => $empire->alliance_id,
     });
@@ -878,7 +883,7 @@ sub propose_neutralize_bhg {
     my $proposition = Lacuna->db->resultset('Proposition')->new({
         type            => 'BHGNeutralized',
         name            => 'BHG Neutralized',
-        description     => 'All Black Hole Generators will cease to operate within and on planets in the jurisdiction of {Alliance '.$building->body->alliance_id.' '.$building->body->alliance->name.'} in zone '.$zone,
+        description     => 'All Black Hole Generators will cease to operate within and on planets in the jurisdiction of {Alliance '.$empire->alliance_id.' '.$empire->alliance->name.'} in zone '.$zone,
         proposed_by_id  => $empire->id,
         alliance_id     => $empire->alliance_id,
     });
@@ -940,7 +945,7 @@ sub propose_fire_bfg {
     my ($star) = Lacuna->db->resultset('Map::Star')->search({
         id              => $body->star_id,
         alliance_id     => $empire->alliance_id,
-        seize_strength  => {'>=' => 50},
+        influence  => {'>=' => 50},
     });
     confess [1009, 'That planet is not in your jurisdiction.'] unless $star;
 
