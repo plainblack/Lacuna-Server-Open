@@ -284,13 +284,13 @@ sub view_propositions {
 }
 
 sub cast_vote {
-    my ($self, $session_id, $building_id, $proposition_id, $vote) = @_;
+    my ($self, $session_id, $body_id, $proposition_id, $vote) = @_;
 
-    my $empire   = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $empire  = $self->get_empire_by_session($session_id);
+    my $body    = $self->get_body($empire, $body_id);
 
-    my $cache = Lacuna->cache;
-    my $lock = 'vote_lock_'.$empire->id;
+    my $cache   = Lacuna->cache;
+    my $lock    = 'vote_lock_'.$empire->id;
     if ($cache->get($lock, $proposition_id)) {
         confess [1013, 'You already have a vote in process for this proposition.'];
     }
@@ -300,9 +300,12 @@ sub cast_vote {
     unless (defined $proposition) {
         confess [1002, 'Proposition not found.'];
     }
+    if ($proposition->alliance_id != $empire->alliance_id) {
+        confess [1003, 'You cannot vote on a proposition for another alliance.'];
+    }
     $proposition->cast_vote($empire, $vote);
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($empire, $body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -896,28 +899,36 @@ sub propose_neutralize_bhg {
 }
 
 sub propose_transfer_station_ownership {
-    my ($self, $session_id, $building_id, $to_empire_id) = @_;
+    my ($self, $session_id, $building_id, $station_id, $to_empire_id) = @_;
 
-    my $empire = $self->get_empire_by_session($session_id);
+    my $empire   = $self->get_empire_by_session($session_id);
+    my $alliance = $empire->alliance;
     my $building = $self->get_building($empire, $building_id);
     confess [1015, 'Sitters cannot create propositions.'] if $empire->current_session->is_sitter;
     confess [1013, 'Embassy must be level 6 to transfer station ownership.',6] if $building->level < 6;
     confess [1002, 'Must specify an empire id to transfer the station to.'] if not $to_empire_id;
+    confess [2002, 'Must specify a station id to transfer.'] if not $station_id;
     
     my $to_empire = Lacuna->db->resultset('Empire')->find($to_empire_id);
     confess [1002, 'Could not find the empire to transfer the station to.'] if not defined $to_empire;
     confess [1009, 'That empire is not a member of your alliance.'] if $to_empire->alliance_id != $empire->alliance_id;
     confess [1013, 'That empire is an isolationist.'] if $to_empire->is_isolationist;
 
+    my ($station) = Lacuna->db->resultset('Map::Body')->search({
+        id          => $station_id,
+        alliance_id => $alliance->id,
+    });
+    confess [1002, 'That station is not owned by your alliance.'] if not $station;
+
     my $proposition = Lacuna->db->resultset('Proposition')->new({
         type            => 'TransferStationOwnership',
         name            => 'Transfer Station',
-        description     => 'Transfer ownership of {Planet '.$building->body->id.' '.$building->body->name.'} from {Empire '.$building->body->empire_id.' '.$building->body->empire->name.'} to {Empire '.$to_empire->id.' '.$to_empire->name.'}.',
+        description     => 'Transfer ownership of {Planet '.$station->id.' '.$station->name.'} from {Empire '.$station->empire_id.' '.$station->empire->name.'} to {Empire '.$to_empire->id.' '.$to_empire->name.'}.',
         scratch         => { empire_id => $to_empire->id },
         proposed_by_id  => $empire->id,
+        station_id      => $station_id,
         alliance_id     => $empire->alliance_id,
     });
-    $proposition->proposed_by($empire);
     $proposition->insert;
     return {
         status      => $self->format_status($empire, $building->body),

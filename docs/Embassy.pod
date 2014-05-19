@@ -630,7 +630,7 @@ Others (such as induct member) need neither a station_id nor a zone.
 
 
 
-=head2 cast_vote ( session_id, building_id, proposition_id, vote )
+=head2 cast_vote ( session_id, body_id, proposition_id, vote )
 
 Casts a vote for or against a proposition.
 
@@ -638,9 +638,9 @@ Casts a vote for or against a proposition.
 
 A session id.
 
-=head3 building_id
+=head3 body_id
 
-The unique id of the embassy.
+The unique id of the body you are on.
 
 =head3 proposition_id
 
