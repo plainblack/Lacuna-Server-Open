@@ -63,9 +63,9 @@ sub upgrade {
             description     => 'Upgrade '.$name.' on {Planet '.$body->id.' '.$body->name.'} from level '.$building->level.' to '.($building->level + 1).'.',
             scratch         => { building_id => $building->id, to_level => $building->level + 1 },
             proposed_by_id  => $empire->id,
+            station_id      => $body->id,
+            alliance_id     => $empire->alliance_id,
         });
-        $proposition->station($body);
-        $proposition->proposed_by($empire);
         $proposition->insert;
     }
     
@@ -201,9 +201,9 @@ sub build {
             description     => 'Install '.$name.' on {Planet '.$body->id.' '.$body->name.'}.',
             scratch         => { building_id => $building->id, to_level => $building->level + 1 },
             proposed_by_id  => $empire->id,
+            station_id      => $body->id,
+            alliance_id     => $empire->alliance_id,
         });
-        $proposition->station($body);
-        $proposition->proposed_by($empire);
         $proposition->insert;
     }
     
@@ -235,9 +235,9 @@ sub demolish {
             description     => 'Demolish '.$name.' on {Planet '.$body->id.' '.$body->name.'}.',
             scratch         => { building_id => $building->id },
             proposed_by_id  => $empire->id,
+            station_id      => $body->id,
+            alliance_id     => $empire->alliance_id,
         });
-        $proposition->station($body);
-        $proposition->proposed_by($empire);
         $proposition->insert;
         confess [1017, 'The demolish order has been delayed pending a parliamentary vote.'];
     }
@@ -265,9 +265,9 @@ sub downgrade {
             description     => 'Downgrade '.$name.' on {Planet '.$body->id.' '.$body->name.'} from level '.$building->level.' to '.($building->level - 1).'.',
             scratch         => { building_id => $building->id },
             proposed_by_id  => $empire->id,
+            station_id      => $body->id,
+            alliance_id     => $empire->alliance_id,
         });
-        $proposition->station($body);
-        $proposition->proposed_by($empire);
         $proposition->insert;
         confess [1017, 'The downgrade order has been delayed pending a parliamentary vote.'];
     }
@@ -327,9 +327,9 @@ sub repair {
             description     => 'Repair '.$name.' on {Planet '.$body->id.' '.$body->name.'}.',
             scratch         => { building_id => $building->id },
             proposed_by_id  => $empire->id,
+            station_id      => $body->id,
+            alliance_id     => $empire->alliance_id,
         });
-        $proposition->station($body);
-        $proposition->proposed_by($empire);
         $proposition->insert;
         confess [1017, 'The repair order has been delayed pending a parliamentary vote.'];
     }

@@ -96,13 +96,22 @@ sub get_star_by_xy {
 }
 
 sub search_stars {
-    my ($self, $session_id, $name) = @_;
+    my ($self, $session_id, $name, $alliance_id) = @_;
     if (length($name) < 3) {
         confess [1009, "Your search term must be at least 3 characters."];
     }
     my $empire = $self->get_empire_by_session($session_id);
     my @out;
-    my $stars = Lacuna->db->resultset('Map::Star')->search({name => { like => $name.'%' }},{rows => 25});
+    my $stars = Lacuna->db->resultset('Map::Star')->search({name => { like => $name.'%' }});
+    if ($alliance_id) {
+        $stars = $stars->search({
+            influence   => {'>=' => 50 },
+            alliance_id => $alliance_id,
+        });
+    }
+
+    $stars = $stars->search({},{rows => 25});
+
     while (my $star = $stars->next) {
         push @out, $star->get_status; # planet data left out on purpose
     }

@@ -239,7 +239,7 @@ The y coordinate of a star.
 
 
 
-=head2 search_stars (session_id, name)
+=head2 search_stars (session_id, name, alliance_id)
 
 If you know a partial name of a star you can search for it. Returns up to 25 results. No body data is returned with this search.
 
@@ -270,6 +270,9 @@ A session id.
 
 A partial name of a star. Case insensitive. Must be at least 3 characters.
 
+=head3 alliance_id
+
+(optional) if provided only stars seized by that alliance will be returned.
 
 =head2 probe_summary_fissures
 
