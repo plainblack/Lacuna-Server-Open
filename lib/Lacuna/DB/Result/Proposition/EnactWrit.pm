@@ -11,7 +11,7 @@ before pass => sub {
         name        => $self->name,
         description => $self->description,
         type        => 'Writ',
-        station_id  => $self->station_id,
+        alliance_id => $self->alliance_id,
     })->insert;
 };
 

@@ -59,6 +59,7 @@ create table proposition (
     date_ends       datetime not null,
     proposed_by_id  int(11) not null,
     status          varchar(10) not null default 'Pending',
+    zone            varchar(16),
     primary key (id),
     key prop_idx_alliance_id (alliance_id),
     key prop_idx_station_id (station_id),
