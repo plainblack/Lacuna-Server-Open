@@ -13,6 +13,7 @@ __PACKAGE__->add_columns(
     name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     alliance_id             => { data_type => 'int', size => 11, is_nullable => 0 },
     station_id              => { data_type => 'int', size => 11 },
+    zone                    => { data_type => 'varchar', size => 16, is_nullable => 1 },
     votes_needed            => { data_type => 'int', is_nullable => 0, default_value => 1 },
     votes_yes               => { data_type => 'int', is_nullable => 0, default_value => 0 },
     votes_no                => { data_type => 'int', is_nullable => 0, default_value => 0 },
