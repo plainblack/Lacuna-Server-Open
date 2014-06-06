@@ -845,6 +845,10 @@ The unique id of a star in jurisdiction. See c<get_stars_in_jurisdiction>.
     "platforms" : [
         {
             "id"        : "id-goes-here",
+            "asteroid"  : {
+                "id"       : "id-goes-here",
+                "name"     : "Ceres"
+            },
             "empire"    : {
                 "id"       : "id-goes-here",
                 "name"     : "Klingons"
@@ -1273,7 +1277,7 @@ The unique id of the Embassy.
 
 =head3 platform_id
 
-The unique id of a mining platform. See C<get_platforms_for_asteroid_in_jurisdiction>.
+The unique id of a mining platform. See C<get_mining_platforms_for_star_in_jurisdiction>.
 
 =head3 RESPONSE
 
