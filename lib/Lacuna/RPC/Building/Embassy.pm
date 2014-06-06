@@ -490,6 +490,10 @@ sub get_mining_platforms_for_star_in_jurisdiction {
     while (my $platform = $platforms->next) {
         push @out, {
             id          => $platform->id,
+            asteroid    => {
+                name    => $platform->planet->name,
+                id      => $platform->planet->id,
+            },
             empire      => {
                 name    => $platform->planet->empire->name,
                 id      => $platform->planet->empire->id,
