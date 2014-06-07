@@ -807,10 +807,37 @@ sub propose_members_only_mining_rights {
     my $proposition = Lacuna->db->resultset('Proposition')->new({
         type            => 'MembersOnlyMiningRights',
         name            => 'Members Only Mining Rights',
-        description     => 'Only members of {Alliance '.$empire->alliance_id.' '.$empire->alliance->name.'} should be allowed to mine asteroids in zone $zone',
+        description     => 'Only members of {Alliance '.$empire->alliance_id.' '.$empire->alliance->name.'} should be allowed to mine asteroids in zone '.$zone,
         proposed_by_id  => $empire->id,
         alliance_id     => $empire->alliance_id,
+        zone            => $zone,
     });
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
+
+sub propose_members_only_excavation {
+    my ($self, $session_id, $building_id, $zone) = @_;
+
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    confess [1015, 'Sitters cannot create propositions.'] if $empire->current_session->is_sitter;
+    confess [1013, 'Embassy must be level 20 to propose members only excavation.',20] if $building->level < 20;
+    confess [1013, 'You have not specified a zone.'] if not defined $zone;
+
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Proposition')->new({
+        type            => 'MembersOnlyExcavation',
+        name            => 'Members Only Excavation',
+        description     => 'Only members of {Alliance '.$building->body->alliance_id.' '.$empire->alliance->name.'} should be allowed to excavate bodies in zone '.$zone,
+        proposed_by_id  => $empire->id,
+        alliance_id     => $empire->alliance_id,
+        zone            => $zone,
+    });
+    $proposition->station($building->body);
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
@@ -869,6 +896,7 @@ sub propose_members_only_colonization {
         description     => 'Only members of {Alliance '.$empire->alliance_id.' '.$empire->alliance->name.'} should be allowed to colonize planets in their jurisdiction in zone '.$zone,
         proposed_by_id  => $empire->id,
         alliance_id     => $empire->alliance_id,
+        zone            => $zone,
     });
     $proposition->proposed_by($empire);
     $proposition->insert;
@@ -992,7 +1020,7 @@ __PACKAGE__->register_rpc_method_names(qw(
     propose_induct_member propose_expel_member propose_elect_new_leader propose_rename_asteroid
     propose_rename_uninhabited propose_members_only_mining_rights propose_evict_mining_platform
     propose_members_only_colonization propose_neutralize_bhg propose_transfer_station_ownership
-    propose_fire_bfg get_excavators_for_star_in_jurisdiction
+    propose_fire_bfg get_excavators_for_star_in_jurisdiction propose_members_only_excavation
 ));
 
 no Moose;
