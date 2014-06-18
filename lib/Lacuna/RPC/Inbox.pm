@@ -89,6 +89,46 @@ sub trash_messages {
     return { success=>\@success, failure=>\@failure, status=>$self->format_status($empire) };
 }
 
+sub trash_messages_where {
+    my $self = shift;
+    my $session_id = shift;
+    my $empire = $self->get_empire_by_session($session_id);
+
+    my $deleted = 0;
+    while (@_)
+    {
+        my $opts = shift;
+
+        my %where;
+        $where{tag}       = [ 'in',   $opts->{tags}    ] if $opts->{tags};
+        $where{subject}   = { like => $opts->{subject} } if $opts->{subject};
+        $where{from_name} = [ 'in',   $opts->{from}    ] if $opts->{from};
+
+        confess [ 1009, 'No options specified for mass delete' ]
+            unless keys %where;
+
+        # the parts the caller can't override:
+        $where{has_archived} = 0;
+        $where{to_id}        = $empire->id;
+        $where{has_trashed}  = 0; # only look at ones not already trashed
+
+        my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message')->search(\%where);
+
+        while (my $message = $messages->next)
+        {
+            $message->has_read(1);
+            $message->has_trashed(1);
+            $message->update;
+            ++$deleted;
+        }
+    }
+
+    return {
+        deleted_count => $deleted,
+        status        => $self->format_status($empire),
+    };
+}
+
 sub send_message {
     my ($self, $session_id, $recipients, $subject, $body, $options) = @_;
     Lacuna::Verify->new(content=>\$subject, throws=>[1005,'Message subject cannot be empty.',$subject])->not_empty;
@@ -260,7 +300,7 @@ sub view_messages {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(view_inbox view_archived view_trashed view_sent send_message read_message archive_messages trash_messages));
+__PACKAGE__->register_rpc_method_names(qw(view_inbox view_archived view_trashed view_sent send_message read_message archive_messages trash_messages trash_messages_where));
 
 
 no Moose;
