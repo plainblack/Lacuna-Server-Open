@@ -243,6 +243,50 @@ An array reference of message ids.
 
 
 
+=head2 trash_messages_where ( session_id, options, [ options, ... ] )
+
+Trashed messages are marked as read.
+
+Trashes all messages matching the options. Returns:
+
+ {
+    "deleted_count" : 129,
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 options
+
+A hash reference of extra options.  A message must match all options
+to be deleted ("AND").  It is an error to specify no options.  To delete
+all non-archived messages, simply use subject of C<%>.
+
+Compounding multiple delete requests can be done by passing in additional
+hash references.
+
+=head4 tags
+
+An array reference of tags.  Messages with any of these tags will be
+eligible for deletion.  Default is any and all tags (no tag evaluation).
+
+=head4 subject
+
+A subject line to match.  Use C<%> to represent zero or more characters
+in that position, such as "Pass:%" to select all messages whose subject
+starts with "Pass:".  Default is essentially any subject (no subject
+evaluation).
+
+=head4 from
+
+An array reference of from names.  Full names are required.
+
+
+
+
+
 =head2 send_message ( session_id, recipients, subject, body, [ options ] )
 
 Sends a message to other players. 
