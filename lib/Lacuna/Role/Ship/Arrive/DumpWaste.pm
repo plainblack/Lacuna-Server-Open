@@ -77,17 +77,20 @@ after handle_arrival_procedures => sub {
 };
 
 after send => sub {
-    my $self = shift;
-    my $waste_sent;
-    if ($self->body->waste_stored < $self->hold_size) {
-      $waste_sent = $self->body->waste_stored > 0 ? $self->body->waste_stored : 0;
+    my ($self, %options ) = @_;
+    if (!$options{emptyscow})
+    {
+        my $waste_sent;
+        if ($self->body->waste_stored < $self->hold_size) {
+            $waste_sent = $self->body->waste_stored > 0 ? $self->body->waste_stored : 0;
+        }
+        else {
+            $waste_sent = $self->hold_size;
+        }
+        $self->body->spend_waste($waste_sent)->update;
+        $self->payload({ resources => { waste => $waste_sent } });
+        $self->update;
     }
-    else {
-      $waste_sent = $self->hold_size;
-    }
-    $self->body->spend_waste($waste_sent)->update;
-    $self->payload({ resources => { waste => $waste_sent } });
-    $self->update;
 };
 
 after can_send_to_target => sub {
