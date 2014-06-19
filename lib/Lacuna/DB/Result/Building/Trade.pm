@@ -160,6 +160,7 @@ sub send_waste_ship_home {
         target      => $star,
         direction   => 'in',
         task        => 'Travelling',
+        emptyscow   => 1,
     );
     $self->recalc_waste_production;
     return $self;
