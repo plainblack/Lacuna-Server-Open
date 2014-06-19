@@ -47,7 +47,6 @@ for my $func (qw(insert update delete)) {
     after $func => sub {
         my $self = shift;
 
-        $self->sender->recalc_messages;
         $self->receiver->recalc_messages;
     };
 }
