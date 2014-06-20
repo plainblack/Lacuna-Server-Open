@@ -11,7 +11,7 @@ Retrieves info on a single star. Works like L<Map/"get_star"> except that you ca
 
 There is a range to the Oracle based upon it's level. A 10 map unit radius per level. A 1009 exception will be thrown if you request a star that its outside that range.
 
-B<NOTE: Use L<Map/"search_stars"> to look up the id of a star by name.
+B<NOTE: Use L<Map/"search_stars"> to look up the id of a star by name.>
 
 
  { 
