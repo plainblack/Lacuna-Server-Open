@@ -546,6 +546,7 @@ sub travel_time {
     $speed ||= 1;
     my $hours = $distance / $speed;
     my $seconds = 60 * 60 * $hours;
+    $seconds = 1 if $seconds < 1;
     return sprintf('%.0f', $seconds);
 }
 
