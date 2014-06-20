@@ -394,7 +394,7 @@ sub get_new_message_count {
     my $count = $self->received_messages->search({
         has_archived    => 0,
         has_read        => 0,
-    });
+    })->count;
 
     return $count;
 }

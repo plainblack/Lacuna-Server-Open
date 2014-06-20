@@ -48,45 +48,53 @@ sub read_message {
 sub archive_messages {
     my ($self, $session_id, $message_ids) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message');
-    my @failure;
-    my @success;
-    foreach my $id (@{$message_ids}) {
-        my $message = $messages->find($id);
-        if (defined $message && $empire->id eq $message->to_id && !$message->has_archived) {
-            $message->has_read(1);
-            $message->has_archived(1);
-            $message->has_trashed(0);
-            $message->update;
-            push @success, $id;
-        }
-        else {
-            push @failure, $id;
-        }
+    my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message')
+        ->search(
+                 {
+                     id => [ 'in', $message_ids ],
+                     to_id => $empire->id,
+                     has_archived => 0,
+                 });
+
+    my @updating = map { $_->id } $messages->search(undef, { columns => [ 'id' ]})->all;
+    if (@updating)
+    {
+        $messages->update(
+                          {
+                              has_read => 1,
+                              has_archived => 1,
+                              has_trashed => 0
+                          });
+        $empire->recalc_messages;
     }
-    return { success=>\@success, failure=>\@failure, status=>$self->format_status($empire) };
+
+    return { success=>\@updating, status=>$self->format_status($empire) };
 }
 
 sub trash_messages {
     my ($self, $session_id, $message_ids) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message');
-    my @failure;
-    my @success;
-    foreach my $id (@{$message_ids}) {
-        my $message = $messages->find($id);
-        if (defined $message && $empire->id eq $message->to_id && !$message->has_trashed) {
-            $message->has_read(1);
-            $message->has_archived(0);
-            $message->has_trashed(1);
-            $message->update;
-            push @success, $id;
-        }
-        else {
-            push @failure, $id;
-        }
+    my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message')
+        ->search(
+                 {
+                     id => [ 'in', $message_ids ],
+                     to_id => $empire->id,
+                     has_trashed => 0,
+                 });
+
+    my @updating = map { $_->id } $messages->search(undef, { columns => [ 'id' ]})->all;
+    if (@updating)
+    {
+        $messages->update(
+                          {
+                              has_read => 1,
+                              has_archived => 0,
+                              has_trashed => 1,
+                          });
+        $empire->recalc_messages;
     }
-    return { success=>\@success, failure=>\@failure, status=>$self->format_status($empire) };
+
+    return { success=>\@updating, status=>$self->format_status($empire) };
 }
 
 sub send_message {
