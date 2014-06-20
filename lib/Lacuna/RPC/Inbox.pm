@@ -94,7 +94,7 @@ sub trash_messages_where {
     my $session_id = shift;
     my $empire = $self->get_empire_by_session($session_id);
 
-    my $deleted = 0;
+    my @deleted;
     while (@_)
     {
         my $opts = shift;
@@ -114,18 +114,23 @@ sub trash_messages_where {
 
         my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message')->search(\%where);
 
-        while (my $message = $messages->next)
+        my @deleting = map { $_->id } $messages->search(undef, { columns => [ 'id' ] })->all;
+        if (@deleting)
         {
-            $message->has_read(1);
-            $message->has_trashed(1);
-            $message->update;
-            ++$deleted;
+            $messages->update(
+                              {
+                                  has_read => 1,
+                                  has_trashed => 1,
+                              });
+            push @deleted, @deleting;
         }
     }
 
+    $empire->recalc_messages if @deleted;
+
     return {
-        deleted_count => $deleted,
-        status        => $self->format_status($empire),
+        deleted => @deleted,
+        status  => $self->format_status($empire),
     };
 }
 
