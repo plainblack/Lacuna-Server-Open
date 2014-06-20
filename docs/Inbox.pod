@@ -250,7 +250,7 @@ Trashed messages are marked as read.
 Trashes all messages matching the options. Returns:
 
  {
-    "deleted_count" : 129,
+    "deleted" : ["id-goes-here","id-goes-here"],
     "status" : { ... }
  }
 
