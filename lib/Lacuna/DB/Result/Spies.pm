@@ -466,11 +466,13 @@ sub is_available {
     elsif (time > $self->available_on->epoch) {
         if ($task eq 'Debriefing') {
             $self->task('Counter Espionage');
+            $self->started_assignment(DateTime->now);
             $self->update;
             return 1;
         }
         elsif ($task eq 'Unconscious') {
             $self->task('Idle');
+            $self->started_assignment(DateTime->now);
             $self->update;
             $self->empire->send_predefined_message(
                 tags        => ['Intelligence'],
