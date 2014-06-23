@@ -1089,5 +1089,19 @@ sub pay_taxes {
     }
 }
 
+sub highest_embassy {
+    my ($self, $excluding_body_id) = @_;
+    my %where = (
+                 'body.empire_id' => $self->id,
+                 'me.class'       => 'Lacuna::DB::Result::Building::Embassy'
+                );
+    $where{body_id} = { '!=' => $excluding_body_id } if defined $excluding_body_id;
+    my $search = Lacuna->db->resultset('Lacuna::DB::Result::Building')
+        ->search(\%where, { join => 'body', order_by => { -desc => 'level' } })
+        ->single();
+
+    return $search;
+}
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
