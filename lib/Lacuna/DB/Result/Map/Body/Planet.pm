@@ -875,7 +875,7 @@ sub has_resources_to_operate {
         if ($delta < 0 && $future->{$method} + $delta < 0) {
             my $resource = $method;
             $resource =~ s/(\w+)_hour/$1/;
-            confess [1012, "Unsustainable. Not enough resources being produced to build this.", $resource];
+            confess [1012, "Unsustainable given the current and planned resource consumption. Not enough resources being produced to build this.", $resource];
         }
     }
     return 1;
