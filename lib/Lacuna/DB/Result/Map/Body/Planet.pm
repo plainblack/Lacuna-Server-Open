@@ -1359,9 +1359,8 @@ sub recalc_stats {
 # NEWS
 
 sub add_news {
-    my $self = shift;
-    my $chance = shift;
-    my $headline = shift;
+    my ($self, $chance, $headline) = @_;
+
     if ($self->restrict_coverage) {
         my $network19 = $self->network19;
         if (defined $network19) {
@@ -1371,7 +1370,7 @@ sub add_news {
     }
     if (randint(1,100) <= $chance) {
         $headline = sprintf $headline, @_;
-        Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
+        Lacuna->db->resultset('News')->new({
             date_posted => DateTime->now,
             zone        => $self->zone,
             headline    => $headline,

@@ -7,6 +7,7 @@ extends 'Lacuna::DB::Result::Proposition';
 
 before pass => sub {
     my ($self) = @_;
+    my $alliance = $self->alliance;
     my $station = $self->station;
     my $star = Lacuna->db->resultset('Map::Star')->find($self->scratch->{star_id});
     if ($star->in_starter_zone) {

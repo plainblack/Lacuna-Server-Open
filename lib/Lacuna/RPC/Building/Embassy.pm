@@ -444,7 +444,7 @@ sub get_excavators_for_star_in_jurisdiction {
     });
     confess [1009, 'That star is not in your jurisdiction.'] unless $star;
 
-    my $excavators = Lacuna->db->resultset('Excavator')->search({
+    my $excavators = Lacuna->db->resultset('Excavators')->search({
         'body.star_id'  => $star_id,
     },{
         prefetch => ['body', 'planet'],
@@ -454,15 +454,19 @@ sub get_excavators_for_star_in_jurisdiction {
     while (my $excavator = $excavators->next) {
         push @out, {
             id          => $excavator->id,
+            planet      => {
+                name    => $excavator->planet->name,
+                id      => $excavator->planet->id,
+            },
             empire      => {
                 name    => $excavator->planet->empire->name,
                 id      => $excavator->planet->empire->id,
-            }
+            },
         };
     }
     return {
         status          => $self->format_status($empire, $building->body),
-        platforms       => \@out,
+        excavators      => \@out,
     };
 }
 
@@ -881,6 +885,43 @@ sub propose_evict_mining_platform {
     };
 }
 
+sub propose_evict_excavator {
+    my ($self, $session_id, $building_id, $excav_id) = @_;
+
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    confess [1015, 'Sitters cannot create propositions.'] if $empire->current_session->is_sitter;
+    confess [1013, 'Parliament must be level 21 to evict an excavator.',21] if $building->level < 21;
+    confess [1002, 'You must specify an excavator id.'] if not $excav_id;
+
+    my $excav = Lacuna->db->resultset('Excavators')->find($excav_id);
+    confess [1002, 'Excavator not found.'] unless defined $excav;
+
+    my ($star) = Lacuna->db->resultset('Map::Star')->search({
+        id              => $excav->body->star_id,
+        alliance_id     => $empire->alliance_id,
+        influence  => {'>=' => 50},
+    });
+    confess [1009, 'That excavator is not in your jurisdiction.'] unless $star;
+
+    my $proposition = Lacuna->db->resultset('Proposition')->new({
+        type            => 'EvictExcavator',
+        name            => 'Evict '.$excav->planet->empire->name.' Excavator',
+        description     => 'Evict a excavator on {Starmap '.$excav->body->x.' '.$excav->body->y.' '.$excav->body->name.'} controlled by {Empire '.$excav->planet->empire_id.' '.$excav->planet->empire->name.'}.',
+        scratch         => { excav_id => $excav_id },
+        proposed_by_id  => $empire->id,
+        alliance_id     => $empire->alliance_id,
+    });
+    $proposition->station($building->body);
+    $proposition->proposed_by($empire);
+    $proposition->insert;
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
+
+
 sub propose_members_only_colonization {
     my ($self, $session_id, $building_id, $zone) = @_;
 
@@ -1021,6 +1062,7 @@ __PACKAGE__->register_rpc_method_names(qw(
     propose_rename_uninhabited propose_members_only_mining_rights propose_evict_mining_platform
     propose_members_only_colonization propose_neutralize_bhg propose_transfer_station_ownership
     propose_fire_bfg get_excavators_for_star_in_jurisdiction propose_members_only_excavation
+    propose_evict_excavator
 ));
 
 no Moose;

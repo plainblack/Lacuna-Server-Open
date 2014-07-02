@@ -4,7 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
-use Lacuna::Util qw(format_date);
+use Lacuna::Util qw(format_date randint);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use DateTime;
 
@@ -179,6 +179,23 @@ sub get_invites {
     return \@out;
 }
 
+
+sub add_news {
+    my ($self, $chance, $headline, $zone) = @_;
+
+    $zone = "0|0" unless $zone;
+
+    if (randint(1,100) <= $chance) {
+        $headline = sprintf $headline, @_;
+        Lacuna->db->resultset('News')->new({
+            date_posted => DateTime->now,
+            zone        => $zone,
+            headline    => $headline,
+        })->insert;
+        return 1;
+    }
+    return 0;
+}
 
 sub send_invite {
     my ($self, $empire, $message) = @_;
