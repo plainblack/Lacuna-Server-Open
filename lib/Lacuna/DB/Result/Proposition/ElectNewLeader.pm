@@ -7,8 +7,7 @@ extends 'Lacuna::DB::Result::Proposition';
 
 before pass => sub {
     my ($self) = @_;
-    my $station = $self->station;
-    my $alliance = $station->alliance;
+    my $alliance = $self->alliance;
     my $new_leader = Lacuna->db->resultset('Empire')->find($self->scratch->{empire_id});
     if (defined $new_leader) {
         if ($new_leader->alliance_id == $alliance->id) {

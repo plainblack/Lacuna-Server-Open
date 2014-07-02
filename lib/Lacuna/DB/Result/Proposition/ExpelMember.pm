@@ -7,8 +7,7 @@ extends 'Lacuna::DB::Result::Proposition';
 
 before pass => sub {
     my ($self) = @_;
-    my $station = $self->station;
-    my $alliance = $station->alliance;
+    my $alliance = $self->alliance;
     my $empire_to_remove = Lacuna->db->resultset('Empire')->find($self->scratch->{empire_id});
     if (defined $empire_to_remove) {
         if ($empire_to_remove->alliance_id == $alliance->id) {

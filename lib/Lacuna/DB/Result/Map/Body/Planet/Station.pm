@@ -110,22 +110,19 @@ sub add_waste {
 
 sub in_jurisdiction {
     my ($self, $target) = @_;
+
+    my $star;
     if (ref $target eq 'Lacuna::DB::Result::Map::Star') {
-        my $star = Lacuna->db->resultset('Map::Star')->find($target->id);
-        unless (defined $star) {
-            confess [1009, 'Invalid star'];
-        }
-        unless ($star->alliance_id == $self->alliance_id) {
-            confess [1009, 'Target star is not in the station\'s jurisdiction.'];
-        }
-    } else {
+        $star = Lacuna->db->resultset('Map::Star')->find($target->id);
+        confess [1009, 'Invalid star'] unless $star;
+    }
+    else {
         my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target->id);
-        unless (defined $body) {
-            confess [1009, 'Invalid body'];
-        }
-        unless ($body->star->station_id == $self->id) {
-            confess [1009, 'Target body is not in the station\'s jurisdiction.'];
-        }
+        confess [1009, 'Invalid body'] unless $body;
+        $star = $body->star;
+    }
+    if ($star->alliance_id != $self->alliance_id or $star->influence < 50) {
+        confess [1009, 'Target star is not in the alliance\'s jurisdiction.'];
     }
 }
 
@@ -229,10 +226,8 @@ END_SQL
         #
         $sth_star->execute($self->id);
     }
-
-    # Now recalculate the allegience of all such marked stars
-    #    
-    $self->result_source->schema->resultset('Map::Star')->recalc_all;
+    # Don't forget to recalc the influence on all the marked stars, but this can wait until we have
+    # processed all SS that need a recalc.
 }
 
 no Moose;

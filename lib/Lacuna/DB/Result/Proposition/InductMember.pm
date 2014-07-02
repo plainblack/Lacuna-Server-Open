@@ -8,10 +8,9 @@ extends 'Lacuna::DB::Result::Proposition';
 before pass => sub {
     my ($self) = @_;
 
-    my $station = $self->station;
     my $invite_empire = Lacuna->db->resultset('Empire')->find($self->scratch->{invite_id});
     if (defined $invite_empire) {
-        my $alliance = $station->alliance;
+        my $alliance = $self->alliance;
         my $count = $alliance->members->count;
         $count += $alliance->invites->count;
 

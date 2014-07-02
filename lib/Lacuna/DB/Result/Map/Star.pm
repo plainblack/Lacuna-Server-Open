@@ -28,6 +28,22 @@ sub send_predefined_message {
     }
 }
 
+sub is_seized {
+    my ($self, $alliance_id) = @_;
+
+    if ($self->alliance_id == $alliance_id and $self->influence >= 50) {
+	return 1;
+    }
+    return;
+}
+
+sub recalc_influence {
+    my ($self) = @_;
+
+    print STDERR "Star: Recalc Influence\n";
+}
+
+
 sub get_status_lite {
     my ($self, $empire, $override_probe) = @_;
 

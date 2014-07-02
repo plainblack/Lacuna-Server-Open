@@ -8,7 +8,7 @@ extends 'Lacuna::DB::Result::Proposition';
 before pass => sub {
     my ($self) = @_;
     my $station = $self->station;
-    $self->station->add_news(200, $self->scratch->{message});
+    $self->alliance->add_news(200, $self->scratch->{message}, $self->zone);
 };
 
 no Moose;

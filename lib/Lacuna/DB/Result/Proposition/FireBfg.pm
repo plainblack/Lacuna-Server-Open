@@ -9,7 +9,7 @@ before pass => sub {
     my ($self) = @_;
     my $body = Lacuna->db->resultset('Map::Body')->find($self->scratch->{body_id});
     if (defined $body && $body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
-        if (eval {$self->station->in_jurisdiction($body)}) {
+        if (not $body->star->is_seized($self->alliance_id)) {
             if (defined $body->empire_id && $body->empire_id) {
                 foreach my $building (@{$body->building_cache}) {
                     next unless ('Infrastructure' ~~ [$building->build_tags]);
@@ -20,10 +20,10 @@ before pass => sub {
                 $body->needs_recalc(1);
                 $body->needs_surface_refresh(1);
                 $body->update;
-                $body->add_news(99, sprintf('The parliament of %s has fired their BFG at %s, devastating the surface.', $self->station->name, $body->name));
+                $body->add_news(99, sprintf('The alliance of %s has fired their BFG at %s, devastating the surface.', $self->alliance->name, $body->name));
                 $body->empire->send_message(
                     subject     => 'BFG Damage',
-                    body        => "The parliament of ".$self->station->name." has fired their BFG at ".$body->name.". The planet has been devastated, and I doubt it's repairable.\n\nRegards,\n\nYour Humble Assistant",
+                    body        => "The alliance of ".$self->alliance->name." has fired their BFG at ".$body->name.". The planet has been devastated, and I doubt it's repairable.\n\nRegards,\n\nYour Humble Assistant",
                     tag         => 'Alert',
                 );
             }
@@ -32,7 +32,7 @@ before pass => sub {
             }
         }
         else {
-            $self->pass_extra_message('Unfortunately, by the time the proposition passed, the planet was no longer in the Station\'s jurisdiction, effectively nullifying the vote.');
+            $self->pass_extra_message('Unfortunately, by the time the proposition passed, the planet was no longer in the alliance\'s jurisdiction, effectively nullifying the vote.');
         }
     }
     else {

@@ -11,14 +11,6 @@ after handle_arrival_procedures => sub {
     # we're coming home
     return if ($self->direction eq 'in');
 
-    #my $cargo_log = Lacuna->db->resultset('Lacuna::DB::Result::Log::Cargo');
-    #$cargo_log->new({
-    #    message     => 'before pick up spies',
-    #    body_id     => $self->foreign_body_id,
-    #    data        => $self->payload,
-    #    object_type => ref($self),
-    #    object_id   => $self->id,
-    #})->insert;
     my @riding;
     foreach my $id (@{$self->payload->{fetch_spies}}) {
         my $spy = $spies->find($id);
