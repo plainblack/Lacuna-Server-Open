@@ -2,7 +2,6 @@ use 5.010;
 use strict;
 use feature "switch";
 use lib '/data/Lacuna-Server/lib';
-use Lacuna::DB;
 use Lacuna;
 use List::Util qw(shuffle);
 use Lacuna::Util qw(randint format_date);
