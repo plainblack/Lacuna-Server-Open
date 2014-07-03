@@ -1030,6 +1030,7 @@ sub convert_to_station {
     $self->last_tick(DateTime->now);
     $self->alliance_id($empire->alliance_id);
     $self->class('Lacuna::DB::Result::Map::Body::Planet::Station');
+    $self->station_recalc(1);
     $self->update;    
 
     # award medal
@@ -1722,6 +1723,7 @@ sub tick_to {
         foreach my $building (@buildings) {
             $building->downgrade;
         }
+        $self->station_recalc(1);
     }
     $self->update;
 }
@@ -2549,6 +2551,7 @@ sub complain_about_lack_of_resources {
         my $building_name;
         Lacuna->cache->set('lack_of_'.$resource,$self->id, 1, 60 * 60 * 2);
         if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+            $self->station_recalc(1);
             foreach my $building ( sort { $b->level <=> $a->level || $b->efficiency <=> $a->efficiency || rand() <=> rand() } @{$self->building_cache} ) {
                 if ($building->class eq 'Lacuna::DB::Result::Building::Module::Parliament' || $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand') {
                     my $others = grep {$_->class !~ /Parliament$|StationCommand$|Crater$/} @{$self->building_cache};

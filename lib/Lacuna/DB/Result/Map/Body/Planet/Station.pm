@@ -9,6 +9,9 @@ use Data::Dumper;
 
 use constant image => 'station';
 
+__PACKAGE__->has_many('propositions','Lacuna::DB::Result::Propositions','station_id');
+#__PACKAGE__->has_many('laws','Lacuna::DB::Result::Laws','station_id');
+
 has parliament => (
     is      => 'rw',
     lazy    => 1,
@@ -44,18 +47,15 @@ sub has_room_in_build_queue {
 
 before sanitize => sub {
     my $self = shift;
-#    $self->propositions->delete_all;
+    $self->propositions->delete_all;
 #    $self->laws->delete_all;
 };
 
 after sanitize => sub {
     my $self = shift;
 
-    # All buildings should be demolished, so no influence.
-    #  
-    $self->recalc_influence;
-
     $self->update({
+        station_recalc  => 1,
         size            => randint(1,10),
         class           => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
         alliance_id     => undef,
@@ -65,7 +65,9 @@ after sanitize => sub {
 
 after recalc_stats => sub {
     my $self = shift;
-    $self->recalc_influence;
+    $self->update({
+        station_recalc  => 1
+    });
 };
 	
 has command => (
@@ -187,7 +189,6 @@ sub in_range_of_influence {
 sub recalc_influence {
     my ($self) = @_;
 
-    return;
     my ($ibs) = grep {$_->class eq 'Lacuna::DB::Result::Building::Module::IBS'} @{$self->building_cache};
     my $ibs_level = defined $ibs ? $ibs->level : 0;
     
@@ -228,6 +229,10 @@ END_SQL
     }
     # Don't forget to recalc the influence on all the marked stars, but this can wait until we have
     # processed all SS that need a recalc.
+    #
+    # Actually, we can run a cron job to recalc the stars as necessary every 20 minutes or so.
+    $self->station_recalc(0);
+    $self->update;
 }
 
 no Moose;

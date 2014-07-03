@@ -12,6 +12,9 @@ alter table star add foreign key (alliance_id) references alliance(id);
 
 alter table body add column station_recalc int(11);
 
+update body set station_recalc=0;
+update body set station_recalc=1 where class like "%Station%";
+
 drop table if exists influence;
 create table influence (
     id              int(11) not null auto_increment,
