@@ -1227,6 +1227,7 @@ sub bhg_swap {
             }
             if ($new_data->{type} eq 'space station') {
                 drop_stars_beyond_range($target);
+                $target->station_recalc(1)->update;
             }
         }
         if (defined($target->empire)) {
@@ -1282,6 +1283,7 @@ sub bhg_swap {
         }
         if ($body->get_type eq 'space station') {
             drop_stars_beyond_range($body);
+            $body->station_recalc(1)->update;
         }
         my $boracle = $body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
         if ($boracle) {

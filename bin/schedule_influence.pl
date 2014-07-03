@@ -75,7 +75,7 @@ exit 0;
 
 sub out {
     my ($message) = @_;
-    print STDERR "$message\n";
+    say $message unless $quiet;
     my $logger = Log::Log4perl->get_logger;
     $logger->info($message);
 }
