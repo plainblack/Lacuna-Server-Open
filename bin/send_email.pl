@@ -1,7 +1,6 @@
 use 5.010;
 use strict;
 use lib '/data/Lacuna-Server/lib';
-use Lacuna::DB;
 use Lacuna;
 use Lacuna::Util qw(randint format_date);
 use Lacuna::AI::DeLambert;
