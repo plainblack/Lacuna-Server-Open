@@ -106,8 +106,8 @@ __PACKAGE__->belongs_to('latest_message',   'Lacuna::DB::Result::Message',      
 
 __PACKAGE__->has_many('spies',              'Lacuna::DB::Result::Spies',        'empire_id');
 __PACKAGE__->has_many('planets',            'Lacuna::DB::Result::Map::Body',    'empire_id');
-__PACKAGE__->has_many('propositions',       'Lacuna::DB::Result::Propositions', 'proposed_by_id');
-__PACKAGE__->has_many('votes',              'Lacuna::DB::Result::Votes',        'empire_id');
+__PACKAGE__->has_many('propositions',       'Lacuna::DB::Result::Proposition',  'proposed_by_id');
+__PACKAGE__->has_many('votes',              'Lacuna::DB::Result::Vote',         'empire_id');
 __PACKAGE__->has_many('taxes',              'Lacuna::DB::Result::Taxes',        'empire_id');
 __PACKAGE__->has_many('sent_messages',      'Lacuna::DB::Result::Message',      'from_id');
 __PACKAGE__->has_many('received_messages',  'Lacuna::DB::Result::Message',      'to_id');
@@ -394,7 +394,7 @@ sub get_new_message_count {
     my $count = $self->received_messages->search({
         has_archived    => 0,
         has_read        => 0,
-    });
+    })->count;
 
     return $count;
 }
@@ -449,9 +449,15 @@ sub get_status {
     if ($self->alliance_id) {
         $planet_rs = Lacuna->db->resultset('Map::Body')->search({-or => { empire_id => $self->id, alliance_id => $self->alliance_id }});
     }
-    my %planets;
+    my $planets;
+    my $stations;
     while (my $planet = $planet_rs->next) {
-        $planets{$planet->id} = $planet->name;
+        if ($planet->class =~ m/Station$/) {
+            $stations->{$planet->id} = $planet->name;
+        }
+        else {
+            $planets->{$planet->id} = $planet->name;
+        }
     }
 
     my $status = {
@@ -460,12 +466,14 @@ sub get_status {
         status_message      => $self->status_message,
         name                => $self->name,
         id                  => $self->id,
+        alliance_id         => $self->alliance_id,
         essentia            => $self->essentia,
         has_new_messages    => $self->has_new_messages,
         latest_message_id   => $self->latest_message_id,
         home_planet_id      => $self->home_planet_id,
         tech_level          => $self->university_level,
-        planets             => \%planets,
+        planets             => $planets,
+        space_stations      => $stations,
         self_destruct_active=> $self->self_destruct_active,
         self_destruct_date  => $self->self_destruct_date_formatted,
     };

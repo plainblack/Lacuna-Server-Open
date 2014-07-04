@@ -1,3 +1,24 @@
+3.0905
+ - Mod: Gratch now more granualar for infiltration times when damaged
+ - Mod: If planet is abandoned, spies from elsewhere will be set to Idle when ported home.
+ - Fix: Removed any possibility of inter-alliance voting.
+ - UI:  Planet menu now sorts planets above space stations.
+ - API: map/get_stars is no longer supported. use map/get_star_map instead
+ - API: map/get_star_map changed to show alliance influence, not station
+ - Mod: Parliament voting is no longer classified as 'Correspondence'.
+ - Mod: API added alliance_id to empire get_status
+ - Mod: API added method to embassy to get excavators at a star
+ - Mod: UI Planet menu now sorts planets above space stations.
+ - Mod: UI Link to Alliance Influence in top menu (new map daily)
+ - Mod: API map/get_stars is no longer supported. use map/get_star_map instead
+ - Mod: API map/get_star_map changed to show alliance influence, not station
+ - Mod: API empire/status has split planets and space_stations into two sections
+ - Mod: Space Stations influence is now automatic
+ - Mod: Stars are now held by the Alliance, not the Space Station
+ - Mod: Enemy Space Stations can 'negate' influence on a star
+ - Mod: Stars with at least 50% net influence are automatically seized
+ - Mod: Influence and range of an SS is now affected by module damage.
+
 3.0904:
  - Fix: Removed cronic duplication in starmap API, hopefully reducing lag
 

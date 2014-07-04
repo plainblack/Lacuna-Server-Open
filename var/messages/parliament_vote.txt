@@ -1,6 +1,6 @@
 %s
 ~~~
-I propose a parliamentary vote has on a proposition titled *%s*. My specific proposal is as follows:
+I propose a vote on a proposition titled *%s*. My specific proposal is as follows:
 
 %s
 

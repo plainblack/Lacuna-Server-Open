@@ -129,6 +129,7 @@ __PACKAGE__->add_columns(
     unhappy_date                    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     unhappy                         => { data_type => 'tinyint', default_value => 0 },
     propaganda_boost                => { data_type => 'int',  default_value => 0 },
+    station_recalc                  => { data_type => 'int',  default_value => 0 },
 );
 
 after 'sqlt_deploy_hook' => sub {

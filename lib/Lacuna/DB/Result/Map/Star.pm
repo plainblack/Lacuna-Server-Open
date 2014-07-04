@@ -10,12 +10,16 @@ __PACKAGE__->table('star');
 __PACKAGE__->add_columns(
     color                   => { data_type => 'varchar', size => 7, is_nullable => 0 },
     station_id              => { data_type => 'int', is_nullable => 1 },
+    alliance_id             => { data_type => 'int', is_nullable => 1 },
+    influence               => { data_type => 'int', is_nullable => 0, default => 0 },
+    recalc                  => { data_type => 'int', is_nullable => 0, default => 0 },
 );
+
+__PACKAGE__->belongs_to('station', 'Lacuna::DB::Result::Map::Body', 'station_id', { join_type => 'left', on_delete => 'set null' });
+__PACKAGE__->belongs_to('alliance', 'Lacuna::DB::Result::Alliance', 'alliance_id', { join_type => 'left', on_delete => 'set null' });
 
 __PACKAGE__->has_many('bodies', 'Lacuna::DB::Result::Map::Body', 'star_id');
 __PACKAGE__->has_many('probes', 'Lacuna::DB::Result::Probes', 'star_id');
-__PACKAGE__->has_many('laws', 'Lacuna::DB::Result::Laws', 'star_id');
-__PACKAGE__->belongs_to('station', 'Lacuna::DB::Result::Map::Body', 'station_id', { on_delete => 'set null' });
 
 sub send_predefined_message {
     my ($self, %options) = @_;
@@ -24,6 +28,57 @@ sub send_predefined_message {
         $body->empire->send_predefined_message(%options);
     }
 }
+
+sub is_seized {
+    my ($self, $alliance_id) = @_;
+
+    if ($self->alliance_id == $alliance_id and $self->influence >= 50) {
+	return 1;
+    }
+    return;
+}
+
+# All stars that have had their influence changed need to be recalculated
+#
+sub recalc_influence {
+    my ($self) = @_;
+
+    # We will use some 'raw' SQL rather than go through the machinations of DBIC
+    #
+    my $dbh = $self->result_source->storage->dbh;
+    my ($alliances) = $dbh->selectrow_array('select count(distinct(alliance_id)) from influence where star_id = ?', undef, $self->id) or die $dbh->errstr;
+    my $alliance_id;
+    my $influence = 0;
+    if ($alliances == 0) {
+        # Do nothing, star is not under the influence of any alliance
+    }
+    elsif ($alliances == 1) {
+        ($alliance_id, $influence) = $dbh->selectrow_array(
+            'select alliance_id,sum(influence) from influence where star_id=?',
+            undef,
+            $self->id) or die $dbh->errstr;
+    }
+    else {
+        # Else we need the alliance with the greatest influence
+        my $alliance_strength;
+        ($alliance_id, $alliance_strength) = $dbh->selectrow_array(
+            'select alliance_id,sum(influence) as best from influence where star_id=? group by alliance_id order by best desc limit 1', 
+            undef, 
+            $self->id) or die $dbh->errstr;
+        # Subtract the influence of all other alliances from the top alliance
+        ($influence) = $dbh->selectrow_array(
+            'select ? - sum(influence) from influence where star_id=? and alliance_id != ?', 
+            undef, 
+            $alliance_strength, 
+            $self->id, 
+            $alliance_id) or die $dbh->errstr;
+    }
+    $self->recalc(0);
+    $self->influence($influence);
+    $self->alliance_id($alliance_id);
+    $self->update;
+}
+
 
 sub get_status_lite {
     my ($self, $empire, $override_probe) = @_;

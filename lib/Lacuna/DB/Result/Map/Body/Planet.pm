@@ -296,6 +296,7 @@ sub sanitize {
     my $enemy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $self->id});
     while (my $spy = $enemy->next) {
         $spy->on_body_id($spy->from_body_id);
+        $spy->task("Idle");
         $spy->update;
     }
     Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->id})->delete_all;
@@ -874,7 +875,7 @@ sub has_resources_to_operate {
         if ($delta < 0 && $future->{$method} + $delta < 0) {
             my $resource = $method;
             $resource =~ s/(\w+)_hour/$1/;
-            confess [1012, "Unsustainable. Not enough resources being produced to build this.", $resource];
+            confess [1012, "Unsustainable given the current and planned resource consumption. Not enough resources being produced to build this.", $resource];
         }
     }
     return 1;
@@ -1029,6 +1030,7 @@ sub convert_to_station {
     $self->last_tick(DateTime->now);
     $self->alliance_id($empire->alliance_id);
     $self->class('Lacuna::DB::Result::Map::Body::Planet::Station');
+    $self->station_recalc(1);
     $self->update;    
 
     # award medal
@@ -1358,9 +1360,8 @@ sub recalc_stats {
 # NEWS
 
 sub add_news {
-    my $self = shift;
-    my $chance = shift;
-    my $headline = shift;
+    my ($self, $chance, $headline) = @_;
+
     if ($self->restrict_coverage) {
         my $network19 = $self->network19;
         if (defined $network19) {
@@ -1370,7 +1371,7 @@ sub add_news {
     }
     if (randint(1,100) <= $chance) {
         $headline = sprintf $headline, @_;
-        Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
+        Lacuna->db->resultset('News')->new({
             date_posted => DateTime->now,
             zone        => $self->zone,
             headline    => $headline,
@@ -1523,7 +1524,7 @@ sub tick_to {
             $self->unhappy_date($now);
         }
     }
-    else {
+    elsif ($self->happiness > 0) {
         if ($self->unhappy) {
             $self->unhappy(0);
             $self->needs_recalc(1);
@@ -1722,6 +1723,7 @@ sub tick_to {
         foreach my $building (@buildings) {
             $building->downgrade;
         }
+        $self->station_recalc(1);
     }
     $self->update;
 }
@@ -2549,6 +2551,7 @@ sub complain_about_lack_of_resources {
         my $building_name;
         Lacuna->cache->set('lack_of_'.$resource,$self->id, 1, 60 * 60 * 2);
         if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+            $self->station_recalc(1);
             foreach my $building ( sort { $b->level <=> $a->level || $b->efficiency <=> $a->efficiency || rand() <=> rand() } @{$self->building_cache} ) {
                 if ($building->class eq 'Lacuna::DB::Result::Building::Module::Parliament' || $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand') {
                     my $others = grep {$_->class !~ /Parliament$|StationCommand$|Crater$/} @{$self->building_cache};

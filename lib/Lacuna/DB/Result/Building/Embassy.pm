@@ -86,7 +86,7 @@ sub create_alliance {
 
 sub get_alliance_status {
     my $self = shift;
-    return $self->alliance->get_status;
+    return $self->alliance->get_status('private');
 }
 
 sub accept_invite {

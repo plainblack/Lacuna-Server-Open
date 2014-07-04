@@ -1,6 +1,10 @@
 =head1 Embassy Diagram
 
-The Embassy is a complex beast, so to help you wrap your brain around it we've created a little flow diagram of how the methods come together.
+The Embassy is a complex beast, so to help you wrap your brain around it 
+we've created a little flow diagram of how the methods come together.
+
+Embassy is more complicated now since it took over the functions of the
+Parliament (on Space Stations).
 
 =begin html
 
@@ -12,7 +16,8 @@ The Embassy is a complex beast, so to help you wrap your brain around it we've c
 
 =head1 Embassy Methods
 
-Embassy is accessible via the URL C</embassy>. The embassy is used to form alliances with other players.
+Embassy is accessible via the URL C</embassy>. The embassy is used to form alliances with other players
+and to manage the day-to-day operation of your alliance.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
@@ -20,20 +25,78 @@ The list of methods below represents changes and additions to the methods that a
 
 =head2 view ( session_id, building_id )
 
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 RESPONSE
+
 Same as view in L<Buildings> except:
 
  {
-    "status" : { ... },
-    "building" : { ... },
-    "alliance_status" : { get_alliance_status() }
+    "status"            : { ... },
+    "building"          : { ... },
+    "alliance_status"   : { get_alliance_status() }
  }
 
-We add an C<alliance_status> block if this empire is in an alliance. It contains the same information as C<get_alliance_status>
+We add an C<alliance> block if this empire is in an alliance. 
+It contains the same information as C<get_alliance_status>
+
+
+=head2 get_alliance_status ( session_id, building_id )
+
+Returns everything about an alliance that members should know.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "alliance" : {
+        "id" : "id-goes-here",
+        "name" : "United Federation of Planets",
+        "description" : "This is public information.",
+        "leader_id" : "id goes here",
+        "date_created" : "01 31 2010 13:09:05 +0600",
+        "members" : [
+            {
+                "id"    : "666",
+                "name"  : "Devil may care"
+            },
+            ...
+        },
+        "space_stations" : [
+            {
+                "id" : "id-goes-here",
+                "name" : "The Life Star",
+                "x" : -342,
+                "y" : 128
+            },
+            ...
+        }
+        "influence" : 0,
+        "forum_uri" : "http://forum.example.com/",
+        "announcements" : "This is private information.",
+     }
+ }
+
+NOTE: For consistency, members has changed from a list to a hash ref.
 
 
 =head2 create_alliance ( session_id, building_id, name )
 
-Create a new alliance. Returns the same output as C<get_alliance_status>.
+Create a new alliance.
 
 =head3 session_id
 
@@ -47,6 +110,9 @@ The unique id of the embassy.
 
 A unique name for this alliance. Must be between 3 and 30 characters, cannot contain profanity or restricted characters.
 
+=head3 RESPONSE
+
+Same as C<get_alliance_status>
 
 
 
@@ -56,63 +122,26 @@ Can only be called by alliance leader. Disbands an existing alliance.
 
 NOTE: All space stations associated with the alliance will be abandoned and converted to asteroids.
 
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 RESPONSE
+
  {
     "status" : { ... }
  }
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the embassy.
-
-
-
-=head2 get_alliance_status ( session_id, building_id )
-
-Returns everything about an alliance that members should know.
-
- {
-    "status" : { ... },
-    "alliance" : {
-        "id" : "id-goes-here",
-        "name" : "United Federation of Planets",
-        "members" : [
-            {
-                "empire_id" : "id goes here",
-                "name" : "Klingons",
-            }
-            ...
-        ],
-        "leader_id" : "id goes here",
-        "forum_uri" : "http://forum.example.com/",
-        "description" : "This is public information.",
-        "announcements" : "This is private information.",
-        "date_created" : "01 31 2010 13:09:05 +0600"
-     }
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the embassy.
-
-
 
 
 
 =head2 send_invite ( session_id, building_id, invitee_id, [ message ] )
 
 Can only be called by alliance leader. Invite an empire to an alliance.
-
- {
-    "status" : { ... }
- }
 
 =head3 session_id
 
@@ -130,18 +159,16 @@ The unique id of an empire you'd like to invite to an alliance. See L<Empire/"se
 
 Optional. A personalized welcome message that will be included in the invitation.
 
+=head3 RESPONSE
 
-
-
+ {
+    "status" : { ... }
+ }
 
 
 =head2 withdraw_invite ( session_id, building_id, invite_id, [ message ] )
 
 Can only be called by alliance leader. Delete an invitation.
-
- {
-    "status" : { ... }
- }
 
 =head3 session_id
 
@@ -159,13 +186,17 @@ The unique id of an invitation. See C<get_pending_invites> for details.
 
 Optional. A personalized message that will be sent to the user about why their invitation has been withdrawn.
 
+=head3 RESPONSE
 
+ {
+    "status" : { ... }
+ }
 
 
 
 =head2 accept_invite ( session_id, building_id, invite_id, [ message ] )
 
-Accept an invitation. Returns the same output as C<get_alliance_status>.
+Accept an invitation.
 
 =head3 session_id
 
@@ -183,17 +214,15 @@ The unique id of an invitation. See C<get_my_invites> for details.
 
 Optional. A personalized message that will be sent to the alliance leader with your acceptance.
 
+=head3 RESPONSE
 
+Same as C<get_alliance_status>
 
 
 
 =head2 reject_invite ( session_id, building_id, invite_id, [ message ] )
 
 Delete an invitation.
-
- {
-    "status" : { ... }
- }
 
 =head3 session_id
 
@@ -211,12 +240,27 @@ The unique id of an invitation. See C<get_my_invites> for details.
 
 Optional. A personalized message that will be sent to the alliance leader along with your rejection.
 
+=head3 RESPONSE
+
+ {
+    "status" : { ... }
+ }
 
 
 
 =head2 get_pending_invites ( session_id, building_id )
 
 Can only be called by the alliance leader. Returns a list of invitations that have been sent out, but that have not been accepted, rejected, or withdrawn.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 RESPONSE
 
  {
     "status" : { ... },
@@ -230,6 +274,12 @@ Can only be called by the alliance leader. Returns a list of invitations that ha
     ]
  }
 
+
+
+=head2 get_my_invites ( session_id, building_id )
+
+Returns a list of invitations that have been offered to this empire.
+
 =head3 session_id
 
 A session id.
@@ -238,12 +288,7 @@ A session id.
 
 The unique id of the embassy.
 
-
-
-
-=head2 get_my_invites ( session_id, building_id )
-
-Returns a list of invitations that have been offered to this empire.
+=head3 RESPONSE
 
  {
     "status" : { ... },
@@ -257,19 +302,11 @@ Returns a list of invitations that have been offered to this empire.
     ]
  }
 
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the embassy.
-
 
 
 =head2 assign_alliance_leader ( session_id, building_id, new_leader_id )
 
-Sets a new empire to lead the alliance. Can only be called by the current alliance leader. Returns the same thing as C<get_alliance_status>.
+Sets a new empire to lead the alliance. Can only be called by the current alliance leader.
 
 =head3 session_id
 
@@ -283,11 +320,15 @@ The unique id of the embassy.
 
 The unique id of an empire that will lead the alliance going forward. The empire must already be a member of the alliance.
 
+=head3 RESPONSE
+
+Returns the same as  C<get_alliance_status>.
+
 
 
 =head2 update_alliance ( session_id, building_id, params )
 
-Updates the properties of an alliance. Returns the same thing as C<get_alliance_status>. Can only be called by the alliance leader.
+Updates the properties of an alliance. Can only be called by the alliance leader.
 
 =head3 session_id
 
@@ -317,14 +358,18 @@ Information that is only available to alliance members.
 
 =back
 
+=head3 RESPONSE
+
+Returns the same as  C<get_alliance_status>.
+
+
 
 =head2 leave_alliance ( session_id, building_id, [ message ] )
 
-A member of an alliance revokes their own membership.
+A member of an alliance revokes their own membership. Note, if you leave
+your alliance, any SS owned by you will revert to the alliance leader. You
+can't take an SS with you.
 
- {
-    "status" : { ... }
- }
 
 =head3 session_id
 
@@ -338,11 +383,17 @@ The unique id of the embassy.
 
 An optional message about why you're leaving the alliance. Cannot contain restricted characters or profanity.
 
+=head3 RESPONSE
+
+ {
+    "status" : { ... }
+ }
+
 
 
 =head2 expel_member ( session_id, building_id, empire_id, [ message ] )
 
-Forcibly removes a member from an alliance. Returns the same thing as C<get_alliance_status>. Can only be called by the alliance leader.
+Forcibly removes a member from an alliance. Can only be called by the alliance leader.
 
 =head3 session_id
 
@@ -360,11 +411,25 @@ The unique id of the empire to remove from the alliance.
 
 An optional message about why you're removing them from the alliance. Cannot contain restricted characters or profanity.
 
+=head3 RESPONSE
+
+Returns the same as  C<get_alliance_status>.
+
 
 
 =head2 view_stash ( session_id, building_id )
 
 Returns a list of what is in the current stash:
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 RESPONSE
 
  {
     "status" : { ... },
@@ -384,21 +449,10 @@ Returns a list of what is in the current stash:
     "exchanges_remaining_today" : 1
  }
 
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the embassy.
-
-
-
-
 
 =head2 donate_to_stash ( session_id, building_id, donation )
 
-Returns C<view_stash>
+Donate resources to the stash.
 
 =head3 session_id
 
@@ -419,13 +473,15 @@ B<NOTE:> Cannot donate waste.
     "bread" : 5000
  }
 
+=head3 RESPONSE
 
+Returns C<view_stash>
 
 
 
 =head2 exchange_with_stash ( session_id, building_id, donation, request )
 
-Returns C<view_stash>
+Exchange resources from your planet with the stash.
 
 =head3 session_id
 
@@ -457,9 +513,967 @@ B<NOTE:> The total sum, must add up to the sum of the donation, but can be in di
     "meal" : 7500
  }
  
+=head3 RESPONSE
  
- 
+Returns C<view_stash>
 
+
+
+=head2 view_laws (session_id, building_id, filter )
+
+Return a list of all laws passed by the alliance.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique ID of the Embassy.
+
+=head3 filter (Optional)
+
+ {
+     "zone" : "2|0"
+ }
+
+Return laws just for one zone. If not supplied laws for all zones will
+be returned.
+
+=head3 RESPONSE
+ {
+    "status" : { ... },
+    "laws" : [
+        {
+            "id"            : "123456",
+            "name"          : "Members Only Colonization",
+            "description"   : "Only members of {Alliance 123 TLE Admin team} should be allowed to colonize planets in zone 2|0 which are under our control.",
+            "date_enacted"  : "01 31 2014 13:09:05 +0600",
+            "zone"          : "2|0"
+        }
+        ...
+    ]
+ }
+
+
+=head2 view_propositions (session_id, building_id, filter )
+
+Returns a list of the pending propositions.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 filter (Optional)
+
+An optional filter, one of
+
+ {
+     "station_id" : "12345",
+ }
+
+ {
+     "zone" : "2|0"
+ }
+
+Which will filter for propositions just for that station or zone.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "propositions" : [
+        {
+           "id"             : "id-goes-here",
+           "name"           : "Rename Station",
+           "station_id"	    : "123456",
+           "description"    : "Rename the station from 'Bri Prui 7' to 'Deep Space 1'.",
+           "votes_needed"   : 7,
+           "votes_yes"      : 1,
+           "votes_no"       : 0,
+           "status"         : "Pending",
+           "date_ends"      : "01 31 2010 13:09:05 +0600",
+           "proposed_by"    : {
+                "id"          : "id-goes-here",
+                "name"        : "Klingons",
+           },
+           "my_vote"        : 0 # not present if they haven't voted
+        },{
+           "id"             : "id-goes-here",
+           "name"           : "Members Only Excavation",
+           "zone"	    : "2|0",
+           "description"    : "Only members of {Alliance 26 Culture} should be allowed to excavate bodies in seized systems in zone 2|0",
+           "votes_needed"   : 7,
+           "votes_yes"      : 1,
+           "votes_no"       : 0,
+           "status"         : "Pending",
+           "date_ends"      : "01 31 2010 13:09:05 +0600",
+           "proposed_by"    : {
+                "id"          : "id-goes-here",
+                "name"        : "Klingons",
+           },
+           "my_vote"        : 0 # not present if they haven't voted
+        },
+        ...
+    ]
+ }
+
+Station related propositions (build, upgrade, repair) are given a related station_id.
+
+Zone related propositions (Members Only rules) are given a zone.
+
+Others (such as induct member) need neither a station_id nor a zone.
+
+
+
+=head2 cast_vote ( session_id, body_id, proposition_id, vote )
+
+Casts a vote for or against a proposition.
+
+=head3 session_id
+
+A session id.
+
+=head3 body_id
+
+The unique id of the body you are on.
+
+=head3 proposition_id
+
+The id of the propostion your casting this vote for or against. See C<view_propositions> for a list.
+
+=head3 vote
+
+A boolean indicating which way you wish to vote. 1 for yes. 0 for no. Default is 0.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Rename Station",
+        "description" : "Rename the station from 'Bri Prui 7' to 'Deep Space 1'.",
+        "votes_needed" : 7,
+        "votes_yes" : 2,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        },
+        "my_vote" : 0 # not present if they haven't voted
+    }
+ }
+
+
+
+=head2 propose_writ ( session_id, building_id, title, description )
+
+Proproses an unenforceable law. Only works with Parliament 4 and higher.
+
+Cannot be used from a sitter password.
+
+B<NOTE:> See the C<writ_templates> section of C<resources.json>. These should be included 
+as selectable options as a way to start the writeup of a title and description for a writ.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Embassy.
+
+=head3 title
+
+The name of the law.
+
+=head3 description
+
+A detailed description of what the law intends to promote or prohibit. Same rules as an L<Inbox> message body apply here.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Censure of Jamie Vrbsky",
+        "description" : "Jamie Vrbsky is bad at playing Lacuna!",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+
+=head2 propose_repeal_law ( session_id, building_id, law_id )
+
+Repeal an existing law. Usable at Embassy level 5.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 law_id
+
+The id of a law to repeal.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Repeal Writ of Censure",
+        "description" : "Repeal this law: Jamie Vrbsky is bad at playing Lacuna!",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+
+
+=head2 get_stars_in_jurisdiction (session_id, building_id, zone )
+
+Returns a list of the stars in the jurisdiction of this alliance
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 zone (Optional)
+
+If supplied, it returns all stars in that zone under the jurisdiction of the alliance.
+
+If not supplied, it returns stars from all zones.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "stars" : [
+        {
+            "name"          : "Sol",
+            "color"         : "yellow",
+            "x"             : -41,
+            "y"             : 27,
+            "zone"          : "0|0"
+        },
+        ...
+    ]
+ }
+
+
+
+=head2 get_bodies_for_star_in_jurisdiction (session_id, building_id, star_id )
+
+Returns a list of the bodies for a star in the jurisdiction of the alliance.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 star_id
+
+The unique id of a star in jurisdiction. See c<get_stars_in_jurisdiction>.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "bodies" : [
+        {
+            same data as get_status() on /body
+        },
+        ...
+    ]
+ }
+
+
+=head2 get_mining_platforms_for_star_in_jurisdiction (session_id, building_id, star_id )
+
+Returns a list of the platforms which are in a star system within the jurisdiction of the alliance.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 star_id
+
+The unique id of a star in jurisdiction. See c<get_stars_in_jurisdiction>.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "platforms" : [
+        {
+            "id"        : "id-goes-here",
+            "asteroid"  : {
+                "id"       : "id-goes-here",
+                "name"     : "Ceres"
+            },
+            "empire"    : {
+                "id"       : "id-goes-here",
+                "name"     : "Klingons"
+            }
+        },
+        ...
+    ]
+ }
+
+=head2 get_excavators_for_star_in_jurisdiction (session_id, building_id, star_id )
+
+Returns a list of the excavators which are in a star system within the jurisdiction of the alliance.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 star_id
+
+The unique id of a star in jurisdiction. See c<get_stars_in_jurisdiction>.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "excavator" : [
+        {
+            "id"        : "id-goes-here",
+            "empire"    : {
+                "id"       : "id-goes-here",
+                "name"     : "Klingons"
+            }
+        },
+        ...
+    ]
+ }
+
+=head2 propose_focus_influence_on_star ( session_id, building_id, station_id, star_id )
+
+Focus the influence of a Space station onto a star.
+
+Usable at Embassy level 7.
+
+Cannot use sitter password.
+
+Note: This will divert 25% of the total influence of the Space Station into a focused beam 
+onto one star, this is most likely to cause the star to be seized (unless there is greater 
+influence from another alliance). The cost to the Space station however is that this will 
+lower (by 25%) it's broadcast power on other stars.
+
+Only four stars can be focused on in this way, leaving 0% broadcast power.
+
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+=head3 station_id
+
+The unique id of the Space station.
+
+=head3 star_id
+
+The id of a star the station should control.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Seize Sol",
+        "description" : "Focus Influence on Sol.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "station-id" : "123456",
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+
+
+=head2 propose_rename_star ( session_id, building_id, star_id, name )
+
+Rename a star. Usable at embassy level 8.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+=head3 star_id
+
+The id of a star to rename.
+
+=head3 name
+
+The new name of the star.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id"           : "id-goes-here",
+        "name"         : "Rename Sol",
+        "description"  : "Rename Sol to Sun.",
+        "votes_needed" : 7,
+        "votes_yes"    : 0,
+        "votes_no"     : 0,
+        "status"       : "Pending",
+        "date_ends"    : "01 31 2010 13:09:05 +0600",
+        "proposed_by"  : {
+             "id"        : "id-goes-here",
+             "name"      : "Klingons",
+        }
+    }
+ }
+
+
+=head2 propose_broadcast_on_network19 ( session_id, building_id, message )
+
+Broadcast any message you like on Network 19. Usable at Embassy level 9.
+
+Note, the message will be broadcast to the zone containing the Embassy.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Embassy.
+
+=head3 message
+
+A 140 character string that cannot contain special characters or profanity.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Network 19 Broadcast",
+        "description" : "Broadcast the following message on Network 19: Plant your corn early next season.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+
+=head2 propose_induct_member ( session_id, building_id, empire_id, [ message ] )
+
+Induct a new member into the alliance. Once passed, an alliance invitation will be sent. Only works with Embassy 10 and higher.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Embassy.
+
+=head3 empire_id
+
+The unique id of an empire proposed for membership in the alliance.
+
+=head3 message
+
+Optional. A personalized welcome message that will be included in the invitation.
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Induct Member",
+        "description" : "Induct The Romulans as a new member of The Federation.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+
+=head2 propose_expel_member ( session_id, building_id, empire_id, [ message ] )
+
+Expel a member from the alliance. Once passed, the member will be removed from the alliance. Only works with Embassy 10 and higher.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Embassy.
+
+=head3 empire_id
+
+The unique id of an empire proposed for removal from the alliance.
+
+=head3 message
+
+An optional message about why you're removing them from the alliance. Cannot contain restricted characters or profanity.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Expel Member",
+        "description" : "Expel The Romulans from The Federation.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+
+=head2 propose_elect_new_leader ( session_id, building_id, to_empire_id )
+
+Elect a new leader of the alliance. Only works with Embassy 11 and higher.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Embassy.
+
+=head3 to_empire_id
+
+The unique id of an empire proposed as the new leader of the alliance. The empire must already be a member of the alliance.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Elect New Leader",
+        "description" : "Elect The Klingon Empire as the new leader of The Federation.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Romulus",
+        }
+    }
+ }
+
+
+=head2 propose_rename_asteroid ( session_id, building_id, asteroid_id, name )
+
+Rename any asteroid in the station's jurisdiction. Usable at Embassy level 12.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Embassy.
+
+=head3 asteroid_id
+
+The unique id of an asteroid in the station's jurisdiction to rename.
+
+=head3 name
+
+A 30 chararacter string without profanity or special characters.
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Rename Bebox 3",
+        "description" : "Rename the asteroid Bebox 3 to Big Rock.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+
+=head2 propose_rename_uninhabited ( session_id, building_id, planet_id, name )
+
+Rename any uninhabited planet in the station's jurisdiction. Usable at Embassy level 17.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Embassy.
+
+=head3 planet_id
+
+The unique id of an uninhabited planet in the station's jurisdiction to rename.
+
+=head3 name
+
+A 30 chararacter string without profanity or special characters.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Rename Bebox 4",
+        "description" : "Rename the planet Bebox 4 to Blue Orb.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+
+=head2 propose_members_only_mining_rights ( session_id, building_id, zone )
+
+If passed, only members of the alliance would be able to set up new mining platforms 
+on asteroids in this station's jurisdiction in the specified zone. 
+
+Usable at Embassy level 13.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Embassy.
+
+=head3 zone
+
+The zone that the law is to apply to.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Members Only Mining Rights",
+        "description" : "Only members of The Federation of Planets should be allowed to mine asteroids in the jurisdiction of this Alliance in zone 2|0.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "zone" : "2|0",
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+
+=head2 propose_evict_mining_platform ( session_id, building_id, platform_id )
+
+Destroys a mining platform on an asteroid. Usable at Embassy level 14.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Embassy.
+
+=head3 platform_id
+
+The unique id of a mining platform. See C<get_mining_platforms_for_star_in_jurisdiction>.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Evict Bjoran Mining Platform",
+        "description" : "Evict a mining platform from Big Rock.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+
+=head2 propose_members_only_colonization ( session_id, building_id, zone )
+
+If passed, only members of the alliance would be able to set up new colonies 
+on planets in this alliance's jurisdiction in the specified zone. 
+
+Usable at embassy level 18.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+=head3 zone
+
+The zone to which the law applies.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Members Only Colonization",
+        "description" : "Only members of The Federation of Planets should be allowed to colonize planets in the jurisdiction of this alliance in zone 2|0.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "zone" : "2|0",
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+
+=head2 propose_neutralize_bhg ( session_id, building_id, zone )
+
+If passed, Black Hole Generators will not be able to be used on or from 
+systems in the jurisdiction of this alliance, in the specified zone.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Embassy.
+
+=head3 zone
+
+The zone in which this law applies.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "BHG Neutralized",
+        "description" : "Black Hole Generators will not function in the jurisdiction of this alliance in zone 2|0.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "zone" : "2|0",
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+
+
+=head2 propose_transfer_station_ownership ( session_id, building_id, station_id, to_empire_id )
+
+Transfer the ownership of the station to another member of the alliance. Only works with Embassy 6 and higher.
+
+Cannot be proposed from a sitter password.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Embassy.
+
+=head3 station_id
+
+The unique ID of the Space Station.
+
+=head3 to_empire_id
+
+The id of an empire within the alliance that wants control over the station.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Transfer Station",
+        "description" : "Transfer ownership of Deep Space 9 from The Federation to the Klingon Empire.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+
+
+=head2 propose_fire_bfg ( session_id, building_id, body_id, reason )
+
+Fires the BFG equipped on all space stations at an occupied planet of Parliament's choosing 
+as long as the system the planet is in is seized by the alliance.
+
+The amount of damage to the buildings depends upon the seize strength of that system.
+
+Note, no-one Space Station fires, it is the combined output of all Stations within range.
+
+Requires Embassy level 25 or above.
+
+Cannot be proposed from a sitter password.
+
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Embassy.
+
+=head3 body_id
+
+A planet to fire at. See C<get_bodies_for_star_in_jurisdiction> for details.
+
+=head3 reason
+
+An explict reason why the BFG should be fired upon the target. Same rules as an L<Inbox> message body apply here.
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Fire BFG",
+        "description" : "Fire Alliance BFG at Alderaan. Reason cited: The princess isn't talking!",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Admiral Motti",
+        }
+    }
+ }
 
 
 =cut

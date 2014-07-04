@@ -2,7 +2,6 @@ use 5.010;
 use strict;
 use lib '/data/Lacuna-Server/lib';
 use Data::Dumper;
-use Lacuna::DB;
 use Lacuna;
 use Lacuna::Util qw(randint format_date random_element);
 use Getopt::Long;

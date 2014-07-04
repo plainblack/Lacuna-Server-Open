@@ -45,6 +45,7 @@ around spend_efficiency => sub {
     else {
         $orig->($self, $amount);
     }
+    $self->body->station_recalc(1);
     return $self;
 };
 
@@ -92,6 +93,15 @@ sub can_build_on {
     return 1;
 }
 
+# If a module changes, recalc the Station influence
+foreach my $method (qw(delete demolish downgrade repair spend_efficiency finish_upgrade)) {
+    after $method => sub {
+        my $self = shift;
+        $self->body->station_recalc(1);
+        $self->body->update;
+    };
+}
+
 around demolish => sub {
     my ($orig, $self) = @_;
     my $body = $self->body;
@@ -105,6 +115,7 @@ around demolish => sub {
         );
 #        $body->sanitize;
     }
+    $self->body->station_recalc(1);
 };
 
 no Moose;

@@ -1,4 +1,4 @@
-use lib '../lib';
+use lib '/data/Lacuna-Server/lib';
 use Test::More tests => 1;
 use Test::Deep;
 use Data::Dumper;

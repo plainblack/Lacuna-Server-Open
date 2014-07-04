@@ -292,9 +292,6 @@ sub send_ship_types {
             confess [1002, "$arg must be an integer."] if $type_param->{$arg} != int($type_param->{$arg});
         }
         my $type        = $type_param->{type};
-        my $speed       = $type_param->{speed};
-        my $stealth     = $type_param->{stealth};
-        my $combat      = $type_param->{combat};
         my $quantity    = $type_param->{quantity};
         confess [1009, "Cannot send more than one excavator"] if ($type eq 'excavator' and $quantity > 1);
 
@@ -304,10 +301,12 @@ sub send_ship_types {
             body_id => $body->id,
             task    => 'Docked',
             type    => $type,
-            speed   => $speed,
-            stealth => $stealth,
-            combat  => $combat,
         });
+        # handle optional parameters
+        $ships_rs = $ships_rs->search({ speed => {'>=' => $type_param->{speed}}}) if defined $type_param->{speed};
+        $ships_rs = $ships_rs->search({ stealth => {'>=' => $type_param->{stealth}}}) if defined $type_param->{stealth};
+        $ships_rs = $ships_rs->search({ combat => {'>=' => $type_param->{combat}}}) if defined $type_param->{combat};
+
         if ($ships_rs->count < $quantity) {
             confess [1009, "Cannot find $quantity of $type ships."];
         }

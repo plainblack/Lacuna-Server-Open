@@ -130,6 +130,7 @@ sub format_status {
             time            => format_date(DateTime->now),
             version         => Lacuna->version,
             star_map_size   => Lacuna->config->get('map_size'),
+            zone_size       => Lacuna->config->get('zone_size'),
             rpc_limit       => Lacuna->config->get('rpc_limit') || 2500,
         },
     );

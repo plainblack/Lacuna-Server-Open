@@ -2,6 +2,7 @@ package Lacuna::Role::Ship::Arrive::DumpWaste;
 
 use strict;
 use Moose::Role;
+use Lacuna::Util qw(commify);
 
 after handle_arrival_procedures => sub {
     my ($self) = @_;
@@ -30,12 +31,13 @@ after handle_arrival_procedures => sub {
     }
     $body_attacked->add_waste($waste_dumped);
     $body_attacked->update;
+    $waste_dumped = commify($waste_dumped); # commify so emails look nicer
 
     unless ($self->body->empire->skip_attack_messages) {
         $self->body->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'our_scow_hit.txt',
-            params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name, $self->hold_size],
+            params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name, $waste_dumped],
         );
     }
 
@@ -43,7 +45,7 @@ after handle_arrival_procedures => sub {
         $body_attacked->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'hit_by_scow.txt',
-            params      => [$self->body->empire_id, $self->body->empire->name, $body_attacked->id, $body_attacked->name, $self->hold_size],
+            params      => [$self->body->empire_id, $self->body->empire->name, $body_attacked->id, $body_attacked->name, $waste_dumped],
         );
     }
 
@@ -77,17 +79,20 @@ after handle_arrival_procedures => sub {
 };
 
 after send => sub {
-    my $self = shift;
-    my $waste_sent;
-    if ($self->body->waste_stored < $self->hold_size) {
-      $waste_sent = $self->body->waste_stored > 0 ? $self->body->waste_stored : 0;
+    my ($self, %options ) = @_;
+    if (!$options{emptyscow})
+    {
+        my $waste_sent;
+        if ($self->body->waste_stored < $self->hold_size) {
+            $waste_sent = $self->body->waste_stored > 0 ? $self->body->waste_stored : 0;
+        }
+        else {
+            $waste_sent = $self->hold_size;
+        }
+        $self->body->spend_waste($waste_sent)->update;
+        $self->payload({ resources => { waste => $waste_sent } });
+        $self->update;
     }
-    else {
-      $waste_sent = $self->hold_size;
-    }
-    $self->body->spend_waste($waste_sent)->update;
-    $self->payload({ resources => { waste => $waste_sent } });
-    $self->update;
 };
 
 after can_send_to_target => sub {

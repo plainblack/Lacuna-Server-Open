@@ -4,7 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
-use Lacuna::Util qw(format_date);
+use Lacuna::Util qw(format_date randint);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use DateTime;
 
@@ -24,7 +24,8 @@ __PACKAGE__->belongs_to('leader', 'Lacuna::DB::Result::Empire', 'leader_id', { o
 __PACKAGE__->has_many('members', 'Lacuna::DB::Result::Empire', 'alliance_id');
 __PACKAGE__->has_many('invites', 'Lacuna::DB::Result::AllianceInvite', 'alliance_id');
 __PACKAGE__->has_many('stations', 'Lacuna::DB::Result::Map::Body', 'alliance_id');
-
+__PACKAGE__->has_many('laws', 'Lacuna::DB::Result::Law', 'alliance_id');
+__PACKAGE__->has_many('propositions', 'Lacuna::DB::Result::Proposition', 'alliance_id');
 
 
 sub date_created_formatted {
@@ -122,26 +123,46 @@ sub exchange {
 
 
 sub get_status {
-    my $self = shift;
+    my ($self, $private) = @_;
+
     my $members = $self->members;
     my @members_list;
     while (my $member = $members->next) {
         push @members_list, {
-            empire_id   => $member->id,
+            id          => $member->id,
             name        => $member->name,
         };
     }
-    return {
+    my $stations = $self->stations;
+    my @stations_list;
+    my $influence = 0;
+    while (my $station = $stations->next) {
+        push @stations_list, {
+            id          => $station->id,
+            name        => $station->name,
+            x           => $station->x,
+            y           => $station->y,
+        };
+        $influence += $station->total_influence;
+    }
+
+    my $out = {
         id              => $self->id,
-        members         => \@members_list,
-        leader_id       => $self->leader_id,
-        forum_uri       => $self->forum_uri,
-        description     => $self->description,
         name            => $self->name,
-        announcements   => $self->announcements,
+        description     => $self->description,
         date_created    => $self->date_created_formatted,
+        leader_id       => $self->leader_id,
+        members         => \@members_list,
+        space_stations  => \@stations_list,
+        influence       => $influence,
     };
+    if ($private) {
+        $out->{forum_uri} = $self->forum_uri;
+        $out->{announcements} = $self->announcements;
+    }
+    return $out;
 }
+
 
 sub get_invites {
     my $self = shift;
@@ -158,6 +179,23 @@ sub get_invites {
     return \@out;
 }
 
+
+sub add_news {
+    my ($self, $chance, $headline, $zone) = @_;
+
+    $zone = "0|0" unless $zone;
+
+    if (randint(1,100) <= $chance) {
+        $headline = sprintf $headline, @_;
+        Lacuna->db->resultset('News')->new({
+            date_posted => DateTime->now,
+            zone        => $zone,
+            headline    => $headline,
+        })->insert;
+        return 1;
+    }
+    return 0;
+}
 
 sub send_invite {
     my ($self, $empire, $message) = @_;

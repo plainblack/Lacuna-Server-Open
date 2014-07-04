@@ -8,9 +8,9 @@ use Lacuna::Util qw(randint);
 use Data::Dumper;
 
 use constant image => 'station';
+
 __PACKAGE__->has_many('propositions','Lacuna::DB::Result::Propositions','station_id');
-__PACKAGE__->has_many('laws','Lacuna::DB::Result::Laws','station_id');
-__PACKAGE__->has_many('stars','Lacuna::DB::Result::Map::Star','station_id');
+#__PACKAGE__->has_many('laws','Lacuna::DB::Result::Laws','station_id');
 
 has parliament => (
     is      => 'rw',
@@ -34,8 +34,8 @@ around get_status => sub {
             name    => $self->alliance->name,
         };
         $out->{influence} = {
-            spent => $self->influence_spent,
             total => $self->total_influence,
+            range => $self->range_of_influence,
         };
     }
     return $out;
@@ -48,18 +48,28 @@ sub has_room_in_build_queue {
 before sanitize => sub {
     my $self = shift;
     $self->propositions->delete_all;
-    $self->laws->delete_all;
+#    $self->laws->delete_all;
 };
 
 after sanitize => sub {
     my $self = shift;
+
     $self->update({
-        size        => randint(1,10),
-        class       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
-        alliance_id => undef,
+        station_recalc  => 1,
+        size            => randint(1,10),
+        class           => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
+        alliance_id     => undef,
+        influence       => 0,
     });
 };
 
+after recalc_stats => sub {
+    my $self = shift;
+    $self->update({
+        station_recalc  => 1
+    });
+};
+	
 has command => (
     is      => 'rw',
     lazy    => 1,
@@ -102,22 +112,19 @@ sub add_waste {
 
 sub in_jurisdiction {
     my ($self, $target) = @_;
+
+    my $star;
     if (ref $target eq 'Lacuna::DB::Result::Map::Star') {
-        my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($target->id);
-        unless (defined $star) {
-            confess [1009, 'Invalid star'];
-        }
-        unless ($star->station_id == $self->id) {
-            confess [1009, 'Target star is not in the station\'s jurisdiction.'];
-        }
-    } else {
+        $star = Lacuna->db->resultset('Map::Star')->find($target->id);
+        confess [1009, 'Invalid star'] unless $star;
+    }
+    else {
         my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target->id);
-        unless (defined $body) {
-            confess [1009, 'Invalid body'];
-        }
-        unless ($body->star->station_id == $self->id) {
-            confess [1009, 'Target body is not in the station\'s jurisdiction.'];
-        }
+        confess [1009, 'Invalid body'] unless $body;
+        $star = $body->star;
+    }
+    if ($star->alliance_id != $self->alliance_id or $star->influence < 50) {
+        confess [1009, 'Target star is not in the alliance\'s jurisdiction.'];
     }
 }
 
@@ -138,24 +145,10 @@ sub _build_total_influence {
             $building->class eq 'Lacuna::DB::Result::Building::Module::CulinaryInstitute' or
             $building->class eq 'Lacuna::DB::Result::Building::Module::ArtMuseum'
             ) {
-            $influence += $building->level;
+            $influence += ($building->level * $building->efficiency) / 100;
         }
     }
     return $influence;
-}
-
-has influence_spent => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return $self->stars->count;
-    },
-);
-
-sub influence_remaining {
-    my $self = shift;
-    return $self->total_influence - $self->influence_spent;
 }
 
 has range_of_influence => (
@@ -170,7 +163,7 @@ sub _build_range_of_influence {
     my $range = 0;
     my ($ibs) = grep {$_->class eq 'Lacuna::DB::Result::Building::Module::IBS'} @{$self->building_cache};
     if (defined $ibs) {
-        $range = $ibs->level * 1000;
+        $range = $ibs->level * $ibs->efficiency * 1000 / 100;
     }
     return $range;
 }
@@ -183,6 +176,64 @@ sub in_range_of_influence {
     return 1;
 }
 
+# Recalculate the influence of this station, this needs to be done when anything
+# affecting the SS influence takes place, examples include.
+#   Moving the SS
+#   Building/Upgrading/Downgrading a module
+#   Destroying it
+#   Modules changing efficiency
+#
+# We are using 'raw' SQL here since it is far more efficient than processing records
+# one-by-one using DBIx::Class
+#
+sub recalc_influence {
+    my ($self) = @_;
+
+    my ($ibs) = grep {$_->class eq 'Lacuna::DB::Result::Building::Module::IBS'} @{$self->building_cache};
+    my $ibs_level = defined $ibs ? $ibs->level : 0;
+    
+    # Mark all stars as 'recalc' currently linked to this station via the influence table
+    #
+    my $dbh = $self->result_source->storage->dbh;
+    my $sth_star = $dbh->prepare('update star join influence on star.id = influence.star_id set recalc=1 where influence.station_id=?');
+    $sth_star->execute($self->id);
+
+
+    # Delete all the existing influence records
+    #
+    my $sth = $dbh->prepare('delete from influence where station_id=?');
+    $sth->execute($self->id);
+
+
+    # Recalculate all the new influence records
+    #
+    if ($ibs_level and $self->total_influence > 0) {
+        my $sql = <<END_SQL;
+insert into influence (station_id,star_id,alliance_id,influence) (
+  select
+    ? as station_id,
+    star.id as star_id,
+    ? as alliance_id,
+    ceil(? * ? * 75 / (pow(star.x - body.x, 2) + pow(star.y - body.y, 2))) as influence 
+    from star, body
+    where body.id=?
+    and ceil(pow(pow(star.x - body.x, 2) + pow(star.y - body.y, 2), 0.5)) < ?
+  )
+;
+END_SQL
+        $sth = $dbh->do($sql, undef, $self->id, $self->alliance_id, $ibs_level, $self->total_influence, $self->id, $self->range_of_influence / 100);
+
+        # Mark all the 'new' stars as 'recalc' linked to this station via the influence table (we can use the earlier prepared statement)
+        #
+        $sth_star->execute($self->id);
+    }
+    # Don't forget to recalc the influence on all the marked stars, but this can wait until we have
+    # processed all SS that need a recalc.
+    #
+    # Actually, we can run a cron job to recalc the stars as necessary every 20 minutes or so.
+    $self->station_recalc(0);
+    $self->update;
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
