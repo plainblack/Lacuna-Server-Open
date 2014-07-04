@@ -214,7 +214,7 @@ insert into influence (station_id,star_id,alliance_id,influence) (
     ? as station_id,
     star.id as star_id,
     ? as alliance_id,
-    ceil(? * ? * 7.5 / (pow(star.x - body.x, 2) + pow(star.y - body.y, 2))) as influence 
+    ceil(? * ? * 75 / (pow(star.x - body.x, 2) + pow(star.y - body.y, 2))) as influence 
     from star, body
     where body.id=?
     and ceil(pow(pow(star.x - body.x, 2) + pow(star.y - body.y, 2), 0.5)) < ?
