@@ -5,6 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Util qw(format_date);
+use List::Util qw(max);
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
@@ -43,10 +44,12 @@ use constant water_consumption => 6;
 
 use constant waste_production => 1;
 
-
+# by accepting an optional level, we can centralise the calculation.
+# default level, of course, is the embassy's level.
 sub max_members {
-    my $self = shift;
-    return $self->level * 2;
+    my $self  = shift;
+    my $level = @_ ? shift : $self->level;
+    return $level * 2;
 }
 
 sub alliance {
@@ -278,7 +281,17 @@ before 'can_downgrade' => sub {
     my $self = shift;
     my $alliance = eval{$self->alliance};
     if (defined $alliance && $self->body->empire_id == $alliance->leader_id) {
-        confess [1013, 'You cannot downgrade an Embassy while you are an alliance leader.']
+        my $alliance_members = $alliance->members->count;
+        my $best_other_embassy = $self->body->empire
+                                   ->highest_embassy($self->body_id);
+        my $allowed_members  = max(
+                                   defined $best_other_embassy ? $best_other_embassy->max_members : 0,
+                                   $self->max_members($self->level - 1)
+                                  );
+        if ($alliance_members > $allowed_members)
+        {
+            confess [1013, 'You cannot downgrade this Embassy while you are an alliance leader with ' . $alliance_members . ' members.']
+        }
     }
 };
 
@@ -286,7 +299,16 @@ before 'can_demolish' => sub {
     my $self = shift;
     my $alliance = eval{$self->alliance};
     if (defined $alliance && $self->body->empire_id == $alliance->leader_id) {
-        confess [1013, 'You cannot demolish an Embassy while you are an alliance leader.']
+        # as alliance leader, can only demolish if there's another
+        # embassy able to take over.
+        my $alliance_members = $alliance->members->count;
+        my $best_other_embassy = $self->body->empire
+                                   ->highest_embassy($self->body_id);
+        my $allowed_members  = defined $best_other_embassy ? $best_other_embassy->max_members : 0;
+        if ($alliance_members > $allowed_members)
+        {
+            confess [1013, 'You cannot demolish this Embassy while you are an alliance leader.  Reassign leadership or dissolve the alliance first.']
+        }
     }
 };
 

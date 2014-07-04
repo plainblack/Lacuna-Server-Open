@@ -455,6 +455,8 @@ sub get_status {
     while (my $planet = $planet_rs->next) {
         $planets{$planet->id} = $planet->name;
     }
+    my $embassy = $self->highest_embassy;
+    $embassy = $embassy->id if $embassy;
 
     my $status = {
         rpc_count           => $self->rpc_count,
@@ -470,7 +472,7 @@ sub get_status {
         planets             => \%planets,
         self_destruct_active=> $self->self_destruct_active,
         self_destruct_date  => $self->self_destruct_date_formatted,
-        primary_embassy_id  => $self->highest_embassy->id,
+        primary_embassy_id  => $embassy,
     };
     return $status;
 }
