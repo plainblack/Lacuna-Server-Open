@@ -470,6 +470,7 @@ sub get_status {
         planets             => \%planets,
         self_destruct_active=> $self->self_destruct_active,
         self_destruct_date  => $self->self_destruct_date_formatted,
+        primary_embassy_id  => $self->highest_embassy->id,
     };
     return $status;
 }
