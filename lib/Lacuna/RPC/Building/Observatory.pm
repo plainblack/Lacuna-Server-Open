@@ -49,7 +49,7 @@ sub get_probed_stars {
     my $building = $self->get_building($empire, $building_id);
     my @stars;
     $page_number ||= 1;
-    my $probes = $building->probes->search(undef,{ rows => 25, page => $page_number });
+    my $probes = $building->probes->search(undef,{ rows => 30, page => $page_number });
     while (my $probe = $probes->next) {
         push @stars, $probe->star->get_status($empire);
     }
