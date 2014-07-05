@@ -137,7 +137,7 @@ sub trash_messages_where {
     $empire->recalc_messages if @deleted;
 
     return {
-        deleted => @deleted,
+        deleted => \@deleted,
         status  => $self->format_status($empire),
     };
 }
