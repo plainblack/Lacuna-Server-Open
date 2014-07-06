@@ -22,6 +22,8 @@
  - Bug: Influence map, need to show alliances, and allow select/disable
  - Bug: Deploy Excavator 'Ship/Arrive/Deploy/Excavator line 56 (see forum)
  - Bug: BHG trys to change places with enemy, fails, but cooldown triggers.
+ - Bug: Strange messages in P19
+            'Lacuna::DB::Result::Map::Body::Planet::P35=HASH(0x90910c0) ceremony'
 
 3.0905
  - Mod: Gratch now more granualar for infiltration times when damaged

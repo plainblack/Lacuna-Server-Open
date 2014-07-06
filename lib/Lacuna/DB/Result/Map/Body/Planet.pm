@@ -116,7 +116,7 @@ sub delete_many_plans {
 }
 
 sub surface {
-    my $self = shift;
+    my ($self) = @_;
     return 'surface-'.$self->image;
 }
 
@@ -162,13 +162,13 @@ has is_claimed => (
     is      => 'ro',
     lazy    => 1,
     default => sub {
-        my $self = shift;
+        my ($self) = @_;
         return Lacuna->cache->get('planet_claim_lock', $self->id);
     }
 );
 
 sub claimed_by {
-    my $self = shift;
+    my ($self) = @_;
     my $empire_id = $self->is_claimed;
     return $empire_id ? Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id) : undef;    
 }
@@ -316,7 +316,7 @@ sub sanitize {
 }
 
 before abandon => sub {
-    my $self = shift;
+    my ($self) = @_;
     if ($self->id eq $self->empire->home_planet_id) {
         confess [1010, 'You cannot abandon your home colony.'];
     }
@@ -646,24 +646,23 @@ sub find_building {
 }
 
 has command => (
-        is      => 'rw',
-        lazy    => 1,
-        default => sub {
-        my $self = shift;
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my ($self) = @_;
         my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::PlanetaryCommand');
         return $building;
-        },
-        );
+    }
+);
 
 has oversight => (
         is      => 'rw',
         lazy    => 1,
         default => sub {
-        my $self = shift;
-        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Oversight');
-        return $building;
-        },
-        );
+            my $self = shift;
+            my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Oversight');
+            return $building;
+        });
 
 has archaeology => (
         is      => 'rw',
@@ -755,7 +754,7 @@ sub is_space_free {
 }
 
 sub find_free_space {
-    my $self = shift;
+    my ($self) = @_;
     my $x = randint(-5,5);
     my $y = randint(-5,5);
 
@@ -819,7 +818,7 @@ sub can_build_building {
 }
 
 sub has_room_in_build_queue {
-    my ($self) = shift;
+    my ($self) = @_;
     my $max = 1;
     my $dev_ministry = $self->development;
     if (defined $dev_ministry) {
@@ -839,7 +838,7 @@ has future_operating_resources => (
     clearer => 'clear_future_operating_resources',
     lazy    => 1,
     default => sub {
-        my $self = shift;
+        my ($self) = @_;
 
         # get current
         my %future;
@@ -934,7 +933,7 @@ sub builds {
 }
 
 sub get_existing_build_queue_time {
-    my $self = shift;
+    my ($self) = @_;
     my ($building) = @{$self->builds(1)};
 
     return (defined $building) ? $building->upgrade_ends : DateTime->now;
@@ -1084,17 +1083,17 @@ sub convert_to_station {
 }
 
 has total_ore_concentration => (
-        is          => 'ro',  
-        lazy        => 1,
-        default     => sub {
-        my $self = shift;
+    is          => 'ro',  
+    lazy        => 1,
+    default     => sub {
+        my ($self) = @_;
         my $tally = 0;
         foreach my $type (ORE_TYPES) {
-        $tally += $self->$type;
+            $tally += $self->$type;
         }
         return $tally;
-        },
-        );
+    },
+);
 
 sub is_food {
     my ($self, $resource) = @_;
@@ -1360,7 +1359,9 @@ sub recalc_stats {
 # NEWS
 
 sub add_news {
-    my ($self, $chance, $headline) = @_;
+    my $self = shift;
+    my $chance = shift;
+    my $headline = shift;
 
     if ($self->restrict_coverage) {
         my $network19 = $self->network19;
