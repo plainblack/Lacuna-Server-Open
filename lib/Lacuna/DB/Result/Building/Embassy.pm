@@ -283,13 +283,12 @@ before 'can_downgrade' => sub {
     if (defined $alliance && $self->body->empire_id == $alliance->leader_id) {
         my $alliance_members = $alliance->members->count;
         my $best_other_embassy = $self->body->empire
-                                   ->highest_embassy($self->body_id);
+            ->highest_embassy($self->body_id);
         my $allowed_members  = max(
-                                   defined $best_other_embassy ? $best_other_embassy->max_members : 0,
-                                   $self->max_members($self->level - 1)
-                                  );
-        if ($alliance_members > $allowed_members)
-        {
+            defined $best_other_embassy ? $best_other_embassy->max_members : 0,
+            $self->max_members($self->level - 1)
+        );
+        if ($alliance_members > $allowed_members) {
             confess [1013, 'You cannot downgrade this Embassy while you are an alliance leader with ' . $alliance_members . ' members.']
         }
     }
@@ -303,10 +302,9 @@ before 'can_demolish' => sub {
         # embassy able to take over.
         my $alliance_members = $alliance->members->count;
         my $best_other_embassy = $self->body->empire
-                                   ->highest_embassy($self->body_id);
+            ->highest_embassy($self->body_id);
         my $allowed_members  = defined $best_other_embassy ? $best_other_embassy->max_members : 0;
-        if ($alliance_members > $allowed_members)
-        {
+        if ($alliance_members > $allowed_members) {
             confess [1013, 'You cannot demolish this Embassy while you are an alliance leader.  Reassign leadership or dissolve the alliance first.']
         }
     }
