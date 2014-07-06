@@ -459,6 +459,8 @@ sub get_status {
             $planets->{$planet->id} = $planet->name;
         }
     }
+    my $embassy = $self->highest_embassy;
+    $embassy = $embassy->id if $embassy;
 
     my $status = {
         rpc_count           => $self->rpc_count,
@@ -476,6 +478,7 @@ sub get_status {
         space_stations      => $stations,
         self_destruct_active=> $self->self_destruct_active,
         self_destruct_date  => $self->self_destruct_date_formatted,
+        primary_embassy_id  => $embassy,
     };
     return $status;
 }
@@ -1087,6 +1090,20 @@ sub pay_taxes {
             paid_0      => $amount,
         })->insert;
     }
+}
+
+sub highest_embassy {
+    my ($self, $excluding_body_id) = @_;
+    my %where = (
+                 'body.empire_id' => $self->id,
+                 'me.class'       => 'Lacuna::DB::Result::Building::Embassy'
+                );
+    $where{body_id} = { '!=' => $excluding_body_id } if defined $excluding_body_id;
+    my $search = Lacuna->db->resultset('Lacuna::DB::Result::Building')
+        ->search(\%where, { join => 'body', order_by => { -desc => 'level' } })
+        ->single();
+
+    return $search;
 }
 
 no Moose;
