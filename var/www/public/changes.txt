@@ -1,3 +1,28 @@
+3.0906
+ - Bug: Parliament still has (unused) methods which should be deleted
+ - Bug: Remember to update template to add 'zone_size' to lacuna.conf
+ - Bug: DB::Result::Map::Body::Planet::Station - remove 'propositions'
+ - Bug: Install: 
+            yum install gd-devel
+            cpanm GD
+            cpanm Math::Round
+            add tick_stations.pl to cron (hourly)
+            add draw_influence.pl to cron (daily)
+            add 'influencemap' to lacuna.ngnx
+ - Bug: Add 'today' directory, overlay.png to git
+ - BUG: UI - Remove proposition tabs from Parliament
+ - Bug: UI - No whirly-wheel when proposing a law
+ - Bug: UI - Embassy, when adding a new proposition, refresh the other tabs.
+ - Bug: Alliance stats are not working yet.
+ - Bug: 'can't locate 'laws', RPC/Building/BHG.pm #394
+ - Bug: UI - Stars are show as seized in neutral zone
+ - Bug: AI seem to be attacking in neutral zone
+ - Bug: 'neutralize BHG' does not seem to be working in Embassy.
+ - Bug: 'fire BHG', use the same select method as elsewhere for star select
+ - Bug: Influence map, RHS is white if you need to scroll
+ - Bug: Influence map, need to show alliances, and allow select/disable
+ - Bug: Deploy Excavator 'Ship/Arrive/Deploy/Excavator line 56 (see forum)
+
 3.0905
  - Mod: Gratch now more granualar for infiltration times when damaged
  - Mod: If planet is abandoned, spies from elsewhere will be set to Idle when ported home.
