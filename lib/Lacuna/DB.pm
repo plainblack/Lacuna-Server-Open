@@ -20,27 +20,24 @@ sub sqlt_deploy_hook {
 # 1: Lacuna Expanse Corp
 sub empire {
     my ($self, $id) = @_;
-    my $empires = $self->resultset('Lacuna::DB::Result::Empire');
+
+    my $empires = $self->resultset('Empire');
     my %where;
 
     # set the where hash
-    if (ref $id && ref $id eq 'HASH')
-    {
+    if (ref $id && ref $id eq 'HASH') {
         %where = %$id;
     }
     # or a C<like> for name
-    elsif ($id =~ /[%_]/)
-    {
+    elsif ($id =~ /[%_]/) {
         $where{name} = { like => $id };
     }
     # or just the name (hopefully no names are purely numeric)
-    elsif ($id =~ /\D/)
-    {
+    elsif ($id =~ /\D/) {
         $where{name} = $id;
     }
     # or the numeric ID (probably most useful for testing)
-    else
-    {
+    else {
         $where{id} = $id;
     }
 
@@ -50,7 +47,7 @@ sub empire {
 # similarly, a lot of typing can be saved with Lacuna->db->building($id)
 sub building {
     my ($self, $building_id) = @_;
-    my $building = $self->resultset('Lacuna::DB::Result::Building')->find($building_id);
+    my $building = $self->resultset('Building')->find($building_id);
 }
 
 no Moose;

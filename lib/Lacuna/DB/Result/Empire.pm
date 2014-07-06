@@ -455,8 +455,8 @@ sub get_status {
     while (my $planet = $planet_rs->next) {
         $planets{$planet->id} = $planet->name;
     }
-    my $embassy = $self->highest_embassy;
-    $embassy = $embassy->id if $embassy;
+    my $embassy     = $self->highest_embassy;
+    my $embassy_id  = defined $embassy ? $embassy->id : undef;
 
     my $status = {
         rpc_count           => $self->rpc_count,
@@ -472,7 +472,7 @@ sub get_status {
         planets             => \%planets,
         self_destruct_active=> $self->self_destruct_active,
         self_destruct_date  => $self->self_destruct_date_formatted,
-        primary_embassy_id  => $embassy,
+        primary_embassy_id  => $embassy_id,
     };
     return $status;
 }
@@ -1088,16 +1088,22 @@ sub pay_taxes {
 
 sub highest_embassy {
     my ($self, $excluding_body_id) = @_;
-    my %where = (
-                 'body.empire_id' => $self->id,
-                 'me.class'       => 'Lacuna::DB::Result::Building::Embassy'
-                );
-    $where{body_id} = { '!=' => $excluding_body_id } if defined $excluding_body_id;
-    my $search = Lacuna->db->resultset('Lacuna::DB::Result::Building')
-        ->search(\%where, { join => 'body', order_by => { -desc => 'level' } })
-        ->single();
 
-    return $search;
+    my $search_rs = Lacuna->db->resultset('Building')->search({
+        'body.empire_id'    => $self->id,
+        'me.class'          => 'Lacuna::DB::Result::Building::Embassy',
+    },{
+        join                => 'body',
+        order_by            => { -desc => 'level' },
+    });
+    if (defined $excluding_body_id) {
+        $search_rs = $search_rs->search({
+            body_id         => { "!="  => $excluding_body_id },
+        });
+    }
+    my $embassy = $search_rs->search->single();
+
+    return $embassy;
 }
 
 no Moose;
