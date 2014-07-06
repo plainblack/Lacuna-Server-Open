@@ -1233,7 +1233,6 @@ sub bhg_swap {
                 }
             }
             if ($new_data->{type} eq 'space station') {
-                drop_stars_beyond_range($target);
                 $target->station_recalc(1)->update;
             }
         }
@@ -1289,7 +1288,6 @@ sub bhg_swap {
             }
         }
         if ($body->get_type eq 'space station') {
-            drop_stars_beyond_range($body);
             $body->station_recalc(1)->update;
         }
         my $boracle = $body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
@@ -1382,19 +1380,6 @@ sub recalc_incoming_supply {
             $sender->recalc_chains; # Recalc all chains
         }
     }
-}
-
-sub drop_stars_beyond_range {
-    my ($station) = @_;
-
-    return 0 if ($station->get_type ne 'space station');
-    my $laws = $station->laws->search({type => 'Jurisdiction'});
-    while (my $law = $laws->next) {
-        unless ($station->in_range_of_influence($law->star)) {
-            $law->delete;
-        }
-    }
-    return 1;
 }
 
 sub bhg_make_planet {
