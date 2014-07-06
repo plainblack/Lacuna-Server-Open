@@ -29,11 +29,22 @@ sub send_predefined_message {
     }
 }
 
+# Is the star seized?
+#     IF the alliance_id is supplied, is it seized by the specified alliance?
+#     ELSE (alliance_id is not specified), is the star seized at all?
+#
 sub is_seized {
     my ($self, $alliance_id) = @_;
 
-    if ($self->alliance_id == $alliance_id and $self->influence >= 50) {
-	return 1;
+    if (defined $alliance_id) {
+        if ($self->alliance_id == $alliance_id and $self->influence >= 50) {
+            return 1;
+        }
+    }
+    else {
+        if ($self->alliance_id and $self->influence >= 50) {
+            return 1;
+        }
     }
     return;
 }

@@ -188,6 +188,17 @@ sub find_target {
             confess [ 1002, 'Could not find '.$target_word.' zone.'];
         }
 #Need to find all non-seized via better DB call.
+
+        # Find all bodies which are
+        #     In the target zone
+        #     Not Occupied
+        #     That are 'Planets'
+        #     That are in the correct orbits
+        #     That do not contain fissures
+        #     Who's star is either
+        #         Not seized
+        #         OR seized by our own alliance
+        #         
         my @bodies = Lacuna->db->resultset('Map::Body')->search(
             {
                 'me.zone'           => $target_params->{zone},
@@ -196,7 +207,7 @@ sub find_target {
                 'me.orbit'          => { between => [$empire->min_orbit, $empire->max_orbit] },
             },
             {
-                join                => 'stars',
+                join                => 'star',
                 rows                => 250,
                 order_by            => 'me.name',
             });
@@ -233,8 +244,8 @@ sub no_occ_or_nonally {
     for my $check (@$checking) {
         next if $check->empire_id;
         next if ($check->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure'));
-        if ( defined($check->star->station_id)) {
-            if ($check->star->station->empire->alliance_id == $aid) {
+        if ( $check->star->is_seized) {
+            if ($check->star->alliance_id == $aid) {
                 push @stripped, $check;
             }
         }
@@ -373,7 +384,8 @@ sub task_chance {
 
 sub check_bhg_neutralized {
     my ($check) = @_;
-    my $tstar; my $tname;
+    my $tstar; 
+    my $tname;
     if (ref $check eq 'HASH') {
         $tstar = $check->{star};
         $tname = $check->{name};
@@ -388,14 +400,9 @@ sub check_bhg_neutralized {
             $tname = $check->name;
         }
     }
-    my $sname = $tstar->name;
-    my $throw; my $reason;
-    if ($tstar->station_id) {
-        if ($tstar->station->laws->search({type => 'BHGNeutralized'})->count) {
-            my $ss_name = $tstar->station->name;
-            $throw = 1009;
-            $reason = sprintf("The star, %s is under BHG Neutralization from %s", $sname, $ss_name);
-            return $throw, $reason;
+    if ($tstar->is_seized) {
+        if ($tstar->alliance->laws->search({type => 'BHGNeutralized'})->count) {
+            return 1009, sprintf("The star, %s is under BHG Neutralization from Alliance %s", $tstar->name, $tstar->alliance->name);
         }
     }
     return 0, "";
@@ -634,7 +641,7 @@ sub generate_singularity {
         }
         elsif (defined($tempire)) {
             $confess = "You can not attempt that action on a body if it is occupied by another alliance!";
-            if ($body->empire->id == $tempire->id) {
+            if ($body->empire_id == $tempire->id) {
                 $allowed = 1;
             }
             elsif (
@@ -643,20 +650,20 @@ sub generate_singularity {
             ) {
                 $allowed = 1;
             }
-            elsif ($tstar->station_id) {
-                if ($body->empire->alliance_id && $tstar->station->alliance_id == $body->empire->alliance_id) {
+            elsif ($tstar->is_seized($body->empire->alliance_id)) {
+                if ($body->empire->alliance_id && $tstar->alliance_id == $body->empire->alliance_id) {
                     $allowed = 1;
                 }
             }
         }
         else {
-            if ($tstar->station_id) {
-                if ($tstar->station->laws->search({type => 'MembersOnlyColonization'})->count) {
-                    if ($tstar->station->alliance_id == $body->empire->alliance_id) {
+            if ($tstar->is_seized) {
+                if ($tstar->alliance->laws->search({type => 'MembersOnlyColonization'})->count) {
+                    if ($tstar->alliance_id == $body->empire->alliance_id) {
                         $allowed = 1;
                     }
                     else {
-                        $confess = 'Only '.$tstar->station->alliance->name.
+                        $confess = 'Only '.$tstar->alliance->name.
                             ' members can colonize planets in the jurisdiction of that space station.';
                     }
                 }
@@ -687,9 +694,9 @@ sub generate_singularity {
         if ($target->id == $body->star->id) {
             confess [1009, "You are already in that system"];
         }
-        if ($target->station_id) {
-            unless ($body->empire->alliance_id && $target->station->alliance_id == $body->empire->alliance_id) {
-                confess [1009, 'That star system is claimed by '.$tstar->station->alliance->name.'.'];
+        if ($target->is_seized) {
+            unless ($body->empire->alliance_id && $target->alliance_id == $body->empire->alliance_id) {
+                confess [1009, 'That star system is claimed by '.$tstar->alliance->name.'.'];
             }
         }
         # Let's check all planets in our system and target system
