@@ -541,6 +541,7 @@ Return laws just for one zone. If not supplied laws for all zones will
 be returned.
 
 =head3 RESPONSE
+
  {
     "status" : { ... },
     "laws" : [
@@ -644,7 +645,7 @@ The unique id of the body you are on.
 
 =head3 proposition_id
 
-The id of the propostion your casting this vote for or against. See C<view_propositions> for a list.
+The id of the propostion you are casting this vote for or against. See C<view_propositions> for a list.
 
 =head3 vote
 
@@ -901,7 +902,7 @@ Cannot use sitter password.
 Note: This will divert 25% of the total influence of the Space Station into a focused beam 
 onto one star, this is most likely to cause the star to be seized (unless there is greater 
 influence from another alliance). The cost to the Space station however is that this will 
-lower (by 25%) it's broadcast power on other stars.
+lower (by 25%) its broadcast power on other stars.
 
 Only four stars can be focused on in this way, leaving 0% broadcast power.
 
