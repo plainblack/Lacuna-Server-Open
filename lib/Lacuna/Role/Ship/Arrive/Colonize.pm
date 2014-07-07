@@ -66,10 +66,13 @@ after can_send_to_target => sub {
     my $empire = $self->body->empire;
     confess [1009, 'Can only be sent to habitable planets.'] if ($target->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant') && $empire->university_level < 19);
     confess [ 1009, 'Your species cannot survive on that planet.' ] if ($empire->university_level < 18 && ($target->orbit > $empire->max_orbit || $target->orbit < $empire->min_orbit));
-    if ($target->star->station_id) {
-        if ($target->star->station->laws->search({type => 'MembersOnlyColonization'})->count) {
-            unless ($target->star->station->alliance_id == $self->body->empire->alliance_id) {
-                confess [1010, 'Only '.$target->star->station->alliance->name.' members can colonize planets in the jurisdiction of the space station.'];
+    if ($target->star->is_seized) {
+        if ($target->star->alliance->laws->search({
+            type    => 'MembersOnlyColonization',
+            zone    => $target->star->zone,
+        })->count) {
+            if ($target->star->alliance_id != $self->body->empire->alliance_id) {
+                confess [1010, 'Only '.$target->star->alliance->name.' members can colonize planets under their influence in zone '.$target->star->zone.'.'];
             }
         }
     }
