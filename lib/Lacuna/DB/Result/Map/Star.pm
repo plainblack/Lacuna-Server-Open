@@ -54,6 +54,14 @@ sub is_seized {
 sub recalc_influence {
     my ($self) = @_;
 
+    if ($self->in_neutral_area or $self->in_starter_zone) {
+        $self->recalc(0);
+        $self->influence(0);
+        $self->alliance_id(undef);
+        $self->update;
+        return;
+    }
+
     # We will use some 'raw' SQL rather than go through the machinations of DBIC
     #
     my $dbh = $self->result_source->storage->dbh;
