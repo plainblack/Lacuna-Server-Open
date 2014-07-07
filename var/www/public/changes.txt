@@ -1,11 +1,14 @@
 3.0905:
  - Mod: Replaced Envolve chat with ChiselChat
 
-
-3.0906
+3.0906.2
  - Fix: BHG should now be operational.
+ - Fix: Stars should no longer be shown seized in Neutral/Starter zones
+ - Fix: Deploy Excavator should now work
+ - Fix: Mining, Excavating, Colonization should now work correctly if seized.
+ - Fix: AI should no longer attack in neutral/starter zones
+
  - Bug: Remember to update template to add 'zone_size' to lacuna.conf
- - Bug: DB::Result::Map::Body::Planet::Station - remove 'propositions'
  - Bug: Install: 
             yum install gd-devel
             cpanm GD
@@ -18,13 +21,10 @@
  - Bug: UI - No whirly-wheel when proposing a law
  - Bug: UI - Embassy, when adding a new proposition, refresh the other tabs.
  - Bug: Alliance stats are not working yet.
- - Bug: UI - Stars show as seized in neutral zone
- - Bug: AI seem to be attacking in neutral zone
  - Bug: 'neutralize BHG' does not seem to be working in Embassy.
  - Bug: 'fire BFG', use the same select method as elsewhere for star select
  - Bug: Influence map, RHS is white if you need to scroll
  - Bug: Influence map, need to show alliances, and allow select/disable
- - Bug: Deploy Excavator 'Ship/Arrive/Deploy/Excavator line 56 (see forum)
  - Bug: BHG trys to change places with enemy, fails, but cooldown triggers.
  - Bug: Strange messages in P19
             'Lacuna::DB::Result::Map::Body::Planet::P35=HASH(0x90910c0) ceremony'
