@@ -11,7 +11,8 @@ before pass => sub {
         name        => $self->name,
         description => $self->description,
         type        => 'MembersOnlyExcavation',
-        station_id  => $self->station_id,
+        alliance_id => $self->alliance_id,
+        zone        => $self->zone,
     })->insert;
 };
 

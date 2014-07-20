@@ -9,7 +9,7 @@ before pass => sub {
     my ($self) = @_;
     my $body = Lacuna->db->resultset('Map::Body')->find($self->scratch->{body_id});
     if (defined $body && $body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
-        if (not $body->star->is_seized($self->alliance_id)) {
+        if ($body->star->is_seized($self->alliance_id)) {
             if (defined $body->empire_id && $body->empire_id) {
                 foreach my $building (@{$body->building_cache}) {
                     next unless ('Infrastructure' ~~ [$building->build_tags]);
