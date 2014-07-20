@@ -1,9 +1,13 @@
-3.0906.2
+3.0906.3
  - Fix: BHG should now be operational.
  - Fix: Stars should no longer be shown seized in Neutral/Starter zones
  - Fix: Deploy Excavator should now work
  - Fix: Mining, Excavating, Colonization should now work correctly if seized.
  - Fix: AI should no longer attack in neutral/starter zones
+ - Fix: Neutralize BHG and Fire BFG should now work
+ - Fix: UI - Parliament is now stripped back to the basics
+ - Fix: Abandon Station now works
+ - Mod: Invite alliance members, and expel members, is now only by voting. 
 
  - Bug: Remember to update template to add 'zone_size' to lacuna.conf
  - Bug: Install: 
@@ -14,12 +18,9 @@
             add draw_influence.pl to cron (daily)
             add 'influencemap' to lacuna.ngnx
  - Bug: Add 'today' directory, overlay.png to git
- - BUG: UI - Remove proposition tabs from Parliament
  - Bug: UI - No whirly-wheel when proposing a law
  - Bug: UI - Embassy, when adding a new proposition, refresh the other tabs.
  - Bug: Alliance stats are not working yet.
- - Bug: 'neutralize BHG' does not seem to be working in Embassy.
- - Bug: 'fire BFG', use the same select method as elsewhere for star select
  - Bug: Influence map, RHS is white if you need to scroll
  - Bug: Influence map, need to show alliances, and allow select/disable
  - Bug: BHG trys to change places with enemy, fails, but cooldown triggers.
