@@ -11,7 +11,7 @@ before pass => sub {
         name        => $self->name,
         description => $self->description,
         type        => 'BHGNeutralized',
-        station_id  => $self->station_id,
+        alliance_id => $self->alliance_id,
     })->insert;
 };
 

@@ -42,17 +42,15 @@ sub has_room_in_build_queue {
     return 1;   
 }
 
-before sanitize => sub {
-    my $self = shift;
-    $self->propositions->delete_all;
-#    $self->laws->delete_all;
-};
-
 after sanitize => sub {
     my $self = shift;
 
+    # Now all the buildings are gone, it should have no influence
+    # but we need to clear the stars it may have influenced
+    $self->recalc_influence;
+
     $self->update({
-        station_recalc  => 1,
+        station_recalc  => 0,
         size            => randint(1,10),
         class           => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
         alliance_id     => undef,

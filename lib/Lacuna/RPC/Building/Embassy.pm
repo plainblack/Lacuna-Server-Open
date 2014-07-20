@@ -1022,10 +1022,10 @@ sub propose_fire_bfg {
     confess [1002, 'You must specify a body id.'] if not $body_id;
 
     my $body = Lacuna->db->resultset('Map::Body')->find($body_id);
-    confess [1002, 'Could not find the target body.'] if not defined $body;
-    confess [1009, 'Target is not a planet.'] if not $body->isa('Lacuna::DB::Result::Map::Body::Planet');
+    confess [1002, 'Could not find the target body.'] unless $body;
+    confess [1009, 'Target is not a planet.'] unless $body->isa('Lacuna::DB::Result::Map::Body::Planet');
 
-    my $alliance = $body->alliance;
+    my $alliance = $empire->alliance;
     my ($star) = Lacuna->db->resultset('Map::Star')->search({
         id              => $body->star_id,
         alliance_id     => $empire->alliance_id,
