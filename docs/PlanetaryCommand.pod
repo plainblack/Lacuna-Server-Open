@@ -131,5 +131,19 @@ A session id.
 
 The unique id of the PCC.
 
+=head2 subsidize_pod_cooldown ( session_id, building_id )
+
+Will spend 2 essentia to allow a new pod to be sent immediately. Returns C<view>.
+
+Throws 1011.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the Planetary Command Center.
+
 
 =cut
