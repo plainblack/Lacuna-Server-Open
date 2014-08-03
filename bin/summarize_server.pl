@@ -234,7 +234,7 @@ sub summarize_alliances {
     my %alliance_data = (
         date_stamp                 => DateTime->now,
         space_station_count         => 0,
-        influence                   => 0,
+        influence                   => $alliance->total_influence,
         alliance_id                 => $alliance->id,
         alliance_name               => $alliance->name,
         );
@@ -243,7 +243,6 @@ sub summarize_alliances {
       $alliance_data{member_count}++;
       $alliance_data{colony_count}             += $empire->colony_count;
       $alliance_data{space_station_count}      += $empire->space_station_count;
-      $alliance_data{influence}                += $empire->influence;
       $alliance_data{population}               += $empire->population;
       $alliance_data{building_count}           += $empire->building_count;
       $alliance_data{average_building_level}   += $empire->average_building_level;
@@ -312,7 +311,6 @@ sub summarize_empires {
     my $colonies = $colony_logs->search({empire_id => $empire->id});
     while ( my $colony = $colonies->next) {
       if ($colony->is_space_station) {
-        $empire_data{influence}                 += $colony->influence;
         $empire_data{space_station_count}++;
         my %map_col = (
           type => "SS",
@@ -446,7 +444,6 @@ sub summarize_colonies {
         );
         if ($planet->class =~ /Station$/) {
             $colony_data{is_space_station} = 1;
-            $colony_data{influence} = $planet->influence_spent;
         }
 
 
