@@ -71,24 +71,22 @@ sub incoming_supply_chains {
     return Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->search({ target_id => $self->body_id });
 }
 
-sub sent_a_pod
-{
+sub sent_a_pod {
     my ($self) = @_;
 
     my $level    = $self->level;
     my $cooldown = int(
-                         28.747 * $level * $level
-                       - 2877.4 * $level
-                       + 89249.
-                      );
+        28.747 * $level * $level
+        - 2877.4 * $level
+        + 89249.
+    );
 
     $self->start_work({}, $cooldown);
 }
 
-sub can_send_pod
-{
+sub can_send_pod {
     my ($self) = @_;
-    ! $self->is_working;
+    return $self->is_working ? 0 : 1;
 }
 
 no Moose;
