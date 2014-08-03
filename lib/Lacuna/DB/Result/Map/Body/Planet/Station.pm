@@ -54,7 +54,6 @@ after sanitize => sub {
         size            => randint(1,10),
         class           => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
         alliance_id     => undef,
-        influence       => 0,
     });
 };
 
