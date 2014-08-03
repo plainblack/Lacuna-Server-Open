@@ -84,8 +84,9 @@ after send => sub {
 
 after can_send_to_target => sub {
     my ($self, $target) = @_;
-    confess [1010, 'Cannot send another supply pod so soon after sending previous supply pod.']
-      if $self->body->get_a_building("PlanetaryCommand")->can_send_pod;
+    if (not $self->body->get_a_building("PlanetaryCommand")->can_send_pod) {
+        confess [1010, 'Cannot send another supply pod so soon after sending previous supply pod.'];
+    }
 };
 
 1;
