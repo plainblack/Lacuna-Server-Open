@@ -40,6 +40,18 @@ sub stash_size {
     return $self->calculate_size_of_transaction($self->stash);
 }
 
+# Total influence, this being the sum of influence
+# not the number of stars seized
+sub total_influence {
+    my ($self) = @_;
+
+    my $dbh = $self->result_source->storage->dbh;
+    # the /900 is to 'normalize' it to be a value similar to the number of stars seized at point of changeover
+    my ($influence) = $dbh->selectrow_array('select sum(influence)/900 from star where alliance_id = ? and influence >= 50', undef, $self->id) or die $dbh->errstr;
+    return $influence;
+}
+
+
 sub calculate_size_of_transaction {
     my ($self, $resources) = @_;
     my $size = 0;
