@@ -1,4 +1,6 @@
-3.0906.4
+3.0906.5
+ - Mod: Supply pod timer changes, cooldown shows on PCC
+ - Fix: Plans correctly ordered in PCC
  - Fix: Alliance stats should now work
  - Fix: BHG should now be operational.
  - Fix: Stars should no longer be shown seized in Neutral/Starter zones
