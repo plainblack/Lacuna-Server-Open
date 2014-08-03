@@ -962,6 +962,7 @@ sub propose_neutralize_bhg {
         description     => 'All Black Hole Generators will cease to operate within and on planets in the jurisdiction of {Alliance '.$empire->alliance_id.' '.$empire->alliance->name.'} in zone '.$zone,
         proposed_by_id  => $empire->id,
         alliance_id     => $empire->alliance_id,
+        zone            => $zone,
     });
     $proposition->proposed_by($empire);
     $proposition->insert;

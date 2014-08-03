@@ -12,6 +12,7 @@ before pass => sub {
         description => $self->description,
         type        => 'BHGNeutralized',
         alliance_id => $self->alliance_id,
+        zone        => $self->zone,
     })->insert;
 };
 
