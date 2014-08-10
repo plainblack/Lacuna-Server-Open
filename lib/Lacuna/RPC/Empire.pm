@@ -10,6 +10,7 @@ use String::Random qw(random_string);
 use UUID::Tiny ':std';
 use Time::HiRes;
 use Text::CSV_XS;
+use Firebase::Auth;
 
 sub find {
     my ($self, $session_id, $name) = @_;
@@ -82,27 +83,39 @@ sub login {
     if ($empire->rpc_count > $max) {
         confess [1010, $empire->name.' has already made the maximum number of requests ('.$max.') you can make for one day.'];
     }
-    #Lacuna->db->resultset('Log::RPC')->new({
-    #   empire_id    => $empire->id,
-    #   empire_name  => $empire->name,
-    #   module       => ref $self,
-    #   api_key      => $api_key,
-    #})->insert;
+    my $config = Lacuna->config;
+    my $firebase_config = $config->get('firebase');
+    my $auth_code = Firebase::Auth->new( 
+        secret => $firebase_config->{auth}{secret}, 
+     #   data   => $data,
+    )->create_token;
+
     if ($empire->is_password_valid($password)) {
         if ($empire->stage eq 'new') {
             confess [1100, "Your empire has not been completely created. You must complete it in order to play the game.", { empire_id => $empire->id } ];
         }
-        else {
-            return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request })->id, status => $self->format_status($empire) };
-        }
+        return { 
+            session_id  => $empire->start_session({ 
+                api_key     => $api_key, 
+                request     => $plack_request,
+            })->id, 
+            status      => $self->format_status($empire),
+            chat_auth   => $auth_code,
+        };
+    }
+    elsif ($password ne '' && $empire->sitter_password eq $password) {
+        return {
+            session_id  => $empire->start_session({ 
+                api_key     => $api_key, 
+                request     => $plack_request, 
+                is_sitter   => 1,
+            })->id, 
+            status      => $self->format_status($empire),
+            chat_auth   => $auth_code,
+        };
     }
     else {
-        if ($password ne '' && $empire->sitter_password eq $password) {
-            return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request, is_sitter => 1 })->id, status => $self->format_status($empire) };
-        }
-        else {
-            confess [1004, 'Password incorrect.', $password];            
-        }
+        confess [1004, 'Password incorrect.', $password];            
     }
 }
 
