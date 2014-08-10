@@ -1,5 +1,8 @@
-3.0906.5
+3.0906.6
  - Mod: Supply pod timer changes, cooldown shows on PCC
+ - Fix: Starter planet is now excluded if Members Only Colonization in force
+ - Mod: Taxes have been removed (for now)
+ - Fix: Downgrade/Demolish modules in SS now works
  - Fix: Plans correctly ordered in PCC
  - Fix: Alliance stats should now work
  - Fix: BHG should now be operational.

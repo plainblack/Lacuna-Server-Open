@@ -182,8 +182,8 @@ sub add_colonies {
                 say 'Finding colony in '.$zone.'...';
 # Need to narrow search if neutral area defined by coordinates.
                 my @bodies = $self->viable_colonies->search({
-                            'me.zone' => $zone,
-                            'stars.station_id'   => undef,
+                            'me.zone'           => $zone,
+                            'stars.influence'   => { '<' => 50 },
                          },{
                            join       => 'stars',
                            rows       => 100,

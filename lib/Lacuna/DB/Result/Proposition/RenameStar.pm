@@ -13,31 +13,12 @@ before pass => sub {
     if (!defined($star) or $star->alliance_id != $alliance->id or $star->influence < 50) {
         $self->pass_extra_message('Unfortunately, by the time the proposition passed, the star was no longer under the jurisdiction of this alliance, effectively nullifying the vote.');
     }
-    elsif (Lacuna->db->resultset('Map::Star')->search({name=>$name, 'id'=>{'!='=>$star->id}})->count) {
+    elsif (Lacuna->db->resultset('Map::Star')->search({name=>$name, 'id'=> {'!=' => $star->id}})->count) {
         $self->pass_extra_message('Unfortunately, by the time the proposition passed, the name *'.$name.'* had already been taken, effectively nullifying the vote.');
     }
     else {
         $star->name($name);
         $star->update;
-        my $elaw = $alliance->laws->search({type => 'Jurisdiction', star_id => $star->id})->single;
-        if ($elaw) {
-            $elaw->name('Seize '.$name);
-            $elaw->description('Seize control of {Starmap '.$star->x.' '.$star->y.' '.$name.'} by {Alliance '.$alliance->id.' '.
-                              $alliance->name.'}, and apply all present laws to said star and its inhabitants.');
-            $elaw->update;
-        }
-        else {
-            my $law = Lacuna->db->resultset('Law')->new({
-                name        => 'Seize '.$name,
-                description => 'Seize control of {Starmap '.$star->x.' '.$star->y.' '.$name.'} by {Alliance '.$alliance->id.' '.
-                              $alliance->name.'}, and apply all present laws to said star and its inhabitants.',
-                type        => 'Jurisdiction',
-                alliance_id => $alliance->id,
-                star_id     => $star->id,
-            });
-            $law->star($star);
-            $law->insert;
-        }
     }
 };
 

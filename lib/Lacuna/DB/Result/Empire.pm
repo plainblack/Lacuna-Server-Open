@@ -110,7 +110,6 @@ __PACKAGE__->has_many('spies',              'Lacuna::DB::Result::Spies',        
 __PACKAGE__->has_many('planets',            'Lacuna::DB::Result::Map::Body',    'empire_id');
 __PACKAGE__->has_many('propositions',       'Lacuna::DB::Result::Proposition',  'proposed_by_id');
 __PACKAGE__->has_many('votes',              'Lacuna::DB::Result::Vote',         'empire_id');
-__PACKAGE__->has_many('taxes',              'Lacuna::DB::Result::Taxes',        'empire_id');
 __PACKAGE__->has_many('sent_messages',      'Lacuna::DB::Result::Message',      'from_id');
 __PACKAGE__->has_many('received_messages',  'Lacuna::DB::Result::Message',      'to_id');
 __PACKAGE__->has_many('medals',             'Lacuna::DB::Result::Medals',       'empire_id');
@@ -696,10 +695,8 @@ sub find_home_planet {
         # then order by distance
     }
 
-    # search FIXME Note, this is temporary, should create a single query
-    # that returns all possible planets. 'rows 100' is not guaranteed to
-    # find a planet.
-    # Slightly better scheme.  At least we're likely to get a different group of planets.
+    # FIXME Note. a 'rows 100' is not guaranteed to find a planet
+    # 
     my $possible_count   = $planets->search(\%search);
     my $offset = 0;
     if ($possible_count > 100) {
@@ -714,8 +711,11 @@ sub find_home_planet {
         next unless (defined($planet));
         # skip planets with member's only colonization
         next if ($planet->empire);  # If a planet is qualified, but inhabited.
-        if ($planet->star->station_id) {
-            if ($planet->star->station->laws->search({type => 'MembersOnlyColonization'})->count) {
+        if ($planet->star->is_seized) {
+            if ($planet->star->alliance->laws->search({
+                type => 'MembersOnlyColonization',
+                zone => $planet->star->zone,
+            })->count) {
                 next;
             }
         }
@@ -963,7 +963,6 @@ before delete => sub {
     $self->discard_changes;
 
     $self->votes->delete_all;
-    $self->taxes->delete_all;
     $self->propositions->delete_all;
     Lacuna->db->resultset('Invite')->search({ -or => {invitee_id => $self->id, inviter_id => $self->id }})->delete;
     $self->all_probes->delete;
@@ -1076,22 +1075,6 @@ sub redeem_essentia_code {
     });
     $self->update;
     return $self;
-}
-
-sub pay_taxes {
-    my ($self, $station_id, $amount) = @_;
-    my $taxes = Lacuna->db->resultset('Taxes')->search({empire_id=>$self->id,station_id=>$station_id})->single;
-    if (defined $taxes) {
-        $taxes->{paid_0} += $amount;
-        $taxes->update;
-    }
-    else {
-        Lacuna->db->resultset('Taxes')->new({
-            empire_id   => $self->id,
-            station_id  => $station_id,
-            paid_0      => $amount,
-        })->insert;
-    }
 }
 
 sub highest_embassy {

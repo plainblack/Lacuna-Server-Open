@@ -4,7 +4,6 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Module';
-with 'Lacuna::Role::Influencer';
 
 use constant controller_class => 'Lacuna::RPC::Building::ArtMuseum';
 use constant image => 'artmuseum';

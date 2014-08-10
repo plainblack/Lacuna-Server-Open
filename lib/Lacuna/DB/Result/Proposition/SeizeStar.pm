@@ -16,25 +16,10 @@ before pass => sub {
     elsif ($star->in_neutral_area) {
         $self->pass_extra_message('This star is in the neutral area and cannot be seized.');
     }
-    elsif (!$star->station_id) {
-        my $influence_remaining = $station->influence_remaining;
-        if ( $influence_remaining >= 1 ) {
-            my $law = Lacuna->db->resultset('Law')->new({
-                name        => $self->name,
-                description => $self->description,
-                type        => 'Jurisdiction',
-                station_id  => $self->station_id,
-                star_id     => $star->id,
-            });
-            $law->star($star);
-            $law->insert;
-        }
-        else {
-            $self->pass_extra_message('Unfortunately, by the time the proposition passed, the station lacked any spare influence, effectively nullifying the vote.');
-        }
+    elsif ($star->is_seized) {
+        $self->pass_extra_message('Unfortunately, by the time the proposition passed, the star was already controlled by another station, effectively nullifying the vote.');
     }
     else {
-        $self->pass_extra_message('Unfortunately, by the time the proposition passed, the star was already controlled by another station, effectively nullifying the vote.');
     }
 };
 

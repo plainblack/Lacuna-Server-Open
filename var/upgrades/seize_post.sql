@@ -10,4 +10,4 @@ drop table if exists temp;
 drop table if exists glyphs;
 drop table if exists cargo_log;
 drop table if exists trades;
-
+drop table if exists taxes;
