@@ -4,38 +4,69 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
-use Chat::Envolve;
+use Firebase::Auth;
+use Firebase;
+use Gravatar::URL;
 
-
-sub get_commands {
+sub init_chat {
     my ($self, $session_id) = @_;
+
     my $empire = $self->get_empire_by_session($session_id);
-    my $api_key = Lacuna->config->get('envolve/api_key');
-    unless ($api_key) {
-        return { login_command => 'noapikey', logout_command => 'noapikey', status => $self->format_status($empire) }
-    }
-    my $chat = Chat::Envolve->new(
-        api_key     => $api_key,
-        client_ip   => 'none',
-    );
-    my %params;
+
+    my $config = Lacuna->config;
+    my $firebase_config = $config->get('firebase');
+    my $chat_auth = Firebase::Auth->new(
+        secret  => $firebase_config->{auth}{secret},
+        data    => {
+            id          => $empire->id,
+            chat_admin  => $empire->chat_admin ? \1 : \0,
+        }
+     #   data   => $data,
+    )->create_token;
+    my $firebase = Firebase->new(%{$firebase_config});
+
+#    if (0) {
     if ($empire->alliance_id) {
-        my $alliance = $empire->alliance;
-        if (defined $alliance) {
-            $params{last_name} = '('.$alliance->name.')';
+    	my $room = $firebase->get('room-metadata/'.$empire->alliance_id);
+        if (defined $room) {
+            $firebase->patch('room-metadata/'.$empire->alliance_id.'/authorizedUsers', {
+                $empire->id => \1
+            });
+        }
+        else {
+            $firebase->put('room-metadata/'.$empire->alliance_id, {
+                id              => $empire->alliance_id,
+                name            => $empire->alliance->name,
+                type            => 'private',
+                createdByUserId => $empire->id,
+                '.priority'     => {'.sv' => 'timestamp'},
+                authorizedUsers => {$empire->id => \1},
+            });
         }
     }
-    if ($empire->is_admin) {
-        $params{is_admin} = 1;
+    my $gravatar_id = gravatar_id($empire->email);
+    my $gravatar_url = gravatar_url(
+        email   => $empire->email,
+        default => 'monsterid',
+        size    => 300,
+    );
+    my $ret = {
+        status          => $self->format_status($empire),
+        gravatar_url    => $gravatar_url,
+        chat_auth       => $chat_auth,
+    };
+#    if (0) {
+    if ($empire->alliance_id) {
+        $ret->{private_room} = {
+            id          => $empire->alliance_id,
+            name        => $empire->alliance->name,
+        };
     }
-    my $login = $chat->get_login_command($empire->name, %params);
-    my $logout = $chat->get_logout_command;
-    return { login_command => $login, logout_command => $logout, status => $self->format_status($empire) };
-}
-
+    return $ret;
+}    
 
 __PACKAGE__->register_rpc_method_names(
-    qw(get_commands),
+    qw(init_chat),
 );
 
 
