@@ -17,7 +17,7 @@ sub init_chat {
     my $firebase_config = $config->get('firebase');
     my $chat_auth = Firebase::Auth->new(
         secret  => $firebase_config->{auth}{secret},
-        debug   => \1,
+#        debug   => \1,
         data    => {
             id          => $empire->id,
             chat_admin  => $empire->chat_admin ? \1 : \0,
@@ -28,8 +28,10 @@ sub init_chat {
         firebase    => $firebase_config->{firebase},
         authobj     => $chat_auth,
     );
+    my $chat_name = $empire->name;
 
     if ($empire->alliance_id) {
+        $chat_name .= " (".$empire->alliance->name.")";
     	my $room = $firebase->get('room-metadata/'.$empire->alliance_id);
         if (defined $room) {
             $firebase->patch('room-metadata/'.$empire->alliance_id.'/authorizedUsers', {
@@ -47,6 +49,10 @@ sub init_chat {
             });
         }
     }
+    if ($empire->chat_admin) {
+        $chat_name .= " <ADMIN>";
+    }
+    $chat_name .= " [on ".$config->get('server_id')."]";
     my $gravatar_id = gravatar_id($empire->email);
     my $gravatar_url = gravatar_url(
         email   => $empire->email,
@@ -56,6 +62,7 @@ sub init_chat {
     my $ret = {
         status          => $self->format_status($empire),
         gravatar_url    => $gravatar_url,
+        chat_name       => $chat_name,
         chat_auth       => $chat_auth->create_token,
     };
     if ($empire->alliance_id) {
