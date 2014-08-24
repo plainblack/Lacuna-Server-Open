@@ -59,7 +59,12 @@ while (my $empire = $to_be_deleted->next) {
 out('Enabling Self Destruct For Inactivity');
 my $abandons_tally;
 my $inactivity_time_out = Lacuna->config->get('self_destruct_after_inactive_days') || 20;
-my $inactives = $empires->search({ last_login => { '<' => $dtf->format_datetime(DateTime->now->subtract( days => $inactivity_time_out) ) }, self_destruct_active => 0, id => { '>' => 1}});
+my $inactives = $empires->search({ 
+    last_login           => { '<' => $dtf->format_datetime(DateTime->now->subtract( days => $inactivity_time_out) ) }, 
+    self_destruct_active => 0, 
+    id                   => { '>' => 1},
+    disable_self_destruct=> 0,
+});
 while (my $empire = $inactives->next) {
     if ($empire->essentia >= 1) {
       unless (Lacuna->cache->get('empire_inactive',$empire->id)) {

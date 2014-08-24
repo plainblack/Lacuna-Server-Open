@@ -89,6 +89,8 @@ __PACKAGE__->add_columns(
     has_new_messages        => { data_type => 'tinyint', default_value => 0 },
     latest_message_id       => { data_type => 'int',  is_nullable => 1 },
     skip_incoming_ships     => { data_type => 'tinyint', default_value => 0 },
+    disable_self_destruct   => { data_type => 'int', default_value => 0 },
+    chat_admin              => { data_type => 'int', default_value => 0 },
 );
 
 sub sqlt_deploy_hook {

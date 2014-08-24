@@ -86,7 +86,11 @@ sub login {
     my $config = Lacuna->config;
     my $firebase_config = $config->get('firebase');
     my $auth_code = Firebase::Auth->new( 
-        secret => $firebase_config->{auth}{secret}, 
+        secret  => $firebase_config->{auth}{secret}, 
+        data    => {
+            id          => $empire->id,
+            chat_admin  => $empire->chat_admin ? \1 : \0,
+        }
      #   data   => $data,
     )->create_token;
 
