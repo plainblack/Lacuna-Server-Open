@@ -52,13 +52,13 @@ sub init_chat {
     if ($empire->chat_admin) {
         $chat_name .= " <ADMIN>";
     }
-    $chat_name .= " [on ".$config->get('server_id')."]";
+    $chat_name .= " (on ".$config->get('server_id').")";
     my $gravatar_id = gravatar_id($empire->email);
     my $gravatar_url = gravatar_url(
         email   => $empire->email,
         default => 'monsterid',
-        size    => 300,
-    );
+	size    => 300,
+	);
     my $ret = {
         status          => $self->format_status($empire),
         gravatar_url    => $gravatar_url,

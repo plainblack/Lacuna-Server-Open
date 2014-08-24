@@ -95,14 +95,6 @@ sub login {
      #   data   => $data,
     )->create_token;
 
-
-    my $gravatar_id = gravatar_id($empire->email);
-    my $gravatar_url = gravatar_url(
-        email   => $empire->email,
-        default => 'monsterid',
-        size    => 300,
-    );
-
     if ($empire->is_password_valid($password)) {
         if ($empire->stage eq 'new') {
             confess [1100, "Your empire has not been completely created. You must complete it in order to play the game.", { empire_id => $empire->id } ];
@@ -113,8 +105,6 @@ sub login {
                 request     => $plack_request,
             })->id, 
             status          => $self->format_status($empire),
-            chat_auth       => $auth_code,
-            gravatar_url    => $gravatar_url,
         };
     }
     elsif ($password ne '' && $empire->sitter_password eq $password) {
@@ -125,8 +115,6 @@ sub login {
                 is_sitter   => 1,
             })->id, 
             status          => $self->format_status($empire),
-            chat_auth       => $auth_code,
-            gravatar_url    => $gravatar_url,
         };
     }
     else {
