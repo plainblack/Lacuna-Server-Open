@@ -17,15 +17,18 @@ sub init_chat {
     my $firebase_config = $config->get('firebase');
     my $chat_auth = Firebase::Auth->new(
         secret  => $firebase_config->{auth}{secret},
+        debug   => \1,
         data    => {
             id          => $empire->id,
             chat_admin  => $empire->chat_admin ? \1 : \0,
         }
      #   data   => $data,
-    )->create_token;
-    my $firebase = Firebase->new(%{$firebase_config});
+    );
+    my $firebase = Firebase->new(
+        firebase    => $firebase_config->{firebase},
+        authobj     => $chat_auth,
+    );
 
-#    if (0) {
     if ($empire->alliance_id) {
     	my $room = $firebase->get('room-metadata/'.$empire->alliance_id);
         if (defined $room) {
@@ -53,9 +56,8 @@ sub init_chat {
     my $ret = {
         status          => $self->format_status($empire),
         gravatar_url    => $gravatar_url,
-        chat_auth       => $chat_auth,
+        chat_auth       => $chat_auth->create_token,
     };
-#    if (0) {
     if ($empire->alliance_id) {
         $ret->{private_room} = {
             id          => $empire->alliance_id,
