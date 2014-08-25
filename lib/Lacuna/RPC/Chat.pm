@@ -30,7 +30,8 @@ sub init_chat {
     );
     my $chat_name = $empire->name;
 
-    if ($empire->alliance_id) {
+if (0) {
+#    if ($empire->alliance_id) {
 #        $chat_name .= " (".$empire->alliance->name.")";
     	my $room = $firebase->get('room-metadata/'.$empire->alliance_id);
         if (defined $room) {
@@ -49,10 +50,7 @@ sub init_chat {
             });
         }
     }
-    if ($empire->chat_admin) {
-        $chat_name .= " <ADMIN>";
-    }
-    my $gravatar_id = gravatar_id($empire->email);
+    my $gravatar_id = gravatar_id($empire->email||$empire->id.'@example.com');
     my $gravatar_url = gravatar_url(
         email   => $empire->email,
         default => 'monsterid',
@@ -65,7 +63,8 @@ sub init_chat {
         chat_auth       => $chat_auth->create_token,
         chat_admin	=> $empire->chat_admin ? \1 : \0,
     };
-    if ($empire->alliance_id) {
+if (0) {
+#    if ($empire->alliance_id) {
         $ret->{private_room} = {
             id          => $empire->alliance_id,
             name        => $empire->alliance->name,
