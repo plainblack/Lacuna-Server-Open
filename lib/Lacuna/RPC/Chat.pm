@@ -31,7 +31,7 @@ sub init_chat {
     my $chat_name = $empire->name;
 
     if ($empire->alliance_id) {
-        $chat_name .= " (".$empire->alliance->name.")";
+#        $chat_name .= " (".$empire->alliance->name.")";
     	my $room = $firebase->get('room-metadata/'.$empire->alliance_id);
         if (defined $room) {
             $firebase->patch('room-metadata/'.$empire->alliance_id.'/authorizedUsers', {
