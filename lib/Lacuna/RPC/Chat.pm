@@ -9,9 +9,7 @@ use Firebase;
 use Gravatar::URL;
 
 sub init_chat {
-    my ($self, $session_id) = @_;
-
-    my $empire = $self->get_empire_by_session($session_id);
+    my ($self) = @_;
 
     my $config = Lacuna->config;
     my $firebase_config = $config->get('firebase');
