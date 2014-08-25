@@ -1,3 +1,6 @@
+3.0905:
+ - Mod: Replaced Envolve chat with ChiselChat
+
 3.0904:
  - Fix: Removed cronic duplication in starmap API, hopefully reducing lag
 
