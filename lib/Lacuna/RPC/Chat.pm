@@ -52,7 +52,6 @@ sub init_chat {
     if ($empire->chat_admin) {
         $chat_name .= " <ADMIN>";
     }
-    $chat_name .= " (on ".$config->get('server_id').")";
     my $gravatar_id = gravatar_id($empire->email);
     my $gravatar_url = gravatar_url(
         email   => $empire->email,
@@ -64,6 +63,7 @@ sub init_chat {
         gravatar_url    => $gravatar_url,
         chat_name       => $chat_name,
         chat_auth       => $chat_auth->create_token,
+        chat_admin	=> $empire->chat_admin ? \1 : \0,
     };
     if ($empire->alliance_id) {
         $ret->{private_room} = {
