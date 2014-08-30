@@ -7,6 +7,7 @@ extends 'Lacuna::RPC';
 use Firebase::Auth;
 use Firebase;
 use Gravatar::URL;
+use Ouch;
 
 sub init_chat {
     my ($self, $session_id) = @_;
@@ -30,27 +31,42 @@ sub init_chat {
     );
     my $chat_name = $empire->name;
 
-if (0) {
-#    if ($empire->alliance_id) {
-#        $chat_name .= " (".$empire->alliance->name.")";
-    	my $room = $firebase->get('room-metadata/'.$empire->alliance_id);
-        if (defined $room) {
-            $firebase->patch('room-metadata/'.$empire->alliance_id.'/authorizedUsers', {
-                $empire->id => \1
-            });
+    if ($empire->alliance_id) {
+        $chat_name .= " (".$empire->alliance->name.")";
+    	my $room = eval { $firebase->get('room-metadata/'.$empire->alliance_id) };
+        if ($@) {
+  	     warn bleep;
+        }
+        elsif (defined $room) {
+             eval {
+            	$firebase->patch('room-metadata/'.$empire->alliance_id.'/authorizedUsers', {
+                	$empire->id => \1
+           	});
+	     };
+             if ($@) {
+                warn bleep;
+             }
         }
         else {
-            $firebase->put('room-metadata/'.$empire->alliance_id, {
-                id              => $empire->alliance_id,
-                name            => $empire->alliance->name,
-                type            => 'private',
-                createdByUserId => $empire->id,
-                '.priority'     => {'.sv' => 'timestamp'},
-                authorizedUsers => {$empire->id => \1},
-            });
+            eval { 
+	            $firebase->put('room-metadata/'.$empire->alliance_id, {
+        	        id              => $empire->alliance_id,
+                	name            => $empire->alliance->name,
+	                type            => 'private',
+        	        createdByUserId => $empire->id,
+                	'.priority'     => {'.sv' => 'timestamp'},
+	                authorizedUsers => {$empire->id => \1},
+        	    });
+	    };
+	    if ($@) {
+		warn bleep;
+	    }
         }
     }
-    my $gravatar_id = gravatar_id($empire->email||$empire->id.'@example.com');
+    if ($empire->chat_admin) {
+        $chat_name .= " <ADMIN>";
+    }
+    my $gravatar_id = gravatar_id($empire->email);
     my $gravatar_url = gravatar_url(
         email   => $empire->email,
         default => 'monsterid',
@@ -63,8 +79,7 @@ if (0) {
         chat_auth       => $chat_auth->create_token,
         chat_admin	=> $empire->chat_admin ? \1 : \0,
     };
-if (0) {
-#    if ($empire->alliance_id) {
+    if ($empire->alliance_id) {
         $ret->{private_room} = {
             id          => $empire->alliance_id,
             name        => $empire->alliance->name,
