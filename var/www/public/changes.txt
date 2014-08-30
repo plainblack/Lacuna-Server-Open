@@ -1,3 +1,15 @@
+3.0906:
+ - Mod: Damaged Gauntlet gives more granular infiltration time
+ - Mod: Spies take a break after teleporting home
+ - Fix: Removed any chance of inter-alliance voting
+ - Fix: Some fixes to the send_ship_types API call
+ - Mod: Improved unsustainable message to make it clearer.
+ - Add: inbox trash_messages_where API call
+ - Mod: Observatory now displays 30 rows not 25
+ - Mod: Option to send scows back home without any waste
+ - Add: Add API to retrieve the highest Embassy in your empire
+ - Add: POD timer is now on PCC with varying timer based on PCC level
+
 3.0905:
  - Mod: Replaced Envolve chat with ChiselChat
 
