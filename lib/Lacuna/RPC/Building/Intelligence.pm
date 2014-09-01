@@ -22,7 +22,15 @@ sub view_spies {
     my @spies;
     my $body = $building->body;
     my %planets = ( $body->id => $body );
-    my $spy_list = $building->get_spies->search({}, { rows => 30, page => $page_number});
+    my $spy_list = $building->get_spies->search(
+                                                {}, {
+                                                    rows => 30,
+                                                    page => $page_number,
+                                                    # match the order_by in L::RPC::B::SpacePort::prepare_send_spies
+                                                    order_by => {
+                                                        -asc => [ qw/name id/ ]
+                                                    }
+                                                });
     my $cost_to_subsidize = 0;
     while (my $spy = $spy_list->next) {
         if (exists $planets{$spy->on_body_id}) {
