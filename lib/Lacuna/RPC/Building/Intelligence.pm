@@ -27,6 +27,7 @@ sub view_spies {
                                                     rows => 30,
                                                     page => $page_number,
                                                     # match the order_by in L::RPC::B::SpacePort::prepare_send_spies
+                                                    # and in L::RPC::B::MercinariesGuild::get_spies
                                                     order_by => {
                                                         -asc => [ qw/name id/ ]
                                                     }

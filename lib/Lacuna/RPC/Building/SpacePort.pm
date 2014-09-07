@@ -510,7 +510,7 @@ sub prepare_send_spies {
                 ],
             ],
         },
-        { 
+        {
             # match the order_by in L::RPC::B::Intelligence::view_spies
             order_by => {
                 -asc => [ qw/name id/ ],
