@@ -860,7 +860,8 @@ sub start_upgrade {
     
     # set time to build, plus what's in the queue
     my $now = DateTime->now;
-    my $upgrade_ends = $in_parallel ? $now : $body->get_existing_build_queue_time;
+    my $upgrade_ends = $in_parallel || $body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')
+        ? $now : $body->get_existing_build_queue_time;
     if ($upgrade_ends < $now) {
         $upgrade_ends = $now;
     }
