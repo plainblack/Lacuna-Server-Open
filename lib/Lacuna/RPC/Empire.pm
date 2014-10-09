@@ -93,7 +93,7 @@ sub login {
             chat_admin  => $empire->chat_admin ? \1 : \0,
         }
      #   data   => $data,
-    )->create_token;
+     )->create_token if $firebase_config->{auth}{secret};
 
     if ($empire->is_password_valid($password)) {
         if ($empire->stage eq 'new') {
