@@ -187,7 +187,7 @@ sub abandon_excavator {
         status  => $self->format_status($empire, $building->body),
     };
 }
-  
+
 sub mass_abandon_excavators {
     my ($self, $session_id, $building_id, $ship_ids) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -198,7 +198,7 @@ sub mass_abandon_excavators {
     }; 
 }
 
-__PACKAGE__->register_rpc_method_names(qw(get_ores_available_for_processing assemble_glyphs search_for_glyph get_glyphs get_glyph_summary subsidize_search view_excavators abandon_excavator));
+__PACKAGE__->register_rpc_method_names(qw(get_ores_available_for_processing assemble_glyphs search_for_glyph get_glyphs get_glyph_summary subsidize_search view_excavators abandon_excavator mass_abandon_excavator));
 
 
 no Moose;

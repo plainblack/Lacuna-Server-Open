@@ -164,7 +164,7 @@ sub remove_cargo_ship_from_fleet {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(view_platforms view_ships abandon_platform remove_cargo_ship_from_fleet add_cargo_ship_to_fleet));
+__PACKAGE__->register_rpc_method_names(qw(view_platforms view_ships abandon_platform remove_cargo_ship_from_fleet add_cargo_ship_to_fleet mass_abandon_platform));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
