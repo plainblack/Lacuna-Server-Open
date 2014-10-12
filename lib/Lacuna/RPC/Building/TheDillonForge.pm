@@ -75,6 +75,8 @@ sub _forge_tasks {
     my @split_plans;
 PLAN:
     for my $plan (@{$body->plan_cache}) {
+        # cannot split platform plans
+        next PLAN if $plan->class =~ /Platform$/;
         # Can only split plans with recipes
         my $glyphs = Lacuna::DB::Result::Plan->get_glyph_recipe($plan->class);
         next PLAN if not $glyphs;
