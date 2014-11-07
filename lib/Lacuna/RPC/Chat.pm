@@ -20,8 +20,9 @@ sub init_chat {
         secret  => $firebase_config->{auth}{secret},
 #        debug   => \1,
         data    => {
-            id          => $empire->id,
-            chat_admin  => $empire->chat_admin ? \1 : \0,
+            uid          => $empire->id,
+            isModerator => $empire->chat_admin ? \1 : \0,
+            isStaff => $empire->is_admin ? \1 : \0,
         }
      #   data   => $data,
     );
@@ -77,7 +78,8 @@ sub init_chat {
         gravatar_url    => $gravatar_url,
         chat_name       => $chat_name,
         chat_auth       => $chat_auth->create_token,
-        chat_admin	=> $empire->chat_admin ? \1 : \0,
+        isStaff         => $empire->is_admin   ? \1 : \0,
+        isModerator     => $empire->chat_admin ? \1 : \0,
     };
     if ($empire->alliance_id) {
         $ret->{private_room} = {

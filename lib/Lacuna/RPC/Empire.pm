@@ -89,8 +89,9 @@ sub login {
     my $auth_code = Firebase::Auth->new( 
         secret  => $firebase_config->{auth}{secret}, 
         data    => {
-            id          => $empire->id,
-            chat_admin  => $empire->chat_admin ? \1 : \0,
+            uid          => $empire->id,
+            isModerator => $empire->chat_admin ? \1 : \0,
+            isStaff => $empire->is_admin ? \1 : \0,
         }
      #   data   => $data,
     )->create_token;
