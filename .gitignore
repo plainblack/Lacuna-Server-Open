@@ -9,3 +9,5 @@ etc/mime.types
 etc/nginx.conf
 var/www/public/index.html
 
+bin/schedule_building.pid
+bin/schedule_ship_arrival.pid
