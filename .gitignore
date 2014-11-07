@@ -1,7 +1,5 @@
-etc/lacuna.conf
 bin/schedule_building.pid
 bin/schedule_ship_arrival.pid
-var/www/public/api
 bin/setup/server/*.gz
 bin/setup/server/*.rpm
 bin/setup/server/*/
@@ -10,3 +8,4 @@ etc/log4perl.conf
 etc/mime.types
 etc/nginx.conf
 var/www/public/index.html
+var/www/public/api
