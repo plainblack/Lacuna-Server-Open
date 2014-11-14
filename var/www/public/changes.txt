@@ -9,6 +9,9 @@
  - Mod: Option to send scows back home without any waste
  - Add: Add API to retrieve the highest Embassy in your empire
  - Add: POD timer is now on PCC with varying timer based on PCC level
+ - Mod: Update ChiselChat
+ - Mod: Plan list sorting now done more naturally
+ - Mod: Improve message handling speed (deleting, archiving)
 
 3.0905:
  - Mod: Replaced Envolve chat with ChiselChat
