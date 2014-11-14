@@ -198,7 +198,7 @@ sub change_password {
         ->eq($password2);
 
     my $empire = $self->get_empire_by_session($session_id);
-    if ($empire->current_session->is_sitter) {
+    if ($empire->has_current_session && $empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot modify the main account password.'];
     }
     
@@ -387,7 +387,7 @@ sub get_status {
 sub view_profile {
     my ($self, $session_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    if ($empire->current_session->is_sitter) {
+    if ($empire->has_current_session && $empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot modify preferences.'];
     }
     my $medals = $empire->medals;
@@ -439,7 +439,7 @@ sub edit_profile {
     my $empire = $self->get_empire_by_session($session_id);
     
     # preferences
-    if ($empire->current_session->is_sitter) {
+    if ($empire->has_current_session && $empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot modify preferences.'];
     }
     if (exists $profile->{description}) {

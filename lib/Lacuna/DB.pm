@@ -48,8 +48,18 @@ sub empire {
     my $empires = $self->resultset('Empire');
     my $where = $self->_where(name => $id);
 
-    $empires->find($where)->single;
+    $empires->find($where);
 }
+
+sub empires {
+    my ($self, $id) = @_;
+
+    my $empires = $self->resultset('Empire');
+    my $where = $self->_where(name => $id);
+
+    $empires->search($where);
+}
+
 
 sub body {
     my ($self, $id) = @_;
@@ -60,11 +70,28 @@ sub body {
     $bodies->find($where);
 }
 
+sub bodies {
+    my ($self, $id) = @_;
+
+    my $bodies = $self->resultset('Map::Body');
+    my $where = $self->_where(name => $id);
+
+    $bodies->search($where);
+}
+
 # similarly, a lot of typing can be saved with Lacuna->db->building($id)
 sub building {
     my ($self, $building_id) = @_;
-    my $building = $self->resultset('Building')->find($building_id);
+    $self->resultset('Building')->find($building_id);
 }
+
+
+sub buildings {
+    my ($self, $id) = @_;
+    my $where = $self->_where(name => $id);
+    $self->resultset('Building')->search($where);
+}
+
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
