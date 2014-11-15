@@ -190,4 +190,17 @@ The unique id of the archaeology ministry.
 The unique id of the excavator site you wish to abandon.
 
 
+=head2 mass_abandon_excavator ( session_id, building_id, ship_ids )
+
+Destroy all excavators.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id for the archaeology ministry.
+
+
 =cut

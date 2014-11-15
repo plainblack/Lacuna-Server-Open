@@ -860,6 +860,35 @@ A session id.
 
 The unique id of the parliament.
 
+=head2 propose_members_only_excavation ( session_id, building_id )
+
+If passed, only members of the alliance would be able to set up new colonies on planets in this station's jurisdiction. Usable at parliament level 18.
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Members Only Excavation",
+        "description" : "Only members of The Federation of Planets should be allowed to excavate planets in the jurisdiction of this station.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
 
 =head2 propose_neutralize_bhg ( session_id, building_id )
 

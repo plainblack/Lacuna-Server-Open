@@ -97,6 +97,16 @@ sub abandon_platform {
     };
 }
 
+sub mass_abandon_platform {
+    my ($self, $session_id, $building_id, $ship_ids) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+	$building->platforms->delete;
+	return {
+        status  => $self->format_status($empire, $building->body),
+    }; 
+}
+
 sub add_cargo_ship_to_fleet {
     my ($self, $session_id, $building_id, $ship_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -154,7 +164,7 @@ sub remove_cargo_ship_from_fleet {
 }
 
 
-__PACKAGE__->register_rpc_method_names(qw(view_platforms view_ships abandon_platform remove_cargo_ship_from_fleet add_cargo_ship_to_fleet));
+__PACKAGE__->register_rpc_method_names(qw(view_platforms view_ships abandon_platform remove_cargo_ship_from_fleet add_cargo_ship_to_fleet mass_abandon_platform));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
