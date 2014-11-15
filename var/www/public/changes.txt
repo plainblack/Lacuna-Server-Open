@@ -12,6 +12,11 @@
  - Mod: Update ChiselChat
  - Mod: Plan list sorting now done more naturally
  - Mod: Improve message handling speed (deleting, archiving)
+ - Fix: Don't list platform plans for splitting in Dillon Forge
+ - Fix: Disable self-destruct works again.
+ - Fix: Building/upgrade on SS has all buildings in parallel
+ - Add: mass_abandon_excavator and mass_abandon_platform APIs
+ - Mod: spy lists in intel min, merc guild, send-spy tab all use the same ordering
 
 3.0905:
  - Mod: Replaced Envolve chat with ChiselChat
