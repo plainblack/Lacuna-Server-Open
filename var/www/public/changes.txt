@@ -1,22 +1,21 @@
 3.0906:
- - Mod: Damaged Gauntlet gives more granular infiltration time
- - Mod: Spies take a break after teleporting home
- - Fix: Removed any chance of inter-alliance voting
  - Fix: Some fixes to the send_ship_types API call
- - Mod: Improved unsustainable message to make it clearer.
- - Add: inbox trash_messages_where API call
- - Mod: Observatory now displays 30 rows not 25
- - Mod: Option to send scows back home without any waste
- - Add: Add API to retrieve the highest Embassy in your empire
- - Add: POD timer is now on PCC with varying timer based on PCC level
- - Mod: Update ChiselChat
- - Mod: Plan list sorting now done more naturally
- - Mod: Improve message handling speed (deleting, archiving)
  - Fix: Don't list platform plans for splitting in Dillon Forge
  - Fix: Disable self-destruct works again.
  - Fix: Building/upgrade on SS has all buildings in parallel
- - Add: mass_abandon_excavator and mass_abandon_platform APIs
+ - Mod: Damaged Gauntlet gives more granular infiltration time
+ - Mod: Spies take a break after teleporting home
+ - Mod: Improved unsustainable message to make it clearer.
+ - Mod: Observatory now displays 30 rows not 25
+ - Mod: Option to send scows back home without any waste
+ - Mod: Update ChiselChat
+ - Mod: Plan list sorting now done more naturally
+ - Mod: Improve message handling speed (deleting, archiving)
  - Mod: spy lists in intel min, merc guild, send-spy tab all use the same ordering
+ - Add: mass_abandon_excavator and mass_abandon_platform APIs
+ - Add: Inbox API call added: trash_messages_where
+ - Add: Add API call to retrieve the highest Embassy in your empire: highest_embassy
+ - Add: POD timer is now on PCC with varying timer based on PCC level
 
 3.0905:
  - Mod: Replaced Envolve chat with ChiselChat
