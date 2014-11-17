@@ -188,8 +188,8 @@ sub abandon_excavator {
     };
 }
 
-sub mass_abandon_excavators {
-    my ($self, $session_id, $building_id, $ship_ids) = @_;
+sub mass_abandon_excavator {
+    my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
 	$building->excavators->delete;

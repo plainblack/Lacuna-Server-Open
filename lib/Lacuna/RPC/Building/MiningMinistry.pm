@@ -98,7 +98,7 @@ sub abandon_platform {
 }
 
 sub mass_abandon_platform {
-    my ($self, $session_id, $building_id, $ship_ids) = @_;
+    my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
 	$building->platforms->delete;
