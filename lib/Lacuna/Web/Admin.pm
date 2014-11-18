@@ -804,6 +804,10 @@ sub format_complex_paginator {
     return $out;
 }
 
+=for later
+
+MUCH later.
+
 sub www_delete_empire {
     my ($self, $request, $id) = @_;
     $id ||= $request->param('empire_id');
@@ -819,6 +823,8 @@ sub www_delete_empire {
     $empire->delete;
     return $self->www_search_empires($request);
 }
+
+=cut
 
 sub www_toggle_isolationist {
     my ($self, $request, $id) = @_;
@@ -950,7 +956,7 @@ sub www_view_empire {
     $out .= sprintf('<li><a href="/admin/become/empire?empire_id=%s">Become This Empire In-Game</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/search/bodies?empire_id=%s">View All Colonies</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/send/test/message?empire_id=%s">Send Developer Test Email</a></li>', $empire->id);
-    $out .= sprintf('<li><a href="/admin/delete/empire?empire_id=%s" onclick="return confirm(\'Are you sure?\')">Delete Empire</a> (Be Careful)</li>', $empire->id);
+    #$out .= sprintf('<li><a href="/admin/delete/empire?empire_id=%s" onclick="return confirm(\'Are you sure?\')">Delete Empire</a> (Be Careful)</li>', $empire->id);
     $out .= '</ul>';
     return $self->wrap($out);
 }
