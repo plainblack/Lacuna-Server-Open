@@ -306,6 +306,10 @@ sub task_chance {
         if ($return->{throw} > 0) {
             return $return;
         }
+        ($return->{throw}, $return->{reason}) = check_neutral_violation($body, $target, $task);
+        if ($return->{throw} > 0) {
+            return $return;
+        }
     }
     unless ( grep { $target_type eq $_ } @{$task->{types}} ) {
         $return->{throw}   = 1009;
@@ -399,6 +403,43 @@ sub check_bhg_neutralized {
         }
     }
     return 0, "";
+}
+
+sub check_neutral_violation {
+    my ($body, $target, $task) = @_;
+
+    my $throw; my $reason;
+    my $nz_param = Lacuna->config->get('neutral_area');
+    return 0,"" unless $nz_param;
+    return 0 if $body->in_neutral_area;
+    my $target_in = 0;
+    if (ref $target eq 'HASH') {
+        my $tstar = $target->{star};
+        $target_in = $tstar->in_neutral_area;
+        $target = $tstar;
+    }
+    else {
+        $target_in = $target->in_neutral_area;
+    }
+    return 0 unless $target_in;
+    if ($task->{name} eq "Jump Zone" or $task->{name} eq "Swap Places") {
+        if ( $body->has_outgoing_ships(100) ) {
+            $throw = 1009;
+            $reason = sprintf("Colony %s has travelling ships, disallowing a jump to the Neutral Area.", $body->name);
+            return $throw, $reason;
+        }
+    }
+    elsif ($task->{name} eq "Move System") {
+        my $bodies = Lacuna->db->resultset('Map::Body')->search({star_id => [ $body->star_id ]});
+        while (my $obody = $bodies->next) {
+            if ( $obody->has_outgoing_ships(100) ) {
+                $throw = 1009;
+                $reason = sprintf("Colony %s has travelling ships, disallowing a jump to the Neutral Area.", $obody->name);
+                return $throw, $reason;
+            }
+        }
+    }
+    return 0;
 }
 
 sub check_starter_zone {

@@ -779,6 +779,17 @@ sub find_free_space {
     confess [1009, 'No free space found.'];
 }
 
+sub has_outgoing_ships {
+    my ($self, $min) = @_;
+    my $ships = Lacuna->db->resultset('Ships')->search({
+            body_id         => $self->id,
+            task            => 'Travelling',
+    });
+    my $count = $ships->count;
+    return 1 if $count >= $min;
+    return 0;
+}
+
 sub check_for_available_build_space {
     my ($self, $unclean_x, $unclean_y) = @_;
     my $x = int( $unclean_x );
