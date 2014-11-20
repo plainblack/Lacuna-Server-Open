@@ -432,6 +432,7 @@ sub check_neutral_violation {
     elsif ($task->{name} eq "Move System") {
         my $bodies = Lacuna->db->resultset('Map::Body')->search({star_id => [ $body->star_id ]});
         while (my $obody = $bodies->next) {
+            next unless (defined($obody->empire));
             if ( $obody->has_outgoing_ships(100) ) {
                 $throw = 1009;
                 $reason = sprintf("Colony %s has travelling ships, disallowing a jump to the Neutral Area.", $obody->name);

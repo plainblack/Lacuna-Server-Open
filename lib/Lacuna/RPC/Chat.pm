@@ -64,8 +64,11 @@ sub init_chat {
 	    }
         }
     }
-    if ($empire->chat_admin) {
+    if ($empire->is_admin) {
         $chat_name .= " <ADMIN>";
+    }
+    elsif ($empire->chat_admin) {
+        $chat_name .= " <MOD>";
     }
     my $gravatar_id = gravatar_id($empire->email);
     my $gravatar_url = gravatar_url(
