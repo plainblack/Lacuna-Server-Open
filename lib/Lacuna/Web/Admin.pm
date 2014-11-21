@@ -842,6 +842,10 @@ sub www_toggle_isolationist {
     return $self->www_view_empire($request, $id);
 }
 
+=for probably never
+
+Admins are added/removed so rarely, it shouldn't be done so trivially
+
 sub www_toggle_admin {
     my ($self, $request, $id) = @_;
     $id ||= $request->param('id');
@@ -857,6 +861,8 @@ sub www_toggle_admin {
     }
     return $self->www_view_empire($request, $id);
 }
+
+=cut
 
 sub www_toggle_mission_curator {
     my ($self, $request, $id) = @_;
@@ -950,7 +956,7 @@ sub www_view_empire {
     $out .= sprintf('<tr><th>Description</th><td>%s</td><td></td></tr>', $empire->description);
     $out .= sprintf('<tr><th>University Level</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/change/university/level"><input type="hidden" name="id" value="%s"><input name="university_level" style="width: 30px;" value="0"><input type="submit" value="change"></form></td></tr>', $empire->university_level, $empire->id);
     $out .= sprintf('<tr><th>Isolationist</th><td>%s</td><td><a href="/admin/toggle/isolationist?id=%s">Toggle</a></td></tr>', $empire->is_isolationist, $empire->id);
-    $out .= sprintf('<tr><th>Admin</th><td>%s</td><td><a href="/admin/toggle/admin?id=%s">Toggle</a></td></tr>', $empire->is_admin, $empire->id);
+    $out .= sprintf('<tr><th>Admin</th><td>%s</td></tr>', $empire->is_admin);
     $out .= sprintf('<tr><th>Mission Curator</th><td>%s</td><td><a href="/admin/toggle/mission/curator?id=%s">Toggle</a></td></tr>', $empire->is_mission_curator, $empire->id);
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/become/empire?empire_id=%s">Become This Empire In-Game</a></li>', $empire->id);
