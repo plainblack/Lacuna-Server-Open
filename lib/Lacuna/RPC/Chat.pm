@@ -32,7 +32,8 @@ sub init_chat {
     );
     my $chat_name = $empire->name;
 
-    if ($empire->alliance_id) {
+if (0) {
+#    if ($empire->alliance_id) {
         $chat_name .= " (".$empire->alliance->name.")";
     	my $room = eval { $firebase->get('room-metadata/'.$empire->alliance_id) };
         if ($@) {
@@ -84,7 +85,8 @@ sub init_chat {
         isStaff         => $empire->is_admin   ? \1 : \0,
         isModerator     => $empire->chat_admin ? \1 : \0,
     };
-    if ($empire->alliance_id) {
+    if (0) {
+#    if ($empire->alliance_id) {
         $ret->{private_room} = {
             id          => $empire->alliance_id,
             name        => $empire->alliance->name,
