@@ -31,13 +31,17 @@ sub init_chat {
         authobj     => $chat_auth,
     );
     my $chat_name = $empire->name;
-
+    my $aname;
+    $chat_name =~ s/[^0-9a-zA-Z_ ]/_/g;
+    $chat_name =~ s/__*/_/g;
     if ($empire->alliance_id) {
-        $chat_name .= " (".$empire->alliance->name.")";
+        $aname = $empire->alliance->name;
+        $aname =~ s/[^0-9a-zA-Z_ ]/_/g;
+        $aname =~ s/__*/_/g;
+        $chat_name .= " (".$aname.")";
     }
     if (0) {
 #    if ($empire->alliance_id) {
-        $chat_name .= " (".$empire->alliance->name.")";
     	my $room = eval { $firebase->get('room-metadata/'.$empire->alliance_id) };
         if ($@) {
   	     warn bleep;
@@ -56,7 +60,8 @@ sub init_chat {
             eval { 
 	            $firebase->put('room-metadata/'.$empire->alliance_id, {
         	        id              => $empire->alliance_id,
-                	name            => $empire->alliance->name,
+#                	name            => $empire->alliance->name,
+                	name            => $aname,
 	                type            => 'private',
         	        createdByUserId => $empire->id,
                 	'.priority'     => {'.sv' => 'timestamp'},
@@ -68,12 +73,12 @@ sub init_chat {
 	    }
         }
     }
-    if ($empire->is_admin) {
-        $chat_name .= " <ADMIN>";
-    }
-    elsif ($empire->chat_admin) {
-        $chat_name .= " <MOD>";
-    }
+#    if ($empire->is_admin) {
+#        $chat_name .= " <ADMIN>";
+#    }
+#    elsif ($empire->chat_admin) {
+#        $chat_name .= " <MOD>";
+#    }
     my $gravatar_id = gravatar_id($empire->email);
     my $gravatar_url = gravatar_url(
         email   => $empire->email,
@@ -92,7 +97,7 @@ sub init_chat {
 #    if ($empire->alliance_id) {
         $ret->{private_room} = {
             id          => $empire->alliance_id,
-            name        => $empire->alliance->name,
+            name        => $aname,
         };
     }
     return $ret;
