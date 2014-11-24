@@ -32,7 +32,10 @@ sub init_chat {
     );
     my $chat_name = $empire->name;
 
-if (0) {
+    if ($empire->alliance_id) {
+        $chat_name .= " (".$empire->alliance->name.")";
+    }
+    if (0) {
 #    if ($empire->alliance_id) {
         $chat_name .= " (".$empire->alliance->name.")";
     	my $room = eval { $firebase->get('room-metadata/'.$empire->alliance_id) };
