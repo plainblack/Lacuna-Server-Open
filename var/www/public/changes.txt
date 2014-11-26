@@ -1,3 +1,6 @@
+3.0907:
+ - Add: Timer added to colony object preventing passage into Neutral Zone.
+
 3.0906:
  - Fix: Some fixes to the send_ship_types API call.
  - Fix: Don't list platform plans for splitting in Dillon Forge.
