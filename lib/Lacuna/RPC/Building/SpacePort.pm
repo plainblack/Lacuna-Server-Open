@@ -220,6 +220,7 @@ sub send_ship {
     if ($ship->hostile_action) {
         $empire->current_session->check_captcha;
     }
+    $body->add_to_neutral_entry($ship->combat);
     $ship->send(target => $target);
     return {
         ship    => $ship->get_status,
@@ -331,6 +332,7 @@ sub send_ship_types {
     }
     # If we get here without exceptions, then all ships can be sent
     foreach my $ship (values %$ship_ref) {
+        $body->add_to_neutral_entry($ship->combat);
         $ship->fleet_speed(1);
         $ship->send(target => $target, arrival => $arrival);
     }
@@ -384,6 +386,7 @@ sub send_fleet {
       $empire->current_session->check_captcha;
       $captcha_check = 0;
     }
+    $body->add_to_neutral_entry($ship->combat);
     $ship->fleet_speed($speed);
     $ship->send(target => $target);
     push @ret, {

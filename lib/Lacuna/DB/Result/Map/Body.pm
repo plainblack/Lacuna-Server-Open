@@ -129,6 +129,7 @@ __PACKAGE__->add_columns(
     unhappy_date                    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     unhappy                         => { data_type => 'tinyint', default_value => 0 },
     propaganda_boost                => { data_type => 'int',  default_value => 0 },
+    neutral_entry                   => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
 );
 
 after 'sqlt_deploy_hook' => sub {
@@ -400,6 +401,23 @@ sub is_bhg_neutralized {
         }
     }
     return 0;
+}
+
+sub add_to_neutral_entry {
+    my ($self, $seconds) = @_;
+
+    my $dtf = Lacuna->db->storage->datetime_parser;
+    my $now = DateTime->now;
+    if ($self->neutral_entry < $now) {
+        $self->neutral_entry($now->add(seconds => $seconds));
+    }
+    else {
+        $self->neutral_entry->clone->add(seconds => $seconds);
+        my $day_30 = $now->add(days => 30);
+        $self->neutral_entry($day_30) if ($self->neutral_entry > $day_30);
+    }
+    $self->update;
+    return 1;
 }
 
 no Moose;

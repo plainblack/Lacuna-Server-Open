@@ -742,6 +742,8 @@ sub run_mission {
         $hfa = $defender->home_field_advantage;
     }
     my $breakthru = ($power - $toughness - $hfa) + $self->luck;
+
+    $self->on_body->add_to_neutral_entry($power);
     
     $breakthru = ( randint(0,99) < 5) ? $breakthru * -1 : $breakthru;
     # handle outcomes and xp
@@ -856,7 +858,7 @@ sub run_security_sweep {
   }
   my $breakthru = ($power - $toughness + $self->home_field_advantage) + $self->luck;
   $breakthru = ( randint(0,99) < 5) ? $breakthru * -1 : $breakthru;
-    
+
   # handle outcomes and xp
   my $out;
   if ($breakthru < 0) {

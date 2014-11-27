@@ -538,6 +538,7 @@ around get_status => sub {
                     $out->{propaganda_boost} = $self->propaganda_boost;
                     $out->{propaganda_boost} = 50 if ($out->{propaganda_boost} > 50);
                 }
+                $out->{neutral_entry} = format_date($self->neutral_entry);
             }
             elsif ($empire->alliance_id && $self->empire->alliance_id == $empire->alliance_id) {
                 $out->{empire}{alignment} = $self->empire->is_isolationist ? 'ally-isolationist' : 'ally';
