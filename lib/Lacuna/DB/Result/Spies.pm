@@ -743,7 +743,8 @@ sub run_mission {
     }
     my $breakthru = ($power - $toughness - $hfa) + $self->luck;
 
-    $self->on_body->add_to_neutral_entry($power);
+    $self->from_body->add_to_neutral_entry($mission->{recovery});
+    $self->on_body->subtract_from_neutral_entry(int($mission->{recovery}/2));
     
     $breakthru = ( randint(0,99) < 5) ? $breakthru * -1 : $breakthru;
     # handle outcomes and xp

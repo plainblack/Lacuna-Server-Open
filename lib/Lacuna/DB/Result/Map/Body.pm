@@ -406,15 +406,27 @@ sub is_bhg_neutralized {
 sub add_to_neutral_entry {
     my ($self, $seconds) = @_;
 
-    my $dtf = Lacuna->db->storage->datetime_parser;
     my $now = DateTime->now;
     if ($self->neutral_entry < $now) {
         $self->neutral_entry($now->add(seconds => $seconds));
     }
     else {
-        $self->neutral_entry->clone->add(seconds => $seconds);
+        $self->neutral_entry($self->neutral_entry->add(seconds => $seconds));
         my $day_30 = $now->add(days => 30);
         $self->neutral_entry($day_30) if ($self->neutral_entry > $day_30);
+    }
+    $self->update;
+    return 1;
+}
+
+sub subtract_from_neutral_entry {
+    my ($self, $seconds) = @_;
+
+    my $now = DateTime->now;
+    my $time_ends = $self->neutral_entry->clone->subtract(seconds => $seconds);
+    $self->neutral_entry($time_ends);
+    if ($self->neutral_entry < $now) {
+        $self->neutral_entry($now);
     }
     $self->update;
     return 1;
