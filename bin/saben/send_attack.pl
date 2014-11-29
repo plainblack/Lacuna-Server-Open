@@ -48,13 +48,14 @@ while (my $attacking_colony = $colonies->next) {
         out('Attacked recently from '.$attacking_colony->name);
         next;
     }
-    $ai->destroy_world($attacking_colony);
 
-    out('Finding target body to attack...');
     if ($attacking_colony->in_neutral_area or $attacking_colony->in_starter_zone) {
         out($attacking_colony->name." in Neutral Area or a Starting Zone, skipping.");
         next;
     }
+    $ai->destroy_world($attacking_colony);
+    out('Finding target body to attack...');
+
     my $targets = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
         empire_id                   => { '>' => 1 },
         is_isolationist             => 0,

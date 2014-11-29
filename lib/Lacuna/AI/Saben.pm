@@ -147,7 +147,7 @@ sub run_hourly_colony_updates {
 sub destroy_world {
     my ($self, $colony) = @_;
     if ($colony->is_bhg_neutralized) {
-        say "BHG is neutralized by a space station.";
+        say sprintf("BHG of %s is neutralized by a space station.",$colony->name);
         return;
     }
     my $enemies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')
