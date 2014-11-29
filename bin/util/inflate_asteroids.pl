@@ -47,7 +47,7 @@ my @rocks = $rocks_rs->search(
 out('Found '.scalar @rocks.' asteroids.');
 
 my $changed = 0; my $unchanged = 0;
-foreach my $id (sort { 5 > randint(10) } @rocks) {
+foreach my $id (sort { 5 > rand(10) } @rocks) {
     my $rock = $rocks_rs->find($id);
     next unless ($rock->get_type eq 'asteroid');
 

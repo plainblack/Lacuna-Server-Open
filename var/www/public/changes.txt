@@ -1,5 +1,6 @@
 3.0907:
  - Add: Timer added to colony object preventing passage into Neutral Zone.
+ - Add: colonies and stations added to empire stat. planets kept to maintain backwards compatibility
 
 3.0906:
  - Fix: Some fixes to the send_ship_types API call.
