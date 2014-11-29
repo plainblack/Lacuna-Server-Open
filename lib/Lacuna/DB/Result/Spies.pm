@@ -486,9 +486,18 @@ sub is_available {
                 $self->on_body->update;
                 if (!$self->empire->alliance_id || $self->empire->alliance_id != $self->on_body->empire->alliance_id ) {
                     my $seconds = 3600;
-                    my $gauntlet = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::GratchsGauntlet');
+                    my $onbody = $self->on_body;
+                    my $building = 'Permanent::GratchsGauntlet';
+                    my $uni_level = $body->empire->university_level;
+                    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+                        $building = 'Module::PoliceStation';
+                        $uni_level = 30;  #This way, uni level doesn't matter with SS
+                    }
+                    my $gauntlet = $body->get_building_of_class('Lacuna::DB::Result::Building::'.$building);
                     if (defined $gauntlet) {
-                        $seconds += int(3600 * (($gauntlet->level * 3 * $gauntlet->efficiency)/100 + 1));
+                        my $level = $gauntlet->level;
+                        $level = $uni_level if ($level > $uni_level);
+                        $seconds += int(3600 * (($level * 3 * $gauntlet->efficiency)/100 + 1));
                     }
 
                     my $infiltration_time = $self->available_on->clone->add(seconds => $seconds);
