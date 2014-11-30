@@ -1,0 +1,7 @@
+On Way Home
+~~~
+I managed to give {Empire %s %s}'s goons the slip and am heading away from {Starmap %s %s %s}. I'll be home soon.
+
+Regards,
+
+%s of {Planet %s %s}

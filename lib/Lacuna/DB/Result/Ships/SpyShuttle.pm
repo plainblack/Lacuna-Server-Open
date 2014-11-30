@@ -27,6 +27,7 @@ with "Lacuna::Role::Ship::Send::LoadWithSpies";
 with "Lacuna::Role::Ship::Send::IsHostile";
 with "Lacuna::Role::Ship::Arrive::CaptureWithSpies";
 with "Lacuna::Role::Ship::Arrive::Orbit";
+with "Lacuna::Role::Ship::Arrive::PickUpSpies";
 with "Lacuna::Role::Ship::Arrive::CargoExchange";
 
 no Moose;

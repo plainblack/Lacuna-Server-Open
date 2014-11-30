@@ -12,6 +12,7 @@ after handle_arrival_procedures => sub {
 	# only orbit on arrival to the foreign body
 	return if $self->direction eq 'in';
 
+        return if ( $self->payload->{fetch_spies} ); # Don't orbit if we're fetching
 	$self->orbit->update;
 
 	confess [-1];
