@@ -26,7 +26,6 @@ with "Lacuna::Role::Ship::Send::NotIsolationist";
 with "Lacuna::Role::Ship::Send::LoadWithSpies";
 with "Lacuna::Role::Ship::Send::IsHostile";
 with "Lacuna::Role::Ship::Arrive::CaptureWithSpies";
-with "Lacuna::Role::Ship::Arrive::PickUpSpies";
 with "Lacuna::Role::Ship::Arrive::CargoExchange";
 with "Lacuna::Role::Ship::Arrive::Scuttle";
 

@@ -62,6 +62,7 @@ after handle_arrival_procedures => sub {
     #    object_type => ref($self),
     #    object_id   => $self->id,
     #})->insert;
+    confess [-1];
 };
 
 1;

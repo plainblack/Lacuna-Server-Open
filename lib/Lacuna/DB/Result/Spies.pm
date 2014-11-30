@@ -279,7 +279,7 @@ sub neutral_assignments {
             {
                 task        =>'Bugout',
                 recovery    => 0,
-                skill       => '*',
+                skill       => 'intel',
             },
         );    
     }

@@ -639,7 +639,7 @@ sub prepare_fetch_spies {
     }
 
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
-        {type => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
+        {type => { in => [qw(cargo_ship smuggler_ship dory spy_shuttle barge)]},
          task=>'Docked', body_id => $to_body_id,
          berth_level => {'<=' => $max_berth } },
         {order_by => 'name', rows=>100}
