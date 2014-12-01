@@ -46,7 +46,7 @@ sub colony_structures {
     return (
         ['Lacuna::DB::Result::Building::Waste::Sequestration', 20],
         ['Lacuna::DB::Result::Building::Intelligence', 15],
-        ['Lacuna::DB::Result::Building::Security', 15],
+        ['Lacuna::DB::Result::Building::Security', 5],
         ['Lacuna::DB::Result::Building::Shipyard', 15],
         ['Lacuna::DB::Result::Building::Shipyard', 15],
         ['Lacuna::DB::Result::Building::Shipyard', 15],
