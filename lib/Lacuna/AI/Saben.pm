@@ -139,7 +139,7 @@ sub run_hourly_colony_updates {
     $self->set_defenders($colony);
     $self->pod_check($colony, 25);
     $self->repair_buildings($colony);
-    $self->train_spies($colony,1);
+    $self->train_spies($colony,50, 1);
     $self->build_ships($colony);
     $self->run_missions($colony);
 }

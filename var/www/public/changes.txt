@@ -5,6 +5,7 @@
  - Add: Sabotage Defenses task added for spies.
  - Add: Bugout task for spies added to get spies home.
  - Mod: Replace cheap plastic parts on Space Station with steel.
+ - Mod: Slight tweaking of AI behaviours.
 
 3.0906:
  - Fix: Some fixes to the send_ship_types API call.
