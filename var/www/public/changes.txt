@@ -1,3 +1,6 @@
+3.0908:
+ - Mod: trash_messages_where now defaults to not returning deleted message IDs
+
 3.0907:
  - Add: Timer added to colony object preventing passage into Neutral Zone.
  - Add: colonies and stations added to empire stat. planets kept to maintain backwards compatibility

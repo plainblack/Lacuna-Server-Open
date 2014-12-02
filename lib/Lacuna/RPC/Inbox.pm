@@ -7,6 +7,7 @@ extends 'Lacuna::RPC';
 use DateTime;
 use Lacuna::Verify;
 use Lacuna::Util qw(format_date);
+use List::Util qw(none);
 
 
 sub read_message {
@@ -98,21 +99,63 @@ sub trash_messages {
 }
 
 sub trash_messages_where {
-    my $self = shift;
-    my $session_id = shift;
+    my ($self, $session_id, $opts) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-
-    my @deleted;
-    while (@_)
+    if (!$opts->{spec})
     {
-        my $opts = shift;
+        $opts = { spec => [ @_[2..$#_] ] };
+    }
 
+    # initialise deleted_count to ensure it gets set on return
+    my %return = (deleted_count => 0);
+
+    # if we're saving returns, same thing, ensure there's an empty
+    # list even if nothing is deleted.
+    $return{deleted} = [] if $opts->{save_ids};
+
+    my $count = -1;
+
+    for my $spec (@{$opts->{spec}})
+    {
+        ++$count;
         my %where;
-        $where{tag}       = [ 'in',   $opts->{tags}    ] if $opts->{tags};
-        $where{subject}   = { like => $opts->{subject} } if $opts->{subject};
-        $where{from_name} = [ 'in',   $opts->{from}    ] if $opts->{from};
+        $where{tag}       = $spec->{tags}     if $spec->{tags} && ref $spec->{tags} eq 'ARRAY';
+        $where{tag}     ||= $spec->{tag}      if $spec->{tag};
+        $where{from_name} = [ $spec->{from} ] if $spec->{from};
 
-        confess [ 1009, 'No options specified for mass delete' ]
+        if ($spec->{subject})
+        {
+            # some variation allowed, but need to ensure sanity.
+
+            # only allow lists of subjects as explicit items, and each one
+            # must be a string only - no nested objects, because DBIx::Class
+            # will do more stuff down lower, and we really don't want to ensure
+            # its security.
+            if (ref $spec->{subject} &&
+                ref $spec->{subject} eq 'ARRAY' &&
+                none { ref $_ } @{$spec->{subject}})
+            {
+                $where{subject} = $spec->{subject};
+            }
+            # single string, with % or _, use like
+            elsif ($spec->{subject} =~ /[%_]/)
+            {
+                $where{subject} = { like => $spec->{subject} };
+            }
+            # otherwise, just match directly.
+            elsif (not ref $spec->{subject})
+            {
+                $where{subject} = $spec->{subject};
+            }
+            # if we got some other sort of ref, craok instead of trying
+            # to ensure security.
+            else
+            {
+                confess [ 1009, 'Invalid subject specified for mass delete' ];
+            }
+        }
+
+        confess [ 1009, 'No options specified for mass delete spec #' . $count ]
             unless keys %where;
 
         # the parts the caller can't override:
@@ -120,26 +163,42 @@ sub trash_messages_where {
         $where{to_id}        = $empire->id;
         $where{has_trashed}  = 0; # only look at ones not already trashed
 
+        use Data::Dump; ddx \%where;
+
         my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message')->search(\%where);
 
-        my @deleting = map { $_->id } $messages->search(undef, { columns => [ 'id' ] })->all;
-        if (@deleting)
+        # check if we have anything to delete
+        my $count;
+        if ($opts->{save_ids})
         {
+            my @deleting = map { $_->id } $messages->search(undef, { columns => [ 'id' ] })->all;
+            if (@deleting)
+            {
+                $count = @deleting;
+                push @{$return{deleted}}, @deleting;
+            }
+        }
+        else
+        {
+            $count = $messages->count;
+        }
+
+        # delete it
+        if ($count)
+        {
+            $return{deleted_count} += $count;
             $messages->update(
                               {
                                   has_read => 1,
                                   has_trashed => 1,
                               });
-            push @deleted, @deleting;
         }
     }
 
-    $empire->recalc_messages if @deleted;
+    $empire->recalc_messages if $return{deleted_count};
 
-    return {
-        deleted => \@deleted,
-        status  => $self->format_status($empire),
-    };
+    $return{status} = $self->format_status($empire);
+    return \%return;
 }
 
 sub send_message {
