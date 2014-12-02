@@ -119,9 +119,9 @@ sub trash_messages_where {
     {
         ++$count;
         my %where;
-        $where{tag}       = $spec->{tags}     if $spec->{tags} && ref $spec->{tags} eq 'ARRAY';
-        $where{tag}     ||= $spec->{tag}      if $spec->{tag};
-        $where{from_name} = [ $spec->{from} ] if $spec->{from};
+        $where{tag}       = $spec->{tags}     if $spec->{tags} &&  ref $spec->{tags} eq 'ARRAY';
+        $where{tag}     ||= $spec->{tag}      if $spec->{tag}  && !ref $spec->{tag};
+        $where{from_name} = [ $spec->{from} ] if $spec->{from} && !ref $spec->{from};
 
         if ($spec->{subject})
         {
