@@ -309,6 +309,10 @@ A string containing the new assignment name. These are the possible assignments:
 
 Don't do anything.
 
+=item Bugout
+
+Only visible on non-home planets.  Immediately has agent go to their home base via spypod.
+
 =item Counter Espionage.
 
 Passively defend against all attackers.
@@ -335,7 +339,7 @@ Train in Theft skill
 
 =item Political Propaganda
 
-Give happiness generation a boost.  Especially effective on unhappy colonies, but hastens an agent toward retirement.
+Give happiness generation a boost.  Especially effective on unhappy colonies, but hastens an agent toward retirement. Only usuable on owned planets.
 
 =item Gather Resource Intelligence
 
@@ -376,6 +380,10 @@ Kill spies.
 =item Sabotage Infrastructure
 
 Destroy buildings.
+
+=item Sabotage Defenses
+
+Destroy buildings that are used in defense.
 
 =item Sabotage BHG
 

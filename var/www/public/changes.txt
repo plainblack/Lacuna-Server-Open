@@ -1,3 +1,12 @@
+3.0907:
+ - Add: Timer added to colony object preventing passage into Neutral Zone.
+ - Add: colonies and stations added to empire stat. planets kept to maintain backwards compatibility
+ - Fix: Fetching Spies no longer will send more spies.
+ - Add: Sabotage Defenses task added for spies.
+ - Add: Bugout task for spies added to get spies home.
+ - Mod: Replace cheap plastic parts on Space Station with steel.
+ - Mod: Slight tweaking of AI behaviours.
+
 3.0906:
  - Fix: Some fixes to the send_ship_types API call.
  - Fix: Don't list platform plans for splitting in Dillon Forge.

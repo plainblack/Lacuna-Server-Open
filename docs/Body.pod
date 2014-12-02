@@ -50,6 +50,7 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
         "happiness" : 3939,
         "happiness_hour" : 25,
         "unhappy_date" : "01 13 2014 16:11:21 +0600",  # Only given if happiness is below zero
+        "neutral_entry" : "01 13 2014 16:11:21 +0600",  # Earliest time body can enter neutral area
         "propaganda_boost" : 20,
         "food_stored" : 33329,
         "food_capacity" : 40000,

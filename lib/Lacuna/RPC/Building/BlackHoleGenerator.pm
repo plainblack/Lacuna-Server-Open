@@ -421,23 +421,41 @@ sub check_neutral_violation {
     else {
         $target_in = $target->in_neutral_area;
     }
-    return 0 unless $target_in;
+    my $body_in = $body->in_neutral_area;
+    if (($body_in and $target_in) or (!($body_in) and !($target_in))) {
+# Swap in happening fully inside or fully outside Neutral Area
+        return 0;
+    }
+    my $test_body;
+    if ($target_in) {
+        $test_body = $body;
+    }
+    else {
+        $test_body = $target;
+    }
+
+    my $dtf = Lacuna->db->storage->datetime_parser;
+    my $now = DateTime->now;
     if ($task->{name} eq "Jump Zone" or $task->{name} eq "Swap Places") {
-        if ( $body->has_outgoing_ships(100) ) {
+        if ( $test_body->neutral_entry > $now ) {
             $throw = 1009;
-            $reason = sprintf("Colony %s has travelling ships, disallowing a jump to the Neutral Area.", $body->name);
+            $reason = sprintf("Colony %s can not enter the neutral area until %s.", $test_body->name, $dtf->format_datetime($test_body->neutral_entry));
             return $throw, $reason;
         }
     }
     elsif ($task->{name} eq "Move System") {
-        my $bodies = Lacuna->db->resultset('Map::Body')->search({star_id => [ $body->star_id ]});
+        my $bodies = Lacuna->db->resultset('Map::Body')->search({star_id => [ $test_body->star_id ]});
+        my $fail = 0;
         while (my $obody = $bodies->next) {
             next unless (defined($obody->empire));
-            if ( $obody->has_outgoing_ships(100) ) {
+            if ( $obody->neutral_entry > $now ) {
                 $throw = 1009;
-                $reason = sprintf("Colony %s has travelling ships, disallowing a jump to the Neutral Area.", $obody->name);
-                return $throw, $reason;
+                $reason = sprintf("Colony %s can not enter the neutral area until %s.", $obody->name, $dtf->format_datetime($obody->neutral_entry));
+                $fail = 1;
             }
+        }
+        if ($fail) {
+            return $throw, $reason;
         }
     }
     return 0;
