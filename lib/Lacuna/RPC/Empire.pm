@@ -86,15 +86,18 @@ sub login {
     }
     my $config = Lacuna->config;
     my $firebase_config = $config->get('firebase');
-    my $auth_code = Firebase::Auth->new( 
-        secret  => $firebase_config->{auth}{secret}, 
-        data    => {
-            uid          => $empire->id,
-            isModerator => $empire->chat_admin ? \1 : \0,
-            isStaff => $empire->is_admin ? \1 : \0,
-        }
-     #   data   => $data,
-    )->create_token;
+    if ($firebase_config)
+    {
+        my $auth_code = Firebase::Auth->new( 
+            secret  => $firebase_config->{auth}{secret}, 
+            data    => {
+                uid          => $empire->id,
+                isModerator => $empire->chat_admin ? \1 : \0,
+                isStaff => $empire->is_admin ? \1 : \0,
+            }
+         #   data   => $data,
+        )->create_token;
+    }
 
     if ($empire->is_password_valid($password)) {
         if ($empire->stage eq 'new') {
