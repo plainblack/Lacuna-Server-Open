@@ -9,7 +9,7 @@ use Email::Stuff;
 
 sub www_view_stats {
     my ($self, $request) = @_;
-    my $pair = Lacuna->db->resultset('Lacuna::DB::Result::ApiKey')->search({ private_key => $request->param('private_key')}, {rows=>1})->single;
+    my $pair = Lacuna->db->resultset('Lacuna::DB::Result::ApiKey')->search({ private_key => $request->param('private_key')})->first;
     unless (defined $pair) {
         confess [404, 'That private key could not be found'];
     }

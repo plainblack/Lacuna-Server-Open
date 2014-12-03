@@ -249,7 +249,7 @@ sub get_species_stats {
 
 sub has_medal {
     my ($self, $type) = @_;
-    return Lacuna->db->resultset('Medals')->search({empire_id => $self->id, type => $type},{rows=>1})->single;
+    return Lacuna->db->resultset('Medals')->search({empire_id => $self->id, type => $type})->first;
 }
 
 sub add_medal {
@@ -408,8 +408,7 @@ sub get_latest_message_id {
         has_read        => 0,
         },{
         order_by        => { -desc => 'date_sent' },
-        rows            => 1,
-    })->single;
+    })->first;
     my $message_id = defined $message ? $message->id : 0;
     return $message_id;
 }
@@ -514,9 +513,8 @@ sub attach_invite_code {
     my $invites = Lacuna->db->resultset('Invite');
     if (defined $invite_code && $invite_code ne '') {
         my $invite = $invites->search(
-            {code    => $invite_code },
-            {rows => 1}
-        )->single;
+            {code    => $invite_code }
+        )->first;
         if (defined $invite) {
             if ($invite->invitee_id) {
                 $invite = $invite->copy({invitee_id => $self->id, email => $self->email, accept_date => DateTime->now});
@@ -687,7 +685,7 @@ sub find_home_planet {
     }
     
     # determine search area
-    my $invite = Lacuna->db->resultset('Invite')->search({invitee_id => $self->id},{rows=>1})->single;
+    my $invite = Lacuna->db->resultset('Invite')->search({invitee_id => $self->id})->first;
     if (defined $invite) {
         $search{zone} = $invite->zone;
         delete $search{x};
@@ -750,7 +748,7 @@ sub get_invite_friend_url {
     my ($self) = @_;
     my $code = create_uuid_as_string(UUID_MD5, $self->id);
     my $invites = Lacuna->db->resultset('Invite');
-    my $invite = $invites->search({code => $code},{rows=>1})->single;
+    my $invite = $invites->search({code => $code})->first;
     unless (defined $invite) {
         $invites->new({
             inviter_id  => $self->id,
@@ -1081,7 +1079,7 @@ sub redeem_essentia_code {
 
 sub pay_taxes {
     my ($self, $station_id, $amount) = @_;
-    my $taxes = Lacuna->db->resultset('Taxes')->search({empire_id=>$self->id,station_id=>$station_id})->single;
+    my $taxes = Lacuna->db->resultset('Taxes')->search({empire_id=>$self->id,station_id=>$station_id})->first;
     if (defined $taxes) {
         $taxes->{paid_0} += $amount;
         $taxes->update;

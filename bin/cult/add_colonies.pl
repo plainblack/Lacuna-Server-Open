@@ -49,7 +49,7 @@ if ($respawn) {
             my $test;
             do {
                 $test  = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
-                             name => $pname })->single;
+                             name => $pname })->first;
                 if ($test) {
                     $orbit++;
                     $pname = $planet->star->name." ".$orbit;

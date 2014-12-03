@@ -50,10 +50,7 @@ after insert => sub {
     my $ai_battle_summary = $summary_rs->search({
         attacking_empire_id     => $self->attacking_empire_id,
         defending_empire_id     => $self->defending_empire_id,
-    },
-    {
-        rows => 1,
-    })->single;
+    })->first;
     if (not $ai_battle_summary) {
         $ai_battle_summary = $summary_rs->create({
             attacking_empire_id => $self->attacking_empire_id,

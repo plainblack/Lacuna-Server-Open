@@ -262,7 +262,7 @@ sub summarize_alliances {
       $alliance_data{offense_success_rate}    /= $alliance_data{member_count};
       $alliance_data{defense_success_rate}    /= $alliance_data{member_count};
     }
-    my $log = $logs->search({alliance_id => $alliance->id},{rows=>1})->single;
+    my $log = $logs->search({alliance_id => $alliance->id})->first;
     if (defined $log) {
       if ($alliance_data{member_count}) {
         $log->update(\%alliance_data);
@@ -367,7 +367,7 @@ sub summarize_empires {
 {defense_success_rate}      = $empire_data{defense_success_rate} / $empire_data{colony_count};
     }
     $empire_data{empire_size} = $empire_data{colony_count} * $empire_data{population};
-    my $log = $logs->search({empire_id => $empire->id},{rows=>1})->single;
+    my $log = $logs->search({empire_id => $empire->id})->first;
     if (defined $log) {
       $empire_data{colony_count_delta} = $empire_data{colony_count} - $log->colony_count + $log->colony_count_delta;
       $empire_data{empire_size_delta} = ($empire_data{colony_count_delta}) ? $empire_data{colony_count_delta} * $empire_data{population_delta} : $empire_data{population_delta};
@@ -423,7 +423,7 @@ sub summarize_colonies {
     my $spy_logs = $db->resultset('Log::Spies');
     while (my $planet = $planets->next) {
         out($planet->name);
-        my $log = $logs->search({planet_id => $planet->id},{rows=>1})->single;
+        my $log = $logs->search({planet_id => $planet->id})->first;
         my %colony_data = (
             date_stamp             => DateTime->now,
             planet_name            => $planet->name,

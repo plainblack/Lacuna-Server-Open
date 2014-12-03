@@ -15,7 +15,7 @@ sub verify_key {
 sub spend {
     my ($self, $key, $code_string) = @_;
     confess [401, 'Invalid key.'] unless $self->verify_key($key);
-    my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search({code => $code_string}, {rows=>1})->single;
+    my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search({code => $code_string})->first;
     confess [1002, 'The essentia code you specified is invalid.'] unless (defined $code);
     confess [1010, 'The essentia code you specified has already been redeemed.'] if ($code->used);
     $code->used(1);

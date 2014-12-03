@@ -247,7 +247,7 @@ sub send_message {
             }
         }
         else {
-            my $user = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $name},{rows => 1})->single;
+            my $user = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $name})->first;
             if (defined $user) {
                 push @sent, $user->name;
                 push @to, $user;

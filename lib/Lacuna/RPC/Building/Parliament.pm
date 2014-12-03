@@ -27,7 +27,7 @@ sub max_members {
     my $embassy = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
         { body_id => { in => \@planet_ids }, class => 'Lacuna::DB::Result::Building::Embassy' }, 
         { order_by => { -desc => 'level' } }
-    )->single;
+    )->first;
     return ( $building->level >= $embassy->level ) ? 2 * $building->level : 2 * $embassy->level;
 }
 

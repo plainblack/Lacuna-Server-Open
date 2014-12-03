@@ -95,7 +95,7 @@ sub is_full {
 
 sub find_ship {
     my ($self, $type) = @_;
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $self->body_id, task => 'Docked', type => $type}, {rows=>1})->single;
+    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $self->body_id, task => 'Docked', type => $type} )->first;
     unless (defined $ship ) {
         $type =~ s/_/ /g;
         confess [ 1002, 'You do not have enough '.$type.'s.'];

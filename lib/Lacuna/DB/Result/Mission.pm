@@ -31,7 +31,7 @@ has params => (
 sub log {
     my $self = shift;
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Mission');
-    my $log = $logs->search({filename => $self->mission_file_name},{rows => 1})->single;
+    my $log = $logs->search({filename => $self->mission_file_name})->first;
     unless (defined $log) {
         $log = $logs->new({filename => $self->mission_file_name})->insert;
     }
@@ -281,7 +281,7 @@ sub check_objectives {
             my $glyph_on_body = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({
                 type    => $glyph->{type},
                 body_id => $body->id,
-            })->single;
+            })->first;
             unless (defined($glyph_on_body)) {
                 confess [ 1002, "You don't have any glyphs of ".$glyph->{type}."."];
             }
@@ -628,7 +628,7 @@ sub find_body_target {
         $body = $body->search({ empire_id => undef });
     }
     
-    return $body->search(undef,{rows => 1, order_by => 'rand()'})->get_column('id')->single;
+    return $body->search(undef,{order_by => 'rand()'})->get_column('id')->first;
 }
 
 sub find_star_target {
@@ -648,7 +648,7 @@ sub find_star_target {
         $star = $star->search({ color => $movement->{target}{color} });
     }
 
-    return $star->search(undef,{rows => 1, order_by => 'rand()'})->get_column('id')->single;
+    return $star->search(undef,{ order_by => 'rand()'})->get_column('id')->first;
 }
 
 no Moose;

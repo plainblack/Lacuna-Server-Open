@@ -234,7 +234,7 @@ is($result->{result}{species}{name}, 'The BORGinator', 'get renamed species name
 is($result->{result}{status}{empire}{essentia}, '100.0', 'essentia spent');
 
 # as far as I can tell, we don't create an EssentiaCode in this test.
-#my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search({description=>'essentia code deleted'},{rows=>1})->single;
+#my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->search({description=>'essentia code deleted'})->first;
 #is($result->{result}{status}{empire}{essentia}, $code->amount, 'you get a proper essentia code');
 
 END {

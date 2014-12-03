@@ -400,7 +400,7 @@ sub next_available_trade_ship {
         return $self->trade_ships->find($ship_id);
     }
     else {
-        return $self->trade_ships->search(undef, {rows => 1})->single;
+        return $self->trade_ships->search(undef)->first;
     }
 }
 

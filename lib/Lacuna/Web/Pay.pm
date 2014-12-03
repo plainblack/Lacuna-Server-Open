@@ -82,9 +82,8 @@ sub www_jambool_postback {
         return ['Not a valid socialgold_transaction_id.', { status => 402 }];
     }
     my $transaction = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search(
-        { transaction_id => $transaction_id },
-        { rows => 1 }
-    )->single;
+        { transaction_id => $transaction_id }
+    )->first;
     if (defined $transaction) {
         return ['Already processed this transaction.', { status => 200 }];
     }
@@ -140,9 +139,8 @@ sub www_jambool_reversal {
     my $transaction = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search(
         {
             transaction_id  => $transaction_id,
-        },
-        { rows => 1 }
-    )->single;
+        }
+    )->first;
     unless (defined $transaction) {
         return ['No record of this transaction.', { status => 402 }];
     }
@@ -704,9 +702,8 @@ sub www_buy_currency_cc {
                 return ['Not a valid iTransact AuthCode.', { status => 402 }];
             }
             my $transaction = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search(
-                { transaction_id => $transaction_id },
-                { rows => 1 }
-            )->single;
+                { transaction_id => $transaction_id }
+            )->first;
             if (defined $transaction) {
                 return ['Already processed this transaction.', { status => 200 }];
             }
@@ -871,9 +868,8 @@ sub www_paypal_ec_checkout {
         return ['Not a valid PayPal TransactionID.', { status => 402 }];
     }
     my $transaction = Lacuna->db->resultset('Lacuna::DB::Result::Log::Essentia')->search(
-        { transaction_id => $transaction_id },
-        { rows => 1 }
-    )->single;
+        { transaction_id => $transaction_id }
+    )->first;
     if (defined $transaction) {
         return ['Already processed this transaction.', { status => 200 }];
     }

@@ -86,7 +86,7 @@ while (my $empire = $inactives->next) {
 
 out('Updating Viral Log');
 my $viral_log = $db->resultset('Lacuna::DB::Result::Log::Viral');
-my $add_deletes = $viral_log->search({date_stamp => format_date($start,'%F')},{rows=>1})->single;
+my $add_deletes = $viral_log->search({date_stamp => format_date($start,'%F')})->first;
 unless (defined $add_deletes) {
     $add_deletes = $viral_log->new({date_stamp => format_date($start,'%F')})->insert;
 }
@@ -98,7 +98,7 @@ $add_deletes->update({
 });
 my $cache = Lacuna->cache;
 my $create_date = format_date($start->clone->subtract(hours => 1),'%F');
-my $add_creates = $viral_log->search({date_stamp => $create_date},{rows=>1})->single;
+my $add_creates = $viral_log->search({date_stamp => $create_date})->first;
 unless (defined $add_deletes) {
     $add_creates = $viral_log->new({date_stamp => $create_date})->insert;
 }

@@ -34,7 +34,7 @@ use utf8;
   out('Loading DB');
   our $db = Lacuna->db;
 
-  my $emp = $db->resultset('Empire')->search({id => $empire_id})->single;
+  my $emp = $db->resultset('Empire')->find($empire_id);
 
   die "No empire with id:$empire_id found\n" unless $emp;
 

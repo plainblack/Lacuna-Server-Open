@@ -36,8 +36,8 @@ use utf8;
   out('Loading DB');
   our $db = Lacuna->db;
 
-  my $body_from = $db->resultset('Map::Body')->search({id => $from})->single;
-  my $body_dest = $db->resultset('Map::Body')->search({id => $to})->single;
+  my $body_from = $db->resultset('Map::Body')->find($from);
+  my $body_dest = $db->resultset('Map::Body')->find($to);
 
   out(sprintf("%30s -> %30s", $body_from->name, $body_dest->name));
 

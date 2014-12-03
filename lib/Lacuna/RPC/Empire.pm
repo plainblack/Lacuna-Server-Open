@@ -219,10 +219,10 @@ sub send_password_reset_message {
         $empire = $empires->find($options{empire_id});
     }
     elsif (exists $options{empire_name}) {
-        $empire = $empires->search({ name => $options{empire_name} }, { rows => 1 })->single;
+        $empire = $empires->search({ name => $options{empire_name} })->first;
     }
     elsif (exists $options{email}) {
-        $empire = $empires->search({ email => $options{email} }, { rows => 1 })->single;
+        $empire = $empires->search({ email => $options{email} })->first;
     }
     unless (defined $empire) {
         confess [1002, 'Empire not found.'];
@@ -251,7 +251,7 @@ sub reset_password {
     unless (defined $key && $key ne '') {
         confess [1002, 'You need a key to reset a password.'];
     }
-    my $empire = Lacuna->db->resultset('Empire')->search({password_recovery_key => $key}, { rows=>1 })->single;
+    my $empire = Lacuna->db->resultset('Empire')->search({password_recovery_key => $key})->first;
     unless (defined $empire) {
         confess [1002, 'The key you provided is invalid. Password not reset.'];
     }

@@ -142,7 +142,7 @@ sub summarize_spies {
     my $logs = $db->resultset('Lacuna::DB::Result::Log::Spies');
     while (my $spy = $spies->next) {
         out($spy->id.":".$spy->name);
-        my $log = $logs->search({ spy_id => $spy->id },{ rows => 1 } )->single;
+        my $log = $logs->search({ spy_id => $spy->id } )->first;
         my $offense_success_rate = ($spy->offense_mission_count) ? 100 * $spy->offense_mission_successes / $spy->offense_mission_count : 0;
         my $defense_success_rate = ($spy->defense_mission_count) ? 100 * $spy->defense_mission_successes / $spy->defense_mission_count : 0;
         my $success_rate = $offense_success_rate + $defense_success_rate;

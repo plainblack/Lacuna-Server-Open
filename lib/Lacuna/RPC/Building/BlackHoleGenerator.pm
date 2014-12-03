@@ -91,9 +91,8 @@ sub find_target {
         $target = Lacuna->db
             ->resultset('Lacuna::DB::Result::Map::Body')
             ->search(
-                { name => $target_params->{body_name} },
-                {rows=>1}
-            )->single;
+                { name => $target_params->{body_name} }
+            )->first;
         if (defined $target) {
             $target_type = $target->get_type;
         }
@@ -103,16 +102,14 @@ sub find_target {
         $target = Lacuna->db
             ->resultset('Lacuna::DB::Result::Map::Body')
             ->search(
-                { x => $target_params->{x}, y => $target_params->{y} },
-                {rows=>1}
-            )->single;
+                { x => $target_params->{x}, y => $target_params->{y} }
+            )->first;
         unless (defined $target) {
             $target = Lacuna->db
                 ->resultset('Lacuna::DB::Result::Map::Star')
                 ->search(
-                    { x => $target_params->{x}, y => $target_params->{y} },
-                    {rows=>1}
-                )->single;
+                    { x => $target_params->{x}, y => $target_params->{y} }
+                )->first;
             $target_type = "star" if (defined $target);
         }
         else {
@@ -130,9 +127,8 @@ sub find_target {
                         y => { '>=' => ($target_params->{y} -2),
                                '<=' => ($target_params->{y} +2)
                               }
-                    },
-                    {rows=>1}
-                )->single;
+                    }
+                )->first;
             if (defined $star) {
                 my $sx = $star->x; my $sy = $star->y;
                 my $tx = $target_params->{x}; my $ty = $target_params->{y};
@@ -209,9 +205,8 @@ sub find_target {
     elsif (exists $target_params->{star_name}) {
         $target = Lacuna->db->
             resultset('Lacuna::DB::Result::Map::Star')->search(
-                { name => $target_params->{star_name} },
-                {rows=>1}
-            )->single;
+                { name => $target_params->{star_name} }
+            )->first;
         $target_type = "star";
     }
     elsif (exists $target_params->{star_id}) {
@@ -775,8 +770,8 @@ sub generate_singularity {
                         { on_body_id  => $body->id,
                           empire_id => { '!=' => $body->empire_id },
                           task => 'Sabotage BHG'  },
-                          { rows => 1, order_by => 'rand()' }
-                            )->single;
+                          { order_by => 'rand()' }
+                            )->first;
     if (defined $lock_down) {
         my $power = $lock_down->mayhem_xp + $lock_down->offense;
         my $defense = 0;
@@ -1520,8 +1515,8 @@ sub bhg_random_make {
     my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
         ->search(
             {zone => $body->zone, empire_id => undef, },
-            {rows => 1, order_by => 'rand()' }
-        )->single;
+            { order_by => 'rand()' }
+        )->first;
     my $btype = $target->get_type;
     my ($throw, $reason) = check_bhg_neutralized($target);
     if ($throw > 0) {
@@ -1560,8 +1555,8 @@ sub bhg_random_type {
     my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
         ->search(
             {zone => $body->zone, empire_id => undef, },
-            {rows => 1, order_by => 'rand()' }
-        )->single;
+            { order_by => 'rand()' }
+        )->first;
     my $btype = $target->get_type;
     my ($throw, $reason) = check_bhg_neutralized($target);
     if ($throw > 0) {
@@ -1597,8 +1592,8 @@ sub bhg_random_size {
     my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
         ->search(
             {zone => $body->zone, id => { '!=' => $body->id } },
-            {rows => 1, order_by => 'rand()' }
-        )->single;
+            { order_by => 'rand()' }
+        )->first;
     my $return;
     my $btype = $target->get_type;
     my ($throw, $reason) = check_bhg_neutralized($target);
@@ -1633,8 +1628,8 @@ sub bhg_random_resource {
     my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
         ->search(
             {zone => $body->zone, empire_id => { '!=' => undef} },
-            {rows => 1, order_by => 'rand()' }
-        )->single;
+            { order_by => 'rand()' }
+        )->first;
     my $return;
     my $btype = $target->get_type;
     my ($throw, $reason) = check_bhg_neutralized($target);
@@ -1671,8 +1666,8 @@ sub bhg_random_fissure {
                 class     => { like => 'Lacuna::DB::Result::Map::Body::Planet::P%' },
                 usable_as_starter_enabled   => 0,
             },
-            {rows => 1, order_by => 'rand()' }
-        )->single;
+            { order_by => 'rand()' }
+        )->first;
     my $btype = $target->get_type;
     my $return = {
         id        => $target->id,
@@ -1751,8 +1746,8 @@ sub bhg_random_decor {
     my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
         ->search(
             {zone => $body->zone },
-            {rows => 1, order_by => 'rand()' }
-        )->single;
+            { order_by => 'rand()' }
+        )->first;
     my $btype = $target->get_type;
     my $return = {
         id        => $target->id,

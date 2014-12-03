@@ -24,9 +24,8 @@ sub abandon_probe {
     my $probe = $building->probes->search(
         {
             star_id => $star->id,
-        },
-        {rows => 1}
-    )->single;
+        }
+    )->first;
     if (defined $probe) {
         $probe->delete;
     }

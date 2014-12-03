@@ -13,7 +13,7 @@ sub check_star_for_incoming_probe {
     my $empire = $self->get_empire_by_session($session_id);
     my $date = 0;
     my @bodies = $empire->planets->get_column('id')->all;
-    my $incoming = Lacuna->db->resultset('Ships')->search({foreign_star_id=>$star_id, task=>'Travelling', type=>'probe', body_id => {in => \@bodies }}, {rows=>1})->single;
+    my $incoming = Lacuna->db->resultset('Ships')->search({foreign_star_id=>$star_id, task=>'Travelling', type=>'probe', body_id => {in => \@bodies }})->first;
     if (defined $incoming) {
         $date = $incoming->date_available_formatted;
     }
@@ -91,7 +91,7 @@ sub get_star {
 sub get_star_by_name {
     my ($self, $session_id, $star_name) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $star = Lacuna->db->resultset('Map::Star')->search({name => $star_name}, {rows=>1})->single;
+    my $star = Lacuna->db->resultset('Map::Star')->search({name => $star_name})->first;
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
     }
@@ -101,7 +101,7 @@ sub get_star_by_name {
 sub get_star_by_xy {
     my ($self, $session_id, $x, $y) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $star = Lacuna->db->resultset('Map::Star')->search({x=>$x, y=>$y}, {rows=>1})->single;
+    my $star = Lacuna->db->resultset('Map::Star')->search({x=>$x, y=>$y})->first;
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
     }

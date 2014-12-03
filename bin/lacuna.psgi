@@ -243,7 +243,7 @@ my $app = builder {
         enable "Auth::Basic", authenticator => sub {
             my ($username, $password) = @_;
             return 0 unless $username;
-            my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $username, is_admin => 1},{rows=>1})->single;
+            my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $username, is_admin => 1})->first;
             return 0 unless defined $empire;
             return $empire->is_password_valid($password);
         };
@@ -254,7 +254,7 @@ my $app = builder {
         enable "Auth::Basic", authenticator => sub {
             my ($username, $password) = @_;
             return 0 unless $username;
-            my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $username, is_mission_curator => 1},{rows=>1})->single;
+            my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $username, is_mission_curator => 1})->first;
             return 0 unless defined $empire;
             return $empire->is_password_valid($password);
         };

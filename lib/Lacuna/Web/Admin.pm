@@ -947,7 +947,7 @@ sub www_view_empire {
             $invites_sent->all;
     $out .= '</td></tr>';
     $out .= '<tr><th>Invite Accepted From</th><td>';
-    my $invite_accepted = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $empire->id},{rows=>1})->single;
+    my $invite_accepted = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $empire->id})->first;
     if ( $invite_accepted && $invite_accepted->inviter_id ) {
         my $inviter = $invite_accepted->inviter;
         $out .= sprintf('<a href="/admin/view/empire?id=%d">%s</a>', $inviter->id, $inviter->name);

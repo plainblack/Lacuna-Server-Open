@@ -228,42 +228,42 @@ for my $i ( 0 .. 1 ) {
 	my $planet = $tester{planet};	
 
 	# Send a probe to the enemy's star
-	my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'probe'},{rows=>1})->single;
+	my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'probe'})->first;
 	diag "Sending ship ", $probe->id, " type ", $probe->type, " to star_id ", $enemy{home}->star_id;
 	$result = $tester->post('spaceport', 'send_ship', [$tester{session_id}, $probe->id, {star_id=>$enemy{home}->star_id}]);
 	diag "Probe arrives ", $result->{result}{ship}{date_arrives};
 	ok($result->{result}{ship}{date_arrives}, "probe sent");
-	$probe = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$probe->id},{rows=>1})->single; # pull the latest data on this ship
+	$probe = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$probe->id})->first; # pull the latest data on this ship
 	$probe->arrive;
 
 	# Send a mining platform ship to the closest asteroid
-	my $miningship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'mining_platform_ship'},{rows=>1})->single;
+	my $miningship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'mining_platform_ship'})->first;
 	diag "Sending ship ", $miningship->id, " type ", $miningship->type, " to ", $asteroid->{x}, ",", $asteroid->{y};
 	$result = $tester->post('spaceport', 'send_ship', [$tester{session_id}, $miningship->id, {x=>$asteroid->{x},y=>$asteroid->{y}}]);
 	diag "Mining Platform Ship arrives ", $result->{result}{ship}{date_arrives};
 	ok($result->{result}{ship}{date_arrives}, "mining platform ship sent");
-	$miningship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$miningship->id},{rows=>1})->single; # pull the latest data on this ship
+	$miningship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$miningship->id})->first; # pull the latest data on this ship
 	$miningship->arrive;
 
 	# Send a fighter to defend the closest asteroid
-	my $fighter = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'fighter', task=>'Docked'},{rows=>1})->single;
+	my $fighter = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'fighter', task=>'Docked'})->first;
     diag "Sending ship ", $fighter->id, " type ", $fighter->type, " to ", $asteroid->{x}, ",", $asteroid->{y};
     $result = $tester->post('spaceport', 'send_ship', [$tester{session_id}, $fighter->id, { x => $asteroid->{x}, y => $asteroid->{y} }]);
     diag "Fighter arrives ", $result->{result}{ship}{date_arrives};
     ok($result->{result}{ship}{date_arrives}, "fighter sent");
-    $fighter = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$fighter->id},{rows=>1})->single; # pull the latest data on this ship
+    $fighter = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$fighter->id})->first; # pull the latest data on this ship
     $fighter->arrive;
 
 	$result = $tester->post('spaceport', 'get_ships_for', [$tester{session_id}, $tester{home}->id, { x => $asteroid->{x}, y => $asteroid->{y} } ]);
 	is( @{ $result->{result}{orbiting} }, 1, 'one ship is orbiting' );
 
 	# Send a fighter to defend the closest planet
-	my $fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'fighter', task=>'Docked'},{rows=>1})->single;
+	my $fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'fighter', task=>'Docked'})->first;
     diag "Sending ship ", $fighter2->id, " type ", $fighter2->type, " to ", $planet->{x}, ",", $planet->{y};
     $result = $tester->post('spaceport', 'send_ship', [$tester{session_id}, $fighter2->id, { x => $planet->{x}, y => $planet->{y} }]);
     diag "Fighter arrives ", $result->{result}{ship}{date_arrives};
     ok($result->{result}{ship}{date_arrives}, "fighter2 sent");
-    $fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$fighter2->id},{rows=>1})->single; # pull the latest data on this ship
+    $fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$fighter2->id})->first; # pull the latest data on this ship
     $fighter2->arrive;
 	$tester->{fighter2} = $fighter2->id;
 
@@ -321,12 +321,12 @@ for my $i ( 0 .. 1 ) {
 	my $planet = $enemy{planet};
 
 	# Send a sweeper to the enemy's asteroid
-	my $sweeper = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'sweeper'},{rows=>1})->single;
+	my $sweeper = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'sweeper'})->first;
     diag "Sending ship ", $sweeper->id, " type ", $sweeper->type, " to ", $asteroid->{x}, ",", $asteroid->{y};
     $result = $tester->post('spaceport', 'send_ship', [$tester{session_id}, $sweeper->id, { x => $asteroid->{x}, y => $asteroid->{y} }]);
     diag "Sweeper arrives ", $result->{result}{ship}{date_arrives};
     ok($result->{result}{ship}{date_arrives}, "sweeper sent");
-    $sweeper = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$sweeper->id},{rows=>1})->single; # pull the latest data on this ship
+    $sweeper = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$sweeper->id})->first; # pull the latest data on this ship
     $sweeper->arrive;
 	
 	$result = $tester->post('spaceport', 'view_all_ships', [$tester{session_id}, $tester->{spaceport_id}]);
@@ -338,12 +338,12 @@ for my $i ( 0 .. 1 ) {
 	is( $ships{sweeper}, 1, 'One sweeper left' );
 
 	# Send a fighter to enemy asteroid
-	my $fighter3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'fighter', task=>'Docked'},{rows=>1})->single;
+	my $fighter3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'fighter', task=>'Docked'})->first;
     diag "Sending ship ", $fighter3->id, " type ", $fighter3->type, " to ", $asteroid->{x}, ",", $asteroid->{y};
     $result = $tester->post('spaceport', 'send_ship', [$tester{session_id}, $fighter3->id, { x => $asteroid->{x}, y => $asteroid->{y} }]);
     diag "Fighter arrives ", $result->{result}{ship}{date_arrives};
     ok($result->{result}{ship}{date_arrives}, "fighter3 sent");
-    $fighter3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$fighter3->id},{rows=>1})->single; # pull the latest data on this ship
+    $fighter3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$fighter3->id})->first; # pull the latest data on this ship
     $fighter3->arrive;
 
 	$result = $tester->post('spaceport', 'view_all_ships', [$tester{session_id}, $tester->{spaceport_id}]);
@@ -357,29 +357,29 @@ for my $i ( 0 .. 1 ) {
 	}
 
 	# Recall it
-    $fighter3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$fighter3->id},{rows=>1})->single; # pull the latest data on this ship
+    $fighter3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$fighter3->id})->first; # pull the latest data on this ship
 	$result = $tester->post('spaceport', 'recall_ship', [$tester{session_id}, $tester->{spaceport_id}, $fighter3->id]);
     diag "Fighter arrives ", $result->{result}{ship}{date_arrives};
     ok($result->{result}{ship}{date_arrives}, "fighter recalled");
-    $fighter3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$fighter3->id},{rows=>1})->single; # pull the latest data on this ship
+    $fighter3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$fighter3->id})->first; # pull the latest data on this ship
     $fighter3->arrive;
 
 	# Send a mining platform ship to the enemy asteroid
-	my $miningship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'mining_platform_ship'},{rows=>1})->single;
+	my $miningship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'mining_platform_ship'})->first;
 	diag "Sending ship ", $miningship->id, " type ", $miningship->type, " to ", $asteroid->{x}, ",", $asteroid->{y};
 	$result = $tester->post('spaceport', 'send_ship', [$tester{session_id}, $miningship->id, {x=>$asteroid->{x},y=>$asteroid->{y}}]);
 	diag "Mining Platform Ship arrives ", $result->{result}{ship}{date_arrives};
 	ok($result->{result}{ship}{date_arrives}, "mining platform ship sent");
-	$miningship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$miningship->id},{rows=>1})->single; # pull the latest data on this ship
+	$miningship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$miningship->id})->first; # pull the latest data on this ship
 	$miningship->arrive;
 
-	my $fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$enemy->{fighter2}},{rows=>1})->single;
+	my $fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$enemy->{fighter2}})->first;
 	diag "Enemy fighter 2 is at ", $fighter2->foreign_body_id, " task ", $fighter2->task, " combat ", $fighter2->combat;
 	$result = $tester->post('spaceport', 'view_all_ships', [$enemy{session_id}, $enemy->{spaceport_id}]);
 
 
 	# Send a stake to the enemy's closest planet
-	my $stake = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'stake'},{rows=>1})->single;
+	my $stake = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'stake'})->first;
 	diag "Sending ship ", $stake->id, " type ", $stake->type, " to ", $planet->{x}, ",", $planet->{y};
 	$result = $tester->post('spaceport', 'send_ship', [$tester{session_id}, $stake->id, {x=>$planet->{x},y=>$planet->{y}}]);
         # Cannot send a stake to an inhabited planet	
@@ -389,12 +389,12 @@ for my $i ( 0 .. 1 ) {
 	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Ship Shot Down", 'Stake shot down' );
 
 	# Accelerate reset period
-	$fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$enemy->{fighter2}},{rows=>1})->single;
+	$fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$enemy->{fighter2}})->first;
 	diag "Enemy fighter 2 is at ", $fighter2->foreign_body_id, " task ", $fighter2->task, " combat ", $fighter2->combat;
     $fighter2->arrive;
-	$fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$enemy->{fighter2}},{rows=>1})->single;
+	$fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$enemy->{fighter2}})->first;
     $fighter2->arrive;
-	$fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$enemy->{fighter2}},{rows=>1})->single;
+	$fighter2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$enemy->{fighter2}})->first;
 	diag "Enemy fighter 2 is at ", $fighter2->foreign_body_id, " task ", $fighter2->task, " combat ", $fighter2->combat;
 	$result = $tester->post('spaceport', 'view_all_ships', [$enemy{session_id}, $enemy->{spaceport_id}]);
 
@@ -403,12 +403,12 @@ for my $i ( 0 .. 1 ) {
 	$tester{home}->update;
 
 	# Send a colony ship to the enemy's closest planet
-	my $colony_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'colony_ship'},{rows=>1})->single;
+	my $colony_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'colony_ship'})->first;
 	diag "Sending ship ", $colony_ship->id, " type ", $colony_ship->type, " to ", $planet->{x}, ",", $planet->{y};
 	$result = $tester->post('spaceport', 'send_ship', [$tester{session_id}, $colony_ship->id, {x=>$planet->{x},y=>$planet->{y}}]);
 	diag "Colony ship arrives ", $result->{result}{ship}{date_arrives};
 	ok($result->{result}{ship}{date_arrives}, "colony ship sent");
-	$colony_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$colony_ship->id},{rows=>1})->single; # pull the latest data on this ship
+	$colony_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$colony_ship->id})->first; # pull the latest data on this ship
 	$colony_ship->arrive;
 
 	$result = $tester->post('spaceport', 'view_all_ships', [$tester{session_id}, $tester->{spaceport_id}]);
@@ -422,23 +422,23 @@ for my $i ( 0 .. 1 ) {
 	}
 	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Colony Founded", 'Colony founded' );
 
-	my $detonator = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'detonator'},{rows=>1})->single;
+	my $detonator = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'detonator'})->first;
 	diag "Sending ship ", $detonator->id, " type ", $detonator->type, " to star_id ", $enemy{home}->star_id;
 	$result = $tester->post('spaceport', 'send_ship', [$tester{session_id}, $detonator->id, {star_id=>$enemy{home}->star_id}]);
 	diag "Detonator arrives ", $result->{result}{ship}{date_arrives};
 	ok($result->{result}{ship}{date_arrives}, "Detonator sent");
-	$detonator = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$detonator->id},{rows=>1})->single; # pull the latest data on this ship
+	$detonator = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$detonator->id})->first; # pull the latest data on this ship
 	$detonator->arrive;
 
 	$result = $tester->post('spaceport', 'view', [$tester{session_id}, $tester->{spaceport_id}]);
 	is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Detonator Report", 'Detonator took out probes' );
 
-	my $detonator2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'detonator'},{rows=>1})->single;
+	my $detonator2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $tester{home}->id, type=>'detonator'})->first;
 	diag "Sending ship ", $detonator2->id, " type ", $detonator2->type, " to ", $asteroid->{x}, ",", $asteroid->{y};
 	$result = $tester->post('spaceport', 'send_ship', [$tester{session_id}, $detonator2->id, {x=>$asteroid->{x},y=>$asteroid->{y}}]);
 	diag "Detonator arrives ", $result->{result}{ship}{date_arrives};
 	ok($result->{result}{ship}{date_arrives}, "Detonator sent");
-	$detonator2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$detonator2->id},{rows=>1})->single; # pull the latest data on this ship
+	$detonator2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$detonator2->id})->first; # pull the latest data on this ship
 	$detonator2->arrive;
 
 	$result = $tester->post('spaceport', 'view', [$tester{session_id}, $tester->{spaceport_id}]);

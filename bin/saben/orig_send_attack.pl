@@ -130,7 +130,7 @@ sub start_attack {
         );
         return $attack, $timer;
     }
-    my $probe = $ships->search({body_id => $saben_colony->id, type => 'probe', task=>'Docked'},{rows => 1})->single;
+    my $probe = $ships->search({body_id => $saben_colony->id, type => 'probe', task=>'Docked'})->first;
     if (defined $probe) {
         out('Has a probe to launch for '.$target_colony->name.'...');
         $probe->send(target => $target_colony->star);

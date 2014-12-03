@@ -123,7 +123,7 @@ sub remove_supply_ship_from_fleet {
         confess [1013, "You can't manage a ship that is not yours."];
     }
 
-    my $supply_chain = $building->supply_chains->search({},{rows => 1})->single;
+    my $supply_chain = $building->supply_chains->search({})->first;
     if (defined $supply_chain) {
         my $from = $supply_chain->target;
         $building->send_supply_ship_home($from, $ship);
@@ -155,7 +155,7 @@ sub remove_waste_ship_from_fleet {
         confess [1013, "You can't manage a ship that is not yours."];
     }
 
-    my $waste_chain = $building->waste_chains->search({},{rows => 1})->single;
+    my $waste_chain = $building->waste_chains->search({})->first;
     if (defined $waste_chain) {
         my $from = $building->body->star;
         $building->send_waste_ship_home($from, $ship);

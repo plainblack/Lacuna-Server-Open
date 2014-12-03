@@ -28,18 +28,18 @@ sub find_target {
         $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($target_params->{star_id});
     }
     elsif (exists $target_params->{star_name}) {
-        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ name => $target_params->{star_name} }, {rows=>1})->single;
+        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ name => $target_params->{star_name} })->first;
     }
     if (exists $target_params->{body_id}) {
         $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_params->{body_id});
     }
     elsif (exists $target_params->{body_name}) {
-        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ name => $target_params->{body_name} }, {rows=>1})->single;
+        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ name => $target_params->{body_name} })->first;
     }
     elsif (exists $target_params->{x}) {
-        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ x => $target_params->{x}, y => $target_params->{y} }, {rows=>1})->single;
+        $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({ x => $target_params->{x}, y => $target_params->{y} })->first;
         unless (defined $target) {
-            $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ x => $target_params->{x}, y => $target_params->{y} }, {rows=>1})->single;
+            $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search({ x => $target_params->{x}, y => $target_params->{y} })->first;
         }
     }
     unless (defined $target) {
@@ -774,13 +774,13 @@ sub view_ships_travelling {
 
 sub _ship_paging_options {
     my ($self, $paging) = @_;
-    for my $key ( keys %{ $paging } ) {
-        # Throw away bad keys
-        unless ($key ~~ [qw(page_number items_per_page no_paging)]) {
-            delete $paging->{$key};
-            next;
-        }
-    }
+#    for my $key ( keys %{ $paging } ) {
+#        # Throw away bad keys
+#        unless ($key ~~ [qw(page_number items_per_page no_paging)]) {
+#            delete $paging->{$key};
+#            next;
+#        }
+#    }
     if ($paging->{no_paging}) {
         $paging = {};
     }

@@ -50,7 +50,7 @@ sub check_payload {
         my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({
             type    => $item->{name},
             body_id => $self->body_id,
-            })->single;
+            })->first;
         my $gquant = 0;
         if (defined $glyph) {
             $gquant = $glyph->quantity;

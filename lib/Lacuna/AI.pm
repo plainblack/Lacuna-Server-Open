@@ -40,7 +40,7 @@ has scratch     => (
 
 sub next_viable_colony {
     my $self = shift;
-    return $self->viable_colonies->search(undef, { rows => 1, order_by => 'rand()' })->single;
+    return $self->viable_colonies->search(undef, { order_by => 'rand()' })->first;
 }
 
 sub create_empire {
@@ -57,8 +57,8 @@ sub create_empire {
     my $db      = Lacuna->db;
     my $empire  = $db->resultset('Lacuna::DB::Result::Empire')->new(\%attributes)->insert;
 #    my $zone    = $db->resultset('Lacuna::DB::Result::Map::Body')->get_column('zone')->max;
-#    my $home    = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
-    my $home    = $self->viable_colonies->search(undef,{rows=>1})->single;
+#    my $home    = $self->viable_colonies->search({zone => $zone})->first;
+    my $home    = $self->viable_colonies->search(undef,{ order_by => 'rand()'})->first;
     my @to_demolish = @{$home->building_cache};
     $home->delete_buildings(\@to_demolish);
     $empire->found($home);
@@ -560,7 +560,7 @@ sub start_attack {
         say '    Has one at star already...';
         $seconds = 1;
     }
-    my $probe = $db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $attacking_colony->id, type => 'probe', task=>'Docked'},{rows => 1})->single;
+    my $probe = $db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $attacking_colony->id, type => 'probe', task=>'Docked'})->first;
     if (defined $probe and $seconds == 0) {
         say '    Has a probe to launch for '.$target_colony->name.'...';
         $probe->send(target => $target_colony->star);

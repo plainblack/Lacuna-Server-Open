@@ -1069,8 +1069,8 @@ sub get_defender {
             { on_body_id  => $self->on_body_id,
               task => { 'in' => \@tasks },
               empire_id => { 'not_in' => \@member_ids } },
-            { rows => 1, order_by => 'rand()' }
-        )->single;
+            { order_by => 'rand()' }
+        )->first;
     if (defined $defender) {
         $defender->on_body($self->on_body);
         weaken($defender->{_relationship_data}{on_body});
@@ -1098,9 +1098,9 @@ sub get_attacker {
         ->search(
             { on_body_id  => $self->on_body_id,
               task => {  in => \@tasks }, empire_id => { 'not in' => \@member_ids } },
-            { rows => 1, order_by => 'rand()' }
+            { order_by => 'rand()' }
         )
-        ->single;
+        ->first;
     if (defined $attacker) {
         $attacker->on_body($self->on_body);
         weaken($attacker->{_relationship_data}{on_body});
@@ -1827,10 +1827,10 @@ sub can_conduct_advanced_missions {
         confess [1010, 'You cannot attack your alliance mates.'];
     }
     my $ranks = Lacuna->db->resultset('Log::Empire');
-    my $defender_rank = $ranks->search( { empire_id => $self->on_body->empire_id },
-                                        {rows => 1})->get_column('empire_size_rank')->single;
+    my $defender_rank = $ranks->search( { empire_id => $self->on_body->empire_id }
+                                        )->get_column('empire_size_rank')->first;
     my $attacker_rank = $ranks->search( {empire_id => $self->empire_id },
-                                        {rows => 1})->get_column('empire_size_rank')->single;
+                                        )->get_column('empire_size_rank')->first;
     unless ($attacker_rank + 100 > $defender_rank ) { # remember that the rank is inverted 1 is higher than 2.
         confess [1010, 'This empire is more than 100 away from you in empire rank, and is therefore immune to this attack.'];
     }
@@ -2280,8 +2280,8 @@ sub abduct_operative {
                               foreign_body_id => $self->on_body->id,
                               task => 'Orbiting',
                               type => 'spy_shuttle'},
-                            { rows => 1, order_by => 'rand()' }
-                          )->single;
+                            { order_by => 'rand()' }
+                          )->first;
     unless (defined($ship)) {
         foreach my $type (SHIP_TYPES) {
             my $ship = $ships->new({type => $type});
@@ -2293,8 +2293,8 @@ sub abduct_operative {
             {body_id => $self->on_body->id,
              task => 'Docked',
              hold_size => { '>=' => 700 }, type => {'in' => \@types}},
-            { rows => 1, order_by => 'rand()' }
-          )->single;
+            { order_by => 'rand()' }
+          )->first;
     }
     return $self->ship_not_found->id unless (defined $ship);
     return $self->no_contact->id unless (defined $defender);
@@ -2354,10 +2354,7 @@ sub thwart_rebel {
 sub destroy_infrastructure {
     my ($self, $defender) = @_;
 
-    my ($building) = sort {
-            rand() <=> rand()
-        }
-        grep {
+    my ($building) = shuffle grep {
             $_->efficiency > 0 and
             $_->class ne 'Lacuna::DB::Result::Building::PlanetaryCommand' and
             $_->class ne 'Lacuna::DB::Result::Building::Module::StationCommand' and
@@ -2401,8 +2398,8 @@ sub destroy_defense_ship {
                            'drone',
                           ]},
         },
-        {rows => 1, order_by => 'rand()' }
-        )->single;
+        { order_by => 'rand()' }
+        )->first;
 
     return $self->ship_not_found->id unless (defined $ship);
     $self->things_destroyed( $self->things_destroyed + 1 );
@@ -2434,8 +2431,8 @@ sub destroy_ship {
     my ($self, $defender) = @_;
     my $ship = $self->on_body->ships->search(
         {task => 'Docked'},
-        {rows => 1, order_by => 'rand()' }
-        )->single;
+        { order_by => 'rand()' }
+        )->first;
     return $self->ship_not_found->id unless (defined $ship);
     $self->things_destroyed( $self->things_destroyed + 1 );
     $self->on_body->empire->send_predefined_message(
@@ -2502,7 +2499,7 @@ sub destroy_plan {
 
 sub destroy_glyph {
     my ($self, $defender) = @_;
-    my $glyph = $self->on_body->glyph->search(undef, {rows => 1, order_by => 'rand()'})->single;
+    my $glyph = $self->on_body->glyph->search(undef, { order_by => 'rand()'})->first;
     return $self->mission_objective_not_found('glyph')->id unless defined $glyph;
     $self->things_destroyed( $self->things_destroyed + 1 );
     my $stolen = $glyph->type.' glyph';
@@ -2564,8 +2561,8 @@ sub destroy_chain_ship {
     my $ship = Lacuna->db->resultset('Ships')->search(
         {body_id => $self->on_body->id,
          task => {'in' => ['Supply Chain', 'Waste Chain'] }},
-        { rows => 1, order_by => 'rand()' }
-        )->single;
+        { order_by => 'rand()' }
+        )->first;
     return $self->ship_not_found->id unless $ship;
     my $stype = "supply chain";
     if ($ship->task eq "Waste Chain") {
@@ -2603,8 +2600,8 @@ sub destroy_mining_ship {
     return $self->building_not_found->id unless defined $ministry;
     my $ship = Lacuna->db->resultset('Ships')->search(
         {body_id => $self->on_body->id, task => 'Mining'},
-        { rows => 1, order_by => 'rand()' }
-        )->single;
+        { order_by => 'rand()' }
+        )->first;
     return $self->ship_not_found->id unless $ship;
     $ship->delete;
     $ministry->recalc_ore_production;
@@ -2676,8 +2673,8 @@ sub steal_resources {
                            'hulk_huge',
                            'dory',
                            'barge']}},
-        { rows => 1, order_by => 'rand()' }
-        )->single;
+        { order_by => 'rand()' }
+        )->first;
     return $self->ship_not_found->id unless defined $ship;
     my $space = $ship->hold_size;
     my @types = shuffle (FOOD_TYPES, ORE_TYPES);
@@ -2756,8 +2753,8 @@ sub steal_glyph {
                            'hulk_fast',
                            'hulk_huge',
                            'barge']}},
-        { rows => 1, order_by => 'rand()' }
-        )->single;
+        { order_by => 'rand()' }
+        )->first;
     return $self->ship_not_found->id unless defined $ship;
 
     my @glyphs = $on_body->glyph;
@@ -2813,8 +2810,8 @@ sub steal_ships {
     }
     my $ship = $ships->search(
         {body_id => $self->on_body->id, task => 'Docked', type => {'in' => \@types}},
-        { rows => 1, order_by => 'rand()' }
-        )->single;
+        { order_by => 'rand()' }
+        )->first;
     return $self->ship_not_found->id unless (defined $ship);
     $ship->body($self->from_body);
     weaken($ship->{_relationship_data}{body});
@@ -2847,10 +2844,7 @@ sub steal_ships {
 sub steal_building {
     my ($self, $defender) = @_;
     my $on_body = $self->on_body;
-    my ($building) = sort {
-            rand() <=> rand()
-        }
-        grep {
+    my ($building) = shuffle grep {
             ($_->level > 1) and
             ($_->class ne 'Lacuna::DB::Result::Building::Permanent::EssentiaVein') and
             ($_->class ne 'Lacuna::DB::Result::Building::Permanent::TheDillonForge') and
@@ -2952,10 +2946,7 @@ sub thwart_thief {
 sub shut_down_defenses {
     my ($self, $defender) = @_;
 
-    my ($building) = sort {
-            rand() <=> rand()
-        }
-        grep {
+    my ($building) = shuffle grep {
             ($_->efficiency > 0) and (
               $_->class eq 'Lacuna::DB::Result::Building::SAW' or
               $_->class eq 'Lacuna::DB::Result::Building::Shipyard' or
@@ -2992,10 +2983,7 @@ sub shut_down_defenses {
 sub shut_down_building {
     my ($self, $defender) = @_;
 
-    my ($building) = sort {
-            rand() <=> rand()
-        }
-        grep {
+    my ($building) = shuffle grep {
             ($_->efficiency > 0) and (
               $_->class eq 'Lacuna::DB::Result::Building::Archaeology' or
               $_->class eq 'Lacuna::DB::Result::Building::Development' or
@@ -3047,8 +3035,8 @@ sub take_control_of_probe {
     my $probe = Lacuna->db
                   ->resultset('Probes')
                   ->search_observatory({body_id => $self->on_body_id },
-                           { rows => 1, order_by => 'rand()' }
-                           )->single;
+                           { order_by => 'rand()' }
+                           )->first;
     return $self->probe_not_found->id unless defined $probe;
     $self->things_stolen( $self->things_stolen + 1 );
     $self->on_body->empire->send_predefined_message(
@@ -3088,8 +3076,8 @@ sub destroy_excavator {
     my $excavator = Lacuna->db
                      ->resultset('Excavators')
                      ->search({planet_id => $self->on_body->id},
-                              { rows => 1, order_by => 'rand()' }
-                              )->single;
+                              { order_by => 'rand()' }
+                              )->first;
     return $self->mission_objective_not_found('excavator')->id unless defined $excavator;
     my $body = $excavator->body;
     return $self->mission_objective_not_found('excavator')->id unless defined $body;
@@ -3123,8 +3111,8 @@ sub kill_contact_with_mining_platform {
     my $platform = Lacuna->db
                      ->resultset('MiningPlatforms')
                      ->search({planet_id => $self->on_body->id},
-                              { rows => 1, order_by => 'rand()' }
-                              )->single;
+                              { order_by => 'rand()' }
+                              )->first;
     return $self->mission_objective_not_found('mining platform')->id unless defined $platform;
     my $asteroid = $platform->asteroid;
     return $self->mission_objective_not_found('mining platform')->id unless defined $asteroid;
@@ -3157,8 +3145,8 @@ sub hack_observatory_probes {
     my $probe = Lacuna->db
                   ->resultset('Probes')
                   ->search_observatory({body_id => $self->on_body->id },
-                           { rows => 1, order_by => 'rand()' }
-                           )->single;
+                           { order_by => 'rand()' }
+                           )->first;
     return $self->probe_not_found->id unless defined $probe;
     $self->things_destroyed( $self->things_destroyed + 1 );
     my $message = $self->empire->send_predefined_message(
@@ -3201,8 +3189,8 @@ sub hack_offending_probes {
                  ->resultset('Probes')
                  ->search_observatory({star_id => $self->on_body->star_id,
                            empire_id => {'not in' => \@safe} },
-                          { rows => 1, order_by => 'rand()' }
-                          )->single;
+                          { order_by => 'rand()' }
+                          )->first;
     return $self->probe_not_found->id unless defined $probe;
     $defender->things_destroyed( $defender->things_destroyed + 1 );
     $defender->empire->send_predefined_message(
@@ -3238,8 +3226,8 @@ sub hack_local_probes {
                   ->resultset('Probes')
                   ->search_observatory( {star_id => $self->on_body->star_id,
                              empire_id => $self->on_body->empire_id },
-                            { rows => 1, order_by => 'rand()' }
-                          )->single;
+                            { order_by => 'rand()' }
+                          )->first;
     return $self->probe_not_found->id unless defined $probe;
     $self->things_destroyed( $self->things_destroyed + 1 );
     $self->on_body->empire->send_predefined_message(

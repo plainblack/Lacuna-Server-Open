@@ -47,8 +47,8 @@ my $placed = 0;
 while ($placed < $number) {
   my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
                   $search,
-                  {rows => 1, order_by => 'rand()' }
-                )->single;
+                  { order_by => 'rand()' }
+                )->first;
   unless (defined $target) {
     print "No body found\n";
     $placed++;

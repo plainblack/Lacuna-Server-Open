@@ -76,10 +76,9 @@ has latest_spy => (
                 task            => 'Training',
             },
             {
-                order_by    => { -desc => 'available_on' },
-                rows        => 1,
+                order_by    => { -desc => 'available_on' }
             }
-        )->single;
+        )->first;
     },
 );
 

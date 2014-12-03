@@ -689,7 +689,7 @@ sub make_plan {
             my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({
                 type    => $type,
                 body_id => $self->body_id,
-            })->single;
+            })->first;
             unless (defined($glyph)) {
                 confess [ 1002, "You don't have any glyphs of type $type."];
             }

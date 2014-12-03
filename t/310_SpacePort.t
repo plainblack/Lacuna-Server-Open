@@ -147,9 +147,9 @@ my $spy_id = $result->{result}{spies}[0]{id};
 $result = $tester->post('spaceport', 'send_spies', [$session_id, $home->id, $enemy->empire->home_planet->id, $spy_pod->id, [ $spy_id ] ]);
 ok($result->{result}{ship}{date_arrives}, "spy pod sent");
 
-$spy_pod = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$spy_pod->id},{rows=>1})->single; # pull the latest data on this ship
+$spy_pod = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$spy_pod->id})->first; # pull the latest data on this ship
 $spy_pod->arrive;
-$spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({id=>$spy_id},{rows=>1})->single;
+$spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({id=>$spy_id})->first;
 $spy->available_on($finish);
 $spy->task('Idle');
 $spy->update;
@@ -184,13 +184,13 @@ my $spies = $result->{result}{spies};
 $result = $tester->post('spaceport', 'send_spies', [$session_id, $home->id, $enemy->empire->home_planet->id, $spy_shuttle->id, $spies ] );
 ok($result->{result}{ship}{date_arrives}, "spy shuttle sent to orbit");
 
-$spy_shuttle = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$spy_shuttle->id},{rows=>1})->single; # pull the latest data on this ship
+$spy_shuttle = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$spy_shuttle->id})->first; # pull the latest data on this ship
 $spy_shuttle->arrive;
 
-$spy_shuttle = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$spy_shuttle->id},{rows=>1})->single; # pull the latest data on this ship
+$spy_shuttle = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$spy_shuttle->id})->first; # pull the latest data on this ship
 
 for my $spy_id ( @$spies ) {
-    $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({id=>$spy_id},{rows=>1})->single;
+    $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({id=>$spy_id})->first;
     $spy->available_on($finish);
     $spy->task('Idle');
     $spy->update;
@@ -202,10 +202,10 @@ is(ref $result->{result}{orbiting}, 'ARRAY', "can see what ships are available t
 $result = $tester->post('spaceport', 'prepare_fetch_spies', [$session_id, $enemy->empire->home_planet->id, $home->id ]);
 is( ref $result->{result}{ships}, 'ARRAY', "can prepare for fetch spies");
 
-$spy_shuttle = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$spy_shuttle->id},{rows=>1})->single; # pull the latest data on this ship
+$spy_shuttle = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$spy_shuttle->id})->first; # pull the latest data on this ship
 $result = $tester->post('spaceport', 'recall_ship', [$session_id, $spaceport->id, $spy_shuttle->id]);
 ok($result->{result}{ship}{date_arrives}, "spy shuttle recalled");
-$spy_shuttle = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$spy_shuttle->id},{rows=>1})->single; # pull the latest data on this ship
+$spy_shuttle = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$spy_shuttle->id})->first; # pull the latest data on this ship
 $spy_shuttle->arrive;
 
 $result = $tester->post('spaceport', 'view_all_ships', 

@@ -176,7 +176,7 @@ for my $level(@build_levels) {
             class   => {-like => ['%Planet::GasGiant::G%','%:Planet::P%']},
             -and    => [size => {'>=' => $sizes->{$level}[0]}, size => {'<' => $sizes->{$level}[1] }],
             orbit   => {'<' => 8},
-        },{rows=>1})->single;
+        })->first;
         next STAR if not $body;
         out("Putting colony in star system ".$star->name);
         last STAR;
@@ -240,7 +240,7 @@ sub create_empire {
         size    => { '>=' => 110}, 
         zone    => $zone,
         empire_id  => undef,
-    },{rows=>1})->single;
+    })->first;
 
     $empire->insert;
     $home->delete_buildings(@{$home->building_cache});
