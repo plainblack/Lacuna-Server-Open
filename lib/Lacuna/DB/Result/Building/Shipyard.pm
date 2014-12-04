@@ -158,7 +158,7 @@ sub build_ship {
     $ship->berth_level($ship->base_berth_level);
     $self->set_ship_stealth($ship);
     $time ||= $self->get_ship_costs($ship)->{seconds};
-    my $latest = $self->building_ships->search(undef, { order_by    => { -desc => 'date_available' })->first;
+    my $latest = $self->building_ships->search(undef, { order_by    => { -desc => 'date_available' }})->first;
     my $date_completed;
     my $is_working;
     if (defined $latest) {
