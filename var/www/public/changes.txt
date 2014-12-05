@@ -1,5 +1,6 @@
 3.0908:
- - Mod: trash_messages_where now defaults to not returning deleted message IDs
+ - Mod: trash_messages_where now defaults to not returning deleted message IDs.
+ - Mod: Firing BFG now requires captcha.
 
 3.0907:
  - Add: Timer added to colony object preventing passage into Neutral Zone.

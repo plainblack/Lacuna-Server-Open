@@ -164,6 +164,7 @@ sub propose_fire_bfg {
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
+    $empire->current_session->check_captcha;
     my $building = $self->get_building($empire, $building_id);
     unless ($building->level >= 25) {
         confess [1013, 'Parliament must be level 25 to propose using the BFG.',25];
