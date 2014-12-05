@@ -1,5 +1,7 @@
 package LR;
 
+use Class::Load qw(load_first_existing_class);
+
 # Intended to be used from the command line to save a bunch of typing.
 
 # This "derives" off Lacuna::RPC, and is simply a shortcut for
@@ -13,8 +15,7 @@ sub AUTOLOAD
     my $ns   = $AUTOLOAD;
     $ns =~ s/^.*:://;
 
-    require "Lacuna/RPC/$ns.pm";
-    $ns = "Lacuna::RPC::$ns";
+    $ns = load_first_existing_class "Lacuna::RPC::$ns", "Lacuna::RPC::Building::$ns";
 
     $ns->new();
 }
