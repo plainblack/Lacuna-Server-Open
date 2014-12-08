@@ -3,6 +3,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
+use List::Util qw(shuffle);
 use Lacuna::Util qw(randint random_element);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 
@@ -70,6 +71,7 @@ sub find_target {
         confess [-32602,
             'The target parameter should be a hash reference. For example { "body_id" : 9999 }.'];
     }
+    my $db = Lacuna->db;
     my $target;
     my $target_type;
     my $target_word = join(":", keys %$target_params);
@@ -79,17 +81,14 @@ sub find_target {
     }
     if (exists $target_params->{body_id}) {
         $target_word = $target_params->{body_id};
-        $target = Lacuna->db
-            ->resultset('Lacuna::DB::Result::Map::Body')
-            ->find($target_params->{body_id});
+        $target = $db->resultset('Lacuna::DB::Result::Map::Body')->find($target_params->{body_id});
         if (defined $target) {
             $target_type = $target->get_type;
         }
     }
     elsif (exists $target_params->{body_name}) {
         $target_word = $target_params->{body_name};
-        $target = Lacuna->db
-            ->resultset('Lacuna::DB::Result::Map::Body')
+        $target = $db->resultset('Lacuna::DB::Result::Map::Body')
             ->search(
                 { name => $target_params->{body_name} }
             )->first;
@@ -99,14 +98,12 @@ sub find_target {
     }
     elsif (exists $target_params->{x}) {
         $target_word = $target_params->{x}.":".$target_params->{y};
-        $target = Lacuna->db
-            ->resultset('Lacuna::DB::Result::Map::Body')
+        $target = $db->resultset('Lacuna::DB::Result::Map::Body')
             ->search(
                 { x => $target_params->{x}, y => $target_params->{y} }
             )->first;
         unless (defined $target) {
-            $target = Lacuna->db
-                ->resultset('Lacuna::DB::Result::Map::Star')
+            $target = $db->resultset('Lacuna::DB::Result::Map::Star')
                 ->search(
                     { x => $target_params->{x}, y => $target_params->{y} }
                 )->first;
@@ -117,8 +114,7 @@ sub find_target {
         }
         #Check for empty orbits.
         unless (defined $target) {
-            my $star = Lacuna->db
-                ->resultset('Lacuna::DB::Result::Map::Star')
+            my $star = $db->resultset('Lacuna::DB::Result::Map::Star')
                 ->search(
                     {
                         x => { '>=' => ($target_params->{x} -2),
@@ -175,29 +171,68 @@ sub find_target {
         }
     }
     elsif (exists $target_params->{zone}) {
-        my @zones = Lacuna->db
-            ->resultset('Map::Star')->search(
+        my @zones = $db->resultset('Map::Star')->search(
                 undef,
                 { distinct => 1 }
             )->get_column('zone')->all;
         unless ($target_params->{zone} ~~ @zones) {
             confess [ 1002, 'Could not find '.$target_word.' zone.'];
         }
-#Need to find all non-seized via better DB call.
-        my @bodies = Lacuna->db->resultset('Map::Body')->search(
+#New Method
+        my @stations;
+        my @stars;
+        if ($empire->alliance_id) {
+            @stations = $db->resultset('Map::Body')->search( 
+                {
+                    'me.alliance_id' => $empire->alliance_id,
+                    'laws.type' => { "!=" => 'BHGNeutralized' },
+                },
+                {
+                    join  => 'laws',
+                }
+            )->get_column('id')->all;
+        }
+        if (@stations) {
+            @stars  = $db->resultset('Map::Star')->search(
+                {
+                    'me.zone' => $target_params->{zone},
+                    -or => [
+                        { 'me.station_id' => { 'in' => \@stations } },
+                        { 'me.station_id' => undef },
+                    ],
+                }
+            )->get_column('id')->all;
+        }
+        else {
+            @stars  = $db->resultset('Map::Star')->search(
+                {
+                    'me.zone' => $target_params->{zone},
+                    'me.station_id' => undef,
+                }
+            )->get_column('id')->all;
+        }
+        my @bodies = shuffle $db->resultset('Map::Body')->search(
             {
                 'me.zone'           => $target_params->{zone},
                 'me.empire_id'      => undef,
                 'me.class'          => { like => 'Lacuna::DB::Result::Map::Body::Planet::%' },
                 'me.orbit'          => { between => [$empire->min_orbit, $empire->max_orbit] },
+                'star.id' =>  { 'in' => \@stars } ,
             },
             {
-                join                => 'stars',
-                rows                => 250,
-                order_by            => 'me.name',
-            });
-        my $tref = no_occ_or_nonally(\@bodies, $empire->alliance_id);
-        $target = random_element($tref);
+                join  => 'star',
+            }
+        );
+        if (@bodies > 0) {
+            foreach my $candidate (@bodies) {
+                if ($candidate->star->station_id) {
+                    next if ($candidate->star->station->laws->search({type => 'BHGNeutralized'})->count);
+                }
+                next if ($candidate->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure'));
+                $target = $candidate;
+                last;
+            }
+        }
         if (defined $target) {
             $target_type = "zone";
         }
@@ -218,26 +253,6 @@ sub find_target {
         confess [ 1002, 'Could not find '.$target_word.' target.'];
     }
     return $target, $target_type;
-}
-
-sub no_occ_or_nonally {
-    my ($checking, $aid) = @_;
-
-    $aid = 0 unless defined($aid);
-    my @stripped;
-    for my $check (@$checking) {
-        next if $check->empire_id;
-        next if ($check->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure'));
-        if ( defined($check->star->station_id)) {
-            if ($check->star->station->empire->alliance_id == $aid) {
-                push @stripped, $check;
-            }
-        }
-        else {
-            push @stripped, $check;
-        }
-    }
-    return \@stripped;
 }
 
 sub get_actions_for {

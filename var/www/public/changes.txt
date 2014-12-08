@@ -1,6 +1,7 @@
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.
  - Mod: Firing BFG now requires captcha.
+ - Fix: Jump Zone for BHG can now find needles in haystacks.
 
 3.0907:
  - Add: Timer added to colony object preventing passage into Neutral Zone.
