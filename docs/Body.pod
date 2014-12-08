@@ -415,7 +415,32 @@ A session id.
 
 The unique id of the body you wish to abandon. You cannot abandon your home planet.
 
+=head2 view_laws (session_id, body_id )
 
+B<NOTE:> Pass in a the id of the station, not the id of the parliament building. This is because anyone that wants to should be able to view the laws in this jurisdiction.
+
+Returns a list of the laws.
+
+ {
+    "status" : { ... },
+    "laws" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "Censure of Jamie Vrbsky",
+            "description" : "Jamie Vrbsky is bad at playing Lacuna!",
+            "date_enacted" : "01 31 2010 13:09:05 +0600"
+        },
+        ...
+    ]
+ }
+ 
+=head3 session_id
+
+A session id.
+
+=head3 body_id
+
+The unique id of the space station.
 
 =cut
 

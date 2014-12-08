@@ -119,16 +119,25 @@ sub get_mining_platforms_for_asteroid_in_jurisdiction {
 sub view_laws {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $self->get_body($empire, $body_id);
-    my @out;
-    my $laws = $body->laws;
-    while (my $law = $laws->next) {
-        push @out, $law->get_status($empire);
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
+                ->find($body_id);
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        my @out;
+        my $laws = $body->laws;
+        while (my $law = $laws->next) {
+            push @out, $law->get_status($empire);
+        }
+        return {
+            status          => $self->format_status($empire, $body),
+            laws            => \@out,
+        };
     }
-    return {
-        status          => $self->format_status($empire, $body),
-        laws            => \@out,
-    };
+    else {
+        return {
+            status => "Not a station",
+            laws   => [],
+        },
+    }
 }
 
 sub cast_vote {
