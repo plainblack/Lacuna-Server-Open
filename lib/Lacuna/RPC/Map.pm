@@ -170,15 +170,19 @@ sub view_laws {
             push @out, $law->get_status($empire);
         }
         return {
+            star            => $star->get_status($empire),
             status          => $self->format_status($empire, $station),
             laws            => \@out,
         };
     }
     else {
-        return {
-            status => $self->format_status($empire, $star),
-            laws   => [ { name => "Not controlled by a station", descripition => "Not controlled by a station", date_enacted => "00 00 0000 00:00:00 +0000", id => 0 } ],
-        },
+        my $output;
+        if ($star) {
+            $output->{star} = $star->get_status($empire);
+        }
+        $output->{status} = $self->format_status($empire);
+        $output->{laws} = [ { name => "Not controlled by a station", descripition => "Not controlled by a station", date_enacted => "00 00 0000 00:00:00 +0000", id => 0 } ];
+        return $output;
     }
 }
 
