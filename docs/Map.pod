@@ -394,6 +394,33 @@ one fissure;
 
 If there are no fissures on any of the bodies which you have probed then an empty list is returned;
 
+=head2 view_laws (session_id, star_id )
+
+B<NOTE:> Pass in a the id of a star and the laws enacted by the controlling station will be returned.
+
+Returns a list of the laws.
+
+ {
+    "status" : { ... },
+    "laws" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "Censure of Jamie Vrbsky",
+            "description" : "Jamie Vrbsky is bad at playing Lacuna!",
+            "date_enacted" : "01 31 2010 13:09:05 +0600"
+        },
+        ...
+    ]
+ }
+ 
+=head3 session_id
+
+A session id.
+
+=head3 star_id
+
+The unique id of the star
+
 
 =head1 FAQ
 

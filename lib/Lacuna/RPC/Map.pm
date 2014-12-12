@@ -157,6 +157,30 @@ sub probe_summary_fissures {
     return { fissures => $fissures};
 }
 
+sub view_laws {
+    my ($self, $session_id, $star_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $star = Lacuna->db->resultset('Map::Star')->find($star_id);
+    if ($star and $star->station_id) {
+        my $station = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
+                ->find($star->station->id);
+        my @out;
+        my $laws = $station->laws;
+        while (my $law = $laws->next) {
+            push @out, $law->get_status($empire);
+        }
+        return {
+            status          => $self->format_status($empire, $station),
+            laws            => \@out,
+        };
+    }
+    else {
+        return {
+            status => $self->format_status($empire, $star),
+            laws   => [ { name => "Not controlled by a station", descripition => "Not controlled by a station", date_enacted => "00 00 0000 00:00:00 +0000", id => 0 } ],
+        },
+    }
+}
 
 __PACKAGE__->register_rpc_method_names(qw(
     get_star_map
@@ -168,6 +192,7 @@ __PACKAGE__->register_rpc_method_names(qw(
     search_stars 
     check_star_for_incoming_probe
     probe_summary_fissures
+    view_laws
 ));
 
 no Moose;
