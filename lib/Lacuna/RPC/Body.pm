@@ -515,7 +515,7 @@ sub view_laws {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
                 ->find($body_id);
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+    if ($body and $body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         my @out;
         my $laws = $body->laws;
         while (my $law = $laws->next) {
@@ -529,7 +529,11 @@ sub view_laws {
     else {
         return {
             status => $self->format_status($empire, $body),
-            laws   => [ { name => "Not a Station", descripition => "Not a Station", date_enacted => "00 00 0000 00:00:00 +0000", id => 0 } ],
+            laws   => [ { name => "Not a Station",
+                          descripition => "Not a Station",
+                          date_enacted => "00 00 0000 00:00:00 +0000",
+                          id => 0
+                        } ],
         },
     }
 }

@@ -30,7 +30,6 @@ if ($target_zone ne '') {
 }
 if ($target_body_id ne '') {
   $search->{id} = $target_body_id;
-  $number = 1;
 }
 else {
   $search->{empire_id} = undef;
