@@ -13,7 +13,7 @@ GetOptions(
     'quiet'         => \$quiet,  
 );
 
-out('Started');
+out('Started Clean Up Empires');
 my $start = DateTime->now;
 
 out('Loading DB');
@@ -41,6 +41,7 @@ my $to_be_deleted = $empires->search({ self_destruct_date => { '<' => $dtf->form
 my $delete_tally = 0;
 my $active_duration = 0;
 while (my $empire = $to_be_deleted->next) {
+    out('Deleting empire '.$empire->name);
     $delete_tally++;
     $active_duration += $start->epoch - $empire->date_created->epoch;
     $empire->delete;    
@@ -63,7 +64,7 @@ my $inactives = $empires->search({
     last_login           => { '<' => $dtf->format_datetime(DateTime->now->subtract( days => $inactivity_time_out) ) }, 
     self_destruct_active => 0, 
     id                   => { '>' => 1},
-    disable_self_destruct=> 0,
+#    disable_self_destruct=> 0,
 });
 while (my $empire = $inactives->next) {
     if ($empire->essentia >= 1) {
