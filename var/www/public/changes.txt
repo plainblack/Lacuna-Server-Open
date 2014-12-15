@@ -4,6 +4,7 @@
  - Fix: Jump Zone for BHG can now find needles in haystacks.
  - UI : Reasons for not being able to use a BHG function now always displayed for every task.
  - Fix: Instead of going via parliament, go via body or star to view_laws.  This allows everyone access to passed laws by a station.
+ - UI : No more nagging if you want to spend halls.
 
 3.0907:
  - Add: Timer added to colony object preventing passage into Neutral Zone.
